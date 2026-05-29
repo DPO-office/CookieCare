@@ -140,25 +140,15 @@ function setSessionCookie(req: any, res: any, token: string) {
 const configuredOrigins = (process.env.CORS_ORIGIN || "")
   .split(",")
   .map((origin) => origin.trim())
-  .filter(Boolean);
-const codespaceName = process.env.CODESPACE_NAME;
-const forwardingDomain = process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN;
-const codespacesOrigin = codespaceName && forwardingDomain
-  ? `https://${codespaceName}-*.${forwardingDomain}`
-  : null;
+  .filter((origin) => Boolean(origin) && origin !== "*");
 
 app.use((req, res, next) => {
   const origin = req.headers.origin;
 
   if (origin) {
     const allowByConfig = configuredOrigins.includes(origin);
-    const allowByLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
-    const allowByCodespaces = Boolean(
-      codespacesOrigin &&
-      new RegExp(`^https://${codespaceName}-\\d+\\.${forwardingDomain?.replace(".", "\\.")}$`).test(origin)
-    );
 
-    if (allowByConfig || allowByLocalhost || allowByCodespaces) {
+    if (allowByConfig) {
       res.header("Access-Control-Allow-Origin", origin);
       res.header("Vary", "Origin");
       res.header("Access-Control-Allow-Credentials", "true");
