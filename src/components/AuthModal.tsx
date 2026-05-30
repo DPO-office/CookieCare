@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Lock, Mail, User, ShieldCheck, Scale, ArrowRight } from "lucide-react";
+import { apiUrl } from "../config";
 
 interface AuthModalProps {
   onAuthSuccess: (token: string, user: { id: string; email: string; name: string }) => void;
@@ -18,7 +19,7 @@ export default function AuthModal({ onAuthSuccess }: AuthModalProps) {
     setError(null);
     setLoading(true);
 
-    const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
+    const endpoint = isLogin ? apiUrl("/api/auth/login") : apiUrl("/api/auth/register");
     const body = isLogin ? { email, password } : { email, password, name };
 
     try {

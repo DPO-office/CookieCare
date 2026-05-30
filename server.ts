@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import http from "http";
 import path from "path";
 import fs from "fs";
@@ -7,6 +8,9 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 import multer from "multer";
+import PDFDocument from "pdfkit";
+import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
+import nodemailer from "nodemailer";
 import { dbInit, pool, chunkAndIndexDocument, semanticSearch } from "./db";
 import { AgentOrchestrator } from "./services/agentOrchestrator";
 import { CookieScannerNode, VulnerabilityScannerNode } from "./services/scannerNodes";
@@ -77,6 +81,145 @@ const upload = multer({
 // Increase payload parsing limit for large documents and "files"
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+const corsOrigins = new Set(
+  ["http://localhost:5173", "http://localhost:3000", process.env.CORS_ORIGIN, process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : ""]
+    .flatMap((origin) => (origin ? origin.split(",") : []))
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+);
+
+const isAllowedDevOrigin = (origin: string) =>
+  /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
+  /^https?:\/\/[a-z0-9-]+\.app\.github\.dev(:\d+)?$/i.test(origin) ||
+  /^https?:\/\/[a-z0-9-]+\.github\.dev(:\d+)?$/i.test(origin) ||
+  /^https?:\/\/[a-z0-9-]+\.vercel\.app(:\d+)?$/i.test(origin);
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || corsOrigins.has(origin) || isAllowedDevOrigin(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(null, false);
+    },
+    credentials: true,
+  })
+);
+
+const stripHtmlToText = (value: string) => {
+  if (!value) return "";
+
+  return value
+    .replace(/<\s*br\s*\/?>/gi, "\n")
+    .replace(/<\/(p|div|li|h1|h2|h3|h4|h5|h6)>/gi, "\n\n")
+    .replace(/<\/(tr)>/gi, "\n")
+    .replace(/<\/(td|th)>/gi, "\t")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+};
+
+const getExportText = (title: string, contentType: string, content: string) => {
+  const body = stripHtmlToText(content);
+  const headerLabel = contentType === "cookie_report"
+    ? "CookieCare Privacy Compliance Report"
+    : contentType === "risk_report"
+      ? "CookieCare Legal Risk Report"
+      : contentType === "redlines"
+        ? "CookieCare Draft Redline Export"
+        : "CookieCare Report";
+
+  return [
+    headerLabel,
+    `Title: ${title}`,
+    `Generated: ${new Date().toLocaleString()}`,
+    "",
+    body || "No content available.",
+  ].join("\n");
+};
+
+const buildPdfBuffer = (title: string, contentType: string, content: string) => {
+  return new Promise<Buffer>((resolve, reject) => {
+    const doc = new PDFDocument({ size: "A4", margin: 48, bufferPages: true });
+    const chunks: Buffer[] = [];
+
+    doc.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
+    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("error", reject);
+
+    const lines = getExportText(title, contentType, content).split("\n");
+
+    doc.font("Helvetica-Bold").fontSize(18).fillColor("#111827").text(lines[0]);
+    doc.moveDown(0.5);
+    doc.font("Helvetica").fontSize(10).fillColor("#6B7280").text(lines[1]);
+    doc.text(lines[2]);
+    doc.moveDown(1);
+
+    doc.font("Helvetica").fontSize(11).fillColor("#111827");
+    for (const line of lines.slice(4)) {
+      if (!line.trim()) {
+        doc.moveDown(0.4);
+      } else {
+        doc.text(line, { lineGap: 3 });
+      }
+    }
+
+    doc.end();
+  });
+};
+
+const buildDocxBuffer = async (title: string, contentType: string, content: string) => {
+  const lines = getExportText(title, contentType, content).split("\n");
+  const bodyText = lines.slice(4).join("\n").trim();
+
+  const doc = new Document({
+    sections: [
+      {
+        properties: {},
+        children: [
+          new Paragraph({ text: lines[0], heading: HeadingLevel.HEADING_1, spacing: { after: 120 } }),
+          new Paragraph({ children: [new TextRun({ text: lines[1], italics: true, color: "666666" })], spacing: { after: 0 } }),
+          new Paragraph({ children: [new TextRun({ text: lines[2], color: "666666" })], spacing: { after: 240 } }),
+          ...bodyText.split(/\n{2,}/).flatMap((paragraph) => paragraph.split("\n")).filter((paragraph) => paragraph.trim().length > 0).map((paragraph) => new Paragraph({ text: paragraph, spacing: { after: 180 } })),
+        ],
+      },
+    ],
+  });
+
+  return Packer.toBuffer(doc);
+};
+
+const buildExportArtifact = async (args: { title: string; contentType: string; content: string; format: string; }) => {
+  const format = args.format.toLowerCase();
+  const safeName = args.title.toLowerCase().replace(/[^a-z0-9]+/g, "_") || "cookiecare_report";
+
+  if (format === "pdf") {
+    return {
+      buffer: await buildPdfBuffer(args.title, args.contentType, args.content),
+      filename: `${safeName}.pdf`,
+      mimeType: "application/pdf",
+    };
+  }
+
+  if (format === "docx") {
+    return {
+      buffer: await buildDocxBuffer(args.title, args.contentType, args.content),
+      filename: `${safeName}.docx`,
+      mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    };
+  }
+
+  throw new Error(`Unsupported export format: ${args.format}`);
+};
 
 // Mount Document Intelligence routing
 app.use("/api/analyze", analyzeRouter);
@@ -753,203 +896,19 @@ app.post("/api/documents/upload", authenticateToken, upload.single("file"), asyn
 });
 
 // Enterprise Export Engine (PDF / DOCX Generation)
-app.post("/api/documents/export", (req: any, res) => {
-  const { title, format, contentType, content, payload } = req.body;
-  if (!title) {
-    return res.status(400).json({ error: "Missing required parameter: title" });
-  }
+app.post("/api/documents/export", authenticateToken, async (req: any, res) => {
+  try {
+    const { title, format, contentType, content } = req.body;
+    if (!title || !format || !contentType || typeof content !== "string") {
+      return res.status(400).json({ error: "Missing required parameters: title, contentType, content, format" });
+    }
 
-  let bodyHtml = "";
-
-  if (contentType === "risk_report") {
-    const risks = payload?.risks || [];
-    bodyHtml = `
-      <div style="font-family: Arial, sans-serif;">
-        <h1 style="color: #1a365d; border-bottom: 2px solid #1a365d; padding-bottom: 8px;">CookieCare Enterprise Legal Risk Report</h1>
-        <div style="margin: 20px 0; padding: 15px; background: #f7fafc; border-left: 4px solid #3182ce;">
-          <p style="margin: 2px 0;">Document Scope: <strong>${title}</strong></p>
-          <p style="margin: 2px 0;">Overall Compliance Score: <span style="background: #e2e8f0; padding: 4px 8px; border-radius: 4px; color: #2d3748; font-weight: bold;">${payload?.overallScore || "Evaluated"}</span></p>
-          <p style="margin: 2px 0;"><em>Generated on: ${new Date().toLocaleString()}</em></p>
-        </div>
-        
-        <h2>Executive Summary</h2>
-        <p>${content || "Regulatory analysis successfully generated."}</p>
-        
-        <h2>Identified Risk Items</h2>
-        ${risks.length > 0 ? risks.map((r: any, idx: number) => `
-          <div style="margin-bottom: 15px; padding: 12px; border: 1px solid #e2e8f0; border-radius: 4px;">
-            <p style="margin: 3px 0;"><strong>[${idx + 1}] Clause / Scope:</strong> <span style="color: #c53030; background: #fff5f5; padding: 2px 4px; font-family: monospace;">${r.clause || ""}</span></p>
-            <p style="margin: 3px 0;"><strong>Severity Flag:</strong> <span style="padding: 2px 6px; border-radius: 3px; font-weight: bold; background: ${r.severity?.toLowerCase() === "high" || r.severity?.toLowerCase() === "red" ? "#fff5f5" : "#fffaf0"}; color: ${r.severity?.toLowerCase() === "high" || r.severity?.toLowerCase() === "red" ? "#9b2c2c" : "#dd6b20"};">${r.severity?.toUpperCase()}</span></p>
-            <p style="margin: 3px 0;"><strong>Description:</strong> ${r.description || ""}</p>
-            <p style="margin: 3px 0;"><strong>Actionable Remedy Insight:</strong> <span style="color: #2b6cb0;">${r.actionableInsight || ""}</span></p>
-          </div>
-        `).join("") : `<p>No critical risks identified.</p>`}
-      </div>
-    `;
-  } else if (contentType === "redlines") {
-    const proposals = payload?.provisions || payload?.redlines || [];
-    bodyHtml = `
-      <div style="font-family: Arial, sans-serif;">
-        <h1 style="color: #1a365d; border-bottom: 2px solid #1a365d; padding-bottom: 8px;">Side-by-Side Redlines of ${title}</h1>
-        <p><em>Exported on: ${new Date().toLocaleString()}</em></p>
-        
-        <h2>Comparative Draft Review</h2>
-        ${proposals.length > 0 ? proposals.map((p: any, idx: number) => `
-          <div style="margin-bottom: 20px; border: 1px solid #e2e8f0; border-radius: 4px;">
-            <div style="background: #f7fafc; padding: 8px 12px; font-weight: bold; border-bottom: 1px solid #e2e8f0;">
-              Provision ${idx + 1}: ${p.section || p.clauseName || "Agreement Term"}
-            </div>
-            <div style="padding: 12px;">
-              <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                  <td style="width: 50%; padding: 8px; border: 1px solid #e2e8f0; background: #fff5f5; vertical-align: top;">
-                    <strong>Original:</strong><br/>
-                    <div style="font-size: 10pt; color: #742a2a; margin-top: 5px;">${p.originalText || p.original || ""}</div>
-                  </td>
-                  <td style="width: 50%; padding: 8px; border: 1px solid #e2e8f0; background: #f0fff4; vertical-align: top;">
-                    <strong>Proposed Audit Revision:</strong><br/>
-                    <div style="font-size: 10pt; color: #22543d; margin-top: 5px;">${p.proposedText || p.proposed || ""}</div>
-                  </td>
-                </tr>
-              </table>
-              <div style="margin-top: 10px; padding: 8px; background: #ebf8ff; border-radius: 4px;">
-                <strong>Markup Differential:</strong><br/>
-                <div style="margin-top: 5px; font-size: 10pt;">${p.differentialHtml || p.diff || ""}</div>
-              </div>
-              <div style="margin-top: 10px; font-size: 9pt; color: #4a5568;">
-                <strong>Drafting Comment:</strong> ${p.comment || "N/A"}
-              </div>
-            </div>
-          </div>
-        `).join("") : `
-          <div style="margin-top: 10px; padding: 8px; background: #ebf8ff; border-radius: 4px;">
-            <strong>Markup Differential:</strong><br/>
-            <div style="margin-top: 5px; font-size: 10pt;">${content || ""}</div>
-          </div>
-        `}
-      </div>
-    `;
-  } else if (contentType === "cookie_report") {
-    const cookies = payload?.cookies || [];
-    const gaps = payload?.gaps || [];
-    bodyHtml = `
-      <div style="font-family: Arial, sans-serif;">
-        <h1 style="color: #1a365d; border-bottom: 2px solid #1a365d; padding-bottom: 8px;">CookieCare Privacy Compliance Audit</h1>
-        <div style="margin: 20px 0; padding: 15px; background: #f7fafc; border-left: 4px solid #3182ce;">
-          <p style="margin: 2px 0;">Target Scan: <strong>${payload?.url || title}</strong></p>
-          <p style="margin: 2px 0;">Overall Cookie Trust Score: <span style="background: #e2e8f0; padding: 4px 8px; border-radius: 4px; font-weight: bold;">${payload?.score || "80%"}</span></p>
-          <p style="margin: 2px 0;"><em>Audit completed at: ${new Date().toLocaleString()}</em></p>
-        </div>
-        
-        <h2>Detected Tracking Cookies</h2>
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-          <thead>
-            <tr style="background: #e2e8f0;">
-              <th style="padding: 8px; border: 1px solid #cbd5e0; text-align: left;">Name</th>
-              <th style="padding: 8px; border: 1px solid #cbd5e0; text-align: left;">Category</th>
-              <th style="padding: 8px; border: 1px solid #cbd5e0; text-align: left;">Domain</th>
-              <th style="padding: 8px; border: 1px solid #cbd5e0; text-align: left;">Retention</th>
-              <th style="padding: 8px; border: 1px solid #cbd5e0; text-align: left;">Severity</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${cookies.map((c: any) => `
-              <tr>
-                <td style="padding: 8px; border: 1px solid #cbd5e0;"><strong>${c.name}</strong></td>
-                <td style="padding: 8px; border: 1px solid #cbd5e0;">${c.category}</td>
-                <td style="padding: 8px; border: 1px solid #cbd5e0;">${c.domain}</td>
-                <td style="padding: 8px; border: 1px solid #cbd5e0;">${c.retention}</td>
-                <td style="padding: 8px; border: 1px solid #cbd5e0;"><span style="color: ${c.severity === "HIGH" ? "#e53e3e" : c.severity === "MEDIUM" ? "#dd6b20" : "#3182ce"}; font-weight: bold;">${c.severity}</span></td>
-              </tr>
-            `).join("")}
-          </tbody>
-        </table>
-
-        <h2>Regulatory Gaps Identified</h2>
-        ${gaps.map((g: any) => `
-          <div style="margin-bottom: 10px; padding: 10px; border-left: 4px solid #e53e3e; background: #fff5f5;">
-            <p style="margin: 2px 0;"><strong>[${g.regulation}] Gap Identified:</strong> ${g.issue}</p>
-            <p style="margin: 2px 0;"><strong>Remediation Action:</strong> ${g.remediation}</p>
-          </div>
-        `).join("")}
-      </div>
-    `;
-  } else {
-    bodyHtml = `
-      <div style="font-family: 'Times New Roman', Georgia, serif; line-height: 1.8; text-align: justify;">
-        <h1 style="text-align: center; font-size: 20pt; margin-bottom: 30px; font-weight: bold; text-transform: uppercase;">${title}</h1>
-        <div style="font-size: 11pt; padding: 10px 0;">
-          ${content ? content.replace(/\n/g, "<br/>") : "No agreement drafting contents found."}
-        </div>
-      </div>
-    `;
-  }
-
-  if (format === "docx" || format === "word") {
-    const docxWrapper = `
-      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-      <head><title>${title}</title>
-      <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View></w:WordDocument></xml><![endif]-->
-      <style>
-        body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #2d3748; margin: 1in; }
-        h1 { font-family: 'Georgia', serif; font-size: 20pt; color: #1a365d; border-bottom: 2px solid #1a365d; padding-bottom: 5px; text-align: center; text-transform: uppercase; }
-        h2 { font-size: 14pt; margin-top: 25px; color: #2b6cb0; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px; }
-        p { font-size: 11pt; margin-bottom: 12px; text-align: justify; }
-        del { color: #dc2626; background-color: #fee2e2; text-decoration: line-through; }
-        ins { color: #16a34a; background-color: #dcfce7; text-decoration: underline; font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #cbd5e0; padding: 10px; text-align: left; }
-        th { background-color: #f7fafc; }
-      </style>
-      </head>
-      <body>
-        ${bodyHtml}
-      </body>
-      </html>
-    `;
-    res.setHeader("Content-Disposition", `attachment; filename="${title.replace(/\s+/g, "_")}.doc"`);
-    res.setHeader("Content-Type", "application/msword");
-    return res.end(Buffer.from(docxWrapper, "utf-8"));
-  } else {
-    const pdfWrapper = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <title>${title}</title>
-        <style>
-          @media print {
-            body { margin: 0; padding: 20px; font-size: 11pt; }
-            .no-print { display: none; }
-          }
-          body { font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #2d3748; background-color: #f7fafc; margin: 0; padding: 40px; }
-          .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
-          h1 { color: #1a365d; font-size: 20pt; text-align: center; margin-bottom: 30px; letter-spacing: -0.5px; border-bottom: 2px solid #edf2f7; padding-bottom: 15px; }
-          h2 { font-size: 14pt; color: #2b6cb0; border-bottom: 1px solid #edf2f7; padding-bottom: 5px; margin-top: 30px; }
-          p { text-align: justify; font-size: 10.5pt; margin-bottom: 15px; }
-          del { color: #dc2626; background-color: #fee2e2; text-decoration: line-through; padding: 0 2px; }
-          ins { color: #16a34a; background-color: #dcfce7; text-decoration: underline; font-weight: bold; padding: 0 2px; }
-          table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 10pt; }
-          th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; }
-          th { background-color: #f7fafc; font-weight: bold; }
-          .control-header { display: flex; justify-content: space-between; align-items: center; background: #1a365d; color: white; padding: 15px 30px; margin-bottom: 20px; border-radius: 6px; }
-          .btn-print { background: #3182ce; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
-          .btn-print:hover { background: #2b6cb0; }
-        </style>
-      </head>
-      <body>
-        <div class="control-header no-print">
-          <span style="font-weight: bold; font-family: sans-serif;">CookieCare Automated Dispatch - PDF Preview</span>
-          <button onclick="window.print()" class="btn-print">Print / Save as PDF</button>
-        </div>
-        <div class="container">
-          ${bodyHtml}
-        </div>
-      </body>
-      </html>
-    `;
-    res.setHeader("Content-Type", "text/html; charset=utf-8");
-    return res.end(pdfWrapper);
+    const artifact = await buildExportArtifact({ title, contentType, content, format });
+    res.setHeader("Content-Type", artifact.mimeType);
+    res.setHeader("Content-Disposition", `attachment; filename="${artifact.filename}"`);
+    res.send(artifact.buffer);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || "Failed to generate export artifact." });
   }
 });
 
@@ -1405,15 +1364,79 @@ app.post(["/api/scan-vulnerability", "/api/scan-vulnerabilities"], authenticateT
 });
 
 // Cookie Care - Secure Transmission / Share Audit Ledger logs
-app.post("/api/share-report", authenticateToken, (req: any, res) => {
-  const { email, urlName, reportType } = req.body;
-  if (!email || !urlName) {
-    return res.status(400).json({ error: "Email and report target specifications are required." });
+app.post("/api/reports/share-email", authenticateToken, async (req: any, res) => {
+  try {
+    const { recipientEmail, subject, reportTitle, content, format, contentType } = req.body;
+    if (!recipientEmail || !reportTitle || typeof content !== "string" || !format) {
+      return res.status(400).json({ error: "recipientEmail, reportTitle, content, and format are required." });
+    }
+
+    const resolvedContentType = contentType || (reportTitle.toLowerCase().includes("cookie") ? "cookie_report" : "risk_report");
+    const artifact = await buildExportArtifact({ title: reportTitle, contentType: resolvedContentType, content, format });
+    const transporter = nodemailer.createTransport({
+      streamTransport: true,
+      buffer: true,
+      newline: "unix",
+    });
+
+    const info = await transporter.sendMail({
+      from: "CookieCare Reports <reports@cookiecare.local>",
+      to: recipientEmail,
+      subject: subject || `CookieCare Report: ${reportTitle}`,
+      text: `A CookieCare report titled "${reportTitle}" is attached.`,
+      attachments: [
+        {
+          filename: artifact.filename,
+          content: artifact.buffer,
+          contentType: artifact.mimeType,
+        },
+      ],
+    });
+
+    res.json({ success: true, message: "Report email queued successfully.", messageId: info.messageId });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || "Failed to share report by email." });
   }
-  
-  // Audits logs simulated dispatch
-  console.log(`[SHARE COURIER] Dispatched ${reportType} report for host ${urlName} to mailbox ${email}`);
-  res.json({ success: true, message: "Security report successfully shared!" });
+});
+
+app.post("/api/share-report", authenticateToken, async (req: any, res) => {
+  try {
+    const { email, urlName, reportType, content = "", format = "pdf", contentType } = req.body;
+    if (!email || !urlName) {
+      return res.status(400).json({ error: "Email and report target specifications are required." });
+    }
+
+    const artifact = await buildExportArtifact({
+      title: urlName,
+      contentType: contentType || (reportType === "Cookie Compliance Scan" ? "cookie_report" : "risk_report"),
+      content: typeof content === "string" && content.trim().length > 0 ? content : `CookieCare report for ${urlName}`,
+      format,
+    });
+
+    const transporter = nodemailer.createTransport({
+      streamTransport: true,
+      buffer: true,
+      newline: "unix",
+    });
+
+    await transporter.sendMail({
+      from: "CookieCare Reports <reports@cookiecare.local>",
+      to: email,
+      subject: `${reportType || "CookieCare Report"}: ${urlName}`,
+      text: `Your CookieCare report for ${urlName} is attached.`,
+      attachments: [
+        {
+          filename: artifact.filename,
+          content: artifact.buffer,
+          contentType: artifact.mimeType,
+        },
+      ],
+    });
+
+    res.json({ success: true, message: "Security report successfully shared!" });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || "Failed to share report." });
+  }
 });
 
 // MULTI-AGENT COMPLIANCE AGRIEMENT PIPELINE
@@ -1646,4 +1669,8 @@ async function startServer() {
 }
 
 
-startServer();
+export { app };
+
+if (!process.env.VERCEL) {
+  startServer();
+}

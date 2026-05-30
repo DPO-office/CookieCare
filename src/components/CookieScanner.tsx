@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { apiUrl } from "../config";
 import { 
   Globe, 
   Layers, 
@@ -49,7 +50,7 @@ export default function CookieScanner({ authToken }: CookieScannerProps) {
     }
 
     try {
-      const res = await fetch("/api/scan-cookie", {
+      const res = await fetch(apiUrl("/api/scan-cookie"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -69,7 +70,7 @@ export default function CookieScanner({ authToken }: CookieScannerProps) {
         while (!completed && attempts < 100) {
           await new Promise((resolve) => setTimeout(resolve, 1500));
           attempts++;
-          const checkRes = await fetch(`/api/jobs/${data.job_id}`, {
+          const checkRes = await fetch(apiUrl(`/api/jobs/${data.job_id}`), {
             headers: {
               "Authorization": `Bearer ${authToken}`,
             },
@@ -101,16 +102,20 @@ export default function CookieScanner({ authToken }: CookieScannerProps) {
     setShareMessage(null);
 
     try {
-      const res = await fetch("/api/share-report", {
+      const reportContent = makeReportContentString();
+      const res = await fetch(apiUrl("/api/reports/share-email"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${authToken}`
         },
         body: JSON.stringify({
-          email: shareEmail.trim(),
-          urlName: result.scanSummary.url,
-          reportType: "Cookie Compliance Scan"
+          recipientEmail: shareEmail.trim(),
+          subject: `CookieCare Cookie Compliance Scan - ${result.scanSummary.url}`,
+          reportTitle: `Cookie Compliance Scan - ${result.scanSummary.url}`,
+          contentType: "cookie_report",
+          content: reportContent,
+          format: "pdf"
         })
       });
 
@@ -170,9 +175,29 @@ ${g.remediation}
 Report secured and validated by Cookie Care FIPS Sandbox services.`;
   };
 
-  const downloadReportFile = (format: "pdf" | "docx") => {
-    const textData = makeReportContentString();
-    const blob = new Blob([textData], { type: "text/plain;charset=utf-8" });
+  const downloadReportFile = async (format: "pdf" | "docx") => {
+    if (!result) return;
+
+    const reportContent = makeReportContentString();
+    const res = await fetch(apiUrl("/api/documents/export"), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${authToken}`
+      },
+      body: JSON.stringify({
+        title: `Cookie Compliance Scan - ${result.scanSummary.url}`,
+        contentType: "cookie_report",
+        content: reportContent,
+        format,
+      })
+    });
+
+    if (!res.ok) {
+      throw new Error("Backend export failed");
+    }
+
+    const blob = await res.blob();
     const element = document.createElement("a");
     element.href = URL.createObjectURL(blob);
     element.download = `CookieCare_Compliance_${result?.scanSummary.url.replace(/https?:\/\/|www\./gi, "").replace(/[\.\s\/]/gi, "_")}.${format}`;

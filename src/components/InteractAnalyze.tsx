@@ -35,6 +35,7 @@ import {
   Download,
   Printer
 } from "lucide-react";
+import { apiUrl } from "../config";
 import { LegalDocument } from "../types";
 
 interface InteractAnalyzeProps {
@@ -336,7 +337,7 @@ export default function InteractAnalyze({
       formData.append("templateType", uploadSelectedFolder);
       formData.append("isTemplate", "false");
 
-      const res = await fetch("/api/documents/upload", {
+      const res = await fetch(apiUrl("/api/documents/upload"), {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${authToken}`
@@ -353,7 +354,7 @@ export default function InteractAnalyze({
         while (!completed && attempts < 100) {
           await new Promise((resolve) => setTimeout(resolve, 1500));
           attempts++;
-          const checkRes = await fetch(`/api/jobs/${payload.job_id}`, {
+          const checkRes = await fetch(apiUrl(`/api/jobs/${payload.job_id}`), {
             headers: {
               "Authorization": `Bearer ${authToken}`
             }
@@ -544,7 +545,7 @@ Based on the selected corporate files and regulatory parameters, the agreement p
 
     try {
       // Call server proxy route "/api/analyze/remediate" to get genuine AI compliance-vetted details
-      const response = await fetch("/api/analyze/remediate", {
+      const response = await fetch(apiUrl("/api/analyze/remediate"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -614,7 +615,7 @@ Based on the selected corporate files and regulatory parameters, the agreement p
 
     try {
       // Call modern server-side askLawyer endpoint supporting search grounding capabilities
-      const response = await fetch("/api/lawyer/ask", {
+      const response = await fetch(apiUrl("/api/lawyer/ask"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -714,15 +715,16 @@ Based on the selected corporate files and regulatory parameters, the agreement p
   const handleDownloadReport = async () => {
     try {
       const reportText = chatMessages.map(m => `[${m.sender.toUpperCase()}]\n${m.text}`).join("\n\n");
-      const res = await fetch("/api/documents/export", {
+      const res = await fetch(apiUrl("/api/documents/export"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${authToken}`
         },
         body: JSON.stringify({
-          text: reportText,
+          title: activeReportDocName,
           contentType: "risk_report",
+          content: reportText,
           format: "docx"
         })
       });
@@ -732,7 +734,7 @@ Based on the selected corporate files and regulatory parameters, the agreement p
       const blob = await res.blob();
       const element = document.createElement("a");
       element.href = URL.createObjectURL(blob);
-      element.download = `${activeReportDocName.toLowerCase().replace(/\s+/g, "_")}_legal_assessment.doc`;
+      element.download = `${activeReportDocName.toLowerCase().replace(/\s+/g, "_")}_legal_assessment.docx`;
       document.body.appendChild(element);
       element.click();
       document.body.removeChild(element);
@@ -752,28 +754,32 @@ Based on the selected corporate files and regulatory parameters, the agreement p
   const handlePrintReport = async () => {
     try {
       const reportText = chatMessages.map(m => `[${m.sender.toUpperCase()}]\n${m.text}`).join("\n\n");
-      const res = await fetch("/api/documents/export", {
+      const res = await fetch(apiUrl("/api/documents/export"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${authToken}`
         },
         body: JSON.stringify({
-          text: reportText,
+          title: activeReportDocName,
           contentType: "risk_report",
-          format: "html"
+          content: reportText,
+          format: "pdf"
         })
       });
 
-      if (!res.ok) throw new Error("Backend print HTML generation failed");
+      if (!res.ok) throw new Error("Backend PDF generation failed");
 
-      const htmlContent = await res.text();
-      const printWindow = window.open("", "_blank");
-      if (printWindow) {
-        printWindow.document.write(htmlContent);
-        printWindow.document.close();
-      } else {
-        window.print();
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const printWindow = window.open(url, "_blank");
+      if (!printWindow) {
+        const element = document.createElement("a");
+        element.href = url;
+        element.download = `${activeReportDocName.toLowerCase().replace(/\s+/g, "_")}_legal_assessment.pdf`;
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
       }
     } catch (err: any) {
       console.warn("Print fallback applied:", err.message);

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { apiUrl } from "../config";
 import { 
   Scale, 
   HeartHandshake, 
@@ -71,7 +72,7 @@ export default function NegotiateHub({
   const loadActiveDocumentDetails = async (docId: string) => {
     if (!docId) return;
     try {
-      const res = await fetch(`/api/documents/${docId}`, {
+      const res = await fetch(apiUrl(`/api/documents/${docId}`), {
         headers: {
           "Authorization": `Bearer ${authToken}`
         }
@@ -111,7 +112,7 @@ export default function NegotiateHub({
     setEvaluating(true);
     setErrorText("");
     try {
-      const res = await fetch("/api/negotiate/evaluate", {
+      const res = await fetch(apiUrl("/api/negotiate/evaluate"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -153,7 +154,7 @@ export default function NegotiateHub({
     
     try {
       // 1. First register the proposal in our backlines DB
-      const pRes = await fetch(`/api/documents/${activeDoc.id}/redline`, {
+      const pRes = await fetch(apiUrl(`/api/documents/${activeDoc.id}/redline`), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -170,7 +171,7 @@ export default function NegotiateHub({
       if (!pRes.ok) throw new Error(proposal.error || "Failed to submit redline");
 
       // 2. Accept and merge the registered proposal immediately 
-      const acceptRes = await fetch(`/api/documents/${activeDoc.id}/redline/${proposal.id}/accept`, {
+      const acceptRes = await fetch(apiUrl(`/api/documents/${activeDoc.id}/redline/${proposal.id}/accept`), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -217,7 +218,7 @@ export default function NegotiateHub({
     setProposing(true);
 
     try {
-      const res = await fetch(`/api/documents/${activeDoc.id}/redline`, {
+      const res = await fetch(apiUrl(`/api/documents/${activeDoc.id}/redline`), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -255,7 +256,7 @@ export default function NegotiateHub({
   const handleAcceptDbRedline = async (rId: string) => {
     if (!activeDoc) return;
     try {
-      const res = await fetch(`/api/documents/${activeDoc.id}/redline/${rId}/accept`, {
+      const res = await fetch(apiUrl(`/api/documents/${activeDoc.id}/redline/${rId}/accept`), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -277,7 +278,7 @@ export default function NegotiateHub({
   const handleRejectDbRedline = async (rId: string) => {
     if (!activeDoc) return;
     try {
-      const res = await fetch(`/api/documents/${activeDoc.id}/redline/${rId}/reject`, {
+      const res = await fetch(apiUrl(`/api/documents/${activeDoc.id}/redline/${rId}/reject`), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -309,7 +310,7 @@ export default function NegotiateHub({
     ]);
 
     try {
-      const res = await fetch("/api/negotiate/compromise", {
+      const res = await fetch(apiUrl("/api/negotiate/compromise"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -359,7 +360,7 @@ export default function NegotiateHub({
     setDraftingCompromise(true);
 
     try {
-      const res = await fetch("/api/negotiate/compromise", {
+      const res = await fetch(apiUrl("/api/negotiate/compromise"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

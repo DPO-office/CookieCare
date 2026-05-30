@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { apiUrl } from "../config";
 import { 
   Scale, 
   Search, 
@@ -219,7 +220,7 @@ export default function AskAILawyer({ authToken, documents = [] }: AskAILawyerPr
       .flatMap(f => f.files.map(file => ({ name: file.name, content: file.content })));
 
     try {
-      const response = await fetch("/api/lawyer/ask", {
+      const response = await fetch(apiUrl("/api/lawyer/ask"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

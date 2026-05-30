@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { apiUrl } from "../config";
 import { 
   Clock, 
   AlertCircle, 
@@ -36,7 +37,7 @@ export default function QueueManager() {
 
   const fetchJobs = async () => {
     try {
-      const res = await fetch("/api/jobs", {
+      const res = await fetch(apiUrl("/api/jobs"), {
         headers: {
           "Authorization": `Bearer ${token}`
         }
@@ -58,7 +59,7 @@ export default function QueueManager() {
     // Establish live real-time communication channel via Server-Sent Events (SSE)
     let sse: EventSource | null = null;
     if (token) {
-      const sseUrl = `/api/jobs/stream?token=${encodeURIComponent(token)}`;
+      const sseUrl = apiUrl(`/api/jobs/stream?token=${encodeURIComponent(token)}`);
       console.log("[QueueManager SSE] Establishing connection to:", sseUrl);
       
       try {

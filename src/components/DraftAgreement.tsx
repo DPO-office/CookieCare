@@ -605,6 +605,7 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
 
   const handleExportDoc = async () => {
     try {
+      const exportTitle = selectedDoc?.title || selectedTemplateName || "CookieCare Draft";
       const res = await fetch("/api/documents/export", {
         method: "POST",
         headers: {
@@ -612,8 +613,9 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
           "Authorization": `Bearer ${authToken}`
         },
         body: JSON.stringify({
-          text: editorContent,
+          title: exportTitle,
           contentType: "redlines",
+          content: editorContent,
           format: "docx"
         })
       });
@@ -623,7 +625,7 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
       const blob = await res.blob();
       const element = document.createElement("a");
       element.href = URL.createObjectURL(blob);
-      element.download = `${selectedTemplateName?.toLowerCase().replace(/\s+/g, "_") || "legal_agreement"}_draft.doc`;
+      element.download = `${exportTitle.toLowerCase().replace(/\s+/g, "_")}_draft.docx`;
       document.body.appendChild(element);
       element.click();
       document.body.removeChild(element);
@@ -641,6 +643,7 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
 
   const handlePrintDoc = async () => {
     try {
+      const exportTitle = selectedDoc?.title || selectedTemplateName || "CookieCare Draft";
       const res = await fetch("/api/documents/export", {
         method: "POST",
         headers: {
@@ -648,21 +651,25 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
           "Authorization": `Bearer ${authToken}`
         },
         body: JSON.stringify({
-          text: editorContent,
+          title: exportTitle,
           contentType: "redlines",
-          format: "html"
+          content: editorContent,
+          format: "pdf"
         })
       });
 
-      if (!res.ok) throw new Error("Backend print HTML generation failed");
+      if (!res.ok) throw new Error("Backend PDF generation failed");
 
-      const htmlContent = await res.text();
-      const printWindow = window.open("", "_blank");
-      if (printWindow) {
-        printWindow.document.write(htmlContent);
-        printWindow.document.close();
-      } else {
-        window.print();
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const printWindow = window.open(url, "_blank");
+      if (!printWindow) {
+        const element = document.createElement("a");
+        element.href = url;
+        element.download = `${exportTitle.toLowerCase().replace(/\s+/g, "_")}_draft.pdf`;
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
       }
     } catch (err: any) {
       console.warn("Print fallback applied:", err.message);

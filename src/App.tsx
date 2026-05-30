@@ -6,6 +6,7 @@ import CookieScanner from "./components/CookieScanner";
 import LegalReview from "./components/LegalReview";
 import VulnerabilityScanner from "./components/VulnerabilityScanner";
 import SettingsView from "./components/Settings";
+import { apiUrl } from "./config";
 import { LegalDocument } from "./types";
 import { ShieldCheck, LogIn, Lock } from "lucide-react";
 
@@ -45,7 +46,7 @@ export default function App() {
     if (!authToken) return;
     setLoading(true);
     try {
-      const res = await fetch("/api/documents", {
+      const res = await fetch(apiUrl("/api/documents"), {
         headers: {
           "Authorization": `Bearer ${authToken}`
         }
@@ -117,7 +118,8 @@ export default function App() {
           <DashboardHome 
             userName={currentUser.name} 
             setActiveTab={setActiveTab} 
-            stats={stats} 
+            stats={stats}
+            documents={documents}
           />
         )}
 

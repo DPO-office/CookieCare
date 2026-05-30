@@ -1,9 +1,11 @@
 import React from "react";
 import { ShieldCheck, ShieldAlert, Settings, FileCheck, Layers, Radio, HelpCircle, ArrowRight } from "lucide-react";
+import { LegalDocument } from "../types";
 
 interface DashboardHomeProps {
   userName: string;
   setActiveTab: (tab: string) => void;
+  documents: LegalDocument[];
   stats: {
     totalDocs: number;
     pendingSigs: number;
@@ -11,14 +13,40 @@ interface DashboardHomeProps {
   };
 }
 
-export default function DashboardHome({ userName, setActiveTab, stats }: DashboardHomeProps) {
-  // Static representation of scanned logs to populate the timeline beautifully without placeholder mocks
-  const continuousLogs = [
-    { target: "https://shoppingsite.com", score: 84, issues: 3, banner: "Found", scanTime: "Just now" },
-    { target: "https://marketing-funnel.org", score: 42, issues: 8, banner: "Missing", scanTime: "2 hours ago" },
-    { target: "https://personalblog.io", score: 98, issues: 0, banner: "Found", scanTime: "6 hours ago" },
-    { target: "https://legacy-portal.net", score: 55, issues: 5, banner: "Found", scanTime: "1 day ago" }
-  ];
+export default function DashboardHome({ userName, setActiveTab, stats, documents }: DashboardHomeProps) {
+  const timeAgo = (isoDate: string) => {
+    const createdAt = new Date(isoDate).getTime();
+    const diffMs = Date.now() - createdAt;
+    const minutes = Math.max(1, Math.round(diffMs / 60000));
+
+    if (minutes < 60) {
+      return `${minutes} min ago`;
+    }
+
+    const hours = Math.round(minutes / 60);
+    if (hours < 24) {
+      return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+    }
+
+    const days = Math.round(hours / 24);
+    return `${days} day${days === 1 ? "" : "s"} ago`;
+  };
+
+  const continuousLogs = documents.length > 0
+    ? documents.map((doc) => {
+        const riskCount = doc.analysis?.risks?.length ?? 0;
+        const score = Math.max(0, 100 - (riskCount * 15) - (doc.redlines?.filter((r) => r.status === "pending").length ?? 0) * 5);
+        const bannerState = doc.type === "NDA" || doc.type === "DPA" ? "FOUND" : (doc.sharedWith.length > 0 ? "FOUND" : "MISSING");
+
+        return {
+          target: doc.title,
+          score,
+          issues: riskCount + (doc.redlines?.filter((r) => r.status === "pending").length ?? 0),
+          banner: bannerState,
+          scanTime: timeAgo(doc.updatedAt || doc.createdAt),
+        };
+      })
+    : [];
 
   return (
     <div className="flex-1 overflow-y-auto p-10 font-sans grid-bg min-h-screen">
@@ -177,22 +205,22 @@ export default function DashboardHome({ userName, setActiveTab, stats }: Dashboa
       <div className="bg-white border-2 border-black p-6 rounded-none mb-10">
         <h4 className="text-xs font-semibold text-black font-mono tracking-wider uppercase mb-5 flex items-center space-x-2">
           <Radio className="w-4 h-4 text-emerald-600 animate-pulse animate-duration-1000" />
-          <span>Passive Scan Logs Telemetry</span>
+          <span>Original Document Ledger</span>
         </h4>
         
         <div className="overflow-x-auto">
           <table className="w-full text-left font-mono text-xs text-gray-800">
             <thead>
               <tr className="border-b border-gray-300 uppercase tracking-wider text-[10px] text-gray-400 font-black">
-                <th className="pb-3 pr-4">Host Domain</th>
-                <th className="pb-3 px-4">Audit Score</th>
-                <th className="pb-3 px-4">Isolated Violations</th>
-                <th className="pb-3 px-4">Consent Banner State</th>
-                <th className="pb-3 pl-4 text-right">Age</th>
+                <th className="pb-3 pr-4">Document</th>
+                <th className="pb-3 px-4">Compliance Score</th>
+                <th className="pb-3 px-4">Open Issues</th>
+                <th className="pb-3 px-4">Type</th>
+                <th className="pb-3 pl-4 text-right">Updated</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {continuousLogs.map((log, i) => {
+              {continuousLogs.length > 0 ? continuousLogs.map((log, i) => {
                 let scoreColor = "text-emerald-700 font-bold bg-emerald-50 border border-emerald-100";
                 if (log.score < 50) scoreColor = "text-red-700 font-bold bg-red-50 border border-red-100";
                 else if (log.score < 80) scoreColor = "text-amber-700 font-bold bg-amber-50 border border-amber-100";
@@ -205,18 +233,22 @@ export default function DashboardHome({ userName, setActiveTab, stats }: Dashboa
                         {log.score}%
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 font-bold text-gray-600">{log.issues} Gaps</td>
+                    <td className="py-3.5 px-4 font-bold text-gray-600">{log.issues} Issues</td>
                     <td className="py-3.5 px-4">
-                      <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-tight inline-block ${
-                        log.banner === "Found" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"
-                      }`}>
+                      <span className="px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-tight inline-block bg-gray-50 text-gray-700 border border-gray-100">
                         {log.banner}
                       </span>
                     </td>
                     <td className="py-3.5 pl-4 text-right text-gray-400">{log.scanTime}</td>
                   </tr>
                 );
-              })}
+              }) : (
+                <tr>
+                  <td className="py-5 pr-4 text-gray-500" colSpan={5}>
+                    No documents found yet. Create or import a document to populate the original ledger.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
