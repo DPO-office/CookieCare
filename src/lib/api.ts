@@ -1,4 +1,9 @@
-const rawApiBase = import.meta.env.VITE_API_BASE_URL?.trim() || "";
+const rawApiBase =
+  (
+    import.meta as ImportMeta & {
+      env?: Record<string, string | undefined>;
+    }
+  ).env?.VITE_API_BASE_URL?.trim() || "";
 
 export const API_BASE_URL = rawApiBase.replace(/\/+$/, "");
 

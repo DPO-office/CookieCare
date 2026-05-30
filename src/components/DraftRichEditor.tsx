@@ -49,7 +49,7 @@ const DraftRichEditor = forwardRef<DraftRichEditorHandle, DraftRichEditorProps>(
       if (!editor) return;
       const currentHtml = editor.getHTML();
       if ((content || "<p></p>") !== currentHtml) {
-        editor.commands.setContent(content || "<p></p>", false);
+        editor.commands.setContent(content || "<p></p>", { emitUpdate: false });
       }
     }, [content, editor]);
 
