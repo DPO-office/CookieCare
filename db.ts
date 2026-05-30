@@ -1,6 +1,11 @@
 import pg from "pg";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
+import {
+  hasDatabaseConnectionString,
+  redactDatabaseUrlForLogs,
+  shouldSeedDefaultDocument,
+} from "./src/utils/dbRuntime";
 
 dotenv.config();
 
@@ -9,17 +14,18 @@ const { Pool } = pg;
 // Read and sanitize DB URL
 const rawDbUrl = process.env.DATABASE_URL || "";
 const connectionString = rawDbUrl.trim();
+const hasConnectionString = hasDatabaseConnectionString(connectionString);
 
 console.log("Evaluating DATABASE_URL on startup. Length:", connectionString.length);
-if (connectionString) {
+if (hasConnectionString) {
   try {
-    const sanitizedUrl = connectionString.replace(/:([^@:]+)@/, ":******@");
+    const sanitizedUrl = redactDatabaseUrlForLogs(connectionString);
     console.log("Parsing Sanitized Database URL for Pool:", sanitizedUrl);
   } catch (rawErr) {
     console.warn("Unable to log sanitized DB URL safely:", rawErr);
   }
 } else {
-  console.error("CRITICAL ALERTER: DATABASE_URL is completely empty in process.env!");
+  console.warn("DATABASE_URL not set. Starting in local fallback mode.");
 }
 
 export const pool = new Pool({
@@ -47,6 +53,10 @@ const aiClient = apiKey
  * Initialize Database schemas and pgvector extension / HNSW Index
  */
 export async function dbInit() {
+  if (!hasConnectionString) {
+    throw new Error("DATABASE_URL not set");
+  }
+
   const client = await pool.connect();
   try {
     console.log("Initializing Postgres & pgvector schemas on Neon...");
@@ -169,9 +179,12 @@ export async function dbInit() {
         password_hash = EXCLUDED.password_hash;
     `, [defaultUser.id, defaultUser.email, defaultUser.name, defaultUser.passwordHash]);
 
-    const { rows } = await client.query("SELECT COUNT(*) FROM users;");
-    if (parseInt(rows[0].count) === 0) {
-      console.log("Seeding Postgres database with default user and agreements...");
+    const { rows: existingDocRows } = await client.query(
+      "SELECT COUNT(*) FROM files WHERE id = $1;",
+      ["doc_nda_sample"]
+    );
+    if (shouldSeedDefaultDocument(parseInt(existingDocRows[0].count, 10))) {
+      console.log("Seeding Postgres database with standard agreements...");
 
       // Seed documents
       const ndaContent = `MUTUAL NON-DISCLOSURE AGREEMENT
@@ -538,4 +551,3 @@ export async function authenticateToken(req: any, res: any, next: any) {
     return res.status(401).json({ error: "Access denied. Invalid token sessions." });
   }
 }
-
