@@ -2,19 +2,26 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/[...path].ts",
-      "use": "@vercel/node"
-    },
-    {
       "src": "package.json",
       "use": "@vercel/static-build",
-      "config": { "distDir": "dist/client" }
+      "config": {
+        "distDir": "dist/client"
+      }
+    },
+    {
+      "src": "server.ts",
+      "use": "@vercel/node",
+      "config": {
+        "awsLambdaNowDotJson": {
+          "runtime": "nodejs18.x"
+        }
+      }
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "api/[...path].ts"
+      "dest": "server.ts"
     },
     {
       "handle": "filesystem"
