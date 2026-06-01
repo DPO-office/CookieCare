@@ -105,31 +105,39 @@ export default function InteractAnalyze({
     "Are there any punitive, non-proven liquidated damages listed?"
   ]);
 
+  const loadFolders = async () => {
+    try {
+      const res = await fetch(apiUrl("/api/folders?contextType=library"), {
+        headers: { "Authorization": "Bearer " + authToken },
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        setFolders(data.map((folder: any, idx: number) => ({
+          id: folder.id,
+          name: folder.name,
+          filesCount: Number(folder.filesCount || 0),
+          selected: idx === 0,
+        })));
+        setUploadSelectedFolder(data[0].name);
+      }
+    } catch (err) {
+      console.error("Failed to load folders", err);
+    }
+  };
+
   // Load personalization presets directly from Vault storage matching user personal preference
   useEffect(() => {
-    const localSaved = localStorage.getItem("cookiecare_vault_personalization");
-    if (localSaved) {
+    (async () => {
+      await loadFolders();
       try {
-        const parsed = JSON.parse(localSaved);
-        
-        // Load target folder configurations
-        const vaultFolders = parsed
-          .filter((item: any) => item.type === "files")
-          .map((item: any) => ({
-            id: item.id,
-            name: item.name,
-            filesCount: item.fileList?.length || 0,
-            selected: item.name === "Mantralay Scans" // retain default Mantralay Scans focus for India cases
-          }));
-        if (vaultFolders.length > 0) {
-          const hasSelected = vaultFolders.some((f: any) => f.selected);
-          if (!hasSelected) {
-            vaultFolders[0].selected = true;
-          }
-          setFolders(vaultFolders);
-        }
+        const res = await fetch(apiUrl("/api/personalization/items"), {
+          headers: { "Authorization": "Bearer " + authToken },
+        });
+        if (!res.ok) return;
+        const parsed = await res.json();
+        if (!Array.isArray(parsed)) return;
 
-        // Load customizable system prompts
         const vaultPrompts = parsed
           .filter((item: any) => item.type === "prompts")
           .map((item: any) => ({
@@ -140,7 +148,6 @@ export default function InteractAnalyze({
           setPromptLibrary(vaultPrompts);
         }
 
-        // Load custom structured questioning catalogs
         const vaultQuestions = parsed
           .filter((item: any) => item.type === "questions")
           .flatMap((item: any) => {
@@ -153,10 +160,10 @@ export default function InteractAnalyze({
           setQuestionsLibrary(vaultQuestions);
         }
       } catch (err) {
-        console.error("Failed to parsed vault db inside query interface", err);
+        console.error("Failed to load personalized analysis presets", err);
       }
-    }
-  }, []);
+    })();
+  }, [authToken]);
 
   // --- SIDE PANEL / DRAWER ACTIONS ---
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
@@ -258,40 +265,29 @@ export default function InteractAnalyze({
   const handleAddNewFolder = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newFolderName.trim()) return;
-
-    const newFolderId = "fld_" + Math.random().toString(36).substr(2, 6);
-    const newFolder: CustomFolder = {
-      id: newFolderId,
-      name: newFolderName.trim(),
-      filesCount: 0,
-      selected: true
-    };
-
-    setFolders(prev => [newFolder, ...prev]);
-
-    // Also write back to cookiecare_vault_personalization in local storage
-    const localSaved = localStorage.getItem("cookiecare_vault_personalization");
-    let currentVault: any[] = [];
-    if (localSaved) {
+    (async () => {
       try {
-        currentVault = JSON.parse(localSaved);
-      } catch (err) {}
-    }
-    const newLibraryItem = {
-      id: newFolderId,
-      type: "files",
-      name: newFolderName.trim(),
-      description: "Custom Secure Repository Created via Interface",
-      tags: "Custom, Analyzed",
-      itemsCount: 0,
-      dateModified: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" }).replace(/\//g, "-"),
-      createdBy: "Krish Jain",
-      fileList: []
-    };
-    localStorage.setItem("cookiecare_vault_personalization", JSON.stringify([newLibraryItem, ...currentVault]));
-
-    setNewFolderName("");
-    setIsSidePanelOpen(false);
+        await fetch(apiUrl("/api/folders"), {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + authToken,
+          },
+          body: JSON.stringify({
+            name: newFolderName.trim(),
+            contextType: "library",
+            description: "Custom Secure Repository Created via Interface",
+            tags: newFolderTags || "Custom, Analyzed",
+          }),
+        });
+        await loadFolders();
+      } catch (err) {
+        console.error("Failed to create folder", err);
+      } finally {
+        setNewFolderName("");
+        setIsSidePanelOpen(false);
+      }
+    })();
   };
 
   // --- ACTION: UPLOAD FILE DRAG / DROP SIMULATOR ---
@@ -334,8 +330,13 @@ export default function InteractAnalyze({
       const formData = new FormData();
       formData.append("file", selectedFile);
       formData.append("title", uploadedFileName);
-      formData.append("templateType", uploadSelectedFolder);
+      formData.append("templateType", selectedFile.name.split(".").pop()?.toUpperCase() || "TXT");
       formData.append("isTemplate", "false");
+      const selectedFolder = folders.find((f) => f.name === uploadSelectedFolder);
+      if (selectedFolder) {
+        formData.append("folderId", selectedFolder.id);
+      }
+      formData.append("contextType", "library");
 
       const res = await fetch(apiUrl("/api/documents/upload"), {
         method: "POST",
@@ -371,41 +372,7 @@ export default function InteractAnalyze({
         }
       }
 
-      // Success: Modify target folder's count
-      setFolders(prev => prev.map(f => {
-        if (f.name === uploadSelectedFolder) {
-          return { ...f, filesCount: f.filesCount + 1, selected: true };
-        }
-        return f;
-      }));
-
-      // Update cookiecare_vault_personalization list in local storage
-      const localSaved = localStorage.getItem("cookiecare_vault_personalization");
-      if (localSaved) {
-        try {
-          const currentVault = JSON.parse(localSaved);
-          const updatedVault = currentVault.map((item: any) => {
-            if (item.type === "files" && item.name === uploadSelectedFolder) {
-              const fileList = item.fileList || [];
-              const newFile = {
-                id: payload.documentId,
-                name: uploadedFileName,
-                size: `${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB`,
-                type: uploadedFileName.split(".").pop()?.toUpperCase() || "PDF"
-              };
-              return {
-                ...item,
-                fileList: [...fileList, newFile],
-                itemsCount: fileList.length + 1,
-                dateModified: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" }).replace(/\//g, "-")
-              };
-            }
-            return item;
-          });
-          localStorage.setItem("cookiecare_vault_personalization", JSON.stringify(updatedVault));
-        } catch (err) {}
-      }
-
+      await loadFolders();
       setUploadedFileName("");
       setSelectedFile(null);
       setIsSidePanelOpen(false);
@@ -415,44 +382,7 @@ export default function InteractAnalyze({
       }
 
     } catch (uploadErr: any) {
-      console.warn("Secure backend upload bypassed, executing simulation upload fallback", uploadErr.message);
-      
-      // Fallback
-      setFolders(prev => prev.map(f => {
-        if (f.name === uploadSelectedFolder) {
-          return { ...f, filesCount: f.filesCount + 1, selected: true };
-        }
-        return f;
-      }));
-
-      const localSaved = localStorage.getItem("cookiecare_vault_personalization");
-      if (localSaved) {
-        try {
-          const currentVault = JSON.parse(localSaved);
-          const updatedVault = currentVault.map((item: any) => {
-            if (item.type === "files" && item.name === uploadSelectedFolder) {
-              const fileList = item.fileList || [];
-              const newFile = {
-                name: uploadedFileName,
-                size: "1.5 MB",
-                type: uploadedFileName.split(".").pop()?.toUpperCase() || "PDF"
-              };
-              return {
-                ...item,
-                fileList: [...fileList, newFile],
-                itemsCount: fileList.length + 1,
-                dateModified: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" }).replace(/\//g, "-")
-              };
-            }
-            return item;
-          });
-          localStorage.setItem("cookiecare_vault_personalization", JSON.stringify(updatedVault));
-        } catch (err) {}
-      }
-
-      setUploadedFileName("");
-      setSelectedFile(null);
-      setIsSidePanelOpen(false);
+      console.warn("Secure backend upload failed", uploadErr.message);
     } finally {
       setIsUploading(false);
     }

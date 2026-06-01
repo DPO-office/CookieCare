@@ -1,6 +1,8 @@
 import pg from "pg";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import {
   hasDatabaseConnectionString,
   redactDatabaseUrlForLogs,
@@ -8,6 +10,8 @@ import {
 } from "./src/utils/dbRuntime";
 
 dotenv.config();
+const JWT_SECRET = process.env.JWT_SECRET || "cookiecare_dev_secret_change_me";
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";
 
 const { Pool } = pg;
 
@@ -35,6 +39,41 @@ export const pool = new Pool({
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
 });
+
+export interface AuthTokenPayload {
+  sub: string;
+  email: string;
+  name: string;
+}
+
+export function createAuthToken(user: { id: string; email: string; name: string }) {
+  return jwt.sign(
+    { sub: user.id, email: user.email, name: user.name },
+    JWT_SECRET,
+    { expiresIn: JWT_EXPIRES_IN }
+  );
+}
+
+export function verifyAuthToken(token: string): AuthTokenPayload {
+  const decoded = jwt.verify(token, JWT_SECRET) as jwt.JwtPayload;
+  if (!decoded?.sub || typeof decoded.sub !== "string") {
+    throw new Error("Invalid token subject");
+  }
+
+  return {
+    sub: decoded.sub,
+    email: typeof decoded.email === "string" ? decoded.email : "",
+    name: typeof decoded.name === "string" ? decoded.name : "",
+  };
+}
+
+export async function hashPassword(password: string) {
+  return bcrypt.hash(password, 12);
+}
+
+export async function verifyPassword(password: string, passwordHash: string) {
+  return bcrypt.compare(password, passwordHash);
+}
 
 // Configure Gemini client on server with correct headers
 const apiKey = process.env.GEMINI_API_KEY || "";
@@ -81,6 +120,9 @@ export async function dbInit() {
         id VARCHAR(255) PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        description TEXT DEFAULT '',
+        tags TEXT DEFAULT '',
+        context_type VARCHAR(50) DEFAULT 'general',
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
@@ -107,6 +149,39 @@ export async function dbInit() {
         analysis JSONB DEFAULT NULL
       );
     `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS uploads (
+        id VARCHAR(255) PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        folder_id VARCHAR(255) REFERENCES folders(id) ON DELETE SET NULL,
+        file_name VARCHAR(255) NOT NULL,
+        mime_type VARCHAR(255) NOT NULL,
+        size_bytes BIGINT NOT NULL,
+        context_type VARCHAR(50) DEFAULT 'general',
+        context_id VARCHAR(255),
+        file_data BYTEA NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS personalization_items (
+        id VARCHAR(255) PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        item_type VARCHAR(50) NOT NULL,
+        item_data JSONB NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    await client.query("CREATE INDEX IF NOT EXISTS idx_folders_user_id ON folders(user_id);");
+    await client.query("CREATE INDEX IF NOT EXISTS idx_files_creator_id ON files(creator_id);");
+    await client.query("CREATE INDEX IF NOT EXISTS idx_files_folder_creator ON files(folder_id, creator_id);");
+    await client.query("CREATE INDEX IF NOT EXISTS idx_uploads_user_id ON uploads(user_id);");
+    await client.query("CREATE INDEX IF NOT EXISTS idx_uploads_folder_id ON uploads(folder_id);");
+    await client.query("CREATE INDEX IF NOT EXISTS idx_personalization_user_id ON personalization_items(user_id);");
 
     // 5. Create legal_document_chunks table with 768-dim embeddings
     await client.query(`
@@ -160,6 +235,9 @@ export async function dbInit() {
     await client.query(`
       ALTER TABLE legal_document_chunks ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}'::jsonb;
     `);
+    await client.query(`ALTER TABLE folders ADD COLUMN IF NOT EXISTS description TEXT DEFAULT '';`);
+    await client.query(`ALTER TABLE folders ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';`);
+    await client.query(`ALTER TABLE folders ADD COLUMN IF NOT EXISTS context_type VARCHAR(50) DEFAULT 'general';`);
 
     console.log("Postgres database schemas initialized successfully.");
 
@@ -168,7 +246,7 @@ export async function dbInit() {
       id: "krish_jain_id",
       email: "swarnaaishwarya17@gmail.com",
       name: "Krish Jain",
-      passwordHash: "password123",
+      passwordHash: await hashPassword("password123"),
     };
 
     await client.query(`
@@ -535,9 +613,10 @@ export async function authenticateToken(req: any, res: any, next: any) {
   }
 
   try {
+    const decoded = verifyAuthToken(token);
     const { rows } = await pool.query(
-      "SELECT id, email, name FROM users WHERE id = $1 OR email = $2",
-      [token, token]
+      "SELECT id, email, name FROM users WHERE id = $1",
+      [decoded.sub]
     );
 
     if (rows.length === 0) {

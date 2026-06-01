@@ -11,7 +11,17 @@ import multer from "multer";
 import PDFDocument from "pdfkit";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
 import nodemailer from "nodemailer";
-import { dbInit, pool, chunkAndIndexDocument, semanticSearch } from "./db";
+import {
+  dbInit,
+  pool,
+  chunkAndIndexDocument,
+  semanticSearch,
+  authenticateToken,
+  hashPassword,
+  verifyPassword,
+  createAuthToken,
+  verifyAuthToken,
+} from "./db";
 import { AgentOrchestrator } from "./services/agentOrchestrator";
 import { CookieScannerNode, VulnerabilityScannerNode } from "./services/scannerNodes";
 import { jobQueue } from "./services/jobQueue";
@@ -399,48 +409,19 @@ function decryptData(text: string): string {
 (global as any).encryptData = encryptData;
 (global as any).decryptData = decryptData;
 
-// Authentication Token Verification Middleware
-const authenticateToken = async (req: any, res: any, next: any) => {
-  const authHeader = req.headers["authorization"];
-  if (!authHeader) {
-    return res.status(401).json({ error: "Access denied. Token missing." });
-  }
-
-  const token = authHeader.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ error: "Access denied. Token invalid." });
-  }
-
-  let user: any = null;
-
-  try {
-    const { rows } = await pool.query(
-      "SELECT id, email, name FROM users WHERE id = $1 OR email = $2",
-      [token, token]
-    );
-    if (rows.length > 0) {
-      user = rows[0];
-    }
-  } catch (err) {
-    console.warn("Postgres auth lookup failed:", err);
-    return res.status(503).json({ error: "Authentication service unavailable." });
-  }
-
-  if (!user) {
-    return res.status(403).json({ error: "Unauthorized or invalid user session." });
-  }
-
-  req.user = user;
-  next();
-};
-
 /* --- API ENDPOINTS --- */
 
 // 1. Auth System
 app.post("/api/auth/register", async (req, res) => {
-  const { email, password, name } = req.body;
-  if (!email || !password || !name) {
+  const { email, password, confirmPassword, name } = req.body;
+  if (!email || !password || !confirmPassword || !name) {
     return res.status(400).json({ error: "Please enter all required fields." });
+  }
+  if (password !== confirmPassword) {
+    return res.status(400).json({ error: "Password and confirm password do not match." });
+  }
+  if (String(password).length < 8) {
+    return res.status(400).json({ error: "Password must be at least 8 characters long." });
   }
 
   try {
@@ -451,16 +432,20 @@ app.post("/api/auth/register", async (req, res) => {
     }
 
     const newUserId = "user_" + Math.random().toString(36).substr(2, 9);
+    const passwordHash = await hashPassword(password);
     const insertResult = await pool.query(
       "INSERT INTO users (id, email, name, password_hash) VALUES ($1, $2, $3, $4)",
-      [newUserId, normalizedEmail, name, password]
+      [newUserId, normalizedEmail, name, passwordHash]
     );
 
     if (insertResult.rowCount === 0) {
       return res.status(500).json({ error: "Failed to create user in Postgres." });
     }
 
-    return res.json({ token: newUserId, user: { id: newUserId, email: normalizedEmail, name } });
+    return res.json({
+      token: createAuthToken({ id: newUserId, email: normalizedEmail, name }),
+      user: { id: newUserId, email: normalizedEmail, name },
+    });
   } catch (err: any) {
     console.error("Postgres registration error:", err);
     return res.status(500).json({ error: "Postgres database registration failure: " + err.message });
@@ -476,13 +461,16 @@ app.post("/api/auth/login", async (req, res) => {
   try {
     const normalizedEmail = email.toLowerCase();
     const { rows } = await pool.query(
-      "SELECT id, email, name, password_hash FROM users WHERE email = $1 AND password_hash = $2",
-      [normalizedEmail, password]
+      "SELECT id, email, name, password_hash FROM users WHERE email = $1",
+      [normalizedEmail]
     );
 
-    if (rows.length > 0) {
+    if (rows.length > 0 && await verifyPassword(password, rows[0].password_hash)) {
       const user = rows[0];
-      return res.json({ token: user.id, user: { id: user.id, email: user.email, name: user.name } });
+      return res.json({
+        token: createAuthToken({ id: user.id, email: user.email, name: user.name }),
+        user: { id: user.id, email: user.email, name: user.name },
+      });
     }
   } catch (err) {
     console.error("Postgres login connection alert:", err);
@@ -523,27 +511,240 @@ app.get("/api/jobs/stream", (req: any, res) => {
     return res.status(401).json({ error: "Access denied. Credentials token required." });
   }
 
-  // Align checking representation with users
-  const db = loadDatabase();
-  const user = db.users.find((u: any) => u.id === token || u.email === token);
-  if (!user) {
-    return res.status(403).json({ error: "Unauthorized session tracking signature." });
+  (async () => {
+    try {
+      const decoded = verifyAuthToken(token);
+      const { rows } = await pool.query("SELECT id FROM users WHERE id = $1", [decoded.sub]);
+      if (rows.length === 0) {
+        return res.status(403).json({ error: "Unauthorized session tracking signature." });
+      }
+
+      // Set HTTP headers for live chunked EventSource streaming
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
+      res.flushHeaders?.();
+
+      const userId = rows[0].id;
+      const clientId = jobQueue.addClient(userId, res);
+
+      res.write(`data: ${JSON.stringify({ event: "handshake", status: "online", msg: "Telemetry stream live for: " + userId })}\n\n`);
+
+      req.on("close", () => {
+        jobQueue.removeClient(clientId);
+      });
+    } catch (err) {
+      return res.status(401).json({ error: "Access denied. Token invalid." });
+    }
+  })();
+});
+
+app.get("/api/folders", authenticateToken, async (req: any, res) => {
+  const contextType = (req.query.contextType as string) || "general";
+  try {
+    const { rows } = await pool.query(
+      `SELECT f.id, f.name, f.description, f.tags, f.context_type, f.created_at, f.updated_at,
+              COALESCE(COUNT(u.id), 0)::int AS files_count
+       FROM folders f
+       LEFT JOIN uploads u ON u.folder_id = f.id AND u.user_id = f.user_id
+       WHERE f.user_id = $1 AND f.context_type = $2
+       GROUP BY f.id
+       ORDER BY f.updated_at DESC`,
+      [req.user.id, contextType]
+    );
+    return res.json(rows.map((r) => ({
+      id: r.id,
+      name: r.name,
+      description: r.description || "",
+      tags: r.tags || "",
+      contextType: r.context_type,
+      filesCount: Number(r.files_count || 0),
+      createdAt: r.created_at,
+      updatedAt: r.updated_at,
+    })));
+  } catch (err: any) {
+    return res.status(500).json({ error: "Failed to load folders: " + err.message });
   }
+});
 
-  // Set HTTP headers for live chunked EventSource streaming
-  res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
-  res.setHeader("Connection", "keep-alive");
-  res.flushHeaders?.();
+app.post("/api/folders", authenticateToken, async (req: any, res) => {
+  const { name, description = "", tags = "", contextType = "general" } = req.body;
+  if (!name || !String(name).trim()) {
+    return res.status(400).json({ error: "Folder name is required." });
+  }
+  try {
+    const folderId = "fld_" + Math.random().toString(36).substring(2, 11);
+    const { rows } = await pool.query(
+      `INSERT INTO folders (id, name, user_id, description, tags, context_type)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING id, name, description, tags, context_type, created_at, updated_at`,
+      [folderId, String(name).trim(), req.user.id, String(description), String(tags), String(contextType)]
+    );
+    return res.status(201).json({
+      id: rows[0].id,
+      name: rows[0].name,
+      description: rows[0].description || "",
+      tags: rows[0].tags || "",
+      contextType: rows[0].context_type,
+      filesCount: 0,
+      createdAt: rows[0].created_at,
+      updatedAt: rows[0].updated_at,
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: "Failed to create folder: " + err.message });
+  }
+});
 
-  const userId = user.id;
-  const clientId = jobQueue.addClient(userId, res);
+app.get("/api/uploads", authenticateToken, async (req: any, res) => {
+  const folderId = (req.query.folderId as string) || null;
+  const contextType = (req.query.contextType as string) || null;
 
-  res.write(`data: ${JSON.stringify({ event: "handshake", status: "online", msg: "Telemetry stream live for: " + userId })}\n\n`);
+  try {
+    const params: any[] = [req.user.id];
+    const filters: string[] = ["u.user_id = $1"];
+    if (folderId) {
+      params.push(folderId);
+      filters.push(`u.folder_id = $${params.length}`);
+    }
+    if (contextType) {
+      params.push(contextType);
+      filters.push(`u.context_type = $${params.length}`);
+    }
 
-  req.on("close", () => {
-    jobQueue.removeClient(clientId);
-  });
+    const { rows } = await pool.query(
+      `SELECT u.id, u.folder_id, u.file_name, u.mime_type, u.size_bytes, u.context_type, u.context_id, u.created_at, f.name AS folder_name
+       FROM uploads u
+       LEFT JOIN folders f ON f.id = u.folder_id AND f.user_id = u.user_id
+       WHERE ${filters.join(" AND ")}
+       ORDER BY u.created_at DESC`,
+      params
+    );
+    return res.json(rows.map((r) => ({
+      id: r.id,
+      folderId: r.folder_id,
+      folderName: r.folder_name || null,
+      fileName: r.file_name,
+      mimeType: r.mime_type,
+      sizeBytes: Number(r.size_bytes || 0),
+      contextType: r.context_type,
+      contextId: r.context_id,
+      createdAt: r.created_at,
+    })));
+  } catch (err: any) {
+    return res.status(500).json({ error: "Failed to list uploads: " + err.message });
+  }
+});
+
+app.get("/api/uploads/:id/download", authenticateToken, async (req: any, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT id, file_name, mime_type, file_data
+       FROM uploads
+       WHERE id = $1 AND user_id = $2`,
+      [req.params.id, req.user.id]
+    );
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Upload not found." });
+    }
+    const file = rows[0];
+    res.setHeader("Content-Type", file.mime_type);
+    res.setHeader("Content-Disposition", `attachment; filename="${file.file_name}"`);
+    return res.send(file.file_data);
+  } catch (err: any) {
+    return res.status(500).json({ error: "Failed to download upload: " + err.message });
+  }
+});
+
+app.post("/api/uploads", authenticateToken, upload.single("file"), async (req: any, res) => {
+  if (!req.file?.buffer) {
+    return res.status(400).json({ error: "No file was uploaded." });
+  }
+  const { folderId = null, contextType = "general", contextId = null } = req.body;
+  try {
+    if (folderId) {
+      const folderCheck = await pool.query(
+        "SELECT id FROM folders WHERE id = $1 AND user_id = $2",
+        [folderId, req.user.id]
+      );
+      if (folderCheck.rows.length === 0) {
+        return res.status(403).json({ error: "Folder does not belong to current user." });
+      }
+    }
+
+    const uploadId = "upl_" + Math.random().toString(36).substring(2, 11);
+    const { rows } = await pool.query(
+      `INSERT INTO uploads (id, user_id, folder_id, file_name, mime_type, size_bytes, context_type, context_id, file_data)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       RETURNING id, folder_id, file_name, mime_type, size_bytes, context_type, context_id, created_at`,
+      [
+        uploadId,
+        req.user.id,
+        folderId,
+        req.file.originalname,
+        req.file.mimetype || "application/octet-stream",
+        req.file.size || req.file.buffer.length,
+        String(contextType),
+        contextId || null,
+        req.file.buffer,
+      ]
+    );
+
+    return res.status(201).json({
+      id: rows[0].id,
+      folderId: rows[0].folder_id,
+      fileName: rows[0].file_name,
+      mimeType: rows[0].mime_type,
+      sizeBytes: Number(rows[0].size_bytes || 0),
+      contextType: rows[0].context_type,
+      contextId: rows[0].context_id,
+      createdAt: rows[0].created_at,
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: "Upload failed: " + err.message });
+  }
+});
+
+app.get("/api/personalization/items", authenticateToken, async (req: any, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT item_data
+       FROM personalization_items
+       WHERE user_id = $1
+       ORDER BY updated_at DESC`,
+      [req.user.id]
+    );
+    return res.json(rows.map((r) => r.item_data));
+  } catch (err: any) {
+    return res.status(500).json({ error: "Failed to load personalization items: " + err.message });
+  }
+});
+
+app.put("/api/personalization/items/bulk", authenticateToken, async (req: any, res) => {
+  const items = Array.isArray(req.body?.items) ? req.body.items : null;
+  if (!items) {
+    return res.status(400).json({ error: "items array is required." });
+  }
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await client.query("DELETE FROM personalization_items WHERE user_id = $1", [req.user.id]);
+    for (const item of items) {
+      const id = typeof item?.id === "string" ? item.id : `prs_${Math.random().toString(36).substring(2, 11)}`;
+      const itemType = typeof item?.type === "string" ? item.type : "general";
+      await client.query(
+        `INSERT INTO personalization_items (id, user_id, item_type, item_data)
+         VALUES ($1, $2, $3, $4)`,
+        [id, req.user.id, itemType, { ...item, id, type: itemType }]
+      );
+    }
+    await client.query("COMMIT");
+    return res.json({ success: true });
+  } catch (err: any) {
+    await client.query("ROLLBACK");
+    return res.status(500).json({ error: "Failed to save personalization items: " + err.message });
+  } finally {
+    client.release();
+  }
 });
 
 
@@ -675,7 +876,7 @@ app.post("/api/documents/upload", authenticateToken, upload.single("file"), asyn
     return res.status(400).json({ error: "No file was uploaded." });
   }
 
-  const { title, templateType, isTemplate, is_template } = req.body;
+  const { title, templateType, isTemplate, is_template, folderId, contextType = "document", contextId } = req.body;
   const originalName = file.originalname;
   const mimeType = file.mimetype;
   const ext = originalName.split(".").pop()?.toLowerCase();
@@ -684,21 +885,52 @@ app.post("/api/documents/upload", authenticateToken, upload.single("file"), asyn
   const isTemplateVal = isTemplate === "true" || is_template === "true" || isTemplate === true || is_template === true;
 
   try {
-    // 1. File ke buffer ko Base64 string banao (Koi local file write nahi!)
-    const fileDataBytes = file.buffer.toString("base64");
+    if (folderId) {
+      const folderRows = await pool.query(
+        "SELECT id FROM folders WHERE id = $1 AND user_id = $2",
+        [folderId, req.user.id]
+      );
+      if (folderRows.rows.length === 0) {
+        return res.status(403).json({ error: "Folder does not belong to current user." });
+      }
+    }
 
-    // 2. Seedha Neon Postgres database ke andar document aur uska content patak do
-    const result = await pool.query(
-      `INSERT INTO documents (title, name, type, content, user_id, is_template, mime_type, created_at) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()) RETURNING *`,
-      [fileTitle, originalName, typeOfDocument, fileDataBytes, req.user.id, isTemplateVal, mimeType]
+    const uploadId = "upl_" + Math.random().toString(36).substring(2, 11);
+    await pool.query(
+      `INSERT INTO uploads (id, user_id, folder_id, file_name, mime_type, size_bytes, context_type, context_id, file_data)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [
+        uploadId,
+        req.user.id,
+        folderId || null,
+        originalName,
+        mimeType || "application/octet-stream",
+        file.size || file.buffer.length,
+        String(contextType),
+        contextId || null,
+        file.buffer,
+      ]
     );
 
-    // 3. Frontend ko bina crash kiye success response bhej do!
+    const parsedContent = file.buffer.toString("utf-8");
+    const docId = "doc_" + Math.random().toString(36).substr(2, 9);
+    await pool.query(
+      `INSERT INTO files (id, title, type, content, creator_id, creator_email, is_encrypted, versions, signatures, redlines, shared_with, audit_logs, analysis, folder_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, '[]'::jsonb, NULL, $8)`,
+      [docId, fileTitle, typeOfDocument, parsedContent, req.user.id, req.user.email, false, folderId || null]
+    );
+
     res.status(201).json({
       success: true,
       message: "Document uploaded and secured in database successfully!",
-      document: result.rows[0]
+      documentId: docId,
+      uploadId,
+      id: uploadId,
+      fileName: originalName,
+      mimeType,
+      sizeBytes: file.size || file.buffer.length,
+      content: parsedContent,
+      isTemplate: isTemplateVal,
     });
 
   } catch (error: any) {
@@ -790,89 +1022,116 @@ app.post("/api/documents", authenticateToken, async (req: any, res) => {
     chunkAndIndexDocument(newDocId, baseText, req.user.id).catch((err) => {
       console.error("Delayed indexing failed for doc " + newDocId, err);
     });
+    return res.json({
+      id: newDocId,
+      title,
+      type,
+      creatorId: req.user.id,
+      creatorEmail: req.user.email,
+      content: baseText,
+      isEncrypted: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      versions: versionsData,
+      signatures: [],
+      redlines: [],
+      sharedWith: [],
+      auditLogs: auditLogsData,
+      analysis: null,
+    });
   } catch (err) {
-    console.warn("Neon Postgres write failed - attempting backup file persist:", err);
+    console.warn("Postgres write failed for /api/documents:", err);
+    return res.status(500).json({ error: "Failed to create document." });
   }
-
-  const db = loadDatabase();
-  const newDoc: LegalDocument = {
-    id: newDocId,
-    title,
-    type,
-    creatorId: req.user.id,
-    creatorEmail: req.user.email,
-    content: encryptData(baseText),
-    isEncrypted: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    versions: versionsData,
-    signatures: [],
-    redlines: [],
-    sharedWith: [],
-    auditLogs: auditLogsData,
-    analysis: null,
-  };
-
-  db.documents.push(newDoc);
-  saveDatabase(db);
-
-  res.json({ ...newDoc, content: baseText });
 });
 
 
 // Update draft / manual edits & version history
-app.put("/api/documents/:id", authenticateToken, (req: any, res) => {
+app.put("/api/documents/:id", authenticateToken, async (req: any, res) => {
   const { content, title, comment } = req.body;
-  const db = loadDatabase();
-  const doc = db.documents.find((d) => d.id === req.params.id);
+  try {
+    const { rows } = await pool.query("SELECT * FROM files WHERE id = $1", [req.params.id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Document not found" });
+    }
+    const doc = rows[0];
+    if (doc.creator_id !== req.user.id) {
+      return res.status(403).json({ error: "Access denied to this document." });
+    }
 
-  if (!doc) {
-    return res.status(404).json({ error: "Document not found" });
-  }
+    const signatures = doc.signatures || [];
+    const versions = doc.versions || [];
+    const auditLogs = doc.audit_logs || [];
+    const currentContent = doc.is_encrypted ? decryptData(doc.content) : doc.content;
+    const safeContent = typeof content === "string" ? content : currentContent;
 
-  // Check if fully signed
-  const isFullySigned = doc.signatures.length > 0 && doc.signatures.every((s) => s.status === "signed");
+    const isFullySigned = signatures.length > 0 && signatures.every((s: any) => s.status === "signed");
   if (isFullySigned) {
     return res.status(400).json({ error: "Cannot edit this document because it is fully signed and locked." });
   }
 
-  doc.content = encryptData(content);
-  if (title) doc.title = title;
-  doc.updatedAt = new Date().toISOString();
-
-  // Create explicit auto or manual version commit
-  const newVerNum = doc.versions.length + 1;
-  doc.versions.push({
+    const finalContent = doc.is_encrypted ? encryptData(safeContent) : safeContent;
+    const newVerNum = versions.length + 1;
+    versions.push({
     version: newVerNum,
-    content: encryptData(content),
+      content: finalContent,
     createdAt: new Date().toISOString(),
     author: req.user.name,
     comment: comment || `Saved automatic version update (${newVerNum})`,
   });
 
-  doc.auditLogs.push({
+    auditLogs.push({
     timestamp: new Date().toISOString(),
     action: "Updated Content",
     user: req.user.name,
     details: comment || `Committed structural draft version ${newVerNum}`,
   });
 
-  saveDatabase(db);
-  res.json({ ...doc, content });
+    await pool.query(
+      `UPDATE files
+       SET content = $1,
+           title = COALESCE($2, title),
+           updated_at = NOW(),
+           versions = $3::jsonb,
+           audit_logs = $4::jsonb
+       WHERE id = $5`,
+      [finalContent, title || null, JSON.stringify(versions), JSON.stringify(auditLogs), req.params.id]
+    );
+
+    res.json({
+      id: req.params.id,
+      title: title || doc.title,
+      content: safeContent,
+      versions,
+      auditLogs,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: "Failed to update document: " + err.message });
+  }
 });
 
 // Submit/Propose dynamic Redline for interactive Negotiation
-app.post("/api/documents/:id/redline", authenticateToken, (req: any, res) => {
+app.post("/api/documents/:id/redline", authenticateToken, async (req: any, res) => {
   const { originalText, proposedText, comment } = req.body;
   if (!originalText || !proposedText) {
     return res.status(400).json({ error: "Original and proposed comparative texts are required" });
   }
 
-  const db = loadDatabase();
-  const doc = db.documents.find((d) => d.id === req.params.id);
-  if (!doc) return res.status(404).json({ error: "Document not found" });
+  try {
+    const { rows } = await pool.query("SELECT * FROM files WHERE id = $1", [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ error: "Document not found" });
+    const doc = rows[0];
+    const sharedWith = doc.shared_with || [];
+    const isOwner = doc.creator_id === req.user.id;
+    const isShared = sharedWith.some((e: string) => e.toLowerCase() === req.user.email.toLowerCase());
+    if (!isOwner && !isShared) {
+      return res.status(403).json({ error: "Access denied to this document." });
+    }
 
-  const isFullySigned = doc.signatures.length > 0 && doc.signatures.every((s) => s.status === "signed");
+    const signatures = doc.signatures || [];
+    const redlines = doc.redlines || [];
+    const auditLogs = doc.audit_logs || [];
+    const isFullySigned = signatures.length > 0 && signatures.every((s: any) => s.status === "signed");
   if (isFullySigned) {
     return res.status(400).json({ error: "Cannot create redlines because contract is locked in signed status." });
   }
@@ -888,197 +1147,268 @@ app.post("/api/documents/:id/redline", authenticateToken, (req: any, res) => {
     status: "pending",
   };
 
-  doc.redlines.push(proposal);
-  doc.auditLogs.push({
+    redlines.push(proposal);
+    auditLogs.push({
     timestamp: new Date().toISOString(),
     action: "Redlined Proposed",
     user: req.user.name,
     details: `Proposed replacement: "${originalText}" with "${proposedText}"`,
   });
 
-  saveDatabase(db);
-  res.json(proposal);
+    await pool.query(
+      `UPDATE files
+       SET redlines = $1::jsonb, audit_logs = $2::jsonb, updated_at = NOW()
+       WHERE id = $3`,
+      [JSON.stringify(redlines), JSON.stringify(auditLogs), req.params.id]
+    );
+
+    res.json(proposal);
+  } catch (err: any) {
+    res.status(500).json({ error: "Failed to create redline: " + err.message });
+  }
 });
 
 // Accept Redline edits
-app.post("/api/documents/:id/redline/:rId/accept", authenticateToken, (req: any, res) => {
-  const db = loadDatabase();
-  const doc = db.documents.find((d) => d.id === req.params.id);
-  if (!doc) return res.status(404).json({ error: "Document not found" });
+app.post("/api/documents/:id/redline/:rId/accept", authenticateToken, async (req: any, res) => {
+  try {
+    const { rows } = await pool.query("SELECT * FROM files WHERE id = $1", [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ error: "Document not found" });
+    const doc = rows[0];
+    if (doc.creator_id !== req.user.id) {
+      return res.status(403).json({ error: "Only owner can accept redlines." });
+    }
+    const redlines = doc.redlines || [];
+    const versions = doc.versions || [];
+    const auditLogs = doc.audit_logs || [];
+    const rl = redlines.find((r: any) => r.id === req.params.rId);
+    if (!rl) return res.status(404).json({ error: "Redline proposal not found" });
 
-  const rl = doc.redlines.find((r) => r.id === req.params.rId);
-  if (!rl) return res.status(404).json({ error: "Redline proposal not found" });
+    rl.status = "accepted";
+    let activeContent = doc.is_encrypted ? decryptData(doc.content) : doc.content;
 
-  rl.status = "accepted";
+    if (activeContent.includes(rl.originalText)) {
+      activeContent = activeContent.replace(rl.originalText, rl.proposedText);
+      const persistedContent = doc.is_encrypted ? encryptData(activeContent) : activeContent;
+      const newVer = versions.length + 1;
+      versions.push({
+        version: newVer,
+        content: persistedContent,
+        createdAt: new Date().toISOString(),
+        author: req.user.name,
+        comment: `Accepted redline proposed by ${rl.proposedByEmail}`,
+      });
 
-  // Actually replace content in current active document
-  let activeContent = decryptData(doc.content);
-  if (activeContent.includes(rl.originalText)) {
-    activeContent = activeContent.replace(rl.originalText, rl.proposedText);
-    doc.content = encryptData(activeContent);
-    doc.updatedAt = new Date().toISOString();
+      auditLogs.push({
+        timestamp: new Date().toISOString(),
+        action: "Redline Accepted",
+        user: req.user.name,
+        details: `Merged replacement proposed by ${rl.proposedByEmail} into document text.`,
+      });
 
-    const newVer = doc.versions.length + 1;
-    doc.versions.push({
-      version: newVer,
-      content: encryptData(activeContent),
-      createdAt: new Date().toISOString(),
-      author: req.user.name,
-      comment: `Accepted redline proposed by ${rl.proposedByEmail}`,
-    });
+      await pool.query(
+        `UPDATE files
+         SET content = $1, redlines = $2::jsonb, versions = $3::jsonb, audit_logs = $4::jsonb, updated_at = NOW()
+         WHERE id = $5`,
+        [persistedContent, JSON.stringify(redlines), JSON.stringify(versions), JSON.stringify(auditLogs), req.params.id]
+      );
+    } else {
+      auditLogs.push({
+        timestamp: new Date().toISOString(),
+        action: "Redline Merged Exception",
+        user: req.user.name,
+        details: "Accepted redline, but exact match for target original text was not found.",
+      });
+      await pool.query(
+        `UPDATE files SET redlines = $1::jsonb, audit_logs = $2::jsonb, updated_at = NOW() WHERE id = $3`,
+        [JSON.stringify(redlines), JSON.stringify(auditLogs), req.params.id]
+      );
+    }
 
-    doc.auditLogs.push({
-      timestamp: new Date().toISOString(),
-      action: "Redline Accepted",
-      user: req.user.name,
-      details: `Merged replacement proposed by ${rl.proposedByEmail} into document text.`,
-    });
-  } else {
-    doc.auditLogs.push({
-      timestamp: new Date().toISOString(),
-      action: "Redline Merged Exception",
-      user: req.user.name,
-      details: `Accepted redline, but exact match for target original text was not found.`,
-    });
+    res.json({ status: "success", documentContent: activeContent });
+  } catch (err: any) {
+    res.status(500).json({ error: "Failed to accept redline: " + err.message });
   }
-
-  saveDatabase(db);
-  res.json({ status: "success", documentContent: decryptData(doc.content) });
 });
 
 // Reject Redline edits
-app.post("/api/documents/:id/redline/:rId/reject", authenticateToken, (req: any, res) => {
-  const db = loadDatabase();
-  const doc = db.documents.find((d) => d.id === req.params.id);
-  if (!doc) return res.status(404).json({ error: "Document not found" });
+app.post("/api/documents/:id/redline/:rId/reject", authenticateToken, async (req: any, res) => {
+  try {
+    const { rows } = await pool.query("SELECT * FROM files WHERE id = $1", [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ error: "Document not found" });
+    const doc = rows[0];
+    if (doc.creator_id !== req.user.id) {
+      return res.status(403).json({ error: "Only owner can reject redlines." });
+    }
+    const redlines = doc.redlines || [];
+    const auditLogs = doc.audit_logs || [];
+    const rl = redlines.find((r: any) => r.id === req.params.rId);
+    if (!rl) return res.status(404).json({ error: "Redline proposal not found" });
 
-  const rl = doc.redlines.find((r) => r.id === req.params.rId);
-  if (!rl) return res.status(404).json({ error: "Redline proposal not found" });
+    rl.status = "rejected";
+    auditLogs.push({
+      timestamp: new Date().toISOString(),
+      action: "Redline Rejected",
+      user: req.user.name,
+      details: `Rejected replacement proposed by ${rl.proposedByEmail}`,
+    });
 
-  rl.status = "rejected";
-  doc.auditLogs.push({
-    timestamp: new Date().toISOString(),
-    action: "Redline Rejected",
-    user: req.user.name,
-    details: `Rejected replacement proposed by ${rl.proposedByEmail}`,
-  });
-
-  saveDatabase(db);
-  res.json({ status: "success" });
+    await pool.query(
+      `UPDATE files SET redlines = $1::jsonb, audit_logs = $2::jsonb, updated_at = NOW() WHERE id = $3`,
+      [JSON.stringify(redlines), JSON.stringify(auditLogs), req.params.id]
+    );
+    res.json({ status: "success" });
+  } catch (err: any) {
+    res.status(500).json({ error: "Failed to reject redline: " + err.message });
+  }
 });
 
 // 3. Document Sharing via External Stakeholder logs
-app.post("/api/documents/:id/share", authenticateToken, (req: any, res) => {
+app.post("/api/documents/:id/share", authenticateToken, async (req: any, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: "Missing email to share with" });
 
-  const db = loadDatabase();
-  const doc = db.documents.find((d) => d.id === req.params.id);
-  if (!doc) return res.status(404).json({ error: "Document not found." });
-
-  const searchEmail = email.trim().toLowerCase();
-  if (!doc.sharedWith.some((e) => e.toLowerCase() === searchEmail)) {
-    doc.sharedWith.push(searchEmail);
-    doc.auditLogs.push({
-      timestamp: new Date().toISOString(),
-      action: "Shared Legally",
-      user: req.user.name,
-      details: `Granted operational shared access to ${searchEmail}.`,
-    });
-    saveDatabase(db);
+  try {
+    const { rows } = await pool.query("SELECT * FROM files WHERE id = $1", [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ error: "Document not found." });
+    const doc = rows[0];
+    if (doc.creator_id !== req.user.id) {
+      return res.status(403).json({ error: "Only owner can share document." });
+    }
+    const searchEmail = email.trim().toLowerCase();
+    const sharedWith = doc.shared_with || [];
+    const auditLogs = doc.audit_logs || [];
+    if (!sharedWith.some((e: string) => e.toLowerCase() === searchEmail)) {
+      sharedWith.push(searchEmail);
+      auditLogs.push({
+        timestamp: new Date().toISOString(),
+        action: "Shared Legally",
+        user: req.user.name,
+        details: `Granted operational shared access to ${searchEmail}.`,
+      });
+      await pool.query(
+        "UPDATE files SET shared_with = $1::jsonb, audit_logs = $2::jsonb, updated_at = NOW() WHERE id = $3",
+        [JSON.stringify(sharedWith), JSON.stringify(auditLogs), req.params.id]
+      );
+    }
+    res.json({ success: true, sharedWith });
+  } catch (err: any) {
+    res.status(500).json({ error: "Failed to share document: " + err.message });
   }
-
-  res.json({ success: true, sharedWith: doc.sharedWith });
 });
 
 // 4. Document Signing Workflow
-app.post("/api/documents/:id/request-signature", authenticateToken, (req: any, res) => {
+app.post("/api/documents/:id/request-signature", authenticateToken, async (req: any, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: "Signer email is required." });
 
-  const db = loadDatabase();
-  const doc = db.documents.find((d) => d.id === req.params.id);
-  if (!doc) return res.status(404).json({ error: "Document not found" });
-
-  // Add signature requests
-  const normalizedEmail = email.trim().toLowerCase();
-  if (!doc.signatures.some((s) => s.signerEmail.toLowerCase() === normalizedEmail)) {
-    doc.signatures.push({
-      signerEmail: normalizedEmail,
-      signedAt: null,
-      signatureHash: null,
-      status: "pending",
-    });
-
-    doc.auditLogs.push({
-      timestamp: new Date().toISOString(),
-      action: "Signature Requested",
-      user: req.user.name,
-      details: `Initiated signee workflow request for ${normalizedEmail}.`,
-    });
-
-    saveDatabase(db);
+  try {
+    const { rows } = await pool.query("SELECT * FROM files WHERE id = $1", [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ error: "Document not found" });
+    const doc = rows[0];
+    if (doc.creator_id !== req.user.id) {
+      return res.status(403).json({ error: "Only owner can request signatures." });
+    }
+    const signatures = doc.signatures || [];
+    const auditLogs = doc.audit_logs || [];
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!signatures.some((s: any) => s.signerEmail.toLowerCase() === normalizedEmail)) {
+      signatures.push({
+        signerEmail: normalizedEmail,
+        signedAt: null,
+        signatureHash: null,
+        status: "pending",
+      });
+      auditLogs.push({
+        timestamp: new Date().toISOString(),
+        action: "Signature Requested",
+        user: req.user.name,
+        details: `Initiated signee workflow request for ${normalizedEmail}.`,
+      });
+      await pool.query(
+        "UPDATE files SET signatures = $1::jsonb, audit_logs = $2::jsonb, updated_at = NOW() WHERE id = $3",
+        [JSON.stringify(signatures), JSON.stringify(auditLogs), req.params.id]
+      );
+    }
+    res.json({ success: true, signatures });
+  } catch (err: any) {
+    res.status(500).json({ error: "Failed to request signature: " + err.message });
   }
-
-  res.json({ success: true, signatures: doc.signatures });
 });
 
-app.post("/api/documents/:id/sign", authenticateToken, (req: any, res) => {
+app.post("/api/documents/:id/sign", authenticateToken, async (req: any, res) => {
   const { fullName, signatureInitials } = req.body;
-  const db = loadDatabase();
-  const doc = db.documents.find((d) => d.id === req.params.id);
-  if (!doc) return res.status(404).json({ error: "Document not found" });
+  try {
+    const { rows } = await pool.query("SELECT * FROM files WHERE id = $1", [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ error: "Document not found" });
+    const doc = rows[0];
+    const sharedWith = doc.shared_with || [];
+    const userEmail = req.user.email.toLowerCase();
+    if (doc.creator_id !== req.user.id && !sharedWith.some((e: string) => e.toLowerCase() === userEmail)) {
+      return res.status(403).json({ error: "Access denied to sign this document." });
+    }
+    const signatures = doc.signatures || [];
+    const auditLogs = doc.audit_logs || [];
 
-  const userEmail = req.user.email.toLowerCase();
+    let sig = signatures.find((s: any) => s.signerEmail.toLowerCase() === userEmail);
+    if (!sig) {
+      sig = {
+        signerEmail: userEmail,
+        signedAt: null,
+        signatureHash: null,
+        status: "pending",
+      };
+      signatures.push(sig);
+    }
 
-  // Find or create signature slot for current user
-  let sig = doc.signatures.find((s) => s.signerEmail.toLowerCase() === userEmail);
-  if (!sig) {
-    // Dynamically insert signature slot if user belongs to document
-    sig = {
-      signerEmail: userEmail,
-      signedAt: null,
-      signatureHash: null,
-      status: "pending",
-    };
-    doc.signatures.push(sig);
+    const sigHash = "SECURE_SIG_" + Buffer.from(`${userEmail}_${fullName || signatureInitials || "Signer"}_${Date.now()}`).toString("hex").substr(0, 16);
+    sig.signedAt = new Date().toISOString();
+    sig.signatureHash = sigHash;
+    sig.status = "signed";
+
+    auditLogs.push({
+      timestamp: new Date().toISOString(),
+      action: "Document Signed",
+      user: req.user.name,
+      details: `Signer ${fullName || req.user.name} (${userEmail}) finalized contract using cryptographic stamp: ${sigHash}`,
+    });
+
+    await pool.query(
+      "UPDATE files SET signatures = $1::jsonb, audit_logs = $2::jsonb, updated_at = NOW() WHERE id = $3",
+      [JSON.stringify(signatures), JSON.stringify(auditLogs), req.params.id]
+    );
+    res.json({ success: true, signature: sig });
+  } catch (err: any) {
+    res.status(500).json({ error: "Failed to sign document: " + err.message });
   }
-
-  const sigHash = "SECURE_SIG_" + Buffer.from(`${userEmail}_${fullName}_${Date.now()}`).toString("hex").substr(0, 16);
-  sig.signedAt = new Date().toISOString();
-  sig.signatureHash = sigHash;
-  sig.status = "signed";
-
-  doc.auditLogs.push({
-    timestamp: new Date().toISOString(),
-    action: "Document Signed",
-    user: req.user.name,
-    details: `Signer ${fullName} (${userEmail}) finalized contract using cryptographic stamp: ${sigHash}`,
-  });
-
-  // saveDatabase(db);
-  res.json({ success: true, signature: sig });
 });
 
 // 5. Intelligent Document Analyser powered by Gemini & Multi-Agent Orchestrator
 app.post("/api/documents/:id/analyze", authenticateToken, async (req: any, res) => {
-  const db = loadDatabase();
-  const doc = db.documents.find((d) => d.id === req.params.id);
-  if (!doc) return res.status(404).json({ error: "Document not found" });
+  try {
+    const { rows } = await pool.query("SELECT id, creator_id, shared_with FROM files WHERE id = $1", [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ error: "Document not found" });
+    const doc = rows[0];
+    const sharedWith = doc.shared_with || [];
+    const isOwner = doc.creator_id === req.user.id;
+    const isShared = sharedWith.some((e: string) => e.toLowerCase() === req.user.email.toLowerCase());
+    if (!isOwner && !isShared) {
+      return res.status(403).json({ error: "Access denied to this document." });
+    }
 
-  const userId = req.user.id;
+    const userId = req.user.id;
+    const job = jobQueue.enqueue(userId, "document_analysis", {
+      documentId: doc.id,
+      userEmail: req.user.email,
+    });
 
-  // Enqueue non-blocking background analysis job
-  const job = jobQueue.enqueue(userId, "document_analysis", {
-    documentId: doc.id,
-    userEmail: req.user.email,
-  });
-
-  res.status(202).json({
-    success: true,
-    job_id: job.id,
-    message: "Document audit and risk scan triggered inside our background event loop.",
-  });
+    res.status(202).json({
+      success: true,
+      job_id: job.id,
+      message: "Document audit and risk scan triggered inside our background event loop.",
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: "Failed to queue document analysis: " + err.message });
+  }
 });
 
 // 6. Ask AI Interactive Advisory chat Supporting file input

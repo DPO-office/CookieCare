@@ -25,6 +25,7 @@ import {
   Info
 } from "lucide-react";
 import { LegalDocument } from "../types";
+import { apiUrl } from "../config";
 
 interface LibraryProps {
   documents: LegalDocument[];
@@ -94,16 +95,39 @@ export default function LibraryManager({ documents, authToken, onRefresh }: Libr
 
   const activeTabInfo = tabsConfig.find(t => t.id === activeTab) || tabsConfig[0];
 
+  const persistItems = async (nextItems: LibraryItem[]) => {
+    try {
+      await fetch(apiUrl("/api/personalization/items/bulk"), {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + authToken,
+        },
+        body: JSON.stringify({ items: nextItems }),
+      });
+    } catch (err) {
+      console.error("Failed to persist personalization items", err);
+    }
+  };
+
   // Load and Seed Default Data
   useEffect(() => {
-    const localSaved = localStorage.getItem("cookiecare_vault_personalization");
-    if (localSaved) {
+    (async () => {
       try {
-        setItems(JSON.parse(localSaved));
+        const res = await fetch(apiUrl("/api/personalization/items"), {
+          headers: { "Authorization": "Bearer " + authToken },
+        });
+        if (res.ok) {
+          const existing = await res.json();
+          if (Array.isArray(existing) && existing.length > 0) {
+            setItems(existing);
+            return;
+          }
+        }
       } catch (err) {
-        console.error("Failed to parse vault database", err);
+        console.error("Failed to load personalization items", err);
       }
-    } else {
+
       // Robust pre-existing items as displayed in the user screenshot and requested
       const defaults: LibraryItem[] = [
         // FILES (As shown in screenshot)
@@ -421,14 +445,14 @@ export default function LibraryManager({ documents, authToken, onRefresh }: Libr
         }
       ];
 
-      localStorage.setItem("cookiecare_vault_personalization", JSON.stringify(defaults));
       setItems(defaults);
-    }
-  }, []);
+      await persistItems(defaults);
+    })();
+  }, [authToken]);
 
   const saveToStorage = (updatedList: LibraryItem[]) => {
     setItems(updatedList);
-    localStorage.setItem("cookiecare_vault_personalization", JSON.stringify(updatedList));
+    void persistItems(updatedList);
   };
 
   // Copy UUID
