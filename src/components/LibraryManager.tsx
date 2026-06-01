@@ -130,7 +130,20 @@ export default function LibraryManager({ documents, authToken, onRefresh }: Libr
           details: i.details
         }));
 
-        setItems([...formattedFolders, ...formattedItems]);
+        // Also fetch documents to show files within folders
+        const docsRes = await fetch(apiUrl("/api/documents"), { headers: { "Authorization": `Bearer ${authToken}` } });
+        const docsData = docsRes.ok ? await docsRes.json() : [];
+
+        const finalFolders = formattedFolders.map(f => {
+          const folderDocs = docsData.filter((d: any) => d.folder_id === f.id);
+          return {
+            ...f,
+            itemsCount: folderDocs.length,
+            fileList: folderDocs.map((d: any) => ({ name: d.title || d.name, size: "N/A", type: d.type }))
+          };
+        });
+
+        setItems([...finalFolders, ...formattedItems]);
       }
     } catch (err) {
       console.error("Failed to fetch library data", err);
@@ -208,14 +221,38 @@ export default function LibraryManager({ documents, authToken, onRefresh }: Libr
     }
   };
 
-  // File Upload Handlers (Simulation matching senior dev grade files interface)
-  const handleTriggerUpload = async (targetFolderId: string) => {
+  // File Upload Handlers (Connecting to backend upload engine)
+  const handleTriggerUpload = async (targetFolderId: string, files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
     setUploadProgress(true);
-    setTimeout(() => {
-      setUploadProgress(false);
+    try {
+      const file = files[0];
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder_id", targetFolderId);
+      formData.append("isTemplate", "false");
+
+      const res = await fetch(apiUrl("/api/documents/upload"), {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${authToken}`
+        },
+        body: formData
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Upload failed");
+
+      alert(`File "${file.name}" uploaded successfully to vault.`);
+      fetchLibraryData();
       setIsAddFileOpen(false);
-      alert("Real file uploads are now connected to the secure 'files' enclave!");
-    }, 1200);
+    } catch (err: any) {
+      console.error(err);
+      alert("Upload failed: " + err.message);
+    } finally {
+      setUploadProgress(false);
+    }
   };
 
   // Remove file inside folder
@@ -971,11 +1008,17 @@ export default function LibraryManager({ documents, authToken, onRefresh }: Libr
               </div>
 
               {/* Drag File drop zone area representation */}
-              <div className="border-2 border-dashed border-gray-250 hover:border-black transition p-7 text-center rounded-xl bg-gray-50/60 cursor-pointer">
+              <label className="block border-2 border-dashed border-gray-250 hover:border-black transition p-7 text-center rounded-xl bg-gray-50/60 cursor-pointer">
+                <input
+                  type="file"
+                  className="hidden"
+                  onChange={(e) => handleTriggerUpload(formFolderTarget, e.target.files)}
+                  disabled={uploadProgress || !formFolderTarget}
+                />
                 <Upload className="w-7 h-7 text-gray-400 mx-auto mb-2" />
                 <p className="text-xs font-semibold text-gray-800">Drag or click files to upload</p>
                 <p className="text-[10px] text-gray-400 mt-0.5 uppercase font-mono">Supported PDF, Word, Excel, JPG, Text</p>
-              </div>
+              </label>
 
               {uploadProgress && (
                 <div className="flex items-center space-x-2 text-xs font-mono text-indigo-600 bg-indigo-50 border border-indigo-100/70 p-2.5 rounded-lg">
@@ -992,14 +1035,6 @@ export default function LibraryManager({ documents, authToken, onRefresh }: Libr
                 className="px-4 py-2 border border-gray-200 text-gray-500 hover:text-black rounded-lg text-xs font-mono uppercase tracking-tight bg-white hover:bg-gray-50 transition cursor-pointer"
               >
                 Cancel
-              </button>
-              <button
-                type="button"
-                disabled={!formFolderTarget || uploadProgress}
-                onClick={() => handleTriggerUpload(formFolderTarget)}
-                className="px-5 py-2 bg-black hover:bg-gray-800 text-white rounded-lg text-xs font-mono uppercase tracking-tight transition disabled:opacity-35 disabled:pointer-events-none shadow-md cursor-pointer"
-              >
-                Upload & Sync
               </button>
             </div>
           </div>
