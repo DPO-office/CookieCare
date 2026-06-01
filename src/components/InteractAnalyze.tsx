@@ -714,7 +714,7 @@ Based on the selected corporate files and regulatory parameters, the agreement p
 
   const handleDownloadReport = async () => {
     try {
-      const reportText = chatMessages.map(m => `[${m.sender.toUpperCase()}]\n${m.text}`).join("\n\n");
+      const reportText = chatMessages.map(m => `[${m.sender === "gemini" ? "AI LEGAL ASSISTANT" : "USER QUERY"}]\n${m.text}`).join("\n\n");
       const res = await fetch(apiUrl("/api/documents/export"), {
         method: "POST",
         headers: {
@@ -753,7 +753,7 @@ Based on the selected corporate files and regulatory parameters, the agreement p
 
   const handlePrintReport = async () => {
     try {
-      const reportText = chatMessages.map(m => `[${m.sender.toUpperCase()}]\n${m.text}`).join("\n\n");
+      const reportText = chatMessages.map(m => `[${m.sender === "gemini" ? "AI LEGAL ASSISTANT" : "USER QUERY"}]\n${m.text}`).join("\n\n");
       const res = await fetch(apiUrl("/api/documents/export"), {
         method: "POST",
         headers: {

@@ -208,7 +208,7 @@ class BackgroundJobQueue {
 
   private async executeFileProcessing(job: Job): Promise<void> {
     const { id: jobId, payload } = job;
-    const { fileTitle, typeOfDocument, fileBufferBase64, mimeType, isTemplateVal, originalName, user } = payload;
+    const { fileTitle, typeOfDocument, fileBufferBase64, mimeType, isTemplateVal, originalName, user, folder_id } = payload;
 
     this.updateJob(jobId, { progress: 15, message: "Reading and analyzing file stream variables..." });
     await sleep(800);
@@ -301,8 +301,8 @@ class BackgroundJobQueue {
     if (pool) {
       try {
         await pool.query(
-          `INSERT INTO files (id, title, type, content, creator_id, creator_email, is_encrypted, versions, signatures, redlines, shared_with, audit_logs, analysis)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
+          `INSERT INTO files (id, title, type, content, creator_id, creator_email, is_encrypted, versions, signatures, redlines, shared_with, audit_logs, analysis, folder_id)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
           [
             newDocId,
             fileTitle,
@@ -321,6 +321,7 @@ class BackgroundJobQueue {
               risks: [],
               complianceGaps: []
             }),
+            folder_id || null
           ]
         );
 
@@ -361,6 +362,7 @@ class BackgroundJobQueue {
           risks: [],
           complianceGaps: []
         },
+        folder_id: folder_id || null
       };
       db.documents.push(newDoc);
       saveDatabase(db);
@@ -373,6 +375,7 @@ class BackgroundJobQueue {
       result: {
         documentId: newDocId,
         title: fileTitle,
+        content: extractedText,
         totalChunks: parseResult.metadata.totalChunks,
       }
     });

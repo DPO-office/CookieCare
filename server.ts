@@ -19,6 +19,7 @@ import analyzeRouter from "./routes/analyze";
 import askLawyerRouter from "./routes/askLawyer";
 import negotiateRouter from "./routes/negotiate";
 import vulnerabilitiesRouter from "./routes/vulnerabilities";
+import draftingRouter from "./routes/drafting";
 
 const orchestrator = new AgentOrchestrator();
 const cookieScannerNode = new CookieScannerNode();
@@ -118,6 +119,11 @@ const stripHtmlToText = (value: string) => {
     .replace(/<\/(tr)>/gi, "\n")
     .replace(/<\/(td|th)>/gi, "\t")
     .replace(/<[^>]+>/g, "")
+    // Handle basic markdown often returned by AI
+    .replace(/\*\*([^*]+)\*\*/g, "$1") // Bold
+    .replace(/^### (.*$)/gm, "$1") // H3
+    .replace(/^## (.*$)/gm, "$1") // H2
+    .replace(/^# (.*$)/gm, "$1") // H1
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
@@ -129,7 +135,12 @@ const stripHtmlToText = (value: string) => {
 };
 
 const getExportText = (title: string, contentType: string, content: string) => {
-  const body = stripHtmlToText(content);
+  let body = content
+    .replace(/\[GEMINI\]/g, "[AI LEGAL ASSISTANT]")
+    .replace(/\[USER\]/g, "[USER QUERY]");
+
+  body = stripHtmlToText(body);
+
   const headerLabel = contentType === "cookie_report"
     ? "CookieCare Privacy Compliance Report"
     : contentType === "risk_report"
@@ -162,15 +173,45 @@ const buildPdfBuffer = (title: string, contentType: string, content: string) => 
     doc.moveDown(0.5);
     doc.font("Helvetica").fontSize(10).fillColor("#6B7280").text(lines[1]);
     doc.text(lines[2]);
-    doc.moveDown(1);
+    doc.moveDown(1.5);
 
     doc.font("Helvetica").fontSize(11).fillColor("#111827");
-    for (const line of lines.slice(4)) {
-      if (!line.trim()) {
+
+    // Group lines into paragraphs for better text wrapping in PDF
+    const bodyLines = lines.slice(4);
+    let currentParagraph = "";
+
+    for (let i = 0; i < bodyLines.length; i++) {
+      const line = bodyLines[i].trim();
+
+      if (!line) {
+        if (currentParagraph) {
+          doc.text(currentParagraph, { align: "justify", lineGap: 2 });
+          doc.moveDown(0.8);
+          currentParagraph = "";
+        }
+        continue;
+      }
+
+      // Detect potential headers (all caps, or starting with numbers)
+      const isHeader = /^[0-9]+\.|^[A-Z\s]{5,}$/.test(line);
+
+      if (isHeader) {
+        if (currentParagraph) {
+          doc.text(currentParagraph, { align: "justify", lineGap: 2 });
+          doc.moveDown(0.8);
+          currentParagraph = "";
+        }
+        doc.font("Helvetica-Bold").fontSize(12).text(line);
+        doc.font("Helvetica").fontSize(11);
         doc.moveDown(0.4);
       } else {
-        doc.text(line, { lineGap: 3 });
+        currentParagraph += (currentParagraph ? " " : "") + line;
       }
+    }
+
+    if (currentParagraph) {
+      doc.text(currentParagraph, { align: "justify", lineGap: 2 });
     }
 
     doc.end();
@@ -186,10 +227,19 @@ const buildDocxBuffer = async (title: string, contentType: string, content: stri
       {
         properties: {},
         children: [
-          new Paragraph({ text: lines[0], heading: HeadingLevel.HEADING_1, spacing: { after: 120 } }),
-          new Paragraph({ children: [new TextRun({ text: lines[1], italics: true, color: "666666" })], spacing: { after: 0 } }),
-          new Paragraph({ children: [new TextRun({ text: lines[2], color: "666666" })], spacing: { after: 240 } }),
-          ...bodyText.split(/\n{2,}/).flatMap((paragraph) => paragraph.split("\n")).filter((paragraph) => paragraph.trim().length > 0).map((paragraph) => new Paragraph({ text: paragraph, spacing: { after: 180 } })),
+          new Paragraph({ text: lines[0], heading: HeadingLevel.HEADING_1, spacing: { after: 200 } }),
+          new Paragraph({ children: [new TextRun({ text: lines[1], italics: true, color: "666666" })], spacing: { after: 100 } }),
+          new Paragraph({ children: [new TextRun({ text: lines[2], color: "666666" })], spacing: { after: 400 } }),
+          ...bodyText.split(/\n{2,}/).map((para) => {
+            const trimmed = para.trim();
+            const isHeader = /^[0-9]+\.|^[A-Z\s]{5,}$/.test(trimmed);
+            return new Paragraph({
+              text: trimmed,
+              heading: isHeader ? HeadingLevel.HEADING_2 : undefined,
+              spacing: { after: isHeader ? 150 : 240 },
+              alignment: isHeader ? undefined : "both"
+            });
+          }),
         ],
       },
     ],
@@ -225,6 +275,7 @@ const buildExportArtifact = async (args: { title: string; contentType: string; c
 app.use("/api/analyze", analyzeRouter);
 app.use("/api/lawyer", askLawyerRouter);
 app.use("/api/negotiate", negotiateRouter);
+app.use("/api/drafting", draftingRouter);
 app.use("/api", vulnerabilitiesRouter);
 
 const DB_PATH = path.join(process.cwd(), "db.json");
@@ -697,7 +748,7 @@ app.post("/api/documents/upload", authenticateToken, upload.single("file"), asyn
     return res.status(400).json({ error: "No file was uploaded." });
   }
 
-  const { title, templateType, isTemplate, is_template } = req.body;
+  const { title, templateType, isTemplate, is_template, folder_id } = req.body;
   const originalName = file.originalname;
   const mimeType = file.mimetype;
   const ext = originalName.split(".").pop()?.toLowerCase();
@@ -706,37 +757,31 @@ app.post("/api/documents/upload", authenticateToken, upload.single("file"), asyn
   const isTemplateVal = isTemplate === "true" || is_template === "true" || isTemplate === true || is_template === true;
 
   try {
-    // 1. File ke buffer ko Base64 string banao (Koi local file write nahi!)
-    const fileDataBytes = file.buffer.toString("base64");
+    // Check if we should process via job queue (e.g. non-text files or large files)
+    const isText = mimeType.includes("text") || mimeType.includes("json") || mimeType.includes("csv");
 
-    // 2. Seedha Neon Postgres database ke andar document aur uska content patak do
-    const result = await pool.query(
-      `INSERT INTO files (id, title, name, type, content, creator_id, creator_email, is_template, mime_type, created_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW()) RETURNING *`,
-      [
-        "doc_" + Math.random().toString(36).substr(2, 9),
-        fileTitle,
-        originalName,
-        typeOfDocument,
-        fileDataBytes,
-        req.user.id,
-        req.user.email,
-        isTemplateVal,
-        mimeType
-      ]
-    );
+    // Always enqueue for background processing to ensure text extraction and vector indexing
+    const job = jobQueue.enqueue(req.user.id, "file_processing", {
+      fileTitle,
+      typeOfDocument,
+      fileBufferBase64: file.buffer.toString("base64"),
+      mimeType,
+      isTemplateVal,
+      originalName,
+      user: req.user,
+      folder_id: folder_id || null
+    });
 
-    // 3. Frontend ko bina crash kiye success response bhej do!
-    res.status(201).json({
+    res.status(202).json({
       success: true,
-      message: "Document uploaded and secured in database successfully!",
-      document: result.rows[0]
+      job_id: job.id,
+      message: "Document upload received. Processing for text extraction and indexing in background."
     });
 
   } catch (error: any) {
     console.error("Upload error details:", error);
     res.status(500).json({ 
-      error: "Database upload failed", 
+      error: "Upload system failed",
       details: error.message 
     });
   }
@@ -1384,192 +1429,6 @@ app.post("/api/share-report", authenticateToken, async (req: any, res) => {
   }
 });
 
-// MULTI-AGENT COMPLIANCE AGRIEMENT PIPELINE
-// Agent A (Redaction) & Agent B (Blueprint Parser Combined Ingestion Contracts)
-app.post("/api/drafting/process-uploaded-template", authenticateToken, async (req: any, res) => {
-  const { templateText } = req.body;
-  if (!templateText) {
-    return res.status(400).json({ error: "No raw template documents text provided." });
-  }
-
-  try {
-    let isMock = !process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === "dummy_api_key_for_compilation";
-    if (!isMock) {
-      try {
-        // Live analysis using Gemini 3.5 Flash sequentially
-        const result = await ai.models.generateContent({
-          model: "gemini-3.5-flash",
-          contents: `Raw Legal Template text: 
-          """
-          ${templateText}
-          """`,
-          config: {
-            systemInstruction: `You are an expert multi-agent pipeline coordinator.
-Perform two sequential operational stages:
-1. Stage A (Secure Redaction): Strip all PII (dates, names of people, legal corporate names, physical address values, financial prices) replacing them with standardised capital brackets tokens: e.g. [PARTY_A], [PARTY_B], [EFFECTIVE_DATE], [GOVERNING_LAW], [LIABILITY_CAP], [CONTRACT_VALUE].
-2. Stage B (Blueprint Parameter Identification): Retrieve all standard capital brackets tokens created and output a structured operational UI fields schema.
-
-You MUST respond strictly with a valid JSON matching this schema:
-{
-  "redactedText": "string containing completely redacted template draft text",
-  "fields": [
-    { "id": "string like party_a", "name": "Human representation name e.g. Party A name", "defaultValue": "string", "description": "Helper explaining what values should be entered in this field" }
-  ]
-}
-Do not use markdown backticks. Return raw parsed JSON.`,
-            responseMimeType: "application/json",
-          }
-        });
-
-        const parsed = JSON.parse(result.text.trim());
-        res.json({ data: parsed });
-      } catch (geminiError: any) {
-        console.info("Info: Sanitization tool loaded secure local parameter mapping template.");
-        isMock = true;
-      }
-    }
-
-    if (isMock) {
-      // Offline high-fidelity mock sanitisation simulation
-      const simulatedRedacted = templateText
-        .replace(/Google/gi, "[PARTY_A]")
-        .replace(/DeepMind/gi, "[PARTY_B]")
-        .replace(/Krish Jain/gi, "[SIGNATORY_NAME]")
-        .replace(/\$5,000,000/g, "[LIABILITY_CAP]")
-        .replace(/May 28, 2026/g, "[EFFECTIVE_DATE]");
-
-      const mockResult = {
-        redactedText: simulatedRedacted + "\n\n[AUDITED WORKSPACE DATA BLUEPRINT ENFORCED]",
-        fields: [
-          { id: "party_a", name: "Disclosing Entity Name", defaultValue: "CookieCare Corp", description: "The full legal designation of the disclosing business partner." },
-          { id: "party_b", name: "Receiving Entity Name", defaultValue: "TechPartner LLC", description: "The receiving business partner entity name." },
-          { id: "effective_date", name: "Agreement Effective Date", defaultValue: new Date().toLocaleDateString(), description: "Effective activation timestamp." },
-          { id: "governing_law", name: "Jurisdictional Law", defaultValue: "State of Delaware", description: "Choosing the governing court law." },
-          { id: "liability_cap", name: "Maximum Liability Threshold", defaultValue: "USD $1,000,000", description: "Capping liability exposure bounds." }
-        ]
-      };
-      res.json({ data: mockResult });
-    }
-  } catch (err: any) {
-    console.error("Template Processing Error", err);
-    res.status(500).json({ error: "Multi-agent compilation failure: " + err.message });
-  }
-});
-
-// Agent C: Streaming Ingestion Engine
-app.post("/api/drafting/generate-stream", authenticateToken, async (req: any, res) => {
-  const { mode, outputLevel, instructions, sourceText, playbookText, templateId, formFields } = req.body;
-
-  // Set headers for standard node HTTP chunked streaming
-  res.setHeader("Content-Type", "text/plain; charset=utf-8");
-  res.setHeader("Transfer-Encoding", "chunked");
-  res.setHeader("Cache-Control", "no-cache");
-  res.setHeader("Connection", "keep-alive");
-
-  try {
-    let isMock = !process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === "dummy_api_key_for_compilation";
-    
-    // Evolve DraftingAgent: high-priority semantic fetch from the vector store to extract blueprint
-    let templateBlueprint = "";
-    if (templateId) {
-      try {
-        const queryStr = `Extract template layout, definition styles, explicit clause bounds, and schema details for template ID: ${templateId}`;
-        const matchedChunks = await semanticSearch(req.user.id, queryStr, 5);
-        if (matchedChunks && matchedChunks.length > 0) {
-          templateBlueprint = matchedChunks.join("\n\n");
-          console.log(`[DraftingAgent Blueprint] Extracted ${matchedChunks.length} chunks via high-priority semantic search.`);
-        } else {
-          // Check database directly
-          const dbFiles = await pool.query(
-            "SELECT id, title, content FROM files WHERE (id = $1 OR title ILIKE $2) AND creator_id = $3",
-            [templateId, `%${templateId}%`, req.user.id]
-          );
-          if (dbFiles.rows.length > 0) {
-            templateBlueprint = decryptData(dbFiles.rows[0].content);
-            console.log("[DraftingAgent Blueprint] Found direct file template body.");
-          }
-        }
-      } catch (tplErr: any) {
-        console.warn("[DraftingAgent Blueprint] Non-blocking fetch exception:", tplErr.message);
-      }
-    }
-
-    // Construct instructions context prompt
-    let promptText = `Draft a premier professional legal agreement.
-Mode: ${mode}
-Output Size Guideline: ${outputLevel}
-Custom Core Requirements: ${instructions || "Ensure optimal corporate compliance security"}`;
-
-    if (mode === "Advanced" && sourceText) {
-      promptText += `\nRedacted Source Blueprint Base:\n${sourceText}`;
-    }
-    if (mode === "Advanced" && playbookText) {
-      promptText += `\nRegulatory Playbook Directives:\n${playbookText}`;
-    }
-    if (templateId) {
-      promptText += `\nBase Template Schema Target: ${templateId}`;
-    }
-    if (templateBlueprint) {
-      promptText += `\n\n[MANDATORY GENERATION BOUNDARY - PROPRIETARY TEMPLATE BLUEPRINT (DEFINITIONS, LAYOUT, CLAUSE BOUNDS)]:\nUser uploaded a custom template. You MUST strictly model your output structure, vocabulary, definitions, alignment, and exclusive bounds around the following blueprint:\n"""\n${templateBlueprint}\n"""\n`;
-    }
-    if (formFields && Object.keys(formFields).length > 0) {
-      promptText += `\nApply and merge these user configurations: \n${JSON.stringify(formFields)}`;
-    }
-
-    const systemInstruction = `You are a Senior Corporate Lawyer and Privacy Compliance Officer.
-Draft direct legal agreements matching requested instructions. ${templateBlueprint ? "You MUST follow the layout styles, definitions, and clause boundaries in the provided Proprietary Template Blueprint exactly." : ""} Output standard clear sections matching headers. Provide robust terms addressing indemnifications, liability levels, and regional expectations (GDPR, CCPA, etc.). Apply provided merge variables completely.
-Do not output markdown backticks wrapping the whole document. Respond with beautiful clean plain text layout formatting.`;
-
-    if (!isMock) {
-      try {
-        // Live Streaming Gemini 3.5 Flash
-        const responseStream = await ai.models.generateContentStream({
-          model: "gemini-3.5-flash",
-          contents: promptText,
-          config: {
-            systemInstruction,
-          }
-        });
-
-        for await (const chunk of responseStream) {
-          if (chunk.text) {
-            res.write(chunk.text);
-          }
-        }
-        res.end();
-      } catch (geminiError: any) {
-        console.info("Info: Content streamer active on backup pre-loaded database.");
-        isMock = true;
-      }
-    }
-
-    if (isMock) {
-      // High quality simulated stream chunks using corporate Drafting Agent rules
-      try {
-        const draftResult = await orchestrator.drafter.generateAgreement(
-          mode,
-          templateId || "NDA",
-          formFields?.governing_law || "State of Delaware",
-          formFields?.governing_law || "Delaware",
-          formFields?.party_a || "CookieCare Corporate Group",
-          formFields?.party_b || "Specified Infrastructure Partner",
-          formFields?.liability_cap || "twelve rolling months spend",
-          instructions,
-          templateBlueprint
-        );
-        res.write(draftResult.agreementText);
-        res.end();
-      } catch (streamErr: any) {
-        res.status(500).write("Drafting stream exception occurred: " + streamErr.message);
-        res.end();
-      }
-    }
-  } catch (err: any) {
-    console.error("Generator Stream Error", err);
-    res.write(`[GEN_ERROR: ${err.message}]`);
-    res.end();
-  }
-});
 
 // Seed DB on launch
 // loadDatabase();
@@ -1614,7 +1473,7 @@ async function startServer() {
 }
 
 
-export { app };
+export { app, decryptData, encryptData };
 
 if (!process.env.VERCEL) {
   startServer();

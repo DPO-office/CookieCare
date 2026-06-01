@@ -466,7 +466,7 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
     setIsParsingTemplate(true);
     setStreamingProgress("PII Shield Redaction & Parameter extraction active...");
     try {
-      const res = await fetch("/api/drafting/process-uploaded-template", {
+      const res = await fetch(apiUrl("/api/drafting/process-uploaded-template"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -616,7 +616,7 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
         body: JSON.stringify({
           title: exportTitle,
           contentType: "redlines",
-          content: editorContent,
+          content: editorContent.replace(/\[GEMINI\]/g, "[AI LEGAL ASSISTANT]").replace(/\[USER\]/g, "[USER QUERY]"),
           format: "docx"
         })
       });
@@ -654,7 +654,7 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
         body: JSON.stringify({
           title: exportTitle,
           contentType: "redlines",
-          content: editorContent,
+          content: editorContent.replace(/\[GEMINI\]/g, "[AI LEGAL ASSISTANT]").replace(/\[USER\]/g, "[USER QUERY]"),
           format: "pdf"
         })
       });
