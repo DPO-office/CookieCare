@@ -1,4 +1,5 @@
 import pg from "pg";
+import bcrypt from "bcrypt";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 import {
@@ -71,6 +72,9 @@ export async function dbInit() {
         email VARCHAR(255) UNIQUE NOT NULL,
         name VARCHAR(255) NOT NULL,
         password_hash VARCHAR(255) NOT NULL,
+        status VARCHAR(50) DEFAULT 'PENDING_APPROVAL' CHECK (status IN ('PENDING_APPROVAL', 'APPROVED', 'REJECTED')),
+        role VARCHAR(50) DEFAULT 'USER',
+        approved_at TIMESTAMP WITH TIME ZONE,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
     `);
@@ -182,20 +186,26 @@ export async function dbInit() {
     console.log("Postgres database schemas initialized successfully.");
 
     // 7. Seed initial master user and standard documents if empty
+    const hashedSeedPassword = await bcrypt.hash("password123", 10);
     const defaultUser = {
       id: "krish_jain_id",
       email: "swarnaaishwarya17@gmail.com",
       name: "Krish Jain",
-      passwordHash: "password123",
+      passwordHash: hashedSeedPassword,
+      status: "APPROVED",
+      role: "ADMIN"
     };
 
     await client.query(`
-      INSERT INTO users (id, email, name, password_hash)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO users (id, email, name, password_hash, status, role, approved_at)
+      VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
       ON CONFLICT (email) DO UPDATE SET
         name = EXCLUDED.name,
-        password_hash = EXCLUDED.password_hash;
-    `, [defaultUser.id, defaultUser.email, defaultUser.name, defaultUser.passwordHash]);
+        password_hash = EXCLUDED.password_hash,
+        status = EXCLUDED.status,
+        role = EXCLUDED.role,
+        approved_at = EXCLUDED.approved_at;
+    `, [defaultUser.id, defaultUser.email, defaultUser.name, defaultUser.passwordHash, defaultUser.status, defaultUser.role]);
 
     const { rows: existingDocRows } = await client.query(
       "SELECT COUNT(*) FROM files WHERE id = $1;",

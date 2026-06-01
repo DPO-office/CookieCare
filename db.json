@@ -5,6 +5,78 @@
       "email": "swarnaaishwarya17@gmail.com",
       "name": "Krish Jain",
       "passwordHash": "password123"
+    },
+    {
+      "id": "user_6rwvv7x5i",
+      "email": "test-0.8652506195076877@example.com",
+      "name": "Test User",
+      "password_hash": "$2b$10$VH4k3np3sLpAxOVX2RtRyukHgD5dUiUpueEGZZwfrrtCQMnThB5EW",
+      "status": "PENDING_APPROVAL",
+      "role": "USER"
+    },
+    {
+      "id": "user_n8aa79rln",
+      "email": "test-login-0.3854830790617221@example.com",
+      "name": "Test User",
+      "password_hash": "$2b$10$SWtMLwGjEEcPPzCWC2/PxetmRFzc9029EkFFDBeibpTX2sd9XKjW6",
+      "status": "PENDING_APPROVAL",
+      "role": "USER"
+    },
+    {
+      "id": "user_3rdzp736w",
+      "email": "test-0.8900597482902384@example.com",
+      "name": "Test User",
+      "password_hash": "$2b$10$np2i3xz84oM.u4wrYsSAY.oC4e/xP.U0aLwVuD2jTldUTXAA7LSbq",
+      "status": "PENDING_APPROVAL",
+      "role": "USER"
+    },
+    {
+      "id": "user_cdlkh97rr",
+      "email": "test-login-0.8746362843869318@example.com",
+      "name": "Test User",
+      "password_hash": "$2b$10$CH5oJ.jq.nrAD7RcxPyIO.FkI4A821IVIk95haIBbbJt8HWgvdVJG",
+      "status": "PENDING_APPROVAL",
+      "role": "USER"
+    },
+    {
+      "id": "user_s6eldc2xl",
+      "email": "test-0.3702378629275611@example.com",
+      "name": "Test User",
+      "password_hash": "$2b$10$PyvI5s011h7HqH9Ep6F8Oe6vwh4Sw/1oFj4Rhglj6Chu4KWkEJZxK",
+      "status": "PENDING_APPROVAL",
+      "role": "USER"
+    },
+    {
+      "id": "user_6mn5hhpn5",
+      "email": "test-login-0.6596682830527743@example.com",
+      "name": "Test User",
+      "password_hash": "$2b$10$SU7erPBbl/sCXLF8yyA0uOFjf/VcOcVVM1YNw3CK0tBWgKWfelGey",
+      "status": "PENDING_APPROVAL",
+      "role": "USER"
+    },
+    {
+      "id": "user_s5ggvnhli",
+      "email": "test-0.16245418225470742@example.com",
+      "name": "Test User",
+      "password_hash": "$2b$10$oFCRKIbQ5e4oXWo4cGTyNOSdEFexND/lpotlwH7YaUOXgYD0w3MNm",
+      "status": "PENDING_APPROVAL",
+      "role": "USER"
+    },
+    {
+      "id": "user_axvqe636u",
+      "email": "test-login-0.8876524862465323@example.com",
+      "name": "Test User",
+      "password_hash": "$2b$10$9/3HQfb7jV9F5tdefmy2suKvPglc5xPR14HEgz9oVr0iWHBRAsvdq",
+      "status": "PENDING_APPROVAL",
+      "role": "USER"
+    },
+    {
+      "id": "user_ztbaanf82",
+      "email": "jane@example.com",
+      "name": "Jane Doe",
+      "password_hash": "$2b$10$4V0pnYXt4ywwAubDcQDF1eOCnj/nlU5vs3zjj83qFd4C0kXjy/u3S",
+      "status": "PENDING_APPROVAL",
+      "role": "USER"
     }
   ],
   "documents": [

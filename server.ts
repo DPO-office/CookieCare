@@ -11,6 +11,7 @@ import multer from "multer";
 import PDFDocument from "pdfkit";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
 import nodemailer from "nodemailer";
+import bcrypt from "bcrypt";
 import { dbInit, pool, chunkAndIndexDocument, semanticSearch } from "./db";
 import { AgentOrchestrator } from "./services/agentOrchestrator";
 import { CookieScannerNode, VulnerabilityScannerNode } from "./services/scannerNodes";
@@ -479,7 +480,7 @@ const authenticateToken = async (req: any, res: any, next: any) => {
 
   try {
     const { rows } = await pool.query(
-      "SELECT id, email, name FROM users WHERE id = $1 OR email = $2",
+      "SELECT id, email, name, status, role FROM users WHERE id = $1 OR email = $2",
       [token, token]
     );
     if (rows.length > 0) {
@@ -491,7 +492,17 @@ const authenticateToken = async (req: any, res: any, next: any) => {
   }
 
   if (!user) {
+    // Fallback to local JSON DB
+    const db = loadDatabase();
+    user = db.users.find((u: any) => u.id === token || u.email === token);
+  }
+
+  if (!user) {
     return res.status(403).json({ error: "Unauthorized or invalid user session." });
+  }
+
+  if (user.status !== 'APPROVED') {
+    return res.status(403).json({ error: "Your account is awaiting admin approval." });
   }
 
   req.user = user;
@@ -516,22 +527,35 @@ app.post("/api/auth/register", async (req, res) => {
       return res.status(400).json({ error: "Email already exists." });
     }
 
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(password, saltRounds);
+
     await pool.query(
-      "INSERT INTO users (id, email, name, password_hash) VALUES ($1, $2, $3, $4)",
-      [newUserId, normalizedEmail, name, password]
+      "INSERT INTO users (id, email, name, password_hash, status, role) VALUES ($1, $2, $3, $4, $5, $6)",
+      [newUserId, normalizedEmail, name, passwordHash, 'PENDING_APPROVAL', 'USER']
     );
 
-    return res.json({ token: newUserId, user: { id: newUserId, email: normalizedEmail, name } });
+    return res.status(201).json({ message: "Account created successfully. Awaiting administrator approval." });
   } catch (err: any) {
     console.warn("Postgres registration failed, using local fallback:", err.message);
     const db = loadDatabase();
     if (db.users.find((u: any) => u.email === normalizedEmail)) {
       return res.status(400).json({ error: "Email already exists (local)." });
     }
-    const newUser = { id: newUserId, email: normalizedEmail, name, passwordHash: password };
+
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(password, saltRounds);
+    const newUser = {
+      id: newUserId,
+      email: normalizedEmail,
+      name,
+      password_hash: passwordHash,
+      status: 'PENDING_APPROVAL',
+      role: 'USER'
+    };
     db.users.push(newUser);
     saveDatabase(db);
-    return res.json({ token: newUserId, user: { id: newUserId, email: normalizedEmail, name } });
+    return res.status(201).json({ message: "Account created successfully. Awaiting administrator approval." });
   }
 });
 
@@ -545,24 +569,97 @@ app.post("/api/auth/login", async (req, res) => {
 
   try {
     const { rows } = await pool.query(
-      "SELECT id, email, name, password_hash FROM users WHERE email = $1 AND password_hash = $2",
-      [normalizedEmail, password]
+      "SELECT id, email, name, password_hash, status, role FROM users WHERE email = $1",
+      [normalizedEmail]
     );
 
     if (rows.length > 0) {
       const user = rows[0];
-      return res.json({ token: user.id, user: { id: user.id, email: user.email, name: user.name } });
+      const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+      if (isPasswordValid) {
+        if (user.status !== 'APPROVED') {
+          return res.status(403).json({ error: "Your account is awaiting admin approval." });
+        }
+        return res.json({ token: user.id, user: { id: user.id, email: user.email, name: user.name, status: user.status, role: user.role } });
+      }
     }
   } catch (err: any) {
     console.warn("Postgres login failed, using local fallback:", err.message);
     const db = loadDatabase();
-    const user = db.users.find((u: any) => u.email === normalizedEmail && (u.password_hash === password || u.passwordHash === password));
+    const user = db.users.find((u: any) => u.email === normalizedEmail);
     if (user) {
-      return res.json({ token: user.id, user: { id: user.id, email: user.email, name: user.name } });
+      const isPasswordValid = await bcrypt.compare(password, user.password_hash || user.passwordHash);
+      if (isPasswordValid) {
+        if (user.status !== 'APPROVED') {
+          return res.status(403).json({ error: "Your account is awaiting admin approval." });
+        }
+        return res.json({ token: user.id, user: { id: user.id, email: user.email, name: user.name, status: user.status, role: user.role } });
+      }
     }
   }
 
   return res.status(401).json({ error: "Invalid email or password." });
+});
+
+// Admin Approval API
+app.patch("/api/admin/users/approve", authenticateToken, async (req: any, res) => {
+  const { userId, role } = req.body;
+  if (!userId || !role) {
+    return res.status(400).json({ error: "userId and role are required." });
+  }
+
+  // Check if current user is admin
+  if (req.user.role !== 'ADMIN') {
+    return res.status(403).json({ error: "Access denied. Admins only." });
+  }
+
+  try {
+    // 1. Update Neon Postgres
+    try {
+      await pool.query(
+        "UPDATE users SET status = 'APPROVED', role = $1, approved_at = CURRENT_TIMESTAMP WHERE id = $2",
+        [role, userId]
+      );
+    } catch (dbErr) {
+      console.warn("Neon Postgres update failed for admin approval:", dbErr);
+    }
+
+    // 2. Update local JSON DB
+    const db = loadDatabase();
+    const user = db.users.find((u: any) => u.id === userId);
+    if (user) {
+      user.status = 'APPROVED';
+      user.role = role;
+      user.approved_at = new Date().toISOString();
+      saveDatabase(db);
+    }
+
+    res.json({ success: true, message: "User approved successfully." });
+  } catch (error: any) {
+    console.error("Admin approval failed:", error);
+    res.status(500).json({ error: "Failed to approve user: " + error.message });
+  }
+});
+
+app.get("/api/admin/pending-users", authenticateToken, async (req: any, res) => {
+  if (req.user.role !== 'ADMIN') {
+    return res.status(403).json({ error: "Access denied. Admins only." });
+  }
+
+  try {
+    let users = [];
+    try {
+      const { rows } = await pool.query("SELECT id, email, name, status, role, created_at FROM users WHERE status = 'PENDING_APPROVAL'");
+      users = rows;
+    } catch (err) {
+      console.warn("Postgres pending users fetch failed, using local fallback");
+      const db = loadDatabase();
+      users = db.users.filter((u: any) => u.status === 'PENDING_APPROVAL');
+    }
+    res.json(users);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 
