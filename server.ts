@@ -26,6 +26,7 @@ const orchestrator = new AgentOrchestrator();
 const cookieScannerNode = new CookieScannerNode();
 const vulnerabilityScannerNode = new VulnerabilityScannerNode();
 
+
 // Bind global variables for clean, non-blocking background task worker loops
 (global as any).pool = pool;
 (global as any).chunkAndIndexDocument = chunkAndIndexDocument;
@@ -99,15 +100,9 @@ const isAllowedDevOrigin = (origin: string) =>
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin || corsOrigins.has(origin) || isAllowedDevOrigin(origin)) {
-        callback(null, true);
-        return;
-      }
-
-      callback(null, false);
-    },
-    credentials: true,
+    origin: '*', // Yeh har tarah ke GitHub Codespaces port mapping ko bypass kar dega
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
   })
 );
 
