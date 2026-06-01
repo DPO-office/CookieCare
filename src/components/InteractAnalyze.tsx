@@ -72,16 +72,7 @@ export default function InteractAnalyze({
   const [viewMode, setViewMode] = useState<"form" | "report">("form");
 
   // --- SCREEN A: FORM SELECTION STATE ---
-  const [folders, setFolders] = useState<CustomFolder[]>([
-    { id: "f1", name: "CookieCare Sample Files", filesCount: 3, selected: false },
-    { id: "f2", name: "Ask - Folder Test", filesCount: 7, selected: false },
-    { id: "f3", name: "CD PR Agreement", filesCount: 2, selected: false },
-    { id: "f4", name: "Chirag Doshi DA", filesCount: 3, selected: false },
-    { id: "f5", name: "Draft Judgements Test", filesCount: 1, selected: false },
-    { id: "f6", name: "Mantralay Scans", filesCount: 3, selected: true }, // Preselect Mantralay Scans as active
-    { id: "f7", name: "Reference Files Test", filesCount: 2, selected: false },
-    { id: "f8", name: "State of Florida", filesCount: 3, selected: false }
-  ]);
+  const [folders, setFolders] = useState<CustomFolder[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [promptTab, setPromptTab] = useState<"write" | "library" | "questions">("write");
   const [customPromptText, setCustomPromptText] = useState(
@@ -92,71 +83,55 @@ export default function InteractAnalyze({
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showCopyToast, setShowCopyToast] = useState(false);
 
-  // --- SELECTION UTILITY PRESSETS (FETCHED FROM LOCAL STORAGE VAULT INDEPENDENTLY ON MOUNT) ---
-  const [promptLibrary, setPromptLibrary] = useState([
+  // --- SELECTION UTILITY PRESSETS ---
+  const [promptLibrary] = useState([
     { title: "Review Asymmetric Indemnification Liability", prompt: "Analyse whether the clause passes all IP infraction and systemic server delay damages solely onto the client on an asymmetric scale." },
     { title: "SLA Infrastructure Availability Audit", prompt: "Verify uptime compliance thresholds and standard service credits calculations for cloud disruptions." },
     { title: "General NDA Dissemination Scrutiny", prompt: "Audit limitations surrounding sub-contracting permissions, data classification parameters, and survival boundaries." }
   ]);
 
-  const [questionsLibrary, setQuestionsLibrary] = useState([
+  const [questionsLibrary] = useState([
     "What is the confidentiality survival duration defined in the text?",
     "Does the processor have data deletion commitments?",
     "Are there any punitive, non-proven liquidated damages listed?"
   ]);
 
-  // Load personalization presets directly from Vault storage matching user personal preference
   useEffect(() => {
-    const localSaved = localStorage.getItem("cookiecare_vault_personalization");
-    if (localSaved) {
+    const fetchFoldersAndDocs = async () => {
       try {
-        const parsed = JSON.parse(localSaved);
-        
-        // Load target folder configurations
-        const vaultFolders = parsed
-          .filter((item: any) => item.type === "files")
-          .map((item: any) => ({
-            id: item.id,
-            name: item.name,
-            filesCount: item.fileList?.length || 0,
-            selected: item.name === "Mantralay Scans" // retain default Mantralay Scans focus for India cases
+        const [foldersRes, docsRes] = await Promise.all([
+          fetch(apiUrl("/api/folders"), { headers: { "Authorization": `Bearer ${authToken}` } }),
+          fetch(apiUrl("/api/documents"), { headers: { "Authorization": `Bearer ${authToken}` } })
+        ]);
+
+        if (foldersRes.ok && docsRes.ok) {
+          const foldersData = await foldersRes.json();
+          const docsData = await docsRes.json();
+
+          const formattedFolders: CustomFolder[] = foldersData.map((f: any) => ({
+            id: f.id,
+            name: f.name,
+            filesCount: docsData.filter((d: any) => d.folder_id === f.id).length,
+            selected: false
           }));
-        if (vaultFolders.length > 0) {
-          const hasSelected = vaultFolders.some((f: any) => f.selected);
-          if (!hasSelected) {
-            vaultFolders[0].selected = true;
+
+          const rootFilesCount = docsData.filter((d: any) => !d.folder_id).length;
+          if (rootFilesCount > 0) {
+            formattedFolders.push({
+              id: "root",
+              name: "Unassigned Vault Files",
+              filesCount: rootFilesCount,
+              selected: false
+            });
           }
-          setFolders(vaultFolders);
-        }
-
-        // Load customizable system prompts
-        const vaultPrompts = parsed
-          .filter((item: any) => item.type === "prompts")
-          .map((item: any) => ({
-            title: item.name,
-            prompt: item.details || item.description
-          }));
-        if (vaultPrompts.length > 0) {
-          setPromptLibrary(vaultPrompts);
-        }
-
-        // Load custom structured questioning catalogs
-        const vaultQuestions = parsed
-          .filter((item: any) => item.type === "questions")
-          .flatMap((item: any) => {
-            if (item.details) {
-              return item.details.split("\n").map((q: string) => q.trim()).filter((q: string) => q);
-            }
-            return [item.name];
-          });
-        if (vaultQuestions.length > 0) {
-          setQuestionsLibrary(vaultQuestions);
+          setFolders(formattedFolders);
         }
       } catch (err) {
-        console.error("Failed to parsed vault db inside query interface", err);
+        console.error("Failed to fetch data", err);
       }
-    }
-  }, []);
+    };
+    fetchFoldersAndDocs();
+  }, [authToken]);
 
   // --- SIDE PANEL / DRAWER ACTIONS ---
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
@@ -168,73 +143,21 @@ export default function InteractAnalyze({
   const [newFolderTags, setNewFolderTags] = useState("NDA, Scans");
   
   // Upload State variables
-  const [uploadSelectedFolder, setUploadSelectedFolder] = useState("Mantralay Scans");
+  const [uploadSelectedFolder, setUploadSelectedFolder] = useState("");
   const [isDraggingFile, setIsDraggingFile] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedFileName, setUploadedFileName] = useState("");
 
   // --- SCREEN B: ASSESSMENT REPORT CANVAS STATE ---
-  const [activeReportDocName, setActiveReportDocName] = useState("Mantralay Scans");
+  const [activeReportDocName, setActiveReportDocName] = useState("");
   
-  // The interactive Traffic Light contract clauses displayed on the main report canvas
-  const [reportClauses, setReportClauses] = useState([
-    {
-    id: "clause-1",
-    title: "1. RECITALS & ACTIVE PURPOSE",
-    clauseText: "This Bilateral Security Assessment and Integration Services Agreement (the 'Agreement') is entered into on this 10th day of April, 2026, by and between Mantralay Services ('Disclosing Party') and CookieCare Corp ('Receiving Party') regarding shared security parameters.",
-      severity: "compliant" as const,
-      reason: "Standard corporate recitals defining company entities, purpose, mutual scope of data security, and standard privacy objectives.",
-      remediation: null,
-      isAutoRemediating: false
-    },
-    {
-      id: "clause-2",
-      title: "2. SERVER SECURITY AUDITS & ACCESS",
-      clauseText: "Receiving Party shall grant Disclosing Party an unconditional right to audit Receiving Party's servers, databases, and physical host directories at any time without prior written notice.",
-      severity: "high" as const,
-      reason: "Exposes corporate host networks and proprietary directories to unannounced, absolute access sweeps without legal boundaries or privacy waivers. Violates standard compliance protocols.",
-      remediation: "Audits shall be conducted no more than once per calendar year upon at least fifteen (15) business days written notice, during working hours, and shall be executed by an independent certified third-party auditor subject to mutual confidentiality guidelines.",
-      isAutoRemediating: false
-    },
-    {
-      id: "clause-3",
-      title: "3. CONFIDENTIALITY SURVIVAL DURATION",
-      clauseText: "All confidentiality terms, restricted exclusions, and direct liability limitations under Section 1 shall survive for a duration of ten (10) years following termination or cancellation of this Agreement.",
-      severity: "medium" as const,
-      reason: "Excessive legal lockout periods for standard operational elements. Impedes SaaS expansion, restricts engineering mobility, and creates prolonged technical liability logs.",
-      remediation: "All security commitments and mutual non-disclosure obligations shall remain in force for a reasonable duration of three (3) years maximum following agreement dissolution.",
-      isAutoRemediating: false
-    },
-    {
-      id: "clause-4",
-      title: "4. BREACH REMEDIES & PUNITIVE LIQUIDATED PENALTIES",
-      clauseText: "In the event of any unauthorized data leakage or systemic breach of confidential code metadata, Receiving Party shall pay liquidated damages of a minimum of USD $5,000,000 without Disclosing Party needing to prove actual damages.",
-      severity: "high" as const,
-      reason: "Pre-establishes severe, disproportionate financial penalties independent of real loss parameters, severely threatening corporate liquidity and standard business liability caps.",
-      remediation: "In the event of a proven material breach, the non-breaching party shall be entitled to recover actual direct commercial damages proven in a court of competent jurisdiction under Delaware precedent, with general liabilities capped at twelve (12) months fees.",
-      isAutoRemediating: false
-    },
-    {
-      id: "clause-5",
-      title: "5. GOVERNING LAW & COURT PRECEDENTS",
-      clauseText: "This Agreement shall be in all respects governed, structured, and interpreted in accordance with the legislation of London, United Kingdom, without regard to local US jurisdictions or state courts.",
-      severity: "medium" as const,
-      reason: "Arbitrating in an extraterritorial international forum places severe strain on counsel travel budgets, exposes records to mismatch regulations, and increases audit resolution friction.",
-      remediation: "This Agreement shall be governed by, and construed in accordance with, the laws of the State of Delaware, USA, with disputes submitted to the exclusive jurisdiction of Delaware courts.",
-      isAutoRemediating: false
-    }
-  ]);
+  const [reportClauses, setReportClauses] = useState<any[]>([]);
 
-  const [activeInspectorClauseId, setActiveInspectorClauseId] = useState<string | null>("clause-2");
+  const [activeInspectorClauseId, setActiveInspectorClauseId] = useState<string | null>(null);
 
   // --- STICKY FOLLOW-UP LAWYER CHAT STATE ---
   const [chatInput, setChatInput] = useState("");
-  const [chatMessages, setChatMessages] = useState<Message[]>([
-    {
-      sender: "gemini",
-      text: "Greetings. I am your Personalized Legal AI Attorney. I have analyzed 'Mantralay Scans' matching your audit directives.\n\nI have isolated **2 High Risk** vulnerabilities and **2 Medium Risk** items. I am prepared to answer your tailored questions regarding specific clause liabilities, Delaware Supreme Court precedents, and redrafting strategies based on trusted online statutory records. How may I advise you today?"
-    }
-  ]);
+  const [chatMessages, setChatMessages] = useState<Message[]>([]);
   const chatBottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -494,45 +417,53 @@ Based on the selected corporate files and regulatory parameters, the agreement p
 - **Proven Actual Damages cap**: Replace the static liquidated damages chunk with a standard cap on direct actual damages.
 - **Delaware Choice of Jurisdiction**: Stabilize governing forum rules to Delaware, USA, avoiding London, UK extraterritorial friction.`;
 
-  const handleStartAnalysis = () => {
+  const handleStartAnalysis = async () => {
     const activeSelectedFolders = folders.filter(f => f.selected);
     if (activeSelectedFolders.length === 0) {
       alert("Please select at least one document folder node to analyze.");
       return;
     }
     
-    // Set active document report title based on selection
     const firstSelected = activeSelectedFolders[0].name;
     setActiveReportDocName(firstSelected);
-
     setIsAnalyzing(true);
 
-    setTimeout(() => {
-      let initialResponse = GENERAL_ANALYSIS_TEXT;
-      if (firstSelected === "Mantralay Scans") {
-        initialResponse = MANTRALAY_ANALYSIS_TEXT;
-      } else {
-        initialResponse = `### Executive Legal Assessment for ${firstSelected}\n\n` + 
-          `**Document Interaction Mode:** ${documentMode.toUpperCase()}\n` +
-          `**Answer Formatting Style:** ${answerStyle.toUpperCase()}\n\n` +
-          `Based on your custom prompt:\n*"${customPromptText}"*\n\n` +
-          `We have analyzed the selected documents inside **${firstSelected}** and compiled these findings as an expert attorney:\n\n` +
-          `- **Scope Isolation**: Configured under a **${documentMode}** workflow.\n` +
-          `- **Analysis Format**: Generated as a **${answerStyle}** layout.\n\n` +
-          `1. **Risk Term Detection**: Identified standard operational risk nodes matching the target query parameters.\n` +
-          `2. **Remediation Measures**: Audits, liability caps, and jurisdiction rules should be re-negotiated to protect organizational privacy and security.`;
-      }
+    try {
+      const response = await fetch(apiUrl("/api/analyze/interact"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`
+        },
+        body: JSON.stringify({
+          folder_ids: activeSelectedFolders.map(f => f.id),
+          prompt: customPromptText,
+          documentMode,
+          answerStyle
+        })
+      });
+
+      const data = await response.json();
 
       setChatMessages([
         {
           sender: "gemini",
-          text: initialResponse
+          text: data.analysis || `### Executive Legal Assessment for ${firstSelected}\n\nAnalysis complete.`
         }
       ]);
 
-      setIsAnalyzing(false);
+      if (data.clauses) {
+        setReportClauses(data.clauses);
+      }
+
       setViewMode("report");
-    }, 1500);
+    } catch (err) {
+      console.error("Analysis failed", err);
+      setChatMessages([{ sender: "gemini", text: "Failed to perform analysis. Please check your connection." }]);
+      setViewMode("report");
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   // --- ACTION: AUTO REMEDIATE INDIVIDUAL CLAUSE IN ASSESSMENT CANVAS ---
