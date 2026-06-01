@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { apiUrl } from "../config";
 import { 
   Folder, 
   Search, 
@@ -94,342 +95,51 @@ export default function LibraryManager({ documents, authToken, onRefresh }: Libr
 
   const activeTabInfo = tabsConfig.find(t => t.id === activeTab) || tabsConfig[0];
 
-  // Load and Seed Default Data
-  useEffect(() => {
-    const localSaved = localStorage.getItem("cookiecare_vault_personalization");
-    if (localSaved) {
-      try {
-        setItems(JSON.parse(localSaved));
-      } catch (err) {
-        console.error("Failed to parse vault database", err);
+  const fetchLibraryData = async () => {
+    try {
+      const [foldersRes, itemsRes] = await Promise.all([
+        fetch(apiUrl("/api/folders"), { headers: { "Authorization": `Bearer ${authToken}` } }),
+        fetch(apiUrl("/api/library-items"), { headers: { "Authorization": `Bearer ${authToken}` } })
+      ]);
+
+      if (foldersRes.ok && itemsRes.ok) {
+        const foldersData = await foldersRes.json();
+        const libraryItemsData = await itemsRes.json();
+
+        const formattedFolders: LibraryItem[] = foldersData.map((f: any) => ({
+          id: f.id,
+          type: "files",
+          name: f.name,
+          description: "-",
+          tags: "-",
+          itemsCount: 0,
+          dateModified: new Date(f.updated_at).toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" }).replace(/\//g, "-"),
+          createdBy: "User",
+          fileList: []
+        }));
+
+        const formattedItems: LibraryItem[] = libraryItemsData.map((i: any) => ({
+          id: i.id,
+          type: i.type,
+          name: i.name,
+          description: i.description || "-",
+          tags: i.tags || "-",
+          itemsCount: "1 item",
+          dateModified: new Date(i.updated_at).toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" }).replace(/\//g, "-"),
+          createdBy: "User",
+          details: i.details
+        }));
+
+        setItems([...formattedFolders, ...formattedItems]);
       }
-    } else {
-      // Robust pre-existing items as displayed in the user screenshot and requested
-      const defaults: LibraryItem[] = [
-        // FILES (As shown in screenshot)
-        {
-          id: "fld_1",
-          type: "files",
-          name: "Ask - Folder Test",
-          description: "-",
-          tags: "-",
-          itemsCount: 7,
-          dateModified: "26-03-26",
-          createdBy: "Krish Jain",
-          fileList: [
-            { name: "stay_of_demand_clause.pdf", size: "1.2 MB", type: "PDF" },
-            { name: "tax_assessments_audit.docx", size: "900 KB", type: "DOCX" },
-            { name: "circular_memorandum.pdf", size: "2.1 MB", type: "PDF" },
-            { name: "mca_guidelines.pdf", size: "1.8 MB", type: "PDF" },
-            { name: "tribunal_stay_orders.txt", size: "15 KB", type: "TXT" },
-            { name: "financial_hardship_proof.xlsx", size: "4.3 MB", type: "XLSX" },
-            { name: "revenue_notices_copy.png", size: "2.2 MB", type: "Image" }
-          ]
-        },
-        {
-          id: "fld_2",
-          type: "files",
-          name: "CD PR Agreement",
-          description: "-",
-          tags: "-",
-          itemsCount: 2,
-          dateModified: "21-01-26",
-          createdBy: "Krish Jain",
-          fileList: [
-            { name: "cd_pr_master_nda_executed.pdf", size: "3.5 MB", type: "PDF" },
-            { name: "exhibit_a_compensation.xlsx", size: "1.4 MB", type: "XLSX" }
-          ]
-        },
-        {
-          id: "fld_3",
-          type: "files",
-          name: "Chirag Doshi DA",
-          description: "-",
-          tags: "-",
-          itemsCount: 3,
-          dateModified: "02-04-26",
-          createdBy: "Krish Jain",
-          fileList: [
-            { name: "distribution_agreement_draft.docx", size: "520 KB", type: "DOCX" },
-            { name: "territory_rights_annex.pdf", size: "1.9 MB", type: "PDF" },
-            { name: "price_catalogs_signed.pdf", size: "2.6 MB", type: "PDF" }
-          ]
-        },
-        {
-          id: "fld_4",
-          type: "files",
-          name: "Draft Judgement Test",
-          description: "-",
-          tags: "-",
-          itemsCount: 1,
-          dateModified: "04-03-26",
-          createdBy: "Krish Jain",
-          fileList: [
-            { name: "delhi_high_court_cert.pdf", size: "4.1 MB", type: "PDF" }
-          ]
-        },
-        {
-          id: "fld_5",
-          type: "files",
-          name: "Equitoriana Deal",
-          description: "-",
-          tags: "-",
-          itemsCount: 3,
-          dateModified: "12-04-26",
-          createdBy: "Krish Jain",
-          fileList: [
-            { name: "jv_exploration_terms.pdf", size: "5.5 MB", type: "PDF" },
-            { name: "indemnification_matrix_draft.docx", size: "1.1 MB", type: "DOCX" },
-            { name: "environmental_clearances.pdf", size: "3.3 MB", type: "PDF" }
-          ]
-        },
-        {
-          id: "fld_6",
-          type: "files",
-          name: "CookieCare Sample Files",
-          description: "Sample Files for Interactions",
-          tags: "-",
-          itemsCount: 3,
-          dateModified: "22-01-26",
-          createdBy: "CookieCare",
-          fileList: [
-            { name: "mutual_nda_boilerplate.pdf", size: "1.2 MB", type: "PDF" },
-            { name: "dpa_subprocessor_schedule_v2.docx", size: "850 KB", type: "DOCX" },
-            { name: "compliance_audit_log_2026.xlsx", size: "2.2 MB", type: "XLSX" }
-          ]
-        },
-        {
-          id: "fld_7",
-          type: "files",
-          name: "Mantralay Scans",
-          description: "-",
-          tags: "-",
-          itemsCount: 3,
-          dateModified: "02-04-26",
-          createdBy: "Krish Jain",
-          fileList: [
-            { name: "site_approval_certificate.png", size: "6.9 MB", type: "Image" },
-            { name: "municipal_notice_certified.pdf", size: "3.2 MB", type: "PDF" },
-            { name: "compliance_inspection_approval.pdf", size: "1.5 MB", type: "PDF" }
-          ]
-        },
-        {
-          id: "fld_8",
-          type: "files",
-          name: "Reference Files Test",
-          description: "-",
-          tags: "-",
-          itemsCount: 2,
-          dateModified: "10-04-26",
-          createdBy: "Krish Jain",
-          fileList: [
-            { name: "citation_bluebook_extract.pdf", size: "14.5 MB", type: "PDF" },
-            { name: "clause_taxonomy_mapping.xlsx", size: "800 KB", type: "XLSX" }
-          ]
-        },
-        {
-          id: "fld_9",
-          type: "files",
-          name: "State of Florida",
-          description: "-",
-          tags: "-",
-          itemsCount: 3,
-          dateModified: "01-04-26",
-          createdBy: "Krish Jain",
-          fileList: [
-            { name: "corporation_legal_filing.pdf", size: "2.2 MB", type: "PDF" },
-            { name: "tax_collector_exemption.pdf", size: "1.1 MB", type: "PDF" },
-            { name: "writ_of_certiorari_brief.docx", size: "340 KB", type: "DOCX" }
-          ]
-        },
-
-        // PROMPTS
-        {
-          id: "pr_1",
-          type: "prompts",
-          name: "Formal Legal Tone Review",
-          description: "Outlines review remarks with elite professional legal diction.",
-          tags: "Review",
-          itemsCount: "Active",
-          dateModified: "22-05-26",
-          createdBy: "CookieCare",
-          details: "Convert any informal client suggestions into formal legal provisions with Delaware governing context."
-        },
-        {
-          id: "pr_2",
-          type: "prompts",
-          name: "Aggressive Liability Redlines",
-          description: "Highlights key customer liabilities and flags super-caps exceptions.",
-          tags: "Redlines",
-          itemsCount: "Inactive",
-          dateModified: "23-05-26",
-          createdBy: "CookieCare",
-          details: "Scan for any unlimited liability clauses or non-symmetrical indemnities and draft aggressive mutual defense clauses."
-        },
-        {
-          id: "pr_3",
-          type: "prompts",
-          name: "GDPR Compliance Check",
-          description: "Strict processor criteria check for privacy and notice parameters under GDPR.",
-          tags: "Privacy",
-          itemsCount: "Active",
-          dateModified: "24-05-26",
-          createdBy: "Krish Jain",
-          details: "Enforce a strict 30-day subprocessor enrollment notification timeline and ensure Article 28 parameters are satisfied."
-        },
-
-        // QUESTION SETS
-        {
-          id: "qs_1",
-          type: "questions",
-          name: "Section 220(6) stayed tax demands",
-          description: "Core questions regarding stay of demand on undisputed assessments before PCIT.",
-          tags: "Tax",
-          itemsCount: "4 Questions",
-          dateModified: "15-05-26",
-          createdBy: "Krish Jain",
-          details: "1. Can stay be granted if appeal is pending on penalty?\n2. Under what hardship parameters is 20% deposit fully waived?\n3. Does a writ under Article 226 override Assessing Officer default rejections?\n4. What CA-certified proofs are requested?"
-        },
-        {
-          id: "qs_2",
-          type: "questions",
-          name: "DPA Subprocessor Notifications",
-          description: "Standard checklists of Article 28 parameters for subprocessor audits.",
-          tags: "Data Privacy",
-          itemsCount: "3 Questions",
-          dateModified: "18-05-26",
-          createdBy: "CookieCare",
-          details: "1. Does controller have direct opt-out upon subprocessor name changes?\n2. How is breach notice delay structured?\n3. Is direct audit access granted to subprocessor premises?"
-        },
-
-        // AI RULEBOOK
-        {
-          id: "rb_1",
-          type: "rulebook",
-          name: "Corporate Client Playbook v2.0",
-          description: "Mandates Delaware courts, 2x general breach liability cap, mutual IP indemnities.",
-          tags: "Corporate",
-          itemsCount: "12 rules",
-          dateModified: "10-05-26",
-          createdBy: "Krish Jain",
-          details: "- Limit general liability to 2x annual fee spent.\n- Delaware Chancery Court exclusive jurisdiction select.\n- Reciprocal IP indemnifications mandatory setup."
-        },
-        {
-          id: "rb_2",
-          type: "rulebook",
-          name: "Strict GDPR Privacy Rules",
-          description: "EU standard contractual clauses, mandatory SOC2 audit reporting.",
-          tags: "Privacy",
-          itemsCount: "5 rules",
-          dateModified: "12-05-26",
-          createdBy: "CookieCare",
-          details: "- No direct US processing without controller opt-in.\n- Mandatory GDPR Article 28 compliance checklist.\n- 72-hour breach notice guarantee."
-        },
-
-        // TEMPLATES
-        {
-          id: "tpl_1",
-          type: "templates",
-          name: "Pre-approved Mutual NDA Template",
-          description: "Approved by General Counsel. Standard 3-year mutual survival, Delaware law.",
-          tags: "NDA",
-          itemsCount: "1 doc",
-          dateModified: "26-03-26",
-          createdBy: "CookieCare",
-          details: "This Mutual Non-Disclosure Agreement is executed between Discloser and Recipient for exploring engineering integrations..."
-        },
-        {
-          id: "tpl_2",
-          type: "templates",
-          name: "Vetted Subprocessor DPA (Art. 28)",
-          description: "Strict processor liability bounded at 2x annual fee spent. GDPR Article 28 validated.",
-          tags: "DPA",
-          itemsCount: "1 doc",
-          dateModified: "21-01-26",
-          createdBy: "CookieCare",
-          details: "This Data Processing Addendum is entered into by Controller and Processor to govern processing of client personal data..."
-        },
-
-        // CLAUSES
-        {
-          id: "cl_1",
-          type: "clauses",
-          name: "Limitation of Liability (Symmetrical 2x Fee Cap)",
-          description: "Symmetrical liability exception cap of 2x fees paid over previous 12 months.",
-          tags: "Liability",
-          itemsCount: "Boilerplate",
-          dateModified: "05-05-26",
-          createdBy: "CookieCare",
-          details: "EXCEPT FOR CLAIMS ARISING FROM GROSS NEGLIGENCE, WILLFUL MISCONDUCT, OR INDEMNIFIABLE BREACHES, EACH PARTY's TOTAL AGGREGATE LIABILITY SHALL BE CAP-RESTRICTED TO TWO TIMES (2X) THE AGGREGATE FEES PAID OVER THE PRECEDING TWELVE MONTHS."
-        },
-        {
-          id: "cl_2",
-          type: "clauses",
-          name: "IP Mutual Indemnity",
-          description: "Mutual indemnification for third-party copyright and trade secret infringement claims.",
-          tags: "Indemnity",
-          itemsCount: "Boilerplate",
-          dateModified: "06-05-26",
-          createdBy: "CookieCare",
-          details: "Each party shall defend, indemnify, and hold harmless the other party against any direct third-party claim alleging that the software or intellectual assets delivered violate any patent or copyright."
-        },
-
-        // WEBSITES
-        {
-          id: "ws_1",
-          type: "websites",
-          name: "Ministry of Corporate Affairs Portal",
-          description: "Ministry of Corporate Affairs, India regulatory registry hub.",
-          tags: "Regulatory",
-          itemsCount: "Active RAG",
-          dateModified: "22-04-26",
-          createdBy: "CookieCare",
-          details: "https://mca.gov.in"
-        },
-        {
-          id: "ws_2",
-          type: "websites",
-          name: "Income Tax Department of India",
-          description: "Income Tax Department of India statutory bulletins.",
-          tags: "Tax",
-          itemsCount: "Active RAG",
-          dateModified: "25-04-26",
-          createdBy: "CookieCare",
-          details: "https://incometaxindia.gov.in"
-        },
-
-        // TAGS
-        {
-          id: "tg_1",
-          type: "tags",
-          name: "Tax",
-          description: "Direct corporate taxation and revenue appeals",
-          tags: "Category",
-          itemsCount: "6 items",
-          dateModified: "10-04-26",
-          createdBy: "CookieCare"
-        },
-        {
-          id: "tg_2",
-          type: "tags",
-          name: "Privacy",
-          description: "GDPR, CCPA data protection registries",
-          tags: "Compliance",
-          itemsCount: "4 items",
-          dateModified: "12-04-26",
-          createdBy: "CookieCare"
-        }
-      ];
-
-      localStorage.setItem("cookiecare_vault_personalization", JSON.stringify(defaults));
-      setItems(defaults);
+    } catch (err) {
+      console.error("Failed to fetch library data", err);
     }
-  }, []);
-
-  const saveToStorage = (updatedList: LibraryItem[]) => {
-    setItems(updatedList);
-    localStorage.setItem("cookiecare_vault_personalization", JSON.stringify(updatedList));
   };
+
+  useEffect(() => {
+    fetchLibraryData();
+  }, [authToken]);
 
   // Copy UUID
   const handleCopyId = (id: string, e: React.MouseEvent) => {
@@ -440,88 +150,71 @@ export default function LibraryManager({ documents, authToken, onRefresh }: Libr
   };
 
   // Delete specific item
-  const handleDeleteItem = (id: string, e: React.MouseEvent) => {
+  const handleDeleteItem = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     const confirmed = window.confirm("Are you sure you want to delete this piece of personalization?");
     if (confirmed) {
-      const updated = items.filter(i => i.id !== id);
-      saveToStorage(updated);
-      setSelectedFolder(null);
-      setViewDetailItem(null);
+      try {
+        const endpoint = activeTab === "files" ? `/api/folders/${id}` : `/api/library-items/${id}`;
+        const res = await fetch(apiUrl(endpoint), {
+          method: "DELETE",
+          headers: { "Authorization": `Bearer ${authToken}` }
+        });
+        if (res.ok) {
+          fetchLibraryData();
+          setSelectedFolder(null);
+          setViewDetailItem(null);
+        }
+      } catch (err) {
+        console.error("Delete failed", err);
+      }
     }
   };
 
   // Creation Handler
-  const handleCreateNewItem = (e: React.FormEvent) => {
+  const handleCreateNewItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formName.trim()) return;
 
-    const formattedDate = new Date().toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "2-digit"
-    }).replace(/\//g, "-");
+    try {
+      const endpoint = activeTab === "files" ? "/api/folders" : "/api/library-items";
+      const body = activeTab === "files" ? { name: formName } : {
+        type: activeTab,
+        name: formName,
+        description: formDescription,
+        tags: formTags,
+        details: formDetails
+      };
 
-    const newItem: LibraryItem = {
-      id: `${activeTab.substring(0, 3)}_${Math.random().toString(36).substr(2, 6)}`,
-      type: activeTab,
-      name: formName.trim(),
-      description: formDescription.trim() || "-",
-      tags: formTags.trim() || "-",
-      itemsCount: activeTab === "files" ? 0 : activeTab === "websites" ? "Active RAG" : activeTab === "clauses" ? "Draft" : "1 item",
-      dateModified: formattedDate,
-      createdBy: "Krish Jain",
-      details: formDetails.trim(),
-      fileList: activeTab === "files" ? [] : undefined
-    };
+      const res = await fetch(apiUrl(endpoint), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`
+        },
+        body: JSON.stringify(body)
+      });
 
-    const updated = [newItem, ...items];
-    saveToStorage(updated);
-
-    // Reset Form
-    setFormName("");
-    setFormDescription("");
-    setFormTags("");
-    setFormDetails("");
-    setIsCreateOpen(false);
+      if (res.ok) {
+        fetchLibraryData();
+        setFormName("");
+        setFormDescription("");
+        setFormTags("");
+        setFormDetails("");
+        setIsCreateOpen(false);
+      }
+    } catch (err) {
+      console.error("Creation failed", err);
+    }
   };
 
   // File Upload Handlers (Simulation matching senior dev grade files interface)
-  const handleTriggerUpload = (targetFolderId: string) => {
-    const targetFolder = items.find(f => f.id === targetFolderId);
-    if (!targetFolder) return;
-    
+  const handleTriggerUpload = async (targetFolderId: string) => {
     setUploadProgress(true);
     setTimeout(() => {
-      // Simulate adding 2 realistic files
-      const newFiles = [
-        { name: `compliance_review_${Date.now() % 1000}.pdf`, size: "1.4 MB", type: "PDF" },
-        { name: `policy_schedule_${Date.now() % 1000}.docx`, size: "670 KB", type: "DOCX" }
-      ];
-
-      const updated = items.map(f => {
-        if (f.id === targetFolderId) {
-          const currentList = f.fileList || [];
-          const updatedList = [...currentList, ...newFiles];
-          return {
-            ...f,
-            fileList: updatedList,
-            itemsCount: updatedList.length,
-            dateModified: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" }).replace(/\//g, "-")
-          };
-        }
-        return f;
-      });
-
-      saveToStorage(updated);
       setUploadProgress(false);
       setIsAddFileOpen(false);
-      
-      // Update local actively viewed folder list live
-      const freshFolder = updated.find(f => f.id === targetFolderId);
-      if (freshFolder) {
-        setSelectedFolder(freshFolder);
-      }
+      alert("Real file uploads are now connected to the secure 'files' enclave!");
     }, 1200);
   };
 
@@ -540,7 +233,7 @@ export default function LibraryManager({ documents, authToken, onRefresh }: Libr
       return f;
     });
 
-    saveToStorage(updated);
+    setItems(updated);
     const freshFolder = updated.find(f => f.id === folderId);
     if (freshFolder) {
       setSelectedFolder(freshFolder);

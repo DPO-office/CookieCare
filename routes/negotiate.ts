@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from "dotenv";
-import { authenticateToken } from "../db";
+import { authenticateToken, pool } from "../db";
 
 dotenv.config();
 
@@ -143,6 +143,15 @@ router.post("/evaluate", authenticateToken, async (req: Request, res: Response) 
     // 1. CHUNKING PHASE: Split document strictly based on clause boundaries
     const clauses = parseByClauseBoundaries(content);
 
+    // 1.5 PERSONALIZATION PHASE: Load user's custom library clauses for context
+    const { rows: customClauses } = await pool.query(
+      "SELECT name, details FROM library_items WHERE user_id = $1 AND type = 'clauses'",
+      [(req as any).user.id]
+    );
+    const customClauseContext = customClauses.length > 0
+      ? `\n\n[USER CUSTOM CLAUSE PREFERENCES]:\n${customClauses.map(c => `Preference: ${c.name}, Wording: ${c.details}`).join("\n")}`
+      : "";
+
     // 2. MULTI-AGENT COMPLIANCE PIPELINE
     // If Gemini key is loaded, we can run a single highly structured orchestration call OR sequential operations
     // We can bundle our multi-agent prompts into a single pipeline to maintain lightning efficiency but return strict structured results.
@@ -184,6 +193,7 @@ Type: ${documentType || "Contract"}
 
 Document Content:
 ${content}
+${customClauseContext}
 
 Ensure your proposed "original" match strings are verbatim paragraphs or direct phrases of the text to facilitate search-and-replace.`;
 

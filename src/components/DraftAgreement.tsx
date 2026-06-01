@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { apiUrl } from "../config";
 import { 
   FileEdit, 
   History, 
@@ -760,91 +761,73 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
     setStreamingProgress("Initiating multi-agent ingestion pipeline...");
     pushUndoSnapshot(editorContent);
     
-    // Choose what document content to stream
     let documentTitle = "Mutual Compliance Agreement";
-    let documentBodyToStream = NDA_DOC_CONTENT;
+    const payload: any = {
+      mode: mode,
+      outputLevel: depth,
+      instructions: instructions,
+    };
 
     if (mode === "Basic") {
       documentTitle = `Mutual NDA - ${basicPartyB}`;
-      // Ingest names
-      documentBodyToStream = NDA_DOC_CONTENT
-        .replace(/\[● PARTY A NAME Insert full legal name of the first party\]/g, basicPartyA)
-        .replace(/\[● PARTY B NAME Insert full legal name of the second party\]/g, basicPartyB)
-        .replace(/\[● JURISDICTION Insert jurisdiction of incorporation\]/g, basicLaw)
-        .replace(/\[● REGISTERED ADDRESS Insert complete registered address\]/g, "Registered Offices in Delaware")
-        .replace(/\[● DATE Insert the date of execution of this Agreement\]/g, new Date().toLocaleDateString());
+      payload.formFields = {
+        party_a: basicPartyA,
+        party_b: basicPartyB,
+        governing_law: basicLaw,
+        liability_cap: basicLiability
+      };
     } else {
-      // Advanced choices
       if (advancedStep === "proactive") {
-        if (selectedTemplateName && selectedTemplateName.includes("Arbitration")) {
-          documentTitle = "Arbitration Clause Survival Post-Termination";
-          documentBodyToStream = ARBITRATION_DOC_CONTENT
-            .replace(/\[● JURISDICTION Insert the appropriate court jurisdiction, e.g., District Court\/High Court and location\]/g, "High Court of Delhi, New Delhi")
-            .replace(/\[● PETITION NUMBER Insert the petition number assigned by the court registry\]/g, "742/2026")
-            .replace(/\[● YEAR Insert current year\]/g, "2026")
-            .replace(/\[● PETITIONER NAME Insert full legal name of the Petitioner\]/g, "CookieCare Tech Solutions")
-            .replace(/\[● RESPONDENT NAME Insert full legal name of the Respondent\]/g, "Arbitration Respondent Private Limited")
-            .replace(/\[● PETITIONER ADDRESS Insert registered office address\]/g, "Barakhamba Road, Connaught Place, New Delhi");
-        } else {
-          documentTitle = selectedTemplateName || "Proactive Draft Covenants";
-          documentBodyToStream = NDA_DOC_CONTENT
-            .replace(/\[● PARTY A NAME Insert full legal name of the first party\]/g, "CookieCare Client")
-            .replace(/\[● PARTY B NAME Insert full legal name of the second party\]/g, "E-Commerce Vendor")
-            .replace(/\[● JURISDICTION Insert jurisdiction of incorporation\]/g, "California Registry")
-            .replace(/\[● REGISTERED ADDRESS Insert complete registered address\]/g, "Redwood City Offices");
-        }
+        documentTitle = selectedTemplateName || "Proactive Draft Covenants";
+        payload.templateId = selectedTemplateName;
+        payload.playbookText = aiRulebookPrompt;
+        payload.instructions = referenceInstructions || instructions;
       } else {
         documentTitle = `Ingested response: ${uploadFileName || "Reactive Blueprint"}`;
-        documentBodyToStream = NDA_DOC_CONTENT
-          .replace(/\[● PARTY A NAME Insert full legal name of the first party\]/g, advancedFieldValues.party_a)
-          .replace(/\[● PARTY B NAME Insert full legal name of the second party\]/g, advancedFieldValues.party_b)
-          .replace(/\[● JURISDICTION Insert jurisdiction of incorporation\]/g, advancedFieldValues.jurisdiction);
+        payload.sourceText = uploadText;
+        payload.formFields = advancedFieldValues;
       }
     }
 
     setEditorContent("");
     setIsGeneratorActive(false);
 
-    // Register active tasks Queue list in local storage
-    const storedQueue = localStorage.getItem("cookiecare_draft_queue");
-    const activeQueueList = storedQueue ? JSON.parse(storedQueue) : [];
-    const newTask = {
-      id: "task_" + Math.random().toString(36).substr(2, 5),
-      documentName: documentTitle,
-      mode: mode === "Basic" ? "Basic" : (advancedStep === "reactive" ? "Advanced (Reactive)" : "Advanced (Proactive)"),
-      depth: depth === "Short" ? "Short (~500 words)" : "5-Page Output (~1,500-2,000 words)",
-      timeElapsed: 0,
-      timeRemaining: mode === "Basic" ? 4 : 8,
-      status: "processing" as const
-    };
-    localStorage.setItem("cookiecare_draft_queue", JSON.stringify([newTask, ...activeQueueList]));
-
     try {
-      // Split into chunks to simulate real streaming typing beautifully!
-      const words = documentBodyToStream.split(" ");
-      let currentWordIndex = 0;
+      const res = await fetch(apiUrl("/api/drafting/generate-stream"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error("Drafting stream failed");
+
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder();
       let accumulated = "";
 
-      const interval = setInterval(() => {
-        if (currentWordIndex >= words.length) {
-          clearInterval(interval);
-          setStreamingProgress("");
-          setIsStreaming(false);
-          // Save generated doc
-          handleCreateAndSaveGeneratedDoc(documentTitle, documentBodyToStream);
-        } else {
-          const chunkStr = words.slice(currentWordIndex, currentWordIndex + 15).join(" ") + " ";
-          accumulated += chunkStr;
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value);
+          accumulated += chunk;
           setEditorContent(accumulated);
-          currentWordIndex += 15;
           setStreamingProgress(`Streaming draft content block-by-block (${accumulated.split(/\s+/).length} words)...`);
         }
-      }, 70);
+      }
+
+      setStreamingProgress("");
+      setIsStreaming(false);
+      handleCreateAndSaveGeneratedDoc(documentTitle, accumulated);
 
     } catch (err: any) {
       console.error(err);
       setIsStreaming(false);
       setStreamingProgress("");
+      alert("Drafting failed: " + err.message);
     }
   };
 

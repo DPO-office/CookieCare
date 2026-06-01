@@ -91,11 +91,14 @@ export async function dbInit() {
       CREATE TABLE IF NOT EXISTS files (
         id VARCHAR(255) PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
+        name VARCHAR(255),
         type VARCHAR(50) NOT NULL,
         content TEXT NOT NULL,
         creator_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         creator_email VARCHAR(255) NOT NULL,
         is_encrypted BOOLEAN DEFAULT FALSE,
+        is_template BOOLEAN DEFAULT FALSE,
+        mime_type VARCHAR(255),
         folder_id VARCHAR(255) REFERENCES folders(id) ON DELETE SET NULL,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -153,6 +156,21 @@ export async function dbInit() {
         risk_level VARCHAR(50) NOT NULL,
         scanned_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         payload JSONB DEFAULT '{}'::jsonb
+      );
+    `);
+
+    // 6.7 Create library_items table for personalization
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS library_items (
+        id VARCHAR(255) PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        type VARCHAR(50) NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        tags TEXT,
+        details TEXT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
     `);
 

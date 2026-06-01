@@ -366,9 +366,18 @@ Any data privacy audit requested by Controller shall be performed at Controller'
 
 // Initial database load/seed
 function loadDatabase(): any {
+  try {
+    if (fs.existsSync(DB_PATH)) {
+      return JSON.parse(fs.readFileSync(DB_PATH, "utf8"));
+    }
+  } catch (err) {
+    console.warn("Local JSON database load failed:", err);
+  }
   return {
     users: [],
     documents: [],
+    folders: [],
+    library_items: [],
     cookies: [],
     scans: [],
     agreements: [],
@@ -377,7 +386,11 @@ function loadDatabase(): any {
 }
 
 function saveDatabase(data: any): void {
-  return;
+  try {
+    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), "utf8");
+  } catch (err) {
+    console.error("Local JSON database save failed:", err);
+  }
 }
 // Simulated Cryptographic encryption / decryption at rest
 function encryptData(text: string): string {
@@ -443,27 +456,31 @@ app.post("/api/auth/register", async (req, res) => {
     return res.status(400).json({ error: "Please enter all required fields." });
   }
 
+  const normalizedEmail = email.toLowerCase();
+  const newUserId = "user_" + Math.random().toString(36).substr(2, 9);
+
   try {
-    const normalizedEmail = email.toLowerCase();
     const checkMail = await pool.query("SELECT id FROM users WHERE email = $1", [normalizedEmail]);
     if (checkMail.rows.length > 0) {
       return res.status(400).json({ error: "Email already exists." });
     }
 
-    const newUserId = "user_" + Math.random().toString(36).substr(2, 9);
-    const insertResult = await pool.query(
+    await pool.query(
       "INSERT INTO users (id, email, name, password_hash) VALUES ($1, $2, $3, $4)",
       [newUserId, normalizedEmail, name, password]
     );
 
-    if (insertResult.rowCount === 0) {
-      return res.status(500).json({ error: "Failed to create user in Postgres." });
-    }
-
     return res.json({ token: newUserId, user: { id: newUserId, email: normalizedEmail, name } });
   } catch (err: any) {
-    console.error("Postgres registration error:", err);
-    return res.status(500).json({ error: "Postgres database registration failure: " + err.message });
+    console.warn("Postgres registration failed, using local fallback:", err.message);
+    const db = loadDatabase();
+    if (db.users.find((u: any) => u.email === normalizedEmail)) {
+      return res.status(400).json({ error: "Email already exists (local)." });
+    }
+    const newUser = { id: newUserId, email: normalizedEmail, name, passwordHash: password };
+    db.users.push(newUser);
+    saveDatabase(db);
+    return res.json({ token: newUserId, user: { id: newUserId, email: normalizedEmail, name } });
   }
 });
 
@@ -473,8 +490,9 @@ app.post("/api/auth/login", async (req, res) => {
     return res.status(400).json({ error: "Missing identity credentials" });
   }
 
+  const normalizedEmail = email.toLowerCase();
+
   try {
-    const normalizedEmail = email.toLowerCase();
     const { rows } = await pool.query(
       "SELECT id, email, name, password_hash FROM users WHERE email = $1 AND password_hash = $2",
       [normalizedEmail, password]
@@ -484,9 +502,13 @@ app.post("/api/auth/login", async (req, res) => {
       const user = rows[0];
       return res.json({ token: user.id, user: { id: user.id, email: user.email, name: user.name } });
     }
-  } catch (err) {
-    console.error("Postgres login connection alert:", err);
-    return res.status(503).json({ error: "Authentication service unavailable." });
+  } catch (err: any) {
+    console.warn("Postgres login failed, using local fallback:", err.message);
+    const db = loadDatabase();
+    const user = db.users.find((u: any) => u.email === normalizedEmail && (u.password_hash === password || u.passwordHash === password));
+    if (user) {
+      return res.json({ token: user.id, user: { id: user.id, email: user.email, name: user.name } });
+    }
   }
 
   return res.status(401).json({ error: "Invalid email or password." });
@@ -689,9 +711,19 @@ app.post("/api/documents/upload", authenticateToken, upload.single("file"), asyn
 
     // 2. Seedha Neon Postgres database ke andar document aur uska content patak do
     const result = await pool.query(
-      `INSERT INTO documents (title, name, type, content, user_id, is_template, mime_type, created_at) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()) RETURNING *`,
-      [fileTitle, originalName, typeOfDocument, fileDataBytes, req.user.id, isTemplateVal, mimeType]
+      `INSERT INTO files (id, title, name, type, content, creator_id, creator_email, is_template, mime_type, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW()) RETURNING *`,
+      [
+        "doc_" + Math.random().toString(36).substr(2, 9),
+        fileTitle,
+        originalName,
+        typeOfDocument,
+        fileDataBytes,
+        req.user.id,
+        req.user.email,
+        isTemplateVal,
+        mimeType
+      ]
     );
 
     // 3. Frontend ko bina crash kiye success response bhej do!
@@ -968,27 +1000,125 @@ app.post("/api/documents/:id/redline/:rId/reject", authenticateToken, (req: any,
 });
 
 // 3. Document Sharing via External Stakeholder logs
-app.post("/api/documents/:id/share", authenticateToken, (req: any, res) => {
+app.post("/api/documents/:id/share", authenticateToken, async (req: any, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: "Missing email to share with" });
 
-  const db = loadDatabase();
-  const doc = db.documents.find((d) => d.id === req.params.id);
-  if (!doc) return res.status(404).json({ error: "Document not found." });
+  try {
+    const searchEmail = email.trim().toLowerCase();
+    const { rows } = await pool.query(
+      "SELECT shared_with FROM files WHERE id = $1 AND creator_id = $2",
+      [req.params.id, req.user.id]
+    );
 
-  const searchEmail = email.trim().toLowerCase();
-  if (!doc.sharedWith.some((e) => e.toLowerCase() === searchEmail)) {
-    doc.sharedWith.push(searchEmail);
-    doc.auditLogs.push({
-      timestamp: new Date().toISOString(),
-      action: "Shared Legally",
-      user: req.user.name,
-      details: `Granted operational shared access to ${searchEmail}.`,
-    });
-    saveDatabase(db);
+    if (rows.length === 0) return res.status(404).json({ error: "Document not found or access denied." });
+
+    let sharedWith = rows[0].shared_with || [];
+    if (!sharedWith.some((e: string) => e.toLowerCase() === searchEmail)) {
+      sharedWith.push(searchEmail);
+      await pool.query(
+        "UPDATE files SET shared_with = $1, audit_logs = audit_logs || $2::jsonb WHERE id = $3",
+        [
+          JSON.stringify(sharedWith),
+          JSON.stringify({
+            timestamp: new Date().toISOString(),
+            action: "Shared Legally",
+            user: req.user.name,
+            details: `Granted operational shared access to ${searchEmail}.`,
+          }),
+          req.params.id
+        ]
+      );
+    }
+    return res.json({ success: true, sharedWith });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
   }
+});
 
-  res.json({ success: true, sharedWith: doc.sharedWith });
+// Library Folders API
+app.get("/api/folders", authenticateToken, async (req: any, res) => {
+  try {
+    const { rows } = await pool.query(
+      "SELECT * FROM folders WHERE user_id = $1 ORDER BY created_at DESC",
+      [req.user.id]
+    );
+    res.json(rows);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/folders", authenticateToken, async (req: any, res) => {
+  const { name } = req.body;
+  if (!name) return res.status(400).json({ error: "Folder name is required." });
+
+  try {
+    const id = "fld_" + Math.random().toString(36).substr(2, 9);
+    const { rows } = await pool.query(
+      "INSERT INTO folders (id, name, user_id) VALUES ($1, $2, $3) RETURNING *",
+      [id, name, req.user.id]
+    );
+    res.status(201).json(rows[0]);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete("/api/folders/:id", authenticateToken, async (req: any, res) => {
+  try {
+    const result = await pool.query(
+      "DELETE FROM folders WHERE id = $1 AND user_id = $2",
+      [req.params.id, req.user.id]
+    );
+    if (result.rowCount === 0) return res.status(404).json({ error: "Folder not found." });
+    res.json({ success: true });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Library Items API
+app.get("/api/library-items", authenticateToken, async (req: any, res) => {
+  try {
+    const { rows } = await pool.query(
+      "SELECT * FROM library_items WHERE user_id = $1 ORDER BY created_at DESC",
+      [req.user.id]
+    );
+    res.json(rows);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/library-items", authenticateToken, async (req: any, res) => {
+  const { type, name, description, tags, details } = req.body;
+  if (!type || !name) return res.status(400).json({ error: "Type and name are required." });
+
+  try {
+    const id = "lib_" + Math.random().toString(36).substr(2, 9);
+    const { rows } = await pool.query(
+      `INSERT INTO library_items (id, user_id, type, name, description, tags, details)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [id, req.user.id, type, name, description, tags, details]
+    );
+    res.status(201).json(rows[0]);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete("/api/library-items/:id", authenticateToken, async (req: any, res) => {
+  try {
+    const result = await pool.query(
+      "DELETE FROM library_items WHERE id = $1 AND user_id = $2",
+      [req.params.id, req.user.id]
+    );
+    if (result.rowCount === 0) return res.status(404).json({ error: "Item not found." });
+    res.json({ success: true });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // 4. Document Signing Workflow

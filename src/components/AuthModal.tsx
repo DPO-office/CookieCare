@@ -10,6 +10,7 @@ export default function AuthModal({ onAuthSuccess }: AuthModalProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -17,6 +18,12 @@ export default function AuthModal({ onAuthSuccess }: AuthModalProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (!isLogin && password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
     setLoading(true);
 
     const endpoint = isLogin ? apiUrl("/api/auth/login") : apiUrl("/api/auth/register");
@@ -139,6 +146,26 @@ export default function AuthModal({ onAuthSuccess }: AuthModalProps) {
               />
             </div>
           </div>
+
+          {!isLogin && (
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">
+                Confirm Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-4 text-gray-400" />
+                <input
+                  id="auth-confirm-password-input"
+                  type="password"
+                  required
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 pl-10 pr-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-black"
+                />
+              </div>
+            </div>
+          )}
 
           <button
             id="auth-submit-btn"
