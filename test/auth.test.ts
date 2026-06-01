@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert";
 import request from "supertest";
-import { app } from "../server";
+import app from "../server.js";
 
 test("POST /api/auth/register should require email, password, and name", async () => {
   const res = await request(app)
