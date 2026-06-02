@@ -96,40 +96,41 @@ export default function InteractAnalyze({
     "Are there any punitive, non-proven liquidated damages listed?"
   ]);
 
-  useEffect(() => {
-    const fetchFoldersAndDocs = async () => {
-      try {
-        const [foldersRes, docsRes] = await Promise.all([
-          fetch(apiUrl("/api/folders"), { headers: { "Authorization": `Bearer ${authToken}` } }),
-          fetch(apiUrl("/api/documents"), { headers: { "Authorization": `Bearer ${authToken}` } })
-        ]);
+  const fetchFoldersAndDocs = async () => {
+    try {
+      const [foldersRes, docsRes] = await Promise.all([
+        fetch(apiUrl("/api/folders"), { headers: { "Authorization": `Bearer ${authToken}` } }),
+        fetch(apiUrl("/api/documents"), { headers: { "Authorization": `Bearer ${authToken}` } })
+      ]);
 
-        if (foldersRes.ok && docsRes.ok) {
-          const foldersData = await foldersRes.json();
-          const docsData = await docsRes.json();
+      if (foldersRes.ok && docsRes.ok) {
+        const foldersData = await foldersRes.json();
+        const docsData = await docsRes.json();
 
-          const formattedFolders: CustomFolder[] = foldersData.map((f: any) => ({
-            id: f.id,
-            name: f.name,
-            filesCount: docsData.filter((d: any) => d.folder_id === f.id).length,
+        const formattedFolders: CustomFolder[] = foldersData.map((f: any) => ({
+          id: f.id,
+          name: f.name,
+          filesCount: docsData.filter((d: any) => d.folder_id === f.id).length,
+          selected: false
+        }));
+
+        const rootFilesCount = docsData.filter((d: any) => !d.folder_id).length;
+        if (rootFilesCount > 0) {
+          formattedFolders.push({
+            id: "root",
+            name: "Unassigned Vault Files",
+            filesCount: rootFilesCount,
             selected: false
-          }));
-
-          const rootFilesCount = docsData.filter((d: any) => !d.folder_id).length;
-          if (rootFilesCount > 0) {
-            formattedFolders.push({
-              id: "root",
-              name: "Unassigned Vault Files",
-              filesCount: rootFilesCount,
-              selected: false
-            });
-          }
-          setFolders(formattedFolders);
+          });
         }
-      } catch (err) {
-        console.error("Failed to fetch data", err);
+        setFolders(formattedFolders);
       }
-    };
+    } catch (err) {
+      console.error("Failed to fetch data", err);
+    }
+  };
+
+  useEffect(() => {
     fetchFoldersAndDocs();
   }, [authToken]);
 
@@ -178,43 +179,28 @@ export default function InteractAnalyze({
   };
 
   // --- ACTION: ADD NEW FOLDER SUBMIT ---
-  const handleAddNewFolder = (e: React.FormEvent) => {
+  const handleAddNewFolder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newFolderName.trim()) return;
 
-    const newFolderId = "fld_" + Math.random().toString(36).substr(2, 6);
-    const newFolder: CustomFolder = {
-      id: newFolderId,
-      name: newFolderName.trim(),
-      filesCount: 0,
-      selected: true
-    };
+    try {
+      const res = await fetch(apiUrl("/api/folders"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`
+        },
+        body: JSON.stringify({ name: newFolderName.trim() })
+      });
 
-    setFolders(prev => [newFolder, ...prev]);
-
-    // Also write back to cookiecare_vault_personalization in local storage
-    const localSaved = localStorage.getItem("cookiecare_vault_personalization");
-    let currentVault: any[] = [];
-    if (localSaved) {
-      try {
-        currentVault = JSON.parse(localSaved);
-      } catch (err) {}
+      if (res.ok) {
+        await fetchFoldersAndDocs();
+        setNewFolderName("");
+        setIsSidePanelOpen(false);
+      }
+    } catch (err) {
+      console.error("Failed to create folder", err);
     }
-    const newLibraryItem = {
-      id: newFolderId,
-      type: "files",
-      name: newFolderName.trim(),
-      description: "Custom Secure Repository Created via Interface",
-      tags: "Custom, Analyzed",
-      itemsCount: 0,
-      dateModified: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" }).replace(/\//g, "-"),
-      createdBy: "Krish Jain",
-      fileList: []
-    };
-    localStorage.setItem("cookiecare_vault_personalization", JSON.stringify([newLibraryItem, ...currentVault]));
-
-    setNewFolderName("");
-    setIsSidePanelOpen(false);
   };
 
   // --- ACTION: UPLOAD FILE DRAG / DROP SIMULATOR ---
@@ -254,11 +240,13 @@ export default function InteractAnalyze({
     setIsUploading(true);
     
     try {
+      const targetFolder = folders.find(f => f.name === uploadSelectedFolder);
       const formData = new FormData();
       formData.append("file", selectedFile);
       formData.append("title", uploadedFileName);
-      formData.append("templateType", uploadSelectedFolder);
-      formData.append("isTemplate", "false");
+      if (targetFolder && targetFolder.id !== "root") {
+        formData.append("folder_id", targetFolder.id);
+      }
 
       const res = await fetch(apiUrl("/api/documents/upload"), {
         method: "POST",
@@ -268,7 +256,7 @@ export default function InteractAnalyze({
         body: formData
       });
 
-      let payload = await res.json();
+      const payload = await res.json();
       if (!res.ok) throw new Error(payload.error || "Failed to process document upload.");
 
       if (res.status === 202 && payload.job_id) {
@@ -278,14 +266,11 @@ export default function InteractAnalyze({
           await new Promise((resolve) => setTimeout(resolve, 1500));
           attempts++;
           const checkRes = await fetch(apiUrl(`/api/jobs/${payload.job_id}`), {
-            headers: {
-              "Authorization": `Bearer ${authToken}`
-            }
+            headers: { "Authorization": `Bearer ${authToken}` }
           });
           if (checkRes.ok) {
             const checkData = await checkRes.json();
             if (checkData.status === "completed") {
-              payload = checkData.result;
               completed = true;
             } else if (checkData.status === "failed") {
               throw new Error(checkData.error || "Background processing failed");
@@ -294,128 +279,19 @@ export default function InteractAnalyze({
         }
       }
 
-      // Success: Modify target folder's count
-      setFolders(prev => prev.map(f => {
-        if (f.name === uploadSelectedFolder) {
-          return { ...f, filesCount: f.filesCount + 1, selected: true };
-        }
-        return f;
-      }));
-
-      // Update cookiecare_vault_personalization list in local storage
-      const localSaved = localStorage.getItem("cookiecare_vault_personalization");
-      if (localSaved) {
-        try {
-          const currentVault = JSON.parse(localSaved);
-          const updatedVault = currentVault.map((item: any) => {
-            if (item.type === "files" && item.name === uploadSelectedFolder) {
-              const fileList = item.fileList || [];
-              const newFile = {
-                id: payload.documentId,
-                name: uploadedFileName,
-                size: `${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB`,
-                type: uploadedFileName.split(".").pop()?.toUpperCase() || "PDF"
-              };
-              return {
-                ...item,
-                fileList: [...fileList, newFile],
-                itemsCount: fileList.length + 1,
-                dateModified: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" }).replace(/\//g, "-")
-              };
-            }
-            return item;
-          });
-          localStorage.setItem("cookiecare_vault_personalization", JSON.stringify(updatedVault));
-        } catch (err) {}
-      }
+      await fetchFoldersAndDocs();
+      if (onRefresh) await onRefresh();
 
       setUploadedFileName("");
       setSelectedFile(null);
       setIsSidePanelOpen(false);
-
-      if (onRefresh) {
-        await onRefresh();
-      }
 
     } catch (uploadErr: any) {
-      console.warn("Secure backend upload bypassed, executing simulation upload fallback", uploadErr.message);
-      
-      // Fallback
-      setFolders(prev => prev.map(f => {
-        if (f.name === uploadSelectedFolder) {
-          return { ...f, filesCount: f.filesCount + 1, selected: true };
-        }
-        return f;
-      }));
-
-      const localSaved = localStorage.getItem("cookiecare_vault_personalization");
-      if (localSaved) {
-        try {
-          const currentVault = JSON.parse(localSaved);
-          const updatedVault = currentVault.map((item: any) => {
-            if (item.type === "files" && item.name === uploadSelectedFolder) {
-              const fileList = item.fileList || [];
-              const newFile = {
-                name: uploadedFileName,
-                size: "1.5 MB",
-                type: uploadedFileName.split(".").pop()?.toUpperCase() || "PDF"
-              };
-              return {
-                ...item,
-                fileList: [...fileList, newFile],
-                itemsCount: fileList.length + 1,
-                dateModified: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" }).replace(/\//g, "-")
-              };
-            }
-            return item;
-          });
-          localStorage.setItem("cookiecare_vault_personalization", JSON.stringify(updatedVault));
-        } catch (err) {}
-      }
-
-      setUploadedFileName("");
-      setSelectedFile(null);
-      setIsSidePanelOpen(false);
+      console.error("Upload failed", uploadErr.message);
     } finally {
       setIsUploading(false);
     }
   };
-
-  // --- ACTION: EXECUTE INTERACTION REDIRECTS USER ---
-  const MANTRALAY_ANALYSIS_TEXT = `### Core Findings Overview
-- **40+ year old mutation entries**
-- **Multiple levels of appeals** (4 tiers completed, 5th tier pending)
-- **Conflicting claims** on inheritance rights, possession, and validity of revenue records
-- **Bona fide purchaser's rights** vs. alleged fraudulent mutation
-- **Parallel civil litigation** pending
-
-The case has now reached the **highest revenue appellate authority** in Maharashtra (Hon'ble Minister/Principal Secretary), with the core issues being:
-- **Whether Mutation Entry No. 273** was validly made or fraudulently inserted
-- **Whether Smt. Bamabai Soya Patil** had legitimate inheritance rights
-- **Whether her sons** (applicants) are rightful heirs
-- **Whether the registered sale deed** in favour of Shri Namdev Kundalik Patil should be recognised
-- **Whether partial cancellation** of mutation was legally permissible
-
-### Judicial Precedents of Significance
-Please verify judicial precedents regarding:
-- **Validity of oral partitions** and mutation entries under Maharashtra Land Revenue Code
-- **Rights of bona fide purchasers** in cases of disputed mutations
-- **Permissibility of partial cancellation** of mutation entries
-- **Evidentiary value** of long-standing revenue records
-- **Burden of proof** in challenging historical mutation entries
-
-The final outcome will determine the rightful ownership of the disputed 28 gunthes (or 21 gunthes as per actual measurement) of agricultural land in Village Umbaroli, Taluka Ambarnath, District Thane.`;
-
-  const GENERAL_ANALYSIS_TEXT = `### Executive Legal Assessment Summary
-Based on the selected corporate files and regulatory parameters, the agreement presents several critical compliance findings:
-- **Asymmetric Indemnification Liability**: Reallocates major liabilities and breach damages purely onto the partner on a non-reciprocal scale.
-- **Unannounced Server Audit Exceptions**: Grants intrusive server audit sweeps without standard notice timelines or independent vetting.
-- **Punitive Liquidated Damages**: Imposes arbitrary $5,000,005 visual penalties that are difficult to enforce in Delaware jurisdictions.
-
-### Recommended Compliance Remedies
-- **Reciprocal Audit Rights**: Limit server sweeps to annual intervals, with a minimum of 15 days written notice.
-- **Proven Actual Damages cap**: Replace the static liquidated damages chunk with a standard cap on direct actual damages.
-- **Delaware Choice of Jurisdiction**: Stabilize governing forum rules to Delaware, USA, avoiding London, UK extraterritorial friction.`;
 
   const handleStartAnalysis = async () => {
     const activeSelectedFolders = folders.filter(f => f.selected);
@@ -439,7 +315,8 @@ Based on the selected corporate files and regulatory parameters, the agreement p
           folder_ids: activeSelectedFolders.map(f => f.id),
           prompt: customPromptText,
           documentMode,
-          answerStyle
+          answerStyle,
+          history: []
         })
       });
 
@@ -466,69 +343,6 @@ Based on the selected corporate files and regulatory parameters, the agreement p
     }
   };
 
-  // --- ACTION: AUTO REMEDIATE INDIVIDUAL CLAUSE IN ASSESSMENT CANVAS ---
-  const handleRemediateClause = async (clauseId: string) => {
-    const targetClause = reportClauses.find(c => c.id === clauseId);
-    if (!targetClause || !targetClause.remediation) return;
-
-    // Set loading indicator
-    setReportClauses(prev => prev.map(c => c.id === clauseId ? { ...c, isAutoRemediating: true } : c));
-
-    try {
-      // Call server proxy route "/api/analyze/remediate" to get genuine AI compliance-vetted details
-      const response = await fetch(apiUrl("/api/analyze/remediate"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          clauseText: targetClause.clauseText,
-          severity: targetClause.severity,
-          documentContext: {
-            title: activeReportDocName + " Clause Audit",
-            type: "NDA"
-          }
-        })
-      });
-
-      const data = await response.json();
-
-      // Slow replace to make it feel animated and responsive
-      setTimeout(() => {
-        setReportClauses(prev => prev.map(c => {
-          if (c.id === clauseId) {
-            return {
-              ...c,
-              clauseText: data.proposedText || c.remediation || "",
-              severity: "compliant" as const,
-              reason: data.comment || "Successfully redrafted clause with mutual risk caps conforming to security standards.",
-              remediation: null,
-              isAutoRemediating: false
-            };
-          }
-          return c;
-        }));
-      }, 1000);
-
-    } catch (err) {
-      // Offline fallback animation if API has rate limits (cascaded local rule engine)
-      setTimeout(() => {
-        setReportClauses(prev => prev.map(c => {
-          if (c.id === clauseId) {
-            return {
-              ...c,
-              clauseText: c.remediation || "",
-              severity: "compliant" as const,
-              reason: "Local Rule Engine Fallback: Successfully redrafted terms ensuring legal reciprocity, bilateral caps, and Delaware precedents.",
-              remediation: null,
-              isAutoRemediating: false
-            };
-          }
-          return c;
-        }));
-      }, 800);
-    }
-  };
-
-  // --- ACTION: STICKY LAWYER FOLLOW-UP CHAT SUBMIT ---
   const handleSendChatMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
@@ -536,105 +350,57 @@ Based on the selected corporate files and regulatory parameters, the agreement p
     const userText = chatInput.trim();
     setChatInput("");
 
-    // Add user question
-    const updatedMessages = [...chatMessages, { sender: "user" as const, text: userText }];
-    setChatMessages(updatedMessages);
+    const newMessages: Message[] = [...chatMessages, { sender: "user", text: userText }];
+    setChatMessages(newMessages);
 
-    // Initial loading assistant answer bubble
-    const aiResponseIndex = updatedMessages.length;
-    setChatMessages(prev => [...prev, { sender: "gemini", text: "Researching trusted public regulatory databases...", loading: true }]);
+    const loadingMessageIdx = newMessages.length;
+    setChatMessages(prev => [...prev, { sender: "gemini", text: "Analyzing your query in context of the legal framework...", loading: true }]);
 
     try {
-      // Call modern server-side askLawyer endpoint supporting search grounding capabilities
-      const response = await fetch(apiUrl("/api/lawyer/ask"), {
+      const activeSelectedFolders = folders.filter(f => f.selected);
+      const response = await fetch(apiUrl("/api/analyze/interact"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`
+        },
         body: JSON.stringify({
+          folder_ids: activeSelectedFolders.map(f => f.id),
           prompt: userText,
-          jurisdiction: ["Delaware (Corporate Precedents)", "United States Federal Contracts", "India Direct Taxes"],
-          outputFormat: "Brief Summary"
+          documentMode,
+          answerStyle,
+          history: chatMessages.map(m => ({ role: m.sender === "gemini" ? "assistant" : "user", content: m.text }))
         })
       });
 
-      if (!response.body) throw new Error("Null stream response channel");
+      const data = await response.json();
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let accumulatedText = "";
-      let foundSources: Array<{ title: string; citation: string }> = [];
+      setChatMessages(prev => {
+        const updated = [...prev];
+        updated[loadingMessageIdx] = {
+          sender: "gemini",
+          text: data.analysis || "I have analyzed your request.",
+          loading: false
+        };
+        return updated;
+      });
 
-      setChatMessages(prev => prev.map((m, idx) => {
-        if (idx === aiResponseIndex) {
-          return { sender: "gemini", text: "", loading: false };
-        }
-        return m;
-      }));
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-
-        const stringChunk = decoder.decode(value || new Uint8Array(), { stream: true });
-        const lines = stringChunk.split("\n");
-
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const innerStr = line.substring(6).trim();
-            if (innerStr === "[DONE]") {
-              break;
-            }
-            try {
-              const dataObj = JSON.parse(innerStr);
-              if (dataObj.text) {
-                accumulatedText += dataObj.text;
-                // Live update state
-                setChatMessages(prev => prev.map((m, idx) => {
-                  if (idx === aiResponseIndex) {
-                    return { ...m, text: accumulatedText };
-                  }
-                  return m;
-                }));
-              }
-              if (dataObj.sources && Array.isArray(dataObj.sources)) {
-                foundSources = dataObj.sources;
-                setChatMessages(prev => prev.map((m, idx) => {
-                  if (idx === aiResponseIndex) {
-                    return { ...m, sources: foundSources };
-                  }
-                  return m;
-                }));
-              }
-            } catch (pErr) {
-              // Ignore partial serialization boundary issues
-            }
-          }
-        }
-      }
-
-    } catch (streamErr) {
-      // Fallback response with beautiful lawyer tone and authentic external regulatory links if API has rate limits
-      setTimeout(() => {
-        setChatMessages(prev => prev.map((m, idx) => {
-          if (idx === aiResponseIndex) {
-            return {
-              sender: "gemini",
-              loading: false,
-              text: `Based on a review of online legal repositories, standard commercial guidelines recommend replacing extreme unilateral server access with reciprocal, pre-notified audits. Under Delaware Corporate Law § 141, directors have a fiduciary duty to limit limitless operational risks and protect data assets. In regards to standard liquidated liabilities, Delaware courts routinely strike down non-proven $5M penalties as unenforceable punitive damages, declaring they must reflect a rational pre-estimate of direct losses instead.`,
-              sources: [
-                { title: "Delaware Corporate Law (DGCL) § 141", citation: "8 Del. C. § 141" },
-                { title: "Supreme Court Chevron Case Precedents", citation: "467 U.S. 837" }
-              ]
-            };
-          }
-          return m;
-        }));
-      }, 950);
+    } catch (err) {
+      console.error("Chat failed", err);
+      setChatMessages(prev => {
+        const updated = [...prev];
+        updated[loadingMessageIdx] = {
+          sender: "gemini",
+          text: "I encountered an error while processing your request. Please try again.",
+          loading: false
+        };
+        return updated;
+      });
     }
   };
 
   const handleCopyReport = () => {
-    // Collect the latest AI message or the first report text
-    const latestAISpeech = chatMessages[chatMessages.length - 1];
+    const latestAISpeech = chatMessages.filter(m => m.sender === "gemini").slice(-1)[0];
     const reportText = latestAISpeech?.text || "";
     navigator.clipboard.writeText(reportText);
     setShowCopyToast(true);
@@ -643,79 +409,21 @@ Based on the selected corporate files and regulatory parameters, the agreement p
     }, 2000);
   };
 
-  const handleDownloadReport = async () => {
-    try {
-      const reportText = chatMessages.map(m => `[${m.sender === "gemini" ? "AI LEGAL ASSISTANT" : "USER QUERY"}]\n${m.text}`).join("\n\n");
-      const res = await fetch(apiUrl("/api/documents/export"), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}`
-        },
-        body: JSON.stringify({
-          title: activeReportDocName,
-          contentType: "risk_report",
-          content: reportText,
-          format: "docx"
-        })
-      });
-
-      if (!res.ok) throw new Error("Backend export failed");
-
-      const blob = await res.blob();
-      const element = document.createElement("a");
-      element.href = URL.createObjectURL(blob);
-      element.download = `${activeReportDocName.toLowerCase().replace(/\s+/g, "_")}_legal_assessment.docx`;
-      document.body.appendChild(element);
-      element.click();
-      document.body.removeChild(element);
-    } catch (err: any) {
-      console.warn("Secure DOCX export fallback applied:", err.message);
-      const reportText = chatMessages.map(m => `[${m.sender.toUpperCase()}]\n${m.text}`).join("\n\n");
-      const element = document.createElement("a");
-      const file = new Blob([reportText], {type: "text/plain"});
-      element.href = URL.createObjectURL(file);
-      element.download = `${activeReportDocName.toLowerCase().replace(/\s+/g, "_")}_legal_assessment.txt`;
-      document.body.appendChild(element);
-      element.click();
-      document.body.removeChild(element);
-    }
+  const handleDownloadReport = () => {
+    const reportText = chatMessages.map(m => `[${m.sender.toUpperCase()}]\n${m.text}`).join("\n\n");
+    const blob = new Blob([reportText], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "Legal_Assessment_Memorandum.txt";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
-  const handlePrintReport = async () => {
-    try {
-      const reportText = chatMessages.map(m => `[${m.sender === "gemini" ? "AI LEGAL ASSISTANT" : "USER QUERY"}]\n${m.text}`).join("\n\n");
-      const res = await fetch(apiUrl("/api/documents/export"), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}`
-        },
-        body: JSON.stringify({
-          title: activeReportDocName,
-          contentType: "risk_report",
-          content: reportText,
-          format: "pdf"
-        })
-      });
-
-      if (!res.ok) throw new Error("Backend PDF generation failed");
-
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const printWindow = window.open(url, "_blank");
-      if (!printWindow) {
-        const element = document.createElement("a");
-        element.href = url;
-        element.download = `${activeReportDocName.toLowerCase().replace(/\s+/g, "_")}_legal_assessment.pdf`;
-        document.body.appendChild(element);
-        element.click();
-        document.body.removeChild(element);
-      }
-    } catch (err: any) {
-      console.warn("Print fallback applied:", err.message);
-      window.print();
-    }
+  const handlePrintReport = () => {
+    window.print();
   };
 
   const parseBoldText = (text: string) => {
@@ -736,7 +444,6 @@ Based on the selected corporate files and regulatory parameters, the agreement p
           let trimmed = line.trim();
           if (!trimmed) return <div key={idx} className="h-2" />;
 
-          // Check for Markdown headings
           if (trimmed.startsWith("### ")) {
             return (
               <h4 key={idx} className="text-xs font-mono font-black text-gray-950 tracking-wider mt-5 uppercase border-b border-gray-150 pb-1.5 flex items-center space-x-2 select-all">
@@ -760,7 +467,6 @@ Based on the selected corporate files and regulatory parameters, the agreement p
             );
           }
 
-          // Check for list item (starts with - or *)
           const isListItem = trimmed.startsWith("- ") || trimmed.startsWith("* ");
           if (isListItem) {
             const content = trimmed.substring(2);
@@ -784,18 +490,35 @@ Based on the selected corporate files and regulatory parameters, the agreement p
     );
   };
 
-  // Filter folders matching search text
   const filteredFoldersList = folders.filter(f => f.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
     <div className="flex-1 flex flex-col min-w-0 h-[#calc(100vh-125px)] relative overflow-hidden bg-gray-50 text-gray-900 border-t border-gray-100">
       
+      <style>{`
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          .print-container, .print-container * {
+            visibility: visible;
+          }
+          .print-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+          }
+          .no-print {
+            display: none !important;
+          }
+        }
+      `}</style>
+
       {isAnalyzing && (
         <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-gray-50/95 p-6 select-none">
           <div className="max-w-md w-full bg-white border border-gray-200/90 p-8 text-center space-y-6 relative overflow-hidden shadow-sm">
-            {/* Scanner Glow Overlay lines */}
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-400 via-teal-400 to-indigo-500 animate-pulse" />
-            
             <div className="flex justify-center">
               <div className="relative">
                 <div className="w-16 h-16 rounded-full border-4 border-gray-100 border-t-black animate-spin" />
@@ -804,7 +527,6 @@ Based on the selected corporate files and regulatory parameters, the agreement p
                 </div>
               </div>
             </div>
-
             <div className="space-y-2">
               <span className="text-[10px] font-mono tracking-widest text-gray-400 font-extrabold uppercase">COGNITIVE COMPLIANCE ENGINE</span>
               <h3 className="text-sm font-mono font-black text-gray-950 uppercase">Analyzing {activeReportDocName}...</h3>
@@ -812,7 +534,6 @@ Based on the selected corporate files and regulatory parameters, the agreement p
                 Vetting historical land mutation entries, verifying bona fide purchase precedents, and cross-referencing regional appellate court statutes.
               </p>
             </div>
-
             <div className="pt-4 border-t border-gray-150 flex items-center justify-center space-x-3 text-[10px] font-mono text-gray-400">
               <Loader2 className="w-3.5 h-3.5 animate-spin text-black" />
               <span>EXAMINING METADATA STACKS • 100% SECURE</span>
@@ -821,17 +542,8 @@ Based on the selected corporate files and regulatory parameters, the agreement p
         </div>
       )}
       
-      {/* ==============================================================================
-          MAIN SCREEN DYNAMIC ROUTER
-          ============================================================================== */}
       {viewMode === "form" ? (
-        
-        // ==============================================================================
-        // SCREEN A: FORM SELECTION CANVAS (Taking inputs cleanly)
-        // ==============================================================================
         <div className="flex-1 overflow-y-auto p-8 max-w-5xl mx-auto w-full select-none">
-          
-          {/* Main Title Heading */}
           <div className="mb-8 select-all">
             <div className="flex items-center space-x-2 text-[10px] font-mono text-gray-400 uppercase tracking-widest font-black mb-1">
               <Activity className="w-4 h-4 text-black animate-pulse" />
@@ -842,8 +554,6 @@ Based on the selected corporate files and regulatory parameters, the agreement p
           </div>
 
           <div className="space-y-8">
-            
-            {/* SECTION 1: DOCUMENT / FOLDER SELECTION GRID */}
             <div className="bg-white border border-gray-200/90 rounded-none p-6 shadow-xs relative">
               <div className="flex items-center space-x-1.5 mb-2 select-all">
                 <span className="w-1.5 h-1.5 rounded-full bg-black block" />
@@ -851,7 +561,6 @@ Based on the selected corporate files and regulatory parameters, the agreement p
               </div>
               <p className="text-xs text-gray-500 mb-4 ml-3 uppercase font-mono tracking-wider">Choose or upload the workspace folder(s) to load into active cognitive memory</p>
               
-              {/* Controls bar Inside Section 1 */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4">
                 <div className="relative flex-1 max-w-sm">
                   <input
@@ -881,7 +590,6 @@ Based on the selected corporate files and regulatory parameters, the agreement p
                 </div>
               </div>
 
-              {/* Grid List of Folders */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-60 overflow-y-auto">
                 {filteredFoldersList.length === 0 ? (
                   <div className="col-span-2 text-center p-8 bg-gray-50 text-xs text-gray-400 font-mono italic">
@@ -902,7 +610,7 @@ Based on the selected corporate files and regulatory parameters, the agreement p
                         <input
                           type="checkbox"
                           checked={folder.selected}
-                          onChange={() => {}} // Swapped by outer div click
+                          readOnly
                           className="rounded cursor-pointer accent-black h-3.5 w-3.5 shrink-0"
                         />
                         <Folder className={`w-4 h-4 shrink-0 ${folder.selected ? 'text-black' : 'text-gray-400'}`} />
@@ -918,7 +626,6 @@ Based on the selected corporate files and regulatory parameters, the agreement p
               </div>
             </div>
 
-            {/* SECTION 2: PROMPT EDITOR & LIBRARIES */}
             <div className="bg-white border border-gray-200/90 rounded-none p-6 shadow-xs">
               <div className="flex items-center space-x-1.5 mb-2 select-all">
                 <span className="w-1.5 h-1.5 rounded-full bg-black block" />
@@ -926,7 +633,6 @@ Based on the selected corporate files and regulatory parameters, the agreement p
               </div>
               <p className="text-xs text-gray-500 mb-4 ml-3 uppercase font-mono tracking-wider">Configure your audit parameters or apply pre-vetted queries</p>
 
-              {/* Three Tabs Controller */}
               <div className="flex border-b border-gray-200 mb-4">
                 {(["write", "library", "questions"] as const).map(tab => (
                   <button
@@ -945,7 +651,6 @@ Based on the selected corporate files and regulatory parameters, the agreement p
                 ))}
               </div>
 
-              {/* Dynamic Inner Tab View */}
               {promptTab === "write" && (
                 <div className="flex items-stretch border border-gray-200 rounded-none overflow-hidden bg-gray-50/20">
                   <div className="w-10 bg-gray-100/50 border-r border-gray-150 p-2 font-mono text-xs text-gray-450 text-right select-none font-bold">
@@ -1001,7 +706,6 @@ Based on the selected corporate files and regulatory parameters, the agreement p
               )}
             </div>
 
-            {/* SECTION 3: INTERACTION MODE SELECTOR */}
             <div className="bg-white border border-gray-200/90 rounded-none p-6 shadow-xs">
               <div className="flex items-center space-x-1.5 mb-1 select-all">
                 <span className="w-1.5 h-1.5 rounded-full bg-black block" />
@@ -1014,7 +718,6 @@ Based on the selected corporate files and regulatory parameters, the agreement p
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-3">
-                {/* Unified */}
                 <div
                   onClick={() => setDocumentMode("unified")}
                   className={`border p-4.5 transition-all cursor-pointer flex items-start space-x-3 ${
@@ -1038,7 +741,6 @@ Based on the selected corporate files and regulatory parameters, the agreement p
                   </div>
                 </div>
 
-                {/* Individual */}
                 <div
                   onClick={() => setDocumentMode("individual")}
                   className={`border p-4.5 transition-all cursor-pointer flex items-start space-x-3 ${
@@ -1064,7 +766,6 @@ Based on the selected corporate files and regulatory parameters, the agreement p
               </div>
             </div>
 
-            {/* SECTION 4: ANSWER FORMAT STYLE */}
             <div className="bg-white border border-gray-200/90 rounded-none p-6 shadow-xs">
               <div className="flex items-center space-x-1.5 mb-1 select-all">
                 <span className="w-1.5 h-1.5 rounded-full bg-black block" />
@@ -1077,7 +778,6 @@ Based on the selected corporate files and regulatory parameters, the agreement p
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-3">
-                {/* Narrative */}
                 <div
                   onClick={() => setAnswerStyle("narrative")}
                   className={`border p-4.5 transition-all cursor-pointer flex items-start space-x-3 ${
@@ -1109,7 +809,6 @@ Based on the selected corporate files and regulatory parameters, the agreement p
                   </div>
                 </div>
 
-                {/* Tabular */}
                 <div
                   onClick={() => setAnswerStyle("tabular")}
                   className={`border p-4.5 transition-all cursor-pointer flex items-start space-x-3 ${
@@ -1154,7 +853,6 @@ Based on the selected corporate files and regulatory parameters, the agreement p
               </div>
             </div>
 
-            {/* Run Action Trigger Container */}
             <div className="flex justify-end pt-2">
               <button
                 onClick={handleStartAnalysis}
@@ -1164,18 +862,11 @@ Based on the selected corporate files and regulatory parameters, the agreement p
                 <span className="tracking-wide uppercase font-black">Run Interaction</span>
               </button>
             </div>
-
           </div>
         </div>
-
       ) : (
-        // ==============================================================================
-        // SCREEN B: ASSESSMENT REPORT CANVAS (Direct chat-focused canvas matching Screenshot 2)
-        // ==============================================================================
         <div className="flex-1 flex flex-col overflow-hidden bg-gray-50/30">
-          
-          {/* Sticky Header */}
-          <div className="px-8 py-4 bg-white border-b border-gray-200/80 flex items-center justify-between shrink-0">
+          <div className="px-8 py-4 bg-white border-b border-gray-200/80 flex items-center justify-between shrink-0 no-print">
             <button
               onClick={() => setViewMode("form")}
               className="group flex items-center space-x-2.5 text-xs font-mono font-black text-gray-800 hover:text-black cursor-pointer bg-transparent border-0"
@@ -1193,17 +884,12 @@ Based on the selected corporate files and regulatory parameters, the agreement p
             </div>
           </div>
 
-          {/* Main content body */}
           <div className="flex-1 overflow-y-auto p-6 md:p-10">
             <div className="max-w-4xl mx-auto space-y-6">
               
-              {/* White Legal Document Card Sheet */}
-              <div className="bg-white border border-gray-200/90 shadow-sm p-8 md:p-10 relative flex flex-col">
-                
-                {/* Visual watermark alignment pattern */}
+              <div className="bg-white border border-gray-200/90 shadow-sm p-8 md:p-10 relative flex flex-col print-container">
                 <div className="absolute inset-0 opacity-[0.015] pointer-events-none bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:16px_16px]" />
                 
-                {/* Header Stamp of Document Card */}
                 <div className="text-center border-b border-gray-150 pb-5 mb-6 select-all">
                   <span className="text-[10px] font-mono text-gray-450 font-black tracking-widest uppercase block mb-1">
                     EXPERT LEGAL ASSESSMENT MEMORANDUM
@@ -1213,7 +899,6 @@ Based on the selected corporate files and regulatory parameters, the agreement p
                   </p>
                 </div>
 
-                {/* Conversation Log & Dynamic Reports Rendering */}
                 <div className="space-y-6 flex-1">
                   {chatMessages.map((message, idx) => {
                     const isUser = message.sender === "user";
@@ -1229,7 +914,6 @@ Based on the selected corporate files and regulatory parameters, the agreement p
                               : "bg-gray-50/50 border border-gray-200/85 text-gray-900 hover:bg-gray-50 transition-colors select-all w-full"
                           }`}
                         >
-                          {/* Sender Info */}
                           <div className="border-b border-current opacity-25 pb-1.5 mb-2.5 flex items-center justify-between gap-6 font-mono text-[9px] uppercase font-black tracking-wider">
                             <span>{isUser ? "User Enquiry" : "Personalized Legal AI Attorney"}</span>
                             {!isUser && <Sparkles className="w-3 h-3 text-emerald-600 fill-emerald-600" />}
@@ -1250,7 +934,6 @@ Based on the selected corporate files and regulatory parameters, the agreement p
                             </div>
                           )}
 
-                          {/* Citations from grounding */}
                           {!isUser && message.sources && message.sources.length > 0 && (
                             <div className="mt-3.5 border-t border-dashed border-gray-250 pt-2.5">
                               <span className="text-[9px] font-mono text-gray-450 uppercase font-black tracking-wide block mb-1">
@@ -1280,8 +963,7 @@ Based on the selected corporate files and regulatory parameters, the agreement p
                   <div ref={chatBottomRef} />
                 </div>
 
-                {/* Card Action Buttons (Copy, Download, Print) */}
-                <div className="flex flex-wrap items-center gap-2.5 mt-8 border-t border-gray-250 pt-5">
+                <div className="flex flex-wrap items-center gap-2.5 mt-8 border-t border-gray-250 pt-5 no-print">
                   <button
                     onClick={handleCopyReport}
                     className="flex items-center space-x-2 border border-gray-250 bg-white hover:bg-gray-50 text-gray-750 hover:text-black font-mono text-[10px] font-black uppercase px-3.5 py-2 cursor-pointer transition-all active:scale-95"
@@ -1306,11 +988,9 @@ Based on the selected corporate files and regulatory parameters, the agreement p
                     <span>Print Document</span>
                   </button>
                 </div>
-
               </div>
 
-              {/* Seamless Follow-up Chat Input Bar Form underneath */}
-              <form onSubmit={handleSendChatMessage} className="bg-white border border-gray-250/90 shadow-sm p-3.5 flex items-center space-x-3">
+              <form onSubmit={handleSendChatMessage} className="bg-white border border-gray-250/90 shadow-sm p-3.5 flex items-center space-x-3 no-print">
                 <input
                   type="text"
                   placeholder="Ask follow up questions here (e.g. Can you draft a balanced server audit clause?)..."
@@ -1326,36 +1006,25 @@ Based on the selected corporate files and regulatory parameters, the agreement p
                   <Send className="w-4 h-4 text-white" />
                 </button>
               </form>
-
             </div>
           </div>
 
-          {/* Copy Success Toast component */}
           {showCopyToast && (
             <div className="fixed bottom-6 right-6 z-50 bg-black text-white text-[10px] font-mono uppercase tracking-widest font-black px-4 py-2.5 shadow-xl border border-gray-805 animate-fade-in select-none">
               <span>✓ Text copied successfully</span>
             </div>
           )}
-
         </div>
       )}
 
-      {/* ==============================================================================
-          GLOBAL SIDE DRAWER/PANEL OVERLAY & CONTENT (Folder / Ingest Forms)
-          ============================================================================== */}
       {isSidePanelOpen && (
         <div className="fixed inset-0 z-50 overflow-hidden">
-          
-          {/* Gray translucent backdrop */}
           <div 
             className="absolute inset-0 bg-black/40 transition-opacity animate-fade-in"
             onClick={() => setIsSidePanelOpen(false)}
           />
-
           <div className="absolute inset-y-0 right-0 max-w-full flex select-all">
             <div className="w-96 bg-white shadow-2xl flex flex-col h-full transform transition-transform duration-300 translate-x-0 relative">
-              
-              {/* Slider Header */}
               <div className="p-5 border-b border-gray-150 flex items-center justify-between bg-gray-50/50">
                 <div className="select-all">
                   <h4 className="text-sm font-semibold tracking-tight text-gray-950 uppercase font-mono">
@@ -1373,10 +1042,7 @@ Based on the selected corporate files and regulatory parameters, the agreement p
                 </button>
               </div>
 
-              {/* Slider Conditional Form Content */}
               {sidePanelType === "folder" ? (
-                
-                // CREATE FOLDER FORM
                 <form onSubmit={handleAddNewFolder} className="flex-1 p-5 space-y-5 flex flex-col justify-between select-all">
                   <div className="space-y-4">
                     <div className="space-y-1.5">
@@ -1390,33 +1056,7 @@ Based on the selected corporate files and regulatory parameters, the agreement p
                         className="w-full text-xs font-mono border border-gray-205 bg-gray-50/20 px-3 py-2.5 focus:outline-none focus:border-black rounded-none"
                       />
                     </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-mono text-gray-400 uppercase font-bold block select-none">Classification Category</label>
-                      <select
-                        value={newFolderCategory}
-                        onChange={(e) => setNewFolderCategory(e.target.value)}
-                        className="w-full text-xs border border-gray-205 bg-white p-2.5 text-gray-950 font-semibold focus:outline-none focus:border-black font-sans cursor-pointer"
-                      >
-                        <option>Confidential Enclave</option>
-                        <option>Public Domain</option>
-                        <option>Internal Only</option>
-                        <option>Top secret clearance</option>
-                      </select>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-mono text-gray-400 uppercase font-bold block select-none">Default Schema Tags</label>
-                      <input
-                        type="text"
-                        value={newFolderTags}
-                        onChange={(e) => setNewFolderTags(e.target.value)}
-                        placeholder="NDA, Scans, Corporate..."
-                        className="w-full text-xs font-mono border border-gray-205 bg-gray-50/20 px-3 py-2.5 focus:outline-none focus:border-black rounded-none"
-                      />
-                    </div>
                   </div>
-
                   <button
                     type="submit"
                     className="w-full bg-black hover:bg-gray-800 text-white font-mono text-xs font-bold leading-none py-4 border border-black uppercase flex items-center justify-center space-x-2.5 transition-all select-none shadow-sm cursor-pointer"
@@ -1425,10 +1065,7 @@ Based on the selected corporate files and regulatory parameters, the agreement p
                     <span>Create Folder Node</span>
                   </button>
                 </form>
-
               ) : (
-
-                // UPLOAD FILES FORM
                 <form onSubmit={executeUploadSubmission} className="flex-1 p-5 space-y-5 flex flex-col justify-between select-all">
                   <div className="space-y-4">
                     <div className="space-y-1.5">
@@ -1438,6 +1075,7 @@ Based on the selected corporate files and regulatory parameters, the agreement p
                         onChange={(e) => setUploadSelectedFolder(e.target.value)}
                         className="w-full text-xs border border-gray-205 bg-white p-2.5 text-gray-950 font-semibold focus:outline-none focus:border-black font-sans cursor-pointer"
                       >
+                        <option value="">Select a folder...</option>
                         {folders.map(f => (
                           <option key={f.id} value={f.name}>{f.name}</option>
                         ))}
@@ -1446,7 +1084,6 @@ Based on the selected corporate files and regulatory parameters, the agreement p
 
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-mono text-gray-400 uppercase font-bold block select-none">Ingest Upload File</label>
-                      
                       <div
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
@@ -1459,8 +1096,6 @@ Based on the selected corporate files and regulatory parameters, the agreement p
                       >
                         <Upload className="w-6 h-6 text-gray-400 mb-2 select-none" />
                         <p className="text-[10px] font-bold text-gray-800 uppercase font-mono">Drag File Here</p>
-                        <p className="text-[8px] text-gray-400 font-mono mt-0.5 select-none">Supports PDF, DOCX, CSV, TXT up to 75MB</p>
-                        
                         <label className="inline-block mt-3 font-mono text-[9px] font-black border border-black bg-white px-2 py-1 hover:bg-black hover:text-white transition-colors cursor-pointer select-none">
                           <span>Browse vault</span>
                           <input
@@ -1471,7 +1106,6 @@ Based on the selected corporate files and regulatory parameters, the agreement p
                           />
                         </label>
                       </div>
-
                       {uploadedFileName && (
                         <div className="p-2 border border-emerald-300 bg-emerald-50 text-[10px] font-mono text-emerald-800 flex items-center justify-between select-none">
                           <span className="truncate flex-1 font-bold">{uploadedFileName}</span>
@@ -1483,7 +1117,7 @@ Based on the selected corporate files and regulatory parameters, the agreement p
 
                   <button
                     type="submit"
-                    disabled={!uploadedFileName || isUploading}
+                    disabled={!uploadedFileName || isUploading || !uploadSelectedFolder}
                     className="w-full bg-black hover:bg-gray-800 text-white font-mono text-xs font-bold leading-none py-4 border border-black uppercase flex items-center justify-center space-x-2.5 transition-all select-none shadow-sm disabled:opacity-40 cursor-pointer"
                   >
                     {isUploading ? (
@@ -1499,15 +1133,11 @@ Based on the selected corporate files and regulatory parameters, the agreement p
                     )}
                   </button>
                 </form>
-
               )}
-
             </div>
           </div>
-
         </div>
       )}
-
     </div>
   );
 }

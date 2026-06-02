@@ -22,6 +22,12 @@ export default defineConfig(() => {
       hmr: disableHmr ? false : undefined,
       // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: disableHmr ? null : {},
+      proxy: {
+        '/api': {
+          target: 'http://localhost:3000',
+          changeOrigin: true,
+        },
+      },
     },
   };
 });

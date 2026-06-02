@@ -6,15 +6,19 @@ const router = Router();
 const orchestrator = new AgentOrchestrator();
 
 router.post("/interact", authenticateToken, async (req: Request, res: Response) => {
-  const { prompt, documentMode, answerStyle } = req.body;
+  const { folder_ids, prompt, documentMode, answerStyle, history } = req.body;
   const userId = req.user!.id;
 
   try {
-    const analysis = await orchestrator.askLawyer(prompt, userId);
-    res.json({
-      analysis,
-      clauses: [] // In a real scenario, we'd extract specific clauses here
-    });
+    const result = await orchestrator.interactAnalyze(
+      folder_ids || [],
+      prompt,
+      userId,
+      documentMode,
+      answerStyle,
+      history
+    );
+    res.json(result);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
