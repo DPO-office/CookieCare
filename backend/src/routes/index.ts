@@ -6,11 +6,13 @@ import folderRoutes from "./folders.js";
 import libraryItemRoutes from "./libraryItems.js";
 import jobRoutes from "./jobs.js";
 import analyzeRoutes from "./analyze.js";
+import draftingRoutes from "./drafting.js";
 import vulnerabilitiesRoutes from "./vulnerabilities.js";
 
 const router = Router();
 
 router.use("/analyze", analyzeRoutes);
+router.use("/drafting", draftingRoutes);
 router.use("/", vulnerabilitiesRoutes);
 router.use("/auth", authRoutes);
 router.use("/admin", adminRoutes);

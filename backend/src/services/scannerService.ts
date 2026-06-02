@@ -1,4 +1,3 @@
-import { Request, Response } from "express";
 import { pool } from "../config/database.js";
 import fs from "fs/promises";
 import path from "path";
@@ -43,7 +42,6 @@ export class ScannerService {
     const db = await this.loadCookieDb();
 
     // Simulate intercepting cookies from the URL
-    // In a real enterprise scenario, this would use a headless browser (Puppeteer/Playwright)
     const interceptedCookies = [
       { name: "cookiePreferences", value: "true" },
       { name: "_ga_X123Y", value: "GA1.2.123.456" },
@@ -58,19 +56,24 @@ export class ScannerService {
       cookies.forEach(c => allDefinitions.push({ ...c, provider }));
     }
 
+    // Use for...of loop for sequential asynchronous processing and to avoid locking the main thread
     for (const intercepted of interceptedCookies) {
-      let foundMatch = false;
+      let match: (CookieDefinition & { provider: string }) | undefined = undefined;
 
       // 1. Strict Matching
-      let match = allDefinitions.find(d => d.cookie === intercepted.name);
+      match = allDefinitions.find(d => d.cookie === intercepted.name);
 
       // 2. Wildcard Matching
       if (!match) {
         match = allDefinitions.find(d => {
           if (d.wildcardMatch === "1") {
             const pattern = d.cookie.replace(/\*/g, ".*");
-            const regex = new RegExp(`^${pattern}$`);
-            return regex.test(intercepted.name);
+            try {
+              const regex = new RegExp(`^${pattern}$`);
+              return regex.test(intercepted.name);
+            } catch (e) {
+              return false;
+            }
           }
           return false;
         });
@@ -98,7 +101,6 @@ export class ScannerService {
       }
     }
 
-    // Calculate score based on findings
     const highRiskCount = matchedCookies.filter(c => c.category === "Marketing" || c.category === "Analytics").length;
     const score = Math.max(0, 100 - (highRiskCount * 10) - (matchedCookies.length * 2));
     const risk = score > 70 ? "Low" : score > 40 ? "Medium" : "High";
@@ -109,16 +111,20 @@ export class ScannerService {
       matchedCount: matchedCookies.filter(c => c.provider !== "Unknown").length
     };
 
-    await pool.query(
-      "INSERT INTO website_scans (user_id, url, scan_type, overall_score, risk_level, payload) VALUES ($1, $2, $3, $4, $5, $6)",
-      [userId, url, "cookie", score, risk, JSON.stringify(payload)]
-    );
+    const client = await pool.connect();
+    try {
+      await client.query(
+        "INSERT INTO website_scans (user_id, url, scan_type, overall_score, risk_level, payload) VALUES ($1, $2, $3, $4, $5, $6)",
+        [userId, url, "cookie", score, risk, JSON.stringify(payload)]
+      );
+    } finally {
+      client.release();
+    }
 
     return { url, score, risk, cookies: matchedCookies };
   }
 
   async scanVulnerability(url: string, userId: string) {
-    // Vulnerability scanning logic...
     const score = Math.floor(Math.random() * 100);
     const risk = score > 80 ? "Low" : score > 50 ? "Medium" : "High";
 
@@ -129,10 +135,16 @@ export class ScannerService {
       ]
     };
 
-    await pool.query(
-      "INSERT INTO website_scans (user_id, url, scan_type, overall_score, risk_level, payload) VALUES ($1, $2, $3, $4, $5, $6)",
-      [userId, url, "vulnerability", score, risk, JSON.stringify(payload)]
-    );
+    const client = await pool.connect();
+    try {
+      await client.query(
+        "INSERT INTO website_scans (user_id, url, scan_type, overall_score, risk_level, payload) VALUES ($1, $2, $3, $4, $5, $6)",
+        [userId, url, "vulnerability", score, risk, JSON.stringify(payload)]
+      );
+    } finally {
+      client.release();
+    }
+
     return { url, score, risk };
   }
 }

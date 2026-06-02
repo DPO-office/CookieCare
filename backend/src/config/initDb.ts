@@ -112,6 +112,18 @@ export async function dbInit() {
       );
     `);
 
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS saved_drafts (
+        id VARCHAR(255) PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        content TEXT NOT NULL,
+        config_state JSONB DEFAULT '{}'::jsonb,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     console.log("Postgres database schemas initialized successfully.");
 
     // Seed ADMIN user

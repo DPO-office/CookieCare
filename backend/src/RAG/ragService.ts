@@ -5,24 +5,21 @@ import { pool } from "../config/database.js";
 const genAI = new GoogleGenAI({ apiKey: config.geminiApiKey || "dummy" });
 
 // Helper to remove any null bytes (\x00) that crash PostgreSQL
-function sanitizeText(str: string): string {
+export function sanitizeText(str: string): string {
   if (!str) return str;
   return str.replace(/\0/g, "");
 }
 
 export async function getEmbedding(text: string): Promise<number[] | null> {
+  const sanitizedText = sanitizeText(text);
   try {
-    const result = await genAI.models.embedContent({
-      model: "gemini-embedding-2", // Standard 3072 dimensional mapping
-      contents: text,
-    });
+    const result = await genAI.getGenerativeModel({ model: "text-embedding-004" }).embedContent(sanitizedText);
 
-    if (result && (result as any).embedding?.values) {
-      return (result as any).embedding.values;
-    }
+    // Defensive extraction as per enterprise specifications
+    const vector = (result as any).embedding?.values || (result as any).embeddings?.[0]?.values;
 
-    if (result && (result as any).embeddings?.[0]?.values) {
-      return (result as any).embeddings[0].values;
+    if (vector && Array.isArray(vector)) {
+      return vector;
     }
 
     console.error("Embedding structure not matched:", result);
@@ -34,9 +31,10 @@ export async function getEmbedding(text: string): Promise<number[] | null> {
 }
 
 export async function chunkAndIndexDocument(fileId: string, content: string, userId: string) {
+  const client = await pool.connect();
   try {
     // Purane items ko flush out karo safely
-    await pool.query("DELETE FROM legal_document_chunks WHERE file_id = $1 AND user_id = $2;", [fileId, userId]);
+    await client.query("DELETE FROM legal_document_chunks WHERE file_id = $1 AND user_id = $2;", [fileId, userId]);
     
     // Content ko clean aur chunk array set karo
     const cleanedContent = sanitizeText(content);
@@ -55,23 +53,25 @@ export async function chunkAndIndexDocument(fileId: string, content: string, use
         continue;
       }
 
-      // Safe bracket wrapper format pgvector ke liye
+      // Safe bracket wrapper format pgvector ke liye perfectly matching specifications
       const vectorString = `[${vector.join(",")}]`;
 
-      await pool.query(`
+      await client.query(`
         INSERT INTO legal_document_chunks (file_id, user_id, chunk_index, content, embedding, metadata)
         VALUES ($1, $2, $3, $4, $5, $6);
       `, [
         fileId,
         userId,
         i,
-        chunk,         // Ab 100% sanitized text insertion direct parameter me ja raha hai
-        vectorString,  // Clean dimensional float block
+        chunk,
+        vectorString,
         JSON.stringify({})
       ]);
     }
   } catch (err) {
     console.error(`Failed to index Document ${fileId}:`, err);
+  } finally {
+    client.release();
   }
 }
 
