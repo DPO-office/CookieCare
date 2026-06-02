@@ -14,7 +14,7 @@ export class AgentOrchestrator {
 
     try {
       const result = await genAI.models.generateContent({
-        model: "gemini-1.5-pro",
+        model: "gemini-2.5-flash",
         contents: [{ role: "user", parts: [{ text: promptText }] }]
       });
       const analysisText = result.candidates?.[0].content?.parts?.[0].text || "Analysis unavailable.";
@@ -44,7 +44,7 @@ ${prompt}`;
 
     try {
       const result = await genAI.models.generateContent({
-        model: "gemini-1.5-pro",
+        model: "gemini-2.5-flash",
         contents: [{ role: "user", parts: [{ text: combinedPrompt }] }]
       });
 
@@ -100,7 +100,7 @@ STYLE INSTRUCTIONS:
         const promptText = `${systemInstruction}\n\n[CONTEXT / SOURCE MATERIALS]\n${amalgamatedContent}\n\n[CONVERSATION HISTORY]\n${JSON.stringify(history)}\n\n[USER QUERY]\n${prompt}\n\nProvide a high-fidelity legal assessment in ${answerStyle.toUpperCase()} style.`;
 
         const result = await genAI.models.generateContent({
-          model: "gemini-1.5-pro",
+          model: "gemini-2.5-flash",
           contents: [{ role: "user", parts: [{ text: promptText }] }]
         });
         analysis = result.candidates?.[0].content?.parts?.[0].text || "Analysis unavailable.";
@@ -110,7 +110,7 @@ STYLE INSTRUCTIONS:
         for (const file of files) {
           const promptText = `${systemInstruction}\n\n[DOCUMENT: ${file.title}]\n${file.content}\n\n[USER QUERY]\n${prompt}\n\nProvide a separate structural assessment for this specific file in ${answerStyle.toUpperCase()} style.`;
           const result = await genAI.models.generateContent({
-            model: "gemini-1.5-pro",
+            model: "gemini-2.5-flash",
             contents: [{ role: "user", parts: [{ text: promptText }] }]
           });
           summaries.push(`### Analysis for ${file.title}\n${result.candidates?.[0].content?.parts?.[0].text || "Unavailable."}`);

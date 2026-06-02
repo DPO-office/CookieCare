@@ -4,17 +4,29 @@ import { pool } from "../config/database.js";
 
 const genAI = new GoogleGenAI({ apiKey: config.geminiApiKey || "dummy" });
 
-export async function getEmbedding(text: string): Promise<number[] | null> {
-  if (!config.geminiApiKey || config.geminiApiKey === "dummy") {
-    return null;
-  }
+// Helper to remove any null bytes (\x00) that crash PostgreSQL
+function sanitizeText(str: string): string {
+  if (!str) return str;
+  return str.replace(/\0/g, "");
+}
 
+export async function getEmbedding(text: string): Promise<number[] | null> {
   try {
     const result = await genAI.models.embedContent({
-      model: "text-embedding-004",
-      contents: [text]
+      model: "gemini-embedding-2", // Standard 3072 dimensional mapping
+      contents: text,
     });
-    return result.embeddings?.[0].values || null;
+
+    if (result && (result as any).embedding?.values) {
+      return (result as any).embedding.values;
+    }
+
+    if (result && (result as any).embeddings?.[0]?.values) {
+      return (result as any).embeddings[0].values;
+    }
+
+    console.error("Embedding structure not matched:", result);
+    return null;
   } catch (err) {
     console.error("Embedding generation failed:", err);
     return null;
@@ -23,13 +35,28 @@ export async function getEmbedding(text: string): Promise<number[] | null> {
 
 export async function chunkAndIndexDocument(fileId: string, content: string, userId: string) {
   try {
+    // Purane items ko flush out karo safely
     await pool.query("DELETE FROM legal_document_chunks WHERE file_id = $1 AND user_id = $2;", [fileId, userId]);
-    // Simplified chunking for verification
-    const chunks = [content];
+    
+    // Content ko clean aur chunk array set karo
+    const cleanedContent = sanitizeText(content);
+    const chunks = [cleanedContent];
 
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
+      
+      // Agar chunk khali hai toh skip karo
+      if (!chunk || chunk.trim().length === 0) continue;
+
       const vector = await getEmbedding(chunk);
+
+      if (!vector || !Array.isArray(vector)) {
+        console.error(`Skipping chunk ${i} due to empty embedding array.`);
+        continue;
+      }
+
+      // Safe bracket wrapper format pgvector ke liye
+      const vectorString = `[${vector.join(",")}]`;
 
       await pool.query(`
         INSERT INTO legal_document_chunks (file_id, user_id, chunk_index, content, embedding, metadata)
@@ -38,8 +65,8 @@ export async function chunkAndIndexDocument(fileId: string, content: string, use
         fileId,
         userId,
         i,
-        chunk,
-        vector ? `[${vector.join(",")}]` : null,
+        chunk,         // Ab 100% sanitized text insertion direct parameter me ja raha hai
+        vectorString,  // Clean dimensional float block
         JSON.stringify({})
       ]);
     }
@@ -49,7 +76,9 @@ export async function chunkAndIndexDocument(fileId: string, content: string, use
 }
 
 export async function semanticSearch(userId: string, query: string, limit = 5): Promise<string[]> {
-  const vector = await getEmbedding(query);
+  const sanitizedQuery = sanitizeText(query);
+  const vector = await getEmbedding(sanitizedQuery);
+  
   if (!vector) {
     const { rows } = await pool.query(`
       SELECT content FROM legal_document_chunks
