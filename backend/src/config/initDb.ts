@@ -107,8 +107,6 @@ export async function dbInit() {
       );
     `);
 
-    await client.query("TRUNCATE TABLE users CASCADE;");
-
     const hashedSeedPassword = await bcrypt.hash("MamuSecure2026!", 10);
     await client.query(`
       INSERT INTO users (id, email, name, password_hash, status, role, approved_at)

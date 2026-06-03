@@ -40,14 +40,6 @@ export class ScannerService {
 
   async scanCookie(url: string, userId: string, scanDepth: string = "Deep") {
     const db = await this.loadCookieDb();
-
-    const interceptedCookies = [
-      { name: "cookiePreferences", value: "true" },
-      { name: "_ga_X123Y", value: "GA1.2.123.456" },
-      { name: "CookieConsent", value: "true" },
-      { name: "unknown_track_id", value: "abc-123" }
-    ];
-
     const matchedCookies: any[] = [];
     const allDefinitions: (CookieDefinition & { provider: string })[] = [];
 
@@ -55,70 +47,45 @@ export class ScannerService {
       cookies.forEach(c => allDefinitions.push({ ...c, provider }));
     }
 
-    // Perform web scraping
     let pageContent = "";
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, { signal: controller.signal });
       pageContent = await response.text();
-    } catch (err) {
-      console.error("Scraping failed:", err);
+    } catch (err: any) {
+      if (err.name === "AbortError") {
+        console.error(`Scan timeout reached for ${url}`);
+      } else {
+        console.error("Scraping failed:", err);
+      }
+      pageContent = "";
+    } finally {
+      clearTimeout(timeoutId);
     }
 
-    // Detect trackers from content
     const detectedTrackers = allDefinitions.filter(d => {
       if (d.cookie && pageContent.includes(d.cookie)) return true;
       if (d.domain && pageContent.includes(d.domain)) return true;
       return false;
     });
 
-    const interceptedCookiesSimulated = [
-      { name: "cookiePreferences", value: "true" },
-      { name: "CookieConsent", value: "true" }
-    ];
-
-    detectedTrackers.slice(0, 5).forEach(t => {
-       interceptedCookiesSimulated.push({ name: t.cookie, value: "detected" });
-    });
-
-    for (const intercepted of interceptedCookiesSimulated) {
-      let match = allDefinitions.find(d => d.cookie === intercepted.name);
-
-      if (!match) {
-        match = allDefinitions.find(d => {
-          if (d.wildcardMatch === "1") {
-            const pattern = d.cookie.replace(/\*/g, ".*");
-            const regex = new RegExp(`^${pattern}$`);
-            return regex.test(intercepted.name);
-          }
-          return false;
-        });
-      }
-
-      if (match) {
-        matchedCookies.push({
-          name: intercepted.name,
-          value: intercepted.value,
-          provider: match.provider,
-          category: match.category,
-          description: match.description,
-          privacyLink: match.privacyLink,
-          matchedBy: match.wildcardMatch === "1" ? "wildcard" : "strict"
-        });
-      } else {
-        matchedCookies.push({
-          name: intercepted.name,
-          value: intercepted.value,
-          provider: "Unknown",
-          category: "Uncategorized",
-          description: "No description available for this cookie.",
-          matchedBy: "none"
-        });
-      }
+    for (const tracker of detectedTrackers) {
+      matchedCookies.push({
+        name: tracker.cookie,
+        value: "detected",
+        provider: tracker.provider,
+        category: tracker.category,
+        description: tracker.description,
+        privacyLink: tracker.privacyLink,
+        matchedBy: "content_match"
+      });
     }
 
     const highRiskCount = matchedCookies.filter(c => c.category === "Marketing" || c.category === "Analytics").length;
-    const score = Math.max(0, 100 - (highRiskCount * 10) - (matchedCookies.length * 2));
-    const risk = score > 70 ? "Low" : score > 40 ? "Medium" : "High";
+    const score = Math.max(0, 100 - (highRiskCount * 15) - (matchedCookies.length * 2));
+    const risk = score > 75 ? "Low" : score > 45 ? "Medium" : "High";
 
     const hasConsentBanner = pageContent.toLowerCase().includes("cookie") || pageContent.toLowerCase().includes("consent");
 
@@ -145,20 +112,18 @@ export class ScannerService {
         {
           regulation: "GDPR",
           severity: highRiskCount > 0 ? "RED" : "GREEN",
-          issue: highRiskCount > 0 ? "Marketing trackers detected without explicit proof of prior consent." : "No critical GDPR gaps detected.",
-          remediation: "Implement a strict 'Prior Consent' mechanism for all non-essential trackers."
+          issue: highRiskCount > 0 ? "Potential marketing trackers detected." : "No critical GDPR gaps detected.",
+          remediation: highRiskCount > 0 ? "Implement strict prior consent." : "Maintain current compliance."
         }
       ]
     };
-
-    const payload = result;
 
     let client;
     try {
       client = await pool.connect();
       await client.query(
         "INSERT INTO website_scans (user_id, url, scan_type, overall_score, risk_level, payload) VALUES ($1, $2, $3, $4, $5, $6)",
-        [userId, url, "cookie", score, risk, JSON.stringify(payload)]
+        [userId, url, "cookie", score, risk, JSON.stringify(result)]
       );
     } catch (err) {
       console.error("Failed to save cookie scan results:", err);
@@ -170,14 +135,43 @@ export class ScannerService {
   }
 
   async scanVulnerability(url: string, userId: string) {
-    const score = Math.floor(Math.random() * 100);
+    let pageContent = "";
+    let headers: Headers = new Headers();
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    try {
+      const response = await fetch(url, { signal: controller.signal });
+      pageContent = await response.text();
+      headers = response.headers;
+    } catch (err: any) {
+      if (err.name === "AbortError") {
+        console.error(`Vulnerability scan timeout reached for ${url}`);
+      } else {
+        console.error("Vulnerability scraping failed:", err);
+      }
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
+    const vulnerabilities = [];
+    if (pageContent.includes("jquery/1.12.4")) {
+      vulnerabilities.push({ name: "Outdated Library", severity: "Medium", description: "The site uses an outdated version of jQuery (1.12.4)." });
+    }
+
+    const hasCSP = Array.from(headers.entries()).some(([k]) => k.toLowerCase() === "content-security-policy");
+    if (pageContent.includes("<script") && !hasCSP) {
+      vulnerabilities.push({ name: "Missing CSP", severity: "High", description: "No Content Security Policy detected, increasing XSS risk." });
+    }
+
+    const score = Math.max(0, 100 - (vulnerabilities.length * 30));
     const risk = score > 80 ? "Low" : score > 50 ? "Medium" : "High";
 
-    const payload = {
-      vulnerabilities: [
-        { name: "XSS Vulnerability", severity: "High", description: "Potential Cross-Site Scripting found in search parameter." },
-        { name: "Outdated Library", severity: "Medium", description: "The site uses an outdated version of jQuery (1.12.4)." }
-      ]
+    const result = {
+      url,
+      overallScore: score,
+      riskLevel: risk,
+      vulnerabilities: vulnerabilities.length > 0 ? vulnerabilities : [{ name: "No critical vulnerabilities", severity: "Low", description: "Initial scan found no major issues." }]
     };
 
     let client;
@@ -185,13 +179,13 @@ export class ScannerService {
       client = await pool.connect();
       await client.query(
         "INSERT INTO website_scans (user_id, url, scan_type, overall_score, risk_level, payload) VALUES ($1, $2, $3, $4, $5, $6)",
-        [userId, url, "vulnerability", score, risk, JSON.stringify(payload)]
+        [userId, url, "vulnerability", score, risk, JSON.stringify(result)]
       );
     } catch (err) {
       console.error("Failed to save vulnerability scan results:", err);
     } finally {
       if (client) client.release();
     }
-    return { url, score, risk };
+    return result;
   }
 }

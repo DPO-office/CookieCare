@@ -52,7 +52,7 @@ export async function chunkAndIndexDocument(fileId: string, content: string, use
       await client.query(`
         INSERT INTO legal_document_chunks (file_id, user_id, chunk_index, content, embedding, metadata)
         VALUES ($1, $2, $3, $4, $5, $6);
-      `, [fileId, userId, i, chunk, vectorString, JSON.stringify({})]);
+      `, [fileId, userId, i, sanitizeText(chunk), vectorString, JSON.stringify({})]);
     }
   } catch (err) {
     console.error(`chunkAndIndexDocument failed for file ${fileId}:`, err);
