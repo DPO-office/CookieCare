@@ -16,9 +16,11 @@ Identify critical liability risks, compliance gaps, and regulatory concerns.
 IMPORTANT: Return your response in clean, well-structured Markdown format. Use headers, bullet points, and bold text for readability.`;
 
     try {
-      const model = (genAI as any).getGenerativeModel({ model: "gemini-2.0-flash" });
-      const result = await model.generateContent(fullPrompt);
-      return result.response.text();
+      const result = await genAI.models.generateContent({
+        model: "gemini-2.0-flash",
+        contents: fullPrompt,
+      });
+      return result.text;
     } catch (err) {
       console.error("AnalysisAgent error:", err);
       throw err;
@@ -34,15 +36,12 @@ Audit the document for:
 Return JSON: { "summary": "...", "risks": [...], "complianceGaps": [...] }`;
 
     try {
-      const model = (genAI as any).getGenerativeModel({
+      const result = await genAI.models.generateContent({
         model: "gemini-2.0-flash",
-        generationConfig: { responseMimeType: "application/json" }
-      });
-      const result = await model.generateContent({
         contents: [{ role: "user", parts: [{ text: content }] }],
-        systemInstruction
+        config: { responseMimeType: "application/json", systemInstruction },
       });
-      return JSON.parse(result.response.text());
+      return JSON.parse(result.text);
     } catch (err) {
       console.warn("AI audit failed, falling back to heuristics");
       return this.heuristicAudit(content, type);

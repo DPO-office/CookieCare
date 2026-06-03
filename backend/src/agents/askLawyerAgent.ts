@@ -18,8 +18,11 @@ ${query}
 IMPORTANT: Return your response in clean, well-structured Markdown format. Use headers, bullet points, and bold text for readability.`;
 
     try {
-      const result = await (genAI as any).getGenerativeModel({ model: "gemini-2.0-flash" }).generateContent(prompt);
-      return result.candidates?.[0].content?.parts?.[0].text || "I cannot answer this query right now.";
+      const result = await genAI.models.generateContent({
+        model: "gemini-2.0-flash",
+        contents: prompt,
+      });
+      return result.text || "I cannot answer this query right now.";
     } catch (err) {
       console.error("AskLawyerAgent error:", err);
       throw err;

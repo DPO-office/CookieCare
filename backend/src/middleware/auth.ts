@@ -8,15 +8,39 @@ interface JwtPayload {
   email: string;
 }
 
+// TypeScript ko batane ke liye ki Express Request mein 'user' exist karta hai
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        email: string;
+        name: string;
+        status: string;
+        role: string;
+      };
+    }
+  }
+}
+
 export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers["authorization"];
+  
   if (!authHeader) {
     return res.status(401).json({ error: "Access denied. Token missing." });
   }
 
-  const token = authHeader.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ error: "Access denied. Token invalid." });
+  // Check parsing format: "Bearer <token>"
+  const parts = authHeader.split(" ");
+  if (parts.length !== 2 || parts[0] !== "Bearer") {
+    return res.status(401).json({ error: "Access denied. Token format must be Bearer <token>." });
+  }
+
+  const token = parts[1];
+
+  // Agair token string "undefined" ya "null" ban kar aa rahi ho (Frontend bug)
+  if (!token || token === "undefined" || token === "null") {
+    return res.status(401).json({ error: "Access denied. Token is null or undefined." });
   }
 
   try {
@@ -43,8 +67,14 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     if (err.name === 'TokenExpiredError') {
       return res.status(401).json({ error: "Session expired. Please log in again." });
     }
-    console.error("Authentication middleware error:", err);
-    return res.status(403).json({ error: "Invalid or expired token." });
+    
+    // Agar JWT malformed hai toh console ko spam karne ki zarurat nahi, clean return karein
+    if (err.name === 'JsonWebTokenError') {
+      return res.status(403).json({ error: "Invalid or malformed token." });
+    }
+
+    console.error("Authentication middleware unexpected error:", err);
+    return res.status(500).json({ error: "Internal server error during authentication." });
   }
 };
 

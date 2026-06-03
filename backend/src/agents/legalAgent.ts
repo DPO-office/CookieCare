@@ -82,7 +82,7 @@ export class AgentOrchestrator {
   }
 
   async interactAnalyze(
-    folderIds: string[],
+    folderIds: string[] = [], 
     prompt: string,
     userId: string,
     documentMode: "unified" | "individual" = "unified",
@@ -91,18 +91,22 @@ export class AgentOrchestrator {
   ): Promise<any> {
     let client;
     try {
+      const safeFolderIds = Array.isArray(folderIds) ? folderIds : [];
+
       client = await pool.connect();
       let files: any[] = [];
-      if (folderIds.includes("root")) {
+      
+      if (safeFolderIds.length === 0 || safeFolderIds.includes("root")) {
+        const folderFilters = safeFolderIds.filter(id => id !== "root");
         const { rows } = await client.query(
           "SELECT id, title, content FROM files WHERE (folder_id IS NULL OR folder_id = ANY($1)) AND creator_id = $2",
-          [folderIds.filter(id => id !== "root"), userId]
+          [folderFilters, userId]
         );
         files = rows;
       } else {
         const { rows } = await client.query(
           "SELECT id, title, content FROM files WHERE folder_id = ANY($1) AND creator_id = $2",
-          [folderIds, userId]
+          [safeFolderIds, userId]
         );
         files = rows;
       }
