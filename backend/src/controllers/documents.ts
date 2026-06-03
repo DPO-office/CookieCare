@@ -31,6 +31,10 @@ export const getDocuments = async (req: Request, res: Response) => {
       ...r,
       content: r.is_encrypted ? decryptData(r.content) : r.content,
       isEncrypted: r.is_encrypted,
+      signatures: r.signatures || [],
+      redlines: r.redlines || [],
+      sharedWith: r.shared_with || [],
+      auditLogs: r.audit_logs || [],
     }));
     return res.json(docs);
   } catch (err: any) {
@@ -60,6 +64,10 @@ export const getDocumentById = async (req: Request, res: Response) => {
           ...v,
           content: v.content.startsWith("LEXENC_") ? decryptData(v.content) : v.content,
         })),
+        signatures: r.signatures || [],
+        redlines: r.redlines || [],
+        sharedWith: r.shared_with || [],
+        auditLogs: r.audit_logs || [],
       };
       return res.json(doc);
     }

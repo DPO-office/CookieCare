@@ -1046,7 +1046,7 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
     }
   };
 
-  const isFullySigned = selectedDoc?.signatures && selectedDoc.signatures.length > 0 && selectedDoc.signatures.every(s => s.status === "signed");
+  const isFullySigned = selectedDoc?.signatures?.length ? selectedDoc.signatures.every(s => s.status === "signed") : false;
 
   return (
     <div className="flex-1 overflow-hidden flex h-screen font-sans bg-[#FAFBFD]">
@@ -2081,7 +2081,7 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
             )}
 
             <div className="space-y-2 mb-4">
-              {selectedDoc.signatures.length === 0 ? (
+              {(selectedDoc?.signatures?.length ?? 0) === 0 ? (
                 <div className="text-[10px] text-gray-400 italic font-mono">- No pending invitation slots.</div>
               ) : (
                 selectedDoc.signatures.map((sig, i) => (
@@ -2155,7 +2155,7 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
                 Share
               </button>
             </div>
-            {selectedDoc.sharedWith.length > 0 && (
+            {(selectedDoc?.sharedWith?.length ?? 0) > 0 && (
               <div className="flex flex-wrap gap-1 mt-2">
                 {selectedDoc.sharedWith.map((email, i) => (
                   <span key={i} className="text-[9px] bg-slate-105 text-gray-600 rounded px-1.5 py-0.5 select-all font-mono">
