@@ -48,12 +48,21 @@ export class ScannerService {
     }
 
     let pageContent = "";
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, { signal: controller.signal });
       pageContent = await response.text();
-    } catch (err) {
-      console.error("Scraping failed:", err);
+    } catch (err: any) {
+      if (err.name === "AbortError") {
+        console.error(`Scan timeout reached for ${url}`);
+      } else {
+        console.error("Scraping failed:", err);
+      }
       pageContent = "";
+    } finally {
+      clearTimeout(timeoutId);
     }
 
     const detectedTrackers = allDefinitions.filter(d => {
@@ -127,18 +136,31 @@ export class ScannerService {
 
   async scanVulnerability(url: string, userId: string) {
     let pageContent = "";
+    let headers: Headers = new Headers();
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, { signal: controller.signal });
       pageContent = await response.text();
-    } catch (err) {
-      console.error("Vulnerability scraping failed:", err);
+      headers = response.headers;
+    } catch (err: any) {
+      if (err.name === "AbortError") {
+        console.error(`Vulnerability scan timeout reached for ${url}`);
+      } else {
+        console.error("Vulnerability scraping failed:", err);
+      }
+    } finally {
+      clearTimeout(timeoutId);
     }
 
     const vulnerabilities = [];
     if (pageContent.includes("jquery/1.12.4")) {
       vulnerabilities.push({ name: "Outdated Library", severity: "Medium", description: "The site uses an outdated version of jQuery (1.12.4)." });
     }
-    if (pageContent.includes("<script") && !pageContent.includes("Content-Security-Policy")) {
+
+    const hasCSP = Array.from(headers.entries()).some(([k]) => k.toLowerCase() === "content-security-policy");
+    if (pageContent.includes("<script") && !hasCSP) {
       vulnerabilities.push({ name: "Missing CSP", severity: "High", description: "No Content Security Policy detected, increasing XSS risk." });
     }
 

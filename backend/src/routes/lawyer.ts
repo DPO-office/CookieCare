@@ -13,7 +13,8 @@ router.post("/ask", authenticateToken, async (req: Request, res: Response) => {
     const result = await orchestrator.askLawyer(prompt, userId);
     res.json({ answer: result });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    console.error("Lawyer query error:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 

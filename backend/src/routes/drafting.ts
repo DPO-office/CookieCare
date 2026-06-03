@@ -18,7 +18,8 @@ router.post("/process-uploaded-template", authenticateToken, async (req: Request
     );
     res.status(201).json({ success: true, file_id: fileId });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    console.error("Drafting error [process-uploaded-template]:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -27,7 +28,8 @@ router.post("/generate-stream", authenticateToken, async (req: Request, res: Res
     const draft = await draftingAgent.draftDocument(req.body);
     res.json({ draft });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    console.error("Drafting error [generate-stream]:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 

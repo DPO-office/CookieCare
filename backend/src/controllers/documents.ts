@@ -9,6 +9,10 @@ import { RedlineProposal, Version, AuditLog } from "../types/index.js";
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || "a".repeat(32);
 const ALGORITHM = "aes-256-gcm";
 
+if (Buffer.from(ENCRYPTION_KEY).length !== 32) {
+  throw new Error("ENCRYPTION_KEY must be exactly 32 bytes for AES-256-GCM.");
+}
+
 const encryptData = (text: string) => {
   if (!text) return "";
   const iv = crypto.randomBytes(12);
@@ -21,26 +25,39 @@ const encryptData = (text: string) => {
 
 const decryptData = (text: string) => {
   if (!text) return "";
+
   if (text.startsWith("LEXGCM_")) {
     try {
-      const parts = text.replace("LEXGCM_", "").split(":");
-      const iv = Buffer.from(parts[0], "hex");
-      const authTag = Buffer.from(parts[1], "hex");
-      const encryptedText = parts[2];
+      const payload = text.replace("LEXGCM_", "");
+      const [ivHex, authTagHex, encryptedHex] = payload.split(":");
+
+      if (!ivHex || !authTagHex || !encryptedHex) {
+        return "[DECRYPTION_FORMAT_ERROR]";
+      }
+
+      const iv = Buffer.from(ivHex, "hex");
+      const authTag = Buffer.from(authTagHex, "hex");
       const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
+
       decipher.setAuthTag(authTag);
-      let decrypted = decipher.update(encryptedText, "hex", "utf8");
+      let decrypted = decipher.update(encryptedHex, "hex", "utf8");
       decrypted += decipher.final("utf8");
       return decrypted;
     } catch (err) {
       console.error("Decryption failed:", err);
-      return "[DECRYPTION_ERROR]";
+      return "[DECRYPTION_FAILURE]";
     }
   }
+
   if (text.startsWith("LEXENC_")) {
-    const rawBase64 = text.replace("LEXENC_", "");
-    return Buffer.from(rawBase64, "base64").toString("utf-8");
+    try {
+      const rawBase64 = text.replace("LEXENC_", "");
+      return Buffer.from(rawBase64, "base64").toString("utf-8");
+    } catch (err) {
+      return "[LEGACY_DECRYPTION_ERROR]";
+    }
   }
+
   return text;
 };
 
