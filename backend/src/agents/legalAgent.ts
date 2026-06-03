@@ -95,46 +95,10 @@ export class AgentOrchestrator {
       };
     } catch (err: any) {
       console.error("AgentOrchestrator interactAnalyze failed:", err);
-      return this.generateMockReport(answerStyle, prompt);
+      throw err;
     } finally {
       if (client) client.release();
     }
   }
 
-  private generateMockReport(style: "narrative" | "tabular", prompt: string) {
-    if (style === "narrative") {
-      return {
-        analysis: `### EXECUTIVE LEGAL ASSESSMENT MEMORANDUM (MOCK)
-**Ref:** Compliance Audit - ${new Date().toLocaleDateString()}
-**Status:** SYSTEM RESILIENCY MODE
-
-Due to high demand or connectivity issues, this mock report has been generated.
-The system detected the query: "${prompt}".
-
-**Key Findings:**
-1. Potential liability exposure in standard clauses.
-2. Data processing boundaries require further verification.
-3. Indemnification reciprocity should be audited manually.`,
-        clauses: [
-          {
-            id: "m1",
-            clauseText: "Generic data access provision.",
-            severity: "high",
-            reason: "Overly broad scope.",
-            remediation: "Narrow down access rights."
-          }
-        ]
-      };
-    } else {
-      return {
-        analysis: `### STRUCTURAL LEGAL COMPLIANCE MATRIX (MOCK)
-
-| Category | Risk Level | Findings | Recommendation |
-| :--- | :--- | :--- | :--- |
-| **General** | MEDIUM | Fallback assessment active. | Retry later. |
-| **Data Privacy** | HIGH | Potential audit risk. | Review notice terms. |`,
-        clauses: []
-      };
-    }
-  }
 }

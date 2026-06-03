@@ -106,7 +106,8 @@ export const uploadDocument = async (req: Request, res: Response) => {
     fileTitle: title || file.originalname,
     fileBufferBase64: file.buffer.toString("base64"),
     mimeType: file.mimetype,
-    folder_id: folder_id || null
+    folder_id: folder_id || null,
+    creatorEmail: req.user!.email
   });
 
   res.status(202).json({ success: true, job_id: job.id });

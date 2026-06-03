@@ -1,3 +1,4 @@
+import { pool } from "../config/database.js";
 import { chunkAndIndexDocument } from "../RAG/ragService.js";
 import { AgentOrchestrator } from "../agents/legalAgent.js";
 import { ScannerService } from "./scannerService.js";
@@ -25,16 +26,25 @@ class JobQueue {
     job.status = "processing";
     try {
       if (job.type === "file_processing") {
-        const { fileBufferBase64 } = job.data;
+        const { fileTitle, fileBufferBase64, mimeType, folder_id, creatorEmail } = job.data;
         const content = Buffer.from(fileBufferBase64, "base64").toString("utf-8");
-        await chunkAndIndexDocument(job.id, content, job.userId);
+        const fileId = "doc_" + Math.random().toString(36).substr(2, 9);
+
+        await pool.query(
+          `INSERT INTO files (id, title, type, content, creator_id, creator_email, mime_type, folder_id)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+          [fileId, fileTitle, "upload", content, job.userId, creatorEmail || "user@example.com", mimeType, folder_id]
+        );
+
+        await chunkAndIndexDocument(fileId, content, job.userId);
+        job.result = { fileId };
       } else if (job.type === "document_analysis") {
         const { documentId, content } = job.data;
         await this.orchestrator.runAnalysis(documentId, content, job.userId);
       } else if (job.type === "privacy_scanning") {
-        await this.scanner.scanCookie(job.data.url, job.userId);
+        job.result = await this.scanner.scanCookie(job.data.url, job.userId, job.data.scanDepth);
       } else if (job.type === "vulnerability_scanning") {
-        await this.scanner.scanVulnerability(job.data.url, job.userId);
+        job.result = await this.scanner.scanVulnerability(job.data.url, job.userId);
       }
       job.status = "completed";
     } catch (err: any) {

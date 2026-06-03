@@ -38,7 +38,7 @@ export class ScannerService {
     }
   }
 
-  async scanCookie(url: string, userId: string) {
+  async scanCookie(url: string, userId: string, scanDepth: string = "Deep") {
     const db = await this.loadCookieDb();
 
     const interceptedCookies = [
@@ -55,9 +55,32 @@ export class ScannerService {
       cookies.forEach(c => allDefinitions.push({ ...c, provider }));
     }
 
-    await Promise.resolve();
+    // Perform web scraping
+    let pageContent = "";
+    try {
+      const response = await fetch(url);
+      pageContent = await response.text();
+    } catch (err) {
+      console.error("Scraping failed:", err);
+    }
 
-    for (const intercepted of interceptedCookies) {
+    // Detect trackers from content
+    const detectedTrackers = allDefinitions.filter(d => {
+      if (d.cookie && pageContent.includes(d.cookie)) return true;
+      if (d.domain && pageContent.includes(d.domain)) return true;
+      return false;
+    });
+
+    const interceptedCookiesSimulated = [
+      { name: "cookiePreferences", value: "true" },
+      { name: "CookieConsent", value: "true" }
+    ];
+
+    detectedTrackers.slice(0, 5).forEach(t => {
+       interceptedCookiesSimulated.push({ name: t.cookie, value: "detected" });
+    });
+
+    for (const intercepted of interceptedCookiesSimulated) {
       let match = allDefinitions.find(d => d.cookie === intercepted.name);
 
       if (!match) {
@@ -97,11 +120,38 @@ export class ScannerService {
     const score = Math.max(0, 100 - (highRiskCount * 10) - (matchedCookies.length * 2));
     const risk = score > 70 ? "Low" : score > 40 ? "Medium" : "High";
 
-    const payload = {
-      cookies: matchedCookies,
-      totalIntercepted: interceptedCookies.length,
-      matchedCount: matchedCookies.filter(c => c.provider !== "Unknown").length
+    const hasConsentBanner = pageContent.toLowerCase().includes("cookie") || pageContent.toLowerCase().includes("consent");
+
+    const result = {
+      scanSummary: {
+        url,
+        level: scanDepth,
+        overallScore: score,
+        riskLevel: risk,
+        hasConsentBanner,
+        loadsBeforeConsent: highRiskCount > 0,
+        totalCookiesCount: matchedCookies.length,
+        scannedAt: new Date().toISOString()
+      },
+      cookiesDetected: matchedCookies.map(c => ({
+        name: c.name,
+        category: c.category,
+        domain: c.provider,
+        retention: "1 year",
+        severity: (c.category === "Marketing" || c.category === "Analytics") ? "HIGH" : "LOW",
+        description: c.description
+      })),
+      complianceGaps: [
+        {
+          regulation: "GDPR",
+          severity: highRiskCount > 0 ? "RED" : "GREEN",
+          issue: highRiskCount > 0 ? "Marketing trackers detected without explicit proof of prior consent." : "No critical GDPR gaps detected.",
+          remediation: "Implement a strict 'Prior Consent' mechanism for all non-essential trackers."
+        }
+      ]
     };
+
+    const payload = result;
 
     let client;
     try {
@@ -116,7 +166,7 @@ export class ScannerService {
       if (client) client.release();
     }
 
-    return { url, score, risk, cookies: matchedCookies };
+    return result;
   }
 
   async scanVulnerability(url: string, userId: string) {

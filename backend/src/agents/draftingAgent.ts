@@ -13,13 +13,11 @@ Instructions: ${instructions}
 Detail Level: ${detailLevel}
 Jurisdiction: ${jurisdiction || 'International'}
 
-Provide a high-fidelity, professional legal draft.`;
+Provide a high-fidelity, professional legal draft.
+IMPORTANT: Return your response in clean, well-structured Markdown format. Use headers, bullet points, and bold text for readability.`;
 
     try {
-      const result = await genAI.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: [{ role: "user", parts: [{ text: prompt }] }]
-      });
+      const result = await (genAI as any).getGenerativeModel({ model: "gemini-1.5-flash" }).generateContent(prompt);
       return result.candidates?.[0].content?.parts?.[0].text || "Drafting failed.";
     } catch (err) {
       console.error("DraftingAgent error:", err);
