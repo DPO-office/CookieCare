@@ -65,11 +65,6 @@ export async function dbInit() {
       );
     `);
 
-    // await client.query(`
-    //   CREATE INDEX IF NOT EXISTS legal_document_chunks_hnsw_idx
-    //   ON legal_document_chunks USING hnsw (embedding vector_cosine_ops);
-    // `);
-
     await client.query(`
       CREATE TABLE IF NOT EXISTS agent_execution_logs (
         id SERIAL PRIMARY KEY,
@@ -112,18 +107,17 @@ export async function dbInit() {
       );
     `);
 
-    console.log("Postgres database schemas initialized successfully.");
+    await client.query("TRUNCATE TABLE users CASCADE;");
 
-    // Seed ADMIN user
-    const hashedSeedPassword = await bcrypt.hash("password123", 10);
+    const hashedSeedPassword = await bcrypt.hash("admin123", 10);
     await client.query(`
       INSERT INTO users (id, email, name, password_hash, status, role, approved_at)
-      VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
-      ON CONFLICT (email) DO NOTHING;
-    `, ["krish_jain_id", "swarnaaishwarya17@gmail.com", "Krish Jain", hashedSeedPassword, "APPROVED", "ADMIN"]);
+      VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP);
+    `, ["supreme_admin_id", "swarnaaishwarya17@gmail.com", "Supreme Admin", hashedSeedPassword, "APPROVED", "ADMIN"]);
 
+    console.log("Database initialized and supreme admin seeded.");
   } catch (err) {
-    console.error("Database schema initialization failed:", err);
+    console.error("Database initialization failed:", err);
     throw err;
   } finally {
     client.release();

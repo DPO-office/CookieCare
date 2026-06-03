@@ -14,8 +14,8 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
 
   try {
     const { rows } = await pool.query(
-      "SELECT id, email, name, status, role FROM users WHERE id = $1 OR email = $2",
-      [token, token]
+      "SELECT id, email, name, status, role FROM users WHERE id = $1",
+      [token]
     );
 
     if (rows.length === 0) {
