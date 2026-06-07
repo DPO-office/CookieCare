@@ -3,7 +3,7 @@ import { SearchCode, FileEdit, Scale, MessageSquare, FolderLock, Clock, Scale as
 import DraftAgreement from "./DraftAgreement";
 import InteractAnalyze from "./InteractAnalyze";
 import NegotiateHub from "./NegotiateHub";
-import AskAIModel from "./AskAIModel";
+import AskAILawyer from "./AskAILawyer";
 import QueueManager from "./QueueManager";
 import LibraryManager from "./LibraryManager";
 import { LegalDocument } from "../types";
@@ -100,9 +100,8 @@ export default function LegalReview({
         )}
 
         {subTab === "ask" && (
-          <AskAIModel
+          <AskAILawyer
             documents={documents}
-            activeDocument={activeDocument}
             authToken={authToken}
           />
         )}

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { pool } from "../config/database.js";
+import crypto from "crypto";
 
 export const getFolders = async (req: Request, res: Response) => {
   try {
@@ -18,7 +19,7 @@ export const createFolder = async (req: Request, res: Response) => {
   if (!name) return res.status(400).json({ error: "Folder name is required." });
 
   try {
-    const id = "fld_" + Math.random().toString(36).substr(2, 9);
+    const id = "fld_" + crypto.randomUUID();
     const { rows } = await pool.query(
       "INSERT INTO folders (id, name, user_id) VALUES ($1, $2, $3) RETURNING *",
       [id, name, req.user!.id]

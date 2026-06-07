@@ -79,7 +79,13 @@ export interface LegalDocument {
 declare global {
   namespace Express {
     interface Request {
-      user?: User;
+      user?: {
+        id: string;
+        email: string;
+        name: string;
+        status: string;
+        role: string;
+      };
     }
   }
 }

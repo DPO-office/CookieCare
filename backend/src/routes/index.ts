@@ -10,6 +10,7 @@ import draftingRoutes from "./drafting.js";
 import lawyerRoutes from "./lawyer.js";
 import negotiateRoutes from "./negotiate.js";
 import vulnerabilitiesRoutes from "./vulnerabilities.js";
+import reportRoutes from "./reports.js";
 
 const router = Router();
 
@@ -24,5 +25,6 @@ router.use("/drafting", draftingRoutes);
 router.use("/lawyer", lawyerRoutes);
 router.use("/negotiate", negotiateRoutes);
 router.use("/vulnerabilities", vulnerabilitiesRoutes);
+router.use("/reports", reportRoutes);
 
 export default router;
