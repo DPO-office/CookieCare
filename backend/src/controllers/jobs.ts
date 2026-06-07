@@ -7,7 +7,7 @@ export const getJobs = async (req: Request, res: Response) => {
   try {
     // Phase 1: Security Hardening - use RLS client
     const { rows } = await client.query(
-      "SELECT * FROM jobs WHERE user_id = current_setting('app.current_user_id', true) ORDER BY created_at DESC"
+      "SELECT * FROM jobs WHERE user_id = current_setting('app.current_user_id', true) OR current_setting('app.current_user_role', true) = 'ADMIN' ORDER BY created_at DESC"
     );
     res.json(rows);
   } catch (err: any) {

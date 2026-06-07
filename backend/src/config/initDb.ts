@@ -182,6 +182,13 @@ export async function dbInit() {
       FOR SELECT USING (current_setting('app.current_user_id', true) IS NOT NULL);
     `);
 
+    // Explicit Admin Write Policies for system_settings
+    await client.query(`DROP POLICY IF EXISTS system_settings_admin_write ON system_settings;`);
+    await client.query(`
+      CREATE POLICY system_settings_admin_write ON system_settings
+      FOR ALL USING (current_setting('app.current_user_role', true) = 'ADMIN');
+    `);
+
     // Performance Optimization: Indexes
     await client.query("CREATE INDEX IF NOT EXISTS idx_files_creator_id ON files(creator_id);");
     await client.query("CREATE INDEX IF NOT EXISTS idx_files_folder_id ON files(folder_id);");

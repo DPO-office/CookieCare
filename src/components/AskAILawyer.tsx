@@ -209,20 +209,34 @@ export default function AskAILawyer({ authToken, documents: propDocs = [] }: Ask
         setStepperMessage(`Background processing started for ${file.name}...`);
 
         const eventSource = new EventSource(apiUrl(`/api/jobs/sse?token=${authToken}`));
+
+        const cleanupSse = () => {
+          eventSource.close();
+          window.removeEventListener('beforeunload', cleanupSse);
+        };
+        window.addEventListener('beforeunload', cleanupSse);
+
         eventSource.onmessage = (event) => {
           const data = JSON.parse(event.data);
           if (data.event === "job_update" && data.job.id === payload.job_id) {
             if (data.job.status === "completed") {
-              eventSource.close();
+              cleanupSse();
               fetchKnowledgeBase();
               setStepperPhase("completed");
               setStepperMessage(`Success: ${file.name} indexed and ready for advisory.`);
             } else if (data.job.status === "failed") {
-              eventSource.close();
+              cleanupSse();
               setStepperPhase("idle");
               alert("Indexing failed: " + data.job.error);
             }
           }
+        };
+
+        eventSource.onerror = (err) => {
+          console.error("SSE Connection failed during upload tracking:", err);
+          cleanupSse();
+          setStepperPhase("idle");
+          setStepperMessage("Connection to background processor lost. Please check the 'Active Queue' tab.");
         };
       } else {
         fetchKnowledgeBase();

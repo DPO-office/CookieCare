@@ -13,7 +13,7 @@ export const getDocuments = async (req: Request, res: Response) => {
 
   try {
     const { rows: docs } = await client.query(
-      "SELECT * FROM files WHERE creator_id = current_setting('app.current_user_id', true) OR shared_with::jsonb @> $1::jsonb ORDER BY created_at DESC",
+      "SELECT * FROM files WHERE creator_id = current_setting('app.current_user_id', true) OR shared_with::jsonb @> $1::jsonb OR current_setting('app.current_user_role', true) = 'ADMIN' ORDER BY created_at DESC",
       [JSON.stringify([userEmail])]
     );
 
