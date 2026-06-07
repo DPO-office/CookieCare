@@ -14,7 +14,7 @@ const redisConnection = new IORedis(process.env.REDIS_URL || "redis://127.0.0.1:
 });
 
 export const jobQueueName = "cookiecare-jobs";
-export const jobQueue = new Queue(jobQueueName, { connection: redisConnection });
+export const jobQueue = new Queue(jobQueueName, { connection: redisConnection as any });
 
 /**
  * Internal helper to update persistent job state
@@ -200,7 +200,7 @@ const worker = new Worker(jobQueueName, async (job: BullJob) => {
     console.error(`[Worker] Job ${job.id} failed:`, err);
     throw err;
   }
-}, { connection: redisConnection, concurrency: 3 });
+}, { connection: redisConnection as any, concurrency: 3 });
 
 worker.on("completed", async (job: BullJob) => {
   if (job) {

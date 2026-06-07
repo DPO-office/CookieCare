@@ -29,7 +29,7 @@ router.post("/generate-stream", authenticateToken, async (req: Request, res: Res
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
 
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+  const model = (genAI as any).getGenerativeModel({ model: "gemini-2.0-flash" });
 
   let prompt = `You are an expert legal drafter. Draft a high-fidelity ${mode} document.
   Instructions: ${instructions || 'Follow standard corporate law.'}

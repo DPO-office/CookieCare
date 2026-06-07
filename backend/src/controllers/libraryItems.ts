@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { pool } from "../config/database.js";
+import crypto from "crypto";
 
 export const getLibraryItems = async (req: Request, res: Response) => {
   const userId = req.user!.id;
@@ -17,7 +18,7 @@ export const getLibraryItems = async (req: Request, res: Response) => {
 export const createLibraryItem = async (req: Request, res: Response) => {
   const { type, name, description, tags, details } = req.body;
   const userId = req.user!.id;
-  const id = "lib_" + Math.random().toString(36).substr(2, 9);
+  const id = "lib_" + crypto.randomUUID();
 
   try {
     const { rows } = await pool.query(
