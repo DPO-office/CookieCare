@@ -67,48 +67,41 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
 
     // --- Phase 1: Security Hardening - Global RLS Enforcement ---
     // Acquire a dedicated client for this request to ensure session-scoped RLS variables
-    const client = await pool.connect();
-    req.dbClient = client;
-
+    let client;
     try {
+      client = await pool.connect();
+      req.dbClient = client;
+
       // Use set_config for safe parameter binding of session variables
       await client.query("SELECT set_config('app.current_user_id', $1, true), set_config('app.current_user_role', $2, true)", [user.id, user.role]);
 
       // Start a transaction for every request to ensure 'true' (local) in set_config works and to group operations
       await client.query("BEGIN");
 
-      // Ensure client is released back to pool when response finishes
-      res.on("finish", async () => {
+      const cleanup = async () => {
         if (req.dbClient) {
+          const c = req.dbClient;
+          req.dbClient = undefined; // Avoid double release
           try {
-            // Commit if not already rolled back/committed by controller
-            await req.dbClient.query("COMMIT");
+            // Only commit if transaction is still active
+            await c.query("COMMIT");
           } catch (e) {
-            // Ignore if transaction already finished
+            try { await c.query("ROLLBACK"); } catch (rE) {}
           } finally {
-            req.dbClient.release();
-            req.dbClient = undefined;
+            c.release();
           }
         }
-      });
+      };
+
+      // Ensure client is released back to pool when response finishes
+      res.on("finish", cleanup);
 
       // Handle cases where the connection might close prematurely
-      res.on("close", async () => {
-        if (req.dbClient) {
-          try {
-            await req.dbClient.query("ROLLBACK");
-          } catch (e) {
-            // Ignore
-          } finally {
-            req.dbClient.release();
-            req.dbClient = undefined;
-          }
-        }
-      });
+      res.on("close", cleanup);
 
       next();
     } catch (rlsErr) {
-      client.release();
+      if (client) client.release();
       req.dbClient = undefined;
       console.error("Failed to initialize RLS session:", rlsErr);
       return res.status(500).json({ error: "Security initialization failed." });

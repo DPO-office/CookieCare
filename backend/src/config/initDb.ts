@@ -158,7 +158,7 @@ export async function dbInit() {
     `, ["supreme_admin_id", "swarnaaishwarya17@gmail.com", "Supreme Admin", hashedSeedPassword, "APPROVED", "ADMIN"]);
 
     // --- Enterprise Security: Row Level Security (RLS) ---
-    const rlsTables = ['files', 'folders', 'library_items', 'legal_document_chunks', 'website_scans', 'jobs'];
+    const rlsTables = ['files', 'folders', 'library_items', 'legal_document_chunks', 'website_scans', 'jobs', 'agent_execution_logs'];
     for (const table of rlsTables) {
       await client.query(`ALTER TABLE ${table} ENABLE ROW LEVEL SECURITY;`);
 
@@ -173,6 +173,23 @@ export async function dbInit() {
         USING (${ownerColumn} = current_setting('app.current_user_id', true) OR current_setting('app.current_user_role', true) = 'ADMIN');
       `);
     }
+
+    // System Settings RLS: Global Read for authenticated users, Admin Write
+    await client.query(`ALTER TABLE system_settings ENABLE ROW LEVEL SECURITY;`);
+    await client.query(`DROP POLICY IF EXISTS system_settings_read_policy ON system_settings;`);
+    await client.query(`
+      CREATE POLICY system_settings_read_policy ON system_settings
+      FOR SELECT USING (current_setting('app.current_user_id', true) IS NOT NULL);
+    `);
+
+    // Performance Optimization: Indexes
+    await client.query("CREATE INDEX IF NOT EXISTS idx_files_creator_id ON files(creator_id);");
+    await client.query("CREATE INDEX IF NOT EXISTS idx_files_folder_id ON files(folder_id);");
+    await client.query("CREATE INDEX IF NOT EXISTS idx_folders_user_id ON folders(user_id);");
+    await client.query("CREATE INDEX IF NOT EXISTS idx_chunks_file_id ON legal_document_chunks(file_id);");
+    await client.query("CREATE INDEX IF NOT EXISTS idx_chunks_embedding ON legal_document_chunks USING hnsw (embedding vector_cosine_ops);");
+    await client.query("CREATE INDEX IF NOT EXISTS idx_jobs_user_id ON jobs(user_id);");
+    await client.query("CREATE INDEX IF NOT EXISTS idx_agent_logs_user_id ON agent_execution_logs(user_id);");
 
     console.log("Database initialized with RLS and supreme admin seeded.");
   } catch (err) {

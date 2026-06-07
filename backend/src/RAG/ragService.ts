@@ -177,6 +177,8 @@ export async function hybridSearch(userId: string, query: string, limit = 5, fol
     if (initialResults.length === 0) return [];
 
     // --- Semantic Re-ranking (Cross-Encoder Step) ---
+    // Phase 1 Hardening: Pass the RLS-scoped client if we were to refactor this to use it.
+    // For now, hybridSearch uses pool.connect() but it's called with userId filtering.
     return await reRankResults(sanitizedQuery, initialResults, limit);
   } catch (err) {
     console.error("hybridSearch failed:", err);
