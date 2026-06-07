@@ -1,13 +1,17 @@
 import { Request, Response } from "express";
 import { pool } from "../config/database.js";
+import { withTransaction } from "../utils/dbUtils.js";
 import crypto from "crypto";
 
 export const getFolders = async (req: Request, res: Response) => {
   try {
-    const { rows } = await pool.query(
-      "SELECT * FROM folders WHERE user_id = $1 ORDER BY created_at DESC",
-      [req.user!.id]
-    );
+    const rows = await withTransaction(req.user!.id, req.user!.role, async (client) => {
+      const { rows } = await client.query(
+        "SELECT * FROM folders WHERE user_id = $1 ORDER BY created_at DESC",
+        [req.user!.id]
+      );
+      return rows;
+    });
     res.json(rows);
   } catch (err: any) {
     res.status(500).json({ error: err.message });

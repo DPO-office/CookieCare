@@ -7,7 +7,7 @@ interface SettingsProps {
 
 export default function SettingsView({ user }: SettingsProps) {
   const [name, setName] = useState(user?.name || "Senior Privacy Engineer");
-  const [email, setEmail] = useState(user?.email || "admin@cookiecare.cloud");
+  const [email, setEmail] = useState(user?.email || "admin@privsecai.cloud");
   const [saved, setSaved] = useState(false);
 
   // Configured states
@@ -154,7 +154,7 @@ export default function SettingsView({ user }: SettingsProps) {
               <span>Cryptographic Keys</span>
             </h3>
             <p className="text-[11px] text-gray-500 leading-relaxed mb-4">
-              CookieCare AI cryptographically signs consensus audits with local cryptographic anchors.
+              PrivSecAI AI cryptographically signs consensus audits with local cryptographic anchors.
             </p>
             <div className="space-y-4 font-mono text-[11px]">
               <div className="p-3 bg-gray-50 border border-gray-200">

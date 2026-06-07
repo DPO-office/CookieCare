@@ -1,6 +1,6 @@
-# CookieCare
+# PrivSecAI
 
-CookieCare is a full-stack TypeScript app (React + Express) for legal document workflows and website security/cookie scanning.
+PrivSecAI is a full-stack TypeScript app (React + Express) for legal document workflows and website security/cookie scanning.
 
 ## Quick start
 

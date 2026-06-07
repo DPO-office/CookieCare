@@ -1,14 +1,19 @@
 import { Request, Response } from "express";
 import { pool } from "../config/database.js";
+import { withTransaction } from "../utils/dbUtils.js";
 import crypto from "crypto";
 
 export const getLibraryItems = async (req: Request, res: Response) => {
   const userId = req.user!.id;
+  const userRole = req.user!.role;
   try {
-    const { rows } = await pool.query(
-      "SELECT * FROM library_items WHERE user_id = $1 ORDER BY created_at DESC",
-      [userId]
-    );
+    const rows = await withTransaction(userId, userRole, async (client) => {
+      const { rows } = await client.query(
+        "SELECT * FROM library_items WHERE user_id = $1 ORDER BY created_at DESC",
+        [userId]
+      );
+      return rows;
+    });
     res.json(rows);
   } catch (err: any) {
     res.status(500).json({ error: err.message });

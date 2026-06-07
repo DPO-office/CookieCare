@@ -62,11 +62,6 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     }
 
     req.user = user;
-
-    // Set local database settings for RLS enforcement
-    await pool.query(`SET LOCAL app.current_user_id = '${user.id}'`);
-    await pool.query(`SET LOCAL app.current_user_role = '${user.role}'`);
-
     next();
   } catch (err: any) {
     if (err.name === 'TokenExpiredError') {

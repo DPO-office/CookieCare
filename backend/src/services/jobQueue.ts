@@ -13,7 +13,7 @@ const redisConnection = new IORedis(process.env.REDIS_URL || "redis://127.0.0.1:
   maxRetriesPerRequest: null,
 });
 
-export const jobQueueName = "cookiecare-jobs";
+export const jobQueueName = "privsecai-jobs";
 export const jobQueue = new Queue(jobQueueName, { connection: redisConnection as any });
 
 /**

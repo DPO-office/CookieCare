@@ -142,7 +142,7 @@ export default function CookieScanner({ authToken }: CookieScannerProps) {
         },
         body: JSON.stringify({
           recipientEmail: shareEmail.trim(),
-          subject: `CookieCare Cookie Compliance Scan - ${result.scanSummary.url}`,
+          subject: `PrivSecAI Cookie Compliance Scan - ${result.scanSummary.url}`,
           reportTitle: `Cookie Compliance Scan - ${result.scanSummary.url}`,
           contentType: "cookie_report",
           content: reportContent,
@@ -231,7 +231,7 @@ Report secured and validated by Cookie Care FIPS Sandbox services.`;
     const blob = await res.blob();
     const element = document.createElement("a");
     element.href = URL.createObjectURL(blob);
-    element.download = `CookieCare_Compliance_${result?.scanSummary.url.replace(/https?:\/\/|www\./gi, "").replace(/[\.\s\/]/gi, "_")}.${format}`;
+    element.download = `PrivSecAI_Compliance_${result?.scanSummary.url.replace(/https?:\/\/|www\./gi, "").replace(/[\.\s\/]/gi, "_")}.${format}`;
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);

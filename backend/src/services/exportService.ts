@@ -25,13 +25,13 @@ export const buildPdfBuffer = async (title: string, contentType: string, content
     </head>
     <body>
       <div class="header">
-        CookieCare Digital Asset Vault • ${contentType.toUpperCase().replace('_', ' ')}
+        PrivSecAI Digital Asset Vault • ${contentType.toUpperCase().replace('_', ' ')}
         <br>Generated on ${new Date().toLocaleString()}
       </div>
       <h1>${title}</h1>
       <pre>${content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
       <div class="footer">
-        Confidential Document • Powered by CookieCare Multi-Agent Legal Engine
+        Confidential Document • Powered by PrivSecAI Multi-Agent Legal Engine
       </div>
     </body>
     </html>

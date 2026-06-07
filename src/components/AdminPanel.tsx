@@ -75,7 +75,7 @@ export default function AdminPanel({ authToken }: AdminPanelProps) {
               <ShieldCheck className="w-8 h-8" />
               Demo Admin Approval Panel
             </h1>
-            <p className="text-gray-500 mt-1">Review and approve new user registrations for CookieCare app.</p>
+            <p className="text-gray-500 mt-1">Review and approve new user registrations for PrivSecAI app.</p>
           </div>
           <button
             onClick={fetchPendingUsers}

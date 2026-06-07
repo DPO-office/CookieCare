@@ -353,6 +353,7 @@ export default function InteractAnalyze({
         setReportClauses(data.clauses);
       }
 
+      // Transition view mode immediately based on real data receipt
       setViewMode("report");
     } catch (err) {
       console.error("Analysis failed", err);
@@ -551,7 +552,7 @@ export default function InteractAnalyze({
               <span className="text-[10px] font-mono tracking-widest text-gray-400 font-extrabold uppercase">COGNITIVE COMPLIANCE ENGINE</span>
               <h3 className="text-sm font-mono font-black text-gray-950 uppercase">Analyzing {activeReportDocName}...</h3>
               <p className="text-xs text-gray-500 max-w-xs mx-auto leading-relaxed">
-                Vetting historical land mutation entries, verifying bona fide purchase precedents, and cross-referencing regional appellate court statutes.
+                Deep-scanning document metadata, cross-referencing regional statutes, and executing multi-agent audit protocols in real-time.
               </p>
             </div>
             <div className="pt-4 border-t border-gray-150 flex items-center justify-center space-x-3 text-[10px] font-mono text-gray-400">

@@ -76,7 +76,7 @@ export default function AuthModal({ onAuthSuccess }: AuthModalProps) {
             <Scale className="w-6 h-6" />
           </div>
           <h2 className="text-2xl font-display font-bold text-gray-900 tracking-tight">
-            {isLogin ? "Sign in to CookieCare AI" : "Create Security Account"}
+            {isLogin ? "Sign in to PrivSecAI AI" : "Create Security Account"}
           </h2>
           <p className="text-gray-500 text-sm mt-1">
             {isLogin ? "Access your secure cloud legal desk" : "Sign up in 30 seconds to draft and analyze agreements"}
@@ -121,7 +121,7 @@ export default function AuthModal({ onAuthSuccess }: AuthModalProps) {
                 id="auth-email-input"
                 type="email"
                 required
-                placeholder="e.g. krish@cookiecare.ai"
+                placeholder="e.g. krish@privsecai.ai"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 pl-10 pr-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-black"

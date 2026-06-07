@@ -18,7 +18,7 @@ def verify_frontend():
             print("Screenshot taken: auth_modal.png")
 
             # Check for specific elements
-            if page.query_selector("text=CookieCare") or page.query_selector("text=LexAES"):
+            if page.query_selector("text=PrivSecAI") or page.query_selector("text=LexAES"):
                 print("App Title detected")
 
         except Exception as e:

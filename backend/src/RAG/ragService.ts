@@ -206,7 +206,10 @@ If none are relevant, return an empty string.`;
 
     if (!text) return documents.slice(0, limit);
 
-    const orderedIds = text.split(",").map(id => parseInt(id.trim())).filter(id => !isNaN(id) && id >= 0 && id < documents.length);
+    // Robust ID extraction using regex to handle conversational LLM outputs
+    const orderedIds = (text.match(/\d+/g) || [])
+      .map(id => parseInt(id))
+      .filter(id => id >= 0 && id < documents.length);
 
     const orderedDocs = orderedIds.map(id => documents[id]);
     // Fill in remaining if LLM missed some

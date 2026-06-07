@@ -207,7 +207,7 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
   const [customClauseText, setCustomClauseText] = useState("");
   
   // Basic Mode Form Inputs
-  const [basicPartyA, setBasicPartyA] = useState("CookieCare Corporate Client");
+  const [basicPartyA, setBasicPartyA] = useState("PrivSecAI Corporate Client");
   const [basicPartyB, setBasicPartyB] = useState("Vendor Infrastructure Host");
   const [basicLaw, setBasicLaw] = useState("State of Delaware");
   const [basicLiability, setBasicLiability] = useState("USD $2,000,000 limit");
@@ -224,8 +224,8 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
   const [s4Open, setS4Open] = useState(false);
 
   // Expand states for folders inside Section 1 & Section 3
-  const [expandedFolder, setExpandedFolder] = useState<string | null>("CookieCare Templates");
-  const [expandedClauseCat, setExpandedClauseCat] = useState<string | null>("CookieCare Clause Library");
+  const [expandedFolder, setExpandedFolder] = useState<string | null>("PrivSecAI Templates");
+  const [expandedClauseCat, setExpandedClauseCat] = useState<string | null>("PrivSecAI Clause Library");
 
   // Search filter query
   const [searchTemplateQuery, setSearchTemplateQuery] = useState("");
@@ -243,12 +243,12 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
   const [uploadFileName, setUploadFileName] = useState("");
   const [isParsingTemplate, setIsParsingTemplate] = useState(false);
   const [advancedFields, setAdvancedFields] = useState<Array<{ id: string; name: string; defaultValue: string; description: string }>>([
-    { id: "party_a", name: "Party A Title", defaultValue: "CookieCare Corporate", description: "Disclosing Primary Entity" },
+    { id: "party_a", name: "Party A Title", defaultValue: "PrivSecAI Corporate", description: "Disclosing Primary Entity" },
     { id: "party_b", name: "Party B Title", defaultValue: "Vendor Tech Inc.", description: "Receiving technology Vendor" },
     { id: "jurisdiction", name: "Jurisdiction", defaultValue: "Delaware chancery", description: "Standard Governing Law" },
   ]);
   const [advancedFieldValues, setAdvancedFieldValues] = useState<Record<string, string>>({
-    party_a: "CookieCare Corporate",
+    party_a: "PrivSecAI Corporate",
     party_b: "Vendor Tech Inc.",
     jurisdiction: "Delaware chancery"
   });
@@ -461,12 +461,14 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
     pushUndoSnapshot(editorContent);
     setEditorContent(newContent);
     textarea.focus();
-    setTimeout(() => {
+
+    // Use requestAnimationFrame for resilient cursor sync in heavy React renders
+    requestAnimationFrame(() => {
       const nextStart = startPos + before.length;
       const nextEnd = nextStart + selected.length;
       textarea.setSelectionRange(nextStart, nextEnd);
       editorSelectionRef.current = { start: nextStart, end: nextEnd };
-    }, 10);
+    });
   };
 
   const handleUndo = () => {
@@ -525,15 +527,62 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
         "\n*COMPLIANCE DISCLAIMER: This clause represents vetted statutory privacy rules and does not alternate professional legal vetting.*\n"
       );
     } else if (action === "signature-block") {
+      const cryptoStamp = Array.from(window.crypto.getRandomValues(new Uint8Array(4)))
+        .map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+
       insertTextAtCursor(
-        `\n\n[EXECUTED SIGNATURE SPECIFICATION]\nApproved legal representative: CookieCare Workspace\nCrypto Seal Identifier: STAMP_${Math.random().toString(36).substr(2, 6).toUpperCase()}_SECURE\nDate: ${new Date().toLocaleDateString()}\n`
+        `\n\n[EXECUTED SIGNATURE SPECIFICATION]\nApproved legal representative: PrivSecAI Workspace\nCrypto Seal Identifier: STAMP_${cryptoStamp}_SECURE\nDate: ${new Date().toLocaleDateString()}\n`
       );
+    }
+  };
+
+  const handleApplyRewriteResilient = async (type: string, param: string = "") => {
+    if (!selectedTextRange) return;
+    const originalText = editorContent.substring(selectedTextRange.start, selectedTextRange.end);
+    if (!originalText) return;
+
+    setIsAiRefiningText(true);
+    setActiveDropdown(null);
+    setShowAskAiInput(false);
+    pushUndoSnapshot(editorContent);
+
+    try {
+      const res = await fetch(apiUrl("/api/drafting/refine"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`
+        },
+        body: JSON.stringify({ text: originalText, type, param })
+      });
+      const payload = await res.json();
+      if (!res.ok) throw new Error(payload.error);
+
+      const rewritten = payload.data;
+      const newContent = editorContent.substring(0, selectedTextRange.start) + rewritten + editorContent.substring(selectedTextRange.end);
+
+      setEditorContent(newContent);
+
+      requestAnimationFrame(() => {
+        editorSelectionRef.current = {
+          start: selectedTextRange.start,
+          end: selectedTextRange.start + rewritten.length
+        };
+      });
+    } catch (err: any) {
+      console.error("Refinement failed", err);
+      alert("Refinement failed: " + err.message);
+    } finally {
+      setIsAiRefiningText(false);
+      setShowFloatingMenu(false);
+      setSelectedTextRange(null);
+      setAskAiQuery("");
     }
   };
 
   const handleExportDoc = async () => {
     try {
-      const exportTitle = selectedDoc?.title || selectedTemplateName || "CookieCare Draft";
+      const exportTitle = selectedDoc?.title || selectedTemplateName || "PrivSecAI Draft";
       const res = await fetch(apiUrl("/api/documents/export"), {
         method: "POST",
         headers: {
@@ -571,7 +620,7 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
 
   const handlePrintDoc = async () => {
     try {
-      const exportTitle = selectedDoc?.title || selectedTemplateName || "CookieCare Draft";
+      const exportTitle = selectedDoc?.title || selectedTemplateName || "PrivSecAI Draft";
       const res = await fetch("/api/documents/export", {
         method: "POST",
         headers: {
@@ -630,45 +679,8 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
     }
   };
 
-  const handleApplyRewrite = async (type: string, param: string = "") => {
-    if (!selectedTextRange) return;
-    const originalText = editorContent.substring(selectedTextRange.start, selectedTextRange.end);
-    if (!originalText) return;
-
-    setIsAiRefiningText(true);
-    setActiveDropdown(null);
-    setShowAskAiInput(false);
-    pushUndoSnapshot(editorContent);
-
-    try {
-      const res = await fetch(apiUrl("/api/drafting/refine"), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}`
-        },
-        body: JSON.stringify({ text: originalText, type, param })
-      });
-      const payload = await res.json();
-      if (!res.ok) throw new Error(payload.error);
-
-      const rewritten = payload.data;
-      const newContent = editorContent.substring(0, selectedTextRange.start) + rewritten + editorContent.substring(selectedTextRange.end);
-
-      setEditorContent(newContent);
-      editorSelectionRef.current = {
-        start: selectedTextRange.start,
-        end: selectedTextRange.start + rewritten.length
-      };
-    } catch (err: any) {
-      console.error("Refinement failed", err);
-      alert("Refinement failed: " + err.message);
-    } finally {
-      setIsAiRefiningText(false);
-      setShowFloatingMenu(false);
-      setSelectedTextRange(null);
-      setAskAiQuery("");
-    }
+  const handleApplyRewrite = (type: string, param: string = "") => {
+    handleApplyRewriteResilient(type, param);
   };
 
   // START STREAMING ENGINE
@@ -1337,7 +1349,7 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
 
                     {s1Open && (
                       <div className="p-6 space-y-4">
-                        <p className="text-xs text-gray-400">Choose from CookieCare Templates or your uploaded templates.</p>
+                        <p className="text-xs text-gray-400">Choose from PrivSecAI Templates or your uploaded templates.</p>
                         
                         <div className="flex space-x-2">
                           <div className="relative flex-1">

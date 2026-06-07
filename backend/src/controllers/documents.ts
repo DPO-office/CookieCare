@@ -3,20 +3,25 @@ import { pool } from "../config/database.js";
 import { addJobToQueue } from "../services/jobQueue.js";
 import { buildPdfBuffer, buildDocxBuffer } from "../services/exportService.js";
 import { encryptData, decryptData } from "../utils/crypto.js";
+import { withTransaction } from "../utils/dbUtils.js";
 import crypto from "crypto";
 import * as diff from "diff";
 
 export const getDocuments = async (req: Request, res: Response) => {
   const userId = req.user!.id;
+  const userRole = req.user!.role;
   const userEmail = req.user!.email.toLowerCase();
 
   try {
-    const { rows } = await pool.query(
-      "SELECT * FROM files WHERE creator_id = $1 OR shared_with::jsonb @> $2::jsonb ORDER BY created_at DESC",
-      [userId, JSON.stringify([userEmail])]
-    );
+    const docs = await withTransaction(userId, userRole, async (client) => {
+      const { rows } = await client.query(
+        "SELECT * FROM files WHERE creator_id = $1 OR shared_with::jsonb @> $2::jsonb ORDER BY created_at DESC",
+        [userId, JSON.stringify([userEmail])]
+      );
+      return rows;
+    });
 
-    const docs = rows.map((r) => ({
+    const formattedDocs = docs.map((r: any) => ({
       ...r,
       content: r.is_encrypted ? decryptData(r.content) : r.content,
       isEncrypted: r.is_encrypted,
@@ -25,7 +30,7 @@ export const getDocuments = async (req: Request, res: Response) => {
       sharedWith: r.shared_with || [],
       auditLogs: r.audit_logs || [],
     }));
-    return res.json(docs);
+    return res.json(formattedDocs);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }

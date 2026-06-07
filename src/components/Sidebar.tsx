@@ -36,7 +36,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout }: Sid
         </div>
         <div>
           <span className="font-display font-bold text-xl tracking-tight text-gray-900 block">
-            CookieCare<span className="text-gray-500 font-medium font-mono text-sm">.ai</span>
+            PrivSecAI<span className="text-gray-500 font-medium font-mono text-sm">.ai</span>
           </span>
           <span className="text-[10px] text-gray-400 font-mono tracking-widest uppercase block -mt-1">
             PRIVACY AUDITOR
