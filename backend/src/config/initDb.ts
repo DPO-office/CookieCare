@@ -130,7 +130,24 @@ export async function dbInit() {
       ON CONFLICT (email) DO NOTHING;
     `, ["supreme_admin_id", "swarnaaishwarya17@gmail.com", "Supreme Admin", hashedSeedPassword, "APPROVED", "ADMIN"]);
 
-    console.log("Database initialized and supreme admin seeded (if not exists).");
+    // --- Enterprise Security: Row Level Security (RLS) ---
+    const rlsTables = ['files', 'folders', 'library_items', 'legal_document_chunks', 'website_scans', 'jobs'];
+    for (const table of rlsTables) {
+      await client.query(`ALTER TABLE ${table} ENABLE ROW LEVEL SECURITY;`);
+
+      // Drop existing if any to avoid errors on re-run
+      await client.query(`DROP POLICY IF EXISTS ${table}_tenant_isolation ON ${table};`);
+
+      let ownerColumn = 'user_id';
+      if (table === 'files') ownerColumn = 'creator_id';
+
+      await client.query(`
+        CREATE POLICY ${table}_tenant_isolation ON ${table}
+        USING (${ownerColumn} = current_setting('app.current_user_id', true) OR current_setting('app.current_user_role', true) = 'ADMIN');
+      `);
+    }
+
+    console.log("Database initialized with RLS and supreme admin seeded.");
   } catch (err) {
     console.error("Database initialization failed:", err);
     throw err;

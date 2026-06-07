@@ -74,7 +74,36 @@ export class AgentOrchestrator {
   }
 
   async runDrafting(inputs: any): Promise<string> {
-    return await this.draftingAgent.draftDocument(inputs);
+    // Initial Draft
+    let draft = await this.draftingAgent.draftDocument(inputs);
+
+    // Stateful "Critic" Loop (LangGraph-style self-correction)
+    let iterations = 0;
+    const maxIterations = 2;
+    let isSatisfactory = false;
+
+    while (!isSatisfactory && iterations < maxIterations) {
+      const audit = await this.analysisAgent.runAudit(draft, inputs.type || "Agreement");
+      const criticalRisks = audit.risks.filter((r: any) => r.severity === "high" || r.risk_level === "CRITICAL");
+
+      if (criticalRisks.length === 0) {
+        isSatisfactory = true;
+      } else {
+        // Feed back findings to Drafting Agent for refinement
+        const refinementPrompt = `The previous draft has the following critical risks:
+${criticalRisks.map((r: any) => `- ${r.clause}: ${r.description}`).join("\n")}
+
+Please rewrite the draft to address these risks while maintaining the original intent.`;
+
+        draft = await this.draftingAgent.draftDocument({
+          ...inputs,
+          instructions: `${inputs.instructions}\n\n[REFINEMENT DIRECTIVE]: ${refinementPrompt}`
+        });
+        iterations++;
+      }
+    }
+
+    return draft;
   }
 
   async remediate(clauseText: string, riskType: string): Promise<any> {

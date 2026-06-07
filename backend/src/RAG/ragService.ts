@@ -110,9 +110,9 @@ function splitIntoClauseAwareChunks(text: string, maxChars = 2000): string[] {
 }
 
 /**
- * Hybrid Search: Combines Vector Similarity with Keyword-based search.
+ * Hybrid Search: Combines Vector Similarity with Keyword-based search + Metadata Filtering + Semantic Re-ranking.
  */
-export async function hybridSearch(userId: string, query: string, limit = 5): Promise<string[]> {
+export async function hybridSearch(userId: string, query: string, limit = 5, folderId?: string): Promise<string[]> {
   const sanitizedQuery = sanitizeText(query);
   const vector = await getEmbedding(sanitizedQuery);
 
@@ -120,31 +120,47 @@ export async function hybridSearch(userId: string, query: string, limit = 5): Pr
   try {
     client = await pool.connect();
 
+    let filterClause = "WHERE user_id = $1";
+    const queryParams: any[] = [userId];
+
+    if (folderId) {
+      // Find files in this folder first
+      const { rows: files } = await client.query("SELECT id FROM files WHERE folder_id = $1", [folderId]);
+      const fileIds = files.map(f => f.id);
+      if (fileIds.length > 0) {
+        filterClause += " AND file_id = ANY($2)";
+        queryParams.push(fileIds);
+      }
+    }
+
     if (!vector) {
       const { rows } = await client.query(`
         SELECT content FROM legal_document_chunks
-        WHERE user_id = $1 AND content ILIKE $2
-        LIMIT $3;
-      `, [userId, `%${sanitizedQuery}%`, limit]);
+        ${filterClause} AND content ILIKE $${queryParams.length + 1}
+        LIMIT $${queryParams.length + 2};
+      `, [...queryParams, `%${sanitizedQuery}%`, limit]);
       return rows.map((r) => r.content);
     }
 
     const vectorString = `[${vector.join(",")}]`;
+    const vecIdx = queryParams.length + 1;
+    const kwIdx = queryParams.length + 2;
+    const limitIdx = queryParams.length + 3;
 
     // Reciprocal Rank Fusion (simplified) or Weighted combination
     const { rows } = await client.query(`
       WITH vector_results AS (
-        SELECT id, content, 1.0 / (1.0 + (embedding <=> $1::vector)) AS score
+        SELECT id, content, 1.0 / (1.0 + (embedding <=> $${vecIdx}::vector)) AS score
         FROM legal_document_chunks
-        WHERE user_id = $2 AND embedding IS NOT NULL
+        ${filterClause} AND embedding IS NOT NULL
         ORDER BY score DESC
-        LIMIT 20
+        LIMIT 30
       ),
       keyword_results AS (
         SELECT id, content, 1.0 AS score
         FROM legal_document_chunks
-        WHERE user_id = $2 AND content ILIKE ANY($4)
-        LIMIT 20
+        ${filterClause} AND content ILIKE ANY($${kwIdx})
+        LIMIT 30
       )
       SELECT content FROM (
         SELECT id, content, score FROM vector_results
@@ -153,10 +169,15 @@ export async function hybridSearch(userId: string, query: string, limit = 5): Pr
       ) combined
       GROUP BY id, content
       ORDER BY SUM(score) DESC
-      LIMIT $3;
-    `, [vectorString, userId, limit, sanitizedQuery.split(/\s+/).filter(k => k.length >= 2).map(k => `%${k}%`)]);
+      LIMIT 15;
+    `, [...queryParams, vectorString, sanitizedQuery.split(/\s+/).filter(k => k.length >= 2).map(k => `%${k}%`)]);
 
-    return rows.map((r) => r.content);
+    const initialResults = rows.map((r) => r.content);
+
+    if (initialResults.length === 0) return [];
+
+    // --- Semantic Re-ranking (Cross-Encoder Step) ---
+    return await reRankResults(sanitizedQuery, initialResults, limit);
   } catch (err) {
     console.error("hybridSearch failed:", err);
     return [];
@@ -165,6 +186,41 @@ export async function hybridSearch(userId: string, query: string, limit = 5): Pr
   }
 }
 
-export async function semanticSearch(userId: string, query: string, limit = 5): Promise<string[]> {
-  return hybridSearch(userId, query, limit);
+async function reRankResults(query: string, documents: string[], limit: number): Promise<string[]> {
+  try {
+    const model = (genAI as any).getGenerativeModel({ model: "gemini-2.0-flash" });
+
+    const reRankPrompt = `You are a Legal Ranker.
+Evaluate the relevance of the following document chunks to the user query.
+Query: "${query}"
+
+[CHUNKS]
+${documents.map((doc, idx) => `ID ${idx}: ${doc.substring(0, 1000)}`).join("\n---\n")}
+
+Return ONLY a comma-separated list of IDs in order of most relevant to least relevant.
+Example: 2, 0, 1
+If none are relevant, return an empty string.`;
+
+    const result = await model.generateContent(reRankPrompt);
+    const text = result.response.text().trim();
+
+    if (!text) return documents.slice(0, limit);
+
+    const orderedIds = text.split(",").map(id => parseInt(id.trim())).filter(id => !isNaN(id) && id >= 0 && id < documents.length);
+
+    const orderedDocs = orderedIds.map(id => documents[id]);
+    // Fill in remaining if LLM missed some
+    documents.forEach((doc, idx) => {
+      if (!orderedIds.includes(idx)) orderedDocs.push(doc);
+    });
+
+    return orderedDocs.slice(0, limit);
+  } catch (err) {
+    console.error("Semantic re-ranking failed, returning original order:", err);
+    return documents.slice(0, limit);
+  }
+}
+
+export async function semanticSearch(userId: string, query: string, limit = 5, folderId?: string): Promise<string[]> {
+  return hybridSearch(userId, query, limit, folderId);
 }
