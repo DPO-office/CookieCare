@@ -73,9 +73,11 @@ export class ScannerService {
     });
 
     try {
-      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(e => {
+        console.warn(`Initial page load timeout for ${url}, attempting to continue with partial data.`);
+      });
       // Wait a bit to see what fires automatically
-      await page.waitForTimeout(5000);
+      await page.waitForTimeout(5000).catch(() => {});
 
       const browserCookies = await context.cookies();
       browserCookies.forEach(c => matchedCookies.add(c.name));
@@ -140,9 +142,20 @@ export class ScannerService {
       await this.saveScanResult(userId, url, "cookie", score, risk, result);
       return result;
 
-    } catch (err) {
+    } catch (err: any) {
       console.error("Cookie scan failed:", err);
-      throw err;
+      // Return a partial failure result instead of crashing the worker
+      return {
+        scanSummary: {
+          url,
+          level: scanDepth,
+          overallScore: 0,
+          riskLevel: "ERROR",
+          error: "Scanner engine timed out or failed to reach the target URL."
+        },
+        cookiesDetected: [],
+        complianceGaps: [{ regulation: "SCAN_ERROR", severity: "RED", issue: err.message, remediation: "Check site accessibility." }]
+      };
     } finally {
       await browser.close();
     }

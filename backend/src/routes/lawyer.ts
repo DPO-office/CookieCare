@@ -93,6 +93,9 @@ Professional, precise, and authoritative response required.`;
         temperature: 0.2,
       },
       systemInstruction: systemPrompt
+    }).catch(aiErr => {
+      console.error("LLM Generation failed in AskLawyer:", aiErr);
+      throw new Error("LLM_SERVICE_FAILURE");
     });
 
     for await (const chunk of result.stream) {
@@ -106,8 +109,14 @@ Professional, precise, and authoritative response required.`;
     res.end();
   } catch (err: any) {
     console.error("AskLawyer stream error:", err);
-    res.write(`data: ${JSON.stringify({ error: "Internal server error during streaming." })}\n\n`);
-    res.end();
+    const errorMessage = err.message === "LLM_SERVICE_FAILURE"
+      ? "Legal Intelligence Engine is currently overwhelmed. Please try a shorter query."
+      : "Internal server error during research synthesis.";
+
+    if (!res.writableEnded) {
+      res.write(`data: ${JSON.stringify({ error: errorMessage })}\n\n`);
+      res.end();
+    }
   }
 });
 

@@ -76,7 +76,7 @@ export default function AuthModal({ onAuthSuccess }: AuthModalProps) {
             <Scale className="w-6 h-6" />
           </div>
           <h2 className="text-2xl font-display font-bold text-gray-900 tracking-tight">
-            {isLogin ? "Sign in to PrivSecAI AI" : "Create Security Account"}
+            {isLogin ? "Sign in to PrivSecAI" : "Create Security Account"}
           </h2>
           <p className="text-gray-500 text-sm mt-1">
             {isLogin ? "Access your secure cloud legal desk" : "Sign up in 30 seconds to draft and analyze agreements"}

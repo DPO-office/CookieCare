@@ -8,10 +8,14 @@ export const getLibraryItems = async (req: Request, res: Response) => {
   try {
     const { rows } = await client.query(
       "SELECT * FROM library_items WHERE user_id = current_setting('app.current_user_id', true) ORDER BY created_at DESC"
-    );
+    ).catch(e => {
+      console.error("Vault retrieval failed:", e);
+      throw new Error("VAULT_READ_ERROR");
+    });
     res.json(rows);
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    const message = err.message === "VAULT_READ_ERROR" ? "Cryptographic vault index unreachable." : "Internal vault error.";
+    res.status(500).json({ error: message });
   }
 };
 

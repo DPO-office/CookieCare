@@ -15,7 +15,10 @@ export const getDocuments = async (req: Request, res: Response) => {
     const { rows: docs } = await client.query(
       "SELECT * FROM files WHERE creator_id = current_setting('app.current_user_id', true) OR shared_with::jsonb @> $1::jsonb ORDER BY created_at DESC",
       [JSON.stringify([userEmail])]
-    );
+    ).catch(e => {
+      console.error("Failed to fetch documents from DB:", e);
+      throw new Error("DB_FETCH_FAILED");
+    });
 
     const formattedDocs = docs.map((r: any) => ({
       ...r,
@@ -28,7 +31,8 @@ export const getDocuments = async (req: Request, res: Response) => {
     }));
     return res.json(formattedDocs);
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    const message = err.message === "DB_FETCH_FAILED" ? "Security enclave database unreachable." : "Internal error fetching document repository.";
+    res.status(500).json({ error: message });
   }
 };
 
@@ -83,7 +87,7 @@ export const createDocument = async (req: Request, res: Response) => {
 
 export const uploadDocument = async (req: Request, res: Response) => {
   const file = req.file;
-  if (!file) return res.status(400).json({ error: "No file uploaded" });
+  if (!file) return res.status(400).json({ error: "No file uploaded. Verify multipart/form-data boundary." });
 
   const { title, folder_id } = req.body;
   const fileId = "doc_" + crypto.randomUUID();
@@ -95,7 +99,10 @@ export const uploadDocument = async (req: Request, res: Response) => {
       `INSERT INTO files (id, title, type, content, creator_id, creator_email, mime_type, folder_id)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
       [fileId, fileTitle, "upload", "", req.user!.id, req.user!.email, file.mimetype, folder_id || null]
-    );
+    ).catch(e => {
+      console.error("Database insert failed during upload:", e);
+      throw new Error("DB_UPLOAD_FAILED");
+    });
 
     const job = await addJobToQueue(req.user!.id, "file_processing", {
       fileId,
@@ -108,7 +115,9 @@ export const uploadDocument = async (req: Request, res: Response) => {
 
     res.status(202).json({ success: true, job_id: job.id, file_id: fileId });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    console.error("Document upload route crash:", err);
+    const message = err.message === "DB_UPLOAD_FAILED" ? "Failed to register upload in security log." : "Internal error during background job queueing.";
+    res.status(500).json({ error: message });
   }
 };
 
