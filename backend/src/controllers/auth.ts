@@ -46,7 +46,10 @@ export const login = async (req: Request, res: Response) => {
     const { rows } = await pool.query(
       "SELECT id, email, name, password_hash, status, role FROM users WHERE email = $1",
       [normalizedEmail]
-    );
+    ).catch(dbErr => {
+      console.error("Database query failed during login:", dbErr);
+      throw new Error("DATABASE_ERROR");
+    });
 
     if (rows.length > 0) {
       const user = rows[0];
@@ -75,7 +78,10 @@ export const login = async (req: Request, res: Response) => {
     }
   } catch (err: any) {
     console.error("Login failed:", err);
-    return res.status(500).json({ error: "Login failed." });
+    if (err.message === "DATABASE_ERROR") {
+      return res.status(503).json({ error: "Service temporarily unavailable. Please try again later." });
+    }
+    return res.status(500).json({ error: "Login failed due to an internal server error." });
   }
 
   return res.status(401).json({ error: "Invalid email or password." });

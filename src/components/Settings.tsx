@@ -154,7 +154,7 @@ export default function SettingsView({ user }: SettingsProps) {
               <span>Cryptographic Keys</span>
             </h3>
             <p className="text-[11px] text-gray-500 leading-relaxed mb-4">
-              PrivSecAI AI cryptographically signs consensus audits with local cryptographic anchors.
+              PrivSecAI cryptographically signs consensus audits with local cryptographic anchors.
             </p>
             <div className="space-y-4 font-mono text-[11px]">
               <div className="p-3 bg-gray-50 border border-gray-200">

@@ -78,7 +78,11 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
       // Start a transaction for every request to ensure 'true' (local) in set_config works and to group operations
       await client.query("BEGIN");
 
+      let released = false;
       const cleanup = async () => {
+        if (released) return;
+        released = true;
+
         if (req.dbClient) {
           const c = req.dbClient;
           req.dbClient = undefined; // Avoid double release

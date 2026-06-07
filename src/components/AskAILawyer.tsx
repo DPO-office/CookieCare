@@ -358,7 +358,7 @@ export default function AskAILawyer({ authToken, documents: propDocs = [] }: Ask
     setTimeout(() => setExportMessage(""), 3000);
 
     if (format === "Word") {
-      const header = `PrivSecAI AI Advisory - Legal Research Dossier\nExported: ${new Date().toLocaleString()}\nFormat Style: ${selectedFormat}\nJurisdictions: ${selectedJurisdictions.join(", ")}\n\n===========================================\n\n`;
+      const header = `PrivSecAI Advisory - Legal Research Dossier\nExported: ${new Date().toLocaleString()}\nFormat Style: ${selectedFormat}\nJurisdictions: ${selectedJurisdictions.join(", ")}\n\n===========================================\n\n`;
       const blob = new Blob([header + streamedResult], { type: "application/msword" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
@@ -371,7 +371,7 @@ export default function AskAILawyer({ authToken, documents: propDocs = [] }: Ask
         printWindow.document.write(`
           <html>
             <head>
-              <title>PrivSecAI AI Lawyer - Research Dossier</title>
+              <title>PrivSecAI Lawyer - Research Dossier</title>
               <style>
                 body { font-family: -apple-system, sans-serif; padding: 40px; color: #111; line-height: 1.6; }
                 h1 { border-bottom: 2px solid #000; padding-bottom: 10px; font-size: 24px; text-transform: uppercase; }
@@ -381,7 +381,7 @@ export default function AskAILawyer({ authToken, documents: propDocs = [] }: Ask
               </style>
             </head>
             <body>
-              <h1>PrivSecAI AI Legal Advisory Docket</h1>
+              <h1>PrivSecAI Legal Advisory Docket</h1>
               <p><strong>System Date:</strong> ${new Date().toLocaleString()}</p>
               <p><strong>Format Framework:</strong> ${selectedFormat}</p>
               <p><strong>Target Jurisdictions:</strong> ${selectedJurisdictions.join(", ")}</p>

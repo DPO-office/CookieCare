@@ -10,11 +10,14 @@ const genAI = new GoogleGenAI({ apiKey: config.geminiApiKey || "dummy" });
 
 router.post("/generate", authenticateToken, async (req: Request, res: Response) => {
   const { draftInput, instructions, detailLevel, jurisdiction } = req.body;
+  if (!draftInput && !instructions) return res.status(400).json({ error: "Drafting instructions are required." });
+
   try {
     const draft = await orchestrator.runDrafting({ draftInput, instructions, detailLevel, jurisdiction });
     res.json({ draft });
   } catch (err: any) {
-    res.status(500).json({ error: "Drafting failed" });
+    console.error("Drafting generation error:", err);
+    res.status(500).json({ error: "AI Drafting agent failed to synthesize the document. Please simplify the requirements." });
   }
 });
 
@@ -44,7 +47,7 @@ router.post("/refine", authenticateToken, async (req: Request, res: Response) =>
     res.json({ data: result.response.text().trim() });
   } catch (err: any) {
     console.error("Refinement error:", err);
-    res.status(500).json({ error: "Text refinement failed" });
+    res.status(500).json({ error: "Clause refinement failed. The engine may be experiencing high latency." });
   }
 });
 
@@ -73,7 +76,10 @@ router.post("/generate-stream", authenticateToken, async (req: Request, res: Res
   prompt += `\n\nIMPORTANT: Return response in clean Markdown. Start streaming now.`;
 
   try {
-    const result = await model.generateContentStream(prompt);
+    const result = await model.generateContentStream(prompt).catch(streamErr => {
+      console.error("LLM Stream start failure in Drafting:", streamErr);
+      throw new Error("STREAM_INIT_FAILED");
+    });
 
     for await (const chunk of result.stream) {
       const chunkText = chunk.text();
@@ -82,8 +88,14 @@ router.post("/generate-stream", authenticateToken, async (req: Request, res: Res
     res.end();
   } catch (err: any) {
     console.error("Drafting stream error:", err);
-    res.write("\n[STREAMING_ERROR]: Internal generation failure.");
-    res.end();
+    const msg = err.message === "STREAM_INIT_FAILED"
+      ? "\n[STREAMING_ERROR]: Drafting engine unreachable."
+      : "\n[STREAMING_ERROR]: Connection lost during document synthesis.";
+
+    if (!res.writableEnded) {
+      res.write(msg);
+      res.end();
+    }
   }
 });
 
