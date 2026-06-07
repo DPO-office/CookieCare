@@ -6,6 +6,11 @@ import { semanticSearch } from "../RAG/ragService.js";
 import { pool } from "../config/database.js";
 
 const router = Router();
+
+async function getSystemSettings(key: string, client: any) {
+  const { rows } = await client.query("SELECT value FROM system_settings WHERE key = $1", [key]);
+  return rows.length > 0 ? rows[0].value : null;
+}
 const genAI = new GoogleGenAI({ apiKey: config.geminiApiKey || "dummy" });
 
 function getVerifiedSources(jurisdictions: string[], query: string) {
@@ -67,6 +72,10 @@ router.post("/ask", authenticateToken, async (req: Request, res: Response) => {
       ? `Retrieved context:\n${semanticFragments.join("\n---\n")}`
       : "No specific document context found.";
 
+    const client = req.dbClient || pool;
+    const dbSources = await getSystemSettings('web_discovery_sources', client);
+
+    // Combine static hardcoded logic with potential DB sources for robustness
     const verifiedSources = getVerifiedSources(jurisdiction, prompt);
     res.write(`data: ${JSON.stringify({ sources: verifiedSources })}\n\n`);
 

@@ -11,6 +11,7 @@ import lawyerRoutes from "./lawyer.js";
 import negotiateRoutes from "./negotiate.js";
 import vulnerabilitiesRoutes from "./vulnerabilities.js";
 import reportRoutes from "./reports.js";
+import settingsRoutes from "./settings.js";
 
 const router = Router();
 
@@ -26,5 +27,6 @@ router.use("/lawyer", lawyerRoutes);
 router.use("/negotiate", negotiateRoutes);
 router.use("/vulnerabilities", vulnerabilitiesRoutes);
 router.use("/reports", reportRoutes);
+router.use("/settings", settingsRoutes);
 
 export default router;

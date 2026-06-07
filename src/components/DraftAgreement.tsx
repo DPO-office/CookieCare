@@ -1730,26 +1730,41 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
               
               <span className="w-[1px] h-5 bg-gray-200 mx-1" />
               
-              {/* Fake dropdowns matching Google Docs/screenshot layout */}
-              <select className="bg-slate-50 border border-gray-200 text-gray-700 text-xs rounded-md px-1 py-1 focus:outline-none cursor-pointer">
-                <option>Default</option>
-                <option>Inter</option>
-                <option>Fira Code</option>
-                <option>JetBrains Mono</option>
+              {/* Functional dropdowns for Font, Size, and Paragraph */}
+              <select
+                onChange={(e) => insertTextAtCursor(`[font:${e.target.value}]`, "[/font]")}
+                className="bg-slate-50 border border-gray-200 text-gray-700 text-xs rounded-md px-1 py-1 focus:outline-none cursor-pointer"
+              >
+                <option value="sans">Default</option>
+                <option value="inter">Inter</option>
+                <option value="mono">Fira Code</option>
+                <option value="jetbrains">JetBrains Mono</option>
               </select>
 
-              <select className="bg-slate-50 border border-gray-200 text-gray-700 text-xs rounded-md px-1 py-1 focus:outline-none cursor-pointer">
-                <option>Default (12px)</option>
-                <option>10px</option>
-                <option>14px</option>
-                <option>16px</option>
+              <select
+                onChange={(e) => insertTextAtCursor(`[size:${e.target.value}]`, "[/size]")}
+                className="bg-slate-50 border border-gray-200 text-gray-700 text-xs rounded-md px-1 py-1 focus:outline-none cursor-pointer"
+              >
+                <option value="12">Default (12px)</option>
+                <option value="10">10px</option>
+                <option value="14">14px</option>
+                <option value="16">16px</option>
               </select>
 
-              <select className="bg-slate-50 border border-gray-200 text-gray-700 text-xs rounded-md px-2 py-1 focus:outline-none cursor-pointer">
-                <option>Paragraph</option>
-                <option>Heading 1</option>
-                <option>Heading 2</option>
-                <option>Subtitle</option>
+              <select
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "p") insertTextAtCursor("\n", "\n");
+                  else if (val === "h1") handleToolbarFormat("h1");
+                  else if (val === "h2") handleToolbarFormat("h2");
+                  else if (val === "subtitle") insertTextAtCursor("\n### ", "\n");
+                }}
+                className="bg-slate-50 border border-gray-200 text-gray-700 text-xs rounded-md px-2 py-1 focus:outline-none cursor-pointer"
+              >
+                <option value="p">Paragraph</option>
+                <option value="h1">Heading 1</option>
+                <option value="h2">Heading 2</option>
+                <option value="subtitle">Subtitle</option>
               </select>
 
               <span className="w-[1px] h-5 bg-gray-200 mx-1" />

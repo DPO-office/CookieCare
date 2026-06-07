@@ -65,7 +65,7 @@ export default function CookieScanner({ authToken }: CookieScannerProps) {
       }
 
       if (res.status === 202 && data.job_id) {
-        // SSE for real-time progress
+        // SSE for real-time progress - standardized
         const eventSource = new EventSource(apiUrl(`/api/jobs/sse?token=${authToken}`));
 
         eventSource.onmessage = (event) => {
@@ -88,8 +88,8 @@ export default function CookieScanner({ authToken }: CookieScannerProps) {
         eventSource.onerror = (err) => {
           console.error("SSE Error:", err);
           eventSource.close();
-          // Fallback to polling if SSE fails
-          pollJob(data.job_id);
+          setError("Real-time connection interrupted. Please refresh or retry.");
+          setScanning(false);
         };
       } else {
         setResult(data);
@@ -102,29 +102,6 @@ export default function CookieScanner({ authToken }: CookieScannerProps) {
     }
   };
 
-  const pollJob = async (jobId: string) => {
-    let completed = false;
-    let attempts = 0;
-    while (!completed && attempts < 100) {
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-      attempts++;
-      const checkRes = await fetch(apiUrl(`/api/jobs/${jobId}`), {
-        headers: { "Authorization": `Bearer ${authToken}` },
-      });
-      if (checkRes.ok) {
-        const checkData = await checkRes.json();
-        if (checkData.status === "completed") {
-          setResult(checkData.result);
-          setScanning(false);
-          completed = true;
-        } else if (checkData.status === "failed") {
-          setError(checkData.error || "Job failed.");
-          setScanning(false);
-          completed = true;
-        }
-      }
-    }
-  };
 
   const handleShareReport = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -203,7 +180,7 @@ Remediation Steps Required:
 ${g.remediation}
 -----------------------------------------------------`).join("")}
 
-Report secured and validated by Cookie Care FIPS Sandbox services.`;
+Report secured and validated by PrivSecAI FIPS Sandbox services.`;
   };
 
   const downloadReportFile = async (format: "pdf" | "docx") => {

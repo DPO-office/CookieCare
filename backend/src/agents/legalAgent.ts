@@ -79,8 +79,9 @@ export class AgentOrchestrator {
     let draft = await this.draftingAgent.draftDocument(inputs);
 
     // Stateful "Critic" Loop (LangGraph-style self-correction)
+    // Phase 3: Deepen Critic Loop to 5 iterations for enterprise-grade self-correction
     let iterations = 0;
-    const maxIterations = 2;
+    const maxIterations = 5;
     let isSatisfactory = false;
 
     while (!isSatisfactory && iterations < maxIterations) {

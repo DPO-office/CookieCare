@@ -74,7 +74,7 @@ export interface LegalDocument {
   analysis?: DocumentAnalysis | null;
 }
 
-// Cookie Care - Cookie Scanner Type Schema
+// PrivSecAI - Cookie Scanner Type Schema
 export interface CookieDetected {
   name: string;
   category: "Functional" | "Analytics" | "Marketing" | "Essential";
@@ -106,7 +106,7 @@ export interface CookieScanResult {
   complianceGaps: PrivacyComplianceGap[];
 }
 
-// Cookie Care - Vulnerability Scanner Type Schema
+// PrivSecAI - Vulnerability Scanner Type Schema
 export interface VulnerabilityCheck {
   id: string;
   name: string;

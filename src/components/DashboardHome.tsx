@@ -62,7 +62,7 @@ export default function DashboardHome({ userName, setActiveTab, stats, documents
             Dashboard
           </h1>
           <p className="text-sm text-gray-400 font-mono tracking-wider uppercase mt-1">
-            Cookie Care Auditing Console
+            PrivSecAI Auditing Console
           </p>
         </div>
         <div className="flex items-center space-x-2 text-xs font-mono text-gray-500 bg-white shadow-xs border border-gray-200/60 rounded-full py-1.5 px-3">

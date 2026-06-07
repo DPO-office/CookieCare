@@ -64,18 +64,35 @@ export default function AskAILawyer({ authToken, documents: propDocs = [] }: Ask
   // 1. INPUT STATES
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFormat, setSelectedFormat] = useState<"Brief Summary" | "Full IRAC" | "CREAC">("Full IRAC");
-  const [selectedJurisdictions, setSelectedJurisdictions] = useState<string[]>([
-    "India (Corporate Laws)", 
-    "United States (Federal Legal Research)"
-  ]);
+  const [selectedJurisdictions, setSelectedJurisdictions] = useState<string[]>([]);
   const [webDiscoveryUrlInput, setWebDiscoveryUrlInput] = useState("");
-  const [webDiscoveryUrls, setWebDiscoveryUrls] = useState<string[]>([
-    "https://mca.gov.in/content/mca/global/en/home.html",
-    "https://www.sec.gov/news/pressreleases"
-  ]);
+  const [webDiscoveryUrls, setWebDiscoveryUrls] = useState<string[]>([]);
+
+  // Available Jurisdictions mapping
+  const [availableJurisdictions, setAvailableJurisdictions] = useState<any[]>([]);
 
   // 2. KNOWLEDGE BASE FOLDERS STATE
   const [folders, setFolders] = useState<KBFolder[]>([]);
+
+  const fetchSettings = async () => {
+    try {
+      const [jRes, wRes] = await Promise.all([
+        fetch(apiUrl("/api/settings/jurisdictions"), { headers: { "Authorization": `Bearer ${authToken}` } }),
+        fetch(apiUrl("/api/settings/web_discovery_sources"), { headers: { "Authorization": `Bearer ${authToken}` } })
+      ]);
+      if (jRes.ok && wRes.ok) {
+        const jData = await jRes.json();
+        const wData = await wRes.json();
+        setAvailableJurisdictions(jData);
+        setWebDiscoveryUrls(wData);
+        if (jData.length >= 2) {
+          setSelectedJurisdictions([jData[0].label, jData[4]?.label].filter(Boolean));
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch settings", err);
+    }
+  };
 
   const fetchKnowledgeBase = async () => {
     try {
@@ -111,6 +128,7 @@ export default function AskAILawyer({ authToken, documents: propDocs = [] }: Ask
 
   useEffect(() => {
     fetchKnowledgeBase();
+    fetchSettings();
   }, [authToken]);
   const [newFolderName, setNewFolderName] = useState("");
   const [activeFolderForUpload, setActiveFolderForUpload] = useState<string>("folder_1");
@@ -131,16 +149,6 @@ export default function AskAILawyer({ authToken, documents: propDocs = [] }: Ask
   const [exportMessage, setExportMessage] = useState("");
 
   const chatBottomRef = useRef<HTMLDivElement>(null);
-
-  // Available Jurisdictions mapping
-  const availableJurisdictions = [
-    { key: "in_direct", label: "India (Direct Taxes)" },
-    { key: "in_indirect", label: "India (Indirect Taxes)" },
-    { key: "in_corp", label: "India (Corporate Laws)" },
-    { key: "in_general", label: "India (General Laws)" },
-    { key: "us_fed", label: "United States (Federal Legal Research)" },
-    { key: "us_state", label: "United States (State Legal Research)" },
-  ];
 
   // 4. ACTION HANDLERS
   const toggleJurisdiction = (label: string) => {
@@ -173,29 +181,56 @@ export default function AskAILawyer({ authToken, documents: propDocs = [] }: Ask
     setFolders(prev => prev.filter(f => f.id !== id));
   };
 
-  const handleFileUploadSimulated = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Simulate file reading and parsing
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const contentText = (event.target?.result as string) || "Mock text file compliance contents uploaded to corporate enclave.";
-      const newFile: FileContext = {
-        name: file.name,
-        type: file.name.split(".").pop()?.toUpperCase() || "TXT",
-        size: (file.size / (1024 * 1024)).toFixed(1) + " MB",
-        content: contentText
-      };
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("title", file.name);
+    if (activeFolderForUpload && !activeFolderForUpload.startsWith("folder_")) {
+      formData.append("folder_id", activeFolderForUpload);
+    }
 
-      setFolders(prev => prev.map(f => {
-        if (f.id === activeFolderForUpload) {
-          return { ...f, files: [...f.files, newFile] };
-        }
-        return f;
-      }));
-    };
-    reader.readAsText(file);
+    try {
+      const res = await fetch(apiUrl("/api/documents/upload"), {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${authToken}`
+        },
+        body: formData
+      });
+
+      const payload = await res.json();
+      if (!res.ok) throw new Error(payload.error || "File upload failed");
+
+      if (res.status === 202 && payload.job_id) {
+        setStepperPhase("extracting");
+        setStepperMessage(`Background processing started for ${file.name}...`);
+
+        const eventSource = new EventSource(apiUrl(`/api/jobs/sse?token=${authToken}`));
+        eventSource.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          if (data.event === "job_update" && data.job.id === payload.job_id) {
+            if (data.job.status === "completed") {
+              eventSource.close();
+              fetchKnowledgeBase();
+              setStepperPhase("completed");
+              setStepperMessage(`Success: ${file.name} indexed and ready for advisory.`);
+            } else if (data.job.status === "failed") {
+              eventSource.close();
+              setStepperPhase("idle");
+              alert("Indexing failed: " + data.job.error);
+            }
+          }
+        };
+      } else {
+        fetchKnowledgeBase();
+      }
+    } catch (err: any) {
+      console.error("Upload failed", err);
+      alert("Security enclave upload failed: " + err.message);
+    }
   };
 
   const handleAddWebUrl = (e: React.FormEvent) => {
@@ -603,7 +638,7 @@ export default function AskAILawyer({ authToken, documents: propDocs = [] }: Ask
               ref={fileUploadRef}
               className="hidden"
               accept=".pdf,.docx,.doc,.csv,.txt,.png,.jpg,.jpeg"
-              onChange={handleFileUploadSimulated}
+              onChange={handleFileUpload}
             />
           </div>
 

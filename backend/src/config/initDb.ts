@@ -123,6 +123,33 @@ export async function dbInit() {
       );
     `);
 
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS system_settings (
+        key VARCHAR(255) PRIMARY KEY,
+        value JSONB NOT NULL,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Seed default settings for AI Lawyer
+    await client.query(`
+      INSERT INTO system_settings (key, value)
+      VALUES
+        ('jurisdictions', '[
+          {"key": "in_direct", "label": "India (Direct Taxes)"},
+          {"key": "in_indirect", "label": "India (Indirect Taxes)"},
+          {"key": "in_corp", "label": "India (Corporate Laws)"},
+          {"key": "in_general", "label": "India (General Laws)"},
+          {"key": "us_fed", "label": "United States (Federal Legal Research)"},
+          {"key": "us_state", "label": "United States (State Legal Research)"}
+        ]'::jsonb),
+        ('web_discovery_sources', '[
+          "https://mca.gov.in/content/mca/global/en/home.html",
+          "https://www.sec.gov/news/pressreleases"
+        ]'::jsonb)
+      ON CONFLICT (key) DO NOTHING;
+    `);
+
     const hashedSeedPassword = await argon2.hash("MamuSecure2026!");
     await client.query(`
       INSERT INTO users (id, email, name, password_hash, status, role, approved_at)
