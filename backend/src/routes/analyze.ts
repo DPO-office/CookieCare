@@ -13,7 +13,7 @@ router.post("/remediate", authenticateToken, async (req: Request, res: Response)
     res.json(result);
   } catch (err: any) {
     console.error("Remediation route error:", err);
-    res.status(500).json({ error: "Remediation failed" });
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -46,7 +46,7 @@ router.post("/interact", authenticateToken, async (req: Request, res: Response) 
     res.status(202).json({ success: true, job_id: job.id });
   } catch (err: any) {
     console.error("Interact analyze queue error:", err);
-    res.status(500).json({ error: "Failed to queue analysis job." });
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 

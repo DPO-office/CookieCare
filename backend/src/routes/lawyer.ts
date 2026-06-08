@@ -70,7 +70,7 @@ router.post("/ask", authenticateToken, async (req: Request, res: Response) => {
     res.status(202).json({ success: true, job_id: job.id });
   } catch (err: any) {
     console.error("Lawyer ask queue error:", err);
-    res.status(500).json({ error: "Failed to queue legal inquiry." });
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 

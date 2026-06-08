@@ -4,8 +4,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { chromium } from "playwright";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// ESM path resolution compatible with both tsx and bundled builds
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 interface CookieDefinition {
   id: string;
@@ -29,7 +29,12 @@ export class ScannerService {
   private async loadCookieDb() {
     if (this.cookieDb) return this.cookieDb;
     try {
-      const dbPath = path.resolve(__dirname, "../config/open-cookie-database.json");
+      // In production (dist), the file is moved to a specific location via Dockerfile
+      const isProd = process.env.NODE_ENV === "production";
+      const dbPath = isProd
+        ? path.resolve(process.cwd(), "dist/backend/src/config/open-cookie-database.json")
+        : path.resolve(__dirname, "../config/open-cookie-database.json");
+
       const data = await fs.readFile(dbPath, "utf-8");
       this.cookieDb = JSON.parse(data);
       return this.cookieDb;
@@ -47,7 +52,10 @@ export class ScannerService {
       cookies.forEach(c => allDefinitions.push({ ...c, provider }));
     }
 
-    const browser = await chromium.launch({ headless: true });
+    const browser = await chromium.launch({
+      headless: true,
+      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
+    });
     const context = await browser.newContext();
     const page = await context.newPage();
 
@@ -162,7 +170,10 @@ export class ScannerService {
   }
 
   async scanVulnerability(url: string, userId: string) {
-    const browser = await chromium.launch({ headless: true });
+    const browser = await chromium.launch({
+      headless: true,
+      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
+    });
     const page = await browser.newPage();
     const vulnerabilities = [];
 

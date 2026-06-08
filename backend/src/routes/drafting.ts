@@ -18,7 +18,7 @@ router.post("/generate", authenticateToken, async (req: Request, res: Response) 
     res.json({ draft });
   } catch (err: any) {
     console.error("Drafting generation error:", err);
-    res.status(500).json({ error: "AI Drafting agent failed to synthesize the document. Please simplify the requirements." });
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -41,7 +41,7 @@ router.post("/refine", authenticateToken, async (req: Request, res: Response) =>
     res.status(202).json({ success: true, job_id: job.id });
   } catch (err: any) {
     console.error("Refinement queue error:", err);
-    res.status(500).json({ error: "Failed to queue refinement task." });
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -62,7 +62,7 @@ router.post("/generate-stream", authenticateToken, async (req: Request, res: Res
     res.status(202).json({ success: true, job_id: job.id });
   } catch (err: any) {
     console.error("Drafting queue error:", err);
-    res.status(500).json({ error: "Failed to queue drafting task." });
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
