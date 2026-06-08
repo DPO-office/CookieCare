@@ -9,11 +9,28 @@ export const shareReportEmail = async (req: Request, res: Response) => {
   }
 
   try {
-    // In production, configure a real SMTP transport here
-    // For now, we simulate success to fulfill the frontend contract
-    console.log(`[STUB]: Sending report "${reportTitle}" to ${recipientEmail} in ${format} format.`);
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || "smtp.example.com",
+      port: Number(process.env.SMTP_PORT) || 587,
+      secure: false,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
 
-    // We provide a successful response as requested to ensure the feature 'works' from a logic flow perspective
+    if (!process.env.SMTP_USER) {
+      console.log(`[STUB]: Sending report "${reportTitle}" to ${recipientEmail} in ${format} format.`);
+      return res.json({ success: true, message: `[DEMO MODE] Report successfully dispatched to ${recipientEmail}.` });
+    }
+
+    await transporter.sendMail({
+      from: '"PrivSecAI Audits" <noreply@privsecai.cloud>',
+      to: recipientEmail,
+      subject: subject || `PrivSecAI Report: ${reportTitle}`,
+      text: content,
+    });
+
     res.json({ success: true, message: `Report successfully dispatched to ${recipientEmail}.` });
   } catch (err: any) {
     console.error("Failed to share report via email:", err);

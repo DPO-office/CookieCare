@@ -29,73 +29,39 @@ router.post("/refine", authenticateToken, async (req: Request, res: Response) =>
   const { text, type, param } = req.body;
   if (!text) return res.status(400).json({ error: "Text is required" });
 
-  const model = (genAI as any).getGenerativeModel({ model: "gemini-2.0-flash" });
-
-  let instruction = "";
-  if (type === "tone") instruction = `Rewrite the following legal text in a ${param} tone.`;
-  else if (type === "grammar") instruction = `Fix the spelling and grammar in the following legal text while preserving legal meaning.`;
-  else if (type === "extend") instruction = `Expand the following legal clause with more comprehensive protections.`;
-  else if (type === "reduce") instruction = `Shorten the following legal clause to its core obligation.`;
-  else if (type === "simplify") instruction = `Rewrite the following legal text in plain English for a non-lawyer.`;
-  else if (type === "complete") instruction = `Complete the following sentence or clause in a professional legal manner.`;
-  else if (type === "ask") instruction = `Follow this custom instruction: ${param}`;
-
-  const prompt = `${instruction}\n\nText:\n${text}\n\nIMPORTANT: Return only the rewritten text without any quotes or preamble.`;
-
   try {
-    const result = await model.generateContent(prompt);
-    res.json({ data: result.response.text().trim() });
+    const job = await addJobToQueue(req.user!.id, "template_drafting", {
+      type: "refine",
+      text,
+      refineType: type,
+      param
+    });
+
+    res.status(202).json({ success: true, job_id: job.id });
   } catch (err: any) {
-    console.error("Refinement error:", err);
-    res.status(500).json({ error: "Clause refinement failed. The engine may be experiencing high latency." });
+    console.error("Refinement queue error:", err);
+    res.status(500).json({ error: "Failed to queue refinement task." });
   }
 });
 
 router.post("/generate-stream", authenticateToken, async (req: Request, res: Response) => {
   const { mode, outputLevel, instructions, formFields, templateId, sourceText, playbookText } = req.body;
 
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
-
-  const model = (genAI as any).getGenerativeModel({ model: "gemini-2.0-flash" });
-
-  let prompt = `You are an expert legal drafter. Draft a high-fidelity ${mode} document.
-  Instructions: ${instructions || 'Follow standard corporate law.'}
-  Output Level: ${outputLevel}
-  `;
-
-  if (mode === "Basic") {
-    prompt += `Fields: ${JSON.stringify(formFields)}`;
-  } else if (templateId) {
-    prompt += `Template: ${templateId}. Playbook Rules: ${playbookText}`;
-  } else if (sourceText) {
-    prompt += `Source Text to base response on: ${sourceText}. Fields: ${JSON.stringify(formFields)}`;
-  }
-
-  prompt += `\n\nIMPORTANT: Return response in clean Markdown. Start streaming now.`;
-
   try {
-    const result = await model.generateContentStream(prompt).catch(streamErr => {
-      console.error("LLM Stream start failure in Drafting:", streamErr);
-      throw new Error("STREAM_INIT_FAILED");
+    const job = await addJobToQueue(req.user!.id, "template_drafting", {
+      mode,
+      outputLevel,
+      instructions,
+      formFields,
+      templateId,
+      sourceText,
+      playbookText
     });
 
-    for await (const chunk of result.stream) {
-      const chunkText = chunk.text();
-      res.write(chunkText);
-    }
-    res.end();
+    res.status(202).json({ success: true, job_id: job.id });
   } catch (err: any) {
-    console.error("Drafting stream error:", err);
-    const msg = err.message === "STREAM_INIT_FAILED"
-      ? "\n[STREAMING_ERROR]: Drafting engine unreachable."
-      : "\n[STREAMING_ERROR]: Connection lost during document synthesis.";
-
-    if (!res.writableEnded) {
-      res.write(msg);
-      res.end();
-    }
+    console.error("Drafting queue error:", err);
+    res.status(500).json({ error: "Failed to queue drafting task." });
   }
 });
 

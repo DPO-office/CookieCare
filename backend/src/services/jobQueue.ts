@@ -8,6 +8,10 @@ import crypto from "crypto";
 import { encryptData } from "../utils/crypto.js";
 import { Queue, Worker, Job as BullJob } from "bullmq";
 import IORedis from "ioredis";
+import { GoogleGenAI } from "@google/genai";
+import { config } from "../config/index.js";
+
+const genAI = new GoogleGenAI({ apiKey: config.geminiApiKey || "dummy" });
 
 const redisConnection = new IORedis(process.env.REDIS_URL || "redis://127.0.0.1:6379", {
   maxRetriesPerRequest: null,
@@ -114,6 +118,15 @@ class BackgroundJobRegistry {
     const id = "client_" + crypto.randomUUID();
     res.write(`data: ${JSON.stringify({ event: "ping", timestamp: new Date().toISOString() })}\n\n`);
 
+    // Start a 15-second heartbeat to keep connection alive during long AI tasks
+    const heartbeatInterval = setInterval(() => {
+      try {
+        res.write(`:ping\n\n`);
+      } catch (err) {
+        clearInterval(heartbeatInterval);
+      }
+    }, 15000);
+
     const client: SseClient = {
       id,
       userId,
@@ -195,6 +208,8 @@ const worker = new Worker(jobQueueName, async (job: BullJob) => {
         return await executePrivacyScanning(job);
       case "vulnerability_scanning":
         return await executeVulnerabilityScanning(job);
+      case "template_drafting":
+        return await executeTemplateDrafting(job);
       default:
         throw new Error(`Unhandled job type: ${type}`);
     }
@@ -275,6 +290,33 @@ async function executeFileProcessing(job: BullJob): Promise<any> {
 
 async function executeDocumentAnalysis(job: BullJob): Promise<any> {
   const { userId, payload } = job.data;
+
+  if (payload.type === "legal_ask") {
+    const { prompt, jurisdiction, outputFormat, documents } = payload;
+    const msg = "Searching knowledge base and synthesizing advice...";
+    await updateJobState(job.id!, { progress: 30, message: msg });
+    await job.updateProgress(30);
+    jobRegistry.broadcast(userId, await jobRegistry.transformBullJob(job));
+
+    const context = await jobRegistry.orchestrator.askLawyer(prompt, userId);
+
+    await updateJobState(job.id!, { progress: 100, message: "Advice synthesized." });
+    return { text: context };
+  }
+
+  if (payload.prompt && payload.folderIds) {
+     const { folderIds, prompt, documentMode, answerStyle, history } = payload;
+     const msg = "Analyzing documents in selected folders...";
+     await updateJobState(job.id!, { progress: 30, message: msg });
+     await job.updateProgress(30);
+     jobRegistry.broadcast(userId, await jobRegistry.transformBullJob(job));
+
+     const result = await jobRegistry.orchestrator.interactAnalyze(
+       folderIds, prompt, userId, documentMode, answerStyle, history
+     );
+     return result;
+  }
+
   const { documentId, content } = payload;
 
   const msg = "AI agents performing legal audit...";
@@ -290,6 +332,53 @@ async function executeDocumentAnalysis(job: BullJob): Promise<any> {
   await job.updateProgress(100);
   job.data.message = msg2;
   return result;
+}
+
+async function executeTemplateDrafting(job: BullJob): Promise<any> {
+  const { userId, payload } = job.data;
+
+  if (payload.type === "refine") {
+    const { text, refineType, param } = payload;
+    const model = (genAI as any).getGenerativeModel({ model: "gemini-2.0-flash" });
+
+    let instruction = "";
+    if (refineType === "tone") instruction = `Rewrite the following legal text in a ${param} tone.`;
+    else if (refineType === "grammar") instruction = `Fix the spelling and grammar in the following legal text while preserving legal meaning.`;
+    else if (refineType === "extend") instruction = `Expand the following legal clause with more comprehensive protections.`;
+    else if (refineType === "reduce") instruction = `Shorten the following legal clause to its core obligation.`;
+    else if (refineType === "simplify") instruction = `Rewrite the following legal text in plain English for a non-lawyer.`;
+    else if (refineType === "complete") instruction = `Complete the following sentence or clause in a professional legal manner.`;
+    else if (refineType === "ask") instruction = `Follow this custom instruction: ${param}`;
+
+    const prompt = `${instruction}\n\nText:\n${text}\n\nIMPORTANT: Return only the rewritten text without any quotes or preamble.`;
+
+    const result = await model.generateContent(prompt);
+    return { data: result.response.text().trim() };
+  }
+
+  const { mode, outputLevel, instructions, formFields, templateId, sourceText, playbookText } = payload;
+
+  const msg = "Synthesizing legal document...";
+  await updateJobState(job.id!, { progress: 20, message: msg });
+  await job.updateProgress(20);
+  job.data.message = msg;
+  jobRegistry.broadcast(userId, await jobRegistry.transformBullJob(job));
+
+  const result = await jobRegistry.orchestrator.runDrafting({
+    mode,
+    detailLevel: outputLevel,
+    instructions,
+    formFields,
+    templateId,
+    sourceText,
+    playbookText
+  });
+
+  const msg2 = "Drafting complete.";
+  await updateJobState(job.id!, { progress: 100, message: msg2 });
+  await job.updateProgress(100);
+  job.data.message = msg2;
+  return { content: result };
 }
 
 async function executePrivacyScanning(job: BullJob): Promise<any> {

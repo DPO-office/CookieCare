@@ -279,65 +279,35 @@ export default function AskAILawyer({ authToken, documents: propDocs = [] }: Ask
         })
       });
 
-      if (!response.ok) {
-        throw new Error("Advisory system failed to respond cleanly.");
-      }
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Advisory system failed to respond cleanly.");
 
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      if (!reader) throw new Error("SSE Stream reader could not initialize.");
+      if (response.status === 202 && data.job_id) {
+        const eventSource = new EventSource(apiUrl(`/api/jobs/sse?token=${authToken}`));
 
-      let buffer = "";
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
+        eventSource.onmessage = (event) => {
+          const payload = JSON.parse(event.data);
+          if (payload.event === "job_update" && payload.job.id === data.job_id) {
+            const job = payload.job;
+            setStepperMessage(`Progress: ${job.message}`);
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n\n");
-        buffer = lines.pop() || "";
-
-        for (const line of lines) {
-          if (!line.trim()) continue;
-          if (line.startsWith("data: ")) {
-            const dataStr = line.slice(6).trim();
-
-            if (dataStr === "[DONE]") {
+            if (job.status === "completed") {
+              setStreamedResult(job.result.text);
               setStepperPhase("completed");
-              setStepperMessage("Advocacy feedback stream finalized. Analysis complete.");
-              break;
-            }
-
-            try {
-              const dataObj = JSON.parse(dataStr);
-              
-              if (dataObj.step === "division") {
-                setStepperPhase("division");
-                setStepperMessage(dataObj.message);
-              } else if (dataObj.step === "sourcing") {
-                setStepperPhase("sourcing");
-                setStepperMessage(dataObj.message);
-              } else if (dataObj.step === "extracting") {
-                setStepperPhase("extracting");
-                setStepperMessage(dataObj.message);
-              } else if (dataObj.sources) {
-                setMatchedSources(dataObj.sources);
-                setStepperPhase("streaming");
-                setStepperMessage("Synthesizing citations and streaming regulatory response output...");
-              } else if (dataObj.text) {
-                setStreamedResult(prev => prev + dataObj.text);
-              }
-            } catch (err) {
-              // Ignore partial chunk decode errors
+              setStepperMessage("Analysis complete.");
+              setIsStreaming(false);
+              eventSource.close();
+            } else if (job.status === "failed") {
+              throw new Error(job.error || "Job failed");
             }
           }
-        }
+        };
       }
     } catch (err: any) {
       console.error(err);
       setStepperPhase("idle");
       setStepperMessage("");
-      setStreamedResult(`**System Connection Interrupted**\n\nThere was an issue communicating with the legal intelligence engine. Please review your active workspace setup and retry your request.\n\nError details: ${err.message}`);
-    } finally {
+      setStreamedResult(`**System Connection Interrupted**\n\nThere was an issue communicating with the legal intelligence engine. Error: ${err.message}`);
       setIsStreaming(false);
     }
   };
@@ -362,7 +332,7 @@ export default function AskAILawyer({ authToken, documents: propDocs = [] }: Ask
       const blob = new Blob([header + streamedResult], { type: "application/msword" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `privsecai_ai_lawyer_advisory_${Date.now()}.doc`;
+      link.download = `privsecai_lawyer_advisory_${Date.now()}.doc`;
       link.click();
     } else {
       // PDF trigger via Print friendly format in a new frame or simple download format

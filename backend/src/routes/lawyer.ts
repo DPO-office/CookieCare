@@ -53,70 +53,23 @@ router.post("/ask", authenticateToken, async (req: Request, res: Response) => {
     documents = []
   } = req.body;
 
-  const userId = req.user!.id;
-  const userEmail = req.user!.email.toLowerCase();
-
   if (!prompt) {
     return res.status(400).json({ error: "No query provided." });
   }
 
-  res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
-  res.setHeader("Connection", "keep-alive");
-
   try {
-    res.write(`data: ${JSON.stringify({ step: "searching", message: "Searching legal knowledge base..." })}\n\n`);
-
-    const semanticFragments = await semanticSearch(userId, prompt, 5);
-    const ragContext = semanticFragments.length > 0
-      ? `Retrieved context:\n${semanticFragments.join("\n---\n")}`
-      : "No specific document context found.";
-
-    const client = req.dbClient || pool;
-    const dbSources = await getSystemSettings('web_discovery_sources', client);
-
-    // Combine static hardcoded logic with potential DB sources for robustness
-    const verifiedSources = getVerifiedSources(jurisdiction, prompt);
-    res.write(`data: ${JSON.stringify({ sources: verifiedSources })}\n\n`);
-
-    const systemPrompt = `You are a Principal AI Lawyer. Provide advice in ${outputFormat} format.
-Jurisdictions: ${jurisdiction.join(", ") || "United States & India"}
-Context: ${ragContext}
-Verified Sources: ${verifiedSources.map(s => s.title).join(", ")}
-
-Professional, precise, and authoritative response required.`;
-
-    const model = (genAI as any).getGenerativeModel({ model: "gemini-2.0-flash" });
-    const result = await model.generateContentStream({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.2,
-      },
-      systemInstruction: systemPrompt
-    }).catch(aiErr => {
-      console.error("LLM Generation failed in AskLawyer:", aiErr);
-      throw new Error("LLM_SERVICE_FAILURE");
+    const job = await addJobToQueue(req.user!.id, "document_analysis", {
+      type: "legal_ask",
+      prompt,
+      jurisdiction,
+      outputFormat,
+      documents
     });
 
-    for await (const chunk of result.stream) {
-      const text = chunk.text();
-      if (text) {
-        res.write(`data: ${JSON.stringify({ text })}\n\n`);
-      }
-    }
-
-    res.write("data: [DONE]\n\n");
-    res.end();
+    res.status(202).json({ success: true, job_id: job.id });
   } catch (err: any) {
-    console.error("AskLawyer stream error:", err);
-    const errorMessage = err.message === "LLM_SERVICE_FAILURE"
-      ? "Legal Intelligence Engine is currently overwhelmed. Please try a shorter query."
-      : "Internal server error during research synthesis.";
-
-    if (!res.writableEnded) {
-      res.write(`data: ${JSON.stringify({ error: errorMessage })}\n\n`);
-      res.end();
-    }
+    console.error("Lawyer ask queue error:", err);
+    res.status(500).json({ error: "Failed to queue legal inquiry." });
   }
 });
 

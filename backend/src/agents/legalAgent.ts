@@ -34,7 +34,18 @@ export class AgentOrchestrator {
     const startedAt = Date.now();
     const client = dbClient || pool;
     try {
+      // If we're in a worker, set context
+      if (!dbClient) {
+        await client.query("SELECT set_config('app.current_user_id', $1, true), set_config('app.current_user_role', $2, true)", [userId, 'USER']);
+      }
+
       const result = await this.analysisAgent.runAudit(content, "NDA"); // Assuming NDA for now or extracting from metadata
+
+      // Log for compliance
+      await client.query(`
+        INSERT INTO compliance_audit_logs (user_id, action_type, prompt, metadata)
+        VALUES ($1, $2, $3, $4)
+      `, [userId, 'document_audit', `Audit for document ${documentId}`, JSON.stringify({ documentId, summary: result.summary })]);
 
       await client.query(
         "UPDATE files SET analysis = $1 WHERE id = $2 AND (creator_id = current_setting('app.current_user_id', true) OR current_setting('app.current_user_role', true) = 'ADMIN')",
@@ -67,7 +78,15 @@ export class AgentOrchestrator {
   async askLawyer(prompt: string, userId: string): Promise<string> {
     try {
       const context = await semanticSearch(userId, prompt, 10);
-      return await this.askLawyerAgent.resolveQuery(context, prompt);
+      const response = await this.askLawyerAgent.resolveQuery(context, prompt);
+
+      // Log for compliance
+      await pool.query(`
+        INSERT INTO compliance_audit_logs (user_id, action_type, prompt, context_files, ai_response)
+        VALUES ($1, $2, $3, $4, $5)
+      `, [userId, 'legal_ask', prompt, JSON.stringify(context.map(c => c.substring(0, 100))), response]);
+
+      return response;
     } catch (err) {
       console.error("AgentOrchestrator askLawyer failed:", err);
       return "An error occurred while consulting the AI attorney.";
@@ -86,6 +105,13 @@ export class AgentOrchestrator {
 
     while (!isSatisfactory && iterations < maxIterations) {
       const audit = await this.analysisAgent.runAudit(draft, inputs.type || "Agreement");
+
+      // Log intermediate draft for compliance
+      await pool.query(`
+        INSERT INTO compliance_audit_logs (user_id, action_type, prompt, ai_response, metadata)
+        VALUES ($1, $2, $3, $4, $5)
+      `, ["system", 'draft_critic_loop', `Iteration ${iterations+1}`, draft, JSON.stringify({ audit_summary: audit.summary })]);
+
       const criticalRisks = audit.risks.filter((r: any) => r.severity === "high" || r.risk_level === "CRITICAL");
 
       if (criticalRisks.length === 0) {
@@ -121,8 +147,14 @@ Please rewrite the draft to address these risks while maintaining the original i
     history: any[] = [],
     dbClient?: any
   ): Promise<any> {
-    let client = dbClient || pool;
+    const client = dbClient || pool;
     try {
+      // If we're in a worker, we might not have RLS session variables set on the pool.
+      // We should ideally set them here if dbClient is not provided.
+      if (!dbClient) {
+        await client.query("SELECT set_config('app.current_user_id', $1, true), set_config('app.current_user_role', $2, true)", [userId, 'USER']);
+      }
+
       const safeFolderIds = Array.isArray(folderIds) ? folderIds : [];
 
       let files: any[] = [];

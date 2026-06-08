@@ -332,7 +332,7 @@ export default function InteractAnalyze({
           "Authorization": `Bearer ${authToken}`
         },
         body: JSON.stringify({
-          folder_ids: activeSelectedFolders.map(f => f.id),
+          folderIds: activeSelectedFolders.map(f => f.id),
           prompt: customPromptText,
           documentMode,
           answerStyle,
@@ -341,20 +341,30 @@ export default function InteractAnalyze({
       });
 
       const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Analysis failed");
 
-      setChatMessages([
-        {
-          sender: "gemini",
-          text: data.analysis || `### Executive Legal Assessment for ${firstSelected}\n\nAnalysis complete.`
-        }
-      ]);
-
-      if (data.clauses) {
-        setReportClauses(data.clauses);
+      if (response.status === 202 && data.job_id) {
+        const eventSource = new EventSource(apiUrl(`/api/jobs/sse?token=${authToken}`));
+        eventSource.onmessage = (event) => {
+          const payload = JSON.parse(event.data);
+          if (payload.event === "job_update" && payload.job.id === data.job_id) {
+            if (payload.job.status === "completed") {
+              setChatMessages([
+                {
+                  sender: "gemini",
+                  text: payload.job.result.analysis || `### Executive Legal Assessment for ${firstSelected}\n\nAnalysis complete.`
+                }
+              ]);
+              if (payload.job.result.clauses) setReportClauses(payload.job.result.clauses);
+              setViewMode("report");
+              setIsAnalyzing(false);
+              eventSource.close();
+            } else if (payload.job.status === "failed") {
+              throw new Error(payload.job.error || "Job failed");
+            }
+          }
+        };
       }
-
-      // Transition view mode immediately based on real data receipt
-      setViewMode("report");
     } catch (err) {
       console.error("Analysis failed", err);
       setChatMessages([{ sender: "gemini", text: "Failed to perform analysis. Please check your connection." }]);
@@ -386,7 +396,7 @@ export default function InteractAnalyze({
           "Authorization": `Bearer ${authToken}`
         },
         body: JSON.stringify({
-          folder_ids: activeSelectedFolders.map(f => f.id),
+          folderIds: activeSelectedFolders.map(f => f.id),
           prompt: userText,
           documentMode,
           answerStyle,
@@ -395,17 +405,30 @@ export default function InteractAnalyze({
       });
 
       const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
 
-      setChatMessages(prev => {
-        const updated = [...prev];
-        updated[loadingMessageIdx] = {
-          sender: "gemini",
-          text: data.analysis || "I have analyzed your request.",
-          loading: false
+      if (response.status === 202 && data.job_id) {
+        const eventSource = new EventSource(apiUrl(`/api/jobs/sse?token=${authToken}`));
+        eventSource.onmessage = (event) => {
+          const payload = JSON.parse(event.data);
+          if (payload.event === "job_update" && payload.job.id === data.job_id) {
+            if (payload.job.status === "completed") {
+              setChatMessages(prev => {
+                const updated = [...prev];
+                updated[loadingMessageIdx] = {
+                  sender: "gemini",
+                  text: payload.job.result.analysis || "Analysis complete.",
+                  loading: false
+                };
+                return updated;
+              });
+              eventSource.close();
+            } else if (payload.job.status === "failed") {
+               throw new Error(payload.job.error || "Job failed");
+            }
+          }
         };
-        return updated;
-      });
-
+      }
     } catch (err) {
       console.error("Chat failed", err);
       setChatMessages(prev => {

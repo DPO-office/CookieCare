@@ -131,6 +131,19 @@ export async function dbInit() {
       );
     `);
 
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS compliance_audit_logs (
+        id SERIAL PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        action_type VARCHAR(100) NOT NULL,
+        prompt TEXT,
+        context_files JSONB DEFAULT '[]'::jsonb,
+        ai_response TEXT,
+        metadata JSONB DEFAULT '{}'::jsonb,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     // Seed default settings for AI Lawyer
     await client.query(`
       INSERT INTO system_settings (key, value)
@@ -158,7 +171,7 @@ export async function dbInit() {
     `, ["supreme_admin_id", "swarnaaishwarya17@gmail.com", "Supreme Admin", hashedSeedPassword, "APPROVED", "ADMIN"]);
 
     // --- Enterprise Security: Row Level Security (RLS) ---
-    const rlsTables = ['files', 'folders', 'library_items', 'legal_document_chunks', 'website_scans', 'jobs', 'agent_execution_logs'];
+    const rlsTables = ['files', 'folders', 'library_items', 'legal_document_chunks', 'website_scans', 'jobs', 'agent_execution_logs', 'compliance_audit_logs'];
     for (const table of rlsTables) {
       await client.query(`ALTER TABLE ${table} ENABLE ROW LEVEL SECURITY;`);
 

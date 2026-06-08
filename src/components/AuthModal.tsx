@@ -121,7 +121,7 @@ export default function AuthModal({ onAuthSuccess }: AuthModalProps) {
                 id="auth-email-input"
                 type="email"
                 required
-                placeholder="e.g. krish@privsecai.ai"
+                  placeholder="e.g. krish@privsecai.cloud"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 pl-10 pr-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-black"

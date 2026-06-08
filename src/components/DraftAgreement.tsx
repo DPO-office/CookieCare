@@ -558,17 +558,31 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
       const payload = await res.json();
       if (!res.ok) throw new Error(payload.error);
 
-      const rewritten = payload.data;
-      const newContent = editorContent.substring(0, selectedTextRange.start) + rewritten + editorContent.substring(selectedTextRange.end);
+      if (res.status === 202 && payload.job_id) {
+        const eventSource = new EventSource(apiUrl(`/api/jobs/sse?token=${authToken}`));
+        eventSource.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          if (data.event === "job_update" && data.job.id === payload.job_id) {
+            if (data.job.status === "completed") {
+              const rewritten = data.job.result.data;
+              const newContent = editorContent.substring(0, selectedTextRange.start) + rewritten + editorContent.substring(selectedTextRange.end);
+              setEditorContent(newContent);
 
-      setEditorContent(newContent);
-
-      requestAnimationFrame(() => {
-        editorSelectionRef.current = {
-          start: selectedTextRange.start,
-          end: selectedTextRange.start + rewritten.length
+              requestAnimationFrame(() => {
+                editorSelectionRef.current = {
+                  start: selectedTextRange.start,
+                  end: selectedTextRange.start + rewritten.length
+                };
+              });
+              setIsAiRefiningText(false);
+              eventSource.close();
+            } else if (data.job.status === "failed") {
+              throw new Error(data.job.error || "Refinement failed");
+            }
+          }
         };
-      });
+        return;
+      }
     } catch (err: any) {
       console.error("Refinement failed", err);
       alert("Refinement failed: " + err.message);
@@ -717,51 +731,44 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
       }
     }
 
-    setEditorContent("");
     setIsGeneratorActive(false);
 
     try {
-      const controller = new AbortController();
-      const timeoutMs = 120_000;
-      const timeout = setTimeout(() => controller.abort(), timeoutMs);
       const res = await fetch(apiUrl("/api/drafting/generate-stream"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${authToken}`
         },
-        body: JSON.stringify(payload),
-        signal: controller.signal
+        body: JSON.stringify(payload)
       });
-      clearTimeout(timeout);
 
-      if (!res.ok) throw new Error("Drafting stream failed");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Drafting request failed");
 
-      const reader = res.body?.getReader();
-      const decoder = new TextDecoder();
-      let accumulated = "";
-
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const chunk = decoder.decode(value);
-          accumulated += chunk;
-          setEditorContent(accumulated);
-          setStreamingProgress(`Streaming draft content block-by-block (${accumulated.split(/\s+/).length} words)...`);
-        }
+      if (res.status === 202 && data.job_id) {
+        const eventSource = new EventSource(apiUrl(`/api/jobs/sse?token=${authToken}`));
+        eventSource.onmessage = (event) => {
+          const p = JSON.parse(event.data);
+          if (p.event === "job_update" && p.job.id === data.job_id) {
+            setStreamingProgress(p.job.message);
+            if (p.job.status === "completed") {
+              setEditorContent(p.job.result.content);
+              setIsStreaming(false);
+              setStreamingProgress("");
+              handleCreateAndSaveGeneratedDoc(documentTitle, p.job.result.content);
+              eventSource.close();
+            } else if (p.job.status === "failed") {
+              throw new Error(p.job.error || "Job failed");
+            }
+          }
+        };
       }
-
-      setStreamingProgress("");
-      setIsStreaming(false);
-      handleCreateAndSaveGeneratedDoc(documentTitle, accumulated);
-
     } catch (err: any) {
-      const errorMessage = err?.name === "AbortError" ? "Drafting timed out" : (err?.message || "Drafting failed");
       console.error(err);
       setIsStreaming(false);
       setStreamingProgress("");
-      alert("Drafting failed: " + errorMessage);
+      alert("Drafting failed: " + err.message);
     }
   };
 

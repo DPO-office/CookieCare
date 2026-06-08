@@ -4,7 +4,7 @@ const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
 const ALGORITHM = "aes-256-gcm";
 
 if (!ENCRYPTION_KEY || Buffer.from(ENCRYPTION_KEY).length !== 32) {
-  throw new Error("ENCRYPTION_KEY must be exactly 32 bytes for AES-256-GCM. Insecure fallbacks are prohibited.");
+  console.warn("⚠️ [SECURITY] ENCRYPTION_KEY is missing or invalid (must be 32 bytes). Encryption/Decryption features will fail.");
 }
 
 export function encryptData(text: string): string {

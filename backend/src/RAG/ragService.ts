@@ -1,6 +1,12 @@
 import { GoogleGenAI } from "@google/genai";
 import { config } from "../config/index.js";
 import { pool } from "../config/database.js";
+import crypto from "crypto";
+import IORedis from "ioredis";
+
+const redis = new IORedis(process.env.REDIS_URL || "redis://127.0.0.1:6379", {
+  maxRetriesPerRequest: null,
+});
 
 const genAI = new GoogleGenAI({ apiKey: config.geminiApiKey || "dummy" });
 
@@ -10,18 +16,28 @@ function sanitizeText(str: string): string {
 }
 
 export async function getEmbedding(text: string): Promise<number[] | null> {
+  // Simple Redis-based caching to avoid redundant API calls
+  const cacheKey = `emb:${crypto.createHash('md5').update(text).digest('hex')}`;
   try {
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+
     const result = await (genAI as any).getGenerativeModel({ model: "text-embedding-004" }).embedContent(text);
 
+    let vector = null;
     if (result && (result as any).embedding?.values) {
-      return (result as any).embedding.values;
+      vector = (result as any).embedding.values;
+    } else if (result && (result as any).embeddings?.[0]?.values) {
+      vector = (result as any).embeddings[0].values;
     }
 
-    if (result && (result as any).embeddings?.[0]?.values) {
-      return (result as any).embeddings[0].values;
+    if (vector) {
+      await redis.set(cacheKey, JSON.stringify(vector), "EX", 3600 * 24 * 7); // Cache for 1 week
     }
 
-    return null;
+    return vector;
   } catch (err) {
     console.error("getEmbedding failed:", err);
     return null;
@@ -32,10 +48,10 @@ export async function chunkAndIndexDocument(fileId: string, content: string, use
   let client;
   try {
     client = await pool.connect();
-    await client.query("DELETE FROM legal_document_chunks WHERE file_id = $1 AND user_id = $2;", [fileId, userId]);
     
     const cleanedContent = sanitizeText(content);
     const chunks = splitIntoClauseAwareChunks(cleanedContent);
+    const newChunks: any[] = [];
 
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
@@ -45,11 +61,29 @@ export async function chunkAndIndexDocument(fileId: string, content: string, use
       if (!vector || !Array.isArray(vector)) continue;
 
       const vectorString = `[${vector.join(",")}]`;
+      newChunks.push({
+        index: i,
+        content: sanitizeText(chunk),
+        embedding: vectorString
+      });
+    }
 
-      await client.query(`
-        INSERT INTO legal_document_chunks (file_id, user_id, chunk_index, content, embedding, metadata)
-        VALUES ($1, $2, $3, $4, $5, $6);
-      `, [fileId, userId, i, sanitizeText(chunk), vectorString, JSON.stringify({})]);
+    // Atomic Swap Strategy: Only delete and replace if embeddings were successful
+    if (newChunks.length > 0) {
+      await client.query("BEGIN");
+      try {
+        await client.query("DELETE FROM legal_document_chunks WHERE file_id = $1 AND user_id = $2;", [fileId, userId]);
+        for (const chunk of newChunks) {
+          await client.query(`
+            INSERT INTO legal_document_chunks (file_id, user_id, chunk_index, content, embedding, metadata)
+            VALUES ($1, $2, $3, $4, $5, $6);
+          `, [fileId, userId, chunk.index, chunk.content, chunk.embedding, JSON.stringify({})]);
+        }
+        await client.query("COMMIT");
+      } catch (atomicErr) {
+        await client.query("ROLLBACK");
+        throw atomicErr;
+      }
     }
   } catch (err) {
     console.error(`chunkAndIndexDocument failed for file ${fileId}:`, err);

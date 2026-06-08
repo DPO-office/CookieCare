@@ -89,6 +89,23 @@ export const uploadDocument = async (req: Request, res: Response) => {
   const file = req.file;
   if (!file) return res.status(400).json({ error: "No file uploaded. Verify multipart/form-data boundary." });
 
+  // Security Layer: Basic file integrity and MIME checks
+  const allowedMimeTypes = [
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'text/plain',
+    'text/markdown',
+    'application/msword'
+  ];
+
+  if (!allowedMimeTypes.includes(file.mimetype)) {
+    return res.status(400).json({ error: "Unsupported file type. Only PDF, DOCX, and TXT are permitted for legal indexing." });
+  }
+
+  if (file.size > 25 * 1024 * 1024) { // 25MB limit
+    return res.status(400).json({ error: "File size exceeds 25MB security threshold." });
+  }
+
   const { title, folder_id } = req.body;
   const fileId = "doc_" + crypto.randomUUID();
   const fileTitle = title || file.originalname;
