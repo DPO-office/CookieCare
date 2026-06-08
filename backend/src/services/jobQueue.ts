@@ -65,13 +65,22 @@ export async function addJobToQueue(userId: string, type: JobType, payload: any)
   const jobId = crypto.randomUUID();
 
   // 1. Persist to DB first to avoid race conditions with workers
-  // Note: Using pool here because this is often called before middleware or outside request context
-  // But we should try to set the context if possible, or ensure 'jobs' table RLS handles system insertions
-  await pool.query(
-    `INSERT INTO jobs (id, user_id, type, status, progress, message, payload)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-    [jobId, userId, type, "queued", 0, "Job queued in BullMQ...", JSON.stringify(payload)]
-  );
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await client.query("SET LOCAL app.current_user_role = 'ADMIN'");
+    await client.query(
+      `INSERT INTO jobs (id, user_id, type, status, progress, message, payload)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [jobId, userId, type, "queued", 0, "Job queued in BullMQ...", JSON.stringify(payload)]
+    );
+    await client.query("COMMIT");
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
 
   // 2. Add to BullMQ with the same ID
   const job = await jobQueue.add(type, {
