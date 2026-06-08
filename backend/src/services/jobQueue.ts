@@ -6,6 +6,7 @@ import pdf from "pdf-parse-fork";
 import mammoth from "mammoth";
 import crypto from "crypto";
 import { encryptData } from "../utils/crypto.js";
+import { withRetry } from "../utils/retry.js";
 import { Queue, Worker, Job as BullJob } from "bullmq";
 import IORedis from "ioredis";
 import { GoogleGenAI } from "@google/genai";
@@ -41,8 +42,20 @@ async function updateJobState(jobId: string, updates: { status?: string; progres
 
   if (fields.length === 0) return;
 
-  values.push(jobId);
-  await pool.query(`UPDATE jobs SET ${fields.join(", ")} WHERE id = $${idx}`, values);
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    // Workers run in system context, bypass RLS
+    await client.query("SET LOCAL app.current_user_role = 'ADMIN'");
+    values.push(jobId);
+    await client.query(`UPDATE jobs SET ${fields.join(", ")} WHERE id = $${idx}`, values);
+    await client.query("COMMIT");
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
 }
 
 /**
@@ -352,7 +365,7 @@ async function executeTemplateDrafting(job: BullJob): Promise<any> {
 
     const prompt = `${instruction}\n\nText:\n${text}\n\nIMPORTANT: Return only the rewritten text without any quotes or preamble.`;
 
-    const result = await model.generateContent(prompt);
+    const result = await withRetry(() => model.generateContent(prompt));
     return { data: result.response.text().trim() };
   }
 

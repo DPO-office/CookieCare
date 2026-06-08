@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import nodemailer from "nodemailer";
+import { withTransaction } from "../utils/dbUtils.js";
 
 export const shareReportEmail = async (req: Request, res: Response) => {
   const { recipientEmail, subject, reportTitle, contentType, content, format } = req.body;
@@ -9,6 +10,14 @@ export const shareReportEmail = async (req: Request, res: Response) => {
   }
 
   try {
+    // Audit report share
+    await withTransaction(req.user!.id, req.user!.role, async (client) => {
+      await client.query(`
+        INSERT INTO compliance_audit_logs (user_id, action_type, metadata)
+        VALUES ($1, $2, $3)
+      `, [req.user!.id, 'report_share', JSON.stringify({ recipientEmail, reportTitle, format })]);
+    });
+
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST || "smtp.example.com",
       port: Number(process.env.SMTP_PORT) || 587,

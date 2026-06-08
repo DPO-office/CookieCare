@@ -1,4 +1,5 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
+import { pool } from "../config/database.js";
 import authRoutes from "./auth.js";
 import adminRoutes from "./admin.js";
 import documentRoutes from "./documents.js";
@@ -14,6 +15,26 @@ import reportRoutes from "./reports.js";
 import settingsRoutes from "./settings.js";
 
 const router = Router();
+
+router.get("/health", async (req: Request, res: Response) => {
+  try {
+    const start = Date.now();
+    await pool.query("SELECT 1");
+    const latency = Date.now() - start;
+    res.json({
+      status: "UP",
+      database: "CONNECTED",
+      latency: `${latency}ms`,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    res.status(503).json({
+      status: "DOWN",
+      database: "DISCONNECTED",
+      timestamp: new Date().toISOString()
+    });
+  }
+});
 
 router.use("/auth", authRoutes);
 router.use("/admin", adminRoutes);

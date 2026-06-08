@@ -183,7 +183,10 @@ export async function dbInit() {
 
       await client.query(`
         CREATE POLICY ${table}_tenant_isolation ON ${table}
-        USING (${ownerColumn} = current_setting('app.current_user_id', true) OR current_setting('app.current_user_role', true) = 'ADMIN');
+        USING (
+          (${ownerColumn} = current_setting('app.current_user_id', true)) OR
+          (current_setting('app.current_user_role', true) = 'ADMIN')
+        );
       `);
     }
 
@@ -200,7 +203,10 @@ export async function dbInit() {
     await client.query("CREATE INDEX IF NOT EXISTS idx_files_folder_id ON files(folder_id);");
     await client.query("CREATE INDEX IF NOT EXISTS idx_folders_user_id ON folders(user_id);");
     await client.query("CREATE INDEX IF NOT EXISTS idx_chunks_file_id ON legal_document_chunks(file_id);");
-    await client.query("CREATE INDEX IF NOT EXISTS idx_chunks_embedding ON legal_document_chunks USING hnsw (embedding vector_cosine_ops);");
+
+    // Enterprise HNSW Tuning: m=16, ef_construction=64 for balance between speed and precision
+    await client.query("CREATE INDEX IF NOT EXISTS idx_chunks_embedding ON legal_document_chunks USING hnsw (embedding vector_cosine_ops) WITH (m = 16, ef_construction = 64);");
+
     await client.query("CREATE INDEX IF NOT EXISTS idx_jobs_user_id ON jobs(user_id);");
     await client.query("CREATE INDEX IF NOT EXISTS idx_agent_logs_user_id ON agent_execution_logs(user_id);");
 

@@ -4,6 +4,7 @@ import { config } from "../config/index.js";
 import { authenticateToken } from "../middleware/auth.js";
 import { semanticSearch } from "../RAG/ragService.js";
 import { pool } from "../config/database.js";
+import { addJobToQueue } from "../services/jobQueue.js";
 
 const router = Router();
 

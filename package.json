@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
+    "@sentry/node": "^10.56.0",
+    "@sentry/profiling-node": "^10.56.0",
     "@tailwindcss/vite": "^4.1.14",
     "@tiptap/extension-underline": "^3.23.6",
     "@tiptap/pm": "^3.23.6",

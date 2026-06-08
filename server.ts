@@ -3,6 +3,8 @@ import http from "http";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import { config } from "./backend/src/config/index.js";
+import { validateEnv } from "./backend/src/config/validate.js";
+import { initSentry, initSentryErrorHandler } from "./backend/src/config/sentry.js";
 import { dbInit } from "./backend/src/config/initDb.js";
 import apiRoutes from "./backend/src/routes/index.js";
 import { corsMiddleware } from "./backend/src/middleware/cors.js";
@@ -10,6 +12,9 @@ import { errorHandler } from "./backend/src/middleware/error.js";
 
 const app = express();
 const httpServer = http.createServer(app);
+
+// Initialize Sentry before any other middleware
+initSentry(app);
 
 // Middlewares
 app.use(corsMiddleware);
@@ -34,10 +39,14 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 // API Routes
 app.use("/api", apiRoutes);
 
+// Sentry Error Handler (must be after routes, before our custom error handler)
+initSentryErrorHandler(app);
+
 // Error Handler
 app.use(errorHandler);
 
 async function startServer() {
+  validateEnv();
   try {
     await dbInit();
     console.log("Database initialized successfully.");

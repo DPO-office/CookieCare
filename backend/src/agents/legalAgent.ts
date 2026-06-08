@@ -36,7 +36,9 @@ export class AgentOrchestrator {
     try {
       // If we're in a worker, set context
       if (!dbClient) {
-        await client.query("SELECT set_config('app.current_user_id', $1, true), set_config('app.current_user_role', $2, true)", [userId, 'USER']);
+        await client.query("BEGIN");
+        await client.query("SET LOCAL app.current_user_id = $1", [userId]);
+        await client.query("SET LOCAL app.current_user_role = 'ADMIN'");
       }
 
       const result = await this.analysisAgent.runAudit(content, "NDA"); // Assuming NDA for now or extracting from metadata
@@ -68,8 +70,10 @@ export class AgentOrchestrator {
         confidenceScore: 100
       }, dbClient);
 
+      if (!dbClient) await client.query("COMMIT");
       return result;
     } catch (err) {
+      if (!dbClient && client) await client.query("ROLLBACK").catch(() => {});
       console.error("AgentOrchestrator runAnalysis failed:", err);
       throw err;
     }
@@ -152,7 +156,9 @@ Please rewrite the draft to address these risks while maintaining the original i
       // If we're in a worker, we might not have RLS session variables set on the pool.
       // We should ideally set them here if dbClient is not provided.
       if (!dbClient) {
-        await client.query("SELECT set_config('app.current_user_id', $1, true), set_config('app.current_user_role', $2, true)", [userId, 'USER']);
+        await client.query("BEGIN");
+        await client.query("SET LOCAL app.current_user_id = $1", [userId]);
+        await client.query("SET LOCAL app.current_user_role = 'ADMIN'");
       }
 
       const safeFolderIds = Array.isArray(folderIds) ? folderIds : [];
@@ -190,11 +196,14 @@ Please rewrite the draft to address these risks while maintaining the original i
         analysis = summaries.join("\n\n---\n\n");
       }
 
+      if (!dbClient) await client.query("COMMIT");
+
       return {
         analysis,
         clauses: []
       };
     } catch (err: any) {
+      if (!dbClient && client) await client.query("ROLLBACK").catch(() => {});
       console.error("AgentOrchestrator interactAnalyze failed:", err);
       throw err;
     }

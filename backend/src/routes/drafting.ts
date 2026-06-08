@@ -3,6 +3,7 @@ import { authenticateToken } from "../middleware/auth.js";
 import { AgentOrchestrator } from "../agents/legalAgent.js";
 import { GoogleGenAI } from "@google/genai";
 import { config } from "../config/index.js";
+import { addJobToQueue } from "../services/jobQueue.js";
 
 const router = Router();
 const orchestrator = new AgentOrchestrator();

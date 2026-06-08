@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { authenticateToken } from "../middleware/auth.js";
 import { AgentOrchestrator } from "../agents/legalAgent.js";
+import { addJobToQueue } from "../services/jobQueue.js";
 
 const router = Router();
 const orchestrator = new AgentOrchestrator();

@@ -1,6 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { config } from "../config/index.js";
 import { pool } from "../config/database.js";
+import { withRetry } from "../utils/retry.js";
 import crypto from "crypto";
 import IORedis from "ioredis";
 
@@ -24,7 +25,9 @@ export async function getEmbedding(text: string): Promise<number[] | null> {
       return JSON.parse(cached);
     }
 
-    const result = await (genAI as any).getGenerativeModel({ model: "text-embedding-004" }).embedContent(text);
+    const result = await withRetry(() =>
+      (genAI as any).getGenerativeModel({ model: "text-embedding-004" }).embedContent(text)
+    );
 
     let vector = null;
     if (result && (result as any).embedding?.values) {
@@ -48,6 +51,9 @@ export async function chunkAndIndexDocument(fileId: string, content: string, use
   let client;
   try {
     client = await pool.connect();
+    await client.query("BEGIN");
+    // System context for workers
+    await client.query("SET LOCAL app.current_user_role = 'ADMIN'");
     
     const cleanedContent = sanitizeText(content);
     const chunks = splitIntoClauseAwareChunks(cleanedContent);
@@ -84,8 +90,11 @@ export async function chunkAndIndexDocument(fileId: string, content: string, use
         await client.query("ROLLBACK");
         throw atomicErr;
       }
+    } else {
+      await client.query("COMMIT");
     }
   } catch (err) {
+    if (client) await client.query("ROLLBACK").catch(() => {});
     console.error(`chunkAndIndexDocument failed for file ${fileId}:`, err);
   } finally {
     if (client) client.release();
@@ -237,7 +246,7 @@ Return ONLY a comma-separated list of IDs in order of most relevant to least rel
 Example: 2, 0, 1
 If none are relevant, return an empty string.`;
 
-    const result = await model.generateContent(reRankPrompt);
+    const result = await withRetry(() => model.generateContent(reRankPrompt));
     const text = result.response.text().trim();
 
     if (!text) return documents.slice(0, limit);

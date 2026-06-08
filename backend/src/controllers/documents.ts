@@ -1,21 +1,25 @@
 import { Request, Response } from "express";
 import { pool } from "../config/database.js";
 import { addJobToQueue } from "../services/jobQueue.js";
+import { withTransaction } from "../utils/dbUtils.js";
 import { buildPdfBuffer, buildDocxBuffer } from "../services/exportService.js";
 import { encryptData, decryptData } from "../utils/crypto.js";
-import { withTransaction } from "../utils/dbUtils.js";
 import crypto from "crypto";
 import * as diff from "diff";
 
 export const getDocuments = async (req: Request, res: Response) => {
   const userEmail = req.user!.email.toLowerCase();
-  const client = req.dbClient || pool; // Fallback to pool if middleware bypassed (should not happen)
+  const userId = req.user!.id;
+  const userRole = req.user!.role;
 
   try {
-    const { rows: docs } = await client.query(
-      "SELECT * FROM files WHERE creator_id = current_setting('app.current_user_id', true) OR shared_with::jsonb @> $1::jsonb ORDER BY created_at DESC",
-      [JSON.stringify([userEmail])]
-    ).catch(e => {
+    const docs = await withTransaction(userId, userRole, async (client) => {
+      const { rows } = await client.query(
+        "SELECT * FROM files WHERE creator_id = current_setting('app.current_user_id', true) OR shared_with::jsonb @> $1::jsonb ORDER BY created_at DESC",
+        [JSON.stringify([userEmail])]
+      );
+      return rows;
+    }).catch(e => {
       console.error("Failed to fetch documents from DB:", e);
       throw new Error("DB_FETCH_FAILED");
     });
@@ -37,10 +41,15 @@ export const getDocuments = async (req: Request, res: Response) => {
 };
 
 export const getDocumentById = async (req: Request, res: Response) => {
-  const client = req.dbClient || pool;
+  const userId = req.user!.id;
+  const userRole = req.user!.role;
 
   try {
-    const { rows } = await client.query("SELECT * FROM files WHERE id = $1", [req.params.id]);
+    const rows = await withTransaction(userId, userRole, async (client) => {
+      const { rows } = await client.query("SELECT * FROM files WHERE id = $1", [req.params.id]);
+      return rows;
+    });
+
     if (rows.length > 0) {
       const r = rows[0];
 
@@ -67,18 +76,20 @@ export const getDocumentById = async (req: Request, res: Response) => {
 export const createDocument = async (req: Request, res: Response) => {
   const { title, type, content } = req.body;
   const userId = req.user!.id;
+  const userRole = req.user!.role;
   const email = req.user!.email;
-  const client = req.dbClient || pool;
 
   const id = "doc_" + crypto.randomUUID();
   const encryptedContent = encryptData(content || "");
 
   try {
-    await client.query(
-      `INSERT INTO files (id, title, type, content, creator_id, creator_email, is_encrypted, versions, shared_with, audit_logs)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-      [id, title, type, encryptedContent, userId, email, true, JSON.stringify([]), JSON.stringify([]), JSON.stringify([])]
-    );
+    await withTransaction(userId, userRole, async (client) => {
+      await client.query(
+        `INSERT INTO files (id, title, type, content, creator_id, creator_email, is_encrypted, versions, shared_with, audit_logs)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+        [id, title, type, encryptedContent, userId, email, true, JSON.stringify([]), JSON.stringify([]), JSON.stringify([])]
+      );
+    });
     res.status(201).json({ id, title, type });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -109,14 +120,17 @@ export const uploadDocument = async (req: Request, res: Response) => {
   const { title, folder_id } = req.body;
   const fileId = "doc_" + crypto.randomUUID();
   const fileTitle = title || file.originalname;
-  const client = req.dbClient || pool;
+  const userId = req.user!.id;
+  const userRole = req.user!.role;
 
   try {
-    await client.query(
-      `INSERT INTO files (id, title, type, content, creator_id, creator_email, mime_type, folder_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-      [fileId, fileTitle, "upload", "", req.user!.id, req.user!.email, file.mimetype, folder_id || null]
-    ).catch(e => {
+    await withTransaction(userId, userRole, async (client) => {
+      await client.query(
+        `INSERT INTO files (id, title, type, content, creator_id, creator_email, mime_type, folder_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        [fileId, fileTitle, "upload", "", req.user!.id, req.user!.email, file.mimetype, folder_id || null]
+      );
+    }).catch(e => {
       console.error("Database insert failed during upload:", e);
       throw new Error("DB_UPLOAD_FAILED");
     });
@@ -141,23 +155,36 @@ export const uploadDocument = async (req: Request, res: Response) => {
 export const createRedline = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { originalText, proposedText, comment } = req.body;
-  const client = req.dbClient || pool;
+  const userId = req.user!.id;
+  const userRole = req.user!.role;
+
   try {
-    const { rows } = await client.query("SELECT redlines FROM files WHERE id = $1", [id]);
-    if (rows.length === 0) return res.status(404).json({ error: "Document not found" });
-    const redlines = rows[0].redlines || [];
-    const newRedline = { id: crypto.randomUUID(), originalText, proposedText, comment, proposedByEmail: req.user!.email, proposedAt: new Date().toISOString(), status: "pending" };
-    redlines.push(newRedline);
-    await client.query("UPDATE files SET redlines = $1 WHERE id = $2", [JSON.stringify(redlines), id]);
+    const newRedline = await withTransaction(userId, userRole, async (client) => {
+      const { rows } = await client.query("SELECT redlines FROM files WHERE id = $1", [id]);
+      if (rows.length === 0) throw new Error("Document not found");
+      const redlines = rows[0].redlines || [];
+      const redline = { id: crypto.randomUUID(), originalText, proposedText, comment, proposedByEmail: req.user!.email, proposedAt: new Date().toISOString(), status: "pending" };
+      redlines.push(redline);
+      await client.query("UPDATE files SET redlines = $1 WHERE id = $2", [JSON.stringify(redlines), id]);
+      return redline;
+    });
     res.status(201).json(newRedline);
-  } catch (err: any) { res.status(500).json({ error: err.message }); }
+  } catch (err: any) {
+    res.status(err.message === "Document not found" ? 404 : 500).json({ error: err.message });
+  }
 };
 
 export const acceptRedline = async (req: Request, res: Response) => {
   const { id, redlineId } = req.params;
-  const client = req.dbClient || pool;
+  const userId = req.user!.id;
+  const userRole = req.user!.role;
+
   try {
-    const { rows } = await client.query("SELECT * FROM files WHERE id = $1", [id]);
+    const rows = await withTransaction(userId, userRole, async (client) => {
+      const { rows } = await client.query("SELECT * FROM files WHERE id = $1", [id]);
+      return rows;
+    });
+
     if (rows.length === 0) return res.status(404).json({ error: "Document not found" });
 
     const doc = rows[0];
@@ -183,10 +210,22 @@ export const acceptRedline = async (req: Request, res: Response) => {
       }
 
       redlines[index].status = "accepted";
-      await client.query("UPDATE files SET content = $1, redlines = $2 WHERE id = $3", [encryptData(fallbackReplaced), JSON.stringify(redlines), id]);
+      await withTransaction(req.user!.id, req.user!.role, async (client) => {
+        await client.query("UPDATE files SET content = $1, redlines = $2 WHERE id = $3", [encryptData(fallbackReplaced), JSON.stringify(redlines), id]);
+        await client.query(`
+          INSERT INTO compliance_audit_logs (user_id, action_type, metadata)
+          VALUES ($1, $2, $3)
+        `, [req.user!.id, 'redline_accept', JSON.stringify({ documentId: id, redlineId })]);
+      });
     } else {
       redlines[index].status = "accepted";
-      await client.query("UPDATE files SET content = $1, redlines = $2 WHERE id = $3", [encryptData(applied), JSON.stringify(redlines), id]);
+      await withTransaction(req.user!.id, req.user!.role, async (client) => {
+        await client.query("UPDATE files SET content = $1, redlines = $2 WHERE id = $3", [encryptData(applied), JSON.stringify(redlines), id]);
+        await client.query(`
+          INSERT INTO compliance_audit_logs (user_id, action_type, metadata)
+          VALUES ($1, $2, $3)
+        `, [req.user!.id, 'redline_accept', JSON.stringify({ documentId: id, redlineId })]);
+      });
     }
 
     res.json({ success: true });
@@ -198,22 +237,49 @@ export const acceptRedline = async (req: Request, res: Response) => {
 
 export const rejectRedline = async (req: Request, res: Response) => {
   const { id, redlineId } = req.params;
-  const client = req.dbClient || pool;
+  const userId = req.user!.id;
+  const userRole = req.user!.role;
+
   try {
-    const { rows } = await client.query("SELECT redlines FROM files WHERE id = $1", [id]);
+    const rows = await withTransaction(userId, userRole, async (client) => {
+      const { rows } = await client.query("SELECT redlines FROM files WHERE id = $1", [id]);
+      return rows;
+    });
+
     if (rows.length === 0) return res.status(404).json({ error: "Document not found" });
     const redlines = rows[0].redlines || [];
     const index = redlines.findIndex((r: any) => r.id === redlineId);
     if (index === -1) return res.status(404).json({ error: "Redline not found" });
     redlines[index].status = "rejected";
-    await client.query("UPDATE files SET redlines = $1 WHERE id = $2", [JSON.stringify(redlines), id]);
+    await withTransaction(req.user!.id, req.user!.role, async (client) => {
+      await client.query("UPDATE files SET redlines = $1 WHERE id = $2", [JSON.stringify(redlines), id]);
+
+      await client.query(`
+        INSERT INTO compliance_audit_logs (user_id, action_type, metadata)
+        VALUES ($1, $2, $3)
+      `, [req.user!.id, 'redline_reject', JSON.stringify({ documentId: id, redlineId })]);
+    });
+
     res.json({ success: true });
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 };
 
 export const exportDocument = async (req: Request, res: Response) => {
-  const { title, format, contentType, content } = req.body;
+  const { title, format, contentType, content, documentId } = req.body;
+  const userId = req.user!.id;
+  const userRole = req.user!.role;
+
   try {
+    // Audit document export
+    if (documentId) {
+      await withTransaction(userId, userRole, async (client) => {
+        await client.query(`
+          INSERT INTO compliance_audit_logs (user_id, action_type, metadata)
+          VALUES ($1, $2, $3)
+        `, [userId, 'document_export', JSON.stringify({ documentId, format, title })]);
+      });
+    }
+
     let buffer: Buffer;
     let mimeType: string;
     let filename: string;
