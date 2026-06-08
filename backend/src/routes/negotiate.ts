@@ -24,8 +24,7 @@ router.post("/evaluate", authenticateToken, async (req: Request, res: Response) 
     res.json({ data: { markups } });
   } catch (err: any) {
     console.error("Negotiate evaluation error:", err);
-    const status = err.message === "MALFORMED_AGENT_RESPONSE" ? 502 : 500;
-    res.status(status).json({ error: "Audit engine failed to parse document risks. Please ensure the text is clear legal prose." });
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -38,7 +37,7 @@ router.post("/compromise", authenticateToken, async (req: Request, res: Response
     res.json({ result: result.proposedText || "Standard protection clause applied as compromise." });
   } catch (err: any) {
     console.error("Negotiate compromise error:", err);
-    res.status(500).json({ error: "Negotiation agent failed to draft a compromise. Please adjust the risk explanation." });
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 

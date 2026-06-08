@@ -46,6 +46,8 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/public ./public
+# Ensure config directory exists before copying
+RUN mkdir -p dist/backend/src/config/
 COPY --from=builder /app/backend/src/config/open-cookie-database.json ./dist/backend/src/config/
 
 # Environment defaults

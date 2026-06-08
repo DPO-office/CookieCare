@@ -1,7 +1,6 @@
-import { createRequire } from "module";
-
-const require = createRequire(import.meta.url);
-const serverBundle = require("../dist/server.cjs");
+// Use dynamic import for ESM compatibility
+const serverPath = "../dist/server.js";
+const serverBundle = await import(serverPath);
 
 const app = serverBundle.default || serverBundle;
 

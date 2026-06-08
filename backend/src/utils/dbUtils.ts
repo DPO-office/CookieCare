@@ -11,8 +11,12 @@ export async function withTransaction<T>(
     await client.query("BEGIN");
 
     // Set RLS variables within the transaction
-    await client.query(`SET LOCAL app.current_user_id = '${userId}'`);
-    await client.query(`SET LOCAL app.current_user_role = '${userRole}'`);
+    // Sanitize values to prevent SQL injection in session variables
+    const sanitizedId = userId.replace(/'/g, "''");
+    const sanitizedRole = userRole.replace(/'/g, "''");
+
+    await client.query(`SET LOCAL app.current_user_id = '${sanitizedId}'`);
+    await client.query(`SET LOCAL app.current_user_role = '${sanitizedRole}'`);
 
     const result = await fn(client);
 
