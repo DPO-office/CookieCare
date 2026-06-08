@@ -50,6 +50,11 @@ export const deleteFolder = async (req: Request, res: Response) => {
         [req.params.id]
       );
       if (result.rowCount === 0) throw new Error("Folder not found.");
+
+      await client.query(`
+        INSERT INTO compliance_audit_logs (user_id, action_type, metadata)
+        VALUES ($1, $2, $3)
+      `, [userId, 'folder_delete', JSON.stringify({ folderId: req.params.id })]);
     });
     res.json({ success: true });
   } catch (err: any) {

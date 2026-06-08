@@ -53,6 +53,11 @@ export const deleteLibraryItem = async (req: Request, res: Response) => {
         [req.params.id]
       );
       if (result.rowCount === 0) throw new Error("Item not found.");
+
+      await client.query(`
+        INSERT INTO compliance_audit_logs (user_id, action_type, metadata)
+        VALUES ($1, $2, $3)
+      `, [userId, 'library_item_delete', JSON.stringify({ itemId: req.params.id })]);
     });
     res.json({ success: true });
   } catch (err: any) {
