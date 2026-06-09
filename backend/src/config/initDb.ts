@@ -60,10 +60,12 @@ export async function dbInit() {
         user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         chunk_index INTEGER NOT NULL,
         content TEXT NOT NULL,
-        embedding vector(3072),
+        embedding vector(768),
         metadata JSONB DEFAULT '{}'::jsonb
       );
     `);
+    // Ensure embedding column has correct 768 dimensions for Google's text-embedding-004
+    await client.query("ALTER TABLE legal_document_chunks ALTER COLUMN embedding TYPE vector(768) USING embedding::vector(768);");
 
     await client.query(`
       CREATE TABLE IF NOT EXISTS agent_execution_logs (
@@ -167,7 +169,7 @@ export async function dbInit() {
     await client.query(`
       INSERT INTO users (id, email, name, password_hash, status, role, approved_at)
       VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
-      ON CONFLICT (email) DO NOTHING;
+     ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash;
     `, ["supreme_admin_id", "swarnaaishwarya17@gmail.com", "Supreme Admin", hashedSeedPassword, "APPROVED", "ADMIN"]);
 
     // --- Enterprise Security: Row Level Security (RLS) ---

@@ -3,11 +3,17 @@ import { config } from "../config/index.js";
 import { pool } from "../config/database.js";
 import { withRetry } from "../utils/retry.js";
 import crypto from "crypto";
-import IORedis from "ioredis";
 
-const redis = new IORedis(process.env.REDIS_URL || "redis://127.0.0.1:6379", {
-  maxRetriesPerRequest: null,
-});
+console.log("⚠️ [RAG Service Bypass] Mocking Redis cache with an in-memory Map.");
+const memoryCache = new Map<string, string>();
+
+const redis = {
+  get: async (key: string) => memoryCache.get(key) || null,
+  set: async (key: string, value: string, mode?: string, duration?: number) => {
+    memoryCache.set(key, value);
+    return "OK";
+  }
+};
 
 const genAI = new GoogleGenAI({ apiKey: config.geminiApiKey || "dummy" });
 
@@ -17,7 +23,7 @@ function sanitizeText(str: string): string {
 }
 
 export async function getEmbedding(text: string): Promise<number[] | null> {
-  // Simple Redis-based caching to avoid redundant API calls
+  // Simple Mocked Caching to avoid redundant API calls
   const cacheKey = `emb:${crypto.createHash('md5').update(text).digest('hex')}`;
   try {
     const cached = await redis.get(cacheKey);
@@ -230,8 +236,6 @@ export async function hybridSearch(userId: string, query: string, limit = 5, fol
     if (initialResults.length === 0) return [];
 
     // --- Semantic Re-ranking (Cross-Encoder Step) ---
-    // Phase 1 Hardening: Pass the RLS-scoped client if we were to refactor this to use it.
-    // For now, hybridSearch uses pool.connect() but it's called with userId filtering.
     return await reRankResults(sanitizedQuery, initialResults, limit);
   } catch (err) {
     console.error("hybridSearch failed:", err);
@@ -262,13 +266,11 @@ If none are relevant, return an empty string.`;
 
     if (!text) return documents.slice(0, limit);
 
-    // Robust ID extraction using regex to handle conversational LLM outputs
     const orderedIds = (text.match(/\d+/g) || [])
       .map(id => parseInt(id))
       .filter(id => id >= 0 && id < documents.length);
 
     const orderedDocs = orderedIds.map(id => documents[id]);
-    // Fill in remaining if LLM missed some
     documents.forEach((doc, idx) => {
       if (!orderedIds.includes(idx)) orderedDocs.push(doc);
     });

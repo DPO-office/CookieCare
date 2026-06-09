@@ -27,21 +27,31 @@ declare global {
 
 export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers["authorization"];
+  const queryToken = req.query.token;
   
-  if (!authHeader) {
+  let token: string | undefined;
+
+  // 1. Pehle normal standard Authorization Header check karein
+  if (authHeader) {
+    const parts = authHeader.split(" ");
+    if (parts.length === 2 && parts[0] === "Bearer") {
+      token = parts[1];
+    } else {
+      return res.status(401).json({ error: "Access denied. Token format must be Bearer <token>." });
+    }
+  } 
+  // 2. FALLBACK: Agar header absent ho, toh query string read karein (SSE Stream validation ke liye)
+  else if (queryToken && typeof queryToken === "string") {
+    token = queryToken;
+  }
+
+  // Agar dono jagah token missing mile
+  if (!token) {
     return res.status(401).json({ error: "Access denied. Token missing." });
   }
 
-  // Check parsing format: "Bearer <token>"
-  const parts = authHeader.split(" ");
-  if (parts.length !== 2 || parts[0] !== "Bearer") {
-    return res.status(401).json({ error: "Access denied. Token format must be Bearer <token>." });
-  }
-
-  const token = parts[1];
-
-  // Agair token string "undefined" ya "null" ban kar aa rahi ho (Frontend bug)
-  if (!token || token === "undefined" || token === "null") {
+  // Frontend string string conversion handling
+  if (token === "undefined" || token === "null") {
     return res.status(401).json({ error: "Access denied. Token is null or undefined." });
   }
 
@@ -70,7 +80,6 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
       return res.status(401).json({ error: "Session expired. Please log in again." });
     }
     
-    // Agar JWT malformed hai toh console ko spam karne ki zarurat nahi, clean return karein
     if (err.name === 'JsonWebTokenError') {
       return res.status(403).json({ error: "Invalid or malformed token." });
     }

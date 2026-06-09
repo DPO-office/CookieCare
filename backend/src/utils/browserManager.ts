@@ -23,9 +23,11 @@ class BrowserManager {
       return this.launchPromise;
     }
 
+    // Explicitly targeting the system's stable Chrome layer to resolve Linux system library errors
     this.launchPromise = chromium.launch({
       headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
+      channel: 'chrome', 
+      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage", "--disable-gpu"]
     }).then(browser => {
       this.browser = browser;
       this.launchPromise = null;

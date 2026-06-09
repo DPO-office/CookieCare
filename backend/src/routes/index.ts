@@ -13,6 +13,7 @@ import negotiateRoutes from "./negotiate.js";
 import vulnerabilitiesRoutes from "./vulnerabilities.js";
 import reportRoutes from "./reports.js";
 import settingsRoutes from "./settings.js";
+import { authenticateToken } from "../middleware/auth.js";
 
 const router = Router();
 
@@ -41,7 +42,7 @@ router.use("/admin", adminRoutes);
 router.use("/documents", documentRoutes);
 router.use("/folders", folderRoutes);
 router.use("/library-items", libraryItemRoutes);
-router.use("/jobs", jobRoutes); 
+router.use("/jobs", authenticateToken, jobRoutes);
 router.use("/analyze", analyzeRoutes);
 router.use("/drafting", draftingRoutes);
 router.use("/lawyer", lawyerRoutes);

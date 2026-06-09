@@ -34,16 +34,14 @@ export class AgentOrchestrator {
     const startedAt = Date.now();
     const client = dbClient || pool;
     try {
-      // If we're in a worker, set context
       if (!dbClient) {
         await client.query("BEGIN");
         await client.query("SET LOCAL app.current_user_id = $1", [userId]);
         await client.query("SET LOCAL app.current_user_role = 'ADMIN'");
       }
 
-      const result = await this.analysisAgent.runAudit(content, "NDA"); // Assuming NDA for now or extracting from metadata
+      const result = await this.analysisAgent.runAudit(content, "NDA");
 
-      // Log for compliance
       await client.query(`
         INSERT INTO compliance_audit_logs (user_id, action_type, prompt, metadata)
         VALUES ($1, $2, $3, $4)
@@ -83,37 +81,24 @@ export class AgentOrchestrator {
     try {
       let context: any[] = [];
       if (documents && documents.length > 0) {
-        // Use specifically selected documents as context
         context = documents.map(doc => ({
           content: doc.content,
           file_id: doc.id || doc.file_id,
           title: doc.title || "Selected Document"
         }));
       } else {
-        // Fallback to semantic search
         context = await semanticSearch(userId, prompt, 10);
       }
 
       const answer = await this.askLawyerAgent.resolveQuery(context, prompt);
-
-      // Reconcile sources: include only those actually cited or mentioned in the answer
       const answerLower = answer.toLowerCase();
       const reconciledSources = Array.from(new Set(context.map(c => c.file_id)))
         .map(fileId => {
           const chunk = context.find(c => c.file_id === fileId);
-          return {
-            id: fileId,
-            title: chunk.title,
-            type: "Document",
-            relevance: "High"
-          };
+          return { id: fileId, title: chunk.title, type: "Document", relevance: "High" };
         })
-        .filter(source =>
-          answerLower.includes(source.title.toLowerCase()) ||
-          answerLower.includes(source.id.toLowerCase())
-        );
+        .filter(source => answerLower.includes(source.title.toLowerCase()) || answerLower.includes(source.id.toLowerCase()));
 
-      // Log for compliance
       await pool.query(`
         INSERT INTO compliance_audit_logs (user_id, action_type, prompt, context_files, ai_response)
         VALUES ($1, $2, $3, $4, $5)
@@ -122,24 +107,18 @@ export class AgentOrchestrator {
       return { answer, sources: reconciledSources };
     } catch (err) {
       console.error("AgentOrchestrator askLawyer failed:", err);
-      throw err; // Propagate error for job queue handling
+      throw err;
     }
   }
 
   async runDrafting(inputs: any): Promise<string> {
-    // Initial Draft
     let draft = await this.draftingAgent.draftDocument(inputs);
-
-    // Stateful "Critic" Loop (LangGraph-style self-correction)
-    // Phase 3: Deepen Critic Loop to 5 iterations for enterprise-grade self-correction
     let iterations = 0;
     const maxIterations = 5;
     let isSatisfactory = false;
 
     while (!isSatisfactory && iterations < maxIterations) {
       const audit = await this.analysisAgent.runAudit(draft, inputs.type || "Agreement");
-
-      // Log intermediate draft for compliance
       await pool.query(`
         INSERT INTO compliance_audit_logs (user_id, action_type, prompt, ai_response, metadata)
         VALUES ($1, $2, $3, $4, $5)
@@ -150,12 +129,7 @@ export class AgentOrchestrator {
       if (criticalRisks.length === 0) {
         isSatisfactory = true;
       } else {
-        // Feed back findings to Drafting Agent for refinement
-        const refinementPrompt = `The previous draft has the following critical risks:
-${criticalRisks.map((r: any) => `- ${r.clause}: ${r.description}`).join("\n")}
-
-Please rewrite the draft to address these risks while maintaining the original intent.`;
-
+        const refinementPrompt = `The previous draft has the following critical risks:\n${criticalRisks.map((r: any) => `- ${r.clause}: ${r.description}`).join("\n")}\n\nPlease rewrite the draft to address these risks while maintaining the original intent.`;
         draft = await this.draftingAgent.draftDocument({
           ...inputs,
           instructions: `${inputs.instructions}\n\n[REFINEMENT DIRECTIVE]: ${refinementPrompt}`
@@ -163,7 +137,6 @@ Please rewrite the draft to address these risks while maintaining the original i
         iterations++;
       }
     }
-
     return draft;
   }
 
@@ -182,8 +155,6 @@ Please rewrite the draft to address these risks while maintaining the original i
   ): Promise<any> {
     const client = dbClient || pool;
     try {
-      // If we're in a worker, we might not have RLS session variables set on the pool.
-      // We should ideally set them here if dbClient is not provided.
       if (!dbClient) {
         await client.query("BEGIN");
         await client.query("SET LOCAL app.current_user_id = $1", [userId]);
@@ -191,23 +162,19 @@ Please rewrite the draft to address these risks while maintaining the original i
       }
 
       const safeFolderIds = Array.isArray(folderIds) ? folderIds : [];
+      const folderFilters = safeFolderIds.filter(id => id !== "root");
 
-      let files: any[] = [];
-      
-      if (safeFolderIds.length === 0 || safeFolderIds.includes("root")) {
-        const folderFilters = safeFolderIds.filter(id => id !== "root");
-        const { rows } = await client.query(
-          "SELECT id, title, content FROM files WHERE (folder_id IS NULL OR folder_id = ANY($1)) AND (creator_id = current_setting('app.current_user_id', true) OR current_setting('app.current_user_role', true) = 'ADMIN')",
-          [folderFilters]
-        );
-        files = rows;
-      } else {
-        const { rows } = await client.query(
-          "SELECT id, title, content FROM files WHERE folder_id = ANY($1) AND (creator_id = current_setting('app.current_user_id', true) OR current_setting('app.current_user_role', true) = 'ADMIN')",
-          [safeFolderIds]
-        );
-        files = rows;
-      }
+      // FIX: Explicit cast to ::text[] to resolve syntax error
+      const query = `
+        SELECT id, title, content 
+        FROM files 
+        WHERE (folder_id IS NULL OR folder_id = ANY($1::text[])) 
+        AND (creator_id = current_setting('app.current_user_id', true) 
+             OR current_setting('app.current_user_role', true) = 'ADMIN')
+      `;
+
+      const { rows } = await client.query(query, [folderFilters]);
+      const files = rows;
 
       if (files.length === 0) {
         throw new Error("No documents found in selected folders.");
@@ -227,10 +194,7 @@ Please rewrite the draft to address these risks while maintaining the original i
 
       if (!dbClient) await client.query("COMMIT");
 
-      return {
-        analysis,
-        clauses: []
-      };
+      return { analysis, clauses: [] };
     } catch (err: any) {
       if (!dbClient && client) await client.query("ROLLBACK").catch(() => {});
       console.error("AgentOrchestrator interactAnalyze failed:", err);

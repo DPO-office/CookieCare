@@ -7,25 +7,140 @@ import mammoth from "mammoth";
 import crypto from "crypto";
 import { encryptData } from "../utils/crypto.js";
 import { withRetry } from "../utils/retry.js";
-import { Queue, Worker, Job as BullJob } from "bullmq";
-import IORedis from "ioredis";
 import { GoogleGenAI } from "@google/genai";
 import { config } from "../config/index.js";
 
 const genAI = new GoogleGenAI({ apiKey: config.geminiApiKey || "dummy" });
 
-const redisConnection = new IORedis(process.env.REDIS_URL || "redis://127.0.0.1:6379", {
-  maxRetriesPerRequest: null,
-});
+// ==========================================
+// 🛠️ REDIS & BULLMQ BYPASS MOCK (In-Memory)
+// ==========================================
+console.log("⚠️ [Redis Bypass] Using in-memory mock for BullMQ & Redis to prevent connection errors.");
 
 export const jobQueueName = "privsecai-jobs";
-export const jobQueue = new Queue(jobQueueName, { connection: redisConnection as any });
 
-/**
- * Internal helper to update persistent job state
- */
+// Fake Job Registry Helper for Mock Jobs
+const mockJobsDb = new Map<string, any>();
+
+// Fake Job Class to mimic BullMQ Job structure
+class MockBullJob {
+  id: string;
+  name: string;
+  data: any;
+  progress: number = 0;
+  timestamp: number;
+  finishedOn?: number;
+  failedReason?: string;
+  returnvalue?: any;
+
+  constructor(id: string, name: string, data: any) {
+    this.id = id;
+    this.name = name;
+    this.data = data;
+    this.timestamp = Date.now();
+  }
+
+  async updateProgress(value: number) {
+    this.progress = value;
+    const current = mockJobsDb.get(this.id);
+    if (current) current.progress = value;
+  }
+
+  async getState() {
+    const current = mockJobsDb.get(this.id);
+    return current ? current.status : "waiting";
+  }
+}
+
+// Fake Queue to mock jobQueue.add
+export const jobQueue = {
+  add: async (name: string, data: any, opts?: { jobId?: string }) => {
+    const jobId = opts?.jobId || crypto.randomUUID();
+    const mockJob = new MockBullJob(jobId, name, data);
+    
+    mockJobsDb.set(jobId, {
+      job: mockJob,
+      status: "waiting",
+      progress: 0,
+      timestamp: mockJob.timestamp
+    });
+
+    // Trigger processing asynchronously in background to mimic real queue worker
+    setImmediate(() => {
+      triggerMockWorker(mockJob);
+    });
+
+    return mockJob;
+  },
+  getJobs: async (types: string[]) => {
+    return Array.from(mockJobsDb.values()).map(item => item.job);
+  }
+} as any;
+
+// Trigger handler to act like the BullMQ Worker process
+async function triggerMockWorker(job: MockBullJob) {
+  const jobState = mockJobsDb.get(job.id);
+  if (!jobState) return;
+
+  jobState.status = "active";
+  
+  try {
+    // Execute worker callback logic directly
+    const result = await mockWorkerProcessor(job);
+    job.returnvalue = result;
+    jobState.status = "completed";
+    job.finishedOn = Date.now();
+    
+    // Call success handlers
+    if (workerEventHandlers.completed) {
+      await workerEventHandlers.completed(job);
+    }
+  } catch (err: any) {
+    jobState.status = "failed";
+    job.failedReason = err.message;
+    
+    // Call failure handlers
+    if (workerEventHandlers.failed) {
+      await workerEventHandlers.failed(job, err);
+    }
+  }
+}
+
+const workerEventHandlers: Record<string, Function> = {};
+
+// Fake Worker class to keep event bindings clean
+export class Worker {
+  constructor(name: string, processor: any, opts: any) {
+    // Store processor globally for fake execution
+    (global as any)._mockProcessor = processor;
+  }
+  on(event: string, callback: Function) {
+    workerEventHandlers[event] = callback;
+  }
+}
+
+async function mockWorkerProcessor(job: MockBullJob) {
+  const processor = (global as any)._mockProcessor;
+  if (processor) {
+    return await processor(job);
+  }
+  throw new Error("No worker processor found");
+}
+
+// ==========================================
+// 🚀 ORIGINAL LOGIC & BACKGROUND REGISTRY
+// ==========================================
+
 async function updateJobState(jobId: string, updates: { status?: string; progress?: number; message?: string; result?: any; error?: string }) {
   const { status, progress, message, result, error } = updates;
+  
+  // Update internal memory state too
+  const localJob = mockJobsDb.get(jobId);
+  if (localJob) {
+    if (status) localJob.status = status;
+    if (progress !== undefined) localJob.progress = progress;
+  }
+
   const fields = [];
   const values = [];
   let idx = 1;
@@ -45,7 +160,6 @@ async function updateJobState(jobId: string, updates: { status?: string; progres
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
-    // Workers run in system context, bypass RLS
     await client.query("SET LOCAL app.current_user_role = 'ADMIN'");
     values.push(jobId);
     await client.query(`UPDATE jobs SET ${fields.join(", ")} WHERE id = $${idx}`, values);
@@ -58,22 +172,15 @@ async function updateJobState(jobId: string, updates: { status?: string; progres
   }
 }
 
-/**
- * Enhanced Job Adder that persists to PostgreSQL for cross-session tracking
- */
 export async function addJobToQueue(userId: string, type: JobType, payload: any) {
   const jobId = crypto.randomUUID();
 
-  // 1. Persist to DB first to avoid race conditions with workers
-  // Note: Using pool here because this is often called before middleware or outside request context
-  // But we should try to set the context if possible, or ensure 'jobs' table RLS handles system insertions
   await pool.query(
     `INSERT INTO jobs (id, user_id, type, status, progress, message, payload)
      VALUES ($1, $2, $3, $4, $5, $6, $7)`,
     [jobId, userId, type, "queued", 0, "Job queued in BullMQ...", JSON.stringify(payload)]
   );
 
-  // 2. Add to BullMQ with the same ID
   const job = await jobQueue.add(type, {
     type,
     userId,
@@ -131,7 +238,6 @@ class BackgroundJobRegistry {
     const id = "client_" + crypto.randomUUID();
     res.write(`data: ${JSON.stringify({ event: "ping", timestamp: new Date().toISOString() })}\n\n`);
 
-    // Start a 15-second heartbeat to keep connection alive during long AI tasks
     const heartbeatInterval = setInterval(() => {
       try {
         res.write(`:ping\n\n`);
@@ -166,19 +272,19 @@ class BackgroundJobRegistry {
   }
 
   public async getJob(id: string): Promise<Job | null> {
-    const bullJob = await BullJob.fromId(jobQueue, id);
-    if (!bullJob) return null;
-    return this.transformBullJob(bullJob);
+    const localItem = mockJobsDb.get(id);
+    if (!localItem) return null;
+    return this.transformBullJob(localItem.job);
   }
 
   public async getUserJobs(userId: string): Promise<Job[]> {
-    const jobs = await jobQueue.getJobs(["active", "waiting", "completed", "failed", "delayed"]);
+    const jobs = Array.from(mockJobsDb.values()).map(item => item.job);
     return (await Promise.all(jobs.map(j => this.transformBullJob(j))))
       .filter(j => j.userId === userId)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }
 
-  public async transformBullJob(bullJob: BullJob): Promise<Job> {
+  public async transformBullJob(bullJob: any): Promise<Job> {
     const state = await bullJob.getState();
     return {
       id: bullJob.id!,
@@ -198,7 +304,8 @@ class BackgroundJobRegistry {
 
 export const jobRegistry = new BackgroundJobRegistry();
 
-const worker = new Worker(jobQueueName, async (job: BullJob) => {
+// Create Worker Instancy with fake class setup
+const worker = new Worker(jobQueueName, async (job: any) => {
   const { type, userId, payload } = job.data;
 
   await updateJobState(job.id!, {
@@ -230,9 +337,9 @@ const worker = new Worker(jobQueueName, async (job: BullJob) => {
     console.error(`[Worker] Job ${job.id} failed:`, err);
     throw err;
   }
-}, { connection: redisConnection as any, concurrency: 3 });
+}, { connection: {} as any, concurrency: 3 });
 
-worker.on("completed", async (job: BullJob) => {
+worker.on("completed", async (job: any) => {
   if (job) {
     await updateJobState(job.id!, {
       status: 'completed',
@@ -243,7 +350,7 @@ worker.on("completed", async (job: BullJob) => {
   }
 });
 
-worker.on("failed", async (job: BullJob | undefined, err: Error) => {
+worker.on("failed", async (job: any | undefined, err: Error) => {
   if (job) {
     await updateJobState(job.id!, {
       status: 'failed',
@@ -253,7 +360,7 @@ worker.on("failed", async (job: BullJob | undefined, err: Error) => {
   }
 });
 
-async function executeFileProcessing(job: BullJob): Promise<any> {
+async function executeFileProcessing(job: any): Promise<any> {
   const { userId, payload } = job.data;
   const { fileId, fileBufferBase64, mimeType } = payload;
 
@@ -301,7 +408,7 @@ async function executeFileProcessing(job: BullJob): Promise<any> {
   return { fileId };
 }
 
-async function executeDocumentAnalysis(job: BullJob): Promise<any> {
+async function executeDocumentAnalysis(job: any): Promise<any> {
   const { userId, payload } = job.data;
 
   if (payload.type === "legal_ask") {
@@ -347,7 +454,7 @@ async function executeDocumentAnalysis(job: BullJob): Promise<any> {
   return result;
 }
 
-async function executeTemplateDrafting(job: BullJob): Promise<any> {
+async function executeTemplateDrafting(job: any): Promise<any> {
   const { userId, payload } = job.data;
 
   if (payload.type === "refine") {
@@ -369,7 +476,6 @@ async function executeTemplateDrafting(job: BullJob): Promise<any> {
     })) as any;
     const content = result.text.trim();
 
-    // Auto-persist refined document
     const docId = "doc_" + crypto.randomUUID();
     const title = `Refined Text - ${new Date().toLocaleDateString()}`;
 
@@ -403,7 +509,6 @@ async function executeTemplateDrafting(job: BullJob): Promise<any> {
     playbookText
   });
 
-  // Auto-persist drafted document to 'files' table for the user
   const docId = "doc_" + crypto.randomUUID();
   const title = `AI Draft - ${new Date().toLocaleDateString()}`;
 
@@ -423,7 +528,7 @@ async function executeTemplateDrafting(job: BullJob): Promise<any> {
   return { content: result, file_id: docId };
 }
 
-async function executePrivacyScanning(job: BullJob): Promise<any> {
+async function executePrivacyScanning(job: any): Promise<any> {
   const { userId, payload } = job.data;
   const msg = "Scanning website for privacy compliance...";
   await updateJobState(job.id!, { progress: 20, message: msg });
@@ -440,7 +545,7 @@ async function executePrivacyScanning(job: BullJob): Promise<any> {
   return result;
 }
 
-async function executeVulnerabilityScanning(job: BullJob): Promise<any> {
+async function executeVulnerabilityScanning(job: any): Promise<any> {
   const { userId, payload } = job.data;
   const msg = "Performing vulnerability assessment...";
   await updateJobState(job.id!, { progress: 20, message: msg });

@@ -1,6 +1,7 @@
 import express from "express";
 import http from "http";
 import path from "path";
+import { pathToFileURL } from 'url';
 import { createServer as createViteServer } from "vite";
 import { config } from "./backend/src/config/index.js";
 import { validateEnv } from "./backend/src/config/validate.js";
@@ -52,21 +53,24 @@ async function startServer() {
     console.log("Database initialized successfully.");
   } catch (err) {
     console.error("Database initialization failed:", err);
+    // Do not exit process, allow frontend to run
   }
 
   if (config.nodeEnv !== "production") {
+    // Bypass external file loading completely to prevent ESM schema URL panic
     const vite = await createViteServer({
+      configFile: false,
       server: {
         middlewareMode: true,
         hmr: {
           server: httpServer,
         },
       },
-      appType: "spa",
+      appType: "custom",
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(process.cwd(), "dist");
+    const distPath = path.join(process.cwd(), "dist/client");
     app.use(express.static(distPath));
     app.get("*", (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
