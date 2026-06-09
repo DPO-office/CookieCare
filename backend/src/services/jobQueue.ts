@@ -20,7 +20,7 @@ const connection = new IORedis(config.redisUrl, {
 
 export const jobQueueName = "privsecai-jobs";
 
-export const jobQueue = new Queue(jobQueueName, { connection });
+export const jobQueue = new Queue(jobQueueName, { connection: connection as any });
 
 async function updateJobState(jobId: string, updates: { status?: string; progress?: number; message?: string; result?: any; error?: string }) {
   const { status, progress, message, result, error } = updates;
@@ -220,7 +220,7 @@ const worker = new Worker(jobQueueName, async (job: BullJob) => {
     console.error(`[Worker] Job ${job.id} failed:`, err);
     throw err;
   }
-}, { connection, concurrency: 3 });
+}, { connection: connection as any, concurrency: 3 });
 
 worker.on("completed", async (job: BullJob | undefined) => {
   if (job) {
@@ -322,7 +322,8 @@ async function executeDocumentAnalysis(job: BullJob): Promise<any> {
      return result;
   }
 
-  const { documentId, content } = payload;
+  const documentId = payload.documentId;
+  const content = payload.content;
 
   const msg = "AI agents performing legal audit...";
   await updateJobState(job.id!, { progress: 30, message: msg });
@@ -355,7 +356,7 @@ async function executeTemplateDrafting(job: BullJob): Promise<any> {
 
     const prompt = `${instruction}\n\nText:\n${text}\n\nIMPORTANT: Return only the rewritten text without any quotes or preamble.`;
 
-    const result = await withRetry(() => genAI.getGenerativeModel({ model: "gemini-2.0-flash" }).generateContent(prompt)) as any;
+    const result = await withRetry(() => (genAI as any).getGenerativeModel({ model: "gemini-2.0-flash" }).generateContent(prompt)) as any;
     const content = result.response.text().trim();
 
     const docId = "doc_" + crypto.randomUUID();

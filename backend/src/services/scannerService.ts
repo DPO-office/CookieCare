@@ -25,6 +25,33 @@ interface CookieDatabase {
 export class ScannerService {
   private cookieDb: CookieDatabase | null = null;
 
+  private validateUrl(url: string): boolean {
+    try {
+      const parsed = new URL(url);
+      const hostname = parsed.hostname.toLowerCase();
+
+      // Block reserved local/private ranges
+      const blockedPatterns = [
+        /^localhost$/,
+        /^127\./,
+        /^0\.0\.0\.0$/,
+        /^169\.254\./, // AWS Metadata
+        /^10\./,
+        /^192\.168\./,
+        /^172\.(1[6-9]|2[0-9]|3[0-1])\./,
+        /^::1$/
+      ];
+
+      for (const pattern of blockedPatterns) {
+        if (pattern.test(hostname)) return false;
+      }
+
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   private async loadCookieDb() {
     if (this.cookieDb) return this.cookieDb;
     try {
@@ -47,6 +74,10 @@ export class ScannerService {
     try {
       const targetUrl = url.startsWith('http') ? url : `https://${url}`;
       
+      if (!this.validateUrl(targetUrl)) {
+        throw new Error('URL validation failed - blocked domain');
+      }
+
       // Target URL par real incoming payload call hit ho rahi hai
       const response = await fetch(targetUrl, { 
         method: 'GET',
@@ -140,6 +171,11 @@ export class ScannerService {
     const vulnerabilities = [];
     try {
       const targetUrl = url.startsWith('http') ? url : `https://${url}`;
+
+      if (!this.validateUrl(targetUrl)) {
+        throw new Error('URL validation failed - blocked domain');
+      }
+
       const response = await fetch(targetUrl, { method: 'GET' });
       const headers = response.headers;
 

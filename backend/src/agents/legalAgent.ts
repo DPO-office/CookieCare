@@ -170,11 +170,12 @@ export class AgentOrchestrator {
       const query = `
         SELECT id, title, content 
         FROM files 
-        WHERE (folder_id IS NULL OR folder_id = ANY($1::text[])) 
-        AND (creator_id = $2 OR $3 = 'ADMIN')
+        WHERE (folder_id IS NULL OR folder_id = ANY($1::text[]))
+        AND creator_id = $2::uuid
+        ORDER BY created_at DESC
       `;
 
-      const { rows } = await client.query(query, [folderFilters, userId, role]);
+      const { rows } = await client.query(query, [folderFilters, userId]);
       const files = rows;
 
       if (files.length === 0) {
