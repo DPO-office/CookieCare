@@ -10,6 +10,7 @@ import { dbInit } from "./backend/src/config/initDb.js";
 import apiRoutes from "./backend/src/routes/index.js";
 import { corsMiddleware } from "./backend/src/middleware/cors.js";
 import { errorHandler } from "./backend/src/middleware/error.js";
+import { initQueryLogger } from "./backend/src/middleware/queryLogger.js";
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -19,6 +20,7 @@ initSentry(app);
 
 // Middlewares
 app.use(corsMiddleware);
+initQueryLogger();
 
 // Handle aborted requests BEFORE body parsing
 app.use((req, res, next) => {

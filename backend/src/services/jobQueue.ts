@@ -9,138 +9,22 @@ import { encryptData } from "../utils/crypto.js";
 import { withRetry } from "../utils/retry.js";
 import { GoogleGenAI } from "@google/genai";
 import { config } from "../config/index.js";
+import { Queue, Worker, Job as BullJob } from "bullmq";
+import IORedis from "ioredis";
 
 const genAI = new GoogleGenAI({ apiKey: config.geminiApiKey || "dummy" });
 
-// ==========================================
-// 🛠️ REDIS & BULLMQ BYPASS MOCK (In-Memory)
-// ==========================================
-console.log("⚠️ [Redis Bypass] Using in-memory mock for BullMQ & Redis to prevent connection errors.");
+const connection = new IORedis(config.redisUrl, {
+  maxRetriesPerRequest: null,
+});
 
 export const jobQueueName = "privsecai-jobs";
 
-// Fake Job Registry Helper for Mock Jobs
-const mockJobsDb = new Map<string, any>();
-
-// Fake Job Class to mimic BullMQ Job structure
-class MockBullJob {
-  id: string;
-  name: string;
-  data: any;
-  progress: number = 0;
-  timestamp: number;
-  finishedOn?: number;
-  failedReason?: string;
-  returnvalue?: any;
-
-  constructor(id: string, name: string, data: any) {
-    this.id = id;
-    this.name = name;
-    this.data = data;
-    this.timestamp = Date.now();
-  }
-
-  async updateProgress(value: number) {
-    this.progress = value;
-    const current = mockJobsDb.get(this.id);
-    if (current) current.progress = value;
-  }
-
-  async getState() {
-    const current = mockJobsDb.get(this.id);
-    return current ? current.status : "waiting";
-  }
-}
-
-// Fake Queue to mock jobQueue.add
-export const jobQueue = {
-  add: async (name: string, data: any, opts?: { jobId?: string }) => {
-    const jobId = opts?.jobId || crypto.randomUUID();
-    const mockJob = new MockBullJob(jobId, name, data);
-    
-    mockJobsDb.set(jobId, {
-      job: mockJob,
-      status: "waiting",
-      progress: 0,
-      timestamp: mockJob.timestamp
-    });
-
-    // Trigger processing asynchronously in background to mimic real queue worker
-    setImmediate(() => {
-      triggerMockWorker(mockJob);
-    });
-
-    return mockJob;
-  },
-  getJobs: async (types: string[]) => {
-    return Array.from(mockJobsDb.values()).map(item => item.job);
-  }
-} as any;
-
-// Trigger handler to act like the BullMQ Worker process
-async function triggerMockWorker(job: MockBullJob) {
-  const jobState = mockJobsDb.get(job.id);
-  if (!jobState) return;
-
-  jobState.status = "active";
-  
-  try {
-    // Execute worker callback logic directly
-    const result = await mockWorkerProcessor(job);
-    job.returnvalue = result;
-    jobState.status = "completed";
-    job.finishedOn = Date.now();
-    
-    // Call success handlers
-    if (workerEventHandlers.completed) {
-      await workerEventHandlers.completed(job);
-    }
-  } catch (err: any) {
-    jobState.status = "failed";
-    job.failedReason = err.message;
-    
-    // Call failure handlers
-    if (workerEventHandlers.failed) {
-      await workerEventHandlers.failed(job, err);
-    }
-  }
-}
-
-const workerEventHandlers: Record<string, Function> = {};
-
-// Fake Worker class to keep event bindings clean
-export class Worker {
-  constructor(name: string, processor: any, opts: any) {
-    // Store processor globally for fake execution
-    (global as any)._mockProcessor = processor;
-  }
-  on(event: string, callback: Function) {
-    workerEventHandlers[event] = callback;
-  }
-}
-
-async function mockWorkerProcessor(job: MockBullJob) {
-  const processor = (global as any)._mockProcessor;
-  if (processor) {
-    return await processor(job);
-  }
-  throw new Error("No worker processor found");
-}
-
-// ==========================================
-// 🚀 ORIGINAL LOGIC & BACKGROUND REGISTRY
-// ==========================================
+export const jobQueue = new Queue(jobQueueName, { connection });
 
 async function updateJobState(jobId: string, updates: { status?: string; progress?: number; message?: string; result?: any; error?: string }) {
   const { status, progress, message, result, error } = updates;
   
-  // Update internal memory state too
-  const localJob = mockJobsDb.get(jobId);
-  if (localJob) {
-    if (status) localJob.status = status;
-    if (progress !== undefined) localJob.progress = progress;
-  }
-
   const fields = [];
   const values = [];
   let idx = 1;
@@ -181,14 +65,14 @@ export async function addJobToQueue(userId: string, type: JobType, payload: any)
     [jobId, userId, type, "queued", 0, "Job queued in BullMQ...", JSON.stringify(payload)]
   );
 
-  const job = await jobQueue.add(type, {
+  await jobQueue.add(type, {
     type,
     userId,
     payload,
     message: "Job queued in BullMQ..."
   }, { jobId });
 
-  return job;
+  return { id: jobId };
 }
 
 export type JobType =
@@ -272,19 +156,19 @@ class BackgroundJobRegistry {
   }
 
   public async getJob(id: string): Promise<Job | null> {
-    const localItem = mockJobsDb.get(id);
-    if (!localItem) return null;
-    return this.transformBullJob(localItem.job);
+    const bullJob = await BullJob.fromId(jobQueue, id);
+    if (!bullJob) return null;
+    return this.transformBullJob(bullJob);
   }
 
   public async getUserJobs(userId: string): Promise<Job[]> {
-    const jobs = Array.from(mockJobsDb.values()).map(item => item.job);
-    return (await Promise.all(jobs.map(j => this.transformBullJob(j))))
+    const bullJobs = await jobQueue.getJobs(["waiting", "active", "completed", "failed", "delayed"]);
+    return (await Promise.all(bullJobs.map(j => this.transformBullJob(j))))
       .filter(j => j.userId === userId)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }
 
-  public async transformBullJob(bullJob: any): Promise<Job> {
+  public async transformBullJob(bullJob: BullJob): Promise<Job> {
     const state = await bullJob.getState();
     return {
       id: bullJob.id!,
@@ -304,8 +188,7 @@ class BackgroundJobRegistry {
 
 export const jobRegistry = new BackgroundJobRegistry();
 
-// Create Worker Instancy with fake class setup
-const worker = new Worker(jobQueueName, async (job: any) => {
+const worker = new Worker(jobQueueName, async (job: BullJob) => {
   const { type, userId, payload } = job.data;
 
   await updateJobState(job.id!, {
@@ -337,9 +220,9 @@ const worker = new Worker(jobQueueName, async (job: any) => {
     console.error(`[Worker] Job ${job.id} failed:`, err);
     throw err;
   }
-}, { connection: {} as any, concurrency: 3 });
+}, { connection, concurrency: 3 });
 
-worker.on("completed", async (job: any) => {
+worker.on("completed", async (job: BullJob | undefined) => {
   if (job) {
     await updateJobState(job.id!, {
       status: 'completed',
@@ -350,7 +233,7 @@ worker.on("completed", async (job: any) => {
   }
 });
 
-worker.on("failed", async (job: any | undefined, err: Error) => {
+worker.on("failed", async (job: BullJob | undefined, err: Error) => {
   if (job) {
     await updateJobState(job.id!, {
       status: 'failed',
@@ -360,7 +243,7 @@ worker.on("failed", async (job: any | undefined, err: Error) => {
   }
 });
 
-async function executeFileProcessing(job: any): Promise<any> {
+async function executeFileProcessing(job: BullJob): Promise<any> {
   const { userId, payload } = job.data;
   const { fileId, fileBufferBase64, mimeType } = payload;
 
@@ -408,8 +291,10 @@ async function executeFileProcessing(job: any): Promise<any> {
   return { fileId };
 }
 
-async function executeDocumentAnalysis(job: any): Promise<any> {
+async function executeDocumentAnalysis(job: BullJob): Promise<any> {
   const { userId, payload } = job.data;
+  const { rows: userRows } = await pool.query("SELECT role FROM users WHERE id = $1", [userId]);
+  const userRole = userRows[0]?.role || 'USER';
 
   if (payload.type === "legal_ask") {
     const { prompt, jurisdiction, outputFormat, documents } = payload;
@@ -432,7 +317,7 @@ async function executeDocumentAnalysis(job: any): Promise<any> {
      jobRegistry.broadcast(userId, await jobRegistry.transformBullJob(job));
 
      const result = await jobRegistry.orchestrator.interactAnalyze(
-       folderIds, prompt, userId, documentMode, answerStyle, history
+       folderIds, prompt, userId, documentMode, answerStyle, history, undefined, userRole
      );
      return result;
   }
@@ -445,7 +330,7 @@ async function executeDocumentAnalysis(job: any): Promise<any> {
   job.data.message = msg;
   jobRegistry.broadcast(userId, await jobRegistry.transformBullJob(job));
 
-  const result = await jobRegistry.orchestrator.runAnalysis(documentId, content, userId);
+  const result = await jobRegistry.orchestrator.runAnalysis(documentId, content, userId, undefined, userRole);
 
   const msg2 = "Analysis complete.";
   await updateJobState(job.id!, { progress: 100, message: msg2 });
@@ -454,7 +339,7 @@ async function executeDocumentAnalysis(job: any): Promise<any> {
   return result;
 }
 
-async function executeTemplateDrafting(job: any): Promise<any> {
+async function executeTemplateDrafting(job: BullJob): Promise<any> {
   const { userId, payload } = job.data;
 
   if (payload.type === "refine") {
@@ -470,11 +355,8 @@ async function executeTemplateDrafting(job: any): Promise<any> {
 
     const prompt = `${instruction}\n\nText:\n${text}\n\nIMPORTANT: Return only the rewritten text without any quotes or preamble.`;
 
-    const result = await withRetry(() => genAI.models.generateContent({
-      model: "gemini-2.0-flash",
-      contents: [{ parts: [{ text: prompt }] }]
-    })) as any;
-    const content = result.text.trim();
+    const result = await withRetry(() => genAI.getGenerativeModel({ model: "gemini-2.0-flash" }).generateContent(prompt)) as any;
+    const content = result.response.text().trim();
 
     const docId = "doc_" + crypto.randomUUID();
     const title = `Refined Text - ${new Date().toLocaleDateString()}`;
@@ -528,7 +410,7 @@ async function executeTemplateDrafting(job: any): Promise<any> {
   return { content: result, file_id: docId };
 }
 
-async function executePrivacyScanning(job: any): Promise<any> {
+async function executePrivacyScanning(job: BullJob): Promise<any> {
   const { userId, payload } = job.data;
   const msg = "Scanning website for privacy compliance...";
   await updateJobState(job.id!, { progress: 20, message: msg });
@@ -545,7 +427,7 @@ async function executePrivacyScanning(job: any): Promise<any> {
   return result;
 }
 
-async function executeVulnerabilityScanning(job: any): Promise<any> {
+async function executeVulnerabilityScanning(job: BullJob): Promise<any> {
   const { userId, payload } = job.data;
   const msg = "Performing vulnerability assessment...";
   await updateJobState(job.id!, { progress: 20, message: msg });
