@@ -42,7 +42,7 @@ router.use("/admin", adminRoutes);
 router.use("/documents", documentRoutes);
 router.use("/folders", folderRoutes);
 router.use("/library-items", libraryItemRoutes);
-router.use("/jobs", authenticateToken, jobRoutes);
+router.use("/jobs", jobRoutes);
 router.use("/analyze", analyzeRoutes);
 router.use("/drafting", draftingRoutes);
 router.use("/lawyer", lawyerRoutes);

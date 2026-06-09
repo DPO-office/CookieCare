@@ -30,14 +30,15 @@ export class AgentOrchestrator {
   public negotiationAgent = new NegotiationAgent();
   public askLawyerAgent = new AskLawyerAgent();
 
-  async runAnalysis(documentId: string, content: string, userId: string, dbClient?: any): Promise<any> {
+  async runAnalysis(documentId: string, content: string, userId: string, dbClient?: any, userRole?: string): Promise<any> {
     const startedAt = Date.now();
     const client = dbClient || pool;
+    const role = userRole || 'USER';
     try {
       if (!dbClient) {
         await client.query("BEGIN");
         await client.query("SET LOCAL app.current_user_id = $1", [userId]);
-        await client.query("SET LOCAL app.current_user_role = 'ADMIN'");
+        await client.query("SET LOCAL app.current_user_role = $1", [role]);
       }
 
       const result = await this.analysisAgent.runAudit(content, "NDA");
@@ -48,8 +49,8 @@ export class AgentOrchestrator {
       `, [userId, 'document_audit', `Audit for document ${documentId}`, JSON.stringify({ documentId, summary: result.summary })]);
 
       await client.query(
-        "UPDATE files SET analysis = $1 WHERE id = $2 AND (creator_id = current_setting('app.current_user_id', true) OR current_setting('app.current_user_role', true) = 'ADMIN')",
-        [JSON.stringify(result), documentId]
+        "UPDATE files SET analysis = $1 WHERE id = $2 AND (creator_id = $3 OR $4 = 'ADMIN')",
+        [JSON.stringify(result), documentId, userId, role]
       );
 
       await this.saveAgentLogs({
@@ -151,29 +152,29 @@ export class AgentOrchestrator {
     documentMode: "unified" | "individual" = "unified",
     answerStyle: "narrative" | "tabular" = "narrative",
     history: any[] = [],
-    dbClient?: any
+    dbClient?: any,
+    userRole?: string
   ): Promise<any> {
     const client = dbClient || pool;
+    const role = userRole || 'USER';
     try {
       if (!dbClient) {
         await client.query("BEGIN");
         await client.query("SET LOCAL app.current_user_id = $1", [userId]);
-        await client.query("SET LOCAL app.current_user_role = 'ADMIN'");
+        await client.query("SET LOCAL app.current_user_role = $1", [role]);
       }
 
       const safeFolderIds = Array.isArray(folderIds) ? folderIds : [];
       const folderFilters = safeFolderIds.filter(id => id !== "root");
 
-      // FIX: Explicit cast to ::text[] to resolve syntax error
       const query = `
         SELECT id, title, content 
         FROM files 
         WHERE (folder_id IS NULL OR folder_id = ANY($1::text[])) 
-        AND (creator_id = current_setting('app.current_user_id', true) 
-             OR current_setting('app.current_user_role', true) = 'ADMIN')
+        AND (creator_id = $2 OR $3 = 'ADMIN')
       `;
 
-      const { rows } = await client.query(query, [folderFilters]);
+      const { rows } = await client.query(query, [folderFilters, userId, role]);
       const files = rows;
 
       if (files.length === 0) {
