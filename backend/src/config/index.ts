@@ -11,7 +11,6 @@ export const config = {
   corsOrigin: process.env.CORS_ORIGIN || "",
   vercelUrl: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "",
   isVercel: !!process.env.VERCEL,
-  redisUrl: process.env.REDIS_URL || "redis://localhost:6379",
 };
 
 export const isProduction = config.nodeEnv === "production";

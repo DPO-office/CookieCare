@@ -9,18 +9,10 @@ import { encryptData } from "../utils/crypto.js";
 import { withRetry } from "../utils/retry.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { config } from "../config/index.js";
-import { Queue, Worker, Job as BullJob } from "bullmq";
-import IORedis from "ioredis";
 
 const genAI = new GoogleGenerativeAI(config.geminiApiKey || "dummy");
 
-const connection = new IORedis(config.redisUrl, {
-  maxRetriesPerRequest: null,
-}) as any;
-
 export const jobQueueName = "privsecai-jobs";
-
-export const jobQueue = new Queue(jobQueueName, { connection });
 
 async function updateJobState(jobId: string, updates: { status?: string; progress?: number; message?: string; result?: any; error?: string }) {
   const { status, progress, message, result, error } = updates;
@@ -56,21 +48,94 @@ async function updateJobState(jobId: string, updates: { status?: string; progres
   }
 }
 
+async function updateJobProgress(jobId: string, userId: string, progress: number, message: string) {
+  await updateJobState(jobId, { progress, message });
+  jobRegistry.broadcast(userId, {
+    id: jobId,
+    userId,
+    status: "processing" as JobStatus,
+    progress,
+    message,
+  });
+}
+
 export async function addJobToQueue(userId: string, type: JobType, payload: any) {
   const jobId = crypto.randomUUID();
 
   await pool.query(
     `INSERT INTO jobs (id, user_id, type, status, progress, message, payload)
      VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-    [jobId, userId, type, "queued", 0, "Job queued in BullMQ...", JSON.stringify(payload)]
+    [jobId, userId, type, "queued", 0, "Job initiated...", JSON.stringify(payload)]
   );
 
-  await jobQueue.add(type, {
-    type,
-    userId,
-    payload,
-    message: "Job queued in BullMQ..."
-  }, { jobId });
+  // Mimic background execution
+  (async () => {
+    try {
+      await updateJobState(jobId, {
+        status: 'processing',
+        progress: 5,
+        message: "Acquiring secure execution container..."
+      });
+
+      jobRegistry.broadcast(userId, {
+        id: jobId,
+        userId,
+        type,
+        status: "processing" as JobStatus,
+        progress: 5,
+        message: "Acquiring secure execution container...",
+        payload,
+        createdAt: new Date().toISOString()
+      });
+
+      let result;
+      switch (type) {
+        case "file_processing":
+          result = await executeFileProcessing(jobId, userId, payload);
+          break;
+        case "document_analysis":
+          result = await executeDocumentAnalysis(jobId, userId, payload);
+          break;
+        case "privacy_scanning":
+          result = await executePrivacyScanning(jobId, userId, payload);
+          break;
+        case "vulnerability_scanning":
+          result = await executeVulnerabilityScanning(jobId, userId, payload);
+          break;
+        case "template_drafting":
+          result = await executeTemplateDrafting(jobId, userId, payload);
+          break;
+        default:
+          throw new Error(`Unhandled job type: ${type}`);
+      }
+
+      await updateJobState(jobId, {
+        status: 'completed',
+        progress: 100,
+        result
+      });
+      jobRegistry.broadcast(userId, {
+        id: jobId,
+        userId,
+        status: "completed" as JobStatus,
+        progress: 100,
+        result
+      });
+
+    } catch (err: any) {
+      console.error(`[JobRunner] Job ${jobId} failed:`, err);
+      await updateJobState(jobId, {
+        status: 'failed',
+        error: err.message
+      });
+      jobRegistry.broadcast(userId, {
+        id: jobId,
+        userId,
+        status: "failed" as JobStatus,
+        error: err.message
+      });
+    }
+  })();
 
   return { id: jobId };
 }
@@ -156,102 +221,42 @@ class BackgroundJobRegistry {
   }
 
   public async getJob(id: string): Promise<Job | null> {
-    const bullJob = await BullJob.fromId(jobQueue, id);
-    if (!bullJob) return null;
-    return this.transformBullJob(bullJob);
+    const { rows } = await pool.query("SELECT * FROM jobs WHERE id = $1", [id]);
+    if (rows.length === 0) return null;
+    return this.mapDbJobToJob(rows[0]);
   }
 
   public async getUserJobs(userId: string): Promise<Job[]> {
-    const bullJobs = await jobQueue.getJobs(["waiting", "active", "completed", "failed", "delayed"]);
-    return (await Promise.all(bullJobs.map(j => this.transformBullJob(j))))
-      .filter(j => j.userId === userId)
-      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    const { rows } = await pool.query(
+      "SELECT * FROM jobs WHERE user_id = $1 ORDER BY created_at DESC",
+      [userId]
+    );
+    return rows.map(r => this.mapDbJobToJob(r));
   }
 
-  public async transformBullJob(bullJob: BullJob): Promise<Job> {
-    const state = await bullJob.getState();
+  private mapDbJobToJob(row: any): Job {
     return {
-      id: bullJob.id!,
-      userId: bullJob.data.userId,
-      type: bullJob.data.type,
-      status: state as JobStatus,
-      progress: bullJob.progress as number,
-      message: bullJob.data.message || "",
-      payload: bullJob.data.payload,
-      result: bullJob.returnvalue,
-      error: bullJob.failedReason,
-      createdAt: new Date(bullJob.timestamp).toISOString(),
-      completedAt: bullJob.finishedOn ? new Date(bullJob.finishedOn).toISOString() : undefined,
+      id: row.id,
+      userId: row.user_id,
+      type: row.type,
+      status: row.status as JobStatus,
+      progress: row.progress,
+      message: row.message,
+      payload: row.payload,
+      result: row.result,
+      error: row.error,
+      createdAt: row.created_at.toISOString(),
+      completedAt: row.completed_at ? row.completed_at.toISOString() : undefined,
     };
   }
 }
 
 export const jobRegistry = new BackgroundJobRegistry();
 
-const worker = new Worker(jobQueueName, async (job: BullJob) => {
-  const { type, userId, payload } = job.data;
-
-  await updateJobState(job.id!, {
-    status: 'processing',
-    progress: 5,
-    message: "Acquiring secure execution container..."
-  });
-
-  await job.updateProgress(5);
-  job.data.message = "Acquiring secure execution container...";
-  jobRegistry.broadcast(userId, await jobRegistry.transformBullJob(job));
-
-  try {
-    switch (type) {
-      case "file_processing":
-        return await executeFileProcessing(job);
-      case "document_analysis":
-        return await executeDocumentAnalysis(job);
-      case "privacy_scanning":
-        return await executePrivacyScanning(job);
-      case "vulnerability_scanning":
-        return await executeVulnerabilityScanning(job);
-      case "template_drafting":
-        return await executeTemplateDrafting(job);
-      default:
-        throw new Error(`Unhandled job type: ${type}`);
-    }
-  } catch (err: any) {
-    console.error(`[Worker] Job ${job.id} failed:`, err);
-    throw err;
-  }
-}, { connection, concurrency: 3 });
-
-worker.on("completed", async (job: BullJob | undefined) => {
-  if (job) {
-    await updateJobState(job.id!, {
-      status: 'completed',
-      progress: 100,
-      result: job.returnvalue
-    });
-    jobRegistry.broadcast(job.data.userId, await jobRegistry.transformBullJob(job));
-  }
-});
-
-worker.on("failed", async (job: BullJob | undefined, err: Error) => {
-  if (job) {
-    await updateJobState(job.id!, {
-      status: 'failed',
-      error: err.message
-    });
-    jobRegistry.broadcast(job.data.userId, await jobRegistry.transformBullJob(job));
-  }
-});
-
-async function executeFileProcessing(job: BullJob): Promise<any> {
-  const { userId, payload } = job.data;
+async function executeFileProcessing(jobId: string, userId: string, payload: any): Promise<any> {
   const { fileId, fileBufferBase64, mimeType } = payload;
 
-  const msg = "Extracting text from document...";
-  await updateJobState(job.id!, { progress: 15, message: msg });
-  await job.updateProgress(15);
-  job.data.message = msg;
-  jobRegistry.broadcast(userId, await jobRegistry.transformBullJob(job));
+  await updateJobProgress(jobId, userId, 15, "Extracting text from document...");
 
   const buffer = Buffer.from(fileBufferBase64, "base64");
   let content = "";
@@ -271,11 +276,7 @@ async function executeFileProcessing(job: BullJob): Promise<any> {
   content = content.replace(/\0/g, "");
   const encryptedContent = encryptData(content);
 
-  const msg2 = "Updating database and indexing for search...";
-  await updateJobState(job.id!, { progress: 50, message: msg2 });
-  await job.updateProgress(50);
-  job.data.message = msg2;
-  jobRegistry.broadcast(userId, await jobRegistry.transformBullJob(job));
+  await updateJobProgress(jobId, userId, 50, "Updating database and indexing for search...");
 
   const result = await pool.query(
     `UPDATE files SET content = $1, is_encrypted = $2 WHERE id = $3`,
@@ -286,35 +287,24 @@ async function executeFileProcessing(job: BullJob): Promise<any> {
 
   await chunkAndIndexDocument(fileId, content, userId);
 
-  await job.updateProgress(100);
-  job.data.message = "File processing complete.";
   return { fileId };
 }
 
-async function executeDocumentAnalysis(job: BullJob): Promise<any> {
-  const { userId, payload } = job.data;
+async function executeDocumentAnalysis(jobId: string, userId: string, payload: any): Promise<any> {
   const { rows: userRows } = await pool.query("SELECT role FROM users WHERE id = $1", [userId]);
   const userRole = userRows[0]?.role || 'USER';
 
   if (payload.type === "legal_ask") {
     const { prompt, jurisdiction, outputFormat, documents } = payload;
-    const msg = "Searching knowledge base and synthesizing advice...";
-    await updateJobState(job.id!, { progress: 30, message: msg });
-    await job.updateProgress(30);
-    jobRegistry.broadcast(userId, await jobRegistry.transformBullJob(job));
+    await updateJobProgress(jobId, userId, 30, "Searching knowledge base and synthesizing advice...");
 
     const result = await jobRegistry.orchestrator.askLawyer(prompt, userId, documents);
-
-    await updateJobState(job.id!, { progress: 100, message: "Advice synthesized.", result });
     return result;
   }
 
   if (payload.prompt && payload.folderIds) {
      const { folderIds, prompt, documentMode, answerStyle, history } = payload;
-     const msg = "Analyzing documents in selected folders...";
-     await updateJobState(job.id!, { progress: 30, message: msg });
-     await job.updateProgress(30);
-     jobRegistry.broadcast(userId, await jobRegistry.transformBullJob(job));
+     await updateJobProgress(jobId, userId, 30, "Analyzing documents in selected folders...");
 
      const result = await jobRegistry.orchestrator.interactAnalyze(
        folderIds, prompt, userId, documentMode, answerStyle, history, undefined, userRole
@@ -324,24 +314,13 @@ async function executeDocumentAnalysis(job: BullJob): Promise<any> {
 
   const { documentId, content } = payload;
 
-  const msg = "AI agents performing legal audit...";
-  await updateJobState(job.id!, { progress: 30, message: msg });
-  await job.updateProgress(30);
-  job.data.message = msg;
-  jobRegistry.broadcast(userId, await jobRegistry.transformBullJob(job));
+  await updateJobProgress(jobId, userId, 30, "AI agents performing legal audit...");
 
   const result = await jobRegistry.orchestrator.runAnalysis(documentId, content, userId, undefined, userRole);
-
-  const msg2 = "Analysis complete.";
-  await updateJobState(job.id!, { progress: 100, message: msg2 });
-  await job.updateProgress(100);
-  job.data.message = msg2;
   return result;
 }
 
-async function executeTemplateDrafting(job: BullJob): Promise<any> {
-  const { userId, payload } = job.data;
-
+async function executeTemplateDrafting(jobId: string, userId: string, payload: any): Promise<any> {
   if (payload.type === "refine") {
     const { text, refineType, param } = payload;
     let instruction = "";
@@ -375,11 +354,7 @@ async function executeTemplateDrafting(job: BullJob): Promise<any> {
 
   const { mode, outputLevel, instructions, formFields, templateId, sourceText, playbookText } = payload;
 
-  const msg = "Synthesizing legal document...";
-  await updateJobState(job.id!, { progress: 20, message: msg });
-  await job.updateProgress(20);
-  job.data.message = msg;
-  jobRegistry.broadcast(userId, await jobRegistry.transformBullJob(job));
+  await updateJobProgress(jobId, userId, 20, "Synthesizing legal document...");
 
   const result = await jobRegistry.orchestrator.runDrafting({
     mode,
@@ -403,43 +378,19 @@ async function executeTemplateDrafting(job: BullJob): Promise<any> {
     [docId, title, "draft", encryptData(result), userId, creatorEmail, true, JSON.stringify([]), JSON.stringify([]), JSON.stringify([])]
   );
 
-  const msg2 = "Drafting complete and saved to vault.";
-  await updateJobState(job.id!, { progress: 100, message: msg2, result: { content: result, file_id: docId } });
-  await job.updateProgress(100);
-  job.data.message = msg2;
   return { content: result, file_id: docId };
 }
 
-async function executePrivacyScanning(job: BullJob): Promise<any> {
-  const { userId, payload } = job.data;
-  const msg = "Scanning website for privacy compliance...";
-  await updateJobState(job.id!, { progress: 20, message: msg });
-  await job.updateProgress(20);
-  job.data.message = msg;
-  jobRegistry.broadcast(userId, await jobRegistry.transformBullJob(job));
+async function executePrivacyScanning(jobId: string, userId: string, payload: any): Promise<any> {
+  await updateJobProgress(jobId, userId, 20, "Scanning website for privacy compliance...");
 
   const result = await jobRegistry.scanner.scanCookie(payload.url, userId, payload.scanDepth);
-
-  const msg2 = "Privacy scan complete.";
-  await updateJobState(job.id!, { progress: 100, message: msg2 });
-  await job.updateProgress(100);
-  job.data.message = msg2;
   return result;
 }
 
-async function executeVulnerabilityScanning(job: BullJob): Promise<any> {
-  const { userId, payload } = job.data;
-  const msg = "Performing vulnerability assessment...";
-  await updateJobState(job.id!, { progress: 20, message: msg });
-  await job.updateProgress(20);
-  job.data.message = msg;
-  jobRegistry.broadcast(userId, await jobRegistry.transformBullJob(job));
+async function executeVulnerabilityScanning(jobId: string, userId: string, payload: any): Promise<any> {
+  await updateJobProgress(jobId, userId, 20, "Performing vulnerability assessment...");
 
   const result = await jobRegistry.scanner.scanVulnerability(payload.url, userId);
-
-  const msg2 = "Vulnerability scan complete.";
-  await updateJobState(job.id!, { progress: 100, message: msg2 });
-  await job.updateProgress(100);
-  job.data.message = msg2;
   return result;
 }
