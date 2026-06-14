@@ -81,6 +81,13 @@ async function setupDb() {
         analysis JSONB DEFAULT NULL
       );
 
+      CREATE TABLE IF NOT EXISTS document_versions (
+        id VARCHAR(255) PRIMARY KEY,
+        file_id VARCHAR(255) NOT NULL REFERENCES files(id) ON DELETE CASCADE,
+        content TEXT NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
       CREATE TABLE IF NOT EXISTS legal_document_chunks (
         id SERIAL PRIMARY KEY,
         file_id VARCHAR(255) NOT NULL REFERENCES files(id) ON DELETE CASCADE,
@@ -150,8 +157,14 @@ async function setupDb() {
       );
     `);
 
-    // Embedding column update
-    await client.query("ALTER TABLE legal_document_chunks ALTER COLUMN embedding TYPE vector(768) USING embedding::vector(768);");
+    // Embedding column update (idempotent check)
+    const embeddingTypeResult = await client.query(`
+      SELECT data_type FROM information_schema.columns
+      WHERE table_name = 'legal_document_chunks' AND column_name = 'embedding'
+    `);
+    if (embeddingTypeResult.rows.length === 0 || embeddingTypeResult.rows[0].data_type !== 'USER-DEFINED') {
+      await client.query("ALTER TABLE legal_document_chunks ALTER COLUMN embedding TYPE vector(768) USING embedding::vector(768);");
+    }
 
     // Seed Admin
     const hashedSeedPassword = await argon2.hash("MamuSecure2026!");
@@ -162,12 +175,32 @@ async function setupDb() {
     `, ["supreme_admin_id", "swarnaaishwarya17@gmail.com", "Supreme Admin", hashedSeedPassword, "APPROVED", "ADMIN"]);
 
     // RLS Policy Setup
-    const rlsTables = ['files', 'folders', 'library_items', 'legal_document_chunks', 'website_scans', 'jobs', 'agent_execution_logs', 'compliance_audit_logs'];
+    const rlsTables = [
+      'files', 'folders', 'library_items', 'legal_document_chunks',
+      'website_scans', 'jobs', 'agent_execution_logs', 'compliance_audit_logs',
+      'document_versions'
+    ];
     for (const table of rlsTables) {
       await client.query(`ALTER TABLE ${table} ENABLE ROW LEVEL SECURITY;`);
       await client.query(`DROP POLICY IF EXISTS ${table}_tenant_isolation ON ${table};`);
 
-      let ownerColumn = (table === 'files') ? 'creator_id' : 'user_id';
+      let ownerColumn;
+      if (table === 'files') {
+        ownerColumn = 'creator_id';
+      } else if (table === 'document_versions') {
+        // Linked to files, which has creator_id
+        await client.query(`
+          CREATE POLICY ${table}_tenant_isolation ON ${table}
+          USING (
+            (EXISTS (SELECT 1 FROM files WHERE files.id = ${table}.file_id AND files.creator_id = current_setting('app.current_user_id', true))) OR
+            (current_setting('app.current_user_role', true) = 'ADMIN')
+          );
+        `);
+        continue;
+      } else {
+        ownerColumn = 'user_id';
+      }
+
       await client.query(`
         CREATE POLICY ${table}_tenant_isolation ON ${table}
         USING (

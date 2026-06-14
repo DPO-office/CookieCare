@@ -10,8 +10,11 @@ if (!ENCRYPTION_KEY || Buffer.from(ENCRYPTION_KEY).length !== 32) {
 
 export function encryptData(text: string): string {
   if (!text) return "";
+  if (!ENCRYPTION_KEY || Buffer.from(ENCRYPTION_KEY).length !== 32) {
+    throw new Error("ENCRYPTION_KEY must be 32 bytes.");
+  }
   const iv = crypto.randomBytes(12);
-  const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY!), iv);
+  const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
   let encrypted = cipher.update(text, "utf8", "hex");
   encrypted += cipher.final("hex");
   const authTag = cipher.getAuthTag().toString("hex");
@@ -23,6 +26,9 @@ export function decryptData(text: string): string {
 
   if (text.startsWith("LEXGCM_")) {
     try {
+      if (!ENCRYPTION_KEY || Buffer.from(ENCRYPTION_KEY).length !== 32) {
+        throw new Error("ENCRYPTION_KEY must be 32 bytes.");
+      }
       const payload = text.replace("LEXGCM_", "");
       const [ivHex, authTagHex, encryptedHex] = payload.split(":");
 
@@ -32,7 +38,7 @@ export function decryptData(text: string): string {
 
       const iv = Buffer.from(ivHex, "hex");
       const authTag = Buffer.from(authTagHex, "hex");
-      const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY!), iv);
+      const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
 
       decipher.setAuthTag(authTag);
       let decrypted = decipher.update(encryptedHex, "hex", "utf8");
@@ -71,3 +77,7 @@ export function decryptData(text: string): string {
 
   return text;
 }
+
+// Aliases for requirement
+export const encrypt = encryptData;
+export const decrypt = decryptData;

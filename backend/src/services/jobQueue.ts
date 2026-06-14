@@ -1,94 +1,49 @@
 import { pool } from "../config/database.js";
-import { chunkAndIndexDocument } from "../RAG/ragService.js";
 import { AgentOrchestrator } from "../agents/legalAgent.js";
 import { ScannerService } from "./scannerService.js";
-import pdf from "pdf-parse-fork";
-import mammoth from "mammoth";
-import crypto from "crypto";
-import { encryptData } from "../utils/crypto.js";
+import { chunkAndIndexDocument } from "../RAG/ragService.js";
+import { encryptData, decryptData } from "../utils/crypto.js";
 import { withRetry } from "../utils/retry.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { config } from "../config/index.js";
+import crypto from "crypto";
+import pdf from "pdf-parse-fork";
+import mammoth from "mammoth";
 
-const genAI = new GoogleGenerativeAI(config.geminiApiKey || "dummy");
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
-export const jobQueueName = "privsecai-jobs";
-
-async function updateJobState(jobId: string, updates: { status?: string; progress?: number; message?: string; result?: any; error?: string }) {
-  const { status, progress, message, result, error } = updates;
-  
-  const fields = [];
-  const values = [];
-  let idx = 1;
-
-  if (status) { fields.push(`status = $${idx++}`); values.push(status); }
-  if (progress !== undefined) { fields.push(`progress = $${idx++}`); values.push(progress); }
-  if (message) { fields.push(`message = $${idx++}`); values.push(message); }
-  if (result !== undefined) { fields.push(`result = $${idx++}`); values.push(JSON.stringify(result)); }
-  if (error) { fields.push(`error = $${idx++}`); values.push(error); }
-
-  if (status === 'completed' || status === 'failed') {
-    fields.push(`completed_at = CURRENT_TIMESTAMP`);
-  }
-
-  if (fields.length === 0) return;
-
-  const client = await pool.connect();
-  try {
-    await client.query("BEGIN");
-    await client.query("SET LOCAL app.current_user_role = 'ADMIN'");
-    values.push(jobId);
-    await client.query(`UPDATE jobs SET ${fields.join(", ")} WHERE id = $${idx}`, values);
-    await client.query("COMMIT");
-  } catch (err) {
-    await client.query("ROLLBACK");
-    throw err;
-  } finally {
-    client.release();
-  }
+export async function updateJobProgress(jobId: string, userId: string, progress: number, message?: string) {
+  await pool.query(
+    "UPDATE jobs SET progress = $1, message = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3",
+    [progress, message, jobId]
+  );
+  jobRegistry.broadcast(userId, { id: jobId, progress, message });
 }
 
-async function updateJobProgress(jobId: string, userId: string, progress: number, message: string) {
-  await updateJobState(jobId, { progress, message });
-  jobRegistry.broadcast(userId, {
-    id: jobId,
-    userId,
-    status: "processing" as JobStatus,
-    progress,
-    message,
-  });
+export async function updateJobState(jobId: string, updates: Partial<Job>) {
+  const fields = Object.keys(updates).map((k, i) => `${k === 'userId' ? 'user_id' : k} = $${i + 1}`).join(", ");
+  const values = Object.values(updates);
+  await pool.query(
+    `UPDATE jobs SET ${fields}, updated_at = CURRENT_TIMESTAMP WHERE id = $${values.length + 1}`,
+    [...values, jobId]
+  );
 }
 
-export async function addJobToQueue(userId: string, type: JobType, payload: any) {
-  const jobId = crypto.randomUUID();
+export async function addJobToQueue(userId: string, type: JobType, payload: any): Promise<{ id: string }> {
+  const jobId = "job_" + crypto.randomUUID();
 
   await pool.query(
-    `INSERT INTO jobs (id, user_id, type, status, progress, message, payload)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-    [jobId, userId, type, "queued", 0, "Job initiated...", JSON.stringify(payload)]
+    `INSERT INTO jobs (id, user_id, type, status, progress, payload)
+     VALUES ($1, $2, $3, 'queued', 0, $4)`,
+    [jobId, userId, type, JSON.stringify(payload)]
   );
 
-  // Mimic background execution
+  // Background processing (In-process async)
   (async () => {
     try {
-      await updateJobState(jobId, {
-        status: 'processing',
-        progress: 5,
-        message: "Acquiring secure execution container..."
-      });
+      await updateJobState(jobId, { status: 'processing', progress: 5 } as any);
+      jobRegistry.broadcast(userId, { id: jobId, status: 'processing', progress: 5 });
 
-      jobRegistry.broadcast(userId, {
-        id: jobId,
-        userId,
-        type,
-        status: "processing" as JobStatus,
-        progress: 5,
-        message: "Acquiring secure execution container...",
-        payload,
-        createdAt: new Date().toISOString()
-      });
-
-      let result;
+      let result: any;
       switch (type) {
         case "file_processing":
           result = await executeFileProcessing(jobId, userId, payload);
@@ -113,7 +68,7 @@ export async function addJobToQueue(userId: string, type: JobType, payload: any)
         status: 'completed',
         progress: 100,
         result
-      });
+      } as any);
       jobRegistry.broadcast(userId, {
         id: jobId,
         userId,
@@ -127,7 +82,7 @@ export async function addJobToQueue(userId: string, type: JobType, payload: any)
       await updateJobState(jobId, {
         status: 'failed',
         error: err.message
-      });
+      } as any);
       jobRegistry.broadcast(userId, {
         id: jobId,
         userId,
@@ -285,6 +240,12 @@ async function executeFileProcessing(jobId: string, userId: string, payload: any
 
   if (result.rowCount === 0) throw new Error(`File record ${fileId} not found.`);
 
+  const versionId = "ver_" + crypto.randomUUID();
+  await pool.query(
+    `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
+    [versionId, fileId, encryptedContent]
+  );
+
   await chunkAndIndexDocument(fileId, content, userId);
 
   return { fileId };
@@ -343,10 +304,18 @@ async function executeTemplateDrafting(jobId: string, userId: string, payload: a
     const { rows: userRows } = await pool.query("SELECT email FROM users WHERE id = $1", [userId]);
     const creatorEmail = userRows[0]?.email || "";
 
+    const encryptedContent = encryptData(content);
+
     await pool.query(
-      `INSERT INTO files (id, title, type, content, creator_id, creator_email, is_encrypted, versions, shared_with, audit_logs)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-      [docId, title, "draft", encryptData(content), userId, creatorEmail, true, JSON.stringify([]), JSON.stringify([]), JSON.stringify([])]
+      `INSERT INTO files (id, title, type, content, creator_id, creator_email, is_encrypted, shared_with, audit_logs)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [docId, title, "draft", encryptedContent, userId, creatorEmail, true, JSON.stringify([]), JSON.stringify([])]
+    );
+
+    const versionId = "ver_" + crypto.randomUUID();
+    await pool.query(
+      `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
+      [versionId, docId, encryptedContent]
     );
 
     return { data: content, file_id: docId };
@@ -372,10 +341,18 @@ async function executeTemplateDrafting(jobId: string, userId: string, payload: a
   const { rows: userRows } = await pool.query("SELECT email FROM users WHERE id = $1", [userId]);
   const creatorEmail = userRows[0]?.email || "";
 
+  const encryptedContent = encryptData(result);
+
   await pool.query(
-    `INSERT INTO files (id, title, type, content, creator_id, creator_email, is_encrypted, versions, shared_with, audit_logs)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-    [docId, title, "draft", encryptData(result), userId, creatorEmail, true, JSON.stringify([]), JSON.stringify([]), JSON.stringify([])]
+    `INSERT INTO files (id, title, type, content, creator_id, creator_email, is_encrypted, shared_with, audit_logs)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+    [docId, title, "draft", encryptedContent, userId, creatorEmail, true, JSON.stringify([]), JSON.stringify([])]
+  );
+
+  const versionId = "ver_" + crypto.randomUUID();
+  await pool.query(
+    `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
+    [versionId, docId, encryptedContent]
   );
 
   return { content: result, file_id: docId };

@@ -3,7 +3,7 @@ import { pool } from "../config/database.js";
 import { addJobToQueue } from "../services/jobQueue.js";
 import { withTransaction } from "../utils/dbUtils.js";
 import { buildPdfBuffer, buildDocxBuffer } from "../services/exportService.js";
-import { encryptData, decryptData } from "../utils/crypto.js";
+import { encrypt, decrypt } from "../utils/crypto.js";
 import crypto from "crypto";
 import * as diff from "diff";
 import { fileTypeFromBuffer } from "file-type";
@@ -27,7 +27,7 @@ export const getDocuments = async (req: Request, res: Response) => {
 
     const formattedDocs = docs.map((r: any) => ({
       ...r,
-      content: r.is_encrypted ? decryptData(r.content) : r.content,
+      content: r.is_encrypted ? decrypt(r.content) : r.content,
       isEncrypted: r.is_encrypted,
       signatures: r.signatures || [],
       redlines: r.redlines || [],
@@ -46,26 +46,32 @@ export const getDocumentById = async (req: Request, res: Response) => {
   const userRole = req.user!.role;
 
   try {
-    const rows = await withTransaction(userId, userRole, async (client) => {
+    const doc = await withTransaction(userId, userRole, async (client) => {
       const { rows } = await client.query("SELECT * FROM files WHERE id = $1", [req.params.id]);
-      return rows;
-    });
+      if (rows.length === 0) return null;
 
-    if (rows.length > 0) {
+      const { rows: versionRows } = await client.query(
+        "SELECT * FROM document_versions WHERE file_id = $1 ORDER BY created_at DESC",
+        [req.params.id]
+      );
+
       const r = rows[0];
-
-      const doc = {
+      return {
         ...r,
-        content: r.is_encrypted ? decryptData(r.content) : r.content,
-        versions: (r.versions || []).map((v: any) => ({
-          ...v,
-          content: decryptData(v.content),
+        content: r.is_encrypted ? decrypt(r.content) : r.content,
+        versions: versionRows.map((v: any) => ({
+          id: v.id,
+          content: decrypt(v.content),
+          createdAt: v.created_at
         })),
         signatures: r.signatures || [],
         redlines: r.redlines || [],
         sharedWith: r.shared_with || [],
         auditLogs: r.audit_logs || [],
       };
+    });
+
+    if (doc) {
       return res.json(doc);
     }
     res.status(404).json({ error: "Document not found." });
@@ -81,14 +87,20 @@ export const createDocument = async (req: Request, res: Response) => {
   const email = req.user!.email;
 
   const id = "doc_" + crypto.randomUUID();
-  const encryptedContent = encryptData(content || "");
+  const encryptedContent = encrypt(content || "");
 
   try {
     await withTransaction(userId, userRole, async (client) => {
       await client.query(
-        `INSERT INTO files (id, title, type, content, creator_id, creator_email, is_encrypted, versions, shared_with, audit_logs)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-        [id, title, type, encryptedContent, userId, email, true, JSON.stringify([]), JSON.stringify([]), JSON.stringify([])]
+        `INSERT INTO files (id, title, type, content, creator_id, creator_email, is_encrypted, shared_with, audit_logs)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        [id, title, type, encryptedContent, userId, email, true, JSON.stringify([]), JSON.stringify([])]
+      );
+
+      const versionId = "ver_" + crypto.randomUUID();
+      await client.query(
+        `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
+        [versionId, id, encryptedContent]
       );
     });
     res.status(201).json({ id, title, type });
@@ -101,7 +113,6 @@ export const uploadDocument = async (req: Request, res: Response) => {
   const file = req.file;
   if (!file) return res.status(400).json({ error: "No file uploaded. Verify multipart/form-data boundary." });
 
-  // Security Layer: Basic file integrity and MIME checks
   const allowedMimeTypes = [
     'application/pdf',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -118,7 +129,6 @@ export const uploadDocument = async (req: Request, res: Response) => {
     return res.status(400).json({ error: "File size exceeds 25MB security threshold." });
   }
 
-  // Phase 3 Hardening: Magic Byte Verification (Deep File Inspection)
   const type = await fileTypeFromBuffer(file.buffer);
   const detectedMime = type?.mime || file.mimetype;
 
@@ -169,28 +179,23 @@ export const updateDocument = async (req: Request, res: Response) => {
 
   try {
     await withTransaction(userId, userRole, async (client) => {
-      // 1. Get current document to archive version
       const { rows } = await client.query("SELECT * FROM files WHERE id = $1", [id]);
       if (rows.length === 0) throw new Error("Document not found");
       const doc = rows[0];
 
-      const versions = doc.versions || [];
-      const oldContent = doc.content;
-      versions.push({
-        id: crypto.randomUUID(),
-        content: oldContent, // Already encrypted
-        createdAt: new Date().toISOString(),
-        author: req.user!.email
-      });
+      const encryptedContent = content ? encrypt(content) : doc.content;
 
-      // 2. Update document
-      const encryptedContent = content ? encryptData(content) : doc.content;
       await client.query(
-        `UPDATE files SET title = COALESCE($1, title), content = $2, folder_id = COALESCE($3, folder_id), versions = $4, updated_at = CURRENT_TIMESTAMP WHERE id = $5`,
-        [title || null, encryptedContent, folder_id || null, JSON.stringify(versions), id]
+        `UPDATE files SET title = COALESCE($1, title), content = $2, folder_id = COALESCE($3, folder_id), updated_at = CURRENT_TIMESTAMP WHERE id = $4`,
+        [title || null, encryptedContent, folder_id || null, id]
       );
 
-      // 3. Log action
+      const versionId = "ver_" + crypto.randomUUID();
+      await client.query(
+        `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
+        [versionId, id, encryptedContent]
+      );
+
       await client.query(`
         INSERT INTO compliance_audit_logs (user_id, action_type, metadata)
         VALUES ($1, $2, $3)
@@ -210,20 +215,14 @@ export const deleteDocument = async (req: Request, res: Response) => {
 
   try {
     await withTransaction(userId, userRole, async (client) => {
-      // 1. Delete associated RAG chunks first
-      await client.query("DELETE FROM legal_document_chunks WHERE file_id = $1", [id]);
-
-      // 2. Delete file
       const { rowCount } = await client.query("DELETE FROM files WHERE id = $1", [id]);
       if (rowCount === 0) throw new Error("Document not found");
 
-      // 3. Log action
       await client.query(`
         INSERT INTO compliance_audit_logs (user_id, action_type, metadata)
         VALUES ($1, $2, $3)
       `, [userId, 'document_delete', JSON.stringify({ documentId: id })]);
     });
-
     res.json({ success: true });
   } catch (err: any) {
     res.status(err.message === "Document not found" ? 404 : 500).json({ error: err.message });
@@ -232,42 +231,21 @@ export const deleteDocument = async (req: Request, res: Response) => {
 
 export const shareDocument = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { email, permissions } = req.body;
+  const { email } = req.body;
   const userId = req.user!.id;
   const userRole = req.user!.role;
 
-  // Phase 3 Hardening: Input Validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!email || !emailRegex.test(email)) {
-    return res.status(400).json({ error: "Invalid email format." });
-  }
-
-  const allowedPermissions = ["view", "edit", "admin"];
-  if (!permissions || !allowedPermissions.includes(permissions)) {
-    return res.status(400).json({ error: "Invalid permissions. Must be view, edit, or admin." });
-  }
-
   try {
     await withTransaction(userId, userRole, async (client) => {
-      // Check if user to share with exists
       const { rows: userRows } = await client.query("SELECT id FROM users WHERE email = $1", [email.toLowerCase()]);
       if (userRows.length === 0) throw new Error("USER_NOT_FOUND");
 
       const { rows } = await client.query("SELECT shared_with FROM files WHERE id = $1", [id]);
       if (rows.length === 0) throw new Error("Document not found");
 
-      let sharedWith = rows[0].shared_with || [];
-      // Ensure sharedWith is an array of objects
-      if (sharedWith.length > 0 && typeof sharedWith[0] === 'string') {
-        // Migration: convert old string array to object array
-        sharedWith = sharedWith.map((e: string) => ({ email: e, permissions: "view" }));
-      }
-
-      const existingIndex = sharedWith.findIndex((s: any) => s.email === email.toLowerCase());
-      if (existingIndex > -1) {
-        sharedWith[existingIndex].permissions = permissions;
-      } else {
-        sharedWith.push({ email: email.toLowerCase(), permissions });
+      const sharedWith = rows[0].shared_with || [];
+      if (!sharedWith.includes(email.toLowerCase())) {
+        sharedWith.push(email.toLowerCase());
       }
 
       await client.query("UPDATE files SET shared_with = $1 WHERE id = $2", [JSON.stringify(sharedWith), id]);
@@ -275,9 +253,8 @@ export const shareDocument = async (req: Request, res: Response) => {
       await client.query(`
         INSERT INTO compliance_audit_logs (user_id, action_type, metadata)
         VALUES ($1, $2, $3)
-      `, [userId, 'document_share', JSON.stringify({ documentId: id, sharedWith: email, permissions })]);
+      `, [userId, 'document_share', JSON.stringify({ documentId: id, sharedWith: email })]);
     });
-
     res.json({ success: true });
   } catch (err: any) {
     if (err.message === "USER_NOT_FOUND") return res.status(404).json({ error: "User with this email not found." });
@@ -287,7 +264,7 @@ export const shareDocument = async (req: Request, res: Response) => {
 
 export const signDocument = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { signatureData } = req.body; // e.g. base64 signature or cryptographic hash
+  const { signatureData } = req.body;
   const userId = req.user!.id;
   const userRole = req.user!.role;
 
@@ -297,7 +274,7 @@ export const signDocument = async (req: Request, res: Response) => {
       if (rows.length === 0) throw new Error("Document not found");
 
       const signatures = rows[0].signatures || [];
-      const plaintext = rows[0].is_encrypted ? decryptData(rows[0].content) : rows[0].content;
+      const plaintext = rows[0].is_encrypted ? decrypt(rows[0].content) : rows[0].content;
       const contentHash = crypto.createHash('sha256').update(plaintext, 'utf8').digest('hex');
 
       const newSignature = {
@@ -305,7 +282,7 @@ export const signDocument = async (req: Request, res: Response) => {
         userId,
         userEmail: req.user!.email,
         signedAt: new Date().toISOString(),
-        contentHash, // Lock signature to current content state
+        contentHash,
         signatureData
       };
 
@@ -364,32 +341,22 @@ export const acceptRedline = async (req: Request, res: Response) => {
     const index = redlines.findIndex((r: any) => r.id === redlineId);
     if (index === -1) return res.status(404).json({ error: "Redline not found" });
 
-    const currentContent = decryptData(doc.content);
+    const currentContent = decrypt(doc.content);
     const proposal = redlines[index];
 
-    // Use resilient patch-and-apply logic instead of simple .replace()
-    // 1. Create a patch from the original vs proposed text
     const patch = diff.createPatch("content", proposal.originalText, proposal.proposedText);
-
-    // 2. Apply the patch to the full document content
     const applied = diff.applyPatch(currentContent, patch);
 
+    let finalContent = currentContent;
     if (applied === false) {
-      // Phase 2: Context-Aware Fuzzy Matching Fallback
-      // Search for the original text while ignoring whitespace and case sensitivity
       const normalizedOriginal = proposal.originalText.replace(/\s+/g, ' ').trim().toLowerCase();
       const normalizedDoc = currentContent.replace(/\s+/g, ' ').toLowerCase();
 
-      let finalContent = currentContent;
       if (normalizedDoc.includes(normalizedOriginal)) {
-        // Attempt to find the real start/end indexes in the original unnormalized content
-        // This is a simple heuristic: if the normalized version matches, we try to find the best string match
-        // and replace it. For a production-grade fuzzy match, we'd use Levenshtein distance.
         const occurrences = getAllIndexesOfNormalizedMatch(currentContent, proposal.originalText);
         if (occurrences.length === 1) {
           finalContent = currentContent.substring(0, occurrences[0].start) + proposal.proposedText + currentContent.substring(occurrences[0].end);
         } else {
-          // Direct fallback if heuristic is ambiguous
           const fallbackReplaced = currentContent.replace(proposal.originalText, proposal.proposedText);
           if (fallbackReplaced === currentContent && currentContent.indexOf(proposal.originalText) === -1) {
             return res.status(400).json({ error: "Could not apply redline. Document structure has changed significantly." });
@@ -399,25 +366,27 @@ export const acceptRedline = async (req: Request, res: Response) => {
       } else {
         return res.status(400).json({ error: "Could not apply redline. Clause not found in current document state." });
       }
-
-      redlines[index].status = "accepted";
-      await withTransaction(req.user!.id, req.user!.role, async (client) => {
-        await client.query("UPDATE files SET content = $1, redlines = $2 WHERE id = $3", [encryptData(finalContent), JSON.stringify(redlines), id]);
-        await client.query(`
-          INSERT INTO compliance_audit_logs (user_id, action_type, metadata)
-          VALUES ($1, $2, $3)
-        `, [req.user!.id, 'redline_accept', JSON.stringify({ documentId: id, redlineId })]);
-      });
     } else {
-      redlines[index].status = "accepted";
-      await withTransaction(req.user!.id, req.user!.role, async (client) => {
-        await client.query("UPDATE files SET content = $1, redlines = $2 WHERE id = $3", [encryptData(applied), JSON.stringify(redlines), id]);
-        await client.query(`
-          INSERT INTO compliance_audit_logs (user_id, action_type, metadata)
-          VALUES ($1, $2, $3)
-        `, [req.user!.id, 'redline_accept', JSON.stringify({ documentId: id, redlineId })]);
-      });
+      finalContent = applied;
     }
+
+    redlines[index].status = "accepted";
+    const encryptedFinal = encrypt(finalContent);
+
+    await withTransaction(req.user!.id, req.user!.role, async (client) => {
+      await client.query("UPDATE files SET content = $1, redlines = $2 WHERE id = $3", [encryptedFinal, JSON.stringify(redlines), id]);
+
+      const versionId = "ver_" + crypto.randomUUID();
+      await client.query(
+        `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
+        [versionId, id, encryptedFinal]
+      );
+
+      await client.query(`
+        INSERT INTO compliance_audit_logs (user_id, action_type, metadata)
+        VALUES ($1, $2, $3)
+      `, [req.user!.id, 'redline_accept', JSON.stringify({ documentId: id, redlineId })]);
+    });
 
     res.json({ success: true });
   } catch (err: any) {
@@ -455,20 +424,16 @@ export const rejectRedline = async (req: Request, res: Response) => {
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 };
 
-/**
- * Helper for fuzzy matching: finds original string boundaries by normalized comparison
- */
 function getAllIndexesOfNormalizedMatch(source: string, target: string) {
   const results = [];
   const targetNorm = target.replace(/\s+/g, ' ').trim().toLowerCase();
 
-  // Slide a window across the source (expensive but accurate for small legal docs)
   for (let i = 0; i < source.length; i++) {
     for (let j = i + target.length * 0.8; j < i + target.length * 1.2; j++) {
       const sub = source.substring(i, j);
       if (sub.replace(/\s+/g, ' ').trim().toLowerCase() === targetNorm) {
         results.push({ start: i, end: j });
-        i = j; // Skip ahead
+        i = j;
         break;
       }
     }
@@ -482,7 +447,6 @@ export const exportDocument = async (req: Request, res: Response) => {
   const userRole = req.user!.role;
 
   try {
-    // Audit document export
     if (documentId) {
       await withTransaction(userId, userRole, async (client) => {
         await client.query(`

@@ -10,6 +10,7 @@ import apiRoutes from "./backend/src/routes/index.js";
 import { corsMiddleware } from "./backend/src/middleware/cors.js";
 import { errorHandler } from "./backend/src/middleware/error.js";
 import { initQueryLogger } from "./backend/src/middleware/queryLogger.js";
+import { logger } from "./backend/src/utils/logger.js";
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -20,6 +21,22 @@ initSentry(app);
 // Middlewares
 app.use(corsMiddleware);
 initQueryLogger();
+
+// Structured logging for requests
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    logger.info({
+      method: req.method,
+      url: req.originalUrl,
+      status: res.statusCode,
+      duration,
+      userId: (req as any).user?.id,
+    }, "Request processed");
+  });
+  next();
+});
 
 // Handle aborted requests BEFORE body parsing
 app.use((req, res, next) => {
@@ -51,7 +68,7 @@ async function startServer() {
   validateEnv();
   // Database initialization is decoupled from server startup.
   // Run `npx tsx scripts/setupDb.ts` manually to initialize the database.
-  console.log("Skipping database initialization on server startup. Run `npx tsx scripts/setupDb.ts` to initialize the database.");
+  logger.info("Skipping database initialization on server startup. Run `npx tsx scripts/setupDb.ts` to initialize the database.");
 
   if (config.nodeEnv !== "production") {
     // Bypass external file loading completely to prevent ESM schema URL panic
@@ -76,7 +93,7 @@ async function startServer() {
 
   const port = config.port;
   httpServer.listen(port, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${port} [${config.nodeEnv}]`);
+    logger.info(`Server running on http://localhost:${port} [${config.nodeEnv}]`);
   });
 }
 

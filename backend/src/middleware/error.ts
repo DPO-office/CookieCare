@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import * as Sentry from "@sentry/node";
+import { logger } from "../utils/logger.js";
 
 export interface ApiError extends Error {
   status?: number;
@@ -17,13 +18,18 @@ export const errorHandler = (err: ApiError, req: Request, res: Response, next: N
   const message = err.message || "Internal Server Error";
   const code = err.code || "INTERNAL_ERROR";
 
-  // Log error for debugging
-  console.error(`[ErrorHandler] ${status} - ${message}`, {
-    stack: err.stack,
+  // Structured logging for errors
+  logger.error({
+    err: {
+      message: err.message,
+      stack: err.stack,
+      code: err.code,
+    },
+    status,
     url: req.url,
     method: req.method,
-    user: req.user?.id
-  });
+    user: (req as any).user?.id,
+  }, "API Error occurred");
 
   // Capture in Sentry if status is 500 or above
   if (status >= 500) {
@@ -31,7 +37,7 @@ export const errorHandler = (err: ApiError, req: Request, res: Response, next: N
       extra: {
         url: req.url,
         method: req.method,
-        user: req.user?.id
+        user: (req as any).user?.id
       }
     });
   }
