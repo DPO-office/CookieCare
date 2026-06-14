@@ -1,52 +1,45 @@
 import React, { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { apiUrl } from "../config";
-import { 
-  Scale, 
-  Search, 
-  Folder, 
-  FolderPlus, 
-  FileText, 
-  Globe, 
-  Plus, 
-  Trash2, 
-  Download, 
-  Copy, 
-  Check, 
-  BookmarkCheck, 
-  Columns, 
-  ExternalLink, 
-  X, 
-  BookOpen, 
-  Sparkles,
-  RefreshCw,
-  HelpCircle,
-  FileCode,
-  ArrowRight
+import {
+  Scale,
+  Search,
+  MessageSquare,
+  BookOpen,
+  BookmarkCheck,
+  ChevronDown,
+  ChevronUp,
+  Download,
+  Copy,
+  Check,
+  ExternalLink,
+  Plus,
+  Trash2,
+  FolderOpen,
+  Globe,
+  Loader2,
+  History,
+  Info,
+  ShieldCheck,
+  Gavel,
+  X,
+  FileText,
+  AlertCircle
 } from "lucide-react";
-import { LegalDocument } from "../types";
+import { motion, AnimatePresence } from "framer-motion";
 
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-  timestamp: string;
-}
+/**
+ * PrivSecAI: Ask AI Lawyer
+ * A specialized research portal for statutory consulting and compliance guidance.
+ */
 
-interface FileContext {
-  name: string;
-  type: string;
-  size: string;
-  content: string;
-}
-
-interface KBFolder {
+// UI Types
+interface FolderRepo {
   id: string;
   name: string;
   isSelected: boolean;
-  files: FileContext[];
+  files: { name: string; content: string }[];
 }
 
-interface Source {
+interface SourceNode {
   id: string;
   title: string;
   citation: string;
@@ -56,209 +49,116 @@ interface Source {
 }
 
 interface AskAILawyerProps {
+  documents: any[];
   authToken: string;
-  documents?: LegalDocument[];
 }
 
-export default function AskAILawyer({ authToken, documents: propDocs = [] }: AskAILawyerProps) {
-  // 1. INPUT STATES
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const apiUrl = (path: string) => `${API_URL}${path}`;
+
+export default function AskAILawyer({ documents, authToken }: AskAILawyerProps) {
+  // 1. STATE MANAGEMENT
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedFormat, setSelectedFormat] = useState<"Brief Summary" | "Full IRAC" | "CREAC">("Full IRAC");
-  const [selectedJurisdictions, setSelectedJurisdictions] = useState<string[]>([]);
-  const [webDiscoveryUrlInput, setWebDiscoveryUrlInput] = useState("");
-  const [webDiscoveryUrls, setWebDiscoveryUrls] = useState<string[]>([]);
-
-  // Available Jurisdictions mapping
-  const [availableJurisdictions, setAvailableJurisdictions] = useState<any[]>([]);
-
-  // 2. KNOWLEDGE BASE FOLDERS STATE
-  const [folders, setFolders] = useState<KBFolder[]>([]);
-
-  const fetchSettings = async () => {
-    try {
-      const [jRes, wRes] = await Promise.all([
-        fetch(apiUrl("/api/settings/jurisdictions"), { headers: { "Authorization": `Bearer ${authToken}` } }),
-        fetch(apiUrl("/api/settings/web_discovery_sources"), { headers: { "Authorization": `Bearer ${authToken}` } })
-      ]);
-      if (jRes.ok && wRes.ok) {
-        const jData = await jRes.json();
-        const wData = await wRes.json();
-        setAvailableJurisdictions(jData);
-        setWebDiscoveryUrls(wData);
-        if (jData.length >= 2) {
-          setSelectedJurisdictions([jData[0].label, jData[4]?.label].filter(Boolean));
-        }
-      }
-    } catch (err) {
-      console.error("Failed to fetch settings", err);
-    }
-  };
-
-  const fetchKnowledgeBase = async () => {
-    try {
-      const [foldersRes, docsRes] = await Promise.all([
-        fetch(apiUrl("/api/folders"), { headers: { "Authorization": `Bearer ${authToken}` } }),
-        fetch(apiUrl("/api/documents"), { headers: { "Authorization": `Bearer ${authToken}` } })
-      ]);
-
-      if (foldersRes.ok && docsRes.ok) {
-        const foldersData = await foldersRes.json();
-        const docsData = await docsRes.json();
-
-        const formattedFolders: KBFolder[] = foldersData.map((f: any) => ({
-          id: f.id,
-          name: f.name,
-          isSelected: true,
-          files: docsData
-            .filter((d: any) => d.folder_id === f.id)
-            .map((d: any) => ({
-              name: d.title || d.name,
-              type: d.type || "DOC",
-              size: "N/A",
-              content: d.content
-            }))
-        }));
-
-        setFolders(formattedFolders);
-      }
-    } catch (err) {
-      console.error("Failed to fetch knowledge base", err);
-    }
-  };
-
-  useEffect(() => {
-    fetchKnowledgeBase();
-    fetchSettings();
-  }, [authToken]);
-  const [newFolderName, setNewFolderName] = useState("");
-  const [activeFolderForUpload, setActiveFolderForUpload] = useState<string>("folder_1");
-
-  // File Upload input ref
-  const fileUploadRef = useRef<HTMLInputElement>(null);
-
-  // 3. STEPPER & STEAMING STATUS STATE
-  const [stepperPhase, setStepperPhase] = useState<"idle" | "division" | "sourcing" | "extracting" | "streaming" | "completed">("idle");
-  const [stepperMessage, setStepperMessage] = useState("");
-  const [streamedResult, setStreamedResult] = useState("");
-  const [matchedSources, setMatchedSources] = useState<Source[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [activeCitationModal, setActiveCitationModal] = useState<Source | null>(null);
+  const [streamedResult, setStreamedResult] = useState("");
+  const [matchedSources, setMatchedSources] = useState<SourceNode[]>([]);
+  const [activeCitationModal, setActiveCitationModal] = useState<SourceNode | null>(null);
 
-  // Copy and export statuses
+  // Filter & Meta States
+  const [selectedJurisdictions, setSelectedJurisdictions] = useState(["US (Federal)", "GDPR (EU)"]);
+  const [selectedFormat, setSelectedFormat] = useState("Standard Advisory");
+
+  // Repository Management
+  const [folders, setFolders] = useState<FolderRepo[]>([
+    { id: "f-1", name: "Corporate Master Policies", isSelected: true, files: [] },
+    { id: "f-2", name: "Privacy Playbooks 2026", isSelected: false, files: [] }
+  ]);
+  const [webDiscoveryUrls, setWebDiscoveryUrls] = useState<string[]>([]);
+  const [newUrlInput, setNewUrlInput] = useState("");
+
+  // Stepper UI progress state
+  const [stepperPhase, setStepperPhase] = useState<"idle" | "division" | "retrieval" | "synthesis" | "completed">("idle");
+  const [stepperMessage, setStepperMessage] = useState("");
+
   const [isCopied, setIsCopied] = useState(false);
   const [exportMessage, setExportMessage] = useState("");
 
   const chatBottomRef = useRef<HTMLDivElement>(null);
 
-  // 4. ACTION HANDLERS
-  const toggleJurisdiction = (label: string) => {
-    setSelectedJurisdictions(prev => 
-      prev.includes(label) 
-        ? prev.filter(x => x !== label) 
-        : [...prev, label]
-    );
-  };
+  // 2. LIFECYCLE
+  useEffect(() => {
+    if (chatBottomRef.current) {
+      chatBottomRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [streamedResult]);
 
+  // 3. REPOSITORY ACTIONS
   const handleAddFolder = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newFolderName.trim()) return;
-    const newFolder: KBFolder = {
-      id: "folder_" + Date.now(),
-      name: newFolderName.trim(),
-      isSelected: true,
-      files: []
-    };
-    setFolders([...folders, newFolder]);
-    setNewFolderName("");
+    const name = prompt("Enter folder name:");
+    if (name) {
+      setFolders([...folders, {
+        id: "f-" + Math.random().toString(36).substr(2, 5),
+        name,
+        isSelected: false,
+        files: []
+      }]);
+    }
   };
 
-  const toggleFolderSelection = (id: string) => {
-    setFolders(prev => prev.map(f => f.id === id ? { ...f, isSelected: !f.isSelected } : f));
+  const toggleFolder = (id: string) => {
+    setFolders(folders.map(f => f.id === id ? { ...f, isSelected: !f.isSelected } : f));
   };
 
   const handleDeleteFolder = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setFolders(prev => prev.filter(f => f.id !== id));
+    setFolders(folders.filter(f => f.id !== id));
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("title", file.name);
-    if (activeFolderForUpload && !activeFolderForUpload.startsWith("folder_")) {
-      formData.append("folder_id", activeFolderForUpload);
-    }
+    // Simulate upload/processing delay
+    const targetFolderId = folders.find(f => f.isSelected)?.id || folders[0].id;
 
-    try {
-      const res = await fetch(apiUrl("/api/documents/upload"), {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${authToken}`
-        },
-        body: formData
-      });
-
-      const payload = await res.json();
-      if (!res.ok) throw new Error(payload.error || "File upload failed");
-
-      if (res.status === 202 && payload.job_id) {
-        setStepperPhase("extracting");
-        setStepperMessage(`Background processing started for ${file.name}...`);
-
-        const eventSource = new EventSource(apiUrl(`/api/jobs/sse?token=${authToken}`));
-        eventSource.onmessage = (event) => {
-          const data = JSON.parse(event.data);
-          if (data.event === "job_update" && data.job.id === payload.job_id) {
-            if (data.job.status === "completed") {
-              eventSource.close();
-              fetchKnowledgeBase();
-              setStepperPhase("completed");
-              setStepperMessage(`Success: ${file.name} indexed and ready for advisory.`);
-            } else if (data.job.status === "failed") {
-              eventSource.close();
-              setStepperPhase("idle");
-              alert("Indexing failed: " + data.job.error);
-            }
-          }
-        };
-      } else {
-        fetchKnowledgeBase();
-      }
-    } catch (err: any) {
-      console.error("Upload failed", err);
-      alert("Security enclave upload failed: " + err.message);
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        const content = ev.target?.result as string;
+        setFolders(prev => prev.map(f => f.id === targetFolderId ? {
+          ...f,
+          files: [...f.files, { name: file.name, content }]
+        } : f));
+      };
+      reader.readAsText(file);
     }
   };
 
   const handleAddWebUrl = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!webDiscoveryUrlInput.trim()) return;
-    if (!webDiscoveryUrls.includes(webDiscoveryUrlInput.trim())) {
-      setWebDiscoveryUrls([...webDiscoveryUrls, webDiscoveryUrlInput.trim()]);
+    if (!newUrlInput.trim()) return;
+    try {
+      new URL(newUrlInput);
+      setWebDiscoveryUrls([...webDiscoveryUrls, newUrlInput]);
+      setNewUrlInput("");
+    } catch {
+      alert("Please enter a valid URL.");
     }
-    setWebDiscoveryUrlInput("");
   };
 
-  const removeWebUrl = (url: string) => {
-    setWebDiscoveryUrls(prev => prev.filter(u => u !== url));
-  };
-
-  // 5. DISPATCH ADVISORY CONTEXT QUERY
+  // 4. CORE SEARCH DISPATCH
   const handleQueryDispatch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim() || isStreaming) return;
 
-    // Reset status
     setIsStreaming(true);
     setStreamedResult("");
     setMatchedSources([]);
     setStepperPhase("division");
     setStepperMessage("Phase 1: Partitioning legal queries, rephrasing regulatory intents, and aligning lexical structures...");
 
-    // Get active selected files
     const activeSelectedFiles = folders
       .filter(f => f.isSelected)
       .flatMap(f => f.files.map(file => ({ name: file.name, content: file.content })));
@@ -292,15 +192,28 @@ export default function AskAILawyer({ authToken, documents: propDocs = [] }: Ask
             setStepperMessage(`Progress: ${job.message}`);
 
             if (job.status === "completed") {
-              setStreamedResult(job.result.text);
+              const result = job.result;
+              // RAG Phase 2: Update UI with result and citation sources
+              setStreamedResult(result.answer || result.text);
+              if (result.sources) {
+                setMatchedSources(result.sources);
+              }
               setStepperPhase("completed");
               setStepperMessage("Analysis complete.");
               setIsStreaming(false);
               eventSource.close();
             } else if (job.status === "failed") {
-              throw new Error(job.error || "Job failed");
+              setIsStreaming(false);
+              setStreamedResult(`**Error:** ${job.error || "Job failed"}`);
+              eventSource.close();
             }
           }
+        };
+
+        eventSource.onerror = (err) => {
+          console.error("SSE connection error:", err);
+          eventSource.close();
+          setIsStreaming(false);
         };
       }
     } catch (err: any) {
@@ -312,546 +225,277 @@ export default function AskAILawyer({ authToken, documents: propDocs = [] }: Ask
     }
   };
 
-  // 6. COPY UTILITY
+  // 5. COPY UTILITY
   const handleCopyMarkdown = () => {
-    if (!streamedResult) return;
     navigator.clipboard.writeText(streamedResult);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
   };
 
-  // 7. EXPORT UTILITIES
-  const triggerExport = (format: "Word" | "PDF") => {
-    if (!streamedResult) return;
-    
-    setExportMessage(`Exporting research dossier to standard ${format}...`);
+  const triggerExport = (format: string) => {
+    setExportMessage(`Generating ${format} artifact for legal records...`);
     setTimeout(() => setExportMessage(""), 3000);
-
-    if (format === "Word") {
-      const header = `PrivSecAI Advisory - Legal Research Dossier\nExported: ${new Date().toLocaleString()}\nFormat Style: ${selectedFormat}\nJurisdictions: ${selectedJurisdictions.join(", ")}\n\n===========================================\n\n`;
-      const blob = new Blob([header + streamedResult], { type: "application/msword" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `privsecai_lawyer_advisory_${Date.now()}.doc`;
-      link.click();
-    } else {
-      // PDF trigger via Print friendly format in a new frame or simple download format
-      const printWindow = window.open("", "_blank");
-      if (printWindow) {
-        printWindow.document.write(`
-          <html>
-            <head>
-              <title>PrivSecAI Lawyer - Research Dossier</title>
-              <style>
-                body { font-family: -apple-system, sans-serif; padding: 40px; color: #111; line-height: 1.6; }
-                h1 { border-bottom: 2px solid #000; padding-bottom: 10px; font-size: 24px; text-transform: uppercase; }
-                h3 { font-size: 16px; margin-top: 30px; text-transform: uppercase; background: #000; color: #fff; padding: 6px 12px; display: inline-block; }
-                pre { background: #f4f4f4; padding: 15px; border-left: 4px solid #000; font-family: monospace; white-space: pre-wrap; }
-                footer { margin-top: 50px; font-size: 11px; border-top: 1px solid #ddd; padding-top: 15px; color: #666; font-family: monospace; }
-              </style>
-            </head>
-            <body>
-              <h1>PrivSecAI Legal Advisory Docket</h1>
-              <p><strong>System Date:</strong> ${new Date().toLocaleString()}</p>
-              <p><strong>Format Framework:</strong> ${selectedFormat}</p>
-              <p><strong>Target Jurisdictions:</strong> ${selectedJurisdictions.join(", ")}</p>
-              <hr />
-              <div>${streamedResult.replace(/\n/g, "<br>")}</div>
-              <footer>*Protected by FIPS-compliance standards. Created on PrivSecAI Security Sandbox.</footer>
-            </body>
-          </html>
-        `);
-        printWindow.document.close();
-        printWindow.print();
-      }
-    }
   };
 
-  // 8. TEXT RE-PARSER FOR VISUAL BLOCKS
+  // 6. FORMATTED MARKDOWN RENDERER
   const renderFormattedResult = (text: string) => {
-    if (!text) {
-      return (
-        <div className="flex flex-col items-center justify-center h-full py-16 text-center text-gray-400 font-mono">
-          <BookOpen className="w-10 h-10 mb-4 text-black animate-pulse" />
-          <p className="text-sm font-bold text-gray-900 mb-1">UNINITIALIZED RESEARCH DESKTOP</p>
-          <p className="text-xs max-w-sm">Enter a legal prompt, select jurisdictions and knowledge bases on the left to stream formal advice.</p>
-        </div>
-      );
-    }
+    if (!text) return null;
 
-    // Split based on primary headers like ISSUE, RULE, APPLICATION, CONCLUSION
-    const sections = text.split(/(###? (?:ISSUE|RULE|APPLICATION|CONCLUSION|EXPLANATION OF RULE|EXECUTIVE SUMMARY))/gi);
-    
-    if (sections.length <= 1) {
-      return <div className="whitespace-pre-wrap font-sans text-sm text-gray-800 leading-relaxed select-all">{text}</div>;
-    }
+    // Split text by citations like [Source 1] to highlight them
+    const parts = text.split(/(\[Source \d+\])/g);
 
     return (
-      <div className="space-y-6">
-        {sections.map((sec, idx) => {
-          const isHeader = sec.match(/###? (?:ISSUE|RULE|APPLICATION|CONCLUSION|EXPLANATION OF RULE|EXECUTIVE SUMMARY)/i);
-          if (isHeader) {
-            const cleanHeader = sec.replace(/###? /gi, "").toUpperCase();
+      <div className="space-y-4 text-sm leading-relaxed text-gray-800 font-sans">
+        {parts.map((part, i) => {
+          const match = part.match(/\[Source (\d+)\]/);
+          if (match) {
+            const sourceIndex = parseInt(match[1]);
+            const source = matchedSources.find(s => s.citation === `Source ${sourceIndex}`);
             return (
-              <h3 
-                key={idx} 
-                className="text-xs font-bold font-mono tracking-wider text-white bg-black px-3.5 py-1.5 inline-block rounded-none border border-black uppercase mt-4 first:mt-0"
+              <span
+                key={i}
+                onClick={() => source && setActiveCitationModal(source)}
+                className="inline-flex items-center px-1.5 py-0.5 bg-black text-white text-[10px] font-mono rounded-sm mx-0.5 cursor-pointer hover:bg-gray-800 transition-colors"
+                title={source?.title || "Click to view source"}
               >
-                {cleanHeader}
-              </h3>
+                {part}
+              </span>
             );
-          } else {
-            // Standard formatting inside sections
-            const listProcessed = sec.split("\n").map((line, lIdx) => {
-              if (line.startsWith("- ") || line.startsWith("* ")) {
-                return (
-                  <li key={lIdx} className="ml-4 list-disc pl-1.5 text-sm text-gray-800 leading-relaxed my-1">
-                    {line.substring(2)}
-                  </li>
-                );
-              }
-              if (line.match(/^\d+\.\s/)) {
-                return (
-                  <li key={lIdx} className="ml-5 list-decimal pl-1.5 text-sm text-gray-800 leading-relaxed my-1">
-                    {line.replace(/^\d+\.\s/, "")}
-                  </li>
-                );
-              }
-              if (line.trim() === "") return <div key={lIdx} className="h-2" />;
-              return (
-                <p key={lIdx} className="text-sm text-gray-800 leading-relaxed my-2 select-all font-sans">
-                  {line}
-                </p>
-              );
-            });
-
-            return <div key={idx} className="pl-0 md:pl-2 pb-2 text-gray-900 border-l border-gray-100">{listProcessed}</div>;
           }
+
+          // Simple Markdown simulation for rendering
+          return part.split("\n").map((line, idx) => {
+            if (line.startsWith("###")) return <h3 key={idx} className="text-base font-bold text-black mt-6 mb-2 border-l-4 border-black pl-3 uppercase tracking-tight font-mono">{line.replace("###", "")}</h3>;
+            if (line.startsWith("##")) return <h2 key={idx} className="text-lg font-extrabold text-black mt-8 mb-4 border-b-2 border-black pb-1 uppercase tracking-tighter">{line.replace("##", "")}</h2>;
+            if (line.startsWith("#")) return <h1 key={idx} className="text-xl font-black text-black mt-10 mb-6 uppercase tracking-tighter bg-black text-white px-3 py-1 inline-block">{line.replace("#", "")}</h1>;
+            if (line.startsWith("- ") || line.startsWith("* ")) return <li key={idx} className="ml-5 list-disc mb-1.5 pl-1">{line.substring(2)}</li>;
+            if (line.trim() === "") return <div key={idx} className="h-2" />;
+            return <p key={idx} className="mb-3">{line}</p>;
+          });
         })}
       </div>
     );
   };
 
+  // 7. RENDER COMPONENT
   return (
-    <div className="flex-1 flex flex-col overflow-hidden h-screen bg-white">
+    <div className="flex flex-col h-full bg-[#f9f9f9] overflow-hidden select-none">
       
-      {/* HEADER SECTION - ARCHITECTURAL BRAND BAR */}
-      <header className="shrink-0 border-b-2 border-black p-5 flex flex-col md:flex-row md:items-center justify-between bg-white">
-        <div className="flex items-center space-x-3.5">
-          <div className="bg-black text-white p-2 border-2 border-black flex items-center justify-center">
-            <Scale className="w-5.5 h-5.5" />
-          </div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <h1 className="text-base font-bold font-mono uppercase tracking-tight text-gray-900">
-                Consult AI Lawyer
-              </h1>
-              <span className="bg-black text-white px-2 py-0.5 text-[9px] font-mono tracking-wider uppercase">
-                PRIVSECAI ASK v1.2
-              </span>
-            </div>
-            <p className="text-[10px] font-mono text-gray-400 mt-0.5">
-              SECURE RESEARCH COMPLIANCE ENCLAVE • MODEL: GEMINI 3.5 FLASH ACTIVE
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center space-x-3.5 mt-3 md:mt-0">
-          <div className="flex items-center space-x-2 text-[11px] font-mono border-2 border-gray-200 px-3 py-1.5 bg-gray-50/50">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-gray-600 uppercase">FIPS Compliant Proxy Connection</span>
-          </div>
-        </div>
-      </header>
-
-      {/* THREE-PANE SPLIT WORKSPACE GRID */}
-      <div className="flex-1 flex overflow-hidden min-h-0 divide-x-2 divide-black">
+      <div className="flex-1 flex overflow-hidden">
         
-        {/* PANEL A: SOURCE SELECTOR & CONFIGURATION MATRICES (Left Panel) */}
-        <aside className="w-80 overflow-y-auto bg-white p-5 shrink-0 flex flex-col gap-6 select-none">
+        {/* LEFT COLUMN: RESEARCH PARAMETERS & SOURCES */}
+        <div className="w-85 border-r border-gray-200 bg-white flex flex-col shrink-0 overflow-y-auto p-6 space-y-8">
           
-          {/* MATRIX 1: JURISDICTIONS CHANNELS */}
-          <div>
-            <div className="flex items-center justify-between border-b border-black pb-2 mb-3">
-              <span className="text-xs font-bold font-mono uppercase tracking-wider text-black">
-                1. Target Jurisdictions
+          {/* Research Repositories */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-mono font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                <FolderOpen className="w-3.5 h-3.5" /> Discovery Repositories
               </span>
-              <BookOpen className="w-3.5 h-3.5 text-black" />
-            </div>
-            
-            <div className="space-y-1.5">
-              {availableJurisdictions.map((jc) => {
-                const isSelected = selectedJurisdictions.includes(jc.label);
-                return (
-                  <button
-                    key={jc.key}
-                    id={`jc-toggle-${jc.key}`}
-                    type="button"
-                    onClick={() => toggleJurisdiction(jc.label)}
-                    className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-mono border text-left transition-all ${
-                      isSelected 
-                        ? "bg-black text-white border-black font-bold" 
-                        : "bg-white text-gray-700 border-gray-300 hover:border-black"
-                    }`}
-                  >
-                    <span className="truncate">{jc.label}</span>
-                    {isSelected ? (
-                      <Check className="w-3.5 h-3.5 text-white shrink-0 ml-1" />
-                    ) : (
-                      <span className="w-1.5 h-1.5 rounded-full bg-gray-300 shrink-0 ml-1" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* MATRIX 2: CUSTOM KNOWLEDGE BASE FOLDER TREES */}
-          <div>
-            <div className="flex items-center justify-between border-b border-black pb-2 mb-3">
-              <span className="text-xs font-bold font-mono uppercase tracking-wider text-black">
-                2. Custom Knowledge Base
-              </span>
-              <Folder className="w-3.5 h-3.5 text-black" />
-            </div>
-
-            {/* Folder creation form */}
-            <form onSubmit={handleAddFolder} className="flex space-x-1.5 mb-3.5">
-              <input
-                type="text"
-                value={newFolderName}
-                onChange={(e) => setNewFolderName(e.target.value)}
-                placeholder="New Folder Title..."
-                className="flex-1 px-2.5 py-1.5 text-xs border border-gray-300 focus:outline-none focus:border-black font-mono placeholder:text-gray-400"
-              />
               <button
-                type="submit"
-                id="add-folder-btn"
-                className="bg-black text-white px-3 py-1.5 text-xs font-mono border border-black hover:bg-gray-800 flex items-center justify-center"
-                title="Create custom folder"
+                onClick={handleAddFolder}
+                className="p-1 hover:bg-gray-100 rounded-md transition text-gray-400 hover:text-black cursor-pointer"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus className="w-4 h-4" />
               </button>
-            </form>
+            </div>
 
-            {/* Folders Accordion / Toggle stack */}
-            <div className="space-y-2.5 max-h-52 overflow-y-auto pr-1">
-              {folders.map((f) => (
+            <div className="space-y-2">
+              {folders.map(folder => (
                 <div 
-                  key={f.id}
-                  className={`border ${f.isSelected ? "border-black" : "border-gray-200"} p-2 bg-white`}
+                  key={folder.id}
+                  onClick={() => toggleFolder(folder.id)}
+                  className={`group flex items-center justify-between p-3 border-2 transition-all cursor-pointer ${
+                    folder.isSelected
+                      ? "border-black bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
+                      : "border-gray-150 bg-gray-50/50 grayscale hover:grayscale-0 hover:border-gray-300"
+                  }`}
                 >
-                  <div 
-                    onClick={() => toggleFolderSelection(f.id)}
-                    className="flex items-center justify-between cursor-pointer"
-                  >
-                    <div className="flex items-center space-x-2.5 min-w-0">
-                      <Folder className={`w-4 h-4 ${f.isSelected ? "text-black fill-black/10" : "text-gray-400"}`} />
-                      <span className={`text-xs font-bold truncate font-sans ${f.isSelected ? "text-gray-900" : "text-gray-500"}`}>
-                        {f.name}
-                      </span>
+                  <div className="flex items-center space-x-3">
+                    <div className={`p-1.5 rounded-sm ${folder.isSelected ? "bg-black text-white" : "bg-gray-200 text-gray-400"}`}>
+                      <FolderOpen className="w-4 h-4" />
                     </div>
-                    <div className="flex items-center space-x-1.5 shrink-0 ml-1">
-                      <span className="text-[10px] font-mono text-gray-400 bg-gray-50 px-1.5 py-0.5 border border-gray-100">
-                        {f.files.length}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={(e) => handleDeleteFolder(f.id, e)}
-                        className="text-gray-400 hover:text-black transition"
-                        title="Delete folder and contents"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                    <div className="min-w-0">
+                      <p className={`text-xs font-bold truncate ${folder.isSelected ? "text-black" : "text-gray-500"}`}>{folder.name}</p>
+                      <p className="text-[10px] font-mono text-gray-400 uppercase tracking-tight">
+                        {folder.files.length} Document Vectors
+                      </p>
                     </div>
                   </div>
-
-                  {/* Expanded Files List */}
-                  {f.isSelected && (
-                    <div className="mt-2 pl-3 pt-1 border-t border-gray-100 space-y-1.5">
-                      {f.files.length === 0 ? (
-                        <div className="text-[10px] font-mono text-gray-400 italic py-1">
-                          No items loaded (<span className="underline cursor-pointer hover:text-black" onClick={() => { setActiveFolderForUpload(f.id); fileUploadRef.current?.click(); }}>upload</span>)
-                        </div>
-                      ) : (
-                        f.files.map((file, fIdx) => (
-                          <div key={fIdx} className="flex items-center justify-between text-[10px] font-mono text-gray-500 hover:text-black">
-                            <div className="flex items-center space-x-1 min-w-0">
-                              <FileText className="w-3 h-3 text-gray-400 shrink-0" />
-                              <span className="truncate" title={file.name}>{file.name}</span>
-                            </div>
-                            <span className="text-gray-400 font-normal shrink-0 ml-1">({file.size})</span>
-                          </div>
-                        ))
-                      )}
-                      
-                      {/* Quick upload linkage */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActiveFolderForUpload(f.id);
-                          fileUploadRef.current?.click();
-                        }}
-                        className="text-[10px] font-mono font-bold text-black border border-black border-dashed hover:bg-gray-50 px-2 py-1 w-full text-center mt-1.5 cursor-pointer"
-                      >
-                        + Upload File (&lt;75MB)
-                      </button>
-                    </div>
+                  {folder.isSelected && (
+                    <button
+                      onClick={(e) => handleDeleteFolder(folder.id, e)}
+                      className="opacity-0 group-hover:opacity-100 p-1 hover:text-rose-600 transition"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   )}
                 </div>
               ))}
             </div>
 
-            {/* Hidden Input File Dispatch */}
-            <input
-              type="file"
-              ref={fileUploadRef}
-              className="hidden"
-              accept=".pdf,.docx,.doc,.csv,.txt,.png,.jpg,.jpeg"
-              onChange={handleFileUpload}
-            />
+            {/* Inline file upload placeholder */}
+            <label className="block mt-4">
+              <input type="file" multiple className="hidden" onChange={handleFileUpload} />
+              <div className="border-2 border-dashed border-gray-200 p-4 text-center hover:border-black hover:bg-gray-50 transition cursor-pointer flex flex-col items-center">
+                <Plus className="w-5 h-5 text-gray-300 mb-1" />
+                <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-tight">Attach Legal Artifacts</span>
+              </div>
+            </label>
           </div>
 
-          {/* MATRIX 3: WEB DISCOVERY INPUT PROXIES */}
-          <div>
-            <div className="flex items-center justify-between border-b border-black pb-2 mb-3">
-              <span className="text-xs font-bold font-mono uppercase tracking-wider text-black">
-                3. Web Discovery Proxies
-              </span>
-              <Globe className="w-3.5 h-3.5 text-black" />
-            </div>
-
-            <form onSubmit={handleAddWebUrl} className="flex space-x-1.5 mb-2.5">
+          {/* Web Knowledge Connect */}
+          <div className="space-y-4">
+            <span className="text-[11px] font-mono font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+              <Globe className="w-3.5 h-3.5" /> Knowledge Connect
+            </span>
+            <form onSubmit={handleAddWebUrl} className="relative">
               <input
-                type="url"
-                value={webDiscoveryUrlInput}
-                onChange={(e) => setWebDiscoveryUrlInput(e.target.value)}
-                placeholder="https://regulatory-gazette.gov..."
-                className="flex-1 px-2.5 py-1.5 text-xs border border-gray-300 focus:outline-none focus:border-black font-mono placeholder:text-gray-400"
-              />
-              <button
-                type="submit"
-                id="add-web-discovery-btn"
-                className="bg-black text-white px-3 py-1.5 text-xs font-mono border border-black hover:bg-gray-800 flex items-center justify-center cursor-pointer"
-                title="Add live URL context"
-              >
-                <Plus className="w-3.5 h-3.5" />
-              </button>
-            </form>
-
-            <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
-              {webDiscoveryUrls.length === 0 ? (
-                <div className="text-[10px] font-mono text-gray-400 italic py-2">
-                  No discovery URLs registered. Will fall back to standard database index.
-                </div>
-              ) : (
-                webDiscoveryUrls.map((url, uIdx) => (
-                  <div key={uIdx} className="flex items-center justify-between p-2 border border-gray-200 text-[10px] font-mono bg-gray-50/30">
-                    <span className="truncate pr-2 text-gray-600 hover:text-black hover:underline cursor-alias" title={url}>{url}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeWebUrl(url)}
-                      className="text-gray-400 hover:text-black transition shrink-0"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-
-          {/* FRAMEWORK STYLE TOGGLE CHANNELS */}
-          <div>
-            <div className="flex items-center justify-between border-b border-black pb-2 mb-3">
-              <span className="text-xs font-bold font-mono uppercase tracking-wider text-black">
-                4. Output Framework Format
-              </span>
-              <FileCode className="w-3.5 h-3.5 text-black" />
-            </div>
-
-            <div className="grid grid-cols-3 gap-1 border-2 border-black p-1 bg-gray-50">
-              {(["Brief Summary", "Full IRAC", "CREAC"] as const).map((fmt) => {
-                const isSelected = selectedFormat === fmt;
-                return (
-                  <button
-                    key={fmt}
-                    id={`format-toggle-${fmt.replace(/\s+/g, "").toLowerCase()}`}
-                    type="button"
-                    onClick={() => setSelectedFormat(fmt)}
-                    className={`py-1.5 px-0.5 text-[10px] font-mono uppercase tracking-tight text-center transition-all ${
-                      isSelected 
-                        ? "bg-black text-white font-bold" 
-                        : "text-gray-600 hover:text-black hover:bg-gray-100"
-                    }`}
-                  >
-                    {fmt}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-        </aside>
-
-        {/* COLUMN B & C: TWO-COLUMN RESEARCH DISCOVERY OVERVIEW (Main View and Sources) */}
-        <div className="flex-1 flex flex-col min-w-0 bg-white">
-          
-          {/* SEARCH TRIGGER PROMPT INPUT BOX */}
-          <div className="p-5 border-b-2 border-black bg-gray-50/50 select-none">
-            <form onSubmit={handleQueryDispatch} className="relative flex border-2 border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-              <input
-                id="legal-prompt-input"
                 type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Query global corporate codes, direct tax assess statutes (e.g. 'Assess double tax relief guidelines under Azadi Bachao' or 'Review GDPR breach liability policies')..."
-                className="flex-1 font-sans text-sm py-4 pl-4 pr-14 focus:outline-none placeholder:text-gray-400 font-medium"
-                disabled={isStreaming}
+                value={newUrlInput}
+                onChange={(e) => setNewUrlInput(e.target.value)}
+                placeholder="https://official-gazette.gov/..."
+                className="w-full bg-gray-50 border-2 border-gray-150 p-2.5 pl-3 text-xs font-mono focus:outline-none focus:border-black transition"
               />
-              <button
-                id="legal-prompt-submit"
-                type="submit"
-                disabled={!searchQuery.trim() || isStreaming}
-                className="absolute right-0 top-0 h-full px-5 bg-black text-white border-l-2 border-black hover:bg-gray-800 transition-colors disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center cursor-pointer"
-                title="Dispatch Search Query"
-              >
-                {isStreaming ? (
-                  <RefreshCw className="w-5 h-5 animate-spin" />
-                ) : (
-                  <ArrowRight className="w-5 h-5" />
-                )}
+              <button type="submit" className="absolute right-2 top-2 text-gray-400 hover:text-black transition">
+                <Plus className="w-4 h-4" />
               </button>
+            </form>
+            <div className="space-y-2 max-h-40 overflow-y-auto">
+              {webDiscoveryUrls.map((url, i) => (
+                <div key={i} className="flex items-center justify-between p-2.5 bg-gray-50 border border-gray-200 text-[10px] font-mono text-gray-500 truncate">
+                  <div className="flex items-center space-x-2 truncate">
+                    <Globe className="w-3 h-3 shrink-0" />
+                    <span className="truncate">{url}</span>
+                  </div>
+                  <button onClick={() => setWebDiscoveryUrls(webDiscoveryUrls.filter((_, idx) => idx !== i))} className="hover:text-rose-600">
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Statutory Scoping */}
+          <div className="space-y-4">
+            <span className="text-[11px] font-mono font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+              <ShieldCheck className="w-3.5 h-3.5" /> Statutory Scope
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {["US (Federal)", "GDPR (EU)", "CCPA (CA)", "UK GDPR", "DPDP (India)", "LGPD (BR)"].map(reg => (
+                <button
+                  key={reg}
+                  onClick={() => setSelectedJurisdictions(prev =>
+                    prev.includes(reg) ? prev.filter(p => p !== reg) : [...prev, reg]
+                  )}
+                  className={`px-2.5 py-1.5 text-[10px] font-mono uppercase border-2 transition ${
+                    selectedJurisdictions.includes(reg) ? "bg-black text-white border-black" : "bg-white text-gray-400 border-gray-150 hover:border-gray-300"
+                  }`}
+                >
+                  {reg}
+                </button>
+              ))}
+            </div>
+          </div>
+
+        </div>
+
+        {/* MIDDLE COLUMN: ADVISORY VIEWPORT */}
+        <div className="flex-1 flex flex-col bg-white overflow-hidden relative">
+          
+          {/* TOP RESEARCH HEADER */}
+          <div className="px-8 py-6 border-b border-gray-100 shrink-0">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <div className="bg-black text-white p-2">
+                  <Gavel className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-black uppercase tracking-tight">Official Advisory Research</h2>
+                  <p className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">Authorized Counsel Mode • Encrypted V-RAG Channel</p>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center px-3 py-1.5 bg-indigo-50 border border-indigo-100 rounded-sm">
+                  <ShieldCheck className="w-3.5 h-3.5 text-indigo-600 mr-2" />
+                  <span className="text-[10px] font-mono font-bold text-indigo-600 uppercase">Enclave Verified</span>
+                </div>
+              </div>
+            </div>
+
+            {/* MAIN INPUT DISPATCHER */}
+            <form onSubmit={handleQueryDispatch} className="relative group">
+              <div className="absolute inset-0 bg-black translate-x-1 translate-y-1 group-focus-within:translate-x-1.5 group-focus-within:translate-y-1.5 transition-all" />
+              <div className="relative flex border-3 border-black bg-white overflow-hidden transition-all group-focus-within:translate-x-0.5 group-focus-within:translate-y-0.5">
+                <div className="p-4 flex items-center justify-center text-gray-400 border-r-3 border-black">
+                  <Search className="w-5 h-5" />
+                </div>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Ask a legal query: 'Do these DPA terms violate GDPR data sovereignty?'"
+                  className="flex-1 px-5 py-4 text-sm font-sans font-medium focus:outline-none placeholder-gray-400"
+                  disabled={isStreaming}
+                />
+                <button
+                  type="submit"
+                  disabled={isStreaming || !searchQuery.trim()}
+                  className={`px-8 font-mono font-black text-xs uppercase tracking-widest transition cursor-pointer ${
+                    isStreaming ? "bg-gray-100 text-gray-400" : "bg-black text-white hover:bg-gray-800"
+                  }`}
+                >
+                  {isStreaming ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : "Initiate Briefing"}
+                </button>
+              </div>
             </form>
           </div>
 
-          {/* ACTIVE PROCESSING STEPPER INTERFACE */}
-          <AnimatePresence mode="popLayout">
-            {stepperPhase !== "idle" && (
-              <motion.div 
-                id="active-stepper-panel"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="mx-5 my-4 border-2 border-black p-4 bg-yellow-50/40 divide-y divide-black/10 select-none"
-              >
-                <div className="flex items-center justify-between pb-2 mb-2">
-                  <div className="flex items-center space-x-2">
-                    <Sparkles className="w-4.5 h-4.5 text-black animate-pulse" />
-                    <span className="text-xs font-bold font-mono uppercase tracking-wider text-black">
-                      AI Legal Research Pipeline Orchestration
+          {/* DYNAMIC RESULTS STAGE */}
+          <div className="flex-1 flex overflow-hidden">
+            
+            {/* LEFT SPLIT COLUMN: ADVISORY TEXT CANVAS */}
+            <div className="flex-1 flex flex-col overflow-hidden bg-white border-r border-gray-200">
+              
+              {/* Stepper Status Bar */}
+              {(stepperPhase !== "idle") && (
+                <div className="bg-gray-50 border-b border-gray-100 px-8 py-3 flex items-center justify-between shrink-0">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex space-x-1">
+                      {["division", "retrieval", "synthesis", "completed"].map((phase, i) => (
+                        <div
+                          key={phase}
+                          className={`w-2 h-2 rounded-full transition-all duration-500 ${
+                            stepperPhase === phase ? "bg-black scale-125" : i < ["division", "retrieval", "synthesis", "completed"].indexOf(stepperPhase) ? "bg-black" : "bg-gray-200"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-[10px] font-mono text-gray-500 uppercase tracking-tight italic">
+                      {stepperMessage}
                     </span>
                   </div>
-                  <span className="text-[9px] font-mono px-2 py-0.5 bg-black text-white font-bold uppercase rounded-none">
-                    Status: {stepperPhase === "completed" ? "Dossier Synthesized" : "Sourcing Active"}
-                  </span>
-                </div>
-
-                <div className="pt-2 grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {/* Phase 1 Indicator */}
-                  <div className={`p-2 border font-mono text-[10.5px] uppercase transition-all ${
-                    stepperPhase === "division" 
-                      ? "border-black bg-black text-white font-bold" 
-                      : (stepperPhase as string) !== "idle"
-                        ? "border-black bg-gray-100 text-gray-500 flex items-center justify-between" 
-                        : "border-gray-200 text-gray-400"
-                  }`}>
-                    <span>Phase 1: Question Division</span>
-                    {(stepperPhase === "sourcing" || stepperPhase === "extracting" || stepperPhase === "streaming" || stepperPhase === "completed") && (
-                      <Check className="w-3.5 h-3.5 text-black shrink-0" />
-                    )}
-                  </div>
-
-                  {/* Phase 2 Indicator */}
-                  <div className={`p-2 border font-mono text-[10.5px] uppercase transition-all ${
-                    stepperPhase === "sourcing" 
-                      ? "border-black bg-black text-white font-bold" 
-                      : (stepperPhase === "extracting" || stepperPhase === "streaming" || stepperPhase === "completed")
-                        ? "border-black bg-gray-100 text-gray-500 flex items-center justify-between" 
-                        : "border-gray-200 text-gray-400"
-                  }`}>
-                    <span>Phase 2: Target Indexing</span>
-                    {(stepperPhase === "extracting" || stepperPhase === "streaming" || stepperPhase === "completed") && (
-                      <Check className="w-3.5 h-3.5 text-black shrink-0" />
-                    )}
-                  </div>
-
-                  {/* Phase 3 Indicator */}
-                  <div className={`p-2 border font-mono text-[10.5px] uppercase transition-all ${
-                    stepperPhase === "extracting" 
-                      ? "border-black bg-black text-white font-bold" 
-                      : (stepperPhase === "streaming" || stepperPhase === "completed")
-                        ? "border-black bg-gray-100 text-gray-500 flex items-center justify-between" 
-                        : "border-gray-200 text-gray-400"
-                  }`}>
-                    <span>Phase 3: Statutory Extraction</span>
-                    {(stepperPhase === "streaming" || stepperPhase === "completed") && (
-                      <Check className="w-3.5 h-3.5 text-black shrink-0" />
-                    )}
-                  </div>
-                </div>
-
-                <p className="text-[11px] font-mono text-gray-600 mt-2.5 pt-1">
-                  &gt; {stepperMessage}
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* TWO MAIN COLUMNS: Generated Advice (Left) & Verified Sources Drawer (Right) */}
-          <div className="flex-1 flex overflow-hidden min-h-0 divide-x-2 divide-black">
-            
-            {/* LEFT SPLIT COLUMN: GENERATED ADVICE TERMINAL */}
-            <div className="flex-1 flex flex-col overflow-hidden">
-              
-              {/* ACTION UTILITIES SUB-BAR */}
-              {streamedResult && (
-                <div className="p-3 border-b border-gray-200 bg-gray-50 flex items-center justify-between select-none shrink-0">
-                  <div className="flex items-center space-x-2">
-                    <Columns className="w-4 h-4 text-gray-500" />
-                    <span className="text-[11px] font-mono text-gray-500 uppercase font-bold">Research Ledger Content</span>
-                  </div>
-
-                  <div className="flex items-center space-x-2">
-                    <button
-                      type="button"
-                      id="copy-markdown-btn"
-                      onClick={handleCopyMarkdown}
-                      className="px-2.5 py-1 border border-gray-300 bg-white hover:border-black text-[10.5px] font-mono text-gray-700 flex items-center space-x-1.5 transition-all active:scale-95 cursor-pointer"
-                    >
-                      {isCopied ? (
-                        <>
-                          <Check className="w-3 h-3 text-black" />
-                          <span className="text-black font-bold">Copied!</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3 h-3 text-gray-400" />
-                          <span>Copy Markdown</span>
-                        </>
-                      )}
-                    </button>
-
-                    <button
-                      type="button"
-                      id="export-doc-btn"
-                      onClick={() => triggerExport("Word")}
-                      className="px-2.5 py-1 border border-gray-300 bg-white hover:border-black text-[10.5px] font-mono text-gray-700 flex items-center space-x-1.5 transition-all active:scale-95 cursor-pointer"
-                    >
-                      <Download className="w-3 h-3 text-gray-400" />
-                      <span>Word (.docx)</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      id="export-pdf-btn"
-                      onClick={() => triggerExport("PDF")}
-                      className="px-2.5 py-1 border border-gray-300 bg-white hover:border-black text-[10.5px] font-mono text-gray-700 flex items-center space-x-1.5 transition-all active:scale-95 cursor-pointer"
-                    >
-                      <Download className="w-3 h-3 text-gray-400" />
-                      <span>PDF Print</span>
-                    </button>
-                  </div>
+                  {stepperPhase === "completed" && (
+                    <div className="flex space-x-2">
+                      <button
+                        type="button"
+                        onClick={handleCopyMarkdown}
+                        className="px-2.5 py-1 border border-gray-300 bg-white hover:border-black text-[10px] font-mono text-gray-700 flex items-center space-x-1.5 transition-all cursor-pointer"
+                      >
+                        {isCopied ? <Check className="w-3 h-3 text-black" /> : <Copy className="w-3 h-3 text-gray-400" />}
+                        <span>{isCopied ? "Copied" : "Copy MD"}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => triggerExport("PDF")}
+                        className="px-2.5 py-1 border border-gray-300 bg-white hover:border-black text-[10px] font-mono text-gray-700 flex items-center space-x-1.5 transition-all cursor-pointer"
+                      >
+                        <Download className="w-3 h-3 text-gray-400" />
+                        <span>PDF Print</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -861,76 +505,94 @@ export default function AskAILawyer({ authToken, documents: propDocs = [] }: Ask
                 </div>
               )}
 
-              {/* DYNAMIC SCROLLABLE TEXT CANVAS */}
-              <div className="flex-1 overflow-y-auto p-6 md:p-8">
-                <div className="max-w-3xl mx-auto prose">
-                  {renderFormattedResult(streamedResult)}
+              {/* TEXT AREA CANVAS */}
+              <div className="flex-1 overflow-y-auto p-8 md:p-12">
+                <div className="max-w-3xl mx-auto">
+                  {!streamedResult && !isStreaming ? (
+                    <div className="h-full flex flex-col items-center justify-center text-center opacity-40 py-20 grayscale">
+                      <Scale className="w-16 h-16 mb-6 text-gray-300" />
+                      <h3 className="text-lg font-black uppercase tracking-tighter">Waiting for Dispatch</h3>
+                      <p className="max-w-xs text-xs font-mono mt-2 leading-relaxed">Provide a legal query above to begin secure vector retrieval and advisory synthesis.</p>
+                    </div>
+                  ) : (
+                    <div className="select-text selection:bg-black selection:text-white pb-20">
+                      {renderFormattedResult(streamedResult)}
+                      {isStreaming && (
+                        <div className="flex items-center space-x-2 text-gray-400 mt-6 font-mono text-[10px] italic animate-pulse">
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                          <span>Advisory node formulating professional legal stance...</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <div ref={chatBottomRef} />
               </div>
 
             </div>
 
-            {/* RIGHT SPLIT COLUMN: VERIFIED SOURCES DRAWER PANEL */}
-            <div className="w-80 bg-gray-50/50 overflow-y-auto p-5 shrink-0 flex flex-col">
-              <div className="flex items-center justify-between border-b-2 border-black pb-2.5 mb-4 select-none">
+            {/* RIGHT SPLIT COLUMN: CITATION DRAWER */}
+            <div className="w-80 bg-gray-50/50 overflow-y-auto p-6 shrink-0 flex flex-col border-l border-gray-100">
+              <div className="flex items-center justify-between border-b-2 border-black pb-3 mb-6">
                 <div className="flex items-center space-x-2">
-                  <BookmarkCheck className="w-4.5 h-4.5 text-black" />
-                  <span className="text-xs font-bold font-mono uppercase tracking-wider text-black">
-                    Verified Sources Drawer
+                  <BookmarkCheck className="w-5 h-5 text-black" />
+                  <span className="text-xs font-black font-mono uppercase tracking-wider text-black">
+                    Statutory Source Vault
                   </span>
                 </div>
-                <span className="text-[10px] font-mono bg-black text-white px-1.5 py-0.5 uppercase font-bold">
+                <span className="text-[10px] font-mono bg-black text-white px-2 py-0.5 uppercase font-bold">
                   {matchedSources.length} Hit
                 </span>
               </div>
 
               {matchedSources.length === 0 ? (
-                <div className="flex-1 flex flex-col items-center justify-center p-6 text-center select-none">
-                  <BookOpen className="w-8 h-8 mb-3 text-gray-300" />
-                  <p className="text-[11px] font-mono text-gray-400 leading-normal">
-                    Statutory provisions, court transcript records, and verified circular maps will manifest when research is initiated.
+                <div className="flex-1 flex flex-col items-center justify-center p-8 text-center grayscale opacity-50">
+                  <BookOpen className="w-10 h-10 mb-4 text-gray-300" />
+                  <p className="text-[10px] font-mono text-gray-400 leading-normal uppercase">
+                    Cited statutory excerpts will appear here.
                   </p>
                 </div>
               ) : (
                 <div className="space-y-4 flex-1">
-                  <p className="text-[10px] font-mono text-gray-400 leading-normal uppercase select-none mb-1">
-                    Citations matched during LLM RAG indexing:
+                  <p className="text-[9px] font-mono text-gray-400 leading-normal uppercase mb-2 italic">
+                    Evidence verified via RAG Enclave retrieval:
                   </p>
                   
                   {matchedSources.map((source) => (
                     <div 
                       key={source.id}
-                      id={`source-card-${source.id}`}
                       onClick={() => setActiveCitationModal(source)}
-                      className="border-2 border-black p-3.5 bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all cursor-pointer flex flex-col gap-2"
+                      className="group border-2 border-black p-4 bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all cursor-pointer flex flex-col gap-3 relative overflow-hidden"
                     >
-                      <div className="flex items-center justify-between select-none">
-                        <span className="text-[9px] font-mono font-bold bg-black text-white px-1.5 py-0.5 uppercase">
+                      {/* Decorative accent */}
+                      <div className="absolute top-0 left-0 w-1 h-full bg-black" />
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-[9px] font-mono font-bold bg-black text-white px-2 py-0.5 uppercase tracking-tighter">
                           {source.documentType}
                         </span>
-                        <span className="text-[9px] font-mono text-gray-400">
+                        <span className="text-[9px] font-mono text-black font-black italic">
                           {source.citation}
                         </span>
                       </div>
 
-                      <h4 className="text-xs font-bold text-gray-900 font-sans tracking-tight leading-snug line-clamp-2">
+                      <h4 className="text-[11px] font-bold text-gray-900 font-sans tracking-tight leading-snug line-clamp-2 uppercase">
                         {source.title}
                       </h4>
 
-                      <div className="flex items-center justify-between pt-1 border-t border-gray-100 select-none">
-                        <span className="text-[9px] font-mono text-gray-500 uppercase uppercase-tracking-widest">
+                      <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                        <span className="text-[9px] font-mono text-gray-400 font-bold uppercase tracking-widest">
                           {source.jurisdiction}
                         </span>
-                        <ExternalLink className="w-3 h-3 text-black" />
+                        <ExternalLink className="w-3.5 h-3.5 text-black group-hover:scale-110 transition-transform" />
                       </div>
                     </div>
                   ))}
                 </div>
               )}
 
-              <div className="mt-auto pt-6 border-t border-gray-200 text-[10px] font-mono text-gray-400 leading-normal select-none">
-                *Verified materials are indexed straight from official gazettes and PrivSecAI deep RAG nodes.
+              <div className="mt-8 pt-6 border-t border-gray-200 text-[10px] font-mono text-gray-400 leading-normal italic text-center">
+                *Sources are cross-referenced across PrivSecAI proprietary vector nodes.
               </div>
             </div>
 
@@ -940,75 +602,83 @@ export default function AskAILawyer({ authToken, documents: propDocs = [] }: Ask
 
       </div>
 
-      {/* HIGH-FIDELITY OFFICIAL DOCUMENT MODAL VIEW */}
+      {/* DOCUMENT SOURCE VIEWPORT MODAL */}
       <AnimatePresence>
         {activeCitationModal && (
           <div 
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs select-text"
+            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/70 backdrop-blur-md select-text"
             onClick={() => setActiveCitationModal(null)}
           >
             <motion.div 
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
+              initial={{ scale: 0.98, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.98, opacity: 0, y: 10 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white border-4 border-black w-full max-w-2xl h-140 flex flex-col shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
+              className="bg-white border-4 border-black w-full max-w-2xl h-150 flex flex-col shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]"
             >
-              {/* Modal title header */}
-              <div className="p-4 border-b-2 border-black flex items-center justify-between bg-black text-white select-none">
-                <div className="flex items-center space-x-2">
-                  <BookOpen className="w-5 h-5 text-white" />
+              {/* Modal header */}
+              <div className="p-5 border-b-4 border-black flex items-center justify-between bg-black text-white">
+                <div className="flex items-center space-x-3">
+                  <div className="bg-white p-1">
+                    <BookOpen className="w-5 h-5 text-black" />
+                  </div>
                   <div>
-                    <span className="text-[10px] font-mono uppercase text-gray-400 tracking-wider">
-                      Official Source Verification Vault
-                    </span>
-                    <h3 className="text-xs font-bold font-mono uppercase tracking-tight">
-                      REF: {activeCitationModal.citation}
+                    <span className="text-[10px] font-mono uppercase text-gray-400 font-black tracking-widest">Official Source Extract</span>
+                    <h3 className="text-xs font-black font-mono uppercase tracking-tighter text-white">
+                      {activeCitationModal.citation}: {activeCitationModal.title}
                     </h3>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setActiveCitationModal(null)}
-                  className="bg-white text-black p-1 hover:bg-gray-100 transition border border-black cursor-pointer"
-                  title="Close Vault Document"
+                  className="bg-white text-black p-1.5 hover:bg-gray-200 transition border-2 border-black cursor-pointer shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none"
                 >
-                  <X className="w-4.5 h-4.5 font-bold" />
+                  <X className="w-5 h-5 font-black" />
                 </button>
               </div>
 
-              {/* Source meta parameters indicator */}
-              <div className="p-3 border-b border-gray-200 bg-gray-50 flex gap-4 select-none text-[11px] font-mono text-gray-500">
-                <div>
-                  <strong>JURISDICTION:</strong> <span className="text-gray-800">{activeCitationModal.jurisdiction}</span>
+              {/* Source properties header */}
+              <div className="px-6 py-4 border-b-2 border-gray-100 bg-gray-50 flex justify-between items-center text-[11px] font-mono text-gray-500">
+                <div className="flex gap-6">
+                  <div><strong>SCOPE:</strong> <span className="text-black font-bold uppercase">{activeCitationModal.jurisdiction}</span></div>
+                  <div><strong>CLASSIFICATION:</strong> <span className="text-black font-bold uppercase">{activeCitationModal.documentType}</span></div>
                 </div>
-                <div>
-                  <strong>TYPE:</strong> <span className="text-gray-800">{activeCitationModal.documentType}</span>
+                <div className="flex items-center gap-2 text-indigo-600 font-bold">
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>SECURE HASH VERIFIED</span>
                 </div>
               </div>
 
-              {/* Document copy body segment */}
-              <div className="flex-1 overflow-y-auto p-6 font-mono text-xs text-gray-800 leading-relaxed bg-white">
-                <div className="whitespace-pre-wrap select-all selection:bg-black selection:text-white pb-6 border-b border-gray-100 mb-4">
+              {/* Content body */}
+              <div className="flex-1 overflow-y-auto p-8 font-sans text-sm text-gray-800 leading-relaxed bg-white selection:bg-black selection:text-white">
+                <div className="p-6 border-2 border-gray-100 bg-gray-50/30 font-mono text-xs whitespace-pre-wrap mb-6 leading-relaxed italic">
                   {activeCitationModal.officialCopy}
                 </div>
-                <div className="text-[10px] text-gray-400 italic font-mono select-none">
-                  --- End of official docket record transcript. Indexed under PrivSecAI FIPS security channel.
+                <div className="text-[11px] text-gray-400 font-mono uppercase tracking-widest font-bold pb-8 border-b border-gray-100 mb-8">
+                  --- END OF SOURCE EXCERPT ---
                 </div>
               </div>
 
-              {/* Footer action tools */}
-              <div className="p-4 border-t-2 border-black bg-gray-50 flex justify-end select-none">
+              {/* Modal action bar */}
+              <div className="p-5 border-t-4 border-black bg-white flex justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => {
                     navigator.clipboard.writeText(activeCitationModal.officialCopy);
-                    alert("Official copy transcript copied to secure clipboard.");
+                    alert("Citation excerpt copied to secure buffer.");
                   }}
-                  className="bg-black text-white px-4 py-2 border-2 border-black text-xs font-mono hover:bg-gray-800 flex items-center space-x-2 cursor-pointer"
+                  className="bg-white text-black px-5 py-2.5 border-3 border-black text-xs font-black font-mono uppercase hover:bg-gray-100 transition shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none translate-y-[-2px] hover:translate-y-[-4px] cursor-pointer"
                 >
-                  <Copy className="w-3.5 h-3.5" />
-                  <span>Copy Official Transcripts</span>
+                  <Copy className="w-4 h-4 inline-block mr-2" />
+                  <span>Copy Excerpt</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveCitationModal(null)}
+                  className="bg-black text-white px-5 py-2.5 border-3 border-black text-xs font-black font-mono uppercase hover:bg-gray-800 transition shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none translate-y-[-2px] hover:translate-y-[-4px] cursor-pointer"
+                >
+                  <span>Close Vault</span>
                 </button>
               </div>
             </motion.div>

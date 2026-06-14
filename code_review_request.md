@@ -1,16 +1,17 @@
-# Code Review Request
+# Code Review Request - Phase 2: Enterprise RAG Upgrades
 
 ## Changes:
-1. **Decouple Database Initialization**: All DDL and seeding logic moved from `backend/src/config/initDb.ts` to `scripts/setupDb.ts`. Server no longer runs DDL on startup.
-2. **Real Encryption**: Implemented `encrypt` and `decrypt` utilities using Node's `crypto` (AES-256-GCM). Applied to all document content storage and retrieval.
-3. **Document Versioning**: Created `document_versions` table. Updated `documents.ts` controller and `jobQueue.ts` to insert into `document_versions` on every create/update/redline-accept.
-4. **Structured Logging**: Integrated `pino` for structured logging. Updated `server.ts` and `errorHandler` to use structured logs with context.
+1. **Semantic Legal Chunking**: Implemented `splitIntoClauseAwareChunks` in `ragService.ts` using regex to recognize legal document hierarchies (Sections, Articles, numbered clauses).
+2. **Standardized Embedding Model**: Explicitly using `text-embedding-004` (768d) optimized for legal text.
+3. **AI Re-ranking**: Added a re-ranking step in `searchHybrid` using Gemini 2.0 Flash as a cross-encoder to refine the top 20 results down to the best 5.
+4. **Source Citations**:
+    - Updated `AskLawyerAgent` to strictly enforce [Source X] citations.
+    - Updated `AgentOrchestrator` to map RAG chunks to citation metadata.
+5. **UI Citation Integration**:
+    - Updated `AskAILawyer.tsx` to parse citations in the AI's response.
+    - Implemented interactive citation chips that open the "Official Source Verification Vault" modal.
 
-## Files Modified:
-- `backend/src/controllers/documents.ts`
-- `backend/src/services/jobQueue.ts`
-- `backend/src/utils/crypto.ts`
-- `backend/src/utils/logger.ts` (New)
-- `backend/src/middleware/error.ts`
-- `server.ts`
-- `scripts/setupDb.ts`
+## Verification:
+- Verified `ragService.ts` logic and exports.
+- Linting passed.
+- UI components updated and aligned with the "PrivSecAI" design system.

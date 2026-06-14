@@ -55,9 +55,27 @@ export class AgentOrchestrator {
   }
 
   async askLawyer(prompt: string, userId: string, documentIds?: string[]) {
-    const context = await searchHybrid(prompt, userId, documentIds);
-    const contextText = context.map(c => `[Source: ${c.title}]\n${c.content}`).join("\n\n");
-    return await this.askLawyerAgent.getAdvice(prompt, contextText);
+    const contextChunks = await searchHybrid(prompt, userId, documentIds);
+
+    // Format context with explicit indexing for citations
+    const contextText = contextChunks.map((c, i) => `[Source ${i + 1}: ${c.title}]\n${c.content}`).join("\n\n");
+
+    const advice = await this.askLawyerAgent.getAdvice(prompt, contextText);
+
+    // Map internal chunks to UI-compatible sources
+    const sources = contextChunks.map((c, i) => ({
+      id: `src-${i + 1}`,
+      title: c.title,
+      citation: `Source ${i + 1}`,
+      jurisdiction: "Document Context",
+      documentType: "Internal Reference",
+      officialCopy: c.content
+    }));
+
+    return {
+      answer: advice,
+      sources: sources
+    };
   }
 
   async remediate(documentId: string, content: string, userId: string, userRole: string = 'USER') {
@@ -66,7 +84,7 @@ export class AgentOrchestrator {
 
   async interactAnalyze(folderIds: string[], prompt: string, userId: string, documentMode: boolean, answerStyle: string, history: any[], folderId?: string, userRole: string = 'USER') {
     const context = await searchHybrid(prompt, userId, undefined, folderIds);
-    const contextText = context.map(c => `[File: ${c.title}]\n${c.content}`).join("\n\n");
+    const contextText = context.map((c, i) => `[Source ${i + 1}: ${c.title}]\n${c.content}`).join("\n\n");
 
     const fullPrompt = `You are a Legal Analyst. Answer the following query based on the provided document context.
 Answer Style: ${answerStyle}
