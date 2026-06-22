@@ -1,8 +1,5 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { config } from "../config/index.js";
+import { openRouterComplete } from "../services/openRouterClient.js";
 import { z } from "zod";
-
-const genAI = new GoogleGenerativeAI(config.geminiApiKey || "dummy");
 
 const AuditSchema = z.object({
   summary: z.string(),
@@ -35,15 +32,7 @@ export class AnalysisAgent {
   ): Promise<string> {
     const combinedContent = contents.join("\n\n---\n\n");
 
-    const fullPrompt = `
-You are a Senior Compliance Officer.
-
-Analyze the following document(s) and address this query:
-
-${prompt}
-
-[DOCUMENTS]
-${combinedContent}
+    const systemPrompt = `You are a Senior Compliance Officer.
 
 Identify:
 - Critical liability risks
@@ -53,24 +42,17 @@ Identify:
 
 IMPORTANT:
 Return your response in clean, well-structured Markdown format.
-Use headers, bullet points, and bold text for readability.
-`;
+Use headers, bullet points, and bold text for readability.`;
+
+    const userPrompt = `Analyze the following document(s) and address this query:
+
+${prompt}
+
+[DOCUMENTS]
+${combinedContent}`;
 
     try {
-      const model = genAI.getGenerativeModel({
-        model: "gemini-2.0-flash",
-      });
-
-      const result = await model.generateContent({
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: fullPrompt }],
-          },
-        ],
-      });
-
-      return result.response.text();
+      return await openRouterComplete(systemPrompt, userPrompt);
     } catch (err) {
       console.error("AnalysisAgent error:", err);
       throw err;
@@ -81,8 +63,7 @@ Use headers, bullet points, and bold text for readability.
     content: string,
     type: string
   ): Promise<z.infer<typeof AuditSchema>> {
-    const systemInstruction = `
-You are a Risk Assessment Agent trained on enterprise liability guidelines.
+    const systemPrompt = `You are a Risk Assessment Agent trained on enterprise liability guidelines.
 
 Audit the document for:
 1. Indemnity Caps
@@ -95,7 +76,8 @@ Audit the document for:
 Audit Type: ${type}
 
 CRITICAL:
-You must return ONLY a valid JSON object matching this schema:
+You must return ONLY a valid JSON object — no markdown fences, no commentary.
+The JSON must exactly match this schema:
 
 {
   "summary": "High-level audit summary",
@@ -119,142 +101,29 @@ You must return ONLY a valid JSON object matching this schema:
       "remediation": "How to resolve"
     }
   ]
-}
-`;
+}`;
+
+    const userPrompt = `Document Content to Audit:\n\n${content}`;
 
     try {
-      const model = genAI.getGenerativeModel({
-        model: "gemini-2.0-flash",
+      let responseText = await openRouterComplete(systemPrompt, userPrompt, {
+        jsonMode: true,
       });
 
-      const result = await model.generateContent({
-        generationConfig: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: "object",
-            properties: {
-              summary: {
-                type: "string",
-              },
+      responseText = responseText.trim();
 
-              risks: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    id: {
-                      type: "string",
-                    },
-
-                    clause: {
-                      type: "string",
-                    },
-
-                    severity: {
-                      type: "string",
-                      enum: ["low", "medium", "high"],
-                    },
-
-                    risk_level: {
-                      type: "string",
-                    },
-
-                    reasons: {
-                      type: "array",
-                      items: {
-                        type: "string",
-                      },
-                    },
-
-                    description: {
-                      type: "string",
-                    },
-
-                    actionableInsight: {
-                      type: "string",
-                    },
-
-                    remediation: {
-                      type: "string",
-                    },
-                  },
-
-                  required: [
-                    "id",
-                    "clause",
-                    "severity",
-                    "risk_level",
-                    "reasons",
-                    "description",
-                    "actionableInsight",
-                  ],
-                },
-              },
-
-              complianceGaps: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    regulation: {
-                      type: "string",
-                    },
-
-                    issue: {
-                      type: "string",
-                    },
-
-                    severity: {
-                      type: "string",
-                    },
-
-                    remediation: {
-                      type: "string",
-                    },
-                  },
-
-                  required: [
-                    "regulation",
-                    "issue",
-                    "severity",
-                    "remediation",
-                  ],
-                },
-              },
-            },
-
-            required: ["summary", "risks", "complianceGaps"],
-          },
-        },
-
-        systemInstruction,
-
-        contents: [
-          {
-            role: "user",
-            parts: [
-              {
-                text: `Document Content to Audit:\n\n${content}`,
-              },
-            ],
-          },
-        ],
-      });
-
-      let responseText = result.response.text().trim();
-
-      // Remove markdown fences if Gemini accidentally returns them
+      // Strip markdown fences if the model accidentally returns them
       if (responseText.startsWith("```")) {
         responseText = responseText
-          .replace(/^```json/i, "")
-          .replace(/^```/i, "")
-          .replace(/```$/i, "")
+          .replace(/^```json\s*/i, "")
+          .replace(/^```\s*/i, "")
+          .replace(/\s*```$/i, "")
           .trim();
       }
 
       const parsed = JSON.parse(responseText);
 
-      // Backward compatibility if Gemini returns old field
+      // Backward compatibility — normalise remediation field name
       if (parsed.risks && Array.isArray(parsed.risks)) {
         parsed.risks = parsed.risks.map((risk: any) => ({
           ...risk,
@@ -271,7 +140,6 @@ You must return ONLY a valid JSON object matching this schema:
         "AI audit failed or schema validation error. Falling back to heuristics.",
         err
       );
-
       return this.heuristicAudit(content, type);
     }
   }
@@ -281,7 +149,6 @@ You must return ONLY a valid JSON object matching this schema:
     type: string
   ): z.infer<typeof AuditSchema> {
     const risks: z.infer<typeof AuditSchema>["risks"] = [];
-
     const lowerContent = content.toLowerCase();
 
     if (lowerContent.includes("liquidated damages")) {
@@ -334,10 +201,7 @@ You must return ONLY a valid JSON object matching this schema:
         clause: "Immediate termination without notice",
         severity: "medium",
         risk_level: "WARNING",
-        reasons: [
-          "No cure period",
-          "Operational disruption risk",
-        ],
+        reasons: ["No cure period", "Operational disruption risk"],
         description:
           "Immediate termination rights without notice may create business continuity risks.",
         actionableInsight:

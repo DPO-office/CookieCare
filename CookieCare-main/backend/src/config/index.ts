@@ -6,6 +6,9 @@ export const config = {
   port: Number(process.env.PORT) || 3000,
   nodeEnv: process.env.NODE_ENV || "development",
   databaseUrl: process.env.DATABASE_URL || "",
+  // OpenRouter replaces Gemini as the AI provider
+  openRouterApiKey: process.env.OPENROUTER_API_KEY || "",
+  // Kept for backward compatibility — no longer used for AI calls
   geminiApiKey: process.env.GEMINI_API_KEY || "",
   jwtSecret: process.env.JWT_SECRET || "privsec-ai-enterprise-secret-2026",
   // Fixed: Added the Render production URL as a default fallback

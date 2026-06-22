@@ -1,13 +1,10 @@
 import { Router } from "express";
 import { authenticateToken } from "../middleware/auth.js";
 import { AgentOrchestrator } from "../agents/legalAgent.js";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { config } from "../config/index.js";
 import { addJobToQueue } from "../services/jobQueue.js";
 
 const router = Router();
 const orchestrator = new AgentOrchestrator();
-const genAI = new GoogleGenerativeAI(config.geminiApiKey || "dummy");
 
 router.post("/generate", authenticateToken, async (req, res) => {
   try {

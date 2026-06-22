@@ -289,19 +289,42 @@ export default function AskAILawyer({ authToken, documents: propDocs = [] }: Ask
           const payload = JSON.parse(event.data);
           if (payload.event === "job_update" && payload.job.id === data.job_id) {
             const job = payload.job;
-            setStepperMessage(`Progress: ${job.message}`);
+            setStepperMessage(`Progress: ${job.message || "Processing..."}`);
 
             if (job.status === "completed") {
-              setStreamedResult(job.result.text);
+              const text = job.result?.text ?? job.result ?? "";
+              if (!text) console.warn("[AskAI] Job completed but result.text is empty:", job.result);
+              setStreamedResult(String(text));
               setStepperPhase("completed");
               setStepperMessage("Analysis complete.");
               setIsStreaming(false);
               eventSource.close();
             } else if (job.status === "failed") {
-              throw new Error(job.error || "Job failed");
+              console.error("[AskAI] Job failed:", job.error);
+              setStreamedResult(`**Advisory Engine Error**\n\nThe legal analysis job failed: ${job.error || "Unknown error"}`);
+              setStepperPhase("idle");
+              setStepperMessage("");
+              setIsStreaming(false);
+              eventSource.close();
             }
           }
         };
+
+        eventSource.onerror = (e) => {
+          console.error("[AskAI] SSE connection error", e);
+          eventSource.close();
+          setStepperPhase("idle");
+          setStepperMessage("");
+          setIsStreaming(false);
+          setStreamedResult("**Connection interrupted.** Please try again.");
+        };
+      } else {
+        // Unexpected non-202 success — surface whatever the server returned
+        const text = data.advice ?? data.text ?? JSON.stringify(data);
+        setStreamedResult(String(text));
+        setStepperPhase("completed");
+        setStepperMessage("Analysis complete.");
+        setIsStreaming(false);
       }
     } catch (err: any) {
       console.error(err);
@@ -451,7 +474,7 @@ export default function AskAILawyer({ authToken, documents: propDocs = [] }: Ask
               </span>
             </div>
             <p className="text-[10px] font-mono text-gray-400 mt-0.5">
-              SECURE RESEARCH COMPLIANCE ENCLAVE • MODEL: GEMINI 3.5 FLASH ACTIVE
+              SECURE RESEARCH COMPLIANCE ENCLAVE • MODEL: DEEPSEEK VIA OPENROUTER
             </p>
           </div>
         </div>

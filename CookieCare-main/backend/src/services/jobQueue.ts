@@ -5,12 +5,10 @@ import { chunkAndIndexDocument } from "../RAG/ragService.js";
 import { encryptData, decryptData } from "../utils/crypto.js";
 import { withRetry } from "../utils/retry.js";
 import { withTransaction } from "../utils/dbUtils.js";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { openRouterComplete } from "./openRouterClient.js";
 import crypto from "crypto";
 import pdf from "pdf-parse-fork";
 import mammoth from "mammoth";
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function updateJobProgress(jobId: string, userId: string, progress: number, message?: string) {
   await withTransaction(userId, 'USER', async (client) => {
@@ -278,11 +276,13 @@ async function executeDocumentAnalysis(jobId: string, userId: string, payload: a
   });
 
   if (payload.type === "legal_ask") {
-    const { prompt, jurisdiction, outputFormat, documents } = payload;
+    const { prompt, documents } = payload;
     await updateJobProgress(jobId, userId, 30, "Searching knowledge base and synthesizing advice...");
 
-    const result = await jobRegistry.orchestrator.askLawyer(prompt, userId, documents);
-    return result;
+    console.log(`[JobRunner/legal_ask] Calling askLawyer via OpenRouter, prompt: "${String(prompt).substring(0, 80)}..."`);
+    const text = await jobRegistry.orchestrator.askLawyer(prompt, userId, documents);
+    // AskAILawyer.tsx reads: job.result.text
+    return { text };
   }
 
   if (payload.prompt && payload.folderIds) {
@@ -317,8 +317,7 @@ async function executeTemplateDrafting(jobId: string, userId: string, payload: a
 
     const prompt = `${instruction}\n\nText:\n${text}\n\nIMPORTANT: Return only the rewritten text without any quotes or preamble.`;
 
-    const result = await withRetry(() => genAI.getGenerativeModel({ model: "gemini-2.0-flash" }).generateContent(prompt)) as any;
-    const content = result.response.text().trim();
+    const content = await withRetry(() => openRouterComplete("", prompt));
 
     const docId = "doc_" + crypto.randomUUID();
     const title = `Refined Text - ${new Date().toLocaleDateString()}`;

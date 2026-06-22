@@ -1,10 +1,5 @@
 import { pool } from "../config/database.js";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { config } from "../config/index.js";
-import { withRetry } from "../utils/retry.js";
 import { withTransaction } from "../utils/dbUtils.js";
-
-const genAI = new GoogleGenerativeAI(config.geminiApiKey || "dummy");
 
 // Helper to clean text
 function sanitizeText(text: string) {
@@ -39,19 +34,15 @@ function splitIntoClauseAwareChunks(content: string): string[] {
   return chunks.filter(c => c.trim().length > 15);
 }
 
-export async function embedText(text: string): Promise<number[] | null> {
-  try {
-    const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
-    const result = await withRetry(() => model.embedContent({
-      content: { role: "user", parts: [{ text: sanitizeText(text) }] }
-    })) as any;
-    const vector = result.embedding?.values || result.embeddings?.[0]?.values;
-    if (!vector) throw new Error("Failed to generate embedding.");
-    return vector;
-  } catch (err) {
-    console.warn("[RAG] embedText failed, continuing without embedding:", (err as Error).message);
-    return null;
-  }
+/**
+ * Embedding is not available via OpenRouter (OpenRouter provides chat completions only).
+ * This function returns null so the RAG pipeline gracefully falls back to lexical-only
+ * (FTS + ILIKE) search, which is already handled throughout searchHybrid().
+ * To restore vector search, configure a dedicated embeddings provider (e.g. OpenAI,
+ * Cohere, or a self-hosted model) and replace this implementation.
+ */
+export async function embedText(_text: string): Promise<number[] | null> {
+  return null;
 }
 
 export async function chunkAndIndexDocument(fileId: string, content: string, userId: string) {

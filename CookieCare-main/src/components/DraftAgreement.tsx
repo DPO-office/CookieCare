@@ -801,7 +801,17 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      setSelectedDoc({ ...data, content });
+      // POST /api/documents only returns { id, title, type }.
+      // Provide safe defaults for every array field so .map() calls never receive undefined.
+      setSelectedDoc({
+        versions: [],
+        signatures: [],
+        sharedWith: [],
+        redlines: [],
+        auditLogs: [],
+        ...data,
+        content,
+      });
       setEditorContent(content);
       onRefresh();
     } catch (err: any) {
@@ -899,7 +909,7 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
       if (!res.ok) throw new Error(data.error);
 
       setShareEmail("");
-      setSelectedDoc({ ...selectedDoc, sharedWith: data.sharedWith });
+      setSelectedDoc({ ...selectedDoc, sharedWith: data.sharedWith ?? [] });
       onRefresh();
     } catch (err: any) {
       alert(err.message);
@@ -921,7 +931,7 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
       if (!res.ok) throw new Error(data.error);
 
       setRequestSignEmail("");
-      setSelectedDoc({ ...selectedDoc, signatures: data.signatures });
+      setSelectedDoc({ ...selectedDoc, signatures: data.signatures ?? [] });
       onRefresh();
     } catch (err: any) {
       alert(err.message);
@@ -2044,7 +2054,7 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
               {(selectedDoc?.signatures?.length ?? 0) === 0 ? (
                 <div className="text-[10px] text-gray-400 italic font-mono">- No pending invitation slots.</div>
               ) : (
-                selectedDoc.signatures.map((sig, i) => (
+                (selectedDoc?.signatures ?? []).map((sig, i) => (
                   <div key={i} className="bg-gray-50/70 border border-gray-150 rounded-lg p-2.5 text-xs font-mono">
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-semibold text-gray-800 truncate select-all">{sig.signerEmail}</span>
@@ -2117,7 +2127,7 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
             </div>
             {(selectedDoc?.sharedWith?.length ?? 0) > 0 && (
               <div className="flex flex-wrap gap-1 mt-2">
-                {selectedDoc.sharedWith.map((email, i) => (
+                {(selectedDoc?.sharedWith ?? []).map((email, i) => (
                   <span key={i} className="text-[9px] bg-slate-105 text-gray-600 rounded px-1.5 py-0.5 select-all font-mono">
                     {email}
                   </span>
@@ -2132,7 +2142,10 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
               3. Version History Control
             </span>
             <div className="space-y-3 relative before:absolute before:top-2 before:bottom-2 before:left-[14px] before:w-[1px] before:bg-gray-100">
-              {selectedDoc.versions.map((ver) => (
+              {(selectedDoc?.versions?.length ?? 0) === 0 ? (
+                <div className="text-[10px] text-gray-400 italic font-mono">- No version history yet.</div>
+              ) : (
+                (selectedDoc?.versions ?? []).map((ver) => (
                 <div key={ver.version} className="flex space-x-3.5 relative">
                   <div className="w-7 h-7 rounded-full bg-gray-55 border border-gray-200 text-gray-600 flex items-center justify-center font-bold font-mono text-[10px] shrink-0 z-10">
                     v{ver.version}
@@ -2153,7 +2166,8 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
                     <p className="text-[8px] text-gray-400 mt-1">{new Date(ver.createdAt).toLocaleString()}</p>
                   </div>
                 </div>
-              ))}
+              ))
+              )}
             </div>
           </div>
 

@@ -3,7 +3,7 @@ import { config } from "./index.js";
 export function validateEnv() {
   const required = [
     { key: "DATABASE_URL", value: config.databaseUrl },
-    { key: "GEMINI_API_KEY", value: config.geminiApiKey },
+    { key: "OPENROUTER_API_KEY", value: config.openRouterApiKey },
     { key: "ENCRYPTION_KEY", value: process.env.ENCRYPTION_KEY },
   ];
   const missing = required.filter((item) => !item.value || item.value.trim() === "");
@@ -17,15 +17,6 @@ export function validateEnv() {
     missing.forEach((item) => console.error(`   - ${item.key}`));
     console.error("\nPlease ensure your .env file or environment settings are correct.");
     process.exit(1);
-  }
-
-  if (config.geminiApiKey === "dummy") {
-    if (process.env.NODE_ENV === "test") {
-      console.warn("⚠️ Using dummy GEMINI_API_KEY in test mode.");
-    } else {
-      console.error("❌ [FATAL] GEMINI_API_KEY cannot be 'dummy' in non-test environments.");
-      process.exit(1);
-    }
   }
 
   if (process.env.ENCRYPTION_KEY && Buffer.from(process.env.ENCRYPTION_KEY).length !== 32) {

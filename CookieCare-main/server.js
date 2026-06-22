@@ -11,6 +11,9 @@ var config = {
   port: Number(process.env.PORT) || 3e3,
   nodeEnv: process.env.NODE_ENV || "development",
   databaseUrl: process.env.DATABASE_URL || "",
+  // OpenRouter replaces Gemini as the AI provider
+  openRouterApiKey: process.env.OPENROUTER_API_KEY || "",
+  // Kept for backward compatibility — no longer used for AI calls
   geminiApiKey: process.env.GEMINI_API_KEY || "",
   jwtSecret: process.env.JWT_SECRET || "privsec-ai-enterprise-secret-2026",
   // Fixed: Added the Render production URL as a default fallback
@@ -24,7 +27,7 @@ var isProduction = config.nodeEnv === "production";
 function validateEnv() {
   const required = [
     { key: "DATABASE_URL", value: config.databaseUrl },
-    { key: "GEMINI_API_KEY", value: config.geminiApiKey },
+    { key: "OPENROUTER_API_KEY", value: config.openRouterApiKey },
     { key: "ENCRYPTION_KEY", value: process.env.ENCRYPTION_KEY }
   ];
   const missing = required.filter((item) => !item.value || item.value.trim() === "");
@@ -37,14 +40,6 @@ function validateEnv() {
     missing.forEach((item) => console.error(`   - ${item.key}`));
     console.error("\nPlease ensure your .env file or environment settings are correct.");
     process.exit(1);
-  }
-  if (config.geminiApiKey === "dummy") {
-    if (process.env.NODE_ENV === "test") {
-      console.warn("\u26A0\uFE0F Using dummy GEMINI_API_KEY in test mode.");
-    } else {
-      console.error("\u274C [FATAL] GEMINI_API_KEY cannot be 'dummy' in non-test environments.");
-      process.exit(1);
-    }
   }
   if (process.env.ENCRYPTION_KEY && Buffer.from(process.env.ENCRYPTION_KEY).length !== 32) {
     console.error("\u274C [FATAL] ENCRYPTION_KEY must be exactly 32 bytes.");
@@ -329,10 +324,94 @@ var admin_default = router2;
 // backend/src/routes/documents.ts
 import { Router as Router3 } from "express";
 
+// backend/src/services/openRouterClient.ts
+var OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
+var DEFAULT_MODEL = "deepseek/deepseek-chat-v3-0324";
+function getApiKey() {
+  const key = process.env.OPENROUTER_API_KEY;
+  if (!key || key.trim() === "") {
+    throw new Error(
+      "OPENROUTER_API_KEY is not set. Please add it to your environment variables."
+    );
+  }
+  return key.trim();
+}
+async function openRouterChat(messages, options = {}) {
+  const apiKey = getApiKey();
+  const model = options.model ?? DEFAULT_MODEL;
+  const body = {
+    model,
+    messages,
+    temperature: options.temperature ?? 0.3
+  };
+  if (options.maxTokens) {
+    body.max_tokens = options.maxTokens;
+  }
+  if (options.jsonMode) {
+    body.response_format = { type: "json_object" };
+  }
+  let response;
+  try {
+    response = await fetch(OPENROUTER_API_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://cookiecare.app",
+        "X-Title": "CookieCare Legal AI"
+      },
+      body: JSON.stringify(body)
+    });
+  } catch (networkErr) {
+    throw new Error(
+      `OpenRouter network error: ${networkErr.message}`
+    );
+  }
+  if (response.status === 429) {
+    throw new Error(
+      "OpenRouter rate limit exceeded (429). Please wait before retrying."
+    );
+  }
+  if (response.status === 401 || response.status === 403) {
+    throw new Error(
+      `OpenRouter authentication failed (${response.status}). Check your OPENROUTER_API_KEY.`
+    );
+  }
+  if (!response.ok) {
+    let detail = "";
+    try {
+      const errBody = await response.json();
+      detail = errBody?.error?.message ?? JSON.stringify(errBody);
+    } catch {
+      detail = await response.text();
+    }
+    throw new Error(`OpenRouter API error (${response.status}): ${detail}`);
+  }
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error("OpenRouter returned a malformed JSON response.");
+  }
+  const text = data?.choices?.[0]?.message?.content;
+  if (typeof text !== "string") {
+    throw new Error(
+      "OpenRouter response missing expected choices[0].message.content."
+    );
+  }
+  return text;
+}
+async function openRouterComplete(systemPrompt, userPrompt, options = {}) {
+  const messages = [];
+  if (systemPrompt) {
+    messages.push({ role: "system", content: systemPrompt });
+  }
+  messages.push({ role: "user", content: userPrompt });
+  return openRouterChat(messages, options);
+}
+
 // backend/src/agents/analysisAgent.ts
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { z } from "zod";
-var genAI = new GoogleGenerativeAI(config.geminiApiKey || "dummy");
 var AuditSchema = z.object({
   summary: z.string(),
   risks: z.array(
@@ -359,15 +438,7 @@ var AuditSchema = z.object({
 var AnalysisAgent = class {
   async analyzeDocuments(contents, prompt) {
     const combinedContent = contents.join("\n\n---\n\n");
-    const fullPrompt = `
-You are a Senior Compliance Officer.
-
-Analyze the following document(s) and address this query:
-
-${prompt}
-
-[DOCUMENTS]
-${combinedContent}
+    const systemPrompt = `You are a Senior Compliance Officer.
 
 Identify:
 - Critical liability risks
@@ -377,29 +448,22 @@ Identify:
 
 IMPORTANT:
 Return your response in clean, well-structured Markdown format.
-Use headers, bullet points, and bold text for readability.
-`;
+Use headers, bullet points, and bold text for readability.`;
+    const userPrompt = `Analyze the following document(s) and address this query:
+
+${prompt}
+
+[DOCUMENTS]
+${combinedContent}`;
     try {
-      const model = genAI.getGenerativeModel({
-        model: "gemini-2.0-flash"
-      });
-      const result = await model.generateContent({
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: fullPrompt }]
-          }
-        ]
-      });
-      return result.response.text();
+      return await openRouterComplete(systemPrompt, userPrompt);
     } catch (err) {
       console.error("AnalysisAgent error:", err);
       throw err;
     }
   }
   async runAudit(content, type) {
-    const systemInstruction = `
-You are a Risk Assessment Agent trained on enterprise liability guidelines.
+    const systemPrompt = `You are a Risk Assessment Agent trained on enterprise liability guidelines.
 
 Audit the document for:
 1. Indemnity Caps
@@ -412,7 +476,8 @@ Audit the document for:
 Audit Type: ${type}
 
 CRITICAL:
-You must return ONLY a valid JSON object matching this schema:
+You must return ONLY a valid JSON object \u2014 no markdown fences, no commentary.
+The JSON must exactly match this schema:
 
 {
   "summary": "High-level audit summary",
@@ -436,113 +501,17 @@ You must return ONLY a valid JSON object matching this schema:
       "remediation": "How to resolve"
     }
   ]
-}
-`;
-    try {
-      const model = genAI.getGenerativeModel({
-        model: "gemini-2.0-flash"
-      });
-      const result = await model.generateContent({
-        generationConfig: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: "object",
-            properties: {
-              summary: {
-                type: "string"
-              },
-              risks: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    id: {
-                      type: "string"
-                    },
-                    clause: {
-                      type: "string"
-                    },
-                    severity: {
-                      type: "string",
-                      enum: ["low", "medium", "high"]
-                    },
-                    risk_level: {
-                      type: "string"
-                    },
-                    reasons: {
-                      type: "array",
-                      items: {
-                        type: "string"
-                      }
-                    },
-                    description: {
-                      type: "string"
-                    },
-                    actionableInsight: {
-                      type: "string"
-                    },
-                    remediation: {
-                      type: "string"
-                    }
-                  },
-                  required: [
-                    "id",
-                    "clause",
-                    "severity",
-                    "risk_level",
-                    "reasons",
-                    "description",
-                    "actionableInsight"
-                  ]
-                }
-              },
-              complianceGaps: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    regulation: {
-                      type: "string"
-                    },
-                    issue: {
-                      type: "string"
-                    },
-                    severity: {
-                      type: "string"
-                    },
-                    remediation: {
-                      type: "string"
-                    }
-                  },
-                  required: [
-                    "regulation",
-                    "issue",
-                    "severity",
-                    "remediation"
-                  ]
-                }
-              }
-            },
-            required: ["summary", "risks", "complianceGaps"]
-          }
-        },
-        systemInstruction,
-        contents: [
-          {
-            role: "user",
-            parts: [
-              {
-                text: `Document Content to Audit:
+}`;
+    const userPrompt = `Document Content to Audit:
 
-${content}`
-              }
-            ]
-          }
-        ]
+${content}`;
+    try {
+      let responseText = await openRouterComplete(systemPrompt, userPrompt, {
+        jsonMode: true
       });
-      let responseText = result.response.text().trim();
+      responseText = responseText.trim();
       if (responseText.startsWith("```")) {
-        responseText = responseText.replace(/^```json/i, "").replace(/^```/i, "").replace(/```$/i, "").trim();
+        responseText = responseText.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "").trim();
       }
       const parsed = JSON.parse(responseText);
       if (parsed.risks && Array.isArray(parsed.risks)) {
@@ -599,10 +568,7 @@ ${content}`
         clause: "Immediate termination without notice",
         severity: "medium",
         risk_level: "WARNING",
-        reasons: [
-          "No cure period",
-          "Operational disruption risk"
-        ],
+        reasons: ["No cure period", "Operational disruption risk"],
         description: "Immediate termination rights without notice may create business continuity risks.",
         actionableInsight: "Add notice and cure periods before termination.",
         remediation: "Require at least 30 days' written notice and a cure period before termination."
@@ -617,18 +583,12 @@ ${content}`
 };
 
 // backend/src/agents/draftingAgent.ts
-import { GoogleGenerativeAI as GoogleGenerativeAI2 } from "@google/generative-ai";
-var genAI2 = new GoogleGenerativeAI2(config.geminiApiKey || "dummy");
 var DraftingAgent = class {
   async generateDraft(prompt) {
-    const fullPrompt = `You are an expert Legal Draftsman. Generate a professional legal document based on this instruction: ${prompt}
-
-Return only the document content in Markdown format. Do not include any preamble or notes.`;
+    const systemPrompt = "You are an expert Legal Draftsman. Generate a professional legal document based on the user's instruction. Return only the document content in Markdown format. Do not include any preamble or notes.";
+    const userPrompt = prompt;
     try {
-      const response = await genAI2.getGenerativeModel({ model: "gemini-2.0-flash" }).generateContent({
-        contents: [{ role: "user", parts: [{ text: fullPrompt }] }]
-      });
-      return response.response.text();
+      return await openRouterComplete(systemPrompt, userPrompt);
     } catch (err) {
       console.error("DraftingAgent error:", err);
       throw err;
@@ -637,15 +597,13 @@ Return only the document content in Markdown format. Do not include any preamble
 };
 
 // backend/src/agents/negotiationAgent.ts
-import { GoogleGenerativeAI as GoogleGenerativeAI3 } from "@google/generative-ai";
-var genAI3 = new GoogleGenerativeAI3(config.geminiApiKey || "dummy");
 var NegotiationAgent = class {
   async negotiate(documentContent, playbooks, instructions) {
     const playbookText = playbooks.join("\n\n---\n\n");
-    const systemInstruction = `You are an expert Legal Counsel specializing in contract negotiation.
+    const systemPrompt = `You are an expert Legal Counsel specializing in contract negotiation.
 Your goal is to suggest redlines and improvements for the provided document based on the company's playbooks and specific user instructions.
 Return the output in Markdown format with a summary of changes and the proposed redlines.`;
-    const prompt = `[DOCUMENT CONTENT]
+    const userPrompt = `[DOCUMENT CONTENT]
 ${documentContent}
 
 [NEGOTIATION PLAYBOOKS]
@@ -656,14 +614,7 @@ ${instructions}
 
 Provide detailed negotiation advice and specific clause redlines.`;
     try {
-      const result = await genAI3.getGenerativeModel({ model: "gemini-2.0-flash" }).generateContent({
-        generationConfig: {
-          candidateCount: 1
-        },
-        systemInstruction,
-        contents: [{ role: "user", parts: [{ text: prompt }] }]
-      });
-      return result.response.text();
+      return await openRouterComplete(systemPrompt, userPrompt);
     } catch (err) {
       console.error("NegotiationAgent error:", err);
       throw err;
@@ -675,25 +626,20 @@ Provide detailed negotiation advice and specific clause redlines.`;
 };
 
 // backend/src/agents/askLawyerAgent.ts
-import { GoogleGenerativeAI as GoogleGenerativeAI4 } from "@google/generative-ai";
-var genAI4 = new GoogleGenerativeAI4(config.geminiApiKey || "dummy");
 var AskLawyerAgent = class {
   async getAdvice(prompt, context) {
-    const fullPrompt = `You are a Senior Legal Counsel. Provide professional legal advice based on the following context.
+    const systemPrompt = `You are a Senior Legal Counsel. Provide professional legal advice based on the following context.
 If the information is not in the context, state that you are advising based on general legal principles but recommend consulting with specific jurisdictional counsel.
 
-[CONTEXT]
+IMPORTANT: Return your response in clean Markdown format.`;
+    const userPrompt = `[CONTEXT]
 ${context}
 
 [USER QUERY]
-${prompt}
-
-IMPORTANT: Return your response in clean Markdown format.`;
+${prompt}`;
     try {
-      const result = await genAI4.getGenerativeModel({ model: "gemini-2.0-flash" }).generateContent({
-        contents: [{ role: "user", parts: [{ text: fullPrompt }] }]
-      });
-      return result.response.text() || "I cannot answer this query right now.";
+      const result = await openRouterComplete(systemPrompt, userPrompt);
+      return result || "I cannot answer this query right now.";
     } catch (err) {
       console.error("AskLawyerAgent error:", err);
       throw err;
@@ -702,24 +648,6 @@ IMPORTANT: Return your response in clean Markdown format.`;
 };
 
 // backend/src/RAG/ragService.ts
-import { GoogleGenerativeAI as GoogleGenerativeAI5 } from "@google/generative-ai";
-
-// backend/src/utils/retry.ts
-async function withRetry(fn, retries = 3, delay = 1e3) {
-  try {
-    return await fn();
-  } catch (error) {
-    if (retries === 0) throw error;
-    const isTransient = error.message?.includes("fetch failed") || error.message?.includes("socket hang up") || error.message?.includes("ECONNRESET") || error.message?.includes("Connection terminated") || error.message?.includes("connection timeout") || error.message?.includes("503") || error.message?.includes("504") || error.message?.includes("429");
-    if (!isTransient) throw error;
-    console.warn(`Retry attempt remaining: ${retries}. Error: ${error.message}`);
-    await new Promise((resolve) => setTimeout(resolve, delay));
-    return withRetry(fn, retries - 1, delay * 2);
-  }
-}
-
-// backend/src/RAG/ragService.ts
-var genAI5 = new GoogleGenerativeAI5(config.geminiApiKey || "dummy");
 function sanitizeText(text) {
   return text.replace(/\0/g, "");
 }
@@ -746,19 +674,8 @@ function splitIntoClauseAwareChunks(content) {
   }
   return chunks.filter((c) => c.trim().length > 15);
 }
-async function embedText(text) {
-  try {
-    const model = genAI5.getGenerativeModel({ model: "text-embedding-004" });
-    const result = await withRetry(() => model.embedContent({
-      content: { role: "user", parts: [{ text: sanitizeText(text) }] }
-    }));
-    const vector = result.embedding?.values || result.embeddings?.[0]?.values;
-    if (!vector) throw new Error("Failed to generate embedding.");
-    return vector;
-  } catch (err) {
-    console.warn("[RAG] embedText failed, continuing without embedding:", err.message);
-    return null;
-  }
+async function embedText(_text) {
+  return null;
 }
 async function chunkAndIndexDocument(fileId, content, userId) {
   const cleanedContent = sanitizeText(content);
@@ -865,8 +782,6 @@ async function searchHybrid(query, userId, fileIds, folderIds) {
 }
 
 // backend/src/agents/legalAgent.ts
-import { GoogleGenerativeAI as GoogleGenerativeAI6 } from "@google/generative-ai";
-var genAI6 = new GoogleGenerativeAI6(config.geminiApiKey || "dummy");
 var AgentOrchestrator = class {
   constructor() {
     this.analysisAgent = new AnalysisAgent();
@@ -881,13 +796,20 @@ var AgentOrchestrator = class {
       await client.query("BEGIN");
       await client.query("SET LOCAL app.current_user_id = $1", [userId]);
       await client.query("SET LOCAL app.current_user_role = $2", [userRole]);
-      await client.query(
-        "UPDATE files SET analysis = $1 WHERE id = $2",
-        [JSON.stringify(audit), documentId]
-      );
+      await client.query("UPDATE files SET analysis = $1 WHERE id = $2", [
+        JSON.stringify(audit),
+        documentId
+      ]);
       await client.query(
         "INSERT INTO agent_execution_logs (file_id, user_id, agent_name, task_name, decisions, confidence_score) VALUES ($1, $2, $3, $4, $5, $6)",
-        [documentId, userId, "AnalysisAgent", "Legal Audit", JSON.stringify({ summary: audit.summary }), 95]
+        [
+          documentId,
+          userId,
+          "AnalysisAgent",
+          "Legal Audit",
+          JSON.stringify({ summary: audit.summary }),
+          95
+        ]
       );
       await client.query("COMMIT");
     } catch (err) {
@@ -903,7 +825,11 @@ var AgentOrchestrator = class {
     return await this.draftingAgent.generateDraft(prompt);
   }
   async runNegotiation(documentContent, playbooks, instructions) {
-    return await this.negotiationAgent.negotiate(documentContent, playbooks, instructions);
+    return await this.negotiationAgent.negotiate(
+      documentContent,
+      playbooks,
+      instructions
+    );
   }
   async askLawyer(prompt, userId, documentIds) {
     const context = await searchHybrid(prompt, userId, documentIds);
@@ -918,20 +844,16 @@ ${c.content}`).join("\n\n");
     const context = await searchHybrid(prompt, userId, void 0, folderIds);
     const contextText = context.map((c) => `[File: ${c.title}]
 ${c.content}`).join("\n\n");
-    const fullPrompt = `You are a Legal Analyst. Answer the following query based on the provided document context.
+    const systemPrompt = `You are a Legal Analyst. Answer the following query based on the provided document context.
 Answer Style: ${answerStyle}
-History: ${JSON.stringify(history)}
-
-[CONTEXT]
+History: ${JSON.stringify(history)}`;
+    const userPrompt = `[CONTEXT]
 ${contextText}
 
 [QUERY]
 ${prompt}`;
     try {
-      const result = await genAI6.getGenerativeModel({ model: "gemini-2.0-flash" }).generateContent({
-        contents: [{ role: "user", parts: [{ text: fullPrompt }] }]
-      });
-      return result.response.text();
+      return await openRouterComplete(systemPrompt, userPrompt);
     } catch (err) {
       console.error("interactAnalyze error:", err);
       throw err;
@@ -1069,12 +991,10 @@ var BrowserManager = class _BrowserManager {
 var browserManager = BrowserManager.getInstance();
 
 // backend/src/services/scannerService.ts
-import { GoogleGenerativeAI as GoogleGenerativeAI7 } from "@google/generative-ai";
 var __dirname = path.dirname(fileURLToPath(import.meta.url));
 var ScannerService = class {
   constructor() {
     this.cookieDb = null;
-    this.genAI = new GoogleGenerativeAI7(config.geminiApiKey || "dummy");
   }
   async loadCookieDb() {
     if (this.cookieDb) return this.cookieDb;
@@ -1247,13 +1167,10 @@ var ScannerService = class {
       description: t.description,
       currentCategory: t.category
     }));
-    const prompt = `You are a Privacy Engineer. Analyze the following trackers detected on ${url} and categorize them into: 'Necessary', 'Functional', 'Analytics', or 'Marketing'.
-Also, identify potential compliance risks and provide remediation steps.
+    const systemPrompt = `You are a Privacy Engineer. Analyze the provided trackers and categorize them into: 'Necessary', 'Functional', 'Analytics', or 'Marketing'.
+Also identify potential compliance risks and provide remediation steps.
 
-[TRACKERS]
-${JSON.stringify(trackerSummary, null, 2)}
-
-CRITICAL: Return a valid JSON object matching this schema:
+CRITICAL: Return ONLY a valid JSON object \u2014 no markdown fences, no commentary \u2014 matching this exact schema:
 {
   "categorizedTrackers": [
     {
@@ -1267,13 +1184,15 @@ CRITICAL: Return a valid JSON object matching this schema:
   "overallComplianceRating": "A | B | C | D | F",
   "summary": "string"
 }`;
+    const userPrompt = `Trackers detected on ${url}:
+${JSON.stringify(trackerSummary, null, 2)}`;
     try {
-      const model = this.genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-      const result = await model.generateContent({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { responseMimeType: "application/json" }
-      });
-      return JSON.parse(result.response.text());
+      let responseText = await openRouterComplete(systemPrompt, userPrompt, { jsonMode: true });
+      responseText = responseText.trim();
+      if (responseText.startsWith("```")) {
+        responseText = responseText.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "").trim();
+      }
+      return JSON.parse(responseText);
     } catch (err) {
       console.error("[Scanner] AI analysis failed:", err);
       return null;
@@ -1625,12 +1544,24 @@ function decryptData(text) {
 var encrypt = encryptData;
 var decrypt = decryptData;
 
+// backend/src/utils/retry.ts
+async function withRetry(fn, retries = 3, delay = 1e3) {
+  try {
+    return await fn();
+  } catch (error) {
+    if (retries === 0) throw error;
+    const isTransient = error.message?.includes("fetch failed") || error.message?.includes("socket hang up") || error.message?.includes("ECONNRESET") || error.message?.includes("Connection terminated") || error.message?.includes("connection timeout") || error.message?.includes("503") || error.message?.includes("504") || error.message?.includes("429");
+    if (!isTransient) throw error;
+    console.warn(`Retry attempt remaining: ${retries}. Error: ${error.message}`);
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    return withRetry(fn, retries - 1, delay * 2);
+  }
+}
+
 // backend/src/services/jobQueue.ts
-import { GoogleGenerativeAI as GoogleGenerativeAI8 } from "@google/generative-ai";
 import crypto3 from "crypto";
 import pdf from "pdf-parse-fork";
 import mammoth from "mammoth";
-var genAI7 = new GoogleGenerativeAI8(process.env.GEMINI_API_KEY || "");
 async function updateJobProgress(jobId, userId, progress, message) {
   await withTransaction(userId, "USER", async (client) => {
     await client.query(
@@ -1841,10 +1772,11 @@ async function executeDocumentAnalysis(jobId, userId, payload) {
     return rows[0]?.role || "USER";
   });
   if (payload.type === "legal_ask") {
-    const { prompt, jurisdiction, outputFormat, documents } = payload;
+    const { prompt, documents } = payload;
     await updateJobProgress(jobId, userId, 30, "Searching knowledge base and synthesizing advice...");
-    const result2 = await jobRegistry.orchestrator.askLawyer(prompt, userId, documents);
-    return result2;
+    console.log(`[JobRunner/legal_ask] Calling askLawyer via OpenRouter, prompt: "${String(prompt).substring(0, 80)}..."`);
+    const text = await jobRegistry.orchestrator.askLawyer(prompt, userId, documents);
+    return { text };
   }
   if (payload.prompt && payload.folderIds) {
     const { folderIds, prompt, documentMode, answerStyle, history } = payload;
@@ -1883,8 +1815,7 @@ Text:
 ${text}
 
 IMPORTANT: Return only the rewritten text without any quotes or preamble.`;
-    const result2 = await withRetry(() => genAI7.getGenerativeModel({ model: "gemini-2.0-flash" }).generateContent(prompt));
-    const content = result2.response.text().trim();
+    const content = await withRetry(() => openRouterComplete("", prompt));
     const docId2 = "doc_" + crypto3.randomUUID();
     const title2 = `Refined Text - ${(/* @__PURE__ */ new Date()).toLocaleDateString()}`;
     const { email: creatorEmail2 } = await withTransaction(userId, "USER", async (client) => {
@@ -2703,10 +2634,8 @@ var analyze_default = router7;
 
 // backend/src/routes/drafting.ts
 import { Router as Router8 } from "express";
-import { GoogleGenerativeAI as GoogleGenerativeAI9 } from "@google/generative-ai";
 var router8 = Router8();
 var orchestrator2 = new AgentOrchestrator();
-var genAI8 = new GoogleGenerativeAI9(config.geminiApiKey || "dummy");
 router8.post("/generate", authenticateToken, async (req, res) => {
   try {
     const { mode, detailLevel, instructions, formFields, templateId, sourceText, playbookText } = req.body;
@@ -2764,16 +2693,25 @@ var drafting_default = router8;
 
 // backend/src/routes/lawyer.ts
 import { Router as Router9 } from "express";
-import { GoogleGenerativeAI as GoogleGenerativeAI10 } from "@google/generative-ai";
 var router9 = Router9();
-var orchestrator3 = new AgentOrchestrator();
-var genAI9 = new GoogleGenerativeAI10(config.geminiApiKey || "dummy");
 router9.post("/ask", authenticateToken, async (req, res) => {
   try {
-    const { prompt, documentIds } = req.body;
-    const result = await orchestrator3.askLawyer(prompt, req.user.id, documentIds);
-    res.json({ advice: result });
+    const { prompt, jurisdiction, outputFormat, webContext, documents, documentIds } = req.body;
+    if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
+      return res.status(400).json({ error: "prompt is required." });
+    }
+    console.log(`[lawyer/ask] Queuing legal_ask job for user ${req.user.id}, prompt: "${prompt.substring(0, 80)}..."`);
+    const job = await addJobToQueue(req.user.id, "document_analysis", {
+      type: "legal_ask",
+      prompt,
+      jurisdiction,
+      outputFormat,
+      webContext,
+      documents: documentIds || documents || []
+    });
+    return res.status(202).json({ success: true, job_id: job.id });
   } catch (err) {
+    console.error("[lawyer/ask] error:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -2782,14 +2720,91 @@ var lawyer_default = router9;
 // backend/src/routes/negotiate.ts
 import { Router as Router10 } from "express";
 var router10 = Router10();
-var orchestrator4 = new AgentOrchestrator();
+var orchestrator3 = new AgentOrchestrator();
 router10.post("/run", authenticateToken, async (req, res) => {
   try {
     const { documentContent, playbooks, instructions } = req.body;
-    const result = await orchestrator4.runNegotiation(documentContent, playbooks, instructions);
+    const result = await orchestrator3.runNegotiation(documentContent, playbooks, instructions);
     res.json({ redlines: result });
   } catch (err) {
+    console.error("[negotiate/run] error:", err.message);
     res.status(500).json({ error: err.message });
+  }
+});
+router10.post("/evaluate", authenticateToken, async (req, res) => {
+  const { content, documentTitle = "Contract", documentType = "Agreement" } = req.body;
+  if (!content || typeof content !== "string" || content.trim().length < 20) {
+    return res.status(400).json({ error: "Document content is required for evaluation." });
+  }
+  const systemPrompt = `You are a Multi-Agent Contract Risk Evaluator.
+Analyze the provided contract and identify clauses that carry legal risk.
+Return ONLY a valid JSON object \u2014 no markdown fences, no commentary.
+
+Use this exact schema:
+{
+  "markups": [
+    {
+      "clauseId": "clause_1",
+      "original": "exact verbatim text from the document (min 15 chars)",
+      "replacement": "safer alternative clause text",
+      "reasoning": "explanation of why this clause is risky",
+      "riskLevel": "RED | YELLOW | GREEN"
+    }
+  ]
+}
+
+Rules:
+- Extract between 2 and 6 high-value risk clauses
+- "original" MUST be verbatim text that appears in the document
+- "original" must be at least 15 characters
+- Focus on: indemnity, IP ownership, termination rights, liability caps, data protection
+- If no significant risks exist, return { "markups": [] }`;
+  const userPrompt = `Document Title: ${documentTitle}
+Document Type: ${documentType}
+
+[CONTRACT CONTENT]
+${content.substring(0, 12e3)}`;
+  try {
+    console.log(`[negotiate/evaluate] Running AI evaluation for "${documentTitle}" via OpenRouter`);
+    let responseText = await openRouterComplete(systemPrompt, userPrompt, { jsonMode: true });
+    responseText = responseText.trim();
+    if (responseText.startsWith("```")) {
+      responseText = responseText.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "").trim();
+    }
+    const parsed = JSON.parse(responseText);
+    const markups = Array.isArray(parsed.markups) ? parsed.markups : [];
+    console.log(`[negotiate/evaluate] Returned ${markups.length} markup(s)`);
+    return res.json({ data: { markups } });
+  } catch (err) {
+    console.error("[negotiate/evaluate] AI error:", err.message);
+    return res.json({ data: { markups: [] }, warning: err.message });
+  }
+});
+router10.post("/compromise", authenticateToken, async (req, res) => {
+  const { originalText, riskExplanation, userPrompt: customPrompt, playbookPreferred } = req.body;
+  if (!originalText || typeof originalText !== "string") {
+    return res.status(400).json({ error: "originalText is required." });
+  }
+  const systemPrompt = `You are Lumi, an expert AI negotiation counsel.
+Your task is to draft an improved replacement for a risky contract clause.
+${playbookPreferred ? "Favour the client's position strongly \u2014 prioritise their protections." : "Draft a balanced, commercially fair compromise that both parties can accept."}
+
+Return ONLY the replacement clause text \u2014 no preamble, no explanation, no quotes.`;
+  const userPrompt = `Original risky clause:
+"${originalText}"
+
+Risk analysis: ${riskExplanation || "General clause risk detected."}
+${customPrompt ? `
+Additional instruction: ${customPrompt}` : ""}
+
+Draft the improved replacement clause:`;
+  try {
+    console.log(`[negotiate/compromise] Drafting ${playbookPreferred ? "playbook-preferred" : "balanced"} compromise via OpenRouter`);
+    const result = await openRouterComplete(systemPrompt, userPrompt, { temperature: 0.4 });
+    return res.json({ result: result.trim() });
+  } catch (err) {
+    console.error("[negotiate/compromise] AI error:", err.message);
+    return res.status(500).json({ error: err.message });
   }
 });
 var negotiate_default = router10;

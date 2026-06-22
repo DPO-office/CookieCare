@@ -3,8 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { browserManager } from "../utils/browserManager.js";
 import { Page } from "playwright";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { config } from "../config/index.js";
+import { openRouterComplete } from "./openRouterClient.js";
 import { withTransaction } from "../utils/dbUtils.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -27,7 +26,6 @@ interface CookieDatabase {
 
 export class ScannerService {
   private cookieDb: CookieDatabase | null = null;
-  private genAI = new GoogleGenerativeAI(config.geminiApiKey || "dummy");
 
   private async loadCookieDb() {
     if (this.cookieDb) return this.cookieDb;
@@ -219,13 +217,10 @@ export class ScannerService {
       currentCategory: t.category
     }));
 
-    const prompt = `You are a Privacy Engineer. Analyze the following trackers detected on ${url} and categorize them into: 'Necessary', 'Functional', 'Analytics', or 'Marketing'.
-Also, identify potential compliance risks and provide remediation steps.
+    const systemPrompt = `You are a Privacy Engineer. Analyze the provided trackers and categorize them into: 'Necessary', 'Functional', 'Analytics', or 'Marketing'.
+Also identify potential compliance risks and provide remediation steps.
 
-[TRACKERS]
-${JSON.stringify(trackerSummary, null, 2)}
-
-CRITICAL: Return a valid JSON object matching this schema:
+CRITICAL: Return ONLY a valid JSON object — no markdown fences, no commentary — matching this exact schema:
 {
   "categorizedTrackers": [
     {
@@ -240,13 +235,19 @@ CRITICAL: Return a valid JSON object matching this schema:
   "summary": "string"
 }`;
 
+    const userPrompt = `Trackers detected on ${url}:\n${JSON.stringify(trackerSummary, null, 2)}`;
+
     try {
-      const model = this.genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-      const result = await model.generateContent({
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: { responseMimeType: "application/json" }
-      });
-      return JSON.parse(result.response.text());
+      let responseText = await openRouterComplete(systemPrompt, userPrompt, { jsonMode: true });
+      responseText = responseText.trim();
+      if (responseText.startsWith("```")) {
+        responseText = responseText
+          .replace(/^```json\s*/i, "")
+          .replace(/^```\s*/i, "")
+          .replace(/\s*```$/i, "")
+          .trim();
+      }
+      return JSON.parse(responseText);
     } catch (err) {
       console.error("[Scanner] AI analysis failed:", err);
       return null;
