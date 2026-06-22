@@ -4,9 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node node_modules/tsx/dist/cli.mjs scripts/setupDb.ts && node node_modules/esbuild/bin/esbuild server.ts --bundle --platform=node --format=esm --packages=external --outfile=server.js && node server.js",
-    "dev:client": "node node_modules/vite/bin/vite.js",
-    "build": "node node_modules/vite/bin/vite.js build && node node_modules/esbuild/bin/esbuild server.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=dist/server.js",
+   "dev": "node node_modules/tsx/dist/cli.mjs scripts/setupDb.ts && npx esbuild server.ts --bundle --platform=node --format=esm --packages=external --outfile=server.js && node server.js",
+   "build": "npx vite build && npx esbuild server.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=dist/server.js",
     "start": "node dist/server.js",
     "clean": "rm -rf dist server.js",
     "lint": "node node_modules/typescript/bin/tsc --noEmit",
