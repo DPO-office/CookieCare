@@ -47,10 +47,24 @@ interface InteractAnalyzeProps {
   onSelectDocument: (doc: LegalDocument | null) => void;
 }
 
+interface FolderFile {
+  id: string;
+  title: string;
+  selected: boolean;
+}
+
 interface CustomFolder {
   id: string;
   name: string;
   filesCount: number;
+  selected: boolean;
+  expanded: boolean;
+  files: FolderFile[];
+}
+
+interface SavedDraft {
+  id: string;
+  title: string;
   selected: boolean;
 }
 
@@ -74,6 +88,8 @@ export default function InteractAnalyze({
 
   // --- SCREEN A: FORM SELECTION STATE ---
   const [folders, setFolders] = useState<CustomFolder[]>([]);
+  const [savedDrafts, setSavedDrafts] = useState<SavedDraft[]>([]);
+  const [savedDraftsExpanded, setSavedDraftsExpanded] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [promptTab, setPromptTab] = useState<"write" | "library" | "questions">("write");
   const [customPromptText, setCustomPromptText] = useState(
@@ -117,6 +133,8 @@ export default function InteractAnalyze({
     }
   };
 
+  const SYSTEM_FOLDER_NAME = "Uploaded Documents";
+
   const fetchFoldersAndDocs = async () => {
     try {
       const [foldersRes, docsRes] = await Promise.all([
@@ -128,40 +146,36 @@ export default function InteractAnalyze({
         const foldersData = await foldersRes.json();
         const docsData = await docsRes.json();
 
-        const formattedFolders: CustomFolder[] = foldersData.map((f: any) => ({
-          id: f.id,
-          name: f.name,
-          filesCount: docsData.filter((d: any) => d.folder_id === f.id).length,
-          selected: false
-        }));
+        // Filter out the system "Uploaded Documents" folder — only show user-created folders
+        const userFolders = foldersData.filter((f: any) => f.name !== SYSTEM_FOLDER_NAME);
 
-        // Decode the JWT to get the current user's email so we only count
-        // documents this user actually owns. Without this, docs shared with
-        // this user by others (which have folder_id = null inside the owner's
-        // vault) would inflate rootFilesCount and show a phantom
-        // "Unassigned Vault Files" folder even after the user's own files
-        // are deleted.
-        let currentUserEmail = "";
-        try {
-          const payload = JSON.parse(atob(authToken.split(".")[1]));
-          currentUserEmail = (payload.email || "").toLowerCase();
-        } catch {
-          // If JWT decode fails, fall back to showing all unassigned docs
-        }
-
-        const rootFilesCount = docsData.filter((d: any) =>
-          !d.folder_id &&
-          (!currentUserEmail || (d.creator_email || "").toLowerCase() === currentUserEmail)
-        ).length;
-        if (rootFilesCount > 0) {
-          formattedFolders.push({
-            id: "root",
-            name: "Unassigned Vault Files",
-            filesCount: rootFilesCount,
-            selected: false
+        setFolders(prev => {
+          return userFolders.map((f: any) => {
+            const existing = prev.find(p => p.id === f.id);
+            const folderDocs = docsData.filter((d: any) => d.folder_id === f.id);
+            return {
+              id: f.id,
+              name: f.name,
+              filesCount: folderDocs.length,
+              selected: existing?.selected ?? false,
+              expanded: existing?.expanded ?? false,
+              files: folderDocs.map((d: any) => ({
+                id: d.id,
+                title: d.title,
+                // Preserve selection state if already present, otherwise match folder selection
+                selected: existing?.files.find(fi => fi.id === d.id)?.selected ?? (existing?.selected ?? false)
+              }))
+            } as CustomFolder;
           });
-        }
-        setFolders(formattedFolders);
+        });
+
+        // Populate saved drafts (type === "draft"), preserving existing selection state
+        const drafts = docsData.filter((d: any) => d.type === "draft");
+        setSavedDrafts(prev => drafts.map((d: any) => ({
+          id: d.id,
+          title: d.title,
+          selected: prev.find(p => p.id === d.id)?.selected ?? false
+        })));
       }
     } catch (err) {
       console.error("Failed to fetch data", err);
@@ -206,9 +220,39 @@ export default function InteractAnalyze({
     }
   }, [chatMessages]);
 
-  // --- ACTION: TOGGLE CHECKBOX FOLDER ---
+  // --- ACTION: TOGGLE CHECKBOX FOLDER (selects/deselects all files inside) ---
   const toggleFolderSelection = (id: string) => {
-    setFolders(prev => prev.map(f => f.id === id ? { ...f, selected: !f.selected } : f));
+    setFolders(prev => prev.map(f => {
+      if (f.id !== id) return f;
+      const newSelected = !f.selected;
+      return {
+        ...f,
+        selected: newSelected,
+        files: f.files.map(fi => ({ ...fi, selected: newSelected }))
+      };
+    }));
+  };
+
+  // --- ACTION: TOGGLE EXPAND / COLLAPSE FOLDER ---
+  const toggleFolderExpanded = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFolders(prev => prev.map(f => f.id === id ? { ...f, expanded: !f.expanded } : f));
+  };
+
+  // --- ACTION: TOGGLE INDIVIDUAL FILE SELECTION ---
+  const toggleFileSelection = (folderId: string, fileId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFolders(prev => prev.map(f => {
+      if (f.id !== folderId) return f;
+      const updatedFiles = f.files.map(fi => fi.id === fileId ? { ...fi, selected: !fi.selected } : fi);
+      const allSelected = updatedFiles.length > 0 && updatedFiles.every(fi => fi.selected);
+      return { ...f, files: updatedFiles, selected: allSelected };
+    }));
+  };
+
+  // --- ACTION: TOGGLE SAVED DRAFT SELECTION ---
+  const toggleDraftSelection = (id: string) => {
+    setSavedDrafts(prev => prev.map(d => d.id === id ? { ...d, selected: !d.selected } : d));
   };
 
   // --- ACTION: TRIGGERS SIDE DRAWER PANEL ---
@@ -284,9 +328,12 @@ export default function InteractAnalyze({
       const formData = new FormData();
       formData.append("file", selectedFile);
       formData.append("title", uploadedFileName);
-      if (targetFolder && targetFolder.id !== "root") {
+      // Always send a real folder_id. If none selected, let the backend resolve
+      // the "Uploaded Documents" default folder (no folder_id = backend default).
+      if (targetFolder) {
         formData.append("folder_id", targetFolder.id);
       }
+      // (no folder_id sent → backend will assign to "Uploaded Documents")
 
       const res = await fetch(apiUrl("/api/documents/upload"), {
         method: "POST",
@@ -341,13 +388,16 @@ export default function InteractAnalyze({
   };
 
   const handleStartAnalysis = async () => {
-    const activeSelectedFolders = folders.filter(f => f.selected);
-    if (activeSelectedFolders.length === 0) {
-      alert("Please select at least one document folder node to analyze.");
+    const activeSelectedFolders = folders.filter(f => f.selected || f.files.some(fi => fi.selected));
+    const activeSelectedDrafts = savedDrafts.filter(d => d.selected);
+    if (activeSelectedFolders.length === 0 && activeSelectedDrafts.length === 0) {
+      alert("Please select at least one document folder or saved draft to analyze.");
       return;
     }
     
-    const firstSelected = activeSelectedFolders[0].name;
+    const firstSelected = activeSelectedFolders.length > 0
+      ? activeSelectedFolders[0].name
+      : activeSelectedDrafts[0].title;
     setActiveReportDocName(firstSelected);
     setIsAnalyzing(true);
     setAnalysisProgress("Preparing analysis request...");
@@ -364,6 +414,7 @@ export default function InteractAnalyze({
         },
         body: JSON.stringify({
           folderIds: activeSelectedFolders.map(f => f.id),
+          draftIds: activeSelectedDrafts.map(d => d.id),
           prompt: customPromptText,
           documentMode,
           answerStyle,
@@ -437,6 +488,7 @@ export default function InteractAnalyze({
 
     try {
       const activeSelectedFolders = folders.filter(f => f.selected);
+      const activeSelectedDrafts = savedDrafts.filter(d => d.selected);
       const response = await fetch(apiUrl("/api/analyze/interact"), {
         method: "POST",
         headers: {
@@ -445,6 +497,7 @@ export default function InteractAnalyze({
         },
         body: JSON.stringify({
           folderIds: activeSelectedFolders.map(f => f.id),
+          draftIds: activeSelectedDrafts.map(d => d.id),
           prompt: userText,
           documentMode,
           answerStyle,
@@ -690,40 +743,138 @@ export default function InteractAnalyze({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-60 overflow-y-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-80 overflow-y-auto">
                 {filteredFoldersList.length === 0 ? (
                   <div className="col-span-2 text-center p-8 bg-gray-50 text-xs text-gray-400 font-mono italic">
                     No folders match your current search query.
                   </div>
                 ) : (
-                  filteredFoldersList.map(folder => (
-                    <div
-                      key={folder.id}
-                      onClick={() => toggleFolderSelection(folder.id)}
-                      className={`flex items-center justify-between p-3.5 border transition-all cursor-pointer select-none ${
-                        folder.selected 
-                          ? "border-black bg-gray-50/80 shadow-xs" 
-                          : "border-gray-200 bg-white hover:border-gray-400"
-                      }`}
-                    >
-                      <div className="flex items-center space-x-3 min-w-0">
-                        <input
-                          type="checkbox"
-                          checked={folder.selected}
-                          readOnly
-                          className="rounded cursor-pointer accent-black h-3.5 w-3.5 shrink-0"
-                        />
-                        <Folder className={`w-4 h-4 shrink-0 ${folder.selected ? 'text-black' : 'text-gray-400'}`} />
-                        <span className={`text-xs font-bold text-gray-900 truncate ${folder.selected ? 'font-black' : 'font-medium'}`}>{folder.name}</span>
+                  filteredFoldersList.map(folder => {
+                    const someSelected = folder.files.some(fi => fi.selected);
+                    const allSelected = folder.files.length > 0 && folder.files.every(fi => fi.selected);
+                    const isIndeterminate = someSelected && !allSelected;
+                    return (
+                      <div key={folder.id} className="flex flex-col">
+                        <div
+                          onClick={() => toggleFolderSelection(folder.id)}
+                          className={`flex items-center justify-between p-3.5 border transition-all cursor-pointer select-none ${
+                            allSelected
+                              ? "border-black bg-gray-50/80 shadow-xs"
+                              : isIndeterminate
+                              ? "border-gray-400 bg-gray-50/40"
+                              : "border-gray-200 bg-white hover:border-gray-400"
+                          }`}
+                        >
+                          <div className="flex items-center space-x-3 min-w-0">
+                            <input
+                              type="checkbox"
+                              checked={allSelected}
+                              ref={(el) => { if (el) el.indeterminate = isIndeterminate; }}
+                              readOnly
+                              className="rounded cursor-pointer accent-black h-3.5 w-3.5 shrink-0"
+                            />
+                            <Folder className={`w-4 h-4 shrink-0 ${allSelected || isIndeterminate ? 'text-black' : 'text-gray-400'}`} />
+                            <span className={`text-xs text-gray-900 truncate ${allSelected ? 'font-black' : isIndeterminate ? 'font-bold' : 'font-medium'}`}>{folder.name}</span>
+                          </div>
+                          <div className="flex items-center space-x-1 shrink-0">
+                            <span className="text-[10px] font-mono bg-gray-100 text-gray-550 px-2 py-0.5 rounded-sm font-extrabold">{folder.filesCount} file(s)</span>
+                            <button
+                              onClick={(e) => toggleFolderExpanded(folder.id, e)}
+                              className="p-1 hover:bg-gray-100 transition-colors rounded-sm"
+                            >
+                              {folder.expanded
+                                ? <ChevronUp className="w-3.5 h-3.5 text-gray-400" />
+                                : <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+                              }
+                            </button>
+                          </div>
+                        </div>
+
+                        {folder.expanded && folder.files.length > 0 && (
+                          <div className="border-l border-r border-b border-gray-200 bg-gray-50/30">
+                            {folder.files.map(file => (
+                              <div
+                                key={file.id}
+                                onClick={(e) => toggleFileSelection(folder.id, file.id, e)}
+                                className={`flex items-center space-x-3 px-4 py-2.5 cursor-pointer select-none transition-colors border-b last:border-b-0 border-gray-100 ${
+                                  file.selected ? "bg-gray-50" : "hover:bg-gray-50/60"
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={file.selected}
+                                  readOnly
+                                  className="rounded cursor-pointer accent-black h-3 w-3 shrink-0"
+                                />
+                                <FileText className={`w-3.5 h-3.5 shrink-0 ${file.selected ? 'text-black' : 'text-gray-350'}`} />
+                                <span className={`text-[11px] font-mono truncate ${file.selected ? 'text-gray-900 font-semibold' : 'text-gray-500 font-normal'}`}>
+                                  {file.title}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {folder.expanded && folder.files.length === 0 && (
+                          <div className="border-l border-r border-b border-gray-200 bg-gray-50/30 px-4 py-2.5 text-[11px] font-mono text-gray-400 italic">
+                            No files in this folder.
+                          </div>
+                        )}
                       </div>
-                      <div className="flex items-center space-x-2 shrink-0">
-                        <span className="text-[10px] font-mono bg-gray-100 text-gray-550 px-2 py-0.5 rounded-sm font-extrabold">{folder.filesCount} file(s)</span>
-                        <ChevronDown className="w-3.5 h-3.5 text-gray-400 rotate-270" />
-                      </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
+
+              {/* ── Saved Drafts sub-section ──────────────────────────────── */}
+              {savedDrafts.length > 0 && (
+                <div className="mt-5">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-1.5">
+                      <FileCode className="w-3.5 h-3.5 text-gray-500" />
+                      <span className="text-[10px] font-mono font-black text-gray-500 uppercase tracking-widest">Saved Drafts</span>
+                      <span className="text-[9px] font-mono bg-gray-100 text-gray-500 px-1.5 py-0.5 font-extrabold">{savedDrafts.filter(d => d.selected).length}/{savedDrafts.length}</span>
+                    </div>
+                    <button
+                      onClick={() => setSavedDraftsExpanded(v => !v)}
+                      className="p-1 hover:bg-gray-100 transition-colors rounded-sm"
+                    >
+                      {savedDraftsExpanded
+                        ? <ChevronUp className="w-3.5 h-3.5 text-gray-400" />
+                        : <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+                      }
+                    </button>
+                  </div>
+
+                  {savedDraftsExpanded && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                      {savedDrafts.map(draft => (
+                        <div
+                          key={draft.id}
+                          onClick={() => toggleDraftSelection(draft.id)}
+                          className={`flex items-center justify-between p-3.5 border transition-all cursor-pointer select-none ${
+                            draft.selected
+                              ? "border-black bg-gray-50/80 shadow-xs"
+                              : "border-gray-200 bg-white hover:border-gray-400"
+                          }`}
+                        >
+                          <div className="flex items-center space-x-3 min-w-0">
+                            <input
+                              type="checkbox"
+                              checked={draft.selected}
+                              readOnly
+                              className="rounded cursor-pointer accent-black h-3.5 w-3.5 shrink-0"
+                            />
+                            <FileCode className={`w-4 h-4 shrink-0 ${draft.selected ? 'text-black' : 'text-gray-400'}`} />
+                            <span className={`text-xs truncate ${draft.selected ? 'text-gray-900 font-black' : 'text-gray-700 font-medium'}`}>{draft.title}</span>
+                          </div>
+                          <span className="text-[9px] font-mono bg-gray-100 text-gray-500 px-2 py-0.5 shrink-0 font-extrabold ml-2">DRAFT</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="bg-white border border-gray-200/90 rounded-none p-6 shadow-xs">
@@ -1175,7 +1326,7 @@ export default function InteractAnalyze({
                         onChange={(e) => setUploadSelectedFolder(e.target.value)}
                         className="w-full text-xs border border-gray-205 bg-white p-2.5 text-gray-950 font-semibold focus:outline-none focus:border-black font-sans cursor-pointer"
                       >
-                        <option value="">Select a folder...</option>
+                        <option value="">Uploaded Documents (default)</option>
                         {folders.map(f => (
                           <option key={f.id} value={f.name}>{f.name}</option>
                         ))}
@@ -1217,7 +1368,7 @@ export default function InteractAnalyze({
 
                   <button
                     type="submit"
-                    disabled={!uploadedFileName || isUploading || !uploadSelectedFolder}
+                    disabled={!uploadedFileName || isUploading}
                     className="w-full bg-black hover:bg-gray-800 text-white font-mono text-xs font-bold leading-none py-4 border border-black uppercase flex items-center justify-center space-x-2.5 transition-all select-none shadow-sm disabled:opacity-40 cursor-pointer"
                   >
                     {isUploading ? (

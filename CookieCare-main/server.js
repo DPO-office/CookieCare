@@ -72,14 +72,14 @@ __export(crypto_exports, {
   encrypt: () => encrypt,
   encryptData: () => encryptData
 });
-import crypto2 from "crypto";
+import crypto3 from "crypto";
 function encryptData(text) {
   if (!text) return "";
   if (!ENCRYPTION_KEY || Buffer.from(ENCRYPTION_KEY).length !== 32) {
     throw new Error("ENCRYPTION_KEY must be 32 bytes.");
   }
-  const iv = crypto2.randomBytes(12);
-  const cipher = crypto2.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
+  const iv = crypto3.randomBytes(12);
+  const cipher = crypto3.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
   let encrypted = cipher.update(text, "utf8", "hex");
   encrypted += cipher.final("hex");
   const authTag = cipher.getAuthTag().toString("hex");
@@ -99,7 +99,7 @@ function decryptData(text) {
       }
       const iv = Buffer.from(ivHex, "hex");
       const authTag = Buffer.from(authTagHex, "hex");
-      const decipher = crypto2.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
+      const decipher = crypto3.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
       decipher.setAuthTag(authTag);
       let decrypted = decipher.update(encryptedHex, "hex", "utf8");
       decrypted += decipher.final("utf8");
@@ -220,14 +220,136 @@ init_database();
 init_config();
 import argon2 from "argon2";
 import jwt from "jsonwebtoken";
+import crypto2 from "crypto";
+
+// backend/src/utils/dbUtils.ts
+init_database();
+async function withTransaction(userId, userRole, fn) {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const sanitizedId = userId.replace(/'/g, "''");
+    const sanitizedRole = userRole.replace(/'/g, "''");
+    await client.query(`SET LOCAL app.current_user_id = '${sanitizedId}'`);
+    await client.query(`SET LOCAL app.current_user_role = '${sanitizedRole}'`);
+    const result = await fn(client);
+    await client.query("COMMIT");
+    return result;
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+// backend/src/controllers/folders.ts
 import crypto from "crypto";
+var DEFAULT_FOLDER_NAME = "Uploaded Documents";
+async function getOrCreateDefaultFolder(userId, userRole = "USER") {
+  return withTransaction(userId, userRole, async (client) => {
+    const { rows } = await client.query(
+      "SELECT id FROM folders WHERE user_id = $1 AND name = $2 LIMIT 1",
+      [userId, DEFAULT_FOLDER_NAME]
+    );
+    if (rows.length > 0) {
+      return rows[0].id;
+    }
+    const folderId = "fld_" + crypto.randomUUID();
+    await client.query(
+      "INSERT INTO folders (id, name, user_id) VALUES ($1, $2, $3)",
+      [folderId, DEFAULT_FOLDER_NAME, userId]
+    );
+    console.log(`[defaultFolder] Created "${DEFAULT_FOLDER_NAME}" (${folderId}) for user ${userId}`);
+    return folderId;
+  });
+}
+async function migrateUnassignedDocuments(userId, defaultFolderId, userRole = "USER") {
+  await withTransaction(userId, userRole, async (client) => {
+    const result = await client.query(
+      "UPDATE files SET folder_id = $1 WHERE creator_id = $2 AND folder_id IS NULL",
+      [defaultFolderId, userId]
+    );
+    if ((result.rowCount ?? 0) > 0) {
+      console.log(`[defaultFolder] Migrated ${result.rowCount} unassigned doc(s) for user ${userId} \u2192 folder ${defaultFolderId}`);
+    }
+  });
+}
+var getFolders = async (req, res) => {
+  const userId = req.user.id;
+  const userRole = req.user.role;
+  try {
+    const defaultFolderId = await getOrCreateDefaultFolder(userId, userRole);
+    await migrateUnassignedDocuments(userId, defaultFolderId, userRole);
+    const rows = await withTransaction(userId, userRole, async (client) => {
+      const { rows: rows2 } = await client.query(
+        "SELECT * FROM folders WHERE user_id = current_setting('app.current_user_id', true) ORDER BY created_at DESC"
+      );
+      return rows2;
+    });
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+var createFolder = async (req, res) => {
+  const { name } = req.body;
+  const userId = req.user.id;
+  const userRole = req.user.role;
+  if (!name) return res.status(400).json({ error: "Folder name is required." });
+  try {
+    const id = "fld_" + crypto.randomUUID();
+    const row = await withTransaction(userId, userRole, async (client) => {
+      const { rows } = await client.query(
+        "INSERT INTO folders (id, name, user_id) VALUES ($1, $2, $3) RETURNING *",
+        [id, name, userId]
+      );
+      return rows[0];
+    });
+    res.status(201).json(row);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+var deleteFolder = async (req, res) => {
+  const userId = req.user.id;
+  const userRole = req.user.role;
+  try {
+    await withTransaction(userId, userRole, async (client) => {
+      const { rows: folderRows } = await client.query(
+        "SELECT name FROM folders WHERE id = $1",
+        [req.params.id]
+      );
+      if (folderRows.length > 0 && folderRows[0].name === DEFAULT_FOLDER_NAME) {
+        throw new Error("DEFAULT_FOLDER_PROTECTED");
+      }
+      const result = await client.query(
+        "DELETE FROM folders WHERE id = $1",
+        [req.params.id]
+      );
+      if (result.rowCount === 0) throw new Error("Folder not found.");
+      await client.query(`
+        INSERT INTO compliance_audit_logs (user_id, action_type, metadata)
+        VALUES ($1, $2, $3)
+      `, [userId, "folder_delete", JSON.stringify({ folderId: req.params.id })]);
+    });
+    res.json({ success: true });
+  } catch (err) {
+    if (err.message === "DEFAULT_FOLDER_PROTECTED") {
+      return res.status(403).json({ error: "The 'Uploaded Documents' folder cannot be deleted." });
+    }
+    res.status(err.message === "Folder not found." ? 404 : 500).json({ error: err.message });
+  }
+};
+
+// backend/src/controllers/auth.ts
 var register = async (req, res) => {
   const { email, password, name } = req.body;
   if (!email || !password || !name) {
     return res.status(400).json({ error: "Please enter all required fields." });
   }
   const normalizedEmail = email.toLowerCase();
-  const newUserId = "user_" + crypto.randomUUID();
+  const newUserId = "user_" + crypto2.randomUUID();
   try {
     const checkMail = await pool.query("SELECT id FROM users WHERE email = $1", [normalizedEmail]);
     if (checkMail.rows.length > 0) {
@@ -270,6 +392,7 @@ var login = async (req, res) => {
           config.jwtSecret,
           { expiresIn: "24h" }
         );
+        getOrCreateDefaultFolder(user.id, user.role).then((folderId) => migrateUnassignedDocuments(user.id, folderId, user.role)).catch((err) => console.warn("[defaultFolder] Setup on login failed:", err));
         return res.json({
           token,
           user: {
@@ -360,27 +483,6 @@ var isAdmin = (req, res, next) => {
 
 // backend/src/controllers/admin.ts
 init_database();
-
-// backend/src/utils/dbUtils.ts
-init_database();
-async function withTransaction(userId, userRole, fn) {
-  const client = await pool.connect();
-  try {
-    await client.query("BEGIN");
-    const sanitizedId = userId.replace(/'/g, "''");
-    const sanitizedRole = userRole.replace(/'/g, "''");
-    await client.query(`SET LOCAL app.current_user_id = '${sanitizedId}'`);
-    await client.query(`SET LOCAL app.current_user_role = '${sanitizedRole}'`);
-    const result = await fn(client);
-    await client.query("COMMIT");
-    return result;
-  } catch (err) {
-    await client.query("ROLLBACK");
-    throw err;
-  } finally {
-    client.release();
-  }
-}
 
 // backend/src/RAG/ragService.ts
 init_database();
@@ -2149,7 +2251,7 @@ async function withRetry(fn, retries = 3, delay = 1e3) {
 }
 
 // backend/src/services/jobQueue.ts
-import crypto3 from "crypto";
+import crypto4 from "crypto";
 import pdf from "pdf-parse-fork";
 import mammoth from "mammoth";
 async function updateJobProgress(jobId, userId, progress, message) {
@@ -2180,7 +2282,7 @@ async function updateJobState(jobId, userId, updates) {
   });
 }
 async function addJobToQueue(userId, type, payload) {
-  const jobId = crypto3.randomUUID();
+  const jobId = crypto4.randomUUID();
   await withTransaction(userId, "USER", async (client) => {
     await client.query(
       `INSERT INTO jobs (id, user_id, type, status, progress, payload)
@@ -2257,7 +2359,7 @@ var BackgroundJobRegistry = class {
     }
   }
   addClient(userId, res) {
-    const id = "client_" + crypto3.randomUUID();
+    const id = "client_" + crypto4.randomUUID();
     res.write(`data: ${JSON.stringify({ event: "ping", timestamp: (/* @__PURE__ */ new Date()).toISOString() })}
 
 `);
@@ -2345,7 +2447,7 @@ async function executeFileProcessing(jobId, userId, payload) {
       `UPDATE files SET content = $1, is_encrypted = $2 WHERE id = $3`,
       [encryptedContent, true, fileId]
     );
-    const versionId = "ver_" + crypto3.randomUUID();
+    const versionId = "ver_" + crypto4.randomUUID();
     await client.query(
       `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
       [versionId, fileId, encryptedContent]
@@ -2424,7 +2526,7 @@ ${text}
 
 IMPORTANT: Return only the rewritten text without any quotes or preamble.`;
     const content = await withRetry(() => openRouterComplete("", prompt));
-    const docId2 = "doc_" + crypto3.randomUUID();
+    const docId2 = "doc_" + crypto4.randomUUID();
     const title2 = `Refined Text - ${(/* @__PURE__ */ new Date()).toLocaleDateString()}`;
     const { email: creatorEmail2 } = await withTransaction(userId, "USER", async (client) => {
       const { rows } = await client.query("SELECT email FROM users WHERE id = $1", [userId]);
@@ -2437,7 +2539,7 @@ IMPORTANT: Return only the rewritten text without any quotes or preamble.`;
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
         [docId2, title2, "draft", encryptedContent2, userId, creatorEmail2, true, JSON.stringify([]), JSON.stringify([])]
       );
-      const versionId = "ver_" + crypto3.randomUUID();
+      const versionId = "ver_" + crypto4.randomUUID();
       await client.query(
         `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
         [versionId, docId2, encryptedContent2]
@@ -2459,7 +2561,7 @@ IMPORTANT: Return only the rewritten text without any quotes or preamble.`;
     sourceText,
     playbookText
   });
-  const docId = "doc_" + crypto3.randomUUID();
+  const docId = "doc_" + crypto4.randomUUID();
   const title = `AI Draft - ${(/* @__PURE__ */ new Date()).toLocaleDateString()}`;
   const { email: creatorEmail } = await withTransaction(userId, "USER", async (client) => {
     const { rows } = await client.query("SELECT email FROM users WHERE id = $1", [userId]);
@@ -2472,7 +2574,7 @@ IMPORTANT: Return only the rewritten text without any quotes or preamble.`;
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
       [docId, title, "draft", encryptedContent, userId, creatorEmail, true, JSON.stringify([]), JSON.stringify([])]
     );
-    const versionId = "ver_" + crypto3.randomUUID();
+    const versionId = "ver_" + crypto4.randomUUID();
     await client.query(
       `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
       [versionId, docId, encryptedContent]
@@ -2890,7 +2992,7 @@ var buildDocxBuffer = async (title, _contentType, content) => {
 
 // backend/src/controllers/documents.ts
 init_crypto();
-import crypto4 from "crypto";
+import crypto5 from "crypto";
 import { fileTypeFromBuffer } from "file-type";
 var getDocuments = async (req, res) => {
   const userEmail = req.user.email.toLowerCase();
@@ -2961,7 +3063,7 @@ var createDocument = async (req, res) => {
   const userId = req.user.id;
   const userRole = req.user.role;
   const email = req.user.email;
-  const id = "doc_" + crypto4.randomUUID();
+  const id = "doc_" + crypto5.randomUUID();
   const encryptedContent = encrypt(content || "");
   try {
     await withTransaction(userId, userRole, async (client) => {
@@ -2970,7 +3072,7 @@ var createDocument = async (req, res) => {
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
         [id, title, type, encryptedContent, userId, email, true, JSON.stringify([]), JSON.stringify([])]
       );
-      const versionId = "ver_" + crypto4.randomUUID();
+      const versionId = "ver_" + crypto5.randomUUID();
       await client.query(
         `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
         [versionId, id, encryptedContent]
@@ -3008,16 +3110,23 @@ var uploadDocument = async (req, res) => {
     return res.status(400).json({ error: "File signature mismatch. Extension does not match content magic bytes." });
   }
   const { title, folder_id } = req.body;
-  const fileId = "doc_" + crypto4.randomUUID();
+  const fileId = "doc_" + crypto5.randomUUID();
   const fileTitle = title || file.originalname;
   const userId = req.user.id;
   const userRole = req.user.role;
+  let resolvedFolderId;
+  try {
+    resolvedFolderId = folder_id && folder_id.trim() ? folder_id.trim() : await getOrCreateDefaultFolder(userId, userRole);
+  } catch (folderErr) {
+    console.error("[uploadDocument] Failed to resolve default folder:", folderErr);
+    return res.status(500).json({ error: "Failed to resolve upload destination folder." });
+  }
   try {
     await withTransaction(userId, userRole, async (client) => {
       await client.query(
         `INSERT INTO files (id, title, type, content, creator_id, creator_email, mime_type, folder_id)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-        [fileId, fileTitle, "upload", "", req.user.id, req.user.email, file.mimetype, folder_id || null]
+        [fileId, fileTitle, "upload", "", req.user.id, req.user.email, file.mimetype, resolvedFolderId]
       );
     }).catch((e) => {
       console.error("Database insert failed during upload:", e);
@@ -3028,7 +3137,7 @@ var uploadDocument = async (req, res) => {
       fileTitle,
       fileBufferBase64: file.buffer.toString("base64"),
       mimeType: file.mimetype,
-      folder_id: folder_id || null,
+      folder_id: resolvedFolderId,
       creatorEmail: req.user.email
     });
     res.status(202).json({ success: true, job_id: job.id, file_id: fileId });
@@ -3053,7 +3162,7 @@ var updateDocument = async (req, res) => {
         `UPDATE files SET title = COALESCE($1, title), content = $2, folder_id = COALESCE($3, folder_id), updated_at = CURRENT_TIMESTAMP WHERE id = $4`,
         [title || null, encryptedContent, folder_id || null, id]
       );
-      const versionId = "ver_" + crypto4.randomUUID();
+      const versionId = "ver_" + crypto5.randomUUID();
       await client.query(
         `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
         [versionId, id, encryptedContent]
@@ -3151,9 +3260,9 @@ var signDocument = async (req, res) => {
       if (rows.length === 0) throw new Error("Document not found");
       const signatures = rows[0].signatures || [];
       const plaintext = rows[0].is_encrypted ? decrypt(rows[0].content) : rows[0].content;
-      const contentHash = crypto4.createHash("sha256").update(plaintext, "utf8").digest("hex");
+      const contentHash = crypto5.createHash("sha256").update(plaintext, "utf8").digest("hex");
       const newSignature = {
-        id: crypto4.randomUUID(),
+        id: crypto5.randomUUID(),
         userId,
         userEmail: req.user.email,
         signedAt: (/* @__PURE__ */ new Date()).toISOString(),
@@ -3197,7 +3306,7 @@ var createRedline = async (req, res) => {
       const { rows } = await client.query("SELECT redlines FROM files WHERE id = $1", [id]);
       if (rows.length === 0) throw new Error("Document not found");
       const redlines = parseRedlines(rows[0].redlines);
-      const redline = { id: crypto4.randomUUID(), originalText, proposedText, comment, proposedByEmail: req.user.email, proposedAt: (/* @__PURE__ */ new Date()).toISOString(), status: "pending" };
+      const redline = { id: crypto5.randomUUID(), originalText, proposedText, comment, proposedByEmail: req.user.email, proposedAt: (/* @__PURE__ */ new Date()).toISOString(), status: "pending" };
       redlines.push(redline);
       await client.query("UPDATE files SET redlines = $1 WHERE id = $2", [JSON.stringify(redlines), id]);
       console.log("[createRedline] persisted redline", {
@@ -3249,7 +3358,7 @@ var acceptRedline = async (req, res) => {
         "UPDATE files SET content = $1, redlines = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3",
         [encryptedFinal, JSON.stringify(redlines), id]
       );
-      const versionId = "ver_" + crypto4.randomUUID();
+      const versionId = "ver_" + crypto5.randomUUID();
       await client.query(
         `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
         [versionId, id, encryptedFinal]
@@ -3420,65 +3529,6 @@ var documents_default = router3;
 
 // backend/src/routes/folders.ts
 import { Router as Router4 } from "express";
-
-// backend/src/controllers/folders.ts
-import crypto5 from "crypto";
-var getFolders = async (req, res) => {
-  const userId = req.user.id;
-  const userRole = req.user.role;
-  try {
-    const rows = await withTransaction(userId, userRole, async (client) => {
-      const { rows: rows2 } = await client.query(
-        "SELECT * FROM folders WHERE user_id = current_setting('app.current_user_id', true) ORDER BY created_at DESC"
-      );
-      return rows2;
-    });
-    res.json(rows);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-var createFolder = async (req, res) => {
-  const { name } = req.body;
-  const userId = req.user.id;
-  const userRole = req.user.role;
-  if (!name) return res.status(400).json({ error: "Folder name is required." });
-  try {
-    const id = "fld_" + crypto5.randomUUID();
-    const row = await withTransaction(userId, userRole, async (client) => {
-      const { rows } = await client.query(
-        "INSERT INTO folders (id, name, user_id) VALUES ($1, $2, $3) RETURNING *",
-        [id, name, userId]
-      );
-      return rows[0];
-    });
-    res.status(201).json(row);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-var deleteFolder = async (req, res) => {
-  const userId = req.user.id;
-  const userRole = req.user.role;
-  try {
-    await withTransaction(userId, userRole, async (client) => {
-      const result = await client.query(
-        "DELETE FROM folders WHERE id = $1",
-        [req.params.id]
-      );
-      if (result.rowCount === 0) throw new Error("Folder not found.");
-      await client.query(`
-        INSERT INTO compliance_audit_logs (user_id, action_type, metadata)
-        VALUES ($1, $2, $3)
-      `, [userId, "folder_delete", JSON.stringify({ folderId: req.params.id })]);
-    });
-    res.json({ success: true });
-  } catch (err) {
-    res.status(err.message === "Folder not found." ? 404 : 500).json({ error: err.message });
-  }
-};
-
-// backend/src/routes/folders.ts
 var router4 = Router4();
 router4.get("/", authenticateToken, getFolders);
 router4.post("/", authenticateToken, createFolder);

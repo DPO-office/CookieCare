@@ -5,6 +5,7 @@ import { withTransaction } from "../utils/dbUtils.js";
 import { buildPdfBuffer, buildDocxBuffer } from "../services/exportService.js";
 import { encrypt, decrypt } from "../utils/crypto.js";
 import { chunkAndIndexDocument } from "../RAG/ragService.js";
+import { getOrCreateDefaultFolder } from "./folders.js";
 import crypto from "crypto";
 import { fileTypeFromBuffer } from "file-type";
 
@@ -150,12 +151,21 @@ export const uploadDocument = async (req: Request, res: Response) => {
   const userId = req.user!.id;
   const userRole = req.user!.role;
 
+  // If no folder_id is supplied, resolve (or create) the "Uploaded Documents" default folder.
+  let resolvedFolderId: string;
+  try {
+    resolvedFolderId = folder_id && folder_id.trim() ? folder_id.trim() : await getOrCreateDefaultFolder(userId, userRole);
+  } catch (folderErr) {
+    console.error("[uploadDocument] Failed to resolve default folder:", folderErr);
+    return res.status(500).json({ error: "Failed to resolve upload destination folder." });
+  }
+
   try {
     await withTransaction(userId, userRole, async (client) => {
       await client.query(
         `INSERT INTO files (id, title, type, content, creator_id, creator_email, mime_type, folder_id)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-        [fileId, fileTitle, "upload", "", req.user!.id, req.user!.email, file.mimetype, folder_id || null]
+        [fileId, fileTitle, "upload", "", req.user!.id, req.user!.email, file.mimetype, resolvedFolderId]
       );
     }).catch(e => {
       console.error("Database insert failed during upload:", e);
@@ -167,7 +177,7 @@ export const uploadDocument = async (req: Request, res: Response) => {
       fileTitle,
       fileBufferBase64: file.buffer.toString("base64"),
       mimeType: file.mimetype,
-      folder_id: folder_id || null,
+      folder_id: resolvedFolderId,
       creatorEmail: req.user!.email
     });
 

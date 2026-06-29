@@ -1,6 +1,7 @@
 ﻿import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { apiUrl } from "../config";
+import { markdownToHtml } from "../utils/markdownToHtml";
 import { 
   Scale, 
   Search, 
@@ -18,7 +19,6 @@ import {
   ExternalLink, 
   X, 
   BookOpen, 
-  Sparkles,
   RefreshCw,
   HelpCircle,
   FileCode,
@@ -191,9 +191,12 @@ export default function AskAILawyer({ authToken, documents: propDocs = [] }: Ask
     const formData = new FormData();
     formData.append("file", file);
     formData.append("title", file.name);
+    // Only send a real (persisted) folder_id — local temp folder ids (folder_<timestamp>)
+    // are UI-only; omitting folder_id causes the backend to assign "Uploaded Documents".
     if (activeFolderForUpload && !activeFolderForUpload.startsWith("folder_")) {
       formData.append("folder_id", activeFolderForUpload);
     }
+    // When no real folder is active, backend defaults to "Uploaded Documents".
 
     try {
       const res = await fetch(apiUrl("/api/documents/upload"), {
@@ -386,7 +389,7 @@ export default function AskAILawyer({ authToken, documents: propDocs = [] }: Ask
     }
   };
 
-  // 8. TEXT RE-PARSER FOR VISUAL BLOCKS
+  // 8. FORMATTED RESULT RENDERER — uses shared markdownToHtml utility
   const renderFormattedResult = (text: string) => {
     if (!text) {
       return (
@@ -398,56 +401,11 @@ export default function AskAILawyer({ authToken, documents: propDocs = [] }: Ask
       );
     }
 
-    // Split based on primary headers like ISSUE, RULE, APPLICATION, CONCLUSION
-    const sections = text.split(/(###? (?:ISSUE|RULE|APPLICATION|CONCLUSION|EXPLANATION OF RULE|EXECUTIVE SUMMARY))/gi);
-    
-    if (sections.length <= 1) {
-      return <div className="whitespace-pre-wrap font-sans text-sm text-gray-800 leading-relaxed select-all">{text}</div>;
-    }
-
     return (
-      <div className="space-y-6">
-        {sections.map((sec, idx) => {
-          const isHeader = sec.match(/###? (?:ISSUE|RULE|APPLICATION|CONCLUSION|EXPLANATION OF RULE|EXECUTIVE SUMMARY)/i);
-          if (isHeader) {
-            const cleanHeader = sec.replace(/###? /gi, "").toUpperCase();
-            return (
-              <h3 
-                key={idx} 
-                className="text-xs font-bold font-mono tracking-wider text-white bg-black px-3.5 py-1.5 inline-block rounded-none border border-black uppercase mt-4 first:mt-0"
-              >
-                {cleanHeader}
-              </h3>
-            );
-          } else {
-            // Standard formatting inside sections
-            const listProcessed = sec.split("\n").map((line, lIdx) => {
-              if (line.startsWith("- ") || line.startsWith("* ")) {
-                return (
-                  <li key={lIdx} className="ml-4 list-disc pl-1.5 text-sm text-gray-800 leading-relaxed my-1">
-                    {line.substring(2)}
-                  </li>
-                );
-              }
-              if (line.match(/^\d+\.\s/)) {
-                return (
-                  <li key={lIdx} className="ml-5 list-decimal pl-1.5 text-sm text-gray-800 leading-relaxed my-1">
-                    {line.replace(/^\d+\.\s/, "")}
-                  </li>
-                );
-              }
-              if (line.trim() === "") return <div key={lIdx} className="h-2" />;
-              return (
-                <p key={lIdx} className="text-sm text-gray-800 leading-relaxed my-2 select-all font-sans">
-                  {line}
-                </p>
-              );
-            });
-
-            return <div key={idx} className="pl-0 md:pl-2 pb-2 text-gray-900 border-l border-gray-100">{listProcessed}</div>;
-          }
-        })}
-      </div>
+      <div
+        className="prose prose-sm max-w-none text-gray-800 leading-relaxed select-all"
+        dangerouslySetInnerHTML={{ __html: markdownToHtml(text) }}
+      />
     );
   };
 
@@ -756,79 +714,6 @@ export default function AskAILawyer({ authToken, documents: propDocs = [] }: Ask
             </form>
           </div>
 
-          {/* ACTIVE PROCESSING STEPPER INTERFACE */}
-          <AnimatePresence mode="popLayout">
-            {stepperPhase !== "idle" && (
-              <motion.div 
-                id="active-stepper-panel"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="mx-5 my-4 border-2 border-black p-4 bg-yellow-50/40 divide-y divide-black/10 select-none"
-              >
-                <div className="flex items-center justify-between pb-2 mb-2">
-                  <div className="flex items-center space-x-2">
-                    <Sparkles className="w-4.5 h-4.5 text-black animate-pulse" />
-                    <span className="text-xs font-bold font-mono uppercase tracking-wider text-black">
-                      AI Legal Research Pipeline Orchestration
-                    </span>
-                  </div>
-                  <span className="text-[9px] font-mono px-2 py-0.5 bg-black text-white font-bold uppercase rounded-none">
-                    Status: {stepperPhase === "completed" ? "Dossier Synthesized" : "Sourcing Active"}
-                  </span>
-                </div>
-
-                <div className="pt-2 grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {/* Phase 1 Indicator */}
-                  <div className={`p-2 border font-mono text-[10.5px] uppercase transition-all ${
-                    stepperPhase === "division" 
-                      ? "border-black bg-black text-white font-bold" 
-                      : (stepperPhase as string) !== "idle"
-                        ? "border-black bg-gray-100 text-gray-500 flex items-center justify-between" 
-                        : "border-gray-200 text-gray-400"
-                  }`}>
-                    <span>Phase 1: Question Division</span>
-                    {(stepperPhase === "sourcing" || stepperPhase === "extracting" || stepperPhase === "streaming" || stepperPhase === "completed") && (
-                      <Check className="w-3.5 h-3.5 text-black shrink-0" />
-                    )}
-                  </div>
-
-                  {/* Phase 2 Indicator */}
-                  <div className={`p-2 border font-mono text-[10.5px] uppercase transition-all ${
-                    stepperPhase === "sourcing" 
-                      ? "border-black bg-black text-white font-bold" 
-                      : (stepperPhase === "extracting" || stepperPhase === "streaming" || stepperPhase === "completed")
-                        ? "border-black bg-gray-100 text-gray-500 flex items-center justify-between" 
-                        : "border-gray-200 text-gray-400"
-                  }`}>
-                    <span>Phase 2: Target Indexing</span>
-                    {(stepperPhase === "extracting" || stepperPhase === "streaming" || stepperPhase === "completed") && (
-                      <Check className="w-3.5 h-3.5 text-black shrink-0" />
-                    )}
-                  </div>
-
-                  {/* Phase 3 Indicator */}
-                  <div className={`p-2 border font-mono text-[10.5px] uppercase transition-all ${
-                    stepperPhase === "extracting" 
-                      ? "border-black bg-black text-white font-bold" 
-                      : (stepperPhase === "streaming" || stepperPhase === "completed")
-                        ? "border-black bg-gray-100 text-gray-500 flex items-center justify-between" 
-                        : "border-gray-200 text-gray-400"
-                  }`}>
-                    <span>Phase 3: Statutory Extraction</span>
-                    {(stepperPhase === "streaming" || stepperPhase === "completed") && (
-                      <Check className="w-3.5 h-3.5 text-black shrink-0" />
-                    )}
-                  </div>
-                </div>
-
-                <p className="text-[11px] font-mono text-gray-600 mt-2.5 pt-1">
-                  &gt; {stepperMessage}
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
           {/* TWO MAIN COLUMNS: Generated Advice (Left) & Verified Sources Drawer (Right) */}
           <div className="flex-1 flex overflow-hidden min-h-0 divide-x-2 divide-black">
             
@@ -863,7 +748,7 @@ export default function AskAILawyer({ authToken, documents: propDocs = [] }: Ask
                       )}
                     </button>
 
-                    <button
+                    {/* <button
                       type="button"
                       id="export-doc-btn"
                       onClick={() => triggerExport("Word")}
@@ -881,7 +766,7 @@ export default function AskAILawyer({ authToken, documents: propDocs = [] }: Ask
                     >
                       <Download className="w-3 h-3 text-gray-400" />
                       <span>PDF Print</span>
-                    </button>
+                    </button> */}
                   </div>
                 </div>
               )}

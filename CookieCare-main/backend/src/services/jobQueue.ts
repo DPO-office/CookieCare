@@ -300,11 +300,13 @@ async function executeDocumentAnalysis(jobId: string, userId: string, payload: a
   }
 
   if (payload.prompt && payload.folderIds) {
-     const { folderIds, prompt, documentMode, answerStyle, history } = payload;
+     const { folderIds, draftIds, prompt, documentMode, answerStyle, history } = payload;
      await updateJobProgress(jobId, userId, 30, "Analyzing documents in selected folders...");
 
      const result = await jobRegistry.orchestrator.interactAnalyze(
-       folderIds, prompt, userId, documentMode, answerStyle, history, undefined, userRole
+       folderIds, prompt, userId, documentMode, answerStyle, history,
+       undefined, userRole,
+       Array.isArray(draftIds) ? draftIds : []
      );
      return { analysis: result, clauses: [] };
   }

@@ -11,7 +11,8 @@
     "test": "node --import ./node_modules/tsx/dist/loader.mjs --test test/**/*.test.ts",
     "setup-db": "node node_modules/tsx/dist/cli.mjs scripts/setupDb.ts",
      "dev": "tsx scripts/setupDb.ts && esbuild server.ts --bundle --platform=node --format=esm --packages=external --outfile=server.js && node server.js",
-     "build": "vite build && esbuild server.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=dist/server.js"
+ "build": "vite build && esbuild server.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=dist/server.js"
+
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

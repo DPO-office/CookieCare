@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { pool } from "../config/database.js";
 import { config } from "../config/index.js";
 import crypto from "crypto";
+import { getOrCreateDefaultFolder, migrateUnassignedDocuments } from "./folders.js";
 
 export const register = async (req: Request, res: Response) => {
   const { email, password, name } = req.body;
@@ -64,6 +65,13 @@ export const login = async (req: Request, res: Response) => {
           config.jwtSecret,
           { expiresIn: "24h" }
         );
+
+        // Ensure "Uploaded Documents" default folder exists and migrate any
+        // existing unassigned (folder_id = NULL) documents into it.
+        // Fire-and-forget — login is not blocked if this fails.
+        getOrCreateDefaultFolder(user.id, user.role)
+          .then(folderId => migrateUnassignedDocuments(user.id, folderId, user.role))
+          .catch(err => console.warn("[defaultFolder] Setup on login failed:", err));
 
         return res.json({
           token: token,

@@ -172,7 +172,8 @@ export class AgentOrchestrator {
     answerStyle: string,
     history: any[],
     _folderId?: string,
-    _userRole: string = "USER"
+    _userRole: string = "USER",
+    draftIds: string[] = []
   ) {
     // ── Use a retrieval-optimised query separate from the user prompt ─────────
     // Long specific user prompts ("Perform a rigorous compliance audit focusing on...")
@@ -186,11 +187,33 @@ export class AgentOrchestrator {
 
     const retrievalQuery = `${LEGAL_SEED_TERMS} ${prompt.substring(0, 120)}`.trim();
 
-    console.log(`[interactAnalyze] userId=${userId} folderIds=${JSON.stringify(folderIds)}`);
+    console.log(`[interactAnalyze] userId=${userId} folderIds=${JSON.stringify(folderIds)} draftIds=${JSON.stringify(draftIds)}`);
     console.log(`[interactAnalyze] userPrompt(100)="${prompt.substring(0, 100)}"`);
     console.log(`[interactAnalyze] retrievalQuery(120)="${retrievalQuery.substring(0, 120)}"`);
 
-    const context = await searchHybrid(retrievalQuery, userId, undefined, folderIds);
+    // Retrieve chunks from selected folders (by folderIds) and selected drafts (by file IDs)
+    const hasFolders = Array.isArray(folderIds) && folderIds.length > 0;
+    const hasDrafts = Array.isArray(draftIds) && draftIds.length > 0;
+
+    let context: Awaited<ReturnType<typeof searchHybrid>> = [];
+
+    if (hasFolders) {
+      const folderChunks = await searchHybrid(retrievalQuery, userId, undefined, folderIds);
+      context = context.concat(folderChunks);
+    }
+
+    if (hasDrafts) {
+      const draftChunks = await searchHybrid(retrievalQuery, userId, draftIds, undefined);
+      context = context.concat(draftChunks);
+    }
+
+    // Deduplicate chunks by content (same chunk might appear in both queries)
+    const seen = new Set<string>();
+    context = context.filter(c => {
+      if (seen.has(c.content)) return false;
+      seen.add(c.content);
+      return true;
+    });
 
     console.log(
       `[interactAnalyze] Retrieved ${context.length} chunk(s): ` +
