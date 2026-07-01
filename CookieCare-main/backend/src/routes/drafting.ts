@@ -6,23 +6,23 @@ import { addJobToQueue } from "../services/jobQueue.js";
 const router = Router();
 const orchestrator = new AgentOrchestrator();
 
-router.post("/generate", authenticateToken, async (req, res) => {
-  try {
-    const { mode, detailLevel, instructions, formFields, templateId, sourceText, playbookText } = req.body;
-    const result = await orchestrator.runDrafting({
-      mode,
-      detailLevel,
-      instructions,
-      formFields,
-      templateId,
-      sourceText,
-      playbookText
-    });
-    res.json({ content: result });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
-});
+// router.post("/generate", authenticateToken, async (req, res) => {
+//   try {
+//     const { mode, detailLevel, instructions, formFields, templateId, sourceText, playbookText } = req.body;
+//     const result = await orchestrator.runDrafting({
+//       mode,
+//       detailLevel,
+//       instructions,
+//       formFields,
+//       templateId,
+//       sourceText,
+//       playbookText
+//     });
+//     res.json({ content: result });
+//   } catch (err: any) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
 
 router.post("/generate-stream", authenticateToken, async (req, res) => {
   try {
