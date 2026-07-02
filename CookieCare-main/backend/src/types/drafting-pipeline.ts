@@ -22,23 +22,16 @@ export interface RequirementContext {
 
 
 export interface RetrievalContext {
-
     template?: Template;
-
     clauses: Clause[];
-
     playbook?: Playbook;
-
     similarContracts: PreviousContract[];
 
 }
 
 export interface DraftContext {
-    
     systemPrompt: string;
-
     assembledPrompt: string;
-
     skeleton: ContractSkeleton;
     
 }
