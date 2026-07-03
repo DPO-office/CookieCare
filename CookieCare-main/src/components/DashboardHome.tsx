@@ -192,7 +192,7 @@ export default function DashboardHome({ userName, setActiveTab, stats, documents
               <Layers className="w-5 h-5" />
             </div>
             <h3 className="font-display font-bold text-lg text-gray-900 mb-2">
-              Legal Review Suite
+              Legal Review
             </h3>
             <p className="text-gray-500 text-sm leading-relaxed">
               Edit NDAs, DPAs, and SLA agreements. Coordinate peer redlining, execute electronic signatures, and leverage AI analysis to redact risks.
