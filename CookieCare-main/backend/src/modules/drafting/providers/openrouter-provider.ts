@@ -1,27 +1,11 @@
 export interface OpenRouterClientOptions {
   apiKey: string;
-  /**
-   * Base URL like `https://openrouter.ai/api/v1`.
-   * The client will call `${baseUrl}/chat/completions`.
-   */
   baseUrl?: string;
-  /**
-   * OpenRouter/OpenAI-compatible model id.
-   * Defaults to `process.env.OPENROUTER_MODEL` if present.
-   */
   model?: string;
-  /**
-   * Default request timeout in milliseconds.
-   */
   timeoutMs?: number;
-  /**
-   * Optional attribution headers.
-   */
+
   httpReferer?: string;
   xTitle?: string;
-  /**
-   * Optional metrics hook (in addition to console logging).
-   */
   onMetrics?: (metrics: OpenRouterExecutionMetrics) => void;
 }
 

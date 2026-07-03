@@ -1,4 +1,4 @@
-import { RequirementContext, PlaybookRule } from '../../models/draft-state.ts';
+import { RequirementContext, PlaybookRule } from '../models/draft-state.ts';
 
 export class PlaybookRetriever {
   private dbClient: any; 

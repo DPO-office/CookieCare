@@ -1,4 +1,4 @@
-import { RequirementContext, Clause } from '../../models/draft-state';
+import { RequirementContext, Clause } from '../models/draft-state';
 
 export class ClauseRetriever {
   private vectorDb: any; // e.g., Pinecone/Qdrant

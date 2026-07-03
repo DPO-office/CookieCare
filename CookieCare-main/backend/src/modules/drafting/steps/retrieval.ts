@@ -1,6 +1,6 @@
 import { DraftState } from '../models/draft-state';
-import { PlaybookRetriever } from '../services/retrievers/playbook-retriever';
-import { ClauseRetriever } from '../services/retrievers/clause-retriever';
+import { PlaybookRetriever } from '../retrieval/PlaybookRetriever';
+import { ClauseRetriever } from '../retrieval/ClauseRetriever';
 import { db, vectorClient, keywordClient } from '../infra/clients'; // TODO: need to setup and init prima client
 
 export const retrievalStep = async (state: DraftState): Promise<DraftState> => {
