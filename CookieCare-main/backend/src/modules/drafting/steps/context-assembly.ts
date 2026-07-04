@@ -1,5 +1,5 @@
 import { DraftState } from "../models/draft-state";
-import * as templates from '../prompt/system-templates';
+import * as templates from '../prompts/system-templates';
 
 // TODO: That we need to persist in the DB in template record table to extract the skeleton based on contract-type
 const CONTRACT_SPINE_SKELETON = [
