@@ -85,3 +85,59 @@ export function buildHistoricalSection(references: ReferenceSnippet[]): string {
   });
   return block.trim();
 }
+
+
+// drafting/prompts/system-templates.ts
+// (Add these functions to your existing file)
+
+import { ValidationIssue } from '../models/draft-state';
+
+export const REFINEMENT_CORE_GUARDRAILS = `
+# SYSTEM INSTRUCTIONS & REVISION GUARDRAILS
+You are an expert legal editor. Your sole task is to revise an existing draft contract based on a provided checklist of target corrections.
+
+CRITICAL REFINEMENT GUARDRAILS:
+1. PRESERVE INTEGRITY: Do not rewrite parts of the contract that are unaffected by the correction checklist. Retain the tone, layout, and style of the existing draft.
+2. SURROUNDING TEXT SAFETIES: Ensure that any modified sections seamlessly integrate with the surrounding text. Do not break section numbering or internal cross-references.
+3. SPECIFIC SCOPE: If a highlighted text target is provided, focus your edits strictly within that targeted boundary block.
+`.trim();
+
+/**
+ * Merges automated system errors and human modification notes into a single, clean instructions matrix.
+ */
+export function buildUnifiedCorrectionList(
+  issues: ValidationIssue[] | undefined,
+  highlightedText: string | undefined,
+  userNotes: string
+): string {
+  let block = '# REVISION TARGETS AND CORRECTION CRITERIA\n';
+  let counter = 1;
+
+  // 1. Inject Automated Machine Errors (if any exist)
+  if (issues && issues.length > 0) {
+    block += `## AUTOMATED CRITICAL COMPLIANCE FIXES:\n`;
+    issues.forEach((issue) => {
+      block += `${counter}. [${issue.severity.toUpperCase()} - ${issue.type}] In section '${issue.targetSection || 'General'}': ${issue.description}\n`;
+      counter++;
+    });
+  }
+
+  // 2. Inject Manual Human Adjustments (if any exist)
+  if (highlightedText || (userNotes && userNotes.trim() !== "")) {
+    block += `\n## HUMAN USER DIRECTIVES & ADJUSTMENTS:\n`;
+    if (highlightedText) {
+      block += `${counter}. TARGET TEXT AREA TO PATCH: "${highlightedText}"\n`;
+      counter++;
+    }
+    if (userNotes) {
+      block += `${counter}. USER EDITING INSTRUCTION: ${userNotes}\n`;
+      counter++;
+    }
+  }
+
+  if (counter === 1) {
+    block += 'No revision targets specified. Return the document unchanged.\n';
+  }
+
+  return block.trim();
+}

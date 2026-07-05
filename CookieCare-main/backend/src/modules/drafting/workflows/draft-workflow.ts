@@ -5,7 +5,7 @@ import { contextAssemblyStep } from "../steps/context-assembly";
 import { generationStep } from "../steps/generation";
 import { validationStep } from "../steps/validation";
 import { riskReviewStep } from "../steps/risk-review";
-import { refinementAssemblyStep } from "../steps/refinement-assembly";
+import { contextAssemblyRefinementStep, refinementAssemblyStep } from "../steps/refinement-assembly";
 import { saveStep } from "../steps/save";
 
 export class DraftWorkflowOrchestrator {
@@ -21,8 +21,24 @@ export class DraftWorkflowOrchestrator {
       state = await generationStep(state);
       state = await validationStep(state);
       state = await riskReviewStep(state);
-      state = await saveStep(state);
+      state = await saveStep(state);  
+
+      let attempt = 0;
+      const maxAttempt = 2;
+
+      while (!state.validation.isValid && attempt<maxAttempt){
+        state = await contextAssemblyRefinementStep(state);
+        state = await generationStep(state);
+        state = await validationStep(state);
+
+        attempt++;
+
+      }
+
+      state = await saveStep(state)
       return state;
+
+      
     } catch (error) {
       throw new Error(
         `Initial drafting orchestrator failed: ${(error as Error).message}`

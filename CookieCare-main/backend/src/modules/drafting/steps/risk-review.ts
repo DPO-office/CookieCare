@@ -1,5 +1,3 @@
-// drafting/steps/risk-review.ts
-
 import { DraftState } from '../models/draft-state';
 import { builderReviewPrompt } from '../prompts/risk-review-template';
 import { systemInstruction } from '../prompts/validation-template';

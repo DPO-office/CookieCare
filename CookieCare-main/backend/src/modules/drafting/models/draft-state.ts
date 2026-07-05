@@ -57,6 +57,7 @@ export interface DraftState {
   request: {
     mode: DraftMode;
     rawInstructions: string;
+    payloadFields?: {documentId:string}
     templateId?: string;
     sourceText?: string;
     formFields?: Record<string, unknown>;
