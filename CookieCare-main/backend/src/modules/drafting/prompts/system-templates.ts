@@ -87,9 +87,6 @@ export function buildHistoricalSection(references: ReferenceSnippet[]): string {
 }
 
 
-// drafting/prompts/system-templates.ts
-// (Add these functions to your existing file)
-
 import { ValidationIssue } from '../models/draft-state';
 
 export const REFINEMENT_CORE_GUARDRAILS = `
