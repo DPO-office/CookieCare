@@ -174,7 +174,7 @@ function buildExtractionPrompt(
       "- `contractType`: Classify the specific response format needed (e.g., 'Breach Response Letter', 'Cease & Desist Rebuttal').",
       "- `parties`: Array where index 0 is [The Hostile Sender/Adversary] and index 1 is [Our Company/Target Name].",
       "- `jurisdiction`: The governing law or court location specified in the hostile claim text.",
-      // We can improve this to an array of object where it store the configurations of the uploaded document
+      // TODO: We can improve this to an array of object where it store the configurations of the uploaded document
       "- `uploadedDocSummary`: Write a clear, 2-to-3 sentence summary explaining exactly what the adversary is alleging or demanding in the uploaded text.",
       "- `instructions`: Synthesize a comprehensive structural payload string. Format it EXACTLY like this: 'ADVERSARY ACCUSATIONS CLAIMS SUMMARY: [Write a 2-sentence structural summary of what they are alleging or demanding] | TARGET DEFENSE STRATEGY DIRECTIVES: [Summarize the user instructions strategy notes]'.",
       "- `excludedClauses` & `additionalRequiredClauses` & `optionalClauses`: Keep these empty [] unless the user notes explicitly request specific clause changes.",
