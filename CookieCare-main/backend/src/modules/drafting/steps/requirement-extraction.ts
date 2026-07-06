@@ -10,6 +10,7 @@ import {
   ClauseCatalogRetriever,
   ClauseCatalogFilters,
 } from "../retrieval/ClauseCatalogRetriever";
+import { string } from "zod";
 
 const REQUIREMENT_EXTRACTION_JSON_SCHEMA = {
   type: "object",
@@ -24,6 +25,7 @@ const REQUIREMENT_EXTRACTION_JSON_SCHEMA = {
     "optionalClauses",
     "language",
     "instructions",
+    "uploadDocSummary"
   ],
   properties: {
     contractType: { type: "string" },
@@ -35,6 +37,7 @@ const REQUIREMENT_EXTRACTION_JSON_SCHEMA = {
     optionalClauses: { type: "array", items: { type: "string" } },
     language: { type: "string" },
     instructions: { type: "string" },
+    uploadDocSummary:{type:"string"}
   },
 } as const;
 
@@ -48,6 +51,7 @@ interface RequirementExtractionResult {
   optionalClauses: string[];
   language: string;
   instructions: string;
+  uploadDocSummary:string; // for Reactive work
 }
 
 function appendValidationWarning(
@@ -132,6 +136,10 @@ function mergeRequiredClauses(
   return [...retainedBaseline, ...additions];
 }
 
+/**
+ * ADAPTIVE EXTRACTION PROMPT
+ * Splits logic based on whether we are performing Proactive creation or Reactive defense.
+ */
 function buildExtractionPrompt(
   state: DraftState,
   baselineRequiredClauses: string[]
@@ -148,8 +156,34 @@ function buildExtractionPrompt(
       : "";
 
   const sourceTextSnippet =
-    sourceText.length > 8_000 ? `${sourceText.slice(0, 8_000)}…` : sourceText;
+    sourceText.length > 12_000 ? `${sourceText.slice(0, 12_000)}…` : sourceText;
 
+  // TRACK A: THE NEW REACTIVE DEFENSE SYSTEM PROMPT FORK
+  if (state.request.intent === "reactive" && sourceTextSnippet) {
+    return [
+      "You are analyzing an incoming hostile legal notice, claim letter, or court petition document.",
+      "Your goal is to extract the adversary's claims and synthesize a clean tactical instructions playbook.",
+      "",
+      "INCOMING HOSTILE DOCUMENT DETECTED:",
+      sourceTextSnippet,
+      "",
+      "User defensive instructions strategy notes:",
+      state.request.rawInstructions ?? "(none provided)",
+      "",
+      "FIELD EXTRACTION INSTRUCTIONS FOR REACTIVE DEFENSE:",
+      "- `contractType`: Classify the specific response format needed (e.g., 'Breach Response Letter', 'Cease & Desist Rebuttal').",
+      "- `parties`: Array where index 0 is [The Hostile Sender/Adversary] and index 1 is [Our Company/Target Name].",
+      "- `jurisdiction`: The governing law or court location specified in the hostile claim text.",
+      // We can improve this to an array of object where it store the configurations of the uploaded document
+      "- `uploadedDocSummary`: Write a clear, 2-to-3 sentence summary explaining exactly what the adversary is alleging or demanding in the uploaded text.",
+      "- `instructions`: Synthesize a comprehensive structural payload string. Format it EXACTLY like this: 'ADVERSARY ACCUSATIONS CLAIMS SUMMARY: [Write a 2-sentence structural summary of what they are alleging or demanding] | TARGET DEFENSE STRATEGY DIRECTIVES: [Summarize the user instructions strategy notes]'.",
+      "- `excludedClauses` & `additionalRequiredClauses` & `optionalClauses`: Keep these empty [] unless the user notes explicitly request specific clause changes.",
+    ]
+      .filter(Boolean)
+      .join("\n");
+  }
+
+  // TRACK B: THE STANDARD PROACTIVE TRACK (Your unchanged existing code layout)
   const baselineClauseList =
     baselineRequiredClauses.length > 0
       ? baselineRequiredClauses.map((clause) => `- ${clause}`).join("\n")
@@ -188,6 +222,11 @@ function buildExtractionPrompt(
 async function fetchBaselineClauses(
   state: DraftState
 ): Promise<{ clauses: string[]; warning?: string }> {
+  // If we are responding reactively, baseline clause catalogs for proactive creation are bypassed
+  if (state.request.intent === "reactive") {
+    return { clauses: [] };
+  }
+
   try {
     const filters = resolveCatalogFilters(state);
     const retriever = new ClauseCatalogRetriever(pool);
@@ -218,14 +257,19 @@ function toRequirementContext(
     optionalClauses: extracted.optionalClauses,
     language: extracted.language,
     instructions: extracted.instructions,
+    uploadDocSummary: extracted.uploadDocSummary.trim() ? extracted.uploadDocSummary : undefined
   };
 }
 
 export async function requirementExtractionStep(
   state: DraftState
 ): Promise<DraftState> {
-  const systemInstruction =
-    "You are a deterministic requirements extraction engine. Baseline required clauses are already provided by the platform from the database. Your clause task is limited to identifying exclusions and additional required clauses only. Return ONLY valid JSON matching the provided JSON Schema. Do not include markdown or commentary.";
+  // Make the system instruction adapt to intent
+  const isReactive = state.request.intent === "reactive";
+  
+  const systemInstruction = isReactive
+    ? "You are a deterministic requirements extraction engine analyzing an adversarial legal document. Focus on extracting the claim facts and defense targets. Return ONLY valid JSON matching the provided JSON Schema. Do not include markdown or commentary."
+    : "You are a deterministic requirements extraction engine. Baseline required clauses are already provided by the platform from the database. Your clause task is limited to identifying exclusions and additional required clauses only. Return ONLY valid JSON matching the provided JSON Schema. Do not include markdown or commentary.";
 
   const { clauses: baselineRequiredClauses, warning: catalogWarning } =
     await fetchBaselineClauses(state);

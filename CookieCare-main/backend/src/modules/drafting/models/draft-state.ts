@@ -9,6 +9,7 @@ export interface RequirementContext {
   optionalClauses: string[];
   language: string;
   instructions: string;
+  uploadDocSummary?: string;
 }
 
 export interface Clause {
@@ -55,7 +56,9 @@ export interface RiskItem {
 
 export interface DraftState {
   request: {
-    mode: DraftMode;
+    intent: DraftMode;
+    mode: 'Basic' | 'Standard Template' | 'Advanced Proactive';
+    uploadedDocumentText?:string;
     rawInstructions: string;
     payloadFields?: {documentId:string}
     templateId?: string;

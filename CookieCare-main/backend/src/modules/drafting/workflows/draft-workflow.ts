@@ -7,7 +7,6 @@ import { validationStep } from "../steps/validation";
 import { riskReviewStep } from "../steps/risk-review";
 import { contextAssemblyRefinementStep } from "../steps/refinement-assembly";
 import { saveStep } from "../steps/save";
-import { initSentry } from "@/backend/src/config/sentry";
 
 export class DraftWorkflowOrchestrator {
   /**
@@ -25,7 +24,7 @@ export class DraftWorkflowOrchestrator {
       state = await saveStep(state);  
 
       let attempt = 0;
-      const maxAttempt = 2;
+      const maxAttempt = 1;
 
       while (!state.validation.isValid && attempt<maxAttempt){
         state = await contextAssemblyRefinementStep(state);

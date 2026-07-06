@@ -10,6 +10,10 @@ var __export = (target, all) => {
 
 // backend/src/config/index.ts
 import dotenv from "dotenv";
+function numberFromEnv(value, fallback) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
 var config, isProduction;
 var init_config = __esm({
   "backend/src/config/index.ts"() {
@@ -20,6 +24,9 @@ var init_config = __esm({
       databaseUrl: process.env.DATABASE_URL || "",
       // OpenRouter replaces Gemini as the AI provider
       openRouterApiKey: process.env.OPENROUTER_API_KEY || "",
+      openRouterModel: process.env.OPENROUTER_MODEL || "deepseek/deepseek-chat-v3-0324",
+      openRouterTemperature: numberFromEnv(process.env.OPENROUTER_TEMPERATURE, 0.2),
+      openRouterMaxTokens: numberFromEnv(process.env.OPENROUTER_MAX_TOKENS, 4096),
       // Kept for backward compatibility — no longer used for AI calls
       geminiApiKey: process.env.GEMINI_API_KEY || "",
       jwtSecret: process.env.JWT_SECRET || "privsec-ai-enterprise-secret-2026",
@@ -1517,13 +1524,29 @@ ${c.content}`).join("\n\n");
       userRole
     );
   }
-  async interactAnalyze(folderIds, prompt, userId, _documentMode, answerStyle, history, _folderId, _userRole = "USER") {
+  async interactAnalyze(folderIds, prompt, userId, _documentMode, answerStyle, history, _folderId, _userRole = "USER", draftIds = []) {
     const LEGAL_SEED_TERMS = "indemnity liability limitation termination confidentiality intellectual property payment governing law compliance data protection liquidated damages audit rights obligations warranties representations";
     const retrievalQuery = `${LEGAL_SEED_TERMS} ${prompt.substring(0, 120)}`.trim();
-    console.log(`[interactAnalyze] userId=${userId} folderIds=${JSON.stringify(folderIds)}`);
+    console.log(`[interactAnalyze] userId=${userId} folderIds=${JSON.stringify(folderIds)} draftIds=${JSON.stringify(draftIds)}`);
     console.log(`[interactAnalyze] userPrompt(100)="${prompt.substring(0, 100)}"`);
     console.log(`[interactAnalyze] retrievalQuery(120)="${retrievalQuery.substring(0, 120)}"`);
-    const context = await searchHybrid(retrievalQuery, userId, void 0, folderIds);
+    const hasFolders = Array.isArray(folderIds) && folderIds.length > 0;
+    const hasDrafts = Array.isArray(draftIds) && draftIds.length > 0;
+    let context = [];
+    if (hasFolders) {
+      const folderChunks = await searchHybrid(retrievalQuery, userId, void 0, folderIds);
+      context = context.concat(folderChunks);
+    }
+    if (hasDrafts) {
+      const draftChunks = await searchHybrid(retrievalQuery, userId, draftIds, void 0);
+      context = context.concat(draftChunks);
+    }
+    const seen = /* @__PURE__ */ new Set();
+    context = context.filter((c) => {
+      if (seen.has(c.content)) return false;
+      seen.add(c.content);
+      return true;
+    });
     console.log(
       `[interactAnalyze] Retrieved ${context.length} chunk(s): ` + context.map((c) => `"${c.title ?? c.file_id}"`).join(", ")
     );
@@ -2483,7 +2506,7 @@ async function executeDocumentAnalysis(jobId, userId, payload) {
     };
   }
   if (payload.prompt && payload.folderIds) {
-    const { folderIds: folderIds2, prompt, documentMode, answerStyle, history } = payload;
+    const { folderIds: folderIds2, draftIds, prompt, documentMode, answerStyle, history } = payload;
     await updateJobProgress(jobId, userId, 30, "Analyzing documents in selected folders...");
     const result2 = await jobRegistry.orchestrator.interactAnalyze(
       folderIds2,
@@ -2493,7 +2516,8 @@ async function executeDocumentAnalysis(jobId, userId, payload) {
       answerStyle,
       history,
       void 0,
-      userRole
+      userRole,
+      Array.isArray(draftIds) ? draftIds : []
     );
     return { analysis: result2, clauses: [] };
   }
@@ -3668,9 +3692,10 @@ var router7 = Router7();
 var orchestrator = new AgentOrchestrator();
 router7.post("/interact", authenticateToken, async (req, res) => {
   try {
-    const { folderIds, prompt, documentMode, answerStyle, history } = req.body;
+    const { folderIds, draftIds, prompt, documentMode, answerStyle, history } = req.body;
     const job = await addJobToQueue(req.user.id, "document_analysis", {
       folderIds: Array.isArray(folderIds) ? folderIds : [],
+      draftIds: Array.isArray(draftIds) ? draftIds : [],
       prompt,
       documentMode,
       answerStyle,
@@ -3696,23 +3721,6 @@ var analyze_default = router7;
 import { Router as Router8 } from "express";
 var router8 = Router8();
 var orchestrator2 = new AgentOrchestrator();
-router8.post("/generate", authenticateToken, async (req, res) => {
-  try {
-    const { mode, detailLevel, instructions, formFields, templateId, sourceText, playbookText } = req.body;
-    const result = await orchestrator2.runDrafting({
-      mode,
-      detailLevel,
-      instructions,
-      formFields,
-      templateId,
-      sourceText,
-      playbookText
-    });
-    res.json({ content: result });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 router8.post("/generate-stream", authenticateToken, async (req, res) => {
   try {
     const job = await addJobToQueue(req.user.id, "template_drafting", req.body);

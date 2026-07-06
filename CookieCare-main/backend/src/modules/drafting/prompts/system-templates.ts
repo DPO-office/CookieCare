@@ -1,4 +1,4 @@
-import { RequirementContext, PlaybookRule, Clause, ReferenceSnippet } from '../models/draft-state';
+import { RequirementContext, PlaybookRule, Clause, ReferenceSnippet, DraftMode } from '../models/draft-state';
 
 /**
  * Static system guardrails that don't change based on runtime data.
@@ -13,6 +13,16 @@ CRITICAL GUARDRAILS:
 1. Do not invent your own document layout. Use the headers provided in the SKELETON.
 2. Adopt the phrasing, tone, and standard boilerplate from the BASELINE TEMPLATE TEXT where applicable, but override it if it conflicts with a Playbook Rule.
 3. Replace all bracketed placeholders (e.g., [● DATE], [● PARTY A NAME]) using the data found in the RUNTIME REQUIREMENTS.
+`.trim();
+
+export const SYSTEM_REACTIVE_GUARDRAILS = `
+You are an elite corporate defense attorney specializing in alternative dispute resolution. 
+Your sole task is to draft a formal legal response, answer, or rebuttal letter to an incoming hostile claim, notice, or petition.
+
+CRITICAL DEFENSIVE GUARDRAILS:
+1. FACTUAL COUNTER: Methodically address the allegations found in the claim text using the provided marching orders.
+2. DISPUTE LIABILITY: Protect the target company's interests. Do not waive corporate rights or concede any fault or financial breach unless explicitly commanded.
+3. PRESERVE STRUCTURE: Format the output document cleanly matching the headings provided in the response skeleton.
 `.trim();
 
 /**
@@ -59,14 +69,39 @@ export function buildSkeletonSection(skeleton: string[]): string {
 /**
  * Builds the dynamic runtime variables and special instructions suffix.
  */
-export function buildVariablesSection(requirements: RequirementContext, mode: string): string {
+export function buildVariablesSection(requirements: RequirementContext, intent: DraftMode): string {
+  const currentIntent = typeof intent === "string" ? intent.toLowerCase() : "";
+
+  // =========================================================
+  // TRACK A: THE REACTIVE DISPUTE VARIABLES FORK
+  // =========================================================
+  if (currentIntent === "reactive") {
+    const adversaryName = requirements.parties[0] || "Hostile Claimant";
+    const targetName = requirements.parties[1] || "Our Company (Respondent)";
+
+    return `
+# REACTIVE DISPUTE VARIABLES & LITIGATION CONTEXT
+- Dispute Response Category: ${requirements.contractType}
+- Adversarial Forum / Jurisdiction: ${requirements.jurisdiction}
+- Target Industry Domain: ${requirements.industry}
+- Involved Entities: ${adversaryName} (Claimant/Adversary) VS. ${targetName} (Our Company/Respondent)
+- Operational Intent: REACTIVE
+
+# COMPREHENDED ADVERSARIAL CLAIMS SUMMARY
+${requirements.uploadDocSummary || 'Review raw text fields for explicit claim allegations.'}
+
+# DEFENSE STRATEGY & MARCHING ORDERS
+${requirements.instructions || 'Draft a firm, professional legal rebuttal denying liability based on standard guidelines.'}
+`.trim();
+  }
+
   return `
 # DYNAMIC VARIABLES & EXTRACTED RUNTIME REQUIREMENTS
 - Contract Type: ${requirements.contractType}
 - Governing Law/Jurisdiction: ${requirements.jurisdiction}
 - Target Industry Segment: ${requirements.industry}
 - Identified Parties: ${requirements.parties.join(' AND ')}
-- Operational Mode: ${mode}
+- Operational Mode: ${intent}
 
 # SPECIAL USER EXTRA EXECUTION INSTRUCTIONS
 ${requirements.instructions || 'Draft a clean, balanced agreement following the guidelines above.'}
