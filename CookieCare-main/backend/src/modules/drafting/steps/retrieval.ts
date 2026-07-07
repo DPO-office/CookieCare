@@ -3,6 +3,7 @@ import { PlaybookRetriever } from '../retrieval/PlaybookRetriever';
 import { ClauseRetriever } from '../retrieval/ClauseRetriever';
 import { db, vectorClient, keywordClient } from '../infra/clients'; // TODO: need to setup and init prima client
 
+
 export const retrievalStep = async (state: DraftState): Promise<DraftState> => {
   if (!state.requirements) {
     throw new Error('Cannot execute retrieval step: state.requirements is null');

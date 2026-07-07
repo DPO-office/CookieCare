@@ -1,5 +1,5 @@
 import { DraftState } from '../models/draft-state';
-s dfa
+
 /**
  * Mock Database client interface simulating real infrastructure.
  * Replace this clean pointer with your real Prisma, TypeORM, or Mongo abstraction.
