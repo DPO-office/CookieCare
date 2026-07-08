@@ -75,7 +75,7 @@ export function buildVariablesSection(requirements: RequirementContext, intent: 
   // =========================================================
   // TRACK A: THE REACTIVE DISPUTE VARIABLES FORK
   // =========================================================
-  if (currentIntent === "reactive") {
+  if (currentIntent === "REACTIVE") {
     const adversaryName = requirements.parties[0] || "Hostile Claimant";
     const targetName = requirements.parties[1] || "Our Company (Respondent)";
 

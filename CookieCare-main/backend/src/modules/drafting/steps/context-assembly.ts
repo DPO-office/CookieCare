@@ -32,7 +32,7 @@ export const contextAssemblyStep = async (state: DraftState): Promise<DraftState
   let fullCompiledPrompt: string;
   let ACTIVE_SKELETON: string[];
 
-  const isReactive = state.request.intent === 'reactive';
+  const isReactive = state.request.intent === 'REACTIVE';
 
   if(isReactive){
     SYSTEM_PROMPT = templates.SYSTEM_REACTIVE_GUARDRAILS

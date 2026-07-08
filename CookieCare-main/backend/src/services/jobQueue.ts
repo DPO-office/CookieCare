@@ -9,6 +9,7 @@ import { openRouterComplete } from "./openRouterClient.js";
 import crypto from "crypto";
 import pdf from "pdf-parse-fork";
 import mammoth from "mammoth";
+import { executeTemplateDrafting } from "./jobs/handlers/drafting-handler.js";
 
 export async function updateJobProgress(jobId: string, userId: string, progress: number, message?: string) {
   await withTransaction(userId, 'USER', async (client) => {
@@ -325,99 +326,102 @@ async function executeDocumentAnalysis(jobId: string, userId: string, payload: a
   return result;
 }
 
-async function executeTemplateDrafting(jobId: string, userId: string, payload: any): Promise<any> {
-  if (payload.type === "refine") {
-    const { text, refineType, param } = payload;
-    let instruction = "";
-    if (refineType === "tone") instruction = `Rewrite the following legal text in a ${param} tone.`;
-    else if (refineType === "grammar") instruction = `Fix the spelling and grammar in the following legal text while preserving legal meaning.`;
-    else if (refineType === "extend") instruction = `Expand the following legal clause with more comprehensive protections.`;
-    else if (refineType === "reduce") instruction = `Shorten the following legal clause to its core obligation.`;
-    else if (refineType === "simplify") instruction = `Rewrite the following legal text in plain English for a non-lawyer.`;
-    else if (refineType === "complete") instruction = `Complete the following sentence or clause in a professional legal manner.`;
-    else if (refineType === "ask") instruction = `Follow this custom instruction: ${param}`;
+/*
+Migrating the drafting template execution to drafting-handler.ts
+*/
+// async function executeTemplateDrafting(jobId: string, userId: string, payload: any): Promise<any> {
+//   if (payload.type === "refine") {
+//     const { text, refineType, param } = payload;
+//     let instruction = "";
+//     if (refineType === "tone") instruction = `Rewrite the following legal text in a ${param} tone.`;
+//     else if (refineType === "grammar") instruction = `Fix the spelling and grammar in the following legal text while preserving legal meaning.`;
+//     else if (refineType === "extend") instruction = `Expand the following legal clause with more comprehensive protections.`;
+//     else if (refineType === "reduce") instruction = `Shorten the following legal clause to its core obligation.`;
+//     else if (refineType === "simplify") instruction = `Rewrite the following legal text in plain English for a non-lawyer.`;
+//     else if (refineType === "complete") instruction = `Complete the following sentence or clause in a professional legal manner.`;
+//     else if (refineType === "ask") instruction = `Follow this custom instruction: ${param}`;
 
-    const prompt = `${instruction}\n\nText:\n${text}\n\nIMPORTANT: Return only the rewritten text without any quotes or preamble.`;
+//     const prompt = `${instruction}\n\nText:\n${text}\n\nIMPORTANT: Return only the rewritten text without any quotes or preamble.`;
 
-    const content = await withRetry(() => openRouterComplete("", prompt));
+//     const content = await withRetry(() => openRouterComplete("", prompt));
 
-    const docId = "doc_" + crypto.randomUUID();
-    const title = `Refined Text - ${new Date().toLocaleDateString()}`;
+//     const docId = "doc_" + crypto.randomUUID();
+//     const title = `Refined Text - ${new Date().toLocaleDateString()}`;
 
-    const { email: creatorEmail } = await withTransaction(userId, 'USER', async (client) => {
-      const { rows } = await client.query("SELECT email FROM users WHERE id = $1", [userId]);
-      return { email: rows[0]?.email || "" };
-    });
+//     const { email: creatorEmail } = await withTransaction(userId, 'USER', async (client) => {
+//       const { rows } = await client.query("SELECT email FROM users WHERE id = $1", [userId]);
+//       return { email: rows[0]?.email || "" };
+//     });
 
-    const encryptedContent = encryptData(content);
+//     const encryptedContent = encryptData(content);
 
-    await withTransaction(userId, 'USER', async (client) => {
-      await client.query(
-        `INSERT INTO files (id, title, type, content, creator_id, creator_email, is_encrypted, shared_with, audit_logs)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-        [docId, title, "draft", encryptedContent, userId, creatorEmail, true, JSON.stringify([]), JSON.stringify([])]
-      );
+//     await withTransaction(userId, 'USER', async (client) => {
+//       await client.query(
+//         `INSERT INTO files (id, title, type, content, creator_id, creator_email, is_encrypted, shared_with, audit_logs)
+//          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+//         [docId, title, "draft", encryptedContent, userId, creatorEmail, true, JSON.stringify([]), JSON.stringify([])]
+//       );
 
-      const versionId = "ver_" + crypto.randomUUID();
-      await client.query(
-        `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
-        [versionId, docId, encryptedContent]
-      );
-    });
+//       const versionId = "ver_" + crypto.randomUUID();
+//       await client.query(
+//         `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
+//         [versionId, docId, encryptedContent]
+//       );
+//     });
 
-    // Index refined content for RAG retrieval (fire-and-forget)
-    chunkAndIndexDocument(docId, content, userId).catch((err) =>
-      console.warn(`[executeTemplateDrafting/refine] Chunk indexing failed for ${docId}:`, err)
-    );
+//     // Index refined content for RAG retrieval (fire-and-forget)
+//     chunkAndIndexDocument(docId, content, userId).catch((err) =>
+//       console.warn(`[executeTemplateDrafting/refine] Chunk indexing failed for ${docId}:`, err)
+//     );
 
-    return { data: content, file_id: docId };
-  }
+//     return { data: content, file_id: docId };
+//   }
 
-  const { mode, outputLevel, instructions, formFields, templateId, sourceText, playbookText } = payload;
+//   const { mode, outputLevel, instructions, formFields, templateId, sourceText, playbookText } = payload;
 
-  await updateJobProgress(jobId, userId, 20, "Synthesizing legal document...");
+//   await updateJobProgress(jobId, userId, 20, "Synthesizing legal document...");
 
-  const result = await jobRegistry.orchestrator.runDrafting({
-    mode,
-    detailLevel: outputLevel,
-    instructions,
-    formFields,
-    templateId,
-    sourceText,
-    playbookText
-  });
+//   const result = await jobRegistry.orchestrator.runDrafting({
+//     mode,
+//     detailLevel: outputLevel,
+//     instructions,
+//     formFields,
+//     templateId,
+//     sourceText,
+//     playbookText
+//   });
 
-  const docId = "doc_" + crypto.randomUUID();
-  const title = `AI Draft - ${new Date().toLocaleDateString()}`;
+//   const docId = "doc_" + crypto.randomUUID();
+//   const title = `AI Draft - ${new Date().toLocaleDateString()}`;
 
-  const { email: creatorEmail } = await withTransaction(userId, 'USER', async (client) => {
-    const { rows } = await client.query("SELECT email FROM users WHERE id = $1", [userId]);
-    return { email: rows[0]?.email || "" };
-  });
+//   const { email: creatorEmail } = await withTransaction(userId, 'USER', async (client) => {
+//     const { rows } = await client.query("SELECT email FROM users WHERE id = $1", [userId]);
+//     return { email: rows[0]?.email || "" };
+//   });
 
-  const encryptedContent = encryptData(result);
+//   const encryptedContent = encryptData(result);
 
-  await withTransaction(userId, 'USER', async (client) => {
-    await client.query(
-      `INSERT INTO files (id, title, type, content, creator_id, creator_email, is_encrypted, shared_with, audit_logs)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-      [docId, title, "draft", encryptedContent, userId, creatorEmail, true, JSON.stringify([]), JSON.stringify([])]
-    );
+//   await withTransaction(userId, 'USER', async (client) => {
+//     await client.query(
+//       `INSERT INTO files (id, title, type, content, creator_id, creator_email, is_encrypted, shared_with, audit_logs)
+//        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+//       [docId, title, "draft", encryptedContent, userId, creatorEmail, true, JSON.stringify([]), JSON.stringify([])]
+//     );
 
-    const versionId = "ver_" + crypto.randomUUID();
-    await client.query(
-      `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
-      [versionId, docId, encryptedContent]
-    );
-  });
+//     const versionId = "ver_" + crypto.randomUUID();
+//     await client.query(
+//       `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
+//       [versionId, docId, encryptedContent]
+//     );
+//   });
 
-  // Index drafted content for RAG retrieval (fire-and-forget)
-  chunkAndIndexDocument(docId, result, userId).catch((err) =>
-    console.warn(`[executeTemplateDrafting] Chunk indexing failed for ${docId}:`, err)
-  );
+//   // Index drafted content for RAG retrieval (fire-and-forget)
+//   chunkAndIndexDocument(docId, result, userId).catch((err) =>
+//     console.warn(`[executeTemplateDrafting] Chunk indexing failed for ${docId}:`, err)
+//   );
 
-  return { content: result, file_id: docId };
-}
+//   return { content: result, file_id: docId };
+// }
 
 async function executePrivacyScanning(jobId: string, userId: string, payload: any): Promise<any> {
   await updateJobProgress(jobId, userId, 20, "Scanning website for privacy compliance...");

@@ -15,7 +15,7 @@ export class DraftWorkflowOrchestrator {
   async executeInitialWorkflow(initialState: DraftState): Promise<DraftState> {
     let state: DraftState = { ...initialState };
     try {
-      state = await requirementExtractionStep(state);
+      state = await requirementExtractionStep(state); 
       state = await retrievalStep(state);
       state = await contextAssemblyStep(state);
       state = await generationStep(state);

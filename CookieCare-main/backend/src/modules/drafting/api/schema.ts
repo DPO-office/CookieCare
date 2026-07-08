@@ -6,7 +6,7 @@ import { z } from "zod"
 
 const BasicDraftSchema = z.object({
     
-    mode: z.literal("basic"),
+    mode: z.literal("BASIC"),
     instructions: z.string(),
     contractType: z.string(),
     formFields: z.record(z.string(),z.string())
@@ -14,7 +14,7 @@ const BasicDraftSchema = z.object({
 
 
 const ProactiveDraftSchema = z.object({
-    mode: z.literal("proactive"),
+    mode: z.literal("PROACTIVE"),
   
     instructions: z.string(),
   
@@ -27,7 +27,7 @@ const ProactiveDraftSchema = z.object({
 
 // TODO: fix the schema for reactivedraft
 const ReactiveDraftSchema = z.object({
-    mode: z.literal("reactive"),
+    mode: z.literal("REACTIVE"),
     sourceDocumentId: z.string(),
     extractedFields: z.record(z.string(),z.string()),
     instructions: z.string()

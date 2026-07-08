@@ -1,4 +1,4 @@
-export type DraftMode = "basic" | "proactive" | "reactive" | "refinement";
+export type DraftMode = "BASIC" | "PROACTIVE" | "REACTIVE" | "REFINEMENT"
 
 export interface RequirementContext {
   contractType: string;
@@ -57,7 +57,8 @@ export interface RiskItem {
 export interface DraftState {
   request: {
     intent: DraftMode;
-    mode: 'Basic' | 'Standard Template' | 'Advanced Proactive';
+    // idk why i added this there no use of it, we are using intent as mode everwhere that why making it optional
+    mode?: 'Basic' | 'Standard Template' | 'Advanced Proactive' | null;
     uploadedDocumentText?:string;
     rawInstructions: string;
     payloadFields?: {documentId:string}

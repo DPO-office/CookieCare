@@ -24,14 +24,21 @@ const orchestrator = new AgentOrchestrator();
 //   }
 // });
 
+
+
 router.post("/generate-stream", authenticateToken, async (req, res) => {
   try {
+
+    // req.body = payload
     const job = await addJobToQueue(req.user!.id, "template_drafting", req.body);
     res.status(202).json({ success: true, job_id: job.id });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 });
+
+
+
 
 router.post("/refine", authenticateToken, async (req, res) => {
   try {

@@ -159,7 +159,7 @@ function buildExtractionPrompt(
     sourceText.length > 12_000 ? `${sourceText.slice(0, 12_000)}…` : sourceText;
 
   // TRACK A: THE NEW REACTIVE DEFENSE SYSTEM PROMPT FORK
-  if (state.request.intent === "reactive" && sourceTextSnippet) {
+  if (state.request.intent === "REACTIVE" && sourceTextSnippet) {
     return [
       "You are analyzing an incoming hostile legal notice, claim letter, or court petition document.",
       "Your goal is to extract the adversary's claims and synthesize a clean tactical instructions playbook.",
@@ -222,8 +222,8 @@ function buildExtractionPrompt(
 async function fetchBaselineClauses(
   state: DraftState
 ): Promise<{ clauses: string[]; warning?: string }> {
-  // If we are responding reactively, baseline clause catalogs for proactive creation are bypassed
-  if (state.request.intent === "reactive") {
+  // If we are responding reactively, baseline clause catalogs for PROACTIVE creation are bypassed
+  if (state.request.intent === "REACTIVE") {
     return { clauses: [] };
   }
 
@@ -265,7 +265,7 @@ export async function requirementExtractionStep(
   state: DraftState
 ): Promise<DraftState> {
   // Make the system instruction adapt to intent
-  const isReactive = state.request.intent === "reactive";
+  const isReactive = state.request.intent === "REACTIVE";
   
   const systemInstruction = isReactive
     ? "You are a deterministic requirements extraction engine analyzing an adversarial legal document. Focus on extracting the claim facts and defense targets. Return ONLY valid JSON matching the provided JSON Schema. Do not include markdown or commentary."

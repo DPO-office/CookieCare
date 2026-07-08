@@ -242,8 +242,8 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
   const [basicLiability, setBasicLiability] = useState("USD $2,000,000 limit");
 
   // Advanced Mode step hierarchy matching screens
-  const [advancedStep, setAdvancedStep] = useState<"selector" | "proactive" | "reactive">("selector");
-  const [advSubTab, setAdvSubTab] = useState<"reactive" | "proactive">("proactive");
+  const [advancedStep, setAdvancedStep] = useState<"selector" | "PROACTIVE" | "REACTIVE">("selector");
+  const [advSubTab, setAdvSubTab] = useState<"REACTIVE" | "PROACTIVE">("PROACTIVE");
   const [clauseTab, setClauseTab] = useState<"clauses" | "custom">("clauses");
 
   // Expanded Accordion Sections under Proactive Drafting
@@ -753,7 +753,7 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
         liability_cap: basicLiability
       };
     } else {
-      if (advancedStep === "proactive") {
+      if (advancedStep === "PROACTIVE") {
         documentTitle = selectedTemplateName || "Proactive Draft Covenants";
         payload.templateId = selectedTemplateName;
         payload.playbookText = aiRulebookPrompt;
@@ -1257,7 +1257,7 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Reactive drafting */}
                     <div
-                      onClick={() => { setAdvancedStep("reactive"); setAdvSubTab("reactive"); }}
+                      onClick={() => { setAdvancedStep("REACTIVE"); setAdvSubTab("REACTIVE"); }}
                       className="border border-gray-200 bg-white p-6 rounded-2xl hover:border-gray-400 hover:shadow-md text-left cursor-pointer transition flex items-start space-x-4.5"
                     >
                       <div className="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center shrink-0 mt-0.5">
@@ -1273,7 +1273,7 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
 
                     {/* Proactive drafting */}
                     <div
-                      onClick={() => { setAdvancedStep("proactive"); setAdvSubTab("proactive"); }}
+                      onClick={() => { setAdvancedStep("PROACTIVE"); setAdvSubTab("PROACTIVE"); }}
                       className="border border-gray-200 bg-white p-6 rounded-2xl hover:border-gray-400 hover:shadow-md text-left cursor-pointer transition flex items-start space-x-4.5"
                     >
                       <div className="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center shrink-0 mt-0.5">
@@ -1291,7 +1291,7 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
               )}
 
               {/* STEP B: REACTIVE DRAFTING FORMS */}
-              {advancedStep === "reactive" && (
+              {advancedStep === "REACTIVE" && (
                 <div className="space-y-6">
                   {/* BACK BAR HEADER */}
                   <div className="bg-white border border-gray-200 p-5 rounded-xl shadow-xs flex justify-between items-center mb-6">
@@ -1386,7 +1386,7 @@ export default function DraftAgreement({ documents, authToken, onRefresh, onSele
               )}
 
               {/* STEP C: PROACTIVE DRAFTING INTAKE FORMS (Screenshot 5 & 6) */}
-              {advancedStep === "proactive" && (
+              {advancedStep === "PROACTIVE" && (
                 <div className="space-y-5">
                   
                   {/* INTAKE INTRO BOX (Screenshot 5) */}
