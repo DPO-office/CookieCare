@@ -59,8 +59,8 @@ export interface DraftState {
     intent: DraftMode;
     // idk why i added this there no use of it, we are using intent as mode everwhere that why making it optional
     mode?: 'Basic' | 'Standard Template' | 'Advanced Proactive' | null;
-    uploadedDocumentText?:string;
-    rawInstructions: string;
+    uploadedDocumentText?:string; // This is for REACTIVE MODE ONLY
+    rawInstructions: string; 
     payloadFields?: {documentId:string}
     templateId?: string;
     sourceText?: string;

@@ -1,7 +1,7 @@
 import { DraftState } from '../models/draft-state';
 import { builderReviewPrompt } from '../prompts/risk-review-template';
 import { systemInstruction } from '../prompts/validation-template';
-import { OpenRouterClient } from '../providers/openrouter-provider';
+import { OpenRouterClient } from '../llm/provider/openrouter-provider';
 import { LLM_RISK_REVIEW_SCHEMA, LLMRiskReviewResponse } from '../schemas/risk-review-schema';
 
 export const riskReviewStep = async (

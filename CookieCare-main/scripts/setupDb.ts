@@ -22,7 +22,7 @@ async function connectWithRetry(retries = 5, delay = 2000): Promise<any> {
 
       console.warn(`Database connection attempt ${i + 1} failed: ${message}. Retrying in ${delay}ms...`);
       await new Promise((resolve) => setTimeout(resolve, delay));
-      delay *= 2;
+      delay *= 2; 
     }
   }
 
@@ -158,6 +158,22 @@ async function setupDb() {
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
     `);
+
+    // for playbook, retrieve at DraftTemplate
+    await client.query(`
+    CREATE TABLE IF NOT EXISTS playbook_rules (
+      id VARCHAR(255) PRIMARY KEY,
+      contract_type VARCHAR(255) NOT NULL,       -- e.g., 'Digital Solutions (SOW)' or 'Traditional Staffing'
+      topic VARCHAR(255) NOT NULL,               -- e.g., 'Intellectual Property' or 'Worker Classification'
+      risk_level VARCHAR(50) NOT NULL,           -- e.g., 'CRITICAL', 'HIGH', 'MEDIUM'
+      standard_position TEXT NOT NULL,           -- The Target Baseline (Ideal State) clause text
+      fallback_positions JSONB DEFAULT '[]'::jsonb, -- Array of acceptable fallback clauses
+      walk_away_condition TEXT NOT NULL,         -- Strict boundary parameters or unresolvable positions
+      trigger_patterns JSONB DEFAULT '[]'::jsonb,   -- Trigger / Red Flag Language match arrays
+      remediation_strategy TEXT NOT NULL,        -- Hardcoded AI action guide & remediation logic
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
 
     // Embedding column update (idempotent check)
     const embeddingTypeResult = await client.query(`

@@ -1,6 +1,6 @@
 
 import { DraftState } from '../models/draft-state';
-import { OpenRouterClient } from '../providers/openrouter-provider';
+import { OpenRouterClient } from '../llm/provider/openrouter-provider';
 import dotenv from "dotenv"
 
 dotenv.config()

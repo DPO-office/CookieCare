@@ -1,6 +1,6 @@
 import { DraftState, ValidationIssue } from '../models/draft-state';
 import { builderAuditPrompt, systemInstruction } from '../prompts/validation-template';
-import { OpenRouterClient } from '../providers/openrouter-provider';
+import { OpenRouterClient } from '../llm/provider/openrouter-provider';
 import { LLM_VALIDATION_SCHEMA, LLMValidationResponse } from '../schemas/validation-schema';
 
 /**

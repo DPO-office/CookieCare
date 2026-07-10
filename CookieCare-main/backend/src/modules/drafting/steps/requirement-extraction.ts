@@ -5,7 +5,7 @@ import {
   RequirementContext,
   ValidationIssue,
 } from "../models/draft-state";
-import { OpenRouterClient } from "../providers/openrouter-provider";
+import { OpenRouterClient } from "../llm/provider/openrouter-provider.js";
 import {
   ClauseCatalogRetriever,
   ClauseCatalogFilters,

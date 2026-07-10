@@ -15,7 +15,7 @@ export class DraftWorkflowOrchestrator {
   async executeInitialWorkflow(initialState: DraftState): Promise<DraftState> {
     let state: DraftState = { ...initialState };
     try {
-      state = await requirementExtractionStep(state); 
+      state = await requirementExtractionStep(state);
       state = await retrievalStep(state);
       state = await contextAssemblyStep(state);
       state = await generationStep(state);
@@ -26,7 +26,7 @@ export class DraftWorkflowOrchestrator {
       let attempt = 0;
       const maxAttempt = 1;
 
-      while (!state.validation.isValid && attempt<maxAttempt){
+      while (!state.validation?.isValid && attempt<maxAttempt){
         state = await contextAssemblyRefinementStep(state);
         state = await generationStep(state);
         state = await validationStep(state);
