@@ -2,6 +2,7 @@ import { pool } from "../../../config/database.js";
 import { LLMTask } from "../config/model-specs.js";
 import { LLMProvider } from "../config/model-specs.js";
 import { executeCompletion, executeJsonCompletion } from "../llm/index.js";
+import { STAGE_1_STITCH_PROMPT, STAGE_2_EXTRACT_PROMPT } from "../prompts/playbook-ingest-template.js";
 
 export interface ParsedPlaybookRule {
   id: string;
@@ -42,25 +43,6 @@ const SINGLE_RULE_SCHEMA = {
   }
 } as const;
 
-const PLAYBOOK_STITCHING_SYSTEM_INSTRUCTION = `
-You are an elite legal playbook stitching assistant.
-Read the entire multi-page legal playbook text block and reconstruct fragmented tables into a single consolidated Markdown document.
-Rules may be split across pages, with IDs on one page, clause text on another, and remediation logic on a third.
-Match each fragment to its correct Rule ID and preserve every clause, note, and remediation instruction without truncation.
-Output only Markdown.
-Group every rule entirely under its own heading in the form "## R-IP-001".
-Do not summarize, omit, or shorten long contractual text.
-Keep the output deterministic and structurally consistent.
-`.trim();
-
-const SINGLE_RULE_SYSTEM_INSTRUCTION = `
-You are an elite legal parsing assistant.
-Extract exactly one playbook rule from the provided Markdown block and return strict JSON that matches the supplied schema.
-Do not add commentary, markdown, or extra keys.
-Preserve the full text of each clause and remediation instruction.
-If the block contains a rule heading, use it as the rule id.
-`.trim();
-
 function cleanMarkdownArtifacts(rawText: string): string {
   let cleanedText = rawText.trim();
 
@@ -99,7 +81,7 @@ export class PlaybookIngester {
     console.log("[PlaybookIngester] Initiating structured AI parsing extraction loop...");
 
     const stitchedMarkdown = cleanMarkdownArtifacts(
-      await executeCompletion(rawPdfText, PLAYBOOK_STITCHING_SYSTEM_INSTRUCTION,LLMTask.FAST_STITCH,this.deafultProvider)
+      await executeCompletion(rawPdfText, STAGE_1_STITCH_PROMPT,LLMTask.FAST_STITCH,this.deafultProvider)
     );
 
     const ruleBlocks = splitStitchedMarkdownIntoRuleBlocks(stitchedMarkdown);
@@ -112,7 +94,7 @@ export class PlaybookIngester {
 
         const parsedRule = await executeJsonCompletion<ParsedPlaybookRule>(
           block,
-          SINGLE_RULE_SYSTEM_INSTRUCTION,
+          STAGE_2_EXTRACT_PROMPT,
           SINGLE_RULE_SCHEMA,
           LLMTask.STRUCTURAL_JSON,
           this.deafultProvider

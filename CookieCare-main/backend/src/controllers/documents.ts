@@ -116,8 +116,10 @@ export const createDocument = async (req: Request, res: Response) => {
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
-};
+};  
 
+
+// General file upload and playbook uploading job creation init here
 export const uploadDocument = async (req: Request, res: Response) => {
   const file = req.file;
   if (!file) return res.status(400).json({ error: "No file uploaded. Verify multipart/form-data boundary." });
@@ -145,7 +147,14 @@ export const uploadDocument = async (req: Request, res: Response) => {
     return res.status(400).json({ error: "File signature mismatch. Extension does not match content magic bytes." });
   }
 
-  const { title, folder_id } = req.body;
+  const { title, folder_id,contractType } = req.body;
+  // For playbook
+  const systemFileType = req.body.category?.trim().toLowerCase() || "upload";
+  // Playbook validation rule stays simple
+  if (systemFileType === "playbook" && (!contractType || !contractType.trim())) {
+    return res.status(400).json({ error: "Playbook ingestion requires an explicit 'contractType' parameter." });
+  }
+
   const fileId = "doc_" + crypto.randomUUID();
   const fileTitle = title || file.originalname;
   const userId = req.user!.id;
@@ -172,7 +181,20 @@ export const uploadDocument = async (req: Request, res: Response) => {
       throw new Error("DB_UPLOAD_FAILED");
     });
 
-    const job = await addJobToQueue(req.user!.id, "file_processing", {
+    let job;
+
+    if (systemFileType === "playbook") {
+
+      job = await addJobToQueue(req.user!.id, "PLAYBOOK_INGEST", {
+        fileId,
+        contractType: contractType.trim(),
+        fileTitle,
+        fileBufferBase64: file.buffer.toString("base64"),
+        mimeType: file.mimetype
+      });
+    }
+
+    job = await addJobToQueue(req.user!.id, "file_processing", {
       fileId,
       fileTitle,
       fileBufferBase64: file.buffer.toString("base64"),

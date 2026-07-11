@@ -6,6 +6,7 @@ import { addJobToQueue } from "../services/jobQueue.js";
 const router = Router();
 const orchestrator = new AgentOrchestrator();
 
+// This is the legecy API
 // router.post("/generate", authenticateToken, async (req, res) => {
 //   try {
 //     const { mode, detailLevel, instructions, formFields, templateId, sourceText, playbookText } = req.body;

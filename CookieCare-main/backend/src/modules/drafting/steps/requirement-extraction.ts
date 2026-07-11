@@ -5,7 +5,9 @@ import {
   RequirementContext,
   ValidationIssue,
 } from "../models/draft-state";
-import { OpenRouterClient } from "../llm/provider/openrouter-provider.js";
+import { LLMTask } from "../config/model-specs.js";
+import { LLMProvider } from "../config/model-specs.js";
+import { executeCompletion, executeJsonCompletion } from "../llm/index.js";
 import {
   ClauseCatalogRetriever,
   ClauseCatalogFilters,
@@ -262,7 +264,8 @@ function toRequirementContext(
 }
 
 export async function requirementExtractionStep(
-  state: DraftState
+  state: DraftState,
+  provider:LLMProvider = LLMProvider.GEMINI
 ): Promise<DraftState> {
   // Make the system instruction adapt to intent
   const isReactive = state.request.intent === "REACTIVE";
@@ -307,19 +310,21 @@ export async function requirementExtractionStep(
       );
     }
 
-    const client = new OpenRouterClient({
-      apiKey: config.openRouterApiKey,
-      baseUrl: "https://openrouter.ai/api/v1",
-      model: config.openRouterModel,
-      timeoutMs: 30_000,
-      httpReferer: "https://cookiecare.app",
-      xTitle: "CookieCare Legal AI",
-    });
+    // const client = new OpenRouterClient({
+    //   apiKey: config.openRouterApiKey,
+    //   baseUrl: "https://openrouter.ai/api/v1",
+    //   model: config.openRouterModel,
+    //   timeoutMs: 30_000,
+    //   httpReferer: "https://cookiecare.app",
+    //   xTitle: "CookieCare Legal AI",
+    // });
 
-    const extracted = await client.getJsonCompletion<RequirementExtractionResult>(
+
+
+    const extracted = await executeJsonCompletion<RequirementExtractionResult>(
       prompt,
       systemInstruction,
-      REQUIREMENT_EXTRACTION_JSON_SCHEMA
+      REQUIREMENT_EXTRACTION_JSON_SCHEMA,LLMTask.STRUCTURAL_JSON,provider
     );
 
     return {

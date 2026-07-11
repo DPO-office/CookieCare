@@ -11,6 +11,8 @@ router.get("/:id", authenticateToken, docController.getDocumentById);
 router.post("/", authenticateToken, docController.createDocument);
 router.put("/:id", authenticateToken, docController.updateDocument);
 router.delete("/:id", authenticateToken, docController.deleteDocument);
+
+// we are using /upload route to upload the playbook
 router.post("/upload", authenticateToken, upload.single("file"), docController.uploadDocument);
 router.post("/export", authenticateToken, docController.exportDocument);
 router.post("/:id/share", authenticateToken, docController.shareDocument);

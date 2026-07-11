@@ -115,7 +115,8 @@ export type JobType =
   | "document_analysis"
   | "template_drafting"
   | "privacy_scanning"
-  | "vulnerability_scanning";
+  | "vulnerability_scanning"
+  | "PLAYBOOK_INGEST";
 
 export type JobStatus = "queued" | "processing" | "completed" | "failed";
 

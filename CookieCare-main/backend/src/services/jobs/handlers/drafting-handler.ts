@@ -72,7 +72,7 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
     const orchestrator = new DraftWorkflowOrchestrator()
   
     // 3. Dispatch straight to the central state loop pipeline running code
-        const finalizedState = await orchestrator.executeInitialWorkflow(initialStateContainer);
+    const finalizedState = await orchestrator.executeInitialWorkflow(initialStateContainer);
     
     if (!finalizedState.draft?.formattedDocument) {
       throw new Error("Pipeline Execution Failure: Final document text block emerged empty from workflow engine.");
@@ -105,9 +105,9 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
     });
   
     // 6. Index output arrays natively for background RAG search contexts
-    chunkAndIndexDocument(targetDocId, documentContentResult, userId).catch((err) =>
-      console.warn(`[DraftingHandler/Initial] Vector indexing routine bypassed for ${targetDocId}:`, err)
-    );
+    // chunkAndIndexDocument(targetDocId, documentContentResult, userId).catch((err) =>
+    //   console.warn(`[DraftingHandler/Initial] Vector indexing routine bypassed for ${targetDocId}:`, err)
+    // );
   
     return { content: documentContentResult, file_id: targetDocId, version: 1 };
   }
