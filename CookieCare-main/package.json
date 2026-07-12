@@ -1,17 +1,19 @@
 {
-  "name": "react-example",
+  "name": "cookiecare",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
- 
-    "dev:client": "node node_modules/vite/bin/vite.js",
-    "clean": "rm -rf dist server.js",
-    "lint": "node node_modules/typescript/bin/tsc --noEmit",
-    "test": "node --import ./node_modules/tsx/dist/loader.mjs --test test/**/*.test.ts",
-    "setup-db": "node node_modules/tsx/dist/cli.mjs scripts/setupDb.ts",
-      "dev": "node node_modules/tsx/dist/cli.mjs scripts/setupDb.ts && node node_modules/esbuild/bin/esbuild server.ts --bundle --platform=node --format=esm --packages=external --outfile=server.js && node server.js",
-    "build": "node node_modules/vite/bin/vite.js build && node node_modules/esbuild/bin/esbuild server.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=dist/server.js"
+    "dev:frontend": "node node_modules/vite/bin/vite.js --config frontend/vite.config.ts",
+    "dev:backend": "node node_modules/tsx/dist/cli.mjs backend/scripts/setupDb.ts && node node_modules/esbuild/bin/esbuild backend/server.ts --bundle --platform=node --format=esm --packages=external --outfile=backend/server.js && node backend/server.js",
+    "build:frontend": "node node_modules/vite/bin/vite.js build --config frontend/vite.config.ts",
+    "build:backend": "node node_modules/esbuild/bin/esbuild backend/server.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=backend/dist/server.js",
+    "build": "npm run build:frontend && npm run build:backend",
+    "start": "node backend/dist/server.js",
+    "setup-db": "node node_modules/tsx/dist/cli.mjs backend/scripts/setupDb.ts",
+    "dev": "node node_modules/tsx/dist/cli.mjs backend/scripts/setupDb.ts && node node_modules/esbuild/bin/esbuild backend/server.ts --bundle --platform=node --format=esm --packages=external --outfile=backend/server.js && node backend/server.js",
+    "lint": "node node_modules/typescript/bin/tsc --noEmit --project frontend/tsconfig.json && node node_modules/typescript/bin/tsc --noEmit --project backend/tsconfig.json",
+    "clean": "if exist frontend\\dist rmdir /s /q frontend\\dist & if exist backend\\dist rmdir /s /q backend\\dist & if exist backend\\server.js del /f backend\\server.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -67,7 +69,6 @@
     "supertest": "^7.2.2",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.22.4",
-    "typescript": "~5.8.2",
-    "vite": "^6.2.3"
+    "typescript": "~5.8.2"
   }
 }

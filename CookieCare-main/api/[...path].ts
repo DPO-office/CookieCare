@@ -1,5 +1,6 @@
+// Vercel serverless adapter - imports the built backend bundle
 // Use dynamic import for ESM compatibility
-const serverPath = "../dist/server.js";
+const serverPath = "../backend/dist/server.js";
 const serverBundle = await import(serverPath);
 
 const app = serverBundle.default || serverBundle;

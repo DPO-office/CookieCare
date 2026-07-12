@@ -1,5 +1,3 @@
-// This root vite config is kept for backward compatibility.
-// The canonical frontend config is at frontend/vite.config.ts
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
@@ -7,13 +5,12 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  root: 'frontend',
   build: {
-    outDir: "dist/client",
+    outDir: "dist",
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'frontend/src'),
+      '@': path.resolve(__dirname, 'src'),
     },
   },
   server: {
