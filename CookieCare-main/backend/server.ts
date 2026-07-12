@@ -28,8 +28,8 @@ app.use("/api", apiRoutes);
 
 // --- 2. ENVIRONMENT-SPECIFIC STATIC/SPA HANDLING ---
 if (config.nodeEnv === "production") {
-  // In production, serve the pre-built frontend from ../frontend/dist
-  const distPath = path.resolve(process.cwd(), "..", "frontend", "dist");
+  // In production, serve the pre-built frontend from frontend/dist
+  const distPath = path.resolve(process.cwd(), "frontend", "dist");
   app.use(express.static(distPath));
   app.get("*", (_req, res) => {
     res.sendFile(path.join(distPath, "index.html"));
@@ -47,7 +47,7 @@ async function startServer() {
     // Development: Vite dev server handles SPA + HMR
     // Vite root is the frontend folder
     const vite = await createViteServer({
-      root: path.resolve(process.cwd(), "..", "frontend"),
+      root: path.resolve(process.cwd(), "frontend"),
       server: {
         middlewareMode: true,
         hmr: { server: httpServer },

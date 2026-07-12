@@ -157,6 +157,25 @@ async function setupDb() {
         metadata JSONB DEFAULT '{}'::jsonb,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
+
+      -- Drafting pipeline: clause catalog and template mappings
+      CREATE TABLE IF NOT EXISTS clause_catalog (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        organization_id VARCHAR(255),
+        clause_type VARCHAR(255) NOT NULL,
+        contract_type VARCHAR(255),
+        jurisdiction VARCHAR(255),
+        industry VARCHAR(255),
+        status VARCHAR(50) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'archived')),
+        raw_text TEXT NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS template_clause_mappings (
+        template_id VARCHAR(255) NOT NULL,
+        clause_id UUID NOT NULL REFERENCES clause_catalog(id) ON DELETE CASCADE,
+        PRIMARY KEY (template_id, clause_id)
+      );
     `);
 
     // Embedding column update (idempotent check)
