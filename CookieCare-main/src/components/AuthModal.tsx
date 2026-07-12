@@ -25,7 +25,6 @@ export default function AuthModal({ onAuthSuccess }: AuthModalProps) {
     }
 
     setLoading(true);
-
     const endpoint = isLogin ? apiUrl("/api/auth/login") : apiUrl("/api/auth/register");
     const body = isLogin ? { email, password } : { email, password, name };
 
@@ -38,17 +37,11 @@ export default function AuthModal({ onAuthSuccess }: AuthModalProps) {
 
       if (!res.ok) {
         let errorMsg = "Authentication failed";
-        try {
-          const data = await res.json();
-          errorMsg = data.error || errorMsg;
-        } catch {
-          errorMsg = `Server error (${res.status})`;
-        }
+        try { const data = await res.json(); errorMsg = data.error || errorMsg; } catch { errorMsg = `Server error (${res.status})`; }
         throw new Error(errorMsg);
       }
 
       const data = await res.json();
-      // Success
       onAuthSuccess(data.token, data.user);
     } catch (err: any) {
       setError(err.message || "Something went wrong. Please try again.");
@@ -64,145 +57,110 @@ export default function AuthModal({ onAuthSuccess }: AuthModalProps) {
     setIsLogin(true);
   };
 
+  const inputClass = "w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 pl-10 pr-4 text-[13px] text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-gray-100 focus:border-gray-300 transition placeholder:text-gray-400";
+
   return (
-    <div className="min-h-screen flex items-center justify-center grid-bg p-6 font-sans">
-      <div className="w-full max-w-md bg-white border border-gray-200/80 rounded-xl shadow-xl overflow-hidden p-8 relative">
-        
-        {/* Top security layout indicator */}
-        <div className="absolute top-0 left-0 right-0 h-1.5 bg-black" />
+    <div className="min-h-screen flex items-center justify-center bg-[#FAFAFB] p-6">
+      <div className="w-full max-w-md">
+        {/* Card */}
+        <div className="bg-white border border-gray-200 rounded-[20px] shadow-lg overflow-hidden">
+          {/* Top accent bar */}
+          <div className="h-0.5 bg-gradient-to-r from-gray-800 via-gray-600 to-gray-400" />
 
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-black text-white mb-4">
-            <Scale className="w-6 h-6" />
-          </div>
-          <h2 className="text-2xl font-display font-bold text-gray-900 tracking-tight">
-            {isLogin ? "Sign in to Lexify" : "Create Security Account"}
-          </h2>
-          <p className="text-gray-500 text-sm mt-1">
-            {isLogin ? "Access your secure cloud legal desk" : "Sign up in 30 seconds to draft and analyze agreements"}
-          </p>
-        </div>
-
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-xs rounded-r-md">
-            <p className="font-semibold">Identification Failed</p>
-            <p className="mt-0.5">{error}</p>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {!isLogin && (
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">
-                Full Name
-              </label>
-              <div className="relative">
-                <User className="absolute left-3 top-3 h-4 text-gray-400" />
-                <input
-                  id="auth-name-input"
-                  type="text"
-                  required
-                  placeholder="e.g. Aishwarya"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 pl-10 pr-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-black"
-                />
+          <div className="p-9">
+            {/* Brand */}
+            <div className="text-center mb-9">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-[14px] bg-gray-900 text-white mb-5 shadow-md">
+                <Scale className="w-6 h-6" />
               </div>
+              <h2 className="text-[22px] font-bold text-gray-900 tracking-tight">
+                {isLogin ? "Sign in to Lexify" : "Create your account"}
+              </h2>
+              <p className="text-[13px] text-gray-500 mt-1.5">
+                {isLogin ? "Access your secure legal workspace" : "Get started in seconds"}
+              </p>
             </div>
-          )}
 
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">
-              Corporate Email Address
-            </label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-3 h-4 text-gray-400" />
-              <input
-                id="auth-email-input"
-                type="email"
-                required
-                  placeholder="e.g.xyz@Lexify.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 pl-10 pr-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-black"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">
-              Password
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 text-gray-400" />
-              <input
-                id="auth-password-input"
-                type="password"
-                required
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 pl-10 pr-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-black"
-              />
-            </div>
-          </div>
-
-          {!isLogin && (
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">
-                Confirm Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 text-gray-400" />
-                <input
-                  id="auth-confirm-password-input"
-                  type="password"
-                  required
-                  placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 pl-10 pr-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-black"
-                />
+            {/* Error */}
+            {error && (
+              <div className="mb-5 px-4 py-3 bg-red-50 border border-red-100 rounded-xl text-[13px] text-red-700">
+                {error}
               </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {!isLogin && (
+                <div>
+                  <label className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Full Name</label>
+                  <div className="relative">
+                    <User className="absolute left-3.5 top-2.5 h-4 w-4 text-gray-400" />
+                    <input id="auth-name-input" type="text" required placeholder="e.g. Aishwarya" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} />
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Email address</label>
+                <div className="relative">
+                  <Mail className="absolute left-3.5 top-2.5 h-4 w-4 text-gray-400" />
+                  <input id="auth-email-input" type="email" required placeholder="you@company.com" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Password</label>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-2.5 h-4 w-4 text-gray-400" />
+                  <input id="auth-password-input" type="password" required placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className={inputClass} />
+                </div>
+              </div>
+
+              {!isLogin && (
+                <div>
+                  <label className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Confirm Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3.5 top-2.5 h-4 w-4 text-gray-400" />
+                    <input id="auth-confirm-password-input" type="password" required placeholder="••••••••" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className={inputClass} />
+                  </div>
+                </div>
+              )}
+
+              <button
+                id="auth-submit-btn"
+                type="submit"
+                disabled={loading}
+                className="w-full mt-1 bg-gray-900 text-white hover:bg-gray-800 rounded-xl py-2.5 px-4 font-semibold text-[13px] transition flex items-center justify-center gap-2 shadow-xs hover:shadow-sm disabled:opacity-50"
+              >
+                <span>{loading ? "Authenticating..." : isLogin ? "Sign in" : "Create account"}</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </form>
+
+            <div className="mt-6 flex items-center justify-between border-t border-gray-100 pt-5">
+              <button
+                id="auth-toggle-btn"
+                onClick={() => setIsLogin(!isLogin)}
+                className="text-[12px] text-gray-500 hover:text-gray-900 font-medium underline underline-offset-4 transition"
+              >
+                {isLogin ? "Need an account? Sign up" : "Already have an account? Sign in"}
+              </button>
+
+              <button
+                id="fill-demo-btn"
+                onClick={fillQuickDemo}
+                type="button"
+                className="text-[12px] text-gray-500 hover:text-gray-800 border border-gray-200 bg-gray-50 py-1.5 px-3 rounded-lg hover:bg-white transition flex items-center gap-1.5"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                <span>Load demo</span>
+              </button>
             </div>
-          )}
-
-          <button
-            id="auth-submit-btn"
-            type="submit"
-            disabled={loading}
-            className="w-full mt-6 bg-black text-white hover:bg-gray-800 rounded-lg py-3 px-4 font-semibold text-sm transition-all flex items-center justify-center space-x-2 shadow-md cursor-pointer disabled:opacity-50"
-          >
-            <span>{loading ? "Authenticating Session..." : isLogin ? "Sign In Securely" : "Provision Private Account"}</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </form>
-
-        <div className="mt-6 flex items-center justify-between border-t border-gray-100 pt-6">
-          <button
-            id="auth-toggle-btn"
-            onClick={() => setIsLogin(!isLogin)}
-            className="text-xs text-gray-500 hover:text-black font-semibold underline underline-offset-4"
-          >
-            {isLogin ? "Need a new security account?" : "Already registered? Login here"}
-          </button>
-
-          <button
-            id="fill-demo-btn"
-            onClick={fillQuickDemo}
-            className="text-xs text-gray-500 hover:text-black border border-gray-200 bg-gray-50 py-1.5 px-3 rounded-md hover:bg-white transition-all flex items-center space-x-1.5 font-mono"
-            type="button"
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-green-600" />
-            <span>Load Demo</span>
-          </button>
+          </div>
         </div>
 
-        <div className="mt-8 flex items-center justify-center space-x-2 text-[10px] font-mono text-gray-400 bg-gray-50 py-2 rounded-lg border border-gray-100">
-          <Lock className="w-3 h-3 text-gray-400" />
-          <span>FIPS 140-2 Encrypted At-Rest & Isomorphic Channels Active</span>
-        </div>
-
+        <p className="text-center text-[11px] text-gray-400 mt-4">
+          FIPS 140-2 Encrypted · Secure AI workspace
+        </p>
       </div>
     </div>
   );

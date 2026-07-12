@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { apiUrl } from "../config";
-import { 
-  Clock, 
-  AlertCircle, 
-  CheckCircle, 
-  RefreshCw, 
-  Layers, 
-  Terminal, 
-  FileEdit, 
-  Globe, 
-  ShieldAlert, 
+import {
+  Clock,
+  CheckCircle,
+  RefreshCw,
+  Terminal,
+  FileEdit,
+  Globe,
+  ShieldAlert,
   FileText,
-  Activity
+  Activity,
+  AlertCircle,
 } from "lucide-react";
 
 export interface Job {
@@ -37,17 +36,10 @@ export default function QueueManager() {
 
   const fetchJobs = async () => {
     try {
-      const res = await fetch(apiUrl("/api/jobs"), {
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setJobs(data);
-      }
+      const res = await fetch(apiUrl("/api/jobs"), { headers: { Authorization: `Bearer ${token}` } });
+      if (res.ok) setJobs(await res.json());
     } catch (err) {
-      console.error("[QueueManager] Failed to fetch active background queue:", err);
+      console.error("[QueueManager] Failed to fetch queue:", err);
     } finally {
       setLoading(false);
     }
@@ -55,243 +47,143 @@ export default function QueueManager() {
 
   useEffect(() => {
     fetchJobs();
-
-    // Establish live real-time communication channel via Server-Sent Events (SSE)
     let sse: EventSource | null = null;
     if (token) {
-      const sseUrl = apiUrl(`/api/jobs/stream?token=${encodeURIComponent(token)}`);
-      console.log("[QueueManager SSE] Establishing connection to:", sseUrl);
-      
       try {
-        sse = new EventSource(sseUrl);
-
-        sse.onopen = () => {
-          console.log("[QueueManager SSE] Channel handshake established successfully.");
-          setErrorStatus(null);
-        };
-
+        sse = new EventSource(apiUrl(`/api/jobs/stream?token=${encodeURIComponent(token)}`));
+        sse.onopen = () => setErrorStatus(null);
         sse.onmessage = (event) => {
           try {
             const data = JSON.parse(event.data);
             if (data.event === "job_update" && data.job) {
-              const updatedJob = data.job as Job;
-              console.log("[QueueManager SSE] Live Job Update Received:", updatedJob.id, updatedJob.progress + "%");
-              setJobs((prevJobs) => {
-                const index = prevJobs.findIndex((j) => j.id === updatedJob.id);
-                if (index !== -1) {
-                  const copy = [...prevJobs];
-                  copy[index] = updatedJob;
-                  return copy;
-                } else {
-                  return [updatedJob, ...prevJobs];
-                }
+              setJobs((prev) => {
+                const idx = prev.findIndex((j) => j.id === data.job.id);
+                if (idx !== -1) { const copy = [...prev]; copy[idx] = data.job; return copy; }
+                return [data.job, ...prev];
               });
             }
-          } catch (pErr) {
-            console.warn("[QueueManager SSE] Message payload parsing bypassed:", pErr);
-          }
+          } catch {}
         };
-
-        sse.onerror = (err) => {
-          console.warn("[QueueManager SSE] Active socket retry mapping:", err);
-          // Auto-fallback check status periodically in case EventSource is closed or blocked by reverse proxy
-          setErrorStatus("SSE Stream listening in polling standby mode...");
-        };
-      } catch (err: any) {
-        console.error("[QueueManager SSE] Init failed:", err.message);
-      }
+        sse.onerror = () => setErrorStatus("SSE stream in polling standby...");
+      } catch {}
     }
-
-    // Active interval polling fallback to ensure robust sync state (100% durability guarantee)
-    const fallbackPoll = setInterval(() => {
-      fetchJobs();
-    }, 4000);
-
-    return () => {
-      if (sse) {
-        sse.close();
-      }
-      clearInterval(fallbackPoll);
-    };
+    const poll = setInterval(fetchJobs, 4000);
+    return () => { if (sse) sse.close(); clearInterval(poll); };
   }, [token]);
 
   const getJobDetails = (job: Job) => {
     switch (job.type) {
-      case "file_processing":
-        return {
-          title: "Ingestion & Parse Inbound File",
-          desc: job.payload?.fileTitle || "Uploaded contract PDF/DOCX file",
-          icon: <FileText className="w-4 h-4 text-sky-600" />
-        };
-      case "document_analysis":
-        return {
-          title: "CUAD Compliance Audit & Risk Scan",
-          desc: "Evaluating multi-clause regulatory alignment",
-          icon: <Activity className="w-4 h-4 text-violet-600" />
-        };
-      case "template_drafting":
-        return {
-          title: "Template-Guided Drafting LLM Pipeline",
-          desc: job.payload?.instructions || "Compiling custom contractual covenants",
-          icon: <FileEdit className="w-4 h-4 text-emerald-600" />
-        };
-      case "privacy_scanning":
-        return {
-          title: "Cookie Consent Crawler Active Probe",
-          desc: "Scanning domain tracking scripts",
-          icon: <Globe className="w-4 h-4 text-blue-600" />
-        };
-      case "vulnerability_scanning":
-        return {
-          title: "SSL & Server Header Vulnerability Probe",
-          desc: "Analyzing clickjacking (X-Frame) & TLS protocols",
-          icon: <ShieldAlert className="w-4 h-4 text-rose-600" />
-        };
-      default:
-        return {
-          title: "System Maintenance Background Loop",
-          desc: "General tasks queue processing",
-          icon: <Terminal className="w-4 h-4 text-gray-500" />
-        };
+      case "file_processing":     return { title: "File ingestion & parse",       icon: <FileText className="w-4 h-4 text-blue-500" /> };
+      case "document_analysis":   return { title: "Compliance audit & risk scan",  icon: <Activity className="w-4 h-4 text-violet-500" /> };
+      case "template_drafting":   return { title: "Template-guided drafting",      icon: <FileEdit className="w-4 h-4 text-emerald-500" /> };
+      case "privacy_scanning":    return { title: "Cookie consent crawler",        icon: <Globe className="w-4 h-4 text-blue-500" /> };
+      case "vulnerability_scanning": return { title: "SSL & header vulnerability probe", icon: <ShieldAlert className="w-4 h-4 text-rose-500" /> };
+      default:                    return { title: "Background system task",        icon: <Terminal className="w-4 h-4 text-gray-400" /> };
     }
   };
 
+  const statusConfig = {
+    queued:     { label: "Queued",     cls: "bg-gray-100 text-gray-600 border-gray-200" },
+    processing: { label: "Processing", cls: "bg-amber-50 text-amber-700 border-amber-200" },
+    completed:  { label: "Completed",  cls: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+    failed:     { label: "Failed",     cls: "bg-red-50 text-red-700 border-red-200" },
+  };
+
   return (
-    <div className="flex-1 overflow-y-auto p-10 font-sans grid-bg min-h-screen">
-      
-      {/* HEADER SECTION */}
-      <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="flex-1 overflow-y-auto px-10 py-8 bg-[#FAFAFB] min-h-screen">
+
+      {/* Header */}
+      <div className="mb-10 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-display font-bold text-gray-900 tracking-tight">
-            Background Queue Console
-          </h1>
-          <p className="text-sm text-gray-500 font-mono tracking-wider uppercase mt-1">
-            Real-Time Monitor of Multi-Agent Background Event-Loop
-          </p>
+          <h1 className="text-[26px] font-bold text-gray-900 tracking-tight">Active Queue</h1>
+          <p className="text-[13px] text-gray-500 mt-1">Real-time monitor of background AI processing tasks.</p>
         </div>
-        <div className="flex items-center space-x-2 text-xs font-mono text-gray-500 bg-white shadow-xs border border-gray-200/60 rounded-full py-1.5 px-3">
-          <RefreshCw className={`w-3.5 h-3.5 text-gray-500 ${jobs.some((j) => j.status === "processing") ? "animate-spin" : ""}`} />
-          <span>Real-time SSE Tunnel Engaged</span>
+        <div className="flex items-center gap-2">
+          {jobs.some((j) => j.status === "processing") && (
+            <span className="flex items-center gap-1.5 text-[12px] font-medium text-gray-500 bg-white border border-gray-200 rounded-full px-3.5 py-1.5 shadow-xs">
+              <RefreshCw className="w-3 h-3 animate-spin" />
+              Processing
+            </span>
+          )}
+          <button onClick={fetchJobs} className="h-9 px-4 flex items-center gap-2 text-[13px] font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition shadow-xs">
+            <RefreshCw className="w-3.5 h-3.5" />
+            Refresh
+          </button>
         </div>
       </div>
 
-      {/* SSE STANDBY / NOTIFICATIONS BAR */}
       {errorStatus && (
-        <div className="mb-6 bg-amber-50 border border-amber-200 text-amber-800 text-xs font-mono p-3 rounded-none flex items-center space-x-2">
-          <Clock className="w-4 h-4 animate-pulse shrink-0" />
+        <div className="mb-5 px-4 py-3 bg-amber-50 border border-amber-200 text-amber-800 text-[13px] rounded-xl flex items-center gap-2">
+          <Clock className="w-4 h-4 shrink-0" />
           <span>{errorStatus}</span>
         </div>
       )}
 
-      {/* AGENT DISPATCH QUEUE SUMMARY */}
-      <div className="bg-white border-2 border-black p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <div>
-          <h3 className="font-display font-bold text-sm text-gray-900 uppercase tracking-tight">Active Background Tasks</h3>
-          <p className="text-xs text-gray-500 font-sans mt-0.5 leading-normal max-w-xl">
-            This module displays running tasks offloaded from the main Express responder. If you upload large agreements (up to 75MB) or run heavy scans, progress can be monitored seamlessly across sessions.
-          </p>
-        </div>
-        <button
-          onClick={fetchJobs}
-          className="px-4 py-2 border border-gray-300 text-xs font-mono uppercase bg-white text-gray-700 hover:bg-gray-50 cursor-pointer font-bold transition-all shrink-0"
-        >
-          Force Reload list
-        </button>
-      </div>
-
-      {/* JOBS MATRIX TABLE */}
-      <div className="bg-white border-2 border-black overflow-hidden">
-        <div className="border-b-2 border-black bg-gray-50 p-4 shrink-0 hidden md:grid grid-cols-12 gap-4 text-[10px] font-mono uppercase text-gray-500 font-bold tracking-wider">
-          <div className="col-span-4">Operational Task / Target</div>
-          <div className="col-span-2">Task Category</div>
-          <div className="col-span-4">Execution Progress / Active Stage</div>
-          <div className="col-span-2 text-right">Job Status</div>
+      {/* Jobs table */}
+      <div className="bg-white border border-gray-200 rounded-[18px] shadow-xs overflow-hidden">
+        {/* Header row */}
+        <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-3.5 border-b border-gray-100 bg-gray-50">
+          <div className="col-span-4 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Task</div>
+          <div className="col-span-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Type</div>
+          <div className="col-span-4 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Progress</div>
+          <div className="col-span-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wider text-right">Status</div>
         </div>
 
-        <div className="divide-y divide-gray-200">
-          {loading ? (
-            <div className="p-12 text-center text-sm font-sans text-gray-400">
-              <RefreshCw className="w-8 h-8 text-gray-300 mx-auto mb-3 animate-spin" />
-              <span>Querying active queue...</span>
-            </div>
-          ) : jobs.length === 0 ? (
-            <div className="p-12 text-center text-sm font-sans text-gray-400">
-              <Clock className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-              <span>No background jobs recorded in your user scope. Try uploading a file or triggering an audit.</span>
-            </div>
-          ) : (
-            jobs.map((job) => {
-              const { title, desc, icon } = getJobDetails(job);
-              const isActive = job.status === "processing" || job.status === "queued";
-              const isCompleted = job.status === "completed";
-              const isFailed = job.status === "failed";
+        {loading ? (
+          <div className="p-12 text-center">
+            <RefreshCw className="w-6 h-6 text-gray-300 mx-auto mb-2 animate-spin" />
+            <p className="text-[13px] text-gray-400">Loading queue...</p>
+          </div>
+        ) : jobs.length === 0 ? (
+          <div className="p-12 text-center">
+            <Clock className="w-8 h-8 text-gray-200 mx-auto mb-3" />
+            <p className="text-[13px] font-medium text-gray-500 mb-1">No active jobs</p>
+            <p className="text-[12px] text-gray-400">Upload a file or trigger an audit to see tasks here.</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-50">
+            {jobs.map((job) => {
+              const { title, icon } = getJobDetails(job);
+              const cfg = statusConfig[job.status] || statusConfig.queued;
+              const barColor = job.status === "failed" ? "bg-red-400" : job.status === "completed" ? "bg-emerald-500" : "bg-gray-900";
 
               return (
-                <div key={job.id} className="p-4 grid grid-cols-1 md:grid-cols-12 gap-4 items-center hover:bg-gray-50/50 transition-all">
-                  {/* Title / Description */}
-                  <div className="col-span-1 md:col-span-4 min-w-0">
-                    <div className="flex items-center space-x-2.5">
-                      <div className="w-7 h-7 bg-gray-50 border border-gray-200 flex items-center justify-center shrink-0">
-                        {icon}
-                      </div>
-                      <div className="min-w-0">
-                        <span className="font-bold text-sm text-gray-900 block truncate leading-tight mb-0.5">
-                          {title}
-                        </span>
-                        <span className="text-[11px] text-gray-500 truncate block font-mono">
-                          {job.id} • {new Date(job.createdAt).toLocaleTimeString()}
-                        </span>
-                      </div>
+                <div key={job.id} className="px-6 py-4 grid grid-cols-1 md:grid-cols-12 gap-4 items-center hover:bg-gray-50/50 transition-colors">
+                  <div className="col-span-4 flex items-center gap-3 min-w-0">
+                    <div className="w-8 h-8 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">{icon}</div>
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-semibold text-gray-900 truncate">{title}</p>
+                      <p className="text-[11px] text-gray-400 truncate font-mono">{job.id.slice(0, 16)}… · {new Date(job.createdAt).toLocaleTimeString()}</p>
                     </div>
                   </div>
 
-                  {/* Task Category description */}
-                  <div className="col-span-1 md:col-span-2">
-                    <span className="text-xs text-gray-700 font-mono font-bold tracking-tight uppercase bg-gray-100 px-2 py-0.5 rounded text-[10px]">
-                      {job.type.replace("_", " ")}
+                  <div className="col-span-2">
+                    <span className="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-gray-100 text-gray-600">
+                      {job.type.replace(/_/g, " ")}
                     </span>
                   </div>
 
-                  {/* Progress / Messaging */}
-                  <div className="col-span-1 md:col-span-4">
-                    <div className="mb-1.5 flex items-center justify-between text-xs">
-                      <span className="text-gray-600 font-medium truncate block max-w-sm font-mono text-[11px]">
-                        {job.message}
-                      </span>
-                      <span className="text-gray-900 font-bold font-mono shrink-0 ml-2">
-                        {job.progress}%
-                      </span>
+                  <div className="col-span-4">
+                    <div className="flex items-center justify-between text-[12px] mb-1.5">
+                      <span className="text-gray-500 truncate max-w-[200px]">{job.message || "Processing…"}</span>
+                      <span className="font-bold text-gray-900 ml-2 shrink-0 tabular-nums">{job.progress}%</span>
                     </div>
-                    {/* Raw Progress Bar representation without motion */}
-                    <div className="w-full bg-gray-100 border border-gray-200 h-2.5 rounded-none overflow-hidden">
-                      <div 
-                        className={`h-full transition-all duration-300 ${isFailed ? "bg-rose-500" : isCompleted ? "bg-emerald-600" : "bg-black"}`}
-                        style={{ width: `${job.progress}%` }}
-                      />
+                    <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full transition-all duration-500 ${barColor}`} style={{ width: `${job.progress}%` }} />
                     </div>
                   </div>
 
-                  {/* Status Badges */}
-                  <div className="col-span-1 md:col-span-2 text-right">
-                    <span className={`inline-block border text-[10px] uppercase font-mono font-black tracking-wider rounded-none px-2.5 py-1 ${
-                      isActive 
-                        ? "bg-amber-50 text-amber-700 border-amber-200 animate-pulse" 
-                        : isCompleted 
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
-                        : isFailed 
-                        ? "bg-rose-50 text-rose-700 border-rose-200"
-                        : "bg-gray-50 text-gray-600 border-gray-200"
-                    }`}>
-                      {job.status}
+                  <div className="col-span-2 flex justify-end">
+                    <span className={`inline-block px-2.5 py-1 rounded-lg text-[11px] font-semibold border ${cfg.cls} ${job.status === "processing" ? "animate-pulse" : ""}`}>
+                      {cfg.label}
                     </span>
                   </div>
                 </div>
               );
-            })
-          )}
-        </div>
+            })}
+          </div>
+        )}
       </div>
-
     </div>
   );
 }

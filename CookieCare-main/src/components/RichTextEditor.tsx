@@ -67,8 +67,11 @@ export default function RichTextEditor({
     editable: !readOnly,
     editorProps: {
       attributes: {
+        // px-0 / py-0 — padding lives on the .draft-editor-body card, not here.
+        // text-[15px] overrides Tailwind's text-sm (14px) to match the CSS variable.
+        // leading-[1.85] gives legal-document-quality line rhythm.
         class:
-          "richtext-editor focus:outline-none min-h-[480px] px-1 py-2 text-sm leading-7 text-gray-800",
+          "richtext-editor focus:outline-none min-h-[70vh] text-[15px] leading-[1.85] text-[#1a2234]",
       },
     },
     onUpdate: ({ editor: e }) => {

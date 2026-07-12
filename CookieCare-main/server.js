@@ -1517,13 +1517,29 @@ ${c.content}`).join("\n\n");
       userRole
     );
   }
-  async interactAnalyze(folderIds, prompt, userId, _documentMode, answerStyle, history, _folderId, _userRole = "USER") {
+  async interactAnalyze(folderIds, prompt, userId, _documentMode, answerStyle, history, _folderId, _userRole = "USER", draftIds = []) {
     const LEGAL_SEED_TERMS = "indemnity liability limitation termination confidentiality intellectual property payment governing law compliance data protection liquidated damages audit rights obligations warranties representations";
     const retrievalQuery = `${LEGAL_SEED_TERMS} ${prompt.substring(0, 120)}`.trim();
-    console.log(`[interactAnalyze] userId=${userId} folderIds=${JSON.stringify(folderIds)}`);
+    console.log(`[interactAnalyze] userId=${userId} folderIds=${JSON.stringify(folderIds)} draftIds=${JSON.stringify(draftIds)}`);
     console.log(`[interactAnalyze] userPrompt(100)="${prompt.substring(0, 100)}"`);
     console.log(`[interactAnalyze] retrievalQuery(120)="${retrievalQuery.substring(0, 120)}"`);
-    const context = await searchHybrid(retrievalQuery, userId, void 0, folderIds);
+    const hasFolders = Array.isArray(folderIds) && folderIds.length > 0;
+    const hasDrafts = Array.isArray(draftIds) && draftIds.length > 0;
+    let context = [];
+    if (hasFolders) {
+      const folderChunks = await searchHybrid(retrievalQuery, userId, void 0, folderIds);
+      context = context.concat(folderChunks);
+    }
+    if (hasDrafts) {
+      const draftChunks = await searchHybrid(retrievalQuery, userId, draftIds, void 0);
+      context = context.concat(draftChunks);
+    }
+    const seen = /* @__PURE__ */ new Set();
+    context = context.filter((c) => {
+      if (seen.has(c.content)) return false;
+      seen.add(c.content);
+      return true;
+    });
     console.log(
       `[interactAnalyze] Retrieved ${context.length} chunk(s): ` + context.map((c) => `"${c.title ?? c.file_id}"`).join(", ")
     );
@@ -2483,7 +2499,7 @@ async function executeDocumentAnalysis(jobId, userId, payload) {
     };
   }
   if (payload.prompt && payload.folderIds) {
-    const { folderIds: folderIds2, prompt, documentMode, answerStyle, history } = payload;
+    const { folderIds: folderIds2, draftIds, prompt, documentMode, answerStyle, history } = payload;
     await updateJobProgress(jobId, userId, 30, "Analyzing documents in selected folders...");
     const result2 = await jobRegistry.orchestrator.interactAnalyze(
       folderIds2,
@@ -2493,7 +2509,8 @@ async function executeDocumentAnalysis(jobId, userId, payload) {
       answerStyle,
       history,
       void 0,
-      userRole
+      userRole,
+      Array.isArray(draftIds) ? draftIds : []
     );
     return { analysis: result2, clauses: [] };
   }
@@ -3668,9 +3685,10 @@ var router7 = Router7();
 var orchestrator = new AgentOrchestrator();
 router7.post("/interact", authenticateToken, async (req, res) => {
   try {
-    const { folderIds, prompt, documentMode, answerStyle, history } = req.body;
+    const { folderIds, draftIds, prompt, documentMode, answerStyle, history } = req.body;
     const job = await addJobToQueue(req.user.id, "document_analysis", {
       folderIds: Array.isArray(folderIds) ? folderIds : [],
+      draftIds: Array.isArray(draftIds) ? draftIds : [],
       prompt,
       documentMode,
       answerStyle,

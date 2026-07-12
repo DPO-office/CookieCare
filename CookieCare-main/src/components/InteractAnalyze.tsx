@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+﻿import React, { useState, useRef, useEffect } from "react";
 import { 
   Folder, 
   FolderPlus, 
@@ -7,33 +7,20 @@ import {
   Check, 
   ChevronDown, 
   ChevronUp, 
-  Grid, 
-  Wand2, 
   Sparkles, 
-  RotateCcw, 
   FileText, 
-  AlertTriangle, 
   CheckCircle,
   HelpCircle,
-  ArrowRight,
-  TrendingDown,
-  Activity,
-  UserCheck,
-  ShieldAlert,
-  Loader2,
-  Trash2,
-  Layers,
-  FileCode,
-  Lock,
   ArrowLeft,
   Send,
   Globe,
   ExternalLink,
-  MessageSquare,
   Plus,
   Copy,
   Download,
-  Printer
+  Printer,
+  FileCode,
+  Loader2
 } from "lucide-react";
 import { apiUrl } from "../config";
 import { LegalDocument } from "../types";
@@ -146,7 +133,7 @@ export default function InteractAnalyze({
         const foldersData = await foldersRes.json();
         const docsData = await docsRes.json();
 
-        // Filter out the system "Uploaded Documents" folder — only show user-created folders
+        // Filter out the system "Uploaded Documents" folder â€” only show user-created folders
         const userFolders = foldersData.filter((f: any) => f.name !== SYSTEM_FOLDER_NAME);
 
         setFolders(prev => {
@@ -333,7 +320,7 @@ export default function InteractAnalyze({
       if (targetFolder) {
         formData.append("folder_id", targetFolder.id);
       }
-      // (no folder_id sent → backend will assign to "Uploaded Documents")
+      // (no folder_id sent â†’ backend will assign to "Uploaded Documents")
 
       const res = await fetch(apiUrl("/api/documents/upload"), {
         method: "POST",
@@ -599,7 +586,7 @@ export default function InteractAnalyze({
     const parts = text.split(/\*\*([^*]+)\*\*/g);
     return parts.map((part, i) => {
       if (i % 2 === 1) {
-        return <strong key={i} className="font-extrabold text-black bg-gray-100/85 px-1 py-0.5 rounded-xs">{part}</strong>;
+        return <strong key={i} className="font-semibold text-gray-900">{part}</strong>;
       }
       return part;
     });
@@ -608,29 +595,28 @@ export default function InteractAnalyze({
   const renderContentText = (text: string) => {
     const lines = text.split("\n");
     return (
-      <div className="space-y-4 font-sans text-xs text-gray-700 leading-relaxed select-all">
+      <div className="space-y-3 text-[13px] text-gray-700 leading-relaxed select-all">
         {lines.map((line, idx) => {
-          let trimmed = line.trim();
-          if (!trimmed) return <div key={idx} className="h-2" />;
+          const trimmed = line.trim();
+          if (!trimmed) return <div key={idx} className="h-1.5" />;
 
           if (trimmed.startsWith("### ")) {
             return (
-              <h4 key={idx} className="text-xs font-mono font-black text-gray-950 tracking-wider mt-5 uppercase border-b border-gray-150 pb-1.5 flex items-center space-x-2 select-all">
-                <span className="w-1.5 h-1.5 bg-black rounded-full shrink-0" />
-                <span>{trimmed.replace("### ", "")}</span>
+              <h4 key={idx} className="text-[13px] font-semibold text-gray-800 mt-5 mb-1.5 select-all">
+                {trimmed.replace("### ", "")}
               </h4>
             );
           }
           if (trimmed.startsWith("## ")) {
             return (
-              <h3 key={idx} className="text-sm font-mono font-black text-gray-950 tracking-wide mt-6 uppercase border-b-2 border-gray-900 pb-1.5 select-all">
+              <h3 key={idx} className="text-[14px] font-semibold text-gray-900 mt-6 mb-2 select-all">
                 {trimmed.replace("## ", "")}
               </h3>
             );
           }
           if (trimmed.startsWith("# ")) {
             return (
-              <h2 key={idx} className="text-base font-mono font-black text-gray-950 tracking-tight mt-8 uppercase border-b-4 border-gray-950 pb-2 select-all">
+              <h2 key={idx} className="text-[15px] font-semibold text-gray-900 mt-7 mb-2 select-all">
                 {trimmed.replace("# ", "")}
               </h2>
             );
@@ -640,9 +626,9 @@ export default function InteractAnalyze({
           if (isListItem) {
             const content = trimmed.substring(2);
             return (
-              <div key={idx} className="flex items-start space-x-2.5 ml-4 my-1 select-all">
-                <span className="text-black select-none mt-1 shrink-0">•</span>
-                <span className="flex-1 text-gray-850 leading-relaxed select-all">
+              <div key={idx} className="flex items-start gap-2.5 ml-3 select-all">
+                <span className="text-gray-400 mt-1.5 shrink-0 text-[8px]">â—</span>
+                <span className="flex-1 text-gray-700 leading-relaxed select-all">
                   {parseBoldText(content)}
                 </span>
               </div>
@@ -650,7 +636,7 @@ export default function InteractAnalyze({
           }
 
           return (
-            <p key={idx} className="leading-relaxed text-gray-850 select-all">
+            <p key={idx} className="leading-relaxed text-gray-700 select-all">
               {parseBoldText(trimmed)}
             </p>
           );
@@ -662,7 +648,7 @@ export default function InteractAnalyze({
   const filteredFoldersList = folders.filter(f => f.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
-    <div className="flex-1 flex flex-col min-w-0 h-[#calc(100vh-125px)] relative overflow-hidden bg-gray-50 text-gray-900 border-t border-gray-100">
+    <div className="flex-1 flex flex-col min-w-0 h-[calc(100vh-0px)] relative overflow-hidden bg-gray-50 text-gray-900">
       
       <style>{`
         @media print {
@@ -696,57 +682,57 @@ export default function InteractAnalyze({
       )}
       
       {viewMode === "form" ? (
-        <div className="flex-1 overflow-y-auto p-8 max-w-5xl mx-auto w-full select-none">
-          <div className="mb-8 select-all">
-            <div className="flex items-center space-x-2 text-[10px] font-mono text-gray-400 uppercase tracking-widest font-black mb-1">
-              <Activity className="w-4 h-4 text-black animate-pulse" />
-              <span>Workspace Interactive Hub</span>
-            </div>
-            <h2 className="text-3xl font-display font-bold text-gray-950 tracking-tight">Interact</h2>
-            <p className="text-sm text-gray-500 mt-1">Get comprehensive risk assessments, compliance audits, and tailored insights from your folder vaults in seconds.</p>
+        <div className="flex-1 overflow-y-auto px-8 py-7 w-full bg-[#F7F8FA]">
+          {/* â”€â”€ Page Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          <div className="mb-8 pb-5 border-b border-gray-100">
+            <h1 className="text-[28px] font-bold text-gray-900 tracking-tight">Analyze agreements</h1>
+            <p className="text-sm text-gray-500 mt-1.5 leading-relaxed max-w-lg">Run AI-powered compliance audits, risk assessments, and custom legal queries across your document vaults.</p>
           </div>
 
-          <div className="space-y-8">
-            <div className="bg-white border border-gray-200/90 rounded-none p-6 shadow-xs relative">
-              <div className="flex items-center space-x-1.5 mb-2 select-all">
-                <span className="w-1.5 h-1.5 rounded-full bg-black block" />
-                <h3 className="text-sm font-semibold tracking-tight text-gray-950">1. Select document folders to analyse</h3>
+          <div className="space-y-5">
+            {/* â”€â”€ Section 1: Select folders â”€â”€ */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-7 shadow-sm">
+              <div className="mb-5">
+                <div className="flex items-center gap-2.5 mb-1">
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 text-gray-500 text-[10px] font-semibold shrink-0">1</span>
+                  <h3 className="text-[13px] font-semibold text-gray-800 tracking-tight">Select document folders</h3>
+                </div>
+                <p className="text-xs text-gray-400 ml-7 leading-relaxed">Choose the folders to load into the analysis context</p>
               </div>
-              <p className="text-xs text-gray-500 mb-4 ml-3 uppercase font-mono tracking-wider">Choose or upload the workspace folder(s) to load into active cognitive memory</p>
               
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4">
                 <div className="relative flex-1 max-w-sm">
                   <input
                     type="text"
-                    placeholder="Search folder nodes..."
+                    placeholder="Search folders..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full text-xs font-mono border border-gray-200 bg-gray-50/50 px-3 py-2 focus:outline-none focus:border-black rounded-none"
+                    className="w-full text-sm border border-gray-200 bg-gray-50/80 px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300 rounded-lg placeholder:text-gray-400 transition-shadow"
                   />
                 </div>
                 
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => openSideDrawer("upload")}
-                    className="bg-white border border-gray-200 hover:border-black text-gray-800 text-xs font-mono font-bold px-3 py-2 transition-all flex items-center space-x-1.5"
+                    className="bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-600 text-sm font-medium px-3.5 py-2 rounded-lg transition-all duration-150 flex items-center gap-1.5"
                   >
-                    <Plus className="w-3.5 h-3.5 text-black" />
-                    <span>Upload File(s)</span>
+                    <Plus className="w-3.5 h-3.5 text-gray-400" />
+                    <span>Upload</span>
                   </button>
                   <button
                     onClick={() => openSideDrawer("folder")}
-                    className="bg-black hover:bg-gray-800 text-white text-xs font-mono font-bold px-3.5 py-2 transition-all flex items-center space-x-1.5"
+                    className="bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium px-3.5 py-2 rounded-lg transition-all duration-150 flex items-center gap-1.5"
                   >
-                    <FolderPlus className="w-3.5 h-3.5 text-white" />
-                    <span>Create New Folder</span>
+                    <FolderPlus className="w-3.5 h-3.5 text-gray-300" />
+                    <span>New Folder</span>
                   </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-80 overflow-y-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[320px] overflow-y-auto pr-0.5">
                 {filteredFoldersList.length === 0 ? (
-                  <div className="col-span-2 text-center p-8 bg-gray-50 text-xs text-gray-400 font-mono italic">
-                    No folders match your current search query.
+                  <div className="col-span-2 text-center py-10 bg-gray-50 rounded-xl text-sm text-gray-400 border border-dashed border-gray-200">
+                    No folders found. Create one to get started.
                   </div>
                 ) : (
                   filteredFoldersList.map(folder => {
@@ -757,47 +743,47 @@ export default function InteractAnalyze({
                       <div key={folder.id} className="flex flex-col">
                         <div
                           onClick={() => toggleFolderSelection(folder.id)}
-                          className={`flex items-center justify-between p-3.5 border transition-all cursor-pointer select-none ${
+                          className={`flex items-center justify-between px-3.5 py-2.5 border rounded-xl transition-all duration-150 cursor-pointer select-none ${
                             allSelected
-                              ? "border-black bg-gray-50/80 shadow-xs"
+                              ? "border-gray-900 bg-gray-50 shadow-[0_0_0_1px_rgba(0,0,0,0.08)]"
                               : isIndeterminate
-                              ? "border-gray-400 bg-gray-50/40"
-                              : "border-gray-200 bg-white hover:border-gray-400"
+                              ? "border-gray-300 bg-gray-50/60"
+                              : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50/60"
                           }`}
                         >
-                          <div className="flex items-center space-x-3 min-w-0">
+                          <div className="flex items-center gap-2.5 min-w-0">
                             <input
                               type="checkbox"
                               checked={allSelected}
                               ref={(el) => { if (el) el.indeterminate = isIndeterminate; }}
                               readOnly
-                              className="rounded cursor-pointer accent-black h-3.5 w-3.5 shrink-0"
+                              className="rounded cursor-pointer accent-gray-900 h-3.5 w-3.5 shrink-0"
                             />
-                            <Folder className={`w-4 h-4 shrink-0 ${allSelected || isIndeterminate ? 'text-black' : 'text-gray-400'}`} />
-                            <span className={`text-xs text-gray-900 truncate ${allSelected ? 'font-black' : isIndeterminate ? 'font-bold' : 'font-medium'}`}>{folder.name}</span>
+                            <Folder className={`w-4 h-4 shrink-0 ${allSelected || isIndeterminate ? 'text-gray-700' : 'text-gray-400'}`} />
+                            <span className={`text-[13px] text-gray-800 truncate ${allSelected ? 'font-semibold' : isIndeterminate ? 'font-medium' : 'font-normal'}`}>{folder.name}</span>
                           </div>
-                          <div className="flex items-center space-x-1 shrink-0">
-                            <span className="text-[10px] font-mono bg-gray-100 text-gray-550 px-2 py-0.5 rounded-sm font-extrabold">{folder.filesCount} file(s)</span>
+                          <div className="flex items-center gap-1 shrink-0 ml-2">
+                            <span className="text-[11px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-medium tabular-nums">{folder.filesCount}</span>
                             <button
                               onClick={(e) => toggleFolderExpanded(folder.id, e)}
-                              className="p-1 hover:bg-gray-100 transition-colors rounded-sm"
+                              className="p-1 hover:bg-gray-100 transition-colors rounded-lg"
                             >
                               {folder.expanded
-                                ? <ChevronUp className="w-3.5 h-3.5 text-gray-400" />
-                                : <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+                                ? <ChevronUp className="w-3 h-3 text-gray-400" />
+                                : <ChevronDown className="w-3 h-3 text-gray-400" />
                               }
                             </button>
                           </div>
                         </div>
 
                         {folder.expanded && folder.files.length > 0 && (
-                          <div className="border-l border-r border-b border-gray-200 bg-gray-50/30">
+                          <div className="border-l border-r border-b border-gray-200 rounded-b-xl bg-white overflow-hidden">
                             {folder.files.map(file => (
                               <div
                                 key={file.id}
                                 onClick={(e) => toggleFileSelection(folder.id, file.id, e)}
-                                className={`flex items-center space-x-3 px-4 py-2.5 cursor-pointer select-none transition-colors border-b last:border-b-0 border-gray-100 ${
-                                  file.selected ? "bg-gray-50" : "hover:bg-gray-50/60"
+                                className={`flex items-center gap-2.5 px-4 py-2 cursor-pointer select-none transition-colors border-b last:border-b-0 border-gray-50 ${
+                                  file.selected ? "bg-gray-50" : "hover:bg-gray-50/80"
                                 }`}
                               >
                                 <input
@@ -806,8 +792,8 @@ export default function InteractAnalyze({
                                   readOnly
                                   className="rounded cursor-pointer accent-black h-3 w-3 shrink-0"
                                 />
-                                <FileText className={`w-3.5 h-3.5 shrink-0 ${file.selected ? 'text-black' : 'text-gray-350'}`} />
-                                <span className={`text-[11px] font-mono truncate ${file.selected ? 'text-gray-900 font-semibold' : 'text-gray-500 font-normal'}`}>
+                                <FileText className={`w-3.5 h-3.5 shrink-0 ${file.selected ? 'text-gray-600' : 'text-gray-300'}`} />
+                                <span className={`text-[12px] truncate ${file.selected ? 'text-gray-800 font-medium' : 'text-gray-500'}`}>
                                   {file.title}
                                 </span>
                               </div>
@@ -816,7 +802,7 @@ export default function InteractAnalyze({
                         )}
 
                         {folder.expanded && folder.files.length === 0 && (
-                          <div className="border-l border-r border-b border-gray-200 bg-gray-50/30 px-4 py-2.5 text-[11px] font-mono text-gray-400 italic">
+                          <div className="border-l border-r border-b border-gray-200 rounded-b-xl bg-white px-4 py-3 text-xs text-gray-400">
                             No files in this folder.
                           </div>
                         )}
@@ -826,18 +812,18 @@ export default function InteractAnalyze({
                 )}
               </div>
 
-              {/* ── Saved Drafts sub-section ──────────────────────────────── */}
+              {/* â”€â”€ Saved Drafts sub-section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
               {savedDrafts.length > 0 && (
-                <div className="mt-5">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center space-x-1.5">
-                      <FileCode className="w-3.5 h-3.5 text-gray-500" />
-                      <span className="text-[10px] font-mono font-black text-gray-500 uppercase tracking-widest">Saved Drafts</span>
-                      <span className="text-[9px] font-mono bg-gray-100 text-gray-500 px-1.5 py-0.5 font-extrabold">{savedDrafts.filter(d => d.selected).length}/{savedDrafts.length}</span>
+                <div className="mt-6 pt-5 border-t border-gray-100">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <FileCode className="w-3.5 h-3.5 text-gray-400" />
+                      <span className="text-[13px] font-medium text-gray-600">Saved Drafts</span>
+                      <span className="text-[11px] bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full tabular-nums">{savedDrafts.filter(d => d.selected).length}/{savedDrafts.length}</span>
                     </div>
                     <button
                       onClick={() => setSavedDraftsExpanded(v => !v)}
-                      className="p-1 hover:bg-gray-100 transition-colors rounded-sm"
+                      className="p-1 hover:bg-gray-100 transition-colors rounded-lg"
                     >
                       {savedDraftsExpanded
                         ? <ChevronUp className="w-3.5 h-3.5 text-gray-400" />
@@ -847,28 +833,28 @@ export default function InteractAnalyze({
                   </div>
 
                   {savedDraftsExpanded && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {savedDrafts.map(draft => (
                         <div
                           key={draft.id}
                           onClick={() => toggleDraftSelection(draft.id)}
-                          className={`flex items-center justify-between p-3.5 border transition-all cursor-pointer select-none ${
+                          className={`flex items-center justify-between px-3.5 py-2.5 border rounded-xl transition-all duration-150 cursor-pointer select-none ${
                             draft.selected
-                              ? "border-black bg-gray-50/80 shadow-xs"
-                              : "border-gray-200 bg-white hover:border-gray-400"
+                              ? "border-gray-900 bg-gray-50 shadow-[0_0_0_1px_rgba(0,0,0,0.06)]"
+                              : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50/60"
                           }`}
                         >
-                          <div className="flex items-center space-x-3 min-w-0">
+                          <div className="flex items-center gap-2.5 min-w-0">
                             <input
                               type="checkbox"
                               checked={draft.selected}
                               readOnly
-                              className="rounded cursor-pointer accent-black h-3.5 w-3.5 shrink-0"
+                              className="rounded cursor-pointer accent-gray-900 h-3.5 w-3.5 shrink-0"
                             />
-                            <FileCode className={`w-4 h-4 shrink-0 ${draft.selected ? 'text-black' : 'text-gray-400'}`} />
-                            <span className={`text-xs truncate ${draft.selected ? 'text-gray-900 font-black' : 'text-gray-700 font-medium'}`}>{draft.title}</span>
+                            <FileCode className={`w-4 h-4 shrink-0 ${draft.selected ? 'text-gray-700' : 'text-gray-400'}`} />
+                            <span className={`text-[13px] truncate ${draft.selected ? 'text-gray-800 font-medium' : 'text-gray-600'}`}>{draft.title}</span>
                           </div>
-                          <span className="text-[9px] font-mono bg-gray-100 text-gray-500 px-2 py-0.5 shrink-0 font-extrabold ml-2">DRAFT</span>
+                          <span className="text-[11px] bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full font-medium ml-2 shrink-0">Draft</span>
                         </div>
                       ))}
                     </div>
@@ -877,48 +863,46 @@ export default function InteractAnalyze({
               )}
             </div>
 
-            <div className="bg-white border border-gray-200/90 rounded-none p-6 shadow-xs">
-              <div className="flex items-center space-x-1.5 mb-2 select-all">
-                <span className="w-1.5 h-1.5 rounded-full bg-black block" />
-                <h3 className="text-sm font-semibold tracking-tight text-gray-950">2. Write your prompt or select Prompts/Question from the library</h3>
+            {/* â”€â”€ Section 2: Prompt â”€â”€ */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-7 shadow-sm">
+              <div className="mb-5">
+                <div className="flex items-center gap-2.5 mb-1">
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 text-gray-500 text-[10px] font-semibold shrink-0">2</span>
+                  <h3 className="text-[13px] font-semibold text-gray-800 tracking-tight">Write your prompt</h3>
+                </div>
+                <p className="text-xs text-gray-400 ml-7 leading-relaxed">Configure your audit parameters or apply a pre-built query</p>
               </div>
-              <p className="text-xs text-gray-500 mb-4 ml-3 uppercase font-mono tracking-wider">Configure your audit parameters or apply pre-vetted queries</p>
 
-              <div className="flex border-b border-gray-200 mb-4">
+              <div className="flex gap-1 mb-5 bg-gray-50 border border-gray-200 rounded-xl p-1">
                 {(["write", "library", "questions"] as const).map(tab => (
                   <button
                     key={tab}
                     onClick={() => setPromptTab(tab)}
-                    className={`px-4.5 py-2.5 text-xs font-mono font-black border-b-2 uppercase transition-all whitespace-nowrap cursor-pointer ${
-                      promptTab === tab 
-                        ? "border-black text-black" 
-                        : "border-transparent text-gray-400 hover:text-gray-700"
+                    className={`flex-1 px-3 py-1.5 text-[12px] font-medium rounded-lg transition-all duration-150 ${
+                      promptTab === tab
+                        ? "bg-white text-gray-900 shadow-sm border border-gray-200"
+                        : "text-gray-400 hover:text-gray-600"
                     }`}
                   >
-                    {tab === "write" && "Write your own"}
+                    {tab === "write" && "Custom"}
                     {tab === "library" && "Prompt Library"}
-                    {tab === "questions" && "Question Library"}
+                    {tab === "questions" && "Questions"}
                   </button>
                 ))}
               </div>
 
               {promptTab === "write" && (
-                <div className="flex items-stretch border border-gray-200 rounded-none overflow-hidden bg-gray-50/20">
-                  <div className="w-10 bg-gray-100/50 border-r border-gray-150 p-2 font-mono text-xs text-gray-450 text-right select-none font-bold">
-                    1
-                  </div>
-                  <textarea
-                    rows={4}
-                    value={customPromptText}
-                    onChange={(e) => setCustomPromptText(e.target.value)}
-                    placeholder="Type your custom prompt or questions here regarding liabilities, survival periods, caps..."
-                    className="flex-1 w-full text-xs font-mono bg-transparent p-3 focus:outline-none placeholder-gray-300 resize-none leading-relaxed text-gray-800"
-                  />
-                </div>
+                <textarea
+                  rows={5}
+                  value={customPromptText}
+                  onChange={(e) => setCustomPromptText(e.target.value)}
+                  placeholder="Describe what you want the AI to analyze â€” e.g. identify asymmetric liability clauses, review survival periods, flag punitive damages..."
+                  className="w-full text-[13px] text-gray-700 border border-gray-200 bg-gray-50/50 p-4 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300 rounded-xl placeholder:text-gray-400 resize-none leading-relaxed transition-shadow"
+                />
               )}
 
               {promptTab === "library" && (
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {promptLibrary.map((item, idx) => (
                     <div
                       key={idx}
@@ -926,20 +910,20 @@ export default function InteractAnalyze({
                         setCustomPromptText(item.prompt);
                         setPromptTab("write");
                       }}
-                      className="p-3 border border-gray-200 bg-white hover:border-black cursor-pointer transition-colors text-xs flex justify-between items-center"
+                      className="group px-4 py-3 border border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50/80 cursor-pointer transition-all duration-150 rounded-xl flex justify-between items-center gap-4"
                     >
-                      <div className="font-sans font-bold text-gray-900 pr-4">
-                        <span>{item.title}</span>
-                        <p className="text-[10px] font-mono text-gray-400 font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-sm mt-0.5">{item.prompt}</p>
+                      <div className="min-w-0">
+                        <p className="text-[13px] font-medium text-gray-800 truncate">{item.title}</p>
+                        <p className="text-[11px] text-gray-400 truncate mt-0.5">{item.prompt}</p>
                       </div>
-                      <span className="text-[9px] font-mono text-gray-500 uppercase px-2 py-1 bg-gray-100 hover:bg-black hover:text-white shrink-0 font-bold">[ Apply Prompt ]</span>
+                      <span className="text-[11px] font-medium text-gray-400 group-hover:text-gray-700 shrink-0 transition-colors">Apply â†’</span>
                     </div>
                   ))}
                 </div>
               )}
 
               {promptTab === "questions" && (
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {questionsLibrary.map((q, idx) => (
                     <div
                       key={idx}
@@ -947,238 +931,232 @@ export default function InteractAnalyze({
                         setCustomPromptText(q);
                         setPromptTab("write");
                       }}
-                      className="p-3 border border-gray-200 bg-white hover:border-black cursor-pointer transition-colors text-xs flex justify-between items-center"
+                      className="group px-4 py-3 border border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50/80 cursor-pointer transition-all duration-150 rounded-xl flex justify-between items-center gap-4"
                     >
-                      <span className="font-mono text-gray-700">{q}</span>
-                      <span className="text-[9px] font-mono text-gray-500 uppercase px-2 py-1 bg-gray-100 shrink-0 font-bold hover:bg-black hover:text-white">[ Use Question ]</span>
+                      <span className="text-[13px] text-gray-700">{q}</span>
+                      <span className="text-[11px] font-medium text-gray-400 group-hover:text-gray-700 shrink-0 transition-colors">Use â†’</span>
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            <div className="bg-white border border-gray-200/90 rounded-none p-6 shadow-xs">
-              <div className="flex items-center space-x-1.5 mb-1 select-all">
-                <span className="w-1.5 h-1.5 rounded-full bg-black block" />
-                <h3 className="text-sm font-bold tracking-tight text-gray-950">
-                  3. Choose Document Interaction Mode <span className="text-gray-400 font-normal">ⓘ</span>
-                </h3>
+            {/* â”€â”€ Section 3: Document Mode â”€â”€ */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-7 shadow-sm">
+              <div className="mb-5">
+                <div className="flex items-center gap-2.5 mb-1">
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 text-gray-500 text-[10px] font-semibold shrink-0">3</span>
+                  <h3 className="text-[13px] font-semibold text-gray-800 tracking-tight">Document mode</h3>
+                </div>
+                <p className="text-xs text-gray-400 ml-7 leading-relaxed">Run the prompt across all documents together, or individually per file</p>
               </div>
-              <p className="text-xs text-gray-500 mb-4 ml-3 font-sans">
-                Choose whether you want to run the prompt/questions through all the selected document(s) together or individually
-              </p>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div
                   onClick={() => setDocumentMode("unified")}
-                  className={`border p-4.5 transition-all cursor-pointer flex items-start space-x-3 ${
+                  className={`border rounded-xl px-4 py-3.5 transition-all duration-150 cursor-pointer flex items-start gap-3 ${
                     documentMode === "unified"
-                      ? "border-black bg-gray-50/50"
-                      : "border-gray-200 hover:border-gray-400"
+                      ? "border-gray-900 bg-gray-50 shadow-[0_0_0_1px_rgba(0,0,0,0.06)]"
+                      : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50/40"
                   }`}
                 >
                   <div className="mt-0.5 shrink-0">
-                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                      documentMode === "unified" ? "border-black bg-black" : "border-gray-300"
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${
+                      documentMode === "unified" ? "border-gray-900 bg-gray-900" : "border-gray-300"
                     }`}>
                       {documentMode === "unified" && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                     </div>
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-gray-900 uppercase font-mono">Unified</h4>
-                    <p className="text-[11px] text-gray-500 mt-0.5 leading-normal">
-                      Run your prompt across all selected files as one knowledge source.
-                    </p>
+                    <h4 className="text-[13px] font-semibold text-gray-800">Unified</h4>
+                    <p className="text-[11px] text-gray-500 mt-0.5 leading-relaxed">All selected files as a single knowledge context</p>
                   </div>
                 </div>
 
                 <div
                   onClick={() => setDocumentMode("individual")}
-                  className={`border p-4.5 transition-all cursor-pointer flex items-start space-x-3 ${
+                  className={`border rounded-xl px-4 py-3.5 transition-all duration-150 cursor-pointer flex items-start gap-3 ${
                     documentMode === "individual"
-                      ? "border-black bg-gray-50/50"
-                      : "border-gray-200 hover:border-gray-400"
+                      ? "border-gray-900 bg-gray-50 shadow-[0_0_0_1px_rgba(0,0,0,0.06)]"
+                      : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50/40"
                   }`}
                 >
                   <div className="mt-0.5 shrink-0">
-                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                      documentMode === "individual" ? "border-black bg-black" : "border-gray-300"
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${
+                      documentMode === "individual" ? "border-gray-900 bg-gray-900" : "border-gray-300"
                     }`}>
                       {documentMode === "individual" && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                     </div>
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-gray-900 uppercase font-mono">Individual</h4>
-                    <p className="text-[11px] text-gray-500 mt-0.5 leading-normal">
-                      Run your prompt on each file separately.
-                    </p>
+                    <h4 className="text-[13px] font-semibold text-gray-800">Individual</h4>
+                    <p className="text-[11px] text-gray-500 mt-0.5 leading-relaxed">Prompt runs on each file separately</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white border border-gray-200/90 rounded-none p-6 shadow-xs">
-              <div className="flex items-center space-x-1.5 mb-1 select-all">
-                <span className="w-1.5 h-1.5 rounded-full bg-black block" />
-                <h3 className="text-sm font-bold tracking-tight text-gray-950">
-                  4. Choose Answer Style <span className="text-gray-400 font-normal">ⓘ</span>
-                </h3>
+            {/* â”€â”€ Section 4: Answer Style â”€â”€ */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-7 shadow-sm">
+              <div className="mb-5">
+                <div className="flex items-center gap-2.5 mb-1">
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 text-gray-500 text-[10px] font-semibold shrink-0">4</span>
+                  <h3 className="text-[13px] font-semibold text-gray-800 tracking-tight">Output format</h3>
+                </div>
+                <p className="text-xs text-gray-400 ml-7 leading-relaxed">Choose how the AI structures its response</p>
               </div>
-              <p className="text-xs text-gray-500 mb-4 ml-3 font-sans">
-                Choose the format of the output, narrative for traditional Q&A style and tabular for rows and columns for questions and documents
-              </p>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div
                   onClick={() => setAnswerStyle("narrative")}
-                  className={`border p-4.5 transition-all cursor-pointer flex items-start space-x-3 ${
+                  className={`border rounded-xl px-4 py-3.5 transition-all duration-150 cursor-pointer flex items-start gap-3 ${
                     answerStyle === "narrative"
-                      ? "border-black bg-gray-50/50"
-                      : "border-gray-200 hover:border-gray-400"
+                      ? "border-gray-900 bg-gray-50 shadow-[0_0_0_1px_rgba(0,0,0,0.06)]"
+                      : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50/40"
                   }`}
                 >
-                  <div className="mt-1 shrink-0">
-                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                      answerStyle === "narrative" ? "border-black bg-black" : "border-gray-300"
+                  <div className="mt-0.5 shrink-0">
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${
+                      answerStyle === "narrative" ? "border-gray-900 bg-gray-900" : "border-gray-300"
                     }`}>
                       {answerStyle === "narrative" && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                     </div>
                   </div>
-                  <div className="flex items-start space-x-2.5">
-                    <div className="w-14 h-11 border border-gray-150 bg-gray-50 p-1.5 flex flex-col justify-between shrink-0 select-none">
-                      <div className="h-0.5 bg-gray-300 w-full rounded-xs" />
-                      <div className="h-0.5 bg-gray-300 w-3/4 rounded-xs" />
-                      <div className="h-0.5 bg-gray-300 w-5/6 rounded-xs" />
-                      <div className="h-0.5 bg-gray-300 w-1/2 rounded-xs" />
+                  <div className="flex items-start gap-3">
+                    <div className="w-12 h-9 border border-gray-200 bg-gray-50 p-1.5 flex flex-col justify-between shrink-0 rounded-lg select-none">
+                      <div className="h-0.5 bg-gray-300 w-full rounded" />
+                      <div className="h-0.5 bg-gray-300 w-3/4 rounded" />
+                      <div className="h-0.5 bg-gray-300 w-5/6 rounded" />
+                      <div className="h-0.5 bg-gray-300 w-1/2 rounded" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold text-gray-900 uppercase font-mono">Narrative</h4>
-                      <p className="text-[11px] text-gray-500 mt-0.5 leading-normal">
-                        All selected files are read together to give a consolidated response in paragraph format.
-                      </p>
+                      <h4 className="text-[13px] font-semibold text-gray-800">Narrative</h4>
+                      <p className="text-[11px] text-gray-500 mt-0.5 leading-relaxed">Consolidated prose response</p>
                     </div>
                   </div>
                 </div>
 
                 <div
                   onClick={() => setAnswerStyle("tabular")}
-                  className={`border p-4.5 transition-all cursor-pointer flex items-start space-x-3 ${
+                  className={`border rounded-xl px-4 py-3.5 transition-all duration-150 cursor-pointer flex items-start gap-3 ${
                     answerStyle === "tabular"
-                      ? "border-black bg-gray-50/50"
-                      : "border-gray-200 hover:border-gray-400"
+                      ? "border-gray-900 bg-gray-50 shadow-[0_0_0_1px_rgba(0,0,0,0.06)]"
+                      : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50/40"
                   }`}
                 >
-                  <div className="mt-1 shrink-0">
-                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                      answerStyle === "tabular" ? "border-black bg-black" : "border-gray-300"
+                  <div className="mt-0.5 shrink-0">
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${
+                      answerStyle === "tabular" ? "border-gray-900 bg-gray-900" : "border-gray-300"
                     }`}>
                       {answerStyle === "tabular" && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                     </div>
                   </div>
-                  <div className="flex items-start space-x-2.5">
-                    <div className="w-14 h-11 border border-gray-150 bg-gray-50 p-1 flex flex-col justify-between shrink-0 select-none">
-                      <div className="grid grid-cols-3 gap-1 h-1.5">
-                        <div className="bg-gray-400 rounded-xs" />
-                        <div className="bg-gray-300 rounded-xs" />
-                        <div className="bg-gray-300 rounded-xs" />
+                  <div className="flex items-start gap-3">
+                    <div className="w-12 h-9 border border-gray-200 bg-gray-50 p-1 flex flex-col justify-between shrink-0 rounded-lg select-none">
+                      <div className="grid grid-cols-3 gap-0.5 h-1.5">
+                        <div className="bg-gray-400 rounded" />
+                        <div className="bg-gray-300 rounded" />
+                        <div className="bg-gray-300 rounded" />
                       </div>
-                      <div className="grid grid-cols-3 gap-1 h-1.5">
-                        <div className="bg-gray-400 rounded-xs" />
-                        <div className="bg-gray-200 rounded-xs" />
-                        <div className="bg-gray-200 rounded-xs" />
+                      <div className="grid grid-cols-3 gap-0.5 h-1.5">
+                        <div className="bg-gray-400 rounded" />
+                        <div className="bg-gray-200 rounded" />
+                        <div className="bg-gray-200 rounded" />
                       </div>
-                      <div className="grid grid-cols-3 gap-1 h-1.5">
-                        <div className="bg-gray-400 rounded-xs" />
-                        <div className="bg-gray-200 rounded-xs" />
-                        <div className="bg-gray-200 rounded-xs" />
+                      <div className="grid grid-cols-3 gap-0.5 h-1.5">
+                        <div className="bg-gray-400 rounded" />
+                        <div className="bg-gray-200 rounded" />
+                        <div className="bg-gray-200 rounded" />
                       </div>
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold text-gray-900 uppercase font-mono">Tabular</h4>
-                      <p className="text-[11px] text-gray-500 mt-0.5 leading-normal">
-                        Selected files are read individually and responses are presented in a structured table format.
-                      </p>
+                      <h4 className="text-[13px] font-semibold text-gray-800">Tabular</h4>
+                      <p className="text-[11px] text-gray-500 mt-0.5 leading-relaxed">Structured rows per document</p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex justify-end pt-2">
+            <div className="flex justify-end pt-2 pb-8">
               <button
                 onClick={handleStartAnalysis}
-                className="w-full md:w-auto bg-black hover:bg-gray-800 text-white font-mono text-xs font-bold leading-none py-4.5 px-10 flex items-center justify-center space-x-2.5 transition-all select-none shadow-sm cursor-pointer"
+                className="w-full sm:w-auto bg-gray-900 hover:bg-gray-800 active:bg-gray-950 text-white text-[13px] font-semibold py-2.5 px-7 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 shadow-[0_1px_3px_rgba(0,0,0,0.2)]"
               >
-                <Play className="w-4 h-4 text-emerald-400 fill-emerald-400 shrink-0" />
-                <span className="tracking-wide uppercase font-black">Run Interaction</span>
+                <Play className="w-3.5 h-3.5 text-emerald-400 fill-emerald-400 shrink-0" />
+                <span>Run Analysis</span>
               </button>
             </div>
           </div>
         </div>
       ) : (
-        <div className="flex-1 flex flex-col overflow-hidden bg-gray-50/30">
-          <div className="px-8 py-4 bg-white border-b border-gray-200/80 flex items-center justify-between shrink-0 no-print">
+        <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
+          {/* Report header bar */}
+          <div className="px-6 py-3 bg-white border-b border-gray-100 flex items-center justify-between shrink-0 no-print">
             <button
               onClick={() => setViewMode("form")}
-              className="group flex items-center space-x-2.5 text-xs font-mono font-black text-gray-800 hover:text-black cursor-pointer bg-transparent border-0"
+              className="group flex items-center gap-2 text-[13px] font-medium text-gray-500 hover:text-gray-900 cursor-pointer bg-transparent border-0 transition-colors duration-150"
             >
-              <ArrowLeft className="w-4 h-4 text-gray-500 group-hover:text-black transition-transform group-hover:-translate-x-0.5" />
-              <span className="uppercase tracking-wider">← {activeReportDocName} Report</span>
+              <ArrowLeft className="w-3.5 h-3.5 transition-transform duration-150 group-hover:-translate-x-0.5" />
+              <span>{activeReportDocName}</span>
+              <span className="text-gray-300 mx-1">Â·</span>
+              <span className="text-gray-400">Analysis</span>
             </button>
 
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-1.5 text-xs text-gray-500 select-all font-mono">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="uppercase font-extrabold text-[10px] bg-black text-white px-2 py-0.5">Lawyer AI Active</span>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-[11px] font-medium text-gray-400">AI Active</span>
               </div>
-              <HelpCircle className="w-4.5 h-4.5 text-gray-400 hover:text-black cursor-pointer transition-colors" />
+              <HelpCircle className="w-3.5 h-3.5 text-gray-300 hover:text-gray-600 cursor-pointer transition-colors" />
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6 md:p-10">
-            <div className="max-w-4xl mx-auto space-y-6">
-              
-              <div className="bg-white border border-gray-200/90 shadow-sm p-8 md:p-10 relative flex flex-col print-container">
-                <div className="absolute inset-0 opacity-[0.015] pointer-events-none bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:16px_16px]" />
-                
-                <div className="text-center border-b border-gray-150 pb-5 mb-6 select-all">
-                  <span className="text-[10px] font-mono text-gray-450 font-black tracking-widest uppercase block mb-1">
-                    EXPERT LEGAL ASSESSMENT MEMORANDUM
-                  </span>
-                  <p className="text-[9px] font-mono text-gray-400 select-all">
-                    SYSTEM GENERATED COMPLIANCE PROTOCOLS • STRICT CONFIDENTIAL PRIVACY CLASSIFIED
-                  </p>
+          <div className="flex-1 overflow-y-auto px-6 py-6">
+            <div className="w-full space-y-4">
+
+              {/* â”€â”€ Report card â”€â”€ */}
+              <div className="bg-white border border-gray-200/80 rounded-2xl shadow-sm overflow-hidden print-container">
+                {/* Report header */}
+                <div className="px-7 py-4 border-b border-gray-100 flex items-center justify-between select-all">
+                  <div>
+                    <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Legal Assessment</p>
+                    <p className="text-[11px] text-gray-300 mt-0.5">Confidential Â· AI Generated</p>
+                  </div>
+                  <Sparkles className="w-4 h-4 text-gray-300" />
                 </div>
 
-                <div className="space-y-6 flex-1">
+                {/* Messages */}
+                <div className="px-7 py-6 space-y-5 flex-1">
                   {chatMessages.map((message, idx) => {
                     const isUser = message.sender === "user";
                     return (
                       <div
                         key={idx}
-                        className={`flex ${isUser ? "justify-end" : "justify-start"} animate-fade-in`}
+                        className={`flex ${isUser ? "justify-end" : "justify-start"}`}
                       >
                         <div
-                          className={`max-w-3xl rounded-none p-5 text-xs text-gray-900 leading-relaxed font-sans ${
+                          className={`rounded-2xl text-[13px] leading-relaxed ${
                             isUser
-                              ? "bg-black text-white hover:bg-gray-900 shadow-sm font-mono border border-black"
-                              : "bg-gray-50/50 border border-gray-200/85 text-gray-900 hover:bg-gray-50 transition-colors select-all w-full"
+                              ? "bg-gray-900 text-white px-5 py-3.5 max-w-sm shadow-sm"
+                              : "w-full bg-gray-50/60 border border-gray-100 px-5 py-4"
                           }`}
                         >
-                          <div className="border-b border-current opacity-25 pb-1.5 mb-2.5 flex items-center justify-between gap-6 font-mono text-[9px] uppercase font-black tracking-wider">
-                            <span>{isUser ? "User Enquiry" : "Personalized Legal AI Attorney"}</span>
-                            {!isUser && <Sparkles className="w-3 h-3 text-emerald-600 fill-emerald-600" />}
+                          <div className={`flex items-center gap-2 mb-2.5 ${isUser ? "justify-end" : "justify-between"}`}>
+                            <span className={`text-[11px] font-medium ${isUser ? "text-gray-400" : "text-gray-400"}`}>
+                              {isUser ? "You" : "AI Legal Analysis"}
+                            </span>
                           </div>
 
                           {message.loading ? (
-                            <div className="flex items-center space-x-2 text-gray-500 animate-pulse font-mono font-bold">
-                              <Loader2 className="w-3.5 h-3.5 animate-spin text-black" />
-                              <span>Vetting constitutional precedents and case laws...</span>
+                            <div className="flex items-center gap-2 text-gray-400">
+                              <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+                              <span className="text-[12px]">Analyzing your query...</span>
                             </div>
                           ) : (
                             <div className="select-all">
                               {isUser ? (
-                                <p className="whitespace-pre-wrap leading-relaxed select-all font-mono font-medium">{message.text}</p>
+                                <p className="whitespace-pre-wrap leading-relaxed text-[13px]">{message.text}</p>
                               ) : (
                                 renderContentText(message.text)
                               )}
@@ -1186,10 +1164,8 @@ export default function InteractAnalyze({
                           )}
 
                           {!isUser && message.sources && message.sources.length > 0 && (
-                            <div className="mt-3.5 border-t border-dashed border-gray-250 pt-2.5">
-                              <span className="text-[9px] font-mono text-gray-450 uppercase font-black tracking-wide block mb-1">
-                                Verified Online Legislative Sources:
-                              </span>
+                            <div className="mt-4 pt-3 border-t border-gray-100">
+                              <p className="text-[11px] font-medium text-gray-400 mb-2">Sources</p>
                               <div className="flex flex-wrap gap-1.5 select-all">
                                 {message.sources.map((s, sIdx) => (
                                   <a
@@ -1197,11 +1173,11 @@ export default function InteractAnalyze({
                                     href={`https://example.com/grounding?q=${encodeURIComponent(s.title)}`}
                                     target="_blank"
                                     referrerPolicy="no-referrer"
-                                    className="inline-flex items-center space-x-1 px-2 py-0.5 border border-emerald-200 bg-emerald-50 text-[9px]/tight font-mono font-semibold text-emerald-800 hover:bg-emerald-600 hover:text-white transition-all select-all hover:border-emerald-600"
+                                    className="inline-flex items-center gap-1.5 px-2.5 py-1 border border-emerald-200 bg-emerald-50 text-[11px] font-medium text-emerald-700 hover:bg-emerald-100 transition-all rounded-lg"
                                   >
-                                    <Globe className="w-2.5 h-2.5 text-emerald-600 shrink-0 select-none" />
+                                    <Globe className="w-3 h-3 text-emerald-500 shrink-0" />
                                     <span>{s.title} ({s.citation})</span>
-                                    <ExternalLink className="w-2 h-2 shrink-0 select-none opacity-50" />
+                                    <ExternalLink className="w-2.5 h-2.5 shrink-0 opacity-50" />
                                   </a>
                                 ))}
                               </div>
@@ -1214,55 +1190,59 @@ export default function InteractAnalyze({
                   <div ref={chatBottomRef} />
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2.5 mt-8 border-t border-gray-250 pt-5 no-print">
+                {/* Report actions */}
+                <div className="px-7 py-4 border-t border-gray-100 bg-gray-50/50 flex items-center gap-2 no-print">
                   <button
                     onClick={handleCopyReport}
-                    className="flex items-center space-x-2 border border-gray-250 bg-white hover:bg-gray-50 text-gray-750 hover:text-black font-mono text-[10px] font-black uppercase px-3.5 py-2 cursor-pointer transition-all active:scale-95"
+                    className="flex items-center gap-1.5 text-[12px] font-medium text-gray-500 hover:text-gray-800 border border-gray-200 bg-white hover:bg-gray-50 px-3 py-1.5 rounded-lg transition-all duration-150"
                   >
-                    <Copy className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                    <span>Copy Response</span>
+                    <Copy className="w-3.5 h-3.5 shrink-0" />
+                    <span>Copy</span>
                   </button>
-
                   <button
                     onClick={handleDownloadReport}
-                    className="flex items-center space-x-2 border border-gray-250 bg-white hover:bg-gray-50 text-gray-750 hover:text-black font-mono text-[10px] font-black uppercase px-3.5 py-2 cursor-pointer transition-all active:scale-95"
+                    className="flex items-center gap-1.5 text-[12px] font-medium text-gray-500 hover:text-gray-800 border border-gray-200 bg-white hover:bg-gray-50 px-3 py-1.5 rounded-lg transition-all duration-150"
                   >
-                    <Download className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                    <span>Download Findings</span>
+                    <Download className="w-3.5 h-3.5 shrink-0" />
+                    <span>Download</span>
                   </button>
-
                   <button
                     onClick={handlePrintReport}
-                    className="flex items-center space-x-2 border border-gray-250 bg-white hover:bg-gray-50 text-gray-750 hover:text-black font-mono text-[10px] font-black uppercase px-3.5 py-2 cursor-pointer transition-all active:scale-95"
+                    className="flex items-center gap-1.5 text-[12px] font-medium text-gray-500 hover:text-gray-800 border border-gray-200 bg-white hover:bg-gray-50 px-3 py-1.5 rounded-lg transition-all duration-150"
                   >
-                    <Printer className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                    <span>Print Document</span>
+                    <Printer className="w-3.5 h-3.5 shrink-0" />
+                    <span>Print</span>
                   </button>
                 </div>
               </div>
 
-              <form onSubmit={handleSendChatMessage} className="bg-white border border-gray-250/90 shadow-sm p-3.5 flex items-center space-x-3 no-print">
+              {/* â”€â”€ Follow-up chat â”€â”€ */}
+              <form
+                onSubmit={handleSendChatMessage}
+                className="bg-white border border-gray-200/80 rounded-2xl shadow-sm p-2 flex items-center gap-2 no-print"
+              >
                 <input
                   type="text"
-                  placeholder="Ask follow up questions here (e.g. Can you draft a balanced server audit clause?)..."
+                  placeholder="Ask a follow-up question..."
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
-                  className="flex-1 text-xs border border-gray-200 bg-gray-50/50 px-4 py-3.5 focus:outline-none focus:border-black rounded-none font-mono"
+                  className="flex-1 text-[13px] text-gray-700 bg-transparent px-3 py-2 focus:outline-none placeholder:text-gray-400"
                 />
                 <button
                   type="submit"
                   disabled={!chatInput.trim()}
-                  className="bg-black hover:bg-gray-800 text-white font-mono text-xs font-bold leading-none p-3.5 border border-black transition-all flex items-center justify-center shrink-0 disabled:opacity-45 cursor-pointer hover:translate-x-1"
+                  className="bg-gray-900 hover:bg-gray-800 active:bg-gray-950 text-white p-2.5 rounded-xl transition-all duration-150 flex items-center justify-center shrink-0 disabled:opacity-30"
                 >
-                  <Send className="w-4 h-4 text-white" />
+                  <Send className="w-3.5 h-3.5" />
                 </button>
               </form>
             </div>
           </div>
 
           {showCopyToast && (
-            <div className="fixed bottom-6 right-6 z-50 bg-black text-white text-[10px] font-mono uppercase tracking-widest font-black px-4 py-2.5 shadow-xl border border-gray-805 animate-fade-in select-none">
-              <span>✓ Text copied successfully</span>
+            <div className="fixed bottom-6 right-6 z-50 bg-gray-900 text-white text-[12px] font-medium px-4 py-2.5 rounded-xl shadow-lg select-none flex items-center gap-2">
+              <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <span>Copied to clipboard</span>
             </div>
           )}
         </div>
@@ -1270,61 +1250,62 @@ export default function InteractAnalyze({
 
       {isSidePanelOpen && (
         <div className="fixed inset-0 z-50 overflow-hidden">
-          <div 
-            className="absolute inset-0 bg-black/40 transition-opacity animate-fade-in"
+          <div
+            className="absolute inset-0 bg-black/20 backdrop-blur-[1px] transition-opacity"
             onClick={() => setIsSidePanelOpen(false)}
           />
-          <div className="absolute inset-y-0 right-0 max-w-full flex select-all">
-            <div className="w-96 bg-white shadow-2xl flex flex-col h-full transform transition-transform duration-300 translate-x-0 relative">
-              <div className="p-5 border-b border-gray-150 flex items-center justify-between bg-gray-50/50">
-                <div className="select-all">
-                  <h4 className="text-sm font-semibold tracking-tight text-gray-950 uppercase font-mono">
-                    {sidePanelType === "folder" ? "Create New Folder" : "Upload File(s)"}
+          <div className="absolute inset-y-0 right-0 max-w-full flex">
+            <div className="w-[380px] bg-white shadow-xl flex flex-col h-full rounded-l-2xl overflow-hidden border-l border-gray-200">
+              {/* Drawer header */}
+              <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white">
+                <div>
+                  <h4 className="text-[13px] font-semibold text-gray-900">
+                    {sidePanelType === "folder" ? "New Folder" : "Upload File"}
                   </h4>
-                  <p className="text-[10px] text-gray-500 leading-normal mt-0.5">
-                    {sidePanelType === "folder" ? "Establish a new folder node inside the workspace" : "Select files and add tags to upload"}
+                  <p className="text-[11px] text-gray-400 mt-0.5">
+                    {sidePanelType === "folder" ? "Create a new folder in your workspace" : "Attach a document to a folder"}
                   </p>
                 </div>
                 <button
                   onClick={() => setIsSidePanelOpen(false)}
-                  className="font-mono text-xs font-extrabold uppercase p-2 border border-gray-250 hover:bg-black hover:text-white shrink-0 cursor-pointer text-gray-550 select-none"
+                  className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-150 text-lg leading-none shrink-0"
                 >
-                  X
+                  Ã—
                 </button>
               </div>
 
               {sidePanelType === "folder" ? (
-                <form onSubmit={handleAddNewFolder} className="flex-1 p-5 space-y-5 flex flex-col justify-between select-all">
+                <form onSubmit={handleAddNewFolder} className="flex-1 flex flex-col justify-between p-6">
                   <div className="space-y-4">
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-mono text-gray-400 uppercase font-bold block select-none">Folder Node Name</label>
+                      <label className="text-xs font-medium text-gray-600 block">Folder name</label>
                       <input
                         type="text"
                         required
                         value={newFolderName}
                         onChange={(e) => setNewFolderName(e.target.value)}
-                        placeholder="e.g. CD PR Agreement"
-                        className="w-full text-xs font-mono border border-gray-205 bg-gray-50/20 px-3 py-2.5 focus:outline-none focus:border-black rounded-none"
+                        placeholder="e.g. Q3 Vendor Agreements"
+                        className="w-full text-[13px] border border-gray-200 bg-gray-50/60 px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300 rounded-xl placeholder:text-gray-400 transition-shadow"
                       />
                     </div>
                   </div>
                   <button
                     type="submit"
-                    className="w-full bg-black hover:bg-gray-800 text-white font-mono text-xs font-bold leading-none py-4 border border-black uppercase flex items-center justify-center space-x-2.5 transition-all select-none shadow-sm cursor-pointer"
+                    className="w-full bg-gray-900 hover:bg-gray-800 active:bg-gray-950 text-white text-[13px] font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 shadow-[0_1px_3px_rgba(0,0,0,0.15)] mt-6"
                   >
-                    <FolderPlus className="w-3.5 h-3.5 text-white" />
-                    <span>Create Folder Node</span>
+                    <FolderPlus className="w-3.5 h-3.5 text-gray-300" />
+                    <span>Create Folder</span>
                   </button>
                 </form>
               ) : (
-                <form onSubmit={executeUploadSubmission} className="flex-1 p-5 space-y-5 flex flex-col justify-between select-all">
-                  <div className="space-y-4">
+                <form onSubmit={executeUploadSubmission} className="flex-1 flex flex-col justify-between p-6">
+                  <div className="space-y-5">
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-mono text-gray-400 uppercase font-bold block select-none">Target Vault Folder</label>
+                      <label className="text-xs font-medium text-gray-600 block">Target folder</label>
                       <select
                         value={uploadSelectedFolder}
                         onChange={(e) => setUploadSelectedFolder(e.target.value)}
-                        className="w-full text-xs border border-gray-205 bg-white p-2.5 text-gray-950 font-semibold focus:outline-none focus:border-black font-sans cursor-pointer"
+                        className="w-full text-[13px] border border-gray-200 bg-white px-3.5 py-2.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300 rounded-xl cursor-pointer transition-shadow appearance-none"
                       >
                         <option value="">Uploaded Documents (default)</option>
                         {folders.map(f => (
@@ -1334,21 +1315,22 @@ export default function InteractAnalyze({
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-mono text-gray-400 uppercase font-bold block select-none">Ingest Upload File</label>
+                      <label className="text-xs font-medium text-gray-600 block">File</label>
                       <div
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
                         onDrop={handleDrop}
-                        className={`border border-dashed p-6 text-center select-none rounded transition-all flex flex-col items-center justify-center cursor-pointer ${
-                          isDraggingFile 
-                            ? "border-emerald-500 bg-emerald-50" 
-                            : "border-gray-200 bg-gray-50/40 hover:bg-gray-100/30"
+                        className={`border-2 border-dashed rounded-xl p-8 text-center select-none transition-all duration-150 flex flex-col items-center justify-center cursor-pointer ${
+                          isDraggingFile
+                            ? "border-emerald-400 bg-emerald-50"
+                            : "border-gray-200 bg-gray-50/60 hover:border-gray-300 hover:bg-gray-50"
                         }`}
                       >
-                        <Upload className="w-6 h-6 text-gray-400 mb-2 select-none" />
-                        <p className="text-[10px] font-bold text-gray-800 uppercase font-mono">Drag File Here</p>
-                        <label className="inline-block mt-3 font-mono text-[9px] font-black border border-black bg-white px-2 py-1 hover:bg-black hover:text-white transition-colors cursor-pointer select-none">
-                          <span>Browse vault</span>
+                        <Upload className={`w-5 h-5 mb-2.5 ${isDraggingFile ? "text-emerald-500" : "text-gray-400"}`} />
+                        <p className="text-[13px] font-medium text-gray-600">Drop file here</p>
+                        <p className="text-[11px] text-gray-400 mt-1">PDF, DOCX, TXT, CSV</p>
+                        <label className="inline-flex items-center mt-4 text-[12px] font-medium text-gray-600 border border-gray-200 bg-white px-3 py-1.5 rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-all cursor-pointer">
+                          <span>Browse files</span>
                           <input
                             type="file"
                             accept=".txt,.md,.json,.pdf,.docx,.csv"
@@ -1358,9 +1340,9 @@ export default function InteractAnalyze({
                         </label>
                       </div>
                       {uploadedFileName && (
-                        <div className="p-2 border border-emerald-300 bg-emerald-50 text-[10px] font-mono text-emerald-800 flex items-center justify-between select-none">
-                          <span className="truncate flex-1 font-bold">{uploadedFileName}</span>
-                          <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <div className="flex items-center gap-2.5 px-3.5 py-2.5 border border-emerald-200 bg-emerald-50 rounded-xl">
+                          <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
+                          <span className="text-[12px] font-medium text-emerald-700 truncate flex-1">{uploadedFileName}</span>
                         </div>
                       )}
                     </div>
@@ -1369,17 +1351,17 @@ export default function InteractAnalyze({
                   <button
                     type="submit"
                     disabled={!uploadedFileName || isUploading}
-                    className="w-full bg-black hover:bg-gray-800 text-white font-mono text-xs font-bold leading-none py-4 border border-black uppercase flex items-center justify-center space-x-2.5 transition-all select-none shadow-sm disabled:opacity-40 cursor-pointer"
+                    className="w-full bg-gray-900 hover:bg-gray-800 active:bg-gray-950 text-white text-[13px] font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all duration-150 shadow-[0_1px_3px_rgba(0,0,0,0.15)] disabled:opacity-30 mt-6"
                   >
                     {isUploading ? (
                       <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
-                        <span>Uploading files...</span>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-gray-300" />
+                        <span>Uploading...</span>
                       </>
                     ) : (
                       <>
-                        <Upload className="w-3.5 h-3.5 text-white" />
-                        <span>Upload File Nodes</span>
+                        <Upload className="w-3.5 h-3.5 text-gray-300" />
+                        <span>Upload File</span>
                       </>
                     )}
                   </button>
@@ -1392,3 +1374,7 @@ export default function InteractAnalyze({
     </div>
   );
 }
+
+
+
+

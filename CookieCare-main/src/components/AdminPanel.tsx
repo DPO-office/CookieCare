@@ -26,13 +26,10 @@ export default function AdminPanel({ authToken }: AdminPanelProps) {
     setError(null);
     try {
       const res = await fetch(apiUrl("/api/admin/users"), {
-        headers: {
-          "Authorization": `Bearer ${authToken}`
-        }
+        headers: { Authorization: `Bearer ${authToken}` },
       });
       if (!res.ok) throw new Error("Failed to fetch pending users");
-      const data = await res.json();
-      setUsers(data);
+      setUsers(await res.json());
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -40,25 +37,18 @@ export default function AdminPanel({ authToken }: AdminPanelProps) {
     }
   };
 
-  useEffect(() => {
-    fetchPendingUsers();
-  }, [authToken]);
+  useEffect(() => { fetchPendingUsers(); }, [authToken]);
 
   const handleApprove = async (userId: string) => {
     setApprovingId(userId);
     try {
       const res = await fetch(apiUrl("/api/admin/users/update"), {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}`
-        },
-        body: JSON.stringify({ userId, role: "USER" })
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
+        body: JSON.stringify({ userId, role: "USER" }),
       });
       if (!res.ok) throw new Error("Failed to approve user");
-
-      // Instantly remove approved user from state
-      setUsers(prev => prev.filter(u => u.id !== userId));
+      setUsers((prev) => prev.filter((u) => u.id !== userId));
     } catch (err: any) {
       alert(err.message);
     } finally {
@@ -67,71 +57,79 @@ export default function AdminPanel({ authToken }: AdminPanelProps) {
   };
 
   return (
-    <div className="flex-1 overflow-auto p-8 bg-gray-50">
+    <div className="flex-1 overflow-auto px-10 py-8 bg-[#FAFAFB]">
       <div className="max-w-4xl mx-auto">
-        <header className="mb-8 flex items-center justify-between">
+
+        {/* Header */}
+        <div className="mb-10 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <ShieldCheck className="w-8 h-8" />
-              Demo Admin Approval Panel
+            <h1 className="text-[26px] font-bold text-gray-900 tracking-tight flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center">
+                <ShieldCheck className="w-5 h-5 text-gray-500" />
+              </div>
+              Admin Panel
             </h1>
-            <p className="text-gray-500 mt-1">Review and approve new user registrations for Lexify app.</p>
+            <p className="text-[13px] text-gray-500 mt-1.5 ml-12">Review and approve new user registrations.</p>
           </div>
           <button
             onClick={fetchPendingUsers}
-            className="p-2 hover:bg-gray-200 rounded-full transition-colors"
-            title="Refresh List"
+            className="h-9 w-9 flex items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition shadow-xs"
+            title="Refresh"
           >
-            <RefreshCcw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCcw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           </button>
-        </header>
+        </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-md text-sm">
+          <div className="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-[13px]">
             {error}
           </div>
         )}
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <table className="w-full text-left border-collapse">
+        {/* Table */}
+        <div className="bg-white rounded-[18px] border border-gray-200 shadow-xs overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
+            <h3 className="text-[13px] font-semibold text-gray-700">Pending approvals</h3>
+          </div>
+          <table className="w-full text-left">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">User</th>
-                <th className="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Requested At</th>
-                <th className="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider text-right">Action</th>
+              <tr className="border-b border-gray-100">
+                <th className="px-6 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">User</th>
+                <th className="px-6 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Requested</th>
+                <th className="px-6 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-50">
               {loading && users.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-6 py-12 text-center text-gray-500">
-                    <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" />
-                    Scanning for pending requests...
+                  <td colSpan={3} className="px-6 py-12 text-center text-gray-400">
+                    <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-gray-300" />
+                    <p className="text-[13px]">Loading requests...</p>
                   </td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-6 py-12 text-center text-gray-500">
-                    No pending approval requests found.
+                  <td colSpan={3} className="px-6 py-12 text-center text-[13px] text-gray-400">
+                    No pending approval requests.
                   </td>
                 </tr>
               ) : (
-                users.map(user => (
-                  <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                users.map((user) => (
+                  <tr key={user.id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center font-bold">
-                          {user.name.charAt(0)}
+                        <div className="w-8 h-8 rounded-full bg-gray-900 text-white flex items-center justify-center font-bold text-[13px] shrink-0">
+                          {user.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-semibold text-gray-900">{user.name}</p>
-                          <p className="text-xs text-gray-500">{user.email}</p>
+                          <p className="font-semibold text-[13px] text-gray-900">{user.name}</p>
+                          <p className="text-[11px] text-gray-400 mt-0.5">{user.email}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Clock className="w-4 h-4" />
+                      <div className="flex items-center gap-2 text-[13px] text-gray-500">
+                        <Clock className="w-3.5 h-3.5 text-gray-400" />
                         {new Date(user.created_at).toLocaleString()}
                       </div>
                     </td>
@@ -139,12 +137,12 @@ export default function AdminPanel({ authToken }: AdminPanelProps) {
                       <button
                         onClick={() => handleApprove(user.id)}
                         disabled={approvingId === user.id}
-                        className="inline-flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-all disabled:opacity-50 cursor-pointer"
+                        className="inline-flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-xl text-[13px] font-medium hover:bg-gray-800 transition shadow-xs disabled:opacity-50 cursor-pointer"
                       >
                         {approvingId === user.id ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
                         ) : (
-                          <UserCheck className="w-4 h-4" />
+                          <UserCheck className="w-3.5 h-3.5" />
                         )}
                         Approve
                       </button>
@@ -155,6 +153,7 @@ export default function AdminPanel({ authToken }: AdminPanelProps) {
             </tbody>
           </table>
         </div>
+
       </div>
     </div>
   );

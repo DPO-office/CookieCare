@@ -1,15 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Sidebar from "./components/Sidebar";
 import AuthModal from "./components/AuthModal";
 import AdminPanel from "./components/AdminPanel";
 import DashboardHome from "./components/DashboardHome";
 import CookieScanner from "./components/CookieScanner";
-import LegalReview from "./components/LegalReview";
+import InteractAnalyze from "./components/InteractAnalyze";
+import DraftAgreement from "./components/DraftAgreement";
+import AskAILawyer from "./components/AskAILawyer";
+import NegotiateHub from "./components/NegotiateHub";
+import QueueManager from "./components/QueueManager";
+import LibraryManager from "./components/LibraryManager";
 import VulnerabilityScanner from "./components/VulnerabilityScanner";
+import DPAReviewer from "./components/DPAReviewer";
+import VendorReview from "./components/VendorReview";
+import AIEthicsScore from "./components/AIEthicsScore";
 import SettingsView from "./components/Settings";
 import { apiUrl } from "./config";
 import { LegalDocument } from "./types";
-import { ShieldCheck, LogIn, Lock } from "lucide-react";
 
 export default function App() {
   const [authToken, setAuthToken] = useState<string | null>(() => localStorage.getItem("lex_token"));
@@ -24,6 +31,16 @@ export default function App() {
   const [documents, setDocuments] = useState<LegalDocument[]>([]);
   const [activeDocument, setActiveDocument] = useState<LegalDocument | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Cross-page navigation: Vault Repository → Draft Agreements
+  // When LibraryManager fires onOpenInDraftEditor, we capture the doc id here
+  // and switch to the Draft page, which picks it up via initialDocumentId.
+  const [openDraftId, setOpenDraftId] = useState<string | undefined>(undefined);
+
+  const handleOpenInDraftEditor = useCallback((doc: LegalDocument) => {
+    setOpenDraftId(doc.id);
+    setActiveTab("legal-draft");
+  }, []);
 
   // Sync session authentication
   const handleAuthSuccess = (token: string, user: { id: string; email: string; name: string; role?: string }) => {
@@ -121,7 +138,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden font-sans bg-gray-50">
+    <div className="flex h-screen w-screen overflow-hidden font-sans bg-[#FAFAFB]">
       
       {/* 1. LEFT SIDE NAVIGATION */}
       <Sidebar 
@@ -149,13 +166,65 @@ export default function App() {
         )}
 
         {activeTab === "legal-review" && (
-          <LegalReview 
+          <InteractAnalyze
             documents={documents}
             activeDocument={activeDocument}
             authToken={authToken}
             onRefresh={fetchDocuments}
             onSelectDocument={setActiveDocument}
           />
+        )}
+
+        {activeTab === "legal-draft" && (
+          <DraftAgreement
+            documents={documents}
+            authToken={authToken}
+            onRefresh={fetchDocuments}
+            onSelectDocument={setActiveDocument}
+            initialDocumentId={openDraftId}
+          />
+        )}
+
+        {activeTab === "legal-ask-ai" && (
+          <AskAILawyer
+            authToken={authToken}
+            documents={documents}
+          />
+        )}
+
+        {activeTab === "legal-negotiate" && (
+          <NegotiateHub
+            documents={documents}
+            activeDocument={activeDocument}
+            authToken={authToken}
+            onRefresh={fetchDocuments}
+            onSelectDocument={setActiveDocument}
+          />
+        )}
+
+        {activeTab === "legal-queue" && (
+          <QueueManager />
+        )}
+
+        {activeTab === "legal-vault" && (
+          <LibraryManager
+            documents={documents}
+            authToken={authToken}
+            onRefresh={fetchDocuments}
+            onOpenInDraftEditor={handleOpenInDraftEditor}
+          />
+        )}
+
+        {activeTab === "dpa-reviewer" && (
+          <DPAReviewer />
+        )}
+
+        {activeTab === "vendor-review" && (
+          <VendorReview />
+        )}
+
+        {activeTab === "ai-ethics" && (
+          <AIEthicsScore />
         )}
 
         {activeTab === "vulnerability-scanner" && (

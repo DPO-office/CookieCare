@@ -45,16 +45,14 @@ export default function LegalReview({
   return (
     <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden font-sans">
 
-      {/* TWO-TIER NAVIGATION HEADER */}
-      <div className="bg-white border-b border-gray-200 px-10 py-5 shrink-0">
-        <div className="mb-4">
-          <h1 className="text-2xl font-display font-bold text-gray-900 tracking-tight">Legal Review Suite</h1>
-          <p className="text-xs text-gray-500 font-mono tracking-wider uppercase mt-0.5">
-            Integrate smart parameters, liability buffers &amp; policy terms
-          </p>
+      {/* NAVIGATION HEADER */}
+      <div className="bg-white border-b border-gray-200 px-8 py-5 shrink-0">
+        <div className="mb-5">
+          <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">Legal Review Suite</h1>
+          <p className="text-[13px] text-gray-500 mt-0.5">Smart contract analysis, drafting, and negotiation workflows.</p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-1.5 pt-1">
+        <div className="flex flex-wrap items-center gap-1.5">
           {tabsInfo.map((tab) => {
             const Icon = tab.icon;
             const isActive = subTab === tab.id;
@@ -63,13 +61,13 @@ export default function LegalReview({
                 key={tab.id}
                 id={`legal-subtab-${tab.id}`}
                 onClick={() => setSubTab(tab.id)}
-                className={`flex items-center space-x-2 px-4.5 py-2.5 text-xs font-semibold tracking-tight transition-all border rounded-none uppercase font-mono cursor-pointer ${
+                className={`flex items-center gap-2 px-3.5 py-2 text-[13px] font-medium transition-all rounded-xl cursor-pointer ${
                   isActive
-                    ? "bg-black text-white border-black font-extrabold shadow-sm"
-                    : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:text-gray-900"
+                    ? "bg-gray-900 text-white shadow-sm"
+                    : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 hover:text-gray-800 hover:border-gray-300"
                 }`}
               >
-                <Icon className="w-4 h-4 shrink-0" />
+                <Icon className="w-3.5 h-3.5 shrink-0" />
                 <span>{tab.label}</span>
               </button>
             );

@@ -1,5 +1,5 @@
 import React from "react";
-import { ShieldCheck, ShieldAlert, Settings, FileCheck, Layers, Radio, HelpCircle, ArrowRight } from "lucide-react";
+import { ShieldCheck, ShieldAlert, FileCheck, Layers, ArrowRight, Radio, FileText } from "lucide-react";
 import { LegalDocument } from "../types";
 
 interface DashboardHomeProps {
@@ -15,248 +15,163 @@ interface DashboardHomeProps {
 
 export default function DashboardHome({ userName, setActiveTab, stats, documents }: DashboardHomeProps) {
   const timeAgo = (isoDate: string) => {
-    const createdAt = new Date(isoDate).getTime();
-    const diffMs = Date.now() - createdAt;
+    const diffMs = Date.now() - new Date(isoDate).getTime();
     const minutes = Math.max(1, Math.round(diffMs / 60000));
-
-    if (minutes < 60) {
-      return `${minutes} min ago`;
-    }
-
+    if (minutes < 60) return `${minutes}m ago`;
     const hours = Math.round(minutes / 60);
-    if (hours < 24) {
-      return `${hours} hour${hours === 1 ? "" : "s"} ago`;
-    }
-
-    const days = Math.round(hours / 24);
-    return `${days} day${days === 1 ? "" : "s"} ago`;
+    if (hours < 24) return `${hours}h ago`;
+    return `${Math.round(hours / 24)}d ago`;
   };
 
- const continuousLogs = (documents && documents.length > 0)
-    ? documents.map((doc) => {
-        // Ultimate safety using standard optional chaining before length property
-        const riskCount = (doc as any)?.analysis?.risks?.length ?? 0;
-        const pendingRedlines = ((doc as any)?.redlines || [])?.filter((r: any) => r.status === "pending")?.length ?? 0;
-        const score = Math.max(0, 100 - (riskCount * 15) - (pendingRedlines * 5));
-        
-        // Fully bypassed type-safe fallback for multi-environment
-        const sharedCount = ((doc as any)?.shared_with || (doc as any)?.sharedWith || []).length;
-        const bannerState = (doc as any)?.type === "NDA" || (doc as any)?.type === "DPA" ? "FOUND" : (sharedCount > 0 ? "FOUND" : "MISSING");
+  const continuousLogs = (documents ?? []).map((doc) => {
+    const riskCount = (doc as any)?.analysis?.risks?.length ?? 0;
+    const pendingRedlines = ((doc as any)?.redlines ?? []).filter((r: any) => r.status === "pending").length ?? 0;
+    const score = Math.max(0, 100 - riskCount * 15 - pendingRedlines * 5);
+    return {
+      target: (doc as any)?.title || "Untitled",
+      score,
+      issues: riskCount + pendingRedlines,
+      type: (doc as any)?.type || "—",
+      scanTime: timeAgo((doc as any)?.updatedAt || (doc as any)?.createdAt || new Date().toISOString()),
+    };
+  });
 
-        return {
-          target: (doc as any)?.title || "Untitled Document",
-          score,
-          issues: riskCount + pendingRedlines,
-          banner: bannerState,
-          scanTime: timeAgo((doc as any)?.updatedAt || (doc as any)?.createdAt || new Date().toISOString()),
-        };
-      })
-    : [];
-    
+  const shortcuts = [
+    {
+      tab: "cookie-scanner",
+      icon: ShieldCheck,
+      title: "Cookie Scanner",
+      desc: "Scan URLs for tracker scripts, check opt-in compliance, and perform GDPR/CCPA scoring.",
+      cta: "Scan domain",
+    },
+    {
+      tab: "vulnerability-scanner",
+      icon: ShieldAlert,
+      title: "Vulnerability Scanner",
+      desc: "Verify certificates, track missing security headers (HSTS, CSP, X-Frame) instantly.",
+      cta: "Run security audit",
+    },
+    {
+      tab: "legal-review",
+      icon: Layers,
+      title: "Legal Review",
+      desc: "Analyze NDAs, DPAs and SLAs. Coordinate redlining, signatures, and AI risk analysis.",
+      cta: "Open legal suite",
+    },
+  ];
+
   return (
-    <div className="flex-1 overflow-y-auto p-10 font-sans grid-bg min-h-screen">
-      {/* Header section */}
-      <div className="mb-10 flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-display font-bold text-gray-900 tracking-tight">
-            Dashboard
-          </h1>
-          <p className="text-sm text-gray-400 font-mono tracking-wider uppercase mt-1">
-            Lexify Auditing Console
-          </p>
-        </div>
-        <div className="flex items-center space-x-2 text-xs font-mono text-gray-500 bg-white shadow-xs border border-gray-200/60 rounded-full py-1.5 px-3">
-          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <span>Scanning nodes online</span>
-        </div>
-      </div>
+    <div className="flex-1 overflow-y-auto px-10 py-8 bg-[#FAFAFB] min-h-screen">
 
-      {/* Greeting Card with precise layout */}
+      {/* Header */}
       <div className="mb-10">
-        <h2 className="text-2xl font-display font-medium text-gray-900">
-          Welcome back, {userName}
-        </h2>
-        <p className="text-gray-500 text-sm mt-1">
-          Monitor your continuous privacy posture and compliance indicators below
-        </p>
+        <div className="flex items-center justify-between mb-1">
+          <div>
+            <h1 className="text-[26px] font-bold text-gray-900 tracking-tight leading-tight">Dashboard</h1>
+            <p className="text-[13px] text-gray-500 mt-1">Welcome back, {userName}</p>
+          </div>
+          <div className="flex items-center gap-2 text-xs font-medium text-gray-500 bg-white border border-gray-200 rounded-full py-1.5 px-3.5 shadow-xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span>All systems operational</span>
+          </div>
+        </div>
       </div>
 
-      {/* DYNAMIC METRICS KPI PANEL - SECURE LIVE BOUNDARIES */}
+      {/* KPI cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        <div className="bg-white border-2 border-black p-6 rounded-none flex items-center justify-between shadow-xs">
-          <div>
-            <p className="text-[10px] font-mono uppercase text-gray-400 font-black tracking-widest mb-1">
-              Active Documents
-            </p>
-            <h3 className="text-3xl font-display font-black text-gray-900">
-              {stats.totalDocs}
-            </h3>
-            <p className="text-[10px] text-gray-500 font-mono mt-1">
-              Stored securely in multitenant Vault
-            </p>
+        {[
+          { label: "Active Documents", value: stats.totalDocs, sub: "Stored in secure vault", icon: FileCheck, color: "text-gray-600" },
+          { label: "Pending Signatures", value: stats.pendingSigs, sub: "Awaiting signers", icon: Radio, color: "text-amber-600" },
+          { label: "Active Redlines", value: stats.redlinesPending, sub: "Pending resolution", icon: ShieldAlert, color: "text-rose-600" },
+        ].map((kpi) => (
+          <div key={kpi.label} className="bg-white border border-gray-200 rounded-[18px] p-7 shadow-xs hover:shadow-sm transition-shadow flex items-center justify-between">
+            <div>
+              <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-2">{kpi.label}</p>
+              <h3 className="text-[32px] font-bold text-gray-900 tracking-tight leading-none">{kpi.value}</h3>
+              <p className="text-[12px] text-gray-400 mt-2">{kpi.sub}</p>
+            </div>
+            <div className={`w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center ${kpi.color}`}>
+              <kpi.icon className="w-6 h-6" />
+            </div>
           </div>
-          <div className="w-12 h-12 bg-gray-50 border border-gray-200/80 flex items-center justify-center text-gray-700">
-            <FileCheck className="w-5 h-5" />
-          </div>
-        </div>
-
-        <div className="bg-white border-2 border-black p-6 rounded-none flex items-center justify-between shadow-xs">
-          <div>
-            <p className="text-[10px] font-mono uppercase text-gray-400 font-black tracking-widest mb-1">
-              Pending Signatures
-            </p>
-            <h3 className="text-3xl font-display font-black text-gray-900">
-              {stats.pendingSigs}
-            </h3>
-            <p className="text-[10px] text-gray-500 font-mono mt-1">
-              Awaiting corporate signers
-            </p>
-          </div>
-          <div className="w-12 h-12 bg-gray-50 border border-gray-200/80 flex items-center justify-center text-amber-600">
-            <Radio className="w-5 h-5 animate-pulse" />
-          </div>
-        </div>
-
-        <div className="bg-white border-2 border-black p-6 rounded-none flex items-center justify-between shadow-xs">
-          <div>
-            <p className="text-[10px] font-mono uppercase text-gray-400 font-black tracking-widest mb-1">
-              Active Redlines
-            </p>
-            <h3 className="text-3xl font-display font-black text-gray-900">
-              {stats.redlinesPending}
-            </h3>
-            <p className="text-[10px] text-gray-500 font-mono mt-1">
-              Required compromise revisions
-            </p>
-          </div>
-          <div className="w-12 h-12 bg-gray-50 border border-gray-200/80 flex items-center justify-center text-rose-600">
-            <ShieldAlert className="w-5 h-5" />
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Key functional shortcuts */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        
-        {/* Cookie Scanner Shortcut Card */}
-        <div 
-          onClick={() => setActiveTab("cookie-scanner")}
-          className="group cursor-pointer bg-white border border-gray-200/80 rounded-none p-6 shadow-xs hover:border-black transition-all flex flex-col justify-between"
-        >
-          <div>
-            <div className="w-10 h-10 rounded-none bg-gray-50 flex items-center justify-center border border-gray-200/80 mb-5 text-gray-700 font-bold group-hover:bg-black group-hover:text-white group-hover:border-black transition-all">
-              <ShieldCheck className="w-5 h-5" />
+      {/* Shortcut cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        {shortcuts.map((s) => (
+          <div
+            key={s.tab}
+            onClick={() => setActiveTab(s.tab)}
+            className="group bg-white border border-gray-200 rounded-[18px] p-6 shadow-xs hover:shadow-md hover:border-gray-300 transition-all cursor-pointer flex flex-col justify-between"
+          >
+            <div>
+              <div className="w-11 h-11 rounded-xl bg-gray-50 flex items-center justify-center text-gray-600 mb-5 group-hover:bg-gray-900 group-hover:text-white transition-all shadow-xs">
+                <s.icon className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-[15px] text-gray-900 mb-2 tracking-tight">{s.title}</h3>
+              <p className="text-[13px] text-gray-500 leading-relaxed">{s.desc}</p>
             </div>
-            <h3 className="font-display font-bold text-lg text-gray-900 mb-2">
-              Cookie Scanner
-            </h3>
-            <p className="text-gray-500 text-sm leading-relaxed">
-              Scrape URLs to isolate active tracker scripts, check opt-in compliance, and perform dynamic traffic light regulations scoring.
-            </p>
-          </div>
-          <div className="mt-6 pt-4 border-t border-gray-50 flex items-center justify-between text-xs font-semibold text-gray-900">
-            <span>Scan Domain Target</span>
-            <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-          </div>
-        </div>
-
-        {/* Vulnerability Scanner Shortcut Card */}
-        <div 
-          onClick={() => setActiveTab("vulnerability-scanner")}
-          className="group cursor-pointer bg-white border border-gray-200/80 rounded-none p-6 shadow-xs hover:border-black transition-all flex flex-col justify-between"
-        >
-          <div>
-            <div className="w-10 h-10 rounded-none bg-gray-50 flex items-center justify-center border border-gray-200/80 mb-5 text-gray-700 font-bold group-hover:bg-black group-hover:text-white group-hover:border-black transition-all">
-              <ShieldAlert className="w-5 h-5" />
+            <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between text-[13px] font-medium text-gray-600">
+              <span>{s.cta}</span>
+              <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-gray-400" />
             </div>
-            <h3 className="font-display font-bold text-lg text-gray-900 mb-2">
-              Vulnerability Scanner
-            </h3>
-            <p className="text-gray-500 text-sm leading-relaxed">
-              Initiate network profiling, verify certificate domains and track missing security headers (HSTS, CSP, X-Frame) instantly.
-            </p>
           </div>
-          <div className="mt-6 pt-4 border-t border-gray-50 flex items-center justify-between text-xs font-semibold text-gray-900">
-            <span>Isolate Server Vulnerability</span>
-            <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-          </div>
-        </div>
-
-        {/* Legal Review tab */}
-        <div 
-          onClick={() => setActiveTab("legal-review")}
-          className="group cursor-pointer bg-white border border-gray-200/80 rounded-none p-6 shadow-xs hover:border-black transition-all flex flex-col justify-between"
-        >
-          <div>
-            <div className="w-10 h-10 rounded-none bg-gray-50 flex items-center justify-center border border-gray-200/80 mb-5 text-gray-700 font-bold group-hover:bg-black group-hover:text-white group-hover:border-black transition-all">
-              <Layers className="w-5 h-5" />
-            </div>
-            <h3 className="font-display font-bold text-lg text-gray-900 mb-2">
-              Legal Review
-            </h3>
-            <p className="text-gray-500 text-sm leading-relaxed">
-              Edit NDAs, DPAs, and SLA agreements. Coordinate peer redlining, execute electronic signatures, and leverage AI analysis to redact risks.
-            </p>
-          </div>
-          <div className="mt-6 pt-4 border-t border-gray-50 flex items-center justify-between text-xs font-semibold text-gray-900">
-            <span>Manage Agreement Matrix</span>
-            <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-          </div>
-        </div>
-
+        ))}
       </div>
 
-      {/* CONTINUOUS SCANNING TELEMETRY MATRIX */}
-      <div className="bg-white border-2 border-black p-6 rounded-none mb-10">
-        <h4 className="text-xs font-semibold text-black font-mono tracking-wider uppercase mb-5 flex items-center space-x-2">
-          <Radio className="w-4 h-4 text-emerald-600 animate-pulse animate-duration-1000" />
-          <span>Original Document Ledger</span>
-        </h4>
-        
-        <div className="overflow-x-auto">
-          <table className="w-full text-left font-mono text-xs text-gray-800">
+      {/* Document ledger */}
+      <div className="bg-white border border-gray-200 rounded-[18px] shadow-xs overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2.5 bg-gray-50">
+          <FileText className="w-4 h-4 text-gray-500" />
+          <h4 className="font-bold text-[13px] text-gray-900 tracking-tight">Document Ledger</h4>
+          <span className="ml-auto text-[11px] font-medium text-gray-400">{documents.length} documents</span>
+        </div>
+
+        {continuousLogs.length === 0 ? (
+          <div className="px-6 py-16 text-center">
+            <FileText className="w-8 h-8 text-gray-200 mx-auto mb-2" />
+            <p className="text-[13px] text-gray-400">No documents yet. Create or import a document to get started.</p>
+          </div>
+        ) : (
+          <table className="w-full text-left text-[13px]">
             <thead>
-              <tr className="border-b border-gray-300 uppercase tracking-wider text-[10px] text-gray-400 font-black">
-                <th className="pb-3 pr-4">Document</th>
-                <th className="pb-3 px-4">Compliance Score</th>
-                <th className="pb-3 px-4">Open Issues</th>
-                <th className="pb-3 px-4">Type</th>
-                <th className="pb-3 pl-4 text-right">Updated</th>
+              <tr className="border-b border-gray-100 bg-gray-50">
+                <th className="px-6 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Document</th>
+                <th className="px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Score</th>
+                <th className="px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Issues</th>
+                <th className="px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Type</th>
+                <th className="px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider text-right">Updated</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
-              {continuousLogs.length > 0 ? continuousLogs.map((log, i) => {
-                let scoreColor = "text-emerald-700 font-bold bg-emerald-50 border border-emerald-100";
-                if (log.score < 50) scoreColor = "text-red-700 font-bold bg-red-50 border border-red-100";
-                else if (log.score < 80) scoreColor = "text-amber-700 font-bold bg-amber-50 border border-amber-100";
+            <tbody className="divide-y divide-gray-50">
+              {continuousLogs.map((log, i) => {
+                const scoreClass =
+                  log.score >= 80 ? "bg-emerald-50 text-emerald-700" :
+                  log.score >= 50 ? "bg-amber-50 text-amber-700" :
+                  "bg-red-50 text-red-700";
 
                 return (
-                  <tr key={i} className="hover:bg-gray-50 transition-colors">
-                    <td className="py-3.5 pr-4 text-gray-900 font-bold">{log.target}</td>
-                    <td className="py-3.5 px-4">
-                      <span className={`px-2 py-0.5 rounded text-[10px] inline-block text-center min-w-10 ${scoreColor}`}>
+                  <tr key={i} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="px-6 py-3.5 font-medium text-gray-900">{log.target}</td>
+                    <td className="px-5 py-3.5">
+                      <span className={`inline-block px-2.5 py-1 rounded-md text-[11px] font-bold ${scoreClass}`}>
                         {log.score}%
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 font-bold text-gray-600">{log.issues} Issues</td>
-                    <td className="py-3.5 px-4">
-                      <span className="px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-tight inline-block bg-gray-50 text-gray-700 border border-gray-100">
-                        {log.banner}
+                    <td className="px-5 py-3.5 text-gray-500">{log.issues} issues</td>
+                    <td className="px-5 py-3.5">
+                      <span className="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-gray-100 text-gray-600">
+                        {log.type}
                       </span>
                     </td>
-                    <td className="py-3.5 pl-4 text-right text-gray-400">{log.scanTime}</td>
+                    <td className="px-5 py-3.5 text-gray-400 text-right text-[12px]">{log.scanTime}</td>
                   </tr>
                 );
-              }) : (
-                <tr>
-                  <td className="py-5 pr-4 text-gray-500" colSpan={5}>
-                    No documents found yet. Create or import a document to populate the original ledger.
-                  </td>
-                </tr>
-              )}
+              })}
             </tbody>
           </table>
-        </div>
+        )}
       </div>
 
     </div>
