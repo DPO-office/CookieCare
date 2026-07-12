@@ -13,7 +13,7 @@
     "setup-db": "node node_modules/tsx/dist/cli.mjs backend/scripts/setupDb.ts",
     "dev": "node node_modules/tsx/dist/cli.mjs backend/scripts/setupDb.ts && node node_modules/esbuild/bin/esbuild backend/server.ts --bundle --platform=node --format=esm --packages=external --outfile=backend/server.js && node backend/server.js",
     "lint": "node node_modules/typescript/bin/tsc --noEmit --project frontend/tsconfig.json && node node_modules/typescript/bin/tsc --noEmit --project backend/tsconfig.json",
-    "test": "node --import ./node_modules/tsx/dist/loader.mjs --test test/**/*.test.ts",
+    "test": "node --import ./node_modules/tsx/dist/loader.mjs --test backend/test/**/*.test.ts",
     "clean": "if exist frontend\\dist rmdir /s /q frontend\\dist & if exist backend\\dist rmdir /s /q backend\\dist & if exist backend\\server.js del /f backend\\server.js"
   },
   "dependencies": {

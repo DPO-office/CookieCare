@@ -1,22 +1,22 @@
 import React, { useState, useEffect, useCallback } from "react";
-import Sidebar from "./components/Sidebar";
-import AuthModal from "./components/AuthModal";
-import AdminPanel from "./components/AdminPanel";
-import DashboardHome from "./components/DashboardHome";
-import CookieScanner from "./components/CookieScanner";
-import InteractAnalyze from "./components/InteractAnalyze";
-import DraftAgreement from "./components/DraftAgreement";
-import AskAILawyer from "./components/AskAILawyer";
-import NegotiateHub from "./components/NegotiateHub";
-import QueueManager from "./components/QueueManager";
-import LibraryManager from "./components/LibraryManager";
-import VulnerabilityScanner from "./components/VulnerabilityScanner";
-import DPAReviewer from "./components/DPAReviewer";
-import VendorReview from "./components/VendorReview";
-import AIEthicsScore from "./components/AIEthicsScore";
-import SettingsView from "./components/Settings";
+import { Sidebar } from "./shared/layout";
+import AuthModal from "./features/auth";
+import AdminPanel from "./features/admin";
+import DashboardHome from "./features/dashboard";
+import CookieScanner from "./features/cookieScanner";
+import InteractAnalyze from "./features/analyze";
+import DraftAgreement from "./features/drafting";
+import AskAILawyer from "./features/askAILawyer";
+import NegotiateHub from "./features/negotiate";
+import QueueManager from "./features/queue";
+import LibraryManager from "./features/vault";
+import VulnerabilityScannerView from "./features/vulnerabilityScanner";
+import DPAReviewer from "./features/dpaReviewer";
+import VendorReview from "./features/vendorReview";
+import AIEthicsScore from "./features/aiEthics";
+import SettingsView from "./features/settings";
 import { apiUrl } from "./config";
-import { LegalDocument } from "./types";
+import { LegalDocument } from "./shared/types";
 
 export default function App() {
   const [authToken, setAuthToken] = useState<string | null>(() => localStorage.getItem("lex_token"));
@@ -32,9 +32,6 @@ export default function App() {
   const [activeDocument, setActiveDocument] = useState<LegalDocument | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Cross-page navigation: Vault Repository → Draft Agreements
-  // When LibraryManager fires onOpenInDraftEditor, we capture the doc id here
-  // and switch to the Draft page, which picks it up via initialDocumentId.
   const [openDraftId, setOpenDraftId] = useState<string | undefined>(undefined);
 
   const handleOpenInDraftEditor = useCallback((doc: LegalDocument) => {
@@ -42,7 +39,6 @@ export default function App() {
     setActiveTab("legal-draft");
   }, []);
 
-  // Sync session authentication
   const handleAuthSuccess = (token: string, user: { id: string; email: string; name: string; role?: string }) => {
     localStorage.setItem("lex_token", token);
     localStorage.setItem("lex_user", JSON.stringify(user));
@@ -65,27 +61,21 @@ export default function App() {
     setActiveTab("dashboard");
   };
 
-  // Fetch documents for logged-in sessions
   const fetchDocuments = async () => {
     if (!authToken) return;
     setLoading(true);
     try {
       const res = await fetch(apiUrl("/api/documents"), {
-        headers: {
-          "Authorization": `Bearer ${authToken}`
-        }
+        headers: { "Authorization": `Bearer ${authToken}` },
       });
       if (!res.ok) {
         const text = await res.text();
         console.error(`Failed to load documents ledger. Status: ${res.status}. Response: ${text.substring(0, 500)}`);
-        if (res.status === 401 || res.status === 403) {
-          handleLogout();
-        }
+        if (res.status === 401 || res.status === 403) handleLogout();
         return;
       }
       const data = await res.json();
       setDocuments(data);
-      // Sync active document selection
       if (data.length > 0) {
         if (!activeDocument) {
           setActiveDocument(data[0]);
@@ -101,9 +91,7 @@ export default function App() {
     }
   };
 
-  useEffect(() => {
-    fetchDocuments();
-  }, [authToken]);
+  useEffect(() => { fetchDocuments(); }, [authToken]);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -121,7 +109,6 @@ export default function App() {
     return <AuthModal onAuthSuccess={handleAuthSuccess} />;
   }
 
-  // Calculate quick metrics for dashboard cards
   const totalDocsCount = documents.length;
   const pendingSigsCount = documents.reduce((sum, doc) => {
     const isSigned = doc.signatures && doc.signatures.length > 0 && doc.signatures.every(s => s.status === "signed");
@@ -134,35 +121,33 @@ export default function App() {
   const stats = {
     totalDocs: totalDocsCount,
     pendingSigs: pendingSigsCount,
-    redlinesPending: redlinesPendingCount
+    redlinesPending: redlinesPendingCount,
   };
 
   return (
     <div className="flex h-screen w-screen overflow-hidden font-sans bg-[#FAFAFB]">
-      
+
       {/* 1. LEFT SIDE NAVIGATION */}
-      <Sidebar 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
-        user={currentUser} 
-        onLogout={handleLogout} 
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        user={currentUser}
+        onLogout={handleLogout}
       />
 
       {/* 2. MAIN HUB INTERACTION PANE */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         {activeTab === "dashboard" && (
-          <DashboardHome 
-            userName={currentUser.name} 
-            setActiveTab={setActiveTab} 
+          <DashboardHome
+            userName={currentUser.name}
+            setActiveTab={setActiveTab}
             stats={stats}
             documents={documents}
           />
         )}
 
         {activeTab === "cookie-scanner" && (
-          <CookieScanner 
-            authToken={authToken}
-          />
+          <CookieScanner authToken={authToken} />
         )}
 
         {activeTab === "legal-review" && (
@@ -228,21 +213,15 @@ export default function App() {
         )}
 
         {activeTab === "vulnerability-scanner" && (
-          <VulnerabilityScanner 
-            authToken={authToken}
-          />
+          <VulnerabilityScannerView authToken={authToken} />
         )}
 
         {activeTab === "settings" && (
-          <SettingsView 
-            user={currentUser}
-          />
+          <SettingsView user={currentUser} />
         )}
 
         {activeTab === "admin-panel" && currentUser.role === "ADMIN" && (
-          <AdminPanel
-            authToken={authToken}
-          />
+          <AdminPanel authToken={authToken} />
         )}
       </main>
 
@@ -257,7 +236,6 @@ export default function App() {
           title="Admin Access"
         />
       </footer>
-
     </div>
   );
 }

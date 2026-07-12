@@ -63,8 +63,8 @@ async function startServer() {
   });
 }
 
-// Prevent double-start in test or Vercel
-if (!process.env.VERCEL && process.env.NODE_ENV !== "test") {
+// Prevent double-start in test environments
+if (process.env.NODE_ENV !== "test") {
   startServer();
 }
 

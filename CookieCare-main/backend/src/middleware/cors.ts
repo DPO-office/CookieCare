@@ -7,7 +7,6 @@ const corsOrigins = new Set(
     "http://localhost:3000",
     "https://privlex-ai.onrender.com", // Added explicit production URL
     config.corsOrigin,
-    config.vercelUrl,
   ]
     .flatMap((origin) => (origin ? origin.split(",") : []))
     .map((origin) => origin.trim())
@@ -27,7 +26,6 @@ export const corsMiddleware = cors({
       /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
       /^https?:\/\/[a-z0-9-]+\.app\.github\.dev(:\d+)?$/i.test(origin) ||
       /^https?:\/\/[a-z0-9-]+\.github\.dev(:\d+)?$/i.test(origin) ||
-      /^https?:\/\/[a-z0-9-]+\.vercel\.app(:\d+)?$/i.test(origin) ||
       // Explicitly allow all Render domains
       /^https?:\/\/[a-z0-9-]+\.onrender\.com(:\d+)?$/i.test(origin) ||
       // Firebase/Cloud Workstations

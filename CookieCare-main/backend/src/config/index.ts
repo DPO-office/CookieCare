@@ -21,8 +21,6 @@ export const config = {
   jwtSecret: process.env.JWT_SECRET || "privsec-ai-enterprise-secret-2026",
   // Fixed: Added the Render production URL as a default fallback
   corsOrigin: process.env.CORS_ORIGIN || "https://privlex-ai.onrender.com",
-  vercelUrl: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "",
-  isVercel: !!process.env.VERCEL,
 };
 
 export const isProduction = config.nodeEnv === "production";
