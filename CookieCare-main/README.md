@@ -33,18 +33,12 @@ npm run build
 npm run start
 ```
 
-## Deploy to Vercel
+## Deploy to Render
 
-This repo is set up as a Vite frontend plus an Express API wrapped for Vercel.
+This project is deployed on Render. The backend runs as a Node.js web service and the frontend is served as a static site.
 
-1. Push the repository to GitHub.
-2. Import the repo in Vercel from the repository root.
-3. Keep the default build command as `npm run build`.
-4. Set the output directory to `dist/client` if Vercel does not infer it automatically.
-5. Add environment variables in Vercel:
-	- `DATABASE_URL`
-	- `GEMINI_API_KEY` if you want live AI features
-	- `CORS_ORIGIN` if you use a custom domain
-6. Deploy from the root folder, not the `backend/` folder.
-
-The backend is exposed through [api/[...path].ts](api/[...path].ts), which forwards all `/api/*` requests to the Express app in [server.ts](server.ts).
+Set the following environment variables in your Render service:
+- `DATABASE_URL`
+- `OPENROUTER_API_KEY`
+- `JWT_SECRET`
+- `CORS_ORIGIN` if you use a custom domain

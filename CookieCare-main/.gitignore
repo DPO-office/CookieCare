@@ -1,5 +1,6 @@
 node_modules/
 build/
+DraftingPipeline.md
 dist/
 coverage/
 .DS_Store
@@ -7,3 +8,8 @@ coverage/
 .env*
 !.env.example
 .env
+
+# New structure build outputs
+frontend/dist/
+backend/dist/
+backend/server.js
