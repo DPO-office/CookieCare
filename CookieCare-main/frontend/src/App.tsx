@@ -14,7 +14,6 @@ import VulnerabilityScannerView from "./features/vulnerabilityScanner";
 import DPAReviewer from "./features/dpaReviewer";
 import VendorReview from "./features/vendorReview";
 import AIEthicsScore from "./features/aiEthics";
-import SettingsView from "./features/settings";
 import { apiUrl } from "./config";
 import { LegalDocument } from "./shared/types";
 
@@ -214,10 +213,6 @@ export default function App() {
 
         {activeTab === "vulnerability-scanner" && (
           <VulnerabilityScannerView authToken={authToken} />
-        )}
-
-        {activeTab === "settings" && (
-          <SettingsView user={currentUser} />
         )}
 
         {activeTab === "admin-panel" && currentUser.role === "ADMIN" && (

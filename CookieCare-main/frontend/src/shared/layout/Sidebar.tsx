@@ -3,7 +3,6 @@ import type { ElementType, ReactNode } from "react";
 import {
   LayoutDashboard,
   ShieldAlert,
-  Settings,
   LogOut,
   Scale,
   ShieldCheck,
@@ -100,7 +99,6 @@ const navigation: NavEntry[] = [
       { id: "ai-ethics", label: "AI ethics score", icon: Cpu },
     ],
   },
-  { id: "settings", label: "Settings", icon: Settings },
 ];
 
 function Tooltip({ label, children }: { label: string; children: ReactNode }) {
