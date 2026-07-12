@@ -101,7 +101,7 @@ export class PlaybookIngester {
         );
 
         if (
-          !parsedRule ||
+          !parsedRule ||  
           typeof parsedRule.id !== "string" ||
           typeof parsedRule.contractType !== "string" ||
           typeof parsedRule.topic !== "string" ||
@@ -114,7 +114,8 @@ export class PlaybookIngester {
         ) {
           throw new Error(`Invalid parsed rule payload for ${ruleId}.`);
         }
-        const uniqueRowId = `rule_${crypto.randomUUID()}`;
+
+        console.log("This is the understanding of gemini form the playbook pdf\n\n\n\n\n",parsedRule,"\n\n\n")
 
         const sql = `
           INSERT INTO playbook_rules (
@@ -141,20 +142,22 @@ export class PlaybookIngester {
         `;
 
         const params = [
-          uniqueRowId,
-          parsedRule.id,
-          parsedRule.contractType,
-          parsedRule.topic,
-          parsedRule.riskLevel,
-          parsedRule.standardPosition,
-          JSON.stringify(parsedRule.fallbackPositions),
-          parsedRule.walkAwayCondition,
-          JSON.stringify(parsedRule.triggerPatterns),
-          parsedRule.remediationStrategy,
+          parsedRule.id,                                // $1 -> id (e.g., 'R-IP-001')
+          parsedRule.contractType,                      // $2 -> contract_type
+          parsedRule.topic,                             // $3 -> topic
+          parsedRule.riskLevel,                         // $4 -> risk_level
+          parsedRule.standardPosition,                  // $5 -> standard_position
+          JSON.stringify(parsedRule.fallbackPositions), // $6 -> fallback_positions
+          parsedRule.walkAwayCondition,                 // $7 -> walk_away_condition
+          JSON.stringify(parsedRule.triggerPatterns),   // $8 -> trigger_patterns
+          parsedRule.remediationStrategy,               // $9 -> remediation_strategy
         ];
 
+        // Fires perfectly with exactly 9 aligned arguments!
         await pool.query(sql, params);
         successfullySavedCount += 1;
+
+        
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         const ruleMatch = block.match(/R-[A-Z]+-\d+/);
@@ -164,6 +167,6 @@ export class PlaybookIngester {
       }
     }
 
-    return { processedRulesCount: successfullySavedCount };
+    return { processedRulesCount: successfullySavedCount , };
   }
 }

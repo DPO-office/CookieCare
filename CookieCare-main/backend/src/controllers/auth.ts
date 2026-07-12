@@ -73,6 +73,7 @@ export const login = async (req: Request, res: Response) => {
           .then(folderId => migrateUnassignedDocuments(user.id, folderId, user.role))
           .catch(err => console.warn("[defaultFolder] Setup on login failed:", err));
 
+        console.log(token)
         return res.json({
           token: token,
           user: {

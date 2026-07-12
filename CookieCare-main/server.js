@@ -79,14 +79,14 @@ __export(crypto_exports, {
   encrypt: () => encrypt,
   encryptData: () => encryptData
 });
-import crypto3 from "crypto";
+import crypto4 from "crypto";
 function encryptData(text) {
   if (!text) return "";
   if (!ENCRYPTION_KEY || Buffer.from(ENCRYPTION_KEY).length !== 32) {
     throw new Error("ENCRYPTION_KEY must be 32 bytes.");
   }
-  const iv = crypto3.randomBytes(12);
-  const cipher = crypto3.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
+  const iv = crypto4.randomBytes(12);
+  const cipher = crypto4.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
   let encrypted = cipher.update(text, "utf8", "hex");
   encrypted += cipher.final("hex");
   const authTag = cipher.getAuthTag().toString("hex");
@@ -106,7 +106,7 @@ function decryptData(text) {
       }
       const iv = Buffer.from(ivHex, "hex");
       const authTag = Buffer.from(authTagHex, "hex");
-      const decipher = crypto3.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
+      const decipher = crypto4.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
       decipher.setAuthTag(authTag);
       let decrypted = decipher.update(encryptedHex, "hex", "utf8");
       decrypted += decipher.final("utf8");
@@ -227,7 +227,7 @@ init_database();
 init_config();
 import argon2 from "argon2";
 import jwt from "jsonwebtoken";
-import crypto2 from "crypto";
+import crypto3 from "crypto";
 
 // backend/src/utils/dbUtils.ts
 init_database();
@@ -251,7 +251,7 @@ async function withTransaction(userId, userRole, fn) {
 }
 
 // backend/src/controllers/folders.ts
-import crypto from "crypto";
+import crypto2 from "crypto";
 var DEFAULT_FOLDER_NAME = "Uploaded Documents";
 async function getOrCreateDefaultFolder(userId, userRole = "USER") {
   return withTransaction(userId, userRole, async (client) => {
@@ -262,7 +262,7 @@ async function getOrCreateDefaultFolder(userId, userRole = "USER") {
     if (rows.length > 0) {
       return rows[0].id;
     }
-    const folderId = "fld_" + crypto.randomUUID();
+    const folderId = "fld_" + crypto2.randomUUID();
     await client.query(
       "INSERT INTO folders (id, name, user_id) VALUES ($1, $2, $3)",
       [folderId, DEFAULT_FOLDER_NAME, userId]
@@ -305,7 +305,7 @@ var createFolder = async (req, res) => {
   const userRole = req.user.role;
   if (!name) return res.status(400).json({ error: "Folder name is required." });
   try {
-    const id = "fld_" + crypto.randomUUID();
+    const id = "fld_" + crypto2.randomUUID();
     const row = await withTransaction(userId, userRole, async (client) => {
       const { rows } = await client.query(
         "INSERT INTO folders (id, name, user_id) VALUES ($1, $2, $3) RETURNING *",
@@ -356,7 +356,7 @@ var register = async (req, res) => {
     return res.status(400).json({ error: "Please enter all required fields." });
   }
   const normalizedEmail = email.toLowerCase();
-  const newUserId = "user_" + crypto2.randomUUID();
+  const newUserId = "user_" + crypto3.randomUUID();
   try {
     const checkMail = await pool.query("SELECT id FROM users WHERE email = $1", [normalizedEmail]);
     if (checkMail.rows.length > 0) {
@@ -400,6 +400,7 @@ var login = async (req, res) => {
           { expiresIn: "24h" }
         );
         getOrCreateDefaultFolder(user.id, user.role).then((folderId) => migrateUnassignedDocuments(user.id, folderId, user.role)).catch((err) => console.warn("[defaultFolder] Setup on login failed:", err));
+        console.log(token);
         return res.json({
           token,
           user: {
@@ -2258,25 +2259,1725 @@ ${JSON.stringify(trackerSummary, null, 2)}`;
 
 // backend/src/services/jobQueue.ts
 init_crypto();
+import crypto6 from "crypto";
+import pdf from "pdf-parse-fork";
+import mammoth from "mammoth";
 
-// backend/src/utils/retry.ts
-async function withRetry(fn, retries = 3, delay = 1e3) {
+// backend/src/services/jobs/handlers/drafting-handler.ts
+init_database();
+init_crypto();
+import crypto5 from "crypto";
+import { PDFParse } from "pdf-parse";
+
+// backend/src/modules/drafting/steps/requirement-extraction.ts
+init_config();
+init_database();
+
+// backend/src/modules/drafting/config/model-specs.ts
+var PROVIDER_TASK_PRESETS = {
+  ["GEMINI" /* GEMINI */]: {
+    ["FAST_STITCH" /* FAST_STITCH */]: {
+      model: "gemini-2.5-flash" /* GEMINI_2_5_FLASH */,
+      temperature: 0.1
+    },
+    ["COMPLEX_DRAFT" /* COMPLEX_DRAFT */]: {
+      model: "gemini-2.5-pro" /* GEMINI_2_5_PRO */,
+      temperature: 0,
+      maxOutputTokens: 8192
+    },
+    ["STRUCTURAL_JSON" /* STRUCTURAL_JSON */]: {
+      model: "gemini-2.5-pro" /* GEMINI_2_5_PRO */,
+      temperature: 0,
+      responseMimeType: "application/json"
+    },
+    ["REFINEMENT" /* REFINEMENT */]: {
+      model: "gemini-2.5-flash" /* GEMINI_2_5_FLASH */,
+      temperature: 0.2
+    }
+  },
+  ["OPENROUTER" /* OPENROUTER */]: {
+    ["FAST_STITCH" /* FAST_STITCH */]: {
+      model: "meta-llama/llama-3.3-70b-instruct" /* LLAMA_3_3_70B */,
+      temperature: 0.1
+    },
+    ["COMPLEX_DRAFT" /* COMPLEX_DRAFT */]: {
+      model: "anthropic/claude-3.5-sonnet" /* CLAUDE_3_5_SONNET */,
+      temperature: 0
+    },
+    ["STRUCTURAL_JSON" /* STRUCTURAL_JSON */]: {
+      model: "openai/gpt-4o-mini" /* GPT_4O_MINI */,
+      temperature: 0,
+      responseMimeType: "application/json"
+    },
+    ["REFINEMENT" /* REFINEMENT */]: {
+      model: "meta-llama/llama-3.3-70b-instruct" /* LLAMA_3_3_70B */,
+      temperature: 0.2
+    }
+  }
+};
+var GEMINI_ENV_CONFIG = {
+  projectId: process.env.GOOGLE_CLOUD_PROJECT || "lexify-production-cloud",
+  location: process.env.GOOGLE_CLOUD_LOCATION || "us-central1",
+  timeoutMs: 45e3
+};
+
+// backend/src/modules/drafting/llm/provider/gemini-provider.ts
+import { GoogleGenAI } from "@google/genai";
+var GeminiProvider = class {
+  constructor() {
+    const project = GEMINI_ENV_CONFIG.projectId;
+    const location = GEMINI_ENV_CONFIG.location;
+    if (!project || project.trim() === "") {
+      throw new Error("Gemini initialization failed: GOOGLE_CLOUD_PROJECT variable is missing.");
+    }
+    this.ai = new GoogleGenAI({
+      enterprise: true,
+      project: project.trim(),
+      location: location.trim()
+    });
+  }
+  async getCompletion(prompt, systemInstruction2, runtimeConfig) {
+    try {
+      const response = await this.ai.models.generateContent({
+        model: runtimeConfig.model,
+        contents: prompt,
+        config: {
+          systemInstruction: systemInstruction2,
+          temperature: runtimeConfig.temperature,
+          maxOutputTokens: runtimeConfig.maxOutputTokens
+        }
+      });
+      return response.text ?? "";
+    } catch (err) {
+      throw new Error(`Gemini Completion Engine failure: ${err.message}`);
+    }
+  }
+  async getJsonCompletion(prompt, systemInstruction2, jsonSchema, runtimeConfig) {
+    try {
+      const response = await this.ai.models.generateContent({
+        model: runtimeConfig.model,
+        contents: prompt,
+        config: {
+          systemInstruction: systemInstruction2,
+          temperature: runtimeConfig.temperature,
+          responseMimeType: "application/json",
+          responseSchema: jsonSchema
+        }
+      });
+      const rawText = response.text;
+      if (!rawText) {
+        throw new Error("Gemini returned an empty structured content response block.");
+      }
+      return JSON.parse(rawText);
+    } catch (err) {
+      throw new Error(`Gemini JSON Processing Circuit failure: ${err.message}`);
+    }
+  }
+};
+
+// backend/src/modules/drafting/llm/provider/openrouter-provider.ts
+var OpenRouterLegacyProvider = class {
+  constructor() {
+    const key = process.env.OPENROUTER_API_KEY || "";
+    if (!key || key.trim() === "") {
+      throw new Error("OpenRouter Legacy initialization aborted: Missing OPENROUTER_API_KEY in environment configuration.");
+    }
+    this.apiKey = key.trim();
+    this.baseUrl = "https://openrouter.ai/api/v1/chat/completions";
+  }
+  async getCompletion(prompt, systemInstruction2, runtimeConfig) {
+    const messages = [];
+    if (systemInstruction2?.trim()) {
+      messages.push({ role: "system", content: systemInstruction2 });
+    }
+    messages.push({ role: "user", content: prompt });
+    return this.executeFetchCall(messages, runtimeConfig);
+  }
+  async getJsonCompletion(prompt, systemInstruction2, jsonSchema, runtimeConfig) {
+    const messages = [];
+    if (systemInstruction2?.trim()) {
+      messages.push({ role: "system", content: systemInstruction2 });
+    }
+    const schemaHint = jsonSchema ? `
+
+Return ONLY valid JSON matching this schema:
+${JSON.stringify(jsonSchema)}` : "\n\nReturn ONLY valid JSON.";
+    messages.push({ role: "user", content: `${prompt}${schemaHint}` });
+    const responseFormat = jsonSchema ? { type: "json_schema", json_schema: { name: "structured_output", strict: true, schema: jsonSchema } } : { type: "json_object" };
+    const rawResultText = await this.executeFetchCall(messages, runtimeConfig, responseFormat);
+    try {
+      return JSON.parse(rawResultText);
+    } catch (err) {
+      throw new Error(`OpenRouter JSON payload parsing failed: ${err.message}. Raw text payload: ${rawResultText}`);
+    }
+  }
+  async executeFetchCall(messages, runtimeConfig, responseFormat) {
+    const body = {
+      model: runtimeConfig.model,
+      messages,
+      temperature: runtimeConfig.temperature
+    };
+    if (responseFormat) {
+      body.response_format = responseFormat;
+    }
+    const res = await fetch(this.baseUrl, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${this.apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`OpenRouter API endpoint response error (${res.status}): ${errorText}`);
+    }
+    const data = await res.json();
+    const content = data?.choices?.[0]?.message?.content;
+    if (typeof content !== "string") {
+      throw new Error("OpenRouter payload emerged from network missing expected text content keys.");
+    }
+    return content;
+  }
+};
+
+// backend/src/modules/drafting/llm/index.ts
+var providersCache = {};
+function getProviderEngine(provider) {
+  if (!providersCache[provider]) {
+    switch (provider) {
+      case "GEMINI" /* GEMINI */:
+        providersCache[provider] = new GeminiProvider();
+        break;
+      case "OPENROUTER" /* OPENROUTER */:
+        providersCache[provider] = new OpenRouterLegacyProvider();
+        break;
+      default:
+        throw new Error(`Unsupported LLM routing provider instance request: ${provider}`);
+    }
+  }
+  return providersCache[provider];
+}
+async function executeCompletion(prompt, systemInstruction2, task, provider = "GEMINI" /* GEMINI */) {
+  const engine = getProviderEngine(provider);
+  const runtimeConfig = PROVIDER_TASK_PRESETS[provider][task];
+  return engine.getCompletion(prompt, systemInstruction2, runtimeConfig);
+}
+async function executeJsonCompletion(prompt, systemInstruction2, jsonSchema, task, provider = "GEMINI" /* GEMINI */) {
+  const engine = getProviderEngine(provider);
+  const runtimeConfig = PROVIDER_TASK_PRESETS[provider][task];
+  return engine.getJsonCompletion(prompt, systemInstruction2, jsonSchema, runtimeConfig);
+}
+
+// backend/src/modules/drafting/retrieval/ClauseCatalogRetriever.ts
+var ClauseCatalogRetriever = class {
+  constructor(db) {
+    this.db = db;
+  }
+  async fetchBaselineClauseTypes(filters) {
+    if (filters.clauseIds && filters.clauseIds.length > 0) {
+      return this.fetchByClauseIds(filters.clauseIds, filters.organizationId);
+    }
+    if (filters.templateId) {
+      const templateClauses = await this.fetchByTemplateId(
+        filters.templateId,
+        filters.organizationId
+      );
+      if (templateClauses.length > 0) {
+        return templateClauses;
+      }
+    }
+    return this.fetchByMetadata(filters);
+  }
+  async fetchByClauseIds(clauseIds, organizationId) {
+    const { rows } = await this.db.query(
+      `
+        SELECT DISTINCT clause_type
+        FROM clause_catalog
+        WHERE status = 'active'
+          AND id = ANY($1::text[])
+          AND ($2::text IS NULL OR organization_id = $2)
+        ORDER BY clause_type
+      `,
+      [clauseIds, organizationId ?? null]
+    );
+    return rows.map((row) => row.clause_type);
+  }
+  async fetchByTemplateId(templateId, organizationId) {
+    const { rows } = await this.db.query(
+      `
+        SELECT DISTINCT cc.clause_type
+        FROM template_clause_mappings tcm
+        INNER JOIN clause_catalog cc ON cc.id = tcm.clause_id
+        WHERE tcm.template_id = $1
+          AND cc.status = 'active'
+          AND ($2::text IS NULL OR cc.organization_id = $2)
+        ORDER BY cc.clause_type
+      `,
+      [templateId, organizationId ?? null]
+    );
+    return rows.map((row) => row.clause_type);
+  }
+  async fetchByMetadata(filters) {
+    const { rows } = await this.db.query(
+      `
+        SELECT DISTINCT clause_type
+        FROM clause_catalog
+        WHERE status = 'active'
+          AND ($1::text IS NULL OR contract_type = $1)
+          AND ($2::text IS NULL OR jurisdiction = $2)
+          AND ($3::text IS NULL OR industry = $3)
+          AND ($4::text IS NULL OR organization_id = $4)
+        ORDER BY clause_type
+      `,
+      [
+        filters.contractType ?? null,
+        filters.jurisdiction ?? null,
+        filters.industry ?? null,
+        filters.organizationId ?? null
+      ]
+    );
+    return rows.map((row) => row.clause_type);
+  }
+};
+
+// backend/src/modules/drafting/steps/requirement-extraction.ts
+var REQUIREMENT_EXTRACTION_JSON_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: [
+    "contractType",
+    "jurisdiction",
+    "industry",
+    "parties",
+    "excludedClauses",
+    "additionalRequiredClauses",
+    "optionalClauses",
+    "language",
+    "instructions",
+    "uploadDocSummary"
+  ],
+  properties: {
+    contractType: { type: "string" },
+    jurisdiction: { type: "string" },
+    industry: { type: "string" },
+    parties: { type: "array", items: { type: "string" } },
+    excludedClauses: { type: "array", items: { type: "string" } },
+    additionalRequiredClauses: { type: "array", items: { type: "string" } },
+    optionalClauses: { type: "array", items: { type: "string" } },
+    language: { type: "string" },
+    instructions: { type: "string" },
+    uploadDocSummary: { type: "string" }
+  }
+};
+function appendValidationWarning(state, description) {
+  const issue = {
+    type: "formatting",
+    severity: "warning",
+    description,
+    targetSection: "requirement-extraction"
+  };
+  const existingIssues = state.validation?.issues ?? [];
+  return {
+    ...state,
+    validation: {
+      isValid: false,
+      issues: [...existingIssues, issue]
+    }
+  };
+}
+function readStringField(source, key) {
+  const value = source?.[key];
+  return typeof value === "string" && value.trim() ? value.trim() : void 0;
+}
+function readStringArrayField(source, key) {
+  const value = source?.[key];
+  if (!Array.isArray(value)) {
+    return void 0;
+  }
+  return value.filter((item) => typeof item === "string");
+}
+function resolveCatalogFilters(state) {
+  const formFields = state.request.formFields;
+  return {
+    contractType: readStringField(formFields, "contractType"),
+    jurisdiction: readStringField(formFields, "jurisdiction"),
+    industry: readStringField(formFields, "industry"),
+    templateId: state.request.templateId,
+    clauseIds: readStringArrayField(formFields, "clauseIds"),
+    organizationId: readStringField(
+      state.metadata,
+      "organizationId"
+    )
+  };
+}
+function normalizeClauseName(name) {
+  return name.trim().toLowerCase();
+}
+function mergeRequiredClauses(baselineClauses, excludedClauses, additionalRequiredClauses) {
+  const excluded = new Set(excludedClauses.map(normalizeClauseName));
+  const baselineNormalized = new Set(baselineClauses.map(normalizeClauseName));
+  const retainedBaseline = baselineClauses.filter(
+    (clause) => !excluded.has(normalizeClauseName(clause))
+  );
+  const additions = additionalRequiredClauses.filter((clause) => {
+    const normalized = normalizeClauseName(clause);
+    return !baselineNormalized.has(normalized) && !excluded.has(normalized);
+  });
+  return [...retainedBaseline, ...additions];
+}
+function buildExtractionPrompt(state, baselineRequiredClauses) {
+  const formFields = state.request.formFields && Object.keys(state.request.formFields).length > 0 ? JSON.stringify(state.request.formFields) : "";
+  const sourceText = typeof state.request.sourceText === "string" && state.request.sourceText.trim() ? state.request.sourceText : "";
+  const sourceTextSnippet = sourceText.length > 12e3 ? `${sourceText.slice(0, 12e3)}\u2026` : sourceText;
+  if (state.request.intent === "REACTIVE" && sourceTextSnippet) {
+    return [
+      "You are analyzing an incoming hostile legal notice, claim letter, or court petition document.",
+      "Your goal is to extract the adversary's claims and synthesize a clean tactical instructions playbook.",
+      "",
+      "INCOMING HOSTILE DOCUMENT DETECTED:",
+      sourceTextSnippet,
+      "",
+      "User defensive instructions strategy notes:",
+      state.request.rawInstructions ?? "(none provided)",
+      "",
+      "FIELD EXTRACTION INSTRUCTIONS FOR REACTIVE DEFENSE:",
+      "- `contractType`: Classify the specific response format needed (e.g., 'Breach Response Letter', 'Cease & Desist Rebuttal').",
+      "- `parties`: Array where index 0 is [The Hostile Sender/Adversary] and index 1 is [Our Company/Target Name].",
+      "- `jurisdiction`: The governing law or court location specified in the hostile claim text.",
+      // TODO: We can improve this to an array of object where it store the configurations of the uploaded document
+      "- `uploadedDocSummary`: Write a clear, 2-to-3 sentence summary explaining exactly what the adversary is alleging or demanding in the uploaded text.",
+      "- `instructions`: Synthesize a comprehensive structural payload string. Format it EXACTLY like this: 'ADVERSARY ACCUSATIONS CLAIMS SUMMARY: [Write a 2-sentence structural summary of what they are alleging or demanding] | TARGET DEFENSE STRATEGY DIRECTIVES: [Summarize the user instructions strategy notes]'.",
+      "- `excludedClauses` & `additionalRequiredClauses` & `optionalClauses`: Keep these empty [] unless the user notes explicitly request specific clause changes."
+    ].filter(Boolean).join("\n");
+  }
+  const baselineClauseList = baselineRequiredClauses.length > 0 ? baselineRequiredClauses.map((clause) => `- ${clause}`).join("\n") : "- (none loaded from catalog)";
+  return [
+    "Extract structured drafting requirements from the inputs below.",
+    "",
+    "User instructions:",
+    state.request.rawInstructions ?? "",
+    "",
+    formFields ? `Form fields (JSON):
+${formFields}
+` : "",
+    sourceTextSnippet ? `Source text (snippet):
+${sourceTextSnippet}
+` : "",
+    "Baseline required clauses (already loaded from the clause catalog \u2014 do NOT re-guess these):",
+    baselineClauseList,
+    "",
+    "Clause handling rules:",
+    "- `excludedClauses`: clause types the user explicitly asked to omit or exclude from the baseline list above.",
+    "- `additionalRequiredClauses`: ONLY clause types that are NOT already in the baseline list but are required based on user instructions or obvious contract gaps.",
+    "- Do NOT repeat baseline clauses inside `additionalRequiredClauses`.",
+    "- Do NOT invent baseline clauses from scratch; the platform already loaded them from the database.",
+    "- If the user requests a specific new clause (e.g. 'add a non-compete'), put it in `additionalRequiredClauses`.",
+    "- If the user says to skip/remove a baseline clause (e.g. 'no indemnity clause'), put it in `excludedClauses`.",
+    "",
+    "Other field rules:",
+    "- Produce concrete strings (no nulls).",
+    "- If a value is unknown, infer a safe default consistent with the instructions.",
+    "- `parties` must be an array of party names (strings).",
+    "- `optionalClauses` must be clause/topic names that are nice-to-have but not mandatory.",
+    "- `instructions` should be a cleaned, consolidated instruction string."
+  ].filter(Boolean).join("\n");
+}
+async function fetchBaselineClauses(state) {
+  if (state.request.intent === "REACTIVE") {
+    return { clauses: [] };
+  }
   try {
-    return await fn();
+    const filters = resolveCatalogFilters(state);
+    const retriever = new ClauseCatalogRetriever(pool);
+    const clauses = await retriever.fetchBaselineClauseTypes(filters);
+    return { clauses };
+  } catch (err) {
+    return {
+      clauses: [],
+      warning: `Clause catalog lookup failed; continuing without baseline clauses. ${err.message}`
+    };
+  }
+}
+function toRequirementContext(extracted, baselineRequiredClauses) {
+  return {
+    contractType: extracted.contractType,
+    jurisdiction: extracted.jurisdiction,
+    industry: extracted.industry,
+    parties: extracted.parties,
+    requiredClauses: mergeRequiredClauses(
+      baselineRequiredClauses,
+      extracted.excludedClauses,
+      extracted.additionalRequiredClauses
+    ),
+    optionalClauses: extracted.optionalClauses,
+    language: extracted.language,
+    instructions: extracted.instructions,
+    uploadDocSummary: extracted.uploadDocSummary.trim() ? extracted.uploadDocSummary : void 0
+  };
+}
+async function requirementExtractionStep(state, provider = "GEMINI" /* GEMINI */) {
+  const isReactive = state.request.intent === "REACTIVE";
+  const systemInstruction2 = isReactive ? "You are a deterministic requirements extraction engine analyzing an adversarial legal document. Focus on extracting the claim facts and defense targets. Return ONLY valid JSON matching the provided JSON Schema. Do not include markdown or commentary." : "You are a deterministic requirements extraction engine. Baseline required clauses are already provided by the platform from the database. Your clause task is limited to identifying exclusions and additional required clauses only. Return ONLY valid JSON matching the provided JSON Schema. Do not include markdown or commentary.";
+  const { clauses: baselineRequiredClauses, warning: catalogWarning } = await fetchBaselineClauses(state);
+  let workingState = state;
+  if (catalogWarning) {
+    workingState = appendValidationWarning(workingState, catalogWarning);
+  }
+  const prompt = buildExtractionPrompt(workingState, baselineRequiredClauses);
+  try {
+    if (!config.openRouterApiKey || !config.openRouterApiKey.trim()) {
+      const fallbackRequirements = {
+        contractType: readStringField(state.request.formFields, "contractType") ?? "General",
+        jurisdiction: readStringField(state.request.formFields, "jurisdiction") ?? "Unspecified",
+        industry: readStringField(state.request.formFields, "industry") ?? "General",
+        parties: [],
+        requiredClauses: baselineRequiredClauses,
+        optionalClauses: [],
+        language: "English",
+        instructions: state.request.rawInstructions ?? ""
+      };
+      return appendValidationWarning(
+        {
+          ...workingState,
+          requirements: fallbackRequirements
+        },
+        "Requirement extraction skipped: OPENROUTER_API_KEY is not configured."
+      );
+    }
+    const extracted = await executeJsonCompletion(
+      prompt,
+      systemInstruction2,
+      REQUIREMENT_EXTRACTION_JSON_SCHEMA,
+      "STRUCTURAL_JSON" /* STRUCTURAL_JSON */,
+      provider
+    );
+    return {
+      ...workingState,
+      requirements: toRequirementContext(extracted, baselineRequiredClauses),
+      metadata: {
+        ...workingState.metadata,
+        requirementExtraction: {
+          baselineRequiredClauses,
+          excludedClauses: extracted.excludedClauses,
+          additionalRequiredClauses: extracted.additionalRequiredClauses
+        }
+      }
+    };
+  } catch (err) {
+    const fallbackRequirements = {
+      contractType: readStringField(state.request.formFields, "contractType") ?? "General",
+      jurisdiction: readStringField(state.request.formFields, "jurisdiction") ?? "Unspecified",
+      industry: readStringField(state.request.formFields, "industry") ?? "General",
+      parties: [],
+      requiredClauses: baselineRequiredClauses,
+      optionalClauses: [],
+      language: "English",
+      instructions: state.request.rawInstructions ?? ""
+    };
+    return appendValidationWarning(
+      {
+        ...workingState,
+        requirements: fallbackRequirements
+      },
+      `Requirement extraction failed; continuing with catalog baseline clauses. ${err.message}`
+    );
+  }
+}
+
+// backend/src/modules/drafting/steps/retrieval.ts
+init_database();
+var retrievalStep = async (state) => {
+  if (!state.requirements) {
+    throw new Error("Cannot execute retrieval step: state.requirements is null");
+  }
+  const requirements = state.requirements;
+  const buildFallbackClauses = (clauseTypes) => {
+    const fallbackLibrary = {
+      Confidentiality: "Each Party shall keep Confidential Information strictly confidential, use it only for performance under this Agreement, and apply reasonable safeguards no less protective than those used for its own confidential materials.",
+      Liability: "Neither Party shall be liable for indirect, incidental, special, or consequential damages. Aggregate liability under this Agreement shall not exceed the total fees paid in the twelve (12) months preceding the event giving rise to liability.",
+      Indemnity: "Each Party shall defend, indemnify, and hold harmless the other Party from third-party claims arising from its breach of law, gross negligence, or willful misconduct, subject to prompt notice and cooperation.",
+      Termination: "Either Party may terminate this Agreement for material breach not cured within thirty (30) days after written notice. Upon termination, accrued payment obligations and clauses intended to survive shall remain in effect.",
+      DataProtection: "Where personal data is processed, the Parties shall comply with applicable data protection laws, process data only on documented instructions, and implement appropriate technical and organizational security measures.",
+      GoverningLaw: `This Agreement shall be governed by the laws of ${requirements.jurisdiction}, excluding conflict-of-law rules, and disputes shall be resolved in the competent courts of that jurisdiction.`,
+      General: "This clause is a temporary approved placeholder and should be replaced by a clause from the managed clause library once vector and keyword retrievers are integrated."
+    };
+    return clauseTypes.map((rawType, index) => {
+      const cleanType = String(rawType || "General").trim() || "General";
+      const normalized = cleanType.replace(/\s+/g, "");
+      const text = fallbackLibrary[normalized] || fallbackLibrary[cleanType] || fallbackLibrary.General;
+      return {
+        id: `fallback_clause_${index + 1}`,
+        clauseType: cleanType,
+        jurisdiction: requirements.jurisdiction,
+        riskLevel: index < 2 ? "Low" : "Medium",
+        isApproved: true,
+        text
+      };
+    });
+  };
+  const retrieveClauses = async () => {
+    const requestedTypes = [
+      ...requirements.requiredClauses || [],
+      ...requirements.optionalClauses || []
+    ];
+    const normalizedTypes = (requestedTypes.length ? requestedTypes : ["General"]).slice(0, 6);
+    try {
+      const { rows } = await pool.query(
+        `SELECT id, name, details, tags
+         FROM library_items
+         WHERE type = 'clauses'
+         ORDER BY created_at DESC
+         LIMIT 50`
+      );
+      if (!rows.length) {
+        return buildFallbackClauses(normalizedTypes);
+      }
+      const ranked = [];
+      const loweredNeedles = normalizedTypes.map((t) => t.toLowerCase());
+      for (const row of rows) {
+        const detailsText = typeof row.details === "string" ? row.details : JSON.stringify(row.details || {});
+        const tagsText = typeof row.tags === "string" ? row.tags : JSON.stringify(row.tags || []);
+        const haystack = `${row.name || ""} ${detailsText} ${tagsText}`.toLowerCase();
+        const matchingType = loweredNeedles.find((t) => haystack.includes(t));
+        if (!matchingType) continue;
+        ranked.push({
+          id: String(row.id),
+          clauseType: matchingType,
+          jurisdiction: requirements.jurisdiction,
+          riskLevel: "Medium",
+          isApproved: true,
+          text: detailsText
+        });
+        if (ranked.length >= 8) break;
+      }
+      if (ranked.length > 0) {
+        return ranked;
+      }
+      return buildFallbackClauses(normalizedTypes);
+    } catch {
+      return buildFallbackClauses(normalizedTypes);
+    }
+  };
+  const readPlaybookRulesFromDb = async () => {
+    try {
+      const { rows } = await pool.query(
+        `SELECT id, topic, standard_position, fallback_positions, walk_away_condition
+         FROM playbook_rules
+         WHERE contract_type = $1
+         ORDER BY created_at DESC
+         LIMIT 25`,
+        [requirements.contractType]
+      );
+      return rows.map((row) => ({
+        id: String(row.id),
+        topic: String(row.topic ?? "General"),
+        standardPosition: String(row.standard_position ?? ""),
+        fallbackPositions: Array.isArray(row.fallback_positions) ? row.fallback_positions : [],
+        walkAwayCondition: String(row.walk_away_condition ?? "")
+      }));
+    } catch {
+      return [];
+    }
+  };
+  const readTemplateFromDb = async () => {
+    try {
+      const templateSql = `
+  SELECT id, title, content 
+  FROM contract_templates 
+  WHERE contract_type = $1 
+    AND jurisdiction = $2 
+    AND status = 'active'
+    LIMIT 1;
+    `;
+      const templateParams = [
+        state.requirements?.contractType,
+        // Must be passed exactly as 'NDA'
+        state.requirements?.jurisdiction
+        // Must be passed exactly as 'Delaware'
+      ];
+      const { rows } = await pool.query(
+        templateSql,
+        templateParams
+      );
+      if (!rows.length || !rows[0]?.content) {
+        return null;
+      }
+      return String(rows[0].content);
+    } catch {
+      return null;
+    }
+  };
+  const [dbRules, matchedTemplate] = await Promise.all([
+    readPlaybookRulesFromDb(),
+    readTemplateFromDb()
+  ]);
+  const clauses = await retrieveClauses();
+  return {
+    ...state,
+    retrieval: {
+      matchedTemplate,
+      applicablePlaybookRules: dbRules,
+      // Keep playbook retrieval on DB output only
+      fallbackClauses: clauses,
+      // Top ranked primary/fallbacks preserved
+      historicalReferences: []
+    },
+    metadata: {
+      ...state.metadata,
+      retrievedAt: (/* @__PURE__ */ new Date()).toISOString()
+    }
+  };
+};
+
+// backend/src/modules/drafting/prompts/system-templates.ts
+var SYSTEM_CORE_GUARDRAILS = `
+# SYSTEM INSTRUCTIONS & OPERATIONAL GUARDRAILS
+You are a precise legal drafting engine. Your task is to generate the final contract text.
+You must merge the provided BASELINE TEMPLATE TEXT into the compulsory DOCUMENT SKELETON headers, while strictly enforcing the MANDATORY PLAYBOOK RULES.
+
+CRITICAL GUARDRAILS:
+1. Do not invent your own document layout. Use the headers provided in the SKELETON.
+2. Adopt the phrasing, tone, and standard boilerplate from the BASELINE TEMPLATE TEXT where applicable, but override it if it conflicts with a Playbook Rule.
+3. Replace all bracketed placeholders (e.g., [\u25CF DATE], [\u25CF PARTY A NAME]) using the data found in the RUNTIME REQUIREMENTS.
+`.trim();
+var SYSTEM_REACTIVE_GUARDRAILS = `
+You are an elite corporate defense attorney specializing in alternative dispute resolution. 
+Your sole task is to draft a formal legal response, answer, or rebuttal letter to an incoming hostile claim, notice, or petition.
+
+CRITICAL DEFENSIVE GUARDRAILS:
+1. FACTUAL COUNTER: Methodically address the allegations found in the claim text using the provided marching orders.
+2. DISPUTE LIABILITY: Protect the target company's interests. Do not waive corporate rights or concede any fault or financial breach unless explicitly commanded.
+3. PRESERVE STRUCTURE: Format the output document cleanly matching the headings provided in the response skeleton.
+`.trim();
+function buildPlaybookSection(rules) {
+  let block = "# MANDATORY CORPORATE PLAYBOOK RULES\n";
+  if (rules.length === 0) {
+    return block + "No specific company compliance restrictions found.\n";
+  }
+  rules.forEach((rule) => {
+    block += `- Topic: ${rule.topic}
+  * Standard Position: ${rule.standardPosition}
+  * Fallbacks: ${rule.fallbackPositions.join(" | ")}
+  * Walk-away: ${rule.walkAwayCondition}
+
+`;
+  });
+  return block.trim();
+}
+function buildClauseSection(clauses) {
+  let block = "# RETRIEVED APPROVED REFERENCE CLAUSES\n";
+  if (clauses.length === 0) {
+    return block + "No custom clause library matches found.\n";
+  }
+  clauses.forEach((clause) => {
+    block += `[Clause ID: ${clause.id} | Type: ${clause.clauseType}]
+"${clause.text}"
+
+`;
+  });
+  return block.trim();
+}
+function buildSkeletonSection(skeleton) {
+  let block = "# COMPULSORY DOCUMENT SKELETON STRUCTURAL SPINE\n";
+  skeleton.forEach((heading, idx) => {
+    block += `${idx + 1}. ${heading}
+`;
+  });
+  return block.trim();
+}
+function buildVariablesSection(requirements, intent) {
+  const currentIntent = typeof intent === "string" ? intent.toLowerCase() : "";
+  if (currentIntent === "REACTIVE") {
+    const adversaryName = requirements.parties[0] || "Hostile Claimant";
+    const targetName = requirements.parties[1] || "Our Company (Respondent)";
+    return `
+# REACTIVE DISPUTE VARIABLES & LITIGATION CONTEXT
+- Dispute Response Category: ${requirements.contractType}
+- Adversarial Forum / Jurisdiction: ${requirements.jurisdiction}
+- Target Industry Domain: ${requirements.industry}
+- Involved Entities: ${adversaryName} (Claimant/Adversary) VS. ${targetName} (Our Company/Respondent)
+- Operational Intent: REACTIVE
+
+# COMPREHENDED ADVERSARIAL CLAIMS SUMMARY
+${requirements.uploadDocSummary || "Review raw text fields for explicit claim allegations."}
+
+# DEFENSE STRATEGY & MARCHING ORDERS
+${requirements.instructions || "Draft a firm, professional legal rebuttal denying liability based on standard guidelines."}
+`.trim();
+  }
+  return `
+# DYNAMIC VARIABLES & EXTRACTED RUNTIME REQUIREMENTS
+- Contract Type: ${requirements.contractType}
+- Governing Law/Jurisdiction: ${requirements.jurisdiction}
+- Target Industry Segment: ${requirements.industry}
+- Identified Parties: ${requirements.parties.join(" AND ")}
+- Operational Mode: ${intent}
+
+# SPECIAL USER EXTRA EXECUTION INSTRUCTIONS
+${requirements.instructions || "Draft a clean, balanced agreement following the guidelines above."}
+`.trim();
+}
+var REFINEMENT_CORE_GUARDRAILS = `
+# SYSTEM INSTRUCTIONS & REVISION GUARDRAILS
+You are an expert legal editor. Your sole task is to revise an existing draft contract based on a provided checklist of target corrections.
+
+CRITICAL REFINEMENT GUARDRAILS:
+1. PRESERVE INTEGRITY: Do not rewrite parts of the contract that are unaffected by the correction checklist. Retain the tone, layout, and style of the existing draft.
+2. SURROUNDING TEXT SAFETIES: Ensure that any modified sections seamlessly integrate with the surrounding text. Do not break section numbering or internal cross-references.
+3. SPECIFIC SCOPE: If a highlighted text target is provided, focus your edits strictly within that targeted boundary block.
+`.trim();
+function buildUnifiedCorrectionList(issues, highlightedText, userNotes) {
+  let block = "# REVISION TARGETS AND CORRECTION CRITERIA\n";
+  let counter = 1;
+  if (issues && issues.length > 0) {
+    block += `## AUTOMATED CRITICAL COMPLIANCE FIXES:
+`;
+    issues.forEach((issue) => {
+      block += `${counter}. [${issue.severity.toUpperCase()} - ${issue.type}] In section '${issue.targetSection || "General"}': ${issue.description}
+`;
+      counter++;
+    });
+  }
+  if (highlightedText || userNotes && userNotes.trim() !== "") {
+    block += `
+## HUMAN USER DIRECTIVES & ADJUSTMENTS:
+`;
+    if (highlightedText) {
+      block += `${counter}. TARGET TEXT AREA TO PATCH: "${highlightedText}"
+`;
+      counter++;
+    }
+    if (userNotes) {
+      block += `${counter}. USER EDITING INSTRUCTION: ${userNotes}
+`;
+      counter++;
+    }
+  }
+  if (counter === 1) {
+    block += "No revision targets specified. Return the document unchanged.\n";
+  }
+  return block.trim();
+}
+
+// backend/src/modules/drafting/steps/context-assembly.ts
+var PROACTIVE_CONTRACT_SKELETON = [
+  "Definitions",
+  "Parties & Preamble",
+  "Confidentiality & Non-Disclosure Obligations",
+  "Limitation of Liability & Indemnification",
+  "Termination & Survival Mechanics",
+  "Intellectual Property (IP) Ownership Rights",
+  "Governing Law & Dispute Resolution",
+  "Signatures & Execution Blocks"
+];
+var REACTIVE_RESPONSE_SKELETON = [
+  "Preamble & Notice Identification",
+  "Factual Recitals & Core Disputes",
+  "Affirmative Defense & Policy Arguments",
+  "Formal Demand, Remedy Requests & Closure",
+  "Signatures & Legal Representation Blocks"
+];
+var contextAssemblyStep = async (state) => {
+  if (!state.requirements) {
+    throw new Error("Context Assembly aborted: state.requirements data block missing.");
+  }
+  const { retrieval, requirements, request } = state;
+  let SYSTEM_PROMPT;
+  let fullCompiledPrompt;
+  let ACTIVE_SKELETON;
+  const isReactive = state.request.intent === "REACTIVE";
+  if (isReactive) {
+    SYSTEM_PROMPT = SYSTEM_REACTIVE_GUARDRAILS;
+    ACTIVE_SKELETON = REACTIVE_RESPONSE_SKELETON;
+    fullCompiledPrompt = [
+      SYSTEM_PROMPT,
+      buildPlaybookSection(retrieval.applicablePlaybookRules),
+      buildClauseSection(retrieval.fallbackClauses),
+      `# BASELINE TEMPLATE TEXT
+${retrieval.matchedTemplate || "No baseline text provided."}`,
+      buildSkeletonSection(ACTIVE_SKELETON),
+      buildVariablesSection(requirements, request.intent)
+    ].join("\n\n");
+  } else {
+    SYSTEM_PROMPT = SYSTEM_REACTIVE_GUARDRAILS;
+    ACTIVE_SKELETON = PROACTIVE_CONTRACT_SKELETON;
+    fullCompiledPrompt = [
+      SYSTEM_CORE_GUARDRAILS,
+      buildPlaybookSection(retrieval.applicablePlaybookRules),
+      buildClauseSection(retrieval.fallbackClauses),
+      `# BASELINE TEMPLATE TEXT
+${retrieval.matchedTemplate || "No baseline text provided."}`,
+      buildSkeletonSection(ACTIVE_SKELETON),
+      buildVariablesSection(requirements, request.intent)
+    ].join("\n\n");
+  }
+  return {
+    ...state,
+    context: {
+      systemPrompt: SYSTEM_PROMPT,
+      assembledPrompt: fullCompiledPrompt,
+      documentSkeleton: ACTIVE_SKELETON
+    }
+  };
+};
+
+// backend/src/modules/drafting/steps/generation.ts
+import dotenv2 from "dotenv";
+dotenv2.config();
+function cleanMarkdownArtifacts(rawText) {
+  let cleanedText = rawText.trim();
+  if (cleanedText.startsWith("```markdown")) {
+    cleanedText = cleanedText.replace(/^```markdown\s*/i, "");
+  } else if (cleanedText.startsWith("```")) {
+    cleanedText = cleanedText.replace(/^```\s*/, "");
+  }
+  if (cleanedText.endsWith("```")) {
+    cleanedText = cleanedText.replace(/\s*```$/, "");
+  }
+  return cleanedText.trim();
+}
+var generationStep = async (state, provider = "GEMINI" /* GEMINI */) => {
+  if (!state.context || !state.context.assembledPrompt) {
+    throw new Error("Generation Step Aborted: Context has not been assembled. state.context.assembledPrompt is null.");
+  }
+  try {
+    const rawModelOutput = await executeCompletion(
+      state.context.assembledPrompt,
+      state.context.systemPrompt,
+      "COMPLEX_DRAFT" /* COMPLEX_DRAFT */,
+      provider
+    );
+    const cleanedDocumentText = cleanMarkdownArtifacts(rawModelOutput);
+    const currentVersion = state.draft ? state.draft.version + 1 : 1;
+    return {
+      ...state,
+      draft: {
+        rawOutput: rawModelOutput,
+        formattedDocument: cleanedDocumentText,
+        version: currentVersion,
+        parentVersionId: state.draft ? `v${state.draft.version}` : void 0
+      },
+      metadata: {
+        ...state.metadata,
+        generatedAt: (/* @__PURE__ */ new Date()).toISOString(),
+        modelUsed: state.metadata.generationParameters?.model || "anthropic/claude-3.5-sonnet"
+      }
+    };
   } catch (error) {
-    if (retries === 0) throw error;
-    const isTransient = error.message?.includes("fetch failed") || error.message?.includes("socket hang up") || error.message?.includes("ECONNRESET") || error.message?.includes("Connection terminated") || error.message?.includes("connection timeout") || error.message?.includes("503") || error.message?.includes("504") || error.message?.includes("429");
-    if (!isTransient) throw error;
-    console.warn(`Retry attempt remaining: ${retries}. Error: ${error.message}`);
-    await new Promise((resolve) => setTimeout(resolve, delay));
-    return withRetry(fn, retries - 1, delay * 2);
+    console.error("Fatal execution exception within generation step component:", error);
+    throw new Error(`Generation Layer Failure: ${error.message}`);
+  }
+};
+
+// backend/src/modules/drafting/prompts/validation-template.ts
+var systemInstruction = `
+You are a meticulous enterprise legal auditor. Your task is to review the generated contract text against a provided list of strict corporate playbook policies and reference cross-links.
+Flag any direct violations, broken internal article references (e.g., Section 4 referencing Section 9 when Section 9 doesn't exist), or jurisdiction compliance failures.
+Your output must conform strictly to the requested JSON array schema. Do not include conversational preambles.
+  `;
+var builderAuditPrompt = (state) => {
+  return `
+  # DRAFT CONTRACT TO AUDIT
+  ${state.draft.formattedDocument}
+  
+  # CORPORATE COMPLIANCE PLAYBOOK RULES TO VERIFY AGAINST
+  ${JSON.stringify(state.retrieval.applicablePlaybookRules, null, 2)}
+  
+  # EXPECTED JURISDICTION BOUNDARY
+  ${state.requirements?.jurisdiction || "Not specified"}
+  
+  Perform the audit and return all found errors. If the document is flawless and complies completely, return an empty issues array.
+    `;
+};
+
+// backend/src/modules/drafting/schemas/validation-schema.ts
+var LLM_VALIDATION_SCHEMA = {
+  type: "object",
+  properties: {
+    issues: {
+      type: "array",
+      description: "List of compliance, legal, or reference issues found in the draft.",
+      items: {
+        type: "object",
+        required: ["type", "severity", "description"],
+        properties: {
+          type: {
+            type: "string",
+            enum: ["omission", "reference_broken", "playbook_violation", "formatting", "jurisdiction"]
+          },
+          severity: {
+            type: "string",
+            enum: ["warning", "critical"]
+          },
+          description: {
+            type: "string",
+            description: "Detailed explanation of the exact issue and why it fails compliance."
+          },
+          targetSection: {
+            type: "string",
+            description: "The name of the header or section where this issue occurs."
+          }
+        }
+      }
+    }
+  },
+  required: ["issues"]
+};
+
+// backend/src/modules/drafting/steps/validation.ts
+var validationStep = async (state, provider = "GEMINI" /* GEMINI */) => {
+  if (!state.draft || !state.draft.formattedDocument) {
+    throw new Error("Validation Step Aborted: No generated draft content available to validate.");
+  }
+  const documentText = state.draft.formattedDocument;
+  const issues = [];
+  if (state.context?.documentSkeleton) {
+    state.context.documentSkeleton.forEach((heading) => {
+      if (!documentText.includes(heading)) {
+        issues.push({
+          type: "omission",
+          severity: "critical",
+          description: `Compulsory structural header matching '${heading}' is entirely missing from the document output.`,
+          targetSection: heading
+        });
+      }
+    });
+  }
+  const placeholderRegex = /\[●.*?\]|\[Insert.*?\]|__+/gi;
+  let match;
+  while ((match = placeholderRegex.exec(documentText)) !== null) {
+    issues.push({
+      type: "formatting",
+      severity: "warning",
+      description: `Unresolved structural placeholder token remaining at index location ${match.index}: "${match[0]}"`
+    });
+  }
+  const auditPrompt = builderAuditPrompt(state);
+  try {
+    const llmResult = await executeJsonCompletion(
+      auditPrompt.trim(),
+      systemInstruction.trim(),
+      LLM_VALIDATION_SCHEMA,
+      "STRUCTURAL_JSON" /* STRUCTURAL_JSON */,
+      provider
+    );
+    if (llmResult && Array.isArray(llmResult.issues)) {
+      issues.push(...llmResult.issues);
+    }
+  } catch (error) {
+    console.error("Non-blocking validation warning: Semantic audit engine failed.", error);
+    issues.push({
+      type: "formatting",
+      severity: "warning",
+      description: `Semantic analysis step partially timed out or failed to parse: ${error.message}`
+    });
+  }
+  const isValid = !issues.some((issue) => issue.severity === "critical");
+  return {
+    ...state,
+    validation: {
+      isValid,
+      issues
+    },
+    metadata: {
+      ...state.metadata,
+      validatedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      totalIssuesFound: issues.length,
+      criticalCount: issues.filter((i) => i.severity === "critical").length
+    }
+  };
+};
+
+// backend/src/modules/drafting/prompts/risk-review-template.ts
+var builderReviewPrompt = (state) => {
+  return `
+# CONTRACT DRAFT FOR RISK EVALUATION
+${state.draft.formattedDocument}
+
+# CLIENT COMPANY BUSINESS CONTEXT & REQ_CONTEXT
+- Target Industry Segment: ${state.requirements?.industry || "Standard"}
+- Operational Mode: ${state.request.mode}
+
+Analyze the text and populate the array with any identified substantive risk exposures, along with clear explanations and suggested mitigation clause updates.
+  `;
+};
+
+// backend/src/modules/drafting/schemas/risk-review-schema.ts
+var LLM_RISK_REVIEW_SCHEMA = {
+  type: "object",
+  properties: {
+    risks: {
+      type: "array",
+      items: {
+        type: "object",
+        required: ["severity", "explanation"],
+        properties: {
+          severity: { type: "string", enum: ["Low", "Medium", "High"] },
+          explanation: { type: "string" },
+          suggestedReplacementClause: { type: "string" }
+        }
+      }
+    }
+  },
+  required: ["risks"]
+};
+
+// backend/src/modules/drafting/steps/risk-review.ts
+var riskReviewStep = async (state, provider = "GEMINI" /* GEMINI */) => {
+  if (!state.draft || !state.draft.formattedDocument) {
+    throw new Error("Risk Review Aborted: Cannot perform risk analysis on an empty contract draft.");
+  }
+  const reviewPrompt = builderReviewPrompt(state);
+  try {
+    const llmResult = await executeJsonCompletion(
+      reviewPrompt.trim(),
+      systemInstruction.trim(),
+      LLM_RISK_REVIEW_SCHEMA,
+      "STRUCTURAL_JSON" /* STRUCTURAL_JSON */
+    );
+    const activeRisks = llmResult?.risks ?? [];
+    return {
+      ...state,
+      riskReview: {
+        analyzed: true,
+        risks: activeRisks
+      },
+      metadata: {
+        ...state.metadata,
+        riskReviewExecutedAt: (/* @__PURE__ */ new Date()).toISOString(),
+        totalRisksIdentified: activeRisks.length,
+        highSeverityRisksCount: activeRisks.filter((r) => r.severity === "High").length
+      }
+    };
+  } catch (error) {
+    console.error("Non-blocking execution warning: Risk Review processing failed.", error);
+    return {
+      ...state,
+      riskReview: {
+        analyzed: false,
+        risks: []
+      },
+      metadata: {
+        ...state.metadata,
+        riskReviewError: error.message,
+        riskReviewExecutedAt: (/* @__PURE__ */ new Date()).toISOString()
+      }
+    };
+  }
+};
+
+// backend/src/modules/drafting/steps/refinement-assembly.ts
+var contextAssemblyRefinementStep = async (state) => {
+  if (!state.draft || !state.draft.formattedDocument) {
+    throw new Error("Refinement Assembly Aborted: No existing draft document found in state to refine.");
+  }
+  const existingDraftText = state.draft.formattedDocument;
+  const playbookRules = state.retrieval.applicablePlaybookRules || [];
+  const activeSkeleton = state.context?.documentSkeleton || [];
+  const unifiedCorrections = buildUnifiedCorrectionList(
+    state.validation?.issues,
+    state.request.highlightedText,
+    state.request.rawInstructions
+  );
+  const fullRefinementPrompt = [
+    REFINEMENT_CORE_GUARDRAILS,
+    buildPlaybookSection(playbookRules),
+    `# CURRENT DOCUMENT DRAFT SNAPSHOT (CURRENTLY UNSTABLE)
+Use this text as your base copy. Apply revisions directly onto it:
+
+${existingDraftText}`,
+    buildSkeletonSection(activeSkeleton),
+    unifiedCorrections
+    // Highly dynamic instructions sit right at the bottom!
+  ].join("\n\n");
+  return {
+    ...state,
+    context: {
+      ...state.context,
+      systemPrompt: REFINEMENT_CORE_GUARDRAILS,
+      assembledPrompt: fullRefinementPrompt,
+      documentSkeleton: activeSkeleton
+    },
+    metadata: {
+      ...state.metadata,
+      refinementPromptAssembledAt: (/* @__PURE__ */ new Date()).toISOString(),
+      currentRefinementVersionLoop: state.draft.version
+    }
+  };
+};
+
+// backend/src/modules/drafting/steps/save.ts
+var mockDbLedger = {
+  saveSnapshot: async (documentId, version, stateMatrix) => {
+    return new Promise((resolve) => setTimeout(resolve, 50));
+  }
+};
+var saveStep = async (state) => {
+  if (!state.draft) {
+    throw new Error("Save Step Aborted: Cannot execute state persistence layer on an empty draft artifact.");
+  }
+  try {
+    const snapshotMatrix = structuredClone({
+      requirements: state.requirements,
+      retrieval: state.retrieval,
+      context: state.context,
+      draft: state.draft,
+      validation: state.validation,
+      riskReview: state.riskReview,
+      metadata: state.metadata
+    });
+    const documentId = state.request.payloadFields?.documentId || `doc_${crypto.randomUUID()}`;
+    const currentVersion = state.draft.version;
+    await mockDbLedger.saveSnapshot(
+      documentId,
+      currentVersion,
+      snapshotMatrix
+    );
+    return {
+      ...state,
+      metadata: {
+        ...state.metadata,
+        persistedDocumentId: documentId,
+        isFullySaved: true,
+        finalSavedAt: (/* @__PURE__ */ new Date()).toISOString()
+      }
+    };
+  } catch (error) {
+    console.error("Fatal database exception encountered during pipeline ledger save operations:", error);
+    throw new Error(`Persistence Layer Failure: ${error.message}`);
+  }
+};
+
+// backend/src/modules/drafting/workflows/draft-workflow.ts
+var DraftWorkflowOrchestrator = class {
+  /**
+   * Pipeline 1: Generation from Scratch / Template
+   */
+  async executeInitialWorkflow(initialState) {
+    let state = { ...initialState };
+    try {
+      state = await requirementExtractionStep(state);
+      console.log("step 1 - requirementExtractionStep", state);
+      state = await retrievalStep(state);
+      console.log("step 2 retreval", state);
+      state = await contextAssemblyStep(state);
+      console.log("step 3 - context assembly", state);
+      state = await generationStep(state);
+      console.log("step 4 - generationStep", state);
+      state = await validationStep(state);
+      console.log("step 5 - validationStep", state);
+      state = await riskReviewStep(state);
+      console.log("step 6 - riskReviewStep", state);
+      state = await saveStep(state);
+      console.log("step 7 - saving...", state);
+      let attempt = 0;
+      const maxAttempt = 1;
+      while (!state.validation?.isValid && attempt < maxAttempt) {
+        console.log("Entered in validation while loop");
+        state = await contextAssemblyRefinementStep(state);
+        state = await generationStep(state);
+        state = await validationStep(state);
+        attempt++;
+      }
+      state = await saveStep(state);
+      return state;
+    } catch (error) {
+      throw new Error(
+        `Initial drafting orchestrator failed: ${error.message}`
+      );
+    }
+  }
+  /**
+   * Pipeline 2: Targeted Document Refinement Cycle
+   */
+  async executeHumanRefinementPipeline(initialState1) {
+    try {
+      let attempts = 0;
+      const MAX_RETRY_ATTEMPTS = 2;
+      let initialState = initialState1;
+      while (attempts < MAX_RETRY_ATTEMPTS) {
+        const updateState = await contextAssemblyRefinementStep(initialState);
+        const generateState = await generationStep(updateState);
+        initialState = await validationStep(generateState);
+        const hasStucturalProblems = initialState.validation?.issues.some((issue) => issue.type === "omission" && issue.severity === "critical") ?? false;
+        if (!hasStucturalProblems) {
+          break;
+        }
+        attempts++;
+      }
+      const stillHasGlitches = initialState.validation?.issues.some(
+        (issue) => (issue.type === "formatting" || issue.type === "omission") && issue.severity === "critical"
+      ) ?? false;
+      if (stillHasGlitches) {
+        return {
+          ...initialState,
+          draft: initialState.draft,
+          // Rollback text to the stable v1 document copy
+          validation: {
+            isValid: false,
+            issues: [
+              {
+                type: "omission",
+                severity: "critical",
+                description: "Refinement aborted: The generation engine corrupted the document structure. Restored prior version."
+              }
+            ]
+          }
+        };
+      }
+      const riskEvaluatedState = await riskReviewStep(initialState);
+      const finalizedState = await saveStep(riskEvaluatedState);
+      return finalizedState;
+    } catch (error) {
+      throw new Error(
+        `Refinement cycle orchestrator failed: ${error.message}`
+      );
+    }
+  }
+  // async executeRefinementWorkflow(initialState: DraftState): Promise<DraftState> {
+  //   let state: DraftState = { ...initialState };
+  //   try {
+  //     // Skip extraction; load historical generation context + playbook directly from past state
+  //     state = await retrievalStep(state);
+  //     // Specialized assembly combining context + summary + highlights + instructions
+  //     state = await refinementAssemblyStep(state);
+  //     // Execution, validation, and saving as an incremented version
+  //     state = await generationStep(state);
+  //     state = await validationStep(state);
+  //     state = await riskReviewStep(state);
+  //     state = await saveStep(state);
+  //     return state;
+  //   } catch (error) {
+  //     throw new Error(
+  //       `Refinement cycle orchestrator failed: ${(error as Error).message}`
+  //     );
+  //   }
+  // }
+};
+
+// backend/src/services/jobs/handlers/drafting-handler.ts
+async function extractTextFromStorageUrl(fileUrl) {
+  const response = await fetch(fileUrl);
+  if (!response.ok) throw new Error(`File download failed with status: ${response.status}`);
+  const arrayBuffer = await response.arrayBuffer();
+  const parsedPdfData = new PDFParse({ data: Buffer.from(arrayBuffer) });
+  const parsedPdf = await parsedPdfData.getText();
+  const extractedTextString = parsedPdf.text ?? "";
+  return extractedTextString;
+}
+async function handleInitialDraftingJob(jobId, userId, payload) {
+  const { mode, outputLevel, instructions, formFields, templateId, sourceText, playbookText, intent, fileUrl } = payload;
+  await updateJobProgress(jobId, userId, 20, "Extracting compliance parameters and routing tracking slots...");
+  const targetDocId = "doc_" + crypto5.randomUUID();
+  let resolvedSourceText = void 0;
+  if (intent === "REACTIVE" && fileUrl) {
+    resolvedSourceText = await extractTextFromStorageUrl(fileUrl);
+  }
+  const evaluatedIntent = intent === "REACTIVE" || resolvedSourceText && resolvedSourceText.trim() ? "REACTIVE" : "PROACTIVE";
+  await updateJobProgress(jobId, userId, 25, "Structuring tracking context state blocks...");
+  const initialStateContainer = {
+    request: {
+      intent: evaluatedIntent,
+      mode: null,
+      // we are using intent everywhere instead of mode        
+      rawInstructions: instructions || "",
+      sourceText: resolvedSourceText,
+      templateId: templateId || void 0,
+      formFields: formFields || {},
+      payloadFields: { documentId: targetDocId }
+    },
+    requirements: null,
+    retrieval: {
+      matchedTemplate: null,
+      applicablePlaybookRules: [],
+      fallbackClauses: [],
+      historicalReferences: []
+    },
+    context: null,
+    draft: null,
+    validation: null,
+    riskReview: null,
+    metadata: {
+      generationParameters: {},
+      playbookVersion: "1.0.0",
+      timestamp: (/* @__PURE__ */ new Date()).toISOString()
+    }
+  };
+  await updateJobProgress(jobId, userId, 50, "Invoking AI model core engine and validation checkpoints...");
+  const orchestrator4 = new DraftWorkflowOrchestrator();
+  const finalizedState = await orchestrator4.executeInitialWorkflow(initialStateContainer);
+  if (!finalizedState.draft?.formattedDocument) {
+    throw new Error("Pipeline Execution Failure: Final document text block emerged empty from workflow engine.");
+  }
+  const documentContentResult = finalizedState.draft.formattedDocument;
+  const title = `AI Draft - ${(/* @__PURE__ */ new Date()).toLocaleDateString()}`;
+  const { email: creatorEmail } = await withTransaction(userId, "USER", async (client) => {
+    const { rows } = await client.query("SELECT email FROM users WHERE id = $1", [userId]);
+    return { email: rows[0]?.email || "" };
+  });
+  const encryptedContent = encryptData(documentContentResult);
+  await withTransaction(userId, "USER", async (client) => {
+    await client.query(
+      `INSERT INTO files (id, title, type, content, creator_id, creator_email, is_encrypted, shared_with, audit_logs)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [targetDocId, title, "draft", encryptedContent, userId, creatorEmail, true, JSON.stringify([]), JSON.stringify([])]
+    );
+    const versionId = "ver_" + crypto5.randomUUID();
+    await client.query(
+      `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
+      [versionId, targetDocId, encryptedContent]
+    );
+  });
+  return { content: documentContentResult, file_id: targetDocId, version: 1 };
+}
+async function handleRefinementJob(jobId, userId, payload) {
+  const { text, refineType, param, documentId, currentVersion } = payload;
+  await updateJobProgress(jobId, userId, 15, "Reconstituting pipeline memory context logs...");
+  let functionalInstruction = "";
+  if (refineType === "tone") functionalInstruction = `Rewrite the following legal text in a ${param} tone.`;
+  else if (refineType === "grammar") functionalInstruction = `Fix the spelling and grammar in the following legal text while preserving legal meaning.`;
+  else if (refineType === "extend") functionalInstruction = `Expand the following legal clause with more comprehensive protections.`;
+  else if (refineType === "reduce") functionalInstruction = `Shorten the following legal clause to its core obligation.`;
+  else if (refineType === "simplify") functionalInstruction = `Rewrite the following legal text in plain English for a non-lawyer.`;
+  else if (refineType === "complete") functionalInstruction = `Complete the following sentence or clause in a professional legal manner.`;
+  else if (refineType === "ask") functionalInstruction = param;
+  const targetDocId = documentId || "doc_" + crypto5.randomUUID();
+  const nextVersionNumber = (currentVersion || 1) + 1;
+  let historicalStateSnapshot = null;
+  try {
+    const snapshotLookup = await pool.query(
+      "SELECT state_snapshot_json FROM draft_state_ledger WHERE document_id = $1 AND version = $2 LIMIT 1",
+      [targetDocId, currentVersion || 1]
+    );
+    if (snapshotLookup.rows.length > 0) {
+      historicalStateSnapshot = snapshotLookup.rows[0].state_snapshot_json;
+    }
+  } catch (dbErr) {
+    console.warn(`[DraftingHandler/Refine] Snapshot trace lookup bypassed for database row ${targetDocId}:`, dbErr);
+  }
+  const inputStateContainer = historicalStateSnapshot ? {
+    ...historicalStateSnapshot,
+    request: {
+      ...historicalStateSnapshot.request,
+      rawInstructions: functionalInstruction,
+      payloadFields: {
+        ...historicalStateSnapshot.request.payloadFields,
+        documentId: targetDocId
+      }
+    },
+    draft: {
+      ...historicalStateSnapshot.draft,
+      version: nextVersionNumber,
+      rawOutput: historicalStateSnapshot.draft?.rawOutput ?? text,
+      formattedDocument: text
+      // Pass current editor text down so validation checks can sweep it
+    }
+  } : {
+    // Structural Fallback: If no ledger history tracking entry exists, instantiate default boundaries cleanly
+    request: {
+      intent: "PROACTIVE",
+      mode: "Standard Template",
+      rawInstructions: functionalInstruction,
+      sourceText: text,
+      payloadFields: { documentId: targetDocId }
+    },
+    requirements: {
+      contractType: "General",
+      jurisdiction: "Unspecified",
+      industry: "General",
+      parties: [],
+      requiredClauses: [],
+      optionalClauses: [],
+      language: "English",
+      instructions: functionalInstruction
+    },
+    retrieval: {
+      matchedTemplate: null,
+      applicablePlaybookRules: [],
+      fallbackClauses: [],
+      historicalReferences: []
+    },
+    context: null,
+    draft: {
+      rawOutput: text,
+      version: nextVersionNumber,
+      formattedDocument: text
+    },
+    validation: null,
+    riskReview: null,
+    metadata: {
+      generationParameters: {},
+      playbookVersion: "1.0.0",
+      timestamp: (/* @__PURE__ */ new Date()).toISOString()
+    }
+  };
+  await updateJobProgress(jobId, userId, 45, "Executing adjustments and evaluating risk variables...");
+  const orchestrator4 = new DraftWorkflowOrchestrator();
+  const finalizedRefinedState = await orchestrator4.executeHumanRefinementPipeline(inputStateContainer);
+  const refinedTextOutputResult = finalizedRefinedState.draft?.formattedDocument || text;
+  const title = `Refined Text - ${(/* @__PURE__ */ new Date()).toLocaleDateString()}`;
+  const { email: creatorEmail } = await withTransaction(userId, "USER", async (client) => {
+    const { rows } = await client.query("SELECT email FROM users WHERE id = $1", [userId]);
+    return { email: rows[0]?.email || "" };
+  });
+  const encryptedContent = encryptData(refinedTextOutputResult);
+  await withTransaction(userId, "USER", async (client) => {
+    if (!documentId) {
+      await client.query(
+        `INSERT INTO files (id, title, type, content, creator_id, creator_email, is_encrypted, shared_with, audit_logs)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        [targetDocId, title, "draft", encryptedContent, userId, creatorEmail, true, JSON.stringify([]), JSON.stringify([])]
+      );
+    } else {
+      await client.query(
+        "UPDATE files SET content = $1, title = $2, updated_at = NOW() WHERE id = $3",
+        [encryptedContent, title, targetDocId]
+      );
+    }
+    const versionId = "ver_" + crypto5.randomUUID();
+    await client.query(
+      `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
+      [versionId, targetDocId, encryptedContent]
+    );
+  });
+  chunkAndIndexDocument(targetDocId, refinedTextOutputResult, userId).catch(
+    (err) => console.warn(`[DraftingHandler/Refine] Vector matrix indexing failed for document ${targetDocId}:`, err)
+  );
+  return { data: refinedTextOutputResult, file_id: targetDocId, version: nextVersionNumber };
+}
+async function executeTemplateDrafting(jobId, userId, payload) {
+  if (payload.type === "REFINEMENT") {
+    return await handleRefinementJob(jobId, userId, payload);
+  }
+  return await handleInitialDraftingJob(jobId, userId, payload);
+}
+
+// backend/src/services/jobs/handlers/playbook-handler.ts
+init_database();
+import { PDFParse as PDFParse2 } from "pdf-parse";
+
+// backend/src/modules/drafting/services/playbook-ingester.ts
+init_database();
+
+// backend/src/modules/drafting/prompts/playbook-ingest-template.ts
+var STAGE_1_STITCH_PROMPT = `
+You are an elite legal playbook stitching assistant.
+Read the entire multi-page legal playbook text block and reconstruct fragmented tables into a single consolidated Markdown document.
+Rules may be split across pages, with IDs on one page, clause text on another, and remediation logic on a third.
+Match each fragment to its correct Rule ID and preserve every clause, note, and remediation instruction without truncation.
+Output only Markdown.
+Group every rule entirely under its own heading in the form "## R-IP-001".
+Do not summarize, omit, or shorten long contractual text.
+Keep the output deterministic and structurally consistent.
+`.trim();
+var STAGE_2_EXTRACT_PROMPT = `
+You are an elite legal parsing assistant.
+Extract exactly one playbook rule from the provided Markdown block and return strict JSON that matches the supplied schema.
+Do not add commentary, markdown, or extra keys.
+Preserve the full text of each clause and remediation instruction.
+If the block contains a rule heading, use it as the rule id.
+`.trim();
+
+// backend/src/modules/drafting/services/playbook-ingester.ts
+var SINGLE_RULE_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: [
+    "id",
+    "contractType",
+    "topic",
+    "riskLevel",
+    "standardPosition",
+    "fallbackPositions",
+    "walkAwayCondition",
+    "triggerPatterns",
+    "remediationStrategy"
+  ],
+  properties: {
+    id: { type: "string" },
+    contractType: { type: "string" },
+    topic: { type: "string" },
+    riskLevel: { type: "string" },
+    standardPosition: { type: "string" },
+    fallbackPositions: { type: "array", items: { type: "string" } },
+    walkAwayCondition: { type: "string" },
+    triggerPatterns: { type: "array", items: { type: "string" } },
+    remediationStrategy: { type: "string" }
+  }
+};
+function cleanMarkdownArtifacts2(rawText) {
+  let cleanedText = rawText.trim();
+  if (cleanedText.startsWith("```markdown")) {
+    cleanedText = cleanedText.replace(/^```markdown\s*/i, "");
+  } else if (cleanedText.startsWith("```")) {
+    cleanedText = cleanedText.replace(/^```\s*/, "");
+  }
+  if (cleanedText.endsWith("```")) {
+    cleanedText = cleanedText.replace(/\s*```$/, "");
+  }
+  return cleanedText.trim();
+}
+function splitStitchedMarkdownIntoRuleBlocks(stitchedMarkdown) {
+  return stitchedMarkdown.split(/##?\s*(?=R-[A-Z]+-\d+)/g).map((block) => block.trim()).filter((block) => block.length > 0).filter((block) => /R-[A-Z]+-\d+/.test(block));
+}
+var PlaybookIngester = class {
+  constructor(provider = "GEMINI" /* GEMINI */) {
+    this.deafultProvider = provider;
+  }
+  /**
+   * Orchestrates the parsing and database persistence chain
+   */
+  async ingestPlaybookText(rawPdfText) {
+    console.log("[PlaybookIngester] Initiating structured AI parsing extraction loop...");
+    const stitchedMarkdown = cleanMarkdownArtifacts2(
+      await executeCompletion(rawPdfText, STAGE_1_STITCH_PROMPT, "FAST_STITCH" /* FAST_STITCH */, this.deafultProvider)
+    );
+    const ruleBlocks = splitStitchedMarkdownIntoRuleBlocks(stitchedMarkdown);
+    let successfullySavedCount = 0;
+    for (const block of ruleBlocks) {
+      try {
+        const ruleMatch = block.match(/R-[A-Z]+-\d+/);
+        const ruleId = ruleMatch?.[0] ?? "unknown";
+        const parsedRule = await executeJsonCompletion(
+          block,
+          STAGE_2_EXTRACT_PROMPT,
+          SINGLE_RULE_SCHEMA,
+          "STRUCTURAL_JSON" /* STRUCTURAL_JSON */,
+          this.deafultProvider
+        );
+        if (!parsedRule || typeof parsedRule.id !== "string" || typeof parsedRule.contractType !== "string" || typeof parsedRule.topic !== "string" || typeof parsedRule.riskLevel !== "string" || typeof parsedRule.standardPosition !== "string" || !Array.isArray(parsedRule.fallbackPositions) || typeof parsedRule.walkAwayCondition !== "string" || !Array.isArray(parsedRule.triggerPatterns) || typeof parsedRule.remediationStrategy !== "string") {
+          throw new Error(`Invalid parsed rule payload for ${ruleId}.`);
+        }
+        console.log("This is the understanding of gemini form the playbook pdf\n\n\n\n\n", parsedRule, "\n\n\n");
+        const sql = `
+          INSERT INTO playbook_rules (
+            id,
+            contract_type,
+            topic,
+            risk_level,
+            standard_position,
+            fallback_positions,
+            walk_away_condition,
+            trigger_patterns,
+            remediation_strategy
+          )
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+          ON CONFLICT (id) DO UPDATE SET
+            contract_type = EXCLUDED.contract_type,
+            topic = EXCLUDED.topic,
+            risk_level = EXCLUDED.risk_level,
+            standard_position = EXCLUDED.standard_position,
+            fallback_positions = EXCLUDED.fallback_positions,
+            walk_away_condition = EXCLUDED.walk_away_condition,
+            trigger_patterns = EXCLUDED.trigger_patterns,
+            remediation_strategy = EXCLUDED.remediation_strategy;
+        `;
+        const params = [
+          parsedRule.id,
+          // $1 -> id (e.g., 'R-IP-001')
+          parsedRule.contractType,
+          // $2 -> contract_type
+          parsedRule.topic,
+          // $3 -> topic
+          parsedRule.riskLevel,
+          // $4 -> risk_level
+          parsedRule.standardPosition,
+          // $5 -> standard_position
+          JSON.stringify(parsedRule.fallbackPositions),
+          // $6 -> fallback_positions
+          parsedRule.walkAwayCondition,
+          // $7 -> walk_away_condition
+          JSON.stringify(parsedRule.triggerPatterns),
+          // $8 -> trigger_patterns
+          parsedRule.remediationStrategy
+          // $9 -> remediation_strategy
+        ];
+        await pool.query(sql, params);
+        successfullySavedCount += 1;
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        const ruleMatch = block.match(/R-[A-Z]+-\d+/);
+        console.warn(
+          `[PlaybookIngester] Skipping rule block ${ruleMatch?.[0] ?? "unknown"}: ${errorMessage}`
+        );
+      }
+    }
+    return { processedRulesCount: successfullySavedCount };
+  }
+};
+
+// backend/src/services/jobs/handlers/playbook-handler.ts
+async function updateJobProgress2(jobId, percentage, message) {
+  await pool.query(
+    "UPDATE jobs SET progress = $1, message = $2, status = 'PROCESSING', updated_at = NOW() WHERE id = $3;",
+    [percentage, message, jobId]
+  );
+}
+async function executePlaybookIngestionJob(jobId, userId, payload) {
+  const { fileUrl, contractType } = payload ?? {};
+  try {
+    if (!fileUrl) {
+      throw new Error("Playbook ingestion requires a fileUrl payload value.");
+    }
+    await updateJobProgress2(jobId, 10, "Downloading file payload...");
+    const response = await fetch(fileUrl);
+    if (!response.ok) {
+      throw new Error(`File download failed with status ${response.status} ${response.statusText}`);
+    }
+    const arrayBuffer = await response.arrayBuffer();
+    const binaryBuffer = Buffer.from(arrayBuffer);
+    const parser = new PDFParse2({
+      data: binaryBuffer
+    });
+    const parsedPdf = await parser.getText();
+    const extractedTextString = parsedPdf.text ?? "";
+    await parser.destroy();
+    await updateJobProgress2(jobId, 30, "PDF text extraction pass completed successfully...");
+    await updateJobProgress2(jobId, 50, "Passing text arrays to the AI Ingester engine...");
+    const ingester = new PlaybookIngester();
+    const ingestionResult = await ingester.ingestPlaybookText(extractedTextString);
+    await pool.query(
+      `UPDATE jobs
+			 SET status = $1,
+					 progress = $2,
+					 message = $3,
+					 result = $4,
+					 updated_at = NOW()
+			 WHERE id = $5;`,
+      [
+        "COMPLETED",
+        100,
+        "Successfully structured and stored playbook guidelines!",
+        JSON.stringify({
+          contractType,
+          processedRulesCount: ingestionResult.processedRulesCount
+        }),
+        jobId
+      ]
+    );
+    return ingestionResult;
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    await pool.query(
+      `UPDATE jobs
+			 SET status = $1,
+					 message = $2,
+					 error = $3,
+					 updated_at = NOW()
+			 WHERE id = $4;`,
+      [
+        "FAILED",
+        "Playbook ingestion failed while downloading, extracting, or structuring the PDF payload.",
+        errorMessage,
+        jobId
+      ]
+    );
+    throw err;
   }
 }
 
 // backend/src/services/jobQueue.ts
-import crypto4 from "crypto";
-import pdf from "pdf-parse-fork";
-import mammoth from "mammoth";
 async function updateJobProgress(jobId, userId, progress, message) {
   await withTransaction(userId, "USER", async (client) => {
     await client.query(
@@ -2284,7 +3985,7 @@ async function updateJobProgress(jobId, userId, progress, message) {
       [progress, message, jobId]
     );
   });
-  jobRegistry.broadcast(userId, { id: jobId, progress, message });
+  jobRegistry2.broadcast(userId, { id: jobId, progress, message });
 }
 async function updateJobState(jobId, userId, updates) {
   const columnMap = {
@@ -2305,7 +4006,7 @@ async function updateJobState(jobId, userId, updates) {
   });
 }
 async function addJobToQueue(userId, type, payload) {
-  const jobId = crypto4.randomUUID();
+  const jobId = crypto6.randomUUID();
   await withTransaction(userId, "USER", async (client) => {
     await client.query(
       `INSERT INTO jobs (id, user_id, type, status, progress, payload)
@@ -2316,7 +4017,7 @@ async function addJobToQueue(userId, type, payload) {
   (async () => {
     try {
       await updateJobState(jobId, userId, { status: "processing", progress: 5 });
-      jobRegistry.broadcast(userId, { id: jobId, status: "processing", progress: 5 });
+      jobRegistry2.broadcast(userId, { id: jobId, status: "processing", progress: 5 });
       let result;
       switch (type) {
         case "file_processing":
@@ -2334,6 +4035,9 @@ async function addJobToQueue(userId, type, payload) {
         case "template_drafting":
           result = await executeTemplateDrafting(jobId, userId, payload);
           break;
+        case "PLAYBOOK_INGEST":
+          result = await executePlaybookIngestionJob(jobId, userId, payload);
+          break;
         default:
           throw new Error(`Unhandled job type: ${type}`);
       }
@@ -2342,7 +4046,7 @@ async function addJobToQueue(userId, type, payload) {
         progress: 100,
         result: JSON.stringify(result)
       });
-      jobRegistry.broadcast(userId, {
+      jobRegistry2.broadcast(userId, {
         id: jobId,
         userId,
         status: "completed",
@@ -2351,7 +4055,7 @@ async function addJobToQueue(userId, type, payload) {
       });
     } catch (err) {
       console.error(`[JobRunner] Job ${jobId} failed:`, err);
-      jobRegistry.broadcast(userId, {
+      jobRegistry2.broadcast(userId, {
         id: jobId,
         userId,
         status: "failed",
@@ -2382,7 +4086,7 @@ var BackgroundJobRegistry = class {
     }
   }
   addClient(userId, res) {
-    const id = "client_" + crypto4.randomUUID();
+    const id = "client_" + crypto6.randomUUID();
     res.write(`data: ${JSON.stringify({ event: "ping", timestamp: (/* @__PURE__ */ new Date()).toISOString() })}
 
 `);
@@ -2445,7 +4149,7 @@ var BackgroundJobRegistry = class {
     };
   }
 };
-var jobRegistry = new BackgroundJobRegistry();
+var jobRegistry2 = new BackgroundJobRegistry();
 async function executeFileProcessing(jobId, userId, payload) {
   const { fileId, fileBufferBase64, mimeType } = payload;
   await updateJobProgress(jobId, userId, 15, "Extracting text from document...");
@@ -2470,7 +4174,7 @@ async function executeFileProcessing(jobId, userId, payload) {
       `UPDATE files SET content = $1, is_encrypted = $2 WHERE id = $3`,
       [encryptedContent, true, fileId]
     );
-    const versionId = "ver_" + crypto4.randomUUID();
+    const versionId = "ver_" + crypto6.randomUUID();
     await client.query(
       `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
       [versionId, fileId, encryptedContent]
@@ -2493,7 +4197,7 @@ async function executeDocumentAnalysis(jobId, userId, payload) {
     console.log(`  prompt: "${String(prompt).substring(0, 80)}..."`);
     console.log(`  jurisdictions: ${JSON.stringify(jurisdiction || [])}`);
     console.log(`  outputFormat: ${outputFormat || "Full IRAC"}`);
-    const result2 = await jobRegistry.orchestrator.askLawyer(
+    const result2 = await jobRegistry2.orchestrator.askLawyer(
       prompt,
       userId,
       documents,
@@ -2508,7 +4212,7 @@ async function executeDocumentAnalysis(jobId, userId, payload) {
   if (payload.prompt && payload.folderIds) {
     const { folderIds: folderIds2, draftIds, prompt, documentMode, answerStyle, history } = payload;
     await updateJobProgress(jobId, userId, 30, "Analyzing documents in selected folders...");
-    const result2 = await jobRegistry.orchestrator.interactAnalyze(
+    const result2 = await jobRegistry2.orchestrator.interactAnalyze(
       folderIds2,
       prompt,
       userId,
@@ -2523,7 +4227,7 @@ async function executeDocumentAnalysis(jobId, userId, payload) {
   }
   const { documentId, content, folderIds } = payload;
   await updateJobProgress(jobId, userId, 30, "AI agents performing legal audit...");
-  const result = await jobRegistry.orchestrator.runAnalysis(
+  const result = await jobRegistry2.orchestrator.runAnalysis(
     documentId,
     content,
     userId,
@@ -2532,91 +4236,14 @@ async function executeDocumentAnalysis(jobId, userId, payload) {
   );
   return result;
 }
-async function executeTemplateDrafting(jobId, userId, payload) {
-  if (payload.type === "refine") {
-    const { text, refineType, param } = payload;
-    let instruction = "";
-    if (refineType === "tone") instruction = `Rewrite the following legal text in a ${param} tone.`;
-    else if (refineType === "grammar") instruction = `Fix the spelling and grammar in the following legal text while preserving legal meaning.`;
-    else if (refineType === "extend") instruction = `Expand the following legal clause with more comprehensive protections.`;
-    else if (refineType === "reduce") instruction = `Shorten the following legal clause to its core obligation.`;
-    else if (refineType === "simplify") instruction = `Rewrite the following legal text in plain English for a non-lawyer.`;
-    else if (refineType === "complete") instruction = `Complete the following sentence or clause in a professional legal manner.`;
-    else if (refineType === "ask") instruction = `Follow this custom instruction: ${param}`;
-    const prompt = `${instruction}
-
-Text:
-${text}
-
-IMPORTANT: Return only the rewritten text without any quotes or preamble.`;
-    const content = await withRetry(() => openRouterComplete("", prompt));
-    const docId2 = "doc_" + crypto4.randomUUID();
-    const title2 = `Refined Text - ${(/* @__PURE__ */ new Date()).toLocaleDateString()}`;
-    const { email: creatorEmail2 } = await withTransaction(userId, "USER", async (client) => {
-      const { rows } = await client.query("SELECT email FROM users WHERE id = $1", [userId]);
-      return { email: rows[0]?.email || "" };
-    });
-    const encryptedContent2 = encryptData(content);
-    await withTransaction(userId, "USER", async (client) => {
-      await client.query(
-        `INSERT INTO files (id, title, type, content, creator_id, creator_email, is_encrypted, shared_with, audit_logs)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-        [docId2, title2, "draft", encryptedContent2, userId, creatorEmail2, true, JSON.stringify([]), JSON.stringify([])]
-      );
-      const versionId = "ver_" + crypto4.randomUUID();
-      await client.query(
-        `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
-        [versionId, docId2, encryptedContent2]
-      );
-    });
-    chunkAndIndexDocument(docId2, content, userId).catch(
-      (err) => console.warn(`[executeTemplateDrafting/refine] Chunk indexing failed for ${docId2}:`, err)
-    );
-    return { data: content, file_id: docId2 };
-  }
-  const { mode, outputLevel, instructions, formFields, templateId, sourceText, playbookText } = payload;
-  await updateJobProgress(jobId, userId, 20, "Synthesizing legal document...");
-  const result = await jobRegistry.orchestrator.runDrafting({
-    mode,
-    detailLevel: outputLevel,
-    instructions,
-    formFields,
-    templateId,
-    sourceText,
-    playbookText
-  });
-  const docId = "doc_" + crypto4.randomUUID();
-  const title = `AI Draft - ${(/* @__PURE__ */ new Date()).toLocaleDateString()}`;
-  const { email: creatorEmail } = await withTransaction(userId, "USER", async (client) => {
-    const { rows } = await client.query("SELECT email FROM users WHERE id = $1", [userId]);
-    return { email: rows[0]?.email || "" };
-  });
-  const encryptedContent = encryptData(result);
-  await withTransaction(userId, "USER", async (client) => {
-    await client.query(
-      `INSERT INTO files (id, title, type, content, creator_id, creator_email, is_encrypted, shared_with, audit_logs)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-      [docId, title, "draft", encryptedContent, userId, creatorEmail, true, JSON.stringify([]), JSON.stringify([])]
-    );
-    const versionId = "ver_" + crypto4.randomUUID();
-    await client.query(
-      `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
-      [versionId, docId, encryptedContent]
-    );
-  });
-  chunkAndIndexDocument(docId, result, userId).catch(
-    (err) => console.warn(`[executeTemplateDrafting] Chunk indexing failed for ${docId}:`, err)
-  );
-  return { content: result, file_id: docId };
-}
 async function executePrivacyScanning(jobId, userId, payload) {
   await updateJobProgress(jobId, userId, 20, "Scanning website for privacy compliance...");
-  const result = await jobRegistry.scanner.scanCookie(payload.url, userId, payload.scanDepth);
+  const result = await jobRegistry2.scanner.scanCookie(payload.url, userId, payload.scanDepth);
   return result;
 }
 async function executeVulnerabilityScanning(jobId, userId, payload) {
   await updateJobProgress(jobId, userId, 20, "Performing vulnerability assessment...");
-  const result = await jobRegistry.scanner.scanVulnerability(payload.url, userId);
+  const result = await jobRegistry2.scanner.scanVulnerability(payload.url, userId);
   return result;
 }
 
@@ -3016,7 +4643,7 @@ var buildDocxBuffer = async (title, _contentType, content) => {
 
 // backend/src/controllers/documents.ts
 init_crypto();
-import crypto5 from "crypto";
+import crypto7 from "crypto";
 import { fileTypeFromBuffer } from "file-type";
 var getDocuments = async (req, res) => {
   const userEmail = req.user.email.toLowerCase();
@@ -3087,7 +4714,7 @@ var createDocument = async (req, res) => {
   const userId = req.user.id;
   const userRole = req.user.role;
   const email = req.user.email;
-  const id = "doc_" + crypto5.randomUUID();
+  const id = "doc_" + crypto7.randomUUID();
   const encryptedContent = encrypt(content || "");
   try {
     await withTransaction(userId, userRole, async (client) => {
@@ -3096,7 +4723,7 @@ var createDocument = async (req, res) => {
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
         [id, title, type, encryptedContent, userId, email, true, JSON.stringify([]), JSON.stringify([])]
       );
-      const versionId = "ver_" + crypto5.randomUUID();
+      const versionId = "ver_" + crypto7.randomUUID();
       await client.query(
         `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
         [versionId, id, encryptedContent]
@@ -3120,7 +4747,8 @@ var uploadDocument = async (req, res) => {
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "text/plain",
     "text/markdown",
-    "application/msword"
+    "application/msword",
+    "application/octet-stream"
   ];
   if (!allowedMimeTypes.includes(file.mimetype)) {
     return res.status(400).json({ error: "Unsupported file type. Only PDF, DOCX, and TXT are permitted for legal indexing." });
@@ -3130,11 +4758,22 @@ var uploadDocument = async (req, res) => {
   }
   const type = await fileTypeFromBuffer(file.buffer);
   const detectedMime = type?.mime || file.mimetype;
-  if (!allowedMimeTypes.includes(detectedMime)) {
+  const strictAllowedMimeTypes = [
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "text/plain",
+    "text/markdown",
+    "application/msword"
+  ];
+  if (!strictAllowedMimeTypes.includes(detectedMime)) {
     return res.status(400).json({ error: "File signature mismatch. Extension does not match content magic bytes." });
   }
-  const { title, folder_id } = req.body;
-  const fileId = "doc_" + crypto5.randomUUID();
+  const { title, folder_id, contractType } = req.body;
+  const systemFileType = req.body.category?.trim().toLowerCase() || "upload";
+  if (systemFileType === "playbook" && (!contractType || !contractType.trim())) {
+    return res.status(400).json({ error: "Playbook ingestion requires an explicit 'contractType' parameter." });
+  }
+  const fileId = "doc_" + crypto7.randomUUID();
   const fileTitle = title || file.originalname;
   const userId = req.user.id;
   const userRole = req.user.role;
@@ -3149,14 +4788,26 @@ var uploadDocument = async (req, res) => {
     await withTransaction(userId, userRole, async (client) => {
       await client.query(
         `INSERT INTO files (id, title, type, content, creator_id, creator_email, mime_type, folder_id)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
         [fileId, fileTitle, "upload", "", req.user.id, req.user.email, file.mimetype, resolvedFolderId]
       );
     }).catch((e) => {
       console.error("Database insert failed during upload:", e);
       throw new Error("DB_UPLOAD_FAILED");
     });
-    const job = await addJobToQueue(req.user.id, "file_processing", {
+    let job;
+    if (systemFileType === "playbook" || contractType) {
+      const fileDataUrl = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
+      job = await addJobToQueue(req.user.id, "PLAYBOOK_INGEST", {
+        fileId,
+        contractType: contractType.trim(),
+        fileTitle,
+        fileUrl: fileDataUrl,
+        fileBufferBase64: file.buffer.toString("base64"),
+        mimeType: file.mimetype
+      });
+    }
+    job = await addJobToQueue(req.user.id, "file_processing", {
       fileId,
       fileTitle,
       fileBufferBase64: file.buffer.toString("base64"),
@@ -3186,7 +4837,7 @@ var updateDocument = async (req, res) => {
         `UPDATE files SET title = COALESCE($1, title), content = $2, folder_id = COALESCE($3, folder_id), updated_at = CURRENT_TIMESTAMP WHERE id = $4`,
         [title || null, encryptedContent, folder_id || null, id]
       );
-      const versionId = "ver_" + crypto5.randomUUID();
+      const versionId = "ver_" + crypto7.randomUUID();
       await client.query(
         `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
         [versionId, id, encryptedContent]
@@ -3284,9 +4935,9 @@ var signDocument = async (req, res) => {
       if (rows.length === 0) throw new Error("Document not found");
       const signatures = rows[0].signatures || [];
       const plaintext = rows[0].is_encrypted ? decrypt(rows[0].content) : rows[0].content;
-      const contentHash = crypto5.createHash("sha256").update(plaintext, "utf8").digest("hex");
+      const contentHash = crypto7.createHash("sha256").update(plaintext, "utf8").digest("hex");
       const newSignature = {
-        id: crypto5.randomUUID(),
+        id: crypto7.randomUUID(),
         userId,
         userEmail: req.user.email,
         signedAt: (/* @__PURE__ */ new Date()).toISOString(),
@@ -3330,7 +4981,7 @@ var createRedline = async (req, res) => {
       const { rows } = await client.query("SELECT redlines FROM files WHERE id = $1", [id]);
       if (rows.length === 0) throw new Error("Document not found");
       const redlines = parseRedlines(rows[0].redlines);
-      const redline = { id: crypto5.randomUUID(), originalText, proposedText, comment, proposedByEmail: req.user.email, proposedAt: (/* @__PURE__ */ new Date()).toISOString(), status: "pending" };
+      const redline = { id: crypto7.randomUUID(), originalText, proposedText, comment, proposedByEmail: req.user.email, proposedAt: (/* @__PURE__ */ new Date()).toISOString(), status: "pending" };
       redlines.push(redline);
       await client.query("UPDATE files SET redlines = $1 WHERE id = $2", [JSON.stringify(redlines), id]);
       console.log("[createRedline] persisted redline", {
@@ -3382,7 +5033,7 @@ var acceptRedline = async (req, res) => {
         "UPDATE files SET content = $1, redlines = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3",
         [encryptedFinal, JSON.stringify(redlines), id]
       );
-      const versionId = "ver_" + crypto5.randomUUID();
+      const versionId = "ver_" + crypto7.randomUUID();
       await client.query(
         `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
         [versionId, id, encryptedFinal]
@@ -3563,7 +5214,7 @@ var folders_default = router4;
 import { Router as Router5 } from "express";
 
 // backend/src/controllers/libraryItems.ts
-import crypto6 from "crypto";
+import crypto8 from "crypto";
 var getLibraryItems = async (req, res) => {
   const userId = req.user.id;
   const userRole = req.user.role;
@@ -3587,7 +5238,7 @@ var createLibraryItem = async (req, res) => {
   const { type, name, description, tags, details } = req.body;
   const userId = req.user.id;
   const userRole = req.user.role;
-  const id = "lib_" + crypto6.randomUUID();
+  const id = "lib_" + crypto8.randomUUID();
   try {
     const row = await withTransaction(userId, userRole, async (client) => {
       const { rows } = await client.query(
@@ -3669,9 +5320,9 @@ var streamJobs = (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
-  const clientId = jobRegistry.addClient(userId, res);
+  const clientId = jobRegistry2.addClient(userId, res);
   req.on("close", () => {
-    jobRegistry.removeClient(clientId);
+    jobRegistry2.removeClient(clientId);
   });
   res.write(`data: ${JSON.stringify({ event: "handshake", status: "online" })}
 

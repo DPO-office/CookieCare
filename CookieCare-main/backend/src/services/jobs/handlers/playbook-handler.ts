@@ -1,4 +1,4 @@
-import pdfParse from "pdf-parse";
+import {PDFParse} from "pdf-parse";
 import { pool } from "../../../config/database.js";
 import { config } from "../../../config/index.js";
 import { PlaybookIngester } from "../../../modules/drafting/services/playbook-ingester.js";
@@ -10,7 +10,7 @@ async function updateJobProgress(jobId: string, percentage: number, message: str
 	);
 }
 
-export async function handlePlaybookIngestionJob(jobId: string, userId: string, payload: any): Promise<void> {
+export async function executePlaybookIngestionJob(jobId: string, userId: string, payload: any): Promise<any> {
 	const { fileUrl, contractType } = payload ?? {};
     
 	try {
@@ -28,9 +28,14 @@ export async function handlePlaybookIngestionJob(jobId: string, userId: string, 
 		const arrayBuffer = await response.arrayBuffer();
 		const binaryBuffer = Buffer.from(arrayBuffer);
 
-		const parsedPdf = await pdfParse(binaryBuffer);
+		const parser = new PDFParse({
+		data: binaryBuffer,
+		});
+
+		const parsedPdf = await parser.getText();
 		const extractedTextString = parsedPdf.text ?? "";
 
+		await parser.destroy();
 		await updateJobProgress(jobId, 30, "PDF text extraction pass completed successfully...");
 		await updateJobProgress(jobId, 50, "Passing text arrays to the AI Ingester engine...");
 
@@ -56,6 +61,8 @@ export async function handlePlaybookIngestionJob(jobId: string, userId: string, 
 				jobId,
 			]
 		);
+		return ingestionResult
+
 	} catch (err: any) {
 		const errorMessage = err instanceof Error ? err.message : String(err);
 

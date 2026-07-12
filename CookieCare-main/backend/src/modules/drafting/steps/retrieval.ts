@@ -128,21 +128,31 @@ export const retrievalStep = async (state: DraftState): Promise<DraftState> => {
   const readTemplateFromDb = async (): Promise<string | null> => {
     try {
       // Current schema stores templates in files with is_template=true.
-      const { rows } = await pool.query(
-        `SELECT content
-         FROM files
-         WHERE is_template = true
-           AND type IN ('template', 'draft', 'upload')
-         ORDER BY updated_at DESC
-         LIMIT 1`
-      );
+      const templateSql = `
+  SELECT id, title, content 
+  FROM contract_templates 
+  WHERE contract_type = $1 
+    AND jurisdiction = $2 
+    AND status = 'active'
+    LIMIT 1;
+    `;
 
-      if (!rows.length || !rows[0]?.content) {
-        return null;
-      }
+    const templateParams = [
+      state.requirements?.contractType, // Must be passed exactly as 'NDA'
+      state.requirements?.jurisdiction  // Must be passed exactly as 'Delaware'
+    ];
 
-      return String(rows[0].content);
-    } catch {
+    const { rows } = await pool.query(
+        templateSql,templateParams
+    );
+
+    if (!rows.length || !rows[0]?.content) {
+      return null;
+    }
+
+    return String(rows[0].content);
+    
+  } catch {
       return null;
     }
   };

@@ -15,20 +15,20 @@ export class DraftWorkflowOrchestrator {
   async executeInitialWorkflow(initialState: DraftState): Promise<DraftState> {
     let state: DraftState = { ...initialState };
     try {
-      console.log("step 1 - requirementExtractionStep")
       state = await requirementExtractionStep(state);
-      console.log("step 2 retreval")
+      console.log("step 1 - requirementExtractionStep",state)
       state = await retrievalStep(state);
-      console.log("step 3 - context assembly")
+      console.log("step 2 retreval",state)
       state = await contextAssemblyStep(state);
-      console.log("step 4 - generationStep")
+      console.log("step 3 - context assembly",state)
       state = await generationStep(state);
-      console.log("step 5 - validationStep")
+      console.log("step 4 - generationStep",state)
       state = await validationStep(state);
-      console.log("step 6 - riskReviewStep")
+      console.log("step 5 - validationStep",state)
       state = await riskReviewStep(state);
-      console.log("step 7 - saving...")
+      console.log("step 6 - riskReviewStep",state)
       state = await saveStep(state);  
+      console.log("step 7 - saving...",state)
 
       let attempt = 0;
       const maxAttempt = 1;

@@ -10,6 +10,7 @@ import crypto from "crypto";
 import pdf from "pdf-parse-fork";
 import mammoth from "mammoth";
 import { executeTemplateDrafting } from "./jobs/handlers/drafting-handler.js";
+import { executePlaybookIngestionJob } from "./jobs/handlers/playbook-handler.js";
 
 export async function updateJobProgress(jobId: string, userId: string, progress: number, message?: string) {
   await withTransaction(userId, 'USER', async (client) => {
@@ -75,6 +76,9 @@ export async function addJobToQueue(userId: string, type: JobType, payload: any)
         case "template_drafting":
           result = await executeTemplateDrafting(jobId, userId, payload);
           break;
+        case "PLAYBOOK_INGEST":
+          result = await executePlaybookIngestionJob(jobId,userId,payload)
+          break
         default:
           throw new Error(`Unhandled job type: ${type}`);
       }
