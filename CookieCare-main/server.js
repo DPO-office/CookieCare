@@ -10,6 +10,10 @@ var __export = (target, all) => {
 
 // backend/src/config/index.ts
 import dotenv from "dotenv";
+function numberFromEnv(value, fallback) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
 var config, isProduction;
 var init_config = __esm({
   "backend/src/config/index.ts"() {
@@ -20,6 +24,9 @@ var init_config = __esm({
       databaseUrl: process.env.DATABASE_URL || "",
       // OpenRouter replaces Gemini as the AI provider
       openRouterApiKey: process.env.OPENROUTER_API_KEY || "",
+      openRouterModel: process.env.OPENROUTER_MODEL || "deepseek/deepseek-chat-v3-0324",
+      openRouterTemperature: numberFromEnv(process.env.OPENROUTER_TEMPERATURE, 0.2),
+      openRouterMaxTokens: numberFromEnv(process.env.OPENROUTER_MAX_TOKENS, 4096),
       // Kept for backward compatibility — no longer used for AI calls
       geminiApiKey: process.env.GEMINI_API_KEY || "",
       jwtSecret: process.env.JWT_SECRET || "privsec-ai-enterprise-secret-2026",
@@ -3714,23 +3721,6 @@ var analyze_default = router7;
 import { Router as Router8 } from "express";
 var router8 = Router8();
 var orchestrator2 = new AgentOrchestrator();
-router8.post("/generate", authenticateToken, async (req, res) => {
-  try {
-    const { mode, detailLevel, instructions, formFields, templateId, sourceText, playbookText } = req.body;
-    const result = await orchestrator2.runDrafting({
-      mode,
-      detailLevel,
-      instructions,
-      formFields,
-      templateId,
-      sourceText,
-      playbookText
-    });
-    res.json({ content: result });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 router8.post("/generate-stream", authenticateToken, async (req, res) => {
   try {
     const job = await addJobToQueue(req.user.id, "template_drafting", req.body);

@@ -44,6 +44,8 @@ router.use("/folders", folderRoutes);
 router.use("/library-items", libraryItemRoutes);
 router.use("/jobs", jobRoutes);
 router.use("/analyze", analyzeRoutes);
+
+// Refectoring the drafting in drafting folder in modules
 router.use("/drafting", draftingRoutes);
 router.use("/lawyer", lawyerRoutes);
 router.use("/negotiate", negotiateRoutes);
