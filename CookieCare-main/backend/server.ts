@@ -54,20 +54,22 @@ if (config.nodeEnv === "production") {
 
   logger.info(`[Static Assets] Attempting to serve frontend from resolved path: ${distPath}`);
 
-  // Serve static assets out of the resolved folder
+  app.use('/assets', express.static(path.join(distPath, 'assets'), {
+      fallthrough: false // 💡 Prevents Express from sliding into API handlers if the asset fails
+    }));
+
+  // Serve generic root assets (like favicon)
   app.use(express.static(distPath));
   
-  app.get("*", (req, res) => {
-    // If a request for a static UI file under /assets fallback-routed here, it means express.static missed it
+  app.get("*", (req, res, next) => {
+    // If it's looking for an asset but missed the static folder, fail it cleanly before index.html kicks in
     if (req.path.startsWith('/assets/')) {
-      logger.error(`🔴 Asset Mismatch (500): Browser asked for ${req.path}, searched folder location: ${distPath}`);
-      return res.status(500).send(`Asset missing inside container directory: ${distPath}`);
+      return res.status(404).send(`Asset not found inside production directory: ${distPath}`);
     }
-
+    
     res.sendFile(path.join(distPath, "index.html"), (err) => {
       if (err) {
-        logger.error(`🔴 CRITICAL: index.html not found at: ${path.join(distPath, "index.html")}`);
-        res.status(500).send("Static UI hosting directory mismatch inside the cloud container.");
+        next(err);
       }
     });
   });
