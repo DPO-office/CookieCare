@@ -1,8 +1,8 @@
 import express from "express";
 import http from "http";
 import path from "path";
-import fs from "fs"; // 💡 Added fs to check file paths safely
-import { fileURLToPath } from "url"; // 💡 Added for bulletproof ES module path resolution
+import fs from "fs";
+import { fileURLToPath } from "url";
 import { createServer as createViteServer } from "vite";
 import { config } from "./src/config/index.js";
 import { validateEnv } from "./src/config/validate.js";
@@ -20,6 +20,22 @@ const httpServer = http.createServer(app);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+function resolveFrontendDistPath() {
+  const candidates = [
+    path.resolve(__dirname, "../../frontend/dist"),
+    path.resolve(process.cwd(), "frontend", "dist"),
+    path.resolve(process.cwd(), "dist"),
+  ];
+
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
+  return candidates[0];
+}
+
 // Initialize Sentry
 initSentry(app);
 
@@ -34,39 +50,38 @@ app.use("/api", apiRoutes);
 
 // --- 2. ENVIRONMENT-SPECIFIC STATIC/SPA HANDLING ---
 if (config.nodeEnv === "production") {
-  // Let's check the absolute most common paths where your single Dockerfile might have dropped the build
-  let distPath = path.resolve(process.cwd(), "frontend", "dist");
+  const distPath = resolveFrontendDistPath();
+  const assetsPath = path.join(distPath, "assets");
 
-  // Fallback 1: If it is relative to this server script location (e.g., inside a dist/src folder structure)
-  if (!fs.existsSync(distPath)) {
-    distPath = path.resolve(__dirname, "../frontend/dist");
-  }
+  logger.info(`[Static Assets] Serving frontend from resolved path: ${distPath}`);
 
-  // Fallback 2: If the monorepo structure was flattened straight into the root working directory
-  if (!fs.existsSync(distPath)) {
-    distPath = path.resolve(process.cwd(), "dist");
-  }
+  const assetsStatic = express.static(assetsPath, {
+    fallthrough: false,
+    immutable: true,
+    maxAge: "1y",
+    index: false,
+  });
 
-  // Fallback 3: Nested two layers up depending on the build output hierarchy
-  if (!fs.existsSync(distPath)) {
-    distPath = path.resolve(__dirname, "../../frontend/dist");
-  }
+  app.use("/assets", (req, res, next) => {
+    assetsStatic(req, res, (err?: unknown) => {
+      if (!err) {
+        return next();
+      }
 
-  logger.info(`[Static Assets] Attempting to serve frontend from resolved path: ${distPath}`);
+      if (!res.headersSent) {
+        const statusCode = err && typeof err === "object" && "status" in err ? Number((err as { status?: unknown }).status) || 500 : 500;
+        res.status(statusCode).type("text/plain").send(statusCode === 404 ? "Asset not found" : "Asset serving failed");
+      }
+    });
+  });
 
-  app.use('/assets', express.static(path.join(distPath, 'assets'), {
-      fallthrough: false // 💡 Prevents Express from sliding into API handlers if the asset fails
-    }));
-
-  // Serve generic root assets (like favicon)
   app.use(express.static(distPath));
-  
+
   app.get("*", (req, res, next) => {
-    // If it's looking for an asset but missed the static folder, fail it cleanly before index.html kicks in
     if (req.path.startsWith('/assets/')) {
-      return res.status(404).send(`Asset not found inside production directory: ${distPath}`);
+      return res.status(404).type("text/plain").send("Asset not found");
     }
-    
+
     res.sendFile(path.join(distPath, "index.html"), (err) => {
       if (err) {
         next(err);
