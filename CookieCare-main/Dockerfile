@@ -31,6 +31,6 @@ RUN npm ci --omit=dev
 COPY --from=build /app/frontend/dist ./frontend/dist
 COPY --from=build /app/backend/dist ./backend/dist
 
-EXPOSE 8080
+EXPOSE 8080 
 
 CMD ["node", "backend/dist/server.js"]
