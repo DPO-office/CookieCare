@@ -5,7 +5,6 @@ const corsOrigins = new Set(
   [
     "http://localhost:5173",
     "http://localhost:3000",
-    "https://cookiecare-git-855346886001.asia-southeast1.run.app",
     config.corsOrigin,
   ]
     .flatMap((origin) => (origin ? origin.split(",") : []))
