@@ -117,5 +117,5 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
 export const GEMINI_ENV_CONFIG = {
   projectId: process.env.GOOGLE_CLOUD_PROJECT || "lexify-production-cloud",
   location: process.env.GOOGLE_CLOUD_LOCATION || "us-central1",
-  timeoutMs: 15000 // 45000
+  timeoutMs: 45000
 };
