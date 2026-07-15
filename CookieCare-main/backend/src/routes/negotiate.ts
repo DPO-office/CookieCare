@@ -10,11 +10,20 @@ import { LLMProvider, LLMTask } from "../modules/drafting/config/model-specs.js"
 const router = Router();
 const orchestrator = new AgentOrchestrator();
 
-// ── Existing: full negotiation run ──────────────────────────────────────────
+// ── Existing: Full Negotiation Run ──────────────────────────────────────────
 router.post("/run", authenticateToken, async (req, res) => {
   try {
     const { documentContent, playbooks, instructions } = req.body;
-    const result = await orchestrator.runNegotiation(documentContent, playbooks, instructions);
+    
+    if (!documentContent) {
+      return res.status(400).json({ error: "Document content is required for a negotiation run." });
+    }
+
+    const result = await orchestrator.runNegotiation(
+      documentContent, 
+      playbooks || [], 
+      instructions || ""
+    );
     res.json({ redlines: result });
   } catch (err: any) {
     console.error("[negotiate/run] error:", err.message);
@@ -22,9 +31,7 @@ router.post("/run", authenticateToken, async (req, res) => {
   }
 });
 
-// ── NEW: Multi-agent clause evaluator ────────────────────────────────────────
-// Called by NegotiateHub on document load.
-// Returns structured JSON: { data: { markups: AgentMarkup[] } }
+// ── NEW: Multi-Agent Clause Evaluator ────────────────────────────────────────
 router.post("/evaluate", authenticateToken, async (req, res) => {
   const { content, documentTitle = "Contract", documentType = "Agreement" } = req.body;
 
@@ -32,36 +39,24 @@ router.post("/evaluate", authenticateToken, async (req, res) => {
     return res.status(400).json({ error: "Document content is required for evaluation." });
   }
 
-  const systemPrompt = `You are a Multi-Agent Contract Risk Evaluator.
-Identify the highest-risk clauses in the provided contract and recommend safer replacement language.
-Return EXACTLY valid JSON only — no markdown, no commentary, no additional keys.
+  // Refactored for hyper-precise extraction, deterministic grading, and zero markdown wrapping
+  const systemPrompt = `You are an elite Corporate Counsel and Multi-Agent Contract Risk Evaluator.
+Your goal is to scan the contract, identify the highest-risk provisions, and recommend commercially realistic replacements.
 
-Use this exact schema:
-{
-  "markups": [
-    {
-      "clauseId": "clause_1",
-      "original": "exact verbatim text from the document (min 15 chars)",
-      "replacement": "safer alternative clause text",
-      "reasoning": "explanation of why this clause is risky",
-      "riskLevel": "RED | YELLOW | GREEN"
-    }
-  ]
-}
-
-Rules:
-- Identify 2 to 6 highest-value risk clauses.
-- "original" MUST be verbatim text drawn from the document and at least 15 characters.
-- Provide a concise, safer "replacement" clause for each risk.
-- Use RED for highly unacceptable risk, YELLOW for moderate risk, GREEN for acceptable language.
-- Focus on indemnity, IP ownership, termination, liability caps, data protection, audit / compliance, and confidentiality.
-- If no significant risks are present, return { "markups": [] }.`;
+CRITICAL EXTRACTION DIRECTIVES:
+1. "original" MUST match character-for-character, verbatim text pulled directly from the [CONTRACT CONTENT] block. Do not modify, truncate, or paraphrase this text.
+2. Focus strictly on key transaction vectors: Indemnity, Intellectual Property, Limitation of Liability Caps, Termination, and Governing Law.
+3. Categorize "riskLevel" using these criteria:
+   - RED: Uncapped liability, unilateral indemnities, broad IP transfers, non-domestic governing law.
+   - YELLOW: Unbalanced terms, overly broad audit rights, long payment cycles, lack of mutual termination.
+   - GREEN: Fair, balanced, or market-standard provisions requiring no modification.
+4. Return EXACTLY valid JSON matching the schema provided. Do not include markdown wraps (like \`\`\`json), comments, or conversational text.`;
 
   const userPrompt = `Document Title: ${documentTitle}
 Document Type: ${documentType}
 
 [CONTRACT CONTENT]
-${content.substring(0, 12000)}`; // cap to avoid token overflow
+${content.substring(0, 12000)}`; // Token overflow guard
 
   const evaluationSchema = {
     type: "object",
@@ -72,9 +67,18 @@ ${content.substring(0, 12000)}`; // cap to avoid token overflow
           type: "object",
           properties: {
             clauseId: { type: "string" },
-            original: { type: "string" },
-            replacement: { type: "string" },
-            reasoning: { type: "string" },
+            original: { 
+              type: "string",
+              description: "The exact, verbatim clause text extracted from the document."
+            },
+            replacement: { 
+              type: "string",
+              description: "A commercially balanced, protective alternative clause."
+            },
+            reasoning: { 
+              type: "string",
+              description: "The strategic reason why this clause presents operational risk."
+            },
             riskLevel: {
               type: "string",
               enum: ["RED", "YELLOW", "GREEN"],
@@ -92,7 +96,8 @@ ${content.substring(0, 12000)}`; // cap to avoid token overflow
   try {
     console.log(`[negotiate/evaluate] Running AI evaluation for "${documentTitle}" via Gemini`);
 
-    const parsed = await executeJsonCompletion(
+    // Runs fast via our optimized low-latency JSON extraction model
+    const parsed = await executeJsonCompletion<Record<string, any>>(
       userPrompt,
       systemPrompt,
       evaluationSchema,
@@ -109,9 +114,7 @@ ${content.substring(0, 12000)}`; // cap to avoid token overflow
   }
 });
 
-// ── NEW: Lumi compromise drafter ─────────────────────────────────────────────
-// Called by NegotiateHub Lumi terminal for auto-negotiation.
-// Returns: { result: string }
+// ── NEW: Lumi Compromise Drafter ─────────────────────────────────────────────
 router.post("/compromise", authenticateToken, async (req, res) => {
   const { originalText, riskExplanation, userPrompt: customPrompt, playbookPreferred } = req.body;
 
@@ -119,24 +122,30 @@ router.post("/compromise", authenticateToken, async (req, res) => {
     return res.status(400).json({ error: "originalText is required." });
   }
 
-  const systemPrompt = `You are Lumi, an expert AI negotiation counsel.
-Your task is to draft an improved replacement for a risky contract clause.
-${playbookPreferred
-    ? "Prioritise the client's protections while remaining commercially fair and defensible."
-    : "Draft a balanced and commercially acceptable compromise that reduces risk for the client."}
+  // Prevents conversational preambles and markdown syntax wrapping the output
+  const systemPrompt = `You are Lumi, a brilliant legal negotiation agent. Your objective is to draft a protective, commercially viable replacement for a risky contract clause.
 
-Return ONLY the replacement clause text. Do not include any preamble, explanation, quotes, markdown, or extra sections.`;
+DRAFTING STRATEGY:
+${
+  playbookPreferred
+    ? "Maximize client protection. Draft strong, defensive, client-favorable language that holds the line on critical exposures."
+    : "Draft a balanced, market-standard compromise that mitigates risk while facilitating a fast deal sign-off."
+}
+
+STRICT OUTPUT RULE:
+- Return ONLY the final raw contractual text of the replacement clause.
+- Do NOT wrap your output in markdown code blocks (e.g. no \`\`\`), quotation marks, introduction/explanatory preambles, or postscript notes. Begin immediately with the clause text.`;
 
   const userPrompt = `Original risky clause:
 "${originalText}"
 
-Risk analysis: ${riskExplanation || "General clause risk detected."}
-${customPrompt ? `\nAdditional instruction: ${customPrompt}` : ""}
+Risk Analysis: ${riskExplanation || "General legal risk detected."}
+${customPrompt ? `Additional Instruction: ${customPrompt}` : ""}
 
-Draft the improved replacement clause exactly as the final clause text:`;
+Draft the replacement clause below:`;
 
   try {
-    console.log(`[negotiate/compromise] Drafting ${playbookPreferred ? "playbook-preferred" : "balanced"} compromise via Gemini`);
+    console.log(`[negotiate/compromise] Drafting ${playbookPreferred ? "playbook-preferred" : "balanced"} compromise`);
 
     const result = await executeCompletion(
       userPrompt,
@@ -144,6 +153,7 @@ Draft the improved replacement clause exactly as the final clause text:`;
       LLMTask.REFINEMENT,
       LLMProvider.GEMINI
     );
+    
     return res.json({ result: result.trim() });
   } catch (err: any) {
     console.error("[negotiate/compromise] AI error:", err.message);

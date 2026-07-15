@@ -5,7 +5,6 @@ import { chunkAndIndexDocument } from "../RAG/ragService.js";
 import { encryptData, decryptData } from "../utils/crypto.js";
 import { withRetry } from "../utils/retry.js";
 import { withTransaction } from "../utils/dbUtils.js";
-import { openRouterComplete } from "./openRouterClient.js";
 import crypto from "crypto";
 import pdf from "pdf-parse-fork";
 import mammoth from "mammoth";

@@ -1,4 +1,8 @@
-import { openRouterComplete } from "../services/openRouterClient.js";
+import {
+  executeCompletion,
+  executeJsonCompletion,
+} from "../modules/drafting/llm/index.js";
+import { LLMProvider, LLMTask } from "../modules/drafting/config/model-specs.js";
 import { z } from "zod";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -151,7 +155,12 @@ ${prompt}
 ${combinedContent}`;
 
     try {
-      return await openRouterComplete(systemPrompt, userPrompt);
+      return await executeCompletion(
+        userPrompt,
+        systemPrompt,
+        LLMTask.COMPLEX_DRAFT,
+        LLMProvider.GEMINI
+      );
     } catch (err) {
       console.error("AnalysisAgent.analyzeDocuments error:", err);
       throw err;
@@ -249,24 +258,126 @@ ${referenceSection}
 ${content.substring(0, 14000)}`; // cap to avoid token overflow on very large docs
 
     try {
-      console.log(`[AnalysisAgent] Running rich audit via OpenRouter (type: ${type}, refContext: ${referenceContext ? "yes" : "no"})`);
+      console.log(`[AnalysisAgent] Running rich audit via Gemini (type: ${type}, refContext: ${referenceContext ? "yes" : "no"})`);
 
-      let responseText = await openRouterComplete(systemPrompt, userPrompt, {
-        jsonMode: true,
-      });
-
-      responseText = responseText.trim();
-
-      // Strip accidental markdown fences
-      if (responseText.startsWith("```")) {
-        responseText = responseText
-          .replace(/^```json\s*/i, "")
-          .replace(/^```\s*/i, "")
-          .replace(/\s*```$/i, "")
-          .trim();
-      }
-
-      const parsed = JSON.parse(responseText);
+      const parsed = await executeJsonCompletion<any>(
+        userPrompt,
+        systemPrompt,
+        {
+          type: "object",
+          properties: {
+            executiveSummary: { type: "string" },
+            overallRisk: { type: "string", enum: ["low", "medium", "high"] },
+            documentType: { type: "string" },
+            keyTerms: {
+              type: "object",
+              properties: {
+                parties: { type: "array", items: { type: "string" } },
+                governingLaw: { type: ["string", "null"] },
+                liabilityCap: { type: ["string", "null"] },
+                terminationNotice: { type: ["string", "null"] },
+                paymentTerms: { type: "array", items: { type: "string" } },
+                indemnityScope: { type: ["string", "null"] },
+                confidentialityTerm: { type: ["string", "null"] },
+              },
+              required: ["parties", "paymentTerms"],
+              additionalProperties: true,
+            },
+            findings: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  id: { type: "string" },
+                  clauseTitle: { type: "string" },
+                  clauseText: { type: ["string", "null"] },
+                  severity: { type: "string", enum: ["low", "medium", "high"] },
+                  category: {
+                    type: "string",
+                    enum: [
+                      "indemnity",
+                      "liability",
+                      "termination",
+                      "ip",
+                      "confidentiality",
+                      "payment",
+                      "compliance",
+                      "data_protection",
+                      "governing_law",
+                      "other",
+                    ],
+                  },
+                  issue: { type: "string" },
+                  whyItMatters: { type: "string" },
+                  recommendation: { type: "string" },
+                  fallbackPosition: { type: ["string", "null"] },
+                  sourceExcerpt: { type: ["string", "null"] },
+                },
+                required: ["id", "clauseTitle", "severity", "category", "issue", "whyItMatters", "recommendation"],
+                additionalProperties: false,
+              },
+            },
+            missingClauses: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  clauseName: { type: "string" },
+                  reason: { type: "string" },
+                  recommendation: { type: "string" },
+                },
+                required: ["clauseName", "reason", "recommendation"],
+                additionalProperties: false,
+              },
+            },
+            obligations: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  party: { type: ["string", "null"] },
+                  obligation: { type: "string" },
+                  deadline: { type: ["string", "null"] },
+                  trigger: { type: ["string", "null"] },
+                },
+                required: ["obligation"],
+                additionalProperties: false,
+              },
+            },
+            complianceGaps: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  regulation: { type: "string" },
+                  issue: { type: "string" },
+                  severity: { type: "string" },
+                  remediation: { type: "string" },
+                },
+                required: ["regulation", "issue", "severity", "remediation"],
+                additionalProperties: false,
+              },
+            },
+            recommendedRedlines: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  clauseTitle: { type: "string" },
+                  currentIssue: { type: "string" },
+                  suggestedRevision: { type: "string" },
+                },
+                required: ["clauseTitle", "currentIssue", "suggestedRevision"],
+                additionalProperties: false,
+              },
+            },
+          },
+          required: ["executiveSummary", "overallRisk", "keyTerms", "findings", "missingClauses", "obligations", "complianceGaps", "recommendedRedlines"],
+          additionalProperties: false,
+        },
+        LLMTask.STRUCTURAL_JSON,
+        LLMProvider.GEMINI
+      );
 
       // Normalise arrays that the model might omit entirely
       parsed.keyTerms = parsed.keyTerms ?? {};

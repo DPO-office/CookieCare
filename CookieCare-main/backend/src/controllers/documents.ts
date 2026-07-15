@@ -132,11 +132,13 @@ export const  uploadDocument = async (req: Request, res: Response) => {
     'text/plain',
     'text/markdown',
     'application/msword',
-    'application/octet-stream'
+    'application/octet-stream',
+    'text/csv',
+    'application/json'
   ];
 
   if (!allowedMimeTypes.includes(file.mimetype)) {
-    return res.status(400).json({ error: "Unsupported file type. Only PDF, DOCX, and TXT are permitted for legal indexing." });
+    return res.status(400).json({ error: "Unsupported file type. Only PDF, DOCX, TXT, CSV, JSON, and Markdown are permitted for legal indexing." });
   }
 
   if (file.size > 25 * 1024 * 1024) { // 25MB limit
@@ -152,7 +154,9 @@ export const  uploadDocument = async (req: Request, res: Response) => {
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'text/plain',
     'text/markdown',
-    'application/msword'
+    'application/msword',
+    'text/csv',
+    'application/json'
   ];
 
   if (!strictAllowedMimeTypes.includes(detectedMime)) {
