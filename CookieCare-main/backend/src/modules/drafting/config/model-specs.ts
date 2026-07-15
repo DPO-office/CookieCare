@@ -9,6 +9,8 @@ import { GenerateContentConfig } from "@google/genai";
 export enum GeminiModel {
   GEMINI_2_5_FLASH = "gemini-2.5-flash",
   GEMINI_2_5_PRO   = "gemini-2.5-pro",
+  // ANTHROPIC_3_5_SONNET = "anthropic/claude-3.5-sonnet",
+  // GEMINI_3_5_FLASH = "gemini-3.5-flash"
 }
 
 export enum OpenRouterModel {
@@ -25,7 +27,8 @@ export enum LLMTask {
   FAST_STITCH      = "FAST_STITCH",      // Multi-page layout data table stitching
   COMPLEX_DRAFT    = "COMPLEX_DRAFT",    // Initial contract clause composition
   STRUCTURAL_JSON  = "STRUCTURAL_JSON",   // Strict schema processing and extraction
-  REFINEMENT       = "REFINEMENT",       // Interactive highlight editor changes
+  REFINEMENT       = "REFINEMENT",    
+  STRUCTURAL_JSON_LITE = "STRUCTURAL_JSON_LITE" // Interactive highlight editor changes
 }
 
 export enum LLMProvider {
@@ -72,6 +75,11 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
       temperature: 0.0, 
       responseMimeType: "application/json" 
     },
+    [LLMTask.STRUCTURAL_JSON_LITE]: {
+      model: GeminiModel.GEMINI_2_5_FLASH, 
+      temperature: 0.0, 
+      responseMimeType: "application/json" 
+    },
     [LLMTask.REFINEMENT]: { 
       model: GeminiModel.GEMINI_2_5_FLASH, 
       temperature: 0.2 
@@ -91,6 +99,11 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
       temperature: 0.0, 
       responseMimeType: "application/json" 
     },
+    [LLMTask.STRUCTURAL_JSON_LITE]: {
+      model: OpenRouterModel.CLAUDE_3_5_SONNET, 
+      temperature: 0.0, 
+      responseMimeType: "application/json" 
+    },
     [LLMTask.REFINEMENT]: { 
       model: OpenRouterModel.LLAMA_3_3_70B, 
       temperature: 0.2 
@@ -104,5 +117,5 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
 export const GEMINI_ENV_CONFIG = {
   projectId: process.env.GOOGLE_CLOUD_PROJECT || "lexify-production-cloud",
   location: process.env.GOOGLE_CLOUD_LOCATION || "us-central1",
-  timeoutMs: 45000
+  timeoutMs: 15000 // 45000
 };

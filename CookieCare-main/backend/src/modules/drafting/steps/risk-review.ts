@@ -31,7 +31,7 @@ export const riskReviewStep = async (
       reviewPrompt.trim(),
       systemInstruction.trim(),
       LLM_RISK_REVIEW_SCHEMA,
-      LLMTask.STRUCTURAL_JSON
+      LLMTask.STRUCTURAL_JSON_LITE
     );
 
     const activeRisks = llmResult?.risks ?? [];

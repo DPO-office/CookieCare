@@ -25,6 +25,8 @@ export default function GeneratorBasicMode({
 }: GeneratorBasicModeProps) {
   return (
     <div className="w-full space-y-5 z-10">
+      
+
       {/* 1. Provide draft input */}
       <div className="bg-white border border-gray-200 rounded-[18px] p-6 shadow-xs space-y-3">
         <div className="flex items-center gap-2.5">

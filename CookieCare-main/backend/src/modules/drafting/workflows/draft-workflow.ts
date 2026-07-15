@@ -12,50 +12,68 @@ export class DraftWorkflowOrchestrator {
   /**
    * Pipeline 1: Generation from Scratch / Template
    */
-  async executeInitialWorkflow(initialState: DraftState): Promise<DraftState> {
-    let state: DraftState = { ...initialState };
-    try {
-      state = await requirementExtractionStep(state);
-      console.log("step 1 - requirementExtractionStep",state)
-      state = await retrievalStep(state);
-      console.log("step 2 retreval",state)
-      state = await contextAssemblyStep(state);
-      console.log("step 3 - context assembly",state)
-      state = await generationStep(state);
-      console.log("step 4 - generationStep",state)
-      state = await validationStep(state);
-      console.log("step 5 - validationStep",state)
-      state = await riskReviewStep(state);
-      console.log("step 6 - riskReviewStep",state)
-      state = await saveStep(state);  
-      console.log("step 7 - saving...",state)
+async executeInitialWorkflow(initialState: DraftState): Promise<DraftState> {
+  let state: DraftState = { ...initialState };
+  try {
+    // Steps 1, 2, & 3 must remain sequential because prompts build on extracted metadata
+    state = await requirementExtractionStep(state);
+    state = await retrievalStep(state);
+    state = await contextAssemblyStep(state);
+    
+    // Step 4: Core Generation (Heavy LLM Drafting Call)
+    state = await generationStep(state);
+    console.log(state)
 
-      let attempt = 0;
-      const maxAttempt = 1;
+    // ⚡ OPTIMIZATION 1: Parallelize Independent Analysis Track Components
+    // Both validation and risk review evaluate the draft concurrently
+    console.log("Executing Validation and Risk Review pipelines concurrently...");
+    const [validationState, riskReviewState] = await Promise.all([
+      validationStep(state),
+      riskReviewStep(state)
+    ]);
+    // const validationState = {validation:[],metadata:""}
+    // const riskReviewState = {riskReview:[],metadata:""}
+    
 
-      while (!state.validation?.isValid && attempt<maxAttempt){
-
-        console.log("Entered in validation while loop")
-
-        state = await contextAssemblyRefinementStep(state);
-        state = await generationStep(state);
-        state = await validationStep(state);
-
-        attempt++;
-
+    // ⚡ OPTIMIZATION 2: Safely combine the parallel states back into the master state
+    state = {
+      ...state,
+      validation: validationState?.validation,
+      riskReview: riskReviewState?.riskReview,
+      metadata: {
+        ...state.metadata,
+        ...validationState?.metadata,
+        ...riskReviewState?.metadata
       }
+    };
 
-      state = await saveStep(state)
-      return state;
+    // ⚡ OPTIMIZATION 3: Removed the premature Step 7 saveStep database write entirely!
 
-      
-    } catch (error) {
-      throw new Error(
-        `Initial drafting orchestrator failed: ${(error as Error).message}`
-      );
-    }
+    // let attempt = 0;
+    // const maxAttempt = 1;
+
+    // while (!state.validation?.isValid && attempt < maxAttempt) {
+    //   console.log(`Entered validation refinement loop (Attempt ${attempt + 1})`);
+
+    state = await contextAssemblyRefinementStep(state);
+    state = await generationStep(state);
+    //   // state = await validationStep(state); // Re-validate the newly adjusted prose
+
+    //   attempt++;
+    // }
+
+    // ⚡ OPTIMIZATION 4: Single, consolidated Persistence Layer write operation
+    console.log("Pipeline complete. Committing final state snapshot to database ledger...");
+    state = await saveStep(state); 
+    
+    return state;
+    
+  } catch (error) {
+    throw new Error(
+      `Initial drafting orchestrator failed: ${(error as Error).message}`
+    );
   }
-
+}
   /**
    * Pipeline 2: Targeted Document Refinement Cycle
    */

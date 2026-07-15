@@ -35,7 +35,7 @@ export const saveStep = async (state: DraftState): Promise<DraftState> => {
       VALUES ($1, $2, $3, $4, NOW())
       ON CONFLICT (document_id, version) 
       DO UPDATE SET 
-        state_snapshot_json = EXCLUDED.state_json,
+        state_snapshot_json = EXCLUDED.state_snapshot_json,
         formatted_text = EXCLUDED.formatted_text,
         updated_at = NOW()`,
       [

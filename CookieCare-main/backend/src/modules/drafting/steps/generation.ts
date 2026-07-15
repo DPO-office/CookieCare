@@ -1,7 +1,6 @@
 
 import { DraftState } from '../models/draft-state';
-import { LLMTask } from "../config/model-specs.js";
-import { LLMProvider } from "../config/model-specs.js";
+import { LLMTask, LLMProvider, PROVIDER_TASK_PRESETS } from "../config/model-specs.js";
 import { executeCompletion, executeJsonCompletion } from "../llm/index.js";
 import dotenv from "dotenv"
 
@@ -41,6 +40,11 @@ export const generationStep = async (state: DraftState,provider:LLMProvider = LL
   // });
 
   try {
+    const runtimeConfig = PROVIDER_TASK_PRESETS[provider][LLMTask.COMPLEX_DRAFT];
+    const modelUsed = typeof state.metadata.generationParameters?.model === "string"
+      ? state.metadata.generationParameters.model
+      : runtimeConfig.model;
+
     // 1. Dispatch execution call using the pre-compiled context environment prompt block
     const rawModelOutput = await executeCompletion(
         state.context.assembledPrompt,
@@ -66,7 +70,14 @@ export const generationStep = async (state: DraftState,provider:LLMProvider = LL
       metadata: {
         ...state.metadata,
         generatedAt: new Date().toISOString(),
-        modelUsed: state.metadata.generationParameters?.model || 'anthropic/claude-3.5-sonnet'
+        generationParameters: {
+          ...state.metadata.generationParameters,
+          provider,
+          task: LLMTask.COMPLEX_DRAFT,
+          model: modelUsed,
+          runtimeConfig,
+        },
+        modelUsed
       }
     };
 
