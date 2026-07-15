@@ -174,6 +174,10 @@ interface UseDraftGeneratorActionsParams {
   setActiveDropdown: (dropdown: string | null) => void;
   setShowAskAiInput: (show: boolean) => void;
   setAskAiQuery: (query: string) => void;
+  refinementProgress: string;
+  setRefinementProgress: (message: string) => void;
+  refinementError: string;
+  setRefinementError: (error: string) => void;
   tiptapEditorRef: React.MutableRefObject<import("@tiptap/react").Editor | null>;
 }
 
@@ -202,6 +206,10 @@ export function useDraftGeneratorActions({
   setActiveDropdown,
   setShowAskAiInput,
   setAskAiQuery,
+  refinementProgress,
+  setRefinementProgress,
+  refinementError,
+  setRefinementError,
   tiptapEditorRef,
 }: UseDraftGeneratorActionsParams) {
 
@@ -464,6 +472,8 @@ export function useDraftGeneratorActions({
     }
 
     setIsAiRefiningText(true);
+    setRefinementError("");
+    setRefinementProgress("Preparing your refinement request...");
     setActiveDropdown(null);
     setShowAskAiInput(false);
     setShowFloatingMenu(false);
@@ -501,6 +511,12 @@ export function useDraftGeneratorActions({
         eventSource.onmessage = (event) => {
           const data = JSON.parse(event.data);
           if (data.event === "job_update" && data.job.id === payload.job_id) {
+            if (data.job.message) {
+              setRefinementProgress(data.job.message);
+            } else if (data.job.status === "processing") {
+              setRefinementProgress("Refinement in progress...");
+            }
+
             if (data.job.status === "completed") {
               // Resilient extraction layer for the refinement loop artifacts
               const rewritten = 
@@ -508,33 +524,40 @@ export function useDraftGeneratorActions({
                 data.job.result?.content || 
                 data.job.result?.draft?.formattedDocument || 
                 "";
-                
+
+              setRefinementProgress("Applying the refined text...");
               applyRewrite(normalizeDraftMarkdownInput(rewritten));
               setIsAiRefiningText(false);
+              setRefinementProgress("");
               setAskAiQuery("");
               eventSource.close();
-            }else if (data.job.status === "failed") {
+            } else if (data.job.status === "failed") {
               setIsAiRefiningText(false);
+              setRefinementProgress("");
+              setRefinementError(data.job.error || "Refinement failed: Unknown error");
               setAskAiQuery("");
               eventSource.close();
-              alert("Refinement failed: " + (data.job.error || "Unknown error"));
             }
           }
         };
         eventSource.onerror = () => {
           eventSource.close();
           setIsAiRefiningText(false);
+          setRefinementProgress("");
+          setRefinementError("Refinement failed: job connection interrupted");
           setAskAiQuery("");
-          alert("Refinement failed: job connection interrupted");
         };
         return;
       }
 
       const rewritten = payload.data ?? payload.result ?? payload.text ?? "";
       if (rewritten) applyRewrite(rewritten);
+      setRefinementProgress("");
 
     } catch (err: any) {
       console.error("Refinement failed", err);
+      setRefinementProgress("");
+      setRefinementError(err.message || "Refinement failed.");
       alert("Refinement failed: " + err.message);
     } finally {
       setIsAiRefiningText(false);

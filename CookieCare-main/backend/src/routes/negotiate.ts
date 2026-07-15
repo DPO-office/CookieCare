@@ -1,7 +1,11 @@
 import { Router } from "express";
 import { authenticateToken } from "../middleware/auth.js";
 import { AgentOrchestrator } from "../agents/legalAgent.js";
-import { openRouterComplete } from "../services/openRouterClient.js";
+import {
+  executeCompletion,
+  executeJsonCompletion,
+} from "../modules/drafting/llm/index.js";
+import { LLMProvider, LLMTask } from "../modules/drafting/config/model-specs.js";
 
 const router = Router();
 const orchestrator = new AgentOrchestrator();
@@ -29,8 +33,8 @@ router.post("/evaluate", authenticateToken, async (req, res) => {
   }
 
   const systemPrompt = `You are a Multi-Agent Contract Risk Evaluator.
-Analyze the provided contract and identify clauses that carry legal risk.
-Return ONLY a valid JSON object — no markdown fences, no commentary.
+Identify the highest-risk clauses in the provided contract and recommend safer replacement language.
+Return EXACTLY valid JSON only — no markdown, no commentary, no additional keys.
 
 Use this exact schema:
 {
@@ -46,11 +50,12 @@ Use this exact schema:
 }
 
 Rules:
-- Extract between 2 and 6 high-value risk clauses
-- "original" MUST be verbatim text that appears in the document
-- "original" must be at least 15 characters
-- Focus on: indemnity, IP ownership, termination rights, liability caps, data protection
-- If no significant risks exist, return { "markups": [] }`;
+- Identify 2 to 6 highest-value risk clauses.
+- "original" MUST be verbatim text drawn from the document and at least 15 characters.
+- Provide a concise, safer "replacement" clause for each risk.
+- Use RED for highly unacceptable risk, YELLOW for moderate risk, GREEN for acceptable language.
+- Focus on indemnity, IP ownership, termination, liability caps, data protection, audit / compliance, and confidentiality.
+- If no significant risks are present, return { "markups": [] }.`;
 
   const userPrompt = `Document Title: ${documentTitle}
 Document Type: ${documentType}
@@ -58,30 +63,48 @@ Document Type: ${documentType}
 [CONTRACT CONTENT]
 ${content.substring(0, 12000)}`; // cap to avoid token overflow
 
+  const evaluationSchema = {
+    type: "object",
+    properties: {
+      markups: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            clauseId: { type: "string" },
+            original: { type: "string" },
+            replacement: { type: "string" },
+            reasoning: { type: "string" },
+            riskLevel: {
+              type: "string",
+              enum: ["RED", "YELLOW", "GREEN"],
+            },
+          },
+          required: ["clauseId", "original", "replacement", "reasoning", "riskLevel"],
+          additionalProperties: false,
+        },
+      },
+    },
+    required: ["markups"],
+    additionalProperties: false,
+  };
+
   try {
-    console.log(`[negotiate/evaluate] Running AI evaluation for "${documentTitle}" via OpenRouter`);
+    console.log(`[negotiate/evaluate] Running AI evaluation for "${documentTitle}" via Gemini`);
 
-    // Replaceing this with draft temaplte model calling for MVP working
-    let responseText = await openRouterComplete(systemPrompt, userPrompt, { jsonMode: true });
-    responseText = responseText.trim();
+    const parsed = await executeJsonCompletion(
+      userPrompt,
+      systemPrompt,
+      evaluationSchema,
+      LLMTask.STRUCTURAL_JSON,
+      LLMProvider.GEMINI
+    );
 
-    // Strip accidental markdown fences
-    if (responseText.startsWith("```")) {
-      responseText = responseText
-        .replace(/^```json\s*/i, "")
-        .replace(/^```\s*/i, "")
-        .replace(/\s*```$/i, "")
-        .trim();
-    }
-
-    const parsed = JSON.parse(responseText);
     const markups = Array.isArray(parsed.markups) ? parsed.markups : [];
-
     console.log(`[negotiate/evaluate] Returned ${markups.length} markup(s)`);
     return res.json({ data: { markups } });
   } catch (err: any) {
     console.error("[negotiate/evaluate] AI error:", err.message);
-    // Graceful degradation: return empty markups rather than crashing the UI
     return res.json({ data: { markups: [] }, warning: err.message });
   }
 });
@@ -99,10 +122,10 @@ router.post("/compromise", authenticateToken, async (req, res) => {
   const systemPrompt = `You are Lumi, an expert AI negotiation counsel.
 Your task is to draft an improved replacement for a risky contract clause.
 ${playbookPreferred
-    ? "Favour the client's position strongly — prioritise their protections."
-    : "Draft a balanced, commercially fair compromise that both parties can accept."}
+    ? "Prioritise the client's protections while remaining commercially fair and defensible."
+    : "Draft a balanced and commercially acceptable compromise that reduces risk for the client."}
 
-Return ONLY the replacement clause text — no preamble, no explanation, no quotes.`;
+Return ONLY the replacement clause text. Do not include any preamble, explanation, quotes, markdown, or extra sections.`;
 
   const userPrompt = `Original risky clause:
 "${originalText}"
@@ -110,12 +133,17 @@ Return ONLY the replacement clause text — no preamble, no explanation, no quot
 Risk analysis: ${riskExplanation || "General clause risk detected."}
 ${customPrompt ? `\nAdditional instruction: ${customPrompt}` : ""}
 
-Draft the improved replacement clause:`;
+Draft the improved replacement clause exactly as the final clause text:`;
 
   try {
-    console.log(`[negotiate/compromise] Drafting ${playbookPreferred ? "playbook-preferred" : "balanced"} compromise via OpenRouter`);
+    console.log(`[negotiate/compromise] Drafting ${playbookPreferred ? "playbook-preferred" : "balanced"} compromise via Gemini`);
 
-    const result = await openRouterComplete(systemPrompt, userPrompt, { temperature: 0.4 });
+    const result = await executeCompletion(
+      userPrompt,
+      systemPrompt,
+      LLMTask.REFINEMENT,
+      LLMProvider.GEMINI
+    );
     return res.json({ result: result.trim() });
   } catch (err: any) {
     console.error("[negotiate/compromise] AI error:", err.message);

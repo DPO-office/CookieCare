@@ -1,4 +1,7 @@
-import { openRouterComplete } from "../services/openRouterClient.js";
+import {
+  executeCompletion,
+} from "../modules/drafting/llm/index.js";
+import { LLMProvider, LLMTask } from "../modules/drafting/config/model-specs.js";
 
 export class NegotiationAgent {
   async negotiate(
@@ -9,8 +12,8 @@ export class NegotiationAgent {
     const playbookText = playbooks.join("\n\n---\n\n");
 
     const systemPrompt = `You are an expert Legal Counsel specializing in contract negotiation.
-Your goal is to suggest redlines and improvements for the provided document based on the company's playbooks and specific user instructions.
-Return the output in Markdown format with a summary of changes and the proposed redlines.`;
+Your goal is to suggest precise redlines, safer replacement language, and negotiation guidance for the provided document.
+Return the output in clear Markdown format with a short summary, redline recommendations, and any clause-level suggestions.`;
 
     const userPrompt = `[DOCUMENT CONTENT]
 ${documentContent}
@@ -21,10 +24,15 @@ ${playbookText}
 [USER INSTRUCTIONS]
 ${instructions}
 
-Provide detailed negotiation advice and specific clause redlines.`;
+Provide specific negotiation advice and clause redlines. Use headings and bullet points. Do not include unrelated legal theory.`;
 
     try {
-      return await openRouterComplete(systemPrompt, userPrompt);
+      return await executeCompletion(
+        userPrompt,
+        systemPrompt,
+        LLMTask.COMPLEX_DRAFT,
+        LLMProvider.GEMINI
+      );
     } catch (err) {
       console.error("NegotiationAgent error:", err);
       throw err;

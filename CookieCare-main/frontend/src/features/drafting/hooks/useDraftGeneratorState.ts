@@ -56,6 +56,8 @@ export function useDraftGeneratorState() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingProgress, setStreamingProgress] = useState("");
   const [draftError, setDraftError] = useState("");
+  const [refinementProgress, setRefinementProgress] = useState("");
+  const [refinementError, setRefinementError] = useState("");
 
   return {
     mode,
@@ -128,5 +130,9 @@ export function useDraftGeneratorState() {
     setStreamingProgress,
     draftError,
     setDraftError,
+    refinementProgress,
+    setRefinementProgress,
+    refinementError,
+    setRefinementError,
   };
 }

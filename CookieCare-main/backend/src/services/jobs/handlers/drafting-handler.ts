@@ -226,16 +226,19 @@ async function handleRefinementJob(jobId: string, userId: string, payload: any):
 
     const nextVersionNumber = resolvedVersion + 1;
 
+    const previousRequest = historicalStateSnapshot?.request;
+    const previousPayloadFields = previousRequest?.payloadFields ?? {};
+
     const inputStateContainer: DraftState = historicalStateSnapshot
         ? {
             ...historicalStateSnapshot,
             request: {
-                ...historicalStateSnapshot.request,
+                ...(previousRequest ?? {}),
                 intent: "REFINEMENT",
                 rawInstructions: functionalInstruction,
                 highlightedText,
                 payloadFields: {
-                    ...historicalStateSnapshot.request.payloadFields,
+                    ...previousPayloadFields,
                     documentId: targetDocId
                 }
             },
