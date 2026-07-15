@@ -1,26 +1,30 @@
-import { pool } from "../../../config/database.js";
-import { chunkAndIndexDocument } from "../../../RAG/ragService.js"; 
-import { encryptData } from "../../../utils/crypto.js";
-import { withRetry } from "../../../utils/retry.js";
-import { withTransaction } from "../../../utils/dbUtils.js";
+import { pool } from "@/backend/src/config/database.js";
+import { chunkAndIndexDocument } from "@/backend/src/RAG/ragService.js"; 
+import { encryptData } from "@/backend/src/utils/crypto.js";
+import { withRetry } from "@/backend/src/utils/retry";
+import { withTransaction } from "@/backend/src/utils/dbUtils";
 import { openRouterComplete } from "../../openRouterClient.js";
 import crypto from "crypto";
 import { jobRegistry, updateJobProgress } from "../../jobQueue.js";
-import { DraftMode, DraftState } from "../../../modules/drafting/models/draft-state.js";
-import pdf from "pdf-parse-fork";
-import { DraftWorkflowOrchestrator } from "../../../modules/drafting/workflows/draft-workflow.js";
+import { DraftMode, DraftState } from "@/backend/src/modules/drafting/models/draft-state.js";
+import { PDFParse } from "pdf-parse";
+import { DraftWorkflowOrchestrator } from "@/backend/src/modules/drafting/workflows/draft-workflow.js";
 
 async function extractTextFromStorageUrl(fileUrl: string): Promise<string> {
     const response = await fetch(fileUrl);
     if (!response.ok) throw new Error(`File download failed with status: ${response.status}`);
     const arrayBuffer = await response.arrayBuffer();
-    const parsedPdfData = await pdf(Buffer.from(arrayBuffer));
-    return parsedPdfData.text;
+    const parsedPdfData = new PDFParse({data:Buffer.from(arrayBuffer)});
+    const parsedPdf = await parsedPdfData.getText();
+
+    const extractedTextString = parsedPdf.text ?? "";
+    return extractedTextString
   }
 
 
 async function handleInitialDraftingJob(jobId: string, userId: string, payload: any): Promise<any> {
     const { mode, outputLevel, instructions, formFields, templateId, sourceText, playbookText, intent, fileUrl } = payload;
+    console.log("Enterd in main handleInitialDraftingJob")
   
     await updateJobProgress(jobId, userId, 20, "Extracting compliance parameters and routing tracking slots...");
     const targetDocId = "doc_" + crypto.randomUUID();
@@ -32,11 +36,11 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
         resolvedSourceText = await extractTextFromStorageUrl(fileUrl);
       }
 
-      const evaluatedIntent: DraftMode = intent === "REACTIVE" || (resolvedSourceText && resolvedSourceText.trim())
+    const evaluatedIntent: DraftMode = intent === "REACTIVE" || (resolvedSourceText && resolvedSourceText.trim())
       ? "REACTIVE"
       : "PROACTIVE";
 
-      await updateJobProgress(jobId, userId, 25, "Structuring tracking context state blocks...");
+    await updateJobProgress(jobId, userId, 25, "Structuring tracking context state blocks...");
   
     // 2. Standardize request data elements inside a valid DraftState footprint
     const initialStateContainer: DraftState = {
@@ -72,7 +76,7 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
     const orchestrator = new DraftWorkflowOrchestrator()
   
     // 3. Dispatch straight to the central state loop pipeline running code
-        const finalizedState = await orchestrator.executeInitialWorkflow(initialStateContainer);
+    const finalizedState = await orchestrator.executeInitialWorkflow(initialStateContainer);
     
     if (!finalizedState.draft?.formattedDocument) {
       throw new Error("Pipeline Execution Failure: Final document text block emerged empty from workflow engine.");
@@ -105,9 +109,9 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
     });
   
     // 6. Index output arrays natively for background RAG search contexts
-    chunkAndIndexDocument(targetDocId, documentContentResult, userId).catch((err) =>
-      console.warn(`[DraftingHandler/Initial] Vector indexing routine bypassed for ${targetDocId}:`, err)
-    );
+    // chunkAndIndexDocument(targetDocId, documentContentResult, userId).catch((err) =>
+    //   console.warn(`[DraftingHandler/Initial] Vector indexing routine bypassed for ${targetDocId}:`, err)
+    // );
   
     return { content: documentContentResult, file_id: targetDocId, version: 1 };
   }
@@ -253,7 +257,7 @@ async function handleRefinementJob(jobId: string, userId: string, payload: any):
     return { data: refinedTextOutputResult, file_id: targetDocId, version: nextVersionNumber };
   }
 
-
+// Main execulatable function used in main JobQueue.ts
 export async function executeTemplateDrafting(jobId: string, userId: string, payload: any) {
   if (payload.type === "REFINEMENT"){
     return await handleRefinementJob(jobId,userId,payload)
