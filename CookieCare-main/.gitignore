@@ -3,6 +3,8 @@ build/
 DraftingPipeline.md
 dist/
 coverage/
+lexify_migration_clean.sql
+lexify_migration.sql
 .DS_Store
 *.log
 .env*
