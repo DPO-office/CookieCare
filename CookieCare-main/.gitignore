@@ -15,3 +15,4 @@ lexify_migration.sql
 frontend/dist/
 backend/dist/
 backend/server.js
+drafting-module-context.md

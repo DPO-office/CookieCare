@@ -1,14 +1,14 @@
-import { pool } from "@/backend/src/config/database.js";
-import { chunkAndIndexDocument } from "@/backend/src/RAG/ragService.js"; 
-import { encryptData } from "@/backend/src/utils/crypto.js";
-import { withRetry } from "@/backend/src/utils/retry";
-import { withTransaction } from "@/backend/src/utils/dbUtils";
+import { pool } from "../../../config/database.js";
+import { chunkAndIndexDocument } from "../../../RAG/ragService.js";
+import { encryptData } from "../../../utils/crypto.js";
+import { withRetry } from "../../../utils/retry.js";
+import { withTransaction } from "../../../utils/dbUtils.js";
 import { openRouterComplete } from "../../openRouterClient.js";
 import crypto from "crypto";
 import { jobRegistry, updateJobProgress } from "../../jobQueue.js";
-import { DraftMode, DraftState } from "@/backend/src/modules/drafting/models/draft-state.js";
+import { DraftMode, DraftState } from "../../../modules/drafting/models/draft-state.js";
 import { PDFParse } from "pdf-parse";
-import { DraftWorkflowOrchestrator } from "@/backend/src/modules/drafting/workflows/draft-workflow.js";
+import { DraftWorkflowOrchestrator } from "../../../modules/drafting/workflows/draft-workflow.js";
 
 async function extractTextFromStorageUrl(fileUrl: string): Promise<string> {
     const response = await fetch(fileUrl);

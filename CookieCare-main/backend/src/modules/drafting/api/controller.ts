@@ -1,4 +1,4 @@
-import { addJobToQueue } from "@/backend/src/services/jobQueue";
+import { addJobToQueue } from "../../../services/jobQueue.js";
 import { Request, Response } from "express";
 import { DraftRequestSchema } from "./schema";
 

@@ -1,3 +1,5 @@
+
+
 import { Request, Response } from "express";
 import { pool } from "../config/database.js";
 import { addJobToQueue } from "../services/jobQueue.js";
@@ -116,9 +118,11 @@ export const createDocument = async (req: Request, res: Response) => {
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
-};
+};  
 
-export const uploadDocument = async (req: Request, res: Response) => {
+
+// General file upload and playbook uploading job creation init here
+export const  uploadDocument = async (req: Request, res: Response) => {
   const file = req.file;
   if (!file) return res.status(400).json({ error: "No file uploaded. Verify multipart/form-data boundary." });
 
@@ -127,7 +131,8 @@ export const uploadDocument = async (req: Request, res: Response) => {
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'text/plain',
     'text/markdown',
-    'application/msword'
+    'application/msword',
+    'application/octet-stream'
   ];
 
   if (!allowedMimeTypes.includes(file.mimetype)) {
@@ -141,16 +146,32 @@ export const uploadDocument = async (req: Request, res: Response) => {
   const type = await fileTypeFromBuffer(file.buffer);
   const detectedMime = type?.mime || file.mimetype;
 
-  if (!allowedMimeTypes.includes(detectedMime)) {
+  // 3. Strict structural enforcement: The actual file signature MUST be a valid legal layout
+  const strictAllowedMimeTypes = [
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'text/plain',
+    'text/markdown',
+    'application/msword'
+  ];
+
+  if (!strictAllowedMimeTypes.includes(detectedMime)) {
     return res.status(400).json({ error: "File signature mismatch. Extension does not match content magic bytes." });
   }
 
-  const { title, folder_id } = req.body;
+  const { title, folder_id,contractType } = req.body;
+  // For playbook
+  const systemFileType = req.body.category?.trim().toLowerCase() || "upload";
+  // Playbook validation rule stays simple
+  if (systemFileType === "playbook" && (!contractType || !contractType.trim())) {
+    return res.status(400).json({ error: "Playbook ingestion requires an explicit 'contractType' parameter." });
+  }
+
   const fileId = "doc_" + crypto.randomUUID();
   const fileTitle = title || file.originalname;
   const userId = req.user!.id;
   const userRole = req.user!.role;
-
+  
   // If no folder_id is supplied, resolve (or create) the "Uploaded Documents" default folder.
   let resolvedFolderId: string;
   try {
@@ -164,15 +185,30 @@ export const uploadDocument = async (req: Request, res: Response) => {
     await withTransaction(userId, userRole, async (client) => {
       await client.query(
         `INSERT INTO files (id, title, type, content, creator_id, creator_email, mime_type, folder_id)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
         [fileId, fileTitle, "upload", "", req.user!.id, req.user!.email, file.mimetype, resolvedFolderId]
       );
     }).catch(e => {
       console.error("Database insert failed during upload:", e);
       throw new Error("DB_UPLOAD_FAILED");
     });
+    
+    let job;
+    
+    if (systemFileType === "playbook" || contractType) {
+      const fileDataUrl = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
+      
+      job = await addJobToQueue(req.user!.id, "PLAYBOOK_INGEST", {
+        fileId,
+        contractType: contractType.trim(),
+        fileTitle,
+        fileUrl:fileDataUrl,
+        fileBufferBase64: file.buffer.toString("base64"),
+        mimeType: file.mimetype
+      });
+    }
 
-    const job = await addJobToQueue(req.user!.id, "file_processing", {
+    job = await addJobToQueue(req.user!.id, "file_processing", {
       fileId,
       fileTitle,
       fileBufferBase64: file.buffer.toString("base64"),
@@ -496,7 +532,7 @@ export const acceptRedline = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "This redline has already been accepted" });
     }
     if (err.message && err.message.startsWith("CLAUSE_")) {
-      return res.status(400).json({ error: err.message.replace("CLAUSE_", "").replace(/_/g, " ").toLowerCase().replace(/^\w/, c => c.toUpperCase()) });
+      return res.status(400).json({ error: err.message.replace("CLAUSE_", "").replace(/_/g, " ").toLowerCase().replace(/^\w/, (c:string) => c.toUpperCase()) });
     }
     
     res.status(500).json({ error: "Internal error processing redline acceptance" });
