@@ -35,4 +35,10 @@ export const DraftRequestSchema = z.discriminatedUnion("mode",[
     BasicDraftSchema,
     ProactiveDraftSchema,
     ReactiveDraftSchema
-])
+]);
+
+export const RefineRequestSchema = z.object({
+    documentId: z.string().min(1),
+    instructions: z.string().min(1),
+    highlightedText: z.string().optional()
+});

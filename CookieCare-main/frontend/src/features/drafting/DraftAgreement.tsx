@@ -54,6 +54,7 @@ export default function DraftAgreement({
     authToken,
     onRefresh,
     editorContent: editorState.editorContent,
+    currentDocumentId: editorState.selectedDoc?.id ?? null,
     pushUndoSnapshot: editorState.pushUndoSnapshot,
     setEditorContent: editorState.setEditorContent,
     setSelectedDoc: editorState.setSelectedDoc,
@@ -63,6 +64,7 @@ export default function DraftAgreement({
     setDraftError: generatorState.setDraftError,
     setUploadText: generatorState.setUploadText,
     setUploadFileName: generatorState.setUploadFileName,
+    setSourceDocumentId: generatorState.setSourceDocumentId,
     setIsParsingTemplate: generatorState.setIsParsingTemplate,
     setAdvancedFields: generatorState.setAdvancedFields,
     setAdvancedFieldValues: generatorState.setAdvancedFieldValues,
@@ -130,6 +132,8 @@ export default function DraftAgreement({
       uploadFileName: generatorState.uploadFileName,
       uploadText: generatorState.uploadText,
       advancedFieldValues: generatorState.advancedFieldValues,
+      selectedClauses: generatorState.selectedClauses,
+      sourceDocumentId: generatorState.sourceDocumentId,
     });
   };
 
