@@ -33,38 +33,27 @@ export const contextAssemblyStep = async (state: DraftState): Promise<DraftState
   let ACTIVE_SKELETON: string[];
 
   const isReactive = state.request.intent === 'REACTIVE';
+  const isTransactionalDraft = state.request.intent === 'PROACTIVE' || state.requirements.contractType === 'NDA';
 
-  if(isReactive){
-    SYSTEM_PROMPT = templates.SYSTEM_REACTIVE_GUARDRAILS
-    ACTIVE_SKELETON = REACTIVE_RESPONSE_SKELETON
-
-    fullCompiledPrompt = [
-      SYSTEM_PROMPT,
-      templates.buildPlaybookSection(retrieval.applicablePlaybookRules),
-      templates.buildClauseSection(retrieval.fallbackClauses),
-      `# BASELINE TEMPLATE TEXT\n${retrieval.matchedTemplate || 'No baseline text provided.'}`,
-      templates.buildSkeletonSection(ACTIVE_SKELETON),
-      templates.buildVariablesSection(requirements,request.intent)
-    ].join('\n\n')
-
-
-
+  if (isReactive) {
+    SYSTEM_PROMPT = templates.SYSTEM_REACTIVE_GUARDRAILS;
+    ACTIVE_SKELETON = REACTIVE_RESPONSE_SKELETON;
+  } else if (isTransactionalDraft) {
+    SYSTEM_PROMPT = templates.SYSTEM_TRANSACTIONAL_GUARDRAILS;
+    ACTIVE_SKELETON = PROACTIVE_CONTRACT_SKELETON;
+  } else {
+    SYSTEM_PROMPT = templates.SYSTEM_TRANSACTIONAL_GUARDRAILS;
+    ACTIVE_SKELETON = PROACTIVE_CONTRACT_SKELETON;
   }
-  else{
 
-    SYSTEM_PROMPT = templates.SYSTEM_REACTIVE_GUARDRAILS
-    ACTIVE_SKELETON = PROACTIVE_CONTRACT_SKELETON
-
-    fullCompiledPrompt = [
-      templates.SYSTEM_CORE_GUARDRAILS,
-      templates.buildPlaybookSection(retrieval.applicablePlaybookRules),
-      templates.buildClauseSection(retrieval.fallbackClauses),
-      `# BASELINE TEMPLATE TEXT\n${retrieval.matchedTemplate || 'No baseline text provided.'}`,
-      templates.buildSkeletonSection(ACTIVE_SKELETON),
-      templates.buildVariablesSection(requirements, request.intent)
-    ].join('\n\n');
-
-  }
+  fullCompiledPrompt = [
+    SYSTEM_PROMPT,
+    templates.buildPlaybookSection(retrieval.applicablePlaybookRules),
+    templates.buildClauseSection(retrieval.fallbackClauses),
+    `# BASELINE TEMPLATE TEXT\n${retrieval.matchedTemplate || 'No baseline text provided.'}`,
+    templates.buildSkeletonSection(ACTIVE_SKELETON),
+    templates.buildVariablesSection(requirements, request.intent)
+  ].join('\n\n');
   // --- SECTION 1: STATIC CORE INSTRUCTIONS ---
 
   return {

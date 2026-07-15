@@ -127,37 +127,36 @@ export const retrievalStep = async (state: DraftState): Promise<DraftState> => {
 
   // Transfer this to retrieval/temapteRetriever
 
-  const readTemplateFromDb = async (): Promise<string | null> => {
-    try {
-      // Current schema stores templates in files with is_template=true.
-      const templateSql = `
-  SELECT id, title, content 
-  FROM contract_templates 
-  WHERE contract_type = $1 
-    AND jurisdiction = $2 
-    AND status = 'active'
-    LIMIT 1;
+const readTemplateFromDb = async (): Promise<string | null> => {
+  try {
+    const inputTemplateId = state.request?.templateId;
+
+    // Fix: If an explicit template identity is requested by the user, pull it exactly!
+    if (inputTemplateId && inputTemplateId.trim()) {
+      const targetQuery = inputTemplateId.length === 36 || inputTemplateId.includes('-')
+        ? "SELECT content FROM contract_templates WHERE id = $1 AND status = 'active' LIMIT 1"
+        : "SELECT content FROM contract_templates WHERE name ILIKE $1 AND status = 'active' LIMIT 1";
+      
+      const res = await pool.query(targetQuery, [inputTemplateId]);
+      if (res.rows.length > 0 && res.rows[0]?.content) {
+        return String(res.rows[0].content);
+      }
+    }
+
+    // Default Fallback: If no explicit template is passed, match by type + jurisdiction
+    const fallbackSql = `
+      SELECT content FROM contract_templates 
+      WHERE contract_type = $1 AND jurisdiction = $2 AND status = 'active' 
+      LIMIT 1;
     `;
-
-    const templateParams = [
-      state.requirements?.contractType, // Must be passed exactly as 'NDA'
-      state.requirements?.jurisdiction  // Must be passed exactly as 'Delaware'
-    ];
-
-    const { rows } = await pool.query(
-        templateSql,templateParams
-    );
-
-    if (!rows.length || !rows[0]?.content) {
-      return null;
-    }
-
-    return String(rows[0].content);
+    const fallbackRes = await pool.query(fallbackSql, [requirements.contractType, requirements.jurisdiction]);
+    return fallbackRes.rows.length > 0 ? String(fallbackRes.rows[0].content) : null;
     
-  } catch {
-      return null;
-    }
-  };
+  } catch (err) {
+    console.error("Template retrieval error:", err);
+    return null;
+  }
+};
   const [dbRules, matchedTemplate] = await Promise.all([
     readPlaybookRulesFromDb(),
     readTemplateFromDb(),

@@ -23,37 +23,58 @@ async function extractTextFromStorageUrl(fileUrl: string): Promise<string> {
 
 
 async function handleInitialDraftingJob(jobId: string, userId: string, payload: any): Promise<any> {
-    const { mode, outputLevel, instructions, formFields, templateId, sourceText, playbookText, intent, fileUrl } = payload;
-    console.log("Enterd in main handleInitialDraftingJob")
+    // 1. Ingest the aligned Zod structure payload parameters
+    const { mode, instructions, contractType, formFields, templateId, sourceDocumentId, extractedFields } = payload;
+    console.log("Entered main handleInitialDraftingJob with mode:", mode);
   
     await updateJobProgress(jobId, userId, 20, "Extracting compliance parameters and routing tracking slots...");
     const targetDocId = "doc_" + crypto.randomUUID();
 
     let resolvedSourceText: string | undefined = undefined;
   
-    // 1. Calculate intent and profile execution paths
-    if (intent === "REACTIVE" && fileUrl) {
-        resolvedSourceText = await extractTextFromStorageUrl(fileUrl);
+    // 2. Resolve Reactive Mode text content from our database if sourceDocumentId exists
+    if (mode === "REACTIVE" && sourceDocumentId) {
+      try {
+        const fileLookup = await pool.query(
+          "SELECT content, is_encrypted FROM files WHERE id = $1 LIMIT 1",
+          [sourceDocumentId]
+        );
+        if (fileLookup.rows.length > 0) {
+          const fileRow = fileLookup.rows[0];
+          resolvedSourceText = fileRow.is_encrypted 
+            ? decryptData(fileRow.content) 
+            : fileRow.content;
+        }
+      } catch (err) {
+        console.error("Failed to resolve reactive source text from sourceDocumentId:", err);
       }
+    }
 
-    const evaluatedIntent: DraftMode = intent === "REACTIVE" || (resolvedSourceText && resolvedSourceText.trim())
-      ? "REACTIVE"
-      : "PROACTIVE";
+    const evaluatedIntent: DraftMode = (mode as DraftMode) || "BASIC";
 
     await updateJobProgress(jobId, userId, 25, "Structuring tracking context state blocks...");
   
     // 2. Standardize request data elements inside a valid DraftState footprint
     const initialStateContainer: DraftState = {
-        request: {
-          intent: evaluatedIntent, 
-          mode: null, // we are using intent everywhere instead of mode        
-          rawInstructions: instructions || "",
-          sourceText: resolvedSourceText,
-          templateId: templateId || undefined,
-          formFields: formFields || {},
-          payloadFields: { documentId: targetDocId }
-        },
-        requirements: null,
+      request: {
+        intent: evaluatedIntent, 
+        mode: mode === "BASIC" ? "Basic" : mode === "PROACTIVE" ? "Standard Template" : "Advanced Proactive",        
+        rawInstructions: instructions || "",
+        sourceText: resolvedSourceText,
+        templateId: templateId || undefined,
+        formFields: formFields || {},
+        payloadFields: { documentId: targetDocId }
+      },
+      requirements: {
+        contractType: contractType || (formFields?.contractType) || "General",
+        jurisdiction: (formFields?.jurisdiction) || "Unspecified",
+        industry: "General",
+        parties: [],
+        requiredClauses: [],
+        optionalClauses: [],
+        language: "English",
+        instructions: instructions || ""
+      },
         retrieval: {
           matchedTemplate: null,
           applicablePlaybookRules: [],
@@ -85,7 +106,7 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
     const documentContentResult = finalizedState.draft.formattedDocument;
   
     // 4. Fetch user records to update application file rows
-    const title = `AI Draft - ${new Date().toLocaleDateString()}`;
+    const title = `${contractType || "AI"} Agreement - ${new Date().toLocaleDateString()}`;
     const { email: creatorEmail } = await withTransaction(userId, 'USER', async (client) => {
       const { rows } = await client.query("SELECT email FROM users WHERE id = $1", [userId]);
       return { email: rows[0]?.email || "" };

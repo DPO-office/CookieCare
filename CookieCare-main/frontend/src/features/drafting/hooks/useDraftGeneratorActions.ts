@@ -142,6 +142,13 @@ function extractPlaceholderFields(text: string): AdvancedField[] {
   }));
 }
 
+function normalizeDraftMarkdownInput(text: string): string {
+  return text
+    .replace(/\r\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 interface UseDraftGeneratorActionsParams {
   authToken: string;
   onRefresh: () => void;
@@ -208,7 +215,12 @@ export function useDraftGeneratorActions({
         auditLogs: [],
         id: existingDocId,
         title,
-        type: "draft",
+        type: "Custom",
+        creatorId: "",
+        creatorEmail: "",
+        isEncrypted: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         content,
       });
       onRefresh();
@@ -345,14 +357,23 @@ export function useDraftGeneratorActions({
           if (p.event === "job_update" && p.job.id === data.job_id) {
             if (p.job.message) setStreamingProgress(p.job.message);
             if (p.job.status === "completed") {
-              const resultContent = p.job.result.content;
-              const resultFileId = p.job.result.file_id;
-              const htmlContent = markdownToHtml(resultContent);
+              // Resilient textual property extraction mapping loop
+              const resultContent = 
+                p.job.result?.content || 
+                p.job.result?.data || 
+                p.job.result?.draft?.formattedDocument || 
+                "";
+                
+              const resultFileId = p.job.result?.file_id || p.job.result?.documentId;
+              const normalizedResultContent = normalizeDraftMarkdownInput(resultContent);
+              const htmlContent = markdownToHtml(normalizedResultContent);
+              
               setEditorContent(htmlContent);
               setIsStreaming(false);
               setStreamingProgress("");
-              handleCreateAndSaveGeneratedDoc(documentTitle, resultContent, resultFileId);
+              handleCreateAndSaveGeneratedDoc(documentTitle, normalizedResultContent, resultFileId);
               eventSource.close();
+              
             } else if (p.job.status === "failed") {
               eventSource.close();
               setIsStreaming(false);
@@ -481,11 +502,18 @@ export function useDraftGeneratorActions({
           const data = JSON.parse(event.data);
           if (data.event === "job_update" && data.job.id === payload.job_id) {
             if (data.job.status === "completed") {
-              applyRewrite(data.job.result.data ?? "");
+              // Resilient extraction layer for the refinement loop artifacts
+              const rewritten = 
+                data.job.result?.data || 
+                data.job.result?.content || 
+                data.job.result?.draft?.formattedDocument || 
+                "";
+                
+              applyRewrite(normalizeDraftMarkdownInput(rewritten));
               setIsAiRefiningText(false);
               setAskAiQuery("");
               eventSource.close();
-            } else if (data.job.status === "failed") {
+            }else if (data.job.status === "failed") {
               setIsAiRefiningText(false);
               setAskAiQuery("");
               eventSource.close();

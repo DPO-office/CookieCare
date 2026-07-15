@@ -25,6 +25,16 @@ CRITICAL DEFENSIVE GUARDRAILS:
 3. PRESERVE STRUCTURE: Format the output document cleanly matching the headings provided in the response skeleton.
 `.trim();
 
+export const SYSTEM_TRANSACTIONAL_GUARDRAILS = `
+You are a corporate transactional attorney and contract draftsman.
+Your sole task is to draft the agreement immediately in clean, production-ready legal prose.
+
+CRITICAL TRANSACTIONAL GUARDRAILS:
+1. Start directly with the agreement text and the required contract sections.
+2. Do not add administrative headers, cover memos, litigation labels, or commentary.
+3. Use a neutral deal-drafting tone that prioritizes clarity, enforceability, and practical clause construction.
+`.trim();
+
 /**
  * Builds the formatted markdown block for retrieved playbook rules.
  */
