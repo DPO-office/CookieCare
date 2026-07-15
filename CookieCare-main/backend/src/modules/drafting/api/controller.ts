@@ -1,4 +1,4 @@
-import { addJobToQueue } from "../../../services/jobQueue.js";
+import { addJobToQueue } from "@/backend/src/services/jobQueue";
 import { Request, Response } from "express";
 import { DraftRequestSchema } from "./schema";
 
@@ -7,13 +7,14 @@ import { DraftRequestSchema } from "./schema";
 
 const draftRouteController = async (req: Request, res: Response): Promise<void> => {
     try {
-        const request = DraftRequestSchema.safeParse(req.body)
+        // const request = DraftRequestSchema.safeParse(req.body)
 
-        if(!request.success) {
-            throw new Error("Zod validation error")
-        }
+        // if(!request.success) {
+        //     throw new Error("Zod validation error")
+        // }
+        console.log("Enter in drafting API")
 
-        const job = await addJobToQueue(req.user?.id, "template_drafting", req.body);
+        const job = await addJobToQueue(req.user!.id, "template_drafting", req.body);
         res.status(202).json({ success: true, job_id: job.id });
     } 
     

@@ -1,6 +1,8 @@
 
 import { DraftState } from '../models/draft-state';
-import { OpenRouterClient } from '../providers/openrouter-provider';
+import { LLMTask } from "../config/model-specs.js";
+import { LLMProvider } from "../config/model-specs.js";
+import { executeCompletion, executeJsonCompletion } from "../llm/index.js";
 import dotenv from "dotenv"
 
 dotenv.config()
@@ -27,22 +29,22 @@ function cleanMarkdownArtifacts(rawText: string): string {
   return cleanedText.trim();
 }
 
-export const generationStep = async (state: DraftState): Promise<DraftState> => {
+export const generationStep = async (state: DraftState,provider:LLMProvider = LLMProvider.GEMINI): Promise<DraftState> => {
   if (!state.context || !state.context.assembledPrompt) {
     throw new Error('Generation Step Aborted: Context has not been assembled. state.context.assembledPrompt is null.');
   }
 
-  const routerClient = new OpenRouterClient({
-    apiKey: process.env.OPENROUTER_API_KEY ?? '',
-    model: process.env.OPENROUTER_MODEL,
-    timeoutMs: 45000,
-  });
+  // const routerClient = new OpenRouterClient({
+  //   apiKey: process.env.OPENROUTER_API_KEY ?? '',
+  //   model: process.env.OPENROUTER_MODEL,
+  //   timeoutMs: 45000,
+  // });
 
   try {
     // 1. Dispatch execution call using the pre-compiled context environment prompt block
-    const rawModelOutput = await routerClient.getTextCompletion(
+    const rawModelOutput = await executeCompletion(
         state.context.assembledPrompt,
-        state.context.systemPrompt
+        state.context.systemPrompt,LLMTask.COMPLEX_DRAFT,provider
       
     );
 

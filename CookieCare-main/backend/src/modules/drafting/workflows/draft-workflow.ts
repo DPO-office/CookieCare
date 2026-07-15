@@ -15,18 +15,28 @@ export class DraftWorkflowOrchestrator {
   async executeInitialWorkflow(initialState: DraftState): Promise<DraftState> {
     let state: DraftState = { ...initialState };
     try {
-      state = await requirementExtractionStep(state); 
+      state = await requirementExtractionStep(state);
+      console.log("step 1 - requirementExtractionStep",state)
       state = await retrievalStep(state);
+      console.log("step 2 retreval",state)
       state = await contextAssemblyStep(state);
+      console.log("step 3 - context assembly",state)
       state = await generationStep(state);
+      console.log("step 4 - generationStep",state)
       state = await validationStep(state);
+      console.log("step 5 - validationStep",state)
       state = await riskReviewStep(state);
+      console.log("step 6 - riskReviewStep",state)
       state = await saveStep(state);  
+      console.log("step 7 - saving...",state)
 
       let attempt = 0;
       const maxAttempt = 1;
 
-      while (!state.validation.isValid && attempt<maxAttempt){
+      while (!state.validation?.isValid && attempt<maxAttempt){
+
+        console.log("Entered in validation while loop")
+
         state = await contextAssemblyRefinementStep(state);
         state = await generationStep(state);
         state = await validationStep(state);
@@ -66,7 +76,7 @@ export class DraftWorkflowOrchestrator {
         
         // We check the 'issues' array directly for structural 'omission' types.
         // We ignore playbook violations here because the human explicitly wanted custom variations!
-        const hasStucturalProblems = initialState.validation.issues.some((issue)=>issue.type === "omission" && issue.severity === "critical") ?? false;
+        const hasStucturalProblems = initialState.validation?.issues.some((issue)=>issue.type === "omission" && issue.severity === "critical") ?? false;
         
         
         if (!hasStucturalProblems){
