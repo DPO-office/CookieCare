@@ -7,17 +7,15 @@ import { openRouterComplete } from "../../openRouterClient.js";
 import crypto from "crypto";
 import { jobRegistry, updateJobProgress } from "../../jobQueue.js";
 import { DraftMode, DraftState } from "../../../modules/drafting/models/draft-state.js";
-import { PDFParse } from "pdf-parse";
+import pdf from "pdf-parse-fork";
 import { DraftWorkflowOrchestrator } from "../../../modules/drafting/workflows/draft-workflow.js";
 
 async function extractTextFromStorageUrl(fileUrl: string): Promise<string> {
     const response = await fetch(fileUrl);
     if (!response.ok) throw new Error(`File download failed with status: ${response.status}`);
     const arrayBuffer = await response.arrayBuffer();
-    const parsedPdfData = new PDFParse({data:Buffer.from(arrayBuffer)});
-    const parsedPdf = await parsedPdfData.getText();
-
-    const extractedTextString = parsedPdf.text ?? "";
+    const parsedPdfData = await pdf(Buffer.from(arrayBuffer));
+    const extractedTextString = parsedPdfData.text ?? "";
     return extractedTextString
   }
 

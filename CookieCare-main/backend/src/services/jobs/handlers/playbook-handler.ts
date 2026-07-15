@@ -1,4 +1,4 @@
-import {PDFParse} from "pdf-parse";
+import pdf from "pdf-parse-fork";
 import { pool } from "../../../config/database.js";
 import { config } from "../../../config/index.js";
 import { PlaybookIngester } from "../../../modules/drafting/services/playbook-ingester.js";
