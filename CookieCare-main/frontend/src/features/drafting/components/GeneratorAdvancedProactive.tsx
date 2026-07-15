@@ -382,9 +382,6 @@ export default function GeneratorBasicMode({
           <HelpCircle className="w-3.5 h-3.5 text-gray-400" />
         </div>
         <p className="text-[12px] text-gray-500 ml-7.5">Set tone, structure, and any specific requirements.</p>
-        <div className="ml-7.5 rounded-xl border border-gray-100 bg-gray-50 px-3 py-2 text-[12px] text-gray-600 leading-5">
-          <span className="font-semibold text-gray-800">Basic mode</span> is the freeform path. It does not auto-select organization playbook items or clause libraries unless you provide them manually.
-        </div>
         <textarea
           rows={4}
           value={playbookGuidelines}

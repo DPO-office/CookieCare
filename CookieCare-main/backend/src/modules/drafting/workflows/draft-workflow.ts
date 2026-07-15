@@ -27,25 +27,25 @@ async executeInitialWorkflow(initialState: DraftState): Promise<DraftState> {
     // ⚡ OPTIMIZATION 1: Parallelize Independent Analysis Track Components
     // Both validation and risk review evaluate the draft concurrently
     console.log("Executing Validation and Risk Review pipelines concurrently...");
-    const [validationState, riskReviewState] = await Promise.all([
-      validationStep(state),
-      riskReviewStep(state)
-    ]);
-    // const validationState = {validation:[],metadata:""}
-    // const riskReviewState = {riskReview:[],metadata:""}
+    // const [validationState, riskReviewState] = await Promise.all([
+    //   validationStep(state),
+    //   riskReviewStep(state)
+    // ]);
+    const validationState = {validation:[],metadata:""}
+    const riskReviewState = {riskReview:[],metadata:""}
     
 
     // ⚡ OPTIMIZATION 2: Safely combine the parallel states back into the master state
-    state = {
-      ...state,
-      validation: validationState?.validation,
-      riskReview: riskReviewState?.riskReview,
-      metadata: {
-        ...state.metadata,
-        ...validationState?.metadata,
-        ...riskReviewState?.metadata
-      }
-    };
+    // state = {
+    //   ...state,
+    //   validation: validationState?.validation,
+    //   riskReview: riskReviewState?.riskReview,
+    //   metadata: {
+    //     ...state.metadata,
+    //     ...validationState?.metadata,
+    //     ...riskReviewState?.metadata
+    //   }
+    // };
 
     // ⚡ OPTIMIZATION 3: Removed the premature Step 7 saveStep database write entirely!
 
@@ -55,8 +55,8 @@ async executeInitialWorkflow(initialState: DraftState): Promise<DraftState> {
     // while (!state.validation?.isValid && attempt < maxAttempt) {
     //   console.log(`Entered validation refinement loop (Attempt ${attempt + 1})`);
 
-    state = await contextAssemblyRefinementStep(state);
-    state = await generationStep(state);
+    // state = await contextAssemblyRefinementStep(state);
+    // state = await generationStep(state);
     //   // state = await validationStep(state); // Re-validate the newly adjusted prose
 
     //   attempt++;
@@ -82,7 +82,7 @@ async executeInitialWorkflow(initialState: DraftState): Promise<DraftState> {
 
     try{
       let attempts = 0;
-      const MAX_RETRY_ATTEMPTS = 2;
+      const MAX_RETRY_ATTEMPTS = 1;
       let initialState = initialState1
 
       while (attempts < MAX_RETRY_ATTEMPTS){

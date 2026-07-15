@@ -61,6 +61,7 @@ ${content.substring(0, 12000)}`; // cap to avoid token overflow
   try {
     console.log(`[negotiate/evaluate] Running AI evaluation for "${documentTitle}" via OpenRouter`);
 
+    // Replaceing this with draft temaplte model calling for MVP working
     let responseText = await openRouterComplete(systemPrompt, userPrompt, { jsonMode: true });
     responseText = responseText.trim();
 
