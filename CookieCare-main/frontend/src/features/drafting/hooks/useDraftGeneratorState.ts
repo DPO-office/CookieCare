@@ -47,6 +47,7 @@ export function useDraftGeneratorState() {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadText, setUploadText] = useState("");
   const [uploadFileName, setUploadFileName] = useState("");
+  const [sourceDocumentId, setSourceDocumentId] = useState("");
   const [isParsingTemplate, setIsParsingTemplate] = useState(false);
   const [advancedFields, setAdvancedFields] = useState<AdvancedField[]>(DEFAULT_ADVANCED_FIELDS);
   const [advancedFieldValues, setAdvancedFieldValues] = useState<Record<string, string>>(DEFAULT_ADVANCED_FIELD_VALUES);
@@ -55,6 +56,8 @@ export function useDraftGeneratorState() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingProgress, setStreamingProgress] = useState("");
   const [draftError, setDraftError] = useState("");
+  const [refinementProgress, setRefinementProgress] = useState("");
+  const [refinementError, setRefinementError] = useState("");
 
   return {
     mode,
@@ -113,6 +116,8 @@ export function useDraftGeneratorState() {
     setUploadText,
     uploadFileName,
     setUploadFileName,
+    sourceDocumentId,
+    setSourceDocumentId,
     isParsingTemplate,
     setIsParsingTemplate,
     advancedFields,
@@ -125,5 +130,9 @@ export function useDraftGeneratorState() {
     setStreamingProgress,
     draftError,
     setDraftError,
+    refinementProgress,
+    setRefinementProgress,
+    refinementError,
+    setRefinementError,
   };
 }

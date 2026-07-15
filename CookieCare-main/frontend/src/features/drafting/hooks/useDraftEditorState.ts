@@ -4,13 +4,9 @@ import { LegalDocument } from "../../../shared/types";
 import { markdownToHtml } from "../../../shared/utils/markdownToHtml";
 
 export function useDraftEditorState(documents: LegalDocument[], initialDocumentId?: string) {
-  const [selectedDoc, setSelectedDoc] = useState<LegalDocument | null>(documents[0] || null);
-  const [editorContent, setEditorContent] = useState(() => {
-    if (!documents[0]?.content) return "";
-    const raw = documents[0].content;
-    return /<[a-z][\s\S]*>/i.test(raw.trim()) ? raw : markdownToHtml(raw);
-  });
-  const [isGeneratorActive, setIsGeneratorActive] = useState(!documents[0]);
+  const [selectedDoc, setSelectedDoc] = useState<LegalDocument | null>(null);
+  const [editorContent, setEditorContent] = useState("");
+  const [isGeneratorActive, setIsGeneratorActive] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [savingMsg, setSavingMsg] = useState("");
 

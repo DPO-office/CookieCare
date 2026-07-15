@@ -1,3 +1,4 @@
+// This is legecy code and we are using modules/drafting/api for routing
 import { Router } from "express";
 import { authenticateToken } from "../middleware/auth.js";
 import { AgentOrchestrator } from "../agents/legalAgent.js";
@@ -6,6 +7,7 @@ import { addJobToQueue } from "../services/jobQueue.js";
 const router = Router();
 const orchestrator = new AgentOrchestrator();
 
+// This is the legecy API
 // router.post("/generate", authenticateToken, async (req, res) => {
 //   try {
 //     const { mode, detailLevel, instructions, formFields, templateId, sourceText, playbookText } = req.body;
@@ -72,4 +74,5 @@ router.post("/process-uploaded-template", authenticateToken, async (req, res) =>
   res.json({ data: { redactedText: templateText, fields } });
 });
 
-export default router;
+// export default router;
+

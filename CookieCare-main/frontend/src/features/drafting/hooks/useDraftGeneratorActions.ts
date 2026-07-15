@@ -3,10 +3,157 @@ import { LegalDocument } from "../../../shared/types";
 import { markdownToHtml } from "../../../shared/utils/markdownToHtml";
 import { AdvancedField } from "../types";
 
+// --- Backend-aligned payload types (mirror DraftRequestSchema / RefineRequestSchema) ---
+
+type BasicDraftPayload = {
+  mode: "BASIC";
+  instructions: string;
+  contractType: string;
+  formFields: Record<string, string>;
+};
+
+type ProactiveDraftPayload = {
+  mode: "PROACTIVE";
+  instructions: string;
+  templateId: string;
+  playbookId?: string;
+  clauseIds?: string[];
+};
+
+type ReactiveDraftPayload = {
+  mode: "REACTIVE";
+  sourceDocumentId: string;
+  extractedFields: Record<string, string>;
+  instructions: string;
+};
+
+type DraftRequestPayload = BasicDraftPayload | ProactiveDraftPayload | ReactiveDraftPayload;
+
+type RefineRequestPayload = {
+  documentId: string;
+  instructions: string;
+  highlightedText?: string;
+};
+
+type DraftUiState = {
+  mode: string;
+  instructions: string;
+  basicPartyA: string;
+  basicPartyB: string;
+  basicLaw: string;
+  basicLiability: string;
+  advancedStep: string;
+  selectedTemplateName: string | null;
+  referenceInstructions: string;
+  uploadFileName: string;
+  advancedFieldValues: Record<string, string>;
+  selectedClauses: string[];
+  sourceDocumentId: string;
+  playbookId?: string;
+};
+
+function buildGenerateStreamPayload(uiState: DraftUiState): DraftRequestPayload {
+  if (uiState.mode === "Basic") {
+    const formFields: Record<string, string> = {
+      contractType: "NDA",
+      party_a: uiState.basicPartyA,
+      party_b: uiState.basicPartyB,
+      governing_law: uiState.basicLaw,
+      liability_cap: uiState.basicLiability,
+    };
+
+    return {
+      mode: "BASIC",
+      instructions: uiState.instructions,
+      contractType: formFields.contractType || "NDA",
+      formFields,
+    };
+  }
+
+  if (uiState.advancedStep === "proactive") {
+    if (!uiState.selectedTemplateName) {
+      throw new Error("Proactive drafting requires a selected template.");
+    }
+
+    return {
+      mode: "PROACTIVE",
+      instructions: uiState.referenceInstructions || uiState.instructions,
+      templateId: uiState.selectedTemplateName,
+      playbookId: uiState.playbookId || undefined,
+      clauseIds: uiState.selectedClauses.length > 0 ? uiState.selectedClauses : undefined,
+    };
+  }
+
+  if (!uiState.sourceDocumentId) {
+    throw new Error("Reactive drafting requires an uploaded source document. Please upload a file first.");
+  }
+
+  return {
+    mode: "REACTIVE",
+    sourceDocumentId: uiState.sourceDocumentId,
+    extractedFields: uiState.advancedFieldValues || {},
+    instructions: uiState.instructions,
+  };
+}
+
+function buildRefinementInstructions(type: string, param: string): string {
+  switch (type) {
+    case "tone":
+      return `Rewrite the following legal text in a ${param} tone.`;
+    case "grammar":
+      return "Fix the spelling and grammar in the following legal text while preserving legal meaning.";
+    case "extend":
+      return "Expand the following legal clause with more comprehensive protections.";
+    case "reduce":
+      return "Shorten the following legal clause to its core obligation.";
+    case "simplify":
+      return "Rewrite the following legal text in plain English for a non-lawyer.";
+    case "complete":
+      return "Complete the following sentence or clause in a professional legal manner.";
+    case "ask":
+      return param;
+    default:
+      return param || `Apply the following refinement: ${type}`;
+  }
+}
+
+function buildRefinePayload(
+  documentId: string,
+  type: string,
+  param: string,
+  highlightedText: string
+): RefineRequestPayload {
+  const instructions = buildRefinementInstructions(type, param);
+
+  return {
+    documentId,
+    instructions,
+    highlightedText: highlightedText || undefined,
+  };
+}
+
+function extractPlaceholderFields(text: string): AdvancedField[] {
+  const placeholders = Array.from(text.matchAll(/\{\{\s*([^}]+?)\s*\}\}/g));
+  return placeholders.map((match, index) => ({
+    id: match[1].trim().toLowerCase().replace(/[^a-z0-9]+/g, "_") || `field_${index + 1}`,
+    name: match[1].trim(),
+    defaultValue: "",
+    description: "Template field",
+  }));
+}
+
+function normalizeDraftMarkdownInput(text: string): string {
+  return text
+    .replace(/\r\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 interface UseDraftGeneratorActionsParams {
   authToken: string;
   onRefresh: () => void;
   editorContent: string;
+  currentDocumentId: string | null;
   pushUndoSnapshot: (snapshot: string) => void;
   setEditorContent: (content: string) => void;
   setSelectedDoc: (doc: LegalDocument | null) => void;
@@ -16,10 +163,10 @@ interface UseDraftGeneratorActionsParams {
   setDraftError: (error: string) => void;
   setUploadText: (text: string) => void;
   setUploadFileName: (name: string) => void;
+  setSourceDocumentId: (id: string) => void;
   setIsParsingTemplate: (parsing: boolean) => void;
   setAdvancedFields: (fields: AdvancedField[]) => void;
   setAdvancedFieldValues: (values: Record<string, string>) => void;
-  // Floating sparkle / inline rewrite
   selectedTextRange: { start: number; end: number } | null;
   setSelectedTextRange: (range: { start: number; end: number } | null) => void;
   setShowFloatingMenu: (show: boolean) => void;
@@ -27,6 +174,10 @@ interface UseDraftGeneratorActionsParams {
   setActiveDropdown: (dropdown: string | null) => void;
   setShowAskAiInput: (show: boolean) => void;
   setAskAiQuery: (query: string) => void;
+  refinementProgress: string;
+  setRefinementProgress: (message: string) => void;
+  refinementError: string;
+  setRefinementError: (error: string) => void;
   tiptapEditorRef: React.MutableRefObject<import("@tiptap/react").Editor | null>;
 }
 
@@ -34,6 +185,7 @@ export function useDraftGeneratorActions({
   authToken,
   onRefresh,
   editorContent,
+  currentDocumentId,
   pushUndoSnapshot,
   setEditorContent,
   setSelectedDoc,
@@ -43,6 +195,7 @@ export function useDraftGeneratorActions({
   setDraftError,
   setUploadText,
   setUploadFileName,
+  setSourceDocumentId,
   setIsParsingTemplate,
   setAdvancedFields,
   setAdvancedFieldValues,
@@ -53,10 +206,35 @@ export function useDraftGeneratorActions({
   setActiveDropdown,
   setShowAskAiInput,
   setAskAiQuery,
+  refinementProgress,
+  setRefinementProgress,
+  refinementError,
+  setRefinementError,
   tiptapEditorRef,
 }: UseDraftGeneratorActionsParams) {
 
-  const handleCreateAndSaveGeneratedDoc = async (title: string, content: string) => {
+  const handleCreateAndSaveGeneratedDoc = async (title: string, content: string, existingDocId?: string) => {
+    if (existingDocId) {
+      setSelectedDoc({
+        versions: [],
+        signatures: [],
+        sharedWith: [],
+        redlines: [],
+        auditLogs: [],
+        id: existingDocId,
+        title,
+        type: "Custom",
+        creatorId: "",
+        creatorEmail: "",
+        isEncrypted: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        content,
+      });
+      onRefresh();
+      return;
+    }
+
     try {
       const res = await fetch(apiUrl("/api/documents"), {
         method: "POST",
@@ -84,6 +262,28 @@ export function useDraftGeneratorActions({
     }
   };
 
+  const uploadReactiveSourceTemplate = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch(apiUrl("/api/drafting/process-uploaded-template"), {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${authToken}`
+      },
+      body: formData
+    });
+
+    const payload = await res.json();
+    if (!res.ok) throw new Error(payload.error || "Template upload failed");
+
+    const docId = payload.sourceDocumentId;
+    if (!docId) throw new Error("Server did not return a sourceDocumentId.");
+
+    setSourceDocumentId(docId);
+    return docId;
+  };
+
   const handleExecuteDraftStream = async (params: {
     mode: string;
     depth: string;
@@ -99,6 +299,9 @@ export function useDraftGeneratorActions({
     uploadFileName: string;
     uploadText: string;
     advancedFieldValues: Record<string, string>;
+    selectedClauses: string[];
+    sourceDocumentId: string;
+    playbookId?: string;
   }) => {
     setIsStreaming(true);
     setStreamingProgress("Initiating multi-agent ingestion pipeline...");
@@ -106,34 +309,41 @@ export function useDraftGeneratorActions({
     pushUndoSnapshot(editorContent);
 
     let documentTitle = "Mutual Compliance Agreement";
-    const payload: any = {
-      mode: params.mode,
-      outputLevel: params.depth,
-      instructions: params.instructions,
-    };
 
     if (params.mode === "Basic") {
       documentTitle = `Mutual NDA - ${params.basicPartyB}`;
-      payload.formFields = {
-        party_a: params.basicPartyA,
-        party_b: params.basicPartyB,
-        governing_law: params.basicLaw,
-        liability_cap: params.basicLiability
-      };
+    } else if (params.advancedStep === "proactive") {
+      documentTitle = params.selectedTemplateName || "Proactive Draft Covenants";
     } else {
-      if (params.advancedStep === "proactive") {
-        documentTitle = params.selectedTemplateName || "Proactive Draft Covenants";
-        payload.templateId = params.selectedTemplateName;
-        payload.playbookText = params.aiRulebookPrompt;
-        payload.instructions = params.referenceInstructions || params.instructions;
-      } else {
-        documentTitle = `Ingested response: ${params.uploadFileName || "Reactive Blueprint"}`;
-        payload.sourceText = params.uploadText;
-        payload.formFields = params.advancedFieldValues;
-      }
+      documentTitle = `Ingested response: ${params.uploadFileName || "Reactive Blueprint"}`;
     }
 
     setIsGeneratorActive(false);
+
+    let payload: DraftRequestPayload;
+    try {
+      payload = buildGenerateStreamPayload({
+        mode: params.mode,
+        instructions: params.instructions,
+        basicPartyA: params.basicPartyA,
+        basicPartyB: params.basicPartyB,
+        basicLaw: params.basicLaw,
+        basicLiability: params.basicLiability,
+        advancedStep: params.advancedStep,
+        selectedTemplateName: params.selectedTemplateName,
+        referenceInstructions: params.referenceInstructions,
+        uploadFileName: params.uploadFileName,
+        advancedFieldValues: params.advancedFieldValues,
+        selectedClauses: params.selectedClauses,
+        sourceDocumentId: params.sourceDocumentId,
+        playbookId: params.playbookId,
+      });
+    } catch (validationErr: any) {
+      setIsStreaming(false);
+      setStreamingProgress("");
+      setDraftError(validationErr.message || "Invalid drafting configuration.");
+      return;
+    }
 
     try {
       const res = await fetch(apiUrl("/api/drafting/generate-stream"), {
@@ -155,12 +365,23 @@ export function useDraftGeneratorActions({
           if (p.event === "job_update" && p.job.id === data.job_id) {
             if (p.job.message) setStreamingProgress(p.job.message);
             if (p.job.status === "completed") {
-              const htmlContent = markdownToHtml(p.job.result.content);
+              // Resilient textual property extraction mapping loop
+              const resultContent = 
+                p.job.result?.content || 
+                p.job.result?.data || 
+                p.job.result?.draft?.formattedDocument || 
+                "";
+                
+              const resultFileId = p.job.result?.file_id || p.job.result?.documentId;
+              const normalizedResultContent = normalizeDraftMarkdownInput(resultContent);
+              const htmlContent = markdownToHtml(normalizedResultContent);
+              
               setEditorContent(htmlContent);
               setIsStreaming(false);
               setStreamingProgress("");
-              handleCreateAndSaveGeneratedDoc(documentTitle, p.job.result.content);
+              handleCreateAndSaveGeneratedDoc(documentTitle, normalizedResultContent, resultFileId);
               eventSource.close();
+              
             } else if (p.job.status === "failed") {
               eventSource.close();
               setIsStreaming(false);
@@ -184,33 +405,34 @@ export function useDraftGeneratorActions({
     }
   };
 
-  const analyzeUploadedTemplate = async (text: string) => {
+  const analyzeUploadedTemplate = async (file: File) => {
     setIsParsingTemplate(true);
-    setStreamingProgress("PII Shield Redaction & Parameter extraction active...");
-    try {
-      const res = await fetch(apiUrl("/api/drafting/process-uploaded-template"), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}`
-        },
-        body: JSON.stringify({ templateText: text })
-      });
-      const payload = await res.json();
-      if (!res.ok) throw new Error(payload.error);
+    setStreamingProgress("Uploading counterparty document to reactive gateway...");
 
-      setUploadText(payload.data.redactedText || text);
-      if (payload.data.fields && payload.data.fields.length > 0) {
-        setAdvancedFields(payload.data.fields);
-        const seedVals: Record<string, string> = {};
-        payload.data.fields.forEach((f: any) => {
-          seedVals[f.id] = f.defaultValue;
-        });
-        setAdvancedFieldValues(seedVals);
-      }
-      setStreamingProgress("");
+    try {
+      const sourceId = await uploadReactiveSourceTemplate(file);
+      setUploadFileName(file.name);
+      setStreamingProgress(`Source document registered: ${sourceId}`);
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const text = (event.target?.result as string) || "";
+        setUploadText(text);
+
+        const fields = extractPlaceholderFields(text);
+        if (fields.length > 0) {
+          setAdvancedFields(fields);
+          const seedVals: Record<string, string> = {};
+          fields.forEach((f) => {
+            seedVals[f.id] = f.defaultValue;
+          });
+          setAdvancedFieldValues(seedVals);
+        }
+      };
+      reader.readAsText(file);
     } catch (err: any) {
-      console.warn("PII Sanitization placeholder applied", err);
+      console.warn("Reactive source upload failed:", err);
+      setDraftError(err.message || "Failed to upload source template.");
     } finally {
       setIsParsingTemplate(false);
       setStreamingProgress("");
@@ -220,66 +442,14 @@ export function useDraftGeneratorActions({
   const processFile = async (file: File) => {
     setUploadFileName(file.name);
     setIsParsingTemplate(true);
-    setStreamingProgress("Uploading template file and parsing legal structure securely...");
+    setStreamingProgress("Uploading template file to reactive ingestion gateway...");
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("isTemplate", "true");
-      formData.append("templateType", "Template");
-
-      const res = await fetch(apiUrl("/api/documents/upload"), {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${authToken}`
-        },
-        body: formData
-      });
-
-      let payload = await res.json();
-      if (!res.ok) throw new Error(payload.error || "File upload failed");
-
-      if (res.status === 202 && payload.job_id) {
-        setStreamingProgress("Offloaded to background job-queue. Processing file...");
-        const eventSource = new EventSource(apiUrl(`/api/jobs/sse?token=${authToken}`));
-
-        eventSource.onmessage = async (event) => {
-          const data = JSON.parse(event.data);
-          if (data.event === "job_update" && data.job.id === payload.job_id) {
-            setStreamingProgress(`Processing file... (${data.job.progress}%) - ${data.job.message}`);
-
-            if (data.job.status === "completed") {
-              eventSource.close();
-              const resultData = data.job.result;
-              setUploadText(resultData.content || "");
-              await analyzeUploadedTemplate(resultData.content || "");
-              if (onRefresh) onRefresh();
-              setIsParsingTemplate(false);
-            } else if (data.job.status === "failed") {
-              eventSource.close();
-              setIsParsingTemplate(false);
-              alert("Background parsing failed: " + data.job.error);
-            }
-          }
-        };
-        return;
-      }
-
-      setUploadText(payload.content);
-      await analyzeUploadedTemplate(payload.content);
-
-      if (onRefresh) {
-        onRefresh();
-      }
+      await analyzeUploadedTemplate(file);
+      if (onRefresh) onRefresh();
     } catch (err: any) {
-      console.warn("Secure backend upload bypassed, falling back to local text processing:", err.message);
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const text = event.target?.result as string;
-        setUploadText(text);
-        await analyzeUploadedTemplate(text);
-      };
-      reader.readAsText(file);
+      console.warn("Secure backend upload failed:", err.message);
+      setDraftError(err.message || "File upload failed.");
     } finally {
       setIsParsingTemplate(false);
       setStreamingProgress("");
@@ -296,7 +466,14 @@ export function useDraftGeneratorActions({
       : "";
     if (!originalText) return;
 
+    if (!currentDocumentId) {
+      alert("Refinement requires an active draft document. Generate or save a draft first.");
+      return;
+    }
+
     setIsAiRefiningText(true);
+    setRefinementError("");
+    setRefinementProgress("Preparing your refinement request...");
     setActiveDropdown(null);
     setShowAskAiInput(false);
     setShowFloatingMenu(false);
@@ -315,6 +492,8 @@ export function useDraftGeneratorActions({
       }
     };
 
+    const refinePayload = buildRefinePayload(currentDocumentId, type, param, originalText);
+
     try {
       const res = await fetch(apiUrl("/api/drafting/refine"), {
         method: "POST",
@@ -322,7 +501,7 @@ export function useDraftGeneratorActions({
           "Content-Type": "application/json",
           "Authorization": `Bearer ${authToken}`
         },
-        body: JSON.stringify({ text: originalText, type, param })
+        body: JSON.stringify(refinePayload)
       });
       const payload = await res.json();
       if (!res.ok) throw new Error(payload.error || "Refinement request failed");
@@ -332,33 +511,53 @@ export function useDraftGeneratorActions({
         eventSource.onmessage = (event) => {
           const data = JSON.parse(event.data);
           if (data.event === "job_update" && data.job.id === payload.job_id) {
+            if (data.job.message) {
+              setRefinementProgress(data.job.message);
+            } else if (data.job.status === "processing") {
+              setRefinementProgress("Refinement in progress...");
+            }
+
             if (data.job.status === "completed") {
-              applyRewrite(data.job.result.data ?? "");
+              // Resilient extraction layer for the refinement loop artifacts
+              const rewritten = 
+                data.job.result?.data || 
+                data.job.result?.content || 
+                data.job.result?.draft?.formattedDocument || 
+                "";
+
+              setRefinementProgress("Applying the refined text...");
+              applyRewrite(normalizeDraftMarkdownInput(rewritten));
               setIsAiRefiningText(false);
+              setRefinementProgress("");
               setAskAiQuery("");
               eventSource.close();
             } else if (data.job.status === "failed") {
               setIsAiRefiningText(false);
+              setRefinementProgress("");
+              setRefinementError(data.job.error || "Refinement failed: Unknown error");
               setAskAiQuery("");
               eventSource.close();
-              alert("Refinement failed: " + (data.job.error || "Unknown error"));
             }
           }
         };
         eventSource.onerror = () => {
           eventSource.close();
           setIsAiRefiningText(false);
+          setRefinementProgress("");
+          setRefinementError("Refinement failed: job connection interrupted");
           setAskAiQuery("");
-          alert("Refinement failed: job connection interrupted");
         };
         return;
       }
 
       const rewritten = payload.data ?? payload.result ?? payload.text ?? "";
       if (rewritten) applyRewrite(rewritten);
+      setRefinementProgress("");
 
     } catch (err: any) {
       console.error("Refinement failed", err);
+      setRefinementProgress("");
+      setRefinementError(err.message || "Refinement failed.");
       alert("Refinement failed: " + err.message);
     } finally {
       setIsAiRefiningText(false);

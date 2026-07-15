@@ -112,7 +112,7 @@ export default function InteractAnalyze({
       {analysis.viewMode === "form" ? (
         <div className="flex-1 overflow-y-auto px-8 py-7 w-full bg-[#F7F8FA]">
           <div className="mb-8 pb-5 border-b border-gray-100">
-            <h1 className="text-[28px] font-bold text-gray-900 tracking-tight">Analyze agreements</h1>
+            <h1 className="text-[28px] font-bold text-gray-900 tracking-tight">Analyze Agreements</h1>
             <p className="text-sm text-gray-500 mt-1.5 leading-relaxed max-w-lg">
               Run AI-powered compliance audits, risk assessments, and custom legal queries across your document vaults.
             </p>

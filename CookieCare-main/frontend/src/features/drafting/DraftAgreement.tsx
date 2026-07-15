@@ -54,6 +54,7 @@ export default function DraftAgreement({
     authToken,
     onRefresh,
     editorContent: editorState.editorContent,
+    currentDocumentId: editorState.selectedDoc?.id ?? null,
     pushUndoSnapshot: editorState.pushUndoSnapshot,
     setEditorContent: editorState.setEditorContent,
     setSelectedDoc: editorState.setSelectedDoc,
@@ -63,6 +64,7 @@ export default function DraftAgreement({
     setDraftError: generatorState.setDraftError,
     setUploadText: generatorState.setUploadText,
     setUploadFileName: generatorState.setUploadFileName,
+    setSourceDocumentId: generatorState.setSourceDocumentId,
     setIsParsingTemplate: generatorState.setIsParsingTemplate,
     setAdvancedFields: generatorState.setAdvancedFields,
     setAdvancedFieldValues: generatorState.setAdvancedFieldValues,
@@ -73,6 +75,10 @@ export default function DraftAgreement({
     setActiveDropdown,
     setShowAskAiInput,
     setAskAiQuery,
+    refinementProgress: generatorState.refinementProgress,
+    setRefinementProgress: generatorState.setRefinementProgress,
+    refinementError: generatorState.refinementError,
+    setRefinementError: generatorState.setRefinementError,
     tiptapEditorRef: editorState.tiptapEditorRef,
   });
 
@@ -130,6 +136,8 @@ export default function DraftAgreement({
       uploadFileName: generatorState.uploadFileName,
       uploadText: generatorState.uploadText,
       advancedFieldValues: generatorState.advancedFieldValues,
+      selectedClauses: generatorState.selectedClauses,
+      sourceDocumentId: generatorState.sourceDocumentId,
     });
   };
 
@@ -215,14 +223,14 @@ export default function DraftAgreement({
     <div className="flex-1 overflow-hidden flex h-screen font-sans bg-[#FAFBFD]">
       
       {/* SSE draft progress overlay */}
-      {(generatorState.isStreaming || !!generatorState.draftError) && (
+      {(generatorState.isStreaming || !!generatorState.refinementProgress || !!generatorState.refinementError) && (
         <AiProgressOverlay
-          visible={generatorState.isStreaming || !!generatorState.draftError}
-          message={generatorState.streamingProgress}
-          error={generatorState.draftError}
-          label="Generating Draft..."
-          onRetry={generatorState.draftError ? () => { generatorState.setDraftError(""); handleExecuteDraftStream(); } : undefined}
-          onDismiss={generatorState.draftError ? () => generatorState.setDraftError("") : undefined}
+          visible={generatorState.isStreaming || !!generatorState.refinementProgress || !!generatorState.refinementError}
+          message={generatorState.isStreaming ? generatorState.streamingProgress : generatorState.refinementProgress}
+          error={generatorState.refinementError}
+          label={generatorState.isStreaming ? "Generating Draft..." : "Refining Selection..."}
+          onRetry={generatorState.refinementError ? () => { generatorState.setRefinementError(""); handleExecuteDraftStream(); } : undefined}
+          onDismiss={generatorState.refinementError ? () => generatorState.setRefinementError("") : undefined}
         />
       )}
 

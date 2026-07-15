@@ -63,12 +63,12 @@ const navigation: NavEntry[] = [
     label: "legal review",
     icon: Scale,
     children: [
-      { id: "legal-review",    label: "Analyze agreements",  icon: ScanSearch },
-      { id: "legal-draft",     label: "Draft agreements",    icon: PenTool },
+      { id: "legal-review",    label: "Analyze Agreements",  icon: ScanSearch },
+      { id: "legal-draft",     label: "Draft Agreements",    icon: PenTool },
       { id: "legal-ask-ai",    label: "Ask AI lawyer",       icon: MessageSquare },
-      { id: "legal-negotiate", label: "Negotiate redlines",  icon: Scale },
-      { id: "legal-queue",     label: "Active queue",        icon: Clock },
-      { id: "legal-vault",     label: "Vault repository",    icon: FolderLock },
+      { id: "legal-negotiate", label: "Negotiate Redlines",  icon: Scale },
+      { id: "legal-queue",     label: "Active Queue",        icon: Clock },
+      { id: "legal-vault",     label: "Vault Repository",    icon: FolderLock },
     ],
   },
   {
