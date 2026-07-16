@@ -130,7 +130,7 @@ export default function GeneratorPanel(props: GeneratorPanelProps) {
       {/* Header */}
       <div className="w-full flex justify-between items-start mb-9 z-10">
         <div>
-          <h1 className="text-[26px] font-bold text-gray-900 tracking-tight">Draft agreements</h1>
+          <h1 className="text-[26px] font-bold text-gray-900 tracking-tight">Draft Agreements</h1>
           <p className="text-[13px] text-gray-500 mt-1">Create AI-powered first drafts in seconds.</p>
         </div>
 

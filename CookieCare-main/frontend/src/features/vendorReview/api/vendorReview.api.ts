@@ -1,46 +1,58 @@
 /**
- * VendorReview API layer.
+ * Vendor Review API layer.
  *
- * Currently uses mock data while the backend endpoint is not yet implemented.
- * Replace the mock implementations with real fetch/axios calls when ready.
+ * Mirrors the DPA Reviewer pattern exactly:
+ *   1. POST /api/vendor-review  → job_id
+ *   2. SSE  /api/jobs/sse       → job_update events
  */
 
-import { MOCK_FINDINGS, MOCK_COMPLIANCE, MOCK_RECOMMENDATIONS, VENDOR_INFO } from "../constants";
-import type { VendorFinding, ComplianceItem, RecommendationSection } from "../types";
+import { apiUrl } from "../../../config";
 
-export interface VendorAssessmentResult {
-  vendorInfo: typeof VENDOR_INFO;
-  findings: VendorFinding[];
-  compliance: ComplianceItem[];
-  recommendations: RecommendationSection[];
-  scores: {
-    vendorRisk: number;
-    privacy: number;
-    security: number;
-  };
+export interface SubmitVendorReviewResponse {
+  success: boolean;
+  job_id: string;
 }
 
 /**
- * Submit vendor documents for AI analysis.
- * Returns the full assessment result.
+ * Submit vendor documents and/or a website URL for AI analysis.
+ * Returns a job_id to subscribe to via SSE.
  *
- * @param _files - The uploaded vendor documents (unused until backend is live).
+ * At least one of files or vendorUrl must be provided (validated server-side).
  */
-export async function submitVendorDocuments(
-  _files: File[],
-): Promise<VendorAssessmentResult> {
-  // TODO: Replace with real API call, e.g.:
-  // const form = new FormData();
-  // files.forEach((f) => form.append("files", f));
-  // const res = await fetch("/api/vendor-review/analyze", { method: "POST", body: form });
-  // if (!res.ok) throw new Error("Vendor analysis failed");
-  // return res.json();
+export async function submitVendorReview(
+  files: File[],
+  authToken: string,
+  vendorUrl?: string,
+): Promise<SubmitVendorReviewResponse> {
+  const formData = new FormData();
 
-  return {
-    vendorInfo: VENDOR_INFO,
-    findings: MOCK_FINDINGS,
-    compliance: MOCK_COMPLIANCE,
-    recommendations: MOCK_RECOMMENDATIONS,
-    scores: { vendorRisk: 62, privacy: 71, security: 78 },
-  };
+  for (const file of files) {
+    formData.append("files", file);
+  }
+
+  if (vendorUrl && vendorUrl.trim().length > 0) {
+    formData.append("vendorUrl", vendorUrl.trim());
+  }
+
+  const res = await fetch(apiUrl("/api/vendor-review"), {
+    method: "POST",
+    headers: { Authorization: `Bearer ${authToken}` },
+    body: formData,
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to start vendor review.");
+  }
+
+  return data as SubmitVendorReviewResponse;
+}
+
+/**
+ * Open an SSE connection to the job progress stream.
+ * Reuses the same /api/jobs/sse endpoint used by DPA Reviewer and Analyze.
+ */
+export function createJobSSE(authToken: string): EventSource {
+  return new EventSource(apiUrl(`/api/jobs/sse?token=${authToken}`));
 }

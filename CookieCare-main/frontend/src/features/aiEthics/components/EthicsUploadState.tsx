@@ -1,12 +1,15 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Upload, FileText, Brain,
-  ArrowRight, BadgeCheck, Shield, Scale, Gauge,
+  ArrowRight, BadgeCheck, Shield, Scale, XCircle, Sparkles,
 } from "lucide-react";
 import { FEATURE_CARDS } from "../constants";
+import { WebsiteUrlInput, validateUrl } from "../../../shared/components/WebsiteUrlInput";
+import { useFileUpload } from "../../vendorReview/hooks/useFileUpload";
 
 interface EthicsUploadStateProps {
-  onFilesSelected: (files: File[]) => void;
+  onFilesSelected: (files: File[], websiteUrl?: string) => void;
+  error?: string;
 }
 
 const DOCUMENT_TYPES = [
@@ -18,30 +21,60 @@ const DOCUMENT_TYPES = [
   "AI Impact Assessment",
 ];
 
-export function EthicsUploadState({ onFilesSelected }: EthicsUploadStateProps) {
+export function EthicsUploadState({ onFilesSelected, error }: EthicsUploadStateProps) {
   const fileRef = useRef<HTMLInputElement>(null);
-  const [dragging, setDragging] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [websiteUrl, setWebsiteUrl] = useState("");
+  const [urlError, setUrlError] = useState<string | undefined>();
+
+  const { uploadedFiles, dragging, addFiles, removeFile, setDragging } = useFileUpload();
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 40);
     return () => clearTimeout(t);
   }, []);
 
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      setDragging(false);
-      const files = Array.from(e.dataTransfer.files);
-      if (files.length) onFilesSelected(files);
-    },
-    [onFilesSelected]
-  );
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(false);
+    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+  };
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
-    if (files.length) onFilesSelected(files);
+    if (e.target.files?.length) addFiles(e.target.files);
+    e.target.value = "";
   };
+
+  const handleUrlChange = (val: string) => {
+    setWebsiteUrl(val);
+    if (urlError) setUrlError(undefined);
+  };
+
+  const handleAnalyze = () => {
+    if (uploadedFiles.length > 0) {
+      onFilesSelected(uploadedFiles.map((e) => e.file), websiteUrl.trim() || undefined);
+    }
+  };
+
+  const handleAnalyzeWebsite = () => {
+    const err = validateUrl(websiteUrl);
+    if (err) { setUrlError(err); return; }
+    setUrlError(undefined);
+    onFilesSelected(uploadedFiles.map((e) => e.file), websiteUrl.trim());
+  };
+
+  // Dynamic button label — mirrors Vendor Review logic exactly
+  const hasFiles = uploadedFiles.length > 0;
+  const hasUrl = websiteUrl.trim() !== "" && !validateUrl(websiteUrl);
+  const analyzeLabel = (() => {
+    if (hasFiles && hasUrl)
+      return `Analyze ${uploadedFiles.length} Document${uploadedFiles.length !== 1 ? "s" : ""} + Website`;
+    if (hasFiles)
+      return `Analyze ${uploadedFiles.length} Document${uploadedFiles.length !== 1 ? "s" : ""}`;
+    if (hasUrl)
+      return "Analyze Website";
+    return null;
+  })();
 
   return (
     <div className="flex-1 overflow-y-auto bg-[#FAFAFB]">
@@ -53,9 +86,15 @@ export function EthicsUploadState({ onFilesSelected }: EthicsUploadStateProps) {
           transition: "opacity 0.35s ease, transform 0.35s ease",
         }}
       >
+        {/* Error banner */}
+        {error && (
+          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-700 font-medium">
+            {error}
+          </div>
+        )}
+
         {/* Hero */}
-        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-8">
-          <div className="max-w-2xl">
+        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-8">          <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full px-3.5 py-1.5 text-[11px] font-semibold text-gray-500 mb-4 shadow-xs">
               <Brain className="w-3 h-3 text-gray-400" />
               <span>AI-Powered Ethics Assessment</span>
@@ -89,7 +128,7 @@ export function EthicsUploadState({ onFilesSelected }: EthicsUploadStateProps) {
         </div>
 
         {/* Upload Zone */}
-        <div className="mb-10">
+        <div className="mb-6">
           <div
             onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
             onDragLeave={(e) => {
@@ -174,6 +213,58 @@ export function EthicsUploadState({ onFilesSelected }: EthicsUploadStateProps) {
             </div>
           </div>
         </div>
+
+        {/* Website URL Input */}
+        <div className="mb-6">
+          <WebsiteUrlInput
+            value={websiteUrl}
+            onChange={handleUrlChange}
+            onAnalyze={handleAnalyzeWebsite}
+            error={urlError}
+          />
+        </div>
+
+        {/* Queued file list + primary action button */}
+        {(hasFiles || hasUrl) && (
+          <div className="mb-6 space-y-2">
+            {hasFiles && (
+              <>
+                <p className="text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                  Queued for analysis
+                </p>
+                {uploadedFiles.map(({ file, id }) => (
+                  <div
+                    key={id}
+                    className="flex items-center gap-3 bg-white border border-gray-200 rounded-[14px] px-4 py-3 shadow-xs group hover:shadow-sm transition-all duration-150"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
+                      <FileText className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-semibold text-gray-900 truncate">{file.name}</p>
+                      <p className="text-[11px] text-gray-400 mt-0.5">{(file.size / 1024).toFixed(0)} KB</p>
+                    </div>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); removeFile(id); }}
+                      className="w-6 h-6 rounded-md flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all duration-150 shrink-0"
+                    >
+                      <XCircle className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </>
+            )}
+
+            <button
+              onClick={hasFiles ? handleAnalyze : handleAnalyzeWebsite}
+              className="btn-primary w-full justify-center py-3 mt-3 text-[13px] cursor-pointer"
+            >
+              <Sparkles className="w-4 h-4" />
+              {analyzeLabel}
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
 
         {/* What We'll Analyze */}
         <div>

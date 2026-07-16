@@ -147,6 +147,43 @@ class BrowserManager {
       this.browser = null;
     }
   }
+
+  /**
+   * Probe whether a Playwright browser can actually be launched or connected.
+   *
+   * Returns `true` when Playwright is available, `false` when the executable
+   * is missing, blocked by Group Policy, or otherwise unlaunchable.
+   *
+   * The result is cached after the first successful launch so subsequent calls
+   * are free once the browser is running.
+   */
+  private _playwrightAvailable: boolean | null = null;
+
+  public async isAvailable(): Promise<boolean> {
+    // Fast path: browser is already running — definitely available.
+    if (this.browser && this.browser.isConnected()) {
+      this._playwrightAvailable = true;
+      return true;
+    }
+
+    // Return cached negative result so we don't probe on every request.
+    if (this._playwrightAvailable === false) {
+      return false;
+    }
+
+    try {
+      await this.getBrowser();
+      this._playwrightAvailable = true;
+      return true;
+    } catch (err) {
+      console.warn(
+        "[BrowserManager] Playwright unavailable:",
+        (err as Error).message
+      );
+      this._playwrightAvailable = false;
+      return false;
+    }
+  }
 }
 
 export const browserManager = BrowserManager.getInstance();

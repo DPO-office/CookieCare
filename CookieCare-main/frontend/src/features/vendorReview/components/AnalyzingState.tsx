@@ -56,7 +56,7 @@ export function AnalyzingState({ fileNames, steps }: AnalyzingStateProps) {
           <div className="p-6">
             {/* File rows */}
             <div className="space-y-2 mb-5 pb-4 border-b border-gray-100">
-              {fileNames.map((name) => (
+              {fileNames.length > 0 ? fileNames.map((name) => (
                 <div key={name} className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
                     <FileText className="w-[16px] h-[16px] text-blue-600" />
@@ -67,7 +67,18 @@ export function AnalyzingState({ fileNames, steps }: AnalyzingStateProps) {
                   </div>
                   <span className="badge badge-blue shrink-0 animate-pulse">Reviewing</span>
                 </div>
-              ))}
+              )) : (
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center shrink-0">
+                    <FileText className="w-[16px] h-[16px] text-purple-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[13px] font-semibold text-gray-900">Website scan in progress</p>
+                    <p className="text-[11px] text-gray-400 mt-0.5">{progress}% complete</p>
+                  </div>
+                  <span className="badge badge-blue shrink-0 animate-pulse">Scanning</span>
+                </div>
+              )}
             </div>
 
             {/* Steps list */}

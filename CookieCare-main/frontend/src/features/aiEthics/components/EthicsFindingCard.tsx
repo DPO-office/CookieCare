@@ -36,8 +36,11 @@ export function EthicsFindingCard({ finding }: EthicsFindingCardProps) {
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-[13px] font-semibold text-gray-900">
-                {finding.category}
+                {finding.title ?? finding.category}
               </span>
+              {finding.title && finding.category && finding.title !== finding.category && (
+                <span className="text-[10px] text-gray-400 font-medium">{finding.category}</span>
+              )}
             </div>
             {!open && (
               <p className="text-[12px] text-gray-500 mt-0.5 line-clamp-1 pr-2">
@@ -70,6 +73,12 @@ export function EthicsFindingCard({ finding }: EthicsFindingCardProps) {
               {finding.description}
             </p>
           </div>
+          {finding.evidence && (
+            <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
+              <p className="section-label mb-1.5">Evidence</p>
+              <p className="text-[12px] text-gray-600 leading-relaxed italic">{finding.evidence}</p>
+            </div>
+          )}
           <div className="bg-gradient-to-br from-blue-50 to-gray-50/50 border border-blue-100 rounded-xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-5 h-5 rounded-md bg-blue-100 flex items-center justify-center">

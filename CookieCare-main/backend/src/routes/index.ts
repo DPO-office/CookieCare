@@ -15,6 +15,9 @@ import negotiateRoutes from "./negotiate.js";
 import vulnerabilitiesRoutes from "./vulnerabilities.js";
 import reportRoutes from "./reports.js";
 import settingsRoutes from "./settings.js";
+import dpaRoutes from "./dpa.js";
+import vendorReviewRoutes from "./vendorReview.js";
+import aiEthicsRoutes from "./aiEthics.js";
 import { authenticateToken } from "../middleware/auth.js";
 
 const router = Router();
@@ -57,5 +60,8 @@ router.use("/negotiate", negotiateRoutes);
 router.use("/vulnerabilities", vulnerabilitiesRoutes);
 router.use("/reports", reportRoutes);
 router.use("/settings", settingsRoutes);
+router.use("/dpa", dpaRoutes);
+router.use("/vendor-review", vendorReviewRoutes);
+router.use("/ai-ethics", aiEthicsRoutes);
 
 export default router;

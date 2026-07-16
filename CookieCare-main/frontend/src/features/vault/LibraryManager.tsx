@@ -92,7 +92,7 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-1.5 text-sm text-gray-500">
-            <span className="hover:text-gray-900 cursor-pointer">Vault repository</span>
+            <span className="hover:text-gray-900 cursor-pointer">Vault Repository</span>
             <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
             <span className="font-semibold text-gray-900">{activeTabInfo.label}</span>
           </div>

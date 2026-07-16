@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Upload, FileText, Sparkles, ArrowRight } from "lucide-react";
+import { Upload, FileText, Sparkles, ArrowRight, AlertCircle } from "lucide-react";
 import { FEATURE_CARDS } from "../constants";
 
 interface DPAUploadStateProps {
   onFileSelected: (file: File) => void;
+  uploadError?: string;
 }
 
-export function DPAUploadState({ onFileSelected }: DPAUploadStateProps) {
+export function DPAUploadState({ onFileSelected, uploadError }: DPAUploadStateProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -61,6 +62,12 @@ export function DPAUploadState({ onFileSelected }: DPAUploadStateProps) {
 
         {/* Upload Zone */}
         <div className="mb-10">
+          {uploadError && (
+            <div className="mb-4 flex items-start gap-3 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+              <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
+              <p className="text-[13px] text-red-700">{uploadError}</p>
+            </div>
+          )}
           <div
             onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
             onDragLeave={(e) => {

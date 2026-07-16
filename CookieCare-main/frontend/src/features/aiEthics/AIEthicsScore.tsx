@@ -4,14 +4,36 @@ import { EthicsUploadState }    from "./components/EthicsUploadState";
 import { EthicsAnalyzingState } from "./components/EthicsAnalyzingState";
 import { EthicsResultsState }   from "./components/EthicsResultsState";
 
-export default function AIEthicsScore() {
-  const { appState, fileNames, steps, startAnalysis, reset } = useAIEthicsAnalysis();
+interface AIEthicsScoreProps {
+  authToken: string;
+}
+
+export default function AIEthicsScore({ authToken }: AIEthicsScoreProps) {
+  const {
+    appState,
+    fileNames,
+    steps,
+    reviewResult,
+    error,
+    startAnalysis,
+    reset,
+  } = useAIEthicsAnalysis({ authToken });
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {appState === "upload"    && <EthicsUploadState    onFilesSelected={startAnalysis} />}
-      {appState === "analyzing" && <EthicsAnalyzingState fileNames={fileNames} steps={steps} />}
-      {appState === "results"   && <EthicsResultsState   fileNames={fileNames} onReset={reset} />}
+      {appState === "upload" && (
+        <EthicsUploadState onFilesSelected={startAnalysis} error={error} />
+      )}
+      {appState === "analyzing" && (
+        <EthicsAnalyzingState fileNames={fileNames} steps={steps} />
+      )}
+      {appState === "results" && reviewResult && (
+        <EthicsResultsState
+          fileNames={fileNames}
+          result={reviewResult}
+          onReset={reset}
+        />
+      )}
     </div>
   );
 }

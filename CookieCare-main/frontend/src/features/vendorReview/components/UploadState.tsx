@@ -5,14 +5,18 @@ import {
 } from "lucide-react";
 import { FEATURE_CARDS, ACCEPTED_FILE_TYPES, MAX_FILE_SIZE_LABEL } from "../constants";
 import { useFileUpload } from "../hooks/useFileUpload";
+import { WebsiteUrlInput, validateUrl } from "../../../shared/components/WebsiteUrlInput";
 
 interface UploadStateProps {
-  onFilesSelected: (files: File[]) => void;
+  onFilesSelected: (files: File[], websiteUrl?: string) => void;
+  uploadError?: string;
 }
 
-export function UploadState({ onFilesSelected }: UploadStateProps) {
+export function UploadState({ onFilesSelected, uploadError }: UploadStateProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [mounted, setMounted] = useState(false);
+  const [websiteUrl, setWebsiteUrl] = useState("");
+  const [urlError, setUrlError] = useState<string | undefined>();
 
   const { uploadedFiles, dragging, addFiles, removeFile, setDragging } = useFileUpload();
 
@@ -33,7 +37,19 @@ export function UploadState({ onFilesSelected }: UploadStateProps) {
   };
 
   const handleAnalyze = () => {
-    if (uploadedFiles.length > 0) onFilesSelected(uploadedFiles.map((e) => e.file));
+    if (uploadedFiles.length > 0) onFilesSelected(uploadedFiles.map((e) => e.file), websiteUrl.trim() || undefined);
+  };
+
+  const handleUrlChange = (val: string) => {
+    setWebsiteUrl(val);
+    if (urlError) setUrlError(undefined);
+  };
+
+  const handleAnalyzeWebsite = () => {
+    const err = validateUrl(websiteUrl);
+    if (err) { setUrlError(err); return; }
+    setUrlError(undefined);
+    onFilesSelected(uploadedFiles.map((e) => e.file), websiteUrl.trim());
   };
 
   const BADGES = [
@@ -76,6 +92,14 @@ export function UploadState({ onFilesSelected }: UploadStateProps) {
             </div>
           </div>
         </div>
+
+        {/* Error banner */}
+        {uploadError && (
+          <div className="mb-5 flex items-start gap-3 bg-red-50 border border-red-200 rounded-[14px] px-4 py-3 text-[13px] text-red-700">
+            <XCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-500" />
+            <span>{uploadError}</span>
+          </div>
+        )}
 
         {/* Upload Zone */}
         <div className="mb-6">
@@ -139,6 +163,16 @@ export function UploadState({ onFilesSelected }: UploadStateProps) {
           </div>
         </div>
 
+        {/* Website URL Input */}
+        <div className="mb-6">
+          <WebsiteUrlInput
+            value={websiteUrl}
+            onChange={handleUrlChange}
+            onAnalyze={handleAnalyzeWebsite}
+            error={urlError}
+          />
+        </div>
+
         {/* Uploaded file list */}
         {uploadedFiles.length > 0 && (
           <div className="mb-6 space-y-2">
@@ -167,6 +201,7 @@ export function UploadState({ onFilesSelected }: UploadStateProps) {
             >
               <Sparkles className="w-4 h-4" />
               Analyze {uploadedFiles.length} Document{uploadedFiles.length !== 1 ? "s" : ""}
+              {websiteUrl.trim() && !validateUrl(websiteUrl) && " + Website"}
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
