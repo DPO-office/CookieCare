@@ -1,15 +1,5 @@
+import { pool } from '../../../config/database';
 import { DraftState } from '../models/draft-state';
-
-/**
- * Mock Database client interface simulating real infrastructure.
- * Replace this clean pointer with your real Prisma, TypeORM, or Mongo abstraction.
- */
-const mockDbLedger = {
-  saveSnapshot: async (documentId: string, version: number, stateMatrix: any): Promise<void> => {
-    // Simulating asynchronous I/O write operations
-    return new Promise((resolve) => setTimeout(resolve, 50));
-  }
-};
 
 export const saveStep = async (state: DraftState): Promise<DraftState> => {
 
@@ -33,11 +23,30 @@ export const saveStep = async (state: DraftState): Promise<DraftState> => {
     const currentVersion = state.draft.version;
 
     // 4. Fire the persistence logic routine directly to the historical table system
-    await mockDbLedger.saveSnapshot(
-      documentId,
-      currentVersion,
-      snapshotMatrix 
+    // 2. PASTE THIS REAL DATABASE PERSISTENCE LAYER HERE:
+    await pool.query(
+      `INSERT INTO draft_state_ledger (
+        document_id, 
+        version, 
+        state_snapshot_json, 
+        formatted_text, 
+        updated_at
+      ) 
+      VALUES ($1, $2, $3, $4, NOW())
+      ON CONFLICT (document_id, version) 
+      DO UPDATE SET 
+        state_snapshot_json = EXCLUDED.state_snapshot_json,
+        formatted_text = EXCLUDED.formatted_text,
+        updated_at = NOW()`,
+      [
+        documentId,
+        currentVersion,
+        JSON.stringify(snapshotMatrix), // Stores the cloned state object
+        state.draft.formattedDocument   // Stores the actual text for quick index lookups
+      ]
     );
+
+    console.log(`[Ledger] Successfully committed Snapshot V${currentVersion} for document ${documentId}`);
 
     // 5. Return the finalized state securely with updated execution telemetry immutably
     return {

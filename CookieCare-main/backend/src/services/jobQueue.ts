@@ -6,11 +6,11 @@ import { chunkAndIndexDocument } from "../RAG/ragService.js";
 import { encryptData, decryptData } from "../utils/crypto.js";
 import { withRetry } from "../utils/retry.js";
 import { withTransaction } from "../utils/dbUtils.js";
-import { openRouterComplete } from "./openRouterClient.js";
 import crypto from "crypto";
 import pdf from "pdf-parse-fork";
 import mammoth from "mammoth";
 import { executeTemplateDrafting } from "./jobs/handlers/drafting-handler.js";
+import { executePlaybookIngestionJob } from "./jobs/handlers/playbook-handler.js";
 
 export async function updateJobProgress(jobId: string, userId: string, progress: number, message?: string) {
   await withTransaction(userId, 'USER', async (client) => {
@@ -85,6 +85,9 @@ export async function addJobToQueue(userId: string, type: JobType, payload: any)
         case "ai_ethics_review":
           result = await executeAIEthicsReview(jobId, userId, payload);
           break;
+        case "PLAYBOOK_INGEST":
+          result = await executePlaybookIngestionJob(jobId, userId, payload);
+          break;
         default:
           throw new Error(`Unhandled job type: ${type}`);
       }
@@ -128,7 +131,8 @@ export type JobType =
   | "vulnerability_scanning"
   | "dpa_review"
   | "vendor_review"
-  | "ai_ethics_review";
+  | "ai_ethics_review"
+  | "PLAYBOOK_INGEST";
 
 export type JobStatus = "queued" | "processing" | "completed" | "failed";
 

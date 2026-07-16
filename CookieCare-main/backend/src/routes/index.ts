@@ -1,3 +1,4 @@
+
 import { Router, Request, Response } from "express";
 import { pool } from "../config/database.js";
 import authRoutes from "./auth.js";
@@ -7,7 +8,8 @@ import folderRoutes from "./folders.js";
 import libraryItemRoutes from "./libraryItems.js";
 import jobRoutes from "./jobs.js"; 
 import analyzeRoutes from "./analyze.js";
-import draftingRoutes from "./drafting.js";
+// import draftingRoutes from "./drafting.js";
+import draftingRoutes from "../modules/drafting/api/route.js";
 import lawyerRoutes from "./lawyer.js";
 import negotiateRoutes from "./negotiate.js";
 import vulnerabilitiesRoutes from "./vulnerabilities.js";
@@ -49,7 +51,10 @@ router.use("/jobs", jobRoutes);
 router.use("/analyze", analyzeRoutes);
 
 // Refectoring the drafting in drafting folder in modules
+// router.use("/drafting", draftingRoutes);
 router.use("/drafting", draftingRoutes);
+
+
 router.use("/lawyer", lawyerRoutes);
 router.use("/negotiate", negotiateRoutes);
 router.use("/vulnerabilities", vulnerabilitiesRoutes);

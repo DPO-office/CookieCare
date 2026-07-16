@@ -15,13 +15,9 @@ const BasicDraftSchema = z.object({
 
 const ProactiveDraftSchema = z.object({
     mode: z.literal("PROACTIVE"),
-  
     instructions: z.string(),
-  
     templateId: z.string(),
-  
     playbookId: z.string().optional(),
-  
     clauseIds: z.array(z.string()).optional()
   });
 
@@ -39,4 +35,10 @@ export const DraftRequestSchema = z.discriminatedUnion("mode",[
     BasicDraftSchema,
     ProactiveDraftSchema,
     ReactiveDraftSchema
-])
+]);
+
+export const RefineRequestSchema = z.object({
+    documentId: z.string().min(1),
+    instructions: z.string().min(1),
+    highlightedText: z.string().optional()
+});
