@@ -200,15 +200,15 @@ export default function App() {
         )}
 
         {activeTab === "dpa-reviewer" && (
-          <DPAReviewer />
+          <DPAReviewer authToken={authToken} />
         )}
 
         {activeTab === "vendor-review" && (
-          <VendorReview />
+          <VendorReview authToken={authToken} />
         )}
 
         {activeTab === "ai-ethics" && (
-          <AIEthicsScore />
+          <AIEthicsScore authToken={authToken} />
         )}
 
         {activeTab === "vulnerability-scanner" && (

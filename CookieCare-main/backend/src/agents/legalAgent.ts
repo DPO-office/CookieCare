@@ -2,9 +2,13 @@ import { AnalysisAgent } from "./analysisAgent.js";
 import { DraftingAgent } from "./draftingAgent.js";
 import { NegotiationAgent } from "./negotiationAgent.js";
 import { AskLawyerAgent } from "./askLawyerAgent.js";
+import { DPAReviewAgent, type DPAReviewResult } from "./dpaReviewAgent.js";
+import { VendorReviewAgent, type VendorReviewResult } from "./vendorReviewAgent.js";
+import { AIEthicsAgent, type AIEthicsResult } from "./aiEthicsAgent.js";
 import { pool } from "../config/database.js";
 import { searchHybrid } from "../RAG/ragService.js";
 import { openRouterComplete } from "../services/openRouterClient.js";
+import type { WebsiteScanResult } from "../services/websiteScanner/types.js";
 
 // Broad query used to pull relevant reference chunks from related folders
 const REFERENCE_RETRIEVAL_QUERY =
@@ -16,6 +20,9 @@ export class AgentOrchestrator {
   public draftingAgent = new DraftingAgent();
   public negotiationAgent = new NegotiationAgent();
   public askLawyerAgent = new AskLawyerAgent();
+  public dpaReviewAgent = new DPAReviewAgent();
+  public vendorReviewAgent = new VendorReviewAgent();
+  public aiEthicsAgent = new AIEthicsAgent();
 
   async runAnalysis(
     documentId: string,
@@ -162,6 +169,32 @@ export class AgentOrchestrator {
       undefined,
       userRole
     );
+  }
+
+  async runDPAReview(
+    documentText: string,
+    userId: string,
+    fileId?: string
+  ): Promise<DPAReviewResult> {
+    return await this.dpaReviewAgent.reviewDPA(documentText, userId, fileId);
+  }
+
+  async runVendorReview(params: {
+    documentText: string;
+    websiteScan: WebsiteScanResult | null;
+    userId: string;
+    fileIds?: string[];
+  }): Promise<VendorReviewResult> {
+    return await this.vendorReviewAgent.reviewVendor(params);
+  }
+
+  async runAIEthicsReview(params: {
+    documentText: string;
+    websiteScan: WebsiteScanResult | null;
+    userId: string;
+    fileIds?: string[];
+  }): Promise<AIEthicsResult> {
+    return await this.aiEthicsAgent.reviewAIEthics(params);
   }
 
   async interactAnalyze(

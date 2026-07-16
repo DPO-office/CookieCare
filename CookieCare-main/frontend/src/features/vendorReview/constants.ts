@@ -6,16 +6,19 @@ import {
 import type { AnalysisStep, VendorFinding, ComplianceItem, RecommendationSection, FeatureCard } from "./types";
 
 export const ANALYSIS_STEPS: AnalysisStep[] = [
-  { id: "read",       label: "Reading uploaded documents",         status: "pending" },
-  { id: "identify",   label: "Identifying vendor information",     status: "pending" },
-  { id: "privacy",    label: "Reviewing privacy policy",          status: "pending" },
-  { id: "gdpr",       label: "Checking GDPR compliance",          status: "pending" },
-  { id: "certs",      label: "Verifying security certifications", status: "pending" },
-  { id: "residency",  label: "Detecting data residency",          status: "pending" },
-  { id: "processors", label: "Identifying sub-processors",        status: "pending" },
-  { id: "contracts",  label: "Assessing contractual risks",       status: "pending" },
-  { id: "score",      label: "Calculating vendor risk score",     status: "pending" },
-  { id: "report",     label: "Generating assessment report",      status: "pending" },
+  { id: "receive",    label: "Receiving request",                  status: "pending" },
+  { id: "docs",       label: "Extracting uploaded documents",      status: "pending" },
+  { id: "scan",       label: "Scanning vendor website",           status: "pending" },
+  { id: "discover",   label: "Discovering compliance pages",      status: "pending" },
+  { id: "extract",    label: "Extracting website intelligence",   status: "pending" },
+  { id: "rag",        label: "Searching knowledge base",          status: "pending" },
+  { id: "privacy",    label: "Reviewing privacy posture",         status: "pending" },
+  { id: "security",   label: "Reviewing security posture",        status: "pending" },
+  { id: "compliance", label: "Reviewing compliance status",       status: "pending" },
+  { id: "contracts",  label: "Evaluating contractual risks",      status: "pending" },
+  { id: "score",      label: "Calculating vendor score",          status: "pending" },
+  { id: "recs",       label: "Generating recommendations",        status: "pending" },
+  { id: "report",     label: "Preparing report",                  status: "pending" },
 ];
 
 export const MOCK_FINDINGS: VendorFinding[] = [

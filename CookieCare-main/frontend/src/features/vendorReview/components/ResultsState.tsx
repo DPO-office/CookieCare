@@ -5,33 +5,68 @@ import {
   FileSearch, Sparkles, ArrowRight,
   Download as DownloadIcon, FileDown, Copy, Check,
 } from "lucide-react";
-import {
-  MOCK_FINDINGS, MOCK_COMPLIANCE, MOCK_RECOMMENDATIONS, VENDOR_INFO,
-  VENDOR_RISK_SCORE, PRIVACY_SCORE, SECURITY_SCORE,
-} from "../constants";
+import { MOCK_RECOMMENDATIONS } from "../constants";
 import {
   deriveComplianceStatus, getComplianceStatusConfig,
   getRiskScoreLabel, getPrivacyScoreLabel, getSecurityScoreLabel,
 } from "../utils";
 import { useResultsState } from "../hooks/useResultsState";
-import { RadialGauge } from "./RadialGauge";
-import { ComplianceDot } from "./ComplianceDot";
-import { FindingCard } from "./FindingCard";
+import { RadialGauge }    from "./RadialGauge";
+import { ComplianceDot }  from "./ComplianceDot";
+import { FindingCard }    from "./FindingCard";
+import type { VendorReviewResult, RecommendationSection } from "../types";
+import React from "react";
+import { XCircle, TrendingUp, AlertTriangle as AlertTriangleIcon } from "lucide-react";
 
 interface ResultsStateProps {
-  fileNames: string[];
-  onReset: () => void;
+  fileNames:    string[];
+  reviewResult: VendorReviewResult | null;
+  onReset:      () => void;
 }
 
-export function ResultsState({ fileNames, onReset }: ResultsStateProps) {
+/**
+ * Map real backend recommendations to the UI RecommendationSection shape.
+ * Each recommendation gets an icon based on its priority.
+ */
+function mapRecommendations(result: VendorReviewResult): RecommendationSection[] {
+  if (!result.recommendations || result.recommendations.length === 0) {
+    return MOCK_RECOMMENDATIONS;
+  }
+
+  const accentMap: Record<string, string> = {
+    critical: "border-red-200 bg-red-50/40",
+    high:     "border-orange-200 bg-orange-50/40",
+    medium:   "border-amber-200 bg-amber-50/40",
+    low:      "border-emerald-200 bg-emerald-50/40",
+  };
+
+  const iconMap: Record<string, React.ReactNode> = {
+    critical: React.createElement(XCircle,          { className: "w-4 h-4" }),
+    high:     React.createElement(AlertTriangleIcon, { className: "w-4 h-4" }),
+    medium:   React.createElement(TrendingUp,        { className: "w-4 h-4" }),
+    low:      React.createElement(CheckCircle2,      { className: "w-4 h-4" }),
+  };
+
+  return result.recommendations.map((r) => ({
+    category: r.category,
+    icon:     iconMap[r.priority] ?? iconMap["medium"],
+    accent:   accentMap[r.priority] ?? accentMap["medium"],
+    items:    r.items,
+  }));
+}
+
+export function ResultsState({ fileNames, reviewResult, onReset }: ResultsStateProps) {
   const [mounted, setMounted] = useState(false);
 
   const {
     activeTab, setActiveTab,
     findingFilter, setFindingFilter,
-    filteredFindings, copiedSummary, handleCopy,
+    filteredFindings, allFindings, copiedSummary, handleCopy,
     passedCount, warningCount, missingCount, highRiskCount,
-  } = useResultsState();
+    overallScore, privacyScore, securityScore,
+    vendorName, vendorIndustry, vendorHQ, vendorDataRegions, vendorServices,
+    isRealData,
+  } = useResultsState({ reviewResult });
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 40);
@@ -41,11 +76,30 @@ export function ResultsState({ fileNames, onReset }: ResultsStateProps) {
   const complianceStatus = deriveComplianceStatus(highRiskCount, missingCount, warningCount);
   const complianceCfg    = getComplianceStatusConfig(complianceStatus);
 
+  // Compliance items — use real data if available, else show legacy mock shape
+  const complianceItems = isRealData && reviewResult!.compliance.length > 0
+    ? reviewResult!.compliance
+    : [
+        { label: "GDPR",      status: "compliant" as const },
+        { label: "SOC 2",     status: "partial"   as const },
+        { label: "ISO 27001", status: "compliant" as const },
+        { label: "HIPAA",     status: "missing"   as const },
+        { label: "CCPA",      status: "partial"   as const },
+        { label: "PCI DSS",   status: "na"        as const },
+      ];
+
+  // Recommendations — use real data if available
+  const recommendations = isRealData && reviewResult
+    ? mapRecommendations(reviewResult)
+    : MOCK_RECOMMENDATIONS;
+
+  const totalFindings = allFindings.length;
+
   return (
     <div
       className="flex-1 overflow-y-auto bg-[#FAFAFB] px-10 py-8"
       style={{
-        opacity: mounted ? 1 : 0,
+        opacity:   mounted ? 1 : 0,
         transform: mounted ? "none" : "translateY(8px)",
         transition: "opacity 0.4s ease, transform 0.4s ease",
       }}
@@ -58,9 +112,18 @@ export function ResultsState({ fileNames, onReset }: ResultsStateProps) {
             <span className="text-[11px] text-gray-400 font-medium">
               {fileNames.length} document{fileNames.length !== 1 ? "s" : ""} reviewed
             </span>
+            {isRealData && (
+              <span className="text-[11px] text-emerald-600 font-semibold bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5">
+                AI Analysis
+              </span>
+            )}
           </div>
           <h1 className="text-[24px] font-bold text-gray-900 tracking-tight">Vendor Assessment Report</h1>
-          <p className="text-[13px] text-gray-500 mt-1">AI-generated vendor risk, privacy and compliance assessment.</p>
+          <p className="text-[13px] text-gray-500 mt-1">
+            {isRealData && reviewResult?.summary
+              ? reviewResult.summary.substring(0, 140) + (reviewResult.summary.length > 140 ? "…" : "")
+              : "AI-generated vendor risk, privacy and compliance assessment."}
+          </p>
         </div>
         <button onClick={onReset} className="btn-secondary text-[12px] py-2 px-4 shrink-0 cursor-pointer mt-1">
           <RefreshCw className="w-3.5 h-3.5" />New Assessment
@@ -71,20 +134,20 @@ export function ResultsState({ fileNames, onReset }: ResultsStateProps) {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div className="bg-white border border-gray-200 rounded-[18px] shadow-xs p-5 flex flex-col items-center text-center hover:shadow-sm transition-shadow">
           <p className="section-label mb-3">Vendor Risk Score</p>
-          <RadialGauge score={VENDOR_RISK_SCORE} />
-          <p className="text-[11px] text-gray-400 mt-3 leading-tight">{getRiskScoreLabel(VENDOR_RISK_SCORE)}</p>
+          <RadialGauge score={overallScore} />
+          <p className="text-[11px] text-gray-400 mt-3 leading-tight">{getRiskScoreLabel(overallScore)}</p>
         </div>
 
         <div className="bg-white border border-gray-200 rounded-[18px] shadow-xs p-5 flex flex-col items-center text-center hover:shadow-sm transition-shadow">
           <p className="section-label mb-3">Privacy Score</p>
-          <RadialGauge score={PRIVACY_SCORE} />
-          <p className="text-[11px] text-gray-400 mt-3 leading-tight">{getPrivacyScoreLabel(PRIVACY_SCORE)}</p>
+          <RadialGauge score={privacyScore} />
+          <p className="text-[11px] text-gray-400 mt-3 leading-tight">{getPrivacyScoreLabel(privacyScore)}</p>
         </div>
 
         <div className="bg-white border border-gray-200 rounded-[18px] shadow-xs p-5 flex flex-col items-center text-center hover:shadow-sm transition-shadow">
           <p className="section-label mb-3">Security Score</p>
-          <RadialGauge score={SECURITY_SCORE} />
-          <p className="text-[11px] text-gray-400 mt-3 leading-tight">{getSecurityScoreLabel(SECURITY_SCORE)}</p>
+          <RadialGauge score={securityScore} />
+          <p className="text-[11px] text-gray-400 mt-3 leading-tight">{getSecurityScoreLabel(securityScore)}</p>
         </div>
 
         <div className={`border rounded-[18px] shadow-xs p-5 flex flex-col items-center text-center hover:shadow-sm transition-shadow ${complianceCfg.bg} ${complianceCfg.border}`}>
@@ -93,9 +156,9 @@ export function ResultsState({ fileNames, onReset }: ResultsStateProps) {
             {highRiskCount > 0
               ? <AlertTriangle className="w-6 h-6 text-red-500" />
               : missingCount >= 2
-              ? <AlertCircle className="w-6 h-6 text-amber-500" />
+              ? <AlertCircle  className="w-6 h-6 text-amber-500" />
               : warningCount >= 2
-              ? <Info className="w-6 h-6 text-amber-400" />
+              ? <Info         className="w-6 h-6 text-amber-400" />
               : <CheckCircle2 className="w-6 h-6 text-emerald-500" />}
             <span className={`text-[9px] font-bold uppercase tracking-wide mt-1 ${complianceCfg.text}`}>
               {complianceStatus}
@@ -123,11 +186,11 @@ export function ResultsState({ fileNames, onReset }: ResultsStateProps) {
                     : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 hover:text-gray-800 hover:border-gray-300"}`}
               >
                 {t === "findings"        && <FileSearch className="w-3.5 h-3.5" />}
-                {t === "recommendations" && <Sparkles className="w-3.5 h-3.5" />}
+                {t === "recommendations" && <Sparkles   className="w-3.5 h-3.5" />}
                 <span className="capitalize">{t}</span>
                 {t === "findings" && (
                   <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${activeTab === t ? "bg-white/20 text-white" : "bg-gray-100 text-gray-600"}`}>
-                    {MOCK_FINDINGS.length}
+                    {totalFindings}
                   </span>
                 )}
               </button>
@@ -140,11 +203,11 @@ export function ResultsState({ fileNames, onReset }: ResultsStateProps) {
               {/* Filter bar */}
               <div className="flex flex-wrap items-center gap-2">
                 {([
-                  { val: "all",       label: "All",       count: MOCK_FINDINGS.length, cls: "bg-gray-100 text-gray-700 border border-gray-200" },
-                  { val: "passed",    label: "Passed",    count: passedCount,           cls: "bg-emerald-50 text-emerald-700 border border-emerald-200" },
-                  { val: "warning",   label: "Warning",   count: warningCount,          cls: "bg-amber-50 text-amber-700 border border-amber-200" },
-                  { val: "missing",   label: "Missing",   count: missingCount,          cls: "bg-red-50 text-red-700 border border-red-200" },
-                  { val: "high-risk", label: "High Risk", count: highRiskCount,         cls: "bg-red-100 text-red-800 border border-red-300" },
+                  { val: "all",       label: "All",       count: totalFindings, cls: "bg-gray-100 text-gray-700 border border-gray-200" },
+                  { val: "passed",    label: "Passed",    count: passedCount,   cls: "bg-emerald-50 text-emerald-700 border border-emerald-200" },
+                  { val: "warning",   label: "Warning",   count: warningCount,  cls: "bg-amber-50 text-amber-700 border border-amber-200" },
+                  { val: "missing",   label: "Missing",   count: missingCount,  cls: "bg-red-50 text-red-700 border border-red-200" },
+                  { val: "high-risk", label: "High Risk", count: highRiskCount, cls: "bg-red-100 text-red-800 border border-red-300" },
                 ] as const).map((f) => (
                   <button
                     key={f.val}
@@ -159,6 +222,11 @@ export function ResultsState({ fileNames, onReset }: ResultsStateProps) {
               </div>
 
               <div className="space-y-2.5">
+                {filteredFindings.length === 0 && (
+                  <p className="text-[13px] text-gray-400 text-center py-8">
+                    No findings match the selected filter.
+                  </p>
+                )}
                 {filteredFindings.map((finding) => (
                   <FindingCard key={finding.id} finding={finding} />
                 ))}
@@ -169,7 +237,7 @@ export function ResultsState({ fileNames, onReset }: ResultsStateProps) {
           {/* Recommendations tab */}
           {activeTab === "recommendations" && (
             <div className="space-y-4">
-              {MOCK_RECOMMENDATIONS.map((rec) => (
+              {recommendations.map((rec) => (
                 <div key={rec.category} className={`border rounded-[18px] overflow-hidden shadow-xs ${rec.accent}`}>
                   <div className="flex items-center gap-3 px-5 py-4 border-b border-white/60">
                     <div className="w-7 h-7 rounded-lg bg-white/80 border border-white flex items-center justify-center text-gray-600 shadow-xs">
@@ -208,15 +276,17 @@ export function ResultsState({ fileNames, onReset }: ResultsStateProps) {
             </div>
             <div className="px-5 py-4 space-y-3">
               {[
-                { label: "Vendor Name",      value: VENDOR_INFO.name },
-                { label: "Industry",         value: VENDOR_INFO.industry },
-                { label: "Headquarters",     value: VENDOR_INFO.headquarters },
-                { label: "Data Regions",     value: VENDOR_INFO.dataRegions },
-                { label: "Primary Services", value: VENDOR_INFO.primaryServices },
+                { label: "Vendor Name",      value: vendorName        },
+                { label: "Industry",         value: vendorIndustry    },
+                { label: "Headquarters",     value: vendorHQ          },
+                { label: "Data Regions",     value: vendorDataRegions },
+                { label: "Primary Services", value: vendorServices    },
               ].map((row) => (
                 <div key={row.label} className="flex items-start justify-between gap-3">
                   <span className="text-[11px] text-gray-400 font-semibold uppercase tracking-wide shrink-0 mt-0.5 min-w-[80px]">{row.label}</span>
-                  <span className="text-[12px] font-semibold text-gray-900 text-right">{row.value}</span>
+                  <span className="text-[12px] font-semibold text-gray-900 text-right">
+                    {row.value ?? <span className="text-gray-300 font-normal italic">Not identified</span>}
+                  </span>
                 </div>
               ))}
             </div>
@@ -231,7 +301,7 @@ export function ResultsState({ fileNames, onReset }: ResultsStateProps) {
               </div>
             </div>
             <div className="px-5 py-4 space-y-3">
-              {MOCK_COMPLIANCE.map(({ label, status }) => (
+              {complianceItems.map(({ label, status }) => (
                 <div key={label} className="flex items-center justify-between">
                   <span className="text-[13px] font-semibold text-gray-800">{label}</span>
                   <ComplianceDot status={status} />
@@ -263,25 +333,51 @@ export function ResultsState({ fileNames, onReset }: ResultsStateProps) {
               </div>
             </div>
             <div className="px-5 py-4 space-y-4">
-              {[
-                { label: "Passed",    count: passedCount,   barColor: "bg-emerald-400", textColor: "text-emerald-700" },
-                { label: "Warnings",  count: warningCount,  barColor: "bg-amber-400",   textColor: "text-amber-700"   },
-                { label: "Missing",   count: missingCount,  barColor: "bg-red-400",     textColor: "text-red-700"     },
-                { label: "High Risk", count: highRiskCount, barColor: "bg-red-600",     textColor: "text-red-800"     },
-              ].map((item) => (
-                <div key={item.label}>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[12px] text-gray-600 font-medium">{item.label}</span>
-                    <span className={`text-[12px] font-bold tabular-nums ${item.textColor}`}>{item.count}</span>
+              {isRealData && reviewResult?.scoreBreakdown ? (
+                // Real data: show the 6 dimension scores
+                [
+                  { label: "Privacy Posture",     score: reviewResult.scoreBreakdown.privacyPosture,     color: "bg-blue-400"    },
+                  { label: "Security Posture",    score: reviewResult.scoreBreakdown.securityPosture,    color: "bg-indigo-400"  },
+                  { label: "GDPR Compliance",     score: reviewResult.scoreBreakdown.gdprCompliance,     color: "bg-emerald-400" },
+                  { label: "CCPA Compliance",     score: reviewResult.scoreBreakdown.ccpaCompliance,     color: "bg-teal-400"    },
+                  { label: "Contractual Risk",    score: reviewResult.scoreBreakdown.contractualRisk,    color: "bg-amber-400"   },
+                  { label: "Vendor Transparency", score: reviewResult.scoreBreakdown.vendorTransparency, color: "bg-violet-400"  },
+                ].map((item) => (
+                  <div key={item.label}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-[12px] text-gray-600 font-medium">{item.label}</span>
+                      <span className="text-[12px] font-bold tabular-nums text-gray-700">{item.score}</span>
+                    </div>
+                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full ${item.color} transition-all duration-700 ease-out`}
+                        style={{ width: `${item.score}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full ${item.barColor} transition-all duration-700 ease-out`}
-                      style={{ width: `${Math.round((item.count / MOCK_FINDINGS.length) * 100)}%` }}
-                    />
+                ))
+              ) : (
+                // Fallback: show finding counts like the original mock UI
+                [
+                  { label: "Passed",    count: passedCount,   barColor: "bg-emerald-400", textColor: "text-emerald-700" },
+                  { label: "Warnings",  count: warningCount,  barColor: "bg-amber-400",   textColor: "text-amber-700"   },
+                  { label: "Missing",   count: missingCount,  barColor: "bg-red-400",     textColor: "text-red-700"     },
+                  { label: "High Risk", count: highRiskCount, barColor: "bg-red-600",     textColor: "text-red-800"     },
+                ].map((item) => (
+                  <div key={item.label}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-[12px] text-gray-600 font-medium">{item.label}</span>
+                      <span className={`text-[12px] font-bold tabular-nums ${item.textColor}`}>{item.count}</span>
+                    </div>
+                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full ${item.barColor} transition-all duration-700 ease-out`}
+                        style={{ width: totalFindings > 0 ? `${Math.round((item.count / totalFindings) * 100)}%` : "0%" }}
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
 

@@ -1,6 +1,7 @@
 import { pool } from "../config/database.js";
 import { AgentOrchestrator } from "../agents/legalAgent.js";
 import { ScannerService } from "./scannerService.js";
+import { WebsiteScannerService } from "./websiteScanner/index.js";
 import { chunkAndIndexDocument } from "../RAG/ragService.js";
 import { encryptData, decryptData } from "../utils/crypto.js";
 import { withRetry } from "../utils/retry.js";
@@ -75,6 +76,15 @@ export async function addJobToQueue(userId: string, type: JobType, payload: any)
         case "template_drafting":
           result = await executeTemplateDrafting(jobId, userId, payload);
           break;
+        case "dpa_review":
+          result = await executeDPAReview(jobId, userId, payload);
+          break;
+        case "vendor_review":
+          result = await executeVendorReview(jobId, userId, payload);
+          break;
+        case "ai_ethics_review":
+          result = await executeAIEthicsReview(jobId, userId, payload);
+          break;
         default:
           throw new Error(`Unhandled job type: ${type}`);
       }
@@ -115,7 +125,10 @@ export type JobType =
   | "document_analysis"
   | "template_drafting"
   | "privacy_scanning"
-  | "vulnerability_scanning";
+  | "vulnerability_scanning"
+  | "dpa_review"
+  | "vendor_review"
+  | "ai_ethics_review";
 
 export type JobStatus = "queued" | "processing" | "completed" | "failed";
 
@@ -434,5 +447,302 @@ async function executeVulnerabilityScanning(jobId: string, userId: string, paylo
   await updateJobProgress(jobId, userId, 20, "Performing vulnerability assessment...");
 
   const result = await jobRegistry.scanner.scanVulnerability(payload.url, userId);
+  return result;
+}
+
+async function executeDPAReview(jobId: string, userId: string, payload: any): Promise<any> {
+  const {
+    documentText,
+    fileId,
+  }: { documentText: string; fileId?: string } = payload;
+
+  await updateJobProgress(jobId, userId, 8,  "Reading document structure...");
+  await updateJobProgress(jobId, userId, 16, "Extracting text and identifying parties...");
+  await updateJobProgress(jobId, userId, 24, "Checking GDPR Article 28 compliance...");
+  await updateJobProgress(jobId, userId, 32, "Reviewing processor obligations...");
+  await updateJobProgress(jobId, userId, 42, "Reviewing security controls and TOMs...");
+  await updateJobProgress(jobId, userId, 52, "Checking international transfer clauses...");
+  await updateJobProgress(jobId, userId, 62, "Checking sub-processor controls...");
+  await updateJobProgress(jobId, userId, 72, "Finding compliance gaps...");
+  await updateJobProgress(jobId, userId, 82, "Calculating compliance score...");
+
+  const result = await jobRegistry.orchestrator.runDPAReview(documentText, userId, fileId);
+
+  await updateJobProgress(jobId, userId, 92, "Generating recommendations...");
+  await updateJobProgress(jobId, userId, 97, "Preparing compliance report...");
+
+  return result;
+}
+
+async function executeVendorReview(jobId: string, userId: string, payload: any): Promise<any> {
+  const {
+    documentText = "",
+    vendorUrl,
+    fileNames = [],
+    fileIds = [],
+  }: { documentText: string; vendorUrl?: string; fileNames: string[]; fileIds: string[] } = payload;
+
+  await updateJobProgress(jobId, userId, 5,  "Receiving request...");
+
+  // Document context
+  if (documentText.length > 0) {
+    await updateJobProgress(jobId, userId, 10, "Extracting uploaded documents...");
+    console.log(
+      `[executeVendorReview] Merged document text: ${documentText.length} chars from [${fileNames.join(", ")}]`
+    );
+  }
+
+  // Website scanning
+  let websiteScan = null;
+  let websiteScanAttempted = false;
+  let websiteScanFailed = false;
+
+  if (vendorUrl) {
+    websiteScanAttempted = true;
+    await updateJobProgress(jobId, userId, 18, "Scanning vendor website...");
+    console.log(`[executeVendorReview] Starting website scan for: ${vendorUrl}`);
+
+    const websiteScanner = new WebsiteScannerService();
+
+    try {
+      await updateJobProgress(jobId, userId, 24, "Discovering compliance pages...");
+      websiteScan = await websiteScanner.scan(vendorUrl, { crawlLimit: 20 });
+
+      const reachableCount = [
+        websiteScan.privacyPolicy, websiteScan.cookiePolicy, websiteScan.securityPage,
+        websiteScan.trustCenter, websiteScan.terms, websiteScan.legal,
+        websiteScan.dpa, websiteScan.aiPolicy, websiteScan.responsibleAI,
+      ].filter((p: any) => p?.reachable).length;
+
+      console.log(
+        `[executeVendorReview] Website scan complete — ` +
+          `discoveredPages: ${websiteScan.discoveredPages.length}, ` +
+          `compliancePages: ${reachableCount}`
+      );
+
+      await updateJobProgress(jobId, userId, 34, "Extracting website intelligence...");
+    } catch (scanErr: any) {
+      websiteScanFailed = true;
+      console.warn(
+        `[executeVendorReview] Website scan failed for ${vendorUrl}: ${scanErr.message}. ` +
+          "Continuing with document-only analysis."
+      );
+      // Don't throw — fall back gracefully to document-only analysis
+    }
+  }
+
+  // Guard: if a URL was provided but the scan failed completely AND no documents
+  // were uploaded, refuse to continue rather than producing fabricated findings.
+  if (websiteScanAttempted && websiteScanFailed && websiteScan === null && documentText.length <= 100) {
+    throw new Error(
+      "We couldn't retrieve enough content from this website to perform an analysis. " +
+        "Please try again later or upload supporting documents."
+    );
+  }
+
+  // RAG retrieval progress
+  await updateJobProgress(jobId, userId, 42, "Searching knowledge base...");
+
+  // AI evaluation stages
+  await updateJobProgress(jobId, userId, 50, "Reviewing privacy posture...");
+  await updateJobProgress(jobId, userId, 58, "Reviewing security posture...");
+  await updateJobProgress(jobId, userId, 65, "Reviewing compliance status...");
+  await updateJobProgress(jobId, userId, 72, "Evaluating contractual risks...");
+  await updateJobProgress(jobId, userId, 80, "Calculating vendor score...");
+
+  const result = await jobRegistry.orchestrator.runVendorReview({
+    documentText,
+    websiteScan,
+    userId,
+    fileIds: fileIds.length > 0 ? fileIds : undefined,
+  });
+
+  await updateJobProgress(jobId, userId, 90, "Generating recommendations...");
+  await updateJobProgress(jobId, userId, 97, "Preparing report...");
+
+  console.log(
+    `[executeVendorReview] Complete — overallScore: ${result.overallScore}, ` +
+      `overallRisk: ${result.overallRisk}, findings: ${result.findings.length}`
+  );
+
+  return result;
+}
+
+async function executeAIEthicsReview(jobId: string, userId: string, payload: any): Promise<any> {
+  const {
+    documentText = "",
+    websiteUrl,
+    fileNames = [],
+    fileIds = [],
+  }: { documentText: string; websiteUrl?: string; fileNames: string[]; fileIds: string[] } = payload;
+
+  console.log(
+    `[executeAIEthicsReview] Received payload — ` +
+      `fileIds=${JSON.stringify(fileIds)}, ` +
+      `documentTextLen=${documentText.length}, ` +
+      `websiteUrl=${websiteUrl ?? "none"}`
+  );
+
+  await updateJobProgress(jobId, userId, 5,  "Receiving request...");
+
+  // Document extraction logging
+  if (documentText.length > 0) {
+    await updateJobProgress(jobId, userId, 10, "Extracting uploaded documents...");
+    console.log(
+      `[executeAIEthicsReview] Merged document text: ${documentText.length} chars from [${fileNames.join(", ")}]`
+    );
+  }
+
+  // Website scanning
+  let websiteScan = null;
+  let websiteScanAttempted = false;
+  let websiteScanFailed = false;
+
+  if (websiteUrl) {
+    websiteScanAttempted = true;
+    await updateJobProgress(jobId, userId, 18, "Scanning website...");
+    console.log(`[executeAIEthicsReview] Starting website scan for: ${websiteUrl}`);
+
+    const websiteScanner = new WebsiteScannerService();
+
+    try {
+      await updateJobProgress(jobId, userId, 24, "Discovering AI governance pages...");
+      websiteScan = await websiteScanner.scan(websiteUrl, { crawlLimit: 30 });
+
+      const aiGovernancePages = [
+        websiteScan.aiPolicy, websiteScan.responsibleAI, websiteScan.safetyPage,
+        websiteScan.policiesPage, websiteScan.modelSpec, websiteScan.transparencyPage,
+        websiteScan.charterPage,
+      ].filter((p: any) => p?.reachable).length;
+      const allCompliancePages = [
+        websiteScan.privacyPolicy, websiteScan.cookiePolicy, websiteScan.securityPage,
+        websiteScan.trustCenter, websiteScan.terms, websiteScan.legal,
+        websiteScan.dpa, websiteScan.aiPolicy, websiteScan.responsibleAI,
+        websiteScan.safetyPage, websiteScan.policiesPage, websiteScan.modelSpec,
+        websiteScan.transparencyPage, websiteScan.charterPage,
+      ].filter((p: any) => p?.reachable).length;
+
+      console.log(
+        `[executeAIEthicsReview] Website scan complete — ` +
+          `discoveredPages: ${websiteScan.discoveredPages.length}, ` +
+          `aiGovernancePages: ${aiGovernancePages}, ` +
+          `allCompliancePages: ${allCompliancePages}`
+      );
+
+      // ── Extract text content from reachable AI governance pages ────────────
+      // This is the key step that was previously missing: the scan only told the
+      // agent *whether* a page exists, not *what it says*. We now fetch the actual
+      // text so the LLM has real evidence rather than just URL presence signals.
+      await updateJobProgress(jobId, userId, 34, "Extracting website intelligence...");
+
+      const AI_ETHICS_PAGES_TO_EXTRACT = [
+        websiteScan.safetyPage,
+        websiteScan.responsibleAI,
+        websiteScan.aiPolicy,
+        websiteScan.policiesPage,
+        websiteScan.modelSpec,
+        websiteScan.transparencyPage,
+        websiteScan.charterPage,
+        websiteScan.trustCenter,
+        websiteScan.securityPage,
+        websiteScan.privacyPolicy,
+      ].filter((p): p is NonNullable<typeof p> => p?.reachable === true);
+
+      // Cap at 6 pages to stay within token budget; prioritise AI governance pages
+      const pagesToFetch = AI_ETHICS_PAGES_TO_EXTRACT.slice(0, 6);
+
+      if (pagesToFetch.length > 0) {
+        console.log(
+          `[executeAIEthicsReview] Extracting content from ${pagesToFetch.length} AI governance page(s): ` +
+            pagesToFetch.map((p) => p.url).join(", ")
+        );
+
+        const { extractPageContent } = await import("./websiteScanner/contentExtractor.js");
+        const extractedContents: import("./websiteScanner/types.js").ExtractedPageContent[] = [];
+
+        for (const page of pagesToFetch) {
+          try {
+            const extracted = await extractPageContent(page.url);
+            if (extracted.ok && extracted.text.length > 100) {
+              // Keep a generous snippet for the LLM — 3000 chars per page
+              const snippet = extracted.text.substring(0, 3000);
+              extractedContents.push({
+                url: page.url,
+                title: extracted.title || page.url,
+                textSnippet: snippet,
+                fullTextLength: extracted.text.length,
+              });
+              console.log(
+                `[executeAIEthicsReview] Extracted ${extracted.text.length} chars from: ${page.url}`
+              );
+            } else {
+              console.warn(
+                `[executeAIEthicsReview] Page extraction insufficient for ${page.url} ` +
+                  `(ok=${extracted.ok}, len=${extracted.text.length})`
+              );
+            }
+          } catch (extractErr: any) {
+            console.warn(
+              `[executeAIEthicsReview] Content extraction failed for ${page.url}: ${extractErr.message}`
+            );
+          }
+        }
+
+        if (extractedContents.length > 0) {
+          websiteScan.extractedPageContents = extractedContents;
+          console.log(
+            `[executeAIEthicsReview] Page content extraction complete — ` +
+              `${extractedContents.length} pages with content, ` +
+              `total chars: ${extractedContents.reduce((s, p) => s + p.fullTextLength, 0)}`
+          );
+        }
+      }
+    } catch (scanErr: any) {
+      websiteScanFailed = true;
+      console.warn(
+        `[executeAIEthicsReview] Website scan failed for ${websiteUrl}: ${scanErr.message}. ` +
+          "Continuing with document-only analysis."
+      );
+      // Don't throw — fall back gracefully to document-only analysis
+    }
+  }
+
+  // Guard: if a URL was provided but the scan failed completely AND no documents
+  // were uploaded, refuse to continue rather than producing fabricated findings.
+  if (websiteScanAttempted && websiteScanFailed && websiteScan === null && documentText.length <= 100) {
+    throw new Error(
+      "We couldn't retrieve enough content from this website to perform an analysis. " +
+        "Please try again later or upload supporting documents."
+    );
+  }
+
+  // RAG retrieval
+  await updateJobProgress(jobId, userId, 40, "Searching knowledge base...");
+
+  // AI evaluation stages
+  await updateJobProgress(jobId, userId, 46, "Reviewing AI governance...");
+  await updateJobProgress(jobId, userId, 52, "Reviewing transparency...");
+  await updateJobProgress(jobId, userId, 58, "Reviewing fairness...");
+  await updateJobProgress(jobId, userId, 64, "Reviewing accountability...");
+  await updateJobProgress(jobId, userId, 68, "Reviewing privacy...");
+  await updateJobProgress(jobId, userId, 72, "Reviewing human oversight...");
+  await updateJobProgress(jobId, userId, 76, "Reviewing explainability...");
+
+  const result = await jobRegistry.orchestrator.runAIEthicsReview({
+    documentText,
+    websiteScan,
+    userId,
+    fileIds: fileIds.length > 0 ? fileIds : undefined,
+  });
+
+  await updateJobProgress(jobId, userId, 85, "Calculating AI ethics score...");
+  await updateJobProgress(jobId, userId, 92, "Generating recommendations...");
+  await updateJobProgress(jobId, userId, 97, "Preparing report...");
+
+  console.log(
+    `[executeAIEthicsReview] Complete — overallScore: ${result.overallScore}, ` +
+      `overallRisk: ${result.overallRisk}, findings: ${result.findings.length}`
+  );
+
   return result;
 }

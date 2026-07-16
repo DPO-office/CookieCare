@@ -5,6 +5,10 @@ import { browserManager } from "../utils/browserManager.js";
 import { Page } from "playwright";
 import { openRouterComplete } from "./openRouterClient.js";
 import { withTransaction } from "../utils/dbUtils.js";
+// Reusable scanning infrastructure — Cookie Scanner delegates here so all
+// scanning features share a single implementation of URL validation and crawling.
+import { validateUrl as sharedValidateUrl, normaliseUrl } from "./websiteScanner/urlValidator.js";
+import { discoverUrls as sharedDiscoverUrls } from "./websiteScanner/pageCrawler.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -44,50 +48,13 @@ export class ScannerService {
     }
   }
 
+  /**
+   * Delegates to the shared urlValidator module.
+   * Preserved as a private wrapper so no call-sites inside this class need
+   * to change — the Cookie Scanner behaviour is identical to before.
+   */
   private validateUrl(url: string): { valid: boolean; reason?: string } {
-    try {
-      const parsed = new URL(url);
-      const hostname = parsed.hostname.toLowerCase();
-
-      const blockedHosts = [
-        'localhost',
-        '127.0.0.1',
-        '0.0.0.0',
-        '169.254.169.254',
-        '::1',
-        '::ffff:127.0.0.1',
-        'localhost.localdomain',
-      ];
-
-      if (blockedHosts.includes(hostname)) {
-        return { valid: false, reason: `Blocked hostname: ${hostname}` };
-      }
-
-      const privateIPPatterns = [
-        /^10\./,
-        /^172\.(1[6-9]|2[0-9]|3[01])\./,
-        /^192\.168\./,
-        /^127\./,
-        /^169\.254\./,
-        /^fc[0-9a-f]{2}:/i,
-        /^fe[89ab][0-9a-f]:/i,
-      ];
-
-      for (const pattern of privateIPPatterns) {
-        if (pattern.test(hostname)) {
-          return { valid: false, reason: `Private IP range blocked: ${hostname}` };
-        }
-      }
-
-      const blockedPorts = ['25', '587', '465'];
-      if (blockedPorts.includes(parsed.port)) {
-        return { valid: false, reason: `Blocked port: ${parsed.port}` };
-      }
-
-      return { valid: true };
-    } catch (err: any) {
-      return { valid: false, reason: `Invalid URL format: ${err.message}` };
-    }
+    return sharedValidateUrl(url);
   }
 
   private async handleConsentBanner(page: Page, action: 'accept' | 'reject') {
@@ -144,69 +111,14 @@ export class ScannerService {
     return { cookies, storage };
   }
 
+  /**
+   * Delegates to the shared pageCrawler module.
+   * Preserved as a private wrapper so no call-sites inside this class need
+   * to change — the Cookie Scanner behaviour is identical to before.
+   */
   private async discoverUrls(rootUrl: string, limit: number = 20): Promise<string[]> {
-    const urls = new Set<string>([rootUrl]);
-    const domain = new URL(rootUrl).hostname;
-
-    const sitemapUrl = new URL('/sitemap.xml', rootUrl).toString();
-    if (this.validateUrl(sitemapUrl).valid) {
-      try {
-        const resp = await fetch(sitemapUrl, { signal: AbortSignal.timeout(5000) });
-        if (resp.ok) {
-          const text = await resp.text();
-          const matches = text.match(/<loc>(.*?)<\/loc>/g);
-          if (matches) {
-            for (const m of matches) {
-              const loc = m.replace(/<\/?loc>/g, '').trim();
-              if (loc && urls.size < limit) {
-                try {
-                  const u = new URL(loc);
-                  if (u.hostname === domain) urls.add(loc);
-                } catch (e) {}
-              }
-            }
-          }
-        }
-      } catch (e) {}
-    }
-
-    if (urls.size >= limit) return Array.from(urls).slice(0, limit);
-
-    let context;
-    try {
-      context = await browserManager.newContext({ optimizeForScanning: true });
-      const page = await context.newPage();
-      try {
-        await page.goto(rootUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
-        const links = await page.evaluate((domain) => {
-          return Array.from(document.querySelectorAll('a'))
-            .map(a => a.href)
-            .filter(href => {
-              try {
-                const u = new URL(href);
-                return u.hostname === domain && (u.protocol === 'http:' || u.protocol === 'https:') && !u.hash;
-              } catch (e) { return false; }
-            });
-        }, domain);
-
-        for (const link of links) {
-          if (urls.size >= limit) break;
-          if (this.validateUrl(link).valid) {
-            urls.add(link);
-          }
-        }
-      } catch (e) {
-        console.warn('[Scanner] discoverUrls page navigation failed, continuing with root URL only:', (e as Error).message);
-      } finally {
-        await page.close().catch(() => {});
-      }
-    } catch (e) {
-      console.warn('[Scanner] discoverUrls browser context failed, continuing with root URL only:', (e as Error).message);
-    } finally {
-      if (context) await context.close().catch(() => {});
-    }
-
-    return Array.from(urls).slice(0, limit);
+    const result = await sharedDiscoverUrls(rootUrl, { limit });
+    return result.urls;
   }
 
   private async analyzeTrackersWithAI(trackers: any[], url: string) {
@@ -256,7 +168,7 @@ CRITICAL: Return ONLY a valid JSON object — no markdown fences, no commentary 
 
   async scanCookie(url: string, userId: string, scanDepth: string = "Deep") {
     try {
-      const targetUrl = url.startsWith('http') ? url : `https://${url}`;
+      const targetUrl = normaliseUrl(url);
 
       const urlValidation = this.validateUrl(targetUrl);
       if (!urlValidation.valid) {
@@ -476,7 +388,7 @@ CRITICAL: Return ONLY a valid JSON object — no markdown fences, no commentary 
       remediation: string;
     }> = [];
     try {
-      const targetUrl = url.startsWith('http') ? url : `https://${url}`;
+      const targetUrl = normaliseUrl(url);
 
       const urlValidation = this.validateUrl(targetUrl);
       if (!urlValidation.valid) {

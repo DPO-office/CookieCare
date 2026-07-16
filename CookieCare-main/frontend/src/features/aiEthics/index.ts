@@ -1,3 +1,4 @@
 export { default } from "./AIEthicsScore";
 export * from "./types";
 export * from "./hooks/useAIEthicsAnalysis";
+export * from "./api/aiEthicsApi";
