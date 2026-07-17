@@ -1,8 +1,8 @@
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
-  Upload, Folder, Globe, Gavel, FileCode, FileText,
-  Plus, Trash2, Check, ChevronDown, X,
+  Upload, Folder, Gavel, FileCode, FileText,
+  Plus, Trash2, Check, ChevronDown, X, Globe,
 } from "lucide-react";
 import { KBFolder, OutputFormat, PopoverType } from "../types";
 
@@ -32,7 +32,6 @@ interface PopoversProps {
   selectedKBCount: number;
   selectedFolderCount: number;
 
-  /* web */
   webDiscoveryUrlInput: string;
   setWebDiscoveryUrlInput: (v: string) => void;
   webDiscoveryUrls: string[];
@@ -79,13 +78,14 @@ export default function Popovers({
       {openPopover && (
         <motion.div
           key={openPopover}
-          ref={popoverRef}
           initial={{ opacity: 0, y: 6, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 6, scale: 0.97 }}
           transition={{ duration: 0.15, ease: "easeOut" }}
           className="absolute bottom-full mb-3 left-0 z-50 w-full max-w-sm"
+          onPointerDown={(e) => e.stopPropagation()}
         >
+          <div ref={popoverRef} className="w-full">
           {/* ADD menu */}
           {openPopover === "add" && (
             <div className="bg-white border border-gray-200 rounded-2xl shadow-xl overflow-hidden">
@@ -104,11 +104,6 @@ export default function Popovers({
                     icon: Folder, label: "Knowledge Base",
                     desc: selectedKBCount > 0 ? `${selectedKBCount} docs active` : "Select document folders",
                     action: () => setOpenPopover("kb"),
-                  },
-                  {
-                    icon: Globe, label: "Web Discovery",
-                    desc: webDiscoveryUrls.length > 0 ? `${webDiscoveryUrls.length} URL${webDiscoveryUrls.length > 1 ? "s" : ""} added` : "Add web sources",
-                    action: () => setOpenPopover("web"),
                   },
                   {
                     icon: Gavel, label: "Jurisdictions",
@@ -145,9 +140,9 @@ export default function Popovers({
                   <p className="text-xs font-semibold text-gray-800">Select Jurisdictions</p>
                   <p className="text-[11px] text-gray-400 mt-0.5">{selectedJurisdictions.length} selected</p>
                 </div>
-                <button type="button" onClick={() => setOpenPopover(null)}
+                <button type="button" onClick={(e) => { e.stopPropagation(); setOpenPopover(null); }}
                   className="w-6 h-6 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition cursor-pointer">
-                  <X className="w-3.5 h-3.5" />
+                  {/* <X className="w-3.5 h-3.5" /> */}
                 </button>
               </div>
               <div className="p-3 max-h-64 overflow-y-auto">
@@ -188,13 +183,13 @@ export default function Popovers({
                     {selectedKBCount} docs active across {selectedFolderCount} folders
                   </p>
                 </div>
-                <button type="button" onClick={() => setOpenPopover(null)}
+                <button type="button" onClick={(e) => { e.stopPropagation(); setOpenPopover(null); }}
                   className="w-6 h-6 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition cursor-pointer">
-                  <X className="w-3.5 h-3.5" />
+                  {/* <X className="w-3.5 h-3.5" /> */}
                 </button>
               </div>
               <div className="p-3 space-y-2">
-                <form onSubmit={handleAddFolder} className="flex gap-1.5">
+                {/* <form onSubmit={handleAddFolder} className="flex gap-1.5">
                   <input type="text" value={newFolderName} onChange={(e) => setNewFolderName(e.target.value)}
                     placeholder="Create new folder…"
                     className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-gray-100 focus:border-gray-300 transition placeholder:text-gray-400" />
@@ -202,7 +197,7 @@ export default function Popovers({
                     className="w-7 h-7 bg-gray-900 text-white rounded-xl flex items-center justify-center hover:bg-gray-800 transition shrink-0 cursor-pointer">
                     <Plus className="w-3 h-3" />
                   </button>
-                </form>
+                </form> */}
                 <div className="max-h-52 overflow-y-auto space-y-1.5 pr-0.5">
                   {folders.length === 0 ? (
                     <p className="text-[11px] text-gray-400 text-center py-4 italic">No folders yet. Create one above.</p>
@@ -261,7 +256,7 @@ export default function Popovers({
                   <p className="text-xs font-semibold text-gray-800">Web Discovery</p>
                   <p className="text-[11px] text-gray-400 mt-0.5">External sources to reference during research</p>
                 </div>
-                <button type="button" onClick={() => setOpenPopover(null)}
+                <button type="button" onClick={(e) => { e.stopPropagation(); setOpenPopover(null); }}
                   className="w-6 h-6 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition cursor-pointer">
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -301,9 +296,9 @@ export default function Popovers({
             <div className="bg-white border border-gray-200 rounded-2xl shadow-xl overflow-hidden">
               <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
                 <p className="text-xs font-semibold text-gray-800">Output Format</p>
-                <button type="button" onClick={() => setOpenPopover(null)}
+                <button type="button" onClick={(e) => { e.stopPropagation(); setOpenPopover(null); }}
                   className="w-6 h-6 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition cursor-pointer">
-                  <X className="w-3.5 h-3.5" />
+                  {/* <X className="w-3.5 h-3.5" /> */}
                 </button>
               </div>
               <div className="p-3 space-y-1.5">
@@ -329,6 +324,7 @@ export default function Popovers({
               </div>
             </div>
           )}
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

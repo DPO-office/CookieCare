@@ -257,6 +257,8 @@ export default function GeneratorPanel(props: GeneratorPanelProps) {
               expandedClauseCat={props.expandedClauseCat}
               clauseTab={props.clauseTab}
               customClauseText={props.customClauseText}
+              depth={props.depth}
+              isStreaming={props.isStreaming}
               onSetAdvancedStep={props.onSetAdvancedStep}
               onSetS1Open={props.onSetS1Open}
               onSetS2Open={props.onSetS2Open}
@@ -268,6 +270,7 @@ export default function GeneratorPanel(props: GeneratorPanelProps) {
               onSetSelectedClauses={props.onSetSelectedClauses}
               onSetReferenceInstructions={props.onSetReferenceInstructions}
               onSetAiRulebookPrompt={props.onSetAiRulebookPrompt}
+              onSetDepth={props.onSetDepth}
               onSetExpandedFolder={props.onSetExpandedFolder}
               onSetExpandedClauseCat={props.onSetExpandedClauseCat}
               onSetClauseTab={props.onSetClauseTab}

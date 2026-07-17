@@ -22,7 +22,7 @@ async function extractTextFromStorageUrl(fileUrl: string): Promise<string> {
 
 async function handleInitialDraftingJob(jobId: string, userId: string, payload: any): Promise<any> {
     // 1. Ingest the aligned Zod structure payload parameters
-    const { mode, instructions, contractType, formFields, templateId, sourceDocumentId, extractedFields } = payload;
+    const { mode, instructions, aiRulebookPrompt, contractType, formFields, templateId, sourceDocumentId, extractedFields } = payload;
     console.log("Entered main handleInitialDraftingJob with mode:", mode);
   
     await updateJobProgress(jobId, userId, 20, "Extracting compliance parameters and routing tracking slots...");
@@ -60,7 +60,9 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
       request: {
         intent: evaluatedIntent, 
         mode: mode === "BASIC" ? "Basic" : mode === "PROACTIVE" ? "Standard Template" : "Advanced Proactive",        
-        rawInstructions: instructions || "",
+        rawInstructions: aiRulebookPrompt
+          ? `${instructions || ""}\n\nDrafting style & requirements:\n${aiRulebookPrompt}`.trim()
+          : (instructions || ""),
         sourceText: resolvedSourceText,
         templateId: templateId || undefined,
         formFields: formFields || {},

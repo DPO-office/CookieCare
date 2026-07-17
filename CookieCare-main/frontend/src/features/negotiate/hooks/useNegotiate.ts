@@ -5,6 +5,7 @@ import { AgentMarkup } from "../types";
 import {
   evaluateDocument, submitRedline, acceptRedline,
   rejectRedline, generateCompromise, fetchDocumentDetails,
+  saveNegotiationStep, exportDocument,
 } from "../api/negotiateApi";
 
 interface UseNegotiateOptions {
@@ -31,6 +32,8 @@ export function useNegotiate({
   const [editingReplacement, setEditingReplacement] = useState(false);
   const [redlinesOpen, setRedlinesOpen] = useState(false);
   const [draftingCompromise, setDraftingCompromise] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [showSavedToast, setShowSavedToast] = useState(false);
   const evalRequestIdRef = useRef(0);
   const loadedDocIdRef = useRef<string | null>(null);
 
@@ -87,16 +90,26 @@ export function useNegotiate({
     if (!activeDoc || acceptingMarkupId === markup.clauseId) return;
     setAcceptingMarkupId(markup.clauseId);
     try {
-      const proposal = await submitRedline(
-        authToken, activeDoc.id, markup.original, markup.replacement,
-        `[Merged via AI Multi-Agent Audit]: ${markup.reasoning}`
-      );
-      await acceptRedline(authToken, activeDoc.id, proposal.id);
+      // 1. Programmatically locate the active targeted text segment within the main document content state
+      const textIndex = activeDoc.content.indexOf(markup.original);
+      if (textIndex === -1) {
+        throw new Error("Could not find the target clause in the document content.");
+      }
+
+      // 2. Surgically replace the old liability text with the AI proposed text
+      const updatedContent = activeDoc.content.replace(markup.original, markup.replacement);
+
+      // 3. Dispatch an API payload to trigger saveStep, incrementing version to next sequential digit
+      const nextVersion = (activeDoc.versions?.length || 1) + 1;
+      await saveNegotiationStep(authToken, activeDoc.id, updatedContent, nextVersion);
+
+      // Filter local agent markups and clear focus
       setAgentMarkups((prev) => prev.filter((m) => m.clauseId !== markup.clauseId));
-      setSelectedMarkup((prev) => (prev?.clauseId === markup.clauseId ? null : prev));
+      setSelectedMarkup(null);
       setEditingReplacement(false);
+
       onRefresh();
-      loadActiveDocumentDetails(activeDoc.id);
+      await loadActiveDocumentDetails(activeDoc.id);
     } catch (err: any) {
       alert(err.message || "Failed to accept markup patch.");
     } finally {
@@ -105,8 +118,44 @@ export function useNegotiate({
   };
 
   const handleDismissMarkup = (clauseId: string) => {
-    setAgentMarkups((prev) => prev.filter((m) => m.clauseId !== clauseId));
-    if (selectedMarkup?.clauseId === clauseId) { setSelectedMarkup(null); setEditingReplacement(false); }
+    // 1. Dismiss the AI negotiation suggestion sidebar context safely
+    // 2. Restore normal UI state configuration without altering the underlying main document text
+    setSelectedMarkup(null);
+    setEditingReplacement(false);
+  };
+
+  const handleSaveDraft = async () => {
+    if (!activeDoc || saving) return;
+    setSaving(true);
+    try {
+      const currentVersion = activeDoc.versions?.length || 1;
+      await saveNegotiationStep(authToken, activeDoc.id, activeDoc.content, currentVersion);
+      setShowSavedToast(true);
+      setTimeout(() => setShowSavedToast(false), 3000);
+      onRefresh();
+      await loadActiveDocumentDetails(activeDoc.id);
+    } catch (err: any) {
+      alert("Failed to save draft: " + err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleExportDocument = async (format: "pdf" | "docx") => {
+    if (!activeDoc) return;
+    try {
+      const blob = await exportDocument(authToken, activeDoc.id, activeDoc.title, activeDoc.content, format);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${activeDoc.title.toLowerCase().replace(/\s+/g, "_")}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      alert("Failed to download document: " + err.message);
+    }
   };
 
   const handleAcceptDbRedline = async (rId: string) => {
@@ -172,6 +221,7 @@ export function useNegotiate({
     draftingCompromise, handleDocumentChange, handleAcceptAgentMarkup,
     handleDismissMarkup, handleAcceptDbRedline, handleRejectDbRedline,
     triggerAutoNegotiation, handleDocumentPaneClick, updateMarkupReplacement,
-    rerunEvaluation, loadActiveDocumentDetails,
+    rerunEvaluation, loadActiveDocumentDetails, saving, showSavedToast,
+    handleSaveDraft, handleExportDocument,
   };
 }

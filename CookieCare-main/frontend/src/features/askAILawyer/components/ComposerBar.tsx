@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  Plus, Gavel, FileCode, Folder, Globe, ArrowUp, RefreshCw, ChevronDown, X,
+  Plus, Gavel, FileCode, Folder, ArrowUp, RefreshCw, ChevronDown, X,
 } from "lucide-react";
 import { OutputFormat, PopoverType } from "../types";
 import Popovers from "./Popovers";
@@ -89,12 +89,12 @@ export default function ComposerBar({
                 {selectedKBCount} doc{selectedKBCount > 1 ? "s" : ""} from {selectedFolderCount} folder{selectedFolderCount > 1 ? "s" : ""}
               </span>
             )}
-            {webDiscoveryUrls.length > 0 && (
+            {/*{webDiscoveryUrls.length > 0 && (
               <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-white border border-gray-200 text-gray-600 px-2 py-0.5 rounded-full shadow-xs">
                 <Globe className="w-2.5 h-2.5 text-gray-400" />
                 {webDiscoveryUrls.length} web source{webDiscoveryUrls.length > 1 ? "s" : ""}
               </span>
-            )}
+            )}*/}
             <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-white border border-gray-200 text-gray-600 px-2 py-0.5 rounded-full shadow-xs">
               <FileCode className="w-2.5 h-2.5 text-gray-400" />
               {selectedFormat}
@@ -121,14 +121,14 @@ export default function ComposerBar({
           <div className="flex items-center justify-between px-3 pb-3 pt-1 gap-2">
             <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
               {/* + button */}
-              <button type="button" onClick={() => togglePopover("add")}
+              {/* <button type="button" onClick={() => togglePopover("add")}
                 className={`w-7 h-7 flex items-center justify-center rounded-lg border transition-all cursor-pointer shrink-0 ${
                   openPopover === "add"
                     ? "bg-gray-900 text-white border-gray-900"
                     : "bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100 hover:border-gray-300"
                 }`} title="Add context">
                 <Plus className={`w-3.5 h-3.5 transition-transform duration-200 ${openPopover === "add" ? "rotate-45" : ""}`} />
-              </button>
+              </button> */}
 
               {/* Jurisdictions chip */}
               <button type="button" onClick={() => togglePopover("jurisdictions")}

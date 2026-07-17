@@ -15,7 +15,8 @@ type BasicDraftPayload = {
 type ProactiveDraftPayload = {
   mode: "PROACTIVE";
   instructions: string;
-  templateId: string;
+  aiRulebookPrompt?: string;
+  templateId?: string;
   playbookId?: string;
   clauseIds?: string[];
 };
@@ -45,6 +46,7 @@ type DraftUiState = {
   advancedStep: string;
   selectedTemplateName: string | null;
   referenceInstructions: string;
+  aiRulebookPrompt: string;
   uploadFileName: string;
   advancedFieldValues: Record<string, string>;
   selectedClauses: string[];
@@ -71,14 +73,16 @@ function buildGenerateStreamPayload(uiState: DraftUiState): DraftRequestPayload 
   }
 
   if (uiState.advancedStep === "proactive") {
-    if (!uiState.selectedTemplateName) {
-      throw new Error("Proactive drafting requires a selected template.");
+    const userInstructions = uiState.referenceInstructions || uiState.instructions;
+    if (!userInstructions || !userInstructions.trim()) {
+      throw new Error("Please describe what you want to draft in the first field.");
     }
 
     return {
       mode: "PROACTIVE",
-      instructions: uiState.referenceInstructions || uiState.instructions,
-      templateId: uiState.selectedTemplateName,
+      instructions: userInstructions,
+      aiRulebookPrompt: uiState.aiRulebookPrompt || undefined,
+      templateId: uiState.selectedTemplateName || undefined,
       playbookId: uiState.playbookId || undefined,
       clauseIds: uiState.selectedClauses.length > 0 ? uiState.selectedClauses : undefined,
     };
@@ -332,6 +336,7 @@ export function useDraftGeneratorActions({
         advancedStep: params.advancedStep,
         selectedTemplateName: params.selectedTemplateName,
         referenceInstructions: params.referenceInstructions,
+        aiRulebookPrompt: params.aiRulebookPrompt,
         uploadFileName: params.uploadFileName,
         advancedFieldValues: params.advancedFieldValues,
         selectedClauses: params.selectedClauses,

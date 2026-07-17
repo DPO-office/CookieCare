@@ -16,7 +16,8 @@ const BasicDraftSchema = z.object({
 const ProactiveDraftSchema = z.object({
     mode: z.literal("PROACTIVE"),
     instructions: z.string(),
-    templateId: z.string(),
+    aiRulebookPrompt: z.string().optional(),
+    templateId: z.string().optional(),
     playbookId: z.string().optional(),
     clauseIds: z.array(z.string()).optional()
   });
