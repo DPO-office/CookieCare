@@ -1,0 +1,19 @@
+node_modules/
+build/
+DraftingPipeline.md
+dist/
+coverage/
+lexify_migration_clean.sql
+lexify_migration.sql
+.DS_Store
+*.log
+.env*
+!.env.example
+.env
+
+# New structure build outputs
+frontend/dist/
+backend/dist/
+backend/server.js
+drafting-module-context.md
+server_test_build.js
