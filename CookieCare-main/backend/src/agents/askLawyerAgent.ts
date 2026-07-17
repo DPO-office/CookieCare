@@ -11,12 +11,18 @@ export interface AskLawyerOptions {
   sources?: Array<{ title: string; file_id: string; content: string }>;
 }
 
+export interface AskLawyerResult {
+  rawText: string;
+  text: string;
+  sources?: Array<{ id: string; title: string; file_id: string; excerpt: string }>;
+}
+
 export class AskLawyerAgent {
   /**
    * Upgraded Ask AI Lawyer agent with jurisdiction awareness, output format control,
    * and document-grounded structured analysis.
    */
-  async getAdvice(options: AskLawyerOptions): Promise<{ text: string; sources?: any[] }> {
+  async getAdvice(options: AskLawyerOptions): Promise<AskLawyerResult> {
     const {
       prompt,
       context,
@@ -40,14 +46,16 @@ Your task is to provide **document-grounded, jurisdiction-aware, structured lega
 ${formatInstructions}
 
 **CRITICAL RULES:**
-1. **Ground your analysis in the retrieved document context wherever possible.** Quote or paraphrase relevant clauses. If the context does not support a point, clearly state: "The retrieved documents do not address this issue — the following is based on general legal principles."
-2. **Clearly separate:**
+1. **Do not use open-web knowledge, general internet search, or made-up case law.** Base your answer only on the supplied document text and the selected jurisdictions.
+2. **Ground your analysis in the retrieved document context wherever possible.** Quote or paraphrase relevant clauses. If the context does not support a point, clearly state: "The retrieved documents do not address this issue — the following is based on general legal principles."
+3. **Clearly separate:**
    - Conclusions grounded in the provided documents
    - General legal principles applied when context is insufficient
-3. **Provide practical, actionable legal analysis** — not vague generic advice.
-4. **Identify risks, ambiguities, and assumptions** where the documents are unclear or incomplete.
-5. **Include practical recommendations / next steps** at the end.
-6. **Return clean, well-structured Markdown** with headers, bullet points, and bold text for readability.
+4. **Provide practical, actionable legal analysis** — not vague generic advice.
+5. **Identify risks, ambiguities, and assumptions** where the documents are unclear or incomplete.
+6. **Include practical recommendations / next steps** at the end.
+7. **Return clean, well-structured Markdown** with headers, bullet points, and bold text for readability.
+8. **Do not include any preamble, apology, or explanation of policy.** Return the answer directly in the required structure.
 
 If the retrieved document context is weak or empty, you must still provide a structured answer using general legal principles, but clearly label it as such and recommend that the user consult jurisdiction-specific counsel or provide more specific documents.`;
 
@@ -60,14 +68,14 @@ ${prompt}
 Provide your analysis using the required ${outputFormat} structure.`;
 
     try {
-      const result = await executeCompletion(
+      const rawText = await executeCompletion(
         userPrompt,
         systemPrompt,
         LLMTask.COMPLEX_DRAFT,    // Routes to Gemini 2.5 Pro for deep legal analysis
         LLMProvider.GEMINI
       );
 
-      const text = result || "I cannot answer this query right now.";
+      const text = this.sanitizeModelOutput(rawText || "I cannot answer this query right now.");
 
       // Return sources if available
       const sourcesMetadata = sources.length > 0
@@ -79,11 +87,19 @@ Provide your analysis using the required ${outputFormat} structure.`;
           }))
         : undefined;
 
-      return { text, sources: sourcesMetadata };
-    } catch (err) {
+      return { rawText, text, sources: sourcesMetadata };
+    } catch (err: any) {
       console.error("AskLawyerAgent error:", err);
-      throw err;
+      throw new Error(`Ask AI Lawyer execution failed: ${err?.message || String(err)}`);
     }
+  }
+
+  private sanitizeModelOutput(text: string): string {
+    return text
+      .trim()
+      .replace(/^```(?:markdown)?\s*/i, "")
+      .replace(/\s*```$/i, "")
+      .trim();
   }
 
   private getFormatInstructions(format: OutputFormat): string {
@@ -102,7 +118,7 @@ Keep the answer **concise and practical** — no more than 300-400 words total.`
       case "Full IRAC":
         return `**OUTPUT FORMAT: Full IRAC (Issue, Rule, Application, Conclusion)**
 
-Structure your answer as follows:
+Structure your answer as follows and return only the sections below with no surrounding text or code fences:
 
 ### ISSUE
 State the legal question or problem clearly in 1-2 sentences.
@@ -119,6 +135,7 @@ Provide a clear conclusion that answers the user's query. Include:
 - Practical next steps or recommendations
 - Any disclaimers about jurisdiction or missing information
 
+If the user asked for IRAC, strictly use the four sections above.
 Use **clear headers** for each section and bullet points where appropriate.`;
 
       case "CREAC":

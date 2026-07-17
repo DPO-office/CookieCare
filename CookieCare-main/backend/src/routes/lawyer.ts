@@ -13,7 +13,7 @@ router.post("/ask", authenticateToken, async (req, res) => {
   try {
     // Accept documentIds (current) with a fallback to documents (legacy field name).
     // Both are treated as string[] of file IDs — never raw document content.
-    const { prompt, jurisdiction, outputFormat, webContext, documentIds, documents } = req.body;
+    const { prompt, jurisdiction, outputFormat, documentIds, documents } = req.body;
 
     if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
       return res.status(400).json({ error: "prompt is required." });
@@ -28,7 +28,6 @@ router.post("/ask", authenticateToken, async (req, res) => {
       prompt,
       jurisdiction,
       outputFormat,
-      webContext,
       documents: resolvedDocumentIds,
     });
 

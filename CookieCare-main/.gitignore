@@ -11,6 +11,8 @@ lexify_migration.sql
 !.env.example
 .env
 
+
+/IMPLEMENTATION.md
 # New structure build outputs
 frontend/dist/
 backend/dist/

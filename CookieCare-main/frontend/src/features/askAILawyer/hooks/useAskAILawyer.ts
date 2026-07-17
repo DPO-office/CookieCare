@@ -52,18 +52,14 @@ export function useAskAILawyer(authToken: string) {
   /* ── Close popover on outside click ────────────────────────── */
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (
-        popoverRef.current &&
-        !popoverRef.current.contains(e.target as Node) &&
-        composerRef.current &&
-        !composerRef.current.contains(e.target as Node)
-      ) {
-        setOpenPopover(null);
-      }
+      if (!openPopover) return;
+      if (popoverRef.current?.contains(e.target as Node)) return;
+      if (composerRef.current?.contains(e.target as Node)) return;
+      setOpenPopover(null);
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
+    document.addEventListener("pointerdown", handler);
+    return () => document.removeEventListener("pointerdown", handler);
+  }, [openPopover]);
 
   useEffect(() => {
     if (chatBottomRef.current) {
@@ -212,7 +208,6 @@ export function useAskAILawyer(authToken: string) {
         query,
         selectedJurisdictions,
         selectedFormat,
-        webDiscoveryUrls,
         folders
       );
       if (status === 202 && data.job_id) {

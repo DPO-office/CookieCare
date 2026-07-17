@@ -63,7 +63,6 @@ export async function askLawyer(
   query: string,
   jurisdictions: string[],
   format: OutputFormat,
-  webContext: string[],
   folders: KBFolder[]
 ) {
   // Send only document IDs — the backend retrieves content server-side via RAG / DB lookup.
@@ -82,7 +81,6 @@ export async function askLawyer(
       prompt: query,
       jurisdiction: jurisdictions,
       outputFormat: format,
-      webContext,
       documentIds: activeDocumentIds,
     }),
   });
