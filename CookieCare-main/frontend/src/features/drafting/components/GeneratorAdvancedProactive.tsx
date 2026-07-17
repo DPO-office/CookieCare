@@ -317,39 +317,41 @@
 //   );
 // }
 
-// As Proactive mode rihgt now taking companies playbook and claues by default
+// Proactive mode — simplified UI that maps to GeneratorPanel prop names
 import React from "react";
 import { HelpCircle, ChevronDown, ArrowRight } from "lucide-react";
 import { DraftDepth } from "../types";
 
-interface GeneratorBasicModeProps {
-  instructions: string;
-  playbookGuidelines: string;
+interface GeneratorAdvancedProactiveProps {
+  // These names must match exactly what GeneratorPanel passes down
+  referenceInstructions: string;
+  aiRulebookPrompt: string;
   depth: DraftDepth;
   isStreaming: boolean;
-  onSetInstructions: (inst: string) => void;
-  onSetPlaybookGuidelines: (guide: string) => void;
+  onSetReferenceInstructions: (inst: string) => void;
+  onSetAiRulebookPrompt: (guide: string) => void;
   onSetDepth: (depth: DraftDepth) => void;
   onExecuteDraftStream: () => void;
+  // Additional props passed by GeneratorPanel (unused in this simplified view)
+  [key: string]: any;
 }
 
-export default function GeneratorBasicMode({
-  instructions,
-  playbookGuidelines,
+export default function GeneratorAdvancedProactive({
+  referenceInstructions,
+  aiRulebookPrompt,
   depth,
   isStreaming,
-  onSetInstructions,
-  onSetPlaybookGuidelines,
+  onSetReferenceInstructions,
+  onSetAiRulebookPrompt,
   onSetDepth,
   onExecuteDraftStream,
-}: GeneratorBasicModeProps) {
+}: GeneratorAdvancedProactiveProps) {
   return (
     <div className="w-full space-y-5 z-10">
       <div className="rounded-[18px] border border-emerald-100 bg-emerald-50/70 px-4 py-3 text-[12px] text-emerald-900 shadow-xs">
         <div className="flex items-start gap-2">
-          
           <p className="leading-5">
-            <span className="font-semibold">Proactive Mode</span> is active. Your draft is being automatically aligned with your organization’s primary playbook standards, approved clause libraries, and risk guardrails.
+            <span className="font-semibold">Proactive Mode</span> is active. Your draft is automatically aligned with your organisation's primary playbook standards, approved clause libraries, and risk guardrails.
             <span className="block mt-1.5 text-emerald-700/90">
               <span className="font-semibold text-emerald-800">Coming soon:</span> A dynamic Vault selector to swap playbooks, inject custom clauses, and load target context before you generate.
             </span>
@@ -367,9 +369,9 @@ export default function GeneratorBasicMode({
         <p className="text-[12px] text-gray-500 ml-7.5">Define what you want to create and provide the necessary context.</p>
         <textarea
           rows={4}
-          value={instructions}
-          onChange={(e) => onSetInstructions(e.target.value)}
-          placeholder="e.g. Draft a reply to a breach notice, a shareholder agreement with vesting terms, or a legal notice based on the attached facts."
+          value={referenceInstructions}
+          onChange={(e) => onSetReferenceInstructions(e.target.value)}
+          placeholder="e.g. Draft a shareholder agreement with 4-year vesting, or a service agreement for a SaaS platform."
           className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-[13px] text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-100 focus:border-gray-300 transition resize-none"
         />
       </div>
@@ -384,8 +386,8 @@ export default function GeneratorBasicMode({
         <p className="text-[12px] text-gray-500 ml-7.5">Set tone, structure, and any specific requirements.</p>
         <textarea
           rows={4}
-          value={playbookGuidelines}
-          onChange={(e) => onSetPlaybookGuidelines(e.target.value)}
+          value={aiRulebookPrompt}
+          onChange={(e) => onSetAiRulebookPrompt(e.target.value)}
           placeholder="e.g. Use formal legal tone, favour the client, include strong indemnity and limitation clauses."
           className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-[13px] text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-100 focus:border-gray-300 transition resize-none"
         />

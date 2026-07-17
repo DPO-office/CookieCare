@@ -230,7 +230,10 @@ export function useAskAILawyer(authToken: string) {
               setStepperMessage(job.message);
             }
             if (job.status === "completed") {
-              setStreamedResult(job.result.text);
+              setStreamedResult(job.result.text || job.result || "");
+              if (Array.isArray(job.result.sources) && job.result.sources.length > 0) {
+                setMatchedSources(job.result.sources);
+              }
               setStepperPhase("completed");
               setLawyerProgress("");
               setIsStreaming(false);

@@ -1,4 +1,5 @@
-import { openRouterComplete } from "../services/openRouterClient.js";
+import { executeCompletion } from "../modules/drafting/llm/index.js";
+import { LLMProvider, LLMTask } from "../modules/drafting/config/model-specs.js";
 
 export type OutputFormat = "Brief Summary" | "Full IRAC" | "CREAC";
 
@@ -59,7 +60,13 @@ ${prompt}
 Provide your analysis using the required ${outputFormat} structure.`;
 
     try {
-      const result = await openRouterComplete(systemPrompt, userPrompt);
+      const result = await executeCompletion(
+        userPrompt,
+        systemPrompt,
+        LLMTask.COMPLEX_DRAFT,    // Routes to Gemini 2.5 Pro for deep legal analysis
+        LLMProvider.GEMINI
+      );
+
       const text = result || "I cannot answer this query right now.";
 
       // Return sources if available

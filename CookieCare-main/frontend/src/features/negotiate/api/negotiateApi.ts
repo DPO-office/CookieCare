@@ -79,3 +79,46 @@ export async function fetchDocumentDetails(authToken: string, docId: string): Pr
   if (!res.ok) throw new Error("Failed to load document");
   return res.json();
 }
+
+export async function saveNegotiationStep(
+  authToken: string,
+  documentId: string,
+  content: string,
+  version: number
+): Promise<any> {
+  const res = await fetch(apiUrl("/api/negotiate/save-step"), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
+    },
+    body: JSON.stringify({ documentId, content, version }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Failed to save negotiation step.");
+  return data;
+}
+
+export async function exportDocument(
+  authToken: string,
+  docId: string,
+  title: string,
+  content: string,
+  format: "pdf" | "docx"
+): Promise<Blob> {
+  const res = await fetch(apiUrl("/api/documents/export"), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
+    },
+    body: JSON.stringify({
+      documentId: docId,
+      title,
+      content,
+      format,
+    }),
+  });
+  if (!res.ok) throw new Error("Failed to export document");
+  return res.blob();
+}

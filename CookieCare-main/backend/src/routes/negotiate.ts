@@ -6,6 +6,10 @@ import {
   executeJsonCompletion,
 } from "../modules/drafting/llm/index.js";
 import { LLMProvider, LLMTask } from "../modules/drafting/config/model-specs.js";
+import { saveStep } from "../modules/drafting/steps/save.js";
+import { pool } from "../config/database.js";
+import { encrypt } from "../utils/crypto.js";
+import crypto from "crypto";
 
 const router = Router();
 const orchestrator = new AgentOrchestrator();
@@ -157,6 +161,88 @@ Draft the replacement clause below:`;
     return res.json({ result: result.trim() });
   } catch (err: any) {
     console.error("[negotiate/compromise] AI error:", err.message);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// ── NEW: Save Negotiation Step Persistence Checkpoint ───────────────────────
+router.post("/save-step", authenticateToken, async (req, res) => {
+  const { documentId, content, version } = req.body;
+
+  if (!documentId || typeof content !== "string") {
+    return res.status(400).json({ error: "documentId and content are required." });
+  }
+
+  const userId = req.user!.id;
+
+  try {
+    // 1. Fetch current draft state from ledger or start clean
+    let state: any = null;
+    const snapshotLookup = await pool.query(
+      `SELECT state_snapshot_json FROM draft_state_ledger WHERE document_id = $1 ORDER BY version DESC LIMIT 1`,
+      [documentId]
+    );
+
+    if (snapshotLookup.rows.length > 0) {
+      state = snapshotLookup.rows[0].state_snapshot_json;
+    }
+
+    if (!state) {
+      state = {
+        request: {
+          intent: "REFINEMENT",
+          payloadFields: { documentId }
+        },
+        requirements: null,
+        retrieval: {
+          matchedTemplate: null,
+          applicablePlaybookRules: [],
+          fallbackClauses: [],
+          historicalReferences: []
+        },
+        context: null,
+        draft: null,
+        validation: null,
+        riskReview: null,
+        metadata: {
+          generationParameters: {},
+          playbookVersion: "1.0.0",
+          timestamp: new Date().toISOString()
+        }
+      };
+    }
+
+    // Update state values for this save step
+    state.draft = {
+      rawOutput: content,
+      formattedDocument: content,
+      version: version || 1
+    };
+    if (!state.request) state.request = {};
+    if (!state.request.payloadFields) state.request.payloadFields = {};
+    state.request.payloadFields.documentId = documentId;
+
+    // 2. Trigger saveStep pipeline
+    const savedState = await saveStep(state);
+
+    // 3. Update main files table and document_versions table so UI updates
+    const encryptedContent = encrypt(content);
+    
+    await pool.query(
+      "UPDATE files SET content = $1, updated_at = NOW() WHERE id = $2",
+      [encryptedContent, documentId]
+    );
+
+    const versionId = "ver_" + crypto.randomUUID();
+    await pool.query(
+      `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
+      [versionId, documentId, encryptedContent]
+    );
+
+    console.log(`[negotiate/save-step] Successfully saved V${version} for document ${documentId}`);
+    return res.json({ success: true, savedState });
+  } catch (err: any) {
+    console.error("[negotiate/save-step] error:", err.message);
     return res.status(500).json({ error: err.message });
   }
 });

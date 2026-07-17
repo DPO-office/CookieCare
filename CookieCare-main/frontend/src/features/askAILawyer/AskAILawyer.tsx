@@ -180,7 +180,8 @@ export default function AskAILawyer({ authToken, documents: _propDocs = [] }: As
                       </div>
                     ) : (
                       <div
-                        className="prose prose-sm max-w-none text-gray-800 leading-relaxed bg-white border border-gray-100 rounded-2xl px-5 py-4 shadow-xs"
+                        className="prose prose-sm max-w-none text-gray-800 leading-relaxed bg-white border border-gray-100 rounded-2xl px-5 py-4 shadow-xs select-text"
+                        style={{ userSelect: "text", WebkitUserSelect: "text" }}
                         dangerouslySetInnerHTML={{ __html: markdownToHtml(streamedResult) }}
                       />
                     )}
