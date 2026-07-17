@@ -23,7 +23,7 @@ export class AgentOrchestrator {
   public dpaReviewAgent = new DPAReviewAgent();
   public vendorReviewAgent = new VendorReviewAgent();
   public aiEthicsAgent = new AIEthicsAgent();
-
+  // analysis agreement
   async runAnalysis(
     documentId: string,
     content: string,
@@ -132,7 +132,7 @@ export class AgentOrchestrator {
       instructions
     );
   }
-
+  // analysis document
   async askLawyer(
     prompt: string,
     userId: string,
@@ -197,50 +197,60 @@ export class AgentOrchestrator {
     return await this.aiEthicsAgent.reviewAIEthics(params);
   }
 
+  // analysis agreement
   async interactAnalyze(
     folderIds: string[],
     prompt: string,
     userId: string,
-    _documentMode: boolean,
+    documentMode: string,
     answerStyle: string,
     history: any[],
     _folderId?: string,
     _userRole: string = "USER",
-    draftIds: string[] = []
+    draftIds: string[] = [],
+    fileIds: string[] = []
   ) {
-    // ── Use a retrieval-optimised query separate from the user prompt ─────────
-    // Long specific user prompts ("Perform a rigorous compliance audit focusing on...")
-    // rarely match document chunk tokens via FTS. We prepend broad legal seed terms
-    // so the query hits common clause vocabulary, then append the first 120 chars of
-    // the user prompt for relevance-narrowing.
+    const isFollowUp = Array.isArray(history) && history.length > 0;
+
+    // ── Smart retrieval query ─────────────────────────────────────────────────
+    // For initial analysis: prepend broad legal seed terms so RAG hits common
+    // clause vocabulary, then narrow with the user prompt.
+    // For follow-ups: use the specific user question directly — the user is
+    // asking about a precise topic and we want the most relevant chunks for it.
     const LEGAL_SEED_TERMS =
       "indemnity liability limitation termination confidentiality " +
       "intellectual property payment governing law compliance data protection " +
       "liquidated damages audit rights obligations warranties representations";
 
-    const retrievalQuery = `${LEGAL_SEED_TERMS} ${prompt.substring(0, 120)}`.trim();
+    const retrievalQuery = isFollowUp
+      ? prompt.trim()                                          // specific question → precise retrieval
+      : `${LEGAL_SEED_TERMS} ${prompt.substring(0, 120)}`.trim(); // broad audit → wide retrieval
 
-    console.log(`[interactAnalyze] userId=${userId} folderIds=${JSON.stringify(folderIds)} draftIds=${JSON.stringify(draftIds)}`);
+    console.log(`[interactAnalyze] userId=${userId} folderIds=${JSON.stringify(folderIds)} draftIds=${JSON.stringify(draftIds)} fileIds=${JSON.stringify(fileIds)}`);
+    console.log(`[interactAnalyze] isFollowUp=${isFollowUp} documentMode=${documentMode} answerStyle=${answerStyle}`);
     console.log(`[interactAnalyze] userPrompt(100)="${prompt.substring(0, 100)}"`);
     console.log(`[interactAnalyze] retrievalQuery(120)="${retrievalQuery.substring(0, 120)}"`);
 
-    // Retrieve chunks from selected folders (by folderIds) and selected drafts (by file IDs)
     const hasFolders = Array.isArray(folderIds) && folderIds.length > 0;
     const hasDrafts = Array.isArray(draftIds) && draftIds.length > 0;
+    const hasFiles = Array.isArray(fileIds) && fileIds.length > 0;
 
     let context: Awaited<ReturnType<typeof searchHybrid>> = [];
 
     if (hasFolders) {
-      const folderChunks = await searchHybrid(retrievalQuery, userId, undefined, folderIds);
-      context = context.concat(folderChunks);
+      const chunks = await searchHybrid(retrievalQuery, userId, undefined, folderIds);
+      context = context.concat(chunks);
     }
-
     if (hasDrafts) {
-      const draftChunks = await searchHybrid(retrievalQuery, userId, draftIds, undefined);
-      context = context.concat(draftChunks);
+      const chunks = await searchHybrid(retrievalQuery, userId, draftIds, undefined);
+      context = context.concat(chunks);
+    }
+    if (hasFiles) {
+      const chunks = await searchHybrid(retrievalQuery, userId, fileIds, undefined);
+      context = context.concat(chunks);
     }
 
-    // Deduplicate chunks by content (same chunk might appear in both queries)
+    // Deduplicate by content
     const seen = new Set<string>();
     context = context.filter(c => {
       if (seen.has(c.content)) return false;
@@ -253,107 +263,184 @@ export class AgentOrchestrator {
       context.map(c => `"${c.title ?? c.file_id}"`).join(", ")
     );
 
-    const contextText = context
-      .map((c) => `[File: ${c.title ?? "Untitled"}]\n${c.content}`)
-      .join("\n\n");
+    // ── Format conversation history ───────────────────────────────────────────
+    // Use 2500 char budget per message so the LLM sees enough of the initial
+    // report to properly answer follow-up questions.
+    const historyBlock = isFollowUp
+      ? `\n\n--- PRIOR CONVERSATION ---\n${history
+          .map((m: { role: string; content: string }, i: number) =>
+            `[${i + 1}] ${m.role === "assistant" ? "ASSISTANT" : "USER"}:\n${m.content.substring(0, 2500)}`
+          )
+          .join("\n\n")}\n--- END PRIOR CONVERSATION ---`
+      : "";
 
-    const systemPrompt = `You are a Senior Legal Counsel and Compliance Analyst.
+    // ── Answer style configuration ────────────────────────────────────────────
+    const isTabular = answerStyle === "tabular";
 
-Your task is to review the provided document context and answer the user's query as a structured legal review report, not as a generic essay.
+    // Tabular format provides column schemas per section so the LLM uses the
+    // right headers rather than inventing them.
+    const tabularFormatBlock = isTabular
+      ? `\n\nOUTPUT FORMAT — TABULAR TABLES:
+Render the following sections as Markdown tables (not bullet lists):
 
-You must ground your answer in the retrieved document context wherever possible. If the context does not support a point, explicitly say that the reviewed material does not clearly show it. Do not invent clauses, parties, or facts.
+Key Findings table columns:
+| # | Finding | Severity | Relevant Evidence | Issue | Why It Matters | Recommendation | Fallback |
 
-Answer Style: ${answerStyle}
-${
-  history.length > 0
-    ? `Prior conversation context:\n${JSON.stringify(history)}\n`
-    : ""
-}
+Missing or Weak Clauses table columns:
+| Clause / Protection | Why It Matters | Recommendation |
 
-CRITICAL OUTPUT RULES:
-1. Return the answer in exactly the Markdown structure below.
-2. Use all section headings below in the same order.
-3. If a section has no strong support in the document context, write "Not clearly identified in the reviewed material." under that section instead of omitting it.
-4. Do NOT write a generic legal explainer or general best-practices essay.
-5. Tie findings to the uploaded/retrieved document context wherever possible.
-6. Under "Key Findings", each finding must follow the exact mini-template shown below.
-7. If the user's query is broad, still convert it into a document-focused legal review instead of answering abstractly.
-8. Do not add a closing question like "Would you like a deeper dive?".
-9. Do not add any extra sections outside the required structure.
+Compliance Gaps table columns:
+| Regulation / Framework | Severity | Gap | Remediation |
 
-Return your answer in this exact format:
+Recommended Redlines table columns:
+| Clause | Current Issue | Suggested Revision |
+
+Obligations & Deadlines table columns:
+| Party | Obligation | Trigger | Deadline |
+
+Executive Summary and Overall Risk Assessment remain as short prose paragraphs.`
+      : "";
+
+    // ── System prompt — two modes ─────────────────────────────────────────────
+    // Follow-up mode: drop the rigid 6-section template and answer directly.
+    // Initial mode: enforce the full structured report template.
+    const systemPrompt = isFollowUp
+      ? `You are a Senior Legal Counsel and Compliance Analyst acting as an AI assistant.
+
+The user has already received an initial legal review report. They are now asking a follow-up question about the document(s).
+
+Your job:
+1. Read the PRIOR CONVERSATION carefully to understand what was already covered.
+2. Use the DOCUMENT CONTEXT to find specific evidence relevant to the new question.
+3. Answer the new question DIRECTLY and CONCISELY — do not repeat or regenerate the full initial report.
+4. Ground your answer in the document context. Quote or paraphrase specific clauses as evidence.
+5. If the answer is not supported by the document context, say so clearly.
+6. Do not invent clauses, parties, or facts not present in the retrieved material.
+7. Keep your response focused — use headers only if the question genuinely requires multiple sub-topics.
+
+Answer Style: ${answerStyle}${tabularFormatBlock}`
+
+      : `You are a Senior Legal Counsel and Compliance Analyst performing a comprehensive legal review.
+
+Your task: Review the provided document context and produce a thorough, document-grounded legal assessment. Do not produce a generic legal explainer — every finding must be tied to the actual document content retrieved.
+
+Rules:
+- Ground every finding, clause, and obligation in the actual retrieved document content.
+- Quote or paraphrase specific clauses as evidence wherever possible.
+- Do not invent clauses, parties, or facts not present in the retrieved material.
+- If a section has no support in the document context, write "Not clearly identified in the reviewed material."
+- Do not add a closing question like "Would you like a deeper dive?".
+- Do not add sections outside the required structure.
+
+Answer Style: ${answerStyle}${tabularFormatBlock}
+
+REQUIRED OUTPUT STRUCTURE — use exactly these headings in this order:
 
 # Executive Summary
-Write a 2-4 sentence summary of the document risk picture relevant to the user's query.
+2-4 sentence summary of the document risk picture relevant to the user's query.
 
 # Overall Risk Assessment
 - **Risk Level:** Low / Medium / High
-- **Why:** 2-4 bullets explaining the basis for the rating.
+- **Why:** 2-4 bullets explaining the risk rating, grounded in the document.
 
 # Key Findings
-For each finding, use this exact structure:
-
-## Finding 1: <short finding title>
+${isTabular
+  ? "Present as a table: | # | Finding | Severity | Relevant Evidence | Issue | Why It Matters | Recommendation | Fallback |"
+  : `For each finding:
+## Finding N: <short title>
 - **Severity:** Low / Medium / High
-- **Relevant Clause / Evidence:** Quote or paraphrase the relevant clause, sentence, or retrieved evidence.
-- **Issue:** Explain the legal/commercial problem.
-- **Why It Matters:** Explain the consequence or risk if unaddressed.
-- **Recommendation:** Give a concrete recommended change.
-- **Fallback Position:** Give a minimum acceptable negotiation fallback.
-
-Add as many findings as are genuinely supported by the document context.
+- **Relevant Clause / Evidence:** Quote or paraphrase the specific clause or evidence.
+- **Issue:** The specific legal/commercial problem.
+- **Why It Matters:** Consequence if unaddressed.
+- **Recommendation:** Concrete change to make.
+- **Fallback Position:** Minimum acceptable negotiation position.`}
 
 # Missing or Weak Clauses
-For each missing or weak clause:
-- **Clause / Protection:** <name>
+${isTabular
+  ? "Present as a table: | Clause / Protection | Why It Matters | Recommendation |"
+  : `- **Clause / Protection:** <name>
 - **Why It Matters:** <brief explanation>
-- **Recommendation:** <what should be added or strengthened>
-
-If nothing specific can be identified, write:
-- Not clearly identified in the reviewed material.
+- **Recommendation:** <what to add or strengthen>`}
 
 # Compliance Gaps
-For each compliance gap:
-- **Regulation / Framework:** GDPR / CCPA / DPDPA / other
+${isTabular
+  ? "Present as a table: | Regulation / Framework | Severity | Gap | Remediation |"
+  : `- **Regulation / Framework:** GDPR / CCPA / DPDPA / other
 - **Severity:** RED / YELLOW / GREEN
 - **Gap:** <issue>
-- **Remediation:** <fix>
-
-If no clear compliance gap is visible from the reviewed material, say so explicitly.
+- **Remediation:** <fix>`}
 
 # Recommended Redlines
-For each clause that should be revised:
-- **Clause:** <name>
+${isTabular
+  ? "Present as a table: | Clause | Current Issue | Suggested Revision |"
+  : `- **Clause:** <name>
 - **Current Issue:** <problem>
-- **Suggested Revision:** <replacement language or revision direction>
-
-If no specific redline can be proposed from the reviewed material, say so explicitly.
+- **Suggested Revision:** <replacement language or revision direction>`}
 
 # Obligations & Deadlines
-List obligations in this format:
-- **Party:** <party or "Not specified">
+${isTabular
+  ? "Present as a table: | Party | Obligation | Trigger | Deadline |"
+  : `- **Party:** <party or "Not specified">
 - **Obligation:** <obligation>
 - **Trigger:** <trigger event or "Not specified">
-- **Deadline:** <deadline or "Not specified">
+- **Deadline:** <deadline or "Not specified">`}`;
 
-If none are identifiable, say:
-- Not clearly identifiable from the reviewed material.
+    // ── Context formatting helper ──────────────────────────────────────────────
+    // Number each document chunk so the LLM can reference them as [Doc 1], [Doc 2]
+    const formatContext = (chunks: typeof context) =>
+      chunks.length > 0
+        ? chunks
+            .map((c, i) => `[Doc ${i + 1}: ${c.title ?? "Untitled"}]\n${c.content}`)
+            .join("\n\n")
+        : "No document chunks were retrieved from the selected sources. State this clearly in the relevant sections.";
 
-IMPORTANT:
-- Prefer document-grounded analysis over generic legal advice.
-- If the context retrieved is weak or incomplete, say that clearly in the relevant sections.
-- Do not add any extra sections outside the required structure.`;
+    const noContextNote = !isFollowUp
+      ? "\n\nIMPORTANT: If no document chunks were retrieved, use the required structure but mark each section as 'Not clearly identified in the reviewed material.'"
+      : "";
 
-    const userPrompt = `[DOCUMENT CONTEXT]
-${
-  contextText ||
-  "No document chunks were retrieved from the selected folders. You must still use the required report structure, but clearly state where the reviewed material is insufficient."
-}
+    // ── Individual document mode ──────────────────────────────────────────────
+    if (documentMode === "individual" && context.length > 0) {
+      const chunksByFile: Record<string, { title: string; chunks: typeof context }> = {};
+      for (const chunk of context) {
+        const fId = chunk.file_id || "unknown";
+        if (!chunksByFile[fId]) {
+          chunksByFile[fId] = { title: chunk.title || "Untitled Document", chunks: [] };
+        }
+        chunksByFile[fId].chunks.push(chunk);
+      }
 
-[USER TASK]
-User request: ${prompt}
+      const fileAnalyses = await Promise.all(
+        Object.entries(chunksByFile).map(async ([_fId, fileData]) => {
+          const docContextText = formatContext(fileData.chunks);
 
-Convert the request into a document-focused legal review report using the required structure. If the request asks about specific risks or clauses, analyze those risks against the reviewed material instead of giving a generic how-to explanation.`;
+          const docUserPrompt =
+            `[DOCUMENT: ${fileData.title}]\n${docContextText}` +
+            historyBlock +
+            `\n\n[USER QUESTION]\n${prompt}` +
+            noContextNote +
+            (isFollowUp
+              ? "\n\nAnswer the follow-up question above directly and concisely, grounded in the document context and prior conversation."
+              : `\n\nProvide a complete legal review of "${fileData.title}" using the required output structure.`);
+
+          const response = await openRouterComplete(systemPrompt, docUserPrompt);
+          return `---\n# Analysis for: ${fileData.title}\n---\n\n${response}`;
+        })
+      );
+
+      return fileAnalyses.join("\n\n");
+    }
+
+    // ── Unified document mode ─────────────────────────────────────────────────
+    const contextText = formatContext(context);
+
+    const userPrompt =
+      `[DOCUMENT CONTEXT]\n${contextText}` +
+      historyBlock +
+      `\n\n[USER QUESTION]\n${prompt}` +
+      noContextNote +
+      (isFollowUp
+        ? "\n\nAnswer the follow-up question above directly and concisely, grounded in the document context and prior conversation."
+        : "\n\nProvide a complete legal review using the required output structure.");
 
     try {
       return await openRouterComplete(systemPrompt, userPrompt);

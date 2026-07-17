@@ -23,6 +23,12 @@ CRITICAL DEFENSIVE GUARDRAILS:
 1. FACTUAL COUNTER: Methodically address the allegations found in the claim text using the provided marching orders.
 2. DISPUTE LIABILITY: Protect the target company's interests. Do not waive corporate rights or concede any fault or financial breach unless explicitly commanded.
 3. PRESERVE STRUCTURE: Format the output document cleanly matching the headings provided in the response skeleton.
+
+PROFESSIONAL DRAFTING AND FORMATTING STANDARDS:
+- Formatting: Use proper paragraph spacing between clauses. Insert line breaks after headings and subheadings. Format numbered clauses with consistent indentation. Display subclauses as (a), (b), (c), etc. Never use the copyright symbol (©); use "(c)" instead. Format signature blocks professionally with adequate spacing (e.g. using underlines "By: _________"). Maintain clean margins and readable whitespace. Use standard legal document formatting suitable for Microsoft Word.
+- Structure: Include a professional title page when appropriate. Generate a Table of Contents for long agreements (longer than 3 pages or 6 major sections). Use standard legal section names (e.g., "Term and Termination" instead of "Termination & Survival Mechanics"). Add page numbers and a footer indicating the document is confidential. Include schedules or annexures when referenced.
+- Quality: Use consistent defined terms throughout the agreement. Avoid repetitive wording and unnecessary repetition. Ensure all cross-references point to the correct clauses. Remove redundant provisions. Ensure clause numbering is sequential and accurate. Verify that all mandatory clauses are present for the selected agreement type.
+- Dynamic Values: Never hardcode values such as currency, jurisdiction, liability caps, dates, company information, or governing law unless explicitly provided in the RUNTIME REQUIREMENTS. Use placeholders (e.g., [● DATE], [● JURISDICTION]) where information is missing.
 `.trim();
 
 export const SYSTEM_TRANSACTIONAL_GUARDRAILS = `
@@ -33,6 +39,12 @@ CRITICAL TRANSACTIONAL GUARDRAILS:
 1. Start directly with the agreement text and the required contract sections.
 2. Do not add administrative headers, cover memos, litigation labels, or commentary.
 3. Use a neutral deal-drafting tone that prioritizes clarity, enforceability, and practical clause construction.
+
+PROFESSIONAL DRAFTING AND FORMATTING STANDARDS:
+- Formatting: Use proper paragraph spacing between clauses. Insert line breaks after headings and subheadings. Format numbered clauses with consistent indentation. Display subclauses as (a), (b), (c), etc. Never use the copyright symbol (©); use "(c)" instead. Format signature blocks professionally with adequate spacing (e.g. using underlines "By: _________"). Maintain clean margins and readable whitespace. Use standard legal document formatting suitable for Microsoft Word.
+- Structure: Include a professional title page when appropriate. Generate a Table of Contents for long agreements (longer than 3 pages or 6 major sections). Use standard legal section names (e.g., "Term and Termination" instead of "Termination & Survival Mechanics"). Add page numbers and a footer indicating the document is confidential. Include schedules or annexures when referenced.
+- Quality: Use consistent defined terms throughout the agreement. Avoid repetitive wording and unnecessary repetition. Ensure all cross-references point to the correct clauses. Remove redundant provisions. Ensure clause numbering is sequential and accurate. Verify that all mandatory clauses are present for the selected agreement type.
+- Dynamic Values: Never hardcode values such as currency, jurisdiction, liability caps, dates, company information, or governing law unless explicitly provided in the RUNTIME REQUIREMENTS. Use placeholders (e.g., [● DATE], [● JURISDICTION]) where information is missing.
 `.trim();
 
 /**
@@ -142,6 +154,12 @@ CRITICAL REFINEMENT GUARDRAILS:
 1. PRESERVE INTEGRITY: Do not rewrite parts of the contract that are unaffected by the correction checklist. Retain the tone, layout, and style of the existing draft.
 2. SURROUNDING TEXT SAFETIES: Ensure that any modified sections seamlessly integrate with the surrounding text. Do not break section numbering or internal cross-references.
 3. SPECIFIC SCOPE: If a highlighted text target is provided, focus your edits strictly within that targeted boundary block.
+
+PROFESSIONAL DRAFTING AND FORMATTING STANDARDS:
+- Formatting: Use proper paragraph spacing between clauses. Insert line breaks after headings and subheadings. Format numbered clauses with consistent indentation. Display subclauses as (a), (b), (c), etc. Never use the copyright symbol (©); use "(c)" instead. Format signature blocks professionally with adequate spacing (e.g. using underlines "By: _________"). Maintain clean margins and readable whitespace. Use standard legal document formatting suitable for Microsoft Word.
+- Structure: Include a professional title page when appropriate. Generate a Table of Contents for long agreements (longer than 3 pages or 6 major sections). Use standard legal section names (e.g., "Term and Termination" instead of "Termination & Survival Mechanics"). Add page numbers and a footer indicating the document is confidential. Include schedules or annexures when referenced.
+- Quality: Use consistent defined terms throughout the agreement. Avoid repetitive wording and unnecessary repetition. Ensure all cross-references point to the correct clauses. Remove redundant provisions. Ensure clause numbering is sequential and accurate. Verify that all mandatory clauses are present for the selected agreement type.
+- Dynamic Values: Never hardcode values such as currency, jurisdiction, liability caps, dates, company information, or governing law unless explicitly provided. Use placeholders (e.g., [● DATE], [● JURISDICTION]) where information is missing.
 `.trim();
 
 /**

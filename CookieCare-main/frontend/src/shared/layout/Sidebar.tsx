@@ -132,7 +132,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout }: Sid
 
   return (
     <div
-      className="flex flex-col h-screen shrink-0 sticky top-0 transition-all duration-250"
+      className="flex flex-col h-screen shrink-0 sticky top-0 transition-all duration-250 sidebar no-print"
       style={{
         width: collapsed ? "64px" : "240px",
         background: "#FAFAFB",

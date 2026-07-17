@@ -43,6 +43,43 @@ const REQUIREMENT_EXTRACTION_JSON_SCHEMA = {
   },
 } as const;
 
+const REACTIVE_REQUIREMENT_EXTRACTION_JSON_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: [
+    "contractType",
+    "jurisdiction",
+    "industry",
+    "parties",
+    "excludedClauses",
+    "additionalRequiredClauses",
+    "optionalClauses",
+    "language",
+    "instructions",
+    "uploadDocSummary",
+    "agreementTitle",
+    "partyA",
+    "partyB",
+    "effectiveDate"
+  ],
+  properties: {
+    contractType: { type: "string" },
+    jurisdiction: { type: "string" },
+    industry: { type: "string" },
+    parties: { type: "array", items: { type: "string" } },
+    excludedClauses: { type: "array", items: { type: "string" } },
+    additionalRequiredClauses: { type: "array", items: { type: "string" } },
+    optionalClauses: { type: "array", items: { type: "string" } },
+    language: { type: "string" },
+    instructions: { type: "string" },
+    uploadDocSummary: { type: "string" },
+    agreementTitle: { type: "string" },
+    partyA: { type: "string" },
+    partyB: { type: "string" },
+    effectiveDate: { type: "string" }
+  },
+} as const;
+
 interface RequirementExtractionResult {
   contractType: string;
   jurisdiction: string;
@@ -54,6 +91,13 @@ interface RequirementExtractionResult {
   language: string;
   instructions: string;
   uploadDocSummary:string; // for Reactive work
+}
+
+interface ReactiveRequirementExtractionResult extends RequirementExtractionResult {
+  agreementTitle: string;
+  partyA: string;
+  partyB: string;
+  effectiveDate: string;
 }
 
 function appendValidationWarning(
@@ -160,26 +204,29 @@ function buildExtractionPrompt(
   const sourceTextSnippet =
     sourceText.length > 12_000 ? `${sourceText.slice(0, 12_000)}…` : sourceText;
 
-  // TRACK A: THE NEW REACTIVE DEFENSE SYSTEM PROMPT FORK
+  // TRACK A: THE REACTIVE AGREEMENT REVISION FORK
   if (state.request.intent === "REACTIVE" && sourceTextSnippet) {
     return [
-      "You are analyzing an incoming hostile legal notice, claim letter, or court petition document.",
-      "Your goal is to extract the adversary's claims and synthesize a clean tactical instructions playbook.",
+      "You are analyzing an uploaded vendor agreement document that needs to be revised against corporate policies.",
+      "Your goal is to extract the agreement details and user instructions to prepare for markup/revision.",
       "",
-      "INCOMING HOSTILE DOCUMENT DETECTED:",
+      "UPLOADED VENDOR AGREEMENT DETECTED:",
       sourceTextSnippet,
       "",
-      "User defensive instructions strategy notes:",
+      "User instructions / target policies:",
       state.request.rawInstructions ?? "(none provided)",
       "",
-      "FIELD EXTRACTION INSTRUCTIONS FOR REACTIVE DEFENSE:",
-      "- `contractType`: Classify the specific response format needed (e.g., 'Breach Response Letter', 'Cease & Desist Rebuttal').",
-      "- `parties`: Array where index 0 is [The Hostile Sender/Adversary] and index 1 is [Our Company/Target Name].",
-      "- `jurisdiction`: The governing law or court location specified in the hostile claim text.",
-      // TODO: We can improve this to an array of object where it store the configurations of the uploaded document
-      "- `uploadedDocSummary`: Write a clear, 2-to-3 sentence summary explaining exactly what the adversary is alleging or demanding in the uploaded text.",
-      "- `instructions`: Synthesize a comprehensive structural payload string. Format it EXACTLY like this: 'ADVERSARY ACCUSATIONS CLAIMS SUMMARY: [Write a 2-sentence structural summary of what they are alleging or demanding] | TARGET DEFENSE STRATEGY DIRECTIVES: [Summarize the user instructions strategy notes]'.",
-      "- `excludedClauses` & `additionalRequiredClauses` & `optionalClauses`: Keep these empty [] unless the user notes explicitly request specific clause changes.",
+      "FIELD EXTRACTION INSTRUCTIONS FOR REACTIVE AGREEMENT REVISION:",
+      "- `contractType`: Extract the type of agreement (e.g., 'NDA', 'MSA', 'SLA', 'DPA', 'SaaS Agreement').",
+      "- `parties`: Array containing all the legal entities/parties entering into the agreement.",
+      "- `jurisdiction`: The governing law or jurisdiction specified in the agreement.",
+      "- `uploadedDocSummary`: Write a clear 2-to-3 sentence summary of the purpose of the agreement.",
+      "- `instructions`: Clean and consolidate the user instructions or revision policies.",
+      "- `excludedClauses` & `additionalRequiredClauses` & `optionalClauses`: Keep these empty [] unless the user instructions explicitly note specific clause additions/deletions.",
+      "- `agreementTitle`: Extract the exact original title of the agreement (e.g., 'MASTER SERVICES AGREEMENT' or 'MUTUAL NON-DISCLOSURE AGREEMENT').",
+      "- `partyA`: Extract the legal name of the first party/disclosing party.",
+      "- `partyB`: Extract the legal name of the second party/receiving party.",
+      "- `effectiveDate`: Extract the exact Effective Date of the agreement as stated (e.g., 'October 12, 2024' or 'the date of last signature' or '[●]'). If not found, write 'Not specified'.",
     ]
       .filter(Boolean)
       .join("\n");
@@ -246,7 +293,7 @@ function toRequirementContext(
   extracted: RequirementExtractionResult,
   baselineRequiredClauses: string[]
 ): RequirementContext {
-  return {
+  const result: RequirementContext = {
     contractType: extracted.contractType,
     jurisdiction: extracted.jurisdiction,
     industry: extracted.industry,
@@ -261,6 +308,14 @@ function toRequirementContext(
     instructions: extracted.instructions,
     uploadDocSummary: extracted.uploadDocSummary.trim() ? extracted.uploadDocSummary : undefined
   };
+
+  const rext = extracted as any;
+  if (rext.agreementTitle) result.agreementTitle = rext.agreementTitle;
+  if (rext.partyA) result.partyA = rext.partyA;
+  if (rext.partyB) result.partyB = rext.partyB;
+  if (rext.effectiveDate) result.effectiveDate = rext.effectiveDate;
+
+  return result;
 }
 
 export async function requirementExtractionStep(
@@ -271,7 +326,7 @@ export async function requirementExtractionStep(
   const isReactive = state.request.intent === "REACTIVE";
   
   const systemInstruction = isReactive
-    ? "You are a deterministic requirements extraction engine analyzing an adversarial legal document. Focus on extracting the claim facts and defense targets. Return ONLY valid JSON matching the provided JSON Schema. Do not include markdown or commentary."
+    ? "You are a deterministic requirements extraction engine analyzing a vendor agreement. Extract the contract type, title, parties, effective date, jurisdiction, and rules. Return ONLY valid JSON matching the provided JSON Schema. Do not include markdown or commentary."
     : "You are a deterministic requirements extraction engine. Baseline required clauses are already provided by the platform from the database. Your clause task is limited to identifying exclusions and additional required clauses only. Return ONLY valid JSON matching the provided JSON Schema. Do not include markdown or commentary.";
 
   const { clauses: baselineRequiredClauses, warning: catalogWarning } =
@@ -310,21 +365,14 @@ export async function requirementExtractionStep(
       );
     }
 
-    // const client = new OpenRouterClient({
-    //   apiKey: config.openRouterApiKey,
-    //   baseUrl: "https://openrouter.ai/api/v1",
-    //   model: config.openRouterModel,
-    //   timeoutMs: 30_000,
-    //   httpReferer: "https://cookiecare.app",
-    //   xTitle: "CookieCare Legal AI",
-    // });
+    const schemaToUse = isReactive 
+      ? REACTIVE_REQUIREMENT_EXTRACTION_JSON_SCHEMA 
+      : REQUIREMENT_EXTRACTION_JSON_SCHEMA;
 
-
-
-    const extracted = await executeJsonCompletion<RequirementExtractionResult>(
+    const extracted = await executeJsonCompletion<any>(
       prompt,
       systemInstruction,
-      REQUIREMENT_EXTRACTION_JSON_SCHEMA,LLMTask.STRUCTURAL_JSON,provider
+      schemaToUse,LLMTask.STRUCTURAL_JSON,provider
     );
 
     return {

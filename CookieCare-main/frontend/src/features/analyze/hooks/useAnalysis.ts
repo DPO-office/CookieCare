@@ -19,18 +19,27 @@ export function useAnalysis(authToken: string) {
     documentMode: DocumentMode,
     answerStyle: AnswerStyle
   ) => {
-    const activeSelectedFolders = folders.filter((f) => f.selected || f.files.some((fi) => fi.selected));
+    const activeSelectedFolders = folders.filter((f) => f.selected);
+    const activeSelectedFiles = folders.flatMap((f) => f.files.filter((fi) => fi.selected && !f.selected));
     const activeSelectedDrafts = savedDrafts.filter((d) => d.selected);
 
-    if (activeSelectedFolders.length === 0 && activeSelectedDrafts.length === 0) {
-      alert("Please select at least one document folder or saved draft to analyze.");
+    if (
+      activeSelectedFolders.length === 0 &&
+      activeSelectedFiles.length === 0 &&
+      activeSelectedDrafts.length === 0
+    ) {
+      alert("Please select at least one document folder, file, or saved draft to analyze.");
       return;
     }
 
     const firstSelected =
       activeSelectedFolders.length > 0
         ? activeSelectedFolders[0].name
-        : activeSelectedDrafts[0].title;
+        : activeSelectedFiles.length > 0
+        ? activeSelectedFiles[0].title
+        : activeSelectedDrafts.length > 0
+        ? activeSelectedDrafts[0].title
+        : "";
     setActiveReportDocName(firstSelected);
     setIsAnalyzing(true);
     setAnalysisProgress("Preparing analysis request...");
@@ -47,6 +56,7 @@ export function useAnalysis(authToken: string) {
         },
         body: JSON.stringify({
           folderIds: activeSelectedFolders.map((f) => f.id),
+          fileIds: activeSelectedFiles.map((fi) => fi.id),
           draftIds: activeSelectedDrafts.map((d) => d.id),
           prompt: customPromptText,
           documentMode,
@@ -124,6 +134,7 @@ export function useAnalysis(authToken: string) {
 
     try {
       const activeSelectedFolders = folders.filter((f) => f.selected);
+      const activeSelectedFiles = folders.flatMap((f) => f.files.filter((fi) => fi.selected && !f.selected));
       const activeSelectedDrafts = savedDrafts.filter((d) => d.selected);
       const response = await fetch(apiUrl("/api/analyze/interact"), {
         method: "POST",
@@ -133,6 +144,7 @@ export function useAnalysis(authToken: string) {
         },
         body: JSON.stringify({
           folderIds: activeSelectedFolders.map((f) => f.id),
+          fileIds: activeSelectedFiles.map((fi) => fi.id),
           draftIds: activeSelectedDrafts.map((d) => d.id),
           prompt: userText,
           documentMode,

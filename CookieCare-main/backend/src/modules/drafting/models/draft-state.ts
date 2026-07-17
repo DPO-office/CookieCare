@@ -10,6 +10,11 @@ export interface RequirementContext {
   language: string;
   instructions: string;
   uploadDocSummary?: string;
+  // belove field only for reactive mode
+  agreementTitle?: string;
+  partyA?: string;
+  partyB?: string;
+  effectiveDate?: string;
 }
 
 export interface Clause {
@@ -55,6 +60,9 @@ export interface RiskItem {
 }
 
 export interface DraftState {
+  // Optional progress callback — injected by the job handler so each pipeline
+  // step can broadcast live status without importing the job queue directly.
+  onProgress?: (percent: number, message: string) => Promise<void>;
   request: {
     intent: DraftMode;
     // idk why i added this there no use of it, we are using intent as mode everwhere that why making it optional

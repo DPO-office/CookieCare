@@ -51,7 +51,7 @@ export default function CitationModal({ source, onClose }: CitationModalProps) {
             </div>
 
             <div className="flex-1 overflow-y-auto px-6 py-5">
-              <pre className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap select-all font-mono">
+              <pre className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap font-mono">
                 {source.officialCopy}
               </pre>
             </div>

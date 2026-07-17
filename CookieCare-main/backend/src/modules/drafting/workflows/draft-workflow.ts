@@ -8,157 +8,145 @@ import { riskReviewStep } from "../steps/risk-review";
 import { contextAssemblyRefinementStep } from "../steps/refinement-assembly";
 import { saveStep } from "../steps/save";
 
+// Small helper so we don't repeat the null-guard everywhere
+async function progress(state: DraftState, percent: number, message: string) {
+  if (state.onProgress) {
+    await state.onProgress(percent, message).catch(() => {/* non-fatal */});
+  }
+}
+
 export class DraftWorkflowOrchestrator {
   /**
    * Pipeline 1: Generation from Scratch / Template
    */
-async executeInitialWorkflow(initialState: DraftState): Promise<DraftState> {
-  let state: DraftState = { ...initialState };
-  try {
-    // Steps 1, 2, & 3 must remain sequential because prompts build on extracted metadata
-    state = await requirementExtractionStep(state);
-    state = await retrievalStep(state);
-    state = await contextAssemblyStep(state);
-    
-    // Step 4: Core Generation (Heavy LLM Drafting Call)
-    state = await generationStep(state);
-    console.log(state)
+  async executeInitialWorkflow(initialState: DraftState): Promise<DraftState> {
+    let state: DraftState = { ...initialState };
+    try {
+      // Step 1 — Requirement Extraction
+      await progress(state, 52, "Thinking: understanding your requirements...");
+      state = await requirementExtractionStep(state);
 
-    // ⚡ OPTIMIZATION 1: Parallelize Independent Analysis Track Components
-    // Both validation and risk review evaluate the draft concurrently
-    console.log("Executing Validation and Risk Review pipelines concurrently...");
-    // const [validationState, riskReviewState] = await Promise.all([
-    //   validationStep(state),
-    //   riskReviewStep(state)
-    // ]);
-    const validationState = {validation:[],metadata:""}
-    const riskReviewState = {riskReview:[],metadata:""}
-    
+      // Step 2 — Retrieval (templates, playbooks, historical refs)
+      await progress(state, 57, "Retrieving templates, playbooks and references...");
+      state = await retrievalStep(state);
 
-    // ⚡ OPTIMIZATION 2: Safely combine the parallel states back into the master state
-    // state = {
-    //   ...state,
-    //   validation: validationState?.validation,
-    //   riskReview: riskReviewState?.riskReview,
-    //   metadata: {
-    //     ...state.metadata,
-    //     ...validationState?.metadata,
-    //     ...riskReviewState?.metadata
-    //   }
-    // };
+      // Step 3 — Context Assembly
+      await progress(state, 63, "Assembling document context and structure...");
+      state = await contextAssemblyStep(state);
 
-    // ⚡ OPTIMIZATION 3: Removed the premature Step 7 saveStep database write entirely!
+      // Step 4 — Core Generation (heaviest LLM call)
+      await progress(state, 68, "Generating document — this may take a minute...");
+      state = await generationStep(state);
 
-    // let attempt = 0;
-    // const maxAttempt = 1;
+      // Step 5 & 6 — Validation + Risk Review (parallel)
+      await progress(state, 78, "Validating structure and reviewing risks...");
+      console.log("Executing Validation and Risk Review pipelines concurrently...");
+      const [validationState, riskReviewState] = await Promise.all([
+        validationStep(state),
+        riskReviewStep(state)
+      ]);
 
-    // while (!state.validation?.isValid && attempt < maxAttempt) {
-    //   console.log(`Entered validation refinement loop (Attempt ${attempt + 1})`);
+      // Step — Merge parallel results
+      state = {
+        ...state,
+        validation: validationState?.validation,
+        riskReview: riskReviewState?.riskReview,
+        metadata: {
+          ...state.metadata,
+          ...validationState?.metadata,
+          ...riskReviewState?.metadata
+        }
+      };
 
-    // state = await contextAssemblyRefinementStep(state);
-    // state = await generationStep(state);
-    //   // state = await validationStep(state); // Re-validate the newly adjusted prose
+      // Step — Refinement loop (runs only when validation fails)
+      let attempt = 0;
+      const maxAttempt = 1;
+      while (!state.validation?.isValid && attempt < maxAttempt) {
+        await progress(state, 84, `Refining draft (attempt ${attempt + 1})...`);
+        console.log(`Entered validation refinement loop (Attempt ${attempt + 1})`);
+        state = await contextAssemblyRefinementStep(state);
+        state = await generationStep(state);
+        attempt++;
+      }
 
-    //   attempt++;
-    // }
+      // Step — Save (database write)
+      await progress(state, 92, "Saving document to your vault...");
+      console.log("Pipeline complete. Committing final state snapshot to database ledger...");
+      state = await saveStep(state);
 
-    // ⚡ OPTIMIZATION 4: Single, consolidated Persistence Layer write operation
-    console.log("Pipeline complete. Committing final state snapshot to database ledger...");
-    state = await saveStep(state); 
-    
-    return state;
-    
-  } catch (error) {
-    throw new Error(
-      `Initial drafting orchestrator failed: ${(error as Error).message}`
-    );
+      return state;
+
+    } catch (error) {
+      throw new Error(
+        `Initial drafting orchestrator failed: ${(error as Error).message}`
+      );
+    }
   }
-}
+
   /**
    * Pipeline 2: Targeted Document Refinement Cycle
    */
-
-  async executeHumanRefinementPipeline (initialState1:DraftState): Promise<DraftState> {
-
-    try{
+  async executeHumanRefinementPipeline(initialState1: DraftState): Promise<DraftState> {
+    try {
       let attempts = 0;
       const MAX_RETRY_ATTEMPTS = 1;
-      let initialState = initialState1
+      let initialState = initialState1;
 
-      while (attempts < MAX_RETRY_ATTEMPTS){
+      await progress(initialState, 50, "Applying your changes to the document...");
+
+      while (attempts < MAX_RETRY_ATTEMPTS) {
+        await progress(initialState, 55 + attempts * 10, `Refining content (pass ${attempts + 1})...`);
 
         const updateState = await contextAssemblyRefinementStep(initialState);
-        const generateState = await generationStep(updateState)
-        initialState = await validationStep(generateState)
-  
-        
-        // We check the 'issues' array directly for structural 'omission' types.
-        // We ignore playbook violations here because the human explicitly wanted custom variations!
-        const hasStucturalProblems = initialState.validation?.issues.some((issue)=>issue.type === "omission" && issue.severity === "critical") ?? false;
-        
-        
-        if (!hasStucturalProblems){
-          break
+
+        await progress(initialState, 65 + attempts * 10, "Generating revised clauses...");
+        const generateState = await generationStep(updateState);
+
+        await progress(initialState, 75, "Validating document structure...");
+        initialState = await validationStep(generateState);
+
+        const hasStructuralProblems = initialState.validation?.issues.some(
+          (issue) => issue.type === "omission" && issue.severity === "critical"
+        ) ?? false;
+
+        if (!hasStructuralProblems) {
+          break;
         }
-        attempts++
+        attempts++;
       }
 
       const stillHasGlitches = initialState.validation?.issues.some(
-        (issue) => (issue.type === 'formatting' || issue.type === 'omission') && issue.severity === 'critical'
+        (issue) => (issue.type === "formatting" || issue.type === "omission") && issue.severity === "critical"
       ) ?? false;
 
-      if (stillHasGlitches){
+      if (stillHasGlitches) {
         return {
           ...initialState,
-          draft: initialState.draft, // Rollback text to the stable v1 document copy
+          draft: initialState.draft,
           validation: {
             isValid: false,
             issues: [
               {
-                type: 'omission',
-                severity: 'critical',
-                description: 'Refinement aborted: The generation engine corrupted the document structure. Restored prior version.'
+                type: "omission",
+                severity: "critical",
+                description: "Refinement aborted: The generation engine corrupted the document structure. Restored prior version."
               }
             ]
           }
         };
       }
-      
 
+      await progress(initialState, 85, "Reviewing risks in refined document...");
       const riskEvaluatedState = await riskReviewStep(initialState);
 
-      const finalizedState = await saveStep(riskEvaluatedState); 
+      await progress(initialState, 92, "Saving refined document...");
+      const finalizedState = await saveStep(riskEvaluatedState);
       return finalizedState;
 
-    }
-    catch(error){
+    } catch (error) {
       throw new Error(
-              `Refinement cycle orchestrator failed: ${(error as Error).message}`
-            );
-
-
+        `Refinement cycle orchestrator failed: ${(error as Error).message}`
+      );
     }
-
-
   }
-  // async executeRefinementWorkflow(initialState: DraftState): Promise<DraftState> {
-  //   let state: DraftState = { ...initialState };
-  //   try {
-  //     // Skip extraction; load historical generation context + playbook directly from past state
-  //     state = await retrievalStep(state);
-  //     // Specialized assembly combining context + summary + highlights + instructions
-  //     state = await refinementAssemblyStep(state);
-  //     // Execution, validation, and saving as an incremented version
-  //     state = await generationStep(state);
-  //     state = await validationStep(state);
-  //     state = await riskReviewStep(state);
-  //     state = await saveStep(state);
-  //     return state;
-  //   } catch (error) {
-  //     throw new Error(
-  //       `Refinement cycle orchestrator failed: ${(error as Error).message}`
-  //     );
-  //   }
-  // }
 }
-

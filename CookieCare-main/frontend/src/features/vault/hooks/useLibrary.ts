@@ -12,7 +12,9 @@ export function useLibrary(authToken: string, onRefresh: () => void) {
   const [items, setItems] = useState<LibraryItem[]>([]);
   const [savedDrafts, setSavedDrafts] = useState<any[]>([]);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "success" | "error">("idle");
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const uploadProgress = uploadStatus === "uploading";
 
   const fetchLibraryData = async () => {
     try {
@@ -34,7 +36,7 @@ export function useLibrary(authToken: string, onRefresh: () => void) {
           : "-",
         createdBy: "User",
         fileList: docsData.filter((d: any) => d.folder_id === f.id)
-          .map((d: any) => ({ name: d.title || d.name, size: "N/A", type: d.type })),
+          .map((d: any) => ({ id: d.id, name: d.title || d.name, size: "N/A", type: d.type })),
       }));
 
       const formattedItems: LibraryItem[] = libraryItemsData.map((i: any) => ({
@@ -103,38 +105,63 @@ export function useLibrary(authToken: string, onRefresh: () => void) {
     return false;
   };
 
-  const handleTriggerUpload = async (targetFolderId: string, files: FileList | null) => {
-    if (!files || files.length === 0 || !targetFolderId) return;
-    setUploadProgress(true);
-    try {
-      const { sync } = await uploadFileToFolder(authToken, targetFolderId, files[0], (jobId) => {
+  const handleTriggerUpload = async (targetFolderId: string, files: FileList | null): Promise<boolean> => {
+    if (!files || files.length === 0 || !targetFolderId) return false;
+    setUploadStatus("uploading");
+    setUploadError(null);
+    return new Promise<boolean>((resolve, reject) => {
+      uploadFileToFolder(authToken, targetFolderId, files[0], (jobId) => {
         const es = new EventSource(apiUrl(`/api/jobs/sse?token=${authToken}`));
         es.onmessage = (event) => {
           const payload = JSON.parse(event.data);
           if (payload.event === "job_update" && payload.job.id === jobId) {
-            if (payload.job.status === "completed") { es.close(); setUploadProgress(false); fetchLibraryData(); }
-            else if (payload.job.status === "failed") { es.close(); setUploadProgress(false); alert("Processing failed: " + payload.job.error); }
+            if (payload.job.status === "completed") {
+              es.close();
+              setUploadStatus("success");
+              fetchLibraryData();
+              resolve(true);
+            } else if (payload.job.status === "failed") {
+              es.close();
+              setUploadStatus("error");
+              setUploadError(payload.job.error || "Processing failed.");
+              reject(new Error(payload.job.error));
+            }
           }
         };
+      }).then((res) => {
+        if (res.sync) {
+          fetchLibraryData();
+          setUploadStatus("success");
+          resolve(true);
+        }
+      }).catch((err) => {
+        setUploadStatus("error");
+        setUploadError(err.message || "Upload failed.");
+        reject(err);
       });
-      if (sync) { fetchLibraryData(); }
-    } catch (err: any) {
-      alert("Upload failed: " + err.message);
-    } finally {
-      setUploadProgress(false);
-    }
+    });
   };
 
-  const handleDeleteFileFromFolder = (folderId: string, fileName: string) => {
-    setItems(prev => prev.map((f) => {
-      if (f.id !== folderId) return f;
-      const updatedList = (f.fileList || []).filter((item) => item.name !== fileName);
-      return { ...f, fileList: updatedList, itemsCount: updatedList.length };
-    }));
+  const handleDeleteFileFromFolder = async (folderId: string, fileId: string) => {
+    if (!fileId) return;
+    try {
+      const ok = await deleteDocument(authToken, fileId);
+      if (ok) {
+        setItems(prev => prev.map((f) => {
+          if (f.id !== folderId) return f;
+          const updatedList = (f.fileList || []).filter((item) => item.id !== fileId);
+          return { ...f, fileList: updatedList, itemsCount: updatedList.length };
+        }));
+        onRefresh();
+      }
+    } catch (err) {
+      console.error("Failed to delete file from folder", err);
+    }
   };
 
   return {
     items, setItems, savedDrafts, copiedId, uploadProgress,
+    uploadStatus, uploadError, setUploadStatus,
     fetchLibraryData, handleCopyId, handleDeleteItem, handleDeleteDraft,
     handleCreateNewItem, handleTriggerUpload, handleDeleteFileFromFolder,
   };

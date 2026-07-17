@@ -317,14 +317,21 @@ async function executeDocumentAnalysis(jobId: string, userId: string, payload: a
     };
   }
 
-  if (payload.prompt && payload.folderIds) {
-     const { folderIds, draftIds, prompt, documentMode, answerStyle, history } = payload;
-     await updateJobProgress(jobId, userId, 30, "Analyzing documents in selected folders...");
+  if (payload.prompt && (payload.folderIds || payload.fileIds || payload.draftIds)) {
+     const { folderIds, fileIds, draftIds, prompt, documentMode, answerStyle, history } = payload;
+     await updateJobProgress(jobId, userId, 30, "Critical Thinking");
 
      const result = await jobRegistry.orchestrator.interactAnalyze(
-       folderIds, prompt, userId, documentMode, answerStyle, history,
-       undefined, userRole,
-       Array.isArray(draftIds) ? draftIds : []
+       Array.isArray(folderIds) ? folderIds : [],
+       prompt,
+       userId,
+       documentMode,
+       answerStyle,
+       history,
+       undefined,
+       userRole,
+       Array.isArray(draftIds) ? draftIds : [],
+       Array.isArray(fileIds) ? fileIds : []
      );
      return { analysis: result, clauses: [] };
   }

@@ -14,7 +14,7 @@ import {
 } from "docx";
 import MarkdownIt from "markdown-it";
 
-const md = new MarkdownIt({ html: false, linkify: true, typographer: true });
+const md = new MarkdownIt({ html: false, linkify: true, typographer: false });
 
 /**
  * Returns true if the string looks like HTML (contains at least one HTML tag).

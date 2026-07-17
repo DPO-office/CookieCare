@@ -54,6 +54,9 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
   
     // 2. Standardize request data elements inside a valid DraftState footprint
     const initialStateContainer: DraftState = {
+      onProgress: async (percent, message) => {
+        await updateJobProgress(jobId, userId, percent, message);
+      },
       request: {
         intent: evaluatedIntent, 
         mode: mode === "BASIC" ? "Basic" : mode === "PROACTIVE" ? "Standard Template" : "Advanced Proactive",        
@@ -230,6 +233,9 @@ async function handleRefinementJob(jobId: string, userId: string, payload: any):
     const inputStateContainer: DraftState = historicalStateSnapshot
         ? {
             ...historicalStateSnapshot,
+            onProgress: async (percent, message) => {
+                await updateJobProgress(jobId, userId, percent, message);
+            },
             request: {
                 ...(previousRequest ?? {}),
                 intent: "REFINEMENT",
@@ -251,6 +257,9 @@ async function handleRefinementJob(jobId: string, userId: string, payload: any):
             riskReview: null
         }
         : {
+            onProgress: async (percent, message) => {
+                await updateJobProgress(jobId, userId, percent, message);
+            },
             request: {
                 intent: "REFINEMENT",
                 mode: "Standard Template",
