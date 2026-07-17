@@ -22,6 +22,33 @@ function getProviderEngine(provider: LLMProvider): ILLMProvider {
   return providersCache[provider];
 }
 
+async function executeWithRetry<T>(
+  fn: () => Promise<T>,
+  retries = 3,
+  delayMs = 6000
+): Promise<T> {
+  let attempt = 0;
+  while (true) {
+    try {
+      return await fn();
+    } catch (error) {
+      attempt++;
+      const errMsg = error instanceof Error ? error.message : String(error);
+      const isRateLimit = errMsg.includes("429") || 
+                          errMsg.toLowerCase().includes("resource_exhausted") || 
+                          errMsg.toLowerCase().includes("resource exhausted") ||
+                          errMsg.toLowerCase().includes("rate limit");
+      
+      if (isRateLimit && attempt <= retries) {
+        console.warn(`[LLM Rate Limit] Detected rate limit error (429/RESOURCE_EXHAUSTED). Retrying attempt ${attempt}/${retries} in ${delayMs / 1000}s... Error:`, errMsg);
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+        continue;
+      }
+      throw error;
+    }
+  }
+}
+
 /**
  * THE PLATFORM GENERAL MANAGER FUNCTIONS
  * Call these anywhere across handlers, orchestrators, and validation loops.
@@ -35,7 +62,7 @@ export async function executeCompletion(
   const engine = getProviderEngine(provider);
   const runtimeConfig = PROVIDER_TASK_PRESETS[provider][task];
   
-  return engine.getCompletion(prompt, systemInstruction, runtimeConfig);
+  return executeWithRetry(() => engine.getCompletion(prompt, systemInstruction, runtimeConfig));
 }
 
 export async function executeJsonCompletion<T>(
@@ -48,5 +75,5 @@ export async function executeJsonCompletion<T>(
   const engine = getProviderEngine(provider);
   const runtimeConfig = PROVIDER_TASK_PRESETS[provider][task];
   
-  return engine.getJsonCompletion<T>(prompt, systemInstruction, jsonSchema, runtimeConfig);
+  return executeWithRetry(() => engine.getJsonCompletion<T>(prompt, systemInstruction, jsonSchema, runtimeConfig));
 }

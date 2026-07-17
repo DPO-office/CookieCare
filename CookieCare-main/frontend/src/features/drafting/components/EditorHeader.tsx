@@ -62,20 +62,20 @@ export default function EditorHeader({
           <FileText className="w-4 h-4 text-gray-400 shrink-0" />
 
           {documents.length > 1 ? (
-            <div className="flex items-center gap-1 min-w-0">
+            <div className="flex items-center gap-1 min-w-0 relative pr-5">
               <select
                 value={selectedDoc?.id || ""}
                 onChange={(e) => {
                   const found = documents.find((d) => d.id === e.target.value);
                   if (found) onSelectDoc(found);
                 }}
-                className="bg-transparent border-none text-[13px] font-semibold text-gray-900 focus:outline-none cursor-pointer truncate max-w-[300px] py-0 leading-none"
+                className="bg-transparent border-none text-[13px] font-semibold text-gray-900 focus:outline-none cursor-pointer truncate max-w-[300px] py-1 pl-0 pr-0 appearance-none leading-none align-middle"
               >
                 {documents.map((doc) => (
                   <option key={doc.id} value={doc.id}>{doc.title}</option>
                 ))}
               </select>
-              <ChevronDown className="w-3.5 h-3.5 text-gray-400 shrink-0 pointer-events-none" />
+              <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none shrink-0" />
             </div>
           ) : (
             <h1 className="text-[13px] font-semibold text-gray-900 truncate max-w-[300px]">

@@ -60,7 +60,7 @@ export default function ReportView({
         <div className="w-full space-y-4">
           {/* Report card */}
           <div className="bg-white border border-gray-200/80 rounded-2xl shadow-sm overflow-hidden print-container">
-            <div className="px-7 py-4 border-b border-gray-100 flex items-center justify-between select-all">
+            <div className="px-7 py-4 border-b border-gray-100 flex items-center justify-between">
               <div>
                 <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Legal Assessment</p>
                 <p className="text-[11px] text-gray-300 mt-0.5">Confidential · AI Generated</p>
@@ -92,7 +92,7 @@ export default function ReportView({
                           <span className="text-[12px]">Analyzing your query...</span>
                         </div>
                       ) : (
-                        <div className="select-all">
+                        <div>
                           {isUser ? (
                             <p className="whitespace-pre-wrap leading-relaxed text-[13px]">{message.text}</p>
                           ) : (
@@ -104,7 +104,7 @@ export default function ReportView({
                       {!isUser && message.sources && message.sources.length > 0 && (
                         <div className="mt-4 pt-3 border-t border-gray-100">
                           <p className="text-[11px] font-medium text-gray-400 mb-2">Sources</p>
-                          <div className="flex flex-wrap gap-1.5 select-all">
+                          <div className="flex flex-wrap gap-1.5">
                             {message.sources.map((s, sIdx) => (
                               <a
                                 key={sIdx}

@@ -261,7 +261,7 @@ export function useDraftApiActions({
   const handlePrintDoc = async (selectedDoc: LegalDocument | null, selectedTemplateName: string | null, editorContent: string) => {
     try {
       const exportTitle = selectedDoc?.title || selectedTemplateName || "Lexify Draft";
-      const res = await fetch("/api/documents/export", {
+      const res = await fetch(apiUrl("/api/documents/export"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

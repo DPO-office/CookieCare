@@ -8,9 +8,10 @@ const orchestrator = new AgentOrchestrator();
 
 router.post("/interact", authenticateToken, async (req, res) => {
   try {
-    const { folderIds, draftIds, prompt, documentMode, answerStyle, history } = req.body;
+    const { folderIds, fileIds, draftIds, prompt, documentMode, answerStyle, history } = req.body;
     const job = await addJobToQueue(req.user!.id, "document_analysis", {
       folderIds: Array.isArray(folderIds) ? folderIds : [],
+      fileIds: Array.isArray(fileIds) ? fileIds : [],
       draftIds: Array.isArray(draftIds) ? draftIds : [],
       prompt,
       documentMode,

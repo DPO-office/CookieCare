@@ -46,12 +46,96 @@ export const retrievalStep = async (state: DraftState): Promise<DraftState> => {
     });
   };
   
-  const retrieveClauses = async (): Promise<Clause[]> => {
+  // Clauses are now retrieved via playbookTopics below to reduce database noise.
+
+  // TRANSFER THIS CODE TO retrieval/playbookRetriver.ts
+
+  const readPlaybookRulesFromDb = async (): Promise<PlaybookRule[]> => {
+    try {
+      const { rows } = await pool.query(
+        `SELECT id, topic, standard_position, fallback_positions, walk_away_condition
+         FROM playbook_rules
+         WHERE contract_type = $1
+         ORDER BY created_at DESC
+         LIMIT 25`,
+        [requirements.contractType]
+      );
+
+      let rules = rows.map((row: any) => ({
+        id: String(row.id),
+        topic: String(row.topic ?? "General"),
+        standardPosition: String(row.standard_position ?? ""),
+        fallbackPositions: Array.isArray(row.fallback_positions) ? row.fallback_positions : [],
+        walkAwayCondition: String(row.walk_away_condition ?? ""),
+      }));
+
+      // For reactive mode, keep rules whose topics or keywords are mentioned/relevant in the uploaded contract
+      if (state.request.intent === "REACTIVE" && state.request.sourceText) {
+        const sourceLower = state.request.sourceText.toLowerCase();
+        rules = rules.filter(rule => {
+          const topicLower = rule.topic.toLowerCase();
+          if (sourceLower.includes(topicLower)) return true;
+          // Topic match synonyms
+          if (topicLower === "confidentiality" && (sourceLower.includes("confidential") || sourceLower.includes("nda"))) return true;
+          if (topicLower === "governing law" && (sourceLower.includes("governing") || sourceLower.includes("jurisdiction") || sourceLower.includes("dispute"))) return true;
+          if (topicLower === "termination" && (sourceLower.includes("terminate") || sourceLower.includes("survival"))) return true;
+          if (topicLower === "indemnity" && (sourceLower.includes("indemnify") || sourceLower.includes("indemnification") || sourceLower.includes("hold harmless"))) return true;
+          if (topicLower === "liability" && (sourceLower.includes("liability") || sourceLower.includes("damages"))) return true;
+          return false;
+        });
+      }
+
+      return rules;
+    } catch {
+      return [];
+    }
+  };
+
+  const readTemplateFromDb = async (): Promise<string | null> => {
+    if (state.request.intent === "REACTIVE") {
+      return state.request.sourceText || null;
+    }
+
+    try {
+      const inputTemplateId = state.request?.templateId;
+
+      if (inputTemplateId && inputTemplateId.trim()) {
+        const targetQuery = inputTemplateId.length === 36 || inputTemplateId.includes('-')
+          ? "SELECT content FROM contract_templates WHERE id = $1 AND status = 'active' LIMIT 1"
+          : "SELECT content FROM contract_templates WHERE name ILIKE $1 AND status = 'active' LIMIT 1";
+        
+        const res = await pool.query(targetQuery, [inputTemplateId]);
+        if (res.rows.length > 0 && res.rows[0]?.content) {
+          return String(res.rows[0].content);
+        }
+      }
+
+      const fallbackSql = `
+        SELECT content FROM contract_templates 
+        WHERE contract_type = $1 AND jurisdiction = $2 AND status = 'active' 
+        LIMIT 1;
+      `;
+      const fallbackRes = await pool.query(fallbackSql, [requirements.contractType, requirements.jurisdiction]);
+      return fallbackRes.rows.length > 0 ? String(fallbackRes.rows[0].content) : null;
+      
+    } catch (err) {
+      console.error("Template retrieval error:", err);
+      return null;
+    }
+  };
+
+  const retrieveClauses = async (playbookTopics: string[]): Promise<Clause[]> => {
     const requestedTypes = [
       ...(requirements.requiredClauses || []),
       ...(requirements.optionalClauses || []),
     ];
-    const normalizedTypes = (requestedTypes.length ? requestedTypes : ["General"]).slice(0, 6);
+
+    // For reactive mode, search for clauses matching playbook rule topics to reduce noise
+    const topicsToSearch = requestedTypes.length > 0
+      ? requestedTypes
+      : (state.request.intent === "REACTIVE" ? playbookTopics : ["General"]);
+
+    const normalizedTypes = (topicsToSearch.length ? topicsToSearch : ["General"]).slice(0, 6);
 
     try {
       const { rows } = await pool.query(
@@ -98,78 +182,19 @@ export const retrievalStep = async (state: DraftState): Promise<DraftState> => {
     }
   };
 
-  // TRANSFER THIS CODE TO retrieval/playbookRetriver.ts
+  const dbRules = await readPlaybookRulesFromDb();
+  const matchedTemplate = await readTemplateFromDb();
+  
+  // Extract playbook topics to search for relevant clauses
+  const playbookTopics = dbRules.map(r => r.topic);
+  const clauses: Clause[] = await retrieveClauses(playbookTopics);
 
-  const readPlaybookRulesFromDb = async (): Promise<PlaybookRule[]> => {
-    try {
-
-      // We need to integrate orgID and based on that we need to fetch the perticular rule from the DB, right now it is fetching everything base on contract_type
-      const { rows } = await pool.query(
-        `SELECT id, topic, standard_position, fallback_positions, walk_away_condition
-         FROM playbook_rules
-         WHERE contract_type = $1
-         ORDER BY created_at DESC
-         LIMIT 25`,
-        [requirements.contractType]
-      );
-
-      return rows.map((row: any) => ({
-        id: String(row.id),
-        topic: String(row.topic ?? "General"),
-        standardPosition: String(row.standard_position ?? ""),
-        fallbackPositions: Array.isArray(row.fallback_positions) ? row.fallback_positions : [],
-        walkAwayCondition: String(row.walk_away_condition ?? ""),
-      }));
-    } catch {
-      return [];
-    }
-  };
-
-  // Transfer this to retrieval/temapteRetriever
-
-const readTemplateFromDb = async (): Promise<string | null> => {
-  try {
-    const inputTemplateId = state.request?.templateId;
-
-    // Fix: If an explicit template identity is requested by the user, pull it exactly!
-    if (inputTemplateId && inputTemplateId.trim()) {
-      const targetQuery = inputTemplateId.length === 36 || inputTemplateId.includes('-')
-        ? "SELECT content FROM contract_templates WHERE id = $1 AND status = 'active' LIMIT 1"
-        : "SELECT content FROM contract_templates WHERE name ILIKE $1 AND status = 'active' LIMIT 1";
-      
-      const res = await pool.query(targetQuery, [inputTemplateId]);
-      if (res.rows.length > 0 && res.rows[0]?.content) {
-        return String(res.rows[0].content);
-      }
-    }
-
-    // Default Fallback: If no explicit template is passed, match by type + jurisdiction
-    const fallbackSql = `
-      SELECT content FROM contract_templates 
-      WHERE contract_type = $1 AND jurisdiction = $2 AND status = 'active' 
-      LIMIT 1;
-    `;
-    const fallbackRes = await pool.query(fallbackSql, [requirements.contractType, requirements.jurisdiction]);
-    return fallbackRes.rows.length > 0 ? String(fallbackRes.rows[0].content) : null;
-    
-  } catch (err) {
-    console.error("Template retrieval error:", err);
-    return null;
-  }
-};
-  const [dbRules, matchedTemplate] = await Promise.all([
-    readPlaybookRulesFromDb(),
-    readTemplateFromDb(),
-  ]);
-  const clauses: Clause[] = await retrieveClauses();
-
-  // 3. Update DraftState immutably
   return {
     ...state,
     retrieval: {
       matchedTemplate,
-      applicablePlaybookRules: dbRules,                 // Keep playbook retrieval on DB output only
-      fallbackClauses: clauses,                         // Top ranked primary/fallbacks preserved
+      applicablePlaybookRules: dbRules,
+      fallbackClauses: clauses,
       historicalReferences: []
     },
     metadata: {

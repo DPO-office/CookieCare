@@ -19,5 +19,5 @@ export interface LibraryItem {
   dateModified: string;
   createdBy: string;
   details?: string;
-  fileList?: Array<{ name: string; size: string; type: string }>;
+  fileList?: Array<{ id?: string; name: string; size: string; type: string }>;
 }

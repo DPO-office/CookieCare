@@ -43,8 +43,8 @@ export default function NegotiateHub({
         </div>
         {documents.length > 0 && (
           <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 shadow-xs shrink-0">
-            <FileText className="w-4 h-4 text-gray-400 shrink-0" />
-            <span className="text-[11px] text-gray-400 font-medium">Document</span>
+            <FileText className="w-5 h-5   text-gray-400 shrink-0" />
+            {/* <span className="text-[11px] text-gray-400 font-medium">Document</span> */}
             <select
               value={selectedDocId}
               onChange={handleDocumentChange}

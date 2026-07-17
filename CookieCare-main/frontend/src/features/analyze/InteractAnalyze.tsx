@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { apiUrl } from "../../config";
 import AiProgressOverlay from "../../shared/components/AiProgressOverlay";
 import DocumentSelector from "./components/DocumentSelector";
 import PromptPanel from "./components/PromptPanel";
@@ -61,7 +62,7 @@ export default function InteractAnalyze({
     e.preventDefault();
     if (!newFolderName.trim()) return;
     try {
-      const res = await fetch(`/api/folders`, {
+      const res = await fetch(apiUrl("/api/folders"), {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
         body: JSON.stringify({ name: newFolderName.trim() }),
@@ -89,14 +90,6 @@ export default function InteractAnalyze({
 
   return (
     <div className="flex-1 flex flex-col min-w-0 h-[calc(100vh-0px)] relative overflow-hidden bg-gray-50 text-gray-900">
-      <style>{`
-        @media print {
-          body * { visibility: hidden; }
-          .print-container, .print-container * { visibility: visible; }
-          .print-container { position: absolute; left: 0; top: 0; width: 100%; }
-          .no-print { display: none !important; }
-        }
-      `}</style>
 
       {(analysis.isAnalyzing || !!analysis.analysisError) && (
         <AiProgressOverlay

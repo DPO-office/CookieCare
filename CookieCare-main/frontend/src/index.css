@@ -413,3 +413,88 @@ body {
 .negotiate-document-body hr { border: none; border-top: 1px solid #E4E4E7; margin: 2em 0; }
 .negotiate-document-body a { color: var(--accent-blue); text-decoration: underline; text-underline-offset: 2px; }
 .negotiate-document-body .negotiate-clause-highlight { display: inline; }
+
+/* ── Global Print Media Query ────────────────────────────────────────────── */
+@media print {
+  /* Colors and Backgrounds */
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  /* Hide navigation, sidebars, buttons, toolbars, and anything with .no-print */
+  header, nav, footer, button, form, iframe, script, noscript,
+  .no-print,
+  .sidebar,
+  .editor-toolbar,
+  .editor-header,
+  .toolbar,
+  .generator-panel,
+  .editor-sidebar,
+  .floating-menu,
+  .floating-sparkle-menu,
+  .ai-overlay,
+  .modal-backdrop,
+  .toast,
+  .help-button {
+    display: none !important;
+  }
+
+  /* Reset layout boxes that use flex/grid, enabling standard block display so it spreads naturally across pages */
+  #root,
+  .app-container,
+  .main-layout,
+  .flex-1,
+  .overflow-hidden,
+  .overflow-y-auto,
+  .h-screen,
+  .h-full,
+  .w-screen,
+  .w-full {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  /* Target specifically either the analyze assessment card or the drafting text body */
+  .print-container,
+  .draft-editor-body {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    overflow: visible !important;
+    height: auto !important;
+    position: static !important;
+  }
+
+  /* Standard print settings for text formatting */
+  .richtext-editor,
+  .ProseMirror,
+  .draft-editor-body * {
+    color: #000000 !important;
+    font-size: 12pt !important;
+    line-height: 1.5 !important;
+  }
+
+  /* Force page breaks cleanly if needed */
+  h1, h2, h3 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+  p, li, table {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}

@@ -136,26 +136,29 @@ export default function GeneratorPanel(props: GeneratorPanelProps) {
 
         <div className="flex flex-wrap items-center gap-2.5">
           {props.documents.length > 0 && (
-            <div className="flex items-center space-x-2 bg-white border border-gray-200 h-9 px-3 rounded-xl shadow-xs select-none">
-              <FileText className="w-4 h-4 text-gray-400" />
-              <span className="text-[10px] font-mono font-bold uppercase text-gray-400">Target:</span>
-              <select
-                value={props.selectedDoc?.id || ""}
-                onChange={(e) => {
-                  const found = props.documents.find(d => d.id === e.target.value);
-                  if (found) {
-                    props.onSelectDoc(found);
-                  }
-                }}
-                className="bg-transparent border-none text-[12px] font-semibold text-gray-800 focus:outline-none cursor-pointer p-0 pr-1"
-              >
-                <option value="" disabled>-- Select draft --</option>
-                {props.documents.map((doc) => (
-                  <option key={doc.id} value={doc.id}>
-                    {doc.title.toUpperCase()}
-                  </option>
-                ))}
-              </select>
+            <div className="flex items-center gap-2 bg-white border border-gray-200 h-9 px-3 rounded-xl shadow-xs select-none">
+              <FileText className="w-5 h-5 text-gray-400 shrink-0" />
+              {/* <span className="text-[13px] font-medium text-black uppercase tracking-wide shrink-0">Document</span> */}
+              <div className="flex items-center min-w-0 relative">
+                <select
+                  value={props.selectedDoc?.id || ""}
+                  onChange={(e) => {
+                    const found = props.documents.find(d => d.id === e.target.value);
+                    if (found) {
+                      props.onSelectDoc(found);
+                    }
+                  }}
+                  className="bg-transparent border-none text-[12px] font-semibold text-gray-800 focus:outline-none cursor-pointer py-1 pl-0 pr-5 appearance-none select-none truncate max-w-[280px] leading-none align-middle"
+                >
+                  <option value="" disabled>Select draft</option>
+                  {props.documents.map((doc) => (
+                    <option key={doc.id} value={doc.id}>
+                      {doc.title}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none shrink-0" />
+              </div>
             </div>
           )}
 
