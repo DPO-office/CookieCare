@@ -1,5 +1,5 @@
 import React from "react";
-import { FileText, HeartHandshake, Check, FileDown, Printer, Save } from "lucide-react";
+import { FileText, HeartHandshake, FileDown, Printer, Save, CheckCircle2, Loader2 } from "lucide-react";
 import { LegalDocument } from "../../shared/types";
 import { useNegotiate } from "./hooks/useNegotiate";
 import DocumentViewer from "./components/DocumentViewer";
@@ -42,9 +42,9 @@ export default function NegotiateHub({
           <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">Negotiate Redlines</h1>
           <p className="text-[13px] text-gray-500 mt-0.5">AI-assisted contract negotiation workspace</p>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          {documents.length > 0 && (
-            <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 shadow-xs shrink-0">
+        {documents.length > 0 && (
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 shadow-xs">
               <FileText className="w-5 h-5 text-gray-400 shrink-0" />
               <select
                 value={selectedDocId}
@@ -56,48 +56,47 @@ export default function NegotiateHub({
                 ))}
               </select>
             </div>
-          )}
 
-          {activeDoc && (
-            <>
-              <span className="w-px h-4 bg-gray-200 mx-1 shrink-0" />
-
-              {/* Download as Word Button */}
+            <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 shadow-xs">
               <button
                 type="button"
                 onClick={() => handleExportDocument("docx")}
-                title="Download as Word"
-                className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-xl border border-gray-200 bg-white text-gray-600 text-[12px] font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-xs cursor-pointer"
+                disabled={!activeDoc || saving}
+                className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-gray-500 text-[12px] font-medium hover:bg-gray-100 hover:text-gray-900 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                <FileDown className="w-4 h-4 text-gray-400" />
+                <FileDown className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Word</span>
               </button>
 
-              {/* Download as PDF Button */}
               <button
                 type="button"
                 onClick={() => handleExportDocument("pdf")}
-                title="Download as PDF"
-                className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-xl border border-gray-200 bg-white text-gray-600 text-[12px] font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-xs cursor-pointer"
+                disabled={!activeDoc || saving}
+                className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-gray-500 text-[12px] font-medium hover:bg-gray-100 hover:text-gray-900 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                <Printer className="w-4 h-4 text-gray-400" />
+                <Printer className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">PDF</span>
               </button>
 
-              {/* Save Draft Button */}
               <button
                 type="button"
                 onClick={handleSaveDraft}
-                disabled={saving || isLocked}
-                title={isLocked ? "Document is sealed" : "Save draft"}
-                className="inline-flex items-center gap-1.5 h-10 px-4 rounded-xl bg-gray-900 text-white text-[12px] font-semibold hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-xs cursor-pointer"
+                disabled={!activeDoc || saving}
+                className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-lg bg-gray-900 text-white text-[12px] font-semibold hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                <Save className="w-4 h-4" />
-                <span>{isLocked ? "Locked" : saving ? "Saving..." : "Save"}</span>
+                {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                <span>{saving ? "Saving" : "Save"}</span>
               </button>
-            </>
-          )}
-        </div>
+            </div>
+
+            {showSavedToast && (
+              <div className="inline-flex items-center gap-1 px-3 py-2 rounded-full bg-emerald-50 text-emerald-700 text-[12px] font-medium border border-emerald-100">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                Draft Saved Successfully
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Workspace */}
@@ -145,13 +144,6 @@ export default function NegotiateHub({
               Upload a document or create a draft to start the negotiation workflow.
             </p>
           </div>
-        </div>
-      )}
-
-      {showSavedToast && (
-        <div className="fixed bottom-6 right-6 z-50 bg-gray-900 text-white text-[12px] font-medium px-4 py-2.5 rounded-xl shadow-lg select-none flex items-center gap-2">
-          <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-          <span>Draft Saved Successfully</span>
         </div>
       )}
     </div>
