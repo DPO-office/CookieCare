@@ -3,8 +3,8 @@ import { config } from "./index.js";
 export function validateEnv() {
   const required = [
     { key: "DATABASE_URL", value: config.databaseUrl },
-    { key: "OPENROUTER_API_KEY", value: config.openRouterApiKey },
     { key: "ENCRYPTION_KEY", value: process.env.ENCRYPTION_KEY },
+    { key: "GOOGLE_CLOUD_PROJECT", value: process.env.GOOGLE_CLOUD_PROJECT },
   ];
   const missing = required.filter((item) => !item.value || item.value.trim() === "");
 

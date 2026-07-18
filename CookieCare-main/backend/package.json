@@ -12,6 +12,7 @@
     "test": "node --import ./node_modules/tsx/dist/loader.mjs --test test/**/*.test.ts"
   },
   "dependencies": {
+    "@google/genai": "^2.11.0",
     "@google/generative-ai": "^0.24.1",
     "@sentry/node": "^10.56.0",
     "@sentry/profiling-node": "^10.56.0",
