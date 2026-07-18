@@ -59,3 +59,40 @@ export async function exportReport(
   if (!res.ok) return null;
   return res.blob();
 }
+
+/**
+ * Request an enterprise PDF report from the backend for a completed cookie scan.
+ * Returns a Blob on success or null on failure.
+ */
+export async function downloadCookiePdfReport(
+  authToken: string,
+  scanData: {
+    url: string;
+    scannedAt: string;
+    overallScore: number;
+    riskLevel: string;
+    hasConsentBanner: boolean;
+    loadsBeforeConsent: boolean;
+    totalCookiesCount: number;
+    cookies: Array<{ name: string; category: string; domain: string; retention: string; severity: string }>;
+    complianceGaps: Array<{ regulation: string; severity: string; issue: string; remediation: string }>;
+  }
+): Promise<Blob | null> {
+  try {
+    const res = await fetch(
+      `${typeof window !== "undefined" ? window.location.origin : ""}/api/vulnerabilities/scan-cookie/report`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(scanData),
+      }
+    );
+    if (!res.ok) return null;
+    return res.blob();
+  } catch {
+    return null;
+  }
+}

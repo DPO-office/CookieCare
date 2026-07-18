@@ -104,6 +104,28 @@ export interface CookieScanResult {
   };
   cookiesDetected: CookieDetected[];
   complianceGaps: PrivacyComplianceGap[];
+  enterpriseReport?: {
+    consentComparison?: {
+      preConsentCount: number;
+      acceptCount: number;
+      rejectCount: number;
+      addedAfterAccept: ConsentComparisonCookie[];
+      removedAfterReject: ConsentComparisonCookie[];
+      marketingEnabledAfterAccept: ConsentComparisonCookie[];
+      analyticsEnabledAfterAccept: ConsentComparisonCookie[];
+      stillPresentAfterReject: ConsentComparisonCookie[];
+      complianceSummary: string;
+    };
+    [key: string]: any;
+  };
+}
+
+export interface ConsentComparisonCookie {
+  name: string;
+  category: string;
+  domain: string;
+  severity: string;
+  partyType: string;
 }
 
 // Lexify - Vulnerability Scanner Type Schema

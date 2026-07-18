@@ -60,7 +60,7 @@ const navigation: NavEntry[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   {
     id: "legal",
-    label: "Legal Review",
+    label: "Legal",
     icon: Scale,
     children: [
       { id: "legal-review",    label: "Analyze Agreements",  icon: ScanSearch },
@@ -73,11 +73,11 @@ const navigation: NavEntry[] = [
   },
   {
     id: "privacy",
-    label: "Privacy Review",
+    label: "Privacy",
     icon: ShieldCheck,
     children: [
       { id: "cookie-scanner",    label: "Cookie Scanner",    icon: Cookie },
-      { id: "dpa-reviewer",      label: "DPA Reviewer",      icon: Lock },
+      { id: "dpa-reviewer",      label: "DPA Review",      icon: Lock },
       { id: "vendor-review",     label: "Vendor Review",     icon: Building2 },
       { id: "privacy-dashboard", label: "Privacy Dashboard", icon: BarChart3,  disabled: true },
       { id: "privacy-score",     label: "Privacy Score",     icon: Star,       disabled: true },
@@ -85,7 +85,7 @@ const navigation: NavEntry[] = [
   },
   {
     id: "security",
-    label: "Security Review",
+    label: "Security",
     icon: ShieldAlert,
     children: [
       { id: "vulnerability-scanner", label: "Vulnerability Scanner", icon: Lock },
@@ -93,7 +93,7 @@ const navigation: NavEntry[] = [
   },
   {
     id: "ethics",
-    label: "AI Ethics Review",
+    label: "AI Ethics",
     icon: Brain,
     children: [
       { id: "ai-ethics", label: "AI Ethics Score", icon: Cpu },

@@ -2,7 +2,7 @@ export const SCAN_DEPTHS = [
   { value: "Lite", label: "Lite (1 page)" },
   { value: "Medium", label: "Medium (5 pages)" },
   { value: "Deep", label: "Deep (20 pages)" },
-  { value: "Enterprise", label: "Enterprise (full domain)" },
+  { value: "Enterprise", label: "Enterprise (50 pages)" },
 ] as const;
 
 export const SEVERITY_BADGE_CLASSES: Record<string, string> = {

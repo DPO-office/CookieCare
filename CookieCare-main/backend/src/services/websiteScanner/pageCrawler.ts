@@ -66,11 +66,59 @@ async function fetchSitemapUrls(
 }
 
 /**
- * Use Playwright to crawl <a> links from the root page.
- * Only same-domain, same-protocol links without fragment identifiers are kept.
+ * Extract same-domain <a href> links from a single page URL via Playwright.
+ * Returns the raw href strings that pass origin + protocol + no-fragment checks.
+ * Does not modify any shared state — purely reads one page and returns links.
+ */
+async function extractLinksFromPage(
+  pageUrl: string,
+  domain: string
+): Promise<string[]> {
+  let context;
+  try {
+    context = await browserManager.newContext({ optimizeForScanning: true });
+    const page = await context.newPage();
+    try {
+      await page.goto(pageUrl, { waitUntil: "domcontentloaded", timeout: 15000 });
+      const links: string[] = await page.evaluate((d: string) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const document = globalThis.document as any;
+        return Array.from(document.querySelectorAll("a"))
+          .map((a: any) => a.href as string)
+          .filter((href: string) => {
+            try {
+              const u = new URL(href);
+              return (
+                u.hostname === d &&
+                (u.protocol === "http:" || u.protocol === "https:") &&
+                !u.hash
+              );
+            } catch {
+              return false;
+            }
+          });
+      }, domain);
+      return links;
+    } catch (err) {
+      logger.warn(`${TAG} Link extraction failed for ${pageUrl}: ${(err as Error).message}`);
+      return [];
+    } finally {
+      await page.close().catch(() => {});
+    }
+  } catch (err) {
+    logger.warn(`${TAG} Browser context failed for ${pageUrl}: ${(err as Error).message}`);
+    return [];
+  } finally {
+    if (context) await context.close().catch(() => {});
+  }
+}
+
+/**
+ * BFS recursive crawl of same-domain pages via Playwright.
+ * Visits pages level-by-level; stops as soon as `existingUrls` reaches `limit`.
  *
- * When Playwright is unavailable (missing browser, Group Policy restriction,
- * etc.) the function automatically falls back to an HTTP-based link crawler.
+ * When Playwright is unavailable the function falls back to the HTTP crawler
+ * which only processes the root URL (existing behaviour).
  */
 async function crawlLinksFromPage(
   rootUrl: string,
@@ -85,63 +133,40 @@ async function crawlLinksFromPage(
     return httpCrawlLinks(rootUrl, domain, limit, existingUrls);
   }
 
-  logger.info(`${TAG} [WebsiteScanner] Using Playwright`);
+  logger.info(`${TAG} [WebsiteScanner] Using Playwright (BFS crawl)`);
 
-  // ── Playwright path (unchanged) ────────────────────────────────────────────
-  let context;
+  // ── BFS queue — seeded with the root URL ───────────────────────────────────
+  // `existingUrls` already contains rootUrl (added by caller), so we track
+  // visited pages separately to avoid re-visiting pages already in the set
+  // that were contributed by the sitemap step.
+  const visited = new Set<string>();
+  const queue: string[] = [rootUrl];
   let added = 0;
 
-  try {
-    context = await browserManager.newContext({ optimizeForScanning: true });
-    const page = await context.newPage();
+  while (queue.length > 0 && existingUrls.size < limit) {
+    const current = queue.shift()!;
+    if (visited.has(current)) continue;
+    visited.add(current);
 
-    try {
-      await page.goto(rootUrl, { waitUntil: "domcontentloaded", timeout: 15000 });
+    const links = await extractLinksFromPage(current, domain);
 
-      // page.evaluate runs in the browser — DOM types are not available in the
-    // Node.js tsconfig (lib: ES2022, no dom).  Cast the callback to any so
-    // page.evaluate runs in the browser context. DOM types are not in this
-    // project's tsconfig (lib: ES2022, no dom). We shadow 'document' with a
-    // local declaration to satisfy the TypeScript compiler.
-    const links: string[] = await page.evaluate((domain: string) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const document = globalThis.document as any;
-      return Array.from(document.querySelectorAll("a"))
-        .map((a: any) => a.href as string)
-        .filter((href: string) => {
-          try {
-            const u = new URL(href);
-            return (
-              u.hostname === domain &&
-              (u.protocol === "http:" || u.protocol === "https:") &&
-              !u.hash
-            );
-          } catch {
-            return false;
-          }
-        });
-    }, domain);
-
-      for (const link of links) {
-        if (existingUrls.size >= limit) break;
-        if (validateUrl(link).valid && !existingUrls.has(link)) {
-          existingUrls.add(link);
-          added++;
+    for (const link of links) {
+      if (existingUrls.size >= limit) break;
+      // Normalise: strip trailing slash for dedup, but keep the original href
+      const normalised = link.replace(/\/$/, "");
+      if (!existingUrls.has(normalised) && !existingUrls.has(link) && validateUrl(link).valid) {
+        existingUrls.add(link);
+        added++;
+        // Enqueue for further crawling only if not already visited
+        if (!visited.has(link)) {
+          queue.push(link);
         }
       }
-    } catch (err) {
-      logger.warn(
-        `${TAG} Link crawl navigation failed for ${rootUrl}: ${(err as Error).message}`
-      );
-    } finally {
-      await page.close().catch(() => {});
     }
-  } catch (err) {
-    logger.warn(
-      `${TAG} Link crawl browser context failed: ${(err as Error).message}`
+
+    logger.debug(
+      `${TAG} BFS visited ${current} — queue=${queue.length} total=${existingUrls.size}/${limit}`
     );
-  } finally {
-    if (context) await context.close().catch(() => {});
   }
 
   return added;
