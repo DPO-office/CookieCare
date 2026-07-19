@@ -20,7 +20,7 @@ export const REPORT_DARK    = "#0f172a";
 export const REPORT_PAGE_BG = "#ffffff";
 
 // ─── Async logo loader ────────────────────────────────────────────────────────
-// Each call fetches the PNG once and caches the result.
+// Each call fetches the image once and caches the result.
 
 let _lexifyLogoB64: string | null = null;
 let _randstadLogoB64: string | null = null;
@@ -43,20 +43,22 @@ async function fetchAsBase64(url: string): Promise<string | null> {
 
 /**
  * Pre-loads both logos into base64. Call once before building report pages.
+ * Uses the new Randstad Digital combined logo asset.
  */
 export async function preloadLogos(): Promise<void> {
   if (!_lexifyLogoB64) {
     _lexifyLogoB64   = await fetchAsBase64("/favicon.png");
   }
   if (!_randstadLogoB64) {
-    _randstadLogoB64 = await fetchAsBase64("/Randstad_logo.png");
+    // Uses the new Randstad Digital logo (replaces old Randstad_logo.png)
+    _randstadLogoB64 = await fetchAsBase64("/Randstad_digital_logo.jpg");
   }
 }
 
 export function getLexifyLogoB64():   string | null { return _lexifyLogoB64;   }
 export function getRandstadLogoB64(): string | null { return _randstadLogoB64; }
 
-// ─── SVG fallbacks (used only if PNG fails to load) ──────────────────────────
+// ─── SVG fallbacks (used only if image fails to load) ────────────────────────
 
 /** Lexify shield-check SVG — for dark backgrounds */
 export const LEXIFY_SHIELD_SVG = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
@@ -70,11 +72,14 @@ export const LEXIFY_SHIELD_SVG = `data:image/svg+xml;charset=utf-8,${encodeURICo
   </svg>`
 )}`;
 
-/** Randstad wordmark SVG fallback */
+/**
+ * Randstad Digital fallback SVG — used only if the JPG asset fails to load.
+ * The actual logo asset is /Randstad_digital_logo.jpg
+ */
 export const RANDSTAD_WORDMARK_SVG = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
-  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 38">
-    <text x="0" y="28"
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 38">
+    <text x="0" y="26"
           font-family="'Arial Rounded MT Bold','Arial',Helvetica,sans-serif"
-          font-size="26" font-weight="900" fill="#2175D9" letter-spacing="-0.3">randstad</text>
+          font-size="22" font-weight="900" fill="#2175D9" letter-spacing="-0.3">randstad digital</text>
   </svg>`
 )}`;

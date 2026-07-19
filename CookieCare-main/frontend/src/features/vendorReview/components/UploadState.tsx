@@ -72,10 +72,6 @@ export function UploadState({ onFilesSelected, uploadError }: UploadStateProps) 
         {/* Hero */}
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-8">
           <div className="max-w-xl">
-            <div className="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full px-3.5 py-1.5 text-[11px] font-semibold text-gray-500 mb-4 shadow-xs">
-              <Sparkles className="w-3 h-3 text-gray-400" />
-              <span>AI-Powered Vendor Assessment</span>
-            </div>
             <h1 className="text-[26px] font-bold text-gray-900 tracking-tight leading-tight mb-2.5">
               Vendor Review
             </h1>

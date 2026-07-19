@@ -2,8 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import type { FormEvent } from "react";
 import { CookieScanResult } from "../../../shared/types";
 import { ScanDepth } from "../types";
-import { normalizeUrl, buildReportContentString, buildDownloadFilename } from "../utils";
-import { startCookieScan, pollJobStatus, shareReportByEmail, downloadCookiePdfReport } from "../api/cookieScannerApi";
+import { normalizeUrl, buildDownloadFilename } from "../utils";
+import { startCookieScan, pollJobStatus, shareReportByEmail, downloadCookiePdfReport, type ShareReportPayload } from "../api/cookieScannerApi";
 import { apiUrl } from "../../../config";
 
 export function useCookieScan(authToken: string) {
@@ -109,18 +109,37 @@ export function useCookieScan(authToken: string) {
     if (!shareEmail.trim() || !result) return;
     setSharing(true); setShareMessage(null);
     try {
-      const { ok, error: err } = await shareReportByEmail(authToken, {
+      const payload: ShareReportPayload = {
         recipientEmail: shareEmail.trim(),
-        subject: `Lexify Cookie Scan - ${result.scanSummary.url}`,
-        reportTitle: "Cookie Compliance Scan",
-        contentType: "cookie_report",
-        content: buildReportContentString(result),
-        format: "pdf",
-      });
-      if (ok) { setShareMessage(`Report sent to ${shareEmail}.`); setShareEmail(""); }
-      else throw new Error(err || "Failed to send report.");
-    } catch (err: any) {
-      setShareMessage(`Error: ${err.message}`);
+        reportTitle: "Cookie Compliance Report",
+        scanData: {
+          url:                result.scanSummary.url,
+          scannedAt:          result.scanSummary.scannedAt,
+          overallScore:       result.scanSummary.overallScore,
+          riskLevel:          result.scanSummary.level,
+          hasConsentBanner:   result.scanSummary.hasConsentBanner,
+          loadsBeforeConsent: result.scanSummary.loadsBeforeConsent,
+          totalCookiesCount:  result.scanSummary.totalCookiesCount,
+          cookies: result.cookiesDetected.map((c) => ({
+            name:      c.name,
+            category:  c.category,
+            domain:    c.domain,
+            retention: c.retention,
+            severity:  c.severity,
+          })),
+          complianceGaps: result.complianceGaps.map((g) => ({
+            regulation:  g.regulation,
+            severity:    g.severity,
+            issue:       g.issue,
+            remediation: g.remediation,
+          })),
+        },
+      };
+      const { ok, error: err } = await shareReportByEmail(authToken, payload);
+      if (ok) { setShareMessage("Report shared successfully."); setShareEmail(""); }
+      else throw new Error(err || "Unable to send report.");
+    } catch {
+      setShareMessage("Unable to send report.");
     } finally {
       setSharing(false);
     }
