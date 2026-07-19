@@ -27,16 +27,25 @@ export async function pollJobStatus(
   return res.json();
 }
 
+export interface ShareReportPayload {
+  recipientEmail: string;
+  reportTitle: string;
+  scanData: {
+    url: string;
+    scannedAt: string;
+    overallScore: number;
+    riskLevel: string;
+    hasConsentBanner: boolean;
+    loadsBeforeConsent: boolean;
+    totalCookiesCount: number;
+    cookies: Array<{ name: string; category: string; domain: string; retention: string; severity: string }>;
+    complianceGaps: Array<{ regulation: string; severity: string; issue: string; remediation: string }>;
+  };
+}
+
 export async function shareReportByEmail(
   authToken: string,
-  payload: {
-    recipientEmail: string;
-    subject: string;
-    reportTitle: string;
-    contentType: string;
-    content: string;
-    format: string;
-  }
+  payload: ShareReportPayload
 ): Promise<{ ok: boolean; error?: string }> {
   const res = await fetch(apiUrl("/api/reports/share-email"), {
     method: "POST",

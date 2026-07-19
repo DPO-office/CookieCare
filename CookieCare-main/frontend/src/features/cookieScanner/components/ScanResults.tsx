@@ -93,7 +93,11 @@ export default function ScanResults({
               <span>Send</span>
             </button>
           </form>
-          {shareMessage && <p className="text-[12px] text-emerald-600 mt-2">{shareMessage}</p>}
+          {shareMessage && (
+            <p className={`text-[12px] mt-2 ${shareMessage === "Report shared successfully." ? "text-emerald-600" : "text-red-600"}`}>
+              {shareMessage}
+            </p>
+          )}
         </div>
       </div>
 

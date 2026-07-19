@@ -148,7 +148,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout }: Sid
             </div>
             <div className="leading-none min-w-0">
               <span className="block font-bold text-[15px] tracking-tight text-gray-900 truncate">Lexify</span>
-              <span className="block text-[9px] text-gray-400 tracking-wider uppercase mt-0.5 font-semibold">compliance ai</span>
+              
             </div>
           </div>
         )}
