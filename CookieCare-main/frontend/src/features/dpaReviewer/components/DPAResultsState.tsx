@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import {
   CheckCircle2, AlertTriangle, FileSearch, Sparkles,
-  Download, FileDown, Copy, Check, RefreshCw, ArrowRight,
+  Download, Copy, Check, RefreshCw, ArrowRight, Loader2,
 } from "lucide-react";
 import { Finding, DPAReviewResult } from "../types";
 import { DPARadialGauge }  from "./DPARadialGauge";
 import { DPAFindingCard }  from "./DPAFindingCard";
+import { useReportDownload } from "../../../shared/report/useReportDownload";
+import { adaptDPAResult }    from "../../../shared/report/reportAdapters";
 
 interface DPAResultsStateProps {
   fileName: string;
@@ -19,10 +21,17 @@ export function DPAResultsState({ fileName, reviewResult, onReset }: DPAResultsS
   const [findingFilter, setFindingFilter] = useState<"all" | Finding["status"]>("all");
   const [mounted, setMounted]             = useState(false);
 
+  const { isGenerating, downloadReport } = useReportDownload();
+
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 40);
     return () => clearTimeout(t);
   }, []);
+
+  const handleDownloadReport = () => {
+    const reportData = adaptDPAResult(reviewResult, fileName);
+    downloadReport(reportData, `DPA_Review_Report_${new Date().toISOString().split("T")[0]}`);
+  };
 
   const { overallScore, riskLevel, summary, findings, recommendations, missingClauses, scoreBreakdown } = reviewResult;
 
@@ -325,11 +334,14 @@ export function DPAResultsState({ fileName, reviewResult, onReset }: DPAResultsS
               <p className="section-label">Export Report</p>
             </div>
             <div className="px-5 py-4 space-y-2.5">
-              <button className="w-full btn-primary justify-center py-2.5 cursor-pointer">
-                <Download className="w-4 h-4" />Download Report
-              </button>
-              <button className="w-full btn-secondary justify-center py-2.5 cursor-pointer">
-                <FileDown className="w-4 h-4" />Export PDF
+              <button
+                onClick={handleDownloadReport}
+                disabled={isGenerating}
+                className="w-full btn-primary justify-center py-2.5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {isGenerating
+                  ? <><Loader2 className="w-4 h-4 animate-spin" />Generating PDF…</>
+                  : <><Download className="w-4 h-4" />Download Report</>}
               </button>
               <button onClick={handleCopy} className="w-full btn-secondary justify-center py-2.5 cursor-pointer transition-colors">
                 {copiedSummary

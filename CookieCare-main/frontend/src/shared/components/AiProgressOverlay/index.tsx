@@ -20,6 +20,8 @@ interface AiProgressOverlayProps {
   message?: string;
   error?: string;
   label?: string;
+  /** When provided, renders a determinate progress bar (0–100). */
+  progress?: number;
   onRetry?: () => void;
   onDismiss?: () => void;
 }
@@ -29,6 +31,7 @@ export default function AiProgressOverlay({
   message,
   error,
   label = "AI Processing",
+  progress,
   onRetry,
   onDismiss,
 }: AiProgressOverlayProps) {
@@ -43,6 +46,9 @@ export default function AiProgressOverlay({
 
   if (!visible) return null;
 
+  const hasProgress = typeof progress === "number";
+  const clampedProgress = hasProgress ? Math.max(0, Math.min(100, progress!)) : 0;
+
   const displayMessage = error
     ? error
     : message?.trim()
@@ -52,12 +58,24 @@ export default function AiProgressOverlay({
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/92 backdrop-blur-[2px] p-6 select-none">
       <div className="max-w-sm w-full bg-white border border-gray-200 rounded-2xl shadow-lg p-8 text-center space-y-5 relative overflow-hidden">
+        {/* Progress bar — determinate when progress prop is set, indeterminate otherwise */}
         {!error && (
           <div className="absolute inset-x-0 top-0 h-[3px] bg-gray-100 overflow-hidden">
-            <div className="h-full bg-gray-900 rounded-full" style={{ width: "40%", animation: "slideIndeterminate 1.5s cubic-bezier(0.65,0,0.35,1) infinite" }} />
+            {hasProgress ? (
+              <div
+                className="h-full bg-gray-900 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${clampedProgress}%` }}
+              />
+            ) : (
+              <div
+                className="h-full bg-gray-900 rounded-full"
+                style={{ width: "40%", animation: "slideIndeterminate 1.5s cubic-bezier(0.65,0,0.35,1) infinite" }}
+              />
+            )}
           </div>
         )}
         {error && <div className="absolute inset-x-0 top-0 h-[3px] bg-red-400 rounded-full" />}
+
         <div className="flex justify-center">
           {error ? (
             <div className="w-14 h-14 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center">
@@ -72,6 +90,7 @@ export default function AiProgressOverlay({
             </div>
           )}
         </div>
+
         <div className="space-y-2">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
             {error ? "Error" : label}
@@ -79,7 +98,14 @@ export default function AiProgressOverlay({
           <p className={`text-sm font-medium leading-snug transition-all ${error ? "text-red-700" : "text-gray-800"}`}>
             {displayMessage}
           </p>
+          {/* Numeric percentage — only shown when progress is provided */}
+          {hasProgress && !error && (
+            <p className="text-xs font-semibold text-gray-400 tabular-nums">
+              {clampedProgress}%
+            </p>
+          )}
         </div>
+
         {!error && (
           <div className="flex justify-center gap-1.5 pt-1">
             {[0, 1, 2].map((i) => (

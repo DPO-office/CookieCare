@@ -95,7 +95,7 @@ export async function addJobToQueue(userId: string, type: JobType, payload: any)
       await updateJobState(jobId, userId, {
         status: 'completed',
         progress: 100,
-        result: JSON.stringify(result)
+        result,
       } as any);
       jobRegistry.broadcast(userId, {
         id: jobId,
@@ -154,6 +154,8 @@ type SseClient = {
   id: string;
   userId: string;
   send: (data: string) => void;
+  /** NodeJS interval handle for the keepalive ping — cleared on disconnect */
+  heartbeat: ReturnType<typeof setInterval>;
 };
 
 class BackgroundJobRegistry {
@@ -185,6 +187,7 @@ class BackgroundJobRegistry {
     const client: SseClient = {
       id,
       userId,
+      heartbeat: heartbeatInterval,
       send: (data: string) => {
         try {
           res.write(data);
@@ -201,6 +204,7 @@ class BackgroundJobRegistry {
   public removeClient(id: string): void {
     for (const client of this.clients) {
       if (client.id === id) {
+        clearInterval(client.heartbeat);
         this.clients.delete(client);
         break;
       }
@@ -448,16 +452,29 @@ Migrating the drafting template execution to drafting-handler.ts
 // }
 
 async function executePrivacyScanning(jobId: string, userId: string, payload: any): Promise<any> {
-  await updateJobProgress(jobId, userId, 20, "Scanning website for privacy compliance...");
+  await updateJobProgress(jobId, userId, 5, "Initializing scan");
 
-  const result = await jobRegistry.scanner.scanCookie(payload.url, userId, payload.scanDepth);
+  const result = await jobRegistry.scanner.scanCookie(
+    payload.url,
+    userId,
+    payload.scanDepth,
+    async (pct: number, message: string) => {
+      await updateJobProgress(jobId, userId, pct, message);
+    }
+  );
   return result;
 }
 
 async function executeVulnerabilityScanning(jobId: string, userId: string, payload: any): Promise<any> {
-  await updateJobProgress(jobId, userId, 20, "Performing vulnerability assessment...");
+  await updateJobProgress(jobId, userId, 5, "Starting security audit...");
 
-  const result = await jobRegistry.scanner.scanVulnerability(payload.url, userId);
+  const result = await jobRegistry.scanner.scanVulnerability(
+    payload.url,
+    userId,
+    async (pct: number, message: string) => {
+      await updateJobProgress(jobId, userId, pct, message);
+    }
+  );
   return result;
 }
 

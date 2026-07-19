@@ -3,7 +3,7 @@ import {
   RefreshCw, ShieldCheck, Building2, BarChart3, Download,
   AlertTriangle, AlertCircle, CheckCircle2, Info,
   FileSearch, Sparkles, ArrowRight,
-  Download as DownloadIcon, FileDown, Copy, Check,
+  Download as DownloadIcon, Copy, Check, Loader2,
 } from "lucide-react";
 import { MOCK_RECOMMENDATIONS } from "../constants";
 import {
@@ -17,6 +17,8 @@ import { FindingCard }    from "./FindingCard";
 import type { VendorReviewResult, RecommendationSection } from "../types";
 import React from "react";
 import { XCircle, TrendingUp, AlertTriangle as AlertTriangleIcon } from "lucide-react";
+import { useReportDownload }  from "../../../shared/report/useReportDownload";
+import { adaptVendorResult }  from "../../../shared/report/reportAdapters";
 
 interface ResultsStateProps {
   fileNames:    string[];
@@ -58,6 +60,8 @@ function mapRecommendations(result: VendorReviewResult): RecommendationSection[]
 export function ResultsState({ fileNames, reviewResult, onReset }: ResultsStateProps) {
   const [mounted, setMounted] = useState(false);
 
+  const { isGenerating, downloadReport } = useReportDownload();
+
   const {
     activeTab, setActiveTab,
     findingFilter, setFindingFilter,
@@ -72,6 +76,14 @@ export function ResultsState({ fileNames, reviewResult, onReset }: ResultsStateP
     const t = setTimeout(() => setMounted(true), 40);
     return () => clearTimeout(t);
   }, []);
+
+  const handleDownloadReport = () => {
+    if (!reviewResult) return;
+    const reportData = adaptVendorResult(reviewResult, fileNames);
+    const dateStr = new Date().toISOString().split("T")[0];
+    const vendorSlug = (vendorName ?? "Vendor").replace(/\s+/g, "_");
+    downloadReport(reportData, `Vendor_Risk_Assessment_${vendorSlug}_${dateStr}`);
+  };
 
   const complianceStatus = deriveComplianceStatus(highRiskCount, missingCount, warningCount);
   const complianceCfg    = getComplianceStatusConfig(complianceStatus);
@@ -390,11 +402,14 @@ export function ResultsState({ fileNames, reviewResult, onReset }: ResultsStateP
               </div>
             </div>
             <div className="px-5 py-4 space-y-2.5">
-              <button className="w-full btn-primary justify-center py-2.5 cursor-pointer">
-                <DownloadIcon className="w-4 h-4" />Download Assessment
-              </button>
-              <button className="w-full btn-secondary justify-center py-2.5 cursor-pointer">
-                <FileDown className="w-4 h-4" />Export PDF
+              <button
+                onClick={handleDownloadReport}
+                disabled={isGenerating || !reviewResult}
+                className="w-full btn-primary justify-center py-2.5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {isGenerating
+                  ? <><Loader2 className="w-4 h-4 animate-spin" />Generating PDF…</>
+                  : <><DownloadIcon className="w-4 h-4" />Download Assessment</>}
               </button>
               <button
                 onClick={handleCopy}

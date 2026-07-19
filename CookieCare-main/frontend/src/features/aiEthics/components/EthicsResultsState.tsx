@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import {
   CheckCircle2, AlertTriangle, AlertCircle, FileSearch,
-  Sparkles, Download, FileDown, Copy, Check,
-  RefreshCw, ArrowRight, BarChart3, Brain,
+  Sparkles, Download, Copy, Check,
+  RefreshCw, ArrowRight, BarChart3, Brain, Loader2,
 } from "lucide-react";
 import type { AIEthicsReviewResult, EthicsFinding } from "../types";
 import { REC_STYLE_MAP, DEFAULT_REC_STYLE } from "../constants";
 import { EthicsRadialGauge } from "./EthicsRadialGauge";
 import { EthicsFindingCard } from "./EthicsFindingCard";
+import { useReportDownload }  from "../../../shared/report/useReportDownload";
+import { adaptEthicsResult }  from "../../../shared/report/reportAdapters";
 
 interface EthicsResultsStateProps {
   fileNames: string[];
@@ -21,10 +23,18 @@ export function EthicsResultsState({ fileNames, result, onReset }: EthicsResults
   const [copiedSummary, setCopiedSummary] = useState(false);
   const [mounted,      setMounted]      = useState(false);
 
+  const { isGenerating, downloadReport } = useReportDownload();
+
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 40);
     return () => clearTimeout(t);
   }, []);
+
+  const handleDownloadReport = () => {
+    const reportData = adaptEthicsResult(result, fileNames);
+    const dateStr = new Date().toISOString().split("T")[0];
+    downloadReport(reportData, `AI_Ethics_Assessment_Report_${dateStr}`);
+  };
 
   const findings = result.findings ?? [];
 
@@ -357,11 +367,14 @@ export function EthicsResultsState({ fileNames, result, onReset }: EthicsResults
               </div>
             </div>
             <div className="px-5 py-4 space-y-2.5">
-              <button className="w-full btn-primary justify-center py-2.5 cursor-pointer">
-                <Download className="w-4 h-4" />Download Report
-              </button>
-              <button className="w-full btn-secondary justify-center py-2.5 cursor-pointer">
-                <FileDown className="w-4 h-4" />Export PDF
+              <button
+                onClick={handleDownloadReport}
+                disabled={isGenerating}
+                className="w-full btn-primary justify-center py-2.5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {isGenerating
+                  ? <><Loader2 className="w-4 h-4 animate-spin" />Generating PDF…</>
+                  : <><Download className="w-4 h-4" />Download Report</>}
               </button>
               <button onClick={handleCopy} className="w-full btn-secondary justify-center py-2.5 cursor-pointer transition-colors">
                 {copiedSummary

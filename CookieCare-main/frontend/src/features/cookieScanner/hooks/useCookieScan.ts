@@ -3,7 +3,7 @@ import type { FormEvent } from "react";
 import { CookieScanResult } from "../../../shared/types";
 import { ScanDepth } from "../types";
 import { normalizeUrl, buildReportContentString, buildDownloadFilename } from "../utils";
-import { startCookieScan, pollJobStatus, shareReportByEmail, exportReport } from "../api/cookieScannerApi";
+import { startCookieScan, pollJobStatus, shareReportByEmail, downloadCookiePdfReport } from "../api/cookieScannerApi";
 import { apiUrl } from "../../../config";
 
 export function useCookieScan(authToken: string) {
@@ -13,6 +13,7 @@ export function useCookieScan(authToken: string) {
   const [result, setResult] = useState<CookieScanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [scanProgress, setScanProgress] = useState("");
+  const [scanProgressPct, setScanProgressPct] = useState<number | undefined>(undefined);
   const [shareEmail, setShareEmail] = useState("");
   const [sharing, setSharing] = useState(false);
   const [shareMessage, setShareMessage] = useState<string | null>(null);
@@ -25,6 +26,7 @@ export function useCookieScan(authToken: string) {
     if (eventSourceRef.current) { eventSourceRef.current.close(); eventSourceRef.current = null; }
     if (pollIntervalRef.current) { clearInterval(pollIntervalRef.current); pollIntervalRef.current = null; }
     resolvedRef.current = false;
+    setScanProgressPct(undefined);
   };
 
   useEffect(() => () => cleanupListeners(), []);
@@ -38,11 +40,19 @@ export function useCookieScan(authToken: string) {
 
     const cleanUrl = normalizeUrl(url);
 
+    // When the backend accepts the scan as an async job (202 + job_id), the SSE
+    // listener and polling interval take ownership of the scanning state.  In
+    // that case we must NOT call setScanning(false) in the finally block —
+    // doing so is what caused the overlay to disappear after ~1 second while
+    // the backend scan was still running.
+    let waitingForJob = false;
+
     try {
       const { status, data } = await startCookieScan(authToken, cleanUrl, scanDepth);
       if (!data || data.error) throw new Error(data?.error || "Scan failed.");
 
       if (status === 202 && data.job_id) {
+        waitingForJob = true;
         const jobId: string = data.job_id;
         resolvedRef.current = false;
         setScanProgress("Scanning website for trackers and consent elements...");
@@ -65,6 +75,7 @@ export function useCookieScan(authToken: string) {
             const p = JSON.parse(event.data);
             if (p.event === "job_update" && p.job.id === jobId) {
               if (p.job.message) setScanProgress(p.job.message);
+              if (typeof p.job.progress === "number") setScanProgressPct(p.job.progress);
               if (p.job.status === "completed") finish(p.job.result);
               else if (p.job.status === "failed") fail(p.job.error);
             }
@@ -80,14 +91,16 @@ export function useCookieScan(authToken: string) {
             else if (job.status === "failed") fail(job.error || "Scan failed");
           } catch {}
         }, 4000);
-        return;
       } else {
-        setResult(data); setScanning(false);
+        setResult(data);
       }
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
     } finally {
-      setScanning(false);
+      // Only clear the scanning state here when the job completed synchronously
+      // (non-202 response) or threw before an async job was registered.
+      // For async jobs, finish()/fail() handle setScanning(false) instead.
+      if (!waitingForJob) setScanning(false);
     }
   };
 
@@ -113,24 +126,40 @@ export function useCookieScan(authToken: string) {
     }
   };
 
-  const downloadReportFile = async (format: "pdf" | "docx") => {
+  const downloadReportFile = async () => {
     if (!result) return;
-    const blob = await exportReport(authToken, {
-      title: `Cookie Scan - ${result.scanSummary.url}`,
-      contentType: "cookie_report",
-      content: buildReportContentString(result),
-      format,
+    const blob = await downloadCookiePdfReport(authToken, {
+      url:                result.scanSummary.url,
+      scannedAt:          result.scanSummary.scannedAt,
+      overallScore:       result.scanSummary.overallScore,
+      riskLevel:          result.scanSummary.level,
+      hasConsentBanner:   result.scanSummary.hasConsentBanner,
+      loadsBeforeConsent: result.scanSummary.loadsBeforeConsent,
+      totalCookiesCount:  result.scanSummary.totalCookiesCount,
+      cookies:            result.cookiesDetected.map((c) => ({
+        name:      c.name,
+        category:  c.category,
+        domain:    c.domain,
+        retention: c.retention,
+        severity:  c.severity,
+      })),
+      complianceGaps: result.complianceGaps.map((g) => ({
+        regulation: g.regulation,
+        severity:   g.severity,
+        issue:      g.issue,
+        remediation: g.remediation,
+      })),
     });
     if (!blob) return;
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = buildDownloadFilename(result.scanSummary.url, format);
+    a.download = buildDownloadFilename(result.scanSummary.url, "pdf");
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
   };
 
   return {
     url, setUrl, scanDepth, setScanDepth,
-    scanning, result, error, setError, scanProgress,
+    scanning, result, error, setError, scanProgress, scanProgressPct,
     shareEmail, setShareEmail, sharing, shareMessage,
     handleStartScan, handleShareReport, downloadReportFile,
   };

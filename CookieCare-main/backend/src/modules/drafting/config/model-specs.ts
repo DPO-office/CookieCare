@@ -114,8 +114,15 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
 /**
  * 5. GCP INFRASTRUCTURE CONFIGURATION ENVELOPE
  */
+if (!process.env.GOOGLE_CLOUD_PROJECT) {
+  throw new Error(
+    "[FATAL] GOOGLE_CLOUD_PROJECT is not set. " +
+    "Add GOOGLE_CLOUD_PROJECT=<your-gcp-project-id> to your .env file."
+  );
+}
+
 export const GEMINI_ENV_CONFIG = {
-  projectId: process.env.GOOGLE_CLOUD_PROJECT || "lexify-production-cloud",
-  location: process.env.GOOGLE_CLOUD_LOCATION || "us-central1",
+  projectId: process.env.GOOGLE_CLOUD_PROJECT,
+  location: process.env.GOOGLE_CLOUD_LOCATION || "us-east4",
   timeoutMs: 45000
 };

@@ -12,7 +12,7 @@ interface CookieScannerProps {
 export default function CookieScanner({ authToken }: CookieScannerProps) {
   const {
     url, setUrl, scanDepth, setScanDepth,
-    scanning, result, error, setError, scanProgress,
+    scanning, result, error, setError, scanProgress, scanProgressPct,
     shareEmail, setShareEmail, sharing, shareMessage,
     handleStartScan, handleShareReport, downloadReportFile,
   } = useCookieScan(authToken);
@@ -24,6 +24,7 @@ export default function CookieScanner({ authToken }: CookieScannerProps) {
         <AiProgressOverlay
           visible={scanning || !!error}
           message={scanProgress}
+          progress={scanProgressPct}
           error={error || ""}
           label="Scanning website..."
           onRetry={error ? () => setError(null) : undefined}
