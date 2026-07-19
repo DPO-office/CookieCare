@@ -7,14 +7,18 @@ WORKDIR /app
 ENV CI=true
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 ENV PUPPETEER_SKIP_DOWNLOAD=1
+ENV npm_config_audit=false
+ENV npm_config_fund=false
 
 COPY package.json package-lock.json ./
 
-RUN npm ci
+RUN npm ci --no-audit --no-fund
 
 COPY . .
 
 RUN npm run build
+
+RUN npm prune --omit=dev
 
 
 FROM mcr.microsoft.com/playwright:v1.60.0-jammy AS runner
@@ -26,10 +30,8 @@ ENV PORT=8080
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 ENV PUPPETEER_SKIP_DOWNLOAD=1
 
-COPY package.json package-lock.json ./
-
-RUN npm ci --omit=dev
-
+COPY --from=build /app/package.json /app/package-lock.json ./
+COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/frontend/dist ./frontend/dist
 COPY --from=build /app/backend/dist ./backend/dist
 
