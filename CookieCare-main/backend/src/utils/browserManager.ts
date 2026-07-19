@@ -563,6 +563,7 @@ class BrowserManager {
       console.log("[BrowserManager] Launching Puppeteer browser.");
       const browser = await (puppeteer as any).launch({
         headless: true,
+        executablePath: chromium.executablePath(),
         args: [
           "--headless=new",
           "--no-sandbox",
