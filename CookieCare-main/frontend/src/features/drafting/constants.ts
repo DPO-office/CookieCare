@@ -1,14 +1,9 @@
 // NDA_DOC_CONTENT and ARBITRATION_DOC_CONTENT have been removed from the frontend.
 // Document templates are assembled exclusively on the backend (drafting-handler / DraftWorkflowOrchestrator).
 
-export const DEFAULT_ADVANCED_FIELDS = [
-  { id: "party_a", name: "Party A Title", defaultValue: "Lexify Corporate", description: "Disclosing Primary Entity" },
-  { id: "party_b", name: "Party B Title", defaultValue: "Vendor Tech Inc.", description: "Receiving technology Vendor" },
-  { id: "jurisdiction", name: "Jurisdiction", defaultValue: "Delaware chancery", description: "Standard Governing Law" },
-];
+// DEFAULT_ADVANCED_FIELDS / DEFAULT_ADVANCED_FIELD_VALUES were removed: the reactive
+// "Extracted blueprints checklist" (Party A/B, Jurisdiction) no longer exists. The
+// backend derives those details from the uploaded document and the user's instructions
+// in step 1 (requirement extraction).
 
-export const DEFAULT_ADVANCED_FIELD_VALUES: Record<string, string> = {
-  party_a: "Lexify Corporate",
-  party_b: "Vendor Tech Inc.",
-  jurisdiction: "Delaware chancery",
-};
+export {};

@@ -65,41 +65,56 @@ export const validationStep = async (
   }
 
   // ==========================================
-  // PHASE 2: LLM SEMANTIC COMPLIANCE AUDIT
+  // PHASE 2: LLM SEMANTIC COMPLIANCE AUDIT (GATED)
   // ==========================================
-  
-  // const routerClient = clientInstance ?? new OpenRouterClient({
-  //   apiKey: process.env.OPENROUTER_API_KEY ?? '',
-  //   model: process.env.OPENROUTER_MODEL
-  // });
+  //
+  // LATENCY: the semantic LLM audit is a full extra round-trip (~10-15s). We now only
+  // spend it when it actually adds value:
+  //   - Skip it when deterministic checks already found a critical — we are going to
+  //     regenerate anyway, so paying for a semantic pass is wasted time.
+  //   - Skip it on refinement passes (version > 1). Those are targeted fixes; the
+  //     deterministic checks are enough to confirm the fix landed.
+  //   - Run it on the first draft (version <= 1) when deterministic checks are clean,
+  //     which is exactly where a semantic safety net protects legal quality.
+  //
+  // To restore always-on behavior, set `shouldRunLlmAudit = true`.
+  const deterministicCriticalCount = issues.filter((i) => i.severity === 'critical').length;
+  const isFirstDraft = (state.draft?.version ?? 1) <= 1;
+  const shouldRunLlmAudit = deterministicCriticalCount === 0 && isFirstDraft;
 
+  let llmAuditRan = false;
+  if (shouldRunLlmAudit) {
+    const auditPrompt = builderAuditPrompt(state)
 
+    try {
+      // Invoke your structured response wrapper
+      const llmResult = await executeJsonCompletion<LLMValidationResponse>(
+        auditPrompt.trim(),
+        systemInstruction.trim(),
+        // LATENCY_QUICKWIN: previous — restore STRUCTURAL_JSON if validation misses criticals or over-triggers regen
+        // LLM_VALIDATION_SCHEMA,LLMTask.STRUCTURAL_JSON,provider
+        LLM_VALIDATION_SCHEMA,LLMTask.STRUCTURAL_JSON_LITE,provider
+      );
 
-  const auditPrompt = builderAuditPrompt(state)
+      // Merge LLM discovered discrepancies into our core checklist tracker
+      if (llmResult && Array.isArray(llmResult.issues)) {
+        issues.push(...llmResult.issues);
+      }
+      llmAuditRan = true;
 
-  try {
-    // Invoke your structured response wrapper
-    const llmResult = await executeJsonCompletion<LLMValidationResponse>(
-      auditPrompt.trim(),
-      systemInstruction.trim(),
-      // LATENCY_QUICKWIN: previous — restore STRUCTURAL_JSON if validation misses criticals or over-triggers regen
-      // LLM_VALIDATION_SCHEMA,LLMTask.STRUCTURAL_JSON,provider
-      LLM_VALIDATION_SCHEMA,LLMTask.STRUCTURAL_JSON_LITE,provider
-    );
-
-    // Merge LLM discovered discrepancies into our core checklist tracker
-    if (llmResult && Array.isArray(llmResult.issues)) {
-      issues.push(...llmResult.issues);
+    } catch (error) {
+      console.error('Non-blocking validation warning: Semantic audit engine failed.', error);
+      // Append a warning issue instead of crashing the worker queue completely
+      issues.push({
+        type: 'formatting',
+        severity: 'warning',
+        description: `Semantic analysis step partially timed out or failed to parse: ${(error as Error).message}`
+      });
     }
-
-  } catch (error) {
-    console.error('Non-blocking validation warning: Semantic audit engine failed.', error);
-    // Append a warning issue instead of crashing the worker queue completely
-    issues.push({
-      type: 'formatting',
-      severity: 'warning',
-      description: `Semantic analysis step partially timed out or failed to parse: ${(error as Error).message}`
-    });
+  } else {
+    console.log(
+      `[Validation] Skipped LLM semantic audit (deterministicCriticals=${deterministicCriticalCount}, isFirstDraft=${isFirstDraft}).`
+    );
   }
 
   // ==========================================
@@ -119,7 +134,8 @@ export const validationStep = async (
       ...state.metadata,
       validatedAt: new Date().toISOString(),
       totalIssuesFound: issues.length,
-      criticalCount: issues.filter(i => i.severity === 'critical').length
+      criticalCount: issues.filter(i => i.severity === 'critical').length,
+      llmAuditRan
     }
   };
 };

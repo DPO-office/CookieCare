@@ -130,27 +130,21 @@ function readStringField(
   return typeof value === "string" && value.trim() ? value.trim() : undefined;
 }
 
-function readStringArrayField(
-  source: Record<string, unknown> | undefined,
-  key: string
-): string[] | undefined {
-  const value = source?.[key];
-  if (!Array.isArray(value)) {
-    return undefined;
-  }
-
-  return value.filter((item): item is string => typeof item === "string");
-}
-
-function resolveCatalogFilters(state: DraftState): ClauseCatalogFilters {
-  const formFields = state.request.formFields;
-
+/**
+ * Build clause-catalog filters from the values the LLM extracted in step 1.
+ * The frontend no longer supplies contractType/jurisdiction; extraction is the
+ * single source of truth, so baseline clauses are fetched AFTER extraction using
+ * the derived contract type.
+ */
+function resolveCatalogFilters(
+  extracted: RequirementExtractionResult,
+  state: DraftState
+): ClauseCatalogFilters {
   return {
-    contractType: readStringField(formFields, "contractType"),
-    jurisdiction: readStringField(formFields, "jurisdiction"),
-    industry: readStringField(formFields, "industry"),
+    contractType: extracted.contractType || undefined,
+    jurisdiction: extracted.jurisdiction || undefined,
+    industry: extracted.industry || undefined,
     templateId: state.request.templateId,
-    clauseIds: readStringArrayField(formFields, "clauseIds"),
     organizationId: readStringField(
       state.metadata as Record<string, unknown>,
       "organizationId"
@@ -187,14 +181,8 @@ function mergeRequiredClauses(
  * Splits logic based on whether we are performing Proactive creation or Reactive defense.
  */
 function buildExtractionPrompt(
-  state: DraftState,
-  baselineRequiredClauses: string[]
+  state: DraftState
 ): string {
-  const formFields =
-    state.request.formFields && Object.keys(state.request.formFields).length > 0
-      ? JSON.stringify(state.request.formFields)
-      : "";
-
   const sourceText =
     typeof state.request.sourceText === "string" &&
     state.request.sourceText.trim()
@@ -232,35 +220,27 @@ function buildExtractionPrompt(
       .join("\n");
   }
 
-  // TRACK B: THE STANDARD PROACTIVE TRACK (Your unchanged existing code layout)
-  const baselineClauseList =
-    baselineRequiredClauses.length > 0
-      ? baselineRequiredClauses.map((clause) => `- ${clause}`).join("\n")
-      : "- (none loaded from catalog)";
-
+  // TRACK B: THE STANDARD PROACTIVE TRACK
+  // The platform loads baseline clauses from the catalog AFTER this step using the
+  // contractType we derive here, so the model only needs to identify the contract
+  // type plus any clause exclusions/additions the user explicitly asked for.
   return [
-    "Extract structured drafting requirements from the inputs below.",
+    "Extract structured drafting requirements from the user's request below.",
     "",
-    "User instructions:",
+    "User request (what to draft + how):",
     state.request.rawInstructions ?? "",
     "",
-    formFields ? `Form fields (JSON):\n${formFields}\n` : "",
     sourceTextSnippet ? `Source text (snippet):\n${sourceTextSnippet}\n` : "",
-    "Baseline required clauses (already loaded from the clause catalog — do NOT re-guess these):",
-    baselineClauseList,
-    "",
     "Clause handling rules:",
-    "- `excludedClauses`: clause types the user explicitly asked to omit or exclude from the baseline list above.",
-    "- `additionalRequiredClauses`: ONLY clause types that are NOT already in the baseline list but are required based on user instructions or obvious contract gaps.",
-    "- Do NOT repeat baseline clauses inside `additionalRequiredClauses`.",
-    "- Do NOT invent baseline clauses from scratch; the platform already loaded them from the database.",
-    "- If the user requests a specific new clause (e.g. 'add a non-compete'), put it in `additionalRequiredClauses`.",
-    "- If the user says to skip/remove a baseline clause (e.g. 'no indemnity clause'), put it in `excludedClauses`.",
+    "- `excludedClauses`: clause types the user explicitly asked to omit or remove (e.g. 'no indemnity clause').",
+    "- `additionalRequiredClauses`: clause types the user explicitly asked to add (e.g. 'add a non-compete').",
+    "- Leave both empty [] unless the user's request clearly calls for an addition or removal.",
+    "- Do NOT invent baseline clauses; the platform loads those from the database after this step.",
     "",
     "Other field rules:",
     "- Produce concrete strings (no nulls).",
-    "- If a value is unknown, infer a safe default consistent with the instructions.",
-    "- `parties` must be an array of party names (strings).",
+    "- If a value is not specified by the user, output 'Not specified' and do NOT invent jurisdictions, dates, parties, or amounts.",
+    "- `parties` must be an array of party names (strings); use [] if none are specified.",
     "- `optionalClauses` must be clause/topic names that are nice-to-have but not mandatory.",
     "- `instructions` should be a cleaned, consolidated instruction string.",
   ]
@@ -269,7 +249,8 @@ function buildExtractionPrompt(
 }
 
 async function fetchBaselineClauses(
-  state: DraftState
+  state: DraftState,
+  extracted: RequirementExtractionResult
 ): Promise<{ clauses: string[]; warning?: string }> {
   // If we are responding reactively, baseline clause catalogs for PROACTIVE creation are bypassed
   if (state.request.intent === "REACTIVE") {
@@ -277,7 +258,7 @@ async function fetchBaselineClauses(
   }
 
   try {
-    const filters = resolveCatalogFilters(state);
+    const filters = resolveCatalogFilters(extracted, state);
     const retriever = new ClauseCatalogRetriever(pool);
     const clauses = await retriever.fetchBaselineClauseTypes(filters);
     return { clauses };
@@ -327,39 +308,30 @@ export async function requirementExtractionStep(
   
   const systemInstruction = isReactive
     ? "You are a deterministic requirements extraction engine analyzing a vendor agreement. Extract the contract type, title, parties, effective date, jurisdiction, and rules. Return ONLY valid JSON matching the provided JSON Schema. Do not include markdown or commentary."
-    : "You are a deterministic requirements extraction engine. Baseline required clauses are already provided by the platform from the database. Your clause task is limited to identifying exclusions and additional required clauses only. Return ONLY valid JSON matching the provided JSON Schema. Do not include markdown or commentary.";
+    : "You are a deterministic requirements extraction engine. Derive the contract type and all drafting requirements from the user's request. Your clause task is limited to identifying explicit exclusions and additional required clauses. Do not invent values that the user did not specify. Return ONLY valid JSON matching the provided JSON Schema. Do not include markdown or commentary.";
 
-  const { clauses: baselineRequiredClauses, warning: catalogWarning } =
-    await fetchBaselineClauses(state);
+  // The user's raw request is the only input; contractType is DERIVED here and then
+  // used to load baseline clauses (fixing the previous formFields dependency).
+  const prompt = buildExtractionPrompt(state);
 
-  let workingState = state;
-  if (catalogWarning) {
-    workingState = appendValidationWarning(workingState, catalogWarning);
-  }
-
-  const prompt = buildExtractionPrompt(workingState, baselineRequiredClauses);
+  // Neutral fallback used when the LLM cannot run — never fabricates specifics.
+  const buildFallbackRequirements = (baseline: string[]): RequirementContext => ({
+    contractType: "General",
+    jurisdiction: "Not specified",
+    industry: "General",
+    parties: [],
+    requiredClauses: baseline,
+    optionalClauses: [],
+    language: "English",
+    instructions: state.request.rawInstructions ?? "",
+  });
 
   try {
     if (!config.openRouterApiKey || !config.openRouterApiKey.trim()) {
-      const fallbackRequirements: RequirementContext = {
-        contractType:
-          readStringField(state.request.formFields, "contractType") ?? "General",
-        jurisdiction:
-          readStringField(state.request.formFields, "jurisdiction") ??
-          "Unspecified",
-        industry:
-          readStringField(state.request.formFields, "industry") ?? "General",
-        parties: [],
-        requiredClauses: baselineRequiredClauses,
-        optionalClauses: [],
-        language: "English",
-        instructions: state.request.rawInstructions ?? "",
-      };
-
       return appendValidationWarning(
         {
-          ...workingState,
-          requirements: fallbackRequirements,
+          ...state,
+          requirements: buildFallbackRequirements([]),
         },
         "Requirement extraction skipped: OPENROUTER_API_KEY is not configured."
       );
@@ -375,6 +347,16 @@ export async function requirementExtractionStep(
       schemaToUse,LLMTask.STRUCTURAL_JSON,provider
     );
 
+    // Now that we know the contract type, load baseline clauses from the catalog
+    // and reconcile them with the user's explicit exclusions/additions.
+    const { clauses: baselineRequiredClauses, warning: catalogWarning } =
+      await fetchBaselineClauses(state, extracted);
+
+    let workingState = state;
+    if (catalogWarning) {
+      workingState = appendValidationWarning(workingState, catalogWarning);
+    }
+
     return {
       ...workingState,
       requirements: toRequirementContext(extracted, baselineRequiredClauses),
@@ -388,27 +370,12 @@ export async function requirementExtractionStep(
       },
     };
   } catch (err) {
-    const fallbackRequirements: RequirementContext = {
-      contractType:
-        readStringField(state.request.formFields, "contractType") ?? "General",
-      jurisdiction:
-        readStringField(state.request.formFields, "jurisdiction") ??
-        "Unspecified",
-      industry:
-        readStringField(state.request.formFields, "industry") ?? "General",
-      parties: [],
-      requiredClauses: baselineRequiredClauses,
-      optionalClauses: [],
-      language: "English",
-      instructions: state.request.rawInstructions ?? "",
-    };
-
     return appendValidationWarning(
       {
-        ...workingState,
-        requirements: fallbackRequirements,
+        ...state,
+        requirements: buildFallbackRequirements([]),
       },
-      `Requirement extraction failed; continuing with catalog baseline clauses. ${(err as Error).message}`
+      `Requirement extraction failed; continuing without catalog baseline clauses. ${(err as Error).message}`
     );
   }
 }

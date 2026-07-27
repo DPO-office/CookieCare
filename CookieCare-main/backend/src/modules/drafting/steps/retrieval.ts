@@ -182,9 +182,14 @@ export const retrievalStep = async (state: DraftState): Promise<DraftState> => {
     }
   };
 
-  const dbRules = await readPlaybookRulesFromDb();
-  const matchedTemplate = await readTemplateFromDb();
-  
+  // LATENCY: playbook rules and the template lookup are independent DB reads, so run
+  // them concurrently instead of serially. Clause retrieval depends on the rule topics,
+  // so it still runs afterwards.
+  const [dbRules, matchedTemplate] = await Promise.all([
+    readPlaybookRulesFromDb(),
+    readTemplateFromDb()
+  ]);
+
   // Extract playbook topics to search for relevant clauses
   const playbookTopics = dbRules.map(r => r.topic);
   const clauses: Clause[] = await retrieveClauses(playbookTopics);

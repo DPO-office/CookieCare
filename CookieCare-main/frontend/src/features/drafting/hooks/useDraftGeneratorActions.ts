@@ -1,34 +1,18 @@
 import { apiUrl } from "../../../config";
 import { LegalDocument } from "../../../shared/types";
 import { markdownToHtml } from "../../../shared/utils/markdownToHtml";
-import { AdvancedField } from "../types";
 
-// --- Backend-aligned payload types (mirror DraftRequestSchema / RefineRequestSchema) ---
+// --- Backend-aligned payload types (mirror the unified DraftRequestSchema) ---
+// The backend receives only raw user intent; contractType, parties, governing law,
+// term tiers, liability, etc. are derived in orchestration step 1 (requirement extraction).
 
-type BasicDraftPayload = {
-  mode: "BASIC";
-  instructions: string;
-  contractType: string;
-  formFields: Record<string, string>;
+type DraftRequestPayload = {
+  mode: "BASIC" | "PROACTIVE" | "REACTIVE";
+  draftInput: string;
+  draftInstructions: string;
+  uploadedDocument?: string | null;
+  documentId?: string | null;
 };
-
-type ProactiveDraftPayload = {
-  mode: "PROACTIVE";
-  instructions: string;
-  aiRulebookPrompt?: string;
-  templateId?: string;
-  playbookId?: string;
-  clauseIds?: string[];
-};
-
-type ReactiveDraftPayload = {
-  mode: "REACTIVE";
-  sourceDocumentId: string;
-  extractedFields: Record<string, string>;
-  instructions: string;
-};
-
-type DraftRequestPayload = BasicDraftPayload | ProactiveDraftPayload | ReactiveDraftPayload;
 
 type RefineRequestPayload = {
   documentId: string;
@@ -39,52 +23,35 @@ type RefineRequestPayload = {
 type DraftUiState = {
   mode: string;
   instructions: string;
-  basicPartyA: string;
-  basicPartyB: string;
-  basicLaw: string;
-  basicLiability: string;
+  playbookGuidelines: string;
   advancedStep: string;
-  selectedTemplateName: string | null;
   referenceInstructions: string;
   aiRulebookPrompt: string;
-  uploadFileName: string;
-  advancedFieldValues: Record<string, string>;
-  selectedClauses: string[];
   sourceDocumentId: string;
-  playbookId?: string;
+  documentId?: string | null;
 };
 
 function buildGenerateStreamPayload(uiState: DraftUiState): DraftRequestPayload {
   if (uiState.mode === "Basic") {
-    const formFields: Record<string, string> = {
-      contractType: "NDA",
-      party_a: uiState.basicPartyA,
-      party_b: uiState.basicPartyB,
-      governing_law: uiState.basicLaw,
-      liability_cap: uiState.basicLiability,
-    };
-
     return {
       mode: "BASIC",
-      instructions: uiState.instructions,
-      contractType: formFields.contractType || "NDA",
-      formFields,
+      draftInput: uiState.instructions,
+      draftInstructions: uiState.playbookGuidelines || "",
     };
   }
 
   if (uiState.advancedStep === "proactive") {
-    const userInstructions = uiState.referenceInstructions || uiState.instructions;
-    if (!userInstructions || !userInstructions.trim()) {
+    const draftInput = uiState.referenceInstructions || uiState.instructions;
+    if (!draftInput || !draftInput.trim()) {
       throw new Error("Please describe what you want to draft in the first field.");
     }
 
     return {
       mode: "PROACTIVE",
-      instructions: userInstructions,
-      aiRulebookPrompt: uiState.aiRulebookPrompt || undefined,
-      templateId: uiState.selectedTemplateName || undefined,
-      playbookId: uiState.playbookId || undefined,
-      clauseIds: uiState.selectedClauses.length > 0 ? uiState.selectedClauses : undefined,
+      draftInput,
+      draftInstructions: uiState.aiRulebookPrompt || "",
+      // Vault selector arrives later; proactive currently runs on default documents.
+      documentId: uiState.documentId ?? null,
     };
   }
 
@@ -94,9 +61,11 @@ function buildGenerateStreamPayload(uiState: DraftUiState): DraftRequestPayload 
 
   return {
     mode: "REACTIVE",
-    sourceDocumentId: uiState.sourceDocumentId,
-    extractedFields: uiState.advancedFieldValues || {},
-    instructions: uiState.instructions,
+    // The uploaded document IS the "what to draft"; the user's typed rules are the
+    // instructions. All other details are extracted from the document in step 1.
+    draftInput: "",
+    draftInstructions: uiState.instructions || "",
+    uploadedDocument: uiState.sourceDocumentId,
   };
 }
 
@@ -136,16 +105,6 @@ function buildRefinePayload(
   };
 }
 
-function extractPlaceholderFields(text: string): AdvancedField[] {
-  const placeholders = Array.from(text.matchAll(/\{\{\s*([^}]+?)\s*\}\}/g));
-  return placeholders.map((match, index) => ({
-    id: match[1].trim().toLowerCase().replace(/[^a-z0-9]+/g, "_") || `field_${index + 1}`,
-    name: match[1].trim(),
-    defaultValue: "",
-    description: "Template field",
-  }));
-}
-
 function normalizeDraftMarkdownInput(text: string): string {
   return text
     .replace(/\r\n/g, "\n")
@@ -169,8 +128,6 @@ interface UseDraftGeneratorActionsParams {
   setUploadFileName: (name: string) => void;
   setSourceDocumentId: (id: string) => void;
   setIsParsingTemplate: (parsing: boolean) => void;
-  setAdvancedFields: (fields: AdvancedField[]) => void;
-  setAdvancedFieldValues: (values: Record<string, string>) => void;
   selectedTextRange: { start: number; end: number } | null;
   setSelectedTextRange: (range: { start: number; end: number } | null) => void;
   setShowFloatingMenu: (show: boolean) => void;
@@ -201,8 +158,6 @@ export function useDraftGeneratorActions({
   setUploadFileName,
   setSourceDocumentId,
   setIsParsingTemplate,
-  setAdvancedFields,
-  setAdvancedFieldValues,
   selectedTextRange,
   setSelectedTextRange,
   setShowFloatingMenu,
@@ -292,25 +247,23 @@ export function useDraftGeneratorActions({
     mode: string;
     depth: string;
     instructions: string;
-    basicPartyA: string;
-    basicPartyB: string;
-    basicLaw: string;
-    basicLiability: string;
+    playbookGuidelines: string;
     advancedStep: string;
     selectedTemplateName: string | null;
     aiRulebookPrompt: string;
     referenceInstructions: string;
     uploadFileName: string;
     uploadText: string;
-    advancedFieldValues: Record<string, string>;
-    selectedClauses: string[];
     sourceDocumentId: string;
-    playbookId?: string;
+    documentId?: string | null;
   }) => {
     setIsStreaming(true);
     setStreamingProgress("Initiating multi-agent ingestion pipeline...");
     setDraftError("");
     pushUndoSnapshot(editorContent);
+    // Reset the canvas so the live streaming preview starts from a clean slate
+    // (the previous content was just snapshotted above for undo).
+    setEditorContent("");
 
     let documentTitle = "Mutual Compliance Agreement";
 
@@ -332,19 +285,12 @@ export function useDraftGeneratorActions({
       payload = buildGenerateStreamPayload({
         mode: params.mode,
         instructions: params.instructions,
-        basicPartyA: params.basicPartyA,
-        basicPartyB: params.basicPartyB,
-        basicLaw: params.basicLaw,
-        basicLiability: params.basicLiability,
+        playbookGuidelines: params.playbookGuidelines,
         advancedStep: params.advancedStep,
-        selectedTemplateName: params.selectedTemplateName,
         referenceInstructions: params.referenceInstructions,
         aiRulebookPrompt: params.aiRulebookPrompt,
-        uploadFileName: params.uploadFileName,
-        advancedFieldValues: params.advancedFieldValues,
-        selectedClauses: params.selectedClauses,
         sourceDocumentId: params.sourceDocumentId,
-        playbookId: params.playbookId,
+        documentId: params.documentId,
       });
     } catch (validationErr: any) {
       setIsStreaming(false);
@@ -368,8 +314,20 @@ export function useDraftGeneratorActions({
 
       if (res.status === 202 && data.job_id) {
         const eventSource = new EventSource(apiUrl(`/api/jobs/sse?token=${authToken}`));
+        // Live token stream buffer — filled by "draft_token" events and rendered
+        // incrementally. The final "completed" event is the authoritative content.
+        let streamBuffer = "";
         eventSource.onmessage = (event) => {
           const p = JSON.parse(event.data);
+
+          // Real token streaming: append deltas and render live as the doc is written.
+          if (p.event === "draft_token" && p.jobId === data.job_id) {
+            streamBuffer += p.delta || "";
+            setStreamingProgress("Drafting your document...");
+            setEditorContent(markdownToHtml(normalizeDraftMarkdownInput(streamBuffer)));
+            return;
+          }
+
           if (p.event === "job_update" && p.job.id === data.job_id) {
             if (p.job.message) setStreamingProgress(p.job.message);
             if (p.job.status === "completed") {
@@ -426,16 +384,6 @@ export function useDraftGeneratorActions({
       reader.onload = (event) => {
         const text = (event.target?.result as string) || "";
         setUploadText(text);
-
-        const fields = extractPlaceholderFields(text);
-        if (fields.length > 0) {
-          setAdvancedFields(fields);
-          const seedVals: Record<string, string> = {};
-          fields.forEach((f) => {
-            seedVals[f.id] = f.defaultValue;
-          });
-          setAdvancedFieldValues(seedVals);
-        }
       };
       reader.readAsText(file);
     } catch (err: any) {

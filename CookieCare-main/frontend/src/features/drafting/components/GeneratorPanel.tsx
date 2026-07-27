@@ -25,10 +25,6 @@ interface GeneratorPanelProps {
   instructions: string;
   playbookGuidelines: string;
   customClauseText: string;
-  basicPartyA: string;
-  basicPartyB: string;
-  basicLaw: string;
-  basicLiability: string;
   advancedStep: AdvancedStep;
   clauseTab: ClauseTab;
   s1Open: boolean;
@@ -49,8 +45,6 @@ interface GeneratorPanelProps {
   uploadText: string;
   uploadFileName: string;
   isParsingTemplate: boolean;
-  advancedFields: any[];
-  advancedFieldValues: Record<string, string>;
   isStreaming: boolean;
   streamingProgress: string;
   draftError: string;
@@ -59,10 +53,6 @@ interface GeneratorPanelProps {
   onSetInstructions: (inst: string) => void;
   onSetPlaybookGuidelines: (guide: string) => void;
   onSetCustomClauseText: (text: string) => void;
-  onSetBasicPartyA: (val: string) => void;
-  onSetBasicPartyB: (val: string) => void;
-  onSetBasicLaw: (val: string) => void;
-  onSetBasicLiability: (val: string) => void;
   onSetAdvancedStep: (step: AdvancedStep) => void;
   onSetClauseTab: (tab: ClauseTab) => void;
   onSetS1Open: (open: boolean) => void;
@@ -83,8 +73,6 @@ interface GeneratorPanelProps {
   onSetUploadText: (text: string) => void;
   onSetUploadFileName: (name: string) => void;
   onSetIsParsingTemplate: (parsing: boolean) => void;
-  onSetAdvancedFields: (fields: any[]) => void;
-  onSetAdvancedFieldValues: (vals: Record<string, string>) => void;
   onHandleDragOver: (e: React.DragEvent) => void;
   onHandleDragLeave: () => void;
   onHandleDrop: (e: React.DragEvent) => void;
@@ -225,12 +213,9 @@ export default function GeneratorPanel(props: GeneratorPanelProps) {
             <GeneratorAdvancedReactive
               isDragging={props.isDragging}
               uploadFileName={props.uploadFileName}
-              advancedFields={props.advancedFields}
-              advancedFieldValues={props.advancedFieldValues}
               instructions={props.instructions}
               onSetAdvancedStep={props.onSetAdvancedStep}
               onSetInstructions={props.onSetInstructions}
-              onSetAdvancedFieldValues={props.onSetAdvancedFieldValues}
               onHandleDragOver={props.onHandleDragOver}
               onHandleDragLeave={props.onHandleDragLeave}
               onHandleDrop={props.onHandleDrop}

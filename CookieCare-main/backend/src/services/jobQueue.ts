@@ -172,6 +172,20 @@ class BackgroundJobRegistry {
     }
   }
 
+  /**
+   * Push an incremental generation token (delta) to a user's SSE clients.
+   * Used for live document streaming during drafting; the final `job_update`
+   * completed event remains the authoritative content.
+   */
+  public broadcastToken(userId: string, jobId: string, delta: string): void {
+    const payloadStr = JSON.stringify({ event: "draft_token", jobId, delta });
+    for (const client of this.clients) {
+      if (client.userId === userId) {
+        client.send(`data: ${payloadStr}\n\n`);
+      }
+    }
+  }
+
   public addClient(userId: string, res: any): string {
     const id = "client_" + crypto.randomUUID();
     res.write(`data: ${JSON.stringify({ event: "ping", timestamp: new Date().toISOString() })}\n\n`);

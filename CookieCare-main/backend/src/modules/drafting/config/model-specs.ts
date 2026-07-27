@@ -28,7 +28,8 @@ export enum LLMTask {
   COMPLEX_DRAFT    = "COMPLEX_DRAFT",    // Initial contract clause composition
   STRUCTURAL_JSON  = "STRUCTURAL_JSON",   // Strict schema processing and extraction
   REFINEMENT       = "REFINEMENT",    
-  STRUCTURAL_JSON_LITE = "STRUCTURAL_JSON_LITE" // Interactive highlight editor changes
+  STRUCTURAL_JSON_LITE = "STRUCTURAL_JSON_LITE", // Interactive highlight editor changes
+  SECTION_REFINE   = "SECTION_REFINE"   // Surgical single-section regeneration (fast, scoped)
 }
 
 export enum LLMProvider {
@@ -70,7 +71,11 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
       // Flash was considered and rejected for the main generation call in this pass.
       model: GeminiModel.GEMINI_2_5_PRO, 
       temperature: 0.0, 
-      maxOutputTokens: 8192 
+      // LATENCY: output length is the #1 latency driver. A ~2000-word agreement is
+      // ~3000 tokens; 4096 leaves generous headroom while bounding worst-case emit
+      // time. Previous value was 8192 — restore it if long documents get truncated.
+      // maxOutputTokens: 8192
+      maxOutputTokens: 4096 
     },
     [LLMTask.STRUCTURAL_JSON]: { 
       // LATENCY_QUICKWIN: previous — restore if extraction/validation quality regresses
@@ -87,6 +92,13 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
     [LLMTask.REFINEMENT]: { 
       model: GeminiModel.GEMINI_2_5_FLASH, 
       temperature: 0.2 
+    },
+    [LLMTask.SECTION_REFINE]: {
+      // Surgical single-section regeneration: keep Pro for legal-prose quality, but a
+      // small output cap since we only emit one section (fast + cheap vs full-doc regen).
+      model: GeminiModel.GEMINI_2_5_PRO,
+      temperature: 0.0,
+      maxOutputTokens: 2048
     }
   },
   [LLMProvider.OPENROUTER]: {
@@ -111,6 +123,11 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
     [LLMTask.REFINEMENT]: { 
       model: OpenRouterModel.LLAMA_3_3_70B, 
       temperature: 0.2 
+    },
+    [LLMTask.SECTION_REFINE]: {
+      model: OpenRouterModel.CLAUDE_3_5_SONNET,
+      temperature: 0.0,
+      maxOutputTokens: 2048
     }
   }
 };

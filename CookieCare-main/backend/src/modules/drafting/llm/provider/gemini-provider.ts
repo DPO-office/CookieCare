@@ -69,6 +69,47 @@ export class GeminiProvider implements ILLMProvider {
     }
   }
 
+  /**
+   * Real token streaming: emits each chunk via onDelta as it arrives and returns the
+   * full concatenated text. Used for the heavy COMPLEX_DRAFT call so the user sees the
+   * document appear live instead of waiting for the whole thing.
+   */
+  async getCompletionStream(
+    prompt: string,
+    systemInstruction: string,
+    runtimeConfig: TaskModelConfig,
+    onDelta: (delta: string) => void
+  ): Promise<string> {
+    try {
+      const stream = await this.ai.models.generateContentStream({
+        model: runtimeConfig.model,
+        contents: prompt,
+        config: {
+          systemInstruction: systemInstruction,
+          temperature: runtimeConfig.temperature,
+          maxOutputTokens: runtimeConfig.maxOutputTokens,
+          thinkingConfig: { thinkingBudget: resolveThinkingBudget(runtimeConfig.model) }
+        }
+      });
+
+      let full = "";
+      for await (const chunk of stream) {
+        const piece = chunk.text ?? "";
+        if (piece) {
+          full += piece;
+          try {
+            onDelta(piece);
+          } catch {
+            /* delivery is best-effort; never let a broadcast error abort generation */
+          }
+        }
+      }
+      return full;
+    } catch (err: any) {
+      throw new Error(`Gemini Streaming Engine failure: ${err.message}`);
+    }
+  }
+
   async getJsonCompletion<T>(prompt: string, systemInstruction: string, jsonSchema: any, runtimeConfig: TaskModelConfig): Promise<T> {
     try {
       // LATENCY_QUICKWIN: previous config without thinking control — restore if quality regresses

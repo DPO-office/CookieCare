@@ -5,12 +5,9 @@ import { AdvancedStep } from "../types";
 interface GeneratorAdvancedReactiveProps {
   isDragging: boolean;
   uploadFileName: string;
-  advancedFields: any[];
-  advancedFieldValues: Record<string, string>;
   instructions: string;
   onSetAdvancedStep: (step: AdvancedStep) => void;
   onSetInstructions: (inst: string) => void;
-  onSetAdvancedFieldValues: (vals: Record<string, string>) => void;
   onHandleDragOver: (e: React.DragEvent) => void;
   onHandleDragLeave: () => void;
   onHandleDrop: (e: React.DragEvent) => void;
@@ -21,12 +18,9 @@ interface GeneratorAdvancedReactiveProps {
 export default function GeneratorAdvancedReactive({
   isDragging,
   uploadFileName,
-  advancedFields,
-  advancedFieldValues,
   instructions,
   onSetAdvancedStep,
   onSetInstructions,
-  onSetAdvancedFieldValues,
   onHandleDragOver,
   onHandleDragLeave,
   onHandleDrop,
@@ -75,29 +69,6 @@ export default function GeneratorAdvancedReactive({
           <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-800 text-[12px] flex justify-between items-center font-medium">
             <span>Sanitized: {uploadFileName}</span>
             <span className="text-[11px] text-emerald-600 font-mono">AES Secure</span>
-          </div>
-        )}
-
-        {/* Extracted variables */}
-        {advancedFields.length > 0 && (
-          <div className="space-y-4">
-            <div className="border-b border-gray-100 pb-2.5">
-              <span className="text-[10px] bg-emerald-500 text-white font-mono uppercase px-2 py-0.5 rounded font-bold tracking-wide">Shield Extractor Vetted</span>
-              <h4 className="font-bold text-[13px] text-gray-900 mt-2.5">Extracted blueprints checklist</h4>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {advancedFields.map((field) => (
-                <div key={field.id} className="space-y-1.5">
-                  <label className="block text-[10px] font-bold text-gray-500 font-mono uppercase tracking-wider">{field.name}</label>
-                  <input
-                    type="text"
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-[12px] text-gray-800 font-mono focus:outline-none focus:ring-2 focus:ring-gray-100 focus:border-gray-300"
-                    value={advancedFieldValues[field.id] || ""}
-                    onChange={(e) => onSetAdvancedFieldValues({ ...advancedFieldValues, [field.id]: e.target.value })}
-                  />
-                </div>
-              ))}
-            </div>
           </div>
         )}
 

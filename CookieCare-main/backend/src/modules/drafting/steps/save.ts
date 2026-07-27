@@ -1,5 +1,6 @@
 import { pool } from '../../../config/database';
 import { DraftState } from '../models/draft-state';
+import { toPersistedState } from '../utils/persisted-state.js';
 
 export const saveStep = async (state: DraftState): Promise<DraftState> => {
 
@@ -8,15 +9,9 @@ export const saveStep = async (state: DraftState): Promise<DraftState> => {
   }
 
   try {
-    const snapshotMatrix = structuredClone({
-      requirements: state.requirements,
-      retrieval: state.retrieval,
-      context: state.context,
-      draft: state.draft,
-      validation: state.validation,
-      riskReview: state.riskReview,
-      metadata: state.metadata
-    });
+    // Persist via the hygiene boundary: strips the large compiled prompts
+    // (context.assembledPrompt/systemPrompt) and includes the memory log.
+    const snapshotMatrix = structuredClone(toPersistedState(state));
 
     // 3. Resolve historical identifier keys to manage document version tracking paths
     const documentId = state.request.payloadFields?.documentId || `doc_${crypto.randomUUID()}`;

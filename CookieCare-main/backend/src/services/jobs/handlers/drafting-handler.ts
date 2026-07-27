@@ -10,6 +10,7 @@ import { DraftMode, DraftState } from "../../../modules/drafting/models/draft-st
 import pdf from "pdf-parse-fork";
 import { DraftWorkflowOrchestrator } from "../../../modules/drafting/workflows/draft-workflow.js";
 import { resolveLegalDocumentTitle } from "../../../modules/drafting/prompts/system-templates.js";
+import { parseSections } from "../../../modules/drafting/utils/document-sections.js";
 
 async function extractTextFromStorageUrl(fileUrl: string): Promise<string> {
     const response = await fetch(fileUrl);
@@ -22,21 +23,32 @@ async function extractTextFromStorageUrl(fileUrl: string): Promise<string> {
 
 
 async function handleInitialDraftingJob(jobId: string, userId: string, payload: any): Promise<any> {
-    // 1. Ingest the aligned Zod structure payload parameters
-    const { mode, instructions, aiRulebookPrompt, contractType, formFields, templateId, sourceDocumentId, extractedFields } = payload;
+    // 1. Ingest the unified instruction feed. The frontend sends only raw user
+    //    intent; all structured details are derived in step 1 (requirement extraction).
+    const { mode, draftInput, draftInstructions, uploadedDocument, documentId } = payload;
     console.log("Entered main handleInitialDraftingJob with mode:", mode);
   
     await updateJobProgress(jobId, userId, 20, "Extracting compliance parameters and routing tracking slots...");
     const targetDocId = "doc_" + crypto.randomUUID();
 
+    // Compose the single raw-instruction blob passed to extraction. Keep the two
+    // fields distinguishable so the model can tell "what to draft" from "how".
+    const composedInstructions = [
+      draftInput || "",
+      draftInstructions ? `Drafting instructions & requirements:\n${draftInstructions}` : ""
+    ]
+      .filter((part) => part && part.trim())
+      .join("\n\n")
+      .trim();
+
     let resolvedSourceText: string | undefined = undefined;
   
-    // 2. Resolve Reactive Mode text content from our database if sourceDocumentId exists
-    if (mode === "REACTIVE" && sourceDocumentId) {
+    // 2. Resolve Reactive Mode text content from our database if an uploaded document exists
+    if (mode === "REACTIVE" && uploadedDocument) {
       try {
         const fileLookup = await pool.query(
           "SELECT content, is_encrypted FROM files WHERE id = $1 LIMIT 1",
-          [sourceDocumentId]
+          [uploadedDocument]
         );
         if (fileLookup.rows.length > 0) {
           const fileRow = fileLookup.rows[0];
@@ -45,7 +57,7 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
             : fileRow.content;
         }
       } catch (err) {
-        console.error("Failed to resolve reactive source text from sourceDocumentId:", err);
+        console.error("Failed to resolve reactive source text from uploadedDocument:", err);
       }
     }
 
@@ -58,26 +70,29 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
       onProgress: async (percent, message) => {
         await updateJobProgress(jobId, userId, percent, message);
       },
+      onToken: (delta) => {
+        // Best-effort live streaming of generation tokens to the client.
+        jobRegistry.broadcastToken(userId, jobId, delta);
+      },
       request: {
         intent: evaluatedIntent, 
         mode: mode === "BASIC" ? "Basic" : mode === "PROACTIVE" ? "Standard Template" : "Advanced Proactive",        
-        rawInstructions: aiRulebookPrompt
-          ? `${instructions || ""}\n\nDrafting style & requirements:\n${aiRulebookPrompt}`.trim()
-          : (instructions || ""),
+        rawInstructions: composedInstructions,
         sourceText: resolvedSourceText,
-        templateId: templateId || undefined,
-        formFields: formFields || {},
+        // Proactive playbook/reference doc selection is `documentId` (null until the
+        // vault ships); it is intentionally unused for now.
         payloadFields: { documentId: targetDocId }
       },
+      // Neutral placeholders — step 1 (requirement extraction) overwrites these.
       requirements: {
-        contractType: contractType || (formFields?.contractType) || "General",
-        jurisdiction: (formFields?.jurisdiction) || "Unspecified",
+        contractType: "General",
+        jurisdiction: "Not specified",
         industry: "General",
         parties: [],
         requiredClauses: [],
         optionalClauses: [],
         language: "English",
-        instructions: instructions || ""
+        instructions: composedInstructions
       },
         retrieval: {
           matchedTemplate: null,
@@ -112,8 +127,9 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
     // 4. Fetch user records to update application file rows
     // QUALITY_QUICKWIN: previous — `${contractType || "AI"} Agreement - ${new Date().toLocaleDateString()}`
     // which produced noisy titles like "Mutual NDA - Vendor Infrastructure Host Agreement - 24/7/2026"
+    // The contract type is now derived by step 1 (requirement extraction), not the UI feed.
     const legalTitle = resolveLegalDocumentTitle(
-      contractType || formFields?.contractType || finalizedState.requirements?.contractType
+      finalizedState.requirements?.contractType
     );
     const title = `${legalTitle} - ${new Date().toLocaleDateString("en-US")}`;
     const { email: creatorEmail } = await withTransaction(userId, 'USER', async (client) => {
@@ -258,9 +274,13 @@ async function handleRefinementJob(jobId: string, userId: string, payload: any):
             draft: {
                 rawOutput: historicalStateSnapshot.draft?.rawOutput ?? documentText,
                 formattedDocument: documentText,
+                // Carry structured sections so surgical refine can localize edits;
+                // reparse from text if an older snapshot predates the sections field.
+                sections: historicalStateSnapshot.draft?.sections ?? parseSections(documentText),
                 version: nextVersionNumber,
                 parentVersionId: historicalStateSnapshot.draft?.parentVersionId
             },
+            history: historicalStateSnapshot.history ?? [],
             validation: null,
             riskReview: null
         }
@@ -296,7 +316,8 @@ async function handleRefinementJob(jobId: string, userId: string, payload: any):
             draft: {
                 rawOutput: documentText,
                 version: nextVersionNumber,
-                formattedDocument: documentText
+                formattedDocument: documentText,
+                sections: parseSections(documentText)
             },
             validation: null,
             riskReview: null,
