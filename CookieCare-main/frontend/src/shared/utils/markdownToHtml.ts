@@ -16,6 +16,12 @@ const md = new MarkdownIt({
   breaks: false,     // Respect blank lines for paragraphs (GFM-style single \n → <br> is off)
 });
 
+// Legal documents rely on literal "(c)", "(r)", "(tm)" as subsection letters and
+// abbreviations. markdown-it's `replacements` rule (part of typographer) rewrites
+// "(c)" -> "©", "(tm)" -> "™", etc., which corrupts clause numbering like "(c)".
+// Disable only that rule; keep smart quotes (`smartquotes`) intact.
+md.disable(["replacements"]);
+
 /**
  * Strips Markdown code fences that wrap the entire response.
  *

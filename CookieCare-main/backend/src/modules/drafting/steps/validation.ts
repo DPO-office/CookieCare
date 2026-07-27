@@ -28,9 +28,11 @@ export const validationStep = async (
   // 1. Structural Checklist Validation
   // Ensure the LLM didn't accidentally delete or skip a core skeleton chapter
   if (state.context?.documentSkeleton) {
+    const normalizedDoc = documentText.toLowerCase();
     state.context.documentSkeleton.forEach((heading) => {
-      // Simple, strict substring check. Can be upgraded to case-insensitive regex if needed.
-      if (!documentText.includes(heading)) {
+      // QUALITY_QUICKWIN: previous strict includes(heading) failed on ALL-CAPS headers
+      // if (!documentText.includes(heading)) {
+      if (!normalizedDoc.includes(heading.toLowerCase())) {
         issues.push({
           type: 'omission',
           severity: 'critical',
@@ -42,14 +44,23 @@ export const validationStep = async (
   }
 
   // 2. Unresolved Placeholder Scan
-  // Scan for common token styles like [● DATE], [Insert Name], or template brackets
-  const placeholderRegex = /\[●.*?\]|\[Insert.*?\]|__+/gi;
+  // The system prompt instructs the model to use blank underlines (never [● NAME]/[● TITLE])
+  // in signature blocks. This scan is the safety net: if a signature placeholder still slips
+  // through it is flagged CRITICAL so the refinement loop regenerates it (fix-at-source, no
+  // silent regex patching). Other [●] tokens (e.g. a missing date) stay as warnings.
+  // Blank underlines (__+) are intentional signature fields and are NOT flagged.
+  // QUALITY_QUICKWIN: previous also flagged __+ underlines as warnings
+  // const placeholderRegex = /\[●.*?\]|\[Insert.*?\]|__+/gi;
+  const placeholderRegex = /\[●.*?\]|\[Insert.*?\]/gi;
   let match;
   while ((match = placeholderRegex.exec(documentText)) !== null) {
+    const token = match[0];
+    const isSignaturePlaceholder = /name|title/i.test(token);
     issues.push({
       type: 'formatting',
-      severity: 'warning',
-      description: `Unresolved structural placeholder token remaining at index location ${match.index}: "${match[0]}"`,
+      // Signature tokens are critical (regen fixes); other [●] stay warnings
+      severity: isSignaturePlaceholder ? 'critical' : 'warning',
+      description: `Unresolved structural placeholder token remaining at index location ${match.index}: "${token}"`,
     });
   }
 
@@ -71,7 +82,9 @@ export const validationStep = async (
     const llmResult = await executeJsonCompletion<LLMValidationResponse>(
       auditPrompt.trim(),
       systemInstruction.trim(),
-      LLM_VALIDATION_SCHEMA,LLMTask.STRUCTURAL_JSON,provider
+      // LATENCY_QUICKWIN: previous — restore STRUCTURAL_JSON if validation misses criticals or over-triggers regen
+      // LLM_VALIDATION_SCHEMA,LLMTask.STRUCTURAL_JSON,provider
+      LLM_VALIDATION_SCHEMA,LLMTask.STRUCTURAL_JSON_LITE,provider
     );
 
     // Merge LLM discovered discrepancies into our core checklist tracker

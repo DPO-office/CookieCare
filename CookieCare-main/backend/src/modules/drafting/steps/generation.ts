@@ -146,7 +146,11 @@ export const generationStep = async (state: DraftState,provider:LLMProvider = LL
       }
     }
 
-    // 3. Programmatically sanitize the document data stream
+    // 3. Programmatically strip only structural markdown wrappers (```markdown fences).
+    //    Content-level defects are handled at the correct layers, NOT patched here:
+    //    - "(c)" -> "©" corruption is fixed in the frontend renderer (markdownToHtml)
+    //    - [● NAME]/[● TITLE] signature placeholders are prevented by the system prompt
+    //      and, if they slip through, flagged as critical by validation -> regen loop.
     const cleanedDocumentText = cleanMarkdownArtifacts(rawModelOutput);
 
     // 4. Increment document version tracking variables smoothly

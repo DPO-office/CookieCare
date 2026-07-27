@@ -9,6 +9,7 @@ import { jobRegistry, updateJobProgress } from "../../jobQueue.js";
 import { DraftMode, DraftState } from "../../../modules/drafting/models/draft-state.js";
 import pdf from "pdf-parse-fork";
 import { DraftWorkflowOrchestrator } from "../../../modules/drafting/workflows/draft-workflow.js";
+import { resolveLegalDocumentTitle } from "../../../modules/drafting/prompts/system-templates.js";
 
 async function extractTextFromStorageUrl(fileUrl: string): Promise<string> {
     const response = await fetch(fileUrl);
@@ -109,7 +110,12 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
     const documentContentResult = finalizedState.draft.formattedDocument;
   
     // 4. Fetch user records to update application file rows
-    const title = `${contractType || "AI"} Agreement - ${new Date().toLocaleDateString()}`;
+    // QUALITY_QUICKWIN: previous — `${contractType || "AI"} Agreement - ${new Date().toLocaleDateString()}`
+    // which produced noisy titles like "Mutual NDA - Vendor Infrastructure Host Agreement - 24/7/2026"
+    const legalTitle = resolveLegalDocumentTitle(
+      contractType || formFields?.contractType || finalizedState.requirements?.contractType
+    );
+    const title = `${legalTitle} - ${new Date().toLocaleDateString("en-US")}`;
     const { email: creatorEmail } = await withTransaction(userId, 'USER', async (client) => {
       const { rows } = await client.query("SELECT email FROM users WHERE id = $1", [userId]);
       return { email: rows[0]?.email || "" };

@@ -66,12 +66,16 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
       temperature: 0.1 
     },
     [LLMTask.COMPLEX_DRAFT]: { 
+      // LATENCY_QUICKWIN: intentionally kept on Pro to protect legal prose quality (NDA 9.5/10/9.0).
+      // Flash was considered and rejected for the main generation call in this pass.
       model: GeminiModel.GEMINI_2_5_PRO, 
       temperature: 0.0, 
       maxOutputTokens: 8192 
     },
     [LLMTask.STRUCTURAL_JSON]: { 
-      model: GeminiModel.GEMINI_2_5_PRO, 
+      // LATENCY_QUICKWIN: previous — restore if extraction/validation quality regresses
+      // model: GeminiModel.GEMINI_2_5_PRO,
+      model: GeminiModel.GEMINI_2_5_FLASH, 
       temperature: 0.0, 
       responseMimeType: "application/json" 
     },

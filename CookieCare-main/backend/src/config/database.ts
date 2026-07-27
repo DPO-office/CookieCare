@@ -6,23 +6,27 @@ const { Pool } = pg;
 const rawConnectionString = config.databaseUrl.trim();
 const isNeon = rawConnectionString.includes("neon.tech");
 const isPooler = rawConnectionString.includes("-pooler.");
+const wantsSsl =
+  isNeon ||
+  /[?&]sslmode=(require|verify-full|verify-ca|prefer)/i.test(rawConnectionString) ||
+  /[?&]sslrejectunauthorized=/i.test(rawConnectionString);
 
-// For Neon pooler endpoints, ensure pgbouncer=true is set.
-// Strip sslmode to avoid conflict with Pool-level ssl config.
-let connectionString = rawConnectionString;
-if (isNeon) {
-  connectionString = rawConnectionString
-    .replace(/[?&]sslmode=[^&]*/g, "")
-    .replace(/[?&]$/, "")
-    .replace(/\?$/, "");
-  if (isPooler && !connectionString.includes("pgbouncer=true")) {
-    connectionString += (connectionString.includes("?") ? "&" : "?") + "pgbouncer=true";
-  }
+// Strip URL ssl params so they don't conflict with Pool-level ssl config.
+// Corporate proxies (e.g. Zscaler) re-sign TLS certs, so Node cannot verify
+// the Cloud SQL leaf unless rejectUnauthorized is disabled for local/dev use.
+let connectionString = rawConnectionString
+  .replace(/[?&]sslmode=[^&]*/gi, "")
+  .replace(/[?&]sslrejectunauthorized=[^&]*/gi, "")
+  .replace(/[?&]$/, "")
+  .replace(/\?$/, "");
+
+if (isNeon && isPooler && !connectionString.includes("pgbouncer=true")) {
+  connectionString += (connectionString.includes("?") ? "&" : "?") + "pgbouncer=true";
 }
 
 export const pool = new Pool({
   connectionString,
-  ssl: isNeon ? { rejectUnauthorized: false } : undefined,
+  ssl: wantsSsl ? { rejectUnauthorized: false } : undefined,
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 60000,

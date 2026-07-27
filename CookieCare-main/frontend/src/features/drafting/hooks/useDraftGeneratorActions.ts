@@ -315,7 +315,10 @@ export function useDraftGeneratorActions({
     let documentTitle = "Mutual Compliance Agreement";
 
     if (params.mode === "Basic") {
-      documentTitle = `Mutual NDA - ${params.basicPartyB}`;
+      // QUALITY_FIX: previous — `Mutual NDA - ${params.basicPartyB}` jammed a party
+      // name into the document title (e.g. "Mutual NDA - Vendor Infrastructure Host").
+      // Use a clean legal title; the party details belong in the body, not the title.
+      documentTitle = "Mutual Non-Disclosure Agreement";
     } else if (params.advancedStep === "proactive") {
       documentTitle = params.selectedTemplateName || "Proactive Draft Covenants";
     } else {

@@ -10,10 +10,13 @@ export function useDraftGeneratorState() {
   const [customClauseText, setCustomClauseText] = useState("");
 
   // Basic Mode Form Inputs
+  // QUALITY_QUICKWIN: previous defaults leaked into titles / invented commercial terms
+  // const [basicPartyB, setBasicPartyB] = useState("Vendor Infrastructure Host");
+  // const [basicLiability, setBasicLiability] = useState("USD $2,000,000 limit");
   const [basicPartyA, setBasicPartyA] = useState("Lexify Corporate Client");
-  const [basicPartyB, setBasicPartyB] = useState("Vendor Infrastructure Host");
+  const [basicPartyB, setBasicPartyB] = useState("Nexus Global Ventures LLC");
   const [basicLaw, setBasicLaw] = useState("State of Delaware");
-  const [basicLiability, setBasicLiability] = useState("USD $2,000,000 limit");
+  const [basicLiability, setBasicLiability] = useState("");
 
   // Advanced Mode step hierarchy
   const [advancedStep, setAdvancedStep] = useState<AdvancedStep>("selector");
