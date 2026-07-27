@@ -79,6 +79,7 @@ export class DraftWorkflowOrchestrator {
       // Step 2 — Retrieval (templates, playbooks, historical refs)
       await progress(state, 57, "Retrieving templates, playbooks and references...");
       state = await timed(state, "retrieval", (s) => retrievalStep(s));
+      console.log(state)
 
       // Step 3 — Context Assembly
       await progress(state, 63, "Assembling document context and structure...");
