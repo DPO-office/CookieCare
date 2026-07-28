@@ -47,16 +47,53 @@ export function useLibrary(authToken: string, onRefresh: () => void) {
           .map((d: any) => ({ id: d.id, name: d.title || d.name, size: "N/A", type: d.type })),
       }));
 
-      const formattedItems: LibraryItem[] = libraryItemsData.map((i: any) => ({
-        id: i.id, type: i.type, name: i.name,
-        description: i.description || "-", tags: i.tags || "-",
-        itemsCount: "1 item",
-        dateModified: i.updated_at
-          ? new Date(i.updated_at).toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" }).replace(/\//g, "-")
-          : "-",
-        createdBy: "User",
-        details: i.details,
-      }));
+      const formattedItems: LibraryItem[] = libraryItemsData.map((i: any) => {
+        let detailsObj: Record<string, unknown> | null = null;
+        try {
+          detailsObj =
+            typeof i.details === "string"
+              ? JSON.parse(i.details)
+              : i.details && typeof i.details === "object"
+                ? i.details
+                : null;
+        } catch {
+          detailsObj = null;
+        }
+
+        // Prefer short contract-type chips over giant jurisdiction dumps stored in tags.
+        let displayTags = i.tags || "-";
+        const contractType =
+          typeof detailsObj?.contractType === "string"
+            ? detailsObj.contractType.trim()
+            : "";
+        const jurisdiction =
+          typeof detailsObj?.jurisdiction === "string"
+            ? detailsObj.jurisdiction.trim()
+            : "";
+        const shortJuris =
+          jurisdiction &&
+          jurisdiction.length <= 28 &&
+          !/^not\s*specified$/i.test(jurisdiction)
+            ? jurisdiction
+            : "";
+        if (contractType && (i.type === "templates" || i.type === "clauses" || i.type === "rulebook")) {
+          displayTags = [contractType, shortJuris].filter(Boolean).join(", ");
+        }
+
+        return {
+          id: i.id,
+          type: i.type,
+          name: i.name,
+          description: i.description || "-",
+          tags: displayTags,
+          itemsCount: "1 item",
+          dateModified: i.updated_at
+            ? new Date(i.updated_at).toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" }).replace(/\//g, "-")
+            : "-",
+          createdBy: "User",
+          details: i.details,
+        };
+      });
 
       const finalFolders = formattedFolders.map((f) => ({
         ...f,

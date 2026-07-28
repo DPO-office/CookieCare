@@ -8,7 +8,7 @@ import {
 import { LegalDocument } from "../../shared/types";
 import { LibraryItem, LibraryTabId } from "./types";
 import { TABS_CONFIG } from "./constants";
-import { fmtDate } from "./utils";
+import { fmtDate, parseVaultTags } from "./utils";
 import { useLibrary } from "./hooks/useLibrary";
 
 interface LibraryProps {
@@ -317,7 +317,30 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
                         </td>
                         <td className="px-5 py-3.5 text-gray-500 text-sm leading-relaxed max-w-[300px] truncate">{item.description}</td>
                         <td className="px-5 py-3.5">
-                          <span className={`inline-block px-2 py-0.5 rounded-lg text-xs font-medium ${item.tags === "-" ? "text-gray-400 bg-gray-50" : "text-blue-700 bg-blue-50 border border-blue-100"}`}>{item.tags}</span>
+                          {(() => {
+                            const chips = parseVaultTags(item.tags);
+                            if (chips.length === 0) {
+                              return <span className="text-xs text-gray-400">—</span>;
+                            }
+                            const visible = chips.slice(0, 2);
+                            const extra = chips.length - visible.length;
+                            return (
+                              <div className="flex flex-wrap items-center gap-1 max-w-[160px]">
+                                {visible.map((chip) => (
+                                  <span
+                                    key={chip}
+                                    title={chip}
+                                    className="inline-block max-w-full truncate px-2 py-0.5 rounded-lg text-xs font-medium text-blue-700 bg-blue-50 border border-blue-100"
+                                  >
+                                    {chip}
+                                  </span>
+                                ))}
+                                {extra > 0 && (
+                                  <span className="text-[10px] text-gray-400 font-medium">+{extra}</span>
+                                )}
+                              </div>
+                            );
+                          })()}
                         </td>
                         <td className="px-5 py-3.5 text-center text-gray-500 text-sm">{item.type === "files" ? item.fileList?.length : item.itemsCount}</td>
                         <td className="px-5 py-3.5 text-center text-gray-400 text-xs font-mono">{item.dateModified}</td>
@@ -485,7 +508,18 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
                 </div>
               )}
               <div className="grid grid-cols-2 gap-4 border-t border-gray-100 pt-3 text-sm">
-                <div><span className="text-xs text-gray-400 block mb-0.5">Tags</span><span className="font-medium text-gray-800">{viewDetailItem.tags}</span></div>
+                <div>
+                  <span className="text-xs text-gray-400 block mb-0.5">Tags</span>
+                  <div className="flex flex-wrap gap-1 mt-0.5">
+                    {parseVaultTags(viewDetailItem.tags).length > 0 ? (
+                      parseVaultTags(viewDetailItem.tags).map((chip) => (
+                        <span key={chip} className="inline-block px-2 py-0.5 rounded-lg text-xs font-medium text-blue-700 bg-blue-50 border border-blue-100">{chip}</span>
+                      ))
+                    ) : (
+                      <span className="font-medium text-gray-400">—</span>
+                    )}
+                  </div>
+                </div>
                 <div><span className="text-xs text-gray-400 block mb-0.5">Created by</span><span className="font-medium text-gray-800">{viewDetailItem.createdBy}</span></div>
               </div>
             </div>

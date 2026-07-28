@@ -160,7 +160,7 @@ async function setupDb() {
 
       -- Drafting pipeline: clause catalog and template mappings
       CREATE TABLE IF NOT EXISTS clause_catalog (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        id VARCHAR(255) PRIMARY KEY,
         organization_id VARCHAR(255),
         clause_type VARCHAR(255) NOT NULL,
         contract_type VARCHAR(255),
@@ -171,11 +171,54 @@ async function setupDb() {
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
 
+      -- Vault template ingest (TemplateIngester) + TemplateRetriever
+      CREATE TABLE IF NOT EXISTS contract_templates (
+        id VARCHAR(255) PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        contract_type VARCHAR(255) NOT NULL,
+        jurisdiction VARCHAR(255),
+        status VARCHAR(50) NOT NULL DEFAULT 'active',
+        content TEXT NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_contract_templates_type_status
+        ON contract_templates (contract_type, status);
+
+      -- Playbook PDF ingest (PlaybookIngester) + PlaybookRetriever
+      CREATE TABLE IF NOT EXISTS playbook_rules (
+        id VARCHAR(255) PRIMARY KEY,
+        contract_type VARCHAR(255),
+        topic VARCHAR(255) NOT NULL,
+        risk_level VARCHAR(50),
+        standard_position TEXT NOT NULL DEFAULT '',
+        fallback_positions JSONB NOT NULL DEFAULT '[]'::jsonb,
+        walk_away_condition TEXT NOT NULL DEFAULT '',
+        trigger_patterns JSONB NOT NULL DEFAULT '[]'::jsonb,
+        remediation_strategy TEXT NOT NULL DEFAULT '',
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_playbook_rules_contract_type
+        ON playbook_rules (contract_type);
+
+      -- Draft workflow save / refine (saveStep, drafting-handler, negotiate)
+      CREATE TABLE IF NOT EXISTS draft_state_ledger (
+        document_id VARCHAR(255) NOT NULL REFERENCES files(id) ON DELETE CASCADE,
+        version INTEGER NOT NULL,
+        state_snapshot_json JSONB NOT NULL,
+        formatted_text TEXT NOT NULL,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (document_id, version)
+      );
+
       CREATE TABLE IF NOT EXISTS template_clause_mappings (
-        template_id VARCHAR(255) NOT NULL,
-        clause_id UUID NOT NULL REFERENCES clause_catalog(id) ON DELETE CASCADE,
+        template_id VARCHAR(255) NOT NULL REFERENCES contract_templates(id) ON DELETE CASCADE,
+        clause_id VARCHAR(255) NOT NULL REFERENCES clause_catalog(id) ON DELETE CASCADE,
         PRIMARY KEY (template_id, clause_id)
       );
+
+
     `);
 
     // Embedding column update (idempotent check)
@@ -191,6 +234,12 @@ async function setupDb() {
     await client.query(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS result JSONB DEFAULT NULL;`);
     await client.query(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS error TEXT DEFAULT NULL;`);
     await client.query(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;`);
+
+    // Vault library rows: UI shows dateModified from updated_at
+    await client.query(`
+      ALTER TABLE library_items
+      ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+    `);
 
     // Seed Admin
     const hashedSeedPassword = await argon2.hash("MamuSecure2026!");

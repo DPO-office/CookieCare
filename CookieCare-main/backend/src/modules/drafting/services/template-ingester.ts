@@ -114,8 +114,14 @@ export class TemplateIngester {
       sourceFileId: options.sourceFileId || null,
       contentPreview: content.slice(0, 500),
     });
-    const libraryTags = [options.contractType, jurisdiction].join(", ");
-    const libraryDescription = `${options.contractType} template`;
+    // Tags are short filter chips only — full jurisdiction lives in details.
+    const shortJurisdiction = compactTagLabel(jurisdiction);
+    const libraryTags = [options.contractType, shortJurisdiction]
+      .filter(Boolean)
+      .join(", ");
+    const libraryDescription = shortJurisdiction
+      ? `${options.contractType} template · ${shortJurisdiction}`
+      : `${options.contractType} template`;
 
     if (options.libraryItemId) {
       await pool.query(
@@ -145,4 +151,15 @@ export class TemplateIngester {
 
     return { templateId, libraryItemId, name };
   }
+}
+
+/** Keep vault table tags short; long regulatory dumps belong in details.jurisdiction. */
+function compactTagLabel(value: string | undefined, maxLen = 28): string | null {
+  const trimmed = (value || "").trim();
+  if (!trimmed) return null;
+  if (/^not\s*specified$/i.test(trimmed) || /^unspecified$/i.test(trimmed)) {
+    return null;
+  }
+  if (trimmed.length <= maxLen) return trimmed;
+  return null;
 }
