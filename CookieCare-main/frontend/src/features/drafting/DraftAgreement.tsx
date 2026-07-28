@@ -4,6 +4,7 @@ import EditorHeader from "./components/EditorHeader";
 import EditorToolbar from "./components/EditorToolbar";
 import EditorCanvas from "./components/EditorCanvas";
 import GeneratorPanel from "./components/GeneratorPanel";
+import StreamingDraftPreview from "./components/StreamingDraftPreview";
 import CreateDocModal from "./components/CreateDocModal";
 import SaveDraftModal from "./components/SaveDraftModal";
 import { useDraftEditorState } from "./hooks/useDraftEditorState";
@@ -66,8 +67,6 @@ export default function DraftAgreement({
     setUploadFileName: generatorState.setUploadFileName,
     setSourceDocumentId: generatorState.setSourceDocumentId,
     setIsParsingTemplate: generatorState.setIsParsingTemplate,
-    setAdvancedFields: generatorState.setAdvancedFields,
-    setAdvancedFieldValues: generatorState.setAdvancedFieldValues,
     selectedTextRange,
     setSelectedTextRange,
     setShowFloatingMenu,
@@ -125,18 +124,13 @@ export default function DraftAgreement({
       mode: generatorState.mode,
       depth: generatorState.depth,
       instructions: generatorState.instructions,
-      basicPartyA: generatorState.basicPartyA,
-      basicPartyB: generatorState.basicPartyB,
-      basicLaw: generatorState.basicLaw,
-      basicLiability: generatorState.basicLiability,
+      playbookGuidelines: generatorState.playbookGuidelines,
       advancedStep: generatorState.advancedStep,
       selectedTemplateName: generatorState.selectedTemplateName,
       aiRulebookPrompt: generatorState.aiRulebookPrompt,
       referenceInstructions: generatorState.referenceInstructions,
       uploadFileName: generatorState.uploadFileName,
       uploadText: generatorState.uploadText,
-      advancedFieldValues: generatorState.advancedFieldValues,
-      selectedClauses: generatorState.selectedClauses,
       sourceDocumentId: generatorState.sourceDocumentId,
     });
   };
@@ -222,17 +216,28 @@ export default function DraftAgreement({
   return (
     <div className="flex-1 overflow-hidden flex h-screen font-sans bg-[#FAFBFD]">
       
-      {/* SSE draft progress overlay */}
-      {(generatorState.isStreaming || !!generatorState.refinementProgress || !!generatorState.refinementError) && (
-        <AiProgressOverlay
-          visible={generatorState.isStreaming || !!generatorState.refinementProgress || !!generatorState.refinementError}
-          message={generatorState.isStreaming ? generatorState.streamingProgress : generatorState.refinementProgress}
-          error={generatorState.refinementError}
-          label={generatorState.isStreaming ? "Generating Draft..." : "Refining Selection..."}
-          onRetry={generatorState.refinementError ? () => { generatorState.setRefinementError(""); handleExecuteDraftStream(); } : undefined}
-          onDismiss={generatorState.refinementError ? () => generatorState.setRefinementError("") : undefined}
-        />
-      )}
+      {/* SSE draft progress overlay.
+          During generation we only show the BLOCKING overlay in the brief "thinking"
+          phase before the first streamed token arrives; once tokens start flowing we
+          hide it and reveal the live StreamingDraftPreview underneath. Refinement (which
+          does not stream tokens) keeps the blocking overlay as before. */}
+      {(() => {
+        const hasStreamedContent =
+          !!editorState.editorContent && editorState.editorContent !== "<p></p>";
+        const showStreamingOverlay = generatorState.isStreaming && !hasStreamedContent;
+        const overlayVisible =
+          showStreamingOverlay || !!generatorState.refinementProgress || !!generatorState.refinementError;
+        return overlayVisible ? (
+          <AiProgressOverlay
+            visible={overlayVisible}
+            message={generatorState.isStreaming ? generatorState.streamingProgress : generatorState.refinementProgress}
+            error={generatorState.refinementError}
+            label={generatorState.isStreaming ? "Generating Draft..." : "Refining Selection..."}
+            onRetry={generatorState.refinementError ? () => { generatorState.setRefinementError(""); handleExecuteDraftStream(); } : undefined}
+            onDismiss={generatorState.refinementError ? () => generatorState.setRefinementError("") : undefined}
+          />
+        ) : null;
+      })()}
 
       {/* Modals */}
       {showCreateModal && (
@@ -251,8 +256,13 @@ export default function DraftAgreement({
         />
       )}
 
-      {/* Main content: Generator or Editor */}
-      {editorState.isGeneratorActive ? (
+      {/* Main content: live streaming preview, Generator, or Editor */}
+      {generatorState.isStreaming ? (
+        <StreamingDraftPreview
+          html={editorState.editorContent}
+          progress={generatorState.streamingProgress}
+        />
+      ) : editorState.isGeneratorActive ? (
         <GeneratorPanel
           documents={documents}
           selectedDoc={editorState.selectedDoc}
@@ -262,10 +272,6 @@ export default function DraftAgreement({
           instructions={generatorState.instructions}
           playbookGuidelines={generatorState.playbookGuidelines}
           customClauseText={generatorState.customClauseText}
-          basicPartyA={generatorState.basicPartyA}
-          basicPartyB={generatorState.basicPartyB}
-          basicLaw={generatorState.basicLaw}
-          basicLiability={generatorState.basicLiability}
           advancedStep={generatorState.advancedStep}
           clauseTab={generatorState.clauseTab}
           s1Open={generatorState.s1Open}
@@ -286,8 +292,6 @@ export default function DraftAgreement({
           uploadText={generatorState.uploadText}
           uploadFileName={generatorState.uploadFileName}
           isParsingTemplate={generatorState.isParsingTemplate}
-          advancedFields={generatorState.advancedFields}
-          advancedFieldValues={generatorState.advancedFieldValues}
           isStreaming={generatorState.isStreaming}
           streamingProgress={generatorState.streamingProgress}
           draftError={generatorState.draftError}
@@ -296,10 +300,6 @@ export default function DraftAgreement({
           onSetInstructions={generatorState.setInstructions}
           onSetPlaybookGuidelines={generatorState.setPlaybookGuidelines}
           onSetCustomClauseText={generatorState.setCustomClauseText}
-          onSetBasicPartyA={generatorState.setBasicPartyA}
-          onSetBasicPartyB={generatorState.setBasicPartyB}
-          onSetBasicLaw={generatorState.setBasicLaw}
-          onSetBasicLiability={generatorState.setBasicLiability}
           onSetAdvancedStep={generatorState.setAdvancedStep}
           onSetClauseTab={generatorState.setClauseTab}
           onSetS1Open={generatorState.setS1Open}
@@ -320,8 +320,6 @@ export default function DraftAgreement({
           onSetUploadText={generatorState.setUploadText}
           onSetUploadFileName={generatorState.setUploadFileName}
           onSetIsParsingTemplate={generatorState.setIsParsingTemplate}
-          onSetAdvancedFields={generatorState.setAdvancedFields}
-          onSetAdvancedFieldValues={generatorState.setAdvancedFieldValues}
           onHandleDragOver={handleDragOver}
           onHandleDragLeave={handleDragLeave}
           onHandleDrop={handleDrop}

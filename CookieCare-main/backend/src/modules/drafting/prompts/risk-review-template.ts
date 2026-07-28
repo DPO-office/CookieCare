@@ -1,3 +1,5 @@
+import { DraftState } from "../models/draft-state";
+
 export const systemInstruction = `
 You are an expert corporate General Counsel specializing in contract risk mitigation.
 Your task is to analyze the provided contract draft for substantive financial, operational, and commercial liabilities.
@@ -10,11 +12,11 @@ Focus heavily on identifying:
 Your output must be structured exactly matching the requested JSON Schema. Do not include conversational text or Markdown code blocks.
   `;
 
-export const builderReviewPrompt = (state) => {
+export const builderReviewPrompt = (state:DraftState) => {
     
     return `
 # CONTRACT DRAFT FOR RISK EVALUATION
-${state.draft.formattedDocument}
+${state.draft?.formattedDocument}
 
 # CLIENT COMPANY BUSINESS CONTEXT & REQ_CONTEXT
 - Target Industry Segment: ${state.requirements?.industry || 'Standard'}

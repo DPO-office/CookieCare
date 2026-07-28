@@ -79,3 +79,49 @@ export async function uploadFileToFolder(
   }
   return { sync: true };
 }
+
+export type VaultIngestCategory = "playbook" | "templates" | "clauses";
+
+/**
+ * Upload a vault asset for structured ingest (playbook / templates / clauses).
+ * Backend routes on `category`. contractType is required only for templates.
+ */
+export async function uploadVaultAsset(
+  authToken: string,
+  params: {
+    file: File;
+    category: VaultIngestCategory;
+    contractType?: string;
+    jurisdiction?: string;
+    folderId?: string;
+  },
+  onJobId: (jobId: string) => void
+): Promise<{ sync: boolean; fileId?: string; libraryItemId?: string }> {
+  const formData = new FormData();
+  formData.append("file", params.file);
+  formData.append("category", params.category);
+  if (params.contractType) formData.append("contractType", params.contractType);
+  if (params.jurisdiction) formData.append("jurisdiction", params.jurisdiction);
+  if (params.folderId) formData.append("folder_id", params.folderId);
+
+  const res = await fetch(apiUrl("/api/documents/upload"), {
+    method: "POST",
+    headers: { Authorization: `Bearer ${authToken}` },
+    body: formData,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Vault asset upload failed");
+  if (res.status === 202 && data.job_id) {
+    onJobId(data.job_id);
+    return {
+      sync: false,
+      fileId: data.file_id,
+      libraryItemId: data.library_item_id,
+    };
+  }
+  return {
+    sync: true,
+    fileId: data.file_id,
+    libraryItemId: data.library_item_id,
+  };
+}

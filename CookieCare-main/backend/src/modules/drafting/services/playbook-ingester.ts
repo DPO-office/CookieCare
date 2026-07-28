@@ -143,7 +143,7 @@ export class PlaybookIngester {
 
         const params = [
           parsedRule.id,                                // $1 -> id (e.g., 'R-IP-001')
-          parsedRule.contractType,                      // $2 -> contract_type
+          normalizePlaybookContractType(parsedRule.contractType), // $2 -> company-wide or type
           parsedRule.topic,                             // $3 -> topic
           parsedRule.riskLevel,                         // $4 -> risk_level
           parsedRule.standardPosition,                  // $5 -> standard_position
@@ -169,4 +169,28 @@ export class PlaybookIngester {
 
     return { processedRulesCount: successfullySavedCount , };
   }
+}
+
+/**
+ * Company playbooks often apply across agreement types. Normalize vague / all-scope
+ * labels to General so retrieval can always include them alongside type-specific rules.
+ */
+function normalizePlaybookContractType(raw: string | undefined): string {
+  const value = (raw || "").trim();
+  if (!value) return "General";
+  const lower = value.toLowerCase();
+  if (
+    lower === "general" ||
+    lower === "all" ||
+    lower === "any" ||
+    lower === "company" ||
+    lower === "global" ||
+    lower === "n/a" ||
+    lower === "na" ||
+    lower === "unspecified" ||
+    lower === "not specified"
+  ) {
+    return "General";
+  }
+  return value;
 }

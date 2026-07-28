@@ -1,7 +1,8 @@
 
 import { DraftState } from '../models/draft-state';
 import { LLMTask, LLMProvider, PROVIDER_TASK_PRESETS } from "../config/model-specs.js";
-import { executeCompletion, executeJsonCompletion } from "../llm/index.js";
+import { executeCompletion, executeJsonCompletion, executeCompletionStream } from "../llm/index.js";
+import { parseSections, renderSections } from "../utils/document-sections.js";
 import dotenv from "dotenv"
 
 dotenv.config()
@@ -127,11 +128,25 @@ export const generationStep = async (state: DraftState,provider:LLMProvider = LL
       ? state.metadata.generationParameters.model
       : runtimeConfig.model;
 
-    // 1. Dispatch execution call using the pre-compiled context environment prompt block
-    let rawModelOutput = await executeCompletion(
+    // 1. Dispatch execution call using the pre-compiled context environment prompt block.
+    //    When a token callback is present (initial drafting job), stream tokens to the
+    //    client so the document appears live; otherwise use the blocking call.
+    let rawModelOutput: string;
+    if (state.onToken) {
+      const onToken = state.onToken;
+      rawModelOutput = await executeCompletionStream(
         state.context.assembledPrompt,
-        state.context.systemPrompt,LLMTask.COMPLEX_DRAFT,provider
-    );
+        state.context.systemPrompt,
+        LLMTask.COMPLEX_DRAFT,
+        (delta) => onToken(delta),
+        provider
+      );
+    } else {
+      rawModelOutput = await executeCompletion(
+        state.context.assembledPrompt,
+        state.context.systemPrompt, LLMTask.COMPLEX_DRAFT, provider
+      );
+    }
 
     // 2. Perform lightweight validation and single retry for Reactive mode
     if (state.request.intent === "REACTIVE" && state.request.sourceText) {
@@ -146,21 +161,42 @@ export const generationStep = async (state: DraftState,provider:LLMProvider = LL
       }
     }
 
-    // 3. Programmatically sanitize the document data stream
+    // 3. Programmatically strip only structural markdown wrappers (```markdown fences).
+    //    Content-level defects are handled at the correct layers, NOT patched here:
+    //    - "(c)" -> "©" corruption is fixed in the frontend renderer (markdownToHtml)
+    //    - [● NAME]/[● TITLE] signature placeholders are prevented by the system prompt
+    //      and, if they slip through, flagged as critical by validation -> regen loop.
     const cleanedDocumentText = cleanMarkdownArtifacts(rawModelOutput);
+
+    // 3b. Parse into structured sections (Phase 1). The rendered join is the
+    //     canonical formattedDocument; if parsing yields nothing (edge case) we
+    //     fall back to the cleaned text so we never regress.
+    const sections = parseSections(cleanedDocumentText);
+    const formattedDocument = renderSections(sections) || cleanedDocumentText;
 
     // 4. Increment document version tracking variables smoothly
     const currentVersion = state.draft ? state.draft.version + 1 : 1;
 
-    // 5. Return immutably mutated state footprint
+    // 5. Return immutably mutated state footprint (with a memory-log entry)
+    const historyEntry = {
+      version: currentVersion,
+      actor: "model" as const,
+      action: state.request.intent === "REFINEMENT" ? "full-regen" : "generate",
+      instruction: state.request.rawInstructions || undefined,
+      changedSectionIds: sections.map((s) => s.id),
+      timestamp: new Date().toISOString()
+    };
+
     return {
       ...state,
       draft: {
         rawOutput: rawModelOutput,
-        formattedDocument: cleanedDocumentText,
+        formattedDocument,
+        sections,
         version: currentVersion,
         parentVersionId: state.draft ? `v${state.draft.version}` : undefined
       },
+      history: [...(state.history ?? []), historyEntry],
       metadata: {
         ...state.metadata,
         generatedAt: new Date().toISOString(),

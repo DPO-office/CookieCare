@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { DraftMode, DraftDepth, AdvancedStep, ClauseTab, AdvancedField, TemplateFolder, ClauseCategory } from "../types";
-import { DEFAULT_ADVANCED_FIELDS, DEFAULT_ADVANCED_FIELD_VALUES } from "../constants";
+import { DraftMode, DraftDepth, AdvancedStep, ClauseTab, TemplateFolder, ClauseCategory } from "../types";
 
 export function useDraftGeneratorState() {
   const [mode, setMode] = useState<DraftMode>("Basic");
@@ -9,11 +8,9 @@ export function useDraftGeneratorState() {
   const [playbookGuidelines, setPlaybookGuidelines] = useState("");
   const [customClauseText, setCustomClauseText] = useState("");
 
-  // Basic Mode Form Inputs
-  const [basicPartyA, setBasicPartyA] = useState("Lexify Corporate Client");
-  const [basicPartyB, setBasicPartyB] = useState("Vendor Infrastructure Host");
-  const [basicLaw, setBasicLaw] = useState("State of Delaware");
-  const [basicLiability, setBasicLiability] = useState("USD $2,000,000 limit");
+  // Basic/structured party, law and liability inputs were removed: the backend now
+  // derives all such details from the raw instructions in step 1 (requirement
+  // extraction), so the UI only collects free-text intent.
 
   // Advanced Mode step hierarchy
   const [advancedStep, setAdvancedStep] = useState<AdvancedStep>("selector");
@@ -49,8 +46,6 @@ export function useDraftGeneratorState() {
   const [uploadFileName, setUploadFileName] = useState("");
   const [sourceDocumentId, setSourceDocumentId] = useState("");
   const [isParsingTemplate, setIsParsingTemplate] = useState(false);
-  const [advancedFields, setAdvancedFields] = useState<AdvancedField[]>(DEFAULT_ADVANCED_FIELDS);
-  const [advancedFieldValues, setAdvancedFieldValues] = useState<Record<string, string>>(DEFAULT_ADVANCED_FIELD_VALUES);
 
   // Streaming & Loading states
   const [isStreaming, setIsStreaming] = useState(false);
@@ -70,14 +65,6 @@ export function useDraftGeneratorState() {
     setPlaybookGuidelines,
     customClauseText,
     setCustomClauseText,
-    basicPartyA,
-    setBasicPartyA,
-    basicPartyB,
-    setBasicPartyB,
-    basicLaw,
-    setBasicLaw,
-    basicLiability,
-    setBasicLiability,
     advancedStep,
     setAdvancedStep,
     clauseTab,
@@ -120,10 +107,6 @@ export function useDraftGeneratorState() {
     setSourceDocumentId,
     isParsingTemplate,
     setIsParsingTemplate,
-    advancedFields,
-    setAdvancedFields,
-    advancedFieldValues,
-    setAdvancedFieldValues,
     isStreaming,
     setIsStreaming,
     streamingProgress,

@@ -22,6 +22,7 @@ function getProviderEngine(provider: LLMProvider): ILLMProvider {
   return providersCache[provider];
 }
 
+// For Rate limit
 async function executeWithRetry<T>(
   fn: () => Promise<T>,
   retries = 3,
@@ -76,4 +77,34 @@ export async function executeJsonCompletion<T>(
   const runtimeConfig = PROVIDER_TASK_PRESETS[provider][task];
   
   return executeWithRetry(() => engine.getJsonCompletion<T>(prompt, systemInstruction, jsonSchema, runtimeConfig));
+}
+
+/**
+ * Streaming variant of executeCompletion. Emits each chunk via `onDelta` as it arrives
+ * and resolves with the full text. If the selected provider does not implement streaming,
+ * we transparently fall back to a single blocking completion and emit it once at the end,
+ * so callers can always rely on `onDelta` firing at least once.
+ */
+export async function executeCompletionStream(
+  prompt: string,
+  systemInstruction: string,
+  task: LLMTask,
+  onDelta: (delta: string) => void,
+  provider: LLMProvider = LLMProvider.GEMINI
+): Promise<string> {
+  const engine = getProviderEngine(provider);
+  const runtimeConfig = PROVIDER_TASK_PRESETS[provider][task];
+
+  if (typeof engine.getCompletionStream === "function") {
+    return executeWithRetry(() =>
+      engine.getCompletionStream!(prompt, systemInstruction, runtimeConfig, onDelta)
+    );
+  }
+
+  // Fallback: provider has no streaming — run once and emit the whole result.
+  const full = await executeWithRetry(() =>
+    engine.getCompletion(prompt, systemInstruction, runtimeConfig)
+  );
+  onDelta(full);
+  return full;
 }

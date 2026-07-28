@@ -28,9 +28,11 @@ export const validationStep = async (
   // 1. Structural Checklist Validation
   // Ensure the LLM didn't accidentally delete or skip a core skeleton chapter
   if (state.context?.documentSkeleton) {
+    const normalizedDoc = documentText.toLowerCase();
     state.context.documentSkeleton.forEach((heading) => {
-      // Simple, strict substring check. Can be upgraded to case-insensitive regex if needed.
-      if (!documentText.includes(heading)) {
+      // QUALITY_QUICKWIN: previous strict includes(heading) failed on ALL-CAPS headers
+      // if (!documentText.includes(heading)) {
+      if (!normalizedDoc.includes(heading.toLowerCase())) {
         issues.push({
           type: 'omission',
           severity: 'critical',
@@ -42,51 +44,77 @@ export const validationStep = async (
   }
 
   // 2. Unresolved Placeholder Scan
-  // Scan for common token styles like [● DATE], [Insert Name], or template brackets
-  const placeholderRegex = /\[●.*?\]|\[Insert.*?\]|__+/gi;
+  // The system prompt instructs the model to use blank underlines (never [● NAME]/[● TITLE])
+  // in signature blocks. This scan is the safety net: if a signature placeholder still slips
+  // through it is flagged CRITICAL so the refinement loop regenerates it (fix-at-source, no
+  // silent regex patching). Other [●] tokens (e.g. a missing date) stay as warnings.
+  // Blank underlines (__+) are intentional signature fields and are NOT flagged.
+  // QUALITY_QUICKWIN: previous also flagged __+ underlines as warnings
+  // const placeholderRegex = /\[●.*?\]|\[Insert.*?\]|__+/gi;
+  const placeholderRegex = /\[●.*?\]|\[Insert.*?\]/gi;
   let match;
   while ((match = placeholderRegex.exec(documentText)) !== null) {
+    const token = match[0];
+    const isSignaturePlaceholder = /name|title/i.test(token);
     issues.push({
       type: 'formatting',
-      severity: 'warning',
-      description: `Unresolved structural placeholder token remaining at index location ${match.index}: "${match[0]}"`,
+      // Signature tokens are critical (regen fixes); other [●] stay warnings
+      severity: isSignaturePlaceholder ? 'critical' : 'warning',
+      description: `Unresolved structural placeholder token remaining at index location ${match.index}: "${token}"`,
     });
   }
 
   // ==========================================
-  // PHASE 2: LLM SEMANTIC COMPLIANCE AUDIT
+  // PHASE 2: LLM SEMANTIC COMPLIANCE AUDIT (GATED)
   // ==========================================
-  
-  // const routerClient = clientInstance ?? new OpenRouterClient({
-  //   apiKey: process.env.OPENROUTER_API_KEY ?? '',
-  //   model: process.env.OPENROUTER_MODEL
-  // });
+  //
+  // LATENCY: the semantic LLM audit is a full extra round-trip (~10-15s). We now only
+  // spend it when it actually adds value:
+  //   - Skip it when deterministic checks already found a critical — we are going to
+  //     regenerate anyway, so paying for a semantic pass is wasted time.
+  //   - Skip it on refinement passes (version > 1). Those are targeted fixes; the
+  //     deterministic checks are enough to confirm the fix landed.
+  //   - Run it on the first draft (version <= 1) when deterministic checks are clean,
+  //     which is exactly where a semantic safety net protects legal quality.
+  //
+  // To restore always-on behavior, set `shouldRunLlmAudit = true`.
+  const deterministicCriticalCount = issues.filter((i) => i.severity === 'critical').length;
+  const isFirstDraft = (state.draft?.version ?? 1) <= 1;
+  const shouldRunLlmAudit = deterministicCriticalCount === 0 && isFirstDraft;
 
+  let llmAuditRan = false;
+  if (shouldRunLlmAudit) {
+    const auditPrompt = builderAuditPrompt(state)
 
+    try {
+      // Invoke your structured response wrapper
+      const llmResult = await executeJsonCompletion<LLMValidationResponse>(
+        auditPrompt.trim(),
+        systemInstruction.trim(),
+        // LATENCY_QUICKWIN: previous — restore STRUCTURAL_JSON if validation misses criticals or over-triggers regen
+        // LLM_VALIDATION_SCHEMA,LLMTask.STRUCTURAL_JSON,provider
+        LLM_VALIDATION_SCHEMA,LLMTask.STRUCTURAL_JSON_LITE,provider
+      );
 
-  const auditPrompt = builderAuditPrompt(state)
+      // Merge LLM discovered discrepancies into our core checklist tracker
+      if (llmResult && Array.isArray(llmResult.issues)) {
+        issues.push(...llmResult.issues);
+      }
+      llmAuditRan = true;
 
-  try {
-    // Invoke your structured response wrapper
-    const llmResult = await executeJsonCompletion<LLMValidationResponse>(
-      auditPrompt.trim(),
-      systemInstruction.trim(),
-      LLM_VALIDATION_SCHEMA,LLMTask.STRUCTURAL_JSON,provider
-    );
-
-    // Merge LLM discovered discrepancies into our core checklist tracker
-    if (llmResult && Array.isArray(llmResult.issues)) {
-      issues.push(...llmResult.issues);
+    } catch (error) {
+      console.error('Non-blocking validation warning: Semantic audit engine failed.', error);
+      // Append a warning issue instead of crashing the worker queue completely
+      issues.push({
+        type: 'formatting',
+        severity: 'warning',
+        description: `Semantic analysis step partially timed out or failed to parse: ${(error as Error).message}`
+      });
     }
-
-  } catch (error) {
-    console.error('Non-blocking validation warning: Semantic audit engine failed.', error);
-    // Append a warning issue instead of crashing the worker queue completely
-    issues.push({
-      type: 'formatting',
-      severity: 'warning',
-      description: `Semantic analysis step partially timed out or failed to parse: ${(error as Error).message}`
-    });
+  } else {
+    console.log(
+      `[Validation] Skipped LLM semantic audit (deterministicCriticals=${deterministicCriticalCount}, isFirstDraft=${isFirstDraft}).`
+    );
   }
 
   // ==========================================
@@ -106,7 +134,8 @@ export const validationStep = async (
       ...state.metadata,
       validatedAt: new Date().toISOString(),
       totalIssuesFound: issues.length,
-      criticalCount: issues.filter(i => i.severity === 'critical').length
+      criticalCount: issues.filter(i => i.severity === 'critical').length,
+      llmAuditRan
     }
   };
 };

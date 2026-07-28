@@ -1,3 +1,5 @@
+import { DraftState } from "../models/draft-state";
+
 export const systemInstruction = `
 You are a meticulous enterprise legal auditor. Your task is to review the generated contract text against a provided list of strict corporate playbook policies and reference cross-links.
 Flag any direct violations, broken internal article references (e.g., Section 4 referencing Section 9 when Section 9 doesn't exist), or jurisdiction compliance failures.
@@ -6,10 +8,10 @@ Your output must conform strictly to the requested JSON array schema. Do not inc
 
 
 
-export const builderAuditPrompt = (state) =>{
+export const builderAuditPrompt = (state:DraftState) =>{
     return `
   # DRAFT CONTRACT TO AUDIT
-  ${state.draft.formattedDocument}
+  ${state.draft?.formattedDocument}
   
   # CORPORATE COMPLIANCE PLAYBOOK RULES TO VERIFY AGAINST
   ${JSON.stringify(state.retrieval.applicablePlaybookRules, null, 2)}

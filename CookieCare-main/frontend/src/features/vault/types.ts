@@ -18,6 +18,6 @@ export interface LibraryItem {
   itemsCount: string | number;
   dateModified: string;
   createdBy: string;
-  details?: string;
+  details?: string | Record<string, unknown>;
   fileList?: Array<{ id?: string; name: string; size: string; type: string }>;
 }

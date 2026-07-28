@@ -11,6 +11,8 @@ import pdf from "pdf-parse-fork";
 import mammoth from "mammoth";
 import { executeTemplateDrafting } from "./jobs/handlers/drafting-handler.js";
 import { executePlaybookIngestionJob } from "./jobs/handlers/playbook-handler.js";
+import { executeClauseIngestionJob } from "./jobs/handlers/clause-handler.js";
+import { executeTemplateIngestionJob } from "./jobs/handlers/template-handler.js";
 
 export async function updateJobProgress(jobId: string, userId: string, progress: number, message?: string) {
   await withTransaction(userId, 'USER', async (client) => {
@@ -88,6 +90,12 @@ export async function addJobToQueue(userId: string, type: JobType, payload: any)
         case "PLAYBOOK_INGEST":
           result = await executePlaybookIngestionJob(jobId, userId, payload);
           break;
+        case "CLAUSE_INGEST":
+          result = await executeClauseIngestionJob(jobId, userId, payload);
+          break;
+        case "TEMPLATE_INGEST":
+          result = await executeTemplateIngestionJob(jobId, userId, payload);
+          break;
         default:
           throw new Error(`Unhandled job type: ${type}`);
       }
@@ -132,7 +140,9 @@ export type JobType =
   | "dpa_review"
   | "vendor_review"
   | "ai_ethics_review"
-  | "PLAYBOOK_INGEST";
+  | "PLAYBOOK_INGEST"
+  | "CLAUSE_INGEST"
+  | "TEMPLATE_INGEST";
 
 export type JobStatus = "queued" | "processing" | "completed" | "failed";
 
@@ -165,6 +175,20 @@ class BackgroundJobRegistry {
 
   public broadcast(userId: string, job: any): void {
     const payloadStr = JSON.stringify({ event: "job_update", job });
+    for (const client of this.clients) {
+      if (client.userId === userId) {
+        client.send(`data: ${payloadStr}\n\n`);
+      }
+    }
+  }
+
+  /**
+   * Push an incremental generation token (delta) to a user's SSE clients.
+   * Used for live document streaming during drafting; the final `job_update`
+   * completed event remains the authoritative content.
+   */
+  public broadcastToken(userId: string, jobId: string, delta: string): void {
+    const payloadStr = JSON.stringify({ event: "draft_token", jobId, delta });
     for (const client of this.clients) {
       if (client.userId === userId) {
         client.send(`data: ${payloadStr}\n\n`);
