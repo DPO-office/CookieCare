@@ -79,8 +79,9 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
         mode: mode === "BASIC" ? "Basic" : mode === "PROACTIVE" ? "Standard Template" : "Advanced Proactive",        
         rawInstructions: composedInstructions,
         sourceText: resolvedSourceText,
-        // Proactive playbook/reference doc selection is `documentId` (null until the
-        // vault ships); it is intentionally unused for now.
+        // Proactive vault asset id from the unified API feed (null for Basic).
+        vaultDocumentId: mode === "PROACTIVE" && documentId ? String(documentId) : null,
+        // Output draft file id — never overwrite with the vault source id.
         payloadFields: { documentId: targetDocId }
       },
       // Neutral placeholders — step 1 (requirement extraction) overwrites these.

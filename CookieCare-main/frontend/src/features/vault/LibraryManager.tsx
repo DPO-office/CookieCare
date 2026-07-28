@@ -30,6 +30,9 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
   const [selectedFolder, setSelectedFolder] = useState<LibraryItem | null>(null);
   const [viewDetailItem, setViewDetailItem] = useState<LibraryItem | null>(null);
   const [isAddFileOpen, setIsAddFileOpen] = useState(false);
+  const [isVaultIngestOpen, setIsVaultIngestOpen] = useState(false);
+  const [vaultContractType, setVaultContractType] = useState("NDA");
+  const [vaultJurisdiction, setVaultJurisdiction] = useState("");
   const [formName, setFormName] = useState("");
   const [formDescription, setFormDescription] = useState("");
   const [formTags, setFormTags] = useState("");
@@ -38,12 +41,50 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
 
   const {
     items, savedDrafts, copiedId, uploadProgress,
-    uploadStatus, uploadError, setUploadStatus,
+    uploadStatus, uploadError, uploadResultMessage, setUploadStatus,
+    uploadProgressPercent, uploadProgressMessage, resetUploadProgress,
     fetchLibraryData, handleCopyId, handleDeleteItem, handleDeleteDraft,
-    handleCreateNewItem, handleTriggerUpload, handleDeleteFileFromFolder,
+    handleCreateNewItem, handleTriggerUpload, handleVaultAssetUpload, handleDeleteFileFromFolder,
   } = useLibrary(authToken, onRefresh);
 
   const activeTabInfo = TABS_CONFIG.find((t) => t.id === activeTab) || TABS_CONFIG[0];
+  const isVaultIngestTab =
+    activeTab === "rulebook" || activeTab === "templates" || activeTab === "clauses";
+
+  const vaultIngestTitle =
+    activeTab === "rulebook"
+      ? "Upload playbook"
+      : activeTab === "templates"
+        ? "Upload template"
+        : "Upload clause pack";
+
+  const vaultIngestHint =
+    activeTab === "rulebook"
+      ? "Company-wide playbook PDF/DOCX. Structured into playbook_rules for drafting retrieval (not tied to a single contract type)."
+      : activeTab === "templates"
+        ? "Full agreement PDF/DOCX. Stored as an active contract template for baseline drafting."
+        : "Clause library PDF/DOCX. Extracted into reusable vault clause items (contract type optional).";
+
+  const getItemProcessStatus = (item: LibraryItem): "processing" | "failed" | "ready" | null => {
+    if (!item.details) return null;
+    try {
+      const details =
+        typeof item.details === "string" ? JSON.parse(item.details) : item.details;
+      const status = String(details?.status || "").toLowerCase();
+      if (status === "processing" || status === "failed" || status === "ready") return status;
+    } catch {
+      /* ignore */
+    }
+    if (String(item.tags || "").toLowerCase().includes("processing")) return "processing";
+    if (String(item.tags || "").toLowerCase().includes("failed")) return "failed";
+    return null;
+  };
+
+  const closeVaultIngestModal = () => {
+    setIsVaultIngestOpen(false);
+    setUploadStatus("idle");
+    resetUploadProgress();
+  };
 
   const filteredTabItems = items.filter((item) => {
     if (item.type !== activeTab) return false;
@@ -114,6 +155,20 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
               <button onClick={() => { setFormFolderTarget(items.filter((i) => i.type === "files")[0]?.id || ""); setIsAddFileOpen(true); }}
                 className="inline-flex items-center gap-2 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-sm font-medium text-gray-700 px-4 py-2 rounded-xl transition shadow-sm cursor-pointer">
                 <Upload className="w-3.5 h-3.5" /><span>Add files</span>
+              </button>
+            )}
+            {isVaultIngestTab && (
+              <button
+                onClick={() => {
+                  setVaultContractType("NDA");
+                  setVaultJurisdiction("");
+                  setUploadStatus("idle");
+                  setIsVaultIngestOpen(true);
+                }}
+                className="inline-flex items-center gap-2 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-sm font-medium text-gray-700 px-4 py-2 rounded-xl transition shadow-sm cursor-pointer"
+              >
+                <Upload className="w-3.5 h-3.5" />
+                <span>Upload document</span>
               </button>
             )}
             {activeTab !== "saved-drafts" && (
@@ -235,7 +290,9 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50 text-sm text-gray-700">
-                    {currentRecords.map((item) => (
+                    {currentRecords.map((item) => {
+                      const processStatus = getItemProcessStatus(item);
+                      return (
                       <tr key={item.id} onClick={() => item.type === "files" ? setSelectedFolder(item) : setViewDetailItem(item)} className="hover:bg-gray-50 transition cursor-pointer group">
                         <td className="px-5 py-3.5 font-medium text-gray-900">
                           <div className="flex items-center gap-3">
@@ -245,6 +302,17 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
                               : item.type === "websites" ? <Globe className="w-4 h-4 text-blue-400 shrink-0" />
                               : <FileText className="w-4 h-4 text-gray-400 shrink-0" />}
                             <span className="truncate max-w-[200px]">{item.name}</span>
+                            {processStatus === "processing" && (
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wide text-blue-700 bg-blue-50 border border-blue-100 shrink-0">
+                                <span className="w-2.5 h-2.5 border border-blue-500 border-t-transparent rounded-full animate-spin" />
+                                Processing
+                              </span>
+                            )}
+                            {processStatus === "failed" && (
+                              <span className="inline-flex px-1.5 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wide text-red-700 bg-red-50 border border-red-100 shrink-0">
+                                Failed
+                              </span>
+                            )}
                           </div>
                         </td>
                         <td className="px-5 py-3.5 text-gray-500 text-sm leading-relaxed max-w-[300px] truncate">{item.description}</td>
@@ -265,7 +333,8 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
                           </div>
                         </td>
                       </tr>
-                    ))}
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -448,12 +517,14 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
                 </select>
               </div>
               <label className="block border-2 border-dashed border-gray-200 hover:border-gray-400 transition p-7 text-center rounded-2xl bg-gray-50 cursor-pointer">
-                <input type="file" className="hidden" onChange={(e) => handleTriggerUpload(formFolderTarget, e.target.files).then(() => {
-                  setTimeout(() => {
-                    setIsAddFileOpen(false);
-                    setUploadStatus("idle");
-                  }, 2000);
-                }).catch(() => {})} disabled={uploadStatus === "uploading" || !formFolderTarget} />
+                <input type="file" className="hidden" onChange={(e) => handleTriggerUpload(formFolderTarget, e.target.files).then((ok) => {
+                  if (ok) {
+                    setTimeout(() => {
+                      setIsAddFileOpen(false);
+                      setUploadStatus("idle");
+                    }, 2000);
+                  }
+                })} disabled={uploadStatus === "uploading" || !formFolderTarget} />
                 <Upload className="w-6 h-6 text-gray-300 mx-auto mb-2" />
                 <p className="text-sm font-medium text-gray-700">Drop or click to upload</p>
                 <p className="text-xs text-gray-400 mt-0.5">PDF, Word, Excel, JPG, Text</p>
@@ -467,7 +538,7 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
               {uploadStatus === "success" && (
                 <div className="flex items-center gap-2 text-sm text-emerald-600 bg-emerald-50 border border-emerald-100 p-3 rounded-xl animate-bounce">
                   <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                  <span>File uploaded and parsed successfully!</span>
+                  <span>{uploadResultMessage || "File uploaded and parsed successfully!"}</span>
                 </div>
               )}
               {uploadStatus === "error" && (
@@ -479,6 +550,150 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
             </div>
             <div className="flex justify-end gap-2.5 pt-4 border-t border-gray-100 mt-5">
               <button type="button" onClick={() => { setIsAddFileOpen(false); setUploadStatus("idle"); }} className="px-4 py-2 border border-gray-200 text-gray-600 hover:text-gray-900 rounded-xl text-sm font-medium bg-white hover:bg-gray-50 transition cursor-pointer">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: VAULT INGEST (rulebook / templates / clauses) */}
+      {isVaultIngestOpen && isVaultIngestTab && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="w-full max-w-md bg-white border border-gray-200 shadow-xl p-6 rounded-2xl relative">
+            <button
+              onClick={closeVaultIngestModal}
+              className="absolute right-4 top-4 w-8 h-8 flex items-center justify-center rounded-xl border border-gray-200 text-gray-400 hover:text-gray-700 hover:bg-gray-50 cursor-pointer transition"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <div className="pb-4 border-b border-gray-100 mb-5">
+              <h3 className="font-semibold text-base text-gray-900">{vaultIngestTitle}</h3>
+              <p className="text-sm text-gray-500 mt-0.5">{vaultIngestHint}</p>
+            </div>
+            <div className="space-y-4">
+              {activeTab !== "rulebook" && (
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">
+                    Contract type{" "}
+                    {activeTab === "templates" ? (
+                      <span className="text-red-400">*</span>
+                    ) : (
+                      <span className="text-gray-400 normal-case font-medium">(optional)</span>
+                    )}
+                  </label>
+                  <select
+                    value={vaultContractType}
+                    onChange={(e) => setVaultContractType(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300 transition cursor-pointer"
+                  >
+                    {activeTab === "clauses" && <option value="">General (reusable)</option>}
+                    <option value="NDA">NDA</option>
+                    <option value="MSA">MSA</option>
+                    <option value="DPA">DPA</option>
+                    <option value="SLA">SLA</option>
+                    <option value="SaaS Agreement">SaaS Agreement</option>
+                    <option value="General">General</option>
+                  </select>
+                </div>
+              )}
+              {activeTab !== "rulebook" && (
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">
+                    Jurisdiction (optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={vaultJurisdiction}
+                    onChange={(e) => setVaultJurisdiction(e.target.value)}
+                    placeholder="e.g. Delaware"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300 transition"
+                  />
+                </div>
+              )}
+              <label className="block border-2 border-dashed border-gray-200 hover:border-gray-400 transition p-7 text-center rounded-2xl bg-gray-50 cursor-pointer">
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx,.txt,.md,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
+                  className="hidden"
+                  disabled={
+                    uploadStatus === "uploading" ||
+                    (activeTab === "templates" && !vaultContractType)
+                  }
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const ok = await handleVaultAssetUpload({
+                      tab: activeTab as "rulebook" | "templates" | "clauses",
+                      file,
+                      contractType:
+                        activeTab === "rulebook"
+                          ? undefined
+                          : vaultContractType || undefined,
+                      jurisdiction:
+                        activeTab === "rulebook"
+                          ? undefined
+                          : vaultJurisdiction || undefined,
+                    });
+                    if (ok) {
+                      setTimeout(() => {
+                        closeVaultIngestModal();
+                      }, 2200);
+                    }
+                  }}
+                />
+                <Upload className="w-6 h-6 text-gray-300 mx-auto mb-2" />
+                <p className="text-sm font-medium text-gray-700">Drop or click to upload</p>
+                <p className="text-xs text-gray-400 mt-0.5">PDF, DOCX, TXT, Markdown</p>
+              </label>
+              {uploadStatus === "uploading" && (
+                <div className="space-y-2.5 text-sm text-blue-700 bg-blue-50 border border-blue-100 p-3 rounded-xl">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin shrink-0" />
+                    <span className="font-medium leading-snug">
+                      {uploadProgressMessage ||
+                        (activeTab === "rulebook"
+                          ? "Listed in AI Rulebook — structuring rules…"
+                          : activeTab === "templates"
+                            ? "Listed in Templates — normalizing…"
+                            : "Listed in Clauses — structuring…")}
+                    </span>
+                  </div>
+                  <div className="h-1.5 w-full rounded-full bg-blue-100 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-blue-500 transition-all duration-500 ease-out"
+                      style={{ width: `${Math.max(8, uploadProgressPercent)}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-[11px] text-blue-600/80 gap-3">
+                    <span>
+                      {activeTab === "rulebook"
+                        ? "You can close this — the row stays visible while AI works."
+                        : "Row appears in the tab while processing continues."}
+                    </span>
+                    <span className="font-mono tabular-nums shrink-0">{Math.round(uploadProgressPercent)}%</span>
+                  </div>
+                </div>
+              )}
+              {uploadStatus === "success" && (
+                <div className="flex items-center gap-2 text-sm text-emerald-600 bg-emerald-50 border border-emerald-100 p-3 rounded-xl">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>{uploadResultMessage || "Ingest completed."}</span>
+                </div>
+              )}
+              {uploadStatus === "error" && (
+                <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 border border-red-100 p-3 rounded-xl">
+                  <Info className="w-4 h-4 text-red-500 shrink-0" />
+                  <span>{uploadError || "Upload failed."}</span>
+                </div>
+              )}
+            </div>
+            <div className="flex justify-end gap-2.5 pt-4 border-t border-gray-100 mt-5">
+              <button
+                type="button"
+                onClick={closeVaultIngestModal}
+                className="px-4 py-2 border border-gray-200 text-gray-600 hover:text-gray-900 rounded-xl text-sm font-medium bg-white hover:bg-gray-50 transition cursor-pointer"
+              >
+                {uploadStatus === "uploading" ? "Close (keeps processing)" : "Close"}
+              </button>
             </div>
           </div>
         </div>

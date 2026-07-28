@@ -99,7 +99,10 @@ export interface DraftState {
     mode?: 'Basic' | 'Standard Template' | 'Advanced Proactive' | null;
     uploadedDocumentText?:string; // This is for REACTIVE MODE ONLY
     rawInstructions: string; 
+    // Output draft file id (ledger / files row). Distinct from vaultDocumentId.
     payloadFields?: {documentId:string}
+    // Proactive vault selection: library / contract_templates / files id used as retrieval source.
+    vaultDocumentId?: string | null;
     templateId?: string;
     sourceText?: string;
     highlightedText?: string;
@@ -110,6 +113,9 @@ export interface DraftState {
     applicablePlaybookRules: PlaybookRule[];
     fallbackClauses: Clause[];
     historicalReferences: ReferenceSnippet[];
+    // Observability for empty vs DB vs hardcoded paths (generation unchanged).
+    templateSource?: "vault" | "default_type" | "reactive_upload" | "none";
+    clauseSource?: "library_items" | "clause_catalog" | "hardcoded_fallback" | "none";
   };
   context: {
     systemPrompt: string;

@@ -1,5 +1,5 @@
 import { pool } from "../../../config/database.js";
-import { PlaybookIngester } from "../../../modules/drafting/services/playbook-ingester.js";
+import { ClauseIngester } from "../../../modules/drafting/services/clause-ingester.js";
 import { extractIngestText } from "../../../modules/drafting/utils/ingest-text.js";
 
 async function updateJobProgress(
@@ -12,7 +12,6 @@ async function updateJobProgress(
     `UPDATE jobs SET progress = $1, message = $2, status = 'PROCESSING', updated_at = NOW() WHERE id = $3;`,
     [percentage, message, jobId]
   );
-  // Dynamic import avoids circular dependency with jobQueue (which imports this handler).
   const { jobRegistry } = await import("../../jobQueue.js");
   jobRegistry.broadcast(userId, {
     id: jobId,
@@ -46,54 +45,53 @@ async function updateLibraryStage(
     });
 }
 
-export async function executePlaybookIngestionJob(
+export async function executeClauseIngestionJob(
   jobId: string,
   userId: string,
   payload: any
 ): Promise<any> {
-  const { fileTitle, fileId, libraryItemId } = payload ?? {};
+  const { contractType, jurisdiction, fileId, fileTitle, libraryItemId } =
+    payload ?? {};
 
   try {
-    await updateJobProgress(jobId, userId, 10, "Extracting playbook document text…");
+    const resolvedType =
+      contractType && String(contractType).trim()
+        ? String(contractType).trim()
+        : "General";
+
+    await updateJobProgress(jobId, userId, 10, "Extracting clause pack text…");
     await updateLibraryStage(
       libraryItemId,
-      "Company playbook — extracting text…",
+      `${resolvedType} clause pack — extracting text…`,
       "extracting",
-      { scope: "company", sourceFileId: fileId || null }
+      {
+        isPack: true,
+        sourceFileId: fileId || null,
+        contractType: resolvedType,
+      }
     );
 
-    const { text: extractedTextString } = await extractIngestText(payload);
+    const { text } = await extractIngestText(payload);
 
-    await updateJobProgress(
-      jobId,
-      userId,
-      35,
-      "Text extracted — preparing AI structuring…"
-    );
+    await updateJobProgress(jobId, userId, 40, "Structuring clauses with AI…");
     await updateLibraryStage(
       libraryItemId,
-      "Company playbook — preparing AI structuring…",
-      "preparing",
-      { scope: "company", sourceFileId: fileId || null }
-    );
-
-    await updateJobProgress(
-      jobId,
-      userId,
-      50,
-      "Structuring playbook rules with AI (often ~1 min)…"
-    );
-    await updateLibraryStage(
-      libraryItemId,
-      "Company playbook — structuring rules with AI…",
+      `${resolvedType} clause pack — structuring with AI…`,
       "structuring",
-      { scope: "company", sourceFileId: fileId || null }
+      {
+        isPack: true,
+        sourceFileId: fileId || null,
+        contractType: resolvedType,
+      }
     );
 
-    const ingester = new PlaybookIngester();
-    const ingestionResult = await ingester.ingestPlaybookText(extractedTextString);
-
-    await updateJobProgress(jobId, userId, 90, "Saving structured rules to the vault…");
+    const ingester = new ClauseIngester();
+    const result = await ingester.ingestClauseText(text, {
+      contractType: resolvedType,
+      userId,
+      sourceFileId: fileId,
+      jurisdiction: jurisdiction ? String(jurisdiction).trim() : undefined,
+    });
 
     if (libraryItemId) {
       await pool.query(
@@ -103,14 +101,16 @@ export async function executePlaybookIngestionJob(
              details = $3
          WHERE id = $4`,
         [
-          `Company playbook — ${ingestionResult.processedRulesCount} rules structured`,
-          "playbook, company",
+          `${resolvedType} clause pack — ${result.processedClausesCount} clauses ready`,
+          `${resolvedType}, ready`,
           JSON.stringify({
             status: "ready",
-            scope: "company",
+            isPack: true,
+            contractType: resolvedType,
             sourceFileId: fileId || null,
-            processedRulesCount: ingestionResult.processedRulesCount,
             fileTitle: fileTitle || null,
+            processedClausesCount: result.processedClausesCount,
+            clauseLibraryItemIds: result.libraryItemIds,
           }),
           libraryItemId,
         ]
@@ -119,32 +119,28 @@ export async function executePlaybookIngestionJob(
 
     await pool.query(
       `UPDATE jobs
-       SET status = $1,
-           progress = $2,
-           message = $3,
-           result = $4,
-           updated_at = NOW()
+       SET status = $1, progress = $2, message = $3, result = $4, updated_at = NOW()
        WHERE id = $5;`,
       [
         "COMPLETED",
         100,
-        "Successfully structured and stored playbook guidelines!",
+        "Successfully structured and stored clause library items.",
         JSON.stringify({
-          scope: "company",
-          libraryItemId: libraryItemId || null,
-          processedRulesCount: ingestionResult.processedRulesCount,
+          contractType: resolvedType,
+          fileTitle,
+          processedClausesCount: result.processedClausesCount,
+          libraryItemIds: result.libraryItemIds,
+          packLibraryItemId: libraryItemId || null,
         }),
         jobId,
       ]
     );
-    return {
-      ...ingestionResult,
-      libraryItemId: libraryItemId || null,
-    };
+
+    return result;
   } catch (err: any) {
     const errorMessage = err instanceof Error ? err.message : String(err);
 
-    if (payload?.libraryItemId) {
+    if (libraryItemId) {
       await pool
         .query(
           `UPDATE library_items
@@ -153,15 +149,15 @@ export async function executePlaybookIngestionJob(
                details = $3
            WHERE id = $4`,
           [
-            "Company playbook — structuring failed",
-            "playbook, failed",
+            "Clause pack — structuring failed",
+            "clauses, failed",
             JSON.stringify({
               status: "failed",
-              scope: "company",
+              isPack: true,
               error: errorMessage,
-              sourceFileId: payload?.fileId || null,
+              sourceFileId: fileId || null,
             }),
-            payload.libraryItemId,
+            libraryItemId,
           ]
         )
         .catch(() => {
@@ -171,19 +167,15 @@ export async function executePlaybookIngestionJob(
 
     await pool.query(
       `UPDATE jobs
-       SET status = $1,
-           message = $2,
-           error = $3,
-           updated_at = NOW()
+       SET status = $1, message = $2, error = $3, updated_at = NOW()
        WHERE id = $4;`,
       [
         "FAILED",
-        "Playbook ingestion failed while downloading, extracting, or structuring the PDF payload.",
+        "Clause ingestion failed while extracting or structuring the payload.",
         errorMessage,
         jobId,
       ]
     );
-
     throw err;
   }
 }

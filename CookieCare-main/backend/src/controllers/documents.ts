@@ -163,12 +163,20 @@ export const  uploadDocument = async (req: Request, res: Response) => {
     return res.status(400).json({ error: "File signature mismatch. Extension does not match content magic bytes." });
   }
 
-  const { title, folder_id,contractType } = req.body;
-  // For playbook
+  const { title, folder_id, contractType, jurisdiction } = req.body;
+  // Vault ingest categories: playbook | templates | clauses | upload (default)
   const systemFileType = req.body.category?.trim().toLowerCase() || "upload";
-  // Playbook validation rule stays simple
-  if (systemFileType === "playbook" && (!contractType || !contractType.trim())) {
-    return res.status(400).json({ error: "Playbook ingestion requires an explicit 'contractType' parameter." });
+
+  // Templates are document-type-specific and need contractType.
+  // Playbooks are company-wide (no contractType required).
+  // Clauses: contractType is optional (defaults to General).
+  if (
+    (systemFileType === "templates" || systemFileType === "template") &&
+    (!contractType || !String(contractType).trim())
+  ) {
+    return res.status(400).json({
+      error: "Template ingestion requires an explicit 'contractType' parameter.",
+    });
   }
 
   const fileId = "doc_" + crypto.randomUUID();
@@ -198,21 +206,105 @@ export const  uploadDocument = async (req: Request, res: Response) => {
     });
     
     let job;
-    
-    if (systemFileType === "playbook" || contractType) {
-      const fileDataUrl = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
-      
-      job = await addJobToQueue(req.user!.id, "PLAYBOOK_INGEST", {
-        fileId,
-        contractType: contractType.trim(),
-        fileTitle,
-        fileUrl:fileDataUrl,
-        fileBufferBase64: file.buffer.toString("base64"),
-        mimeType: file.mimetype
+    let libraryItemId: string | null = null;
+
+    const fileDataUrl = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
+    const ingestBasePayload: Record<string, unknown> = {
+      fileId,
+      contractType: contractType ? String(contractType).trim() : undefined,
+      jurisdiction: jurisdiction ? String(jurisdiction).trim() : undefined,
+      fileTitle,
+      fileUrl: fileDataUrl,
+      fileBufferBase64: file.buffer.toString("base64"),
+      mimeType: file.mimetype,
+      userId,
+    };
+
+    if (systemFileType === "playbook") {
+      // Create a Vault "AI Rulebook" row immediately so the tab shows the upload
+      // while LLM structuring runs (often ~1 min).
+      libraryItemId = "lib_" + crypto.randomUUID();
+      await withTransaction(userId, userRole, async (client) => {
+        await client.query(
+          `INSERT INTO library_items (id, user_id, type, name, description, tags, details)
+           VALUES ($1, $2, 'rulebook', $3, $4, $5, $6)`,
+          [
+            libraryItemId,
+            userId,
+            fileTitle,
+            "Company playbook — extracting text…",
+            "playbook, processing",
+            JSON.stringify({
+              status: "processing",
+              sourceFileId: fileId,
+              scope: "company",
+              stage: "queued",
+            }),
+          ]
+        );
       });
+      ingestBasePayload.libraryItemId = libraryItemId;
+      job = await addJobToQueue(req.user!.id, "PLAYBOOK_INGEST", ingestBasePayload);
+    } else if (systemFileType === "templates" || systemFileType === "template") {
+      // Immediate Templates-tab row while AI normalize runs.
+      libraryItemId = "lib_" + crypto.randomUUID();
+      const tplType = String(contractType).trim();
+      await withTransaction(userId, userRole, async (client) => {
+        await client.query(
+          `INSERT INTO library_items (id, user_id, type, name, description, tags, details)
+           VALUES ($1, $2, 'templates', $3, $4, $5, $6)`,
+          [
+            libraryItemId,
+            userId,
+            fileTitle,
+            `${tplType} template — normalizing…`,
+            `${tplType}, processing`,
+            JSON.stringify({
+              status: "processing",
+              sourceFileId: fileId,
+              contractType: tplType,
+              jurisdiction: jurisdiction ? String(jurisdiction).trim() : null,
+              stage: "queued",
+            }),
+          ]
+        );
+      });
+      ingestBasePayload.libraryItemId = libraryItemId;
+      job = await addJobToQueue(req.user!.id, "TEMPLATE_INGEST", ingestBasePayload);
+    } else if (systemFileType === "clauses" || systemFileType === "clause") {
+      // Immediate Clauses-tab row while AI structuring runs.
+      libraryItemId = "lib_" + crypto.randomUUID();
+      const clauseType =
+        contractType && String(contractType).trim()
+          ? String(contractType).trim()
+          : "General";
+      await withTransaction(userId, userRole, async (client) => {
+        await client.query(
+          `INSERT INTO library_items (id, user_id, type, name, description, tags, details)
+           VALUES ($1, $2, 'clauses', $3, $4, $5, $6)`,
+          [
+            libraryItemId,
+            userId,
+            fileTitle,
+            `${clauseType} clause pack — structuring…`,
+            `${clauseType}, processing`,
+            JSON.stringify({
+              status: "processing",
+              sourceFileId: fileId,
+              contractType: clauseType,
+              jurisdiction: jurisdiction ? String(jurisdiction).trim() : null,
+              stage: "queued",
+              isPack: true,
+            }),
+          ]
+        );
+      });
+      ingestBasePayload.libraryItemId = libraryItemId;
+      job = await addJobToQueue(req.user!.id, "CLAUSE_INGEST", ingestBasePayload);
     }
 
-    job = await addJobToQueue(req.user!.id, "file_processing", {
+    // Always index/store file content for vault browsing.
+    const fileJob = await addJobToQueue(req.user!.id, "file_processing", {
       fileId,
       fileTitle,
       fileBufferBase64: file.buffer.toString("base64"),
@@ -221,7 +313,18 @@ export const  uploadDocument = async (req: Request, res: Response) => {
       creatorEmail: req.user!.email
     });
 
-    res.status(202).json({ success: true, job_id: job.id, file_id: fileId });
+    // Prefer returning the ingest job id when present so Vault SSE tracks structuring.
+    const primaryJob = job || fileJob;
+
+    res.status(202).json({
+      success: true,
+      job_id: primaryJob.id,
+      file_id: fileId,
+      library_item_id: libraryItemId,
+      ingest_job_id: job?.id ?? null,
+      file_job_id: fileJob.id,
+      category: systemFileType,
+    });
   } catch (err: any) {
     console.error("Document upload route crash:", err);
     const message = err.message === "DB_UPLOAD_FAILED" ? "Failed to register upload in security log." : "Internal error during background job queueing.";
