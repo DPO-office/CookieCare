@@ -77,7 +77,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<void> {
   const transporter = createTransporter();
 
   await transporter.sendMail({
-    from: `"Lexify AI" <${fromAddress}>`,
+    from: `"randtrust AI" <${fromAddress}>`,
     to: options.to,
     subject: options.subject,
     html: options.html,

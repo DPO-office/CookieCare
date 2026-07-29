@@ -93,13 +93,13 @@ export default function GeneratorPanel(props: GeneratorPanelProps) {
         const clauses = data.filter((i: any) => i.type === "clauses");
 
         props.onSetTemplateFolders([{
-          name: "Lexify Templates",
+          name: "randtrust Templates",
           count: templates.length,
           items: templates.map((t: any) => t.name)
         }]);
 
         props.onSetClauseCategories([{
-          name: "Lexify Clause Library",
+          name: "randtrust Clause Library",
           count: clauses.length,
           items: clauses.map((c: any) => c.name)
         }]);
@@ -118,8 +118,8 @@ export default function GeneratorPanel(props: GeneratorPanelProps) {
       {/* Header */}
       <div className="w-full flex justify-between items-start mb-9 z-10">
         <div>
-          <h1 className="text-[26px] font-bold text-gray-900 tracking-tight">Draft Agreements</h1>
-          <p className="text-[13px] text-gray-500 mt-1">Create AI-powered first drafts in seconds.</p>
+          <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#1D6FD8" }}>Draft Agreements</h1>
+          <p className="text-[13px] text-gray-500 mt-1">Generate structured first drafts from templates and playbooks.</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">

@@ -1,4 +1,4 @@
-# RandTrust
+# randtrust
 ### The Enterprise Trust Platform
 **Legal • Privacy • AI Governance • Compliance • Risk**
 
@@ -10,7 +10,7 @@
 
 ### 1.1 Project Summary
 
-RandTrust is a full-stack TypeScript platform (React frontend + Express backend) that automates the legal-agreement lifecycle for in-house legal and compliance teams. Users can draft agreements from templates and playbooks, run AI-assisted analysis and Q&A over uploaded documents, and negotiate redlines — all grounded in the organisation’s own document set via Retrieval-Augmented Generation (RAG).
+randtrust is a full-stack TypeScript platform (React frontend + Express backend) that automates the legal-agreement lifecycle for in-house legal and compliance teams. Users can draft agreements from templates and playbooks, run AI-assisted analysis and Q&A over uploaded documents, and negotiate redlines — all grounded in the organisation’s own document set via Retrieval-Augmented Generation (RAG).
 
 Long-running AI work (drafting, analysis, scanning, review) runs in the background and streams progress to the browser. Document content is encrypted at rest, and each tenant is isolated at the database layer. AI reasoning is powered primarily by Google Gemini.
 
@@ -368,4 +368,4 @@ Evaluates responsible AI practices from uploaded governance documents and/or a c
 
 ---
 
-*RandTrust — Product Documentation · Version 1.0*
+*randtrust — Product Documentation · Version 1.0*

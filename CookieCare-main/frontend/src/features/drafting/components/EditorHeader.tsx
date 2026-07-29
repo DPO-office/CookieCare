@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import {
   ArrowLeft,
   FileText,
@@ -144,7 +144,7 @@ export default function EditorHeader({
           onClick={onSaveClick}
           disabled={isSaving || isFullySigned}
           title={isFullySigned ? "Document is sealed" : "Save draft"}
-          className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-lg bg-gray-900 text-white text-[12px] font-semibold hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed ml-1 shadow-xs"
+          className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-lg -90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed ml-1 shadow-xs" style={{ background: "#1D6FD8" }}
         >
           <Save className="w-3.5 h-3.5" />
           <span>{isFullySigned ? "Locked" : "Save"}</span>
@@ -154,3 +154,5 @@ export default function EditorHeader({
     </header>
   );
 }
+
+

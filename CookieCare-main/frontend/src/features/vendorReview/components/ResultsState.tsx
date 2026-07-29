@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import {
   RefreshCw, ShieldCheck, Building2, BarChart3, Download,
   AlertTriangle, AlertCircle, CheckCircle2, Info,
@@ -130,11 +130,11 @@ export function ResultsState({ fileNames, reviewResult, onReset }: ResultsStateP
               </span>
             )}
           </div>
-          <h1 className="text-[24px] font-bold text-gray-900 tracking-tight">Vendor Assessment Report</h1>
+          <h1 className="text-[24px] font-bold tracking-tight" style={{ color: "#1D6FD8" }}>Vendor Assessment Report</h1>
           <p className="text-[13px] text-gray-500 mt-1">
             {isRealData && reviewResult?.summary
               ? reviewResult.summary.substring(0, 140) + (reviewResult.summary.length > 140 ? "…" : "")
-              : "AI-generated vendor risk, privacy and compliance assessment."}
+              : "Vendor risk, privacy, and third-party compliance assessment."}
           </p>
         </div>
         <button onClick={onReset} className="btn-secondary text-[12px] py-2 px-4 shrink-0 cursor-pointer mt-1">
@@ -194,7 +194,7 @@ export function ResultsState({ fileNames, reviewResult, onReset }: ResultsStateP
                 onClick={() => setActiveTab(t)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-all duration-150 cursor-pointer
                   ${activeTab === t
-                    ? "bg-gray-900 text-white shadow-sm"
+                    ? "bg-[#1D6FD8] text-white shadow-sm"
                     : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 hover:text-gray-800 hover:border-gray-300"}`}
               >
                 {t === "findings"        && <FileSearch className="w-3.5 h-3.5" />}
@@ -426,3 +426,6 @@ export function ResultsState({ fileNames, reviewResult, onReset }: ResultsStateP
     </div>
   );
 }
+
+
+

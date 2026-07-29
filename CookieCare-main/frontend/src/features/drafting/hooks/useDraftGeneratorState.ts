@@ -23,8 +23,8 @@ export function useDraftGeneratorState() {
   const [s4Open, setS4Open] = useState(false);
 
   // Folder expansion states
-  const [expandedFolder, setExpandedFolder] = useState<string | null>("Lexify Templates");
-  const [expandedClauseCat, setExpandedClauseCat] = useState<string | null>("Lexify Clause Library");
+  const [expandedFolder, setExpandedFolder] = useState<string | null>("randtrust Templates");
+  const [expandedClauseCat, setExpandedClauseCat] = useState<string | null>("randtrust Clause Library");
 
   // Search filters
   const [searchTemplateQuery, setSearchTemplateQuery] = useState("");

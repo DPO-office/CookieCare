@@ -1,7 +1,6 @@
 import React from "react";
-import { FileCheck, Radio, ShieldAlert, ArrowRight, FileText } from "lucide-react";
+import { FileCheck, Radio, ShieldAlert, FileText } from "lucide-react";
 import { DashboardHomeProps } from "./types";
-import { DASHBOARD_SHORTCUTS } from "./constants";
 import { buildDocumentLogs } from "./utils";
 
 export default function DashboardHome({ userName, setActiveTab, stats, documents }: DashboardHomeProps) {
@@ -14,13 +13,10 @@ export default function DashboardHome({ userName, setActiveTab, stats, documents
       <div className="mb-10">
         <div className="flex items-center justify-between mb-1">
           <div>
-            <h1 className="text-[26px] font-bold text-gray-900 tracking-tight leading-tight">Dashboard</h1>
+            <h1 className="text-[26px] font-bold tracking-tight leading-tight" style={{ color: "#1D6FD8" }}>Dashboard</h1>
             <p className="text-[13px] text-gray-500 mt-1">Welcome back, {userName}</p>
           </div>
-          <div className="flex items-center gap-2 text-xs font-medium text-gray-500 bg-white border border-gray-200 rounded-full py-1.5 px-3.5 shadow-xs">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>All systems operational</span>
-          </div>
+         
         </div>
       </div>
 
@@ -34,7 +30,7 @@ export default function DashboardHome({ userName, setActiveTab, stats, documents
           <div key={kpi.label} className="bg-white border border-gray-200 rounded-[18px] p-7 shadow-xs hover:shadow-sm transition-shadow flex items-center justify-between">
             <div>
               <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-2">{kpi.label}</p>
-              <h3 className="text-[32px] font-bold text-gray-900 tracking-tight leading-none">{kpi.value}</h3>
+              <h3 className="text-[32px] font-bold tracking-tight leading-none" style={{ color: "#1D6FD8" }}>{kpi.value}</h3>
               <p className="text-[12px] text-gray-400 mt-2">{kpi.sub}</p>
             </div>
             <div className={`w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center ${kpi.color}`}>
@@ -44,32 +40,11 @@ export default function DashboardHome({ userName, setActiveTab, stats, documents
         ))}
       </div>
 
-      {/* Shortcut cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        {DASHBOARD_SHORTCUTS.map((s) => (
-          <div
-            key={s.tab}
-            onClick={() => setActiveTab(s.tab)}
-            className="group bg-white border border-gray-200 rounded-[18px] p-6 shadow-xs hover:shadow-md hover:border-gray-300 transition-all cursor-pointer flex flex-col justify-between"
-          >
-            <div>
-              <div className="w-11 h-11 rounded-xl bg-gray-50 flex items-center justify-center text-gray-600 mb-5 group-hover:bg-gray-900 group-hover:text-white transition-all shadow-xs">
-                <s.icon className="w-5 h-5" />
-              </div>
-              <h3 className="font-bold text-[15px] text-gray-900 mb-2 tracking-tight">{s.title}</h3>
-              <p className="text-[13px] text-gray-500 leading-relaxed">{s.desc}</p>
-            </div>
-            <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between text-[13px] font-medium text-gray-600">
-              <span>{s.cta}</span>
-              <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-gray-400" />
-            </div>
-          </div>
-        ))}
-      </div>
+
 
       {/* Document ledger */}
       <div className="bg-white border border-gray-200 rounded-[18px] shadow-xs overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2.5 bg-gray-50">
+        <div className="px-6 py-4 border-b border-gray-200 flex items-center gap-2.5 bg-gray-50 rounded-t-[18px]">
           <FileText className="w-4 h-4 text-gray-500" />
           <h4 className="font-bold text-[13px] text-gray-900 tracking-tight">Document Ledger</h4>
           <span className="ml-auto text-[11px] font-medium text-gray-400">{documents.length} documents</span>
@@ -81,43 +56,45 @@ export default function DashboardHome({ userName, setActiveTab, stats, documents
             <p className="text-[13px] text-gray-400">No documents yet. Create or import a document to get started.</p>
           </div>
         ) : (
-          <table className="w-full text-left text-[13px]">
-            <thead>
-              <tr className="border-b border-gray-100 bg-gray-50">
-                <th className="px-6 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Document</th>
-                <th className="px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Score</th>
-                <th className="px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Issues</th>
-                <th className="px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Type</th>
-                <th className="px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider text-right">Updated</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {continuousLogs.map((log, i) => {
-                const scoreClass =
-                  log.score >= 80 ? "bg-emerald-50 text-emerald-700" :
-                  log.score >= 50 ? "bg-amber-50 text-amber-700" :
-                  "bg-red-50 text-red-700";
+          <div className="overflow-y-auto scrollbar-hide" style={{ maxHeight: "320px" }}>
+            <table className="w-full text-left text-[13px]">
+              <thead className="sticky top-0 z-10">
+                <tr className="border-b border-gray-100 bg-gray-50">
+                  <th className="px-6 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Document</th>
+                  <th className="px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Score</th>
+                  <th className="px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Issues</th>
+                  <th className="px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Type</th>
+                  <th className="px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider text-right">Updated</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {continuousLogs.map((log, i) => {
+                  const scoreClass =
+                    log.score >= 80 ? "bg-emerald-50 text-emerald-700" :
+                    log.score >= 50 ? "bg-amber-50 text-amber-700" :
+                    "bg-red-50 text-red-700";
 
-                return (
-                  <tr key={i} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-6 py-3.5 font-medium text-gray-900">{log.target}</td>
-                    <td className="px-5 py-3.5">
-                      <span className={`inline-block px-2.5 py-1 rounded-md text-[11px] font-bold ${scoreClass}`}>
-                        {log.score}%
-                      </span>
-                    </td>
-                    <td className="px-5 py-3.5 text-gray-500">{log.issues} issues</td>
-                    <td className="px-5 py-3.5">
-                      <span className="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-gray-100 text-gray-600">
-                        {log.type}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3.5 text-gray-400 text-right text-[12px]">{log.scanTime}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                  return (
+                    <tr key={i} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="px-6 py-3.5 font-medium text-gray-900">{log.target}</td>
+                      <td className="px-5 py-3.5">
+                        <span className={`inline-block px-2.5 py-1 rounded-md text-[11px] font-bold ${scoreClass}`}>
+                          {log.score}%
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5 text-gray-500">{log.issues} issues</td>
+                      <td className="px-5 py-3.5">
+                        <span className="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-gray-100 text-gray-600">
+                          {log.type}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5 text-gray-400 text-right text-[12px]">{log.scanTime}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 

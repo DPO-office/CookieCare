@@ -1,5 +1,5 @@
-import React from "react";
-import { ShieldCheck, Clock, RefreshCcw, Loader2, UserCheck } from "lucide-react";
+﻿import React from "react";
+import { ShieldCheck, Clock, RefreshCcw, Loader2, UserCheck, UserX } from "lucide-react";
 import { useAdminPanel } from "./hooks/useAdminPanel";
 
 interface AdminPanelProps {
@@ -7,7 +7,7 @@ interface AdminPanelProps {
 }
 
 export default function AdminPanel({ authToken }: AdminPanelProps) {
-  const { users, loading, approvingId, error, loadUsers, handleApprove } = useAdminPanel(authToken);
+  const { users, loading, approvingId, rejectingId, error, loadUsers, handleApprove, handleReject } = useAdminPanel(authToken);
 
   return (
     <div className="flex-1 overflow-auto px-10 py-8 bg-[#FAFAFB]">
@@ -15,7 +15,7 @@ export default function AdminPanel({ authToken }: AdminPanelProps) {
 
         <div className="mb-10 flex items-center justify-between">
           <div>
-            <h1 className="text-[26px] font-bold text-gray-900 tracking-tight flex items-center gap-3">
+            <h1 className="text-[26px] font-bold tracking-tight flex items-center gap-3" style={{ color: "#1D6FD8" }}>
               <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center">
                 <ShieldCheck className="w-5 h-5 text-gray-500" />
               </div>
@@ -69,7 +69,7 @@ export default function AdminPanel({ authToken }: AdminPanelProps) {
                   <tr key={user.id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gray-900 text-white flex items-center justify-center font-bold text-[13px] shrink-0">
+                        <div className="w-8 h-8 rounded-full text-white flex items-center justify-center font-bold text-[13px] shrink-0" style={{ background: "#1D6FD8" }}>
                           {user.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
@@ -85,18 +85,32 @@ export default function AdminPanel({ authToken }: AdminPanelProps) {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button
-                        onClick={() => handleApprove(user.id)}
-                        disabled={approvingId === user.id}
-                        className="inline-flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-xl text-[13px] font-medium hover:bg-gray-800 transition shadow-xs disabled:opacity-50 cursor-pointer"
-                      >
-                        {approvingId === user.id ? (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        ) : (
-                          <UserCheck className="w-3.5 h-3.5" />
-                        )}
-                        Approve
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => handleReject(user.id)}
+                          disabled={rejectingId === user.id || approvingId === user.id}
+                          className="inline-flex items-center gap-2 border border-gray-200 bg-white text-gray-600 px-4 py-2 rounded-xl text-[13px] font-medium hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition shadow-xs disabled:opacity-50 cursor-pointer"
+                        >
+                          {rejectingId === user.id ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <UserX className="w-3.5 h-3.5" />
+                          )}
+                          Reject
+                        </button>
+                        <button
+                          onClick={() => handleApprove(user.id)}
+                          disabled={approvingId === user.id || rejectingId === user.id}
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium text-white transition shadow-xs disabled:opacity-50 cursor-pointer" style={{ background: "#1D6FD8" }}
+                        >
+                          {approvingId === user.id ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <UserCheck className="w-3.5 h-3.5" />
+                          )}
+                          Approve
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -109,3 +123,7 @@ export default function AdminPanel({ authToken }: AdminPanelProps) {
     </div>
   );
 }
+
+
+
+

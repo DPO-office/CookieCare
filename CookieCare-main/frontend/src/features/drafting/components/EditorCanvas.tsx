@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import {
   Sparkles,
   ChevronDown,
@@ -116,7 +116,7 @@ export default function EditorCanvas({
           <div className="relative">
             <button
               onClick={() => onSetActiveDropdown(activeDropdown === "main" ? null : "main")}
-              className="h-7 px-2.5 bg-gray-900 text-white rounded-lg text-[11px] font-semibold flex items-center gap-1.5 hover:bg-gray-800 transition cursor-pointer"
+              className="h-7 px-2.5 -90 transition cursor-pointer" style={{ background: "#1D6FD8" }}
             >
               <Sparkles className="w-3 h-3 text-amber-400" />
               <span>AI</span>
@@ -174,7 +174,7 @@ export default function EditorCanvas({
                     />
                     <button
                       onClick={() => onApplyRewrite("ask", askAiQuery)}
-                      className="mt-1.5 w-full bg-gray-900 hover:bg-gray-800 text-white py-1.5 rounded-xl text-[10px] font-semibold transition cursor-pointer"
+                      className="mt-1.5 w-full -90 text-white py-1.5 rounded-xl text-[10px] font-semibold transition cursor-pointer" style={{ background: "#1D6FD8" }}
                     >
                       Apply
                     </button>
@@ -202,7 +202,7 @@ export default function EditorCanvas({
       {/* AI refinement overlay */}
       {isAiRefiningText && (
         <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-20">
-          <div className="bg-gray-900 text-white rounded-2xl px-5 py-3.5 shadow-xl flex items-center gap-3">
+          <div className="text-white rounded-2xl px-5 py-3.5 shadow-xl flex items-center gap-3" style={{ background: "#1D6FD8" }}>
             <Sparkles className="w-4 h-4 text-amber-400 animate-spin" />
             <span className="text-xs font-medium tracking-wide">Rewriting with AI…</span>
           </div>
@@ -225,3 +225,6 @@ export default function EditorCanvas({
     </div>
   );
 }
+
+
+

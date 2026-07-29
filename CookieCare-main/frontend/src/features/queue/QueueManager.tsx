@@ -11,8 +11,8 @@ export default function QueueManager() {
 
       <div className="mb-10 flex items-center justify-between">
         <div>
-          <h1 className="text-[26px] font-bold text-gray-900 tracking-tight">Active Queue</h1>
-          <p className="text-[13px] text-gray-500 mt-1">Real-time monitor of background AI processing tasks.</p>
+          <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#1D6FD8" }}>Active Queue</h1>
+          <p className="text-[13px] text-gray-500 mt-1">Real-time monitor of background processing tasks.</p>
         </div>
         <div className="flex items-center gap-2">
           {jobs.some((j) => j.status === "processing") && (

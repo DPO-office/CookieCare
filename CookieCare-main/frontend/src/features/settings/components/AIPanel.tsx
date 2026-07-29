@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { Sparkles, Cpu } from "lucide-react";
 import { SettingCard, CardHeader, CardBody, CardFooter, Label, Select, ToggleRow, SavedIndicator, useSaved } from "./SettingsPrimitives";
 import { AI_MODELS } from "../constants";
@@ -16,7 +16,7 @@ export default function AIPanel() {
   return (
     <div className="space-y-5">
       <SettingCard>
-        <CardHeader icon={Sparkles} title="Model Configuration" desc="Choose which LLM powers Lexify's analysis, drafting and review agents." />
+        <CardHeader icon={Sparkles} title="Model Configuration" desc="Choose which LLM powers randtrust's analysis, drafting and review agents." />
         <CardBody className="space-y-4">
           <div>
             <Label>Primary model</Label>
@@ -28,7 +28,7 @@ export default function AIPanel() {
                   onClick={() => setModel(m.value)}
                   className={`flex items-center justify-between px-4 py-3 rounded-xl border text-left transition-all
                     ${model === m.value
-                      ? "bg-gray-900 border-gray-900 text-white shadow-sm"
+                      ? "border-transparent bg-[#1D6FD8] text-white shadow-sm"
                       : "bg-gray-50 border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-white"}`}
                 >
                   <span className="text-[13px] font-medium">{m.label}</span>
@@ -80,3 +80,7 @@ export default function AIPanel() {
     </div>
   );
 }
+
+
+
+

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import {
   Folder, Search, Plus, Trash2, HelpCircle, ChevronRight,
   ChevronLeft, ChevronsLeft, ChevronsRight, Globe, FileText,
@@ -147,7 +147,7 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
         {/* Title card */}
         <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className="text-[22px] font-bold text-gray-900 tracking-tight">{activeTabInfo.label}</h2>
+            <h2 className="text-[22px] font-bold tracking-tight" style={{ color: "#1D6FD8" }}>{activeTabInfo.label}</h2>
             <p className="text-sm text-gray-500 mt-1 max-w-xl leading-relaxed">{activeTabInfo.desc}.</p>
           </div>
           <div className="flex items-center gap-2.5 shrink-0">
@@ -173,7 +173,7 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
             )}
             {activeTab !== "saved-drafts" && (
               <button onClick={() => setIsCreateOpen(true)}
-                className="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white text-sm font-semibold px-4 py-2 rounded-xl transition shadow-sm cursor-pointer">
+                className="inline-flex items-center gap-2 -90 text-white text-sm font-semibold px-4 py-2 rounded-xl transition shadow-sm cursor-pointer" style={{ background: "#1D6FD8" }}>
                 <Plus className="w-3.5 h-3.5" /><span>{activeTabInfo.buttonWord}</span>
               </button>
             )}
@@ -190,7 +190,7 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
                 className={`px-4 py-2.5 text-sm font-medium cursor-pointer transition-all border-b-2 shrink-0 flex items-center gap-2
                   ${isActive ? "border-gray-900 text-gray-900" : "border-transparent text-gray-400 hover:text-gray-700"}`}>
                 <span>{tab.label}</span>
-                <span className={`px-1.5 py-0.5 rounded-md text-xs ${isActive ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-500"}`}>{count}</span>
+                <span className={`px-1.5 py-0.5 rounded-md text-xs ${isActive ? "bg-[#1D6FD8] text-white" : "bg-gray-100 text-gray-500"}`}>{count}</span>
               </button>
             );
           })}
@@ -423,7 +423,7 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
               </div>
               <div className="flex gap-2.5 pt-2 border-t border-gray-100 justify-end">
                 <button type="button" onClick={() => setIsCreateOpen(false)} className="px-4 py-2 border border-gray-200 text-gray-600 hover:text-gray-900 rounded-xl text-sm font-medium bg-white hover:bg-gray-50 transition cursor-pointer">Cancel</button>
-                <button type="submit" className="px-5 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-xl text-sm font-semibold transition shadow-sm cursor-pointer">Create</button>
+                <button type="submit" className="px-5 py-2 -90 text-white rounded-xl text-sm font-semibold transition shadow-sm cursor-pointer" style={{ background: "#1D6FD8" }}>Create</button>
               </div>
             </form>
           </div>
@@ -441,7 +441,7 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
                 <h3 className="font-semibold text-lg text-gray-900 truncate">{selectedFolder.name}</h3>
                 <p className="text-xs text-gray-400 mt-0.5">ID: {selectedFolder.id} · By {selectedFolder.createdBy}</p>
               </div>
-              <button onClick={() => { setFormFolderTarget(selectedFolder.id); setIsAddFileOpen(true); }} className="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium px-3.5 py-2 rounded-xl transition shrink-0 cursor-pointer">
+              <button onClick={() => { setFormFolderTarget(selectedFolder.id); setIsAddFileOpen(true); }} className="inline-flex items-center gap-2 -90 text-white text-sm font-medium px-3.5 py-2 rounded-xl transition shrink-0 cursor-pointer" style={{ background: "#1D6FD8" }}>
                 <Upload className="w-3.5 h-3.5" /><span>Add files</span>
               </button>
             </div>
@@ -735,3 +735,7 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
     </div>
   );
 }
+
+
+
+

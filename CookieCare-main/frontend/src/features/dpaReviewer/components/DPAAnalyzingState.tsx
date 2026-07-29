@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { FileText, AlertCircle, Loader2, Check } from "lucide-react";
 import { AnalysisStep } from "../types";
 
@@ -30,18 +30,18 @@ export function DPAAnalyzingState({ fileName, steps }: DPAAnalyzingStateProps) {
         <div className="text-center mb-7">
           <div className="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-1.5 text-[12px] font-semibold text-gray-500 mb-4 shadow-xs">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-            <span>Live AI Processing</span>
+            <span>Processing</span>
           </div>
           <h2 className="text-[21px] font-bold text-gray-900 tracking-tight mb-2">Analyzing your DPA</h2>
           <p className="text-[13px] text-gray-500 leading-relaxed max-w-xs mx-auto">
-            Lexify AI is reviewing your agreement against GDPR requirements and compliance best practices.
+            Reviewing your agreement against GDPR requirements and compliance best practices.
           </p>
         </div>
 
         <div className="bg-white border border-gray-200 rounded-[20px] shadow-sm overflow-hidden mb-4">
           <div className="h-[3px] bg-gray-100 relative overflow-hidden">
             <div
-              className="absolute inset-y-0 left-0 bg-gray-900 rounded-full transition-all duration-700 ease-out"
+              className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out" style={{ background: "#1D6FD8" }}
               style={{ width: `${progress}%` }}
             />
             <div
@@ -78,7 +78,7 @@ export function DPAAnalyzingState({ fileName, steps }: DPAAnalyzingStateProps) {
                   <div
                     className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-all duration-300
                       ${step.status === "done"    ? "bg-emerald-100 border border-emerald-200" : ""}
-                      ${step.status === "active"  ? "bg-gray-900" : ""}
+                      ${step.status === "active"  ? "bg-[#1D6FD8] text-white" : ""}
                       ${step.status === "pending" ? "bg-gray-100 border border-gray-200" : ""}`}
                   >
                     {step.status === "done"    && <Check   className="w-2.5 h-2.5 text-emerald-600" />}
@@ -124,3 +124,6 @@ export function DPAAnalyzingState({ fileName, steps }: DPAAnalyzingStateProps) {
     </div>
   );
 }
+
+
+

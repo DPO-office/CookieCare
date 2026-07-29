@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import {
   CheckCircle2, AlertTriangle, AlertCircle, FileSearch,
   Sparkles, Download, Copy, Check,
@@ -113,9 +113,9 @@ export function EthicsResultsState({ fileNames, result, onReset }: EthicsResults
                 : "Website analysis complete"}
             </span>
           </div>
-          <h1 className="text-[24px] font-bold text-gray-900 tracking-tight">AI Ethics Score</h1>
+          <h1 className="text-[24px] font-bold tracking-tight" style={{ color: "#1D6FD8" }}>AI Ethics Score</h1>
           <p className="text-[13px] text-gray-500 mt-1">
-            AI-generated responsible AI evaluation and governance assessment.
+            Responsible technology evaluation and governance assessment.
           </p>
         </div>
         <button
@@ -191,7 +191,7 @@ export function EthicsResultsState({ fileNames, result, onReset }: EthicsResults
                 onClick={() => setActiveTab(t)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-all duration-150 cursor-pointer
                   ${activeTab === t
-                    ? "bg-gray-900 text-white shadow-sm"
+                    ? "bg-[#1D6FD8] text-white shadow-sm"
                     : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 hover:text-gray-800 hover:border-gray-300"
                   }`}
               >
@@ -388,3 +388,6 @@ export function EthicsResultsState({ fileNames, result, onReset }: EthicsResults
     </div>
   );
 }
+
+
+

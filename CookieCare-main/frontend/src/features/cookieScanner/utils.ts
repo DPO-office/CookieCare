@@ -19,5 +19,5 @@ export function buildReportContentString(result: {
 
 export function buildDownloadFilename(url: string, ext: string): string {
   const clean = url.replace(/https?:\/\/|www\./gi, "").replace(/[./\s]/gi, "_");
-  return `Lexify_Cookie_${clean}.${ext}`;
+  return `randtrust_Cookie_${clean}.${ext}`;
 }

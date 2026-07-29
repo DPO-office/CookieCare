@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Upload, Folder, Gavel, FileCode, FileText,
@@ -41,9 +41,9 @@ interface PopoversProps {
   setOpenPopover: (p: PopoverType) => void;
 }
 
+// "Full IRAC" is retained internally (used as default in the hook) but not shown in the UI.
 const FORMAT_OPTIONS: { fmt: OutputFormat; desc: string }[] = [
   { fmt: "Brief Summary", desc: "Concise overview with key findings and practical recommendations." },
-  { fmt: "Full IRAC", desc: "Issue · Rule · Application · Conclusion — standard legal analysis." },
   { fmt: "CREAC", desc: "Conclusion · Rule · Explanation · Application · Conclusion." },
 ];
 
@@ -118,7 +118,8 @@ export default function Popovers({
                 ].map((item) => (
                   <button key={item.label} type="button" onClick={item.action}
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left cursor-pointer group">
-                    <div className="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center shrink-0 group-hover:bg-gray-900 transition-colors">
+                    <div className="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center shrink-0 transition-colors" style={{}}>
+
                       <item.icon className="w-4 h-4 text-gray-500 group-hover:text-white transition-colors" />
                     </div>
                     <div className="min-w-0">
@@ -152,7 +153,7 @@ export default function Popovers({
                     return (
                       <button key={jc.key} type="button" onClick={() => toggleJurisdiction(jc.label)}
                         className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer ${
-                          sel ? "bg-gray-900 text-white border-gray-900" : "bg-gray-50 text-gray-600 border-gray-200 hover:border-gray-400 hover:bg-gray-100"
+                          sel ? "text-white border-transparent" : "bg-gray-50 text-gray-600 border-gray-200 hover:border-gray-400 hover:bg-gray-100"
                         }`}>
                         {sel && <Check className="w-2.5 h-2.5 shrink-0" />}
                         {jc.label}
@@ -194,7 +195,7 @@ export default function Popovers({
                     placeholder="Create new folder…"
                     className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-gray-100 focus:border-gray-300 transition placeholder:text-gray-400" />
                   <button type="submit"
-                    className="w-7 h-7 bg-gray-900 text-white rounded-xl flex items-center justify-center hover:bg-gray-800 transition shrink-0 cursor-pointer">
+                    className="w-7 h-7 rounded-lg flex items-center justify-center text-white transition shrink-0 cursor-pointer" style={{ background: "#1D6FD8" }}>
                     <Plus className="w-3 h-3" />
                   </button>
                 </form> */}
@@ -206,7 +207,7 @@ export default function Popovers({
                       <div onClick={() => toggleFolderSelection(f.id)}
                         className="flex items-center justify-between px-3 py-2 cursor-pointer">
                         <div className="flex items-center gap-2 min-w-0">
-                          <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 border transition-all ${f.isSelected ? "bg-gray-900 border-gray-900" : "bg-white border-gray-300"}`}>
+                          <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 border transition-all ${f.isSelected ? "border-transparent" : "bg-white border-gray-300"}`}>
                             {f.isSelected && <Check className="w-2.5 h-2.5 text-white" />}
                           </div>
                           <Folder className={`w-3.5 h-3.5 shrink-0 ${f.isSelected ? "text-gray-700" : "text-gray-300"}`} />
@@ -267,7 +268,7 @@ export default function Popovers({
                     placeholder="https://gazette.gov…"
                     className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-gray-100 focus:border-gray-300 transition placeholder:text-gray-400" />
                   <button type="submit"
-                    className="w-7 h-7 bg-gray-900 text-white rounded-xl flex items-center justify-center hover:bg-gray-800 transition shrink-0 cursor-pointer">
+                    className="w-7 h-7 rounded-lg flex items-center justify-center text-white transition shrink-0 cursor-pointer" style={{ background: "#1D6FD8" }}>
                     <Plus className="w-3 h-3" />
                   </button>
                 </form>
@@ -307,7 +308,7 @@ export default function Popovers({
                     onClick={() => { setSelectedFormat(fmt); setOpenPopover(null); }}
                     className={`w-full flex items-start gap-3 px-3 py-2.5 rounded-xl border transition-all text-left cursor-pointer ${
                       selectedFormat === fmt
-                        ? "bg-gray-900 border-gray-900 text-white"
+                        ? "border-transparent bg-[#1D6FD8] text-white"
                         : "bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                     }`}>
                     <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${
@@ -330,3 +331,10 @@ export default function Popovers({
     </AnimatePresence>
   );
 }
+
+
+
+
+
+
+

@@ -17,7 +17,7 @@ import {
 export function useAskAILawyer(authToken: string) {
   /* ── Core state ─────────────────────────────────────────────── */
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedFormat, setSelectedFormat] = useState<OutputFormat>("Full IRAC");
+  const [selectedFormat, setSelectedFormat] = useState<OutputFormat>("Brief Summary");
   const [selectedJurisdictions, setSelectedJurisdictions] = useState<string[]>([]);
   const [webDiscoveryUrlInput, setWebDiscoveryUrlInput] = useState("");
   const [webDiscoveryUrls, setWebDiscoveryUrls] = useState<string[]>([]);

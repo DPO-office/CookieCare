@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { FolderPlus, Upload, CheckCircle, Loader2 } from "lucide-react";
 import { SidePanelType, CustomFolder } from "../types";
 
@@ -76,7 +76,7 @@ export default function SideDrawer({
               </div>
               <button
                 type="submit"
-                className="w-full bg-gray-900 hover:bg-gray-800 text-white text-[13px] font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.15)] mt-6"
+                className="w-full hover:opacity-90 text-white text-[13px] font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.15)] mt-6" style={{ background: "#1D6FD8" }}
               >
                 <FolderPlus className="w-3.5 h-3.5 text-gray-300" />
                 <span>Create Folder</span>
@@ -129,7 +129,7 @@ export default function SideDrawer({
               <button
                 type="submit"
                 disabled={!uploadedFileName || isUploading}
-                className="w-full bg-gray-900 hover:bg-gray-800 text-white text-[13px] font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.15)] disabled:opacity-30 mt-6"
+                className="w-full hover:opacity-90 text-white text-[13px] font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.15)] disabled:opacity-30 mt-6" style={{ background: "#1D6FD8" }}
               >
                 {isUploading ? (
                   <><Loader2 className="w-3.5 h-3.5 animate-spin text-gray-300" /><span>Uploading...</span></>
@@ -144,3 +144,6 @@ export default function SideDrawer({
     </div>
   );
 }
+
+
+
