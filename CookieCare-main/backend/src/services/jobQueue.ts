@@ -7,8 +7,7 @@ import { encryptData, decryptData } from "../utils/crypto.js";
 import { withRetry } from "../utils/retry.js";
 import { withTransaction } from "../utils/dbUtils.js";
 import crypto from "crypto";
-import pdf from "pdf-parse-fork";
-import mammoth from "mammoth";
+import { extractText } from "../utils/extractText.js";
 import { executeTemplateDrafting } from "./jobs/handlers/drafting-handler.js";
 import { executePlaybookIngestionJob } from "./jobs/handlers/playbook-handler.js";
 import { executeClauseIngestionJob } from "./jobs/handlers/clause-handler.js";
@@ -274,19 +273,7 @@ async function executeFileProcessing(jobId: string, userId: string, payload: any
   await updateJobProgress(jobId, userId, 15, "Extracting text from document...");
 
   const buffer = Buffer.from(fileBufferBase64, "base64");
-  let content = "";
-
-  if (mimeType === "application/pdf") {
-    const data = await pdf(buffer);
-    content = data.text;
-  } else if (mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
-    const data = await mammoth.extractRawText({ buffer });
-    content = data.value;
-  } else if (mimeType.startsWith("text/")) {
-    content = buffer.toString("utf-8");
-  } else {
-    content = buffer.toString("utf-8").replace(/[^\x20-\x7E\r\n\t]/g, " ");
-  }
+  let content = await extractText(buffer, mimeType);
 
   content = content.replace(/\0/g, "");
   const encryptedContent = encryptData(content);

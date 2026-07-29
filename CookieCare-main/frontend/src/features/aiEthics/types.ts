@@ -4,7 +4,7 @@ import { AnalysisAppState, SharedAnalysisStep } from "../../shared/types";
 export type AppState = AnalysisAppState;
 export type AnalysisStep = SharedAnalysisStep;
 
-// ─── Individual finding ───────────────────────────────────────────────────────
+// ··· Individual finding ·······················································
 
 export interface EthicsFinding {
   id: string;
@@ -18,7 +18,7 @@ export interface EthicsFinding {
   recommendation: string;
 }
 
-// ─── Recommendation section ───────────────────────────────────────────────────
+// ··· Recommendation section ···················································
 
 export interface EthicsRecommendation {
   category: string;
@@ -29,7 +29,7 @@ export interface EthicsRecommendation {
   items: string[];
 }
 
-// ─── Score breakdown (8 axes) ─────────────────────────────────────────────────
+// ··· Score breakdown (8 axes) ·················································
 
 export interface AIEthicsScoreBreakdown {
   aiGovernance:      number;
@@ -42,7 +42,7 @@ export interface AIEthicsScoreBreakdown {
   riskManagement:    number;
 }
 
-// ─── Per-dimension evaluation ─────────────────────────────────────────────────
+// ··· Per-dimension evaluation ·················································
 
 export interface AIEthicsDimension {
   dimension: string;
@@ -51,7 +51,7 @@ export interface AIEthicsDimension {
   notes?: string;
 }
 
-// ─── Standards alignment ──────────────────────────────────────────────────────
+// ··· Standards alignment ······················································
 
 export interface StandardAlignment {
   standard: string;
@@ -59,7 +59,7 @@ export interface StandardAlignment {
   gaps?: string[];
 }
 
-// ─── Full result returned by the backend ai_ethics_review job ─────────────────
+// ··· Full result returned by the backend ai_ethics_review job ·················
 
 export interface AIEthicsReviewResult {
   overallScore:      number;

@@ -32,43 +32,45 @@ export default function CookieScanner({ authToken }: CookieScannerProps) {
         />
       )}
 
-      <div className="mb-10 flex items-center justify-between">
-        <div>
-          <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#1D6FD8" }}>Cookie Scanner</h1>
+      <div className="w-full max-w-5xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#2175D9" }}>Cookie Scanner</h1>
           <p className="text-[13px] text-gray-500 mt-1">Privacy compliance scan and consent engine.</p>
         </div>
-      </div>
 
-      <ScanForm
-        url={url}
-        scanDepth={scanDepth}
-        scanning={scanning}
-        onUrlChange={setUrl}
-        onDepthChange={setScanDepth}
-        onSubmit={handleStartScan}
-      />
-
-      {result ? (
-        <ScanResults
-          result={result}
-          shareEmail={shareEmail}
-          sharing={sharing}
-          shareMessage={shareMessage}
-          onShareEmailChange={setShareEmail}
-          onShareSubmit={handleShareReport}
-          onDownload={downloadReportFile}
+        <ScanForm
+          url={url}
+          scanDepth={scanDepth}
+          scanning={scanning}
+          onUrlChange={setUrl}
+          onDepthChange={setScanDepth}
+          onSubmit={handleStartScan}
         />
-      ) : (
-        !scanning && (
-          <div className="bg-white border border-gray-200 rounded-[18px] shadow-xs p-16 text-center flex flex-col items-center">
-            <Globe className="w-12 h-12 text-gray-200 mb-4" />
-            <h3 className="font-bold text-gray-900 text-[16px] mb-2 tracking-tight">Ready to scan</h3>
-            <p className="text-[13px] text-gray-500 max-w-md leading-relaxed">
-              Enter a target URL above to scan for tracking scripts, parse cookie categories, and check banner compliance against GDPR, CCPA and DPDP.
-            </p>
-          </div>
-        )
-      )}
+
+        {result ? (
+          <ScanResults
+            result={result}
+            shareEmail={shareEmail}
+            sharing={sharing}
+            shareMessage={shareMessage}
+            onShareEmailChange={setShareEmail}
+            onShareSubmit={handleShareReport}
+            onDownload={downloadReportFile}
+          />
+        ) : (
+          !scanning && (
+            <div className="bg-white border border-gray-200 rounded-[18px] shadow-xs px-6 py-10 text-center flex flex-col items-center">
+              <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-3">
+                <Globe className="w-5 h-5 text-gray-300" />
+              </div>
+              <h3 className="font-bold text-gray-900 text-[14px] mb-1.5 tracking-tight">Ready to scan</h3>
+              <p className="text-[12px] text-gray-500 max-w-sm leading-relaxed">
+                Enter a target URL above to scan for tracking scripts, parse cookie categories, and check banner compliance against GDPR, CCPA and DPDP.
+              </p>
+            </div>
+          )
+        )}
+      </div>
     </div>
   );
 }

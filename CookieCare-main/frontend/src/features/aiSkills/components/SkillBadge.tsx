@@ -1,7 +1,7 @@
 import React from "react";
 import type { SkillStatus, SkillCategory } from "../types/skill";
 
-/* ── Status badge ───────────────────────────────────────────────────────── */
+/* ·· Status badge ························································· */
 
 interface StatusBadgeProps {
   status: SkillStatus;
@@ -37,7 +37,7 @@ export function StatusBadge({ status }: StatusBadgeProps) {
   );
 }
 
-/* ── Category badge ─────────────────────────────────────────────────────── */
+/* ·· Category badge ······················································· */
 
 interface CategoryBadgeProps {
   category: SkillCategory;

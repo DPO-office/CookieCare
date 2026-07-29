@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { Folder, ChevronDown, ChevronUp, FileText, FileCode, Plus, FolderPlus } from "lucide-react";
 import { CustomFolder, SavedDraft } from "../types";
 
@@ -39,7 +39,7 @@ export default function DocumentSelector({
     <div className="bg-white border border-gray-200 rounded-2xl p-7 shadow-sm">
       <div className="mb-5">
         <div className="flex items-center gap-2.5 mb-1">
-          <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 text-gray-500 text-[10px] font-semibold shrink-0">1</span>
+          <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#2175D9] text-white text-[10px] font-semibold shrink-0">1</span>
           <h3 className="text-[13px] font-semibold text-gray-800 tracking-tight">Select document folders</h3>
         </div>
         <p className="text-xs text-gray-400 ml-7 leading-relaxed">Choose the folders to load into the analysis context</p>
@@ -63,7 +63,7 @@ export default function DocumentSelector({
           </button>
           <button
             onClick={onOpenNewFolder}
-            className="-90 text-white text-sm font-medium px-3.5 py-2 rounded-lg transition-all flex items-center gap-1.5" style={{ background: "#1D6FD8" }}
+            className="-90 text-white text-sm font-medium px-3.5 py-2 rounded-lg transition-all flex items-center gap-1.5" style={{ background: "#2175D9" }}
           >
             <FolderPlus className="w-3.5 h-3.5 text-gray-300" />
             <span>New Folder</span>

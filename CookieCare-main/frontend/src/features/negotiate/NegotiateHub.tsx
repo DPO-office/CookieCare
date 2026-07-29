@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { FileText, HeartHandshake, FileDown, Printer, Save, CheckCircle2, Loader2, ArrowLeft } from "lucide-react";
 import { LegalDocument } from "../../shared/types";
 import { useNegotiate } from "./hooks/useNegotiate";
@@ -14,11 +14,11 @@ interface NegotiateHubProps {
   onSelectDocument: (doc: LegalDocument) => void;
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
+/* ·············································································
    NegotiateWorkspace
    Mounted only after the user has explicitly chosen a document.
    Keeps the hook and all negotiation logic completely unchanged.
-───────────────────────────────────────────────────────────────────────────── */
+············································································· */
 function NegotiateWorkspace({
   documents, activeDocument, authToken, onRefresh, onSelectDocument, onBack,
 }: NegotiateHubProps & { onBack: () => void }) {
@@ -42,9 +42,9 @@ function NegotiateWorkspace({
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-[#FAFAFB]">
 
-      {/* ── Page header — matches Draft Agreements pattern ────────── */}
+      {/* ·· Page header — matches Draft Agreements pattern ·········· */}
       <div className="px-10 pt-8 pb-6 shrink-0">
-        <div className="w-full flex justify-between items-start">
+        <div className="w-full max-w-5xl mx-auto flex justify-between items-start">
           {/* Left: back + title */}
           <div className="flex items-center gap-3 min-w-0">
             <button
@@ -55,7 +55,7 @@ function NegotiateWorkspace({
               <ArrowLeft className="w-4 h-4" />
             </button>
             <div className="min-w-0">
-              <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#1D6FD8" }}>Negotiate Redlines</h1>
+              <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#2175D9" }}>Negotiate Redlines</h1>
               <p className="text-[13px] text-gray-500 mt-1">Review, redline, and resolve contract positions.</p>
             </div>
           </div>
@@ -101,7 +101,7 @@ function NegotiateWorkspace({
                 onClick={handleSaveDraft}
                 disabled={!activeDoc || saving}
                 className="inline-flex items-center gap-1.5 h-9 px-3 rounded-xl text-white text-[12px] font-semibold hover:opacity-90 transition shadow-xs disabled:opacity-40 disabled:cursor-not-allowed"
-                style={{ background: "#1D6FD8" }}
+                style={{ background: "#2175D9" }}
               >
                 {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                 <span>{saving ? "Saving…" : "Save"}</span>
@@ -118,7 +118,7 @@ function NegotiateWorkspace({
         </div>
       </div>
 
-      {/* ── Workspace body ────────────────────────────────────────── */}
+      {/* ·· Workspace body ·········································· */}
       {activeDoc ? (
         <div className="flex-1 flex overflow-hidden min-h-0">
           <DocumentViewer
@@ -169,10 +169,10 @@ function NegotiateWorkspace({
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
+/* ·············································································
    NegotiateHub  (entry point)
    Shows DocumentPicker until the user explicitly confirms a selection.
-───────────────────────────────────────────────────────────────────────────── */
+············································································· */
 export default function NegotiateHub({
   documents, activeDocument, authToken, onRefresh, onSelectDocument,
 }: NegotiateHubProps) {
@@ -192,9 +192,9 @@ export default function NegotiateHub({
       <div className="flex-1 flex flex-col overflow-hidden bg-[#FAFAFB]">
         {/* Page header — matches Draft Agreements pattern */}
         <div className="px-10 pt-8 pb-0 shrink-0">
-          <div className="w-full flex justify-between items-start mb-9">
+          <div className="w-full max-w-5xl mx-auto flex justify-between items-start mb-9">
             <div>
-              <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#1D6FD8" }}>Negotiate Redlines</h1>
+              <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#2175D9" }}>Negotiate Redlines</h1>
               <p className="text-[13px] text-gray-500 mt-1">Review, redline, and resolve contract positions.</p>
             </div>
           </div>

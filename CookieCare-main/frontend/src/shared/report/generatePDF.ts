@@ -14,8 +14,8 @@
  *
  * Architecture:
  *   1. Build all page HTML strings from the template engine.
- *   2. For each page: create a hidden iframe → write the page HTML into it →
- *      wait for fonts/images to settle → capture with html2canvas → destroy iframe.
+ *   2. For each page: create a hidden iframe · write the page HTML into it ·
+ *      wait for fonts/images to settle · capture with html2canvas · destroy iframe.
  *   3. Assemble captured canvases into a single jsPDF document and save.
  */
 import jsPDF from "jspdf";

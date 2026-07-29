@@ -1,4 +1,4 @@
-// ─── Misc ────────────────────────────────────────────────────────────────────
+// ··· Misc ····································································
 export const SYSTEM_FOLDER_NAME = "Uploaded Documents";
 
 export const DEFAULT_PROMPT =
@@ -22,7 +22,7 @@ export const DEFAULT_QUESTIONS_LIBRARY = [
   "Are there any punitive, non-proven liquidated damages listed?",
 ];
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ··· Types ···································································
 export interface PromptItem {
   title: string;
   description: string;
@@ -46,7 +46,7 @@ export interface QuestionCategory {
   questions: Array<{ title: string; question: string }>;
 }
 
-// ─── Prompt Library ──────────────────────────────────────────────────────────
+// ··· Prompt Library ··························································
 export const DEFAULT_PROMPT_CATEGORIES: PromptCategory[] = [
   {
     id: "general-review",
@@ -360,7 +360,7 @@ export const DEFAULT_PROMPT_CATEGORIES: PromptCategory[] = [
   },
 ];
 
-// ─── Question Library ─────────────────────────────────────────────────────────
+// ··· Question Library ·························································
 export const DEFAULT_QUESTION_CATEGORIES: QuestionCategory[] = [
   {
     id: "general-review",

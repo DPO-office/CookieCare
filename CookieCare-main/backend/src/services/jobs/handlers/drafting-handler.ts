@@ -7,7 +7,7 @@ import { openRouterComplete } from "../../openRouterClient.js";
 import crypto from "crypto";
 import { jobRegistry, updateJobProgress } from "../../jobQueue.js";
 import { DraftMode, DraftState } from "../../../modules/drafting/models/draft-state.js";
-import pdf from "pdf-parse-fork";
+import { extractText } from "../../../utils/extractText.js";
 import { DraftWorkflowOrchestrator } from "../../../modules/drafting/workflows/draft-workflow.js";
 import { resolveLegalDocumentTitle } from "../../../modules/drafting/prompts/system-templates.js";
 import { parseSections } from "../../../modules/drafting/utils/document-sections.js";
@@ -16,9 +16,11 @@ async function extractTextFromStorageUrl(fileUrl: string): Promise<string> {
     const response = await fetch(fileUrl);
     if (!response.ok) throw new Error(`File download failed with status: ${response.status}`);
     const arrayBuffer = await response.arrayBuffer();
-    const parsedPdfData = await pdf(Buffer.from(arrayBuffer));
-    const extractedTextString = parsedPdfData.text ?? "";
-    return extractedTextString
+    const buffer = Buffer.from(arrayBuffer);
+    // Detect content type from URL extension; default to PDF for backward compatibility
+    const isPdf = fileUrl.toLowerCase().includes(".pdf") || !fileUrl.includes(".");
+    const mimeType = isPdf ? "application/pdf" : "application/octet-stream";
+    return extractText(buffer, mimeType);
   }
 
 

@@ -116,7 +116,7 @@ export default function EditorCanvas({
           <div className="relative">
             <button
               onClick={() => onSetActiveDropdown(activeDropdown === "main" ? null : "main")}
-              className="h-7 px-2.5 -90 transition cursor-pointer" style={{ background: "#1D6FD8" }}
+              className="h-7 px-2.5 -90 transition cursor-pointer" style={{ background: "#2175D9" }}
             >
               <Sparkles className="w-3 h-3 text-amber-400" />
               <span>AI</span>
@@ -169,12 +169,12 @@ export default function EditorCanvas({
                       type="text"
                       value={askAiQuery}
                       onChange={(e) => onSetAskAiQuery(e.target.value)}
-                      placeholder="e.g. rewrite in negative legal tone…"
+                      placeholder="e.g. rewrite in negative legal tone·"
                       className="w-full border border-gray-200 rounded-xl p-2 text-[11px] bg-white focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300 transition placeholder:text-gray-400"
                     />
                     <button
                       onClick={() => onApplyRewrite("ask", askAiQuery)}
-                      className="mt-1.5 w-full -90 text-white py-1.5 rounded-xl text-[10px] font-semibold transition cursor-pointer" style={{ background: "#1D6FD8" }}
+                      className="mt-1.5 w-full -90 text-white py-1.5 rounded-xl text-[10px] font-semibold transition cursor-pointer" style={{ background: "#2175D9" }}
                     >
                       Apply
                     </button>
@@ -194,7 +194,7 @@ export default function EditorCanvas({
             onClick={() => { onSetShowFloatingMenu(false); onSetSelectedTextRange(null); }}
             className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg text-xs transition cursor-pointer"
           >
-            ✕
+            ?
           </button>
         </div>
       )}
@@ -202,9 +202,9 @@ export default function EditorCanvas({
       {/* AI refinement overlay */}
       {isAiRefiningText && (
         <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-20">
-          <div className="text-white rounded-2xl px-5 py-3.5 shadow-xl flex items-center gap-3" style={{ background: "#1D6FD8" }}>
+          <div className="text-white rounded-2xl px-5 py-3.5 shadow-xl flex items-center gap-3" style={{ background: "#2175D9" }}>
             <Sparkles className="w-4 h-4 text-amber-400 animate-spin" />
-            <span className="text-xs font-medium tracking-wide">Rewriting with AI…</span>
+            <span className="text-xs font-medium tracking-wide">Rewriting with AI...</span>
           </div>
         </div>
       )}

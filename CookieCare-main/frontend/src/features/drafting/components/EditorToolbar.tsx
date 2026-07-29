@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import {
   Undo2,
   Redo2,
@@ -63,7 +63,7 @@ function TBtn({
             ? "text-white"
             : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
         } ${className}`}
-      style={active ? { background: "#1D6FD8" } : undefined}
+      style={active ? { background: "#2175D9" } : undefined}
     >
       {children}
     </button>
@@ -97,7 +97,7 @@ function ToolSelect({
   );
 }
 
-// ── Main component ──────────────────────────────────────────────────────────
+// -- Main component ----------------------------------------------------------
 export default function EditorToolbar({
   tiptapEditor,
   editorContent,

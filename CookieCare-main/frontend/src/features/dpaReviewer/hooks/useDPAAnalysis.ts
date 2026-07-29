@@ -19,7 +19,7 @@ export function useDPAAnalysis({ authToken }: UseDPAAnalysisOptions) {
   // Keep a ref to the EventSource so we can close it on reset/unmount
   const esRef = useRef<EventSource | null>(null);
 
-  // ── Map backend progress (0–100) to which step should appear active ────────
+  // ·· Map backend progress (0–100) to which step should appear active ········
   // Each step covers an ~8-point band so all 10 steps map naturally to 0–97%
   const progressToStepIndex = (progress: number): number => {
     if (progress < 16) return 0;       // Reading document structure
@@ -62,7 +62,7 @@ export function useDPAAnalysis({ authToken }: UseDPAAnalysisOptions) {
       setSteps(ANALYSIS_STEPS.map((s) => ({ ...s, status: "pending" as const })));
       setAppState("analyzing");
 
-      // ── 1. Upload file and get job_id ──────────────────────────────────────
+      // ·· 1. Upload file and get job_id ······································
       let jobId: string;
       try {
         const res = await submitDPAReview(file, authToken);
@@ -74,7 +74,7 @@ export function useDPAAnalysis({ authToken }: UseDPAAnalysisOptions) {
         return;
       }
 
-      // ── 2. Subscribe to SSE progress ───────────────────────────────────────
+      // ·· 2. Subscribe to SSE progress ·······································
       const es = createJobSSE(authToken);
       esRef.current = es;
 

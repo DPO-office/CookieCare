@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import {
   FileDown, Share2, RefreshCw, ShieldAlert, CheckCircle,
   FileCheck, Layers, Globe, GitCompareArrows,
@@ -79,7 +79,7 @@ export default function ScanResults({
         <div className="bg-white border border-gray-200 rounded-[18px] shadow-xs p-6">
           <h3 className="font-bold text-[14px] text-gray-900 mb-1">Download report</h3>
           <p className="text-[12px] text-gray-500 mb-4">Export this scan as a legal compliance document.</p>
-          <button id="download-pdf-btn" onClick={onDownload} className="inline-flex items-center gap-2 text-white rounded-xl px-4 py-2.5 text-[13px] font-medium transition shadow-xs cursor-pointer" style={{ background: "#1D6FD8" }}>
+          <button id="download-pdf-btn" onClick={onDownload} className="inline-flex items-center gap-2 text-white rounded-xl px-4 py-2.5 text-[13px] font-medium transition shadow-xs cursor-pointer" style={{ background: "#2175D9" }}>
             <FileDown className="w-3.5 h-3.5" /><span>Download PDF Report</span>
           </button>
         </div>
@@ -88,7 +88,7 @@ export default function ScanResults({
           <p className="text-[12px] text-gray-500 mb-4">Send to counselors, partners, or clients.</p>
           <form onSubmit={onShareSubmit} className="flex gap-2">
             <input type="email" required placeholder="partner@legalfirm.com" className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-[13px] focus:outline-none focus:ring-2 focus:ring-gray-100 focus:border-gray-300 transition" value={shareEmail} onChange={(e) => onShareEmailChange(e.target.value)} />
-            <button type="submit" disabled={sharing || !shareEmail} className="inline-flex items-center gap-2 text-white rounded-xl px-4 py-2.5 text-[13px] font-medium transition shadow-xs cursor-pointer disabled:opacity-50" style={{ background: "#1D6FD8" }}>
+            <button type="submit" disabled={sharing || !shareEmail} className="inline-flex items-center gap-2 text-white rounded-xl px-4 py-2.5 text-[13px] font-medium transition shadow-xs cursor-pointer disabled:opacity-50" style={{ background: "#2175D9" }}>
               {sharing ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Share2 className="w-3.5 h-3.5" />}
               <span>Send</span>
             </button>
@@ -102,13 +102,22 @@ export default function ScanResults({
       </div>
 
       {/* Trackers + Gaps */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">        <div className="lg:col-span-2 bg-white border border-gray-200 rounded-[18px] shadow-xs overflow-hidden">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div className="lg:col-span-2 bg-white border border-gray-200 rounded-[18px] shadow-xs overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
             <h3 className="font-bold text-[14px] text-gray-900">Tracker registry</h3>
             <span className="text-[12px] text-gray-400 font-medium">{result.cookiesDetected.length} trackers</span>
           </div>
           {result.cookiesDetected.length === 0 ? (
-            <div className="px-6 py-10 text-center text-[13px] text-gray-400">No trackers isolated.</div>
+            <div className="px-6 py-10 flex flex-col items-center justify-center text-center">
+              <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-3">
+                <Globe className="w-5 h-5 text-gray-300" />
+              </div>
+              <p className="text-[13px] font-semibold text-gray-500">No trackers detected</p>
+              <p className="text-[12px] text-gray-400 mt-1 max-w-xs leading-relaxed">
+                No tracking scripts or cookies were isolated at this scan depth.
+              </p>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-[13px]">
@@ -167,7 +176,7 @@ export default function ScanResults({
         </div>
       </div>
 
-      {/* Enterprise — Consent Comparison Card */}
+      {/* Enterprise · Consent Comparison Card */}
       {result.enterpriseReport?.consentComparison && (() => {
         const cc = result.enterpriseReport!.consentComparison!;
         const isPass = cc.complianceSummary.startsWith("PASS");

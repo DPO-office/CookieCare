@@ -113,7 +113,7 @@ export function EthicsResultsState({ fileNames, result, onReset }: EthicsResults
                 : "Website analysis complete"}
             </span>
           </div>
-          <h1 className="text-[24px] font-bold tracking-tight" style={{ color: "#1D6FD8" }}>AI Ethics Score</h1>
+          <h1 className="text-[24px] font-bold tracking-tight" style={{ color: "#2175D9" }}>AI Ethics Score</h1>
           <p className="text-[13px] text-gray-500 mt-1">
             Responsible technology evaluation and governance assessment.
           </p>
@@ -191,7 +191,7 @@ export function EthicsResultsState({ fileNames, result, onReset }: EthicsResults
                 onClick={() => setActiveTab(t)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-all duration-150 cursor-pointer
                   ${activeTab === t
-                    ? "bg-[#1D6FD8] text-white shadow-sm"
+                    ? "bg-[#2175D9] text-white shadow-sm"
                     : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 hover:text-gray-800 hover:border-gray-300"
                   }`}
               >
@@ -289,10 +289,10 @@ export function EthicsResultsState({ fileNames, result, onReset }: EthicsResults
             <div className="px-5 py-4 space-y-3">
               {[
                 { label: "Assessment Type", value: "Full Ethics Review" },
-                { label: "Framework",       value: "NIST AI RMF · ISO 42001 · EU AI Act" },
+                { label: "Framework",       value: "NIST AI RMF | ISO 42001 | EU AI Act" },
                 { label: "Review Date",     value: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) },
                 { label: "Overall Rating",  value: `${ethicsScore}/100 — ${ethicsScore >= 70 ? "Low Risk" : ethicsScore >= 50 ? "Moderate" : "High Risk"}` },
-                { label: "Findings",        value: `${findings.length} total · ${passedCount} passed` },
+                { label: "Findings",        value: `${findings.length} total — ${passedCount} passed` },
               ].map((row) => (
                 <div key={row.label} className="flex items-start justify-between gap-3">
                   <span className="text-[11px] text-gray-400 font-semibold uppercase tracking-wide shrink-0 mt-0.5 min-w-[90px]">{row.label}</span>
@@ -370,16 +370,16 @@ export function EthicsResultsState({ fileNames, result, onReset }: EthicsResults
               <button
                 onClick={handleDownloadReport}
                 disabled={isGenerating}
-                className="w-full btn-primary justify-center py-2.5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full btn-primary flex items-center justify-center gap-2 py-2.5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {isGenerating
-                  ? <><Loader2 className="w-4 h-4 animate-spin" />Generating PDF…</>
-                  : <><Download className="w-4 h-4" />Download Report</>}
+                  ? <><Loader2 className="w-4 h-4 animate-spin" /><span>Generating PDF...</span></>
+                  : <><Download className="w-4 h-4" /><span>Download Report</span></>}
               </button>
-              <button onClick={handleCopy} className="w-full btn-secondary justify-center py-2.5 cursor-pointer transition-colors">
+              <button onClick={handleCopy} className="w-full btn-secondary flex items-center justify-center gap-2 py-2.5 cursor-pointer transition-colors">
                 {copiedSummary
                   ? <><Check className="w-4 h-4 text-emerald-600" /><span className="text-emerald-700">Copied to clipboard</span></>
-                  : <><Copy className="w-4 h-4" />Copy Summary</>}
+                  : <><Copy className="w-4 h-4" /><span>Copy Summary</span></>}
               </button>
             </div>
           </div>

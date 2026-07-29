@@ -1,5 +1,27 @@
 @import "tailwindcss";
 
+/* ── RandTrust Brand Color Tokens ────────────────────────────────────────────
+   Central CSS variable definitions for the primary brand color.
+   To retheme the app, update only the values in this block.
+   Components reference var(--brand-primary) etc. via inline styles or Tailwind.
+   ────────────────────────────────────────────────────────────────────────── */
+@layer base {
+  :root {
+    --brand-primary:        #2175D9;   /* Primary brand blue               */
+    --brand-primary-hover:  #1D66C2;   /* Hover state (~10% darker)        */
+    --brand-primary-active: #1956A7;   /* Active/pressed state (~18% darker) */
+    --brand-primary-light:  #EBF2FD;   /* Light tint for backgrounds       */
+  }
+}
+
+/* ── Tailwind v4: expose brand color as a utility token ─────────────────── */
+@theme {
+  --color-brand-primary:        var(--brand-primary);
+  --color-brand-primary-hover:  var(--brand-primary-hover);
+  --color-brand-primary-active: var(--brand-primary-active);
+  --color-brand-primary-light:  var(--brand-primary-light);
+}
+
 /* Hide scrollbar while keeping scroll functionality */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;

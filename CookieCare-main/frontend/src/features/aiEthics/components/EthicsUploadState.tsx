@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Upload, FileText, Brain,
   ArrowRight, BadgeCheck, Shield, Scale, XCircle, Sparkles,
@@ -63,7 +63,7 @@ export function EthicsUploadState({ onFilesSelected, error }: EthicsUploadStateP
     onFilesSelected(uploadedFiles.map((e) => e.file), websiteUrl.trim());
   };
 
-  // Dynamic button label — mirrors Vendor Review logic exactly
+  // Dynamic button label · mirrors Vendor Review logic exactly
   const hasFiles = uploadedFiles.length > 0;
   const hasUrl = websiteUrl.trim() !== "" && !validateUrl(websiteUrl);
   const analyzeLabel = (() => {
@@ -96,13 +96,13 @@ export function EthicsUploadState({ onFilesSelected, error }: EthicsUploadStateP
         {/* Hero */}
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-8">         
            <div className="max-w-2xl">
-            <h1 className="text-[26px] font-bold tracking-tight leading-tight mb-2.5" style={{ color: "#1D6FD8" }}>
+            <h1 className="text-[26px] font-bold tracking-tight leading-tight mb-2.5" style={{ color: "#2175D9" }}>
               AI Ethics Score
             </h1>
             <p className="text-[13.5px] text-gray-500 leading-relaxed max-w-xl">
               Upload your AI documentation for a structured evaluation covering
               fairness, transparency, accountability, governance, privacy, and
-              responsible AI practices — with a comprehensive ethics score on completion.
+              responsible AI practices, with a comprehensive ethics score on completion.
             </p>
             <div className="flex flex-wrap gap-2 mt-5">
               {[
@@ -135,12 +135,12 @@ export function EthicsUploadState({ onFilesSelected, error }: EthicsUploadStateP
             onClick={() => fileRef.current?.click()}
             className={`relative rounded-[20px] p-10 text-center cursor-pointer transition-all duration-250 group overflow-hidden
               ${dragging
-                ? "border-2 border-dashed border-gray-500 bg-gray-50 scale-[1.008] shadow-md"
-                : "border-2 border-dashed border-gray-200 hover:border-gray-300 hover:shadow-sm"
+                ? "border-2 border-dashed border-[#2175D9] bg-blue-50 scale-[1.008] shadow-md"
+                : "border-2 border-dashed border-gray-200 hover:border-[#2175D9] hover:shadow-sm"
               }`}
             style={{
               background: dragging
-                ? "linear-gradient(135deg,#F9FAFB 0%,#F3F4F6 100%)"
+                ? "linear-gradient(135deg,#EBF4FD 0%,#DBEAFE 100%)"
                 : "linear-gradient(135deg,#FFFFFF 0%,#FAFAFA 60%,#F5F5F5 100%)",
             }}
           >
@@ -150,7 +150,7 @@ export function EthicsUploadState({ onFilesSelected, error }: EthicsUploadStateP
               }`}
               style={{
                 background:
-                  "radial-gradient(ellipse at 50% 40%,rgba(0,0,0,0.03) 0%,transparent 70%)",
+                  "radial-gradient(ellipse at 50% 40%,rgba(33,117,217,0.06) 0%,transparent 70%)",
               }}
             />
             <input
@@ -164,8 +164,8 @@ export function EthicsUploadState({ onFilesSelected, error }: EthicsUploadStateP
             <div
               className={`relative w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-all duration-250 shadow-xs
                 ${dragging
-                  ? "bg-[#1D6FD8] text-white scale-110 shadow-md"
-                  : "bg-white text-gray-500 border border-gray-200 group-hover:text-white group-hover:shadow-sm group-hover:scale-105"
+                  ? "bg-[#2175D9] text-white scale-110 shadow-md"
+                  : "bg-white text-gray-500 border border-gray-200 group-hover:bg-[#2175D9] group-hover:border-[#2175D9] group-hover:text-white group-hover:shadow-sm group-hover:scale-105"
                 }`}
             >
               <Upload className="w-6 h-6" />

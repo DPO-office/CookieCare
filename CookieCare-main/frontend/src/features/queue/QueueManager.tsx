@@ -9,9 +9,9 @@ export default function QueueManager() {
   return (
     <div className="flex-1 overflow-y-auto px-10 py-8 bg-[#FAFAFB] min-h-screen">
 
-      <div className="mb-10 flex items-center justify-between">
+      <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#1D6FD8" }}>Active Queue</h1>
+          <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#2175D9" }}>Active Queue</h1>
           <p className="text-[13px] text-gray-500 mt-1">Real-time monitor of background processing tasks.</p>
         </div>
         <div className="flex items-center gap-2">
@@ -49,9 +49,11 @@ export default function QueueManager() {
             <p className="text-[13px] text-gray-400">Loading queue...</p>
           </div>
         ) : jobs.length === 0 ? (
-          <div className="p-12 text-center">
-            <Clock className="w-8 h-8 text-gray-200 mx-auto mb-3" />
-            <p className="text-[13px] font-medium text-gray-500 mb-1">No active jobs</p>
+          <div className="px-6 py-10 text-center flex flex-col items-center">
+            <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-3">
+              <Clock className="w-5 h-5 text-gray-300" />
+            </div>
+            <p className="text-[13px] font-semibold text-gray-500 mb-1">No active jobs</p>
             <p className="text-[12px] text-gray-400">Upload a file or trigger an audit to see tasks here.</p>
           </div>
         ) : (

@@ -2,7 +2,7 @@ import { apiUrl } from "../../../config";
 import { PendingUser } from "../types";
 
 export async function fetchPendingUsers(authToken: string): Promise<PendingUser[]> {
-  const res = await fetch(apiUrl("/api/admin/users"), {
+  const res = await fetch(apiUrl("/api/admin/pending-users"), {
     headers: { Authorization: `Bearer ${authToken}` },
   });
   if (!res.ok) throw new Error("Failed to fetch pending users");

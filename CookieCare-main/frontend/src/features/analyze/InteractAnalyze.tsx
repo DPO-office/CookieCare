@@ -104,45 +104,47 @@ export default function InteractAnalyze({
 
       {analysis.viewMode === "form" ? (
         <div className="flex-1 overflow-y-auto px-8 py-7 w-full bg-[#F7F8FA]">
-          <div className="mb-8 pb-5 border-b border-gray-100">
-            <h1 className="text-[28px] font-bold tracking-tight" style={{ color: "#1D6FD8" }}>Analyze Agreements</h1>
-            <p className="text-sm text-gray-500 mt-1.5 leading-relaxed max-w-lg">
-              Run compliance audits, risk assessments, and legal queries across your document vault.
-            </p>
-          </div>
+          <div className="w-full max-w-5xl mx-auto">
+            <div className="mb-8 pb-5 border-b border-gray-100">
+              <h1 className="text-[28px] font-bold tracking-tight" style={{ color: "#2175D9" }}>Analyze Agreements</h1>
+              <p className="text-sm text-gray-500 mt-1.5 leading-relaxed max-w-lg">
+                Run compliance audits, risk assessments, and legal queries across your document vault.
+              </p>
+            </div>
 
-          <div className="space-y-5">
-            <DocumentSelector
-              folders={folders}
-              savedDrafts={savedDrafts}
-              searchQuery={searchQuery}
-              savedDraftsExpanded={savedDraftsExpanded}
-              onSearchChange={setSearchQuery}
-              onToggleSavedDraftsExpanded={() => setSavedDraftsExpanded((v) => !v)}
-              onToggleFolderSelection={toggleFolderSelection}
-              onToggleFolderExpanded={toggleFolderExpanded}
-              onToggleFileSelection={toggleFileSelection}
-              onToggleDraftSelection={toggleDraftSelection}
-              onOpenUpload={() => openSideDrawer("upload")}
-              onOpenNewFolder={() => openSideDrawer("folder")}
-            />
+            <div className="space-y-5">
+              <DocumentSelector
+                folders={folders}
+                savedDrafts={savedDrafts}
+                searchQuery={searchQuery}
+                savedDraftsExpanded={savedDraftsExpanded}
+                onSearchChange={setSearchQuery}
+                onToggleSavedDraftsExpanded={() => setSavedDraftsExpanded((v) => !v)}
+                onToggleFolderSelection={toggleFolderSelection}
+                onToggleFolderExpanded={toggleFolderExpanded}
+                onToggleFileSelection={toggleFileSelection}
+                onToggleDraftSelection={toggleDraftSelection}
+                onOpenUpload={() => openSideDrawer("upload")}
+                onOpenNewFolder={() => openSideDrawer("folder")}
+              />
 
-            <PromptPanel
-              promptTab={promptTab}
-              customPromptText={customPromptText}
-              promptLibrary={promptLibrary}
-              questionsLibrary={questionsLibrary}
-              onSetPromptTab={setPromptTab}
-              onSetCustomPromptText={setCustomPromptText}
-            />
+              <PromptPanel
+                promptTab={promptTab}
+                customPromptText={customPromptText}
+                promptLibrary={promptLibrary}
+                questionsLibrary={questionsLibrary}
+                onSetPromptTab={setPromptTab}
+                onSetCustomPromptText={setCustomPromptText}
+              />
 
-            <AnalysisOptions
-              documentMode={documentMode}
-              answerStyle={answerStyle}
-              onSetDocumentMode={setDocumentMode}
-              onSetAnswerStyle={setAnswerStyle}
-              onRunAnalysis={handleRunAnalysis}
-            />
+              <AnalysisOptions
+                documentMode={documentMode}
+                answerStyle={answerStyle}
+                onSetDocumentMode={setDocumentMode}
+                onSetAnswerStyle={setAnswerStyle}
+                onRunAnalysis={handleRunAnalysis}
+              />
+            </div>
           </div>
         </div>
       ) : (

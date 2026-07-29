@@ -88,7 +88,7 @@ export function ResultsState({ fileNames, reviewResult, onReset }: ResultsStateP
   const complianceStatus = deriveComplianceStatus(highRiskCount, missingCount, warningCount);
   const complianceCfg    = getComplianceStatusConfig(complianceStatus);
 
-  // Compliance items — use real data if available, else show legacy mock shape
+  // Compliance items · use real data if available, else show legacy mock shape
   const complianceItems = isRealData && reviewResult!.compliance.length > 0
     ? reviewResult!.compliance
     : [
@@ -100,7 +100,7 @@ export function ResultsState({ fileNames, reviewResult, onReset }: ResultsStateP
         { label: "PCI DSS",   status: "na"        as const },
       ];
 
-  // Recommendations — use real data if available
+  // Recommendations · use real data if available
   const recommendations = isRealData && reviewResult
     ? mapRecommendations(reviewResult)
     : MOCK_RECOMMENDATIONS;
@@ -130,10 +130,10 @@ export function ResultsState({ fileNames, reviewResult, onReset }: ResultsStateP
               </span>
             )}
           </div>
-          <h1 className="text-[24px] font-bold tracking-tight" style={{ color: "#1D6FD8" }}>Vendor Assessment Report</h1>
+          <h1 className="text-[24px] font-bold tracking-tight" style={{ color: "#2175D9" }}>Vendor Assessment Report</h1>
           <p className="text-[13px] text-gray-500 mt-1">
             {isRealData && reviewResult?.summary
-              ? reviewResult.summary.substring(0, 140) + (reviewResult.summary.length > 140 ? "…" : "")
+              ? reviewResult.summary.substring(0, 140) + (reviewResult.summary.length > 140 ? "..." : "")
               : "Vendor risk, privacy, and third-party compliance assessment."}
           </p>
         </div>
@@ -194,7 +194,7 @@ export function ResultsState({ fileNames, reviewResult, onReset }: ResultsStateP
                 onClick={() => setActiveTab(t)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-all duration-150 cursor-pointer
                   ${activeTab === t
-                    ? "bg-[#1D6FD8] text-white shadow-sm"
+                    ? "bg-[#2175D9] text-white shadow-sm"
                     : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 hover:text-gray-800 hover:border-gray-300"}`}
               >
                 {t === "findings"        && <FileSearch className="w-3.5 h-3.5" />}
@@ -405,19 +405,19 @@ export function ResultsState({ fileNames, reviewResult, onReset }: ResultsStateP
               <button
                 onClick={handleDownloadReport}
                 disabled={isGenerating || !reviewResult}
-                className="w-full btn-primary justify-center py-2.5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full btn-primary flex items-center justify-center gap-2 py-2.5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {isGenerating
-                  ? <><Loader2 className="w-4 h-4 animate-spin" />Generating PDF…</>
-                  : <><DownloadIcon className="w-4 h-4" />Download Assessment</>}
+                  ? <><Loader2 className="w-4 h-4 animate-spin" /><span>Generating PDF...</span></>
+                  : <><DownloadIcon className="w-4 h-4" /><span>Download Assessment</span></>}
               </button>
               <button
                 onClick={handleCopy}
-                className="w-full btn-secondary justify-center py-2.5 cursor-pointer transition-colors"
+                className="w-full btn-secondary flex items-center justify-center gap-2 py-2.5 cursor-pointer transition-colors"
               >
                 {copiedSummary
                   ? <><Check className="w-4 h-4 text-emerald-600" /><span className="text-emerald-700">Copied to clipboard</span></>
-                  : <><Copy className="w-4 h-4" />Copy Summary</>}
+                  : <><Copy className="w-4 h-4" /><span>Copy Summary</span></>}
               </button>
             </div>
           </div>

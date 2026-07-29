@@ -29,7 +29,7 @@ const RISK_ICONS: Record<string, React.ReactNode> = {
   GREEN:  <ShieldCheck   className="w-3.5 h-3.5" />,
 };
 
-/* ── Tiny section label ─────────────────────────────────── */
+/* -- Tiny section label ----------------------------------- */
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <p className="text-[10.5px] font-semibold uppercase tracking-wider text-gray-400 mb-2">
@@ -50,11 +50,11 @@ export default function NegotiationPanel({
   return (
     <div className="xl:w-[400px] shrink-0 border-l border-gray-200 bg-white flex flex-col overflow-hidden">
 
-      {/* ── Panel header ──────────────────────────────────────── */}
+      {/* -- Panel header ---------------------------------------- */}
       <div className="px-5 py-4 border-b border-gray-100 bg-gray-50 shrink-0">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "#1D6FD8" }}>
+            <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "#2175D9" }}>
               <Sparkles className="w-3.5 h-3.5 text-white" />
             </div>
             <span className="text-[13px] font-semibold text-gray-900">AI Negotiation</span>
@@ -64,7 +64,7 @@ export default function NegotiationPanel({
           {evaluating ? (
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-[11px] font-semibold text-blue-700">
               <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-              Analyzing…
+              Analyzing·
             </span>
           ) : agentMarkups.length > 0 ? (
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-[11px] font-semibold text-amber-700">
@@ -95,7 +95,7 @@ export default function NegotiationPanel({
                       ? "text-white border-transparent"
                       : `${cfg.bg} ${cfg.text} ${cfg.border} hover:opacity-80`,
                   ].join(" ")}
-                  style={isActive ? { background: "#1D6FD8", borderColor: "#1D6FD8" } : {}}
+                  style={isActive ? { background: "#2175D9", borderColor: "#2175D9" } : {}}
                 >
                   {m.clauseId}
                 </button>
@@ -105,7 +105,7 @@ export default function NegotiationPanel({
         )}
       </div>
 
-      {/* ── Scrollable body ───────────────────────────────────── */}
+      {/* -- Scrollable body ------------------------------------- */}
       <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4">
 
         {selectedMarkup ? (
@@ -191,7 +191,7 @@ export default function NegotiationPanel({
                   className="inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-xl border border-gray-200 bg-white text-[12px] font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-gray-500" />
-                  {draftingCompromise ? "Drafting…" : "Compromise"}
+                  {draftingCompromise ? "Drafting..." : "Compromise"}
                 </button>
                 <button
                   onClick={() => onTriggerCompromise(true)}
@@ -205,7 +205,7 @@ export default function NegotiationPanel({
             )}
           </>
         ) : (
-          /* ── Empty state ───────────────────────────────── */
+          /* -- Empty state --------------------------------- */
           <div className="flex flex-col items-center justify-center py-14 text-center px-4">
             <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center mb-4">
               <Scale className="w-5 h-5 text-gray-400" />
@@ -233,32 +233,32 @@ export default function NegotiationPanel({
         )}
       </div>
 
-      {/* ── Sticky action footer — Accept / Reject ────────────── */}
+      {/* -- Sticky action footer · Accept / Reject -------------- */}
       {selectedMarkup && !isLocked && (
         <div className="shrink-0 border-t border-gray-200 bg-white px-5 py-4">
           {/* Context line */}
           <p className="text-[11px] text-gray-400 mb-3 truncate">
             Reviewing{" "}
             <span className="font-semibold text-gray-700">{selectedMarkup.clauseId}</span>
-            {" — "}
+            {" · "}
             {RISK_CONFIG[selectedMarkup.riskLevel].label}
           </p>
 
           <div className="flex items-center gap-2.5">
-            {/* Accept — primary */}
+            {/* Accept · primary */}
             <button
               onClick={() => onAccept(selectedMarkup)}
               disabled={isAccepting}
               className="flex-1 inline-flex items-center justify-center gap-2 h-10 rounded-xl text-white text-[13px] font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ background: "#1D6FD8" }}
+              style={{ background: "#2175D9" }}
             >
               {isAccepting
                 ? <Loader2 className="w-4 h-4 animate-spin" />
                 : <Check className="w-4 h-4" />}
-              {isAccepting ? "Applying…" : "Accept Revision"}
+              {isAccepting ? "Applying..." : "Accept Revision"}
             </button>
 
-            {/* Reject — secondary */}
+            {/* Reject · secondary */}
             <button
               onClick={() => onDismiss(selectedMarkup.clauseId)}
               disabled={isAccepting}

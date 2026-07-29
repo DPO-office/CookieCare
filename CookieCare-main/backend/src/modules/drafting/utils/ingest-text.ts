@@ -1,5 +1,4 @@
-import pdf from "pdf-parse-fork";
-import mammoth from "mammoth";
+import { extractText } from "../../../utils/extractText.js";
 
 /**
  * Shared text extraction for vault ingest jobs (playbook / template / clause).
@@ -40,21 +39,7 @@ export async function extractIngestText(payload: {
     throw new Error("Ingest extraction requires fileUrl or fileBufferBase64.");
   }
 
-  let text = "";
-  if (mimeType === "application/pdf") {
-    const data = await pdf(buffer);
-    text = data.text ?? "";
-  } else if (
-    mimeType ===
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-  ) {
-    const data = await mammoth.extractRawText({ buffer });
-    text = data.value ?? "";
-  } else if (mimeType.startsWith("text/") || mimeType === "application/json") {
-    text = buffer.toString("utf-8");
-  } else {
-    text = buffer.toString("utf-8").replace(/[^\x20-\x7E\r\n\t]/g, " ");
-  }
+  const text = await extractText(buffer, mimeType);
 
   const cleaned = text.replace(/\0/g, "").trim();
   if (!cleaned) {

@@ -44,14 +44,14 @@ export default function TopNav({ user, activeTab, setActiveTab, onLogout }: TopN
 
   return (
     <header
-      className="h-[60px] shrink-0 flex items-center px-6 gap-4 no-print"
+      className="h-[58px] shrink-0 flex items-center px-5 gap-4 no-print"
       style={{
         background: "#ffffff",
         borderBottom: "1px solid #E4E4E7",
         boxShadow: "0 1px 3px rgba(15,23,42,0.04)",
       }}
     >
-      {/* ── Right: actions ── */}
+      {/* ·· Right: actions ·· */}
       <div className="flex-1 flex items-center justify-end gap-1">
 
         {/* Notifications */}
@@ -74,7 +74,7 @@ export default function TopNav({ user, activeTab, setActiveTab, onLogout }: TopN
             {/* unread dot */}
             <span
               className="absolute top-2 right-2 w-[7px] h-[7px] rounded-full border-2 border-white"
-              style={{ background: "#6366F1" }}
+              style={{ background: "#2175D9" }}
             />
           </button>
 
@@ -97,7 +97,7 @@ export default function TopNav({ user, activeTab, setActiveTab, onLogout }: TopN
                 </span>
                 <span
                   className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md text-white"
-                  style={{ background: "#6366F1" }}
+                  style={{ background: "#2175D9" }}
                 >
                   1 new
                 </span>
@@ -105,12 +105,12 @@ export default function TopNav({ user, activeTab, setActiveTab, onLogout }: TopN
               <div className="py-1.5">
                 <div
                   className="px-4 py-3 cursor-pointer transition-colors"
-                  style={{ borderLeft: "2px solid #6366F1" }}
+                  style={{ borderLeft: "2px solid #2175D9" }}
                   onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.background = "#F4F4F5"}
                   onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.background = "transparent"}
                 >
                   <div className="flex items-start gap-2.5">
-                    <div className="w-1.5 h-1.5 rounded-full mt-[5px] shrink-0" style={{ background: "#6366F1" }} />
+                    <div className="w-1.5 h-1.5 rounded-full mt-[5px] shrink-0" style={{ background: "#2175D9" }} />
                     <div className="min-w-0">
                       <p className="text-[12.5px] font-medium leading-snug" style={{ color: "#0F172A" }}>
                         AI Summary ready
@@ -161,7 +161,7 @@ export default function TopNav({ user, activeTab, setActiveTab, onLogout }: TopN
             {/* Avatar */}
             <div
               className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-[11px] shrink-0 text-white select-none"
-              style={{ background: "linear-gradient(135deg,#6366F1 0%,#4F46E5 100%)" }}
+              style={{ background: "#2175D9" }}
             >
               {initials}
             </div>
@@ -198,7 +198,7 @@ export default function TopNav({ user, activeTab, setActiveTab, onLogout }: TopN
                 <div className="flex items-center gap-3">
                   <div
                     className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-[12px] text-white shrink-0"
-                    style={{ background: "linear-gradient(135deg,#6366F1 0%,#4F46E5 100%)" }}
+                    style={{ background: "#2175D9" }}
                   >
                     {initials}
                   </div>
@@ -215,9 +215,9 @@ export default function TopNav({ user, activeTab, setActiveTab, onLogout }: TopN
                   <span
                     className="inline-block mt-2.5 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md"
                     style={{
-                      background: "#EEF2FF",
-                      color: "#6366F1",
-                      border: "1px solid #C7D2FE",
+                      background: "#EBF4FF",
+                      color: "#2175D9",
+                      border: "1px solid #BFDBFE",
                     }}
                   >
                     {user.role}

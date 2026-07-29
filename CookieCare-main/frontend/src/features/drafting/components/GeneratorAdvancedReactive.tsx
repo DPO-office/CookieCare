@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { Upload, Play } from "lucide-react";
 import { AdvancedStep } from "../types";
 
@@ -58,7 +58,7 @@ export default function GeneratorAdvancedReactive({
           <h4 className="font-bold text-[13px] text-gray-700">Drag & drop notice XML, TXT or PDF</h4>
           <p className="text-[12px] text-gray-400 mt-1">Accepts compliance forms or court notices</p>
           <div className="mt-4">
-            <label className="inline-block text-white hover:opacity-90 px-4 py-2 text-[12px] font-semibold rounded-xl transition cursor-pointer shadow-xs" style={{ background: "#1D6FD8" }}>
+            <label className="inline-block text-white hover:opacity-90 px-4 py-2 text-[12px] font-semibold rounded-xl transition cursor-pointer shadow-xs" style={{ background: "#2175D9" }}>
               <span>Browse local folders</span>
               <input type="file" onChange={onHandleFileChange} className="hidden" />
             </label>
@@ -86,7 +86,7 @@ export default function GeneratorAdvancedReactive({
         <div className="pt-3 border-t border-gray-100 flex justify-end">
           <button
             onClick={onExecuteDraftStream}
-            className="inline-flex items-center gap-2 hover:opacity-90 text-white font-bold text-[13px] px-6 py-2.5 rounded-xl shadow-xs hover:shadow-sm transition cursor-pointer" style={{ background: "#1D6FD8" }}
+            className="inline-flex items-center gap-2 hover:opacity-90 text-white font-bold text-[13px] px-6 py-2.5 rounded-xl shadow-xs hover:shadow-sm transition cursor-pointer" style={{ background: "#2175D9" }}
           >
             <Play className="w-3.5 h-3.5" />
             <span>Stream Response</span>

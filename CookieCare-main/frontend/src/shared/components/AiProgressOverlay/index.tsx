@@ -2,17 +2,17 @@
 import { Sparkles, Loader2, AlertTriangle, RefreshCw, X } from "lucide-react";
 
 const PROGRESS_STEPS = [
-  "Preparing request…",
-  "Uploading document…",
-  "Reading document…",
-  "Extracting text…",
-  "Processing input…",
-  "Sending to AI…",
-  "Analyzing…",
-  "Validating output…",
-  "Generating response…",
-  "Formatting results…",
-  "Finalizing…",
+  "Preparing request...",
+  "Uploading document...",
+  "Reading document...",
+  "Extracting text...",
+  "Processing input...",
+  "Sending to AI...",
+  "Analyzing...",
+  "Validating output...",
+  "Generating response...",
+  "Formatting results...",
+  "Finalizing...",
 ];
 
 interface AiProgressOverlayProps {
@@ -20,7 +20,7 @@ interface AiProgressOverlayProps {
   message?: string;
   error?: string;
   label?: string;
-  /** When provided, renders a determinate progress bar (0–100). */
+  /** When provided, renders a determinate progress bar (0·100). */
   progress?: number;
   onRetry?: () => void;
   onDismiss?: () => void;
@@ -58,18 +58,18 @@ export default function AiProgressOverlay({
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/92 backdrop-blur-[2px] p-6 select-none">
       <div className="max-w-sm w-full bg-white border border-gray-200 rounded-2xl shadow-lg p-8 text-center space-y-5 relative overflow-hidden">
-        {/* Progress bar — determinate when progress prop is set, indeterminate otherwise */}
+        {/* Progress bar · determinate when progress prop is set, indeterminate otherwise */}
         {!error && (
           <div className="absolute inset-x-0 top-0 h-[3px] bg-gray-100 overflow-hidden">
             {hasProgress ? (
               <div
-                className="h-full rounded-full transition-all duration-500 ease-out" style={{ background: "#1D6FD8" }}
-                style={{ width: `${clampedProgress}%` }}
+                className="h-full rounded-full transition-all duration-500 ease-out"
+                style={{ background: "#2175D9", width: `${clampedProgress}%` }}
               />
             ) : (
               <div
-                className="h-full rounded-full" style={{ background: "#1D6FD8" }}
-                style={{ width: "40%", animation: "slideIndeterminate 1.5s cubic-bezier(0.65,0,0.35,1) infinite" }}
+                className="h-full rounded-full"
+                style={{ background: "#2175D9", width: "40%", animation: "slideIndeterminate 1.5s cubic-bezier(0.65,0,0.35,1) infinite" }}
               />
             )}
           </div>
@@ -98,7 +98,7 @@ export default function AiProgressOverlay({
           <p className={`text-sm font-medium leading-snug transition-all ${error ? "text-red-700" : "text-gray-800"}`}>
             {displayMessage}
           </p>
-          {/* Numeric percentage — only shown when progress is provided */}
+          {/* Numeric percentage · only shown when progress is provided */}
           {hasProgress && !error && (
             <p className="text-xs font-semibold text-gray-400 tabular-nums">
               {clampedProgress}%
@@ -121,7 +121,7 @@ export default function AiProgressOverlay({
               </button>
             )}
             {onRetry && (
-              <button onClick={onRetry} className="flex items-center gap-1.5 px-4 py-2 -90 transition cursor-pointer" style={{ background: "#1D6FD8" }}>
+              <button onClick={onRetry} className="flex items-center gap-1.5 px-4 py-2 -90 transition cursor-pointer" style={{ background: "#2175D9" }}>
                 <RefreshCw className="w-3.5 h-3.5" />Retry
               </button>
             )}

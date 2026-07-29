@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { Play } from "lucide-react";
 import { DocumentMode, AnswerStyle } from "../types";
 
@@ -21,7 +21,7 @@ function RadioCard({ selected, onClick, children }: { selected: boolean; onClick
       }`}
     >
       <div className="mt-0.5 shrink-0">
-        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${selected ? "border-[#1D6FD8] bg-[#1D6FD8]" : "border-gray-300"}`}>
+        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${selected ? "border-[#2175D9] bg-[#2175D9]" : "border-gray-300"}`}>
           {selected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
         </div>
       </div>
@@ -37,7 +37,7 @@ export default function AnalysisOptions({ documentMode, answerStyle, onSetDocume
       <div className="bg-white border border-gray-200 rounded-2xl p-7 shadow-sm">
         <div className="mb-5">
           <div className="flex items-center gap-2.5 mb-1">
-            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 text-gray-500 text-[10px] font-semibold shrink-0">3</span>
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#2175D9] text-white text-[10px] font-semibold shrink-0">3</span>
             <h3 className="text-[13px] font-semibold text-gray-800 tracking-tight">Document mode</h3>
           </div>
           <p className="text-xs text-gray-400 ml-7 leading-relaxed">Run the prompt across all documents together, or individually per file</p>
@@ -62,7 +62,7 @@ export default function AnalysisOptions({ documentMode, answerStyle, onSetDocume
       <div className="bg-white border border-gray-200 rounded-2xl p-7 shadow-sm">
         <div className="mb-5">
           <div className="flex items-center gap-2.5 mb-1">
-            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 text-gray-500 text-[10px] font-semibold shrink-0">4</span>
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#2175D9] text-white text-[10px] font-semibold shrink-0">4</span>
             <h3 className="text-[13px] font-semibold text-gray-800 tracking-tight">Output format</h3>
           </div>
           <p className="text-xs text-gray-400 ml-7 leading-relaxed">Choose how the AI structures its response</p>
@@ -101,7 +101,7 @@ export default function AnalysisOptions({ documentMode, answerStyle, onSetDocume
       <div className="flex justify-end pt-2 pb-8">
         <button
           onClick={onRunAnalysis}
-          className="w-full sm:w-auto hover:opacity-90 text-white text-[13px] font-semibold py-2.5 px-7 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.2)]" style={{ background: "#1D6FD8" }}
+          className="w-full sm:w-auto hover:opacity-90 text-white text-[13px] font-semibold py-2.5 px-7 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.2)]" style={{ background: "#2175D9" }}
         >
           <Play className="w-3.5 h-3.5 text-emerald-400 fill-emerald-400 shrink-0" />
           <span>Run Analysis</span>

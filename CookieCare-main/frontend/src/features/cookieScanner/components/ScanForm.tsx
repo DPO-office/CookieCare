@@ -60,10 +60,10 @@ export default function ScanForm({ url, scanDepth, scanning, onUrlChange, onDept
             id="start-scanning-btn"
             type="submit"
             disabled={scanning}
-            className="inline-flex items-center gap-2 text-white hover:opacity-90 rounded-xl py-2.5 px-6 text-[13px] font-semibold transition shadow-xs hover:shadow-sm disabled:opacity-50 cursor-pointer" style={{ background: "#1D6FD8" }}
+            className="inline-flex items-center gap-2 text-white hover:opacity-90 rounded-xl py-2.5 px-6 text-[13px] font-semibold transition shadow-xs hover:shadow-sm disabled:opacity-50 cursor-pointer" style={{ background: "#2175D9" }}
           >
             {scanning ? (
-              <><RefreshCw className="w-4 h-4 animate-spin" /><span>Scanning…</span></>
+              <><RefreshCw className="w-4 h-4 animate-spin" /><span>Scanning...</span></>
             ) : (
               <><Play className="w-3.5 h-3.5 fill-current" /><span>Run audit</span></>
             )}

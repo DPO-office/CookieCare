@@ -7,7 +7,7 @@ import { startCookieScan, pollJobStatus, shareReportByEmail, downloadCookiePdfRe
 import { apiUrl } from "../../../config";
 
 export function useCookieScan(authToken: string) {
-  const [url, setUrl] = useState("https://example.com");
+  const [url, setUrl] = useState("");
   const [scanDepth, setScanDepth] = useState<ScanDepth>("Deep");
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<CookieScanResult | null>(null);

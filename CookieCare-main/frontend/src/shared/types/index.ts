@@ -148,7 +148,7 @@ export interface VulnerabilityScanResult {
   remediationRoadmap: string;
 }
 
-// ─── Shared Analysis Lifecycle Types ───────────────────────────────────────
+// ··· Shared Analysis Lifecycle Types ·······································
 // Used by dpaReviewer, vendorReview, and aiEthics features.
 
 export type AnalysisAppState = "upload" | "analyzing" | "results";

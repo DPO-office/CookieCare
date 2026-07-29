@@ -1,4 +1,5 @@
 import React from "react";
+import { PRIMARY_BRAND } from "../../shared/theme/colors";
 import { FileCheck, Radio, ShieldAlert, FileText } from "lucide-react";
 import { DashboardHomeProps } from "./types";
 import { buildDocumentLogs } from "./utils";
@@ -8,33 +9,29 @@ export default function DashboardHome({ userName, setActiveTab, stats, documents
 
   return (
     <div className="flex-1 overflow-y-auto px-10 py-8 bg-[#FAFAFB] min-h-screen">
+      <div className="w-full max-w-5xl mx-auto">
 
       {/* Header */}
-      <div className="mb-10">
-        <div className="flex items-center justify-between mb-1">
-          <div>
-            <h1 className="text-[26px] font-bold tracking-tight leading-tight" style={{ color: "#1D6FD8" }}>Dashboard</h1>
-            <p className="text-[13px] text-gray-500 mt-1">Welcome back, {userName}</p>
-          </div>
-         
-        </div>
+      <div className="mb-6">
+        <h1 className="text-[26px] font-bold tracking-tight leading-tight" style={{ color: "#2175D9" }}>Dashboard</h1>
+        <p className="text-[13px] text-gray-500 mt-1">Welcome back, {userName}</p>
       </div>
 
       {/* KPI cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         {[
           { label: "Active Documents", value: stats.totalDocs, sub: "Stored in secure vault", icon: FileCheck, color: "text-gray-600" },
           { label: "Pending Signatures", value: stats.pendingSigs, sub: "Awaiting signers", icon: Radio, color: "text-amber-600" },
           { label: "Active Redlines", value: stats.redlinesPending, sub: "Pending resolution", icon: ShieldAlert, color: "text-rose-600" },
         ].map((kpi) => (
-          <div key={kpi.label} className="bg-white border border-gray-200 rounded-[18px] p-7 shadow-xs hover:shadow-sm transition-shadow flex items-center justify-between">
+          <div key={kpi.label} className="bg-white border border-gray-200 rounded-[18px] px-5 py-4 shadow-xs hover:shadow-sm transition-shadow flex items-center justify-between">
             <div>
               <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-2">{kpi.label}</p>
-              <h3 className="text-[32px] font-bold tracking-tight leading-none" style={{ color: "#1D6FD8" }}>{kpi.value}</h3>
-              <p className="text-[12px] text-gray-400 mt-2">{kpi.sub}</p>
+              <h3 className="text-[30px] font-bold tracking-tight leading-none" style={{ color: "#2175D9" }}>{kpi.value}</h3>
+              <p className="text-[12px] text-gray-400 mt-1.5">{kpi.sub}</p>
             </div>
-            <div className={`w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center ${kpi.color}`}>
-              <kpi.icon className="w-6 h-6" />
+            <div className={`w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center ${kpi.color}`}>
+              <kpi.icon className="w-4.5 h-4.5" />
             </div>
           </div>
         ))}
@@ -51,9 +48,12 @@ export default function DashboardHome({ userName, setActiveTab, stats, documents
         </div>
 
         {continuousLogs.length === 0 ? (
-          <div className="px-6 py-16 text-center">
-            <FileText className="w-8 h-8 text-gray-200 mx-auto mb-2" />
-            <p className="text-[13px] text-gray-400">No documents yet. Create or import a document to get started.</p>
+          <div className="px-6 py-14 text-center flex flex-col items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-3">
+              <FileText className="w-5 h-5 text-gray-300" />
+            </div>
+            <p className="text-[13px] font-semibold text-gray-500 mb-1">No documents yet</p>
+            <p className="text-[12px] text-gray-400">Create or import a document to get started.</p>
           </div>
         ) : (
           <div className="overflow-y-auto scrollbar-hide" style={{ maxHeight: "320px" }}>
@@ -98,6 +98,7 @@ export default function DashboardHome({ userName, setActiveTab, stats, documents
         )}
       </div>
 
+      </div>
     </div>
   );
 }

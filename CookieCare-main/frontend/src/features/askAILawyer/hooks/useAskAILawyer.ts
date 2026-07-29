@@ -15,7 +15,7 @@ import {
 } from "../types";
 
 export function useAskAILawyer(authToken: string) {
-  /* ── Core state ─────────────────────────────────────────────── */
+  /* ·· Core state ··············································· */
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFormat, setSelectedFormat] = useState<OutputFormat>("Brief Summary");
   const [selectedJurisdictions, setSelectedJurisdictions] = useState<string[]>([]);
@@ -36,20 +36,20 @@ export function useAskAILawyer(authToken: string) {
   const [lawyerError, setLawyerError] = useState("");
   const [isCopied, setIsCopied] = useState(false);
 
-  /* ── UI state ───────────────────────────────────────────────── */
+  /* ·· UI state ················································· */
   const [openPopover, setOpenPopover] = useState<PopoverType>(null);
   const [showSources, setShowSources] = useState(false);
   const [hasResult, setHasResult] = useState(false);
   const [submittedQuery, setSubmittedQuery] = useState("");
 
-  /* ── Refs ───────────────────────────────────────────────────── */
+  /* ·· Refs ····················································· */
   const chatBottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const composerRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
   const fileUploadRef = useRef<HTMLInputElement>(null);
 
-  /* ── Close popover on outside click ────────────────────────── */
+  /* ·· Close popover on outside click ·························· */
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (!openPopover) return;
@@ -67,7 +67,7 @@ export function useAskAILawyer(authToken: string) {
     }
   }, [streamedResult, isStreaming]);
 
-  /* ── Data fetching ──────────────────────────────────────────── */
+  /* ·· Data fetching ············································ */
   const loadSettings = async () => {
     try {
       const { jurisdictions, webSources } = await fetchSettings(authToken);
@@ -93,7 +93,7 @@ export function useAskAILawyer(authToken: string) {
     loadSettings();
   }, [authToken]);
 
-  /* ── Textarea auto-resize ───────────────────────────────────── */
+  /* ·· Textarea auto-resize ····································· */
   const autoResizeTextarea = useCallback(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
@@ -102,7 +102,7 @@ export function useAskAILawyer(authToken: string) {
     }
   }, []);
 
-  /* ── Toggle helpers ─────────────────────────────────────────── */
+  /* ·· Toggle helpers ··········································· */
   const toggleJurisdiction = (label: string) =>
     setSelectedJurisdictions((prev) =>
       prev.includes(label) ? prev.filter((x) => x !== label) : [...prev, label]
@@ -133,7 +133,7 @@ export function useAskAILawyer(authToken: string) {
     setFolders((prev) => prev.filter((f) => f.id !== id));
   };
 
-  /* ── File upload ────────────────────────────────────────────── */
+  /* ·· File upload ·············································· */
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -173,7 +173,7 @@ export function useAskAILawyer(authToken: string) {
     }
   };
 
-  /* ── Web URL ────────────────────────────────────────────────── */
+  /* ·· Web URL ·················································· */
   const handleAddWebUrl = (e: React.FormEvent) => {
     e.preventDefault();
     if (!webDiscoveryUrlInput.trim()) return;
@@ -186,7 +186,7 @@ export function useAskAILawyer(authToken: string) {
   const removeWebUrl = (url: string) =>
     setWebDiscoveryUrls((prev) => prev.filter((u) => u !== url));
 
-  /* ── Query dispatch ─────────────────────────────────────────── */
+  /* ·· Query dispatch ··········································· */
   const handleQueryDispatch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!searchQuery.trim() || isStreaming) return;
@@ -279,7 +279,7 @@ export function useAskAILawyer(authToken: string) {
   const togglePopover = (p: PopoverType) =>
     setOpenPopover((prev) => (prev === p ? null : p));
 
-  /* ── Derived ────────────────────────────────────────────────── */
+  /* ·· Derived ·················································· */
   const selectedKBCount = folders
     .filter((f) => f.isSelected)
     .reduce((acc, f) => acc + f.files.length, 0);

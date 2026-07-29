@@ -40,7 +40,7 @@ export default function PromptPanel({
         {/* Section heading */}
         <div className="mb-5">
           <div className="flex items-center gap-2.5 mb-1">
-            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 text-gray-500 text-[10px] font-semibold shrink-0">
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#2175D9] text-white text-[10px] font-semibold shrink-0">
               2
             </span>
             <h3 className="text-[13px] font-semibold text-gray-800 tracking-tight">Write your prompt</h3>

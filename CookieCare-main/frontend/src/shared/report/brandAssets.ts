@@ -2,10 +2,10 @@
  * Brand asset helpers for the enterprise report generator.
  *
  * Branding hierarchy:
- *   Primary  → randtrust  (the product / platform)
- *   Secondary → Randstad Digital (the client)
+ *   Primary  · randtrust  (the product / platform)
+ *   Secondary · Randstad Digital (the client)
  *
- * Logos are loaded at runtime from the public folder via fetch → base64,
+ * Logos are loaded at runtime from the public folder via fetch · base64,
  * so they render correctly in html2canvas (no CORS/taint issues).
  * SVG fallbacks are provided for cases where the fetch is not yet resolved.
  */
@@ -19,7 +19,7 @@ export const REPORT_DARK    = "#0f172a";
 /** Page background */
 export const REPORT_PAGE_BG = "#ffffff";
 
-// ─── Async logo loader ────────────────────────────────────────────────────────
+// ··· Async logo loader ························································
 // Each call fetches the image once and caches the result.
 
 let _lexifyLogoB64: string | null = null;
@@ -58,7 +58,7 @@ export async function preloadLogos(): Promise<void> {
 export function getLexifyLogoB64():   string | null { return _lexifyLogoB64;   }
 export function getRandstadLogoB64(): string | null { return _randstadLogoB64; }
 
-// ─── SVG fallbacks (used only if image fails to load) ────────────────────────
+// ··· SVG fallbacks (used only if image fails to load) ························
 
 /** randtrust shield-check SVG — for dark backgrounds */
 export const LEXIFY_SHIELD_SVG = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(

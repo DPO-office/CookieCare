@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { FolderPlus, Upload, CheckCircle, Loader2 } from "lucide-react";
 import { SidePanelType, CustomFolder } from "../types";
 
@@ -57,7 +57,7 @@ export default function SideDrawer({
               onClick={onClose}
               className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all text-lg leading-none shrink-0"
             >
-              ×
+              ·
             </button>
           </div>
 
@@ -76,7 +76,7 @@ export default function SideDrawer({
               </div>
               <button
                 type="submit"
-                className="w-full hover:opacity-90 text-white text-[13px] font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.15)] mt-6" style={{ background: "#1D6FD8" }}
+                className="w-full hover:opacity-90 text-white text-[13px] font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.15)] mt-6" style={{ background: "#2175D9" }}
               >
                 <FolderPlus className="w-3.5 h-3.5 text-gray-300" />
                 <span>Create Folder</span>
@@ -129,7 +129,7 @@ export default function SideDrawer({
               <button
                 type="submit"
                 disabled={!uploadedFileName || isUploading}
-                className="w-full hover:opacity-90 text-white text-[13px] font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.15)] disabled:opacity-30 mt-6" style={{ background: "#1D6FD8" }}
+                className="w-full hover:opacity-90 text-white text-[13px] font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.15)] disabled:opacity-30 mt-6" style={{ background: "#2175D9" }}
               >
                 {isUploading ? (
                   <><Loader2 className="w-3.5 h-3.5 animate-spin text-gray-300" /><span>Uploading...</span></>

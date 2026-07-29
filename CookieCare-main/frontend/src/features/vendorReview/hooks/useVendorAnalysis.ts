@@ -81,7 +81,7 @@ export function useVendorAnalysis({ authToken }: UseVendorAnalysisOptions): UseV
       setSteps(ANALYSIS_STEPS.map((s) => ({ ...s, status: "pending" as const })));
       setAppState("analyzing");
 
-      // ── 1. Submit files + URL, get job_id ─────────────────────────────────
+      // ·· 1. Submit files + URL, get job_id ·································
       let jobId: string;
       try {
         const res = await submitVendorReview(files, authToken, url);
@@ -93,7 +93,7 @@ export function useVendorAnalysis({ authToken }: UseVendorAnalysisOptions): UseV
         return;
       }
 
-      // ── 2. Subscribe to SSE progress ───────────────────────────────────────
+      // ·· 2. Subscribe to SSE progress ·······································
       const es = createJobSSE(authToken);
       esRef.current = es;
 

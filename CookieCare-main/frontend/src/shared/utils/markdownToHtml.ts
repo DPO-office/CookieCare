@@ -1,5 +1,5 @@
 /**
- * Shared Markdown → HTML conversion utility.
+ * Shared Markdown · HTML conversion utility.
  *
  * Uses markdown-it (already a project dependency) to parse Markdown and
  * produce clean HTML ready for insertion into TipTap or any HTML consumer.
@@ -13,7 +13,7 @@ const md = new MarkdownIt({
   html: false,       // Do not pass raw HTML through — keep it safe
   linkify: true,     // Auto-convert URLs to links
   typographer: true, // Smart quotes, dashes, etc.
-  breaks: false,     // Respect blank lines for paragraphs (GFM-style single \n → <br> is off)
+  breaks: false,     // Respect blank lines for paragraphs (GFM-style single \n · <br> is off)
 });
 
 // Legal documents rely on literal "(c)", "(r)", "(tm)" as subsection letters and

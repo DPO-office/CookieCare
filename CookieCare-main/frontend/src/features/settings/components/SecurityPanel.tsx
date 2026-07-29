@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { Lock, Key, Activity, Eye, EyeOff, RefreshCw, Smartphone } from "lucide-react";
 import { SettingCard, CardHeader, CardBody, CardFooter, Label, Input, Select, ToggleRow } from "./SettingsPrimitives";
 
@@ -12,9 +12,9 @@ export default function SecurityPanel() {
   const realKey   = "";
 
   const sessions = [
-    { device: "Chrome · macOS",   location: "London, GB",     time: "Now",        current: true  },
-    { device: "Safari · iPhone",  location: "London, GB",     time: "2h ago",     current: false },
-    { device: "Chrome · Windows", location: "New York, US",   time: "3 days ago", current: false },
+    { device: "Chrome / macOS",   location: "London, GB",     time: "Now",        current: true  },
+    { device: "Safari / iPhone",  location: "London, GB",     time: "2h ago",     current: false },
+    { device: "Chrome / Windows", location: "New York, US",   time: "3 days ago", current: false },
   ];
 
   return (

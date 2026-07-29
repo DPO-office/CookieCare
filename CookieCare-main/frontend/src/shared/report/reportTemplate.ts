@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Enterprise Report Template — Premium Consulting Grade
  *
  * Design reference: Microsoft Purview · OneTrust · TrustArc · BigID aesthetics.
@@ -9,9 +9,9 @@
  * Branding: randtrust AI (primary platform) · Randstad Digital (client logo asset)
  *
  * Report identity accents:
- *   DPA Review    → Indigo   (#4F46E5)
- *   Vendor Review → Blue     (#1D4ED8) / Amber (#D97706)
- *   AI Ethics     → Teal     (#0D9488)
+ *   DPA Review    · Indigo   (#4F46E5)
+ *   Vendor Review · Blue     (#1D4ED8) / Amber (#D97706)
+ *   AI Ethics     · Teal     (#0D9488)
  *   (others retain existing palette)
  */
 import type { EnterpriseReportData, ReportFinding, ReportRecommendation } from "./reportTypes";
@@ -21,7 +21,7 @@ import {
   LEXIFY_INDIGO, RANDSTAD_BLUE,
 } from "./brandAssets";
 
-// ─── A4 page dimensions at 96 dpi ────────────────────────────────────────────
+// ··· A4 page dimensions at 96 dpi ············································
 export const A4_W_PX   = 794;
 export const A4_H_PX   = 1123;
 const MARGIN            = 48;
@@ -31,10 +31,10 @@ const HEADER_H          = 56;
 const FOOTER_H          = 38;
 const CONTENT_PAGE_H    = A4_H_PX - HEADER_H - FOOTER_H - MARGIN * 2;
 
-// ─── Base font stack (Inter loaded from /public/fonts) ────────────────────────
+// ··· Base font stack (Inter loaded from /public/fonts) ························
 const FONT = `'Inter','Segoe UI',Helvetica,Arial,sans-serif`;
 
-// ─── Risk palette ─────────────────────────────────────────────────────────────
+// ··· Risk palette ·····························································
 const RISK_COLOR: Record<string, string>  = { critical:"#B91C1C", high:"#C2410C", medium:"#B45309", low:"#047857" };
 const RISK_BG: Record<string, string>     = { critical:"#FEF2F2", high:"#FFF7ED", medium:"#FFFBEB", low:"#F0FDF4" };
 const RISK_BORDER: Record<string, string> = { critical:"#FECACA", high:"#FED7AA", medium:"#FDE68A", low:"#A7F3D0" };
@@ -48,7 +48,7 @@ function riskBadgeBg(r: string)   { return RISK_BADGE_BG[r]   ?? "#F1F5F9"; }
 function riskBadgeText(r: string) { return RISK_BADGE_TEXT[r] ?? "#374151"; }
 function riskLabel(r: string)     { return r.charAt(0).toUpperCase() + r.slice(1); }
 
-// ─── Report identity accent (per report type) ─────────────────────────────────
+// ··· Report identity accent (per report type) ·································
 function reportAccent(reportTitle: string): string {
   if (reportTitle.toLowerCase().includes("dpa"))    return "#4F46E5"; // Indigo
   if (reportTitle.toLowerCase().includes("vendor")) return "#1D4ED8"; // Blue
@@ -70,7 +70,7 @@ function reportAccentBorder(reportTitle: string): string {
   return "#C7D2FE";
 }
 
-// ─── @font-face injection for Inter ───────────────────────────────────────────
+// ··· @font-face injection for Inter ···········································
 const FONT_FACE_CSS = `
   @font-face {
     font-family: 'Inter';
@@ -80,7 +80,7 @@ const FONT_FACE_CSS = `
   }
 `;
 
-// ─── Logo helpers ─────────────────────────────────────────────────────────────
+// ··· Logo helpers ·····························································
 function lexifyLogoImg(width: number, height: number, style = ""): string {
   const src = getLexifyLogoB64() ?? LEXIFY_SHIELD_SVG;
   return `<img src="${src}" width="${width}" height="${height}" alt="randtrust AI"
@@ -93,7 +93,7 @@ function randstadLogoImg(width: number, height: number, style = ""): string {
                style="object-fit:contain;display:block;${style}"/>`;
 }
 
-// ─── Page shell ───────────────────────────────────────────────────────────────
+// ··· Page shell ·······························································
 // Returns a self-contained div (not a full HTML document) so it can be safely
 // injected via innerHTML into a container div for html2canvas capture.
 // The @font-face <style> block is included inline so the browser loads Inter
@@ -121,7 +121,7 @@ function pageShell(content: string, pageNum: number, totalPages: number, reportT
 </div>`;
 }
 
-// ─── Running header (pages 2+) ────────────────────────────────────────────────
+// ··· Running header (pages 2+) ················································
 function runningHeader(accent: string): string {
   return `
   <div style="position:absolute;top:0;left:0;right:0;height:${HEADER_H}px;
@@ -145,7 +145,7 @@ function runningHeader(accent: string): string {
   </div>`;
 }
 
-// ─── Page footer ──────────────────────────────────────────────────────────────
+// ··· Page footer ······························································
 function pageFooter(pageNum: number, totalPages: number): string {
   const date = new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
   return `
@@ -171,7 +171,7 @@ function pageFooter(pageNum: number, totalPages: number): string {
   </div>`;
 }
 
-// ─── Section heading ──────────────────────────────────────────────────────────
+// ··· Section heading ··························································
 function sectionHeading(title: string, accent: string): string {
   return `
   <div style="display:flex;align-items:center;gap:10px;margin:22px 0 13px;">
@@ -182,7 +182,7 @@ function sectionHeading(title: string, accent: string): string {
   </div>`;
 }
 
-// ─── Info table ───────────────────────────────────────────────────────────────
+// ··· Info table ·······························································
 function infoTableRow(label: string, value: string, isLast = false): string {
   const border = isLast ? "" : "border-bottom:1px solid #F1F5F9;";
   return `
@@ -195,7 +195,7 @@ function infoTableRow(label: string, value: string, isLast = false): string {
   </tr>`;
 }
 
-// ─── Score gauge SVG ──────────────────────────────────────────────────────────
+// ··· Score gauge SVG ··························································
 function scoreGaugeSVG(score: number, risk: string, accent: string, size = 104): string {
   const col      = riskColor(risk);
   const r        = (size / 2) - 14;
@@ -229,7 +229,7 @@ function scoreGaugeSVG(score: number, risk: string, accent: string, size = 104):
   </svg>`;
 }
 
-// ─── Score table row ──────────────────────────────────────────────────────────
+// ··· Score table row ··························································
 function scoreTableRow(label: string, score: number): string {
   const col     = score >= 70 ? "#047857" : score >= 50 ? "#B45309" : "#B91C1C";
   const bgBar   = score >= 70 ? "#D1FAE5" : score >= 50 ? "#FEF3C7" : "#FEE2E2";
@@ -249,7 +249,7 @@ function scoreTableRow(label: string, score: number): string {
   </tr>`;
 }
 
-// ─── Risk overview cards ──────────────────────────────────────────────────────
+// ··· Risk overview cards ······················································
 function overallScoreTable(data: EnterpriseReportData): string {
   const crit = data.findings.filter(f => f.severity === "critical").length;
   const high = data.findings.filter(f => f.severity === "high").length;
@@ -277,7 +277,7 @@ function overallScoreTable(data: EnterpriseReportData): string {
   </div>`;
 }
 
-// ─── Finding row ──────────────────────────────────────────────────────────────
+// ··· Finding row ······························································
 function findingRow(f: ReportFinding, index: number): string {
   const sev    = f.severity ?? "low";
   const col    = riskColor(sev);
@@ -333,7 +333,7 @@ function findingRow(f: ReportFinding, index: number): string {
   </div>`;
 }
 
-// ─── Recommendation block ─────────────────────────────────────────────────────
+// ··· Recommendation block ·····················································
 function recommendationBlock(rec: ReportRecommendation, counter: number): string {
   const col    = riskColor(rec.priority);
   const border = riskBorder(rec.priority);
@@ -354,14 +354,14 @@ function recommendationBlock(rec: ReportRecommendation, counter: number): string
     <div style="padding:10px 14px 10px 45px;background:#FFFFFF;">
       ${rec.items.map(item => `
         <div style="display:flex;gap:8px;margin-bottom:5px;align-items:flex-start;">
-          <span style="color:${col};font-size:11px;font-weight:700;flex-shrink:0;line-height:1.6;font-family:${FONT};">›</span>
+          <span style="color:${col};font-size:11px;font-weight:700;flex-shrink:0;line-height:1.6;font-family:${FONT};">·</span>
           <p style="font-size:9.5px;color:#374151;margin:0;line-height:1.75;font-family:${FONT};">${item}</p>
         </div>`).join("")}
     </div>
   </div>`;
 }
 
-// ─── Strengths block ──────────────────────────────────────────────────────────
+// ··· Strengths block ··························································
 function strengthsBlock(strengths: string[]): string {
   return `
   <div style="background:#F0FDF4;border:1.5px solid #A7F3D0;border-radius:8px;
@@ -374,7 +374,7 @@ function strengthsBlock(strengths: string[]): string {
   </div>`;
 }
 
-// ─── COVER PAGE ───────────────────────────────────────────────────────────────
+// ··· COVER PAGE ·······························································
 function buildCoverPage(data: EnterpriseReportData, total: number): string {
   const accent        = reportAccent(data.metadata.reportTitle);
   const accentLight   = reportAccentLight(data.metadata.reportTitle);
@@ -398,7 +398,7 @@ function buildCoverPage(data: EnterpriseReportData, total: number): string {
     : data.executiveSummary;
 
   const content = `
-  <!-- ══ COVER HEADER ════════════════════════════════════════════════════ -->
+  <!-- ·· COVER HEADER ···················································· -->
   <div style="height:208px;background:linear-gradient(145deg,#06091A 0%,#0F172A 45%,#111827 100%);
               position:relative;overflow:hidden;margin:0 -${MARGIN}px;padding:0 ${MARGIN}px;">
     <!-- Subtle geometric accent shapes -->
@@ -410,7 +410,7 @@ function buildCoverPage(data: EnterpriseReportData, total: number): string {
     <div style="position:absolute;bottom:0;left:0;right:0;height:3px;
                 background:linear-gradient(90deg,${accent} 0%,${RANDSTAD_BLUE} 50%,transparent 100%);"></div>
 
-    <!-- ── Top branding bar ── -->
+    <!-- ·· Top branding bar ·· -->
     <div style="display:flex;align-items:flex-start;justify-content:space-between;padding-top:28px;">
       <!-- randtrust: icon + wordmark + tagline -->
       <div style="display:flex;align-items:center;gap:13px;">
@@ -431,7 +431,7 @@ function buildCoverPage(data: EnterpriseReportData, total: number): string {
       </div>
     </div>
 
-    <!-- ── Report identity ── -->
+    <!-- ·· Report identity ·· -->
     <div style="margin-top:22px;">
       <div style="display:inline-block;font-size:8px;font-weight:700;color:${accent};opacity:0.85;
                   text-transform:uppercase;letter-spacing:0.22em;margin-bottom:8px;
@@ -448,7 +448,7 @@ function buildCoverPage(data: EnterpriseReportData, total: number): string {
     </div>
   </div>
 
-  <!-- ══ REPORT INFO + SCORE GAUGE ════════════════════════════════════════ -->
+  <!-- ·· REPORT INFO + SCORE GAUGE ········································ -->
   <div style="margin:0 -${MARGIN}px;padding:0 ${MARGIN}px;background:#FFFFFF;
               border-bottom:1.5px solid #E8EDF4;">
     <div style="display:flex;align-items:stretch;gap:0;padding:16px 0 14px;">
@@ -475,7 +475,7 @@ function buildCoverPage(data: EnterpriseReportData, total: number): string {
     </div>
   </div>
 
-  <!-- ══ EXECUTIVE SUMMARY ════════════════════════════════════════════════ -->
+  <!-- ·· EXECUTIVE SUMMARY ················································ -->
   ${sectionHeading("Executive Summary", accent)}
   <div style="background:${accentLight};border-left:4px solid ${accent};
               border-radius:0 7px 7px 0;padding:14px 18px;margin-bottom:18px;
@@ -483,20 +483,20 @@ function buildCoverPage(data: EnterpriseReportData, total: number): string {
     <p style="font-size:10px;color:#1E293B;line-height:1.85;margin:0;font-family:${FONT};">${summaryText}</p>
   </div>
 
-  <!-- ══ OVERALL RISK OVERVIEW ════════════════════════════════════════════ -->
+  <!-- ·· OVERALL RISK OVERVIEW ············································ -->
   ${sectionHeading("Risk Overview", accent)}
   ${overallScoreTable(data)}`;
 
   return pageShell(content, 1, total, data.metadata.reportTitle, true);
 }
 
-// ─── Content block type ───────────────────────────────────────────────────────
+// ··· Content block type ·······················································
 interface ContentBlock {
   html: string;
   estimatedH: number;
 }
 
-// ─── Consent Impact Section (Enterprise cookie scanner only) ──────────────────
+// ··· Consent Impact Section (Enterprise cookie scanner only) ··················
 function buildConsentImpactBlocks(data: EnterpriseReportData, accent: string): ContentBlock[] {
   const cc = data.consentComparison;
   if (!cc) return [];
@@ -605,7 +605,7 @@ function buildConsentImpactBlocks(data: EnterpriseReportData, accent: string): C
   return blocks;
 }
 
-// ─── Build all content blocks for pages 2+ ───────────────────────────────────
+// ··· Build all content blocks for pages 2+ ···································
 function buildContentBlocks(data: EnterpriseReportData): ContentBlock[] {
   const blocks: ContentBlock[] = [];
   const accent       = reportAccent(data.metadata.reportTitle);
@@ -759,7 +759,7 @@ function buildContentBlocks(data: EnterpriseReportData): ContentBlock[] {
         <div>
           <div style="font-size:11px;font-weight:700;color:#0F172A;margin-bottom:6px;line-height:1.3;font-family:${FONT};">
             Overall Assessment: <span style="color:${riskCol};">${riskLabel(data.overallRisk)} Risk</span>
-            &nbsp;·&nbsp; Score: ${data.overallScore} / 100
+            &nbsp;|&nbsp; Score: ${data.overallScore} / 100
           </div>
           <p style="font-size:9.5px;color:#374151;margin:0;line-height:1.78;font-family:${FONT};">${actionText}</p>
         </div>
@@ -776,7 +776,7 @@ function buildContentBlocks(data: EnterpriseReportData): ContentBlock[] {
   return blocks;
 }
 
-// ─── Pagination engine ────────────────────────────────────────────────────────
+// ··· Pagination engine ························································
 function estimateTotalPages(blocks: ContentBlock[]): number {
   let pages = 1;
   let used  = 0;
@@ -827,7 +827,7 @@ function paginateBlocks(
   return pages;
 }
 
-// ─── Public API ───────────────────────────────────────────────────────────────
+// ··· Public API ·······························································
 export interface ReportPages {
   pages: string[];
   totalPages: number;
