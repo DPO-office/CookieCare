@@ -63,13 +63,13 @@ export default function AiProgressOverlay({
           <div className="absolute inset-x-0 top-0 h-[3px] bg-gray-100 overflow-hidden">
             {hasProgress ? (
               <div
-                className="h-full rounded-full transition-all duration-500 ease-out" style={{ background: "#1D6FD8" }}
-                style={{ width: `${clampedProgress}%` }}
+                className="h-full rounded-full transition-all duration-500 ease-out"
+                style={{ background: "#1D6FD8", width: `${clampedProgress}%` }}
               />
             ) : (
               <div
-                className="h-full rounded-full" style={{ background: "#1D6FD8" }}
-                style={{ width: "40%", animation: "slideIndeterminate 1.5s cubic-bezier(0.65,0,0.35,1) infinite" }}
+                className="h-full rounded-full"
+                style={{ background: "#1D6FD8", width: "40%", animation: "slideIndeterminate 1.5s cubic-bezier(0.65,0,0.35,1) infinite" }}
               />
             )}
           </div>

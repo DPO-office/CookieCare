@@ -2,3 +2,5 @@ lexify_migration_clean.sql
 lexify_migration.sql
 
 MEMORY.md
+
+.cursor

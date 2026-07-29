@@ -44,8 +44,8 @@ export function AnalyzingState({ fileNames, steps }: AnalyzingStateProps) {
           {/* Progress bar */}
           <div className="h-[3px] bg-gray-100 relative overflow-hidden">
             <div
-              className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out" style={{ background: "#1D6FD8" }}
-              style={{ width: `${progress}%` }}
+              className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out"
+              style={{ background: "#1D6FD8", width: `${progress}%` }}
             />
             <div
               className="absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-white/60 to-transparent"
