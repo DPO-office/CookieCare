@@ -147,8 +147,7 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
 
   const submitVaultFiles = async () => {
     let targetFolderId = formFolderTarget;
-    if (targetFolderId === "__uploaded_folder__") {
-      if (!suggestedVaultFolderName) return;
+    if (suggestedVaultFolderName) {
       targetFolderId =
         (await handleCreateUploadFolder(suggestedVaultFolderName)) || "";
       if (!targetFolderId) return;
@@ -581,18 +580,25 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Target folder</label>
-                <select disabled={uploadStatus === "uploading"} value={formFolderTarget} onChange={(e) => setFormFolderTarget(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300 transition cursor-pointer disabled:opacity-50">
-                  <option value="" disabled>Select a folder…</option>
-                  {suggestedVaultFolderName && (
-                    <option value="__uploaded_folder__">
-                      Create/reuse “{suggestedVaultFolderName}”
-                    </option>
-                  )}
-                  {items.filter((i) => i.type === "files").map((fld) => (
-                    <option key={fld.id} value={fld.id}>{fld.name} ({fld.fileList?.length || 0} files)</option>
-                  ))}
-                </select>
+                {suggestedVaultFolderName ? (
+                  <div className="flex items-center gap-3 border border-amber-200 bg-amber-50 rounded-xl p-3">
+                    <FolderOpen className="w-4 h-4 text-amber-500 shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-xs text-amber-600">Root folder will be created automatically</p>
+                      <p className="text-sm font-semibold text-amber-800 truncate">{suggestedVaultFolderName}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Target folder</label>
+                    <select disabled={uploadStatus === "uploading"} value={formFolderTarget} onChange={(e) => setFormFolderTarget(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300 transition cursor-pointer disabled:opacity-50">
+                      <option value="" disabled>Select a folder…</option>
+                      {items.filter((i) => i.type === "files").map((fld) => (
+                        <option key={fld.id} value={fld.id}>{fld.name} ({fld.fileList?.length || 0} files)</option>
+                      ))}
+                    </select>
+                  </>
+                )}
               </div>
               <div
                 onDragOver={(e) => e.preventDefault()}
@@ -712,7 +718,7 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
                 disabled={
                   uploadStatus === "uploading" ||
                   pendingVaultFiles.filter((item) => item.status === "pending" || item.status === "error").length === 0 ||
-                  !formFolderTarget
+                  (!formFolderTarget && !suggestedVaultFolderName)
                 }
                 onClick={submitVaultFiles}
                 className="px-5 py-2 text-white rounded-xl text-sm font-semibold disabled:opacity-30"

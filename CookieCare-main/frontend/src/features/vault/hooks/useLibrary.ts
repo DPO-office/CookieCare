@@ -6,7 +6,7 @@ import {
   deleteFolder, deleteDocument, createFolder, createLibraryItem,
   uploadFileToFolder, uploadVaultAsset, VaultIngestCategory,
 } from "../api/vaultApi";
-import { apiUrl } from "../../../config";
+import { waitForJob } from "../../../shared/utils/jobStatus";
 import {
   VAULT_JUNK_FILE_NAMES,
   VAULT_MAX_UPLOAD_BYTES,
@@ -163,37 +163,7 @@ export function useLibrary(authToken: string, onRefresh: () => void) {
   const watchJob = (
     jobId: string,
     onProgress?: (progress: number, message?: string) => void
-  ): Promise<any> =>
-    new Promise((resolve, reject) => {
-      const es = new EventSource(apiUrl(`/api/jobs/sse?token=${authToken}`));
-      es.onmessage = (event) => {
-        const payload = JSON.parse(event.data);
-        if (payload.event !== "job_update" || payload.job?.id !== jobId) return;
-
-        const status = String(payload.job.status || "").toLowerCase();
-        const progress =
-          typeof payload.job.progress === "number" ? payload.job.progress : undefined;
-        const message =
-          typeof payload.job.message === "string" ? payload.job.message : undefined;
-
-        if (progress != null || message) {
-          onProgress?.(progress ?? 0, message);
-        }
-
-        if (status === "completed") {
-          onProgress?.(100, message || "Done");
-          es.close();
-          resolve(payload.job.result);
-        } else if (status === "failed") {
-          es.close();
-          reject(new Error(payload.job.error || message || "Processing failed."));
-        }
-      };
-      es.onerror = () => {
-        es.close();
-        reject(new Error("Job connection interrupted."));
-      };
-    });
+  ): Promise<any> => waitForJob(authToken, jobId, { onProgress });
 
   const addVaultFiles = useCallback((incoming: FileList | File[]) => {
     const files = Array.from(incoming);

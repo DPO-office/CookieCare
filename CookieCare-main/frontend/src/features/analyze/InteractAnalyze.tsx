@@ -172,6 +172,8 @@ export default function InteractAnalyze({
           isUploading={upload.isUploading}
           pendingFiles={upload.pendingFiles}
           batchError={upload.batchError}
+          successMessage={upload.successMessage}
+          suggestedFolderName={upload.suggestedFolderName}
           uploadProgress={upload.uploadProgress}
           onClose={() => setIsSidePanelOpen(false)}
           onSetNewFolderName={setNewFolderName}

@@ -32,6 +32,8 @@ interface SideDrawerProps {
   isUploading: boolean;
   pendingFiles: PendingUpload[];
   batchError: string;
+  successMessage: string;
+  suggestedFolderName: string;
   uploadProgress: { done: number; total: number };
   onClose: () => void;
   onSetNewFolderName: (v: string) => void;
@@ -56,6 +58,8 @@ export default function SideDrawer({
   isUploading,
   pendingFiles,
   batchError,
+  successMessage,
+  suggestedFolderName,
   uploadProgress,
   onClose,
   onSetNewFolderName,
@@ -71,7 +75,10 @@ export default function SideDrawer({
   onUploadSubmit,
 }: SideDrawerProps) {
   const fileCount = pendingFiles.length;
-  const canSubmit = fileCount > 0 && !isUploading;
+  const retryableCount = pendingFiles.filter(
+    (p) => p.status === "pending" || p.status === "error"
+  ).length;
+  const canSubmit = retryableCount > 0 && !isUploading;
   const hasErrors = pendingFiles.some((p) => p.status === "error");
 
   return (
@@ -129,22 +136,32 @@ export default function SideDrawer({
             <form onSubmit={onUploadSubmit} className="flex-1 flex flex-col justify-between p-6 overflow-hidden">
               <div className="space-y-4 flex-1 min-h-0 flex flex-col">
                 {/* Target folder selector */}
-                <div className="space-y-1.5 shrink-0">
-                  <label className="text-xs font-medium text-gray-600 block">Target folder</label>
-                  <select
-                    value={uploadSelectedFolder}
-                    onChange={(e) => onSetUploadSelectedFolder(e.target.value)}
-                    disabled={isUploading}
-                    className="w-full text-[13px] border border-gray-200 bg-white px-3.5 py-2.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-200 rounded-xl cursor-pointer appearance-none disabled:opacity-50"
-                  >
-                    <option value="">Uploaded Documents (default)</option>
-                    {folders.map((f) => (
-                      <option key={f.id} value={f.name}>
-                        {f.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                {suggestedFolderName ? (
+                  <div className="flex items-center gap-2.5 px-3.5 py-2.5 border border-amber-200 bg-amber-50 rounded-xl shrink-0">
+                    <FolderOpen className="w-4 h-4 text-amber-500 shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-[11px] text-amber-600">Root folder will be created automatically</p>
+                      <p className="text-[12px] font-semibold text-amber-800 truncate">{suggestedFolderName}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-1.5 shrink-0">
+                    <label className="text-xs font-medium text-gray-600 block">Target folder</label>
+                    <select
+                      value={uploadSelectedFolder}
+                      onChange={(e) => onSetUploadSelectedFolder(e.target.value)}
+                      disabled={isUploading}
+                      className="w-full text-[13px] border border-gray-200 bg-white px-3.5 py-2.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-200 rounded-xl cursor-pointer appearance-none disabled:opacity-50"
+                    >
+                      <option value="">Uploaded Documents (default)</option>
+                      {folders.map((f) => (
+                        <option key={f.id} value={f.name}>
+                          {f.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 {/* Drop zone */}
                 <div className="space-y-1.5 shrink-0">
@@ -187,6 +204,14 @@ export default function SideDrawer({
                     </div>
                   </div>
                 </div>
+
+                {/* Success confirmation */}
+                {successMessage && (
+                  <div className="flex items-start gap-2 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-xl shrink-0">
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                    <span className="text-[11px] font-medium text-emerald-700">{successMessage}</span>
+                  </div>
+                )}
 
                 {/* Batch error */}
                 {batchError && (
@@ -276,11 +301,11 @@ export default function SideDrawer({
                     <>
                       <Upload className="w-3.5 h-3.5 text-gray-300" />
                       <span>
-                        {fileCount === 0
+                        {retryableCount === 0
                           ? "Upload Documents"
                           : hasErrors
                           ? `Retry ${pendingFiles.filter((p) => p.status === "error").length} failed`
-                          : `Upload ${fileCount} file${fileCount !== 1 ? "s" : ""}`}
+                          : `Upload ${retryableCount} file${retryableCount !== 1 ? "s" : ""}`}
                       </span>
                     </>
                   )}

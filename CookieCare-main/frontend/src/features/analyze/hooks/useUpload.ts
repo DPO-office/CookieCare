@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { apiUrl } from "../../../config";
+import { waitForJob } from "../../../shared/utils/jobStatus";
 import { CustomFolder, PendingUpload } from "../types";
 import {
   ACCEPTED_UPLOAD_EXTENSIONS,
@@ -29,10 +30,6 @@ function extractFolderName(files: File[]): string | undefined {
     }
   }
   return undefined;
-}
-
-interface ReadEntryResult {
-  files: File[];
 }
 
 async function readAllEntries(entry: FileSystemEntry): Promise<File[]> {
@@ -74,6 +71,7 @@ export function useUpload(
   const [isUploading, setIsUploading] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<PendingUpload[]>([]);
   const [batchError, setBatchError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [suggestedFolderName, setSuggestedFolderName] = useState("");
   const [uploadProgress, setUploadProgress] = useState({ done: 0, total: 0 });
 
@@ -124,6 +122,7 @@ export function useUpload(
   const clearFiles = useCallback(() => {
     setPendingFiles([]);
     setBatchError("");
+    setSuccessMessage("");
     setSuggestedFolderName("");
     setUploadProgress({ done: 0, total: 0 });
   }, []);
@@ -150,6 +149,11 @@ export function useUpload(
       }
 
       if (entries.length > 0) {
+        const droppedFolder = entries.find((entry) => entry.isDirectory);
+        if (droppedFolder?.name) {
+          setSuggestedFolderName(droppedFolder.name);
+          setUploadSelectedFolder("");
+        }
         for (const entry of entries) {
           const files = await readAllEntries(entry);
           allFiles.push(...files);
@@ -172,7 +176,10 @@ export function useUpload(
   };
 
   const handleFolderBrowseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.length) addFiles(e.target.files);
+    if (e.target.files?.length) {
+      setUploadSelectedFolder("");
+      addFiles(e.target.files);
+    }
     e.target.value = "";
   };
 
@@ -246,109 +253,71 @@ export function useUpload(
 
     setIsUploading(true);
     setBatchError("");
+    setSuccessMessage("");
     abortRef.current = false;
     setUploadProgress({ done: 0, total: toUpload.length });
 
     let folderId: string | undefined;
-    const targetFolder = folders.find((f) => f.name === uploadSelectedFolder);
-    if (targetFolder) {
-      folderId = targetFolder.id;
-    } else if (suggestedFolderName && !uploadSelectedFolder) {
+    // A local folder upload always becomes a root-level Vault folder.
+    // Never place it inside a target selected before folder mode was detected.
+    if (suggestedFolderName) {
       folderId = await resolveOrCreateFolder(suggestedFolderName);
+    } else {
+      const targetFolder = folders.find((f) => f.name === uploadSelectedFolder);
+      if (targetFolder) folderId = targetFolder.id;
     }
 
-    const pendingJobIds = new Set<string>();
-    let completedCount = 0;
+    let failedCount = 0;
 
     const queue = [...toUpload];
     const runNext = async (): Promise<void> => {
       while (queue.length > 0 && !abortRef.current) {
         const item = queue.shift()!;
         const result = await uploadSingleFile(item, folderId);
-        if (result.jobId) {
-          pendingJobIds.add(result.jobId);
+
+        if (result.error) {
+          failedCount++;
+        } else if (result.jobId) {
+          try {
+            await waitForJob(authToken, result.jobId);
+            updateFileStatus(item.id, { status: "done" });
+          } catch (err: any) {
+            failedCount++;
+            updateFileStatus(item.id, {
+              status: "error",
+              error: err.message || "Processing failed",
+            });
+          }
         } else {
-          completedCount++;
-          setUploadProgress((p) => ({ ...p, done: p.done + 1 }));
+          updateFileStatus(item.id, { status: "done" });
         }
+
+        setUploadProgress((p) => ({ ...p, done: p.done + 1 }));
       }
     };
 
     const workers = Array.from({ length: Math.min(UPLOAD_CONCURRENCY, toUpload.length) }, () => runNext());
     await Promise.all(workers);
 
-    if (pendingJobIds.size === 0) {
-      await fetchFoldersAndDocs();
-      await onRefresh();
-      setIsUploading(false);
-      const hasErrors = pendingFiles.some((p) => p.status === "error");
-      if (!hasErrors) {
-        clearFiles();
-        onClose();
-      }
+    await fetchFoldersAndDocs();
+    await onRefresh();
+    setIsUploading(false);
+
+    if (failedCount > 0) {
+      setBatchError(
+        `${failedCount} of ${toUpload.length} file${toUpload.length === 1 ? "" : "s"} failed. Remove them or press upload to retry.`
+      );
       return;
     }
 
-    const eventSource = new EventSource(apiUrl(`/api/jobs/sse?token=${authToken}`));
-    eventSource.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.event === "job_update" && pendingJobIds.has(data.job.id)) {
-          if (data.job.status === "completed") {
-            pendingJobIds.delete(data.job.id);
-            setPendingFiles((prev) =>
-              prev.map((p) =>
-                p.jobId === data.job.id ? { ...p, status: "done" } : p
-              )
-            );
-            completedCount++;
-            setUploadProgress((p) => ({ ...p, done: p.done + 1 }));
-          } else if (data.job.status === "failed") {
-            pendingJobIds.delete(data.job.id);
-            setPendingFiles((prev) =>
-              prev.map((p) =>
-                p.jobId === data.job.id
-                  ? { ...p, status: "error", error: data.job.error || "Processing failed" }
-                  : p
-              )
-            );
-            completedCount++;
-            setUploadProgress((p) => ({ ...p, done: p.done + 1 }));
-          }
-
-          if (pendingJobIds.size === 0) {
-            eventSource.close();
-            fetchFoldersAndDocs().then(() => onRefresh());
-            setIsUploading(false);
-            setPendingFiles((prev) => {
-              const hasErrors = prev.some((p) => p.status === "error");
-              if (!hasErrors) {
-                onClose();
-                return [];
-              }
-              return prev;
-            });
-          }
-        }
-      } catch {
-        // ignore parse errors
-      }
-    };
-
-    eventSource.onerror = () => {
-      eventSource.close();
-      pendingJobIds.forEach((jobId) => {
-        setPendingFiles((prev) =>
-          prev.map((p) =>
-            p.jobId === jobId && p.status === "processing"
-              ? { ...p, status: "error", error: "Connection lost during processing" }
-              : p
-          )
-        );
-      });
-      pendingJobIds.clear();
-      setIsUploading(false);
-    };
+    const uploadedCount = toUpload.length;
+    setSuccessMessage(
+      `${uploadedCount} file${uploadedCount === 1 ? "" : "s"} uploaded and indexed successfully.`
+    );
+    setTimeout(() => {
+      clearFiles();
+      onClose();
+    }, 1500);
   };
 
   return {
@@ -358,6 +327,7 @@ export function useUpload(
     isUploading,
     pendingFiles,
     batchError,
+    successMessage,
     suggestedFolderName,
     uploadProgress,
     handleDragOver,
