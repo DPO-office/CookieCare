@@ -1,5 +1,5 @@
 import React from "react";
-import { Scale, PanelRight, PanelRightClose, Copy, Check, Gavel, Folder, ArrowUp, RefreshCw, ChevronDown } from "lucide-react";
+import { Scale, PanelRight, PanelRightClose, Copy, Check } from "lucide-react";
 import { markdownToHtml } from "../../shared/utils/markdownToHtml";
 import AiProgressOverlay from "../../shared/components/AiProgressOverlay";
 import { AskAILawyerProps } from "./types";
@@ -8,10 +8,6 @@ import QuickPromptCards from "./components/QuickPromptCards";
 import ComposerBar from "./components/ComposerBar";
 import SourcesPanel from "./components/SourcesPanel";
 import CitationModal from "./components/CitationModal";
-import Popovers from "./components/Popovers";
-
-// Alias - used inside the no-scroll landing layout
-const LandingPopovers = Popovers;
 
 export default function AskAILawyer({ authToken, documents: _propDocs = [] }: AskAILawyerProps) {
   const {
@@ -53,8 +49,48 @@ export default function AskAILawyer({ authToken, documents: _propDocs = [] }: As
     selectedFolderCount,
   } = useAskAILawyer(authToken);
 
+  // One composer, shared by the landing and chat states. They used to be two
+  // copies of the same markup, which is how they drifted apart.
+  const composer = (
+    <ComposerBar
+      searchQuery={searchQuery}
+      setSearchQuery={setSearchQuery}
+      autoResizeTextarea={autoResizeTextarea}
+      handleQueryDispatch={handleQueryDispatch}
+      handleKeyDown={handleKeyDown}
+      isStreaming={isStreaming}
+      selectedJurisdictions={selectedJurisdictions}
+      toggleJurisdiction={toggleJurisdiction}
+      selectedKBCount={selectedKBCount}
+      selectedFolderCount={selectedFolderCount}
+      webDiscoveryUrls={webDiscoveryUrls}
+      selectedFormat={selectedFormat}
+      openPopover={openPopover}
+      togglePopover={togglePopover}
+      setOpenPopover={setOpenPopover}
+      composerRef={composerRef}
+      popoverRef={popoverRef}
+      textareaRef={textareaRef}
+      fileUploadRef={fileUploadRef}
+      availableJurisdictions={availableJurisdictions}
+      setSelectedJurisdictions={setSelectedJurisdictions}
+      setSelectedFormat={setSelectedFormat}
+      folders={folders}
+      newFolderName={newFolderName}
+      setNewFolderName={setNewFolderName}
+      handleAddFolder={handleAddFolder}
+      toggleFolderSelection={toggleFolderSelection}
+      handleDeleteFolder={handleDeleteFolder}
+      setActiveFolderForUpload={setActiveFolderForUpload}
+      webDiscoveryUrlInput={webDiscoveryUrlInput}
+      setWebDiscoveryUrlInput={setWebDiscoveryUrlInput}
+      handleAddWebUrl={handleAddWebUrl}
+      removeWebUrl={removeWebUrl}
+    />
+  );
+
   return (
-    <div className="flex-1 overflow-hidden flex h-screen font-sans bg-[#FAFAFB]">
+    <div className="flex-1 min-h-0 overflow-hidden flex font-sans bg-[#FAFAFB]">
 
       {/* AI progress overlay */}
       {(isStreaming || !!lawyerError) && (
@@ -77,138 +113,40 @@ export default function AskAILawyer({ authToken, documents: _propDocs = [] }: As
 
             {!hasResult && !isStreaming ? (
 
-              /* -- Landing state: fixed layout, no scroll -- */
-              <div className="flex-1 flex flex-col overflow-hidden px-10">
+              /* -- Landing state: composer pinned, everything above it scrolls -- */
+              <div className="flex-1 flex flex-col overflow-hidden min-h-0">
 
-                {/* Page header */}
-                <div className="pt-8 pb-0 shrink-0">
-                  <div className="w-full max-w-5xl mx-auto flex justify-between items-start">
-                    <div>
-                      <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#2175D9" }}>Ask AI Lawyer</h1>
-                      <p className="text-[13px] text-gray-500 mt-1">Legal research and advisory across global jurisdictions.</p>
-                    </div>
-                  </div>
-                </div>
+                {/* Header + hero share one scroll area. On a short viewport they
+                    scroll instead of pushing the composer off screen. */}
+                <div className="flex-1 min-h-0 overflow-y-auto px-10">
 
-                {/* Hero + cards - top-aligned with fixed top padding */}
-                <div className="shrink-0 flex flex-col items-center pt-10">
-                  <div className="w-11 h-11 rounded-2xl flex items-center justify-center mb-3 shadow-md" style={{ background: "#2175D9" }}>
-                    <Scale className="w-5 h-5 text-white" />
-                  </div>
-                  <h2 className="text-[22px] font-bold text-gray-900 tracking-tight mb-2 text-center">
-                    How can I assist you legally?
-                  </h2>
-                  <p className="text-[13px] text-gray-500 text-center mb-6 leading-relaxed max-w-md">
-                    Ask about statutes, case law, contract terms, or compliance obligations across global jurisdictions.
-                  </p>
-                  <QuickPromptCards onSelect={applyQuickPrompt} />
-                </div>
-
-                {/* Pushes composer to the bottom */}
-                <div className="flex-1" />
-
-                {/* Composer pinned at bottom */}
-                <div className="shrink-0 pb-8 pt-4">
-                  <div className="max-w-5xl mx-auto w-full relative" ref={composerRef}>
-                    <div className="relative bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md focus-within:shadow-md focus-within:border-gray-300 transition-all duration-200 overflow-visible">
-                      <textarea
-                        ref={textareaRef}
-                        id="legal-prompt-input"
-                        value={searchQuery}
-                        onChange={(e) => { setSearchQuery(e.target.value); autoResizeTextarea(); }}
-                        onKeyDown={handleKeyDown}
-                        disabled={isStreaming}
-                        placeholder="Ask a legal question - GDPR compliance, contract review, tax treaties..."
-                        rows={1}
-                        className="w-full bg-transparent text-[15px] py-4 pl-5 pr-5 focus:outline-none placeholder:text-gray-400 text-gray-900 resize-none leading-relaxed"
-                        style={{ minHeight: "60px", maxHeight: "180px" }}
-                      />
-                      <div className="mx-4 border-t border-gray-100" />
-                      <div className="flex items-center justify-between px-4 py-3 gap-3">
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => togglePopover("jurisdictions")}
-                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium transition-all duration-150 cursor-pointer ${
-                              openPopover === "jurisdictions" || selectedJurisdictions.length > 0
-                                ? "text-white border-transparent shadow-sm"
-                                : "bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100 hover:border-gray-300 hover:text-gray-700"
-                            }`}
-                            style={openPopover === "jurisdictions" || selectedJurisdictions.length > 0 ? { background: "#2175D9" } : {}}
-                          >
-                            <Gavel className="w-3 h-3" />
-                            <span>
-                              {selectedJurisdictions.length > 0
-                                ? `${selectedJurisdictions.length} Jurisdiction${selectedJurisdictions.length > 1 ? "s" : ""}`
-                                : "Jurisdiction"}
-                            </span>
-                            <ChevronDown className={`w-2.5 h-2.5 opacity-60 transition-transform duration-150 ${openPopover === "jurisdictions" ? "rotate-180" : ""}`} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => togglePopover("kb")}
-                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium transition-all duration-150 cursor-pointer ${
-                              openPopover === "kb" || selectedKBCount > 0
-                                ? "text-white border-transparent shadow-sm"
-                                : "bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100 hover:border-gray-300 hover:text-gray-700"
-                            }`}
-                            style={openPopover === "kb" || selectedKBCount > 0 ? { background: "#2175D9" } : {}}
-                          >
-                            <Folder className="w-3 h-3" />
-                            <span>
-                              {selectedKBCount > 0
-                                ? `${selectedKBCount} Doc${selectedKBCount > 1 ? "s" : ""}`
-                                : "Documents"}
-                            </span>
-                            <ChevronDown className={`w-2.5 h-2.5 opacity-60 transition-transform duration-150 ${openPopover === "kb" ? "rotate-180" : ""}`} />
-                          </button>
-                        </div>
-                        <button
-                          id="legal-prompt-submit"
-                          type="button"
-                          onClick={() => handleQueryDispatch()}
-                          disabled={!searchQuery.trim() || isStreaming}
-                          className="w-9 h-9 rounded-xl flex items-center justify-center active:scale-95 transition-all duration-150 disabled:opacity-30 disabled:pointer-events-none cursor-pointer shadow-sm shrink-0" style={{ background: "#2175D9" }}
-                        >
-                          {isStreaming
-                            ? <RefreshCw className="w-4 h-4 animate-spin text-white" />
-                            : <ArrowUp className="w-4 h-4 text-white" />}
-                        </button>
+                  {/* Page header */}
+                  <div className="pt-8 pb-0">
+                    <div className="w-full max-w-5xl mx-auto flex justify-between items-start">
+                      <div>
+                        <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#2175D9" }}>Ask AI Lawyer</h1>
+                        <p className="text-[13px] text-gray-500 mt-1">Legal research and advisory across global jurisdictions.</p>
                       </div>
                     </div>
-                    <p className="text-center text-[10px] text-gray-400 mt-2.5">
-                      <kbd className="bg-white border border-gray-200 rounded px-1 py-0.5 font-mono text-[9px]">Enter</kbd> to send
-                      &nbsp;-&nbsp;
-                      <kbd className="bg-white border border-gray-200 rounded px-1 py-0.5 font-mono text-[9px]">Shift+Enter</kbd> for new line
+                  </div>
+
+                  {/* Hero + cards - top-aligned with fixed top padding */}
+                  <div className="flex flex-col items-center pt-18 pb-6">
+                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4 shadow-md" style={{ background: "#2175D9" }}>
+                      <Scale className="w-[22px] h-[22px] text-white" />
+                    </div>
+                    <h2 className="text-[24px] font-bold text-gray-900 tracking-tight mb-2 text-center">
+                      How can I assist you legally?
+                    </h2>
+                    <p className="text-[14px] text-gray-500 text-center mb-6 leading-relaxed max-w-md">
+                      Ask about statutes, case law, contract terms, or compliance obligations across global jurisdictions.
                     </p>
-                    <LandingPopovers
-                      openPopover={openPopover}
-                      popoverRef={popoverRef}
-                      availableJurisdictions={availableJurisdictions}
-                      selectedJurisdictions={selectedJurisdictions}
-                      toggleJurisdiction={toggleJurisdiction}
-                      setSelectedJurisdictions={setSelectedJurisdictions}
-                      selectedFormat={selectedFormat}
-                      setSelectedFormat={setSelectedFormat}
-                      folders={folders}
-                      newFolderName={newFolderName}
-                      setNewFolderName={setNewFolderName}
-                      handleAddFolder={handleAddFolder}
-                      toggleFolderSelection={toggleFolderSelection}
-                      handleDeleteFolder={handleDeleteFolder}
-                      setActiveFolderForUpload={setActiveFolderForUpload}
-                      fileUploadRef={fileUploadRef}
-                      selectedKBCount={selectedKBCount}
-                      selectedFolderCount={selectedFolderCount}
-                      webDiscoveryUrlInput={webDiscoveryUrlInput}
-                      setWebDiscoveryUrlInput={setWebDiscoveryUrlInput}
-                      webDiscoveryUrls={webDiscoveryUrls}
-                      handleAddWebUrl={handleAddWebUrl}
-                      removeWebUrl={removeWebUrl}
-                      setOpenPopover={setOpenPopover}
-                    />
+                    <QuickPromptCards onSelect={applyQuickPrompt} />
                   </div>
                 </div>
+
+                {/* Composer pinned at bottom */}
+                {composer}
               </div>
 
             ) : (
@@ -300,41 +238,7 @@ export default function AskAILawyer({ authToken, documents: _propDocs = [] }: As
                 </div>
 
                 {/* Composer */}
-                <ComposerBar
-                  searchQuery={searchQuery}
-                  setSearchQuery={setSearchQuery}
-                  autoResizeTextarea={autoResizeTextarea}
-                  handleQueryDispatch={handleQueryDispatch}
-                  handleKeyDown={handleKeyDown}
-                  isStreaming={isStreaming}
-                  selectedJurisdictions={selectedJurisdictions}
-                  toggleJurisdiction={toggleJurisdiction}
-                  selectedKBCount={selectedKBCount}
-                  selectedFolderCount={selectedFolderCount}
-                  webDiscoveryUrls={webDiscoveryUrls}
-                  selectedFormat={selectedFormat}
-                  openPopover={openPopover}
-                  togglePopover={togglePopover}
-                  setOpenPopover={setOpenPopover}
-                  composerRef={composerRef}
-                  popoverRef={popoverRef}
-                  textareaRef={textareaRef}
-                  fileUploadRef={fileUploadRef}
-                  availableJurisdictions={availableJurisdictions}
-                  setSelectedJurisdictions={setSelectedJurisdictions}
-                  setSelectedFormat={setSelectedFormat}
-                  folders={folders}
-                  newFolderName={newFolderName}
-                  setNewFolderName={setNewFolderName}
-                  handleAddFolder={handleAddFolder}
-                  toggleFolderSelection={toggleFolderSelection}
-                  handleDeleteFolder={handleDeleteFolder}
-                  setActiveFolderForUpload={setActiveFolderForUpload}
-                  webDiscoveryUrlInput={webDiscoveryUrlInput}
-                  setWebDiscoveryUrlInput={setWebDiscoveryUrlInput}
-                  handleAddWebUrl={handleAddWebUrl}
-                  removeWebUrl={removeWebUrl}
-                />
+                {composer}
               </>
             )}
           </div>

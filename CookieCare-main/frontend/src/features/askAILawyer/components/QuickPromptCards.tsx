@@ -1,4 +1,5 @@
 ﻿import React from "react";
+import { ChevronRight } from "lucide-react";
 import { QUICK_PROMPTS } from "../constants";
 
 interface QuickPromptCardsProps {
@@ -7,36 +8,26 @@ interface QuickPromptCardsProps {
 
 export default function QuickPromptCards({ onSelect }: QuickPromptCardsProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full max-w-2xl">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl">
       {QUICK_PROMPTS.map((qp) => (
         <button
           key={qp.label}
           type="button"
           onClick={() => onSelect(qp.prompt)}
-          className="group relative flex flex-col gap-2.5 p-4 bg-white border border-gray-100 rounded-2xl hover:border-gray-300 hover:shadow-md transition-all duration-200 text-left cursor-pointer overflow-hidden"
+          className="group flex items-center gap-3 px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl text-left cursor-pointer transition-all duration-150 hover:border-gray-300 hover:shadow-sm active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2175D9]/30"
         >
-          {/* Subtle hover background accent */}
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-2xl" />
+          <span className="w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 transition-colors duration-150 group-hover:bg-[#2175D9]/[0.07] group-hover:border-[#2175D9]/25">
+            <qp.icon className="w-4 h-4 text-gray-500 transition-colors duration-150 group-hover:text-[#2175D9]" />
+          </span>
 
-          <div className="relative flex items-start justify-between gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 group-hover:border-transparent group-hover:shadow-sm transition-all duration-200">
-              <qp.icon className="w-4 h-4 text-gray-500 group-hover:text-white transition-colors duration-200" />
-            </div>
-            <div className="w-5 h-5 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 opacity-0 group-hover:opacity-100 transition-all duration-200 mt-0.5">
-              <svg className="w-2.5 h-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-          </div>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[13px] font-semibold text-gray-900 leading-snug truncate">{qp.label}</span>
+            <span className="block text-[11px] text-gray-500 leading-snug line-clamp-2">{qp.description}</span>
+          </span>
 
-          <div className="relative min-w-0">
-            <p className="text-sm font-semibold text-gray-900 mb-1 leading-snug">{qp.label}</p>
-            <p className="text-xs text-gray-400 leading-relaxed line-clamp-2">{qp.description}</p>
-          </div>
+          <ChevronRight className="w-3.5 h-3.5 text-gray-300 shrink-0 transition-colors duration-150 group-hover:text-[#2175D9]" />
         </button>
       ))}
     </div>
   );
 }
-
-

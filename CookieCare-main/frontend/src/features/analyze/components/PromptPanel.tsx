@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { BookOpen, HelpCircle, ChevronRight } from "lucide-react";
+import { StepBadge } from "../../../shared/components/StepBadge";
 import { PromptLibraryItem } from "../hooks/useAnalyzeData";
 import PromptLibraryModal from "./PromptLibraryModal";
 import QuestionLibraryModal from "./QuestionLibraryModal";
@@ -40,12 +41,10 @@ export default function PromptPanel({
         {/* Section heading */}
         <div className="mb-5">
           <div className="flex items-center gap-2.5 mb-1">
-            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#2175D9] text-white text-[10px] font-semibold shrink-0">
-              2
-            </span>
+            <StepBadge>2</StepBadge>
             <h3 className="text-[13px] font-semibold text-gray-800 tracking-tight">Write your prompt</h3>
           </div>
-          <p className="text-xs text-gray-400 ml-7 leading-relaxed">
+          <p className="text-xs text-gray-400 ml-[26px] leading-relaxed">
             Describe what you want the AI to analyze, or browse the libraries below.
           </p>
         </div>

@@ -1,5 +1,6 @@
 import React from "react";
 import { Play } from "lucide-react";
+import { StepBadge } from "../../../shared/components/StepBadge";
 import { DocumentMode, AnswerStyle } from "../types";
 
 interface AnalysisOptionsProps {
@@ -37,10 +38,10 @@ export default function AnalysisOptions({ documentMode, answerStyle, onSetDocume
       <div className="bg-white border border-gray-200 rounded-2xl p-7 shadow-sm">
         <div className="mb-5">
           <div className="flex items-center gap-2.5 mb-1">
-            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#2175D9] text-white text-[10px] font-semibold shrink-0">3</span>
+            <StepBadge>3</StepBadge>
             <h3 className="text-[13px] font-semibold text-gray-800 tracking-tight">Document mode</h3>
           </div>
-          <p className="text-xs text-gray-400 ml-7 leading-relaxed">Run the prompt across all documents together, or individually per file</p>
+          <p className="text-xs text-gray-400 ml-[26px] leading-relaxed">Run the prompt across all documents together, or individually per file</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <RadioCard selected={documentMode === "unified"} onClick={() => onSetDocumentMode("unified")}>
@@ -62,10 +63,10 @@ export default function AnalysisOptions({ documentMode, answerStyle, onSetDocume
       <div className="bg-white border border-gray-200 rounded-2xl p-7 shadow-sm">
         <div className="mb-5">
           <div className="flex items-center gap-2.5 mb-1">
-            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#2175D9] text-white text-[10px] font-semibold shrink-0">4</span>
+            <StepBadge>4</StepBadge>
             <h3 className="text-[13px] font-semibold text-gray-800 tracking-tight">Output format</h3>
           </div>
-          <p className="text-xs text-gray-400 ml-7 leading-relaxed">Choose how the AI structures its response</p>
+          <p className="text-xs text-gray-400 ml-[26px] leading-relaxed">Choose how the AI structures its response</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <RadioCard selected={answerStyle === "narrative"} onClick={() => onSetAnswerStyle("narrative")}>

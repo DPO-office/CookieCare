@@ -305,7 +305,7 @@ export function useAskAILawyer(authToken: string) {
     lawyerProgress,
     lawyerError, setLawyerError,
     isCopied,
-    openPopover,
+    openPopover, setOpenPopover,
     showSources, setShowSources,
     hasResult,
     submittedQuery,

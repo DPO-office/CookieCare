@@ -62,7 +62,7 @@ export default function ComposerBar({
   webDiscoveryUrlInput, setWebDiscoveryUrlInput, handleAddWebUrl, removeWebUrl,
 }: ComposerBarProps) {
   return (
-    <div className="shrink-0 bg-[#FAFAFB] px-10 pb-8 pt-3">
+    <div className="shrink-0 bg-[#FAFAFB] px-10 pb-5 pt-3">
       <div className="max-w-5xl mx-auto w-full relative" ref={composerRef}>
 
         {/* Composer box */}
@@ -130,27 +130,30 @@ export default function ComposerBar({
               </button>
             </div>
 
-            {/* Send button */}
-            <button
-              id="legal-prompt-submit"
-              type="button"
-              onClick={() => handleQueryDispatch()}
-              disabled={!searchQuery.trim() || isStreaming}
-              className="w-9 h-9 rounded-xl flex items-center justify-center active:scale-95 transition-all duration-150 disabled:opacity-30 disabled:pointer-events-none cursor-pointer shadow-sm shrink-0" style={{ background: "#2175D9" }}
-            >
-              {isStreaming
-                ? <RefreshCw className="w-4 h-4 animate-spin text-white" />
-                : <ArrowUp className="w-4 h-4 text-white" />}
-            </button>
+            <div className="flex items-center gap-3">
+
+              {/* Keyboard hint - inline so it costs no vertical space */}
+              <span className="hidden sm:block text-[10.5px] text-gray-400">
+                <kbd className="font-mono text-[10px] text-gray-500">Enter</kbd> to send
+                <span className="text-gray-300"> · </span>
+                <kbd className="font-mono text-[10px] text-gray-500">Shift+Enter</kbd> for a new line
+              </span>
+
+              {/* Send button */}
+              <button
+                id="legal-prompt-submit"
+                type="button"
+                onClick={() => handleQueryDispatch()}
+                disabled={!searchQuery.trim() || isStreaming}
+                className="w-9 h-9 rounded-xl flex items-center justify-center active:scale-95 transition-all duration-150 disabled:opacity-30 disabled:pointer-events-none cursor-pointer shadow-sm shrink-0" style={{ background: "#2175D9" }}
+              >
+                {isStreaming
+                  ? <RefreshCw className="w-4 h-4 animate-spin text-white" />
+                  : <ArrowUp className="w-4 h-4 text-white" />}
+              </button>
+            </div>
           </div>
         </div>
-
-        {/* Hint */}
-        <p className="text-center text-[10px] text-gray-400 mt-2.5">
-          <kbd className="bg-white border border-gray-200 rounded px-1 py-0.5 font-mono text-[9px]">Enter</kbd> to send
-          &nbsp;-&nbsp;
-          <kbd className="bg-white border border-gray-200 rounded px-1 py-0.5 font-mono text-[9px]">Shift+Enter</kbd> for new line
-        </p>
 
         <Popovers
           openPopover={openPopover}

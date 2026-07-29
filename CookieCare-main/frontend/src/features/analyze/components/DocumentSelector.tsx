@@ -1,5 +1,6 @@
 import React from "react";
 import { Folder, ChevronDown, ChevronUp, FileText, FileCode, Plus, FolderPlus } from "lucide-react";
+import { StepBadge } from "../../../shared/components/StepBadge";
 import { CustomFolder, SavedDraft } from "../types";
 
 interface DocumentSelectorProps {
@@ -39,10 +40,10 @@ export default function DocumentSelector({
     <div className="bg-white border border-gray-200 rounded-2xl p-7 shadow-sm">
       <div className="mb-5">
         <div className="flex items-center gap-2.5 mb-1">
-          <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#2175D9] text-white text-[10px] font-semibold shrink-0">1</span>
+          <StepBadge>1</StepBadge>
           <h3 className="text-[13px] font-semibold text-gray-800 tracking-tight">Select document folders</h3>
         </div>
-        <p className="text-xs text-gray-400 ml-7 leading-relaxed">Choose the folders to load into the analysis context</p>
+        <p className="text-xs text-gray-400 ml-[26px] leading-relaxed">Choose the folders to load into the analysis context</p>
       </div>
 
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4">

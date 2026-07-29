@@ -320,6 +320,7 @@
 // Proactive mode- simplified UI that maps to GeneratorPanel prop names
 import React from "react";
 import { HelpCircle, ChevronDown, ArrowRight } from "lucide-react";
+import { StepBadge } from "../../../shared/components/StepBadge";
 import { DraftDepth } from "../types";
 
 interface GeneratorAdvancedProactiveProps {
@@ -361,14 +362,14 @@ export default function GeneratorAdvancedProactive({
 
       {/* 1. Provide draft input */}
       <div className="bg-white border border-gray-200 rounded-[18px] p-6 shadow-xs space-y-5">
-        <div className="flex items-start gap-3.5">
-          <div className="w-[14px] h-[14px] rounded-full text-white flex items-center justify-center text-[9px] font-bold shrink-0 mt-1" style={{ background: "#2175D9" }}>1</div>
+        <div className="flex items-center gap-3.5">
+          <StepBadge size="md">1</StepBadge>
           <div className="flex items-center gap-2.5">
             <h3 className="text-[16px] font-semibold text-gray-900">Provide draft input <span className="text-red-400">*</span></h3>
             <HelpCircle className="w-4 h-4 text-gray-400" />
           </div>
         </div>
-        <p className="text-[14px] text-gray-600 ml-[26px] leading-relaxed">Define what you want to create and provide the necessary context.</p>
+        <p className="text-[14px] text-gray-600 ml-8 leading-relaxed">Define what you want to create and provide the necessary context.</p>
         <textarea
           rows={4}
           value={referenceInstructions}
@@ -380,14 +381,14 @@ export default function GeneratorAdvancedProactive({
 
       {/* 2. Set drafting instructions */}
       <div className="bg-white border border-gray-200 rounded-[18px] p-6 shadow-xs space-y-5">
-        <div className="flex items-start gap-3.5">
-          <div className="w-[14px] h-[14px] rounded-full text-white flex items-center justify-center text-[9px] font-bold shrink-0 mt-1" style={{ background: "#2175D9" }}>2</div>
+        <div className="flex items-center gap-3.5">
+          <StepBadge size="md">2</StepBadge>
           <div className="flex items-center gap-2.5">
             <h3 className="text-[16px] font-semibold text-gray-900">Set drafting instructions</h3>
             <HelpCircle className="w-4 h-4 text-gray-400" />
           </div>
         </div>
-        <p className="text-[14px] text-gray-600 ml-[26px] leading-relaxed">Set tone, structure, and any specific requirements.</p>
+        <p className="text-[14px] text-gray-600 ml-8 leading-relaxed">Set tone, structure, and any specific requirements.</p>
         <textarea
           rows={4}
           value={aiRulebookPrompt}
@@ -399,8 +400,8 @@ export default function GeneratorAdvancedProactive({
 
       {/* 3. Output detail level */}
       <div className="bg-white border border-gray-200 rounded-[18px] p-6 shadow-xs space-y-5 max-w-sm">
-        <div className="flex items-start gap-3.5">
-          <div className="w-[14px] h-[14px] rounded-full text-white flex items-center justify-center text-[9px] font-bold shrink-0 mt-1" style={{ background: "#2175D9" }}>3</div>
+        <div className="flex items-center gap-3.5">
+          <StepBadge size="md">3</StepBadge>
           <h3 className="text-[16px] font-semibold text-gray-900">Output detail level</h3>
         </div>
         <div className="relative">
