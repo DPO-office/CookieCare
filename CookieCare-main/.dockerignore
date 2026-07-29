@@ -8,5 +8,6 @@ backend/server.js
 .vscode
 .env
 .env.*
+!frontend/.env.production
 npm-debug.log
 yarn-error.log

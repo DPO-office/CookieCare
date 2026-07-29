@@ -10,6 +10,7 @@ lexify_migration.sql
 .env*
 !.env.example
 .env
+!frontend/.env.production
 
 
 /IMPLEMENTATION.md

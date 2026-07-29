@@ -16,6 +16,11 @@ RUN npm ci --no-audit --no-fund
 
 COPY . .
 
+# Frontend Identity Platform config comes from frontend/.env.production
+# (copied above). Do not set empty VITE_* ENV defaults here — Vite gives
+# process.env higher priority than .env files, so blank ENVs would hide
+# the Google button on Cloud Build.
+
 RUN npm run build
 
 RUN npm prune --omit=dev
