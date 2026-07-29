@@ -350,7 +350,7 @@ export function useLibrary(authToken: string, onRefresh: () => void) {
 
   /**
    * Structured vault ingest for rulebook / templates / clauses tabs.
-   * Maps UI tabs → backend upload category.
+   * Maps UI tabs · backend upload category.
    * - templates: contractType required
    * - clauses: contractType optional (defaults to General)
    * - rulebook/playbook: company-wide — no contractType

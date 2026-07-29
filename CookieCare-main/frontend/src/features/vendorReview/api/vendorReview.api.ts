@@ -2,8 +2,8 @@
  * Vendor Review API layer.
  *
  * Mirrors the DPA Reviewer pattern exactly:
- *   1. POST /api/vendor-review  → job_id
- *   2. SSE  /api/jobs/sse       → job_update events
+ *   1. POST /api/vendor-review  · job_id
+ *   2. SSE  /api/jobs/sse       · job_update events
  */
 
 import { apiUrl } from "../../../config";

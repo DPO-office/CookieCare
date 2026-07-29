@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Upload, FileText, Sparkles, ArrowRight, AlertCircle } from "lucide-react";
 import { FEATURE_CARDS } from "../constants";
 
@@ -46,13 +46,13 @@ export function DPAUploadState({ onFileSelected, uploadError }: DPAUploadStatePr
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
           <div className="max-w-xl">
         
-            <h1 className="text-[26px] font-bold tracking-tight leading-tight mb-2.5" style={{ color: "#1D6FD8" }}>
+            <h1 className="text-[26px] font-bold tracking-tight leading-tight mb-2.5" style={{ color: "#2175D9" }}>
               Data Processing Agreement Reviewer
             </h1>
             <p className="text-[13.5px] text-gray-500 leading-relaxed">
               Upload your DPA for a structured review covering GDPR compliance,
               processor obligations, security requirements, contractual risks,
-              and missing clauses — with a comprehensive compliance report on completion.
+              and missing clauses · with a comprehensive compliance report on completion.
             </p>
           </div>
         </div>
@@ -75,12 +75,12 @@ export function DPAUploadState({ onFileSelected, uploadError }: DPAUploadStatePr
             onClick={() => fileRef.current?.click()}
             className={`relative rounded-[20px] p-10 text-center cursor-pointer transition-all duration-250 group overflow-hidden
               ${dragging
-                ? "border-2 border-dashed border-gray-500 bg-gray-50 scale-[1.008] shadow-md"
-                : "border-2 border-dashed border-gray-200 hover:border-gray-300 hover:shadow-sm"
+                ? "border-2 border-dashed border-[#2175D9] bg-blue-50 scale-[1.008] shadow-md"
+                : "border-2 border-dashed border-gray-200 hover:border-[#2175D9] hover:shadow-sm"
               }`}
             style={{
               background: dragging
-                ? "linear-gradient(135deg,#F9FAFB 0%,#F3F4F6 100%)"
+                ? "linear-gradient(135deg,#EBF4FD 0%,#DBEAFE 100%)"
                 : "linear-gradient(135deg,#FFFFFF 0%,#FAFAFA 60%,#F5F5F5 100%)",
             }}
           >
@@ -90,7 +90,7 @@ export function DPAUploadState({ onFileSelected, uploadError }: DPAUploadStatePr
               }`}
               style={{
                 background:
-                  "radial-gradient(ellipse at 50% 40%,rgba(0,0,0,0.03) 0%,transparent 70%)",
+                  "radial-gradient(ellipse at 50% 40%,rgba(33,117,217,0.06) 0%,transparent 70%)",
               }}
             />
             <input
@@ -103,8 +103,8 @@ export function DPAUploadState({ onFileSelected, uploadError }: DPAUploadStatePr
             <div
               className={`relative w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-all duration-250 shadow-xs
                 ${dragging
-                  ? "bg-[#1D6FD8] text-white scale-110 shadow-md"
-                  : "bg-white text-gray-500 border border-gray-200 group-hover:text-white group-hover:shadow-sm group-hover:scale-105"
+                  ? "bg-[#2175D9] text-white scale-110 shadow-md"
+                  : "bg-white text-gray-500 border border-gray-200 group-hover:bg-[#2175D9] group-hover:border-[#2175D9] group-hover:text-white group-hover:shadow-sm group-hover:scale-105"
                 }`}
             >
               <Upload className="w-6 h-6" />

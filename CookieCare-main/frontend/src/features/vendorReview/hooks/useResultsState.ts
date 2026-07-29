@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+﻿import { useState, useCallback } from "react";
 import type { VendorFinding, VendorReviewResult } from "../types";
 import { MOCK_FINDINGS, VENDOR_INFO, VENDOR_RISK_SCORE, PRIVACY_SCORE, SECURITY_SCORE } from "../constants";
 import { buildAssessmentSummary, filterFindings } from "../utils";
@@ -52,7 +52,7 @@ export function useResultsState({ reviewResult }: UseResultsStateOptions): UseRe
 
   const isRealData = reviewResult !== null;
 
-  // ── Resolve findings ─────────────────────────────────────────────────────
+  // ·· Resolve findings ·····················································
   const rawFindings: VendorFinding[] = isRealData
     ? normaliseFindings(reviewResult!.findings)
     : MOCK_FINDINGS;
@@ -64,7 +64,7 @@ export function useResultsState({ reviewResult }: UseResultsStateOptions): UseRe
 
   const filteredFindings = filterFindings(rawFindings, findingFilter);
 
-  // ── Resolve scores ────────────────────────────────────────────────────────
+  // ·· Resolve scores ························································
   const overallScore  = isRealData ? reviewResult!.overallScore : VENDOR_RISK_SCORE;
   // Derive privacy and security scores from scoreBreakdown if real data
   const privacyScore  = isRealData
@@ -74,7 +74,7 @@ export function useResultsState({ reviewResult }: UseResultsStateOptions): UseRe
     ? reviewResult!.scoreBreakdown.securityPosture
     : SECURITY_SCORE;
 
-  // ── Resolve vendor info ───────────────────────────────────────────────────
+  // ·· Resolve vendor info ···················································
   const vi = isRealData ? reviewResult!.vendorInfo : undefined;
   const vendorName        = vi?.name         ?? VENDOR_INFO.name;
   const vendorIndustry    = vi?.industry     ?? VENDOR_INFO.industry;
@@ -82,17 +82,17 @@ export function useResultsState({ reviewResult }: UseResultsStateOptions): UseRe
   const vendorDataRegions = vi?.dataRegions  ?? VENDOR_INFO.dataRegions;
   const vendorServices    = vi?.primaryServices ?? VENDOR_INFO.primaryServices;
 
-  // ── Copy summary ──────────────────────────────────────────────────────────
+  // ·· Copy summary ··························································
   const handleCopy = useCallback(() => {
     const summary = isRealData
       ? [
           "Vendor Assessment Report",
           `Vendor: ${vendorName}`,
           `Risk Score: ${overallScore}/100`,
-          `Privacy: ${privacyScore}/100 · Security: ${securityScore}/100`,
+          `Privacy: ${privacyScore}/100 | Security: ${securityScore}/100`,
           `Risk Level: ${reviewResult!.overallRisk.toUpperCase()}`,
           `Summary: ${reviewResult!.summary}`,
-          `Passed: ${passedCount} · Warnings: ${warningCount} · Missing: ${missingCount} · High Risk: ${highRiskCount}`,
+          `Passed: ${passedCount} | Warnings: ${warningCount} | Missing: ${missingCount} | High Risk: ${highRiskCount}`,
         ].join("\n")
       : buildAssessmentSummary(MOCK_FINDINGS);
 

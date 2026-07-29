@@ -18,7 +18,7 @@ export const approveUser = async (req: Request, res: Response) => {
 
     await withTransaction(currentUserId, currentUserRole, async (client) => {
       await client.query(
-        "UPDATE users SET status = $1, role = $2, approved_at = CASE WHEN $1 = 'APPROVED' THEN CURRENT_TIMESTAMP ELSE approved_at END WHERE id = $3",
+        "UPDATE users SET status = $1::varchar, role = $2::varchar, approved_at = CASE WHEN $1::varchar = 'APPROVED' THEN CURRENT_TIMESTAMP ELSE approved_at END WHERE id = $3",
         [finalStatus, finalRole, userId]
       );
     });

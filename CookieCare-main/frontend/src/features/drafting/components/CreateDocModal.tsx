@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 
 interface CreateDocModalProps {
   onCancel: () => void;
@@ -62,7 +62,7 @@ export default function CreateDocModal({ onCancel, onSubmit }: CreateDocModalPro
             <button
               id="create-doc-submit-btn"
               type="submit"
-              className="flex-1 -90 transition shadow-xs cursor-pointer" style={{ background: "#1D6FD8" }}
+              className="flex-1 -90 transition shadow-xs cursor-pointer" style={{ background: "#2175D9" }}
             >
               Load Template
             </button>

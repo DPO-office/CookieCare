@@ -168,6 +168,7 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
   return (
     <div className="flex-1 flex flex-col h-full bg-[#F7F8FA] overflow-hidden font-sans">
       <div className="flex-1 flex flex-col overflow-y-auto px-8 py-8">
+        <div className="w-full max-w-5xl mx-auto">
 
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
@@ -726,6 +727,8 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
         </div>
       )}
 
+        </div>
+
       {/* MODAL: VAULT INGEST (rulebook / templates / clauses) */}
       {isVaultIngestOpen && isVaultIngestTab && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
@@ -872,6 +875,8 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
     </div>
   );
 }
+
+
 
 
 

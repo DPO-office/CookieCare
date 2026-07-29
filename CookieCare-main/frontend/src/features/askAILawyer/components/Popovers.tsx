@@ -192,10 +192,10 @@ export default function Popovers({
               <div className="p-3 space-y-2">
                 {/* <form onSubmit={handleAddFolder} className="flex gap-1.5">
                   <input type="text" value={newFolderName} onChange={(e) => setNewFolderName(e.target.value)}
-                    placeholder="Create new folder…"
+                    placeholder="Create new folder·"
                     className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-gray-100 focus:border-gray-300 transition placeholder:text-gray-400" />
                   <button type="submit"
-                    className="w-7 h-7 rounded-lg flex items-center justify-center text-white transition shrink-0 cursor-pointer" style={{ background: "#1D6FD8" }}>
+                    className="w-7 h-7 rounded-lg flex items-center justify-center text-white transition shrink-0 cursor-pointer" style={{ background: "#2175D9" }}>
                     <Plus className="w-3 h-3" />
                   </button>
                 </form> */}
@@ -265,10 +265,10 @@ export default function Popovers({
               <div className="p-3 space-y-2">
                 <form onSubmit={handleAddWebUrl} className="flex gap-1.5">
                   <input type="url" value={webDiscoveryUrlInput} onChange={(e) => setWebDiscoveryUrlInput(e.target.value)}
-                    placeholder="https://gazette.gov…"
+                    placeholder="https://gazette.gov·"
                     className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-gray-100 focus:border-gray-300 transition placeholder:text-gray-400" />
                   <button type="submit"
-                    className="w-7 h-7 rounded-lg flex items-center justify-center text-white transition shrink-0 cursor-pointer" style={{ background: "#1D6FD8" }}>
+                    className="w-7 h-7 rounded-lg flex items-center justify-center text-white transition shrink-0 cursor-pointer" style={{ background: "#2175D9" }}>
                     <Plus className="w-3 h-3" />
                   </button>
                 </form>
@@ -308,7 +308,7 @@ export default function Popovers({
                     onClick={() => { setSelectedFormat(fmt); setOpenPopover(null); }}
                     className={`w-full flex items-start gap-3 px-3 py-2.5 rounded-xl border transition-all text-left cursor-pointer ${
                       selectedFormat === fmt
-                        ? "border-transparent bg-[#1D6FD8] text-white"
+                        ? "border-transparent bg-[#2175D9] text-white"
                         : "bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                     }`}>
                     <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${

@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import {
   Gavel, Folder, ArrowUp, RefreshCw, ChevronDown,
 } from "lucide-react";
@@ -63,7 +63,7 @@ export default function ComposerBar({
 }: ComposerBarProps) {
   return (
     <div className="shrink-0 bg-[#FAFAFB] px-10 pb-8 pt-3">
-      <div className="max-w-3xl mx-auto w-full relative" ref={composerRef}>
+      <div className="max-w-5xl mx-auto w-full relative" ref={composerRef}>
 
         {/* Composer box */}
         <div className="relative bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md focus-within:shadow-md focus-within:border-gray-300 transition-all duration-200 overflow-visible">
@@ -76,7 +76,7 @@ export default function ComposerBar({
             onChange={(e) => { setSearchQuery(e.target.value); autoResizeTextarea(); }}
             onKeyDown={handleKeyDown}
             disabled={isStreaming}
-            placeholder="Ask a legal question — GDPR compliance, contract review, tax treaties…"
+            placeholder="Ask a legal question - GDPR compliance, contract review, tax treaties..."
             rows={1}
             className="w-full bg-transparent text-[15px] py-4 pl-5 pr-5 focus:outline-none placeholder:text-gray-400 text-gray-900 resize-none leading-relaxed"
             style={{ minHeight: "60px", maxHeight: "180px" }}
@@ -98,7 +98,7 @@ export default function ComposerBar({
                     ? "text-white border-transparent shadow-sm"
                     : "bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100 hover:border-gray-300 hover:text-gray-700"
                 }`}
-                style={openPopover === "jurisdictions" || selectedJurisdictions.length > 0 ? { background: "#1D6FD8" } : {}}
+                style={openPopover === "jurisdictions" || selectedJurisdictions.length > 0 ? { background: "#2175D9" } : {}}
               >
                 <Gavel className="w-3 h-3" />
                 <span>
@@ -118,7 +118,7 @@ export default function ComposerBar({
                     ? "text-white border-transparent shadow-sm"
                     : "bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100 hover:border-gray-300 hover:text-gray-700"
                 }`}
-                style={openPopover === "kb" || selectedKBCount > 0 ? { background: "#1D6FD8" } : {}}
+                style={openPopover === "kb" || selectedKBCount > 0 ? { background: "#2175D9" } : {}}
               >
                 <Folder className="w-3 h-3" />
                 <span>
@@ -136,11 +136,11 @@ export default function ComposerBar({
               type="button"
               onClick={() => handleQueryDispatch()}
               disabled={!searchQuery.trim() || isStreaming}
-              className="w-9 h-9 rounded-xl flex items-center justify-center active:scale-95 transition-all duration-150 disabled:opacity-30 disabled:pointer-events-none cursor-pointer shadow-sm shrink-0" style={{ background: "#1D6FD8" }}
+              className="w-9 h-9 rounded-xl flex items-center justify-center active:scale-95 transition-all duration-150 disabled:opacity-30 disabled:pointer-events-none cursor-pointer shadow-sm shrink-0" style={{ background: "#2175D9" }}
             >
               {isStreaming
-                ? <RefreshCw className="w-4 h-4 animate-spin" />
-                : <ArrowUp className="w-4 h-4" />}
+                ? <RefreshCw className="w-4 h-4 animate-spin text-white" />
+                : <ArrowUp className="w-4 h-4 text-white" />}
             </button>
           </div>
         </div>
@@ -148,7 +148,7 @@ export default function ComposerBar({
         {/* Hint */}
         <p className="text-center text-[10px] text-gray-400 mt-2.5">
           <kbd className="bg-white border border-gray-200 rounded px-1 py-0.5 font-mono text-[9px]">Enter</kbd> to send
-          &nbsp;·&nbsp;
+          &nbsp;-&nbsp;
           <kbd className="bg-white border border-gray-200 rounded px-1 py-0.5 font-mono text-[9px]">Shift+Enter</kbd> for new line
         </p>
 

@@ -15,7 +15,7 @@ function nowFormatted(): string {
   });
 }
 
-// ─── DPA Review ───────────────────────────────────────────────────────────────
+// ··· DPA Review ·······························································
 
 export function adaptDPAResult(
   result: DPAReviewResult,
@@ -74,7 +74,7 @@ export function adaptDPAResult(
   };
 }
 
-// ─── Vendor Review ────────────────────────────────────────────────────────────
+// ··· Vendor Review ····························································
 
 export function adaptVendorResult(
   result: VendorReviewResult,
@@ -126,7 +126,7 @@ export function adaptVendorResult(
   };
 }
 
-// ─── AI Ethics ────────────────────────────────────────────────────────────────
+// ··· AI Ethics ································································
 
 export function adaptEthicsResult(
   result: AIEthicsReviewResult,
@@ -187,7 +187,7 @@ export function adaptEthicsResult(
   };
 }
 
-// ─── Vulnerability Scanner ────────────────────────────────────────────────────
+// ··· Vulnerability Scanner ····················································
 
 import type { ScanResult as VulnScanResult, AiSecurityReport } from "../../features/vulnerabilityScanner/types";
 
@@ -251,7 +251,7 @@ export function adaptVulnResult(
   };
 }
 
-// ─── Cookie Scanner ───────────────────────────────────────────────────────────
+// ··· Cookie Scanner ···························································
 
 import type { CookieScanResult } from "../../shared/types";
 

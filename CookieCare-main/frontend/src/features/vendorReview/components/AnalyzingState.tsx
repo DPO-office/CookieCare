@@ -45,7 +45,7 @@ export function AnalyzingState({ fileNames, steps }: AnalyzingStateProps) {
           <div className="h-[3px] bg-gray-100 relative overflow-hidden">
             <div
               className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out"
-              style={{ background: "#1D6FD8", width: `${progress}%` }}
+              style={{ background: "#2175D9", width: `${progress}%` }}
             />
             <div
               className="absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-white/60 to-transparent"
@@ -90,7 +90,7 @@ export function AnalyzingState({ fileNames, steps }: AnalyzingStateProps) {
                 >
                   <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-all duration-300
                     ${step.status === "done"    ? "bg-emerald-100 border border-emerald-200" : ""}
-                    ${step.status === "active"  ? "bg-[#1D6FD8] text-white" : ""}
+                    ${step.status === "active"  ? "bg-[#2175D9] text-white" : ""}
                     ${step.status === "pending" ? "bg-gray-100 border border-gray-200" : ""}`}
                   >
                     {step.status === "done"    && <Check className="w-2.5 h-2.5 text-emerald-600" />}
@@ -117,7 +117,7 @@ export function AnalyzingState({ fileNames, steps }: AnalyzingStateProps) {
           </div>
           <div>
             <p className="text-[12px] font-semibold text-gray-700">Keep this tab open until analysis is complete</p>
-            <p className="text-[11px] text-gray-400 mt-0.5">This usually takes 15–60 seconds depending on document size</p>
+            <p className="text-[11px] text-gray-400 mt-0.5">This usually takes 15-60 seconds depending on document size</p>
           </div>
         </div>
       </div>
@@ -133,6 +133,3 @@ export function AnalyzingState({ fileNames, steps }: AnalyzingStateProps) {
     </div>
   );
 }
-
-
-

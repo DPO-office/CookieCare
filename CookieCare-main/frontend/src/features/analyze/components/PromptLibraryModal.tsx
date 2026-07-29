@@ -1,4 +1,4 @@
-﻿
+
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PromptCategory, DEFAULT_PROMPT_CATEGORIES } from "../constants";
@@ -18,7 +18,7 @@ interface PromptLibraryModalProps {
 
 /**
  * Return a deep copy of the static category definitions.
- * API items are intentionally ignored here — the static DEFAULT_PROMPT_CATEGORIES
+ * API items are intentionally ignored here · the static DEFAULT_PROMPT_CATEGORIES
  * already contains the full, correctly categorised prompt library.
  * Merging flat API items into a single category caused every prompt to appear
  * under General Analysis instead of its assigned category.
@@ -58,7 +58,7 @@ function CategoryRail({ categories, activeCategoryId, onSelect, matchCounts }: C
             onClick={() => onSelect(cat.id)}
             className={`w-full text-left px-3 py-2 rounded-lg text-[13px] flex items-center justify-between gap-2 transition-colors ${
               isActive
-                ? "bg-[#1D6FD8] text-white font-medium"
+                ? "bg-[#2175D9] text-white font-medium"
                 : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
             }`}
           >
@@ -107,7 +107,7 @@ function PromptList({ prompts, selectedIndex, searchQuery, onSelect }: PromptLis
   if (prompts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center px-6 py-12">
-        <span className="text-3xl mb-3">📋</span>
+        <span className="text-3xl mb-3">👆</span>
         <p className="text-[13px] font-medium text-gray-500">No prompts found</p>
         <p className="text-[11px] text-gray-400 mt-1">
           {searchQuery ? "Try a different search term." : "Prompts will appear here once added."}
@@ -273,7 +273,7 @@ export default function PromptLibraryModal({
         className="bg-white rounded-2xl shadow-2xl flex flex-col w-full max-w-5xl"
         style={{ height: "min(80vh, 680px)" }}
       >
-        {/* ── Header ── */}
+        {/* -- Header -- */}
         <div className="flex items-center gap-4 px-6 py-4 border-b border-gray-100 shrink-0">
           <div className="flex-1 min-w-0">
             <h2 className="text-[16px] font-semibold text-gray-900 tracking-tight">Prompt Library</h2>
@@ -296,7 +296,7 @@ export default function PromptLibraryModal({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search prompts…"
+              placeholder="Search prompts·"
               className="w-full pl-9 pr-4 py-2 text-[13px] border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300 placeholder:text-gray-400"
             />
             {searchQuery && (
@@ -305,7 +305,7 @@ export default function PromptLibraryModal({
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 aria-label="Clear search"
               >
-                ×
+                ·
               </button>
             )}
           </div>
@@ -323,9 +323,9 @@ export default function PromptLibraryModal({
           </button>
         </div>
 
-        {/* ── Body (3-panel) ── */}
+        {/* -- Body (3-panel) -- */}
         <div className="flex flex-1 min-h-0">
-          {/* Left rail – categories */}
+          {/* Left rail · categories */}
           <aside className="w-52 shrink-0 border-r border-gray-100 bg-gray-50/60 p-3 overflow-y-auto">
             <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-3 mb-2">
               Categories
@@ -338,7 +338,7 @@ export default function PromptLibraryModal({
             />
           </aside>
 
-          {/* Centre – prompt list */}
+          {/* Centre · prompt list */}
           <main className="flex-1 min-w-0 border-r border-gray-100 flex flex-col">
             <div className="px-4 py-2.5 border-b border-gray-100 shrink-0">
               <p className="text-[11px] text-gray-400">
@@ -357,13 +357,13 @@ export default function PromptLibraryModal({
             </div>
           </main>
 
-          {/* Right – preview */}
+          {/* Right · preview */}
           <aside className="w-72 shrink-0 bg-gray-50/40">
             <PreviewPane prompt={selectedPrompt} />
           </aside>
         </div>
 
-        {/* ── Footer ── */}
+        {/* -- Footer -- */}
         <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 shrink-0 bg-gray-50/50 rounded-b-2xl">
           <p className="text-[12px] text-gray-400">
             {selectedPrompt ? `Selected: ${selectedPrompt.title}` : "No prompt selected"}
@@ -378,7 +378,7 @@ export default function PromptLibraryModal({
             <button
               onClick={handleApply}
               disabled={!selectedPrompt}
-              className="px-5 py-2 text-[13px] font-semibold text-white rounded-lg hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors" style={{ background: "#1D6FD8" }}
+              className="px-5 py-2 text-[13px] font-semibold text-white rounded-lg hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors" style={{ background: "#2175D9" }}
             >
               Apply Prompt
             </button>

@@ -7,7 +7,7 @@ interface UseAIEthicsAnalysisOptions {
   authToken: string;
 }
 
-// ─── Progress → step index mapping ───────────────────────────────────────────
+// ··· Progress · step index mapping ···········································
 // Each threshold aligns with the backend's updateJobProgress() calls.
 // Steps: 0=receive 1=extract 2=scan 3=governance 4=intelligence 5=knowledge
 //        6=ai-governance 7=transparency 8=fairness 9=accountability
@@ -33,7 +33,7 @@ function progressToStepIndex(progress: number): number {
   return ANALYSIS_STEPS.length;  // All done
 }
 
-// ─── Hook ─────────────────────────────────────────────────────────────────────
+// ··· Hook ·····································································
 
 export function useAIEthicsAnalysis({ authToken }: UseAIEthicsAnalysisOptions) {
   const [appState,     setAppState]     = useState<AppState>("upload");
@@ -77,7 +77,7 @@ export function useAIEthicsAnalysis({ authToken }: UseAIEthicsAnalysisOptions) {
       setSteps(ANALYSIS_STEPS.map((s) => ({ ...s, status: "pending" as const })));
       setAppState("analyzing");
 
-      // ── 1. Submit files + URL, get job_id ───────────────────────────────
+      // ·· 1. Submit files + URL, get job_id ·······························
       let jobId: string;
       try {
         const res = await submitAIEthicsReview(files, authToken, url);
@@ -89,7 +89,7 @@ export function useAIEthicsAnalysis({ authToken }: UseAIEthicsAnalysisOptions) {
         return;
       }
 
-      // ── 2. Subscribe to SSE progress ────────────────────────────────────
+      // ·· 2. Subscribe to SSE progress ····································
       const es = createJobSSE(authToken);
       esRef.current = es;
 

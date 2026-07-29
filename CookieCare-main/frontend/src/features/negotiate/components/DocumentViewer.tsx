@@ -40,7 +40,7 @@ export default function DocumentViewer({
     <div className="flex-1 min-w-0 overflow-y-auto bg-[#FAFAFB]">
       <div className="max-w-[820px] mx-auto px-10 py-8">
 
-        {/* ── Document body card ──────────────────────────────────── */}
+        {/* ·· Document body card ···································· */}
         <div className="relative bg-white border border-gray-200 rounded-2xl shadow-sm px-12 py-10 min-h-[540px]">
           <AiProgressOverlay
             visible={evaluating || !!evaluationError}
@@ -70,11 +70,11 @@ export default function DocumentViewer({
         {/* Hint */}
         {clauseCnt > 0 && !evaluating && (
           <p className="text-[11.5px] text-gray-400 mt-3 text-center">
-            Click a highlighted clause in the document to review the AI suggestion →
+            Click a highlighted clause in the document to review the AI suggestion ·
           </p>
         )}
 
-        {/* ── Pending DB redlines accordion ───────────────────────── */}
+        {/* ·· Pending DB redlines accordion ························· */}
         {pendingDbRedlines.length > 0 && (
           <div className="mt-5 border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm">
             <button
@@ -116,7 +116,7 @@ export default function DocumentViewer({
                         <button
                           onClick={() => onAcceptDbRedline(p.id)}
                           className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-lg text-white text-[12px] font-semibold hover:opacity-90 transition"
-                          style={{ background: "#1D6FD8" }}
+                          style={{ background: "#2175D9" }}
                         >
                           Accept
                         </button>

@@ -4,25 +4,10 @@ import { DraftRequestSchema, RefineRequestSchema } from "./schema.js";
 import { withTransaction } from "../../../utils/dbUtils.js";
 import { encryptData } from "../../../utils/crypto.js";
 import crypto from "crypto";
-import pdf from "pdf-parse-fork";
-import mammoth from "mammoth";
+import { extractText } from "../../../utils/extractText.js";
 
 async function extractTextFromFileBuffer(buffer: Buffer, mimeType: string): Promise<string> {
-    if (mimeType === "application/pdf") {
-        const data = await pdf(buffer);
-        return data.text;
-    }
-
-    if (mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
-        const data = await mammoth.extractRawText({ buffer });
-        return data.value;
-    }
-
-    if (mimeType.startsWith("text/")) {
-        return buffer.toString("utf-8");
-    }
-
-    return buffer.toString("utf-8").replace(/[^\x20-\x7E\r\n\t]/g, " ");
+    return extractText(buffer, mimeType);
 }
 
 export const draftRouteController = async (req: Request, res: Response): Promise<void> => {

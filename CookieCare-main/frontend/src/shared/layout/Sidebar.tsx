@@ -1,4 +1,5 @@
-﻿import { useState } from "react";
+import { useState } from "react";
+import { PRIMARY_BRAND, PRIMARY_BRAND_LIGHT } from "../theme/colors";
 import type { ElementType, ReactNode } from "react";
 import {
   LayoutDashboard,
@@ -147,28 +148,27 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout }: Sid
     <div
       className="flex flex-col h-screen shrink-0 sticky top-0 transition-all duration-250 sidebar no-print"
       style={{
-        width: collapsed ? "64px" : "240px",
+        width: collapsed ? "64px" : "228px",
         background: "#FAFAFB",
         borderRight: "1px solid #E4E4E7",
       }}
     >
       {/* Logo */}
-      <div className={`flex items-center pt-6 pb-5 ${collapsed ? "justify-center px-3" : "justify-between px-4"}`}>
+      <div className={`flex items-center pt-5 pb-4 ${collapsed ? "justify-center px-3" : "justify-between px-4"}`}>
         {!collapsed && (
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-sm" style={{ background: "#EBF2FD" }}>
-              <ShieldCheck className="w-4 h-4" style={{ color: "#1D6FD8" }} />
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm" style={{ background: "#EBF4FD" }}>
+              <ShieldCheck className="w-[18px] h-[18px]" style={{ color: "#2175D9" }} />
             </div>
             <div className="leading-none min-w-0">
-              <span className="block font-bold text-[15px] tracking-tight truncate" style={{ color: "#1D6FD8" }}>randtrust</span>
-              
+              <span className="block font-bold text-[16px] tracking-tight truncate" style={{ color: "#2175D9" }}>randtrust</span>
             </div>
           </div>
         )}
 
         {collapsed && (
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center shadow-sm" style={{ background: "#EBF2FD" }}>
-            <ShieldCheck className="w-3.5 h-3.5" style={{ color: "#1D6FD8" }} />
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-sm" style={{ background: "#EBF4FD" }}>
+            <ShieldCheck className="w-4 h-4" style={{ color: "#2175D9" }} />
           </div>
         )}
 
@@ -207,9 +207,9 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout }: Sid
                 onClick={() => setActiveTab(entry.id)}
                 className={`group w-full flex items-center rounded-lg text-[13px] font-medium transition-all duration-150 outline-none
                   ${collapsed ? "justify-center px-0 py-2.5" : "gap-2.5 px-3 py-2"}
-                  ${active ? "bg-[#1D6FD8] text-white shadow-sm" : "text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-xs"}
+                  ${active ? "bg-[#2175D9] text-white shadow-sm" : "text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-xs"}
                 `}
-                style={active ? { background: "#1D6FD8" } : {}}
+                style={active ? { background: "#2175D9" } : {}}
               >
                 <Icon className={`w-4 h-4 shrink-0 ${active ? "text-white" : "text-gray-400 group-hover:text-gray-700"}`} />
                 {!collapsed && <span>{entry.label}</span>}
@@ -233,7 +233,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout }: Sid
                   className={`w-full flex justify-center items-center rounded-xl py-2.5 transition-all duration-150 outline-none
                     ${sectionActive ? "text-white" : "text-gray-400 hover:bg-gray-100 hover:text-gray-700"}
                   `}
-                  style={sectionActive ? { background: "#1D6FD8" } : {}}
+                  style={sectionActive ? { background: "#2175D9" } : {}}
                 >
                   <Icon className="w-4 h-4 shrink-0" />
                 </button>
@@ -287,9 +287,9 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout }: Sid
                         key={child.id}
                         onClick={() => setActiveTab(child.id)}
                         className={`group w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition-all duration-150 outline-none
-                          ${active ? "bg-[#1D6FD8] text-white shadow-sm" : "text-gray-500 hover:bg-white hover:text-gray-900 hover:shadow-xs"}
+                          ${active ? "bg-[#2175D9] text-white shadow-sm" : "text-gray-500 hover:bg-white hover:text-gray-900 hover:shadow-xs"}
                         `}
-                        style={active ? { background: "#1D6FD8" } : {}}
+                        style={active ? { background: "#2175D9" } : {}}
                       >
                         <ChildIcon className={`w-4 h-4 shrink-0 ${active ? "text-white" : "text-gray-400 group-hover:text-gray-600"}`} />
                         <span className="truncate">{child.label}</span>

@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 
 interface SaveDraftModalProps {
   draftNameInput: string;
@@ -57,7 +57,7 @@ export default function SaveDraftModal({
               id="save-draft-submit-btn"
               type="submit"
               disabled={!draftNameInput.trim()}
-              className="flex-1 -90 transition shadow-xs cursor-pointer disabled:opacity-40" style={{ background: "#1D6FD8" }}
+              className="flex-1 -90 transition shadow-xs cursor-pointer disabled:opacity-40" style={{ background: "#2175D9" }}
             >
               Save Draft
             </button>

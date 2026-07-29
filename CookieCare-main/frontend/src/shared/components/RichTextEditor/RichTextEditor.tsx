@@ -120,7 +120,7 @@ export default function RichTextEditor({
   }, [editor]);
 
   // Sync editor when parent `content` prop changes (e.g. doc switch or AI generation).
-  // Uses emitUpdate: false to avoid triggering the onChange → parent re-render loop.
+  // Uses emitUpdate: false to avoid triggering the onChange · parent re-render loop.
   useEffect(() => {
     if (!editor) return;
     const next = normalizeHtml(content);

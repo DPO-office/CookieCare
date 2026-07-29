@@ -51,7 +51,7 @@ export default function DocumentPicker({ documents, onConfirm }: DocumentPickerP
     [documents],
   );
 
-  /* ── Empty state ──────────────────────────────────────────────────────── */
+  /* ·· Empty state ························································ */
   if (documents.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center px-8 bg-[#FAFAFB]">
@@ -70,11 +70,11 @@ export default function DocumentPicker({ documents, onConfirm }: DocumentPickerP
     );
   }
 
-  /* ── Single-screen picker ─────────────────────────────────────────────── */
+  /* ·· Single-screen picker ··············································· */
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-[#FAFAFB]">
       <div className="flex-1 overflow-hidden px-10 pt-0 pb-8 flex flex-col min-h-0">
-        <div className="max-w-3xl w-full mx-auto flex flex-col min-h-0 flex-1">
+        <div className="max-w-5xl w-full mx-auto flex flex-col min-h-0 flex-1">
 
           {/* Search + Open button row */}
           <div className="flex items-center gap-3 mb-3 shrink-0">
@@ -97,7 +97,7 @@ export default function DocumentPicker({ documents, onConfirm }: DocumentPickerP
                   ? "text-white shadow-sm hover:opacity-90"
                   : "bg-gray-100 text-gray-400 cursor-not-allowed",
               ].join(" ")}
-              style={selected ? { background: "#1D6FD8" } : {}}
+              style={selected ? { background: "#2175D9" } : {}}
             >
               Open Negotiation
               <ChevronRight className="w-4 h-4" />
@@ -111,7 +111,7 @@ export default function DocumentPicker({ documents, onConfirm }: DocumentPickerP
               : `${documents.length} document${documents.length !== 1 ? "s" : ""} available`}
           </p>
 
-          {/* ── Scrollable list ────────────────────────────────────────── */}
+          {/* ·· Scrollable list ·········································· */}
           <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-0 flex-1">
 
             {/* Column headers */}
@@ -145,7 +145,7 @@ export default function DocumentPicker({ documents, onConfirm }: DocumentPickerP
                             "border-b border-gray-50 last:border-b-0",
                             isSelected ? "text-white" : "hover:bg-gray-50",
                           ].join(" ")}
-                          style={isSelected ? { background: "#1D6FD8" } : {}}
+                          style={isSelected ? { background: "#2175D9" } : {}}
                         >
                           {/* Name */}
                           <div className="flex items-center gap-3 min-w-0">

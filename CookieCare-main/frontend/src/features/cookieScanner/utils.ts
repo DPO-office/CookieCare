@@ -1,4 +1,4 @@
-import { SEVERITY_BADGE_CLASSES } from "./constants";
+﻿import { SEVERITY_BADGE_CLASSES } from "./constants";
 
 export function severityBadgeClass(severity: string): string {
   return SEVERITY_BADGE_CLASSES[severity] ?? SEVERITY_BADGE_CLASSES.LOW;

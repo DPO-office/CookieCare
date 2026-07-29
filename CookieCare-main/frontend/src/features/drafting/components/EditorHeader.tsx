@@ -98,7 +98,7 @@ export default function EditorHeader({
         {isSaving ? (
           <span className="inline-flex items-center gap-1.5 text-[11px] text-gray-400 mr-2">
             <Loader2 className="w-3 h-3 animate-spin" />
-            <span className="hidden sm:inline">Saving…</span>
+            <span className="hidden sm:inline">Saving...</span>
           </span>
         ) : savingMsg ? (
           <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 mr-2">
@@ -144,7 +144,7 @@ export default function EditorHeader({
           onClick={onSaveClick}
           disabled={isSaving || isFullySigned}
           title={isFullySigned ? "Document is sealed" : "Save draft"}
-          className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-lg -90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed ml-1 shadow-xs" style={{ background: "#1D6FD8" }}
+          className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-lg -90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed ml-1 shadow-xs" style={{ background: "#2175D9" }}
         >
           <Save className="w-3.5 h-3.5" />
           <span>{isFullySigned ? "Locked" : "Save"}</span>

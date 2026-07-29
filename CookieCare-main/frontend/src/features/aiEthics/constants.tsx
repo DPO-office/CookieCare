@@ -5,24 +5,24 @@ import {
 } from "lucide-react";
 import { AnalysisStep } from "./types";
 
-// ─── Analysis steps — must mirror backend progress stages ────────────────────
+// ··· Analysis steps — must mirror backend progress stages ····················
 // Backend emits progress at:
-//  5  → Receiving request
-// 10  → Extracting uploaded documents
-// 18  → Scanning website
-// 24  → Discovering AI governance pages
-// 34  → Extracting website intelligence
-// 40  → Searching knowledge base
-// 46  → Reviewing AI governance
-// 52  → Reviewing transparency
-// 58  → Reviewing fairness
-// 64  → Reviewing accountability
-// 68  → Reviewing privacy
-// 72  → Reviewing human oversight
-// 76  → Reviewing explainability
-// 85  → Calculating AI ethics score
-// 92  → Generating recommendations
-// 97  → Preparing report
+//  5  · Receiving request
+// 10  · Extracting uploaded documents
+// 18  · Scanning website
+// 24  · Discovering AI governance pages
+// 34  · Extracting website intelligence
+// 40  · Searching knowledge base
+// 46  · Reviewing AI governance
+// 52  · Reviewing transparency
+// 58  · Reviewing fairness
+// 64  · Reviewing accountability
+// 68  · Reviewing privacy
+// 72  · Reviewing human oversight
+// 76  · Reviewing explainability
+// 85  · Calculating AI ethics score
+// 92  · Generating recommendations
+// 97  · Preparing report
 
 export const ANALYSIS_STEPS: AnalysisStep[] = [
   { id: "receive",        label: "Receiving request",                     status: "pending" },
@@ -52,7 +52,7 @@ export const FEATURE_CARDS = [
   { icon: Gauge,         title: "Risk Assessment",          description: "Generate an overall AI ethics risk evaluation and governance gap analysis." },
 ];
 
-// ─── Icon and accent palette for recommendation categories ───────────────────
+// ··· Icon and accent palette for recommendation categories ···················
 // The backend returns categories like "Bias Mitigation", "Governance Improvements", etc.
 // We inject icons and accent styles on the frontend.
 

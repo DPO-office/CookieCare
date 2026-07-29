@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+﻿import React, { useEffect } from "react";
 import {
   FileText,
   HelpCircle,
@@ -115,156 +115,158 @@ export default function GeneratorPanel(props: GeneratorPanelProps) {
 
   return (
     <div className="flex-1 flex flex-col overflow-y-auto px-10 py-8 bg-[#FAFAFB] relative scrollbar-hidden select-none">
-      {/* Header */}
-      <div className="w-full flex justify-between items-start mb-9 z-10">
-        <div>
-          <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#1D6FD8" }}>Draft Agreements</h1>
-          <p className="text-[13px] text-gray-500 mt-1">Generate structured first drafts from templates and playbooks.</p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2.5">
-          {props.documents.length > 0 && (
-            <div className="flex items-center gap-2 bg-white border border-gray-200 h-9 px-3 rounded-xl shadow-xs select-none">
-              <FileText className="w-5 h-5 text-gray-400 shrink-0" />
-              {/* <span className="text-[13px] font-medium text-black uppercase tracking-wide shrink-0">Document</span> */}
-              <div className="flex items-center min-w-0 relative">
-                <select
-                  value={props.selectedDoc?.id || ""}
-                  onChange={(e) => {
-                    const found = props.documents.find(d => d.id === e.target.value);
-                    if (found) {
-                      props.onSelectDoc(found);
-                    }
-                  }}
-                  className="bg-transparent border-none text-[12px] font-semibold text-gray-800 focus:outline-none cursor-pointer py-1 pl-0 pr-5 appearance-none select-none truncate max-w-[280px] leading-none align-middle"
-                >
-                  <option value="" disabled>Select draft</option>
-                  {props.documents.map((doc) => (
-                    <option key={doc.id} value={doc.id}>
-                      {doc.title}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none shrink-0" />
-              </div>
-            </div>
-          )}
-
-          <button className="flex items-center justify-center w-9 h-9 bg-white border border-gray-200 rounded-xl text-gray-400 hover:bg-gray-50 shadow-xs transition">
-            <HelpCircle className="w-4.5 h-4.5" />
-          </button>
-        </div>
-      </div>
-
-      {/* Mode Toggle */}
-      <div className="w-full flex justify-end mb-6 z-10">
-        <div className="bg-gray-100 p-0.5 rounded-xl flex items-center gap-0.5 shadow-xs border border-gray-200">
-          <button
-            onClick={() => { props.onSetMode("Basic"); props.onSetAdvancedStep("selector"); }}
-            className={`px-5 py-2 rounded-lg text-[13px] font-medium transition-all ${
-              props.mode === "Basic" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-800"
-            }`}
-          >
-            Basic
-          </button>
-          <button
-            onClick={() => props.onSetMode("Advanced")}
-            className={`px-5 py-2 rounded-lg text-[13px] font-medium transition-all ${
-              props.mode === "Advanced" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-800"
-            }`}
-          >
-            Advanced
-          </button>
-        </div>
-      </div>
-
-      {/* Streaming Status */}
-      {props.isStreaming && (
-        <div className="w-full mb-5 bg-amber-50 border border-amber-200 p-4 rounded-[18px] flex items-center gap-3 text-[13px] text-amber-800 z-10 shadow-xs">
-          <Clock className="w-4 h-4 text-amber-500 animate-spin shrink-0" />
+      <div className="w-full max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="w-full flex justify-between items-start mb-9 z-10">
           <div>
-            <p className="font-semibold">AI generator running…</p>
-            <p className="text-[12px] text-amber-600 mt-0.5">{props.streamingProgress || "Preparing draft pipeline…"}</p>
+            <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#2175D9" }}>Draft Agreements</h1>
+            <p className="text-[13px] text-gray-500 mt-1">Generate structured first drafts from templates and playbooks.</p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2.5">
+            {props.documents.length > 0 && (
+              <div className="flex items-center gap-2 bg-white border border-gray-200 h-9 px-3 rounded-xl shadow-xs select-none">
+                <FileText className="w-5 h-5 text-gray-400 shrink-0" />
+                {/* <span className="text-[13px] font-medium text-black uppercase tracking-wide shrink-0">Document</span> */}
+                <div className="flex items-center min-w-0 relative">
+                  <select
+                    value={props.selectedDoc?.id || ""}
+                    onChange={(e) => {
+                      const found = props.documents.find(d => d.id === e.target.value);
+                      if (found) {
+                        props.onSelectDoc(found);
+                      }
+                    }}
+                    className="bg-transparent border-none text-[12px] font-semibold text-gray-800 focus:outline-none cursor-pointer py-1 pl-0 pr-5 appearance-none select-none truncate max-w-[280px] leading-none align-middle"
+                  >
+                    <option value="" disabled>Select draft</option>
+                    {props.documents.map((doc) => (
+                      <option key={doc.id} value={doc.id}>
+                        {doc.title}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none shrink-0" />
+                </div>
+              </div>
+            )}
+
+            <button className="flex items-center justify-center w-9 h-9 bg-white border border-gray-200 rounded-xl text-gray-400 hover:bg-gray-50 shadow-xs transition">
+              <HelpCircle className="w-4.5 h-4.5" />
+            </button>
           </div>
         </div>
-      )}
 
-      {/* Mode Content */}
-      {props.mode === "Basic" ? (
-        <GeneratorBasicMode
-          instructions={props.instructions}
-          playbookGuidelines={props.playbookGuidelines}
-          depth={props.depth}
-          isStreaming={props.isStreaming}
-          onSetInstructions={props.onSetInstructions}
-          onSetPlaybookGuidelines={props.onSetPlaybookGuidelines}
-          onSetDepth={props.onSetDepth}
-          onExecuteDraftStream={props.onExecuteDraftStream}
-        />
-      ) : (
-        <div className="w-full z-10">
-          {props.advancedStep === "selector" && (
-            <GeneratorAdvancedSelector
-              onSetAdvancedStep={props.onSetAdvancedStep}
-            />
-          )}
-
-          {props.advancedStep === "reactive" && (
-            <GeneratorAdvancedReactive
-              isDragging={props.isDragging}
-              uploadFileName={props.uploadFileName}
-              instructions={props.instructions}
-              onSetAdvancedStep={props.onSetAdvancedStep}
-              onSetInstructions={props.onSetInstructions}
-              onHandleDragOver={props.onHandleDragOver}
-              onHandleDragLeave={props.onHandleDragLeave}
-              onHandleDrop={props.onHandleDrop}
-              onHandleFileChange={props.onHandleFileChange}
-              onExecuteDraftStream={props.onExecuteDraftStream}
-            />
-          )}
-
-          {props.advancedStep === "proactive" && (
-            <GeneratorAdvancedProactive
-              s1Open={props.s1Open}
-              s2Open={props.s2Open}
-              s3Open={props.s3Open}
-              s4Open={props.s4Open}
-              searchTemplateQuery={props.searchTemplateQuery}
-              searchClauseQuery={props.searchClauseQuery}
-              selectedTemplateName={props.selectedTemplateName}
-              selectedClauses={props.selectedClauses}
-              referenceInstructions={props.referenceInstructions}
-              aiRulebookPrompt={props.aiRulebookPrompt}
-              templateFolders={props.templateFolders}
-              clauseCategories={props.clauseCategories}
-              expandedFolder={props.expandedFolder}
-              expandedClauseCat={props.expandedClauseCat}
-              clauseTab={props.clauseTab}
-              customClauseText={props.customClauseText}
-              depth={props.depth}
-              isStreaming={props.isStreaming}
-              onSetAdvancedStep={props.onSetAdvancedStep}
-              onSetS1Open={props.onSetS1Open}
-              onSetS2Open={props.onSetS2Open}
-              onSetS3Open={props.onSetS3Open}
-              onSetS4Open={props.onSetS4Open}
-              onSetSearchTemplateQuery={props.onSetSearchTemplateQuery}
-              onSetSearchClauseQuery={props.onSetSearchClauseQuery}
-              onSetSelectedTemplateName={props.onSetSelectedTemplateName}
-              onSetSelectedClauses={props.onSetSelectedClauses}
-              onSetReferenceInstructions={props.onSetReferenceInstructions}
-              onSetAiRulebookPrompt={props.onSetAiRulebookPrompt}
-              onSetDepth={props.onSetDepth}
-              onSetExpandedFolder={props.onSetExpandedFolder}
-              onSetExpandedClauseCat={props.onSetExpandedClauseCat}
-              onSetClauseTab={props.onSetClauseTab}
-              onSetCustomClauseText={props.onSetCustomClauseText}
-              onExecuteDraftStream={props.onExecuteDraftStream}
-            />
-          )}
+        {/* Mode Toggle */}
+        <div className="w-full flex justify-end mb-6 z-10">
+          <div className="bg-gray-100 p-0.5 rounded-xl flex items-center gap-0.5 shadow-xs border border-gray-200">
+            <button
+              onClick={() => { props.onSetMode("Basic"); props.onSetAdvancedStep("selector"); }}
+              className={`px-5 py-2 rounded-lg text-[13px] font-medium transition-all ${
+                props.mode === "Basic" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-800"
+              }`}
+            >
+              Basic
+            </button>
+            <button
+              onClick={() => props.onSetMode("Advanced")}
+              className={`px-5 py-2 rounded-lg text-[13px] font-medium transition-all ${
+                props.mode === "Advanced" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-800"
+              }`}
+            >
+              Advanced
+            </button>
+          </div>
         </div>
-      )}
+
+        {/* Streaming Status */}
+        {props.isStreaming && (
+          <div className="w-full mb-5 bg-amber-50 border border-amber-200 p-4 rounded-[18px] flex items-center gap-3 text-[13px] text-amber-800 z-10 shadow-xs">
+            <Clock className="w-4 h-4 text-amber-500 animate-spin shrink-0" />
+            <div>
+              <p className="font-semibold">AI generator running...</p>
+              <p className="text-[12px] text-amber-600 mt-0.5">{props.streamingProgress || "Preparing draft pipeline…"}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Mode Content */}
+        {props.mode === "Basic" ? (
+          <GeneratorBasicMode
+            instructions={props.instructions}
+            playbookGuidelines={props.playbookGuidelines}
+            depth={props.depth}
+            isStreaming={props.isStreaming}
+            onSetInstructions={props.onSetInstructions}
+            onSetPlaybookGuidelines={props.onSetPlaybookGuidelines}
+            onSetDepth={props.onSetDepth}
+            onExecuteDraftStream={props.onExecuteDraftStream}
+          />
+        ) : (
+          <div className="w-full z-10">
+            {props.advancedStep === "selector" && (
+              <GeneratorAdvancedSelector
+                onSetAdvancedStep={props.onSetAdvancedStep}
+              />
+            )}
+
+            {props.advancedStep === "reactive" && (
+              <GeneratorAdvancedReactive
+                isDragging={props.isDragging}
+                uploadFileName={props.uploadFileName}
+                instructions={props.instructions}
+                onSetAdvancedStep={props.onSetAdvancedStep}
+                onSetInstructions={props.onSetInstructions}
+                onHandleDragOver={props.onHandleDragOver}
+                onHandleDragLeave={props.onHandleDragLeave}
+                onHandleDrop={props.onHandleDrop}
+                onHandleFileChange={props.onHandleFileChange}
+                onExecuteDraftStream={props.onExecuteDraftStream}
+              />
+            )}
+
+            {props.advancedStep === "proactive" && (
+              <GeneratorAdvancedProactive
+                s1Open={props.s1Open}
+                s2Open={props.s2Open}
+                s3Open={props.s3Open}
+                s4Open={props.s4Open}
+                searchTemplateQuery={props.searchTemplateQuery}
+                searchClauseQuery={props.searchClauseQuery}
+                selectedTemplateName={props.selectedTemplateName}
+                selectedClauses={props.selectedClauses}
+                referenceInstructions={props.referenceInstructions}
+                aiRulebookPrompt={props.aiRulebookPrompt}
+                templateFolders={props.templateFolders}
+                clauseCategories={props.clauseCategories}
+                expandedFolder={props.expandedFolder}
+                expandedClauseCat={props.expandedClauseCat}
+                clauseTab={props.clauseTab}
+                customClauseText={props.customClauseText}
+                depth={props.depth}
+                isStreaming={props.isStreaming}
+                onSetAdvancedStep={props.onSetAdvancedStep}
+                onSetS1Open={props.onSetS1Open}
+                onSetS2Open={props.onSetS2Open}
+                onSetS3Open={props.onSetS3Open}
+                onSetS4Open={props.onSetS4Open}
+                onSetSearchTemplateQuery={props.onSetSearchTemplateQuery}
+                onSetSearchClauseQuery={props.onSetSearchClauseQuery}
+                onSetSelectedTemplateName={props.onSetSelectedTemplateName}
+                onSetSelectedClauses={props.onSetSelectedClauses}
+                onSetReferenceInstructions={props.onSetReferenceInstructions}
+                onSetAiRulebookPrompt={props.onSetAiRulebookPrompt}
+                onSetDepth={props.onSetDepth}
+                onSetExpandedFolder={props.onSetExpandedFolder}
+                onSetExpandedClauseCat={props.onSetExpandedClauseCat}
+                onSetClauseTab={props.onSetClauseTab}
+                onSetCustomClauseText={props.onSetCustomClauseText}
+                onExecuteDraftStream={props.onExecuteDraftStream}
+              />
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

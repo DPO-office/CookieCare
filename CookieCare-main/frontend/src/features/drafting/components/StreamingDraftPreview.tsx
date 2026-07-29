@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+﻿import React, { useEffect, useRef } from "react";
 import { Sparkles } from "lucide-react";
 
 interface StreamingDraftPreviewProps {

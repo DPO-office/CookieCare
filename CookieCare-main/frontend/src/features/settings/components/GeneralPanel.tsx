@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import { User, Globe, CheckCircle } from "lucide-react";
 import { SettingCard, CardHeader, CardBody, CardFooter, Label, Input, Select, SavedIndicator, useSaved } from "./SettingsPrimitives";
 import { SettingsProps } from "../types";
@@ -17,7 +17,7 @@ export default function GeneralPanel({ user }: SettingsProps) {
         <CardHeader icon={User} title="Identity" desc="Your name and contact details within randtrust." />
         <CardBody>
           <div className="flex items-center gap-4 mb-6 pb-5 border-b border-gray-50">
-            <div className="w-14 h-14 rounded-full text-white flex items-center justify-center font-bold text-lg shrink-0" style={{ background: "#1D6FD8" }}>
+            <div className="w-14 h-14 rounded-full text-white flex items-center justify-center font-bold text-lg shrink-0" style={{ background: "#2175D9" }}>
               {(user?.name || "U").split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase()}
             </div>
             <div>
@@ -60,8 +60,8 @@ export default function GeneralPanel({ user }: SettingsProps) {
             <Select value={language} onChange={e => setLanguage(e.target.value)}>
               <option value="en">English</option>
               <option value="de">Deutsch</option>
-              <option value="fr">Français</option>
-              <option value="es">Español</option>
+              <option value="fr">Fran·ais</option>
+              <option value="es">Espa·ol</option>
             </Select>
           </div>
           <div>

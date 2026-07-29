@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import { Sparkles, Cpu } from "lucide-react";
 import { SettingCard, CardHeader, CardBody, CardFooter, Label, Select, ToggleRow, SavedIndicator, useSaved } from "./SettingsPrimitives";
 import { AI_MODELS } from "../constants";
@@ -28,7 +28,7 @@ export default function AIPanel() {
                   onClick={() => setModel(m.value)}
                   className={`flex items-center justify-between px-4 py-3 rounded-xl border text-left transition-all
                     ${model === m.value
-                      ? "border-transparent bg-[#1D6FD8] text-white shadow-sm"
+                      ? "border-transparent bg-[#2175D9] text-white shadow-sm"
                       : "bg-gray-50 border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-white"}`}
                 >
                   <span className="text-[13px] font-medium">{m.label}</span>
@@ -46,10 +46,10 @@ export default function AIPanel() {
             <div>
               <Label>Temperature</Label>
               <Select value={temperature} onChange={e => setTemperature(e.target.value)}>
-                <option value="0.0">0.0 — Deterministic</option>
-                <option value="0.3">0.3 — Focused (recommended)</option>
-                <option value="0.7">0.7 — Balanced</option>
-                <option value="1.0">1.0 — Creative</option>
+                <option value="0.0">0.0 · Deterministic</option>
+                <option value="0.3">0.3 · Focused (recommended)</option>
+                <option value="0.7">0.7 · Balanced</option>
+                <option value="1.0">1.0 · Creative</option>
               </Select>
             </div>
             <div>
@@ -71,7 +71,7 @@ export default function AIPanel() {
       <SettingCard>
         <CardHeader icon={Cpu} title="Behaviour" desc="Fine-tune how AI agents respond and present results." />
         <CardBody>
-          <ToggleRow title="RAG — Document retrieval" desc="Ground AI responses in your uploaded document library for higher accuracy." checked={ragEnabled} onChange={setRagEnabled} />
+          <ToggleRow title="RAG · Document retrieval" desc="Ground AI responses in your uploaded document library for higher accuracy." checked={ragEnabled} onChange={setRagEnabled} />
           <ToggleRow title="Streaming responses" desc="Stream tokens as they are generated instead of waiting for full completion." checked={streamingEnabled} onChange={setStreamingEnabled} />
           <ToggleRow title="Inline citations" desc="Include clause references and source footnotes in AI-generated analysis." checked={citationsEnabled} onChange={setCitationsEnabled} />
           <ToggleRow title="Safety filters" desc="Apply content and legal-risk guardrails to all AI outputs." checked={safetyFilters} onChange={setSafetyFilters} />

@@ -6,7 +6,7 @@ export const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 export const UPLOAD_CONCURRENCY = 3;
 export const JUNK_FILE_NAMES = new Set([".DS_Store", "Thumbs.db", "desktop.ini", ".gitkeep"]);
 
-// ─── Misc ────────────────────────────────────────────────────────────────────
+// ··· Misc ····································································
 export const SYSTEM_FOLDER_NAME = "Uploaded Documents";
 
 export const DEFAULT_PROMPT =
@@ -30,7 +30,7 @@ export const DEFAULT_QUESTIONS_LIBRARY = [
   "Are there any punitive, non-proven liquidated damages listed?",
 ];
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ··· Types ···································································
 export interface PromptItem {
   title: string;
   description: string;
@@ -54,7 +54,7 @@ export interface QuestionCategory {
   questions: Array<{ title: string; question: string }>;
 }
 
-// ─── Prompt Library ──────────────────────────────────────────────────────────
+// ··· Prompt Library ··························································
 export const DEFAULT_PROMPT_CATEGORIES: PromptCategory[] = [
   {
     id: "general-review",
@@ -368,7 +368,7 @@ export const DEFAULT_PROMPT_CATEGORIES: PromptCategory[] = [
   },
 ];
 
-// ─── Question Library ─────────────────────────────────────────────────────────
+// ··· Question Library ·························································
 export const DEFAULT_QUESTION_CATEGORIES: QuestionCategory[] = [
   {
     id: "general-review",

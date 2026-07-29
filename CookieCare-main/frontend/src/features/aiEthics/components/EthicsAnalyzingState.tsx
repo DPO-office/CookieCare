@@ -44,7 +44,7 @@ export function EthicsAnalyzingState({ fileNames, steps }: EthicsAnalyzingStateP
           <div className="h-[3px] bg-gray-100 relative overflow-hidden">
             <div
               className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out"
-              style={{ background: "#1D6FD8", width: `${progress}%` }}
+              style={{ background: "#2175D9", width: `${progress}%` }}
             />
             <div
               className="absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-white/60 to-transparent"
@@ -66,7 +66,7 @@ export function EthicsAnalyzingState({ fileNames, steps }: EthicsAnalyzingStateP
                   {fileNames.length > 1 ? ` +${fileNames.length - 1} more` : ""}
                 </p>
                 <p className="text-[11px] text-gray-400 mt-0.5">
-                  AI Documentation · {progress}% complete
+                  AI Documentation — {progress}% complete
                 </p>
               </div>
               <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 border border-gray-200 shrink-0 animate-pulse">
@@ -85,7 +85,7 @@ export function EthicsAnalyzingState({ fileNames, steps }: EthicsAnalyzingStateP
                   <div
                     className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-all duration-300
                       ${step.status === "done" ? "bg-emerald-100 border border-emerald-200" : ""}
-                      ${step.status === "active" ? "bg-[#1D6FD8] text-white" : ""}
+                      ${step.status === "active" ? "bg-[#2175D9] text-white" : ""}
                       ${step.status === "pending" ? "bg-gray-100 border border-gray-200" : ""}`}
                   >
                     {step.status === "done" && (
@@ -124,7 +124,7 @@ export function EthicsAnalyzingState({ fileNames, steps }: EthicsAnalyzingStateP
               Keep this tab open until assessment is complete
             </p>
             <p className="text-[11px] text-gray-400 mt-0.5">
-              This usually takes 15–45 seconds depending on document size
+              This usually takes 15-45 seconds depending on document size
             </p>
           </div>
         </div>
@@ -141,7 +141,3 @@ export function EthicsAnalyzingState({ fileNames, steps }: EthicsAnalyzingStateP
     </div>
   );
 }
-
-
-
-

@@ -32,7 +32,7 @@ export default function SettingsView({ user }: SettingsProps) {
       {/* Left nav */}
       <aside className="w-[220px] shrink-0 border-r border-gray-200 bg-white flex flex-col overflow-y-auto scrollbar-none">
         <div className="px-5 pt-7 pb-5 border-b border-gray-100">
-          <h2 className="font-bold text-[15px] tracking-tight" style={{ color: "#1D6FD8" }}>Settings</h2>
+          <h2 className="font-bold text-[15px] tracking-tight" style={{ color: "#2175D9" }}>Settings</h2>
           <p className="text-[11px] text-gray-400 mt-0.5">Workspace configuration</p>
         </div>
         <nav className="flex-1 px-2.5 py-3 space-y-0.5">
@@ -44,7 +44,7 @@ export default function SettingsView({ user }: SettingsProps) {
                 key={item.id}
                 onClick={() => setActive(item.id)}
                 className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-all duration-150 group outline-none
-                  ${isActive ? "bg-[#1D6FD8] text-white shadow-sm" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"}`}
+                  ${isActive ? "bg-[#2175D9] text-white shadow-sm" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"}`}
               >
                 <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-white" : "text-gray-400 group-hover:text-gray-600"}`} />
                 <span className="text-[13px] font-medium truncate">{item.label}</span>
@@ -71,7 +71,7 @@ export default function SettingsView({ user }: SettingsProps) {
               <ChevronRight className="w-3 h-3 text-gray-300" />
               <span className="text-[12px] text-gray-600 font-medium">{current.label}</span>
             </div>
-            <h1 className="text-[22px] font-bold tracking-tight leading-tight" style={{ color: "#1D6FD8" }}>{current.label}</h1>
+            <h1 className="text-[22px] font-bold tracking-tight leading-tight" style={{ color: "#2175D9" }}>{current.label}</h1>
             <p className="text-[13px] text-gray-500 mt-0.5">{current.desc}</p>
           </div>
           <div key={active}>{renderPanel()}</div>

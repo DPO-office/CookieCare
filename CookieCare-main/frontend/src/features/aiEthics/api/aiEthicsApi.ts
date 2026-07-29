@@ -2,8 +2,8 @@
  * AI Ethics Review API layer.
  *
  * Mirrors the Vendor Review pattern exactly:
- *   1. POST /api/ai-ethics  → job_id
- *   2. SSE  /api/jobs/sse   → job_update events
+ *   1. POST /api/ai-ethics  · job_id
+ *   2. SSE  /api/jobs/sse   · job_update events
  */
 
 import { apiUrl } from "../../../config";

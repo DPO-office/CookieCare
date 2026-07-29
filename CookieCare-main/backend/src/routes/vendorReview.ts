@@ -15,11 +15,10 @@
 
 import { Router, Request, Response } from "express";
 import multer from "multer";
-import pdf from "pdf-parse-fork";
-import mammoth from "mammoth";
 import { fileTypeFromBuffer } from "file-type";
 import { authenticateToken } from "../middleware/auth.js";
 import { addJobToQueue } from "../services/jobQueue.js";
+import { extractText } from "../utils/extractText.js";
 
 const router = Router();
 
@@ -36,32 +35,6 @@ const ALLOWED_MIME_TYPES = new Set([
   "text/plain",
   "text/markdown",
 ]);
-
-/**
- * Extract plaintext from a single file buffer.
- * Reuses the same extraction strategy as routes/dpa.ts and jobQueue.ts.
- */
-async function extractText(buffer: Buffer, mimeType: string): Promise<string> {
-  if (mimeType === "application/pdf") {
-    const data = await pdf(buffer);
-    return data.text;
-  }
-
-  if (
-    mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
-    mimeType === "application/msword"
-  ) {
-    const data = await mammoth.extractRawText({ buffer });
-    return data.value;
-  }
-
-  if (mimeType.startsWith("text/")) {
-    return buffer.toString("utf-8");
-  }
-
-  // Best-effort fallback
-  return buffer.toString("utf-8").replace(/[^\x20-\x7E\r\n\t]/g, " ");
-}
 
 // POST /api/vendor-review
 router.post(

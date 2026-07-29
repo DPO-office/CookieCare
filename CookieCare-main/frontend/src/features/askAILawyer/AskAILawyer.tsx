@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { Scale, PanelRight, PanelRightClose, Copy, Check, Gavel, Folder, ArrowUp, RefreshCw, ChevronDown } from "lucide-react";
 import { markdownToHtml } from "../../shared/utils/markdownToHtml";
 import AiProgressOverlay from "../../shared/components/AiProgressOverlay";
@@ -10,7 +10,7 @@ import SourcesPanel from "./components/SourcesPanel";
 import CitationModal from "./components/CitationModal";
 import Popovers from "./components/Popovers";
 
-// Alias — used inside the no-scroll landing layout
+// Alias - used inside the no-scroll landing layout
 const LandingPopovers = Popovers;
 
 export default function AskAILawyer({ authToken, documents: _propDocs = [] }: AskAILawyerProps) {
@@ -62,7 +62,7 @@ export default function AskAILawyer({ authToken, documents: _propDocs = [] }: As
           visible={isStreaming || !!lawyerError}
           message={lawyerProgress}
           error={lawyerError}
-          label="Consulting AI Lawyer…"
+          label="Consulting AI Lawyer"
           onRetry={lawyerError ? () => setLawyerError("") : undefined}
           onDismiss={lawyerError ? () => setLawyerError("") : undefined}
         />
@@ -77,20 +77,22 @@ export default function AskAILawyer({ authToken, documents: _propDocs = [] }: As
 
             {!hasResult && !isStreaming ? (
 
-              /* ── Landing state: fixed layout, no scroll ── */
+              /* -- Landing state: fixed layout, no scroll -- */
               <div className="flex-1 flex flex-col overflow-hidden px-10">
 
                 {/* Page header */}
-                <div className="w-full flex justify-between items-start pt-8 pb-0 shrink-0">
-                  <div>
-                    <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#1D6FD8" }}>Ask AI Lawyer</h1>
-                    <p className="text-[13px] text-gray-500 mt-1">Legal research and advisory across global jurisdictions.</p>
+                <div className="pt-8 pb-0 shrink-0">
+                  <div className="w-full max-w-5xl mx-auto flex justify-between items-start">
+                    <div>
+                      <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#2175D9" }}>Ask AI Lawyer</h1>
+                      <p className="text-[13px] text-gray-500 mt-1">Legal research and advisory across global jurisdictions.</p>
+                    </div>
                   </div>
                 </div>
 
-                {/* Hero + cards — top-aligned with fixed top padding */}
+                {/* Hero + cards - top-aligned with fixed top padding */}
                 <div className="shrink-0 flex flex-col items-center pt-10">
-                  <div className="w-11 h-11 rounded-2xl flex items-center justify-center mb-3 shadow-md" style={{ background: "#1D6FD8" }}>
+                  <div className="w-11 h-11 rounded-2xl flex items-center justify-center mb-3 shadow-md" style={{ background: "#2175D9" }}>
                     <Scale className="w-5 h-5 text-white" />
                   </div>
                   <h2 className="text-[22px] font-bold text-gray-900 tracking-tight mb-2 text-center">
@@ -107,7 +109,7 @@ export default function AskAILawyer({ authToken, documents: _propDocs = [] }: As
 
                 {/* Composer pinned at bottom */}
                 <div className="shrink-0 pb-8 pt-4">
-                  <div className="max-w-3xl mx-auto w-full relative" ref={composerRef}>
+                  <div className="max-w-5xl mx-auto w-full relative" ref={composerRef}>
                     <div className="relative bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md focus-within:shadow-md focus-within:border-gray-300 transition-all duration-200 overflow-visible">
                       <textarea
                         ref={textareaRef}
@@ -116,7 +118,7 @@ export default function AskAILawyer({ authToken, documents: _propDocs = [] }: As
                         onChange={(e) => { setSearchQuery(e.target.value); autoResizeTextarea(); }}
                         onKeyDown={handleKeyDown}
                         disabled={isStreaming}
-                        placeholder="Ask a legal question — GDPR compliance, contract review, tax treaties…"
+                        placeholder="Ask a legal question - GDPR compliance, contract review, tax treaties..."
                         rows={1}
                         className="w-full bg-transparent text-[15px] py-4 pl-5 pr-5 focus:outline-none placeholder:text-gray-400 text-gray-900 resize-none leading-relaxed"
                         style={{ minHeight: "60px", maxHeight: "180px" }}
@@ -132,7 +134,7 @@ export default function AskAILawyer({ authToken, documents: _propDocs = [] }: As
                                 ? "text-white border-transparent shadow-sm"
                                 : "bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100 hover:border-gray-300 hover:text-gray-700"
                             }`}
-                            style={openPopover === "jurisdictions" || selectedJurisdictions.length > 0 ? { background: "#1D6FD8" } : {}}
+                            style={openPopover === "jurisdictions" || selectedJurisdictions.length > 0 ? { background: "#2175D9" } : {}}
                           >
                             <Gavel className="w-3 h-3" />
                             <span>
@@ -150,7 +152,7 @@ export default function AskAILawyer({ authToken, documents: _propDocs = [] }: As
                                 ? "text-white border-transparent shadow-sm"
                                 : "bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100 hover:border-gray-300 hover:text-gray-700"
                             }`}
-                            style={openPopover === "kb" || selectedKBCount > 0 ? { background: "#1D6FD8" } : {}}
+                            style={openPopover === "kb" || selectedKBCount > 0 ? { background: "#2175D9" } : {}}
                           >
                             <Folder className="w-3 h-3" />
                             <span>
@@ -166,17 +168,17 @@ export default function AskAILawyer({ authToken, documents: _propDocs = [] }: As
                           type="button"
                           onClick={() => handleQueryDispatch()}
                           disabled={!searchQuery.trim() || isStreaming}
-                          className="w-9 h-9 rounded-xl flex items-center justify-center active:scale-95 transition-all duration-150 disabled:opacity-30 disabled:pointer-events-none cursor-pointer shadow-sm shrink-0" style={{ background: "#1D6FD8" }}
+                          className="w-9 h-9 rounded-xl flex items-center justify-center active:scale-95 transition-all duration-150 disabled:opacity-30 disabled:pointer-events-none cursor-pointer shadow-sm shrink-0" style={{ background: "#2175D9" }}
                         >
                           {isStreaming
-                            ? <RefreshCw className="w-4 h-4 animate-spin" />
-                            : <ArrowUp className="w-4 h-4" />}
+                            ? <RefreshCw className="w-4 h-4 animate-spin text-white" />
+                            : <ArrowUp className="w-4 h-4 text-white" />}
                         </button>
                       </div>
                     </div>
                     <p className="text-center text-[10px] text-gray-400 mt-2.5">
                       <kbd className="bg-white border border-gray-200 rounded px-1 py-0.5 font-mono text-[9px]">Enter</kbd> to send
-                      &nbsp;·&nbsp;
+                      &nbsp;-&nbsp;
                       <kbd className="bg-white border border-gray-200 rounded px-1 py-0.5 font-mono text-[9px]">Shift+Enter</kbd> for new line
                     </p>
                     <LandingPopovers
@@ -211,14 +213,14 @@ export default function AskAILawyer({ authToken, documents: _propDocs = [] }: As
 
             ) : (
 
-              /* ── Chat state: scrollable, with persistent header + composer ── */
+              /* -- Chat state: scrollable, with persistent header + composer -- */
               <>
                 <div className="flex-1 overflow-y-auto px-10 py-8">
 
                   {/* Page header */}
-                  <div className="w-full flex justify-between items-start mb-9">
+                  <div className="w-full max-w-5xl mx-auto flex justify-between items-start mb-9">
                     <div>
-                      <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#1D6FD8" }}>Ask AI Lawyer</h1>
+                      <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#2175D9" }}>Ask AI Lawyer</h1>
                       <p className="text-[13px] text-gray-500 mt-1">Legal research and advisory across global jurisdictions.</p>
                     </div>
                     <div className="flex items-center gap-2.5">
@@ -230,7 +232,7 @@ export default function AskAILawyer({ authToken, documents: _propDocs = [] }: As
                         {showSources ? <PanelRightClose className="w-4 h-4" /> : <PanelRight className="w-4 h-4" />}
                         <span>{showSources ? "Hide" : "Show"} Sources</span>
                         {matchedSources.length > 0 && (
-                          <span className="text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md" style={{ background: "#1D6FD8" }}>
+                          <span className="text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md" style={{ background: "#2175D9" }}>
                             {matchedSources.length}
                           </span>
                         )}
@@ -239,10 +241,10 @@ export default function AskAILawyer({ authToken, documents: _propDocs = [] }: As
                   </div>
 
                   {/* Chat thread */}
-                  <div className="max-w-3xl mx-auto w-full pb-4">
+                  <div className="max-w-5xl mx-auto w-full pb-4">
                     {submittedQuery && (
                       <div className="flex justify-end mb-6">
-                        <div className="max-w-[72%] text-white rounded-2xl rounded-tr-sm px-4 py-3 text-sm leading-relaxed shadow-sm" style={{ background: "#1D6FD8" }}>
+                        <div className="max-w-[72%] text-white rounded-2xl rounded-tr-sm px-4 py-3 text-sm leading-relaxed shadow-sm" style={{ background: "#2175D9" }}>
                           {submittedQuery}
                         </div>
                       </div>
@@ -257,7 +259,7 @@ export default function AskAILawyer({ authToken, documents: _propDocs = [] }: As
                             <span className="text-xs font-semibold text-gray-800">AI Lawyer</span>
                             {selectedJurisdictions.length > 0 && (
                               <span className="text-[10px] font-medium text-gray-400 bg-gray-100 px-2 py-0.5 rounded-md">
-                                {selectedJurisdictions.slice(0, 2).join(" · ")}
+                                {selectedJurisdictions.slice(0, 2).join(" | ")}
                                 {selectedJurisdictions.length > 2 ? ` +${selectedJurisdictions.length - 2}` : ""}
                               </span>
                             )}
@@ -282,7 +284,7 @@ export default function AskAILawyer({ authToken, documents: _propDocs = [] }: As
                                   style={{ animationDelay: `${i * 0.15}s` }} />
                               ))}
                             </div>
-                            <span className="text-xs text-gray-400">{lawyerProgress || "Analyzing…"}</span>
+                            <span className="text-xs text-gray-400">{lawyerProgress || "Analyzing..."}</span>
                           </div>
                         ) : (
                           <div
