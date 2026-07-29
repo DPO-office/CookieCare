@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { Globe, ArrowRight, AlertCircle } from "lucide-react";
 
 interface WebsiteUrlInputProps {
@@ -94,7 +94,7 @@ export function WebsiteUrlInput({
           disabled={!value.trim()}
           className={`shrink-0 flex items-center gap-2 px-4 py-3 rounded-[14px] text-[13px] font-semibold transition-all duration-200 whitespace-nowrap
             ${value.trim()
-              ? "bg-gray-900 text-white hover:bg-gray-800 shadow-sm hover:shadow-md active:scale-[0.98]"
+              ? "bg-[#1D6FD8] text-white hover:opacity-90 shadow-sm hover:shadow-md active:scale-[0.98]"
               : "bg-gray-100 text-gray-400 cursor-not-allowed"
             }`}
         >
@@ -113,3 +113,7 @@ export function WebsiteUrlInput({
     </div>
   );
 }
+
+
+
+

@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Copy, X } from "lucide-react";
 import { Source } from "../types";
@@ -63,7 +63,7 @@ export default function CitationModal({ source, onClose }: CitationModalProps) {
                   navigator.clipboard.writeText(source.officialCopy);
                   alert("Copied to clipboard.");
                 }}
-                className="inline-flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-gray-800 transition cursor-pointer"
+                className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-medium text-white transition cursor-pointer" style={{ background: "#1D6FD8" }}
               >
                 <Copy className="w-3.5 h-3.5" />
                 <span>Copy transcript</span>
@@ -75,3 +75,5 @@ export default function CitationModal({ source, onClose }: CitationModalProps) {
     </AnimatePresence>
   );
 }
+
+

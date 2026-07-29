@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import {
   Undo2,
   Redo2,
@@ -60,9 +60,10 @@ function TBtn({
       className={`flex items-center justify-center w-7 h-7 rounded-lg transition-colors text-sm shrink-0
         ${
           active
-            ? "bg-gray-900 text-white"
+            ? "text-white"
             : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
         } ${className}`}
+      style={active ? { background: "#1D6FD8" } : undefined}
     >
       {children}
     </button>
@@ -166,3 +167,4 @@ export default function EditorToolbar({
     </div>
   );
 }
+

@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { User, Globe, CheckCircle } from "lucide-react";
 import { SettingCard, CardHeader, CardBody, CardFooter, Label, Input, Select, SavedIndicator, useSaved } from "./SettingsPrimitives";
 import { SettingsProps } from "../types";
 
 export default function GeneralPanel({ user }: SettingsProps) {
   const [name, setName] = useState(user?.name || "Senior Privacy Engineer");
-  const [email] = useState(user?.email || "admin@lexify.cloud");
+  const [email] = useState(user?.email || "admin@randtrust.cloud");
   const [timezone, setTimezone] = useState("Europe/London");
   const [language, setLanguage] = useState("en");
   const [dateFormat, setDateFormat] = useState("DD/MM/YYYY");
@@ -14,10 +14,10 @@ export default function GeneralPanel({ user }: SettingsProps) {
   return (
     <div className="space-y-5">
       <SettingCard>
-        <CardHeader icon={User} title="Identity" desc="Your name and contact details within Lexify." />
+        <CardHeader icon={User} title="Identity" desc="Your name and contact details within randtrust." />
         <CardBody>
           <div className="flex items-center gap-4 mb-6 pb-5 border-b border-gray-50">
-            <div className="w-14 h-14 rounded-full bg-gray-900 text-white flex items-center justify-center font-bold text-lg shrink-0">
+            <div className="w-14 h-14 rounded-full text-white flex items-center justify-center font-bold text-lg shrink-0" style={{ background: "#1D6FD8" }}>
               {(user?.name || "U").split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase()}
             </div>
             <div>
@@ -77,3 +77,5 @@ export default function GeneralPanel({ user }: SettingsProps) {
     </div>
   );
 }
+
+

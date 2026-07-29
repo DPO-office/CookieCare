@@ -13,7 +13,16 @@ export async function approveUser(authToken: string, userId: string): Promise<vo
   const res = await fetch(apiUrl("/api/admin/users/update"), {
     method: "PATCH",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
-    body: JSON.stringify({ userId, role: "USER" }),
+    body: JSON.stringify({ userId, role: "USER", status: "APPROVED" }),
   });
   if (!res.ok) throw new Error("Failed to approve user");
+}
+
+export async function rejectUser(authToken: string, userId: string): Promise<void> {
+  const res = await fetch(apiUrl("/api/admin/users/update"), {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
+    body: JSON.stringify({ userId, role: "REJECTED", status: "REJECTED" }),
+  });
+  if (!res.ok) throw new Error("Failed to reject user");
 }

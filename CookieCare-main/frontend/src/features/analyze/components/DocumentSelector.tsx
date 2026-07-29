@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { Folder, ChevronDown, ChevronUp, FileText, FileCode, Plus, FolderPlus } from "lucide-react";
 import { CustomFolder, SavedDraft } from "../types";
 
@@ -63,7 +63,7 @@ export default function DocumentSelector({
           </button>
           <button
             onClick={onOpenNewFolder}
-            className="bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium px-3.5 py-2 rounded-lg transition-all flex items-center gap-1.5"
+            className="-90 text-white text-sm font-medium px-3.5 py-2 rounded-lg transition-all flex items-center gap-1.5" style={{ background: "#1D6FD8" }}
           >
             <FolderPlus className="w-3.5 h-3.5 text-gray-300" />
             <span>New Folder</span>
@@ -181,3 +181,5 @@ export default function DocumentSelector({
     </div>
   );
 }
+
+

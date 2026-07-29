@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+﻿import React, { useRef, useEffect } from "react";
 import { ArrowLeft, Sparkles, Globe, ExternalLink, Loader2, Copy, Download, Printer, Send, Check, HelpCircle } from "lucide-react";
 import { Message } from "../types";
 import { renderContentText } from "../utils";
@@ -76,7 +76,7 @@ export default function ReportView({
                     <div
                       className={`rounded-2xl text-[13px] leading-relaxed ${
                         isUser
-                          ? "bg-gray-900 text-white px-5 py-3.5 max-w-sm shadow-sm"
+                          ? "bg-[#1D6FD8] text-white px-5 py-3.5 max-w-sm shadow-sm"
                           : "w-full bg-gray-50/60 border border-gray-100 px-5 py-4"
                       }`}
                     >
@@ -162,7 +162,7 @@ export default function ReportView({
             <button
               type="submit"
               disabled={!chatInput.trim()}
-              className="bg-gray-900 hover:bg-gray-800 active:bg-gray-950 text-white p-2.5 rounded-xl transition-all flex items-center justify-center shrink-0 disabled:opacity-30"
+              className="-90 active:bg-gray-950 text-white p-2.5 rounded-xl transition-all flex items-center justify-center shrink-0 disabled:opacity-30" style={{ background: "#1D6FD8" }}
             >
               <Send className="w-3.5 h-3.5" />
             </button>
@@ -171,7 +171,7 @@ export default function ReportView({
       </div>
 
       {showCopyToast && (
-        <div className="fixed bottom-6 right-6 z-50 bg-gray-900 text-white text-[12px] font-medium px-4 py-2.5 rounded-xl shadow-lg select-none flex items-center gap-2">
+        <div className="fixed bottom-6 right-6 z-50 text-white text-[12px] font-medium px-4 py-2.5 rounded-xl shadow-lg select-none flex items-center gap-2" style={{ background: "#1D6FD8" }}>
           <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
           <span>Copied to clipboard</span>
         </div>
@@ -179,3 +179,8 @@ export default function ReportView({
     </div>
   );
 }
+
+
+
+
+

@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { Play } from "lucide-react";
 import { DocumentMode, AnswerStyle } from "../types";
 
@@ -21,7 +21,7 @@ function RadioCard({ selected, onClick, children }: { selected: boolean; onClick
       }`}
     >
       <div className="mt-0.5 shrink-0">
-        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${selected ? "border-gray-900 bg-gray-900" : "border-gray-300"}`}>
+        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${selected ? "border-[#1D6FD8] bg-[#1D6FD8]" : "border-gray-300"}`}>
           {selected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
         </div>
       </div>
@@ -101,7 +101,7 @@ export default function AnalysisOptions({ documentMode, answerStyle, onSetDocume
       <div className="flex justify-end pt-2 pb-8">
         <button
           onClick={onRunAnalysis}
-          className="w-full sm:w-auto bg-gray-900 hover:bg-gray-800 active:bg-gray-950 text-white text-[13px] font-semibold py-2.5 px-7 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.2)]"
+          className="w-full sm:w-auto hover:opacity-90 text-white text-[13px] font-semibold py-2.5 px-7 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.2)]" style={{ background: "#1D6FD8" }}
         >
           <Play className="w-3.5 h-3.5 text-emerald-400 fill-emerald-400 shrink-0" />
           <span>Run Analysis</span>
@@ -110,3 +110,7 @@ export default function AnalysisOptions({ documentMode, answerStyle, onSetDocume
     </>
   );
 }
+
+
+
+

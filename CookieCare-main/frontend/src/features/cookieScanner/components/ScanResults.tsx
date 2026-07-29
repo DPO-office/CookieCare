@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import {
   FileDown, Share2, RefreshCw, ShieldAlert, CheckCircle,
   FileCheck, Layers, Globe, GitCompareArrows,
@@ -79,7 +79,7 @@ export default function ScanResults({
         <div className="bg-white border border-gray-200 rounded-[18px] shadow-xs p-6">
           <h3 className="font-bold text-[14px] text-gray-900 mb-1">Download report</h3>
           <p className="text-[12px] text-gray-500 mb-4">Export this scan as a legal compliance document.</p>
-          <button id="download-pdf-btn" onClick={onDownload} className="inline-flex items-center gap-2 bg-gray-900 text-white hover:bg-gray-800 rounded-xl px-4 py-2.5 text-[13px] font-medium transition shadow-xs cursor-pointer">
+          <button id="download-pdf-btn" onClick={onDownload} className="inline-flex items-center gap-2 text-white rounded-xl px-4 py-2.5 text-[13px] font-medium transition shadow-xs cursor-pointer" style={{ background: "#1D6FD8" }}>
             <FileDown className="w-3.5 h-3.5" /><span>Download PDF Report</span>
           </button>
         </div>
@@ -88,7 +88,7 @@ export default function ScanResults({
           <p className="text-[12px] text-gray-500 mb-4">Send to counselors, partners, or clients.</p>
           <form onSubmit={onShareSubmit} className="flex gap-2">
             <input type="email" required placeholder="partner@legalfirm.com" className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-[13px] focus:outline-none focus:ring-2 focus:ring-gray-100 focus:border-gray-300 transition" value={shareEmail} onChange={(e) => onShareEmailChange(e.target.value)} />
-            <button type="submit" disabled={sharing || !shareEmail} className="inline-flex items-center gap-2 bg-gray-900 text-white hover:bg-gray-800 rounded-xl px-4 py-2.5 text-[13px] font-medium transition shadow-xs cursor-pointer disabled:opacity-50">
+            <button type="submit" disabled={sharing || !shareEmail} className="inline-flex items-center gap-2 text-white rounded-xl px-4 py-2.5 text-[13px] font-medium transition shadow-xs cursor-pointer disabled:opacity-50" style={{ background: "#1D6FD8" }}>
               {sharing ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Share2 className="w-3.5 h-3.5" />}
               <span>Send</span>
             </button>
@@ -273,3 +273,5 @@ export default function ScanResults({
     </div>
   );
 }
+
+

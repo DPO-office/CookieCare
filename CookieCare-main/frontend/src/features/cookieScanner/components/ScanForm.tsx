@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { Globe, Layers, Sparkles, RefreshCw, Play } from "lucide-react";
 import { ScanDepth } from "../types";
 import { SCAN_DEPTHS } from "../constants";
@@ -60,7 +60,7 @@ export default function ScanForm({ url, scanDepth, scanning, onUrlChange, onDept
             id="start-scanning-btn"
             type="submit"
             disabled={scanning}
-            className="inline-flex items-center gap-2 bg-gray-900 text-white hover:bg-gray-800 rounded-xl py-2.5 px-6 text-[13px] font-semibold transition shadow-xs hover:shadow-sm disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center gap-2 text-white hover:opacity-90 rounded-xl py-2.5 px-6 text-[13px] font-semibold transition shadow-xs hover:shadow-sm disabled:opacity-50 cursor-pointer" style={{ background: "#1D6FD8" }}
           >
             {scanning ? (
               <><RefreshCw className="w-4 h-4 animate-spin" /><span>Scanning…</span></>
@@ -73,3 +73,6 @@ export default function ScanForm({ url, scanDepth, scanning, onUrlChange, onDept
     </div>
   );
 }
+
+
+

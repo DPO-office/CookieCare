@@ -74,7 +74,7 @@ export interface LegalDocument {
   analysis?: DocumentAnalysis | null;
 }
 
-// Lexify - Cookie Scanner Type Schema
+// randtrust - Cookie Scanner Type Schema
 export interface CookieDetected {
   name: string;
   category: "Functional" | "Analytics" | "Marketing" | "Essential";
@@ -128,7 +128,7 @@ export interface ConsentComparisonCookie {
   partyType: string;
 }
 
-// Lexify - Vulnerability Scanner Type Schema
+// randtrust - Vulnerability Scanner Type Schema
 export interface VulnerabilityCheck {
   id: string;
   name: string;

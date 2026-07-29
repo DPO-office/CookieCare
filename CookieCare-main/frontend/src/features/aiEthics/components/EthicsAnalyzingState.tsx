@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { Brain, AlertCircle, Loader2, Check } from "lucide-react";
 import { AnalysisStep } from "../types";
 
@@ -30,22 +30,20 @@ export function EthicsAnalyzingState({ fileNames, steps }: EthicsAnalyzingStateP
         <div className="text-center mb-7">
           <div className="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-1.5 text-[12px] font-semibold text-gray-500 mb-4 shadow-xs">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-            <span>Live AI Processing</span>
+            <span>Processing</span>
           </div>
           <h2 className="text-[21px] font-bold text-gray-900 tracking-tight mb-2">
             Evaluating AI Ethics
           </h2>
           <p className="text-[13px] text-gray-500 leading-relaxed max-w-xs mx-auto">
-            Lexify AI is evaluating your AI system against responsible AI
-            principles and governance best practices. This typically takes a
-            few moments depending on the uploaded documentation.
+            Evaluating your AI system against responsible AI principles and governance best practices. This typically takes a few moments depending on the uploaded documentation.
           </p>
         </div>
 
         <div className="bg-white border border-gray-200 rounded-[20px] shadow-sm overflow-hidden mb-4">
           <div className="h-[3px] bg-gray-100 relative overflow-hidden">
             <div
-              className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out bg-gray-900"
+              className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out" style={{ background: "#1D6FD8" }}
               style={{ width: `${progress}%` }}
             />
             <div
@@ -87,7 +85,7 @@ export function EthicsAnalyzingState({ fileNames, steps }: EthicsAnalyzingStateP
                   <div
                     className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-all duration-300
                       ${step.status === "done" ? "bg-emerald-100 border border-emerald-200" : ""}
-                      ${step.status === "active" ? "bg-gray-900" : ""}
+                      ${step.status === "active" ? "bg-[#1D6FD8] text-white" : ""}
                       ${step.status === "pending" ? "bg-gray-100 border border-gray-200" : ""}`}
                   >
                     {step.status === "done" && (
@@ -143,3 +141,7 @@ export function EthicsAnalyzingState({ fileNames, steps }: EthicsAnalyzingStateP
     </div>
   );
 }
+
+
+
+

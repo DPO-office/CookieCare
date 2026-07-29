@@ -1,4 +1,4 @@
-// import React from "react";
+﻿// import React from "react";
 // import {
 //   HelpCircle,
 //   ChevronDown,
@@ -104,7 +104,7 @@
 
 //         {s1Open && (
 //           <div className="p-5 space-y-4">
-//             <p className="text-[12px] text-gray-500">Choose from Lexify templates or your uploaded templates.</p>
+//             <p className="text-[12px] text-gray-500">Choose from randtrust templates or your uploaded templates.</p>
 
 //             <div className="flex gap-2">
 //               <div className="relative flex-1">
@@ -307,7 +307,7 @@
 
 //       {/* Generate action */}
 //       <div className="pt-4 border-t border-gray-100 flex justify-end">
-//         <button onClick={onExecuteDraftStream} className="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white text-[13px] font-semibold px-6 py-2.5 rounded-xl transition shadow-xs hover:shadow-sm cursor-pointer">
+//         <button onClick={onExecuteDraftStream} className="inline-flex items-center gap-2 hover:opacity-90 text-white text-[13px] font-semibold px-6 py-2.5 rounded-xl transition shadow-xs hover:shadow-sm cursor-pointer" style={{ background: "#1D6FD8" }}>
 //           <span>Generate draft</span>
 //           <ArrowRight className="w-4 h-4" />
 //         </button>
@@ -362,7 +362,7 @@ export default function GeneratorAdvancedProactive({
       {/* 1. Provide draft input */}
       <div className="bg-white border border-gray-200 rounded-[18px] p-6 shadow-xs space-y-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-5 h-5 rounded-full bg-gray-900 text-white flex items-center justify-center text-[10px] font-bold shrink-0">1</div>
+          <div className="w-5 h-5 rounded-full text-white flex items-center justify-center text-[10px] font-bold shrink-0" style={{ background: "#1D6FD8" }}>1</div>
           <h3 className="text-[13px] font-semibold text-gray-900">Provide draft input <span className="text-red-400">*</span></h3>
           <HelpCircle className="w-3.5 h-3.5 text-gray-400" />
         </div>
@@ -379,7 +379,7 @@ export default function GeneratorAdvancedProactive({
       {/* 2. Set drafting instructions */}
       <div className="bg-white border border-gray-200 rounded-[18px] p-6 shadow-xs space-y-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-5 h-5 rounded-full bg-gray-900 text-white flex items-center justify-center text-[10px] font-bold shrink-0">2</div>
+          <div className="w-5 h-5 rounded-full text-white flex items-center justify-center text-[10px] font-bold shrink-0" style={{ background: "#1D6FD8" }}>2</div>
           <h3 className="text-[13px] font-semibold text-gray-900">Set drafting instructions</h3>
           <HelpCircle className="w-3.5 h-3.5 text-gray-400" />
         </div>
@@ -396,7 +396,7 @@ export default function GeneratorAdvancedProactive({
       {/* 3. Output detail level */}
       <div className="bg-white border border-gray-200 rounded-[18px] p-6 shadow-xs space-y-3 max-w-sm">
         <div className="flex items-center gap-2.5">
-          <div className="w-5 h-5 rounded-full bg-gray-900 text-white flex items-center justify-center text-[10px] font-bold shrink-0">3</div>
+          <div className="w-5 h-5 rounded-full text-white flex items-center justify-center text-[10px] font-bold shrink-0" style={{ background: "#1D6FD8" }}>3</div>
           <h3 className="text-[13px] font-semibold text-gray-900">Output detail level</h3>
         </div>
         <div className="relative">
@@ -418,7 +418,7 @@ export default function GeneratorAdvancedProactive({
         <button
           onClick={onExecuteDraftStream}
           disabled={isStreaming}
-          className="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white text-[13px] font-semibold px-6 py-2.5 rounded-xl transition shadow-xs hover:shadow-sm disabled:opacity-40 cursor-pointer"
+          className="inline-flex items-center gap-2 hover:opacity-90 text-white text-[13px] font-semibold px-6 py-2.5 rounded-xl transition shadow-xs hover:shadow-sm disabled:opacity-40 cursor-pointer" style={{ background: "#1D6FD8" }}
         >
           <span>Generate draft</span>
           <ArrowRight className="w-4 h-4" />
@@ -427,3 +427,6 @@ export default function GeneratorAdvancedProactive({
     </div>
   );
 }
+
+
+

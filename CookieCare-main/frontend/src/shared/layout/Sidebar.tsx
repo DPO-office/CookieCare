@@ -1,9 +1,8 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import type { ElementType, ReactNode } from "react";
 import {
   LayoutDashboard,
   ShieldAlert,
-  LogOut,
   Scale,
   ShieldCheck,
   Brain,
@@ -21,12 +20,13 @@ import {
   PanelLeftOpen,
   Clock,
   FolderLock,
+  UserCog,
 } from "lucide-react";
 
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  user: { name: string; email: string } | null;
+  user: { name: string; email: string; role?: string } | null;
   onLogout: () => void;
 }
 
@@ -56,50 +56,64 @@ function isSection(entry: NavEntry): entry is NavSection {
   return "children" in entry;
 }
 
-const navigation: NavEntry[] = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-  {
-    id: "legal",
-    label: "Legal",
-    icon: Scale,
-    children: [
-      { id: "legal-review",    label: "Analyze Agreements",  icon: ScanSearch },
-      { id: "legal-draft",     label: "Draft Agreements",    icon: PenTool },
-      { id: "legal-ask-ai",    label: "Ask AI Lawyer",       icon: MessageSquare },
-      { id: "legal-negotiate", label: "Negotiate Redlines",  icon: Scale },
-      { id: "legal-queue",     label: "Active Queue",        icon: Clock },
-      { id: "legal-vault",     label: "Vault Repository",    icon: FolderLock },
-    ],
-  },
-  {
-    id: "privacy",
-    label: "Privacy",
-    icon: ShieldCheck,
-    children: [
-      { id: "cookie-scanner",    label: "Cookie Scanner",    icon: Cookie },
-      { id: "dpa-reviewer",      label: "DPA Review",      icon: Lock },
-      { id: "vendor-review",     label: "Vendor Review",     icon: Building2 },
-      { id: "privacy-dashboard", label: "Privacy Dashboard", icon: BarChart3,  disabled: true },
-      { id: "privacy-score",     label: "Privacy Score",     icon: Star,       disabled: true },
-    ],
-  },
-  {
-    id: "security",
-    label: "Security",
-    icon: ShieldAlert,
-    children: [
-      { id: "vulnerability-scanner", label: "Vulnerability Scanner", icon: Lock },
-    ],
-  },
-  {
-    id: "ethics",
-    label: "AI Ethics",
-    icon: Brain,
-    children: [
-      { id: "ai-ethics", label: "AI Ethics Score", icon: Cpu },
-    ],
-  },
-];
+function buildNavigation(isAdmin: boolean): NavEntry[] {
+  const base: NavEntry[] = [
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    {
+      id: "legal",
+      label: "Legal",
+      icon: Scale,
+      children: [
+        { id: "legal-review",    label: "Analyze Agreements",  icon: ScanSearch },
+        { id: "legal-draft",     label: "Draft Agreements",    icon: PenTool },
+        { id: "legal-ask-ai",    label: "Ask AI Lawyer",       icon: MessageSquare },
+        { id: "legal-negotiate", label: "Negotiate Redlines",  icon: Scale },
+        { id: "legal-vault",     label: "Vault Repository",    icon: FolderLock },
+      ],
+    },
+    {
+      id: "privacy",
+      label: "Privacy",
+      icon: ShieldCheck,
+      children: [
+        { id: "cookie-scanner",    label: "Cookie Scanner",    icon: Cookie },
+        { id: "dpa-reviewer",      label: "DPA Review",        icon: Lock },
+        { id: "vendor-review",     label: "Vendor Review",     icon: Building2 },
+        { id: "privacy-dashboard", label: "Privacy Dashboard", icon: BarChart3, disabled: true },
+        { id: "privacy-score",     label: "Privacy Score",     icon: Star,      disabled: true },
+      ],
+    },
+    {
+      id: "security",
+      label: "Security",
+      icon: ShieldAlert,
+      children: [
+        { id: "vulnerability-scanner", label: "Vulnerability Scanner", icon: Lock },
+      ],
+    },
+    {
+      id: "ethics",
+      label: "AI Ethics",
+      icon: Brain,
+      children: [
+        { id: "ai-ethics", label: "AI Ethics Score", icon: Cpu },
+      ],
+    },
+  ];
+
+  if (isAdmin) {
+    base.push({
+      id: "administration",
+      label: "Administration",
+      icon: UserCog,
+      children: [
+        { id: "admin-panel", label: "Admin Approval", icon: UserCog },
+      ],
+    });
+  }
+
+  return base;
+}
 
 function Tooltip({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -115,16 +129,15 @@ function Tooltip({ label, children }: { label: string; children: ReactNode }) {
 
 export default function Sidebar({ activeTab, setActiveTab, user, onLogout }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
-  const [expandedSections, setExpandedSections] = useState<string[]>(["legal", "privacy", "security", "ethics"]);
+  const [expandedSections, setExpandedSections] = useState<string[]>(["legal", "privacy", "security", "ethics", "administration"]);
+
+  const isAdmin = user?.role === "ADMIN";
+  const navigation = buildNavigation(isAdmin);
 
   const toggleSection = (id: string) => {
     if (collapsed) return;
     setExpandedSections((prev) => prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]);
   };
-
-  const initials = user?.name
-    ? user.name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()
-    : "?";
 
   const activeSection = navigation.find(
     (e) => isSection(e) && e.children.some((c) => c.id === activeTab)
@@ -143,19 +156,19 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout }: Sid
       <div className={`flex items-center pt-6 pb-5 ${collapsed ? "justify-center px-3" : "justify-between px-4"}`}>
         {!collapsed && (
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-gray-900 to-gray-800 text-white flex items-center justify-center shrink-0 shadow-sm">
-              <ShieldCheck className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-sm" style={{ background: "#EBF2FD" }}>
+              <ShieldCheck className="w-4 h-4" style={{ color: "#1D6FD8" }} />
             </div>
             <div className="leading-none min-w-0">
-              <span className="block font-bold text-[15px] tracking-tight text-gray-900 truncate">Lexify</span>
+              <span className="block font-bold text-[15px] tracking-tight truncate" style={{ color: "#1D6FD8" }}>randtrust</span>
               
             </div>
           </div>
         )}
 
         {collapsed && (
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-gray-900 to-gray-800 text-white flex items-center justify-center shadow-sm">
-            <ShieldCheck className="w-3.5 h-3.5" />
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center shadow-sm" style={{ background: "#EBF2FD" }}>
+            <ShieldCheck className="w-3.5 h-3.5" style={{ color: "#1D6FD8" }} />
           </div>
         )}
 
@@ -194,8 +207,9 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout }: Sid
                 onClick={() => setActiveTab(entry.id)}
                 className={`group w-full flex items-center rounded-lg text-[13px] font-medium transition-all duration-150 outline-none
                   ${collapsed ? "justify-center px-0 py-2.5" : "gap-2.5 px-3 py-2"}
-                  ${active ? "bg-gray-900 text-white shadow-sm" : "text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-xs"}
+                  ${active ? "bg-[#1D6FD8] text-white shadow-sm" : "text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-xs"}
                 `}
+                style={active ? { background: "#1D6FD8" } : {}}
               >
                 <Icon className={`w-4 h-4 shrink-0 ${active ? "text-white" : "text-gray-400 group-hover:text-gray-700"}`} />
                 {!collapsed && <span>{entry.label}</span>}
@@ -217,8 +231,9 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout }: Sid
                 <button
                   onClick={() => { setCollapsed(false); setExpandedSections((prev) => prev.includes(entry.id) ? prev : [...prev, entry.id]); }}
                   className={`w-full flex justify-center items-center rounded-xl py-2.5 transition-all duration-150 outline-none
-                    ${sectionActive ? "bg-gray-900 text-white" : "text-gray-400 hover:bg-gray-100 hover:text-gray-700"}
+                    ${sectionActive ? "text-white" : "text-gray-400 hover:bg-gray-100 hover:text-gray-700"}
                   `}
+                  style={sectionActive ? { background: "#1D6FD8" } : {}}
                 >
                   <Icon className="w-4 h-4 shrink-0" />
                 </button>
@@ -272,8 +287,9 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout }: Sid
                         key={child.id}
                         onClick={() => setActiveTab(child.id)}
                         className={`group w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition-all duration-150 outline-none
-                          ${active ? "bg-gray-900 text-white shadow-sm" : "text-gray-500 hover:bg-white hover:text-gray-900 hover:shadow-xs"}
+                          ${active ? "bg-[#1D6FD8] text-white shadow-sm" : "text-gray-500 hover:bg-white hover:text-gray-900 hover:shadow-xs"}
                         `}
+                        style={active ? { background: "#1D6FD8" } : {}}
                       >
                         <ChildIcon className={`w-4 h-4 shrink-0 ${active ? "text-white" : "text-gray-400 group-hover:text-gray-600"}`} />
                         <span className="truncate">{child.label}</span>
@@ -287,45 +303,8 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout }: Sid
         })}
       </nav>
 
-      <div className="mx-3 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
 
-      {/* User footer */}
-      <div className={`px-2.5 py-3 ${collapsed ? "flex justify-center" : ""}`}>
-        {user ? (
-          collapsed ? (
-            <Tooltip label={user.name}>
-              <button
-                onClick={onLogout}
-                className="w-8 h-8 rounded-full bg-gray-900 text-white flex items-center justify-center font-semibold text-xs hover:bg-red-600 transition-colors duration-200"
-              >
-                {initials}
-              </button>
-            </Tooltip>
-          ) : (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2.5 px-1">
-                <div className="w-8 h-8 rounded-full bg-gray-900 text-white flex items-center justify-center font-semibold text-xs shrink-0">
-                  {initials}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-semibold text-gray-900 truncate leading-tight">{user.name}</p>
-                  <p className="text-[11px] text-gray-400 truncate leading-tight mt-0.5">{user.email}</p>
-                </div>
-              </div>
-              <button
-                id="sidebar-logout-btn"
-                onClick={onLogout}
-                className="w-full flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-[12px] font-medium text-gray-500 bg-white border border-gray-200 hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition-all duration-150 outline-none shadow-xs hover:shadow-sm"
-              >
-                <LogOut className="w-3.5 h-3.5 shrink-0" />
-                <span>Sign out</span>
-              </button>
-            </div>
-          )
-        ) : (
-          <p className="text-center text-[11px] text-gray-400 py-2">{collapsed ? "—" : "No active session"}</p>
-        )}
-      </div>
     </div>
   );
 }
+

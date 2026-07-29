@@ -34,7 +34,7 @@ export default function CookieScanner({ authToken }: CookieScannerProps) {
 
       <div className="mb-10 flex items-center justify-between">
         <div>
-          <h1 className="text-[26px] font-bold text-gray-900 tracking-tight">Cookie Scanner</h1>
+          <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#1D6FD8" }}>Cookie Scanner</h1>
           <p className="text-[13px] text-gray-500 mt-1">Privacy compliance scan and consent engine.</p>
         </div>
       </div>

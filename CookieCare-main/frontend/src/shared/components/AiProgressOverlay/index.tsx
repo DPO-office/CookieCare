@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { Sparkles, Loader2, AlertTriangle, RefreshCw, X } from "lucide-react";
 
 const PROGRESS_STEPS = [
@@ -63,12 +63,12 @@ export default function AiProgressOverlay({
           <div className="absolute inset-x-0 top-0 h-[3px] bg-gray-100 overflow-hidden">
             {hasProgress ? (
               <div
-                className="h-full bg-gray-900 rounded-full transition-all duration-500 ease-out"
+                className="h-full rounded-full transition-all duration-500 ease-out" style={{ background: "#1D6FD8" }}
                 style={{ width: `${clampedProgress}%` }}
               />
             ) : (
               <div
-                className="h-full bg-gray-900 rounded-full"
+                className="h-full rounded-full" style={{ background: "#1D6FD8" }}
                 style={{ width: "40%", animation: "slideIndeterminate 1.5s cubic-bezier(0.65,0,0.35,1) infinite" }}
               />
             )}
@@ -121,7 +121,7 @@ export default function AiProgressOverlay({
               </button>
             )}
             {onRetry && (
-              <button onClick={onRetry} className="flex items-center gap-1.5 px-4 py-2 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition cursor-pointer">
+              <button onClick={onRetry} className="flex items-center gap-1.5 px-4 py-2 -90 transition cursor-pointer" style={{ background: "#1D6FD8" }}>
                 <RefreshCw className="w-3.5 h-3.5" />Retry
               </button>
             )}
@@ -143,3 +143,6 @@ export default function AiProgressOverlay({
     </div>
   );
 }
+
+
+

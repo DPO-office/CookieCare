@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import {
   CheckCircle2, AlertTriangle, FileSearch, Sparkles,
   Download, Copy, Check, RefreshCw, ArrowRight, Loader2,
@@ -81,8 +81,8 @@ export function DPAResultsState({ fileName, reviewResult, onReset }: DPAResultsS
             <span className="badge badge-success">Analysis Complete</span>
             <span className="text-[11px] text-gray-400 font-medium truncate max-w-[240px]">{fileName}</span>
           </div>
-          <h1 className="text-[24px] font-bold text-gray-900 tracking-tight">DPA Compliance Report</h1>
-          <p className="text-[13px] text-gray-500 mt-1">AI-generated GDPR compliance analysis and risk assessment.</p>
+          <h1 className="text-[24px] font-bold tracking-tight" style={{ color: "#1D6FD8" }}>DPA Compliance Report</h1>
+          <p className="text-[13px] text-gray-500 mt-1">GDPR compliance analysis and data processing risk findings.</p>
           {summary && (
             <p className="text-[13px] text-gray-600 mt-2 max-w-2xl leading-relaxed">{summary}</p>
           )}
@@ -144,7 +144,7 @@ export function DPAResultsState({ fileName, reviewResult, onReset }: DPAResultsS
                 key={t}
                 onClick={() => setActiveTab(t)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium transition-all duration-150 cursor-pointer
-                  ${activeTab === t ? "bg-gray-900 text-white shadow-sm" : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 hover:text-gray-800 hover:border-gray-300"}`}
+                  ${activeTab === t ? "bg-[#1D6FD8] text-white shadow-sm" : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 hover:text-gray-800 hover:border-gray-300"}`}
               >
                 {t === "findings"        && <FileSearch className="w-3.5 h-3.5" />}
                 {t === "recommendations" && <Sparkles   className="w-3.5 h-3.5" />}
@@ -375,3 +375,6 @@ export function DPAResultsState({ fileName, reviewResult, onReset }: DPAResultsS
     </div>
   );
 }
+
+
+

@@ -34,7 +34,7 @@ export default function AdvancedPanel() {
   return (
     <div className="space-y-5">
       <SettingCard>
-        <CardHeader icon={Activity} title="Workspace Health" desc="Real-time status of all Lexify platform services." />
+        <CardHeader icon={Activity} title="Workspace Health" desc="Real-time status of all randtrust platform services." />
         <CardBody className="pb-2">
           <div className={`flex items-center gap-3 mb-5 px-4 py-3.5 rounded-xl border ${overallHealthy ? "bg-emerald-50 border-emerald-100" : "bg-amber-50 border-amber-100"}`}>
             <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${overallHealthy ? "bg-emerald-500" : "bg-amber-500 animate-pulse"}`} />

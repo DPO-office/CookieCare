@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Sidebar } from "./shared/layout";
+import { Sidebar, TopNav } from "./shared/layout";
 import AuthModal from "./features/auth";
 import AdminPanel from "./features/admin";
 import DashboardHome from "./features/dashboard";
@@ -136,6 +136,15 @@ export default function App() {
 
       {/* 2. MAIN HUB INTERACTION PANE */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+
+        {/* TOP NAVIGATION BAR */}
+        <TopNav
+          user={currentUser}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          onLogout={handleLogout}
+        />
+
         {activeTab === "dashboard" && (
           <DashboardHome
             userName={currentUser.name}
@@ -220,17 +229,6 @@ export default function App() {
         )}
       </main>
 
-      {/* 3. HIDDEN ADMIN DOT */}
-      <footer className="fixed bottom-2 right-2 opacity-0 hover:opacity-100 transition-opacity">
-        <button
-          onClick={() => {
-            window.history.pushState({}, "", "/demo-admin-panel");
-            setActiveTab("admin-panel");
-          }}
-          className="w-1 h-1 bg-gray-300 rounded-full cursor-default"
-          title="Admin Access"
-        />
-      </footer>
     </div>
   );
 }

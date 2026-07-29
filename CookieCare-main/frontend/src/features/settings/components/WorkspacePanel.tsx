@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { Building2, Users, CreditCard } from "lucide-react";
 import { SettingCard, CardHeader, CardBody, CardFooter, Label, Input, SavedIndicator, useSaved } from "./SettingsPrimitives";
 
 export default function WorkspacePanel() {
-  const [orgName, setOrgName] = useState("Lexify Enterprise");
-  const [orgSlug, setOrgSlug] = useState("lexify-enterprise");
+  const [orgName, setOrgName] = useState("randtrust Enterprise");
+  const [orgSlug, setOrgSlug] = useState("randtrust-enterprise");
   const [saved, trigger]      = useSaved();
 
   const members = [
@@ -37,7 +37,7 @@ export default function WorkspacePanel() {
           <div>
             <Label>Workspace slug</Label>
             <div className="flex items-center">
-              <span className="bg-gray-100 border border-r-0 border-gray-200 rounded-l-xl px-3 py-2.5 text-[12px] text-gray-400 shrink-0">lexify.cloud/</span>
+              <span className="bg-gray-100 border border-r-0 border-gray-200 rounded-l-xl px-3 py-2.5 text-[12px] text-gray-400 shrink-0">randtrust.cloud/</span>
               <Input value={orgSlug} onChange={e => setOrgSlug(e.target.value)} className="rounded-l-none" />
             </div>
           </div>
@@ -53,7 +53,7 @@ export default function WorkspacePanel() {
         <div className="divide-y divide-gray-50">
           {members.map((m, i) => (
             <div key={i} className="px-6 py-3.5 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-gray-900 text-white flex items-center justify-center font-semibold text-[11px] shrink-0">{m.avatar}</div>
+              <div className="w-8 h-8 rounded-full text-white flex items-center justify-center font-semibold text-[11px] shrink-0" style={{ background: "#1D6FD8" }}>{m.avatar}</div>
               <div className="flex-1 min-w-0">
                 <p className="text-[13px] font-medium text-gray-900 truncate">{m.name}</p>
                 <p className="text-[11px] text-gray-400 truncate">{m.email}</p>
@@ -88,3 +88,5 @@ export default function WorkspacePanel() {
     </div>
   );
 }
+
+

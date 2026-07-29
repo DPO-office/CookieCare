@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+﻿import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Upload, FileText, Sparkles, ArrowRight, AlertCircle } from "lucide-react";
 import { FEATURE_CARDS } from "../constants";
 
@@ -46,13 +46,13 @@ export function DPAUploadState({ onFileSelected, uploadError }: DPAUploadStatePr
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
           <div className="max-w-xl">
         
-            <h1 className="text-[26px] font-bold text-gray-900 tracking-tight leading-tight mb-2.5">
+            <h1 className="text-[26px] font-bold tracking-tight leading-tight mb-2.5" style={{ color: "#1D6FD8" }}>
               Data Processing Agreement Reviewer
             </h1>
             <p className="text-[13.5px] text-gray-500 leading-relaxed">
-              Upload your DPA and let AI review GDPR compliance, processor
-              obligations, security requirements, contractual risks, and missing
-              clauses to generate a comprehensive compliance report.
+              Upload your DPA for a structured review covering GDPR compliance,
+              processor obligations, security requirements, contractual risks,
+              and missing clauses — with a comprehensive compliance report on completion.
             </p>
           </div>
         </div>
@@ -103,8 +103,8 @@ export function DPAUploadState({ onFileSelected, uploadError }: DPAUploadStatePr
             <div
               className={`relative w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-all duration-250 shadow-xs
                 ${dragging
-                  ? "bg-gray-900 text-white scale-110 shadow-md"
-                  : "bg-white text-gray-500 border border-gray-200 group-hover:bg-gray-900 group-hover:text-white group-hover:shadow-sm group-hover:scale-105"
+                  ? "bg-[#1D6FD8] text-white scale-110 shadow-md"
+                  : "bg-white text-gray-500 border border-gray-200 group-hover:text-white group-hover:shadow-sm group-hover:scale-105"
                 }`}
             >
               <Upload className="w-6 h-6" />
@@ -144,7 +144,7 @@ export function DPAUploadState({ onFileSelected, uploadError }: DPAUploadStatePr
                 What we'll analyze
               </h2>
               <p className="text-[12.5px] text-gray-500 mt-0.5">
-                Six critical compliance dimensions reviewed by our GDPR AI engine.
+                Six critical compliance dimensions covered.
               </p>
             </div>
           </div>
@@ -157,13 +157,13 @@ export function DPAUploadState({ onFileSelected, uploadError }: DPAUploadStatePr
                   className="group bg-white border border-gray-200 rounded-[16px] p-5 shadow-xs cursor-default hover:shadow-md hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-200"
                   style={{ transitionDelay: `${i * 25}ms` }}
                 >
-                  <div className="w-9 h-9 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-500 mb-3.5 group-hover:bg-gray-900 group-hover:text-white group-hover:border-gray-900 transition-all duration-200 shadow-xs">
+                  <div className="w-9 h-9 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-500 mb-3.5 group-hover:text-white transition-all duration-200 shadow-xs">
                     <Icon className="w-[17px] h-[17px]" />
                   </div>
                   <h3 className="text-[13px] font-bold text-gray-900 mb-1 tracking-tight">{card.title}</h3>
                   <p className="text-[12px] text-gray-500 leading-relaxed">{card.description}</p>
                   <div className="mt-3 pt-3 border-t border-gray-50 flex items-center gap-1 text-[11px] font-medium text-gray-400 group-hover:text-gray-600 transition-colors">
-                    <span>AI reviewed</span>
+                    <span>Reviewed</span>
                     <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-150" />
                   </div>
                 </div>
@@ -175,3 +175,7 @@ export function DPAUploadState({ onFileSelected, uploadError }: DPAUploadStatePr
     </div>
   );
 }
+
+
+
+
