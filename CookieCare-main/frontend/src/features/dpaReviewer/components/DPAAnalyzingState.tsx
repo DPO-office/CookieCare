@@ -124,6 +124,3 @@ export function DPAAnalyzingState({ fileName, steps }: DPAAnalyzingStateProps) {
     </div>
   );
 }
-
-
-

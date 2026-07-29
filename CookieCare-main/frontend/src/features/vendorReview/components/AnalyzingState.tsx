@@ -133,6 +133,3 @@ export function AnalyzingState({ fileNames, steps }: AnalyzingStateProps) {
     </div>
   );
 }
-
-
-

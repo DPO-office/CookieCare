@@ -3,11 +3,11 @@ import {
   Folder, Search, Plus, Trash2, HelpCircle, ChevronRight,
   ChevronLeft, ChevronsLeft, ChevronsRight, Globe, FileText,
   Sparkles, BookOpen, Sliders, Check, Copy, Upload, X,
-  FileCode, Info, FilePen, ExternalLink,
+  FileCode, Info, FilePen, ExternalLink, FolderOpen, XCircle,
 } from "lucide-react";
 import { LegalDocument } from "../../shared/types";
 import { LibraryItem, LibraryTabId } from "./types";
-import { TABS_CONFIG } from "./constants";
+import { TABS_CONFIG, VAULT_UPLOAD_ACCEPT } from "./constants";
 import { fmtDate, parseVaultTags } from "./utils";
 import { useLibrary } from "./hooks/useLibrary";
 
@@ -43,6 +43,8 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
     items, savedDrafts, copiedId, uploadProgress,
     uploadStatus, uploadError, uploadResultMessage, setUploadStatus,
     uploadProgressPercent, uploadProgressMessage, resetUploadProgress,
+    pendingVaultFiles, vaultBatchError, suggestedVaultFolderName,
+    addVaultFiles, removeVaultFile, clearVaultFiles, handleCreateUploadFolder,
     fetchLibraryData, handleCopyId, handleDeleteItem, handleDeleteDraft,
     handleCreateNewItem, handleTriggerUpload, handleVaultAssetUpload, handleDeleteFileFromFolder,
   } = useLibrary(authToken, onRefresh);
@@ -127,6 +129,42 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
 
   const onDeleteItem = (id: string, e: React.MouseEvent) => handleDeleteItem(id, activeTab, e);
 
+  const openFileUpload = (folderId?: string) => {
+    clearVaultFiles();
+    setUploadStatus("idle");
+    setFormFolderTarget(
+      folderId || items.find((item) => item.type === "files")?.id || ""
+    );
+    setIsAddFileOpen(true);
+  };
+
+  const closeFileUpload = () => {
+    if (uploadStatus === "uploading") return;
+    setIsAddFileOpen(false);
+    setUploadStatus("idle");
+    clearVaultFiles();
+  };
+
+  const submitVaultFiles = async () => {
+    let targetFolderId = formFolderTarget;
+    if (targetFolderId === "__uploaded_folder__") {
+      if (!suggestedVaultFolderName) return;
+      targetFolderId =
+        (await handleCreateUploadFolder(suggestedVaultFolderName)) || "";
+      if (!targetFolderId) return;
+      setFormFolderTarget(targetFolderId);
+    }
+    const ok = await handleTriggerUpload(targetFolderId);
+    if (ok) {
+      setTimeout(closeFileUpload, 1200);
+    }
+  };
+
+  const formatUploadSize = (bytes: number) =>
+    bytes < 1024 * 1024
+      ? `${Math.max(1, Math.round(bytes / 1024))} KB`
+      : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+
   return (
     <div className="flex-1 flex flex-col h-full bg-[#F7F8FA] overflow-hidden font-sans">
       <div className="flex-1 flex flex-col overflow-y-auto px-8 py-8">
@@ -153,7 +191,7 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
           </div>
           <div className="flex items-center gap-2.5 shrink-0">
             {activeTab === "files" && (
-              <button onClick={() => { setFormFolderTarget(items.filter((i) => i.type === "files")[0]?.id || ""); setIsAddFileOpen(true); }}
+              <button onClick={() => openFileUpload()}
                 className="inline-flex items-center gap-2 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-sm font-medium text-gray-700 px-4 py-2 rounded-xl transition shadow-sm cursor-pointer">
                 <Upload className="w-3.5 h-3.5" /><span>Add files</span>
               </button>
@@ -442,7 +480,7 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
                 <h3 className="font-semibold text-lg text-gray-900 truncate">{selectedFolder.name}</h3>
                 <p className="text-xs text-gray-400 mt-0.5">ID: {selectedFolder.id} · By {selectedFolder.createdBy}</p>
               </div>
-              <button onClick={() => { setFormFolderTarget(selectedFolder.id); setIsAddFileOpen(true); }} className="inline-flex items-center gap-2 -90 text-white text-sm font-medium px-3.5 py-2 rounded-xl transition shrink-0 cursor-pointer" style={{ background: "#1D6FD8" }}>
+              <button onClick={() => openFileUpload(selectedFolder.id)} className="inline-flex items-center gap-2 -90 text-white text-sm font-medium px-3.5 py-2 rounded-xl transition shrink-0 cursor-pointer" style={{ background: "#1D6FD8" }}>
                 <Upload className="w-3.5 h-3.5" /><span>Add files</span>
               </button>
             </div>
@@ -535,39 +573,123 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
       {/* MODAL: ADD FILE */}
       {isAddFileOpen && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="w-full max-w-md bg-white border border-gray-200 shadow-xl p-6 rounded-2xl relative">
-            <button onClick={() => { setIsAddFileOpen(false); setUploadStatus("idle"); }} className="absolute right-4 top-4 w-8 h-8 flex items-center justify-center rounded-xl border border-gray-200 text-gray-400 hover:text-gray-700 hover:bg-gray-50 cursor-pointer transition"><X className="w-4 h-4" /></button>
+          <div className="w-full max-w-lg bg-white border border-gray-200 shadow-xl p-6 rounded-2xl relative">
+            <button disabled={uploadStatus === "uploading"} onClick={closeFileUpload} className="absolute right-4 top-4 w-8 h-8 flex items-center justify-center rounded-xl border border-gray-200 text-gray-400 hover:text-gray-700 hover:bg-gray-50 cursor-pointer transition disabled:opacity-30 disabled:cursor-not-allowed"><X className="w-4 h-4" /></button>
             <div className="pb-4 border-b border-gray-100 mb-5">
-              <h3 className="font-semibold text-base text-gray-900">Upload files</h3>
-              <p className="text-sm text-gray-500 mt-0.5">Add documents to a folder in your workspace.</p>
+              <h3 className="font-semibold text-base text-gray-900">Upload documents</h3>
+              <p className="text-sm text-gray-500 mt-0.5">Add multiple documents or a whole folder to the vault.</p>
             </div>
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Target folder</label>
-                <select value={formFolderTarget} onChange={(e) => setFormFolderTarget(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300 transition cursor-pointer">
+                <select disabled={uploadStatus === "uploading"} value={formFolderTarget} onChange={(e) => setFormFolderTarget(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300 transition cursor-pointer disabled:opacity-50">
                   <option value="" disabled>Select a folder…</option>
+                  {suggestedVaultFolderName && (
+                    <option value="__uploaded_folder__">
+                      Create/reuse “{suggestedVaultFolderName}”
+                    </option>
+                  )}
                   {items.filter((i) => i.type === "files").map((fld) => (
                     <option key={fld.id} value={fld.id}>{fld.name} ({fld.fileList?.length || 0} files)</option>
                   ))}
                 </select>
               </div>
-              <label className="block border-2 border-dashed border-gray-200 hover:border-gray-400 transition p-7 text-center rounded-2xl bg-gray-50 cursor-pointer">
-                <input type="file" className="hidden" onChange={(e) => handleTriggerUpload(formFolderTarget, e.target.files).then((ok) => {
-                  if (ok) {
-                    setTimeout(() => {
-                      setIsAddFileOpen(false);
-                      setUploadStatus("idle");
-                    }, 2000);
+              <div
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  if (uploadStatus !== "uploading" && e.dataTransfer.files.length) {
+                    addVaultFiles(e.dataTransfer.files);
                   }
-                })} disabled={uploadStatus === "uploading" || !formFolderTarget} />
+                }}
+                className="border-2 border-dashed border-gray-200 hover:border-gray-400 transition p-7 text-center rounded-2xl bg-gray-50"
+              >
                 <Upload className="w-6 h-6 text-gray-300 mx-auto mb-2" />
-                <p className="text-sm font-medium text-gray-700">Drop or click to upload</p>
-                <p className="text-xs text-gray-400 mt-0.5">PDF, Word, Excel, JPG, Text</p>
-              </label>
+                <p className="text-sm font-medium text-gray-700">Drop documents here</p>
+                <p className="text-xs text-gray-400 mt-0.5">PDF, DOCX, DOC, TXT, MD, CSV, JSON · 25 MB each</p>
+                <div className="flex items-center justify-center gap-2 mt-3">
+                  <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-600 hover:border-gray-400 cursor-pointer">
+                    <FileText className="w-3 h-3" />
+                    Browse files
+                    <input
+                      type="file"
+                      accept={VAULT_UPLOAD_ACCEPT}
+                      multiple
+                      className="hidden"
+                      disabled={uploadStatus === "uploading"}
+                      onChange={(e) => {
+                        if (e.target.files) addVaultFiles(e.target.files);
+                        e.target.value = "";
+                      }}
+                    />
+                  </label>
+                  <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-600 hover:border-gray-400 cursor-pointer">
+                    <FolderOpen className="w-3 h-3" />
+                    Upload folder
+                    <input
+                      type="file"
+                      accept={VAULT_UPLOAD_ACCEPT}
+                      className="hidden"
+                      disabled={uploadStatus === "uploading"}
+                      {...({ webkitdirectory: "", directory: "" } as any)}
+                      onChange={(e) => {
+                        if (e.target.files) {
+                          addVaultFiles(e.target.files);
+                          setFormFolderTarget("__uploaded_folder__");
+                        }
+                        e.target.value = "";
+                      }}
+                    />
+                  </label>
+                </div>
+              </div>
+              {vaultBatchError && (
+                <div className="flex items-start gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 p-3 rounded-xl">
+                  <Info className="w-4 h-4 text-amber-500 shrink-0" />
+                  <span>{vaultBatchError}</span>
+                </div>
+              )}
+              {pendingVaultFiles.length > 0 && (
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      {pendingVaultFiles.length} selected
+                    </span>
+                    {uploadStatus !== "uploading" && (
+                      <button type="button" onClick={clearVaultFiles} className="text-xs text-gray-400 hover:text-red-500">Clear all</button>
+                    )}
+                  </div>
+                  <div className="max-h-44 overflow-y-auto space-y-1.5 pr-1">
+                    {pendingVaultFiles.map((item) => (
+                      <div key={item.id} className={`flex items-center gap-2 border rounded-xl px-3 py-2 text-xs ${
+                        item.status === "error" ? "border-red-200 bg-red-50" :
+                        item.status === "done" ? "border-emerald-200 bg-emerald-50" :
+                        item.status === "uploading" || item.status === "processing" ? "border-blue-200 bg-blue-50" :
+                        "border-gray-200 bg-white"
+                      }`}>
+                        {item.status === "done" ? <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> :
+                          item.status === "error" ? <XCircle className="w-3.5 h-3.5 text-red-500 shrink-0" /> :
+                          item.status === "uploading" || item.status === "processing" ? <span className="w-3.5 h-3.5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin shrink-0" /> :
+                          <FileText className="w-3.5 h-3.5 text-gray-400 shrink-0" />}
+                        <span className="truncate flex-1 font-medium text-gray-700" title={item.relativePath || item.file.name}>{item.relativePath || item.file.name}</span>
+                        <span className="text-[10px] text-gray-400 shrink-0">{formatUploadSize(item.file.size)}</span>
+                        {uploadStatus !== "uploading" && item.status !== "done" && (
+                          <button type="button" onClick={() => removeVaultFile(item.id)} className="text-gray-300 hover:text-red-500"><XCircle className="w-3.5 h-3.5" /></button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               {uploadStatus === "uploading" && (
-                <div className="flex items-center gap-2 text-sm text-blue-600 bg-blue-50 border border-blue-100 p-3 rounded-xl animate-pulse">
+                <div className="space-y-2 text-sm text-blue-600 bg-blue-50 border border-blue-100 p-3 rounded-xl">
+                  <div className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin shrink-0" />
-                  <span>Indexing in cloud enclave…</span>
+                    <span>{uploadProgressMessage || "Uploading and indexing documents…"}</span>
+                  </div>
+                  <div className="h-1.5 bg-blue-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-blue-500 transition-all" style={{ width: `${uploadProgressPercent}%` }} />
+                  </div>
                 </div>
               )}
               {uploadStatus === "success" && (
@@ -584,7 +706,22 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
               )}
             </div>
             <div className="flex justify-end gap-2.5 pt-4 border-t border-gray-100 mt-5">
-              <button type="button" onClick={() => { setIsAddFileOpen(false); setUploadStatus("idle"); }} className="px-4 py-2 border border-gray-200 text-gray-600 hover:text-gray-900 rounded-xl text-sm font-medium bg-white hover:bg-gray-50 transition cursor-pointer">Cancel</button>
+              <button type="button" disabled={uploadStatus === "uploading"} onClick={closeFileUpload} className="px-4 py-2 border border-gray-200 text-gray-600 hover:text-gray-900 rounded-xl text-sm font-medium bg-white hover:bg-gray-50 transition cursor-pointer disabled:opacity-40">Cancel</button>
+              <button
+                type="button"
+                disabled={
+                  uploadStatus === "uploading" ||
+                  pendingVaultFiles.filter((item) => item.status === "pending" || item.status === "error").length === 0 ||
+                  !formFolderTarget
+                }
+                onClick={submitVaultFiles}
+                className="px-5 py-2 text-white rounded-xl text-sm font-semibold disabled:opacity-30"
+                style={{ background: "#1D6FD8" }}
+              >
+                {uploadStatus === "uploading"
+                  ? "Uploading…"
+                  : `Upload ${pendingVaultFiles.filter((item) => item.status === "pending" || item.status === "error").length} file${pendingVaultFiles.filter((item) => item.status === "pending" || item.status === "error").length === 1 ? "" : "s"}`}
+              </button>
             </div>
           </div>
         </div>

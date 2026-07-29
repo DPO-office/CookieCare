@@ -20,7 +20,7 @@ interface AiProgressOverlayProps {
   message?: string;
   error?: string;
   label?: string;
-  /** When provided, renders a determinate progress bar (0·100). */
+  /** When provided, renders a determinate progress bar (0–100). */
   progress?: number;
   onRetry?: () => void;
   onDismiss?: () => void;
@@ -121,7 +121,7 @@ export default function AiProgressOverlay({
               </button>
             )}
             {onRetry && (
-              <button onClick={onRetry} className="flex items-center gap-1.5 px-4 py-2 -90 transition cursor-pointer" style={{ background: "#2175D9" }}>
+              <button onClick={onRetry} className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white transition cursor-pointer" style={{ background: "#2175D9" }}>
                 <RefreshCw className="w-3.5 h-3.5" />Retry
               </button>
             )}
@@ -143,6 +143,3 @@ export default function AiProgressOverlay({
     </div>
   );
 }
-
-
-

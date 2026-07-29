@@ -1,3 +1,11 @@
+// ─── Upload limits ───────────────────────────────────────────────────────────
+export const ACCEPTED_UPLOAD_EXTENSIONS = [".pdf", ".docx", ".doc", ".txt", ".md", ".csv", ".json"];
+export const ACCEPTED_UPLOAD_ACCEPT_STRING = ".txt,.md,.json,.pdf,.docx,.doc,.csv";
+export const MAX_UPLOAD_FILES = 25;
+export const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
+export const UPLOAD_CONCURRENCY = 3;
+export const JUNK_FILE_NAMES = new Set([".DS_Store", "Thumbs.db", "desktop.ini", ".gitkeep"]);
+
 // ··· Misc ····································································
 export const SYSTEM_FOLDER_NAME = "Uploaded Documents";
 

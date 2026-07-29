@@ -1,12 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { MouseEvent } from "react";
-import { LibraryItem, LibraryTabId } from "../types";
+import { LibraryItem, LibraryTabId, VaultPendingUpload } from "../types";
 import {
   fetchFolders, fetchLibraryItems, fetchDocuments,
   deleteFolder, deleteDocument, createFolder, createLibraryItem,
   uploadFileToFolder, uploadVaultAsset, VaultIngestCategory,
 } from "../api/vaultApi";
 import { apiUrl } from "../../../config";
+import {
+  VAULT_JUNK_FILE_NAMES,
+  VAULT_MAX_UPLOAD_BYTES,
+  VAULT_MAX_UPLOAD_FILES,
+  VAULT_UPLOAD_CONCURRENCY,
+  VAULT_UPLOAD_EXTENSIONS,
+} from "../constants";
 
 export function useLibrary(authToken: string, onRefresh: () => void) {
   const [items, setItems] = useState<LibraryItem[]>([]);
@@ -17,6 +24,9 @@ export function useLibrary(authToken: string, onRefresh: () => void) {
   const [uploadResultMessage, setUploadResultMessage] = useState<string | null>(null);
   const [uploadProgressPercent, setUploadProgressPercent] = useState(0);
   const [uploadProgressMessage, setUploadProgressMessage] = useState<string | null>(null);
+  const [pendingVaultFiles, setPendingVaultFiles] = useState<VaultPendingUpload[]>([]);
+  const [vaultBatchError, setVaultBatchError] = useState<string | null>(null);
+  const [suggestedVaultFolderName, setSuggestedVaultFolderName] = useState("");
   const uploadProgress = uploadStatus === "uploading";
 
   const resetUploadProgress = () => {
@@ -185,21 +195,151 @@ export function useLibrary(authToken: string, onRefresh: () => void) {
       };
     });
 
-  const handleTriggerUpload = async (targetFolderId: string, files: FileList | null): Promise<boolean> => {
-    if (!files || files.length === 0 || !targetFolderId) return false;
+  const addVaultFiles = useCallback((incoming: FileList | File[]) => {
+    const files = Array.from(incoming);
+    const accepted: File[] = [];
+    let unsupported = 0;
+    let oversized = 0;
+
+    for (const file of files) {
+      const extension = `.${file.name.split(".").pop()?.toLowerCase()}`;
+      if (
+        VAULT_JUNK_FILE_NAMES.has(file.name) ||
+        file.size === 0 ||
+        !VAULT_UPLOAD_EXTENSIONS.includes(extension)
+      ) {
+        unsupported++;
+      } else if (file.size > VAULT_MAX_UPLOAD_BYTES) {
+        oversized++;
+      } else {
+        accepted.push(file);
+      }
+    }
+
+    const rootFolder = accepted
+      .map((file) => (file as File & { webkitRelativePath?: string }).webkitRelativePath)
+      .find(Boolean)
+      ?.split("/")[0];
+    if (rootFolder) setSuggestedVaultFolderName(rootFolder);
+
+    setPendingVaultFiles((current) => {
+      const available = Math.max(0, VAULT_MAX_UPLOAD_FILES - current.length);
+      const added = accepted.slice(0, available).map((file) => ({
+        id: globalThis.crypto?.randomUUID?.() || Math.random().toString(36).slice(2),
+        file,
+        relativePath:
+          (file as File & { webkitRelativePath?: string }).webkitRelativePath || undefined,
+        status: "pending" as const,
+      }));
+      if (accepted.length > available) {
+        setVaultBatchError(`Maximum ${VAULT_MAX_UPLOAD_FILES} files per upload. ${accepted.length - available} file(s) were not added.`);
+      }
+      return [...current, ...added];
+    });
+
+    if (oversized > 0) {
+      setVaultBatchError(`${oversized} file(s) exceeded the 25 MB limit and were not added.`);
+    } else if (unsupported > 0) {
+      setVaultBatchError(`${unsupported} unsupported or empty file(s) were not added.`);
+    } else if (accepted.length > 0) {
+      setVaultBatchError(null);
+    } else {
+      setVaultBatchError("No supported documents were found.");
+    }
+  }, []);
+
+  const removeVaultFile = useCallback((id: string) => {
+    setPendingVaultFiles((current) => current.filter((item) => item.id !== id));
+  }, []);
+
+  const clearVaultFiles = useCallback(() => {
+    setPendingVaultFiles([]);
+    setVaultBatchError(null);
+    setSuggestedVaultFolderName("");
+    resetUploadProgress();
+  }, []);
+
+  const handleCreateUploadFolder = async (name: string): Promise<string | null> => {
+    const existing = items.find(
+      (item) => item.type === "files" && item.name.toLowerCase() === name.toLowerCase()
+    );
+    if (existing) return existing.id;
+    const created = await createFolder(authToken, name);
+    return created?.id || null;
+  };
+
+  const handleTriggerUpload = async (targetFolderId: string): Promise<boolean> => {
+    const files = pendingVaultFiles.filter(
+      (item) => item.status === "pending" || item.status === "error"
+    );
+    if (files.length === 0 || !targetFolderId) return false;
     setUploadStatus("uploading");
     setUploadError(null);
     setUploadResultMessage(null);
+    setUploadProgressPercent(0);
+    setUploadProgressMessage(`Uploading 0 of ${files.length} files…`);
+
+    let completed = 0;
+    let failed = 0;
+    const queue = [...files];
+
+    const updateItem = (id: string, patch: Partial<VaultPendingUpload>) => {
+      setPendingVaultFiles((current) =>
+        current.map((item) => (item.id === id ? { ...item, ...patch } : item))
+      );
+    };
+
+    const worker = async () => {
+      while (queue.length > 0) {
+        const item = queue.shift();
+        if (!item) return;
+        updateItem(item.id, { status: "uploading", error: undefined });
+        try {
+          let jobId: string | undefined;
+          const response = await uploadFileToFolder(
+            authToken,
+            targetFolderId,
+            item.file,
+            (id) => {
+              jobId = id;
+              updateItem(item.id, { status: "processing" });
+            }
+          );
+          if (!response.sync) {
+            if (!jobId) throw new Error("Upload did not return a job id.");
+            await watchJob(jobId);
+          }
+          updateItem(item.id, { status: "done" });
+        } catch (error: any) {
+          failed++;
+          updateItem(item.id, {
+            status: "error",
+            error: error.message || "Upload failed.",
+          });
+        } finally {
+          completed++;
+          setUploadProgressPercent(Math.round((completed / files.length) * 100));
+          setUploadProgressMessage(`Processed ${completed} of ${files.length} files`);
+        }
+      }
+    };
+
     try {
-      let pendingJob: Promise<any> | null = null;
-      const res = await uploadFileToFolder(authToken, targetFolderId, files[0], (jobId) => {
-        pendingJob = watchJob(jobId);
-      });
-      if (pendingJob) await pendingJob;
-      else if (!res.sync) throw new Error("Upload did not return a job id.");
+      await Promise.all(
+        Array.from(
+          { length: Math.min(VAULT_UPLOAD_CONCURRENCY, files.length) },
+          () => worker()
+        )
+      );
+      await fetchLibraryData();
+      onRefresh();
+      if (failed > 0) {
+        setUploadStatus("error");
+        setUploadError(`${failed} of ${files.length} files failed. Remove them or retry.`);
+        return false;
+      }
       setUploadStatus("success");
-      setUploadResultMessage("File uploaded and parsed successfully!");
-      fetchLibraryData();
+      setUploadResultMessage(`${files.length} file${files.length === 1 ? "" : "s"} uploaded and parsed successfully!`);
       return true;
     } catch (err: any) {
       setUploadStatus("error");
@@ -320,6 +460,8 @@ export function useLibrary(authToken: string, onRefresh: () => void) {
     items, setItems, savedDrafts, copiedId, uploadProgress,
     uploadStatus, uploadError, uploadResultMessage, setUploadStatus,
     uploadProgressPercent, uploadProgressMessage, resetUploadProgress,
+    pendingVaultFiles, vaultBatchError, suggestedVaultFolderName,
+    addVaultFiles, removeVaultFile, clearVaultFiles, handleCreateUploadFolder,
     fetchLibraryData, handleCopyId, handleDeleteItem, handleDeleteDraft,
     handleCreateNewItem, handleTriggerUpload, handleVaultAssetUpload, handleDeleteFileFromFolder,
   };

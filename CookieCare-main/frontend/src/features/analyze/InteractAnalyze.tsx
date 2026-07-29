@@ -170,7 +170,9 @@ export default function InteractAnalyze({
           uploadSelectedFolder={upload.uploadSelectedFolder}
           isDraggingFile={upload.isDraggingFile}
           isUploading={upload.isUploading}
-          uploadedFileName={upload.uploadedFileName}
+          pendingFiles={upload.pendingFiles}
+          batchError={upload.batchError}
+          uploadProgress={upload.uploadProgress}
           onClose={() => setIsSidePanelOpen(false)}
           onSetNewFolderName={setNewFolderName}
           onSetUploadSelectedFolder={upload.setUploadSelectedFolder}
@@ -179,7 +181,10 @@ export default function InteractAnalyze({
           onDragLeave={upload.handleDragLeave}
           onDrop={upload.handleDrop}
           onFileBrowseChange={upload.handleFileBrowseChange}
-          onUploadSubmit={(e) => upload.executeUploadSubmission(e, () => setIsSidePanelOpen(false))}
+          onFolderBrowseChange={upload.handleFolderBrowseChange}
+          onRemoveFile={upload.removeFile}
+          onClearFiles={upload.clearFiles}
+          onUploadSubmit={(e) => upload.executeUploadSubmission(e, () => { upload.clearFiles(); setIsSidePanelOpen(false); })}
         />
       )}
     </div>

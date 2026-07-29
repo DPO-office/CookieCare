@@ -141,7 +141,3 @@ export function EthicsAnalyzingState({ fileNames, steps }: EthicsAnalyzingStateP
     </div>
   );
 }
-
-
-
-

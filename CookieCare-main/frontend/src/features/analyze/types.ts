@@ -40,3 +40,13 @@ export type DocumentMode = "unified" | "individual";
 export type AnswerStyle = "narrative" | "tabular";
 export type PromptTab = "write" | "library" | "questions";
 export type SidePanelType = "folder" | "upload";
+
+export interface PendingUpload {
+  id: string;
+  file: File;
+  relativePath?: string;
+  status: "pending" | "uploading" | "processing" | "done" | "error";
+  error?: string;
+  jobId?: string;
+  fileId?: string;
+}
