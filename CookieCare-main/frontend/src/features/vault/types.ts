@@ -21,3 +21,11 @@ export interface LibraryItem {
   details?: string | Record<string, unknown>;
   fileList?: Array<{ id?: string; name: string; size: string; type: string }>;
 }
+
+export interface VaultPendingUpload {
+  id: string;
+  file: File;
+  relativePath?: string;
+  status: "pending" | "uploading" | "processing" | "done" | "error";
+  error?: string;
+}
