@@ -37,8 +37,6 @@ export default function DraftAgreement({
   const [selectedTextRange, setSelectedTextRange] = useState<{ start: number; end: number } | null>(null);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [askAiQuery, setAskAiQuery] = useState("");
-  const [showAskAiInput, setShowAskAiInput] = useState(false);
-  const [isAiRefiningText, setIsAiRefiningText] = useState(false);
 
   // --- API actions ---
   const apiActions = useDraftApiActions({
@@ -70,9 +68,7 @@ export default function DraftAgreement({
     selectedTextRange,
     setSelectedTextRange,
     setShowFloatingMenu,
-    setIsAiRefiningText,
     setActiveDropdown,
-    setShowAskAiInput,
     setAskAiQuery,
     refinementProgress: generatorState.refinementProgress,
     setRefinementProgress: generatorState.setRefinementProgress,
@@ -161,7 +157,6 @@ export default function DraftAgreement({
       setShowFloatingMenu(false);
       setSelectedTextRange(null);
       setActiveDropdown(null);
-      setShowAskAiInput(false);
       return;
     }
 
@@ -330,7 +325,9 @@ export default function DraftAgreement({
       ) : (
         editorState.selectedDoc && (
           <div className="flex-1 bg-[#F2F4F7] flex flex-col overflow-hidden relative draft-editor-workspace">
-            
+
+            {/* Header and toolbar stay full width; the document itself is
+                constrained inside EditorCanvas. */}
             <EditorHeader
               selectedDoc={editorState.selectedDoc}
               documents={documents}
@@ -367,12 +364,10 @@ export default function DraftAgreement({
             <EditorCanvas
               editorContent={editorState.editorContent}
               isFullySigned={isFullySigned}
-              isAiRefiningText={isAiRefiningText}
               showFloatingMenu={showFloatingMenu}
               floatingMenuPos={floatingMenuPos}
               selectedTextRange={selectedTextRange}
               activeDropdown={activeDropdown}
-              showAskAiInput={showAskAiInput}
               askAiQuery={askAiQuery}
               tiptapEditorRef={editorState.tiptapEditorRef}
               onEditorChange={(html) => {
@@ -385,7 +380,6 @@ export default function DraftAgreement({
               onSelectionChange={handleEditorSelectionChange}
               onApplyRewrite={generatorActions.handleApplyRewriteResilient}
               onSetActiveDropdown={setActiveDropdown}
-              onSetShowAskAiInput={setShowAskAiInput}
               onSetAskAiQuery={setAskAiQuery}
               onSetShowFloatingMenu={setShowFloatingMenu}
               onSetSelectedTextRange={setSelectedTextRange}

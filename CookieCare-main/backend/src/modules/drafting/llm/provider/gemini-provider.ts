@@ -1,7 +1,16 @@
 
 import { GoogleGenAI } from "@google/genai";
-import { ILLMProvider } from "./base-provider.js";
+import { CompletionOutcome, ILLMProvider } from "./base-provider.js";
 import { TaskModelConfig, GEMINI_ENV_CONFIG } from "../../config/model-specs.js";
+
+/**
+ * Gemini reports MAX_TOKENS when the response was cut off by maxOutputTokens.
+ * Anything else (STOP, or an absent reason on intermediate stream chunks) means the
+ * model ended on its own terms.
+ */
+function isTruncated(finishReason: unknown): boolean {
+  return typeof finishReason === "string" && finishReason.toUpperCase() === "MAX_TOKENS";
+}
 
 /**
  * LATENCY_QUICKWIN: resolve a legal thinkingBudget per model.
@@ -38,7 +47,7 @@ export class GeminiProvider implements ILLMProvider {
     });
   }
 
-  async getCompletion(prompt: string, systemInstruction: string, runtimeConfig: TaskModelConfig): Promise<string> {
+  async getCompletion(prompt: string, systemInstruction: string, runtimeConfig: TaskModelConfig): Promise<CompletionOutcome> {
     try {
       // LATENCY_QUICKWIN: previous config without thinking control — restore if quality regresses
       // const response = await this.ai.models.generateContent({
@@ -63,7 +72,10 @@ export class GeminiProvider implements ILLMProvider {
         }
       });
 
-      return response.text ?? "";
+      return {
+        text: response.text ?? "",
+        truncated: isTruncated(response.candidates?.[0]?.finishReason)
+      };
     } catch (err: any) {
       throw new Error(`Gemini Completion Engine failure: ${err.message}`);
     }
@@ -79,7 +91,7 @@ export class GeminiProvider implements ILLMProvider {
     systemInstruction: string,
     runtimeConfig: TaskModelConfig,
     onDelta: (delta: string) => void
-  ): Promise<string> {
+  ): Promise<CompletionOutcome> {
     try {
       const stream = await this.ai.models.generateContentStream({
         model: runtimeConfig.model,
@@ -93,8 +105,11 @@ export class GeminiProvider implements ILLMProvider {
       });
 
       let full = "";
+      let finishReason: unknown;
       for await (const chunk of stream) {
         const piece = chunk.text ?? "";
+        // Only the final chunk carries a finishReason; keep the last one we see.
+        finishReason = chunk.candidates?.[0]?.finishReason ?? finishReason;
         if (piece) {
           full += piece;
           try {
@@ -104,7 +119,7 @@ export class GeminiProvider implements ILLMProvider {
           }
         }
       }
-      return full;
+      return { text: full, truncated: isTruncated(finishReason) };
     } catch (err: any) {
       throw new Error(`Gemini Streaming Engine failure: ${err.message}`);
     }

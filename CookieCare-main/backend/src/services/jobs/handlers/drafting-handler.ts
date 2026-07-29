@@ -223,10 +223,14 @@ async function handleRefinementJob(jobId: string, userId: string, payload: any):
         console.warn(`[DraftingHandler/Refine] Snapshot trace lookup bypassed for database row ${targetDocId}:`, dbErr);
     }
 
-    let documentText = highlightedText || text || "";
+    // highlightedText identifies the user's edit target; it is never the source
+    // document itself. Refinement returns and persists a complete document, so
+    // always rebuild that document from the latest snapshot/file (with `text` as
+    // a legacy full-document fallback).
+    let documentText = text || "";
 
     if (historicalStateSnapshot) {
-        documentText = highlightedText || historicalStateSnapshot.draft?.formattedDocument || text || "";
+        documentText = historicalStateSnapshot.draft?.formattedDocument || text || "";
     } else {
         try {
             const fileLookup = await withTransaction(userId, "USER", async (client) => {
@@ -241,7 +245,7 @@ async function handleRefinementJob(jobId: string, userId: string, payload: any):
                 const fileContent = fileLookup.is_encrypted
                     ? decryptData(fileLookup.content)
                     : fileLookup.content;
-                documentText = highlightedText || fileContent || text || "";
+                documentText = fileContent || text || "";
             }
         } catch (fileErr) {
             console.warn(`[DraftingHandler/Refine] File content lookup bypassed for ${targetDocId}:`, fileErr);

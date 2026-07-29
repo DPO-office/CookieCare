@@ -14,7 +14,7 @@ export function parseBoldText(text: string): React.ReactNode[] {
 export function renderContentText(text: string): React.ReactElement {
   const html = markdownToHtml(text);
   return React.createElement("div", {
-    className: "richtext-editor text-[13px] text-gray-700 leading-relaxed",
+    className: "md-content text-[14px] text-gray-700 leading-relaxed",
     dangerouslySetInnerHTML: { __html: html }
   });
 }

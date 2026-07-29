@@ -1,7 +1,9 @@
 import { LLMProvider,LLMTask, PROVIDER_TASK_PRESETS } from "../config/model-specs.js";
 import { GeminiProvider } from "./provider/gemini-provider.js";
 import { OpenRouterLegacyProvider } from "./provider/openrouter-provider.js"; 
-import { ILLMProvider } from "./provider/base-provider.js";
+import { CompletionOutcome, ILLMProvider } from "./provider/base-provider.js";
+
+export type { CompletionOutcome } from "./provider/base-provider.js";
 
 // Keep singleton instances cached in server memory for fast execution pooling
 const providersCache: Record<string, ILLMProvider> = {};
@@ -60,10 +62,44 @@ export async function executeCompletion(
   task: LLMTask,
   provider: LLMProvider = LLMProvider.GEMINI // Defaults cleanly to your billing tier
 ): Promise<string> {
+  const { text } = await executeBoundedCompletion(prompt, systemInstruction, task, provider);
+  return text;
+}
+
+/**
+ * Completion variant for callers that need to know *why* the model stopped and want to
+ * size the output budget per request instead of using the static task preset.
+ *
+ * Streams when `onDelta` is supplied (falling back to a single blocking call for providers
+ * without streaming support), and always resolves with the truncation flag so long-document
+ * callers can issue a continuation pass rather than saving a half-finished artifact.
+ */
+export async function executeBoundedCompletion(
+  prompt: string,
+  systemInstruction: string,
+  task: LLMTask,
+  provider: LLMProvider = LLMProvider.GEMINI,
+  options: { maxOutputTokens?: number; onDelta?: (delta: string) => void } = {}
+): Promise<CompletionOutcome> {
   const engine = getProviderEngine(provider);
-  const runtimeConfig = PROVIDER_TASK_PRESETS[provider][task];
-  
-  return executeWithRetry(() => engine.getCompletion(prompt, systemInstruction, runtimeConfig));
+  const preset = PROVIDER_TASK_PRESETS[provider][task];
+  const runtimeConfig = options.maxOutputTokens
+    ? { ...preset, maxOutputTokens: options.maxOutputTokens }
+    : preset;
+
+  const { onDelta } = options;
+  if (onDelta && typeof engine.getCompletionStream === "function") {
+    return executeWithRetry(() =>
+      engine.getCompletionStream!(prompt, systemInstruction, runtimeConfig, onDelta)
+    );
+  }
+
+  const outcome = await executeWithRetry(() =>
+    engine.getCompletion(prompt, systemInstruction, runtimeConfig)
+  );
+  // Provider has no streaming — emit the whole result once so `onDelta` always fires.
+  if (onDelta) onDelta(outcome.text);
+  return outcome;
 }
 
 export async function executeJsonCompletion<T>(
@@ -92,19 +128,6 @@ export async function executeCompletionStream(
   onDelta: (delta: string) => void,
   provider: LLMProvider = LLMProvider.GEMINI
 ): Promise<string> {
-  const engine = getProviderEngine(provider);
-  const runtimeConfig = PROVIDER_TASK_PRESETS[provider][task];
-
-  if (typeof engine.getCompletionStream === "function") {
-    return executeWithRetry(() =>
-      engine.getCompletionStream!(prompt, systemInstruction, runtimeConfig, onDelta)
-    );
-  }
-
-  // Fallback: provider has no streaming — run once and emit the whole result.
-  const full = await executeWithRetry(() =>
-    engine.getCompletion(prompt, systemInstruction, runtimeConfig)
-  );
-  onDelta(full);
-  return full;
+  const { text } = await executeBoundedCompletion(prompt, systemInstruction, task, provider, { onDelta });
+  return text;
 }

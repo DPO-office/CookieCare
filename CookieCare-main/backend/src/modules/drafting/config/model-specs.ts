@@ -71,10 +71,10 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
       // Flash was considered and rejected for the main generation call in this pass.
       model: GeminiModel.GEMINI_2_5_PRO, 
       temperature: 0.0, 
-      // LATENCY: output length is the #1 latency driver. A ~2000-word agreement is
-      // ~3000 tokens; 4096 leaves generous headroom while bounding worst-case emit
-      // time. Previous value was 8192 — restore it if long documents get truncated.
-      // maxOutputTokens: 8192
+      // LATENCY: output length is the #1 latency driver, so this stays low. It is the
+      // FLOOR only: generation.ts sizes the real budget per request from the document
+      // skeleton / required clauses / source document and overrides this value, then
+      // continues the draft if the model still reports MAX_TOKENS.
       maxOutputTokens: 4096 
     },
     [LLMTask.STRUCTURAL_JSON]: { 
@@ -133,7 +133,27 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
 };
 
 /**
- * 5. GCP INFRASTRUCTURE CONFIGURATION ENVELOPE
+ * 5. OUTPUT CAPACITY LIMITS
+ * Hard per-response output ceilings published by each vendor. A dynamically sized token
+ * budget is clamped to these, so a large document request can never ask for more than the
+ * model will emit (which the API rejects outright).
+ */
+const DEFAULT_OUTPUT_TOKEN_CEILING = 8192;
+
+const MODEL_OUTPUT_TOKEN_CEILINGS: Record<string, number> = {
+  [GeminiModel.GEMINI_2_5_FLASH]: 65535,
+  [GeminiModel.GEMINI_2_5_PRO]: 65535,
+  [OpenRouterModel.CLAUDE_3_5_SONNET]: 8192,
+  [OpenRouterModel.LLAMA_3_3_70B]: 8192,
+  [OpenRouterModel.GPT_4O_MINI]: 16384
+};
+
+export function resolveOutputTokenCeiling(model: string): number {
+  return MODEL_OUTPUT_TOKEN_CEILINGS[model] ?? DEFAULT_OUTPUT_TOKEN_CEILING;
+}
+
+/**
+ * 6. GCP INFRASTRUCTURE CONFIGURATION ENVELOPE
  */
 if (!process.env.GOOGLE_CLOUD_PROJECT) {
   throw new Error(

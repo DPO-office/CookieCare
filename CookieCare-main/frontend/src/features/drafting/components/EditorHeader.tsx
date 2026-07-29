@@ -146,8 +146,8 @@ export default function EditorHeader({
           title={isFullySigned ? "Document is sealed" : "Save draft"}
           className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-lg -90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed ml-1 shadow-xs" style={{ background: "#2175D9" }}
         >
-          <Save className="w-3.5 h-3.5" />
-          <span>{isFullySigned ? "Locked" : "Save"}</span>
+          <Save className="w-3.5 h-3.5 text-white" />
+          <span className="text-white font-normal">{isFullySigned ? "Locked" : "Save"}</span>
         </button>
 
       </div>

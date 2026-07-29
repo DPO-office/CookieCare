@@ -1,6 +1,6 @@
 // src/modules/llm/provider/openrouter-provider.ts
 
-import { ILLMProvider } from "./base-provider.js";
+import { CompletionOutcome, ILLMProvider } from "./base-provider.js";
 import { TaskModelConfig } from "../../config/model-specs.js";
 
 export class OpenRouterLegacyProvider implements ILLMProvider {
@@ -16,7 +16,7 @@ export class OpenRouterLegacyProvider implements ILLMProvider {
     this.baseUrl = "https://openrouter.ai/api/v1/chat/completions";
   }
 
-  async getCompletion(prompt: string, systemInstruction: string, runtimeConfig: TaskModelConfig): Promise<string> {
+  async getCompletion(prompt: string, systemInstruction: string, runtimeConfig: TaskModelConfig): Promise<CompletionOutcome> {
     const messages = [];
     if (systemInstruction?.trim()) {
       messages.push({ role: "system", content: systemInstruction });
@@ -42,21 +42,24 @@ export class OpenRouterLegacyProvider implements ILLMProvider {
       ? { type: "json_schema", json_schema: { name: "structured_output", strict: true, schema: jsonSchema } }
       : { type: "json_object" };
 
-    const rawResultText = await this.executeFetchCall(messages, runtimeConfig, responseFormat);
+    const { text } = await this.executeFetchCall(messages, runtimeConfig, responseFormat);
     
     try {
-      return JSON.parse(rawResultText) as T;
+      return JSON.parse(text) as T;
     } catch (err: any) {
-      throw new Error(`OpenRouter JSON payload parsing failed: ${err.message}. Raw text payload: ${rawResultText}`);
+      throw new Error(`OpenRouter JSON payload parsing failed: ${err.message}. Raw text payload: ${text}`);
     }
   }
 
-  private async executeFetchCall(messages: any[], runtimeConfig: TaskModelConfig, responseFormat?: any): Promise<string> {
+  private async executeFetchCall(messages: any[], runtimeConfig: TaskModelConfig, responseFormat?: any): Promise<CompletionOutcome> {
     const body: Record<string, any> = {
       model: runtimeConfig.model,
       messages,
       temperature: runtimeConfig.temperature
     };
+    if (runtimeConfig.maxOutputTokens) {
+      body.max_tokens = runtimeConfig.maxOutputTokens;
+    }
     if (responseFormat) {
       body.response_format = responseFormat;
     }
@@ -75,13 +78,17 @@ export class OpenRouterLegacyProvider implements ILLMProvider {
       throw new Error(`OpenRouter API endpoint response error (${res.status}): ${errorText}`);
     }
 
-    const data = await res.json();
-    const content = data?.choices?.[0]?.message?.content;
+    const data = await res.json() as {
+      choices?: { message?: { content?: unknown }; finish_reason?: string }[];
+    };
+    const choice = data?.choices?.[0];
+    const content = choice?.message?.content;
     
     if (typeof content !== "string") {
       throw new Error("OpenRouter payload emerged from network missing expected text content keys.");
     }
 
-    return content;
+    // OpenAI-compatible APIs report "length" when the response hit max_tokens.
+    return { text: content, truncated: choice?.finish_reason === "length" };
   }
 }

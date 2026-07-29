@@ -27,8 +27,9 @@ export default function StreamingDraftPreview({ html, progress }: StreamingDraft
 
   return (
     <div className="flex-1 bg-[#F2F4F7] flex flex-col overflow-hidden">
-      {/* Streaming status bar */}
-      <div className="flex items-center gap-2 px-6 py-3 border-b border-gray-200 bg-white">
+
+      {/* Streaming status bar - full width, like the editor header it becomes */}
+      <div className="flex items-center gap-2 px-6 py-3 border-b border-gray-200 bg-white shrink-0">
         <div className="relative w-5 h-5">
           <div className="w-5 h-5 rounded-full border-2 border-gray-200 border-t-gray-900 animate-spin" />
           <Sparkles className="w-3 h-3 text-gray-900 absolute inset-0 m-auto" />
@@ -39,11 +40,12 @@ export default function StreamingDraftPreview({ html, progress }: StreamingDraft
         <span className="ml-auto text-xs text-gray-400">Writing live · please wait</span>
       </div>
 
-      {/* Live document */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto py-8 px-4">
-        <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 p-10 min-h-full">
+      {/* Live document - same centered sheet the editor uses, so the draft does
+          not change width when streaming finishes. */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto py-8 px-6 sm:px-10">
+        <div className="w-full max-w-5xl mx-auto bg-white border border-gray-200 rounded-[18px] shadow-xs px-10 py-10">
           <div
-            className="draft-streaming-content text-[15px] leading-relaxed text-gray-800"
+            className="draft-streaming-content"
             dangerouslySetInnerHTML={{
               __html: html || "<p style='color:#9ca3af'>Preparing your document…</p>",
             }}
@@ -52,17 +54,6 @@ export default function StreamingDraftPreview({ html, progress }: StreamingDraft
           <span className="inline-block w-[2px] h-4 bg-gray-800 ml-0.5 align-text-bottom animate-pulse" />
         </div>
       </div>
-
-      {/* Minimal typographic styling for the streamed markdown (no editor styles yet) */}
-      <style>{`
-        .draft-streaming-content h1 { font-size: 1.5rem; font-weight: 700; margin: 0 0 0.75rem; text-transform: uppercase; }
-        .draft-streaming-content h2 { font-size: 1.15rem; font-weight: 700; margin: 1.25rem 0 0.5rem; }
-        .draft-streaming-content h3 { font-size: 1rem; font-weight: 600; margin: 1rem 0 0.4rem; }
-        .draft-streaming-content p { margin: 0 0 0.75rem; }
-        .draft-streaming-content ul, .draft-streaming-content ol { margin: 0 0 0.75rem 1.25rem; }
-        .draft-streaming-content li { margin: 0 0 0.25rem; }
-        .draft-streaming-content strong { font-weight: 700; }
-      `}</style>
     </div>
   );
 }

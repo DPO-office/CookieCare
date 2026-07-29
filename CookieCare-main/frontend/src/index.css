@@ -30,3 +30,317 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* ── Markdown / rich-text typography ────────────────────────────────────────
+   Tailwind preflight resets headings, lists, and tables to unstyled text.
+   These classes restore readable hierarchy for AI-generated markdown in
+   Analyze Agreements, Draft Agreements, Ask AI Lawyer, and TipTap.
+   ────────────────────────────────────────────────────────────────────────── */
+.md-content,
+.richtext-editor,
+.draft-streaming-content,
+.ProseMirror {
+  color: #1f2937;
+  line-height: 1.7;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.md-content > :first-child,
+.richtext-editor > :first-child,
+.draft-streaming-content > :first-child,
+.ProseMirror > :first-child {
+  margin-top: 0;
+}
+
+.md-content > :last-child,
+.richtext-editor > :last-child,
+.draft-streaming-content > :last-child,
+.ProseMirror > :last-child {
+  margin-bottom: 0;
+}
+
+.md-content h1,
+.richtext-editor h1,
+.draft-streaming-content h1,
+.ProseMirror h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #111827;
+  margin: 1.75rem 0 0.75rem;
+  letter-spacing: -0.01em;
+}
+
+.md-content h2,
+.richtext-editor h2,
+.draft-streaming-content h2,
+.ProseMirror h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #111827;
+  margin: 1.5rem 0 0.6rem;
+}
+
+.md-content h3,
+.richtext-editor h3,
+.draft-streaming-content h3,
+.ProseMirror h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #111827;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.md-content h4,
+.richtext-editor h4,
+.draft-streaming-content h4,
+.ProseMirror h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #1f2937;
+  margin: 1.1rem 0 0.4rem;
+}
+
+.md-content p,
+.richtext-editor p,
+.draft-streaming-content p,
+.ProseMirror p {
+  margin: 0 0 0.85rem;
+}
+
+.md-content ul,
+.md-content ol,
+.richtext-editor ul,
+.richtext-editor ol,
+.draft-streaming-content ul,
+.draft-streaming-content ol,
+.ProseMirror ul,
+.ProseMirror ol {
+  margin: 0 0 0.9rem;
+  padding-left: 1.35rem;
+}
+
+.md-content ul,
+.richtext-editor ul,
+.draft-streaming-content ul,
+.ProseMirror ul {
+  list-style: disc;
+}
+
+.md-content ol,
+.richtext-editor ol,
+.draft-streaming-content ol,
+.ProseMirror ol {
+  list-style: decimal;
+}
+
+.md-content li,
+.richtext-editor li,
+.draft-streaming-content li,
+.ProseMirror li {
+  margin: 0.2rem 0;
+  padding-left: 0.15rem;
+}
+
+.md-content li > p,
+.richtext-editor li > p,
+.draft-streaming-content li > p,
+.ProseMirror li > p {
+  margin: 0.2rem 0;
+}
+
+.md-content strong,
+.richtext-editor strong,
+.draft-streaming-content strong,
+.ProseMirror strong {
+  font-weight: 700;
+  color: #111827;
+}
+
+.md-content em,
+.richtext-editor em,
+.draft-streaming-content em,
+.ProseMirror em {
+  font-style: italic;
+}
+
+.md-content a,
+.richtext-editor a,
+.draft-streaming-content a,
+.ProseMirror a {
+  color: var(--brand-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.md-content hr,
+.richtext-editor hr,
+.draft-streaming-content hr,
+.ProseMirror hr {
+  border: 0;
+  border-top: 1px solid #e5e7eb;
+  margin: 1.4rem 0;
+}
+
+.md-content blockquote,
+.richtext-editor blockquote,
+.draft-streaming-content blockquote,
+.ProseMirror blockquote {
+  margin: 0.9rem 0;
+  padding: 0.55rem 0.9rem;
+  border-left: 3px solid #c7d7f5;
+  background: #f8fafc;
+  color: #4b5563;
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.md-content code,
+.richtext-editor code,
+.draft-streaming-content code,
+.ProseMirror code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.35rem;
+  padding: 0.1rem 0.35rem;
+}
+
+.md-content pre,
+.richtext-editor pre,
+.draft-streaming-content pre,
+.ProseMirror pre {
+  margin: 0.9rem 0;
+  padding: 0.85rem 1rem;
+  background: #111827;
+  color: #f9fafb;
+  border-radius: 0.75rem;
+  overflow-x: auto;
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.md-content pre code,
+.richtext-editor pre code,
+.draft-streaming-content pre code,
+.ProseMirror pre code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
+
+/* Tables: horizontal scroll + readable cells (critical for analysis reports) */
+.md-content .md-table-wrap,
+.richtext-editor .md-table-wrap,
+.draft-streaming-content .md-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin: 1rem 0 1.25rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  background: #fff;
+  -webkit-overflow-scrolling: touch;
+}
+
+.md-content table,
+.richtext-editor table,
+.draft-streaming-content table,
+.ProseMirror table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.md-content thead th,
+.richtext-editor thead th,
+.draft-streaming-content thead th,
+.ProseMirror thead th {
+  position: sticky;
+  top: 0;
+  background: #f8fafc;
+  color: #374151;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 0.65rem 0.75rem;
+}
+
+.md-content tbody td,
+.richtext-editor tbody td,
+.draft-streaming-content tbody td,
+.ProseMirror tbody td {
+  vertical-align: top;
+  border-bottom: 1px solid #f1f5f9;
+  padding: 0.7rem 0.75rem;
+  color: #4b5563;
+  min-width: 8.5rem;
+  max-width: 18rem;
+}
+
+.md-content tbody tr:last-child td,
+.richtext-editor tbody tr:last-child td,
+.draft-streaming-content tbody tr:last-child td,
+.ProseMirror tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.md-content tbody tr:nth-child(even) td,
+.richtext-editor tbody tr:nth-child(even) td,
+.draft-streaming-content tbody tr:nth-child(even) td,
+.ProseMirror tbody tr:nth-child(even) td {
+  background: #fafbfc;
+}
+
+.md-content tbody td:first-child,
+.richtext-editor tbody td:first-child,
+.draft-streaming-content tbody td:first-child,
+.ProseMirror tbody td:first-child {
+  font-weight: 600;
+  color: #6b7280;
+  min-width: 2.5rem;
+  max-width: 3.5rem;
+  white-space: nowrap;
+}
+
+/* Draft documents: slightly more open legal-document rhythm */
+.richtext-editor,
+.draft-streaming-content,
+.ProseMirror.richtext-editor {
+  font-size: 15px;
+  line-height: 1.85;
+  color: #1a2234;
+}
+
+.richtext-editor h1,
+.draft-streaming-content h1,
+.ProseMirror.richtext-editor h1 {
+  font-size: 1.45rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-align: center;
+  margin: 0 0 1rem;
+}
+
+.richtext-editor h2,
+.draft-streaming-content h2,
+.ProseMirror.richtext-editor h2 {
+  font-size: 1.12rem;
+  margin: 1.6rem 0 0.55rem;
+}
+
+.richtext-editor p,
+.draft-streaming-content p,
+.ProseMirror.richtext-editor p {
+  margin: 0 0 0.9rem;
+  text-align: justify;
+  text-justify: inter-word;
+}

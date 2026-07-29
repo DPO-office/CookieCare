@@ -77,7 +77,7 @@ export default function ReportView({
                       className={`rounded-2xl text-[13px] leading-relaxed ${
                         isUser
                           ? "bg-[#2175D9] text-white px-5 py-3.5 max-w-sm shadow-sm"
-                          : "w-full bg-gray-50/60 border border-gray-100 px-5 py-4"
+                          : "w-full bg-white border border-gray-100 px-5 py-5"
                       }`}
                     >
                       <div className={`flex items-center gap-2 mb-2.5 ${isUser ? "justify-end" : "justify-between"}`}>

@@ -43,7 +43,21 @@ export const validationStep = async (
     });
   }
 
-  // 2. Unresolved Placeholder Scan
+  // 2. Completeness Check
+  // generation.ts already retries with continuation passes when the model runs out of output
+  // space; if the flag survives that, the document genuinely ends mid-way. Reported as a
+  // warning rather than a critical: a further full regeneration would hit the same ceiling,
+  // so the useful outcome is surfacing it (missing skeleton headers above stay critical).
+  if (state.metadata?.generationParameters?.outputTruncated) {
+    issues.push({
+      type: 'omission',
+      severity: 'warning',
+      description:
+        'Document generation stopped at the model output limit and could not be completed automatically. The closing provisions may be missing.'
+    });
+  }
+
+  // 3. Unresolved Placeholder Scan
   // The system prompt instructs the model to use blank underlines (never [● NAME]/[● TITLE])
   // in signature blocks. This scan is the safety net: if a signature placeholder still slips
   // through it is flagged CRITICAL so the refinement loop regenerates it (fix-at-source, no

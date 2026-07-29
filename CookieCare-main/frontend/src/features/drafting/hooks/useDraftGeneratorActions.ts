@@ -131,9 +131,7 @@ interface UseDraftGeneratorActionsParams {
   selectedTextRange: { start: number; end: number } | null;
   setSelectedTextRange: (range: { start: number; end: number } | null) => void;
   setShowFloatingMenu: (show: boolean) => void;
-  setIsAiRefiningText: (refining: boolean) => void;
   setActiveDropdown: (dropdown: string | null) => void;
-  setShowAskAiInput: (show: boolean) => void;
   setAskAiQuery: (query: string) => void;
   refinementProgress: string;
   setRefinementProgress: (message: string) => void;
@@ -161,9 +159,7 @@ export function useDraftGeneratorActions({
   selectedTextRange,
   setSelectedTextRange,
   setShowFloatingMenu,
-  setIsAiRefiningText,
   setActiveDropdown,
-  setShowAskAiInput,
   setAskAiQuery,
   refinementProgress,
   setRefinementProgress,
@@ -426,23 +422,23 @@ export function useDraftGeneratorActions({
       alert("Refinement requires an active draft document. Generate or save a draft first.");
       return;
     }
-
-    setIsAiRefiningText(true);
     setRefinementError("");
     setRefinementProgress("Preparing your refinement request...");
     setActiveDropdown(null);
-    setShowAskAiInput(false);
     setShowFloatingMenu(false);
     setSelectedTextRange(null);
     pushUndoSnapshot(editorContent);
 
-    const applyRewrite = (rewritten: string) => {
+    // The refinement endpoint returns the complete revised document. Even for a
+    // highlighted-text request, the backend surgically patches that selection
+    // into its document snapshot and returns the resulting full document.
+    const applyRefinedDocument = (rewritten: string) => {
       const rewrittenHtml = markdownToHtml(rewritten);
       const ed = tiptapEditorRef.current;
       if (ed) {
         ed.chain()
           .focus()
-          .insertContentAt({ from: capturedRange.start, to: capturedRange.end }, rewrittenHtml)
+          .setContent(rewrittenHtml)
           .run();
         setEditorContent(ed.getHTML());
       }
@@ -481,14 +477,19 @@ export function useDraftGeneratorActions({
                 data.job.result?.draft?.formattedDocument || 
                 "";
 
+              if (!rewritten) {
+                setRefinementProgress("");
+                setRefinementError("Refinement completed without returning revised text.");
+                eventSource.close();
+                return;
+              }
+
               setRefinementProgress("Applying the refined text...");
-              applyRewrite(normalizeDraftMarkdownInput(rewritten));
-              setIsAiRefiningText(false);
+              applyRefinedDocument(normalizeDraftMarkdownInput(rewritten));
               setRefinementProgress("");
               setAskAiQuery("");
               eventSource.close();
             } else if (data.job.status === "failed") {
-              setIsAiRefiningText(false);
               setRefinementProgress("");
               setRefinementError(data.job.error || "Refinement failed: Unknown error");
               setAskAiQuery("");
@@ -498,7 +499,6 @@ export function useDraftGeneratorActions({
         };
         eventSource.onerror = () => {
           eventSource.close();
-          setIsAiRefiningText(false);
           setRefinementProgress("");
           setRefinementError("Refinement failed: job connection interrupted");
           setAskAiQuery("");
@@ -507,7 +507,10 @@ export function useDraftGeneratorActions({
       }
 
       const rewritten = payload.data ?? payload.result ?? payload.text ?? "";
-      if (rewritten) applyRewrite(rewritten);
+      if (!rewritten) {
+        throw new Error("Refinement completed without returning revised text.");
+      }
+      applyRefinedDocument(normalizeDraftMarkdownInput(rewritten));
       setRefinementProgress("");
 
     } catch (err: any) {
@@ -516,7 +519,6 @@ export function useDraftGeneratorActions({
       setRefinementError(err.message || "Refinement failed.");
       alert("Refinement failed: " + err.message);
     } finally {
-      setIsAiRefiningText(false);
       setAskAiQuery("");
     }
   };

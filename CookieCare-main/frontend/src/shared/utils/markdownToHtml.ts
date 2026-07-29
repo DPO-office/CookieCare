@@ -47,6 +47,17 @@ function stripOuterCodeFences(raw: string): string {
 }
 
 /**
+ * Wrap markdown-it tables so wide analysis reports can scroll horizontally
+ * instead of crushing every column into a few characters.
+ */
+function wrapTables(html: string): string {
+  return html.replace(
+    /<table\b[\s\S]*?<\/table>/gi,
+    (table) => `<div class="md-table-wrap">${table}</div>`
+  );
+}
+
+/**
  * Converts a Markdown string into an HTML string suitable for TipTap's
  * `setContent()` or `normalizeHtml()`.
  *
@@ -58,5 +69,5 @@ export function markdownToHtml(markdown: string): string {
     return "<p></p>";
   }
   const cleaned = stripOuterCodeFences(markdown);
-  return md.render(cleaned);
+  return wrapTables(md.render(cleaned));
 }
