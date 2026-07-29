@@ -75,13 +75,23 @@ if (config.nodeEnv === "production") {
     });
   });
 
-  app.use(express.static(distPath));
+  // The SPA shell must never be cached: it points at immutable hashed bundles,
+  // so a stale copy pins the client to an old build with no revalidation.
+  app.use(express.static(distPath, {
+    index: false,
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith(".html")) {
+        res.setHeader("Cache-Control", "no-store, must-revalidate");
+      }
+    },
+  }));
 
   app.get("*", (req, res, next) => {
     if (req.path.startsWith('/assets/')) {
       return res.status(404).type("text/plain").send("Asset not found");
     }
 
+    res.set("Cache-Control", "no-store, must-revalidate");
     res.sendFile(path.join(distPath, "index.html"), (err) => {
       if (err) {
         next(err);

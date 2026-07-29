@@ -8,6 +8,13 @@ export interface TabConfig {
   buttonWord: string;
 }
 
+export const VAULT_UPLOAD_ACCEPT = ".pdf,.docx,.doc,.txt,.md,.csv,.json";
+export const VAULT_UPLOAD_EXTENSIONS = [".pdf", ".docx", ".doc", ".txt", ".md", ".csv", ".json"];
+export const VAULT_MAX_UPLOAD_FILES = 25;
+export const VAULT_MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
+export const VAULT_UPLOAD_CONCURRENCY = 3;
+export const VAULT_JUNK_FILE_NAMES = new Set([".DS_Store", "Thumbs.db", "desktop.ini", ".gitkeep"]);
+
 export const TABS_CONFIG: TabConfig[] = [
   { id: "files",       label: "Files",        desc: "Upload and organise your documents",                         placeholder: "Search folders...",       buttonWord: "Create Folder"       },
   { id: "prompts",     label: "Prompts",      desc: "Define personalized prompt instructions for document reviews",  placeholder: "Search prompts...",        buttonWord: "Create Prompt"       },

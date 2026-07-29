@@ -44,7 +44,9 @@ async function setupDb() {
         id VARCHAR(255) PRIMARY KEY,
         email VARCHAR(255) UNIQUE NOT NULL,
         name VARCHAR(255) NOT NULL,
-        password_hash VARCHAR(255) NOT NULL,
+        password_hash VARCHAR(255),
+        auth_provider VARCHAR(50) NOT NULL DEFAULT 'LOCAL',
+        google_sub VARCHAR(255) UNIQUE,
         status VARCHAR(50) DEFAULT 'PENDING_APPROVAL' CHECK (status IN ('PENDING_APPROVAL', 'APPROVED', 'REJECTED')),
         role VARCHAR(50) DEFAULT 'USER',
         approved_at TIMESTAMP WITH TIME ZONE,
@@ -234,6 +236,11 @@ async function setupDb() {
     await client.query(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS result JSONB DEFAULT NULL;`);
     await client.query(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS error TEXT DEFAULT NULL;`);
     await client.query(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;`);
+
+    // Google auth: make password_hash nullable for Google-only users
+    await client.query(`ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL;`);
+    await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_provider VARCHAR(50) NOT NULL DEFAULT 'LOCAL';`);
+    await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS google_sub VARCHAR(255) UNIQUE;`);
 
     // Vault library rows: UI shows dateModified from updated_at
     await client.query(`

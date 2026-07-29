@@ -37,7 +37,8 @@ export async function createFolder(authToken: string, name: string) {
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
     body: JSON.stringify({ name }),
   });
-  return res.ok;
+  if (!res.ok) return null;
+  return res.json();
 }
 
 export async function createLibraryItem(
