@@ -15,7 +15,7 @@ export default function NotificationsPanel() {
   return (
     <div className="space-y-5">
       <SettingCard>
-        <CardHeader icon={Mail} title="Email Notifications" desc="Choose which events trigger email updates to your inbox." />
+        <CardHeader icon={Mail} title="Email notifications" desc="Choose which events trigger email updates to your inbox." />
         <CardBody>
           <div className="mb-4">
             <Label>Alert frequency</Label>

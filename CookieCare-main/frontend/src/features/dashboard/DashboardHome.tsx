@@ -43,7 +43,7 @@ export default function DashboardHome({ userName, setActiveTab, stats, documents
       <div className="bg-white border border-gray-200 rounded-[18px] shadow-xs overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200 flex items-center gap-2.5 bg-gray-50 rounded-t-[18px]">
           <FileText className="w-4 h-4 text-gray-500" />
-          <h4 className="font-bold text-[13px] text-gray-900 tracking-tight">Document Ledger</h4>
+          <h4 className="font-bold text-[13px] text-gray-900 tracking-tight">Document ledger</h4>
           <span className="ml-auto text-[11px] font-medium text-gray-400">{documents.length} documents</span>
         </div>
 

@@ -13,12 +13,12 @@ interface EthicsUploadStateProps {
 }
 
 const DOCUMENT_TYPES = [
-  "AI Policy",
-  "Model Documentation",
-  "Risk Assessment",
-  "System Architecture",
-  "Data Governance Policy",
-  "AI Impact Assessment",
+  "AI policy",
+  "Model documentation",
+  "Risk assessment",
+  "System architecture",
+  "Data governance policy",
+  "AI impact assessment",
 ];
 
 export function EthicsUploadState({ onFilesSelected, error }: EthicsUploadStateProps) {
@@ -97,7 +97,7 @@ export function EthicsUploadState({ onFilesSelected, error }: EthicsUploadStateP
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-8">         
            <div className="max-w-2xl">
             <h1 className="text-[26px] font-bold tracking-tight leading-tight mb-2.5" style={{ color: "#2175D9" }}>
-              AI Ethics Score
+              AI ethics score
             </h1>
             <p className="text-[13.5px] text-gray-500 leading-relaxed max-w-xl">
               Upload your AI documentation for a structured evaluation covering
@@ -107,9 +107,9 @@ export function EthicsUploadState({ onFilesSelected, error }: EthicsUploadStateP
             <div className="flex flex-wrap gap-2 mt-5">
               {[
                 { label: "Responsible AI", icon: <Shield className="w-3 h-3" /> },
-                { label: "AI Governance", icon: <Brain className="w-3 h-3" /> },
-                { label: "Ethics Assessment", icon: <Scale className="w-3 h-3" /> },
-                { label: "Enterprise Ready", icon: <BadgeCheck className="w-3 h-3" /> },
+                { label: "AI governance", icon: <Brain className="w-3 h-3" /> },
+                { label: "Ethics assessment", icon: <Scale className="w-3 h-3" /> },
+                { label: "Enterprise ready", icon: <BadgeCheck className="w-3 h-3" /> },
               ].map((b) => (
                 <span
                   key={b.label}

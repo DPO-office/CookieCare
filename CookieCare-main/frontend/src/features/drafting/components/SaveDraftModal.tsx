@@ -59,7 +59,7 @@ export default function SaveDraftModal({
               disabled={!draftNameInput.trim()}
               className="flex-1 -90 transition shadow-xs cursor-pointer disabled:opacity-40 text-white rounded-lg" style={{ background: "#2175D9" }}
             >
-              Save Draft
+              Save draft
             </button>
           </div>
         </form>

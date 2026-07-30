@@ -105,7 +105,7 @@ export default function AnalysisOptions({ documentMode, answerStyle, onSetDocume
           className="w-full sm:w-auto hover:opacity-90 text-white text-[13px] font-semibold py-2.5 px-7 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.2)]" style={{ background: "#2175D9" }}
         >
           <Play className="w-3.5 h-3.5 text-emerald-400 fill-emerald-400 shrink-0" />
-          <span>Run Analysis</span>
+          <span>Run analysis</span>
         </button>
       </div>
     </>

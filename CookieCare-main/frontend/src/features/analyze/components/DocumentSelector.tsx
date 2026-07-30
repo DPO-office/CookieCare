@@ -67,7 +67,7 @@ export default function DocumentSelector({
             className="-90 text-white text-sm font-medium px-3.5 py-2 rounded-lg transition-all flex items-center gap-1.5" style={{ background: "#2175D9" }}
           >
             <FolderPlus className="w-3.5 h-3.5 text-gray-300" />
-            <span>New Folder</span>
+            <span>New folder</span>
           </button>
         </div>
       </div>
@@ -146,7 +146,7 @@ export default function DocumentSelector({
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <FileCode className="w-3.5 h-3.5 text-gray-400" />
-              <span className="text-[13px] font-medium text-gray-600">Saved Drafts</span>
+              <span className="text-[13px] font-medium text-gray-600">Saved drafts</span>
               <span className="text-[11px] bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full tabular-nums">
                 {savedDrafts.filter((d) => d.selected).length}/{savedDrafts.length}
               </span>

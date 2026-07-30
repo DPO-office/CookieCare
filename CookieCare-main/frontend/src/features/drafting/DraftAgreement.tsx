@@ -227,7 +227,7 @@ export default function DraftAgreement({
             visible={overlayVisible}
             message={generatorState.isStreaming ? generatorState.streamingProgress : generatorState.refinementProgress}
             error={generatorState.refinementError}
-            label={generatorState.isStreaming ? "Generating Draft..." : "Refining Selection..."}
+            label={generatorState.isStreaming ? "Generating draft..." : "Refining selection..."}
             onRetry={generatorState.refinementError ? () => { generatorState.setRefinementError(""); handleExecuteDraftStream(); } : undefined}
             onDismiss={generatorState.refinementError ? () => generatorState.setRefinementError("") : undefined}
           />

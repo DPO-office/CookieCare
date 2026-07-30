@@ -99,7 +99,7 @@ export default function DocumentPicker({ documents, onConfirm }: DocumentPickerP
               ].join(" ")}
               style={selected ? { background: "#2175D9" } : {}}
             >
-              Open Negotiation
+              Open negotiation
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>

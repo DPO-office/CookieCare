@@ -42,7 +42,7 @@ export default function GeneralPanel({ user }: SettingsProps) {
       </SettingCard>
 
       <SettingCard>
-        <CardHeader icon={Globe} title="Locale & Display" desc="Timezone, language and date format preferences." />
+        <CardHeader icon={Globe} title="Locale & display" desc="Timezone, language and date format preferences." />
         <CardBody className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <Label>Timezone</Label>

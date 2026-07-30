@@ -53,10 +53,10 @@ export function UploadState({ onFilesSelected, uploadError }: UploadStateProps) 
   };
 
   const BADGES = [
-    { icon: Sparkles,   label: "Automated Review"    },
-    { icon: Shield,     label: "Privacy Review"       },
-    { icon: Lock,       label: "Security Assessment"  },
-    { icon: BadgeCheck, label: "Enterprise Ready"     },
+    { icon: Sparkles,   label: "Automated review"    },
+    { icon: Shield,     label: "Privacy review"       },
+    { icon: Lock,       label: "Security assessment"  },
+    { icon: BadgeCheck, label: "Enterprise ready"     },
   ];
 
   return (
@@ -73,7 +73,7 @@ export function UploadState({ onFilesSelected, uploadError }: UploadStateProps) 
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-8">
           <div className="max-w-xl">
             <h1 className="text-[26px] font-bold tracking-tight leading-tight mb-2.5" style={{ color: "#2175D9" }}>
-              Vendor Review
+              Vendor review
             </h1>
             <p className="text-[13.5px] text-gray-500 leading-relaxed">
               Upload your vendor's compliance documents for a structured evaluation covering privacy,
@@ -135,12 +135,12 @@ export function UploadState({ onFilesSelected, uploadError }: UploadStateProps) 
 
             <div className="flex items-center justify-center gap-2 flex-wrap mb-3">
               {[
-                { label: "Privacy Policy",   icon: Shield   },
+                { label: "Privacy policy",   icon: Shield   },
                 { label: "DPA",              icon: FileText  },
-                { label: "Terms of Service", icon: FileText  },
-                { label: "Security Docs",    icon: Lock      },
-                { label: "SOC 2 Report",     icon: Award     },
-                { label: "ISO Certificates", icon: BadgeCheck},
+                { label: "Terms of service", icon: FileText  },
+                { label: "Security docs",    icon: Lock      },
+                { label: "SOC 2 report",     icon: Award     },
+                { label: "ISO certificates", icon: BadgeCheck},
               ].map(({ label, icon: Icon }) => (
                 <span key={label} className="inline-flex items-center gap-1.5 bg-white border border-gray-200 rounded-lg px-2.5 py-1 text-[11px] font-medium text-gray-600 shadow-xs">
                   <Icon className="w-3 h-3 text-gray-400" />{label}

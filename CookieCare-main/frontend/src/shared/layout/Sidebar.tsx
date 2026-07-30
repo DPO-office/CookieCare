@@ -23,6 +23,7 @@ import {
   FolderLock,
   UserCog,
 } from "lucide-react";
+import { BrandLogo } from "../components/BrandLogo";
 
 interface SidebarProps {
   activeTab: string;
@@ -65,11 +66,11 @@ function buildNavigation(isAdmin: boolean): NavEntry[] {
       label: "Legal",
       icon: Scale,
       children: [
-        { id: "legal-review",    label: "Analyze Agreements",  icon: ScanSearch },
-        { id: "legal-draft",     label: "Draft Agreements",    icon: PenTool },
+        { id: "legal-review",    label: "Analyze agreements",  icon: ScanSearch },
+        { id: "legal-draft",     label: "Draft agreements",    icon: PenTool },
         { id: "legal-ask-ai",    label: "Ask AI Lawyer",       icon: MessageSquare },
-        { id: "legal-negotiate", label: "Negotiate Redlines",  icon: Scale },
-        { id: "legal-vault",     label: "Vault Repository",    icon: FolderLock },
+        { id: "legal-negotiate", label: "Negotiate redlines",  icon: Scale },
+        { id: "legal-vault",     label: "Vault repository",    icon: FolderLock },
       ],
     },
     {
@@ -77,11 +78,11 @@ function buildNavigation(isAdmin: boolean): NavEntry[] {
       label: "Privacy",
       icon: ShieldCheck,
       children: [
-        { id: "cookie-scanner",    label: "Cookie Scanner",    icon: Cookie },
-        { id: "dpa-reviewer",      label: "DPA Review",        icon: Lock },
-        { id: "vendor-review",     label: "Vendor Review",     icon: Building2 },
-        { id: "privacy-dashboard", label: "Privacy Dashboard", icon: BarChart3, disabled: true },
-        { id: "privacy-score",     label: "Privacy Score",     icon: Star,      disabled: true },
+        { id: "cookie-scanner",    label: "Cookie scanner",    icon: Cookie },
+        { id: "dpa-reviewer",      label: "DPA review",        icon: Lock },
+        { id: "vendor-review",     label: "Vendor review",     icon: Building2 },
+        { id: "privacy-dashboard", label: "Privacy dashboard", icon: BarChart3, disabled: true },
+        { id: "privacy-score",     label: "Privacy score",     icon: Star,      disabled: true },
       ],
     },
     {
@@ -89,15 +90,15 @@ function buildNavigation(isAdmin: boolean): NavEntry[] {
       label: "Security",
       icon: ShieldAlert,
       children: [
-        { id: "vulnerability-scanner", label: "Vulnerability Scanner", icon: Lock },
+        { id: "vulnerability-scanner", label: "Vulnerability scanner", icon: Lock },
       ],
     },
     {
       id: "ethics",
-      label: "AI Ethics",
+      label: "AI ethics",
       icon: Brain,
       children: [
-        { id: "ai-ethics", label: "AI Ethics Score", icon: Cpu },
+        { id: "ai-ethics", label: "AI ethics score", icon: Cpu },
       ],
     },
   ];
@@ -108,7 +109,7 @@ function buildNavigation(isAdmin: boolean): NavEntry[] {
       label: "Administration",
       icon: UserCog,
       children: [
-        { id: "admin-panel", label: "Admin Approval", icon: UserCog },
+        { id: "admin-panel", label: "Admin approval", icon: UserCog },
       ],
     });
   }
@@ -156,20 +157,11 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout }: Sid
       {/* Logo */}
       <div className={`flex items-center pt-5 pb-4 ${collapsed ? "justify-center px-3" : "justify-between px-4"}`}>
         {!collapsed && (
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm" style={{ background: "#EBF4FD" }}>
-              <ShieldCheck className="w-[18px] h-[18px]" style={{ color: "#2175D9" }} />
-            </div>
-            <div className="leading-none min-w-0">
-              <span className="block font-bold text-[16px] tracking-tight truncate" style={{ color: "#2175D9" }}>randtrust</span>
-            </div>
-          </div>
+          <BrandLogo size="md" className="min-w-0" />
         )}
 
         {collapsed && (
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-sm" style={{ background: "#EBF4FD" }}>
-            <ShieldCheck className="w-4 h-4" style={{ color: "#2175D9" }} />
-          </div>
+          <BrandLogo size="sm" iconOnly />
         )}
 
         {!collapsed && (

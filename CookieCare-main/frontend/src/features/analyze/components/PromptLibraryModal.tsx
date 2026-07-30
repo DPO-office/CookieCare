@@ -276,7 +276,7 @@ export default function PromptLibraryModal({
         {/* -- Header -- */}
         <div className="flex items-center gap-4 px-6 py-4 border-b border-gray-100 shrink-0">
           <div className="flex-1 min-w-0">
-            <h2 className="text-[16px] font-semibold text-gray-900 tracking-tight">Prompt Library</h2>
+            <h2 className="text-[16px] font-semibold text-gray-900 tracking-tight">Prompt library</h2>
             <p className="text-[12px] text-gray-400 mt-0.5">
               Browse and apply pre-built legal analysis prompts
             </p>
@@ -380,7 +380,7 @@ export default function PromptLibraryModal({
               disabled={!selectedPrompt}
               className="px-5 py-2 text-[13px] font-semibold text-white rounded-lg hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors" style={{ background: "#2175D9" }}
             >
-              Apply Prompt
+              Apply prompt
             </button>
           </div>
         </div>

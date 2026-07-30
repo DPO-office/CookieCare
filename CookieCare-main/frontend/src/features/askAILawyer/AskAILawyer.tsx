@@ -98,7 +98,7 @@ export default function AskAILawyer({ authToken, documents: _propDocs = [] }: As
           visible={isStreaming || !!lawyerError}
           message={lawyerProgress}
           error={lawyerError}
-          label="Consulting AI Lawyer"
+          label="Consulting AI lawyer"
           onRetry={lawyerError ? () => setLawyerError("") : undefined}
           onDismiss={lawyerError ? () => setLawyerError("") : undefined}
         />

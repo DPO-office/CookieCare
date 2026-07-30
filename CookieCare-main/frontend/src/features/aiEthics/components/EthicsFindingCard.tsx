@@ -85,7 +85,7 @@ export function EthicsFindingCard({ finding }: EthicsFindingCardProps) {
                 <Sparkles className="w-3 h-3 text-blue-600" />
               </div>
               <p className="text-[11px] font-semibold text-blue-700 uppercase tracking-wider">
-                AI Recommendation
+                AI recommendation
               </p>
             </div>
             <p className="text-[13px] text-blue-900 leading-relaxed">

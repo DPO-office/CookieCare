@@ -11,7 +11,7 @@ export default function QueueManager() {
 
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#2175D9" }}>Active Queue</h1>
+          <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#2175D9" }}>Active queue</h1>
           <p className="text-[13px] text-gray-500 mt-1">Real-time monitor of background processing tasks.</p>
         </div>
         <div className="flex items-center gap-2">

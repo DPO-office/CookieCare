@@ -16,7 +16,7 @@ export default function AIPanel() {
   return (
     <div className="space-y-5">
       <SettingCard>
-        <CardHeader icon={Sparkles} title="Model Configuration" desc="Choose which LLM powers randtrust's analysis, drafting and review agents." />
+        <CardHeader icon={Sparkles} title="Model configuration" desc="Choose which LLM powers randtrust's analysis, drafting and review agents." />
         <CardBody className="space-y-4">
           <div>
             <Label>Primary model</Label>

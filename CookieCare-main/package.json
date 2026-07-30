@@ -16,6 +16,7 @@
     "test": "node --import tsx --test backend/test/**/*.test.ts",
     "clean": "if exist frontend\\dist rmdir /s /q frontend\\dist & if exist backend\\dist rmdir /s /q backend\\dist & if exist backend\\server.js del /f backend\\server.js"
   },
+
   "dependencies": {
     "@google/genai": "^2.11.0",
     "@google/generative-ai": "^0.24.1",

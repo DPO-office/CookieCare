@@ -187,7 +187,7 @@ export default function ScanResults({
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
               <div className="flex items-center gap-2">
                 <GitCompareArrows className="w-4 h-4 text-gray-500" />
-                <h3 className="font-bold text-[14px] text-gray-900">Consent Comparison</h3>
+                <h3 className="font-bold text-[14px] text-gray-900">Consent comparison</h3>
               </div>
               <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-md ${isPass ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>
                 {isPass ? "PASS" : "FAIL"}
@@ -244,7 +244,7 @@ export default function ScanResults({
                 </div>
                 {cc.stillPresentAfterReject.length > 0 && (
                   <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-red-600 mb-2">Non-essential cookies persisting after Reject</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-red-600 mb-2">Non-essential cookies persisting after reject</p>
                     <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
                       {cc.stillPresentAfterReject.slice(0, 8).map((c) => (
                         <div key={c.name} className="flex items-center justify-between bg-red-50 rounded-lg px-3 py-1.5">
@@ -260,7 +260,7 @@ export default function ScanResults({
                 )}
                 {cc.marketingEnabledAfterAccept.length > 0 && (
                   <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-600 mb-2">Marketing cookies loaded on Accept</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-600 mb-2">Marketing cookies loaded on accept</p>
                     <div className="space-y-1.5 max-h-28 overflow-y-auto pr-1">
                       {cc.marketingEnabledAfterAccept.slice(0, 5).map((c) => (
                         <div key={c.name} className="flex items-center justify-between bg-amber-50 rounded-lg px-3 py-1.5">

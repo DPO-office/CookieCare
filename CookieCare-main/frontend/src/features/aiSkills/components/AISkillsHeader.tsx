@@ -38,7 +38,7 @@ export function AISkillsHeader({
               <Sparkles className="w-4 h-4 text-white" />
             </div>
             <h1 className="text-[22px] font-bold text-[#09090B] tracking-tight leading-tight">
-              AI Skills
+              AI skills
             </h1>
           </div>
           <p className="text-[13px] text-[#71717A] leading-relaxed max-w-lg">

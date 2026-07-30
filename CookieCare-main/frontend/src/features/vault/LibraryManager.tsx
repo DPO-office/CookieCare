@@ -172,7 +172,7 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-1.5 text-sm text-gray-500">
-            <span className="hover:text-gray-900 cursor-pointer">Vault Repository</span>
+            <span className="hover:text-gray-900 cursor-pointer">Vault repository</span>
             <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
             <span className="font-semibold text-gray-900">{activeTabInfo.label}</span>
           </div>
@@ -262,8 +262,8 @@ export default function LibraryManager({ documents, authToken, onRefresh, onOpen
                   <table className="w-full text-left border-collapse min-w-[600px]">
                     <thead>
                       <tr className="border-b border-gray-100">
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide w-2/5">Draft Name</th>
-                        <th className="px-5 py-3 text-center text-xs font-semibold text-gray-400 uppercase tracking-wide w-40">Last Updated</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide w-2/5">Draft name</th>
+                        <th className="px-5 py-3 text-center text-xs font-semibold text-gray-400 uppercase tracking-wide w-40">Last updated</th>
                         <th className="px-5 py-3 text-center text-xs font-semibold text-gray-400 uppercase tracking-wide w-40">Created</th>
                         <th className="px-6 py-3 text-center text-xs font-semibold text-gray-400 uppercase tracking-wide">Actions</th>
                       </tr>
