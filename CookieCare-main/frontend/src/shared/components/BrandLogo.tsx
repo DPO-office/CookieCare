@@ -23,6 +23,12 @@ const SIZE_CONFIG = {
     text: "text-[20px]",
     gap: "gap-4",
   },
+  xl: {
+    container: "w-14 h-14 rounded-2xl",
+    icon: "w-[28px] h-[28px]",
+    text: "text-[28px]",
+    gap: "gap-4",
+  },
 } as const;
 
 export type BrandLogoSize = keyof typeof SIZE_CONFIG;
@@ -37,7 +43,7 @@ interface BrandLogoProps {
 }
 
 /**
- * BrandLogo — canonical RandTrust logo.
+ * BrandLogo — canonical randtrust logo.
  *
  * Use this everywhere the brand needs to appear: sidebar, auth pages, etc.
  * Only the `size` prop may differ between contexts. Do NOT create separate

@@ -48,11 +48,6 @@ export default function ReportView({
           <span className="text-gray-400">Analysis</span>
         </button>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[11px] font-medium text-gray-400">AI active</span>
-          </div>
-          <HelpCircle className="w-3.5 h-3.5 text-gray-300 hover:text-gray-600 cursor-pointer transition-colors" />
         </div>
       </div>
 
@@ -63,7 +58,7 @@ export default function ReportView({
             <div className="px-7 py-4 border-b border-gray-100 flex items-center justify-between">
               <div>
                 <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Legal assessment</p>
-                <p className="text-[11px] text-gray-300 mt-0.5">Confidential · AI Generated</p>
+                <p className="text-[11px] text-gray-300 mt-0.5">Confidential</p>
               </div>
               <Sparkles className="w-4 h-4 text-gray-300" />
             </div>

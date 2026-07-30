@@ -147,7 +147,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout }: Sid
 
   return (
     <div
-      className="flex flex-col h-screen shrink-0 sticky top-0 transition-all duration-250 sidebar no-print"
+      className="relative flex flex-col h-screen shrink-0 sticky top-0 transition-all duration-250 sidebar no-print"
       style={{
         width: collapsed ? "64px" : "228px",
         background: "#FAFAFB",
@@ -155,37 +155,36 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout }: Sid
       }}
     >
       {/* Logo */}
-      <div className={`flex items-center pt-5 pb-4 ${collapsed ? "justify-center px-3" : "justify-between px-4"}`}>
+      <div
+        className={`h-[58px] flex items-center shrink-0 ${collapsed ? "justify-center px-3" : "justify-between px-5"}`}
+        style={{ borderBottom: "1px solid #E4E4E7" }}
+      >
         {!collapsed && (
-          <BrandLogo size="md" className="min-w-0" />
+          <BrandLogo size="lg" className="min-w-0" />
         )}
 
         {collapsed && (
-          <BrandLogo size="sm" iconOnly />
+          <BrandLogo size="md" iconOnly />
         )}
 
         {!collapsed && (
           <button
             onClick={() => setCollapsed(true)}
-            className="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all duration-150 shrink-0 ml-1"
+            className="w-7 h-7 flex items-center justify-center rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all duration-150 shrink-0 ml-2"
           >
             <PanelLeftClose className="w-3.5 h-3.5" />
           </button>
         )}
-      </div>
 
-      {collapsed && (
-        <div className="flex justify-center px-2.5 pb-2">
+        {collapsed && (
           <button
             onClick={() => setCollapsed(false)}
-            className="w-7 h-7 flex items-center justify-center rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all duration-150"
+            className="absolute -right-3 top-[18px] w-6 h-6 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-400 hover:text-gray-700 shadow-sm transition-all duration-150"
           >
-            <PanelLeftOpen className="w-3.5 h-3.5" />
+            <PanelLeftOpen className="w-3 h-3" />
           </button>
-        </div>
-      )}
-
-      <div className="mx-3 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+        )}
+      </div>
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto px-2.5 py-3 space-y-0.5 scrollbar-none">
