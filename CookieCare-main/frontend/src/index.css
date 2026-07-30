@@ -22,6 +22,61 @@
   --color-brand-primary-light:  var(--brand-primary-light);
 }
 
+/* ── Shared button utilities ─────────────────────────────────────────────────
+   btn-primary / btn-secondary are used across AI Ethics, Vendor Review, DPA,
+   and Settings. Tailwind v4 (no JS config) requires these to live here.
+   ────────────────────────────────────────────────────────────────────────── */
+@layer utilities {
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    background-color: var(--brand-primary);
+    color: #ffffff;
+    font-size: 0.8125rem;   /* 13px */
+    font-weight: 600;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.75rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease, opacity 0.15s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background-color: var(--brand-primary-hover);
+  }
+  .btn-primary:active:not(:disabled) {
+    background-color: var(--brand-primary-active);
+  }
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    background-color: #ffffff;
+    color: #374151;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+  .btn-secondary:hover:not(:disabled) {
+    background-color: #f9fafb;
+    border-color: #d1d5db;
+  }
+  .btn-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
 /* Hide scrollbar while keeping scroll functionality */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
