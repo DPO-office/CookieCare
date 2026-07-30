@@ -3,6 +3,17 @@ import assert from "node:assert";
 import request from "supertest";
 import app from "../server.js";
 
+// Guard: these tests hit the real database and must only run in a test environment.
+// Running them in development or production seeds fake "Test User" rows into
+// the real users table which then appear in the Admin Panel as pending approvals.
+if (process.env.NODE_ENV !== "test") {
+  console.warn(
+    "[auth.test.ts] Skipping tests — NODE_ENV is not 'test'. " +
+    "Set NODE_ENV=test to run these against a dedicated test database."
+  );
+  process.exit(0);
+}
+
 test("POST /api/auth/register should require email, password, and name", async () => {
   const res = await request(app)
     .post("/api/auth/register")

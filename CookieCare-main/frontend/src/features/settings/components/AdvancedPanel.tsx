@@ -34,7 +34,7 @@ export default function AdvancedPanel() {
   return (
     <div className="space-y-5">
       <SettingCard>
-        <CardHeader icon={Activity} title="Workspace Health" desc="Real-time status of all randtrust platform services." />
+        <CardHeader icon={Activity} title="Workspace health" desc="Real-time status of all randtrust platform services." />
         <CardBody className="pb-2">
           <div className={`flex items-center gap-3 mb-5 px-4 py-3.5 rounded-xl border ${overallHealthy ? "bg-emerald-50 border-emerald-100" : "bg-amber-50 border-amber-100"}`}>
             <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${overallHealthy ? "bg-emerald-500" : "bg-amber-500 animate-pulse"}`} />
@@ -78,7 +78,7 @@ export default function AdvancedPanel() {
       </SettingCard>
 
       <SettingCard>
-        <CardHeader icon={Zap} title="Developer Settings" desc="Debug flags, beta features and log verbosity." />
+        <CardHeader icon={Zap} title="Developer settings" desc="Debug flags, beta features and log verbosity." />
         <CardBody>
           <ToggleRow title="Debug mode" desc="Log extended trace data including API payloads and timing." checked={debugMode} onChange={setDebugMode} />
           <ToggleRow title="Beta features" desc="Opt in to experimental features before general availability." checked={betaFeatures} onChange={setBetaFeatures} />
@@ -87,7 +87,7 @@ export default function AdvancedPanel() {
       </SettingCard>
 
       <SettingCard>
-        <CardHeader icon={Download} title="Data Export" desc="Export or delete all workspace data in accordance with GDPR Article 20." />
+        <CardHeader icon={Download} title="Data export" desc="Export or delete all workspace data in accordance with GDPR Article 20." />
         <CardBody className="space-y-3">
           <div className="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-gray-50">
             <div>

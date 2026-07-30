@@ -120,7 +120,7 @@ export function ResultsState({ fileNames, reviewResult, onReset }: ResultsStateP
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="badge badge-success">Assessment Complete</span>
+            <span className="badge badge-success">Assessment complete</span>
             <span className="text-[11px] text-gray-400 font-medium">
               {fileNames.length} document{fileNames.length !== 1 ? "s" : ""} reviewed
             </span>
@@ -130,7 +130,7 @@ export function ResultsState({ fileNames, reviewResult, onReset }: ResultsStateP
               </span>
             )}
           </div>
-          <h1 className="text-[24px] font-bold tracking-tight" style={{ color: "#2175D9" }}>Vendor Assessment Report</h1>
+          <h1 className="text-[24px] font-bold tracking-tight" style={{ color: "#2175D9" }}>Vendor assessment report</h1>
           <p className="text-[13px] text-gray-500 mt-1">
             {isRealData && reviewResult?.summary
               ? reviewResult.summary.substring(0, 140) + (reviewResult.summary.length > 140 ? "..." : "")
@@ -138,7 +138,7 @@ export function ResultsState({ fileNames, reviewResult, onReset }: ResultsStateP
           </p>
         </div>
         <button onClick={onReset} className="btn-secondary text-[12px] py-2 px-4 shrink-0 cursor-pointer mt-1">
-          <RefreshCw className="w-3.5 h-3.5" />New Assessment
+          <RefreshCw className="w-3.5 h-3.5" />New assessment
         </button>
       </div>
 
@@ -283,7 +283,7 @@ export function ResultsState({ fileNames, reviewResult, onReset }: ResultsStateP
             <div className="px-5 py-4 border-b border-gray-100 bg-gray-50/60">
               <div className="flex items-center gap-2">
                 <Building2 className="w-3.5 h-3.5 text-gray-400" />
-                <p className="section-label">Vendor Information</p>
+                <p className="section-label">Vendor information</p>
               </div>
             </div>
             <div className="px-5 py-4 space-y-3">
@@ -309,7 +309,7 @@ export function ResultsState({ fileNames, reviewResult, onReset }: ResultsStateP
             <div className="px-5 py-4 border-b border-gray-100 bg-gray-50/60">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-3.5 h-3.5 text-gray-400" />
-                <p className="section-label">Compliance Overview</p>
+                <p className="section-label">Compliance overview</p>
               </div>
             </div>
             <div className="px-5 py-4 space-y-3">
@@ -341,7 +341,7 @@ export function ResultsState({ fileNames, reviewResult, onReset }: ResultsStateP
             <div className="px-5 py-4 border-b border-gray-100 bg-gray-50/60">
               <div className="flex items-center gap-2">
                 <BarChart3 className="w-3.5 h-3.5 text-gray-400" />
-                <p className="section-label">Score Breakdown</p>
+                <p className="section-label">Score breakdown</p>
               </div>
             </div>
             <div className="px-5 py-4 space-y-4">

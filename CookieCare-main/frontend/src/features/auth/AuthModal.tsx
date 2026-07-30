@@ -3,8 +3,9 @@ import { PRIMARY_BRAND, PRIMARY_BRAND_LIGHT } from "../../shared/theme/colors";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Lock, Mail, User, ShieldCheck, ArrowRight, Clock,
-  Shield, Eye, EyeOff, ChevronLeft, ChevronRight, Check,
+  Eye, EyeOff, ChevronLeft, ChevronRight, Check,
 } from "lucide-react";
+import { BrandLogo } from "../../shared/components/BrandLogo";
 import { AuthUser } from "./types";
 import { useAuth } from "./hooks/useAuth";
 
@@ -13,11 +14,11 @@ interface AuthModalProps {
 }
 
 const FEATURES = [
-  "AI Contract Review",
-  "DPA Reviewer",
-  "Cookie Scanner",
-  "Vendor Risk Assessment",
-  "AI Governance & Compliance",
+  "AI contract review",
+  "DPA reviewer",
+  "Cookie scanner",
+  "Vendor risk assessment",
+  "AI governance & compliance",
 ];
 
 const INSIGHTS = [
@@ -62,7 +63,7 @@ function InsightCarousel() {
   return (
     <div>
       <p className="text-[11px] font-semibold uppercase tracking-widest mb-2"
-        style={{ color: "#94A3B8" }}>Compliance Intelligence</p>
+        style={{ color: "#94A3B8" }}>Compliance intelligence</p>
       <div className="relative h-[88px] mb-2.5">
         <AnimatePresence mode="wait" custom={dir}>
           <motion.div
@@ -144,14 +145,10 @@ export default function AuthModal({ onAuthSuccess }: AuthModalProps) {
         >
           <div>
             <div className="flex items-center gap-4 mb-9">
-              <div className="w-11 h-11 rounded-2xl flex items-center justify-center shadow-sm"
-                style={{ background: "#EBF4FD" }}>
-                <Shield className="w-[22px] h-[22px]" style={{ color: "#2175D9" }} />
-              </div>
-              <span className="text-[20px] font-bold tracking-tight" style={{ color: "#2175D9" }}>randtrust</span>
+              <BrandLogo size="lg" />
             </div>
             <h1 className="text-[33px] font-bold leading-[1.2] tracking-tight mb-5 max-w-[400px]" style={{ color: "#2175D9" }}>
-              Enterprise AI for Privacy, Security &amp; Legal Compliance
+              Enterprise AI for privacy, security &amp; legal compliance
             </h1>
             <p className="text-[15px] leading-[1.65] max-w-[380px] text-gray-400">
               Automate privacy reviews, contract analysis, vendor assessments and AI
@@ -160,7 +157,7 @@ export default function AuthModal({ onAuthSuccess }: AuthModalProps) {
           </div>
           <div>
             <p className="text-[11px] font-bold uppercase tracking-widest mb-3 text-gray-400">
-              Why randtrust
+              Why RandTrust
             </p>
             <ul className="space-y-2.5 mb-7">
               {FEATURES.map((f) => (
@@ -174,7 +171,7 @@ export default function AuthModal({ onAuthSuccess }: AuthModalProps) {
           </div>
           <div>
             <p className="text-[11px] font-bold uppercase tracking-widest mb-2.5 text-gray-400">
-              Trusted Compliance Standards
+              Trusted compliance standards
             </p>
             <div className="flex flex-wrap gap-2">
               {BADGES.map((b) => (
@@ -189,11 +186,8 @@ export default function AuthModal({ onAuthSuccess }: AuthModalProps) {
         {/* ── RIGHT — form / pending panel ─────────────────────── */}
         <div className="flex-1 flex flex-col justify-center bg-white px-14 py-12">
           {/* Mobile logo */}
-          <div className="flex lg:hidden items-center gap-3 mb-8 justify-center">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm" style={{ background: "#EBF4FD" }}>
-              <Shield className="w-[18px] h-[18px]" style={{ color: "#2175D9" }} />
-            </div>
-            <span className="text-[17px] font-bold tracking-tight" style={{ color: "#2175D9" }}>randtrust</span>
+          <div className="flex lg:hidden items-center mb-8 justify-center">
+            <BrandLogo size="md" />
           </div>
 
           <AnimatePresence mode="wait">
@@ -210,7 +204,7 @@ export default function AuthModal({ onAuthSuccess }: AuthModalProps) {
                   <Clock className="w-8 h-8" style={{ color: "#D97706" }} />
                 </div>
                 <h2 className="text-[28px] font-bold tracking-tight mb-3" style={{ color: "#111827" }}>
-                  Awaiting Admin Approval
+                  Awaiting admin approval
                 </h2>
                 <p className="text-[15px] leading-[1.7] mb-8" style={{ color: "#6B7280" }}>
                   Your account has been created successfully. An administrator needs to

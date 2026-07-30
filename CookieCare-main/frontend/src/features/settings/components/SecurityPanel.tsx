@@ -45,7 +45,7 @@ export default function SecurityPanel() {
       </SettingCard>
 
       <SettingCard>
-        <CardHeader icon={Key} title="API Credentials" desc="Secret key used for programmatic access to the randtrust API." />
+        <CardHeader icon={Key} title="API credentials" desc="Secret key used for programmatic access to the randtrust API." />
         <CardBody>
           <div className="flex items-center gap-2 mb-4">
             <div className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 font-mono text-[12px] text-gray-700 truncate">
@@ -66,7 +66,7 @@ export default function SecurityPanel() {
       </SettingCard>
 
       <SettingCard>
-        <CardHeader icon={Activity} title="Active Sessions" desc="Devices and locations currently signed in to your account." />
+        <CardHeader icon={Activity} title="Active sessions" desc="Devices and locations currently signed in to your account." />
         <div className="divide-y divide-gray-50">
           {sessions.map((s, i) => (
             <div key={i} className="px-6 py-4 flex items-center justify-between gap-4">

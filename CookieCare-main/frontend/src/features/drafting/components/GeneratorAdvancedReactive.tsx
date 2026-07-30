@@ -32,7 +32,7 @@ export default function GeneratorAdvancedReactive({
       {/* Header */}
       <div className="bg-white border border-gray-200 p-5 rounded-[18px] shadow-xs flex justify-between items-center">
         <div>
-          <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Intake System</span>
+          <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Intake system</span>
           <h2 className="text-[15px] font-bold text-gray-900">Reactive ingestion</h2>
           <p className="text-[12px] text-gray-500 mt-0.5">Upload external legal claims & notices to run parameter extraction plans.</p>
         </div>

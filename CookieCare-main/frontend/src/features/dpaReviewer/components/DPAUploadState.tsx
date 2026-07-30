@@ -47,7 +47,7 @@ export function DPAUploadState({ onFileSelected, uploadError }: DPAUploadStatePr
           <div className="max-w-xl">
         
             <h1 className="text-[26px] font-bold tracking-tight leading-tight mb-2.5" style={{ color: "#2175D9" }}>
-              Data Processing Agreement Reviewer
+              Data processing agreement reviewer
             </h1>
             <p className="text-[13.5px] text-gray-500 leading-relaxed">
               Upload your DPA for a structured review covering GDPR compliance,

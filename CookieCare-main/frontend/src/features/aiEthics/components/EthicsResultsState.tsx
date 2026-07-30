@@ -113,7 +113,8 @@ export function EthicsResultsState({ fileNames, result, onReset }: EthicsResults
                 : "Website analysis complete"}
             </span>
           </div>
-          <h1 className="text-[24px] font-bold tracking-tight" style={{ color: "#2175D9" }}>AI Ethics Score</h1>
+          <h1 className="text-[24px] font-bold tracking-tight" style={{ color: "#2175D9" }}>AI ethics score</h1>
+
           <p className="text-[13px] text-gray-500 mt-1">
             Responsible technology evaluation and governance assessment.
           </p>
@@ -122,14 +123,14 @@ export function EthicsResultsState({ fileNames, result, onReset }: EthicsResults
           onClick={onReset}
           className="btn-secondary text-[12px] py-2 px-4 shrink-0 cursor-pointer mt-1"
         >
-          <RefreshCw className="w-3.5 h-3.5" />New Assessment
+          <RefreshCw className="w-3.5 h-3.5" />New assessment
         </button>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div className="bg-white border border-gray-200 rounded-[18px] shadow-xs p-5 flex flex-col items-center text-center hover:shadow-sm transition-shadow">
-          <p className="section-label mb-3">AI Ethics Score</p>
+          <p className="section-label mb-3">AI ethics score</p>
           <EthicsRadialGauge score={ethicsScore} />
           <p className="text-[11px] text-gray-400 mt-3 leading-tight">
             {ethicsScore >= 70 ? "Strong ethics posture" : ethicsScore >= 50 ? "Improvement needed" : "Significant gaps found"}
@@ -148,7 +149,7 @@ export function EthicsResultsState({ fileNames, result, onReset }: EthicsResults
         </div>
 
         <div className="bg-white border border-gray-200 rounded-[18px] shadow-xs p-5 flex flex-col items-center text-center hover:shadow-sm transition-shadow">
-          <p className="section-label mb-3">High Priority Issues</p>
+          <p className="section-label mb-3">High priority issues</p>
           <div className="w-[72px] h-[72px] rounded-2xl bg-amber-50 border border-amber-100 flex flex-col items-center justify-center gap-1">
             <span className="text-[28px] font-bold text-amber-600 tabular-nums leading-none">{highPriority}</span>
             <span className="text-[9px] font-semibold text-amber-400 uppercase tracking-wider">Issues</span>
@@ -159,7 +160,7 @@ export function EthicsResultsState({ fileNames, result, onReset }: EthicsResults
         </div>
 
         <div className={`border rounded-[18px] shadow-xs p-5 flex flex-col items-center text-center hover:shadow-sm transition-shadow ${complianceCfg.bg} ${complianceCfg.border}`}>
-          <p className="section-label mb-3">Compliance Status</p>
+          <p className="section-label mb-3">Compliance status</p>
           <div className="w-[72px] h-[72px] rounded-2xl bg-white/70 flex flex-col items-center justify-center gap-1 shadow-xs">
             {complianceCfg.icon}
             <span className={`text-[9px] font-bold uppercase tracking-wide mt-1 ${complianceCfg.text}`}>{complianceStatus}</span>
@@ -178,7 +179,7 @@ export function EthicsResultsState({ fileNames, result, onReset }: EthicsResults
           {/* Summary block */}
           {result.summary && (
             <div className="bg-white border border-gray-200 rounded-[16px] shadow-xs px-5 py-4">
-              <p className="text-[12px] font-semibold text-gray-500 uppercase tracking-wide mb-2">Executive Summary</p>
+              <p className="text-[12px] font-semibold text-gray-500 uppercase tracking-wide mb-2">Executive summary</p>
               <p className="text-[13px] text-gray-700 leading-relaxed">{result.summary}</p>
             </div>
           )}
@@ -283,12 +284,12 @@ export function EthicsResultsState({ fileNames, result, onReset }: EthicsResults
             <div className="px-5 py-4 border-b border-gray-100 bg-gray-50/60">
               <div className="flex items-center gap-2">
                 <Brain className="w-3.5 h-3.5 text-gray-400" />
-                <p className="section-label">Assessment Summary</p>
+                <p className="section-label">Assessment summary</p>
               </div>
             </div>
             <div className="px-5 py-4 space-y-3">
               {[
-                { label: "Assessment Type", value: "Full Ethics Review" },
+                { label: "Assessment Type", value: "Full ethics review" },
                 { label: "Framework",       value: "NIST AI RMF | ISO 42001 | EU AI Act" },
                 { label: "Review Date",     value: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) },
                 { label: "Overall Rating",  value: `${ethicsScore}/100 — ${ethicsScore >= 70 ? "Low Risk" : ethicsScore >= 50 ? "Moderate" : "High Risk"}` },
@@ -307,7 +308,7 @@ export function EthicsResultsState({ fileNames, result, onReset }: EthicsResults
             <div className="px-5 py-4 border-b border-gray-100 bg-gray-50/60">
               <div className="flex items-center gap-2">
                 <BarChart3 className="w-3.5 h-3.5 text-gray-400" />
-                <p className="section-label">Ethics Breakdown</p>
+                <p className="section-label">Ethics breakdown</p>
               </div>
             </div>
             <div className="px-5 py-4 space-y-4">
@@ -336,7 +337,7 @@ export function EthicsResultsState({ fileNames, result, onReset }: EthicsResults
           {result.standardAlignment && result.standardAlignment.length > 0 && (
             <div className="bg-white border border-gray-200 rounded-[18px] shadow-xs overflow-hidden">
               <div className="px-5 py-4 border-b border-gray-100 bg-gray-50/60">
-                <p className="section-label">Standards Alignment</p>
+                <p className="section-label">Standards alignment</p>
               </div>
               <div className="px-5 py-4 space-y-3">
                 {result.standardAlignment.map((s) => {

@@ -116,9 +116,30 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
   
     await updateJobProgress(jobId, userId, 50, "Invoking AI model core engine and validation checkpoints...");
 
+    // 3. Pre-create the files row BEFORE launching the pipeline.
+    //    draft_state_ledger has a FK → files(id), and saveStep (the last pipeline
+    //    step) inserts into draft_state_ledger using targetDocId.  If the files row
+    //    does not exist at that point the FK constraint fires.  We insert a
+    //    placeholder here so the parent row is already present, then UPDATE it with
+    //    the real encrypted content once generation finishes.
+    const { email: creatorEmail } = await withTransaction(userId, 'USER', async (client) => {
+      const { rows } = await client.query("SELECT email FROM users WHERE id = $1", [userId]);
+      return { email: rows[0]?.email || "" };
+    });
+
+    await withTransaction(userId, 'USER', async (client) => {
+      await client.query(
+        `INSERT INTO files (id, title, type, content, creator_id, creator_email, is_encrypted, shared_with, audit_logs)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        [targetDocId, "Draft in progress...", "draft", "", userId, creatorEmail, false, JSON.stringify([]), JSON.stringify([])]
+      );
+    });
+
     const orchestrator = new DraftWorkflowOrchestrator()
   
-    // 3. Dispatch straight to the central state loop pipeline running code
+    // 4. Dispatch straight to the central state loop pipeline running code.
+    //    saveStep can now safely INSERT into draft_state_ledger because the
+    //    files row for targetDocId already exists.
     const finalizedState = await orchestrator.executeInitialWorkflow(initialStateContainer);
     
     if (!finalizedState.draft?.formattedDocument) {
@@ -127,7 +148,7 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
   
     const documentContentResult = finalizedState.draft.formattedDocument;
   
-    // 4. Fetch user records to update application file rows
+    // 5. Resolve the final title now that requirement extraction has run.
     // QUALITY_QUICKWIN: previous — `${contractType || "AI"} Agreement - ${new Date().toLocaleDateString()}`
     // which produced noisy titles like "Mutual NDA - Vendor Infrastructure Host Agreement - 24/7/2026"
     // The contract type is now derived by step 1 (requirement extraction), not the UI feed.
@@ -135,19 +156,18 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
       finalizedState.requirements?.contractType
     );
     const title = `${legalTitle} - ${new Date().toLocaleDateString("en-US")}`;
-    const { email: creatorEmail } = await withTransaction(userId, 'USER', async (client) => {
-      const { rows } = await client.query("SELECT email FROM users WHERE id = $1", [userId]);
-      return { email: rows[0]?.email || "" };
-    });
   
     const encryptedContent = encryptData(documentContentResult);
   
-    // 5. Commit structured text data seamlessly to your application's user tables
+    // 6. Update the placeholder files row with the real content, then insert the
+    //    initial document version.  Using UPDATE here avoids a duplicate-key error
+    //    in case the pipeline's saveStep already touched the files row indirectly.
     await withTransaction(userId, 'USER', async (client) => {
       await client.query(
-        `INSERT INTO files (id, title, type, content, creator_id, creator_email, is_encrypted, shared_with, audit_logs)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-        [targetDocId, title, "draft", encryptedContent, userId, creatorEmail, true, JSON.stringify([]), JSON.stringify([])]
+        `UPDATE files
+         SET title = $1, content = $2, is_encrypted = $3, updated_at = NOW()
+         WHERE id = $4`,
+        [title, encryptedContent, true, targetDocId]
       );
   
       const versionId = "ver_" + crypto.randomUUID();

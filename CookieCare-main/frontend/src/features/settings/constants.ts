@@ -6,7 +6,7 @@ export const NAV_ITEMS: { id: SettingsSection; label: string; icon: React.Elemen
   { id: "general",       label: "General",          icon: User,     desc: "Profile & display preferences" },
   { id: "privacy",       label: "Privacy",          icon: Shield,   desc: "Data handling & compliance scope" },
   { id: "security",      label: "Security",         icon: Lock,     desc: "Authentication & access control" },
-  { id: "ai",            label: "AI Configuration", icon: Sparkles, desc: "Models, prompts & behaviour" },
+  { id: "ai",            label: "AI configuration", icon: Sparkles, desc: "Models, prompts & behaviour" },
   { id: "notifications", label: "Notifications",    icon: Bell,     desc: "Alerts, digests & webhooks" },
   { id: "workspace",     label: "Workspace",        icon: Layers,   desc: "Team, billing & integrations" },
   { id: "advanced",      label: "Advanced",         icon: Zap,      desc: "Developer tools & system health" },

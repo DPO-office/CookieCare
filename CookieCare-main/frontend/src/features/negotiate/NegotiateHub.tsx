@@ -55,12 +55,10 @@ function NegotiateWorkspace({
               <ArrowLeft className="w-4 h-4" />
             </button>
             <div className="min-w-0">
-              <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#2175D9" }}>Negotiate Redlines</h1>
-              <p className="text-[13px] text-gray-500 mt-1">Review, redline, and resolve contract positions.</p>
+              <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#2175D9" }}>Negotiate redlines</h1>
             </div>
           </div>
 
-          {/* Right: doc switcher + tools */}
           {documents.length > 0 && (
             <div className="flex items-center gap-2 shrink-0">
               {/* Document selector */}
@@ -194,7 +192,7 @@ export default function NegotiateHub({
         <div className="px-10 pt-8 pb-0 shrink-0">
           <div className="w-full max-w-5xl mx-auto flex justify-between items-start mb-9">
             <div>
-              <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#2175D9" }}>Negotiate Redlines</h1>
+              <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#2175D9" }}>Negotiate redlines</h1>
               <p className="text-[13px] text-gray-500 mt-1">Review, redline, and resolve contract positions.</p>
             </div>
           </div>

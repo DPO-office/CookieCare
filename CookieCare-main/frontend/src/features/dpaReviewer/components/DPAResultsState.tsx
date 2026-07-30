@@ -78,17 +78,17 @@ export function DPAResultsState({ fileName, reviewResult, onReset }: DPAResultsS
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="badge badge-success">Analysis Complete</span>
+            <span className="badge badge-success">Analysis complete</span>
             <span className="text-[11px] text-gray-400 font-medium truncate max-w-[240px]">{fileName}</span>
           </div>
-          <h1 className="text-[24px] font-bold tracking-tight" style={{ color: "#2175D9" }}>DPA Compliance Report</h1>
+          <h1 className="text-[24px] font-bold tracking-tight" style={{ color: "#2175D9" }}>DPA compliance report</h1>
           <p className="text-[13px] text-gray-500 mt-1">GDPR compliance analysis and data processing risk findings.</p>
           {summary && (
             <p className="text-[13px] text-gray-600 mt-2 max-w-2xl leading-relaxed">{summary}</p>
           )}
         </div>
         <button onClick={onReset} className="btn-secondary text-[12px] py-2 px-4 shrink-0 cursor-pointer mt-1">
-          <RefreshCw className="w-3.5 h-3.5" />New Review
+          <RefreshCw className="w-3.5 h-3.5" />New review
         </button>
       </div>
 
@@ -239,7 +239,7 @@ export function DPAResultsState({ fileName, reviewResult, onReset }: DPAResultsS
                     <div className="w-7 h-7 rounded-lg bg-white/80 border border-white flex items-center justify-center text-red-500 shadow-xs">
                       <AlertTriangle className="w-3.5 h-3.5" />
                     </div>
-                    <h3 className="text-[13px] font-bold text-gray-900">Missing Mandatory Clauses</h3>
+                    <h3 className="text-[13px] font-bold text-gray-900">Missing mandatory clauses</h3>
                     <span className="ml-2 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide bg-red-100 text-red-700">
                       critical
                     </span>
@@ -272,7 +272,7 @@ export function DPAResultsState({ fileName, reviewResult, onReset }: DPAResultsS
           {/* Score breakdown */}
           <div className="bg-white border border-gray-200 rounded-[18px] shadow-xs overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-100 bg-gray-50/60">
-              <p className="section-label">Score Breakdown</p>
+              <p className="section-label">Score breakdown</p>
             </div>
             <div className="px-5 py-4 space-y-4">
               {[
@@ -299,7 +299,7 @@ export function DPAResultsState({ fileName, reviewResult, onReset }: DPAResultsS
           {/* Dimension breakdown */}
           <div className="bg-white border border-gray-200 rounded-[18px] shadow-xs overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-100 bg-gray-50/60">
-              <p className="section-label">Dimension Scores</p>
+              <p className="section-label">Dimension scores</p>
             </div>
             <div className="px-5 py-4 space-y-3">
               {[
@@ -331,7 +331,7 @@ export function DPAResultsState({ fileName, reviewResult, onReset }: DPAResultsS
           {/* Export */}
           <div className="bg-white border border-gray-200 rounded-[18px] shadow-xs overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-100 bg-gray-50/60">
-              <p className="section-label">Export Report</p>
+              <p className="section-label">Export report</p>
             </div>
             <div className="px-5 py-4 space-y-2.5">
               <button
@@ -354,7 +354,7 @@ export function DPAResultsState({ fileName, reviewResult, onReset }: DPAResultsS
           {/* Document details */}
           <div className="bg-white border border-gray-200 rounded-[18px] shadow-xs overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-100 bg-gray-50/60">
-              <p className="section-label">Document Details</p>
+              <p className="section-label">Document details</p>
             </div>
             <div className="px-5 py-4 space-y-3">
               {[

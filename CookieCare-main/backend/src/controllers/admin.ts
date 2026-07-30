@@ -1,12 +1,16 @@
 import { Request, Response } from "express";
 import { pool } from "../config/database.js";
-import { withTransaction } from "../utils/dbUtils.js";
 import { reindexUnchunkedDocuments } from "../RAG/ragService.js";
+
+// The users table is not covered by RLS — all admin queries on it use pool
+// directly. withTransaction sets RLS session variables (app.current_user_id /
+// app.current_user_role) which only apply to tenant-isolated tables (files,
+// folders, etc.). Wrapping users queries in withTransaction caused silent
+// transaction failures that returned empty results from getPendingUsers and
+// getAllUsers, making newly registered accounts invisible in the Admin Panel.
 
 export const approveUser = async (req: Request, res: Response) => {
   const { userId, role, status } = req.body;
-  const currentUserId = req.user!.id;
-  const currentUserRole = req.user!.role;
 
   if (!userId) {
     return res.status(400).json({ error: "userId is required." });
@@ -16,12 +20,10 @@ export const approveUser = async (req: Request, res: Response) => {
     const finalRole = role || 'USER';
     const finalStatus = status || 'APPROVED';
 
-    await withTransaction(currentUserId, currentUserRole, async (client) => {
-      await client.query(
-        "UPDATE users SET status = $1::varchar, role = $2::varchar, approved_at = CASE WHEN $1::varchar = 'APPROVED' THEN CURRENT_TIMESTAMP ELSE approved_at END WHERE id = $3",
-        [finalStatus, finalRole, userId]
-      );
-    });
+    await pool.query(
+      "UPDATE users SET status = $1::varchar, role = $2::varchar, approved_at = CASE WHEN $1::varchar = 'APPROVED' THEN CURRENT_TIMESTAMP ELSE approved_at END WHERE id = $3",
+      [finalStatus, finalRole, userId]
+    );
 
     res.json({ success: true, message: `User updated to ${finalStatus} with role ${finalRole}.` });
   } catch (error: any) {
@@ -31,15 +33,10 @@ export const approveUser = async (req: Request, res: Response) => {
 };
 
 export const getAllUsers = async (req: Request, res: Response) => {
-  const currentUserId = req.user!.id;
-  const currentUserRole = req.user!.role;
   try {
-    const rows = await withTransaction(currentUserId, currentUserRole, async (client) => {
-      const { rows } = await client.query(
-        "SELECT id, email, name, status, role, created_at FROM users ORDER BY created_at DESC"
-      );
-      return rows;
-    });
+    const { rows } = await pool.query(
+      "SELECT id, email, name, status, role, created_at FROM users ORDER BY created_at DESC"
+    );
     res.json(rows);
   } catch (err: any) {
     console.error("Failed to fetch users:", err);
@@ -48,15 +45,10 @@ export const getAllUsers = async (req: Request, res: Response) => {
 };
 
 export const getPendingUsers = async (req: Request, res: Response) => {
-  const currentUserId = req.user!.id;
-  const currentUserRole = req.user!.role;
   try {
-    const rows = await withTransaction(currentUserId, currentUserRole, async (client) => {
-      const { rows } = await client.query(
-        "SELECT id, email, name, status, role, created_at FROM users WHERE status = 'PENDING_APPROVAL' ORDER BY created_at DESC"
-      );
-      return rows;
-    });
+    const { rows } = await pool.query(
+      "SELECT id, email, name, status, role, created_at FROM users WHERE status = 'PENDING_APPROVAL' ORDER BY created_at DESC"
+    );
     res.json(rows);
   } catch (err: any) {
     console.error("Failed to fetch pending users:", err);

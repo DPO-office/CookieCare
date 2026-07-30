@@ -14,7 +14,7 @@ export default function PrivacyPanel() {
   return (
     <div className="space-y-5">
       <SettingCard>
-        <CardHeader icon={Shield} title="Regulatory Scope" desc="Select the privacy regulations that govern your compliance workflow." />
+        <CardHeader icon={Shield} title="Regulatory scope" desc="Select the privacy regulations that govern your compliance workflow." />
         <CardBody className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <Label>Target regulation</Label>
@@ -46,7 +46,7 @@ export default function PrivacyPanel() {
       </SettingCard>
 
       <SettingCard>
-        <CardHeader icon={Eye} title="Data Handling" desc="Control how randtrust processes and shares your workspace data." />
+        <CardHeader icon={Eye} title="Data handling" desc="Control how randtrust processes and shares your workspace data." />
         <CardBody>
           <ToggleRow title="Anonymise document metadata" desc="Strip author names, timestamps and file paths before AI processing." checked={anonymise} onChange={setAnonymise} />
           <ToggleRow title="Third-party data sharing" desc="Allow anonymised usage data to improve randtrust AI models." checked={thirdPartyShare} onChange={setThirdPartyShare} />

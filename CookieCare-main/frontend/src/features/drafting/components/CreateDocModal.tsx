@@ -44,9 +44,9 @@ export default function CreateDocModal({ onCancel, onSubmit }: CreateDocModalPro
               className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-[13px] focus:outline-none focus:ring-2 focus:ring-gray-100 cursor-pointer"
             >
               <option value="NDA">Mutual NDA (Non-disclosure)</option>
-              <option value="DPA">GPDR DPA (Data Processing)</option>
-              <option value="SLA">Service Level Performance SLA</option>
-              <option value="Custom">Blank Custom Slate</option>
+              <option value="DPA">GDPR DPA (Data processing)</option>
+              <option value="SLA">Service level performance SLA</option>
+              <option value="Custom">Blank custom slate</option>
             </select>
           </div>
 
@@ -64,7 +64,7 @@ export default function CreateDocModal({ onCancel, onSubmit }: CreateDocModalPro
               type="submit"
               className="flex-1 -90 transition shadow-xs cursor-pointer" style={{ background: "#2175D9" }}
             >
-              Load Template
+              Load template
             </button>
           </div>
         </form>

@@ -119,7 +119,7 @@ export default function GeneratorPanel(props: GeneratorPanelProps) {
         {/* Header */}
         <div className="w-full flex justify-between items-start mb-9 z-10">
           <div>
-            <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#2175D9" }}>Draft Agreements</h1>
+            <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#2175D9" }}>Draft agreements</h1>
             <p className="text-[13px] text-gray-500 mt-1">Generate structured first drafts from templates and playbooks.</p>
           </div>
 

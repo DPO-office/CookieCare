@@ -57,7 +57,7 @@ export default function NegotiationPanel({
             <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "#2175D9" }}>
               <Sparkles className="w-3.5 h-3.5 text-white" />
             </div>
-            <span className="text-[13px] font-semibold text-gray-900">AI Negotiation</span>
+            <span className="text-[13px] font-semibold text-gray-900">AI negotiation</span>
           </div>
 
           {/* Status pill */}
@@ -112,7 +112,7 @@ export default function NegotiationPanel({
           <>
             {/* Card: Negotiation Status */}
             <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-              <SectionLabel>Negotiation Status</SectionLabel>
+              <SectionLabel>Negotiation status</SectionLabel>
               <div className="flex items-center gap-2.5">
                 {(() => {
                   const cfg = RISK_CONFIG[selectedMarkup.riskLevel];
@@ -135,7 +135,7 @@ export default function NegotiationPanel({
 
             {/* Card: Original Clause */}
             <div>
-              <SectionLabel>Original Clause</SectionLabel>
+              <SectionLabel>Original clause</SectionLabel>
               <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3.5">
                 <p className="text-[12.5px] text-red-800 leading-relaxed line-through decoration-red-400 decoration-1">
                   {selectedMarkup.original}
@@ -146,7 +146,7 @@ export default function NegotiationPanel({
             {/* Card: Suggested Revision */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <SectionLabel>Suggested Revision</SectionLabel>
+                <SectionLabel>Suggested revision</SectionLabel>
                 {!isLocked && (
                   <button
                     onClick={onToggleEdit}
@@ -226,7 +226,7 @@ export default function NegotiationPanel({
                 className="mt-5 inline-flex items-center gap-2 h-9 px-4 rounded-xl border border-gray-200 bg-white text-[12px] font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
-                Re-run Evaluation
+                Re-run evaluation
               </button>
             )}
           </div>
@@ -255,7 +255,7 @@ export default function NegotiationPanel({
               {isAccepting
                 ? <Loader2 className="w-4 h-4 animate-spin" />
                 : <Check className="w-4 h-4" />}
-              {isAccepting ? "Applying..." : "Accept Revision"}
+              {isAccepting ? "Applying..." : "Accept revision"}
             </button>
 
             {/* Reject · secondary */}

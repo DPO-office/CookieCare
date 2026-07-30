@@ -64,7 +64,7 @@ export function FindingCard({ finding }: FindingCardProps) {
               <div className="w-5 h-5 rounded-md bg-blue-100 flex items-center justify-center">
                 <Sparkles className="w-3 h-3 text-blue-600" />
               </div>
-              <p className="text-[11px] font-semibold text-blue-700 uppercase tracking-wider">AI Recommendation</p>
+              <p className="text-[11px] font-semibold text-blue-700 uppercase tracking-wider">AI recommendation</p>
             </div>
             <p className="text-[13px] text-blue-900 leading-relaxed">{finding.recommendation}</p>
           </div>

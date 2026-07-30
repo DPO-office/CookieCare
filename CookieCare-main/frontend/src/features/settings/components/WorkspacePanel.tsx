@@ -49,7 +49,7 @@ export default function WorkspacePanel() {
       </SettingCard>
 
       <SettingCard>
-        <CardHeader icon={Users} title="Team Members" desc="People with access to this workspace." />
+        <CardHeader icon={Users} title="Team members" desc="People with access to this workspace." />
         <div className="divide-y divide-gray-50">
           {members.map((m, i) => (
             <div key={i} className="px-6 py-3.5 flex items-center gap-3">

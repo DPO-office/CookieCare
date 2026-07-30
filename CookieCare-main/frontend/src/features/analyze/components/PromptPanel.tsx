@@ -65,7 +65,7 @@ export default function PromptPanel({
             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-gray-200 bg-white text-[12px] font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 transition-all"
           >
             <BookOpen className="w-3.5 h-3.5 text-gray-400" />
-            Browse Prompt Library
+            Browse prompt library
             <ChevronRight className="w-3 h-3 text-gray-300" />
           </button>
 
@@ -74,7 +74,7 @@ export default function PromptPanel({
             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-gray-200 bg-white text-[12px] font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 transition-all"
           >
             <HelpCircle className="w-3.5 h-3.5 text-gray-400" />
-            Browse Question Library
+            Browse question library
             <ChevronRight className="w-3 h-3 text-gray-300" />
           </button>
         </div>

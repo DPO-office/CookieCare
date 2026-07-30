@@ -22,7 +22,8 @@ export async function rejectUser(authToken: string, userId: string): Promise<voi
   const res = await fetch(apiUrl("/api/admin/users/update"), {
     method: "PATCH",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
-    body: JSON.stringify({ userId, role: "REJECTED", status: "REJECTED" }),
+    // role stays "USER" — only the status changes to REJECTED
+    body: JSON.stringify({ userId, role: "USER", status: "REJECTED" }),
   });
   if (!res.ok) throw new Error("Failed to reject user");
 }
