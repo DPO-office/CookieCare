@@ -8,9 +8,10 @@ import crypto from "crypto";
 import { jobRegistry, updateJobProgress } from "../../jobQueue.js";
 import { DraftMode, DraftState } from "../../../modules/drafting/models/draft-state.js";
 import { extractText } from "../../../utils/extractText.js";
-import { DraftWorkflowOrchestrator } from "../../../modules/drafting/workflows/draft-workflow.js";
+import { draftEntry } from "../../../modules/drafting/entry/draft-workflow.js";
 import { resolveLegalDocumentTitle } from "../../../modules/drafting/prompts/system-templates.js";
 import { parseSections } from "../../../modules/drafting/utils/document-sections.js";
+import { applyUserAnswers } from "../../../modules/drafting/memory/conversation-store.js";
 
 async function extractTextFromStorageUrl(fileUrl: string): Promise<string> {
     const response = await fetch(fileUrl);
@@ -27,7 +28,7 @@ async function extractTextFromStorageUrl(fileUrl: string): Promise<string> {
 async function handleInitialDraftingJob(jobId: string, userId: string, payload: any): Promise<any> {
     // 1. Ingest the unified instruction feed. The frontend sends only raw user
     //    intent; all structured details are derived in step 1 (requirement extraction).
-    const { mode, draftInput, draftInstructions, uploadedDocument, documentId } = payload;
+    const { mode, draftInput, draftInstructions, uploadedDocument, documentId, intake } = payload;
     console.log("Entered main handleInitialDraftingJob with mode:", mode);
   
     await updateJobProgress(jobId, userId, 20, "Extracting compliance parameters and routing tracking slots...");
@@ -76,6 +77,17 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
         // Best-effort live streaming of generation tokens to the client.
         jobRegistry.broadcastToken(userId, jobId, delta);
       },
+      entryMode: "CREATE",
+      intakeOverlay: intake
+        ? {
+            documentType: intake.documentType,
+            governingLaw: intake.governingLaw,
+            phiInvolved: intake.phiInvolved,
+            partyCount: intake.partyCount,
+            parties: intake.parties,
+          }
+        : undefined,
+      organizationId: payload.organizationId ? String(payload.organizationId) : undefined,
       request: {
         intent: evaluatedIntent, 
         mode: mode === "BASIC" ? "Basic" : mode === "PROACTIVE" ? "Standard Template" : "Advanced Proactive",        
@@ -88,10 +100,10 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
       },
       // Neutral placeholders — step 1 (requirement extraction) overwrites these.
       requirements: {
-        contractType: "General",
-        jurisdiction: "Not specified",
+        contractType: intake?.documentType || "General",
+        jurisdiction: intake?.governingLaw || "Not specified",
         industry: "General",
-        parties: [],
+        parties: intake?.parties || [],
         requiredClauses: [],
         optionalClauses: [],
         language: "English",
@@ -135,12 +147,18 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
       );
     });
 
-    const orchestrator = new DraftWorkflowOrchestrator()
-  
-    // 4. Dispatch straight to the central state loop pipeline running code.
-    //    saveStep can now safely INSERT into draft_state_ledger because the
-    //    files row for targetDocId already exists.
-    const finalizedState = await orchestrator.executeInitialWorkflow(initialStateContainer);
+    // Always PAC drafting (CREATE).
+    const finalizedState = await draftEntry.run(initialStateContainer);
+
+    // PAC may pause for ASK (needs_input) without a finished document.
+    if (finalizedState.agent?.stoppedReason === "awaiting_user") {
+      return {
+        status: "needs_input",
+        file_id: targetDocId,
+        openQuestions: finalizedState.agent.openQuestions,
+        conversation: finalizedState.conversation,
+      };
+    }
     
     if (!finalizedState.draft?.formattedDocument) {
       throw new Error("Pipeline Execution Failure: Final document text block emerged empty from workflow engine.");
@@ -356,12 +374,18 @@ async function handleRefinementJob(jobId: string, userId: string, payload: any):
         };
   
     await updateJobProgress(jobId, userId, 45, "Executing adjustments and evaluating risk variables...");
-    const orchestrator = new DraftWorkflowOrchestrator()
 
-  
-    // 4. Fire the modification loop pipeline running code
-    const finalizedRefinedState = await orchestrator.executeHumanRefinementPipeline(inputStateContainer);
-    const refinedTextOutputResult = finalizedRefinedState.draft?.formattedDocument || documentText;
+    const refineState: DraftState = {
+      ...inputStateContainer,
+      entryMode: "HUMAN_REFINE",
+      conversation: historicalStateSnapshot?.conversation,
+      plan: historicalStateSnapshot?.plan,
+      structuredFacts: historicalStateSnapshot?.structuredFacts,
+      exhibits: historicalStateSnapshot?.exhibits,
+    };
+
+    const finalizedState = await draftEntry.run(refineState);
+    const refinedTextOutputResult = finalizedState.draft?.formattedDocument || documentText;
   
     // 5. Query user data elements for application files sync
     const title = `Refined Text - ${new Date().toLocaleDateString()}`;
@@ -402,8 +426,83 @@ async function handleRefinementJob(jobId: string, userId: string, payload: any):
     return { data: refinedTextOutputResult, file_id: targetDocId, version: nextVersionNumber };
   }
 
+async function handleResumeAskJob(jobId: string, userId: string, payload: any): Promise<any> {
+  const { documentId, answers } = payload;
+  if (!documentId) throw new Error("RESUME_ASK requires documentId");
+  if (!answers || typeof answers !== "object") throw new Error("RESUME_ASK requires answers map");
+
+  await updateJobProgress(jobId, userId, 10, "Resuming drafting with your answers...");
+
+  const snapshotLookup = await pool.query(
+    `SELECT state_snapshot_json, version
+     FROM draft_state_ledger
+     WHERE document_id = $1
+     ORDER BY version DESC
+     LIMIT 1`,
+    [documentId]
+  );
+
+  if (!snapshotLookup.rows.length) {
+    throw new Error(`No paused draft state found for ${documentId}`);
+  }
+
+  let state = snapshotLookup.rows[0].state_snapshot_json as DraftState;
+  state = {
+    ...applyUserAnswers(state, answers),
+    onProgress: async (percent, message) => {
+      await updateJobProgress(jobId, userId, percent, message);
+    },
+    onToken: (delta) => {
+      jobRegistry.broadcastToken(userId, jobId, delta);
+    },
+  };
+
+  const finalizedState = await draftEntry.resumeAfterAsk(state);
+
+  if (finalizedState.agent?.stoppedReason === "awaiting_user") {
+    return {
+      status: "needs_input",
+      file_id: documentId,
+      openQuestions: finalizedState.agent.openQuestions,
+      conversation: finalizedState.conversation,
+    };
+  }
+
+  if (!finalizedState.draft?.formattedDocument) {
+    throw new Error("Resume failed: empty document after PAC run");
+  }
+
+  const documentContentResult = finalizedState.draft.formattedDocument;
+  const legalTitle = resolveLegalDocumentTitle(finalizedState.requirements?.contractType);
+  const title = `${legalTitle} - ${new Date().toLocaleDateString("en-US")}`;
+  const encryptedContent = encryptData(documentContentResult);
+
+  await withTransaction(userId, "USER", async (client) => {
+    await client.query(
+      `UPDATE files SET title = $1, content = $2, is_encrypted = $3, updated_at = NOW() WHERE id = $4`,
+      [title, encryptedContent, true, documentId]
+    );
+    const versionId = "ver_" + crypto.randomUUID();
+    await client.query(`INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`, [
+      versionId,
+      documentId,
+      encryptedContent,
+    ]);
+  });
+
+  return {
+    content: documentContentResult,
+    file_id: documentId,
+    version: finalizedState.draft.version,
+  };
+}
+
 // Main execulatable function used in main JobQueue.ts
 export async function executeTemplateDrafting(jobId: string, userId: string, payload: any) {
+  if (payload.intent === "RESUME_ASK") {
+    return await handleResumeAskJob(jobId, userId, payload);
+  }
+
   if (
     payload.intent === "REFINEMENT" ||
     payload.type === "REFINEMENT" ||

@@ -1,9 +1,6 @@
-// IMPROVMENT IN CODEBASE FOLDER STUCTURE
-// we can transfer this whole service folder to a seprate vault folder and if we need to use the llm then we can also make a llm migrate that as well from the moduels based to a centralized way to use getTestModel from the folder and user it in all the moduels for the brain work
 import crypto from "crypto";
 import { pool } from "../../../config/database.js";
-import { LLMTask, LLMProvider } from "../config/model-specs.js";
-import { executeJsonCompletion } from "../llm/index.js";
+import { LLMTask, LLMProvider, executeJsonCompletion } from "../../../llm/index.js";
 import {
   CLAUSE_EXTRACT_SYSTEM,
   CLAUSE_EXTRACT_USER_PREFIX,

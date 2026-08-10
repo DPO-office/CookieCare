@@ -1,26 +1,35 @@
-import { z } from "zod"
-
+import { z } from "zod";
 
 // UNIFIED INSTRUCTION FEED
-// The frontend no longer sends authoritative structured fields (formFields,
-// contractType, extractedFields). It sends only raw user intent; orchestration
-// step 1 (requirementExtractionStep) is the single source of truth that derives
-// contractType, parties, governing law, venue, term tiers, liability, etc.
+// Optional structured intake overlay pre-populates facts before PLAN (cuts ASK round-trips).
+export const StructuredIntakeSchema = z
+  .object({
+    documentType: z.string().optional(),
+    governingLaw: z.string().optional(),
+    phiInvolved: z.boolean().optional(),
+    partyCount: z.number().int().positive().optional(),
+    parties: z.array(z.string()).optional(),
+  })
+  .optional();
+
 export const DraftRequestSchema = z.object({
-    mode: z.enum(["BASIC", "PROACTIVE", "REACTIVE"]),
-    // Free-text "what to draft".
-    draftInput: z.string().default(""),
-    // Free-text "how to draft / requirements" (tone, structure, specific asks).
-    draftInstructions: z.string().default(""),
-    // Reactive: id of the uploaded source document to revise. Null otherwise.
-    uploadedDocument: z.string().nullable().optional(),
-    // Proactive: id of a selected playbook/reference doc (vault selector arrives
-    // later). Null for now — proactive currently runs on default documents.
-    documentId: z.string().nullable().optional()
+  mode: z.enum(["BASIC", "PROACTIVE", "REACTIVE"]),
+  draftInput: z.string().default(""),
+  draftInstructions: z.string().default(""),
+  uploadedDocument: z.string().nullable().optional(),
+  documentId: z.string().nullable().optional(),
+  organizationId: z.string().nullable().optional(),
+  intake: StructuredIntakeSchema,
 });
 
 export const RefineRequestSchema = z.object({
-    documentId: z.string().min(1),
-    instructions: z.string().min(1),
-    highlightedText: z.string().optional()
+  documentId: z.string().min(1),
+  instructions: z.string().min(1),
+  highlightedText: z.string().optional(),
+});
+
+/** Resume a PAC run paused in ASK with batched answers. */
+export const ResumeAskRequestSchema = z.object({
+  documentId: z.string().min(1),
+  answers: z.record(z.string(), z.string()),
 });

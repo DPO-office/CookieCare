@@ -17,22 +17,27 @@ export class PlaybookRetriever {
     state: DraftState
   ): Promise<PlaybookRule[]> {
     try {
+      const orgId = state.organizationId?.trim() || null;
       const { rows } = await this.db.query(
         `SELECT id, topic, standard_position, fallback_positions, walk_away_condition
          FROM playbook_rules
-         WHERE contract_type = $1
+         WHERE (
+            contract_type = $1
             OR contract_type ILIKE $2
             OR LOWER(TRIM(contract_type)) IN ('general', 'all', 'any', 'company', 'global')
             OR contract_type IS NULL
             OR TRIM(contract_type) = ''
+         )
+         AND ($3::text IS NULL OR organization_id = $3 OR organization_id IS NULL)
          ORDER BY
            CASE
              WHEN contract_type = $1 OR contract_type ILIKE $2 THEN 0
              ELSE 1
            END,
+           CASE WHEN organization_id = $3 THEN 0 ELSE 1 END,
            created_at DESC
          LIMIT 40`,
-        [requirements.contractType, `%${requirements.contractType}%`]
+        [requirements.contractType, `%${requirements.contractType}%`, orgId]
       );
 
       let rules: PlaybookRule[] = rows.map((row: any) => ({

@@ -190,6 +190,7 @@ async function setupDb() {
       -- Playbook PDF ingest (PlaybookIngester) + PlaybookRetriever
       CREATE TABLE IF NOT EXISTS playbook_rules (
         id VARCHAR(255) PRIMARY KEY,
+        organization_id VARCHAR(255),
         contract_type VARCHAR(255),
         topic VARCHAR(255) NOT NULL,
         risk_level VARCHAR(50),
@@ -203,6 +204,9 @@ async function setupDb() {
 
       CREATE INDEX IF NOT EXISTS idx_playbook_rules_contract_type
         ON playbook_rules (contract_type);
+
+      -- Tenant scoping for playbooks (idempotent for existing DBs)
+      ALTER TABLE playbook_rules ADD COLUMN IF NOT EXISTS organization_id VARCHAR(255);
 
       -- Draft workflow save / refine (saveStep, drafting-handler, negotiate)
       CREATE TABLE IF NOT EXISTS draft_state_ledger (

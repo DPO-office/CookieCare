@@ -1,5 +1,4 @@
-import { executeCompletion, executeJsonCompletion } from "../modules/drafting/llm/index.js";
-import { LLMTask, LLMProvider } from "../modules/drafting/config/model-specs.js";
+import { executeCompletion, executeJsonCompletion, LLMTask, LLMProvider } from "../llm/index.js";
 
 export interface OpenRouterMessage {
   role: "system" | "user" | "assistant";
@@ -46,7 +45,7 @@ export async function openRouterComplete(
   options: OpenRouterOptions = {}
 ): Promise<string> {
   console.log(
-    `[openRouterComplete] Routing call to Gemini provider via modules/drafting/llm (jsonMode=${!!options.jsonMode})`
+    `[openRouterComplete] Routing call to Gemini provider via src/llm (jsonMode=${!!options.jsonMode})`
   );
 
   if (options.jsonMode) {

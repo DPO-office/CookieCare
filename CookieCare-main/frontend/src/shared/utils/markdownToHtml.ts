@@ -46,15 +46,27 @@ function stripOuterCodeFences(raw: string): string {
   return trimmed;
 }
 
+/** Matches a leading row-number header such as "#", "No.", "S. No." */
+const INDEX_HEADER = /^(#|no\.?|s\.?\s*no\.?|sr\.?\s*no\.?)$/i;
+
 /**
  * Wrap markdown-it tables so wide analysis reports can scroll horizontally
  * instead of crushing every column into a few characters.
+ *
+ * Tables whose first column is a row counter get `md-table-indexed` so the
+ * stylesheet can narrow that column. Without the flag every table would be
+ * narrowed, which squeezes text first columns like "Clause / Protection".
  */
 function wrapTables(html: string): string {
-  return html.replace(
-    /<table\b[\s\S]*?<\/table>/gi,
-    (table) => `<div class="md-table-wrap">${table}</div>`
-  );
+  return html.replace(/<table\b[\s\S]*?<\/table>/gi, (table) => {
+    const firstHeader = table
+      .match(/<th\b[^>]*>([\s\S]*?)<\/th>/i)?.[1]
+      .replace(/<[^>]*>/g, "")
+      .trim();
+    const indexed = firstHeader !== undefined && INDEX_HEADER.test(firstHeader);
+    const className = indexed ? "md-table-wrap md-table-indexed" : "md-table-wrap";
+    return `<div class="${className}">${table}</div>`;
+  });
 }
 
 /**

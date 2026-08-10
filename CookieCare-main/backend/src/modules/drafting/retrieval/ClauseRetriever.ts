@@ -22,7 +22,8 @@ export class ClauseRetriever {
   async retrieveClauses(
     requirements: RequirementContext,
     playbookTopics: string[],
-    intent: string
+    intent: string,
+    organizationId?: string | null
   ): Promise<ClauseLookupResult> {
     const requestedTypes = [
       ...(requirements.requiredClauses || []),
@@ -42,7 +43,8 @@ export class ClauseRetriever {
 
     const fromCatalog = await this.fromClauseCatalog(
       normalizedTypes,
-      requirements
+      requirements,
+      organizationId
     );
     if (fromCatalog.length > 0) {
       console.log(
@@ -73,19 +75,25 @@ export class ClauseRetriever {
 
   private async fromClauseCatalog(
     types: string[],
-    requirements: RequirementContext
+    requirements: RequirementContext,
+    organizationId?: string | null
   ): Promise<Clause[]> {
     try {
+      const orgId = organizationId?.trim() || null;
       const { rows } = await this.db.query(
         `SELECT id, clause_type, jurisdiction, raw_text, status
          FROM clause_catalog
          WHERE status = 'active'
            AND ($1::text IS NULL OR contract_type = $1 OR contract_type ILIKE $2)
-         ORDER BY created_at DESC
+           AND ($3::text IS NULL OR organization_id = $3 OR organization_id IS NULL)
+         ORDER BY
+           CASE WHEN organization_id = $3 THEN 0 ELSE 1 END,
+           created_at DESC
          LIMIT 50`,
         [
           requirements.contractType || null,
           requirements.contractType ? `%${requirements.contractType}%` : null,
+          orgId,
         ]
       );
 

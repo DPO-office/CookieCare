@@ -1,0 +1,15 @@
+{
+  "id": "omnihealth-cybershield-dpa",
+  "documentType": "dpa",
+  "governingLaw": "Ireland",
+  "parties": ["OmniHealth Ltd", "CyberShield Inc"],
+  "phiInvolved": true,
+  "dataTransfer": "EEA_to_nonEEA",
+  "expectedRegimes": ["GDPR_ART28", "HIPAA_BA"],
+  "expectedJurisdiction": "ireland",
+  "expectedExhibits": ["exhibit-processing", "exhibit-security"],
+  "minChecklistItems": 8,
+  "expectedCriticalMissingFields": ["sccModule"],
+  "expectedChecklistIdSubstrings": ["subprocessor", "transfer", "hipaa", "ireland"],
+  "notes": "Golden fixture for pack resolution + LLM detect-gaps (SCC module gap when EEA→non-EEA)."
+}

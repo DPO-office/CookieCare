@@ -318,13 +318,12 @@
 .richtext-editor thead th,
 .draft-streaming-content thead th,
 .ProseMirror thead th {
-  position: sticky;
-  top: 0;
   background: #f8fafc;
   color: #374151;
   font-weight: 600;
   text-align: left;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: break-word;
   border-bottom: 1px solid #e5e7eb;
   padding: 0.65rem 0.75rem;
 }
@@ -337,8 +336,11 @@
   border-bottom: 1px solid #f1f5f9;
   padding: 0.7rem 0.75rem;
   color: #4b5563;
-  min-width: 8.5rem;
+  min-width: 7rem;
   max-width: 18rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .md-content tbody tr:last-child td,
@@ -360,10 +362,24 @@
 .draft-streaming-content tbody td:first-child,
 .ProseMirror tbody td:first-child {
   font-weight: 600;
+  color: #374151;
+}
+
+/* Only a genuine row-counter column may be narrowed and kept on one line.
+   Applying this to every table clips text labels such as "Clause / Protection". */
+.md-content .md-table-indexed tbody td:first-child,
+.richtext-editor .md-table-indexed tbody td:first-child,
+.draft-streaming-content .md-table-indexed tbody td:first-child {
   color: #6b7280;
   min-width: 2.5rem;
   max-width: 3.5rem;
   white-space: nowrap;
+}
+
+.md-content .md-table-indexed thead th:first-child,
+.richtext-editor .md-table-indexed thead th:first-child,
+.draft-streaming-content .md-table-indexed thead th:first-child {
+  width: 2.5rem;
 }
 
 /* Draft documents: slightly more open legal-document rhythm */
