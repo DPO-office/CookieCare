@@ -10,6 +10,7 @@ import type { AgentRunState, EntryMode } from "../pac/types.js";
  * Drops huge prompts and callbacks; keeps PAC plan/critique/conversation for resume.
  */
 export interface PersistedDraftState {
+  request: DraftState["request"];
   requirements: DraftState["requirements"];
   retrieval: DraftState["retrieval"];
   context: { documentSkeleton?: string[]; draftSummary?: string } | null;
@@ -23,9 +24,11 @@ export interface PersistedDraftState {
   plan?: DraftPlan | null;
   critique?: CritiqueReport | null;
   structuredFacts?: StructuredFacts;
+  intakeOverlay?: DraftState["intakeOverlay"];
   conversation?: DraftConversation;
   exhibits?: DraftedExhibit[];
   organizationId?: string;
+  fixPlan?: DraftState["fixPlan"];
 }
 
 export function toPersistedState(state: DraftState): PersistedDraftState {
@@ -37,6 +40,7 @@ export function toPersistedState(state: DraftState): PersistedDraftState {
     : null;
 
   return {
+    request: state.request,
     requirements: state.requirements,
     retrieval: state.retrieval,
     context: leanContext,
@@ -50,9 +54,11 @@ export function toPersistedState(state: DraftState): PersistedDraftState {
     plan: state.plan,
     critique: state.critique,
     structuredFacts: state.structuredFacts,
+    intakeOverlay: state.intakeOverlay,
     conversation: state.conversation,
     exhibits: state.exhibits,
     organizationId: state.organizationId,
+    fixPlan: state.fixPlan,
   };
 }
 

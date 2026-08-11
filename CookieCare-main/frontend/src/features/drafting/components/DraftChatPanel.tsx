@@ -1,7 +1,8 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Sparkles, MoreVertical } from "lucide-react";
 import { DraftComposer } from "./DraftComposer";
 import type { DraftChatMessage } from "../hooks/useDraftChat";
+import type { DraftOpenQuestion } from "../api/draftingJobs";
 
 interface DraftChatPanelProps {
   title: string;
@@ -19,6 +20,100 @@ interface DraftChatPanelProps {
   onDragOver: (e: React.DragEvent) => void;
   onDragLeave: (e: React.DragEvent) => void;
   onDrop: (e: React.DragEvent) => void;
+  /** Called when user submits answers for an ASK card. */
+  onAskSubmit?: (messageId: string, answers: Record<string, string>) => void;
+}
+
+function AskQuestionCard({
+  messageId,
+  content,
+  questions,
+  resolved,
+  disabled,
+  onSubmit,
+}: {
+  messageId: string;
+  content: string;
+  questions: DraftOpenQuestion[];
+  resolved?: boolean;
+  disabled?: boolean;
+  onSubmit?: (messageId: string, answers: Record<string, string>) => void;
+}) {
+  const [answers, setAnswers] = useState<Record<string, string>>(() => {
+    const initial: Record<string, string> = {};
+    for (const q of questions) initial[q.id] = "";
+    return initial;
+  });
+
+  const allFilled = questions.every((q) => (answers[q.id] || "").trim().length > 0);
+
+  return (
+    <div className="flex items-start gap-2.5 max-w-[95%]">
+      <div className="w-full rounded-xl border border-[#E4E4E7] bg-white px-4 py-3.5 shadow-sm">
+        <p className="text-[13.5px] text-[#3F3F46] leading-[1.65] mb-3">{content}</p>
+        <div className="space-y-3.5">
+          {questions.map((q) => (
+            <div key={q.id} className="space-y-1.5">
+              <label className="block text-[12.5px] font-medium text-[#52525B] leading-snug">
+                {q.question}
+                {q.severity === "critical" && (
+                  <span className="ml-1 text-[#DC2626]">*</span>
+                )}
+              </label>
+              {q.options && q.options.length > 0 ? (
+                <div className="flex flex-wrap gap-1.5">
+                  {q.options.map((opt) => {
+                    const selected = answers[q.id] === opt;
+                    return (
+                      <button
+                        key={opt}
+                        type="button"
+                        disabled={resolved || disabled}
+                        onClick={() =>
+                          setAnswers((prev) => ({ ...prev, [q.id]: opt }))
+                        }
+                        className={`px-2.5 py-1 rounded-md text-[12px] border transition-colors ${
+                          selected
+                            ? "border-[#3F3F46] bg-[#3F3F46] text-white"
+                            : "border-[#E4E4E7] bg-[#FAFAFA] text-[#52525B] hover:border-[#A1A1AA]"
+                        } disabled:opacity-60`}
+                      >
+                        {opt}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <input
+                  type="text"
+                  value={answers[q.id] || ""}
+                  disabled={resolved || disabled}
+                  onChange={(e) =>
+                    setAnswers((prev) => ({ ...prev, [q.id]: e.target.value }))
+                  }
+                  placeholder="Your answer"
+                  className="w-full rounded-md border border-[#E4E4E7] bg-[#FAFAFA] px-2.5 py-1.5 text-[13px] text-[#3F3F46] outline-none focus:border-[#A1A1AA] disabled:opacity-60"
+                />
+              )}
+            </div>
+          ))}
+        </div>
+        {!resolved && (
+          <button
+            type="button"
+            disabled={disabled || !allFilled}
+            onClick={() => onSubmit?.(messageId, answers)}
+            className="mt-3.5 w-full rounded-lg bg-[#18181B] text-white text-[13px] font-medium py-2 disabled:opacity-40 hover:bg-[#27272A] transition-colors"
+          >
+            Continue drafting
+          </button>
+        )}
+        {resolved && (
+          <p className="mt-3 text-[12px] text-[#71717A] italic">Answers submitted.</p>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default function DraftChatPanel({
@@ -37,6 +132,7 @@ export default function DraftChatPanel({
   onDragOver,
   onDragLeave,
   onDrop,
+  onAskSubmit,
 }: DraftChatPanelProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -79,6 +175,20 @@ export default function DraftChatPanel({
                   {msg.content}
                 </div>
               </div>
+            );
+          }
+
+          if (msg.kind === "ask" && msg.questions?.length) {
+            return (
+              <AskQuestionCard
+                key={msg.id}
+                messageId={msg.id}
+                content={msg.content}
+                questions={msg.questions}
+                resolved={msg.askResolved}
+                disabled={isLoading}
+                onSubmit={onAskSubmit}
+              />
             );
           }
 

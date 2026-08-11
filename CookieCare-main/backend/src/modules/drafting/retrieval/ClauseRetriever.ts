@@ -22,7 +22,6 @@ export class ClauseRetriever {
   async retrieveClauses(
     requirements: RequirementContext,
     playbookTopics: string[],
-    intent: string,
     organizationId?: string | null
   ): Promise<ClauseLookupResult> {
     const requestedTypes = [
@@ -33,7 +32,7 @@ export class ClauseRetriever {
     const topicsToSearch =
       requestedTypes.length > 0
         ? requestedTypes
-        : intent === "REACTIVE"
+        : playbookTopics.length > 0
           ? playbookTopics
           : ["General"];
 

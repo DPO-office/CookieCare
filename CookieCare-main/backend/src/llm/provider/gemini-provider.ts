@@ -6,8 +6,12 @@ function isTruncated(finishReason: unknown): boolean {
   return typeof finishReason === "string" && finishReason.toUpperCase() === "MAX_TOKENS";
 }
 
-function resolveThinkingBudget(model: string): number {
-  const normalized = model.toLowerCase();
+function resolveThinkingBudget(runtimeConfig: TaskModelConfig): number {
+  if (typeof runtimeConfig.thinkingBudget === "number") {
+    return runtimeConfig.thinkingBudget;
+  }
+  // Legacy fallback: Flash off, Pro on — prefer explicit per-task budgets above.
+  const normalized = runtimeConfig.model.toLowerCase();
   if (normalized.includes("flash")) {
     return 0;
   }
@@ -68,7 +72,7 @@ export class GeminiProvider implements ILLMProvider {
           systemInstruction: systemInstruction,
           temperature: runtimeConfig.temperature,
           maxOutputTokens: runtimeConfig.maxOutputTokens,
-          thinkingConfig: { thinkingBudget: resolveThinkingBudget(runtimeConfig.model) },
+          thinkingConfig: { thinkingBudget: resolveThinkingBudget(runtimeConfig) },
         },
       });
 
@@ -97,7 +101,7 @@ export class GeminiProvider implements ILLMProvider {
           systemInstruction: systemInstruction,
           temperature: runtimeConfig.temperature,
           maxOutputTokens: runtimeConfig.maxOutputTokens,
-          thinkingConfig: { thinkingBudget: resolveThinkingBudget(runtimeConfig.model) },
+          thinkingConfig: { thinkingBudget: resolveThinkingBudget(runtimeConfig) },
         },
       });
 
@@ -142,7 +146,7 @@ export class GeminiProvider implements ILLMProvider {
           temperature: runtimeConfig.temperature,
           responseMimeType: "application/json",
           responseSchema: jsonSchema,
-          thinkingConfig: { thinkingBudget: resolveThinkingBudget(runtimeConfig.model) },
+          thinkingConfig: { thinkingBudget: resolveThinkingBudget(runtimeConfig) },
         },
       });
 
@@ -176,7 +180,7 @@ export class GeminiProvider implements ILLMProvider {
           temperature: runtimeConfig.temperature,
           responseMimeType: "application/json",
           responseSchema: jsonSchema,
-          thinkingConfig: { thinkingBudget: resolveThinkingBudget(runtimeConfig.model) }
+          thinkingConfig: { thinkingBudget: resolveThinkingBudget(runtimeConfig) }
         }
       });
 

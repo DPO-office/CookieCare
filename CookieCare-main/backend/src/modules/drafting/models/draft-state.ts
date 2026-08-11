@@ -1,4 +1,7 @@
-export type DraftMode = "BASIC" | "PROACTIVE" | "REACTIVE" | "REFINEMENT";
+export type DraftIntent = "CREATE" | "REFINEMENT";
+
+/** @deprecated Use DraftIntent — kept as alias during PAC unification. */
+export type DraftMode = DraftIntent;
 
 import type { AgentRunState, EntryMode } from "../pac/types.js";
 import type { DraftPlan } from "./draft-plan.js";
@@ -118,13 +121,15 @@ export interface DraftState {
   organizationId?: string;
 
   request: {
-    intent: DraftMode;
-    mode?: "Basic" | "Standard Template" | "Advanced Proactive" | null;
+    /** PAC entry: CREATE (new draft) or REFINEMENT (HUMAN_REFINE). */
+    intent: DraftIntent;
     uploadedDocumentText?: string;
     rawInstructions: string;
     payloadFields?: { documentId: string };
+    /** Optional vault / library template id for CREATE. */
     vaultDocumentId?: string | null;
     templateId?: string;
+    /** Optional counterparty / source agreement text for CREATE. */
     sourceText?: string;
     highlightedText?: string;
   };
@@ -134,7 +139,7 @@ export interface DraftState {
     applicablePlaybookRules: PlaybookRule[];
     fallbackClauses: Clause[];
     historicalReferences: ReferenceSnippet[];
-    templateSource?: "vault" | "default_type" | "reactive_upload" | "none";
+    templateSource?: "vault" | "default_type" | "source_upload" | "none";
     clauseSource?: "library_items" | "clause_catalog" | "hardcoded_fallback" | "none";
   };
   context: {

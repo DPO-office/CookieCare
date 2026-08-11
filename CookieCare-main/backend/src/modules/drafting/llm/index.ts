@@ -1,10 +1,10 @@
 import { LLMProvider,LLMTask, PROVIDER_TASK_PRESETS } from "../config/model-specs.js";
-import { GeminiProvider } from "./provider/gemini-provider.js";
-import { OpenRouterLegacyProvider } from "./provider/openrouter-provider.js"; 
-import { CompletionOutcome, ILLMProvider } from "./provider/base-provider.js";
+import { GeminiProvider } from "../../../llm/provider/gemini-provider.js";
+import { OpenRouterLegacyProvider } from "../../../llm/provider/openrouter-provider.js";
+import { CompletionOutcome, ILLMProvider } from "../../../llm/provider/base-provider.js";
 import { geminiScheduler } from "../../compare/utils/llm-scheduler.js";
 
-export type { CompletionOutcome } from "./provider/base-provider.js";
+export type { CompletionOutcome } from "../../../llm/provider/base-provider.js";
 
 // Keep singleton instances cached in server memory for fast execution pooling
 const providersCache: Record<string, ILLMProvider> = {};

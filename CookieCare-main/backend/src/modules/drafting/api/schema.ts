@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// UNIFIED INSTRUCTION FEED
+// UNIFIED PAC INSTRUCTION FEED — no BASIC/PROACTIVE/REACTIVE modes.
 // Optional structured intake overlay pre-populates facts before PLAN (cuts ASK round-trips).
 export const StructuredIntakeSchema = z
   .object({
@@ -13,13 +13,16 @@ export const StructuredIntakeSchema = z
   .optional();
 
 export const DraftRequestSchema = z.object({
-  mode: z.enum(["BASIC", "PROACTIVE", "REACTIVE"]),
   draftInput: z.string().default(""),
   draftInstructions: z.string().default(""),
+  /** Counterparty / source document id (from process-uploaded-template). */
   uploadedDocument: z.string().nullable().optional(),
+  /** Optional vault template document id. */
   documentId: z.string().nullable().optional(),
   organizationId: z.string().nullable().optional(),
   intake: StructuredIntakeSchema,
+  /** Accepted but ignored — legacy clients may still send BASIC/PROACTIVE/REACTIVE. */
+  mode: z.string().optional(),
 });
 
 export const RefineRequestSchema = z.object({

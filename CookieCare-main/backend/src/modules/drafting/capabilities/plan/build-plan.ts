@@ -1,8 +1,20 @@
 import type { DraftState } from "../../models/draft-state.js";
-import type { DraftPlan, WorkUnit } from "../../models/draft-plan.js";
+import type { DraftPlan, WorkUnit, MissingFact } from "../../models/draft-plan.js";
 import { orderByDependency } from "../../utils/topo-batches.js";
 import { resolveApplicablePacks } from "../../packs/resolve-applicable-packs.js";
 import { detectGaps } from "./detect-gaps.js";
+import {
+  isFactSatisfied,
+  mergeCoreMissingFacts,
+  sanitizeKnownFacts,
+} from "./core-deal-facts.js";
+
+function dropSatisfiedGaps(
+  missingFacts: MissingFact[],
+  facts: Record<string, unknown>
+): MissingFact[] {
+  return missingFacts.filter((f) => !isFactSatisfied(facts, f.field));
+}
 
 /** PLAN capability — three-axis pack merge + one-shot LLM detect-gaps freeze. */
 export async function buildPlan(state: DraftState): Promise<DraftState> {
@@ -16,16 +28,35 @@ export async function buildPlan(state: DraftState): Promise<DraftState> {
     ),
   ]);
 
+  // Only pass real known facts into detect-gaps (drop placeholders / inventions).
+  const factBag = sanitizeKnownFacts({
+    ...(facts as Record<string, unknown>),
+    ...((state.structuredFacts ?? {}) as Record<string, unknown>),
+  });
+
   // Single detect-gaps call for this deal — checklist/missingFacts frozen here.
-  const gaps = await detectGaps(state);
+  const gaps = await detectGaps({
+    ...state,
+    structuredFacts: factBag,
+  });
+
+  let missingFacts = dropSatisfiedGaps(gaps.missingFacts, factBag);
+  // Deterministic core ASK: parties + governing law always block when unknown.
+  missingFacts = mergeCoreMissingFacts(missingFacts, factBag);
+  missingFacts = dropSatisfiedGaps(missingFacts, factBag);
+
+  const criticalCount = missingFacts.filter((f) => f.severity === "critical").length;
+  console.log(
+    `[buildPlan] missingFacts total=${missingFacts.length} critical=${criticalCount} fields=${missingFacts.map((f) => `${f.field}:${f.severity}`).join(",") || "(none)"}`
+  );
 
   const plan: DraftPlan = {
     documentType: typePack.id,
     packId: typePack.id,
     title: typePack.id.toUpperCase(),
     workUnits,
-    structuredFacts: facts,
-    missingFacts: gaps.missingFacts,
+    structuredFacts: { ...facts, ...factBag },
+    missingFacts,
     applicableRegimes: regimes.map((r) => r.id),
     jurisdictionId: jurisdiction?.id ?? jurisdictionId,
     mandatoryChecklist: gaps.checklist,
@@ -42,6 +73,7 @@ export async function buildPlan(state: DraftState): Promise<DraftState> {
 
   return {
     ...state,
+    structuredFacts: plan.structuredFacts,
     plan,
     context: {
       systemPrompt: state.context?.systemPrompt ?? "",

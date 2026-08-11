@@ -48,12 +48,24 @@ export class DraftEntry {
   }
 
   async resumeAfterAsk(state: DraftState): Promise<DraftState> {
+    const criticalLeft =
+      state.plan?.missingFacts?.filter((f) => f.severity === "critical") ?? [];
+
+    // Do NOT re-enter full PLAN/detectGaps after answers — that re-asks the same
+    // fields. Either collect remaining critical questions in one ASK, or ACT.
+    const phase = criticalLeft.length > 0 ? "ASK" : "ACT";
+
     const seeded: DraftState = {
       ...state,
       entryMode: "CREATE",
       agent: state.agent
-        ? { ...state.agent, phase: "PLAN", stoppedReason: undefined }
-        : initAgentRunState("CREATE"),
+        ? {
+            ...state.agent,
+            phase,
+            stoppedReason: undefined,
+            openQuestions: [],
+          }
+        : initAgentRunState("CREATE", { phase }),
     };
     return this.pac.run(seeded);
   }

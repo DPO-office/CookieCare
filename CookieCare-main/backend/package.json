@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx scripts/setupDb.ts && esbuild server.ts --bundle --platform=node --format=esm --packages=external --outfile=server.js && node server.js",
-    "build": "esbuild server.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=dist/server.js && node -e \"const fs=require('fs'),path=require('path');const src=path.join('src','modules','compare','knowledge');const dst=path.join('dist','knowledge');fs.mkdirSync(dst,{recursive:true});fs.readdirSync(src).filter(f=>f.endsWith('.md')).forEach(f=>fs.copyFileSync(path.join(src,f),path.join(dst,f)));console.log('[build] Copied compare knowledge/ →',dst);\"",
+    "build": "esbuild server.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=dist/server.js && node -e \"const fs=require('fs'),path=require('path');function copyMd(src,dst){fs.mkdirSync(dst,{recursive:true});for(const e of fs.readdirSync(src,{withFileTypes:true})){const s=path.join(src,e.name),d=path.join(dst,e.name);if(e.isDirectory())copyMd(s,d);else if(e.name.endsWith('.md'))fs.copyFileSync(s,d);}}const cmpSrc=path.join('src','modules','compare','knowledge');const cmpDst=path.join('dist','knowledge');copyMd(cmpSrc,cmpDst);console.log('[build] Copied compare knowledge/ →',cmpDst);const packSrc=path.join('src','modules','drafting','packs');const packDst=path.join('dist','packs');copyMd(packSrc,packDst);console.log('[build] Copied drafting packs skill.md →',packDst);\"",
     "start": "node dist/server.js",
     "setup-db": "tsx scripts/setupDb.ts",
     "lint": "tsc --noEmit",

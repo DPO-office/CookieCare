@@ -51,6 +51,8 @@ export default function DraftAgreement({
   });
 
   // --- Generator actions ---
+  const completionNotifiedRef = useRef(false);
+
   const generatorActions = useDraftGeneratorActions({
     authToken,
     onRefresh,
@@ -77,6 +79,25 @@ export default function DraftAgreement({
     refinementError: generatorState.refinementError,
     setRefinementError: generatorState.setRefinementError,
     tiptapEditorRef: editorState.tiptapEditorRef,
+    onProgress: (message) => draftChat.updateProgressMessage(message),
+    onNeedsInput: (questions, documentId) => {
+      if (documentId) {
+        onSelectDocument({
+          id: documentId,
+          title: "Draft in progress...",
+        } as any);
+      }
+      draftChat.addAskMessage(questions);
+    },
+    onDraftComplete: () => {
+      completionNotifiedRef.current = true;
+      draftChat.addAssistantMessage(
+        "Your draft is ready in the editor. You can edit it directly or ask follow-up questions here."
+      );
+    },
+    onRefineComplete: () => {
+      draftChat.addAssistantMessage("I've updated the draft based on your request.");
+    },
   });
 
   // --- Event handlers ---
@@ -146,22 +167,36 @@ export default function DraftAgreement({
     setIsWorkspaceOpen(true);
     editorState.setIsGeneratorActive(false);
 
-    if (generatorState.sourceDocumentId) {
-      generatorState.setMode("Advanced");
-      generatorState.setAdvancedStep("reactive");
-    } else {
-      generatorState.setMode("Basic");
-    }
-
     handleExecuteDraftStream();
   };
 
   const handleWorkspaceChatSubmit = () => {
     const text = workspaceChatInput.trim();
     if (!text) return;
+    if (!editorState.selectedDoc?.id) {
+      draftChat.addAssistantMessage(
+        "Generate or open a draft first so I know which document to refine."
+      );
+      return;
+    }
     draftChat.addUserMessage(text);
-    draftChat.addAssistantMessage("Got it — I'll use that to refine your draft.");
     setWorkspaceChatInput("");
+    void generatorActions.handleWorkspaceRefine(text);
+  };
+
+  const handleAskSubmit = (messageId: string, answers: Record<string, string>) => {
+    const docId = editorState.selectedDoc?.id;
+    if (!docId) {
+      draftChat.addAssistantMessage("Missing draft document id — cannot continue.");
+      return;
+    }
+    draftChat.resolveAskMessage(messageId);
+    const summary = Object.values(answers)
+      .map((a) => a.trim())
+      .filter(Boolean)
+      .join("; ");
+    if (summary) draftChat.addUserMessage(summary);
+    void generatorActions.handleResumeAsk(docId, answers);
   };
 
   const handleRemoveAttachedFile = () => {
@@ -247,8 +282,6 @@ export default function DraftAgreement({
     ? editorState.selectedDoc.signatures.every(s => s.status === "signed")
     : false;
 
-  const completionNotifiedRef = useRef(false);
-
   useEffect(() => {
     if (initialDocumentId && editorState.selectedDoc) {
       setIsWorkspaceOpen(true);
@@ -257,31 +290,10 @@ export default function DraftAgreement({
   }, [initialDocumentId, editorState.selectedDoc]);
 
   useEffect(() => {
-    if (generatorState.streamingProgress) {
-      draftChat.updateProgressMessage(generatorState.streamingProgress);
-    }
-  }, [generatorState.streamingProgress]);
-
-  useEffect(() => {
     if (generatorState.isStreaming) {
       completionNotifiedRef.current = false;
     }
   }, [generatorState.isStreaming]);
-
-  useEffect(() => {
-    if (
-      !generatorState.isStreaming &&
-      isWorkspaceOpen &&
-      editorState.editorContent &&
-      editorState.editorContent !== "<p></p>" &&
-      !completionNotifiedRef.current
-    ) {
-      completionNotifiedRef.current = true;
-      draftChat.addAssistantMessage(
-        "Your draft is ready in the editor. You can edit it directly or ask follow-up questions here."
-      );
-    }
-  }, [generatorState.isStreaming, isWorkspaceOpen, editorState.editorContent]);
 
   useEffect(() => {
     if (generatorState.draftError) {
@@ -381,6 +393,7 @@ export default function DraftAgreement({
           onPushUndoSnapshot={editorState.pushUndoSnapshot}
           onSave={handleSaveClick}
           onExport={handleExport}
+          onAskSubmit={handleAskSubmit}
         />
       ) : editorState.isGeneratorActive ? (
         <DraftChatLanding

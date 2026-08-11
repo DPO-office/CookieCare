@@ -7,6 +7,7 @@ import {
   ILLMProvider,
   TokenUsage,
 } from "./provider/base-provider.js";
+import { geminiScheduler } from "../modules/compare/utils/llm-scheduler.js";
 
 export type { CompletionOutcome, TokenUsage } from "./provider/base-provider.js";
 export { estimateTokenUsage } from "./provider/base-provider.js";
@@ -39,6 +40,7 @@ function getProviderEngine(provider: LLMProvider): ILLMProvider {
   return providersCache[provider];
 }
 
+/** Legacy fixed-delay retry — non-Gemini providers only. */
 async function executeWithRetry<T>(fn: () => Promise<T>, retries = 3, delayMs = 6000): Promise<T> {
   let attempt = 0;
   while (true) {
@@ -64,6 +66,17 @@ async function executeWithRetry<T>(fn: () => Promise<T>, retries = 3, delayMs = 
       throw error;
     }
   }
+}
+
+async function runProviderCall<T>(
+  provider: LLMProvider,
+  label: string,
+  fn: () => Promise<T>
+): Promise<T> {
+  if (provider === LLMProvider.GEMINI) {
+    return geminiScheduler.execute(fn, label);
+  }
+  return executeWithRetry(fn);
 }
 
 export type TokenBudgetTracker = { tokensUsed: number };
@@ -107,11 +120,11 @@ export async function executeBoundedCompletion(
   const { onDelta, tracker } = options;
   let outcome: CompletionOutcome;
   if (onDelta && typeof engine.getCompletionStream === "function") {
-    outcome = await executeWithRetry(() =>
+    outcome = await runProviderCall(provider, `${task} stream`, () =>
       engine.getCompletionStream!(prompt, systemInstruction, runtimeConfig, onDelta)
     );
   } else {
-    outcome = await executeWithRetry(() =>
+    outcome = await runProviderCall(provider, task, () =>
       engine.getCompletion(prompt, systemInstruction, runtimeConfig)
     );
     if (onDelta) onDelta(outcome.text);
@@ -138,7 +151,7 @@ export async function executeJsonCompletion<T>(
   const engine = getProviderEngine(provider);
   const runtimeConfig = PROVIDER_TASK_PRESETS[provider][task];
 
-  const result = await executeWithRetry(() =>
+  const result = await runProviderCall(provider, task, () =>
     engine.getJsonCompletion<T>(prompt, systemInstruction, jsonSchema, runtimeConfig)
   );
 

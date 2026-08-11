@@ -28,7 +28,6 @@ export async function retrievalStep(state: DraftState): Promise<DraftState> {
   const clauseResult = await clauseRetriever.retrieveClauses(
     requirements,
     playbookTopics,
-    state.request.intent,
     state.organizationId
   );
 

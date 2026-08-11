@@ -55,11 +55,8 @@ router.use("/analyze", analyzeRoutes);
 // Refectoring the drafting in drafting folder in modules
 // router.use("/drafting", draftingRoutes);
 router.use("/drafting", draftingRoutes);
-<<<<<<< HEAD
 router.use("/analysis", analysisRoutes);
-=======
 router.use("/compare", compareRoutes);
->>>>>>> origin/development
 
 
 router.use("/lawyer", lawyerRoutes);

@@ -3,60 +3,83 @@ import { pool } from "../../../../config/database.js";
 import { DraftState } from "../../models/draft-state.js";
 import { toPersistedState } from "../../utils/persisted-state.js";
 
-export const saveStep = async (state: DraftState): Promise<DraftState> => {
+export type SaveStepOptions = {
+  /** When true, allow persisting PLAN/ASK pause without a finished draft body. */
+  allowEmptyDraft?: boolean;
+};
 
-  if (!state.draft) {
-    throw new Error('Save Step Aborted: Cannot execute state persistence layer on an empty draft artifact.');
+/**
+ * Persist a draft snapshot to draft_state_ledger.
+ * ASK pauses use version 0 and empty formatted_text so resume-ask can reload state.
+ */
+export const saveStep = async (
+  state: DraftState,
+  options: SaveStepOptions = {}
+): Promise<DraftState> => {
+  const allowEmptyDraft = options.allowEmptyDraft === true;
+  const isPausedAsk = state.agent?.stoppedReason === "awaiting_user";
+
+  if (!state.draft && !allowEmptyDraft && !isPausedAsk) {
+    throw new Error(
+      "Save Step Aborted: Cannot execute state persistence layer on an empty draft artifact."
+    );
   }
 
   try {
-    // Persist via the hygiene boundary: strips the large compiled prompts
-    // (context.assembledPrompt/systemPrompt) and includes the memory log.
     const snapshotMatrix = structuredClone(toPersistedState(state));
+    const documentId =
+      state.request?.payloadFields?.documentId ||
+      state.conversation?.documentId ||
+      `doc_${crypto.randomUUID()}`;
 
-    // 3. Resolve historical identifier keys to manage document version tracking paths
-    const documentId = state.request.payloadFields?.documentId || `doc_${crypto.randomUUID()}`;
-    const currentVersion = state.draft.version;
+    const currentVersion =
+      isPausedAsk || !state.draft ? 0 : state.draft.version ?? 1;
+    const formattedText = state.draft?.formattedDocument ?? "";
 
-    // 4. Fire the persistence logic routine directly to the historical table system
-    // 2. PASTE THIS REAL DATABASE PERSISTENCE LAYER HERE:
     await pool.query(
       `INSERT INTO draft_state_ledger (
-        document_id, 
-        version, 
-        state_snapshot_json, 
-        formatted_text, 
+        document_id,
+        version,
+        state_snapshot_json,
+        formatted_text,
         updated_at
-      ) 
+      )
       VALUES ($1, $2, $3, $4, NOW())
-      ON CONFLICT (document_id, version) 
-      DO UPDATE SET 
+      ON CONFLICT (document_id, version)
+      DO UPDATE SET
         state_snapshot_json = EXCLUDED.state_snapshot_json,
         formatted_text = EXCLUDED.formatted_text,
         updated_at = NOW()`,
-      [
-        documentId,
-        currentVersion,
-        JSON.stringify(snapshotMatrix), // Stores the cloned state object
-        state.draft.formattedDocument   // Stores the actual text for quick index lookups
-      ]
+      [documentId, currentVersion, JSON.stringify(snapshotMatrix), formattedText]
     );
 
-    console.log(`[Ledger] Successfully committed Snapshot V${currentVersion} for document ${documentId}`);
+    console.log(
+      `[Ledger] Successfully committed Snapshot V${currentVersion} for document ${documentId}` +
+        (isPausedAsk ? " (paused ASK)" : "")
+    );
 
-    // 5. Return the finalized state securely with updated execution telemetry immutably
     return {
       ...state,
+      request: {
+        ...state.request,
+        payloadFields: {
+          ...(state.request?.payloadFields ?? { documentId }),
+          documentId,
+        },
+      },
       metadata: {
         ...state.metadata,
         persistedDocumentId: documentId,
-        isFullySaved: true,
-        finalSavedAt: new Date().toISOString()
-      }
+        isFullySaved: !isPausedAsk,
+        isPausedAsk,
+        finalSavedAt: new Date().toISOString(),
+      },
     };
-
   } catch (error) {
-    console.error('Fatal database exception encountered during pipeline ledger save operations:', error);
+    console.error(
+      "Fatal database exception encountered during pipeline ledger save operations:",
+      error
+    );
     throw new Error(`Persistence Layer Failure: ${(error as Error).message}`);
   }
 };

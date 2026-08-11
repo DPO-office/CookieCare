@@ -175,10 +175,15 @@ export async function detectGaps(
   const skillDocs = await loadSkillDocs(applicablePacks);
   const llmCall = options.llmCall ?? defaultDetectGapsLlmCall;
 
-  return structuredDetectGapsCall(
+  const facts = (state.structuredFacts ?? {}) as Record<string, unknown>;
+  console.log(
+    `[detectGaps] skillDocs=${skillDocs.length} knownFactKeys=${Object.keys(facts).join(",") || "(none)"}`
+  );
+
+  const result = await structuredDetectGapsCall(
     DETECT_GAPS_SYSTEM_PROMPT,
     buildDetectGapsUserMessage({
-      facts: (state.structuredFacts ?? {}) as Record<string, unknown>,
+      facts,
       draftInstructions:
         state.request.rawInstructions ||
         state.requirements?.instructions ||
@@ -187,4 +192,9 @@ export async function detectGaps(
     }),
     llmCall
   );
+
+  console.log(
+    `[detectGaps] llm missingFacts=${result.missingFacts.length} critical=${result.missingFacts.filter((f) => f.severity === "critical").length} checklist=${result.checklist.length}`
+  );
+  return result;
 }

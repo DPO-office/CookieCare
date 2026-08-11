@@ -96,28 +96,28 @@ export function buildSkeletonSection(skeleton: string[]): string {
 /**
  * Builds the dynamic runtime variables and special instructions suffix.
  */
-export function buildVariablesSection(requirements: RequirementContext, intent: DraftMode): string {
-  const currentIntent = typeof intent === "string" ? intent.toLowerCase() : "";
-
-  // =========================================================
-  // TRACK A: THE REACTIVE DISPUTE VARIABLES FORK
-  // =========================================================
-  if (currentIntent === "REACTIVE") {
+export function buildVariablesSection(
+  requirements: RequirementContext,
+  intent: DraftMode | string,
+  opts?: { hasSourceText?: boolean }
+): string {
+  // Source-agreement revision path (uploaded counterparty doc).
+  if (opts?.hasSourceText) {
     const adversaryName = requirements.parties[0] || "Hostile Claimant";
     const targetName = requirements.parties[1] || "Our Company (Respondent)";
 
     return `
-# REACTIVE DISPUTE VARIABLES & LITIGATION CONTEXT
-- Dispute Response Category: ${requirements.contractType}
-- Adversarial Forum / Jurisdiction: ${requirements.jurisdiction}
+# SOURCE AGREEMENT REVISION CONTEXT
+- Document Category: ${requirements.contractType}
+- Forum / Jurisdiction: ${requirements.jurisdiction}
 - Target Industry Domain: ${requirements.industry}
-- Involved Entities: ${adversaryName} (Claimant/Adversary) VS. ${targetName} (Our Company/Respondent)
-- Operational Intent: REACTIVE
+- Involved Entities: ${adversaryName} VS. ${targetName}
+- Pipeline: PAC CREATE (source upload)
 
-# COMPREHENDED ADVERSARIAL CLAIMS SUMMARY
+# UPLOADED DOCUMENT SUMMARY
 ${requirements.uploadDocSummary || 'Review raw text fields for explicit claim allegations.'}
 
-# DEFENSE STRATEGY & MARCHING ORDERS
+# USER INSTRUCTIONS
 ${requirements.instructions || 'Draft a firm, professional legal rebuttal denying liability based on standard guidelines.'}
 `.trim();
   }
@@ -129,7 +129,7 @@ ${requirements.instructions || 'Draft a firm, professional legal rebuttal denyin
 - Governing Law/Jurisdiction: ${requirements.jurisdiction}
 - Target Industry Segment: ${requirements.industry}
 - Identified Parties: ${requirements.parties.join(' AND ')}
-- Operational Mode: ${intent}
+- Pipeline: PAC ${String(intent).toUpperCase() === "REFINEMENT" ? "HUMAN_REFINE" : "CREATE"}
 
 # SPECIAL USER EXTRA EXECUTION INSTRUCTIONS
 ${requirements.instructions || 'Draft a clean, balanced agreement following the guidelines above.'}

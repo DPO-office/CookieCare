@@ -35,9 +35,12 @@ You will be given:
    - "optional" / "warning" = stylistic, best-practice, or safely defaultable.
    Do not mark something critical just because it's mentioned in a skill
    document — most provisions are standard drafting, not gating facts.
-   When genuinely unsure between critical and warning, choose warning:
-   over-blocking on ASK is a worse failure mode than a warning-level miss,
-   which CRITIQUE will still catch later.
+   DEAL-IDENTITY EXCEPTION (always critical when missing from known facts):
+   party legal names (parties / partyA / partyB) and governing law / venue.
+   Never invent these, never mark them optional, and never skip asking —
+   drafting with placeholders here produces an unusable agreement.
+   For all other facts, when genuinely unsure between critical and warning,
+   choose warning (CRITIQUE can still catch those later).
 
 4. DEDUPE ACROSS PACKS: If two skill documents effectively require the same
    thing (e.g. both a regime pack and the jurisdiction pack require a specific

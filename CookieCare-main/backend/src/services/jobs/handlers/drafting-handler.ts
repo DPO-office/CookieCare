@@ -6,7 +6,7 @@ import { withTransaction } from "../../../utils/dbUtils.js";
 import { openRouterComplete } from "../../openRouterClient.js";
 import crypto from "crypto";
 import { jobRegistry, updateJobProgress } from "../../jobQueue.js";
-import { DraftMode, DraftState } from "../../../modules/drafting/models/draft-state.js";
+import { DraftState } from "../../../modules/drafting/models/draft-state.js";
 import { extractText } from "../../../utils/extractText.js";
 import { draftEntry } from "../../../modules/drafting/entry/draft-workflow.js";
 import { resolveLegalDocumentTitle } from "../../../modules/drafting/prompts/system-templates.js";
@@ -26,28 +26,28 @@ async function extractTextFromStorageUrl(fileUrl: string): Promise<string> {
 
 
 async function handleInitialDraftingJob(jobId: string, userId: string, payload: any): Promise<any> {
-    // 1. Ingest the unified instruction feed. The frontend sends only raw user
-    //    intent; all structured details are derived in step 1 (requirement extraction).
-    const { mode, draftInput, draftInstructions, uploadedDocument, documentId, intake } = payload;
-    console.log("Entered main handleInitialDraftingJob with mode:", mode);
-  
+    // Unified PAC CREATE feed — no BASIC/PROACTIVE/REACTIVE modes.
+    // Inputs: draftInput + draftInstructions, optional uploadedDocument / vault documentId.
+    const { draftInput, draftInstructions, uploadedDocument, documentId, intake } = payload;
+    console.log(
+      "Entered handleInitialDraftingJob (PAC CREATE)",
+      uploadedDocument ? "with source upload" : documentId ? "with vault template" : "prompt-only"
+    );
+
     await updateJobProgress(jobId, userId, 20, "Extracting compliance parameters and routing tracking slots...");
     const targetDocId = "doc_" + crypto.randomUUID();
 
-    // Compose the single raw-instruction blob passed to extraction. Keep the two
-    // fields distinguishable so the model can tell "what to draft" from "how".
     const composedInstructions = [
       draftInput || "",
-      draftInstructions ? `Drafting instructions & requirements:\n${draftInstructions}` : ""
+      draftInstructions ? `Drafting instructions & requirements:\n${draftInstructions}` : "",
     ]
       .filter((part) => part && part.trim())
       .join("\n\n")
       .trim();
 
     let resolvedSourceText: string | undefined = undefined;
-  
-    // 2. Resolve Reactive Mode text content from our database if an uploaded document exists
-    if (mode === "REACTIVE" && uploadedDocument) {
+
+    if (uploadedDocument) {
       try {
         const fileLookup = await pool.query(
           "SELECT content, is_encrypted FROM files WHERE id = $1 LIMIT 1",
@@ -55,26 +55,22 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
         );
         if (fileLookup.rows.length > 0) {
           const fileRow = fileLookup.rows[0];
-          resolvedSourceText = fileRow.is_encrypted 
-            ? decryptData(fileRow.content) 
+          resolvedSourceText = fileRow.is_encrypted
+            ? decryptData(fileRow.content)
             : fileRow.content;
         }
       } catch (err) {
-        console.error("Failed to resolve reactive source text from uploadedDocument:", err);
+        console.error("Failed to resolve uploaded source text:", err);
       }
     }
 
-    const evaluatedIntent: DraftMode = (mode as DraftMode) || "BASIC";
-
     await updateJobProgress(jobId, userId, 25, "Structuring tracking context state blocks...");
-  
-    // 2. Standardize request data elements inside a valid DraftState footprint
+
     const initialStateContainer: DraftState = {
       onProgress: async (percent, message) => {
         await updateJobProgress(jobId, userId, percent, message);
       },
       onToken: (delta) => {
-        // Best-effort live streaming of generation tokens to the client.
         jobRegistry.broadcastToken(userId, jobId, delta);
       },
       entryMode: "CREATE",
@@ -89,16 +85,12 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
         : undefined,
       organizationId: payload.organizationId ? String(payload.organizationId) : undefined,
       request: {
-        intent: evaluatedIntent, 
-        mode: mode === "BASIC" ? "Basic" : mode === "PROACTIVE" ? "Standard Template" : "Advanced Proactive",        
+        intent: "CREATE",
         rawInstructions: composedInstructions,
         sourceText: resolvedSourceText,
-        // Proactive vault asset id from the unified API feed (null for Basic).
-        vaultDocumentId: mode === "PROACTIVE" && documentId ? String(documentId) : null,
-        // Output draft file id — never overwrite with the vault source id.
-        payloadFields: { documentId: targetDocId }
+        vaultDocumentId: documentId ? String(documentId) : null,
+        payloadFields: { documentId: targetDocId },
       },
-      // Neutral placeholders — step 1 (requirement extraction) overwrites these.
       requirements: {
         contractType: intake?.documentType || "General",
         jurisdiction: intake?.governingLaw || "Not specified",
@@ -107,24 +99,24 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
         requiredClauses: [],
         optionalClauses: [],
         language: "English",
-        instructions: composedInstructions
+        instructions: composedInstructions,
       },
-        retrieval: {
-          matchedTemplate: null,
-          applicablePlaybookRules: [],
-          fallbackClauses: [],
-          historicalReferences: []
-        },
-        context: null,
-        draft: null,
-        validation: null,
-        riskReview: null,
-        metadata: {
-          generationParameters: {},
-          playbookVersion: "1.0.0",
-          timestamp: new Date().toISOString()
-        }
-      };
+      retrieval: {
+        matchedTemplate: null,
+        applicablePlaybookRules: [],
+        fallbackClauses: [],
+        historicalReferences: [],
+      },
+      context: null,
+      draft: null,
+      validation: null,
+      riskReview: null,
+      metadata: {
+        generationParameters: {},
+        playbookVersion: "1.0.0",
+        timestamp: new Date().toISOString(),
+      },
+    };
   
     await updateJobProgress(jobId, userId, 50, "Invoking AI model core engine and validation checkpoints...");
 
@@ -151,10 +143,15 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
     const finalizedState = await draftEntry.run(initialStateContainer);
 
     // PAC may pause for ASK (needs_input) without a finished document.
+    // PacController already persisted the paused snapshot to draft_state_ledger.
     if (finalizedState.agent?.stoppedReason === "awaiting_user") {
+      const docId =
+        finalizedState.metadata?.persistedDocumentId ||
+        finalizedState.request?.payloadFields?.documentId ||
+        targetDocId;
       return {
         status: "needs_input",
-        file_id: targetDocId,
+        file_id: docId,
         openQuestions: finalizedState.agent.openQuestions,
         conversation: finalizedState.conversation,
       };
@@ -335,7 +332,6 @@ async function handleRefinementJob(jobId: string, userId: string, payload: any):
             },
             request: {
                 intent: "REFINEMENT",
-                mode: "Standard Template",
                 rawInstructions: functionalInstruction,
                 highlightedText,
                 sourceText: documentText,
@@ -446,7 +442,37 @@ async function handleResumeAskJob(jobId: string, userId: string, payload: any): 
     throw new Error(`No paused draft state found for ${documentId}`);
   }
 
-  let state = snapshotLookup.rows[0].state_snapshot_json as DraftState;
+  const raw = snapshotLookup.rows[0].state_snapshot_json as DraftState;
+  // Snapshots omit runtime callbacks; restore request shell if an older row lacks it.
+  let state: DraftState = {
+    requirements: null,
+    retrieval: {
+      matchedTemplate: null,
+      applicablePlaybookRules: [],
+      fallbackClauses: [],
+      historicalReferences: [],
+    },
+    context: null,
+    draft: null,
+    validation: null,
+    riskReview: null,
+    metadata: {
+      generationParameters: {},
+      playbookVersion: "1.0.0",
+      timestamp: new Date().toISOString(),
+    },
+    ...raw,
+    request: {
+      intent: "CREATE",
+      rawInstructions: "",
+      ...(raw.request ?? {}),
+      payloadFields: {
+        documentId,
+        ...(raw.request?.payloadFields ?? {}),
+      },
+    },
+  };
+
   state = {
     ...applyUserAnswers(state, answers),
     onProgress: async (percent, message) => {

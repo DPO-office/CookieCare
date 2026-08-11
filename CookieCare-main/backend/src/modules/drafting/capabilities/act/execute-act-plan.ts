@@ -6,7 +6,8 @@ import { assembleDocument } from "./assemble-document.js";
 
 /**
  * ACT — dependency-ordered batched drafting.
- * Phase 0/2: section + exhibit capabilities; glossary merges between batches.
+ * Default concurrency is 1 to avoid Gemini 429 bursts (PAC drafts many sections).
+ * Raise via DRAFTING_ACT_CONCURRENCY when quota allows.
  */
 export async function executeActPlan(state: DraftState): Promise<DraftState> {
   if (!state.plan) return state;
@@ -15,8 +16,16 @@ export async function executeActPlan(state: DraftState): Promise<DraftState> {
     ? state.plan.workUnits.filter((u) => u.status === "flagged" || u.status === "pending")
     : state.plan.workUnits.filter((u) => u.status !== "drafted");
 
-  const batches = topologicalBatches(targets, 4);
+  const maxConcurrent = Math.max(
+    1,
+    Number(process.env.DRAFTING_ACT_CONCURRENCY || 1)
+  );
+  const batches = topologicalBatches(targets, maxConcurrent);
   let current = state;
+
+  console.log(
+    `[ACT] drafting ${targets.length} work units in ${batches.length} batch(es), concurrency=${maxConcurrent}`
+  );
 
   for (const batch of batches) {
     const results = await Promise.all(

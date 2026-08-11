@@ -1,10 +1,14 @@
 import { useCallback, useState } from "react";
+import type { DraftOpenQuestion } from "../api/draftingJobs";
 
 export interface DraftChatMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
-  kind?: "text" | "progress" | "example";
+  kind?: "text" | "progress" | "example" | "ask";
+  questions?: DraftOpenQuestion[];
+  /** When true, ASK form has been submitted and should render read-only. */
+  askResolved?: boolean;
 }
 
 function makeId() {
@@ -38,13 +42,37 @@ export function useDraftChat() {
     });
   }, []);
 
-  const addAssistantMessage = useCallback((content: string, kind: DraftChatMessage["kind"] = "text") => {
-    const trimmed = content.trim();
-    if (!trimmed) return;
+  const addAssistantMessage = useCallback(
+    (content: string, kind: DraftChatMessage["kind"] = "text") => {
+      const trimmed = content.trim();
+      if (!trimmed) return;
+      setMessages((prev) => [
+        ...prev.filter((m) => m.kind !== "progress"),
+        { id: makeId(), role: "assistant", content: trimmed, kind },
+      ]);
+    },
+    []
+  );
+
+  const addAskMessage = useCallback((questions: DraftOpenQuestion[]) => {
+    if (!questions.length) return;
     setMessages((prev) => [
       ...prev.filter((m) => m.kind !== "progress"),
-      { id: makeId(), role: "assistant", content: trimmed, kind },
+      {
+        id: makeId(),
+        role: "assistant",
+        kind: "ask",
+        content: "I need a few details before I can finish drafting:",
+        questions,
+        askResolved: false,
+      },
     ]);
+  }, []);
+
+  const resolveAskMessage = useCallback((messageId: string) => {
+    setMessages((prev) =>
+      prev.map((m) => (m.id === messageId ? { ...m, askResolved: true } : m))
+    );
   }, []);
 
   const reset = useCallback(() => setMessages([]), []);
@@ -54,6 +82,8 @@ export function useDraftChat() {
     addUserMessage,
     updateProgressMessage,
     addAssistantMessage,
+    addAskMessage,
+    resolveAskMessage,
     reset,
   };
 }

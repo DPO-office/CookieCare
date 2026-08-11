@@ -14,6 +14,7 @@ import {
   ClauseCatalogRetriever,
   type ClauseCatalogFilters,
 } from "../../retrieval/ClauseCatalogRetriever.js";
+import { sanitizeKnownFacts } from "./core-deal-facts.js";
 
 const REQUIREMENT_EXTRACTION_JSON_SCHEMA = {
   type: "object",
@@ -193,8 +194,8 @@ function buildExtractionPrompt(
   const sourceTextSnippet =
     sourceText.length > 12_000 ? `${sourceText.slice(0, 12_000)}…` : sourceText;
 
-  // TRACK A: THE REACTIVE AGREEMENT REVISION FORK
-  if (state.request.intent === "REACTIVE" && sourceTextSnippet) {
+  // TRACK A: source agreement present (uploaded counterparty doc)
+  if (sourceTextSnippet) {
     return [
       "You are analyzing an uploaded vendor agreement document that needs to be revised against corporate policies.",
       "Your goal is to extract the agreement details and user instructions to prepare for markup/revision.",
@@ -205,7 +206,7 @@ function buildExtractionPrompt(
       "User instructions / target policies:",
       state.request.rawInstructions ?? "(none provided)",
       "",
-      "FIELD EXTRACTION INSTRUCTIONS FOR REACTIVE AGREEMENT REVISION:",
+      "FIELD EXTRACTION INSTRUCTIONS:",
       "- `contractType`: Extract the type of agreement (e.g., 'NDA', 'MSA', 'SLA', 'DPA', 'SaaS Agreement').",
       "- `parties`: Array containing all the legal entities/parties entering into the agreement.",
       "- `jurisdiction`: The governing law or jurisdiction specified in the agreement.",
@@ -221,7 +222,7 @@ function buildExtractionPrompt(
       .join("\n");
   }
 
-  // TRACK B: THE STANDARD PROACTIVE TRACK
+  // TRACK B: prompt-only / vault CREATE
   // The platform loads baseline clauses from the catalog AFTER this step using the
   // contractType we derive here, so the model only needs to identify the contract
   // type plus any clause exclusions/additions the user explicitly asked for.
@@ -253,8 +254,8 @@ async function fetchBaselineClauses(
   state: DraftState,
   extracted: RequirementExtractionResult
 ): Promise<{ clauses: string[]; warning?: string }> {
-  // If we are responding reactively, baseline clause catalogs for PROACTIVE creation are bypassed
-  if (state.request.intent === "REACTIVE") {
+  // If a source agreement was uploaded, baseline clause catalogs for CREATE are bypassed
+  if (state.request.sourceText?.trim()) {
     return { clauses: [] };
   }
 
@@ -305,9 +306,9 @@ export async function requirementExtractionStep(
   provider:LLMProvider = LLMProvider.GEMINI
 ): Promise<DraftState> {
   // Make the system instruction adapt to intent
-  const isReactive = state.request.intent === "REACTIVE";
+  const isSourceRevision = Boolean(state.request.sourceText?.trim());
   
-  const systemInstruction = isReactive
+  const systemInstruction = isSourceRevision
     ? "You are a deterministic requirements extraction engine analyzing a vendor agreement. Extract the contract type, title, parties, effective date, jurisdiction, and rules. Return ONLY valid JSON matching the provided JSON Schema. Do not include markdown or commentary."
     : "You are a deterministic requirements extraction engine. Derive the contract type and all drafting requirements from the user's request. Your clause task is limited to identifying explicit exclusions and additional required clauses. Do not invent values that the user did not specify. Return ONLY valid JSON matching the provided JSON Schema. Do not include markdown or commentary.";
 
@@ -338,7 +339,7 @@ export async function requirementExtractionStep(
       );
     }
 
-    const schemaToUse = isReactive 
+    const schemaToUse = isSourceRevision 
       ? REACTIVE_REQUIREMENT_EXTRACTION_JSON_SCHEMA 
       : REQUIREMENT_EXTRACTION_JSON_SCHEMA;
 
@@ -382,21 +383,62 @@ export async function requirementExtractionStep(
 }
 
 
-// Compatible out put with the current system
+// Compatible output with the current system
+function pickKnownFact(...candidates: unknown[]): unknown {
+  for (const value of candidates) {
+    if (value === undefined || value === null) continue;
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+      if (!trimmed || trimmed.toLowerCase() === "not specified") continue;
+      return trimmed;
+    }
+    if (Array.isArray(value) && value.length === 0) continue;
+    return value;
+  }
+  for (const value of candidates) {
+    if (value !== undefined && value !== null) return value;
+  }
+  return undefined;
+}
+
 export async function extractRequirements(state: DraftState): Promise<DraftState> {
+  const priorFacts = state.structuredFacts ?? {};
   const next = await requirementExtractionStep(state);
   const overlay = next.intakeOverlay ?? {};
-  next.structuredFacts = {
+
+  // Prefer intake overlay, then already-answered structuredFacts (ASK resume),
+  // then fresh extraction. Never let "Not specified" wipe a real user answer.
+  next.structuredFacts = sanitizeKnownFacts({
+    ...priorFacts,
     ...(next.structuredFacts ?? {}),
-    documentType: overlay.documentType ?? next.requirements?.contractType,
-    governingLaw: overlay.governingLaw ?? next.requirements?.jurisdiction,
-    parties: overlay.parties ?? next.requirements?.parties,
-    industry: next.requirements?.industry,
-    language: next.requirements?.language,
-    phiInvolved: overlay.phiInvolved,
-    partyA: next.requirements?.partyA,
-    partyB: next.requirements?.partyB,
-    effectiveDate: next.requirements?.effectiveDate,
-  };
+    documentType: pickKnownFact(
+      overlay.documentType,
+      priorFacts.documentType,
+      next.requirements?.contractType
+    ),
+    governingLaw: pickKnownFact(
+      overlay.governingLaw,
+      priorFacts.governingLaw,
+      next.requirements?.jurisdiction
+    ),
+    parties: pickKnownFact(
+      overlay.parties,
+      priorFacts.parties,
+      next.requirements?.parties
+    ),
+    industry: pickKnownFact(priorFacts.industry, next.requirements?.industry),
+    language: pickKnownFact(priorFacts.language, next.requirements?.language),
+    phiInvolved:
+      overlay.phiInvolved ??
+      (typeof priorFacts.phiInvolved === "boolean"
+        ? priorFacts.phiInvolved
+        : undefined),
+    partyA: pickKnownFact(priorFacts.partyA, next.requirements?.partyA),
+    partyB: pickKnownFact(priorFacts.partyB, next.requirements?.partyB),
+    effectiveDate: pickKnownFact(
+      priorFacts.effectiveDate,
+      next.requirements?.effectiveDate
+    ),
+  });
   return next;
 }

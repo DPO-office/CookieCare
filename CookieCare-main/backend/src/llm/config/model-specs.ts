@@ -48,6 +48,13 @@ export interface TaskModelConfig {
   maxOutputTokens?: number;
   responseMimeType?: string;
   responseSchema?: any;
+  /**
+   * Gemini thinking budget. Prefer setting this per task:
+   * - 0  → no thinking (extraction, gaps, section draft)
+   * - >0 → thinking enabled (critique / heavy reasoning)
+   * If omitted, provider falls back to model default (Flash=0, Pro=1024).
+   */
+  thinkingBudget?: number;
 }
 
 export interface LLMTaskPreset {
@@ -65,46 +72,57 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
     [LLMTask.FAST_STITCH]: {
       model: GeminiModel.GEMINI_2_5_FLASH,
       temperature: 0.1,
+      thinkingBudget: 0,
     },
     [LLMTask.COMPLEX_DRAFT]: {
       model: GeminiModel.GEMINI_2_5_PRO,
       temperature: 0.0,
       maxOutputTokens: 4096,
+      thinkingBudget: 1024,
     },
     [LLMTask.STRUCTURAL_JSON]: {
       model: GeminiModel.GEMINI_2_5_FLASH,
       temperature: 0.0,
       responseMimeType: "application/json",
+      thinkingBudget: 0,
     },
     [LLMTask.STRUCTURAL_JSON_LITE]: {
       model: GeminiModel.GEMINI_2_5_FLASH,
       temperature: 0.0,
       responseMimeType: "application/json",
+      thinkingBudget: 0,
     },
     [LLMTask.REFINEMENT]: {
       model: GeminiModel.GEMINI_2_5_FLASH,
       temperature: 0.2,
+      thinkingBudget: 0,
     },
     [LLMTask.SECTION_REFINE]: {
-      model: GeminiModel.GEMINI_2_5_PRO,
+      // Volume path: one call per section. Flash avoids Pro RPM exhaustion under PAC.
+      model: GeminiModel.GEMINI_2_5_FLASH,
       temperature: 0.0,
       maxOutputTokens: 2048,
+      thinkingBudget: 0,
     },
     [LLMTask.EXTRACT_FACTS]: {
       model: GeminiModel.GEMINI_2_5_FLASH,
       temperature: 0.0,
       responseMimeType: "application/json",
+      thinkingBudget: 0,
     },
     [LLMTask.DETECT_GAPS]: {
       model: GeminiModel.GEMINI_2_5_FLASH,
       temperature: 0.0,
       responseMimeType: "application/json",
+      thinkingBudget: 0,
     },
     [LLMTask.CRITIQUE_CHECKLIST]: {
       model: GeminiModel.GEMINI_2_5_PRO,
       temperature: 0.0,
       responseMimeType: "application/json",
       maxOutputTokens: 4096,
+      // Quality gate — thinking only here among PAC drafting steps.
+      thinkingBudget: 1024,
     },
   },
   [LLMProvider.OPENROUTER]: {

@@ -52,8 +52,8 @@ export class PlaybookRetriever {
         walkAwayCondition: String(row.walk_away_condition ?? ""),
       }));
 
-      // Reactive: keep rules whose topics appear relevant in the uploaded contract.
-      if (state.request.intent === "REACTIVE" && state.request.sourceText) {
+      // When a source agreement is present, keep rules whose topics appear relevant in it.
+      if (state.request.sourceText) {
         const sourceLower = state.request.sourceText.toLowerCase();
         rules = rules.filter((rule) => {
           const topicLower = rule.topic.toLowerCase();
