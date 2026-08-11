@@ -1,21 +1,30 @@
 import { useState, useRef, useEffect } from "react";
-import { Bell, ChevronDown, Settings, LogOut, User } from "lucide-react";
+import { Bell, ChevronDown, LogOut, Settings, User } from "lucide-react";
+import { getBreadcrumb } from "./sidebar/navConfig";
+import { cn } from "../../lib/utils";
 
 interface TopNavProps {
   user: { name: string; email: string; role?: string } | null;
   activeTab: string;
   setActiveTab: (tab: string) => void;
   onLogout: () => void;
+  isAdmin?: boolean;
 }
 
-
-
-export default function TopNav({ user, activeTab, setActiveTab, onLogout }: TopNavProps) {
-  const [profileOpen,  setProfileOpen]  = useState(false);
-  const [notifOpen,    setNotifOpen]    = useState(false);
+export default function TopNav({
+  user,
+  activeTab,
+  setActiveTab,
+  onLogout,
+  isAdmin = false,
+}: TopNavProps) {
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
 
   const profileRef = useRef<HTMLDivElement>(null);
-  const notifRef   = useRef<HTMLDivElement>(null);
+  const notifRef = useRef<HTMLDivElement>(null);
+
+  const { section, page } = getBreadcrumb(activeTab, isAdmin);
 
   const initials = user?.name
     ? user.name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()
@@ -27,8 +36,12 @@ export default function TopNav({ user, activeTab, setActiveTab, onLogout }: TopN
 
   useEffect(() => {
     function handleOutside(e: MouseEvent) {
-      if (profileRef.current && !profileRef.current.contains(e.target as Node))  setProfileOpen(false);
-      if (notifRef.current   && !notifRef.current.contains(e.target   as Node))  setNotifOpen(false);
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfileOpen(false);
+      }
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setNotifOpen(false);
+      }
     }
     document.addEventListener("mousedown", handleOutside);
     return () => document.removeEventListener("mousedown", handleOutside);
@@ -36,188 +49,149 @@ export default function TopNav({ user, activeTab, setActiveTab, onLogout }: TopN
 
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
-      if (e.key === "Escape") { setProfileOpen(false); setNotifOpen(false); }
+      if (e.key === "Escape") {
+        setProfileOpen(false);
+        setNotifOpen(false);
+      }
     }
     document.addEventListener("keydown", handleKey);
     return () => document.removeEventListener("keydown", handleKey);
   }, []);
 
-  return (
-    <header
-      className="h-[58px] shrink-0 flex items-center px-5 gap-4 no-print"
-      style={{
-        background: "#ffffff",
-        borderBottom: "1px solid #E4E4E7",
-        boxShadow: "0 1px 3px rgba(15,23,42,0.04)",
-      }}
-    >
-      {/* ·· Right: actions ·· */}
-      <div className="flex-1 flex items-center justify-end gap-1">
+  const openSettings = () => {
+    setProfileOpen(false);
+    setActiveTab("settings");
+  };
 
-        {/* Notifications */}
+  return (
+    <header className="topnav-shell shrink-0 flex items-center px-4 gap-3 no-print">
+      {/* Breadcrumb: Section / Page */}
+      <div className="flex items-center gap-2 min-w-0">
+        <nav
+          aria-label="Breadcrumb"
+          className="hidden sm:flex items-center gap-1.5 text-[length:var(--text-body-sm)] min-w-0"
+        >
+          {section ? (
+            <>
+              <span className="truncate text-[var(--color-text-tertiary)]">{section}</span>
+              <span className="text-[var(--color-text-tertiary)]">/</span>
+            </>
+          ) : null}
+          <span className="font-medium truncate text-[var(--color-text-primary)]">
+            {page}
+          </span>
+        </nav>
+      </div>
+
+      {/* Right actions */}
+      <div className="flex-1 flex items-center justify-end gap-1">
+        {/* Notifications — empty until real data exists */}
         <div ref={notifRef} className="relative">
           <button
-            onClick={() => { setNotifOpen((v) => !v); setProfileOpen(false); }}
-            className="relative w-9 h-9 flex items-center justify-center rounded-lg outline-none transition-all duration-150"
-            style={{ color: "#71717A" }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.background = "#F4F4F5";
-              (e.currentTarget as HTMLElement).style.color = "#0F172A";
+            type="button"
+            onClick={() => {
+              setNotifOpen((v) => !v);
+              setProfileOpen(false);
             }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.background = "transparent";
-              (e.currentTarget as HTMLElement).style.color = "#71717A";
-            }}
+            className="topnav-icon-btn"
             aria-label="Notifications"
+            aria-expanded={notifOpen}
           >
-            <Bell className="w-[17px] h-[17px]" />
-            {/* unread dot */}
-            <span
-              className="absolute top-2 right-2 w-[7px] h-[7px] rounded-full border-2 border-white"
-              style={{ background: "#2175D9" }}
-            />
+            <Bell className="w-[17px] h-[17px]" strokeWidth={1.5} />
           </button>
 
           {notifOpen && (
-            <div
-              className="absolute top-full right-0 mt-2 w-[300px] overflow-hidden z-50"
-              style={{
-                background: "#ffffff",
-                border: "1px solid #E4E4E7",
-                borderRadius: "12px",
-                boxShadow: "0 8px 24px rgba(15,23,42,0.10), 0 2px 6px rgba(15,23,42,0.06)",
-              }}
-            >
+            <div className="topnav-dropdown absolute top-full right-0 mt-2 w-[280px] overflow-hidden z-50">
               <div
-                className="px-4 py-3 flex items-center justify-between"
-                style={{ borderBottom: "1px solid #F4F4F5" }}
+                className="px-4 py-3 border-b"
+                style={{ borderColor: "var(--color-border-subtle)" }}
               >
-                <span className="text-[13px] font-semibold" style={{ color: "#0F172A" }}>
+                <span className="text-[length:var(--text-body-sm)] font-semibold text-[var(--color-text-primary)]">
                   Notifications
                 </span>
-                <span
-                  className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md text-white"
-                  style={{ background: "#2175D9" }}
-                >
-                  1 new
-                </span>
               </div>
-              <div className="py-1.5">
-                <div
-                  className="px-4 py-3 cursor-pointer transition-colors"
-                  style={{ borderLeft: "2px solid #2175D9" }}
-                  onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.background = "#F4F4F5"}
-                  onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.background = "transparent"}
-                >
-                  <div className="flex items-start gap-2.5">
-                    <div className="w-1.5 h-1.5 rounded-full mt-[5px] shrink-0" style={{ background: "#2175D9" }} />
-                    <div className="min-w-0">
-                      <p className="text-[12.5px] font-medium leading-snug" style={{ color: "#0F172A" }}>
-                        AI Summary ready
-                      </p>
-                      <p className="text-[11.5px] mt-0.5 leading-snug" style={{ color: "#71717A" }}>
-                        Your latest contract analysis has completed.
-                      </p>
-                      <p className="text-[10.5px] mt-1" style={{ color: "#A1A1AA" }}>Just now</p>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  className="px-4 py-3 cursor-pointer transition-colors"
-                  onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.background = "#F4F4F5"}
-                  onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.background = "transparent"}
-                >
-                  <div className="flex items-start gap-2.5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-gray-300 mt-[5px] shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-[12.5px] font-medium leading-snug opacity-60" style={{ color: "#0F172A" }}>
-                        All systems operational
-                      </p>
-                      <p className="text-[11.5px] mt-0.5 leading-snug opacity-60" style={{ color: "#71717A" }}>
-                        Platform status is healthy.
-                      </p>
-                      <p className="text-[10.5px] mt-1" style={{ color: "#A1A1AA" }}>2h ago</p>
-                    </div>
-                  </div>
-                </div>
+              <div className="px-4 py-8 text-center">
+                <p className="text-[length:var(--text-body-sm)] font-medium text-[var(--color-text-secondary)]">
+                  No notifications
+                </p>
+                <p className="text-[length:var(--text-caption)] text-[var(--color-text-tertiary)] mt-1">
+                  You&apos;re all caught up.
+                </p>
               </div>
             </div>
           )}
         </div>
 
-        {/* Divider */}
-        <div className="w-px h-5 mx-1" style={{ background: "#E4E4E7" }} />
+        <div
+          className="w-px h-5 mx-1"
+          style={{ background: "var(--color-border)" }}
+          aria-hidden
+        />
 
         {/* Profile */}
         <div ref={profileRef} className="relative">
           <button
-            onClick={() => { setProfileOpen((v) => !v); setNotifOpen(false); }}
-            className="flex items-center gap-2.5 pl-2 pr-3 h-9 rounded-lg outline-none transition-all duration-150"
-            style={{ color: "#0F172A" }}
-            onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.background = "#F4F4F5"}
-            onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.background = "transparent"}
+            type="button"
+            onClick={() => {
+              setProfileOpen((v) => !v);
+              setNotifOpen(false);
+            }}
+            className={cn(
+              "flex items-center gap-2.5 pl-2 pr-3 h-9 rounded-[var(--radius-md)] outline-none",
+              "transition-colors duration-100 hover:bg-[var(--color-surface-3)]"
+            )}
             aria-label="Open profile menu"
+            aria-expanded={profileOpen}
           >
-            {/* Avatar */}
             <div
               className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-[11px] shrink-0 text-white select-none"
-              style={{ background: "#2175D9" }}
+              style={{ background: "var(--color-brand)" }}
             >
               {initials}
             </div>
-
-            {/* Name + Role */}
             <div className="hidden sm:flex flex-col items-start leading-none gap-[3px]">
-              <span className="text-[12.5px] font-semibold truncate max-w-[130px]" style={{ color: "#0F172A" }}>
+              <span className="text-[12.5px] font-semibold truncate max-w-[130px] text-[var(--color-text-primary)]">
                 {user?.name ?? "User"}
               </span>
-              <span className="text-[11px] truncate max-w-[130px]" style={{ color: "#A1A1AA" }}>
+              <span className="text-[11px] truncate max-w-[130px] text-[var(--color-text-tertiary)]">
                 {roleLabel}
               </span>
             </div>
-
-            {/* Caret */}
             <ChevronDown
-              className="w-3.5 h-3.5 shrink-0 hidden sm:block"
-              style={{ color: "#A1A1AA" }}
+              className="w-3.5 h-3.5 shrink-0 hidden sm:block text-[var(--color-text-tertiary)]"
+              strokeWidth={1.5}
             />
           </button>
 
           {profileOpen && (
-            <div
-              className="absolute top-full right-0 mt-2 w-[228px] overflow-hidden z-50"
-              style={{
-                background: "#ffffff",
-                border: "1px solid #E4E4E7",
-                borderRadius: "12px",
-                boxShadow: "0 8px 24px rgba(15,23,42,0.10), 0 2px 6px rgba(15,23,42,0.06)",
-              }}
-            >
-              {/* User header */}
-              <div className="px-4 py-3.5" style={{ borderBottom: "1px solid #F4F4F5" }}>
+            <div className="topnav-dropdown absolute top-full right-0 mt-2 w-[228px] overflow-hidden z-50">
+              <div
+                className="px-4 py-3.5"
+                style={{ borderBottom: "1px solid var(--color-border-subtle)" }}
+              >
                 <div className="flex items-center gap-3">
                   <div
                     className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-[12px] text-white shrink-0"
-                    style={{ background: "#2175D9" }}
+                    style={{ background: "var(--color-brand)" }}
                   >
                     {initials}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[13px] font-semibold truncate" style={{ color: "#0F172A" }}>
+                    <p className="text-[length:var(--text-body-sm)] font-semibold truncate text-[var(--color-text-primary)]">
                       {user?.name}
                     </p>
-                    <p className="text-[11px] truncate mt-0.5" style={{ color: "#A1A1AA" }}>
+                    <p className="text-[11px] truncate mt-0.5 text-[var(--color-text-tertiary)]">
                       {user?.email}
                     </p>
                   </div>
                 </div>
                 {user?.role && (
                   <span
-                    className="inline-block mt-2.5 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md"
+                    className="inline-block mt-2.5 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-[var(--radius-sm)]"
                     style={{
-                      background: "#EBF4FF",
-                      color: "#2175D9",
-                      border: "1px solid #BFDBFE",
+                      background: "var(--color-brand-subtle)",
+                      color: "var(--color-brand-text)",
+                      border: "1px solid color-mix(in srgb, var(--color-brand) 20%, transparent)",
                     }}
                   >
                     {user.role}
@@ -225,43 +199,32 @@ export default function TopNav({ user, activeTab, setActiveTab, onLogout }: TopN
                 )}
               </div>
 
-              {/* Menu items */}
               <div className="py-1.5">
-                {([
-                  { icon: User,     label: "Your profile" },
-                  { icon: Settings, label: "Settings"     },
-                ] as const).map(({ icon: Icon, label }) => (
-                  <button
-                    key={label}
-                    className="w-full flex items-center gap-3 px-4 py-2 text-[12.5px] outline-none transition-colors duration-100"
-                    style={{ color: "#3F3F46" }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.background = "#F4F4F5";
-                      (e.currentTarget as HTMLElement).style.color = "#0F172A";
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.background = "transparent";
-                      (e.currentTarget as HTMLElement).style.color = "#3F3F46";
-                    }}
-                    onClick={() => setProfileOpen(false)}
-                  >
-                    <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: "#A1A1AA" }} />
-                    <span>{label}</span>
-                  </button>
-                ))}
+                <button
+                  type="button"
+                  className="topnav-menu-item"
+                  onClick={() => setProfileOpen(false)}
+                >
+                  <User className="w-3.5 h-3.5 shrink-0 text-[var(--color-text-tertiary)]" strokeWidth={1.5} />
+                  <span>Your profile</span>
+                </button>
+                <button type="button" className="topnav-menu-item" onClick={openSettings}>
+                  <Settings className="w-3.5 h-3.5 shrink-0 text-[var(--color-text-tertiary)]" strokeWidth={1.5} />
+                  <span>Settings</span>
+                </button>
               </div>
 
-              {/* Sign out */}
-              <div className="py-1.5" style={{ borderTop: "1px solid #F4F4F5" }}>
+              <div className="py-1.5" style={{ borderTop: "1px solid var(--color-border-subtle)" }}>
                 <button
                   id="topnav-logout-btn"
-                  onClick={() => { setProfileOpen(false); onLogout(); }}
-                  className="w-full flex items-center gap-3 px-4 py-2 text-[12.5px] outline-none transition-colors duration-100"
-                  style={{ color: "#EF4444" }}
-                  onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.background = "#FEF2F2"}
-                  onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.background = "transparent"}
+                  type="button"
+                  onClick={() => {
+                    setProfileOpen(false);
+                    onLogout();
+                  }}
+                  className="topnav-menu-item text-[var(--color-danger)] hover:bg-[var(--color-danger-subtle)] hover:text-[var(--color-danger-text)]"
                 >
-                  <LogOut className="w-3.5 h-3.5 shrink-0" />
+                  <LogOut className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
                   <span>Sign out</span>
                 </button>
               </div>
