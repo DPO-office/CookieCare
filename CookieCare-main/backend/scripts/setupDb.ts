@@ -218,6 +218,18 @@ async function setupDb() {
         PRIMARY KEY (document_id, version)
       );
 
+      -- Analysis PAC session ledger (resume ASK + audit reproducibility)
+      CREATE TABLE IF NOT EXISTS analysis_state_ledger (
+        session_id VARCHAR(255) NOT NULL,
+        version INTEGER NOT NULL,
+        state_snapshot_json JSONB NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (session_id, version)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_analysis_state_ledger_session
+        ON analysis_state_ledger (session_id);
+
       CREATE TABLE IF NOT EXISTS template_clause_mappings (
         template_id VARCHAR(255) NOT NULL REFERENCES contract_templates(id) ON DELETE CASCADE,
         clause_id VARCHAR(255) NOT NULL REFERENCES clause_catalog(id) ON DELETE CASCADE,

@@ -1,0 +1,20 @@
+{
+  "id": "golden-short-msa-risk",
+  "title": "Short MSA missing LoL with one-sided indemnity",
+  "instruction": "Flag high-risk clauses in this agreement and cite the source text.",
+  "expectedOperation": "risk_flag",
+  "document": "MASTER SERVICES AGREEMENT\n\n1. Parties\nThis Agreement is entered into between Acme Corp (\"Provider\") and Buyer LLC (\"Customer\").\n\n2. Services\nProvider shall provide software implementation services as described in Schedule A.\n\n3. Indemnity\nCustomer shall indemnify and hold harmless Provider from any and all claims, damages, and expenses arising from Customer's use of the services, including third-party claims, without limitation.\n\n4. Termination\nEither party may terminate this Agreement upon thirty (30) days written notice. Provider may terminate immediately for convenience.\n\n5. Governing Law\nThis Agreement shall be governed by the laws of Delaware.\n\n6. Confidentiality\nEach party shall keep confidential information secret for three years.\n",
+  "expectedAbsentCategories": [
+    "missing_limitation_of_liability"
+  ],
+  "expectedPresentCategoriesOptional": [
+    "one_sided_indemnity",
+    "unilateral_termination"
+  ],
+  "expectedClauseTypes": [
+    "indemnity",
+    "termination",
+    "governing_law",
+    "confidentiality"
+  ]
+}

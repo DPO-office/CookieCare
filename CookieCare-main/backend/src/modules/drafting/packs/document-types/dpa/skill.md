@@ -1,26 +1,36 @@
-# DPA — Data Processing Agreement skill
+# dpa.md
 
-## Purpose
-Rules for drafting a controller–processor Data Processing Agreement (DPA / DPA addendum).
+**When to use this document type**
+Use when personal data is processed by a third-party processor on behalf of the data controller pursuant to applicable data privacy laws[cite: 2].
 
-## Required facts before drafting
-- **Governing law** must be known. If missing or "not specified", ask which governing law / jurisdiction applies (e.g. Ireland, England and Wales, Delaware, California). This changes courts language and which regime packs apply.
-- **Parties** (controller and processor) must be identified. If neither parties[] nor partyA is set, ask who the controller and processor are — party names appear throughout the DPA.
-- Where personal data is transferred outside the EEA (`dataTransfer` indicates EEA→non-EEA), the DPA must specify the **transfer mechanism** (e.g. Standard Contractual Clauses, adequacy, UK IDTA). If SCCs are used, identify the applicable **SCC module**. If transfer is EEA_to_nonEEA and transferMechanism/sccModule is unset, ask which mechanism and, for SCCs, which module — the transfer clause cites a specific mechanism/module and drafting the wrong one misstates the parties' data-transfer relationship.
+**Standard section list**
+1. Definitions & Scope of Processing[cite: 2]
+2. Obligations of Data Processor[cite: 2]
+3. Personal Data Breach Management[cite: 2]
+4. Sub-Processor Management[cite: 2]
+5. Data Subject Requests (DSR)[cite: 2]
+6. Audit Rights & Compliance Assistance[cite: 2]
+7. International Data Transfers[cite: 2]
+8. Data Return & Deletion[cite: 2]
+9. Liability & Indemnification[cite: 2]
 
-## Mandatory drafting requirements
-- The DPA must specify the **subject matter and duration of processing**.
-- The DPA must describe **appropriate technical and organisational security measures**.
-- **Sub-processor engagement and flow-down obligations** must be addressed (authorization, notice, equivalent obligations).
-- **Personal data breach notification** obligations must be present (timelines and content of notice to the controller).
-- **Return or deletion of personal data** at the end of services must be specified.
-- A **processing details exhibit** (categories of data subjects, data types, processing operations) should be present.
+**Requirements**
+- MUST explicitly define Data Controller and Data Processor roles under applicable privacy laws such as GDPR Art. 28 and CCPA[cite: 2].
+- MUST limit personal data processing strictly to the Controller's documented written instructions in the main agreement[cite: 2].
+- MUST require written notification to the Controller within 24 to 48 hours maximum of confirmation or suspicion of any personal data breach[cite: 2].
+- MUST require breach notifications to include incident scope, affected data categories, and mitigation measures[cite: 2].
+- MUST require a minimum of 30 calendar days advance direct written notice prior to appointing or replacing sub-processors[cite: 2].
+- MUST grant the Controller the absolute right to object to sub-processor changes and terminate the agreement without penalty if unresolved[cite: 2].
+- MUST bind sub-processors to data protection obligations no less restrictive than those in the main DPA[cite: 2].
+- MUST require the Processor to assist the Controller with Data Subject Requests (DSRs) within 5 business days[cite: 2].
+- MUST prohibit the Processor from responding directly to Data Subjects without prior Controller instructions[cite: 2].
+- MUST grant annual audit rights or mandate the provision of annual SOC 2 Type II or ISO 27001 certifications[cite: 2].
+- MUST incorporate valid cross-border transfer mechanisms, such as EU Standard Contractual Clauses (SCCs) or the UK Addendum, for international transfers[cite: 2].
+- MUST require complete deletion or return of all personal data within 30 days post-termination along with a signed Certificate of Destruction[cite: 2].
+- MUST exclude privacy breach liabilities from general low contract caps by establishing a dedicated super-cap or uncapped status[cite: 2].
+- SHOULD include an explicit schedule detailing Technical and Organizational Measures (TOMs), including encryption and access controls[cite: 2].
 
-## Section mapping hints
-- Processing subject matter / duration → sec-processing
-- Security measures → sec-security
-- Sub-processors → sec-subprocessors
-- International transfers / SCC module → sec-transfers
-- Breach notification → sec-breach
-- Return/deletion → sec-return
-- Processing details exhibit → exhibit-processing
+**Exhibits normally attached**
+- Schedule 1: Details of Processing (Categories of Data, Data Subjects, Purpose)[cite: 2]
+- Schedule 2: Technical and Organizational Measures (TOMs) summary[cite: 2]
+- Cross-Border Transfer Attachments (EU SCCs Module 2 / UK Addendum)[cite: 2]

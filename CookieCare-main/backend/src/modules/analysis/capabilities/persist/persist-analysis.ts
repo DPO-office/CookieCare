@@ -1,0 +1,30 @@
+import type { AnalysisState } from "../../models/analysis-state.js";
+import {
+  appendConversationTurns,
+  ensureConversation,
+} from "../../memory/conversation-store.js";
+
+export async function persistAnalysis(state: AnalysisState): Promise<AnalysisState> {
+  let next = ensureConversation(state);
+
+  if (next.declineMessage) {
+    next = appendConversationTurns(next, [
+      { role: "user", content: next.request.instruction },
+      { role: "assistant", content: next.declineMessage },
+    ]);
+    return next;
+  }
+
+  if (next.request.instruction) {
+    const summary =
+      next.renderedOutput?.slice(0, 2000) ||
+      `Analysis complete: ${next.findings.length} findings.` +
+        (next.agent?.stoppedReason ? ` (${next.agent.stoppedReason})` : "");
+    next = appendConversationTurns(next, [
+      { role: "user", content: next.request.instruction },
+      { role: "assistant", content: summary },
+    ]);
+  }
+
+  return next;
+}

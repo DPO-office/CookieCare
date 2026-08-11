@@ -115,7 +115,7 @@ export async function runCritique(state: DraftState): Promise<DraftState> {
       itemId: r.itemId,
       status,
       evidenceQuote: r.evidenceQuote,
-      evidenceVerified: status === "pass" ? verified : verified || status !== 'pass',
+      evidenceVerified: (status === "pass" ? verified : verified) || status !== 'pass',
     };
   });
 
