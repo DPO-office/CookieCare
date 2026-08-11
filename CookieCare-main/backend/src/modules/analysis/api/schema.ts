@@ -3,6 +3,8 @@ import { z } from "zod";
 export const AnalysisRequestSchema = z.object({
   instruction: z.string().min(1),
   documentIds: z.array(z.string().min(1)).min(1),
+  /** Path A — library category or prompt id when user picks from prompt library. */
+  promptLibraryId: z.string().optional(),
   organizationId: z.string().nullable().optional(),
   sessionId: z.string().optional(),
 });

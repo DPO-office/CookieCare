@@ -64,6 +64,9 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
     request: {
       sessionId,
       instruction: String(payload.instruction || ""),
+      promptLibraryId: payload.promptLibraryId
+        ? String(payload.promptLibraryId)
+        : undefined,
       documentIds,
       documentTexts,
       documentTitles,
@@ -147,7 +150,7 @@ async function handleResumeAsk(jobId: string, userId: string, payload: any): Pro
     };
   }
 
-  state = applyUserAnswers(state, payload.answers ?? {});
+  state = await applyUserAnswers(state, payload.answers ?? {});
   state.onProgress = async (percent, message) => {
     await updateJobProgress(jobId, userId, percent, message);
   };

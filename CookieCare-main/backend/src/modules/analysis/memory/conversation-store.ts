@@ -6,6 +6,14 @@ import {
   type AnalysisConversation,
   type ConversationRole,
 } from "../models/conversation.js";
+import { getSkillById } from "../skills/registry.js";
+import { loadSkillMarkdownForSkills } from "../skills/load-skill-md.js";
+import {
+  mergeExpectedClauses,
+  mergeRegimeRules,
+  mergeSkillClauseTypes,
+  mergeSkillRiskCategories,
+} from "../skills/registry.js";
 
 export function ensureConversation(state: AnalysisState): AnalysisState {
   if (state.conversation) return state;
@@ -38,10 +46,10 @@ export function appendConversationTurns(
   return { ...base, conversation };
 }
 
-export function applyUserAnswers(
+export async function applyUserAnswers(
   state: AnalysisState,
   answers: Record<string, string>
-): AnalysisState {
+): Promise<AnalysisState> {
   let next = appendConversationTurns(state, [
     {
       role: "user",
@@ -66,6 +74,26 @@ export function applyUserAnswers(
           }
         : next.intent,
     };
+  }
+
+  // Explicit skill selection from ambiguity ASK
+  if (answers.skillId) {
+    const skill = getSkillById(answers.skillId);
+    if (skill) {
+      const skillMd = await loadSkillMarkdownForSkills([skill]);
+      next = {
+        ...next,
+        activeSkills: [skill],
+        activeSkillIds: [skill.skillId],
+        mergedClauseTypes: mergeSkillClauseTypes([skill]),
+        mergedRiskCategories: mergeSkillRiskCategories([skill]).map((r) => r.category),
+        mergedExpectedClauses: mergeExpectedClauses([skill]),
+        mergedRegimeRules: mergeRegimeRules([skill]),
+        skillMarkdown: skillMd,
+        skillSelectionPath: "free_text",
+        pendingSkillClarification: undefined,
+      };
+    }
   }
 
   // Merge other axis answers into intent when present

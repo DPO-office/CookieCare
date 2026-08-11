@@ -6,6 +6,7 @@ export type AnalysisToolName =
   | "search_document"
   | "get_span"
   | "extract_clauses"
+  | "check_expected_clauses"
   | "extract_entities"
   | "flag_risk"
   | "check_against_rule"
@@ -48,6 +49,7 @@ export interface AnalysisPlan {
   missingClarifications: MissingClarification[];
   outputForm: IntentClassification["outputForm"];
   rendererSchemaId: "table" | "checklist" | "redline_diff" | "memo" | "qa_thread";
+  activeSkillIds?: string[];
   /** Pack / taxonomy versions pinned for audit reproducibility. */
   pinnedVersions: {
     clauseTaxonomyVersion: string;

@@ -1,0 +1,68 @@
+import type { AnalysisSkillConfig } from "../types.js";
+
+export const commercialSkill: AnalysisSkillConfig = {
+  skillId: "commercial",
+  label: "Commercial Agreements",
+  version: "1.0.0",
+  appliesToDocTypes: ["msa", "nda", "sla", "service-agreement", "commercial-agreement"],
+  triggerPhrases: [
+    "commercial",
+    "nda",
+    "msa",
+    "payment terms",
+    "sla",
+    "intellectual property",
+    "ip ownership",
+    "auto-renewal",
+    "service credit",
+    "confidentiality scope",
+  ],
+  promptLibraryIds: ["commercial"],
+  clauseTypes: [
+    "indemnity",
+    "limitation_of_liability",
+    "payment",
+    "intellectual_property",
+    "confidentiality",
+    "termination",
+    "assignment",
+    "warranties",
+  ],
+  expectedClauses: [
+    {
+      clauseType: "payment",
+      severityIfMissing: "medium",
+      findingCategory: "other_known_risk",
+      textSynonyms: ["payment", "invoice", "fees", "compensation"],
+    },
+    {
+      clauseType: "intellectual_property",
+      severityIfMissing: "medium",
+      findingCategory: "other_known_risk",
+      textSynonyms: ["intellectual property", "work product", "ownership", "license"],
+    },
+    {
+      clauseType: "limitation_of_liability",
+      severityIfMissing: "high",
+      findingCategory: "missing_limitation_of_liability",
+      textSynonyms: ["limitation of liability"],
+    },
+    {
+      clauseType: "indemnity",
+      severityIfMissing: "high",
+      findingCategory: "missing_indemnity",
+      textSynonyms: ["indemnif"],
+    },
+  ],
+  riskCategories: [
+    { category: "one_sided_indemnity", guidance: "Indemnity obligations fall disproportionately on one party." },
+    { category: "uncapped_liability", guidance: "Liability is unlimited or effectively uncapped." },
+    { category: "auto_renewal_trap", guidance: "Auto-renewal or notice trap may lock in unfavorable terms." },
+    { category: "broad_indemnity", guidance: "Indemnity scope is unusually broad." },
+    { category: "weak_confidentiality", guidance: "Confidentiality obligations are weak or one-sided." },
+    { category: "missing_limitation_of_liability", guidance: "No limitation of liability clause identified." },
+    { category: "other_known_risk", guidance: "Other material contractual risk." },
+  ],
+  regimeRules: [],
+  defaultOperation: "risk_flag",
+};

@@ -13,9 +13,18 @@ import {
 } from "../../taxonomies/clause-taxonomy.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { orderByDependency } from "../../utils/topo-batches.js";
+import { resolveSkills, buildActGraph } from "../../skills/resolve-skills.js";
+import { getSkillById } from "../../skills/registry.js";
+
+const SKILL_DRIVEN_OPERATIONS = new Set([
+  "risk_flag",
+  "compliance_check",
+  "extract",
+  "summarize",
+]);
 
 /**
- * Build AnalysisWorkUnit graph. Vertical slice: risk_flag + whole_document.
+ * Build AnalysisWorkUnit graph from resolved skills + intent.
  * Low confidence on any axis → critical clarification (ASK), not a guess.
  */
 export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
@@ -44,8 +53,11 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     });
   }
 
-  // Vertical slice: only risk_flag is fully wired; others ask for confirmation
-  if (intent.operation !== "risk_flag" && intent.operation !== "out_of_scope" && missing.length === 0) {
+  if (
+    intent.operation !== "out_of_scope" &&
+    !SKILL_DRIVEN_OPERATIONS.has(intent.operation) &&
+    missing.length === 0
+  ) {
     missing.push({
       field: "operation",
       question:
@@ -63,60 +75,61 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     };
   }
 
+  // If user answered skill ambiguity ASK, activeSkills are already pinned in applyUserAnswers.
+  if (!state.activeSkills?.length) {
+    state = await resolveSkills(state);
+  }
+
+  if (state.pendingSkillClarification) {
+    return {
+      ...state,
+      plan: emptyPlan(intent, [state.pendingSkillClarification]),
+    };
+  }
+
+  const skills = state.activeSkills ?? [getSkillById("general-review")!];
   const primaryDocId = docIds[0];
-  const workUnits: AnalysisWorkUnit[] = orderByDependency([
-    {
-      workUnitId: "wu-classify",
-      tool: "classify_document",
-      input: { docId: primaryDocId },
-      dependsOn: [],
-      outputSchema: "string",
-      status: "pending",
-    },
-    {
-      workUnitId: "wu-extract",
-      tool: "extract_clauses",
-      input: { docId: primaryDocId, clauseTaxonomyId: "all" },
-      dependsOn: ["wu-classify"],
-      outputSchema: "ClauseObject[]",
-      status: "pending",
-    },
-    {
-      workUnitId: "wu-flag-risk",
-      tool: "flag_risk",
-      input: { docId: primaryDocId, riskTaxonomyId: "all" },
-      dependsOn: ["wu-extract"],
-      outputSchema: "Finding[]",
-      status: "pending",
-    },
-    {
-      workUnitId: "wu-render",
-      tool: "render_output",
-      input: { schemaId: intent.outputForm === "memo" ? "memo" : "checklist" },
-      dependsOn: ["wu-flag-risk"],
-      outputSchema: "string",
-      status: "pending",
-    },
-  ]);
+
+  const workUnits: AnalysisWorkUnit[] = orderByDependency(
+    buildActGraph({
+      docId: primaryDocId,
+      instruction: state.request.instruction,
+      skills,
+      intent,
+    })
+  );
 
   if (state.agent) {
     state.agent.docCount = docIds.length;
   }
+
+  const primarySkill = skills[0];
+  const rendererSchemaId =
+    intent.outputForm === "table"
+      ? "table"
+      : intent.outputForm === "memo"
+        ? "memo"
+        : primarySkill.defaultOperation === "compliance_check"
+          ? "checklist"
+          : "checklist";
 
   const plan: AnalysisPlan = {
     intent,
     workUnits,
     missingClarifications: [],
     outputForm: intent.outputForm,
-    rendererSchemaId: intent.outputForm === "table" ? "table" : intent.outputForm === "memo" ? "memo" : "checklist",
+    rendererSchemaId,
+    activeSkillIds: skills.map((s) => s.skillId),
     pinnedVersions: {
-      clauseTaxonomyVersion: CLAUSE_TAXONOMY_VERSION,
-      riskTaxonomyVersion: RISK_TAXONOMY_VERSION,
+      clauseTaxonomyVersion:
+        state.metadata.clauseTaxonomyVersion ?? CLAUSE_TAXONOMY_VERSION,
+      riskTaxonomyVersion:
+        state.metadata.riskTaxonomyVersion ?? RISK_TAXONOMY_VERSION,
       modelTask: "STRUCTURAL_JSON",
     },
   };
 
-  return { ...state, plan };
+  return { ...state, plan, pendingSkillClarification: undefined };
 }
 
 function collectLowConfidence(intent: IntentClassification): MissingClarification[] {

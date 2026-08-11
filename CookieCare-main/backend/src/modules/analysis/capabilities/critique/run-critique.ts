@@ -10,7 +10,8 @@ import type {
   FixItem,
 } from "../../models/critique-report.js";
 import type { Finding } from "../../models/finding.js";
-import { isRiskTaxonomyId } from "../../taxonomies/index.js";
+import { isKnownRiskCategory } from "../../skills/registry.js";
+import { resolveRule } from "../act/check-against-rule.js";
 import { getSpanFromState } from "../act/execute-act-plan.js";
 
 function normalize(s: string): string {
@@ -96,25 +97,113 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
     }
   }
 
-  // 3 Taxonomy conformance
+  // 3 Taxonomy conformance (active skill scope)
+  const allowedCategories = new Set(
+    state.mergedRiskCategories ??
+      state.activeSkills?.flatMap((s) => s.riskCategories.map((r) => r.category)) ??
+      []
+  );
+
   for (const f of findings) {
     if (f.kind === "risk" || f.kind === "compliance") {
-      const ok = isRiskTaxonomyId(f.category);
+      const ok =
+        allowedCategories.size === 0
+          ? isKnownRiskCategory(f.category)
+          : allowedCategories.has(f.category) || isKnownRiskCategory(f.category);
       results.push({
         itemId: `taxonomy:${f.findingId}`,
         status: ok ? "pass" : "fail",
         evidenceVerified: ok,
         findingId: f.findingId,
         workUnitId: f.workUnitId,
-        detail: ok ? undefined : `Unknown category ${f.category}`,
+        detail: ok ? undefined : `Unknown category ${f.category} for active skill(s)`,
       });
       if (!ok && f.workUnitId) {
         fixPlan.push({
           workUnitId: f.workUnitId,
-          instruction: `Reclassify finding ${f.findingId} into risk taxonomy`,
+          instruction: `Reclassify finding ${f.findingId} into skill risk taxonomy`,
           sourceItemId: f.findingId,
         });
       }
+    }
+  }
+
+  // 3b Compliance rule citation — ruleId must resolve to configured rule text
+  for (const f of findings.filter((x) => x.kind === "compliance" && x.ruleId)) {
+    const resolved = resolveRule(state.activeSkillIds ?? [], f.ruleId!);
+    const ok = Boolean(resolved?.rule.ruleText);
+    results.push({
+      itemId: `rule-cite:${f.findingId}`,
+      status: ok ? "pass" : "fail",
+      evidenceVerified: ok,
+      findingId: f.findingId,
+      workUnitId: f.workUnitId,
+      detail: ok ? undefined : `ruleId ${f.ruleId} not found in skill configuration`,
+    });
+    if (!ok && f.workUnitId) {
+      fixPlan.push({
+        workUnitId: f.workUnitId,
+        instruction: `Re-run compliance check for unknown rule ${f.ruleId}`,
+        sourceItemId: f.findingId,
+      });
+    }
+  }
+
+  // 3c Expected-clause completeness — every configured expected clause must have coverage
+  const expectedClauses = state.mergedExpectedClauses ?? [];
+  const primaryDocId = state.request.documentIds[0];
+  const doc = state.workspace.documents.find((d) => d.docId === primaryDocId);
+  const extractedTypes = new Set((doc?.clauses ?? []).map((c) => c.clauseType));
+
+  for (const expected of expectedClauses) {
+    if (extractedTypes.has(expected.clauseType)) {
+      results.push({
+        itemId: `expected-present:${expected.clauseType}`,
+        status: "pass",
+        evidenceVerified: true,
+        detail: `Clause type ${expected.clauseType} extracted`,
+      });
+      continue;
+    }
+
+    const covered = findings.some(
+      (f) =>
+        f.category === expected.findingCategory &&
+        (f.status === "absent_expected" || f.status === "insufficient_evidence") &&
+        f.claim.includes(expected.clauseType)
+    );
+    results.push({
+      itemId: `expected:${expected.clauseType}`,
+      status: covered ? "pass" : "missing",
+      evidenceVerified: covered,
+      detail: covered
+        ? undefined
+        : `No finding for missing expected clause ${expected.clauseType}`,
+    });
+    if (!covered) {
+      fixPlan.push({
+        workUnitId: "wu-check-expected",
+        instruction: `Emit absent/insufficient finding for expected clause ${expected.clauseType}`,
+        sourceItemId: `expected:${expected.clauseType}`,
+      });
+    }
+  }
+
+  // 3d Regime rule completeness
+  for (const rule of state.mergedRegimeRules ?? []) {
+    const covered = findings.some((f) => f.kind === "compliance" && f.ruleId === rule.ruleId);
+    results.push({
+      itemId: `regime:${rule.ruleId}`,
+      status: covered ? "pass" : "missing",
+      evidenceVerified: covered,
+      detail: covered ? undefined : `No compliance finding for rule ${rule.ruleId}`,
+    });
+    if (!covered) {
+      fixPlan.push({
+        workUnitId: `wu-rule-${rule.ruleId.replace(/\./g, "-")}`,
+        instruction: `Evaluate rule ${rule.ruleId}`,
+        sourceItemId: `regime:${rule.ruleId}`,
+      });
     }
   }
 

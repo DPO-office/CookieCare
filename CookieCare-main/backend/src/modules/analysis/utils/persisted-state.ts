@@ -11,6 +11,10 @@ export interface PersistedAnalysisState {
   request: AnalysisState["request"];
   workspace: AnalysisWorkspace;
   intent?: IntentClassification | null;
+  activeSkillIds?: string[];
+  mergedExpectedClauses?: AnalysisState["mergedExpectedClauses"];
+  mergedRegimeRules?: AnalysisState["mergedRegimeRules"];
+  skillSelectionPath?: AnalysisState["skillSelectionPath"];
   findings: Finding[];
   renderedOutput?: string;
   declineMessage?: string;
@@ -29,6 +33,7 @@ export function toPersistedState(state: AnalysisState): PersistedAnalysisState {
     request: {
       sessionId: state.request.sessionId,
       instruction: state.request.instruction,
+      promptLibraryId: state.request.promptLibraryId,
       documentIds: state.request.documentIds,
       // Drop large texts from ledger — workspace keeps segmented form
       documentTexts: {},
@@ -42,6 +47,10 @@ export function toPersistedState(state: AnalysisState): PersistedAnalysisState {
       })),
     },
     intent: state.intent,
+    activeSkillIds: state.activeSkillIds,
+    mergedExpectedClauses: state.mergedExpectedClauses,
+    mergedRegimeRules: state.mergedRegimeRules,
+    skillSelectionPath: state.skillSelectionPath,
     findings: state.findings,
     renderedOutput: state.renderedOutput,
     declineMessage: state.declineMessage,

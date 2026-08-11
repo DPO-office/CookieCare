@@ -22,4 +22,5 @@ export interface Finding {
   severity?: "low" | "medium" | "high";
   taxonomyVersion: string;
   workUnitId?: string;
+  skillId?: string;
 }

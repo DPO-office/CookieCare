@@ -6,6 +6,9 @@ import type { AnalysisWorkspace } from "./document-workspace.js";
 import type { Finding } from "./finding.js";
 import type { DraftTask } from "./draft-task.js";
 import type { IntentClassification } from "./intent.js";
+import type { AnalysisSkillConfig, SkillRegimeRule } from "../skills/types.js";
+import type { ExpectedClauseCheck } from "../skills/types.js";
+import type { MissingClarification } from "./analysis-plan.js";
 
 export interface AnalysisHistoryEntry {
   version: number;
@@ -40,6 +43,8 @@ export interface AnalysisState {
   request: {
     sessionId: string;
     instruction: string;
+    /** Path A — library category or prompt id (e.g. "privacy", "commercial"). */
+    promptLibraryId?: string;
     documentIds: string[];
     /** Pre-loaded texts keyed by docId (handler resolves from files table). */
     documentTexts: Record<string, string>;
@@ -48,6 +53,16 @@ export interface AnalysisState {
 
   workspace: AnalysisWorkspace;
   intent?: IntentClassification | null;
+  /** Resolved in PLAN from promptLibraryId or free-text selection. */
+  activeSkills?: AnalysisSkillConfig[];
+  activeSkillIds?: string[];
+  mergedClauseTypes?: string[];
+  mergedRiskCategories?: string[];
+  mergedExpectedClauses?: ExpectedClauseCheck[];
+  mergedRegimeRules?: SkillRegimeRule[];
+  skillMarkdown?: Record<string, string>;
+  skillSelectionPath?: "library" | "free_text" | "fallback";
+  pendingSkillClarification?: MissingClarification;
   findings: Finding[];
   draftTasks: DraftTask[];
   renderedOutput?: string;
