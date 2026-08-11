@@ -25,7 +25,7 @@
     "@sentry/profiling-node": "^10.56.0",
     "@tailwindcss/vite": "^4.1.14",
     "@tiptap/core": "^3.29.2",
-    "@tiptap/extension-table": "^3.29.2",
+    "@tiptap/extension-table": "3.29.2",
     "@tiptap/extension-text-align": "^3.29.2",
     "@tiptap/extension-text-style": "^3.29.2",
     "@tiptap/extension-underline": "^3.29.2",
