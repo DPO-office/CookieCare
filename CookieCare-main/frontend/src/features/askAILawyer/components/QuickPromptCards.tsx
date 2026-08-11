@@ -8,24 +8,56 @@ interface QuickPromptCardsProps {
 
 export default function QuickPromptCards({ onSelect }: QuickPromptCardsProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl">
       {QUICK_PROMPTS.map((qp) => (
         <button
           key={qp.label}
           type="button"
           onClick={() => onSelect(qp.prompt)}
-          className="group flex items-center gap-3 px-3.5 py-2.5 bg-white border border-gray-200 rounded-xl text-left cursor-pointer transition-all duration-150 hover:border-gray-300 hover:shadow-sm active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2175D9]/30"
+          className="group relative flex items-start gap-3.5 p-4 bg-white text-left cursor-pointer transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2175D9]/30 rounded-2xl"
+          style={{
+            border: "1px solid #E4E4E7",
+            boxShadow: "0 1px 3px rgba(15,23,42,0.05)",
+          }}
+          onMouseEnter={(e) => {
+            const el = e.currentTarget as HTMLElement;
+            el.style.borderColor = "#BFDBFE";
+            el.style.boxShadow = "0 4px 14px rgba(33,117,217,0.10), 0 1px 3px rgba(15,23,42,0.06)";
+            el.style.transform = "translateY(-1px)";
+          }}
+          onMouseLeave={(e) => {
+            const el = e.currentTarget as HTMLElement;
+            el.style.borderColor = "#E4E4E7";
+            el.style.boxShadow = "0 1px 3px rgba(15,23,42,0.05)";
+            el.style.transform = "translateY(0)";
+          }}
         >
-          <span className="w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 transition-colors duration-150 group-hover:bg-[#2175D9]/[0.07] group-hover:border-[#2175D9]/25">
-            <qp.icon className="w-4 h-4 text-gray-500 transition-colors duration-150 group-hover:text-[#2175D9]" />
-          </span>
+          {/* Icon container */}
+          <div
+            className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 group-hover:scale-105"
+            style={{
+              background: "#EBF2FD",
+              border: "1px solid #BFDBFE",
+            }}
+          >
+            <qp.icon className="w-4 h-4" style={{ color: "#2175D9" }} />
+          </div>
 
-          <span className="min-w-0 flex-1">
-            <span className="block text-[13px] font-semibold text-gray-900 leading-snug truncate">{qp.label}</span>
-            <span className="block text-[11px] text-gray-500 leading-snug line-clamp-2">{qp.description}</span>
-          </span>
+          {/* Text */}
+          <div className="min-w-0 flex-1 pt-0.5">
+            <span className="block text-[13px] font-semibold leading-snug mb-1" style={{ color: "#0F172A" }}>
+              {qp.label}
+            </span>
+            <span className="block text-[12px] leading-relaxed" style={{ color: "#71717A" }}>
+              {qp.description}
+            </span>
+          </div>
 
-          <ChevronRight className="w-3.5 h-3.5 text-gray-300 shrink-0 transition-colors duration-150 group-hover:text-[#2175D9]" />
+          {/* Arrow */}
+          <ChevronRight
+            className="w-3.5 h-3.5 shrink-0 mt-1 transition-all duration-200 group-hover:translate-x-0.5"
+            style={{ color: "#D4D4D8" }}
+          />
         </button>
       ))}
     </div>

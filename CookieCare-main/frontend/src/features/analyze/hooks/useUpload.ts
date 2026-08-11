@@ -63,7 +63,7 @@ async function readAllEntries(entry: FileSystemEntry): Promise<File[]> {
 export function useUpload(
   authToken: string,
   folders: CustomFolder[],
-  fetchFoldersAndDocs: () => Promise<void>,
+  fetchFoldersAndDocs: (options?: { selectFileIds?: string[] }) => Promise<void>,
   onRefresh: () => Promise<void>
 ) {
   const [uploadSelectedFolder, setUploadSelectedFolder] = useState("");
@@ -246,30 +246,14 @@ export function useUpload(
     }
   };
 
-  const executeUploadSubmission = async (_e: React.FormEvent, onClose: () => void) => {
-    _e.preventDefault();
-    const toUpload = pendingFiles.filter((p) => p.status === "pending" || p.status === "error");
-    if (toUpload.length === 0) return;
-
-    setIsUploading(true);
-    setBatchError("");
-    setSuccessMessage("");
-    abortRef.current = false;
-    setUploadProgress({ done: 0, total: toUpload.length });
-
-    let folderId: string | undefined;
-    // A local folder upload always becomes a root-level Vault folder.
-    // Never place it inside a target selected before folder mode was detected.
-    if (suggestedFolderName) {
-      folderId = await resolveOrCreateFolder(suggestedFolderName);
-    } else {
-      const targetFolder = folders.find((f) => f.name === uploadSelectedFolder);
-      if (targetFolder) folderId = targetFolder.id;
-    }
-
+  const runUploadBatch = async (
+    toUpload: PendingUpload[],
+    folderId: string | undefined
+  ): Promise<{ failedCount: number; fileIds: string[] }> => {
     let failedCount = 0;
-
+    const fileIds: string[] = [];
     const queue = [...toUpload];
+
     const runNext = async (): Promise<void> => {
       while (queue.length > 0 && !abortRef.current) {
         const item = queue.shift()!;
@@ -281,6 +265,7 @@ export function useUpload(
           try {
             await waitForJob(authToken, result.jobId);
             updateFileStatus(item.id, { status: "done" });
+            if (result.fileId) fileIds.push(result.fileId);
           } catch (err: any) {
             failedCount++;
             updateFileStatus(item.id, {
@@ -290,16 +275,50 @@ export function useUpload(
           }
         } else {
           updateFileStatus(item.id, { status: "done" });
+          if (result.fileId) fileIds.push(result.fileId);
         }
 
         setUploadProgress((p) => ({ ...p, done: p.done + 1 }));
       }
     };
 
-    const workers = Array.from({ length: Math.min(UPLOAD_CONCURRENCY, toUpload.length) }, () => runNext());
+    const workers = Array.from(
+      { length: Math.min(UPLOAD_CONCURRENCY, toUpload.length) },
+      () => runNext()
+    );
     await Promise.all(workers);
+    return { failedCount, fileIds };
+  };
 
-    await fetchFoldersAndDocs();
+  const resolveUploadFolderId = async (): Promise<string | undefined> => {
+    // A local folder upload always becomes a root-level Vault folder.
+    if (suggestedFolderName) {
+      return resolveOrCreateFolder(suggestedFolderName);
+    }
+    const targetFolder = folders.find((f) => f.name === uploadSelectedFolder);
+    if (targetFolder) return targetFolder.id;
+    // Empty selection → backend default "Uploaded Documents"
+    return undefined;
+  };
+
+  const executeUploadSubmission = async (
+    _e: React.FormEvent,
+    onClose: (uploadedFileIds?: string[]) => void
+  ) => {
+    _e.preventDefault();
+    const toUpload = pendingFiles.filter((p) => p.status === "pending" || p.status === "error");
+    if (toUpload.length === 0) return;
+
+    setIsUploading(true);
+    setBatchError("");
+    setSuccessMessage("");
+    abortRef.current = false;
+    setUploadProgress({ done: 0, total: toUpload.length });
+
+    const folderId = await resolveUploadFolderId();
+    const { failedCount, fileIds } = await runUploadBatch(toUpload, folderId);
+
+    await fetchFoldersAndDocs({ selectFileIds: fileIds });
     await onRefresh();
     setIsUploading(false);
 
@@ -316,8 +335,106 @@ export function useUpload(
     );
     setTimeout(() => {
       clearFiles();
-      onClose();
+      onClose(fileIds);
     }, 1500);
+  };
+
+  /**
+   * Composer-first upload: reuse the same pipeline as the SideDrawer,
+   * but upload immediately and return file ids for analysis selection.
+   * Omitting folder_id lets the backend place files in "Uploaded Documents".
+   */
+  const quickUploadFiles = async (
+    incoming: FileList | File[]
+  ): Promise<{ fileIds: string[]; error?: string }> => {
+    const arr = Array.from(incoming);
+    const accepted = arr.filter(isAllowedFile);
+    if (accepted.length === 0) {
+      return { fileIds: [], error: "No supported files to upload." };
+    }
+
+    const folderName = extractFolderName(accepted);
+    if (folderName) setSuggestedFolderName(folderName);
+
+    const items: PendingUpload[] = accepted.slice(0, MAX_UPLOAD_FILES).map((f) => ({
+      id: Math.random().toString(36).slice(2),
+      file: f,
+      relativePath: (f as any).webkitRelativePath || undefined,
+      status: "pending" as const,
+    }));
+
+    setPendingFiles(items);
+    setIsUploading(true);
+    setBatchError("");
+    setSuccessMessage("");
+    abortRef.current = false;
+    setUploadProgress({ done: 0, total: items.length });
+
+    let folderId: string | undefined;
+    if (folderName) {
+      folderId = await resolveOrCreateFolder(folderName);
+    }
+
+    const { failedCount, fileIds } = await runUploadBatch(items, folderId);
+
+    await fetchFoldersAndDocs({ selectFileIds: fileIds });
+    await onRefresh();
+    setIsUploading(false);
+
+    if (failedCount > 0 && fileIds.length === 0) {
+      const msg = `${failedCount} file${failedCount === 1 ? "" : "s"} failed to upload.`;
+      setBatchError(msg);
+      return { fileIds: [], error: msg };
+    }
+
+    clearFiles();
+    if (failedCount > 0) {
+      return {
+        fileIds,
+        error: `${failedCount} file${failedCount === 1 ? "" : "s"} failed; the rest were attached.`,
+      };
+    }
+    return { fileIds };
+  };
+
+  /** Collect dropped files (including folders) using the same logic as handleDrop, then quick-upload. */
+  const quickUploadFromDrop = async (
+    e: React.DragEvent
+  ): Promise<{ fileIds: string[]; error?: string }> => {
+    e.preventDefault();
+    setIsDraggingFile(false);
+
+    const items = e.dataTransfer.items;
+    if (items && items.length > 0) {
+      const allFiles: File[] = [];
+      const entries: FileSystemEntry[] = [];
+
+      for (let i = 0; i < items.length; i++) {
+        const entry = items[i].webkitGetAsEntry?.();
+        if (entry) entries.push(entry);
+      }
+
+      if (entries.length > 0) {
+        const droppedFolder = entries.find((entry) => entry.isDirectory);
+        if (droppedFolder?.name) {
+          setSuggestedFolderName(droppedFolder.name);
+          setUploadSelectedFolder("");
+        }
+        for (const entry of entries) {
+          const files = await readAllEntries(entry);
+          allFiles.push(...files);
+        }
+        if (allFiles.length > 0) {
+          return quickUploadFiles(allFiles);
+        }
+      }
+    }
+
+    if (e.dataTransfer.files.length) {
+      return quickUploadFiles(e.dataTransfer.files);
+    }
+
+    return { fileIds: [], error: "No files detected in drop." };
   };
 
   return {
@@ -339,5 +456,7 @@ export function useUpload(
     removeFile,
     clearFiles,
     executeUploadSubmission,
+    quickUploadFiles,
+    quickUploadFromDrop,
   };
 }

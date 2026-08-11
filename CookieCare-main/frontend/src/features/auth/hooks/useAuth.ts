@@ -91,11 +91,15 @@ export function useAuth({ onAuthSuccess }: UseAuthOptions) {
   };
 
   // ── Demo fill ────────────────────────────────────────────────────────────
+  // Credentials are read from Vite env variables so they are never committed
+  // to source. Set VITE_DEMO_EMAIL and VITE_DEMO_PASSWORD in your .env.local.
 
   const fillQuickDemo = () => {
-    setEmail("swarnaaishwarya17@gmail.com");
-    setPassword("MamuSecure2026!");
-    setName("Aishwarya");
+    const demoEmail    = import.meta.env.VITE_DEMO_EMAIL    ?? "";
+    const demoPassword = import.meta.env.VITE_DEMO_PASSWORD ?? "";
+    setEmail(demoEmail);
+    setPassword(demoPassword);
+    setName("Demo");
     setIsLogin(true);
     setViewState("form");
   };

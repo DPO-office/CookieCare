@@ -1,10 +1,4 @@
-﻿/**
- * AiProgressOverlay — thin compatibility shim over ProcessingOverlay.
- *
- * All existing call-sites (CookieScanner, VulnerabilityScanner,
- * InteractAnalyze, DraftingHub, AskAILawyer) continue to work unchanged.
- */
-import React from "react";
+﻿import React from "react";
 import { ProcessingOverlay } from "../ProcessingOverlay";
 
 interface AiProgressOverlayProps {
@@ -12,6 +6,7 @@ interface AiProgressOverlayProps {
   message?: string;
   error?: string;
   label?: string;
+  subtitle?: string;
   /** 0–100 determinate progress; omit for indeterminate. */
   progress?: number;
   onRetry?: () => void;
@@ -23,6 +18,7 @@ export default function AiProgressOverlay({
   message,
   error,
   label = "AI Processing",
+  subtitle,
   progress,
   onRetry,
   onDismiss,
@@ -32,6 +28,7 @@ export default function AiProgressOverlay({
       mode="dialog"
       visible={visible}
       title={label}
+      subtitle={subtitle}
       statusMessage={message}
       progress={progress}
       error={error || undefined}

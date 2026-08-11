@@ -1,25 +1,42 @@
-import { ShieldCheck, ShieldAlert, Layers } from "lucide-react";
+import {
+  ScanSearch,
+  PenTool,
+  MessageSquare,
+  GitCompare,
+  type LucideIcon,
+} from "lucide-react";
 
-export const DASHBOARD_SHORTCUTS = [
-  {
-    tab: "cookie-scanner",
-    icon: ShieldCheck,
-    title: "Cookie scanner",
-    desc: "Scan URLs for tracker scripts, check opt-in compliance, and perform GDPR/CCPA scoring.",
-    cta: "Scan domain",
-  },
-  {
-    tab: "vulnerability-scanner",
-    icon: ShieldAlert,
-    title: "Vulnerability scanner",
-    desc: "Verify certificates, track missing security headers (HSTS, CSP, X-Frame) instantly.",
-    cta: "Run security audit",
-  },
+export interface QuickAction {
+  tab: string;
+  icon: LucideIcon;
+  label: string;
+  description: string;
+}
+
+/** Core legal workflows — all tabs are wired in App.tsx */
+export const QUICK_ACTIONS: QuickAction[] = [
   {
     tab: "legal-review",
-    icon: Layers,
-    title: "Legal review",
-    desc: "Analyze NDAs, DPAs and SLAs. Coordinate redlining, signatures, and AI risk analysis.",
-    cta: "Open legal suite",
+    icon: ScanSearch,
+    label: "Analyze",
+    description: "Run compliance and risk analysis",
   },
-] as const;
+  {
+    tab: "legal-draft",
+    icon: PenTool,
+    label: "Draft",
+    description: "Generate or edit agreements",
+  },
+  {
+    tab: "legal-ask-ai",
+    icon: MessageSquare,
+    label: "Ask Trust Lawyer",
+    description: "Research with citations",
+  },
+  {
+    tab: "legal-compare",
+    icon: GitCompare,
+    label: "Compare",
+    description: "Diff two agreements",
+  },
+];

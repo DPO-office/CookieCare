@@ -98,7 +98,7 @@ export function useAskAILawyer(authToken: string) {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
       textareaRef.current.style.height =
-        Math.min(textareaRef.current.scrollHeight, 180) + "px";
+        Math.min(textareaRef.current.scrollHeight, 200) + "px";
     }
   }, []);
 
@@ -256,6 +256,10 @@ export function useAskAILawyer(authToken: string) {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleQueryDispatch();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") {
       e.preventDefault();
       handleQueryDispatch();
     }

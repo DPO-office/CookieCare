@@ -29,7 +29,12 @@ export enum LLMTask {
   STRUCTURAL_JSON  = "STRUCTURAL_JSON",   // Strict schema processing and extraction
   REFINEMENT       = "REFINEMENT",    
   STRUCTURAL_JSON_LITE = "STRUCTURAL_JSON_LITE", // Interactive highlight editor changes
-  SECTION_REFINE   = "SECTION_REFINE"   // Surgical single-section regeneration (fast, scoped)
+  SECTION_REFINE   = "SECTION_REFINE",  // Surgical single-section regeneration (fast, scoped)
+  // ── Compare module tasks ──────────────────────────────────────────────────
+  COMPARE_ALIGN    = "COMPARE_ALIGN",    // Semantic clause alignment between two agreements
+  COMPARE_DIFF     = "COMPARE_DIFF",     // Semantic difference classification per clause pair
+  COMPARE_RISK     = "COMPARE_RISK",     // Legal and commercial risk evaluation per difference
+  COMPARE_SUMMARY  = "COMPARE_SUMMARY", // Executive summary narrative over all findings
 }
 
 export enum LLMProvider {
@@ -99,6 +104,39 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
       model: GeminiModel.GEMINI_2_5_PRO,
       temperature: 0.0,
       maxOutputTokens: 2048
+    },
+    // ── Compare module ──────────────────────────────────────────────────────
+    [LLMTask.COMPARE_ALIGN]: {
+      // Flash is deliberately chosen: alignment is a classification task (JSON),
+      // not legal prose generation. Speed and cost matter at scale; Flash handles
+      // structured JSON output reliably at temperature 0.
+      model: GeminiModel.GEMINI_2_5_FLASH,
+      temperature: 0.0,
+      responseMimeType: "application/json"
+    },
+    [LLMTask.COMPARE_DIFF]: {
+      // Flash at temperature 0: diff classification is a structured labelling
+      // task, not legal prose. Speed and cost efficiency are the priority.
+      model: GeminiModel.GEMINI_2_5_FLASH,
+      temperature: 0.0,
+      responseMimeType: "application/json"
+    },
+    [LLMTask.COMPARE_RISK]: {
+      // Flash at temperature 0: risk evaluation is a structured classification
+      // task. Legal reasoning depth is provided by the AI Skill prompt, not
+      // by choosing a heavier model here.
+      model: GeminiModel.GEMINI_2_5_FLASH,
+      temperature: 0.0,
+      responseMimeType: "application/json"
+    },
+    [LLMTask.COMPARE_SUMMARY]: {
+      // Flash at temperature 0.2: the prompt is now compact (Top-10 findings,
+      // condensed stats block) so Flash produces equivalent quality to Pro at
+      // a fraction of the cost and latency. Pro is no longer warranted here.
+      model: GeminiModel.GEMINI_2_5_FLASH,
+      temperature: 0.2,
+      responseMimeType: "application/json",
+      maxOutputTokens: 2048
     }
   },
   [LLMProvider.OPENROUTER]: {
@@ -127,6 +165,30 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
     [LLMTask.SECTION_REFINE]: {
       model: OpenRouterModel.CLAUDE_3_5_SONNET,
       temperature: 0.0,
+      maxOutputTokens: 2048
+    },
+    // ── Compare module ──────────────────────────────────────────────────────
+    [LLMTask.COMPARE_ALIGN]: {
+      model: OpenRouterModel.GPT_4O_MINI,
+      temperature: 0.0,
+      responseMimeType: "application/json"
+    },
+    [LLMTask.COMPARE_DIFF]: {
+      model: OpenRouterModel.GPT_4O_MINI,
+      temperature: 0.0,
+      responseMimeType: "application/json"
+    },
+    [LLMTask.COMPARE_RISK]: {
+      model: OpenRouterModel.GPT_4O_MINI,
+      temperature: 0.0,
+      responseMimeType: "application/json"
+    },
+    [LLMTask.COMPARE_SUMMARY]: {
+      // Claude 3.5 Sonnet: best available OpenRouter model for prose quality,
+      // matching the intent of using Pro on the Gemini side.
+      model: OpenRouterModel.CLAUDE_3_5_SONNET,
+      temperature: 0.2,
+      responseMimeType: "application/json",
       maxOutputTokens: 2048
     }
   }

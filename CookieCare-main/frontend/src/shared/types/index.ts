@@ -158,3 +158,171 @@ export interface SharedAnalysisStep {
   label: string;
   status: "pending" | "active" | "done";
 }
+
+// ··· DPA Review Result ·················································
+// Moved here from features/dpaReviewer/types so that shared/report/reportAdapters
+// can import it without creating a shared → feature dependency.
+
+export interface DPAFinding {
+  id: string;
+  clause: string;
+  status: "compliant" | "warning" | "missing";
+  description: string;
+  recommendation: string;
+  article?: string;
+  severity?: "low" | "medium" | "high";
+  articleReference?: string;
+}
+
+export interface DPARecommendation {
+  category: string;
+  priority: "critical" | "high" | "medium" | "low";
+  items: string[];
+}
+
+export interface DPAMissingClause {
+  clauseName: string;
+  articleReference?: string;
+  reason: string;
+  recommendation: string;
+}
+
+export interface DPAScoreBreakdown {
+  article28Compliance: number;
+  processorObligations: number;
+  securityMeasures: number;
+  dataSubjectRights: number;
+  internationalTransfers: number;
+  subprocessorControls: number;
+}
+
+export interface DPAReviewResult {
+  overallScore: number;
+  riskLevel: "low" | "medium" | "high";
+  summary: string;
+  findings: DPAFinding[];
+  recommendations: DPARecommendation[];
+  missingClauses: DPAMissingClause[];
+  scoreBreakdown: DPAScoreBreakdown;
+}
+
+// ··· Vendor Review Result ···············································
+// Moved here from features/vendorReview/types.
+
+export interface VendorFinding {
+  id: string;
+  category: string;
+  status: "passed" | "warning" | "missing" | "high-risk";
+  description: string;
+  recommendation: string;
+  tag?: string;
+  title?: string;
+  severity?: "low" | "medium" | "high" | "critical";
+  evidence?: string;
+}
+
+export interface VendorCertification {
+  name: string;
+  status: "confirmed" | "claimed" | "expired" | "missing";
+  details?: string;
+}
+
+export interface VendorScoreBreakdown {
+  privacyPosture: number;
+  securityPosture: number;
+  gdprCompliance: number;
+  ccpaCompliance: number;
+  contractualRisk: number;
+  vendorTransparency: number;
+}
+
+export interface VendorInfo {
+  name?: string;
+  industry?: string;
+  headquarters?: string;
+  dataRegions?: string;
+  primaryServices?: string;
+}
+
+export interface VendorRecommendation {
+  category: string;
+  priority: "critical" | "high" | "medium" | "low";
+  items: string[];
+}
+
+export interface VendorComplianceItem {
+  label: string;
+  status: "compliant" | "partial" | "missing" | "na";
+  notes?: string;
+}
+
+export interface VendorReviewResult {
+  overallScore: number;
+  overallRisk: "low" | "medium" | "high" | "critical";
+  summary: string;
+  vendorInfo?: VendorInfo;
+  findings: VendorFinding[];
+  recommendations: VendorRecommendation[];
+  strengths: string[];
+  concerns: string[];
+  certifications: VendorCertification[];
+  compliance: VendorComplianceItem[];
+  scoreBreakdown: VendorScoreBreakdown;
+}
+
+// ··· AI Ethics Review Result ············································
+// Moved here from features/aiEthics/types.
+
+export interface EthicsFinding {
+  id: string;
+  title?: string;
+  category: string;
+  severity?: "low" | "medium" | "high" | "critical";
+  status: "passed" | "needs-improvement" | "warning" | "high-risk";
+  description: string;
+  evidence?: string;
+  recommendation: string;
+}
+
+export interface EthicsRecommendation {
+  category: string;
+  priority: "critical" | "high" | "medium" | "low";
+  items: string[];
+}
+
+export interface AIEthicsScoreBreakdown {
+  aiGovernance: number;
+  transparency: number;
+  fairness: number;
+  accountability: number;
+  privacyProtection: number;
+  humanOversight: number;
+  explainability: number;
+  riskManagement: number;
+}
+
+export interface AIEthicsDimension {
+  dimension: string;
+  score: number;
+  status: "strong" | "adequate" | "weak" | "absent";
+  notes?: string;
+}
+
+export interface StandardAlignment {
+  standard: string;
+  alignment: "strong" | "partial" | "weak" | "absent";
+  gaps?: string[];
+}
+
+export interface AIEthicsReviewResult {
+  overallScore: number;
+  overallRisk: "low" | "medium" | "high" | "critical";
+  summary: string;
+  findings: EthicsFinding[];
+  recommendations: EthicsRecommendation[];
+  strengths: string[];
+  concerns: string[];
+  scoreBreakdown: AIEthicsScoreBreakdown;
+  ethicsDimensions: AIEthicsDimension[];
+  standardAlignment?: StandardAlignment[];
+}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { apiUrl } from "../../../config";
 import { CustomFolder, SavedDraft } from "../types";
 import {
@@ -6,6 +6,7 @@ import {
   DEFAULT_PROMPT_LIBRARY,
   DEFAULT_QUESTIONS_LIBRARY,
 } from "../constants";
+import { isVaultFolderFile, isVaultSavedDraft } from "../utils/vaultDocumentFilters";
 
 export interface PromptLibraryItem {
   title: string;
@@ -17,9 +18,15 @@ export function useAnalyzeData(authToken: string) {
   const [savedDrafts, setSavedDrafts] = useState<SavedDraft[]>([]);
   const [promptLibrary, setPromptLibrary] = useState<PromptLibraryItem[]>([]);
   const [questionsLibrary, setQuestionsLibrary] = useState<string[]>([]);
+  /** File ids waiting to be selected after the next folders refresh. */
+  const pendingSelectIdsRef = useRef<Set<string>>(new Set());
 
-  const fetchFoldersAndDocs = async () => {
+  const fetchFoldersAndDocs = async (options?: { selectFileIds?: string[] }) => {
     try {
+      if (options?.selectFileIds?.length) {
+        options.selectFileIds.forEach((id) => pendingSelectIdsRef.current.add(id));
+      }
+
       const [foldersRes, docsRes] = await Promise.all([
         fetch(apiUrl("/api/folders"), { headers: { Authorization: `Bearer ${authToken}` } }),
         fetch(apiUrl("/api/documents"), { headers: { Authorization: `Bearer ${authToken}` } }),
@@ -28,31 +35,52 @@ export function useAnalyzeData(authToken: string) {
 
       const foldersData = await foldersRes.json();
       const docsData = await docsRes.json();
+      const pendingSelect = pendingSelectIdsRef.current;
 
-      const userFolders = foldersData.filter((f: any) => f.name !== SYSTEM_FOLDER_NAME);
+      // Include the default "Uploaded Documents" folder so composer uploads
+      // can be selected as analysis context immediately after indexing.
+      const analyzeFolders = [...foldersData].sort((a: any, b: any) => {
+        if (a.name === SYSTEM_FOLDER_NAME) return -1;
+        if (b.name === SYSTEM_FOLDER_NAME) return 1;
+        return String(a.name).localeCompare(String(b.name));
+      });
 
       setFolders((prev) =>
-        userFolders.map((f: any) => {
+        analyzeFolders.map((f: any) => {
           const existing = prev.find((p) => p.id === f.id);
-          const folderDocs = docsData.filter((d: any) => d.folder_id === f.id);
+          const folderDocs = docsData.filter(
+            (d: any) => d.folder_id === f.id && isVaultFolderFile(d)
+          );
+          const files = folderDocs.map((d: any) => {
+            const wasSelected =
+              existing?.files.find((fi) => fi.id === d.id)?.selected ??
+              (existing?.selected ?? false);
+            return {
+              id: d.id,
+              title: d.title,
+              selected: wasSelected || pendingSelect.has(d.id),
+            };
+          });
+          const allSelected = files.length > 0 && files.every((fi) => fi.selected);
+          const touchedPending = files.some((fi) => pendingSelect.has(fi.id));
           return {
             id: f.id,
             name: f.name,
             filesCount: folderDocs.length,
-            selected: existing?.selected ?? false,
-            expanded: existing?.expanded ?? false,
-            files: folderDocs.map((d: any) => ({
-              id: d.id,
-              title: d.title,
-              selected:
-                existing?.files.find((fi) => fi.id === d.id)?.selected ??
-                (existing?.selected ?? false),
-            })),
+            selected: allSelected,
+            expanded: Boolean(existing?.expanded) || touchedPending || f.name === SYSTEM_FOLDER_NAME,
+            files,
           } as CustomFolder;
         })
       );
 
-      const drafts = docsData.filter((d: any) => d.type === "draft");
+      // Clear only ids that are now present in the document list.
+      const knownIds = new Set(docsData.map((d: any) => d.id as string));
+      pendingSelectIdsRef.current = new Set(
+        [...pendingSelect].filter((id) => !knownIds.has(id))
+      );
+
+      const drafts = docsData.filter((d: any) => isVaultSavedDraft(d));
       setSavedDrafts((prev) =>
         drafts.map((d: any) => ({
           id: d.id,
@@ -132,6 +160,76 @@ export function useAnalyzeData(authToken: string) {
     );
   };
 
+  const deselectDocument = (
+    id: string,
+    type: "folder" | "file" | "draft",
+    folderId?: string
+  ) => {
+    if (type === "draft") {
+      setSavedDrafts((prev) =>
+        prev.map((d) => (d.id === id ? { ...d, selected: false } : d))
+      );
+      return;
+    }
+    if (type === "folder") {
+      setFolders((prev) =>
+        prev.map((f) =>
+          f.id === id
+            ? { ...f, selected: false, files: f.files.map((fi) => ({ ...fi, selected: false })) }
+            : f
+        )
+      );
+      return;
+    }
+    if (type === "file" && folderId) {
+      setFolders((prev) =>
+        prev.map((f) => {
+          if (f.id !== folderId) return f;
+          const updatedFiles = f.files.map((fi) =>
+            fi.id === id ? { ...fi, selected: false } : fi
+          );
+          return { ...f, files: updatedFiles, selected: false };
+        })
+      );
+    }
+  };
+
+  const selectFile = (folderId: string, fileId: string) => {
+    setFolders((prev) =>
+      prev.map((f) => {
+        if (f.id !== folderId) return f;
+        const updatedFiles = f.files.map((fi) =>
+          fi.id === fileId ? { ...fi, selected: true } : fi
+        );
+        const allSelected = updatedFiles.length > 0 && updatedFiles.every((fi) => fi.selected);
+        return { ...f, files: updatedFiles, selected: allSelected };
+      })
+    );
+  };
+
+  /** Select uploaded files by id; queues ids for the next refresh if not loaded yet. */
+  const selectFilesByIds = (fileIds: string[]) => {
+    if (fileIds.length === 0) return;
+    fileIds.forEach((id) => pendingSelectIdsRef.current.add(id));
+    const idSet = new Set(fileIds);
+    setFolders((prev) =>
+      prev.map((f) => {
+        const updatedFiles = f.files.map((fi) =>
+          idSet.has(fi.id) ? { ...fi, selected: true } : fi
+        );
+        const touched = updatedFiles.some((fi, i) => fi.selected !== f.files[i].selected);
+        if (!touched) return f;
+        const allSelected = updatedFiles.length > 0 && updatedFiles.every((fi) => fi.selected);
+        return {
+          ...f,
+          files: updatedFiles,
+          selected: allSelected,
+          expanded: true,
+        };
+      })
+    );
+  };
+
   return {
     folders,
     savedDrafts,
@@ -142,5 +240,8 @@ export function useAnalyzeData(authToken: string) {
     toggleFolderExpanded,
     toggleFileSelection,
     toggleDraftSelection,
+    deselectDocument,
+    selectFile,
+    selectFilesByIds,
   };
 }
