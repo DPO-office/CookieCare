@@ -11,6 +11,7 @@ import analyzeRoutes from "./analyze.js";
 // import draftingRoutes from "./drafting.js";
 import draftingRoutes from "../modules/drafting/api/route.js";
 import analysisRoutes from "../modules/analysis/api/route.js";
+import compareRoutes from "../modules/compare/api/route.js";
 import lawyerRoutes from "./lawyer.js";
 import negotiateRoutes from "./negotiate.js";
 import vulnerabilitiesRoutes from "./vulnerabilities.js";
@@ -54,7 +55,11 @@ router.use("/analyze", analyzeRoutes);
 // Refectoring the drafting in drafting folder in modules
 // router.use("/drafting", draftingRoutes);
 router.use("/drafting", draftingRoutes);
+<<<<<<< HEAD
 router.use("/analysis", analysisRoutes);
+=======
+router.use("/compare", compareRoutes);
+>>>>>>> origin/development
 
 
 router.use("/lawyer", lawyerRoutes);

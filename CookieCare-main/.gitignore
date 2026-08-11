@@ -21,3 +21,5 @@ backend/dist/
 backend/server.js
 drafting-module-context.md
 /generated/prisma
+
+/test

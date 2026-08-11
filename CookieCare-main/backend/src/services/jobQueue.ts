@@ -13,6 +13,7 @@ import { executePlaybookIngestionJob } from "./jobs/handlers/playbook-handler.js
 import { executeClauseIngestionJob } from "./jobs/handlers/clause-handler.js";
 import { executeTemplateIngestionJob } from "./jobs/handlers/template-handler.js";
 import { executeAnalysisPac } from "./jobs/handlers/analysis-handler.js";
+import { executeContractComparison } from "./jobs/handlers/compare-handler.js";
 
 export async function updateJobProgress(jobId: string, userId: string, progress: number, message?: string) {
   await withTransaction(userId, 'USER', async (client) => {
@@ -99,6 +100,9 @@ export async function addJobToQueue(userId: string, type: JobType, payload: any)
         case "TEMPLATE_INGEST":
           result = await executeTemplateIngestionJob(jobId, userId, payload);
           break;
+        case "contract_comparison":
+          result = await executeContractComparison(jobId, userId, payload);
+          break;
         default:
           throw new Error(`Unhandled job type: ${type}`);
       }
@@ -146,7 +150,8 @@ export type JobType =
   | "ai_ethics_review"
   | "PLAYBOOK_INGEST"
   | "CLAUSE_INGEST"
-  | "TEMPLATE_INGEST";
+  | "TEMPLATE_INGEST"
+  | "contract_comparison";
 
 export type JobStatus = "queued" | "processing" | "completed" | "failed";
 

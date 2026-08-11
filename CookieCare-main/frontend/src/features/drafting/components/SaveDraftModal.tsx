@@ -1,4 +1,4 @@
-import React from "react";
+import { X } from "lucide-react";
 
 interface SaveDraftModalProps {
   draftNameInput: string;
@@ -14,10 +14,35 @@ export default function SaveDraftModal({
   onSubmit,
 }: SaveDraftModalProps) {
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center p-4 z-50">
-      <div className="bg-white border border-gray-200 rounded-[20px] p-7 shadow-xl max-w-sm w-full">
-        <h3 className="text-[15px] font-bold text-gray-900 mb-1">Save draft</h3>
-        <p className="text-[12px] text-gray-500 mb-6">Give this draft a name to save it to your vault.</p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
+      <div
+        className="relative w-full max-w-[400px] rounded-[22px] border border-[#EBEBEB] bg-white p-7"
+        style={{
+          boxShadow:
+            "0 4px 6px -1px rgba(0,0,0,0.06), 0 24px 48px -12px rgba(0,0,0,0.14)",
+        }}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="save-draft-title"
+      >
+        <button
+          type="button"
+          onClick={onCancel}
+          className="absolute top-5 right-5 w-8 h-8 flex items-center justify-center rounded-full text-[#A1A1AA] hover:bg-[#F4F4F5] hover:text-[#52525B] transition-colors"
+          aria-label="Close"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        <h3
+          id="save-draft-title"
+          className="text-[17px] font-semibold text-[#18181B] tracking-[-0.02em] mb-1"
+        >
+          Save draft
+        </h3>
+        <p className="text-[13px] text-[#A1A1AA] leading-relaxed mb-6 pr-6">
+          Give this draft a name to save it to your vault.
+        </p>
 
         <form
           onSubmit={(e) => {
@@ -26,11 +51,14 @@ export default function SaveDraftModal({
             if (!trimmed) return;
             onSubmit(trimmed);
           }}
-          className="space-y-4"
+          className="space-y-5"
         >
           <div>
-            <label className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
-              Draft name <span className="text-rose-400 normal-case font-normal">*</span>
+            <label
+              htmlFor="save-draft-name-input"
+              className="block text-[11px] font-medium text-[#71717A] tracking-wide mb-2"
+            >
+              Draft name <span className="text-[#EF4444]">*</span>
             </label>
             <input
               id="save-draft-name-input"
@@ -40,16 +68,16 @@ export default function SaveDraftModal({
               placeholder="e.g. Acme Corp NDA Final"
               value={draftNameInput}
               onChange={(e) => setDraftNameInput(e.target.value)}
-              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-[13px] focus:outline-none focus:ring-2 focus:ring-gray-100 focus:border-gray-300 transition"
+              className="w-full rounded-xl border border-[#E4E4E7] bg-[#FAFAFA] px-4 py-3 text-[14px] text-[#18181B] placeholder:text-[#D4D4D8] outline-none transition-all focus:border-[#D4D4D8] focus:bg-white focus:shadow-[0_0_0_3px_rgba(24,24,27,0.05)]"
             />
           </div>
 
-          <div className="flex gap-3 pt-2">
+          <div className="flex gap-3 pt-1">
             <button
               id="save-draft-cancel-btn"
               type="button"
               onClick={onCancel}
-              className="flex-1 border border-gray-200 rounded-xl py-2.5 text-[13px] font-medium text-gray-600 hover:bg-gray-50 transition cursor-pointer"
+              className="flex-1 h-11 rounded-full border border-[#E4E4E7] bg-white text-[13px] font-medium text-[#52525B] hover:bg-[#FAFAFA] hover:border-[#D4D4D8] transition-colors"
             >
               Cancel
             </button>
@@ -57,7 +85,7 @@ export default function SaveDraftModal({
               id="save-draft-submit-btn"
               type="submit"
               disabled={!draftNameInput.trim()}
-              className="flex-1 -90 transition shadow-xs cursor-pointer disabled:opacity-40 text-white rounded-lg" style={{ background: "#2175D9" }}
+              className="flex-1 h-11 rounded-full bg-[#18181B] text-[13px] font-medium text-white hover:bg-[#27272A] active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Save draft
             </button>
@@ -67,5 +95,3 @@ export default function SaveDraftModal({
     </div>
   );
 }
-
-

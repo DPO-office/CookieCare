@@ -5,9 +5,11 @@
  * format consumed by generateEnterpriseReport().
  */
 import type { EnterpriseReportData, ReportFinding, ReportScoreItem } from "./reportTypes";
-import type { DPAReviewResult }     from "../../features/dpaReviewer/types";
-import type { VendorReviewResult }  from "../../features/vendorReview/types";
-import type { AIEthicsReviewResult } from "../../features/aiEthics/types";
+import type {
+  DPAReviewResult,
+  VendorReviewResult,
+  AIEthicsReviewResult,
+} from "../types";
 
 function nowFormatted(): string {
   return new Date().toLocaleDateString("en-GB", {

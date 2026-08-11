@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Sidebar, TopNav } from "./shared/layout";
+import { Sidebar } from "./shared/layout";
+import { SidebarProvider, SidebarInset } from "./shared/layout/Sidebar";
 import AuthModal from "./features/auth";
 import AdminPanel from "./features/admin";
 import DashboardHome from "./features/dashboard";
@@ -14,6 +15,8 @@ import VulnerabilityScannerView from "./features/vulnerabilityScanner";
 import DPAReviewer from "./features/dpaReviewer";
 import VendorReview from "./features/vendorReview";
 import AIEthicsScore from "./features/aiEthics";
+import RandTrustAI from "./features/randtrustAI";
+import SettingsView from "./features/settings";
 import { apiUrl } from "./config";
 import { LegalDocument } from "./shared/types";
 
@@ -123,27 +126,22 @@ export default function App() {
     redlinesPending: redlinesPendingCount,
   };
 
+  const isAdmin = currentUser.role === "ADMIN";
+
   return (
-    <div className="flex h-screen w-screen overflow-hidden font-sans bg-[#FAFAFB]">
+    <SidebarProvider>
+      <div className="flex h-screen w-screen overflow-hidden font-sans app-shell">
 
-      {/* 1. LEFT SIDE NAVIGATION */}
-      <Sidebar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        user={currentUser}
-        onLogout={handleLogout}
-      />
-
-      {/* 2. MAIN HUB INTERACTION PANE */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-
-        {/* TOP NAVIGATION BAR */}
-        <TopNav
-          user={currentUser}
+        <Sidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
+          user={currentUser}
+          isAdmin={isAdmin}
           onLogout={handleLogout}
         />
+
+        <SidebarInset>
+          <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
 
         {activeTab === "dashboard" && (
           <DashboardHome
@@ -165,6 +163,14 @@ export default function App() {
             authToken={authToken}
             onRefresh={fetchDocuments}
             onSelectDocument={setActiveDocument}
+          />
+        )}
+
+        {activeTab === "legal-compare" && (
+          <RandTrustAI
+            authToken={authToken}
+            user={currentUser}
+            mode="compare"
           />
         )}
 
@@ -201,7 +207,6 @@ export default function App() {
 
         {activeTab === "legal-vault" && (
           <LibraryManager
-            documents={documents}
             authToken={authToken}
             onRefresh={fetchDocuments}
             onOpenInDraftEditor={handleOpenInDraftEditor}
@@ -227,8 +232,23 @@ export default function App() {
         {activeTab === "admin-panel" && currentUser.role === "ADMIN" && (
           <AdminPanel authToken={authToken} />
         )}
-      </main>
 
-    </div>
+        {activeTab === "randtrust-ai" && (
+          <RandTrustAI
+            authToken={authToken}
+            user={currentUser}
+            mode="workspace"
+            onNavigateToCompare={() => setActiveTab("legal-compare")}
+          />
+        )}
+
+        {activeTab === "settings" && (
+          <SettingsView user={currentUser} />
+        )}
+          </main>
+        </SidebarInset>
+
+      </div>
+    </SidebarProvider>
   );
 }

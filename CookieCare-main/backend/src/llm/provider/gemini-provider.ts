@@ -156,4 +156,45 @@ export class GeminiProvider implements ILLMProvider {
       throw new Error(`Gemini JSON Processing Circuit failure: ${err.message}`);
     }
   }
+
+  /**
+   * JSON completion that also returns usageMetadata token counts.
+   * Called by executeJsonCompletionWithMeta in llm/index.ts.
+   */
+  async getJsonCompletionWithMeta<T>(
+    prompt: string,
+    systemInstruction: string,
+    jsonSchema: any,
+    runtimeConfig: TaskModelConfig
+  ): Promise<{ result: T; usage: { promptTokens: number; completionTokens: number; totalTokens: number } }> {
+    try {
+      const response = await this.ai.models.generateContent({
+        model: runtimeConfig.model,
+        contents: prompt,
+        config: {
+          systemInstruction: systemInstruction,
+          temperature: runtimeConfig.temperature,
+          responseMimeType: "application/json",
+          responseSchema: jsonSchema,
+          thinkingConfig: { thinkingBudget: resolveThinkingBudget(runtimeConfig.model) }
+        }
+      });
+
+      const rawText = response.text;
+      if (!rawText) {
+        throw new Error("Gemini returned an empty structured content response block.");
+      }
+
+      const meta = (response as any).usageMetadata;
+      const usage = {
+        promptTokens:     meta?.promptTokenCount     ?? 0,
+        completionTokens: meta?.candidatesTokenCount ?? 0,
+        totalTokens:      meta?.totalTokenCount      ?? 0,
+      };
+
+      return { result: JSON.parse(rawText) as T, usage };
+    } catch (err: any) {
+      throw new Error(`Gemini JSON Processing Circuit failure: ${err.message}`);
+    }
+  }
 }

@@ -25,7 +25,7 @@ export function buildRenderedDocumentHtml(
 
     const riskColor = RISK_CONFIG[m.riskLevel].clauseHighlight;
     const isActive = m.clauseId === selectedMarkupId;
-    const activeRing = isActive ? "ring-2 ring-offset-1 ring-gray-900" : "";
+    const activeRing = isActive ? "ring-2 ring-offset-1 ring-[#18181B]" : "";
 
     const spanOpen =
       `<span ` +

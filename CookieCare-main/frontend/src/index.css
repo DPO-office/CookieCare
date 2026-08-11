@@ -1,25 +1,158 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
-/* ── RandTrust Brand Color Tokens ────────────────────────────────────────────
-   Central CSS variable definitions for the primary brand color.
-   To retheme the app, update only the values in this block.
-   Components reference var(--brand-primary) etc. via inline styles or Tailwind.
+/* ── RandTrust Design System Tokens ─────────────────────────────────────────
+   Full token system per DESIGN_SYSTEM.md v1.0 (August 2026).
+   All structural colors, spacing, radius, shadow, and typography values
+   live here. Never use inline hex values for structural/semantic purposes.
    ────────────────────────────────────────────────────────────────────────── */
 @layer base {
   :root {
-    --brand-primary:        #2175D9;   /* Primary brand blue               */
-    --brand-primary-hover:  #1D66C2;   /* Hover state (~10% darker)        */
-    --brand-primary-active: #1956A7;   /* Active/pressed state (~18% darker) */
-    --brand-primary-light:  #EBF2FD;   /* Light tint for backgrounds       */
+    /* ── Typography ── */
+    --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+    --text-display:   28px;
+    --text-h1:        22px;
+    --text-h2:        18px;
+    --text-h3:        15px;
+    --text-body-lg:   15px;
+    --text-body:      14px;
+    --text-body-sm:   13px;
+    --text-label:     12px;
+    --text-caption:   11px;
+    --text-overline:  11px;
+    --text-mono:      13px;
+
+    /* ── Brand (primary interactive) ── */
+    --brand-primary:        #2175D9;
+    --brand-primary-hover:  #1D66C2;
+    --brand-primary-active: #1956A7;
+    --brand-primary-light:  #EBF2FD;
+    --color-brand:          #2175D9;
+    --color-brand-hover:    #1D66C2;
+    --color-brand-active:   #1956A7;
+    --color-brand-subtle:   #EBF2FD;
+    --color-brand-text:     #1A5BAD;
+
+    /* ── Backgrounds & Surfaces ── */
+    --color-bg-app:         #F7F8FA;
+    --color-bg-page:        #FFFFFF;
+    --color-surface-1:      #FFFFFF;
+    --color-surface-2:      #F9FAFB;
+    --color-surface-3:      #F3F4F6;
+    --color-surface-4:      #E9EAEC;
+
+    /* ── Borders ── */
+    --color-border:         #E4E4E7;
+    --color-border-subtle:  #F0F0F2;
+    --color-border-strong:  #D1D5DB;
+
+    /* ── Text ── */
+    --color-text-primary:   #111827;
+    --color-text-secondary: #374151;
+    --color-text-tertiary:  #6B7280;
+    --color-text-disabled:  #9CA3AF;
+    --color-text-inverse:   #FFFFFF;
+
+    /* ── Semantic: Success ── */
+    --color-success:        #059669;
+    --color-success-subtle: #ECFDF5;
+    --color-success-text:   #065F46;
+
+    /* ── Semantic: Warning ── */
+    --color-warning:        #D97706;
+    --color-warning-subtle: #FFFBEB;
+    --color-warning-text:   #92400E;
+
+    /* ── Semantic: Danger ── */
+    --color-danger:         #DC2626;
+    --color-danger-subtle:  #FEF2F2;
+    --color-danger-text:    #991B1B;
+
+    /* ── Semantic: Neutral ── */
+    --color-neutral:        #6B7280;
+    --color-neutral-subtle: #F9FAFB;
+    --color-neutral-text:   #374151;
+
+    /* ── Dark Mode (RandTrust AI) ── */
+    --color-dark-bg:        #0B0D10;
+    --color-dark-surface:   #0D0F13;
+    --color-dark-surface-2: #141720;
+    --color-dark-border:    rgba(255,255,255,0.07);
+    --color-dark-text:      rgba(255,255,255,0.82);
+    --color-dark-text-muted:rgba(255,255,255,0.45);
+
+    /* ── Spacing (4px base unit) ── */
+    --space-1:  4px;
+    --space-2:  8px;
+    --space-3:  12px;
+    --space-4:  16px;
+    --space-5:  20px;
+    --space-6:  24px;
+    --space-7:  28px;
+    --space-8:  32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+
+    /* ── Border Radius ── */
+    --radius-sm:   6px;
+    --radius-md:   8px;
+    --radius-lg:   12px;
+    --radius-xl:   16px;
+    --radius-2xl:  20px;
+    --radius-full: 9999px;
+
+    /* ── Shadows ── */
+    --shadow-none: none;
+    --shadow-xs:   0 1px 2px rgba(0,0,0,0.05);
+    --shadow-sm:   0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md:   0 4px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-lg:   0 8px 24px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.06);
+    --shadow-xl:   0 20px 60px rgba(0,0,0,0.12);
+
+    /* ── Motion ── */
+    --duration-fast: 100ms;
+    --duration-base: 150ms;
+    --duration-slow: 250ms;
+    --duration-page: 300ms;
+    --ease-standard: cubic-bezier(0.32, 0.72, 0, 1);
+    --ease-entry:    cubic-bezier(0.16, 1, 0.3, 1);
+
+    /* ── Layout ── */
+    --sidebar-width:           296px;
+    --sidebar-width-icon:      64px;
+    --sidebar-width-collapsed: 64px;
+    --topnav-height:           56px;
+  }
+
+  /* ── Base typography ── */
+  body {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    background: var(--color-bg-app);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ── Global focus-visible ring (keyboard users only) ── */
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
   }
 }
 
-/* ── Tailwind v4: expose brand color as a utility token ─────────────────── */
+/* ── Tailwind v4: expose design tokens as utility values ─────────────────── */
 @theme {
   --color-brand-primary:        var(--brand-primary);
   --color-brand-primary-hover:  var(--brand-primary-hover);
   --color-brand-primary-active: var(--brand-primary-active);
   --color-brand-primary-light:  var(--brand-primary-light);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
 /* ── Shared button utilities ─────────────────────────────────────────────────
@@ -30,23 +163,24 @@
   .btn-primary {
     display: inline-flex;
     align-items: center;
-    gap: 0.375rem;
-    background-color: var(--brand-primary);
-    color: #ffffff;
-    font-size: 0.8125rem;   /* 13px */
+    justify-content: center;
+    gap: var(--space-2);
+    background-color: var(--color-brand);
+    color: var(--color-text-inverse);
+    font-size: var(--text-body-sm);
     font-weight: 600;
-    padding: 0.625rem 1.25rem;
-    border-radius: 0.75rem;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-md);
     border: none;
     cursor: pointer;
-    transition: background-color 0.15s ease, opacity 0.15s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    transition: background-color var(--duration-fast) ease, opacity var(--duration-fast) ease;
+    box-shadow: none;
   }
   .btn-primary:hover:not(:disabled) {
-    background-color: var(--brand-primary-hover);
+    background-color: var(--color-brand-hover);
   }
   .btn-primary:active:not(:disabled) {
-    background-color: var(--brand-primary-active);
+    background-color: var(--color-brand-active);
   }
   .btn-primary:disabled {
     opacity: 0.5;
@@ -56,34 +190,112 @@
   .btn-secondary {
     display: inline-flex;
     align-items: center;
-    gap: 0.375rem;
-    background-color: #ffffff;
-    color: #374151;
-    font-size: 0.8125rem;
+    justify-content: center;
+    gap: var(--space-2);
+    background-color: var(--color-surface-1);
+    color: var(--color-text-secondary);
+    font-size: var(--text-body-sm);
     font-weight: 500;
-    padding: 0.5rem 1rem;
-    border-radius: 0.75rem;
-    border: 1px solid #e5e7eb;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
     cursor: pointer;
-    transition: background-color 0.15s ease, border-color 0.15s ease;
+    transition: background-color var(--duration-fast) ease, border-color var(--duration-fast) ease;
+    box-shadow: none;
   }
   .btn-secondary:hover:not(:disabled) {
-    background-color: #f9fafb;
-    border-color: #d1d5db;
+    background-color: var(--color-surface-3);
+    border-color: var(--color-border-strong);
   }
   .btn-secondary:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
+
+  /* Application shell */
+  .app-shell {
+    background: var(--color-bg-app);
+  }
+
+  .topnav-shell {
+    height: var(--topnav-height);
+    background: var(--color-surface-1);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: var(--shadow-xs);
+  }
+
+  .topnav-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: var(--radius-md);
+    color: var(--color-text-tertiary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background-color var(--duration-fast) ease, color var(--duration-fast) ease;
+  }
+  .topnav-icon-btn:hover {
+    background: var(--color-surface-3);
+    color: var(--color-text-primary);
+  }
+
+  .topnav-dropdown {
+    background: var(--color-surface-1);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+  }
+
+  .topnav-menu-item {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-body-sm);
+    color: var(--color-text-secondary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color var(--duration-fast) ease, color var(--duration-fast) ease;
+  }
+  .topnav-menu-item:hover {
+    background: var(--color-surface-3);
+    color: var(--color-text-primary);
+  }
 }
 
-/* Hide scrollbar while keeping scroll functionality */
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
+/* ── Scrollbar utilities ─────────────────────────────────────────────────── */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Thin scrollbar for secondary panels (sources, KB, popovers) */
+.scrollbar-thin::-webkit-scrollbar { width: 4px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: #E4E4E7; border-radius: 9999px; }
+.scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #D1D5DB; }
+.scrollbar-thin { scrollbar-width: thin; scrollbar-color: #E4E4E7 transparent; }
+
+/* ── AI streaming cursor ─────────────────────────────────────────────────── */
+/* Appended automatically while AI content is streaming */
+.streaming-cursor::after {
+  content: '▋';
+  display: inline-block;
+  width: 0.6em;
+  color: #2175D9;
+  animation: blink-cursor 0.7s step-end infinite;
+  margin-left: 1px;
+  vertical-align: baseline;
+  font-size: 0.85em;
 }
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
 }
 
 /* ── Markdown / rich-text typography ────────────────────────────────────────
