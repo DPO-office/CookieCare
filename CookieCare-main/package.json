@@ -16,7 +16,6 @@
     "test": "node --import tsx --test backend/test/**/*.test.ts",
     "clean": "if exist frontend\\dist rmdir /s /q frontend\\dist & if exist backend\\dist rmdir /s /q backend\\dist & if exist backend\\server.js del /f backend\\server.js"
   },
-
   "dependencies": {
     "@google/genai": "^2.11.0",
     "@google/generative-ai": "^0.24.1",
@@ -25,6 +24,7 @@
     "@sentry/node": "^10.56.0",
     "@sentry/profiling-node": "^10.56.0",
     "@tailwindcss/vite": "^4.1.14",
+    "@tiptap/extension-text-align": "^3.23.6",
     "@tiptap/extension-underline": "^3.23.6",
     "@tiptap/pm": "^3.23.6",
     "@tiptap/react": "^3.23.6",
