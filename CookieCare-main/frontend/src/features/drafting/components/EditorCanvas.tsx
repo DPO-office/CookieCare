@@ -1,9 +1,12 @@
-﻿import React from "react";
+﻿import React, { useState } from "react";
 import {
   Sparkles,
   ChevronDown,
   ArrowUp,
   X,
+  Bold,
+  Italic,
+  Underline,
 } from "lucide-react";
 import RichTextEditor from "../../../shared/components/RichTextEditor";
 import type { RichTextSelectionSnapshot } from "../../../shared/components/RichTextEditor";
@@ -23,7 +26,7 @@ const TONES = ["Formal", "Professional", "Casual", "Friendly"] as const;
 const AI_PANEL_WIDTH = 340;
 /** Roughly the panel's tallest state, used to decide which way it opens. */
 const AI_PANEL_HEIGHT = 330;
-const TOOLBAR_HEIGHT = 38;
+const TOOLBAR_HEIGHT = 44;
 const VIEWPORT_MARGIN = 12;
 
 interface EditorCanvasProps {
@@ -45,6 +48,8 @@ interface EditorCanvasProps {
   onSetSelectedTextRange: (r: { start: number; end: number } | null) => void;
   onSealDocument: () => void;
   onSetEditorContent: (content: string) => void;
+  /** When true, renders only the editor without outer scroll/paper chrome. */
+  embedded?: boolean;
 }
 
 export default function EditorCanvas({
@@ -66,7 +71,9 @@ export default function EditorCanvas({
   onSetSelectedTextRange,
   onSealDocument,
   onSetEditorContent,
+  embedded = false,
 }: EditorCanvasProps) {
+  const [, setFormatTick] = useState(0);
   const isAiPanelOpen = activeDropdown === "main";
 
   const closeMenu = () => {
@@ -85,7 +92,11 @@ export default function EditorCanvas({
     if (!ed) return;
     ed.chain().focus()[command]().run();
     onSetEditorContent(ed.getHTML());
+    setFormatTick((t) => t + 1);
   };
+
+  const isMarkActive = (mark: "bold" | "italic" | "underline") =>
+    tiptapEditorRef.current?.isActive(mark) ?? false;
 
   // The toolbar sits above the selection, so the panel normally opens downward
   // over the document. Near the bottom of the viewport there is no room for it,
@@ -98,7 +109,7 @@ export default function EditorCanvas({
     floatingMenuPos.y + TOOLBAR_HEIGHT + AI_PANEL_HEIGHT > window.innerHeight;
 
   return (
-    <div className="flex-1 relative overflow-y-auto bg-[#F7F8FA]">
+    <div className={embedded ? "relative w-full" : "flex-1 relative overflow-y-auto bg-[#F7F8FA]"}>
 
       {/* Floating selection toolbar */}
       {showFloatingMenu && selectedTextRange && (
@@ -111,84 +122,82 @@ export default function EditorCanvas({
               : { top: `${floatingMenuPos.y}px` }),
           }}
         >
-          {/* Toolbar */}
-          <div
-            className="bg-white border border-gray-200 rounded-xl p-1 flex items-center gap-0.5 select-none"
-            style={{ boxShadow: "0 8px 30px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06)" }}
-          >
-            {/* Inline format buttons */}
-            {[
-              { label: "B", className: "font-bold", command: "toggleBold" },
-              { label: "I", className: "italic", command: "toggleItalic" },
-              { label: "U", className: "underline", command: "toggleUnderline" },
-            ].map(({ label, className, command }) => (
+          {/* Floating selection toolbar */}
+          <div className="draft-selection-toolbar select-none">
+            <div className="draft-selection-toolbar-inner">
+              {[
+                { icon: Bold, mark: "bold" as const, command: "toggleBold" as const, title: "Bold" },
+                { icon: Italic, mark: "italic" as const, command: "toggleItalic" as const, title: "Italic" },
+                { icon: Underline, mark: "underline" as const, command: "toggleUnderline" as const, title: "Underline" },
+              ].map(({ icon: Icon, mark, command, title }) => (
+                <button
+                  key={mark}
+                  type="button"
+                  title={title}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => toggleMark(command)}
+                  className={`draft-selection-format-btn ${isMarkActive(mark) ? "active" : ""}`}
+                >
+                  <Icon className="w-3.5 h-3.5" strokeWidth={2.25} />
+                </button>
+              ))}
+
+              <span className="draft-selection-divider" aria-hidden />
+
               <button
-                key={label}
-                onClick={() => toggleMark(command as "toggleBold" | "toggleItalic" | "toggleUnderline")}
-                className={`w-7 h-7 flex items-center justify-center hover:bg-gray-100 text-gray-700 text-[11px] rounded-lg transition cursor-pointer ${className}`}
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  const next = isAiPanelOpen ? null : "main";
+                  onSetActiveDropdown(next);
+                }}
+                className={`draft-selection-ai-btn ${isAiPanelOpen ? "open" : ""}`}
               >
-                {label}
+                <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" strokeWidth={2} />
+                <span>Ask AI</span>
+                <ChevronDown
+                  className={`w-3 h-3 opacity-80 transition-transform duration-200 ${isAiPanelOpen ? "rotate-180" : ""}`}
+                  strokeWidth={2.25}
+                />
               </button>
-            ))}
 
-            <span className="w-px h-4 bg-gray-200 mx-0.5" />
+              <span className="draft-selection-divider" aria-hidden />
 
-            {/* AI trigger */}
-            <button
-              onClick={() => {
-                const next = isAiPanelOpen ? null : "main";
-                onSetActiveDropdown(next);
-              }}
-              className="h-7 inline-flex items-center gap-1.5 pl-2 pr-1.5 rounded-lg text-[11px] font-semibold text-white transition hover:opacity-90 cursor-pointer"
-              style={{ background: "#2175D9" }}
-            >
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              Ask AI
-              <ChevronDown className={`w-3 h-3 opacity-70 transition-transform ${isAiPanelOpen ? "rotate-180" : ""}`} />
-            </button>
-
-            <span className="w-px h-4 bg-gray-200 mx-0.5" />
-
-            <button
-              onClick={closeMenu}
-              aria-label="Dismiss"
-              className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition cursor-pointer"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
+              <button
+                type="button"
+                onClick={closeMenu}
+                aria-label="Dismiss"
+                className="draft-selection-close-btn"
+              >
+                <X className="w-3.5 h-3.5" strokeWidth={2} />
+              </button>
+            </div>
           </div>
 
-          {/* Refinement panel: describe the change, or pick a preset */}
+          {/* Refinement panel */}
           {isAiPanelOpen && (
-            <div
-              className="bg-white border border-gray-200 rounded-xl overflow-hidden"
-              style={{
-                width: `${AI_PANEL_WIDTH}px`,
-                boxShadow: "0 12px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
-              }}
-            >
+            <div className="draft-selection-panel">
               <form
                 onSubmit={(e) => { e.preventDefault(); submitAskAi(); }}
-                className="flex items-center gap-2 px-2.5 py-2 border-b border-gray-100"
+                className="draft-selection-panel-input-row"
               >
-                <Sparkles className="w-3.5 h-3.5 shrink-0" style={{ color: "#2175D9" }} />
+                <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" strokeWidth={2} />
                 <input
                   autoFocus
                   type="text"
                   value={askAiQuery}
                   onChange={(e) => onSetAskAiQuery(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Escape") closeMenu(); }}
-                  placeholder="Tell the AI how to rewrite this..."
-                  className="flex-1 min-w-0 bg-transparent text-[12px] text-gray-800 placeholder:text-gray-400 focus:outline-none"
+                  placeholder="Tell the AI how to rewrite this…"
+                  className="draft-selection-panel-input"
                 />
                 <button
                   type="submit"
                   disabled={!askAiQuery.trim()}
                   aria-label="Apply instruction"
-                  className="w-6 h-6 shrink-0 flex items-center justify-center rounded-lg text-white transition cursor-pointer disabled:opacity-25 disabled:cursor-not-allowed"
-                  style={{ background: "#2175D9" }}
+                  className="draft-selection-panel-send"
                 >
-                  <ArrowUp className="w-3.5 h-3.5" />
+                  <ArrowUp className="w-3.5 h-3.5" strokeWidth={2.25} />
                 </button>
               </form>
 
@@ -196,22 +205,24 @@ export default function EditorCanvas({
                 {QUICK_REFINEMENTS.map(({ label, type }) => (
                   <button
                     key={type}
+                    type="button"
                     onClick={() => onApplyRewrite(type)}
-                    className="w-full px-3 py-1.5 text-left text-[12px] text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition cursor-pointer"
+                    className="draft-selection-panel-item"
                   >
                     {label}
                   </button>
                 ))}
               </div>
 
-              <div className="px-3 pt-2 pb-2.5 border-t border-gray-100">
-                <p className="text-[11px] text-gray-400 mb-1.5">Change tone</p>
-                <div className="flex flex-wrap gap-1">
+              <div className="draft-selection-panel-tones">
+                <p className="draft-selection-panel-tones-label">Change tone</p>
+                <div className="flex flex-wrap gap-1.5">
                   {TONES.map((tone) => (
                     <button
                       key={tone}
+                      type="button"
                       onClick={() => onApplyRewrite("tone", tone)}
-                      className="px-2 py-1 rounded-lg border border-gray-200 text-[11px] text-gray-600 hover:border-[#2175D9]/40 hover:text-[#2175D9] hover:bg-[#2175D9]/[0.06] transition cursor-pointer"
+                      className="draft-selection-tone-chip"
                     >
                       {tone}
                     </button>
@@ -225,6 +236,16 @@ export default function EditorCanvas({
 
       {/* Document paper - held to the same max-w-5xl column as the generator
           form, so the draft does not stretch across the whole screen. */}
+      {embedded ? (
+        <RichTextEditor
+          content={editorContent}
+          readOnly={isFullySigned}
+          onChange={onEditorChange}
+          onEditorReady={onEditorReady}
+          onSelectionChange={onSelectionChange}
+          className="w-full"
+        />
+      ) : (
       <div className="draft-editor-workspace-scroll py-8 px-6 sm:px-10">
         <div className="draft-editor-body w-full max-w-5xl mx-auto bg-white border border-gray-200 rounded-[18px] shadow-xs px-10 py-10">
           <RichTextEditor
@@ -237,6 +258,7 @@ export default function EditorCanvas({
           />
         </div>
       </div>
+      )}
     </div>
   );
 }

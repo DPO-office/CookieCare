@@ -23,6 +23,19 @@ function findBackendRoot(startDir: string): string {
 const backendRoot = findBackendRoot(__dirname);
 dotenv.config({ path: path.join(backendRoot, ".env") });
 
+/**
+ * Windows / corporate dev environments often lack the CA chain required for
+ * Google OAuth (oauth2.googleapis.com). Compare chat and other Gemini calls
+ * fail with "unable to get local issuer certificate" without this.
+ * Set GEMINI_SSL_INSECURE=false to disable in development.
+ */
+if (
+  (process.env.NODE_ENV || "development") !== "production" &&
+  process.env.GEMINI_SSL_INSECURE !== "false"
+) {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+}
+
 function numberFromEnv(value: string | undefined, fallback: number): number {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
