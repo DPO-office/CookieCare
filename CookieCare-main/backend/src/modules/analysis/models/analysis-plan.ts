@@ -17,6 +17,7 @@ export type AnalysisToolName =
   | "get_playbook_rule"
   | "request_clarification"
   | "create_draft_task"
+  | "evaluate_matrix_row"
   | "render_output";
 
 export type AnalysisOutputSchema =
@@ -25,7 +26,7 @@ export type AnalysisOutputSchema =
   | "DiffResult"
   | "string";
 
-export type WorkUnitStatus = "pending" | "done" | "flagged" | "skipped";
+export type WorkUnitStatus = "pending" | "done" | "flagged" | "skipped" | "failed";
 
 export interface AnalysisWorkUnit {
   workUnitId: string;
@@ -34,6 +35,18 @@ export interface AnalysisWorkUnit {
   dependsOn: string[];
   outputSchema: AnalysisOutputSchema;
   status: WorkUnitStatus;
+  /** Can be 0 for classify / expected-clause hits. */
+  findingsEmitted?: number;
+  /** Required when findingsEmitted is 0 and status is done. */
+  completionNote?: string;
+}
+
+/** Deterministic PLAN focus resolved from skill.instructionFocusMap. */
+export interface InstructionFocus {
+  ruleIds: string[];
+  matrixRowIds: string[];
+  riskCategoryIds: string[];
+  instructionText: string;
 }
 
 export interface MissingClarification {
@@ -48,8 +61,15 @@ export interface AnalysisPlan {
   workUnits: AnalysisWorkUnit[];
   missingClarifications: MissingClarification[];
   outputForm: IntentClassification["outputForm"];
-  rendererSchemaId: "table" | "checklist" | "redline_diff" | "memo" | "qa_thread";
+  rendererSchemaId:
+    | "table"
+    | "checklist"
+    | "redline_diff"
+    | "memo"
+    | "qa_thread"
+    | "rights_matrix_memo";
   activeSkillIds?: string[];
+  focus?: InstructionFocus;
   /** Pack / taxonomy versions pinned for audit reproducibility. */
   pinnedVersions: {
     clauseTaxonomyVersion: string;

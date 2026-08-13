@@ -15,6 +15,7 @@ import {
 } from "../../models/intent.js";
 import { LEGAL_ADVICE_RE, heuristicClassify } from "./intent-heuristics.js";
 import { emitAnalysisToken } from "../../utils/stream-tokens.js";
+import { pacLog } from "../../utils/pac-log.js";
 
 export { heuristicClassify, LEGAL_ADVICE_RE } from "./intent-heuristics.js";
 
@@ -87,6 +88,7 @@ export async function classifyIntent(state: AnalysisState): Promise<AnalysisStat
     };
   }
 
+  pacLog("PLAN classify-intent ▶ LLM");
   const tracker = state.agent ? { tokensUsed: state.agent.tokensUsed } : undefined;
   let raw: {
     scope: ScopeAxis;
@@ -142,6 +144,7 @@ export async function classifyIntent(state: AnalysisState): Promise<AnalysisStat
   if (intent.operation === "out_of_scope") {
     const declineMessage = formatDecline(intent);
     emitAnalysisToken(state, declineMessage);
+    pacLog("PLAN classify-intent out_of_scope");
     return {
       ...state,
       intent,
@@ -149,6 +152,11 @@ export async function classifyIntent(state: AnalysisState): Promise<AnalysisStat
     };
   }
 
+  pacLog("PLAN classify-intent ✓", {
+    op: intent.operation,
+    form: intent.outputForm,
+    scope: intent.scope,
+  });
   return { ...state, intent, declineMessage: undefined };
 }
 

@@ -9,6 +9,10 @@ export type FindingKind =
 
 export type FindingStatus = "present" | "absent_expected" | "insufficient_evidence";
 
+export type FindingVisibility = "internal" | "user_facing";
+
+export type MatrixAddressing = "named" | "generic" | "absent";
+
 export interface Finding {
   findingId: string;
   kind: FindingKind;
@@ -23,4 +27,9 @@ export interface Finding {
   taxonomyVersion: string;
   workUnitId?: string;
   skillId?: string;
+  /** Audit vs user report. Default treated as user_facing when omitted. */
+  visibility?: FindingVisibility;
+  matrixRowId?: string;
+  matrixAddressing?: MatrixAddressing;
+  gap?: string;
 }

@@ -30,6 +30,9 @@ export async function executeAnalysisPac(
 async function handleCreate(jobId: string, userId: string, payload: any): Promise<any> {
   const sessionId = payload.sessionId || `an_${crypto.randomUUID()}`;
   const documentIds: string[] = payload.documentIds ?? [];
+  console.log(
+    `[Analysis PAC] job create jobId=${jobId} session=${sessionId} docs=${documentIds.length} library=${payload.promptLibraryId || "-"}`
+  );
 
   await updateJobProgress(jobId, userId, 15, "Loading documents...");
 
@@ -86,6 +89,9 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
   };
 
   const result = await analysisEntry.run(initial);
+  console.log(
+    `[Analysis PAC] job done jobId=${jobId} reason=${result.agent?.stoppedReason ?? "completed"} findings=${result.findings.length} phase=${result.agent?.phase}`
+  );
   await persistLedger(sessionId, result, userId);
 
   if (result.agent?.stoppedReason === "awaiting_user") {
@@ -122,6 +128,7 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
 
 async function handleResumeAsk(jobId: string, userId: string, payload: any): Promise<any> {
   const sessionId = String(payload.sessionId || "");
+  console.log(`[Analysis PAC] job resume-ask jobId=${jobId} session=${sessionId}`);
   await updateJobProgress(jobId, userId, 20, "Resuming after clarification...");
 
   const { rows } = await pool.query(

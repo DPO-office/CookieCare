@@ -1,5 +1,5 @@
 import type { AnalysisState } from "../../models/analysis-state.js";
-import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
+import type { AnalysisWorkUnit, AnalysisToolName } from "../../models/analysis-plan.js";
 import type { Finding } from "../../models/finding.js";
 import { segmentDocument, resolveSpan } from "../../segmentation/segment-document.js";
 import { topologicalBatches } from "../../utils/topo-batches.js";
@@ -9,8 +9,23 @@ import { checkExpectedClauses } from "./check-expected-clauses.js";
 import { flagRisk } from "./flag-risk.js";
 import { checkAgainstRule } from "./check-against-rule.js";
 import { renderOutput } from "./render-output.js";
+import { evaluateMatrixRow } from "./evaluate-matrix-row.js";
 import { insufficient } from "./act-utils.js";
 import { emitAnalysisToken, emitNewFindings } from "../../utils/stream-tokens.js";
+import { pacLog, pacWarn } from "../../utils/pac-log.js";
+
+const USER_VISIBLE_TOOL_HEADINGS: Partial<Record<AnalysisToolName, string>> = {
+  flag_risk: "### Flagging risks\n\n",
+  check_against_rule: "### Checking compliance rules\n\n",
+  evaluate_matrix_row: "### Evaluating data-subject rights\n\n",
+  render_output: "### Writing report\n\n",
+};
+
+const SILENT_SUCCESS_NOTES: Partial<Record<AnalysisToolName, string>> = {
+  classify_document: "classification only, no finding by design",
+  check_expected_clauses: "expected clause present, no gap to report",
+  get_span: "locator helper, no finding by design",
+};
 
 /**
  * ACT orchestrator — executes skill-scoped work-unit graph in dependency batches.
@@ -22,26 +37,70 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
   let units = state.plan.workUnits.map((u) => ({ ...u }));
   const runnable = targeted
     ? units.filter((u) => u.status === "flagged" || u.status === "pending")
-    : units.filter((u) => u.status !== "done");
+    : units.filter((u) => u.status !== "done" && u.status !== "failed");
 
   state = ensureSegmented(state);
-  emitAnalysisToken(state, "Running document analysis…\n\n");
-  void state.onProgress?.(40, "Running document analysis…");
+  if (!targeted) {
+    void state.onProgress?.(40, "Running document analysis…");
+  }
 
   const batches = topologicalBatches(runnable, 4);
   let findings = [...state.findings];
+  pacLog("ACT graph", {
+    mode: targeted ? "targeted-redo" : "full",
+    runnable: runnable.length,
+    batches: batches.length,
+    total: units.length,
+  });
 
   for (const batch of batches) {
     for (const unit of batch) {
       emitToolStart(state, unit.tool);
       const prior = findings;
-      const result = await runTool(state, unit, findings);
-      state = result.state;
-      findings = result.findings;
-      emitNewFindings(state, prior, findings);
-      units = units.map((u) =>
-        u.workUnitId === unit.workUnitId ? { ...u, status: "done" } : u
-      );
+      const started = Date.now();
+      pacLog(`ACT ▶ ${unit.tool}`, { id: unit.workUnitId });
+      try {
+        const result = await runTool(state, unit, findings);
+        state = result.state;
+        findings = result.findings;
+        emitNewFindings(state, prior, findings);
+        const emitted = findings.length - prior.length;
+        units = units.map((u) =>
+          u.workUnitId === unit.workUnitId
+            ? {
+                ...u,
+                status: "done" as const,
+                findingsEmitted: emitted,
+                completionNote:
+                  emitted === 0
+                    ? SILENT_SUCCESS_NOTES[unit.tool] ?? "completed with no findings"
+                    : u.completionNote,
+              }
+            : u
+        );
+        pacLog(`ACT ✓ ${unit.tool}`, {
+          id: unit.workUnitId,
+          ms: Date.now() - started,
+          findings: emitted,
+          tokens: state.agent?.tokensUsed,
+        });
+      } catch (err) {
+        pacWarn(`ACT ✗ ${unit.tool}`, {
+          id: unit.workUnitId,
+          ms: Date.now() - started,
+          err: err instanceof Error ? err.message : String(err),
+        });
+        units = units.map((u) =>
+          u.workUnitId === unit.workUnitId
+            ? {
+                ...u,
+                status: "failed" as const,
+                findingsEmitted: 0,
+                completionNote: err instanceof Error ? err.message : String(err),
+              }
+            : u
+        );
+      }
     }
   }
 
@@ -86,6 +145,8 @@ async function runTool(
       return flagRisk(state, unit, findings);
     case "check_against_rule":
       return checkAgainstRule(state, unit, findings);
+    case "evaluate_matrix_row":
+      return evaluateMatrixRow(state, unit, findings);
     case "render_output": {
       const next = await renderOutput(state, findings, unit);
       return { state: next, findings: next.findings };
@@ -114,16 +175,8 @@ async function runTool(
   }
 }
 
-function emitToolStart(state: AnalysisState, tool: string): void {
-  const labels: Record<string, string> = {
-    classify_document: "### Classifying document\n\n",
-    extract_clauses: "### Extracting clauses\n\n",
-    check_expected_clauses: "### Checking expected clauses\n\n",
-    flag_risk: "### Flagging risks\n\n",
-    check_against_rule: "### Checking compliance rules\n\n",
-    render_output: "### Writing report\n\n",
-  };
-  const label = labels[tool];
+function emitToolStart(state: AnalysisState, tool: AnalysisToolName): void {
+  const label = USER_VISIBLE_TOOL_HEADINGS[tool];
   if (label) emitAnalysisToken(state, label);
 }
 

@@ -8,9 +8,9 @@ import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
 import type { ClauseObject } from "../../models/clause-object.js";
 import type { Finding } from "../../models/finding.js";
 import { CLAUSE_TAXONOMY_VERSION } from "../../taxonomies/clause-taxonomy.js";
-import { RISK_TAXONOMY_VERSION, isRiskTaxonomyId } from "../../taxonomies/index.js";
+import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { getRuntimeTaxonomies } from "../../skills/registry.js";
-import { fullTextLikelyHasClause, insufficient, locateText } from "./act-utils.js";
+import { insufficient, locateText } from "./act-utils.js";
 
 async function extractClauses(
   state: AnalysisState,
@@ -109,6 +109,7 @@ async function extractClauses(
     })),
     taxonomyVersion: RISK_TAXONOMY_VERSION,
     workUnitId: unit.workUnitId,
+    visibility: "internal",
   };
 
   const documents = state.workspace.documents.map((d) =>
@@ -135,6 +136,13 @@ function heuristicExtract(
     [/\bgoverning law\b/i, "governing_law"],
     [/\bconfidential/i, "confidentiality"],
     [/\bpersonal data\b|\bprocessing\b/i, "data_protection"],
+    [/\bdata subject (request|right)/i, "data_subject_request_handling"],
+    [/\bassist(ance|s)? the controller\b|\bprocessor shall assist\b/i, "processor_assistance_obligation"],
+    [/\bdpia\b|\bdata protection impact|\bbreach notif/i, "security_dpia_assistance"],
+    [/\bdelet(e|ion)|return.*personal data|upon termination/i, "deletion_on_termination"],
+    [/\bsub-?processor\b|\bsubprocessor\b/i, "subprocessor_flow_down"],
+    [/\bstandard contractual clause|\binternational transfer|\badequacy/i, "international_transfer_mechanism"],
+    [/\bautomated decision|\bprofil(e|ing)\b/i, "automated_decision_disclosure"],
     [/\bpayment\b|\binvoice\b/i, "payment"],
     [/\bintellectual property\b|\bwork product\b/i, "intellectual_property"],
   ];

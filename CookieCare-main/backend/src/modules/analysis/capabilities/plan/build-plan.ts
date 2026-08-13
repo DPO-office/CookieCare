@@ -13,8 +13,11 @@ import {
 } from "../../taxonomies/clause-taxonomy.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { orderByDependency } from "../../utils/topo-batches.js";
-import { resolveSkills, buildActGraph } from "../../skills/resolve-skills.js";
+import { resolveSkills } from "../../skills/resolve-skills.js";
+import { buildActGraphDetailed } from "../../skills/build-act-graph.js";
+import { extractInstructionFocus } from "../../skills/extract-instruction-focus.js";
 import { getSkillById } from "../../skills/registry.js";
+import { pacLog } from "../../utils/pac-log.js";
 
 const SKILL_DRIVEN_OPERATIONS = new Set([
   "risk_flag",
@@ -89,37 +92,30 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
 
   const skills = state.activeSkills ?? [getSkillById("general-review")!];
   const primaryDocId = docIds[0];
+  const focus = extractInstructionFocus(state.request.instruction, skills);
 
-  const workUnits: AnalysisWorkUnit[] = orderByDependency(
-    buildActGraph({
-      docId: primaryDocId,
-      instruction: state.request.instruction,
-      skills,
-      intent,
-    })
-  );
+  const graph = buildActGraphDetailed({
+    docId: primaryDocId,
+    instruction: state.request.instruction,
+    skills,
+    intent,
+    focus,
+  });
+
+  const workUnits: AnalysisWorkUnit[] = orderByDependency(graph.workUnits);
 
   if (state.agent) {
     state.agent.docCount = docIds.length;
   }
-
-  const primarySkill = skills[0];
-  const rendererSchemaId =
-    intent.outputForm === "table"
-      ? "table"
-      : intent.outputForm === "memo"
-        ? "memo"
-        : primarySkill.defaultOperation === "compliance_check"
-          ? "checklist"
-          : "checklist";
 
   const plan: AnalysisPlan = {
     intent,
     workUnits,
     missingClarifications: [],
     outputForm: intent.outputForm,
-    rendererSchemaId,
+    rendererSchemaId: graph.rendererSchemaId,
     activeSkillIds: skills.map((s) => s.skillId),
+    focus,
     pinnedVersions: {
       clauseTaxonomyVersion:
         state.metadata.clauseTaxonomyVersion ?? CLAUSE_TAXONOMY_VERSION,
@@ -128,6 +124,15 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
       modelTask: "STRUCTURAL_JSON",
     },
   };
+
+  pacLog("PLAN graph", {
+    skills: skills.map((s) => s.skillId).join(","),
+    focus: focus ? "yes" : "no",
+    rules: focus?.ruleIds.join(",") || "(full)",
+    matrix: focus?.matrixRowIds.length ?? 0,
+    schema: graph.rendererSchemaId,
+    units: workUnits.map((u) => u.tool).join(" → "),
+  });
 
   return { ...state, plan, pendingSkillClarification: undefined };
 }

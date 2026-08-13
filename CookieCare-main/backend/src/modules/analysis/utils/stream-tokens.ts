@@ -6,6 +6,10 @@ export function emitAnalysisToken(state: AnalysisState, delta: string): void {
   state.onToken?.(delta);
 }
 
+export function isUserFacingFinding(finding: Finding): boolean {
+  return finding.visibility !== "internal";
+}
+
 export function formatFindingMarkdown(finding: Finding): string {
   const severity = finding.severity ? ` (${finding.severity})` : "";
   const quote = finding.evidence?.[0]?.quotedText
@@ -14,17 +18,13 @@ export function formatFindingMarkdown(finding: Finding): string {
   return `- **[${finding.status}] ${finding.category}**${severity}: ${finding.claim}${quote}`;
 }
 
-const SKIP_STREAM_KINDS = new Set(["summary_point"]);
-
 export function emitNewFindings(
   state: AnalysisState,
   previous: Finding[],
   next: Finding[]
 ): void {
   const priorIds = new Set(previous.map((f) => f.findingId));
-  const fresh = next.filter(
-    (f) => !priorIds.has(f.findingId) && !SKIP_STREAM_KINDS.has(f.kind)
-  );
+  const fresh = next.filter((f) => !priorIds.has(f.findingId) && isUserFacingFinding(f));
   if (!fresh.length) return;
   emitAnalysisToken(
     state,

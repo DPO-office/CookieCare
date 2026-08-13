@@ -13,6 +13,7 @@ import type { Finding } from "../../models/finding.js";
 import { isKnownRiskCategory } from "../../skills/registry.js";
 import { resolveRule } from "../act/check-against-rule.js";
 import { getSpanFromState } from "../act/execute-act-plan.js";
+import { pacLog } from "../../utils/pac-log.js";
 
 function normalize(s: string): string {
   return s.replace(/\s+/g, " ").trim().toLowerCase();
@@ -27,6 +28,11 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
   const fixPlan: FixItem[] = [];
   const findings = state.findings;
   const workUnits = state.plan?.workUnits ?? [];
+  pacLog("CRITIQUE start", {
+    findings: findings.length,
+    units: workUnits.length,
+    iter: (state.critique?.iteration ?? 0) + 1,
+  });
 
   // 1+2 Existence + substring gate (quotedText must appear in resolved span or doc)
   for (const f of findings) {
@@ -149,8 +155,9 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
     }
   }
 
-  // 3c Expected-clause completeness — every configured expected clause must have coverage
-  const expectedClauses = state.mergedExpectedClauses ?? [];
+  // 3c Expected-clause completeness — skipped when instruction focus is set
+  // (instruction-coverage gate below is the user's question, not the full skill tour).
+  const expectedClauses = state.plan?.focus ? [] : (state.mergedExpectedClauses ?? []);
   const primaryDocId = state.request.documentIds[0];
   const doc = state.workspace.documents.find((d) => d.docId === primaryDocId);
   const extractedTypes = new Set((doc?.clauses ?? []).map((c) => c.clauseType));
@@ -189,8 +196,19 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
     }
   }
 
-  // 3d Regime rule completeness
-  for (const rule of state.mergedRegimeRules ?? []) {
+  // 3d Regime rule completeness — only rules that were scheduled on the plan
+  const scheduledRuleIds = new Set(
+    workUnits
+      .filter((wu) => wu.tool === "check_against_rule")
+      .map((wu) => String(wu.input.ruleId ?? ""))
+      .filter(Boolean)
+  );
+  const rulesToCover = (state.plan?.focus?.ruleIds?.length
+    ? (state.mergedRegimeRules ?? []).filter((r) => state.plan!.focus!.ruleIds.includes(r.ruleId))
+    : state.mergedRegimeRules ?? []
+  ).filter((r) => scheduledRuleIds.size === 0 || scheduledRuleIds.has(r.ruleId));
+
+  for (const rule of rulesToCover) {
     const covered = findings.some((f) => f.kind === "compliance" && f.ruleId === rule.ruleId);
     results.push({
       itemId: `regime:${rule.ruleId}`,
@@ -207,30 +225,74 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
     }
   }
 
-  // 4 Completeness — every scheduled work unit must have at least one Finding
+  // 3e Instruction coverage — every focused rule / matrix row has a Finding
+  const focus = state.plan?.focus;
+  if (focus) {
+    for (const ruleId of focus.ruleIds) {
+      const covered = findings.some((f) => f.ruleId === ruleId);
+      results.push({
+        itemId: `focus-rule:${ruleId}`,
+        status: covered ? "pass" : "missing",
+        evidenceVerified: covered,
+        detail: covered ? undefined : `Instruction focus rule ${ruleId} has no finding`,
+      });
+      if (!covered) {
+        fixPlan.push({
+          workUnitId: `wu-rule-${ruleId.replace(/\./g, "-")}`,
+          instruction: `Evaluate in-focus rule ${ruleId}`,
+          sourceItemId: `focus-rule:${ruleId}`,
+        });
+      }
+    }
+    for (const rowId of focus.matrixRowIds) {
+      const covered = findings.some((f) => f.matrixRowId === rowId);
+      results.push({
+        itemId: `focus-matrix:${rowId}`,
+        status: covered ? "pass" : "missing",
+        evidenceVerified: covered,
+        detail: covered ? undefined : `Instruction focus matrix row ${rowId} has no finding`,
+      });
+      if (!covered) {
+        fixPlan.push({
+          workUnitId: `wu-matrix-${rowId.replace(/\./g, "-")}`,
+          instruction: `Evaluate matrix row ${rowId}`,
+          sourceItemId: `focus-matrix:${rowId}`,
+        });
+      }
+    }
+  }
+
+  // 4 Completeness — every scheduled unit reached a terminal status (Finding count is not the proxy)
   for (const wu of workUnits) {
-    const has = findings.some((f) => f.workUnitId === wu.workUnitId);
+    const terminal = wu.status === "done" || wu.status === "failed" || wu.status === "skipped";
     results.push({
       itemId: `complete:${wu.workUnitId}`,
-      status: has ? "pass" : "missing",
-      evidenceVerified: has,
+      status: terminal ? "pass" : "missing",
+      evidenceVerified: terminal,
       workUnitId: wu.workUnitId,
-      detail: has ? undefined : "Silent gap — work unit produced no Finding",
+      detail: terminal
+        ? wu.completionNote
+        : "Work unit did not reach a terminal status",
     });
-    if (!has) {
+    if (!terminal) {
       fixPlan.push({
         workUnitId: wu.workUnitId,
-        instruction: `Re-run ${wu.tool}; prior run produced no findings`,
+        instruction: `Re-run ${wu.tool}; unit did not complete`,
         sourceItemId: `complete:${wu.workUnitId}`,
       });
     }
   }
 
-  // 5 Entailment check (LLM) for present risk claims with evidence
+  // 5 Entailment check (LLM) for present risk/compliance claims with evidence
   const entailCandidates = findings.filter(
-    (f) => f.kind === "risk" && f.status === "present" && f.evidence.length > 0
+    (f) =>
+      (f.kind === "risk" || f.kind === "compliance") &&
+      f.status === "present" &&
+      f.evidence.length > 0 &&
+      f.visibility !== "internal"
   );
   if (entailCandidates.length > 0) {
+    pacLog("CRITIQUE entailment ▶ LLM", { candidates: entailCandidates.length });
     const entailResults = await runEntailment(state, entailCandidates);
     for (const r of entailResults) {
       results.push(r.result);
@@ -252,13 +314,22 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
 
   const uniqueFixes = dedupeFixes(fixPlan);
 
+  const materialDsrInsufficient = findings.some(
+    (f) =>
+      f.status === "insufficient_evidence" &&
+      f.visibility !== "internal" &&
+      (f.ruleId === "gdpr.art28.3.e" ||
+        f.matrixRowId === "gdpr.right.access" ||
+        f.category === "dsr_generic_no_named_rights")
+  );
+
   const report: CritiqueReport = {
     isGreen: !hasHardFail,
     iteration: (state.critique?.iteration ?? 0) + 1,
     results,
     fixPlan: hasHardFail && !skeletonMismatch ? uniqueFixes : skeletonMismatch ? [] : uniqueFixes,
     skeletonMismatch,
-    criticalFactSurfaced: false,
+    criticalFactSurfaced: materialDsrInsufficient,
   };
 
   return { ...state, critique: report };

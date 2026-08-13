@@ -13,6 +13,7 @@ export function insufficient(unit: AnalysisWorkUnit, claim: string): Finding {
     evidence: [],
     taxonomyVersion: RISK_TAXONOMY_VERSION,
     workUnitId: unit.workUnitId,
+    visibility: "internal",
   };
 }
 

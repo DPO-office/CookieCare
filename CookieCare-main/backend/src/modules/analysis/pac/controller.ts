@@ -9,6 +9,7 @@ import {
 import { markForRedo } from "./policy.js";
 import { appendHistory } from "../utils/persisted-state.js";
 import type { PacCapabilities } from "../capabilities/types.js";
+import { pacLog, pacWarn } from "../utils/pac-log.js";
 
 /**
  * Analysis PAC controller — TypeScript owns the loop; LLM never chooses phase hops.
@@ -20,31 +21,56 @@ export class PacController {
     const entryMode: EntryMode = state.entryMode ?? "CREATE";
     state.agent ??= initAgentRunState(entryMode);
     state.entryMode = entryMode;
+    const t0 = Date.now();
+    pacLog("run start", {
+      entry: entryMode,
+      session: state.request?.sessionId,
+      phase: state.agent.phase,
+      turn: state.agent.turn,
+      maxTurns: state.agent.maxTurns,
+    });
 
     while (state.agent?.phase !== "DONE") {
       if (state.agent.turn >= state.agent.maxTurns) {
-        return this.stop(state, "max_turns");
+        return this.stop(state, "max_turns", t0);
       }
       if (
         state.agent.tokensUsed >= state.agent.tokenBudget ||
         state.agent.docCount > state.agent.maxDocs ||
         state.agent.extractionUnitsUsed > state.agent.maxExtractionUnits
       ) {
-        return this.stop(state, "budget_exceeded");
+        return this.stop(state, "budget_exceeded", t0);
       }
 
-      switch (state.agent.phase) {
+      const phase = state.agent.phase;
+      const phaseStarted = Date.now();
+      pacLog(`▶ ${phase}`, {
+        turn: `${state.agent.turn}/${state.agent.maxTurns}`,
+        tokens: `${state.agent.tokensUsed}/${state.agent.tokenBudget}`,
+      });
+
+      switch (phase) {
         case "PLAN": {
           state = await this.capabilities.classifyIntent(state);
           if (state.intent?.operation === "out_of_scope" || state.declineMessage) {
             state.agent!.phase = "DONE";
             state.agent!.stoppedReason = "out_of_scope";
             state = this.audit(state, "PLAN — out_of_scope decline");
+            pacLog("PLAN out_of_scope → DONE", { ms: Date.now() - phaseStarted });
             break;
           }
           state = await this.capabilities.buildPlan(state);
           state = this.audit(state, "PLAN complete");
-          state.agent!.phase = nextPhaseAfterPlan(state);
+          const next = nextPhaseAfterPlan(state);
+          pacLog(`PLAN done → ${next}`, {
+            ms: Date.now() - phaseStarted,
+            skills: state.activeSkillIds?.join(",") || "(none)",
+            units: state.plan?.workUnits.length ?? 0,
+            focus: state.plan?.focus ? "yes" : "no",
+            schema: state.plan?.rendererSchemaId,
+            asks: state.plan?.missingClarifications.length ?? 0,
+          });
+          state.agent!.phase = next;
           break;
         }
 
@@ -52,13 +78,23 @@ export class PacController {
           state = await this.capabilities.askUser(state);
           state.agent!.stoppedReason = "awaiting_user";
           state = this.audit(state, "ASK — awaiting user");
+          pacLog("ASK pause — awaiting user", {
+            ms: Date.now() - phaseStarted,
+            questions: state.agent?.openQuestions?.length ?? 0,
+          });
           return state;
         }
 
         case "ACT": {
           state = await this.capabilities.executeActPlan(state);
           state = this.audit(state, "ACT complete");
-          state.agent!.phase = nextPhaseAfterAct(state);
+          const next = nextPhaseAfterAct(state);
+          pacLog(`ACT done → ${next}`, {
+            ms: Date.now() - phaseStarted,
+            findings: state.findings.length,
+            tokens: state.agent?.tokensUsed,
+          });
+          state.agent!.phase = next;
           break;
         }
 
@@ -67,6 +103,16 @@ export class PacController {
           state.agent!.turn++;
           const critique = state.critique!;
           const next = nextPhaseAfterCritique(state, critique);
+          const fails = critique.results.filter(
+            (r) => r.status === "fail" || r.status === "missing"
+          ).length;
+          pacLog(`CRITIQUE ${critique.isGreen ? "GREEN" : "not green"} → ${next}`, {
+            ms: Date.now() - phaseStarted,
+            iter: critique.iteration,
+            fail: fails,
+            fixes: critique.fixPlan.length,
+            skeleton: critique.skeletonMismatch ? "yes" : "no",
+          });
 
           if (next === "DONE") {
             state.agent!.phase = "DONE";
@@ -86,6 +132,15 @@ export class PacController {
             break;
           }
 
+          if (!critique.fixPlan.length) {
+            pacWarn("CRITIQUE → ACT with empty fixPlan; stopping to avoid a freeze loop");
+            state.agent!.phase = "DONE";
+            state.agent!.stoppedReason = critique.isGreen
+              ? "green"
+              : resolveStoppedReason(state, critique);
+            break;
+          }
+
           if (state.plan) {
             state.plan = {
               ...state.plan,
@@ -98,22 +153,35 @@ export class PacController {
         }
 
         default:
+          pacWarn(`unknown phase "${String(phase)}" → DONE`);
           state.agent!.phase = "DONE";
           state.agent!.stoppedReason = "blocked";
       }
     }
 
+    pacLog("run end", {
+      reason: state.agent?.stoppedReason ?? "done",
+      ms: Date.now() - t0,
+      findings: state.findings.length,
+      tokens: state.agent?.tokensUsed,
+    });
     return this.capabilities.persistAnalysis(state);
   }
 
   private async stop(
     state: AnalysisState,
-    reason: NonNullable<AnalysisState["agent"]>["stoppedReason"]
+    reason: NonNullable<AnalysisState["agent"]>["stoppedReason"],
+    t0?: number
   ): Promise<AnalysisState> {
     if (state.agent) {
       state.agent.stoppedReason = reason;
       state.agent.phase = "DONE";
     }
+    pacWarn(`stopped: ${reason}`, {
+      turn: state.agent?.turn,
+      tokens: state.agent?.tokensUsed,
+      ms: t0 ? Date.now() - t0 : undefined,
+    });
     state = this.audit(state, `stopped: ${reason}`);
     return this.capabilities.persistAnalysis(state);
   }

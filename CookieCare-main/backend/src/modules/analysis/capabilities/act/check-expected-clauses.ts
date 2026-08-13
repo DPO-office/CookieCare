@@ -54,6 +54,7 @@ export function checkExpectedClauses(
           taxonomyVersion: RISK_TAXONOMY_VERSION,
           workUnitId: unit.workUnitId,
           skillId,
+          visibility: "user_facing",
         });
         continue;
       }
@@ -69,6 +70,7 @@ export function checkExpectedClauses(
         taxonomyVersion: RISK_TAXONOMY_VERSION,
         workUnitId: unit.workUnitId,
         skillId,
+        visibility: "user_facing",
       });
     }
   }

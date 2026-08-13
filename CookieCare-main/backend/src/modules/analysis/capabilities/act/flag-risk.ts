@@ -9,7 +9,6 @@ import type { ClauseObject } from "../../models/clause-object.js";
 import type { Finding } from "../../models/finding.js";
 import type { EvidenceSpan } from "../../models/locator.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
-import { isKnownRiskCategory } from "../../skills/registry.js";
 import { getSkillById, mergeSkillRiskCategories } from "../../skills/registry.js";
 import { insufficient } from "./act-utils.js";
 
@@ -21,6 +20,7 @@ async function flagRisk(
   const docId = String(unit.input.docId ?? "");
   const instruction = String(unit.input.instruction ?? state.request.instruction ?? "");
   const skillIds = (unit.input.skillIds as string[]) ?? state.activeSkillIds ?? ["general-review"];
+  const focusIds = (unit.input.riskCategoryIds as string[] | undefined) ?? state.plan?.focus?.riskCategoryIds;
 
   const doc = state.workspace.documents.find((d) => d.docId === docId);
   const clauses = doc?.clauses ?? [];
@@ -46,6 +46,7 @@ async function flagRisk(
           evidence: [],
           taxonomyVersion: RISK_TAXONOMY_VERSION,
           workUnitId: unit.workUnitId,
+          visibility: "user_facing",
         },
       ],
     };
@@ -54,8 +55,13 @@ async function flagRisk(
   const skills = skillIds.map((id) => getSkillById(id)).filter(Boolean) as NonNullable<
     ReturnType<typeof getSkillById>
   >[];
-  const riskCats = mergeSkillRiskCategories(skills);
-  const riskIds = riskCats.map((r) => r.category);
+  const merged = mergeSkillRiskCategories(skills);
+  const scoped =
+    focusIds?.length ? merged.filter((r) => focusIds.includes(r.category)) : merged;
+  const riskCats = scoped.length > 0 ? scoped : merged;
+  const allowed = new Set(riskCats.map((r) => r.category));
+  allowed.add("other_known_risk");
+  const riskIds = [...allowed];
   const skillMd = skills
     .map((s) => state.skillMarkdown?.[s.skillId] ?? "")
     .join("\n")
@@ -68,7 +74,7 @@ async function flagRisk(
       type: "object",
       properties: {
         clauseId: { type: "string" },
-        category: { type: "string", enum: [...riskIds, "other_known_risk"] },
+        category: { type: "string", enum: riskIds },
         claim: { type: "string" },
         severity: { type: "string", enum: ["low", "medium", "high"] },
         quotedText: { type: "string" },
@@ -111,7 +117,7 @@ async function flagRisk(
     );
   } catch (err) {
     console.warn("[flagRisk] LLM failed; heuristic risks:", err);
-    raw = heuristicRisks(clauses, riskIds);
+    raw = heuristicRisks(clauses, [...allowed]);
   }
 
   if (state.agent && tracker) {
@@ -123,7 +129,7 @@ async function flagRisk(
 
   const riskFindings: Finding[] = raw.map((r, i) => {
     const clause = byId.get(r.clauseId);
-    const category = isKnownRiskCategory(r.category) ? r.category : "other_known_risk";
+    const category = allowed.has(r.category) ? r.category : "other_known_risk";
     const evidence: EvidenceSpan[] = [];
     if (clause) {
       const quote =
@@ -143,6 +149,7 @@ async function flagRisk(
       taxonomyVersion: RISK_TAXONOMY_VERSION,
       workUnitId: unit.workUnitId,
       skillId: primarySkillId,
+      visibility: "user_facing" as const,
     };
   });
 
@@ -183,6 +190,19 @@ function heuristicRisks(
         clauseId: c.clauseId,
         category: "one_sided_indemnity",
         claim: "Indemnity appears one-sided against the customer.",
+        severity: "medium",
+        quotedText: c.text.slice(0, 300),
+      });
+    }
+    if (
+      /data subject (request|right)/i.test(c.text) &&
+      !/\b(access|erasure|rectification|portability|article 1[5-9]|article 2[0-2])\b/i.test(c.text) &&
+      allowedCategories.includes("dsr_generic_no_named_rights")
+    ) {
+      out.push({
+        clauseId: c.clauseId,
+        category: "dsr_generic_no_named_rights",
+        claim: "Data-subject request language is generic and does not name Chapter III rights.",
         severity: "medium",
         quotedText: c.text.slice(0, 300),
       });

@@ -2,8 +2,8 @@ import { generalReviewSkill } from "./general-review/skill.config.js";
 import { commercialSkill } from "./commercial/skill.config.js";
 import { privacyGdprDpaSkill } from "./privacy-gdpr-dpa/skill.config.js";
 import type { AnalysisSkillConfig, SkillRiskCategory } from "./types.js";
-import { CLAUSE_TAXONOMY } from "../taxonomies/clause-taxonomy.js";
-import { RISK_TAXONOMY } from "../taxonomies/index.js";
+import { CLAUSE_TAXONOMY, CLAUSE_TAXONOMY_VERSION } from "../taxonomies/clause-taxonomy.js";
+import { RISK_TAXONOMY, RISK_TAXONOMY_VERSION } from "../taxonomies/index.js";
 
 const ALL_SKILLS: AnalysisSkillConfig[] = [
   generalReviewSkill,
@@ -48,8 +48,8 @@ export function buildRuntimeTaxonomies(skills: AnalysisSkillConfig[]): RuntimeTa
   return {
     clauseTypes: [...clauseSet],
     riskCategories: [...riskSet],
-    clauseTaxonomyVersion: "1.0.0",
-    riskTaxonomyVersion: "1.0.0",
+    clauseTaxonomyVersion: CLAUSE_TAXONOMY_VERSION,
+    riskTaxonomyVersion: RISK_TAXONOMY_VERSION,
   };
 }
 

@@ -20,18 +20,38 @@ export interface SkillRiskCategory {
   guidance: string;
 }
 
+export type RegimeCheckType = "mechanical" | "judgment" | "pattern_then_llm_judgment";
+
 export interface SkillRegimeRule {
   ruleId: string;
   ruleText: string;
-  checkType: "mechanical" | "judgment";
+  checkType: RegimeCheckType;
   /** Clause types this rule applies to; empty = any data_protection clause. */
   appliesToClauseTypes?: string[];
+  label?: string;
+  /** Authored citation for the renderer — never LLM-invented. */
+  legalHook?: string;
 }
 
 export interface ComparativeCheckConfig {
   checkId: string;
   clauseTypesToCompare: string[];
   guidance: string;
+}
+
+export interface RightsMatrixRow {
+  rowId: string;
+  article: string;
+  label: string;
+}
+
+export interface InstructionFocusMapEntry {
+  triggerPhrases: string[];
+  focus: {
+    ruleIds?: string[];
+    matrixRowIds?: string[];
+    riskCategoryIds?: string[];
+  };
 }
 
 export interface AnalysisSkillConfig {
@@ -50,6 +70,8 @@ export interface AnalysisSkillConfig {
 
   defaultOperation: AnalysisSkillOperation;
   comparativeChecks?: ComparativeCheckConfig[];
+  instructionFocusMap?: InstructionFocusMapEntry[];
+  rightsMatrixRows?: RightsMatrixRow[];
 }
 
 export interface SkillSelectionResult {
