@@ -10,6 +10,7 @@ import { flagRisk } from "./flag-risk.js";
 import { checkAgainstRule } from "./check-against-rule.js";
 import { renderOutput } from "./render-output.js";
 import { insufficient } from "./act-utils.js";
+import { emitAnalysisToken, emitNewFindings } from "../../utils/stream-tokens.js";
 
 /**
  * ACT orchestrator — executes skill-scoped work-unit graph in dependency batches.
@@ -24,15 +25,20 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
     : units.filter((u) => u.status !== "done");
 
   state = ensureSegmented(state);
+  emitAnalysisToken(state, "Running document analysis…\n\n");
+  void state.onProgress?.(40, "Running document analysis…");
 
   const batches = topologicalBatches(runnable, 4);
   let findings = [...state.findings];
 
   for (const batch of batches) {
     for (const unit of batch) {
+      emitToolStart(state, unit.tool);
+      const prior = findings;
       const result = await runTool(state, unit, findings);
       state = result.state;
       findings = result.findings;
+      emitNewFindings(state, prior, findings);
       units = units.map((u) =>
         u.workUnitId === unit.workUnitId ? { ...u, status: "done" } : u
       );
@@ -81,7 +87,7 @@ async function runTool(
     case "check_against_rule":
       return checkAgainstRule(state, unit, findings);
     case "render_output": {
-      const next = renderOutput(state, findings, unit);
+      const next = await renderOutput(state, findings, unit);
       return { state: next, findings: next.findings };
     }
     case "get_span":
@@ -106,6 +112,19 @@ async function runTool(
         ],
       };
   }
+}
+
+function emitToolStart(state: AnalysisState, tool: string): void {
+  const labels: Record<string, string> = {
+    classify_document: "### Classifying document\n\n",
+    extract_clauses: "### Extracting clauses\n\n",
+    check_expected_clauses: "### Checking expected clauses\n\n",
+    flag_risk: "### Flagging risks\n\n",
+    check_against_rule: "### Checking compliance rules\n\n",
+    render_output: "### Writing report\n\n",
+  };
+  const label = labels[tool];
+  if (label) emitAnalysisToken(state, label);
 }
 
 /** Exported for critique verification. */

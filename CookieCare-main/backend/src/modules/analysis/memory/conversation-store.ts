@@ -46,21 +46,54 @@ export function appendConversationTurns(
   return { ...base, conversation };
 }
 
+/** Map ASK answer keys (question id or field) onto intent/skill field names. */
+function answersByField(
+  state: AnalysisState,
+  answers: Record<string, string>
+): Record<string, string> {
+  const open = state.agent?.openQuestions ?? [];
+  const byId = new Map(open.map((q) => [q.id, q.field]));
+  const patch: Record<string, string> = {};
+
+  for (const [key, raw] of Object.entries(answers)) {
+    const value = String(raw ?? "").trim();
+    if (!value) continue;
+
+    const fromOpen = byId.get(key);
+    if (fromOpen) {
+      patch[fromOpen] = value;
+      continue;
+    }
+
+    const match = /^q-(.+)-(\d+)$/.exec(key);
+    if (match) {
+      patch[match[1]] = value;
+      continue;
+    }
+
+    patch[key] = value;
+  }
+
+  return patch;
+}
+
 export async function applyUserAnswers(
   state: AnalysisState,
   answers: Record<string, string>
 ): Promise<AnalysisState> {
+  const fieldAnswers = answersByField(state, answers);
+
   let next = appendConversationTurns(state, [
     {
       role: "user",
-      content: Object.entries(answers)
+      content: Object.entries(fieldAnswers)
         .map(([k, v]) => `${k}: ${v}`)
         .join("\n"),
     },
   ]);
 
   // Apply operation override if user confirmed risk_flag
-  if (answers.operation === "run_risk_flag" || answers.operation === "risk_flag") {
+  if (fieldAnswers.operation === "run_risk_flag" || fieldAnswers.operation === "risk_flag") {
     next = {
       ...next,
       intent: next.intent
@@ -77,8 +110,8 @@ export async function applyUserAnswers(
   }
 
   // Explicit skill selection from ambiguity ASK
-  if (answers.skillId) {
-    const skill = getSkillById(answers.skillId);
+  if (fieldAnswers.skillId) {
+    const skill = getSkillById(fieldAnswers.skillId);
     if (skill) {
       const skillMd = await loadSkillMarkdownForSkills([skill]);
       next = {
@@ -99,12 +132,12 @@ export async function applyUserAnswers(
   // Merge other axis answers into intent when present
   if (next.intent) {
     const intent = { ...next.intent };
-    if (answers.scope) {
-      intent.scope = answers.scope as typeof intent.scope;
+    if (fieldAnswers.scope) {
+      intent.scope = fieldAnswers.scope as typeof intent.scope;
       intent.confidence = { ...intent.confidence, scope: 1 };
     }
-    if (answers.outputForm) {
-      intent.outputForm = answers.outputForm as typeof intent.outputForm;
+    if (fieldAnswers.outputForm) {
+      intent.outputForm = fieldAnswers.outputForm as typeof intent.outputForm;
       intent.confidence = { ...intent.confidence, outputForm: 1 };
     }
     next = { ...next, intent };

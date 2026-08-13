@@ -198,6 +198,44 @@ if (!process.env.GOOGLE_CLOUD_PROJECT) {
 
 export const GEMINI_ENV_CONFIG = {
   projectId: process.env.GOOGLE_CLOUD_PROJECT,
+  /** Primary / sticky default region (also first entry if LOCATIONS unset). */
   location: process.env.GOOGLE_CLOUD_LOCATION || "us-east4",
+  /**
+   * Comma-separated Vertex regions for round-robin + 429 failover.
+   * Quotas are per-region — failing over multiplies available RPM.
+   */
+  locations: parseGeminiLocations(
+    process.env.GOOGLE_CLOUD_LOCATIONS,
+    process.env.GOOGLE_CLOUD_LOCATION || "us-east4"
+  ),
   timeoutMs: 45000,
 };
+
+function parseGeminiLocations(
+  rawList: string | undefined,
+  primary: string
+): string[] {
+  const defaults = [
+    primary,
+    "us-east4",
+    "us-west1",
+    "europe-west1",
+    "asia-southeast1",
+    "us-central1",
+  ];
+  const fromEnv = (rawList || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const merged = fromEnv.length > 0 ? fromEnv : defaults;
+  // Dedupe, keep order, ensure primary is present.
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const loc of [primary, ...merged]) {
+    const key = loc.trim();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(key);
+  }
+  return out;
+}

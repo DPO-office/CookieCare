@@ -6,8 +6,13 @@ import { detectGaps } from "./detect-gaps.js";
 import {
   isFactSatisfied,
   mergeCoreMissingFacts,
+  prioritizeMissingFacts,
   sanitizeKnownFacts,
 } from "./core-deal-facts.js";
+import {
+  applyDealIdentityToPlanGlossary,
+  buildDealIdentity,
+} from "../act/deal-identity.js";
 
 function dropSatisfiedGaps(
   missingFacts: MissingFact[],
@@ -41,13 +46,24 @@ export async function buildPlan(state: DraftState): Promise<DraftState> {
   });
 
   let missingFacts = dropSatisfiedGaps(gaps.missingFacts, factBag);
-  // Deterministic core ASK: parties + governing law always block when unknown.
-  missingFacts = mergeCoreMissingFacts(missingFacts, factBag);
+  // Deterministic core ASK: universal + document-type deal facts; promote LLM gaps to critical.
+  missingFacts = mergeCoreMissingFacts(
+    missingFacts,
+    factBag,
+    typePack.id || state.requirements?.contractType
+  );
   missingFacts = dropSatisfiedGaps(missingFacts, factBag);
+  missingFacts = prioritizeMissingFacts(missingFacts, 10);
 
   const criticalCount = missingFacts.filter((f) => f.severity === "critical").length;
   console.log(
     `[buildPlan] missingFacts total=${missingFacts.length} critical=${criticalCount} fields=${missingFacts.map((f) => `${f.field}:${f.severity}`).join(",") || "(none)"}`
+  );
+
+  const structuredFacts = { ...facts, ...factBag };
+  const identity = buildDealIdentity(
+    structuredFacts,
+    typePack.id || state.requirements?.contractType
   );
 
   const plan: DraftPlan = {
@@ -55,7 +71,7 @@ export async function buildPlan(state: DraftState): Promise<DraftState> {
     packId: typePack.id,
     title: typePack.id.toUpperCase(),
     workUnits,
-    structuredFacts: { ...facts, ...factBag },
+    structuredFacts,
     missingFacts,
     applicableRegimes: regimes.map((r) => r.id),
     jurisdictionId: jurisdiction?.id ?? jurisdictionId,
@@ -68,8 +84,16 @@ export async function buildPlan(state: DraftState): Promise<DraftState> {
     ],
     selectedClauseIds: [],
     negotiationPositions: state.retrieval.applicablePlaybookRules ?? [],
-    glossary: {},
+    glossary: identity
+      ? applyDealIdentityToPlanGlossary({}, identity)
+      : {},
   };
+
+  if (identity) {
+    console.log(
+      `[buildPlan] deal identity locked: ${identity.roleA}=${identity.partyA} | ${identity.roleB}=${identity.partyB}`
+    );
+  }
 
   return {
     ...state,

@@ -2,6 +2,11 @@ import type { DraftState } from "../../models/draft-state.js";
 import type { WorkUnit } from "../../models/draft-plan.js";
 import { executeBoundedCompletion, LLMProvider, LLMTask } from "../../../../llm/index.js";
 import { SYSTEM_CORE_GUARDRAILS } from "../../prompts/system-templates.js";
+import {
+  applyDealIdentityToPlanGlossary,
+  buildDealIdentity,
+  formatDealIdentityLock,
+} from "./deal-identity.js";
 
 /**
  * Draft a single section work unit.
@@ -9,7 +14,13 @@ import { SYSTEM_CORE_GUARDRAILS } from "../../prompts/system-templates.js";
  */
 export async function draftSection(state: DraftState, unit: WorkUnit): Promise<DraftState> {
   const tracker = state.agent ? { tokensUsed: state.agent.tokensUsed } : undefined;
-  const glossary = state.plan?.glossary ?? {};
+  const identity = buildDealIdentity(
+    state.structuredFacts ?? state.plan?.structuredFacts,
+    state.plan?.documentType
+  );
+  const glossary = identity
+    ? applyDealIdentityToPlanGlossary(state.plan?.glossary, identity)
+    : state.plan?.glossary ?? {};
   const approved = (state.retrieval.fallbackClauses ?? []).filter(
     (c) => unit.clauseTypes.includes(c.clauseType) && c.isApproved
   );
@@ -20,21 +31,24 @@ export async function draftSection(state: DraftState, unit: WorkUnit): Promise<D
     `Work unit id: ${unit.id}`,
     `Document type: ${state.plan?.documentType ?? "contract"}`,
     state.plan?.jurisdictionId ? `Governing law pack: ${state.plan.jurisdictionId}` : "",
+    identity ? formatDealIdentityLock(identity) : "",
     Object.keys(glossary).length
-      ? `Defined terms glossary (use these; do not renumber sections):\n${JSON.stringify(glossary)}`
+      ? `Defined terms glossary (locked party keys must not change):\n${JSON.stringify(glossary)}`
       : "",
     approved.length
       ? `Insert these approved clauses VERBATIM where applicable; only generate connective tissue:\n${approved
           .map((c) => `[${c.id}] ${c.text}`)
           .join("\n\n")}`
       : "",
-    `Facts: ${JSON.stringify(state.structuredFacts ?? {})}`,
+    `Facts (use these EXACT values — never invent parties, dates, or jurisdictions):\n${JSON.stringify(state.structuredFacts ?? {})}`,
     `Instructions: ${state.request.rawInstructions}`,
     state.fixPlan?.items
       .filter((f) => f.workUnitId === unit.id)
       .map((f) => `Fix instruction: ${f.instruction}`)
       .join("\n") || "",
-    "Use semantic anchors like [[SEC:definitions]] for cross-refs — never hardcode section numbers.",
+    "HARD RULE — NO PLACEHOLDERS: Do not emit [● DATE], [PARTY NAME], [PURPOSE], TBD, TODO, or similar brackets. If a fact is missing, omit that optional detail or phrase it as 'the date of this Agreement' / 'the parties' without brackets.",
+    "HARD RULE — PARTY CONSISTENCY: Never introduce alternate company names. Use only the DEAL IDENTITY LOCK parties above.",
+    "Cross-references: write them in prose (e.g. 'as defined in the Definitions section') — never leave [[SEC:...]] tokens in the output.",
     "Return markdown for this section only, starting with a ## heading.",
   ]
     .filter(Boolean)
@@ -69,12 +83,13 @@ export async function draftSection(state: DraftState, unit: WorkUnit): Promise<D
         })
       : [{ spanStart: 0, spanEnd: body.length, source: "generated" as const }];
 
-  // Extract simple defined terms from "X" means patterns to seed glossary
+  // Extract defined terms, but never overwrite locked deal-identity keys.
   const glossaryAdds: Record<string, string> = {};
+  const locked = new Set(Object.keys(identity?.glossary ?? {}));
   const termRe = /["“]([^"”]{2,60})["”]\s+means\s+/gi;
   let m: RegExpExecArray | null;
   while ((m = termRe.exec(body)) !== null) {
-    glossaryAdds[m[1]] = m[1];
+    if (!locked.has(m[1])) glossaryAdds[m[1]] = m[1];
   }
 
   const section = {
@@ -87,13 +102,16 @@ export async function draftSection(state: DraftState, unit: WorkUnit): Promise<D
   };
 
   const sections = [...(state.draft?.sections ?? []).filter((s) => s.workUnitId !== unit.id), section];
+  const nextGlossary = identity
+    ? applyDealIdentityToPlanGlossary({ ...glossary, ...glossaryAdds }, identity)
+    : { ...glossary, ...glossaryAdds };
 
   return {
     ...state,
     plan: state.plan
       ? {
           ...state.plan,
-          glossary: { ...state.plan.glossary, ...glossaryAdds },
+          glossary: nextGlossary,
         }
       : state.plan,
     draft: {

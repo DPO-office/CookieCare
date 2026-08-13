@@ -1,6 +1,15 @@
 import type { DraftState } from "../../models/draft-state.js";
 import type { CritiqueReport, CritiqueResult } from "../../models/critique-report.js";
 import { executeJsonCompletion, LLMProvider, LLMTask } from "../../../../llm/index.js";
+import {
+  findDraftPlaceholders,
+  isFactSatisfied,
+  missingFactsFromPlaceholders,
+} from "../plan/core-deal-facts.js";
+import {
+  buildDealIdentity,
+  findForeignPartyNames,
+} from "../act/deal-identity.js";
 
 function normalize(s: string): string {
   return s.replace(/\s+/g, " ").trim().toLowerCase();
@@ -38,12 +47,40 @@ function deterministicChecks(state: DraftState): CritiqueResult[] {
     });
   }
 
-  if ((doc.match(/\[.*?\]/g) || []).some((p) => /TBD|TODO|\[PARTY/i.test(p))) {
+  const placeholders = findDraftPlaceholders(doc);
+  if (placeholders.length > 0) {
     results.push({
       itemId: "placeholders",
       status: "fail",
+      evidenceQuote: placeholders.slice(0, 5).join("; "),
       evidenceVerified: false,
     });
+  }
+
+  const identity = buildDealIdentity(
+    state.structuredFacts ?? plan.structuredFacts,
+    plan.documentType
+  );
+  if (identity) {
+    const foreign = findForeignPartyNames(doc, identity);
+    if (foreign.length > 0) {
+      results.push({
+        itemId: "party-consistency",
+        status: "fail",
+        evidenceQuote: `Locked parties: ${identity.partyA} / ${identity.partyB}. Foreign names found: ${foreign.slice(0, 6).join("; ")}`,
+        evidenceVerified: false,
+      });
+    }
+    // Both locked parties should appear at least once in a finished draft.
+    const lower = doc.toLowerCase();
+    if (!lower.includes(identity.partyA.toLowerCase()) || !lower.includes(identity.partyB.toLowerCase())) {
+      results.push({
+        itemId: "party-presence",
+        status: "fail",
+        evidenceQuote: `Expected both "${identity.partyA}" and "${identity.partyB}" to appear in the draft.`,
+        evidenceVerified: false,
+      });
+    }
   }
 
   return results;
@@ -82,13 +119,15 @@ export async function runCritique(state: DraftState): Promise<DraftState> {
   }> = [];
 
   const checklist = state.plan?.mandatoryChecklist ?? [];
+  // Cap size: 43+ items + full draft routinely times out / "fetch failed" on Pro.
+  const critiqueChecklist = checklist.slice(0, 25);
   if (checklist.length > 0 && doc) {
     try {
       llmRaw = await executeJsonCompletion(
         [
           "Audit this draft against the checklist. For each item return status and a short evidenceQuote copied VERBATIM from the draft when status is pass.",
-          `Checklist:\n${JSON.stringify(checklist)}`,
-          `Draft:\n${doc.slice(0, 60_000)}`,
+          `Checklist (${critiqueChecklist.length} of ${checklist.length} items):\n${JSON.stringify(critiqueChecklist)}`,
+          `Draft:\n${doc.slice(0, 40_000)}`,
         ].join("\n\n"),
         "You are a legal contract checklist auditor. Never invent evidence quotes.",
         CRITIQUE_SCHEMA,
@@ -139,23 +178,89 @@ export async function runCritique(state: DraftState): Promise<DraftState> {
 
   // Treat only hard fails/missing as non-green; ambiguous alone does not block green if no fails
   const hasHardFail = results.some((r) => r.status === "fail" || r.status === "missing");
+  const placeholders = findDraftPlaceholders(doc);
+  const identity = buildDealIdentity(
+    state.structuredFacts ?? state.plan?.structuredFacts,
+    state.plan?.documentType
+  );
+  const foreignParties = identity ? findForeignPartyNames(doc, identity) : [];
+  const placeholderFacts = missingFactsFromPlaceholders(placeholders).filter(
+    (f) => !isFactSatisfied((state.structuredFacts ?? {}) as Record<string, unknown>, f.field)
+  );
+
+  let nextState: DraftState = state;
+  if (placeholderFacts.length > 0 && state.plan) {
+    const existingFields = new Set((state.plan.missingFacts ?? []).map((f) => f.field));
+    const toAdd = placeholderFacts.filter((f) => !existingFields.has(f.field));
+    if (toAdd.length > 0) {
+      nextState = {
+        ...state,
+        plan: {
+          ...state.plan,
+          missingFacts: [...(state.plan.missingFacts ?? []), ...toAdd],
+        },
+      };
+      console.warn(
+        `[runCritique] leftover placeholders → ASK fields=${toAdd.map((f) => f.field).join(",")}`
+      );
+    }
+  }
+
+  const partyFixItems =
+    identity && foreignParties.length > 0
+      ? (state.plan?.workUnits ?? [])
+          .filter((u) => u.status === "drafted" || u.status === "flagged" || u.status === "pending")
+          .map((u) => ({
+            workUnitId: u.id,
+            instruction: `PARTY LOCK: Rewrite this unit using ONLY "${identity.partyA}" as ${identity.roleA} and ONLY "${identity.partyB}" as ${identity.roleB}. Remove these foreign names: ${foreignParties.slice(0, 8).join(", ")}. Do not invent any other company names.`,
+            sourceChecklistItemId: "party-consistency",
+          }))
+      : [];
+
+  const placeholderFixItems =
+    placeholders.length > 0
+      ? [
+          {
+            workUnitId: "sec-parties",
+            instruction: `Remove all square-bracket placeholders (${placeholders.slice(0, 8).join(", ")}). Substitute real facts from structuredFacts; never leave [● ...] stubs.`,
+            sourceChecklistItemId: "placeholders",
+          },
+        ]
+      : [];
+
+  const mergedFix =
+    partyFixItems.length > 0 || placeholderFixItems.length > 0
+      ? [...placeholderFixItems, ...partyFixItems]
+      : hasHardFail
+        ? fixPlan
+        : [];
+
+  if (foreignParties.length > 0) {
+    console.warn(
+      `[runCritique] party drift detected foreign=${foreignParties.slice(0, 6).join(" | ")} locked=${identity?.partyA} / ${identity?.partyB}`
+    );
+  }
+
   const report: CritiqueReport = {
-    isGreen: !hasHardFail && !skeletonMissing,
+    isGreen:
+      !hasHardFail &&
+      !skeletonMissing &&
+      placeholders.length === 0 &&
+      foreignParties.length === 0,
     iteration: (state.critique?.iteration ?? 0) + 1,
     results,
-    fixPlan: hasHardFail ? fixPlan : [],
-    skeletonMismatch: skeletonMissing && results.filter((r) => r.itemId.startsWith("skeleton:") && r.status === "missing").length > planHalfMissing(state),
-    criticalFactSurfaced: false,
+    fixPlan: mergedFix,
+    skeletonMismatch: false,
+    criticalFactSurfaced: placeholderFacts.length > 0,
   };
 
-  // Simplify skeletonMismatch: only if majority of skeleton sections missing
   report.skeletonMismatch =
     deterministic.filter((r) => r.itemId.startsWith("skeleton:") && r.status === "missing").length >
     Math.max(1, Math.floor(deterministic.filter((r) => r.itemId.startsWith("skeleton:")).length / 2));
 
   void isGreen;
 
-  return { ...state, critique: report };
+  return { ...nextState, critique: report };
 }
 
 function planHalfMissing(state: DraftState): number {

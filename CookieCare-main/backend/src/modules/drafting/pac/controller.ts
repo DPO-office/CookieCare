@@ -74,18 +74,40 @@ export class PacController {
           }
 
           if (next === "ASK") {
+            // Keep redraft targets so after answers we rewrite placeholder sections.
+            const fixItems = critique.fixPlan ?? [];
+            if (fixItems.length > 0 && state.plan) {
+              state.plan = {
+                ...state.plan,
+                workUnits: markForRedraft(state.plan.workUnits, fixItems),
+              };
+              state.fixPlan = { items: fixItems, targetedOnly: true };
+            }
             state.agent!.phase = "ASK";
             break;
           }
 
-          // Targeted ACT only — never full regen
+          // Targeted ACT only — never full regen.
+          // If critique produced no fix targets, stop instead of spinning ACT(0) → CRITIQUE forever.
+          const fixItems = critique.fixPlan ?? [];
+          if (fixItems.length === 0) {
+            console.warn(
+              "[PAC] CRITIQUE → ACT with empty fixPlan; stopping loop (draft kept)."
+            );
+            state.agent!.phase = "DONE";
+            state.agent!.stoppedReason = state.draft?.formattedDocument
+              ? "green"
+              : resolveStoppedReason(state, critique);
+            break;
+          }
+
           if (state.plan) {
             state.plan = {
               ...state.plan,
-              workUnits: markForRedraft(state.plan.workUnits, critique.fixPlan),
+              workUnits: markForRedraft(state.plan.workUnits, fixItems),
             };
           }
-          state.fixPlan = { items: critique.fixPlan, targetedOnly: true };
+          state.fixPlan = { items: fixItems, targetedOnly: true };
           state.agent!.phase = "ACT";
           break;
         }

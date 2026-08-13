@@ -34,3 +34,5 @@ Use when personal data is processed by a third-party processor on behalf of the 
 - Schedule 1: Details of Processing (Categories of Data, Data Subjects, Purpose)[cite: 2]
 - Schedule 2: Technical and Organizational Measures (TOMs) summary[cite: 2]
 - Cross-Border Transfer Attachments (EU SCCs Module 2 / UK Addendum)[cite: 2]
+
+ 

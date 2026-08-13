@@ -10,7 +10,7 @@ import { LibraryModalColumns, libraryModalShellProps } from "./LibraryModalColum
 
 interface QuestionLibraryModalProps {
   questionsLibrary: string[];
-  onApply: (questionText: string) => void;
+  onApply: (questionText: string, categoryId?: string) => void;
   onClose: () => void;
 }
 
@@ -241,9 +241,9 @@ export default function QuestionLibraryModal({
 
   const handleApply = useCallback(() => {
     if (selectedQuestion) {
-      onApply(selectedQuestion.question);
+      onApply(selectedQuestion.question, activeCategoryId);
     }
-  }, [selectedQuestion, onApply]);
+  }, [selectedQuestion, onApply, activeCategoryId]);
 
   return (
     <>

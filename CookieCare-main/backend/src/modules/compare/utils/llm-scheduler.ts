@@ -90,6 +90,23 @@ function isRateLimitError(err: unknown): boolean {
   );
 }
 
+function isTransientNetworkError(err: unknown): boolean {
+  const msg = (err instanceof Error ? err.message : String(err)).toLowerCase();
+  return (
+    msg.includes("fetch failed") ||
+    msg.includes("network") ||
+    msg.includes("econnreset") ||
+    msg.includes("etimedout") ||
+    msg.includes("econnrefused") ||
+    msg.includes("socket hang up") ||
+    msg.includes("other side closed")
+  );
+}
+
+function isRetryableError(err: unknown): boolean {
+  return isRateLimitError(err) || isTransientNetworkError(err);
+}
+
 /**
  * Parse a Retry-After hint from an error message, if the provider includes one.
  * Returns ms to wait, or null when no hint is present.
@@ -224,29 +241,31 @@ export class GeminiScheduler {
         } catch (err: unknown) {
           this.stats.totalLlmMs += Date.now() - llmStart;
 
-          if (!isRateLimitError(err) || attempt >= MAX_RETRIES) {
-            throw err;
-          }
+        if (!isRetryableError(err) || attempt >= MAX_RETRIES) {
+          throw err;
+        }
 
-          attempt += 1;
-          this.stats.totalRetries += 1;
+        attempt += 1;
+        this.stats.totalRetries += 1;
+        if (isRateLimitError(err)) {
           this.stats.totalRateLimitHits += 1;
+        }
 
-          // Respect provider hint first
-          const hintMs = parseRetryAfterMs(err);
-          const expBackoff = Math.min(
-            BASE_BACKOFF_MS * Math.pow(2, attempt - 1),
-            MAX_BACKOFF_MS
-          );
-          const jitter = Math.random() * JITTER_MS;
-          const delay = hintMs !== null ? hintMs : expBackoff + jitter;
+        // Respect provider hint first
+        const hintMs = parseRetryAfterMs(err);
+        const expBackoff = Math.min(
+          BASE_BACKOFF_MS * Math.pow(2, attempt - 1),
+          MAX_BACKOFF_MS
+        );
+        const jitter = Math.random() * JITTER_MS;
+        const delay = hintMs !== null ? hintMs : expBackoff + jitter;
 
-          console.warn(
-            `[GeminiScheduler] 429 on ${label} — ` +
-              `attempt ${attempt}/${MAX_RETRIES}, ` +
-              `waiting ${Math.round(delay)}ms ` +
-              `(${hintMs !== null ? "provider hint" : "exponential backoff + jitter"})`
-          );
+        console.warn(
+          `[GeminiScheduler] ${isRateLimitError(err) ? "429" : "transient"} on ${label} — ` +
+            `attempt ${attempt}/${MAX_RETRIES}, ` +
+            `waiting ${Math.round(delay)}ms ` +
+            `(${hintMs !== null ? "provider hint" : "exponential backoff + jitter"})`
+        );
 
           this.stats.totalWaitMs += delay;
           await sleep(delay);

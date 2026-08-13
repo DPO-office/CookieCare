@@ -51,13 +51,16 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
 
   await updateJobProgress(jobId, userId, 30, "Running Analysis PAC...");
 
+  const onToken = (delta: string) => {
+    jobRegistry.broadcastToken(userId, jobId, delta);
+  };
+  onToken("Loaded documents. Planning analysis…\n\n");
+
   const initial: AnalysisState = {
     onProgress: async (percent, message) => {
       await updateJobProgress(jobId, userId, percent, message);
     },
-    onToken: (delta) => {
-      jobRegistry.broadcastToken(userId, jobId, delta);
-    },
+    onToken,
     entryMode: "CREATE",
     organizationId: payload.organizationId ? String(payload.organizationId) : undefined,
     agent: initAgentRunState("CREATE", { docCount: documentIds.length }),
@@ -154,6 +157,10 @@ async function handleResumeAsk(jobId: string, userId: string, payload: any): Pro
   state.onProgress = async (percent, message) => {
     await updateJobProgress(jobId, userId, percent, message);
   };
+  state.onToken = (delta) => {
+    jobRegistry.broadcastToken(userId, jobId, delta);
+  };
+  state.onToken("Continuing analysis with your answers…\n\n");
 
   const result = await analysisEntry.resumeAfterAsk(state);
   await persistLedger(sessionId, result, userId);

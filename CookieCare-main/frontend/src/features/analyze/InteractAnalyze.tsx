@@ -12,6 +12,7 @@ import { getSelectedDocuments, hasSelectedDocuments } from "./documentSelection"
 import { ACCEPTED_UPLOAD_ACCEPT_STRING } from "./constants";
 import { InteractAnalyzeProps, DocumentMode, AnswerStyle, SidePanelType } from "./types";
 import { createAnalyzeFolder } from "./api/analyzeApi";
+import { toPromptLibraryId } from "./api/analysisJobs";
 import { PREMIUM_CHAT_LANDING_STYLES } from "../../shared/styles/premiumChatLandingStyles";
 import { ANALYZE_STYLES } from "./styles/analyzeStyles";
 
@@ -44,6 +45,7 @@ export default function InteractAnalyze({
   const upload = useUpload(authToken, folders, fetchFoldersAndDocs, onRefresh);
 
   const [customPromptText, setCustomPromptText] = useState("");
+  const [promptLibraryId, setPromptLibraryId] = useState<string | undefined>();
   const [documentMode, setDocumentMode] = useState<DocumentMode>("unified");
   const [answerStyle, setAnswerStyle] = useState<AnswerStyle>("narrative");
   const [chatInput, setChatInput] = useState("");
@@ -88,7 +90,14 @@ export default function InteractAnalyze({
       return;
     }
     setValidationMessage("");
-    analysis.handleStartAnalysis(folders, savedDrafts, customPromptText, documentMode, answerStyle);
+    analysis.handleStartAnalysis(
+      folders,
+      savedDrafts,
+      customPromptText,
+      documentMode,
+      answerStyle,
+      promptLibraryId
+    );
   };
 
   const handleSendChatMessage = (e: React.FormEvent) => {
@@ -124,8 +133,9 @@ export default function InteractAnalyze({
     e.target.value = "";
   };
 
-  const handleApplyStarter = (text: string) => {
+  const handleApplyStarter = (text: string, libraryId?: string) => {
     setCustomPromptText(text);
+    setPromptLibraryId(toPromptLibraryId(libraryId));
     setValidationMessage("");
   };
 
@@ -137,18 +147,40 @@ export default function InteractAnalyze({
 
   if (analysis.viewMode === "report") {
     return (
-      <ReportView
-        activeReportDocName={analysis.activeReportDocName}
-        chatMessages={analysis.chatMessages}
-        chatInput={chatInput}
-        showCopyToast={analysis.showCopyToast}
-        onBack={() => analysis.setViewMode("form")}
-        onChatInputChange={setChatInput}
-        onSendMessage={handleSendChatMessage}
-        onCopy={analysis.handleCopyReport}
-        onDownload={analysis.handleDownloadReport}
-        onPrint={analysis.handlePrintReport}
-      />
+      <>
+        {!!analysis.analysisError && (
+          <AiProgressOverlay
+            visible
+            message={analysis.analysisProgress}
+            error={analysis.analysisError}
+            label="Analyzing"
+            subtitle={analysis.activeReportDocName || "document"}
+            onRetry={() => {
+              analysis.setAnalysisError("");
+              handleRunAnalysis();
+            }}
+            onDismiss={() => analysis.setAnalysisError("")}
+          />
+        )}
+        <ReportView
+          activeReportDocName={analysis.activeReportDocName}
+          chatMessages={analysis.chatMessages}
+          chatInput={chatInput}
+          showCopyToast={analysis.showCopyToast}
+          onBack={() => analysis.setViewMode("form")}
+          onChatInputChange={setChatInput}
+          onSendMessage={handleSendChatMessage}
+          onCopy={analysis.handleCopyReport}
+          onDownload={analysis.handleDownloadReport}
+          onPrint={analysis.handlePrintReport}
+          openQuestions={analysis.openQuestions}
+          askResolved={analysis.askResolved}
+          askDisabled={analysis.isAnalyzing}
+          onAskSubmit={analysis.handleResumeAsk}
+          isStreaming={analysis.isAnalyzing}
+          progressMessage={analysis.analysisProgress}
+        />
+      </>
     );
   }
 
@@ -158,24 +190,18 @@ export default function InteractAnalyze({
       <style>{ANALYZE_STYLES}</style>
 
       <div className="pcl-page flex-1 flex flex-col min-h-0 overflow-hidden relative">
-        {(analysis.isAnalyzing || !!analysis.analysisError) && (
+        {!!analysis.analysisError && analysis.viewMode === "form" && (
           <AiProgressOverlay
-            visible={analysis.isAnalyzing || !!analysis.analysisError}
+            visible
             message={analysis.analysisProgress}
             error={analysis.analysisError}
             label="Analyzing"
             subtitle={analysis.activeReportDocName || "document"}
-            onRetry={
-              analysis.analysisError
-                ? () => {
-                    analysis.setAnalysisError("");
-                    handleRunAnalysis();
-                  }
-                : undefined
-            }
-            onDismiss={
-              analysis.analysisError ? () => analysis.setAnalysisError("") : undefined
-            }
+            onRetry={() => {
+              analysis.setAnalysisError("");
+              handleRunAnalysis();
+            }}
+            onDismiss={() => analysis.setAnalysisError("")}
           />
         )}
 
@@ -190,6 +216,7 @@ export default function InteractAnalyze({
               value={customPromptText}
               onChange={(v) => {
                 setCustomPromptText(v);
+                setPromptLibraryId(undefined);
                 if (v.trim()) setValidationMessage("");
               }}
               onAnalyze={handleRunAnalysis}

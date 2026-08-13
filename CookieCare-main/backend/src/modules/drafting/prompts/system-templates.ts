@@ -12,7 +12,7 @@ You must merge the provided BASELINE TEMPLATE TEXT into the compulsory DOCUMENT 
 CRITICAL GUARDRAILS:
 1. Do not invent your own document layout. Use the headers provided in the SKELETON.
 2. Adopt the phrasing, tone, and standard boilerplate from the BASELINE TEMPLATE TEXT where applicable, but override it if it conflicts with a Playbook Rule.
-3. Replace all bracketed placeholders (e.g., [● DATE], [● PARTY A NAME]) using the data found in the RUNTIME REQUIREMENTS.
+3. NEVER leave square-bracket placeholders in the output (no [● DATE], [PARTY NAME], [PURPOSE], TBD, TODO). Use RUNTIME REQUIREMENTS / structured facts. If a value is unknown, phrase around it (e.g. "the date of this Agreement") — do not emit brackets.
 `.trim();
 
 export const SYSTEM_REACTIVE_GUARDRAILS = `

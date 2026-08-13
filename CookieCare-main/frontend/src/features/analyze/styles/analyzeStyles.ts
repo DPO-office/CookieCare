@@ -98,4 +98,18 @@ export const ANALYZE_STYLES = `
     0 0 0 3px rgba(24, 24, 27, 0.05),
     0 1px 3px rgba(0, 0, 0, 0.04);
 }
+
+.analyze-stream-caret {
+  display: inline-block;
+  width: 7px;
+  height: 14px;
+  margin-left: 2px;
+  background: #18181b;
+  vertical-align: -2px;
+  animation: analyze-caret-blink 1s steps(1) infinite;
+}
+
+@keyframes analyze-caret-blink {
+  50% { opacity: 0; }
+}
 `;

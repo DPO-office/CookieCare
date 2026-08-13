@@ -8,7 +8,7 @@ import { LibraryModalColumns, libraryModalShellProps } from "./LibraryModalColum
 
 interface PromptLibraryModalProps {
   promptLibrary: PromptLibraryItem[];
-  onApply: (promptText: string) => void;
+  onApply: (promptText: string, categoryId?: string) => void;
   onClose: () => void;
 }
 
@@ -232,9 +232,9 @@ export default function PromptLibraryModal({
 
   const handleApply = useCallback(() => {
     if (selectedPrompt) {
-      onApply(selectedPrompt.prompt);
+      onApply(selectedPrompt.prompt, activeCategoryId);
     }
-  }, [selectedPrompt, onApply]);
+  }, [selectedPrompt, onApply, activeCategoryId]);
 
   return (
     <>

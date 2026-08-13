@@ -47,3 +47,39 @@ export function hasSelectedDocuments(
 ): boolean {
   return getSelectedDocuments(folders, savedDrafts).length > 0;
 }
+
+/**
+ * Flatten vault selection (folders / files / drafts) into file ids for Analysis PAC.
+ * Selecting a folder includes every file in that folder.
+ */
+export function collectAnalysisDocumentIds(
+  folders: CustomFolder[],
+  savedDrafts: SavedDraft[]
+): { documentIds: string[]; firstTitle: string } {
+  const ids: string[] = [];
+  const seen = new Set<string>();
+  let firstTitle = "";
+
+  const add = (id: string, title: string) => {
+    if (!id || seen.has(id)) return;
+    seen.add(id);
+    ids.push(id);
+    if (!firstTitle) firstTitle = title;
+  };
+
+  for (const folder of folders) {
+    if (folder.selected) {
+      for (const file of folder.files) add(file.id, file.title || folder.name);
+      continue;
+    }
+    for (const file of folder.files) {
+      if (file.selected) add(file.id, file.title);
+    }
+  }
+
+  for (const draft of savedDrafts) {
+    if (draft.selected) add(draft.id, draft.title);
+  }
+
+  return { documentIds: ids, firstTitle };
+}

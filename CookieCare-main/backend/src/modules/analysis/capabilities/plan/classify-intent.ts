@@ -14,6 +14,7 @@ import {
   type StandardAxis,
 } from "../../models/intent.js";
 import { LEGAL_ADVICE_RE, heuristicClassify } from "./intent-heuristics.js";
+import { emitAnalysisToken } from "../../utils/stream-tokens.js";
 
 export { heuristicClassify, LEGAL_ADVICE_RE } from "./intent-heuristics.js";
 
@@ -77,10 +78,12 @@ export async function classifyIntent(state: AnalysisState): Promise<AnalysisStat
       outOfScopeReason: LEGAL_ADVICE_DECLINE_MESSAGE,
       suggestedReframes: LEGAL_ADVICE_REFRAMES,
     };
+    const declineMessage = formatDecline(intent);
+    emitAnalysisToken(state, declineMessage);
     return {
       ...state,
       intent,
-      declineMessage: formatDecline(intent),
+      declineMessage,
     };
   }
 
@@ -137,10 +140,12 @@ export async function classifyIntent(state: AnalysisState): Promise<AnalysisStat
   };
 
   if (intent.operation === "out_of_scope") {
+    const declineMessage = formatDecline(intent);
+    emitAnalysisToken(state, declineMessage);
     return {
       ...state,
       intent,
-      declineMessage: formatDecline(intent),
+      declineMessage,
     };
   }
 

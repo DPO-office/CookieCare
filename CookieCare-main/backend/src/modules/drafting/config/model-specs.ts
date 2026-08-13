@@ -227,5 +227,9 @@ if (!process.env.GOOGLE_CLOUD_PROJECT) {
 export const GEMINI_ENV_CONFIG = {
   projectId: process.env.GOOGLE_CLOUD_PROJECT,
   location: process.env.GOOGLE_CLOUD_LOCATION || "us-east4",
+  locations: (process.env.GOOGLE_CLOUD_LOCATIONS || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean),
   timeoutMs: 45000
 };

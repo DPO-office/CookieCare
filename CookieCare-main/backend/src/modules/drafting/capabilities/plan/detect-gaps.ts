@@ -18,7 +18,11 @@ export const ChecklistItemSchema = z.object({
   sourcePackId: z.string().describe("id of the pack this came from, e.g. 'gdpr-art28'"),
   requirement: z.string().describe("one sentence, stated as a testable pass/fail condition — not a summary of the law"),
   severity: z.enum(["critical", "warning"]),
-  sourceExcerpt: z.string().max(300).describe("the exact sentence(s) in the skill.md this requirement is grounded in"),
+  // Models often paste long skill.md passages; truncate instead of failing the whole draft.
+  sourceExcerpt: z
+    .string()
+    .transform((s) => (s.length > 300 ? `${s.slice(0, 297)}…` : s))
+    .describe("the exact sentence(s) in the skill.md this requirement is grounded in (≤300 chars)"),
   sectionTarget: z.string().optional().describe("workUnit id this belongs to, if it maps to one predictable section; omit if cross-cutting"),
 });
 
@@ -29,6 +33,26 @@ export const DetectGapsOutputSchema = z.object({
 
 export type DetectGapsOutput = z.infer<typeof DetectGapsOutputSchema>;
 
+/** Soft-normalize LLM JSON before Zod so length / enum quirks don't kill the job. */
+export function sanitizeDetectGapsRaw(raw: unknown): unknown {
+  if (!raw || typeof raw !== "object") return raw;
+  const obj = raw as Record<string, unknown>;
+  const checklist = Array.isArray(obj.checklist) ? obj.checklist : [];
+  return {
+    ...obj,
+    missingFacts: Array.isArray(obj.missingFacts) ? obj.missingFacts : [],
+    checklist: checklist.map((item) => {
+      if (!item || typeof item !== "object") return item;
+      const row = item as Record<string, unknown>;
+      const excerpt =
+        typeof row.sourceExcerpt === "string" ? row.sourceExcerpt : String(row.sourceExcerpt ?? "");
+      return {
+        ...row,
+        sourceExcerpt: excerpt.length > 300 ? `${excerpt.slice(0, 297)}…` : excerpt,
+      };
+    }),
+  };
+}
 
 export function buildDetectGapsUserMessage(input: {
   facts: Record<string, unknown>;
@@ -142,15 +166,19 @@ async function structuredDetectGapsCall(
 ): Promise<DetectGapsOutput> {
   const raw = await llmCall(user, system, DETECT_GAPS_JSON_SCHEMA, "DETECT_GAPS", "GEMINI");
 
-  const first = DetectGapsOutputSchema.safeParse(raw);
+  const first = DetectGapsOutputSchema.safeParse(sanitizeDetectGapsRaw(raw));
   if (first.success) return first.data;
+
+  console.warn(
+    `[detectGaps] schema issues after sanitize, retrying once: ${JSON.stringify(first.error.issues)}`
+  );
 
   const retryPrompt = `${user}
 
 Previous output failed schema validation:
 ${JSON.stringify(first.error.issues)}
 
-Return corrected JSON matching the schema exactly.`;
+Return corrected JSON matching the schema exactly. Keep every sourceExcerpt under 300 characters.`;
 
   const retried = await llmCall(
     retryPrompt,
@@ -160,7 +188,14 @@ Return corrected JSON matching the schema exactly.`;
     "GEMINI"
   );
 
-  return DetectGapsOutputSchema.parse(retried);
+  const second = DetectGapsOutputSchema.safeParse(sanitizeDetectGapsRaw(retried));
+  if (second.success) return second.data;
+
+  // Last resort: keep whatever checklist/facts we can; never crash the whole draft on excerpt length.
+  console.warn(
+    `[detectGaps] retry still invalid — returning best-effort empty checklist. issues=${JSON.stringify(second.error.issues)}`
+  );
+  return { missingFacts: [], checklist: [] };
 }
 
 /**

@@ -22,25 +22,25 @@ You will be given:
    even if you're confident they're true. A missed skill.md update is a bug
    to fix in the skill.md, not something for you to silently compensate for.
 
-2. NO INVENTED FACTS: Only ask about facts a skill document actually says
-   changes what must be drafted. Do not ask generic due-diligence questions.
-   Each MissingFact needs a one-sentence "reasonRequired" explaining what
-   would actually be different in the draft depending on the answer. If you
-   can't write that sentence honestly, don't ask the question.
+2. NO INVENTED FACTS / NO BRACKET DRAFTS: If a deal-specific value is missing
+   from known facts and drafting would otherwise insert a placeholder like
+   [● DATE], [PARTY NAME], [PURPOSE], SCC module, data categories, etc., you
+   MUST emit a MissingFact with severity "critical". Prefer asking the user
+   over letting ACT invent brackets. Each MissingFact needs a one-sentence
+   "reasonRequired" explaining what would actually be different in the draft.
+   Do NOT ask purely stylistic preference questions.
 
 3. SEVERITY DISCIPLINE:
    - "critical" (blocks drafting via ASK, or checklist item that must pass)
-     = getting this wrong would make the document non-compliant or legally
-     wrong in a way a court/regulator/counterparty would flag.
-   - "optional" / "warning" = stylistic, best-practice, or safely defaultable.
-   Do not mark something critical just because it's mentioned in a skill
-   document — most provisions are standard drafting, not gating facts.
-   DEAL-IDENTITY EXCEPTION (always critical when missing from known facts):
-   party legal names (parties / partyA / partyB) and governing law / venue.
-   Never invent these, never mark them optional, and never skip asking —
-   drafting with placeholders here produces an unusable agreement.
-   For all other facts, when genuinely unsure between critical and warning,
-   choose warning (CRITIQUE can still catch those later).
+     = getting this wrong would make the document non-compliant OR would force
+     a square-bracket / TBD placeholder into the delivered draft.
+   - "optional" / "warning" = stylistic, best-practice, or safely defaultable
+     without inventing party-specific data.
+   ALWAYS critical when missing from known facts:
+   party legal names, governing law / venue, effective / MSA dates, and for
+   DPAs also processing purpose, data categories, data subjects, and transfer
+   mechanism. Never invent these. Empty missingFacts when known facts are
+   sparse is a failure — ask before drafting.
 
 4. DEDUPE ACROSS PACKS: If two skill documents effectively require the same
    thing (e.g. both a regime pack and the jurisdiction pack require a specific
