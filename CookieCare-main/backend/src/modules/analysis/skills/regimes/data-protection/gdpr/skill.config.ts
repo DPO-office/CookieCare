@@ -1,15 +1,16 @@
-import type { AnalysisSkillConfig, RightsMatrixRow } from "../../types.js";
+import type { AnalysisSkillConfig } from "../../../types.js";
+import { buildDataProtectionRightsMatrix } from "../_family-template.js";
 
-const GDPR_RIGHTS_MATRIX: RightsMatrixRow[] = [
-  { rowId: "gdpr.right.access", article: "15", label: "Access" },
-  { rowId: "gdpr.right.rectification", article: "16", label: "Rectification" },
-  { rowId: "gdpr.right.erasure", article: "17", label: "Erasure" },
-  { rowId: "gdpr.right.restriction", article: "18", label: "Restriction" },
-  { rowId: "gdpr.right.notification", article: "19", label: "Notification to recipients" },
-  { rowId: "gdpr.right.portability", article: "20", label: "Portability" },
-  { rowId: "gdpr.right.object", article: "21", label: "Object" },
-  { rowId: "gdpr.right.automated_decisions", article: "22", label: "Automated decisions" },
-];
+const GDPR_RIGHTS_MATRIX = buildDataProtectionRightsMatrix("gdpr", [
+  { rowId: "gdpr.right.access", localArticleOrSection: "15", label: "Access" },
+  { rowId: "gdpr.right.rectification", localArticleOrSection: "16", label: "Rectification" },
+  { rowId: "gdpr.right.erasure", localArticleOrSection: "17", label: "Erasure" },
+  { rowId: "gdpr.right.restriction", localArticleOrSection: "18", label: "Restriction" },
+  { rowId: "gdpr.right.notification", localArticleOrSection: "19", label: "Notification to recipients" },
+  { rowId: "gdpr.right.portability", localArticleOrSection: "20", label: "Portability" },
+  { rowId: "gdpr.right.object", localArticleOrSection: "21", label: "Object" },
+  { rowId: "gdpr.right.automated_decisions", localArticleOrSection: "22", label: "Automated decisions" },
+]);
 
 const DSR_RISK_IDS = [
   "dsr_generic_no_named_rights",
@@ -21,20 +22,22 @@ const DSR_RISK_IDS = [
   "assistance_cost_or_consent_gate_risk",
 ];
 
-export const privacyGdprDpaSkill: AnalysisSkillConfig = {
-  skillId: "privacy-gdpr-dpa",
-  label: "GDPR Article 28 DPA Compliance",
+/**
+ * GDPR regime skill — independently reusable against DPA and non-DPA docs
+ * that touch personal data. Doc-shape checks live in doc-types/dpa.
+ */
+export const gdprRegimeSkill: AnalysisSkillConfig = {
+  skillId: "regimes/data-protection/gdpr",
+  axis: "regime",
+  family: "data-protection",
+  label: "GDPR Article 28 / Chapter III",
   version: "1.1.0",
   appliesToDocTypes: ["dpa"],
   triggerPhrases: [
     "gdpr",
     "article 28",
-    "data processing agreement",
-    "dpa",
-    "subprocessor",
     "data subject",
     "personal data",
-    "processor obligations",
     "international transfer",
     "breach notification",
     "data subject rights",
@@ -42,7 +45,7 @@ export const privacyGdprDpaSkill: AnalysisSkillConfig = {
     "erasure",
     "portability",
   ],
-  promptLibraryIds: ["privacy"],
+  promptLibraryIds: ["privacy", "privacy-gdpr-dpa", "gdpr"],
   clauseTypes: [
     "data_protection",
     "data_subject_request_handling",
@@ -52,20 +55,13 @@ export const privacyGdprDpaSkill: AnalysisSkillConfig = {
     "subprocessor_flow_down",
     "international_transfer_mechanism",
     "automated_decision_disclosure",
-    "definitions",
-    "termination",
-    "confidentiality",
-    "limitation_of_liability",
-    "indemnity",
-    "governing_law",
   ],
+  clauseTypeDefinitions: {
+    data_subject_request_handling: "How the processor handles data-subject requests.",
+    processor_assistance_obligation: "Processor duty to assist the controller with Chapter III rights.",
+    automated_decision_disclosure: "Disclosure / human review for automated decision-making.",
+  },
   expectedClauses: [
-    {
-      clauseType: "data_protection",
-      severityIfMissing: "high",
-      findingCategory: "other_known_risk",
-      textSynonyms: ["processing", "personal data", "processor", "controller", "subject matter"],
-    },
     {
       clauseType: "data_subject_request_handling",
       severityIfMissing: "high",
@@ -82,12 +78,6 @@ export const privacyGdprDpaSkill: AnalysisSkillConfig = {
       severityIfMissing: "high",
       findingCategory: "dsr_generic_no_named_rights",
       textSynonyms: ["assist the controller", "assistance", "fulfilment of the controller"],
-    },
-    {
-      clauseType: "limitation_of_liability",
-      severityIfMissing: "medium",
-      findingCategory: "missing_limitation_of_liability",
-      textSynonyms: ["limitation of liability"],
     },
   ],
   riskCategories: [
@@ -181,6 +171,13 @@ export const privacyGdprDpaSkill: AnalysisSkillConfig = {
       legalHook:
         "Controller remains liable under Art 12(3) / Art 83(5)(b) even where the processor's own language is vague.",
     },
+  ],
+  regimeRuleIds: [
+    "gdpr.art28.3.a",
+    "gdpr.art28.3.b",
+    "gdpr.art28.3.e",
+    "gdpr.art28.3.h",
+    "gdpr.art12.3",
   ],
   rightsMatrixRows: GDPR_RIGHTS_MATRIX,
   instructionFocusMap: [

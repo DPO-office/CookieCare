@@ -258,7 +258,7 @@ export function buildClarificationQuestion(
     questions.push({
       field: "standard",
       question: "Which standard should we use (none / a known skill pack)?",
-      options: ["none", "privacy-gdpr-dpa", "commercial", "general-review"],
+      options: ["none", "privacy", "commercial", "general-review"],
     });
   }
   return { axes: axes as ClarificationAxis[], questions, docTypeHint };

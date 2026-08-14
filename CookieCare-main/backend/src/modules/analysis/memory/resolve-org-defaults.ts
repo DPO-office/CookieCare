@@ -48,7 +48,7 @@ export async function applyOrgRoutingDefaults(
     const preferred = preferredSkillId(profile);
     const skill = preferred ? getSkillById(preferred) : undefined;
     const currentId = next.activeSkillIds?.[0];
-    if (skill && skill.skillId !== currentId && skill.skillId !== "general-review") {
+    if (skill && skill.skillId !== currentId && skill.skillId !== "_global") {
       attributions.push(
         `Defaulting to ${skill.label} based on your org's prior analyses — override anytime.`
       );

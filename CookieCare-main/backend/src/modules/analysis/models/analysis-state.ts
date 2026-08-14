@@ -68,6 +68,8 @@ export interface AnalysisState {
   orgMemory?: OrgMemoryProfile;
   /** One-line notes when memory biased routing/defaults — never finding substance. */
   memoryAttributions?: string[];
+  /** Draft-status skills selected for a real request — must appear in render output. */
+  partialCoverageWarning?: string[];
   findings: Finding[];
   draftTasks: DraftTask[];
   renderedOutput?: string;

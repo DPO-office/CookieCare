@@ -15,7 +15,7 @@ export function checkExpectedClauses(
   findings: Finding[]
 ): { state: AnalysisState; findings: Finding[] } {
   const docId = String(unit.input.docId ?? "");
-  const skillIds = (unit.input.skillIds as string[]) ?? state.activeSkillIds ?? ["general-review"];
+  const skillIds = (unit.input.skillIds as string[]) ?? state.activeSkillIds ?? ["_global"];
 
   const doc = state.workspace.documents.find((d) => d.docId === docId);
   if (!doc) {

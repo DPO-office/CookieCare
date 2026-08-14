@@ -19,7 +19,7 @@ async function flagRisk(
 ): Promise<{ state: AnalysisState; findings: Finding[] }> {
   const docId = String(unit.input.docId ?? "");
   const instruction = String(unit.input.instruction ?? state.request.instruction ?? "");
-  const skillIds = (unit.input.skillIds as string[]) ?? state.activeSkillIds ?? ["general-review"];
+  const skillIds = (unit.input.skillIds as string[]) ?? state.activeSkillIds ?? ["_global"];
   const focusIds = (unit.input.riskCategoryIds as string[] | undefined) ?? state.plan?.focus?.riskCategoryIds;
   const relatedNotRequested = unit.input.relatedNotRequested === true;
 

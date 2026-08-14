@@ -7,6 +7,7 @@ import {
   type ConversationRole,
 } from "../models/conversation.js";
 import { getSkillById } from "../skills/registry.js";
+import { selectSkills } from "../skills/select-skills.js";
 import { loadSkillMarkdownForSkills } from "../skills/load-skill-md.js";
 import {
   mergeExpectedClauses,
@@ -113,28 +114,43 @@ export async function applyUserAnswers(
   if (
     !fieldAnswers.skillId &&
     (fieldAnswers.standard === "privacy-gdpr-dpa" ||
+      fieldAnswers.standard === "privacy" ||
       fieldAnswers.standard === "commercial" ||
-      fieldAnswers.standard === "general-review")
+      fieldAnswers.standard === "general-review" ||
+      fieldAnswers.standard === "_global")
   ) {
     fieldAnswers.skillId = fieldAnswers.standard;
   }
 
-  // Explicit skill selection from ambiguity ASK
+  // Explicit skill selection from ambiguity ASK — use composition for library aliases
   if (fieldAnswers.skillId) {
-    const skill = getSkillById(fieldAnswers.skillId);
-    if (skill) {
-      const skillMd = await loadSkillMarkdownForSkills([skill]);
+    const composed = selectSkills({
+      instruction: next.request.instruction,
+      promptLibraryId: fieldAnswers.skillId,
+      docType:
+        next.workspace.documents.find((d) => d.docId === next.request.documentIds[0])?.docType ??
+        "unknown",
+    });
+    const skills =
+      composed.skills.length > 0
+        ? composed.skills
+        : ([getSkillById(fieldAnswers.skillId)].filter(Boolean) as NonNullable<
+            ReturnType<typeof getSkillById>
+          >[]);
+    if (skills.length > 0) {
+      const skillMd = await loadSkillMarkdownForSkills(skills);
       next = {
         ...next,
-        activeSkills: [skill],
-        activeSkillIds: [skill.skillId],
-        mergedClauseTypes: mergeSkillClauseTypes([skill]),
-        mergedRiskCategories: mergeSkillRiskCategories([skill]).map((r) => r.category),
-        mergedExpectedClauses: mergeExpectedClauses([skill]),
-        mergedRegimeRules: mergeRegimeRules([skill]),
+        activeSkills: skills,
+        activeSkillIds: skills.map((s) => s.skillId),
+        mergedClauseTypes: mergeSkillClauseTypes(skills),
+        mergedRiskCategories: mergeSkillRiskCategories(skills).map((r) => r.category),
+        mergedExpectedClauses: mergeExpectedClauses(skills),
+        mergedRegimeRules: mergeRegimeRules(skills),
         skillMarkdown: skillMd,
         skillSelectionPath: "free_text",
         pendingSkillClarification: undefined,
+        partialCoverageWarning: composed.partialCoverageWarning,
       };
     }
   }
@@ -163,8 +179,10 @@ export async function applyUserAnswers(
         intent.confidence = { ...intent.confidence, standard: 1 };
       } else if (
         fieldAnswers.standard === "privacy-gdpr-dpa" ||
+        fieldAnswers.standard === "privacy" ||
         fieldAnswers.standard === "commercial" ||
-        fieldAnswers.standard === "general-review"
+        fieldAnswers.standard === "general-review" ||
+        fieldAnswers.standard === "_global"
       ) {
         intent.standard = `regime_pack:${fieldAnswers.standard}`;
         intent.unresolvedStandard = undefined;

@@ -116,7 +116,7 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     };
   }
 
-  const skills = state.activeSkills ?? [getSkillById("general-review")!];
+  const skills = state.activeSkills ?? [getSkillById("_global")!];
   const primaryDocId = docIds[0];
   const focus = extractInstructionFocus(state.request.instruction, skills);
   const relatedChecks = resolveRelatedChecks(skills, state.request.instruction, focus);

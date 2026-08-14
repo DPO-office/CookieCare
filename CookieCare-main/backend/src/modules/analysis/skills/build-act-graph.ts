@@ -73,7 +73,11 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
     relatedChecks = [],
     unresolvedStandard,
   } = input;
-  const primary = skills[0];
+  // Prefer specialized skill for renderer schema; _global is always present but not primary.
+  const primary =
+    skills.find((s) => s.axis === "regime") ??
+    skills.find((s) => s.axis === "doc-type") ??
+    skills[0];
   const skillIds = skills.map((s) => s.skillId);
   const relatedRiskIds = relatedChecks.flatMap((r) => r.related);
   const relatedClauseTypes = relatedChecks.flatMap((r) =>

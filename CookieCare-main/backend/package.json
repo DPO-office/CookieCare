@@ -9,7 +9,8 @@
     "start": "node dist/server.js",
     "setup-db": "tsx scripts/setupDb.ts",
     "lint": "tsc --noEmit",
-    "test": "node --import ./node_modules/tsx/dist/loader.mjs --test test/**/*.test.ts"
+    "lint:skills": "node --import ./node_modules/tsx/dist/loader.mjs src/modules/analysis/skills/run-lint-skill-parity.ts",
+    "test": "npm run lint:skills && node --import ./node_modules/tsx/dist/loader.mjs --test test/**/*.test.ts src/modules/analysis/skills/__fixtures__/**/*.test.ts"
   },
   "dependencies": {
     "@google/genai": "^2.11.0",

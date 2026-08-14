@@ -1,5 +1,8 @@
 /** Structured analysis skill contract — deterministic; never LLM-invented at runtime. */
 
+export type SkillAxis = "global" | "doc-type" | "regime" | "jurisdiction";
+export type SkillStatus = "draft" | "reviewed" | "published";
+
 export type AnalysisSkillOperation =
   | "risk_flag"
   | "compliance_check"
@@ -15,10 +18,16 @@ export interface ExpectedClauseCheck {
   textSynonyms?: string[];
 }
 
+/** @deprecated Alias — prefer ExpectedClauseCheck. */
+export type ExpectedClause = ExpectedClauseCheck;
+
 export interface SkillRiskCategory {
   category: string;
   guidance: string;
 }
+
+/** @deprecated Alias — prefer SkillRiskCategory. */
+export type RiskCategoryDef = SkillRiskCategory;
 
 export type RegimeCheckType = "mechanical" | "judgment" | "pattern_then_llm_judgment";
 
@@ -39,10 +48,16 @@ export interface ComparativeCheckConfig {
   guidance: string;
 }
 
+/** @deprecated Alias — prefer ComparativeCheckConfig. */
+export type ComparativeCheck = ComparativeCheckConfig;
+
 export interface RightsMatrixRow {
   rowId: string;
   article: string;
   label: string;
+  /** Regime family id when built via family template helpers. */
+  family?: string;
+  regimeId?: string;
 }
 
 export interface InstructionFocusMapEntry {
@@ -65,18 +80,35 @@ export interface RelatedCheckRule {
 }
 
 export interface AnalysisSkillConfig {
+  /** Full path-style id, e.g. "regimes/data-protection/gdpr". */
   skillId: string;
+  axis: SkillAxis;
   label: string;
   version: string;
+
+  /** Doc-type inheritance — only valid when axis === "doc-type". */
+  extendsDocType?: string;
+  /** Regime family grouping — only valid when axis === "regime". */
+  family?: string;
+  /**
+   * Jurisdiction scoping for regime/doc-type skills that behave differently by
+   * jurisdiction without a full jurisdictions/* skill.
+   */
+  appliesToJurisdictions?: string[];
 
   appliesToDocTypes: string[];
   triggerPhrases: string[];
   promptLibraryIds: string[];
 
   clauseTypes: string[];
+  /** Optional authored definitions — cross-skill conflicts fail registry validation. */
+  clauseTypeDefinitions?: Record<string, string>;
   expectedClauses: ExpectedClauseCheck[];
   riskCategories: SkillRiskCategory[];
+  /** Full authored rules (ACT needs ruleText). Prefer this over bare ids. */
   regimeRules: SkillRegimeRule[];
+  /** Convenience ids mirroring regimeRules — kept for manifest/docs parity. */
+  regimeRuleIds?: string[];
 
   defaultOperation: AnalysisSkillOperation;
   comparativeChecks?: ComparativeCheckConfig[];
@@ -85,9 +117,21 @@ export interface AnalysisSkillConfig {
   relatedChecks?: RelatedCheckRule[];
 }
 
+export interface SkillManifestEntry {
+  skillId: string;
+  axis: SkillAxis;
+  status: SkillStatus;
+  version: string;
+  owner: string;
+  lastReviewedAt?: string;
+  coverageNote?: string;
+}
+
 export interface SkillSelectionResult {
   skills: AnalysisSkillConfig[];
   selectionPath: "library" | "free_text" | "fallback";
   ambiguous?: boolean;
   candidateSkillIds?: string[];
+  /** Draft-status skills selected for a real request — must surface in render. */
+  partialCoverageWarning?: string[];
 }

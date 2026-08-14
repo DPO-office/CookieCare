@@ -1,7 +1,8 @@
-import type { AnalysisSkillConfig } from "../types.js";
+import type { AnalysisSkillConfig } from "../../types.js";
 
-export const commercialSkill: AnalysisSkillConfig = {
-  skillId: "commercial",
+export const commercialAgreementSkill: AnalysisSkillConfig = {
+  skillId: "doc-types/commercial-agreement",
+  axis: "doc-type",
   label: "Commercial Agreements",
   version: "1.0.0",
   appliesToDocTypes: ["msa", "nda", "sla", "service-agreement", "commercial-agreement"],
@@ -28,6 +29,13 @@ export const commercialSkill: AnalysisSkillConfig = {
     "assignment",
     "warranties",
   ],
+  clauseTypeDefinitions: {
+    limitation_of_liability: "Cap or exclusion of liability between the parties.",
+    indemnity: "Obligation to indemnify or hold harmless for third-party claims.",
+    confidentiality: "Confidentiality obligations and survival.",
+    payment: "Fees, invoices, and payment timing.",
+    intellectual_property: "Ownership and license of deliverables / work product.",
+  },
   expectedClauses: [
     {
       clauseType: "payment",
@@ -64,6 +72,7 @@ export const commercialSkill: AnalysisSkillConfig = {
     { category: "other_known_risk", guidance: "Other material contractual risk." },
   ],
   regimeRules: [],
+  regimeRuleIds: [],
   relatedChecks: [
     {
       primary: "limitation_of_liability",

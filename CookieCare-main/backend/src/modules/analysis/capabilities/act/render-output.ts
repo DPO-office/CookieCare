@@ -170,6 +170,9 @@ function buildRightsMatrixSections(
   for (const note of state.memoryAttributions ?? []) {
     lines.push(`_${note}_`, "");
   }
+  for (const warn of state.partialCoverageWarning ?? []) {
+    lines.push(`> **Coverage warning:** ${warn}`, "");
+  }
 
   lines.push("## Architecture", "");
   lines.push(architectureSentence(findings), "");
@@ -311,6 +314,9 @@ function appendAttributionSections(
   state: AnalysisState,
   findings: Finding[]
 ): void {
+  for (const warn of state.partialCoverageWarning ?? []) {
+    lines.push("", `> **Coverage warning:** ${warn}`);
+  }
   for (const note of state.memoryAttributions ?? []) {
     lines.push("", `_${note}_`);
   }
