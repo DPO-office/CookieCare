@@ -54,6 +54,16 @@ export interface InstructionFocusMapEntry {
   };
 }
 
+/** Authored adjacent checks — never LLM-invented at runtime. */
+export interface RelatedCheckRule {
+  /** clauseType or riskCategory the user's focus resolves to. */
+  primary: string;
+  /** clauseTypes / riskCategories a reviewer would also check. */
+  related: string[];
+  /** Shown under "Related, not requested". */
+  note?: string;
+}
+
 export interface AnalysisSkillConfig {
   skillId: string;
   label: string;
@@ -72,6 +82,7 @@ export interface AnalysisSkillConfig {
   comparativeChecks?: ComparativeCheckConfig[];
   instructionFocusMap?: InstructionFocusMapEntry[];
   rightsMatrixRows?: RightsMatrixRow[];
+  relatedChecks?: RelatedCheckRule[];
 }
 
 export interface SkillSelectionResult {

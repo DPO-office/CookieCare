@@ -4,20 +4,22 @@ import type {
   AnalysisWorkUnit,
   MissingClarification,
 } from "../../models/analysis-plan.js";
-import {
-  INTENT_CONFIDENCE_THRESHOLD,
-  type IntentClassification,
-} from "../../models/intent.js";
+import { INTENT_CONFIDENCE_THRESHOLD, type IntentClassification } from "../../models/intent.js";
 import {
   CLAUSE_TAXONOMY_VERSION,
 } from "../../taxonomies/clause-taxonomy.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { orderByDependency } from "../../utils/topo-batches.js";
 import { resolveSkills } from "../../skills/resolve-skills.js";
-import { buildActGraphDetailed } from "../../skills/build-act-graph.js";
+import {
+  buildActGraphDetailed,
+  resolveRelatedChecks,
+} from "../../skills/build-act-graph.js";
 import { extractInstructionFocus } from "../../skills/extract-instruction-focus.js";
 import { getSkillById } from "../../skills/registry.js";
 import { pacLog } from "../../utils/pac-log.js";
+import { loadOrgMemory } from "../../memory/org-memory.js";
+import { applyOrgRoutingDefaults } from "../../memory/resolve-org-defaults.js";
 
 const SKILL_DRIVEN_OPERATIONS = new Set([
   "risk_flag",
@@ -28,10 +30,10 @@ const SKILL_DRIVEN_OPERATIONS = new Set([
 
 /**
  * Build AnalysisWorkUnit graph from resolved skills + intent.
- * Low confidence on any axis → critical clarification (ASK), not a guess.
+ * Classification already asked on low operation/standard confidence.
  */
 export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
-  const intent = state.intent;
+  let intent = state.intent;
   if (!intent) {
     return {
       ...state,
@@ -45,9 +47,29 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     };
   }
 
-  const missing = collectLowConfidence(intent);
-  const docIds = state.request.documentIds;
+  intent = applySensibleDefaults(intent);
+  state = { ...state, intent };
 
+  if (!state.orgMemory) {
+    const profile = await loadOrgMemory(state.organizationId);
+    if (profile) state = { ...state, orgMemory: profile };
+  }
+  state = await applyOrgRoutingDefaults(state, state.orgMemory);
+  intent = state.intent ?? intent;
+
+  const missing: MissingClarification[] = [];
+  if (state.clarificationRequest?.questions.length) {
+    for (const q of state.clarificationRequest.questions) {
+      missing.push({
+        field: q.field,
+        question: q.question,
+        severity: "critical",
+        options: q.options,
+      });
+    }
+  }
+
+  const docIds = state.request.documentIds;
   if (docIds.length === 0) {
     missing.push({
       field: "documentIds",
@@ -72,16 +94,20 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
   }
 
   if (missing.length > 0) {
+    pacLog("PLAN ask clarifications", {
+      fields: missing.map((m) => m.field).join(","),
+    });
     return {
       ...state,
       plan: emptyPlan(intent, missing),
     };
   }
 
-  // If user answered skill ambiguity ASK, activeSkills are already pinned in applyUserAnswers.
   if (!state.activeSkills?.length) {
     state = await resolveSkills(state);
   }
+
+  state = await applyOrgRoutingDefaults(state, state.orgMemory);
 
   if (state.pendingSkillClarification) {
     return {
@@ -93,6 +119,7 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
   const skills = state.activeSkills ?? [getSkillById("general-review")!];
   const primaryDocId = docIds[0];
   const focus = extractInstructionFocus(state.request.instruction, skills);
+  const relatedChecks = resolveRelatedChecks(skills, state.request.instruction, focus);
 
   const graph = buildActGraphDetailed({
     docId: primaryDocId,
@@ -100,6 +127,8 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     skills,
     intent,
     focus,
+    relatedChecks,
+    unresolvedStandard: intent.unresolvedStandard,
   });
 
   const workUnits: AnalysisWorkUnit[] = orderByDependency(graph.workUnits);
@@ -128,50 +157,39 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
   pacLog("PLAN graph", {
     skills: skills.map((s) => s.skillId).join(","),
     focus: focus ? "yes" : "no",
+    compound: intent.compound ? "yes" : "no",
+    subIntents: intent.subIntents.length,
+    related: relatedChecks.length,
+    web: intent.unresolvedStandard ? "yes" : "no",
     rules: focus?.ruleIds.join(",") || "(full)",
     matrix: focus?.matrixRowIds.length ?? 0,
     schema: graph.rendererSchemaId,
     units: workUnits.map((u) => u.tool).join(" → "),
   });
 
-  return { ...state, plan, pendingSkillClarification: undefined };
+  return { ...state, plan, pendingSkillClarification: undefined, clarificationRequest: undefined };
 }
 
-function collectLowConfidence(intent: IntentClassification): MissingClarification[] {
-  const missing: MissingClarification[] = [];
-  const c = intent.confidence;
-  if (c.scope < INTENT_CONFIDENCE_THRESHOLD) {
-    missing.push({
-      field: "scope",
-      question: "Should this analysis cover the whole document, a named section, or multiple documents?",
-      severity: "critical",
-      options: ["whole_document", "named_section", "cross_document"],
-    });
+function applySensibleDefaults(intent: IntentClassification): IntentClassification {
+  const confidence = { ...intent.confidence };
+  let scope = intent.scope;
+  let outputForm = intent.outputForm;
+
+  if (confidence.scope < INTENT_CONFIDENCE_THRESHOLD) {
+    scope = "whole_document";
+    confidence.scope = INTENT_CONFIDENCE_THRESHOLD;
   }
-  if (c.operation < INTENT_CONFIDENCE_THRESHOLD) {
-    missing.push({
-      field: "operation",
-      question: "What should we do: flag risks, check compliance, extract clauses, summarize, or compare?",
-      severity: "critical",
-      options: ["risk_flag", "compliance_check", "extract", "summarize", "compare"],
-    });
+  if (confidence.outputForm < INTENT_CONFIDENCE_THRESHOLD) {
+    outputForm =
+      intent.operation === "extract"
+        ? "table"
+        : intent.operation === "summarize" || intent.operation === "explain_qa"
+          ? "memo"
+          : "checklist";
+    confidence.outputForm = INTENT_CONFIDENCE_THRESHOLD;
   }
-  if (c.standard < INTENT_CONFIDENCE_THRESHOLD) {
-    missing.push({
-      field: "standard",
-      question: "Which standard should we use (none, a regime pack, or a playbook rule)?",
-      severity: "optional",
-    });
-  }
-  if (c.outputForm < INTENT_CONFIDENCE_THRESHOLD) {
-    missing.push({
-      field: "outputForm",
-      question: "Preferred output form: checklist, memo, or table?",
-      severity: "optional",
-      options: ["checklist", "memo", "table"],
-    });
-  }
-  return missing;
+
+  return { ...intent, scope, outputForm, confidence };
 }
 
 function emptyPlan(

@@ -36,20 +36,50 @@ export interface IntentAxisConfidence {
   outputForm: number;
 }
 
+/** One distinct ask inside a compound instruction. */
+export interface IntentSubIntent {
+  operation: OperationAxis;
+  standard: StandardAxis;
+  outputForm: OutputFormAxis;
+  /** Short label, e.g. "GDPR compliance check". */
+  description?: string;
+}
+
 export interface IntentClassification {
   scope: ScopeAxis;
   operation: OperationAxis;
   standard: StandardAxis;
   outputForm: OutputFormAxis;
   compound: boolean;
-  subIntents: Array<Omit<IntentClassification, "compound" | "subIntents" | "confidence">>;
+  subIntents: IntentSubIntent[];
   confidence: IntentAxisConfidence;
   /** Decline-and-redirect message when operation === out_of_scope. */
   outOfScopeReason?: string;
   suggestedReframes?: string[];
+  /**
+   * LLM named a standard that is not in the skill/rule registry.
+   * PLAN schedules web_assisted_reference (Tier C), never silently drops to none.
+   */
+  unresolvedStandard?: string;
+  /** Detected document type passed into classification (audit). */
+  docTypeHint?: string;
 }
 
-export const INTENT_CONFIDENCE_THRESHOLD = 0.7;
+/** Axes that change what runs — low confidence → ASK. */
+export const INTENT_CONFIDENCE_THRESHOLD = 0.6;
+
+export type ClarificationAxis = "operation" | "standard";
+
+/** Typed ASK payload produced immediately after classification (§4). */
+export interface ClarificationRequest {
+  axes: ClarificationAxis[];
+  questions: Array<{
+    field: ClarificationAxis;
+    question: string;
+    options?: string[];
+  }>;
+  docTypeHint?: string;
+}
 
 export const LEGAL_ADVICE_DECLINE_MESSAGE =
   "CookieCare analyzes documents (risks, compliance, extraction, comparison). " +

@@ -3,8 +3,13 @@ import type {
   AnalysisWorkUnit,
   InstructionFocus,
 } from "../models/analysis-plan.js";
-import type { IntentClassification } from "../models/intent.js";
-import type { AnalysisSkillConfig, RightsMatrixRow, SkillRegimeRule } from "./types.js";
+import type { IntentClassification, IntentSubIntent } from "../models/intent.js";
+import type {
+  AnalysisSkillConfig,
+  RelatedCheckRule,
+  RightsMatrixRow,
+  SkillRegimeRule,
+} from "./types.js";
 import {
   mergeRegimeRules,
   mergeSkillClauseTypes,
@@ -17,6 +22,8 @@ export interface BuildActGraphInput {
   skills: AnalysisSkillConfig[];
   intent: IntentClassification;
   focus?: InstructionFocus;
+  relatedChecks?: RelatedCheckRule[];
+  unresolvedStandard?: string;
 }
 
 export interface BuildActGraphResult {
@@ -37,27 +44,47 @@ function rendererForSkill(
   return "checklist";
 }
 
+function effectiveSubIntents(intent: IntentClassification): IntentSubIntent[] {
+  if (intent.compound && intent.subIntents.length > 0) return intent.subIntents;
+  return [
+    {
+      operation: intent.operation,
+      standard: intent.standard,
+      outputForm: intent.outputForm,
+    },
+  ];
+}
+
 /**
- * Build skill-scoped ACT work-unit graph (Phase 1: single primary skill).
- * When `focus` is set, prune regime rules / matrix rows / flag_risk categories.
+ * One shared classify+extract, then one subgraph per subIntent, relatedChecks,
+ * optional Tier C web unit, and a single render.
  */
 export function buildActGraph(input: BuildActGraphInput): AnalysisWorkUnit[] {
   return buildActGraphDetailed(input).workUnits;
 }
 
 export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphResult {
-  const { docId, instruction, skills, intent, focus } = input;
+  const {
+    docId,
+    instruction,
+    skills,
+    intent,
+    focus,
+    relatedChecks = [],
+    unresolvedStandard,
+  } = input;
   const primary = skills[0];
   const skillIds = skills.map((s) => s.skillId);
-  const mergedClauseTypes = mergeSkillClauseTypes(skills);
+  const relatedRiskIds = relatedChecks.flatMap((r) => r.related);
+  const relatedClauseTypes = relatedChecks.flatMap((r) =>
+    r.related.filter((id) => skills.some((s) => s.clauseTypes.includes(id)))
+  );
+  const mergedClauseTypes = [
+    ...new Set([...mergeSkillClauseTypes(skills), ...relatedClauseTypes]),
+  ];
   const allRules = mergeRegimeRules(skills);
-  const regimeRules = focus?.ruleIds.length
-    ? allRules.filter((r) => focus.ruleIds.includes(r.ruleId))
-    : allRules;
-  const matrixRows: RightsMatrixRow[] = focus?.matrixRowIds.length
-    ? skills.flatMap((s) => s.rightsMatrixRows ?? []).filter((r) => focus.matrixRowIds.includes(r.rowId))
-    : [];
   const schemaId = rendererForSkill(primary, intent, focus);
+  const subIntents = effectiveSubIntents(intent);
 
   const units: AnalysisWorkUnit[] = [
     {
@@ -83,65 +110,71 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
     },
   ];
 
-  if (!focus) {
+  const subgraphLeaves: string[] = [];
+
+  subIntents.forEach((si, index) => {
+    const prefix = subIntents.length > 1 ? `si${index}-` : "";
+    const leaves = appendSubIntentUnits(units, {
+      prefix,
+      si,
+      docId,
+      instruction,
+      skillIds,
+      focus,
+      allRules,
+      skills,
+      extractDep: "wu-extract",
+    });
+    subgraphLeaves.push(...leaves);
+  });
+
+  if (relatedChecks.length > 0 && relatedRiskIds.length > 0) {
+    const note = relatedChecks.map((r) => r.note).filter(Boolean).join(" ");
     units.push({
-      workUnitId: "wu-check-expected",
-      tool: "check_expected_clauses",
-      input: { docId, skillIds, instruction },
+      workUnitId: "wu-related-flag-risk",
+      tool: "flag_risk",
+      input: {
+        docId,
+        skillIds,
+        instruction,
+        riskCategoryIds: relatedRiskIds,
+        relatedNotRequested: true,
+        relatedNote: note || "Adjacent checks a reviewer would typically also run.",
+      },
       dependsOn: ["wu-extract"],
       outputSchema: "Finding[]",
       status: "pending",
     });
+    subgraphLeaves.push("wu-related-flag-risk");
   }
 
-  const flagDep = focus ? "wu-extract" : "wu-check-expected";
-  units.push({
-    workUnitId: "wu-flag-risk",
-    tool: "flag_risk",
-    input: {
-      docId,
-      skillIds,
-      instruction,
-      riskCategoryIds: focus?.riskCategoryIds ?? [],
-    },
-    dependsOn: [flagDep],
-    outputSchema: "Finding[]",
-    status: "pending",
-  });
-
-  let lastDep = "wu-flag-risk";
-
-  for (const rule of regimeRules) {
-    const wuId = `wu-rule-${rule.ruleId.replace(/\./g, "-")}`;
-    units.push(ruleUnit(wuId, docId, rule, skillIds, instruction, lastDep));
-    lastDep = wuId;
-  }
-
-  for (const row of matrixRows) {
-    const wuId = `wu-matrix-${row.rowId.replace(/\./g, "-")}`;
+  if (unresolvedStandard) {
     units.push({
-      workUnitId: wuId,
-      tool: "evaluate_matrix_row",
+      workUnitId: "wu-web-ref",
+      tool: "web_assisted_reference",
       input: {
-        docId,
-        rowId: row.rowId,
-        article: row.article,
-        label: row.label,
+        query: unresolvedStandard,
         instruction,
-        skillIds,
+        docId,
       },
-      dependsOn: [lastDep],
+      dependsOn: ["wu-extract"],
       outputSchema: "Finding[]",
       status: "pending",
     });
-    lastDep = wuId;
+    subgraphLeaves.push("wu-web-ref");
   }
 
+  const renderDeps = subgraphLeaves.length > 0 ? subgraphLeaves : ["wu-extract"];
   units.push({
     workUnitId: "wu-render",
     tool: "render_output",
-    input: { schemaId, skillIds, instruction },
-    dependsOn: [lastDep],
+    input: {
+      schemaId,
+      skillIds,
+      instruction,
+      relatedNotes: relatedChecks.map((r) => r.note).filter(Boolean),
+    },
+    dependsOn: renderDeps,
     outputSchema: "string",
     status: "pending",
   });
@@ -151,6 +184,109 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
     schemaId,
     rendererSchemaId: schemaId,
   };
+}
+
+function appendSubIntentUnits(
+  units: AnalysisWorkUnit[],
+  args: {
+    prefix: string;
+    si: IntentSubIntent;
+    docId: string;
+    instruction: string;
+    skillIds: string[];
+    focus?: InstructionFocus;
+    allRules: SkillRegimeRule[];
+    skills: AnalysisSkillConfig[];
+    extractDep: string;
+  }
+): string[] {
+  const { prefix, si, docId, instruction, skillIds, focus, allRules, skills, extractDep } = args;
+  const runRisk = si.operation === "risk_flag" || si.operation === "extract";
+  const runCompliance =
+    si.operation === "compliance_check" ||
+    Boolean(focus && prefix === "") ||
+    (si.operation !== "risk_flag" && si.operation !== "extract" && allRules.length > 0);
+
+  let lastDep = extractDep;
+  const leaves: string[] = [];
+
+  if (runCompliance && !focus) {
+    const id = `wu-${prefix}check-expected`;
+    units.push({
+      workUnitId: id,
+      tool: "check_expected_clauses",
+      input: { docId, skillIds, instruction, subIntent: si.description ?? si.operation },
+      dependsOn: [extractDep],
+      outputSchema: "Finding[]",
+      status: "pending",
+    });
+    lastDep = id;
+  }
+
+  if (runRisk) {
+    const id = `wu-${prefix}flag-risk`;
+    units.push({
+      workUnitId: id,
+      tool: "flag_risk",
+      input: {
+        docId,
+        skillIds,
+        instruction,
+        riskCategoryIds: prefix === "" ? (focus?.riskCategoryIds ?? []) : [],
+        subIntent: si.description ?? si.operation,
+      },
+      dependsOn: [lastDep],
+      outputSchema: "Finding[]",
+      status: "pending",
+    });
+    lastDep = id;
+    leaves.push(id);
+  }
+
+  if (runCompliance) {
+    const regimeRules = focus?.ruleIds.length && prefix === ""
+      ? allRules.filter((r) => focus.ruleIds.includes(r.ruleId))
+      : allRules;
+    const matrixRows: RightsMatrixRow[] =
+      focus?.matrixRowIds.length && prefix === ""
+        ? skills.flatMap((s) => s.rightsMatrixRows ?? []).filter((r) =>
+            focus.matrixRowIds.includes(r.rowId)
+          )
+        : [];
+
+    for (const rule of regimeRules) {
+      const wuId = `wu-${prefix}rule-${rule.ruleId.replace(/\./g, "-")}`;
+      units.push(ruleUnit(wuId, docId, rule, skillIds, instruction, lastDep));
+      lastDep = wuId;
+      leaves.push(wuId);
+    }
+
+    for (const row of matrixRows) {
+      const wuId = `wu-${prefix}matrix-${row.rowId.replace(/\./g, "-")}`;
+      units.push({
+        workUnitId: wuId,
+        tool: "evaluate_matrix_row",
+        input: {
+          docId,
+          rowId: row.rowId,
+          article: row.article,
+          label: row.label,
+          instruction,
+          skillIds,
+        },
+        dependsOn: [lastDep],
+        outputSchema: "Finding[]",
+        status: "pending",
+      });
+      lastDep = wuId;
+      leaves.push(wuId);
+    }
+
+    if (!runRisk && lastDep !== extractDep) leaves.push(lastDep);
+  }
+
+  if (leaves.length === 0 && lastDep !== extractDep) leaves.push(lastDep);
+  return [...new Set(leaves)];
 }
 
 function ruleUnit(
@@ -175,4 +311,44 @@ function ruleUnit(
     outputSchema: "Finding[]",
     status: "pending",
   };
+}
+
+/**
+ * Match instruction / focus primaries against skill.relatedChecks.
+ */
+export function resolveRelatedChecks(
+  skills: AnalysisSkillConfig[],
+  instruction: string,
+  focus?: InstructionFocus
+): RelatedCheckRule[] {
+  const hay = instruction.toLowerCase();
+  const matched: RelatedCheckRule[] = [];
+  const seen = new Set<string>();
+
+  for (const skill of skills) {
+    for (const rule of skill.relatedChecks ?? []) {
+      const primaryWords = rule.primary.replace(/_/g, " ");
+      const primaryToken = rule.primary.split("_")[0];
+      const primaryHit =
+        hay.includes(primaryWords) ||
+        hay.includes(rule.primary) ||
+        (primaryToken.length > 4 && hay.includes(primaryToken)) ||
+        focus?.riskCategoryIds.includes(rule.primary) ||
+        (focus?.ruleIds.some((id) => id.includes(rule.primary)) ?? false);
+
+      const focusDsrHit =
+        Boolean(focus?.matrixRowIds.length) &&
+        (rule.primary.includes("data_subject") ||
+          rule.primary.includes("dsr") ||
+          skill.clauseTypes.includes(rule.primary));
+
+      if (!primaryHit && !focusDsrHit) continue;
+      const key = `${rule.primary}:${rule.related.join(",")}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      matched.push(rule);
+    }
+  }
+
+  return matched;
 }

@@ -38,7 +38,7 @@ export interface AgentRunState {
   stoppedReason?: StoppedReason;
 }
 
-export const DEFAULT_MAX_TURNS = 1; // default 8
+export const DEFAULT_MAX_TURNS = 8;
 export const DEFAULT_MAX_ASK_ROUNDS = 2;
 export const DEFAULT_TOKEN_BUDGET = Number(process.env.ANALYSIS_TOKEN_BUDGET || 500_000);
 export const DEFAULT_MAX_DOCS = Number(process.env.ANALYSIS_MAX_DOCS || 10);

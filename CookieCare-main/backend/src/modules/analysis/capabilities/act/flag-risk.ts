@@ -21,6 +21,7 @@ async function flagRisk(
   const instruction = String(unit.input.instruction ?? state.request.instruction ?? "");
   const skillIds = (unit.input.skillIds as string[]) ?? state.activeSkillIds ?? ["general-review"];
   const focusIds = (unit.input.riskCategoryIds as string[] | undefined) ?? state.plan?.focus?.riskCategoryIds;
+  const relatedNotRequested = unit.input.relatedNotRequested === true;
 
   const doc = state.workspace.documents.find((d) => d.docId === docId);
   const clauses = doc?.clauses ?? [];
@@ -150,10 +151,50 @@ async function flagRisk(
       workUnitId: unit.workUnitId,
       skillId: primarySkillId,
       visibility: "user_facing" as const,
+      relatedNotRequested: relatedNotRequested || undefined,
     };
   });
 
-  return { state, findings: [...findings, ...riskFindings] };
+  return {
+    state,
+    findings: [...findings, ...riskFindings, ...orgPlaybookRisks(state, unit, clauses, findings)],
+  };
+}
+
+function orgPlaybookRisks(
+  state: AnalysisState,
+  unit: AnalysisWorkUnit,
+  clauses: ClauseObject[],
+  existing: Finding[]
+): Finding[] {
+  if (unit.input.relatedNotRequested === true) return [];
+  const skillIds = (unit.input.skillIds as string[]) ?? state.activeSkillIds ?? [];
+  const overrides = state.orgMemory?.playbookOverrides ?? [];
+  const out: Finding[] = [];
+  for (const rule of overrides) {
+    if (existing.some((f) => f.orgPlaybook && f.orgPlaybookNote === rule.overrideNote)) {
+      continue;
+    }
+    if (rule.appliesToSkillIds.length && !rule.appliesToSkillIds.some((id) => skillIds.includes(id))) {
+      continue;
+    }
+    const clause = clauses.find((c) => c.clauseType === rule.clauseType);
+    out.push({
+      findingId: `f_org_risk_${rule.ruleId}_${unit.workUnitId}`,
+      kind: "risk",
+      category: "other_known_risk",
+      status: clause ? "present" : "absent_expected",
+      claim: `Org playbook: ${rule.overrideNote}`,
+      evidence: clause ? [{ locator: clause.locator, quotedText: clause.text.slice(0, 400) }] : [],
+      severity: rule.overrideSeverity ?? "medium",
+      taxonomyVersion: RISK_TAXONOMY_VERSION,
+      workUnitId: unit.workUnitId,
+      visibility: "user_facing",
+      orgPlaybook: true,
+      orgPlaybookNote: rule.overrideNote,
+    });
+  }
+  return out;
 }
 
 function heuristicRisks(

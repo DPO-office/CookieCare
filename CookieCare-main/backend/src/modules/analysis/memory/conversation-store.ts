@@ -109,6 +109,16 @@ export async function applyUserAnswers(
     };
   }
 
+  // Standard ASK may name a skill pack — treat as skillId when unresolved is cleared
+  if (
+    !fieldAnswers.skillId &&
+    (fieldAnswers.standard === "privacy-gdpr-dpa" ||
+      fieldAnswers.standard === "commercial" ||
+      fieldAnswers.standard === "general-review")
+  ) {
+    fieldAnswers.skillId = fieldAnswers.standard;
+  }
+
   // Explicit skill selection from ambiguity ASK
   if (fieldAnswers.skillId) {
     const skill = getSkillById(fieldAnswers.skillId);
@@ -140,11 +150,37 @@ export async function applyUserAnswers(
       intent.outputForm = fieldAnswers.outputForm as typeof intent.outputForm;
       intent.confidence = { ...intent.confidence, outputForm: 1 };
     }
+    if (fieldAnswers.operation && fieldAnswers.operation !== "cancel") {
+      const op =
+        fieldAnswers.operation === "run_risk_flag" ? "risk_flag" : fieldAnswers.operation;
+      intent.operation = op as typeof intent.operation;
+      intent.confidence = { ...intent.confidence, operation: 1 };
+    }
+    if (fieldAnswers.standard) {
+      if (fieldAnswers.standard === "use_skill_defaults" || fieldAnswers.standard === "none") {
+        intent.standard = "none";
+        intent.unresolvedStandard = undefined;
+        intent.confidence = { ...intent.confidence, standard: 1 };
+      } else if (
+        fieldAnswers.standard === "privacy-gdpr-dpa" ||
+        fieldAnswers.standard === "commercial" ||
+        fieldAnswers.standard === "general-review"
+      ) {
+        intent.standard = `regime_pack:${fieldAnswers.standard}`;
+        intent.unresolvedStandard = undefined;
+        intent.confidence = { ...intent.confidence, standard: 1 };
+      } else {
+        intent.confidence = { ...intent.confidence, standard: 1 };
+        intent.unresolvedStandard = undefined;
+      }
+    }
     next = { ...next, intent };
   }
 
   next = {
     ...next,
+    clarificationRequest: undefined,
+    pendingSkillClarification: undefined,
     agent: next.agent
       ? {
           ...next.agent,

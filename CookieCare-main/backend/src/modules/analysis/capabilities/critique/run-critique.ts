@@ -36,6 +36,19 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
 
   // 1+2 Existence + substring gate (quotedText must appear in resolved span or doc)
   for (const f of findings) {
+    if (f.unverified || f.orgPlaybook) {
+      results.push({
+        itemId: `status:${f.findingId}`,
+        status: "pass",
+        evidenceVerified: true,
+        findingId: f.findingId,
+        workUnitId: f.workUnitId,
+        detail: f.unverified
+          ? "Tier C unverified finding is not quote-gated"
+          : "Org playbook finding is attributed config, not quote-gated",
+      });
+      continue;
+    }
     if (f.status === "absent_expected" || f.status === "insufficient_evidence") {
       results.push({
         itemId: `status:${f.findingId}`,
@@ -111,11 +124,23 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
   );
 
   for (const f of findings) {
+    if (f.unverified) {
+      results.push({
+        itemId: `taxonomy:${f.findingId}`,
+        status: "pass",
+        evidenceVerified: true,
+        findingId: f.findingId,
+        workUnitId: f.workUnitId,
+        detail: "Tier C unverified finding is outside authored taxonomy",
+      });
+      continue;
+    }
     if (f.kind === "risk" || f.kind === "compliance") {
       const ok =
-        allowedCategories.size === 0
+        f.orgPlaybook ||
+        (allowedCategories.size === 0
           ? isKnownRiskCategory(f.category)
-          : allowedCategories.has(f.category) || isKnownRiskCategory(f.category);
+          : allowedCategories.has(f.category) || isKnownRiskCategory(f.category));
       results.push({
         itemId: `taxonomy:${f.findingId}`,
         status: ok ? "pass" : "fail",
@@ -135,7 +160,7 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
   }
 
   // 3b Compliance rule citation — ruleId must resolve to configured rule text
-  for (const f of findings.filter((x) => x.kind === "compliance" && x.ruleId)) {
+  for (const f of findings.filter((x) => x.kind === "compliance" && x.ruleId && !x.unverified)) {
     const resolved = resolveRule(state.activeSkillIds ?? [], f.ruleId!);
     const ok = Boolean(resolved?.rule.ruleText);
     results.push({
@@ -289,7 +314,8 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
       (f.kind === "risk" || f.kind === "compliance") &&
       f.status === "present" &&
       f.evidence.length > 0 &&
-      f.visibility !== "internal"
+      f.visibility !== "internal" &&
+      !f.unverified
   );
   if (entailCandidates.length > 0) {
     pacLog("CRITIQUE entailment ▶ LLM", { candidates: entailCandidates.length });

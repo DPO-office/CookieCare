@@ -18,6 +18,7 @@ export type AnalysisToolName =
   | "request_clarification"
   | "create_draft_task"
   | "evaluate_matrix_row"
+  | "web_assisted_reference"
   | "render_output";
 
 export type AnalysisOutputSchema =

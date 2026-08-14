@@ -230,6 +230,12 @@ async function setupDb() {
       CREATE INDEX IF NOT EXISTS idx_analysis_state_ledger_session
         ON analysis_state_ledger (session_id);
 
+      CREATE TABLE IF NOT EXISTS analysis_org_memory (
+        org_id VARCHAR(255) PRIMARY KEY,
+        profile_json JSONB NOT NULL,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
       CREATE TABLE IF NOT EXISTS template_clause_mappings (
         template_id VARCHAR(255) NOT NULL REFERENCES contract_templates(id) ON DELETE CASCADE,
         clause_id VARCHAR(255) NOT NULL REFERENCES clause_catalog(id) ON DELETE CASCADE,

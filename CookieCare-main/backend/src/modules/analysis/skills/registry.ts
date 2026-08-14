@@ -1,6 +1,6 @@
 import { generalReviewSkill } from "./general-review/skill.config.js";
 import { commercialSkill } from "./commercial/skill.config.js";
-import { privacyGdprDpaSkill } from "./privacy-gdpr-dpa/skill.config.js";
+import { privacyGdprDpaSkill } from "./general-review/privacy-gdpr-dpa/skill.config.js";
 import type { AnalysisSkillConfig, SkillRiskCategory } from "./types.js";
 import { CLAUSE_TAXONOMY, CLAUSE_TAXONOMY_VERSION } from "../taxonomies/clause-taxonomy.js";
 import { RISK_TAXONOMY, RISK_TAXONOMY_VERSION } from "../taxonomies/index.js";
@@ -132,6 +132,23 @@ export function mergeRegimeRules(skills: AnalysisSkillConfig[]) {
 export function isKnownRiskCategory(value: string): boolean {
   if ((RISK_TAXONOMY as readonly string[]).includes(value)) return true;
   return getRuntimeTaxonomies().riskCategories.includes(value);
+}
+
+/** True if any skill declares this regime rule id. */
+export function hasRegimeRule(ruleId: string): boolean {
+  const id = ruleId.trim().toLowerCase();
+  if (!id) return false;
+  for (const skill of Object.values(getSkillRegistry())) {
+    if (skill.skillId.toLowerCase() === id) return true;
+    if (skill.regimeRules.some((r) => r.ruleId.toLowerCase() === id)) return true;
+    if (skill.promptLibraryIds.some((p) => p.toLowerCase() === id)) return true;
+  }
+  return false;
+}
+
+/** Playbook rules are not yet registered in Analysis — always false until packs land. */
+export function hasPlaybookRule(_ruleId: string): boolean {
+  return false;
 }
 
 /** Reset for tests only. */

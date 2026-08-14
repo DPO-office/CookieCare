@@ -64,5 +64,17 @@ export const commercialSkill: AnalysisSkillConfig = {
     { category: "other_known_risk", guidance: "Other material contractual risk." },
   ],
   regimeRules: [],
+  relatedChecks: [
+    {
+      primary: "limitation_of_liability",
+      related: ["one_sided_indemnity", "broad_indemnity", "uncapped_liability"],
+      note: "Liability caps are typically reviewed alongside indemnity carve-outs.",
+    },
+    {
+      primary: "indemnity",
+      related: ["uncapped_liability", "missing_limitation_of_liability"],
+      note: "Indemnity scope is usually checked against the liability cap.",
+    },
+  ],
   defaultOperation: "risk_flag",
 };

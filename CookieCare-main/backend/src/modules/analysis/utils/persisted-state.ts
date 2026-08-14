@@ -1,11 +1,12 @@
 import type { AnalysisState, AnalysisHistoryEntry } from "../models/analysis-state.js";
-import type { AnalysisPlan } from "../models/analysis-plan.js";
+import type { AnalysisPlan, MissingClarification } from "../models/analysis-plan.js";
 import type { CritiqueReport } from "../models/critique-report.js";
 import type { AnalysisConversation } from "../models/conversation.js";
 import type { Finding } from "../models/finding.js";
 import type { AgentRunState, EntryMode } from "../pac/types.js";
 import type { AnalysisWorkspace } from "../models/document-workspace.js";
-import type { IntentClassification } from "../models/intent.js";
+import type { ClarificationRequest, IntentClassification } from "../models/intent.js";
+import type { OrgMemoryProfile } from "../memory/org-memory.js";
 
 export interface PersistedAnalysisState {
   request: AnalysisState["request"];
@@ -15,6 +16,10 @@ export interface PersistedAnalysisState {
   mergedExpectedClauses?: AnalysisState["mergedExpectedClauses"];
   mergedRegimeRules?: AnalysisState["mergedRegimeRules"];
   skillSelectionPath?: AnalysisState["skillSelectionPath"];
+  pendingSkillClarification?: MissingClarification;
+  clarificationRequest?: ClarificationRequest;
+  orgMemory?: OrgMemoryProfile;
+  memoryAttributions?: string[];
   findings: Finding[];
   renderedOutput?: string;
   declineMessage?: string;
@@ -51,6 +56,10 @@ export function toPersistedState(state: AnalysisState): PersistedAnalysisState {
     mergedExpectedClauses: state.mergedExpectedClauses,
     mergedRegimeRules: state.mergedRegimeRules,
     skillSelectionPath: state.skillSelectionPath,
+    pendingSkillClarification: state.pendingSkillClarification,
+    clarificationRequest: state.clarificationRequest,
+    orgMemory: state.orgMemory,
+    memoryAttributions: state.memoryAttributions,
     findings: state.findings,
     renderedOutput: state.renderedOutput,
     declineMessage: state.declineMessage,

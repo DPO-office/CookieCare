@@ -32,4 +32,15 @@ export interface Finding {
   matrixRowId?: string;
   matrixAddressing?: MatrixAddressing;
   gap?: string;
+  /** Authored relatedChecks subgraph — render under "Related, not requested". */
+  relatedNotRequested?: boolean;
+  /** Org playbook override — never blended silently into skill findings. */
+  orgPlaybook?: boolean;
+  orgPlaybookNote?: string;
+  /**
+   * Tier C live-search finding. Must never render in the same table as
+   * authored (Tier B) compliance findings.
+   */
+  unverified?: boolean;
+  sourceUrl?: string;
 }

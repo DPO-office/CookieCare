@@ -84,7 +84,13 @@ function buildStructuredReport(
       lines.push(`Selection: ${state.skillSelectionPath}`, "");
     }
     lines.push("## Findings", "");
-    for (const f of findings.filter((x) => x.kind === "risk" || x.kind === "compliance")) {
+    for (const f of findings.filter(
+      (x) =>
+        (x.kind === "risk" || x.kind === "compliance") &&
+        !x.unverified &&
+        !x.orgPlaybook &&
+        !x.relatedNotRequested
+    )) {
       lines.push(
         `- **[${xStatus(f)}] ${f.category}** (${f.severity ?? "n/a"}): ${f.claim}`
       );
@@ -93,23 +99,38 @@ function buildStructuredReport(
         lines.push(`  - Evidence: "${f.evidence[0].quotedText.slice(0, 200)}"`);
       }
     }
+    appendAttributionSections(lines, state, findings);
   } else if (schemaId === "qa_thread") {
     lines.push(skillHeader, "");
     lines.push(`Question: ${state.request.instruction}`, "");
     lines.push("## Answer", "");
-    for (const f of findings.filter((x) => x.kind === "risk" || x.kind === "compliance")) {
+    for (const f of findings.filter(
+      (x) =>
+        (x.kind === "risk" || x.kind === "compliance") &&
+        !x.unverified &&
+        !x.orgPlaybook &&
+        !x.relatedNotRequested
+    )) {
       lines.push(`- ${f.claim}`);
     }
+    appendAttributionSections(lines, state, findings);
   } else {
     lines.push(skillHeader, "");
     lines.push(`Instruction: ${state.request.instruction}`, "");
     lines.push("| Status | Kind | Category | Severity | Claim |");
     lines.push("|---|---|---|---|---|");
-    for (const f of findings.filter((x) => x.kind === "risk" || x.kind === "compliance")) {
+    for (const f of findings.filter(
+      (x) =>
+        (x.kind === "risk" || x.kind === "compliance") &&
+        !x.unverified &&
+        !x.orgPlaybook &&
+        !x.relatedNotRequested
+    )) {
       lines.push(
         `| ${xStatus(f)} | ${f.kind} | ${f.category} | ${f.severity ?? "—"} | ${f.claim.replace(/\|/g, "/")} |`
       );
     }
+    appendAttributionSections(lines, state, findings);
   }
 
   return lines.join("\n");
@@ -146,11 +167,14 @@ function buildRightsMatrixSections(
     : "# Data-subject rights review";
   lines.push(title, "");
   lines.push(`Instruction: ${state.request.instruction}`, "");
+  for (const note of state.memoryAttributions ?? []) {
+    lines.push(`_${note}_`, "");
+  }
 
   lines.push("## Architecture", "");
   lines.push(architectureSentence(findings), "");
 
-  const matrix = findings.filter((f) => f.matrixRowId);
+  const matrix = findings.filter((f) => f.matrixRowId && !f.unverified && !f.orgPlaybook);
   const rows = state.activeSkills?.flatMap((s) => s.rightsMatrixRows ?? []) ?? [];
   lines.push("## Rights matrix", "");
   if (matrix.length === 0) {
@@ -211,6 +235,9 @@ function buildRightsMatrixSections(
     (f) =>
       f.kind === "risk" &&
       f.visibility !== "internal" &&
+      !f.relatedNotRequested &&
+      !f.unverified &&
+      !f.orgPlaybook &&
       (isGdprRiskCategory(f.category) || f.category.startsWith("dsr_"))
   );
   if (gaps.length === 0) {
@@ -221,6 +248,43 @@ function buildRightsMatrixSections(
     }
   }
   lines.push("");
+
+  const related = findings.filter(
+    (f) => f.relatedNotRequested && f.visibility !== "internal"
+  );
+  if (related.length > 0) {
+    const notes = (unitRelatedNotes(state) ?? []).filter(Boolean);
+    lines.push("## Related, not requested", "");
+    if (notes.length) {
+      lines.push(notes.join(" "), "");
+    }
+    for (const g of related) {
+      lines.push(`- **${g.category}** (${g.severity ?? "n/a"}): ${g.claim}`);
+    }
+    lines.push("");
+  }
+
+  const orgPlaybook = findings.filter((f) => f.orgPlaybook && f.visibility !== "internal");
+  if (orgPlaybook.length > 0) {
+    lines.push("## Org playbook (attributed)", "");
+    for (const g of orgPlaybook) {
+      lines.push(`- ${g.claim}`);
+    }
+    lines.push("");
+  }
+
+  const unverified = findings.filter((f) => f.unverified && f.visibility !== "internal");
+  if (unverified.length > 0) {
+    lines.push("## Unverified reference (not authored CookieCare rules)", "");
+    lines.push(
+      "The following notes come from a live lookup of a standard that is not in the skill registry. They are not mixed into the compliance table above."
+    );
+    lines.push("");
+    for (const g of unverified) {
+      lines.push(`- ${g.claim}${g.sourceUrl ? ` (${g.sourceUrl})` : ""}`);
+    }
+    lines.push("");
+  }
 
   lines.push("## Remedial points", "");
   const tasks = state.draftTasks ?? [];
@@ -233,6 +297,42 @@ function buildRightsMatrixSections(
   }
 
   return lines.join("\n");
+}
+
+function unitRelatedNotes(state: AnalysisState): string[] {
+  const fromSkills = (state.activeSkills ?? []).flatMap((s) =>
+    (s.relatedChecks ?? []).map((r) => r.note).filter((n): n is string => Boolean(n))
+  );
+  return [...new Set(fromSkills)];
+}
+
+function appendAttributionSections(
+  lines: string[],
+  state: AnalysisState,
+  findings: Finding[]
+): void {
+  for (const note of state.memoryAttributions ?? []) {
+    lines.push("", `_${note}_`);
+  }
+  const related = findings.filter(
+    (f) => f.relatedNotRequested && f.visibility !== "internal" && !f.unverified
+  );
+  if (related.length) {
+    lines.push("", "## Related, not requested", "");
+    for (const g of related) {
+      lines.push(`- **${g.category}**: ${g.claim}`);
+    }
+  }
+  const orgPlaybook = findings.filter((f) => f.orgPlaybook);
+  if (orgPlaybook.length) {
+    lines.push("", "## Org playbook (attributed)", "");
+    for (const g of orgPlaybook) lines.push(`- ${g.claim}`);
+  }
+  const unverified = findings.filter((f) => f.unverified);
+  if (unverified.length) {
+    lines.push("", "## Unverified reference (not authored CookieCare rules)", "");
+    for (const g of unverified) lines.push(`- ${g.claim}`);
+  }
 }
 
 function architectureSentence(findings: Finding[]): string {

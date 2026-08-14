@@ -1,6 +1,7 @@
 import type { AnalysisState } from "../../models/analysis-state.js";
 import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
 import type { Finding } from "../../models/finding.js";
+import type { SegmentedDocument } from "../../models/document-workspace.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { getSkillById } from "../../skills/registry.js";
 import { fullTextLikelyHasClause, insufficient } from "./act-utils.js";
@@ -75,5 +76,37 @@ export function checkExpectedClauses(
     }
   }
 
-  return { state, findings: [...findings, ...newFindings] };
+  return { state, findings: [...findings, ...newFindings, ...orgOverrideFindings(state, unit, doc, skillIds)] };
+}
+
+function orgOverrideFindings(
+  state: AnalysisState,
+  unit: AnalysisWorkUnit,
+  doc: SegmentedDocument,
+  skillIds: string[]
+): Finding[] {
+  const overrides = state.orgMemory?.playbookOverrides ?? [];
+  if (!overrides.length) return [];
+  const out: Finding[] = [];
+  for (const rule of overrides) {
+    if (rule.appliesToSkillIds.length && !rule.appliesToSkillIds.some((id) => skillIds.includes(id))) {
+      continue;
+    }
+    const clause = (doc.clauses ?? []).find((c) => c.clauseType === rule.clauseType);
+    out.push({
+      findingId: `f_org_${rule.ruleId}_${unit.workUnitId}`,
+      kind: "risk",
+      category: "other_known_risk",
+      status: clause ? "present" : "absent_expected",
+      claim: `Org playbook: ${rule.overrideNote}`,
+      evidence: clause ? [{ locator: clause.locator, quotedText: clause.text.slice(0, 400) }] : [],
+      severity: rule.overrideSeverity ?? "medium",
+      taxonomyVersion: RISK_TAXONOMY_VERSION,
+      workUnitId: unit.workUnitId,
+      visibility: "user_facing",
+      orgPlaybook: true,
+      orgPlaybookNote: rule.overrideNote,
+    });
+  }
+  return out;
 }

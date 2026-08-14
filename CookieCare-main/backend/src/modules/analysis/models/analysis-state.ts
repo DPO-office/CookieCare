@@ -5,7 +5,8 @@ import type { AnalysisConversation } from "./conversation.js";
 import type { AnalysisWorkspace } from "./document-workspace.js";
 import type { Finding } from "./finding.js";
 import type { DraftTask } from "./draft-task.js";
-import type { IntentClassification } from "./intent.js";
+import type { ClarificationRequest, IntentClassification } from "./intent.js";
+import type { OrgMemoryProfile } from "../memory/org-memory.js";
 import type { AnalysisSkillConfig, SkillRegimeRule } from "../skills/types.js";
 import type { ExpectedClauseCheck } from "../skills/types.js";
 import type { MissingClarification } from "./analysis-plan.js";
@@ -63,6 +64,10 @@ export interface AnalysisState {
   skillMarkdown?: Record<string, string>;
   skillSelectionPath?: "library" | "free_text" | "fallback";
   pendingSkillClarification?: MissingClarification;
+  clarificationRequest?: ClarificationRequest;
+  orgMemory?: OrgMemoryProfile;
+  /** One-line notes when memory biased routing/defaults — never finding substance. */
+  memoryAttributions?: string[];
   findings: Finding[];
   draftTasks: DraftTask[];
   renderedOutput?: string;

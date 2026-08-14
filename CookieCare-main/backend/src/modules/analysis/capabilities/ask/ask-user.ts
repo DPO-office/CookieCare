@@ -3,8 +3,17 @@ import type { UserQuestion } from "../../pac/types.js";
 import { appendConversationTurns } from "../../memory/conversation-store.js";
 
 export async function askUser(state: AnalysisState): Promise<AnalysisState> {
-  const missing =
+  const fromPlan =
     state.plan?.missingClarifications.filter((f) => f.severity === "critical") ?? [];
+  const missing =
+    fromPlan.length > 0
+      ? fromPlan
+      : (state.clarificationRequest?.questions ?? []).map((q) => ({
+          field: q.field,
+          question: q.question,
+          severity: "critical" as const,
+          options: q.options,
+        }));
   const openQuestions: UserQuestion[] = missing.map((m, i) => ({
     id: `q-${m.field}-${i}`,
     field: m.field,

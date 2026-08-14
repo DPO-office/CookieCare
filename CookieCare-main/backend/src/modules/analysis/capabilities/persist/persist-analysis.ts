@@ -3,6 +3,7 @@ import {
   appendConversationTurns,
   ensureConversation,
 } from "../../memory/conversation-store.js";
+import { recordSkillUse, saveOrgMemory } from "../../memory/org-memory.js";
 
 export async function persistAnalysis(state: AnalysisState): Promise<AnalysisState> {
   let next = ensureConversation(state);
@@ -24,6 +25,20 @@ export async function persistAnalysis(state: AnalysisState): Promise<AnalysisSta
       { role: "user", content: next.request.instruction },
       { role: "assistant", content: summary },
     ]);
+  }
+
+  const stopped = next.agent?.stoppedReason;
+  const skillId = next.activeSkillIds?.[0];
+  if (
+    skillId &&
+    next.orgMemory &&
+    stopped &&
+    stopped !== "awaiting_user" &&
+    stopped !== "out_of_scope"
+  ) {
+    const updated = recordSkillUse(next.orgMemory, skillId);
+    await saveOrgMemory(updated);
+    next = { ...next, orgMemory: updated };
   }
 
   return next;

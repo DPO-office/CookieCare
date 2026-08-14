@@ -16,6 +16,12 @@ export function heuristicClassify(instruction: string): {
   standard: string;
   outputForm: OutputFormAxis;
   compound: boolean;
+  subIntents?: Array<{
+    operation: OperationAxis;
+    standard: string;
+    outputForm: OutputFormAxis;
+    description?: string;
+  }>;
   confidence: IntentClassification["confidence"];
 } {
   const lower = instruction.toLowerCase();
@@ -52,6 +58,7 @@ export function heuristicClassify(instruction: string): {
     standard: "none",
     outputForm,
     compound: false,
+    subIntents: [],
     confidence: {
       scope: 0.8,
       operation: confOp,

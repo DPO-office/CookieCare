@@ -33,10 +33,10 @@ export class AnalysisEntry {
   async resumeAfterAsk(state: AnalysisState): Promise<AnalysisState> {
     const seeded: AnalysisState = {
       ...state,
-      entryMode: "CREATE",
+      entryMode: "RESUME",
       agent: state.agent
-        ? { ...state.agent, phase: "PLAN", stoppedReason: undefined }
-        : initAgentRunState("CREATE"),
+        ? { ...state.agent, entryMode: "RESUME", phase: "PLAN", stoppedReason: undefined }
+        : initAgentRunState("RESUME"),
     };
     return this.pac.run(seeded);
   }

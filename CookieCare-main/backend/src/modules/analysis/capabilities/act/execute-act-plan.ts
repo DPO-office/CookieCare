@@ -10,6 +10,7 @@ import { flagRisk } from "./flag-risk.js";
 import { checkAgainstRule } from "./check-against-rule.js";
 import { renderOutput } from "./render-output.js";
 import { evaluateMatrixRow } from "./evaluate-matrix-row.js";
+import { webAssistedReference } from "./web-assisted-reference.js";
 import { insufficient } from "./act-utils.js";
 import { emitAnalysisToken, emitNewFindings } from "../../utils/stream-tokens.js";
 import { pacLog, pacWarn } from "../../utils/pac-log.js";
@@ -18,6 +19,7 @@ const USER_VISIBLE_TOOL_HEADINGS: Partial<Record<AnalysisToolName, string>> = {
   flag_risk: "### Flagging risks\n\n",
   check_against_rule: "### Checking compliance rules\n\n",
   evaluate_matrix_row: "### Evaluating data-subject rights\n\n",
+  web_assisted_reference: "### Unverified reference lookup\n\n",
   render_output: "### Writing report\n\n",
 };
 
@@ -147,6 +149,8 @@ async function runTool(
       return checkAgainstRule(state, unit, findings);
     case "evaluate_matrix_row":
       return evaluateMatrixRow(state, unit, findings);
+    case "web_assisted_reference":
+      return webAssistedReference(state, unit, findings);
     case "render_output": {
       const next = await renderOutput(state, findings, unit);
       return { state: next, findings: next.findings };
