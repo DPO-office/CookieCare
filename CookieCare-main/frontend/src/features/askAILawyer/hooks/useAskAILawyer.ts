@@ -48,6 +48,12 @@ export function useAskAILawyer(authToken: string) {
   const composerRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
   const fileUploadRef = useRef<HTMLInputElement>(null);
+  const sseRef = useRef<EventSource | null>(null);
+
+  const closeSse = useCallback(() => {
+    sseRef.current?.close();
+    sseRef.current = null;
+  }, []);
 
   /* ·· Close popover on outside click ·························· */
   useEffect(() => {
@@ -147,6 +153,7 @@ export function useAskAILawyer(authToken: string) {
         setStepperPhase("extracting");
         setStepperMessage(`Processing ${file.name}…`);
         const es = createJobSSE(authToken);
+        sseRef.current = es;
         es.onmessage = (event) => {
           const data = JSON.parse(event.data);
           if (
@@ -201,6 +208,7 @@ export function useAskAILawyer(authToken: string) {
     setStepperPhase("division");
     setHasResult(false);
     setOpenPopover(null);
+    closeSse();
 
     try {
       const { status, data } = await askLawyer(
@@ -213,6 +221,7 @@ export function useAskAILawyer(authToken: string) {
       if (status === 202 && data.job_id) {
         setLawyerProgress("Analyzing…");
         const es = createJobSSE(authToken);
+        sseRef.current = es;
         es.onmessage = (event) => {
           const payload = JSON.parse(event.data);
           if (
@@ -280,6 +289,25 @@ export function useAskAILawyer(authToken: string) {
     }, 0);
   };
 
+  const resetConversation = useCallback(() => {
+    closeSse();
+    setSearchQuery("");
+    setStreamedResult("");
+    setMatchedSources([]);
+    setIsStreaming(false);
+    setHasResult(false);
+    setSubmittedQuery("");
+    setLawyerProgress("");
+    setLawyerError("");
+    setIsCopied(false);
+    setShowSources(false);
+    setActiveCitationModal(null);
+    setOpenPopover(null);
+    setStepperPhase("idle");
+    setStepperMessage("");
+    if (textareaRef.current) textareaRef.current.style.height = "auto";
+  }, [closeSse]);
+
   const togglePopover = (p: PopoverType) =>
     setOpenPopover((prev) => (prev === p ? null : p));
 
@@ -329,6 +357,7 @@ export function useAskAILawyer(authToken: string) {
     handleCopyMarkdown,
     applyQuickPrompt,
     togglePopover,
+    resetConversation,
     /* derived */
     selectedKBCount,
     selectedFolderCount,

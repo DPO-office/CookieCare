@@ -1,4 +1,4 @@
-import { useState, useMemo, CSSProperties } from "react";
+import { useState, useMemo } from "react";
 import {
   X,
   Search,
@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { CustomFolder, SavedDraft } from "../types";
 import { isPlaceholderVaultDocument } from "../utils/vaultDocumentFilters";
+import { ANALYZE_STYLES } from "../styles/analyzeStyles";
+import { LibraryModalOverlay } from "./LibraryModalColumns";
 
 interface VaultPickerSheetProps {
   folders: CustomFolder[];
@@ -20,18 +22,8 @@ interface VaultPickerSheetProps {
   onToggleFileSelection: (folderId: string, fileId: string, e: React.MouseEvent) => void;
   onToggleDraftSelection: (id: string) => void;
   onClose: () => void;
+  description?: string;
 }
-
-const PANEL_STYLE: CSSProperties = {
-  width: "min(100vw, 480px)",
-  flexShrink: 0,
-  display: "flex",
-  flexDirection: "column",
-  height: "100%",
-  background: "#ffffff",
-  borderLeft: "1px solid #ebebeb",
-  boxShadow: "-8px 0 32px rgba(0,0,0,0.08)",
-};
 
 function Checkbox({
   checked,
@@ -42,19 +34,17 @@ function Checkbox({
   indeterminate?: boolean;
   size?: "md" | "sm";
 }) {
-  const dim = size === "sm" ? "w-3.5 h-3.5" : "w-4 h-4";
+  const dim = size === "sm" ? "h-3.5 w-3.5" : "h-4 w-4";
   return (
     <div
-      className={`${dim} rounded flex items-center justify-center shrink-0 transition-colors`}
+      className={`${dim} flex shrink-0 items-center justify-center rounded-[5px] transition-colors`}
       style={{
-        background: checked ? "#18181B" : indeterminate ? "#F4F4F5" : "#ffffff",
-        border: `1.5px solid ${checked || indeterminate ? "#18181B" : "#D4D4D8"}`,
+        background: checked ? "#111827" : indeterminate ? "#EEF2FF" : "#ffffff",
+        border: `1.5px solid ${checked || indeterminate ? "#111827" : "#D0D5DD"}`,
       }}
     >
-      {checked && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
-      {indeterminate && !checked && (
-        <div className="w-2 h-0.5 rounded-full bg-[#18181B]" />
-      )}
+      {checked && <Check className="h-2.5 w-2.5 text-white" strokeWidth={3} />}
+      {indeterminate && !checked && <div className="h-0.5 w-2 rounded-full bg-[#111827]" />}
     </div>
   );
 }
@@ -80,6 +70,7 @@ export function VaultPickerSheet({
   onToggleFileSelection,
   onToggleDraftSelection,
   onClose,
+  description = "Browse and select documents for this analysis.",
 }: VaultPickerSheetProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -121,57 +112,62 @@ export function VaultPickerSheet({
   const isEmpty = filteredFolders.length === 0 && filteredDrafts.length === 0;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden">
-      <div
-        className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"
-        onClick={onClose}
-      />
-      <div className="absolute inset-y-0 right-0 flex" style={{ maxWidth: "100%" }}>
-        <div style={PANEL_STYLE} onClick={(e) => e.stopPropagation()}>
-          {/* Header */}
-          <div className="px-6 pt-6 pb-4 shrink-0 border-b border-[#F0F0F0]">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h2 className="text-[17px] font-semibold text-[#18181B] tracking-[-0.02em] m-0">
-                  Add from Vault
-                </h2>
-                <p className="text-[13px] text-[#A1A1AA] mt-1 mb-0 leading-relaxed">
-                  Browse and select documents for this analysis.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={onClose}
-                className="w-8 h-8 flex items-center justify-center rounded-full text-[#A1A1AA] hover:bg-[#F4F4F5] hover:text-[#52525B] transition-colors border-none bg-transparent cursor-pointer shrink-0"
-                aria-label="Close"
-              >
-                <X className="w-4 h-4" />
-              </button>
+    <>
+      <style>{ANALYZE_STYLES}</style>
+      <LibraryModalOverlay label="Add from Vault" onClose={onClose} placement="right">
+        <div
+          className="flex h-full w-full max-w-[420px] flex-col overflow-hidden rounded-[24px] bg-white font-sans"
+          style={{
+            boxShadow:
+              "0 1px 2px rgba(16,24,40,0.04), 0 0 0 1px rgba(16,24,40,0.06), 0 24px 48px rgba(16,24,40,0.12)",
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex shrink-0 items-start justify-between gap-3 px-6 py-5">
+            <div>
+              <h2 className="m-0 text-[17px] font-semibold tracking-[-0.02em] text-[#1a1a1a]">
+                Add from Vault
+              </h2>
+              <p className="mb-0 mt-1 text-[13px] leading-relaxed text-dark-200">
+                {description}
+              </p>
             </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border-none bg-transparent text-[#98A2B3] transition-colors hover:bg-[#F7F8FB] hover:text-[#1a1a1a]"
+              aria-label="Close"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
 
-          {/* Search */}
-          <div className="px-6 py-4 shrink-0">
+          <div className="shrink-0 px-6 pb-4">
             <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#C4C4C4] pointer-events-none" />
+              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98A2B3]" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search folders and documents…"
-                className="w-full pl-10 pr-4 py-2.5 text-[13px] rounded-full border border-[#E4E4E7] bg-[#FAFAFA] text-[#18181B] placeholder:text-[#C4C4C4] outline-none transition-all focus:border-[#D4D4D8] focus:bg-white focus:shadow-[0_0_0_3px_rgba(24,24,27,0.05)]"
+                className="lib-modal-search"
               />
             </div>
           </div>
 
-          {/* List */}
-          <div className="flex-1 overflow-y-auto px-6 pb-4 min-h-0">
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-4">
             {isEmpty ? (
-              <div className="text-center py-16 px-6 rounded-2xl border border-dashed border-[#E4E4E7] bg-[#FAFAFA]">
-                <p className="text-[13px] text-[#A1A1AA] m-0 leading-relaxed">
+              <div className="flex flex-col items-center px-6 py-16 text-center">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-[#EEF2FF]">
+                  <Folder className="h-4 w-4 text-[#4F5BD9]" />
+                </div>
+                <p className="m-0 text-[13px] font-medium text-[#1a1a1a]">
+                  {searchQuery ? "No documents match your search." : "No documents in your vault yet."}
+                </p>
+                <p className="m-0 mt-1.5 text-[12px] text-dark-200">
                   {searchQuery
-                    ? "No documents match your search."
-                    : "No documents in your Vault yet. Upload files to get started."}
+                    ? "Try a different search term."
+                    : "Upload files to get started."}
                 </p>
               </div>
             ) : (
@@ -185,41 +181,37 @@ export function VaultPickerSheet({
 
                   return (
                     <div key={folder.id}>
-                      <div
-                        className="flex items-center justify-between gap-2 px-4 py-3 rounded-xl transition-colors"
-                        style={{
-                          background: allSelected ? "#FAFAFA" : "#F9F9F9",
-                          border: `1px solid ${allSelected ? "#E4E4E7" : "#F0F0F0"}`,
-                        }}
-                      >
+                      <div className="flex items-center justify-between gap-2 rounded-[18px] bg-[#F7F8FB] px-3.5 py-3">
                         <button
                           type="button"
                           onClick={() => onToggleFolderSelection(folder.id)}
-                          className="flex items-center gap-3 min-w-0 flex-1 text-left border-none bg-transparent cursor-pointer p-0"
+                          className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 border-none bg-transparent p-0 text-left"
                         >
                           <Checkbox checked={allSelected} indeterminate={isIndeterminate} />
-                          <Folder className="w-4 h-4 shrink-0 text-[#A1A1AA]" />
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF] text-[#4F5BD9]">
+                            <Folder className="h-3.5 w-3.5" strokeWidth={1.75} />
+                          </span>
                           <span
-                            className="text-[13px] font-medium text-[#18181B] leading-snug"
+                            className="text-[13px] font-semibold leading-snug tracking-[-0.01em] text-[#1a1a1a]"
                             style={{ overflowWrap: "anywhere" }}
                           >
                             {folder.name}
                           </span>
                         </button>
-                        <div className="flex items-center gap-1 shrink-0">
-                          <span className="text-[11px] font-medium px-2 py-0.5 rounded-full tabular-nums bg-white text-[#A1A1AA] border border-[#F0F0F0]">
+                        <div className="flex shrink-0 items-center gap-1">
+                          <span className="score-badge bg-[#EEF2FF] text-[10px] font-semibold tabular-nums text-[#4F5BD9]">
                             {visibleFiles.length}
                           </span>
                           {visibleFiles.length > 0 && (
                             <button
                               type="button"
                               onClick={(e) => onToggleFolderExpanded(folder.id, e)}
-                              className="p-1.5 rounded-lg hover:bg-white border-none bg-transparent cursor-pointer"
+                              className="cursor-pointer rounded-full border-none bg-transparent p-1.5 hover:bg-white"
                             >
                               {folder.expanded ? (
-                                <ChevronUp className="w-3.5 h-3.5 text-[#C4C4C4]" />
+                                <ChevronUp className="h-3.5 w-3.5 text-[#98A2B3]" />
                               ) : (
-                                <ChevronDown className="w-3.5 h-3.5 text-[#C4C4C4]" />
+                                <ChevronDown className="h-3.5 w-3.5 text-[#98A2B3]" />
                               )}
                             </button>
                           )}
@@ -227,25 +219,28 @@ export function VaultPickerSheet({
                       </div>
 
                       {folder.expanded && visibleFiles.length > 0 && (
-                        <div className="mt-1.5 ml-3 pl-3 border-l border-[#F0F0F0] space-y-0.5">
+                        <div className="mt-1 space-y-0.5 pl-2">
                           {visibleFiles.map((file) => (
                             <button
                               key={file.id}
                               type="button"
                               onClick={(e) => onToggleFileSelection(folder.id, file.id, e)}
-                              className={`w-full flex items-start gap-3 px-3 py-2.5 rounded-lg transition-colors text-left border-none cursor-pointer ${
-                                file.selected ? "bg-[#FAFAFA]" : "bg-transparent hover:bg-[#FAFAFA]"
+                              className={`flex w-full cursor-pointer items-start gap-3 rounded-2xl border-none px-3 py-2.5 text-left transition-colors ${
+                                file.selected ? "bg-[#F7F8FB]" : "bg-transparent hover:bg-[#F7F8FB]"
                               }`}
                             >
                               <div className="pt-0.5">
                                 <Checkbox checked={file.selected} size="sm" />
                               </div>
-                              <FileText className="w-3.5 h-3.5 shrink-0 text-[#C4C4C4] mt-0.5" />
+                              <FileText
+                                className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#4F5BD9]"
+                                strokeWidth={1.75}
+                              />
                               <span
-                                className="text-[13px] leading-snug flex-1 min-w-0"
+                                className="min-w-0 flex-1 text-[13px] leading-snug"
                                 style={{
-                                  color: file.selected ? "#18181B" : "#52525B",
-                                  fontWeight: file.selected ? 500 : 400,
+                                  color: file.selected ? "#1a1a1a" : "#667085",
+                                  fontWeight: file.selected ? 600 : 500,
                                   overflowWrap: "anywhere",
                                 }}
                               >
@@ -261,7 +256,7 @@ export function VaultPickerSheet({
 
                 {filteredDrafts.length > 0 && (
                   <div className="pt-4">
-                    <p className="text-[10px] font-semibold text-[#C4C4C4] uppercase tracking-wider mb-2 px-1 m-0">
+                    <p className="m-0 mb-2 px-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[#98A2B3]">
                       Saved drafts
                     </p>
                     <div className="space-y-0.5">
@@ -270,25 +265,28 @@ export function VaultPickerSheet({
                           key={draft.id}
                           type="button"
                           onClick={() => onToggleDraftSelection(draft.id)}
-                          className={`w-full flex items-start gap-3 px-3 py-2.5 rounded-lg transition-colors text-left border-none cursor-pointer ${
-                            draft.selected ? "bg-[#FAFAFA]" : "hover:bg-[#FAFAFA]"
+                          className={`flex w-full cursor-pointer items-start gap-3 rounded-2xl border-none px-3 py-2.5 text-left transition-colors ${
+                            draft.selected ? "bg-[#F7F8FB]" : "hover:bg-[#F7F8FB]"
                           }`}
                         >
                           <div className="pt-0.5">
                             <Checkbox checked={draft.selected} size="sm" />
                           </div>
-                          <FileCode className="w-3.5 h-3.5 shrink-0 text-[#C4C4C4] mt-0.5" />
+                          <FileCode
+                            className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#4F5BD9]"
+                            strokeWidth={1.75}
+                          />
                           <span
-                            className="text-[13px] leading-snug flex-1 min-w-0"
+                            className="min-w-0 flex-1 text-[13px] leading-snug"
                             style={{
-                              color: draft.selected ? "#18181B" : "#52525B",
-                              fontWeight: draft.selected ? 500 : 400,
+                              color: draft.selected ? "#1a1a1a" : "#667085",
+                              fontWeight: draft.selected ? 600 : 500,
                               overflowWrap: "anywhere",
                             }}
                           >
                             {draft.title}
                           </span>
-                          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full shrink-0 bg-[#F4F4F5] text-[#A1A1AA] mt-0.5">
+                          <span className="score-badge mt-0.5 shrink-0 bg-badge-yellow text-[10px] font-medium text-badge-yellow-text">
                             Draft
                           </span>
                         </button>
@@ -300,21 +298,20 @@ export function VaultPickerSheet({
             )}
           </div>
 
-          {/* Footer */}
-          <div className="px-6 py-4 shrink-0 flex items-center justify-between gap-3 border-t border-[#F0F0F0] bg-[#FAFAFA]/80">
-            <span className="text-[13px] text-[#A1A1AA]">
+          <div className="flex shrink-0 items-center justify-between gap-3 px-6 py-4">
+            <span className="text-[13px] text-[#98A2B3]">
               {selectedCount} document{selectedCount === 1 ? "" : "s"} selected
             </span>
             <button
               type="button"
               onClick={onClose}
-              className="h-10 px-6 rounded-full text-[13px] font-semibold text-white bg-[#18181B] hover:bg-[#262626] transition-colors border-none cursor-pointer"
+              className="h-10 cursor-pointer rounded-full primary-gradient px-6 text-[13px] font-semibold text-white transition-opacity hover:opacity-90"
             >
               Done
             </button>
           </div>
         </div>
-      </div>
-    </div>
+      </LibraryModalOverlay>
+    </>
   );
 }

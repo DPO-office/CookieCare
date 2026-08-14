@@ -40,9 +40,12 @@ export function useAuth({ onAuthSuccess }: UseAuthOptions) {
         const data = await loginUser(email, password);
         onAuthSuccess(data.token, data.user);
       } else {
-        // Register returns { message, code } — not a token.
-        await registerUser(email, password, name);
-        setViewState("pending");
+        const data = await registerUser(email, password, name);
+        if ("token" in data && data.token && "user" in data && data.user) {
+          onAuthSuccess(data.token, data.user);
+        } else {
+          setViewState("pending");
+        }
       }
     } catch (err: any) {
       if (err instanceof AuthError && err.code === "PENDING_APPROVAL") {

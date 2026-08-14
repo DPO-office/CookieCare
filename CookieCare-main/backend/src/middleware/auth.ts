@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { config } from "../config/index.js";
-import { pool } from "../config/database.js";
+import { pool, isDatabaseQuotaError } from "../config/database.js";
 import { PoolClient } from "pg";
 
 interface JwtPayload {
@@ -23,6 +23,25 @@ declare global {
       dbClient?: PoolClient;
     }
   }
+}
+
+type AuthUser = NonNullable<Express.Request["user"]>;
+
+const USER_CACHE_TTL_MS = 2 * 60 * 1000;
+const userCache = new Map<string, { user: AuthUser; expiresAt: number }>();
+
+function getCachedUser(id: string): AuthUser | null {
+  const hit = userCache.get(id);
+  if (!hit) return null;
+  if (Date.now() > hit.expiresAt) {
+    userCache.delete(id);
+    return null;
+  }
+  return hit.user;
+}
+
+function setCachedUser(user: AuthUser): void {
+  userCache.set(user.id, { user, expiresAt: Date.now() + USER_CACHE_TTL_MS });
 }
 
 export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
@@ -58,16 +77,32 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
   try {
     const decoded = jwt.verify(token, config.jwtSecret) as JwtPayload;
 
-    const { rows } = await pool.query(
-      "SELECT id, email, name, status, role FROM users WHERE id = $1",
-      [decoded.id]
-    );
-
-    if (rows.length === 0) {
-      return res.status(403).json({ error: "Unauthorized or invalid user session." });
+    if (config.skipDb) {
+      req.user = {
+        id: decoded.id,
+        email: decoded.email,
+        name: decoded.email.split("@")[0] || "Demo user",
+        status: "APPROVED",
+        role: "ADMIN",
+      };
+      return next();
     }
 
-    const user = rows[0];
+    let user = getCachedUser(decoded.id);
+
+    if (!user) {
+      const { rows } = await pool.query(
+        "SELECT id, email, name, status, role FROM users WHERE id = $1",
+        [decoded.id]
+      );
+
+      if (rows.length === 0) {
+        return res.status(403).json({ error: "Unauthorized or invalid user session." });
+      }
+
+      user = rows[0];
+      setCachedUser(user);
+    }
 
     if (user.status !== 'APPROVED') {
       return res.status(403).json({ error: "Your account is awaiting admin approval." });
@@ -82,6 +117,14 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     
     if (err.name === 'JsonWebTokenError') {
       return res.status(403).json({ error: "Invalid or malformed token." });
+    }
+
+    if (isDatabaseQuotaError(err)) {
+      console.error("Authentication blocked: database data-transfer quota exceeded.");
+      return res.status(503).json({
+        error: "The database has exceeded its data transfer quota. Upgrade the Neon plan or wait for the quota to reset, then retry.",
+        code: "DATABASE_QUOTA_EXCEEDED",
+      });
     }
 
     console.error("Authentication middleware unexpected error:", err);

@@ -1,5 +1,4 @@
 import React from "react";
-import { Globe, ArrowRight, AlertCircle } from "lucide-react";
 
 interface WebsiteUrlInputProps {
   value: string;
@@ -26,6 +25,8 @@ function validateUrl(raw: string): string | null {
 
 export { validateUrl };
 
+const CARD_SHADOW = "0 1px 2px rgba(16,24,40,0.04), 0 0 0 1px rgba(16,24,40,0.06)";
+
 export function WebsiteUrlInput({
   value,
   onChange,
@@ -38,35 +39,22 @@ export function WebsiteUrlInput({
 
   return (
     <div>
-      {/* OR divider */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="flex-1 h-px bg-gray-200" />
-        <span className="text-[11px] font-bold text-gray-400 tracking-widest uppercase select-none px-1">
-          OR
+      <div className="mb-6 flex items-center gap-3">
+        <div className="h-px flex-1 bg-[#E4E7EC]" />
+        <span className="select-none px-1 text-[11px] font-medium uppercase tracking-[0.14em] text-[#98A2B3]">
+          Or
         </span>
-        <div className="flex-1 h-px bg-gray-200" />
+        <div className="h-px flex-1 bg-[#E4E7EC]" />
       </div>
 
-      {/* URL input row */}
       <div className="flex items-start gap-2.5">
-        <div className="flex-1 min-w-0">
-          {/* Input wrapper */}
+        <div className="min-w-0 flex-1">
           <div
-            className={`relative flex items-center bg-white border rounded-[14px] shadow-xs transition-all duration-200 overflow-hidden
-              ${error
-                ? "border-red-300 ring-1 ring-red-200"
-                : "border-gray-200 hover:border-gray-300 focus-within:border-gray-400 focus-within:shadow-sm focus-within:ring-1 focus-within:ring-gray-200"
-              }`}
+            className={`flex items-center rounded-full bg-white px-4 transition-shadow ${
+              error ? "ring-1 ring-[#B54A45]" : ""
+            }`}
+            style={{ boxShadow: CARD_SHADOW }}
           >
-            {/* Globe icon */}
-            <div className="pl-3.5 pr-2 shrink-0 flex items-center">
-              <Globe
-                className={`w-[15px] h-[15px] transition-colors duration-150 ${
-                  error ? "text-red-400" : "text-gray-400"
-                }`}
-              />
-            </div>
-
             <input
               type="url"
               value={value}
@@ -75,45 +63,31 @@ export function WebsiteUrlInput({
               placeholder="https://company.com"
               spellCheck={false}
               autoComplete="off"
-              className="flex-1 py-3 pr-3.5 text-[13.5px] font-medium text-gray-900 placeholder:text-gray-400 bg-transparent border-none outline-none focus:ring-0 min-w-0"
+              className="min-w-0 flex-1 border-none bg-transparent py-3 text-[13.5px] text-[#1a1a1a] outline-none placeholder:text-[#98A2B3] focus:ring-0"
             />
           </div>
-
-          {/* Inline error */}
           {error && (
-            <div className="flex items-center gap-1.5 mt-2 px-0.5">
-              <AlertCircle className="w-3 h-3 text-red-400 shrink-0" />
-              <p className="text-[11.5px] text-red-500 font-medium">{error}</p>
-            </div>
+            <p className="mt-2 px-1 text-[12px] text-badge-red-text">{error}</p>
           )}
         </div>
 
-        {/* Analyze Website button */}
         <button
+          type="button"
           onClick={onAnalyze}
           disabled={!value.trim()}
-          className={`shrink-0 flex items-center gap-2 px-4 py-3 rounded-[14px] text-[13px] font-semibold transition-all duration-200 whitespace-nowrap
-            ${value.trim()
-              ? "bg-[#2175D9] text-white hover:opacity-90 shadow-sm hover:shadow-md active:scale-[0.98]"
-              : "bg-gray-100 text-gray-400 cursor-not-allowed"
-            }`}
+          className={`shrink-0 rounded-full px-4 py-3 text-[13px] font-semibold whitespace-nowrap transition-opacity ${
+            value.trim()
+              ? "primary-gradient cursor-pointer text-white hover:opacity-90"
+              : "cursor-not-allowed bg-[#F2F4F7] text-[#98A2B3]"
+          }`}
         >
-          <Globe className="w-3.5 h-3.5" />
-          Analyze Website
-          {value.trim() && (
-            <ArrowRight className="w-3.5 h-3.5 -ml-0.5" />
-          )}
+          Analyze website
         </button>
       </div>
 
-      {/* Helper text */}
-      <p className="mt-3 text-[12px] text-gray-400 leading-relaxed">
-        Upload documents, provide a website URL, or use both for a more comprehensive AI assessment.
+      <p className="mt-3 text-[12px] leading-relaxed text-dark-200">
+        Upload documents, provide a website URL, or use both for a more complete assessment.
       </p>
     </div>
   );
 }
-
-
-
-

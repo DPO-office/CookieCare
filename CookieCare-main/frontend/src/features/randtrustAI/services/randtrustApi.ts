@@ -1,5 +1,5 @@
-// ─── RandTrust AI — API service layer ────────────────────────────────────────
-// All backend communication for the RandTrust AI feature lives here.
+// ─── LORA AI — API service layer ────────────────────────────────────────
+// All backend communication for the LORA AI feature lives here.
 // Components and hooks import from this module — never call fetch directly.
 
 import { apiUrl } from "../../../config";

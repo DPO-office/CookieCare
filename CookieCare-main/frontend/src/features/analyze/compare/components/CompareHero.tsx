@@ -1,6 +1,6 @@
 // ─── CompareHero ──────────────────────────────────────────────────────────────
 // Modal header — badge, title, subtitle, close button.
-// Typography and badge patterns mirror the RandTrust AI landing page exactly.
+// Typography and badge patterns mirror the LORA AI landing page exactly.
 
 import { X, GitCompare } from "lucide-react";
 import { motion } from "motion/react";

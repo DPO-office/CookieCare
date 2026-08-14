@@ -151,9 +151,9 @@ export default function EditorCanvas({
                   const next = isAiPanelOpen ? null : "main";
                   onSetActiveDropdown(next);
                 }}
-                className={`draft-selection-ai-btn ${isAiPanelOpen ? "open" : ""}`}
+                className={`draft-selection-ai-btn primary-gradient ${isAiPanelOpen ? "open" : ""}`}
               >
-                <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" strokeWidth={2} />
+                <Sparkles className="h-3.5 w-3.5 shrink-0 text-white" strokeWidth={2} />
                 <span>Ask AI</span>
                 <ChevronDown
                   className={`w-3 h-3 opacity-80 transition-transform duration-200 ${isAiPanelOpen ? "rotate-180" : ""}`}
@@ -181,7 +181,7 @@ export default function EditorCanvas({
                 onSubmit={(e) => { e.preventDefault(); submitAskAi(); }}
                 className="draft-selection-panel-input-row"
               >
-                <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" strokeWidth={2} />
+                <Sparkles className="h-3.5 w-3.5 shrink-0 text-[#4F5BD9]" strokeWidth={2} />
                 <input
                   autoFocus
                   type="text"
@@ -195,7 +195,7 @@ export default function EditorCanvas({
                   type="submit"
                   disabled={!askAiQuery.trim()}
                   aria-label="Apply instruction"
-                  className="draft-selection-panel-send"
+                  className="draft-selection-panel-send primary-gradient"
                 >
                   <ArrowUp className="w-3.5 h-3.5" strokeWidth={2.25} />
                 </button>

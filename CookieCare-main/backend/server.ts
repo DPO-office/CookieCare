@@ -47,6 +47,11 @@ initQueryLogger();
 
 // --- 1. API ROUTES ---
 app.use("/api", apiRoutes);
+// Unmatched /api paths must not fall through to Vite (which would proxy
+// them back to this same server and fail with ECONNREFUSED / ENOBUFS).
+app.use("/api", (_req, res) => {
+  res.status(404).json({ error: "Not found" });
+});
 
 // --- 2. ENVIRONMENT-SPECIFIC STATIC/SPA HANDLING ---
 if (config.nodeEnv === "production") {
@@ -110,11 +115,13 @@ async function startServer() {
   if (config.nodeEnv !== "production") {
     // Development: Vite dev server handles SPA + HMR
     // Vite root is the frontend folder
+    process.env.VITE_MIDDLEWARE = "1";
     const vite = await createViteServer({
       root: path.resolve(process.cwd(), "frontend"),
       server: {
         middlewareMode: true,
         hmr: { server: httpServer },
+        proxy: {},
       },
       appType: "spa",
     });

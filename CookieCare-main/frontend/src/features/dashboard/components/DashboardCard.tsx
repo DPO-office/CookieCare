@@ -25,23 +25,15 @@ export function DashboardCard({
   return (
     <section className={cn("dashboard-section-card", className)}>
       {hasHeader && (
-        <header
-          className="flex items-start justify-between gap-4 px-5 py-4 sm:px-6 border-b border-[var(--color-border-subtle)]"
-        >
+        <header className="flex items-start justify-between gap-4 px-5 py-4 sm:px-6">
           <div className="min-w-0">
             {overline && (
-              <p
-                className="text-[10px] font-bold uppercase tracking-[0.1em] mb-1"
-                style={{ color: "var(--color-text-tertiary)" }}
-              >
+              <p className="mb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[#98A2B3]">
                 {overline}
               </p>
             )}
             {title && (
-              <h2
-                className="text-[length:var(--text-h2)] font-semibold tracking-tight leading-tight"
-                style={{ color: "var(--color-text-primary)" }}
-              >
+              <h2 className="text-[16px] font-semibold leading-tight tracking-[-0.02em] text-[#1a1a1a]">
                 {title}
               </h2>
             )}

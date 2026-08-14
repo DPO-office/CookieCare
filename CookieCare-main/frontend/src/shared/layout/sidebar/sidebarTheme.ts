@@ -12,25 +12,32 @@ export const DARK = {
 
 export const THEME = {
   bg: "#FFFFFF",
-  border: "#F0F0F0",
+  border: "rgba(16,24,40,0.06)",
+  hairline: "0 1px 2px rgba(16,24,40,0.04), 0 12px 32px rgba(16,24,40,0.05), 0 0 0 1px rgba(16,24,40,0.05)",
 
-  textPrimary: "#18181B",
-  textSecondary: "#3F3F46",
-  textMuted: "#A1A1AA",
-  textFaint: "#C4C4C4",
+  textPrimary: "#1a1a1a",
+  textSecondary: "#667085",
+  textMuted: "#98A2B3",
+  textFaint: "#98A2B3",
 
-  sectionLabel: "#A1A1AA",
+  sectionLabel: "#98A2B3",
 
-  itemActive: "#F4F4F5",
-  itemActiveText: "#18181B",
-  itemActiveIcon: "#18181B",
-  itemHover: "#FAFAFA",
-  itemHoverText: "#18181B",
+  itemIdle: "#344054",
+  itemIdleIcon: "#98A2B3",
+  itemActive: "linear-gradient(to bottom, #8e98ff, #606beb)",
+  itemActiveShadow: "0 1px 2px rgba(96,107,235,0.28), 0 6px 16px rgba(96,107,235,0.18)",
+  itemActiveText: "#FFFFFF",
+  itemActiveIcon: "#FFFFFF",
+  itemHover: "#F7F8FB",
+  itemHoverText: "#1a1a1a",
 
-  searchBg: "#F4F4F5",
+  well: "#EEF2FF",
+  wellInk: "#4F5BD9",
+
+  searchBg: "#F7F8FB",
   searchBorder: "transparent",
 
   kbdBg: "#FFFFFF",
-  kbdBorder: "#E4E4E7",
-  kbdText: "#A1A1AA",
+  kbdBorder: "#E5E7EB",
+  kbdText: "#98A2B3",
 } as const;

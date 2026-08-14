@@ -4,18 +4,16 @@ interface ComplianceDotProps {
   status: ComplianceItem["status"];
 }
 
-export function ComplianceDot({ status }: ComplianceDotProps) {
-  const cfg = {
-    compliant: { cls: "bg-emerald-500", label: "Compliant" },
-    partial:   { cls: "bg-amber-400",   label: "Partial"   },
-    missing:   { cls: "bg-red-500",     label: "Missing"   },
-    na:        { cls: "bg-gray-300",    label: "N/A"       },
-  }[status];
+const CFG = {
+  compliant: { cls: "bg-badge-green text-badge-green-text", label: "Compliant" },
+  partial: { cls: "bg-badge-yellow text-badge-yellow-text", label: "Partial" },
+  missing: { cls: "bg-badge-red text-badge-red-text", label: "Missing" },
+  na: { cls: "bg-[#F2F4F7] text-[#667085]", label: "N/A" },
+} as const;
 
+export function ComplianceDot({ status }: ComplianceDotProps) {
+  const cfg = CFG[status];
   return (
-    <span className="flex items-center gap-1.5">
-      <span className={`w-2 h-2 rounded-full shrink-0 ${cfg.cls}`} />
-      <span className="text-[11px] text-gray-500 font-medium">{cfg.label}</span>
-    </span>
+    <span className={`score-badge text-[10px] font-medium ${cfg.cls}`}>{cfg.label}</span>
   );
 }

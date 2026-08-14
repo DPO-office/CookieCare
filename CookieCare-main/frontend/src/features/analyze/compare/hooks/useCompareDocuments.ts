@@ -1,7 +1,7 @@
 // ─── useCompareDocuments Hook ────────────────────────────────────────────────
 // State management for the Compare Documents modal (file slots only).
 // The compare execution logic lives in useCompare.ts and is wired at
-// RandTrustAI.tsx level so results land in the canonical chat message stream.
+// LORAAI.tsx level so results land in the canonical chat message stream.
 
 import { useState, useCallback } from "react";
 import type { CompareFile, AgreementSlot } from "../types";

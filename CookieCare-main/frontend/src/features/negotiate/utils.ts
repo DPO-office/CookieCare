@@ -5,12 +5,16 @@ import { markdownToHtml } from "../../shared/utils/markdownToHtml";
 export function buildRenderedDocumentHtml(
   content: string,
   agentMarkups: AgentMarkup[],
-  selectedMarkupId: string | null
+  selectedMarkupId: string | null,
+  options?: {
+    appliedClause?: { id: string; text: string } | null;
+  }
 ): string {
   if (!content) return "";
 
   const isHtml = /<[a-z][\s\S]*>/i.test(content.trim());
   let html = isHtml ? content : markdownToHtml(content);
+  const appliedClause = options?.appliedClause ?? null;
 
   const sorted = [...agentMarkups].sort((a, b) => {
     const order = { RED: 0, YELLOW: 1, GREEN: 2 };
@@ -37,5 +41,17 @@ export function buildRenderedDocumentHtml(
 
     html = html.replace(regex, `${spanOpen}${m.original}${spanClose}`);
   }
+
+  if (appliedClause?.text && appliedClause.text.trim().length > 2) {
+    const escaped = appliedClause.text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(escaped, "");
+    if (regex.test(html)) {
+      html = html.replace(
+        regex,
+        `<span data-clause-id="${appliedClause.id}" class="negotiate-clause-applied">${appliedClause.text}</span>`,
+      );
+    }
+  }
+
   return html;
 }

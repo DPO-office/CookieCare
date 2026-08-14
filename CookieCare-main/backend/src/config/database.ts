@@ -3,7 +3,30 @@ import { config } from "./index.js";
 
 const { Pool } = pg;
 
-const rawConnectionString = config.databaseUrl.trim();
+const emptyResult = {
+  rows: [] as unknown[],
+  rowCount: 0,
+  command: "SELECT",
+  oid: 0,
+  fields: [],
+};
+
+function createStubPool(): pg.Pool {
+  const stubClient = {
+    query: async () => emptyResult,
+    release: () => undefined,
+    on: () => undefined,
+  };
+
+  return {
+    query: async () => emptyResult,
+    connect: async () => stubClient,
+    on: () => undefined,
+    end: async () => undefined,
+  } as unknown as pg.Pool;
+}
+
+const rawConnectionString = (config.databaseUrl || "").trim();
 const isNeon = rawConnectionString.includes("neon.tech");
 const isPooler = rawConnectionString.includes("-pooler.");
 const wantsSsl =
@@ -24,19 +47,38 @@ if (isNeon && isPooler && !connectionString.includes("pgbouncer=true")) {
   connectionString += (connectionString.includes("?") ? "&" : "?") + "pgbouncer=true";
 }
 
-export const pool = new Pool({
-  connectionString,
-  ssl: wantsSsl ? { rejectUnauthorized: false } : undefined,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 60000,
-  keepAlive: true,
-  keepAliveInitialDelayMillis: 0,
-});
+export const pool = config.skipDb
+  ? createStubPool()
+  : new Pool({
+      connectionString,
+      ssl: wantsSsl ? { rejectUnauthorized: false } : undefined,
+      max: isNeon ? 8 : 20,
+      idleTimeoutMillis: isNeon ? 10000 : 30000,
+      connectionTimeoutMillis: 60000,
+      keepAlive: true,
+      keepAliveInitialDelayMillis: 10000,
+    });
 
-pool.on("error", (err) => {
-  console.error("Unexpected database pool error:", err);
-});
+if (!config.skipDb) {
+  pool.on("error", (err) => {
+    console.error("Unexpected database pool error:", err.message);
+  });
+
+  // Checked-out clients emit 'error' when the remote closes the socket
+  // (Neon idle timeout, PgBouncer, TLS intercept). Without a listener,
+  // Node treats that as an unhandled error and exits the process.
+  pool.on("connect", (client) => {
+    client.on("error", (err) => {
+      console.error("Unexpected database client error:", err.message);
+    });
+  });
+}
+
+export function isDatabaseQuotaError(err: unknown): boolean {
+  const e = err as { code?: string; message?: string };
+  const message = e?.message ?? "";
+  return e?.code === "53000" || /data transfer quota/i.test(message);
+}
 
 export const hasConnectionString = !!connectionString;
 

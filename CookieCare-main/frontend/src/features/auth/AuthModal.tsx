@@ -1,5 +1,4 @@
-import { useState, useEffect, useRef } from "react";
-import { PRIMARY_BRAND, PRIMARY_BRAND_LIGHT } from "../../shared/theme/colors";
+import { useState, useEffect, useRef, type FocusEvent } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Lock, Mail, User, ShieldCheck, ArrowRight, Clock,
@@ -13,20 +12,23 @@ interface AuthModalProps {
   onAuthSuccess: (token: string, user: AuthUser) => void;
 }
 
+const HAIRLINE = "0 1px 2px rgba(16,24,40,0.04), 0 0 0 1px rgba(16,24,40,0.06)";
+const FOCUS_RING = "0 0 0 1.5px #8e98ff, 0 8px 24px rgba(96,107,235,0.08)";
+
 const FEATURES = [
   "AI contract review",
   "DPA reviewer",
-  "cookie scanner",
-  "vendor risk assessment",
+  "Cookie scanner",
+  "Vendor risk assessment",
   "AI governance & compliance",
 ];
 
 const INSIGHTS = [
-  { id: "gdpr", tag: "privacy insights", tagColor: "#6B7280", title: "GDPR update", body: "European Data Protection Board publishes updated AI transparency guidance for organisations deploying generative models." },
-  { id: "ai-act", tag: "compliance highlights", tagColor: "#374151", title: "EU AI Act", body: "new obligations for high-risk AI systems- providers must document conformity assessments before market release." },
-  { id: "cookie", tag: "industry updates", tagColor: "#6B7280", title: "cookie compliance", body: "Chrome's Privacy Sandbox rollout continues. enterprises should review first-party data strategies now." },
-  { id: "nist", tag: "privacy insights", tagColor: "#6B7280", title: "NIST privacy framework", body: "updated enterprise guidance released, emphasising data minimisation and purpose limitation controls." },
-  { id: "iso", tag: "industry updates", tagColor: "#6B7280", title: "ISO 42001", body: "growing enterprise adoption of AI governance management systems as boards demand structured AI risk oversight." },
+  { id: "gdpr", tag: "Privacy insights", title: "GDPR update", body: "European Data Protection Board publishes updated AI transparency guidance for organisations deploying generative models." },
+  { id: "ai-act", tag: "Compliance highlights", title: "EU AI Act", body: "New obligations for high-risk AI systems — providers must document conformity assessments before market release." },
+  { id: "cookie", tag: "Industry updates", title: "Cookie compliance", body: "Chrome's Privacy Sandbox rollout continues. Enterprises should review first-party data strategies now." },
+  { id: "nist", tag: "Privacy insights", title: "NIST privacy framework", body: "Updated enterprise guidance released, emphasising data minimisation and purpose limitation controls." },
+  { id: "iso", tag: "Industry updates", title: "ISO 42001", body: "Growing enterprise adoption of AI governance management systems as boards demand structured AI risk oversight." },
 ];
 
 const BADGES = ["GDPR", "ISO 27001", "ISO 42001", "SOC 2", "CCPA"];
@@ -62,46 +64,58 @@ function InsightCarousel() {
 
   return (
     <div>
-      <p className="text-[11px] font-semibold tracking-widest mb-2"
-        style={{ color: "#94A3B8" }}>compliance intelligence</p>
-      <div className="relative h-[88px] mb-2.5">
+      <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#98A2B3]">
+        Compliance intelligence
+      </p>
+      <div className="relative mb-3 h-[96px]">
         <AnimatePresence mode="wait" custom={dir}>
           <motion.div
-            key={card.id} custom={dir} variants={variants}
-            initial="enter" animate="center" exit="exit"
+            key={card.id}
+            custom={dir}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
             transition={{ duration: 0.26, ease: [0.32, 0.72, 0, 1] }}
-            className="absolute inset-0 rounded-xl px-4 py-3 flex flex-col justify-between"
-            style={{ background: "#F8FAFC", border: "1px solid #E2E8F0" }}
+            className="absolute inset-0 flex flex-col justify-between rounded-[18px] px-4 py-3.5"
+            style={{ background: "#F7F8FB", boxShadow: "inset 0 0 0 1px rgba(16,24,40,0.04)" }}
           >
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold tracking-widest" style={{ color: card.tagColor }}>
+              <span className="score-badge bg-[#EEF2FF] text-[10px] font-medium text-[#4F5BD9]">
                 {card.tag}
               </span>
-              <span style={{ color: "#CBD5E1" }}>·</span>
-              <span className="text-[13px] font-semibold" style={{ color: "#0F172A" }}>{card.title}</span>
+              <span className="text-[13px] font-semibold tracking-[-0.02em] text-[#1a1a1a]">
+                {card.title}
+              </span>
             </div>
-            <p className="text-[12px] leading-relaxed line-clamp-2" style={{ color: "#64748B" }}>{card.body}</p>
+            <p className="line-clamp-2 text-[12px] leading-relaxed text-[#667085]">{card.body}</p>
           </motion.div>
         </AnimatePresence>
       </div>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           {INSIGHTS.map((_, i) => (
-            <button key={i} aria-label={`Go to insight ${i + 1}`}
+            <button
+              key={i}
+              aria-label={`Go to insight ${i + 1}`}
               onClick={() => { go(i, i > index ? 1 : -1); startTimer(); }}
               className="h-1 rounded-full transition-all duration-300"
-              style={{ background: i === index ? "#111827" : "#D1D5DB", width: i === index ? "1rem" : "0.25rem" }} />
+              style={{
+                background: i === index ? "#4F5BD9" : "#E5E7EB",
+                width: i === index ? "1rem" : "0.25rem",
+              }}
+            />
           ))}
         </div>
         <div className="flex gap-1">
           {[prev, next].map((fn, i) => (
-            <button key={i} onClick={fn} aria-label={i === 0 ? "Previous" : "Next"}
-              className="w-5 h-5 rounded-full flex items-center justify-center transition-colors"
-              style={{ border: "1px solid #E5E7EB", color: "#9CA3AF" }}
-              onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.color = "#374151"}
-              onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.color = "#9CA3AF"}
+            <button
+              key={i}
+              onClick={fn}
+              aria-label={i === 0 ? "Previous" : "Next"}
+              className="flex h-7 w-7 items-center justify-center rounded-full text-[#98A2B3] transition-colors hover:bg-[#EEF2FF] hover:text-[#4F5BD9]"
             >
-              {i === 0 ? <ChevronLeft className="w-2.5 h-2.5" /> : <ChevronRight className="w-2.5 h-2.5" />}
+              {i === 0 ? <ChevronLeft className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
             </button>
           ))}
         </div>
@@ -111,10 +125,10 @@ function InsightCarousel() {
 }
 
 const inputBase =
-  "w-full bg-white border border-gray-200 rounded-lg py-[17px] pl-11 pr-4 text-[15px] text-gray-900 " +
-  "placeholder:text-gray-400 outline-none transition-all duration-150";
+  "w-full rounded-[16px] border border-transparent bg-[#F7F8FB] py-3.5 pl-11 pr-4 text-[14px] text-[#1a1a1a] " +
+  "placeholder:text-[#98A2B3] outline-none transition-shadow duration-150";
 
-const labelClass = "block text-[12px] font-semibold tracking-widest mb-2 text-gray-500" as const;
+const labelClass = "mb-2 block text-[11px] font-semibold uppercase tracking-[0.12em] text-[#98A2B3]";
 
 export default function AuthModal({ onAuthSuccess }: AuthModalProps) {
   const {
@@ -127,242 +141,290 @@ export default function AuthModal({ onAuthSuccess }: AuthModalProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
+  const bindFocus = {
+    onFocus: (e: FocusEvent<HTMLInputElement>) => {
+      e.target.style.boxShadow = FOCUS_RING;
+      e.target.style.background = "#FFFFFF";
+    },
+    onBlur: (e: FocusEvent<HTMLInputElement>) => {
+      e.target.style.boxShadow = "none";
+      e.target.style.background = "#F7F8FB";
+    },
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 py-10"
-      style={{ background: "#F3F4F6" }}>
+    <div className="dpa-results-bg flex min-h-screen items-center justify-center px-6 py-10">
       <div
-        className="w-full max-w-[1400px] flex rounded-2xl overflow-hidden"
-        style={{
-          minHeight: "640px",
-          border: "1px solid #E5E7EB",
-          boxShadow: "0 24px 80px rgba(0,0,0,0.12)",
-        }}
+        className="flex w-full max-w-[1200px] overflow-hidden rounded-[24px] bg-white"
+        style={{ minHeight: "680px", boxShadow: HAIRLINE }}
       >
-        {/* ── LEFT — marketing panel ───────────────────────────── */}
-        <div
-          className="hidden lg:flex w-[44%] flex-col justify-between px-14 py-12"
-          style={{ background: "#FFFFFF", borderRight: "1px solid #E5E7EB" }}
-        >
+        <div className="hidden w-[44%] flex-col justify-between border-r border-[#F0F0F2] bg-[#F7F8FB] px-12 py-11 lg:flex">
           <div>
-            <div className="flex items-center gap-4 mb-9">
-              <BrandLogo size="xl" />
+            <div className="mb-8">
+              <BrandLogo size="lg" tagline="Legal Operations & Risk Assistant" />
             </div>
-            <h1 className="text-[24px] font-bold leading-[1.2] tracking-tight mb-5 max-w-[400px]" style={{ color: "#2175D9" }}>
-              enterprise AI for privacy, security &amp; legal compliance
+            <h1 className="mb-3 max-w-[380px] text-[28px] font-semibold leading-[1.2] tracking-[-0.03em] text-[#1a1a1a]">
+              Enterprise AI for privacy, security & legal compliance
             </h1>
-            <p className="text-[15px] leading-[1.65] max-w-[380px] text-gray-400">
-              automate privacy reviews, contract analysis, vendor assessments and AI
+            <p className="max-w-[360px] text-[14px] leading-relaxed text-[#667085]">
+              Automate privacy reviews, contract analysis, vendor assessments and AI
               governance from one intelligent platform.
             </p>
           </div>
-          <div>
-            <p className="text-[11px] font-bold tracking-widest mb-3 mt-6 text-gray-400">
-              why randtrust
+
+          <div className="my-8">
+            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#98A2B3]">
+              Why LORA
             </p>
-            <ul className="space-y-2.5 mb-7">
+            <ul className="mb-8 space-y-2.5">
               {FEATURES.map((f) => (
                 <li key={f} className="flex items-center gap-3">
-                  <Check className="w-3.5 h-3.5 shrink-0 text-gray-900" strokeWidth={3} />
-                  <span className="text-[14px] text-gray-600">{f}</span>
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF]">
+                    <Check className="h-3 w-3 text-[#4F5BD9]" strokeWidth={2.5} />
+                  </span>
+                  <span className="text-[13px] font-medium text-[#344054]">{f}</span>
                 </li>
               ))}
             </ul>
             <InsightCarousel />
           </div>
+
           <div>
-            <p className="text-[11px] font-bold tracking-widest mb-2.5 text-gray-400">
-              trusted compliance standards
+            <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#98A2B3]">
+              Trusted compliance standards
             </p>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5">
               {BADGES.map((b) => (
-                <span key={b}
-                  className="px-3 py-1.5 rounded-md text-[11px] font-semibold tracking-wide"
-                  style={{ background: "#F9FAFB", border: "1px solid #E5E7EB", color: "#6B7280" }}>{b}</span>
+                <span
+                  key={b}
+                  className="score-badge bg-white text-[11px] font-medium text-[#667085]"
+                  style={{ boxShadow: HAIRLINE }}
+                >
+                  {b}
+                </span>
               ))}
             </div>
           </div>
         </div>
 
-        {/* ── RIGHT — form / pending panel ─────────────────────── */}
-        <div className="flex-1 flex flex-col justify-center bg-white px-14 py-12">
-          {/* Mobile logo */}
-          <div className="flex lg:hidden items-center mb-8 justify-center">
+        <div className="flex flex-1 flex-col justify-center bg-white px-10 py-12 sm:px-14">
+          <div className="mb-8 flex items-center justify-center lg:hidden">
             <BrandLogo size="md" />
           </div>
 
           <AnimatePresence mode="wait">
             {viewState === "pending" ? (
-              /* ── Awaiting approval screen ──────────────────────── */
               <motion.div
                 key="pending"
-                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }}
-                className="w-full max-w-[480px] mx-auto text-center"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.3 }}
+                className="mx-auto w-full max-w-[420px] text-center"
               >
-                <div className="w-16 h-16 rounded-2xl mx-auto mb-6 flex items-center justify-center"
-                  style={{ background: "#FEF3C7" }}>
-                  <Clock className="w-8 h-8" style={{ color: "#D97706" }} />
+                <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#EEF2FF]">
+                  <Clock className="h-7 w-7 text-[#4F5BD9]" />
                 </div>
-                <h2 className="text-[28px] font-bold tracking-tight mb-3" style={{ color: "#111827" }}>
-                  awaiting admin approval
+                <h2 className="mb-2 text-[26px] font-semibold tracking-[-0.03em] text-[#1a1a1a]">
+                  Awaiting admin approval
                 </h2>
-                <p className="text-[15px] leading-[1.7] mb-8" style={{ color: "#6B7280" }}>
-                  your account has been created successfully. an administrator needs to
+                <p className="mb-8 text-[14px] leading-relaxed text-[#667085]">
+                  Your account has been created successfully. An administrator needs to
                   review and approve your access before you can use the platform.
-                  you will be able to sign in once approved.
                 </p>
                 <button
                   onClick={backToForm}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-[14px] font-semibold transition-colors"
-                  style={{ background: "#F3F4F6", color: "#374151" }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#E5E7EB"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "#F3F4F6"; }}
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#F7F8FB] px-5 py-2.5 text-[13px] font-semibold text-[#344054] transition-colors hover:bg-[#EEF2FF] hover:text-[#4F5BD9]"
                 >
-                  <ArrowRight className="w-4 h-4 rotate-180" />
-                  back to sign in
+                  <ArrowRight className="h-4 w-4 rotate-180" />
+                  Back to sign in
                 </button>
               </motion.div>
             ) : (
-              /* ── Auth form ────────────────────────────────────── */
               <motion.div
                 key="form"
-                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3, ease: "easeOut" }}
-                className="w-full max-w-[480px] mx-auto"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="mx-auto w-full max-w-[420px]"
               >
-                <h2 className="text-[32px] font-bold tracking-tight mb-1.5" style={{ color: "#2175D9", letterSpacing: "-0.025em" }}>
-                  {isLogin ? "welcome back" : "create your account"}
+                <h2 className="mb-1.5 text-[28px] font-semibold tracking-[-0.03em] text-[#1a1a1a]">
+                  {isLogin ? "Welcome back" : "Create your account"}
                 </h2>
-                <p className="text-[15px] mb-8 text-gray-400">
-                  {isLogin ? "sign in to continue to your randtrust workspace." : "get started with randtrust in seconds."}
+                <p className="mb-8 text-[14px] text-[#667085]">
+                  {isLogin
+                    ? "Sign in to continue to your LORA workspace."
+                    : "Get started with LORA in seconds."}
                 </p>
 
-                {/* ── Google sign-in — only when Identity Platform is configured ── */}
                 {isGoogleAuthConfigured && (
                   <>
                     <button
                       type="button"
                       onClick={handleGoogleLogin}
                       disabled={googleLoading || loading}
-                      className="w-full flex items-center justify-center gap-3 py-[14px] rounded-xl text-[15px] font-medium transition-all duration-150 disabled:opacity-60 mb-6"
-                      style={{
-                        background: "#FFFFFF",
-                        border: "1px solid #D1D5DB",
-                        color: "#374151",
-                      }}
-                      onMouseEnter={(e) => { if (!googleLoading) (e.currentTarget as HTMLElement).style.background = "#F9FAFB"; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "#FFFFFF"; }}
+                      className="mb-6 flex w-full cursor-pointer items-center justify-center gap-3 rounded-full bg-white py-3 text-[14px] font-medium text-[#344054] transition-colors hover:bg-[#F7F8FB] disabled:opacity-60"
+                      style={{ boxShadow: HAIRLINE }}
                     >
                       {googleLoading ? (
-                        <span className="text-[14px]">signing in with Google...</span>
+                        <span>Signing in with Google…</span>
                       ) : (
                         <>
-                          <svg width="20" height="20" viewBox="0 0 48 48">
+                          <svg width="18" height="18" viewBox="0 0 48 48">
                             <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
                             <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
                             <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
                             <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
                           </svg>
-                          <span>continue with Google</span>
+                          <span>Continue with Google</span>
                         </>
                       )}
                     </button>
 
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="flex-1 h-px" style={{ background: "#E5E7EB" }} />
-                      <span className="text-[12px] font-medium uppercase tracking-wider" style={{ color: "#9CA3AF" }}>or</span>
-                      <div className="flex-1 h-px" style={{ background: "#E5E7EB" }} />
+                    <div className="mb-6 flex items-center gap-3">
+                      <div className="h-px flex-1 bg-[#F0F0F2]" />
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#98A2B3]">or</span>
+                      <div className="h-px flex-1 bg-[#F0F0F2]" />
                     </div>
                   </>
                 )}
 
                 <AnimatePresence mode="wait">
                   {error && (
-                    <motion.div key="err"
-                      initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.18 }}
-                      className="mb-5 px-4 py-3 rounded-lg text-[13px] bg-red-50 border border-red-200 text-red-600"
+                    <motion.div
+                      key="err"
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.18 }}
+                      className="mb-5 rounded-[16px] bg-[#FEF2F2] px-4 py-3 text-[13px] text-[#991B1B]"
                       role="alert"
-                    >{error}</motion.div>
+                    >
+                      {error}
+                    </motion.div>
                   )}
                 </AnimatePresence>
 
-                <form onSubmit={handleSubmit} noValidate className="space-y-5">
+                <form onSubmit={handleSubmit} noValidate className="space-y-4">
                   <AnimatePresence>
                     {!isLogin && (
-                      <motion.div key="name"
-                        initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }}
+                      <motion.div
+                        key="name"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.2 }}
                         className="overflow-hidden"
                       >
-                        <label htmlFor="auth-name-input" className={labelClass}>full name</label>
+                        <label htmlFor="auth-name-input" className={labelClass}>Full name</label>
                         <div className="relative">
-                          <User className="absolute left-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-gray-400" />
-                          <input id="auth-name-input" type="text" required autoComplete="name"
-                            placeholder="Your full name" value={name} onChange={(e) => setName(e.target.value)}
+                          <User className="absolute left-4 top-1/2 h-[16px] w-[16px] -translate-y-1/2 text-[#98A2B3]" />
+                          <input
+                            id="auth-name-input"
+                            type="text"
+                            required
+                            autoComplete="name"
+                            placeholder="Your full name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
                             className={inputBase}
-                            onFocus={(e) => { e.target.style.borderColor = "#374151"; e.target.style.boxShadow = "0 0 0 3px rgba(55,65,81,0.08)"; }}
-                            onBlur={(e)  => { e.target.style.borderColor = "#E5E7EB"; e.target.style.boxShadow = "none"; }} />
+                            {...bindFocus}
+                          />
                         </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
 
                   <div>
-                    <label htmlFor="auth-email-input" className={labelClass}>email address</label>
+                    <label htmlFor="auth-email-input" className={labelClass}>Email address</label>
                     <div className="relative">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-gray-400" />
-                      <input id="auth-email-input" type="email" required autoComplete="email"
-                        placeholder="you@company.com" value={email} onChange={(e) => setEmail(e.target.value)}
+                      <Mail className="absolute left-4 top-1/2 h-[16px] w-[16px] -translate-y-1/2 text-[#98A2B3]" />
+                      <input
+                        id="auth-email-input"
+                        type="email"
+                        required
+                        autoComplete="email"
+                        placeholder="you@company.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         className={inputBase}
-                        onFocus={(e) => { e.target.style.borderColor = "#374151"; e.target.style.boxShadow = "0 0 0 3px rgba(55,65,81,0.08)"; }}
-                        onBlur={(e) => { e.target.style.borderColor = "#E5E7EB"; e.target.style.boxShadow = "none"; }} />
+                        {...bindFocus}
+                      />
                     </div>
                   </div>
 
                   <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <label htmlFor="auth-password-input" className={labelClass} style={{ marginBottom: 0 }}>password</label>
+                    <div className="mb-2 flex items-center justify-between">
+                      <label htmlFor="auth-password-input" className={labelClass} style={{ marginBottom: 0 }}>
+                        Password
+                      </label>
                       {isLogin && (
-                        <button type="button" className="text-[12px] font-medium text-gray-400 hover:text-gray-700 transition-colors">
-                          forgot password?
+                        <button
+                          type="button"
+                          className="text-[12px] font-medium text-[#98A2B3] transition-colors hover:text-[#4F5BD9]"
+                        >
+                          Forgot password?
                         </button>
                       )}
                     </div>
                     <div className="relative">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-gray-400" />
-                      <input id="auth-password-input" type={showPassword ? "text" : "password"} required
+                      <Lock className="absolute left-4 top-1/2 h-[16px] w-[16px] -translate-y-1/2 text-[#98A2B3]" />
+                      <input
+                        id="auth-password-input"
+                        type={showPassword ? "text" : "password"}
+                        required
                         autoComplete={isLogin ? "current-password" : "new-password"}
-                        placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         className={`${inputBase} pr-12`}
-                        onFocus={(e) => { e.target.style.borderColor = "#374151"; e.target.style.boxShadow = "0 0 0 3px rgba(55,65,81,0.08)"; }}
-                        onBlur={(e)  => { e.target.style.borderColor = "#E5E7EB"; e.target.style.boxShadow = "none"; }} />
-                      <button type="button" aria-label={showPassword ? "Hide" : "Show"}
+                        {...bindFocus}
+                      />
+                      <button
+                        type="button"
+                        aria-label={showPassword ? "Hide" : "Show"}
                         onClick={() => setShowPassword((v) => !v)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
-                        {showPassword ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[#98A2B3] transition-colors hover:text-[#4F5BD9]"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
                   </div>
 
                   <AnimatePresence>
                     {!isLogin && (
-                      <motion.div key="confirm"
-                        initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
-                        <label htmlFor="auth-confirm-password-input" className={labelClass}>confirm password</label>
+                      <motion.div
+                        key="confirm"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <label htmlFor="auth-confirm-password-input" className={labelClass}>
+                          Confirm password
+                        </label>
                         <div className="relative">
-                          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-gray-400" />
-                          <input id="auth-confirm-password-input" type={showConfirm ? "text" : "password"} required
-                            autoComplete="new-password" placeholder="••••••••"
-                            value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
+                          <Lock className="absolute left-4 top-1/2 h-[16px] w-[16px] -translate-y-1/2 text-[#98A2B3]" />
+                          <input
+                            id="auth-confirm-password-input"
+                            type={showConfirm ? "text" : "password"}
+                            required
+                            autoComplete="new-password"
+                            placeholder="••••••••"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
                             className={`${inputBase} pr-12`}
-                            onFocus={(e) => { e.target.style.borderColor = "#374151"; e.target.style.boxShadow = "0 0 0 3px rgba(55,65,81,0.08)"; }}
-                            onBlur={(e)  => { e.target.style.borderColor = "#E5E7EB"; e.target.style.boxShadow = "none"; }} />
-                          <button type="button" aria-label={showConfirm ? "Hide" : "Show"}
+                            {...bindFocus}
+                          />
+                          <button
+                            type="button"
+                            aria-label={showConfirm ? "Hide" : "Show"}
                             onClick={() => setShowConfirm((v) => !v)}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
-                            {showConfirm ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-[#98A2B3] transition-colors hover:text-[#4F5BD9]"
+                          >
+                            {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                           </button>
                         </div>
                       </motion.div>
@@ -370,40 +432,53 @@ export default function AuthModal({ onAuthSuccess }: AuthModalProps) {
                   </AnimatePresence>
 
                   {isLogin && (
-                    <div className="flex items-center gap-2.5">
-                      <input id="auth-remember" type="checkbox"
-                        className="w-4 h-4 rounded border-gray-300 cursor-pointer accent-gray-900" />
-                      <label htmlFor="auth-remember" className="text-[13px] cursor-pointer select-none text-gray-500">
-                        remember me for 30 days
+                    <div className="flex items-center gap-2.5 pt-0.5">
+                      <input
+                        id="auth-remember"
+                        type="checkbox"
+                        className="h-4 w-4 cursor-pointer rounded border-[#D0D5DD] accent-[#4F5BD9]"
+                      />
+                      <label htmlFor="auth-remember" className="cursor-pointer select-none text-[13px] text-[#667085]">
+                        Remember me for 30 days
                       </label>
                     </div>
                   )}
 
-                  {/* Primary CTA */}
-                  <motion.button id="auth-submit-btn" type="submit" disabled={loading || googleLoading}
-                    whileHover={{ scale: 1.005 }} whileTap={{ scale: 0.995 }} transition={{ duration: 0.1 }}
-                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-[15px] font-semibold text-white transition-colors duration-150 disabled:opacity-60"
-                    style={{ background: "#2175D9" }}
+                  <motion.button
+                    id="auth-submit-btn"
+                    type="submit"
+                    disabled={loading || googleLoading}
+                    whileHover={{ scale: 1.005 }}
+                    whileTap={{ scale: 0.995 }}
+                    transition={{ duration: 0.1 }}
+                    className="primary-gradient mt-1 flex w-full cursor-pointer items-center justify-center gap-2 rounded-full py-3 text-[14px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
                   >
-                    <span>{loading ? "authenticating..." : isLogin ? "sign in" : "create account"}</span>
-                    {!loading && <ArrowRight className="w-[18px] h-[18px]" />}
+                    <span>{loading ? "Authenticating…" : isLogin ? "Sign in" : "Create account"}</span>
+                    {!loading && <ArrowRight className="h-4 w-4" />}
                   </motion.button>
 
-                  <p className="text-center text-[13.5px] pt-0.5 text-gray-500">
-                    {isLogin ? "don't have an account? " : "already have an account? "}
-                    <button id="auth-toggle-btn" type="button" onClick={() => setIsLogin(!isLogin)}
-                      className="font-semibold text-gray-900 hover:underline transition-colors">
-                      {isLogin ? "sign up" : "sign in"}
+                  <p className="pt-1 text-center text-[13px] text-[#667085]">
+                    {isLogin ? "Don't have an account? " : "Already have an account? "}
+                    <button
+                      id="auth-toggle-btn"
+                      type="button"
+                      onClick={() => setIsLogin(!isLogin)}
+                      className="font-semibold text-[#4F5BD9] transition-colors hover:underline"
+                    >
+                      {isLogin ? "Sign up" : "Sign in"}
                     </button>
                   </p>
                 </form>
 
-                <div className="mt-7 pt-5 flex items-center justify-end border-t border-gray-100">
-                  <button id="fill-demo-btn" onClick={fillQuickDemo} type="button"
-                    className="text-[12px] py-2 px-3.5 rounded-lg flex items-center gap-1.5 text-gray-400 border border-gray-200 hover:text-gray-600 hover:border-gray-300 transition-all"
+                <div className="mt-6 flex items-center justify-end border-t border-[#F0F0F2] pt-5">
+                  <button
+                    id="fill-demo-btn"
+                    onClick={fillQuickDemo}
+                    type="button"
+                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-[#F7F8FB] px-3.5 py-2 text-[12px] font-medium text-[#667085] transition-colors hover:bg-[#EEF2FF] hover:text-[#4F5BD9]"
                   >
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>load demo</span>
+                    <ShieldCheck className="h-3.5 w-3.5" />
+                    <span>Load demo</span>
                   </button>
                 </div>
               </motion.div>

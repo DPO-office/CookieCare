@@ -1,5 +1,5 @@
 /**
- * RandTrust design tokens — JS mirror of CSS custom properties in index.css.
+ * LORA design tokens — JS mirror of CSS custom properties in index.css.
  * Use for inline styles or programmatic access; prefer CSS variables in components.
  */
 

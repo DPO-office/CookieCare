@@ -15,7 +15,8 @@ import VulnerabilityScannerView from "./features/vulnerabilityScanner";
 import DPAReviewer from "./features/dpaReviewer";
 import VendorReview from "./features/vendorReview";
 import AIEthicsScore from "./features/aiEthics";
-import RandTrustAI from "./features/randtrustAI";
+import AIToolsInventory from "./features/aiToolsInventory";
+import LORAAI from "./features/randtrustAI";
 import SettingsView from "./features/settings";
 import { apiUrl } from "./config";
 import { LegalDocument } from "./shared/types";
@@ -111,21 +112,6 @@ export default function App() {
     return <AuthModal onAuthSuccess={handleAuthSuccess} />;
   }
 
-  const totalDocsCount = documents.length;
-  const pendingSigsCount = documents.reduce((sum, doc) => {
-    const isSigned = doc.signatures && doc.signatures.length > 0 && doc.signatures.every(s => s.status === "signed");
-    return sum + (isSigned ? 0 : (doc.signatures?.length || 0));
-  }, 0);
-  const redlinesPendingCount = documents.reduce((sum, doc) => {
-    return sum + (doc.redlines?.filter(r => r.status === "pending").length || 0);
-  }, 0);
-
-  const stats = {
-    totalDocs: totalDocsCount,
-    pendingSigs: pendingSigsCount,
-    redlinesPending: redlinesPendingCount,
-  };
-
   const isAdmin = currentUser.role === "ADMIN";
 
   return (
@@ -147,8 +133,8 @@ export default function App() {
           <DashboardHome
             userName={currentUser.name}
             setActiveTab={setActiveTab}
-            stats={stats}
             documents={documents}
+            authToken={authToken}
           />
         )}
 
@@ -167,7 +153,7 @@ export default function App() {
         )}
 
         {activeTab === "legal-compare" && (
-          <RandTrustAI
+          <LORAAI
             authToken={authToken}
             user={currentUser}
             mode="compare"
@@ -225,6 +211,10 @@ export default function App() {
           <AIEthicsScore authToken={authToken} />
         )}
 
+        {activeTab === "ai-tools-inventory" && (
+          <AIToolsInventory authToken={authToken} />
+        )}
+
         {activeTab === "vulnerability-scanner" && (
           <VulnerabilityScannerView authToken={authToken} />
         )}
@@ -233,8 +223,8 @@ export default function App() {
           <AdminPanel authToken={authToken} />
         )}
 
-        {activeTab === "randtrust-ai" && (
-          <RandTrustAI
+        {activeTab === "LORA-ai" && (
+          <LORAAI
             authToken={authToken}
             user={currentUser}
             mode="workspace"

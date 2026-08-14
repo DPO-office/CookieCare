@@ -104,27 +104,16 @@ function ContextChip({
   onRemove: () => void;
 }) {
   return (
-    <span
-      className="inline-flex items-center gap-1.5 pl-2.5 pr-1 py-1 rounded-full text-[11px] font-medium select-none"
-      style={{
-        background: "#F4F4F5",
-        border: "1px solid #E4E4E7",
-        color: "#52525B",
-        lineHeight: 1,
-      }}
-    >
-      <Icon className="w-2.5 h-2.5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
+    <span className="inline-flex select-none items-center gap-1.5 rounded-full bg-[#EEF2FF] py-1 pl-2.5 pr-1 text-[11px] font-medium leading-none text-[#4F5BD9]">
+      <Icon className="h-2.5 w-2.5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
       <span>{label}</span>
       <button
         type="button"
         onClick={onRemove}
         aria-label={`Remove ${label}`}
-        className="w-4 h-4 flex items-center justify-center rounded-full transition-colors duration-100 cursor-pointer ml-0.5 border-none bg-transparent"
-        style={{ color: "#A1A1AA" }}
-        onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#DC2626")}
-        onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "#A1A1AA")}
+        className="ml-0.5 flex h-4 w-4 cursor-pointer items-center justify-center rounded-full border-none bg-transparent text-[#98A2B3] transition-colors hover:text-[#DC2626]"
       >
-        <X className="w-2.5 h-2.5" strokeWidth={2} aria-hidden="true" />
+        <X className="h-2.5 w-2.5" strokeWidth={2} aria-hidden="true" />
       </button>
     </span>
   );
@@ -148,20 +137,20 @@ function ActionBtn({
       onClick={onClick}
       aria-label={label}
       title={label}
-      className="w-8 h-8 flex items-center justify-center rounded-full transition-all duration-100 cursor-pointer shrink-0 border-none"
+      className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border-none transition-colors duration-150"
       style={{
-        color: active ? "#18181B" : "#71717A",
-        background: active ? "#F4F4F5" : "transparent",
+        color: active ? "#4F5BD9" : "#667085",
+        background: active ? "#EEF2FF" : "transparent",
       }}
       onMouseEnter={(e) => {
         const el = e.currentTarget as HTMLElement;
-        el.style.background = "#F4F4F5";
-        el.style.color = "#18181B";
+        el.style.background = "#EEF2FF";
+        el.style.color = "#4F5BD9";
       }}
       onMouseLeave={(e) => {
         const el = e.currentTarget as HTMLElement;
-        el.style.color = active ? "#18181B" : "#71717A";
-        el.style.background = active ? "#F4F4F5" : "transparent";
+        el.style.color = active ? "#4F5BD9" : "#667085";
+        el.style.background = active ? "#EEF2FF" : "transparent";
       }}
     >
       <Icon className="w-3.5 h-3.5" strokeWidth={1.75} aria-hidden="true" />
@@ -190,6 +179,8 @@ export default function ComposerBar(props: ComposerBarProps) {
     fileUploadRef,
     setActiveFolderForUpload,
     webDiscoveryUrls,
+    folders,
+    toggleFolderSelection,
   } = props;
 
   const [isDragging, setIsDragging] = useState(false);
@@ -229,7 +220,9 @@ export default function ComposerBar(props: ComposerBarProps) {
         key="kb"
         label={`${selectedKBCount} Doc${selectedKBCount > 1 ? "s" : ""}`}
         icon={Folder}
-        onRemove={() => togglePopover("kb")}
+        onRemove={() => {
+          folders.filter((f) => f.isSelected).forEach((f) => toggleFolderSelection(f.id));
+        }}
       />
     );
   }
@@ -267,14 +260,8 @@ export default function ComposerBar(props: ComposerBarProps) {
         onDrop={onDrop}
       >
         {isDragging && (
-          <div
-            className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none rounded-[22px]"
-            style={{
-              background: "rgba(0, 0, 0, 0.04)",
-              border: "2px dashed rgba(0, 0, 0, 0.12)",
-            }}
-          >
-            <span className="text-[13px] font-medium text-[#52525B]">Drop file to attach</span>
+          <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-[24px] bg-[#EEF2FF]/90">
+            <span className="text-[13px] font-medium text-[#4F5BD9]">Drop file to attach</span>
           </div>
         )}
 
@@ -302,16 +289,16 @@ export default function ComposerBar(props: ComposerBarProps) {
               onKeyDown={handleKeyDown}
               disabled={isStreaming}
               placeholder="Ask a legal question, describe a clause, or paste an agreement excerpt…"
-              className="pcl-input flex-1 bg-transparent text-[14px] leading-relaxed resize-none outline-none"
+              className="pcl-input flex-1 resize-none bg-transparent text-[14px] leading-relaxed outline-none"
               style={{
                 minHeight: 28,
                 maxHeight: 120,
-                color: "#18181B",
+                color: "#1a1a1a",
                 fontWeight: 400,
               }}
               aria-label="Legal query input"
             />
-            <span className="shrink-0 text-[11px] pt-0.5 select-none text-[#D4D4D8] tracking-wide">
+            <span className="shrink-0 select-none pt-0.5 text-[11px] tracking-wide text-[#98A2B3]">
               Ctrl+Y
             </span>
           </div>
@@ -320,20 +307,30 @@ export default function ComposerBar(props: ComposerBarProps) {
             <button
               type="button"
               onClick={() => { setActiveFolderForUpload(""); fileUploadRef.current?.click(); }}
-              className="pcl-attach-btn w-8 h-8 flex items-center justify-center rounded-full shrink-0 bg-[#F4F4F5] text-[#71717A]"
+              className="pcl-attach-btn flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF] text-[#4F5BD9]"
               aria-label="Attach document"
             >
-              <Paperclip className="w-[15px] h-[15px]" />
+              <Paperclip className="h-[15px] w-[15px]" strokeWidth={1.75} />
             </button>
             <button
               type="button"
               onClick={() => togglePopover("jurisdictions")}
-              className={`pcl-attach-btn w-8 h-8 flex items-center justify-center rounded-full shrink-0 bg-[#F4F4F5] ${
-                jurisdictionsActive ? "text-[#18181B]" : "text-[#71717A]"
+              className={`pcl-attach-btn flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF] ${
+                jurisdictionsActive ? "text-[#4F5BD9]" : "text-[#667085]"
               }`}
               aria-label="Select jurisdictions"
             >
-              <Gavel className="w-[15px] h-[15px]" />
+              <Gavel className="h-[15px] w-[15px]" strokeWidth={1.75} />
+            </button>
+            <button
+              type="button"
+              onClick={() => togglePopover("kb")}
+              className={`pcl-attach-btn flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF] ${
+                kbActive ? "text-[#4F5BD9]" : "text-[#667085]"
+              }`}
+              aria-label="Knowledge base"
+            >
+              <Folder className="h-[15px] w-[15px]" strokeWidth={1.75} />
             </button>
             <div className="flex-1" />
             <button
@@ -341,13 +338,13 @@ export default function ComposerBar(props: ComposerBarProps) {
               type="button"
               onClick={() => handleQueryDispatch()}
               disabled={!canSend}
-              className="pcl-enter-btn w-9 h-9 flex items-center justify-center rounded-full shrink-0 disabled:opacity-40 disabled:cursor-not-allowed bg-[#18181B] text-white"
+              className="pcl-enter-btn primary-gradient flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white disabled:cursor-not-allowed disabled:opacity-40"
               aria-label={isStreaming ? "Processing…" : "Submit"}
             >
               {isStreaming ? (
-                <RefreshCw className="w-[16px] h-[16px] animate-spin" />
+                <RefreshCw className="h-4 w-4 animate-spin" />
               ) : (
-                <CornerDownLeft className="w-[16px] h-[16px]" />
+                <CornerDownLeft className="h-4 w-4" />
               )}
             </button>
           </div>
@@ -360,14 +357,10 @@ export default function ComposerBar(props: ComposerBarProps) {
 
   // Chat variant — compact pinned footer composer
   const borderColor = isDragging
-    ? "#18181B"
+    ? "rgba(79, 91, 217, 0.35)"
     : isFocused
-    ? "#D4D4D8"
-    : "#E4E4E7";
-
-  const shadow = isFocused
-    ? "0 0 0 3px rgba(24,24,27,0.05), 0 2px 8px rgba(0,0,0,0.05)"
-    : "0 1px 3px rgba(0,0,0,0.04), 0 6px 20px rgba(0,0,0,0.04)";
+    ? "rgba(16, 24, 40, 0.14)"
+    : "transparent";
 
   return (
     <div
@@ -378,13 +371,9 @@ export default function ComposerBar(props: ComposerBarProps) {
       onDrop={onDrop}
     >
       <div
-        className="w-full overflow-visible"
+        className="ask-lawyer-composer-chat w-full overflow-visible"
         style={{
-          background: "#FFFFFF",
-          border: `1px solid ${borderColor}`,
-          boxShadow: shadow,
-          borderRadius: 22,
-          transition: "border-color 120ms ease, box-shadow 120ms ease",
+          border: isDragging || isFocused ? `1px solid ${borderColor}` : undefined,
         }}
       >
         <AnimatePresence>
@@ -415,14 +404,11 @@ export default function ComposerBar(props: ComposerBarProps) {
             placeholder="Ask a follow-up question…"
             rows={1}
             aria-label="Legal query input"
-            className="w-full bg-transparent focus:outline-none resize-none block placeholder:select-none placeholder:text-[#C4C4C4]"
+            className="block w-full resize-none bg-transparent text-[14px] leading-relaxed text-[#1a1a1a] outline-none placeholder:text-[#98A2B3]"
             style={{
               minHeight: "28px",
               maxHeight: "200px",
-              fontSize: "14px",
-              lineHeight: "1.6",
-              color: "#18181B",
-              caretColor: "#18181B",
+              caretColor: "#4F5BD9",
               overflowY: "auto",
             }}
           />
@@ -441,6 +427,12 @@ export default function ComposerBar(props: ComposerBarProps) {
               active={jurisdictionsActive}
               onClick={() => togglePopover("jurisdictions")}
             />
+            <ActionBtn
+              icon={Folder}
+              label={selectedKBCount > 0 ? `${selectedKBCount} docs in knowledge base` : "Knowledge base"}
+              active={kbActive}
+              onClick={() => togglePopover("kb")}
+            />
           </div>
 
           <button
@@ -449,19 +441,18 @@ export default function ComposerBar(props: ComposerBarProps) {
             onClick={() => handleQueryDispatch()}
             disabled={!canSend}
             aria-label={isStreaming ? "Processing…" : "Send message"}
-            className="flex items-center justify-center rounded-full transition-all duration-150 shrink-0 border-none"
+            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-none transition-opacity duration-150 ${
+              canSend ? "primary-gradient cursor-pointer" : "cursor-default bg-[#EEF2FF]"
+            }`}
             style={{
-              width: "36px",
-              height: "36px",
-              background: canSend ? "#18181B" : "#F4F4F5",
-              cursor: canSend ? "pointer" : "default",
+              opacity: canSend ? 1 : 0.45,
             }}
           >
             {isStreaming
-              ? <RefreshCw className="w-3.5 h-3.5 animate-spin" style={{ color: "#A1A1AA" }} strokeWidth={2} aria-hidden="true" />
+              ? <RefreshCw className="h-3.5 w-3.5 animate-spin text-[#98A2B3]" strokeWidth={2} aria-hidden="true" />
               : <ArrowUp
-                  className="w-3.5 h-3.5"
-                  style={{ color: canSend ? "#FFFFFF" : "#C4C4C4" }}
+                  className="h-3.5 w-3.5"
+                  style={{ color: canSend ? "#FFFFFF" : "#98A2B3" }}
                   strokeWidth={2.5}
                   aria-hidden="true"
                 />
@@ -477,15 +468,10 @@ export default function ComposerBar(props: ComposerBarProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.1 }}
-            className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10"
-            style={{
-              background: "rgba(250,250,250,0.94)",
-              border: "2px dashed #D4D4D8",
-              borderRadius: 22,
-            }}
+            className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center rounded-[24px] bg-[#EEF2FF]/94"
           >
-            <Paperclip className="w-5 h-5 mb-1.5" style={{ color: "#71717A" }} strokeWidth={1.5} aria-hidden="true" />
-            <p style={{ fontSize: "12px", fontWeight: 500, color: "#52525B" }}>Drop to attach</p>
+            <Paperclip className="mb-1.5 h-5 w-5 text-[#4F5BD9]" strokeWidth={1.5} aria-hidden="true" />
+            <p className="m-0 text-[12px] font-medium text-[#4F5BD9]">Drop to attach</p>
           </motion.div>
         )}
       </AnimatePresence>

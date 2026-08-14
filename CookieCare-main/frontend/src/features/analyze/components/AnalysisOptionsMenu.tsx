@@ -23,21 +23,28 @@ function OptionRow({
     <button
       type="button"
       onClick={onClick}
-      className="w-full text-left px-3 py-2.5 rounded-lg transition-colors hover:bg-[#FAFAFA]"
+      className={`w-full rounded-[16px] px-3 py-2.5 text-left transition-colors ${
+        selected ? "bg-[#F7F8FB]" : "bg-transparent hover:bg-[#F7F8FB]"
+      }`}
     >
-      <div className="flex items-start gap-2.5">
+      <div className="flex items-start gap-3">
         <div
-          className={`mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
-            selected ? "border-[#18181B] bg-[#18181B]" : "border-[#D4D4D8] bg-transparent"
+          className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-[1.5px] ${
+            selected ? "border-[#4F5BD9] bg-[#4F5BD9]" : "border-[#D0D5DD] bg-white"
           }`}
         >
-          {selected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+          {selected && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
         </div>
-        <div className="min-w-0">
-          <p className="text-[13px] font-medium text-[#18181B]">{label}</p>
-          <p className="text-[11.5px] mt-0.5 leading-relaxed text-[#A1A1AA]">
-            {description}
-          </p>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <p className="text-[13px] font-semibold tracking-[-0.01em] text-[#1a1a1a]">{label}</p>
+            {selected && (
+              <span className="score-badge bg-[#EEF2FF] text-[10px] font-medium text-[#4F5BD9]">
+                Selected
+              </span>
+            )}
+          </div>
+          <p className="mt-0.5 text-[12px] leading-relaxed text-dark-200">{description}</p>
         </div>
       </div>
     </button>
@@ -53,11 +60,11 @@ export function AnalysisOptionsMenu({
 }: AnalysisOptionsMenuProps) {
   return (
     <div
-      className="analyze-options-panel absolute left-0 top-[calc(100%+8px)] z-50 w-72 p-2"
+      className="analyze-options-panel absolute left-0 top-[calc(100%+10px)] z-50 w-80"
       role="dialog"
       aria-label="Analysis options"
     >
-      <p className="px-3 pt-1 pb-2 text-[10px] font-semibold uppercase tracking-wider text-[#A1A1AA]">
+      <p className="px-3 pt-2 pb-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-[#98A2B3]">
         Document mode
       </p>
       <OptionRow
@@ -79,9 +86,9 @@ export function AnalysisOptionsMenu({
         }}
       />
 
-      <div className="my-2 mx-3 border-t border-[#F0F0F0]" />
+      <div className="mx-3 my-2 border-t border-[rgba(16,24,40,0.06)]" />
 
-      <p className="px-3 pt-1 pb-2 text-[10px] font-semibold uppercase tracking-wider text-[#A1A1AA]">
+      <p className="px-3 pt-1.5 pb-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-[#98A2B3]">
         Output format
       </p>
       <OptionRow

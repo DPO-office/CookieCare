@@ -1,6 +1,6 @@
 /**
- * AIResponseBlock — AI response container for legal advice output.
- * Premium black/zinc styling aligned with Analyze, Draft, Negotiate.
+ * AIResponseBlock — AI response in a Gemini/ChatGPT-style thread.
+ * Prose sits on the canvas; no nested white card.
  */
 import React from "react";
 import { motion } from "motion/react";
@@ -32,25 +32,25 @@ export function AIResponseBlock({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.24, delay: 0.06, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
       className={className}
     >
-      <div className="flex items-center justify-between mb-4 gap-3">
-        <div className="flex items-center gap-2.5 min-w-0">
+      <div className="mb-3 flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2.5">
           <div
-            className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
-            style={{ background: "#F4F4F5" }}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF] text-[#4F5BD9]"
             aria-hidden="true"
           >
-            <Scale className="w-3.5 h-3.5" style={{ color: "#18181B" }} strokeWidth={1.75} />
+            <Scale className="h-3.5 w-3.5" strokeWidth={1.75} />
           </div>
-
           <div className="min-w-0">
-            <p className="m-0 text-[13px] font-semibold text-[#18181B] leading-tight">{label}</p>
+            <p className="m-0 text-[13px] font-semibold tracking-[-0.01em] text-[#1a1a1a] leading-tight">
+              {label}
+            </p>
             {subLabel && (
-              <p className="m-0 mt-0.5 text-[11px] text-[#A1A1AA] truncate max-w-[280px] leading-tight">
+              <p className="m-0 mt-0.5 max-w-[320px] truncate text-[11px] leading-tight text-[#98A2B3]">
                 {subLabel}
               </p>
             )}
@@ -62,21 +62,16 @@ export function AIResponseBlock({
             type="button"
             onClick={onCopy}
             aria-label={isCopied ? "Copied" : "Copy response"}
-            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-[11px] font-medium transition-colors cursor-pointer border shrink-0"
-            style={{
-              background: isCopied ? "#18181B" : "#FFFFFF",
-              borderColor: isCopied ? "#18181B" : "#E4E4E7",
-              color: isCopied ? "#FFFFFF" : "#52525B",
-            }}
+            className="inline-flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border-none bg-transparent px-2.5 text-[11px] font-medium text-[#667085] transition-colors hover:bg-[#EEF2FF] hover:text-[#4F5BD9]"
           >
             {isCopied ? (
               <>
-                <Check className="w-3 h-3" strokeWidth={2} aria-hidden="true" />
+                <Check className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
                 <span>Copied</span>
               </>
             ) : (
               <>
-                <Copy className="w-3 h-3" strokeWidth={1.5} aria-hidden="true" />
+                <Copy className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
                 <span>Copy</span>
               </>
             )}
@@ -84,34 +79,23 @@ export function AIResponseBlock({
         )}
       </div>
 
-      <div
-        className="overflow-hidden"
-        style={{
-          background: "#FFFFFF",
-          border: "1px solid #EBEBEB",
-          borderRadius: 22,
-          boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)",
-        }}
-        aria-live="polite"
-        aria-busy={isStreaming}
-      >
+      <div className="pl-[42px]" aria-live="polite" aria-busy={isStreaming}>
         {showTyping && (
-          <div className="px-6 py-6 flex items-center gap-3">
-            <div className="flex items-center gap-1.5" aria-hidden="true">
+          <div className="flex items-center gap-3 py-1">
+            <div className="flex items-center gap-1" aria-hidden="true">
               {[0, 1, 2].map((i) => (
                 <span
                   key={i}
-                  className="w-1.5 h-1.5 rounded-full animate-bounce inline-block"
+                  className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-[#4F5BD9]"
                   style={{
-                    background: "#18181B",
-                    opacity: 0.35,
                     animationDelay: `${i * 0.16}s`,
                     animationDuration: "0.8s",
+                    opacity: 0.7,
                   }}
                 />
               ))}
             </div>
-            <span className="text-[13px] text-[#A1A1AA]">
+            <span className="text-[13px] text-[#98A2B3]">
               {statusMessage || "Researching…"}
             </span>
           </div>
@@ -119,20 +103,13 @@ export function AIResponseBlock({
 
         {showContent && (
           <div
-            className={`md-content px-7 py-6 select-text${isStreaming ? " streaming-cursor" : ""}`}
-            style={{
-              fontSize: "15px",
-              lineHeight: 1.75,
-              color: "#3F3F46",
-            }}
+            className={`ask-lawyer-prose md-content select-text${isStreaming ? " streaming-cursor" : ""}`}
             dangerouslySetInnerHTML={{ __html: htmlContent }}
           />
         )}
 
         {!showTyping && !showContent && (
-          <div className="px-7 py-10 text-center">
-            <p className="m-0 text-[13px] text-[#A1A1AA]">Waiting for response…</p>
-          </div>
+          <p className="m-0 text-[13px] text-[#98A2B3]">Waiting for response…</p>
         )}
       </div>
     </motion.div>

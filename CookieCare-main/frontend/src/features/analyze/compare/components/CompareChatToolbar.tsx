@@ -121,9 +121,9 @@ export function CompareChatToolbar({
       <button
         type="button"
         onClick={onNew}
-        className="h-8 px-4 rounded-full bg-[#18181B] text-white text-[12.5px] font-medium hover:bg-[#27272A] active:scale-[0.98] transition-all"
+        className="inline-flex h-8 cursor-pointer items-center rounded-full border border-gray-200 bg-white px-4 text-[13px] font-medium text-dark-200 transition-colors hover:bg-light-blue-100"
       >
-        New
+        New comparison
       </button>
 
       <div className="relative">

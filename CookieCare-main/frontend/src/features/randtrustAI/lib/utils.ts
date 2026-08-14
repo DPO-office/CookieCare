@@ -1,4 +1,4 @@
-// ─── RandTrust AI — Pure utility helpers ─────────────────────────────────────
+// ─── LORA AI — Pure utility helpers ─────────────────────────────────────
 // No React dependencies. Safe to import from anywhere.
 
 /**

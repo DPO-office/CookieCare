@@ -181,7 +181,7 @@ export function useChat({ authToken, isCompareChatActive, askCompareQuestion }: 
   );
 
   // ── Compare Documents integration ─────────────────────────────────────────
-  // These three methods are called by RandTrustAI.tsx which delegates the
+  // These three methods are called by LORAAI.tsx which delegates the
   // full SSE lifecycle to useCompare (in the compare feature).
 
   /**

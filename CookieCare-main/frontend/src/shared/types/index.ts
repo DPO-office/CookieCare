@@ -74,7 +74,7 @@ export interface LegalDocument {
   analysis?: DocumentAnalysis | null;
 }
 
-// randtrust - Cookie Scanner Type Schema
+// LORA - Cookie Scanner Type Schema
 export interface CookieDetected {
   name: string;
   category: "Functional" | "Analytics" | "Marketing" | "Essential";
@@ -128,7 +128,7 @@ export interface ConsentComparisonCookie {
   partyType: string;
 }
 
-// randtrust - Vulnerability Scanner Type Schema
+// LORA - Vulnerability Scanner Type Schema
 export interface VulnerabilityCheck {
   id: string;
   name: string;

@@ -1,14 +1,13 @@
 /**
- * SourcesPanel — Verified citations side panel.
- *
- * Slides in from the right when the user reveals sources.
- * Follows the RandTrust Design System: clean surfaces, enterprise typography,
- * no decorative color — only semantic signals.
+ * SourcesPanel — citation rail matching DPA review cards.
  */
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { BookOpen, ExternalLink, X, FileText } from "lucide-react";
 import { Source } from "../types";
+
+const CARD_SHADOW = "0 1px 2px rgba(16,24,40,0.04), 0 0 0 1px rgba(16,24,40,0.06)";
+const CARD_SHADOW_HOVER = "0 1px 2px rgba(16,24,40,0.04), 0 0 0 1px rgba(16,24,40,0.14)";
 
 interface SourcesPanelProps {
   visible: boolean;
@@ -26,40 +25,21 @@ export default function SourcesPanel({ visible, sources, onClose, onSourceClick 
           role="complementary"
           aria-label="Verified citations"
           initial={{ width: 0, opacity: 0 }}
-          animate={{ width: 280, opacity: 1 }}
+          animate={{ width: 300, opacity: 1 }}
           exit={{ width: 0, opacity: 0 }}
-          transition={{ duration: 0.22, ease: "easeInOut" }}
-          className="shrink-0 overflow-hidden flex flex-col"
-          style={{
-            minWidth: 0,
-            background: "#FFFFFF",
-            borderLeft: "1px solid #E4E4E7",
-          }}
+          transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+          className="ask-lawyer-sources my-3 mr-3 flex min-w-0 shrink-0 flex-col overflow-hidden font-sans"
         >
-          {/* ── Panel header ── */}
-          <div
-            className="px-4 py-4 flex items-center justify-between shrink-0"
-            style={{ borderBottom: "1px solid #F0F0F2" }}
-          >
-            <div className="flex items-center gap-2.5">
-              <div
-                className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0"
-                style={{ background: "#F4F4F5" }}
-                aria-hidden="true"
-              >
-                <FileText className="w-3.5 h-3.5" style={{ color: "#18181B" }} strokeWidth={1.5} />
+          <div className="flex shrink-0 items-center justify-between gap-2 px-4 py-4">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF] text-[#4F5BD9]">
+                <FileText className="h-3.5 w-3.5" strokeWidth={1.75} />
               </div>
-              <div>
-                <p
-                  className="text-[13px] font-semibold"
-                  style={{ color: "#111827", fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif" }}
-                >
+              <div className="min-w-0">
+                <p className="m-0 text-[15px] font-semibold tracking-[-0.02em] text-[#1a1a1a]">
                   Sources
                 </p>
-                <p
-                  className="text-[11px]"
-                  style={{ color: "#9CA3AF", fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif" }}
-                >
+                <p className="m-0 mt-0.5 text-[11px] text-[#98A2B3]">
                   {sources.length} citation{sources.length !== 1 ? "s" : ""} found
                 </p>
               </div>
@@ -69,122 +49,70 @@ export default function SourcesPanel({ visible, sources, onClose, onSourceClick 
               type="button"
               onClick={onClose}
               aria-label="Close sources panel"
-              className="w-7 h-7 flex items-center justify-center rounded-lg transition-colors duration-100 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2175D9]"
-              style={{ color: "#9CA3AF" }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.background = "#F3F4F6";
-                (e.currentTarget as HTMLElement).style.color = "#374151";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.background = "transparent";
-                (e.currentTarget as HTMLElement).style.color = "#9CA3AF";
-              }}
+              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-none bg-transparent text-[#98A2B3] transition-colors hover:bg-[#EEF2FF] hover:text-[#4F5BD9]"
             >
-              <X className="w-3.5 h-3.5" strokeWidth={1.5} aria-hidden="true" />
+              <X className="h-3.5 w-3.5" strokeWidth={1.75} />
             </button>
           </div>
 
-          {/* ── Source list ── */}
-          <div className="flex-1 overflow-y-auto p-3">
+          <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-3">
             {sources.length === 0 ? (
-              /* Empty state */
-              <div className="flex flex-col items-center justify-center py-12 text-center px-4">
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
-                  style={{ background: "#F3F4F6" }}
-                  aria-hidden="true"
-                >
-                  <BookOpen className="w-5 h-5" style={{ color: "#D1D5DB" }} strokeWidth={1.5} />
+              <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[#EEF2FF] text-[#4F5BD9]">
+                  <BookOpen className="h-4 w-4" strokeWidth={1.75} />
                 </div>
-                <p
-                  className="text-[13px] font-medium mb-1"
-                  style={{ color: "#374151", fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif" }}
-                >
-                  No sources yet
-                </p>
-                <p
-                  className="text-[12px] leading-relaxed"
-                  style={{ color: "#9CA3AF", fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif" }}
-                >
+                <p className="m-0 mb-1 text-[13px] font-semibold text-[#1a1a1a]">No sources yet</p>
+                <p className="m-0 max-w-[200px] text-[12px] leading-relaxed text-[#667085]">
                   Verified citations will appear here after a query completes.
                 </p>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2.5">
                 {sources.map((source, idx) => (
                   <button
                     key={source.id}
                     type="button"
                     onClick={() => onSourceClick(source)}
                     aria-label={`View citation: ${source.title}`}
-                    className="w-full text-left rounded-lg p-3.5 transition-all duration-150 cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2175D9]"
-                    style={{
-                      background: "#FFFFFF",
-                      border: "1px solid #E4E4E7",
-                    }}
+                    className="group w-full cursor-pointer rounded-[18px] bg-white p-3.5 text-left transition-[transform,box-shadow] duration-200 hover:-translate-y-px"
+                    style={{ boxShadow: CARD_SHADOW }}
                     onMouseEnter={(e) => {
-                      const el = e.currentTarget as HTMLElement;
-                      el.style.borderColor = "#D4D4D8";
-                      el.style.boxShadow = "0 1px 3px rgba(0,0,0,0.06)";
+                      e.currentTarget.style.boxShadow = CARD_SHADOW_HOVER;
                     }}
                     onMouseLeave={(e) => {
-                      const el = e.currentTarget as HTMLElement;
-                      el.style.borderColor = "#E4E4E7";
-                      el.style.boxShadow = "none";
+                      e.currentTarget.style.boxShadow = CARD_SHADOW;
                     }}
                   >
-                    {/* Citation header: number + type badge */}
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0 text-white"
-                          style={{ background: "#18181B" }}
-                          aria-hidden="true"
-                        >
+                    <div className="mb-2.5 flex items-center justify-between gap-2">
+                      <div className="flex min-w-0 items-center gap-2">
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF] text-[11px] font-semibold text-[#4F5BD9]">
                           {idx + 1}
                         </span>
-                        <span
-                          className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded"
-                          style={{ background: "#F3F4F6", color: "#6B7280" }}
-                        >
-                          {source.documentType}
-                        </span>
+                        {source.documentType && (
+                          <span className="score-badge bg-[#EEF2FF] text-[10px] font-medium text-[#4F5BD9]">
+                            {source.documentType}
+                          </span>
+                        )}
                       </div>
                       <ExternalLink
-                        className="w-3 h-3 transition-colors duration-150"
-                        style={{ color: "#D1D5DB" }}
-                        strokeWidth={1.5}
-                        aria-hidden="true"
+                        className="h-3.5 w-3.5 shrink-0 text-[#98A2B3] transition-colors group-hover:text-[#4F5BD9]"
+                        strokeWidth={1.75}
                       />
                     </div>
 
-                    {/* Title */}
-                    <h4
-                      className="text-[12px] font-semibold leading-snug line-clamp-2 mb-1.5"
-                      style={{ color: "#111827", fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif" }}
-                    >
+                    <h4 className="m-0 line-clamp-2 text-[13px] font-semibold leading-snug tracking-[-0.01em] text-[#1a1a1a]">
                       {source.title}
                     </h4>
 
-                    {/* Jurisdiction */}
-                    <p
-                      className="text-[11px] mb-2"
-                      style={{ color: "#9CA3AF", fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif" }}
-                    >
-                      {source.jurisdiction}
-                    </p>
+                    {source.jurisdiction && (
+                      <p className="m-0 mt-1 text-[11px] text-[#667085]">{source.jurisdiction}</p>
+                    )}
 
-                    {/* Citation monospace */}
-                    <p
-                      className="text-[10px] font-mono truncate pt-2"
-                      style={{
-                        borderTop: "1px solid #F0F0F2",
-                        color: "#6B7280",
-                        fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace",
-                      }}
-                    >
-                      {source.citation}
-                    </p>
+                    {source.citation?.trim() && (
+                      <p className="m-0 mt-2.5 truncate rounded-xl bg-[#F7F8FB] px-2.5 py-1.5 text-[10px] text-[#667085]">
+                        {source.citation}
+                      </p>
+                    )}
                   </button>
                 ))}
               </div>

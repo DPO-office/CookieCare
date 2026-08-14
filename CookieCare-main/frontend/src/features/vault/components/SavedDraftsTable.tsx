@@ -28,26 +28,15 @@ function HeaderCell({ label, align = "left" }: { label: string; align?: "left" |
 export function SavedDraftsTable({ drafts, onDelete, onOpenInDraftEditor }: SavedDraftsTableProps) {
   if (drafts.length === 0) {
     return (
-      <div
-        className="flex flex-col items-center justify-center text-center"
-        style={{ padding: "64px 24px", minHeight: 280 }}
-      >
-        <div
-          style={{
-            width: 44, height: 44, borderRadius: 14,
-            background: "var(--surface)",
-            border: "1px solid var(--border-light)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            marginBottom: 16,
-          }}
-        >
-          <ScrollText style={{ width: 18, height: 18, color: "var(--text-faint)" }} />
+      <div className="flex min-h-[280px] flex-col items-center justify-center px-6 py-16 text-center">
+        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#EEF2FF] text-[#4F5BD9]">
+          <ScrollText className="h-5 w-5" strokeWidth={1.75} />
         </div>
-        <p style={{ fontSize: 13.5, fontWeight: 600, color: "var(--text-primary)", letterSpacing: "-0.01em" }}>
-          No saved drafts found
+        <p className="m-0 text-[16px] font-semibold tracking-[-0.02em] text-[#1a1a1a]">
+          No saved drafts yet
         </p>
-        <p style={{ fontSize: 12.5, color: "var(--text-muted)", marginTop: 6, maxWidth: 280, lineHeight: 1.6 }}>
-          Drafts saved from the Draft Templates module will automatically appear here.
+        <p className="mt-2 max-w-[300px] text-[13px] leading-relaxed text-[#667085]">
+          Drafts saved from Draft will appear here automatically.
         </p>
       </div>
     );

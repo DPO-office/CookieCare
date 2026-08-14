@@ -1,18 +1,5 @@
 import { ReactNode, CSSProperties } from "react";
-
-const SHELL_STYLE: CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  width: "min(94vw, 1160px)",
-  height: "min(88vh, 720px)",
-  flexShrink: 0,
-  background: "#ffffff",
-  borderRadius: 22,
-  border: "1px solid #ebebeb",
-  overflow: "hidden",
-  boxShadow:
-    "0 4px 6px -1px rgba(0,0,0,0.06), 0 24px 48px -12px rgba(0,0,0,0.14)",
-};
+import { createPortal } from "react-dom";
 
 const BODY_STYLE: CSSProperties = {
   display: "flex",
@@ -31,8 +18,8 @@ const COL_CATEGORIES: CSSProperties = {
   minHeight: 0,
   overflowX: "hidden",
   overflowY: "auto",
-  borderRight: "1px solid #f0f0f0",
-  background: "#fafafa",
+  borderRight: "1px solid rgba(16,24,40,0.06)",
+  background: "#F7F8FB",
   padding: "20px 16px",
   boxSizing: "border-box",
 };
@@ -45,18 +32,18 @@ const COL_LIST: CSSProperties = {
   display: "flex",
   flexDirection: "column",
   overflow: "hidden",
-  borderRight: "1px solid #f0f0f0",
+  borderRight: "1px solid rgba(16,24,40,0.06)",
   background: "#ffffff",
 };
 
 const COL_PREVIEW: CSSProperties = {
-  flex: "0 0 380px",
-  width: 380,
-  minWidth: 380,
-  maxWidth: 380,
+  flex: "0 0 360px",
+  width: 360,
+  minWidth: 360,
+  maxWidth: 360,
   minHeight: 0,
   overflow: "hidden",
-  background: "#fafafa",
+  background: "#F7F8FB",
   boxSizing: "border-box",
 };
 
@@ -94,6 +81,36 @@ export function LibraryModalColumns({
   );
 }
 
-export function libraryModalShellProps(): { style: CSSProperties; className: string } {
-  return { style: SHELL_STYLE, className: "lib-modal-shell-root" };
+export function libraryModalShellProps(): { className: string } {
+  return { className: "lib-modal-shell-root" };
+}
+
+interface LibraryModalOverlayProps {
+  label: string;
+  onClose: () => void;
+  children: ReactNode;
+  placement?: "center" | "right";
+}
+
+/** Renders on document.body so layout transforms don't offset the dialog. */
+export function LibraryModalOverlay({
+  label,
+  onClose,
+  children,
+  placement = "center",
+}: LibraryModalOverlayProps) {
+  return createPortal(
+    <div
+      className={`lib-modal-overlay${placement === "right" ? " lib-modal-overlay--right" : ""}`}
+      aria-modal="true"
+      role="dialog"
+      aria-label={label}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      {children}
+    </div>,
+    document.body
+  );
 }

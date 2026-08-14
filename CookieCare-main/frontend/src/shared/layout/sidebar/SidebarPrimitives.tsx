@@ -21,17 +21,27 @@ export const SidebarPrimitive = React.forwardRef<
   SidebarPrimitiveProps
 >(({ side = "left", collapsible = "icon", className, children }, ref) => {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
+  const collapsed = state === "collapsed";
+
+  const panelStyle: React.CSSProperties = {
+    background: THEME.bg,
+    borderRadius: !isMobile && collapsed ? 16 : 24,
+    boxShadow: THEME.hairline,
+    fontFamily: "var(--font-sans)",
+    transition: "width 300ms cubic-bezier(0.32, 0.72, 0, 1), border-radius 300ms cubic-bezier(0.32, 0.72, 0, 1)",
+  };
 
   if (collapsible === "none") {
     return (
       <div
         ref={ref}
         data-sidebar="sidebar"
-        className={["flex h-full w-[var(--sidebar-width)] flex-col border-r", className]
+        className={["flex h-full w-[var(--sidebar-width)] flex-col p-3", className]
           .filter(Boolean).join(" ")}
-        style={{ background: THEME.bg, borderColor: THEME.border }}
       >
-        {children}
+        <div className="flex h-full flex-col overflow-hidden" style={panelStyle}>
+          {children}
+        </div>
       </div>
     );
   }
@@ -50,14 +60,15 @@ export const SidebarPrimitive = React.forwardRef<
           data-sidebar="sidebar"
           data-state={openMobile ? "expanded" : "collapsed"}
           className={[
-            "fixed inset-y-0 left-0 z-50 flex flex-col h-full w-[var(--sidebar-width)]",
-            "border-r shadow-xl transition-transform duration-300 ease-in-out",
+            "fixed inset-y-0 left-0 z-50 flex flex-col h-full w-[var(--sidebar-width)] p-3",
+            "transition-transform duration-300 ease-in-out",
             openMobile ? "translate-x-0" : "-translate-x-full",
             className,
           ].filter(Boolean).join(" ")}
-          style={{ background: THEME.bg, borderColor: THEME.border }}
         >
-          {children}
+          <div className="flex h-full flex-col overflow-hidden" style={panelStyle}>
+            {children}
+          </div>
         </div>
       </>
     );
@@ -68,21 +79,34 @@ export const SidebarPrimitive = React.forwardRef<
       ref={ref}
       data-sidebar="sidebar"
       data-state={state}
-      data-collapsible={state === "collapsed" ? collapsible : ""}
+      data-collapsible={collapsed ? collapsible : ""}
       data-side={side}
-        className={[
-          "group relative flex h-screen flex-col shrink-0 sticky top-0",
-          "border-r transition-[width] duration-250 ease-in-out",
-          state === "expanded"
-            ? "w-[var(--sidebar-width)]"
-            : collapsible === "icon"
-            ? "w-[var(--sidebar-width-icon)]"
-            : "w-0 overflow-hidden border-r-0",
-          className,
-        ].filter(Boolean).join(" ")}
-      style={{ background: THEME.bg, borderColor: THEME.border, fontFamily: "'Inter', system-ui, sans-serif" }}
+      className={[
+        "group relative flex h-screen shrink-0 sticky top-0 overflow-hidden py-3",
+        collapsed ? "px-2" : "pl-3 pr-2",
+        className,
+      ].filter(Boolean).join(" ")}
+      style={{
+        fontFamily: "var(--font-sans)",
+        width: collapsed ? "var(--sidebar-width-icon)" : "var(--sidebar-width)",
+        transition: "width 300ms cubic-bezier(0.32, 0.72, 0, 1), padding 300ms cubic-bezier(0.32, 0.72, 0, 1)",
+      }}
     >
-      <div className="flex h-full flex-col overflow-hidden">
+      <div
+        className="flex h-full flex-col overflow-hidden"
+        style={{
+          ...panelStyle,
+          width: collapsed
+            ? "calc(var(--sidebar-width-icon) - 1rem)"
+            : "calc(var(--sidebar-width) - 1.25rem)",
+          minWidth: collapsed
+            ? "calc(var(--sidebar-width-icon) - 1rem)"
+            : "calc(var(--sidebar-width) - 1.25rem)",
+          maxWidth: collapsed
+            ? "calc(var(--sidebar-width-icon) - 1rem)"
+            : "calc(var(--sidebar-width) - 1.25rem)",
+        }}
+      >
         {children}
       </div>
     </div>
@@ -181,13 +205,16 @@ export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenu
   ({ className, isActive = false, tooltip, size = "default", children, ...props }, ref) => (
     <button ref={ref} data-sidebar="menu-button" data-active={isActive}
       className={[
-        "flex w-full items-center gap-2.5 rounded-lg px-2.5 font-medium outline-none transition-all duration-100",
-        size === "sm" ? "h-7 text-[12px]" : size === "lg" ? "h-10 text-[14px]" : "h-8 text-[13px]",
+        "flex w-full items-center gap-2.5 rounded-xl px-2.5 font-medium outline-none",
+        "transition-colors duration-200 ease-out",
+        !isActive && "hover:bg-[#F7F8FB] hover:text-[#1a1a1a]",
+        size === "sm" ? "h-8 text-[12px]" : size === "lg" ? "h-10 text-[14px]" : "h-9 text-[13px]",
         className,
       ].filter(Boolean).join(" ")}
       style={{
         background: isActive ? THEME.itemActive : "transparent",
-        color: isActive ? THEME.itemActiveText : THEME.textSecondary,
+        boxShadow: isActive ? THEME.itemActiveShadow : "none",
+        color: isActive ? THEME.itemActiveText : THEME.itemIdle,
       }}
       {...props}
     >
@@ -213,7 +240,7 @@ export const SidebarTrigger = React.forwardRef<HTMLButtonElement, React.ButtonHT
     return (
       <button ref={ref} data-sidebar="trigger" aria-label="Toggle sidebar"
         onClick={(e) => { onClick?.(e); toggleSidebar(); }}
-        className={["inline-flex h-7 w-7 items-center justify-center rounded-md transition-all duration-150 outline-none", className]
+        className={["inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-200 ease-out outline-none hover:bg-[#F7F8FB] hover:text-[#1a1a1a]", className]
           .filter(Boolean).join(" ")}
         style={{ color: THEME.textMuted }}
         {...props}

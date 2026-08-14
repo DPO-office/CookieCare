@@ -9,7 +9,7 @@
 //      an assistant message with structured compareResult attached
 //
 // This hook does NOT own chat state — it receives callbacks from useChat/
-// RandTrustAI.tsx so the result lands in the canonical messages array.
+// LORAAI.tsx so the result lands in the canonical messages array.
 
 import { useRef, useCallback } from "react";
 import { submitCompare, createJobSSE } from "../api/compareApi";

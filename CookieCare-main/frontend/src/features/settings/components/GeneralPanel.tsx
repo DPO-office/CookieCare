@@ -5,7 +5,7 @@ import { SettingsProps } from "../types";
 
 export default function GeneralPanel({ user }: SettingsProps) {
   const [name, setName] = useState(user?.name || "Senior Privacy Engineer");
-  const [email] = useState(user?.email || "admin@randtrust.cloud");
+  const [email] = useState(user?.email || "admin@LORA.cloud");
   const [timezone, setTimezone] = useState("Europe/London");
   const [language, setLanguage] = useState("en");
   const [dateFormat, setDateFormat] = useState("DD/MM/YYYY");
@@ -14,7 +14,7 @@ export default function GeneralPanel({ user }: SettingsProps) {
   return (
     <div className="space-y-5">
       <SettingCard>
-        <CardHeader icon={User} title="Identity" desc="Your name and contact details within randtrust." />
+        <CardHeader icon={User} title="Identity" desc="Your name and contact details within LORA." />
         <CardBody>
           <div className="flex items-center gap-4 mb-6 pb-5 border-b border-gray-50">
             <div className="w-14 h-14 rounded-full text-white flex items-center justify-center font-bold text-lg shrink-0" style={{ background: "#2175D9" }}>

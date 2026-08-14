@@ -2,7 +2,7 @@
  * Brand asset helpers for the enterprise report generator.
  *
  * Branding hierarchy:
- *   Primary  · randtrust  (the product / platform)
+ *   Primary  · LORA  (the product / platform)
  *   Secondary · Randstad Digital (the client)
  *
  * Logos are loaded at runtime from the public folder via fetch · base64,
@@ -60,7 +60,7 @@ export function getRandstadLogoB64(): string | null { return _randstadLogoB64; }
 
 // ··· SVG fallbacks (used only if image fails to load) ························
 
-/** randtrust shield-check SVG — for dark backgrounds */
+/** LORA shield-check SVG — for dark backgrounds */
 export const LEXIFY_SHIELD_SVG = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
     <rect width="40" height="40" rx="10" fill="#2175D9"/>

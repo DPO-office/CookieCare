@@ -1,5 +1,5 @@
 // ─── AgreementUploadCard ──────────────────────────────────────────────────────
-// Upload card — same glass, glow-ring, and spacing DNA as the RandTrust AI
+// Upload card — same glass, glow-ring, and spacing DNA as the LORA AI
 // Composer input box.  Each card represents exactly one agreement slot.
 
 import { useRef, useState, useCallback } from "react";

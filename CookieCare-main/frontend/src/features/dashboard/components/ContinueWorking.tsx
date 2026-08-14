@@ -1,42 +1,24 @@
 import { FileText } from "lucide-react";
-import { scoreVariant } from "../../../shared/components/StatusBadge";
-import type { DocumentWorkItem } from "../utils";
+import type { DocumentRow } from "../types";
 import { DashboardCard } from "./DashboardCard";
 
-const SCORE_COLOR: Record<ReturnType<typeof scoreVariant>, string> = {
-  success: "var(--color-success)",
-  warning: "var(--color-warning)",
-  danger: "var(--color-danger)",
-  neutral: "var(--color-text-tertiary)",
-  brand: "var(--color-brand)",
-};
-
 interface ContinueWorkingProps {
-  items: DocumentWorkItem[];
+  items: DocumentRow[];
   onOpen: (tab: string) => void;
   onViewVault: () => void;
-  excludeId?: string;
 }
 
-export function ContinueWorking({
-  items,
-  onOpen,
-  onViewVault,
-  excludeId,
-}: ContinueWorkingProps) {
-  const list = excludeId ? items.filter((i) => i.id !== excludeId) : items;
-
+export function ContinueWorking({ items, onOpen, onViewVault }: ContinueWorkingProps) {
   return (
     <DashboardCard
-      overline="Your queue"
-      title="Continue working"
+      overline="Vault"
+      title="Recent documents"
       action={
         items.length > 0 ? (
           <button
             type="button"
             onClick={onViewVault}
-            className="text-[length:var(--text-body-sm)] font-medium hover:underline underline-offset-2"
-            style={{ color: "var(--color-brand-text)" }}
+            className="text-[13px] font-medium text-dark-200 transition-colors hover:text-[#1a1a1a]"
           >
             View all
           </button>
@@ -44,68 +26,42 @@ export function ContinueWorking({
       }
       noPadding
     >
-      {list.length === 0 ? (
+      {items.length === 0 ? (
         <div className="px-6 py-10 text-center">
-          <FileText
-            className="w-5 h-5 mx-auto mb-2"
-            style={{ color: "var(--color-text-disabled)" }}
-            strokeWidth={1.5}
-          />
-          <p
-            className="text-[length:var(--text-body-sm)] font-medium"
-            style={{ color: "var(--color-text-secondary)" }}
-          >
-            {items.length === 0 ? "No documents in your queue" : "No other documents waiting"}
-          </p>
-          <p
-            className="text-[length:var(--text-caption)] mt-1"
-            style={{ color: "var(--color-text-tertiary)" }}
-          >
-            {items.length === 0
-              ? "Analyze or draft an agreement to get started."
-              : "Your active review is shown above."}
+          <div className="dashboard-icon-tile mx-auto mb-3">
+            <FileText className="h-4 w-4" strokeWidth={1.5} />
+          </div>
+          <p className="text-[13px] font-medium text-[#1a1a1a]">No documents yet</p>
+          <p className="mt-1 text-[12px] text-dark-200">
+            Analyze or draft an agreement to populate the vault.
           </p>
         </div>
       ) : (
         <ul>
-          {list.map((item) => (
+          {items.map((item) => (
             <li key={item.id}>
               <button
                 type="button"
                 className="dashboard-activity-row"
-                onClick={() => onOpen(item.suggestedTab)}
+                onClick={() => onOpen(item.analyzed ? "legal-review" : "legal-vault")}
               >
                 <div className="dashboard-icon-tile">
-                  <FileText className="w-4 h-4" strokeWidth={1.5} />
+                  <FileText className="h-4 w-4" strokeWidth={1.5} />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p
-                    className="text-[length:var(--text-body-sm)] font-semibold truncate"
-                    style={{ color: "var(--color-text-primary)" }}
-                  >
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[13px] font-semibold text-[#1a1a1a]">
                     {item.title}
                   </p>
-                  <p
-                    className="text-[length:var(--text-caption)] mt-0.5 truncate"
-                    style={{ color: "var(--color-text-tertiary)" }}
-                  >
-                    {item.type} · {item.statusLabel} · {item.actionLabel}
+                  <p className="mt-0.5 truncate text-[12px] text-dark-200">
+                    {item.type}
+                    {item.analyzed
+                      ? ` · ${item.findingCount} finding${item.findingCount === 1 ? "" : "s"}`
+                      : " · Not analyzed"}
                   </p>
                 </div>
-                <div className="text-right shrink-0 pl-2">
-                  <p
-                    className="text-[length:var(--text-body-sm)] font-bold tabular-nums"
-                    style={{ color: SCORE_COLOR[scoreVariant(item.score)] }}
-                  >
-                    {item.score}%
-                  </p>
-                  <p
-                    className="text-[10px] mt-0.5 tabular-nums"
-                    style={{ color: "var(--color-text-tertiary)" }}
-                  >
-                    {item.updatedLabel}
-                  </p>
-                </div>
+                <p className="shrink-0 pl-2 text-[12px] tabular-nums text-[#98A2B3]">
+                  {item.updatedLabel}
+                </p>
               </button>
             </li>
           ))}

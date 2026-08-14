@@ -3,6 +3,9 @@ import { Search, FileText, ChevronRight, FolderOpen, Check } from "lucide-react"
 import { LegalDocument } from "../../../shared/types";
 import { isPlaceholderVaultDocument } from "../../analyze/utils/vaultDocumentFilters";
 
+const CARD_SHADOW = "0 1px 2px rgba(16,24,40,0.04), 0 0 0 1px rgba(16,24,40,0.06)";
+const CARD_SHADOW_SELECTED = "0 1px 2px rgba(16,24,40,0.04), 0 0 0 1px rgba(16,24,40,0.14)";
+
 interface DocumentPickerProps {
   documents: LegalDocument[];
   onConfirm: (doc: LegalDocument) => void;
@@ -27,6 +30,14 @@ function relativeDate(iso: string | undefined | null): string {
   }
 }
 
+function displayTitle(title: string) {
+  const cleaned = title.replace(/[_-]+/g, " ").replace(/\.(pdf|docx?)$/i, "").trim();
+  if (cleaned === cleaned.toUpperCase()) {
+    return cleaned.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+  return cleaned;
+}
+
 function filterNegotiableDocuments(documents: LegalDocument[]): LegalDocument[] {
   return documents.filter((doc) => !isPlaceholderVaultDocument(doc));
 }
@@ -45,23 +56,22 @@ export default function DocumentPicker({ documents, onConfirm }: DocumentPickerP
     );
   }, [available, search]);
 
-  const hasUpdatedDates = useMemo(
-    () => available.some((d) => !!d.updatedAt && relativeDate(d.updatedAt) !== ""),
-    [available],
-  );
-
   if (available.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-[#FAFAFA]">
-        <div className="bg-white border border-[#EBEBEB] rounded-[22px] shadow-sm p-12 text-center max-w-md w-full">
-          <div className="w-14 h-14 rounded-2xl bg-[#F4F4F5] flex items-center justify-center mx-auto mb-5">
-            <FolderOpen className="w-6 h-6 text-[#A1A1AA]" />
+      <div className="dpa-results-bg flex flex-1 items-center justify-center px-6 py-12 font-sans">
+        <div
+          className="w-full max-w-md rounded-[24px] bg-white px-8 py-12 text-center"
+          style={{ boxShadow: CARD_SHADOW }}
+        >
+          <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-[#EEF2FF] text-[#4F5BD9]">
+            <FolderOpen className="h-5 w-5" strokeWidth={1.75} />
           </div>
-          <h3 className="text-[16px] font-semibold text-[#18181B]">No documents yet</h3>
-          <p className="text-[13px] text-[#A1A1AA] mt-2 leading-relaxed">
+          <h3 className="m-0 text-[18px] font-semibold tracking-[-0.02em] text-[#1a1a1a]">
+            No documents yet
+          </h3>
+          <p className="mt-2 text-[14px] leading-relaxed text-[#667085]">
             Upload or create a draft in{" "}
-            <span className="font-medium text-[#52525B]">Draft Agreements</span>, then return
-            here to start negotiating.
+            <span className="font-medium text-[#1a1a1a]">Draft</span>, then return here to start negotiating.
           </p>
         </div>
       </div>
@@ -69,145 +79,104 @@ export default function DocumentPicker({ documents, onConfirm }: DocumentPickerP
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-[#FAFAFA]">
-      <div className="flex-1 overflow-y-auto px-6 py-8">
-        <div className="max-w-3xl w-full mx-auto">
+    <div className="dpa-results-bg flex min-h-0 flex-1 flex-col overflow-hidden font-sans">
+      <div className="min-h-0 flex-1 overflow-y-auto px-6 py-10 sm:px-10">
+        <div className="mx-auto w-full max-w-3xl">
           <header className="mb-8">
-            <h1 className="text-[28px] font-semibold tracking-tight text-[#18181B] m-0">
+            <p className="m-0 mb-3 text-[10px] font-medium uppercase tracking-[0.14em] text-[#98A2B3]">
+              Legal Space · Negotiate
+            </p>
+            <h1 className="m-0 text-[30px] font-semibold leading-tight tracking-[-0.03em] text-[#1a1a1a] sm:text-[34px]">
               Negotiate redlines
             </h1>
-            <p className="text-[14px] text-[#A1A1AA] mt-2 m-0 leading-relaxed">
-              Review, redline, and resolve contract positions.
+            <p className="m-0 mt-2 max-w-xl text-[14px] leading-relaxed text-[#667085]">
+              Review, redline, and resolve contract positions with AI-assisted markup.
             </p>
           </header>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-3">
+          <div className="mb-3 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
             <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#C4C4C4] pointer-events-none" />
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98A2B3]" />
               <input
                 type="text"
                 placeholder="Search by name or type…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full h-11 pl-11 pr-4 rounded-full border border-[#E4E4E7] bg-white text-[14px] text-[#18181B] placeholder-[#C4C4C4] outline-none focus:border-[#D4D4D8] focus:ring-2 focus:ring-[#18181B]/5 transition"
+                className="h-11 w-full rounded-full border-none bg-white pl-11 pr-4 text-[14px] text-[#1a1a1a] outline-none placeholder:text-[#98A2B3] focus:shadow-[0_0_0_3px_rgba(79,91,217,0.14)]"
+                style={{ boxShadow: CARD_SHADOW }}
               />
             </div>
             <button
               type="button"
               onClick={() => selected && onConfirm(selected)}
               disabled={!selected}
-              className="inline-flex items-center justify-center gap-2 px-6 h-11 rounded-full text-[13px] font-semibold shrink-0 transition-all border-none cursor-pointer disabled:cursor-not-allowed"
-              style={{
-                background: selected ? "#18181B" : "#F4F4F5",
-                color: selected ? "#FFFFFF" : "#A1A1AA",
-              }}
+              className={`inline-flex h-11 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border-none px-6 text-[13px] font-semibold transition-opacity disabled:cursor-not-allowed ${
+                selected ? "primary-gradient text-white hover:opacity-90" : "bg-[#EEF2FF] text-[#98A2B3]"
+              }`}
             >
               Open negotiation
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="h-4 w-4" />
             </button>
           </div>
 
-          <p className="text-[12px] text-[#A1A1AA] mb-4 m-0">
+          <p className="mb-5 mt-0 text-[12px] text-[#98A2B3]">
             {search.trim()
               ? `${filtered.length} of ${available.length} document${available.length !== 1 ? "s" : ""} match`
               : `${available.length} document${available.length !== 1 ? "s" : ""} available`}
           </p>
 
-          <div className="bg-white border border-[#EBEBEB] rounded-[22px] shadow-sm overflow-hidden">
+          {filtered.length === 0 ? (
             <div
-              className={`grid ${
-                hasUpdatedDates ? "grid-cols-[1fr_88px_100px_32px]" : "grid-cols-[1fr_88px_32px]"
-              } px-5 py-3 border-b border-[#F4F4F5] bg-[#FAFAFA]/80`}
+              className="rounded-[22px] bg-white px-5 py-14 text-center text-[13px] text-[#667085]"
+              style={{ boxShadow: CARD_SHADOW }}
             >
-              <span className="text-[10px] font-semibold text-[#C4C4C4] uppercase tracking-wider">
-                Document
-              </span>
-              <span className="text-[10px] font-semibold text-[#C4C4C4] uppercase tracking-wider">
-                Type
-              </span>
-              {hasUpdatedDates && (
-                <span className="text-[10px] font-semibold text-[#C4C4C4] uppercase tracking-wider">
-                  Updated
-                </span>
-              )}
-              <span />
+              No documents match your search.
             </div>
+          ) : (
+            <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
+              {filtered.map((doc) => {
+                const isSelected = selected?.id === doc.id;
+                const dateLabel = relativeDate(doc.updatedAt);
+                return (
+                  <li key={doc.id}>
+                    <button
+                      type="button"
+                      onClick={() => setSelected(doc)}
+                      className="group flex w-full cursor-pointer items-center gap-3.5 rounded-[22px] bg-white px-4 py-3.5 text-left transition-[transform,box-shadow] duration-200 hover:-translate-y-px"
+                      style={{ boxShadow: isSelected ? CARD_SHADOW_SELECTED : CARD_SHADOW }}
+                    >
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF] text-[#4F5BD9]">
+                        {isSelected ? (
+                          <Check className="h-4 w-4" strokeWidth={2.25} />
+                        ) : (
+                          <FileText className="h-4 w-4" strokeWidth={1.75} />
+                        )}
+                      </div>
 
-            <div className="max-h-[min(56vh,520px)] overflow-y-auto">
-              {filtered.length === 0 ? (
-                <div className="px-5 py-14 text-center text-[13px] text-[#A1A1AA]">
-                  No documents match your search.
-                </div>
-              ) : (
-                <ul className="p-2">
-                  {filtered.map((doc) => {
-                    const isSelected = selected?.id === doc.id;
-                    const dateLabel = relativeDate(doc.updatedAt);
-                    return (
-                      <li key={doc.id}>
-                        <button
-                          type="button"
-                          onClick={() => setSelected(doc)}
-                          className={[
-                            `w-full grid ${
-                              hasUpdatedDates
-                                ? "grid-cols-[1fr_88px_100px_32px]"
-                                : "grid-cols-[1fr_88px_32px]"
-                            } items-center px-3 py-3.5 rounded-xl text-left transition-all duration-150 outline-none`,
-                            isSelected
-                              ? "bg-[#F4F4F5] ring-1 ring-[#E4E4E7]"
-                              : "hover:bg-[#FAFAFA]",
-                          ].join(" ")}
-                        >
-                          <div className="flex items-center gap-3 min-w-0 pr-3">
-                            <div
-                              className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                              style={{
-                                background: isSelected ? "#FFFFFF" : "#F4F4F5",
-                              }}
-                            >
-                              <FileText
-                                className="w-4 h-4"
-                                style={{ color: isSelected ? "#18181B" : "#A1A1AA" }}
-                              />
-                            </div>
-                            <span
-                              className="text-[14px] font-medium truncate"
-                              style={{ color: "#18181B" }}
-                            >
-                              {doc.title}
-                            </span>
-                          </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="m-0 truncate text-[14px] font-semibold tracking-[-0.01em] text-[#1a1a1a]">
+                          {displayTitle(doc.title)}
+                        </p>
+                        {dateLabel && (
+                          <p className="m-0 mt-0.5 text-[12px] text-[#98A2B3]">{dateLabel}</p>
+                        )}
+                      </div>
 
-                          <span
-                            className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium w-fit"
-                            style={{
-                              background: "#F4F4F5",
-                              color: "#71717A",
-                            }}
-                          >
-                            {doc.type}
-                          </span>
-
-                          {hasUpdatedDates && (
-                            <span className="text-[12px] text-[#A1A1AA]">{dateLabel}</span>
-                          )}
-
-                          <div className="flex justify-end">
-                            {isSelected && (
-                              <div className="w-5 h-5 rounded-full bg-[#18181B] flex items-center justify-center">
-                                <Check className="w-3 h-3 text-white" strokeWidth={3} />
-                              </div>
-                            )}
-                          </div>
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
-          </div>
+                      <span
+                        className={`score-badge shrink-0 text-[10px] font-medium ${
+                          doc.type === "draft"
+                            ? "bg-[#EEF2FF] text-[#4F5BD9]"
+                            : "bg-[#F7F8FB] text-[#667085]"
+                        }`}
+                      >
+                        {doc.type}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
       </div>
     </div>

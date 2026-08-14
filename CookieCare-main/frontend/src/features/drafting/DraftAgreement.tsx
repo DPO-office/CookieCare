@@ -1,14 +1,21 @@
-﻿import React, { useState, useEffect, useRef } from "react";
+﻿import React, { useState, useEffect, useRef, useMemo } from "react";
 import AiProgressOverlay from "../../shared/components/AiProgressOverlay";
 import DraftChatLanding from "./components/DraftChatLanding";
 import DraftSplitWorkspace from "./components/DraftSplitWorkspace";
 import CreateDocModal from "./components/CreateDocModal";
 import SaveDraftModal from "./components/SaveDraftModal";
+import { DraftLibraryPicker } from "./components/DraftLibraryPicker";
+import { VaultPickerSheet } from "../analyze/components/VaultPickerSheet";
 import { useDraftEditorState } from "./hooks/useDraftEditorState";
 import { useDraftGeneratorState } from "./hooks/useDraftGeneratorState";
 import { useDraftApiActions } from "./hooks/useDraftApiActions";
 import { useDraftGeneratorActions } from "./hooks/useDraftGeneratorActions";
 import { useDraftChat } from "./hooks/useDraftChat";
+import { useDraftLibrary } from "./hooks/useDraftLibrary";
+import { useDraftPromptLibrary } from "./hooks/useDraftPromptLibrary";
+import { useAnalyzeData } from "../analyze/hooks/useAnalyzeData";
+import { getSelectedDocuments } from "../analyze/documentSelection";
+import { composeDraftContext } from "./utils/composeDraftContext";
 import { DraftAgreementProps } from "./types";
 import type { RichTextSelectionSnapshot } from "../../shared/components/RichTextEditor";
 export default function DraftAgreement({
@@ -27,6 +34,38 @@ export default function DraftAgreement({
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(!!initialDocumentId);
   const [workspaceChatInput, setWorkspaceChatInput] = useState("");
   const [sessionTitle, setSessionTitle] = useState("Draft session");
+  const [vaultPickerOpen, setVaultPickerOpen] = useState(false);
+  const [libraryPicker, setLibraryPicker] = useState<"template" | "playbook" | "clauses" | null>(null);
+
+  const { templates, clauses: clauseLibrary, playbooks } = useDraftLibrary(authToken);
+  const { starterPrompts, customPrompts, addPrompt, removePrompt } = useDraftPromptLibrary(authToken);
+  const {
+    folders,
+    savedDrafts,
+    toggleFolderSelection,
+    toggleFolderExpanded,
+    toggleFileSelection,
+    toggleDraftSelection,
+    deselectDocument,
+  } = useAnalyzeData(authToken);
+
+  const selectedVaultDocs = useMemo(
+    () => getSelectedDocuments(folders, savedDrafts).filter((d) => d.type !== "folder"),
+    [folders, savedDrafts]
+  );
+
+  const selectedTemplate = useMemo(
+    () => templates.find((t) => t.id === generatorState.selectedTemplateId) ?? null,
+    [templates, generatorState.selectedTemplateId]
+  );
+  const selectedPlaybook = useMemo(
+    () => playbooks.find((p) => p.id === generatorState.selectedPlaybookId) ?? null,
+    [playbooks, generatorState.selectedPlaybookId]
+  );
+  const selectedClauseItems = useMemo(
+    () => clauseLibrary.filter((c) => generatorState.selectedClauseIds.includes(c.id)),
+    [clauseLibrary, generatorState.selectedClauseIds]
+  );
 
   // --- Modal states ---
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -116,44 +155,70 @@ export default function DraftAgreement({
     }
   };
 
-  const handleExecuteDraftStream = () => {
+  const handleExecuteDraftStream = (overrides?: {
+    mode?: string;
+    advancedStep?: string;
+    sourceDocumentId?: string;
+  }) => {
+    const contextInstructions = composeDraftContext({
+      playbook: selectedPlaybook,
+      template: selectedTemplate,
+      clauses: selectedClauseItems,
+    });
+    const vaultSource = selectedVaultDocs[0];
+    const sourceDocumentId =
+      overrides?.sourceDocumentId ??
+      (generatorState.sourceDocumentId || vaultSource?.id || "");
+    const mode = overrides?.mode ?? generatorState.mode;
+    const advancedStep = overrides?.advancedStep ?? generatorState.advancedStep;
+
     generatorActions.handleExecuteDraftStream({
-      mode: generatorState.mode,
+      mode,
       depth: generatorState.depth,
       instructions: generatorState.instructions,
-      playbookGuidelines: generatorState.playbookGuidelines,
-      advancedStep: generatorState.advancedStep,
-      selectedTemplateName: generatorState.selectedTemplateName,
+      playbookGuidelines: contextInstructions,
+      advancedStep,
+      selectedTemplateName: selectedTemplate?.name ?? generatorState.selectedTemplateName,
       aiRulebookPrompt: generatorState.aiRulebookPrompt,
       referenceInstructions: generatorState.referenceInstructions,
-      uploadFileName: generatorState.uploadFileName,
+      uploadFileName: generatorState.uploadFileName || vaultSource?.title || "",
       uploadText: generatorState.uploadText,
-      sourceDocumentId: generatorState.sourceDocumentId,
+      sourceDocumentId,
     });
   };
 
   const handleChatSubmit = () => {
-    if (!generatorState.instructions.trim() && !generatorState.sourceDocumentId) {
-      generatorState.setDraftError("Describe what you want to draft, or attach a reference document.");
+    const vaultSource = selectedVaultDocs[0];
+    const sourceDocumentId = generatorState.sourceDocumentId || vaultSource?.id || "";
+    const hasSource = !!sourceDocumentId;
+    const hasContext =
+      !!selectedTemplate || !!selectedPlaybook || selectedClauseItems.length > 0;
+
+    if (!generatorState.instructions.trim() && !hasSource && !hasContext) {
+      generatorState.setDraftError(
+        "Describe what you want to draft, attach a document, or choose a template."
+      );
       return;
     }
     generatorState.setDraftError("");
 
-    const prompt = generatorState.instructions.trim() || `Draft from: ${generatorState.uploadFileName}`;
+    const prompt =
+      generatorState.instructions.trim() ||
+      (hasSource
+        ? `Draft from: ${generatorState.uploadFileName || vaultSource?.title}`
+        : `Draft using ${selectedTemplate?.name || selectedPlaybook?.name || "selected vault items"}`);
     setSessionTitle(prompt.length > 48 ? `${prompt.slice(0, 48)}…` : prompt);
     draftChat.addUserMessage(prompt);
     draftChat.updateProgressMessage("Starting draft generation…");
     setIsWorkspaceOpen(true);
     editorState.setIsGeneratorActive(false);
 
-    if (generatorState.sourceDocumentId) {
-      generatorState.setMode("Advanced");
-      generatorState.setAdvancedStep("reactive");
-    } else {
-      generatorState.setMode("Basic");
-    }
+    const mode = hasSource ? "Advanced" : "Basic";
+    const advancedStep = hasSource ? "reactive" : generatorState.advancedStep;
+    generatorState.setMode(mode);
+    if (hasSource) generatorState.setAdvancedStep("reactive");
 
-    handleExecuteDraftStream();
+    handleExecuteDraftStream({ mode, advancedStep, sourceDocumentId });
   };
 
   const handleWorkspaceChatSubmit = () => {
@@ -169,6 +234,21 @@ export default function DraftAgreement({
     generatorState.setUploadText("");
     generatorState.setSourceDocumentId("");
   };
+
+  const handleRemoveVaultDocument = (id: string) => {
+    const doc = selectedVaultDocs.find((d) => d.id === id);
+    if (!doc) return;
+    deselectDocument(id, doc.type, doc.folderId);
+    if (generatorState.sourceDocumentId === id) {
+      generatorState.setSourceDocumentId("");
+    }
+  };
+
+  const uploadedNameShownSeparately =
+    generatorState.uploadFileName &&
+    !selectedVaultDocs.some((d) => d.title === generatorState.uploadFileName)
+      ? generatorState.uploadFileName
+      : undefined;
 
   const handleSaveClick = () => {
     setDraftNameInput(editorState.selectedDoc?.title || "");
@@ -389,7 +469,28 @@ export default function DraftAgreement({
           onSubmit={handleChatSubmit}
           onFileSelect={(file) => generatorActions.processFile(file)}
           onRemoveFile={handleRemoveAttachedFile}
-          attachedFileName={generatorState.uploadFileName || undefined}
+          attachedFileName={uploadedNameShownSeparately}
+          vaultDocuments={selectedVaultDocs.map((d) => ({ id: d.id, title: d.title }))}
+          onRemoveVaultDocument={handleRemoveVaultDocument}
+          onOpenVault={() => setVaultPickerOpen(true)}
+          template={selectedTemplate}
+          playbook={selectedPlaybook}
+          clauses={selectedClauseItems}
+          onOpenTemplate={() => setLibraryPicker("template")}
+          onOpenPlaybook={() => setLibraryPicker("playbook")}
+          onOpenClauses={() => setLibraryPicker("clauses")}
+          onClearTemplate={() => {
+            generatorState.setSelectedTemplateId(null);
+            generatorState.setSelectedTemplateName(null);
+          }}
+          onClearPlaybook={() => generatorState.setSelectedPlaybookId(null)}
+          onRemoveClause={(id) => {
+            const nextIds = generatorState.selectedClauseIds.filter((x) => x !== id);
+            generatorState.setSelectedClauseIds(nextIds);
+            generatorState.setSelectedClauses(
+              clauseLibrary.filter((c) => nextIds.includes(c.id)).map((c) => c.name)
+            );
+          }}
           isStreaming={generatorState.isStreaming}
           isParsing={generatorState.isParsingTemplate}
           draftError={generatorState.draftError}
@@ -397,8 +498,72 @@ export default function DraftAgreement({
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
+          starterPrompts={starterPrompts}
+          customPrompts={customPrompts}
+          onAddPrompt={addPrompt}
+          onRemovePrompt={removePrompt}
         />
       ) : null}
+
+      {vaultPickerOpen && (
+        <VaultPickerSheet
+          folders={folders}
+          savedDrafts={savedDrafts}
+          onToggleFolderSelection={toggleFolderSelection}
+          onToggleFolderExpanded={toggleFolderExpanded}
+          onToggleFileSelection={toggleFileSelection}
+          onToggleDraftSelection={toggleDraftSelection}
+          onClose={() => setVaultPickerOpen(false)}
+          description="Browse and select a reference document for this draft."
+        />
+      )}
+
+      {libraryPicker === "template" && (
+        <DraftLibraryPicker
+          title="Select template"
+          description="Choose a boilerplate structure from your vault."
+          items={templates}
+          selectedIds={generatorState.selectedTemplateId ? [generatorState.selectedTemplateId] : []}
+          emptyLabel="No templates in your vault yet."
+          onChange={(ids) => {
+            const id = ids[0] ?? null;
+            const item = templates.find((t) => t.id === id) ?? null;
+            generatorState.setSelectedTemplateId(id);
+            generatorState.setSelectedTemplateName(item?.name ?? null);
+          }}
+          onClose={() => setLibraryPicker(null)}
+        />
+      )}
+
+      {libraryPicker === "playbook" && (
+        <DraftLibraryPicker
+          title="Select playbook"
+          description="Apply company playbook rules from your vault."
+          items={playbooks}
+          selectedIds={generatorState.selectedPlaybookId ? [generatorState.selectedPlaybookId] : []}
+          emptyLabel="No playbooks in your vault yet."
+          onChange={(ids) => generatorState.setSelectedPlaybookId(ids[0] ?? null)}
+          onClose={() => setLibraryPicker(null)}
+        />
+      )}
+
+      {libraryPicker === "clauses" && (
+        <DraftLibraryPicker
+          title="Select clauses"
+          description="Add standardized clauses to include in this draft."
+          items={clauseLibrary}
+          selectedIds={generatorState.selectedClauseIds}
+          multiple
+          emptyLabel="No clauses in your vault yet."
+          onChange={(ids) => {
+            generatorState.setSelectedClauseIds(ids);
+            generatorState.setSelectedClauses(
+              clauseLibrary.filter((c) => ids.includes(c.id)).map((c) => c.name)
+            );
+          }}
+          onClose={() => setLibraryPicker(null)}
+        />
+      )}
 
     </div>
   );

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import type { ChangeEvent, MouseEvent } from "react";
+import type { MouseEvent } from "react";
 import { LegalDocument } from "../../../shared/types";
 import { AgentMarkup } from "../types";
 import {
@@ -28,6 +28,7 @@ export function useNegotiate({
   const [evaluating, setEvaluating] = useState(false);
   const [evaluationError, setEvaluationError] = useState("");
   const [acceptingMarkupId, setAcceptingMarkupId] = useState<string | null>(null);
+  const [appliedClause, setAppliedClause] = useState<{ id: string; text: string } | null>(null);
   const [evaluatingDocId, setEvaluatingDocId] = useState<string | null>(null);
   const [editingReplacement, setEditingReplacement] = useState(false);
   const [redlinesOpen, setRedlinesOpen] = useState(false);
@@ -57,8 +58,7 @@ export function useNegotiate({
     loadActiveDocumentDetails(docId);
   }, [activeDocument, documents]);
 
-  const handleDocumentChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    const docId = e.target.value;
+  const selectDocumentById = (docId: string) => {
     setSelectedDocId(docId);
     const matched = documents.find((d) => d.id === docId);
     if (!matched) return;
@@ -89,27 +89,32 @@ export function useNegotiate({
   const handleAcceptAgentMarkup = async (markup: AgentMarkup) => {
     if (!activeDoc || acceptingMarkupId === markup.clauseId) return;
     setAcceptingMarkupId(markup.clauseId);
+    setAppliedClause(null);
     try {
-      // 1. Programmatically locate the active targeted text segment within the main document content state
       const textIndex = activeDoc.content.indexOf(markup.original);
       if (textIndex === -1) {
         throw new Error("Could not find the target clause in the document content.");
       }
 
-      // 2. Surgically replace the old liability text with the AI proposed text
       const updatedContent = activeDoc.content.replace(markup.original, markup.replacement);
-
-      // 3. Dispatch an API payload to trigger saveStep, incrementing version to next sequential digit
       const nextVersion = (activeDoc.versions?.length || 1) + 1;
-      await saveNegotiationStep(authToken, activeDoc.id, updatedContent, nextVersion);
+      const minAnimation = new Promise((resolve) => setTimeout(resolve, 950));
 
-      // Filter local agent markups and clear focus
-      setAgentMarkups((prev) => prev.filter((m) => m.clauseId !== markup.clauseId));
-      setSelectedMarkup(null);
+      await Promise.all([
+        saveNegotiationStep(authToken, activeDoc.id, updatedContent, nextVersion),
+        minAnimation,
+      ]);
+
+      setActiveDoc((prev) => (prev ? { ...prev, content: updatedContent } : prev));
+      const remaining = agentMarkups.filter((m) => m.clauseId !== markup.clauseId);
+      setAgentMarkups(remaining);
+      setSelectedMarkup(remaining[0] ?? null);
       setEditingReplacement(false);
-
+      setAppliedClause({ id: markup.clauseId, text: markup.replacement });
       onRefresh();
-      await loadActiveDocumentDetails(activeDoc.id);
+      window.setTimeout(() => {
+        setAppliedClause((current) => (current?.id === markup.clauseId ? null : current));
+      }, 2200);
     } catch (err: any) {
       alert(err.message || "Failed to accept markup patch.");
     } finally {
@@ -216,9 +221,9 @@ export function useNegotiate({
 
   return {
     selectedDocId, activeDoc, agentMarkups, selectedMarkup, setSelectedMarkup,
-    evaluating, evaluationError, setEvaluationError, acceptingMarkupId,
+    evaluating, evaluationError, setEvaluationError, acceptingMarkupId, appliedClause,
     editingReplacement, setEditingReplacement, redlinesOpen, setRedlinesOpen,
-    draftingCompromise, handleDocumentChange, handleAcceptAgentMarkup,
+    draftingCompromise, selectDocumentById, handleAcceptAgentMarkup,
     handleDismissMarkup, handleAcceptDbRedline, handleRejectDbRedline,
     triggerAutoNegotiation, handleDocumentPaneClick, updateMarkupReplacement,
     rerunEvaluation, loadActiveDocumentDetails, saving, showSavedToast,
