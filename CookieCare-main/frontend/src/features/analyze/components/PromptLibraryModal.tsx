@@ -8,11 +8,7 @@ import { LibraryModalColumns, libraryModalShellProps, LibraryModalOverlay } from
 
 interface PromptLibraryModalProps {
   promptLibrary: PromptLibraryItem[];
-<<<<<<< HEAD
   onApply: (promptText: string, categoryId?: string) => void;
-=======
-  onApply: (promptTexts: string[]) => void;
->>>>>>> origin/development
   onClose: () => void;
 }
 
@@ -234,8 +230,8 @@ export default function PromptLibraryModal({
 
   const handleApply = useCallback(() => {
     if (selectedList.length === 0) return;
-    onApply(selectedList.map((item) => item.prompt));
-  }, [selectedList, onApply]);
+    onApply(selectedList.map((item) => item.prompt).join("\n\n"), activeCategoryId);
+  }, [selectedList, onApply, activeCategoryId]);
 
   const filteredPrompts = useMemo(() => {
     const q = normalise(searchQuery);
@@ -269,17 +265,6 @@ export default function PromptLibraryModal({
     }
   }, [searchQuery, matchCounts]); // eslint-disable-line react-hooks/exhaustive-deps
 
-<<<<<<< HEAD
-  const selectedPrompt = selectedIndex !== null ? filteredPrompts[selectedIndex] ?? null : null;
-
-  const handleApply = useCallback(() => {
-    if (selectedPrompt) {
-      onApply(selectedPrompt.prompt, activeCategoryId);
-    }
-  }, [selectedPrompt, onApply, activeCategoryId]);
-
-=======
->>>>>>> origin/development
   return (
     <>
       <style>{ANALYZE_STYLES}</style>

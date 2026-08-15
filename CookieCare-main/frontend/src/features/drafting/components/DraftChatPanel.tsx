@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-import { useRef, useEffect, useState } from "react";
-import { Sparkles, MoreVertical } from "lucide-react";
-=======
-import { useRef, useEffect, ReactNode } from "react";
+import { useRef, useEffect, useState, ReactNode } from "react";
 import { Sparkles } from "lucide-react";
->>>>>>> origin/development
 import { DraftComposer } from "./DraftComposer";
 import type { DraftChatMessage } from "../hooks/useDraftChat";
 import type { DraftOpenQuestion } from "../api/draftingJobs";
@@ -196,7 +191,7 @@ export default function DraftChatPanel({
             Ask AI
           </p>
           <p className="m-0 mt-0.5 truncate text-[15px] font-semibold tracking-[-0.02em] text-[#1a1a1a]">
-            Follow-ups
+            {title || "Follow-ups"}
           </p>
         </div>
         <span className="score-badge shrink-0 bg-[#EEF2FF] text-[11px] font-medium text-[#4F5BD9]">
@@ -204,67 +199,6 @@ export default function DraftChatPanel({
         </span>
       </header>
 
-<<<<<<< HEAD
-      <div className="flex-1 overflow-y-auto px-5 py-6 space-y-5 min-h-0 bg-[#FCFCFC]">
-        {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-center px-4">
-            <p className="text-[13px] text-[#A1A1AA] leading-relaxed max-w-[240px]">
-              Your conversation will appear here as you draft and refine your agreement.
-            </p>
-          </div>
-        )}
-        {messages.map((msg) => {
-          if (msg.role === "user") {
-            return (
-              <div key={msg.id} className="flex justify-end">
-                <div className="draft-chat-user-bubble max-w-[90%] px-4 py-3 text-[13.5px] leading-[1.65]">
-                  {msg.content}
-                </div>
-              </div>
-            );
-          }
-
-          if (msg.kind === "ask" && msg.questions?.length) {
-            return (
-              <AskQuestionCard
-                key={msg.id}
-                messageId={msg.id}
-                content={msg.content}
-                questions={msg.questions}
-                resolved={msg.askResolved}
-                disabled={isLoading}
-                onSubmit={onAskSubmit}
-              />
-            );
-          }
-
-          if (msg.kind === "example") {
-            return (
-              <div key={msg.id} className="space-y-2.5">
-                <p className="text-[13.5px] text-[#3F3F46] leading-[1.65] whitespace-pre-wrap">
-                  {msg.content.split("\n\n")[0]}
-                </p>
-                {msg.content.includes("\n\n") && (
-                  <div className="draft-chat-example px-4 py-3 text-[13px] text-[#52525B] leading-[1.65]">
-                    {msg.content.split("\n\n").slice(1).join("\n\n")}
-                  </div>
-                )}
-              </div>
-            );
-          }
-
-          return (
-            <div key={msg.id} className="flex items-start gap-2.5 max-w-[95%]">
-              {msg.kind === "progress" && (
-                <Sparkles className="w-4 h-4 text-[#A1A1AA] shrink-0 mt-0.5" />
-              )}
-              <p
-                className={`text-[13.5px] leading-[1.65] whitespace-pre-wrap ${
-                  msg.kind === "progress" ? "text-[#71717A] italic" : "text-[#3F3F46]"
-                }`}
-              >
-                {msg.content}
-=======
       <div className="draft-chat-stage relative min-h-0 flex-1">
         <div className="scrollbar-hide h-full space-y-3.5 overflow-y-auto px-4 pb-28 pt-4">
           {messages.length === 0 && (
@@ -274,7 +208,6 @@ export default function DraftChatPanel({
               </span>
               <p className="m-0 max-w-[220px] text-[13px] leading-relaxed text-[#667085]">
                 Ask a follow-up about this draft — tighten a clause, change tone, or add a section.
->>>>>>> origin/development
               </p>
             </div>
           )}
@@ -284,6 +217,20 @@ export default function DraftChatPanel({
                 <FollowUpCard key={msg.id} author="You">
                   {msg.content}
                 </FollowUpCard>
+              );
+            }
+
+            if (msg.kind === "ask" && msg.questions?.length) {
+              return (
+                <AskQuestionCard
+                  key={msg.id}
+                  messageId={msg.id}
+                  content={msg.content}
+                  questions={msg.questions}
+                  resolved={msg.askResolved}
+                  disabled={isLoading}
+                  onSubmit={onAskSubmit}
+                />
               );
             }
 

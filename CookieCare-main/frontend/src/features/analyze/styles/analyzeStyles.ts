@@ -233,7 +233,6 @@ export const ANALYZE_STYLES = `
     0 18px 40px rgba(15,23,42,0.10);
 }
 
-<<<<<<< HEAD
 .analyze-stream-caret {
   display: inline-block;
   width: 7px;
@@ -247,7 +246,7 @@ export const ANALYZE_STYLES = `
 @keyframes analyze-caret-blink {
   50% { opacity: 0; }
 }
-=======
+
 .analyze-chat-session {
   background: rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(16px);
@@ -355,5 +354,4 @@ export const ANALYZE_STYLES = `
 }
 .lib-modal-list-item:hover { background: #F7F8FB; }
 .lib-modal-list-item.is-selected { background: #F7F8FB; }
->>>>>>> origin/development
 `;

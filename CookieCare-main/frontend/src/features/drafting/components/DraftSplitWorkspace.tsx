@@ -66,34 +66,6 @@ export default function DraftSplitWorkspace(props: DraftSplitWorkspaceProps) {
   return (
     <>
       <style>{DRAFT_WORKSPACE_STYLES}</style>
-<<<<<<< HEAD
-      <div
-        ref={containerRef}
-        className="draft-workspace flex-1 flex min-h-0 h-full overflow-hidden"
-      >
-        <div
-          className="min-h-0 h-full overflow-hidden"
-          style={{ width: `${leftPercent}%` }}
-        >
-          <DraftChatPanel
-            title={props.sessionTitle}
-            messages={props.messages}
-            inputValue={props.chatInput}
-            onInputChange={props.onChatInputChange}
-            onSubmit={props.onChatSubmit}
-            onFileSelect={props.onFileSelect}
-            onRemoveFile={props.onRemoveFile}
-            attachedFileName={props.attachedFileName}
-            isLoading={props.isStreaming}
-            isParsing={props.isParsing}
-            isDragging={props.isDragging}
-            onDragOver={props.onDragOver}
-            onDragLeave={props.onDragLeave}
-            onDrop={props.onDrop}
-            onAskSubmit={props.onAskSubmit}
-          />
-        </div>
-=======
       <div className="dpa-results-bg draft-workspace flex h-full min-h-0 flex-1 flex-col overflow-hidden p-3">
         <div className="draft-card mb-3 shrink-0">
         <header className="draft-workspace-header flex items-center justify-between gap-3">
@@ -115,7 +87,6 @@ export default function DraftSplitWorkspace(props: DraftSplitWorkspaceProps) {
               </div>
             </div>
           </div>
->>>>>>> origin/development
 
           <div className="flex shrink-0 items-center gap-2">
             {props.isSaving && (
@@ -243,6 +214,7 @@ export default function DraftSplitWorkspace(props: DraftSplitWorkspaceProps) {
               onDragLeave={props.onDragLeave}
               onDrop={props.onDrop}
               composerPlaceholder="Ask a follow-up…"
+              onAskSubmit={props.onAskSubmit}
             />
           </div>
         </div>

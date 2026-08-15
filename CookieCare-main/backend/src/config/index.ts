@@ -64,12 +64,9 @@ export const config = {
   jwtSecret: process.env.JWT_SECRET || "privsec-ai-enterprise-secret-2026",
   // Fixed: Added the Render production URL as a default fallback
   corsOrigin: process.env.CORS_ORIGIN || "https://privlex-ai.onrender.com",
-<<<<<<< HEAD
   draftingTokenBudget: numberFromEnv(process.env.DRAFTING_TOKEN_BUDGET, 500_000),
-=======
   /** Local UI testing without Postgres (Zscaler / Neon quota). Never use in production. */
   skipDb: process.env.SKIP_DB === "true" || process.env.SKIP_DB === "1",
->>>>>>> origin/development
 };
 
 export const isProduction = config.nodeEnv === "production";

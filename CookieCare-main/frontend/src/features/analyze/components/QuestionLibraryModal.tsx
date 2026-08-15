@@ -10,11 +10,7 @@ import { LibraryModalColumns, libraryModalShellProps, LibraryModalOverlay } from
 
 interface QuestionLibraryModalProps {
   questionsLibrary: string[];
-<<<<<<< HEAD
   onApply: (questionText: string, categoryId?: string) => void;
-=======
-  onApply: (questionTexts: string[]) => void;
->>>>>>> origin/development
   onClose: () => void;
 }
 
@@ -275,16 +271,9 @@ export default function QuestionLibraryModal({
   }, [searchQuery, matchCounts]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleApply = useCallback(() => {
-<<<<<<< HEAD
-    if (selectedQuestion) {
-      onApply(selectedQuestion.question, activeCategoryId);
-    }
-  }, [selectedQuestion, onApply, activeCategoryId]);
-=======
     if (selectedList.length === 0) return;
-    onApply(selectedList.map((item) => item.question));
-  }, [selectedList, onApply]);
->>>>>>> origin/development
+    onApply(selectedList.map((item) => item.question).join("\n\n"), activeCategoryId);
+  }, [selectedList, onApply, activeCategoryId]);
 
   return (
     <>

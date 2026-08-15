@@ -136,16 +136,9 @@ export default function InteractAnalyze({
     e.target.value = "";
   };
 
-<<<<<<< HEAD
   const handleApplyStarter = (text: string, libraryId?: string) => {
     setCustomPromptText(text);
     setPromptLibraryId(toPromptLibraryId(libraryId));
-=======
-  const handleApplyStarter = (texts: string[]) => {
-    const joined = texts.map((t) => t.trim()).filter(Boolean).join("\n\n");
-    if (!joined) return;
-    setCustomPromptText((prev) => (prev.trim() ? `${prev.trim()}\n\n${joined}` : joined));
->>>>>>> origin/development
     setValidationMessage("");
   };
 
@@ -199,26 +192,14 @@ export default function InteractAnalyze({
       <style>{PREMIUM_CHAT_LANDING_STYLES}</style>
       <style>{ANALYZE_STYLES}</style>
 
-<<<<<<< HEAD
-      <div className="pcl-page flex-1 flex flex-col min-h-0 overflow-hidden relative">
-        {!!analysis.analysisError && analysis.viewMode === "form" && (
-=======
       <div className="dpa-results-bg analyze-landing flex-1 flex flex-col min-h-0 overflow-hidden relative font-sans">
-        {(analysis.isAnalyzing || !!analysis.analysisError) && (
->>>>>>> origin/development
+        {(analysis.isAnalyzing || !!analysis.analysisError) && analysis.viewMode === "form" && (
           <AiProgressOverlay
             visible
             message={analysis.analysisProgress}
             error={analysis.analysisError}
             label="Analyzing"
             subtitle={analysis.activeReportDocName || "document"}
-<<<<<<< HEAD
-            onRetry={() => {
-              analysis.setAnalysisError("");
-              handleRunAnalysis();
-            }}
-            onDismiss={() => analysis.setAnalysisError("")}
-=======
             illustration="scan"
             onRetry={
               analysis.analysisError
@@ -231,7 +212,6 @@ export default function InteractAnalyze({
             onDismiss={
               analysis.analysisError ? () => analysis.setAnalysisError("") : undefined
             }
->>>>>>> origin/development
           />
         )}
 

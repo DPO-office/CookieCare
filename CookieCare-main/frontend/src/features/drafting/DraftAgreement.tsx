@@ -205,6 +205,7 @@ export default function DraftAgreement({
       uploadFileName: generatorState.uploadFileName || vaultSource?.title || "",
       uploadText: generatorState.uploadText,
       sourceDocumentId,
+      documentId: selectedTemplate?.id ?? null,
     });
   };
 
@@ -234,16 +235,12 @@ export default function DraftAgreement({
     setIsWorkspaceOpen(true);
     editorState.setIsGeneratorActive(false);
 
-<<<<<<< HEAD
-    handleExecuteDraftStream();
-=======
     const mode = hasSource ? "Advanced" : "Basic";
     const advancedStep = hasSource ? "reactive" : generatorState.advancedStep;
     generatorState.setMode(mode);
     if (hasSource) generatorState.setAdvancedStep("reactive");
 
     handleExecuteDraftStream({ mode, advancedStep, sourceDocumentId });
->>>>>>> origin/development
   };
 
   const handleWorkspaceChatSubmit = () => {

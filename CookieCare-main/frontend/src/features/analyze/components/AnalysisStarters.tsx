@@ -65,11 +65,7 @@ function QuickChip({
 interface AnalysisStartersProps {
   promptLibrary: PromptLibraryItem[];
   questionsLibrary: string[];
-<<<<<<< HEAD
   onApply: (text: string, promptLibraryId?: string) => void;
-=======
-  onApply: (texts: string[]) => void;
->>>>>>> origin/development
   promptModalOpen?: boolean;
   questionModalOpen?: boolean;
   onPromptModalOpenChange?: (open: boolean) => void;
@@ -112,11 +108,7 @@ export function AnalysisStarters({
               key={item.title}
               label={item.title}
               icon={item.icon}
-<<<<<<< HEAD
               onClick={() => onApply(item.text, item.libraryId)}
-=======
-              onClick={() => onApply([item.text])}
->>>>>>> origin/development
             />
           ))}
         </div>
@@ -142,13 +134,8 @@ export function AnalysisStarters({
       {promptModalOpen && (
         <PromptLibraryModal
           promptLibrary={promptLibrary}
-<<<<<<< HEAD
           onApply={(text, libraryId) => {
             onApply(text, libraryId);
-=======
-          onApply={(texts) => {
-            onApply(texts);
->>>>>>> origin/development
             setPromptOpen(false);
           }}
           onClose={() => setPromptOpen(false)}
@@ -158,13 +145,8 @@ export function AnalysisStarters({
       {questionModalOpen && (
         <QuestionLibraryModal
           questionsLibrary={questionsLibrary}
-<<<<<<< HEAD
           onApply={(text, libraryId) => {
             onApply(text, libraryId);
-=======
-          onApply={(texts) => {
-            onApply(texts);
->>>>>>> origin/development
             setQuestionOpen(false);
           }}
           onClose={() => setQuestionOpen(false)}
