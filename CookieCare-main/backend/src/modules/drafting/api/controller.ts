@@ -1,10 +1,16 @@
 import { addJobToQueue } from "../../../services/jobQueue.js";
 import { Request, Response } from "express";
-import { DraftRequestSchema, RefineRequestSchema } from "./schema.js";
+import {
+  DraftRequestSchema,
+  RefineRequestSchema,
+  ResumeAskRequestSchema,
+} from "./schema.js";
 import { withTransaction } from "../../../utils/dbUtils.js";
 import { encryptData } from "../../../utils/crypto.js";
 import crypto from "crypto";
 import { extractText } from "../../../utils/extractText.js";
+import { pool } from "../../../config/database.js";
+import type { DraftState } from "../models/draft-state.js";
 
 async function extractTextFromFileBuffer(buffer: Buffer, mimeType: string): Promise<string> {
     return extractText(buffer, mimeType);
@@ -51,6 +57,60 @@ export const refineRouteController = async (req: Request, res: Response): Promis
         });
 
         res.status(202).json({ success: true, job_id: job.id });
+    } catch (err: any) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+export const resumeAskController = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const parsed = ResumeAskRequestSchema.safeParse(req.body);
+        if (!parsed.success) {
+            res.status(400).json({
+                error: "Invalid resume payload",
+                details: parsed.error.flatten(),
+            });
+            return;
+        }
+
+        const job = await addJobToQueue(req.user!.id, "template_drafting", {
+            intent: "RESUME_ASK",
+            documentId: parsed.data.documentId,
+            answers: parsed.data.answers,
+        });
+        res.status(202).json({ success: true, job_id: job.id });
+    } catch (err: any) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+export const getConversationController = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const documentId = String(req.params.documentId || "");
+        if (!documentId) {
+            res.status(400).json({ error: "documentId required" });
+            return;
+        }
+
+        const { rows } = await pool.query(
+            `SELECT state_snapshot_json
+             FROM draft_state_ledger
+             WHERE document_id = $1
+             ORDER BY version DESC
+             LIMIT 1`,
+            [documentId]
+        );
+
+        if (!rows.length) {
+            res.status(404).json({ error: "No draft state found" });
+            return;
+        }
+
+        const snapshot = rows[0].state_snapshot_json as DraftState;
+        res.json({
+            success: true,
+            conversation: snapshot.conversation ?? { documentId, organizationId: "", turns: [] },
+        });
     } catch (err: any) {
         res.status(500).json({ error: err.message });
     }

@@ -12,6 +12,7 @@ import { executeTemplateDrafting } from "./jobs/handlers/drafting-handler.js";
 import { executePlaybookIngestionJob } from "./jobs/handlers/playbook-handler.js";
 import { executeClauseIngestionJob } from "./jobs/handlers/clause-handler.js";
 import { executeTemplateIngestionJob } from "./jobs/handlers/template-handler.js";
+import { executeAnalysisPac } from "./jobs/handlers/analysis-handler.js";
 import { executeContractComparison } from "./jobs/handlers/compare-handler.js";
 
 export async function updateJobProgress(jobId: string, userId: string, progress: number, message?: string) {
@@ -78,6 +79,9 @@ export async function addJobToQueue(userId: string, type: JobType, payload: any)
         case "template_drafting":
           result = await executeTemplateDrafting(jobId, userId, payload);
           break;
+        case "analysis_pac":
+          result = await executeAnalysisPac(jobId, userId, payload);
+          break;
         case "dpa_review":
           result = await executeDPAReview(jobId, userId, payload);
           break;
@@ -138,6 +142,7 @@ export type JobType =
   | "file_processing"
   | "document_analysis"
   | "template_drafting"
+  | "analysis_pac"
   | "privacy_scanning"
   | "vulnerability_scanning"
   | "dpa_review"

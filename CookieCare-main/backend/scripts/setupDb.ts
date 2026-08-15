@@ -214,6 +214,7 @@ async function setupDb() {
       -- Playbook PDF ingest (PlaybookIngester) + PlaybookRetriever
       CREATE TABLE IF NOT EXISTS playbook_rules (
         id VARCHAR(255) PRIMARY KEY,
+        organization_id VARCHAR(255),
         contract_type VARCHAR(255),
         topic VARCHAR(255) NOT NULL,
         risk_level VARCHAR(50),
@@ -228,6 +229,9 @@ async function setupDb() {
       CREATE INDEX IF NOT EXISTS idx_playbook_rules_contract_type
         ON playbook_rules (contract_type);
 
+      -- Tenant scoping for playbooks (idempotent for existing DBs)
+      ALTER TABLE playbook_rules ADD COLUMN IF NOT EXISTS organization_id VARCHAR(255);
+
       -- Draft workflow save / refine (saveStep, drafting-handler, negotiate)
       CREATE TABLE IF NOT EXISTS draft_state_ledger (
         document_id VARCHAR(255) NOT NULL REFERENCES files(id) ON DELETE CASCADE,
@@ -237,6 +241,38 @@ async function setupDb() {
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (document_id, version)
       );
+
+      -- Analysis PAC session ledger (resume ASK + audit reproducibility)
+      CREATE TABLE IF NOT EXISTS analysis_state_ledger (
+        session_id VARCHAR(255) NOT NULL,
+        version INTEGER NOT NULL,
+        state_snapshot_json JSONB NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (session_id, version)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_analysis_state_ledger_session
+        ON analysis_state_ledger (session_id);
+
+      CREATE TABLE IF NOT EXISTS analysis_org_memory (
+        org_id VARCHAR(255) PRIMARY KEY,
+        profile_json JSONB NOT NULL,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- Append-only backlog of Tier C (web-assisted) lookups — no dashboard yet
+      CREATE TABLE IF NOT EXISTS analysis_tier_c_log (
+        id BIGSERIAL PRIMARY KEY,
+        org_id VARCHAR(255),
+        query TEXT NOT NULL,
+        resolved BOOLEAN NOT NULL DEFAULT FALSE,
+        source_url TEXT,
+        session_id VARCHAR(255),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_analysis_tier_c_log_org
+        ON analysis_tier_c_log (org_id, created_at DESC);
 
       CREATE TABLE IF NOT EXISTS template_clause_mappings (
         template_id VARCHAR(255) NOT NULL REFERENCES contract_templates(id) ON DELETE CASCADE,

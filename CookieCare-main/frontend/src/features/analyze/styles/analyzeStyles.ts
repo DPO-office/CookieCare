@@ -233,6 +233,20 @@ export const ANALYZE_STYLES = `
     0 18px 40px rgba(15,23,42,0.10);
 }
 
+.analyze-stream-caret {
+  display: inline-block;
+  width: 7px;
+  height: 14px;
+  margin-left: 2px;
+  background: #18181b;
+  vertical-align: -2px;
+  animation: analyze-caret-blink 1s steps(1) infinite;
+}
+
+@keyframes analyze-caret-blink {
+  50% { opacity: 0; }
+}
+
 .analyze-chat-session {
   background: rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(16px);

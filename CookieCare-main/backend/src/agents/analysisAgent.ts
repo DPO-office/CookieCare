@@ -1,8 +1,9 @@
 import {
   executeCompletion,
   executeJsonCompletion,
-} from "../modules/drafting/llm/index.js";
-import { LLMProvider, LLMTask } from "../modules/drafting/config/model-specs.js";
+  LLMProvider,
+  LLMTask,
+} from "../llm/index.js";
 import { z } from "zod";
 
 // ─────────────────────────────────────────────────────────────────────────────

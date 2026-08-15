@@ -1,4 +1,14 @@
-export type DraftMode = "BASIC" | "PROACTIVE" | "REACTIVE" | "REFINEMENT"
+export type DraftIntent = "CREATE" | "REFINEMENT";
+
+/** @deprecated Use DraftIntent — kept as alias during PAC unification. */
+export type DraftMode = DraftIntent;
+
+import type { AgentRunState, EntryMode } from "../pac/types.js";
+import type { DraftPlan } from "./draft-plan.js";
+import type { CritiqueReport } from "./critique-report.js";
+import type { StructuredFacts, StructuredIntakeOverlay } from "./structured-facts.js";
+import type { DraftConversation } from "./conversation.js";
+import type { FixPlan } from "./fix-plan.js";
 
 export interface RequirementContext {
   contractType: string;
@@ -10,7 +20,6 @@ export interface RequirementContext {
   language: string;
   instructions: string;
   uploadDocSummary?: string;
-  // belove field only for reactive mode
   agreementTitle?: string;
   partyA?: string;
   partyB?: string;
@@ -59,51 +68,68 @@ export interface RiskItem {
   suggestedReplacementClause?: string;
 }
 
-/**
- * Structured representation of one section of the generated document.
- * `body` holds the full markdown block for that section INCLUDING its heading line,
- * so the ordered list of section bodies round-trips back to the original document.
- * `heading` is the parsed heading text, used for targeting/matching (e.g. surgical refine).
- */
+export interface ClauseProvenanceSpan {
+  spanStart: number;
+  spanEnd: number;
+  source: "approved-clause" | "generated";
+  clauseId?: string;
+}
+
 export interface DraftSection {
   id: string;
   heading: string;
   body: string;
   clauseType?: string;
+  workUnitId?: string;
+  clauseProvenance?: ClauseProvenanceSpan[];
+}
+
+export interface DraftedExhibit {
+  workUnitId: string;
+  title: string;
+  body: string;
+  clauseProvenance?: ClauseProvenanceSpan[];
 }
 
 /**
- * Append-only memory of what happened to the document across versions.
- * This is the seed of agentic episodic memory: persisted per-document so a refine
- * turn can see what changed and why.
+ * Append-only agent audit trail — distinct from user-facing DraftConversation.
  */
 export interface DraftHistoryEntry {
   version: number;
-  actor: "user" | "model" | "validator";
+  actor: "user" | "model" | "validator" | "controller";
   action: string;
   instruction?: string;
   changedSectionIds?: string[];
   timestamp: string;
+  phase?: string;
+  detail?: Record<string, unknown>;
 }
 
 export interface DraftState {
-  // Optional progress callback — injected by the job handler so each pipeline
-  // step can broadcast live status without importing the job queue directly.
   onProgress?: (percent: number, message: string) => Promise<void>;
-  // Optional token callback — injected by the job handler to stream generation
-  // tokens to the client as they are produced (real streaming). Ephemeral: never persisted.
   onToken?: (delta: string) => void;
+
+  entryMode?: EntryMode;
+  agent?: AgentRunState;
+  plan?: DraftPlan | null;
+  critique?: CritiqueReport | null;
+  structuredFacts?: StructuredFacts;
+  intakeOverlay?: StructuredIntakeOverlay;
+  conversation?: DraftConversation;
+  fixPlan?: FixPlan | null;
+  exhibits?: DraftedExhibit[];
+  organizationId?: string;
+
   request: {
-    intent: DraftMode;
-    // idk why i added this there no use of it, we are using intent as mode everwhere that why making it optional
-    mode?: 'Basic' | 'Standard Template' | 'Advanced Proactive' | null;
-    uploadedDocumentText?:string; // This is for REACTIVE MODE ONLY
-    rawInstructions: string; 
-    // Output draft file id (ledger / files row). Distinct from vaultDocumentId.
-    payloadFields?: {documentId:string}
-    // Proactive vault selection: library / contract_templates / files id used as retrieval source.
+    /** PAC entry: CREATE (new draft) or REFINEMENT (HUMAN_REFINE). */
+    intent: DraftIntent;
+    uploadedDocumentText?: string;
+    rawInstructions: string;
+    payloadFields?: { documentId: string };
+    /** Optional vault / library template id for CREATE. */
     vaultDocumentId?: string | null;
     templateId?: string;
+    /** Optional counterparty / source agreement text for CREATE. */
     sourceText?: string;
     highlightedText?: string;
   };
@@ -113,8 +139,7 @@ export interface DraftState {
     applicablePlaybookRules: PlaybookRule[];
     fallbackClauses: Clause[];
     historicalReferences: ReferenceSnippet[];
-    // Observability for empty vs DB vs hardcoded paths (generation unchanged).
-    templateSource?: "vault" | "default_type" | "reactive_upload" | "none";
+    templateSource?: "vault" | "default_type" | "source_upload" | "none";
     clauseSource?: "library_items" | "clause_catalog" | "hardcoded_fallback" | "none";
   };
   context: {
@@ -126,8 +151,6 @@ export interface DraftState {
   draft: {
     rawOutput: string;
     formattedDocument: string;
-    // Structured section list (derived from formattedDocument). Optional so existing
-    // state literals stay valid; generation.ts populates it going forward.
     sections?: DraftSection[];
     version: number;
     parentVersionId?: string;
@@ -140,7 +163,6 @@ export interface DraftState {
     analyzed: boolean;
     risks: RiskItem[];
   } | null;
-  // Append-only memory log across versions (Gap 2). Optional to keep literals valid.
   history?: DraftHistoryEntry[];
   metadata: {
     generationParameters: Record<string, unknown>;
@@ -149,4 +171,3 @@ export interface DraftState {
     [key: string]: unknown;
   };
 }
-

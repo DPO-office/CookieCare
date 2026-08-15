@@ -26,6 +26,7 @@ export interface Message {
   text: string;
   sources?: Array<{ title: string; citation: string }>;
   loading?: boolean;
+  streaming?: boolean;
 }
 
 export interface InteractAnalyzeProps {

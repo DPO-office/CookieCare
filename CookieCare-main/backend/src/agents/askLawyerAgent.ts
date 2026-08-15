@@ -1,5 +1,4 @@
-import { executeCompletion } from "../modules/drafting/llm/index.js";
-import { LLMProvider, LLMTask } from "../modules/drafting/config/model-specs.js";
+import { executeCompletion, LLMProvider, LLMTask } from "../llm/index.js";
 
 export type OutputFormat = "Brief Summary" | "Full IRAC" | "CREAC";
 

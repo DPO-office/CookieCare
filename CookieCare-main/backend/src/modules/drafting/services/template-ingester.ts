@@ -1,7 +1,6 @@
 import crypto from "crypto";
 import { pool } from "../../../config/database.js";
-import { LLMTask, LLMProvider } from "../config/model-specs.js";
-import { executeJsonCompletion } from "../llm/index.js";
+import { LLMTask, LLMProvider, executeJsonCompletion } from "../../../llm/index.js";
 import {
   TEMPLATE_NORMALIZE_SYSTEM,
   TEMPLATE_NORMALIZE_USER_PREFIX,

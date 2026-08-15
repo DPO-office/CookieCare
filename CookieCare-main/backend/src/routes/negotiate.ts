@@ -4,9 +4,10 @@ import { AgentOrchestrator } from "../agents/legalAgent.js";
 import {
   executeCompletion,
   executeJsonCompletion,
-} from "../modules/drafting/llm/index.js";
-import { LLMProvider, LLMTask } from "../modules/drafting/config/model-specs.js";
-import { saveStep } from "../modules/drafting/steps/save.js";
+  LLMProvider,
+  LLMTask,
+} from "../llm/index.js";
+import { saveStep } from "../modules/drafting/capabilities/persist/save.js";
 import { pool } from "../config/database.js";
 import { encrypt } from "../utils/crypto.js";
 import crypto from "crypto";

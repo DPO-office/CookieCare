@@ -16,25 +16,25 @@ interface MixedSuggestion {
   title: string;
   text: string;
   icon: React.ElementType;
+  libraryId?: string;
 }
 
 const SUGGESTION_ICONS = [Shield, FileSearch, Scale, AlertTriangle, BookOpen, MessageSquareText];
 
 function getCuratedSuggestions(): MixedSuggestion[] {
-  const prompts = DEFAULT_PROMPT_CATEGORIES.slice(0, 2)
-    .map((cat) => cat.prompts[0])
-    .filter(Boolean) as Array<{ title: string; prompt: string }>;
+  const fromPrompts = DEFAULT_PROMPT_CATEGORIES.slice(0, 2).flatMap((cat) => {
+    const p = cat.prompts[0];
+    if (!p) return [];
+    return [{ title: p.title, text: p.prompt, libraryId: cat.id }];
+  });
 
-  const questions = DEFAULT_QUESTION_CATEGORIES.slice(0, 2)
-    .map((cat) => cat.questions[0])
-    .filter(Boolean) as Array<{ title: string; question: string }>;
+  const fromQuestions = DEFAULT_QUESTION_CATEGORIES.slice(0, 2).flatMap((cat) => {
+    const q = cat.questions[0];
+    if (!q) return [];
+    return [{ title: q.title, text: q.question, libraryId: cat.id }];
+  });
 
-  const mixed = [
-    ...prompts.map((p) => ({ title: p.title, text: p.prompt })),
-    ...questions.map((q) => ({ title: q.title, text: q.question })),
-  ].slice(0, 4);
-
-  return mixed.map((item, i) => ({
+  return [...fromPrompts, ...fromQuestions].slice(0, 4).map((item, i) => ({
     ...item,
     icon: SUGGESTION_ICONS[i % SUGGESTION_ICONS.length],
   }));
@@ -65,7 +65,7 @@ function QuickChip({
 interface AnalysisStartersProps {
   promptLibrary: PromptLibraryItem[];
   questionsLibrary: string[];
-  onApply: (texts: string[]) => void;
+  onApply: (text: string, promptLibraryId?: string) => void;
   promptModalOpen?: boolean;
   questionModalOpen?: boolean;
   onPromptModalOpenChange?: (open: boolean) => void;
@@ -108,7 +108,7 @@ export function AnalysisStarters({
               key={item.title}
               label={item.title}
               icon={item.icon}
-              onClick={() => onApply([item.text])}
+              onClick={() => onApply(item.text, item.libraryId)}
             />
           ))}
         </div>
@@ -134,8 +134,8 @@ export function AnalysisStarters({
       {promptModalOpen && (
         <PromptLibraryModal
           promptLibrary={promptLibrary}
-          onApply={(texts) => {
-            onApply(texts);
+          onApply={(text, libraryId) => {
+            onApply(text, libraryId);
             setPromptOpen(false);
           }}
           onClose={() => setPromptOpen(false)}
@@ -145,8 +145,8 @@ export function AnalysisStarters({
       {questionModalOpen && (
         <QuestionLibraryModal
           questionsLibrary={questionsLibrary}
-          onApply={(texts) => {
-            onApply(texts);
+          onApply={(text, libraryId) => {
+            onApply(text, libraryId);
             setQuestionOpen(false);
           }}
           onClose={() => setQuestionOpen(false)}

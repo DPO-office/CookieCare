@@ -44,13 +44,16 @@
 // ─── Configuration ────────────────────────────────────────────────────────────
 
 /** How many Gemini requests are allowed within WINDOW_MS before pacing kicks in */
-const REQUESTS_PER_WINDOW = 4;
+const REQUESTS_PER_WINDOW = Number(process.env.GEMINI_REQUESTS_PER_WINDOW || 3);
 
 /** Rolling window duration in ms used for adaptive pacing */
-const WINDOW_MS = 10_000; // 10 seconds
+const WINDOW_MS = Number(process.env.GEMINI_WINDOW_MS || 12_000);
 
 /** Minimum inter-request gap when running at full throughput (ms) */
-const MIN_INTER_REQUEST_MS = 200;
+const MIN_INTER_REQUEST_MS = Number(process.env.GEMINI_MIN_GAP_MS || 400);
+
+/** Max in-flight Gemini calls. 1 = fully serial (best for free/low quotas). */
+const MAX_IN_FLIGHT = Math.max(1, Number(process.env.GEMINI_MAX_IN_FLIGHT || 1));
 
 /** Base backoff delay for the first 429 retry (ms) */
 const BASE_BACKOFF_MS = 2_000;
@@ -62,7 +65,7 @@ const MAX_BACKOFF_MS = 60_000;
 const JITTER_MS = 1_500;
 
 /** Maximum retry attempts before propagating the error */
-const MAX_RETRIES = 4;
+const MAX_RETRIES = 5;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -87,6 +90,23 @@ function isRateLimitError(err: unknown): boolean {
   );
 }
 
+function isTransientNetworkError(err: unknown): boolean {
+  const msg = (err instanceof Error ? err.message : String(err)).toLowerCase();
+  return (
+    msg.includes("fetch failed") ||
+    msg.includes("network") ||
+    msg.includes("econnreset") ||
+    msg.includes("etimedout") ||
+    msg.includes("econnrefused") ||
+    msg.includes("socket hang up") ||
+    msg.includes("other side closed")
+  );
+}
+
+function isRetryableError(err: unknown): boolean {
+  return isRateLimitError(err) || isTransientNetworkError(err);
+}
+
 /**
  * Parse a Retry-After hint from an error message, if the provider includes one.
  * Returns ms to wait, or null when no hint is present.
@@ -108,8 +128,12 @@ function sleep(ms: number): Promise<void> {
 // ─── Scheduler class ──────────────────────────────────────────────────────────
 
 export class GeminiScheduler {
-  /** Timestamps (epoch ms) of the last N completed requests */
+  /** Timestamps (epoch ms) of the last N started requests */
   private readonly requestTimestamps: number[] = [];
+
+  /** Serializes callers so Promise.all bursts cannot all pass the pace check. */
+  private inFlight = 0;
+  private readonly waitQueue: Array<() => void> = [];
 
   private stats: SchedulerStats = {
     totalRequests: 0,
@@ -118,6 +142,25 @@ export class GeminiScheduler {
     totalWaitMs: 0,
     totalLlmMs: 0,
   };
+
+  private async acquireSlot(): Promise<void> {
+    if (this.inFlight < MAX_IN_FLIGHT) {
+      this.inFlight += 1;
+      return;
+    }
+    await new Promise<void>((resolve) => {
+      this.waitQueue.push(() => {
+        this.inFlight += 1;
+        resolve();
+      });
+    });
+  }
+
+  private releaseSlot(): void {
+    this.inFlight = Math.max(0, this.inFlight - 1);
+    const next = this.waitQueue.shift();
+    if (next) next();
+  }
 
   // ── Adaptive pacing ─────────────────────────────────────────────────────
 
@@ -162,46 +205,51 @@ export class GeminiScheduler {
    * Execute a Gemini API call through the scheduler.
    *
    * Handles:
-   *   1. Adaptive pacing before the first attempt
-   *   2. Exponential backoff + jitter on 429
-   *   3. Retry-After hint respect
-   *   4. Stats tracking
+   *   1. Global in-flight limit (prevents Promise.all bursts)
+   *   2. Adaptive pacing before the first attempt
+   *   3. Exponential backoff + jitter on 429
+   *   4. Retry-After hint respect
+   *   5. Stats tracking
    *
    * @param fn     The async function that makes the actual Gemini API call.
    * @param label  Human-readable label for logging (e.g. "COMPARE_ALIGN batch 1").
    */
   async execute<T>(fn: () => Promise<T>, label = "LLM call"): Promise<T> {
-    // ── Pre-request pacing ───────────────────────────────────────────────
-    const paceDelay = this.computePaceDelay();
-    if (paceDelay > 0) {
-      console.log(
-        `[GeminiScheduler] Pacing ${paceDelay}ms before ${label} ` +
-          `(${this.requestTimestamps.length}/${REQUESTS_PER_WINDOW} requests in window)`
-      );
-      this.stats.totalWaitMs += paceDelay;
-      await sleep(paceDelay);
-    }
+    await this.acquireSlot();
+    try {
+      // ── Pre-request pacing ───────────────────────────────────────────────
+      const paceDelay = this.computePaceDelay();
+      if (paceDelay > 0) {
+        console.log(
+          `[GeminiScheduler] Pacing ${paceDelay}ms before ${label} ` +
+            `(${this.requestTimestamps.length}/${REQUESTS_PER_WINDOW} requests in window, inFlight=${this.inFlight})`
+        );
+        this.stats.totalWaitMs += paceDelay;
+        await sleep(paceDelay);
+      }
 
-    let attempt = 0;
+      let attempt = 0;
 
-    while (true) {
-      this.recordRequest();
-      const llmStart = Date.now();
+      while (true) {
+        this.recordRequest();
+        const llmStart = Date.now();
 
-      try {
-        const result = await fn();
-        this.stats.totalLlmMs += Date.now() - llmStart;
-        return result;
-      } catch (err: unknown) {
-        this.stats.totalLlmMs += Date.now() - llmStart;
+        try {
+          const result = await fn();
+          this.stats.totalLlmMs += Date.now() - llmStart;
+          return result;
+        } catch (err: unknown) {
+          this.stats.totalLlmMs += Date.now() - llmStart;
 
-        if (!isRateLimitError(err) || attempt >= MAX_RETRIES) {
+        if (!isRetryableError(err) || attempt >= MAX_RETRIES) {
           throw err;
         }
 
         attempt += 1;
         this.stats.totalRetries += 1;
-        this.stats.totalRateLimitHits += 1;
+        if (isRateLimitError(err)) {
+          this.stats.totalRateLimitHits += 1;
+        }
 
         // Respect provider hint first
         const hintMs = parseRetryAfterMs(err);
@@ -213,22 +261,25 @@ export class GeminiScheduler {
         const delay = hintMs !== null ? hintMs : expBackoff + jitter;
 
         console.warn(
-          `[GeminiScheduler] 429 on ${label} — ` +
+          `[GeminiScheduler] ${isRateLimitError(err) ? "429" : "transient"} on ${label} — ` +
             `attempt ${attempt}/${MAX_RETRIES}, ` +
             `waiting ${Math.round(delay)}ms ` +
             `(${hintMs !== null ? "provider hint" : "exponential backoff + jitter"})`
         );
 
-        this.stats.totalWaitMs += delay;
-        await sleep(delay);
+          this.stats.totalWaitMs += delay;
+          await sleep(delay);
 
-        // Re-apply pacing window after the wait so subsequent requests don't burst
-        const paceAfterRetry = this.computePaceDelay();
-        if (paceAfterRetry > 0) {
-          this.stats.totalWaitMs += paceAfterRetry;
-          await sleep(paceAfterRetry);
+          // Re-apply pacing window after the wait so subsequent requests don't burst
+          const paceAfterRetry = this.computePaceDelay();
+          if (paceAfterRetry > 0) {
+            this.stats.totalWaitMs += paceAfterRetry;
+            await sleep(paceAfterRetry);
+          }
         }
       }
+    } finally {
+      this.releaseSlot();
     }
   }
 

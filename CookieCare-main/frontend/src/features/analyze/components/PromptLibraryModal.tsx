@@ -8,7 +8,7 @@ import { LibraryModalColumns, libraryModalShellProps, LibraryModalOverlay } from
 
 interface PromptLibraryModalProps {
   promptLibrary: PromptLibraryItem[];
-  onApply: (promptTexts: string[]) => void;
+  onApply: (promptText: string, categoryId?: string) => void;
   onClose: () => void;
 }
 
@@ -230,8 +230,8 @@ export default function PromptLibraryModal({
 
   const handleApply = useCallback(() => {
     if (selectedList.length === 0) return;
-    onApply(selectedList.map((item) => item.prompt));
-  }, [selectedList, onApply]);
+    onApply(selectedList.map((item) => item.prompt).join("\n\n"), activeCategoryId);
+  }, [selectedList, onApply, activeCategoryId]);
 
   const filteredPrompts = useMemo(() => {
     const q = normalise(searchQuery);

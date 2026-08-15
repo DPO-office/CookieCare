@@ -20,7 +20,8 @@ ${state.draft?.formattedDocument}
 
 # CLIENT COMPANY BUSINESS CONTEXT & REQ_CONTEXT
 - Target Industry Segment: ${state.requirements?.industry || 'Standard'}
-- Operational Mode: ${state.request.mode}
+- Pipeline: PAC ${state.request.intent === "REFINEMENT" ? "HUMAN_REFINE" : "CREATE"}
+- Has source upload: ${Boolean(state.request.sourceText?.trim())}
 
 Analyze the text and populate the array with any identified substantive risk exposures, along with clear explanations and suggested mitigation clause updates.
   `;

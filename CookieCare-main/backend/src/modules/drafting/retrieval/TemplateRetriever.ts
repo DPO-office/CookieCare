@@ -3,9 +3,9 @@ import { decryptData } from "../../../utils/crypto.js";
 import { DraftState, RequirementContext } from "../models/draft-state.js";
 
 export type TemplateSource =
-  | "vault" // for proactive mode (vault feature)
+  | "vault"
   | "default_type"
-  | "reactive_upload" // for reactive mode document upladation
+  | "source_upload"
   | "none";
 
 export interface TemplateLookupResult {
@@ -14,8 +14,8 @@ export interface TemplateLookupResult {
 }
 
 /**
- * Resolves baseline template text for drafting.
- * Order: reactive upload → vault documentId → contract_templates by type (soft jurisdiction).
+ * Resolves baseline template text for PAC CREATE.
+ * Order: source upload → vault documentId → contract_templates by type (soft jurisdiction).
  */
 export class TemplateRetriever {
   constructor(private readonly db: Pool) {}
@@ -24,20 +24,17 @@ export class TemplateRetriever {
     requirements: RequirementContext,
     state: DraftState
   ): Promise<TemplateLookupResult> {
-    // REACTIVE: the uploaded vendor agreement is the working document.
-    if (state.request.intent === "REACTIVE") {
-      const source = state.request.sourceText?.trim() || null;
+    // Uploaded counterparty / source agreement is the working document when present.
+    if (state.request.sourceText?.trim()) {
+      const source = state.request.sourceText.trim();
       return {
         content: source,
-        source: source ? "reactive_upload" : "none",
+        source: "source_upload",
       };
     }
 
-    // PROACTIVE: vault selection wins when present.
-    const vaultId =
-      state.request.intent === "PROACTIVE"
-        ? state.request.vaultDocumentId || state.request.templateId
-        : state.request.templateId;
+    // Vault / library template when selected.
+    const vaultId = state.request.vaultDocumentId || state.request.templateId;
 
     if (vaultId && String(vaultId).trim()) {
       const fromVault = await this.resolveById(String(vaultId).trim());
@@ -48,7 +45,7 @@ export class TemplateRetriever {
       console.log(`[TemplateRetriever] vault miss id=${vaultId}; falling back to type`);
     }
 
-    // BASIC / fallback: type-based lookup with soft jurisdiction.
+    // Type-based lookup with soft jurisdiction.
     const byType = await this.resolveByContractType(
       requirements.contractType,
       requirements.jurisdiction
@@ -65,7 +62,6 @@ export class TemplateRetriever {
     );
     return { content: null, source: "none" };
   }
-  // Used in proactive and reactive mode in above retrieveTemplate method
   private async resolveById(id: string): Promise<string | null> {
     try {
       // Prefer structured templates table.

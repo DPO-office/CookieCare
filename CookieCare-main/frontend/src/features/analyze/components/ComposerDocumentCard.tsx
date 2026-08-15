@@ -15,18 +15,59 @@ function docIcon(type: SelectedDocument["type"]) {
 interface ComposerDocumentCardProps {
   document: SelectedDocument;
   onRemove: () => void;
+  /** Mark this upload as a playbook/reference for comparison. */
+  isPlaybook?: boolean;
+  onTogglePlaybook?: () => void;
+  showPlaybookToggle?: boolean;
 }
 
 /** Context chip — same visual language as Ask Lawyer ComposerBar chips. */
-export function ComposerDocumentCard({ document: doc, onRemove }: ComposerDocumentCardProps) {
+export function ComposerDocumentCard({
+  document: doc,
+  onRemove,
+  isPlaybook = false,
+  onTogglePlaybook,
+  showPlaybookToggle = false,
+}: ComposerDocumentCardProps) {
   const Icon = docIcon(doc.type);
 
   return (
-    <span className="score-badge max-w-[11rem] select-none bg-[#EEF2FF] text-[11px] font-medium text-[#4F5BD9]">
-      <Icon className="h-3 w-3 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+    <span
+      className="inline-flex items-center gap-1.5 pl-2.5 pr-1 py-1 rounded-md text-[11px] font-medium select-none max-w-[14rem]"
+      style={{
+        background: isPlaybook ? "#FEF3C7" : "#EBF2FD",
+        border: isPlaybook ? "1px solid #FCD34D" : "1px solid #BFDBFE",
+        color: isPlaybook ? "#92400E" : "#1A5BAD",
+        lineHeight: 1,
+      }}
+    >
+      <Icon className="w-2.5 h-2.5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
       <span className="truncate" title={doc.title}>
         {doc.title}
       </span>
+      {showPlaybookToggle && onTogglePlaybook && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onTogglePlaybook();
+          }}
+          aria-pressed={isPlaybook}
+          aria-label={
+            isPlaybook
+              ? `Unmark ${doc.title} as playbook`
+              : `Mark ${doc.title} as playbook/reference`
+          }
+          className="px-1 py-0.5 rounded text-[10px] font-semibold cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#2175D9]"
+          style={{
+            background: isPlaybook ? "#F59E0B" : "transparent",
+            color: isPlaybook ? "#fff" : "#64748B",
+          }}
+          title="Use as playbook / reference"
+        >
+          PB
+        </button>
+      )}
       <button
         type="button"
         onClick={(e) => {
@@ -34,7 +75,14 @@ export function ComposerDocumentCard({ document: doc, onRemove }: ComposerDocume
           onRemove();
         }}
         aria-label={`Remove ${doc.title}`}
-        className="ml-0.5 flex h-4 w-4 cursor-pointer items-center justify-center rounded-full text-[#4F5BD9] transition-colors hover:bg-white/70 hover:text-[#B54A45] focus-visible:outline-none"
+        className="w-4 h-4 flex items-center justify-center rounded transition-colors duration-100 cursor-pointer ml-0.5 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#2175D9]"
+        style={{ color: isPlaybook ? "#D97706" : "#93C5FD" }}
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLElement).style.color = "#DC2626";
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLElement).style.color = isPlaybook ? "#D97706" : "#93C5FD";
+        }}
       >
         <X className="h-2.5 w-2.5" strokeWidth={2} aria-hidden="true" />
       </button>

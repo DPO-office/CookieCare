@@ -10,7 +10,7 @@ import { LibraryModalColumns, libraryModalShellProps, LibraryModalOverlay } from
 
 interface QuestionLibraryModalProps {
   questionsLibrary: string[];
-  onApply: (questionTexts: string[]) => void;
+  onApply: (questionText: string, categoryId?: string) => void;
   onClose: () => void;
 }
 
@@ -272,8 +272,8 @@ export default function QuestionLibraryModal({
 
   const handleApply = useCallback(() => {
     if (selectedList.length === 0) return;
-    onApply(selectedList.map((item) => item.question));
-  }, [selectedList, onApply]);
+    onApply(selectedList.map((item) => item.question).join("\n\n"), activeCategoryId);
+  }, [selectedList, onApply, activeCategoryId]);
 
   return (
     <>

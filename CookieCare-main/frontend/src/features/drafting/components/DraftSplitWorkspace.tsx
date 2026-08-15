@@ -50,6 +50,7 @@ export interface DraftSplitWorkspaceProps {
   onPushUndoSnapshot: (snapshot: string) => void;
   onSave: () => void;
   onExport: () => void;
+  onAskSubmit?: (messageId: string, answers: Record<string, string>) => void;
 }
 
 export default function DraftSplitWorkspace(props: DraftSplitWorkspaceProps) {
@@ -213,6 +214,7 @@ export default function DraftSplitWorkspace(props: DraftSplitWorkspaceProps) {
               onDragLeave={props.onDragLeave}
               onDrop={props.onDrop}
               composerPlaceholder="Ask a follow-up…"
+              onAskSubmit={props.onAskSubmit}
             />
           </div>
         </div>

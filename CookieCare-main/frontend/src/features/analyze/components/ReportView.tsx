@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
   ArrowLeft,
   Globe,
@@ -13,6 +13,7 @@ import {
 import { Message } from "../types";
 import { renderContentText } from "../utils";
 import { ANALYZE_STYLES } from "../styles/analyzeStyles";
+import type { AnalysisOpenQuestion } from "../api/analysisJobs";
 
 interface ReportViewProps {
   activeReportDocName: string;
@@ -25,6 +26,100 @@ interface ReportViewProps {
   onCopy: () => void;
   onDownload: () => void;
   onPrint: () => void;
+  openQuestions?: AnalysisOpenQuestion[];
+  askResolved?: boolean;
+  askDisabled?: boolean;
+  onAskSubmit?: (answers: Record<string, string>) => void;
+  isStreaming?: boolean;
+  progressMessage?: string;
+}
+
+function AskQuestionCard({
+  questions,
+  resolved,
+  disabled,
+  onSubmit,
+}: {
+  questions: AnalysisOpenQuestion[];
+  resolved?: boolean;
+  disabled?: boolean;
+  onSubmit?: (answers: Record<string, string>) => void;
+}) {
+  const [answers, setAnswers] = useState<Record<string, string>>(() => {
+    const initial: Record<string, string> = {};
+    for (const q of questions) initial[q.id] = "";
+    return initial;
+  });
+
+  const allFilled = questions.every((q) => (answers[q.id] || "").trim().length > 0);
+
+  return (
+    <div className="rounded-xl border border-[#E4E4E7] bg-white px-5 py-4 shadow-sm">
+      <p className="text-[13.5px] text-[#3F3F46] leading-[1.65] mb-3 m-0">
+        I need a few details before I can finish this analysis:
+      </p>
+      <div className="space-y-3.5">
+        {questions.map((q) => (
+          <div key={q.id} className="space-y-1.5">
+            <label className="block text-[12.5px] font-medium text-[#52525B] leading-snug">
+              {q.question}
+              {q.severity === "critical" && (
+                <span className="ml-1 text-[#DC2626]">*</span>
+              )}
+            </label>
+            {q.options && q.options.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5">
+                {q.options.map((opt) => {
+                  const selected = answers[q.id] === opt;
+                  return (
+                    <button
+                      key={opt}
+                      type="button"
+                      disabled={resolved || disabled}
+                      onClick={() =>
+                        setAnswers((prev) => ({ ...prev, [q.id]: opt }))
+                      }
+                      className={`px-2.5 py-1 rounded-md text-[12px] border transition-colors ${
+                        selected
+                          ? "border-[#3F3F46] bg-[#3F3F46] text-white"
+                          : "border-[#E4E4E7] bg-[#FAFAFA] text-[#52525B] hover:border-[#A1A1AA]"
+                      } disabled:opacity-60`}
+                    >
+                      {opt}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <input
+                type="text"
+                value={answers[q.id] || ""}
+                disabled={resolved || disabled}
+                onChange={(e) =>
+                  setAnswers((prev) => ({ ...prev, [q.id]: e.target.value }))
+                }
+                placeholder="Your answer"
+                className="w-full rounded-md border border-[#E4E4E7] bg-[#FAFAFA] px-2.5 py-1.5 text-[13px] text-[#3F3F46] outline-none focus:border-[#A1A1AA] disabled:opacity-60"
+              />
+            )}
+          </div>
+        ))}
+      </div>
+      {!resolved && (
+        <button
+          type="button"
+          disabled={disabled || !allFilled}
+          onClick={() => onSubmit?.(answers)}
+          className="mt-3.5 w-full rounded-lg bg-[#18181B] text-white text-[13px] font-medium py-2 disabled:opacity-40 hover:bg-[#27272A] transition-colors border-none cursor-pointer"
+        >
+          Continue analysis
+        </button>
+      )}
+      {resolved && (
+        <p className="mt-3 text-[12px] text-[#71717A] italic m-0">Answers submitted.</p>
+      )}
+    </div>
+  );
 }
 
 export default function ReportView({
@@ -38,6 +133,12 @@ export default function ReportView({
   onCopy,
   onDownload,
   onPrint,
+  openQuestions = [],
+  askResolved = false,
+  askDisabled = false,
+  onAskSubmit,
+  isStreaming = false,
+  progressMessage,
 }: ReportViewProps) {
   const chatBottomRef = useRef<HTMLDivElement>(null);
 
@@ -45,7 +146,9 @@ export default function ReportView({
     chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages]);
 
-  const primaryReport = chatMessages.find((m) => m.sender === "gemini" && !m.loading);
+  const primaryReport = chatMessages.find(
+    (m) => m.sender === "gemini" && !m.loading && !m.streaming && Boolean(m.text)
+  );
 
   return (
     <>
@@ -75,7 +178,7 @@ export default function ReportView({
 
         <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-4 pt-6">
           <div className="mx-auto space-y-7 print-container" style={{ maxWidth: 768 }}>
-            {chatMessages.length === 0 && (
+            {chatMessages.length === 0 && openQuestions.length === 0 && (
               <div className="flex items-center gap-3 py-1 text-[#98A2B3]">
                 <span className="flex gap-1">
                   {[0, 1, 2].map((i) => (
@@ -144,7 +247,7 @@ export default function ReportView({
                   </div>
 
                   <div className="pl-[42px]">
-                    {message.loading ? (
+                    {message.loading && !message.text ? (
                       <div className="flex items-center gap-3 py-1">
                         <span className="flex gap-1">
                           {[0, 1, 2].map((i) => (
@@ -155,10 +258,23 @@ export default function ReportView({
                             />
                           ))}
                         </span>
-                        <span className="text-[13px] text-[#98A2B3]">Analyzing your query…</span>
+                        <span className="text-[13px] text-[#98A2B3]">
+                          {progressMessage || "Analyzing your query…"}
+                        </span>
                       </div>
                     ) : (
-                      <div className="analyze-report-prose">{renderContentText(message.text)}</div>
+                      <div className="analyze-report-prose">
+                        {message.text
+                          ? renderContentText(message.text)
+                          : (
+                            <p className="m-0 text-[13px] text-[#98A2B3]">
+                              {progressMessage || "Starting analysis…"}
+                            </p>
+                          )}
+                        {message.streaming && (
+                          <span className="analyze-stream-caret" aria-hidden />
+                        )}
+                      </div>
                     )}
 
                     {!message.loading && message.sources && message.sources.length > 0 && (
@@ -187,6 +303,18 @@ export default function ReportView({
                 </div>
               );
             })}
+
+            {openQuestions.length > 0 && (
+              <div className="no-print">
+                <AskQuestionCard
+                  key={openQuestions.map((q) => q.id).join("-")}
+                  questions={openQuestions}
+                  resolved={askResolved}
+                  disabled={askDisabled}
+                  onSubmit={onAskSubmit}
+                />
+              </div>
+            )}
             <div ref={chatBottomRef} />
           </div>
         </div>
@@ -195,14 +323,25 @@ export default function ReportView({
           <form onSubmit={onSendMessage} className="analyze-report-composer mx-auto" style={{ maxWidth: 768 }}>
             <input
               type="text"
-              placeholder="Ask a follow-up…"
+              placeholder={
+                isStreaming
+                  ? "Analysis is still writing…"
+                  : openQuestions.length > 0 && !askResolved
+                  ? "Answer the questions above to continue…"
+                  : "Ask a follow-up…"
+              }
               value={chatInput}
               onChange={(e) => onChatInputChange(e.target.value)}
-              className="min-w-0 flex-1 border-none bg-transparent px-2 py-1 text-[14px] text-[#1a1a1a] outline-none placeholder:text-[#98A2B3]"
+              disabled={isStreaming || (openQuestions.length > 0 && !askResolved)}
+              className="min-w-0 flex-1 border-none bg-transparent px-2 py-1 text-[14px] text-[#1a1a1a] outline-none placeholder:text-[#98A2B3] disabled:opacity-50"
             />
             <button
               type="submit"
-              disabled={!chatInput.trim()}
+              disabled={
+                isStreaming ||
+                !chatInput.trim() ||
+                (openQuestions.length > 0 && !askResolved)
+              }
               className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full border-none primary-gradient text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
               aria-label="Send follow-up"
             >

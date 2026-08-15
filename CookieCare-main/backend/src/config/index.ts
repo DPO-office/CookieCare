@@ -21,7 +21,16 @@ function findBackendRoot(startDir: string): string {
   return startDir;
 }
 const backendRoot = findBackendRoot(__dirname);
-dotenv.config({ path: path.join(backendRoot, ".env") });
+// The shared .env lives at the repo root because the Vite frontend reads the
+// VITE_* keys from there too. A backend/.env is optional and takes precedence.
+const envPaths = [
+  path.join(backendRoot, ".env"),
+  path.join(path.dirname(backendRoot), ".env"),
+].filter((p) => fs.existsSync(p));
+
+if (envPaths.length > 0) {
+  dotenv.config({ path: envPaths });
+}
 
 /**
  * Windows / corporate dev environments often lack the CA chain required for
@@ -55,6 +64,7 @@ export const config = {
   jwtSecret: process.env.JWT_SECRET || "privsec-ai-enterprise-secret-2026",
   // Fixed: Added the Render production URL as a default fallback
   corsOrigin: process.env.CORS_ORIGIN || "https://privlex-ai.onrender.com",
+  draftingTokenBudget: numberFromEnv(process.env.DRAFTING_TOKEN_BUDGET, 500_000),
   /** Local UI testing without Postgres (Zscaler / Neon quota). Never use in production. */
   skipDb: process.env.SKIP_DB === "true" || process.env.SKIP_DB === "1",
 };
