@@ -236,6 +236,20 @@ async function setupDb() {
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
 
+      -- Append-only backlog of Tier C (web-assisted) lookups — no dashboard yet
+      CREATE TABLE IF NOT EXISTS analysis_tier_c_log (
+        id BIGSERIAL PRIMARY KEY,
+        org_id VARCHAR(255),
+        query TEXT NOT NULL,
+        resolved BOOLEAN NOT NULL DEFAULT FALSE,
+        source_url TEXT,
+        session_id VARCHAR(255),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_analysis_tier_c_log_org
+        ON analysis_tier_c_log (org_id, created_at DESC);
+
       CREATE TABLE IF NOT EXISTS template_clause_mappings (
         template_id VARCHAR(255) NOT NULL REFERENCES contract_templates(id) ON DELETE CASCADE,
         clause_id VARCHAR(255) NOT NULL REFERENCES clause_catalog(id) ON DELETE CASCADE,

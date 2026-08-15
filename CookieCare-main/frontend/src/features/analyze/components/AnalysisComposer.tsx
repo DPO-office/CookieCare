@@ -22,6 +22,8 @@ interface AnalysisComposerProps {
   onOpenQuestions: () => void;
   documents: SelectedDocument[];
   onRemoveDocument: (doc: SelectedDocument) => void;
+  playbookDocId?: string | null;
+  onTogglePlaybook?: (doc: SelectedDocument) => void;
   documentMode: DocumentMode;
   answerStyle: AnswerStyle;
   onSetDocumentMode: (mode: DocumentMode) => void;
@@ -46,6 +48,8 @@ export function AnalysisComposer({
   onOpenVault,
   documents,
   onRemoveDocument,
+  playbookDocId = null,
+  onTogglePlaybook,
   documentMode,
   answerStyle,
   onSetDocumentMode,
@@ -122,6 +126,11 @@ export function AnalysisComposer({
                   key={`${doc.type}-${doc.id}`}
                   document={doc}
                   onRemove={() => onRemoveDocument(doc)}
+                  showPlaybookToggle={documents.length > 1 && doc.type !== "folder"}
+                  isPlaybook={playbookDocId === doc.id}
+                  onTogglePlaybook={
+                    onTogglePlaybook ? () => onTogglePlaybook(doc) : undefined
+                  }
                 />
               ))}
             </div>

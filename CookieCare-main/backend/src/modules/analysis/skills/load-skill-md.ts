@@ -14,7 +14,7 @@ export interface ParsedSkillMd {
 
 const skillMdCache = new Map<string, ParsedSkillMd>();
 
-const SECTION_RE = /^##\s+(rule|risk|clause):([^\s#]+)\s*$/gim;
+const SECTION_RE = /^##\s+(rule|risk|clause|matrix):([^\s#]+)\s*$/gim;
 
 export function parseSkillMdContent(skillId: string, raw: string): ParsedSkillMd {
   const sections: Record<string, string> = {};

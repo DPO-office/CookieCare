@@ -42,10 +42,12 @@ export const saasAgreementSkill: AnalysisSkillConfig = {
   riskCategories: [
     {
       category: "missing_sla_uptime",
+      displayLabel: "Missing measurable uptime commitment",
       guidance: "No measurable uptime / availability commitment identified.",
     },
     {
       category: "missing_service_credits",
+      displayLabel: "Missing service-credit remedy",
       guidance: "No service-credit remedy when SLA is missed.",
     },
   ],

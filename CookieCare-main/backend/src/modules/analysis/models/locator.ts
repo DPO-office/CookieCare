@@ -9,8 +9,12 @@ export interface Locator {
   charRange: [number, number];
 }
 
+export type EvidenceSourceRole = "target" | "reference";
+
 export interface EvidenceSpan {
   locator: Locator;
   /** Verbatim source text used for entailment verification. */
   quotedText: string;
+  /** Which document the quote came from (playbook vs target). */
+  sourceRole: EvidenceSourceRole;
 }

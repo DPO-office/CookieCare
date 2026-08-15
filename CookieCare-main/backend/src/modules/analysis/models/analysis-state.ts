@@ -47,6 +47,11 @@ export interface AnalysisState {
     /** Path A — library category or prompt id (e.g. "privacy", "commercial"). */
     promptLibraryId?: string;
     documentIds: string[];
+    /**
+     * Optional upload-time roles. Primary mechanism for playbook vs target.
+     * Values: "target" | "reference".
+     */
+    documentRoles?: Record<string, "target" | "reference">;
     /** Pre-loaded texts keyed by docId (handler resolves from files table). */
     documentTexts: Record<string, string>;
     documentTitles?: Record<string, string>;

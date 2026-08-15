@@ -8,7 +8,13 @@ const SKILLS_ROOT = path.dirname(fileURLToPath(import.meta.url));
 
 export interface SkillParityViolation {
   skillId: string;
-  kind: "missing_md_section" | "orphan_md_section" | "missing_skill_md";
+  kind:
+    | "missing_md_section"
+    | "orphan_md_section"
+    | "missing_skill_md"
+    | "missing_finding_category"
+    | "missing_display_label"
+    | "missing_rule_scope";
   detail: string;
 }
 
@@ -36,8 +42,33 @@ export function lintSkillParity(): SkillParityViolation[] {
     const mdKeys = new Set(Object.keys(parsed.sections));
 
     const expected = new Set<string>();
-    for (const rule of skill.regimeRules) expected.add(`rule:${rule.ruleId}`);
-    for (const rc of skill.riskCategories) expected.add(`risk:${rc.category}`);
+    for (const rule of skill.regimeRules) {
+      expected.add(`rule:${rule.ruleId}`);
+      if (!rule.findingCategory?.trim()) {
+        violations.push({
+          skillId: skill.skillId,
+          kind: "missing_finding_category",
+          detail: `regime rule ${rule.ruleId} has no findingCategory`,
+        });
+      }
+      if (rule.ruleScope !== "per_clause" && rule.ruleScope !== "per_document") {
+        violations.push({
+          skillId: skill.skillId,
+          kind: "missing_rule_scope",
+          detail: `regime rule ${rule.ruleId} has no valid ruleScope`,
+        });
+      }
+    }
+    for (const rc of skill.riskCategories) {
+      expected.add(`risk:${rc.category}`);
+      if (!rc.displayLabel?.trim()) {
+        violations.push({
+          skillId: skill.skillId,
+          kind: "missing_display_label",
+          detail: `risk category ${rc.category} has no displayLabel`,
+        });
+      }
+    }
     for (const ct of Object.keys(skill.clauseTypeDefinitions ?? {})) {
       expected.add(`clause:${ct}`);
     }

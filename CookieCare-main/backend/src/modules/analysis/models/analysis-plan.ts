@@ -18,6 +18,7 @@ export type AnalysisToolName =
   | "request_clarification"
   | "create_draft_task"
   | "evaluate_matrix_row"
+  | "extract_playbook_positions"
   | "web_assisted_reference"
   | "render_output";
 
@@ -68,7 +69,8 @@ export interface AnalysisPlan {
     | "redline_diff"
     | "memo"
     | "qa_thread"
-    | "rights_matrix_memo";
+    | "rights_matrix_memo"
+    | "playbook_comparison_memo";
   activeSkillIds?: string[];
   focus?: InstructionFocus;
   /** Pack / taxonomy versions pinned for audit reproducibility. */

@@ -120,6 +120,23 @@ describe("golden cisco-dpa-dsr skills baseline", () => {
     assert.ok(section && section.toLowerCase().includes("chapter iii"));
   });
 
+  it("composes _global on playbook comparison graphs", () => {
+    const selection = selectSkills({
+      instruction: "Compare agreement to playbook",
+      docType: "msa",
+    });
+    assert.ok(selection.skills.some((s) => s.skillId === "_global"));
+    const graph = buildActGraphDetailed({
+      docId: "target",
+      referenceDocId: "playbook",
+      instruction: "Compare agreement to playbook",
+      skills: selection.skills,
+      intent: BASELINE_INTENT,
+    });
+    assert.equal(graph.rendererSchemaId, "playbook_comparison_memo");
+    assert.ok(graph.workUnits.some((u) => u.tool === "extract_playbook_positions"));
+  });
+
   it("legacy aliases still resolve", () => {
     assert.equal(getSkillById("general-review")?.skillId, "_global");
     assert.equal(getSkillById("commercial")?.skillId, "doc-types/commercial-agreement");

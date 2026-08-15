@@ -12,6 +12,7 @@ import {
 } from "../../../modules/analysis/taxonomies/clause-taxonomy.js";
 import { RISK_TAXONOMY_VERSION } from "../../../modules/analysis/taxonomies/index.js";
 import { initAgentRunState } from "../../../modules/analysis/pac/types.js";
+import { sanitizeRenderedAnalysisOutput } from "../../../modules/analysis/utils/response-safety.js";
 
 /**
  * Async job handler for Analysis PAC (coexists with legacy document_analysis).
@@ -30,6 +31,10 @@ export async function executeAnalysisPac(
 async function handleCreate(jobId: string, userId: string, payload: any): Promise<any> {
   const sessionId = payload.sessionId || `an_${crypto.randomUUID()}`;
   const documentIds: string[] = payload.documentIds ?? [];
+  const documentRoles =
+    payload.documentRoles && typeof payload.documentRoles === "object"
+      ? (payload.documentRoles as Record<string, "target" | "reference">)
+      : undefined;
   console.log(
     `[Analysis PAC] job create jobId=${jobId} session=${sessionId} docs=${documentIds.length} library=${payload.promptLibraryId || "-"}`
   );
@@ -57,7 +62,6 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
   const onToken = (delta: string) => {
     jobRegistry.broadcastToken(userId, jobId, delta);
   };
-  onToken("Loaded documents. Planning analysis…\n\n");
 
   const initial: AnalysisState = {
     onProgress: async (percent, message) => {
@@ -74,10 +78,26 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
         ? String(payload.promptLibraryId)
         : undefined,
       documentIds,
+      documentRoles,
       documentTexts,
       documentTitles,
     },
-    workspace: { sessionId, documents: [] },
+    workspace: {
+      sessionId,
+      documents: documentIds.map((docId) => ({
+        docId,
+        title: documentTitles[docId],
+        role:
+          documentRoles?.[docId] === "reference"
+            ? ("reference" as const)
+            : documentRoles?.[docId] === "target"
+              ? ("target" as const)
+              : ("unknown" as const),
+        fullText: documentTexts[docId] ?? "",
+        segments: [],
+        clauses: [],
+      })),
+    },
     findings: [],
     draftTasks: [],
     metadata: {
@@ -116,7 +136,7 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
     status: result.agent?.stoppedReason ?? "completed",
     sessionId,
     findings: result.findings,
-    renderedOutput: result.renderedOutput,
+    renderedOutput: sanitizeRenderedAnalysisOutput(result.renderedOutput),
     critique: result.critique,
     conversation: result.conversation,
     pinnedVersions: {
@@ -167,7 +187,6 @@ async function handleResumeAsk(jobId: string, userId: string, payload: any): Pro
   state.onToken = (delta) => {
     jobRegistry.broadcastToken(userId, jobId, delta);
   };
-  state.onToken("Continuing analysis with your answers…\n\n");
 
   const result = await analysisEntry.resumeAfterAsk(state);
   await persistLedger(sessionId, result, userId);
@@ -185,7 +204,7 @@ async function handleResumeAsk(jobId: string, userId: string, payload: any): Pro
     status: result.agent?.stoppedReason ?? "completed",
     sessionId,
     findings: result.findings,
-    renderedOutput: result.renderedOutput,
+    renderedOutput: sanitizeRenderedAnalysisOutput(result.renderedOutput),
     critique: result.critique,
     conversation: result.conversation,
   };

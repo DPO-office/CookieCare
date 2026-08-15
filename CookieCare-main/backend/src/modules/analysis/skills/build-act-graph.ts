@@ -6,6 +6,7 @@ import type {
 import type { IntentClassification, IntentSubIntent } from "../models/intent.js";
 import type {
   AnalysisSkillConfig,
+  ComparativeCheckConfig,
   RelatedCheckRule,
   RightsMatrixRow,
   SkillRegimeRule,
@@ -15,6 +16,10 @@ import {
   mergeSkillClauseTypes,
 } from "./registry.js";
 import { orderByDependency } from "../utils/topo-batches.js";
+import type { RuleSource } from "../models/rule-source.js";
+
+/** Max playbook position check slots scheduled at PLAN time (fixed graph). */
+export const MAX_PLAYBOOK_CHECK_SLOTS = 24;
 
 export interface BuildActGraphInput {
   docId: string;
@@ -24,6 +29,10 @@ export interface BuildActGraphInput {
   focus?: InstructionFocus;
   relatedChecks?: RelatedCheckRule[];
   unresolvedStandard?: string;
+  /** Playbook / reference document for Tier P comparison. */
+  referenceDocId?: string;
+  /** Clause types known from a prior extract (rare); usually empty at PLAN. */
+  playbookClauseTypes?: string[];
 }
 
 export interface BuildActGraphResult {
@@ -35,8 +44,10 @@ export interface BuildActGraphResult {
 function rendererForSkill(
   skill: AnalysisSkillConfig,
   intent: IntentClassification,
-  focus?: InstructionFocus
+  focus?: InstructionFocus,
+  referenceDocId?: string
 ): BuildActGraphResult["rendererSchemaId"] {
+  if (referenceDocId) return "playbook_comparison_memo";
   if (focus?.matrixRowIds.length) return "rights_matrix_memo";
   if (intent.outputForm === "memo") return "memo";
   if (intent.outputForm === "table") return "table";
@@ -56,7 +67,8 @@ function effectiveSubIntents(intent: IntentClassification): IntentSubIntent[] {
 }
 
 /**
- * One shared classify+extract, then one subgraph per subIntent, relatedChecks,
+ * One shared classify+extract, optional playbook extract + Tier P checks,
+ * then one subgraph per subIntent, relatedChecks, comparativeChecks,
  * optional Tier C web unit, and a single render.
  */
 export function buildActGraph(input: BuildActGraphInput): AnalysisWorkUnit[] {
@@ -72,22 +84,34 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
     focus,
     relatedChecks = [],
     unresolvedStandard,
+    referenceDocId,
+    playbookClauseTypes = [],
   } = input;
-  // Prefer specialized skill for renderer schema; _global is always present but not primary.
   const primary =
     skills.find((s) => s.axis === "regime") ??
     skills.find((s) => s.axis === "doc-type") ??
     skills[0];
   const skillIds = skills.map((s) => s.skillId);
-  const relatedRiskIds = relatedChecks.flatMap((r) => r.related);
+  const focusedRiskIds = new Set(focus?.riskCategoryIds ?? []);
+  const relatedRiskIds = [
+    ...new Set(
+      relatedChecks
+        .flatMap((rule) => rule.related)
+        .filter((category) => !focusedRiskIds.has(category))
+    ),
+  ];
   const relatedClauseTypes = relatedChecks.flatMap((r) =>
     r.related.filter((id) => skills.some((s) => s.clauseTypes.includes(id)))
   );
   const mergedClauseTypes = [
-    ...new Set([...mergeSkillClauseTypes(skills), ...relatedClauseTypes]),
+    ...new Set([
+      ...mergeSkillClauseTypes(skills),
+      ...relatedClauseTypes,
+      ...playbookClauseTypes,
+    ]),
   ];
   const allRules = mergeRegimeRules(skills);
-  const schemaId = rendererForSkill(primary, intent, focus);
+  const schemaId = rendererForSkill(primary, intent, focus, referenceDocId);
   const subIntents = effectiveSubIntents(intent);
 
   const units: AnalysisWorkUnit[] = [
@@ -99,22 +123,69 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
       outputSchema: "string",
       status: "pending",
     },
-    {
-      workUnitId: "wu-extract",
-      tool: "extract_clauses",
-      input: {
-        docId,
-        clauseTypes: mergedClauseTypes,
-        skillIds,
-        instruction,
-      },
-      dependsOn: ["wu-classify"],
-      outputSchema: "ClauseObject[]",
-      status: "pending",
-    },
   ];
 
+  if (referenceDocId) {
+    units.push({
+      workUnitId: "wu-playbook-extract",
+      tool: "extract_playbook_positions",
+      input: { docId: referenceDocId, playbookDocId: referenceDocId, instruction },
+      dependsOn: [],
+      outputSchema: "Finding[]",
+      status: "pending",
+    });
+  }
+
+  const extractDeps = referenceDocId
+    ? ["wu-classify", "wu-playbook-extract"]
+    : ["wu-classify"];
+
+  units.push({
+    workUnitId: "wu-extract",
+    tool: "extract_clauses",
+    input: {
+      docId,
+      clauseTypes: mergedClauseTypes,
+      skillIds,
+      instruction,
+      /** Runtime union with playbook position clauseTypes when reference present. */
+      unionPlaybookClauseTypes: Boolean(referenceDocId),
+      referenceDocId,
+    },
+    dependsOn: extractDeps,
+    outputSchema: "ClauseObject[]",
+    status: "pending",
+  });
+
   const subgraphLeaves: string[] = [];
+
+  if (referenceDocId) {
+    for (let i = 0; i < MAX_PLAYBOOK_CHECK_SLOTS; i++) {
+      const wuId = `wu-playbook-pos-${i}`;
+      units.push({
+        workUnitId: wuId,
+        tool: "check_against_rule",
+        input: {
+          docId,
+          referenceDocId,
+          playbookPositionIndex: i,
+          skillIds,
+          instruction,
+        },
+        dependsOn: ["wu-extract", "wu-playbook-extract"],
+        outputSchema: "Finding[]",
+        status: "pending",
+      });
+      subgraphLeaves.push(wuId);
+    }
+  }
+
+  const scheduled: ScheduledGraphIds = {
+    ruleIds: new Set<string>(),
+    matrixRowIds: new Set<string>(),
+    expectedClauseUnits: new Set<string>(),
+    riskUnitSignatures: new Set<string>(),
+  };
 
   subIntents.forEach((si, index) => {
     const prefix = subIntents.length > 1 ? `si${index}-` : "";
@@ -128,6 +199,7 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
       allRules,
       skills,
       extractDep: "wu-extract",
+      scheduled,
     });
     subgraphLeaves.push(...leaves);
   });
@@ -150,6 +222,28 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
       status: "pending",
     });
     subgraphLeaves.push("wu-related-flag-risk");
+  }
+
+  const comparative = collectComparativeChecks(skills);
+  for (const check of comparative) {
+    const wuId = `wu-comparative-${check.checkId.replace(/[^a-zA-Z0-9._-]/g, "-")}`;
+    units.push({
+      workUnitId: wuId,
+      tool: "flag_risk",
+      input: {
+        docId,
+        skillIds,
+        instruction,
+        comparativeCheckId: check.checkId,
+        comparativeGuidance: check.guidance,
+        clauseTypesFocus: check.clauseTypesToCompare,
+        riskCategoryIds: [],
+      },
+      dependsOn: ["wu-extract"],
+      outputSchema: "Finding[]",
+      status: "pending",
+    });
+    subgraphLeaves.push(wuId);
   }
 
   if (unresolvedStandard) {
@@ -177,6 +271,7 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
       skillIds,
       instruction,
       relatedNotes: relatedChecks.map((r) => r.note).filter(Boolean),
+      referenceDocId,
     },
     dependsOn: renderDeps,
     outputSchema: "string",
@@ -188,6 +283,27 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
     schemaId,
     rendererSchemaId: schemaId,
   };
+}
+
+function collectComparativeChecks(skills: AnalysisSkillConfig[]): ComparativeCheckConfig[] {
+  const out: ComparativeCheckConfig[] = [];
+  const seen = new Set<string>();
+  for (const skill of skills) {
+    if (skill.axis !== "jurisdiction") continue;
+    for (const c of skill.comparativeChecks ?? []) {
+      if (seen.has(c.checkId)) continue;
+      seen.add(c.checkId);
+      out.push(c);
+    }
+  }
+  return out;
+}
+
+interface ScheduledGraphIds {
+  ruleIds: Set<string>;
+  matrixRowIds: Set<string>;
+  expectedClauseUnits: Set<string>;
+  riskUnitSignatures: Set<string>;
 }
 
 function appendSubIntentUnits(
@@ -202,24 +318,31 @@ function appendSubIntentUnits(
     allRules: SkillRegimeRule[];
     skills: AnalysisSkillConfig[];
     extractDep: string;
+    scheduled: ScheduledGraphIds;
   }
 ): string[] {
-  const { prefix, si, docId, instruction, skillIds, focus, allRules, skills, extractDep } = args;
-  const runRisk = si.operation === "risk_flag" || si.operation === "extract";
+  const { prefix, si, docId, instruction, skillIds, focus, allRules, skills, extractDep, scheduled } =
+    args;
+  const runRisk =
+    si.operation === "risk_flag" ||
+    si.operation === "extract" ||
+    Boolean(focus?.riskCategoryIds.length);
   const runCompliance =
     si.operation === "compliance_check" ||
-    Boolean(focus && prefix === "") ||
+    Boolean(focus) ||
     (si.operation !== "risk_flag" && si.operation !== "extract" && allRules.length > 0);
 
   let lastDep = extractDep;
   const leaves: string[] = [];
 
-  if (runCompliance && !focus) {
+  const expectedSignature = si.description ?? si.operation;
+  if (runCompliance && !focus && !scheduled.expectedClauseUnits.has(expectedSignature)) {
+    scheduled.expectedClauseUnits.add(expectedSignature);
     const id = `wu-${prefix}check-expected`;
     units.push({
       workUnitId: id,
       tool: "check_expected_clauses",
-      input: { docId, skillIds, instruction, subIntent: si.description ?? si.operation },
+      input: { docId, skillIds, instruction, subIntent: expectedSignature },
       dependsOn: [extractDep],
       outputSchema: "Finding[]",
       status: "pending",
@@ -227,7 +350,12 @@ function appendSubIntentUnits(
     lastDep = id;
   }
 
-  if (runRisk) {
+  const riskCategoryIds = focus?.riskCategoryIds ?? [];
+  const riskSignature = focus
+    ? `focus:${[...riskCategoryIds].sort().join(",")}`
+    : `si:${si.description ?? si.operation}`;
+  if (runRisk && !scheduled.riskUnitSignatures.has(riskSignature)) {
+    scheduled.riskUnitSignatures.add(riskSignature);
     const id = `wu-${prefix}flag-risk`;
     units.push({
       workUnitId: id,
@@ -236,7 +364,7 @@ function appendSubIntentUnits(
         docId,
         skillIds,
         instruction,
-        riskCategoryIds: prefix === "" ? (focus?.riskCategoryIds ?? []) : [],
+        riskCategoryIds,
         subIntent: si.description ?? si.operation,
       },
       dependsOn: [lastDep],
@@ -248,17 +376,18 @@ function appendSubIntentUnits(
   }
 
   if (runCompliance) {
-    const regimeRules = focus?.ruleIds.length && prefix === ""
+    const regimeRules = focus?.ruleIds.length
       ? allRules.filter((r) => focus.ruleIds.includes(r.ruleId))
       : allRules;
-    const matrixRows: RightsMatrixRow[] =
-      focus?.matrixRowIds.length && prefix === ""
-        ? skills.flatMap((s) => s.rightsMatrixRows ?? []).filter((r) =>
-            focus.matrixRowIds.includes(r.rowId)
-          )
-        : [];
+    const matrixRows: RightsMatrixRow[] = focus?.matrixRowIds.length
+      ? skills
+          .flatMap((s) => s.rightsMatrixRows ?? [])
+          .filter((r) => focus.matrixRowIds.includes(r.rowId))
+      : [];
 
     for (const rule of regimeRules) {
+      if (scheduled.ruleIds.has(rule.ruleId)) continue;
+      scheduled.ruleIds.add(rule.ruleId);
       const wuId = `wu-${prefix}rule-${rule.ruleId.replace(/\./g, "-")}`;
       units.push(ruleUnit(wuId, docId, rule, skillIds, instruction, lastDep));
       lastDep = wuId;
@@ -266,6 +395,8 @@ function appendSubIntentUnits(
     }
 
     for (const row of matrixRows) {
+      if (scheduled.matrixRowIds.has(row.rowId)) continue;
+      scheduled.matrixRowIds.add(row.rowId);
       const wuId = `wu-${prefix}matrix-${row.rowId.replace(/\./g, "-")}`;
       units.push({
         workUnitId: wuId,
@@ -301,12 +432,20 @@ function ruleUnit(
   instruction: string,
   dependsOn: string
 ): AnalysisWorkUnit {
+  const ruleSource: RuleSource = {
+    kind: "authored",
+    ruleId: rule.ruleId,
+    skillId: skillIds[0] ?? "",
+    ruleVersion: "",
+    findingCategory: rule.findingCategory,
+  };
   return {
     workUnitId: wuId,
     tool: "check_against_rule",
     input: {
       docId,
       ruleId: rule.ruleId,
+      ruleSource,
       skillIds,
       instruction,
       checkType: rule.checkType,

@@ -23,6 +23,8 @@ export type ExpectedClause = ExpectedClauseCheck;
 
 export interface SkillRiskCategory {
   category: string;
+  /** Human-readable label for all user-facing output; never render category directly. */
+  displayLabel: string;
   guidance: string;
 }
 
@@ -35,6 +37,10 @@ export interface SkillRegimeRule {
   ruleId: string;
   ruleText: string;
   checkType: RegimeCheckType;
+  /** Required authored output category; runtime must never substitute a generic bucket. */
+  findingCategory: string;
+  /** Per-document principles run once over all relevant clauses; per-clause rules inspect one clause at a time. */
+  ruleScope: "per_clause" | "per_document";
   /** Clause types this rule applies to; empty = any data_protection clause. */
   appliesToClauseTypes?: string[];
   label?: string;

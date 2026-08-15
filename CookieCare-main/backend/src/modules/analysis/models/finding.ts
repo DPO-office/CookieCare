@@ -1,4 +1,5 @@
 import type { EvidenceSpan } from "./locator.js";
+import type { RuleSourceTier } from "./rule-source.js";
 
 export type FindingKind =
   | "risk"
@@ -43,4 +44,12 @@ export interface Finding {
    */
   unverified?: boolean;
   sourceUrl?: string;
+  /** ISO retrieval time for Tier C staleness visibility. */
+  retrievedAt?: string;
+  /**
+   * Trust tier for renderer separation:
+   * B = authored regime, P = playbook-derived, C = web-derived.
+   */
+  ruleSourceTier?: RuleSourceTier;
+  playbookPositionId?: string;
 }

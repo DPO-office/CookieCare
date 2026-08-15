@@ -14,6 +14,7 @@ type RunContext = {
   instruction: string;
   promptLibraryId?: string;
   firstDocName: string;
+  documentRoles?: Record<string, "target" | "reference">;
 };
 
 function buildInstruction(
@@ -109,10 +110,14 @@ export function useAnalysis(authToken: string) {
       return true;
     }
 
+    // Prefer the final rendered report only — never keep raw ACT stream dumps.
     const finalText =
       outcome.kind === "out_of_scope"
         ? outcome.declineMessage
-        : outcome.report || streamBufferRef.current || "Analysis complete.";
+        : outcome.kind === "success" && outcome.report.trim()
+          ? outcome.report
+          : streamBufferRef.current || "Analysis complete.";
+    streamBufferRef.current = "";
 
     setSessionId(
       outcome.kind === "out_of_scope" || outcome.kind === "success"
@@ -145,7 +150,8 @@ export function useAnalysis(authToken: string) {
     customPromptText: string,
     documentMode: DocumentMode,
     answerStyle: AnswerStyle,
-    promptLibraryId?: string
+    promptLibraryId?: string,
+    playbookDocId?: string | null
   ) => {
     const { documentIds, firstTitle } = collectAnalysisDocumentIds(folders, savedDrafts);
 
@@ -160,12 +166,23 @@ export function useAnalysis(authToken: string) {
       return;
     }
 
+    const documentRoles: Record<string, "target" | "reference"> | undefined =
+      playbookDocId && documentIds.includes(playbookDocId)
+        ? Object.fromEntries(
+            documentIds.map((id) => [
+              id,
+              id === playbookDocId ? ("reference" as const) : ("target" as const),
+            ])
+          )
+        : undefined;
+
     const instruction = buildInstruction(customPromptText, documentMode, answerStyle);
     runContextRef.current = {
       documentIds,
       instruction,
       promptLibraryId,
       firstDocName: firstTitle,
+      documentRoles,
     };
 
     setActiveReportDocName(firstTitle);
@@ -182,6 +199,7 @@ export function useAnalysis(authToken: string) {
       const jobId = await enqueueAnalysisJob(authToken, "/api/analysis/run", {
         instruction,
         documentIds,
+        documentRoles,
         promptLibraryId: promptLibraryId || undefined,
       });
 
@@ -293,6 +311,7 @@ export function useAnalysis(authToken: string) {
       const jobId = await enqueueAnalysisJob(authToken, "/api/analysis/run", {
         instruction: followUpInstruction,
         documentIds,
+        documentRoles: ctx?.documentRoles,
         promptLibraryId: ctx?.promptLibraryId,
       });
 

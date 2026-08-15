@@ -121,7 +121,10 @@ export function resolveDocTypeSkill(
 function validateRegistry(skills: AnalysisSkillConfig[]): void {
   const byId = new Map(skills.map((s) => [s.skillId, s]));
   const clauseTypeDefs = new Map<string, { skillId: string; definition: string }>();
-  const riskDefs = new Map<string, { skillId: string; guidance: string }>();
+  const riskDefs = new Map<
+    string,
+    { skillId: string; displayLabel: string; guidance: string }
+  >();
 
   for (const skill of skills) {
     if (skill.extendsDocType) {
@@ -164,14 +167,39 @@ function validateRegistry(skills: AnalysisSkillConfig[]): void {
     }
 
     for (const rc of skill.riskCategories) {
+      if (!rc.displayLabel?.trim()) {
+        throw new Error(
+          `Skill "${skill.skillId}" risk category "${rc.category}" has no displayLabel`
+        );
+      }
       const existing = riskDefs.get(rc.category);
-      if (existing && existing.guidance !== rc.guidance) {
+      if (
+        existing &&
+        (existing.guidance !== rc.guidance || existing.displayLabel !== rc.displayLabel)
+      ) {
         throw new Error(
           `Skill registry conflict: risk category "${rc.category}" defined differently in ` +
             `${existing.skillId} vs ${skill.skillId}`
         );
       }
-      riskDefs.set(rc.category, { skillId: skill.skillId, guidance: rc.guidance });
+      riskDefs.set(rc.category, {
+        skillId: skill.skillId,
+        displayLabel: rc.displayLabel,
+        guidance: rc.guidance,
+      });
+    }
+
+    for (const rule of skill.regimeRules) {
+      if (!rule.findingCategory?.trim()) {
+        throw new Error(
+          `Skill "${skill.skillId}" rule "${rule.ruleId}" has no findingCategory`
+        );
+      }
+      if (rule.ruleScope !== "per_clause" && rule.ruleScope !== "per_document") {
+        throw new Error(
+          `Skill "${skill.skillId}" rule "${rule.ruleId}" has invalid ruleScope`
+        );
+      }
     }
   }
 
@@ -194,6 +222,7 @@ export function buildRuntimeTaxonomies(skills: AnalysisSkillConfig[]): RuntimeTa
     for (const ct of skill.clauseTypes) clauseSet.add(ct);
     for (const rc of skill.riskCategories) riskSet.add(rc.category);
     for (const ec of skill.expectedClauses) riskSet.add(ec.findingCategory);
+    for (const rule of skill.regimeRules) riskSet.add(rule.findingCategory);
   }
 
   return {
@@ -262,7 +291,24 @@ export function mergeSkillClauseTypes(skills: AnalysisSkillConfig[]): string[] {
 }
 
 export function mergeSkillRiskCategories(skills: AnalysisSkillConfig[]): SkillRiskCategory[] {
-  return dedupeRiskCategories(skills.flatMap((s) => s.riskCategories));
+  const fromRules: SkillRiskCategory[] = skills.flatMap((s) =>
+    s.regimeRules.map((rule) => ({
+      category: rule.findingCategory,
+      displayLabel: rule.label ?? humanizeCategory(rule.findingCategory),
+      guidance: `Authored compliance category for ${rule.ruleId}.`,
+    }))
+  );
+  return dedupeRiskCategories([
+    ...skills.flatMap((s) => s.riskCategories),
+    ...fromRules,
+  ]);
+}
+
+function humanizeCategory(category: string): string {
+  return category
+    .replace(/^gdpr\.art[\w.-]+\./, "")
+    .replace(/[._-]+/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 export function mergeExpectedClauses(skills: AnalysisSkillConfig[]) {

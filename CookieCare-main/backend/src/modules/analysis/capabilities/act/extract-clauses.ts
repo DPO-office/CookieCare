@@ -9,7 +9,8 @@ import type { ClauseObject } from "../../models/clause-object.js";
 import type { Finding } from "../../models/finding.js";
 import { CLAUSE_TAXONOMY_VERSION } from "../../taxonomies/clause-taxonomy.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
-import { getRuntimeTaxonomies } from "../../skills/registry.js";
+import { getRuntimeTaxonomies, getSkillById } from "../../skills/registry.js";
+import { loadSkillMdSection } from "../../skills/load-skill-md.js";
 import { insufficient, locateText } from "./act-utils.js";
 
 async function extractClauses(
@@ -20,10 +21,23 @@ async function extractClauses(
   const docId = String(unit.input.docId ?? "");
   const instruction = String(unit.input.instruction ?? state.request.instruction ?? "");
   const clauseTypesInput = unit.input.clauseTypes as string[] | undefined;
+  const skillIds = (unit.input.skillIds as string[]) ?? state.activeSkillIds ?? [];
   const runtime = getRuntimeTaxonomies();
-  const clauseTypes = clauseTypesInput?.length
-    ? clauseTypesInput.filter((c) => runtime.clauseTypes.includes(c))
+
+  let clauseTypes = clauseTypesInput?.length
+    ? clauseTypesInput.filter((c) => runtime.clauseTypes.includes(c) || c === "uncategorized")
     : runtime.clauseTypes.filter((c) => c !== "other");
+
+  if (unit.input.unionPlaybookClauseTypes === true) {
+    const referenceDocId = String(unit.input.referenceDocId ?? "");
+    const refDoc = state.workspace.documents.find((d) => d.docId === referenceDocId);
+    const fromPlaybook = (refDoc?.playbookPositions ?? [])
+      .map((p) => p.clauseType)
+      .filter((t) => t && t !== "uncategorized");
+    clauseTypes = [...new Set([...clauseTypes, ...fromPlaybook])].filter(
+      (c) => runtime.clauseTypes.includes(c) || c === "uncategorized"
+    );
+  }
 
   const doc = state.workspace.documents.find((d) => d.docId === docId);
   if (!doc) {
@@ -33,9 +47,7 @@ async function extractClauses(
     };
   }
 
-  const skillContext = Object.values(state.skillMarkdown ?? {})
-    .join("\n")
-    .slice(0, 4000);
+  const definitions = await buildClauseTypeDefinitions(skillIds, clauseTypes);
 
   const tracker = state.agent ? { tokensUsed: state.agent.tokensUsed } : undefined;
   const schema = {
@@ -56,12 +68,11 @@ async function extractClauses(
   try {
     extracted = await executeJsonCompletion(
       [
-        "Extract legal clauses relevant to the user's analysis instruction.",
+        "Extract legal clauses matching the authored clause-type definitions below.",
         `User instruction: ${instruction}`,
-        `Focus clause types: ${clauseTypes.join(", ")}`,
-        skillContext ? `Skill guidance (context only):\n${skillContext}` : "",
+        `Clause type definitions:\n${definitions}`,
         `Allowed clauseType values: ${clauseTypes.join(", ")}, other`,
-        "Return verbatim clause text spans.",
+        "Return verbatim clause text spans. Do not invent clause types outside the enum.",
         `Document:\n${doc.fullText.slice(0, 80_000)}`,
       ]
         .filter(Boolean)
@@ -106,6 +117,7 @@ async function extractClauses(
     evidence: clauses.slice(0, 3).map((c) => ({
       locator: c.locator,
       quotedText: c.text.slice(0, 500),
+      sourceRole: "target" as const,
     })),
     taxonomyVersion: RISK_TAXONOMY_VERSION,
     workUnitId: unit.workUnitId,
@@ -120,6 +132,31 @@ async function extractClauses(
     state: { ...state, workspace: { ...state.workspace, documents } },
     findings: [...findings, extractionFinding],
   };
+}
+
+async function buildClauseTypeDefinitions(
+  skillIds: string[],
+  clauseTypes: string[]
+): Promise<string> {
+  const lines: string[] = [];
+  for (const type of clauseTypes.slice(0, 40)) {
+    let def = "";
+    for (const skillId of skillIds) {
+      const skill = getSkillById(skillId);
+      const fromConfig = skill?.clauseTypeDefinitions?.[type];
+      if (fromConfig) {
+        def = fromConfig;
+        break;
+      }
+      const section = await loadSkillMdSection(skillId, `clause:${type}`);
+      if (section) {
+        def = section.slice(0, 600);
+        break;
+      }
+    }
+    lines.push(`- ${type}: ${def || "(no authored definition — extract if clearly present)"}`);
+  }
+  return lines.join("\n");
 }
 
 function heuristicExtract(

@@ -20,6 +20,7 @@ import { getSkillById } from "../../skills/registry.js";
 import { pacLog } from "../../utils/pac-log.js";
 import { loadOrgMemory } from "../../memory/org-memory.js";
 import { applyOrgRoutingDefaults } from "../../memory/resolve-org-defaults.js";
+import { resolveDocumentRoles } from "./resolve-document-roles.js";
 
 const SKILL_DRIVEN_OPERATIONS = new Set([
   "risk_flag",
@@ -117,7 +118,38 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
   }
 
   const skills = state.activeSkills ?? [getSkillById("_global")!];
-  const primaryDocId = docIds[0];
+  const roleResolution = resolveDocumentRoles(state);
+  if (roleResolution.missing) {
+    missing.push(roleResolution.missing);
+    pacLog("PLAN ask document roles", { field: roleResolution.missing.field });
+    return {
+      ...state,
+      request: {
+        ...state.request,
+        documentRoles: { ...state.request.documentRoles, ...roleResolution.roles },
+      },
+      plan: emptyPlan(intent, missing),
+    };
+  }
+
+  const primaryDocId = roleResolution.targetDocId || docIds[0];
+  const referenceDocId = roleResolution.referenceDocId;
+  state = {
+    ...state,
+    request: {
+      ...state.request,
+      documentRoles: { ...state.request.documentRoles, ...roleResolution.roles },
+    },
+    workspace: {
+      ...state.workspace,
+      documents: state.workspace.documents.map((d) => {
+        const role = roleResolution.roles[d.docId];
+        if (!role) return d;
+        return { ...d, role: role === "reference" ? ("reference" as const) : ("target" as const) };
+      }),
+    },
+  };
+
   const focus = extractInstructionFocus(state.request.instruction, skills);
   const relatedChecks = resolveRelatedChecks(skills, state.request.instruction, focus);
 
@@ -129,6 +161,7 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     focus,
     relatedChecks,
     unresolvedStandard: intent.unresolvedStandard,
+    referenceDocId,
   });
 
   const workUnits: AnalysisWorkUnit[] = orderByDependency(graph.workUnits);

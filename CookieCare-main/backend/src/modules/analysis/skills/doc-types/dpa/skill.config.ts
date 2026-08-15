@@ -60,8 +60,8 @@ export const dpaDocTypeSkill: AnalysisSkillConfig = {
     },
   ],
   riskCategories: [
-    { category: "missing_limitation_of_liability", guidance: "No limitation of liability clause identified." },
-    { category: "other_known_risk", guidance: "Other material contractual risk." },
+    { category: "missing_limitation_of_liability", displayLabel: "Missing limitation of liability", guidance: "No limitation of liability clause identified." },
+    { category: "other_known_risk", displayLabel: "Other material contractual risk", guidance: "Other material contractual risk." },
   ],
   regimeRules: [],
   regimeRuleIds: [],

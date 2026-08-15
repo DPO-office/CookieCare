@@ -9,27 +9,25 @@ import type { Finding } from "../../models/finding.js";
 import type { EvidenceSpan } from "../../models/locator.js";
 import type { ClauseObject } from "../../models/clause-object.js";
 import type { SkillRegimeRule } from "../../skills/types.js";
+import type { RuleSource } from "../../models/rule-source.js";
+import { tierFor } from "../../models/rule-source.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { getSkillById } from "../../skills/registry.js";
+import { loadSkillMdSection } from "../../skills/load-skill-md.js";
 import { insufficient } from "./act-utils.js";
 
 const TIMEFRAME_NUMERIC =
   /\b(\d+)\s*(hour|hours|day|days|week|weeks|month|months|business days?)\b/i;
-const TIMEFRAME_VAGUE = /\b(promptly|reasonably|as soon as (reasonably )?practicable|without (undue )?delay|timely)\b/i;
+const TIMEFRAME_VAGUE =
+  /\b(promptly|reasonably|as soon as (reasonably )?practicable|without (undue )?delay|timely)\b/i;
 
-function resolveRule(skillIds: string[], ruleId: string) {
+export function resolveRule(skillIds: string[], ruleId: string) {
   for (const id of skillIds) {
     const skill = getSkillById(id);
     const rule = skill?.regimeRules.find((r) => r.ruleId === ruleId);
     if (rule) return { rule, skillId: skill!.skillId, skillVersion: skill!.version };
   }
   return null;
-}
-
-function categoryForRule(ruleId: string): string {
-  if (ruleId === "gdpr.art12.3") return "dsr_no_response_timeframe";
-  if (ruleId === "gdpr.art28.3.e") return "dsr_generic_no_named_rights";
-  return "other_known_risk";
 }
 
 function scanTimeframe(clauses: ClauseObject[]): {
@@ -39,42 +37,153 @@ function scanTimeframe(clauses: ClauseObject[]): {
 } {
   for (const c of clauses) {
     const numeric = c.text.match(TIMEFRAME_NUMERIC);
-    if (numeric) {
-      return { kind: "numeric", quote: numeric[0], clause: c };
-    }
+    if (numeric) return { kind: "numeric", quote: numeric[0], clause: c };
   }
   for (const c of clauses) {
     const vague = c.text.match(TIMEFRAME_VAGUE);
-    if (vague) {
-      return { kind: "vague", quote: vague[0], clause: c };
-    }
+    if (vague) return { kind: "vague", quote: vague[0], clause: c };
   }
   return { kind: "absent" };
 }
 
+/**
+ * When unit.input.playbookPositionIndex is set, bind RuleSource from cached positions.
+ * Returns "skip" if index is past extracted length (empty slot — no finding).
+ */
+function resolvePlaybookSlot(
+  state: AnalysisState,
+  unit: AnalysisWorkUnit
+): AnalysisWorkUnit | "skip" | null {
+  if (unit.input.playbookPositionIndex === undefined || unit.input.playbookPositionIndex === null) {
+    return null;
+  }
+  const index = Number(unit.input.playbookPositionIndex);
+  const referenceDocId = String(unit.input.referenceDocId ?? "");
+  const refDoc = state.workspace.documents.find((d) => d.docId === referenceDocId);
+  const positions = refDoc?.playbookPositions ?? [];
+  if (!Number.isFinite(index) || index < 0 || index >= positions.length) {
+    return "skip";
+  }
+  const pos = positions[index];
+  const ruleSource: RuleSource = {
+    kind: "playbook_derived",
+    positionId: pos.positionId,
+    sourceDocId: referenceDocId,
+    requirementText: pos.requirementText,
+    sourceLocator: pos.sourceLocator,
+    clauseType: pos.clauseType,
+    severityIfViolated: pos.severityIfViolated,
+  };
+  return {
+    ...unit,
+    input: {
+      ...unit.input,
+      ruleSource,
+    },
+  };
+}
+
+function parseRuleSource(
+  unit: AnalysisWorkUnit,
+  skillIds: string[]
+): { source: RuleSource; rule?: SkillRegimeRule } | { error: string } {
+  const raw = unit.input.ruleSource as RuleSource | undefined;
+  if (raw && typeof raw === "object" && "kind" in raw) {
+    if (raw.kind === "authored") {
+      const resolved = resolveRule(skillIds, raw.ruleId);
+      if (!resolved) return { error: `Rule ${raw.ruleId} not found in active skill configuration` };
+      return {
+        source: {
+          ...raw,
+          skillId: resolved.skillId,
+          ruleVersion: resolved.skillVersion,
+          findingCategory: resolved.rule.findingCategory,
+        },
+        rule: resolved.rule,
+      };
+    }
+    return { source: raw };
+  }
+
+  const ruleId = String(unit.input.ruleId ?? "");
+  if (!ruleId) return { error: "No ruleId or ruleSource on work unit" };
+  const resolved = resolveRule(skillIds, ruleId);
+  if (!resolved) return { error: `Rule ${ruleId} not found in active skill configuration` };
+  return {
+    source: {
+      kind: "authored",
+      ruleId,
+      skillId: resolved.skillId,
+      ruleVersion: resolved.skillVersion,
+      findingCategory: resolved.rule.findingCategory,
+    },
+    rule: resolved.rule,
+  };
+}
+
+async function resolveRuleText(
+  source: RuleSource,
+  authoredRule?: SkillRegimeRule
+): Promise<{ ruleText: string; legalHook?: string; label?: string }> {
+  switch (source.kind) {
+    case "authored": {
+      const section = await loadSkillMdSection(source.skillId, `rule:${source.ruleId}`);
+      return {
+        ruleText: authoredRule?.ruleText ?? "",
+        legalHook: authoredRule?.legalHook ?? section ?? undefined,
+        label: authoredRule?.label,
+      };
+    }
+    case "playbook_derived":
+      return { ruleText: source.requirementText };
+    case "web_derived":
+      return {
+        ruleText: source.retrievedText,
+        legalHook: `Source: ${source.sourceUrl} (retrieved ${source.retrievedAt})`,
+      };
+  }
+}
+
+/**
+ * Evaluate target clauses against a RuleSource (authored / playbook / web).
+ * Same LLM judgment; only the source of rule text changes.
+ *
+ * Playbook slot units pass `playbookPositionIndex` — resolved from cached positions
+ * so the PLAN graph stays fixed-size without inventing tools at runtime.
+ */
 async function checkAgainstRule(
   state: AnalysisState,
   unit: AnalysisWorkUnit,
   findings: Finding[]
 ): Promise<{ state: AnalysisState; findings: Finding[] }> {
   const docId = String(unit.input.docId ?? "");
-  const ruleId = String(unit.input.ruleId ?? "");
   const instruction = String(unit.input.instruction ?? state.request.instruction ?? "");
   const skillIds = (unit.input.skillIds as string[]) ?? state.activeSkillIds ?? [];
   const hasFocus = Boolean(state.plan?.focus);
 
-  const resolved = resolveRule(skillIds, ruleId);
-  if (!resolved) {
+  const slotUnit = resolvePlaybookSlot(state, unit);
+  if (slotUnit === "skip") {
+    return { state, findings };
+  }
+  if (slotUnit) {
+    unit = slotUnit;
+  }
+
+  const parsed = parseRuleSource(unit, skillIds);
+  if ("error" in parsed) {
+    return { state, findings: [...findings, insufficient(unit, parsed.error)] };
+  }
+  const { source, rule } = parsed;
+  const tier = tierFor(source.kind);
+
+  const { ruleText, legalHook, label } = await resolveRuleText(source, rule);
+  if (!ruleText.trim()) {
     return {
       state,
-      findings: [
-        ...findings,
-        insufficient(unit, `Rule ${ruleId} not found in active skill configuration`),
-      ],
+      findings: [...findings, insufficient(unit, "Rule text empty for RuleSource")],
     };
   }
 
-  const { rule, skillId, skillVersion } = resolved;
   const doc = state.workspace.documents.find((d) => d.docId === docId);
   if (!doc) {
     return {
@@ -83,73 +192,116 @@ async function checkAgainstRule(
     };
   }
 
+  const appliesTo =
+    source.kind === "playbook_derived" && source.clauseType
+      ? [source.clauseType]
+      : rule?.appliesToClauseTypes;
+
   const applicable = (doc.clauses ?? []).filter(
-    (c) =>
-      !rule.appliesToClauseTypes?.length ||
-      rule.appliesToClauseTypes.includes(c.clauseType)
+    (c) => !appliesTo?.length || appliesTo.includes(c.clauseType) || appliesTo.includes("uncategorized")
   );
 
+  const ruleKey =
+    source.kind === "authored"
+      ? source.ruleId
+      : source.kind === "playbook_derived"
+        ? source.positionId
+        : source.query;
+
   if (applicable.length === 0) {
+    const playbookEvidence: EvidenceSpan[] =
+      source.kind === "playbook_derived"
+        ? [
+            {
+              locator: source.sourceLocator,
+              quotedText: source.requirementText.slice(0, 400),
+              sourceRole: "reference",
+            },
+          ]
+        : [];
     return {
       state,
-      findings: [
-        ...findings,
+      findings: mergeFindings(findings, [
         {
-          findingId: `f_rule_noclause_${ruleId}_${unit.workUnitId}`,
+          findingId: `f_rule_noclause_${ruleKey}_${unit.workUnitId}`,
           kind: "compliance",
-          category: categoryForRule(ruleId),
+          category:
+            source.kind === "authored"
+              ? source.findingCategory
+              : source.kind === "playbook_derived"
+                ? `playbook.${source.positionId}.gap`
+                : `web.${slugCategory(source.query)}.unverified`,
           status: "insufficient_evidence",
-          claim: `No clause available to evaluate rule ${ruleId}.`,
-          evidence: [],
-          ruleId,
-          ruleVersion: skillVersion,
-          severity: "medium",
+          claim: `No clause available to evaluate rule ${ruleKey}.`,
+          evidence: playbookEvidence,
+          ruleId: source.kind === "authored" ? source.ruleId : undefined,
+          ruleVersion: source.kind === "authored" ? source.ruleVersion : undefined,
+          severity: source.kind === "playbook_derived" ? source.severityIfViolated ?? "medium" : "medium",
           taxonomyVersion: RISK_TAXONOMY_VERSION,
           workUnitId: unit.workUnitId,
-          skillId,
+          skillId: source.kind === "authored" ? source.skillId : undefined,
           visibility: "user_facing",
+          ruleSourceTier: tier,
+          playbookPositionId:
+            source.kind === "playbook_derived" ? source.positionId : undefined,
+          unverified: source.kind === "web_derived" || undefined,
+          sourceUrl: source.kind === "web_derived" ? source.sourceUrl : undefined,
+          retrievedAt: source.kind === "web_derived" ? source.retrievedAt : undefined,
         },
-      ],
+      ]),
     };
   }
 
-  if (rule.checkType === "pattern_then_llm_judgment") {
+  if (source.kind === "authored" && rule?.checkType === "pattern_then_llm_judgment") {
     const patternFinding = timeframePatternFinding(
       unit,
       rule,
       applicable,
-      skillId,
-      skillVersion
+      source.skillId,
+      source.ruleVersion
     );
     if (patternFinding) {
+      patternFinding.ruleSourceTier = "B";
       if (patternFinding.status !== "present") {
-        return { state, findings: [...findings, patternFinding] };
+        return { state, findings: mergeFindings(findings, [patternFinding]) };
       }
-      const judged = await llmJudge(
+      const judged = await judgeByScope({
         state,
         unit,
-        rule,
+        source,
+        ruleScope: rule.ruleScope,
+        ruleText,
+        legalHook,
+        label,
         applicable,
         instruction,
-        skillId,
-        skillVersion,
-        hasFocus
-      );
-      return { state, findings: [...findings, judged ?? patternFinding] };
+        hasFocus,
+        checkType: rule.checkType,
+      });
+      return {
+        state,
+        findings: mergeFindings(
+          findings,
+          judged.length > 0 ? judged : [patternFinding]
+        ),
+      };
     }
   }
 
-  const judged = await llmJudge(
+  const judged = await judgeByScope({
     state,
     unit,
-    rule,
+    source,
+    ruleScope: rule?.ruleScope ?? "per_document",
+    ruleText,
+    legalHook,
+    label,
     applicable,
     instruction,
-    skillId,
-    skillVersion,
-    hasFocus
-  );
-  return { state, findings: [...findings, judged] };
+    hasFocus,
+    checkType: rule?.checkType,
+  });
+  return { state, findings: mergeFindings(findings, judged) };
 }
 
 function timeframePatternFinding(
@@ -161,7 +313,7 @@ function timeframePatternFinding(
 ): Finding | null {
   if (rule.ruleId !== "gdpr.art12.3") return null;
   const scan = scanTimeframe(clauses);
-  const category = categoryForRule(rule.ruleId);
+  const category = rule.findingCategory;
 
   if (scan.kind === "numeric" && scan.clause && scan.quote) {
     return {
@@ -170,7 +322,9 @@ function timeframePatternFinding(
       category,
       status: "present",
       claim: `A numeric response timeframe (${scan.quote}) appears in the DSR/assistance clauses.`,
-      evidence: [{ locator: scan.clause.locator, quotedText: scan.quote }],
+      evidence: [
+        { locator: scan.clause.locator, quotedText: scan.quote, sourceRole: "target" },
+      ],
       ruleId: rule.ruleId,
       ruleVersion: skillVersion,
       severity: "low",
@@ -178,6 +332,7 @@ function timeframePatternFinding(
       workUnitId: unit.workUnitId,
       skillId,
       visibility: "user_facing",
+      ruleSourceTier: "B",
     };
   }
 
@@ -188,7 +343,9 @@ function timeframePatternFinding(
       category,
       status: "absent_expected",
       claim: `Art 12(3) requires a one-month (extendable) clock; the agreement only uses vague timing ("${scan.quote}").`,
-      evidence: [{ locator: scan.clause.locator, quotedText: scan.quote }],
+      evidence: [
+        { locator: scan.clause.locator, quotedText: scan.quote, sourceRole: "target" },
+      ],
       ruleId: rule.ruleId,
       ruleVersion: skillVersion,
       severity: "high",
@@ -197,6 +354,7 @@ function timeframePatternFinding(
       skillId,
       visibility: "user_facing",
       gap: "No numeric Art 12(3) timeframe; 'promptly' / 'reasonably' alone is insufficient.",
+      ruleSourceTier: "B",
     };
   }
 
@@ -205,7 +363,8 @@ function timeframePatternFinding(
     kind: "compliance",
     category,
     status: "absent_expected",
-    claim: "No response timeframe for data-subject requests was found in the extracted DSR/assistance clauses.",
+    claim:
+      "No response timeframe for data-subject requests was found in the extracted DSR/assistance clauses.",
     evidence: [],
     ruleId: rule.ruleId,
     ruleVersion: skillVersion,
@@ -215,25 +374,87 @@ function timeframePatternFinding(
     skillId,
     visibility: "user_facing",
     gap: "Art 12(3) one-month clock is unaddressed.",
+    ruleSourceTier: "B",
   };
 }
 
-async function llmJudge(
-  state: AnalysisState,
-  unit: AnalysisWorkUnit,
-  rule: SkillRegimeRule,
-  applicable: ClauseObject[],
-  instruction: string,
-  skillId: string,
-  skillVersion: string,
-  hasFocus: boolean
-): Promise<Finding> {
-  const ruleId = rule.ruleId;
+async function judgeByScope(args: {
+  state: AnalysisState;
+  unit: AnalysisWorkUnit;
+  source: RuleSource;
+  ruleScope: SkillRegimeRule["ruleScope"];
+  ruleText: string;
+  legalHook?: string;
+  label?: string;
+  applicable: ClauseObject[];
+  instruction: string;
+  hasFocus: boolean;
+  checkType?: string;
+}): Promise<Finding[]> {
+  if (args.ruleScope === "per_document") {
+    return [
+      await llmJudge({
+        ...args,
+        findingSuffix: "document",
+      }),
+    ];
+  }
+
+  const findings: Finding[] = [];
+  for (const clause of args.applicable) {
+    findings.push(
+      await llmJudge({
+        ...args,
+        applicable: [clause],
+        findingSuffix: clause.clauseId,
+      })
+    );
+  }
+  return findings;
+}
+
+async function llmJudge(args: {
+  state: AnalysisState;
+  unit: AnalysisWorkUnit;
+  source: RuleSource;
+  ruleScope: SkillRegimeRule["ruleScope"];
+  ruleText: string;
+  legalHook?: string;
+  label?: string;
+  applicable: ClauseObject[];
+  instruction: string;
+  hasFocus: boolean;
+  checkType?: string;
+  findingSuffix?: string;
+}): Promise<Finding> {
+  const {
+    state,
+    unit,
+    source,
+    ruleText,
+    legalHook,
+    label,
+    applicable,
+    instruction,
+    hasFocus,
+    findingSuffix,
+  } = args;
+  const tier = tierFor(source.kind);
+  const ruleKey =
+    source.kind === "authored"
+      ? source.ruleId
+      : source.kind === "playbook_derived"
+        ? source.positionId
+        : "web";
+
   const tracker = state.agent ? { tokensUsed: state.agent.tokensUsed } : undefined;
   const schema = {
     type: "object",
     properties: {
-      status: { type: "string", enum: ["present", "absent_expected", "insufficient_evidence"] },
+      status: {
+        type: "string",
+        enum: ["present", "absent_expected", "insufficient_evidence"],
+      },
       claim: { type: "string" },
       clauseId: { type: "string" },
       quotedText: { type: "string" },
@@ -252,14 +473,26 @@ async function llmJudge(
     gap?: string;
   };
 
+  const tierNote =
+    source.kind === "playbook_derived"
+      ? "This rule text comes from an org-uploaded playbook (not statute). Judge the TARGET document against it."
+      : source.kind === "web_derived"
+        ? "This rule text is unverified web research. Judge carefully; do not over-claim."
+        : "";
+
   try {
     result = await executeJsonCompletion(
       [
-        "Evaluate whether the extracted clauses satisfy the FIXED rule below.",
+        "Evaluate whether the extracted TARGET clauses satisfy the FIXED rule below.",
         "You must NOT reinterpret the rule — only assess compliance against the given rule text.",
+        args.ruleScope === "per_document"
+          ? "This is a PER-DOCUMENT assessment. Evaluate the clause set once as a whole and return exactly one result."
+          : "This is a PER-CLAUSE assessment. Evaluate only the single supplied clause.",
+        tierNote,
         `User instruction (scope the analysis to this question): ${instruction}`,
-        `Rule (${ruleId}${rule.label ? ` — ${rule.label}` : ""}): ${rule.ruleText}`,
-        rule.legalHook ? `Authored legal hook (do not invent a different citation): ${rule.legalHook}` : "",
+        `Rule (${ruleKey}${label ? ` — ${label}` : ""}): ${ruleText}`,
+        legalHook ? `Authored legal hook / source note: ${legalHook}` : "",
+        "When status is present or absent_expected with a quote, quotedText MUST be copied VERBATIM from a clause.",
         `Clauses:\n${JSON.stringify(
           applicable.map((c) => ({
             clauseId: c.clauseId,
@@ -280,7 +513,7 @@ async function llmJudge(
     console.warn("[checkAgainstRule] LLM failed:", err);
     result = {
       status: "insufficient_evidence",
-      claim: `Could not evaluate rule ${ruleId} (LLM unavailable).`,
+      claim: `Could not evaluate rule ${ruleKey} (LLM unavailable).`,
       severity: "medium",
     };
   }
@@ -290,45 +523,99 @@ async function llmJudge(
   }
 
   const evidence: EvidenceSpan[] = [];
+  if (source.kind === "playbook_derived") {
+    evidence.push({
+      locator: source.sourceLocator,
+      quotedText: source.requirementText.slice(0, 400),
+      sourceRole: "reference",
+    });
+  }
+
   if (result.clauseId && result.quotedText) {
     const clause = applicable.find((c) => c.clauseId === result.clauseId);
-    if (clause) {
+    if (clause && clause.text.includes(result.quotedText)) {
       evidence.push({
         locator: clause.locator,
         quotedText: result.quotedText,
+        sourceRole: "target",
       });
     }
   }
 
+  const hasTargetEvidence = evidence.some((item) => item.sourceRole === "target");
+  if (result.status === "present" && !hasTargetEvidence) {
+    result = {
+      ...result,
+      status: "insufficient_evidence",
+      claim: `Could not verify that the target document satisfies rule ${ruleKey}: no verbatim supporting quote was returned.`,
+      gap: "A present finding requires a verbatim target-document quote that entails the claim.",
+      severity: "medium",
+    };
+  }
+
   const restatementOnly =
-    result.status === "present" && !hasFocus && !instruction.trim();
+    source.kind === "authored" && result.status === "present" && !hasFocus && !instruction.trim();
   const visibility: Finding["visibility"] =
-    restatementOnly || (result.status === "present" && !hasFocus && isGenericRestatement(result.claim, rule))
+    restatementOnly ||
+    (source.kind === "authored" &&
+      result.status === "present" &&
+      !hasFocus &&
+      isGenericRestatement(result.claim, ruleText))
       ? "internal"
       : "user_facing";
 
   return {
-    findingId: `f_compliance_${ruleId}_${unit.workUnitId}`,
+    findingId: `f_compliance_${ruleKey}_${unit.workUnitId}_${findingSuffix ?? "result"}`,
     kind: "compliance",
-    category: categoryForRule(ruleId),
+    category:
+      source.kind === "authored"
+        ? source.findingCategory
+        : source.kind === "playbook_derived"
+          ? `playbook.${source.positionId}.gap`
+          : `web.${slugCategory(source.query)}.unverified`,
     status: result.status,
     claim: result.claim,
     evidence,
-    ruleId,
-    ruleVersion: skillVersion,
-    severity: result.severity,
+    ruleId: source.kind === "authored" ? source.ruleId : undefined,
+    ruleVersion: source.kind === "authored" ? source.ruleVersion : undefined,
+    severity:
+      result.severity ??
+      (source.kind === "playbook_derived" ? source.severityIfViolated ?? "medium" : "medium"),
     taxonomyVersion: RISK_TAXONOMY_VERSION,
     workUnitId: unit.workUnitId,
-    skillId,
+    skillId: source.kind === "authored" ? source.skillId : undefined,
     visibility,
     gap: result.gap,
+    ruleSourceTier: tier,
+    playbookPositionId: source.kind === "playbook_derived" ? source.positionId : undefined,
+    unverified: source.kind === "web_derived" || undefined,
+    sourceUrl: source.kind === "web_derived" ? source.sourceUrl : undefined,
+    retrievedAt: source.kind === "web_derived" ? source.retrievedAt : undefined,
   };
 }
 
-function isGenericRestatement(claim: string, rule: SkillRegimeRule): boolean {
+function slugCategory(value: string): string {
+  return (
+    value
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "")
+      .slice(0, 80) || "reference"
+  );
+}
+
+function mergeFindings(existing: Finding[], next: Finding[]): Finding[] {
+  const nextIds = new Set(next.map((finding) => finding.findingId));
+  return [
+    ...existing.filter((finding) => !nextIds.has(finding.findingId)),
+    ...next,
+  ];
+}
+
+function isGenericRestatement(claim: string, ruleText: string): boolean {
   const c = claim.toLowerCase();
-  const r = rule.ruleText.toLowerCase().slice(0, 40);
+  const r = ruleText.toLowerCase().slice(0, 40);
   return c.includes(r) || c.includes("complies with") || c.includes("satisfies the rule");
 }
 
-export { checkAgainstRule, resolveRule };
+export { checkAgainstRule };

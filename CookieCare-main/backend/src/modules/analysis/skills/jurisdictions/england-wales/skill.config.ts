@@ -15,7 +15,7 @@ export const englandWalesJurisdictionSkill: AnalysisSkillConfig = {
   },
   expectedClauses: [],
   riskCategories: [
-    { category: "other_known_risk", guidance: "Other material contractual risk." },
+    { category: "other_known_risk", displayLabel: "Other material contractual risk", guidance: "Other material contractual risk." },
   ],
   regimeRules: [],
   regimeRuleIds: [],

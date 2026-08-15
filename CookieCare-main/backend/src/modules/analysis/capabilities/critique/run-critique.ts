@@ -14,6 +14,7 @@ import { isKnownRiskCategory } from "../../skills/registry.js";
 import { resolveRule } from "../act/check-against-rule.js";
 import { getSpanFromState } from "../act/execute-act-plan.js";
 import { pacLog } from "../../utils/pac-log.js";
+import { getEntailmentCandidates } from "./entailment-candidates.js";
 
 function normalize(s: string): string {
   return s.replace(/\s+/g, " ").trim().toLowerCase();
@@ -61,14 +62,18 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
       continue;
     }
 
-    if (!f.evidence.length && f.kind === "risk" && f.status === "present") {
+    if (
+      !f.evidence.length &&
+      (f.kind === "risk" || f.kind === "compliance") &&
+      f.status === "present"
+    ) {
       results.push({
         itemId: `evidence-missing:${f.findingId}`,
         status: "fail",
         evidenceVerified: false,
         findingId: f.findingId,
         workUnitId: f.workUnitId,
-        detail: "Present risk finding lacks EvidenceSpan",
+        detail: "Present risk/compliance finding lacks EvidenceSpan",
       });
       if (f.workUnitId) {
         fixPlan.push({
@@ -309,14 +314,7 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
   }
 
   // 5 Entailment check (LLM) for present risk/compliance claims with evidence
-  const entailCandidates = findings.filter(
-    (f) =>
-      (f.kind === "risk" || f.kind === "compliance") &&
-      f.status === "present" &&
-      f.evidence.length > 0 &&
-      f.visibility !== "internal" &&
-      !f.unverified
-  );
+  const entailCandidates = getEntailmentCandidates(findings);
   if (entailCandidates.length > 0) {
     pacLog("CRITIQUE entailment ▶ LLM", { candidates: entailCandidates.length });
     const entailResults = await runEntailment(state, entailCandidates);
@@ -390,7 +388,10 @@ async function runEntailment(
           findings.map((f) => ({
             findingId: f.findingId,
             claim: f.claim,
-            quotedText: f.evidence[0]?.quotedText ?? "",
+            quotedEvidence: f.evidence.map((ev) => ({
+              sourceRole: ev.sourceRole,
+              quotedText: ev.quotedText,
+            })),
           }))
         ),
       ].join("\n\n"),
@@ -426,17 +427,25 @@ async function runEntailment(
       return { result, fix };
     });
   } catch (err) {
-    console.warn("[runCritique] entailment LLM failed; skipping:", err);
-    return findings.map((f) => ({
-      result: {
+    console.warn("[runCritique] entailment LLM failed; treating present claims as unverified:", err);
+    return findings.map((f) => {
+      const result: CritiqueResult = {
         itemId: `entail:${f.findingId}`,
-        status: "ambiguous" as const,
-        evidenceVerified: true,
+        status: "fail",
+        evidenceVerified: false,
         findingId: f.findingId,
         workUnitId: f.workUnitId,
-        detail: "Entailment check skipped (LLM unavailable)",
-      },
-    }));
+        detail: "Entailment check failed (LLM unavailable); present claim not verified",
+      };
+      const fix = f.workUnitId
+        ? {
+            workUnitId: f.workUnitId,
+            instruction: `Re-verify entailment for ${f.findingId}; prior entailment LLM call failed`,
+            sourceItemId: f.findingId,
+          }
+        : undefined;
+      return { result, fix };
+    });
   }
 }
 

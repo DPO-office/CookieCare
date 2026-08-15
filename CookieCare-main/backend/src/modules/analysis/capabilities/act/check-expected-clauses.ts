@@ -99,7 +99,9 @@ function orgOverrideFindings(
       category: "other_known_risk",
       status: clause ? "present" : "absent_expected",
       claim: `Org playbook: ${rule.overrideNote}`,
-      evidence: clause ? [{ locator: clause.locator, quotedText: clause.text.slice(0, 400) }] : [],
+      evidence: clause
+        ? [{ locator: clause.locator, quotedText: clause.text.slice(0, 400), sourceRole: "target" }]
+        : [],
       severity: rule.overrideSeverity ?? "medium",
       taxonomyVersion: RISK_TAXONOMY_VERSION,
       workUnitId: unit.workUnitId,

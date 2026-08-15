@@ -195,6 +195,22 @@ export async function applyUserAnswers(
     next = { ...next, intent };
   }
 
+  if (fieldAnswers.documentRoles) {
+    const roles = parseDocumentRoleAnswer(
+      fieldAnswers.documentRoles,
+      next.request.documentIds
+    );
+    if (Object.keys(roles).length) {
+      next = {
+        ...next,
+        request: {
+          ...next.request,
+          documentRoles: { ...next.request.documentRoles, ...roles },
+        },
+      };
+    }
+  }
+
   next = {
     ...next,
     clarificationRequest: undefined,
@@ -210,4 +226,22 @@ export async function applyUserAnswers(
   };
 
   return next;
+}
+
+function parseDocumentRoleAnswer(
+  raw: string,
+  documentIds: string[]
+): Record<string, "target" | "reference"> {
+  const roles: Record<string, "target" | "reference"> = {};
+  const parts = raw.split(/[;,\n]+/).map((p) => p.trim()).filter(Boolean);
+  for (const part of parts) {
+    const m = /^([^:]+):(target|reference)$/i.exec(part);
+    if (!m) continue;
+    const id = m[1].trim();
+    const role = m[2].toLowerCase() as "target" | "reference";
+    if (documentIds.includes(id) || documentIds.length === 0) {
+      roles[id] = role;
+    }
+  }
+  return roles;
 }

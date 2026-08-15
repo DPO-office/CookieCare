@@ -48,6 +48,7 @@ export default function InteractAnalyze({
   const [promptLibraryId, setPromptLibraryId] = useState<string | undefined>();
   const [documentMode, setDocumentMode] = useState<DocumentMode>("unified");
   const [answerStyle, setAnswerStyle] = useState<AnswerStyle>("narrative");
+  const [playbookDocId, setPlaybookDocId] = useState<string | null>(null);
   const [chatInput, setChatInput] = useState("");
   const [validationMessage, setValidationMessage] = useState("");
 
@@ -96,7 +97,8 @@ export default function InteractAnalyze({
       customPromptText,
       documentMode,
       answerStyle,
-      promptLibraryId
+      promptLibraryId,
+      playbookDocId
     );
   };
 
@@ -225,8 +227,13 @@ export default function InteractAnalyze({
               onOpenPrompts={() => setPromptModalOpen(true)}
               onOpenQuestions={() => setQuestionModalOpen(true)}
               documents={selectedDocuments}
-              onRemoveDocument={(doc) =>
-                deselectDocument(doc.id, doc.type, doc.folderId)
+              onRemoveDocument={(doc) => {
+                if (playbookDocId === doc.id) setPlaybookDocId(null);
+                deselectDocument(doc.id, doc.type, doc.folderId);
+              }}
+              playbookDocId={playbookDocId}
+              onTogglePlaybook={(doc) =>
+                setPlaybookDocId((prev) => (prev === doc.id ? null : doc.id))
               }
               documentMode={documentMode}
               answerStyle={answerStyle}

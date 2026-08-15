@@ -1,22 +1,40 @@
 import type { InstructionFocus } from "../models/analysis-plan.js";
 import type { AnalysisSkillConfig } from "./types.js";
+import { pacWarn } from "../utils/pac-log.js";
 
-function normalize(text: string): string {
+/** Shared normalization for all deterministic instruction-focus matching. */
+export function normalizeForMatch(text: string): string {
   return text
     .toLowerCase()
-    .replace(/[\u2010-\u2015]/g, "-")
+    .replace(/[\u2010-\u2015\u2212]/g, "-")
+    .replace(/\s*-\s*/g, "-")
     .replace(/\s+/g, " ")
     .trim();
 }
 
 function containsPhrase(haystack: string, phrase: string): boolean {
-  const needle = normalize(phrase);
+  const needle = normalizeForMatch(phrase);
   if (!needle) return false;
   if (haystack.includes(needle)) return true;
-  // "15-22" also matches "15 to 22"
+
+  // A range trigger such as "15-22" also matches "15 to 22" and an
+  // enumerated sequence such as "15, 16, 17, 18, 19, 20, 21, 22".
   if (/^\d+\s*-\s*\d+$/.test(needle)) {
     const [a, b] = needle.split("-").map((s) => s.trim());
     if (haystack.includes(`${a} to ${b}`) || haystack.includes(`${a}-${b}`)) return true;
+    const numbers = new Set(haystack.match(/\b\d+\b/g) ?? []);
+    const start = Number(a);
+    const end = Number(b);
+    if (
+      Number.isInteger(start) &&
+      Number.isInteger(end) &&
+      end >= start &&
+      Array.from({ length: end - start + 1 }, (_, index) => String(start + index)).every(
+        (value) => numbers.has(value)
+      )
+    ) {
+      return true;
+    }
   }
   return false;
 }
@@ -33,7 +51,7 @@ export function extractInstructionFocus(
   instruction: string,
   skills: AnalysisSkillConfig[]
 ): InstructionFocus | undefined {
-  const haystack = normalize(instruction);
+  const haystack = normalizeForMatch(instruction);
   if (!haystack) return undefined;
 
   const ruleIds: string[] = [];
@@ -51,7 +69,18 @@ export function extractInstructionFocus(
     }
   }
 
-  if (!matched) return undefined;
+  if (!matched) {
+    const mappedSkillIds = skills
+      .filter((skill) => (skill.instructionFocusMap?.length ?? 0) > 0)
+      .map((skill) => skill.skillId);
+    if (mappedSkillIds.length > 0) {
+      pacWarn("focus map present but no match — running full skill", {
+        skills: mappedSkillIds,
+        instruction,
+      });
+    }
+    return undefined;
+  }
 
   return {
     ruleIds: dedupe(ruleIds),

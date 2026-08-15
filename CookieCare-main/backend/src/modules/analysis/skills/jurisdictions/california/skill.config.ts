@@ -21,10 +21,11 @@ export const californiaJurisdictionSkill: AnalysisSkillConfig = {
   riskCategories: [
     {
       category: "ca_non_compete_unenforceable",
+      displayLabel: "California non-compete unenforceability",
       guidance:
         "California generally voids employee non-competes (Bus. & Prof. Code §16600); flag as likely unenforceable.",
     },
-    { category: "other_known_risk", guidance: "Other material contractual risk." },
+    { category: "other_known_risk", displayLabel: "Other material contractual risk", guidance: "Other material contractual risk." },
   ],
   regimeRules: [],
   regimeRuleIds: [],

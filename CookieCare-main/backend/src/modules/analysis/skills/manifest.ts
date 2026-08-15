@@ -43,11 +43,11 @@ export const skillManifest: SkillManifestEntry[] = [
     skillId: "regimes/data-protection/gdpr",
     axis: "regime",
     status: "published",
-    version: "1.1.0",
+    version: "2.0.1",
     owner: "analysis",
     lastReviewedAt: "2026-08-14",
     coverageNote:
-      "Art 28(3)(a)(b)(e)(h) + Art 12(3) + Arts 15–22 matrix authored; other Art 28(3) letters pending.",
+      "EU GDPR Articles 1–99 reviewed; private controller/processor obligations and data-subject rights authored (v2.0.1 adds breach escalation/records, adequacy, BCR, complaint right, and conditional code/cert transfer rules). Chapters VI–VII and public/institutional duties excluded. UK coverage remains partial because the supplied UK PDF is only S.I. 2023/1417, not the consolidated UK GDPR.",
   },
   {
     skillId: "jurisdictions/delaware",
