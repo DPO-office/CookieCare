@@ -62,7 +62,7 @@ export function ChatView({
           <div className="flex items-center gap-2.5">
             <Scale className="w-3.5 h-3.5" style={{ color: "#D1D5DB" }} />
             <span className="text-[12.5px]" style={{ color: "#9CA3AF", fontWeight: 400 }}>
-              {activeWorkflow ? activeWorkflow.label : "RandTrust AI"}
+              {activeWorkflow ? activeWorkflow.label : "LORA AI"}
             </span>
             {activeWorkflow && (
               <span

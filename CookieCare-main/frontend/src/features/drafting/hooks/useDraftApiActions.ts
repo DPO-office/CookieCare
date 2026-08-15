@@ -222,7 +222,7 @@ export function useDraftApiActions({
 
   const handleExportDoc = async (selectedDoc: LegalDocument | null, selectedTemplateName: string | null, editorContent: string) => {
     try {
-      const exportTitle = selectedDoc?.title || selectedTemplateName || "randtrust Draft";
+      const exportTitle = selectedDoc?.title || selectedTemplateName || "LORA Draft";
       const res = await fetch(apiUrl("/api/documents/export"), {
         method: "POST",
         headers: {
@@ -260,7 +260,7 @@ export function useDraftApiActions({
 
   const handlePrintDoc = async (selectedDoc: LegalDocument | null, selectedTemplateName: string | null, editorContent: string) => {
     try {
-      const exportTitle = selectedDoc?.title || selectedTemplateName || "randtrust Draft";
+      const exportTitle = selectedDoc?.title || selectedTemplateName || "LORA Draft";
       const res = await fetch(apiUrl("/api/documents/export"), {
         method: "POST",
         headers: {

@@ -16,13 +16,13 @@ const navBtnStyle = (disabled: boolean): React.CSSProperties => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  borderRadius: 8,
-  background: "#FFFFFF",
-  border: "1px solid var(--border)",
-  color: disabled ? "var(--text-faint)" : "var(--text-secondary)",
+  borderRadius: 999,
+  background: disabled ? "#F7F8FB" : "#FFFFFF",
+  border: "none",
+  boxShadow: disabled ? "none" : "0 1px 2px rgba(16,24,40,0.04), 0 0 0 1px rgba(16,24,40,0.06)",
+  color: disabled ? "#98A2B3" : "#667085",
   cursor: disabled ? "not-allowed" : "pointer",
-  opacity: disabled ? 0.4 : 1,
-  transition: "background 150ms ease, border-color 150ms ease, color 150ms ease",
+  opacity: disabled ? 0.7 : 1,
 });
 
 export function PaginationFooter({

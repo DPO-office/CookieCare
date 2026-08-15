@@ -22,16 +22,8 @@ export function ComposerDocumentCard({ document: doc, onRemove }: ComposerDocume
   const Icon = docIcon(doc.type);
 
   return (
-    <span
-      className="inline-flex items-center gap-1.5 pl-2.5 pr-1 py-1 rounded-md text-[11px] font-medium select-none max-w-[11rem]"
-      style={{
-        background: "#EBF2FD",
-        border: "1px solid #BFDBFE",
-        color: "#1A5BAD",
-        lineHeight: 1,
-      }}
-    >
-      <Icon className="w-2.5 h-2.5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
+    <span className="score-badge max-w-[11rem] select-none bg-[#EEF2FF] text-[11px] font-medium text-[#4F5BD9]">
+      <Icon className="h-3 w-3 shrink-0" strokeWidth={1.75} aria-hidden="true" />
       <span className="truncate" title={doc.title}>
         {doc.title}
       </span>
@@ -42,16 +34,9 @@ export function ComposerDocumentCard({ document: doc, onRemove }: ComposerDocume
           onRemove();
         }}
         aria-label={`Remove ${doc.title}`}
-        className="w-4 h-4 flex items-center justify-center rounded transition-colors duration-100 cursor-pointer ml-0.5 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#2175D9]"
-        style={{ color: "#93C5FD" }}
-        onMouseEnter={(e) => {
-          (e.currentTarget as HTMLElement).style.color = "#DC2626";
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLElement).style.color = "#93C5FD";
-        }}
+        className="ml-0.5 flex h-4 w-4 cursor-pointer items-center justify-center rounded-full text-[#4F5BD9] transition-colors hover:bg-white/70 hover:text-[#B54A45] focus-visible:outline-none"
       >
-        <X className="w-2.5 h-2.5" strokeWidth={2} aria-hidden="true" />
+        <X className="h-2.5 w-2.5" strokeWidth={2} aria-hidden="true" />
       </button>
     </span>
   );

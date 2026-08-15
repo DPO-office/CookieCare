@@ -22,7 +22,7 @@ function nowFormatted(): string {
 export function adaptDPAResult(
   result: DPAReviewResult,
   fileName: string,
-  generatedBy = "randtrust AI"
+  generatedBy = "LORA AI"
 ): EnterpriseReportData {
   const findings: ReportFinding[] = result.findings.map((f) => ({
     id:               f.id,
@@ -81,7 +81,7 @@ export function adaptDPAResult(
 export function adaptVendorResult(
   result: VendorReviewResult,
   fileNames: string[],
-  generatedBy = "randtrust AI"
+  generatedBy = "LORA AI"
 ): EnterpriseReportData {
   const findings: ReportFinding[] = result.findings.map((f) => ({
     id:             f.id,
@@ -133,7 +133,7 @@ export function adaptVendorResult(
 export function adaptEthicsResult(
   result: AIEthicsReviewResult,
   fileNames: string[],
-  generatedBy = "randtrust AI"
+  generatedBy = "LORA AI"
 ): EnterpriseReportData {
   const findings: ReportFinding[] = result.findings.map((f) => ({
     id:             f.id,
@@ -196,7 +196,7 @@ import type { ScanResult as VulnScanResult, AiSecurityReport } from "../../featu
 export function adaptVulnResult(
   result: VulnScanResult,
   url: string,
-  generatedBy = "randtrust AI"
+  generatedBy = "LORA AI"
 ): EnterpriseReportData {
   const findings: ReportFinding[] = result.findings.map((f, i) => ({
     id:             `vuln-${i}`,
@@ -259,7 +259,7 @@ import type { CookieScanResult } from "../../shared/types";
 
 export function adaptCookieResult(
   result: CookieScanResult,
-  generatedBy = "randtrust AI"
+  generatedBy = "LORA AI"
 ): EnterpriseReportData {
   const findings: ReportFinding[] = result.complianceGaps.map((g, i) => ({
     id:             g.id ?? `gap-${i}`,

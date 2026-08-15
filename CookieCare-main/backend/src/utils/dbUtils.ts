@@ -21,11 +21,17 @@ export async function withTransaction<T>(
     const result = await fn(client);
 
     await client.query("COMMIT");
+    client.release();
     return result;
   } catch (err) {
-    await client.query("ROLLBACK");
+    try {
+      await client.query("ROLLBACK");
+    } catch {
+      // Connection may already be gone (terminated unexpectedly).
+    }
+    // Passing the error discards the client instead of returning a dead
+    // connection to the pool.
+    client.release(err instanceof Error ? err : new Error(String(err)));
     throw err;
-  } finally {
-    client.release();
   }
 }

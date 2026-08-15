@@ -1,7 +1,7 @@
 ﻿import React from "react";
-import { Globe, Layers, Sparkles, RefreshCw, Play } from "lucide-react";
+import { Globe, Layers, Sparkles, RefreshCw, Play, ChevronDown } from "lucide-react";
 import { ScanDepth } from "../types";
-import { SCAN_DEPTHS } from "../constants";
+import { CARD_SHADOW, SCAN_DEPTHS } from "../constants";
 
 interface ScanFormProps {
   url: string;
@@ -12,16 +12,33 @@ interface ScanFormProps {
   onSubmit: (e: React.FormEvent) => void;
 }
 
-export default function ScanForm({ url, scanDepth, scanning, onUrlChange, onDepthChange, onSubmit }: ScanFormProps) {
+const fieldClass =
+  "w-full rounded-[16px] border-none bg-[#F7F8FB] py-2.5 pl-10 pr-4 text-[13px] text-[#1a1a1a] outline-none transition focus:bg-white focus:shadow-[0_0_0_1.5px_#8e98ff,0_8px_24px_rgba(96,107,235,0.08)] disabled:opacity-50";
+
+export default function ScanForm({
+  url,
+  scanDepth,
+  scanning,
+  onUrlChange,
+  onDepthChange,
+  onSubmit,
+}: ScanFormProps) {
   return (
-    <div className="bg-white border border-gray-200 rounded-[18px] shadow-xs p-7 mb-8">
-      <h2 className="font-bold text-[14px] text-gray-900 mb-5">Audit settings</h2>
+    <div className="mb-8 rounded-[24px] bg-white p-7" style={{ boxShadow: CARD_SHADOW }}>
+      <h2 className="mb-5 text-[15px] font-semibold tracking-[-0.02em] text-[#1a1a1a]">
+        Audit settings
+      </h2>
       <form onSubmit={onSubmit} className="space-y-5">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-end">
+        <div className="grid grid-cols-1 items-end gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            <label className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Website URL</label>
+            <label
+              htmlFor="scan-url"
+              className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.12em] text-[#98A2B3]"
+            >
+              Website URL
+            </label>
             <div className="relative">
-              <Globe className="absolute left-3.5 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
+              <Globe className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#4F5BD9]" />
               <input
                 id="scan-url"
                 type="text"
@@ -30,42 +47,59 @@ export default function ScanForm({ url, scanDepth, scanning, onUrlChange, onDept
                 value={url}
                 onChange={(e) => onUrlChange(e.target.value)}
                 placeholder="e.g. www.example.com"
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 pl-10 pr-4 text-[13px] text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-gray-100 focus:border-gray-300 transition"
+                className={fieldClass}
               />
             </div>
           </div>
           <div>
-            <label className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">Scan depth</label>
+            <label
+              htmlFor="scan-depth"
+              className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.12em] text-[#98A2B3]"
+            >
+              Scan depth
+            </label>
             <div className="relative">
-              <Layers className="absolute left-3.5 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
+              <Layers className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#4F5BD9]" />
               <select
                 id="scan-depth"
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 pl-10 pr-4 text-[13px] text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-gray-100 focus:border-gray-300 transition appearance-none cursor-pointer"
+                className={`${fieldClass} cursor-pointer appearance-none pr-9`}
                 value={scanDepth}
+                disabled={scanning}
                 onChange={(e) => onDepthChange(e.target.value as ScanDepth)}
               >
                 {SCAN_DEPTHS.map((d) => (
-                  <option key={d.value} value={d.value}>{d.label}</option>
+                  <option key={d.value} value={d.value}>
+                    {d.label}
+                  </option>
                 ))}
               </select>
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#98A2B3]" />
             </div>
           </div>
         </div>
-        <div className="flex items-center justify-between pt-1">
-          <div className="flex items-center gap-2 text-[12px] text-gray-400">
-            <Sparkles className="w-3.5 h-3.5" />
+        <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2 text-[12px] text-[#667085]">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF] text-[#4F5BD9]">
+              <Sparkles className="h-3.5 w-3.5" strokeWidth={1.75} />
+            </span>
             <span>Includes consent bypass checking and dynamic policy matching.</span>
           </div>
           <button
             id="start-scanning-btn"
             type="submit"
             disabled={scanning}
-            className="inline-flex items-center gap-2 text-white hover:opacity-90 rounded-xl py-2.5 px-6 text-[13px] font-semibold transition shadow-xs hover:shadow-sm disabled:opacity-50 cursor-pointer" style={{ background: "#2175D9" }}
+            className="primary-gradient inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full border-none px-6 text-[13px] font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
           >
             {scanning ? (
-              <><RefreshCw className="w-4 h-4 animate-spin" /><span>Scanning...</span></>
+              <>
+                <RefreshCw className="h-4 w-4 animate-spin" />
+                Scanning…
+              </>
             ) : (
-              <><Play className="w-3.5 h-3.5 fill-current" /><span>Run audit</span></>
+              <>
+                <Play className="h-3.5 w-3.5 fill-current" />
+                Run audit
+              </>
             )}
           </button>
         </div>
@@ -73,6 +107,3 @@ export default function ScanForm({ url, scanDepth, scanning, onUrlChange, onDept
     </div>
   );
 }
-
-
-

@@ -1,16 +1,14 @@
 import { useState, useEffect } from "react";
-import {
-  ChevronDown,
-  LogOut,
-  PanelLeftClose,
-  PanelLeftOpen,
-} from "lucide-react";
+import { ChevronDown, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { BrandLogo } from "../../components/BrandLogo";
 import { buildNav, isNavGroup } from "./navConfig";
 import { useSidebar } from "./hooks/useSidebar";
 import { SidebarPrimitive, SidebarInset } from "./SidebarPrimitives";
 import { THEME } from "./sidebarTheme";
 import type { NavGroup, NavItem, NavLeaf } from "./navConfig";
+
+const FADE =
+  "overflow-hidden whitespace-nowrap transition-opacity duration-200 ease-out group-data-[state=collapsed]:pointer-events-none group-data-[state=collapsed]:opacity-0";
 
 export { SidebarInset };
 
@@ -25,18 +23,30 @@ interface AppSidebarProps {
 function Tooltip({ label }: { label: string }) {
   return (
     <div
-      className="pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-2.5 z-50
-                 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-[11.5px] font-medium
-                 shadow-lg select-none"
-      style={{ background: "#18181B", color: "#FAFAFA" }}
+      className="pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2
+                 whitespace-nowrap rounded-md px-2 py-1 text-[11px] font-medium tracking-[-0.01em]
+                 select-none"
+      style={{
+        background: "#18181B",
+        color: "#FAFAFA",
+        boxShadow: "0 8px 24px rgba(16,24,40,0.18), 0 0 0 1px rgba(16,24,40,0.08)",
+      }}
     >
       {label}
-      <span
-        className="absolute right-full top-1/2 -translate-y-1/2 border-[5px] border-transparent"
-        style={{ borderRightColor: "#18181B" }}
-      />
     </div>
   );
+}
+
+function navSurface(active: boolean, collapsed = false): React.CSSProperties {
+  return {
+    border: "none",
+    borderRadius: collapsed ? 999 : 999,
+    background: active ? THEME.itemActive : "transparent",
+    boxShadow: active ? THEME.itemActiveShadow : "none",
+    color: active ? THEME.itemActiveText : THEME.itemIdle,
+    fontWeight: active ? 600 : 500,
+    transition: "background 160ms ease, color 160ms ease, box-shadow 160ms ease",
+  };
 }
 
 function NavButton({
@@ -55,25 +65,25 @@ function NavButton({
   const [tip, setTip] = useState(false);
 
   return (
-    <div className="relative">
+    <div className={`relative ${collapsed ? "flex justify-center" : ""}`}>
       <button
         type="button"
         onClick={onClick}
-        className="flex w-full items-center outline-none select-none"
+        title={collapsed ? label : undefined}
+        className="flex cursor-pointer items-center outline-none select-none"
         style={{
-          minHeight: 38,
-          gap: collapsed ? 0 : 12,
-          paddingLeft: collapsed ? 0 : 12,
+          width: collapsed ? 36 : "100%",
+          height: collapsed ? 36 : undefined,
+          minHeight: collapsed ? 36 : 40,
+          gap: collapsed ? 0 : 10,
+          paddingLeft: collapsed ? 0 : 10,
           paddingRight: collapsed ? 0 : 12,
-          paddingTop: 8,
-          paddingBottom: 8,
+          paddingTop: collapsed ? 0 : 8,
+          paddingBottom: collapsed ? 0 : 8,
           justifyContent: collapsed ? "center" : "flex-start",
-          borderRadius: 12,
-          background: active ? THEME.itemActive : "transparent",
-          color: active ? THEME.itemActiveText : THEME.textSecondary,
-          fontSize: 14,
-          fontWeight: active ? 500 : 400,
-          transition: "background 150ms ease, color 150ms ease",
+          fontSize: 13,
+          letterSpacing: "-0.015em",
+          ...navSurface(active, collapsed),
         }}
         onMouseEnter={(e) => {
           if (!active) {
@@ -85,22 +95,24 @@ function NavButton({
         onMouseLeave={(e) => {
           if (!active) {
             e.currentTarget.style.background = "transparent";
-            e.currentTarget.style.color = THEME.textSecondary;
+            e.currentTarget.style.color = THEME.itemIdle;
           }
           setTip(false);
         }}
       >
         <Icon
           style={{
-            width: 18,
-            height: 18,
+            width: collapsed ? 16 : 17,
+            height: collapsed ? 16 : 17,
             flexShrink: 0,
-            color: active ? THEME.itemActiveIcon : THEME.textSecondary,
+            color: active ? THEME.itemActiveIcon : THEME.itemIdleIcon,
           }}
-          strokeWidth={1.75}
+          strokeWidth={active ? 1.9 : 1.7}
         />
         {!collapsed && (
-          <span className="flex-1 min-w-0 text-left leading-snug whitespace-normal">{label}</span>
+          <span className={`min-w-0 flex-1 text-left leading-snug ${FADE}`}>
+            {label}
+          </span>
         )}
       </button>
       {collapsed && tip && <Tooltip label={label} />}
@@ -111,57 +123,68 @@ function NavButton({
 function ChildNavButton({
   child,
   active,
+  collapsed,
   onClick,
 }: {
   child: NavLeaf;
   active: boolean;
+  collapsed?: boolean;
   onClick: () => void;
 }) {
   const Icon = child.icon;
+  const [tip, setTip] = useState(false);
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="flex w-full items-start outline-none select-none"
-      style={{
-        minHeight: 36,
-        gap: 12,
-        paddingLeft: 12,
-        paddingRight: 12,
-        paddingTop: 8,
-        paddingBottom: 8,
-        borderRadius: 12,
-        background: active ? THEME.itemActive : "transparent",
-        color: active ? THEME.itemActiveText : THEME.textSecondary,
-        fontSize: 14,
-        fontWeight: active ? 500 : 400,
-        transition: "background 150ms ease, color 150ms ease",
-      }}
-      onMouseEnter={(e) => {
-        if (!active) {
-          e.currentTarget.style.background = THEME.itemHover;
-          e.currentTarget.style.color = THEME.itemHoverText;
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (!active) {
-          e.currentTarget.style.background = "transparent";
-          e.currentTarget.style.color = THEME.textSecondary;
-        }
-      }}
-    >
-      <Icon
+    <div className={`relative ${collapsed ? "flex justify-center" : ""}`}>
+      <button
+        type="button"
+        onClick={onClick}
+        title={collapsed ? child.label : undefined}
+        className="flex cursor-pointer items-center outline-none select-none"
         style={{
-          width: 18,
-          height: 18,
-          flexShrink: 0,
-          marginTop: 1,
-          color: active ? THEME.itemActiveIcon : THEME.textMuted,
+          width: collapsed ? 36 : "100%",
+          height: collapsed ? 36 : undefined,
+          minHeight: collapsed ? 36 : 38,
+          gap: collapsed ? 0 : 10,
+          paddingLeft: collapsed ? 0 : 10,
+          paddingRight: collapsed ? 0 : 12,
+          paddingTop: collapsed ? 0 : 7,
+          paddingBottom: collapsed ? 0 : 7,
+          justifyContent: collapsed ? "center" : "flex-start",
+          fontSize: 13,
+          letterSpacing: "-0.015em",
+          ...navSurface(active, collapsed),
         }}
-        strokeWidth={1.75}
-      />
-      <span className="flex-1 min-w-0 text-left leading-snug whitespace-normal">{child.label}</span>
-    </button>
+        onMouseEnter={(e) => {
+          if (!active) {
+            e.currentTarget.style.background = THEME.itemHover;
+            e.currentTarget.style.color = THEME.itemHoverText;
+          }
+          if (collapsed) setTip(true);
+        }}
+        onMouseLeave={(e) => {
+          if (!active) {
+            e.currentTarget.style.background = "transparent";
+            e.currentTarget.style.color = THEME.itemIdle;
+          }
+          setTip(false);
+        }}
+      >
+        <Icon
+          style={{
+            width: 16,
+            height: 16,
+            flexShrink: 0,
+            color: active ? THEME.itemActiveIcon : THEME.itemIdleIcon,
+          }}
+          strokeWidth={active ? 1.9 : 1.7}
+        />
+        {!collapsed && (
+          <span className={`min-w-0 flex-1 text-left leading-snug ${FADE}`}>{child.label}</span>
+        )}
+      </button>
+      {collapsed && tip && <Tooltip label={child.label} />}
+    </div>
   );
 }
 
@@ -178,8 +201,6 @@ function SectionGroup({
 }) {
   const sectionActive = group.children.some((c) => c.id === activeTab);
   const [open, setOpen] = useState(sectionActive);
-  const { setOpen: setSidebarOpen } = useSidebar();
-  const [tip, setTip] = useState(false);
 
   useEffect(() => {
     if (sectionActive) setOpen(true);
@@ -189,35 +210,24 @@ function SectionGroup({
 
   if (collapsed) {
     return (
-      <div className="relative">
-        <button
-          type="button"
-          onClick={() => setSidebarOpen(true)}
-          className="flex items-center justify-center outline-none select-none"
+      <div className="flex w-full flex-col items-center gap-0.5">
+        <div
           style={{
-            width: 40,
-            height: 40,
-            borderRadius: 12,
-            background: sectionActive ? THEME.itemActive : "transparent",
-            color: sectionActive ? THEME.itemActiveText : THEME.textSecondary,
-            transition: "background 150ms ease, color 150ms ease",
+            width: 16,
+            height: 1,
+            margin: "8px 0 6px",
+            background: THEME.border,
           }}
-          onMouseEnter={(e) => {
-            if (!sectionActive) {
-              e.currentTarget.style.background = THEME.itemHover;
-            }
-            setTip(true);
-          }}
-          onMouseLeave={(e) => {
-            if (!sectionActive) {
-              e.currentTarget.style.background = "transparent";
-            }
-            setTip(false);
-          }}
-        >
-          <Icon style={{ width: 18, height: 18 }} strokeWidth={1.75} />
-        </button>
-        {tip && <Tooltip label={group.label} />}
+        />
+        {group.children.map((child) => (
+          <ChildNavButton
+            key={child.id}
+            child={child}
+            active={activeTab === child.id}
+            collapsed
+            onClick={() => setActiveTab(child.id)}
+          />
+        ))}
       </div>
     );
   }
@@ -227,32 +237,50 @@ function SectionGroup({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between outline-none select-none mb-1.5"
+        className="mb-1 flex w-full cursor-pointer items-center outline-none select-none"
         style={{
-          height: 28,
-          paddingLeft: 4,
-          paddingRight: 4,
+          minHeight: 38,
+          paddingLeft: 10,
+          paddingRight: 8,
+          gap: 10,
           color: THEME.sectionLabel,
-          transition: "color 150ms ease",
+          background: "transparent",
+          borderRadius: 12,
+          transition: "background 160ms ease, color 160ms ease",
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.color = THEME.textMuted;
+          e.currentTarget.style.color = THEME.itemIdle;
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.color = THEME.sectionLabel;
         }}
       >
-        <span className="flex items-center gap-1.5 min-w-0">
+        <Icon
+          style={{
+            width: 16,
+            height: 16,
+            flexShrink: 0,
+            color: THEME.itemIdleIcon,
+          }}
+          strokeWidth={1.7}
+        />
+        <span className={`flex min-w-0 flex-1 items-center justify-between gap-1.5 ${FADE}`}>
           <span
-            className="text-left leading-snug whitespace-normal"
-            style={{ fontSize: 13, fontWeight: 500 }}
+            className="text-left leading-none uppercase"
+            style={{
+              fontSize: 10,
+              fontWeight: 600,
+              letterSpacing: "0.12em",
+            }}
           >
             {group.label}
           </span>
           <ChevronDown
             style={{
-              width: 14,
-              height: 14,
+              width: 12,
+              height: 12,
+              flexShrink: 0,
+              opacity: 0.7,
               transform: open ? "rotate(0deg)" : "rotate(-90deg)",
               transition: "transform 180ms ease",
             }}
@@ -265,13 +293,12 @@ function SectionGroup({
         style={{
           display: "grid",
           gridTemplateRows: open ? "1fr" : "0fr",
-          opacity: open ? 1 : 0,
-          transition: "grid-template-rows 200ms ease, opacity 150ms ease",
+          transition: "grid-template-rows 200ms ease",
           overflow: "hidden",
         }}
       >
         <div style={{ minHeight: 0, overflow: "hidden" }}>
-          <div className="flex flex-col gap-0.5">
+          <div className="flex flex-col gap-1">
             {group.children.map((child) => (
               <ChildNavButton
                 key={child.id}
@@ -288,54 +315,58 @@ function SectionGroup({
 }
 
 function WorkspaceHeader({ collapsed }: { collapsed: boolean }) {
-  const { toggleSidebar, isMobile } = useSidebar();
-
-  if (collapsed) {
-    return (
-      <div className="flex flex-col items-center pt-4 pb-3 gap-3">
-        <BrandLogo size="sm" iconOnly />
-        {!isMobile && (
-          <button
-            type="button"
-            onClick={toggleSidebar}
-            className="flex items-center justify-center rounded-lg outline-none"
-            style={{ width: 32, height: 32, color: THEME.textMuted }}
-            aria-label="Expand sidebar"
-          >
-            <PanelLeftOpen style={{ width: 16, height: 16 }} strokeWidth={1.75} />
-          </button>
-        )}
+  return (
+    <div
+      className={
+        collapsed
+          ? "flex flex-col items-center px-0 pt-3 pb-2.5"
+          : "flex items-start gap-2 px-3 pt-4 pb-3.5"
+      }
+      style={{ borderBottom: `1px solid ${THEME.border}` }}
+    >
+      <div className={collapsed ? "flex justify-center" : "min-w-0 flex-1"}>
+        <BrandLogo
+          size={collapsed ? "sm" : "md"}
+          iconOnly={collapsed}
+          tagline={collapsed ? undefined : "Legal Operations & Risk Assistant"}
+          wordmarkColor="#0F1941"
+          wordmarkClassName="lora-sidebar-wordmark"
+        />
       </div>
-    );
-  }
+      {!collapsed && (
+        <div className="mt-0.5 shrink-0">
+          <SidebarToggleBtn />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SidebarToggleBtn({ className = "" }: { className?: string }) {
+  const { toggleSidebar, isMobile, state } = useSidebar();
+  if (isMobile) return null;
+
+  const collapsed = state === "collapsed";
+  const Icon = collapsed ? PanelLeftOpen : PanelLeftClose;
 
   return (
-    <div className="px-4 pt-4 pb-3">
-      <div className="flex items-center justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <BrandLogo size="sm" />
-        </div>
-        <div className="flex items-center gap-0.5 shrink-0">
-          {!isMobile && (
-            <button
-              type="button"
-              onClick={toggleSidebar}
-              className="flex items-center justify-center rounded-lg outline-none"
-              style={{ width: 30, height: 30, color: THEME.textMuted }}
-              aria-label="Collapse sidebar"
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = THEME.itemHover;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "transparent";
-              }}
-            >
-              <PanelLeftClose style={{ width: 16, height: 16 }} strokeWidth={1.75} />
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
+    <button
+      type="button"
+      onClick={toggleSidebar}
+      className={`flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg outline-none ${className}`}
+      style={{ color: THEME.textMuted }}
+      aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = THEME.itemHover;
+        e.currentTarget.style.color = THEME.itemIdle;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "transparent";
+        e.currentTarget.style.color = THEME.textMuted;
+      }}
+    >
+      <Icon style={{ width: 16, height: 16 }} strokeWidth={1.7} />
+    </button>
   );
 }
 
@@ -357,96 +388,74 @@ function UserArea({
     .join("")
     .toUpperCase();
 
-  if (collapsed) {
-    return (
-      <div className="flex flex-col items-center gap-2 py-4" style={{ borderTop: `1px solid ${THEME.border}` }}>
-        <div
-          title={`${user.name} · ${user.email}`}
-          className="flex items-center justify-center rounded-full select-none shrink-0"
-          style={{
-            width: 32,
-            height: 32,
-            background: "#F4F4F5",
-            color: "#52525B",
-            fontSize: 11,
-            fontWeight: 600,
-          }}
-        >
-          {initials}
-        </div>
-        <button
-          type="button"
-          onClick={onLogout}
-          title="Log out"
-          className="flex items-center justify-center rounded-lg outline-none border-none cursor-pointer"
-          style={{ width: 32, height: 32, color: THEME.textMuted }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "#FEF2F2";
-            e.currentTarget.style.color = "#DC2626";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "transparent";
-            e.currentTarget.style.color = THEME.textMuted;
-          }}
-        >
-          <LogOut style={{ width: 16, height: 16 }} strokeWidth={1.75} />
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <div className="px-3 py-3" style={{ borderTop: `1px solid ${THEME.border}` }}>
-      <div className="flex items-center gap-3 min-w-0 rounded-xl px-2 py-2">
+    <div
+      className={collapsed ? "flex justify-center px-0 pb-3 pt-2.5" : "px-3 pb-3 pt-2.5"}
+      style={{ borderTop: `1px solid ${THEME.border}` }}
+    >
+      <div
+        className={collapsed ? "relative flex items-center justify-center" : "flex min-w-0 items-center gap-2.5 px-2 py-2"}
+        style={
+          collapsed
+            ? undefined
+            : {
+                borderRadius: 14,
+                background: THEME.searchBg,
+              }
+        }
+      >
         <div
           className="flex items-center justify-center rounded-full select-none shrink-0"
           style={{
-            width: 36,
-            height: 36,
-            background: "#F4F4F5",
-            color: "#52525B",
-            fontSize: 12,
+            width: collapsed ? 28 : 32,
+            height: collapsed ? 28 : 32,
+            background: THEME.well,
+            color: THEME.wellInk,
+            fontSize: collapsed ? 10 : 11,
             fontWeight: 600,
+            boxShadow: "inset 0 0 0 1px rgba(79, 91, 217, 0.12)",
           }}
+          title={collapsed ? `${user.name} · ${user.email}` : undefined}
         >
           {initials}
         </div>
 
-        <div className="flex-1 min-w-0">
-          <p className="m-0 truncate text-[14px] font-medium leading-tight" style={{ color: THEME.textPrimary }}>
-            {user.name}
-          </p>
-          <p className="m-0 mt-0.5 truncate text-[12px] leading-tight" style={{ color: THEME.textMuted }}>
-            {user.email}
-          </p>
-        </div>
+        {!collapsed && (
+          <>
+            <div className={`min-w-0 flex-1 ${FADE}`}>
+              <p className="m-0 truncate text-[12.5px] font-semibold leading-tight tracking-[-0.02em]" style={{ color: THEME.textPrimary }}>
+                {user.name}
+              </p>
+              <p className="m-0 mt-0.5 truncate text-[11px] leading-tight" style={{ color: THEME.textMuted }}>
+                {user.email}
+              </p>
+            </div>
 
-        <button
-          type="button"
-          onClick={onLogout}
-          className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border outline-none shrink-0 cursor-pointer transition-colors"
-          style={{
-            borderColor: THEME.border,
-            background: "#FFFFFF",
-            color: THEME.textSecondary,
-            fontSize: 12,
-            fontWeight: 500,
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "#FEF2F2";
-            e.currentTarget.style.borderColor = "#FECACA";
-            e.currentTarget.style.color = "#DC2626";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "#FFFFFF";
-            e.currentTarget.style.borderColor = THEME.border;
-            e.currentTarget.style.color = THEME.textSecondary;
-          }}
-          aria-label="Log out"
-        >
-          <LogOut style={{ width: 14, height: 14 }} strokeWidth={1.75} />
-          Log out
-        </button>
+            <button
+              type="button"
+              onClick={onLogout}
+              className={`inline-flex h-[30px] w-[30px] shrink-0 cursor-pointer items-center justify-center outline-none transition-colors ${FADE}`}
+              style={{
+                borderRadius: 9,
+                border: "none",
+                background: "transparent",
+                color: THEME.textMuted,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#FEF2F2";
+                e.currentTarget.style.color = "#DC2626";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.color = THEME.textMuted;
+              }}
+              aria-label="Log out"
+              title="Log out"
+            >
+              <LogOut style={{ width: 15, height: 15 }} strokeWidth={1.75} />
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
@@ -470,65 +479,52 @@ export default function AppSidebar({
       <div
         className="flex-1 overflow-y-auto overflow-x-hidden"
         style={{
-          paddingTop: collapsed ? 4 : 0,
           paddingBottom: 8,
           scrollbarWidth: "none",
           msOverflowStyle: "none",
         } as React.CSSProperties}
       >
-        {collapsed ? (
-          <div className="flex flex-col items-center gap-1 px-3">
-            {nav.map((entry) => {
-              if (isNavGroup(entry)) {
-                return (
-                  <SectionGroup
-                    key={entry.id}
-                    group={entry}
-                    activeTab={activeTab}
-                    setActiveTab={setActiveTab}
-                    collapsed
-                  />
-                );
-              }
-              return (
-                <NavButton
-                  key={entry.id}
-                  label={(entry as NavItem).label}
-                  icon={(entry as NavItem).icon}
-                  active={activeTab === entry.id}
-                  collapsed
-                  onClick={() => setActiveTab(entry.id)}
-                />
-              );
-            })}
-          </div>
-        ) : (
-          <div className="flex flex-col px-3">
-            {nav.map((entry) => {
-              if (isNavGroup(entry)) {
-                return (
-                  <SectionGroup
-                    key={entry.id}
-                    group={entry}
-                    activeTab={activeTab}
-                    setActiveTab={setActiveTab}
-                    collapsed={false}
-                  />
-                );
-              }
-              return (
-                <NavButton
-                  key={entry.id}
-                  label={(entry as NavItem).label}
-                  icon={(entry as NavItem).icon}
-                  active={activeTab === entry.id}
-                  collapsed={false}
-                  onClick={() => setActiveTab(entry.id)}
-                />
-              );
-            })}
-          </div>
-        )}
+        <div
+          className={
+            collapsed
+              ? "flex flex-col items-center gap-0.5 px-0 pt-2"
+              : "flex flex-col px-2.5 pt-2"
+          }
+        >
+          {collapsed && (
+            <div className="mb-1.5 flex justify-center">
+              <SidebarToggleBtn />
+            </div>
+          )}
+          {nav.filter((entry) => !isNavGroup(entry)).map((entry) => (
+            <NavButton
+              key={entry.id}
+              label={(entry as NavItem).label}
+              icon={(entry as NavItem).icon}
+              active={activeTab === entry.id}
+              collapsed={collapsed}
+              onClick={() => setActiveTab(entry.id)}
+            />
+          ))}
+          {!collapsed && (
+            <div
+              style={{
+                height: 1,
+                margin: "12px 8px 2px",
+                background: THEME.border,
+              }}
+            />
+          )}
+          {nav.filter(isNavGroup).map((entry) => (
+            <SectionGroup
+              key={entry.id}
+              group={entry}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              collapsed={collapsed}
+            />
+          ))}
+        </div>
       </div>
 
       <UserArea user={user} collapsed={collapsed} onLogout={onLogout} />

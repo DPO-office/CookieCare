@@ -107,7 +107,7 @@ export function useDraftEditorState(documents: LegalDocument[], initialDocumentI
         .chain()
         .focus()
         .insertContent(
-          `<p><strong>[EXECUTED SIGNATURE SPECIFICATION]</strong><br>Approved legal representative: randtrust Workspace<br>Crypto Seal Identifier: STAMP_${cryptoStamp}_SECURE<br>Date: ${new Date().toLocaleDateString()}</p>`
+          `<p><strong>[EXECUTED SIGNATURE SPECIFICATION]</strong><br>Approved legal representative: LORA Workspace<br>Crypto Seal Identifier: STAMP_${cryptoStamp}_SECURE<br>Date: ${new Date().toLocaleDateString()}</p>`
         )
         .run();
     }

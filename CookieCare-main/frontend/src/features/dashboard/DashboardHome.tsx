@@ -1,20 +1,22 @@
-import { PageShell } from "../../shared/components/PageShell";
 import { DashboardHomeProps } from "./types";
 import {
-  buildDocumentLogs,
-  buildWorkItems,
-  countAttentionItems,
-  computeAverageTrustScore,
-  getPriorityItem,
+  buildSummary,
+  countAnalyzed,
+  countFailedJobsLast7Days,
+  countPendingRedlines,
+  countPendingSignatures,
+  countRunningJobs,
+  recentDocuments,
+  recentJobs,
+  runningJobs,
 } from "./utils";
 import { DASHBOARD_STYLES } from "./styles/dashboardStyles";
 import { WelcomeBand } from "./components/WelcomeBand";
-import { QuickJump } from "./components/QuickJump";
 import { MetricCards } from "./components/MetricCards";
-import { PriorityWork } from "./components/PriorityWork";
+import { JobsRunning } from "./components/PriorityWork";
 import { ContinueWorking } from "./components/ContinueWorking";
 import { RecentActivity } from "./components/RecentActivity";
-import { WorkspaceSidebar } from "./components/WorkspaceSidebar";
+import { useDashboardJobs } from "./hooks/useDashboardJobs";
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -31,99 +33,68 @@ function formatDateLabel(): string {
   });
 }
 
-function buildSummary(
-  attentionCount: number,
-  stats: { pendingSigs: number; redlinesPending: number },
-  docCount: number
-): string {
-  const parts: string[] = [];
-
-  if (attentionCount > 0) {
-    parts.push(
-      `${attentionCount} agreement${attentionCount === 1 ? "" : "s"} need${attentionCount === 1 ? "s" : ""} your attention`
-    );
-  }
-  if (stats.redlinesPending > 0) {
-    parts.push(
-      `${stats.redlinesPending} active redline${stats.redlinesPending === 1 ? "" : "s"} awaiting resolution`
-    );
-  }
-  if (stats.pendingSigs > 0) {
-    parts.push(
-      `${stats.pendingSigs} signature${stats.pendingSigs === 1 ? "" : "s"} pending`
-    );
-  }
-
-  if (parts.length === 0) {
-    return docCount > 0
-      ? "Your workspace is current. Pick up where you left off or start a new workflow below."
-      : "Welcome to RandTrust. Analyze, draft, or compare your first agreement to begin.";
-  }
-
-  return parts.join(", ") + ".";
-}
-
 export default function DashboardHome({
   userName,
   setActiveTab,
-  stats,
   documents,
+  authToken,
 }: DashboardHomeProps) {
   const firstName = userName.split(" ")[0] ?? userName;
-  const attentionCount = countAttentionItems(documents);
-  const workItems = buildWorkItems(documents, 6);
-  const priorityItem = getPriorityItem(workItems);
-  const avgTrust = computeAverageTrustScore(documents);
-  const ledgerEntries = buildDocumentLogs(documents).sort(
-    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-  );
+  const { jobs, loading: jobsLoading } = useDashboardJobs(authToken);
+
+  const analyzedCount = countAnalyzed(documents);
+  const runningCount = countRunningJobs(jobs);
+  const failedCount = countFailedJobsLast7Days(jobs);
+  const redlineCount = countPendingRedlines(documents);
+  const signatureCount = countPendingSignatures(documents);
+  const liveJobs = runningJobs(jobs);
+  const activityJobs = recentJobs(jobs);
+  const docRows = recentDocuments(documents);
 
   return (
     <>
       <style>{DASHBOARD_STYLES}</style>
-      <PageShell width="wide">
-        <div className="dashboard-root flex flex-col gap-5">
-          <WelcomeBand
-            greeting={getGreeting()}
-            firstName={firstName}
-            dateLabel={formatDateLabel()}
-            summary={buildSummary(attentionCount, stats, documents.length)}
-          />
+      <div className="dpa-results-bg flex-1 overflow-y-auto min-h-0 font-sans">
+        <div className="mx-auto w-full max-w-7xl px-6 py-8 sm:px-10">
+          <div className="dashboard-root flex flex-col gap-5">
+            <WelcomeBand
+              greeting={getGreeting()}
+              firstName={firstName}
+              dateLabel={formatDateLabel()}
+              summary={buildSummary(
+                documents.length,
+                runningCount,
+                failedCount,
+                redlineCount,
+                signatureCount
+              )}
+            />
 
-          <QuickJump onNavigate={setActiveTab} />
+            <MetricCards
+              documentCount={documents.length}
+              analyzedCount={analyzedCount}
+              runningCount={runningCount}
+              failedCount={failedCount}
+              redlineCount={redlineCount}
+              signatureCount={signatureCount}
+            />
 
-          {priorityItem && (
-            <PriorityWork item={priorityItem} onOpen={setActiveTab} />
-          )}
-
-          <MetricCards
-            stats={stats}
-            attentionCount={attentionCount}
-            avgTrustScore={avgTrust}
-          />
-
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] xl:grid-cols-[1fr_300px] gap-5">
             <div className="flex flex-col gap-5 min-w-0">
+              <JobsRunning jobs={liveJobs} loading={jobsLoading} onOpen={setActiveTab} />
               <ContinueWorking
-                items={workItems}
+                items={docRows}
                 onOpen={setActiveTab}
                 onViewVault={() => setActiveTab("legal-vault")}
-                excludeId={priorityItem?.id}
               />
               <RecentActivity
-                entries={ledgerEntries}
+                jobs={activityJobs}
                 onStartDraft={() => setActiveTab("legal-draft")}
+                onOpen={setActiveTab}
               />
             </div>
-
-            <WorkspaceSidebar
-              documentCount={documents.length}
-              attentionCount={attentionCount}
-              onNavigate={setActiveTab}
-            />
           </div>
         </div>
-      </PageShell>
+      </div>
     </>
   );
 }

@@ -44,3 +44,20 @@ export interface FeatureCard {
   title: string;
   description: string;
 }
+
+export type VendorDimensionId =
+  | "privacy"
+  | "security"
+  | "compliance"
+  | "residency"
+  | "subprocessors"
+  | "risk";
+
+export interface VendorResultDimension {
+  id: VendorDimensionId;
+  title: string;
+  description: string;
+  icon: ComponentType<any>;
+  scoreKey: keyof VendorScoreBreakdown | null;
+  keywords: string[];
+}

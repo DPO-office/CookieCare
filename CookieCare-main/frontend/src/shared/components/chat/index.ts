@@ -1,6 +1,6 @@
 /**
  * Shared chat components barrel export.
- * These are reusable across all AI conversation surfaces in RandTrust.
+ * These are reusable across all AI conversation surfaces in LORA.
  */
 export { ChatMessage } from "./ChatMessage";
 export { AIResponseBlock } from "./AIResponseBlock";

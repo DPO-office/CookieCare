@@ -45,3 +45,98 @@ export const FEATURE_CARDS = [
   { icon: Globe,         title: "International Transfers", description: "Detect cross-border transfer provisions and validate legal transfer mechanisms." },
   { icon: Scale,         title: "Risk Assessment",         description: "Identify missing clauses, contractual risks, and critical compliance gaps." },
 ];
+
+/** Result-page dimensions — same order as FEATURE_CARDS, with score keys + keyword routing. */
+export type DPADimensionId =
+  | "gdpr"
+  | "processor"
+  | "rights"
+  | "security"
+  | "transfers"
+  | "risk";
+
+export interface DPAResultDimension {
+  id: DPADimensionId;
+  title: string;
+  description: string;
+  icon: typeof ShieldCheck;
+  /** Key on DPAScoreBreakdown, or null when score is derived */
+  scoreKey:
+    | "article28Compliance"
+    | "processorObligations"
+    | "dataSubjectRights"
+    | "securityMeasures"
+    | "internationalTransfers"
+    | "subprocessorControls"
+    | null;
+  keywords: string[];
+}
+
+export const RESULT_DIMENSIONS: DPAResultDimension[] = [
+  {
+    id: "gdpr",
+    title: "GDPR Compliance",
+    description: "Verify alignment with GDPR Article 28 requirements and all mandatory DPA provisions.",
+    icon: ShieldCheck,
+    scoreKey: "article28Compliance",
+    keywords: [
+      "article 28", "art. 28", "art 28", "gdpr compliance", "controller", "processor relationship",
+      "subject-matter", "framework agreement", "personal data processing acknowledgment",
+    ],
+  },
+  {
+    id: "processor",
+    title: "Processor Obligations",
+    description: "Identify and validate all processor obligations including sub-processor controls.",
+    icon: ClipboardList,
+    scoreKey: "processorObligations",
+    keywords: [
+      "processor obligation", "sub-processor", "subprocessor", "subcontract", "audit right",
+      "prior written", "instructions", "confidentiality", "processing acknowledgment",
+    ],
+  },
+  {
+    id: "rights",
+    title: "Data Subject Rights",
+    description: "Confirm the agreement covers data subject request handling and response timelines.",
+    icon: Users,
+    scoreKey: "dataSubjectRights",
+    keywords: [
+      "data subject", "subject rights", "dsar", "access request", "erasure", "rectification",
+      "portability", "art. 28(3)(e)", "art 28(3)(e)",
+    ],
+  },
+  {
+    id: "security",
+    title: "Security Measures",
+    description: "Assess Article 32 TOMs and technical safeguards against regulatory standards.",
+    icon: Lock,
+    scoreKey: "securityMeasures",
+    keywords: [
+      "security", "article 32", "art. 32", "art 32", "tom", "encryption", "technical and organisational",
+      "breach notification", "art. 33", "art 33", "organisational measure",
+    ],
+  },
+  {
+    id: "transfers",
+    title: "International Transfers",
+    description: "Detect cross-border transfer provisions and validate legal transfer mechanisms.",
+    icon: Globe,
+    scoreKey: "internationalTransfers",
+    keywords: [
+      "international", "transfer", "cross-border", "cross border", "scc", "standard contractual",
+      "binding corporate", "adequacy", "art. 44", "art 44", "art. 46", "third country", "eea",
+    ],
+  },
+  {
+    id: "risk",
+    title: "Risk Assessment",
+    description: "Identify missing clauses, contractual risks, and critical compliance gaps.",
+    icon: Scale,
+    scoreKey: null,
+    keywords: [
+      "deletion", "return of data", "termination", "liability", "indemnif", "missing",
+      "risk", "gap", "retention", "art. 28(3)(g)",
+    ],
+  },
+];

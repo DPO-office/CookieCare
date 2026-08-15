@@ -4,7 +4,7 @@
  * Renders inline above the composer when a toolbar button is active.
  * Panels: Jurisdictions | Knowledge Base | Output Format | Web Discovery
  *
- * Follows the RandTrust Design System: shadow-md, radius-lg, no glows,
+ * Follows the LORA Design System: shadow-md, radius-lg, no glows,
  * semantic colors only, clean enterprise typography.
  */
 import React from "react";
@@ -53,16 +53,25 @@ const FORMAT_OPTIONS: { fmt: OutputFormat; desc: string }[] = [
   },
 ];
 
-/** Shared popover surface styles */
+const CARD_SHADOW =
+  "0 1px 2px rgba(16,24,40,0.04), 0 0 0 1px rgba(16,24,40,0.06), 0 16px 40px rgba(16,24,40,0.10)";
+
 const popoverSurface: React.CSSProperties = {
   background: "#FFFFFF",
-  border: "1px solid #E4E4E7",
-  borderRadius: "12px",
-  boxShadow: "0 4px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06)",
-  fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif",
+  border: "none",
+  borderRadius: "22px",
+  boxShadow: CARD_SHADOW,
+  fontFamily: "var(--font-sans)",
 };
 
-/** Shared popover header */
+function displayFileName(name: string) {
+  const cleaned = name.replace(/[_-]+/g, " ").trim();
+  if (cleaned === cleaned.toUpperCase()) {
+    return cleaned.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+  return cleaned;
+}
+
 function PopoverHeader({
   title,
   subtitle,
@@ -73,18 +82,13 @@ function PopoverHeader({
   onClose?: () => void;
 }) {
   return (
-    <div
-      className="flex items-center justify-between px-4 py-3"
-      style={{ borderBottom: "1px solid #F0F0F2" }}
-    >
-      <div>
-        <p className="text-[13px] font-semibold" style={{ color: "#111827" }}>
+    <div className="flex items-center justify-between gap-3 px-4 py-3.5">
+      <div className="min-w-0">
+        <p className="m-0 text-[15px] font-semibold tracking-[-0.02em] text-[#1a1a1a]">
           {title}
         </p>
         {subtitle && (
-          <p className="text-[11px] mt-0.5" style={{ color: "#9CA3AF" }}>
-            {subtitle}
-          </p>
+          <p className="m-0 mt-0.5 text-[11px] text-[#98A2B3]">{subtitle}</p>
         )}
       </div>
       {onClose && (
@@ -92,18 +96,9 @@ function PopoverHeader({
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="w-6 h-6 flex items-center justify-center rounded-lg transition-colors duration-100 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2175D9]"
-          style={{ color: "#9CA3AF" }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLElement).style.background = "#F3F4F6";
-            (e.currentTarget as HTMLElement).style.color = "#374151";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLElement).style.background = "transparent";
-            (e.currentTarget as HTMLElement).style.color = "#9CA3AF";
-          }}
+          className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border-none bg-transparent text-[#98A2B3] transition-colors hover:bg-[#EEF2FF] hover:text-[#4F5BD9]"
         >
-          <X className="w-3 h-3" strokeWidth={1.5} aria-hidden="true" />
+          <X className="h-3.5 w-3.5" strokeWidth={1.75} />
         </button>
       )}
     </div>
@@ -213,29 +208,27 @@ export default function Popovers({
                 <PopoverHeader
                   title="Knowledge Base"
                   subtitle={`${selectedKBCount} doc${selectedKBCount !== 1 ? "s" : ""} active across ${selectedFolderCount} folder${selectedFolderCount !== 1 ? "s" : ""}`}
+                  onClose={() => setOpenPopover(null)}
                 />
-                <div className="p-3 space-y-2">
-                  {/* Folder list */}
-                  <div className="max-h-52 overflow-y-auto space-y-1.5">
+                <div className="space-y-2.5 px-3 pb-3">
+                  <div className="max-h-52 space-y-2 overflow-y-auto">
                     {folders.length === 0 ? (
-                      <p
-                        className="text-[12px] text-center py-4"
-                        style={{ color: "#9CA3AF" }}
-                      >
+                      <p className="py-6 text-center text-[12px] text-[#98A2B3]">
                         No folders yet. Upload a document to get started.
                       </p>
                     ) : (
                       folders.map((f) => (
                         <div
                           key={f.id}
-                          className="rounded-lg transition-all duration-100"
+                          className="rounded-[18px] bg-white p-1 transition-[box-shadow] duration-150"
                           style={{
-                            border: `1px solid ${f.isSelected ? "#BFDBFE" : "#E4E4E7"}`,
-                            background: f.isSelected ? "#F7FBFF" : "#F9FAFB",
+                            boxShadow: f.isSelected
+                              ? "0 1px 2px rgba(16,24,40,0.04), 0 0 0 1px rgba(16,24,40,0.14)"
+                              : "0 1px 2px rgba(16,24,40,0.04), 0 0 0 1px rgba(16,24,40,0.06)",
                           }}
                         >
                           <div
-                            className="flex items-center justify-between px-3 py-2 cursor-pointer"
+                            className="flex cursor-pointer items-center justify-between px-2.5 py-2"
                             onClick={() => toggleFolderSelection(f.id)}
                             role="button"
                             tabIndex={0}
@@ -248,43 +241,30 @@ export default function Popovers({
                               }
                             }}
                           >
-                            <div className="flex items-center gap-2 min-w-0">
-                              {/* Checkbox */}
+                            <div className="flex min-w-0 items-center gap-2.5">
                               <div
-                                className="w-4 h-4 rounded flex items-center justify-center shrink-0 transition-all"
+                                className="flex h-4 w-4 shrink-0 items-center justify-center rounded"
                                 style={{
-                                  background: f.isSelected ? "#2175D9" : "#FFFFFF",
-                                  border: `1.5px solid ${f.isSelected ? "#2175D9" : "#D1D5DB"}`,
+                                  background: f.isSelected ? "#4F5BD9" : "#FFFFFF",
+                                  boxShadow: f.isSelected
+                                    ? "none"
+                                    : "0 0 0 1px rgba(16,24,40,0.14)",
                                 }}
-                                aria-hidden="true"
                               >
                                 {f.isSelected && (
-                                  <Check className="w-2.5 h-2.5 text-white" strokeWidth={2.5} />
+                                  <Check className="h-2.5 w-2.5 text-white" strokeWidth={2.5} />
                                 )}
                               </div>
-                              <Folder
-                                className="w-3.5 h-3.5 shrink-0"
-                                style={{ color: f.isSelected ? "#2175D9" : "#D1D5DB" }}
-                                strokeWidth={1.5}
-                                aria-hidden="true"
-                              />
-                              <span
-                                className="text-[12px] truncate"
-                                style={{
-                                  color: f.isSelected ? "#111827" : "#9CA3AF",
-                                  fontWeight: f.isSelected ? 500 : 400,
-                                }}
-                              >
+                              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF] text-[#4F5BD9]">
+                                <Folder className="h-3.5 w-3.5" strokeWidth={1.75} />
+                              </div>
+                              <span className="truncate text-[13px] font-medium text-[#1a1a1a]">
                                 {f.name}
                               </span>
                             </div>
 
-                            {/* Actions */}
-                            <div className="flex items-center gap-1 shrink-0 ml-2">
-                              <span
-                                className="text-[10px] px-1.5 py-0.5 rounded"
-                                style={{ background: "#F3F4F6", color: "#6B7280" }}
-                              >
+                            <div className="ml-2 flex shrink-0 items-center gap-0.5">
+                              <span className="score-badge mr-1 bg-[#EEF2FF] text-[10px] font-medium text-[#4F5BD9]">
                                 {f.files.length}
                               </span>
                               <button
@@ -294,56 +274,35 @@ export default function Popovers({
                                   e.stopPropagation();
                                   fileUploadRef.current?.click();
                                 }}
-                                className="w-5 h-5 flex items-center justify-center transition-colors duration-100 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#2175D9] rounded"
-                                style={{ color: "#D1D5DB" }}
+                                className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border-none bg-transparent text-[#98A2B3] transition-colors hover:bg-[#EEF2FF] hover:text-[#4F5BD9]"
                                 title="Upload to this folder"
                                 aria-label={`Upload document to folder ${f.name}`}
-                                onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.color = "#6B7280"}
-                                onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.color = "#D1D5DB"}
                               >
-                                <Upload className="w-3 h-3" strokeWidth={1.5} />
+                                <Upload className="h-3.5 w-3.5" strokeWidth={1.75} />
                               </button>
                               <button
                                 type="button"
                                 onClick={(e) => handleDeleteFolder(f.id, e)}
-                                className="w-5 h-5 flex items-center justify-center transition-colors duration-100 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#DC2626] rounded"
-                                style={{ color: "#D1D5DB" }}
+                                className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border-none bg-transparent text-[#98A2B3] transition-colors hover:bg-[#FEF2F2] hover:text-[#DC2626]"
                                 aria-label={`Delete folder ${f.name}`}
-                                onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.color = "#DC2626"}
-                                onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.color = "#D1D5DB"}
                               >
-                                <Trash2 className="w-3 h-3" strokeWidth={1.5} />
+                                <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
                               </button>
                             </div>
                           </div>
 
-                          {/* File list (expanded when selected) */}
                           {f.isSelected && f.files.length > 0 && (
-                            <div
-                              className="px-3 pb-2 pt-0.5 space-y-0.5"
-                              style={{ borderTop: "1px solid #DBEAFE" }}
-                            >
+                            <div className="space-y-0.5 px-2.5 pb-2 pt-0.5">
                               {f.files.slice(0, 3).map((file, fi) => (
-                                <div key={fi} className="flex items-center gap-1.5">
-                                  <FileText
-                                    className="w-2.5 h-2.5 shrink-0"
-                                    style={{ color: "#D1D5DB" }}
-                                    strokeWidth={1.5}
-                                    aria-hidden="true"
-                                  />
-                                  <span
-                                    className="text-[10px] truncate"
-                                    style={{ color: "#6B7280" }}
-                                  >
-                                    {file.name}
+                                <div key={fi} className="flex items-center gap-2 rounded-xl px-1.5 py-1">
+                                  <FileText className="h-3 w-3 shrink-0 text-[#4F5BD9]" strokeWidth={1.75} />
+                                  <span className="truncate text-[12px] text-[#667085]">
+                                    {displayFileName(file.name)}
                                   </span>
                                 </div>
                               ))}
                               {f.files.length > 3 && (
-                                <p
-                                  className="text-[10px]"
-                                  style={{ color: "#9CA3AF" }}
-                                >
+                                <p className="m-0 px-1.5 pt-0.5 text-[11px] font-medium text-[#4F5BD9]">
                                   +{f.files.length - 3} more
                                 </p>
                               )}
@@ -354,7 +313,6 @@ export default function Popovers({
                     )}
                   </div>
 
-                  {/* Add folder form */}
                   <form onSubmit={handleAddFolder} className="flex gap-1.5 pt-1">
                     <input
                       type="text"
@@ -362,34 +320,17 @@ export default function Popovers({
                       onChange={(e) => setNewFolderName(e.target.value)}
                       placeholder="New folder name…"
                       aria-label="New folder name"
-                      className="flex-1 rounded-lg px-3 py-1.5 text-[12px] focus:outline-none transition-colors duration-100"
-                      style={{
-                        background: "#F9FAFB",
-                        border: "1px solid #E4E4E7",
-                        color: "#111827",
-                      }}
-                      onFocus={(e) => {
-                        (e.currentTarget as HTMLElement).style.borderColor = "#BFDBFE";
-                        (e.currentTarget as HTMLElement).style.background = "#F7FBFF";
-                      }}
-                      onBlur={(e) => {
-                        (e.currentTarget as HTMLElement).style.borderColor = "#E4E4E7";
-                        (e.currentTarget as HTMLElement).style.background = "#F9FAFB";
-                      }}
+                      className="h-9 flex-1 rounded-full border-none bg-[#F7F8FB] px-3.5 text-[13px] text-[#1a1a1a] outline-none placeholder:text-[#98A2B3] focus:shadow-[0_0_0_3px_rgba(79,91,217,0.14)]"
                     />
                     <button
                       type="submit"
                       aria-label="Add folder"
-                      className="w-7 h-7 rounded-lg flex items-center justify-center text-white transition-colors duration-100 shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2175D9]"
-                      style={{ background: "#2175D9" }}
-                      onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.background = "#1D66C2"}
-                      onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.background = "#2175D9"}
+                      className="primary-gradient flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border-none text-white"
                     >
-                      <Plus className="w-3 h-3" strokeWidth={2} aria-hidden="true" />
+                      <Plus className="h-3.5 w-3.5" strokeWidth={2} />
                     </button>
                   </form>
 
-                  {/* Upload shortcut */}
                   <button
                     type="button"
                     onClick={() => {
@@ -397,20 +338,9 @@ export default function Popovers({
                       setOpenPopover(null);
                       fileUploadRef.current?.click();
                     }}
-                    className="w-full flex items-center justify-center gap-1.5 text-[12px] font-medium rounded-lg py-2 transition-all duration-100 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2175D9]"
-                    style={{ border: "1px dashed #D1D5DB", color: "#6B7280" }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.borderColor = "#2175D9";
-                      (e.currentTarget as HTMLElement).style.color = "#1A5BAD";
-                      (e.currentTarget as HTMLElement).style.background = "#EBF2FD";
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.borderColor = "#D1D5DB";
-                      (e.currentTarget as HTMLElement).style.color = "#6B7280";
-                      (e.currentTarget as HTMLElement).style.background = "transparent";
-                    }}
+                    className="flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-full border-none bg-[#EEF2FF] text-[13px] font-medium text-[#4F5BD9] transition-colors hover:bg-[#e4e9ff]"
                   >
-                    <Upload className="w-3 h-3" strokeWidth={1.5} aria-hidden="true" />
+                    <Upload className="h-3.5 w-3.5" strokeWidth={1.75} />
                     Upload document
                   </button>
                 </div>

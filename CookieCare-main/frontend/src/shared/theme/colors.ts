@@ -1,5 +1,5 @@
 /**
- * RandTrust Brand Color System
+ * LORA Brand Color System
  *
  * Central source of truth for brand colors. Structural tokens live in index.css;
  * import from here when you need the raw hex in JS (charts, PDF, etc.).

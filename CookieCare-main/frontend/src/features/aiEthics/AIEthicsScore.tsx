@@ -20,7 +20,7 @@ export default function AIEthicsScore({ authToken }: AIEthicsScoreProps) {
   } = useAIEthicsAnalysis({ authToken });
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex h-screen min-w-0 flex-1 flex-col overflow-hidden font-sans">
       {appState === "upload" && (
         <EthicsUploadState onFilesSelected={startAnalysis} error={error} />
       )}

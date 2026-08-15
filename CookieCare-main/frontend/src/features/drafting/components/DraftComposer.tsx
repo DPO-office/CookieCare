@@ -1,10 +1,12 @@
-import { useRef } from "react";
-import {
-  Paperclip,
-  CornerDownLeft,
-  Loader2,
-  X,
-} from "lucide-react";import { useAutoResize } from "../../randtrustAI/hooks/useAutoResize";
+import { useRef, useEffect } from "react";
+import { Paperclip, CornerDownLeft, Loader2, X, Archive } from "lucide-react";
+import { useAutoResize } from "../../randtrustAI/hooks/useAutoResize";
+import { DRAFT_PAGE_STYLES } from "../styles/draftPageStyles";
+
+export interface DraftComposerDoc {
+  id: string;
+  title: string;
+}
 
 export interface DraftComposerProps {
   value: string;
@@ -13,6 +15,10 @@ export interface DraftComposerProps {
   onFileSelect: (file: File) => void;
   attachedFileName?: string;
   onRemoveFile?: () => void;
+  vaultDocuments?: DraftComposerDoc[];
+  onRemoveVaultDocument?: (id: string) => void;
+  onOpenVault?: () => void;
+  hasContext?: boolean;
   isLoading?: boolean;
   isParsing?: boolean;
   isDragging: boolean;
@@ -20,7 +26,6 @@ export interface DraftComposerProps {
   onDragLeave: (e: React.DragEvent) => void;
   onDrop: (e: React.DragEvent) => void;
   placeholder?: string;
-  /** "landing" = full-page composer; "chat" = split-view pill composer */
   variant?: "landing" | "chat";
 }
 
@@ -31,6 +36,10 @@ export function DraftComposer({
   onFileSelect,
   attachedFileName,
   onRemoveFile,
+  vaultDocuments = [],
+  onRemoveVaultDocument,
+  onOpenVault,
+  hasContext = false,
   isLoading = false,
   isParsing = false,
   isDragging,
@@ -41,10 +50,18 @@ export function DraftComposer({
   variant = "landing",
 }: DraftComposerProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { ref: taRef, adjust } = useAutoResize(28, 120);
-  const busy = isLoading || isParsing;
-  const canSubmit = (value.trim().length > 0 || !!attachedFileName) && !busy;
   const isChat = variant === "chat";
+  const minH = isChat ? 36 : 72;
+  const maxH = isChat ? 96 : 168;
+  const { ref: taRef, adjust } = useAutoResize(minH, maxH);
+  const busy = isLoading || isParsing;
+  const hasVaultDocs = vaultDocuments.length > 0;
+  const canSubmit =
+    (value.trim().length > 0 || !!attachedFileName || hasVaultDocs || hasContext) && !busy;
+
+  useEffect(() => {
+    adjust();
+  }, [value, adjust]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -58,40 +75,93 @@ export function DraftComposer({
   };
 
   return (
+    <>
+      <style>{DRAFT_PAGE_STYLES}</style>
     <div
-      className={`relative w-full ${isChat ? "" : "max-w-[720px] mx-auto"}`}
+      className={`relative w-full ${isChat ? "" : "mx-auto max-w-[720px]"}`}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
     >
       {isDragging && (
         <div
-          className={`absolute inset-0 z-10 flex items-center justify-center pointer-events-none ${
-            isChat ? "rounded-[28px]" : "rounded-[22px]"
-          }`}
-          style={{
-            background: "rgba(0, 0, 0, 0.04)",
-            border: "2px dashed rgba(0, 0, 0, 0.12)",
-          }}
+          className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-[24px]"
+          style={{ background: "rgba(79, 91, 217, 0.06)" }}
         >
-          <span className="text-[13px] font-medium text-[#52525B]">
-            Drop file to attach
-          </span>
+          <span className="text-[13px] font-medium text-[#4F5BD9]">Drop file to attach</span>
         </div>
       )}
 
-      <div
-        className={
-          isChat
-            ? "draft-composer-chat relative"
-            : "draft-composer relative overflow-hidden"
-        }
-      >
-        {/* Input row */}
-        <div className={`flex items-start gap-3 ${isChat ? "px-5 pt-4 pb-1" : "px-5 pt-4 pb-1"}`}>
+      <div className={isChat ? "draft-composer-chat relative" : "draft-composer relative overflow-hidden"}>
+        {(attachedFileName || hasVaultDocs) && (
+          <div className="flex flex-wrap gap-1.5 px-5 pt-3 pb-0">
+            {vaultDocuments.map((doc) => (
+              <span
+                key={doc.id}
+                className="score-badge max-w-[16rem] bg-[#EEF2FF] text-[11px] font-medium text-[#4F5BD9]"
+              >
+                <Archive className="h-3 w-3 shrink-0" strokeWidth={1.75} />
+                <span className="truncate">{doc.title}</span>
+                {onRemoveVaultDocument && !busy && (
+                  <button
+                    type="button"
+                    onClick={() => onRemoveVaultDocument(doc.id)}
+                    className="ml-0.5 flex h-4 w-4 cursor-pointer items-center justify-center rounded-full hover:bg-white/70 hover:text-[#B54A45]"
+                    aria-label={`Remove ${doc.title}`}
+                  >
+                    <X className="h-2.5 w-2.5" strokeWidth={2} />
+                  </button>
+                )}
+              </span>
+            ))}
+            {attachedFileName && (
+              <span className="score-badge max-w-[16rem] bg-[#EEF2FF] text-[11px] font-medium text-[#4F5BD9]">
+                <Paperclip className="h-3 w-3 shrink-0" strokeWidth={1.75} />
+                <span className="truncate">{attachedFileName}</span>
+                {onRemoveFile && !busy && (
+                  <button
+                    type="button"
+                    onClick={onRemoveFile}
+                    className="ml-0.5 flex h-4 w-4 cursor-pointer items-center justify-center rounded-full hover:bg-white/70 hover:text-[#B54A45]"
+                    aria-label="Remove attachment"
+                  >
+                    <X className="h-2.5 w-2.5" strokeWidth={2} />
+                  </button>
+                )}
+              </span>
+            )}
+          </div>
+        )}
+
+        <div className={isChat ? "flex items-end gap-2 px-3 py-2.5" : "flex items-start gap-3 px-5 pt-4 pb-1"}>
+          {isChat && (
+            <>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={busy}
+                className="draft-icon-btn mb-0.5"
+                aria-label="Attach file"
+              >
+                <Paperclip className="h-[15px] w-[15px]" strokeWidth={1.75} />
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf,.doc,.docx,.txt"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) onFileSelect(file);
+                  e.target.value = "";
+                }}
+              />
+            </>
+          )}
           <textarea
             ref={taRef}
             value={value}
+            rows={isChat ? 1 : 3}
             onChange={(e) => {
               onChange(e.target.value);
               adjust();
@@ -99,50 +169,37 @@ export function DraftComposer({
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             disabled={busy}
-            className="draft-input flex-1 bg-transparent text-[14px] leading-relaxed resize-none outline-none"
-            style={{
-              minHeight: isChat ? 24 : 28,
-              maxHeight: 120,
-              color: "#18181B",
-              fontWeight: 400,
-            }}
+            className="draft-input flex-1 bg-transparent text-[14px] outline-none"
+            style={{ minHeight: minH, maxHeight: maxH }}
             aria-label="Message input"
           />
-          <span className="shrink-0 text-[11px] pt-0.5 select-none text-[#D4D4D8] tracking-wide">
-            Ctrl+Y
-          </span>
+          {isChat && (
+            <button
+              type="button"
+              disabled={!canSubmit}
+              onClick={onSubmit}
+              className="draft-enter-btn mb-0.5 primary-gradient"
+              aria-label="Submit"
+            >
+              {busy ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <CornerDownLeft className="h-4 w-4" strokeWidth={2} />
+              )}
+            </button>
+          )}
         </div>
 
-        {/* Attached file chip */}
-        {attachedFileName && (
-          <div className="px-5 pb-2">
-            <span className="inline-flex items-center gap-1.5 text-[12px] rounded-full px-3 py-1 bg-[#F4F4F5] text-[#52525B] border border-[#EBEBEB]">
-              <Paperclip className="w-3 h-3 shrink-0" />
-              <span className="truncate max-w-[200px]">{attachedFileName}</span>
-              {onRemoveFile && !busy && (
-                <button
-                  type="button"
-                  onClick={onRemoveFile}
-                  className="ml-0.5 p-0.5 rounded-full hover:bg-black/5 transition-colors"
-                  aria-label="Remove attachment"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              )}
-            </span>
-          </div>
-        )}
-
-        {/* Bottom action row */}
-        <div className={`flex items-center gap-2 ${isChat ? "px-4 pb-3.5 pt-1.5" : "px-4 pb-3.5 pt-2"}`}>
+        {!isChat && (
+        <div className="flex items-center gap-2 px-4 pb-3.5 pt-2">
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={busy}
-            className="draft-attach-btn w-8 h-8 flex items-center justify-center rounded-full shrink-0 bg-[#F4F4F5] text-[#71717A]"
+            className="draft-icon-btn"
             aria-label="Attach file"
           >
-            <Paperclip className="w-[15px] h-[15px]" />
+            <Paperclip className="h-[15px] w-[15px]" strokeWidth={1.75} />
           </button>
           <input
             ref={fileInputRef}
@@ -156,23 +213,41 @@ export function DraftComposer({
             }}
           />
 
+          {onOpenVault && (
+            <button
+              type="button"
+              onClick={onOpenVault}
+              disabled={busy}
+              className="draft-icon-btn"
+              aria-label="Select from Vault"
+            >
+              <Archive className="h-[15px] w-[15px]" strokeWidth={1.75} />
+            </button>
+          )}
+
           <div className="flex-1" />
+
+          <span className="hidden shrink-0 select-none text-[11px] tracking-wide text-[#98A2B3] sm:inline">
+            Ctrl+Y
+          </span>
 
           <button
             type="button"
             disabled={!canSubmit}
             onClick={onSubmit}
-            className="draft-enter-btn w-9 h-9 flex items-center justify-center rounded-full shrink-0 disabled:opacity-40 disabled:cursor-not-allowed bg-[#18181B] text-white"
+            className="draft-enter-btn primary-gradient"
             aria-label="Submit"
           >
             {busy ? (
-              <Loader2 className="w-[16px] h-[16px] animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <CornerDownLeft className="w-[16px] h-[16px]" />
+              <CornerDownLeft className="h-4 w-4" strokeWidth={2} />
             )}
           </button>
         </div>
+        )}
       </div>
     </div>
+    </>
   );
 }

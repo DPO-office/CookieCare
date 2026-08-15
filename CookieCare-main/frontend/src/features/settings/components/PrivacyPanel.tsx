@@ -46,10 +46,10 @@ export default function PrivacyPanel() {
       </SettingCard>
 
       <SettingCard>
-        <CardHeader icon={Eye} title="Data handling" desc="Control how randtrust processes and shares your workspace data." />
+        <CardHeader icon={Eye} title="Data handling" desc="Control how LORA processes and shares your workspace data." />
         <CardBody>
           <ToggleRow title="Anonymise document metadata" desc="Strip author names, timestamps and file paths before AI processing." checked={anonymise} onChange={setAnonymise} />
-          <ToggleRow title="Third-party data sharing" desc="Allow anonymised usage data to improve randtrust AI models." checked={thirdPartyShare} onChange={setThirdPartyShare} />
+          <ToggleRow title="Third-party data sharing" desc="Allow anonymised usage data to improve LORA AI models." checked={thirdPartyShare} onChange={setThirdPartyShare} />
           <ToggleRow title="Continuous background scanning" desc="Automate scraping checks every 24 hours to generate passive compliance logs." checked={continuousScanning} onChange={setContinuousScanning} />
           <ToggleRow title="Audit event log" desc="Maintain a full log of all actions taken within this workspace." checked={auditLog} onChange={setAuditLog} />
         </CardBody>

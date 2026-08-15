@@ -1,6 +1,15 @@
 import { config } from "./index.js";
 
 export function validateEnv() {
+  if (config.skipDb) {
+    if (config.nodeEnv === "production") {
+      console.error("❌ [FATAL] SKIP_DB is not allowed in production.");
+      process.exit(1);
+    }
+    console.log("⚠️  SKIP_DB=true — running without a database (UI / API smoke test only).");
+    return;
+  }
+
   const required = [
     { key: "DATABASE_URL", value: config.databaseUrl },
     { key: "ENCRYPTION_KEY", value: process.env.ENCRYPTION_KEY },

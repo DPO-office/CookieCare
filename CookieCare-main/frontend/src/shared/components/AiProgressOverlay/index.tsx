@@ -11,6 +11,7 @@ interface AiProgressOverlayProps {
   progress?: number;
   onRetry?: () => void;
   onDismiss?: () => void;
+  illustration?: "ring" | "scan";
 }
 
 export default function AiProgressOverlay({
@@ -22,6 +23,7 @@ export default function AiProgressOverlay({
   progress,
   onRetry,
   onDismiss,
+  illustration = "ring",
 }: AiProgressOverlayProps) {
   return (
     <ProcessingOverlay
@@ -34,6 +36,7 @@ export default function AiProgressOverlay({
       error={error || undefined}
       onRetry={onRetry}
       onDismiss={onDismiss}
+      illustration={illustration}
     />
   );
 }

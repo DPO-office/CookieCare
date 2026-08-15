@@ -1,7 +1,9 @@
 import { useRef, useState, useCallback } from "react";
-import { Plus, FileText, X } from "lucide-react";
+import { FileText, X } from "lucide-react";
 import type { CompareFile, AgreementSlot } from "../types";
-import { ACCEPTED_EXTENSIONS } from "../constants";
+import { ACCEPTED_EXTENSIONS, SLOT_CONFIG } from "../constants";
+
+const CARD_SHADOW = "0 1px 2px rgba(16,24,40,0.04), 0 0 0 1px rgba(16,24,40,0.06)";
 
 interface CompareDropZoneProps {
   slot: AgreementSlot;
@@ -27,6 +29,7 @@ export function CompareDropZone({
 }: CompareDropZoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const config = SLOT_CONFIG[slot];
 
   const handleDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -54,7 +57,7 @@ export function CompareDropZone({
       if (!dropped) return;
       file ? onReplace(slot, dropped) : onFileSelect(slot, dropped);
     },
-    [slot, file, onFileSelect, onReplace]
+    [slot, file, onFileSelect, onReplace],
   );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,9 +70,9 @@ export function CompareDropZone({
 
   return (
     <div
-      className={`compare-drop-zone flex-1 min-w-0 flex flex-col items-center justify-center px-8 py-14 cursor-pointer select-none ${
+      className={`compare-drop-zone flex min-h-[280px] cursor-pointer flex-col items-center justify-center rounded-[24px] bg-white px-8 py-12 text-center select-none ${
         isDragging ? "dragging" : ""
-      }`}
+      } ${file ? "has-file" : ""}`}
       role="button"
       tabIndex={0}
       onClick={() => inputRef.current?.click()}
@@ -78,36 +81,54 @@ export function CompareDropZone({
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
-      aria-label={file ? `Replace ${file.name}` : "Upload document"}
+      aria-label={file ? `Replace ${file.name}` : `Upload ${config.label}`}
+      style={{
+        boxShadow: isDragging
+          ? "0 0 0 1.5px #8e98ff, 0 8px 24px rgba(96,107,235,0.08)"
+          : CARD_SHADOW,
+      }}
     >
+      <p className="mb-6 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#98A2B3]">
+        {config.label}
+      </p>
+
       {file ? (
         <>
-          <div className="w-10 h-10 rounded-lg bg-[#F4F4F5] flex items-center justify-center mb-4">
-            <FileText className="w-5 h-5 text-[#52525B]" />
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#EEF2FF] text-[#4F5BD9]">
+            <FileText className="h-5 w-5" strokeWidth={1.75} />
           </div>
-          <p className="text-[14px] font-semibold text-[#18181B] mb-1 text-center truncate max-w-[220px]">
+          <p className="m-0 mb-1 max-w-[240px] truncate text-[15px] font-semibold tracking-[-0.02em] text-[#1a1a1a]">
             {file.name}
           </p>
-          <p className="text-[12px] text-[#A1A1AA] mb-4">{formatFileSize(file.size)}</p>
+          <p className="m-0 mb-5 text-[12px] text-[#98A2B3]">{formatFileSize(file.size)}</p>
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
               onRemove(slot);
             }}
-            className="flex items-center gap-1 text-[12px] text-[#A1A1AA] hover:text-[#52525B] transition-colors"
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border-none bg-[#F7F8FB] px-3.5 py-1.5 text-[12px] font-medium text-[#667085] transition-colors hover:bg-[#FEF2F2] hover:text-[#DC2626]"
           >
-            <X className="w-3.5 h-3.5" />
+            <X className="h-3.5 w-3.5" />
             Remove
           </button>
         </>
       ) : (
         <>
-          <Plus className="w-6 h-6 text-[#A1A1AA] mb-5" strokeWidth={1.5} />
-          <p className="text-[14px] font-semibold text-[#18181B] mb-1.5">
-            Drag &amp; Drop files
+          <img
+            src="/icons/info.svg"
+            alt=""
+            className="mx-auto mb-4 h-12 w-12 object-contain"
+          />
+          <h3 className="m-0 mb-1.5 text-[16px] font-semibold tracking-[-0.02em] text-[#1a1a1a]">
+            {isDragging ? "Drop to add this agreement" : "Drag & drop your file"}
+          </h3>
+          <p className="m-0 text-[13px] text-[#667085]">
+            {config.description} · or{" "}
+            <span className="font-medium text-[#4F5BD9] underline underline-offset-2">
+              browse files
+            </span>
           </p>
-          <p className="text-[13px] text-[#A1A1AA]">or browse files on your device</p>
         </>
       )}
 

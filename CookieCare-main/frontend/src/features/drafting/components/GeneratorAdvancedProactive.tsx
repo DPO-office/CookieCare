@@ -104,7 +104,7 @@
 
 //         {s1Open && (
 //           <div className="p-5 space-y-4">
-//             <p className="text-[12px] text-gray-500">Choose from randtrust templates or your uploaded templates.</p>
+//             <p className="text-[12px] text-gray-500">Choose from LORA templates or your uploaded templates.</p>
 
 //             <div className="flex gap-2">
 //               <div className="relative flex-1">

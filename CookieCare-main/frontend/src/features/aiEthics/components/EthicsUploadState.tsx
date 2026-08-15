@@ -1,8 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
-import {
-  Upload, FileText, Brain,
-  ArrowRight, BadgeCheck, Shield, Scale, XCircle, Sparkles,
-} from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 import { FEATURE_CARDS } from "../constants";
 import { WebsiteUrlInput, validateUrl } from "../../../shared/components/WebsiteUrlInput";
 import { useFileUpload } from "../../vendorReview/hooks/useFileUpload";
@@ -11,6 +7,8 @@ interface EthicsUploadStateProps {
   onFilesSelected: (files: File[], websiteUrl?: string) => void;
   error?: string;
 }
+
+const CARD_SHADOW = "0 1px 2px rgba(16,24,40,0.04), 0 0 0 1px rgba(16,24,40,0.06)";
 
 const DOCUMENT_TYPES = [
   "AI policy",
@@ -26,7 +24,6 @@ export function EthicsUploadState({ onFilesSelected, error }: EthicsUploadStateP
   const [mounted, setMounted] = useState(false);
   const [websiteUrl, setWebsiteUrl] = useState("");
   const [urlError, setUrlError] = useState<string | undefined>();
-
   const { uploadedFiles, dragging, addFiles, removeFile, setDragging } = useFileUpload();
 
   useEffect(() => {
@@ -52,165 +49,111 @@ export function EthicsUploadState({ onFilesSelected, error }: EthicsUploadStateP
 
   const handleAnalyze = () => {
     if (uploadedFiles.length > 0) {
-      onFilesSelected(uploadedFiles.map((e) => e.file), websiteUrl.trim() || undefined);
+      onFilesSelected(uploadedFiles.map((entry) => entry.file), websiteUrl.trim() || undefined);
     }
   };
 
   const handleAnalyzeWebsite = () => {
     const err = validateUrl(websiteUrl);
-    if (err) { setUrlError(err); return; }
+    if (err) {
+      setUrlError(err);
+      return;
+    }
     setUrlError(undefined);
-    onFilesSelected(uploadedFiles.map((e) => e.file), websiteUrl.trim());
+    onFilesSelected(uploadedFiles.map((entry) => entry.file), websiteUrl.trim());
   };
 
-  // Dynamic button label · mirrors Vendor Review logic exactly
   const hasFiles = uploadedFiles.length > 0;
   const hasUrl = websiteUrl.trim() !== "" && !validateUrl(websiteUrl);
   const analyzeLabel = (() => {
-    if (hasFiles && hasUrl)
-      return `Analyze ${uploadedFiles.length} Document${uploadedFiles.length !== 1 ? "s" : ""} + Website`;
-    if (hasFiles)
-      return `Analyze ${uploadedFiles.length} Document${uploadedFiles.length !== 1 ? "s" : ""}`;
-    if (hasUrl)
-      return "Analyze Website";
+    if (hasFiles && hasUrl) {
+      return `Analyze ${uploadedFiles.length} document${uploadedFiles.length !== 1 ? "s" : ""} + website`;
+    }
+    if (hasFiles) return `Analyze ${uploadedFiles.length} document${uploadedFiles.length !== 1 ? "s" : ""}`;
+    if (hasUrl) return "Analyze website";
     return null;
   })();
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#FAFAFB]">
+    <div className="dpa-results-bg flex-1 overflow-y-auto">
       <div
-        className="px-10 py-8 max-w-5xl mx-auto"
+        className="mx-auto w-full max-w-5xl px-6 py-10 sm:px-10"
         style={{
           opacity: mounted ? 1 : 0,
-          transform: mounted ? "none" : "translateY(10px)",
+          transform: mounted ? "none" : "translateY(8px)",
           transition: "opacity 0.35s ease, transform 0.35s ease",
         }}
       >
-        {/* Error banner */}
+        <div className="mb-8 max-w-2xl">
+          <h1 className="text-[30px] font-semibold leading-tight tracking-[-0.03em] text-[#1a1a1a] sm:text-[34px]">
+            AI ethics score
+          </h1>
+          <p className="mt-2 text-[14px] leading-relaxed text-dark-200">
+            Upload AI documentation for a structured evaluation covering fairness, transparency,
+            accountability, governance, privacy, and responsible AI practices.
+          </p>
+        </div>
+
         {error && (
-          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-700 font-medium">
-            {error}
+          <div className="mb-4 flex items-start gap-3 rounded-2xl bg-badge-red px-4 py-3">
+            <img src="/icons/warning.svg" alt="" className="mt-0.5 h-4 w-4 shrink-0" />
+            <p className="text-[13px] text-badge-red-text">{error}</p>
           </div>
         )}
 
-        {/* Hero */}
-        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-8">         
-           <div className="max-w-2xl">
-            <h1 className="text-[26px] font-bold tracking-tight leading-tight mb-2.5" style={{ color: "#2175D9" }}>
-              AI ethics score
-            </h1>
-            <p className="text-[13.5px] text-gray-500 leading-relaxed max-w-xl">
-              Upload your AI documentation for a structured evaluation covering
-              fairness, transparency, accountability, governance, privacy, and
-              responsible AI practices, with a comprehensive ethics score on completion.
-            </p>
-            <div className="flex flex-wrap gap-2 mt-5">
-              {[
-                { label: "Responsible AI", icon: <Shield className="w-3 h-3" /> },
-                { label: "AI governance", icon: <Brain className="w-3 h-3" /> },
-                { label: "Ethics assessment", icon: <Scale className="w-3 h-3" /> },
-                { label: "Enterprise ready", icon: <BadgeCheck className="w-3 h-3" /> },
-              ].map((b) => (
-                <span
-                  key={b.label}
-                  className="inline-flex items-center gap-1.5 bg-white border border-gray-200 rounded-full px-3 py-1 text-[11px] font-semibold text-gray-600 shadow-xs"
-                >
-                  {b.icon}
-                  {b.label}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Upload Zone */}
-        <div className="mb-6">
-          <div
-            onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-            onDragLeave={(e) => {
-              if (!e.currentTarget.contains(e.relatedTarget as Node))
-                setDragging(false);
-            }}
-            onDrop={handleDrop}
-            onClick={() => fileRef.current?.click()}
-            className={`relative rounded-[20px] p-10 text-center cursor-pointer transition-all duration-250 group overflow-hidden
-              ${dragging
-                ? "border-2 border-dashed border-[#2175D9] bg-blue-50 scale-[1.008] shadow-md"
-                : "border-2 border-dashed border-gray-200 hover:border-[#2175D9] hover:shadow-sm"
-              }`}
-            style={{
-              background: dragging
-                ? "linear-gradient(135deg,#EBF4FD 0%,#DBEAFE 100%)"
-                : "linear-gradient(135deg,#FFFFFF 0%,#FAFAFA 60%,#F5F5F5 100%)",
-            }}
-          >
-            <div
-              className={`absolute inset-0 rounded-[20px] transition-opacity duration-300 pointer-events-none ${
-                dragging ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-              }`}
-              style={{
-                background:
-                  "radial-gradient(ellipse at 50% 40%,rgba(33,117,217,0.06) 0%,transparent 70%)",
-              }}
-            />
-            <input
-              ref={fileRef}
-              type="file"
-              className="hidden"
-              accept=".pdf,.docx,.txt"
-              onChange={handleFile}
-              multiple
-            />
-            <div
-              className={`relative w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-all duration-250 shadow-xs
-                ${dragging
-                  ? "bg-[#2175D9] text-white scale-110 shadow-md"
-                  : "bg-white text-gray-500 border border-gray-200 group-hover:bg-[#2175D9] group-hover:border-[#2175D9] group-hover:text-white group-hover:shadow-sm group-hover:scale-105"
-                }`}
-            >
-              <Upload className="w-6 h-6" />
-            </div>
-            <h3 className="text-[15px] font-bold text-gray-900 mb-1.5">
-              {dragging
-                ? "Drop your AI documentation to begin"
-                : "Drag & drop your AI documentation here"}
-            </h3>
-            <p className="text-[13px] text-gray-500 mb-5">
-              or{" "}
-              <span className="text-gray-900 font-semibold underline underline-offset-2">
-                browse files
-              </span>{" "}
-              from your computer
-            </p>
-            <div className="flex items-center justify-center gap-2 flex-wrap mb-3">
-              {DOCUMENT_TYPES.map((dt) => (
-                <span
-                  key={dt}
-                  className="inline-flex items-center gap-1.5 bg-white border border-gray-200 rounded-lg px-2.5 py-1 text-[11px] font-medium text-gray-600 shadow-xs"
-                >
-                  <FileText className="w-3 h-3 text-gray-400" />
-                  {dt}
-                </span>
-              ))}
-            </div>
-            <div className="flex items-center justify-center gap-3 mt-3">
-              {["PDF", "DOCX", "TXT"].map((fmt) => (
-                <span
-                  key={fmt}
-                  className="inline-flex items-center gap-1.5 bg-white border border-gray-200 rounded-lg px-2.5 py-1 text-[11px] font-semibold text-gray-600 shadow-xs"
-                >
-                  <FileText className="w-3 h-3 text-gray-400" />
-                  {fmt}
-                </span>
-              ))}
-              <span className="text-[11px] text-gray-400 font-medium pl-1">
-                · Max 25 MB
+        <div
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragging(true);
+          }}
+          onDragLeave={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragging(false);
+          }}
+          onDrop={handleDrop}
+          onClick={() => fileRef.current?.click()}
+          className={`mb-6 cursor-pointer rounded-[24px] bg-white px-8 py-12 text-center transition-all duration-200 ${
+            dragging ? "inset-shadow" : ""
+          }`}
+          style={{
+            boxShadow: dragging
+              ? "0 0 0 1.5px #8e98ff, 0 8px 24px rgba(96,107,235,0.08)"
+              : CARD_SHADOW,
+          }}
+        >
+          <input
+            ref={fileRef}
+            type="file"
+            className="hidden"
+            accept=".pdf,.docx,.txt"
+            multiple
+            onChange={handleFile}
+          />
+          <img src="/icons/info.svg" alt="" className="mx-auto mb-4 h-12 w-12 object-contain" />
+          <h3 className="mb-1.5 text-[16px] font-semibold tracking-[-0.02em] text-[#1a1a1a]">
+            {dragging ? "Drop your AI documentation to begin" : "Drag & drop your AI documentation here"}
+          </h3>
+          <p className="mb-6 text-[13px] text-dark-200">
+            or{" "}
+            <span className="font-medium text-[#4F5BD9] underline underline-offset-2">browse files</span>{" "}
+            from your computer
+          </p>
+          <div className="mb-3 flex flex-wrap items-center justify-center gap-2">
+            {DOCUMENT_TYPES.map((dt) => (
+              <span key={dt} className="score-badge bg-[#F7F8FB] text-[11px] font-medium text-dark-200">
+                {dt}
               </span>
-            </div>
+            ))}
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {["PDF", "DOCX", "TXT"].map((fmt) => (
+              <span key={fmt} className="score-badge bg-[#F7F8FB] text-[11px] font-medium text-dark-200">
+                {fmt}
+              </span>
+            ))}
+            <span className="pl-1 text-[11px] text-[#98A2B3]">Max 25 MB</span>
           </div>
         </div>
 
-        {/* Website URL Input */}
         <div className="mb-6">
           <WebsiteUrlInput
             value={websiteUrl}
@@ -220,92 +163,74 @@ export function EthicsUploadState({ onFilesSelected, error }: EthicsUploadStateP
           />
         </div>
 
-        {/* Queued file list + primary action button */}
         {(hasFiles || hasUrl) && (
-          <div className="mb-6 space-y-2">
+          <div className="mb-8 space-y-2">
             {hasFiles && (
               <>
-                <p className="text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.14em] text-[#98A2B3]">
                   Queued for analysis
                 </p>
                 {uploadedFiles.map(({ file, id }) => (
                   <div
                     key={id}
-                    className="flex items-center gap-3 bg-white border border-gray-200 rounded-[14px] px-4 py-3 shadow-xs group hover:shadow-sm transition-all duration-150"
+                    className="flex items-center gap-3 rounded-2xl bg-white px-4 py-3"
+                    style={{ boxShadow: CARD_SHADOW }}
                   >
-                    <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
-                      <FileText className="w-4 h-4 text-blue-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[13px] font-semibold text-gray-900 truncate">{file.name}</p>
-                      <p className="text-[11px] text-gray-400 mt-0.5">{(file.size / 1024).toFixed(0)} KB</p>
+                    <img src="/icons/info.svg" alt="" className="h-8 w-8 shrink-0 object-contain" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[13px] font-medium text-[#1a1a1a]">{file.name}</p>
+                      <p className="text-[11px] text-dark-200">{(file.size / 1024).toFixed(0)} KB</p>
                     </div>
                     <button
-                      onClick={(e) => { e.stopPropagation(); removeFile(id); }}
-                      className="w-6 h-6 rounded-md flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all duration-150 shrink-0"
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeFile(id);
+                      }}
+                      className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full hover:bg-[#F7F8FB]"
+                      aria-label={`Remove ${file.name}`}
                     >
-                      <XCircle className="w-4 h-4" />
+                      <img src="/icons/cross.svg" alt="" className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 ))}
               </>
             )}
-
-            <button
-              onClick={hasFiles ? handleAnalyze : handleAnalyzeWebsite}
-              className="btn-primary w-full justify-center py-3 mt-3 text-[13px] cursor-pointer"
-            >
-              <Sparkles className="w-4 h-4" />
-              {analyzeLabel}
-              <ArrowRight className="w-4 h-4" />
-            </button>
+            {analyzeLabel && (
+              <button
+                type="button"
+                onClick={hasFiles ? handleAnalyze : handleAnalyzeWebsite}
+                className="mt-3 inline-flex w-full cursor-pointer items-center justify-center rounded-full primary-gradient px-4 py-3 text-[13px] font-semibold text-white hover:opacity-90"
+              >
+                {analyzeLabel}
+              </button>
+            )}
           </div>
         )}
 
-        {/* What We'll Analyze */}
-        <div>
-          <div className="flex items-baseline justify-between mb-5">
-            <div>
-              <h2 className="text-[16px] font-bold text-gray-900 tracking-tight">
-                What we'll analyze
-              </h2>
-              <p className="text-[12.5px] text-gray-500 mt-0.5">
-                Six responsible AI dimensions evaluated.
-              </p>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-            {FEATURE_CARDS.map((card, i) => {
-              const Icon = card.icon;
-              return (
-                <div
-                  key={card.title}
-                  className="group bg-white border border-gray-200 rounded-[16px] p-5 shadow-xs cursor-default hover:shadow-md hover:border-gray-300 hover:-translate-y-0.5 transition-all duration-200"
-                  style={{ transitionDelay: `${i * 25}ms` }}
-                >
-                  <div className="w-9 h-9 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-500 mb-3.5 group-hover:text-white transition-all duration-200 shadow-xs">
-                    <Icon className="w-[17px] h-[17px]" />
-                  </div>
-                  <h3 className="text-[13px] font-bold text-gray-900 mb-1 tracking-tight">
-                    {card.title}
-                  </h3>
-                  <p className="text-[12px] text-gray-500 leading-relaxed">
-                    {card.description}
-                  </p>
-                  <div className="mt-3 pt-3 border-t border-gray-50 flex items-center gap-1 text-[11px] font-medium text-gray-400 group-hover:text-gray-600 transition-colors">
-                    <span>Reviewed</span>
-                    <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-150" />
-                  </div>
+        <div className="mb-5">
+          <h2 className="text-[22px] font-semibold tracking-tight text-[#1a1a1a]">What we&apos;ll analyze</h2>
+          <p className="mt-1 text-[13px] text-dark-200">Six responsible AI dimensions evaluated.</p>
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {FEATURE_CARDS.map((card, i) => {
+            const Icon = card.icon;
+            return (
+              <div
+                key={card.title}
+                className="flex min-h-[168px] flex-col rounded-[22px] bg-white p-5"
+                style={{ boxShadow: CARD_SHADOW, transitionDelay: `${i * 12}ms` }}
+              >
+                <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-full bg-[#EEF2FF] text-[#4F5BD9]">
+                  <Icon className="h-4 w-4" strokeWidth={1.75} />
                 </div>
-              );
-            })}
-          </div>
+                <h3 className="mb-1.5 text-[15px] font-semibold tracking-[-0.02em] text-[#1a1a1a]">{card.title}</h3>
+                <p className="text-[13px] leading-[1.55] text-dark-200">{card.description}</p>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
   );
 }
-
-
-
-
