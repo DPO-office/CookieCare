@@ -21,7 +21,17 @@ function findBackendRoot(startDir: string): string {
   return startDir;
 }
 const backendRoot = findBackendRoot(__dirname);
-dotenv.config({ path: path.join(backendRoot, ".env") });
+const projectRoot = path.dirname(backendRoot);
+const backendEnvPath = path.join(backendRoot, ".env");
+const projectEnvPath = path.join(projectRoot, ".env");
+
+// Load CookieCare-main/.env first, then backend/.env (backend wins on conflicts).
+if (fs.existsSync(projectEnvPath)) {
+  dotenv.config({ path: projectEnvPath });
+}
+if (fs.existsSync(backendEnvPath)) {
+  dotenv.config({ path: backendEnvPath, override: true });
+}
 
 /**
  * Windows / corporate dev environments often lack the CA chain required for
