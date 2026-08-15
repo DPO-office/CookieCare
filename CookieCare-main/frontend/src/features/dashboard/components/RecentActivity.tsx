@@ -1,88 +1,75 @@
 import { FileText } from "lucide-react";
-import { scoreVariant } from "../../../shared/components/StatusBadge";
-import type { DocLogEntry } from "../utils";
+import type { DashboardJob } from "../types";
+import { jobLabel, jobTab, jobTarget, scanScore, timeAgo, jobTime } from "../utils";
 import { DashboardCard } from "./DashboardCard";
 
 interface RecentActivityProps {
-  entries: DocLogEntry[];
+  jobs: DashboardJob[];
   onStartDraft: () => void;
+  onOpen: (tab: string) => void;
 }
 
-export function RecentActivity({ entries, onStartDraft }: RecentActivityProps) {
-  const visible = entries.slice(0, 8);
-
+export function RecentActivity({ jobs, onStartDraft, onOpen }: RecentActivityProps) {
   return (
     <DashboardCard
-      overline="Ledger"
-      title="Recent activity"
+      overline="Activity"
+      title="Recent jobs"
       action={
-        <span
-          className="text-[length:var(--text-caption)] font-medium tabular-nums"
-          style={{ color: "var(--color-text-tertiary)" }}
-        >
-          {entries.length} total
+        <span className="text-[12px] font-medium tabular-nums text-[#98A2B3]">
+          {jobs.length} shown
         </span>
       }
       noPadding
     >
-      {visible.length === 0 ? (
+      {jobs.length === 0 ? (
         <div className="px-6 py-10 text-center">
-          <p
-            className="text-[length:var(--text-body-sm)] font-medium mb-1"
-            style={{ color: "var(--color-text-secondary)" }}
-          >
-            No activity yet
+          <p className="mb-1 text-[13px] font-medium text-[#1a1a1a]">No completed jobs yet</p>
+          <p className="mb-4 text-[12px] text-dark-200">
+            Analyses, drafts, and scans will appear here when they finish.
           </p>
-          <p
-            className="text-[length:var(--text-caption)] mb-4"
-            style={{ color: "var(--color-text-tertiary)" }}
+          <button
+            type="button"
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-full primary-gradient px-4 py-2 text-[13px] font-semibold text-white transition-opacity hover:opacity-90"
+            onClick={onStartDraft}
           >
-            Documents you create or analyze will appear here.
-          </p>
-          <button type="button" className="btn-primary" onClick={onStartDraft}>
             Create document
           </button>
         </div>
       ) : (
         <ul>
-          {visible.map((log) => {
-            const variant = scoreVariant(log.score);
-            const scoreColor =
-              variant === "success"
-                ? "var(--color-success-text)"
-                : variant === "warning"
-                ? "var(--color-warning-text)"
-                : variant === "danger"
-                ? "var(--color-danger-text)"
-                : "var(--color-text-tertiary)";
-
+          {jobs.map((job) => {
+            const score = scanScore(job);
+            const failed = job.status === "failed";
             return (
-              <li key={log.id}>
-                <div className="dashboard-activity-row cursor-default hover:bg-transparent">
+              <li key={job.id}>
+                <button
+                  type="button"
+                  className="dashboard-activity-row"
+                  onClick={() => onOpen(jobTab(job.type))}
+                >
                   <div className="dashboard-icon-tile">
-                    <FileText className="w-4 h-4" strokeWidth={1.5} />
+                    <FileText className="h-4 w-4" strokeWidth={1.5} />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p
-                      className="text-[length:var(--text-body-sm)] font-semibold truncate"
-                      style={{ color: "var(--color-text-primary)" }}
-                    >
-                      {log.target}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px] font-semibold text-[#1a1a1a]">
+                      {jobLabel(job.type)}
                     </p>
-                    <p
-                      className="text-[length:var(--text-caption)] mt-0.5 truncate"
-                      style={{ color: "var(--color-text-tertiary)" }}
-                    >
-                      {log.type} · {log.issues} issue{log.issues === 1 ? "" : "s"} · Trust {log.score}%
+                    <p className="mt-0.5 truncate text-[12px] text-dark-200">
+                      {jobTarget(job)}
+                      {failed
+                        ? " · Failed"
+                        : score !== null
+                          ? ` · Scan score ${score}`
+                          : " · Completed"}
                     </p>
                   </div>
                   <span
-                    className="text-[length:var(--text-caption)] tabular-nums shrink-0"
-                    style={{ color: scoreColor }}
+                    className="shrink-0 text-[12px] tabular-nums"
+                    style={{ color: failed ? "#B54A45" : "#98A2B3" }}
                   >
-                    {log.scanTime}
+                    {timeAgo(jobTime(job))}
                   </span>
-                </div>
+                </button>
               </li>
             );
           })}

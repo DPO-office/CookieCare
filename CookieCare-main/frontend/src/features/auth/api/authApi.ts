@@ -43,7 +43,7 @@ export async function loginUser(email: string, password: string): Promise<AuthSu
  */
 export async function registerUser(
   email: string, password: string, name: string,
-): Promise<{ message: string; code?: string }> {
+): Promise<{ message: string; code?: string; token?: string; user?: AuthSuccessPayload["user"] }> {
   const res = await fetch(apiUrl("/api/auth/register"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },

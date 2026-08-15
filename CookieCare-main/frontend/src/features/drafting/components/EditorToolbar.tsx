@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useLayoutEffect } from "react";
+﻿import React, { useRef, useState, useEffect, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
 import {
   Undo2,
@@ -10,15 +10,10 @@ import {
   Strikethrough,
   List,
   ListOrdered,
-  Outdent,
-  Indent,
-  Table,
-  Minus,
   AlignLeft,
   AlignCenter,
   AlignRight,
   AlignJustify,
-  Link2,
   ChevronDown,
 } from "lucide-react";
 import type { Editor } from "@tiptap/react";
@@ -37,6 +32,7 @@ const FONT_FAMILIES = [
   { label: "Times New Roman", value: "Times New Roman, Times, serif" },
   { label: "Arial", value: "Arial, Helvetica, sans-serif" },
   { label: "Georgia", value: "Georgia, serif" },
+  { label: "Mona Sans", value: '"Mona Sans", ui-sans-serif, system-ui, sans-serif' },
   { label: "Inter", value: "Inter, system-ui, sans-serif" },
   { label: "Courier New", value: "Courier New, monospace" },
 ];
@@ -79,10 +75,10 @@ function TBtn({
       onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}
       title={title}
-      className={`draft-toolbar-btn flex items-center justify-center w-7 h-7 rounded-md transition-all text-sm shrink-0 disabled:opacity-35 disabled:cursor-not-allowed ${
+      className={`draft-toolbar-btn flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm transition-all disabled:cursor-not-allowed disabled:opacity-35 ${
         active
-          ? "bg-[#111827] text-white shadow-sm"
-          : "text-[#6B7280] hover:bg-white hover:text-[#111827] hover:shadow-sm"
+          ? "bg-[#0F172A] text-white"
+          : "text-[#64748B] hover:bg-white hover:text-[#0F172A]"
       }`}
     >
       {children}
@@ -90,8 +86,8 @@ function TBtn({
   );
 }
 
-function Divider() {
-  return <span className="w-px h-4 bg-[#E5E7EB] mx-0.5 shrink-0" />;
+function Group({ children }: { children: React.ReactNode }) {
+  return <div className="draft-toolbar-group">{children}</div>;
 }
 
 function ToolbarDropdown({
@@ -292,8 +288,9 @@ export default function EditorToolbar({
   };
 
   return (
-    <div className="draft-toolbar shrink-0 select-none border-b border-[#ECECEC] bg-[#F9FAFB] overflow-visible relative z-30">
-      <div className="flex items-center gap-0.5 px-3 py-2 overflow-x-auto">
+    <div className="draft-toolbar relative z-30 shrink-0 overflow-visible select-none">
+      <div className="draft-toolbar-row">
+        <Group>
         <TBtn
           disabled={disabled || !editor?.can().undo()}
           onClick={() => run(() => editor!.chain().focus().undo().run())}
@@ -323,9 +320,9 @@ export default function EditorToolbar({
         >
           <Eraser className="w-3.5 h-3.5" />
         </TBtn>
+        </Group>
 
-        <Divider />
-
+        <Group>
         <ToolbarDropdown
           value={editor ? getActiveFontFamily(editor) : FONT_FAMILIES[0].value}
           label="Font family"
@@ -352,9 +349,9 @@ export default function EditorToolbar({
           options={BLOCK_STYLES}
           onChange={(v) => applyBlockStyle(v)}
         />
+        </Group>
 
-        <Divider />
-
+        <Group>
         <TBtn
           disabled={disabled}
           onClick={() => run(() => editor!.chain().focus().toggleBold().run())}
@@ -395,38 +392,27 @@ export default function EditorToolbar({
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => colorInputRef.current?.click()}
             title="Text color"
-            className="draft-toolbar-btn flex flex-col items-center justify-center w-7 h-7 rounded-md text-[#6B7280] hover:bg-white hover:shadow-sm transition-all disabled:opacity-35"
+            className="draft-toolbar-btn flex h-8 w-8 flex-col items-center justify-center rounded-lg text-[#64748B] transition-all hover:bg-white hover:text-[#0F172A] disabled:opacity-35"
           >
             <span className="text-[11px] font-bold leading-none">A</span>
             <span
               className="w-3.5 h-[2.5px] rounded-full mt-0.5"
-              style={{ background: editor ? getActiveColor(editor) : "#111827" }}
+              style={{ background: editor ? getActiveColor(editor) : "#0F172A" }}
             />
           </button>
           <input
             ref={colorInputRef}
             type="color"
             className="sr-only"
-            value={editor ? getActiveColor(editor) : "#111827"}
+            value={editor ? getActiveColor(editor) : "#0F172A"}
             onChange={(e) =>
               run(() => editor!.chain().focus().setColor(e.target.value).run())
             }
           />
-          <div className="absolute top-full left-0 mt-1 hidden group-hover:flex gap-1 p-1 bg-white border rounded-lg shadow-lg z-10">
-            {TEXT_COLORS.map((c) => (
-              <button
-                key={c}
-                type="button"
-                className="w-4 h-4 rounded-full border border-black/10"
-                style={{ background: c }}
-                onClick={() => run(() => editor!.chain().focus().setColor(c).run())}
-              />
-            ))}
-          </div>
         </div>
+        </Group>
 
-        <Divider />
-
+        <Group>
         <TBtn
           disabled={disabled}
           onClick={() => run(() => editor!.chain().focus().setTextAlign("left").run())}
@@ -459,9 +445,9 @@ export default function EditorToolbar({
         >
           <AlignJustify className="w-3.5 h-3.5" />
         </TBtn>
+        </Group>
 
-        <Divider />
-
+        <Group>
         <TBtn
           disabled={disabled}
           onClick={() => run(() => editor!.chain().focus().toggleBulletList().run())}
@@ -478,48 +464,33 @@ export default function EditorToolbar({
         >
           <ListOrdered className="w-3.5 h-3.5" />
         </TBtn>
-        <TBtn
-          disabled={disabled}
-          onClick={() => run(() => editor!.chain().focus().liftListItem("listItem").run())}
-          title="Outdent"
-        >
-          <Outdent className="w-3.5 h-3.5" />
-        </TBtn>
-        <TBtn
-          disabled={disabled}
-          onClick={() => run(() => editor!.chain().focus().sinkListItem("listItem").run())}
-          title="Indent"
-        >
-          <Indent className="w-3.5 h-3.5" />
-        </TBtn>
+        </Group>
 
-        <Divider />
-
-        <TBtn disabled={disabled} onClick={setLink} title="Insert link" active={isActive("link")}>
-          <Link2 className="w-3.5 h-3.5" />
-        </TBtn>
-        <TBtn disabled={disabled} onClick={insertTable} title="Insert table">
-          <Table className="w-3.5 h-3.5" />
-        </TBtn>
-        <TBtn
+        <Group>
+        <ToolbarDropdown
+          value="insert"
+          label="Insert"
+          minWidth="88px"
           disabled={disabled}
-          onClick={() => run(() => editor!.chain().focus().setHorizontalRule().run())}
-          title="Insert divider"
-        >
-          <Minus className="w-3.5 h-3.5" />
-        </TBtn>
-
-        <Divider />
-
-        <button
-          type="button"
-          disabled={disabled}
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={() => onToolbarFormat("disclaimer")}
-          className="h-7 px-2.5 text-[11px] font-medium text-[#6B7280] hover:text-[#111827] hover:bg-white border border-[#E5E7EB] rounded-md transition-all shrink-0 disabled:opacity-35"
-        >
-          Disclaimer
-        </button>
+          options={[
+            { label: "Insert", value: "insert" },
+            { label: "Link", value: "link" },
+            { label: "Table", value: "table" },
+            { label: "Divider", value: "hr" },
+            { label: "Disclaimer", value: "disclaimer" },
+            { label: "Increase indent", value: "indent" },
+            { label: "Decrease indent", value: "outdent" },
+          ]}
+          onChange={(v) => {
+            if (v === "link") setLink();
+            if (v === "table") insertTable();
+            if (v === "hr") run(() => editor!.chain().focus().setHorizontalRule().run());
+            if (v === "disclaimer") onToolbarFormat("disclaimer");
+            if (v === "indent") run(() => editor!.chain().focus().sinkListItem("listItem").run());
+            if (v === "outdent") run(() => editor!.chain().focus().liftListItem("listItem").run());
+          }}
+        />
+        </Group>
       </div>
     </div>
   );

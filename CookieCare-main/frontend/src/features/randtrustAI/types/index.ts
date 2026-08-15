@@ -1,4 +1,4 @@
-// ─── RandTrust AI — Type Definitions ─────────────────────────────────────────
+// ─── LORA AI — Type Definitions ─────────────────────────────────────────
 
 export type WorkflowId =
   | "dpa-review"

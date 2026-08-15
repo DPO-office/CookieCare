@@ -1,5 +1,5 @@
-// ─── RandTrust AI — Scoped CSS ────────────────────────────────────────────────
-// Injected once via <style>{PAGE_STYLES}</style> in RandTrustAI.tsx.
+// ─── LORA AI — Scoped CSS ────────────────────────────────────────────────
+// Injected once via <style>{PAGE_STYLES}</style> in LORAAI.tsx.
 // Kept separate so the component files stay readable and this can be migrated
 // to a .css module in the future without touching component code.
 //
@@ -13,7 +13,6 @@
 
 // ── Shared component styles (background-agnostic) ─────────────────────────────
 const SHARED_STYLES = `
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,200;0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,300;1,14..32,400&display=swap');
 
 /* ── Entrance animations ─────────────────────────────────────────────────── */
 @keyframes rt-rise {
@@ -48,7 +47,7 @@ const SHARED_STYLES = `
 // ── Light theme tokens & component overrides ─────────────────────────────────
 const LIGHT_STYLES = `
 .rt {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
   --blue:       #2175D9;
   --blue-dim:   rgba(33,117,217,0.08);
   --blue-ring:  rgba(33,117,217,0.22);

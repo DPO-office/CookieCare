@@ -3,7 +3,7 @@
  *
  * Large centered headline, generous whitespace, composer slot, suggestions.
  * The composer is the hero — headline and suggestions support it.
- * Follows the RandTrust Design System.
+ * Follows the LORA Design System.
  */
 import React from "react";
 import { motion } from "motion/react";
@@ -51,7 +51,7 @@ export function ConversationEmpty({
                   background: "#EBF2FD",
                   color: "#1A5BAD",
                   border: "1px solid #BFDBFE",
-                  fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif",
+                  fontFamily: "var(--font-sans)",
                   letterSpacing: "0.08em",
                 }}
               >
@@ -72,7 +72,7 @@ export function ConversationEmpty({
               lineHeight: 1.18,
               letterSpacing: "-0.03em",
               color: "#111827",
-              fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif",
+              fontFamily: "var(--font-sans)",
             }}
           >
             {typeof headline === "string"
@@ -95,7 +95,7 @@ export function ConversationEmpty({
               style={{
                 fontSize: "14px",
                 color: "#6B7280",
-                fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif",
+                fontFamily: "var(--font-sans)",
               }}
             >
               {subtext}
@@ -130,7 +130,7 @@ export function ConversationEmpty({
                   letterSpacing: "0.08em",
                   textTransform: "uppercase",
                   color: "#9CA3AF",
-                  fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif",
+                  fontFamily: "var(--font-sans)",
                 }}
               >
                 {suggestionsLabel}

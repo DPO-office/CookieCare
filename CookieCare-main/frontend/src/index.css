@@ -1,7 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Mona+Sans:ital,wght@0,200..900;1,200..900&display=swap");
 @import "tailwindcss";
 
-/* ── RandTrust Design System Tokens ─────────────────────────────────────────
+/* ── LORA Design System Tokens ─────────────────────────────────────────
    Full token system per DESIGN_SYSTEM.md v1.0 (August 2026).
    All structural colors, spacing, radius, shadow, and typography values
    live here. Never use inline hex values for structural/semantic purposes.
@@ -9,7 +9,8 @@
 @layer base {
   :root {
     /* ── Typography ── */
-    --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --font-sans: "Mona Sans", ui-sans-serif, system-ui, sans-serif,
+      "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
     --text-display:   28px;
@@ -75,7 +76,7 @@
     --color-neutral-subtle: #F9FAFB;
     --color-neutral-text:   #374151;
 
-    /* ── Dark Mode (RandTrust AI) ── */
+    /* ── Dark Mode (LORA AI) ── */
     --color-dark-bg:        #0B0D10;
     --color-dark-surface:   #0D0F13;
     --color-dark-surface-2: #141720;
@@ -122,8 +123,8 @@
 
     /* ── Layout ── */
     --sidebar-width:           296px;
-    --sidebar-width-icon:      64px;
-    --sidebar-width-collapsed: 64px;
+    --sidebar-width-icon:      72px;
+    --sidebar-width-collapsed: 72px;
     --topnav-height:           56px;
   }
 
@@ -151,8 +152,114 @@
   --color-brand-primary-active: var(--brand-primary-active);
   --color-brand-primary-light:  var(--brand-primary-light);
 
-  --font-sans: var(--font-sans);
+  /* Semantic aliases (master-detail / inspector surfaces) */
+  --color-background:           var(--color-bg-app);
+  --color-foreground:           var(--color-text-primary);
+  --color-card:                 var(--color-surface-1);
+  --color-card-foreground:      var(--color-text-primary);
+  --color-muted:                var(--color-surface-3);
+  --color-muted-foreground:     var(--color-text-tertiary);
+  --color-accent:               var(--color-brand-subtle);
+  --color-accent-foreground:    var(--color-brand-text);
+  --color-primary:              var(--brand-primary);
+  --color-primary-foreground:   var(--color-text-inverse);
+  --color-border:               #E4E4E7;
+  --color-ring:                 var(--brand-primary);
+
+  --font-sans: "Mona Sans", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-mono: var(--font-mono);
+
+  --color-dark-200: #475467;
+  --color-light-blue-100: #c1d3f81a;
+  --color-light-blue-200: #a7bff14d;
+  --color-badge-green: #d5faf1;
+  --color-badge-red: #f9e3e2;
+  --color-badge-yellow: #fceed8;
+  --color-badge-green-text: #254d4a;
+  --color-badge-red-text: #752522;
+  --color-badge-yellow-text: #73321b;
+}
+
+@utility text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-[#AB8C95] via-[#000000] to-[#8E97C5];
+}
+
+@utility gradient-border {
+  @apply bg-gradient-to-b from-light-blue-100 to-light-blue-200 p-4 rounded-2xl;
+}
+
+@utility primary-gradient {
+  background: linear-gradient(to bottom, #8e98ff, #606beb);
+  box-shadow: 0px 74px 21px 0px #6678ef00;
+}
+
+@utility primary-gradient-hover {
+  background: linear-gradient(to bottom, #717dff, #4957eb);
+}
+
+@utility inset-shadow {
+  box-shadow: inset 0 0 12px 0 rgba(36, 99, 235, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+@utility gradient-hover {
+  @apply bg-gradient-to-b from-light-blue-100 to-light-blue-200;
+}
+
+@utility dpa-results-bg {
+  background-color: #eaf2ff;
+  background-image:
+    linear-gradient(rgba(124, 135, 251, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124, 135, 251, 0.045) 1px, transparent 1px),
+    url("/images/bg-main.svg");
+  background-size: 56px 56px, 56px 56px, 100% auto;
+  background-position: top center, top center, top center;
+  background-repeat: repeat, repeat, no-repeat;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@layer components {
+  .score-badge {
+    @apply flex flex-row items-center justify-center py-1 px-2.5 gap-1.5 rounded-[96px];
+  }
+
+  .segmented-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 4px;
+    border-radius: 9999px;
+    background: rgba(199, 210, 254, 0.38);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: inset 0 0 0 1px rgba(167, 191, 241, 0.4);
+  }
+
+  .segmented-control-btn {
+    cursor: pointer;
+    border-radius: 9999px;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #667085;
+    background: transparent;
+    transition: color 150ms ease, background-color 150ms ease;
+  }
+
+  .segmented-control-btn:hover {
+    color: #1a1a1a;
+  }
+
+  .segmented-control-btn.is-active {
+    font-weight: 600;
+    color: #ffffff;
+    background: #111827;
+  }
 }
 
 /* ── Shared button utilities ─────────────────────────────────────────────────
@@ -214,7 +321,14 @@
 
   /* Application shell */
   .app-shell {
-    background: var(--color-bg-app);
+    background-color: #eaf2ff;
+    background-image:
+      linear-gradient(rgba(124, 135, 251, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124, 135, 251, 0.045) 1px, transparent 1px),
+      url("/images/bg-main.svg");
+    background-size: 56px 56px, 56px 56px, 100% auto;
+    background-position: top center, top center, top center;
+    background-repeat: repeat, repeat, no-repeat;
   }
 
   .topnav-shell {
@@ -626,4 +740,10 @@
   margin: 0 0 0.9rem;
   text-align: justify;
   text-justify: inter-word;
+}
+
+/* Unlayered so it wins over Tailwind utilities on the sidebar wordmark. */
+.lora-sidebar-wordmark {
+  color: #0F1941 !important;
+  -webkit-text-fill-color: #0F1941 !important;
 }

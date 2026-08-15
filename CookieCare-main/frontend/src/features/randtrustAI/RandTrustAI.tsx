@@ -15,7 +15,7 @@ import { useFileUpload } from "./hooks/useFileUpload";
 import { useDragDrop } from "./hooks/useDragDrop";
 import type { ComposerProps } from "./components/Composer";
 import type { QuickAction, CompareResult } from "./types";
-import { CompareDocumentsModal, CompareLandingPage, useCompareDocuments } from "../analyze/compare";
+import { CompareDocumentsModal, CompareLandingPage, CompareResultsState, useCompareDocuments } from "../analyze/compare";
 import { useCompare } from "../analyze/compare/hooks/useCompare";
 import { useCompareChat } from "../analyze/compare/hooks/useCompareChat";
 import {
@@ -26,7 +26,7 @@ import {
   type CompareHistoryEntry,
 } from "../analyze/compare/utils/compareHistory";
 
-interface RandTrustAIProps {
+interface LORAAIProps {
   authToken: string;
   user: { name: string; email: string } | null;
   /**
@@ -38,11 +38,11 @@ interface RandTrustAIProps {
   onNavigateToCompare?: () => void;
 }
 
-export default function RandTrustAI({
+export default function LORAAI({
   authToken,
   mode = "workspace",
   onNavigateToCompare,
-}: RandTrustAIProps) {
+}: LORAAIProps) {
   const isCompareMode = mode === "compare";
 
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -255,6 +255,22 @@ export default function RandTrustAI({
               onReplace={replaceFile}
               onCompare={handleCompare}
             />
+          ) : isCompareMode ? (
+            <CompareResultsState
+              messages={messages}
+              isLoading={isLoading}
+              originalName={original?.name}
+              revisedName={revised?.name}
+              composerProps={composerProps}
+              onReset={handleReset}
+              historyOpen={historyOpen}
+              onToggleHistory={() => setHistoryOpen((v) => !v)}
+              onCloseHistory={() => setHistoryOpen(false)}
+              historyEntries={historyEntries}
+              activeHistoryId={activeHistoryId}
+              onSelectHistory={handleSelectHistory}
+              onDeleteHistory={handleDeleteHistory}
+            />
           ) : isLanding ? (
             <LandingState
               composerProps={composerProps}
@@ -267,7 +283,6 @@ export default function RandTrustAI({
               onReset={handleReset}
               activeWorkflow={activeWorkflow}
               isCompareMode={isCompareChatActive()}
-              isCompareTab={isCompareMode}
               historyOpen={historyOpen}
               onToggleHistory={() => setHistoryOpen((v) => !v)}
               onCloseHistory={() => setHistoryOpen(false)}

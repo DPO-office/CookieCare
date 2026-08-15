@@ -84,10 +84,11 @@ export default function InteractAnalyze({
   const handleRunAnalysis = () => {
     if (!hasDocuments) {
       setValidationMessage("Add at least one agreement before analyzing.");
+      setVaultPickerOpen(true);
       return;
     }
     if (!hasPrompt) {
-      setValidationMessage("Tell RandTrust what you want to know, or pick a suggestion below.");
+      setValidationMessage("Tell LORA what you want to know, or pick a suggestion below.");
       return;
     }
     setValidationMessage("");
@@ -135,9 +136,16 @@ export default function InteractAnalyze({
     e.target.value = "";
   };
 
+<<<<<<< HEAD
   const handleApplyStarter = (text: string, libraryId?: string) => {
     setCustomPromptText(text);
     setPromptLibraryId(toPromptLibraryId(libraryId));
+=======
+  const handleApplyStarter = (texts: string[]) => {
+    const joined = texts.map((t) => t.trim()).filter(Boolean).join("\n\n");
+    if (!joined) return;
+    setCustomPromptText((prev) => (prev.trim() ? `${prev.trim()}\n\n${joined}` : joined));
+>>>>>>> origin/development
     setValidationMessage("");
   };
 
@@ -191,26 +199,52 @@ export default function InteractAnalyze({
       <style>{PREMIUM_CHAT_LANDING_STYLES}</style>
       <style>{ANALYZE_STYLES}</style>
 
+<<<<<<< HEAD
       <div className="pcl-page flex-1 flex flex-col min-h-0 overflow-hidden relative">
         {!!analysis.analysisError && analysis.viewMode === "form" && (
+=======
+      <div className="dpa-results-bg analyze-landing flex-1 flex flex-col min-h-0 overflow-hidden relative font-sans">
+        {(analysis.isAnalyzing || !!analysis.analysisError) && (
+>>>>>>> origin/development
           <AiProgressOverlay
             visible
             message={analysis.analysisProgress}
             error={analysis.analysisError}
             label="Analyzing"
             subtitle={analysis.activeReportDocName || "document"}
+<<<<<<< HEAD
             onRetry={() => {
               analysis.setAnalysisError("");
               handleRunAnalysis();
             }}
             onDismiss={() => analysis.setAnalysisError("")}
+=======
+            illustration="scan"
+            onRetry={
+              analysis.analysisError
+                ? () => {
+                    analysis.setAnalysisError("");
+                    handleRunAnalysis();
+                  }
+                : undefined
+            }
+            onDismiss={
+              analysis.analysisError ? () => analysis.setAnalysisError("") : undefined
+            }
+>>>>>>> origin/development
           />
         )}
 
         <div className="flex-1 flex flex-col items-center justify-center min-h-0 px-6">
+          <p className="pcl-rise-1 mb-3 text-[10px] font-medium uppercase tracking-[0.14em] text-[#98A2B3]">
+            Legal Space · Analyze
+          </p>
           <h1 className="pcl-rise-1 pcl-heading text-center">
             What would you like to analyze?
           </h1>
+          <p className="pcl-rise-1 mt-2 max-w-lg text-center text-[14px] leading-relaxed text-dark-200">
+            Attach an agreement, pick a prompt, or describe the review you want LORA to run.
+          </p>
 
           <div className="pcl-rise-2 w-full mt-8 flex flex-col items-center" style={{ maxWidth: 720 }}>
             <AnalysisComposer

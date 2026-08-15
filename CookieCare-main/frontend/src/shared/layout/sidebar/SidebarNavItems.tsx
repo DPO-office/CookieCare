@@ -1,5 +1,5 @@
 // ─── SidebarNavItems ──────────────────────────────────────────────────────────
-// TopNavItem   — renders a top-level flat nav item (Dashboard, RandTrust AI).
+// TopNavItem   — renders a top-level flat nav item (Dashboard, LORA AI).
 // SectionGroup — renders an accordion group with labelled child items.
 
 import { useState } from "react";
@@ -39,7 +39,7 @@ export function TopNavItem({
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const active = activeTab === entry.id;
-  const isAI = entry.id === "randtrust-ai";
+  const isAI = entry.id === "LORA-ai";
   const Icon = entry.icon;
 
   const textColor = isDark
@@ -50,7 +50,7 @@ export function TopNavItem({
     ? "#ffffff"
     : "#4B5563";
 
-  const activeBg = isDark ? "rgba(255,255,255,0.08)" : "#2175D9";
+  const activeBg = isDark ? "rgba(255,255,255,0.08)" : "linear-gradient(to bottom, #8e98ff, #606beb)";
   const hoverBg = isDark ? "rgba(255,255,255,0.05)" : "#ffffff";
 
   return (
@@ -58,7 +58,7 @@ export function TopNavItem({
       <SidebarMenu>
         <SidebarMenuItem>
           {isAI ? (
-            // RandTrust AI gets a special branded button with an "AI" badge
+            // LORA AI gets a special branded button with an "AI" badge
             <button
               data-sidebar="menu-button"
               data-active={active}
@@ -209,7 +209,7 @@ export function SectionGroup({
     <SidebarGroup>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex h-8 w-full items-center justify-between rounded-md px-2 text-[10px] font-semibold tracking-widest uppercase transition-colors duration-150 outline-none"
+        className="flex h-8 w-full items-center justify-between rounded-lg px-3 text-[11px] font-semibold tracking-[0.12em] uppercase transition-colors duration-200 outline-none hover:bg-[#F7F8FB]"
         style={{ color: groupLabelColor }}
         onMouseEnter={(e) =>
           ((e.currentTarget as HTMLElement).style.color = labelHoverColor)

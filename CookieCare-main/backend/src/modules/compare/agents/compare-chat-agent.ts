@@ -444,7 +444,7 @@ function selectContext(session: CompareSessionData, question: string): string {
 
 // ─── System instruction ───────────────────────────────────────────────────────
 
-const SYSTEM_INSTRUCTION = `You are an expert AI legal assistant embedded inside the RandTrust AI platform.
+const SYSTEM_INSTRUCTION = `You are an expert AI legal assistant embedded inside the LORA AI platform.
 
 You have already read and fully understood two legal agreements that a user has provided for comparison. The comparison has been completed — you have access to the structured results: clause alignment, semantic differences, legal risk findings, and an executive summary.
 

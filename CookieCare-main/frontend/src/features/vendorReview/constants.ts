@@ -144,16 +144,62 @@ export const FEATURE_CARDS: FeatureCard[] = [
   { icon: BarChart3,  title: "Vendor Risk",             description: "Assess overall onboarding risk, contractual gaps and compliance readiness." },
 ];
 
+export type { VendorDimensionId, VendorResultDimension } from "./types";
+
+export const RESULT_DIMENSIONS: import("./types").VendorResultDimension[] = [
+  {
+    id: "privacy",
+    title: "Privacy Practices",
+    description: "Review privacy policies and data handling practices against GDPR and regional requirements.",
+    icon: Shield,
+    scoreKey: "privacyPosture",
+    keywords: ["privacy", "cookie", "retention", "data handling", "consent", "personal data"],
+  },
+  {
+    id: "security",
+    title: "Security Certifications",
+    description: "Identify SOC 2, ISO 27001 and other active certifications and their audit scope.",
+    icon: Award,
+    scoreKey: "securityPosture",
+    keywords: ["security", "soc 2", "iso", "encryption", "incident", "tls", "certificate"],
+  },
+  {
+    id: "compliance",
+    title: "Compliance Standards",
+    description: "Evaluate GDPR, CCPA, HIPAA and other privacy compliance posture.",
+    icon: BadgeCheck,
+    scoreKey: "gdprCompliance",
+    keywords: ["gdpr", "ccpa", "hipaa", "compliance", "baa", "article"],
+  },
+  {
+    id: "residency",
+    title: "Data Residency",
+    description: "Detect where customer data is stored and processed across cloud regions.",
+    icon: MapPin,
+    scoreKey: null,
+    keywords: ["residenc", "region", "aws", "eu ", "frankfurt", "transfer", "data storage"],
+  },
+  {
+    id: "subprocessors",
+    title: "Sub-processors",
+    description: "Identify third-party processors, vendor dependencies and transfer mechanisms.",
+    icon: Network,
+    scoreKey: "vendorTransparency",
+    keywords: ["sub-processor", "subprocessor", "third-part", "stripe", "intercom", "segment"],
+  },
+  {
+    id: "risk",
+    title: "Vendor Risk",
+    description: "Assess overall onboarding risk, contractual gaps and compliance readiness.",
+    icon: BarChart3,
+    scoreKey: "contractualRisk",
+    keywords: ["contract", "risk", "onboard", "dpa", "liability", "gap"],
+  },
+];
+
 export const VENDOR_RISK_SCORE = 62;
 export const PRIVACY_SCORE     = 71;
 export const SECURITY_SCORE    = 78;
 
 export const ACCEPTED_FILE_TYPES = ".pdf,.docx,.txt";
 export const MAX_FILE_SIZE_LABEL = "Max 25 MB per file";
-
-export const UPLOAD_BADGES = [
-  { iconName: "Sparkles",   label: "AI Powered"         },
-  { iconName: "Shield",     label: "Privacy Review"     },
-  { iconName: "Lock",       label: "Security Assessment"},
-  { iconName: "BadgeCheck", label: "Enterprise Ready"   },
-] as const;

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import type { VendorFinding } from "../types";
 import { FindingBadge } from "./FindingBadge";
 
@@ -7,66 +6,61 @@ interface FindingCardProps {
   finding: VendorFinding;
 }
 
+const SNIPPET = {
+  passed: "bg-badge-green text-badge-green-text",
+  warning: "bg-badge-yellow text-badge-yellow-text",
+  missing: "bg-badge-red text-badge-red-text",
+  "high-risk": "bg-badge-red text-badge-red-text",
+} as const;
+
 export function FindingCard({ finding }: FindingCardProps) {
   const [open, setOpen] = useState(false);
 
-  const borderColor = {
-    passed:      "border-l-emerald-400",
-    warning:     "border-l-amber-400",
-    missing:     "border-l-red-400",
-    "high-risk": "border-l-red-600",
-  }[finding.status];
-
-  const hoverBg = {
-    passed:      "hover:bg-emerald-50/30",
-    warning:     "hover:bg-amber-50/30",
-    missing:     "hover:bg-red-50/30",
-    "high-risk": "hover:bg-red-50/40",
-  }[finding.status];
-
   return (
-    <div className={`bg-white border border-gray-200 rounded-[14px] shadow-xs border-l-[3px] ${borderColor} overflow-hidden transition-all duration-200 hover:shadow-sm`}>
+    <div
+      className="overflow-hidden rounded-[18px] bg-white"
+      style={{ boxShadow: "0 1px 2px rgba(16,24,40,0.04), 0 0 0 1px rgba(16,24,40,0.06)" }}
+    >
       <button
+        type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`w-full flex items-center justify-between px-5 py-4 text-left transition-colors duration-150 cursor-pointer ${hoverBg}`}
+        className="flex w-full cursor-pointer items-center justify-between gap-3 px-5 py-4 text-left"
       >
-        <div className="flex items-center gap-3 min-w-0 flex-1">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[13px] font-semibold text-gray-900">{finding.category}</span>
-              {finding.tag && (
-                <span className="badge badge-neutral text-[10px]">{finding.tag}</span>
-              )}
-            </div>
-            {!open && (
-              <p className="text-[12px] text-gray-500 mt-0.5 line-clamp-1 pr-2">{finding.description}</p>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[14px] font-semibold tracking-[-0.02em] text-[#1a1a1a]">
+              {finding.category}
+            </span>
+            {finding.tag && (
+              <span className="score-badge bg-[#F7F8FB] text-[10px] font-medium text-dark-200">
+                {finding.tag}
+              </span>
             )}
           </div>
+          {!open && (
+            <p className="mt-1 line-clamp-1 pr-2 text-[13px] text-dark-200">{finding.description}</p>
+          )}
         </div>
-        <div className="flex items-center gap-3 shrink-0 ml-3">
-          <FindingBadge status={finding.status} />
-          <div className={`w-6 h-6 rounded-md flex items-center justify-center transition-colors duration-150 ${open ? "bg-gray-100" : "bg-gray-50 hover:bg-gray-100"}`}>
-            {open
-              ? <ChevronUp className="w-3.5 h-3.5 text-gray-500" />
-              : <ChevronDown className="w-3.5 h-3.5 text-gray-400" />}
-          </div>
-        </div>
+        <FindingBadge status={finding.status} />
       </button>
 
       {open && (
-        <div className="px-5 pb-5 border-t border-gray-100 pt-4 space-y-4">
+        <div className="space-y-4 border-t border-[#F2F4F7] px-5 py-4">
           <div>
-            <p className="section-label mb-2">Finding</p>
-            <p className="text-[13px] text-gray-700 leading-relaxed">{finding.description}</p>
-          </div>
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50/50 border border-blue-100 rounded-xl p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-5 h-5 rounded-md bg-blue-100 flex items-center justify-center">
-                <Sparkles className="w-3 h-3 text-blue-600" />
-              </div>
-              <p className="text-[11px] font-semibold text-blue-700 uppercase tracking-wider">AI recommendation</p>
+            <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.14em] text-[#98A2B3]">
+              Finding
+            </p>
+            <div className={`rounded-2xl p-3.5 text-[13px] leading-relaxed ${SNIPPET[finding.status]}`}>
+              {finding.description}
             </div>
-            <p className="text-[13px] text-blue-900 leading-relaxed">{finding.recommendation}</p>
+          </div>
+          <div>
+            <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.14em] text-[#98A2B3]">
+              Suggested remediation
+            </p>
+            <p className="rounded-2xl bg-[#F7F8FB] p-3.5 text-[13px] leading-relaxed text-[#1a1a1a]">
+              {finding.recommendation}
+            </p>
           </div>
         </div>
       )}

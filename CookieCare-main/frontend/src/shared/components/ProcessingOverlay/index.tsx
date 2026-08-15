@@ -4,11 +4,12 @@ import { BrandLogo } from "../BrandLogo";
 
 // ─── Palette (premium ink) ────────────────────────────────────────────────────
 
-const INK = "#18181B";
-const INK_MUTED = "#71717A";
-const INK_FAINT = "#A1A1AA";
-const SURFACE = "#F4F4F5";
+const INK = "#1a1a1a";
+const INK_MUTED = "#667085";
+const INK_FAINT = "#98A2B3";
+const SURFACE = "#F7F8FB";
 const BORDER = "#E4E4E7";
+const ACCENT = "#4F5BD9";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -44,6 +45,8 @@ export interface ProcessingOverlayProps {
   error?: string;
   onRetry?: () => void;
   onDismiss?: () => void;
+  /** `scan` shows the document-scan GIF instead of the logo ring. */
+  illustration?: "ring" | "scan";
   className?: string;
 }
 
@@ -51,15 +54,12 @@ export interface ProcessingOverlayProps {
 
 const AUTO_MESSAGES = [
   "Preparing request…",
-  "Uploading document…",
+  "Connecting securely…",
   "Reading content…",
-  "Extracting text…",
-  "Processing input…",
-  "Sending to AI…",
   "Analyzing…",
-  "Validating output…",
-  "Generating response…",
-  "Formatting results…",
+  "Checking policies…",
+  "Validating findings…",
+  "Generating report…",
   "Finalising…",
 ];
 
@@ -77,32 +77,36 @@ function ProgressBar({ pct, error }: { pct: number | undefined; error: boolean }
   }
 
   return (
-    <div className="h-1 w-full rounded-full overflow-hidden" style={{ background: SURFACE }}>
-      {hasPct ? (
-        <div
-          className="h-full rounded-full relative overflow-hidden"
-          style={{
-            width: `${pct}%`,
-            background: `linear-gradient(90deg, ${INK} 0%, #3F3F46 100%)`,
-            transition: "width 0.6s cubic-bezier(0.4,0,0.2,1)",
-          }}
-        >
-          <span
-            className="absolute inset-y-0 w-12 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-            style={{ animation: "rt-shimmer 1.6s ease-in-out infinite" }}
+      <div
+        className="h-1.5 w-full overflow-hidden rounded-full"
+        style={{ background: "#EEF2FF" }}
+      >
+        {hasPct ? (
+          <div
+            className="relative h-full overflow-hidden rounded-full"
+            style={{
+              width: `${pct}%`,
+              background: "linear-gradient(to bottom, #8e98ff, #606beb)",
+              transition: "width 0.6s cubic-bezier(0.4,0,0.2,1)",
+            }}
+          >
+            <span
+              className="absolute inset-y-0 w-12 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+              style={{ animation: "rt-shimmer 1.6s ease-in-out infinite" }}
+            />
+          </div>
+        ) : (
+          <div
+            className="h-full rounded-full"
+            style={{
+              width: "45%",
+              background:
+                "linear-gradient(90deg, transparent 0%, #8e98ff 40%, #606beb 70%, transparent 100%)",
+              animation: "rt-indeterminate 1.6s cubic-bezier(0.65,0,0.35,1) infinite",
+            }}
           />
-        </div>
-      ) : (
-        <div
-          className="h-full rounded-full"
-          style={{
-            width: "45%",
-            background: `linear-gradient(90deg, transparent 0%, ${INK} 40%, #52525B 70%, transparent 100%)`,
-            animation: "rt-indeterminate 1.6s cubic-bezier(0.65,0,0.35,1) infinite",
-          }}
-        />
-      )}
-    </div>
+        )}
+      </div>
   );
 }
 
@@ -124,7 +128,7 @@ function LogoRing({ pct, error }: { pct: number | undefined; error: boolean }) {
       style={{ top: "50%", left: "50%", transform: "translate(-50%,-50%)" }}
       aria-hidden
     >
-      <circle cx="40" cy="40" r={RING_R} stroke="#EBEBEB" strokeWidth="2.5" />
+      <circle cx="40" cy="40" r={RING_R} stroke="#EEF2FF" strokeWidth="2.5" />
 
       {error ? (
         <circle cx="40" cy="40" r={RING_R} stroke="#EF4444" strokeWidth="2.5" />
@@ -133,7 +137,7 @@ function LogoRing({ pct, error }: { pct: number | undefined; error: boolean }) {
           cx="40"
           cy="40"
           r={RING_R}
-          stroke={INK}
+          stroke={ACCENT}
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeDasharray={RING_C}
@@ -149,7 +153,7 @@ function LogoRing({ pct, error }: { pct: number | undefined; error: boolean }) {
           cx="40"
           cy="40"
           r={RING_R}
-          stroke={INK}
+          stroke={ACCENT}
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeDasharray={`${RING_C * 0.25} ${RING_C * 0.75}`}
@@ -181,7 +185,7 @@ function StepRow({ step }: { step: ProcessingStep }) {
           isDone
             ? { background: "#ECFDF5", border: "1px solid #A7F3D0" }
             : isActive
-            ? { background: INK }
+            ? { background: ACCENT }
             : { background: SURFACE, border: `1px solid ${BORDER}` }
         }
       >
@@ -223,6 +227,7 @@ export function ProcessingOverlay({
   error,
   onRetry,
   onDismiss,
+  illustration = "ring",
   className = "",
 }: ProcessingOverlayProps) {
   const [mounted, setMounted] = useState(false);
@@ -271,46 +276,45 @@ export function ProcessingOverlay({
       }}
     >
       <div
-        className="bg-white overflow-hidden"
+        className="overflow-hidden bg-white"
         style={{
-          borderRadius: 22,
-          border: `1px solid ${BORDER}`,
+          borderRadius: 24,
           boxShadow:
-            "0 1px 3px rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.08), 0 24px 48px rgba(0,0,0,0.04)",
+            "0 1px 2px rgba(16,24,40,0.04), 0 0 0 1px rgba(16,24,40,0.06), 0 24px 48px rgba(16,24,40,0.10)",
+          fontFamily: "var(--font-sans)",
         }}
       >
         <div className="px-7 pt-6 pb-0">
           <ProgressBar pct={derivedPct} error={!!error} />
         </div>
 
-        <div className="flex justify-center pt-7 pb-5">
-          <div className="relative inline-flex items-center justify-center">
-            {!error && (
+        <div className="flex justify-center pt-6 pb-4">
+          {error ? (
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FEF2F2]">
+              <AlertTriangle className="h-6 w-6 text-red-500" />
+            </div>
+          ) : illustration === "scan" ? (
+            <img
+              src="/images/resume-scan-2.gif"
+              alt="Scanning document"
+              className="h-[168px] w-auto object-contain sm:h-[196px]"
+            />
+          ) : (
+            <div className="relative inline-flex items-center justify-center">
               <div
                 className="absolute rounded-full"
                 style={{
                   width: 96,
                   height: 96,
                   background:
-                    "radial-gradient(circle, rgba(24,24,27,0.08) 0%, rgba(24,24,27,0.02) 55%, transparent 75%)",
+                    "radial-gradient(circle, rgba(79,91,217,0.12) 0%, rgba(79,91,217,0.03) 55%, transparent 75%)",
                   animation: "rt-glow-pulse 2.4s ease-in-out infinite",
                 }}
               />
-            )}
-
-            <LogoRing pct={derivedPct} error={!!error} />
-
-            {error ? (
-              <div
-                className="w-11 h-11 rounded-2xl flex items-center justify-center"
-                style={{ background: "#FEF2F2" }}
-              >
-                <AlertTriangle className="w-[22px] h-[22px] text-red-500" />
-              </div>
-            ) : (
+              <LogoRing pct={derivedPct} error={false} />
               <BrandLogo size="lg" iconOnly />
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         <div className="px-7 pb-6 text-center">
@@ -440,8 +444,8 @@ export function ProcessingOverlay({
                     key={i}
                     className="w-1.5 h-1.5 rounded-full animate-bounce"
                     style={{
-                      background: INK,
-                      opacity: 0.35,
+                      background: "#4F5BD9",
+                      opacity: 0.7,
                       animationDelay: `${i * 0.18}s`,
                     }}
                   />
@@ -471,8 +475,7 @@ export function ProcessingOverlay({
             {onRetry && (
               <button
                 onClick={onRetry}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-semibold text-white hover:opacity-90 transition cursor-pointer border-none"
-                style={{ background: INK }}
+                className="primary-gradient flex cursor-pointer items-center gap-1.5 rounded-full border-none px-4 py-2 text-[13px] font-semibold text-white transition hover:opacity-90"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 Retry
@@ -489,8 +492,7 @@ export function ProcessingOverlay({
   if (mode === "page") {
     return (
       <div
-        className={`flex-1 overflow-y-auto flex flex-col items-center justify-center px-6 py-12 ${className}`}
-        style={{ background: "#FAFAFA" }}
+        className={`flex-1 overflow-y-auto flex flex-col items-center justify-center px-6 py-12 dpa-results-bg ${className}`}
       >
         {card}
       </div>
@@ -501,8 +503,7 @@ export function ProcessingOverlay({
 
   return (
     <div
-      className="absolute inset-0 z-50 flex items-center justify-center p-6 select-none"
-      style={{ background: "rgba(250,250,250,0.92)", backdropFilter: "blur(8px)" }}
+      className="dpa-results-bg absolute inset-0 z-50 flex items-center justify-center p-6 select-none"
     >
       {card}
     </div>

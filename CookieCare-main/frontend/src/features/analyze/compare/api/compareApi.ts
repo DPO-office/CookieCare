@@ -22,7 +22,11 @@ export async function submitCompare(
   const formData = new FormData();
   formData.append("original", original);
   formData.append("revised", revised);
-  if (title) formData.append("title", title);
+  if (title) {
+    // Backend schema enforces max 200 chars — truncate to avoid a 400 error
+    const safeTitle = title.length > 190 ? title.slice(0, 190) + "…" : title;
+    formData.append("title", safeTitle);
+  }
 
   const res = await fetch(apiUrl("/api/compare/start"), {
     method: "POST",

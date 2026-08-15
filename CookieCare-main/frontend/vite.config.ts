@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const cloudRunHost = 'cookiecare-git-855346886001.asia-southeast1.run.app';
 const allowedHosts = [cloudRunHost, '.run.app'];
+const standaloneVite = process.env.VITE_MIDDLEWARE !== '1';
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
@@ -22,12 +23,16 @@ export default defineConfig({
   },
   server: {
     allowedHosts,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3000',
-        changeOrigin: true,
-      },
-    },
+    ...(standaloneVite
+      ? {
+          proxy: {
+            '/api': {
+              target: 'http://127.0.0.1:3000',
+              changeOrigin: true,
+            },
+          },
+        }
+      : {}),
   },
   preview: {
     allowedHosts,

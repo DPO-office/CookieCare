@@ -184,34 +184,18 @@ export default function LibraryManager({
   return (
     <>
       <style>{VAULT_STYLES}</style>
-      <div className="vlt flex-1 flex flex-col h-full overflow-hidden" style={{ background: "var(--bg)" }}>
-        <div className="flex-1 flex flex-col overflow-y-auto px-6 py-8">
-          <div className="w-full max-w-5xl mx-auto">
+      <div className="vlt dpa-results-bg flex h-full min-h-0 flex-1 flex-col overflow-hidden font-sans">
+        <div className="scrollbar-hide flex min-h-0 flex-1 flex-col overflow-y-auto px-6 py-8 sm:px-10">
+          <div className="mx-auto w-full max-w-5xl">
 
             <header className="vlt-rise-1 mb-8">
               <p className="vlt-overline mb-2">Vault repository</p>
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-5">
+              <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
                 <div>
-                  <h1
-                    className="m-0"
-                    style={{
-                      fontSize: "clamp(1.5rem, 2.5vw, 1.75rem)",
-                      fontWeight: 600,
-                      letterSpacing: "-0.03em",
-                      color: "var(--text-primary)",
-                    }}
-                  >
+                  <h1 className="m-0 text-[30px] font-semibold leading-tight tracking-[-0.03em] text-[#1a1a1a] sm:text-[34px]">
                     {activeTabInfo.label}
                   </h1>
-                  <p
-                    className="m-0 mt-2"
-                    style={{
-                      fontSize: 14,
-                      color: "var(--text-muted)",
-                      maxWidth: 480,
-                      lineHeight: 1.65,
-                    }}
-                  >
+                  <p className="m-0 mt-2 max-w-[480px] text-[14px] leading-relaxed text-[#667085]">
                     {activeTabInfo.desc}.
                   </p>
                 </div>
@@ -239,7 +223,7 @@ export default function LibraryManager({
               </div>
             </header>
 
-            <div className="vlt-rise-2 flex gap-1.5 mb-5 overflow-x-auto pb-1">
+            <div className="vlt-rise-2 vlt-tabs mb-5 flex gap-1.5 overflow-x-auto pb-1">
               {TABS_CONFIG.map((tab) => {
                 const isActive = activeTab === tab.id;
                 const count =
@@ -251,12 +235,12 @@ export default function LibraryManager({
                     key={tab.id}
                     type="button"
                     onClick={() => handleTabChange(tab.id)}
-                    className={`vlt-tab shrink-0 flex items-center gap-2 rounded-full cursor-pointer ${isActive ? "active" : ""}`}
+                    className={`vlt-tab flex shrink-0 cursor-pointer items-center gap-2 rounded-full ${isActive ? "active" : ""}`}
                     style={{
                       padding: "8px 14px",
                       fontSize: 13,
-                      fontWeight: isActive ? 600 : 400,
-                      color: isActive ? "#FFFFFF" : "var(--text-muted)",
+                      fontWeight: isActive ? 600 : 500,
+                      color: isActive ? "#FFFFFF" : "#667085",
                     }}
                   >
                     {tab.label}
@@ -266,8 +250,8 @@ export default function LibraryManager({
                         borderRadius: 999,
                         fontSize: 11,
                         fontWeight: 600,
-                        background: isActive ? "rgba(255,255,255,0.18)" : "var(--surface)",
-                        color: isActive ? "#FFFFFF" : "var(--text-muted)",
+                        background: isActive ? "rgba(255,255,255,0.18)" : "#EEF2FF",
+                        color: isActive ? "#FFFFFF" : "#4F5BD9",
                       }}
                     >
                       {count}
@@ -278,11 +262,8 @@ export default function LibraryManager({
             </div>
 
             <div className="vlt-rise-3 vlt-card overflow-hidden flex flex-col">
-              <div
-                className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 px-5 py-4"
-                style={{ borderBottom: "1px solid var(--border-light)" }}
-              >
-                <span style={{ fontSize: 14, fontWeight: 500, color: "var(--text-primary)" }}>
+              <div className="flex flex-col items-start justify-between gap-3 border-b border-[#F4F4F5] px-5 py-4 sm:flex-row sm:items-center">
+                <span className="text-[14px] font-semibold tracking-[-0.01em] text-[#1a1a1a]">
                   All {activeTabInfo.label}
                 </span>
                 <div className="relative w-full sm:w-64">

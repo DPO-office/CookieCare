@@ -2,7 +2,7 @@
  * DocumentContextChip — Reusable context indicator chip.
  *
  * Shows an active context selection (jurisdiction, document, format, etc.)
- * as a compact chip in the composer toolbar. Follows the RandTrust Design System.
+ * as a compact chip in the composer toolbar. Follows the LORA Design System.
  */
 import React from "react";
 import { X, type LucideIcon } from "lucide-react";
@@ -33,7 +33,7 @@ export function DocumentContextChip({
         background: active ? "#EBF2FD" : "#F3F4F6",
         border: `1px solid ${active ? "#BFDBFE" : "#E4E4E7"}`,
         color: active ? "#1A5BAD" : "#374151",
-        fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif",
+        fontFamily: "var(--font-sans)",
         cursor: onClick ? "pointer" : "default",
       }}
       onClick={onClick}

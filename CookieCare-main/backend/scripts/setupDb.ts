@@ -1,4 +1,5 @@
 import { pool } from "../src/config/database.js";
+import { config } from "../src/config/index.js";
 import argon2 from "argon2";
 
 async function connectWithRetry(retries = 5, delay = 2000): Promise<any> {
@@ -30,6 +31,11 @@ async function connectWithRetry(retries = 5, delay = 2000): Promise<any> {
 }
 
 async function setupDb() {
+  if (config.skipDb) {
+    console.log("SKIP_DB=true — skipping database setup.");
+    return;
+  }
+
   const client = await connectWithRetry();
 
   try {
@@ -109,6 +115,24 @@ async function setupDb() {
         tags JSONB DEFAULT '[]'::jsonb,
         details JSONB DEFAULT '{}'::jsonb,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS ai_tools (
+        id VARCHAR(255) PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        name VARCHAR(255) NOT NULL,
+        vendor VARCHAR(255) DEFAULT '',
+        category VARCHAR(80) NOT NULL DEFAULT 'other',
+        purpose TEXT DEFAULT '',
+        owner_name VARCHAR(255) DEFAULT '',
+        department VARCHAR(255) DEFAULT '',
+        status VARCHAR(50) NOT NULL DEFAULT 'pilot',
+        eu_risk VARCHAR(50) NOT NULL DEFAULT 'minimal',
+        data_types JSONB DEFAULT '[]'::jsonb,
+        model_name VARCHAR(255) DEFAULT '',
+        last_reviewed_at DATE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
 
       CREATE TABLE IF NOT EXISTS website_scans (
@@ -296,7 +320,7 @@ async function setupDb() {
     const rlsTables = [
       'files', 'folders', 'library_items', 'legal_document_chunks',
       'website_scans', 'jobs', 'agent_execution_logs', 'compliance_audit_logs',
-      'document_versions'
+      'document_versions', 'ai_tools'
     ];
     for (const table of rlsTables) {
       await client.query(`ALTER TABLE ${table} ENABLE ROW LEVEL SECURITY;`);

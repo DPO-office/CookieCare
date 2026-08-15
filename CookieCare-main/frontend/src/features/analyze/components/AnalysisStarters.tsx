@@ -53,10 +53,10 @@ function QuickChip({
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[12px] text-[#71717A] bg-[#FAFAFA] border border-[#EBEBEB] hover:border-[#D4D4D8] hover:text-[#3F3F46] hover:bg-white transition-colors whitespace-nowrap"
+      className="analyze-chip"
       title={label}
     >
-      <Icon className="w-3 h-3 shrink-0 text-[#A1A1AA]" />
+      <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
       <span>{label}</span>
     </button>
   );
@@ -65,7 +65,11 @@ function QuickChip({
 interface AnalysisStartersProps {
   promptLibrary: PromptLibraryItem[];
   questionsLibrary: string[];
+<<<<<<< HEAD
   onApply: (text: string, promptLibraryId?: string) => void;
+=======
+  onApply: (texts: string[]) => void;
+>>>>>>> origin/development
   promptModalOpen?: boolean;
   questionModalOpen?: boolean;
   onPromptModalOpenChange?: (open: boolean) => void;
@@ -108,23 +112,27 @@ export function AnalysisStarters({
               key={item.title}
               label={item.title}
               icon={item.icon}
+<<<<<<< HEAD
               onClick={() => onApply(item.text, item.libraryId)}
+=======
+              onClick={() => onApply([item.text])}
+>>>>>>> origin/development
             />
           ))}
         </div>
 
-        <div className="mt-4 flex items-center justify-center gap-6">
+        <div className="mt-5 flex items-center justify-center gap-6">
           <button
             type="button"
             onClick={() => setPromptOpen(true)}
-            className="text-[12px] text-[#C4C4C4] hover:text-[#52525B] transition-colors bg-transparent border-none cursor-pointer"
+            className="analyze-link"
           >
             Browse prompts
           </button>
           <button
             type="button"
             onClick={() => setQuestionOpen(true)}
-            className="text-[12px] text-[#C4C4C4] hover:text-[#52525B] transition-colors bg-transparent border-none cursor-pointer"
+            className="analyze-link"
           >
             Browse questions
           </button>
@@ -134,8 +142,13 @@ export function AnalysisStarters({
       {promptModalOpen && (
         <PromptLibraryModal
           promptLibrary={promptLibrary}
+<<<<<<< HEAD
           onApply={(text, libraryId) => {
             onApply(text, libraryId);
+=======
+          onApply={(texts) => {
+            onApply(texts);
+>>>>>>> origin/development
             setPromptOpen(false);
           }}
           onClose={() => setPromptOpen(false)}
@@ -145,8 +158,13 @@ export function AnalysisStarters({
       {questionModalOpen && (
         <QuestionLibraryModal
           questionsLibrary={questionsLibrary}
+<<<<<<< HEAD
           onApply={(text, libraryId) => {
             onApply(text, libraryId);
+=======
+          onApply={(texts) => {
+            onApply(texts);
+>>>>>>> origin/development
             setQuestionOpen(false);
           }}
           onClose={() => setQuestionOpen(false)}

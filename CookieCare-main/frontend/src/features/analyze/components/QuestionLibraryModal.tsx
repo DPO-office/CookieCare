@@ -3,14 +3,18 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { X, Search, MousePointerClick } from "lucide-react";
+import { X, Search, MousePointerClick, Check } from "lucide-react";
 import { QuestionCategory, DEFAULT_QUESTION_CATEGORIES } from "../constants";
 import { ANALYZE_STYLES } from "../styles/analyzeStyles";
-import { LibraryModalColumns, libraryModalShellProps } from "./LibraryModalColumns";
+import { LibraryModalColumns, libraryModalShellProps, LibraryModalOverlay } from "./LibraryModalColumns";
 
 interface QuestionLibraryModalProps {
   questionsLibrary: string[];
+<<<<<<< HEAD
   onApply: (questionText: string, categoryId?: string) => void;
+=======
+  onApply: (questionTexts: string[]) => void;
+>>>>>>> origin/development
   onClose: () => void;
 }
 
@@ -43,17 +47,13 @@ function CategoryRail({ categories, activeCategoryId, onSelect, matchCounts }: C
             key={cat.id}
             type="button"
             onClick={() => onSelect(cat.id)}
-            className={`w-full text-left px-3 py-2.5 rounded-xl text-[13px] flex items-start justify-between gap-2 transition-colors border-none cursor-pointer ${
-              isActive
-                ? "bg-[#18181B] text-white font-medium"
-                : "text-[#52525B] hover:bg-[#F4F4F5] hover:text-[#18181B] bg-transparent"
-            }`}
+            className={`lib-modal-cat-btn ${isActive ? "is-active" : ""}`}
           >
             <span className="lib-modal-cat-label">{cat.label}</span>
             {count > 0 && (
               <span
-                className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md shrink-0 tabular-nums ${
-                  isActive ? "bg-white/15 text-white/90" : "bg-[#F0F0F0] text-[#A1A1AA]"
+                className={`score-badge shrink-0 text-[10px] font-semibold tabular-nums ${
+                  isActive ? "bg-white/15 text-white" : "bg-[#EEF2FF] text-[#4F5BD9]"
                 }`}
               >
                 {count}
@@ -68,9 +68,15 @@ function CategoryRail({ categories, activeCategoryId, onSelect, matchCounts }: C
 
 interface QuestionListProps {
   questions: Array<{ title: string; question: string }>;
-  selectedIndex: number | null;
+  categoryId: string;
+  selectedKeys: Set<string>;
+  previewKey: string | null;
   searchQuery: string;
-  onSelect: (index: number) => void;
+  onToggle: (key: string, item: { title: string; question: string }) => void;
+}
+
+function itemKey(categoryId: string, title: string, question: string) {
+  return `${categoryId}::${title || question.slice(0, 48)}`;
 }
 
 function highlight(text: string, query: string): React.ReactNode {
@@ -88,15 +94,22 @@ function highlight(text: string, query: string): React.ReactNode {
   );
 }
 
-function QuestionList({ questions, selectedIndex, searchQuery, onSelect }: QuestionListProps) {
+function QuestionList({
+  questions,
+  categoryId,
+  selectedKeys,
+  previewKey,
+  searchQuery,
+  onToggle,
+}: QuestionListProps) {
   if (questions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center px-8 py-16">
-        <div className="w-10 h-10 rounded-full bg-[#F4F4F5] flex items-center justify-center mb-4">
-          <Search className="w-5 h-5 text-[#A1A1AA]" />
+        <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-[#EEF2FF]">
+          <Search className="h-4 w-4 text-[#4F5BD9]" />
         </div>
-        <p className="text-[13px] font-medium text-[#52525B]">No questions found</p>
-        <p className="text-[12px] text-[#A1A1AA] mt-1.5">
+        <p className="text-[13px] font-medium text-[#1a1a1a]">No questions found</p>
+        <p className="mt-1.5 text-[12px] text-dark-200">
           {searchQuery ? "Try a different search term." : "Questions will appear here once added."}
         </p>
       </div>
@@ -104,28 +117,36 @@ function QuestionList({ questions, selectedIndex, searchQuery, onSelect }: Quest
   }
 
   return (
-    <ul className="m-0 p-0 list-none divide-y divide-[#F4F4F4]" role="listbox">
-      {questions.map((item, idx) => {
-        const isSelected = idx === selectedIndex;
+    <ul className="m-0 list-none p-0" role="listbox" aria-multiselectable="true">
+      {questions.map((item) => {
+        const key = itemKey(categoryId, item.title, item.question);
+        const isSelected = selectedKeys.has(key);
+        const isPreview = previewKey === key;
         return (
           <li
-            key={idx}
+            key={key}
             role="option"
             aria-selected={isSelected}
-            onClick={() => onSelect(idx)}
-            style={{ width: "100%", boxSizing: "border-box" }}
-            className={`px-6 py-4 cursor-pointer transition-colors border-l-[3px] ${
-              isSelected
-                ? "bg-[#FAFAFA] border-l-[#18181B]"
-                : "hover:bg-[#FAFAFA] border-l-transparent"
-            }`}
+            onClick={() => onToggle(key, item)}
+            className={`lib-modal-list-item ${isPreview || isSelected ? "is-selected" : ""}`}
           >
-            <p className={`lib-modal-list-title${isSelected ? "" : " text-[#3F3F46]"}`}>
-              {highlight(item.title || item.question, searchQuery)}
-            </p>
-            {item.title && (
-              <p className="lib-modal-list-desc">{highlight(item.question, searchQuery)}</p>
-            )}
+            <div className="flex items-start gap-3">
+              <span
+                className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px] border-[1.5px] ${
+                  isSelected ? "border-[#111827] bg-[#111827]" : "border-[#D0D5DD] bg-white"
+                }`}
+              >
+                {isSelected && <Check className="h-2.5 w-2.5 text-white" strokeWidth={3} />}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className={`lib-modal-list-title${isSelected ? "" : " text-[#3F3F46]"}`}>
+                  {highlight(item.title || item.question, searchQuery)}
+                </p>
+                {item.title && (
+                  <p className="lib-modal-list-desc">{highlight(item.question, searchQuery)}</p>
+                )}
+              </div>
+            </div>
           </li>
         );
       })}
@@ -141,12 +162,12 @@ function PreviewPane({ question }: PreviewPaneProps) {
   if (!question) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center px-10 py-16">
-        <div className="w-11 h-11 rounded-2xl bg-white border border-[#EBEBEB] flex items-center justify-center mb-4">
-          <MousePointerClick className="w-5 h-5 text-[#C4C4C4]" />
+        <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-[#EEF2FF]">
+          <MousePointerClick className="h-5 w-5 text-[#4F5BD9]" />
         </div>
-        <p className="text-[13px] font-medium text-[#52525B]">Select a question to preview</p>
-        <p className="text-[12px] text-[#A1A1AA] mt-2 max-w-[260px] leading-relaxed">
-          Click any question in the list to see its full text here before applying.
+        <p className="text-[13px] font-medium text-[#1a1a1a]">Select questions to preview</p>
+        <p className="mt-2 max-w-[260px] text-[12px] leading-relaxed text-dark-200">
+          Click one or more questions in the list. You can apply several at once.
         </p>
       </div>
     );
@@ -154,12 +175,12 @@ function PreviewPane({ question }: PreviewPaneProps) {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <div className="px-6 pt-6 pb-4 border-b border-[#F0F0F0] shrink-0">
-        <p className="text-[10px] font-semibold text-[#C4C4C4] uppercase tracking-wider mb-2">
+      <div className="shrink-0 border-b border-[rgba(16,24,40,0.06)] px-6 pb-4 pt-6">
+        <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.14em] text-[#98A2B3]">
           Preview
         </p>
         {question.title && (
-          <h4 className="text-[15px] font-semibold text-[#18181B] leading-snug m-0">
+          <h4 className="m-0 text-[15px] font-semibold leading-snug tracking-[-0.02em] text-[#1a1a1a]">
             {question.title}
           </h4>
         )}
@@ -179,7 +200,10 @@ export default function QuestionLibraryModal({
   const categories = useMemo(() => buildCategories(questionsLibrary), [questionsLibrary]);
 
   const [activeCategoryId, setActiveCategoryId] = useState<string>(categories[0]?.id ?? "");
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [selectedItems, setSelectedItems] = useState<
+    Record<string, { title: string; question: string }>
+  >({});
+  const [previewKey, setPreviewKey] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   const searchRef = useRef<HTMLInputElement>(null);
@@ -196,9 +220,23 @@ export default function QuestionLibraryModal({
     return () => document.removeEventListener("keydown", handler);
   }, [onClose]);
 
-  useEffect(() => {
-    setSelectedIndex(null);
-  }, [activeCategoryId, searchQuery]);
+  const selectedKeys = useMemo(() => new Set(Object.keys(selectedItems)), [selectedItems]);
+  const selectedList = useMemo(() => Object.values(selectedItems), [selectedItems]);
+  const selectedQuestion =
+    (previewKey && selectedItems[previewKey]) || selectedList[selectedList.length - 1] || null;
+
+  const handleToggle = useCallback(
+    (key: string, item: { title: string; question: string }) => {
+      setSelectedItems((prev) => {
+        const next = { ...prev };
+        if (next[key]) delete next[key];
+        else next[key] = item;
+        return next;
+      });
+      setPreviewKey(key);
+    },
+    []
+  );
 
   const filteredQuestions = useMemo(() => {
     const q = normalise(searchQuery);
@@ -236,56 +274,51 @@ export default function QuestionLibraryModal({
     }
   }, [searchQuery, matchCounts]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const selectedQuestion =
-    selectedIndex !== null ? filteredQuestions[selectedIndex] ?? null : null;
-
   const handleApply = useCallback(() => {
+<<<<<<< HEAD
     if (selectedQuestion) {
       onApply(selectedQuestion.question, activeCategoryId);
     }
   }, [selectedQuestion, onApply, activeCategoryId]);
+=======
+    if (selectedList.length === 0) return;
+    onApply(selectedList.map((item) => item.question));
+  }, [selectedList, onApply]);
+>>>>>>> origin/development
 
   return (
     <>
       <style>{ANALYZE_STYLES}</style>
-      <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-5"
-        aria-modal="true"
-        role="dialog"
-        aria-label="Question Library"
-        onClick={(e) => {
-          if (e.target === e.currentTarget) onClose();
-        }}
-      >
+      <LibraryModalOverlay label="Question Library" onClose={onClose}>
         <div {...libraryModalShellProps()} onClick={(e) => e.stopPropagation()}>
-          <div className="flex items-center gap-5 px-7 py-5 border-b border-[#F0F0F0] shrink-0">
-            <div className="flex-1 min-w-0">
-              <h2 className="text-[17px] font-semibold text-[#18181B] tracking-[-0.02em] m-0">
+          <div className="flex shrink-0 items-center gap-5 border-b border-[rgba(16,24,40,0.06)] px-7 py-5">
+            <div className="min-w-0 flex-1">
+              <h2 className="m-0 text-[17px] font-semibold tracking-[-0.02em] text-[#1a1a1a]">
                 Question library
               </h2>
-              <p className="text-[13px] text-[#A1A1AA] mt-1 mb-0">
-                Browse and apply pre-built legal review questions
+              <p className="mb-0 mt-1 text-[13px] text-dark-200">
+                Browse and apply one or more legal review questions
               </p>
             </div>
 
             <div className="relative w-72 shrink-0">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#C4C4C4] pointer-events-none" />
+              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98A2B3]" />
               <input
                 ref={searchRef}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search questions…"
-                className="w-full rounded-full border border-[#E4E4E7] bg-[#FAFAFA] pl-10 pr-10 py-2.5 text-[13px] text-[#18181B] placeholder:text-[#C4C4C4] outline-none transition-all focus:border-[#D4D4D8] focus:bg-white focus:shadow-[0_0_0_3px_rgba(24,24,27,0.05)]"
+                className="lib-modal-search"
               />
               {searchQuery && (
                 <button
                   type="button"
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-full text-[#A1A1AA] hover:bg-[#F4F4F5] hover:text-[#52525B] transition-colors border-none bg-transparent cursor-pointer"
+                  className="absolute right-3 top-1/2 flex h-5 w-5 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-none bg-transparent text-[#98A2B3] transition-colors hover:bg-[#F7F8FB] hover:text-[#1a1a1a]"
                   aria-label="Clear search"
                 >
-                  <X className="w-3 h-3" />
+                  <X className="h-3 w-3" />
                 </button>
               )}
             </div>
@@ -294,16 +327,16 @@ export default function QuestionLibraryModal({
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-[#A1A1AA] hover:bg-[#F4F4F5] hover:text-[#52525B] transition-colors border-none bg-transparent cursor-pointer"
+              className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border-none bg-transparent text-[#98A2B3] transition-colors hover:bg-[#F7F8FB] hover:text-[#1a1a1a]"
             >
-              <X className="w-4 h-4" />
+              <X className="h-4 w-4" />
             </button>
           </div>
 
           <LibraryModalColumns
             categories={
               <>
-                <p className="text-[10px] font-semibold text-[#C4C4C4] uppercase tracking-wider mb-3 m-0 px-1">
+                <p className="m-0 mb-3 px-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[#98A2B3]">
                   Categories
                 </p>
                 <CategoryRail
@@ -315,12 +348,12 @@ export default function QuestionLibraryModal({
               </>
             }
             listHeader={
-              <div className="px-6 py-3.5 border-b border-[#F0F0F0] shrink-0">
-                <p className="text-[12px] text-[#A1A1AA] m-0">
+              <div className="shrink-0 border-b border-[rgba(16,24,40,0.06)] px-6 py-3.5">
+                <p className="m-0 text-[12px] text-[#98A2B3]">
                   {filteredQuestions.length}{" "}
                   {filteredQuestions.length === 1 ? "question" : "questions"}
                   {searchQuery && (
-                    <span className="text-[#C4C4C4]"> matching &ldquo;{searchQuery}&rdquo;</span>
+                    <span> matching &ldquo;{searchQuery}&rdquo;</span>
                   )}
                 </p>
               </div>
@@ -328,40 +361,42 @@ export default function QuestionLibraryModal({
             listContent={
               <QuestionList
                 questions={filteredQuestions}
-                selectedIndex={selectedIndex}
+                categoryId={activeCategoryId}
+                selectedKeys={selectedKeys}
+                previewKey={previewKey}
                 searchQuery={searchQuery}
-                onSelect={setSelectedIndex}
+                onToggle={handleToggle}
               />
             }
             previewContent={<PreviewPane question={selectedQuestion} />}
           />
 
-          <div className="flex items-center justify-between px-7 py-4 border-t border-[#F0F0F0] shrink-0 bg-[#FAFAFA]/80">
-            <p className="text-[12px] text-[#A1A1AA] m-0 truncate min-w-0">
-              {selectedQuestion
-                ? `Selected: ${selectedQuestion.title || selectedQuestion.question.slice(0, 72)}`
-                : "No question selected"}
+          <div className="flex shrink-0 items-center justify-between border-t border-[rgba(16,24,40,0.06)] bg-white px-7 py-4">
+            <p className="m-0 min-w-0 truncate text-[12px] text-[#98A2B3]">
+              {selectedList.length === 0
+                ? "No questions selected"
+                : `${selectedList.length} question${selectedList.length === 1 ? "" : "s"} selected`}
             </p>
-            <div className="flex items-center gap-2.5 shrink-0">
+            <div className="flex shrink-0 items-center gap-2.5">
               <button
                 type="button"
                 onClick={onClose}
-                className="h-10 px-5 rounded-full border border-[#E4E4E7] bg-white text-[13px] font-medium text-[#52525B] hover:bg-[#FAFAFA] hover:border-[#D4D4D8] transition-colors cursor-pointer"
+                className="h-10 cursor-pointer rounded-full border border-gray-200 bg-white px-5 text-[13px] font-medium text-dark-200 transition-colors hover:bg-light-blue-100"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleApply}
-                disabled={!selectedQuestion}
-                className="h-10 px-6 rounded-full text-[13px] font-semibold text-white bg-[#18181B] hover:bg-[#262626] disabled:opacity-35 disabled:cursor-not-allowed transition-colors border-none cursor-pointer"
+                disabled={selectedList.length === 0}
+                className="h-10 cursor-pointer rounded-full primary-gradient px-6 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Apply question
+                Apply {selectedList.length > 1 ? `${selectedList.length} questions` : "question"}
               </button>
             </div>
           </div>
         </div>
-      </div>
+      </LibraryModalOverlay>
     </>
   );
 }

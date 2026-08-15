@@ -1,11 +1,3 @@
-import type { DashboardStats } from "../types";
-
-interface MetricCardsProps {
-  stats: DashboardStats;
-  attentionCount: number;
-  avgTrustScore: number | null;
-}
-
 interface MetricDef {
   label: string;
   value: string | number;
@@ -13,67 +5,86 @@ interface MetricDef {
   alert?: boolean;
 }
 
-export function MetricCards({ stats, attentionCount, avgTrustScore }: MetricCardsProps) {
+interface MetricCardsProps {
+  documentCount: number;
+  analyzedCount: number;
+  runningCount: number;
+  failedCount: number;
+  redlineCount: number;
+  signatureCount: number;
+}
+
+export function MetricCards({
+  documentCount,
+  analyzedCount,
+  runningCount,
+  failedCount,
+  redlineCount,
+  signatureCount,
+}: MetricCardsProps) {
   const metrics: MetricDef[] = [
     {
       label: "Documents",
-      value: stats.totalDocs,
-      sub: stats.totalDocs === 0 ? "none yet" : "in vault",
+      value: documentCount,
+      sub: documentCount === 0 ? "None in vault" : "In vault",
     },
     {
-      label: "Pending signatures",
-      value: stats.pendingSigs,
-      sub: stats.pendingSigs === 0 ? "on track" : "awaiting signers",
-      alert: stats.pendingSigs > 0,
+      label: "Analyzed",
+      value: analyzedCount,
+      sub: analyzedCount === 0 ? "No analyses yet" : "With stored findings",
     },
     {
-      label: "Active redlines",
-      value: stats.redlinesPending,
-      sub: stats.redlinesPending === 0 ? "none open" : "need resolution",
-      alert: stats.redlinesPending > 0,
+      label: "Jobs running",
+      value: runningCount,
+      sub: runningCount === 0 ? "None running" : "Queued or processing",
     },
     {
-      label: "Need attention",
-      value: attentionCount,
-      sub: attentionCount === 0 ? "all clear" : "require review",
-      alert: attentionCount > 0,
-    },
-    {
-      label: "Avg trust score",
-      value: avgTrustScore !== null ? `${avgTrustScore}%` : "—",
-      sub: avgTrustScore !== null ? "across documents" : "no data yet",
+      label: "Failed (7 days)",
+      value: failedCount,
+      sub: failedCount === 0 ? "None" : "Need follow-up",
+      alert: failedCount > 0,
     },
   ];
 
+  if (redlineCount > 0) {
+    metrics.push({
+      label: "Pending redlines",
+      value: redlineCount,
+      sub: "Need resolution",
+      alert: true,
+    });
+  }
+  if (signatureCount > 0) {
+    metrics.push({
+      label: "Pending signatures",
+      value: signatureCount,
+      sub: "Awaiting signers",
+      alert: true,
+    });
+  }
+
+  const cols =
+    metrics.length <= 4
+      ? "grid-cols-2 sm:grid-cols-4"
+      : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5";
+
   return (
-    <div
-      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"
-      aria-label="Workspace metrics"
-    >
-      {metrics.map((m) => (
-        <div key={m.label} className="dashboard-metric-card">
-          <p
-            className="text-[10px] font-bold uppercase tracking-[0.08em]"
-            style={{ color: "var(--color-text-tertiary)" }}
-          >
-            {m.label}
-          </p>
-          <p
-            className="text-[26px] font-bold tracking-tight leading-none mt-2 tabular-nums"
-            style={{
-              color: m.alert ? "var(--color-warning-text)" : "var(--color-text-primary)",
-            }}
-          >
-            {m.value}
-          </p>
-          <p
-            className="text-[11px] mt-1.5"
-            style={{ color: "var(--color-text-tertiary)" }}
-          >
-            {m.sub}
-          </p>
-        </div>
-      ))}
-    </div>
+    <section className="dashboard-metric-wrap p-4 sm:p-5" aria-label="Workspace metrics">
+      <div className={`grid gap-2.5 ${cols}`}>
+        {metrics.map((m) => (
+          <div key={m.label} className="dashboard-metric-tile">
+            <p className="text-[12px] font-medium text-dark-200">{m.label}</p>
+            <p
+              className={`mt-2 text-[24px] font-semibold leading-none tracking-tight tabular-nums ${
+                m.alert ? "text-badge-yellow-text" : "text-[#1a1a1a]"
+              }`}
+            >
+              {m.value}
+            </p>
+            <p className="mt-1.5 text-[11px] text-[#98A2B3]">{m.sub}</p>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }

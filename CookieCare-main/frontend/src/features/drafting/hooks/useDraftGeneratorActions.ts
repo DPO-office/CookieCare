@@ -325,6 +325,7 @@ export function useDraftGeneratorActions({
     pushUndoSnapshot(editorContent);
     setEditorContent("");
 
+<<<<<<< HEAD
     let documentTitle = "Draft Agreement";
     if (params.sourceDocumentId) {
       documentTitle = `Draft from: ${params.uploadFileName || "uploaded document"}`;
@@ -333,6 +334,19 @@ export function useDraftGeneratorActions({
     } else if (params.instructions.trim()) {
       const t = params.instructions.trim();
       documentTitle = t.length > 48 ? `${t.slice(0, 48)}…` : t;
+=======
+    let documentTitle = "Mutual Compliance Agreement";
+
+    if (params.mode === "Basic") {
+      // QUALITY_FIX: previous — `Mutual NDA - ${params.basicPartyB}` jammed a party
+      // name into the document title (e.g. "Mutual NDA - Vendor Infrastructure Host").
+      // Use a clean legal title; the party details belong in the body, not the title.
+      documentTitle = params.selectedTemplateName || "Draft Agreement";
+    } else if (params.advancedStep === "proactive") {
+      documentTitle = params.selectedTemplateName || "Proactive Draft Covenants";
+    } else {
+      documentTitle = `Ingested response: ${params.uploadFileName || "Reactive Blueprint"}`;
+>>>>>>> origin/development
     }
 
     setIsGeneratorActive(false);

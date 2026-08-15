@@ -1,6 +1,7 @@
 
 import { Router, Request, Response } from "express";
 import { pool } from "../config/database.js";
+import { config } from "../config/index.js";
 import authRoutes from "./auth.js";
 import adminRoutes from "./admin.js";
 import documentRoutes from "./documents.js";
@@ -20,11 +21,20 @@ import settingsRoutes from "./settings.js";
 import dpaRoutes from "./dpa.js";
 import vendorReviewRoutes from "./vendorReview.js";
 import aiEthicsRoutes from "./aiEthics.js";
+import aiToolsRoutes from "./aiTools.js";
 import { authenticateToken } from "../middleware/auth.js";
 
 const router = Router();
 
 router.get("/health", async (req: Request, res: Response) => {
+  if (config.skipDb) {
+    return res.json({
+      status: "UP",
+      database: "SKIPPED",
+      timestamp: new Date().toISOString(),
+    });
+  }
+
   try {
     const start = Date.now();
     await pool.query("SELECT 1");
@@ -67,5 +77,6 @@ router.use("/settings", settingsRoutes);
 router.use("/dpa", dpaRoutes);
 router.use("/vendor-review", vendorReviewRoutes);
 router.use("/ai-ethics", aiEthicsRoutes);
+router.use("/ai-tools", aiToolsRoutes);
 
 export default router;

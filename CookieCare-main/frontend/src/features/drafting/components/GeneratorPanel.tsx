@@ -93,13 +93,13 @@ export default function GeneratorPanel(props: GeneratorPanelProps) {
         const clauses = data.filter((i: any) => i.type === "clauses");
 
         props.onSetTemplateFolders([{
-          name: "randtrust Templates",
+          name: "LORA Templates",
           count: templates.length,
           items: templates.map((t: any) => t.name)
         }]);
 
         props.onSetClauseCategories([{
-          name: "randtrust Clause Library",
+          name: "LORA Clause Library",
           count: clauses.length,
           items: clauses.map((c: any) => c.name)
         }]);

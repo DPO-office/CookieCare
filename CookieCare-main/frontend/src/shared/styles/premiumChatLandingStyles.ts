@@ -1,7 +1,6 @@
 // Shared premium chat landing styles — used by Draft, Analyze, Ask Lawyer.
 
 export const PREMIUM_CHAT_LANDING_STYLES = `
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,200;0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,300;1,14..32,400&display=swap');
 
 @keyframes pcl-rise {
   from { opacity: 0; transform: translateY(18px); }
@@ -11,7 +10,7 @@ export const PREMIUM_CHAT_LANDING_STYLES = `
 .pcl-rise-2 { animation: pcl-rise 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.20s both; }
 
 .pcl-page {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
   background: #FFFFFF;
 }
 

@@ -16,7 +16,7 @@ export default function AIPanel() {
   return (
     <div className="space-y-5">
       <SettingCard>
-        <CardHeader icon={Sparkles} title="Model configuration" desc="Choose which LLM powers randtrust's analysis, drafting and review agents." />
+        <CardHeader icon={Sparkles} title="Model configuration" desc="Choose which LLM powers LORA's analysis, drafting and review agents." />
         <CardBody className="space-y-4">
           <div>
             <Label>Primary model</Label>
@@ -73,7 +73,7 @@ export default function AIPanel() {
         <CardBody>
           <ToggleRow title="RAG · Document retrieval" desc="Ground AI responses in your uploaded document library for higher accuracy." checked={ragEnabled} onChange={setRagEnabled} />
           <ToggleRow title="Streaming responses" desc="Stream tokens as they are generated instead of waiting for full completion." checked={streamingEnabled} onChange={setStreamingEnabled} />
-          <ToggleRow title="Inline citations" desc="Include clause references and source footnotes in AI-generated analysis." checked={citationsEnabled} onChange={setCitationsEnabled} />
+          <ToggleRow title="Inline citations" desc="Include clause references and source footnotes in analysis." checked={citationsEnabled} onChange={setCitationsEnabled} />
           <ToggleRow title="Safety filters" desc="Apply content and legal-risk guardrails to all AI outputs." checked={safetyFilters} onChange={setSafetyFilters} />
         </CardBody>
       </SettingCard>

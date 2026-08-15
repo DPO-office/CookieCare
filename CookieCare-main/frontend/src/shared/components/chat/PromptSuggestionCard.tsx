@@ -3,7 +3,7 @@
  *
  * Dense, scannable. Icon + label on one line, description on the next.
  * Hover reveals a subtle brand-left-border accent.
- * Follows the RandTrust Design System.
+ * Follows the LORA Design System.
  */
 import React from "react";
 import { type LucideIcon, ArrowUpRight } from "lucide-react";
@@ -32,7 +32,7 @@ export function PromptSuggestionCard({
         background: "#FFFFFF",
         border: "1px solid #E4E4E7",
         boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
-        fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif",
+        fontFamily: "var(--font-sans)",
       }}
       onMouseEnter={(e) => {
         const el = e.currentTarget as HTMLElement;

@@ -1,7 +1,7 @@
 /**
  * AskAILawyer — Enterprise AI Legal Workspace
  *
- * Visual language matches RandTrust AI exactly:
+ * Visual language matches LORA AI exactly:
  *   – #F7F8FA base with SubtleBackground ambient layers
  *   – Same PAGE_STYLES (animations, typography, scrollbar, response prose)
  *   – Landing: large hero heading + composer + chip-style quick prompts
@@ -20,6 +20,7 @@ import CitationModal from "./components/CitationModal";
 import { QUICK_PROMPTS } from "./constants";
 import { AIResponseBlock } from "../../shared/components/chat";
 import { PREMIUM_CHAT_LANDING_STYLES } from "../../shared/styles/premiumChatLandingStyles";
+import { ASK_LAWYER_STYLES } from "./styles/askLawyerStyles";
 
 function QuickChip({ label, icon: Icon, onClick }: {
   label: string;
@@ -27,12 +28,8 @@ function QuickChip({ label, icon: Icon, onClick }: {
   onClick: () => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="flex items-center gap-1.5 outline-none rounded-full px-3.5 py-1.5 text-[12px] text-[#A1A1AA] bg-[#FAFAFA] border border-[#EBEBEB] hover:border-[#D4D4D8] hover:text-[#52525B] transition-colors"
-    >
-      <Icon className="w-3 h-3 shrink-0 text-[#A1A1AA]" />
+    <button type="button" onClick={onClick} className="ask-lawyer-chip outline-none">
+      <Icon className="h-3.5 w-3.5" strokeWidth={1.75} />
       <span>{label}</span>
     </button>
   );
@@ -76,6 +73,7 @@ export default function AskAILawyer({
     handleKeyDown,
     handleCopyMarkdown,
     applyQuickPrompt,
+    resetConversation,
     togglePopover,
     selectedKBCount,
     selectedFolderCount,
@@ -100,24 +98,15 @@ export default function AskAILawyer({
       : undefined;
 
   const handleReset = () => {
-    // Navigate back to landing by clearing result state via a re-mount trick —
-    // the hook exposes setLawyerError; for a full reset we reload the page state.
-    // A lightweight approach: reload the component by clearing key state.
-    setOpenPopover(null);
-    setShowSources(false);
-    // The hook's hasResult / submittedQuery are derived from internal state.
-    // We trigger a visible reset by dispatching an empty query reset signal.
-    // Since the hook doesn't expose a reset(), we achieve this through the
-    // error channel which brings us back to landing when lawyerError is set
-    // and then immediately cleared — instead, just reload the page.
-    window.location.reload();
+    resetConversation();
   };
 
   return (
     <>
       <style>{PREMIUM_CHAT_LANDING_STYLES}</style>
+      <style>{ASK_LAWYER_STYLES}</style>
 
-      <div className="pcl-page flex-1 min-h-0 overflow-hidden flex relative">
+      <div className="dpa-results-bg ask-lawyer-landing pcl-page flex-1 min-h-0 overflow-hidden flex relative font-sans">
         {!!lawyerError && (
           <AiProgressOverlay
             visible={!!lawyerError}
@@ -132,7 +121,7 @@ export default function AskAILawyer({
 
           {/* ════════════════════════════════════════════════
               LANDING STATE
-              Mirrors RandTrust AI landing exactly:
+              Mirrors LORA AI landing exactly:
                 large hero heading (clamp) → subtitle →
                 composer → chip-style quick prompts
           ════════════════════════════════════════════════ */}
@@ -146,9 +135,15 @@ export default function AskAILawyer({
               className="flex-1 flex flex-col min-h-0 overflow-hidden"
             >
               <div className="flex-1 flex flex-col items-center justify-center min-h-0 px-6">
+                <p className="pcl-rise-1 mb-3 text-[10px] font-medium uppercase tracking-[0.14em] text-[#98A2B3]">
+                  Legal Space · Research
+                </p>
                 <h1 className="pcl-rise-1 pcl-heading text-center">
                   What would you like to research?
                 </h1>
+                <p className="pcl-rise-1 mt-2 max-w-lg text-center text-[14px] leading-relaxed text-[#667085]">
+                  Ask a legal question across jurisdictions, or ground the answer in your vault and web sources.
+                </p>
 
                 <div className="pcl-rise-2 w-full mt-8" style={{ maxWidth: 720 }}>
                   <ComposerBar {...composerProps} variant="landing" />
@@ -156,7 +151,7 @@ export default function AskAILawyer({
 
                 <div
                   className="pcl-rise-2 flex flex-wrap items-center justify-center gap-2 mt-6"
-                  style={{ maxWidth: 560 }}
+                  style={{ maxWidth: 640 }}
                 >
                   {QUICK_PROMPTS.map((qp) => (
                     <QuickChip
@@ -174,7 +169,7 @@ export default function AskAILawyer({
 
           {/* ════════════════════════════════════════════════
               CHAT STATE
-              Mirrors RandTrust AI chat exactly:
+              Mirrors LORA AI chat exactly:
                 white session bar → scrollable messages →
                 white pinned composer footer
           ════════════════════════════════════════════════ */}
@@ -184,108 +179,82 @@ export default function AskAILawyer({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2 }}
-              className="flex-1 flex min-h-0 overflow-hidden"
+              className="flex min-h-0 flex-1 overflow-hidden"
               style={{ zIndex: 2, position: "relative" }}
             >
-              <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#FAFAFA]">
+              <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
 
-                {/* Session bar */}
-                <header
-                  className="flex items-center justify-between px-6 shrink-0 bg-white"
-                  style={{
-                    height: 56,
-                    borderBottom: "1px solid #F0F0F0",
-                  }}
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-8 h-8 rounded-xl bg-[#F4F4F5] flex items-center justify-center shrink-0">
-                      <Scale className="w-3.5 h-3.5 text-[#18181B]" strokeWidth={1.75} />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="m-0 text-[14px] font-semibold text-[#18181B] leading-tight">
+                <header className="flex shrink-0 items-center justify-center px-6 pt-4 pb-2">
+                  <div className="ask-lawyer-session flex h-11 w-full max-w-[768px] items-center justify-between gap-3 px-2 pl-3 pr-2">
+                    <div className="flex min-w-0 items-center gap-2.5">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF] text-[#4F5BD9]">
+                        <Scale className="h-3.5 w-3.5" strokeWidth={1.75} />
+                      </div>
+                      <p className="m-0 truncate text-[13px] font-semibold tracking-[-0.02em] text-[#1a1a1a]">
                         AI Lawyer
                       </p>
                       {selectedJurisdictions.length > 0 && (
-                        <p className="m-0 mt-0.5 text-[11px] text-[#A1A1AA] truncate">
+                        <span className="hidden max-w-[180px] truncate text-[11px] text-[#98A2B3] sm:inline">
                           {selectedJurisdictions.length === 1
                             ? selectedJurisdictions[0]
                             : `${selectedJurisdictions.length} jurisdictions`}
-                        </p>
+                        </span>
+                      )}
+                      {matchedSources.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setShowSources((s) => !s)}
+                          aria-pressed={showSources}
+                          className="inline-flex cursor-pointer items-center gap-1 rounded-full border-none px-2 py-0.5 text-[11px] font-medium transition-colors"
+                          style={{
+                            color: showSources ? "#FFFFFF" : "#4F5BD9",
+                            background: showSources ? "#111827" : "#EEF2FF",
+                          }}
+                        >
+                          <BookOpen className="h-3 w-3" />
+                          {matchedSources.length}
+                        </button>
                       )}
                     </div>
-                    {matchedSources.length > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => setShowSources((s) => !s)}
-                        aria-pressed={showSources}
-                        className="ml-1 inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full transition-colors cursor-pointer border-none"
-                        style={{
-                          color: showSources ? "#FFFFFF" : "#52525B",
-                          background: showSources ? "#18181B" : "#F4F4F5",
-                        }}
-                      >
-                        <BookOpen className="w-3 h-3" />
-                        {matchedSources.length} source{matchedSources.length !== 1 ? "s" : ""}
-                      </button>
-                    )}
-                  </div>
 
-                  <button
-                    type="button"
-                    onClick={handleReset}
-                    className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-full text-[12px] font-medium border transition-colors cursor-pointer"
-                    style={{
-                      color: "#52525B",
-                      background: "#FFFFFF",
-                      borderColor: "#E4E4E7",
-                    }}
-                    aria-label="New conversation"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    <span>New</span>
-                  </button>
+                    <button
+                      type="button"
+                      onClick={handleReset}
+                      className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full border-none bg-transparent px-3 text-[12px] font-medium text-[#667085] transition-colors hover:bg-[#EEF2FF] hover:text-[#4F5BD9]"
+                      aria-label="New conversation"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" />
+                      <span>New chat</span>
+                    </button>
+                  </div>
                 </header>
 
-                {/* Scrollable conversation */}
-                <div className="flex-1 overflow-y-auto px-6 py-8">
-                  <div className="mx-auto space-y-8" style={{ maxWidth: 720 }}>
-
+                <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-4 pt-6">
+                  <div className="mx-auto space-y-7" style={{ maxWidth: 768 }}>
                     {submittedQuery && (
                       <div className="flex justify-end">
-                        <div
-                          className="max-w-[80%] rounded-2xl rounded-br-md px-5 py-3.5"
-                          style={{ background: "#18181B", color: "#FFFFFF" }}
-                        >
-                          <p className="m-0 text-[11px] font-medium text-white/45 mb-1.5">You asked</p>
-                          <p className="m-0 text-[14px] leading-relaxed whitespace-pre-wrap">
-                            {submittedQuery}
-                          </p>
+                        <div className="ask-lawyer-user-bubble max-w-[min(80%,36rem)] whitespace-pre-wrap px-4 py-2.5">
+                          {submittedQuery}
                         </div>
                       </div>
                     )}
 
-                    <div>
-                      <AIResponseBlock
-                        htmlContent={markdownToHtml(streamedResult)}
-                        isStreaming={isStreaming}
-                        statusMessage={lawyerProgress || "Researching across jurisdictions…"}
-                        label="AI Lawyer"
-                        subLabel={jurisdictionSubLabel}
-                        isCopied={isCopied}
-                        onCopy={handleCopyMarkdown}
-                      />
-                    </div>
+                    <AIResponseBlock
+                      htmlContent={markdownToHtml(streamedResult)}
+                      isStreaming={isStreaming}
+                      statusMessage={lawyerProgress || "Researching across jurisdictions…"}
+                      label="AI Lawyer"
+                      subLabel={jurisdictionSubLabel}
+                      isCopied={isCopied}
+                      onCopy={handleCopyMarkdown}
+                    />
 
                     <div ref={chatBottomRef} aria-hidden="true" />
                   </div>
                 </div>
 
-                {/* Pinned composer */}
-                <div
-                  className="shrink-0 px-6 pb-5 pt-4 bg-white"
-                  style={{ borderTop: "1px solid #F0F0F0" }}
-                >
-                  <div className="max-w-[720px] mx-auto">
+                <div className="ask-lawyer-composer-fade shrink-0 px-6 pb-5 pt-8">
+                  <div className="mx-auto" style={{ maxWidth: 768 }}>
                     <ComposerBar {...composerProps} variant="chat" />
                   </div>
                 </div>

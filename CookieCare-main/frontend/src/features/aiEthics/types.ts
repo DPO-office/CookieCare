@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ComponentType } from "react";
 import {
   AnalysisAppState,
   SharedAnalysisStep,
@@ -13,7 +13,6 @@ import {
 export type AppState = AnalysisAppState;
 export type AnalysisStep = SharedAnalysisStep;
 
-// Re-export result types from shared/types so internal feature imports continue to work
 export type {
   AIEthicsReviewResult,
   EthicsFinding,
@@ -22,3 +21,20 @@ export type {
   AIEthicsDimension,
   StandardAlignment,
 };
+
+export type EthicsDimensionId =
+  | "fairness"
+  | "transparency"
+  | "accountability"
+  | "privacy"
+  | "oversight"
+  | "risk";
+
+export interface EthicsResultDimension {
+  id: EthicsDimensionId;
+  title: string;
+  description: string;
+  icon: ComponentType<{ className?: string; strokeWidth?: number }>;
+  scoreKey: keyof AIEthicsScoreBreakdown | null;
+  keywords: string[];
+}

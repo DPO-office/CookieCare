@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { HeartHandshake, ChevronDown, ChevronUp } from "lucide-react";
 import AiProgressOverlay from "../../../shared/components/AiProgressOverlay";
 import { AgentMarkup } from "../types";
@@ -10,6 +10,8 @@ interface DocumentViewerProps {
   activeDoc: LegalDocument;
   agentMarkups: AgentMarkup[];
   selectedMarkupId: string | null;
+  acceptingMarkupId: string | null;
+  appliedClause: { id: string; text: string } | null;
   evaluating: boolean;
   evaluationError: string;
   isLocked: boolean;
@@ -27,6 +29,8 @@ export default function DocumentViewer({
   activeDoc,
   agentMarkups,
   selectedMarkupId,
+  acceptingMarkupId,
+  appliedClause,
   evaluating,
   evaluationError,
   isLocked,
@@ -40,24 +44,45 @@ export default function DocumentViewer({
   onRejectDbRedline,
 }: DocumentViewerProps) {
   const renderedHtml = useMemo(
-    () => buildRenderedDocumentHtml(activeDoc.content, agentMarkups, selectedMarkupId),
-    [activeDoc.content, agentMarkups, selectedMarkupId],
+    () =>
+      buildRenderedDocumentHtml(activeDoc.content, agentMarkups, selectedMarkupId, {
+        appliedClause,
+      }),
+    [activeDoc.content, agentMarkups, selectedMarkupId, appliedClause],
   );
+
+  useEffect(() => {
+    if (!acceptingMarkupId) return;
+    const el = document.querySelector(
+      `[data-clause-id="${CSS.escape(acceptingMarkupId)}"]`,
+    ) as HTMLElement | null;
+    if (!el) return;
+    el.classList.add("negotiate-clause-working");
+    el.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+  }, [acceptingMarkupId]);
+
+  useEffect(() => {
+    if (!appliedClause?.id) return;
+    const el = document.querySelector(
+      `[data-clause-id="${CSS.escape(appliedClause.id)}"]`,
+    ) as HTMLElement | null;
+    el?.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+  }, [appliedClause?.id]);
 
   const clauseCnt = agentMarkups.length;
 
   return (
     <>
       <style>{NEGOTIATE_WORKSPACE_STYLES}</style>
-      <div className="flex-1 min-w-0 overflow-y-auto bg-[#FAFAFA]">
-        <div className="max-w-[780px] mx-auto px-6 py-6">
+      <div className="negotiate-scroll scrollbar-hide min-h-0 min-w-0 flex-1 overflow-y-auto bg-transparent">
+        <div className="mx-auto flex min-h-full w-full max-w-[1100px] flex-col justify-start px-6 py-5 sm:px-10">
           <div
-            className="relative bg-white overflow-hidden min-h-[540px]"
+            className="negotiate-paper relative min-h-[calc(100%-8px)] flex-1 overflow-hidden bg-white"
             style={{
               borderRadius: 22,
-              border: "1px solid #EBEBEB",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05)",
-              padding: "48px 56px",
+              boxShadow:
+                "0 25px 50px -12px rgba(15, 23, 42, 0.18), 0 8px 16px -8px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.04)",
+              padding: "48px 56px 64px",
             }}
           >
             <AiProgressOverlay
@@ -66,6 +91,7 @@ export default function DocumentViewer({
               error={evaluationError}
               label="Evaluating contract"
               subtitle={activeDoc.title}
+              illustration="scan"
               onRetry={evaluationError ? onRetryEvaluation : undefined}
               onDismiss={evaluationError ? onDismissError : undefined}
             />
@@ -87,7 +113,7 @@ export default function DocumentViewer({
           </div>
 
           {clauseCnt > 0 && !evaluating && (
-            <p className="text-[11px] text-[#C4C4C4] mt-4 text-center m-0">
+            <p className="mt-4 text-center text-[11px] text-[#98A2B3]">
               Click a highlighted clause in the document to review the AI suggestion
             </p>
           )}
@@ -97,19 +123,20 @@ export default function DocumentViewer({
               className="mt-5 overflow-hidden bg-white"
               style={{
                 borderRadius: 22,
-                border: "1px solid #EBEBEB",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+                boxShadow: "0 1px 2px rgba(16,24,40,0.04), 0 0 0 1px rgba(16,24,40,0.06)",
               }}
             >
               <button
                 type="button"
                 onClick={onToggleRedlines}
-                className="w-full flex items-center justify-between px-5 py-4 text-[13px] font-medium text-[#18181B] hover:bg-[#FAFAFA] transition border-none bg-transparent cursor-pointer"
+                className="flex w-full cursor-pointer items-center justify-between border-none bg-transparent px-5 py-4 text-[13px] font-medium text-[#1a1a1a] transition hover:bg-[#F7F8FB]"
               >
                 <div className="flex items-center gap-2.5">
-                  <HeartHandshake className="w-4 h-4 text-[#A1A1AA]" />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#EEF2FF] text-[#4F5BD9]">
+                    <HeartHandshake className="h-4 w-4" strokeWidth={1.75} />
+                  </div>
                   <span>Pending redlines</span>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#FEF3C7] text-[#92400E]">
+                  <span className="score-badge bg-badge-yellow text-[11px] font-medium text-badge-yellow-text">
                     {pendingDbRedlines.length}
                   </span>
                 </div>
@@ -121,7 +148,7 @@ export default function DocumentViewer({
               </button>
 
               {redlinesOpen && (
-                <div className="px-5 pb-5 space-y-3 max-h-[280px] overflow-y-auto border-t border-[#F4F4F5]">
+                <div className="negotiate-scroll max-h-[280px] space-y-3 overflow-y-auto border-t border-[#F4F4F5] px-5 pb-5">
                   {pendingDbRedlines.map((p) => (
                     <div
                       key={p.id}
@@ -147,7 +174,7 @@ export default function DocumentViewer({
                           <button
                             type="button"
                             onClick={() => onAcceptDbRedline(p.id)}
-                            className="inline-flex items-center gap-1.5 h-8 px-4 rounded-full bg-[#18181B] text-white text-[12px] font-semibold hover:bg-[#262626] transition border-none cursor-pointer"
+                            className="primary-gradient inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full border-none px-4 text-[12px] font-semibold text-white"
                           >
                             Accept
                           </button>

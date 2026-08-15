@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import { useRef, useEffect, useState } from "react";
 import { Sparkles, MoreVertical } from "lucide-react";
+=======
+import { useRef, useEffect, ReactNode } from "react";
+import { Sparkles } from "lucide-react";
+>>>>>>> origin/development
 import { DraftComposer } from "./DraftComposer";
 import type { DraftChatMessage } from "../hooks/useDraftChat";
 import type { DraftOpenQuestion } from "../api/draftingJobs";
@@ -116,6 +121,47 @@ function AskQuestionCard({
   );
 }
 
+function FollowUpCard({
+  author,
+  isAi,
+  isProgress,
+  children,
+}: {
+  author: string;
+  isAi?: boolean;
+  isProgress?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <article className={`draft-followup-card${isAi ? " is-ai" : ""}`}>
+      <div className="mb-2.5 flex items-center gap-2.5">
+        <span
+          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold ${
+            isAi ? "bg-[#EEF2FF] text-[#4F5BD9]" : "bg-[#0F172A] text-white"
+          }`}
+        >
+          {isAi ? <Sparkles className="h-3.5 w-3.5" strokeWidth={1.75} /> : author.slice(0, 1)}
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="m-0 truncate text-[13px] font-semibold tracking-[-0.01em] text-[#1a1a1a]">
+            {author}
+          </p>
+          {isProgress && (
+            <p className="m-0 mt-0.5 text-[11px] text-[#98A2B3]">Working…</p>
+          )}
+        </div>
+      </div>
+      <div
+        className={`text-[13px] leading-[1.65] whitespace-pre-wrap ${
+          isProgress ? "text-[#667085]" : "text-[#1a1a1a]"
+        }`}
+      >
+        {children}
+      </div>
+    </article>
+  );
+}
+
 export default function DraftChatPanel({
   title,
   messages,
@@ -128,7 +174,7 @@ export default function DraftChatPanel({
   isLoading = false,
   isParsing = false,
   isDragging,
-  composerPlaceholder = "Ask anything.",
+  composerPlaceholder = "Ask a follow-up…",
   onDragOver,
   onDragLeave,
   onDrop,
@@ -140,25 +186,25 @@ export default function DraftChatPanel({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const visibleCount = messages.filter((m) => m.kind !== "progress").length;
+
   return (
-    <div className="flex flex-col h-full min-h-0 bg-white overflow-hidden">
-      <header className="shrink-0 grid grid-cols-[1fr_auto_1fr] items-center px-5 h-[52px] border-b border-[#EBEBEB] bg-white">
-        <div />
-        <p
-          className="text-[12.5px] font-medium text-[#3F3F46] truncate text-center tracking-[-0.01em] max-w-[220px]"
-          title={title}
-        >
-          {title}
-        </p>
-        <button
-          type="button"
-          className="w-8 h-8 flex items-center justify-center rounded-lg text-[#A1A1AA] hover:bg-[#F4F4F5] hover:text-[#52525B] transition-colors justify-self-end"
-          aria-label="More options"
-        >
-          <MoreVertical className="w-4 h-4" />
-        </button>
+    <div className="flex h-full min-h-0 flex-col overflow-hidden font-sans">
+      <header className="flex min-h-[56px] shrink-0 items-center justify-between gap-3 border-b border-slate-200/60 px-5 py-3">
+        <div className="min-w-0">
+          <p className="m-0 text-[10px] font-medium uppercase tracking-[0.14em] text-[#98A2B3]">
+            Ask AI
+          </p>
+          <p className="m-0 mt-0.5 truncate text-[15px] font-semibold tracking-[-0.02em] text-[#1a1a1a]">
+            Follow-ups
+          </p>
+        </div>
+        <span className="score-badge shrink-0 bg-[#EEF2FF] text-[11px] font-medium text-[#4F5BD9]">
+          {visibleCount}
+        </span>
       </header>
 
+<<<<<<< HEAD
       <div className="flex-1 overflow-y-auto px-5 py-6 space-y-5 min-h-0 bg-[#FCFCFC]">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center px-4">
@@ -218,30 +264,71 @@ export default function DraftChatPanel({
                 }`}
               >
                 {msg.content}
+=======
+      <div className="draft-chat-stage relative min-h-0 flex-1">
+        <div className="scrollbar-hide h-full space-y-3.5 overflow-y-auto px-4 pb-28 pt-4">
+          {messages.length === 0 && (
+            <div className="flex h-full flex-col items-center justify-center px-4 text-center">
+              <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#4F5BD9] shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+                <Sparkles className="h-4 w-4" strokeWidth={1.75} />
+              </span>
+              <p className="m-0 max-w-[220px] text-[13px] leading-relaxed text-[#667085]">
+                Ask a follow-up about this draft — tighten a clause, change tone, or add a section.
+>>>>>>> origin/development
               </p>
             </div>
-          );
-        })}
-        <div ref={bottomRef} />
-      </div>
+          )}
+          {messages.map((msg) => {
+            if (msg.role === "user") {
+              return (
+                <FollowUpCard key={msg.id} author="You">
+                  {msg.content}
+                </FollowUpCard>
+              );
+            }
 
-      <div className="shrink-0 px-6 pb-6 pt-4 bg-white">
-        <DraftComposer
-          variant="chat"
-          value={inputValue}
-          onChange={onInputChange}
-          onSubmit={onSubmit}
-          onFileSelect={onFileSelect}
-          onRemoveFile={onRemoveFile}
-          attachedFileName={attachedFileName}
-          isLoading={isLoading}
-          isParsing={isParsing}
-          isDragging={isDragging}
-          onDragOver={onDragOver}
-          onDragLeave={onDragLeave}
-          onDrop={onDrop}
-          placeholder={composerPlaceholder}
-        />
+            if (msg.kind === "example") {
+              return (
+                <FollowUpCard key={msg.id} author="LORA" isAi>
+                  {msg.content}
+                </FollowUpCard>
+              );
+            }
+
+            return (
+              <FollowUpCard
+                key={msg.id}
+                author="LORA"
+                isAi
+                isProgress={msg.kind === "progress"}
+              >
+                {msg.content}
+              </FollowUpCard>
+            );
+          })}
+          <div ref={bottomRef} />
+        </div>
+
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#FAFBFD] via-[#FAFBFD]/90 to-transparent px-4 pb-4 pt-8">
+          <div className="pointer-events-auto">
+            <DraftComposer
+              variant="chat"
+              value={inputValue}
+              onChange={onInputChange}
+              onSubmit={onSubmit}
+              onFileSelect={onFileSelect}
+              onRemoveFile={onRemoveFile}
+              attachedFileName={attachedFileName}
+              isLoading={isLoading}
+              isParsing={isParsing}
+              isDragging={isDragging}
+              onDragOver={onDragOver}
+              onDragLeave={onDragLeave}
+              onDrop={onDrop}
+              placeholder={composerPlaceholder}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

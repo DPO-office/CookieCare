@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Scale, ScanSearch, PenTool,
   MessageSquare, Handshake, GitCompare, Archive,
   ShieldCheck, Cookie, FileCheck, Building2,
-  ShieldAlert, Brain, Shield,
+  ShieldAlert, Brain, Layers, Shield,
 } from "lucide-react";
 import type { ElementType } from "react";
 
@@ -53,7 +53,7 @@ export function buildNav(isAdmin: boolean): NavEntry[] {
     },
     {
       id: "legal",
-      label: "Legal Space",
+      label: "Legal",
       icon: Scale,
       children: [
         { id: "legal-review",    label: "Analyze",     icon: ScanSearch    },
@@ -66,7 +66,7 @@ export function buildNav(isAdmin: boolean): NavEntry[] {
     },
     {
       id: "privacy",
-      label: "Privacy Space",
+      label: "Privacy",
       icon: ShieldCheck,
       children: [
         { id: "cookie-scanner", label: "Cookie Scanner", icon: Cookie    },
@@ -76,7 +76,7 @@ export function buildNav(isAdmin: boolean): NavEntry[] {
     },
     {
       id: "security",
-      label: "Security Space",
+      label: "Security",
       icon: ShieldAlert,
       children: [
         { id: "vulnerability-scanner", label: "Vulnerability scanner", icon: ShieldAlert },
@@ -84,10 +84,11 @@ export function buildNav(isAdmin: boolean): NavEntry[] {
     },
     {
       id: "ai-governance",
-      label: "AI Governance Space",
+      label: "AI Governance",
       icon: Brain,
       children: [
-        { id: "ai-ethics", label: "AI Ethics", icon: Brain },
+        { id: "ai-ethics", label: "AI Ethics Review", icon: Brain },
+        { id: "ai-tools-inventory", label: "AI Tools Inventory", icon: Layers },
       ],
     },
   ];

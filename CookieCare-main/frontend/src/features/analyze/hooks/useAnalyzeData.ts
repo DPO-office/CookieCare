@@ -102,7 +102,7 @@ export function useAnalyzeData(authToken: string) {
       const data = await res.json();
 
       const prompts = data
-        .filter((i: any) => i.type === "prompts")
+        .filter((i: any) => i.type === "prompts" && !String(i.tags ?? "").toLowerCase().includes("drafting"))
         .map((p: any) => ({ title: p.name, prompt: p.details }));
       const questions = data
         .filter((i: any) => i.type === "questions")

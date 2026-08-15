@@ -9,7 +9,6 @@ import {
   Check,
   Copy,
   Trash2,
-  Database,
 } from "lucide-react";
 import { LibraryItem } from "../types";
 import { TagChips } from "./TagChips";
@@ -33,20 +32,27 @@ interface LibraryItemsTableProps {
 }
 
 function ItemIcon({ type }: { type: LibraryItem["type"] }) {
-  const base = "shrink-0";
-  const sz = { width: 15, height: 15 };
-  switch (type) {
-    case "files":
-      return <Folder className={base} style={{ ...sz, color: "rgba(251,191,36,0.75)" }} />;
-    case "prompts":
-      return <Sparkles className={base} style={{ ...sz, color: "rgba(167,139,250,0.75)" }} />;
-    case "questions":
-      return <BookOpen className={base} style={{ ...sz, color: "rgba(251,191,36,0.65)" }} />;
-    case "websites":
-      return <Globe className={base} style={{ ...sz, color: "rgba(56,189,248,0.75)" }} />;
-    default:
-      return <FileText className={base} style={{ ...sz, color: "var(--text-muted)" }} />;
-  }
+  const icon = (() => {
+    const cls = "h-3.5 w-3.5 text-[#4F5BD9]";
+    switch (type) {
+      case "files":
+        return <Folder className={cls} strokeWidth={1.75} />;
+      case "prompts":
+        return <Sparkles className={cls} strokeWidth={1.75} />;
+      case "questions":
+        return <BookOpen className={cls} strokeWidth={1.75} />;
+      case "websites":
+        return <Globe className={cls} strokeWidth={1.75} />;
+      default:
+        return <FileText className={cls} strokeWidth={1.75} />;
+    }
+  })();
+
+  return (
+    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF]">
+      {icon}
+    </span>
+  );
 }
 
 function ProcessStatusBadge({ item }: { item: LibraryItem }) {
@@ -149,25 +155,14 @@ export function LibraryItemsTable({
 
   if (items.length === 0) {
     return (
-      <div
-        className="flex flex-col items-center justify-center text-center"
-        style={{ padding: "64px 24px", minHeight: 280 }}
-      >
-        <div
-          style={{
-            width: 44, height: 44, borderRadius: 14,
-            background: "var(--surface)",
-            border: "1px solid var(--border-light)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            marginBottom: 16,
-          }}
-        >
-          <Database style={{ width: 18, height: 18, color: "var(--text-faint)" }} />
+      <div className="flex min-h-[280px] flex-col items-center justify-center px-6 py-16 text-center">
+        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#EEF2FF] text-[#4F5BD9]">
+          <Folder className="h-5 w-5" strokeWidth={1.75} />
         </div>
-        <p style={{ fontSize: 13.5, fontWeight: 600, color: "var(--text-primary)", letterSpacing: "-0.01em" }}>
-          No records found
+        <p className="m-0 text-[16px] font-semibold tracking-[-0.02em] text-[#1a1a1a]">
+          No {activeTabLabel.toLowerCase()} yet
         </p>
-        <p style={{ fontSize: 12.5, color: "var(--text-muted)", marginTop: 6, maxWidth: 280, lineHeight: 1.6 }}>
+        <p className="mt-2 max-w-[300px] text-[13px] leading-relaxed text-[#667085]">
           Create your first {activeTabLabel.toLowerCase()} using the button above.
         </p>
       </div>

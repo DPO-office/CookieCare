@@ -21,7 +21,7 @@ export const CompareStartRequestSchema = z.object({
    * Optional human-readable label for the comparison job.
    * When omitted the API derives a title from the two file names.
    */
-  title: z.string().max(200).optional(),
+  title: z.string().max(500).optional(),
 });
 
 export type CompareStartRequest = z.infer<typeof CompareStartRequestSchema>;

@@ -1,7 +1,7 @@
 // ─── CompareDocumentsModal ────────────────────────────────────────────────────
 // Premium glassmorphism modal. Phase 1 — UI only.
 // The modal border carries the same rotating blue/purple conic-gradient glow
-// as the RandTrust AI Composer's BorderBeam.
+// as the LORA AI Composer's BorderBeam.
 
 import { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "motion/react";
