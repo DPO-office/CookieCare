@@ -744,6 +744,7 @@
 
 /* Brand tagline — Fredoka ~450, tracked +60/1000em, slate on light. */
 .lora-tagline {
+  display: block;
   margin: 0;
   font-family: "Fredoka", var(--font-sans);
   font-weight: 450;
