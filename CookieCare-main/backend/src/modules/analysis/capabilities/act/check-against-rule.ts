@@ -232,7 +232,9 @@ async function checkAgainstRule(
                 ? `playbook.${source.positionId}.gap`
                 : `web.${slugCategory(source.query)}.unverified`,
           status: "insufficient_evidence",
-          claim: `No clause available to evaluate rule ${ruleKey}.`,
+          claim: label
+            ? `No relevant clause text was available to evaluate ${label.toLowerCase()}.`
+            : "No relevant clause text was available to evaluate this obligation.",
           evidence: playbookEvidence,
           ruleId: source.kind === "authored" ? source.ruleId : undefined,
           ruleVersion: source.kind === "authored" ? source.ruleVersion : undefined,
@@ -400,17 +402,142 @@ async function judgeByScope(args: {
     ];
   }
 
-  const findings: Finding[] = [];
-  for (const clause of args.applicable) {
-    findings.push(
-      await llmJudge({
-        ...args,
-        applicable: [clause],
-        findingSuffix: clause.clauseId,
-      })
+  return llmJudgeClauses(args);
+}
+
+/**
+ * Per-clause rules are evaluated in ONE request covering every applicable
+ * clause. Issuing one call per clause multiplied a single rule into dozens of
+ * rate-limited round trips.
+ */
+async function llmJudgeClauses(args: {
+  state: AnalysisState;
+  unit: AnalysisWorkUnit;
+  source: RuleSource;
+  ruleScope: SkillRegimeRule["ruleScope"];
+  ruleText: string;
+  legalHook?: string;
+  label?: string;
+  applicable: ClauseObject[];
+  instruction: string;
+  hasFocus: boolean;
+  checkType?: string;
+}): Promise<Finding[]> {
+  const { state, unit, source, ruleText, legalHook, label, applicable, instruction } = args;
+  const ruleKey =
+    source.kind === "authored"
+      ? source.ruleId
+      : source.kind === "playbook_derived"
+        ? source.positionId
+        : "web";
+
+  const tracker = state.agent ? { tokensUsed: state.agent.tokensUsed } : undefined;
+  const schema = {
+    type: "array",
+    items: {
+      type: "object",
+      properties: {
+        clauseId: { type: "string" },
+        status: {
+          type: "string",
+          enum: ["present", "absent_expected", "insufficient_evidence"],
+        },
+        claim: { type: "string" },
+        quotedText: { type: "string" },
+        severity: { type: "string", enum: ["low", "medium", "high"] },
+        gap: { type: "string" },
+      },
+      required: ["clauseId", "status", "claim", "severity"],
+    },
+  };
+
+  const tierNote =
+    source.kind === "playbook_derived"
+      ? "This rule text comes from an org-uploaded playbook (not statute). Judge the TARGET document against it."
+      : source.kind === "web_derived"
+        ? "This rule text is unverified web research. Judge carefully; do not over-claim."
+        : "";
+
+  let raw: Array<{
+    clauseId: string;
+    status: Finding["status"];
+    claim: string;
+    quotedText?: string;
+    severity: "low" | "medium" | "high";
+    gap?: string;
+  }>;
+
+  try {
+    raw = await executeJsonCompletion(
+      [
+        "Evaluate whether the extracted TARGET clauses satisfy the FIXED rule below.",
+        "You must NOT reinterpret the rule — only assess compliance against the given rule text.",
+        "Assess ALL supplied clauses in this single response.",
+        "Return one entry ONLY for each clause that materially bears on the rule. Omit clauses that are irrelevant — do not pad the response.",
+        "If no clause bears on the rule, return an empty array.",
+        tierNote,
+        unit.input.previousAttemptFeedback
+          ? String(unit.input.previousAttemptFeedback)
+          : "",
+        `User instruction (scope the analysis to this question): ${instruction}`,
+        `Rule (${ruleKey}${label ? ` — ${label}` : ""}): ${ruleText}`,
+        legalHook ? `Authored legal hook / source note: ${legalHook}` : "",
+        "When status is present or absent_expected with a quote, quotedText MUST be copied VERBATIM from that clause.",
+        `Clauses:\n${JSON.stringify(
+          applicable.map((c) => ({
+            clauseId: c.clauseId,
+            clauseType: c.clauseType,
+            text: c.text.slice(0, 3000),
+          }))
+        )}`,
+      ]
+        .filter(Boolean)
+        .join("\n\n"),
+      "Compliance evaluator. Cite verbatim quotes when status is present. Assess every supplied clause in one response.",
+      schema,
+      LLMTask.STRUCTURAL_JSON,
+      LLMProvider.GEMINI,
+      tracker
     );
+  } catch (err) {
+    console.warn("[checkAgainstRule] batched clause judgment failed:", err);
+    raw = [];
   }
-  return findings;
+
+  if (state.agent && tracker) {
+    state.agent.tokensUsed = tracker.tokensUsed;
+  }
+
+  const byClause = new Map(applicable.map((c) => [c.clauseId, c]));
+  const results = raw.filter((entry) => byClause.has(entry.clauseId));
+
+  if (results.length === 0) {
+    return [
+      judgeResultToFinding(args, {
+        status: "insufficient_evidence",
+        claim: label
+          ? `The agreement does not provide enough verifiable language to confirm ${label.toLowerCase()}.`
+          : "The agreement does not provide enough verifiable language to confirm this obligation.",
+        gap: "No supplied clause materially addressed this obligation.",
+        severity: "medium",
+      }, "document"),
+    ];
+  }
+
+  return results.map((entry) =>
+    judgeResultToFinding(
+      args,
+      {
+        status: entry.status,
+        claim: entry.claim,
+        clauseId: entry.clauseId,
+        quotedText: entry.quotedText,
+        severity: entry.severity,
+        gap: entry.gap,
+      },
+      entry.clauseId
+    )
+  );
 }
 
 async function llmJudge(args: {
@@ -489,6 +616,9 @@ async function llmJudge(args: {
           ? "This is a PER-DOCUMENT assessment. Evaluate the clause set once as a whole and return exactly one result."
           : "This is a PER-CLAUSE assessment. Evaluate only the single supplied clause.",
         tierNote,
+        unit.input.previousAttemptFeedback
+          ? String(unit.input.previousAttemptFeedback)
+          : "",
         `User instruction (scope the analysis to this question): ${instruction}`,
         `Rule (${ruleKey}${label ? ` — ${label}` : ""}): ${ruleText}`,
         legalHook ? `Authored legal hook / source note: ${legalHook}` : "",
@@ -513,7 +643,9 @@ async function llmJudge(args: {
     console.warn("[checkAgainstRule] LLM failed:", err);
     result = {
       status: "insufficient_evidence",
-      claim: `Could not evaluate rule ${ruleKey} (LLM unavailable).`,
+      claim: label
+        ? `This obligation could not be evaluated because analysis was temporarily unavailable (${label.toLowerCase()}).`
+        : "This obligation could not be evaluated because analysis was temporarily unavailable.",
       severity: "medium",
     };
   }
@@ -521,6 +653,40 @@ async function llmJudge(args: {
   if (state.agent && tracker) {
     state.agent.tokensUsed = tracker.tokensUsed;
   }
+
+  return judgeResultToFinding(args, result, findingSuffix ?? "result");
+}
+
+function judgeResultToFinding(
+  args: {
+    unit: AnalysisWorkUnit;
+    source: RuleSource;
+    label?: string;
+    applicable: ClauseObject[];
+    instruction: string;
+    hasFocus: boolean;
+    ruleText: string;
+  },
+  input: {
+    status: Finding["status"];
+    claim: string;
+    clauseId?: string;
+    quotedText?: string;
+    severity: "low" | "medium" | "high";
+    gap?: string;
+  },
+  findingSuffix: string
+): Finding {
+  const { unit, source, label, applicable, instruction, hasFocus, ruleText } = args;
+  const tier = tierFor(source.kind);
+  const ruleKey =
+    source.kind === "authored"
+      ? source.ruleId
+      : source.kind === "playbook_derived"
+        ? source.positionId
+        : "web";
+
+  let result = input;
 
   const evidence: EvidenceSpan[] = [];
   if (source.kind === "playbook_derived") {
@@ -547,8 +713,11 @@ async function llmJudge(args: {
     result = {
       ...result,
       status: "insufficient_evidence",
-      claim: `Could not verify that the target document satisfies rule ${ruleKey}: no verbatim supporting quote was returned.`,
-      gap: "A present finding requires a verbatim target-document quote that entails the claim.",
+      claim: label
+        ? `The agreement does not provide enough verifiable language to confirm ${label.toLowerCase()}.`
+        : "The agreement does not provide enough verifiable language to confirm this obligation.",
+      gap:
+        "The available document language was not specific enough to support a confirmed assessment.",
       severity: "medium",
     };
   }
@@ -565,7 +734,7 @@ async function llmJudge(args: {
       : "user_facing";
 
   return {
-    findingId: `f_compliance_${ruleKey}_${unit.workUnitId}_${findingSuffix ?? "result"}`,
+    findingId: `f_compliance_${ruleKey}_${unit.workUnitId}_${findingSuffix}`,
     kind: "compliance",
     category:
       source.kind === "authored"

@@ -12,7 +12,7 @@ import {
 } from "../../../modules/analysis/taxonomies/clause-taxonomy.js";
 import { RISK_TAXONOMY_VERSION } from "../../../modules/analysis/taxonomies/index.js";
 import { initAgentRunState } from "../../../modules/analysis/pac/types.js";
-import { sanitizeRenderedAnalysisOutput } from "../../../modules/analysis/utils/response-safety.js";
+import { sanitizeFindingsForApi, sanitizeRenderedAnalysisOutput } from "../../../modules/analysis/utils/response-safety.js";
 
 /**
  * Async job handler for Analysis PAC (coexists with legacy document_analysis).
@@ -135,7 +135,7 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
   return {
     status: result.agent?.stoppedReason ?? "completed",
     sessionId,
-    findings: result.findings,
+    findings: sanitizeFindingsForApi(result.findings),
     renderedOutput: sanitizeRenderedAnalysisOutput(result.renderedOutput),
     critique: result.critique,
     conversation: result.conversation,
@@ -203,7 +203,7 @@ async function handleResumeAsk(jobId: string, userId: string, payload: any): Pro
   return {
     status: result.agent?.stoppedReason ?? "completed",
     sessionId,
-    findings: result.findings,
+    findings: sanitizeFindingsForApi(result.findings),
     renderedOutput: sanitizeRenderedAnalysisOutput(result.renderedOutput),
     critique: result.critique,
     conversation: result.conversation,

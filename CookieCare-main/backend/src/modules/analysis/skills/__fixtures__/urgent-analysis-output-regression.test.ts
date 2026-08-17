@@ -7,8 +7,13 @@ import {
   containsInternalAnalysisLeak,
   sanitizeRenderedAnalysisOutput,
 } from "../../utils/response-safety.js";
+import {
+  heuristicClassify,
+  isBriefSummaryInstruction,
+} from "../../capabilities/plan/intent-heuristics.js";
 import { buildActGraphDetailed } from "../build-act-graph.js";
 import {
+  extractArticleNumbers,
   extractInstructionFocus,
   normalizeForMatch,
 } from "../extract-instruction-focus.js";
@@ -40,6 +45,8 @@ describe("urgent Analysis ACT output regressions", () => {
     "Review GDPR Articles 15-22.",
     "Review GDPR Articles 15 to 22.",
     "Review GDPR Articles 15, 16, 17, 18, 19, 20, 21, 22.",
+    "Review GDPR Articles 15 16 17 18 19 20 21 22.",
+    "Review GDPR Articles 15, 16, 17, 18, 19, 20, 21 and 22.",
   ]) {
     it(`resolves DSR focus for: ${instruction}`, () => {
       resetSkillRegistryForTests();
@@ -54,6 +61,59 @@ describe("urgent Analysis ACT output regressions", () => {
       assert.ok(focus!.riskCategoryIds.includes("cost_allocation_silent"));
     });
   }
+
+  it("parses a constrained whitespace article list without broadening scope", () => {
+    resetSkillRegistryForTests();
+    const gdpr = getSkillById("regimes/data-protection/gdpr")!;
+    const instruction =
+      "Give me a brief overview of GDPR articles 15 16 17, nothing more than that.";
+    assert.deepEqual(extractArticleNumbers(instruction), [15, 16, 17]);
+    const focus = extractInstructionFocus(instruction, [gdpr]);
+    assert.ok(focus);
+    assert.deepEqual(focus!.ruleIds, []);
+    assert.deepEqual(focus!.matrixRowIds, [
+      "gdpr.right.access",
+      "gdpr.right.rectification",
+      "gdpr.right.erasure",
+    ]);
+    assert.deepEqual(focus!.riskCategoryIds, []);
+    assert.deepEqual(
+      extractArticleNumbers("Only Articles 15-17, 20 and 22"),
+      [15, 16, 17, 20, 22]
+    );
+    assert.deepEqual(extractArticleNumbers("Review GDPR Art.15 16 17"), [15, 16, 17]);
+  });
+
+  it("selects brief_summary and schedules only requested articles", () => {
+    resetSkillRegistryForTests();
+    const gdpr = getSkillById("regimes/data-protection/gdpr")!;
+    const instruction =
+      "Give me a brief overview of GDPR article 15 16 17, nothing more than that.";
+    assert.equal(isBriefSummaryInstruction(instruction), true);
+    assert.equal(heuristicClassify(instruction).outputForm, "brief_summary");
+    const focus = extractInstructionFocus(instruction, [gdpr]);
+    const graph = buildActGraphDetailed({
+      docId: "cisco-dpa",
+      instruction,
+      skills: [gdpr],
+      intent: { ...INTENT, outputForm: "brief_summary" },
+      focus,
+    });
+    assert.equal(graph.rendererSchemaId, "brief_summary");
+    assert.deepEqual(
+      graph.workUnits
+        .filter((unit) => unit.tool === "evaluate_matrix_row")
+        .map((unit) => String(unit.input.article)),
+      ["15", "16", "17"]
+    );
+    assert.equal(
+      graph.workUnits.filter(
+        (unit) =>
+          unit.tool === "check_against_rule" || unit.tool === "flag_risk"
+      ).length,
+      0
+    );
+  });
 
   it("reproduction graph runs only focused rules and matrix rows", () => {
     resetSkillRegistryForTests();
@@ -170,6 +230,29 @@ describe("urgent Analysis ACT output regressions", () => {
     assert.doesNotMatch(safe, /Checking compliance rules/);
     assert.doesNotMatch(safe, /\[(present|absent_expected|insufficient_evidence)\]/);
     assert.match(safe, /# Final memo/);
+  });
+
+  it("API response safety rewrites raw verification rejection text", () => {
+    const raw =
+      "Could not verify that the target document satisfies rule gdpr.art28.3.e: no verbatim supporting quote was returned.";
+    const safe = sanitizeRenderedAnalysisOutput(raw)!;
+    assert.equal(containsInternalAnalysisLeak(safe), false);
+    assert.match(safe, /did not provide enough verifiable language/i);
+    assert.doesNotMatch(safe, /gdpr\.art28\.3\.e|no verbatim supporting quote/i);
+  });
+
+  it("API findings payload sanitizes internal verifier claims", async () => {
+    const { sanitizeFindingsForApi } = await import("../../utils/response-safety.js");
+    const [safe] = sanitizeFindingsForApi([
+      {
+        findingId: "f1",
+        claim:
+          "Could not verify that the target document satisfies rule gdpr.art28.3.e: no verbatim supporting quote was returned.",
+        visibility: "user_facing",
+      },
+    ]);
+    assert.doesNotMatch(safe.claim, /Could not verify that|gdpr\.art28\.3\.e/i);
+    assert.match(safe.claim, /verifiable language/i);
   });
 
   it("CRITIQUE includes present compliance findings in entailment checks", () => {

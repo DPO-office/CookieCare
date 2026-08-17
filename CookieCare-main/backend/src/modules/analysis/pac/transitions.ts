@@ -38,7 +38,7 @@ export function nextPhaseAfterCritique(
   critique: CritiqueReport
 ): Phase {
   if (isMaxTurnsReached(state) || isBudgetExceeded(state)) return "DONE";
-  if (critique.isGreen) return "DONE";
+  if (critique.isGreen || critique.allUnitsTerminal) return "DONE";
   if (critique.skeletonMismatch) return "PLAN";
   if (criticalFactSurfaced(critique)) return "ASK";
   return "ACT";

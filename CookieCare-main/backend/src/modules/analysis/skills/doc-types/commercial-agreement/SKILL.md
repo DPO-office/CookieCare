@@ -1,7 +1,7 @@
 # Commercial agreements skill
 
 ## Scope
-NDA, MSA, SLA, and general commercial contracts: payment, IP, confidentiality, renewal, and service levels.
+General commercial contracts: payment, IP, confidentiality, renewal, indemnity, and liability. MSA, NDA, SaaS, and vendor packs inherit or overlay this baseline.
 
 ## clause:payment
 Clear payment terms, invoice dispute process, and fee structure.

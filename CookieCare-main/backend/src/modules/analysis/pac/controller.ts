@@ -6,7 +6,8 @@ import {
   nextPhaseAfterPlan,
   resolveStoppedReason,
 } from "./transitions.js";
-import { markForRedo } from "./policy.js";
+import { markForRedo, isBudgetExceeded, isMaxTurnsReached } from "./policy.js";
+import { markBudgetExhaustedOutcomes } from "../capabilities/critique/resolve-work-unit.js";
 import { appendHistory } from "../utils/persisted-state.js";
 import type { PacCapabilities } from "../capabilities/types.js";
 import { pacLog, pacWarn } from "../utils/pac-log.js";
@@ -32,14 +33,14 @@ export class PacController {
 
     while (state.agent?.phase !== "DONE") {
       if (state.agent.turn >= state.agent.maxTurns) {
-        return this.stop(state, "max_turns", t0);
+        return this.stop(state, "max_turns", t0, true);
       }
       if (
         state.agent.tokensUsed >= state.agent.tokenBudget ||
         state.agent.docCount > state.agent.maxDocs ||
         state.agent.extractionUnitsUsed > state.agent.maxExtractionUnits
       ) {
-        return this.stop(state, "budget_exceeded", t0);
+        return this.stop(state, "budget_exceeded", t0, true);
       }
 
       const phase = state.agent.phase;
@@ -116,9 +117,15 @@ export class PacController {
 
           if (next === "DONE") {
             state.agent!.phase = "DONE";
-            state.agent!.stoppedReason = critique.isGreen
-              ? "green"
-              : resolveStoppedReason(state, critique);
+            state.agent!.stoppedReason =
+              critique.isGreen || critique.allUnitsTerminal
+                ? critique.isGreen
+                  ? "green"
+                  : "blocked"
+                : resolveStoppedReason(state, critique);
+            if (isMaxTurnsReached(state) || isBudgetExceeded(state)) {
+              state = markBudgetExhaustedOutcomes(state);
+            }
             break;
           }
 
@@ -171,8 +178,12 @@ export class PacController {
   private async stop(
     state: AnalysisState,
     reason: NonNullable<AnalysisState["agent"]>["stoppedReason"],
-    t0?: number
+    t0?: number,
+    markExhausted = false
   ): Promise<AnalysisState> {
+    if (markExhausted) {
+      state = markBudgetExhaustedOutcomes(state);
+    }
     if (state.agent) {
       state.agent.stoppedReason = reason;
       state.agent.phase = "DONE";

@@ -48,6 +48,7 @@ function rendererForSkill(
   referenceDocId?: string
 ): BuildActGraphResult["rendererSchemaId"] {
   if (referenceDocId) return "playbook_comparison_memo";
+  if (intent.outputForm === "brief_summary") return "brief_summary";
   if (focus?.matrixRowIds.length) return "rights_matrix_memo";
   if (intent.outputForm === "memo") return "memo";
   if (intent.outputForm === "table") return "table";
@@ -376,7 +377,8 @@ function appendSubIntentUnits(
   }
 
   if (runCompliance) {
-    const regimeRules = focus?.ruleIds.length
+    const ruleDep = lastDep;
+    const regimeRules = focus
       ? allRules.filter((r) => focus.ruleIds.includes(r.ruleId))
       : allRules;
     const matrixRows: RightsMatrixRow[] = focus?.matrixRowIds.length
@@ -389,8 +391,9 @@ function appendSubIntentUnits(
       if (scheduled.ruleIds.has(rule.ruleId)) continue;
       scheduled.ruleIds.add(rule.ruleId);
       const wuId = `wu-${prefix}rule-${rule.ruleId.replace(/\./g, "-")}`;
-      units.push(ruleUnit(wuId, docId, rule, skillIds, instruction, lastDep));
-      lastDep = wuId;
+      // Rules are mutually independent; they only need extracted clauses.
+      // Chaining them to each other forced a fully serial ACT phase.
+      units.push(ruleUnit(wuId, docId, rule, skillIds, instruction, ruleDep));
       leaves.push(wuId);
     }
 
@@ -409,11 +412,10 @@ function appendSubIntentUnits(
           instruction,
           skillIds,
         },
-        dependsOn: [lastDep],
+        dependsOn: [ruleDep],
         outputSchema: "Finding[]",
         status: "pending",
       });
-      lastDep = wuId;
       leaves.push(wuId);
     }
 

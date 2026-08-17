@@ -27,7 +27,8 @@ export type OutputFormAxis =
   | "checklist"
   | "redline_diff"
   | "memo"
-  | "qa_thread";
+  | "qa_thread"
+  | "brief_summary";
 
 export interface IntentAxisConfidence {
   scope: number;

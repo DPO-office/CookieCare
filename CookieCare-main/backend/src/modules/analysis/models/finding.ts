@@ -1,5 +1,6 @@
 import type { EvidenceSpan } from "./locator.js";
 import type { RuleSourceTier } from "./rule-source.js";
+import type { TerminalStatus } from "./work-unit-outcome.js";
 
 export type FindingKind =
   | "risk"
@@ -8,7 +9,12 @@ export type FindingKind =
   | "extraction"
   | "summary_point";
 
-export type FindingStatus = "present" | "absent_expected" | "insufficient_evidence";
+export type FindingStatus =
+  | "present"
+  | "absent_expected"
+  | "insufficient_evidence"
+  /** System coverage gap — rule not authored; distinct from document-level insufficient_evidence. */
+  | "not_covered";
 
 export type FindingVisibility = "internal" | "user_facing";
 
@@ -52,4 +58,6 @@ export interface Finding {
    */
   ruleSourceTier?: RuleSourceTier;
   playbookPositionId?: string;
+  /** Set when CRITIQUE resolves a unit as not_covered or retries_exhausted. */
+  terminalStatus?: TerminalStatus;
 }

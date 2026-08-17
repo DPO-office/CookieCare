@@ -9,6 +9,7 @@ import type { Finding, MatrixAddressing } from "../../models/finding.js";
 import type { RuleSourceTier } from "../../models/rule-source.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { getSkillById } from "../../skills/registry.js";
+import { extractArticleNumbers } from "../../skills/extract-instruction-focus.js";
 import { emitAnalysisToken } from "../../utils/stream-tokens.js";
 
 const ADDRESSING_LABEL: Record<MatrixAddressing, string> = {
@@ -33,10 +34,15 @@ export async function renderOutput(
   const schemaId = String(unit.input.schemaId ?? "checklist");
   const skillIds = (unit.input.skillIds as string[]) ?? state.activeSkillIds ?? [];
   const primarySkill = skillIds[0] ? getSkillById(skillIds[0]) : undefined;
-  const visible = findings.filter((f) => f.visibility !== "internal");
+  const visible = consolidateFindingsForRender(
+    findings.filter((f) => f.visibility !== "internal")
+  );
 
   let rendered: string;
-  if (schemaId === "rights_matrix_memo") {
+  if (schemaId === "brief_summary") {
+    rendered = buildBriefSummaryDocument(state, visible);
+    emitAnalysisToken(state, `${rendered}\n`);
+  } else if (schemaId === "rights_matrix_memo") {
     rendered = await renderRightsMatrixMemo(state, visible, primarySkill?.label, primarySkill?.version);
   } else if (schemaId === "playbook_comparison_memo") {
     rendered = await renderPlaybookComparisonMemo(
@@ -80,6 +86,196 @@ export async function renderOutput(
     renderedOutput: rendered,
     findings: [...findings, renderFinding],
   };
+}
+
+const INTERNAL_VERIFICATION_CLAIM =
+  /^Could not verify that the target document satisfies rule [^:]+:\s*no verbatim supporting quote was returned\.?$/i;
+
+function userSafeFinding(finding: Finding): Finding {
+  if (!INTERNAL_VERIFICATION_CLAIM.test(finding.claim)) return finding;
+  return {
+    ...finding,
+    claim:
+      "The agreement does not provide enough verifiable language to confirm this obligation.",
+    gap:
+      "The available document language was not specific enough to support a confirmed assessment.",
+  };
+}
+
+/**
+ * A legal rule is one conclusion in user output, even when an older/per-clause
+ * execution path emitted several clause-level attempts for that rule.
+ */
+export function consolidateFindingsForRender(findings: Finding[]): Finding[] {
+  const safe = findings.map(userSafeFinding);
+  const grouped = new Map<string, Finding[]>();
+  const passthrough: Finding[] = [];
+
+  for (const finding of safe) {
+    if (
+      finding.kind !== "compliance" ||
+      !finding.ruleId ||
+      finding.matrixRowId ||
+      finding.orgPlaybook ||
+      finding.unverified
+    ) {
+      passthrough.push(finding);
+      continue;
+    }
+    const key = `${finding.skillId ?? ""}:${finding.ruleId}`;
+    grouped.set(key, [...(grouped.get(key) ?? []), finding]);
+  }
+
+  const statusRank: Record<Finding["status"], number> = {
+    absent_expected: 4,
+    not_covered: 3,
+    insufficient_evidence: 2,
+    present: 1,
+  };
+  const severityRank = { high: 3, medium: 2, low: 1 } as const;
+
+  for (const group of grouped.values()) {
+    const selected = [...group].sort((a, b) => {
+      const status = statusRank[b.status] - statusRank[a.status];
+      if (status !== 0) return status;
+      return (
+        (severityRank[b.severity ?? "low"] ?? 0) -
+        (severityRank[a.severity ?? "low"] ?? 0)
+      );
+    })[0];
+    const evidence = group
+      .flatMap((finding) => finding.evidence)
+      .filter(
+        (candidate, index, all) =>
+          all.findIndex(
+            (item) =>
+              item.locator.docId === candidate.locator.docId &&
+              item.locator.structuralPath === candidate.locator.structuralPath &&
+              item.quotedText === candidate.quotedText
+          ) === index
+      );
+    passthrough.push({ ...selected, evidence });
+  }
+
+  return passthrough;
+}
+
+const PLAIN_ARTICLE_DESCRIPTION: Record<number, string> = {
+  15: "A person can ask what personal data is held about them and receive a copy.",
+  16: "A person can ask for inaccurate or incomplete personal data to be corrected.",
+  17: "A person can ask for personal data to be erased when the legal conditions apply.",
+  18: "A person can ask for use of their personal data to be restricted in specified cases.",
+  19: "Recipients may need to be told when data is corrected, erased, or restricted.",
+  20: "A person can receive eligible data in a usable format and transfer it elsewhere.",
+  21: "A person can object to certain processing, including direct marketing.",
+  22: "A person has protections around qualifying solely automated decisions.",
+};
+
+function articleNumberForFinding(finding: Finding): number | undefined {
+  const ruleMatch = finding.ruleId?.match(/^gdpr\.art(\d{1,3})(?:\.|$)/i);
+  if (ruleMatch) return Number(ruleMatch[1]);
+  return undefined;
+}
+
+function briefStatus(finding: Finding | undefined): string {
+  if (!finding) return "Not confirmed";
+  if (finding.status === "not_covered") return "Not yet supported";
+  if (finding.status === "insufficient_evidence") return "Could not confirm";
+  if (finding.status === "absent_expected" || finding.matrixAddressing === "absent") {
+    return "Not addressed";
+  }
+  if (finding.matrixAddressing === "generic") return "Covered generally";
+  return "Addressed";
+}
+
+export function buildBriefSummaryDocument(
+  state: AnalysisState,
+  findings: Finding[]
+): string {
+  const requested = extractArticleNumbers(state.request.instruction);
+  const rows = state.activeSkills?.flatMap((skill) => skill.rightsMatrixRows ?? []) ?? [];
+  const citations = createCitationRegistry(state, findings);
+  const lines = ["# Brief overview", "", "## Quick reference", ""];
+
+  lines.push("| Article | In plain English | Document position |");
+  lines.push("|---|---|---|");
+  for (const article of requested) {
+    const row = rows.find((candidate) => Number(candidate.article.match(/\d+/)?.[0]) === article);
+    const finding =
+      findings.find((candidate) => candidate.matrixRowId === row?.rowId) ??
+      findings.find((candidate) => articleNumberForFinding(candidate) === article);
+    const description =
+      PLAIN_ARTICLE_DESCRIPTION[article] ??
+      `This article sets a GDPR obligation relevant to Article ${article}.`;
+    lines.push(`| Article ${article} | ${description} | ${briefStatus(finding)} |`);
+  }
+
+  lines.push("", "## What this means", "");
+  for (const article of requested) {
+    const row = rows.find((candidate) => Number(candidate.article.match(/\d+/)?.[0]) === article);
+    const finding =
+      findings.find((candidate) => candidate.matrixRowId === row?.rowId) ??
+      findings.find((candidate) => articleNumberForFinding(candidate) === article);
+    const description =
+      PLAIN_ARTICLE_DESCRIPTION[article] ??
+      `Article ${article} contains a GDPR obligation relevant to this review.`;
+    const detail = finding
+      ? userSafeFinding(finding).claim
+      : "The analysis did not find enough document language to state a firm position.";
+    const marker = finding ? citations.markerForFinding(finding) : "";
+    lines.push(
+      `**Article ${article}.** ${description} ${ensureSentence(detail)}${marker ? ` ${marker}` : ""}`,
+      ""
+    );
+  }
+
+  const requestedSet = new Set(requested);
+  const practical = findings
+    .filter((finding) => {
+      const article = articleNumberForFinding(finding);
+      const row = rows.find((candidate) => candidate.rowId === finding.matrixRowId);
+      const rowArticle = Number(row?.article.match(/\d+/)?.[0]);
+      return (
+        (article !== undefined && requestedSet.has(article)) ||
+        (Number.isFinite(rowArticle) && requestedSet.has(rowArticle))
+      );
+    })
+    .filter(
+      (finding) =>
+        finding.status !== "present" ||
+        finding.matrixAddressing === "generic" ||
+        finding.matrixAddressing === "absent"
+    )
+    .slice(0, 2);
+
+  lines.push("## Practical bottom line", "");
+  if (practical.length === 0) {
+    lines.push(
+      "The requested articles did not produce a confirmed document gap. Keep the supporting process and response evidence available for operational use."
+    );
+  } else {
+    for (const finding of practical) {
+      lines.push(`- ${ensureSentence(userSafeFinding(finding).gap ?? finding.claim)}`);
+    }
+  }
+
+  const chapterArticles = requested.filter((article) => article >= 15 && article <= 22);
+  if (chapterArticles.length > 0) {
+    const remaining = Array.from({ length: 8 }, (_, index) => 15 + index).filter(
+      (article) => !requestedSet.has(article)
+    );
+    if (remaining.length > 0) {
+      const offer =
+        remaining.length > 1 &&
+        remaining.every((article, index) => article === remaining[0] + index)
+          ? `Articles ${remaining[0]}–${remaining.at(-1)}`
+          : `Articles ${remaining.join(", ")}`;
+      lines.push("", `Let me know if you’d like me to extend this to ${offer}.`);
+    }
+  }
+
+  appendReferences(lines, citations);
+  return lines.join("\n").trim();
 }
 
 function buildStructuredReport(
@@ -329,13 +525,16 @@ function buildRightsMatrixSections(
       const meta = rows.find((r) => r.rowId === f.matrixRowId);
       const right = meta?.label ?? f.matrixRowId ?? "—";
       const article = meta?.article ?? "—";
-      const addressed = f.status === "insufficient_evidence"
-        ? "Insufficient evidence"
-        : f.matrixAddressing
-        ? ADDRESSING_LABEL[f.matrixAddressing]
-        : f.status === "absent_expected"
-          ? "Absent"
-          : "Named";
+      const addressed =
+        f.status === "not_covered"
+          ? "Not yet supported"
+          : f.status === "insufficient_evidence"
+          ? "Insufficient evidence"
+          : f.matrixAddressing
+          ? ADDRESSING_LABEL[f.matrixAddressing]
+          : f.status === "absent_expected"
+            ? "Absent"
+            : "Named";
       const marker = citations.markerForFinding(f);
       const gap = `${f.gap ?? (f.status === "present" ? "—" : f.claim)}${marker ? ` ${marker}` : ""}`.replace(
         /\|/g,
@@ -344,6 +543,37 @@ function buildRightsMatrixSections(
       lines.push(`| ${right} | ${article} | ${addressed} | ${gap} |`);
     }
     lines.push("");
+  }
+
+  const notCovered = findings.filter(
+    (f) => f.status === "not_covered" && f.visibility !== "internal"
+  );
+  if (notCovered.length > 0) {
+    lines.push("### Coverage limitations (not yet supported)", "");
+    for (const f of notCovered) {
+      lines.push(
+        `- **${displayLabelForFinding(state, f)}:** ${ensureSentence(
+          f.claim.replace(
+            /not yet covered by an authored rule/i,
+            "is not yet covered by an authored rule in this system"
+          )
+        )}`
+      );
+    }
+    lines.push("");
+  }
+
+  const budgetExhausted = Object.values(state.workUnitOutcomes ?? {}).some(
+    (o) =>
+      o.terminalStatus === "retries_exhausted" &&
+      o.failureReason?.kind === "tool_execution_error" &&
+      o.failureReason.error === "budget_exceeded"
+  );
+  if (budgetExhausted) {
+    lines.push(
+      "> **Analysis note:** One or more evaluations could not be completed within the turn or token budget and were left inconclusive rather than omitted.",
+      ""
+    );
   }
 
   lines.push("## 3. Response Timeframes", "");
@@ -639,6 +869,11 @@ function gapParagraph(
   finding: Finding,
   citations: CitationRegistry
 ): string {
+  if (finding.status === "not_covered") {
+    return ensureSentence(
+      `${displayLabelForFinding(state, finding)}: ${finding.claim} This reflects a system coverage limitation — not a determination that the document complies or violates the standard.`
+    );
+  }
   const label = displayLabelForFinding(state, finding);
   const article = articleForFinding(state, finding);
   const marker = citations.markerForFinding(finding);

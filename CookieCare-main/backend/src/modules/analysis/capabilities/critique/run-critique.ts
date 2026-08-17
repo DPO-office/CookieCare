@@ -15,6 +15,7 @@ import { resolveRule } from "../act/check-against-rule.js";
 import { getSpanFromState } from "../act/execute-act-plan.js";
 import { pacLog } from "../../utils/pac-log.js";
 import { getEntailmentCandidates } from "./entailment-candidates.js";
+import { resolveWorkUnits } from "./resolve-work-unit.js";
 
 function normalize(s: string): string {
   return s.replace(/\s+/g, " ").trim().toLowerCase();
@@ -50,7 +51,11 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
       });
       continue;
     }
-    if (f.status === "absent_expected" || f.status === "insufficient_evidence") {
+    if (
+      f.status === "absent_expected" ||
+      f.status === "insufficient_evidence" ||
+      f.status === "not_covered"
+    ) {
       results.push({
         itemId: `status:${f.findingId}`,
         status: "pass",
@@ -324,21 +329,26 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
     }
   }
 
-  const hasHardFail = results.some(
-    (r) => r.status === "fail" || r.status === "missing"
-  );
-
   // skeletonMismatch = intent/plan structure wrong (majority of work units missing findings)
   const completenessFails = results.filter(
     (r) => r.itemId.startsWith("complete:") && r.status === "missing"
   ).length;
-  const skeletonMismatch =
+  const structuralSkeletonMismatch =
     workUnits.length > 0 &&
     completenessFails > Math.max(1, Math.floor(workUnits.length / 2));
 
   const uniqueFixes = dedupeFixes(fixPlan);
 
-  const materialDsrInsufficient = findings.some(
+  const { state: resolvedState, resolved } = await resolveWorkUnits(
+    state,
+    results,
+    uniqueFixes
+  );
+
+  const skeletonMismatch =
+    structuralSkeletonMismatch || resolved.skeletonMismatch;
+
+  const materialDsrInsufficient = resolvedState.findings.some(
     (f) =>
       f.status === "insufficient_evidence" &&
       f.visibility !== "internal" &&
@@ -348,15 +358,23 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
   );
 
   const report: CritiqueReport = {
-    isGreen: !hasHardFail,
+    isGreen: resolved.allUnitsTerminal && !skeletonMismatch,
     iteration: (state.critique?.iteration ?? 0) + 1,
     results,
-    fixPlan: hasHardFail && !skeletonMismatch ? uniqueFixes : skeletonMismatch ? [] : uniqueFixes,
+    fixPlan:
+      resolved.allUnitsTerminal || skeletonMismatch
+        ? []
+        : dedupeFixes(resolved.fixPlan),
     skeletonMismatch,
     criticalFactSurfaced: materialDsrInsufficient,
+    outcomes: resolved.outcomes,
+    allUnitsTerminal: resolved.allUnitsTerminal,
   };
 
-  return { ...state, critique: report };
+  return {
+    ...resolvedState,
+    critique: report,
+  };
 }
 
 async function runEntailment(

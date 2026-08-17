@@ -6,9 +6,20 @@ import type {
 } from "./types.js";
 import { globalSkill } from "./_global/skill.config.js";
 import { dpaDocTypeSkill } from "./doc-types/dpa/skill.config.js";
-import { commercialAgreementSkill } from "./doc-types/commercial-agreement/skill.config.js";
+import { ndaDocTypeSkill } from "./doc-types/nda/skill.config.js";
+import { msaDocTypeSkill } from "./doc-types/msa/skill.config.js";
+import { employmentAgreementSkill } from "./doc-types/employment-agreement/skill.config.js";
+import { vendorAgreementSkill } from "./doc-types/vendor-agreement/skill.config.js";
 import { saasAgreementSkill } from "./doc-types/saas-agreement/skill.config.js";
+import { commercialAgreementSkill } from "./doc-types/commercial-agreement/skill.config.js";
 import { gdprRegimeSkill } from "./regimes/data-protection/gdpr/skill.config.js";
+import { ukGdprIdtaSkill } from "./regimes/data-protection/uk-gdpr-idta/skill.config.js";
+import { ccpaCpraSkill } from "./regimes/data-protection/ccpa-cpra/skill.config.js";
+import { internationalTransfersSkill } from "./regimes/data-protection/international-transfers/skill.config.js";
+import { euAiActSkill } from "./regimes/ai-governance/eu-ai-act/skill.config.js";
+import { hipaaBaaSkill } from "./regimes/healthcare/hipaa-baa/skill.config.js";
+import { cybersecurityIncidentSkill } from "./topics/cybersecurity-and-incident-response/skill.config.js";
+import { vendorRiskDiligenceSkill } from "./topics/vendor-risk-and-diligence/skill.config.js";
 import { delawareJurisdictionSkill } from "./jurisdictions/delaware/skill.config.js";
 import { englandWalesJurisdictionSkill } from "./jurisdictions/england-wales/skill.config.js";
 import { irelandJurisdictionSkill } from "./jurisdictions/ireland/skill.config.js";
@@ -25,14 +36,40 @@ const SKILL_ID_ALIASES: Record<string, string> = {
   gdpr: "regimes/data-protection/gdpr",
   dpa: "doc-types/dpa",
   saas: "doc-types/saas-agreement",
+  nda: "doc-types/nda",
+  msa: "doc-types/msa",
+  employment: "doc-types/employment-agreement",
+  vendor: "doc-types/vendor-agreement",
+  "uk-gdpr": "regimes/data-protection/uk-gdpr-idta",
+  idta: "regimes/data-protection/uk-gdpr-idta",
+  ccpa: "regimes/data-protection/ccpa-cpra",
+  cpra: "regimes/data-protection/ccpa-cpra",
+  sccs: "regimes/data-protection/international-transfers",
+  hipaa: "regimes/healthcare/hipaa-baa",
+  "ai-act": "regimes/ai-governance/eu-ai-act",
+  england: "jurisdictions/england-wales",
+  uk: "jurisdictions/england-wales",
+  "united kingdom": "jurisdictions/england-wales",
 };
 
+/** Specific doc-types before commercial so first-match selection does not collapse into the commercial pack. */
 const ALL_SKILLS: AnalysisSkillConfig[] = [
   globalSkill,
   dpaDocTypeSkill,
-  commercialAgreementSkill,
+  ndaDocTypeSkill,
+  msaDocTypeSkill,
+  employmentAgreementSkill,
+  vendorAgreementSkill,
   saasAgreementSkill,
+  commercialAgreementSkill,
   gdprRegimeSkill,
+  ukGdprIdtaSkill,
+  ccpaCpraSkill,
+  internationalTransfersSkill,
+  euAiActSkill,
+  hipaaBaaSkill,
+  cybersecurityIncidentSkill,
+  vendorRiskDiligenceSkill,
   delawareJurisdictionSkill,
   englandWalesJurisdictionSkill,
   irelandJurisdictionSkill,
@@ -343,7 +380,16 @@ export function hasRegimeRule(ruleId: string): boolean {
   for (const skill of Object.values(getSkillRegistry())) {
     if (skill.skillId.toLowerCase() === id) return true;
     if (skill.skillId.toLowerCase().endsWith(`/${id}`)) return true;
-    if (skill.regimeRules.some((r) => r.ruleId.toLowerCase() === id)) return true;
+    // "gdpr.art28" is authored as gdpr.art28.1, gdpr.art28.3.a, … Treating the
+    // article prefix as unresolved fired a pointless Tier C web lookup.
+    if (
+      skill.regimeRules.some(
+        (r) =>
+          r.ruleId.toLowerCase() === id ||
+          r.ruleId.toLowerCase().startsWith(`${id}.`)
+      )
+    )
+      return true;
     if (skill.promptLibraryIds.some((p) => p.toLowerCase() === id)) return true;
   }
   return false;

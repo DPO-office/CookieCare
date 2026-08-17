@@ -98,6 +98,9 @@ const documentLevelRuleIds = new Set([
   "gdpr.art5.2",
   "gdpr.art6.4",
   "gdpr.art24",
+  // This obligation is assessed across the assistance mechanism as a whole.
+  // Per-clause evaluation produces duplicate and contradictory user findings.
+  "gdpr.art28.3.e",
 ]);
 
 /** Prefer authored skill riskCategories when they already name the gap. */

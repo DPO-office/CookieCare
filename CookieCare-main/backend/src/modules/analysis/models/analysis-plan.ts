@@ -69,6 +69,7 @@ export interface AnalysisPlan {
     | "redline_diff"
     | "memo"
     | "qa_thread"
+    | "brief_summary"
     | "rights_matrix_memo"
     | "playbook_comparison_memo";
   activeSkillIds?: string[];

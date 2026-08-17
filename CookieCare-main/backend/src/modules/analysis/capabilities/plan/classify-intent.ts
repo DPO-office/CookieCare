@@ -17,7 +17,11 @@ import {
   type ScopeAxis,
   type StandardAxis,
 } from "../../models/intent.js";
-import { LEGAL_ADVICE_RE, heuristicClassify } from "./intent-heuristics.js";
+import {
+  LEGAL_ADVICE_RE,
+  heuristicClassify,
+  isBriefSummaryInstruction,
+} from "./intent-heuristics.js";
 import { emitAnalysisToken } from "../../utils/stream-tokens.js";
 import { pacLog } from "../../utils/pac-log.js";
 import { classifyDocumentFromText } from "../act/classify-document.js";
@@ -36,7 +40,14 @@ const OPERATION_ENUM = [
   "out_of_scope",
 ] as const;
 
-const OUTPUT_FORM_ENUM = ["table", "checklist", "redline_diff", "memo", "qa_thread"] as const;
+const OUTPUT_FORM_ENUM = [
+  "table",
+  "checklist",
+  "redline_diff",
+  "memo",
+  "qa_thread",
+  "brief_summary",
+] as const;
 const DOC_EXCERPT_CHARS = 4000;
 
 const INTENT_SCHEMA = {
@@ -163,6 +174,7 @@ export async function classifyIntent(state: AnalysisState): Promise<AnalysisStat
         "If compound=true, populate subIntents with one entry per distinct request",
         "(e.g. 'check GDPR compliance AND flag general risks' → two subIntents).",
         "If compound=false, subIntents must be empty or omitted.",
+        "Use outputForm=brief_summary when the user asks for a brief/concise overview, plain/simple language, or says nothing more than the requested items.",
         `Instruction: ${instruction}`,
         `Documents available: ${state.request.documentIds.join(", ") || "none"}`,
       ].join("\n\n"),
@@ -184,11 +196,14 @@ export async function classifyIntent(state: AnalysisState): Promise<AnalysisStat
   const standardResult = normalizeStandard(raw.standard, state.request.documentIds);
   const subIntents = normalizeSubIntents(raw.compound, raw.subIntents, state.request.documentIds);
 
+  const requestedOutputForm: OutputFormAxis = isBriefSummaryInstruction(instruction)
+    ? "brief_summary"
+    : raw.outputForm;
   const intent: IntentClassification = {
     scope: raw.scope,
     operation: raw.operation,
     standard: standardResult.standard,
-    outputForm: raw.outputForm,
+    outputForm: requestedOutputForm,
     compound: Boolean(raw.compound) && subIntents.length > 1,
     subIntents: Boolean(raw.compound) ? subIntents : [],
     confidence: raw.confidence,

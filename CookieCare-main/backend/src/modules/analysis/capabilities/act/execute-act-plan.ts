@@ -23,6 +23,40 @@ const SILENT_SUCCESS_NOTES: Partial<Record<AnalysisToolName, string>> = {
 };
 
 /**
+ * Tools that only emit findings and never mutate shared workspace state, so
+ * independent units in the same dependency batch can run concurrently.
+ */
+const PARALLEL_SAFE_TOOLS = new Set<AnalysisToolName>([
+  "check_against_rule",
+  "evaluate_matrix_row",
+  "flag_risk",
+  "check_expected_clauses",
+]);
+
+const ACT_CONCURRENCY = Math.max(
+  1,
+  Number(process.env.ANALYSIS_ACT_CONCURRENCY || 4)
+);
+
+async function runConcurrent<T, R>(
+  items: T[],
+  limit: number,
+  worker: (item: T) => Promise<R>
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let cursor = 0;
+  const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (true) {
+      const index = cursor++;
+      if (index >= items.length) return;
+      results[index] = await worker(items[index]);
+    }
+  });
+  await Promise.all(runners);
+  return results;
+}
+
+/**
  * ACT orchestrator — executes skill-scoped work-unit graph in dependency batches.
  */
 export async function executeActPlan(state: AnalysisState): Promise<AnalysisState> {
@@ -31,6 +65,29 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
 
   const targeted = state.fixPlan?.targetedOnly === true;
   let units = plan.workUnits.map((u) => ({ ...u }));
+
+  if (targeted && state.fixPlan?.items.length) {
+    const fixByUnit = new Map(
+      state.fixPlan.items.map((item) => [item.workUnitId, item])
+    );
+    units = units.map((u) => {
+      const fix = fixByUnit.get(u.workUnitId);
+      if (!fix?.previousAttemptFeedback) return u;
+      return {
+        ...u,
+        input: {
+          ...u.input,
+          previousAttemptFeedback: fix.previousAttemptFeedback,
+        },
+      };
+    });
+    // A targeted retry can change the findings that the user should see.
+    // Always regenerate the final output after the retried units complete.
+    units = units.map((u) =>
+      u.tool === "render_output" ? { ...u, status: "flagged" as const } : u
+    );
+  }
+
   const runnable = targeted
     ? units.filter((u) => u.status === "flagged" || u.status === "pending")
     : units.filter((u) => u.status !== "done" && u.status !== "failed");
@@ -42,6 +99,23 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
 
   const batches = topologicalBatches(runnable, 4);
   let findings = [...state.findings];
+
+  if (targeted) {
+    const redoUnitIds = new Set(
+      units
+        .filter((unit) => unit.status === "flagged" && unit.tool !== "render_output")
+        .map((unit) => unit.workUnitId)
+    );
+    if (redoUnitIds.size > 0) {
+      findings = findings.filter(
+        (finding) =>
+          !finding.workUnitId ||
+          !redoUnitIds.has(finding.workUnitId) ||
+          finding.status === "not_covered"
+      );
+    }
+  }
+
   pacLog("ACT graph", {
     mode: targeted ? "targeted-redo" : "full",
     runnable: runnable.length,
@@ -50,7 +124,68 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
   });
 
   for (const batch of batches) {
-    for (const unit of batch) {
+    const parallel = batch.filter((u) => PARALLEL_SAFE_TOOLS.has(u.tool));
+    const serial = batch.filter((u) => !PARALLEL_SAFE_TOOLS.has(u.tool));
+
+    if (parallel.length > 1) {
+      const base = findings;
+      const baseIds = new Set(base.map((f) => f.findingId));
+      const outcomes = await runConcurrent(parallel, ACT_CONCURRENCY, async (unit) => {
+        const started = Date.now();
+        pacLog(`ACT ▶ ${unit.tool}`, { id: unit.workUnitId });
+        try {
+          const result = await runTool(state, unit, base);
+          const emitted = result.findings.filter((f) => !baseIds.has(f.findingId));
+          pacLog(`ACT ✓ ${unit.tool}`, {
+            id: unit.workUnitId,
+            ms: Date.now() - started,
+            findings: emitted.length,
+            tokens: state.agent?.tokensUsed,
+          });
+          return { unit, emitted, failed: false as const };
+        } catch (err) {
+          pacWarn(`ACT ✗ ${unit.tool}`, {
+            id: unit.workUnitId,
+            ms: Date.now() - started,
+            err: err instanceof Error ? err.message : String(err),
+          });
+          return {
+            unit,
+            emitted: [] as Finding[],
+            failed: true as const,
+            note: err instanceof Error ? err.message : String(err),
+          };
+        }
+      });
+
+      for (const outcome of outcomes) {
+        findings = [...findings, ...outcome.emitted];
+        units = units.map((u) =>
+          u.workUnitId === outcome.unit.workUnitId
+            ? outcome.failed
+              ? {
+                  ...u,
+                  status: "failed" as const,
+                  completionNote: outcome.note,
+                }
+              : {
+                  ...u,
+                  status: "done" as const,
+                  findingsEmitted: outcome.emitted.length,
+                  completionNote:
+                    outcome.emitted.length === 0
+                      ? SILENT_SUCCESS_NOTES[outcome.unit.tool] ??
+                        "completed with no findings"
+                      : u.completionNote,
+                }
+            : u
+        );
+      }
+    } else {
+      serial.push(...parallel);
+    }
+
+    for (const unit of serial) {
       const prior = findings;
       const started = Date.now();
       pacLog(`ACT ▶ ${unit.tool}`, { id: unit.workUnitId });

@@ -102,6 +102,9 @@ export async function evaluateMatrixRow(
       [
         `Evaluate how this agreement addresses GDPR Article ${article} (${label}).`,
         `User instruction: ${instruction}`,
+        unit.input.previousAttemptFeedback
+          ? String(unit.input.previousAttemptFeedback)
+          : "",
         matrixSection
           ? `Contrastive examples for this row (authored — use these to choose Named vs Generic vs Absent):\n${matrixSection}`
           : [

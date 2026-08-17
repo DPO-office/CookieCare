@@ -1,3 +1,5 @@
+import type { WorkUnitOutcome } from "./work-unit-outcome.js";
+
 export interface CritiqueResult {
   itemId: string;
   status: "pass" | "fail" | "missing" | "ambiguous";
@@ -12,6 +14,8 @@ export interface FixItem {
   workUnitId: string;
   instruction: string;
   sourceItemId: string;
+  previousAttemptFeedback?: string;
+  attemptNumber?: number;
 }
 
 export interface CritiqueReport {
@@ -22,4 +26,7 @@ export interface CritiqueReport {
   /** Intent classification itself was wrong → full replan. */
   skeletonMismatch: boolean;
   criticalFactSurfaced?: boolean;
+  outcomes?: WorkUnitOutcome[];
+  /** True when every scheduled work unit has reached a terminal status. */
+  allUnitsTerminal?: boolean;
 }
