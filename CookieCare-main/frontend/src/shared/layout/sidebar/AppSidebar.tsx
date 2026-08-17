@@ -37,10 +37,10 @@ function Tooltip({ label }: { label: string }) {
   );
 }
 
-function navSurface(active: boolean, collapsed = false): React.CSSProperties {
+function navSurface(active: boolean): React.CSSProperties {
   return {
     border: "none",
-    borderRadius: collapsed ? 999 : 999,
+    borderRadius: 10,
     background: active ? THEME.itemActive : "transparent",
     boxShadow: active ? THEME.itemActiveShadow : "none",
     color: active ? THEME.itemActiveText : THEME.itemIdle,
@@ -83,7 +83,7 @@ function NavButton({
           justifyContent: collapsed ? "center" : "flex-start",
           fontSize: 13,
           letterSpacing: "-0.015em",
-          ...navSurface(active, collapsed),
+          ...navSurface(active),
         }}
         onMouseEnter={(e) => {
           if (!active) {
@@ -140,7 +140,7 @@ function ChildNavButton({
         type="button"
         onClick={onClick}
         title={collapsed ? child.label : undefined}
-        className="flex cursor-pointer items-center outline-none select-none"
+        className="flex cursor-pointer items-center outline-none select-none rounded-lg"
         style={{
           width: collapsed ? 36 : "100%",
           height: collapsed ? 36 : undefined,
@@ -153,7 +153,7 @@ function ChildNavButton({
           justifyContent: collapsed ? "center" : "flex-start",
           fontSize: 13,
           letterSpacing: "-0.015em",
-          ...navSurface(active, collapsed),
+          ...navSurface(active),
         }}
         onMouseEnter={(e) => {
           if (!active) {
@@ -320,7 +320,7 @@ function WorkspaceHeader({ collapsed }: { collapsed: boolean }) {
       className={
         collapsed
           ? "flex flex-col items-center px-0 pt-3 pb-2.5"
-          : "flex items-start gap-2 px-3 pt-4 pb-3.5"
+          : "flex items-center gap-2 px-3 pt-3 pb-3"
       }
       style={{ borderBottom: `1px solid ${THEME.border}` }}
     >
@@ -329,8 +329,7 @@ function WorkspaceHeader({ collapsed }: { collapsed: boolean }) {
           size={collapsed ? "sm" : "md"}
           iconOnly={collapsed}
           tagline={collapsed ? undefined : "Legal Operations & Risk Assistant"}
-          wordmarkColor="#0F1941"
-          wordmarkClassName="lora-sidebar-wordmark"
+          className={collapsed ? "" : "mt-[6px] ml-[6px]"}
         />
       </div>
       {!collapsed && (

@@ -44,7 +44,7 @@
 // ─── Configuration ────────────────────────────────────────────────────────────
 
 /** How many Gemini requests are allowed within WINDOW_MS before pacing kicks in */
-const REQUESTS_PER_WINDOW = Number(process.env.GEMINI_REQUESTS_PER_WINDOW || 3);
+const REQUESTS_PER_WINDOW = Number(process.env.GEMINI_REQUESTS_PER_WINDOW || 8);
 
 /** Rolling window duration in ms used for adaptive pacing */
 const WINDOW_MS = Number(process.env.GEMINI_WINDOW_MS || 12_000);
@@ -52,8 +52,11 @@ const WINDOW_MS = Number(process.env.GEMINI_WINDOW_MS || 12_000);
 /** Minimum inter-request gap when running at full throughput (ms) */
 const MIN_INTER_REQUEST_MS = Number(process.env.GEMINI_MIN_GAP_MS || 400);
 
-/** Max in-flight Gemini calls. 1 = fully serial (best for free/low quotas). */
-const MAX_IN_FLIGHT = Math.max(1, Number(process.env.GEMINI_MAX_IN_FLIGHT || 1));
+/**
+ * Max in-flight Gemini calls. Set to 1 for free/low quotas; the multi-region
+ * pool and 429 failover absorb bursts above that.
+ */
+const MAX_IN_FLIGHT = Math.max(1, Number(process.env.GEMINI_MAX_IN_FLIGHT || 4));
 
 /** Base backoff delay for the first 429 retry (ms) */
 const BASE_BACKOFF_MS = 2_000;

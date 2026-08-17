@@ -6,6 +6,7 @@ export type DocumentTypeId =
   | "nda"
   | "msa"
   | "sla"
+  | "saas-agreement"
   | "service-agreement"
   | "employment-agreement"
   | "vendor-agreement"
@@ -22,10 +23,15 @@ export function classifyDocumentFromText(fullText: string): DocumentTypeId {
     return "dpa";
   if (/\bnon-?disclosure\b|\bnda\b|\bconfidential information\b/.test(sample)) return "nda";
   if (/\bmaster service(s)? agreement\b|\bmsa\b/.test(sample)) return "msa";
-  if (/\bservice level agreement\b|\bsla\b|\buat\b.*\bservice credit/.test(sample)) return "sla";
-  if (/\bemployment agreement\b|\bemployee\b.*\bemployer\b|\bnon-compete\b/.test(sample))
+  if (
+    /\bsaas\b|\bsoftware as a service\b|\bsubscription agreement\b|\bservice level agreement\b|\bsla\b|\buat\b.*\bservice credit/.test(
+      sample
+    )
+  )
+    return "saas-agreement";
+  if (/\bemployment agreement\b|\bemployee\b.*\bemployer\b|\bstatement of particulars\b/.test(sample))
     return "employment-agreement";
-  if (/\bvendor agreement\b|\bsupplier agreement\b|\bthird.?party risk/.test(sample))
+  if (/\bvendor agreement\b|\bsupplier agreement\b|\bprocurement\b|\bthird.?party risk/.test(sample))
     return "vendor-agreement";
   if (/\bai system\b|\bartificial intelligence\b|\bautomated decision/.test(sample))
     return "ai-vendor-agreement";

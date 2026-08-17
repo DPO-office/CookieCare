@@ -23,6 +23,14 @@ export default defineConfig({
   },
   server: {
     allowedHosts,
+    watch: {
+      ignored: [
+        '**/scripts/**',
+        '**/*.py',
+        '**/.git/**',
+        '**/node_modules/**',
+      ],
+    },
     ...(standaloneVite
       ? {
           proxy: {

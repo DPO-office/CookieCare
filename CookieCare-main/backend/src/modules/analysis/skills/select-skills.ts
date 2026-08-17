@@ -17,6 +17,19 @@ export const SKILL_AMBIGUITY_MARGIN = 1;
  */
 export const EMBEDDING_SHORTLIST_THRESHOLD = 20;
 
+const JURISDICTION_ID_ALIASES: Record<string, string> = {
+  england: "england-wales",
+  uk: "england-wales",
+  "united-kingdom": "england-wales",
+  "unitedkingdom": "england-wales",
+  "england-and-wales": "england-wales",
+};
+
+function canonicalizeJurisdictionId(jurisdiction: string): string {
+  const jid = jurisdiction.toLowerCase().replace(/\s+/g, "-");
+  return JURISDICTION_ID_ALIASES[jid] ?? jid;
+}
+
 export interface SelectSkillsInput {
   instruction: string;
   promptLibraryId?: string;
@@ -179,6 +192,16 @@ export function selectActiveSkills(
     if (!active.some((s) => s.skillId === r.skillId)) active.push(r);
   }
 
+  const topicMatches = shortlistAndConfirm(
+    registry.getByAxis("topic"),
+    dt,
+    instructionText,
+    { multi: true }
+  );
+  for (const t of topicMatches) {
+    if (!active.some((s) => s.skillId === t.skillId)) active.push(t);
+  }
+
   // Auto-pair: GDPR regime ⇒ include DPA doc-type when doc looks like a DPA
   if (
     active.some((s) => s.skillId === "regimes/data-protection/gdpr") &&
@@ -190,7 +213,7 @@ export function selectActiveSkills(
   }
 
   if (jurisdiction) {
-    const jid = jurisdiction.toLowerCase().replace(/\s+/g, "-");
+    const jid = canonicalizeJurisdictionId(jurisdiction);
     const jurisdictionSkill = registry
       .getByAxis("jurisdiction")
       .find(
@@ -202,7 +225,18 @@ export function selectActiveSkills(
     if (jurisdictionSkill && !active.some((s) => s.skillId === jurisdictionSkill.skillId)) {
       active.push(jurisdictionSkill);
     }
-  } else if (matchesTriggerPhrases(instructionText, ["california", "delaware", "ireland", "england and wales", "english law"])) {
+  } else if (
+    matchesTriggerPhrases(instructionText, [
+      "california",
+      "delaware",
+      "ireland",
+      "england and wales",
+      "english law",
+      "england",
+      "united kingdom",
+      "uk law",
+    ])
+  ) {
     const jMatches = shortlistAndConfirm(
       registry.getByAxis("jurisdiction"),
       dt,

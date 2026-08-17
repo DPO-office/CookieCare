@@ -117,6 +117,9 @@ async function flagRisk(
       [
         "Flag contractual risks against the closed risk taxonomy for the active analysis skill.",
         `User instruction: ${instruction}`,
+        unit.input.previousAttemptFeedback
+          ? String(unit.input.previousAttemptFeedback)
+          : "",
         comparativeGuidance
           ? `Jurisdiction comparative check (${comparativeCheckId}):\n${comparativeGuidance}`
           : "",

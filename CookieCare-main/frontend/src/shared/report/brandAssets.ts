@@ -47,7 +47,7 @@ async function fetchAsBase64(url: string): Promise<string | null> {
  */
 export async function preloadLogos(): Promise<void> {
   if (!_lexifyLogoB64) {
-    _lexifyLogoB64   = await fetchAsBase64("/favicon.png");
+    _lexifyLogoB64   = await fetchAsBase64("/images/logo/favicon.png");
   }
   if (!_randstadLogoB64) {
     // Uses the new Randstad Digital logo (replaces old Randstad_logo.png)

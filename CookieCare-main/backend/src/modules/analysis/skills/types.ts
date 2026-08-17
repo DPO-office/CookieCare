@@ -1,6 +1,6 @@
 /** Structured analysis skill contract — deterministic; never LLM-invented at runtime. */
 
-export type SkillAxis = "global" | "doc-type" | "regime" | "jurisdiction";
+export type SkillAxis = "global" | "doc-type" | "regime" | "jurisdiction" | "topic";
 export type SkillStatus = "draft" | "reviewed" | "published";
 
 export type AnalysisSkillOperation =

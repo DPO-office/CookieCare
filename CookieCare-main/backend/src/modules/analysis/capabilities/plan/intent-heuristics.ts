@@ -9,6 +9,12 @@ import { INTENT_CONFIDENCE_THRESHOLD } from "../../models/intent.js";
 export const LEGAL_ADVICE_RE =
   /\b(should i sign|shall i sign|will i win|can i win|advise me to|is it safe to sign|predict.*(outcome|dispute|litigation)|legal advice)\b/i;
 
+export function isBriefSummaryInstruction(instruction: string): boolean {
+  return /\b(brief(?:\s+(?:overview|summary))?|concise|short summary|quick overview|simple language|plain(?:\s|-)?english|plain language|nothing more(?:\s+than)?(?:\s+that)?|no more than that)\b/i.test(
+    instruction
+  );
+}
+
 /** Deterministic fallback when LLM unavailable — prefers risk_flag for risk-ish language. */
 export function heuristicClassify(instruction: string): {
   scope: ScopeAxis;
@@ -49,6 +55,9 @@ export function heuristicClassify(instruction: string): {
     operation = "compare";
     outputForm = "redline_diff";
     confOp = 0.75;
+  }
+  if (isBriefSummaryInstruction(instruction)) {
+    outputForm = "brief_summary";
   }
 
   void INTENT_CONFIDENCE_THRESHOLD;

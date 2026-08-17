@@ -274,6 +274,20 @@ async function setupDb() {
       CREATE INDEX IF NOT EXISTS idx_analysis_tier_c_log_org
         ON analysis_tier_c_log (org_id, created_at DESC);
 
+      -- Append-only authoring backlog for not_authored coverage gaps
+      CREATE TABLE IF NOT EXISTS analysis_authoring_backlog_log (
+        id BIGSERIAL PRIMARY KEY,
+        org_id VARCHAR(255),
+        session_id VARCHAR(255),
+        target TEXT NOT NULL,
+        reason TEXT NOT NULL DEFAULT 'not_authored',
+        work_unit_id VARCHAR(255),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_analysis_authoring_backlog_org
+        ON analysis_authoring_backlog_log (org_id, created_at DESC);
+
       CREATE TABLE IF NOT EXISTS template_clause_mappings (
         template_id VARCHAR(255) NOT NULL REFERENCES contract_templates(id) ON DELETE CASCADE,
         clause_id VARCHAR(255) NOT NULL REFERENCES clause_catalog(id) ON DELETE CASCADE,

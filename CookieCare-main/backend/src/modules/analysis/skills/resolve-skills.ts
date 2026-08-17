@@ -100,7 +100,8 @@ function inferJurisdictionFromInstruction(instruction: string): string | undefin
   if (/\bcalifornia\b|\bcal\.\s*bus\b/.test(lower)) return "california";
   if (/\bdelaware\b/.test(lower)) return "delaware";
   if (/\bireland\b|\birish law\b/.test(lower)) return "ireland";
-  if (/\bengland and wales\b|\benglish law\b/.test(lower)) return "england-wales";
+  if (/\bengland and wales\b|\benglish law\b|\blaws of england\b|\bengland\b|\bunited kingdom\b|\buk law\b/.test(lower))
+    return "england-wales";
   return undefined;
 }
 

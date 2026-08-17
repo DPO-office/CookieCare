@@ -1,7 +1,7 @@
 /**
  * Versioned clause taxonomy — authored enumeration; never invented at runtime.
  */
-export const CLAUSE_TAXONOMY_VERSION = "1.1.0";
+export const CLAUSE_TAXONOMY_VERSION = "1.2.0";
 
 export const CLAUSE_TAXONOMY = [
   "indemnity",
@@ -14,6 +14,9 @@ export const CLAUSE_TAXONOMY = [
   "definitions",
   "payment",
   "intellectual_property",
+  "non_compete",
+  "execution_formalities",
+  "electronic_signature",
   "data_protection",
   "data_subject_request_handling",
   "processor_assistance_obligation",

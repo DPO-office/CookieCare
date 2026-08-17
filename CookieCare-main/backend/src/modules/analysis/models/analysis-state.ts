@@ -10,6 +10,7 @@ import type { OrgMemoryProfile } from "../memory/org-memory.js";
 import type { AnalysisSkillConfig, SkillRegimeRule } from "../skills/types.js";
 import type { ExpectedClauseCheck } from "../skills/types.js";
 import type { MissingClarification } from "./analysis-plan.js";
+import type { TierCCacheEntry, WorkUnitOutcome } from "./work-unit-outcome.js";
 
 export interface AnalysisHistoryEntry {
   version: number;
@@ -25,6 +26,8 @@ export interface AnalysisFixPlan {
     workUnitId: string;
     instruction: string;
     sourceItemId: string;
+    previousAttemptFeedback?: string;
+    attemptNumber?: number;
   }>;
   targetedOnly: boolean;
 }
@@ -79,6 +82,12 @@ export interface AnalysisState {
   draftTasks: DraftTask[];
   renderedOutput?: string;
   declineMessage?: string;
+
+  /** Per-unit terminal resolution across CRITIQUE iterations. */
+  workUnitOutcomes?: Record<string, WorkUnitOutcome>;
+  /** Session-scoped Tier C lookup cache keyed by ruleId / matrixRowId / category. */
+  tierCCache?: Record<string, TierCCacheEntry>;
+  replanAttemptedThisRun?: boolean;
 
   history?: AnalysisHistoryEntry[];
   metadata: {
