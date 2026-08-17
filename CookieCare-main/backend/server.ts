@@ -122,8 +122,25 @@ async function startServer() {
         middlewareMode: true,
         hmr: { server: httpServer },
         proxy: {},
+        // Native fs.watch on Windows throws EBUSY for locked scratch files
+        // (e.g. frontend/scripts/_list.txt). An unhandled watcher 'error'
+        // kills the whole Node process and aborts in-flight compare jobs.
+        watch: {
+          ignored: [
+            "**/scripts/**",
+            "**/*.py",
+            "**/.git/**",
+            "**/node_modules/**",
+          ],
+        },
       },
       appType: "spa",
+    });
+    vite.watcher.on("error", (err: NodeJS.ErrnoException) => {
+      logger.warn(
+        { err: err.message, path: err.path, code: err.code },
+        "[vite] file watcher error ignored"
+      );
     });
     app.use(vite.middlewares);
   }
