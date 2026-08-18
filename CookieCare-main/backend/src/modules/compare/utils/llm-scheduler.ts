@@ -107,7 +107,16 @@ function isTransientNetworkError(err: unknown): boolean {
 }
 
 function isRetryableError(err: unknown): boolean {
+  if (isRegionsExhausted(err)) return false;
   return isRateLimitError(err) || isTransientNetworkError(err);
+}
+
+function isRegionsExhausted(err: unknown): boolean {
+  return Boolean(
+    err &&
+      typeof err === "object" &&
+      (err as { geminiRegionsExhausted?: boolean }).geminiRegionsExhausted
+  );
 }
 
 /**

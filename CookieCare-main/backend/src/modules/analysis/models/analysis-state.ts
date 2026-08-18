@@ -1,15 +1,16 @@
 import type { AgentRunState, EntryMode } from "../pac/types.js";
-import type { AnalysisPlan } from "./analysis-plan.js";
+import type { AnalysisPlan, MissingClarification, PlanAuditRecord } from "./analysis-plan.js";
 import type { CritiqueReport } from "./critique-report.js";
 import type { AnalysisConversation } from "./conversation.js";
 import type { AnalysisWorkspace } from "./document-workspace.js";
 import type { Finding } from "./finding.js";
+import type { RequirementAssessment } from "./requirement-assessment.js";
+import type { SharedEvidenceBundle } from "./evidence-package.js";
 import type { DraftTask } from "./draft-task.js";
 import type { ClarificationRequest, IntentClassification } from "./intent.js";
 import type { OrgMemoryProfile } from "../memory/org-memory.js";
 import type { AnalysisSkillConfig, SkillRegimeRule } from "../skills/types.js";
 import type { ExpectedClauseCheck } from "../skills/types.js";
-import type { MissingClarification } from "./analysis-plan.js";
 import type { TierCCacheEntry, WorkUnitOutcome } from "./work-unit-outcome.js";
 
 export interface AnalysisHistoryEntry {
@@ -26,6 +27,8 @@ export interface AnalysisFixPlan {
     workUnitId: string;
     instruction: string;
     sourceItemId: string;
+    requirementId?: string;
+    findingId?: string;
     previousAttemptFeedback?: string;
     attemptNumber?: number;
   }>;
@@ -79,6 +82,13 @@ export interface AnalysisState {
   /** Draft-status skills selected for a real request — must appear in render output. */
   partialCoverageWarning?: string[];
   findings: Finding[];
+  /**
+   * Reporting/aggregation view over `findings`, keyed by PLAN requirement.
+   * Never an authoritative verdict store — derived from findings in ACT.
+   */
+  requirementAssessments?: RequirementAssessment[];
+  /** Shared evidence extracted once per package and reused by evaluations. */
+  sharedEvidence?: Record<string, SharedEvidenceBundle>;
   draftTasks: DraftTask[];
   renderedOutput?: string;
   declineMessage?: string;
@@ -88,6 +98,7 @@ export interface AnalysisState {
   /** Session-scoped Tier C lookup cache keyed by ruleId / matrixRowId / category. */
   tierCCache?: Record<string, TierCCacheEntry>;
   replanAttemptedThisRun?: boolean;
+  auditRecord?: PlanAuditRecord;
 
   history?: AnalysisHistoryEntry[];
   metadata: {

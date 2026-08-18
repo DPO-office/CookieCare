@@ -7,6 +7,7 @@ export const AnalysisRequestSchema = z.object({
   promptLibraryId: z.string().optional(),
   organizationId: z.string().nullable().optional(),
   sessionId: z.string().optional(),
+  documentRoles: z.record(z.string(), z.enum(["target", "reference"])).optional(),
 });
 
 export const ResumeAskRequestSchema = z.object({

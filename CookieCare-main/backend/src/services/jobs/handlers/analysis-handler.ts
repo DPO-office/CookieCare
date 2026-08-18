@@ -39,7 +39,7 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
     `[Analysis PAC] job create jobId=${jobId} session=${sessionId} docs=${documentIds.length} library=${payload.promptLibraryId || "-"}`
   );
 
-  await updateJobProgress(jobId, userId, 15, "Loading documents...");
+  await updateJobProgress(jobId, userId, 15, "Reading documents…");
 
   const documentTexts: Record<string, string> = {};
   const documentTitles: Record<string, string> = {};
@@ -57,7 +57,7 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
     documentTexts[docId] = row.is_encrypted ? decryptData(row.content) : row.content;
   }
 
-  await updateJobProgress(jobId, userId, 30, "Running Analysis PAC...");
+  await updateJobProgress(jobId, userId, 30, "Thinking…");
 
   const onToken = (delta: string) => {
     jobRegistry.broadcastToken(userId, jobId, delta);
@@ -149,7 +149,7 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
 async function handleResumeAsk(jobId: string, userId: string, payload: any): Promise<any> {
   const sessionId = String(payload.sessionId || "");
   console.log(`[Analysis PAC] job resume-ask jobId=${jobId} session=${sessionId}`);
-  await updateJobProgress(jobId, userId, 20, "Resuming after clarification...");
+  await updateJobProgress(jobId, userId, 20, "Continuing…");
 
   const { rows } = await pool.query(
     `SELECT state_snapshot_json FROM analysis_state_ledger

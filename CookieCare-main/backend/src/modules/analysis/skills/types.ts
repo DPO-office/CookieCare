@@ -1,5 +1,7 @@
 /** Structured analysis skill contract — deterministic; never LLM-invented at runtime. */
 
+import type { EvidencePackage } from "../models/evidence-package.js";
+
 export type SkillAxis = "global" | "doc-type" | "regime" | "jurisdiction" | "topic";
 export type SkillStatus = "draft" | "reviewed" | "published";
 
@@ -16,6 +18,13 @@ export interface ExpectedClauseCheck {
   ruleId?: string;
   /** Optional full-text synonyms to detect likely-present clauses missed by extraction. */
   textSynonyms?: string[];
+}
+
+/** Authored search terms for deterministic clause location. */
+export interface ClauseRetrievalDict {
+  headings: string[];
+  aliases: string[];
+  anchorTerms: string[];
 }
 
 /** @deprecated Alias — prefer ExpectedClauseCheck. */
@@ -109,6 +118,12 @@ export interface AnalysisSkillConfig {
   clauseTypes: string[];
   /** Optional authored definitions — cross-skill conflicts fail registry validation. */
   clauseTypeDefinitions?: Record<string, string>;
+  /**
+   * Optional retrieval dictionary used by the ACT evidence locator.
+   * Headings / aliases / anchor terms let extraction find candidate sections
+   * without sending the whole document to an LLM.
+   */
+  clauseRetrieval?: Record<string, ClauseRetrievalDict>;
   expectedClauses: ExpectedClauseCheck[];
   riskCategories: SkillRiskCategory[];
   /** Full authored rules (ACT needs ruleText). Prefer this over bare ids. */
@@ -121,6 +136,13 @@ export interface AnalysisSkillConfig {
   instructionFocusMap?: InstructionFocusMapEntry[];
   rightsMatrixRows?: RightsMatrixRow[];
   relatedChecks?: RelatedCheckRule[];
+  /**
+   * Authored, versioned evidence/evaluation packages (ACT refactor doc §2).
+   * Each package groups related capability ids (rule / matrix-row / risk-category)
+   * that ACT evaluates together in one grouped LLM call. Every capabilityId must
+   * resolve to a real authored id in this skill (enforced by parity lint).
+   */
+  evidencePackages?: EvidencePackage[];
 }
 
 export interface SkillManifestEntry {

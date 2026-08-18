@@ -212,6 +212,21 @@ export const ANALYZE_STYLES = `
   font-weight: 600;
 }
 
+.analyze-report-prose.is-streaming .md-content::after {
+  content: "";
+  display: inline-block;
+  width: 0.45em;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.12em;
+  background: #4F5BD9;
+  animation: analyze-stream-caret 0.9s steps(1) infinite;
+}
+
+@keyframes analyze-stream-caret {
+  50% { background: transparent; }
+}
+
 .analyze-report-composer {
   display: flex;
   align-items: center;
@@ -233,18 +248,42 @@ export const ANALYZE_STYLES = `
     0 18px 40px rgba(15,23,42,0.10);
 }
 
-.analyze-stream-caret {
-  display: inline-block;
-  width: 7px;
-  height: 14px;
-  margin-left: 2px;
-  background: #18181b;
-  vertical-align: -2px;
-  animation: analyze-caret-blink 1s steps(1) infinite;
+@keyframes analyze-status-shimmer {
+  0% { background-position: 140% 0; }
+  100% { background-position: -40% 0; }
 }
 
-@keyframes analyze-caret-blink {
-  50% { opacity: 0; }
+.analyze-status-shimmer {
+  display: inline-block;
+  font-size: 16.5px;
+  font-weight: 650;
+  letter-spacing: -0.032em;
+  line-height: 1.2;
+  background: linear-gradient(
+    90deg,
+    #98A2B3 0%,
+    #667085 32%,
+    #111827 47%,
+    #4F5BD9 51%,
+    #111827 55%,
+    #667085 70%,
+    #98A2B3 100%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: analyze-status-shimmer 1.55s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .analyze-status-shimmer {
+    animation: none;
+    background: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+    color: #111827;
+  }
 }
 
 .analyze-chat-session {
@@ -256,12 +295,13 @@ export const ANALYZE_STYLES = `
 }
 
 .analyze-user-bubble {
-  background: #111827;
-  color: #ffffff;
+  background: #EBF2FD;
+  color: #1a1a1a;
   border-radius: 20px 20px 6px 20px;
   font-size: 14.5px;
   line-height: 1.55;
   letter-spacing: -0.01em;
+  box-shadow: 0 0 0 1px rgba(33, 117, 217, 0.10);
 }
 
 .analyze-composer-fade {

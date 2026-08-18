@@ -129,6 +129,7 @@ describe("critique redesign", () => {
           outputForm: "memo",
           compound: false,
           subIntents: [],
+          requirements: [],
           confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 },
         },
         workUnits: [unit],
@@ -202,6 +203,7 @@ describe("critique redesign", () => {
           outputForm: "memo",
           compound: false,
           subIntents: [],
+          requirements: [],
           confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 },
         },
         workUnits: [unit],
@@ -269,6 +271,7 @@ describe("critique redesign", () => {
           outputForm: "memo",
           compound: false,
           subIntents: [],
+          requirements: [],
           confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 },
         },
         workUnits: [unit],
@@ -328,6 +331,7 @@ describe("critique redesign", () => {
           outputForm: "memo",
           compound: false,
           subIntents: [],
+          requirements: [],
           confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 },
         },
         workUnits: [unit],
@@ -363,6 +367,11 @@ describe("critique redesign", () => {
       nextPhaseAfterCritique(state, {
         isGreen: false,
         allUnitsTerminal: true,
+        executionComplete: true,
+        structurallyValid: true,
+        structuralIssues: [],
+        deepCritiqueRequired: false,
+        deepCritiqueTargets: [],
         iteration: 1,
         results: [],
         fixPlan: [],
@@ -413,8 +422,8 @@ describe("critique redesign", () => {
     assert.match(memoNotCovered, /Coverage limitations/);
   });
 
-  it("MAX_TIER2_ATTEMPTS allows two retries after first attempt", () => {
-    assert.equal(MAX_TIER2_ATTEMPTS, 2);
+  it("MAX_TIER2_ATTEMPTS allows one targeted retry after first attempt", () => {
+    assert.equal(MAX_TIER2_ATTEMPTS, 1);
     assert.equal(targetIdForUnit(workUnit()), "gdpr.art99.1");
   });
 });

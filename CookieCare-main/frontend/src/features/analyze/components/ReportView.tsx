@@ -8,7 +8,6 @@ import {
   Printer,
   Send,
   Check,
-  Scale,
 } from "lucide-react";
 import { Message } from "../types";
 import { renderContentText } from "../utils";
@@ -110,7 +109,7 @@ function AskQuestionCard({
           type="button"
           disabled={disabled || !allFilled}
           onClick={() => onSubmit?.(answers)}
-          className="mt-3.5 w-full rounded-lg bg-[#18181B] text-white text-[13px] font-medium py-2 disabled:opacity-40 hover:bg-[#27272A] transition-colors border-none cursor-pointer"
+          className="mt-3.5 w-full rounded-lg primary-gradient text-white text-[13px] font-medium py-2 disabled:opacity-40 hover:opacity-90 transition-opacity border-none cursor-pointer"
         >
           Continue analysis
         </button>
@@ -119,6 +118,16 @@ function AskQuestionCard({
         <p className="mt-3 text-[12px] text-[#71717A] italic m-0">Answers submitted.</p>
       )}
     </div>
+  );
+}
+
+const LORA_MARK = "/images/logo/favicon.png";
+
+function StreamStatus({ message }: { message: string }) {
+  return (
+    <span key={message} className="analyze-status-shimmer" aria-live="polite">
+      {message}
+    </span>
   );
 }
 
@@ -144,7 +153,7 @@ export default function ReportView({
 
   useEffect(() => {
     chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatMessages]);
+  }, [chatMessages, progressMessage]);
 
   const primaryReport = chatMessages.find(
     (m) => m.sender === "gemini" && !m.loading && !m.streaming && Boolean(m.text)
@@ -179,17 +188,15 @@ export default function ReportView({
         <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-4 pt-6">
           <div className="mx-auto space-y-7 print-container" style={{ maxWidth: 768 }}>
             {chatMessages.length === 0 && openQuestions.length === 0 && (
-              <div className="flex items-center gap-3 py-1 text-[#98A2B3]">
-                <span className="flex gap-1">
-                  {[0, 1, 2].map((i) => (
-                    <span
-                      key={i}
-                      className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-[#4F5BD9]"
-                      style={{ animationDelay: `${i * 0.16}s`, animationDuration: "0.8s" }}
-                    />
-                  ))}
-                </span>
-                <span className="text-[13px]">Preparing analysis…</span>
+              <div className="flex items-center gap-2.5">
+                <img
+                  src={LORA_MARK}
+                  alt=""
+                  width={32}
+                  height={32}
+                  className="h-8 w-8 shrink-0 rounded-[9px] object-cover"
+                />
+                <StreamStatus message={progressMessage || "Thinking…"} />
               </div>
             )}
 
@@ -197,6 +204,10 @@ export default function ReportView({
               const isUser = message.sender === "user";
               const isFirstAi =
                 !isUser && chatMessages.findIndex((m) => m.sender === "gemini") === idx;
+              const isLiveWriting = Boolean(message.streaming && message.text);
+              const isThinking = Boolean(
+                !isLiveWriting && (message.streaming || (message.loading && !message.text))
+              );
 
               if (isUser) {
                 return (
@@ -210,19 +221,22 @@ export default function ReportView({
 
               return (
                 <div key={idx} className="w-full">
-                  <div className="mb-3 flex items-start justify-between gap-3">
+                  <div className={`flex items-center justify-between gap-3 ${isThinking ? "" : "mb-3"}`}>
                     <div className="flex min-w-0 items-center gap-2.5">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF] text-[#4F5BD9]">
-                        <Scale className="h-3.5 w-3.5" strokeWidth={1.75} />
-                      </div>
-                      <div className="min-w-0">
+                      <img
+                        src={LORA_MARK}
+                        alt=""
+                        width={32}
+                        height={32}
+                        className="h-8 w-8 shrink-0 rounded-[9px] object-cover"
+                      />
+                      {isThinking ? (
+                        <StreamStatus message={progressMessage || "Thinking…"} />
+                      ) : (
                         <p className="m-0 text-[13px] font-semibold tracking-[-0.01em] text-[#1a1a1a]">
-                          LORA
+                          {isLiveWriting ? "Writing…" : "LORA"}
                         </p>
-                        <p className="m-0 mt-0.5 text-[11px] text-[#98A2B3]">
-                          {isFirstAi ? "Analysis" : "Follow-up"}
-                        </p>
-                      </div>
+                      )}
                     </div>
                     {isFirstAi && primaryReport && (
                       <div className="no-print flex shrink-0 items-center gap-0.5">
@@ -246,36 +260,13 @@ export default function ReportView({
                     )}
                   </div>
 
+                  {!isThinking && (
                   <div className="pl-[42px]">
-                    {message.loading && !message.text ? (
-                      <div className="flex items-center gap-3 py-1">
-                        <span className="flex gap-1">
-                          {[0, 1, 2].map((i) => (
-                            <span
-                              key={i}
-                              className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-[#4F5BD9]"
-                              style={{ animationDelay: `${i * 0.16}s`, animationDuration: "0.8s" }}
-                            />
-                          ))}
-                        </span>
-                        <span className="text-[13px] text-[#98A2B3]">
-                          {progressMessage || "Analyzing your query…"}
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="analyze-report-prose">
-                        {message.text
-                          ? renderContentText(message.text)
-                          : (
-                            <p className="m-0 text-[13px] text-[#98A2B3]">
-                              {progressMessage || "Starting analysis…"}
-                            </p>
-                          )}
-                        {message.streaming && (
-                          <span className="analyze-stream-caret" aria-hidden />
-                        )}
-                      </div>
-                    )}
+                    <div className={`analyze-report-prose${isLiveWriting ? " is-streaming" : ""}`}>
+                      {message.text ? renderContentText(message.text) : (
+                        <StreamStatus message={progressMessage || "Thinking…"} />
+                      )}
+                    </div>
 
                     {!message.loading && message.sources && message.sources.length > 0 && (
                       <div className="mt-5 flex flex-wrap gap-2">
@@ -300,6 +291,7 @@ export default function ReportView({
                       </div>
                     )}
                   </div>
+                  )}
                 </div>
               );
             })}

@@ -16,6 +16,20 @@ export function pacWarn(message: string, extra?: Record<string, unknown>): void 
   console.warn(`${TAG} ${ts} WARN ${message}${suffix}`);
 }
 
+/** Multi-line inspect dump — keeps PLAN / ACT quality reviews readable in the terminal. */
+export function pacLogBlock(title: string, lines: string[]): void {
+  const ts = new Date().toISOString().slice(11, 23);
+  const bar = "=".repeat(72);
+  console.log(`${TAG} ${ts}`);
+  console.log(`${TAG} ${bar}`);
+  console.log(`${TAG} ${title}`);
+  console.log(`${TAG} ${bar}`);
+  for (const line of lines) {
+    console.log(`${TAG} ${line}`);
+  }
+  console.log(`${TAG} ${bar}`);
+}
+
 function formatExtra(extra: Record<string, unknown>): string {
   return Object.entries(extra)
     .map(([k, v]) => {

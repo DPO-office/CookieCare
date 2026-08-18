@@ -21,6 +21,7 @@ const PLAYBOOK_INTENT: IntentClassification = {
   outputForm: "memo",
   compound: false,
   subIntents: [],
+  requirements: [],
   confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 },
 };
 

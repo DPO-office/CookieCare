@@ -7,10 +7,38 @@ import type { AnalysisState } from "../../models/analysis-state.js";
 import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
 import type { Finding, MatrixAddressing } from "../../models/finding.js";
 import type { RuleSourceTier } from "../../models/rule-source.js";
+import type { ReportSpec, ReportType } from "../../models/intent.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { getSkillById } from "../../skills/registry.js";
 import { extractArticleNumbers } from "../../skills/extract-instruction-focus.js";
 import { emitAnalysisToken } from "../../utils/stream-tokens.js";
+import { synthesizeReport } from "./synthesize-report.js";
+import { pacLog } from "../../utils/pac-log.js";
+import {
+  BOTTOM_LINE_SYSTEM_PROMPT,
+  NARRATIVE_REPORT_SYSTEM_PROMPT,
+  buildBottomLineUserPrompt,
+  buildNarrativeReportUserPrompt,
+} from "../../prompts/render-output.js";
+
+/** Map a legacy renderer schemaId to a ReportType when PLAN gave no ReportSpec. */
+const SCHEMA_TO_REPORT_TYPE: Record<string, ReportType> = {
+  memo: "regime_compliance_memo",
+  checklist: "regime_compliance_memo",
+  table: "extraction_table",
+  qa_thread: "qa_answer",
+};
+
+function resolveReportSpec(state: AnalysisState, schemaId: string): ReportSpec {
+  const spec = state.plan?.reportSpec;
+  if (spec) return spec;
+  const reportType = SCHEMA_TO_REPORT_TYPE[schemaId] ?? "regime_compliance_memo";
+  return {
+    reportType,
+    depth: "standard",
+    sections: ["scope_and_conclusion", "requirements_detail", "recommendations"],
+  };
+}
 
 const ADDRESSING_LABEL: Record<MatrixAddressing, string> = {
   named: "Named",
@@ -38,8 +66,19 @@ export async function renderOutput(
     findings.filter((f) => f.visibility !== "internal")
   );
 
+  const assessments = state.requirementAssessments ?? [];
+  const usesSynthesis =
+    assessments.length > 0 &&
+    schemaId !== "rights_matrix_memo" &&
+    schemaId !== "playbook_comparison_memo" &&
+    schemaId !== "brief_summary";
+
   let rendered: string;
-  if (schemaId === "brief_summary") {
+  if (usesSynthesis) {
+    const synthStarted = Date.now();
+    rendered = await synthesizeReport(state, visible, resolveReportSpec(state, schemaId));
+    pacLog("render synthesis", { ms: Date.now() - synthStarted, assessments: assessments.length });
+  } else if (schemaId === "brief_summary") {
     rendered = buildBriefSummaryDocument(state, visible);
     emitAnalysisToken(state, `${rendered}\n`);
   } else if (schemaId === "rights_matrix_memo") {
@@ -990,16 +1029,8 @@ async function streamBottomLine(state: AnalysisState, sections: string): Promise
   const tracker = state.agent ? { tokensUsed: state.agent.tokensUsed } : undefined;
   try {
     const outcome = await executeBoundedCompletion(
-      [
-        "Write one short bottom-line paragraph in the voice of a senior associate advising a controller-side lawyer.",
-        "Synthesize related findings into flowing prose with clear connective reasoning; never bullet-dump or mechanically repeat findings.",
-        "Reorganize and rephrase ONLY claims already present in the structured sections below.",
-        "Do not invent rights, timeframes, citations, or any new claim not traceable to a listed finding.",
-        "Do not advise whether to sign or litigate.",
-        "",
-        sections,
-      ].join("\n"),
-      "Write polished senior-associate legal-memo prose from verified findings. Synthesize meaningfully, but introduce no new claim — reorganize and rephrase only.",
+      buildBottomLineUserPrompt(sections),
+      BOTTOM_LINE_SYSTEM_PROMPT,
       LLMTask.REFINEMENT,
       LLMProvider.GEMINI,
       {
@@ -1023,21 +1054,10 @@ async function streamNarrativeReport(
   schemaId: string
 ): Promise<string> {
   const tracker = state.agent ? { tokensUsed: state.agent.tokensUsed } : undefined;
-  const form = schemaId === "qa_thread" ? "Q&A answer" : "legal analysis memo";
-
   try {
     const outcome = await executeBoundedCompletion(
-      [
-        `Write a professional ${form} from the verified findings below.`,
-        "Write in the voice of a senior associate. Synthesize related findings into flowing paragraphs grouped by theme; never bullet-dump raw findings.",
-        "Reorganize and rephrase only. Do not invent clauses, parties, risks, or claims not listed.",
-        "Keep Tier B / Tier P / Tier C sections visually separate — never blend into one compliance table.",
-        "Preserve every supplied [N] citation marker and the References section. Cite quoted evidence where provided.",
-        "Use markdown headings and paragraphs; use bullets only where they materially improve readability.",
-        "",
-        structured,
-      ].join("\n"),
-      "You are a senior-associate document-analysis writer. Produce cohesive legal-memo prose, not a raw finding dump. Stay faithful to the supplied findings; no new claims. Never advise whether to sign or litigate.",
+      buildNarrativeReportUserPrompt(structured, schemaId),
+      NARRATIVE_REPORT_SYSTEM_PROMPT,
       LLMTask.REFINEMENT,
       LLMProvider.GEMINI,
       {

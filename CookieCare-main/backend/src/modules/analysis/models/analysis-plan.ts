@@ -1,4 +1,8 @@
-import type { IntentClassification } from "./intent.js";
+import type {
+  IntentClassification,
+  ReportSpec,
+} from "./intent.js";
+import type { AnalysisSkillConfig } from "../skills/types.js";
 
 export type AnalysisToolName =
   | "list_documents"
@@ -20,6 +24,10 @@ export type AnalysisToolName =
   | "evaluate_matrix_row"
   | "extract_playbook_positions"
   | "web_assisted_reference"
+  | "extract_shared_evidence"
+  | "evaluate_package"
+  | "derive_risk"
+  | "aggregate_requirements"
   | "render_output";
 
 export type AnalysisOutputSchema =
@@ -43,12 +51,70 @@ export interface AnalysisWorkUnit {
   completionNote?: string;
 }
 
-/** Deterministic PLAN focus resolved from skill.instructionFocusMap. */
+export type ResolutionSource = "explicit_number" | "phrase_map" | "catalog_llm";
+
+export interface ResolutionProvenance {
+  id: string;
+  kind: "rule" | "matrix_row" | "risk_category";
+  source: ResolutionSource;
+  required: boolean;
+  reason?: string;
+}
+
+/** Semantic requirement extracted from the user's instruction (not just keywords). */
+export interface InstructionRequirement {
+  id: string;
+  label: string;
+  sourceText?: string;
+}
+
+/** Maps a user requirement to catalog capabilities selected to satisfy it. */
+export interface RequirementCapabilityMapping {
+  requirementId: string;
+  capabilityIds: string[];
+  source: ResolutionSource;
+}
+
+export type RequirementCoverageStatus = "covered" | "partial" | "missing";
+
+/** PLAN completeness check — did we cover every part of the instruction? */
+export interface CompletenessCheckItem {
+  requirementId: string;
+  label: string;
+  status: RequirementCoverageStatus;
+  mappedCapabilityIds: string[];
+  reason?: string;
+}
+
+/** Structured unresolved need with diagnostic reason. */
+export interface UnresolvedNeedDetail {
+  requirement: string;
+  reason: string;
+}
+
+/** PLAN focus: closed-catalog resolution with provenance. */
 export interface InstructionFocus {
   ruleIds: string[];
   matrixRowIds: string[];
   riskCategoryIds: string[];
   instructionText: string;
+  /** Semantic requirements the user asked to establish. */
+  requirements?: InstructionRequirement[];
+  /** Catalog ids directly required to satisfy the instruction. */
+  requiredCapabilities?: string[];
+  /** Contextual / supporting catalog ids (not strictly required). */
+  supportingCapabilities?: string[];
+  /** requirement → capability trace for audit. */
+  requirementMappings?: RequirementCapabilityMapping[];
+  /** Per-requirement coverage before ACT. */
+  completenessCheck?: CompletenessCheckItem[];
+  requiredIds?: string[];
+  supportingIds?: string[];
+  /** @deprecated Prefer unresolvedNeedDetails — kept for backward-compatible logs. */
+  unresolvedNeeds?: string[];
+  unresolvedNeedDetails?: UnresolvedNeedDetail[];
+  droppedCandidateIds?: string[];
+  provenance?: ResolutionProvenance[];
 }
 
 export interface MissingClarification {
@@ -58,11 +124,30 @@ export interface MissingClarification {
   options?: string[];
 }
 
+export interface PlanAuditRecord {
+  resolvedSkillIds: string[];
+  resolvedRuleIds: string[];
+  resolvedMatrixRowIds: string[];
+  resolvedRiskCategoryIds: string[];
+  reportSpec: ReportSpec;
+  resolutionSources: ResolutionSource[];
+  droppedCandidateIds: string[];
+  /** Structured requirements extracted from the instruction. */
+  requirements: InstructionRequirement[];
+  requiredCapabilities: string[];
+  supportingCapabilities: string[];
+  requirementMappings: RequirementCapabilityMapping[];
+  completenessCheck: CompletenessCheckItem[];
+  unresolvedNeeds: UnresolvedNeedDetail[];
+  provenance?: ResolutionProvenance[];
+}
+
 export interface AnalysisPlan {
   intent: IntentClassification;
   workUnits: AnalysisWorkUnit[];
   missingClarifications: MissingClarification[];
   outputForm: IntentClassification["outputForm"];
+  reportSpec?: ReportSpec;
   rendererSchemaId:
     | "table"
     | "checklist"
@@ -74,10 +159,19 @@ export interface AnalysisPlan {
     | "playbook_comparison_memo";
   activeSkillIds?: string[];
   focus?: InstructionFocus;
+  auditRecord?: PlanAuditRecord;
   /** Pack / taxonomy versions pinned for audit reproducibility. */
   pinnedVersions: {
     clauseTaxonomyVersion: string;
     riskTaxonomyVersion: string;
     modelTask?: string;
   };
+}
+
+export interface PlanOutput {
+  activeSkills: AnalysisSkillConfig[];
+  focus: InstructionFocus;
+  reportSpec: ReportSpec;
+  workUnitGraph: AnalysisWorkUnit[];
+  auditRecord: PlanAuditRecord;
 }

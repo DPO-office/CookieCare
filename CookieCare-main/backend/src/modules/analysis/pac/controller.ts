@@ -65,10 +65,7 @@ export class PacController {
           const next = nextPhaseAfterPlan(state);
           pacLog(`PLAN done → ${next}`, {
             ms: Date.now() - phaseStarted,
-            skills: state.activeSkillIds?.join(",") || "(none)",
             units: state.plan?.workUnits.length ?? 0,
-            focus: state.plan?.focus ? "yes" : "no",
-            schema: state.plan?.rendererSchemaId,
             asks: state.plan?.missingClarifications.length ?? 0,
           });
           state.agent!.phase = next;

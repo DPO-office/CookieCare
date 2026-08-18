@@ -38,10 +38,10 @@ export function nextPhaseAfterCritique(
   critique: CritiqueReport
 ): Phase {
   if (isMaxTurnsReached(state) || isBudgetExceeded(state)) return "DONE";
-  if (critique.isGreen || critique.allUnitsTerminal) return "DONE";
   if (critique.skeletonMismatch) return "PLAN";
   if (criticalFactSurfaced(critique)) return "ASK";
-  return "ACT";
+  if (critique.fixPlan.length > 0) return "ACT";
+  return "DONE";
 }
 
 export function resolveStoppedReason(
@@ -55,6 +55,13 @@ export function resolveStoppedReason(
     if (shouldStayPausedOnAsk(state) || state.agent?.phase === "ASK") {
       return "awaiting_user";
     }
+  }
+  if (
+    (critique?.executionComplete ?? critique?.allUnitsTerminal ?? critique?.isGreen) &&
+    (critique?.structurallyValid ?? critique?.isGreen) &&
+    critique.fixPlan.length === 0
+  ) {
+    return "green";
   }
   if (critique?.isGreen) return "green";
   return "blocked";

@@ -30,6 +30,29 @@ export type OutputFormAxis =
   | "qa_thread"
   | "brief_summary";
 
+export type ReportType =
+  | "regime_compliance_memo"
+  | "risk_audit"
+  | "rights_matrix"
+  | "qa_answer"
+  | "extraction_table";
+
+export type ReportDepth = "narrow" | "standard" | "deep";
+
+export type ReportSectionId =
+  | "scope_and_conclusion"
+  | "chapeau_particulars"
+  | "requirements_detail"
+  | "qualifications"
+  | "recommendations"
+  | "missing_materials";
+
+export interface ReportSpec {
+  reportType: ReportType;
+  depth: ReportDepth;
+  sections: ReportSectionId[];
+}
+
 export interface IntentAxisConfidence {
   scope: number;
   operation: number;
@@ -37,22 +60,57 @@ export interface IntentAxisConfidence {
   outputForm: number;
 }
 
+export type IntentRequirementType =
+  | "verification"
+  | "adequacy"
+  | "extraction"
+  | "comparison"
+  | "coverage"
+  | "recommendation"
+  | "other";
+
+export type IntentRequirementPriority = "required" | "supporting";
+
+/** Semantic requirement from classify-intent — not a registry rule ID. */
+export interface IntentRequirement {
+  id: string;
+  description: string;
+  type: IntentRequirementType;
+  priority: IntentRequirementPriority;
+}
+
+export interface UnresolvedIntentNeed {
+  description: string;
+  reason: string;
+}
+
 /** One distinct ask inside a compound instruction. */
 export interface IntentSubIntent {
   operation: OperationAxis;
   standard: StandardAxis;
   outputForm: OutputFormAxis;
+  reportType?: ReportType;
+  depth?: ReportDepth;
   /** Short label, e.g. "GDPR compliance check". */
   description?: string;
+  requirements?: IntentRequirement[];
 }
 
 export interface IntentClassification {
   scope: ScopeAxis;
   operation: OperationAxis;
   standard: StandardAxis;
+  /** Semantic standard/regime named by the user (e.g. "GDPR Article 28"). */
+  standardConcept?: string;
   outputForm: OutputFormAxis;
+  reportType?: ReportType;
+  depth?: ReportDepth;
   compound: boolean;
   subIntents: IntentSubIntent[];
+  /** Concrete analytical requirements the user wants established. */
+  requirements: IntentRequirement[];
+  /** Semantic needs the classifier could not express as requirements. */
+  unresolvedNeeds?: UnresolvedIntentNeed[];
   confidence: IntentAxisConfidence;
   /** Decline-and-redirect message when operation === out_of_scope. */
   outOfScopeReason?: string;
@@ -92,3 +150,31 @@ export const LEGAL_ADVICE_REFRAMES = [
   "Check this document for missing limitation-of-liability or indemnity provisions.",
   "Summarize the termination and liability sections with evidence quotes.",
 ];
+
+export function deriveSections(
+  reportType: ReportType,
+  depth: ReportDepth
+): ReportSectionId[] {
+  if (reportType === "qa_answer") {
+    return ["scope_and_conclusion"];
+  }
+
+  if (reportType === "rights_matrix") {
+    return ["scope_and_conclusion", "requirements_detail", "recommendations"];
+  }
+
+  const sections: ReportSectionId[] = [
+    "scope_and_conclusion",
+    "requirements_detail",
+  ];
+
+  if (depth !== "narrow") {
+    sections.push("qualifications", "recommendations");
+  }
+
+  if (depth === "deep") {
+    sections.push("missing_materials");
+  }
+
+  return sections;
+}

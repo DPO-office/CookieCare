@@ -93,6 +93,75 @@ export const ccpaCpraSkill: AnalysisSkillConfig = {
     security_dpia_assistance: "Security / DPIA assistance language as a structural section.",
     subprocessor_flow_down: "Subprocessor list / flow-down of processor obligations.",
   },
+  clauseRetrieval: {
+    data_protection: {
+      headings: [
+        "Service Provider",
+        "Business Purpose",
+        "Personal Information",
+        "Processing of Personal Information",
+      ],
+      aliases: [
+        "service provider",
+        "business purpose",
+        "personal information",
+        "do not sell",
+        "do not share",
+      ],
+      anchorTerms: [
+        "sell",
+        "share",
+        "combine",
+        "cross-context",
+        "business purpose",
+      ],
+    },
+    data_subject_request_handling: {
+      headings: [
+        "Consumer Rights",
+        "Consumers' Rights",
+        "Verifiable Consumer Requests",
+        "Consumer Requests",
+      ],
+      aliases: [
+        "verifiable consumer request",
+        "consumer rights",
+        "delete",
+        "know",
+        "correct",
+        "right to know",
+      ],
+      anchorTerms: [
+        "forward",
+        "assist the business",
+        "verifiable",
+        "access",
+        "correction",
+      ],
+    },
+    security_dpia_assistance: {
+      headings: [
+        "Technical and Organizational Measures",
+        "Technical and Organisational Measures",
+        "Security",
+        "Security Measures",
+      ],
+      aliases: [
+        "technical and organisational measures",
+        "technical and organizational measures",
+        "security measures",
+        "confidentiality",
+        "integrity",
+        "availability",
+      ],
+      anchorTerms: ["resilience", "encryption", "security level"],
+    },
+    subprocessor_flow_down: {
+      headings: ["Subprocessors", "Subcontractors", "Service Providers"],
+      aliases: ["subprocessor", "sub-processor", "subcontractor"],
+      anchorTerms: ["flow-down", "same obligations", "subcontract"],
+    },
+  },
   expectedClauses: [
     {
       clauseType: "data_protection",
@@ -135,6 +204,42 @@ export const ccpaCpraSkill: AnalysisSkillConfig = {
   ],
   regimeRules: RULES,
   regimeRuleIds: RULES.map((r) => r.ruleId),
+  evidencePackages: [
+    {
+      id: "ccpa.sp.core_restrictions",
+      requirementIds: [
+        "no_sell_share",
+        "business_purpose_limit",
+        "no_combine",
+      ],
+      capabilityIds: [
+        "ccpa.sp.no_sell_share",
+        "ccpa.sp.business_purpose_limit",
+        "ccpa.sp.no_combine",
+      ],
+      clauseTypes: ["data_protection"],
+      extractionTargets: [
+        "sell_share_prohibition",
+        "business_purpose_limitation",
+        "combining_prohibition",
+      ],
+      sourceMode: "authored",
+      packageVersion: "1.0.0",
+    },
+    {
+      id: "ccpa.sp.consumer_and_security",
+      requirementIds: ["consumer_rights_assistance", "security_measures"],
+      capabilityIds: ["ccpa.sp.consumer_rights_assist", "ccpa.sp.toms"],
+      clauseTypes: ["data_subject_request_handling", "security_dpia_assistance"],
+      extractionTargets: [
+        "verifiable_request_assistance",
+        "request_forwarding",
+        "technical_organisational_measures",
+      ],
+      sourceMode: "authored",
+      packageVersion: "1.0.0",
+    },
+  ],
   instructionFocusMap: [
     {
       triggerPhrases: ["sell", "share", "cross-context"],

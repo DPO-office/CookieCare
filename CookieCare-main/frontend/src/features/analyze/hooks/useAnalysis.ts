@@ -48,25 +48,49 @@ export function useAnalysis(authToken: string) {
 
   const runContextRef = useRef<RunContext | null>(null);
   const streamBufferRef = useRef("");
+  const streamRafRef = useRef<number | null>(null);
+
+  const flushStreamToUi = () => {
+    streamRafRef.current = null;
+    const text = streamBufferRef.current;
+    setChatMessages((prev) =>
+      prev.map((m) => (m.streaming ? { ...m, text } : m))
+    );
+  };
+
+  const cancelStreamFlush = () => {
+    if (streamRafRef.current != null) {
+      cancelAnimationFrame(streamRafRef.current);
+      streamRafRef.current = null;
+    }
+  };
 
   const appendStreamToken = (delta: string) => {
     if (!delta) return;
     streamBufferRef.current += delta;
-    const text = streamBufferRef.current;
-    setChatMessages((prev) => {
-      const updated = [...prev];
-      const idx = [...updated].reverse().findIndex((m) => m.sender === "gemini" && m.streaming);
-      const realIdx = idx === -1 ? -1 : updated.length - 1 - idx;
-      if (realIdx >= 0) {
-        updated[realIdx] = { ...updated[realIdx], text, streaming: true };
-        return updated;
-      }
-      return [...updated, { sender: "gemini", text, streaming: true }];
-    });
+    if (streamRafRef.current == null) {
+      streamRafRef.current = requestAnimationFrame(flushStreamToUi);
+    }
+  };
+
+  const resetLiveStream = () => {
+    streamBufferRef.current = "";
+    cancelStreamFlush();
+    setChatMessages((prev) =>
+      prev.map((m) => (m.streaming ? { ...m, text: "" } : m))
+    );
+  };
+
+  const handleProgress = (message: string) => {
+    if (message === "Writing the report…") {
+      resetLiveStream();
+    }
+    setAnalysisProgress(message);
   };
 
   const beginStreamingReply = (userText: string, replaceThread: boolean) => {
     streamBufferRef.current = "";
+    cancelStreamFlush();
     setViewMode("report");
     setChatMessages((prev) => {
       const base = replaceThread ? [] : prev.filter((m) => !m.loading && !m.streaming);
@@ -118,6 +142,7 @@ export function useAnalysis(authToken: string) {
           ? outcome.report
           : streamBufferRef.current || "Analysis complete.";
     streamBufferRef.current = "";
+    cancelStreamFlush();
 
     setSessionId(
       outcome.kind === "out_of_scope" || outcome.kind === "success"
@@ -190,9 +215,10 @@ export function useAnalysis(authToken: string) {
     setAskResolved(false);
     setSessionId(null);
     streamBufferRef.current = "";
+    cancelStreamFlush();
     setIsAnalyzing(true);
     setAnalysisError("");
-    setAnalysisProgress("Starting analysis…");
+    setAnalysisProgress("Thinking…");
     beginStreamingReply(customPromptText.trim(), true);
 
     try {
@@ -206,7 +232,7 @@ export function useAnalysis(authToken: string) {
       const outcome = await waitForAnalysisJob({
         authToken,
         jobId,
-        onProgress: setAnalysisProgress,
+        onProgress: handleProgress,
         onToken: appendStreamToken,
       });
       applyOutcome(outcome, customPromptText.trim());
@@ -239,7 +265,7 @@ export function useAnalysis(authToken: string) {
 
     setAskResolved(true);
     setIsAnalyzing(true);
-    setAnalysisProgress("Applying your answers and continuing…");
+    setAnalysisProgress("Continuing…");
     setAnalysisError("");
     beginStreamingReply(userSummary || "Answers submitted", false);
 
@@ -252,7 +278,7 @@ export function useAnalysis(authToken: string) {
       const outcome = await waitForAnalysisJob({
         authToken,
         jobId,
-        onProgress: setAnalysisProgress,
+        onProgress: handleProgress,
         onToken: appendStreamToken,
       });
       applyOutcome(outcome, userSummary || "Answers submitted");
@@ -318,7 +344,7 @@ export function useAnalysis(authToken: string) {
       const outcome = await waitForAnalysisJob({
         authToken,
         jobId,
-        onProgress: setAnalysisProgress,
+        onProgress: handleProgress,
         onToken: appendStreamToken,
       });
       applyOutcome(outcome, trimmed);
