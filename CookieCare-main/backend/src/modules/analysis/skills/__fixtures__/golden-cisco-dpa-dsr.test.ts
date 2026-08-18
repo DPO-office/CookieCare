@@ -26,6 +26,7 @@ const BASELINE_INTENT: IntentClassification = {
   outputForm: "memo",
   compound: false,
   subIntents: [],
+  requirements: [],
   confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 },
 };
 
@@ -60,10 +61,10 @@ describe("golden cisco-dpa-dsr skills baseline", () => {
     );
   });
 
-  it("extracts Arts 15-22 focus from GDPR skill", () => {
+  it("extracts Arts 15-22 focus from GDPR skill", async () => {
     const gdpr = getSkillById("regimes/data-protection/gdpr")!;
     const dpa = getSkillById("doc-types/dpa")!;
-    const focus = extractInstructionFocus(DSR_INSTRUCTION, [dpa, gdpr]);
+    const focus = await extractInstructionFocus(DSR_INSTRUCTION, [dpa, gdpr]);
     assert.ok(focus);
     assert.deepEqual(focus!.ruleIds.sort(), ["gdpr.art12.3", "gdpr.art28.3.e"].sort());
     assert.equal(focus!.matrixRowIds.length, 8);
@@ -71,13 +72,13 @@ describe("golden cisco-dpa-dsr skills baseline", () => {
     assert.ok(focus!.matrixRowIds.includes("gdpr.right.automated_decisions"));
   });
 
-  it("builds rights_matrix_memo graph with shared extract + matrix rows", () => {
+  it("builds rights_matrix_memo graph with shared extract + matrix rows", async () => {
     const selection = selectSkills({
       instruction: DSR_INSTRUCTION,
       docType: "dpa",
       promptLibraryId: "privacy",
     });
-    const focus = extractInstructionFocus(DSR_INSTRUCTION, selection.skills);
+    const focus = await extractInstructionFocus(DSR_INSTRUCTION, selection.skills);
     const graph = buildActGraphDetailed({
       docId: "cisco-dpa",
       instruction: DSR_INSTRUCTION,

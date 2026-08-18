@@ -30,6 +30,7 @@ const INTENT: IntentClassification = {
   outputForm: "memo",
   compound: false,
   subIntents: [],
+  requirements: [],
   confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 },
 };
 
@@ -48,10 +49,10 @@ describe("urgent Analysis ACT output regressions", () => {
     "Review GDPR Articles 15 16 17 18 19 20 21 22.",
     "Review GDPR Articles 15, 16, 17, 18, 19, 20, 21 and 22.",
   ]) {
-    it(`resolves DSR focus for: ${instruction}`, () => {
+    it(`resolves DSR focus for: ${instruction}`, async () => {
       resetSkillRegistryForTests();
       const gdpr = getSkillById("regimes/data-protection/gdpr")!;
-      const focus = extractInstructionFocus(instruction, [gdpr]);
+      const focus = await extractInstructionFocus(instruction, [gdpr]);
       assert.ok(focus);
       assert.deepEqual(
         [...focus!.ruleIds].sort(),
@@ -62,13 +63,13 @@ describe("urgent Analysis ACT output regressions", () => {
     });
   }
 
-  it("parses a constrained whitespace article list without broadening scope", () => {
+  it("parses a constrained whitespace article list without broadening scope", async () => {
     resetSkillRegistryForTests();
     const gdpr = getSkillById("regimes/data-protection/gdpr")!;
     const instruction =
       "Give me a brief overview of GDPR articles 15 16 17, nothing more than that.";
     assert.deepEqual(extractArticleNumbers(instruction), [15, 16, 17]);
-    const focus = extractInstructionFocus(instruction, [gdpr]);
+    const focus = await extractInstructionFocus(instruction, [gdpr]);
     assert.ok(focus);
     assert.deepEqual(focus!.ruleIds, []);
     assert.deepEqual(focus!.matrixRowIds, [
@@ -84,14 +85,14 @@ describe("urgent Analysis ACT output regressions", () => {
     assert.deepEqual(extractArticleNumbers("Review GDPR Art.15 16 17"), [15, 16, 17]);
   });
 
-  it("selects brief_summary and schedules only requested articles", () => {
+  it("selects brief_summary and schedules only requested articles", async () => {
     resetSkillRegistryForTests();
     const gdpr = getSkillById("regimes/data-protection/gdpr")!;
     const instruction =
       "Give me a brief overview of GDPR article 15 16 17, nothing more than that.";
     assert.equal(isBriefSummaryInstruction(instruction), true);
     assert.equal(heuristicClassify(instruction).outputForm, "brief_summary");
-    const focus = extractInstructionFocus(instruction, [gdpr]);
+    const focus = await extractInstructionFocus(instruction, [gdpr]);
     const graph = buildActGraphDetailed({
       docId: "cisco-dpa",
       instruction,
@@ -115,10 +116,10 @@ describe("urgent Analysis ACT output regressions", () => {
     );
   });
 
-  it("reproduction graph runs only focused rules and matrix rows", () => {
+  it("reproduction graph runs only focused rules and matrix rows", async () => {
     resetSkillRegistryForTests();
     const gdpr = getSkillById("regimes/data-protection/gdpr")!;
-    const focus = extractInstructionFocus(REPRODUCTION, [gdpr]);
+    const focus = await extractInstructionFocus(REPRODUCTION, [gdpr]);
     const graph = buildActGraphDetailed({
       docId: "cisco-dpa",
       instruction: REPRODUCTION,
@@ -145,10 +146,10 @@ describe("urgent Analysis ACT output regressions", () => {
     assert.ok(focusedRiskUnit, "focused DSR graph must evaluate silent cost allocation");
   });
 
-  it("compound sub-intents stay inside the instruction focus", () => {
+  it("compound sub-intents stay inside the instruction focus", async () => {
     resetSkillRegistryForTests();
     const gdpr = getSkillById("regimes/data-protection/gdpr")!;
-    const focus = extractInstructionFocus(REPRODUCTION, [gdpr]);
+    const focus = await extractInstructionFocus(REPRODUCTION, [gdpr]);
     const compoundIntent: IntentClassification = {
       ...INTENT,
       compound: true,

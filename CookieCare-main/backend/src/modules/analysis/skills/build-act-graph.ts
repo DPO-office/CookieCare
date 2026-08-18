@@ -11,6 +11,7 @@ import type {
   RightsMatrixRow,
   SkillRegimeRule,
 } from "./types.js";
+import type { ReportSpec } from "../models/intent.js";
 import {
   mergeRegimeRules,
   mergeSkillClauseTypes,
@@ -26,6 +27,7 @@ export interface BuildActGraphInput {
   instruction: string;
   skills: AnalysisSkillConfig[];
   intent: IntentClassification;
+  reportSpec?: ReportSpec;
   focus?: InstructionFocus;
   relatedChecks?: RelatedCheckRule[];
   unresolvedStandard?: string;
@@ -326,8 +328,7 @@ function appendSubIntentUnits(
     args;
   const runRisk =
     si.operation === "risk_flag" ||
-    si.operation === "extract" ||
-    Boolean(focus?.riskCategoryIds.length);
+    si.operation === "extract";
   const runCompliance =
     si.operation === "compliance_check" ||
     Boolean(focus) ||

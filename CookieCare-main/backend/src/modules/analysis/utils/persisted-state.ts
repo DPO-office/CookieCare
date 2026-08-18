@@ -1,5 +1,5 @@
 import type { AnalysisState, AnalysisHistoryEntry } from "../models/analysis-state.js";
-import type { AnalysisPlan, MissingClarification } from "../models/analysis-plan.js";
+import type { AnalysisPlan, MissingClarification, PlanAuditRecord } from "../models/analysis-plan.js";
 import type { CritiqueReport } from "../models/critique-report.js";
 import type { AnalysisConversation } from "../models/conversation.js";
 import type { Finding } from "../models/finding.js";
@@ -31,6 +31,7 @@ export interface PersistedAnalysisState {
   critique?: CritiqueReport | null;
   conversation?: AnalysisConversation;
   organizationId?: string;
+  auditRecord?: PlanAuditRecord;
 }
 
 export function toPersistedState(state: AnalysisState): PersistedAnalysisState {
@@ -40,6 +41,7 @@ export function toPersistedState(state: AnalysisState): PersistedAnalysisState {
       instruction: state.request.instruction,
       promptLibraryId: state.request.promptLibraryId,
       documentIds: state.request.documentIds,
+      documentRoles: state.request.documentRoles,
       // Drop large texts from ledger — workspace keeps segmented form
       documentTexts: {},
       documentTitles: state.request.documentTitles,
@@ -71,6 +73,7 @@ export function toPersistedState(state: AnalysisState): PersistedAnalysisState {
     critique: state.critique,
     conversation: state.conversation,
     organizationId: state.organizationId,
+    auditRecord: state.plan?.auditRecord ?? state.auditRecord,
   };
 }
 

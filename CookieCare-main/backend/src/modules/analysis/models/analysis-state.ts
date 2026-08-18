@@ -1,5 +1,5 @@
 import type { AgentRunState, EntryMode } from "../pac/types.js";
-import type { AnalysisPlan } from "./analysis-plan.js";
+import type { AnalysisPlan, MissingClarification, PlanAuditRecord } from "./analysis-plan.js";
 import type { CritiqueReport } from "./critique-report.js";
 import type { AnalysisConversation } from "./conversation.js";
 import type { AnalysisWorkspace } from "./document-workspace.js";
@@ -9,7 +9,6 @@ import type { ClarificationRequest, IntentClassification } from "./intent.js";
 import type { OrgMemoryProfile } from "../memory/org-memory.js";
 import type { AnalysisSkillConfig, SkillRegimeRule } from "../skills/types.js";
 import type { ExpectedClauseCheck } from "../skills/types.js";
-import type { MissingClarification } from "./analysis-plan.js";
 import type { TierCCacheEntry, WorkUnitOutcome } from "./work-unit-outcome.js";
 
 export interface AnalysisHistoryEntry {
@@ -88,6 +87,7 @@ export interface AnalysisState {
   /** Session-scoped Tier C lookup cache keyed by ruleId / matrixRowId / category. */
   tierCCache?: Record<string, TierCCacheEntry>;
   replanAttemptedThisRun?: boolean;
+  auditRecord?: PlanAuditRecord;
 
   history?: AnalysisHistoryEntry[];
   metadata: {

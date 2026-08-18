@@ -73,9 +73,9 @@ describe("populated skill library selection", () => {
     assert.ok(!ids.includes("topics/vendor-risk-and-diligence"));
   });
 
-  it("NIS2-only instruction focuses NIS2 rules, not the whole CSF pack", () => {
+  it("NIS2-only instruction focuses NIS2 rules, not the whole CSF pack", async () => {
     const cyber = getSkillById("topics/cybersecurity-and-incident-response")!;
-    const focus = extractInstructionFocus(
+    const focus = await extractInstructionFocus(
       "Review this vendor contract for NIS2 incident reporting duties.",
       [cyber]
     );
@@ -86,9 +86,9 @@ describe("populated skill library selection", () => {
     assert.ok(!focus!.ruleIds.includes("nist.csf.detect_respond_recover"));
   });
 
-  it("EBA outsourcing-only instruction focuses EBA rules, not NIST 800-161", () => {
+  it("EBA outsourcing-only instruction focuses EBA rules, not NIST 800-161", async () => {
     const vendorRisk = getSkillById("topics/vendor-risk-and-diligence")!;
-    const focus = extractInstructionFocus(
+    const focus = await extractInstructionFocus(
       "Check this MSA against the EBA outsourcing guidelines for critical or important functions.",
       [vendorRisk]
     );
