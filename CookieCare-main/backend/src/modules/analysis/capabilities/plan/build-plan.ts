@@ -26,7 +26,7 @@ import {
   resolveRelatedChecks,
 } from "../../skills/build-act-graph.js";
 import { extractInstructionFocus } from "../../skills/extract-instruction-focus.js";
-import { requestsRiskAnalysis } from "./intent-heuristics.js";
+import { requestsRiskAnalysis, EXPLICIT_DEEP_DEPTH_RE } from "./intent-heuristics.js";
 import { getSkillById } from "../../skills/registry.js";
 import { pacLog } from "../../utils/pac-log.js";
 import { logPlanInspect } from "./plan-inspect-log.js";
@@ -42,7 +42,6 @@ const SKILL_DRIVEN_OPERATIONS = new Set([
   "compare",
 ]);
 
-const RIGOR_SIGNAL = /\b(rigorous|thorough|comprehensive|verify|all mandatory|present and adequate|suggest improvements)\b/i;
 const SHALLOW_OUTPUT_SIGNAL = /\b(brief|concise|short answer|pass\/fail|just give me)\b/i;
 
 /**
@@ -255,7 +254,10 @@ function applySensibleDefaults(intent: IntentClassification, instruction: string
   const confidence = { ...intent.confidence };
   let scope = intent.scope;
   const reportType = intent.reportType ?? fallbackReportType(intent.operation);
-  const depth = intent.depth ?? fallbackDepth(instruction);
+  let depth = intent.depth ?? fallbackDepth(instruction);
+  if (depth === "deep" && !EXPLICIT_DEEP_DEPTH_RE.test(instruction)) {
+    depth = "standard";
+  }
   let outputForm = intent.outputForm;
 
   if (confidence.scope < INTENT_CONFIDENCE_THRESHOLD) {
@@ -296,7 +298,7 @@ function fallbackReportType(operation: IntentClassification["operation"]): Repor
 }
 
 function fallbackDepth(instruction: string): ReportDepth {
-  if (RIGOR_SIGNAL.test(instruction)) return "deep";
+  if (EXPLICIT_DEEP_DEPTH_RE.test(instruction)) return "deep";
   if (SHALLOW_OUTPUT_SIGNAL.test(instruction)) return "narrow";
   return "standard";
 }

@@ -14,6 +14,12 @@ import { extractArticleNumbers } from "../../skills/extract-instruction-focus.js
 import { emitAnalysisToken } from "../../utils/stream-tokens.js";
 import { synthesizeReport } from "./synthesize-report.js";
 import { pacLog } from "../../utils/pac-log.js";
+import {
+  BOTTOM_LINE_SYSTEM_PROMPT,
+  NARRATIVE_REPORT_SYSTEM_PROMPT,
+  buildBottomLineUserPrompt,
+  buildNarrativeReportUserPrompt,
+} from "../../prompts/render-output.js";
 
 /** Map a legacy renderer schemaId to a ReportType when PLAN gave no ReportSpec. */
 const SCHEMA_TO_REPORT_TYPE: Record<string, ReportType> = {
@@ -1023,16 +1029,8 @@ async function streamBottomLine(state: AnalysisState, sections: string): Promise
   const tracker = state.agent ? { tokensUsed: state.agent.tokensUsed } : undefined;
   try {
     const outcome = await executeBoundedCompletion(
-      [
-        "Write one short bottom-line paragraph in the voice of a senior associate advising a controller-side lawyer.",
-        "Synthesize related findings into flowing prose with clear connective reasoning; never bullet-dump or mechanically repeat findings.",
-        "Reorganize and rephrase ONLY claims already present in the structured sections below.",
-        "Do not invent rights, timeframes, citations, or any new claim not traceable to a listed finding.",
-        "Do not advise whether to sign or litigate.",
-        "",
-        sections,
-      ].join("\n"),
-      "Write polished senior-associate legal-memo prose from verified findings. Synthesize meaningfully, but introduce no new claim — reorganize and rephrase only.",
+      buildBottomLineUserPrompt(sections),
+      BOTTOM_LINE_SYSTEM_PROMPT,
       LLMTask.REFINEMENT,
       LLMProvider.GEMINI,
       {
@@ -1056,21 +1054,10 @@ async function streamNarrativeReport(
   schemaId: string
 ): Promise<string> {
   const tracker = state.agent ? { tokensUsed: state.agent.tokensUsed } : undefined;
-  const form = schemaId === "qa_thread" ? "Q&A answer" : "legal analysis memo";
-
   try {
     const outcome = await executeBoundedCompletion(
-      [
-        `Write a professional ${form} from the verified findings below.`,
-        "Write in the voice of a senior associate. Synthesize related findings into flowing paragraphs grouped by theme; never bullet-dump raw findings.",
-        "Reorganize and rephrase only. Do not invent clauses, parties, risks, or claims not listed.",
-        "Keep Tier B / Tier P / Tier C sections visually separate — never blend into one compliance table.",
-        "Preserve every supplied [N] citation marker and the References section. Cite quoted evidence where provided.",
-        "Use markdown headings and paragraphs; use bullets only where they materially improve readability.",
-        "",
-        structured,
-      ].join("\n"),
-      "You are a senior-associate document-analysis writer. Produce cohesive legal-memo prose, not a raw finding dump. Stay faithful to the supplied findings; no new claims. Never advise whether to sign or litigate.",
+      buildNarrativeReportUserPrompt(structured, schemaId),
+      NARRATIVE_REPORT_SYSTEM_PROMPT,
       LLMTask.REFINEMENT,
       LLMProvider.GEMINI,
       {

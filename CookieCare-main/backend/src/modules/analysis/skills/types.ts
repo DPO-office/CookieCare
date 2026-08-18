@@ -20,6 +20,13 @@ export interface ExpectedClauseCheck {
   textSynonyms?: string[];
 }
 
+/** Authored search terms for deterministic clause location. */
+export interface ClauseRetrievalDict {
+  headings: string[];
+  aliases: string[];
+  anchorTerms: string[];
+}
+
 /** @deprecated Alias — prefer ExpectedClauseCheck. */
 export type ExpectedClause = ExpectedClauseCheck;
 
@@ -111,6 +118,12 @@ export interface AnalysisSkillConfig {
   clauseTypes: string[];
   /** Optional authored definitions — cross-skill conflicts fail registry validation. */
   clauseTypeDefinitions?: Record<string, string>;
+  /**
+   * Optional retrieval dictionary used by the ACT evidence locator.
+   * Headings / aliases / anchor terms let extraction find candidate sections
+   * without sending the whole document to an LLM.
+   */
+  clauseRetrieval?: Record<string, ClauseRetrievalDict>;
   expectedClauses: ExpectedClauseCheck[];
   riskCategories: SkillRiskCategory[];
   /** Full authored rules (ACT needs ruleText). Prefer this over bare ids. */

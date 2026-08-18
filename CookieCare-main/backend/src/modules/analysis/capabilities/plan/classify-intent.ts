@@ -418,7 +418,7 @@ const SEMANTIC_INTENT_SYSTEM_PROMPT = [
 
   "depth is analytical depth, not scope. 'Only Article 28(3)' narrows scope, not depth.",
 
-  "depth=deep for rigorous/completeness/adequacy-oriented asks. depth=narrow only for brief/shallow/pass-fail output.",
+  "depth=deep ONLY when the user explicitly asks for a thorough, comprehensive, in-depth, rigorous, or exhaustive report. A normal compliance, completeness, or adequacy check is depth=standard. depth=narrow only for brief/shallow/pass-fail output.",
 
   "",
 

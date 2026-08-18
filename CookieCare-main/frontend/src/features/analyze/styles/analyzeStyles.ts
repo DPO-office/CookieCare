@@ -212,6 +212,21 @@ export const ANALYZE_STYLES = `
   font-weight: 600;
 }
 
+.analyze-report-prose.is-streaming .md-content::after {
+  content: "";
+  display: inline-block;
+  width: 0.45em;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.12em;
+  background: #4F5BD9;
+  animation: analyze-stream-caret 0.9s steps(1) infinite;
+}
+
+@keyframes analyze-stream-caret {
+  50% { background: transparent; }
+}
+
 .analyze-report-composer {
   display: flex;
   align-items: center;

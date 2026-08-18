@@ -93,6 +93,75 @@ export const ccpaCpraSkill: AnalysisSkillConfig = {
     security_dpia_assistance: "Security / DPIA assistance language as a structural section.",
     subprocessor_flow_down: "Subprocessor list / flow-down of processor obligations.",
   },
+  clauseRetrieval: {
+    data_protection: {
+      headings: [
+        "Service Provider",
+        "Business Purpose",
+        "Personal Information",
+        "Processing of Personal Information",
+      ],
+      aliases: [
+        "service provider",
+        "business purpose",
+        "personal information",
+        "do not sell",
+        "do not share",
+      ],
+      anchorTerms: [
+        "sell",
+        "share",
+        "combine",
+        "cross-context",
+        "business purpose",
+      ],
+    },
+    data_subject_request_handling: {
+      headings: [
+        "Consumer Rights",
+        "Consumers' Rights",
+        "Verifiable Consumer Requests",
+        "Consumer Requests",
+      ],
+      aliases: [
+        "verifiable consumer request",
+        "consumer rights",
+        "delete",
+        "know",
+        "correct",
+        "right to know",
+      ],
+      anchorTerms: [
+        "forward",
+        "assist the business",
+        "verifiable",
+        "access",
+        "correction",
+      ],
+    },
+    security_dpia_assistance: {
+      headings: [
+        "Technical and Organizational Measures",
+        "Technical and Organisational Measures",
+        "Security",
+        "Security Measures",
+      ],
+      aliases: [
+        "technical and organisational measures",
+        "technical and organizational measures",
+        "security measures",
+        "confidentiality",
+        "integrity",
+        "availability",
+      ],
+      anchorTerms: ["resilience", "encryption", "security level"],
+    },
+    subprocessor_flow_down: {
+      headings: ["Subprocessors", "Subcontractors", "Service Providers"],
+      aliases: ["subprocessor", "sub-processor", "subcontractor"],
+      anchorTerms: ["flow-down", "same obligations", "subcontract"],
+    },
+  },
   expectedClauses: [
     {
       clauseType: "data_protection",

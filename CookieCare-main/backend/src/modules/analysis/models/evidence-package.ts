@@ -1,3 +1,5 @@
+import type { EvidenceStatus } from "./clause-object.js";
+
 /**
  * EvidencePackage — an authored, versioned grouping of related regime
  * capabilities (rule / matrix-row / risk-category ids) that ACT evaluates
@@ -26,6 +28,9 @@ export interface SharedEvidenceItem {
   quotedText: string;
   structuralPath: string;
   charRange: [number, number];
+  evidenceStatus?: EvidenceStatus;
+  matchReason?: string;
+  referencedDocuments?: string[];
 }
 
 export interface SharedEvidenceBundle {

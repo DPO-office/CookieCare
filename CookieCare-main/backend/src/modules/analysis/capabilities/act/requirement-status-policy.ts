@@ -26,7 +26,18 @@ function isSupporting(f: Finding): boolean {
 
 /** A Finding shows a concrete gap (required element absent). */
 function isGap(f: Finding): boolean {
-  return f.status === "absent_expected";
+  return f.status === "absent_expected" && !isReferencedElsewhereClaim(f);
+}
+
+/**
+ * Gap language that actually points to an annex/schedule/other document is
+ * indeterminate, not a positive "missing from this agreement" finding.
+ */
+const REFERENCED_ELSEWHERE_CLAIM_RE =
+  /\b(referenced (?:in|to|elsewhere)|incorporated by reference|see (?:the )?(?:annex|schedule|appendix|exhibit|sow|statement of work)|cannot (?:be )?(?:fully )?verif(?:y|ied)|substance (?:is|lives) (?:in|elsewhere))\b/i;
+
+function isReferencedElsewhereClaim(f: Finding): boolean {
+  return REFERENCED_ELSEWHERE_CLAIM_RE.test(`${f.claim} ${f.gap ?? ""}`);
 }
 
 /** A Finding could not be resolved from the document evidence. */
@@ -44,7 +55,9 @@ export function deriveRequirementStatus(findings: Finding[]): RequirementStatus 
 
   const supporting = findings.filter(isSupporting);
   const gaps = findings.filter(isGap);
-  const indeterminate = findings.filter(isIndeterminate);
+  const indeterminate = findings.filter(
+    (f) => isIndeterminate(f) || isReferencedElsewhereClaim(f)
+  );
   const notApplicable = findings.filter(isNotApplicable);
 
   // 1. Conflicting: at least one element is clearly met AND another clearly

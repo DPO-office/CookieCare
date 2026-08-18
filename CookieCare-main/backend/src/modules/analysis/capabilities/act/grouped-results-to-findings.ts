@@ -82,7 +82,19 @@ function findingsForResult(
           claim: result.rationale,
         },
       ];
-    case "missing":
+    case "missing": {
+      if (shouldTreatMissingAsIndeterminate(result, ctx)) {
+        return [
+          {
+            ...base,
+            findingId: id("cd", result.requirementId, ctx),
+            status: "insufficient_evidence",
+            claim:
+              result.rationale ||
+              "Requirement substance is referenced in another document or annex, not evidenced here.",
+          },
+        ];
+      }
       return [
         {
           ...base,
@@ -92,6 +104,7 @@ function findingsForResult(
           gap: result.gap ?? result.rationale,
         },
       ];
+    }
     case "partial":
       return [
         {
@@ -129,6 +142,34 @@ function findingsForResult(
     default:
       return [];
   }
+}
+
+function shouldTreatMissingAsIndeterminate(
+  result: GroupedRequirementResult,
+  ctx: ConvertContext
+): boolean {
+  const text = `${result.rationale} ${result.gap ?? ""}`;
+  if (
+    /\b(referenced (?:in|to|elsewhere)|incorporated by reference|see (?:the )?(?:annex|schedule|appendix|exhibit|sow)|cannot (?:be )?(?:fully )?verif)/i.test(
+      text
+    )
+  ) {
+    return true;
+  }
+  return bundleHasReferencedElsewhere(result.evidenceRefs, ctx);
+}
+
+function bundleHasReferencedElsewhere(
+  refs: string[],
+  ctx: ConvertContext
+): boolean {
+  if (!ctx.bundle) return false;
+  const items =
+    refs.length > 0
+      ? ctx.bundle.items.filter((item) => refs.includes(item.ref))
+      : ctx.bundle.items;
+  if (items.length === 0) return false;
+  return items.some((item) => item.evidenceStatus === "referenced_elsewhere");
 }
 
 function resolveEvidence(

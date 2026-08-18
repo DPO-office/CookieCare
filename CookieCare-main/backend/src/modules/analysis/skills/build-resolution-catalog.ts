@@ -176,11 +176,21 @@ export function buildClauseTypeGlossary(
 export async function resolveFocusViaCatalog(
   instruction: string,
   catalog: ResolutionCandidate[],
-  clauseTypeGlossary: Map<string, string> = new Map()
+  clauseTypeGlossary: Map<string, string> = new Map(),
+  fullTextIds?: Set<string>
 ): Promise<CatalogResolutionResult> {
   if (catalog.length === 0) {
     return emptyCatalogResult();
   }
+
+  const rendered = catalog
+    .map((candidate) =>
+      renderCandidate(
+        candidate,
+        Boolean(fullTextIds && fullTextIds.size > 0 && !fullTextIds.has(candidate.id))
+      )
+    )
+    .join("\n\n");
 
   try {
     const raw = (await executeJsonCompletion(
@@ -207,7 +217,7 @@ export async function resolveFocusViaCatalog(
         "If a requirement cannot be satisfied by any catalog candidate, add it to unresolvedNeeds with a short reason.",
         "",
         renderClauseTypeGlossary(clauseTypeGlossary),
-        `Candidates:\n${catalog.map(renderCandidate).join("\n\n")}`,
+        `Candidates:\n${rendered}`,
         "",
         `Instruction: ${instruction}`,
       ]
@@ -271,12 +281,12 @@ export function validateAgainstCatalog(
   return { valid, dropped };
 }
 
-function renderCandidate(candidate: ResolutionCandidate): string {
+function renderCandidate(candidate: ResolutionCandidate, compact = false): string {
   const lines: string[] = [
     `- id: ${candidate.id}  (${candidate.kind}, skill: ${candidate.skillId})`,
     `  label: ${candidate.label}`,
   ];
-  if (candidate.description) {
+  if (!compact && candidate.description) {
     lines.push(`  description: ${candidate.description}`);
   }
   if (candidate.applicableClauseTypes && candidate.applicableClauseTypes.length > 0) {

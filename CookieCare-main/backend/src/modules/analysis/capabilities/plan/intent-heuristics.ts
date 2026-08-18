@@ -11,6 +11,10 @@ import { INTENT_CONFIDENCE_THRESHOLD } from "../../models/intent.js";
 export const LEGAL_ADVICE_RE =
   /\b(should i sign|shall i sign|will i win|can i win|advise me to|is it safe to sign|predict.*(outcome|dispute|litigation)|legal advice)\b/i;
 
+/** User explicitly asked for a deep/thorough report — not a normal compliance review. */
+export const EXPLICIT_DEEP_DEPTH_RE =
+  /\b(rigorous|thorough|comprehensive|in[- ]depth|deep dive|exhaustive|detailed analysis)\b/i;
+
 /**
  * Detects a reference to an actual document section/heading (e.g. "the Security
  * section", "Section 4.2", "the Termination clause"). Deliberately excludes bare
@@ -124,7 +128,7 @@ export function heuristicClassify(instruction: string): {
   if (/\b(brief(?:\s+(?:overview|summary))?|concise|short summary|quick overview|simple language|plain(?:\s|-)?english|plain language|pass\/fail|short answer)\b/i.test(instruction)) {
     outputForm = "brief_summary";
     depth = "narrow";
-  } else if (/\b(rigorous|thorough|comprehensive|verify|all mandatory|present and adequate|suggest improvements)\b/i.test(instruction)) {
+  } else if (EXPLICIT_DEEP_DEPTH_RE.test(instruction)) {
     depth = "deep";
   }
 

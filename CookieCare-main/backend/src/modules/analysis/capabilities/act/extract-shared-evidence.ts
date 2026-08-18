@@ -41,6 +41,9 @@ export function extractSharedEvidence(
       quotedText: clause.text.slice(0, MAX_QUOTE_CHARS),
       structuralPath: clause.locator.structuralPath,
       charRange: clause.locator.charRange,
+      evidenceStatus: clause.evidenceStatus,
+      matchReason: clause.matchReason,
+      referencedDocuments: clause.referencedDocuments,
     }));
   pacLog("shared evidence", {
     id: unit.workUnitId,

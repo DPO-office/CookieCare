@@ -1,5 +1,6 @@
 import type {
   AnalysisSkillConfig,
+  ClauseRetrievalDict,
   ExpectedClauseCheck,
   SkillAxis,
   SkillRiskCategory,
@@ -144,6 +145,10 @@ export function resolveDocTypeSkill(
         ...(base.clauseTypeDefinitions ?? {}),
         ...(skill.clauseTypeDefinitions ?? {}),
       },
+      clauseRetrieval: mergeClauseRetrievalMaps(
+        base.clauseRetrieval,
+        skill.clauseRetrieval
+      ),
       expectedClauses: mergeExpectedClauseLists(base.expectedClauses, skill.expectedClauses),
       riskCategories: dedupeRiskCategories([...base.riskCategories, ...skill.riskCategories]),
       relatedChecks: [...(base.relatedChecks ?? []), ...(skill.relatedChecks ?? [])],
@@ -370,6 +375,32 @@ export function mergeRegimeRules(skills: AnalysisSkillConfig[]) {
 }
 
 /** Merge authored evidence packages across active skills (first id wins). */
+export function mergeClauseRetrievalMaps(
+  ...maps: Array<Record<string, ClauseRetrievalDict> | undefined>
+): Record<string, ClauseRetrievalDict> | undefined {
+  const out: Record<string, ClauseRetrievalDict> = {};
+  for (const map of maps) {
+    if (!map) continue;
+    for (const [clauseType, dict] of Object.entries(map)) {
+      const existing = out[clauseType];
+      if (!existing) {
+        out[clauseType] = {
+          headings: [...dict.headings],
+          aliases: [...dict.aliases],
+          anchorTerms: [...dict.anchorTerms],
+        };
+        continue;
+      }
+      out[clauseType] = {
+        headings: dedupeStrings([...existing.headings, ...dict.headings]),
+        aliases: dedupeStrings([...existing.aliases, ...dict.aliases]),
+        anchorTerms: dedupeStrings([...existing.anchorTerms, ...dict.anchorTerms]),
+      };
+    }
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
+}
+
 export function mergeEvidencePackages(
   skills: AnalysisSkillConfig[]
 ): EvidencePackage[] {

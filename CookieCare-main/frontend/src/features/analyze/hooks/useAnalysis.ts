@@ -48,16 +48,49 @@ export function useAnalysis(authToken: string) {
 
   const runContextRef = useRef<RunContext | null>(null);
   const streamBufferRef = useRef("");
+  const streamRafRef = useRef<number | null>(null);
+
+  const flushStreamToUi = () => {
+    streamRafRef.current = null;
+    const text = streamBufferRef.current;
+    setChatMessages((prev) =>
+      prev.map((m) => (m.streaming ? { ...m, text } : m))
+    );
+  };
+
+  const cancelStreamFlush = () => {
+    if (streamRafRef.current != null) {
+      cancelAnimationFrame(streamRafRef.current);
+      streamRafRef.current = null;
+    }
+  };
 
   const appendStreamToken = (delta: string) => {
     if (!delta) return;
-    // Buffer tokens for the final report fallback. Do not paint raw ACT
-    // dumps into the thread — live status comes from the job progress stream.
     streamBufferRef.current += delta;
+    if (streamRafRef.current == null) {
+      streamRafRef.current = requestAnimationFrame(flushStreamToUi);
+    }
+  };
+
+  const resetLiveStream = () => {
+    streamBufferRef.current = "";
+    cancelStreamFlush();
+    setChatMessages((prev) =>
+      prev.map((m) => (m.streaming ? { ...m, text: "" } : m))
+    );
+  };
+
+  const handleProgress = (message: string) => {
+    if (message === "Writing the report…") {
+      resetLiveStream();
+    }
+    setAnalysisProgress(message);
   };
 
   const beginStreamingReply = (userText: string, replaceThread: boolean) => {
     streamBufferRef.current = "";
+    cancelStreamFlush();
     setViewMode("report");
     setChatMessages((prev) => {
       const base = replaceThread ? [] : prev.filter((m) => !m.loading && !m.streaming);
@@ -109,6 +142,7 @@ export function useAnalysis(authToken: string) {
           ? outcome.report
           : streamBufferRef.current || "Analysis complete.";
     streamBufferRef.current = "";
+    cancelStreamFlush();
 
     setSessionId(
       outcome.kind === "out_of_scope" || outcome.kind === "success"
@@ -181,6 +215,7 @@ export function useAnalysis(authToken: string) {
     setAskResolved(false);
     setSessionId(null);
     streamBufferRef.current = "";
+    cancelStreamFlush();
     setIsAnalyzing(true);
     setAnalysisError("");
     setAnalysisProgress("Thinking…");
@@ -197,7 +232,7 @@ export function useAnalysis(authToken: string) {
       const outcome = await waitForAnalysisJob({
         authToken,
         jobId,
-        onProgress: setAnalysisProgress,
+        onProgress: handleProgress,
         onToken: appendStreamToken,
       });
       applyOutcome(outcome, customPromptText.trim());
@@ -243,7 +278,7 @@ export function useAnalysis(authToken: string) {
       const outcome = await waitForAnalysisJob({
         authToken,
         jobId,
-        onProgress: setAnalysisProgress,
+        onProgress: handleProgress,
         onToken: appendStreamToken,
       });
       applyOutcome(outcome, userSummary || "Answers submitted");
@@ -309,7 +344,7 @@ export function useAnalysis(authToken: string) {
       const outcome = await waitForAnalysisJob({
         authToken,
         jobId,
-        onProgress: setAnalysisProgress,
+        onProgress: handleProgress,
         onToken: appendStreamToken,
       });
       applyOutcome(outcome, trimmed);

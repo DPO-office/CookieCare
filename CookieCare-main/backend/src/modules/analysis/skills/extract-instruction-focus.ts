@@ -8,7 +8,7 @@ import type {
   UnresolvedNeedDetail,
 } from "../models/analysis-plan.js";
 import type { AnalysisSkillConfig } from "./types.js";
-import { pacWarn } from "../utils/pac-log.js";
+import { pacLog, pacWarn } from "../utils/pac-log.js";
 import {
   buildClauseTypeGlossary,
   buildResolutionCatalog,
@@ -130,6 +130,48 @@ function explicitArticleFocus(
       directlyEvaluatedRules.map((rule) => rule.findingCategory)
     ),
   };
+}
+
+const RESTRICTED_SCOPE_RE =
+  /\b(?:only|nothing more(?:\s+than)?(?:\s+that)?|no more than that|limited to|exclusively)\b/i;
+
+/**
+ * Strong explicit signals that can shrink the catalog LLM prompt without
+ * changing meaning: article numbers, instructionFocusMap phrase hits, or
+ * "only/limited to" restriction. Package siblings of any matched capability
+ * are included so grouped evaluation still sees the full package.
+ */
+export function collectStrongCatalogShortlist(
+  instruction: string,
+  skills: AnalysisSkillConfig[]
+): { strong: boolean; ids: Set<string> } {
+  const haystack = normalizeForMatch(instruction);
+  const ids = new Set<string>();
+  const articleFocus = explicitArticleFocus(instruction, skills);
+  if (articleFocus) {
+    for (const id of articleFocus.ruleIds ?? []) ids.add(id);
+    for (const id of articleFocus.matrixRowIds ?? []) ids.add(id);
+    for (const id of articleFocus.riskCategoryIds ?? []) ids.add(id);
+  }
+  for (const skill of skills) {
+    for (const entry of skill.instructionFocusMap ?? []) {
+      if (!entry.triggerPhrases.some((p) => containsPhrase(haystack, p))) continue;
+      for (const id of entry.focus.ruleIds ?? []) ids.add(id);
+      for (const id of entry.focus.matrixRowIds ?? []) ids.add(id);
+      for (const id of entry.focus.riskCategoryIds ?? []) ids.add(id);
+    }
+  }
+  const restricted = RESTRICTED_SCOPE_RE.test(instruction);
+  const strong = ids.size > 0 || restricted;
+  if (!strong) return { strong: false, ids };
+
+  for (const skill of skills) {
+    for (const pkg of skill.evidencePackages ?? []) {
+      if (!pkg.capabilityIds.some((id) => ids.has(id))) continue;
+      for (const id of pkg.capabilityIds) ids.add(id);
+    }
+  }
+  return { strong: true, ids };
 }
 
 const HEURISTIC_REQUIREMENT_PATTERNS: Array<{
@@ -300,10 +342,17 @@ export async function extractInstructionFocus(
 
   const catalog = buildResolutionCatalog(skills);
   const clauseTypeGlossary = buildClauseTypeGlossary(skills);
+  const shortlist = collectStrongCatalogShortlist(instruction, skills);
+  pacLog("catalog prefilter", {
+    full: catalog.length,
+    strong: shortlist.strong,
+    fullTextIds: shortlist.ids.size,
+  });
   const catalogResult = await resolveFocusViaCatalog(
     instruction,
     catalog,
-    clauseTypeGlossary
+    clauseTypeGlossary,
+    shortlist.strong && shortlist.ids.size > 0 ? shortlist.ids : undefined
   );
   const { valid: catalogValidIds, dropped } = validateAgainstCatalog(
     catalogResult.selectedIds,
@@ -318,10 +367,7 @@ export async function extractInstructionFocus(
   );
 
   const articleFocus = explicitArticleFocus(instruction, skills);
-  const isExplicitlyRestricted =
-    /\b(?:only|nothing more(?:\s+than)?(?:\s+that)?|no more than that|limited to|exclusively)\b/i.test(
-      instruction
-    );
+  const isExplicitlyRestricted = RESTRICTED_SCOPE_RE.test(instruction);
 
   const phraseRuleIds: string[] = [];
   const phraseMatrixRowIds: string[] = [];

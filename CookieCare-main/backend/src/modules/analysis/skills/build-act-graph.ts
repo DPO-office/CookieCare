@@ -118,6 +118,18 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
   const schemaId = rendererForSkill(primary, intent, focus, referenceDocId);
   const subIntents = effectiveSubIntents(intent);
 
+  const packageResolution = resolvePackages(skills, focus);
+  const usePackages = packageResolution.packages.length > 0;
+  const packageClauseTypes = [
+    ...new Set(packageResolution.packages.flatMap(({ pkg }) => pkg.clauseTypes)),
+  ];
+  const expectedClauseTypes = skills.flatMap((s) =>
+    s.expectedClauses.map((e) => e.clauseType)
+  );
+  const extractClauseTypes = usePackages
+    ? [...new Set([...packageClauseTypes, ...expectedClauseTypes])]
+    : mergedClauseTypes;
+
   const units: AnalysisWorkUnit[] = [
     {
       workUnitId: "wu-classify",
@@ -149,7 +161,7 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
     tool: "extract_clauses",
     input: {
       docId,
-      clauseTypes: mergedClauseTypes,
+      clauseTypes: extractClauseTypes.length > 0 ? extractClauseTypes : mergedClauseTypes,
       skillIds,
       instruction,
       /** Runtime union with playbook position clauseTypes when reference present. */
@@ -196,8 +208,6 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
   // one grouped call per package instead of one LLM call per rule. Skills
   // without authored packages fall back to the per-rule subgraph so no regime
   // regresses during migration.
-  const packageResolution = resolvePackages(skills, focus);
-  const usePackages = packageResolution.packages.length > 0;
   const packageEvalLeaves: string[] = [];
   const depth: ReportDepth = input.reportSpec?.depth ?? intent.depth ?? "standard";
 

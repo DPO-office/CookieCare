@@ -14,6 +14,10 @@ import { resolveRule } from "./check-against-rule.js";
 import { insufficient } from "./act-utils.js";
 import { groupedResultsToFindings } from "./grouped-results-to-findings.js";
 import { pacLog } from "../../utils/pac-log.js";
+import {
+  EVALUATE_PACKAGE_SYSTEM_PROMPT,
+  buildEvaluatePackageUserPrompt,
+} from "../../prompts/evaluate-package.js";
 
 const MAX_BRIEF_CHARS = 4000;
 
@@ -83,32 +87,25 @@ export async function evaluatePackage(
     ? String(unit.input.previousAttemptFeedback)
     : "";
 
-  const prompt = [
-    `User instruction: ${instruction}`,
-    `Evaluation depth: ${depth}`,
-    "",
-    "Requirements to establish (return exactly one result per requirementId):",
-    ...requirementIds.map((id) => `- ${id}`),
-    "",
-    "Authored legal rule text (evaluate only against this — do not invent law):",
-    briefs.map((b) => `[${b.id}] ${b.text}`).join("\n").slice(0, MAX_BRIEF_CHARS),
-    "",
-    "Evidence extracted from the document (cite by ref in evidenceRefs):",
-    evidenceItems.length
-      ? evidenceItems
-          .map((e) => `(${e.ref}) [${e.clauseType}] ${e.quotedText}`)
-          .join("\n")
-      : "(no clause evidence was extracted for this package)",
-    previousFeedback
-      ? `\nPrior attempt feedback to address:\n${previousFeedback}`
-      : "",
-    "",
-    "For each requirement decide: covered, partial, missing, not_applicable, or",
-    "cannot_determine. Ground every conclusion in the evidence refs; if evidence",
-    "is absent, do not assume compliance.",
-  ]
-    .filter(Boolean)
-    .join("\n");
+  const evidenceLines = evidenceItems.map((e) => {
+    const status = e.evidenceStatus ? ` status=${e.evidenceStatus}` : "";
+    const elsewhere =
+      e.referencedDocuments && e.referencedDocuments.length > 0
+        ? ` referenced=${e.referencedDocuments.join(" | ")}`
+        : "";
+    return `(${e.ref}) [${e.clauseType}${status}${elsewhere}] ${e.quotedText}`;
+  });
+  const prompt = buildEvaluatePackageUserPrompt({
+    instruction,
+    depth,
+    requirementIds,
+    authoredRuleText: briefs
+      .map((b) => `[${b.id}] ${b.text}`)
+      .join("\n")
+      .slice(0, MAX_BRIEF_CHARS),
+    evidenceLines,
+    previousFeedback: previousFeedback || undefined,
+  });
 
   const briefJoined = briefs.map((b) => `[${b.id}] ${b.text}`).join("\n");
   const evidenceJoined = evidenceItems
@@ -147,9 +144,7 @@ export async function evaluatePackage(
   try {
     results = await executeJsonCompletion<GroupedRequirementResult[]>(
       prompt,
-      "You are a precise legal/compliance analyst. Evaluate each requirement " +
-        "independently against the authored rule text and the supplied evidence. " +
-        "Never fabricate evidence or assume a compliant result when evidence is absent.",
+      EVALUATE_PACKAGE_SYSTEM_PROMPT,
       schema,
       LLMTask.STRUCTURAL_JSON,
       LLMProvider.GEMINI,

@@ -71,6 +71,35 @@ function shouldFailoverRegion(err: unknown): boolean {
   return isRateLimitError(err) || isTransientNetworkError(err);
 }
 
+export interface GeminiHopTiming {
+  location: string;
+  ms: number;
+  kind: "ok" | "429/quota" | "transient network" | "error";
+}
+
+/** Thrown after every Vertex region in the pool has been tried. */
+export class GeminiRegionsExhaustedError extends Error {
+  readonly geminiRegionsExhausted = true;
+  readonly hops: GeminiHopTiming[];
+
+  constructor(message: string, hops: GeminiHopTiming[], cause?: unknown) {
+    super(message);
+    this.name = "GeminiRegionsExhaustedError";
+    this.hops = hops;
+    if (cause !== undefined) {
+      (this as Error & { cause?: unknown }).cause = cause;
+    }
+  }
+}
+
+function isRegionsExhausted(err: unknown): err is GeminiRegionsExhaustedError {
+  return Boolean(
+    err &&
+      typeof err === "object" &&
+      (err as { geminiRegionsExhausted?: boolean }).geminiRegionsExhausted
+  );
+}
+
 /**
  * Vertex Gemini quotas are per-region. Round-robin + instant 429 failover
  * across regions multiplies available throughput without waiting on quota raises.
@@ -138,34 +167,54 @@ export class GeminiProvider implements ILLMProvider {
   ): Promise<T> {
     const order = this.regionOrder();
     let lastErr: unknown;
+    const hops: GeminiHopTiming[] = [];
 
     for (let i = 0; i < order.length; i++) {
       const location = order[i];
+      const hopStart = Date.now();
       try {
         const result = await op(this.clientFor(location), location);
+        hops.push({ location, ms: Date.now() - hopStart, kind: "ok" });
         if (i > 0) {
-          console.log(`[Gemini] ${label} recovered on region ${location} after ${i} failover(s)`);
+          console.log(
+            `[Gemini] ${label} recovered on region ${location} after ${i} failover(s) hops=${JSON.stringify(hops)}`
+          );
         }
         this.advanceRoundRobin(location);
         return result;
       } catch (err) {
         lastErr = err;
+        const kind = isRateLimitError(err)
+          ? "429/quota"
+          : isTransientNetworkError(err)
+            ? "transient network"
+            : "error";
+        hops.push({ location, ms: Date.now() - hopStart, kind });
         if (shouldFailoverRegion(err) && i < order.length - 1) {
           const next = order[i + 1];
-          const kind = isRateLimitError(err) ? "429/quota" : "transient network";
           console.warn(
-            `[Gemini] ${kind} on ${location} for ${label} — failing over to ${next} (region ${i + 1}/${order.length})`
+            `[Gemini] ${kind} on ${location} for ${label} hopMs=${hops[hops.length - 1].ms} — failing over to ${next} (region ${i + 1}/${order.length})`
           );
           continue;
         }
-        // Non-retryable error, or last region exhausted — propagate.
+        if (shouldFailoverRegion(err)) {
+          throw new GeminiRegionsExhaustedError(
+            `Gemini ${label} failed across all regions (${order.join(", ")}): ${
+              err instanceof Error ? err.message : String(err)
+            }`,
+            hops,
+            err
+          );
+        }
         throw err;
       }
     }
 
-    throw lastErr instanceof Error
-      ? lastErr
-      : new Error(`Gemini failed across all regions: ${String(lastErr)}`);
+    throw new GeminiRegionsExhaustedError(
+      `Gemini failed across all regions: ${String(lastErr)}`,
+      hops,
+      lastErr
+    );
   }
 
   async getCompletion(
@@ -194,6 +243,7 @@ export class GeminiProvider implements ILLMProvider {
         };
       });
     } catch (err: any) {
+      if (isRegionsExhausted(err)) throw err;
       throw new Error(`Gemini Completion Engine failure: ${err.message}`);
     }
   }
@@ -240,6 +290,7 @@ export class GeminiProvider implements ILLMProvider {
         };
       });
     } catch (err: any) {
+      if (isRegionsExhausted(err)) throw err;
       throw new Error(`Gemini Streaming Engine failure: ${err.message}`);
     }
   }
@@ -272,6 +323,7 @@ export class GeminiProvider implements ILLMProvider {
         return JSON.parse(rawText) as T;
       });
     } catch (err: any) {
+      if (isRegionsExhausted(err)) throw err;
       throw new Error(`Gemini JSON Processing Circuit failure: ${err.message}`);
     }
   }
@@ -315,6 +367,7 @@ export class GeminiProvider implements ILLMProvider {
         return { result: JSON.parse(rawText) as T, usage };
       });
     } catch (err: any) {
+      if (isRegionsExhausted(err)) throw err;
       throw new Error(`Gemini JSON Processing Circuit failure: ${err.message}`);
     }
   }

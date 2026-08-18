@@ -204,8 +204,9 @@ export default function ReportView({
               const isUser = message.sender === "user";
               const isFirstAi =
                 !isUser && chatMessages.findIndex((m) => m.sender === "gemini") === idx;
+              const isLiveWriting = Boolean(message.streaming && message.text);
               const isThinking = Boolean(
-                message.streaming || (message.loading && !message.text)
+                !isLiveWriting && (message.streaming || (message.loading && !message.text))
               );
 
               if (isUser) {
@@ -233,7 +234,7 @@ export default function ReportView({
                         <StreamStatus message={progressMessage || "Thinking…"} />
                       ) : (
                         <p className="m-0 text-[13px] font-semibold tracking-[-0.01em] text-[#1a1a1a]">
-                          LORA
+                          {isLiveWriting ? "Writing…" : "LORA"}
                         </p>
                       )}
                     </div>
@@ -261,7 +262,7 @@ export default function ReportView({
 
                   {!isThinking && (
                   <div className="pl-[42px]">
-                    <div className="analyze-report-prose">
+                    <div className={`analyze-report-prose${isLiveWriting ? " is-streaming" : ""}`}>
                       {message.text ? renderContentText(message.text) : (
                         <StreamStatus message={progressMessage || "Thinking…"} />
                       )}
