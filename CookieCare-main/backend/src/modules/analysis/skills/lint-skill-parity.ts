@@ -1,7 +1,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { getSkillRegistry } from "./registry.js";
+import { authoredCapabilityIds, getSkillRegistry } from "./registry.js";
 import { parseSkillMdContent } from "./load-skill-md.js";
 
 const SKILLS_ROOT = path.dirname(fileURLToPath(import.meta.url));
@@ -14,7 +14,8 @@ export interface SkillParityViolation {
     | "missing_skill_md"
     | "missing_finding_category"
     | "missing_display_label"
-    | "missing_rule_scope";
+    | "missing_rule_scope"
+    | "unresolved_package_capability";
   detail: string;
 }
 
@@ -76,6 +77,23 @@ export function lintSkillParity(): SkillParityViolation[] {
     for (const ec of skill.expectedClauses) {
       if (skill.clauseTypeDefinitions?.[ec.clauseType]) {
         expected.add(`clause:${ec.clauseType}`);
+      }
+    }
+
+    // Authored evidence packages: every capabilityId must resolve to a real
+    // rule / matrix-row / risk-category id within this skill (ACT refactor doc §2).
+    if (skill.evidencePackages?.length) {
+      const capabilityIds = authoredCapabilityIds(skill);
+      for (const pkg of skill.evidencePackages) {
+        for (const capId of pkg.capabilityIds) {
+          if (!capabilityIds.has(capId)) {
+            violations.push({
+              skillId: skill.skillId,
+              kind: "unresolved_package_capability",
+              detail: `evidence package ${pkg.id} references capability "${capId}" which is not an authored rule/matrix-row/risk-category id`,
+            });
+          }
+        }
       }
     }
 

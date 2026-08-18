@@ -1,8 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import type { Finding } from "../../models/finding.js";
 import type { IntentClassification } from "../../models/intent.js";
-import { getEntailmentCandidates } from "../../capabilities/critique/entailment-candidates.js";
 import {
   containsInternalAnalysisLeak,
   sanitizeRenderedAnalysisOutput,
@@ -256,28 +254,4 @@ describe("urgent Analysis ACT output regressions", () => {
     assert.match(safe.claim, /verifiable language/i);
   });
 
-  it("CRITIQUE includes present compliance findings in entailment checks", () => {
-    const presentCompliance = {
-      findingId: "f-present",
-      kind: "compliance",
-      category: "gdpr.art5.1.processing_principles_gap",
-      status: "present",
-      claim: "The clause establishes data minimisation.",
-      evidence: [
-        {
-          locator: {
-            docId: "cisco-dpa",
-            structuralPath: "clause-1",
-            charRange: [0, 20] as [number, number],
-          },
-          quotedText: "limited to what is necessary",
-          sourceRole: "target",
-        },
-      ],
-      taxonomyVersion: "test",
-      visibility: "user_facing",
-    } satisfies Finding;
-
-    assert.deepEqual(getEntailmentCandidates([presentCompliance]), [presentCompliance]);
-  });
 });

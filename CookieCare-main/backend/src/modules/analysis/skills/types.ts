@@ -1,5 +1,7 @@
 /** Structured analysis skill contract — deterministic; never LLM-invented at runtime. */
 
+import type { EvidencePackage } from "../models/evidence-package.js";
+
 export type SkillAxis = "global" | "doc-type" | "regime" | "jurisdiction" | "topic";
 export type SkillStatus = "draft" | "reviewed" | "published";
 
@@ -121,6 +123,13 @@ export interface AnalysisSkillConfig {
   instructionFocusMap?: InstructionFocusMapEntry[];
   rightsMatrixRows?: RightsMatrixRow[];
   relatedChecks?: RelatedCheckRule[];
+  /**
+   * Authored, versioned evidence/evaluation packages (ACT refactor doc §2).
+   * Each package groups related capability ids (rule / matrix-row / risk-category)
+   * that ACT evaluates together in one grouped LLM call. Every capabilityId must
+   * resolve to a real authored id in this skill (enforced by parity lint).
+   */
+  evidencePackages?: EvidencePackage[];
 }
 
 export interface SkillManifestEntry {

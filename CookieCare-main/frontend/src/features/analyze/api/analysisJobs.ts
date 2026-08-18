@@ -143,7 +143,7 @@ export function waitForAnalysisJob(
       if (job.message) onProgress?.(job.message);
 
       if (job.status === "processing") {
-        if (!job.message) onProgress?.("Working…");
+        if (!job.message) onProgress?.("Thinking…");
         return;
       }
 

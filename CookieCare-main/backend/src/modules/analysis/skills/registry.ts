@@ -4,6 +4,7 @@ import type {
   SkillAxis,
   SkillRiskCategory,
 } from "./types.js";
+import type { EvidencePackage } from "../models/evidence-package.js";
 import { globalSkill } from "./_global/skill.config.js";
 import { dpaDocTypeSkill } from "./doc-types/dpa/skill.config.js";
 import { ndaDocTypeSkill } from "./doc-types/nda/skill.config.js";
@@ -366,6 +367,31 @@ export function mergeRegimeRules(skills: AnalysisSkillConfig[]) {
     }
   }
   return [...byId.values()];
+}
+
+/** Merge authored evidence packages across active skills (first id wins). */
+export function mergeEvidencePackages(
+  skills: AnalysisSkillConfig[]
+): EvidencePackage[] {
+  const byId = new Map<string, EvidencePackage>();
+  for (const s of skills) {
+    for (const pkg of s.evidencePackages ?? []) {
+      if (!byId.has(pkg.id)) byId.set(pkg.id, pkg);
+    }
+  }
+  return [...byId.values()];
+}
+
+/**
+ * Set of authored capability ids in a skill: rule ids, matrix-row ids, and
+ * risk-category ids. Used by package resolution and parity linting.
+ */
+export function authoredCapabilityIds(skill: AnalysisSkillConfig): Set<string> {
+  const ids = new Set<string>();
+  for (const rule of skill.regimeRules) ids.add(rule.ruleId);
+  for (const row of skill.rightsMatrixRows ?? []) ids.add(row.rowId);
+  for (const rc of skill.riskCategories) ids.add(rc.category);
+  return ids;
 }
 
 export function isKnownRiskCategory(value: string): boolean {

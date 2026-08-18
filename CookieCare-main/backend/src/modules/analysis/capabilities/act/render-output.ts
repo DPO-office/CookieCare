@@ -7,10 +7,32 @@ import type { AnalysisState } from "../../models/analysis-state.js";
 import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
 import type { Finding, MatrixAddressing } from "../../models/finding.js";
 import type { RuleSourceTier } from "../../models/rule-source.js";
+import type { ReportSpec, ReportType } from "../../models/intent.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { getSkillById } from "../../skills/registry.js";
 import { extractArticleNumbers } from "../../skills/extract-instruction-focus.js";
 import { emitAnalysisToken } from "../../utils/stream-tokens.js";
+import { synthesizeReport } from "./synthesize-report.js";
+import { pacLog } from "../../utils/pac-log.js";
+
+/** Map a legacy renderer schemaId to a ReportType when PLAN gave no ReportSpec. */
+const SCHEMA_TO_REPORT_TYPE: Record<string, ReportType> = {
+  memo: "regime_compliance_memo",
+  checklist: "regime_compliance_memo",
+  table: "extraction_table",
+  qa_thread: "qa_answer",
+};
+
+function resolveReportSpec(state: AnalysisState, schemaId: string): ReportSpec {
+  const spec = state.plan?.reportSpec;
+  if (spec) return spec;
+  const reportType = SCHEMA_TO_REPORT_TYPE[schemaId] ?? "regime_compliance_memo";
+  return {
+    reportType,
+    depth: "standard",
+    sections: ["scope_and_conclusion", "requirements_detail", "recommendations"],
+  };
+}
 
 const ADDRESSING_LABEL: Record<MatrixAddressing, string> = {
   named: "Named",
@@ -38,8 +60,19 @@ export async function renderOutput(
     findings.filter((f) => f.visibility !== "internal")
   );
 
+  const assessments = state.requirementAssessments ?? [];
+  const usesSynthesis =
+    assessments.length > 0 &&
+    schemaId !== "rights_matrix_memo" &&
+    schemaId !== "playbook_comparison_memo" &&
+    schemaId !== "brief_summary";
+
   let rendered: string;
-  if (schemaId === "brief_summary") {
+  if (usesSynthesis) {
+    const synthStarted = Date.now();
+    rendered = await synthesizeReport(state, visible, resolveReportSpec(state, schemaId));
+    pacLog("render synthesis", { ms: Date.now() - synthStarted, assessments: assessments.length });
+  } else if (schemaId === "brief_summary") {
     rendered = buildBriefSummaryDocument(state, visible);
     emitAnalysisToken(state, `${rendered}\n`);
   } else if (schemaId === "rights_matrix_memo") {

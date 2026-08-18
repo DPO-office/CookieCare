@@ -60,4 +60,10 @@ export interface Finding {
   playbookPositionId?: string;
   /** Set when CRITIQUE resolves a unit as not_covered or retries_exhausted. */
   terminalStatus?: TerminalStatus;
+  /**
+   * PLAN requirement id this finding helps establish. Enables per-requirement
+   * aggregation (RequirementAssessment) and independent CRITIQUE verification
+   * without making the finding itself requirement-scoped.
+   */
+  requirementId?: string;
 }

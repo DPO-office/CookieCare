@@ -12,6 +12,10 @@ import { renderOutput } from "./render-output.js";
 import { evaluateMatrixRow } from "./evaluate-matrix-row.js";
 import { webAssistedReference } from "./web-assisted-reference.js";
 import { extractPlaybookPositions } from "./extract-playbook-positions.js";
+import { extractSharedEvidence } from "./extract-shared-evidence.js";
+import { evaluatePackage } from "./evaluate-package.js";
+import { deriveRisk } from "./derive-risk.js";
+import { aggregateRequirements } from "./aggregate-requirements.js";
 import { insufficient } from "./act-utils.js";
 import { pacLog, pacWarn } from "../../utils/pac-log.js";
 
@@ -20,6 +24,9 @@ const SILENT_SUCCESS_NOTES: Partial<Record<AnalysisToolName, string>> = {
   check_expected_clauses: "expected clause present, no gap to report",
   extract_playbook_positions: "no playbook positions extracted",
   get_span: "locator helper, no finding by design",
+  extract_shared_evidence: "shared evidence cached, no finding by design",
+  aggregate_requirements: "requirement assessments built, no finding by design",
+  derive_risk: "no mechanically-implied risk to derive",
 };
 
 /**
@@ -31,6 +38,9 @@ const PARALLEL_SAFE_TOOLS = new Set<AnalysisToolName>([
   "evaluate_matrix_row",
   "flag_risk",
   "check_expected_clauses",
+  // Grouped package evaluation only emits findings; independent packages in the
+  // same dependency batch can run concurrently.
+  "evaluate_package",
 ]);
 
 const ACT_CONCURRENCY = Math.max(
@@ -54,6 +64,33 @@ async function runConcurrent<T, R>(
   });
   await Promise.all(runners);
   return results;
+}
+
+const TOOL_PROGRESS_LABELS: Partial<Record<AnalysisToolName, string>> = {
+  classify_document: "Reading…",
+  extract_clauses: "Extracting clauses…",
+  check_expected_clauses: "Checking coverage…",
+  flag_risk: "Assessing risk…",
+  check_against_rule: "Checking the playbook…",
+  evaluate_matrix_row: "Evaluating…",
+  extract_playbook_positions: "Reading the playbook…",
+  web_assisted_reference: "Searching the web…",
+  extract_shared_evidence: "Gathering evidence…",
+  evaluate_package: "Evaluating…",
+  derive_risk: "Assessing risk…",
+  aggregate_requirements: "Summarizing…",
+  render_output: "Writing the report…",
+};
+
+function emitActProgress(
+  state: AnalysisState,
+  percent: number,
+  message: string,
+  last: { message: string }
+) {
+  if (!message || last.message === message) return;
+  last.message = message;
+  void state.onProgress?.(percent, message);
 }
 
 /**
@@ -93,12 +130,17 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
     : units.filter((u) => u.status !== "done" && u.status !== "failed");
 
   state = ensureSegmented(state);
+  const lastProgress = { message: "" };
   if (!targeted) {
-    void state.onProgress?.(40, "Running document analysis…");
+    emitActProgress(state, 40, "Analyzing…", lastProgress);
   }
 
   const batches = topologicalBatches(runnable, 4);
   let findings = [...state.findings];
+  const totalUnits = Math.max(runnable.length, 1);
+  let finishedUnits = 0;
+
+  const actPercent = () => 40 + Math.round((finishedUnits / totalUnits) * 45);
 
   if (targeted) {
     const redoUnitIds = new Set(
@@ -116,23 +158,39 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
     }
   }
 
+  const actStarted = Date.now();
+  const packageEvalCount = runnable.filter(
+    (u) => u.tool === "evaluate_package"
+  ).length;
   pacLog("ACT graph", {
     mode: targeted ? "targeted-redo" : "full",
     runnable: runnable.length,
     batches: batches.length,
     total: units.length,
+    groupedEvals: packageEvalCount,
   });
 
-  for (const batch of batches) {
+  for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+    const batch = batches[batchIndex];
+    const batchStart = Date.now();
     const parallel = batch.filter((u) => PARALLEL_SAFE_TOOLS.has(u.tool));
     const serial = batch.filter((u) => !PARALLEL_SAFE_TOOLS.has(u.tool));
 
     if (parallel.length > 1) {
+      const parallelLabel =
+        TOOL_PROGRESS_LABELS[parallel[0].tool] ?? "Evaluating…";
+      emitActProgress(state, actPercent(), parallelLabel, lastProgress);
       const base = findings;
       const baseIds = new Set(base.map((f) => f.findingId));
       const outcomes = await runConcurrent(parallel, ACT_CONCURRENCY, async (unit) => {
         const started = Date.now();
-        pacLog(`ACT ▶ ${unit.tool}`, { id: unit.workUnitId });
+        const waitMs = started - batchStart;
+        pacLog(`ACT ▶ ${unit.tool}`, {
+          id: unit.workUnitId,
+          batch: batchIndex,
+          concurrent: true,
+          wait_ms: waitMs,
+        });
         try {
           const result = await runTool(state, unit, base);
           const emitted = result.findings.filter((f) => !baseIds.has(f.findingId));
@@ -141,6 +199,9 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
             ms: Date.now() - started,
             findings: emitted.length,
             tokens: state.agent?.tokensUsed,
+            batch: batchIndex,
+            concurrent: true,
+            wait_ms: waitMs,
           });
           return { unit, emitted, failed: false as const };
         } catch (err) {
@@ -181,14 +242,27 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
             : u
         );
       }
+      finishedUnits += parallel.length;
     } else {
       serial.push(...parallel);
     }
 
     for (const unit of serial) {
+      emitActProgress(
+        state,
+        actPercent(),
+        TOOL_PROGRESS_LABELS[unit.tool] ?? "Analyzing…",
+        lastProgress
+      );
       const prior = findings;
       const started = Date.now();
-      pacLog(`ACT ▶ ${unit.tool}`, { id: unit.workUnitId });
+      const waitMs = started - batchStart;
+      pacLog(`ACT ▶ ${unit.tool}`, {
+        id: unit.workUnitId,
+        batch: batchIndex,
+        concurrent: false,
+        wait_ms: waitMs,
+      });
       try {
         const result = await runTool(state, unit, findings);
         state = result.state;
@@ -212,6 +286,9 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
           ms: Date.now() - started,
           findings: emitted,
           tokens: state.agent?.tokensUsed,
+          batch: batchIndex,
+          concurrent: false,
+          wait_ms: waitMs,
         });
       } catch (err) {
         pacWarn(`ACT ✗ ${unit.tool}`, {
@@ -230,8 +307,16 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
             : u
         );
       }
+      finishedUnits += 1;
     }
   }
+
+  pacLog("ACT done", {
+    ms: Date.now() - actStarted,
+    groupedEvals: packageEvalCount,
+    requirements: state.requirementAssessments?.length ?? 0,
+    findings: findings.length,
+  });
 
   return {
     ...state,
@@ -298,6 +383,14 @@ async function runTool(
       return extractPlaybookPositions(state, unit, findings);
     case "web_assisted_reference":
       return webAssistedReference(state, unit, findings);
+    case "extract_shared_evidence":
+      return extractSharedEvidence(state, unit, findings);
+    case "evaluate_package":
+      return evaluatePackage(state, unit, findings);
+    case "derive_risk":
+      return deriveRisk(state, unit, findings);
+    case "aggregate_requirements":
+      return aggregateRequirements(state, unit, findings);
     case "render_output": {
       const next = await renderOutput(state, findings, unit);
       return { state: next, findings: next.findings };

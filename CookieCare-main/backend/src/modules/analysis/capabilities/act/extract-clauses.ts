@@ -12,6 +12,7 @@ import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { getRuntimeTaxonomies, getSkillById } from "../../skills/registry.js";
 import { loadSkillMdSection } from "../../skills/load-skill-md.js";
 import { insufficient, locateText } from "./act-utils.js";
+import { pacLog } from "../../utils/pac-log.js";
 
 async function extractClauses(
   state: AnalysisState,
@@ -48,6 +49,24 @@ async function extractClauses(
   }
 
   const definitions = await buildClauseTypeDefinitions(skillIds, clauseTypes);
+  const prompt = [
+        "Extract legal clauses matching the authored clause-type definitions below.",
+        `User instruction: ${instruction}`,
+        `Clause type definitions:\n${definitions}`,
+        `Allowed clauseType values: ${clauseTypes.join(", ")}, other`,
+        "Return verbatim clause text spans. Do not invent clause types outside the enum.",
+        `Document:\n${doc.fullText.slice(0, 80_000)}`,
+      ]
+        .filter(Boolean)
+        .join("\n\n");
+  pacLog("extract_clauses prompt", {
+    id: unit.workUnitId,
+    docChars: doc.fullText.length,
+    sentChars: Math.min(doc.fullText.length, 80_000),
+    promptChars: prompt.length,
+    clauseTypes: clauseTypes.length,
+    chunks: 1,
+  });
 
   const tracker = state.agent ? { tokensUsed: state.agent.tokensUsed } : undefined;
   const schema = {
@@ -67,16 +86,7 @@ async function extractClauses(
 
   try {
     extracted = await executeJsonCompletion(
-      [
-        "Extract legal clauses matching the authored clause-type definitions below.",
-        `User instruction: ${instruction}`,
-        `Clause type definitions:\n${definitions}`,
-        `Allowed clauseType values: ${clauseTypes.join(", ")}, other`,
-        "Return verbatim clause text spans. Do not invent clause types outside the enum.",
-        `Document:\n${doc.fullText.slice(0, 80_000)}`,
-      ]
-        .filter(Boolean)
-        .join("\n\n"),
+      prompt,
       "You extract structured clauses. Never invent clause types outside the enum.",
       schema,
       LLMTask.STRUCTURAL_JSON,

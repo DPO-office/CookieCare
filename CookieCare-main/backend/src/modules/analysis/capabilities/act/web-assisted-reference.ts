@@ -25,6 +25,7 @@ export async function webAssistedReference(
   const doc = state.workspace.documents.find((d) => d.docId === docId);
   const excerpt = (doc?.fullText ?? "").slice(0, 2500);
   const retrievedAt = new Date().toISOString();
+  void state.onProgress?.(70, "Searching the web…");
 
   if (!query) {
     return {

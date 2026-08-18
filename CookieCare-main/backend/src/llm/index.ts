@@ -118,6 +118,7 @@ export async function executeBoundedCompletion(
     : preset;
 
   const { onDelta, tracker } = options;
+  const t0 = Date.now();
   let outcome: CompletionOutcome;
   if (onDelta && typeof engine.getCompletionStream === "function") {
     outcome = await runProviderCall(provider, `${task} stream`, () =>
@@ -137,6 +138,12 @@ export async function executeBoundedCompletion(
     };
   }
   applyUsage(tracker, outcome.usage);
+  console.log(
+    `[LLM] ${task} model=${runtimeConfig.model} ms=${Date.now() - t0} ` +
+      `promptChars=${prompt.length + (systemInstruction?.length ?? 0)} ` +
+      `outChars=${outcome.text.length} inTok=${outcome.usage.promptTokens} ` +
+      `outTok=${outcome.usage.completionTokens} totalTok=${outcome.usage.totalTokens}`
+  );
   return outcome;
 }
 
@@ -150,16 +157,24 @@ export async function executeJsonCompletion<T>(
 ): Promise<T> {
   const engine = getProviderEngine(provider);
   const runtimeConfig = PROVIDER_TASK_PRESETS[provider][task];
+  const t0 = Date.now();
 
   const result = await runProviderCall(provider, task, () =>
     engine.getJsonCompletion<T>(prompt, systemInstruction, jsonSchema, runtimeConfig)
   );
 
+  const completionText = typeof result === "string" ? result : JSON.stringify(result);
+  const usage = estimateTokenUsage(prompt, systemInstruction, completionText);
   // JSON path has no CompletionOutcome; estimate from serialized result for budget tracking.
   if (tracker) {
-    const completionText = typeof result === "string" ? result : JSON.stringify(result);
-    applyUsage(tracker, estimateTokenUsage(prompt, systemInstruction, completionText));
+    applyUsage(tracker, usage);
   }
+  console.log(
+    `[LLM] ${task} json model=${runtimeConfig.model} ms=${Date.now() - t0} ` +
+      `promptChars=${prompt.length + (systemInstruction?.length ?? 0)} ` +
+      `outChars=${completionText.length} inTok=${usage.promptTokens} ` +
+      `outTok=${usage.completionTokens} totalTok=${usage.totalTokens}`
+  );
 
   return result;
 }

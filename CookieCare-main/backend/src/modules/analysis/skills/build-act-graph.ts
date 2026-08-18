@@ -11,11 +11,12 @@ import type {
   RightsMatrixRow,
   SkillRegimeRule,
 } from "./types.js";
-import type { ReportSpec } from "../models/intent.js";
+import type { ReportDepth, ReportSpec } from "../models/intent.js";
 import {
   mergeRegimeRules,
   mergeSkillClauseTypes,
 } from "./registry.js";
+import { resolvePackages, type ResolvedPackage } from "./resolve-packages.js";
 import { orderByDependency } from "../utils/topo-batches.js";
 import type { RuleSource } from "../models/rule-source.js";
 
@@ -190,22 +191,45 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
     riskUnitSignatures: new Set<string>(),
   };
 
-  subIntents.forEach((si, index) => {
-    const prefix = subIntents.length > 1 ? `si${index}-` : "";
-    const leaves = appendSubIntentUnits(units, {
-      prefix,
-      si,
-      docId,
-      instruction,
-      skillIds,
-      focus,
-      allRules,
-      skills,
-      extractDep: "wu-extract",
-      scheduled,
+  // Package-centric ACT (doc §18): when the active skills author evidence
+  // packages relevant to the focus, evaluate related requirements together in
+  // one grouped call per package instead of one LLM call per rule. Skills
+  // without authored packages fall back to the per-rule subgraph so no regime
+  // regresses during migration.
+  const packageResolution = resolvePackages(skills, focus);
+  const usePackages = packageResolution.packages.length > 0;
+  const packageEvalLeaves: string[] = [];
+  const depth: ReportDepth = input.reportSpec?.depth ?? intent.depth ?? "standard";
+
+  if (usePackages) {
+    packageEvalLeaves.push(
+      ...appendPackageUnits(units, {
+        packages: packageResolution.packages,
+        docId,
+        instruction,
+        skillIds,
+        depth,
+        extractDep: "wu-extract",
+      })
+    );
+  } else {
+    subIntents.forEach((si, index) => {
+      const prefix = subIntents.length > 1 ? `si${index}-` : "";
+      const leaves = appendSubIntentUnits(units, {
+        prefix,
+        si,
+        docId,
+        instruction,
+        skillIds,
+        focus,
+        allRules,
+        skills,
+        extractDep: "wu-extract",
+        scheduled,
+      });
+      subgraphLeaves.push(...leaves);
     });
-    subgraphLeaves.push(...leaves);
-  });
+  }
 
   if (relatedChecks.length > 0 && relatedRiskIds.length > 0) {
     const note = relatedChecks.map((r) => r.note).filter(Boolean).join(" ");
@@ -265,7 +289,33 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
     subgraphLeaves.push("wu-web-ref");
   }
 
-  const renderDeps = subgraphLeaves.length > 0 ? subgraphLeaves : ["wu-extract"];
+  // Package path: derive risk deterministically from the authored compliance
+  // findings, then aggregate every finding into RequirementAssessments before
+  // the single render. Non-package leaves (playbook / related / comparative /
+  // web) still gate aggregation so it sees the complete finding set.
+  let renderDeps: string[];
+  if (usePackages) {
+    units.push({
+      workUnitId: "wu-derive-risk",
+      tool: "derive_risk",
+      input: { docId, skillIds, instruction },
+      dependsOn: packageEvalLeaves,
+      outputSchema: "Finding[]",
+      status: "pending",
+    });
+    units.push({
+      workUnitId: "wu-aggregate",
+      tool: "aggregate_requirements",
+      input: { skillIds, instruction },
+      dependsOn: ["wu-derive-risk", ...subgraphLeaves],
+      outputSchema: "string",
+      status: "pending",
+    });
+    renderDeps = ["wu-aggregate"];
+  } else {
+    renderDeps = subgraphLeaves.length > 0 ? subgraphLeaves : ["wu-extract"];
+  }
+
   units.push({
     workUnitId: "wu-render",
     tool: "render_output",
@@ -425,6 +475,68 @@ function appendSubIntentUnits(
 
   if (leaves.length === 0 && lastDep !== extractDep) leaves.push(lastDep);
   return [...new Set(leaves)];
+}
+
+/**
+ * Emit, per resolved evidence package, a shared-evidence extraction unit and a
+ * grouped evaluation unit. Returns the evaluation-unit ids (leaves).
+ */
+function appendPackageUnits(
+  units: AnalysisWorkUnit[],
+  args: {
+    packages: ResolvedPackage[];
+    docId: string;
+    instruction: string;
+    skillIds: string[];
+    depth: ReportDepth;
+    extractDep: string;
+  }
+): string[] {
+  const { packages, docId, instruction, skillIds, depth, extractDep } = args;
+  const evalLeaves: string[] = [];
+
+  for (const { pkg, requirementIds } of packages) {
+    const safeId = pkg.id.replace(/[^a-zA-Z0-9._-]/g, "-");
+    const evidenceId = `wu-pkg-ev-${safeId}`;
+    const evalId = `wu-pkg-eval-${safeId}`;
+
+    units.push({
+      workUnitId: evidenceId,
+      tool: "extract_shared_evidence",
+      input: {
+        docId,
+        packageId: pkg.id,
+        clauseTypes: pkg.clauseTypes,
+        extractionTargets: pkg.extractionTargets,
+        skillIds,
+        instruction,
+      },
+      dependsOn: [extractDep],
+      outputSchema: "ClauseObject[]",
+      status: "pending",
+    });
+
+    units.push({
+      workUnitId: evalId,
+      tool: "evaluate_package",
+      input: {
+        docId,
+        packageId: pkg.id,
+        capabilityIds: pkg.capabilityIds,
+        requirementIds,
+        sourceMode: pkg.sourceMode,
+        skillIds,
+        instruction,
+        depth,
+      },
+      dependsOn: [evidenceId],
+      outputSchema: "Finding[]",
+      status: "pending",
+    });
+    evalLeaves.push(evalId);
+  }
+
+  return evalLeaves;
 }
 
 function ruleUnit(

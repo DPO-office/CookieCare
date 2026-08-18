@@ -160,7 +160,9 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
   pacLog("PLAN doc-type floor", { docType: docTypeFloor });
 
   if (!state.activeSkills?.length) {
+    const skillStarted = Date.now();
     state = await resolveSkills(state);
+    pacLog("PLAN skill-selection", { ms: Date.now() - skillStarted, skills: state.activeSkillIds?.join(",") });
   }
   state = await applyOrgRoutingDefaults(state, state.orgMemory);
   intent = state.intent ?? intent;
@@ -178,14 +180,17 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     intent.operation,
     intent.subIntents
   );
+  const catalogStarted = Date.now();
   const focus = await extractInstructionFocus(state.request.instruction, skills, {
     riskAnalysisRequested,
   });
+  pacLog("PLAN catalog/focus", { ms: Date.now() - catalogStarted, reqs: focus?.requirements?.length ?? 0 });
   const reportSpec = buildReportSpec(intent);
   const relatedChecks = resolveRelatedChecks(skills, state.request.instruction, focus);
   const primaryDocId = roleResolution.targetDocId || docIds[0];
   const referenceDocId = roleResolution.referenceDocId;
 
+  const graphStarted = Date.now();
   const graph = buildActGraphDetailed({
     docId: primaryDocId,
     instruction: state.request.instruction,
@@ -197,6 +202,7 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     referenceDocId,
     reportSpec,
   });
+  pacLog("PLAN act-graph", { ms: Date.now() - graphStarted, units: graph.workUnits.length });
 
   const workUnits: AnalysisWorkUnit[] = orderByDependency(graph.workUnits);
 

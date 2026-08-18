@@ -135,6 +135,42 @@ export const ccpaCpraSkill: AnalysisSkillConfig = {
   ],
   regimeRules: RULES,
   regimeRuleIds: RULES.map((r) => r.ruleId),
+  evidencePackages: [
+    {
+      id: "ccpa.sp.core_restrictions",
+      requirementIds: [
+        "no_sell_share",
+        "business_purpose_limit",
+        "no_combine",
+      ],
+      capabilityIds: [
+        "ccpa.sp.no_sell_share",
+        "ccpa.sp.business_purpose_limit",
+        "ccpa.sp.no_combine",
+      ],
+      clauseTypes: ["data_protection"],
+      extractionTargets: [
+        "sell_share_prohibition",
+        "business_purpose_limitation",
+        "combining_prohibition",
+      ],
+      sourceMode: "authored",
+      packageVersion: "1.0.0",
+    },
+    {
+      id: "ccpa.sp.consumer_and_security",
+      requirementIds: ["consumer_rights_assistance", "security_measures"],
+      capabilityIds: ["ccpa.sp.consumer_rights_assist", "ccpa.sp.toms"],
+      clauseTypes: ["data_subject_request_handling", "security_dpia_assistance"],
+      extractionTargets: [
+        "verifiable_request_assistance",
+        "request_forwarding",
+        "technical_organisational_measures",
+      ],
+      sourceMode: "authored",
+      packageVersion: "1.0.0",
+    },
+  ],
   instructionFocusMap: [
     {
       triggerPhrases: ["sell", "share", "cross-context"],

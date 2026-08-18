@@ -51,18 +51,9 @@ export function useAnalysis(authToken: string) {
 
   const appendStreamToken = (delta: string) => {
     if (!delta) return;
+    // Buffer tokens for the final report fallback. Do not paint raw ACT
+    // dumps into the thread — live status comes from the job progress stream.
     streamBufferRef.current += delta;
-    const text = streamBufferRef.current;
-    setChatMessages((prev) => {
-      const updated = [...prev];
-      const idx = [...updated].reverse().findIndex((m) => m.sender === "gemini" && m.streaming);
-      const realIdx = idx === -1 ? -1 : updated.length - 1 - idx;
-      if (realIdx >= 0) {
-        updated[realIdx] = { ...updated[realIdx], text, streaming: true };
-        return updated;
-      }
-      return [...updated, { sender: "gemini", text, streaming: true }];
-    });
   };
 
   const beginStreamingReply = (userText: string, replaceThread: boolean) => {
@@ -192,7 +183,7 @@ export function useAnalysis(authToken: string) {
     streamBufferRef.current = "";
     setIsAnalyzing(true);
     setAnalysisError("");
-    setAnalysisProgress("Starting analysis…");
+    setAnalysisProgress("Thinking…");
     beginStreamingReply(customPromptText.trim(), true);
 
     try {
@@ -239,7 +230,7 @@ export function useAnalysis(authToken: string) {
 
     setAskResolved(true);
     setIsAnalyzing(true);
-    setAnalysisProgress("Applying your answers and continuing…");
+    setAnalysisProgress("Continuing…");
     setAnalysisError("");
     beginStreamingReply(userSummary || "Answers submitted", false);
 

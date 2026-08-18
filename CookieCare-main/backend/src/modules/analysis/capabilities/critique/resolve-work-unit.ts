@@ -17,8 +17,8 @@ import { logAuthoringBacklog } from "./log-authoring-backlog.js";
 import { hashFindingsForUnit } from "./output-hash.js";
 import { pacLog } from "../../utils/pac-log.js";
 
-/** Retries after the first attempt (3 total ACT runs max per unit). */
-export const MAX_TIER2_ATTEMPTS = 2;
+/** One targeted retry after the first attempt (2 total ACT runs max per unit). */
+export const MAX_TIER2_ATTEMPTS = 1;
 
 export interface ResolveWorkUnitsResult {
   outcomes: WorkUnitOutcome[];

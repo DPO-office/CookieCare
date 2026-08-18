@@ -24,6 +24,10 @@ export type AnalysisToolName =
   | "evaluate_matrix_row"
   | "extract_playbook_positions"
   | "web_assisted_reference"
+  | "extract_shared_evidence"
+  | "evaluate_package"
+  | "derive_risk"
+  | "aggregate_requirements"
   | "render_output";
 
 export type AnalysisOutputSchema =
