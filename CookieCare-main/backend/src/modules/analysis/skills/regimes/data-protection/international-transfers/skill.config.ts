@@ -29,6 +29,7 @@ const RULES: SkillRegimeRule[] = [
     ["international_transfer_mechanism"],
     "Commission Implementing Decision (EU) 2021/914 — Modules One to Four."
   ),
+  
   rule(
     "transfers.scc_docking",
     "Docking / accession mechanics for additional parties",
