@@ -1,6 +1,11 @@
 import type { AnalysisState } from "../models/analysis-state.js";
 import type { Finding } from "../models/finding.js";
-import type { ReportSectionId, ReportSpec } from "../models/intent.js";
+import type {
+  ReportOutlineItem,
+  ReportSectionId,
+  ReportSectionRole,
+  ReportSpec,
+} from "../models/intent.js";
 import { conversationContextForIntent } from "../memory/conversation-window.js";
 import type { RequirementAssessment } from "../models/requirement-assessment.js";
 import {
@@ -76,6 +81,10 @@ export function buildSynthesisUserPrompt(
     .join("\n");
   const groups = groupAssessmentsForReport(assessments);
   const findingById = new Map(findings.map((f) => [f.findingId, f]));
+  const outline = reportSpec.outline ?? [];
+  const outlineAnalysisItems = outline.filter(
+    (item) => item.role === "analysis" || item.role === "chapeau_particulars"
+  );
 
   const presentation =
     state.intent?.documentPresentation ??
@@ -128,10 +137,16 @@ export function buildSynthesisUserPrompt(
     "",
     narrativeArcGuidance(reportSpec.reportType, reportSpec.depth, reportSpec.sections),
     "",
-    "Write one user-facing section per THEME GROUP below. Internal members of a group are the same legal question; synthesize them into one assessment.",
+    outlineAnalysisItems.length > 0
+      ? "Write the analysis subsections under the Requirements detail section using the outline headings below (use the headings verbatim). Each outline heading must contain the theme groups mapped to it; do not add additional analysis headings for the individual theme groups."
+      : "Write one user-facing section per THEME GROUP below. Internal members of a group are the same legal question; synthesize them into one assessment.",
     "",
-    "THEME GROUPS",
-    renderThemeGroups(groups, findingById),
+    outlineAnalysisItems.length > 0
+      ? "OUTLINE ANALYSIS SUBSECTIONS (within Requirements detail)"
+      : "THEME GROUPS",
+    outlineAnalysisItems.length > 0
+      ? renderOutlineMappedThemeGroups(groups, findingById, outlineAnalysisItems)
+      : renderThemeGroups(groups, findingById),
     "",
     "CROSS-REFERENCES",
     renderCrossReferences(state, findings, assessments),
@@ -211,6 +226,88 @@ function renderThemeGroups(
         .join("\n");
     })
     .join("\n\n");
+}
+
+function renderOutlineMappedThemeGroups(
+  groups: ReturnType<typeof groupAssessmentsForReport>,
+  findingById: Map<string, Finding>,
+  outlineAnalysisItems: ReportOutlineItem[]
+): string {
+  if (outlineAnalysisItems.length === 0) return "(no outline analysis items)";
+
+  const buckets = outlineAnalysisItems.map((item) => ({
+    item,
+    groups: [] as typeof groups,
+    requirementSet: new Set(item.requirementIds),
+  }));
+
+  // Deterministically map each theme group to the outline item with the
+  // strongest requirement-id overlap.
+  for (const group of groups) {
+    const memberReqIds = new Set(group.members.map((m) => m.requirementId));
+    let bestIdx = 0;
+    let bestScore = -1;
+
+    for (let i = 0; i < buckets.length; i++) {
+      const reqSet = buckets[i]!.requirementSet;
+      let score = 0;
+      for (const id of memberReqIds) {
+        if (reqSet.has(id)) score += 1;
+      }
+      if (score > bestScore) {
+        bestScore = score;
+        bestIdx = i;
+      }
+    }
+
+    buckets[bestIdx]!.groups.push(group);
+  }
+
+  const blocks: string[] = [];
+  for (const bucket of buckets) {
+    if (bucket.groups.length === 0) continue;
+    blocks.push(`### ${bucket.item.heading}`);
+    for (const group of bucket.groups) {
+      blocks.push(renderThemeGroupMembersOnly(group, findingById));
+    }
+    blocks.push("");
+  }
+
+  return blocks.join("\n");
+}
+
+function renderThemeGroupMembersOnly(
+  group: ReturnType<typeof groupAssessmentsForReport>[number],
+  findingById: Map<string, Finding>
+): string {
+  const memberLines = group.members.map((member) => {
+    const supporting = member.supportingFindingIds
+      .map((id) => findingById.get(id))
+      .filter((f): f is Finding => Boolean(f));
+    const quotes = supporting
+      .flatMap((f) => f.evidence.map((e) => e.quotedText.slice(0, 200)))
+      .filter(Boolean)
+      .slice(0, 3);
+    return [
+      `  - ${humanizeRequirementId(member.requirementId)} [${member.status}] ${member.summary}`,
+      member.recommendation ? `    Suggested fix: ${member.recommendation}` : "",
+      quotes.length
+        ? `    Evidence: ${quotes.map((q) => `"${q}"`).join(" | ")}`
+        : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+  });
+
+  return [
+    `Combined status: ${group.status}`,
+    group.members.length > 1
+      ? "Write ONE assessment covering all members of this group."
+      : "",
+    ...memberLines,
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
 function renderCrossReferences(

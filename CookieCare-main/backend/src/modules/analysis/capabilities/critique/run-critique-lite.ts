@@ -608,6 +608,51 @@ function validateReportSpec(
       sourceItemId: "report-output:contract",
     });
   }
+
+  // Dynamic outline validation (user-shaped analysis subsections).
+  if (outputOk && spec.outline?.length) {
+    const outlineAnalysisItems = spec.outline.filter(
+      (item) => item.role === "analysis" || item.role === "chapeau_particulars"
+    );
+    const outputLower = output.toLowerCase();
+
+    const missing: string[] = [];
+    const indices: number[] = [];
+    for (const item of outlineAnalysisItems) {
+      const idx = outputLower.indexOf(item.heading.toLowerCase());
+      if (idx < 0) {
+        missing.push(item.heading);
+      } else {
+        indices.push(idx);
+      }
+    }
+
+    const ordered =
+      indices.length === outlineAnalysisItems.length &&
+      indices.every((pos, i) => i === 0 || pos > indices[i - 1]!);
+
+    const ok = missing.length === 0 && ordered;
+    results.push({
+      itemId: "outline-analysis:contract",
+      status: ok ? "pass" : "fail",
+      evidenceVerified: ok,
+      workUnitId: "wu-render",
+      detail: ok
+        ? undefined
+        : missing.length > 0
+          ? `Missing outline analysis headings: ${missing.join(", ")}`
+          : "Outline analysis headings are not in the declared order",
+    });
+
+    if (!ok) {
+      fixes.push({
+        workUnitId: "wu-render",
+        instruction:
+          "Under the Requirements detail section, render the analysis outline headings verbatim and in the declared order (use the headings from the PLAN outline).",
+        sourceItemId: "outline-analysis:contract",
+      });
+    }
+  }
 }
 
 function requiredReportSections(state: AnalysisState): ReportSectionId[] {

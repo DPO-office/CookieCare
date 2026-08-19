@@ -412,3 +412,75 @@ describe("kinded analysis packages — existing GDPR grouped eval", () => {
     assert.ok(!resolution.leftoverRuleIds.includes("gdpr.art32"));
   });
 });
+
+describe("doc-type DPA — broad analysis without regime packages", () => {
+  const DPA_INSTRUCTION =
+    "do the in depth anaysis of DPA that is uploaded and with all the pointers of DPA. check everything around the dpa and provide me the anaysis";
+
+  it("selects doc-types/dpa for a DPA doc-type hint and instruction", () => {
+    resetSkillRegistryForTests();
+    const selection = selectSkills({
+      instruction: DPA_INSTRUCTION,
+      docType: "dpa",
+    });
+    assert.ok(selection.skills.some((skill) => skill.skillId === "doc-types/dpa"));
+  });
+
+  it("schedules structural checks instead of only aggregate when requirements are unmapped", () => {
+    resetSkillRegistryForTests();
+    const dpa = getSkillById("doc-types/dpa")!;
+    const global = getSkillById("_global")!;
+    const requirements: IntentRequirement[] = [
+      {
+        id: "dpa.overall_analysis",
+        description: "Provide an in-depth analysis of the Data Processing Addendum (DPA).",
+        type: "verification",
+        priority: "required",
+      },
+      {
+        id: "dpa.key_pointers",
+        description: "Identify and analyze all key pointers/elements within the DPA.",
+        type: "extraction",
+        priority: "required",
+      },
+      {
+        id: "dpa.comprehensive_review",
+        description: "Conduct a comprehensive review of all aspects related to the DPA.",
+        type: "verification",
+        priority: "required",
+      },
+    ];
+    const { workUnits } = buildActGraphDetailed({
+      docId: "doc1",
+      instruction: DPA_INSTRUCTION,
+      skills: [global, dpa],
+      intent: {
+        scope: "whole_document",
+        operation: "compliance_check",
+        standard: "none",
+        outputForm: "memo",
+        compound: false,
+        subIntents: [],
+        requirements,
+        confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 },
+      },
+      focus: {
+        ruleIds: [],
+        matrixRowIds: [],
+        riskCategoryIds: [],
+        instructionText: DPA_INSTRUCTION,
+        requirements: requirements.map((req) => ({ id: req.id, label: req.description })),
+      },
+    });
+
+    const tools = new Set(workUnits.map((unit) => unit.tool));
+    assert.ok(tools.has("check_expected_clauses"), "expected DPA structural clause checks");
+    assert.ok(tools.has("flag_risk"), "expected DPA structural risk pass");
+    assert.ok(tools.has("extract_clauses"));
+    assert.ok(tools.has("aggregate_requirements"));
+    assert.equal(
+      workUnits.filter((unit) => unit.tool === "check_against_rule").length,
+      0
+    );
+  });
+});

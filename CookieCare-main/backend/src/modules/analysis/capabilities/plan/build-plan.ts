@@ -30,6 +30,8 @@ import { requestsRiskAnalysis, EXPLICIT_DEEP_DEPTH_RE } from "./intent-heuristic
 import { getSkillById } from "../../skills/registry.js";
 import { pacLog } from "../../utils/pac-log.js";
 import { logPlanInspect } from "./plan-inspect-log.js";
+import { deriveReportOutline } from "./derive-report-outline.js";
+import { refineReportOutlineViaLLM } from "./refine-report-outline.js";
 import { loadOrgMemory } from "../../memory/org-memory.js";
 import { applyOrgRoutingDefaults } from "../../memory/resolve-org-defaults.js";
 import { resolveDocumentRoles } from "./resolve-document-roles.js";
@@ -187,7 +189,7 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
             .filter((skill): skill is NonNullable<typeof skill> => Boolean(skill))
     );
     const skills = reusedSkills.length ? reusedSkills : [getSkillById("_global")!];
-    const reportSpec = buildReportSpec(intent);
+    const reportSpec = await buildReportSpec(intent, state.request.instruction);
     const schemaId = rendererSchemaForIntent(intent);
     const plan: AnalysisPlan = {
       intent,
@@ -266,7 +268,7 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     intentRequirements: intent.requirements,
   });
   pacLog("PLAN catalog/focus", { ms: Date.now() - catalogStarted, reqs: focus?.requirements?.length ?? 0 });
-  const reportSpec = buildReportSpec(intent);
+  const reportSpec = await buildReportSpec(intent, state.request.instruction);
   const relatedChecks = resolveRelatedChecks(skills, state.request.instruction, focus);
   const primaryDocId = roleResolution.targetDocId || docIds[0];
   const referenceDocId = roleResolution.referenceDocId;
@@ -430,13 +432,36 @@ function outputFormFromReportSpec(
   }
 }
 
-function buildReportSpec(intent: IntentClassification): ReportSpec {
+async function buildReportSpec(
+  intent: IntentClassification,
+  instruction: string
+): Promise<ReportSpec> {
   const reportType = intent.reportType ?? fallbackReportType(intent.operation);
   const depth = intent.depth ?? "standard";
+
+  const seedOutline = deriveReportOutline(intent, reportType, depth);
+
+  const enableRefine =
+    process.env.ENABLE_OUTLINE_REFINEMENT === "true" &&
+    depth === "deep" &&
+    // Avoid any unnecessary provider usage during tests.
+    process.env.NODE_ENV !== "test";
+
+  const outline = enableRefine
+    ? await refineReportOutlineViaLLM({
+        instruction,
+        intent,
+        reportType,
+        depth,
+        seedOutline,
+      })
+    : seedOutline;
+
   return {
     reportType,
     depth,
     sections: deriveSections(reportType, depth),
+    outline,
   };
 }
 

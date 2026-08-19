@@ -5,11 +5,14 @@ import {
   selectSkills,
 } from "./select-skills.js";
 import {
+  getRegistryApi,
   mergeExpectedClauses,
   mergeRegimeRules,
   mergeSkillClauseTypes,
   mergeSkillRiskCategories,
+  resolveDocTypeSkill,
 } from "./registry.js";
+import type { AnalysisSkillConfig } from "./types.js";
 import { buildActGraph } from "./build-act-graph.js";
 import { loadSkillMarkdownForSkills } from "./load-skill-md.js";
 import { getRuntimeTaxonomies } from "./registry.js";
@@ -47,6 +50,13 @@ export async function resolveSkills(state: AnalysisState): Promise<AnalysisState
     }
   }
 
+  const hintedDocType =
+    state.intent?.docTypeHint ??
+    state.workspace.documents.find((d) => d.docId === primaryDocId)?.docType;
+  if (docType === "unknown" && hintedDocType && hintedDocType !== "unknown") {
+    docType = hintedDocType;
+  }
+
   const jurisdiction =
     state.orgMemory?.defaultJurisdiction ??
     inferJurisdictionFromInstruction(state.request.instruction);
@@ -58,29 +68,31 @@ export async function resolveSkills(state: AnalysisState): Promise<AnalysisState
     jurisdiction,
   });
 
+  const skills = ensureDocTypeSkillIncluded(selection.skills, docType, hintedDocType);
+
   if (selection.ambiguous && selection.candidateSkillIds?.length) {
     const clarification = buildSkillAmbiguityClarification(selection.candidateSkillIds);
     return {
       ...state,
-      activeSkills: selection.skills,
-      activeSkillIds: selection.skills.map((s) => s.skillId),
+      activeSkills: skills,
+      activeSkillIds: skills.map((s) => s.skillId),
       skillSelectionPath: selection.selectionPath,
       pendingSkillClarification: clarification,
       partialCoverageWarning: selection.partialCoverageWarning,
     };
   }
 
-  const skillMd = await loadSkillMarkdownForSkills(selection.skills);
+  const skillMd = await loadSkillMarkdownForSkills(skills);
   const runtime = getRuntimeTaxonomies();
 
   return {
     ...state,
-    activeSkills: selection.skills,
-    activeSkillIds: selection.skills.map((s) => s.skillId),
-    mergedClauseTypes: mergeSkillClauseTypes(selection.skills),
-    mergedRiskCategories: mergeSkillRiskCategories(selection.skills).map((r) => r.category),
-    mergedExpectedClauses: mergeExpectedClauses(selection.skills),
-    mergedRegimeRules: mergeRegimeRules(selection.skills),
+    activeSkills: skills,
+    activeSkillIds: skills.map((s) => s.skillId),
+    mergedClauseTypes: mergeSkillClauseTypes(skills),
+    mergedRiskCategories: mergeSkillRiskCategories(skills).map((r) => r.category),
+    mergedExpectedClauses: mergeExpectedClauses(skills),
+    mergedRegimeRules: mergeRegimeRules(skills),
     skillMarkdown: skillMd,
     skillSelectionPath: selection.selectionPath,
     partialCoverageWarning: selection.partialCoverageWarning,
@@ -88,11 +100,42 @@ export async function resolveSkills(state: AnalysisState): Promise<AnalysisState
       ...state.metadata,
       clauseTaxonomyVersion: runtime.clauseTaxonomyVersion,
       riskTaxonomyVersion: runtime.riskTaxonomyVersion,
-      activeSkillVersions: Object.fromEntries(
-        selection.skills.map((s) => [s.skillId, s.version])
-      ),
+      activeSkillVersions: Object.fromEntries(skills.map((s) => [s.skillId, s.version])),
     },
   };
+}
+
+/** When classify-intent already identified a doc-type, always attach its structural skill. */
+function ensureDocTypeSkillIncluded(
+  skills: AnalysisSkillConfig[],
+  docType: string,
+  hintedDocType?: string
+): AnalysisSkillConfig[] {
+  const floor = [docType, hintedDocType]
+    .filter((value): value is string => Boolean(value && value !== "unknown"))
+    .map((value) => value.toLowerCase());
+
+  if (floor.length === 0) return skills;
+
+  const registry = getRegistryApi();
+  for (const type of floor) {
+    const raw = registry
+      .getByAxis("doc-type")
+      .find((skill) => skill.appliesToDocTypes.includes(type));
+    if (!raw) continue;
+    const resolved = resolveDocTypeSkill(raw.skillId);
+    if (skills.some((skill) => skill.skillId === resolved.skillId)) continue;
+    const globalIdx = skills.findIndex((skill) => skill.skillId === "_global");
+    if (globalIdx >= 0) {
+      return [
+        ...skills.slice(0, globalIdx + 1),
+        resolved,
+        ...skills.slice(globalIdx + 1),
+      ];
+    }
+    return [resolved, ...skills];
+  }
+  return skills;
 }
 
 function inferJurisdictionFromInstruction(instruction: string): string | undefined {

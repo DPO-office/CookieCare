@@ -110,12 +110,54 @@ function buildDeterministicReport(
 
   if (sections.includes("requirements_detail")) {
     lines.push(`## ${suggestedHeading("requirements_detail")}`, "");
-    for (const group of groups) {
-      lines.push(`### ${group.title} — ${group.status}`, "");
-      const summaries = [...new Set(group.members.map((m) => m.summary).filter(Boolean))];
-      lines.push(summaries.join(" "), "");
-      const rec = group.members.find((m) => m.recommendation)?.recommendation;
-      if (rec) lines.push(`Recommendation: ${rec}`, "");
+    const outline = reportSpec.outline ?? [];
+    const outlineAnalysisItems = outline.filter(
+      (item) => item.role === "analysis" || item.role === "chapeau_particulars"
+    );
+
+    if (outlineAnalysisItems.length > 0) {
+      const buckets = outlineAnalysisItems.map((item) => ({
+        item,
+        groups: [] as typeof groups,
+        requirementSet: new Set(item.requirementIds),
+      }));
+
+      for (const group of groups) {
+        const memberReqIds = new Set(group.members.map((m) => m.requirementId));
+        let bestIdx = 0;
+        let bestScore = -1;
+        for (let i = 0; i < buckets.length; i++) {
+          let score = 0;
+          for (const id of memberReqIds) {
+            if (buckets[i]!.requirementSet.has(id)) score += 1;
+          }
+          if (score > bestScore) {
+            bestScore = score;
+            bestIdx = i;
+          }
+        }
+        buckets[bestIdx]!.groups.push(group);
+      }
+
+      for (const bucket of buckets) {
+        if (bucket.groups.length === 0) continue;
+        lines.push(`### ${bucket.item.heading}`, "");
+        for (const group of bucket.groups) {
+          lines.push(`- ${group.status}: ${group.title}`, "");
+          const summaries = [
+            ...new Set(group.members.map((m) => m.summary).filter(Boolean)),
+          ];
+          if (summaries.length > 0) lines.push(summaries.join(" "), "");
+        }
+      }
+    } else {
+      for (const group of groups) {
+        lines.push(`### ${group.title} — ${group.status}`, "");
+        const summaries = [...new Set(group.members.map((m) => m.summary).filter(Boolean))];
+        lines.push(summaries.join(" "), "");
+        const rec = group.members.find((m) => m.recommendation)?.recommendation;
+        if (rec) lines.push(`Recommendation: ${rec}`, "");
+      }
     }
   }
 

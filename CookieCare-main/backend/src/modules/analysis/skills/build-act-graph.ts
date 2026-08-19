@@ -132,7 +132,16 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
   const packageResolution = resolvePackages(skills, focus, intent.requirements);
   validatePlannedWork(packageResolution);
   const usePackages = packageResolution.packages.length > 0;
-  const skipLegacySubgraph = hasUnsupportedExtraction(packageResolution);
+  const docTypeStructuralFallback = skills.some(
+    (skill) => skill.axis === "doc-type" && skill.expectedClauses.length > 0
+  );
+  // Skip legacy fan-out when extraction requirements are unsupported inside a
+  // package run, OR when no doc-type structural fallback exists. Doc-type
+  // skills (e.g. DPA) have no packages but still need expected-clause checks
+  // for broad "analyze this DPA" instructions.
+  const skipLegacySubgraph =
+    hasUnsupportedExtraction(packageResolution) &&
+    (usePackages || !docTypeStructuralFallback);
   const packageClauseTypes = [
     ...new Set(packageResolution.packages.flatMap(({ pkg }) => pkg.clauseTypes)),
   ];
@@ -442,20 +451,35 @@ function appendSubIntentUnits(
 ): string[] {
   const { prefix, si, docId, instruction, skillIds, focus, allRules, skills, extractDep, scheduled } =
     args;
+  const focusHasCapabilities =
+    (focus?.ruleIds?.length ?? 0) > 0 ||
+    (focus?.requiredCapabilities?.length ?? 0) > 0 ||
+    (focus?.requiredIds?.length ?? 0) > 0 ||
+    (focus?.matrixRowIds?.length ?? 0) > 0 ||
+    (focus?.riskCategoryIds?.length ?? 0) > 0;
+  const hasDocTypeStructure = skills.some(
+    (skill) => skill.axis === "doc-type" && skill.expectedClauses.length > 0
+  );
   const runRisk =
     si.operation === "risk_flag" ||
     si.operation === "extract" ||
-    (focus != null && (focus.riskCategoryIds?.length ?? 0) > 0);
+    (focus != null && (focus.riskCategoryIds?.length ?? 0) > 0) ||
+    (!focusHasCapabilities && hasDocTypeStructure);
   const runCompliance =
     si.operation === "compliance_check" ||
     Boolean(focus) ||
-    (si.operation !== "risk_flag" && si.operation !== "extract" && allRules.length > 0);
+    (si.operation !== "risk_flag" && si.operation !== "extract" && allRules.length > 0) ||
+    hasDocTypeStructure;
 
   let lastDep = extractDep;
   const leaves: string[] = [];
 
   const expectedSignature = si.description ?? si.operation;
-  if (runCompliance && !focus && !scheduled.expectedClauseUnits.has(expectedSignature)) {
+  if (
+    runCompliance &&
+    (!focus || !focusHasCapabilities) &&
+    !scheduled.expectedClauseUnits.has(expectedSignature)
+  ) {
     scheduled.expectedClauseUnits.add(expectedSignature);
     const id = `wu-${prefix}check-expected`;
     units.push({

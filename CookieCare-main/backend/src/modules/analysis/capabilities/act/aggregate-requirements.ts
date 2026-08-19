@@ -30,9 +30,19 @@ export function aggregateRequirements(
     []
   ).filter((path) => path.requirementId && !path.requirementId.startsWith("_dep:"));
 
+  const structuralFindings = findings.filter(
+    (finding) =>
+      !finding.requirementId &&
+      (finding.skillId?.startsWith("doc-types/") ||
+        finding.workUnitId?.includes("check-expected") ||
+        finding.workUnitId?.includes("extract"))
+  );
+  const canReuseStructural = structuralFindings.length > 0;
+
   const extraFindings: Finding[] = [];
   for (const path of unsupported) {
     if (findings.some((f) => f.requirementId === path.requirementId)) continue;
+    if (canReuseStructural && isBroadDocTypeRequirement(path.requirementId)) continue;
     extraFindings.push({
       findingId: `f_unresolved_${path.requirementId}_${crypto.randomUUID().slice(0, 6)}`,
       kind: "compliance",
@@ -64,10 +74,34 @@ export function aggregateRequirements(
     };
   });
 
+  for (const req of state.intent?.requirements ?? []) {
+    if (assessments.some((assessment) => assessment.requirementId === req.id)) continue;
+    if (!canReuseStructural || !isBroadDocTypeRequirement(req.id)) continue;
+    const status = deriveRequirementStatus(structuralFindings);
+    assessments.push({
+      requirementId: req.id,
+      supportingFindingIds: structuralFindings.map((finding) => finding.findingId),
+      status,
+      summary: buildSummary(structuralFindings, status),
+      recommendation: buildRecommendation(structuralFindings),
+    });
+  }
+
   return {
     state: { ...state, requirementAssessments: assessments },
     findings: allFindings,
   };
+}
+
+function isBroadDocTypeRequirement(requirementId: string): boolean {
+  const id = requirementId.toLowerCase();
+  return (
+    id.startsWith("dpa.") ||
+    id.includes("overall_analysis") ||
+    id.includes("comprehensive_review") ||
+    id.includes("key_pointers") ||
+    id.includes("key_elements")
+  );
 }
 
 function orderedRequirementIds(findings: Finding[]): string[] {
