@@ -140,6 +140,62 @@ describe("synthesis user prompt", () => {
     assert.match(prompt, /SECTION ARCHITECTURE/);
     assert.doesNotMatch(prompt, /Requirement assessments \(authoritative/);
   });
+
+  it("uses reportSpec.outline to drive analysis subsections", () => {
+    const state = {
+      request: {
+        sessionId: "s1",
+        instruction: "Check this DPA for GDPR Article 28 compliance.",
+        documentIds: [],
+        documentTexts: {},
+      },
+      intent: {
+        scope: "whole_document",
+        operation: "compliance_check",
+        standard: "none",
+        standardConcept: "GDPR Article 28",
+        outputForm: "memo",
+        compound: false,
+        subIntents: [],
+        requirements: [],
+        confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 },
+      },
+      workspace: {},
+      findings: [],
+      draftTasks: [],
+      metadata: {
+        timestamp: "",
+        clauseTaxonomyVersion: "",
+        riskTaxonomyVersion: "",
+      },
+    } as unknown as AnalysisState;
+
+    const outline = [
+      {
+        id: "analysis.x",
+        role: "analysis",
+        heading: "Mandatory Article 28(3) clauses",
+        requirementIds: ["gdpr.art28.3.f"],
+        source: "deterministic",
+      },
+    ];
+
+    const prompt = buildSynthesisUserPrompt(
+      state,
+      [],
+      [assessment("gdpr.art28.3.f", "missing", "Test assessment")],
+      {
+        reportType: "regime_compliance_memo",
+        depth: "standard",
+        sections: ["scope", "requirements_detail", "recommendations", "conclusion"],
+        outline,
+      }
+    );
+
+    assert.match(prompt, /OUTLINE ANALYSIS SUBSECTIONS/);
+    assert.match(prompt, /### Mandatory Article 28\(3\) clauses/);
+    assert.doesNotMatch(prompt, /THEME GROUPS/);
+  });
 });
 
 describe("evaluate-package prompt", () => {

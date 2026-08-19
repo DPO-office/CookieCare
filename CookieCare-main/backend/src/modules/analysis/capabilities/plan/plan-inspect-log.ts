@@ -213,6 +213,8 @@ function formatGraphSection(args: {
     `   reportType     ${spec.reportType}`,
     `   depth          ${spec.depth}`,
     `   sections       ${spec.sections.join(" → ") || "(none)"}`,
+    `   outlineItems   ${spec.outline?.length ?? 0}`,
+    `   outlineAnalysis ${spec.outline?.filter((i) => i.role === "analysis" || i.role === "chapeau_particulars").length ?? 0}`,
     `   renderer       ${args.rendererSchemaId}`,
     `   relatedChecks  ${args.relatedCount}`,
     `   webLookup      ${args.intent.unresolvedStandard ? args.intent.unresolvedStandard : "no"}`,

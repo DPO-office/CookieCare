@@ -56,10 +56,44 @@ export type ReportSectionId =
   | "recommendations"
   | "missing_materials";
 
+/**
+ * Semantic role used by PLAN to build a dynamic outline.
+ * This is separate from the legacy `ReportSectionId` contract.
+ *
+ * - `analysis` is the dynamic middle (subsections inside `requirements_detail`)
+ * - `chapeau_particulars` is a structured Art 28(3) cluster (also inside `requirements_detail`)
+ */
+export type ReportSectionRole =
+  | "scope"
+  | "analysis"
+  | "chapeau_particulars"
+  | "qualifications"
+  | "recommendations"
+  | "missing_materials"
+  | "conclusion";
+
+export interface ReportOutlineItem {
+  /** Stable key, e.g. `analysis.chapeau` or `analysis.mandatory_clauses`. */
+  id: string;
+  /** Semantic role of this outline item. */
+  role: ReportSectionRole;
+  /** User-facing heading used by synthesis as a subsection heading. */
+  heading: string;
+  /** Which semantic intent requirements this outline item covers. */
+  requirementIds: string[];
+  /** Whether the outline was created deterministically or refined. */
+  source: "deterministic" | "catalog_llm";
+}
+
 export interface ReportSpec {
   reportType: ReportType;
   depth: ReportDepth;
   sections: ReportSectionId[];
+  /**
+   * Optional dynamic outline that synthesis uses to create user-shaped middle
+   * sections. When absent, synthesis falls back to legacy sections.
+   */
+  outline?: ReportOutlineItem[];
 }
 
 export interface IntentAxisConfidence {
