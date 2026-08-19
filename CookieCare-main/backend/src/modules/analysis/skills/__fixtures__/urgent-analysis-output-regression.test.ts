@@ -1,3 +1,5 @@
+process.env.GOOGLE_CLOUD_PROJECT ??= "urgent-analysis-test";
+
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type { IntentClassification } from "../../models/intent.js";

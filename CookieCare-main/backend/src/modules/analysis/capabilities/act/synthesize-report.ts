@@ -11,6 +11,7 @@ import {
   SYNTHESIS_SYSTEM_PROMPT,
   buildSynthesisUserPrompt,
 } from "../../prompts/synthesis.js";
+import { normalizeReportSections, suggestedHeading } from "../../prompts/report-sections.js";
 import { emitAnalysisToken } from "../../utils/stream-tokens.js";
 import { pacLog } from "../../utils/pac-log.js";
 import { groupAssessmentsForReport } from "./group-assessments.js";
@@ -97,21 +98,35 @@ function buildDeterministicReport(
   const groups = groupAssessmentsForReport(assessments);
   lines.push(`# Analysis`, "");
   lines.push(`Instruction: ${state.request.instruction}`, "");
-  if (reportSpec.sections.includes("scope_and_conclusion")) {
-    const covered = assessments.filter((a) => a.status === "covered").length;
-    lines.push("## Scope and conclusion", "");
+
+  const sections = normalizeReportSections(reportSpec.sections);
+  if (sections.includes("scope")) {
+    lines.push(`## ${suggestedHeading("scope")}`, "");
     lines.push(
-      `${covered} of ${assessments.length} requirements are covered based on the document evidence. Related requirements are grouped below.`,
+      `Review of ${assessments.length} requirement(s) against the supplied document(s).`,
       ""
     );
   }
-  lines.push("## Requirements detail", "");
-  for (const group of groups) {
-    lines.push(`### ${group.title} — ${group.status}`, "");
-    const summaries = [...new Set(group.members.map((m) => m.summary).filter(Boolean))];
-    lines.push(summaries.join(" "), "");
-    const rec = group.members.find((m) => m.recommendation)?.recommendation;
-    if (rec) lines.push(`Recommendation: ${rec}`, "");
+
+  if (sections.includes("requirements_detail")) {
+    lines.push(`## ${suggestedHeading("requirements_detail")}`, "");
+    for (const group of groups) {
+      lines.push(`### ${group.title} — ${group.status}`, "");
+      const summaries = [...new Set(group.members.map((m) => m.summary).filter(Boolean))];
+      lines.push(summaries.join(" "), "");
+      const rec = group.members.find((m) => m.recommendation)?.recommendation;
+      if (rec) lines.push(`Recommendation: ${rec}`, "");
+    }
   }
+
+  if (sections.includes("conclusion")) {
+    const covered = assessments.filter((a) => a.status === "covered").length;
+    lines.push(`## ${suggestedHeading("conclusion")}`, "");
+    lines.push(
+      `${covered} of ${assessments.length} requirements are covered based on the document evidence.`,
+      ""
+    );
+  }
+
   return lines.join("\n");
 }

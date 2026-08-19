@@ -14,6 +14,7 @@ import { webAssistedReference } from "./web-assisted-reference.js";
 import { extractPlaybookPositions } from "./extract-playbook-positions.js";
 import { extractSharedEvidence } from "./extract-shared-evidence.js";
 import { evaluatePackage } from "./evaluate-package.js";
+import { inventoryProvisions } from "./inventory-provisions.js";
 import { deriveRisk } from "./derive-risk.js";
 import { aggregateRequirements } from "./aggregate-requirements.js";
 import { insufficient } from "./act-utils.js";
@@ -25,6 +26,7 @@ const SILENT_SUCCESS_NOTES: Partial<Record<AnalysisToolName, string>> = {
   extract_playbook_positions: "no playbook positions extracted",
   get_span: "locator helper, no finding by design",
   extract_shared_evidence: "shared evidence cached, no finding by design",
+  inventory_provisions: "no inventory records extracted",
   aggregate_requirements: "requirement assessments built, no finding by design",
   derive_risk: "no mechanically-implied risk to derive",
 };
@@ -76,6 +78,7 @@ const TOOL_PROGRESS_LABELS: Partial<Record<AnalysisToolName, string>> = {
   extract_playbook_positions: "Reading the playbook…",
   web_assisted_reference: "Searching the web…",
   extract_shared_evidence: "Gathering evidence…",
+  inventory_provisions: "Inventorying provisions…",
   evaluate_package: "Evaluating…",
   derive_risk: "Assessing risk…",
   aggregate_requirements: "Summarizing…",
@@ -385,6 +388,8 @@ async function runTool(
       return webAssistedReference(state, unit, findings);
     case "extract_shared_evidence":
       return extractSharedEvidence(state, unit, findings);
+    case "inventory_provisions":
+      return inventoryProvisions(state, unit, findings);
     case "evaluate_package":
       return evaluatePackage(state, unit, findings);
     case "derive_risk":

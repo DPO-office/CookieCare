@@ -21,6 +21,8 @@ export interface PersistedAnalysisState {
   orgMemory?: OrgMemoryProfile;
   memoryAttributions?: string[];
   findings: Finding[];
+  requirementAssessments?: AnalysisState["requirementAssessments"];
+  analysisArtifacts?: AnalysisState["analysisArtifacts"];
   renderedOutput?: string;
   declineMessage?: string;
   history: AnalysisHistoryEntry[];
@@ -42,6 +44,8 @@ export function toPersistedState(state: AnalysisState): PersistedAnalysisState {
       promptLibraryId: state.request.promptLibraryId,
       documentIds: state.request.documentIds,
       documentRoles: state.request.documentRoles,
+      documentPresentation: state.request.documentPresentation,
+      answerStyle: state.request.answerStyle,
       // Drop large texts from ledger — workspace keeps segmented form
       documentTexts: {},
       documentTitles: state.request.documentTitles,
@@ -63,6 +67,8 @@ export function toPersistedState(state: AnalysisState): PersistedAnalysisState {
     orgMemory: state.orgMemory,
     memoryAttributions: state.memoryAttributions,
     findings: state.findings,
+    requirementAssessments: state.requirementAssessments,
+    analysisArtifacts: state.analysisArtifacts,
     renderedOutput: state.renderedOutput,
     declineMessage: state.declineMessage,
     history: state.history ?? [],

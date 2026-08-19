@@ -69,6 +69,12 @@ import {
   normalizeStandard,
   resolveStandardConceptToRegistry,
 } from "./resolve-standard.js";
+import { conversationContextForIntent } from "../../memory/conversation-window.js";
+import {
+  applyExplicitPresentation,
+  followUpKindForState,
+  inheritFollowUpIntent,
+} from "./follow-up-intent.js";
 
 
 
@@ -432,6 +438,16 @@ const SEMANTIC_INTENT_SYSTEM_PROMPT = [
 
   "The requirements list must represent the user's actual requested coverage.",
 
+  "",
+
+  "Use outputForm=table when the user asks for tabular, table, spreadsheet, or column-format output.",
+
+  "Use outputForm=memo when the user asks for narrative, memo, or prose output.",
+
+  "If PRIOR CONVERSATION is supplied, treat the current instruction as a follow-up: resolve pronouns and omitted context from that history.",
+
+  "Honor an explicit format or per-document vs combined request in the current turn even if the prior report used a different form.",
+
 ].join("\n");
 
 
@@ -495,6 +511,7 @@ interface RawIntentClassification {
 export async function classifyIntent(state: AnalysisState): Promise<AnalysisState> {
 
   const instruction = state.request.instruction.trim();
+  const followUpKind = followUpKindForState(state);
 
 
 
@@ -580,6 +597,24 @@ export async function classifyIntent(state: AnalysisState): Promise<AnalysisStat
 
   }
 
+  if (followUpKind === "presentation_change" && state.priorAnalysis?.intent) {
+    const intent = applyExplicitPresentation(
+      inheritFollowUpIntent(
+        applyExplicitPresentation(state.priorAnalysis.intent, instruction, state.request),
+        state.priorAnalysis.intent,
+        followUpKind
+      ),
+      instruction,
+      state.request
+    );
+    pacLog("PLAN classify-intent follow-up presentation change", {
+      outputForm: intent.outputForm,
+      presentation: intent.documentPresentation,
+    });
+    logClassifiedIntent(intent, instruction);
+    return { ...state, intent, declineMessage: undefined, clarificationRequest: undefined };
+  }
+
 
 
   const { state: withDoc, docTypeHint, excerpt } = resolveDocTypeHint(state);
@@ -600,7 +635,17 @@ export async function classifyIntent(state: AnalysisState): Promise<AnalysisStat
 
     raw = (await executeJsonCompletion(
 
-      buildIntentUserPrompt(instruction, docTypeHint, excerpt, state.request.documentIds),
+      buildIntentUserPrompt(
+        instruction,
+        docTypeHint,
+        excerpt,
+        state.request.documentIds,
+        conversationContextForIntent({
+          conversation: state.conversation,
+          priorInstruction: state.priorAnalysis?.instruction,
+          priorReport: state.priorAnalysis?.renderedOutput,
+        })
+      ),
 
       SEMANTIC_INTENT_SYSTEM_PROMPT,
 
@@ -664,7 +709,7 @@ export async function classifyIntent(state: AnalysisState): Promise<AnalysisStat
 
 
 
-  const intent: IntentClassification = {
+  let intent: IntentClassification = {
 
     scope: refineScope(raw.scope, instruction),
 
@@ -708,6 +753,14 @@ export async function classifyIntent(state: AnalysisState): Promise<AnalysisStat
 
   };
 
+  intent = applyExplicitPresentation(intent, instruction, state.request);
+  const resolvedFollowUpKind = followUpKindForState({ ...state, intent });
+  intent = inheritFollowUpIntent(
+    intent,
+    state.priorAnalysis?.intent ?? undefined,
+    resolvedFollowUpKind
+  );
+
 
 
   if (intent.operation === "out_of_scope") {
@@ -734,7 +787,11 @@ export async function classifyIntent(state: AnalysisState): Promise<AnalysisStat
 
 
 
-  const clarificationRequest = buildClarificationQuestion(intent, docTypeHint);
+  const clarificationRequest =
+    resolvedFollowUpKind === "conversational_qa" ||
+    resolvedFollowUpKind === "presentation_change"
+      ? undefined
+      : buildClarificationQuestion(intent, docTypeHint);
 
   if (clarificationRequest) {
 
@@ -782,7 +839,9 @@ function buildIntentUserPrompt(
 
   excerpt: string,
 
-  documentIds: string[]
+  documentIds: string[],
+
+  conversationContext = ""
 
 ): string {
 
@@ -808,6 +867,10 @@ function buildIntentUserPrompt(
 
     "",
 
+    conversationContext || "No prior conversation.",
+
+    "",
+
     "If the user asks for legal advice (sign/win/outcome prediction), set operation=out_of_scope.",
 
     "",
@@ -818,9 +881,11 @@ function buildIntentUserPrompt(
 
     "Use outputForm=brief_summary when the user asks for a brief/concise overview. Keep outputForm for backward compatibility; reportType+depth are the semantic source of truth.",
 
+    "Use outputForm=table for tabular requests and outputForm=memo for narrative/prose requests.",
+
     "",
 
-    `Instruction: ${instruction}`,
+    `Current user message: ${instruction}`,
 
     `Documents available: ${documentIds.join(", ") || "none"}`,
 

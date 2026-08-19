@@ -4,6 +4,8 @@ import type { MissingClarification } from "../../models/analysis-plan.js";
 export type ResolvedDocRoles = {
   targetDocId: string;
   referenceDocId?: string;
+  /** All analysis targets (excludes the playbook/reference). */
+  targetDocIds: string[];
   roles: Record<string, "target" | "reference">;
   missing?: MissingClarification;
 };
@@ -27,6 +29,7 @@ export function resolveDocumentRoles(state: AnalysisState): ResolvedDocRoles {
   if (docIds.length === 0) {
     return {
       targetDocId: "",
+      targetDocIds: [],
       roles: {},
       missing: {
         field: "documentIds",
@@ -37,6 +40,25 @@ export function resolveDocumentRoles(state: AnalysisState): ResolvedDocRoles {
   }
 
   const roles: Record<string, "target" | "reference"> = { ...explicit };
+
+  const presentation =
+    state.intent?.documentPresentation ?? state.request.documentPresentation;
+  const treatAllAsTargets = presentation === "unified" || presentation === "individual";
+
+  if (treatAllAsTargets) {
+    for (const id of docIds) {
+      if (roles[id] === "reference") continue;
+      roles[id] = "target";
+    }
+    const references = docIds.filter((id) => roles[id] === "reference");
+    const targets = docIds.filter((id) => roles[id] === "target");
+    return {
+      targetDocId: targets[0] ?? docIds[0],
+      targetDocIds: targets.length ? targets : [docIds[0]],
+      referenceDocId: references[0],
+      roles,
+    };
+  }
 
   const std = state.intent?.standard;
   if (typeof std === "string" && std.startsWith("reference_document:")) {
@@ -61,12 +83,13 @@ export function resolveDocumentRoles(state: AnalysisState): ResolvedDocRoles {
 
   if (docIds.length === 1) {
     roles[docIds[0]] = roles[docIds[0]] ?? "target";
-    return { targetDocId: docIds[0], roles };
+    return { targetDocId: docIds[0], targetDocIds: [docIds[0]], roles };
   }
 
   if (references.length > 1) {
     return {
       targetDocId: targets[0] ?? docIds[0],
+      targetDocIds: targets.length ? targets : [docIds[0]],
       roles,
       missing: {
         field: "documentRoles",
@@ -83,6 +106,7 @@ export function resolveDocumentRoles(state: AnalysisState): ResolvedDocRoles {
     const targetDocId = unset[0] ?? docIds.find((id) => id !== references[0])!;
     return {
       targetDocId,
+      targetDocIds: docIds.filter((id) => roles[id] === "target"),
       referenceDocId: references[0],
       roles,
     };
@@ -91,6 +115,7 @@ export function resolveDocumentRoles(state: AnalysisState): ResolvedDocRoles {
   if (references.length === 1 && targets.length >= 1) {
     return {
       targetDocId: targets[0],
+      targetDocIds: targets,
       referenceDocId: references[0],
       roles,
     };
@@ -99,6 +124,7 @@ export function resolveDocumentRoles(state: AnalysisState): ResolvedDocRoles {
   if (unset.length >= 2 || (unset.length === 1 && targets.length === 0 && references.length === 0)) {
     return {
       targetDocId: docIds[0],
+      targetDocIds: docIds,
       roles,
       missing: {
         field: "documentRoles",
@@ -111,11 +137,16 @@ export function resolveDocumentRoles(state: AnalysisState): ResolvedDocRoles {
   }
 
   if (targets.length >= 1) {
-    return { targetDocId: targets[0], referenceDocId: references[0], roles };
+    return {
+      targetDocId: targets[0],
+      targetDocIds: targets,
+      referenceDocId: references[0],
+      roles,
+    };
   }
 
   roles[docIds[0]] = "target";
-  return { targetDocId: docIds[0], roles };
+  return { targetDocId: docIds[0], targetDocIds: [docIds[0]], roles };
 }
 
 function heuristicScore(text: string): "target" | "reference" | "ambiguous" {

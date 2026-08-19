@@ -92,6 +92,11 @@ export class PacController {
             findings: state.findings.length,
             tokens: state.agent?.tokensUsed,
           });
+          if (next === "DONE") {
+            state.agent!.phase = "DONE";
+            state.agent!.stoppedReason = state.agent!.stoppedReason ?? "green";
+            break;
+          }
           state.agent!.phase = next;
           break;
         }

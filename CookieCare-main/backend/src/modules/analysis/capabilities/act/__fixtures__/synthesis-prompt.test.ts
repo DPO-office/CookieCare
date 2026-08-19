@@ -128,7 +128,7 @@ describe("synthesis user prompt", () => {
       {
         reportType: "regime_compliance_memo",
         depth: "standard",
-        sections: ["scope_and_conclusion", "requirements_detail", "recommendations"],
+        sections: ["scope", "requirements_detail", "recommendations", "conclusion"],
       }
     );
 
@@ -137,6 +137,7 @@ describe("synthesis user prompt", () => {
     assert.match(prompt, /THEME GROUPS/);
     assert.match(prompt, /Write ONE assessment covering all members/);
     assert.match(prompt, /Named standard: CCPA/);
+    assert.match(prompt, /SECTION ARCHITECTURE/);
     assert.doesNotMatch(prompt, /Requirement assessments \(authoritative/);
   });
 });

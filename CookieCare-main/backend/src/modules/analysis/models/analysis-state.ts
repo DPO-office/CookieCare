@@ -5,9 +5,14 @@ import type { AnalysisConversation } from "./conversation.js";
 import type { AnalysisWorkspace } from "./document-workspace.js";
 import type { Finding } from "./finding.js";
 import type { RequirementAssessment } from "./requirement-assessment.js";
-import type { SharedEvidenceBundle } from "./evidence-package.js";
+import type { AnalysisArtifact, SharedEvidenceBundle } from "./evidence-package.js";
 import type { DraftTask } from "./draft-task.js";
-import type { ClarificationRequest, IntentClassification } from "./intent.js";
+import type {
+  AnswerStyle,
+  ClarificationRequest,
+  DocumentPresentation,
+  IntentClassification,
+} from "./intent.js";
 import type { OrgMemoryProfile } from "../memory/org-memory.js";
 import type { AnalysisSkillConfig, SkillRegimeRule } from "../skills/types.js";
 import type { ExpectedClauseCheck } from "../skills/types.js";
@@ -20,6 +25,17 @@ export interface AnalysisHistoryEntry {
   phase?: string;
   timestamp: string;
   detail?: Record<string, unknown>;
+}
+
+/** Prior completed analysis reused for follow-up turns. */
+export interface PriorAnalysisSnapshot {
+  instruction: string;
+  intent?: IntentClassification | null;
+  findings: Finding[];
+  requirementAssessments?: RequirementAssessment[];
+  analysisArtifacts?: Record<string, AnalysisArtifact>;
+  renderedOutput?: string;
+  activeSkillIds?: string[];
 }
 
 export interface AnalysisFixPlan {
@@ -58,10 +74,17 @@ export interface AnalysisState {
      * Values: "target" | "reference".
      */
     documentRoles?: Record<string, "target" | "reference">;
+    /** Combined vs per-document presentation when more than one target is uploaded. */
+    documentPresentation?: DocumentPresentation;
+    /** Narrative prose vs tabular tables. */
+    answerStyle?: AnswerStyle;
     /** Pre-loaded texts keyed by docId (handler resolves from files table). */
     documentTexts: Record<string, string>;
     documentTitles?: Record<string, string>;
   };
+
+  /** Set when this CREATE run continues an existing analysis session. */
+  priorAnalysis?: PriorAnalysisSnapshot;
 
   workspace: AnalysisWorkspace;
   intent?: IntentClassification | null;
@@ -89,6 +112,8 @@ export interface AnalysisState {
   requirementAssessments?: RequirementAssessment[];
   /** Shared evidence extracted once per package and reused by evaluations. */
   sharedEvidence?: Record<string, SharedEvidenceBundle>;
+  /** Structured package outputs (inventories, comparisons). Keyed by artifact id. */
+  analysisArtifacts?: Record<string, AnalysisArtifact>;
   draftTasks: DraftTask[];
   renderedOutput?: string;
   declineMessage?: string;

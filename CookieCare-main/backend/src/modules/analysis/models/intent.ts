@@ -30,6 +30,12 @@ export type OutputFormAxis =
   | "qa_thread"
   | "brief_summary";
 
+/** How multi-document results are presented. */
+export type DocumentPresentation = "unified" | "individual";
+
+/** User-facing answer style from the Analyze UI. */
+export type AnswerStyle = "narrative" | "tabular";
+
 export type ReportType =
   | "regime_compliance_memo"
   | "risk_audit"
@@ -40,6 +46,9 @@ export type ReportType =
 export type ReportDepth = "narrow" | "standard" | "deep";
 
 export type ReportSectionId =
+  | "scope"
+  | "conclusion"
+  /** @deprecated Prefer separate `scope` and `conclusion`. Kept for legacy ReportSpec payloads. */
   | "scope_and_conclusion"
   | "chapeau_particulars"
   | "requirements_detail"
@@ -103,6 +112,8 @@ export interface IntentClassification {
   /** Semantic standard/regime named by the user (e.g. "GDPR Article 28"). */
   standardConcept?: string;
   outputForm: OutputFormAxis;
+  /** unified = one combined report; individual = a section per uploaded document. */
+  documentPresentation?: DocumentPresentation;
   reportType?: ReportType;
   depth?: ReportDepth;
   compound: boolean;
@@ -156,25 +167,27 @@ export function deriveSections(
   depth: ReportDepth
 ): ReportSectionId[] {
   if (reportType === "qa_answer") {
-    return ["scope_and_conclusion"];
+    return depth === "narrow" ? ["conclusion"] : ["scope", "conclusion"];
   }
 
   if (reportType === "rights_matrix") {
-    return ["scope_and_conclusion", "requirements_detail", "recommendations"];
+    return ["scope", "requirements_detail", "recommendations", "conclusion"];
   }
 
-  const sections: ReportSectionId[] = [
-    "scope_and_conclusion",
-    "requirements_detail",
-  ];
+  const sections: ReportSectionId[] = ["scope"];
 
-  if (depth !== "narrow") {
-    sections.push("qualifications", "recommendations");
+  if (depth === "narrow") {
+    return ["scope", "conclusion"];
   }
+
+  sections.push("requirements_detail");
+
+  sections.push("qualifications", "recommendations");
 
   if (depth === "deep") {
     sections.push("missing_materials");
   }
 
+  sections.push("conclusion");
   return sections;
 }

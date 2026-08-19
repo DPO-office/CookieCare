@@ -1,3 +1,5 @@
+process.env.GOOGLE_CLOUD_PROJECT ??= "plan-instruction-requirements-test";
+
 /**
  * PLAN phase — instruction requirements, standard resolution, completeness checks.
  */

@@ -29,14 +29,26 @@ export async function executeAnalysisPac(
 }
 
 async function handleCreate(jobId: string, userId: string, payload: any): Promise<any> {
-  const sessionId = payload.sessionId || `an_${crypto.randomUUID()}`;
-  const documentIds: string[] = payload.documentIds ?? [];
+  const requestedSessionId = payload.sessionId ? String(payload.sessionId) : "";
+  const prior = requestedSessionId
+    ? await loadLatestSession(requestedSessionId)
+    : null;
+  const sessionId = prior?.request.sessionId || requestedSessionId || `an_${crypto.randomUUID()}`;
+  const documentIds: string[] = payload.documentIds ?? prior?.request.documentIds ?? [];
   const documentRoles =
     payload.documentRoles && typeof payload.documentRoles === "object"
       ? (payload.documentRoles as Record<string, "target" | "reference">)
-      : undefined;
+      : prior?.request.documentRoles;
+  const documentPresentation =
+    payload.documentMode === "individual" || payload.documentMode === "unified"
+      ? payload.documentMode
+      : prior?.request.documentPresentation;
+  const answerStyle =
+    payload.answerStyle === "tabular" || payload.answerStyle === "narrative"
+      ? payload.answerStyle
+      : prior?.request.answerStyle;
   console.log(
-    `[Analysis PAC] job create jobId=${jobId} session=${sessionId} docs=${documentIds.length} library=${payload.promptLibraryId || "-"}`
+    `[Analysis PAC] job create jobId=${jobId} session=${sessionId} docs=${documentIds.length} library=${payload.promptLibraryId || "-"} followUp=${Boolean(prior)}`
   );
 
   await updateJobProgress(jobId, userId, 15, "Reading documents…");
@@ -69,19 +81,37 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
     },
     onToken,
     entryMode: "CREATE",
-    organizationId: payload.organizationId ? String(payload.organizationId) : undefined,
+    organizationId: payload.organizationId
+      ? String(payload.organizationId)
+      : prior?.organizationId,
     agent: initAgentRunState("CREATE", { docCount: documentIds.length }),
     request: {
       sessionId,
       instruction: String(payload.instruction || ""),
       promptLibraryId: payload.promptLibraryId
         ? String(payload.promptLibraryId)
-        : undefined,
+        : prior?.request.promptLibraryId,
       documentIds,
       documentRoles,
+      documentPresentation,
+      answerStyle,
       documentTexts,
       documentTitles,
     },
+    conversation: prior?.conversation,
+    priorAnalysis: prior
+      ? {
+          instruction: prior.request.instruction,
+          intent: prior.intent,
+          findings: prior.findings ?? [],
+          requirementAssessments: prior.requirementAssessments,
+          analysisArtifacts: prior.analysisArtifacts,
+          renderedOutput: prior.renderedOutput,
+          activeSkillIds: prior.activeSkillIds,
+        }
+      : undefined,
+    activeSkillIds: prior?.activeSkillIds,
+    history: prior?.history,
     workspace: {
       sessionId,
       documents: documentIds.map((docId) => ({
@@ -208,6 +238,16 @@ async function handleResumeAsk(jobId: string, userId: string, payload: any): Pro
     critique: result.critique,
     conversation: result.conversation,
   };
+}
+
+async function loadLatestSession(sessionId: string): Promise<AnalysisState | null> {
+  const { rows } = await pool.query(
+    `SELECT state_snapshot_json FROM analysis_state_ledger
+     WHERE session_id = $1 ORDER BY version DESC LIMIT 1`,
+    [sessionId]
+  );
+  if (!rows.length) return null;
+  return rows[0].state_snapshot_json as AnalysisState;
 }
 
 async function persistLedger(

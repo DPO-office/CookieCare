@@ -1,4 +1,5 @@
 import type {
+  DocumentPresentation,
   IntentClassification,
   OperationAxis,
   OutputFormAxis,
@@ -73,12 +74,117 @@ export function isBriefSummaryInstruction(instruction: string): boolean {
   );
 }
 
+export function isTabularInstruction(instruction: string): boolean {
+  return /\b(tabular(?:\s+mode)?|as(?:\s+a)?\s+table|in\s+a\s+table|markdown\s+table|spreadsheet|column(?:s|ar)?\s+format|present(?:\s+\w+){0,4}\s+as\s+a\s+table)\b/i.test(
+    instruction
+  );
+}
+
+export function isNarrativeInstruction(instruction: string): boolean {
+  return /\b(narrative(?:\s+mode)?|as(?:\s+a)?\s+memo|in\s+prose|prose\s+form|paragraph(?:s)?(?:\s+form)?|not\s+(?:a\s+)?table|instead\s+of\s+a\s+table)\b/i.test(
+    instruction
+  );
+}
+
+export function detectDocumentPresentation(
+  instruction: string
+): DocumentPresentation | undefined {
+  if (
+    /\b(each(?:\s+attached)?\s+document\s+individually|individually\s+rather\s+than|per[- ]document|separate(?:ly)?(?:\s+for\s+each)|one\s+report\s+per\s+document|individual\s+mode)\b/i.test(
+      instruction
+    )
+  ) {
+    return "individual";
+  }
+  if (
+    /\b(combined\s+(?:review|report|analysis|mode)|unified(?:\s+mode)?|together\s+as\s+(?:a\s+)?(?:single|one)|single\s+combined|as\s+one\s+(?:report|review))\b/i.test(
+      instruction
+    )
+  ) {
+    return "unified";
+  }
+  return undefined;
+}
+
+export type FollowUpKind =
+  | "none"
+  | "presentation_change"
+  | "conversational_qa"
+  | "new_analysis";
+
+const PRESENTATION_ONLY_RE =
+  /^\s*(please\s+|can you\s+|could you\s+)?(now\s+|instead\s+)?(show|present|format|rewrite|reformat|render|give|make)\b.{0,80}\b(table|tabular|narrative|memo|prose|individually|combined|unified|separately)\b/i;
+
+const NEW_ANALYSIS_FOLLOWUP_RE =
+  /\b(?:(?:can|could)\s+you\s+(?:also\s+)?(?:check|review|analyze|analyse|assess|run|perform|look at|evaluate|audit|scan|inspect)|(?:also|additionally|now|next)\s+(?:check|review|analyze|analyse|assess|run|perform|look at|evaluate)|(?:please\s+)?(?:check|review|analyze|analyse|assess)\s+(?:this|the|my)\s+(?:dpa|document|agreement|contract|msa|nda)\s+(?:for|against))\b/i;
+
+const CONVERSATIONAL_QA_RE =
+  /\b(you (?:said|mentioned|found|flagged|wrote)|the (?:previous|prior|last) (?:report|analysis|answer)|as (?:above|before)|that (?:finding|risk|clause|gap)|what about|can you (?:explain|clarify|expand)|why (?:is|did|was)|how (?:does|did|is))\b/i;
+
+export function isNewAnalysisFollowUpInstruction(instruction: string): boolean {
+  return NEW_ANALYSIS_FOLLOWUP_RE.test(instruction.trim());
+}
+
+export function classifyFollowUpKind(args: {
+  instruction: string;
+  hasPriorConversation: boolean;
+  hasPriorFindings: boolean;
+}): FollowUpKind {
+  if (!args.hasPriorConversation) return "none";
+  const text = args.instruction.trim();
+
+  if (isNewAnalysisFollowUpInstruction(text)) {
+    return "new_analysis";
+  }
+
+  const presentationAsked =
+    isTabularInstruction(text) ||
+    isNarrativeInstruction(text) ||
+    Boolean(detectDocumentPresentation(text)) ||
+    PRESENTATION_ONLY_RE.test(text);
+
+  if (presentationAsked && args.hasPriorFindings && isMostlyPresentationAsk(text)) {
+    return "presentation_change";
+  }
+  if (args.hasPriorFindings && (CONVERSATIONAL_QA_RE.test(text) || isShortFollowUpQuestion(text))) {
+    return "conversational_qa";
+  }
+  return "new_analysis";
+}
+
+function isMostlyPresentationAsk(instruction: string): boolean {
+  const stripped = instruction
+    .replace(
+      /\b(present findings as a table|analyze each attached document individually rather than as a single combined review)\.?/gi,
+      " "
+    )
+    .replace(PRESENTATION_ONLY_RE, " ")
+    .replace(
+      /\b(tabular(?:\s+mode)?|narrative(?:\s+mode)?|as(?:\s+a)?\s+table|in\s+a\s+table|in\s+prose|individually|combined|unified)\b/gi,
+      " "
+    )
+    .replace(/\b(please|now|instead|show|present|format|rewrite|reformat|render|give|make|the|a|an|in|as|to|me)\b/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return stripped.length < 40;
+}
+
+function isShortFollowUpQuestion(instruction: string): boolean {
+  const text = instruction.trim();
+  if (text.length > 220) return false;
+  if (isNewAnalysisFollowUpInstruction(text)) return false;
+  return /^(what|why|how|which|where|who|can|could|would|please|explain|clarify|expand|and)\b/i.test(
+    text
+  );
+}
+
 /** Deterministic fallback when LLM unavailable — prefers risk_flag for risk-ish language. */
 export function heuristicClassify(instruction: string): {
   scope: ScopeAxis;
   operation: OperationAxis;
   standard: string;
   outputForm: OutputFormAxis;
+  documentPresentation?: DocumentPresentation;
   reportType?: ReportType;
   depth?: ReportDepth;
   compound: boolean;
@@ -125,12 +231,20 @@ export function heuristicClassify(instruction: string): {
     reportType = "risk_audit";
     confOp = 0.75;
   }
-  if (/\b(brief(?:\s+(?:overview|summary))?|concise|short summary|quick overview|simple language|plain(?:\s|-)?english|plain language|pass\/fail|short answer)\b/i.test(instruction)) {
+  if (isTabularInstruction(instruction)) {
+    outputForm = "table";
+    reportType = operation === "extract" ? "extraction_table" : reportType;
+  } else if (isNarrativeInstruction(instruction)) {
+    outputForm = "memo";
+  } else if (/\b(brief(?:\s+(?:overview|summary))?|concise|short summary|quick overview|simple language|plain(?:\s|-)?english|plain language|pass\/fail|short answer)\b/i.test(instruction)) {
     outputForm = "brief_summary";
     depth = "narrow";
   } else if (EXPLICIT_DEEP_DEPTH_RE.test(instruction)) {
     depth = "deep";
   }
+
+  const documentPresentation = detectDocumentPresentation(instruction);
+  const explicitForm = isTabularInstruction(instruction) || isNarrativeInstruction(instruction);
 
   void INTENT_CONFIDENCE_THRESHOLD;
   return {
@@ -138,6 +252,7 @@ export function heuristicClassify(instruction: string): {
     operation,
     standard: "none",
     outputForm,
+    documentPresentation,
     reportType,
     depth,
     compound: false,
@@ -146,7 +261,7 @@ export function heuristicClassify(instruction: string): {
       scope: 0.8,
       operation: confOp,
       standard: 0.9,
-      outputForm: 0.75,
+      outputForm: explicitForm ? 1 : 0.75,
     },
   };
 }
