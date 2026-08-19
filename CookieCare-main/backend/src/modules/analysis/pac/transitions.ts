@@ -30,6 +30,7 @@ export function nextPhaseAfterAsk(
 
 export function nextPhaseAfterAct(state: AnalysisState): Phase {
   if (isMaxTurnsReached(state) || isBudgetExceeded(state)) return "DONE";
+  if (state.plan?.skipCritique) return "DONE";
   return "CRITIQUE";
 }
 

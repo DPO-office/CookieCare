@@ -82,6 +82,13 @@ export async function evaluatePackage(
     briefs.find((b) => b.findingCategory)?.findingCategory ?? "other_known_risk";
   const bundle = state.sharedEvidence?.[packageId];
   const evidenceItems = bundle?.items ?? [];
+  const inputArtifactIds = (unit.input.inputArtifactIds as string[]) ?? [];
+  const artifactLines = inputArtifactIds.flatMap((artifactId) => {
+    const artifact = state.analysisArtifacts?.[artifactId];
+    if (!artifact) return [];
+    const serialized = JSON.stringify(artifact.data).slice(0, 5000);
+    return [`Structured ${artifact.type} records:`, serialized];
+  });
 
   const previousFeedback = unit.input.previousAttemptFeedback
     ? String(unit.input.previousAttemptFeedback)
@@ -103,7 +110,7 @@ export async function evaluatePackage(
       .map((b) => `[${b.id}] ${b.text}`)
       .join("\n")
       .slice(0, MAX_BRIEF_CHARS),
-    evidenceLines,
+    evidenceLines: [...evidenceLines, ...artifactLines],
     previousFeedback: previousFeedback || undefined,
   });
 

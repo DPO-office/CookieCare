@@ -1,7 +1,12 @@
+import crypto from "crypto";
 import type { AnalysisState } from "../../models/analysis-state.js";
-import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
+import type {
+  AnalysisWorkUnit,
+  RequirementExecutionPath,
+} from "../../models/analysis-plan.js";
 import type { Finding } from "../../models/finding.js";
 import type { RequirementAssessment } from "../../models/requirement-assessment.js";
+import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import {
   deriveRequirementStatus,
   findingsForRequirement,
@@ -16,13 +21,39 @@ import {
  */
 export function aggregateRequirements(
   state: AnalysisState,
-  _unit: AnalysisWorkUnit,
+  unit: AnalysisWorkUnit,
   findings: Finding[]
 ): { state: AnalysisState; findings: Finding[] } {
-  const requirementIds = orderedRequirementIds(findings);
+  const unsupported = (
+    (unit.input?.unsupportedRequirements as RequirementExecutionPath[] | undefined) ??
+    state.plan?.requirementExecutionPaths?.filter((path) => path.status === "not_supported") ??
+    []
+  ).filter((path) => path.requirementId && !path.requirementId.startsWith("_dep:"));
+
+  const extraFindings: Finding[] = [];
+  for (const path of unsupported) {
+    if (findings.some((f) => f.requirementId === path.requirementId)) continue;
+    extraFindings.push({
+      findingId: `f_unresolved_${path.requirementId}_${crypto.randomUUID().slice(0, 6)}`,
+      kind: "compliance",
+      category: "other_known_risk",
+      status: "not_covered",
+      claim:
+        path.reason ??
+        `No authored analysis package covers "${path.requirementId}".`,
+      evidence: [],
+      taxonomyVersion: RISK_TAXONOMY_VERSION,
+      workUnitId: unit.workUnitId,
+      visibility: "user_facing",
+      requirementId: path.requirementId,
+    });
+  }
+
+  const allFindings = [...findings, ...extraFindings];
+  const requirementIds = orderedRequirementIds(allFindings);
 
   const assessments: RequirementAssessment[] = requirementIds.map((requirementId) => {
-    const supporting = findingsForRequirement(requirementId, findings);
+    const supporting = findingsForRequirement(requirementId, allFindings);
     const status = deriveRequirementStatus(supporting);
     return {
       requirementId,
@@ -35,7 +66,7 @@ export function aggregateRequirements(
 
   return {
     state: { ...state, requirementAssessments: assessments },
-    findings,
+    findings: allFindings,
   };
 }
 

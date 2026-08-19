@@ -1,3 +1,5 @@
+process.env.GOOGLE_CLOUD_PROJECT ??= "skill-library-selection-test";
+
 /**
  * Selection, alias, and focus-map fixtures for the populated skill library.
  * Deterministic — no LLM. Preserves EU GDPR DSR isolation from UK/CCPA/topics.

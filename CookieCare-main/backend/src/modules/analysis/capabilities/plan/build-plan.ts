@@ -33,6 +33,8 @@ import { logPlanInspect } from "./plan-inspect-log.js";
 import { loadOrgMemory } from "../../memory/org-memory.js";
 import { applyOrgRoutingDefaults } from "../../memory/resolve-org-defaults.js";
 import { resolveDocumentRoles } from "./resolve-document-roles.js";
+import { followUpKindForState, isMaterialTopicShift } from "./follow-up-intent.js";
+import { replicateGraphForTargets } from "../../skills/replicate-graph-for-targets.js";
 
 const SKILL_DRIVEN_OPERATIONS = new Set([
   "risk_flag",
@@ -40,6 +42,7 @@ const SKILL_DRIVEN_OPERATIONS = new Set([
   "extract",
   "summarize",
   "compare",
+  "explain_qa",
 ]);
 
 const SHALLOW_OUTPUT_SIGNAL = /\b(brief|concise|short answer|pass\/fail|just give me)\b/i;
@@ -144,6 +147,10 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     request: {
       ...state.request,
       documentRoles: { ...state.request.documentRoles, ...roleResolution.roles },
+      documentPresentation:
+        intent.documentPresentation ??
+        state.request.documentPresentation ??
+        "unified",
     },
     workspace: {
       ...state.workspace,
@@ -157,6 +164,80 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
 
   const docTypeFloor = resolveDocTypeFloor(state);
   pacLog("PLAN doc-type floor", { docType: docTypeFloor });
+
+  const followUpKind = followUpKindForState(state);
+  const topicShifted =
+    Boolean(state.priorAnalysis?.intent && intent) &&
+    isMaterialTopicShift(state.priorAnalysis!.intent!, intent);
+  const effectiveFollowUpKind = topicShifted ? "new_analysis" : followUpKind;
+  const canReusePrior =
+    (effectiveFollowUpKind === "presentation_change" ||
+      effectiveFollowUpKind === "conversational_qa") &&
+    Boolean(
+      (state.priorAnalysis?.findings.length ?? 0) > 0 ||
+        (state.priorAnalysis?.requirementAssessments?.length ?? 0) > 0
+    );
+
+  if (canReusePrior && state.priorAnalysis) {
+    const reusedSkills = (
+      state.activeSkills?.length
+        ? state.activeSkills
+        : (state.priorAnalysis.activeSkillIds ?? [])
+            .map((id) => getSkillById(id))
+            .filter((skill): skill is NonNullable<typeof skill> => Boolean(skill))
+    );
+    const skills = reusedSkills.length ? reusedSkills : [getSkillById("_global")!];
+    const reportSpec = buildReportSpec(intent);
+    const schemaId = rendererSchemaForIntent(intent);
+    const plan: AnalysisPlan = {
+      intent,
+      workUnits: [
+        {
+          workUnitId: "wu-render",
+          tool: "render_output",
+          input: {
+            schemaId,
+            skillIds: skills.map((s) => s.skillId),
+            instruction: state.request.instruction,
+            followUpKind: effectiveFollowUpKind,
+          },
+          dependsOn: [],
+          outputSchema: "string",
+          status: "pending",
+        },
+      ],
+      missingClarifications: [],
+      outputForm: intent.outputForm,
+      documentPresentation: intent.documentPresentation,
+      skipCritique: true,
+      reportSpec,
+      rendererSchemaId: schemaId,
+      activeSkillIds: skills.map((s) => s.skillId),
+      pinnedVersions: {
+        clauseTaxonomyVersion:
+          state.metadata.clauseTaxonomyVersion ?? CLAUSE_TAXONOMY_VERSION,
+        riskTaxonomyVersion:
+          state.metadata.riskTaxonomyVersion ?? RISK_TAXONOMY_VERSION,
+        modelTask: "STRUCTURAL_JSON",
+      },
+    };
+    pacLog("PLAN follow-up re-render", {
+      kind: effectiveFollowUpKind,
+      schemaId,
+      findings: state.priorAnalysis.findings.length,
+    });
+    return {
+      ...state,
+      findings: state.priorAnalysis.findings,
+      requirementAssessments: state.priorAnalysis.requirementAssessments,
+      analysisArtifacts: state.priorAnalysis.analysisArtifacts,
+      activeSkills: skills,
+      activeSkillIds: skills.map((s) => s.skillId),
+      plan,
+      pendingSkillClarification: undefined,
+      clarificationRequest: undefined,
+    };
+  }
 
   if (!state.activeSkills?.length) {
     const skillStarted = Date.now();
@@ -182,26 +263,38 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
   const catalogStarted = Date.now();
   const focus = await extractInstructionFocus(state.request.instruction, skills, {
     riskAnalysisRequested,
+    intentRequirements: intent.requirements,
   });
   pacLog("PLAN catalog/focus", { ms: Date.now() - catalogStarted, reqs: focus?.requirements?.length ?? 0 });
   const reportSpec = buildReportSpec(intent);
   const relatedChecks = resolveRelatedChecks(skills, state.request.instruction, focus);
   const primaryDocId = roleResolution.targetDocId || docIds[0];
   const referenceDocId = roleResolution.referenceDocId;
+  const targetDocIds =
+    roleResolution.targetDocIds.length > 0
+      ? roleResolution.targetDocIds
+      : [primaryDocId];
 
   const graphStarted = Date.now();
-  const graph = buildActGraphDetailed({
-    docId: primaryDocId,
-    instruction: state.request.instruction,
-    skills,
-    intent,
-    focus,
-    relatedChecks,
-    unresolvedStandard: intent.unresolvedStandard,
-    referenceDocId,
-    reportSpec,
+  const graphs = targetDocIds.map((docId) =>
+    buildActGraphDetailed({
+      docId,
+      instruction: state.request.instruction,
+      skills,
+      intent,
+      focus,
+      relatedChecks,
+      unresolvedStandard: intent.unresolvedStandard,
+      referenceDocId,
+      reportSpec,
+    })
+  );
+  const graph = replicateGraphForTargets(graphs);
+  pacLog("PLAN act-graph", {
+    ms: Date.now() - graphStarted,
+    units: graph.workUnits.length,
+    targets: targetDocIds.length,
   });
-  pacLog("PLAN act-graph", { ms: Date.now() - graphStarted, units: graph.workUnits.length });
 
   const workUnits: AnalysisWorkUnit[] = orderByDependency(graph.workUnits);
 
@@ -209,17 +302,24 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     state.agent.docCount = docIds.length;
   }
 
-  const auditRecord = buildAuditRecord(skills.map((s) => s.skillId), focus, reportSpec);
+  const auditRecord = buildAuditRecord(
+    skills.map((s) => s.skillId),
+    focus,
+    reportSpec,
+    graph.packageResolution
+  );
   const plan: AnalysisPlan = {
     intent,
     workUnits,
     missingClarifications: [],
     outputForm: intent.outputForm,
+    documentPresentation: intent.documentPresentation,
     reportSpec,
     rendererSchemaId: graph.rendererSchemaId,
     activeSkillIds: skills.map((s) => s.skillId),
     focus,
     auditRecord,
+    requirementExecutionPaths: graph.packageResolution.requirementPaths,
     pinnedVersions: {
       clauseTaxonomyVersion:
         state.metadata.clauseTaxonomyVersion ?? CLAUSE_TAXONOMY_VERSION,
@@ -270,7 +370,15 @@ function applySensibleDefaults(intent: IntentClassification, instruction: string
     confidence.outputForm = INTENT_CONFIDENCE_THRESHOLD;
   }
 
-  return { ...intent, scope, outputForm, reportType, depth, confidence };
+  return {
+    ...intent,
+    scope,
+    outputForm,
+    documentPresentation: intent.documentPresentation ?? "unified",
+    reportType,
+    depth,
+    confidence,
+  };
 }
 
 function resolveDocTypeFloor(state: AnalysisState): string {
@@ -335,7 +443,12 @@ function buildReportSpec(intent: IntentClassification): ReportSpec {
 function buildAuditRecord(
   resolvedSkillIds: string[],
   focus: InstructionFocus | undefined,
-  reportSpec: ReportSpec
+  reportSpec: ReportSpec,
+  packageResolution?: {
+    packages: { pkg: { id: string } }[];
+    requirementToPackageId: Record<string, string>;
+    requirementPaths: PlanAuditRecord["requirementExecutionPaths"];
+  }
 ): PlanAuditRecord {
   const resolutionSources = [
     ...new Set((focus?.provenance ?? []).map((item) => item.source)),
@@ -356,6 +469,9 @@ function buildAuditRecord(
     completenessCheck: focus?.completenessCheck ?? [],
     unresolvedNeeds: focus?.unresolvedNeedDetails ?? [],
     provenance: focus?.provenance,
+    resolvedPackageIds: packageResolution?.packages.map((item) => item.pkg.id) ?? [],
+    requirementToPackageId: packageResolution?.requirementToPackageId ?? {},
+    requirementExecutionPaths: packageResolution?.requirementPaths ?? [],
   };
 }
 
@@ -368,12 +484,24 @@ function emptyPlan(
     workUnits: [],
     missingClarifications: missing,
     outputForm: intent.outputForm,
+    documentPresentation: intent.documentPresentation,
     rendererSchemaId: "checklist",
     pinnedVersions: {
       clauseTaxonomyVersion: CLAUSE_TAXONOMY_VERSION,
       riskTaxonomyVersion: RISK_TAXONOMY_VERSION,
     },
   };
+}
+
+function rendererSchemaForIntent(
+  intent: IntentClassification
+): AnalysisPlan["rendererSchemaId"] {
+  if (intent.outputForm === "brief_summary") return "brief_summary";
+  if (intent.outputForm === "table") return "table";
+  if (intent.outputForm === "qa_thread") return "qa_thread";
+  if (intent.outputForm === "memo") return "memo";
+  if (intent.operation === "explain_qa") return "qa_thread";
+  return "checklist";
 }
 
 function fallbackIntent(): IntentClassification {

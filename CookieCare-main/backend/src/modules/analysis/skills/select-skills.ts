@@ -115,6 +115,39 @@ function composeWithGlobal(skills: AnalysisSkillConfig[]): AnalysisSkillConfig[]
   return out;
 }
 
+/** Instruction plausibly needs Chapter V / international-transfer overlay packages. */
+const TRANSFER_OVERLAY_RE =
+  /\binternational (?:data )?transfers?\b|\bcross-border transfers?\b|\bthird countr|\bstandard contractual clauses\b|\bsccs?\b|\bschrems\b|\badequacy decision\b|\bbinding corporate rules\b|\bbcrs?\b|\bchapter v\b/i;
+
+/**
+ * Make related regime/doc-type skills available for catalog resolution.
+ * Does not decide which package runs — only ensures overlay packages exist.
+ */
+export function applyRegimeAutoPairs(
+  active: AnalysisSkillConfig[],
+  instructionText: string,
+  docType: string
+): AnalysisSkillConfig[] {
+  const dt = docType.toLowerCase();
+  if (
+    active.some((s) => s.skillId === "regimes/data-protection/gdpr") &&
+    !active.some((s) => s.skillId === "doc-types/dpa") &&
+    (dt === "dpa" || /dpa|data processing/i.test(instructionText))
+  ) {
+    const dpa = getSkillById("doc-types/dpa");
+    if (dpa) active.splice(1, 0, dpa);
+  }
+  if (
+    active.some((s) => s.skillId === "regimes/data-protection/gdpr") &&
+    !active.some((s) => s.skillId === "regimes/data-protection/international-transfers") &&
+    TRANSFER_OVERLAY_RE.test(instructionText)
+  ) {
+    const transfers = getSkillById("regimes/data-protection/international-transfers");
+    if (transfers) active.push(transfers);
+  }
+  return active;
+}
+
 /**
  * Default multi-skill composition across axes.
  * PLAN routes on skill.config.ts only — never on SKILL.md prose.
@@ -135,8 +168,10 @@ export function selectActiveSkills(
     if (id === "privacy" || id === "privacy-gdpr-dpa" || id === "gdpr") {
       const dpa = getSkillById("doc-types/dpa");
       const gdpr = getSkillById("regimes/data-protection/gdpr");
-      const skills = composeWithGlobal(
-        [dpa, gdpr].filter(Boolean) as AnalysisSkillConfig[]
+      const skills = applyRegimeAutoPairs(
+        composeWithGlobal([dpa, gdpr].filter(Boolean) as AnalysisSkillConfig[]),
+        instructionText,
+        dt
       );
       return {
         skills,
@@ -156,6 +191,7 @@ export function selectActiveSkills(
           skills.splice(1, 0, dpa);
         }
       }
+      applyRegimeAutoPairs(skills, instructionText, dt);
       return {
         skills,
         selectionPath: "library",
@@ -202,15 +238,7 @@ export function selectActiveSkills(
     if (!active.some((s) => s.skillId === t.skillId)) active.push(t);
   }
 
-  // Auto-pair: GDPR regime ⇒ include DPA doc-type when doc looks like a DPA
-  if (
-    active.some((s) => s.skillId === "regimes/data-protection/gdpr") &&
-    !active.some((s) => s.skillId === "doc-types/dpa") &&
-    (dt === "dpa" || /dpa|data processing/i.test(instructionText))
-  ) {
-    const dpa = getSkillById("doc-types/dpa");
-    if (dpa) active.splice(1, 0, dpa);
-  }
+  applyRegimeAutoPairs(active, instructionText, dt);
 
   if (jurisdiction) {
     const jid = canonicalizeJurisdictionId(jurisdiction);

@@ -16,7 +16,16 @@ import {
   mergeRegimeRules,
   mergeSkillClauseTypes,
 } from "./registry.js";
-import { resolvePackages, type ResolvedPackage } from "./resolve-packages.js";
+import {
+  analysisPackageKind,
+} from "../models/evidence-package.js";
+import {
+  hasUnsupportedExtraction,
+  resolvePackages,
+  validatePlannedWork,
+  type PackageResolution,
+  type ResolvedPackage,
+} from "./resolve-packages.js";
 import { orderByDependency } from "../utils/topo-batches.js";
 import type { RuleSource } from "../models/rule-source.js";
 
@@ -42,6 +51,7 @@ export interface BuildActGraphResult {
   workUnits: AnalysisWorkUnit[];
   schemaId: AnalysisPlan["rendererSchemaId"];
   rendererSchemaId: AnalysisPlan["rendererSchemaId"];
+  packageResolution: PackageResolution;
 }
 
 function rendererForSkill(
@@ -52,9 +62,10 @@ function rendererForSkill(
 ): BuildActGraphResult["rendererSchemaId"] {
   if (referenceDocId) return "playbook_comparison_memo";
   if (intent.outputForm === "brief_summary") return "brief_summary";
+  if (intent.outputForm === "table") return "table";
+  if (intent.outputForm === "qa_thread") return "qa_thread";
   if (focus?.matrixRowIds.length) return "rights_matrix_memo";
   if (intent.outputForm === "memo") return "memo";
-  if (intent.outputForm === "table") return "table";
   if (skill.defaultOperation === "compliance_check") return "checklist";
   return "checklist";
 }
@@ -118,8 +129,10 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
   const schemaId = rendererForSkill(primary, intent, focus, referenceDocId);
   const subIntents = effectiveSubIntents(intent);
 
-  const packageResolution = resolvePackages(skills, focus);
+  const packageResolution = resolvePackages(skills, focus, intent.requirements);
+  validatePlannedWork(packageResolution);
   const usePackages = packageResolution.packages.length > 0;
+  const skipLegacySubgraph = hasUnsupportedExtraction(packageResolution);
   const packageClauseTypes = [
     ...new Set(packageResolution.packages.flatMap(({ pkg }) => pkg.clauseTypes)),
   ];
@@ -127,7 +140,13 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
     s.expectedClauses.map((e) => e.clauseType)
   );
   const extractClauseTypes = usePackages
-    ? [...new Set([...packageClauseTypes, ...expectedClauseTypes])]
+    ? [
+        ...new Set([
+          ...packageClauseTypes,
+          ...expectedClauseTypes,
+          ...(packageResolution.leftoverRuleIds.length > 0 ? mergedClauseTypes : []),
+        ]),
+      ]
     : mergedClauseTypes;
 
   const units: AnalysisWorkUnit[] = [
@@ -203,11 +222,9 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
     riskUnitSignatures: new Set<string>(),
   };
 
-  // Package-centric ACT (doc §18): when the active skills author evidence
-  // packages relevant to the focus, evaluate related requirements together in
-  // one grouped call per package instead of one LLM call per rule. Skills
-  // without authored packages fall back to the per-rule subgraph so no regime
-  // regresses during migration.
+  // Package-centric ACT: run authored packages for covered requirements.
+  // Leftover named-rule verifications may still use check_against_rule.
+  // Extraction/coverage without a package never falls through to per-rule fan-out.
   const packageEvalLeaves: string[] = [];
   const depth: ReportDepth = input.reportSpec?.depth ?? intent.depth ?? "standard";
 
@@ -222,7 +239,37 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
         extractDep: "wu-extract",
       })
     );
-  } else {
+  }
+
+  if (
+    packageResolution.leftoverRuleIds.length > 0 ||
+    packageResolution.leftoverMatrixRowIds.length > 0 ||
+    packageResolution.leftoverRiskCategoryIds.length > 0
+  ) {
+    const leftoverFocus: InstructionFocus = {
+      ruleIds: packageResolution.leftoverRuleIds,
+      matrixRowIds: packageResolution.leftoverMatrixRowIds,
+      riskCategoryIds: packageResolution.leftoverRiskCategoryIds,
+      instructionText: instruction,
+    };
+    const leftoverLeaves = appendSubIntentUnits(units, {
+      prefix: usePackages ? "left-" : "",
+      si: subIntents[0] ?? {
+        operation: intent.operation,
+        standard: intent.standard,
+        outputForm: intent.outputForm,
+      },
+      docId,
+      instruction,
+      skillIds,
+      focus: leftoverFocus,
+      allRules,
+      skills,
+      extractDep: "wu-extract",
+      scheduled,
+    });
+    subgraphLeaves.push(...leftoverLeaves);
+  } else if (!usePackages && !skipLegacySubgraph) {
     subIntents.forEach((si, index) => {
       const prefix = subIntents.length > 1 ? `si${index}-` : "";
       const leaves = appendSubIntentUnits(units, {
@@ -299,24 +346,32 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
     subgraphLeaves.push("wu-web-ref");
   }
 
-  // Package path: derive risk deterministically from the authored compliance
-  // findings, then aggregate every finding into RequirementAssessments before
-  // the single render. Non-package leaves (playbook / related / comparative /
-  // web) still gate aggregation so it sees the complete finding set.
+  // Package path (or unsupported-extraction with no packages): aggregate into
+  // RequirementAssessments before the single render. Non-package leaves still
+  // gate aggregation so it sees the complete finding set.
   let renderDeps: string[];
-  if (usePackages) {
+  const needsAggregate =
+    usePackages || skipLegacySubgraph || packageResolution.requirementPaths.some((p) => p.status === "not_supported");
+  if (needsAggregate) {
+    const deriveDeps = packageEvalLeaves.length > 0 ? packageEvalLeaves : ["wu-extract"];
     units.push({
       workUnitId: "wu-derive-risk",
       tool: "derive_risk",
       input: { docId, skillIds, instruction },
-      dependsOn: packageEvalLeaves,
+      dependsOn: deriveDeps,
       outputSchema: "Finding[]",
       status: "pending",
     });
     units.push({
       workUnitId: "wu-aggregate",
       tool: "aggregate_requirements",
-      input: { skillIds, instruction },
+      input: {
+        skillIds,
+        instruction,
+        unsupportedRequirements: packageResolution.requirementPaths.filter(
+          (path) => path.status === "not_supported" && !path.requirementId.startsWith("_dep:")
+        ),
+      },
       dependsOn: ["wu-derive-risk", ...subgraphLeaves],
       outputSchema: "string",
       status: "pending",
@@ -345,6 +400,7 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
     workUnits: orderByDependency(units),
     schemaId,
     rendererSchemaId: schemaId,
+    packageResolution,
   };
 }
 
@@ -388,7 +444,8 @@ function appendSubIntentUnits(
     args;
   const runRisk =
     si.operation === "risk_flag" ||
-    si.operation === "extract";
+    si.operation === "extract" ||
+    (focus != null && (focus.riskCategoryIds?.length ?? 0) > 0);
   const runCompliance =
     si.operation === "compliance_check" ||
     Boolean(focus) ||
@@ -488,8 +545,9 @@ function appendSubIntentUnits(
 }
 
 /**
- * Emit, per resolved evidence package, a shared-evidence extraction unit and a
- * grouped evaluation unit. Returns the evaluation-unit ids (leaves).
+ * Emit work units per resolved analysis package, branching on `kind`.
+ * Dependency packages (requiresPackages) run first; evaluation may consume
+ * their artifacts. Returns leaf unit ids.
  */
 function appendPackageUnits(
   units: AnalysisWorkUnit[],
@@ -503,13 +561,69 @@ function appendPackageUnits(
   }
 ): string[] {
   const { packages, docId, instruction, skillIds, depth, extractDep } = args;
+  const leafByPackage = new Map<string, string>();
   const evalLeaves: string[] = [];
 
   for (const { pkg, requirementIds } of packages) {
     const safeId = pkg.id.replace(/[^a-zA-Z0-9._-]/g, "-");
+    const kind = analysisPackageKind(pkg);
+    const depLeaves = (pkg.requiresPackages ?? [])
+      .map((id) => leafByPackage.get(id))
+      .filter((id): id is string => Boolean(id));
+    const dependsOn = depLeaves.length > 0 ? [extractDep, ...depLeaves] : [extractDep];
+
+    if (kind === "inventory") {
+      const invId = `wu-pkg-inv-${safeId}`;
+      units.push({
+        workUnitId: invId,
+        tool: "inventory_provisions",
+        input: {
+          docId,
+          packageId: pkg.id,
+          clauseTypes: pkg.clauseTypes,
+          extractionTargets: pkg.extractionTargets,
+          outputArtifactType: pkg.outputArtifactType ?? "inventory",
+          requirementIds,
+          skillIds,
+          instruction,
+          config: pkg.config ?? {},
+          packageVersion: pkg.packageVersion,
+        },
+        dependsOn,
+        outputSchema: "Finding[]",
+        status: "pending",
+      });
+      leafByPackage.set(pkg.id, invId);
+      evalLeaves.push(invId);
+      continue;
+    }
+
+    if (kind === "evidence_extraction") {
+      const evidenceId = `wu-pkg-ev-${safeId}`;
+      units.push({
+        workUnitId: evidenceId,
+        tool: "extract_shared_evidence",
+        input: {
+          docId,
+          packageId: pkg.id,
+          clauseTypes: pkg.clauseTypes,
+          extractionTargets: pkg.extractionTargets,
+          skillIds,
+          instruction,
+        },
+        dependsOn,
+        outputSchema: "ClauseObject[]",
+        status: "pending",
+      });
+      leafByPackage.set(pkg.id, evidenceId);
+      evalLeaves.push(evidenceId);
+      continue;
+    }
+
+    // evaluation / matrix / comparison (comparison still uses grouped eval until
+    // a dedicated handler lands): shared evidence then grouped evaluation.
     const evidenceId = `wu-pkg-ev-${safeId}`;
     const evalId = `wu-pkg-eval-${safeId}`;
-
     units.push({
       workUnitId: evidenceId,
       tool: "extract_shared_evidence",
@@ -521,7 +635,7 @@ function appendPackageUnits(
         skillIds,
         instruction,
       },
-      dependsOn: [extractDep],
+      dependsOn,
       outputSchema: "ClauseObject[]",
       status: "pending",
     });
@@ -538,11 +652,13 @@ function appendPackageUnits(
         skillIds,
         instruction,
         depth,
+        inputArtifactIds: pkg.requiresPackages ?? [],
       },
-      dependsOn: [evidenceId],
+      dependsOn: [evidenceId, ...depLeaves],
       outputSchema: "Finding[]",
       status: "pending",
     });
+    leafByPackage.set(pkg.id, evalId);
     evalLeaves.push(evalId);
   }
 

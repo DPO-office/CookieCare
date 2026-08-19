@@ -137,10 +137,11 @@ export interface AnalysisSkillConfig {
   rightsMatrixRows?: RightsMatrixRow[];
   relatedChecks?: RelatedCheckRule[];
   /**
-   * Authored, versioned evidence/evaluation packages (ACT refactor doc §2).
-   * Each package groups related capability ids (rule / matrix-row / risk-category)
-   * that ACT evaluates together in one grouped LLM call. Every capabilityId must
-   * resolve to a real authored id in this skill (enforced by parity lint).
+   * Authored analysis packages (evaluation, inventory, …). Evaluation packages
+   * group related capability ids for one grouped LLM call. Inventory packages
+   * declare `kind: "inventory"` and may omit capabilityIds. Capability ids on
+   * evaluation packages must resolve to an authored rule/matrix-row/risk id on
+   * some registered skill (enforced by parity lint).
    */
   evidencePackages?: EvidencePackage[];
 }

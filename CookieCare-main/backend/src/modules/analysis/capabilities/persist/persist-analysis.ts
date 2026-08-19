@@ -17,14 +17,21 @@ export async function persistAnalysis(state: AnalysisState): Promise<AnalysisSta
   }
 
   if (next.request.instruction) {
+    const lastUser = [...(next.conversation?.turns ?? [])]
+      .reverse()
+      .find((turn) => turn.role === "user");
     const summary =
-      next.renderedOutput?.slice(0, 2000) ||
+      next.renderedOutput?.slice(0, 4000) ||
       `Analysis complete: ${next.findings.length} findings.` +
         (next.agent?.stoppedReason ? ` (${next.agent.stoppedReason})` : "");
-    next = appendConversationTurns(next, [
-      { role: "user", content: next.request.instruction },
-      { role: "assistant", content: summary },
-    ]);
+    const turns =
+      lastUser?.content === next.request.instruction
+        ? [{ role: "assistant" as const, content: summary }]
+        : [
+            { role: "user" as const, content: next.request.instruction },
+            { role: "assistant" as const, content: summary },
+          ];
+    next = appendConversationTurns(next, turns);
   }
 
   const stopped = next.agent?.stoppedReason;

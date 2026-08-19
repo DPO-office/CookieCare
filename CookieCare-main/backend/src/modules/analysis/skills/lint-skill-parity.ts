@@ -80,13 +80,30 @@ export function lintSkillParity(): SkillParityViolation[] {
       }
     }
 
-    // Authored evidence packages: every capabilityId must resolve to a real
-    // rule / matrix-row / risk-category id within this skill (ACT refactor doc §2).
+    // Authored analysis packages: evaluation capabilityIds must resolve to a
+    // real rule / matrix-row / risk-category id on some registered skill.
+    // Inventory packages may have empty capabilityIds.
     if (skill.evidencePackages?.length) {
-      const capabilityIds = authoredCapabilityIds(skill);
+      const registryCapabilities = new Set<string>();
+      const knownPackageIds = new Set<string>();
+      for (const other of Object.values(registry)) {
+        for (const id of authoredCapabilityIds(other)) registryCapabilities.add(id);
+        for (const pkg of other.evidencePackages ?? []) knownPackageIds.add(pkg.id);
+      }
       for (const pkg of skill.evidencePackages) {
+        const kind = pkg.kind ?? "evaluation";
+        for (const dep of pkg.requiresPackages ?? []) {
+          if (!knownPackageIds.has(dep)) {
+            violations.push({
+              skillId: skill.skillId,
+              kind: "unresolved_package_capability",
+              detail: `analysis package ${pkg.id} requiresPackages "${dep}" which is not an authored package id`,
+            });
+          }
+        }
+        if (kind === "inventory" && pkg.capabilityIds.length === 0) continue;
         for (const capId of pkg.capabilityIds) {
-          if (!capabilityIds.has(capId)) {
+          if (!registryCapabilities.has(capId)) {
             violations.push({
               skillId: skill.skillId,
               kind: "unresolved_package_capability",

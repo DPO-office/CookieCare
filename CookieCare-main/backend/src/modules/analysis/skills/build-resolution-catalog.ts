@@ -4,16 +4,22 @@ import {
   LLMTask,
 } from "../../../llm/index.js";
 import type {
+  ExplicitScope,
   InstructionRequirement,
   RequirementCapabilityMapping,
   UnresolvedNeedDetail,
 } from "../models/analysis-plan.js";
+import {
+  filterIdsByScope,
+  renderScopeForCatalogPrompt,
+} from "./extract-explicit-scope.js";
+import type { IntentRequirement } from "../models/intent.js";
 import type { AnalysisSkillConfig } from "./types.js";
 import { pacWarn } from "../utils/pac-log.js";
 
 export interface ResolutionCandidate {
   id: string;
-  kind: "rule" | "matrix_row" | "risk_category";
+  kind: "rule" | "matrix_row" | "risk_category" | "package";
   label: string;
   skillId: string;
   /** Semantic substance the candidate covers (rule text / matrix article / risk guidance). */
@@ -22,6 +28,10 @@ export interface ResolutionCandidate {
   applicableClauseTypes?: string[];
   checkType?: string;
   legalHook?: string;
+  /** Package-only: PLAN requirement types this package can satisfy. */
+  requirementKinds?: string[];
+  /** Package-only: semantic topics for requirement→package matching. */
+  semanticTopics?: string[];
 }
 
 export interface CatalogResolutionResult {
@@ -149,6 +159,38 @@ export function buildResolutionCatalog(
         description: category.guidance,
       });
     }
+
+    for (const pkg of skill.evidencePackages ?? []) {
+      const key = `package:${pkg.id}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      catalog.push({
+        id: pkg.id,
+        kind: "package",
+        label: pkg.label ?? pkg.id,
+        skillId: skill.skillId,
+        description:
+          [
+            pkg.description ??
+              `${pkg.kind ?? "evaluation"} package covering ${
+                pkg.requirementIds.join(", ") ||
+                pkg.capabilityIds.join(", ") ||
+                "authored analysis"
+              }`,
+            pkg.requirementKinds?.length
+              ? `requirementKinds: ${pkg.requirementKinds.join(", ")}`
+              : "",
+            pkg.semanticTopics?.length
+              ? `semanticTopics: ${pkg.semanticTopics.join(", ")}`
+              : "",
+          ]
+            .filter(Boolean)
+            .join(" | "),
+        applicableClauseTypes: pkg.clauseTypes.length > 0 ? pkg.clauseTypes : undefined,
+        requirementKinds: pkg.requirementKinds,
+        semanticTopics: pkg.semanticTopics,
+      });
+    }
   }
 
   return catalog;
@@ -177,7 +219,9 @@ export async function resolveFocusViaCatalog(
   instruction: string,
   catalog: ResolutionCandidate[],
   clauseTypeGlossary: Map<string, string> = new Map(),
-  fullTextIds?: Set<string>
+  fullTextIds?: Set<string>,
+  seedRequirements?: IntentRequirement[],
+  explicitScope?: ExplicitScope
 ): Promise<CatalogResolutionResult> {
   if (catalog.length === 0) {
     return emptyCatalogResult();
@@ -192,27 +236,51 @@ export async function resolveFocusViaCatalog(
     )
     .join("\n\n");
 
+  const seedBlock =
+    seedRequirements && seedRequirements.length > 0
+      ? [
+          "Seed requirements already extracted from the instruction (preserve these ids and types; add only if something distinct is missing):",
+          ...seedRequirements.map(
+            (req) => `- ${req.id} [${req.type}/${req.priority}]: ${req.description}`
+          ),
+          "",
+        ].join("\n")
+      : "";
+
+  const scopeBlock = explicitScope ? renderScopeForCatalogPrompt(explicitScope) : undefined;
+
   try {
     const raw = (await executeJsonCompletion(
       [
         "Analyze this document-analysis instruction in two steps:",
         "",
+        scopeBlock,
+        scopeBlock ? "" : undefined,
+        seedBlock,
         "STEP 1 — Extract semantic requirements:",
-        "List every distinct thing the user wants established, verified, or assessed.",
+        seedRequirements && seedRequirements.length > 0
+          ? "Start from the seed requirements above. Keep their ids. Add only genuinely missing distinct asks."
+          : "List every distinct thing the user wants established, verified, or assessed.",
         "Use snake_case ids (e.g. subject_matter, clause_adequacy, mandatory_article_28_3_clauses).",
         "Each requirement must be a semantic ask, not just a keyword or article number.",
         "Include completeness/presence/adequacy asks when the user asks to verify, check, or assess.",
         "",
-        "STEP 2 — Map requirements to catalog capabilities:",
-        "The candidate catalog below is the complete universe of selectable capabilities.",
+        "STEP 2 — Map requirements to catalog capabilities or analysis packages:",
+        "The candidate catalog below is the complete universe of selectable items.",
+        "Prefer a `package` candidate when the user wants inventory, extraction, listing, or a grouped evaluation that the package description covers.",
+        "Do not map an inventory/extraction ask onto a list of individual legal-article rule ids when a package candidate exists.",
         "Select every catalog candidate needed to fully satisfy the instruction.",
         "Reason over each candidate's full description, not just its label — the user may express requirements in different words.",
         "A single candidate description often enumerates several sub-requirements; when it does, use that one candidate to satisfy all of those user requirements (e.g. a rule whose description lists subject matter, duration, nature, purpose, data categories, data-subject categories, and controller obligations covers each of those as one capability).",
         "Map a fine-grained requirement to a broad rule whenever that rule's description already covers it. Do not report a requirement as unresolved if any candidate description covers it.",
         "Use the clause-type glossary to interpret each rule's clauseTypes as additional semantic context.",
-        "Put directly required capabilities in requiredIds.",
-        "Put contextual or adjacent capabilities in supportingIds (e.g. Article 29 when user asked for Article 28).",
-        "For each requirement, list which capability ids satisfy it in requirementMappings.",
+        "Put directly required capabilities or package ids in requiredIds.",
+        explicitScope
+          ? "Never put out-of-scope or context-only articles in requiredIds. Adjacent articles belong in supportingIds at most."
+          : "Put contextual or adjacent capabilities in supportingIds (e.g. Article 29 when user asked for Article 28).",
+        "Cross-referenced articles (e.g. Arts 32–36 mentioned inside Art 28(3)(f)) are context for the parent rule — do NOT schedule them as separate required rule checks.",
+        "For each requirement, list which capability or package ids satisfy it in requirementMappings.",
+        "Never map an extraction, inventory, or listing requirement onto individual legal-article rule ids when a package candidate's semanticTopics or description covers the same subject.",
         "Only return ids that appear in the candidate list. Never invent, rename, or derive an id.",
         "If a requirement cannot be satisfied by any catalog candidate, add it to unresolvedNeeds with a short reason.",
         "",
@@ -237,19 +305,43 @@ export async function resolveFocusViaCatalog(
       reasoning?: unknown;
     };
 
-    const requirements = parseRequirements(raw.requirements);
+    const parsedRequirements = parseRequirements(raw.requirements);
+    const requirements =
+      parsedRequirements.length > 0
+        ? parsedRequirements
+        : (seedRequirements ?? []).map((req) => ({
+            id: req.id,
+            label: req.description,
+            sourceText: req.description,
+          }));
     const selectedIds = asStringArray(raw.selectedIds);
     const requiredIds = asStringArray(raw.requiredIds);
     const supportingIds = asStringArray(raw.supportingIds);
     const requirementMappings = parseRequirementMappings(raw.requirementMappings);
     const unresolvedNeeds = parseUnresolvedNeeds(raw.unresolvedNeeds);
 
+    const scopedRequiredIds = explicitScope
+      ? filterIdsByScope(requiredIds, explicitScope, catalog)
+      : requiredIds;
+    const scopedSupportingIds = explicitScope
+      ? filterIdsByScope(supportingIds, explicitScope, catalog)
+      : supportingIds;
+    const scopedSelectedIds = explicitScope
+      ? filterIdsByScope(selectedIds, explicitScope, catalog)
+      : selectedIds;
+    const scopedMappings = explicitScope
+      ? requirementMappings.map((mapping) => ({
+          ...mapping,
+          capabilityIds: filterIdsByScope(mapping.capabilityIds, explicitScope, catalog),
+        }))
+      : requirementMappings;
+
     return {
       requirements,
-      selectedIds: dedupe([...selectedIds, ...requiredIds, ...supportingIds]),
-      requiredIds,
-      supportingIds,
-      requirementMappings,
+      selectedIds: dedupe([...scopedSelectedIds, ...scopedRequiredIds, ...scopedSupportingIds]),
+      requiredIds: scopedRequiredIds,
+      supportingIds: scopedSupportingIds,
+      requirementMappings: scopedMappings,
       unresolvedNeeds,
       reasoning: typeof raw.reasoning === "string" ? raw.reasoning : undefined,
     };
@@ -291,6 +383,12 @@ function renderCandidate(candidate: ResolutionCandidate, compact = false): strin
   }
   if (candidate.applicableClauseTypes && candidate.applicableClauseTypes.length > 0) {
     lines.push(`  clauseTypes: ${candidate.applicableClauseTypes.join(", ")}`);
+  }
+  if (candidate.requirementKinds && candidate.requirementKinds.length > 0) {
+    lines.push(`  requirementKinds: ${candidate.requirementKinds.join(", ")}`);
+  }
+  if (candidate.semanticTopics && candidate.semanticTopics.length > 0) {
+    lines.push(`  semanticTopics: ${candidate.semanticTopics.join(", ")}`);
   }
   if (candidate.checkType) {
     lines.push(`  checkType: ${candidate.checkType}`);

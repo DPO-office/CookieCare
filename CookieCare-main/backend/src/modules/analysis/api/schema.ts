@@ -8,6 +8,8 @@ export const AnalysisRequestSchema = z.object({
   organizationId: z.string().nullable().optional(),
   sessionId: z.string().optional(),
   documentRoles: z.record(z.string(), z.enum(["target", "reference"])).optional(),
+  documentMode: z.enum(["unified", "individual"]).optional(),
+  answerStyle: z.enum(["narrative", "tabular"]).optional(),
 });
 
 export const ResumeAskRequestSchema = z.object({

@@ -227,6 +227,8 @@ export function useAnalysis(authToken: string) {
         documentIds,
         documentRoles,
         promptLibraryId: promptLibraryId || undefined,
+        documentMode,
+        answerStyle,
       });
 
       const outcome = await waitForAnalysisJob({
@@ -325,9 +327,7 @@ export function useAnalysis(authToken: string) {
       return;
     }
 
-    const followUpInstruction = ctx?.instruction
-      ? `Follow-up on the prior analysis.\n\nPrior instruction:\n${ctx.instruction}\n\nFollow-up:\n${trimmed}`
-      : buildInstruction(trimmed, documentMode, answerStyle);
+    const followUpInstruction = buildInstruction(trimmed, documentMode, answerStyle);
 
     setIsAnalyzing(true);
     setAnalysisError("");
@@ -339,6 +339,9 @@ export function useAnalysis(authToken: string) {
         documentIds,
         documentRoles: ctx?.documentRoles,
         promptLibraryId: ctx?.promptLibraryId,
+        sessionId: sessionId || undefined,
+        documentMode,
+        answerStyle,
       });
 
       const outcome = await waitForAnalysisJob({

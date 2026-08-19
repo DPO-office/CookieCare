@@ -4,7 +4,7 @@
 Operational overlay for Commission Decision (EU) 2021/914 SCC modules, docking, transfer impact assessments, and EDPB Schrems II supplementary measures. GDPR Chapter V (Articles 44–49) remains in `regimes/data-protection/gdpr` and is not duplicated here.
 
 ## clause:international_transfer_mechanism
-Mechanism for cross-border transfers (structural).
+Mechanism for cross-border transfers (structural). Inventory this clause family first: destination, transfer tool (EU SCC / UK Addendum / BCR / adequacy / local mechanism), legal basis, supplementary measures, and cross-references to annexes or other transfer documents. Do not treat inventory as a Chapter V compliance verdict.
 
 ## rule:transfers.scc_module_selection
 Identify the applicable 2021 SCC module (1 C2C, 2 C2P, 3 P2P, 4 P2C) and complete annexes. An unsigned or unmoduled pack is not a completed tool.

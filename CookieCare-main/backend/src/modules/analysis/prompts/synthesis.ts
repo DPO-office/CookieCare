@@ -1,20 +1,23 @@
 import type { AnalysisState } from "../models/analysis-state.js";
 import type { Finding } from "../models/finding.js";
 import type { ReportSectionId, ReportSpec } from "../models/intent.js";
+import { conversationContextForIntent } from "../memory/conversation-window.js";
 import type { RequirementAssessment } from "../models/requirement-assessment.js";
 import {
   groupAssessmentsForReport,
   humanizeRequirementId,
 } from "../capabilities/act/group-assessments.js";
+import {
+  REPORT_SECTION_DEFINITIONS,
+  buildSectionGuidanceBlock,
+  narrativeArcGuidance,
+  normalizeReportSections,
+  suggestedHeading,
+} from "./report-sections.js";
 
-export const SYNTHESIS_SECTION_LABELS: Record<ReportSectionId, string> = {
-  scope_and_conclusion: "Scope and conclusion",
-  chapeau_particulars: "Chapeau particulars",
-  requirements_detail: "Requirements detail",
-  qualifications: "Qualifications",
-  recommendations: "Recommendations",
-  missing_materials: "Missing materials",
-};
+export const SYNTHESIS_SECTION_LABELS: Record<ReportSectionId, string> = Object.fromEntries(
+  Object.entries(REPORT_SECTION_DEFINITIONS).map(([id, def]) => [id, def.suggestedHeading])
+) as Record<ReportSectionId, string>;
 
 /**
  * Final-report writer. The pipeline already assessed requirements; this model
@@ -45,12 +48,20 @@ export const SYNTHESIS_SYSTEM_PROMPT = [
   "Do not overstate. Prefer \"not identified in the reviewed materials\" over \"the agreement does not contain…\" unless the relevant agreement or section was actually reviewed in full.",
   "Never turn incomplete evidence into a categorical legal conclusion.",
   "",
-  "Lead with a clear executive bottom line, then the reason it follows from the evidence.",
+  "Each report section has a distinct rhetorical role (see SECTION ARCHITECTURE in the user brief).",
+  "Respect the declared section order. Adapt heading wording to the user's request when natural, but never merge scope with conclusion or state the overall verdict in the scope section.",
+  "When analysis sections precede a conclusion, build the case first and synthesize the bottom line only in the conclusion section.",
   "Highlight contradictions, qualifications, and cross-references that materially affect the conclusion.",
   "Recommendations must follow from identified gaps. Do not invent generic checklists or advise whether to sign or litigate.",
   "Introduce no new claim, right, timeframe, or citation that is not in the supplied assessments, findings, or evidence.",
-  "Use only the requested sections, in order, and omit any that would be empty.",
+    "Use only the requested sections, in order, and omit any that would be empty.",
   "The report should read like work from a senior legal or compliance analyst.",
+  "",
+  "If OUTPUT FORM is tabular, write the analysis as markdown tables with a short prose bottom line. Do not write long narrative sections.",
+  "If OUTPUT FORM is narrative, write flowing prose. Use tables only when they materially help.",
+  "If DOCUMENT PRESENTATION is individual, write a clearly separated section for each named document. Do not blend documents into one undivided report.",
+  "If DOCUMENT PRESENTATION is unified and multiple documents were reviewed, write one combined report and name the documents in the scope section.",
+  "If PRIOR CONVERSATION is supplied, answer the current user message in that context. Do not reprint the entire prior report unless the user asked to rewrite it.",
 ].join("\n");
 
 export function buildSynthesisUserPrompt(
@@ -59,15 +70,45 @@ export function buildSynthesisUserPrompt(
   assessments: RequirementAssessment[],
   reportSpec: ReportSpec
 ): string {
-  const sections = reportSpec.sections
-    .map((id) => `- ${SYNTHESIS_SECTION_LABELS[id]}`)
+  const sections = normalizeReportSections(reportSpec.sections);
+  const sectionHeadings = sections
+    .map((id) => `- ${suggestedHeading(id)}`)
     .join("\n");
   const groups = groupAssessmentsForReport(assessments);
   const findingById = new Map(findings.map((f) => [f.findingId, f]));
 
+  const presentation =
+    state.intent?.documentPresentation ??
+    state.request.documentPresentation ??
+    "unified";
+  const outputForm = state.intent?.outputForm ?? (state.request.answerStyle === "tabular" ? "table" : "memo");
+  const conversation = conversationContextForIntent({
+    conversation: state.conversation,
+    priorInstruction: state.priorAnalysis?.instruction,
+    priorReport: state.priorAnalysis?.renderedOutput,
+  });
+  const documents = (state.workspace?.documents ?? [])
+    .map((d) => `- ${d.title || d.docId} (${d.role || "target"})`)
+    .join("\n");
+
   return [
     "USER REQUEST",
     state.request.instruction.slice(0, 800),
+    "",
+    conversation ? conversation : "",
+    conversation ? "" : "",
+    "OUTPUT FORM",
+    outputForm === "table"
+      ? "tabular — markdown tables with a short prose bottom line"
+      : outputForm === "brief_summary"
+        ? "brief summary — short prose, no exhaustive tables"
+        : "narrative — memo/prose",
+    "",
+    "DOCUMENT PRESENTATION",
+    presentation === "individual"
+      ? "individual — a separate headed section per uploaded document"
+      : "unified — one combined report covering all target documents",
+    documents ? `Documents:\n${documents}` : "",
     "",
     "LEGAL FRAMEWORK",
     legalFramework(state),
@@ -78,9 +119,14 @@ export function buildSynthesisUserPrompt(
     "REPORT SPEC",
     `Type: ${reportSpec.reportType}`,
     `Depth: ${reportSpec.depth}`,
-    "Produce ONLY these sections, in order, omitting any that would be empty:",
-    sections,
+    "Produce ONLY the section roles below, in order, omitting any that would be empty:",
+    sectionHeadings,
+    "",
+    buildSectionGuidanceBlock(reportSpec.sections),
+    "",
     depthGuidance(reportSpec.depth),
+    "",
+    narrativeArcGuidance(reportSpec.reportType, reportSpec.depth, reportSpec.sections),
     "",
     "Write one user-facing section per THEME GROUP below. Internal members of a group are the same legal question; synthesize them into one assessment.",
     "",
@@ -90,16 +136,14 @@ export function buildSynthesisUserPrompt(
     "CROSS-REFERENCES",
     renderCrossReferences(state, findings, assessments),
     "",
+    "STRUCTURED INVENTORIES",
+    renderArtifacts(state),
+    "",
     "CONTRADICTIONS AND QUALIFICATIONS",
     renderContradictions(groups, assessments),
     "",
     "MATERIAL RISKS",
     renderRisks(findings),
-    "",
-    reportSpec.reportType === "regime_compliance_memo" ||
-    reportSpec.reportType === "risk_audit"
-      ? "First form the overall legal position. Then write the report, beginning with a direct bottom-line conclusion."
-      : "First form the overall legal position. Then answer the user's question directly and concisely.",
   ].join("\n");
 }
 
@@ -228,6 +272,40 @@ function renderContradictions(
   return lines.join("\n");
 }
 
+function renderArtifacts(state: AnalysisState): string {
+  const artifacts = Object.values(state.analysisArtifacts ?? {});
+  if (artifacts.length === 0) return "None.";
+  return artifacts
+    .map((artifact) => {
+      const data = artifact.data as {
+        transfers?: Array<{
+          mechanism?: string;
+          destinationJurisdiction?: string;
+          quotedText?: string;
+          sectionIds?: string[];
+        }>;
+        records?: unknown[];
+        mechanisms?: string[];
+        jurisdictions?: string[];
+      };
+      if (artifact.type === "transfer_inventory" && data.transfers) {
+        const lines = data.transfers.slice(0, 20).map((row) => {
+          const where = row.destinationJurisdiction || row.sectionIds?.join(", ") || "";
+          return `- ${row.mechanism ?? "unspecified"}${where ? ` (${where})` : ""}${
+            row.quotedText ? `: ${row.quotedText.slice(0, 160)}` : ""
+          }`;
+        });
+        const summary = [
+          data.mechanisms?.length ? `Mechanisms: ${data.mechanisms.join(", ")}` : "",
+          data.jurisdictions?.length ? `Jurisdictions: ${data.jurisdictions.join(", ")}` : "",
+        ].filter(Boolean);
+        return ["Transfer provisions identified:", ...summary, ...lines].join("\n");
+      }
+      return `${artifact.type}: ${JSON.stringify(artifact.data).slice(0, 800)}`;
+    })
+    .join("\n\n");
+}
+
 function renderRisks(findings: Finding[]): string {
   const risks = findings.filter((f) => f.kind === "risk" && f.visibility !== "internal");
   if (risks.length === 0) return "None flagged as user-facing material risks.";
@@ -237,11 +315,11 @@ function renderRisks(findings: Finding[]): string {
 function depthGuidance(depth: ReportSpec["depth"]): string {
   switch (depth) {
     case "narrow":
-      return "Depth = narrow: give the direct answer with concise evidence and minimal explanation.";
+      return "Depth = narrow: concise scope framing and a direct conclusion; fold essential evidence into the conclusion rather than lengthy analysis sections.";
     case "deep":
-      return "Depth = deep: answer, evidence, rationale, qualifications, material risks, recommendations, and missing materials where relevant.";
+      return "Depth = deep: thorough analysis sections with evidence and rationale; qualifications, recommendations, and missing materials where relevant; conclusion synthesizes without repeating the full analysis.";
     case "standard":
     default:
-      return "Depth = standard: answer, evidence, gap explanation where needed, and a concise recommendation that follows from the gaps.";
+      return "Depth = standard: balanced analysis with gap explanation where needed; conclusion states the bottom line after the reader has seen the key findings.";
   }
 }

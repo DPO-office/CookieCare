@@ -6,8 +6,10 @@ import {
 import type { AnalysisState } from "../../models/analysis-state.js";
 import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
 import type { Finding, MatrixAddressing } from "../../models/finding.js";
+import type { SegmentedDocument } from "../../models/document-workspace.js";
 import type { RuleSourceTier } from "../../models/rule-source.js";
 import type { ReportSpec, ReportType } from "../../models/intent.js";
+import { deriveSections } from "../../models/intent.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { getSkillById } from "../../skills/registry.js";
 import { extractArticleNumbers } from "../../skills/extract-instruction-focus.js";
@@ -36,7 +38,7 @@ function resolveReportSpec(state: AnalysisState, schemaId: string): ReportSpec {
   return {
     reportType,
     depth: "standard",
-    sections: ["scope_and_conclusion", "requirements_detail", "recommendations"],
+    sections: deriveSections(reportType, "standard"),
   };
 }
 
@@ -73,11 +75,29 @@ export async function renderOutput(
     schemaId !== "playbook_comparison_memo" &&
     schemaId !== "brief_summary";
 
+  const presentation =
+    state.intent?.documentPresentation ??
+    state.request.documentPresentation ??
+    "unified";
+  const targetDocs = (state.workspace.documents ?? []).filter(
+    (d) => d.role !== "reference"
+  );
+
   let rendered: string;
   if (usesSynthesis) {
     const synthStarted = Date.now();
-    rendered = await synthesizeReport(state, visible, resolveReportSpec(state, schemaId));
-    pacLog("render synthesis", { ms: Date.now() - synthStarted, assessments: assessments.length });
+    const spec = resolveReportSpec(state, schemaId);
+    if (presentation === "individual" && targetDocs.length > 1) {
+      rendered = await synthesizeIndividualReports(state, visible, spec, targetDocs);
+    } else {
+      rendered = await synthesizeReport(state, visible, spec);
+    }
+    pacLog("render synthesis", {
+      ms: Date.now() - synthStarted,
+      assessments: assessments.length,
+      presentation,
+      schemaId,
+    });
   } else if (schemaId === "brief_summary") {
     rendered = buildBriefSummaryDocument(state, visible);
     emitAnalysisToken(state, `${rendered}\n`);
@@ -125,6 +145,46 @@ export async function renderOutput(
     renderedOutput: rendered,
     findings: [...findings, renderFinding],
   };
+}
+
+async function synthesizeIndividualReports(
+  state: AnalysisState,
+  findings: Finding[],
+  spec: ReportSpec,
+  docs: SegmentedDocument[]
+): Promise<string> {
+  const parts: string[] = [];
+  for (const [index, doc] of docs.entries()) {
+    const docFindings = findings.filter((finding) =>
+      findingBelongsToDoc(finding, doc.docId, index)
+    );
+    const findingIds = new Set(docFindings.map((finding) => finding.findingId));
+    const assessments = (state.requirementAssessments ?? []).filter((assessment) =>
+      assessment.supportingFindingIds.length === 0
+        ? docFindings.length > 0
+        : assessment.supportingFindingIds.some((id) => findingIds.has(id))
+    );
+    const heading = `# Analysis for: ${doc.title || doc.docId}`;
+    emitAnalysisToken(state, `\n\n${heading}\n\n`);
+    const scoped: AnalysisState = {
+      ...state,
+      findings: docFindings,
+      requirementAssessments: assessments,
+      request: {
+        ...state.request,
+        instruction: `${state.request.instruction}\n\nWrite this section only for document: ${doc.title || doc.docId}.`,
+      },
+    };
+    const body = await synthesizeReport(scoped, docFindings, spec);
+    parts.push(`${heading}\n\n${body}`);
+  }
+  return parts.join("\n\n---\n\n");
+}
+
+function findingBelongsToDoc(finding: Finding, docId: string, docIndex: number): boolean {
+  if (finding.evidence.some((span) => span.locator.docId === docId)) return true;
+  if (finding.workUnitId?.startsWith(`d${docIndex}-`)) return true;
+  return false;
 }
 
 const INTERNAL_VERIFICATION_CLAIM =

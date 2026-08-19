@@ -1,5 +1,6 @@
 import type {
   CompletenessCheckItem,
+  ExplicitScope,
   InstructionFocus,
   InstructionRequirement,
   RequirementCapabilityMapping,
@@ -7,6 +8,7 @@ import type {
   ResolutionSource,
   UnresolvedNeedDetail,
 } from "../models/analysis-plan.js";
+import type { IntentRequirement } from "../models/intent.js";
 import type { AnalysisSkillConfig } from "./types.js";
 import { pacLog, pacWarn } from "../utils/pac-log.js";
 import {
@@ -16,16 +18,16 @@ import {
   validateAgainstCatalog,
   type ResolutionCandidate,
 } from "./build-resolution-catalog.js";
+import {
+  extractExplicitScope,
+  filterIdsByScope,
+  ruleIdMatchesScope,
+  scopeBoundaryActive,
+} from "./extract-explicit-scope.js";
 
-/** Shared normalization for all deterministic instruction-focus matching. */
-export function normalizeForMatch(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[\u2010-\u2015\u2212]/g, "-")
-    .replace(/\s*-\s*/g, "-")
-    .replace(/\s+/g, " ")
-    .trim();
-}
+import { normalizeForMatch } from "./normalize-for-match.js";
+
+export { normalizeForMatch } from "./normalize-for-match.js";
 
 function containsPhrase(haystack: string, phrase: string): boolean {
   const needle = normalizeForMatch(phrase);
@@ -98,11 +100,17 @@ function articleNumberFromMatrixArticle(article: string): number | undefined {
 
 function explicitArticleFocus(
   instruction: string,
-  skills: AnalysisSkillConfig[]
+  skills: AnalysisSkillConfig[],
+  explicitScope?: ExplicitScope
 ): Pick<InstructionFocus, "ruleIds" | "matrixRowIds" | "riskCategoryIds"> | undefined {
   const requested = extractArticleNumbers(instruction);
-  if (requested.length === 0) return undefined;
-  const requestedSet = new Set(requested);
+  if (requested.length === 0 && !explicitScope?.subsections?.length) return undefined;
+  const requestedSet = new Set(
+    explicitScope && scopeBoundaryActive(explicitScope)
+      ? explicitScope.articles
+      : requested
+  );
+  if (requestedSet.size === 0) return undefined;
 
   const rules = skills
     .flatMap((skill) => skill.regimeRules)
@@ -123,11 +131,17 @@ function explicitArticleFocus(
 
   if (rules.length === 0 && rows.length === 0) return undefined;
 
+  const scopedRules = explicitScope
+    ? directlyEvaluatedRules.filter((rule) =>
+        ruleIdMatchesScope(rule.ruleId, explicitScope)
+      )
+    : directlyEvaluatedRules;
+
   return {
-    ruleIds: dedupe(directlyEvaluatedRules.map((rule) => rule.ruleId)),
+    ruleIds: dedupe(scopedRules.map((rule) => rule.ruleId)),
     matrixRowIds: dedupe(rows.map((row) => row.rowId)),
     riskCategoryIds: dedupe(
-      directlyEvaluatedRules.map((rule) => rule.findingCategory)
+      scopedRules.map((rule) => rule.findingCategory)
     ),
   };
 }
@@ -143,11 +157,13 @@ const RESTRICTED_SCOPE_RE =
  */
 export function collectStrongCatalogShortlist(
   instruction: string,
-  skills: AnalysisSkillConfig[]
+  skills: AnalysisSkillConfig[],
+  explicitScope?: ExplicitScope,
+  catalog?: ResolutionCandidate[]
 ): { strong: boolean; ids: Set<string> } {
   const haystack = normalizeForMatch(instruction);
   const ids = new Set<string>();
-  const articleFocus = explicitArticleFocus(instruction, skills);
+  const articleFocus = explicitArticleFocus(instruction, skills, explicitScope);
   if (articleFocus) {
     for (const id of articleFocus.ruleIds ?? []) ids.add(id);
     for (const id of articleFocus.matrixRowIds ?? []) ids.add(id);
@@ -165,10 +181,21 @@ export function collectStrongCatalogShortlist(
   const strong = ids.size > 0 || restricted;
   if (!strong) return { strong: false, ids };
 
+  if (explicitScope && scopeBoundaryActive(explicitScope) && catalog) {
+    for (const id of [...ids]) {
+      if (!filterIdsByScope([id], explicitScope, catalog).length) ids.delete(id);
+    }
+  }
+
   for (const skill of skills) {
     for (const pkg of skill.evidencePackages ?? []) {
-      if (!pkg.capabilityIds.some((id) => ids.has(id))) continue;
-      for (const id of pkg.capabilityIds) ids.add(id);
+      if (
+        pkg.capabilityIds.some((id) => ids.has(id)) ||
+        pkg.requirementIds.some((id) => ids.has(id))
+      ) {
+        ids.add(pkg.id);
+        for (const id of pkg.capabilityIds) ids.add(id);
+      }
     }
   }
   return { strong: true, ids };
@@ -215,6 +242,12 @@ const HEURISTIC_REQUIREMENT_PATTERNS: Array<{
     id: "data_subject_rights",
     label: "Data subject rights",
     pattern: /\bdata subject rights?\b|\barticles?\s*15\s*[-–—to]+\s*22\b/i,
+  },
+  {
+    id: "international_data_transfer",
+    label: "International data transfers",
+    pattern:
+      /\binternational (?:data )?transfers?\b|\bcross-border transfers?\b|\bthird countr/i,
   },
 ];
 
@@ -334,25 +367,39 @@ function buildCompletenessCheck(
 export async function extractInstructionFocus(
   instruction: string,
   skills: AnalysisSkillConfig[],
-  options: { riskAnalysisRequested?: boolean } = {}
+  options: {
+    riskAnalysisRequested?: boolean;
+    intentRequirements?: IntentRequirement[];
+  } = {}
 ): Promise<InstructionFocus | undefined> {
   const riskAnalysisRequested = options.riskAnalysisRequested === true;
   const haystack = normalizeForMatch(instruction);
   if (!haystack) return undefined;
 
+  const explicitScope = extractExplicitScope(instruction);
   const catalog = buildResolutionCatalog(skills);
   const clauseTypeGlossary = buildClauseTypeGlossary(skills);
-  const shortlist = collectStrongCatalogShortlist(instruction, skills);
+  const shortlist = collectStrongCatalogShortlist(
+    instruction,
+    skills,
+    explicitScope,
+    catalog
+  );
   pacLog("catalog prefilter", {
     full: catalog.length,
     strong: shortlist.strong,
     fullTextIds: shortlist.ids.size,
+    scopeArticles: explicitScope.articles,
+    scopeSubsections: explicitScope.subsections?.length ?? 0,
+    contextArticles: explicitScope.contextArticles,
   });
   const catalogResult = await resolveFocusViaCatalog(
     instruction,
     catalog,
     clauseTypeGlossary,
-    shortlist.strong && shortlist.ids.size > 0 ? shortlist.ids : undefined
+    shortlist.strong && shortlist.ids.size > 0 ? shortlist.ids : undefined,
+    options.intentRequirements,
+    explicitScope
   );
   const { valid: catalogValidIds, dropped } = validateAgainstCatalog(
     catalogResult.selectedIds,
@@ -366,7 +413,7 @@ export async function extractInstructionFocus(
     validCatalogSet.has(id)
   );
 
-  const articleFocus = explicitArticleFocus(instruction, skills);
+  const articleFocus = explicitArticleFocus(instruction, skills, explicitScope);
   const isExplicitlyRestricted = RESTRICTED_SCOPE_RE.test(instruction);
 
   const phraseRuleIds: string[] = [];
@@ -393,22 +440,42 @@ export async function extractInstructionFocus(
     ...explicitRiskCategoryIds,
   ]);
 
-  const supportingPhraseRuleIds = isExplicitlyRestricted
-    ? phraseRuleIds.filter((id) => explicitIds.has(id))
-    : phraseRuleIds;
-  const supportingPhraseMatrixRowIds = isExplicitlyRestricted
-    ? phraseMatrixRowIds.filter((id) => explicitIds.has(id))
-    : phraseMatrixRowIds;
+  const supportingPhraseRuleIds = filterIdsByScope(
+    (isExplicitlyRestricted
+      ? phraseRuleIds.filter((id) => explicitIds.has(id))
+      : phraseRuleIds
+    ).filter((id) => ruleIdMatchesScope(id, explicitScope)),
+    explicitScope,
+    catalog
+  );
+  const supportingPhraseMatrixRowIds = filterIdsByScope(
+    isExplicitlyRestricted
+      ? phraseMatrixRowIds.filter((id) => explicitIds.has(id))
+      : phraseMatrixRowIds,
+    explicitScope,
+    catalog
+  );
   const supportingPhraseRiskCategoryIds = isExplicitlyRestricted
     ? phraseRiskCategoryIds.filter((id) => explicitIds.has(id))
     : phraseRiskCategoryIds;
 
-  const catalogRuleIds = catalogValidIds.filter((id) => kindOfId(id, catalog) === "rule");
-  const catalogMatrixRowIds = catalogValidIds.filter(
-    (id) => kindOfId(id, catalog) === "matrix_row"
+  const catalogRuleIds = filterIdsByScope(
+    catalogValidIds.filter((id) => kindOfId(id, catalog) === "rule"),
+    explicitScope,
+    catalog
+  );
+  const catalogMatrixRowIds = filterIdsByScope(
+    catalogValidIds.filter((id) => kindOfId(id, catalog) === "matrix_row"),
+    explicitScope,
+    catalog
   );
   const catalogRiskCategoryIds = catalogValidIds.filter(
     (id) => kindOfId(id, catalog) === "risk_category"
+  );
+  const catalogPackageIds = filterIdsByScope(
+    catalogValidIds.filter((id) => kindOfId(id, catalog) === "package"),
+    explicitScope,
+    catalog
   );
 
   const provenance = new Map<string, ResolutionProvenance>();
@@ -447,9 +514,25 @@ export async function extractInstructionFocus(
       : "related risk category (supporting; risk analysis not explicitly requested)",
     "risk_category"
   );
+  const scopedCatalogRequiredIds = filterIdsByScope(catalogRequiredIds, explicitScope, catalog);
+  const scopedCatalogSupportingIds = filterIdsByScope(
+    catalogSupportingIds,
+    explicitScope,
+    catalog
+  );
+
   addProvenance(
     provenance,
-    catalogRequiredIds,
+    catalogPackageIds,
+    "catalog_llm",
+    true,
+    catalog,
+    catalogResult.reasoning ?? "analysis package selected by semantic resolution",
+    "package"
+  );
+  addProvenance(
+    provenance,
+    scopedCatalogRequiredIds,
     "catalog_llm",
     true,
     catalog,
@@ -457,7 +540,7 @@ export async function extractInstructionFocus(
   );
   addProvenance(
     provenance,
-    catalogSupportingIds,
+    scopedCatalogSupportingIds,
     "catalog_llm",
     false,
     catalog,
@@ -508,7 +591,8 @@ export async function extractInstructionFocus(
       ...explicitRuleIds,
       ...catalogRuleIds,
       ...supportingPhraseRuleIds.filter(
-        (id) => !catalogRequiredIds.includes(id) && !catalogSupportingIds.includes(id)
+        (id) =>
+          !scopedCatalogRequiredIds.includes(id) && !scopedCatalogSupportingIds.includes(id)
       ),
     ].filter((id) => executionSet.has(id))
   );
@@ -517,7 +601,8 @@ export async function extractInstructionFocus(
       ...explicitMatrixRowIds,
       ...catalogMatrixRowIds,
       ...supportingPhraseMatrixRowIds.filter(
-        (id) => !catalogRequiredIds.includes(id) && !catalogSupportingIds.includes(id)
+        (id) =>
+          !scopedCatalogRequiredIds.includes(id) && !scopedCatalogSupportingIds.includes(id)
       ),
     ].filter((id) => executionSet.has(id))
   );
@@ -526,7 +611,8 @@ export async function extractInstructionFocus(
       ...explicitRiskCategoryIds,
       ...catalogRiskCategoryIds,
       ...supportingPhraseRiskCategoryIds.filter(
-        (id) => !catalogRequiredIds.includes(id) && !catalogSupportingIds.includes(id)
+        (id) =>
+          !scopedCatalogRequiredIds.includes(id) && !scopedCatalogSupportingIds.includes(id)
       ),
     ].filter((id) => executionSet.has(id))
   );
@@ -534,7 +620,13 @@ export async function extractInstructionFocus(
   const requirements =
     catalogResult.requirements.length > 0
       ? catalogResult.requirements
-      : extractRequirementsHeuristic(instruction);
+      : options.intentRequirements && options.intentRequirements.length > 0
+        ? options.intentRequirements.map((req) => ({
+            id: req.id,
+            label: req.description,
+            sourceText: req.description,
+          }))
+        : extractRequirementsHeuristic(instruction);
 
   const requirementMappings = catalogResult.requirementMappings.map((mapping) => ({
     ...mapping,
@@ -553,7 +645,8 @@ export async function extractInstructionFocus(
   const hasExecutionIds =
     combinedRuleIds.length > 0 ||
     combinedMatrixRowIds.length > 0 ||
-    combinedRiskCategoryIds.length > 0;
+    combinedRiskCategoryIds.length > 0 ||
+    catalogPackageIds.length > 0;
 
   if (!hasExecutionIds && unresolvedNeedDetails.length === 0 && requirements.length === 0) {
     if (!phraseMatched && !articleFocus) {
@@ -586,5 +679,7 @@ export async function extractInstructionFocus(
     unresolvedNeedDetails,
     droppedCandidateIds: dropped,
     provenance: [...provenance.values()],
+    selectedPackageIds: catalogPackageIds,
+    explicitScope,
   };
 }

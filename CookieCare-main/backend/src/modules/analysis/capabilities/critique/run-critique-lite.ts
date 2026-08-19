@@ -9,6 +9,11 @@ import type { Finding, FindingStatus } from "../../models/finding.js";
 import type { ReportSectionId } from "../../models/intent.js";
 import type { RequirementAssessment } from "../../models/requirement-assessment.js";
 import { isKnownRiskCategory } from "../../skills/registry.js";
+import {
+  normalizeReportSections,
+  reportOutputContainsSection,
+  reportSectionsInOrder,
+} from "../../prompts/report-sections.js";
 import { deriveRequirementStatus } from "../act/requirement-status-policy.js";
 import { resolveRule } from "../act/check-against-rule.js";
 import { getSpanFromState } from "../act/execute-act-plan.js";
@@ -21,6 +26,8 @@ const FINDING_STATUSES = new Set<FindingStatus>([
 ]);
 
 const REPORT_SECTIONS = new Set<ReportSectionId>([
+  "scope",
+  "conclusion",
   "scope_and_conclusion",
   "chapeau_particulars",
   "requirements_detail",
@@ -28,15 +35,6 @@ const REPORT_SECTIONS = new Set<ReportSectionId>([
   "recommendations",
   "missing_materials",
 ]);
-
-const REPORT_SECTION_LABELS: Record<ReportSectionId, string> = {
-  scope_and_conclusion: "scope and conclusion",
-  chapeau_particulars: "chapeau particulars",
-  requirements_detail: "requirements detail",
-  qualifications: "qualifications",
-  recommendations: "recommendations",
-  missing_materials: "missing materials",
-};
 
 const RIGOR_PATTERN =
   /\b(rigorous|exhaustive|clause[- ]by[- ]clause|complete verification|deep verification|strict verification)\b/i;
@@ -586,17 +584,10 @@ function validateReportSpec(
   }
 
   if ((state.requirementAssessments ?? []).length === 0) return;
-  const output = normalize(state.renderedOutput);
+  const output = state.renderedOutput ?? "";
   const required = requiredReportSections(state);
-  const missing = required.filter(
-    (section) => !output.includes(REPORT_SECTION_LABELS[section])
-  );
-  const positions = spec.sections
-    .map((section) => output.indexOf(REPORT_SECTION_LABELS[section]))
-    .filter((position) => position >= 0);
-  const ordered = positions.every(
-    (position, index) => index === 0 || position > positions[index - 1]!
-  );
+  const missing = required.filter((section) => !reportOutputContainsSection(output, section));
+  const ordered = reportSectionsInOrder(output, required);
   const outputOk = missing.length === 0 && ordered;
   results.push({
     itemId: "report-output:contract",
@@ -623,9 +614,12 @@ function requiredReportSections(state: AnalysisState): ReportSectionId[] {
   const spec = state.plan?.reportSpec;
   if (!spec) return [];
   const assessments = state.requirementAssessments ?? [];
-  return spec.sections.filter((section) => {
+  const sections = normalizeReportSections(spec.sections);
+  return sections.filter((section) => {
     switch (section) {
-      case "scope_and_conclusion":
+      case "scope":
+        return true;
+      case "conclusion":
         return true;
       case "requirements_detail":
         return assessments.length > 0;
