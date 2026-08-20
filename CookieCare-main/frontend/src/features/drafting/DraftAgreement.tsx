@@ -1,4 +1,6 @@
 ﻿import React, { useState, useEffect, useRef, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAppContext } from "../../contexts/AppContext";
 import AiProgressOverlay from "../../shared/components/AiProgressOverlay";
 import DraftChatLanding from "./components/DraftChatLanding";
 import DraftSplitWorkspace from "./components/DraftSplitWorkspace";
@@ -18,13 +20,15 @@ import { getSelectedDocuments } from "../analyze/documentSelection";
 import { composeDraftContext } from "./utils/composeDraftContext";
 import { DraftAgreementProps } from "./types";
 import type { RichTextSelectionSnapshot } from "../../shared/components/RichTextEditor";
+
 export default function DraftAgreement({
-  documents,
-  authToken,
-  onRefresh,
-  onSelectDocument,
-  initialDocumentId
-}: DraftAgreementProps) {
+  initialDocumentId: initialDocumentIdProp,
+}: Pick<DraftAgreementProps, "initialDocumentId">) {
+  const { documents, authToken, fetchDocuments, setActiveDocument, openDraftId, setOpenDraftId } = useAppContext();
+  const onRefresh = fetchDocuments;
+  const onSelectDocument = setActiveDocument;
+  // Prefer context openDraftId (set by vault "open in draft editor") over route prop
+  const initialDocumentId = openDraftId ?? initialDocumentIdProp;
   
   // --- State management hooks ---
   const editorState = useDraftEditorState(documents, initialDocumentId);
@@ -374,6 +378,8 @@ export default function DraftAgreement({
     if (initialDocumentId && editorState.selectedDoc) {
       setIsWorkspaceOpen(true);
       setSessionTitle(editorState.selectedDoc.title);
+      // Clear the context flag so re-visiting /drafting doesn't re-open it
+      if (openDraftId) setOpenDraftId(undefined);
     }
   }, [initialDocumentId, editorState.selectedDoc]);
 

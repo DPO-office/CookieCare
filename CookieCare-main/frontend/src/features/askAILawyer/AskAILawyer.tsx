@@ -1,19 +1,11 @@
-/**
- * AskAILawyer — Enterprise AI Legal Workspace
- *
- * Visual language matches LORA AI exactly:
- *   – #F7F8FA base with SubtleBackground ambient layers
- *   – Same PAGE_STYLES (animations, typography, scrollbar, response prose)
- *   – Landing: large hero heading + composer + chip-style quick prompts
- *   – Chat: white session bar + scrollable messages + white pinned composer footer
- */
 import React from "react";
 import { BookOpen, Scale, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { markdownToHtml } from "../../shared/utils/markdownToHtml";
 import AiProgressOverlay from "../../shared/components/AiProgressOverlay";
-import { AskAILawyerProps } from "./types";
+import type { AskAILawyerProps } from "./types";
 import { useAskAILawyer } from "./hooks/useAskAILawyer";
+import { useAppContext } from "../../contexts/AppContext";
 import ComposerBar from "./components/ComposerBar";
 import SourcesPanel from "./components/SourcesPanel";
 import CitationModal from "./components/CitationModal";
@@ -35,10 +27,10 @@ function QuickChip({ label, icon: Icon, onClick }: {
   );
 }
 
-export default function AskAILawyer({
-  authToken,
-  documents: _propDocs = [],
-}: AskAILawyerProps) {
+/** @deprecated props now read from AppContext */
+export default function AskAILawyer(_props: Partial<AskAILawyerProps> = {}) {
+  const { authToken: ctxToken } = useAppContext();
+  const authToken = ctxToken ?? "";
   const {
     searchQuery, setSearchQuery,
     selectedFormat, setSelectedFormat,

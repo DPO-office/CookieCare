@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ChevronDown, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { BrandLogo } from "../../components/BrandLogo";
 import { buildNav, isNavGroup } from "./navConfig";
@@ -54,21 +55,22 @@ function NavButton({
   icon: Icon,
   active,
   collapsed,
-  onClick,
+  path,
 }: {
   label: string;
   icon: React.ElementType;
   active: boolean;
   collapsed: boolean;
-  onClick: () => void;
+  path: string;
 }) {
   const [tip, setTip] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className={`relative ${collapsed ? "flex justify-center" : ""}`}>
       <button
         type="button"
-        onClick={onClick}
+        onClick={() => navigate(path)}
         title={collapsed ? label : undefined}
         className="flex cursor-pointer items-center outline-none select-none"
         style={{
@@ -124,21 +126,20 @@ function ChildNavButton({
   child,
   active,
   collapsed,
-  onClick,
 }: {
   child: NavLeaf;
   active: boolean;
   collapsed?: boolean;
-  onClick: () => void;
 }) {
   const Icon = child.icon;
   const [tip, setTip] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className={`relative ${collapsed ? "flex justify-center" : ""}`}>
       <button
         type="button"
-        onClick={onClick}
+        onClick={() => navigate(child.path)}
         title={collapsed ? child.label : undefined}
         className="flex cursor-pointer items-center outline-none select-none rounded-lg"
         style={{
@@ -190,16 +191,15 @@ function ChildNavButton({
 
 function SectionGroup({
   group,
-  activeTab,
-  setActiveTab,
   collapsed,
 }: {
   group: NavGroup;
-  activeTab: string;
-  setActiveTab: (t: string) => void;
   collapsed: boolean;
 }) {
-  const sectionActive = group.children.some((c) => c.id === activeTab);
+  const location = useLocation();
+  const sectionActive = group.children.some((c) =>
+    location.pathname === c.path || location.pathname.startsWith(c.path + "/")
+  );
   const [open, setOpen] = useState(sectionActive);
 
   useEffect(() => {
@@ -219,15 +219,19 @@ function SectionGroup({
             background: THEME.border,
           }}
         />
-        {group.children.map((child) => (
-          <ChildNavButton
-            key={child.id}
-            child={child}
-            active={activeTab === child.id}
-            collapsed
-            onClick={() => setActiveTab(child.id)}
-          />
-        ))}
+        {group.children.map((child) => {
+          const active =
+            location.pathname === child.path ||
+            location.pathname.startsWith(child.path + "/");
+          return (
+            <ChildNavButton
+              key={child.id}
+              child={child}
+              active={active}
+              collapsed
+            />
+          );
+        })}
       </div>
     );
   }
@@ -299,14 +303,18 @@ function SectionGroup({
       >
         <div style={{ minHeight: 0, overflow: "hidden" }}>
           <div className="flex flex-col gap-1">
-            {group.children.map((child) => (
-              <ChildNavButton
-                key={child.id}
-                child={child}
-                active={activeTab === child.id}
-                onClick={() => setActiveTab(child.id)}
-              />
-            ))}
+            {group.children.map((child) => {
+              const active =
+                location.pathname === child.path ||
+                location.pathname.startsWith(child.path + "/");
+              return (
+                <ChildNavButton
+                  key={child.id}
+                  child={child}
+                  active={active}
+                />
+              );
+            })}
           </div>
         </div>
       </div>
@@ -461,13 +469,12 @@ function UserArea({
 }
 
 export default function AppSidebar({
-  activeTab,
-  setActiveTab,
   user,
   isAdmin = false,
   onLogout,
-}: AppSidebarProps) {
+}: Omit<AppSidebarProps, "activeTab" | "setActiveTab"> & { activeTab?: string; setActiveTab?: (t: string) => void }) {
   const { state } = useSidebar();
+  const location = useLocation();
   const collapsed = state === "collapsed";
   const nav = buildNav(isAdmin);
 
@@ -495,16 +502,22 @@ export default function AppSidebar({
               <SidebarToggleBtn />
             </div>
           )}
-          {nav.filter((entry) => !isNavGroup(entry)).map((entry) => (
-            <NavButton
-              key={entry.id}
-              label={(entry as NavItem).label}
-              icon={(entry as NavItem).icon}
-              active={activeTab === entry.id}
-              collapsed={collapsed}
-              onClick={() => setActiveTab(entry.id)}
-            />
-          ))}
+          {nav.filter((entry) => !isNavGroup(entry)).map((entry) => {
+            const item = entry as NavItem;
+            const active =
+              location.pathname === item.path ||
+              location.pathname.startsWith(item.path + "/");
+            return (
+              <NavButton
+                key={item.id}
+                label={item.label}
+                icon={item.icon}
+                active={active}
+                collapsed={collapsed}
+                path={item.path}
+              />
+            );
+          })}
           {!collapsed && (
             <div
               style={{
@@ -518,8 +531,6 @@ export default function AppSidebar({
             <SectionGroup
               key={entry.id}
               group={entry}
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
               collapsed={collapsed}
             />
           ))}

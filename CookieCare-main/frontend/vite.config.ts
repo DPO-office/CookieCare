@@ -23,6 +23,8 @@ export default defineConfig({
   },
   server: {
     allowedHosts,
+    // Required for client-side routing: serve index.html for all 404s in dev
+    historyApiFallback: true,
     watch: {
       ignored: [
         '**/scripts/**',

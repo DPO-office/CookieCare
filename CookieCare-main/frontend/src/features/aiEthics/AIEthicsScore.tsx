@@ -3,12 +3,16 @@ import { useAIEthicsAnalysis } from "./hooks/useAIEthicsAnalysis";
 import { EthicsUploadState }    from "./components/EthicsUploadState";
 import { EthicsAnalyzingState } from "./components/EthicsAnalyzingState";
 import { EthicsResultsState }   from "./components/EthicsResultsState";
+import { useAppContext } from "../../contexts/AppContext";
 
+/** @deprecated authToken is now read from AppContext */
 interface AIEthicsScoreProps {
-  authToken: string;
+  authToken?: string;
 }
 
-export default function AIEthicsScore({ authToken }: AIEthicsScoreProps) {
+export default function AIEthicsScore(_props: AIEthicsScoreProps = {}) {
+  const { authToken: ctxToken } = useAppContext();
+  const authToken = ctxToken ?? "";
   const {
     appState,
     fileNames,

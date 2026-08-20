@@ -224,6 +224,20 @@ export interface CompareState {
     timestamp: string;
     /** Accumulated step timings — mirrors DraftState.metadata.stepTimings */
     stepTimings?: Array<{ label: string; ms: number }>;
+    /**
+     * Populated by validateCompareOutput (compare/pac/critique-compare.ts)
+     * after all pipeline steps complete.
+     *
+     * Contains human-readable messages for any structural invariant violations
+     * detected during post-pipeline validation. Empty array = clean run.
+     * Errors are listed first, then prefixed warnings.
+     */
+    validationIssues?: string[];
+    /**
+     * Summary counts from the critique pass.
+     * Undefined when validation has not run.
+     */
+    validationCounts?: { errors: number; warnings: number };
     [key: string]: unknown;
   };
 }

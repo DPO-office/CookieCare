@@ -1,35 +1,34 @@
 import { useState, useRef } from "react";
+import { History } from "lucide-react";
+import { useAppContext } from "../../contexts/AppContext";
 import AiProgressOverlay from "../../shared/components/AiProgressOverlay";
 import SideDrawer from "./components/SideDrawer";
 import ReportView from "./components/ReportView";
 import { AnalysisComposer } from "./components/AnalysisComposer";
 import { VaultPickerSheet } from "./components/VaultPickerSheet";
 import { AnalysisStarters } from "./components/AnalysisStarters";
+import { AnalysisHistoryPanel } from "./components/AnalysisHistoryPanel";
 import { useAnalyzeData } from "./hooks/useAnalyzeData";
 import { useAnalysis } from "./hooks/useAnalysis";
 import { useUpload } from "./hooks/useUpload";
+import { useAnalysisHistory } from "./hooks/useAnalysisHistory";
 import { getSelectedDocuments, hasSelectedDocuments } from "./documentSelection";
 import { ACCEPTED_UPLOAD_ACCEPT_STRING } from "./constants";
-import { InteractAnalyzeProps, DocumentMode, AnswerStyle, SidePanelType } from "./types";
+import type { DocumentMode, AnswerStyle, AnalysisDepth, SidePanelType } from "./types";
 import { createAnalyzeFolder } from "./api/analyzeApi";
 import { toPromptLibraryId } from "./api/analysisJobs";
 import { PREMIUM_CHAT_LANDING_STYLES } from "../../shared/styles/premiumChatLandingStyles";
 import { ANALYZE_STYLES } from "./styles/analyzeStyles";
 
-/**
- * Analyze Agreements — Ask Lawyer's document-analysis sibling.
- *
- * Same AI Workspace visual language:
- *   SubtleBackground canvas → large question hero → compact composer →
- *   contextual chips → suggestion chips.
- */
-export default function InteractAnalyze({
-  authToken,
-  onRefresh,
-}: InteractAnalyzeProps) {
+export default function InteractAnalyze() {
+  const { authToken: ctxToken, fetchDocuments } = useAppContext();
+  const authToken = ctxToken ?? "";
+  const onRefresh = fetchDocuments;
+
   const {
     folders,
     savedDrafts,
+    ephemeralFiles,
     promptLibrary,
     questionsLibrary,
     fetchFoldersAndDocs,
@@ -39,15 +38,19 @@ export default function InteractAnalyze({
     toggleDraftSelection,
     deselectDocument,
     selectFilesByIds,
+    addEphemeralFiles,
+    removeEphemeralFile,
   } = useAnalyzeData(authToken);
 
   const analysis = useAnalysis(authToken);
   const upload = useUpload(authToken, folders, fetchFoldersAndDocs, onRefresh);
+  const history = useAnalysisHistory(authToken);
 
   const [customPromptText, setCustomPromptText] = useState("");
   const [promptLibraryId, setPromptLibraryId] = useState<string | undefined>();
   const [documentMode, setDocumentMode] = useState<DocumentMode>("unified");
   const [answerStyle, setAnswerStyle] = useState<AnswerStyle>("narrative");
+  const [analysisDepth, setAnalysisDepth] = useState<AnalysisDepth>("deep");
   const [playbookDocId, setPlaybookDocId] = useState<string | null>(null);
   const [chatInput, setChatInput] = useState("");
   const [validationMessage, setValidationMessage] = useState("");
@@ -58,13 +61,26 @@ export default function InteractAnalyze({
   const [vaultPickerOpen, setVaultPickerOpen] = useState(false);
   const [promptModalOpen, setPromptModalOpen] = useState(false);
   const [questionModalOpen, setQuestionModalOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const selectedDocuments = getSelectedDocuments(folders, savedDrafts);
-  const hasDocuments = hasSelectedDocuments(folders, savedDrafts);
+  const selectedDocuments = getSelectedDocuments(folders, savedDrafts, ephemeralFiles);
+  const hasDocuments = hasSelectedDocuments(folders, savedDrafts, ephemeralFiles);
   const hasPrompt = customPromptText.trim().length > 0;
   const canAnalyze = hasDocuments && hasPrompt;
+
+  const handleOpenHistory = () => {
+    setHistoryOpen(true);
+    history.fetchHistory();
+  };
+
+  const handleSelectHistorySession = async (item: Parameters<typeof history.loadSession>[0]) => {
+    const restored = await history.loadSession(item);
+    if (!restored) return;
+    setHistoryOpen(false);
+    analysis.restoreSession(restored.messages, restored.docName);
+  };
 
   const handleAddNewFolder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,9 +111,11 @@ export default function InteractAnalyze({
     analysis.handleStartAnalysis(
       folders,
       savedDrafts,
+      ephemeralFiles,
       customPromptText,
       documentMode,
       answerStyle,
+      analysisDepth,
       promptLibraryId,
       playbookDocId
     );
@@ -108,15 +126,12 @@ export default function InteractAnalyze({
     if (!chatInput.trim()) return;
     const text = chatInput.trim();
     setChatInput("");
-    analysis.handleSendChatMessage(text, folders, savedDrafts, documentMode, answerStyle);
+    analysis.handleSendChatMessage(text, folders, savedDrafts, documentMode, answerStyle, analysisDepth, ephemeralFiles);
   };
 
-  const attachUploadedFiles = async (result: {
-    fileIds: string[];
-    error?: string;
-  }) => {
+  const attachUploadedFiles = (result: { fileIds: string[]; fileTitles: Record<string, string>; error?: string }) => {
     if (result.fileIds.length > 0) {
-      selectFilesByIds(result.fileIds);
+      addEphemeralFiles(result.fileIds.map((id) => ({ id, title: result.fileTitles[id] || id })));
     }
     if (result.error) {
       setValidationMessage(result.error);
@@ -131,7 +146,7 @@ export default function InteractAnalyze({
     if (e.target.files?.length) {
       setValidationMessage("");
       const result = await upload.quickUploadFiles(e.target.files);
-      await attachUploadedFiles(result);
+      attachUploadedFiles(result);
     }
     e.target.value = "";
   };
@@ -145,7 +160,7 @@ export default function InteractAnalyze({
   const handleComposerDrop = async (e: React.DragEvent) => {
     setValidationMessage("");
     const result = await upload.quickUploadFromDrop(e);
-    await attachUploadedFiles(result);
+    attachUploadedFiles(result);
   };
 
   if (analysis.viewMode === "report") {
@@ -182,7 +197,19 @@ export default function InteractAnalyze({
           onAskSubmit={analysis.handleResumeAsk}
           isStreaming={analysis.isAnalyzing}
           progressMessage={analysis.analysisProgress}
+          questionsLibrary={questionsLibrary}
+          onOpenHistory={handleOpenHistory}
         />
+        {historyOpen && (
+          <AnalysisHistoryPanel
+            history={history.history}
+            loading={history.loading}
+            loadingSession={history.loadingSession}
+            error={history.error}
+            onClose={() => setHistoryOpen(false)}
+            onSelectSession={handleSelectHistorySession}
+          />
+        )}
       </>
     );
   }
@@ -193,6 +220,20 @@ export default function InteractAnalyze({
       <style>{ANALYZE_STYLES}</style>
 
       <div className="dpa-results-bg analyze-landing flex-1 flex flex-col min-h-0 overflow-hidden relative font-sans">
+
+        {/* History button — top-right of the landing page */}
+        <div className="no-print absolute top-4 right-5 z-10">
+          <button
+            type="button"
+            onClick={handleOpenHistory}
+            className="analyze-history-btn"
+            aria-label="Analysis history"
+          >
+            <History className="h-[15px] w-[15px]" strokeWidth={1.75} />
+            <span>History</span>
+          </button>
+        </div>
+
         {(analysis.isAnalyzing || !!analysis.analysisError) && analysis.viewMode === "form" && (
           <AiProgressOverlay
             visible
@@ -243,7 +284,11 @@ export default function InteractAnalyze({
               documents={selectedDocuments}
               onRemoveDocument={(doc) => {
                 if (playbookDocId === doc.id) setPlaybookDocId(null);
-                deselectDocument(doc.id, doc.type, doc.folderId);
+                if (doc.type === "ephemeral") {
+                  removeEphemeralFile(doc.id);
+                } else {
+                  deselectDocument(doc.id, doc.type, doc.folderId);
+                }
               }}
               playbookDocId={playbookDocId}
               onTogglePlaybook={(doc) =>
@@ -251,8 +296,10 @@ export default function InteractAnalyze({
               }
               documentMode={documentMode}
               answerStyle={answerStyle}
+              analysisDepth={analysisDepth}
               onSetDocumentMode={setDocumentMode}
               onSetAnswerStyle={setAnswerStyle}
+              onSetAnalysisDepth={setAnalysisDepth}
               canAnalyze={canAnalyze}
               isAnalyzing={analysis.isAnalyzing}
               isUploading={upload.isUploading}
@@ -333,6 +380,17 @@ export default function InteractAnalyze({
                 }
               })
             }
+          />
+        )}
+
+        {historyOpen && (
+          <AnalysisHistoryPanel
+            history={history.history}
+            loading={history.loading}
+            loadingSession={history.loadingSession}
+            error={history.error}
+            onClose={() => setHistoryOpen(false)}
+            onSelectSession={handleSelectHistorySession}
           />
         )}
       </div>

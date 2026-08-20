@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAppContext } from "../../contexts/AppContext";
 import { PAGE_STYLES, PAGE_STYLES_SUBTLE } from "./styles/pageStyles";
 import { SubtleBackground } from "./components/SubtleBackground";
 
@@ -27,22 +29,25 @@ import {
 } from "../analyze/compare/utils/compareHistory";
 
 interface LORAAIProps {
-  authToken: string;
-  user: { name: string; email: string } | null;
+  /** @deprecated Read from AppContext */
+  authToken?: string;
+  /** @deprecated Not used by this component directly */
+  user?: { name: string; email: string } | null;
   /**
    * "workspace" — full AI Workspace with quick actions (default).
    * "compare"   — Sidebar Compare tab: opens the existing Compare flow directly.
    */
   mode?: "workspace" | "compare";
-  /** When Compare is launched from AI Workspace, navigate to the Compare tab. */
+  /** @deprecated Use useNavigate internally */
   onNavigateToCompare?: () => void;
 }
 
 export default function LORAAI({
-  authToken,
   mode = "workspace",
-  onNavigateToCompare,
 }: LORAAIProps) {
+  const { authToken: ctxToken } = useAppContext();
+  const authToken = ctxToken ?? "";
+  const navigate = useNavigate();
   const isCompareMode = mode === "compare";
 
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -156,11 +161,7 @@ export default function LORAAI({
 
   const handleQuickAction = (action: QuickAction) => {
     if (action.id === "compare-documents") {
-      if (onNavigateToCompare) {
-        onNavigateToCompare();
-        return;
-      }
-      openCompare();
+      navigate("/compare");
       return;
     }
     selectWorkflow(action);

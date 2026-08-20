@@ -7,12 +7,16 @@ import { ToolFormModal } from "./components/ToolFormModal";
 import { STATUS_TABS } from "./constants";
 import { useAiToolsInventory } from "./hooks/useAiToolsInventory";
 import { exportCsv } from "./utils";
+import { useAppContext } from "../../contexts/AppContext";
 
+/** @deprecated authToken is now read from AppContext */
 interface AIToolsInventoryProps {
-  authToken: string;
+  authToken?: string;
 }
 
-export default function AIToolsInventory({ authToken }: AIToolsInventoryProps) {
+export default function AIToolsInventory(_props: AIToolsInventoryProps = {}) {
+  const { authToken: ctxToken } = useAppContext();
+  const authToken = ctxToken ?? "";
   const inv = useAiToolsInventory(authToken);
 
   return (

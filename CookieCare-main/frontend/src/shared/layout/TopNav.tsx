@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Bell, ChevronDown, LogOut, Settings, User } from "lucide-react";
 import { getBreadcrumb } from "./sidebar/navConfig";
 import { cn } from "../../lib/utils";
@@ -6,7 +7,7 @@ import { cn } from "../../lib/utils";
 interface TopNavProps {
   user: { name: string; email: string; role?: string } | null;
   activeTab: string;
-  setActiveTab: (tab: string) => void;
+  setActiveTab?: (tab: string) => void; // kept for backward-compat; navigation uses useNavigate
   onLogout: () => void;
   isAdmin?: boolean;
 }
@@ -14,10 +15,10 @@ interface TopNavProps {
 export default function TopNav({
   user,
   activeTab,
-  setActiveTab,
   onLogout,
   isAdmin = false,
 }: TopNavProps) {
+  const navigate = useNavigate();
   const [profileOpen, setProfileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
 
@@ -60,7 +61,7 @@ export default function TopNav({
 
   const openSettings = () => {
     setProfileOpen(false);
-    setActiveTab("settings");
+    navigate("/settings");
   };
 
   return (

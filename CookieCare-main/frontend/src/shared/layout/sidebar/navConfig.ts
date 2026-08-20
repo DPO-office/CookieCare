@@ -1,5 +1,5 @@
 // ─── Navigation Configuration — single source of truth ───────────────────────
-// AppSidebar, TopNav, and App.tsx consume this file.
+// AppSidebar, TopNav, and the router consume this file.
 
 import {
   LayoutDashboard, Scale, ScanSearch, PenTool,
@@ -15,6 +15,8 @@ export interface NavLeaf {
   id: string;
   label: string;
   icon: ElementType;
+  /** URL path for this nav item — used by Link and useNavigate */
+  path: string;
   disabled?: boolean;
 }
 
@@ -29,6 +31,8 @@ export interface NavItem {
   id: string;
   label: string;
   icon: ElementType;
+  /** URL path for this nav item */
+  path: string;
 }
 
 export type NavEntry = NavItem | NavGroup;
@@ -50,18 +54,19 @@ export function buildNav(isAdmin: boolean): NavEntry[] {
       id: "dashboard",
       label: "Dashboard",
       icon: LayoutDashboard,
+      path: "/dashboard",
     },
     {
       id: "legal",
       label: "Legal",
       icon: Scale,
       children: [
-        { id: "legal-review",    label: "Analyze",     icon: ScanSearch    },
-        { id: "legal-draft",     label: "Draft",       icon: PenTool       },
-        { id: "legal-ask-ai",    label: "Ask Lawyer",  icon: MessageSquare },
-        { id: "legal-negotiate", label: "Negotiate",   icon: Handshake     },
-        { id: "legal-compare",   label: "Compare",     icon: GitCompare    },
-        { id: "legal-vault",     label: "Vault",       icon: Archive       },
+        { id: "legal-review",    label: "Analyze",    icon: ScanSearch,    path: "/analyze"     },
+        { id: "legal-draft",     label: "Draft",      icon: PenTool,       path: "/drafting"    },
+        { id: "legal-ask-ai",    label: "Ask Lawyer", icon: MessageSquare, path: "/ask-lawyer"  },
+        { id: "legal-negotiate", label: "Negotiate",  icon: Handshake,     path: "/negotiate"   },
+        { id: "legal-compare",   label: "Compare",    icon: GitCompare,    path: "/compare"     },
+        { id: "legal-vault",     label: "Vault",      icon: Archive,       path: "/vault"       },
       ],
     },
     {
@@ -69,9 +74,9 @@ export function buildNav(isAdmin: boolean): NavEntry[] {
       label: "Privacy",
       icon: ShieldCheck,
       children: [
-        { id: "cookie-scanner", label: "Cookie Scanner", icon: Cookie    },
-        { id: "dpa-reviewer",   label: "DPA Review",     icon: FileCheck  },
-        { id: "vendor-review",  label: "Vendor Review",  icon: Building2  },
+        { id: "cookie-scanner", label: "Cookie Scanner", icon: Cookie,   path: "/cookie-scanner" },
+        { id: "dpa-reviewer",   label: "DPA Review",     icon: FileCheck, path: "/dpa-reviewer"  },
+        { id: "vendor-review",  label: "Vendor Review",  icon: Building2, path: "/vendor-review"  },
       ],
     },
     {
@@ -79,7 +84,7 @@ export function buildNav(isAdmin: boolean): NavEntry[] {
       label: "Security",
       icon: ShieldAlert,
       children: [
-        { id: "vulnerability-scanner", label: "Vulnerability scanner", icon: ShieldAlert },
+        { id: "vulnerability-scanner", label: "Vulnerability scanner", icon: ShieldAlert, path: "/vulnerability-scanner" },
       ],
     },
     {
@@ -87,8 +92,8 @@ export function buildNav(isAdmin: boolean): NavEntry[] {
       label: "AI Governance",
       icon: Brain,
       children: [
-        { id: "ai-ethics", label: "AI Ethics Review", icon: Brain },
-        { id: "ai-tools-inventory", label: "AI Tools Inventory", icon: Layers },
+        { id: "ai-ethics",          label: "AI Ethics Review",   icon: Brain,   path: "/ai-ethics"          },
+        { id: "ai-tools-inventory", label: "AI Tools Inventory", icon: Layers,  path: "/ai-tools-inventory" },
       ],
     },
   ];
@@ -99,7 +104,7 @@ export function buildNav(isAdmin: boolean): NavEntry[] {
       label: "Admin",
       icon: Shield,
       children: [
-        { id: "admin-panel", label: "Admin Panel", icon: Shield },
+        { id: "admin-panel", label: "Admin Panel", icon: Shield, path: "/admin" },
       ],
     });
   }

@@ -1,6 +1,7 @@
 import { CustomFolder, SavedDraft } from "./types";
+import type { EphemeralFile } from "./hooks/useAnalyzeData";
 
-export type SelectedDocumentType = "folder" | "file" | "draft";
+export type SelectedDocumentType = "folder" | "file" | "draft" | "ephemeral";
 
 export interface SelectedDocument {
   id: string;
@@ -11,7 +12,8 @@ export interface SelectedDocument {
 
 export function getSelectedDocuments(
   folders: CustomFolder[],
-  savedDrafts: SavedDraft[]
+  savedDrafts: SavedDraft[],
+  ephemeralFiles: EphemeralFile[] = []
 ): SelectedDocument[] {
   const result: SelectedDocument[] = [];
 
@@ -38,23 +40,30 @@ export function getSelectedDocuments(
     }
   }
 
+  // Ephemeral files are always "selected" — they were attached directly by the user
+  for (const ef of ephemeralFiles) {
+    result.push({ id: ef.id, title: ef.title, type: "ephemeral" });
+  }
+
   return result;
 }
 
 export function hasSelectedDocuments(
   folders: CustomFolder[],
-  savedDrafts: SavedDraft[]
+  savedDrafts: SavedDraft[],
+  ephemeralFiles: EphemeralFile[] = []
 ): boolean {
-  return getSelectedDocuments(folders, savedDrafts).length > 0;
+  return getSelectedDocuments(folders, savedDrafts, ephemeralFiles).length > 0;
 }
 
 /**
- * Flatten vault selection (folders / files / drafts) into file ids for Analysis PAC.
- * Selecting a folder includes every file in that folder.
+ * Flatten vault selection (folders / files / drafts / ephemeral) into file ids
+ * for the Analysis PAC job. Selecting a folder includes every file in that folder.
  */
 export function collectAnalysisDocumentIds(
   folders: CustomFolder[],
-  savedDrafts: SavedDraft[]
+  savedDrafts: SavedDraft[],
+  ephemeralFiles: EphemeralFile[] = []
 ): { documentIds: string[]; firstTitle: string } {
   const ids: string[] = [];
   const seen = new Set<string>();
@@ -79,6 +88,11 @@ export function collectAnalysisDocumentIds(
 
   for (const draft of savedDrafts) {
     if (draft.selected) add(draft.id, draft.title);
+  }
+
+  // Always include ephemeral files — they were just uploaded for this analysis
+  for (const ef of ephemeralFiles) {
+    add(ef.id, ef.title);
   }
 
   return { documentIds: ids, firstTitle };

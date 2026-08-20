@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { DocumentMode, AnswerStyle } from "../types";
 
 interface AnalysisOptionsMenuProps {
@@ -6,6 +8,8 @@ interface AnalysisOptionsMenuProps {
   onSetDocumentMode: (mode: DocumentMode) => void;
   onSetAnswerStyle: (style: AnswerStyle) => void;
   onClose: () => void;
+  /** Ref of the trigger button so the menu can position itself below it */
+  anchorRef: React.RefObject<HTMLElement>;
 }
 
 function OptionRow({
@@ -57,12 +61,81 @@ export function AnalysisOptionsMenu({
   onSetDocumentMode,
   onSetAnswerStyle,
   onClose,
+  anchorRef,
 }: AnalysisOptionsMenuProps) {
-  return (
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [coords, setCoords] = useState<{ top: number; left: number; maxHeight: number } | null>(null);
+
+  // Compute position below the anchor button, clamped to viewport
+  useEffect(() => {
+    const anchor = anchorRef.current;
+    if (!anchor) return;
+
+    const place = () => {
+      const rect = anchor.getBoundingClientRect();
+      const panelWidth = 320; // w-80
+      const gap = 8;
+
+      let left = rect.left;
+      // Clamp so the panel doesn't overflow the right edge of the viewport
+      if (left + panelWidth > window.innerWidth - 12) {
+        left = window.innerWidth - panelWidth - 12;
+      }
+      // Never go off the left edge
+      if (left < 8) left = 8;
+
+      const top = rect.bottom + gap;
+      const maxHeight = window.innerHeight - top - 12;
+
+      setCoords({ top, left, maxHeight });
+    };
+
+    place();
+
+    window.addEventListener("resize", place, { passive: true });
+    window.addEventListener("scroll", place, { passive: true, capture: true });
+    return () => {
+      window.removeEventListener("resize", place);
+      window.removeEventListener("scroll", place, true);
+    };
+  }, [anchorRef]);
+
+  // Close on outside click
+  useEffect(() => {
+    const handleDown = (e: MouseEvent) => {
+      if (
+        panelRef.current &&
+        !panelRef.current.contains(e.target as Node) &&
+        anchorRef.current &&
+        !anchorRef.current.contains(e.target as Node)
+      ) {
+        onClose();
+      }
+    };
+    document.addEventListener("mousedown", handleDown);
+    return () => document.removeEventListener("mousedown", handleDown);
+  }, [onClose, anchorRef]);
+
+  if (!coords) return null;
+
+  return createPortal(
     <div
-      className="analyze-options-panel absolute left-0 top-[calc(100%+10px)] z-50 w-80"
+      ref={panelRef}
+      className="analyze-options-panel"
       role="dialog"
       aria-label="Analysis options"
+      style={{
+        position: "fixed",
+        top: coords.top,
+        left: coords.left,
+        width: 320,
+        zIndex: 9999,
+        maxHeight: coords.maxHeight,
+        overflowY: "auto",
+        // Hide scrollbar visually while keeping it functional
+        scrollbarWidth: "none",        // Firefox
+        msOverflowStyle: "none",       // IE/Edge legacy
+      }}
     >
       <p className="px-3 pt-2 pb-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-[#98A2B3]">
         Document mode
@@ -109,6 +182,7 @@ export function AnalysisOptionsMenu({
           onClose();
         }}
       />
-    </div>
+    </div>,
+    document.body
   );
 }

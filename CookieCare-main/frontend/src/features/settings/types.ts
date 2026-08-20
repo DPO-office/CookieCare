@@ -8,5 +8,6 @@ export type SettingsSection =
   | "advanced";
 
 export interface SettingsProps {
-  user: { name: string; email: string } | null;
+  /** @deprecated Read from AppContext */
+  user?: { name: string; email: string } | null;
 }
