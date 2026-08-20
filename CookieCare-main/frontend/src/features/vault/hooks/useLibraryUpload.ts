@@ -11,6 +11,7 @@ import {
   createFolder,
   uploadFileToFolder,
   uploadVaultAsset,
+  invalidateVaultCache,
 } from "../services/libraryService";
 import { waitForJob } from "../../../shared/utils/jobStatus";
 import {
@@ -269,7 +270,6 @@ export function useLibraryUpload(
 
     try {
       let pendingJob: Promise<any> | null = null;
-      let lastLibraryRefreshAt = 0;
 
       const uploadRes = await uploadVaultAsset(
         authToken,
@@ -280,21 +280,22 @@ export function useLibraryUpload(
           jurisdiction: params.jurisdiction?.trim() || undefined,
         },
         (jobId) => {
+          // Only update the progress bar while the job runs — no full data
+          // reload inside the polling loop. The cache is busted once at the end.
           pendingJob = waitForJob(authToken, jobId, {
             onProgress: (progress, message) => {
               setUploadProgressPercent(Math.max(5, Math.min(99, progress)));
               if (message) setUploadProgressMessage(message);
-              const now = Date.now();
-              if (now - lastLibraryRefreshAt > 8_000) {
-                lastLibraryRefreshAt = now;
-                fetchLibraryData();
-              }
             },
           });
         }
       );
 
-      if (uploadRes.libraryItemId) fetchLibraryData();
+      // If the server immediately returned a library item id, the row already
+      // exists — invalidate so the next fetchLibraryData gets a fresh read.
+      if (uploadRes.libraryItemId) {
+        invalidateVaultCache(authToken);
+      }
 
       const jobResult = pendingJob ? await pendingJob : null;
 
@@ -309,12 +310,17 @@ export function useLibraryUpload(
       setUploadProgressMessage(summary);
       setUploadStatus("success");
       setUploadResultMessage(summary);
-      fetchLibraryData();
+
+      // Single cache-busted reload now that the job is fully complete.
+      invalidateVaultCache(authToken);
+      await fetchLibraryData();
       onRefresh();
       return true;
     } catch (err: any) {
       setUploadStatus("error");
       setUploadError(err.message || "Vault ingest failed.");
+      // Still refresh so any partial progress (e.g. the placeholder row) is visible.
+      invalidateVaultCache(authToken);
       fetchLibraryData();
       return false;
     }

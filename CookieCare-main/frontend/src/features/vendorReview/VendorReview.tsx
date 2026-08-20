@@ -2,12 +2,16 @@ import { useVendorAnalysis } from "./hooks/useVendorAnalysis";
 import { UploadState }       from "./components/UploadState";
 import { AnalyzingState }    from "./components/AnalyzingState";
 import { ResultsState }      from "./components/ResultsState";
+import { useAppContext } from "../../contexts/AppContext";
 
+/** @deprecated authToken is now read from AppContext */
 interface VendorReviewProps {
-  authToken: string;
+  authToken?: string;
 }
 
-export default function VendorReview({ authToken }: VendorReviewProps) {
+export default function VendorReview(_props: VendorReviewProps = {}) {
+  const { authToken: ctxToken } = useAppContext();
+  const authToken = ctxToken ?? "";
   const {
     appState,
     fileNames,

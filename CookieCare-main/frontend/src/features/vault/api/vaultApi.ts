@@ -1,18 +1,80 @@
 import { apiUrl } from "../../../config";
 
+// ─── Shared fetch cache ──────────────────────────────────────────────────────
+// Deduplicates concurrent calls for the same URL+token so the vault page and
+// analyze page don't each fire independent requests during the same render cycle.
+// Cache entries live for CACHE_TTL_MS then are evicted on the next read.
+
+const CACHE_TTL_MS = 15_000; // 15 s is enough to cover simultaneous mounts
+
+interface CacheEntry {
+  promise: Promise<any>;
+  resolvedAt: number | null;
+}
+
+const _fetchCache = new Map<string, CacheEntry>();
+
+function cachedFetch(url: string, authToken: string): Promise<any> {
+  const key = `${url}||${authToken}`;
+  const now = Date.now();
+  const existing = _fetchCache.get(key);
+
+  // Reuse the in-flight promise, or a recently resolved result.
+  if (existing) {
+    if (existing.resolvedAt === null || now - existing.resolvedAt < CACHE_TTL_MS) {
+      return existing.promise;
+    }
+    _fetchCache.delete(key);
+  }
+
+  const entry: CacheEntry = { promise: null as any, resolvedAt: null };
+  entry.promise = fetch(url, { headers: { Authorization: `Bearer ${authToken}` } })
+    .then((res) => {
+      entry.resolvedAt = Date.now();
+      return res.ok ? res.json() : [];
+    })
+    .catch(() => {
+      _fetchCache.delete(key); // don't cache failures
+      return [];
+    });
+
+  _fetchCache.set(key, entry);
+  return entry.promise;
+}
+
+/** Manually invalidate cached entries for a given path prefix (call after mutations). */
+export function invalidateVaultCache(authToken: string, pathPrefix?: string): void {
+  const prefix = pathPrefix ?? "";
+  for (const key of _fetchCache.keys()) {
+    if (key.includes(authToken) && (prefix === "" || key.includes(prefix))) {
+      _fetchCache.delete(key);
+    }
+  }
+}
+
+// ─── API helpers ─────────────────────────────────────────────────────────────
+
+/** Unwrap paginated envelope — returns the `data` array, or the raw value if
+ *  the server returns a plain array (backward-compat during rollout). */
+function unwrap(response: any): any[] {
+  if (Array.isArray(response)) return response;
+  if (response && Array.isArray(response.data)) return response.data;
+  return [];
+}
+
 export async function fetchFolders(authToken: string) {
-  const res = await fetch(apiUrl("/api/folders"), { headers: { Authorization: `Bearer ${authToken}` } });
-  return res.ok ? res.json() : [];
+  const res = await cachedFetch(apiUrl("/api/folders?limit=500"), authToken);
+  return unwrap(res);
 }
 
 export async function fetchLibraryItems(authToken: string) {
-  const res = await fetch(apiUrl("/api/library-items"), { headers: { Authorization: `Bearer ${authToken}` } });
-  return res.ok ? res.json() : [];
+  const res = await cachedFetch(apiUrl("/api/library-items?limit=500"), authToken);
+  return unwrap(res);
 }
 
 export async function fetchDocuments(authToken: string) {
-  const res = await fetch(apiUrl("/api/documents"), { headers: { Authorization: `Bearer ${authToken}` } });
-  return res.ok ? res.json() : [];
+  const res = await cachedFetch(apiUrl("/api/documents?limit=500"), authToken);
+  return unwrap(res);
 }
 
 export async function deleteFolder(authToken: string, id: string): Promise<boolean> {
@@ -20,6 +82,7 @@ export async function deleteFolder(authToken: string, id: string): Promise<boole
     method: "DELETE",
     headers: { Authorization: `Bearer ${authToken}` },
   });
+  if (res.ok) invalidateVaultCache(authToken);
   return res.ok;
 }
 
@@ -28,6 +91,7 @@ export async function deleteDocument(authToken: string, id: string): Promise<boo
     method: "DELETE",
     headers: { Authorization: `Bearer ${authToken}` },
   });
+  if (res.ok) invalidateVaultCache(authToken);
   return res.ok;
 }
 
@@ -37,6 +101,7 @@ export async function createFolder(authToken: string, name: string) {
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
     body: JSON.stringify({ name }),
   });
+  if (res.ok) invalidateVaultCache(authToken);
   if (!res.ok) return null;
   return res.json();
 }
@@ -54,6 +119,7 @@ export async function createLibraryItem(
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
     body: JSON.stringify({ type, name, description, tags, details }),
   });
+  if (res.ok) invalidateVaultCache(authToken);
   return res.ok;
 }
 
@@ -74,6 +140,7 @@ export async function uploadFileToFolder(
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "Upload failed");
+  invalidateVaultCache(authToken);
   if (res.status === 202 && data.job_id) {
     onJobId(data.job_id);
     return { sync: false };
@@ -112,6 +179,7 @@ export async function uploadVaultAsset(
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "Vault asset upload failed");
+  invalidateVaultCache(authToken);
   if (res.status === 202 && data.job_id) {
     onJobId(data.job_id);
     return {

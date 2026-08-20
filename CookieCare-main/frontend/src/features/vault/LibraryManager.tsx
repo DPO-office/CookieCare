@@ -1,4 +1,5 @@
 ﻿import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Plus, Upload } from "lucide-react";
 import { LegalDocument } from "../../shared/types";
 import { isPlaceholderVaultDocument } from "../analyze/utils/vaultDocumentFilters";
@@ -6,6 +7,7 @@ import { TABS_CONFIG } from "./constants";
 import { useLibrary } from "./hooks/useLibrary";
 import { useLibraryUI } from "./hooks/useLibraryUI";
 import { VAULT_STYLES } from "./styles/vaultStyles";
+import { useAppContext } from "../../contexts/AppContext";
 
 import { SavedDraftsTable } from "./components/SavedDraftsTable";
 import { LibraryItemsTable } from "./components/LibraryItemsTable";
@@ -16,16 +18,24 @@ import { FileUploadModal } from "./components/FileUploadModal";
 import { VaultIngestModal } from "./components/VaultIngestModal";
 
 interface LibraryProps {
-  authToken: string;
-  onRefresh: () => void;
+  /** @deprecated Read from AppContext; kept for backward-compat */
+  authToken?: string;
+  /** @deprecated Read from AppContext; kept for backward-compat */
+  onRefresh?: () => void;
+  /** @deprecated Navigation handled internally via useNavigate */
   onOpenInDraftEditor?: (doc: LegalDocument) => void;
 }
 
-export default function LibraryManager({
-  authToken,
-  onRefresh,
-  onOpenInDraftEditor,
-}: LibraryProps) {
+export default function LibraryManager(_props: LibraryProps = {}) {
+  const { authToken: ctxToken, fetchDocuments, setOpenDraftId } = useAppContext();
+  const authToken = ctxToken ?? "";
+  const onRefresh = fetchDocuments;
+  const navigate = useNavigate();
+
+  const handleOpenInDraftEditor = (doc: LegalDocument) => {
+    setOpenDraftId(doc.id);
+    navigate("/drafting");
+  };
   const {
     items,
     savedDrafts,
@@ -124,6 +134,7 @@ export default function LibraryManager({
   const totalPages = Math.max(1, Math.ceil(sortedItems.length / recordsPerPage));
 
   const filteredDrafts = savedDrafts.filter((d) => {
+    if (d.type !== "draft") return false;
     if (isPlaceholderVaultDocument(d)) return false;
     if (!savedDraftsSearch.trim()) return true;
     return (d.title || "").toLowerCase().includes(savedDraftsSearch.toLowerCase());
@@ -228,7 +239,7 @@ export default function LibraryManager({
                 const isActive = activeTab === tab.id;
                 const count =
                   tab.id === "saved-drafts"
-                    ? savedDrafts.filter((d) => !isPlaceholderVaultDocument(d)).length
+                    ? savedDrafts.filter((d) => d.type === "draft" && !isPlaceholderVaultDocument(d)).length
                     : items.filter((i) => i.type === tab.id).length;
                 return (
                   <button
@@ -307,7 +318,7 @@ export default function LibraryManager({
                 <SavedDraftsTable
                   drafts={filteredDrafts}
                   onDelete={handleDeleteDraft}
-                  onOpenInDraftEditor={onOpenInDraftEditor}
+                  onOpenInDraftEditor={handleOpenInDraftEditor}
                 />
               ) : (
                 <LibraryItemsTable

@@ -209,7 +209,8 @@ export function useUpload(
 
   const uploadSingleFile = async (
     item: PendingUpload,
-    folderId: string | undefined
+    folderId: string | undefined,
+    ephemeral = false
   ): Promise<{ jobId?: string; fileId?: string; error?: string }> => {
     updateFileStatus(item.id, { status: "uploading" });
 
@@ -218,6 +219,7 @@ export function useUpload(
       formData.append("file", item.file);
       formData.append("title", item.file.name);
       if (folderId) formData.append("folder_id", folderId);
+      if (ephemeral) formData.append("ephemeral", "true");
 
       const res = await fetch(apiUrl("/api/documents/upload"), {
         method: "POST",
@@ -248,24 +250,33 @@ export function useUpload(
 
   const runUploadBatch = async (
     toUpload: PendingUpload[],
-    folderId: string | undefined
-  ): Promise<{ failedCount: number; fileIds: string[] }> => {
+    folderId: string | undefined,
+    ephemeral = false
+  ): Promise<{ failedCount: number; fileIds: string[]; fileTitles: Record<string, string> }> => {
     let failedCount = 0;
     const fileIds: string[] = [];
+    const fileTitles: Record<string, string> = {};
     const queue = [...toUpload];
 
     const runNext = async (): Promise<void> => {
       while (queue.length > 0 && !abortRef.current) {
         const item = queue.shift()!;
-        const result = await uploadSingleFile(item, folderId);
+        const result = await uploadSingleFile(item, folderId, ephemeral);
 
         if (result.error) {
           failedCount++;
         } else if (result.jobId) {
           try {
-            await waitForJob(authToken, result.jobId);
+            // Ephemeral uploads skip RAG indexing so they complete faster —
+            // use a tighter poll interval to surface results sooner.
+            await waitForJob(authToken, result.jobId, {
+              pollIntervalMs: ephemeral ? 400 : 1200,
+            });
             updateFileStatus(item.id, { status: "done" });
-            if (result.fileId) fileIds.push(result.fileId);
+            if (result.fileId) {
+              fileIds.push(result.fileId);
+              fileTitles[result.fileId] = item.file.name;
+            }
           } catch (err: any) {
             failedCount++;
             updateFileStatus(item.id, {
@@ -275,7 +286,10 @@ export function useUpload(
           }
         } else {
           updateFileStatus(item.id, { status: "done" });
-          if (result.fileId) fileIds.push(result.fileId);
+          if (result.fileId) {
+            fileIds.push(result.fileId);
+            fileTitles[result.fileId] = item.file.name;
+          }
         }
 
         setUploadProgress((p) => ({ ...p, done: p.done + 1 }));
@@ -287,7 +301,7 @@ export function useUpload(
       () => runNext()
     );
     await Promise.all(workers);
-    return { failedCount, fileIds };
+    return { failedCount, fileIds, fileTitles };
   };
 
   const resolveUploadFolderId = async (): Promise<string | undefined> => {
@@ -340,21 +354,19 @@ export function useUpload(
   };
 
   /**
-   * Composer-first upload: reuse the same pipeline as the SideDrawer,
-   * but upload immediately and return file ids for analysis selection.
-   * Omitting folder_id lets the backend place files in "Uploaded Documents".
+   * Composer-first upload: upload immediately and return file IDs for analysis
+   * selection. Files are ephemeral — they are stored in the DB for the analysis
+   * engine to read but are never assigned to a vault folder and never appear in
+   * the vault browser. No vault refresh is performed.
    */
   const quickUploadFiles = async (
     incoming: FileList | File[]
-  ): Promise<{ fileIds: string[]; error?: string }> => {
+  ): Promise<{ fileIds: string[]; fileTitles: Record<string, string>; error?: string }> => {
     const arr = Array.from(incoming);
     const accepted = arr.filter(isAllowedFile);
     if (accepted.length === 0) {
-      return { fileIds: [], error: "No supported files to upload." };
+      return { fileIds: [], fileTitles: {}, error: "No supported files to upload." };
     }
-
-    const folderName = extractFolderName(accepted);
-    if (folderName) setSuggestedFolderName(folderName);
 
     const items: PendingUpload[] = accepted.slice(0, MAX_UPLOAD_FILES).map((f) => ({
       id: Math.random().toString(36).slice(2),
@@ -370,37 +382,32 @@ export function useUpload(
     abortRef.current = false;
     setUploadProgress({ done: 0, total: items.length });
 
-    let folderId: string | undefined;
-    if (folderName) {
-      folderId = await resolveOrCreateFolder(folderName);
-    }
+    // ephemeral=true — no folder_id, skips RAG indexing, never appears in vault
+    const { failedCount, fileIds, fileTitles } = await runUploadBatch(items, undefined, true);
 
-    const { failedCount, fileIds } = await runUploadBatch(items, folderId);
-
-    await fetchFoldersAndDocs({ selectFileIds: fileIds });
-    await onRefresh();
     setIsUploading(false);
 
     if (failedCount > 0 && fileIds.length === 0) {
       const msg = `${failedCount} file${failedCount === 1 ? "" : "s"} failed to upload.`;
       setBatchError(msg);
-      return { fileIds: [], error: msg };
+      return { fileIds: [], fileTitles: {}, error: msg };
     }
 
     clearFiles();
     if (failedCount > 0) {
       return {
         fileIds,
+        fileTitles,
         error: `${failedCount} file${failedCount === 1 ? "" : "s"} failed; the rest were attached.`,
       };
     }
-    return { fileIds };
+    return { fileIds, fileTitles };
   };
 
   /** Collect dropped files (including folders) using the same logic as handleDrop, then quick-upload. */
   const quickUploadFromDrop = async (
     e: React.DragEvent
-  ): Promise<{ fileIds: string[]; error?: string }> => {
+  ): Promise<{ fileIds: string[]; fileTitles: Record<string, string>; error?: string }> => {
     e.preventDefault();
     setIsDraggingFile(false);
 
@@ -415,11 +422,7 @@ export function useUpload(
       }
 
       if (entries.length > 0) {
-        const droppedFolder = entries.find((entry) => entry.isDirectory);
-        if (droppedFolder?.name) {
-          setSuggestedFolderName(droppedFolder.name);
-          setUploadSelectedFolder("");
-        }
+        // Do NOT set suggestedFolderName — ephemeral uploads don't create vault folders
         for (const entry of entries) {
           const files = await readAllEntries(entry);
           allFiles.push(...files);
@@ -434,7 +437,7 @@ export function useUpload(
       return quickUploadFiles(e.dataTransfer.files);
     }
 
-    return { fileIds: [], error: "No files detected in drop." };
+    return { fileIds: [], fileTitles: {}, error: "No files detected in drop." };
   };
 
   return {

@@ -5,9 +5,11 @@ import {
   Loader2,
   Archive,
   SlidersHorizontal,
+  Zap,
+  Microscope,
 } from "lucide-react";
 import { useAutoResize } from "../hooks/useAutoResize";
-import { DocumentMode, AnswerStyle } from "../types";
+import { DocumentMode, AnswerStyle, AnalysisDepth } from "../types";
 import { SelectedDocument } from "../documentSelection";
 import { AnalysisOptionsMenu } from "./AnalysisOptionsMenu";
 import { ComposerDocumentCard } from "./ComposerDocumentCard";
@@ -26,8 +28,10 @@ interface AnalysisComposerProps {
   onTogglePlaybook?: (doc: SelectedDocument) => void;
   documentMode: DocumentMode;
   answerStyle: AnswerStyle;
+  analysisDepth: AnalysisDepth;
   onSetDocumentMode: (mode: DocumentMode) => void;
   onSetAnswerStyle: (style: AnswerStyle) => void;
+  onSetAnalysisDepth: (depth: AnalysisDepth) => void;
   canAnalyze: boolean;
   isAnalyzing: boolean;
   isUploading?: boolean;
@@ -38,6 +42,48 @@ interface AnalysisComposerProps {
   onDragLeave?: (e: React.DragEvent) => void;
   onDrop?: (e: React.DragEvent) => void;
   variant?: "landing" | "default";
+}
+
+/** Depth toggle pill — Lite / Deep Dive */
+function DepthToggle({
+  depth,
+  onChange,
+  disabled,
+}: {
+  depth: AnalysisDepth;
+  onChange: (d: AnalysisDepth) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <div
+      className="analyze-depth-toggle"
+      role="group"
+      aria-label="Analysis depth"
+    >
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => onChange("lite")}
+        className={`analyze-depth-btn${depth === "lite" ? " is-active" : ""}`}
+        aria-pressed={depth === "lite"}
+        title="Lite — concise, high-level summary"
+      >
+        <Zap className="h-[13px] w-[13px] shrink-0" strokeWidth={1.75} />
+        <span>Lite</span>
+      </button>
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => onChange("deep")}
+        className={`analyze-depth-btn${depth === "deep" ? " is-active" : ""}`}
+        aria-pressed={depth === "deep"}
+        title="Deep Dive — thorough, clause-by-clause analysis"
+      >
+        <Microscope className="h-[13px] w-[13px] shrink-0" strokeWidth={1.75} />
+        <span>Deep Dive</span>
+      </button>
+    </div>
+  );
 }
 
 export function AnalysisComposer({
@@ -52,8 +98,10 @@ export function AnalysisComposer({
   onTogglePlaybook,
   documentMode,
   answerStyle,
+  analysisDepth,
   onSetDocumentMode,
   onSetAnswerStyle,
+  onSetAnalysisDepth,
   canAnalyze: _canAnalyze,
   isAnalyzing,
   isUploading = false,
@@ -68,6 +116,7 @@ export function AnalysisComposer({
   const { ref: textareaRef, adjust } = useAutoResize(72, 168);
   const [optionsOpen, setOptionsOpen] = useState(false);
   const optionsRef = useRef<HTMLDivElement>(null);
+  const optionsBtnRef = useRef<HTMLButtonElement>(null);
   const hasDocuments = documents.length > 0;
   const busy = isAnalyzing || isUploading;
   const isLanding = variant === "landing";
@@ -77,15 +126,6 @@ export function AnalysisComposer({
     adjust();
   }, [value, adjust]);
 
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (optionsRef.current && !optionsRef.current.contains(e.target as Node)) {
-        setOptionsOpen(false);
-      }
-    };
-    if (optionsOpen) document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [optionsOpen]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -119,6 +159,20 @@ export function AnalysisComposer({
             </span>
           </div>
         )}
+
+        {/* Depth mode toggle — floats above the composer, right-aligned */}
+        <div className="flex items-center justify-end mb-2 px-1">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-medium text-[#98A2B3] uppercase tracking-[0.12em] select-none">
+              Mode
+            </span>
+            <DepthToggle
+              depth={analysisDepth}
+              onChange={onSetAnalysisDepth}
+              disabled={busy}
+            />
+          </div>
+        </div>
 
         <div className="pcl-composer relative overflow-visible">
           {hasDocuments && (
@@ -161,7 +215,9 @@ export function AnalysisComposer({
             />
           </div>
 
+          {/* Toolbar row */}
           <div className="flex items-center gap-2 px-4 pb-3.5 pt-2">
+            {/* Left: attach / vault / options */}
             <button
               type="button"
               onClick={onAttachFiles}
@@ -182,13 +238,15 @@ export function AnalysisComposer({
               <Archive className="h-[15px] w-[15px]" strokeWidth={1.75} />
             </button>
 
-            <div className="relative" ref={optionsRef}>
+            <div className="relative">
               <button
+                ref={optionsBtnRef}
                 type="button"
                 onClick={() => setOptionsOpen((v) => !v)}
                 disabled={busy}
                 className="analyze-icon-btn"
                 aria-label="Analysis options"
+                aria-expanded={optionsOpen}
               >
                 <SlidersHorizontal className="h-[15px] w-[15px]" strokeWidth={1.75} />
               </button>
@@ -199,12 +257,14 @@ export function AnalysisComposer({
                   onSetDocumentMode={onSetDocumentMode}
                   onSetAnswerStyle={onSetAnswerStyle}
                   onClose={() => setOptionsOpen(false)}
+                  anchorRef={optionsBtnRef}
                 />
               )}
             </div>
 
             <div className="flex-1" />
 
+            {/* Right: shortcut hint + send */}
             <span className="hidden shrink-0 select-none text-[11px] tracking-wide text-[#98A2B3] sm:inline">
               Ctrl+Y
             </span>
@@ -229,7 +289,7 @@ export function AnalysisComposer({
           <p className="mt-3 text-center text-[12px] text-[#98A2B3]" role="status">
             {uploadProgress && uploadProgress.total > 0
               ? `Uploading ${uploadProgress.done} of ${uploadProgress.total}…`
-              : "Uploading and indexing agreements…"}
+              : "Uploading…"}
           </p>
         )}
 
@@ -242,7 +302,7 @@ export function AnalysisComposer({
     );
   }
 
-  // Default variant — kept for any non-landing usage
+  // Default variant
   return (
     <div
       className="w-full relative max-w-[720px] mx-auto"

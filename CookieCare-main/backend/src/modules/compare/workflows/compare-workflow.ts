@@ -19,6 +19,7 @@ import { clauseAlignStep } from "../steps/clause-align.js";
 import { diffDetectStep } from "../steps/diff-detect.js";
 import { riskAnalysisStep } from "../steps/risk-analysis.js";
 import { executiveSummaryStep } from "../steps/executive-summary.js";
+import { validateCompareOutput } from "../pac/critique-compare.js";
 import { pipelineMetrics, StageName } from "../utils/pipeline-metrics.js";
 import { geminiScheduler } from "../utils/llm-scheduler.js";
 
@@ -171,6 +172,42 @@ export class CompareWorkflowOrchestrator {
       // state = await timed(state, "save", (s) => saveStep(s));
 
       await progress(state, 100, "Analysis complete.");
+
+      // ── Post-pipeline validation (PAC Critique Lite for Compare) ──────────
+      // Pure, synchronous invariant check — zero LLM calls, zero side effects.
+      // Validates referential integrity and required field presence across
+      // alignment, differences, risks, and executive summary.
+      const critiqueResult = validateCompareOutput(state);
+      state = {
+        ...state,
+        metadata: {
+          ...state.metadata,
+          validationIssues: critiqueResult.summaryMessages,
+          validationCounts: critiqueResult.counts,
+        },
+      };
+
+      if (critiqueResult.counts.errors > 0) {
+        console.warn(
+          `[CompareWorkflow/Critique] Validation completed with ` +
+            `${critiqueResult.counts.errors} error(s) and ` +
+            `${critiqueResult.counts.warnings} warning(s). ` +
+            "Output is structurally inconsistent — review validationIssues in metadata."
+        );
+        for (const iss of critiqueResult.issues.filter((i) => i.severity === "error")) {
+          console.warn(`  [error] ${iss.id}: ${iss.message}`);
+        }
+      } else if (critiqueResult.counts.warnings > 0) {
+        console.log(
+          `[CompareWorkflow/Critique] Validation passed with ` +
+            `${critiqueResult.counts.warnings} warning(s).`
+        );
+        for (const iss of critiqueResult.issues.filter((i) => i.severity === "warning")) {
+          console.log(`  [warn] ${iss.id}: ${iss.message}`);
+        }
+      } else {
+        console.log("[CompareWorkflow/Critique] Validation passed — output is structurally clean.");
+      }
 
       // Merge scheduler-level stats (retries, wait time, rate limits) into
       // each stage's metrics.  The scheduler is global so we distribute its

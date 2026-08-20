@@ -5,12 +5,16 @@ import ScanForm from "./components/ScanForm";
 import ScanResults from "./components/ScanResults";
 import { useCookieScan } from "./hooks/useCookieScan";
 import { CARD_SHADOW } from "./constants";
+import { useAppContext } from "../../contexts/AppContext";
 
+/** @deprecated authToken is now read from AppContext */
 interface CookieScannerProps {
-  authToken: string;
+  authToken?: string;
 }
 
-export default function CookieScanner({ authToken }: CookieScannerProps) {
+export default function CookieScanner(_props: CookieScannerProps = {}) {
+  const { authToken: ctxToken } = useAppContext();
+  const authToken = ctxToken ?? "";
   const {
     url, setUrl, scanDepth, setScanDepth,
     scanning, result, error, setError, scanProgress, scanProgressPct,
