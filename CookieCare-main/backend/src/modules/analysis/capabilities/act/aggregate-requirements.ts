@@ -14,10 +14,12 @@ import {
 
 /**
  * Build the RequirementAssessment reporting view from the authoritative
- * Findings (ACT refactor doc §9). The assessment status is DERIVED
- * deterministically from the supporting findings — it never stores a competing
- * verdict. Requirement ids come from the package evaluations that tagged
- * findings with `requirementId`.
+ * Findings. The link from requirement to finding is now the single field
+ * `Finding.requirementId`, stamped at PLAN time onto the work unit
+ * (`AnalysisWorkUnit.requirementIds`) and propagated into every finding by
+ * the requirement-aware ACT handlers. Aggregation no longer bridges via
+ * capability mappings, id prefix, or "same skill" heuristics — an
+ * unmatched requirement stays honestly unmatched.
  */
 export function aggregateRequirements(
   state: AnalysisState,
@@ -30,24 +32,14 @@ export function aggregateRequirements(
     []
   ).filter((path) => path.requirementId && !path.requirementId.startsWith("_dep:"));
 
-  const structuralFindings = findings.filter(
-    (finding) =>
-      !finding.requirementId &&
-      (finding.skillId?.startsWith("doc-types/") ||
-        finding.workUnitId?.includes("check-expected") ||
-        finding.workUnitId?.includes("extract"))
-  );
-  const canReuseStructural = structuralFindings.length > 0;
-
   const extraFindings: Finding[] = [];
   for (const path of unsupported) {
     if (findings.some((f) => f.requirementId === path.requirementId)) continue;
-    if (canReuseStructural && isBroadDocTypeRequirement(path.requirementId)) continue;
     extraFindings.push({
       findingId: `f_unresolved_${path.requirementId}_${crypto.randomUUID().slice(0, 6)}`,
       kind: "compliance",
       category: "other_known_risk",
-      status: "not_covered",
+      status: "insufficient_evidence",
       claim:
         path.reason ??
         `No authored analysis package covers "${path.requirementId}".`,
@@ -60,7 +52,7 @@ export function aggregateRequirements(
   }
 
   const allFindings = [...findings, ...extraFindings];
-  const requirementIds = orderedRequirementIds(allFindings);
+  const requirementIds = orderedRequirementIds(allFindings, state);
 
   const assessments: RequirementAssessment[] = requirementIds.map((requirementId) => {
     const supporting = findingsForRequirement(requirementId, allFindings);
@@ -74,39 +66,23 @@ export function aggregateRequirements(
     };
   });
 
-  for (const req of state.intent?.requirements ?? []) {
-    if (assessments.some((assessment) => assessment.requirementId === req.id)) continue;
-    if (!canReuseStructural || !isBroadDocTypeRequirement(req.id)) continue;
-    const status = deriveRequirementStatus(structuralFindings);
-    assessments.push({
-      requirementId: req.id,
-      supportingFindingIds: structuralFindings.map((finding) => finding.findingId),
-      status,
-      summary: buildSummary(structuralFindings, status),
-      recommendation: buildRecommendation(structuralFindings),
-    });
-  }
-
   return {
     state: { ...state, requirementAssessments: assessments },
     findings: allFindings,
   };
 }
 
-function isBroadDocTypeRequirement(requirementId: string): boolean {
-  const id = requirementId.toLowerCase();
-  return (
-    id.startsWith("dpa.") ||
-    id.includes("overall_analysis") ||
-    id.includes("comprehensive_review") ||
-    id.includes("key_pointers") ||
-    id.includes("key_elements")
-  );
-}
-
-function orderedRequirementIds(findings: Finding[]): string[] {
+function orderedRequirementIds(
+  findings: Finding[],
+  state: AnalysisState
+): string[] {
   const seen = new Set<string>();
   const ordered: string[] = [];
+  for (const req of state.intent?.requirements ?? []) {
+    if (seen.has(req.id)) continue;
+    seen.add(req.id);
+    ordered.push(req.id);
+  }
   for (const f of findings) {
     if (!f.requirementId || seen.has(f.requirementId)) continue;
     seen.add(f.requirementId);

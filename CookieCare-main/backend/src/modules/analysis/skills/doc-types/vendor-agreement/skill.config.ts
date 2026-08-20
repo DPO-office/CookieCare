@@ -68,6 +68,23 @@ export const vendorAgreementSkill: AnalysisSkillConfig = {
   axis: "doc-type",
   label: "Vendor / procurement agreement",
   version: "0.1.0",
+  docTypeClassifiers: [
+    {
+      docTypeId: "vendor-agreement",
+      priority: 75,
+      patterns: [
+        "\\bvendor agreement\\b",
+        "\\bsupplier agreement\\b",
+        "\\bprocurement\\b",
+        "\\bthird.?party risk",
+      ],
+    },
+    {
+      docTypeId: "ai-vendor-agreement",
+      priority: 70,
+      patterns: ["\\bai system\\b", "\\bartificial intelligence\\b", "\\bautomated decision"],
+    },
+  ],
   extendsDocType: "doc-types/commercial-agreement",
   appliesToDocTypes: ["vendor-agreement"],
   triggerPhrases: [

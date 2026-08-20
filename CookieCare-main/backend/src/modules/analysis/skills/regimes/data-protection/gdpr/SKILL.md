@@ -548,6 +548,11 @@ Raise when the DPA creates an Article 28(3)(e) assistance duty but says nothing 
 
 EDPB controller-processor guidance recognises that commercial terms may allocate assistance costs, but cost mechanics must not undermine the processor's binding assistance duty. Silence should be identified as a contractual-operability risk, not stated as an independent GDPR violation.
 
+## risk:dsr_generic_no_named_rights
+Raise when the agreement refers only to generic data-subject requests or cooperation and does not name or clearly describe the applicable Chapter III rights.
+
+Do not raise solely because every Article 15-22 right is not listed if the named rights that are in scope are identified.
+
 ## risk:processor_terms_incomplete
 Raise for missing Article 28 processing particulars or processor duties. List the exact missing subparagraphs.
 

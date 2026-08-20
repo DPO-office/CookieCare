@@ -11,9 +11,23 @@ import type { EvidenceSpan } from "../../models/locator.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { getSkillById, mergeSkillRiskCategories } from "../../skills/registry.js";
 import { loadSkillMdSection } from "../../skills/load-skill-md.js";
-import { insufficient } from "./act-utils.js";
+import { insufficient, stampFindingsByCapability, compileAuthoredRegex } from "./act-utils.js";
 
 async function flagRisk(
+  state: AnalysisState,
+  unit: AnalysisWorkUnit,
+  findings: Finding[]
+): Promise<{ state: AnalysisState; findings: Finding[] }> {
+  const result = await _flagRiskImpl(state, unit, findings);
+  return {
+    state: result.state,
+    findings: stampFindingsByCapability(unit, findings, result.findings, (f) => [
+      f.category,
+    ]),
+  };
+}
+
+async function _flagRiskImpl(
   state: AnalysisState,
   unit: AnalysisWorkUnit,
   findings: Finding[]
@@ -147,7 +161,7 @@ async function flagRisk(
     );
   } catch (err) {
     console.warn("[flagRisk] LLM failed; heuristic risks:", err);
-    raw = heuristicRisks(clauses, [...allowed]);
+    raw = heuristicRisks(clauses, riskCats.filter((cat) => allowed.has(cat.category)));
   }
 
   if (state.agent && tracker) {
@@ -190,14 +204,15 @@ async function flagRisk(
     });
   }
 
-  const costSilence = costAllocationSilenceFinding(
+  const silenceRisks = evaluateSilencePatterns(
     unit,
     clauses,
+    riskCats,
     allowed,
     primarySkillId,
     riskFindings
   );
-  if (costSilence) riskFindings.push(costSilence);
+  riskFindings.push(...silenceRisks);
 
   return {
     state,
@@ -205,64 +220,79 @@ async function flagRisk(
   };
 }
 
-function costAllocationSilenceFinding(
+/**
+ * Run every authored silencePattern on the active risk categories.
+ * A finding fires when a trigger clause exists and none of those clauses
+ * satisfy the authored satisfyRegex.
+ */
+export function evaluateSilencePatterns(
   unit: AnalysisWorkUnit,
   clauses: ClauseObject[],
+  riskCats: Array<{
+    category: string;
+    silencePattern?: {
+      triggerClauseTypes?: string[];
+      triggerRegex?: string;
+      satisfyRegex: string;
+      claim: string;
+      severity: "low" | "medium" | "high";
+    };
+  }>,
   allowed: Set<string>,
   skillId: string | undefined,
   existing: Finding[]
-): Finding | null {
-  const category = "cost_allocation_silent";
-  if (!allowed.has(category) || existing.some((finding) => finding.category === category)) {
-    return null;
+): Finding[] {
+  const out: Finding[] = [];
+  for (const cat of riskCats) {
+    const pattern = cat.silencePattern;
+    if (!pattern || !allowed.has(cat.category)) continue;
+    if (existing.some((finding) => finding.category === cat.category)) continue;
+    const evidenceClause = findSilenceEvidence(clauses, pattern);
+    if (!evidenceClause) continue;
+    out.push({
+      findingId: `f_risk_${unit.workUnitId}_silence_${cat.category}`,
+      kind: "risk",
+      category: cat.category,
+      status: "absent_expected",
+      claim: pattern.claim,
+      evidence: [
+        {
+          locator: evidenceClause.locator,
+          quotedText: evidenceClause.text.slice(0, 400),
+          sourceRole: "target",
+        },
+      ],
+      severity: pattern.severity,
+      taxonomyVersion: RISK_TAXONOMY_VERSION,
+      workUnitId: unit.workUnitId,
+      skillId,
+      visibility: "user_facing",
+      ruleSourceTier: "B",
+    });
   }
-
-  const evidenceClause = findAssistanceClauseWithSilentCost(clauses);
-  if (!evidenceClause) return null;
-
-  return {
-    findingId: `f_risk_${unit.workUnitId}_cost-allocation-silent`,
-    kind: "risk",
-    category,
-    status: "absent_expected",
-    claim:
-      "The agreement creates a data-subject-rights assistance duty but does not allocate the cost of providing that assistance.",
-    evidence: [
-      {
-        locator: evidenceClause.locator,
-        quotedText: evidenceClause.text.slice(0, 400),
-        sourceRole: "target",
-      },
-    ],
-    severity: "medium",
-    taxonomyVersion: RISK_TAXONOMY_VERSION,
-    workUnitId: unit.workUnitId,
-    skillId,
-    visibility: "user_facing",
-    ruleSourceTier: "B",
-  };
+  return out;
 }
 
-export function findAssistanceClauseWithSilentCost(
-  clauses: ClauseObject[]
+export function findSilenceEvidence(
+  clauses: ClauseObject[],
+  pattern: {
+    triggerClauseTypes?: string[];
+    triggerRegex?: string;
+    satisfyRegex: string;
+  }
 ): ClauseObject | null {
-  const assistanceClauses = clauses.filter(
-    (clause) =>
-      clause.clauseType === "processor_assistance_obligation" ||
-      clause.clauseType === "data_subject_request_handling" ||
-      /\bassist(?:ance|s|ing)?\b[\s\S]{0,180}\b(data subject|chapter iii|controller)\b/i.test(
-        clause.text
-      )
-  );
-  if (assistanceClauses.length === 0) return null;
-
-  const allocatesCost = assistanceClauses.some((clause) =>
-    /\b(costs?|fees?|charges?|expenses?|rates?|no additional charge|at no charge)\b/i.test(
-      clause.text
-    )
-  );
-  if (allocatesCost) return null;
-  return assistanceClauses[0];
+  const triggerRe = compileAuthoredRegex(pattern.triggerRegex);
+  const types = pattern.triggerClauseTypes ?? [];
+  const candidates = clauses.filter((clause) => {
+    if (types.includes(clause.clauseType)) return true;
+    return triggerRe ? triggerRe.test(clause.text) : false;
+  });
+  if (candidates.length === 0) return null;
+  const satisfyRe = compileAuthoredRegex(pattern.satisfyRegex);
+  if (satisfyRe && candidates.some((clause) => satisfyRe.test(clause.text))) {
+    return null;
+  }
+  return candidates[0];
 }
 
 function orgPlaybookRisks(
@@ -303,9 +333,19 @@ function orgPlaybookRisks(
   return out;
 }
 
-function heuristicRisks(
+export function heuristicRisks(
   clauses: ClauseObject[],
-  allowedCategories: string[]
+  riskCats: Array<{
+    category: string;
+    heuristic?: Array<{
+      clauseType?: string;
+      regex: string;
+      excludeRegex?: string;
+      claim: string;
+      severity: "low" | "medium" | "high";
+      quoteLen?: number;
+    }>;
+  }>
 ): Array<{
   clauseId: string;
   category: string;
@@ -314,45 +354,23 @@ function heuristicRisks(
   quotedText: string;
 }> {
   const out: ReturnType<typeof heuristicRisks> = [];
-  for (const c of clauses) {
-    if (
-      c.clauseType === "limitation_of_liability" &&
-      /unlimited|without limit/i.test(c.text) &&
-      allowedCategories.includes("uncapped_liability")
-    ) {
-      out.push({
-        clauseId: c.clauseId,
-        category: "uncapped_liability",
-        claim: "Limitation of liability appears uncapped or effectively unlimited.",
-        severity: "high",
-        quotedText: c.text.slice(0, 300),
-      });
-    }
-    if (
-      c.clauseType === "indemnity" &&
-      /customer shall indemnify|you shall indemnify/i.test(c.text) &&
-      allowedCategories.includes("one_sided_indemnity")
-    ) {
-      out.push({
-        clauseId: c.clauseId,
-        category: "one_sided_indemnity",
-        claim: "Indemnity appears one-sided against the customer.",
-        severity: "medium",
-        quotedText: c.text.slice(0, 300),
-      });
-    }
-    if (
-      /data subject (request|right)/i.test(c.text) &&
-      !/\b(access|erasure|rectification|portability|article 1[5-9]|article 2[0-2])\b/i.test(c.text) &&
-      allowedCategories.includes("dsr_generic_no_named_rights")
-    ) {
-      out.push({
-        clauseId: c.clauseId,
-        category: "dsr_generic_no_named_rights",
-        claim: "Data-subject request language is generic and does not name Chapter III rights.",
-        severity: "medium",
-        quotedText: c.text.slice(0, 300),
-      });
+  for (const cat of riskCats) {
+    for (const rule of cat.heuristic ?? []) {
+      const re = compileAuthoredRegex(rule.regex);
+      if (!re) continue;
+      const exclude = compileAuthoredRegex(rule.excludeRegex);
+      for (const c of clauses) {
+        if (rule.clauseType && c.clauseType !== rule.clauseType) continue;
+        if (!re.test(c.text)) continue;
+        if (exclude && exclude.test(c.text)) continue;
+        out.push({
+          clauseId: c.clauseId,
+          category: cat.category,
+          claim: rule.claim,
+          severity: rule.severity,
+          quotedText: c.text.slice(0, rule.quoteLen ?? 300),
+        });
+      }
     }
   }
   return out;

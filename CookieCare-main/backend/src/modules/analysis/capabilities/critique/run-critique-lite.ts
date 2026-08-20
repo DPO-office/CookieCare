@@ -17,6 +17,14 @@ import {
 import { deriveRequirementStatus } from "../act/requirement-status-policy.js";
 import { resolveRule } from "../act/check-against-rule.js";
 import { getSpanFromState } from "../act/execute-act-plan.js";
+import { validateRequirementCoverage } from "./coverage.js";
+import { validateAlignment } from "./alignment.js";
+import { detectPlaceholderOutput } from "./placeholder-report.js";
+import type {
+  AlignmentReport,
+  PlaceholderReport,
+  RequirementCoverageSummary,
+} from "../../models/critique-report.js";
 
 const FINDING_STATUSES = new Set<FindingStatus>([
   "present",
@@ -49,6 +57,9 @@ export interface CritiqueLiteResult {
   deepCritiqueTargets: CritiqueTarget[];
   skeletonMismatch: boolean;
   criticalFactSurfaced: boolean;
+  requirementCoverage: RequirementCoverageSummary;
+  alignment: AlignmentReport;
+  placeholderReport: PlaceholderReport;
 }
 
 /**
@@ -70,6 +81,41 @@ export function runCritiqueLite(state: AnalysisState): CritiqueLiteResult {
   validateRequirementMappings(state, results);
   validateReportSpec(state, results, fixes);
   collectMaterialityAndRigorTargets(state, findings, workUnits, targets);
+
+  const requirementCoverage = validateRequirementCoverage(state);
+  const alignment = validateAlignment(state);
+  const placeholderReport = detectPlaceholderOutput(state);
+
+  for (const entry of requirementCoverage.entries) {
+    if (entry.state === "not_covered" || entry.state === "needs_replan") {
+      const issueId = `coverage:${entry.requirementId}`;
+      results.push({
+        itemId: issueId,
+        status: entry.state === "needs_replan" ? "fail" : "missing",
+        evidenceVerified: false,
+        detail: entry.reason ?? `Requirement ${entry.requirementId} ${entry.state}`,
+      });
+    }
+  }
+
+  for (const issue of alignment.issues) {
+    results.push({
+      itemId: `alignment:${issue.kind}:${issue.requirementId ?? issue.packageId ?? "global"}`,
+      status: "fail",
+      evidenceVerified: false,
+      detail: issue.detail,
+    });
+  }
+
+  if (placeholderReport.detected) {
+    results.push({
+      itemId: "placeholder-output",
+      status: "fail",
+      evidenceVerified: false,
+      workUnitId: "wu-render",
+      detail: placeholderReport.detail ?? "Placeholder output detected",
+    });
+  }
 
   const executionComplete = workUnits.every(isTerminal);
   const structuralIssues = results.filter(
@@ -94,6 +140,9 @@ export function runCritiqueLite(state: AnalysisState): CritiqueLiteResult {
     deepCritiqueTargets: dedupeTargets(targets),
     skeletonMismatch,
     criticalFactSurfaced,
+    requirementCoverage,
+    alignment,
+    placeholderReport,
   };
 }
 
@@ -104,6 +153,11 @@ function validateCapabilityCoverage(
   fixes: FixItem[]
 ): void {
   for (const unit of workUnits) {
+    // A terminal rule/matrix unit with zero findings is a valid outcome
+    // ("no violation detected" / "rule does not apply") — not a structural gap.
+    // Non-terminal units are already flagged by validateWorkUnits.
+    if (!isTerminal(unit)) continue;
+
     if (unit.tool === "check_against_rule") {
       const ruleId = String(unit.input.ruleId ?? "");
       if (!ruleId) continue;
@@ -112,21 +166,15 @@ function validateCapabilityCoverage(
           finding.workUnitId === unit.workUnitId ||
           (finding.kind === "compliance" && finding.ruleId === ruleId)
       );
-      const issueId = `regime:${ruleId}`;
       results.push({
-        itemId: issueId,
-        status: covered ? "pass" : "missing",
+        itemId: `regime:${ruleId}`,
+        status: "pass",
         evidenceVerified: covered,
         workUnitId: unit.workUnitId,
-        detail: covered ? undefined : `No compliance finding for rule ${ruleId}`,
+        detail: covered
+          ? undefined
+          : `Rule ${ruleId} evaluated; no violation surfaced`,
       });
-      if (!covered) {
-        fixes.push({
-          workUnitId: unit.workUnitId,
-          instruction: `Evaluate scheduled rule ${ruleId}`,
-          sourceItemId: issueId,
-        });
-      }
     }
 
     if (unit.tool === "evaluate_matrix_row") {
@@ -137,21 +185,13 @@ function validateCapabilityCoverage(
           finding.workUnitId === unit.workUnitId ||
           finding.matrixRowId === rowId
       );
-      const issueId = `focus-matrix:${rowId}`;
       results.push({
-        itemId: issueId,
-        status: covered ? "pass" : "missing",
+        itemId: `focus-matrix:${rowId}`,
+        status: "pass",
         evidenceVerified: covered,
         workUnitId: unit.workUnitId,
-        detail: covered ? undefined : `No finding for matrix row ${rowId}`,
+        detail: covered ? undefined : `Matrix row ${rowId} evaluated; no addressing finding surfaced`,
       });
-      if (!covered) {
-        fixes.push({
-          workUnitId: unit.workUnitId,
-          instruction: `Evaluate matrix row ${rowId}`,
-          sourceItemId: issueId,
-        });
-      }
     }
   }
 }

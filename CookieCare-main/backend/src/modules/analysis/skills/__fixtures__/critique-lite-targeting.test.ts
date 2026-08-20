@@ -121,10 +121,24 @@ function state(
         requirements: [],
         confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 },
       },
-      workUnits: [unit()],
+      workUnits: [
+        {
+          ...unit(),
+          workUnitId: "wu-render",
+          tool: "render_output",
+          input: { schemaId: "memo" },
+          status: "done",
+        },
+        unit(),
+      ],
       missingClarifications: [],
       outputForm: "memo",
       rendererSchemaId: "memo",
+      reportSpec: {
+        reportType: "regime_compliance_memo",
+        depth: "standard",
+        sections: ["scope", "requirements_detail", "conclusion"],
+      },
       pinnedVersions: {
         clauseTaxonomyVersion: "test",
         riskTaxonomyVersion: "test",
@@ -132,6 +146,27 @@ function state(
     },
     findings,
     requirementAssessments: assessments,
+    renderedOutput:
+      "# Test report\n\n## Scope\n\nReview complete.\n\n## Requirements detail\n\nPurpose restriction is documented.\n\n## Conclusion\n\nDone.",
+    activeSkills: [
+      {
+        skillId: "_global",
+        axis: "global",
+        label: "Global",
+        version: "test",
+        riskCategories: [
+          {
+            category: "other_known_risk",
+            displayLabel: "Other risk",
+            guidance: "test",
+          },
+        ],
+        regimeRules: [],
+        clauseTypes: [],
+        expectedClauses: [],
+      },
+    ],
+    activeSkillIds: ["_global"],
     draftTasks: [],
     metadata: {
       timestamp: new Date().toISOString(),

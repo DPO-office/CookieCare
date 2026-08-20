@@ -60,6 +60,13 @@ export const msaDocTypeSkill: AnalysisSkillConfig = {
   axis: "doc-type",
   label: "Master Services Agreement",
   version: "0.1.0",
+  docTypeClassifiers: [
+    {
+      docTypeId: "msa",
+      priority: 80,
+      patterns: ["\\bmaster service(s)? agreement\\b", "\\bmsa\\b"],
+    },
+  ],
   extendsDocType: "doc-types/commercial-agreement",
   appliesToDocTypes: ["msa"],
   triggerPhrases: [

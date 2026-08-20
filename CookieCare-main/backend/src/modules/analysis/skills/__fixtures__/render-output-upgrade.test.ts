@@ -12,11 +12,11 @@ const {
   consolidateFindingsForRender,
   getEligibleRemedialFindings,
 } = await import("../../capabilities/act/render-output.js");
-const { hasAutomatedDecisionContext } = await import(
-  "../../capabilities/act/evaluate-matrix-row.js"
-);
-const { findAssistanceClauseWithSilentCost } = await import(
+const { findSilenceEvidence } = await import(
   "../../capabilities/act/flag-risk.js"
+);
+const { applyApplicabilityGate } = await import(
+  "../../capabilities/act/evaluate-matrix-row.js"
 );
 
 const locator = {
@@ -157,7 +157,14 @@ describe("render-output legal memo upgrade", () => {
     }
   });
 
-  it("detects silent assistance-cost allocation and hedges unsupported Article 22", () => {
+  it("detects silent assistance-cost allocation and hedges unsupported automated-decision rows", () => {
+    resetSkillRegistryForTests();
+    const gdpr = getSkillById("regimes/data-protection/gdpr");
+    assert.ok(gdpr);
+    const silence = gdpr!.riskCategories.find((c) => c.category === "cost_allocation_silent")
+      ?.silencePattern;
+    assert.ok(silence);
+
     const clauses = [
       {
         clauseId: "assistance",
@@ -167,17 +174,34 @@ describe("render-output legal memo upgrade", () => {
       },
     ] as ClauseObject[];
 
-    assert.equal(findAssistanceClauseWithSilentCost(clauses)?.clauseId, "assistance");
+    assert.equal(findSilenceEvidence(clauses, silence!)?.clauseId, "assistance");
     assert.equal(
-      findAssistanceClauseWithSilentCost([
-        { ...clauses[0], text: `${clauses[0].text} Assistance is provided at no additional charge.` },
-      ]),
+      findSilenceEvidence(
+        [
+          {
+            ...clauses[0],
+            text: `${clauses[0].text} Assistance is provided at no additional charge.`,
+          },
+        ],
+        silence!
+      ),
       null
     );
-    assert.equal(hasAutomatedDecisionContext("The DPA contains only general DSR assistance."), false);
+
+    const autoRow = gdpr!.rightsMatrixRows?.find((r) => r.rowId.includes("automated"));
+    assert.ok(autoRow?.applicabilityGate);
+    assert.ok(
+      applyApplicabilityGate(
+        autoRow!.applicabilityGate,
+        "The DPA contains only general DSR assistance."
+      )
+    );
     assert.equal(
-      hasAutomatedDecisionContext("Solely automated decisions require human review."),
-      true
+      applyApplicabilityGate(
+        autoRow!.applicabilityGate,
+        "Solely automated decisions require human review."
+      ),
+      null
     );
   });
 

@@ -1,5 +1,10 @@
 import type { EvidenceStatus } from "./clause-object.js";
-import type { IntentRequirementType } from "./intent.js";
+import type {
+  IntentRequirementType,
+  ReportDepth,
+  ReportSectionId,
+  ReportType,
+} from "./intent.js";
 
 /**
  * AnalysisPackage (exported as EvidencePackage for skill-config compatibility) —
@@ -88,9 +93,80 @@ export interface EvidencePackage {
   optionalPackages?: string[];
   /** Artifact type written to AnalysisState.analysisArtifacts. */
   outputArtifactType?: string;
-  /** Domain data (record schema, mechanism aliases) — never executable functions. */
-  config?: Record<string, unknown>;
+  /**
+   * Domain data (record schema, mechanism aliases, artifactShape) — never
+   * executable functions. Inventory packages with a non-default
+   * `outputArtifactType` must declare `artifactShape`.
+   */
+  config?: Record<string, unknown> & {
+    artifactShape?: InventoryArtifactShape;
+    mechanismAliases?: Record<string, string>;
+  };
+  /** Authored report structure for renderer / synthesis (P8). */
+  report?: PackageReportSpec;
 }
+
+export interface PackageOutlineExtra {
+  heading: string;
+  requirementTags?: string[];
+}
+
+export interface PackageReportSpec {
+  reportType?: ReportType;
+  sections?: ReportSectionId[];
+  sectionsByDepth?: Partial<Record<ReportDepth, ReportSectionId[]>>;
+  outlineExtras?: PackageOutlineExtra[];
+}
+
+/**
+ * How the generic inventory handler materializes `AnalysisArtifact.data`.
+ * Adding a new inventory shape means authoring this config — not a new `if` in
+ * the handler body.
+ */
+export interface InventoryFieldSpec {
+  name: string;
+  /** Key on the raw LLM/heuristic record. */
+  source: string;
+  /** When true, normalize string values via `mechanismAliases` on the shape. */
+  normalizeAliases?: boolean;
+  defaultValue?: unknown;
+}
+
+export interface InventoryDerivedAggregate {
+  name: string;
+  /** Field on each built record to collect. */
+  from?: string;
+  /** Multiple fields to collect (e.g. source + destination jurisdiction). */
+  fromFields?: string[];
+  unique?: boolean;
+  exclude?: string[];
+  /** When true, flatten array-valued fields across records. */
+  flatMap?: boolean;
+  /** Fixed value when no derivation is needed. */
+  constant?: unknown;
+}
+
+export type InventoryArtifactShape =
+  | {
+      kind: "records";
+      maxRecords?: number;
+      emptyClaim?: string;
+      presentClaim?: string;
+    }
+  | {
+      kind: "typed_records";
+      recordType: string;
+      /** Key for the records array in artifact data (default `records`). */
+      recordsKey?: string;
+      maxRecords?: number;
+      mechanismAliases?: Record<string, string>;
+      fieldSpec?: InventoryFieldSpec[];
+      derivedAggregates?: InventoryDerivedAggregate[];
+      /** Aggregate name interpolated as `{mechanisms}` in presentClaim. */
+      claimMechanismAggregate?: string;
+      emptyClaim?: string;
+      presentClaim?: string;
+    };
 
 /** Canonical name for the kinded package contract. */
 export type AnalysisPackage = EvidencePackage;

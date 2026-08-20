@@ -232,9 +232,56 @@ export const internationalTransfersSkill: AnalysisSkillConfig = {
       sourceMode: "authored",
       packageVersion: "1.0.0",
       outputArtifactType: "transfer_inventory",
+      report: {
+        reportType: "regime_compliance_memo",
+        sections: ["scope", "requirements_detail", "recommendations", "conclusion"],
+        outlineExtras: [
+          {
+            heading: "International transfer provisions",
+            requirementTags: [
+              "international_data_transfer",
+              "transfer_inventory",
+            ],
+          },
+        ],
+      },
       config: {
         recordSchema: "transfer_inventory",
         mechanismAliases: DEFAULT_TRANSFER_MECHANISM_ALIASES,
+        artifactShape: {
+          kind: "typed_records",
+          recordType: "TransferRecord",
+          recordsKey: "transfers",
+          mechanismAliases: DEFAULT_TRANSFER_MECHANISM_ALIASES,
+          claimMechanismAggregate: "mechanisms",
+          fieldSpec: [
+            { name: "id", source: "_id" },
+            { name: "evidenceIds", source: "_evidenceIds", defaultValue: [] },
+            { name: "sectionIds", source: "_sectionIds" },
+            { name: "sourceJurisdiction", source: "sourceJurisdiction" },
+            { name: "destinationJurisdiction", source: "destinationJurisdiction" },
+            { name: "mechanism", source: "mechanism", normalizeAliases: true },
+            { name: "legalBasis", source: "legalBasis" },
+            { name: "supplementaryMeasures", source: "supplementaryMeasures" },
+            { name: "references", source: "references" },
+            { name: "applicability", source: "applicability" },
+            { name: "quotedText", source: "quotedText" },
+          ],
+          derivedAggregates: [
+            { name: "mechanisms", from: "mechanism", unique: true, exclude: ["unspecified"] },
+            {
+              name: "jurisdictions",
+              fromFields: ["sourceJurisdiction", "destinationJurisdiction"],
+              unique: true,
+            },
+            { name: "referencedTransferDocuments", from: "references", unique: true, flatMap: true },
+            { name: "unresolvedReferences", constant: [] },
+          ],
+          emptyClaim:
+            "No international transfer provisions were identified in the retrieved sections.",
+          presentClaim:
+            "Identified {count} international transfer provision(s){mechanisms}.",
+        },
       },
     },
     {

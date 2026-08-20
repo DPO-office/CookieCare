@@ -39,7 +39,16 @@ export function nextPhaseAfterCritique(
   critique: CritiqueReport
 ): Phase {
   if (isMaxTurnsReached(state) || isBudgetExceeded(state)) return "DONE";
-  if (critique.skeletonMismatch) return "PLAN";
+  const alignmentReplan = critique.release?.alignment.issues.some(
+    (issue) => issue.action === "replan"
+  );
+  const priorReplans = critique.metrics?.replanCount ?? 0;
+  // Only replan when we still have a concrete reason AND haven't already
+  // burned a replan on the same structural pattern. Otherwise let the release
+  // gate ship a `release_with_limitations` instead of thrashing.
+  const shouldReplan =
+    (critique.skeletonMismatch || alignmentReplan) && priorReplans < 1;
+  if (shouldReplan) return "PLAN";
   if (criticalFactSurfaced(critique)) return "ASK";
   if (critique.fixPlan.length > 0) return "ACT";
   return "DONE";
@@ -57,6 +66,12 @@ export function resolveStoppedReason(
       return "awaiting_user";
     }
   }
+
+  const verdict = critique?.release?.verdict;
+  if (verdict === "release") return "green";
+  if (verdict === "release_with_limitations") return "green_partial";
+  if (verdict === "withhold") return "blocked";
+
   if (
     (critique?.executionComplete ?? critique?.allUnitsTerminal ?? critique?.isGreen) &&
     (critique?.structurallyValid ?? critique?.isGreen) &&

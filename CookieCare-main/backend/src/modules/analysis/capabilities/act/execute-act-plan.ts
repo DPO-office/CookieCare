@@ -19,12 +19,12 @@ import { deriveRisk } from "./derive-risk.js";
 import { aggregateRequirements } from "./aggregate-requirements.js";
 import { insufficient } from "./act-utils.js";
 import { pacLog, pacWarn } from "../../utils/pac-log.js";
+import { logActInspect } from "./act-inspect-log.js";
 
 const SILENT_SUCCESS_NOTES: Partial<Record<AnalysisToolName, string>> = {
   classify_document: "classification only, no finding by design",
   check_expected_clauses: "expected clause present, no gap to report",
   extract_playbook_positions: "no playbook positions extracted",
-  get_span: "locator helper, no finding by design",
   extract_shared_evidence: "shared evidence cached, no finding by design",
   inventory_provisions: "no inventory records extracted",
   aggregate_requirements: "requirement assessments built, no finding by design",
@@ -112,14 +112,18 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
     );
     units = units.map((u) => {
       const fix = fixByUnit.get(u.workUnitId);
-      if (!fix?.previousAttemptFeedback) return u;
-      return {
-        ...u,
-        input: {
-          ...u.input,
-          previousAttemptFeedback: fix.previousAttemptFeedback,
-        },
-      };
+      if (!fix) return u;
+      const input = { ...u.input };
+      if (fix.previousAttemptFeedback) {
+        input.previousAttemptFeedback = fix.previousAttemptFeedback;
+      }
+      if (fix.requirementId) {
+        const prior = Array.isArray(input.retryRequirementIds)
+          ? (input.retryRequirementIds as string[])
+          : [];
+        input.retryRequirementIds = [...new Set([...prior, fix.requirementId])];
+      }
+      return { ...u, input };
     });
     // A targeted retry can change the findings that the user should see.
     // Always regenerate the final output after the retried units complete.
@@ -321,12 +325,14 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
     findings: findings.length,
   });
 
-  return {
+  const finalState = {
     ...state,
     findings,
     plan: { ...plan, workUnits: units },
     fixPlan: null,
   };
+  logActInspect(finalState);
+  return finalState;
 }
 
 function ensureSegmented(state: AnalysisState): AnalysisState {
@@ -400,27 +406,10 @@ async function runTool(
       const next = await renderOutput(state, findings, unit);
       return { state: next, findings: next.findings };
     }
-    case "get_span":
-      return { state, findings };
-    case "request_clarification":
-      return {
-        state,
-        findings: [
-          ...findings,
-          insufficient(unit, "request_clarification deferred to ASK phase"),
-        ],
-      };
-    default:
-      return {
-        state,
-        findings: [
-          ...findings,
-          insufficient(
-            unit,
-            `Tool "${unit.tool}" is not implemented in this release; work unit skipped with explicit status.`
-          ),
-        ],
-      };
+    default: {
+      const _exhaustive: never = unit.tool;
+      throw new Error(`Unhandled ACT tool: ${String(_exhaustive)}`);
+    }
   }
 }
 

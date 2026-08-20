@@ -8,6 +8,12 @@ import { pacLog } from "../../utils/pac-log.js";
 import { resolveWorkUnits } from "./resolve-work-unit.js";
 import { runCritiqueLite } from "./run-critique-lite.js";
 import { runDeepCritique } from "./run-deep-critique.js";
+import { composeReleaseDecision } from "./release-decision.js";
+import { alignmentNeedsReplan } from "./alignment.js";
+import {
+  logCritiqueFinalInspect,
+  logCritiqueLiteInspect,
+} from "./critique-inspect-log.js";
 
 /**
  * Two-level CRITIQUE:
@@ -31,17 +37,21 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
     structurallyValid: lite.structurallyValid,
     issues: lite.structuralIssues.length,
   });
+  logCritiqueLiteInspect(lite);
 
   // After a targeted redo, Critique Lite is the final validation pass by
   // default. Do not recursively launch another semantic loop for the same run.
   const targetedRedoCount = targetedRedoCountForRun(state);
-  const mayRunDeepCritique =
-    targetedRedoCount === 0 && lite.structurallyValid;
+  const mayRunDeepCritique = targetedRedoCount === 0;
   const targets = mayRunDeepCritique ? lite.deepCritiqueTargets : [];
   pacLog("deepCritiqueRequired", {
     value: targets.length > 0,
     targets: targets.length,
     skippedAfterRedo: !mayRunDeepCritique || undefined,
+    reasons:
+      targets.length > 0
+        ? [...new Set(targets.map((t) => t.reason))].join(",")
+        : undefined,
   });
 
   let deepCritiqueMs = 0;
@@ -76,7 +86,9 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
     rawFixPlan
   );
   const skeletonMismatch =
-    lite.skeletonMismatch || resolved.skeletonMismatch;
+    lite.skeletonMismatch ||
+    resolved.skeletonMismatch ||
+    alignmentNeedsReplan(lite.alignment);
   const executionComplete = lite.executionComplete;
   const structurallyValid =
     lite.structurallyValid && !skeletonMismatch;
@@ -84,6 +96,17 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
     resolved.allUnitsTerminal || skeletonMismatch
       ? []
       : dedupeFixes(resolved.fixPlan);
+  const release = composeReleaseDecision({
+    state: resolvedState,
+    coverage: lite.requirementCoverage,
+    alignment: lite.alignment,
+    placeholder: lite.placeholderReport,
+    structurallyValid,
+    executionComplete,
+    fixPlan: finalFixPlan,
+    skeletonMismatch,
+    deepResults: deep.results,
+  });
   const metrics = buildMetrics(
     state,
     critiqueLiteMs,
@@ -94,9 +117,8 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
   );
 
   const report: CritiqueReport = {
-    // Compatibility only: this means execution/structure are complete, not
-    // that every legal conclusion is semantically perfect.
     isGreen:
+      release.verdict === "release" &&
       executionComplete &&
       structurallyValid &&
       finalFixPlan.length === 0,
@@ -114,11 +136,14 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
     outcomes: resolved.outcomes,
     allUnitsTerminal: resolved.allUnitsTerminal,
     metrics,
+    release,
   };
 
   pacLog("targetedRetry", {
     count: finalFixPlan.length > 0 ? targetedRedoCount + 1 : targetedRedoCount,
   });
+
+  logCritiqueFinalInspect(resolvedState, report);
 
   return {
     ...resolvedState,

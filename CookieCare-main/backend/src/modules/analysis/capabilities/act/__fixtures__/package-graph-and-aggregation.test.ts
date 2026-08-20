@@ -134,4 +134,100 @@ describe("per-requirement aggregation", () => {
     assert.equal(byId.get("req_partial")?.status, "partial");
     assert.equal(byId.get("req_partial")?.supportingFindingIds.length, 2);
   });
+
+  it("links rule findings via Finding.requirementId (no capability guessing)", () => {
+    // Post-refactor: the handler stamps requirementId onto the finding
+    // itself using AnalysisWorkUnit.requirementIds. Aggregation is a pure
+    // direct match — no bridge from capabilityIds anymore.
+    const ruleFinding: Finding = {
+      findingId: "f_rule_ci",
+      kind: "compliance",
+      category: "processor_terms",
+      status: "present",
+      claim: "Confidential information is broadly defined.",
+      evidence: [],
+      taxonomyVersion: "test",
+      ruleId: "nda.ci_definition",
+      skillId: "doc-types/nda",
+      requirementId: "nda.confidentiality.scope_of_information",
+    };
+    const findings = [ruleFinding];
+    const state = {
+      findings,
+      intent: {
+        requirements: [
+          {
+            id: "nda.confidentiality.scope_of_information",
+            description: "Scope",
+            type: "extraction",
+            priority: "required",
+          },
+        ],
+      },
+      plan: {
+        requirementExecutionPaths: [
+          {
+            requirementId: "nda.confidentiality.scope_of_information",
+            status: "not_supported",
+            requirementType: "extraction",
+          },
+        ],
+      },
+    } as unknown as AnalysisState;
+    const result = aggregateRequirements(state, { workUnitId: "wu-aggregate", input: {} } as never, findings);
+    const assessment = result.state.requirementAssessments?.find(
+      (a) => a.requirementId === "nda.confidentiality.scope_of_information"
+    );
+    assert.equal(assessment?.status, "covered");
+    assert.ok(assessment?.supportingFindingIds.includes("f_rule_ci"));
+  });
+
+  it("does NOT attach unrelated findings when a requirement has no matches", () => {
+    // R1 has one finding tagged to it; R2 has none. Aggregation must not
+    // spread R1's finding — or any other doc-type-level finding — into R2.
+    const findings: Finding[] = [
+      {
+        findingId: "f_r1",
+        kind: "compliance",
+        category: "confidentiality",
+        status: "present",
+        claim: "R1 covered.",
+        evidence: [],
+        taxonomyVersion: "test",
+        requirementId: "nda.confidentiality",
+      },
+      {
+        // Orphan structural finding — no requirementId, must not be
+        // adopted by any assessment.
+        findingId: "f_structural_orphan",
+        kind: "risk",
+        category: "other_known_risk",
+        status: "absent_expected",
+        claim: "Skill-wide structural gap.",
+        evidence: [],
+        taxonomyVersion: "test",
+        skillId: "doc-types/nda",
+      },
+    ];
+    const state = {
+      findings,
+      intent: {
+        requirements: [
+          { id: "nda.confidentiality", description: "", type: "extraction", priority: "required" },
+          { id: "nda.survival", description: "", type: "extraction", priority: "required" },
+        ],
+      },
+    } as unknown as AnalysisState;
+    const result = aggregateRequirements(
+      state,
+      { workUnitId: "wu-aggregate", input: {} } as never,
+      findings
+    );
+    const byId = new Map(
+      (result.state.requirementAssessments ?? []).map((a) => [a.requirementId, a])
+    );
+    assert.deepEqual(byId.get("nda.confidentiality")?.supportingFindingIds, ["f_r1"]);
+    assert.equal(byId.get("nda.survival")?.status, "cannot_determine");
+    assert.deepEqual(byId.get("nda.survival")?.supportingFindingIds, []);
+  });
 });

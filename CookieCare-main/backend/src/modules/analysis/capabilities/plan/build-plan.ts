@@ -3,17 +3,15 @@ import type {
   AnalysisPlan,
   AnalysisWorkUnit,
   InstructionFocus,
+  IntentNormalization,
   MissingClarification,
   PlanAuditRecord,
   ResolutionSource,
 } from "../../models/analysis-plan.js";
 import {
   deriveSections,
-  INTENT_CONFIDENCE_THRESHOLD,
   type IntentClassification,
-  type ReportDepth,
   type ReportSpec,
-  type ReportType,
 } from "../../models/intent.js";
 import {
   CLAUSE_TAXONOMY_VERSION,
@@ -26,17 +24,24 @@ import {
   resolveRelatedChecks,
 } from "../../skills/build-act-graph.js";
 import { extractInstructionFocus } from "../../skills/extract-instruction-focus.js";
-import { requestsRiskAnalysis, EXPLICIT_DEEP_DEPTH_RE } from "./intent-heuristics.js";
+import { requestsRiskAnalysis } from "./intent-heuristics.js";
+import { applySensibleDefaults, fallbackReportType } from "./intent-sensible-defaults.js";
 import { getSkillById } from "../../skills/registry.js";
 import { pacLog } from "../../utils/pac-log.js";
 import { logPlanInspect } from "./plan-inspect-log.js";
 import { deriveReportOutline } from "./derive-report-outline.js";
-import { refineReportOutlineViaLLM } from "./refine-report-outline.js";
+import {
+  buildFinalReportSpec,
+  mergeAuthoredReportSections,
+  reportTypeToOutputForm,
+  resolveReportSpecFromPackages,
+} from "./resolve-report-spec.js";
 import { loadOrgMemory } from "../../memory/org-memory.js";
 import { applyOrgRoutingDefaults } from "../../memory/resolve-org-defaults.js";
 import { resolveDocumentRoles } from "./resolve-document-roles.js";
 import { followUpKindForState, isMaterialTopicShift } from "./follow-up-intent.js";
 import { replicateGraphForTargets } from "../../skills/replicate-graph-for-targets.js";
+import { injectAuthoredRequirements } from "./inject-authored-requirements.js";
 
 const SKILL_DRIVEN_OPERATIONS = new Set([
   "risk_flag",
@@ -46,8 +51,6 @@ const SKILL_DRIVEN_OPERATIONS = new Set([
   "compare",
   "explain_qa",
 ]);
-
-const SHALLOW_OUTPUT_SIGNAL = /\b(brief|concise|short answer|pass\/fail|just give me)\b/i;
 
 /**
  * PLAN pipeline:
@@ -61,8 +64,8 @@ const SHALLOW_OUTPUT_SIGNAL = /\b(brief|concise|short answer|pass\/fail|just giv
  * 8. audit record
  */
 export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
-  let intent = state.intent;
-  if (!intent) {
+  const rawIntent = state.intent;
+  if (!rawIntent) {
     return {
       ...state,
       plan: emptyPlan(fallbackIntent(), [
@@ -74,7 +77,9 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
       ]),
     };
   }
-  intent = applySensibleDefaults(intent, state.request.instruction);
+  const { intent: normalizedIntent, normalizations: intentNormalizations } =
+    applySensibleDefaults(rawIntent, state.request.instruction);
+  let intent = normalizedIntent;
   state = { ...state, intent };
 
   if (!state.orgMemory) {
@@ -268,7 +273,15 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     intentRequirements: intent.requirements,
   });
   pacLog("PLAN catalog/focus", { ms: Date.now() - catalogStarted, reqs: focus?.requirements?.length ?? 0 });
-  const reportSpec = await buildReportSpec(intent, state.request.instruction);
+  intent = injectAuthoredRequirements(intent, skills, focus);
+  state = { ...state, intent };
+  const seedReportType = intent.reportType ?? fallbackReportType(intent.operation);
+  const seedDepth = intent.depth ?? "standard";
+  const seedReportSpec: ReportSpec = {
+    reportType: seedReportType,
+    depth: seedDepth,
+    sections: deriveSections(seedReportType, seedDepth),
+  };
   const relatedChecks = resolveRelatedChecks(skills, state.request.instruction, focus);
   const primaryDocId = roleResolution.targetDocId || docIds[0];
   const referenceDocId = roleResolution.referenceDocId;
@@ -288,14 +301,44 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
       relatedChecks,
       unresolvedStandard: intent.unresolvedStandard,
       referenceDocId,
-      reportSpec,
+      reportSpec: seedReportSpec,
     })
   );
   const graph = replicateGraphForTargets(graphs);
+  const packageList = graph.packageResolution.packages.map((item) => item.pkg);
+  const merged = resolveReportSpecFromPackages({
+    intent,
+    instruction: state.request.instruction,
+    packages: packageList,
+    fallbackReportType: seedReportType,
+  });
+  const reportSpec = buildFinalReportSpec({
+    intent,
+    reportType: merged.reportType,
+    depth: seedDepth,
+    sections: merged.sections,
+    outlineExtras: merged.outlineExtras,
+    instruction: state.request.instruction,
+  });
   pacLog("PLAN act-graph", {
     ms: Date.now() - graphStarted,
     units: graph.workUnits.length,
     targets: targetDocIds.length,
+  });
+
+  const provenance = focus?.provenance ?? [];
+  const scopeAudit = graph.packageResolution.scopeAudit ?? [];
+  const droppedOutOfScope = scopeAudit.reduce(
+    (total, entry) =>
+      total + entry.droppedCapabilityIds.length + entry.droppedDependencyIds.length,
+    0
+  );
+  pacLog("PLAN scope", {
+    explicitArticles: focus?.explicitScope?.articles ?? [],
+    catalogCandidates: provenance.length,
+    required: provenance.filter((item) => item.required).length,
+    supporting: provenance.filter((item) => !item.required).length,
+    droppedOutOfScope,
   });
 
   const workUnits: AnalysisWorkUnit[] = orderByDependency(graph.workUnits);
@@ -308,13 +351,14 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     skills.map((s) => s.skillId),
     focus,
     reportSpec,
-    graph.packageResolution
+    graph.packageResolution,
+    { rawIntent, intentNormalizations }
   );
   const plan: AnalysisPlan = {
     intent,
     workUnits,
     missingClarifications: [],
-    outputForm: intent.outputForm,
+    outputForm: reportTypeToOutputForm(reportSpec.reportType),
     documentPresentation: intent.documentPresentation,
     reportSpec,
     rendererSchemaId: graph.rendererSchemaId,
@@ -352,117 +396,28 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
   };
 }
 
-function applySensibleDefaults(intent: IntentClassification, instruction: string): IntentClassification {
-  const confidence = { ...intent.confidence };
-  let scope = intent.scope;
-  const reportType = intent.reportType ?? fallbackReportType(intent.operation);
-  let depth = intent.depth ?? fallbackDepth(instruction);
-  if (depth === "deep" && !EXPLICIT_DEEP_DEPTH_RE.test(instruction)) {
-    depth = "standard";
-  }
-  let outputForm = intent.outputForm;
-
-  if (confidence.scope < INTENT_CONFIDENCE_THRESHOLD) {
-    scope = "whole_document";
-    confidence.scope = INTENT_CONFIDENCE_THRESHOLD;
-  }
-
-  if (confidence.outputForm < INTENT_CONFIDENCE_THRESHOLD) {
-    outputForm = outputFormFromReportSpec(reportType, depth, intent.operation);
-    confidence.outputForm = INTENT_CONFIDENCE_THRESHOLD;
-  }
-
-  return {
-    ...intent,
-    scope,
-    outputForm,
-    documentPresentation: intent.documentPresentation ?? "unified",
-    reportType,
-    depth,
-    confidence,
-  };
-}
-
 function resolveDocTypeFloor(state: AnalysisState): string {
   const docId = state.request.documentIds[0];
   if (!docId) return "unknown";
   return state.workspace.documents.find((d) => d.docId === docId)?.docType ?? "unknown";
 }
 
-function fallbackReportType(operation: IntentClassification["operation"]): ReportType {
-  switch (operation) {
-    case "extract":
-      return "extraction_table";
-    case "risk_flag":
-    case "compare":
-      return "risk_audit";
-    case "compliance_check":
-      return "regime_compliance_memo";
-    case "summarize":
-    case "explain_qa":
-    case "out_of_scope":
-    case "draft_suggestion":
-    default:
-      return "qa_answer";
-  }
-}
-
-function fallbackDepth(instruction: string): ReportDepth {
-  if (EXPLICIT_DEEP_DEPTH_RE.test(instruction)) return "deep";
-  if (SHALLOW_OUTPUT_SIGNAL.test(instruction)) return "narrow";
-  return "standard";
-}
-
-function outputFormFromReportSpec(
-  reportType: ReportType,
-  depth: ReportDepth,
-  operation: IntentClassification["operation"]
-): IntentClassification["outputForm"] {
-  switch (reportType) {
-    case "extraction_table":
-      return "table";
-    case "qa_answer":
-      return depth === "narrow" ? "brief_summary" : "memo";
-    case "risk_audit":
-      return operation === "compare" ? "redline_diff" : "checklist";
-    case "rights_matrix":
-    case "regime_compliance_memo":
-    default:
-      return "memo";
-  }
-}
-
 async function buildReportSpec(
   intent: IntentClassification,
-  instruction: string
+  instruction: string,
+  packages: import("../../models/evidence-package.js").EvidencePackage[] = []
 ): Promise<ReportSpec> {
   const reportType = intent.reportType ?? fallbackReportType(intent.operation);
   const depth = intent.depth ?? "standard";
-
-  const seedOutline = deriveReportOutline(intent, reportType, depth);
-
-  const enableRefine =
-    process.env.ENABLE_OUTLINE_REFINEMENT === "true" &&
-    depth === "deep" &&
-    // Avoid any unnecessary provider usage during tests.
-    process.env.NODE_ENV !== "test";
-
-  const outline = enableRefine
-    ? await refineReportOutlineViaLLM({
-        instruction,
-        intent,
-        reportType,
-        depth,
-        seedOutline,
-      })
-    : seedOutline;
-
-  return {
-    reportType,
+  const merged = mergeAuthoredReportSections({ reportType, depth, packages });
+  return buildFinalReportSpec({
+    intent,
+    reportType: merged.reportType,
     depth,
-    sections: deriveSections(reportType, depth),
-    outline,
-  };
+    sections: merged.sections,
+    outlineExtras: merged.outlineExtras,
+    instruction,
+  });
 }
 
 function buildAuditRecord(
@@ -473,6 +428,11 @@ function buildAuditRecord(
     packages: { pkg: { id: string } }[];
     requirementToPackageId: Record<string, string>;
     requirementPaths: PlanAuditRecord["requirementExecutionPaths"];
+    scopeAudit?: PlanAuditRecord["scopeAudit"];
+  },
+  intentAudit?: {
+    rawIntent: IntentClassification;
+    intentNormalizations: IntentNormalization[];
   }
 ): PlanAuditRecord {
   const resolutionSources = [
@@ -497,6 +457,9 @@ function buildAuditRecord(
     resolvedPackageIds: packageResolution?.packages.map((item) => item.pkg.id) ?? [],
     requirementToPackageId: packageResolution?.requirementToPackageId ?? {},
     requirementExecutionPaths: packageResolution?.requirementPaths ?? [],
+    rawIntent: intentAudit?.rawIntent,
+    intentNormalizations: intentAudit?.intentNormalizations,
+    scopeAudit: packageResolution?.scopeAudit,
   };
 }
 

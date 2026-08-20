@@ -21,6 +21,12 @@ Require return or destruction on request or when the purpose ends.
 ## rule:nda.nlra_section_7_carveout
 For employee- or worker-facing NDAs, flag confidentiality language that would reasonably prohibit discussing wages or working conditions. Source: NLRB Boeing analysis in the supplied ABA article — not a substitute for a full mutual-NDA playbook.
 
+## rule:nda.term_and_survival
+State the agreement term and how long confidentiality duties survive expiry or termination.
+
+## rule:nda.governing_law
+Identify governing law and, where used, a forum or dispute-resolution venue.
+
 ## risk:nda_definition_gap
 Confidential information is undefined or unbounded.
 
@@ -32,6 +38,12 @@ No return or destruction obligation on expiry or request.
 
 ## risk:nda_nlra_section_7_risk
 An employee-facing confidentiality rule may reasonably be read to restrict NLRA Section 7 activity.
+
+## risk:nda_term_survival_gap
+The NDA does not state its term or how long confidentiality survives.
+
+## risk:nda_governing_law_gap
+The NDA does not identify governing law or forum.
 
 ## risk:weak_confidentiality
 Confidentiality obligations are weak or one-sided.

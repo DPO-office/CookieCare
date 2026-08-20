@@ -191,7 +191,7 @@ export function ruleIdMatchesScope(ruleId: string, scope: ExplicitScope): boolea
   return true;
 }
 
-function packageIdMatchesScope(packageId: string, scope: ExplicitScope): boolean {
+export function packageIdMatchesScope(packageId: string, scope: ExplicitScope): boolean {
   const articleMatch = packageId.match(/\.art(\d+)/i);
   if (!articleMatch) return true;
 

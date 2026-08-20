@@ -6,12 +6,14 @@ import {
 import type {
   InstructionFocus,
   RequirementExecutionPath,
+  ScopeAuditEntry,
 } from "../models/analysis-plan.js";
 import type { IntentRequirement, IntentRequirementType } from "../models/intent.js";
 import { mergeEvidencePackages } from "./registry.js";
 import { pacLog } from "../utils/pac-log.js";
 import {
   capabilityIdMatchesScope,
+  packageIdMatchesScope,
   ruleIdMatchesScope,
   scopeBoundaryActive,
 } from "./extract-explicit-scope.js";
@@ -43,6 +45,10 @@ export interface ResolvedPackage {
    * falls inside the package. Empty means "use the package's authored set".
    */
   requirementIds: string[];
+  /** In-scope capability ids scheduled for standalone evaluation. */
+  capabilityIds: string[];
+  /** Out-of-scope authored capabilities retained as reference context only. */
+  contextCapabilityIds: string[];
 }
 
 export interface PackageResolution {
@@ -55,6 +61,8 @@ export interface PackageResolution {
   leftoverMatrixRowIds: string[];
   leftoverRiskCategoryIds: string[];
   blockedCapabilityIds: string[];
+  /** Audit trail for explicit-scope filtering during package resolution. */
+  scopeAudit: ScopeAuditEntry[];
 }
 
 export class PlanExecutionContractError extends Error {
@@ -74,6 +82,51 @@ function scopedCapabilityIds(ids: string[], focus?: InstructionFocus): string[] 
   const scope = focus?.explicitScope;
   if (!scope || !scopeBoundaryActive(scope)) return ids;
   return ids.filter((id) => capabilityIdMatchesScope(id, scope));
+}
+
+function splitPackageCapabilities(
+  pkg: EvidencePackage,
+  focus?: InstructionFocus
+): { capabilityIds: string[]; contextCapabilityIds: string[] } {
+  const authored = pkg.capabilityIds;
+  if (!focus?.explicitScope || !scopeBoundaryActive(focus.explicitScope)) {
+    return { capabilityIds: authored, contextCapabilityIds: [] };
+  }
+  const capabilityIds = scopedCapabilityIds(authored, focus);
+  const capabilitySet = new Set(capabilityIds);
+  const contextCapabilityIds = authored.filter((id) => !capabilitySet.has(id));
+  return { capabilityIds, contextCapabilityIds };
+}
+
+function packageEligibleUnderScope(pkg: EvidencePackage, focus?: InstructionFocus): boolean {
+  const scope = focus?.explicitScope;
+  if (!scope || !scopeBoundaryActive(scope)) return true;
+  if (!packageIdMatchesScope(pkg.id, scope)) return false;
+  if (pkg.capabilityIds.length === 0) return true;
+  return splitPackageCapabilities(pkg, focus).capabilityIds.length > 0;
+}
+
+function upsertScopeAudit(
+  audit: Map<string, ScopeAuditEntry>,
+  packageId: string,
+  patch: Partial<Pick<ScopeAuditEntry, "droppedCapabilityIds" | "droppedDependencyIds">>
+): void {
+  const existing = audit.get(packageId) ?? {
+    packageId,
+    droppedCapabilityIds: [],
+    droppedDependencyIds: [],
+  };
+  if (patch.droppedCapabilityIds?.length) {
+    existing.droppedCapabilityIds = [
+      ...new Set([...existing.droppedCapabilityIds, ...patch.droppedCapabilityIds]),
+    ];
+  }
+  if (patch.droppedDependencyIds?.length) {
+    existing.droppedDependencyIds = [
+      ...new Set([...existing.droppedDependencyIds, ...patch.droppedDependencyIds]),
+    ];
+  }
+  audit.set(packageId, existing);
 }
 
 interface PlanReq {
@@ -101,6 +154,7 @@ export function resolvePackages(
     leftoverMatrixRowIds: [],
     leftoverRiskCategoryIds: [],
     blockedCapabilityIds: [],
+    scopeAudit: [],
   };
   if (allPackages.length === 0) {
     const planReqs = collectPlanRequirements(focus, intentRequirements);
@@ -163,13 +217,17 @@ export function resolvePackages(
   const requirementPaths: RequirementExecutionPath[] = [];
   const blockedCapabilityIds = new Set<string>();
   const directRuleIds = new Set<string>();
+  const scopeAuditMap = new Map<string, ScopeAuditEntry>();
+
+  const reqTypeById = new Map<string, IntentRequirementType>();
+  for (const req of planReqs) reqTypeById.set(req.id, req.type);
 
   const catalogPackageIds = new Set(
     scopedCapabilityIds(focus?.selectedPackageIds ?? [], focus)
   );
   for (const id of catalogPackageIds) {
     const pkg = packageById.get(id);
-    if (pkg) selected.set(pkg.id, pkg);
+    if (pkg && packageEligibleUnderScope(pkg, focus)) selected.set(pkg.id, pkg);
   }
 
   if (planReqs.length > 0) {
@@ -205,6 +263,15 @@ export function resolvePackages(
       }
 
       if (candidate) {
+        if (!packageEligibleUnderScope(candidate, focus)) {
+          requirementPaths.push({
+            requirementId: req.id,
+            status: "not_supported",
+            requirementType: req.type,
+            reason: `Package "${candidate.id}" is out of explicit scope`,
+          });
+          continue;
+        }
         selected.set(candidate.id, candidate);
         requirementToPackageId[req.id] = candidate.id;
         addExtraRequirement(packageExtraRequirements, candidate.id, req.id);
@@ -257,11 +324,16 @@ export function resolvePackages(
       });
     }
   } else if (requestedCapabilities.size === 0 && catalogPackageIds.size === 0) {
-    for (const pkg of allPackages) selected.set(pkg.id, pkg);
+    for (const pkg of allPackages) {
+      if (packageEligibleUnderScope(pkg, focus)) selected.set(pkg.id, pkg);
+    }
   } else {
     for (const pkg of allPackages) {
       if (defersToMatrixSubgraph(pkg, focus)) continue;
-      if (pkg.capabilityIds.some((capId) => requestedCapabilities.has(capId))) {
+      if (
+        pkg.capabilityIds.some((capId) => requestedCapabilities.has(capId)) &&
+        packageEligibleUnderScope(pkg, focus)
+      ) {
         selected.set(pkg.id, pkg);
       }
     }
@@ -274,6 +346,17 @@ export function resolvePackages(
     for (const depId of pkg.requiresPackages ?? []) {
       const dep = packageById.get(depId);
       if (!dep || selected.has(dep.id)) continue;
+      const scope = focus?.explicitScope;
+      if (scope && scopeBoundaryActive(scope)) {
+        if (!packageIdMatchesScope(dep.id, scope)) {
+          upsertScopeAudit(scopeAuditMap, pkg.id, { droppedDependencyIds: [dep.id] });
+          continue;
+        }
+        if (dep.capabilityIds.length > 0 && !packageEligibleUnderScope(dep, focus)) {
+          upsertScopeAudit(scopeAuditMap, pkg.id, { droppedDependencyIds: [dep.id] });
+          continue;
+        }
+      }
       selected.set(dep.id, dep);
       pending.push(dep);
       requirementPaths.push({
@@ -293,23 +376,78 @@ export function resolvePackages(
         requirementToPackageId[mapping.requirementId] = pkg.id;
       }
       addExtraRequirement(packageExtraRequirements, pkg.id, mapping.requirementId);
+
+      // PLAN/ACT contract reconciliation:
+      // `requirementExecutionPaths` is used by Critique coverage/alignment.
+      // Some extraction requirements may initially be recorded as `not_supported`
+      // during capability/package resolution, but later become mapped via
+      // `requirementMappings`. If so, promote any stale `not_supported` entries
+      // for this requirementId to `supported` so Critique doesn't replan.
+      const mappedType = reqTypeById.get(mapping.requirementId);
+      const hasAnySupported = requirementPaths.some(
+        (p) =>
+          p.requirementId === mapping.requirementId &&
+          (p.status === "supported" ||
+            p.status === "supported_via_dependency" ||
+            p.status === "direct_rule")
+      );
+      if (hasAnySupported) continue;
+
+      let updated = false;
+      for (let i = 0; i < requirementPaths.length; i++) {
+        const p = requirementPaths[i];
+        if (
+          p.requirementId !== mapping.requirementId ||
+          (p.status !== "not_supported" && p.status !== "needs_replan")
+        )
+          continue;
+        requirementPaths[i] = {
+          ...p,
+          status: "supported",
+          packageId: pkg.id,
+          requirementType: mappedType ?? p.requirementType,
+          reason: undefined,
+        };
+        updated = true;
+      }
+      if (!updated) {
+        requirementPaths.push({
+          requirementId: mapping.requirementId,
+          status: "supported",
+          packageId: pkg.id,
+          requirementType: mappedType,
+        });
+      }
     }
   }
 
   const ordered = orderByRequires([...selected.values()]);
-  const packages: ResolvedPackage[] = ordered.map((pkg) => {
+  const packages: ResolvedPackage[] = [];
+  for (const pkg of ordered) {
+    if (!packageEligibleUnderScope(pkg, focus)) {
+      upsertScopeAudit(scopeAuditMap, pkg.id, {
+        droppedCapabilityIds: pkg.capabilityIds,
+      });
+      continue;
+    }
+    const { capabilityIds, contextCapabilityIds } = splitPackageCapabilities(pkg, focus);
+    if (contextCapabilityIds.length > 0) {
+      upsertScopeAudit(scopeAuditMap, pkg.id, {
+        droppedCapabilityIds: contextCapabilityIds,
+      });
+    }
     const authored = pkg.requirementIds;
     const extra = [...(packageExtraRequirements.get(pkg.id) ?? new Set())];
     const requirementIds = [...new Set([...authored, ...extra])];
     for (const reqId of authored) {
       if (!requirementToPackageId[reqId]) requirementToPackageId[reqId] = pkg.id;
     }
-    return { pkg, requirementIds };
-  });
+    packages.push({ pkg, requirementIds, capabilityIds, contextCapabilityIds });
+  }
 
   const ownedCaps = new Set<string>();
-  for (const { pkg } of packages) {
-    for (const capId of pkg.capabilityIds) ownedCaps.add(capId);
+  for (const resolved of packages) {
+    for (const capId of resolved.capabilityIds) ownedCaps.add(capId);
   }
 
   const leftoverRuleIds = scopedRuleIds(
@@ -339,6 +477,7 @@ export function resolvePackages(
     leftoverMatrixRowIds,
     leftoverRiskCategoryIds,
     blockedCapabilityIds: [...blockedCapabilityIds],
+    scopeAudit: [...scopeAuditMap.values()],
   };
   pacLog("PLAN package resolution", {
     packages: resolution.packages.map((p) => p.pkg.id),

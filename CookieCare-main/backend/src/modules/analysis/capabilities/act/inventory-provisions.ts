@@ -5,14 +5,13 @@ import {
 } from "../../../../llm/index.js";
 import type { AnalysisState } from "../../models/analysis-state.js";
 import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
-import type { AnalysisArtifact } from "../../models/evidence-package.js";
-import type { Finding } from "../../models/finding.js";
 import type {
-  TransferInventory,
-  TransferMechanism,
-  TransferRecord,
-} from "../../models/transfer-inventory.js";
-import { normalizeTransferMechanism } from "../../models/transfer-inventory.js";
+  AnalysisArtifact,
+  InventoryArtifactShape,
+  InventoryDerivedAggregate,
+  InventoryFieldSpec,
+} from "../../models/evidence-package.js";
+import type { Finding } from "../../models/finding.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { getSkillById } from "../../skills/registry.js";
 import { insufficient } from "./act-utils.js";
@@ -43,6 +42,7 @@ interface RawInventoryRecord {
   supplementaryMeasures?: string[];
   references?: string[];
   applicability?: string;
+  [key: string]: unknown;
 }
 
 /**
@@ -101,26 +101,10 @@ export async function inventoryProvisions(
     .join("\n\n")
     .slice(0, MAX_CANDIDATE_CHARS);
 
+  const artifactShape = parseArtifactShape(config.artifactShape);
   let rawRecords: RawInventoryRecord[] = [];
   if (candidateText.trim()) {
-    const schema = {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          id: { type: "string" },
-          sectionTitle: { type: "string" },
-          quotedText: { type: "string" },
-          mechanism: { type: "string" },
-          destinationJurisdiction: { type: "string" },
-          sourceJurisdiction: { type: "string" },
-          legalBasis: { type: "array", items: { type: "string" } },
-          supplementaryMeasures: { type: "array", items: { type: "string" } },
-          references: { type: "array", items: { type: "string" } },
-          applicability: { type: "string" },
-        },
-      },
-    };
+    const schema = buildExtractionSchema(artifactShape);
     const targets =
       extractionTargets.length > 0
         ? `Extract these fields when present: ${extractionTargets.join(", ")}.`
@@ -151,23 +135,24 @@ export async function inventoryProvisions(
   const extraAliases = isStringRecord(config.mechanismAliases)
     ? config.mechanismAliases
     : undefined;
-  const artifact = buildArtifact(
+  const artifact = buildInventoryArtifact({
     packageId,
     outputArtifactType,
     packageVersion,
     requirementIds,
     docId,
-    Array.isArray(rawRecords) ? rawRecords : [],
-    extraAliases
-  );
+    rawRecords: Array.isArray(rawRecords) ? rawRecords : [],
+    extraAliases,
+    artifactShape,
+  });
 
   const extractionFinding: Finding = {
     findingId: `f_inv_${unit.workUnitId}`,
     kind: "extraction",
     category: "other_known_risk",
     status:
-      artifactTypeRecordCount(artifact) > 0 ? "present" : "insufficient_evidence",
-    claim: inventoryClaim(artifact),
+      artifactTypeRecordCount(artifact, artifactShape) > 0 ? "present" : "insufficient_evidence",
+    claim: inventoryClaim(artifact, artifactShape),
     evidence: combined.slice(0, 4).map((c) => ({
       locator: {
         docId,
@@ -188,7 +173,7 @@ export async function inventoryProvisions(
     id: unit.workUnitId,
     packageId,
     candidates: combined.length,
-    records: artifactTypeRecordCount(artifact),
+    records: artifactTypeRecordCount(artifact, artifactShape),
   });
 
   return {
@@ -203,87 +188,219 @@ export async function inventoryProvisions(
   };
 }
 
-function buildArtifact(
-  packageId: string,
-  type: string,
-  version: string | undefined,
-  requirementIds: string[],
-  docId: string,
-  rawRecords: RawInventoryRecord[],
-  extraAliases?: Record<string, string>
-): AnalysisArtifact {
-  if (type === "transfer_inventory") {
-    const transfers: TransferRecord[] = rawRecords.slice(0, MAX_RECORDS).map((raw, index) => ({
-      id: raw.id?.trim() || `transfer_${index + 1}`,
-      evidenceIds: [],
-      sectionIds: raw.sectionTitle ? [raw.sectionTitle] : undefined,
-      sourceJurisdiction: raw.sourceJurisdiction,
-      destinationJurisdiction: raw.destinationJurisdiction,
-      mechanism: normalizeTransferMechanism(raw.mechanism, extraAliases),
-      legalBasis: raw.legalBasis,
-      supplementaryMeasures: raw.supplementaryMeasures,
-      references: raw.references,
-      applicability: raw.applicability,
-      quotedText: raw.quotedText,
-    }));
-    const mechanisms = [...new Set(transfers.map((t) => t.mechanism))] as TransferMechanism[];
-    const jurisdictions = [
-      ...new Set(
-        transfers.flatMap((t) =>
-          [t.sourceJurisdiction, t.destinationJurisdiction].filter(
-            (v): v is string => Boolean(v)
-          )
-        )
-      ),
-    ];
-    const referenced = [
-      ...new Set(transfers.flatMap((t) => t.references ?? [])),
-    ];
-    const data: TransferInventory = {
-      transfers,
-      referencedTransferDocuments: referenced,
-      unresolvedReferences: [],
-      jurisdictions,
-      mechanisms,
-    };
+export function parseArtifactShape(value: unknown): InventoryArtifactShape {
+  if (!value || typeof value !== "object") {
+    return { kind: "records" };
+  }
+  const rec = value as Record<string, unknown>;
+  if (rec.kind === "typed_records" && typeof rec.recordType === "string") {
     return {
-      id: packageId,
-      type,
-      packageId,
-      version,
-      requirementIds,
-      data,
-      provenance: { documentIds: [docId], sourceTier: "authored" },
+      kind: "typed_records",
+      recordType: rec.recordType,
+      recordsKey: typeof rec.recordsKey === "string" ? rec.recordsKey : undefined,
+      maxRecords: typeof rec.maxRecords === "number" ? rec.maxRecords : undefined,
+      mechanismAliases: isStringRecord(rec.mechanismAliases)
+        ? rec.mechanismAliases
+        : undefined,
+      fieldSpec: parseFieldSpec(rec.fieldSpec),
+      derivedAggregates: parseDerivedAggregates(rec.derivedAggregates),
+      claimMechanismAggregate:
+        typeof rec.claimMechanismAggregate === "string"
+          ? rec.claimMechanismAggregate
+          : undefined,
+      emptyClaim: typeof rec.emptyClaim === "string" ? rec.emptyClaim : undefined,
+      presentClaim: typeof rec.presentClaim === "string" ? rec.presentClaim : undefined,
     };
+  }
+  if (rec.kind === "records") {
+    return {
+      kind: "records",
+      maxRecords: typeof rec.maxRecords === "number" ? rec.maxRecords : undefined,
+      emptyClaim: typeof rec.emptyClaim === "string" ? rec.emptyClaim : undefined,
+      presentClaim: typeof rec.presentClaim === "string" ? rec.presentClaim : undefined,
+    };
+  }
+  return { kind: "records" };
+}
+
+export function buildInventoryArtifact(args: {
+  packageId: string;
+  outputArtifactType: string;
+  packageVersion: string | undefined;
+  requirementIds: string[];
+  docId: string;
+  rawRecords: RawInventoryRecord[];
+  extraAliases?: Record<string, string>;
+  artifactShape: InventoryArtifactShape;
+}): AnalysisArtifact {
+  const maxRecords = args.artifactShape.maxRecords ?? MAX_RECORDS;
+  const aliases = {
+    ...(args.artifactShape.kind === "typed_records"
+      ? args.artifactShape.mechanismAliases
+      : undefined),
+    ...args.extraAliases,
+  };
+  const mergedAliases = Object.keys(aliases).length > 0 ? aliases : undefined;
+
+  let data: unknown = { records: args.rawRecords.slice(0, maxRecords) };
+  if (args.artifactShape.kind === "typed_records" && args.artifactShape.fieldSpec?.length) {
+    const recordsKey = args.artifactShape.recordsKey ?? "records";
+    const records = applyFieldSpec(
+      args.rawRecords,
+      args.artifactShape.fieldSpec,
+      maxRecords,
+      mergedAliases
+    );
+    data = applyDerivedAggregates(records, args.artifactShape.derivedAggregates ?? [], recordsKey);
   }
 
   return {
-    id: packageId,
-    type,
-    packageId,
-    version,
-    requirementIds,
-    data: { records: rawRecords.slice(0, MAX_RECORDS) },
-    provenance: { documentIds: [docId], sourceTier: "authored" },
+    id: args.packageId,
+    type: args.outputArtifactType,
+    packageId: args.packageId,
+    version: args.packageVersion,
+    requirementIds: args.requirementIds,
+    data,
+    provenance: { documentIds: [args.docId], sourceTier: "authored" },
   };
 }
 
-function artifactTypeRecordCount(artifact: AnalysisArtifact): number {
-  const data = artifact.data as { transfers?: unknown[]; records?: unknown[] };
-  return data.transfers?.length ?? data.records?.length ?? 0;
+function applyFieldSpec(
+  rawRecords: RawInventoryRecord[],
+  fieldSpec: InventoryFieldSpec[],
+  maxRecords: number,
+  aliases?: Record<string, string>
+): Record<string, unknown>[] {
+  return rawRecords.slice(0, maxRecords).map((raw, index) => {
+    const record: Record<string, unknown> = {};
+    for (const field of fieldSpec) {
+      if (field.source === "_evidenceIds") {
+        record[field.name] = field.defaultValue ?? [];
+        continue;
+      }
+      if (field.source === "_id") {
+        record[field.name] =
+          typeof raw.id === "string" && raw.id.trim()
+            ? raw.id.trim()
+            : `record_${index + 1}`;
+        continue;
+      }
+      if (field.source === "_sectionIds") {
+        record[field.name] = raw.sectionTitle ? [raw.sectionTitle] : undefined;
+        continue;
+      }
+      let value = raw[field.source];
+      if (field.normalizeAliases && typeof value === "string" && aliases) {
+        value = normalizeWithAliases(value, aliases);
+      }
+      if (value === undefined || value === null || value === "") {
+        if (field.defaultValue !== undefined) record[field.name] = field.defaultValue;
+        continue;
+      }
+      record[field.name] = value;
+    }
+    return record;
+  });
 }
 
-function inventoryClaim(artifact: AnalysisArtifact): string {
-  const count = artifactTypeRecordCount(artifact);
-  if (artifact.type === "transfer_inventory") {
-    const data = artifact.data as TransferInventory;
-    const mechanisms = data.mechanisms.filter((m) => m !== "unspecified");
-    if (count === 0) {
-      return "No international transfer provisions were identified in the retrieved sections.";
+function applyDerivedAggregates(
+  records: Record<string, unknown>[],
+  aggregates: InventoryDerivedAggregate[],
+  recordsKey: string
+): Record<string, unknown> {
+  const data: Record<string, unknown> = { [recordsKey]: records };
+  for (const agg of aggregates) {
+    if (agg.constant !== undefined) {
+      data[agg.name] = agg.constant;
+      continue;
     }
-    return `Identified ${count} international transfer provision(s)${
-      mechanisms.length ? ` (mechanisms: ${mechanisms.join(", ")})` : ""
-    }.`;
+    const sources = agg.fromFields?.length
+      ? agg.fromFields
+      : agg.from
+        ? [agg.from]
+        : [];
+    let values: unknown[] = [];
+    for (const record of records) {
+      for (const source of sources) {
+        const value = record[source];
+        if (agg.flatMap && Array.isArray(value)) {
+          values.push(...value);
+        } else if (value !== undefined && value !== null && value !== "") {
+          values.push(value);
+        }
+      }
+    }
+    if (agg.exclude?.length) {
+      values = values.filter((v) => !agg.exclude!.includes(String(v)));
+    }
+    if (agg.unique) {
+      values = [...new Set(values.map(String))];
+    }
+    data[agg.name] = values;
+  }
+  return data;
+}
+
+function normalizeWithAliases(value: string, aliases: Record<string, string>): string {
+  const trimmed = value.trim();
+  const lower = trimmed.toLowerCase();
+  for (const [alias, canonical] of Object.entries(aliases)) {
+    if (lower.includes(alias.toLowerCase())) return canonical;
+  }
+  return trimmed;
+}
+
+function buildExtractionSchema(shape: InventoryArtifactShape): Record<string, unknown> {
+  if (shape.kind !== "typed_records" || !shape.fieldSpec?.length) {
+    return {
+      type: "array",
+      items: { type: "object", additionalProperties: true },
+    };
+  }
+  const properties: Record<string, unknown> = {};
+  for (const field of shape.fieldSpec) {
+    if (field.source.startsWith("_")) continue;
+    if (field.source === "legalBasis" || field.source === "supplementaryMeasures" || field.source === "references") {
+      properties[field.source] = { type: "array", items: { type: "string" } };
+    } else {
+      properties[field.source] = { type: "string" };
+    }
+  }
+  return { type: "array", items: { type: "object", properties } };
+}
+
+function artifactTypeRecordCount(
+  artifact: AnalysisArtifact,
+  shape: InventoryArtifactShape
+): number {
+  const data = artifact.data as Record<string, unknown>;
+  if (shape.kind === "typed_records") {
+    const key = shape.recordsKey ?? "records";
+    const records = data[key];
+    if (Array.isArray(records)) return records.length;
+  }
+  const records = data.records;
+  return Array.isArray(records) ? records.length : 0;
+}
+
+export function inventoryClaim(
+  artifact: AnalysisArtifact,
+  shape: InventoryArtifactShape
+): string {
+  const count = artifactTypeRecordCount(artifact, shape);
+  if (shape.emptyClaim && count === 0) return shape.emptyClaim;
+  if (shape.presentClaim && count > 0) {
+    const data = artifact.data as Record<string, unknown>;
+    const aggName = shape.kind === "typed_records" ? shape.claimMechanismAggregate : undefined;
+    const mechanisms = aggName && Array.isArray(data[aggName])
+      ? (data[aggName] as string[]).filter((m) => m !== "unspecified")
+      : [];
+    const mechanismSuffix = mechanisms.length
+      ? ` (mechanisms: ${mechanisms.join(", ")})`
+      : "";
+    return shape.presentClaim
+      .replace("{count}", String(count))
+      .replace("{mechanisms}", mechanismSuffix);
   }
   return count > 0
     ? `Identified ${count} inventory record(s).`
@@ -309,6 +426,47 @@ function dedupeCandidates(candidates: ClauseCandidate[]): ClauseCandidate[] {
     out.push(c);
   }
   return out;
+}
+
+function parseFieldSpec(value: unknown): InventoryFieldSpec[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const out: InventoryFieldSpec[] = [];
+  for (const item of value) {
+    if (!item || typeof item !== "object") continue;
+    const rec = item as Record<string, unknown>;
+    if (typeof rec.name !== "string" || typeof rec.source !== "string") continue;
+    out.push({
+      name: rec.name,
+      source: rec.source,
+      normalizeAliases: rec.normalizeAliases === true,
+      defaultValue: rec.defaultValue,
+    });
+  }
+  return out.length > 0 ? out : undefined;
+}
+
+function parseDerivedAggregates(value: unknown): InventoryDerivedAggregate[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const out: InventoryDerivedAggregate[] = [];
+  for (const item of value) {
+    if (!item || typeof item !== "object") continue;
+    const rec = item as Record<string, unknown>;
+    if (typeof rec.name !== "string") continue;
+    out.push({
+      name: rec.name,
+      from: typeof rec.from === "string" ? rec.from : undefined,
+      fromFields: Array.isArray(rec.fromFields)
+        ? rec.fromFields.filter((v): v is string => typeof v === "string")
+        : undefined,
+      unique: rec.unique === true,
+      exclude: Array.isArray(rec.exclude)
+        ? rec.exclude.filter((v): v is string => typeof v === "string")
+        : undefined,
+      flatMap: rec.flatMap === true,
+      constant: rec.constant,
+    });
+  }
+  return out.length > 0 ? out : undefined;
 }
 
 function isStringRecord(value: unknown): value is Record<string, string> {

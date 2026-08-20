@@ -11,6 +11,8 @@ export function buildEvaluatePackageUserPrompt(input: {
   authoredRuleText: string;
   evidenceLines: string[];
   previousFeedback?: string;
+  /** Reference-only legal context — do not evaluate as standalone requirements. */
+  contextRuleText?: string;
 }): string {
   return [
     `User instruction: ${input.instruction}`,
@@ -21,6 +23,13 @@ export function buildEvaluatePackageUserPrompt(input: {
     "",
     "Authored legal rule text (evaluate only against this — do not invent law):",
     input.authoredRuleText,
+    input.contextRuleText
+      ? [
+          "",
+          "Reference legal context (background only — do NOT evaluate these as separate requirements):",
+          input.contextRuleText,
+        ].join("\n")
+      : "",
     "",
     "Evidence extracted from the document (cite by ref in evidenceRefs):",
     input.evidenceLines.length > 0

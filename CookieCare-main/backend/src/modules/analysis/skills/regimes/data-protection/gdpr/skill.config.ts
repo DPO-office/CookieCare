@@ -6,41 +6,61 @@ import type {
 import { buildDataProtectionRightsMatrix } from "../_family-template.js";
 
 const GDPR_RIGHTS_MATRIX = buildDataProtectionRightsMatrix("gdpr", [
-  { rowId: "gdpr.right.access", localArticleOrSection: "15", label: "Access and copy" },
+  {
+    rowId: "gdpr.right.access",
+    localArticleOrSection: "15",
+    label: "Access and copy",
+    plainDescription:
+      "A person can ask what personal data is held about them and receive a copy.",
+  },
   {
     rowId: "gdpr.right.rectification",
     localArticleOrSection: "16",
     label: "Rectification and completion",
+    plainDescription:
+      "A person can ask for inaccurate or incomplete personal data to be corrected.",
   },
   {
     rowId: "gdpr.right.erasure",
     localArticleOrSection: "17",
     label: "Erasure (right to be forgotten)",
+    plainDescription:
+      "A person can ask for personal data to be erased when the legal conditions apply.",
   },
   {
     rowId: "gdpr.right.restriction",
     localArticleOrSection: "18",
     label: "Restriction of processing",
+    plainDescription:
+      "A person can ask for use of their personal data to be restricted in specified cases.",
   },
   {
     rowId: "gdpr.right.notification",
     localArticleOrSection: "19",
     label: "Recipient notification",
+    plainDescription:
+      "Recipients may need to be told when data is corrected, erased, or restricted.",
   },
   {
     rowId: "gdpr.right.portability",
     localArticleOrSection: "20",
     label: "Data portability",
+    plainDescription:
+      "A person can receive eligible data in a usable format and transfer it elsewhere.",
   },
   {
     rowId: "gdpr.right.object",
     localArticleOrSection: "21",
     label: "Objection, including direct marketing",
+    plainDescription:
+      "A person can object to certain processing, including direct marketing.",
   },
   {
     rowId: "gdpr.right.automated_decisions",
     localArticleOrSection: "22",
     label: "Automated individual decision-making",
+    plainDescription:
+      "A person has protections around qualifying solely automated decisions.",
   },
 ]);
 
@@ -79,7 +99,8 @@ function gdprRule(
   ruleText: string,
   appliesToClauseTypes: string[],
   checkType: RegimeCheckType = "judgment",
-  legalHook?: string
+  legalHook?: string,
+  extras?: Partial<SkillRegimeRule>
 ): SkillRegimeRule {
   return {
     ruleId,
@@ -90,6 +111,7 @@ function gdprRule(
     ruleScope: documentLevelRuleIds.has(ruleId) ? "per_document" : "per_clause",
     appliesToClauseTypes,
     ...(legalHook ? { legalHook } : {}),
+    ...extras,
   };
 }
 
@@ -250,7 +272,34 @@ const GDPR_RULES: SkillRegimeRule[] = [
     "Provide action information without undue delay and within one month after receiving a request. A complexity/volume extension of up to two further months requires notice within the first month stating the delay and reasons; respond electronically where appropriate when the request was electronic.",
     ["data_subject_request_handling", "processor_assistance_obligation", "data_protection"],
     "pattern_then_llm_judgment",
-    "EU GDPR Art 12(3). This is the EU rule; the supplied UK PDF is not a consolidated UK GDPR and cannot substantiate current UK deadline amendments."
+    "EU GDPR Art 12(3). This is the EU rule; the supplied UK PDF is not a consolidated UK GDPR and cannot substantiate current UK deadline amendments.",
+    {
+      mechanicalScan: {
+        kind: "numeric_pattern_expected",
+        pattern:
+          "\\b(\\d+)\\s*(hour|hours|day|days|week|weeks|month|months|business days?)\\b",
+        vaguePattern:
+          "\\b(promptly|reasonably|as soon as (reasonably )?practicable|without (undue )?delay|timely)\\b",
+        presentClaim:
+          "A numeric response timeframe ({match}) appears in the DSR/assistance clauses.",
+        vagueClaim:
+          'Art 12(3) requires a one-month (extendable) clock; the agreement only uses vague timing ("{match}").',
+        absentClaim:
+          "No response timeframe for data-subject requests was found in the extracted DSR/assistance clauses.",
+        vagueGap:
+          "No numeric Art 12(3) timeframe; 'promptly' / 'reasonably' alone is insufficient.",
+        absentGap: "Art 12(3) one-month clock is unaddressed.",
+        severityPresent: "low",
+        severityVague: "high",
+        severityAbsent: "high",
+      },
+      rendererHooks: {
+        responseTimeframeSection: true,
+        slaContrast: true,
+        slaContrastLabel: "Article 12(3)",
+        excludeClauseTypesFromSlaContrast: ["data_subject_request_handling"],
+      },
+    }
   ),
   gdprRule(
     "gdpr.art12.4",
@@ -466,7 +515,15 @@ const GDPR_RULES: SkillRegimeRule[] = [
     "Taking account of the nature of processing, the processor must assist the controller through appropriate technical and organisational measures, insofar as possible, to fulfil Chapter III data-subject-rights requests.",
     ["data_subject_request_handling", "processor_assistance_obligation", "processor_terms"],
     "judgment",
-    "EU GDPR Art 28(3)(e). A general Chapter III commitment can be legally sufficient if it creates an operational assistance duty; naming Articles 15-22 is stronger drafting, not an express statutory requirement."
+    "EU GDPR Art 28(3)(e). A general Chapter III commitment can be legally sufficient if it creates an operational assistance duty; naming Articles 15-22 is stronger drafting, not an express statutory requirement.",
+    {
+      rendererHooks: {
+        particularsChecklist: true,
+        architectureFallback:
+          "The review considers the agreement's contractual mechanism for assisting with data-subject rights and the operational terms that support that mechanism.",
+      },
+      matrixLinkage: { matrixRowIds: GDPR_RIGHTS_MATRIX.map((row) => row.rowId) },
+    }
   ),
   gdprRule(
     "gdpr.art28.3.f",
@@ -722,6 +779,51 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
   family: "data-protection",
   label: "EU GDPR private-entity obligations and data-subject rights",
   version: "2.0.1",
+  rendererDefaults: {
+    rightsReviewSubtitle: "data-subject rights",
+  },
+  clauseHeuristics: [
+    {
+      clauseType: "data_protection",
+      patterns: ["\\bpersonal data\\b|\\bprocessing\\b"],
+      priority: 50,
+    },
+    {
+      clauseType: "data_subject_request_handling",
+      patterns: ["\\bdata subject (request|right)"],
+      priority: 50,
+    },
+    {
+      clauseType: "processor_assistance_obligation",
+      patterns: ["\\bassist(ance|s)? the controller\\b|\\bprocessor shall assist\\b"],
+      priority: 50,
+    },
+    {
+      clauseType: "security_dpia_assistance",
+      patterns: ["\\bdpia\\b|\\bdata protection impact|\\bbreach notif"],
+      priority: 50,
+    },
+    {
+      clauseType: "deletion_on_termination",
+      patterns: ["\\bdelet(e|ion)|return.*personal data|upon termination"],
+      priority: 50,
+    },
+    {
+      clauseType: "subprocessor_flow_down",
+      patterns: ["\\bsub-?processor\\b|\\bsubprocessor\\b"],
+      priority: 50,
+    },
+    {
+      clauseType: "international_transfer_mechanism",
+      patterns: ["\\bstandard contractual clause|\\binternational transfer|\\badequacy"],
+      priority: 50,
+    },
+    {
+      clauseType: "automated_decision_disclosure",
+      patterns: ["\\bautomated decision|\\bprofil(e|ing)\\b"],
+      priority: 50,
+    },
+  ],
   appliesToDocTypes: ["dpa"],
   triggerPhrases: [
     "gdpr",
@@ -1139,6 +1241,35 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
       displayLabel: "Silent on cost of Art 28(3)(e) assistance",
       guidance:
         "Check whether the DPA states assistance is provided at no charge or only for reasonable documented cost. Silence can lead to disputes that cascade into Art 12(3) timing breaches.",
+      silencePattern: {
+        triggerClauseTypes: [
+          "processor_assistance_obligation",
+          "data_subject_request_handling",
+        ],
+        triggerRegex:
+          "\\bassist(?:ance|s|ing)?\\b[\\s\\S]{0,180}\\b(data subject|chapter iii|controller)\\b",
+        satisfyRegex:
+          "\\b(costs?|fees?|charges?|expenses?|rates?|no additional charge|at no charge)\\b",
+        claim:
+          "The agreement creates a data-subject-rights assistance duty but does not allocate the cost of providing that assistance.",
+        severity: "medium",
+      },
+    },
+    {
+      category: "dsr_generic_no_named_rights",
+      displayLabel: "Generic data-subject request language",
+      guidance:
+        "Data-subject request language is generic and does not name the applicable Chapter III rights.",
+      heuristic: [
+        {
+          regex: "data subject (request|right)",
+          excludeRegex:
+            "\\b(access|erasure|rectification|portability|article 1[5-9]|article 2[0-2])\\b",
+          claim:
+            "Data-subject request language is generic and does not name Chapter III rights.",
+          severity: "medium",
+        },
+      ],
     },
     {
       category: "processor_terms_incomplete",
@@ -1384,6 +1515,29 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
       ],
       sourceMode: "authored",
       packageVersion: "1.0.0",
+      report: {
+        sections: [
+          "scope",
+          "chapeau_particulars",
+          "requirements_detail",
+          "qualifications",
+          "recommendations",
+          "conclusion",
+        ],
+        outlineExtras: [
+          {
+            heading: "Processing particulars (Art 28(3) chapeau)",
+            requirementTags: [
+              "subject_matter",
+              "duration",
+              "nature_purpose",
+              "data_categories",
+              "data_subject_categories",
+              "controller_obligations_rights",
+            ],
+          },
+        ],
+      },
     },
     {
       id: "gdpr.art28.3.mandatory_clauses",
@@ -1418,6 +1572,21 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
       ],
       sourceMode: "authored",
       packageVersion: "1.0.0",
+      report: {
+        sections: [
+          "scope",
+          "requirements_detail",
+          "qualifications",
+          "recommendations",
+          "conclusion",
+        ],
+        outlineExtras: [
+          {
+            heading: "Mandatory Article 28(3) clauses",
+            requirementTags: ["mandatory_article28_clauses", "clause_adequacy"],
+          },
+        ],
+      },
     },
     {
       id: "gdpr.dsr.rights_matrix",
@@ -1449,6 +1618,7 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
         "cost_allocation_silent",
       ],
       note: "DSR assistance is typically reviewed with response timeframes, mid-term erasure, and portability format.",
+      matrixLinkageIds: GDPR_RIGHTS_MATRIX.map((row) => row.rowId),
     },
     {
       primary: "international_transfer_mechanism",

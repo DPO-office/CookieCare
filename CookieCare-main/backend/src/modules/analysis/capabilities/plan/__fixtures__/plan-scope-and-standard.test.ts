@@ -9,6 +9,8 @@ import {
   refineScope,
   requestsRiskAnalysis,
 } from "../intent-heuristics.js";
+import { applySensibleDefaults } from "../intent-sensible-defaults.js";
+import type { IntentClassification } from "../../../models/intent.js";
 import {
   normalizeStandard,
   resolveStandardConceptToRegistry,
@@ -138,5 +140,57 @@ describe("PLAN risk-analysis selection gate", () => {
       requestsRiskAnalysis("Perform a rigorous GDPR Article 28 compliance review.", "compliance_check"),
       false
     );
+  });
+});
+
+describe("intent preservation via applySensibleDefaults", () => {
+  const classified: IntentClassification = {
+    scope: "whole_document",
+    operation: "explain_qa",
+    standard: "none",
+    outputForm: "memo",
+    reportType: "qa_answer",
+    depth: "deep",
+    documentPresentation: "unified",
+    compound: false,
+    subIntents: [],
+    requirements: [],
+    confidence: { scope: 0.9, operation: 0.9, standard: 0.9, outputForm: 0.9 },
+    docTypeHint: "nda",
+  };
+
+  it("preserves classifier operation, depth, reportType, and outputForm", () => {
+    const { intent, normalizations } = applySensibleDefaults(
+      classified,
+      "do the anaysis of NDA"
+    );
+    assert.equal(intent.operation, "explain_qa");
+    assert.equal(intent.depth, "deep");
+    assert.equal(intent.reportType, "qa_answer");
+    assert.equal(intent.outputForm, "memo");
+    assert.deepEqual(normalizations, []);
+  });
+
+  it("does not rewrite extract+identify NDA review into risk_flag", () => {
+    const extractIntent: IntentClassification = {
+      ...classified,
+      operation: "extract",
+      reportType: "qa_answer",
+      outputForm: "memo",
+      requirements: [
+        {
+          id: "nda.confidentiality.scope_of_information",
+          description: "Scope",
+          type: "extraction",
+          priority: "required",
+        },
+      ],
+    };
+    const instruction =
+      "Analyse the confidentiality and non-disclosure obligations in this NDA. Identify: the scope of confidential information.";
+    const { intent } = applySensibleDefaults(extractIntent, instruction);
+    assert.equal(intent.operation, "extract");
+    assert.equal(intent.reportType, "qa_answer");
+    assert.equal(intent.outputForm, "memo");
   });
 });

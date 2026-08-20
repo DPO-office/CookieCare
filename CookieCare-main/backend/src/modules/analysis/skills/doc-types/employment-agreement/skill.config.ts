@@ -52,6 +52,17 @@ export const employmentAgreementSkill: AnalysisSkillConfig = {
   axis: "doc-type",
   label: "UK employment statutory particulars (overlay)",
   version: "0.1.0",
+  docTypeClassifiers: [
+    {
+      docTypeId: "employment-agreement",
+      priority: 80,
+      patterns: [
+        "\\bemployment agreement\\b",
+        "\\bemployee\\b.*\\bemployer\\b",
+        "\\bstatement of particulars\\b",
+      ],
+    },
+  ],
   appliesToDocTypes: ["employment-agreement"],
   appliesToJurisdictions: ["england-wales"],
   triggerPhrases: [

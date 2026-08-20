@@ -8,15 +8,29 @@ import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
 import type { Finding, MatrixAddressing } from "../../models/finding.js";
 import type { DraftTask } from "../../models/draft-task.js";
 import type { ClauseObject } from "../../models/clause-object.js";
+import type {
+  MatrixApplicabilityGate,
+  RightsMatrixRow,
+} from "../../skills/types.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
+import { getSkillById } from "../../skills/registry.js";
 import { loadSkillMdSection } from "../../skills/load-skill-md.js";
-import { insufficient } from "./act-utils.js";
+import {
+  compileAuthoredRegex,
+  insufficient,
+  stampRequirementIdsOnNewFindings,
+} from "./act-utils.js";
 
-const PREFERRED_CLAUSE_TYPES = [
-  "data_subject_request_handling",
-  "processor_assistance_obligation",
-  "data_protection",
-];
+type MatrixJudgment = {
+  addressing: MatrixAddressing;
+  claim: string;
+  gap?: string;
+  clauseId?: string;
+  quotedText?: string;
+  severity: "low" | "medium" | "high";
+  remedialInstruction?: string;
+  justification?: string;
+};
 
 /**
  * Evaluate one rights-matrix row against extracted clauses.
@@ -26,14 +40,27 @@ export async function evaluateMatrixRow(
   unit: AnalysisWorkUnit,
   findings: Finding[]
 ): Promise<{ state: AnalysisState; findings: Finding[] }> {
+  const result = await _evaluateMatrixRowImpl(state, unit, findings);
+  return {
+    state: result.state,
+    findings: stampRequirementIdsOnNewFindings(unit, findings, result.findings),
+  };
+}
+
+async function _evaluateMatrixRowImpl(
+  state: AnalysisState,
+  unit: AnalysisWorkUnit,
+  findings: Finding[]
+): Promise<{ state: AnalysisState; findings: Finding[] }> {
   const docId = String(unit.input.docId ?? "");
-  const rowId = String(unit.input.rowId ?? "");
-  const article = String(unit.input.article ?? "");
-  const label = String(unit.input.label ?? rowId);
   const instruction = String(unit.input.instruction ?? state.request.instruction ?? "");
   const skillIds = (unit.input.skillIds as string[]) ?? state.activeSkillIds ?? [];
-  const skillId =
-    skillIds.find((id) => id.includes("gdpr")) ?? skillIds[0] ?? state.activeSkillIds?.[0];
+  const row = resolveMatrixRow(unit, skillIds);
+  const rowId = row.rowId;
+  const article = row.article;
+  const label = row.label;
+  const skillId = row.skillId ?? skillIds[0] ?? state.activeSkillIds?.[0];
+  const subject = matrixRowSubject(row);
 
   const doc = state.workspace.documents.find((d) => d.docId === docId);
   if (!doc) {
@@ -43,14 +70,14 @@ export async function evaluateMatrixRow(
     };
   }
 
-  const clauses = selectRelevantClauses(doc.clauses ?? []);
+  const clauses = selectRelevantClauses(doc.clauses ?? [], row.preferredClauseTypes);
   if (clauses.length === 0) {
     const finding: Finding = {
       findingId: `f_matrix_${rowId}_${unit.workUnitId}`,
       kind: "compliance",
-      category: categoryForRow(rowId),
+      category: row.findingCategory,
       status: "insufficient_evidence",
-      claim: `No DSR/assistance clauses available to evaluate Article ${article} (${label}).`,
+      claim: `No relevant clauses were available to evaluate ${subject}.`,
       evidence: [],
       severity: "medium",
       taxonomyVersion: RISK_TAXONOMY_VERSION,
@@ -65,10 +92,9 @@ export async function evaluateMatrixRow(
     return { state, findings: [...findings, finding] };
   }
 
-  const matrixSection =
-    (skillId ? await loadSkillMdSection(skillId, `matrix:${rowId}`) : null) ??
-    (await loadSkillMdSection("regimes/data-protection/gdpr", `matrix:${rowId}`)) ??
-    "";
+  const matrixSection = skillId
+    ? (await loadSkillMdSection(skillId, `matrix:${rowId}`)) ?? ""
+    : "";
 
   const tracker = state.agent ? { tokensUsed: state.agent.tokensUsed } : undefined;
   const schema = {
@@ -86,46 +112,20 @@ export async function evaluateMatrixRow(
     required: ["addressing", "claim", "severity", "justification"],
   };
 
-  let raw: {
-    addressing: MatrixAddressing;
-    claim: string;
-    gap?: string;
-    clauseId?: string;
-    quotedText?: string;
-    severity: "low" | "medium" | "high";
-    remedialInstruction?: string;
-    justification?: string;
-  };
+  let raw: MatrixJudgment;
 
   try {
     raw = await executeJsonCompletion(
-      [
-        `Evaluate how this agreement addresses GDPR Article ${article} (${label}).`,
-        `User instruction: ${instruction}`,
-        unit.input.previousAttemptFeedback
+      buildMatrixEvaluationPrompt({
+        row,
+        instruction,
+        previousAttemptFeedback: unit.input.previousAttemptFeedback
           ? String(unit.input.previousAttemptFeedback)
           : "",
-        matrixSection
-          ? `Contrastive examples for this row (authored — use these to choose Named vs Generic vs Absent):\n${matrixSection}`
-          : [
-              "addressing=named if the right is expressly named or clearly described.",
-              "addressing=generic if only a catch-all 'data subject request' / cooperation clause covers it.",
-              "addressing=absent if the right is not addressed at all.",
-            ].join("\n"),
-        "You MUST justify addressing against the Named vs Generic examples above — do not default to Generic without justification.",
-        rowId === "gdpr.right.automated_decisions"
-          ? "For Article 22, do not assert a confirmed AI or automated-decision gap unless the clauses evidence solely automated decision-making, profiling, algorithmic decisions, or related safeguards. If none appears, state that applicability is unconfirmed and hedge any recommendation conditionally."
-          : "",
-        "quotedText must be copied VERBATIM from a clause when addressing is named or generic.",
-        `Clauses:\n${JSON.stringify(
-          clauses.map((c) => ({
-            clauseId: c.clauseId,
-            clauseType: c.clauseType,
-            text: c.text.slice(0, 2500),
-          }))
-        )}`,
-      ].join("\n\n"),
-      "You map one GDPR data-subject right to contract text. Do not invent clauses. Force a justified Named/Generic/Absent choice.",
+        matrixSection,
+        clauses,
+      }),
+      "You map one rights-matrix row to contract text. Do not invent clauses. Force a justified Named/Generic/Absent choice.",
       schema,
       LLMTask.STRUCTURAL_JSON,
       LLMProvider.GEMINI,
@@ -135,7 +135,7 @@ export async function evaluateMatrixRow(
     console.warn("[evaluateMatrixRow] LLM failed:", err);
     raw = {
       addressing: "absent",
-      claim: `Could not determine whether Article ${article} (${label}) is addressed (LLM unavailable).`,
+      claim: `Could not determine whether ${subject} is addressed (LLM unavailable).`,
       gap: "Insufficient evidence to classify this right.",
       severity: "medium",
       justification: "LLM unavailable",
@@ -146,19 +146,14 @@ export async function evaluateMatrixRow(
     state.agent.tokensUsed = tracker.tokensUsed;
   }
 
-  const lacksAutomatedDecisionContext =
-    rowId === "gdpr.right.automated_decisions" &&
-    !hasAutomatedDecisionContext(doc.fullText);
-  if (lacksAutomatedDecisionContext) {
+  const gateHit = applyApplicabilityGate(row.applicabilityGate, doc.fullText);
+  if (gateHit) {
     raw = {
       addressing: "absent",
-      claim:
-        "The agreement contains no language showing that solely automated decision-making with legal or similarly significant effects is involved. If such processing is in scope, Article 22 exceptions and safeguards should be addressed.",
-      gap:
-        "Insufficient evidence to confirm that Article 22 applies; add safeguards only if qualifying automated decision-making is involved.",
-      severity: "medium",
-      justification:
-        "No automated-decision, profiling, algorithmic-decision, human-review, or Article 22 language was found in the source document.",
+      claim: gateHit.claim,
+      gap: gateHit.gap,
+      severity: gateHit.severity,
+      justification: gateHit.justification,
     };
   }
 
@@ -173,15 +168,12 @@ export async function evaluateMatrixRow(
   const finding: Finding = {
     findingId: `f_matrix_${rowId}_${unit.workUnitId}`,
     kind: "compliance",
-    category: categoryForRow(rowId),
-    status:
-      lacksAutomatedDecisionContext
-        ? "insufficient_evidence"
-        : raw.addressing === "absent"
+    category: row.findingCategory,
+    status: gateHit
+      ? "insufficient_evidence"
+      : raw.addressing === "absent"
         ? "absent_expected"
-        : raw.addressing === "generic"
-          ? "present"
-          : "present",
+        : "present",
     claim: claimWithJustification,
     evidence:
       quote && clause
@@ -191,7 +183,7 @@ export async function evaluateMatrixRow(
               {
                 locator: {
                   docId,
-                  structuralPath: "data-subject-rights",
+                  structuralPath: "matrix-row",
                   charRange: [0, Math.min(quote.length, doc.fullText.length)] as [number, number],
                 },
                 quotedText: quote,
@@ -211,11 +203,7 @@ export async function evaluateMatrixRow(
   };
 
   let nextState = state;
-  if (
-    !lacksAutomatedDecisionContext &&
-    raw.remedialInstruction?.trim() &&
-    finding.evidence[0]?.locator
-  ) {
+  if (!gateHit && raw.remedialInstruction?.trim() && finding.evidence[0]?.locator) {
     const task: DraftTask = {
       sourceFindingId: finding.findingId,
       clauseLocator: finding.evidence[0].locator,
@@ -232,21 +220,108 @@ export async function evaluateMatrixRow(
   return { state: nextState, findings: [...findings, finding] };
 }
 
-export function hasAutomatedDecisionContext(text: string): boolean {
-  return /\b(automated decision|solely automated|profil(?:e|ing)|algorithmic decision|human review|article 22)\b/i.test(
-    text
-  );
+export function resolveMatrixRow(
+  unit: AnalysisWorkUnit,
+  skillIds: string[]
+): RightsMatrixRow {
+  const rowId = String(unit.input.rowId ?? "");
+  let fromSkill: RightsMatrixRow | undefined;
+  for (const id of skillIds) {
+    const skill = getSkillById(id);
+    const found = skill?.rightsMatrixRows?.find((r) => r.rowId === rowId);
+    if (found) {
+      fromSkill = found;
+      break;
+    }
+  }
+
+  const gate = (unit.input.applicabilityGate as MatrixApplicabilityGate | undefined)
+    ?? fromSkill?.applicabilityGate;
+  const preferred =
+    (unit.input.preferredClauseTypes as string[] | undefined)
+    ?? fromSkill?.preferredClauseTypes;
+
+  return {
+    rowId,
+    article: String(unit.input.article ?? fromSkill?.article ?? ""),
+    label: String(unit.input.label ?? fromSkill?.label ?? rowId),
+    findingCategory: String(
+      unit.input.findingCategory ?? fromSkill?.findingCategory ?? "other_known_risk"
+    ),
+    preferredClauseTypes: preferred,
+    applicabilityGate: gate,
+    regimeLabel:
+      (unit.input.regimeLabel as string | undefined) ?? fromSkill?.regimeLabel,
+    skillId:
+      (unit.input.matrixSkillId as string | undefined) ?? fromSkill?.skillId,
+    family: fromSkill?.family,
+    regimeId: fromSkill?.regimeId,
+  };
 }
 
-function selectRelevantClauses(clauses: ClauseObject[]): ClauseObject[] {
-  const preferred = clauses.filter((c) => PREFERRED_CLAUSE_TYPES.includes(c.clauseType));
+export function matrixRowSubject(row: Pick<RightsMatrixRow, "regimeLabel" | "article" | "label">): string {
+  const articlePart = row.article ? `Article ${row.article}` : "";
+  return [row.regimeLabel, articlePart, row.label ? `(${row.label})` : ""]
+    .filter(Boolean)
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+export function buildMatrixEvaluationPrompt(args: {
+  row: RightsMatrixRow;
+  instruction: string;
+  previousAttemptFeedback: string;
+  matrixSection: string;
+  clauses: ClauseObject[];
+}): string {
+  const subject = matrixRowSubject(args.row);
+  return [
+    `Evaluate how this agreement addresses ${subject}.`,
+    `User instruction: ${args.instruction}`,
+    args.previousAttemptFeedback,
+    args.matrixSection
+      ? `Contrastive examples for this row (authored — use these to choose Named vs Generic vs Absent):\n${args.matrixSection}`
+      : [
+          "addressing=named if the right is expressly named or clearly described.",
+          "addressing=generic if only a catch-all cooperation clause covers it.",
+          "addressing=absent if the right is not addressed at all.",
+        ].join("\n"),
+    "You MUST justify addressing against the Named vs Generic examples above — do not default to Generic without justification.",
+    args.row.applicabilityGate?.llmGuidance ?? "",
+    "quotedText must be copied VERBATIM from a clause when addressing is named or generic.",
+    `Clauses:\n${JSON.stringify(
+      args.clauses.map((c) => ({
+        clauseId: c.clauseId,
+        clauseType: c.clauseType,
+        text: c.text.slice(0, 2500),
+      }))
+    )}`,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+export function applyApplicabilityGate(
+  gate: MatrixApplicabilityGate | undefined,
+  fullText: string
+): { claim: string; gap: string; severity: "low" | "medium" | "high"; justification: string } | null {
+  if (!gate) return null;
+  const re = compileAuthoredRegex(gate.contextRegex);
+  if (re && re.test(fullText)) return null;
+  return {
+    claim: gate.absentClaim,
+    gap: gate.absentGap,
+    severity: gate.absentSeverity ?? "medium",
+    justification: "Authored applicability gate did not match the source document.",
+  };
+}
+
+export function selectRelevantClauses(
+  clauses: ClauseObject[],
+  preferredClauseTypes?: string[]
+): ClauseObject[] {
+  if (!preferredClauseTypes?.length) return clauses;
+  const preferred = clauses.filter((c) => preferredClauseTypes.includes(c.clauseType));
   return preferred.length > 0 ? preferred : clauses.slice(0, 12);
-}
-
-function categoryForRow(rowId: string): string {
-  if (rowId.includes("access")) return "dsr_generic_no_named_rights";
-  if (rowId.includes("erasure")) return "erasure_termination_only_gap";
-  if (rowId.includes("portability")) return "portability_format_unaddressed";
-  if (rowId.includes("automated")) return "automated_decision_gap";
-  return "dsr_assistance_not_operational";
 }

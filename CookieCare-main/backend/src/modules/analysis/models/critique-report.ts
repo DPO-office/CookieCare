@@ -70,6 +70,78 @@ export interface CritiqueMetrics {
   critiqueLLMCalls: number;
 }
 
+export type ReleaseVerdict =
+  | "release"
+  | "release_with_limitations"
+  | "withhold";
+
+export type ReleaseReason =
+  | "coverage_gap"
+  | "alignment_mismatch"
+  | "unsupported_finding"
+  | "placeholder_output"
+  | "blocked_by_budget"
+  | "unrecoverable_execution_failure";
+
+export type CoverageState =
+  | "covered"
+  | "not_covered"
+  | "needs_replan"
+  | "cannot_determine";
+
+export interface RequirementCoverageEntry {
+  requirementId: string;
+  state: CoverageState;
+  reason?: string;
+}
+
+export interface RequirementCoverageSummary {
+  total: number;
+  covered: number;
+  entries: RequirementCoverageEntry[];
+  notCovered: string[];
+  needsReplan: string[];
+}
+
+export type AlignmentIssueKind =
+  | "wrong_execution_shape"
+  | "scope_creep"
+  | "wrong_package";
+
+export type AlignmentAction = "replan" | "targeted_redo" | "withhold";
+
+export interface AlignmentIssue {
+  kind: AlignmentIssueKind;
+  action: AlignmentAction;
+  requirementId?: string;
+  packageId?: string;
+  detail: string;
+}
+
+export interface AlignmentReport {
+  issues: AlignmentIssue[];
+}
+
+export type PlaceholderReportKind =
+  | "placeholder_text"
+  | "all_not_covered"
+  | "headings_only"
+  | "empty_body";
+
+export interface PlaceholderReport {
+  detected: boolean;
+  kind?: PlaceholderReportKind;
+  detail?: string;
+}
+
+export interface ReleaseDecision {
+  verdict: ReleaseVerdict;
+  reasons: ReleaseReason[];
+  requirementCoverage: RequirementCoverageSummary;
+  alignment: AlignmentReport;
+  placeholderReport: PlaceholderReport;
+}
+
 export interface CritiqueReport {
   /** @deprecated Graph completion only; do not interpret as legal correctness. */
   isGreen: boolean;
@@ -91,4 +163,6 @@ export interface CritiqueReport {
   /** True when every scheduled work unit has reached a terminal status. */
   allUnitsTerminal?: boolean;
   metrics?: CritiqueMetrics;
+  /** Correctness and release gate — controller and renderer consult this. */
+  release?: ReleaseDecision;
 }
