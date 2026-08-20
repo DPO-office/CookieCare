@@ -29,6 +29,23 @@ export const globalSkill: AnalysisSkillConfig = {
     termination: "Rights and process to end the agreement.",
     governing_law: "Choice of law and/or forum.",
   },
+  clauseHeuristics: [
+    { clauseType: "indemnity", patterns: ["\\bindemnif"], priority: 40 },
+    {
+      clauseType: "limitation_of_liability",
+      patterns: ["\\blimitation of liability\\b"],
+      priority: 40,
+    },
+    { clauseType: "termination", patterns: ["\\bterminat"], priority: 40 },
+    { clauseType: "governing_law", patterns: ["\\bgoverning law\\b"], priority: 40 },
+    { clauseType: "confidentiality", patterns: ["\\bconfidential"], priority: 40 },
+    { clauseType: "payment", patterns: ["\\bpayment\\b|\\binvoice\\b"], priority: 40 },
+    {
+      clauseType: "intellectual_property",
+      patterns: ["\\bintellectual property\\b|\\bwork product\\b"],
+      priority: 40,
+    },
+  ],
   expectedClauses: [
     {
       clauseType: "limitation_of_liability",
@@ -56,8 +73,22 @@ export const globalSkill: AnalysisSkillConfig = {
     },
   ],
   riskCategories: [
-    { category: "uncapped_liability", displayLabel: "Uncapped liability", guidance: "Liability is unlimited or effectively uncapped." },
-    { category: "one_sided_indemnity", displayLabel: "One-sided indemnity", guidance: "Indemnity obligations fall disproportionately on one party." },
+    { category: "uncapped_liability", displayLabel: "Uncapped liability", guidance: "Liability is unlimited or effectively uncapped.", heuristic: [
+      {
+        clauseType: "limitation_of_liability",
+        regex: "unlimited|without limit",
+        claim: "Limitation of liability appears uncapped or effectively unlimited.",
+        severity: "high",
+      },
+    ] },
+    { category: "one_sided_indemnity", displayLabel: "One-sided indemnity", guidance: "Indemnity obligations fall disproportionately on one party.", heuristic: [
+      {
+        clauseType: "indemnity",
+        regex: "customer shall indemnify|you shall indemnify",
+        claim: "Indemnity appears one-sided against the customer.",
+        severity: "medium",
+      },
+    ] },
     { category: "unilateral_termination", displayLabel: "Unilateral termination right", guidance: "Termination rights favor one party without reciprocal rights." },
     { category: "ambiguous_definition", displayLabel: "Ambiguous definition or obligation", guidance: "Defined terms or obligations are vague or unmeasurable." },
     { category: "missing_limitation_of_liability", displayLabel: "Missing limitation of liability", guidance: "No limitation of liability clause identified." },

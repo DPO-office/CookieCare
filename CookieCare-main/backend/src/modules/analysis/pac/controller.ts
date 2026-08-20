@@ -8,6 +8,7 @@ import {
 } from "./transitions.js";
 import { markForRedo, isBudgetExceeded, isMaxTurnsReached } from "./policy.js";
 import { markBudgetExhaustedOutcomes } from "../capabilities/critique/resolve-work-unit.js";
+import { renderLimitationsReport } from "../capabilities/act/render-limitations-report.js";
 import { appendHistory } from "../utils/persisted-state.js";
 import type { PacCapabilities } from "../capabilities/types.js";
 import { pacLog, pacWarn } from "../utils/pac-log.js";
@@ -115,16 +116,17 @@ export class PacController {
             fail: fails,
             fixes: critique.fixPlan.length,
             skeleton: critique.skeletonMismatch ? "yes" : "no",
+            release: critique.release?.verdict,
+            deepTargets: critique.deepCritiqueTargets?.length ?? 0,
+            deepReasons: critique.deepCritiqueTargets?.length
+              ? [...new Set(critique.deepCritiqueTargets.map((t) => t.reason))].join(",")
+              : undefined,
           });
 
           if (next === "DONE") {
+            state = applyReleaseGate(state, critique);
             state.agent!.phase = "DONE";
-            state.agent!.stoppedReason =
-              critique.isGreen || critique.allUnitsTerminal
-                ? critique.isGreen
-                  ? "green"
-                  : "blocked"
-                : resolveStoppedReason(state, critique);
+            state.agent!.stoppedReason = resolveStoppedReason(state, critique);
             if (isMaxTurnsReached(state) || isBudgetExceeded(state)) {
               state = markBudgetExhaustedOutcomes(state);
             }
@@ -143,10 +145,9 @@ export class PacController {
 
           if (!critique.fixPlan.length) {
             pacWarn("CRITIQUE → ACT with empty fixPlan; stopping to avoid a freeze loop");
+            state = applyReleaseGate(state, critique);
             state.agent!.phase = "DONE";
-            state.agent!.stoppedReason = critique.isGreen
-              ? "green"
-              : resolveStoppedReason(state, critique);
+            state.agent!.stoppedReason = resolveStoppedReason(state, critique);
             break;
           }
 
@@ -208,4 +209,30 @@ export class PacController {
       timestamp: new Date().toISOString(),
     });
   }
+}
+
+function applyReleaseGate(
+  state: AnalysisState,
+  critique: NonNullable<AnalysisState["critique"]>
+): AnalysisState {
+  const release = critique.release;
+  if (!release) return state;
+
+  if (release.verdict === "withhold") {
+    return {
+      ...state,
+      renderedOutput: renderLimitationsReport(state, release),
+    };
+  }
+
+  if (release.verdict === "release_with_limitations" && state.renderedOutput) {
+    return {
+      ...state,
+      renderedOutput: renderLimitationsReport(state, release, {
+        wrapExisting: state.renderedOutput,
+      }),
+    };
+  }
+
+  return state;
 }

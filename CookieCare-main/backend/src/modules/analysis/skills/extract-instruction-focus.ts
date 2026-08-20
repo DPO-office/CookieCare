@@ -21,6 +21,7 @@ import {
 import {
   extractExplicitScope,
   filterIdsByScope,
+  capabilityIdMatchesScope,
   ruleIdMatchesScope,
   scopeBoundaryActive,
 } from "./extract-explicit-scope.js";
@@ -194,7 +195,17 @@ export function collectStrongCatalogShortlist(
         pkg.requirementIds.some((id) => ids.has(id))
       ) {
         ids.add(pkg.id);
-        for (const id of pkg.capabilityIds) ids.add(id);
+        for (const id of pkg.capabilityIds) {
+          if (
+            explicitScope &&
+            scopeBoundaryActive(explicitScope) &&
+            catalog &&
+            !capabilityIdMatchesScope(id, explicitScope, catalog)
+          ) {
+            continue;
+          }
+          ids.add(id);
+        }
       }
     }
   }

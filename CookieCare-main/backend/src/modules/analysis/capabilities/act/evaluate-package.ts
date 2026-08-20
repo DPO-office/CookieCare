@@ -54,6 +54,7 @@ export async function evaluatePackage(
     unit.input.instruction ?? state.request.instruction ?? ""
   );
   const capabilityIds = (unit.input.capabilityIds as string[]) ?? [];
+  const contextCapabilityIds = (unit.input.contextCapabilityIds as string[]) ?? [];
   const packageRequirementIds = (unit.input.requirementIds as string[]) ?? [];
   const retryRequirementIds = Array.isArray(unit.input.retryRequirementIds)
     ? (unit.input.retryRequirementIds as string[])
@@ -78,6 +79,10 @@ export async function evaluatePackage(
   }
 
   const briefs = await buildCapabilityBriefs(skillIds, capabilityIds);
+  const contextBriefs =
+    contextCapabilityIds.length > 0
+      ? await buildCapabilityBriefs(skillIds, contextCapabilityIds)
+      : [];
   const findingCategory =
     briefs.find((b) => b.findingCategory)?.findingCategory ?? "other_known_risk";
   const bundle = state.sharedEvidence?.[packageId];
@@ -112,6 +117,13 @@ export async function evaluatePackage(
       .slice(0, MAX_BRIEF_CHARS),
     evidenceLines: [...evidenceLines, ...artifactLines],
     previousFeedback: previousFeedback || undefined,
+    contextRuleText:
+      contextBriefs.length > 0
+        ? contextBriefs
+            .map((b) => `[${b.id}] ${b.text}`)
+            .join("\n")
+            .slice(0, MAX_BRIEF_CHARS)
+        : undefined,
   });
 
   const briefJoined = briefs.map((b) => `[${b.id}] ${b.text}`).join("\n");
@@ -123,6 +135,7 @@ export async function evaluatePackage(
     packageId,
     requirements: requirementIds.length,
     capabilities: capabilityIds.length,
+    contextCapabilities: contextCapabilityIds.length,
     evidence: evidenceItems.length,
     promptChars: prompt.length,
     briefChars: briefJoined.length,

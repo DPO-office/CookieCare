@@ -6,22 +6,11 @@ import type {
 import type { AnalysisSkillConfig } from "../skills/types.js";
 
 export type AnalysisToolName =
-  | "list_documents"
   | "classify_document"
-  | "search_document"
-  | "get_span"
   | "extract_clauses"
   | "check_expected_clauses"
-  | "extract_entities"
   | "flag_risk"
   | "check_against_rule"
-  | "compare_clauses"
-  | "diff_documents"
-  | "map_document_relationships"
-  | "get_applicable_rules"
-  | "get_playbook_rule"
-  | "request_clarification"
-  | "create_draft_task"
   | "evaluate_matrix_row"
   | "extract_playbook_positions"
   | "web_assisted_reference"
@@ -51,6 +40,20 @@ export interface AnalysisWorkUnit {
   findingsEmitted?: number;
   /** Required when findingsEmitted is 0 and status is done. */
   completionNote?: string;
+  /**
+   * PLAN-assigned requirement ids this unit is meant to establish. Findings
+   * emitted by requirement-aware handlers must copy the (single or per-req)
+   * id into `Finding.requirementId` so aggregation can link them without any
+   * capability/prefix guessing.
+   *
+   * - Empty/undefined = the unit is not bound to a specific requirement
+   *   (skill-wide risk scan, generic extraction, etc.).
+   * - Length 1 = single owning requirement; handler stamps directly.
+   * - Length > 1 = one rule serves multiple requirements; handler emits one
+   *   finding per requirement (or looks up per emitted finding via the
+   *   optional mapping payload on `input.requirementMappings`).
+   */
+  requirementIds?: string[];
 }
 
 export type ResolutionSource = "explicit_number" | "phrase_map" | "catalog_llm";
@@ -172,6 +175,21 @@ export interface MissingClarification {
   options?: string[];
 }
 
+export interface ScopeAuditEntry {
+  packageId: string;
+  /** Authored capability ids excluded from standalone evaluation (kept as context). */
+  droppedCapabilityIds: string[];
+  /** requiresPackages dependency ids dropped by explicit scope. */
+  droppedDependencyIds: string[];
+}
+
+export interface IntentNormalization {
+  field: "scope" | "outputForm" | "reportType" | "depth" | "documentPresentation";
+  from: string | undefined;
+  to: string;
+  reason: "missing_field" | "low_confidence";
+}
+
 export interface PlanAuditRecord {
   resolvedSkillIds: string[];
   resolvedRuleIds: string[];
@@ -191,6 +209,12 @@ export interface PlanAuditRecord {
   resolvedPackageIds?: string[];
   requirementToPackageId?: Record<string, string>;
   requirementExecutionPaths?: RequirementExecutionPath[];
+  /** Classifier output before PLAN normalization defaults. */
+  rawIntent?: IntentClassification;
+  /** Field-level defaults applied during PLAN (empty when nothing changed). */
+  intentNormalizations?: IntentNormalization[];
+  /** Package-level scope filtering applied during resolvePackages. */
+  scopeAudit?: ScopeAuditEntry[];
 }
 
 export interface AnalysisPlan {

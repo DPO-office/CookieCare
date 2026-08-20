@@ -225,6 +225,19 @@ export const ccpaCpraSkill: AnalysisSkillConfig = {
       ],
       sourceMode: "authored",
       packageVersion: "1.0.0",
+      report: {
+        sections: ["scope", "requirements_detail", "recommendations", "conclusion"],
+        outlineExtras: [
+          {
+            heading: "CCPA service-provider restrictions",
+            requirementTags: [
+              "no_sell_share",
+              "business_purpose_limit",
+              "no_combine",
+            ],
+          },
+        ],
+      },
     },
     {
       id: "ccpa.sp.consumer_and_security",
@@ -238,6 +251,15 @@ export const ccpaCpraSkill: AnalysisSkillConfig = {
       ],
       sourceMode: "authored",
       packageVersion: "1.0.0",
+      report: {
+        sections: ["scope", "requirements_detail", "recommendations", "conclusion"],
+        outlineExtras: [
+          {
+            heading: "Consumer rights and security",
+            requirementTags: ["consumer_rights_assistance", "security_measures"],
+          },
+        ],
+      },
     },
   ],
   instructionFocusMap: [

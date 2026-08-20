@@ -4,12 +4,30 @@ import type { Finding } from "../../models/finding.js";
 import type { SegmentedDocument } from "../../models/document-workspace.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { getSkillById } from "../../skills/registry.js";
-import { fullTextLikelyHasClause, insufficient } from "./act-utils.js";
+import {
+  fullTextLikelyHasClause,
+  insufficient,
+  stampFindingsByCapability,
+} from "./act-utils.js";
 
 /**
  * Skill-scoped deterministic expected-clause checks (replaces hardcoded 4-type loop).
  */
 export function checkExpectedClauses(
+  state: AnalysisState,
+  unit: AnalysisWorkUnit,
+  findings: Finding[]
+): { state: AnalysisState; findings: Finding[] } {
+  const result = _checkExpectedClausesImpl(state, unit, findings);
+  return {
+    state: result.state,
+    findings: stampFindingsByCapability(unit, findings, result.findings, (f) => [
+      f.category,
+    ]),
+  };
+}
+
+function _checkExpectedClausesImpl(
   state: AnalysisState,
   unit: AnalysisWorkUnit,
   findings: Finding[]

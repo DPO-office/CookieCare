@@ -14,12 +14,7 @@ import { tierFor } from "../../models/rule-source.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { getSkillById } from "../../skills/registry.js";
 import { loadSkillMdSection } from "../../skills/load-skill-md.js";
-import { insufficient } from "./act-utils.js";
-
-const TIMEFRAME_NUMERIC =
-  /\b(\d+)\s*(hour|hours|day|days|week|weeks|month|months|business days?)\b/i;
-const TIMEFRAME_VAGUE =
-  /\b(promptly|reasonably|as soon as (reasonably )?practicable|without (undue )?delay|timely)\b/i;
+import { insufficient, stampRequirementIdsOnNewFindings, compileAuthoredRegex, interpolateMatch } from "./act-utils.js";
 
 export function resolveRule(skillIds: string[], ruleId: string) {
   for (const id of skillIds) {
@@ -28,22 +23,6 @@ export function resolveRule(skillIds: string[], ruleId: string) {
     if (rule) return { rule, skillId: skill!.skillId, skillVersion: skill!.version };
   }
   return null;
-}
-
-function scanTimeframe(clauses: ClauseObject[]): {
-  kind: "numeric" | "vague" | "absent";
-  quote?: string;
-  clause?: ClauseObject;
-} {
-  for (const c of clauses) {
-    const numeric = c.text.match(TIMEFRAME_NUMERIC);
-    if (numeric) return { kind: "numeric", quote: numeric[0], clause: c };
-  }
-  for (const c of clauses) {
-    const vague = c.text.match(TIMEFRAME_VAGUE);
-    if (vague) return { kind: "vague", quote: vague[0], clause: c };
-  }
-  return { kind: "absent" };
 }
 
 /**
@@ -156,6 +135,18 @@ async function checkAgainstRule(
   unit: AnalysisWorkUnit,
   findings: Finding[]
 ): Promise<{ state: AnalysisState; findings: Finding[] }> {
+  const result = await _checkAgainstRuleImpl(state, unit, findings);
+  return {
+    state: result.state,
+    findings: stampRequirementIdsOnNewFindings(unit, findings, result.findings),
+  };
+}
+
+async function _checkAgainstRuleImpl(
+  state: AnalysisState,
+  unit: AnalysisWorkUnit,
+  findings: Finding[]
+): Promise<{ state: AnalysisState; findings: Finding[] }> {
   const docId = String(unit.input.docId ?? "");
   const instruction = String(unit.input.instruction ?? state.request.instruction ?? "");
   const skillIds = (unit.input.skillIds as string[]) ?? state.activeSkillIds ?? [];
@@ -255,7 +246,7 @@ async function checkAgainstRule(
   }
 
   if (source.kind === "authored" && rule?.checkType === "pattern_then_llm_judgment") {
-    const patternFinding = timeframePatternFinding(
+    const patternFinding = runMechanicalScan(
       unit,
       rule,
       applicable,
@@ -306,30 +297,58 @@ async function checkAgainstRule(
   return { state, findings: mergeFindings(findings, judged) };
 }
 
-function timeframePatternFinding(
+/**
+ * Generic mechanical pre-scan driven entirely by `rule.mechanicalScan`.
+ * Returns null when the rule did not opt in.
+ */
+export function runMechanicalScan(
   unit: AnalysisWorkUnit,
   rule: SkillRegimeRule,
   clauses: ClauseObject[],
   skillId: string,
   skillVersion: string
 ): Finding | null {
-  if (rule.ruleId !== "gdpr.art12.3") return null;
-  const scan = scanTimeframe(clauses);
-  const category = rule.findingCategory;
+  const scan = rule.mechanicalScan;
+  if (!scan || scan.kind !== "numeric_pattern_expected") return null;
 
-  if (scan.kind === "numeric" && scan.clause && scan.quote) {
+  const numericRe = compileAuthoredRegex(scan.pattern);
+  const vagueRe = compileAuthoredRegex(scan.vaguePattern);
+  let hit: { kind: "numeric" | "vague" | "absent"; quote?: string; clause?: ClauseObject } = {
+    kind: "absent",
+  };
+  if (numericRe) {
+    for (const c of clauses) {
+      const numeric = c.text.match(numericRe);
+      if (numeric) {
+        hit = { kind: "numeric", quote: numeric[0], clause: c };
+        break;
+      }
+    }
+  }
+  if (hit.kind === "absent" && vagueRe) {
+    for (const c of clauses) {
+      const vague = c.text.match(vagueRe);
+      if (vague) {
+        hit = { kind: "vague", quote: vague[0], clause: c };
+        break;
+      }
+    }
+  }
+
+  const category = rule.findingCategory;
+  if (hit.kind === "numeric" && hit.clause && hit.quote) {
     return {
       findingId: `f_compliance_${rule.ruleId}_${unit.workUnitId}`,
       kind: "compliance",
       category,
       status: "present",
-      claim: `A numeric response timeframe (${scan.quote}) appears in the DSR/assistance clauses.`,
+      claim: interpolateMatch(scan.presentClaim, hit.quote),
       evidence: [
-        { locator: scan.clause.locator, quotedText: scan.quote, sourceRole: "target" },
+        { locator: hit.clause.locator, quotedText: hit.quote, sourceRole: "target" },
       ],
       ruleId: rule.ruleId,
       ruleVersion: skillVersion,
-      severity: "low",
+      severity: scan.severityPresent ?? "low",
       taxonomyVersion: RISK_TAXONOMY_VERSION,
       workUnitId: unit.workUnitId,
       skillId,
@@ -338,24 +357,24 @@ function timeframePatternFinding(
     };
   }
 
-  if (scan.kind === "vague" && scan.clause && scan.quote) {
+  if (hit.kind === "vague" && hit.clause && hit.quote) {
     return {
       findingId: `f_compliance_${rule.ruleId}_${unit.workUnitId}`,
       kind: "compliance",
       category,
       status: "absent_expected",
-      claim: `Art 12(3) requires a one-month (extendable) clock; the agreement only uses vague timing ("${scan.quote}").`,
+      claim: interpolateMatch(scan.vagueClaim, hit.quote),
       evidence: [
-        { locator: scan.clause.locator, quotedText: scan.quote, sourceRole: "target" },
+        { locator: hit.clause.locator, quotedText: hit.quote, sourceRole: "target" },
       ],
       ruleId: rule.ruleId,
       ruleVersion: skillVersion,
-      severity: "high",
+      severity: scan.severityVague ?? "high",
       taxonomyVersion: RISK_TAXONOMY_VERSION,
       workUnitId: unit.workUnitId,
       skillId,
       visibility: "user_facing",
-      gap: "No numeric Art 12(3) timeframe; 'promptly' / 'reasonably' alone is insufficient.",
+      gap: scan.vagueGap,
       ruleSourceTier: "B",
     };
   }
@@ -365,17 +384,16 @@ function timeframePatternFinding(
     kind: "compliance",
     category,
     status: "absent_expected",
-    claim:
-      "No response timeframe for data-subject requests was found in the extracted DSR/assistance clauses.",
+    claim: scan.absentClaim,
     evidence: [],
     ruleId: rule.ruleId,
     ruleVersion: skillVersion,
-    severity: "high",
+    severity: scan.severityAbsent ?? "high",
     taxonomyVersion: RISK_TAXONOMY_VERSION,
     workUnitId: unit.workUnitId,
     skillId,
     visibility: "user_facing",
-    gap: "Art 12(3) one-month clock is unaddressed.",
+    gap: scan.absentGap,
     ruleSourceTier: "B",
   };
 }
@@ -511,7 +529,29 @@ async function llmJudgeClauses(args: {
   const byClause = new Map(applicable.map((c) => [c.clauseId, c]));
   const results = raw.filter((entry) => byClause.has(entry.clauseId));
 
-  if (results.length === 0) {
+  // LLM clause-judgment can occasionally return duplicate entries for the
+  // same clauseId. Our findingId scheme keys off `clauseId`, so duplicates
+  // must be resolved deterministically to avoid `finding-id` collisions in
+  // Critique.
+  const statusPriority: Partial<Record<Finding["status"], number>> = {
+    present: 3,
+    absent_expected: 2,
+    insufficient_evidence: 1,
+  };
+  const bestByClauseId = new Map<string, (typeof results)[number]>();
+  for (const entry of results) {
+    const existing = bestByClauseId.get(entry.clauseId);
+    if (!existing) {
+      bestByClauseId.set(entry.clauseId, entry);
+      continue;
+    }
+    if ((statusPriority[entry.status] ?? 0) > (statusPriority[existing.status] ?? 0)) {
+      bestByClauseId.set(entry.clauseId, entry);
+    }
+  }
+  const dedupedResults = [...bestByClauseId.values()];
+
+  if (dedupedResults.length === 0) {
     return [
       judgeResultToFinding(args, {
         status: "insufficient_evidence",
@@ -524,7 +564,7 @@ async function llmJudgeClauses(args: {
     ];
   }
 
-  return results.map((entry) =>
+  return dedupedResults.map((entry) =>
     judgeResultToFinding(
       args,
       {

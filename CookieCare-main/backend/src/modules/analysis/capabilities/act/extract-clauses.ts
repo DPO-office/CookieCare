@@ -10,7 +10,7 @@ import type { Finding } from "../../models/finding.js";
 import type { SegmentedDocument } from "../../models/document-workspace.js";
 import { CLAUSE_TAXONOMY_VERSION } from "../../taxonomies/clause-taxonomy.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
-import { getRuntimeTaxonomies, getSkillById } from "../../skills/registry.js";
+import { getRuntimeTaxonomies, getSkillById, mergeClauseHeuristics } from "../../skills/registry.js";
 import type { AnalysisSkillConfig } from "../../skills/types.js";
 import { insufficient } from "./act-utils.js";
 import { pacLog } from "../../utils/pac-log.js";
@@ -87,7 +87,7 @@ async function extractClauses(
       located = mergeFallback(located, mapped, doc);
     } catch (err) {
       console.warn("[extractClauses] headings fallback failed; using heuristic:", err);
-      located = mergeHeuristic(located, heuristicExtract(doc, missing), doc);
+      located = mergeHeuristic(located, heuristicExtract(doc, missing, skills), doc);
     }
     fallbackMs = Date.now() - fbStart;
   }
@@ -317,25 +317,13 @@ function heuristicExtract(
     fullText: string;
     segments: { locator: { structuralPath: string }; text: string; kind: string }[];
   },
-  clauseTypes: string[]
+  clauseTypes: string[],
+  skills: AnalysisSkillConfig[]
 ): Array<{ clauseType: string; structuralPath?: string; text: string }> {
-  const patterns: Array<[RegExp, string]> = [
-    [/\bindemnif/i, "indemnity"],
-    [/\blimitation of liability\b/i, "limitation_of_liability"],
-    [/\bterminat/i, "termination"],
-    [/\bgoverning law\b/i, "governing_law"],
-    [/\bconfidential/i, "confidentiality"],
-    [/\bpersonal data\b|\bprocessing\b/i, "data_protection"],
-    [/\bdata subject (request|right)/i, "data_subject_request_handling"],
-    [/\bassist(ance|s)? the controller\b|\bprocessor shall assist\b/i, "processor_assistance_obligation"],
-    [/\bdpia\b|\bdata protection impact|\bbreach notif/i, "security_dpia_assistance"],
-    [/\bdelet(e|ion)|return.*personal data|upon termination/i, "deletion_on_termination"],
-    [/\bsub-?processor\b|\bsubprocessor\b/i, "subprocessor_flow_down"],
-    [/\bstandard contractual clause|\binternational transfer|\badequacy/i, "international_transfer_mechanism"],
-    [/\bautomated decision|\bprofil(e|ing)\b/i, "automated_decision_disclosure"],
-    [/\bpayment\b|\binvoice\b/i, "payment"],
-    [/\bintellectual property\b|\bwork product\b/i, "intellectual_property"],
-  ];
+  const heuristics = mergeClauseHeuristics(skills);
+  const patterns: Array<[RegExp, string]> = heuristics.flatMap((h) =>
+    h.patterns.map((p) => [new RegExp(p, "i"), h.clauseType] as [RegExp, string])
+  );
 
   const allowed = new Set(clauseTypes);
   const out: Array<{ clauseType: string; structuralPath?: string; text: string }> = [];

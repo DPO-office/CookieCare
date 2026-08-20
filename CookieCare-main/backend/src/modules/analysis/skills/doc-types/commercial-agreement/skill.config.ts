@@ -5,6 +5,18 @@ export const commercialAgreementSkill: AnalysisSkillConfig = {
   axis: "doc-type",
   label: "Commercial Agreements",
   version: "1.1.0",
+  docTypeClassifiers: [
+    {
+      docTypeId: "shareholder-agreement",
+      priority: 70,
+      patterns: ["\\bshareholder\\b", "\\bshareholders agreement\\b", "\\bstockholder"],
+    },
+    {
+      docTypeId: "commercial-agreement",
+      priority: 10,
+      patterns: ["\\bagreement\\b", "\\bcontract\\b"],
+    },
+  ],
   appliesToDocTypes: ["commercial-agreement"],
   triggerPhrases: [
     "commercial agreement",
@@ -60,8 +72,22 @@ export const commercialAgreementSkill: AnalysisSkillConfig = {
     },
   ],
   riskCategories: [
-    { category: "one_sided_indemnity", displayLabel: "One-sided indemnity", guidance: "Indemnity obligations fall disproportionately on one party." },
-    { category: "uncapped_liability", displayLabel: "Uncapped liability", guidance: "Liability is unlimited or effectively uncapped." },
+    { category: "one_sided_indemnity", displayLabel: "One-sided indemnity", guidance: "Indemnity obligations fall disproportionately on one party.", heuristic: [
+      {
+        clauseType: "indemnity",
+        regex: "customer shall indemnify|you shall indemnify",
+        claim: "Indemnity appears one-sided against the customer.",
+        severity: "medium",
+      },
+    ] },
+    { category: "uncapped_liability", displayLabel: "Uncapped liability", guidance: "Liability is unlimited or effectively uncapped.", heuristic: [
+      {
+        clauseType: "limitation_of_liability",
+        regex: "unlimited|without limit",
+        claim: "Limitation of liability appears uncapped or effectively unlimited.",
+        severity: "high",
+      },
+    ] },
     { category: "auto_renewal_trap", displayLabel: "Auto-renewal notice trap", guidance: "Auto-renewal or notice trap may lock in unfavorable terms." },
     { category: "broad_indemnity", displayLabel: "Overly broad indemnity", guidance: "Indemnity scope is unusually broad." },
     { category: "weak_confidentiality", displayLabel: "Weak or one-sided confidentiality", guidance: "Confidentiality obligations are weak or one-sided." },

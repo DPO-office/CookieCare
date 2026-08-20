@@ -70,7 +70,7 @@ export async function webAssistedReference(
         "Label this as unverified live research, not an authored compliance finding.",
         "Set resolved=true only if you can point to a concrete official source URL.",
       ].join("\n\n"),
-      "You produce a clearly-labeled unverified research note. Prefer official .gov / eur-lex / legislation.gov.uk sources. Never mix this with authored GDPR/rule findings.",
+      "You produce a clearly-labeled unverified research note. Prefer official .gov / eur-lex / legislation.gov.uk sources. Never mix this with authored-rule findings.",
       schema,
       LLMTask.STRUCTURAL_JSON,
       LLMProvider.GEMINI,

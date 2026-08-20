@@ -1,8 +1,10 @@
 import type {
   AnalysisSkillConfig,
   ClauseRetrievalDict,
+  DocTypeClassifier,
   ExpectedClauseCheck,
   SkillAxis,
+  SkillClauseHeuristic,
   SkillRiskCategory,
 } from "./types.js";
 import type { EvidencePackage } from "../models/evidence-package.js";
@@ -455,6 +457,31 @@ export function hasRegimeRule(ruleId: string): boolean {
 /** Playbook rules are not yet registered in Analysis — always false until packs land. */
 export function hasPlaybookRule(_ruleId: string): boolean {
   return false;
+}
+
+export function mergeClauseHeuristics(skills: AnalysisSkillConfig[]): SkillClauseHeuristic[] {
+  const merged = new Map<string, SkillClauseHeuristic>();
+  for (const skill of skills) {
+    for (const h of skill.clauseHeuristics ?? []) {
+      const existing = merged.get(h.clauseType);
+      if (!existing) {
+        merged.set(h.clauseType, { ...h, patterns: [...h.patterns] });
+        continue;
+      }
+      merged.set(h.clauseType, {
+        ...existing,
+        patterns: [...new Set([...existing.patterns, ...h.patterns])],
+        priority: Math.max(existing.priority ?? 0, h.priority ?? 0),
+      });
+    }
+  }
+  return [...merged.values()].sort(
+    (a, b) => (b.priority ?? 0) - (a.priority ?? 0)
+  );
+}
+
+export function listDocTypeClassifiers(): DocTypeClassifier[] {
+  return ALL_SKILLS.flatMap((s) => s.docTypeClassifiers ?? []);
 }
 
 /** Reset for tests only. */

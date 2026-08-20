@@ -68,6 +68,25 @@ export const saasAgreementSkill: AnalysisSkillConfig = {
   axis: "doc-type",
   label: "SaaS / Subscription Agreement",
   version: "1.1.0",
+  docTypeClassifiers: [
+    {
+      docTypeId: "saas-agreement",
+      priority: 75,
+      patterns: [
+        "\\bsaas\\b",
+        "\\bsoftware as a service\\b",
+        "\\bsubscription agreement\\b",
+        "\\bservice level agreement\\b",
+        "\\bsla\\b",
+        "\\buat\\b.*\\bservice credit",
+      ],
+    },
+    {
+      docTypeId: "service-agreement",
+      priority: 60,
+      patterns: ["\\bservice agreement\\b"],
+    },
+  ],
   extendsDocType: "doc-types/commercial-agreement",
   appliesToDocTypes: ["saas-agreement", "sla", "service-agreement"],
   triggerPhrases: [

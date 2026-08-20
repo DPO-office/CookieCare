@@ -8,8 +8,7 @@ import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
 import type { Finding, MatrixAddressing } from "../../models/finding.js";
 import type { SegmentedDocument } from "../../models/document-workspace.js";
 import type { RuleSourceTier } from "../../models/rule-source.js";
-import type { ReportSpec, ReportType } from "../../models/intent.js";
-import { deriveSections } from "../../models/intent.js";
+import type { ReportSpec } from "../../models/intent.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { getSkillById } from "../../skills/registry.js";
 import { extractArticleNumbers } from "../../skills/extract-instruction-focus.js";
@@ -23,23 +22,12 @@ import {
   buildNarrativeReportUserPrompt,
 } from "../../prompts/render-output.js";
 
-/** Map a legacy renderer schemaId to a ReportType when PLAN gave no ReportSpec. */
-const SCHEMA_TO_REPORT_TYPE: Record<string, ReportType> = {
-  memo: "regime_compliance_memo",
-  checklist: "regime_compliance_memo",
-  table: "extraction_table",
-  qa_thread: "qa_answer",
-};
-
 function resolveReportSpec(state: AnalysisState, schemaId: string): ReportSpec {
   const spec = state.plan?.reportSpec;
   if (spec) return spec;
-  const reportType = SCHEMA_TO_REPORT_TYPE[schemaId] ?? "regime_compliance_memo";
-  return {
-    reportType,
-    depth: "standard",
-    sections: deriveSections(reportType, "standard"),
-  };
+  throw new Error(
+    `Missing ReportSpec on analysis plan (schemaId=${schemaId}). PLAN must author report structure before render.`
+  );
 }
 
 const ADDRESSING_LABEL: Record<MatrixAddressing, string> = {
@@ -69,11 +57,20 @@ export async function renderOutput(
   );
 
   const assessments = state.requirementAssessments ?? [];
+  const requestedArticles = extractArticleNumbers(state.request.instruction);
+  const reportSpec = state.plan?.reportSpec;
+  const wantsRequirementsDetail = reportSpec?.sections.includes("requirements_detail");
+  const briefSummaryIsArticleQuickRef =
+    schemaId === "brief_summary" &&
+    requestedArticles.length > 0 &&
+    !wantsRequirementsDetail;
+  const forceSynthesisFromSpec =
+    schemaId === "brief_summary" && Boolean(wantsRequirementsDetail);
   const usesSynthesis =
-    assessments.length > 0 &&
+    (assessments.length > 0 || forceSynthesisFromSpec) &&
     schemaId !== "rights_matrix_memo" &&
     schemaId !== "playbook_comparison_memo" &&
-    schemaId !== "brief_summary";
+    !briefSummaryIsArticleQuickRef;
 
   const presentation =
     state.intent?.documentPresentation ??
@@ -126,6 +123,7 @@ export async function renderOutput(
     }
   }
   rendered = replaceRawCategoryIds(rendered, state, visible);
+  rendered = sanitizeRenderedOutput(rendered);
 
   const renderFinding: Finding = {
     findingId: `f_render_${unit.workUnitId}`,
@@ -1064,6 +1062,22 @@ function humanizeCategory(category: string): string {
   return withoutRulePrefix
     .replace(/[._-]+/g, " ")
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+const INTERNAL_OUTPUT_PATTERNS = [
+  /\bpackageId[=:\s][\w.-]+/gi,
+  /\bworkUnitId[=:\s][\w.-]+/gi,
+  /no analysis package exists/gi,
+  /\bnot_supported\b/gi,
+  /\bretry diagnostics\b/gi,
+];
+
+export function sanitizeRenderedOutput(output: string): string {
+  let safe = output;
+  for (const pattern of INTERNAL_OUTPUT_PATTERNS) {
+    safe = safe.replace(pattern, "[redacted internal routing detail]");
+  }
+  return safe;
 }
 
 function ensureSentence(value: string): string {

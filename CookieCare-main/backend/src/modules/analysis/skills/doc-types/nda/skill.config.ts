@@ -1,4 +1,5 @@
 import type { AnalysisSkillConfig, SkillRegimeRule } from "../../types.js";
+import type { IntentRequirement } from "../../../models/intent.js";
 
 function rule(
   ruleId: string,
@@ -50,6 +51,59 @@ const RULES: SkillRegimeRule[] = [
     ["confidentiality"],
     "NLRB Boeing Co., 365 NLRB No. 154; ABA Journal of Labor & Employment Law guidance on confidentiality rules that survive NLRB scrutiny (the supplied 'Standard Mutual NDA Blueprint' PDF is this article, not a model NDA)."
   ),
+  rule(
+    "nda.term_and_survival",
+    "Term and survival of confidentiality should be stated",
+    "The NDA should state how long the agreement lasts and how long confidentiality duties survive expiry or termination, rather than leaving duration unbounded or silent.",
+    "nda_term_survival_gap",
+    ["termination", "confidentiality"]
+  ),
+  rule(
+    "nda.governing_law",
+    "Governing law or forum should be stated",
+    "The NDA should identify a governing law and, where used, a forum or dispute-resolution venue.",
+    "nda_governing_law_gap",
+    ["governing_law"]
+  ),
+];
+
+const AUTHORED_REQUIREMENTS: IntentRequirement[] = [
+  {
+    id: "nda.confidentiality_definition",
+    description: "Whether confidential information is defined, including typical exclusions.",
+    type: "adequacy",
+    priority: "required",
+  },
+  {
+    id: "nda.purpose_limitation",
+    description: "Whether use of confidential information is limited to a stated purpose.",
+    type: "adequacy",
+    priority: "required",
+  },
+  {
+    id: "nda.return_or_destruction",
+    description: "Whether return or destruction of confidential information is required on request or expiry.",
+    type: "adequacy",
+    priority: "required",
+  },
+  {
+    id: "nda.nlra_section_7",
+    description: "Whether employee-facing confidentiality language would reasonably restrict NLRA Section 7 activity.",
+    type: "adequacy",
+    priority: "required",
+  },
+  {
+    id: "nda.term_and_survival",
+    description: "Whether the NDA states its term and how long confidentiality survives.",
+    type: "adequacy",
+    priority: "supporting",
+  },
+  {
+    id: "nda.governing_law",
+    description: "Whether the NDA states governing law or forum.",
+    type: "adequacy",
+    priority: "supporting",
+  },
 ];
 
 export const ndaDocTypeSkill: AnalysisSkillConfig = {
@@ -57,6 +111,13 @@ export const ndaDocTypeSkill: AnalysisSkillConfig = {
   axis: "doc-type",
   label: "Non-Disclosure Agreement",
   version: "0.1.0",
+  docTypeClassifiers: [
+    {
+      docTypeId: "nda",
+      priority: 85,
+      patterns: ["\\bnon-?disclosure\\b", "\\bnda\\b", "\\bconfidential information\\b"],
+    },
+  ],
   appliesToDocTypes: ["nda"],
   triggerPhrases: [
     "nda",
@@ -102,6 +163,16 @@ export const ndaDocTypeSkill: AnalysisSkillConfig = {
         "An employee-facing confidentiality rule may reasonably be read to restrict NLRA Section 7 activity.",
     },
     {
+      category: "nda_term_survival_gap",
+      displayLabel: "Missing term or survival language",
+      guidance: "The NDA does not state its term or how long confidentiality survives.",
+    },
+    {
+      category: "nda_governing_law_gap",
+      displayLabel: "Missing governing law",
+      guidance: "The NDA does not identify governing law or forum.",
+    },
+    {
       category: "weak_confidentiality",
       displayLabel: "Weak or one-sided confidentiality",
       guidance: "Confidentiality obligations are weak or one-sided.",
@@ -114,6 +185,57 @@ export const ndaDocTypeSkill: AnalysisSkillConfig = {
   ],
   regimeRules: RULES,
   regimeRuleIds: RULES.map((r) => r.ruleId),
+  authoredRequirements: AUTHORED_REQUIREMENTS,
+  evidencePackages: [
+    {
+      id: "nda.structural_review",
+      kind: "evaluation",
+      requirementIds: AUTHORED_REQUIREMENTS.map((r) => r.id),
+      capabilityIds: RULES.map((r) => r.ruleId),
+      clauseTypes: ["confidentiality", "definitions", "termination", "governing_law"],
+      extractionTargets: [
+        "scope_of_confidential_information",
+        "permitted_purpose",
+        "term",
+        "return_or_destruction",
+      ],
+      sourceMode: "authored",
+      requirementKinds: ["adequacy", "verification"],
+      packageVersion: "0.1.0",
+      label: "NDA structural review",
+      report: {
+        sections: [
+          "scope",
+          "requirements_detail",
+          "qualifications",
+          "recommendations",
+          "conclusion",
+        ],
+        outlineExtras: [
+          {
+            heading: "Confidentiality",
+            requirementTags: ["nda.confidentiality_definition", "nda.purpose_limitation"],
+          },
+          {
+            heading: "Disclosures",
+            requirementTags: ["nda.nlra_section_7"],
+          },
+          {
+            heading: "Term and survival",
+            requirementTags: ["nda.term_and_survival"],
+          },
+          {
+            heading: "Return and destruction",
+            requirementTags: ["nda.return_or_destruction"],
+          },
+          {
+            heading: "Remedies and governing law",
+            requirementTags: ["nda.governing_law"],
+          },
+        ],
+      },
+    },
+  ],
   instructionFocusMap: [
     {
       triggerPhrases: ["section 7", "nlra", "nlrb", "boeing", "concerted activity"],

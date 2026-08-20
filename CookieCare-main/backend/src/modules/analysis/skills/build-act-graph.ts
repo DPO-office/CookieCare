@@ -54,20 +54,30 @@ export interface BuildActGraphResult {
   packageResolution: PackageResolution;
 }
 
-function rendererForSkill(
-  skill: AnalysisSkillConfig,
-  intent: IntentClassification,
-  focus?: InstructionFocus,
-  referenceDocId?: string
+export interface SelectRendererInput {
+  docType?: string;
+  reportSpec?: ReportSpec;
+  hasReference: boolean;
+  hasMatrixFocus: boolean;
+  requirementCount?: number;
+}
+
+export function selectRenderer(
+  input: SelectRendererInput
 ): BuildActGraphResult["rendererSchemaId"] {
-  if (referenceDocId) return "playbook_comparison_memo";
-  if (intent.outputForm === "brief_summary") return "brief_summary";
-  if (intent.outputForm === "table") return "table";
-  if (intent.outputForm === "qa_thread") return "qa_thread";
-  if (focus?.matrixRowIds.length) return "rights_matrix_memo";
-  if (intent.outputForm === "memo") return "memo";
-  if (skill.defaultOperation === "compliance_check") return "checklist";
-  return "checklist";
+  if (input.hasReference) return "playbook_comparison_memo";
+  if (input.hasMatrixFocus) return "rights_matrix_memo";
+  const reportType = input.reportSpec?.reportType ?? "regime_compliance_memo";
+  if (reportType === "qa_answer") return "qa_thread";
+  if (reportType === "extraction_table") return "table";
+  if (
+    reportType === "regime_compliance_memo" &&
+    (input.requirementCount ?? 0) <= 1 &&
+    input.reportSpec?.depth === "narrow"
+  ) {
+    return "brief_summary";
+  }
+  return "memo";
 }
 
 function effectiveSubIntents(intent: IntentClassification): IntentSubIntent[] {
@@ -90,18 +100,58 @@ export function buildActGraph(input: BuildActGraphInput): AnalysisWorkUnit[] {
   return buildActGraphDetailed(input).workUnits;
 }
 
+/**
+ * Reverse index: capabilityId → requirementIds it was mapped to.
+ * Built once per graph so rule/matrix/risk/expected-clause emitters can stamp
+ * findings without any post-hoc guessing in aggregation.
+ */
+function buildCapabilityToRequirementIds(
+  focus?: InstructionFocus
+): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  for (const mapping of focus?.requirementMappings ?? []) {
+    for (const capId of mapping.capabilityIds) {
+      const list = out.get(capId) ?? [];
+      if (!list.includes(mapping.requirementId)) list.push(mapping.requirementId);
+      out.set(capId, list);
+    }
+  }
+  return out;
+}
+
+/**
+ * Compact `[{capabilityId, requirementId}]` pairs for handlers that emit
+ * multiple findings per unit (flag_risk, check_expected_clauses). The handler
+ * looks up per finding by `category` / `clauseType`, so we serialize both
+ * directions here.
+ */
+function compactMappingsFor(
+  capabilityToRequirementIds: Map<string, string[]>
+): Array<{ capabilityId: string; requirementId: string }> {
+  const out: Array<{ capabilityId: string; requirementId: string }> = [];
+  for (const [capabilityId, reqIds] of capabilityToRequirementIds) {
+    for (const requirementId of reqIds) {
+      out.push({ capabilityId, requirementId });
+    }
+  }
+  return out;
+}
+
 export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphResult {
   const {
     docId,
     instruction,
     skills,
     intent,
+    reportSpec,
     focus,
     relatedChecks = [],
     unresolvedStandard,
     referenceDocId,
     playbookClauseTypes = [],
   } = input;
+  const capabilityToRequirementIds = buildCapabilityToRequirementIds(focus);
+  const requirementMappingsPayload = compactMappingsFor(capabilityToRequirementIds);
   const primary =
     skills.find((s) => s.axis === "regime") ??
     skills.find((s) => s.axis === "doc-type") ??
@@ -126,7 +176,17 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
     ]),
   ];
   const allRules = mergeRegimeRules(skills);
-  const schemaId = rendererForSkill(primary, intent, focus, referenceDocId);
+  const docType =
+    primary?.axis === "doc-type"
+      ? primary.skillId.replace(/^doc-types\//, "")
+      : intent.docTypeHint;
+  const schemaId = selectRenderer({
+    docType,
+    reportSpec,
+    hasReference: Boolean(referenceDocId),
+    hasMatrixFocus: Boolean(focus?.matrixRowIds.length),
+    requirementCount: intent.requirements?.length,
+  });
   const subIntents = effectiveSubIntents(intent);
 
   const packageResolution = resolvePackages(skills, focus, intent.requirements);
@@ -250,6 +310,11 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
     );
   }
 
+  const subgraphContext: SubgraphContext = {
+    capabilityToRequirementIds,
+    requirementMappingsPayload,
+  };
+
   if (
     packageResolution.leftoverRuleIds.length > 0 ||
     packageResolution.leftoverMatrixRowIds.length > 0 ||
@@ -276,6 +341,7 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
       skills,
       extractDep: "wu-extract",
       scheduled,
+      context: subgraphContext,
     });
     subgraphLeaves.push(...leftoverLeaves);
   } else if (!usePackages && !skipLegacySubgraph) {
@@ -292,6 +358,7 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
         skills,
         extractDep: "wu-extract",
         scheduled,
+        context: subgraphContext,
       });
       subgraphLeaves.push(...leaves);
     });
@@ -434,6 +501,11 @@ interface ScheduledGraphIds {
   riskUnitSignatures: Set<string>;
 }
 
+interface SubgraphContext {
+  capabilityToRequirementIds: Map<string, string[]>;
+  requirementMappingsPayload: Array<{ capabilityId: string; requirementId: string }>;
+}
+
 function appendSubIntentUnits(
   units: AnalysisWorkUnit[],
   args: {
@@ -447,10 +519,22 @@ function appendSubIntentUnits(
     skills: AnalysisSkillConfig[];
     extractDep: string;
     scheduled: ScheduledGraphIds;
+    context: SubgraphContext;
   }
 ): string[] {
-  const { prefix, si, docId, instruction, skillIds, focus, allRules, skills, extractDep, scheduled } =
-    args;
+  const {
+    prefix,
+    si,
+    docId,
+    instruction,
+    skillIds,
+    focus,
+    allRules,
+    skills,
+    extractDep,
+    scheduled,
+    context,
+  } = args;
   const focusHasCapabilities =
     (focus?.ruleIds?.length ?? 0) > 0 ||
     (focus?.requiredCapabilities?.length ?? 0) > 0 ||
@@ -485,7 +569,13 @@ function appendSubIntentUnits(
     units.push({
       workUnitId: id,
       tool: "check_expected_clauses",
-      input: { docId, skillIds, instruction, subIntent: expectedSignature },
+      input: {
+        docId,
+        skillIds,
+        instruction,
+        subIntent: expectedSignature,
+        requirementMappings: context.requirementMappingsPayload,
+      },
       dependsOn: [extractDep],
       outputSchema: "Finding[]",
       status: "pending",
@@ -500,6 +590,10 @@ function appendSubIntentUnits(
   if (runRisk && !scheduled.riskUnitSignatures.has(riskSignature)) {
     scheduled.riskUnitSignatures.add(riskSignature);
     const id = `wu-${prefix}flag-risk`;
+    const riskRequirementIds = uniqueRequirementIdsForCapabilities(
+      riskCategoryIds,
+      context.capabilityToRequirementIds
+    );
     units.push({
       workUnitId: id,
       tool: "flag_risk",
@@ -509,10 +603,12 @@ function appendSubIntentUnits(
         instruction,
         riskCategoryIds,
         subIntent: si.description ?? si.operation,
+        requirementMappings: context.requirementMappingsPayload,
       },
       dependsOn: [lastDep],
       outputSchema: "Finding[]",
       status: "pending",
+      requirementIds: riskRequirementIds.length ? riskRequirementIds : undefined,
     });
     lastDep = id;
     leaves.push(id);
@@ -533,9 +629,11 @@ function appendSubIntentUnits(
       if (scheduled.ruleIds.has(rule.ruleId)) continue;
       scheduled.ruleIds.add(rule.ruleId);
       const wuId = `wu-${prefix}rule-${rule.ruleId.replace(/\./g, "-")}`;
-      // Rules are mutually independent; they only need extracted clauses.
-      // Chaining them to each other forced a fully serial ACT phase.
-      units.push(ruleUnit(wuId, docId, rule, skillIds, instruction, ruleDep));
+      const ownerRequirementIds =
+        context.capabilityToRequirementIds.get(rule.ruleId) ?? [];
+      units.push(
+        ruleUnit(wuId, docId, rule, skillIds, instruction, ruleDep, ownerRequirementIds)
+      );
       leaves.push(wuId);
     }
 
@@ -543,6 +641,8 @@ function appendSubIntentUnits(
       if (scheduled.matrixRowIds.has(row.rowId)) continue;
       scheduled.matrixRowIds.add(row.rowId);
       const wuId = `wu-${prefix}matrix-${row.rowId.replace(/\./g, "-")}`;
+      const ownerRequirementIds =
+        context.capabilityToRequirementIds.get(row.rowId) ?? [];
       units.push({
         workUnitId: wuId,
         tool: "evaluate_matrix_row",
@@ -551,12 +651,18 @@ function appendSubIntentUnits(
           rowId: row.rowId,
           article: row.article,
           label: row.label,
+          findingCategory: row.findingCategory,
+          preferredClauseTypes: row.preferredClauseTypes,
+          applicabilityGate: row.applicabilityGate,
+          regimeLabel: row.regimeLabel,
+          matrixSkillId: row.skillId,
           instruction,
           skillIds,
         },
         dependsOn: [ruleDep],
         outputSchema: "Finding[]",
         status: "pending",
+        requirementIds: ownerRequirementIds.length ? ownerRequirementIds : undefined,
       });
       leaves.push(wuId);
     }
@@ -588,7 +694,7 @@ function appendPackageUnits(
   const leafByPackage = new Map<string, string>();
   const evalLeaves: string[] = [];
 
-  for (const { pkg, requirementIds } of packages) {
+  for (const { pkg, requirementIds, capabilityIds, contextCapabilityIds } of packages) {
     const safeId = pkg.id.replace(/[^a-zA-Z0-9._-]/g, "-");
     const kind = analysisPackageKind(pkg);
     const depLeaves = (pkg.requiresPackages ?? [])
@@ -616,6 +722,7 @@ function appendPackageUnits(
         dependsOn,
         outputSchema: "Finding[]",
         status: "pending",
+        requirementIds: requirementIds.length ? requirementIds : undefined,
       });
       leafByPackage.set(pkg.id, invId);
       evalLeaves.push(invId);
@@ -670,7 +777,8 @@ function appendPackageUnits(
       input: {
         docId,
         packageId: pkg.id,
-        capabilityIds: pkg.capabilityIds,
+        capabilityIds,
+        contextCapabilityIds,
         requirementIds,
         sourceMode: pkg.sourceMode,
         skillIds,
@@ -681,6 +789,7 @@ function appendPackageUnits(
       dependsOn: [evidenceId, ...depLeaves],
       outputSchema: "Finding[]",
       status: "pending",
+      requirementIds: requirementIds.length ? requirementIds : undefined,
     });
     leafByPackage.set(pkg.id, evalId);
     evalLeaves.push(evalId);
@@ -695,7 +804,8 @@ function ruleUnit(
   rule: SkillRegimeRule,
   skillIds: string[],
   instruction: string,
-  dependsOn: string
+  dependsOn: string,
+  requirementIds: string[]
 ): AnalysisWorkUnit {
   const ruleSource: RuleSource = {
     kind: "authored",
@@ -718,7 +828,21 @@ function ruleUnit(
     dependsOn: [dependsOn],
     outputSchema: "Finding[]",
     status: "pending",
+    requirementIds: requirementIds.length ? requirementIds : undefined,
   };
+}
+
+function uniqueRequirementIdsForCapabilities(
+  capabilityIds: string[],
+  capabilityToRequirementIds: Map<string, string[]>
+): string[] {
+  const out: string[] = [];
+  for (const capId of capabilityIds) {
+    for (const reqId of capabilityToRequirementIds.get(capId) ?? []) {
+      if (!out.includes(reqId)) out.push(reqId);
+    }
+  }
+  return out;
 }
 
 /**
@@ -744,13 +868,12 @@ export function resolveRelatedChecks(
         focus?.riskCategoryIds.includes(rule.primary) ||
         (focus?.ruleIds.some((id) => id.includes(rule.primary)) ?? false);
 
-      const focusDsrHit =
+      const focusMatrixHit =
         Boolean(focus?.matrixRowIds.length) &&
-        (rule.primary.includes("data_subject") ||
-          rule.primary.includes("dsr") ||
-          skill.clauseTypes.includes(rule.primary));
+        (rule.matrixLinkageIds?.some((id) => focus!.matrixRowIds.includes(id)) ??
+          false);
 
-      if (!primaryHit && !focusDsrHit) continue;
+      if (!primaryHit && !focusMatrixHit) continue;
       const key = `${rule.primary}:${rule.related.join(",")}`;
       if (seen.has(key)) continue;
       seen.add(key);

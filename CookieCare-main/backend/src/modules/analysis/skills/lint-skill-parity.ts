@@ -6,6 +6,14 @@ import { parseSkillMdContent } from "./load-skill-md.js";
 
 const SKILLS_ROOT = path.dirname(fileURLToPath(import.meta.url));
 
+function requiresReportSections(packageId: string): boolean {
+  if (packageId.endsWith(".structural_review")) return true;
+  if (packageId.includes("art28")) return true;
+  if (packageId.includes("transfer_inventory")) return true;
+  if (packageId.startsWith("ccpa.sp.")) return true;
+  return false;
+}
+
 export interface SkillParityViolation {
   skillId: string;
   kind:
@@ -15,7 +23,9 @@ export interface SkillParityViolation {
     | "missing_finding_category"
     | "missing_display_label"
     | "missing_rule_scope"
-    | "unresolved_package_capability";
+    | "unresolved_package_capability"
+    | "missing_inventory_artifact_shape"
+    | "missing_report_sections";
   detail: string;
 }
 
@@ -101,7 +111,47 @@ export function lintSkillParity(): SkillParityViolation[] {
             });
           }
         }
-        if (kind === "inventory" && pkg.capabilityIds.length === 0) continue;
+        if (kind === "inventory") {
+          const outputType = pkg.outputArtifactType ?? "inventory";
+          const shape = pkg.config?.artifactShape;
+          const shapeOk =
+            shape &&
+            typeof shape === "object" &&
+            (shape.kind === "records" ||
+              (shape.kind === "typed_records" && typeof shape.recordType === "string"));
+          if (outputType !== "inventory" && !shapeOk) {
+            violations.push({
+              skillId: skill.skillId,
+              kind: "missing_inventory_artifact_shape",
+              detail: `inventory package ${pkg.id} has outputArtifactType "${outputType}" but no config.artifactShape`,
+            });
+          }
+        }
+        if (kind === "inventory" && pkg.capabilityIds.length === 0) {
+          if (
+            requiresReportSections(pkg.id) &&
+            (!pkg.report?.sections?.length && !pkg.report?.sectionsByDepth)
+          ) {
+            violations.push({
+              skillId: skill.skillId,
+              kind: "missing_report_sections",
+              detail: `package ${pkg.id} requires report.sections but none were authored`,
+            });
+          }
+          continue;
+        }
+        if (requiresReportSections(pkg.id)) {
+          const hasSections =
+            (pkg.report?.sections?.length ?? 0) > 0 ||
+            Boolean(pkg.report?.sectionsByDepth && Object.keys(pkg.report.sectionsByDepth).length);
+          if (!hasSections) {
+            violations.push({
+              skillId: skill.skillId,
+              kind: "missing_report_sections",
+              detail: `package ${pkg.id} requires report.sections but none were authored`,
+            });
+          }
+        }
         for (const capId of pkg.capabilityIds) {
           if (!registryCapabilities.has(capId)) {
             violations.push({

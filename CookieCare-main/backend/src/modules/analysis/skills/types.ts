@@ -1,6 +1,7 @@
 /** Structured analysis skill contract — deterministic; never LLM-invented at runtime. */
 
 import type { EvidencePackage } from "../models/evidence-package.js";
+import type { IntentRequirement } from "../models/intent.js";
 
 export type SkillAxis = "global" | "doc-type" | "regime" | "jurisdiction" | "topic";
 export type SkillStatus = "draft" | "reviewed" | "published";
@@ -30,17 +31,74 @@ export interface ClauseRetrievalDict {
 /** @deprecated Alias — prefer ExpectedClauseCheck. */
 export type ExpectedClause = ExpectedClauseCheck;
 
+export interface SkillRiskSilencePattern {
+  /** Clause is a candidate when its type is listed. */
+  triggerClauseTypes?: string[];
+  /** Additional candidate detector; matched against clause text. */
+  triggerRegex?: string;
+  /** Finding fires only when NONE of the candidate clauses match this. */
+  satisfyRegex: string;
+  claim: string;
+  severity: "low" | "medium" | "high";
+}
+
+export interface SkillRiskHeuristic {
+  clauseType?: string;
+  regex: string;
+  /** If this matches, the heuristic does not fire. */
+  excludeRegex?: string;
+  claim: string;
+  severity: "low" | "medium" | "high";
+  quoteLen?: number;
+}
+
 export interface SkillRiskCategory {
   category: string;
   /** Human-readable label for all user-facing output; never render category directly. */
   displayLabel: string;
   guidance: string;
+  /** Deterministic "duty present, required term silent" detector. */
+  silencePattern?: SkillRiskSilencePattern;
+  /** LLM-fallback detectors; the handler iterates these, never category names. */
+  heuristic?: SkillRiskHeuristic[];
 }
 
 /** @deprecated Alias — prefer SkillRiskCategory. */
 export type RiskCategoryDef = SkillRiskCategory;
 
 export type RegimeCheckType = "mechanical" | "judgment" | "pattern_then_llm_judgment";
+
+export interface SkillRegimeMechanicalScan {
+  kind: "numeric_pattern_expected";
+  /** Authored regex source; compiled by the generic handler. */
+  pattern: string;
+  vaguePattern?: string;
+  /** Use `{match}` for the captured snippet. */
+  presentClaim: string;
+  vagueClaim: string;
+  absentClaim: string;
+  vagueGap?: string;
+  absentGap?: string;
+  severityPresent?: "low" | "medium" | "high";
+  severityVague?: "low" | "medium" | "high";
+  severityAbsent?: "low" | "medium" | "high";
+}
+
+/** Renderer-only hooks — consumed by `render-output`, never by ACT handlers. */
+export interface RendererHooks {
+  /** Emit SLA contrast paragraph when this rule's finding is present. */
+  slaContrast?: boolean;
+  /** Label used in SLA contrast copy (e.g. "Article 12(3)"). */
+  slaContrastLabel?: string;
+  /** Clause types excluded when scanning for numeric SLA examples. */
+  excludeClauseTypesFromSlaContrast?: string[];
+  /** Prefer this rule's finding in the architecture summary paragraph. */
+  particularsChecklist?: boolean;
+  /** Section heading for the response-timeframe block driven by this rule. */
+  responseTimeframeSection?: boolean;
+  /** Fallback architecture copy when no summary/assistance finding exists. */
+  architectureFallback?: string;
+}
 
 export interface SkillRegimeRule {
   ruleId: string;
@@ -55,6 +113,30 @@ export interface SkillRegimeRule {
   label?: string;
   /** Authored citation for the renderer — never LLM-invented. */
   legalHook?: string;
+  /**
+   * Optional deterministic pre-scan. When present, the generic handler runs it
+   * instead of branching on `ruleId`.
+   */
+  mechanicalScan?: SkillRegimeMechanicalScan;
+  /** Optional renderer hooks — legal copy stays in skill config, not ACT. */
+  rendererHooks?: RendererHooks;
+  /** Matrix rows this rule is linked to (for related-check resolution). */
+  matrixLinkage?: { matrixRowIds: string[] };
+}
+
+/** Regex → clauseType fallback when LLM extraction misses a type. */
+export interface SkillClauseHeuristic {
+  clauseType: string;
+  /** Regex source strings; compiled by the generic extract handler. */
+  patterns: string[];
+  priority?: number;
+}
+
+/** Doc-type detection patterns for the generic classify handler. */
+export interface DocTypeClassifier {
+  docTypeId: string;
+  patterns: string[];
+  priority: number;
 }
 
 export interface ComparativeCheckConfig {
@@ -66,10 +148,30 @@ export interface ComparativeCheckConfig {
 /** @deprecated Alias — prefer ComparativeCheckConfig. */
 export type ComparativeCheck = ComparativeCheckConfig;
 
+export interface MatrixApplicabilityGate {
+  /** Must match `doc.fullText` or the row is treated as not applicable. */
+  contextRegex: string;
+  absentClaim: string;
+  absentGap: string;
+  absentSeverity?: "low" | "medium" | "high";
+  /** Extra judge instruction appended when this gate is authored. */
+  llmGuidance?: string;
+}
+
 export interface RightsMatrixRow {
   rowId: string;
   article: string;
   label: string;
+  /** Authored finding category — runtime must not infer it from the row id. */
+  findingCategory: string;
+  preferredClauseTypes?: string[];
+  applicabilityGate?: MatrixApplicabilityGate;
+  /** Shown in the judge prompt (e.g. regime short name). */
+  regimeLabel?: string;
+  /** Plain-English summary for brief/memo renderers. */
+  plainDescription?: string;
+  /** Skill used to load `matrix:{rowId}` SKILL.md sections. */
+  skillId?: string;
   /** Regime family id when built via family template helpers. */
   family?: string;
   regimeId?: string;
@@ -92,6 +194,8 @@ export interface RelatedCheckRule {
   related: string[];
   /** Shown under "Related, not requested". */
   note?: string;
+  /** When instruction focus includes any of these matrix row ids, treat as a primary hit. */
+  matrixLinkageIds?: string[];
 }
 
 export interface AnalysisSkillConfig {
@@ -124,6 +228,14 @@ export interface AnalysisSkillConfig {
    * without sending the whole document to an LLM.
    */
   clauseRetrieval?: Record<string, ClauseRetrievalDict>;
+  /** Fallback regex → clauseType map for heuristic extraction. */
+  clauseHeuristics?: SkillClauseHeuristic[];
+  /** Doc-type regex classifiers (doc-type axis skills; multiple allowed on one skill). */
+  docTypeClassifiers?: DocTypeClassifier[];
+  /** Renderer defaults for rights-matrix memo output. */
+  rendererDefaults?: {
+    rightsReviewSubtitle?: string;
+  };
   expectedClauses: ExpectedClauseCheck[];
   riskCategories: SkillRiskCategory[];
   /** Full authored rules (ACT needs ruleText). Prefer this over bare ids. */
@@ -144,6 +256,13 @@ export interface AnalysisSkillConfig {
    * some registered skill (enforced by parity lint).
    */
   evidencePackages?: EvidencePackage[];
+  /**
+   * Per-topic requirements this skill exposes when the user asks a broad
+   * document review (no explicit focus/requirements). Injected into
+   * intent.requirements at PLAN time and answered by the skill's
+   * structural_review evidencePackage.
+   */
+  authoredRequirements?: IntentRequirement[];
 }
 
 export interface SkillManifestEntry {
