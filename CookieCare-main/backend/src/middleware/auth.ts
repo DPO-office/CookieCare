@@ -78,12 +78,14 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     const decoded = jwt.verify(token, config.jwtSecret) as JwtPayload;
 
     if (config.skipDb) {
+      // skipDb bypasses the database entirely — assign a minimal non-privileged role
+      // so that accidental use in production does not grant elevated access.
       req.user = {
         id: decoded.id,
         email: decoded.email,
         name: decoded.email.split("@")[0] || "Demo user",
         status: "APPROVED",
-        role: "ADMIN",
+        role: "USER",
       };
       return next();
     }

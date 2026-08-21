@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useAdminPanel } from "./hooks/useAdminPanel";
 import type { PendingUser } from "./types";
+import { useAppContext } from "../../contexts/AppContext";
 
+/** @deprecated authToken is now read from AppContext */
 interface AdminPanelProps {
-  authToken: string;
+  authToken?: string;
 }
 
 const CARD_SHADOW = "0 1px 2px rgba(16,24,40,0.04), 0 0 0 1px rgba(16,24,40,0.06)";
@@ -27,7 +29,9 @@ function initials(name: string) {
   return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
 }
 
-export default function AdminPanel({ authToken }: AdminPanelProps) {
+export default function AdminPanel(_props: AdminPanelProps = {}) {
+  const { authToken: ctxToken } = useAppContext();
+  const authToken = ctxToken ?? "";
   const {
     users,
     loading,

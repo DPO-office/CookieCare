@@ -1,4 +1,5 @@
-import { DashboardHomeProps } from "./types";
+import { useNavigate } from "react-router-dom";
+import { useAppContext } from "../../contexts/AppContext";
 import {
   buildSummary,
   countAnalyzed,
@@ -33,14 +34,12 @@ function formatDateLabel(): string {
   });
 }
 
-export default function DashboardHome({
-  userName,
-  setActiveTab,
-  documents,
-  authToken,
-}: DashboardHomeProps) {
+export default function DashboardHome() {
+  const { currentUser, documents, authToken } = useAppContext();
+  const navigate = useNavigate();
+  const userName = currentUser?.name ?? "";
   const firstName = userName.split(" ")[0] ?? userName;
-  const { jobs, loading: jobsLoading } = useDashboardJobs(authToken);
+  const { jobs, loading: jobsLoading } = useDashboardJobs(authToken ?? "");
 
   const analyzedCount = countAnalyzed(documents);
   const runningCount = countRunningJobs(jobs);
@@ -80,16 +79,16 @@ export default function DashboardHome({
             />
 
             <div className="flex flex-col gap-5 min-w-0">
-              <JobsRunning jobs={liveJobs} loading={jobsLoading} onOpen={setActiveTab} />
+              <JobsRunning jobs={liveJobs} loading={jobsLoading} onOpen={(path) => navigate(path)} />
               <ContinueWorking
                 items={docRows}
-                onOpen={setActiveTab}
-                onViewVault={() => setActiveTab("legal-vault")}
+                onOpen={(path) => navigate(path)}
+                onViewVault={() => navigate("/vault")}
               />
               <RecentActivity
                 jobs={activityJobs}
-                onStartDraft={() => setActiveTab("legal-draft")}
-                onOpen={setActiveTab}
+                onStartDraft={() => navigate("/drafting")}
+                onOpen={(path) => navigate(path)}
               />
             </div>
           </div>

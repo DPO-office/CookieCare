@@ -470,17 +470,7 @@ export default function AuthModal({ onAuthSuccess }: AuthModalProps) {
                   </p>
                 </form>
 
-                <div className="mt-6 flex items-center justify-end border-t border-[#F0F0F2] pt-5">
-                  <button
-                    id="fill-demo-btn"
-                    onClick={fillQuickDemo}
-                    type="button"
-                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-[#F7F8FB] px-3.5 py-2 text-[12px] font-medium text-[#667085] transition-colors hover:bg-[#EEF2FF] hover:text-[#4F5BD9]"
-                  >
-                    <ShieldCheck className="h-3.5 w-3.5" />
-                    <span>Load demo</span>
-                  </button>
-                </div>
+                <div className="mt-6 border-t border-[#F0F0F2] pt-5" />
               </motion.div>
             )}
           </AnimatePresence>

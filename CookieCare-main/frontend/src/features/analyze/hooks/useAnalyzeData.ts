@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import { apiUrl } from "../../../config";
 import { CustomFolder, SavedDraft } from "../types";
 import {
   SYSTEM_FOLDER_NAME,
@@ -7,10 +6,22 @@ import {
   DEFAULT_QUESTIONS_LIBRARY,
 } from "../constants";
 import { isVaultFolderFile, isVaultSavedDraft } from "../utils/vaultDocumentFilters";
+import {
+  fetchFolders,
+  fetchDocuments,
+  fetchLibraryItems as fetchSharedLibraryItems,
+  invalidateVaultCache,
+} from "../../vault/api/vaultApi";
 
 export interface PromptLibraryItem {
   title: string;
   prompt: string;
+}
+
+/** A file uploaded ephemerally (analyze-only, never stored in the vault). */
+export interface EphemeralFile {
+  id: string;
+  title: string;
 }
 
 export function useAnalyzeData(authToken: string) {
@@ -20,25 +31,35 @@ export function useAnalyzeData(authToken: string) {
   const [questionsLibrary, setQuestionsLibrary] = useState<string[]>([]);
   /** File ids waiting to be selected after the next folders refresh. */
   const pendingSelectIdsRef = useRef<Set<string>>(new Set());
+  /** Ephemeral files uploaded directly in the composer — never in the vault. */
+  const [ephemeralFiles, setEphemeralFiles] = useState<EphemeralFile[]>([]);
 
-  const fetchFoldersAndDocs = async (options?: { selectFileIds?: string[] }) => {
+  /**
+   * Refresh folders + docs. Pass `forceRefresh: true` after a mutation
+   * (upload, delete) to bypass the shared cache and get a live read.
+   */
+  const fetchFoldersAndDocs = async (options?: { selectFileIds?: string[]; forceRefresh?: boolean }) => {
     try {
       if (options?.selectFileIds?.length) {
         options.selectFileIds.forEach((id) => pendingSelectIdsRef.current.add(id));
       }
+      if (options?.forceRefresh) {
+        invalidateVaultCache(authToken);
+      }
 
-      const [foldersRes, docsRes] = await Promise.all([
-        fetch(apiUrl("/api/folders"), { headers: { Authorization: `Bearer ${authToken}` } }),
-        fetch(apiUrl("/api/documents"), { headers: { Authorization: `Bearer ${authToken}` } }),
+      // Use the shared vault cache — avoids duplicate network calls when both
+      // the vault page and the analyze page are mounted at the same time.
+      const [foldersData, docsData] = await Promise.all([
+        fetchFolders(authToken),
+        fetchDocuments(authToken),
       ]);
-      if (!foldersRes.ok || !docsRes.ok) return;
 
-      const foldersData = await foldersRes.json();
-      const docsData = await docsRes.json();
       const pendingSelect = pendingSelectIdsRef.current;
 
-      // Include the default "Uploaded Documents" folder so composer uploads
-      // can be selected as analysis context immediately after indexing.
+      // Keep all folders in state (including "Uploaded Documents") so file IDs
+      // from on-the-go uploads resolve correctly via selectFilesByIds.
+      // The vault picker UI explicitly hides the "Uploaded Documents" folder via
+      // sanitizeFolders in VaultPickerSheet — state keeps it for id resolution only.
       const analyzeFolders = [...foldersData].sort((a: any, b: any) => {
         if (a.name === SYSTEM_FOLDER_NAME) return -1;
         if (b.name === SYSTEM_FOLDER_NAME) return 1;
@@ -85,6 +106,7 @@ export function useAnalyzeData(authToken: string) {
         drafts.map((d: any) => ({
           id: d.id,
           title: d.title,
+          draft_status: d.draft_status ?? d.metadata?.status ?? "",
           selected: prev.find((p) => p.id === d.id)?.selected ?? false,
         }))
       );
@@ -95,11 +117,9 @@ export function useAnalyzeData(authToken: string) {
 
   const fetchLibraryItems = async () => {
     try {
-      const res = await fetch(apiUrl("/api/library-items"), {
-        headers: { Authorization: `Bearer ${authToken}` },
-      });
-      if (!res.ok) return;
-      const data = await res.json();
+      // Uses the shared vault cache — no duplicate network call if vault page
+      // already fetched library items in the same session window.
+      const data = await fetchSharedLibraryItems(authToken);
 
       const prompts = data
         .filter((i: any) => i.type === "prompts" && !String(i.tags ?? "").toLowerCase().includes("drafting"))
@@ -162,9 +182,13 @@ export function useAnalyzeData(authToken: string) {
 
   const deselectDocument = (
     id: string,
-    type: "folder" | "file" | "draft",
+    type: "folder" | "file" | "draft" | "ephemeral",
     folderId?: string
   ) => {
+    if (type === "ephemeral") {
+      setEphemeralFiles((prev) => prev.filter((f) => f.id !== id));
+      return;
+    }
     if (type === "draft") {
       setSavedDrafts((prev) =>
         prev.map((d) => (d.id === id ? { ...d, selected: false } : d))
@@ -230,9 +254,30 @@ export function useAnalyzeData(authToken: string) {
     );
   };
 
+  /**
+   * Register ephemeral files (direct uploads from the composer).
+   * These are never stored in the vault — they live only in this state
+   * and are passed straight to the analysis job by ID.
+   */
+  const addEphemeralFiles = (files: EphemeralFile[]) => {
+    if (files.length === 0) return;
+    setEphemeralFiles((prev) => {
+      const existingIds = new Set(prev.map((f) => f.id));
+      const newOnes = files.filter((f) => !existingIds.has(f.id));
+      return [...prev, ...newOnes];
+    });
+  };
+
+  const removeEphemeralFile = (id: string) => {
+    setEphemeralFiles((prev) => prev.filter((f) => f.id !== id));
+  };
+
+  const clearEphemeralFiles = () => setEphemeralFiles([]);
+
   return {
     folders,
     savedDrafts,
+    ephemeralFiles,
     promptLibrary,
     questionsLibrary,
     fetchFoldersAndDocs,
@@ -243,5 +288,8 @@ export function useAnalyzeData(authToken: string) {
     deselectDocument,
     selectFile,
     selectFilesByIds,
+    addEphemeralFiles,
+    removeEphemeralFile,
+    clearEphemeralFiles,
   };
 }

@@ -278,7 +278,7 @@ class BackgroundJobRegistry {
 export const jobRegistry = new BackgroundJobRegistry();
 
 async function executeFileProcessing(jobId: string, userId: string, payload: any): Promise<any> {
-  const { fileId, fileBufferBase64, mimeType } = payload;
+  const { fileId, fileBufferBase64, mimeType, isEphemeral } = payload;
 
   await updateJobProgress(jobId, userId, 15, "Extracting text from document...");
 
@@ -288,7 +288,7 @@ async function executeFileProcessing(jobId: string, userId: string, payload: any
   content = content.replace(/\0/g, "");
   const encryptedContent = encryptData(content);
 
-  await updateJobProgress(jobId, userId, 50, "Updating database and indexing for search...");
+  await updateJobProgress(jobId, userId, 50, isEphemeral ? "Saving document text..." : "Updating database and indexing for search...");
 
   const rowCount = await withTransaction(userId, 'USER', async (client) => {
     const result = await client.query(
@@ -307,7 +307,11 @@ async function executeFileProcessing(jobId: string, userId: string, payload: any
 
   if (rowCount === 0) throw new Error(`File record ${fileId} not found.`);
 
-  await chunkAndIndexDocument(fileId, content, userId);
+  // Skip RAG chunking/indexing for ephemeral uploads — they are used directly
+  // by the analysis engine via DB content and do not need vector search.
+  if (!isEphemeral) {
+    await chunkAndIndexDocument(fileId, content, userId);
+  }
 
   return { fileId, content };
 }

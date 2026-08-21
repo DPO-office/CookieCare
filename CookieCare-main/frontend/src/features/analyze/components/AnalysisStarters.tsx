@@ -121,13 +121,6 @@ export function AnalysisStarters({
           >
             Browse prompts
           </button>
-          <button
-            type="button"
-            onClick={() => setQuestionOpen(true)}
-            className="analyze-link"
-          >
-            Browse questions
-          </button>
         </div>
       </div>
 

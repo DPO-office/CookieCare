@@ -39,7 +39,7 @@ export async function getOrCreateDefaultFolder(userId: string, userRole: string 
 export async function migrateUnassignedDocuments(userId: string, defaultFolderId: string, userRole: string = "USER"): Promise<void> {
   await withTransaction(userId, userRole, async (client) => {
     const result = await client.query(
-      "UPDATE files SET folder_id = $1 WHERE creator_id = $2 AND folder_id IS NULL",
+      "UPDATE files SET folder_id = $1 WHERE creator_id = $2 AND folder_id IS NULL AND type != 'ephemeral_upload'",
       [defaultFolderId, userId]
     );
     if ((result.rowCount ?? 0) > 0) {
@@ -51,19 +51,38 @@ export async function migrateUnassignedDocuments(userId: string, defaultFolderId
 export const getFolders = async (req: Request, res: Response) => {
   const userId = req.user!.id;
   const userRole = req.user!.role;
+
+  const limit = Math.min(Math.max(1, Number(req.query.limit) || 200), 500);
+  const offset = Math.max(0, Number(req.query.offset) || 0);
+
   try {
     // Ensure "Uploaded Documents" default folder exists and migrate any unassigned docs.
     // Both are no-ops when already complete, so this is safe to call on every request.
     const defaultFolderId = await getOrCreateDefaultFolder(userId, userRole);
     await migrateUnassignedDocuments(userId, defaultFolderId, userRole);
 
+    const { rows: countRows } = await pool.query(
+      `SELECT COUNT(*) AS total FROM folders
+       WHERE user_id = $1`,
+      [userId]
+    );
+    const total = Number(countRows[0].total);
+
     const rows = await withTransaction(userId, userRole, async (client) => {
       const { rows } = await client.query(
-        "SELECT * FROM folders WHERE user_id = current_setting('app.current_user_id', true) ORDER BY created_at DESC"
+        `SELECT * FROM folders
+         WHERE user_id = current_setting('app.current_user_id', true)
+         ORDER BY created_at DESC
+         LIMIT $1 OFFSET $2`,
+        [limit, offset]
       );
       return rows;
     });
-    res.json(rows);
+
+    res.json({
+      data: rows,
+      pagination: { total, limit, offset, hasMore: offset + limit < total },
+    });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
@@ -95,20 +114,23 @@ export const deleteFolder = async (req: Request, res: Response) => {
   const userRole = req.user!.role;
   try {
     await withTransaction(userId, userRole, async (client) => {
-      // Prevent deletion of the default "Uploaded Documents" system folder
+      // Fetch the folder verifying ownership at the same time.
       const { rows: folderRows } = await client.query(
-        "SELECT name FROM folders WHERE id = $1",
+        "SELECT name FROM folders WHERE id = $1 AND user_id = current_setting('app.current_user_id', true)",
         [req.params.id]
       );
-      if (folderRows.length > 0 && folderRows[0].name === DEFAULT_FOLDER_NAME) {
+
+      if (folderRows.length === 0) throw new Error("Folder not found.");
+
+      // Prevent deletion of the default "Uploaded Documents" system folder.
+      if (folderRows[0].name === DEFAULT_FOLDER_NAME) {
         throw new Error("DEFAULT_FOLDER_PROTECTED");
       }
 
-      const result = await client.query(
-        "DELETE FROM folders WHERE id = $1",
+      await client.query(
+        "DELETE FROM folders WHERE id = $1 AND user_id = current_setting('app.current_user_id', true)",
         [req.params.id]
       );
-      if (result.rowCount === 0) throw new Error("Folder not found.");
 
       await client.query(`
         INSERT INTO compliance_audit_logs (user_id, action_type, metadata)

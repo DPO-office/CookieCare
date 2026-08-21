@@ -16,6 +16,7 @@ import {
   createLibraryItem,
   uploadFileToFolder,
   uploadVaultAsset,
+  invalidateVaultCache,
   VaultIngestCategory,
 } from "../api/vaultApi";
 import { LibraryItem } from "../types";
@@ -30,6 +31,7 @@ export {
   createLibraryItem,
   uploadFileToFolder,
   uploadVaultAsset,
+  invalidateVaultCache,
 };
 
 // ─── Domain model helpers ────────────────────────────────────────────────────
@@ -132,6 +134,9 @@ export async function loadLibraryData(authToken: string): Promise<LibraryData> {
 
   return {
     items: [...formattedFolders, ...formattedItems],
-    savedDrafts: docsData,
+    // Only expose type='draft' documents as saved drafts — returning the full
+    // docsData here was causing every uploaded file to appear in the
+    // Saved Drafts tab of the vault.
+    savedDrafts: docsData.filter((d: any) => d.type === "draft"),
   };
 }

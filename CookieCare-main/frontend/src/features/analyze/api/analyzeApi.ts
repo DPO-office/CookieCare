@@ -25,3 +25,49 @@ export async function createAnalyzeFolder(
   });
   return res.ok;
 }
+
+export interface AnalysisHistoryItem {
+  jobId: string;
+  sessionId: string | null;
+  title: string;
+  status: string;
+  createdAt: string;
+  renderedOutput?: string | null;
+}
+
+/** Fetch the user's past analysis runs, newest first. */
+export async function fetchAnalysisHistory(
+  authToken: string,
+  limit = 50,
+): Promise<AnalysisHistoryItem[]> {
+  const res = await fetch(apiUrl(`/api/analysis/history?limit=${limit}`), {
+    headers: { Authorization: `Bearer ${authToken}` },
+  });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.history ?? [];
+}
+
+export interface AnalysisSessionSnapshot {
+  sessionId: string;
+  renderedOutput?: string;
+  declineMessage?: string;
+  conversation?: {
+    turns?: Array<{
+      role: "user" | "model";
+      text: string;
+    }>;
+  };
+}
+
+/** Fetch the full snapshot of one analysis session. */
+export async function fetchAnalysisSession(
+  authToken: string,
+  sessionId: string,
+): Promise<AnalysisSessionSnapshot | null> {
+  const res = await fetch(apiUrl(`/api/analysis/session/${encodeURIComponent(sessionId)}`), {
+    headers: { Authorization: `Bearer ${authToken}` },
+  });
+  if (!res.ok) return null;
+  return res.json();
+}

@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
-import { CustomFolder, SavedDraft, Message, DocumentMode, AnswerStyle } from "../types";
+import { CustomFolder, SavedDraft, Message, DocumentMode, AnswerStyle, AnalysisDepth } from "../types";
 import { collectAnalysisDocumentIds } from "../documentSelection";
+import type { EphemeralFile } from "./useAnalyzeData";
 import {
   ANALYSIS_MAX_DOCS,
   enqueueAnalysisJob,
@@ -20,7 +21,8 @@ type RunContext = {
 function buildInstruction(
   prompt: string,
   documentMode: DocumentMode,
-  answerStyle: AnswerStyle
+  answerStyle: AnswerStyle,
+  analysisDepth: AnalysisDepth = "deep"
 ): string {
   const extras: string[] = [];
   if (documentMode === "individual") {
@@ -30,6 +32,15 @@ function buildInstruction(
   }
   if (answerStyle === "tabular") {
     extras.push("Present findings as a table.");
+  }
+  if (analysisDepth === "lite") {
+    extras.push(
+      "Provide a concise, high-level summary. Focus on the most critical points only — keep the response brief."
+    );
+  } else {
+    extras.push(
+      "Provide a thorough, in-depth analysis. Cover all relevant clauses, risks, and implications in detail."
+    );
   }
   return [prompt.trim(), ...extras].join("\n\n");
 }
@@ -177,13 +188,15 @@ export function useAnalysis(authToken: string) {
   const handleStartAnalysis = async (
     folders: CustomFolder[],
     savedDrafts: SavedDraft[],
+    ephemeralFiles: EphemeralFile[],
     customPromptText: string,
     documentMode: DocumentMode,
     answerStyle: AnswerStyle,
+    analysisDepth: AnalysisDepth,
     promptLibraryId?: string,
     playbookDocId?: string | null
   ) => {
-    const { documentIds, firstTitle } = collectAnalysisDocumentIds(folders, savedDrafts);
+    const { documentIds, firstTitle } = collectAnalysisDocumentIds(folders, savedDrafts, ephemeralFiles);
 
     if (documentIds.length === 0) {
       alert("Please select at least one document folder, file, or saved draft to analyze.");
@@ -206,7 +219,7 @@ export function useAnalysis(authToken: string) {
           )
         : undefined;
 
-    const instruction = buildInstruction(customPromptText, documentMode, answerStyle);
+    const instruction = buildInstruction(customPromptText, documentMode, answerStyle, analysisDepth);
     runContextRef.current = {
       documentIds,
       instruction,
@@ -309,7 +322,9 @@ export function useAnalysis(authToken: string) {
     folders: CustomFolder[],
     savedDrafts: SavedDraft[],
     documentMode: DocumentMode,
-    answerStyle: AnswerStyle
+    answerStyle: AnswerStyle,
+    analysisDepth: AnalysisDepth = "deep",
+    ephemeralFiles: EphemeralFile[] = []
   ) => {
     const trimmed = userText.trim();
     if (!trimmed) return;
@@ -318,7 +333,7 @@ export function useAnalysis(authToken: string) {
     const { documentIds } =
       ctx?.documentIds.length
         ? { documentIds: ctx.documentIds }
-        : collectAnalysisDocumentIds(folders, savedDrafts);
+        : collectAnalysisDocumentIds(folders, savedDrafts, ephemeralFiles);
 
     if (documentIds.length === 0) {
       setChatMessages((prev) => [
@@ -332,7 +347,7 @@ export function useAnalysis(authToken: string) {
       return;
     }
 
-    const followUpInstruction = buildInstruction(trimmed, documentMode, answerStyle);
+    const followUpInstruction = buildInstruction(trimmed, documentMode, answerStyle, analysisDepth);
 
     setIsAnalyzing(true);
     setAnalysisError("");
@@ -373,6 +388,25 @@ export function useAnalysis(authToken: string) {
       setIsAnalyzing(false);
       setAnalysisProgress("");
     }
+  };
+
+  /** Restore a past session directly into report view — no analysis is triggered. */
+  const restoreSession = (messages: Message[], docName: string) => {
+    // Guard: never enter report view with no content — it would show "Thinking…"
+    if (messages.length === 0) return;
+
+    cancelStreamFlush();
+    streamBufferRef.current = "";
+    setIsAnalyzing(false);
+    setAnalysisProgress("");
+    setAnalysisError("");
+    setOpenQuestions([]);
+    setAskResolved(false);
+    setSessionId(null);
+    setActiveReportDocName(docName);
+    // Set messages first, then flip view mode so ReportView never sees empty state
+    setChatMessages(messages);
+    setViewMode("report");
   };
 
   const handleCopyReport = () => {
@@ -416,5 +450,6 @@ export function useAnalysis(authToken: string) {
     handleCopyReport,
     handleDownloadReport,
     handlePrintReport,
+    restoreSession,
   };
 }

@@ -6,21 +6,22 @@ import {
   ChevronDown,
   ChevronUp,
   FileText,
-  FileCode,
   Check,
+  AlertTriangle,
 } from "lucide-react";
-import { CustomFolder, SavedDraft } from "../types";
+import { CustomFolder } from "../types";
 import { isPlaceholderVaultDocument } from "../utils/vaultDocumentFilters";
 import { ANALYZE_STYLES } from "../styles/analyzeStyles";
+import { SYSTEM_FOLDER_NAME } from "../constants";
 import { LibraryModalOverlay } from "./LibraryModalColumns";
 
 interface VaultPickerSheetProps {
   folders: CustomFolder[];
-  savedDrafts: SavedDraft[];
+  savedDrafts?: never[]; // kept for prop-compat but no longer rendered
   onToggleFolderSelection: (id: string) => void;
   onToggleFolderExpanded: (id: string, e: React.MouseEvent) => void;
   onToggleFileSelection: (folderId: string, fileId: string, e: React.MouseEvent) => void;
-  onToggleDraftSelection: (id: string) => void;
+  onToggleDraftSelection?: (id: string) => void; // kept for compat, unused
   onClose: () => void;
   description?: string;
 }
@@ -55,27 +56,20 @@ function sanitizeFolders(folders: CustomFolder[]): CustomFolder[] {
       ...folder,
       files: folder.files.filter((f) => !isPlaceholderVaultDocument(f)),
     }))
-    .filter((folder) => folder.files.length > 0);
-}
-
-function sanitizeDrafts(drafts: SavedDraft[]): SavedDraft[] {
-  return drafts.filter((d) => !isPlaceholderVaultDocument(d));
+    .filter((folder) => folder.files.length > 0 && folder.name !== SYSTEM_FOLDER_NAME);
 }
 
 export function VaultPickerSheet({
   folders,
-  savedDrafts,
   onToggleFolderSelection,
   onToggleFolderExpanded,
   onToggleFileSelection,
-  onToggleDraftSelection,
   onClose,
   description = "Browse and select documents for this analysis.",
 }: VaultPickerSheetProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
   const cleanFolders = useMemo(() => sanitizeFolders(folders), [folders]);
-  const cleanDrafts = useMemo(() => sanitizeDrafts(savedDrafts), [savedDrafts]);
 
   const filteredFolders = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
@@ -98,18 +92,11 @@ export function VaultPickerSheet({
       .filter(Boolean) as CustomFolder[];
   }, [cleanFolders, searchQuery]);
 
-  const filteredDrafts = useMemo(() => {
-    const q = searchQuery.toLowerCase().trim();
-    if (!q) return cleanDrafts;
-    return cleanDrafts.filter((d) => d.title.toLowerCase().includes(q));
-  }, [cleanDrafts, searchQuery]);
-
   const selectedCount =
     cleanFolders.filter((f) => f.selected).length +
-    cleanFolders.flatMap((f) => f.files.filter((fi) => fi.selected && !f.selected)).length +
-    cleanDrafts.filter((d) => d.selected).length;
+    cleanFolders.flatMap((f) => f.files.filter((fi) => fi.selected && !f.selected)).length;
 
-  const isEmpty = filteredFolders.length === 0 && filteredDrafts.length === 0;
+  const isEmpty = filteredFolders.length === 0;
 
   return (
     <>
@@ -178,6 +165,9 @@ export function VaultPickerSheet({
                   const allSelected =
                     visibleFiles.length > 0 && visibleFiles.every((fi) => fi.selected);
                   const isIndeterminate = someSelected && !allSelected;
+                  // Warn if selecting the entire folder will send a large batch to analysis.
+                  const FOLDER_BULK_WARN_THRESHOLD = 10;
+                  const showBulkWarning = folder.selected && visibleFiles.length >= FOLDER_BULK_WARN_THRESHOLD;
 
                   return (
                     <div key={folder.id}>
@@ -218,6 +208,15 @@ export function VaultPickerSheet({
                         </div>
                       </div>
 
+                      {showBulkWarning && (
+                        <div className="mt-1 flex items-center gap-1.5 rounded-2xl bg-[#FFFBEB] px-3 py-2">
+                          <AlertTriangle className="h-3 w-3 shrink-0 text-[#D97706]" />
+                          <span className="text-[11px] text-[#92400E]">
+                            Selecting this folder will include all {visibleFiles.length} files in the analysis.
+                          </span>
+                        </div>
+                      )}
+
                       {folder.expanded && visibleFiles.length > 0 && (
                         <div className="mt-1 space-y-0.5 pl-2">
                           {visibleFiles.map((file) => (
@@ -254,46 +253,6 @@ export function VaultPickerSheet({
                   );
                 })}
 
-                {filteredDrafts.length > 0 && (
-                  <div className="pt-4">
-                    <p className="m-0 mb-2 px-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[#98A2B3]">
-                      Saved drafts
-                    </p>
-                    <div className="space-y-0.5">
-                      {filteredDrafts.map((draft) => (
-                        <button
-                          key={draft.id}
-                          type="button"
-                          onClick={() => onToggleDraftSelection(draft.id)}
-                          className={`flex w-full cursor-pointer items-start gap-3 rounded-2xl border-none px-3 py-2.5 text-left transition-colors ${
-                            draft.selected ? "bg-[#F7F8FB]" : "hover:bg-[#F7F8FB]"
-                          }`}
-                        >
-                          <div className="pt-0.5">
-                            <Checkbox checked={draft.selected} size="sm" />
-                          </div>
-                          <FileCode
-                            className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#4F5BD9]"
-                            strokeWidth={1.75}
-                          />
-                          <span
-                            className="min-w-0 flex-1 text-[13px] leading-snug"
-                            style={{
-                              color: draft.selected ? "#1a1a1a" : "#667085",
-                              fontWeight: draft.selected ? 600 : 500,
-                              overflowWrap: "anywhere",
-                            }}
-                          >
-                            {draft.title}
-                          </span>
-                          <span className="score-badge mt-0.5 shrink-0 bg-badge-yellow text-[10px] font-medium text-badge-yellow-text">
-                            Draft
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             )}
           </div>

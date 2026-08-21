@@ -16,6 +16,7 @@ export interface DashboardJob {
   updatedAt?: string;
 }
 
+/** @deprecated DashboardHome now reads from AppContext directly */
 export interface DashboardHomeProps {
   userName: string;
   setActiveTab: (tab: string) => void;

@@ -14,13 +14,24 @@ import DocumentViewer from "./components/DocumentViewer";
 import NegotiationPanel from "./components/NegotiationPanel";
 import DocumentPicker from "./components/DocumentPicker";
 import DocumentSwitcher from "./components/DocumentSwitcher";
+import { useAppContext } from "../../contexts/AppContext";
 
+/** @deprecated All props are now read from AppContext */
 interface NegotiateHubProps {
+  documents?: LegalDocument[];
+  activeDocument?: LegalDocument | null;
+  authToken?: string;
+  onRefresh?: () => void;
+  onSelectDocument?: (doc: LegalDocument) => void;
+}
+
+interface WorkspaceProps {
   documents: LegalDocument[];
   activeDocument: LegalDocument | null;
   authToken: string;
   onRefresh: () => void;
-  onSelectDocument: (doc: LegalDocument) => void;
+  onSelectDocument: (doc: LegalDocument | null) => void;
+  onBack: () => void;
 }
 
 function NegotiateWorkspace({
@@ -30,7 +41,7 @@ function NegotiateWorkspace({
   onRefresh,
   onSelectDocument,
   onBack,
-}: NegotiateHubProps & { onBack: () => void }) {
+}: WorkspaceProps) {
   const negotiableDocuments = useMemo(
     () => documents.filter((doc) => !isPlaceholderVaultDocument(doc)),
     [documents],
@@ -218,13 +229,12 @@ function NegotiateWorkspace({
   );
 }
 
-export default function NegotiateHub({
-  documents,
-  activeDocument,
-  authToken,
-  onRefresh,
-  onSelectDocument,
-}: NegotiateHubProps) {
+export default function NegotiateHub(_props: NegotiateHubProps = {}) {
+  const { documents, activeDocument, authToken: ctxToken, fetchDocuments, setActiveDocument } = useAppContext();
+  const authToken = ctxToken ?? "";
+  const onRefresh = fetchDocuments;
+  const onSelectDocument = setActiveDocument;
+
   const [confirmedDoc, setConfirmedDoc] = useState<LegalDocument | null>(null);
 
   const negotiableDocuments = useMemo(
