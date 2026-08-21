@@ -8,9 +8,9 @@ import { GenerateContentConfig } from "@google/genai";
  */
 export enum GeminiModel {
   GEMINI_2_5_FLASH = "gemini-2.5-flash",
-  GEMINI_2_5_PRO   = "gemini-2.5-pro",
-  // ANTHROPIC_3_5_SONNET = "anthropic/claude-3.5-sonnet",
-  // GEMINI_3_5_FLASH = "gemini-3.5-flash"
+  GEMINI_2_5_PRO = "gemini-2.5-pro",
+  GEMINI_3_6_FLASH = "gemini-3.6-flash",
+  GEMINI_3_1_PRO = "gemini-3.1-pro-preview",
 }
 
 export enum OpenRouterModel {
@@ -24,23 +24,25 @@ export enum OpenRouterModel {
  * Semantic task enums requested by backend handlers.
  */
 export enum LLMTask {
-  FAST_STITCH      = "FAST_STITCH",      // Multi-page layout data table stitching
-  COMPLEX_DRAFT    = "COMPLEX_DRAFT",    // Initial contract clause composition
-  STRUCTURAL_JSON  = "STRUCTURAL_JSON",   // Strict schema processing and extraction
-  REFINEMENT       = "REFINEMENT",    
+  FAST_STITCH = "FAST_STITCH", // Multi-page layout data table stitching
+  COMPLEX_DRAFT = "COMPLEX_DRAFT", // Initial contract clause composition
+  STRUCTURAL_JSON = "STRUCTURAL_JSON", // Strict schema processing and extraction
+  REFINEMENT = "REFINEMENT",
   STRUCTURAL_JSON_LITE = "STRUCTURAL_JSON_LITE", // Interactive highlight editor changes
-  SECTION_REFINE   = "SECTION_REFINE",  // Surgical single-section regeneration (fast, scoped)
+  SECTION_REFINE = "SECTION_REFINE", // Surgical single-section regeneration (fast, scoped)
   // ── Compare module tasks ──────────────────────────────────────────────────
-  COMPARE_ALIGN    = "COMPARE_ALIGN",    // Semantic clause alignment between two agreements
-  COMPARE_DIFF     = "COMPARE_DIFF",     // Semantic difference classification per clause pair
-  COMPARE_RISK     = "COMPARE_RISK",     // Legal and commercial risk evaluation per difference
-  COMPARE_SUMMARY  = "COMPARE_SUMMARY", // Executive summary narrative over all findings
+  COMPARE_ALIGN = "COMPARE_ALIGN", // Semantic clause alignment between two agreements
+  COMPARE_DIFF = "COMPARE_DIFF", // Semantic difference classification per clause pair
+  COMPARE_RISK = "COMPARE_RISK", // Legal and commercial risk evaluation per difference
+  COMPARE_SUMMARY = "COMPARE_SUMMARY", // Executive summary narrative over all findings
 }
 
 export enum LLMProvider {
   GEMINI = "GEMINI",
-  OPENROUTER = "OPENROUTER"
+  OPENROUTER = "OPENROUTER",
 }
+
+export type GeminiThinkingLevel = "minimal" | "low" | "medium" | "high";
 
 /**
  * 3. RUNTIME PARAMETER MATRIX
@@ -52,6 +54,10 @@ export interface TaskModelConfig {
   maxOutputTokens?: number;
   responseMimeType?: string;
   responseSchema?: any;
+  /** Gemini 2.5 legacy thinking budget (token count). */
+  thinkingBudget?: number;
+  /** Gemini 3.x thinking level — preferred for gemini-3* models. */
+  thinkingLevel?: GeminiThinkingLevel;
 }
 
 export interface LLMTaskPreset {
@@ -67,121 +73,128 @@ export interface LLMTaskPreset {
  */
 export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskModelConfig>> = {
   [LLMProvider.GEMINI]: {
-    [LLMTask.FAST_STITCH]: { 
-      model: GeminiModel.GEMINI_2_5_FLASH, 
-      temperature: 0.1 
+    [LLMTask.FAST_STITCH]: {
+      model: GeminiModel.GEMINI_3_6_FLASH,
+      temperature: 0.1,
+      thinkingLevel: "minimal",
     },
-    [LLMTask.COMPLEX_DRAFT]: { 
-      // LATENCY_QUICKWIN: intentionally kept on Pro to protect legal prose quality (NDA 9.5/10/9.0).
-      // Flash was considered and rejected for the main generation call in this pass.
-      model: GeminiModel.GEMINI_2_5_PRO, 
-      temperature: 0.0, 
+    [LLMTask.COMPLEX_DRAFT]: {
+      // Kept on Pro to protect legal prose quality.
+      model: GeminiModel.GEMINI_3_1_PRO,
+      temperature: 0.0,
       // LATENCY: output length is the #1 latency driver, so this stays low. It is the
       // FLOOR only: generation.ts sizes the real budget per request from the document
       // skeleton / required clauses / source document and overrides this value, then
       // continues the draft if the model still reports MAX_TOKENS.
-      maxOutputTokens: 4096 
+      maxOutputTokens: 4096,
+      thinkingLevel: "high",
     },
-    [LLMTask.STRUCTURAL_JSON]: { 
-      // LATENCY_QUICKWIN: previous — restore if extraction/validation quality regresses
-      // model: GeminiModel.GEMINI_2_5_PRO,
-      model: GeminiModel.GEMINI_2_5_FLASH, 
-      temperature: 0.0, 
-      responseMimeType: "application/json" 
+    [LLMTask.STRUCTURAL_JSON]: {
+      model: GeminiModel.GEMINI_3_6_FLASH,
+      temperature: 0.0,
+      responseMimeType: "application/json",
+      thinkingLevel: "minimal",
     },
     [LLMTask.STRUCTURAL_JSON_LITE]: {
-      model: GeminiModel.GEMINI_2_5_FLASH, 
-      temperature: 0.0, 
-      responseMimeType: "application/json" 
+      model: GeminiModel.GEMINI_3_6_FLASH,
+      temperature: 0.0,
+      responseMimeType: "application/json",
+      thinkingLevel: "minimal",
     },
-    [LLMTask.REFINEMENT]: { 
-      model: GeminiModel.GEMINI_2_5_FLASH, 
-      temperature: 0.2 
+    [LLMTask.REFINEMENT]: {
+      model: GeminiModel.GEMINI_3_6_FLASH,
+      temperature: 0.2,
+      thinkingLevel: "low",
     },
     [LLMTask.SECTION_REFINE]: {
       // Surgical single-section regeneration: keep Pro for legal-prose quality, but a
       // small output cap since we only emit one section (fast + cheap vs full-doc regen).
-      model: GeminiModel.GEMINI_2_5_PRO,
+      model: GeminiModel.GEMINI_3_1_PRO,
       temperature: 0.0,
-      maxOutputTokens: 2048
+      maxOutputTokens: 2048,
+      thinkingLevel: "medium",
     },
     // ── Compare module ──────────────────────────────────────────────────────
     [LLMTask.COMPARE_ALIGN]: {
       // Flash is deliberately chosen: alignment is a classification task (JSON),
       // not legal prose generation. Speed and cost matter at scale; Flash handles
       // structured JSON output reliably at temperature 0.
-      model: GeminiModel.GEMINI_2_5_FLASH,
+      model: GeminiModel.GEMINI_3_6_FLASH,
       temperature: 0.0,
-      responseMimeType: "application/json"
+      responseMimeType: "application/json",
+      thinkingLevel: "minimal",
     },
     [LLMTask.COMPARE_DIFF]: {
       // Flash at temperature 0: diff classification is a structured labelling
       // task, not legal prose. Speed and cost efficiency are the priority.
-      model: GeminiModel.GEMINI_2_5_FLASH,
+      model: GeminiModel.GEMINI_3_6_FLASH,
       temperature: 0.0,
-      responseMimeType: "application/json"
+      responseMimeType: "application/json",
+      thinkingLevel: "minimal",
     },
     [LLMTask.COMPARE_RISK]: {
       // Flash at temperature 0: risk evaluation is a structured classification
       // task. Legal reasoning depth is provided by the AI Skill prompt, not
       // by choosing a heavier model here.
-      model: GeminiModel.GEMINI_2_5_FLASH,
+      model: GeminiModel.GEMINI_3_6_FLASH,
       temperature: 0.0,
-      responseMimeType: "application/json"
+      responseMimeType: "application/json",
+      thinkingLevel: "low",
     },
     [LLMTask.COMPARE_SUMMARY]: {
       // Flash at temperature 0.2: the prompt is now compact (Top-10 findings,
       // condensed stats block) so Flash produces equivalent quality to Pro at
       // a fraction of the cost and latency. Pro is no longer warranted here.
-      model: GeminiModel.GEMINI_2_5_FLASH,
+      model: GeminiModel.GEMINI_3_6_FLASH,
       temperature: 0.2,
       responseMimeType: "application/json",
-      maxOutputTokens: 2048
-    }
+      maxOutputTokens: 2048,
+      thinkingLevel: "low",
+    },
   },
   [LLMProvider.OPENROUTER]: {
-    [LLMTask.FAST_STITCH]: { 
-      model: OpenRouterModel.LLAMA_3_3_70B, 
-      temperature: 0.1 
+    [LLMTask.FAST_STITCH]: {
+      model: OpenRouterModel.LLAMA_3_3_70B,
+      temperature: 0.1,
     },
-    [LLMTask.COMPLEX_DRAFT]: { 
-      model: OpenRouterModel.CLAUDE_3_5_SONNET, 
-      temperature: 0.0 
+    [LLMTask.COMPLEX_DRAFT]: {
+      model: OpenRouterModel.CLAUDE_3_5_SONNET,
+      temperature: 0.0,
     },
-    [LLMTask.STRUCTURAL_JSON]: { 
-      model: OpenRouterModel.GPT_4O_MINI, 
-      temperature: 0.0, 
-      responseMimeType: "application/json" 
+    [LLMTask.STRUCTURAL_JSON]: {
+      model: OpenRouterModel.GPT_4O_MINI,
+      temperature: 0.0,
+      responseMimeType: "application/json",
     },
     [LLMTask.STRUCTURAL_JSON_LITE]: {
-      model: OpenRouterModel.CLAUDE_3_5_SONNET, 
-      temperature: 0.0, 
-      responseMimeType: "application/json" 
+      model: OpenRouterModel.CLAUDE_3_5_SONNET,
+      temperature: 0.0,
+      responseMimeType: "application/json",
     },
-    [LLMTask.REFINEMENT]: { 
-      model: OpenRouterModel.LLAMA_3_3_70B, 
-      temperature: 0.2 
+    [LLMTask.REFINEMENT]: {
+      model: OpenRouterModel.LLAMA_3_3_70B,
+      temperature: 0.2,
     },
     [LLMTask.SECTION_REFINE]: {
       model: OpenRouterModel.CLAUDE_3_5_SONNET,
       temperature: 0.0,
-      maxOutputTokens: 2048
+      maxOutputTokens: 2048,
     },
     // ── Compare module ──────────────────────────────────────────────────────
     [LLMTask.COMPARE_ALIGN]: {
       model: OpenRouterModel.GPT_4O_MINI,
       temperature: 0.0,
-      responseMimeType: "application/json"
+      responseMimeType: "application/json",
     },
     [LLMTask.COMPARE_DIFF]: {
       model: OpenRouterModel.GPT_4O_MINI,
       temperature: 0.0,
-      responseMimeType: "application/json"
+      responseMimeType: "application/json",
     },
     [LLMTask.COMPARE_RISK]: {
       model: OpenRouterModel.GPT_4O_MINI,
       temperature: 0.0,
-      responseMimeType: "application/json"
+      responseMimeType: "application/json",
     },
     [LLMTask.COMPARE_SUMMARY]: {
       // Claude 3.5 Sonnet: best available OpenRouter model for prose quality,
@@ -189,9 +202,9 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
       model: OpenRouterModel.CLAUDE_3_5_SONNET,
       temperature: 0.2,
       responseMimeType: "application/json",
-      maxOutputTokens: 2048
-    }
-  }
+      maxOutputTokens: 2048,
+    },
+  },
 };
 
 /**
@@ -205,9 +218,11 @@ const DEFAULT_OUTPUT_TOKEN_CEILING = 8192;
 const MODEL_OUTPUT_TOKEN_CEILINGS: Record<string, number> = {
   [GeminiModel.GEMINI_2_5_FLASH]: 65535,
   [GeminiModel.GEMINI_2_5_PRO]: 65535,
+  [GeminiModel.GEMINI_3_6_FLASH]: 65535,
+  [GeminiModel.GEMINI_3_1_PRO]: 65535,
   [OpenRouterModel.CLAUDE_3_5_SONNET]: 8192,
   [OpenRouterModel.LLAMA_3_3_70B]: 8192,
-  [OpenRouterModel.GPT_4O_MINI]: 16384
+  [OpenRouterModel.GPT_4O_MINI]: 16384,
 };
 
 export function resolveOutputTokenCeiling(model: string): number {
@@ -215,21 +230,10 @@ export function resolveOutputTokenCeiling(model: string): number {
 }
 
 /**
- * 6. GCP INFRASTRUCTURE CONFIGURATION ENVELOPE
+ * 6. GEMINI API (Google AI) CONFIGURATION ENVELOPE
+ * Uses GOOGLE_GEMINI_EXTERNAL_KEY — not Vertex enterprise project/location.
  */
-if (!process.env.GOOGLE_CLOUD_PROJECT) {
-  throw new Error(
-    "[FATAL] GOOGLE_CLOUD_PROJECT is not set. " +
-    "Add GOOGLE_CLOUD_PROJECT=<your-gcp-project-id> to your .env file."
-  );
-}
-
 export const GEMINI_ENV_CONFIG = {
-  projectId: process.env.GOOGLE_CLOUD_PROJECT,
-  location: process.env.GOOGLE_CLOUD_LOCATION || "us-east4",
-  locations: (process.env.GOOGLE_CLOUD_LOCATIONS || "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean),
-  timeoutMs: 45000
+  apiKey: process.env.GOOGLE_GEMINI_EXTERNAL_KEY || "",
+  timeoutMs: 45000,
 };

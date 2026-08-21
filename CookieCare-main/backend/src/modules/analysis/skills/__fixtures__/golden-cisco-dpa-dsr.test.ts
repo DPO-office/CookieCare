@@ -127,7 +127,11 @@ describe("golden cisco-dpa-dsr skills baseline", () => {
 
     const matrixRows = graph.workUnits.filter((u) => u.tool === "evaluate_matrix_row");
     assert.equal(matrixRows.length, 8);
-    assert.ok(graph.workUnits.some((unit) => unit.tool === "evaluate_package"));
+    assert.equal(
+      graph.workUnits.filter((unit) => unit.tool === "evaluate_package").length,
+      0,
+      "matrix-owned package must defer to evaluate_matrix_row"
+    );
   });
 
   it("saas-agreement inherits commercial-agreement expectedClauses", () => {

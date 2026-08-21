@@ -7,6 +7,8 @@ import { GenerateContentConfig } from "@google/genai";
 export enum GeminiModel {
   GEMINI_2_5_FLASH = "gemini-2.5-flash",
   GEMINI_2_5_PRO = "gemini-2.5-pro",
+  GEMINI_3_6_FLASH = "gemini-3.6-flash",
+  GEMINI_3_1_PRO = "gemini-3.1-pro-preview",
 }
 
 export enum OpenRouterModel {
@@ -39,6 +41,8 @@ export enum LLMProvider {
   OPENROUTER = "OPENROUTER",
 }
 
+export type GeminiThinkingLevel = "minimal" | "low" | "medium" | "high";
+
 /**
  * 3. RUNTIME PARAMETER MATRIX
  */
@@ -49,12 +53,18 @@ export interface TaskModelConfig {
   responseMimeType?: string;
   responseSchema?: any;
   /**
-   * Gemini thinking budget. Prefer setting this per task:
+   * Gemini 2.5 thinking budget (token count). Prefer setting this per task:
    * - 0  → no thinking (extraction, gaps, section draft)
    * - >0 → thinking enabled (critique / heavy reasoning)
    * If omitted, provider falls back to model default (Flash=0, Pro=1024).
+   * Do not combine with thinkingLevel on Gemini 3.x.
    */
   thinkingBudget?: number;
+  /**
+   * Gemini 3.x thinking level. Preferred for gemini-3* models.
+   * Fast/JSON tasks → minimal|low; heavy Pro tasks → medium|high.
+   */
+  thinkingLevel?: GeminiThinkingLevel;
 }
 
 export interface LLMTaskPreset {
@@ -70,59 +80,58 @@ export interface LLMTaskPreset {
 export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskModelConfig>> = {
   [LLMProvider.GEMINI]: {
     [LLMTask.FAST_STITCH]: {
-      model: GeminiModel.GEMINI_2_5_FLASH,
+      model: GeminiModel.GEMINI_3_6_FLASH,
       temperature: 0.1,
-      thinkingBudget: 0,
+      thinkingLevel: "minimal",
     },
     [LLMTask.COMPLEX_DRAFT]: {
-      model: GeminiModel.GEMINI_2_5_PRO,
+      model: GeminiModel.GEMINI_3_1_PRO,
       temperature: 0.0,
       maxOutputTokens: 4096,
-      thinkingBudget: 1024,
+      thinkingLevel: "high",
     },
     [LLMTask.STRUCTURAL_JSON]: {
-      model: GeminiModel.GEMINI_2_5_FLASH,
+      model: GeminiModel.GEMINI_3_6_FLASH,
       temperature: 0.0,
       responseMimeType: "application/json",
-      thinkingBudget: 0,
+      thinkingLevel: "minimal",
     },
     [LLMTask.STRUCTURAL_JSON_LITE]: {
-      model: GeminiModel.GEMINI_2_5_FLASH,
+      model: GeminiModel.GEMINI_3_6_FLASH,
       temperature: 0.0,
       responseMimeType: "application/json",
-      thinkingBudget: 0,
+      thinkingLevel: "minimal",
     },
     [LLMTask.REFINEMENT]: {
-      model: GeminiModel.GEMINI_2_5_FLASH,
+      model: GeminiModel.GEMINI_3_6_FLASH,
       temperature: 0.2,
-      thinkingBudget: 0,
+      thinkingLevel: "low",
     },
     [LLMTask.SECTION_REFINE]: {
       // Volume path: one call per section. Flash avoids Pro RPM exhaustion under PAC.
-      model: GeminiModel.GEMINI_2_5_FLASH,
+      model: GeminiModel.GEMINI_3_6_FLASH,
       temperature: 0.0,
       maxOutputTokens: 2048,
-      thinkingBudget: 0,
+      thinkingLevel: "minimal",
     },
     [LLMTask.EXTRACT_FACTS]: {
-      model: GeminiModel.GEMINI_2_5_FLASH,
+      model: GeminiModel.GEMINI_3_6_FLASH,
       temperature: 0.0,
       responseMimeType: "application/json",
-      thinkingBudget: 0,
+      thinkingLevel: "minimal",
     },
     [LLMTask.DETECT_GAPS]: {
-      model: GeminiModel.GEMINI_2_5_FLASH,
+      model: GeminiModel.GEMINI_3_6_FLASH,
       temperature: 0.0,
       responseMimeType: "application/json",
-      thinkingBudget: 0,
+      thinkingLevel: "minimal",
     },
     [LLMTask.CRITIQUE_CHECKLIST]: {
-      model: GeminiModel.GEMINI_2_5_PRO,
+      model: GeminiModel.GEMINI_3_1_PRO,
       temperature: 0.0,
       responseMimeType: "application/json",
       maxOutputTokens: 4096,
-      // Quality gate — thinking only here among PAC drafting steps.
-      thinkingBudget: 1024,
+      thinkingLevel: "high",
     },
   },
   [LLMProvider.OPENROUTER]: {
@@ -177,6 +186,8 @@ const DEFAULT_OUTPUT_TOKEN_CEILING = 8192;
 const MODEL_OUTPUT_TOKEN_CEILINGS: Record<string, number> = {
   [GeminiModel.GEMINI_2_5_FLASH]: 65535,
   [GeminiModel.GEMINI_2_5_PRO]: 65535,
+  [GeminiModel.GEMINI_3_6_FLASH]: 65535,
+  [GeminiModel.GEMINI_3_1_PRO]: 65535,
   [OpenRouterModel.CLAUDE_3_5_SONNET]: 8192,
   [OpenRouterModel.LLAMA_3_3_70B]: 8192,
   [OpenRouterModel.GPT_4O_MINI]: 16384,
@@ -187,55 +198,10 @@ export function resolveOutputTokenCeiling(model: string): number {
 }
 
 /**
- * 6. GCP INFRASTRUCTURE CONFIGURATION ENVELOPE
+ * 6. GEMINI API (Google AI) CONFIGURATION ENVELOPE
+ * Uses GOOGLE_GEMINI_EXTERNAL_KEY — not Vertex enterprise project/location.
  */
-if (!process.env.GOOGLE_CLOUD_PROJECT) {
-  throw new Error(
-    "[FATAL] GOOGLE_CLOUD_PROJECT is not set. " +
-      "Add GOOGLE_CLOUD_PROJECT=<your-gcp-project-id> to your .env file."
-  );
-}
-
 export const GEMINI_ENV_CONFIG = {
-  projectId: process.env.GOOGLE_CLOUD_PROJECT,
-  /** Primary / sticky default region (also first entry if LOCATIONS unset). */
-  location: process.env.GOOGLE_CLOUD_LOCATION || "us-east4",
-  /**
-   * Comma-separated Vertex regions for round-robin + 429 failover.
-   * Quotas are per-region — failing over multiplies available RPM.
-   */
-  locations: parseGeminiLocations(
-    process.env.GOOGLE_CLOUD_LOCATIONS,
-    process.env.GOOGLE_CLOUD_LOCATION || "us-east4"
-  ),
+  apiKey: process.env.GOOGLE_GEMINI_EXTERNAL_KEY || "",
   timeoutMs: 45000,
 };
-
-function parseGeminiLocations(
-  rawList: string | undefined,
-  primary: string
-): string[] {
-  const defaults = [
-    primary,
-    "us-east4",
-    "us-west1",
-    "europe-west1",
-    "asia-southeast1",
-    "us-central1",
-  ];
-  const fromEnv = (rawList || "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const merged = fromEnv.length > 0 ? fromEnv : defaults;
-  // Dedupe, keep order, ensure primary is present.
-  const seen = new Set<string>();
-  const out: string[] = [];
-  for (const loc of [primary, ...merged]) {
-    const key = loc.trim();
-    if (!key || seen.has(key)) continue;
-    seen.add(key);
-    out.push(key);
-  }
-  return out;
-}

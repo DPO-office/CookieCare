@@ -31,6 +31,35 @@ describe("report spec merge from authored packages", () => {
     });
     assert.ok(merged.sections.includes("chapeau_particulars"));
     assert.ok(merged.sections.includes("missing_materials"));
+    assert.equal(merged.sections[0], "scope");
+    assert.equal(merged.sections[merged.sections.length - 1], "conclusion");
+    assert.ok(!merged.sections.includes("scope_and_conclusion"));
+  });
+
+  it("every authored package keeps conclusion last after merge", () => {
+    resetSkillRegistryForTests();
+    const skillIds = [
+      "doc-types/dpa",
+      "doc-types/nda",
+      "regimes/data-protection/gdpr",
+      "regimes/data-protection/international-transfers",
+    ];
+    for (const skillId of skillIds) {
+      const skill = getSkillById(skillId);
+      if (!skill?.evidencePackages?.length) continue;
+      const merged = mergeAuthoredReportSections({
+        reportType: "regime_compliance_memo",
+        depth: "standard",
+        packages: skill.evidencePackages,
+      });
+      if (merged.sections.includes("conclusion")) {
+        assert.equal(
+          merged.sections[merged.sections.length - 1],
+          "conclusion",
+          `${skillId} must place conclusion last`
+        );
+      }
+    }
   });
 
   it("GDPR Art 28 packages preserve chapeau and mandatory outline extras", () => {

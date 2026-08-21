@@ -67,23 +67,53 @@ export function extractArticleNumbers(instruction: string): number[] {
     /\b(?:articles?|arts?)\.?\s*(\d{1,3}(?:(?:\s*(?:-|to|,|and|&)\s*|\s+)\d{1,3})*)/g;
 
   for (const match of normalized.matchAll(reference)) {
-    const expression = match[1];
-    for (const range of expression.matchAll(
-      /(\d{1,3})\s*(?:-|to)\s*(\d{1,3})/g
-    )) {
-      const start = Number(range[1]);
-      const end = Number(range[2]);
-      if (end >= start && end - start <= 100) {
-        for (let article = start; article <= end; article++) numbers.add(article);
-      }
-    }
+    addArticleExpression(numbers, match[1]);
+  }
 
-    for (const token of expression.match(/\d{1,3}/g) ?? []) {
-      numbers.add(Number(token));
-    }
+  // Also accept "15 16 17 18 19 20 21 22 article(s) of gdpr" — numbers before the noun.
+  const trailingNoun =
+    /\b(\d{1,3}(?:(?:\s*(?:-|to|,|and|&)\s*|\s+)\d{1,3}){1,20})\s+articles?\b/g;
+  for (const match of normalized.matchAll(trailingNoun)) {
+    addArticleExpression(numbers, match[1]);
   }
 
   return [...numbers].filter(Number.isInteger).sort((a, b) => a - b);
+}
+
+function addArticleExpression(numbers: Set<number>, expression: string): void {
+  for (const range of expression.matchAll(/(\d{1,3})\s*(?:-|to)\s*(\d{1,3})/g)) {
+    const start = Number(range[1]);
+    const end = Number(range[2]);
+    if (end >= start && end - start <= 100) {
+      for (let article = start; article <= end; article++) numbers.add(article);
+    }
+  }
+  for (const token of expression.match(/\d{1,3}/g) ?? []) {
+    numbers.add(Number(token));
+  }
+}
+
+function matrixLinkedSupportingRuleIds(
+  skills: AnalysisSkillConfig[],
+  matrixRowIds: string[]
+): string[] {
+  if (matrixRowIds.length === 0) return [];
+  const matrixSet = new Set(matrixRowIds);
+  const out: string[] = [];
+  for (const skill of skills) {
+    for (const rule of skill.regimeRules ?? []) {
+      const linked = rule.matrixLinkage?.matrixRowIds ?? [];
+      if (linked.some((id) => matrixSet.has(id))) out.push(rule.ruleId);
+    }
+    for (const pkg of skill.evidencePackages ?? []) {
+      if (!pkg.capabilityIds.some((id) => matrixSet.has(id))) continue;
+      for (const capId of pkg.capabilityIds) {
+        if (matrixSet.has(capId)) continue;
+        if (/\.art\d+/i.test(capId)) out.push(capId);
+      }
+    }
+  }
+  return dedupeStrings(out);
 }
 
 function articleNumberFromRuleId(ruleId: string): number | undefined {
@@ -594,16 +624,6 @@ export async function extractInstructionFocus(
     : dedupeStrings([...requiredIds, ...supportingIds]);
   const executionSet = new Set(executionIds);
 
-  const combinedRuleIds = dedupeStrings(
-    [
-      ...explicitRuleIds,
-      ...catalogRuleIds,
-      ...supportingPhraseRuleIds.filter(
-        (id) =>
-          !scopedCatalogRequiredIds.includes(id) && !scopedCatalogSupportingIds.includes(id)
-      ),
-    ].filter((id) => executionSet.has(id))
-  );
   const combinedMatrixRowIds = dedupeStrings(
     [
       ...explicitMatrixRowIds,
@@ -614,6 +634,29 @@ export async function extractInstructionFocus(
       ),
     ].filter((id) => executionSet.has(id))
   );
+  // Matrix-linked assistance/timeframe rules (e.g. Art 28(3)(e) on a DSR package)
+  // stay evaluable even when the user named only Articles 15–22.
+  const matrixLinkedRules = matrixLinkedSupportingRuleIds(skills, combinedMatrixRowIds);
+  addProvenance(
+    provenance,
+    matrixLinkedRules,
+    "phrase_map",
+    false,
+    catalog,
+    "matrix-linked supporting rule for focused rights rows",
+    "rule"
+  );
+  const combinedRuleIds = dedupeStrings([
+    ...[
+      ...explicitRuleIds,
+      ...catalogRuleIds,
+      ...supportingPhraseRuleIds.filter(
+        (id) =>
+          !scopedCatalogRequiredIds.includes(id) && !scopedCatalogSupportingIds.includes(id)
+      ),
+    ].filter((id) => executionSet.has(id)),
+    ...matrixLinkedRules,
+  ]);
   const combinedRiskCategoryIds = dedupeStrings(
     [
       ...explicitRiskCategoryIds,

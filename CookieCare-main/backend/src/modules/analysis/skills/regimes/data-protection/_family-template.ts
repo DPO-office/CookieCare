@@ -31,8 +31,12 @@ const AUTOMATED_DECISION_GATE = {
 
 function findingCategoryForMatrixRow(rowId: string): string {
   if (rowId.includes("access")) return "dsr_generic_no_named_rights";
+  if (rowId.includes("rectification")) return "dsr_generic_no_named_rights";
   if (rowId.includes("erasure")) return "erasure_termination_only_gap";
+  if (rowId.includes("restriction")) return "dsr_assistance_not_operational";
+  if (rowId.includes("notification")) return "recipient_notification_gap";
   if (rowId.includes("portability")) return "portability_format_unaddressed";
+  if (rowId.includes("object")) return "dsr_assistance_not_operational";
   if (rowId.includes("automated")) return "automated_decision_gap";
   return "dsr_assistance_not_operational";
 }

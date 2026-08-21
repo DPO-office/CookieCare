@@ -51,6 +51,7 @@ import {
 import {
 
   parseRequirementsFromRaw,
+  expandArticleRangeRequirements,
 
   parseUnresolvedNeedsFromRaw,
 
@@ -598,7 +599,10 @@ export async function classifyIntent(state: AnalysisState): Promise<AnalysisStat
 
 
 
-  const requirements = parseRequirementsFromRaw(raw.requirements);
+  const requirements = expandArticleRangeRequirements(
+    instruction,
+    parseRequirementsFromRaw(raw.requirements)
+  );
 
   const unresolvedNeeds = parseUnresolvedNeedsFromRaw(raw.unresolvedNeeds);
 

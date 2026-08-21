@@ -35,6 +35,23 @@ const REQUIREMENT_ID_ALIASES: Record<string, string> = {
   international_data_transfers: "international_data_transfer",
   international_data_transfer: "international_data_transfer",
   international_transfer: "international_data_transfer",
+  "dsr.response_timeframes": "dsr.response_timeframes",
+  "dsr.gap_analysis": "dsr.gap_analysis",
+};
+
+/** Synthetic DSR meta-requirements → capabilities already on the leftover graph. */
+const DSR_META_CAPABILITIES: Record<string, string[]> = {
+  "dsr.response_timeframes": ["gdpr.art12.3", "dsr_no_response_timeframe"],
+  "dsr.gap_analysis": [
+    "dsr_assistance_not_operational",
+    "erasure_termination_only_gap",
+    "portability_format_unaddressed",
+    "automated_decision_gap",
+    "recipient_notification_gap",
+    "assistance_cost_or_consent_gate_risk",
+    "dsr_generic_no_named_rights",
+    "dsr_no_response_timeframe",
+  ],
 };
 
 export interface ResolvedPackage {
@@ -82,6 +99,30 @@ function scopedCapabilityIds(ids: string[], focus?: InstructionFocus): string[] 
   const scope = focus?.explicitScope;
   if (!scope || !scopeBoundaryActive(scope)) return ids;
   return ids.filter((id) => capabilityIdMatchesScope(id, scope));
+}
+
+function dedupeStrings(ids: string[]): string[] {
+  return [...new Set(ids)];
+}
+
+function isMatrixLinkedRule(
+  ruleId: string,
+  skills: AnalysisSkillConfig[],
+  matrixRowIds: string[]
+): boolean {
+  if (matrixRowIds.length === 0) return false;
+  const matrixSet = new Set(matrixRowIds);
+  for (const skill of skills) {
+    const rule = skill.regimeRules?.find((candidate) => candidate.ruleId === ruleId);
+    if (rule?.matrixLinkage?.matrixRowIds?.some((id) => matrixSet.has(id))) {
+      return true;
+    }
+    for (const pkg of skill.evidencePackages ?? []) {
+      if (!pkg.capabilityIds.includes(ruleId)) continue;
+      if (pkg.capabilityIds.some((id) => matrixSet.has(id))) return true;
+    }
+  }
+  return false;
 }
 
 function splitPackageCapabilities(
@@ -225,14 +266,36 @@ export function resolvePackages(
   const catalogPackageIds = new Set(
     scopedCapabilityIds(focus?.selectedPackageIds ?? [], focus)
   );
+  const matrixFocusActiveEarly = (focus?.matrixRowIds?.length ?? 0) > 0;
+  const wantsStructuralParticulars = planReqs.some(
+    (r) =>
+      (r.id.startsWith("dpa.") || r.id.includes("structural")) &&
+      !isRightsMatrixScopedRequirement(r.id)
+  );
   for (const id of catalogPackageIds) {
     const pkg = packageById.get(id);
-    if (pkg && packageEligibleUnderScope(pkg, focus)) selected.set(pkg.id, pkg);
+    if (
+      pkg &&
+      packageEligibleUnderScope(pkg, focus) &&
+      !defersToMatrixSubgraph(pkg, focus) &&
+      !(
+        isStructuralReviewPackage(pkg) &&
+        matrixFocusActiveEarly &&
+        !wantsStructuralParticulars
+      )
+    ) {
+      selected.set(pkg.id, pkg);
+    }
   }
 
   if (planReqs.length > 0) {
     for (const req of planReqs) {
-      const mappedCaps = mappedCapabilitiesFor(req.id, focus);
+      const mappedCaps = [
+        ...mappedCapabilitiesFor(req.id, focus),
+        ...(DSR_META_CAPABILITIES[normalizeRequirementId(req.id)] ??
+          DSR_META_CAPABILITIES[req.id] ??
+          []),
+      ];
       const byReqId = requirementIdToPackages.get(normalizeRequirementId(req.id)) ?? [];
       const byTopic = pickBySemanticTopics(allPackages, req);
       const byKind = kindToPackages.get(req.type) ?? [];
@@ -242,11 +305,51 @@ export function resolvePackages(
         )
         .filter((pkg): pkg is EvidencePackage => Boolean(pkg));
 
+      const matrixFocusActive = (focus?.matrixRowIds?.length ?? 0) > 0;
+      const rightsScopedReq = isRightsMatrixScopedRequirement(req.id);
+
+      // Article / DSR meta requirements must not kind-match onto dpa.structural_review
+      // when the focus already selected the rights-matrix subgraph — that package
+      // invents conflicting findings and triggers hard critique withhold.
+      if (matrixFocusActive && rightsScopedReq) {
+        const matrixIds = matrixRowIdsForRequirement(req.id, focus!, skills);
+        const ruleIds = mappedCaps.filter((id) => looksLikeRuleId(id, skills));
+        const riskIds = mappedCaps.filter((id) => !looksLikeRuleId(id, skills) && !matrixIds.includes(id));
+        if (matrixIds.length > 0 || ruleIds.length > 0 || riskIds.length > 0) {
+          for (const id of ruleIds) directRuleIds.add(id);
+          requirementPaths.push({
+            requirementId: req.id,
+            status: ruleIds.length > 0 && matrixIds.length === 0 ? "direct_rule" : "supported",
+            ruleIds: [...matrixIds, ...ruleIds, ...riskIds],
+            requirementType: req.type,
+            reason:
+              matrixIds.length > 0
+                ? "Focused rights-matrix rows execute as evaluate_matrix_row"
+                : "DSR meta-requirement mapped to leftover rules/risk categories",
+          });
+          continue;
+        }
+      }
+
       const isInventoryReq = req.type === "extraction" || req.type === "coverage";
-      const candidate =
+      let candidate =
         pickKindMatch(byReqId, req.type) ??
         byTopic ??
         (isInventoryReq ? undefined : pickKindMatch(byKind, req.type) ?? byCap[0]);
+
+      if (
+        candidate &&
+        isStructuralReviewPackage(candidate) &&
+        matrixFocusActive &&
+        rightsScopedReq
+      ) {
+        candidate =
+          byCap.find((pkg) => !isStructuralReviewPackage(pkg)) ??
+          allPackages.find(
+            (pkg) =>
+              defersToMatrixSubgraph(pkg, focus) && packageEligibleUnderScope(pkg, focus)
+          );
+      }
 
       if (candidate && defersToMatrixSubgraph(candidate, focus)) {
         const matrixIds = (focus?.matrixRowIds ?? []).filter((id) =>
@@ -303,14 +406,23 @@ export function resolvePackages(
         const usable =
           ruleIds.length > 0 && ruleIds.length <= NAMED_RULE_DIRECT_THRESHOLD
             ? ruleIds
-            : [];
-        if (usable.length > 0) {
+            : ruleIds.length > 0
+              ? ruleIds.slice(0, NAMED_RULE_DIRECT_THRESHOLD)
+              : [];
+        // DSR meta may map only to risk categories — still mark supported.
+        const metaCaps = DSR_META_CAPABILITIES[normalizeRequirementId(req.id)] ??
+          DSR_META_CAPABILITIES[req.id];
+        if (usable.length > 0 || (metaCaps && metaCaps.length > 0)) {
           for (const id of usable) directRuleIds.add(id);
           requirementPaths.push({
             requirementId: req.id,
-            status: "direct_rule",
-            ruleIds: usable,
+            status: usable.length > 0 ? "direct_rule" : "supported",
+            ruleIds: usable.length > 0 ? usable : metaCaps,
             requirementType: req.type,
+            reason:
+              usable.length > 0
+                ? undefined
+                : "DSR meta-requirement mapped to leftover risk categories",
           });
           continue;
         }
@@ -372,6 +484,9 @@ export function resolvePackages(
     for (const capId of mapping.capabilityIds) {
       const pkg = packageById.get(capId) ?? capabilityToPackage.get(capId);
       if (!pkg || !selected.has(pkg.id)) continue;
+      // Matrix-owned packages must not swallow per-article requirements — those
+      // execute as evaluate_matrix_row via leftoverMatrixRowIds.
+      if (defersToMatrixSubgraph(pkg, focus)) continue;
       if (!requirementToPackageId[mapping.requirementId]) {
         requirementToPackageId[mapping.requirementId] = pkg.id;
       }
@@ -450,11 +565,8 @@ export function resolvePackages(
     for (const capId of resolved.capabilityIds) ownedCaps.add(capId);
   }
 
-  const leftoverRuleIds = scopedRuleIds(
-    (focus?.ruleIds ?? []).filter(
-      (id) => !ownedCaps.has(id) && !blockedCapabilityIds.has(id)
-    ),
-    focus
+  const leftoverRuleCandidates = (focus?.ruleIds ?? []).filter(
+    (id) => !ownedCaps.has(id) && !blockedCapabilityIds.has(id)
   );
   // evaluate_package does not emit matrixRowId. A package that lists matrix
   // rows as capabilityIds must not swallow the evaluate_matrix_row subgraph.
@@ -462,6 +574,14 @@ export function resolvePackages(
     (focus?.matrixRowIds ?? []).filter((id) => !blockedCapabilityIds.has(id)),
     focus
   );
+  const leftoverRuleIds = dedupeStrings([
+    ...scopedRuleIds(leftoverRuleCandidates, focus),
+    // Matrix-linked assistance rules (Art 28(3)(e)) stay evaluable even when
+    // the user only named Articles 15–22.
+    ...leftoverRuleCandidates.filter((id) =>
+      isMatrixLinkedRule(id, skills, leftoverMatrixRowIds)
+    ),
+  ]);
   const leftoverRiskCategoryIds = (focus?.riskCategoryIds ?? []).filter(
     (id) => !ownedCaps.has(id) && !blockedCapabilityIds.has(id)
   );
@@ -593,7 +713,8 @@ function collectRequestedCapabilities(focus?: InstructionFocus): Set<string> {
  * Rights-matrix rows have a dedicated evaluate_matrix_row subgraph and renderer
  * that keys findings on matrixRowId. Grouped evaluate_package does not emit
  * those fields, so a package that merely owns focused matrix-row ids must not
- * swallow the matrix path.
+ * swallow the matrix path — and must not be scheduled at all when the focus
+ * already selected those matrix rows.
  */
 function defersToMatrixSubgraph(
   pkg: EvidencePackage,
@@ -602,7 +723,51 @@ function defersToMatrixSubgraph(
   const matrixIds = focus?.matrixRowIds ?? [];
   if (matrixIds.length === 0) return false;
   const matrixSet = new Set(matrixIds);
-  return pkg.capabilityIds.some((id) => matrixSet.has(id));
+  const matrixCaps = pkg.capabilityIds.filter((id) => matrixSet.has(id));
+  if (matrixCaps.length === 0) return false;
+  // Defer when the package's unique work is dominated by focused matrix rows
+  // (optionally plus assistance / timeframe rules that leftover rules cover).
+  const nonMatrix = pkg.capabilityIds.filter((id) => !matrixSet.has(id));
+  if (nonMatrix.length === 0) return true;
+  const leftoverish = nonMatrix.every(
+    (id) =>
+      id === "gdpr.art28.3.e" ||
+      id === "gdpr.art12.3" ||
+      (focus?.ruleIds ?? []).includes(id)
+  );
+  return leftoverish && matrixCaps.length >= Math.min(matrixIds.length, 4);
+}
+
+function isStructuralReviewPackage(pkg: EvidencePackage): boolean {
+  return pkg.id.includes("structural_review");
+}
+
+function isRightsMatrixScopedRequirement(requirementId: string): boolean {
+  const id = requirementId.toLowerCase();
+  if (id.startsWith("dsr.")) return true;
+  if (id.includes("data_subject_rights")) return true;
+  if (/\.articles?\d{1,3}(?:[._]|$)/i.test(id)) return true;
+  if (/^gdpr\.article\d+/i.test(id)) return true;
+  if (/articles?_\d+_\d+/i.test(id)) return true;
+  return false;
+}
+
+function matrixRowIdsForRequirement(
+  requirementId: string,
+  focus: InstructionFocus,
+  skills: AnalysisSkillConfig[]
+): string[] {
+  const articleMatch = requirementId.match(/articles?_?(\d{1,3})/i);
+  const article = articleMatch ? Number(articleMatch[1]) : undefined;
+  if (!article) {
+    return focus.matrixRowIds ?? [];
+  }
+  const rows = skills.flatMap((s) => s.rightsMatrixRows ?? []);
+  return (focus.matrixRowIds ?? []).filter((rowId) => {
+    const row = rows.find((r) => r.rowId === rowId);
+    const n = Number(row?.article.match(/\d+/)?.[0]);
+    return n === article;
+  });
 }
 
 function requirementHaystack(req: PlanReq): string {

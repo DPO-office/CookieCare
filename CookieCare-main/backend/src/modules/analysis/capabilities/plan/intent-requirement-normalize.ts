@@ -6,6 +6,11 @@ import type {
   UnresolvedIntentNeed,
 } from "../../models/intent.js";
 import { pacWarn } from "../../utils/pac-log.js";
+import { extractArticleNumbers } from "../../skills/runtime/focus/extract-instruction-focus.js";
+
+/** Matches umbrella ids like gdpr_articles_15_22_overview / articles_15_22_analysis. */
+const UMBRELLA_RANGE_ID_RE =
+  /(?:^|[._-])articles?[._-]?\d{1,3}[._-]\d{1,3}[._-]?(?:overview|analysis|summary|compliance)?$/i;
 
 const REQUIREMENT_TYPES = new Set<IntentRequirementType>([
   "verification",
@@ -101,6 +106,72 @@ export function parseUnresolvedNeedsFromRaw(value: unknown): UnresolvedIntentNee
     });
   }
   return normalizeUnresolvedNeeds(parsed);
+}
+
+/**
+ * Drop umbrella range-scoped requirements and ensure every explicit article in
+ * the instruction has its own verification requirement. The range is the union
+ * of its members — never an extra overview/analysis requirement.
+ */
+export function expandArticleRangeRequirements(
+  instruction: string,
+  requirements: IntentRequirement[],
+  regimePrefix = "gdpr"
+): IntentRequirement[] {
+  const articles = extractArticleNumbers(instruction);
+  const withoutUmbrellas = requirements.filter(
+    (req) => !isUmbrellaRangeRequirement(req)
+  );
+
+  if (articles.length === 0) return withoutUmbrellas;
+
+  const covered = new Set<number>();
+  for (const req of withoutUmbrellas) {
+    const n = articleFromRequirementId(req.id);
+    if (n) covered.add(n);
+  }
+
+  const expanded = [...withoutUmbrellas];
+  for (const article of articles) {
+    if (covered.has(article)) continue;
+    expanded.push({
+      id: `${regimePrefix}.article${article}.compliance`,
+      description: `Verify compliance with ${regimePrefix.toUpperCase()} Article ${article}.`,
+      type: "verification",
+      priority: "required",
+    });
+    covered.add(article);
+  }
+  return expanded;
+}
+
+export function isUmbrellaRangeRequirement(req: IntentRequirement): boolean {
+  if (UMBRELLA_RANGE_ID_RE.test(req.id)) return true;
+  const desc = req.description.toLowerCase();
+  const id = req.id.toLowerCase();
+  if (
+    (id.includes("articles_") || id.includes("articles-") || /articles?\d+_\d+/.test(id)) &&
+    (id.includes("overview") ||
+      id.includes("analysis") ||
+      id.includes("summary") ||
+      /\barticles?\s+\d+\s*[-–—to]+\s*\d+\b/i.test(desc))
+  ) {
+    return true;
+  }
+  return (
+    /\b(?:overview|analysis|summary)\b/i.test(desc) &&
+    /\barticles?\s+\d+\s*[-–—to,]+\s*\d+/i.test(desc) &&
+    !/\barticle\s+\d+\b(?!\s*[-–—to,])/i.test(
+      desc.replace(/\barticles?\s+\d+\s*[-–—to,]+\s*\d+/gi, "")
+    )
+  );
+}
+
+function articleFromRequirementId(id: string): number | undefined {
+  const match = id.match(/\.?articles?_?(\d{1,3})(?:[._]|$)/i);
+  if (match) return Number(match[1]);
+  const bare = id.match(/(?:^|[._-])art(?:icle)?[._-]?(\d{1,3})(?:[._-]|$)/i);
+  return bare ? Number(bare[1]) : undefined;
 }
 
 /**

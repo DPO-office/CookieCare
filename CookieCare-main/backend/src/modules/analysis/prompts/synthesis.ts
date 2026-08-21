@@ -56,6 +56,7 @@ export const SYNTHESIS_SYSTEM_PROMPT = [
   "",
   "Each report section has a distinct rhetorical role (see SECTION ARCHITECTURE in the user brief).",
   "Respect the declared section order. Adapt heading wording to the user's request when natural, but never merge scope with conclusion or state the overall verdict in the scope section.",
+  "Universal rule for every request and document type: write the Conclusion (or Bottom Line / Overall assessment) only after all analysis, qualifications, recommendations, and missing-materials sections. Never place it immediately after Scope when later sections exist. Only References may follow Conclusion.",
   "When analysis sections precede a conclusion, build the case first and synthesize the bottom line only in the conclusion section.",
   "Highlight contradictions, qualifications, and cross-references that materially affect the conclusion.",
   "Recommendations must follow from identified gaps. Do not invent generic checklists or advise whether to sign or litigate.",

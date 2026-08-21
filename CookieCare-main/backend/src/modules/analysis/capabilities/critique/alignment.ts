@@ -152,18 +152,39 @@ export function validateAlignment(state: AnalysisState): AlignmentReport {
     !explicitScope.allowOutOfScopeRules
   ) {
     const allowed = new Set(explicitScope.articles);
+    const matrixLinkedAllowed = matrixLinkedAllowedArticles(state);
     for (const article of scheduledArticles(workUnits)) {
-      if (!allowed.has(article)) {
-        issues.push({
-          kind: "scope_creep",
-          action: "withhold",
-          detail: `ACT scheduled Article ${article} but explicit scope limits to [${[...allowed].join(", ")}]`,
-        });
-      }
+      if (allowed.has(article) || matrixLinkedAllowed.has(article)) continue;
+      issues.push({
+        kind: "scope_creep",
+        action: "withhold",
+        detail: `ACT scheduled Article ${article} but explicit scope limits to [${[...allowed].join(", ")}]`,
+      });
     }
   }
 
   return { issues };
+}
+
+/**
+ * Assistance/timeframe rules (e.g. Art 28(3)(e)) that are matrix-linked to
+ * in-focus rights rows are supporting context for Arts 15–22 reviews — not
+ * scope creep. Flagging them as withhold was wiping the finished memo.
+ */
+function matrixLinkedAllowedArticles(state: AnalysisState): Set<number> {
+  const allowed = new Set<number>();
+  const matrixFocus = new Set(state.plan?.focus?.matrixRowIds ?? []);
+  if (matrixFocus.size === 0) return allowed;
+
+  for (const skill of state.activeSkills ?? []) {
+    for (const rule of skill.regimeRules ?? []) {
+      const linked = rule.matrixLinkage?.matrixRowIds ?? [];
+      if (!linked.some((id) => matrixFocus.has(id))) continue;
+      const article = articleFromRuleId(rule.ruleId);
+      if (article !== undefined) allowed.add(article);
+    }
+  }
+  return allowed;
 }
 
 export function alignmentNeedsReplan(report: AlignmentReport): boolean {

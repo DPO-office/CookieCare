@@ -20,7 +20,7 @@ export {
   GeminiModel,
   OpenRouterModel,
 } from "./config/model-specs.js";
-export type { TaskModelConfig, LLMTaskPreset } from "./config/model-specs.js";
+export type { TaskModelConfig, LLMTaskPreset, GeminiThinkingLevel } from "./config/model-specs.js";
 
 const providersCache: Record<string, ILLMProvider> = {};
 

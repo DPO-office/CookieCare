@@ -55,7 +55,7 @@ export function aggregateRequirements(
   const requirementIds = orderedRequirementIds(allFindings, state);
 
   const assessments: RequirementAssessment[] = requirementIds.map((requirementId) => {
-    const supporting = findingsForRequirement(requirementId, allFindings);
+    const supporting = findingsForRequirement(requirementId, allFindings, state);
     const status = deriveRequirementStatus(supporting);
     return {
       requirementId,
@@ -95,17 +95,21 @@ function buildSummary(
   supporting: Finding[],
   status: RequirementAssessment["status"]
 ): string {
-  const covered = supporting.find((f) => f.status === "present");
+  const covered = supporting.find((f) => f.status === "present" && !f.gap);
+  const namedWithGap = supporting.find(
+    (f) => f.status === "present" && Boolean(f.gap)
+  );
   const gap = supporting.find(
-    (f) => f.status === "absent_expected" && (f.gap || f.claim)
+    (f) =>
+      (f.status === "absent_expected" || f.kind === "risk") && (f.gap || f.claim)
   );
   switch (status) {
     case "covered":
-      return covered?.claim ?? "All required elements are supported.";
+      return covered?.claim ?? namedWithGap?.claim ?? "All required elements are supported.";
     case "missing":
       return gap?.gap ?? gap?.claim ?? "The required element is absent.";
     case "partial":
-      return [covered?.claim, gap?.gap ?? gap?.claim]
+      return [covered?.claim ?? namedWithGap?.claim, gap?.gap ?? gap?.claim ?? namedWithGap?.gap]
         .filter(Boolean)
         .join(" However, ");
     case "not_applicable":
@@ -120,7 +124,12 @@ function buildSummary(
 }
 
 function buildRecommendation(supporting: Finding[]): string | undefined {
-  const gap = supporting.find((f) => f.status === "absent_expected");
+  const gap = supporting.find(
+    (f) =>
+      f.status === "absent_expected" ||
+      Boolean(f.gap) ||
+      (f.kind === "risk" && (f.severity === "medium" || f.severity === "high"))
+  );
   if (!gap) return undefined;
   return gap.gap ? `Address the gap: ${gap.gap}` : undefined;
 }

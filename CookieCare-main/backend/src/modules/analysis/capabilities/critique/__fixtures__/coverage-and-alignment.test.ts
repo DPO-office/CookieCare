@@ -180,6 +180,72 @@ describe("coverage and alignment", () => {
     assert.ok(alignment.issues.some((i) => i.kind === "scope_creep"));
   });
 
+  it("allows matrix-linked Art 28 assistance when Arts 15-22 matrix rows are in focus", () => {
+    const state = baseState({
+      activeSkillIds: ["regimes/data-protection/gdpr", "doc-types/dpa"],
+      activeSkills: [
+        {
+          skillId: "regimes/data-protection/gdpr",
+          regimeRules: [
+            {
+              ruleId: "gdpr.art28.3.e",
+              label: "Assistance",
+              findingCategory: "dsr_assistance_not_operational",
+              matrixLinkage: {
+                matrixRowIds: [
+                  "gdpr.right.access",
+                  "gdpr.right.erasure",
+                ],
+              },
+            },
+          ],
+        } as never,
+      ],
+      plan: {
+        intent: baseState().intent!,
+        workUnits: [
+          {
+            workUnitId: "wu28",
+            tool: "check_against_rule",
+            input: { ruleId: "gdpr.art28.3.e" },
+            dependsOn: [],
+            outputSchema: "Finding[]",
+            status: "done",
+          },
+          {
+            workUnitId: "wu-m",
+            tool: "evaluate_matrix_row",
+            input: { rowId: "gdpr.right.access", article: "15" },
+            dependsOn: [],
+            outputSchema: "Finding[]",
+            status: "done",
+          },
+        ],
+        missingClarifications: [],
+        outputForm: "memo",
+        focus: {
+          ruleIds: ["gdpr.art28.3.e"],
+          matrixRowIds: ["gdpr.right.access", "gdpr.right.erasure"],
+          riskCategoryIds: [],
+          instructionText: "Review Articles 15-22",
+          explicitScope: {
+            articles: [15, 16, 17, 18, 19, 20, 21, 22],
+            contextArticles: [],
+            allowCrossReferencedContext: true,
+            allowOutOfScopeRules: false,
+          },
+        },
+        requirementExecutionPaths: [],
+      },
+    });
+    const alignment = validateAlignment(state);
+    assert.equal(
+      alignment.issues.some((i) => i.kind === "scope_creep"),
+      false,
+      "matrix-linked Art 28 must not hard-withhold a DSR memo"
+    );
+  });
+
   it("detects wrong package when requirement is not_supported", () => {
     const state = baseState({
       plan: {

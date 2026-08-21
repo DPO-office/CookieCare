@@ -32,6 +32,14 @@ export const SEMANTIC_INTENT_SYSTEM_PROMPT = [
 
   "",
 
+  "When the user names an inclusive range or list of articles (e.g. 'Articles 15-22', '15 16 17 18 19 20 21 22', 'Arts 15 to 22'), emit ONE requirement per article in the range (e.g. gdpr.article15.compliance … gdpr.article22.compliance).",
+
+  "Do NOT also emit an umbrella/range-scoped requirement such as gdpr_articles_15_22_overview, gdpr_articles_15_22_analysis, or 'Articles 15-22 compliance'. The range is the union of its members — nothing more.",
+
+  "Never invent requirement ids of the form <regime>_articles_<n>_<m>_* or <regime>_range_*.",
+
+  "",
+
   "Use priority='required' for requirements the user explicitly asks to verify, assess, extract, compare, or produce.",
 
   "Use priority='supporting' only for related context necessary to interpret the request but not itself explicitly requested.",

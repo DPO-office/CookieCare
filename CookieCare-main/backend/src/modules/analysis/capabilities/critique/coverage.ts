@@ -76,15 +76,48 @@ function coverageStateForRequirement(
   );
   const pathPackageId =
     supportedCandidate?.packageId ?? candidates[0]?.packageId;
-  if (mappedUnits.length === 0 && !pathPackageId) {
+  const pathRuleIds = supportedCandidate?.ruleIds ?? [];
+  if (mappedUnits.length === 0 && !pathPackageId && pathRuleIds.length === 0) {
     return { state: "needs_replan", reason: "No work unit mapped to requirement" };
   }
 
-  const executed = mappedUnits.some(
+  const ruleLinkedUnits =
+    pathRuleIds.length === 0
+      ? []
+      : workUnits.filter((unit) => {
+          const ruleId = String(unit.input.ruleId ?? "");
+          const rowId = String(unit.input.rowId ?? "");
+          if (pathRuleIds.includes(ruleId) || pathRuleIds.includes(rowId)) return true;
+          if (unit.tool === "flag_risk") {
+            const cats = (unit.input.riskCategoryIds as string[] | undefined) ?? [];
+            return pathRuleIds.some((id) => cats.includes(id));
+          }
+          return false;
+        });
+
+  const executedUnits = mappedUnits.length > 0 ? mappedUnits : ruleLinkedUnits;
+  const executed = executedUnits.some(
     (unit) => isTerminal(unit) && unit.status !== "failed"
   );
-  if (!executed && mappedUnits.length > 0) {
+  if (!executed && executedUnits.length > 0) {
     return { state: "not_covered", reason: "Mapped work did not complete" };
+  }
+  // Rule/matrix-supported paths with no stamped requirementIds still count when
+  // the leftover units for those capabilities finished (common for DSR meta reqs).
+  if (!executed && mappedUnits.length === 0 && pathRuleIds.length > 0) {
+    const anyRelatedDone = workUnits.some(
+      (unit) =>
+        (unit.tool === "evaluate_matrix_row" ||
+          unit.tool === "check_against_rule" ||
+          unit.tool === "flag_risk") &&
+        isTerminal(unit) &&
+        unit.status !== "failed"
+    );
+    if (!anyRelatedDone) {
+      return { state: "needs_replan", reason: "No work unit mapped to requirement" };
+    }
+  } else if (!executed && mappedUnits.length === 0 && !pathPackageId) {
+    return { state: "needs_replan", reason: "No work unit mapped to requirement" };
   }
 
   const assessment = (state.requirementAssessments ?? []).find(

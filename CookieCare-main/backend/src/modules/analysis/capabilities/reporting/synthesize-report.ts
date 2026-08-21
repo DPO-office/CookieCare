@@ -11,7 +11,11 @@ import {
   SYNTHESIS_SYSTEM_PROMPT,
   buildSynthesisUserPrompt,
 } from "../../prompts/synthesis.js";
-import { normalizeReportSections, suggestedHeading } from "../../prompts/report-sections.js";
+import {
+  enforceConclusionSectionLast,
+  normalizeReportSections,
+  suggestedHeading,
+} from "../../prompts/report-sections.js";
 import { emitAnalysisToken } from "../../utils/stream-tokens.js";
 import { pacLog } from "../../utils/pac-log.js";
 import { groupAssessmentsForReport } from "../../shared/group-assessments.js";
@@ -71,19 +75,22 @@ export async function synthesizeReport(
       maxOutputTokens: DEPTH_CEILING[reportSpec.depth],
     });
     if (text) {
+      const ordered = enforceConclusionSectionLast(text);
       if (outcome.truncated) {
         const note = `\n\n[Report ended at the length limit for ${reportSpec.depth} depth. Remaining detail was omitted.]`;
         emitAnalysisToken(state, note);
-        return `${text}${note}`;
+        return `${ordered}${note}`;
       }
-      return text;
+      return ordered;
     }
   } catch (err) {
     console.warn("[synthesizeReport] synthesis failed; using deterministic brief:", err);
   }
 
   // Deterministic fallback keeps the pipeline resilient (doc §21): never fabricate.
-  const fallback = buildDeterministicReport(state, assessments, reportSpec);
+  const fallback = enforceConclusionSectionLast(
+    buildDeterministicReport(state, assessments, reportSpec)
+  );
   emitAnalysisToken(state, fallback);
   return fallback;
 }

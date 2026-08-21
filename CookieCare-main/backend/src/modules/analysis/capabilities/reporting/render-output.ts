@@ -14,6 +14,7 @@ import { getSkillById } from "../../skills/runtime/catalog/registry.js";
 import { extractArticleNumbers } from "../../skills/runtime/focus/extract-instruction-focus.js";
 import { emitAnalysisToken } from "../../utils/stream-tokens.js";
 import { synthesizeReport } from "./synthesize-report.js";
+import { enforceConclusionSectionLast } from "../../prompts/report-sections.js";
 import { pacLog } from "../../utils/pac-log.js";
 import {
   BOTTOM_LINE_SYSTEM_PROMPT,
@@ -22,6 +23,11 @@ import {
   buildNarrativeReportUserPrompt,
 } from "../../prompts/render-output-prompts.js";
 import type { RendererHooks, SkillRegimeRule } from "../../skills/runtime/catalog/types.js";
+import {
+  articleNumberForFinding as resolveArticleNumber,
+  crossCuttingTimeframeFindings,
+  gapFindingsForArticle,
+} from "../../shared/article-linkage.js";
 
 /** Find the first authored rule whose rendererHooks[hook] is truthy. */
 export function findRuleByRendererHook(
@@ -298,10 +304,11 @@ function mergeUniqueEvidence(findings: Finding[]): Finding["evidence"] {
     );
 }
 
-function articleNumberForFinding(finding: Finding): number | undefined {
-  const ruleMatch = finding.ruleId?.match(/\.art(\d{1,3})(?:\.|$)/i);
-  if (ruleMatch) return Number(ruleMatch[1]);
-  return undefined;
+function articleNumberForFinding(
+  finding: Finding,
+  state?: AnalysisState
+): number | undefined {
+  return resolveArticleNumber(finding, state);
 }
 
 function briefStatus(finding: Finding | undefined): string {
@@ -648,6 +655,7 @@ function buildRightsMatrixSections(
     (f) => f.matrixRowId && findingTier(f) === "B" && !f.unverified && !f.orgPlaybook
   );
   const rows = state.activeSkills?.flatMap((s) => s.rightsMatrixRows ?? []) ?? [];
+  const timeframeGaps = crossCuttingTimeframeFindings(findings, state);
   lines.push("## 2. Rights Matrix / Mapping", "");
   if (matrix.length === 0) {
     lines.push("_No matrix-row findings were emitted._", "");
@@ -658,6 +666,7 @@ function buildRightsMatrixSections(
       const meta = rows.find((r) => r.rowId === f.matrixRowId);
       const right = meta?.label ?? f.matrixRowId ?? "—";
       const article = meta?.article ?? "—";
+      const articleNum = Number(String(article).match(/\d+/)?.[0]);
       const addressed =
         f.status === "not_covered"
           ? "Not yet supported"
@@ -668,11 +677,7 @@ function buildRightsMatrixSections(
           : f.status === "absent_expected"
             ? "Absent"
             : "Named";
-      const marker = citations.markerForFinding(f);
-      const gap = `${f.gap ?? (f.status === "present" ? "—" : f.claim)}${marker ? ` ${marker}` : ""}`.replace(
-        /\|/g,
-        "/"
-      );
+      const gap = matrixGapCell(state, findings, f, articleNum, timeframeGaps, citations);
       lines.push(`| ${right} | ${article} | ${addressed} | ${gap} |`);
     }
     lines.push("");
@@ -803,6 +808,59 @@ function buildRightsMatrixSections(
   }
 
   return lines.join("\n");
+}
+
+function matrixGapCell(
+  state: AnalysisState,
+  findings: Finding[],
+  matrixFinding: Finding,
+  articleNum: number,
+  timeframeGaps: Finding[],
+  citations: CitationRegistry
+): string {
+  const parts: string[] = [];
+  const seen = new Set<string>();
+  const pushGap = (finding: Finding, text: string) => {
+    const cleaned = text.replace(/\s+/g, " ").trim();
+    if (!cleaned) return;
+    const key = cleaned.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    const marker = citations.markerForFinding(finding);
+    parts.push(`${cleaned}${marker ? ` ${marker}` : ""}`);
+  };
+
+  if (matrixFinding.gap?.trim()) {
+    pushGap(matrixFinding, matrixFinding.gap);
+  } else if (matrixFinding.status !== "present" && matrixFinding.claim) {
+    pushGap(matrixFinding, matrixFinding.claim);
+  }
+
+  if (Number.isFinite(articleNum) && articleNum > 0) {
+    for (const linked of gapFindingsForArticle(
+      articleNum,
+      findings,
+      state,
+      new Set([matrixFinding.findingId])
+    )) {
+      pushGap(
+        linked,
+        linked.gap?.trim() ||
+          displayLabelForFinding(state, linked) ||
+          linked.claim
+      );
+    }
+  }
+
+  for (const tf of timeframeGaps) {
+    if (tf.findingId === matrixFinding.findingId) continue;
+    const label = displayLabelForFinding(state, tf);
+    const detail = tf.gap?.trim() || tf.claim;
+    pushGap(tf, `⚑ Response timeframe: ${detail || label}`);
+  }
+
+  if (parts.length === 0) return "—";
+  return parts.join("; ").replace(/\|/g, "/");
 }
 
 function unitRelatedNotes(state: AnalysisState): string[] {
@@ -1171,7 +1229,8 @@ export function sanitizeRenderedOutput(output: string): string {
   for (const pattern of INTERNAL_OUTPUT_PATTERNS) {
     safe = safe.replace(pattern, "[redacted internal routing detail]");
   }
-  return safe;
+  // Universal post-process for every report type/ask: Conclusion before References.
+  return enforceConclusionSectionLast(safe);
 }
 
 function ensureSentence(value: string): string {

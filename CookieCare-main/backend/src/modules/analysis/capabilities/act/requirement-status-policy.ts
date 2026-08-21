@@ -1,5 +1,7 @@
 import type { Finding } from "../../models/finding.js";
 import type { RequirementStatus } from "../../models/requirement-assessment.js";
+import type { AnalysisState } from "../../models/analysis-state.js";
+import { findingsLinkedToRequirement } from "../../shared/article-linkage.js";
 
 /**
  * Deterministic requirement-status aggregation (ACT refactor doc §9).
@@ -24,9 +26,23 @@ function isSupporting(f: Finding): boolean {
   return f.status === "present";
 }
 
-/** A Finding shows a concrete gap (required element absent). */
+/** A Finding shows a concrete gap (required element absent or operationally incomplete). */
 function isGap(f: Finding): boolean {
-  return f.status === "absent_expected" && !isReferencedElsewhereClaim(f);
+  if (isReferencedElsewhereClaim(f)) return false;
+  if (f.status === "absent_expected") return true;
+  // Named matrix rows that still carry an implementationGap are partial, not covered.
+  if (f.gap && f.matrixAddressing === "named") return true;
+  if (
+    f.kind === "risk" &&
+    f.status === "present" &&
+    (f.severity === "medium" || f.severity === "high")
+  ) {
+    return true;
+  }
+  if (f.matrixAddressing === "generic" || f.matrixAddressing === "absent") {
+    return Boolean(f.gap || f.status === "absent_expected");
+  }
+  return false;
 }
 
 /**
@@ -60,14 +76,10 @@ export function deriveRequirementStatus(findings: Finding[]): RequirementStatus 
   );
   const notApplicable = findings.filter(isNotApplicable);
 
-  // 1. Conflicting: at least one element is clearly met AND another clearly
-  //    absent, with no way to reconcile at the requirement level.
   if (supporting.length > 0 && gaps.length > 0) {
     return "partial";
   }
 
-  // Pure indeterminate evidence (present nowhere, absent nowhere) — we cannot
-  // conclude either way.
   if (
     supporting.length === 0 &&
     gaps.length === 0 &&
@@ -76,22 +88,18 @@ export function deriveRequirementStatus(findings: Finding[]): RequirementStatus 
     return "cannot_determine";
   }
 
-  // 2. Clear gap(s) and nothing supporting -> missing.
   if (gaps.length > 0 && supporting.length === 0) {
     return "missing";
   }
 
-  // 3. Some elements met but weakened by indeterminate evidence -> partial.
   if (supporting.length > 0 && indeterminate.length > 0) {
     return "partial";
   }
 
-  // 4. Everything supporting -> covered.
   if (supporting.length > 0) {
     return "covered";
   }
 
-  // 5. Only not-covered signals remain -> outside authored scope.
   if (notApplicable.length > 0) {
     return "not_applicable";
   }
@@ -100,12 +108,14 @@ export function deriveRequirementStatus(findings: Finding[]): RequirementStatus 
 }
 
 /**
- * Build the supporting-finding id set for a requirement. A finding supports a
- * requirement when it is explicitly tagged with `requirementId`.
+ * Prefer explicit `Finding.requirementId` stamps, then join same-article
+ * matrix/rule/risk findings so Named matrix rows don't hide operational gaps.
  */
 export function findingsForRequirement(
   requirementId: string,
-  findings: Finding[]
+  findings: Finding[],
+  state?: AnalysisState
 ): Finding[] {
+  if (state) return findingsLinkedToRequirement(requirementId, findings, state);
   return findings.filter((f) => f.requirementId === requirementId);
 }

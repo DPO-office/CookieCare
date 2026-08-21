@@ -43,6 +43,47 @@ describe("release decision", () => {
     assert.equal(resolveStoppedReason({} as AnalysisState, { release, fixPlan: [], isGreen: true }), "green");
   });
 
+  it("releases with limitations when soft coverage gaps exist but memo body is shippable", () => {
+    const release = composeReleaseDecision({
+      state: {
+        agent: initAgentRunState("CREATE"),
+        request: { sessionId: "s", instruction: "test", documentIds: [], documentTexts: {} },
+        workspace: { sessionId: "s", documents: [] },
+        findings: [],
+        draftTasks: [],
+        metadata: { timestamp: "", clauseTaxonomyVersion: "1", riskTaxonomyVersion: "1" },
+        activeSkillIds: [],
+        renderedOutput: "# Data-subject rights review\n\n## 2. Rights Matrix / Mapping\n\nSubstance.",
+      },
+      coverage: {
+        total: 2,
+        covered: 1,
+        entries: [
+          { requirementId: "gdpr.article15.compliance", state: "covered" },
+          { requirementId: "dsr.response_timeframes", state: "needs_replan" },
+        ],
+        notCovered: [],
+        needsReplan: ["dsr.response_timeframes"],
+      },
+      alignment: {
+        issues: [
+          {
+            kind: "wrong_package",
+            action: "replan",
+            requirementId: "dsr.response_timeframes",
+            detail: "No analysis package",
+          },
+        ],
+      },
+      placeholder: { detected: false },
+      structurallyValid: false,
+      executionComplete: true,
+      fixPlan: [],
+      skeletonMismatch: false,
+    });
+    assert.equal(release.verdict, "release_with_limitations");
+  });
+
   it("withholds on placeholder output and maps to blocked", () => {
     const release = composeReleaseDecision({
       state: {

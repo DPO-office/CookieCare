@@ -271,12 +271,13 @@ export const dpaDocTypeSkill: AnalysisSkillConfig = {
       label: "DPA structural review",
       report: {
         sections: [
-          "scope_and_conclusion",
+          "scope",
           "chapeau_particulars",
           "requirements_detail",
           "qualifications",
           "recommendations",
           "missing_materials",
+          "conclusion",
         ],
         outlineExtras: [
           {

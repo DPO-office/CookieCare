@@ -349,6 +349,104 @@ describe("render-output legal memo upgrade", () => {
     assert.doesNotMatch(output, /Suggested Remedial Points/);
   });
 
+  it("joins risk gaps into Named matrix Gap cells and badges Art 12(3)", () => {
+    resetSkillRegistryForTests();
+    const gdpr = getSkillById("regimes/data-protection/gdpr")!;
+    const findings = [
+      finding({
+        findingId: "matrix-erasure",
+        kind: "compliance",
+        category: "erasure_termination_only_gap",
+        status: "present",
+        matrixRowId: "gdpr.right.erasure",
+        matrixAddressing: "named",
+        claim: "Erasure is expressly named.",
+      }),
+      finding({
+        findingId: "matrix-portability",
+        kind: "compliance",
+        category: "portability_format_unaddressed",
+        status: "present",
+        matrixRowId: "gdpr.right.portability",
+        matrixAddressing: "named",
+        claim: "Portability is expressly named.",
+      }),
+      finding({
+        findingId: "risk-erasure",
+        kind: "risk",
+        category: "erasure_termination_only_gap",
+        status: "present",
+        severity: "high",
+        gap: "Erasure limited to contract termination",
+        claim: "Deletion only on termination.",
+      }),
+      finding({
+        findingId: "risk-port",
+        kind: "risk",
+        category: "portability_format_unaddressed",
+        status: "present",
+        severity: "medium",
+        gap: "No machine-readable format commitment",
+        claim: "Portability format unaddressed.",
+      }),
+      finding({
+        findingId: "art12",
+        kind: "compliance",
+        ruleId: "gdpr.art12.3",
+        category: "dsr_no_response_timeframe",
+        status: "absent_expected",
+        severity: "high",
+        gap: "no numeric Art 12(3) timeframe",
+        claim: "Only vague timing.",
+      }),
+    ];
+    const state = {
+      request: {
+        sessionId: "matrix-join",
+        instruction: "Review GDPR Articles 15-22.",
+        documentIds: ["cisco-dpa"],
+        documentTexts: {},
+        documentTitles: { "cisco-dpa": "Cisco Data Processing Addendum.pdf" },
+      },
+      workspace: {
+        sessionId: "matrix-join",
+        documents: [
+          {
+            docId: "cisco-dpa",
+            title: "Cisco Data Processing Addendum.pdf",
+            role: "target",
+            fullText: "Processor shall assist Controller.",
+            segments: [],
+            clauses: [],
+          },
+        ],
+      },
+      activeSkills: [gdpr],
+      activeSkillIds: [gdpr.skillId],
+      mergedRegimeRules: gdpr.regimeRules,
+      findings,
+      draftTasks: [],
+      metadata: {
+        timestamp: "2026-08-21T00:00:00.000Z",
+        clauseTaxonomyVersion: "test",
+        riskTaxonomyVersion: "test",
+      },
+    } as unknown as AnalysisState;
+
+    const output = buildRightsMatrixMemoDocument(
+      state,
+      findings,
+      "Named rights still leave operational gaps."
+    );
+    assert.match(output, /Erasure limited to contract termination/);
+    assert.match(output, /No machine-readable format commitment/);
+    assert.match(output, /Response timeframe/);
+    assert.doesNotMatch(
+      output,
+      /\| Erasure \(right to be forgotten\) \| 17 \| Named \| —/
+    );
+  });
+
   it("holds user-facing tokens until PAC is DONE", () => {
     const state = { agent: initAgentRunState("CREATE") } as AnalysisState;
     assert.equal(shouldHoldUserFacingOutput(state), true);

@@ -29,4 +29,30 @@ describe("render output NDA safety", () => {
     assert.doesNotMatch(cleaned, /workUnitId=/);
     assert.doesNotMatch(cleaned, /not_supported/);
   });
+
+  it("sanitizeRenderedOutput moves conclusion last for any memo", async () => {
+    const { sanitizeRenderedOutput } = await import("../render-output.js");
+    const cleaned = sanitizeRenderedOutput(
+      [
+        "# NDA review",
+        "",
+        "## Scope",
+        "Review of the NDA.",
+        "",
+        "## Conclusion",
+        "Material gaps remain.",
+        "",
+        "## Requirements detail",
+        "Confidentiality is partial.",
+        "",
+        "## References",
+        "[1] Section 2.",
+      ].join("\n")
+    );
+    const conclusionAt = cleaned.toLowerCase().indexOf("## conclusion");
+    const detailAt = cleaned.toLowerCase().indexOf("## requirements detail");
+    const refsAt = cleaned.toLowerCase().indexOf("## references");
+    assert.ok(conclusionAt > detailAt);
+    assert.ok(conclusionAt < refsAt);
+  });
 });

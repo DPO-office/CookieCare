@@ -59,8 +59,10 @@ export const config = {
   openRouterModel: process.env.OPENROUTER_MODEL || "deepseek/deepseek-chat-v3-0324",
   openRouterTemperature: numberFromEnv(process.env.OPENROUTER_TEMPERATURE, 0.2),
   openRouterMaxTokens: numberFromEnv(process.env.OPENROUTER_MAX_TOKENS, 4096),
-  // Kept for backward compatibility — no longer used for AI calls
-  geminiApiKey: process.env.GEMINI_API_KEY || "",
+  /** Gemini API key (Google AI). Preferred over legacy GEMINI_API_KEY. */
+  googleGeminiExternalKey: process.env.GOOGLE_GEMINI_EXTERNAL_KEY || "",
+  /** Legacy alias — falls back to GOOGLE_GEMINI_EXTERNAL_KEY when unset. */
+  geminiApiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_GEMINI_EXTERNAL_KEY || "",
   jwtSecret: process.env.JWT_SECRET || "privsec-ai-enterprise-secret-2026",
   // Fixed: Added the Render production URL as a default fallback
   corsOrigin: process.env.CORS_ORIGIN || "https://privlex-ai.onrender.com",

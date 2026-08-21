@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import { deriveSections } from "../../../models/intent.js";
 import {
   buildSectionGuidanceBlock,
+  enforceConclusionSectionLast,
   narrativeArcGuidance,
   normalizeReportSections,
   reportOutputContainsSection,
@@ -42,11 +43,99 @@ describe("report section guidance", () => {
     ]);
   });
 
+  it("places conclusion last when expanding legacy combined section among analysis sections", () => {
+    assert.deepEqual(
+      normalizeReportSections([
+        "scope_and_conclusion",
+        "chapeau_particulars",
+        "requirements_detail",
+        "qualifications",
+        "recommendations",
+        "missing_materials",
+      ]),
+      [
+        "scope",
+        "chapeau_particulars",
+        "requirements_detail",
+        "qualifications",
+        "recommendations",
+        "missing_materials",
+        "conclusion",
+      ]
+    );
+  });
+
+  it("forces conclusion last even when authored out of order", () => {
+    assert.deepEqual(
+      normalizeReportSections([
+        "scope",
+        "conclusion",
+        "requirements_detail",
+        "recommendations",
+      ]),
+      ["scope", "requirements_detail", "recommendations", "conclusion"]
+    );
+  });
+
   it("guides the writer to separate scope from conclusion", () => {
     const block = buildSectionGuidanceBlock(deriveSections("regime_compliance_memo", "deep"));
     assert.match(block, /open with scope only/i);
     assert.match(block, /bottom-line conclusion/i);
     assert.match(block, /Do not state the overall compliance verdict/i);
+    assert.match(block, /HARD ORDERING RULE/i);
+  });
+
+  it("moves front-loaded conclusion before references for any report", () => {
+    const report = [
+      "# Analysis",
+      "",
+      "## Scope",
+      "Review of the agreement.",
+      "",
+      "## Conclusion",
+      "Partially compliant.",
+      "",
+      "## Requirements detail",
+      "Security is covered.",
+      "",
+      "## Recommendations",
+      "Amend confidentiality.",
+      "",
+      "## References",
+      "[1] Clause 3.",
+    ].join("\n");
+
+    const ordered = enforceConclusionSectionLast(report);
+    const conclusionAt = ordered.toLowerCase().indexOf("## conclusion");
+    const requirementsAt = ordered.toLowerCase().indexOf("## requirements detail");
+    const refsAt = ordered.toLowerCase().indexOf("## references");
+    assert.ok(conclusionAt > requirementsAt);
+    assert.ok(conclusionAt < refsAt);
+  });
+
+  it("keeps coverage limitations after conclusion", () => {
+    const report = [
+      "# Rights review",
+      "",
+      "## Scope",
+      "Review.",
+      "",
+      "## 7. Bottom Line",
+      "Gaps remain.",
+      "",
+      "## Coverage limitations",
+      "One package missing.",
+      "",
+      "## 8. References",
+      "[1] Clause 1.",
+    ].join("\n");
+
+    const ordered = enforceConclusionSectionLast(report);
+    const bottomAt = ordered.toLowerCase().indexOf("## 7. bottom line");
+    const limitsAt = ordered.toLowerCase().indexOf("## coverage limitations");
+    const refsAt = ordered.toLowerCase().indexOf("## 8. references");
+    assert.ok(bottomAt < limitsAt);
+    assert.ok(limitsAt < refsAt);
   });
 
   it("detects flexible section headings in rendered output", () => {
