@@ -456,10 +456,10 @@ export function resolvePackages(
     ),
     focus
   );
+  // evaluate_package does not emit matrixRowId. A package that lists matrix
+  // rows as capabilityIds must not swallow the evaluate_matrix_row subgraph.
   const leftoverMatrixRowIds = scopedCapabilityIds(
-    (focus?.matrixRowIds ?? []).filter(
-      (id) => !ownedCaps.has(id) && !blockedCapabilityIds.has(id)
-    ),
+    (focus?.matrixRowIds ?? []).filter((id) => !blockedCapabilityIds.has(id)),
     focus
   );
   const leftoverRiskCategoryIds = (focus?.riskCategoryIds ?? []).filter(
@@ -489,6 +489,7 @@ export function resolvePackages(
       requirementType: p.requirementType,
     })),
     leftoverRuleIds: resolution.leftoverRuleIds,
+    leftoverMatrixRowIds: resolution.leftoverMatrixRowIds,
   });
   return resolution;
 }

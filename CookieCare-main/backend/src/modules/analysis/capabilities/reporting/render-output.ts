@@ -228,29 +228,44 @@ function userSafeFinding(finding: Finding): Finding {
 }
 
 /**
- * A legal rule is one conclusion in user output, even when an older/per-clause
- * execution path emitted several clause-level attempts for that rule.
+ * One user-facing conclusion per legal theme. Per-clause flag_risk / rule
+ * attempts stay in the finding store for critique; the memo must not reprint
+ * the same Art 17 / Art 20 gap a dozen times.
  */
 export function consolidateFindingsForRender(findings: Finding[]): Finding[] {
-  const safe = findings.map(userSafeFinding);
   const grouped = new Map<string, Finding[]>();
   const passthrough: Finding[] = [];
 
-  for (const finding of safe) {
-    if (
-      finding.kind !== "compliance" ||
-      !finding.ruleId ||
-      finding.matrixRowId ||
-      finding.orgPlaybook ||
-      finding.unverified
-    ) {
+  for (const finding of findings.map(userSafeFinding)) {
+    const key = consolidationKey(finding);
+    if (!key) {
       passthrough.push(finding);
       continue;
     }
-    const key = `${finding.skillId ?? ""}:${finding.ruleId}`;
     grouped.set(key, [...(grouped.get(key) ?? []), finding]);
   }
 
+  for (const group of grouped.values()) {
+    passthrough.push(pickPreferredFinding(group));
+  }
+
+  return passthrough;
+}
+
+function consolidationKey(finding: Finding): string | null {
+  if (finding.orgPlaybook || finding.unverified) return null;
+  if (finding.matrixRowId) return `matrix:${finding.matrixRowId}`;
+  if (finding.kind === "compliance" && finding.ruleId) {
+    return `rule:${finding.skillId ?? ""}:${finding.ruleId}`;
+  }
+  if (finding.kind === "risk" || finding.kind === "compliance") {
+    const lane = finding.relatedNotRequested ? "rel" : "pri";
+    return `theme:${lane}:${finding.skillId ?? ""}:${finding.kind}:${finding.category}`;
+  }
+  return null;
+}
+
+function pickPreferredFinding(group: Finding[]): Finding {
   const statusRank: Record<Finding["status"], number> = {
     absent_expected: 4,
     not_covered: 3,
@@ -258,31 +273,29 @@ export function consolidateFindingsForRender(findings: Finding[]): Finding[] {
     present: 1,
   };
   const severityRank = { high: 3, medium: 2, low: 1 } as const;
+  const selected = [...group].sort((a, b) => {
+    const status = statusRank[b.status] - statusRank[a.status];
+    if (status !== 0) return status;
+    return (
+      (severityRank[b.severity ?? "low"] ?? 0) -
+      (severityRank[a.severity ?? "low"] ?? 0)
+    );
+  })[0]!;
+  return { ...selected, evidence: mergeUniqueEvidence(group) };
+}
 
-  for (const group of grouped.values()) {
-    const selected = [...group].sort((a, b) => {
-      const status = statusRank[b.status] - statusRank[a.status];
-      if (status !== 0) return status;
-      return (
-        (severityRank[b.severity ?? "low"] ?? 0) -
-        (severityRank[a.severity ?? "low"] ?? 0)
-      );
-    })[0];
-    const evidence = group
-      .flatMap((finding) => finding.evidence)
-      .filter(
-        (candidate, index, all) =>
-          all.findIndex(
-            (item) =>
-              item.locator.docId === candidate.locator.docId &&
-              item.locator.structuralPath === candidate.locator.structuralPath &&
-              item.quotedText === candidate.quotedText
-          ) === index
-      );
-    passthrough.push({ ...selected, evidence });
-  }
-
-  return passthrough;
+function mergeUniqueEvidence(findings: Finding[]): Finding["evidence"] {
+  return findings
+    .flatMap((finding) => finding.evidence)
+    .filter(
+      (candidate, index, all) =>
+        all.findIndex(
+          (item) =>
+            item.locator.docId === candidate.locator.docId &&
+            item.locator.structuralPath === candidate.locator.structuralPath &&
+            item.quotedText === candidate.quotedText
+        ) === index
+    );
 }
 
 function articleNumberForFinding(finding: Finding): number | undefined {
@@ -710,7 +723,7 @@ function buildRightsMatrixSections(
   lines.push("");
 
   lines.push("## 4. Gaps That Could Result in a Violation", "");
-  const gaps = getEligibleRemedialFindings(findings);
+  const gaps = getEligibleRemedialFindings(findings, state);
   if (gaps.length === 0) {
     lines.push("No medium- or high-severity gaps were identified in the active response set.");
   } else {
@@ -919,8 +932,11 @@ function appendReferences(lines: string[], citations: CitationRegistry): void {
   lines.push("", "## References", "", ...references);
 }
 
-export function getEligibleRemedialFindings(findings: Finding[]): Finding[] {
-  return findings.filter(
+export function getEligibleRemedialFindings(
+  findings: Finding[],
+  state?: AnalysisState
+): Finding[] {
+  const eligible = findings.filter(
     (finding) =>
       finding.visibility !== "internal" &&
       !finding.relatedNotRequested &&
@@ -934,6 +950,16 @@ export function getEligibleRemedialFindings(findings: Finding[]): Finding[] {
         finding.matrixAddressing === "generic" ||
         finding.matrixAddressing === "absent")
   );
+  const byLabel = new Map<string, Finding[]>();
+  for (const finding of eligible) {
+    const label = (
+      state ? displayLabelForFinding(state, finding) : finding.category
+    )
+      .trim()
+      .toLowerCase();
+    byLabel.set(label, [...(byLabel.get(label) ?? []), finding]);
+  }
+  return [...byLabel.values()].map((group) => pickPreferredFinding(group));
 }
 
 function architectureParagraph(
@@ -1176,7 +1202,7 @@ async function streamBottomLine(state: AnalysisState, sections: string): Promise
       LLMTask.REFINEMENT,
       LLMProvider.GEMINI,
       {
-        onDelta: state.onToken,
+        onDelta: (delta) => emitAnalysisToken(state, delta),
         tracker,
       }
     );
@@ -1203,7 +1229,7 @@ async function streamNarrativeReport(
       LLMTask.REFINEMENT,
       LLMProvider.GEMINI,
       {
-        onDelta: state.onToken,
+        onDelta: (delta) => emitAnalysisToken(state, delta),
         tracker,
       }
     );

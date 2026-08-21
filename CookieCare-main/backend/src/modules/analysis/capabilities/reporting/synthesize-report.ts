@@ -57,7 +57,7 @@ export async function synthesizeReport(
       LLMProvider.GEMINI,
       {
         maxOutputTokens: DEPTH_CEILING[reportSpec.depth],
-        onDelta: state.onToken,
+        onDelta: (delta) => emitAnalysisToken(state, delta),
         tracker,
       }
     );

@@ -4,6 +4,8 @@ import type { AnalysisState } from "../../models/analysis-state.js";
 import type { ClauseObject } from "../../models/clause-object.js";
 import type { Finding } from "../../models/finding.js";
 import { getSkillById, getSkillRegistry, resetSkillRegistryForTests } from "../runtime/catalog/registry.js";
+import { shouldHoldUserFacingOutput } from "../../utils/pac-log.js";
+import { initAgentRunState } from "../../pac/types.js";
 
 process.env.GOOGLE_CLOUD_PROJECT ??= "render-output-test";
 const {
@@ -121,7 +123,7 @@ describe("render-output legal memo upgrade", () => {
       },
     } as unknown as AnalysisState;
 
-    const eligible = getEligibleRemedialFindings(findings);
+    const eligible = getEligibleRemedialFindings(findings, state);
     const output = buildRightsMatrixMemoDocument(
       state,
       findings,
@@ -225,6 +227,68 @@ describe("render-output legal memo upgrade", () => {
     assert.doesNotMatch(consolidated[0].claim, /Could not verify that/);
   });
 
+  it("collapses repeated flag_risk hits for the same category into one memo gap", () => {
+    const duplicates = Array.from({ length: 12 }, (_, index) =>
+      finding({
+        findingId: `port-${index}`,
+        kind: "risk",
+        category: "portability_format_unaddressed",
+        status: "present",
+        claim: "The clause mentions data subject rights but does not commit to a machine-readable format.",
+      })
+    );
+    const consolidated = consolidateFindingsForRender(duplicates);
+    assert.equal(consolidated.length, 1);
+    assert.equal(consolidated[0].evidence.length, 1);
+    const eligible = getEligibleRemedialFindings(consolidated);
+    assert.equal(eligible.length, 1);
+  });
+
+  it("collapses timeframe risk and Art 12(3) compliance into one remedial point", () => {
+    resetSkillRegistryForTests();
+    const gdpr = getSkillById("regimes/data-protection/gdpr")!;
+    const findings = [
+      finding({
+        findingId: "risk-time",
+        kind: "risk",
+        category: "dsr_no_response_timeframe",
+        status: "present",
+        claim: "No numeric Art 12(3) timeframe.",
+      }),
+      finding({
+        findingId: "rule-time",
+        kind: "compliance",
+        ruleId: "gdpr.art12.3",
+        category: "dsr_no_response_timeframe",
+        status: "absent_expected",
+        severity: "high",
+        claim: "Art 12(3) requires a one-month clock; the agreement only uses vague timing.",
+      }),
+    ];
+    const state = {
+      request: {
+        sessionId: "time",
+        instruction: "Check GDPR Articles 15-22.",
+        documentIds: ["dpa"],
+        documentTexts: {},
+      },
+      workspace: { sessionId: "time", documents: [] },
+      activeSkills: [gdpr],
+      activeSkillIds: [gdpr.skillId],
+      findings,
+      draftTasks: [],
+      metadata: {
+        timestamp: "2026-08-21T00:00:00.000Z",
+        clauseTaxonomyVersion: "test",
+        riskTaxonomyVersion: "test",
+      },
+    } as unknown as AnalysisState;
+
+    const eligible = getEligibleRemedialFindings(findings, state);
+    assert.equal(eligible.length, 1);
+    assert.equal(eligible[0].findingId, "rule-time");
+  });
+
   it("renders constrained articles in a genuinely brief summary shape", () => {
     resetSkillRegistryForTests();
     const gdpr = getSkillById("regimes/data-protection/gdpr")!;
@@ -283,5 +347,16 @@ describe("render-output legal memo upgrade", () => {
     assert.doesNotMatch(output, /Let me know if you'd like/i);
     assert.doesNotMatch(output, /Gaps That Could Result in a Violation/);
     assert.doesNotMatch(output, /Suggested Remedial Points/);
+  });
+
+  it("holds user-facing tokens until PAC is DONE", () => {
+    const state = { agent: initAgentRunState("CREATE") } as AnalysisState;
+    assert.equal(shouldHoldUserFacingOutput(state), true);
+    state.agent!.phase = "ACT";
+    assert.equal(shouldHoldUserFacingOutput(state), true);
+    state.agent!.phase = "CRITIQUE";
+    assert.equal(shouldHoldUserFacingOutput(state), true);
+    state.agent!.phase = "DONE";
+    assert.equal(shouldHoldUserFacingOutput(state), false);
   });
 });

@@ -103,6 +103,7 @@ export class PacController {
         }
 
         case "CRITIQUE": {
+          void state.onProgress?.(88, "Checking the analysis…");
           state = await this.capabilities.runCritique(state);
           state.agent!.turn++;
           const critique = state.critique!;

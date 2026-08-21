@@ -63,6 +63,7 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
     llmCalls: 0,
   } as Awaited<ReturnType<typeof runDeepCritique>>;
   if (targets.length > 0) {
+    void state.onProgress?.(92, "Verifying key findings…");
     const deepStarted = Date.now();
     pacLog("DEEP-CRITIQUE start", { targets: targets.length });
     deep = await runDeepCritique(state, targets);

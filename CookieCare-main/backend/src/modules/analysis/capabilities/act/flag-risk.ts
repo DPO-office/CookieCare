@@ -204,20 +204,54 @@ async function _flagRiskImpl(
     });
   }
 
+  const collapsed = collapseRisksByCategory(riskFindings);
   const silenceRisks = evaluateSilencePatterns(
     unit,
     clauses,
     riskCats,
     allowed,
     primarySkillId,
-    riskFindings
+    collapsed
   );
-  riskFindings.push(...silenceRisks);
 
   return {
     state,
-    findings: [...findings, ...riskFindings, ...orgPlaybookRisks(state, unit, clauses, findings)],
+    findings: [
+      ...findings,
+      ...collapsed,
+      ...silenceRisks,
+      ...orgPlaybookRisks(state, unit, clauses, findings),
+    ],
   };
+}
+
+/** One finding per risk category — same gap on five clauses is still one conclusion. */
+export function collapseRisksByCategory(findings: Finding[]): Finding[] {
+  const grouped = new Map<string, Finding[]>();
+  for (const finding of findings) {
+    const key = finding.category;
+    grouped.set(key, [...(grouped.get(key) ?? []), finding]);
+  }
+  const severityRank = { high: 3, medium: 2, low: 1 } as const;
+  return [...grouped.values()].map((group) => {
+    const selected = [...group].sort(
+      (a, b) =>
+        (severityRank[b.severity ?? "low"] ?? 0) -
+        (severityRank[a.severity ?? "low"] ?? 0)
+    )[0]!;
+    const evidence = group
+      .flatMap((finding) => finding.evidence)
+      .filter(
+        (candidate, index, all) =>
+          all.findIndex(
+            (item) =>
+              item.locator.docId === candidate.locator.docId &&
+              item.locator.structuralPath === candidate.locator.structuralPath &&
+              item.quotedText === candidate.quotedText
+          ) === index
+      );
+    return { ...selected, evidence };
+  });
 }
 
 /**

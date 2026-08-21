@@ -4,6 +4,7 @@ import type { AnalysisState } from "../../models/analysis-state.js";
 import { initAgentRunState } from "../types.js";
 import { resolveStoppedReason, nextPhaseAfterCritique } from "../transitions.js";
 import { renderLimitationsReport } from "../../capabilities/reporting/limitations-report.js";
+import { shouldHoldUserFacingOutput } from "../../utils/pac-log.js";
 import type { CritiqueReport, ReleaseDecision } from "../models/critique-report.js";
 
 function critiqueWithRelease(release: ReleaseDecision): CritiqueReport {
@@ -18,6 +19,16 @@ function critiqueWithRelease(release: ReleaseDecision): CritiqueReport {
 }
 
 describe("PAC release gate transitions", () => {
+  it("holds user-facing tokens until PAC is DONE", () => {
+    const state = { agent: initAgentRunState("CREATE") } as AnalysisState;
+    assert.equal(shouldHoldUserFacingOutput(state), true);
+    state.agent!.phase = "ACT";
+    assert.equal(shouldHoldUserFacingOutput(state), true);
+    state.agent!.phase = "CRITIQUE";
+    assert.equal(shouldHoldUserFacingOutput(state), true);
+    state.agent!.phase = "DONE";
+    assert.equal(shouldHoldUserFacingOutput(state), false);
+  });
   it("blocked withhold never preserves misleading renderedOutput in limitations report", () => {
     const release: ReleaseDecision = {
       verdict: "withhold",

@@ -107,6 +107,29 @@ describe("golden cisco-dpa-dsr skills baseline", () => {
     assert.equal(matrixRows.length, 8);
   });
 
+  it("keeps evaluate_matrix_row when the rights-matrix package is also selected", async () => {
+    const selection = selectSkills({
+      instruction: DSR_INSTRUCTION,
+      docType: "dpa",
+      promptLibraryId: "privacy",
+    });
+    const focus = await extractInstructionFocus(DSR_INSTRUCTION, selection.skills);
+    const graph = buildActGraphDetailed({
+      docId: "cisco-dpa",
+      instruction: DSR_INSTRUCTION,
+      skills: selection.skills,
+      intent: BASELINE_INTENT,
+      focus: {
+        ...focus!,
+        selectedPackageIds: ["gdpr.dsr.rights_matrix"],
+      },
+    });
+
+    const matrixRows = graph.workUnits.filter((u) => u.tool === "evaluate_matrix_row");
+    assert.equal(matrixRows.length, 8);
+    assert.ok(graph.workUnits.some((unit) => unit.tool === "evaluate_package"));
+  });
+
   it("saas-agreement inherits commercial-agreement expectedClauses", () => {
     const resolved = resolveDocTypeSkill("doc-types/saas-agreement");
     assert.ok(resolved.expectedClauses.some((e) => e.clauseType === "payment"));

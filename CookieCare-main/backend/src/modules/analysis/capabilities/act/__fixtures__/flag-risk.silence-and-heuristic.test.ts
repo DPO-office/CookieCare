@@ -7,7 +7,7 @@ import type { ClauseObject } from "../../../models/clause-object.js";
 import type { SkillRiskCategory } from "../../../skills/runtime/catalog/types.js";
 import { getSkillById, resetSkillRegistryForTests } from "../../../skills/runtime/catalog/registry.js";
 
-const { evaluateSilencePatterns, findSilenceEvidence, heuristicRisks } = await import(
+const { evaluateSilencePatterns, findSilenceEvidence, heuristicRisks, collapseRisksByCategory } = await import(
   "../flag-risk.js"
 );
 
@@ -191,5 +191,42 @@ describe("authored heuristic fallbacks", () => {
     );
     assert.equal(raw.length, 1);
     assert.equal(raw[0].category, "perpetual_confidentiality");
+  });
+
+  it("collapses the same risk category across clauses to one finding", () => {
+    resetSkillRegistryForTests();
+    const collapsed = collapseRisksByCategory([
+      {
+        findingId: "a",
+        kind: "risk",
+        category: "portability_format_unaddressed",
+        status: "present",
+        claim: "Clause A is silent on format.",
+        evidence: [{ locator, quotedText: "rights", sourceRole: "target" }],
+        severity: "medium",
+        taxonomyVersion: "test",
+        visibility: "user_facing",
+      },
+      {
+        findingId: "b",
+        kind: "risk",
+        category: "portability_format_unaddressed",
+        status: "present",
+        claim: "Clause B is silent on format.",
+        evidence: [
+          {
+            locator: { ...locator, structuralPath: "s2" },
+            quotedText: "portability",
+            sourceRole: "target",
+          },
+        ],
+        severity: "high",
+        taxonomyVersion: "test",
+        visibility: "user_facing",
+      },
+    ]);
+    assert.equal(collapsed.length, 1);
+    assert.equal(collapsed[0].findingId, "b");
+    assert.equal(collapsed[0].evidence.length, 2);
   });
 });

@@ -4,9 +4,15 @@ import {
   ensureConversation,
 } from "../../memory/conversation-store.js";
 import { recordSkillUse, saveOrgMemory } from "../../memory/org-memory.js";
+import { emitAnalysisToken } from "../../utils/pac-log.js";
 
 export async function persistAnalysis(state: AnalysisState): Promise<AnalysisState> {
   let next = ensureConversation(state);
+  const released =
+    next.agent?.phase === "DONE" && next.agent.stoppedReason !== "awaiting_user"
+      ? next.declineMessage || next.renderedOutput
+      : undefined;
+  if (released) emitAnalysisToken(next, released);
 
   if (next.declineMessage) {
     next = appendConversationTurns(next, [

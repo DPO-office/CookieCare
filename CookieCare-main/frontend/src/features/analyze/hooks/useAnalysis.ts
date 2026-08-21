@@ -82,7 +82,11 @@ export function useAnalysis(authToken: string) {
   };
 
   const handleProgress = (message: string) => {
-    if (message === "Writing the report…") {
+    if (
+      message === "Writing the report…" ||
+      message === "Checking the analysis…" ||
+      message === "Verifying key findings…"
+    ) {
       resetLiveStream();
     }
     setAnalysisProgress(message);
@@ -134,7 +138,8 @@ export function useAnalysis(authToken: string) {
       return true;
     }
 
-    // Prefer the final rendered report only — never keep raw ACT stream dumps.
+    // Prefer the released report only. ACT/critique drafts are held server-side
+    // until persist, so this should not swap a visible memo.
     const finalText =
       outcome.kind === "out_of_scope"
         ? outcome.declineMessage
