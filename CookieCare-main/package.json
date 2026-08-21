@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
- "scripts": {
+  "scripts": {
     "dev:frontend": "vite --config frontend/vite.config.ts",
     "dev:backend": "tsx backend/scripts/setupDb.ts && esbuild backend/server.ts --bundle --platform=node --format=esm --packages=external --outfile=backend/server.js && node backend/server.js",
     "build:frontend": "vite build --config frontend/vite.config.ts",
