@@ -1,4 +1,4 @@
-import type { AnalysisSkillConfig } from "../../types.js";
+import type { AnalysisSkillConfig } from "../../runtime/catalog/types.js";
 
 export const commercialAgreementSkill: AnalysisSkillConfig = {
   skillId: "doc-types/commercial-agreement",

@@ -4,45 +4,24 @@
  */
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { getSkillById, resetSkillRegistryForTests } from "../../../skills/registry.js";
-import { resolvePackages } from "../../../skills/resolve-packages.js";
-import { buildActGraphDetailed } from "../../../skills/build-act-graph.js";
-import { selectSkills } from "../../../skills/select-skills.js";
+import { getSkillById, resetSkillRegistryForTests } from "../../../skills/runtime/catalog/registry.js";
+import { resolvePackages } from "../../../skills/runtime/graph/resolve-packages.js";
+import { buildActGraphDetailed } from "../../../skills/runtime/graph/build-act-graph.js";
+import { selectSkills } from "../../../skills/runtime/selection/select-skills.js";
 import type { InstructionFocus } from "../../../models/analysis-plan.js";
-import type { IntentClassification, IntentRequirement } from "../../../models/intent.js";
-import { extractExplicitScope, filterIdsByScope } from "../../../skills/extract-explicit-scope.js";
+import type { IntentRequirement } from "../../../models/intent.js";
+import { extractExplicitScope, filterIdsByScope } from "../../../skills/runtime/focus/extract-explicit-scope.js";
+import {
+  bothSkills,
+  gdpr,
+  intent,
+} from "../../../__test-helpers__/package-graph-fixtures.js";
 
 const ART28_REVIEW =
   "Perform a rigorous GDPR Article 28 compliance review. Verify mandatory Article 28(3) clauses.";
 
 const TRANSFER_INSTRUCTION =
   "Analyse all international data transfer provisions. Identify whether Standard Contractual Clauses, Binding Corporate Rules, or adequacy decisions are referenced; whether Schrems II supplementary measures are addressed; transfers to third countries and the legal basis for each; and any gaps in transfer mechanisms.";
-
-function gdpr() {
-  resetSkillRegistryForTests();
-  return getSkillById("regimes/data-protection/gdpr")!;
-}
-
-function bothSkills() {
-  resetSkillRegistryForTests();
-  return [
-    getSkillById("regimes/data-protection/gdpr")!,
-    getSkillById("regimes/data-protection/international-transfers")!,
-  ];
-}
-
-function intent(requirements: IntentRequirement[] = []): IntentClassification {
-  return {
-    scope: "whole_document",
-    operation: "compliance_check",
-    standard: "regime_pack:gdpr",
-    outputForm: "memo",
-    compound: false,
-    subIntents: [],
-    requirements,
-    confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 },
-  };
-}
 
 function focus(partial: Partial<InstructionFocus>): InstructionFocus {
   return {

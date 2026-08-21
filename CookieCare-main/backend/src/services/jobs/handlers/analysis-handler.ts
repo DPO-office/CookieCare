@@ -12,6 +12,10 @@ import {
 } from "../../../modules/analysis/taxonomies/clause-taxonomy.js";
 import { RISK_TAXONOMY_VERSION } from "../../../modules/analysis/taxonomies/index.js";
 import { initAgentRunState } from "../../../modules/analysis/pac/types.js";
+import {
+  resolveAnalysisProfile,
+  resolveThinkingMode,
+} from "../../../modules/analysis/pac/analysis-profile.js";
 import { sanitizeFindingsForApi, sanitizeRenderedAnalysisOutput } from "../../../modules/analysis/utils/response-safety.js";
 
 /**
@@ -47,8 +51,14 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
     payload.answerStyle === "tabular" || payload.answerStyle === "narrative"
       ? payload.answerStyle
       : prior?.request.answerStyle;
+  const thinkingMode = resolveThinkingMode(
+    payload.thinkingMode === "lite" || payload.thinkingMode === "deep"
+      ? payload.thinkingMode
+      : prior?.request.thinkingMode
+  );
+  const analysisProfile = resolveAnalysisProfile(thinkingMode);
   console.log(
-    `[Analysis PAC] job create jobId=${jobId} session=${sessionId} docs=${documentIds.length} library=${payload.promptLibraryId || "-"} followUp=${Boolean(prior)}`
+    `[Analysis PAC] job create jobId=${jobId} session=${sessionId} docs=${documentIds.length} library=${payload.promptLibraryId || "-"} followUp=${Boolean(prior)} thinkingMode=${thinkingMode}`
   );
 
   await updateJobProgress(jobId, userId, 15, "Reading documents…");
@@ -84,7 +94,11 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
     organizationId: payload.organizationId
       ? String(payload.organizationId)
       : prior?.organizationId,
-    agent: initAgentRunState("CREATE", { docCount: documentIds.length }),
+    analysisProfile,
+    agent: initAgentRunState("CREATE", {
+      docCount: documentIds.length,
+      maxTurns: analysisProfile.maxTurns,
+    }),
     request: {
       sessionId,
       instruction: String(payload.instruction || ""),
@@ -95,6 +109,7 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
       documentRoles,
       documentPresentation,
       answerStyle,
+      thinkingMode,
       documentTexts,
       documentTitles,
     },
@@ -135,6 +150,16 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
       clauseTaxonomyVersion: CLAUSE_TAXONOMY_VERSION,
       riskTaxonomyVersion: RISK_TAXONOMY_VERSION,
       generationParameters: { jobId },
+      thinkingMode,
+      analysisProfile: {
+        thinkingMode: analysisProfile.thinkingMode,
+        maxTurns: analysisProfile.maxTurns,
+        enableDeepCritique: analysisProfile.enableDeepCritique,
+        maxTier2Attempts: analysisProfile.maxTier2Attempts,
+        maxReplans: analysisProfile.maxReplans,
+        thinkingByTask: analysisProfile.thinkingByTask,
+        critiqueUsesProChecklist: analysisProfile.critiqueUsesProChecklist,
+      },
     },
   };
 

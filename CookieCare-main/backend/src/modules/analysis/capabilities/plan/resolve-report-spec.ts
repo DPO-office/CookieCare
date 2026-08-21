@@ -1,32 +1,18 @@
 import type { EvidencePackage } from "../../models/evidence-package.js";
 import type {
   ReportDepth,
-  ReportOutlineItem,
   ReportSectionId,
-  ReportSectionRole,
   ReportSpec,
   ReportType,
 } from "../../models/intent.js";
 import { deriveSections } from "../../models/intent.js";
 import type { IntentClassification } from "../../models/intent.js";
+import { normalizeReportSections } from "../../prompts/report-sections.js";
 import { deriveReportOutline } from "./derive-report-outline.js";
 
-const SECTION_ORDER: ReportSectionId[] = [
-  "scope",
-  "scope_and_conclusion",
-  "chapeau_particulars",
-  "requirements_detail",
-  "qualifications",
-  "recommendations",
-  "missing_materials",
-  "conclusion",
-];
-
 function sortSections(sections: ReportSectionId[]): ReportSectionId[] {
-  const rank = new Map(SECTION_ORDER.map((s, i) => [s, i]));
-  return [...new Set(sections)].sort(
-    (a, b) => (rank.get(a) ?? 99) - (rank.get(b) ?? 99)
-  );
+  // Expand legacy combined sections and force Conclusion last for every skill/ask.
+  return normalizeReportSections(sections);
 }
 
 export function mergeAuthoredReportSections(args: {

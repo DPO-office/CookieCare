@@ -3,7 +3,9 @@ import { describe, it } from "node:test";
 import type { AnalysisState } from "../../models/analysis-state.js";
 import type { ClauseObject } from "../../models/clause-object.js";
 import type { Finding } from "../../models/finding.js";
-import { getSkillById, getSkillRegistry, resetSkillRegistryForTests } from "../registry.js";
+import { getSkillById, getSkillRegistry, resetSkillRegistryForTests } from "../runtime/catalog/registry.js";
+import { shouldHoldUserFacingOutput } from "../../utils/pac-log.js";
+import { initAgentRunState } from "../../pac/types.js";
 
 process.env.GOOGLE_CLOUD_PROJECT ??= "render-output-test";
 const {
@@ -121,7 +123,7 @@ describe("render-output legal memo upgrade", () => {
       },
     } as unknown as AnalysisState;
 
-    const eligible = getEligibleRemedialFindings(findings);
+    const eligible = getEligibleRemedialFindings(findings, state);
     const output = buildRightsMatrixMemoDocument(
       state,
       findings,
@@ -148,6 +150,7 @@ describe("render-output legal memo upgrade", () => {
     assert.equal(remedies?.length ?? 0, eligible.length);
     assert.match(output, /\[1\] Cisco Data Processing Addendum\.pdf/);
     assert.match(output, /Erasure limited to contract termination \(Art 17\)/);
+    assert.match(output, /\*\*Medium — Erasure limited to contract termination \(Art 17\)\.\*\*/);
     assert.match(
       output,
       /\| Automated individual decision-making \| 22 \| Insufficient evidence \|/
@@ -224,6 +227,68 @@ describe("render-output legal memo upgrade", () => {
     assert.doesNotMatch(consolidated[0].claim, /Could not verify that/);
   });
 
+  it("collapses repeated flag_risk hits for the same category into one memo gap", () => {
+    const duplicates = Array.from({ length: 12 }, (_, index) =>
+      finding({
+        findingId: `port-${index}`,
+        kind: "risk",
+        category: "portability_format_unaddressed",
+        status: "present",
+        claim: "The clause mentions data subject rights but does not commit to a machine-readable format.",
+      })
+    );
+    const consolidated = consolidateFindingsForRender(duplicates);
+    assert.equal(consolidated.length, 1);
+    assert.equal(consolidated[0].evidence.length, 1);
+    const eligible = getEligibleRemedialFindings(consolidated);
+    assert.equal(eligible.length, 1);
+  });
+
+  it("collapses timeframe risk and Art 12(3) compliance into one remedial point", () => {
+    resetSkillRegistryForTests();
+    const gdpr = getSkillById("regimes/data-protection/gdpr")!;
+    const findings = [
+      finding({
+        findingId: "risk-time",
+        kind: "risk",
+        category: "dsr_no_response_timeframe",
+        status: "present",
+        claim: "No numeric Art 12(3) timeframe.",
+      }),
+      finding({
+        findingId: "rule-time",
+        kind: "compliance",
+        ruleId: "gdpr.art12.3",
+        category: "dsr_no_response_timeframe",
+        status: "absent_expected",
+        severity: "high",
+        claim: "Art 12(3) requires a one-month clock; the agreement only uses vague timing.",
+      }),
+    ];
+    const state = {
+      request: {
+        sessionId: "time",
+        instruction: "Check GDPR Articles 15-22.",
+        documentIds: ["dpa"],
+        documentTexts: {},
+      },
+      workspace: { sessionId: "time", documents: [] },
+      activeSkills: [gdpr],
+      activeSkillIds: [gdpr.skillId],
+      findings,
+      draftTasks: [],
+      metadata: {
+        timestamp: "2026-08-21T00:00:00.000Z",
+        clauseTaxonomyVersion: "test",
+        riskTaxonomyVersion: "test",
+      },
+    } as unknown as AnalysisState;
+
+    const eligible = getEligibleRemedialFindings(findings, state);
+    assert.equal(eligible.length, 1);
+    assert.equal(eligible[0].findingId, "rule-time");
+  });
+
   it("renders constrained articles in a genuinely brief summary shape", () => {
     resetSkillRegistryForTests();
     const gdpr = getSkillById("regimes/data-protection/gdpr")!;
@@ -279,8 +344,117 @@ describe("render-output legal memo upgrade", () => {
     assert.match(output, /\| Article 15 \| A person can ask what personal data/);
     assert.match(output, /\*\*Article 16\.\*\*/);
     assert.match(output, /## Practical bottom line/);
-    assert.match(output, /extend this to Articles 18–22/);
+    assert.doesNotMatch(output, /Let me know if you'd like/i);
     assert.doesNotMatch(output, /Gaps That Could Result in a Violation/);
     assert.doesNotMatch(output, /Suggested Remedial Points/);
+  });
+
+  it("joins risk gaps into Named matrix Gap cells and badges Art 12(3)", () => {
+    resetSkillRegistryForTests();
+    const gdpr = getSkillById("regimes/data-protection/gdpr")!;
+    const findings = [
+      finding({
+        findingId: "matrix-erasure",
+        kind: "compliance",
+        category: "erasure_termination_only_gap",
+        status: "present",
+        matrixRowId: "gdpr.right.erasure",
+        matrixAddressing: "named",
+        claim: "Erasure is expressly named.",
+      }),
+      finding({
+        findingId: "matrix-portability",
+        kind: "compliance",
+        category: "portability_format_unaddressed",
+        status: "present",
+        matrixRowId: "gdpr.right.portability",
+        matrixAddressing: "named",
+        claim: "Portability is expressly named.",
+      }),
+      finding({
+        findingId: "risk-erasure",
+        kind: "risk",
+        category: "erasure_termination_only_gap",
+        status: "present",
+        severity: "high",
+        gap: "Erasure limited to contract termination",
+        claim: "Deletion only on termination.",
+      }),
+      finding({
+        findingId: "risk-port",
+        kind: "risk",
+        category: "portability_format_unaddressed",
+        status: "present",
+        severity: "medium",
+        gap: "No machine-readable format commitment",
+        claim: "Portability format unaddressed.",
+      }),
+      finding({
+        findingId: "art12",
+        kind: "compliance",
+        ruleId: "gdpr.art12.3",
+        category: "dsr_no_response_timeframe",
+        status: "absent_expected",
+        severity: "high",
+        gap: "no numeric Art 12(3) timeframe",
+        claim: "Only vague timing.",
+      }),
+    ];
+    const state = {
+      request: {
+        sessionId: "matrix-join",
+        instruction: "Review GDPR Articles 15-22.",
+        documentIds: ["cisco-dpa"],
+        documentTexts: {},
+        documentTitles: { "cisco-dpa": "Cisco Data Processing Addendum.pdf" },
+      },
+      workspace: {
+        sessionId: "matrix-join",
+        documents: [
+          {
+            docId: "cisco-dpa",
+            title: "Cisco Data Processing Addendum.pdf",
+            role: "target",
+            fullText: "Processor shall assist Controller.",
+            segments: [],
+            clauses: [],
+          },
+        ],
+      },
+      activeSkills: [gdpr],
+      activeSkillIds: [gdpr.skillId],
+      mergedRegimeRules: gdpr.regimeRules,
+      findings,
+      draftTasks: [],
+      metadata: {
+        timestamp: "2026-08-21T00:00:00.000Z",
+        clauseTaxonomyVersion: "test",
+        riskTaxonomyVersion: "test",
+      },
+    } as unknown as AnalysisState;
+
+    const output = buildRightsMatrixMemoDocument(
+      state,
+      findings,
+      "Named rights still leave operational gaps."
+    );
+    assert.match(output, /Erasure limited to contract termination/);
+    assert.match(output, /No machine-readable format commitment/);
+    assert.match(output, /Response timeframe/);
+    assert.doesNotMatch(
+      output,
+      /\| Erasure \(right to be forgotten\) \| 17 \| Named \| —/
+    );
+  });
+
+  it("holds user-facing tokens until PAC is DONE", () => {
+    const state = { agent: initAgentRunState("CREATE") } as AnalysisState;
+    assert.equal(shouldHoldUserFacingOutput(state), true);
+    state.agent!.phase = "ACT";
+    assert.equal(shouldHoldUserFacingOutput(state), true);
+    state.agent!.phase = "CRITIQUE";
+    assert.equal(shouldHoldUserFacingOutput(state), true);
+    state.agent!.phase = "DONE";
+    assert.equal(shouldHoldUserFacingOutput(state), false);
   });
 });

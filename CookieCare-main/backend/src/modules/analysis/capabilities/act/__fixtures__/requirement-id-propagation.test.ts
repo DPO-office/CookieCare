@@ -17,8 +17,8 @@ import {
   requirementIdsForCapability,
 } from "../act-utils.js";
 import { groupedResultsToFindings } from "../grouped-results-to-findings.js";
-import { buildActGraphDetailed } from "../../../skills/build-act-graph.js";
-import { getSkillById, resetSkillRegistryForTests } from "../../../skills/registry.js";
+import { buildActGraphDetailed } from "../../../skills/runtime/graph/build-act-graph.js";
+import { getSkillById, resetSkillRegistryForTests } from "../../../skills/runtime/catalog/registry.js";
 import type { InstructionFocus, AnalysisWorkUnit } from "../../../models/analysis-plan.js";
 import type { Finding } from "../../../models/finding.js";
 import type { IntentClassification } from "../../../models/intent.js";

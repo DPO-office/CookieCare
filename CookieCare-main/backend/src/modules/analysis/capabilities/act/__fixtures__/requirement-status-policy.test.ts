@@ -62,10 +62,32 @@ describe("deriveRequirementStatus", () => {
     );
   });
 
-  it("returns not_applicable when only not_covered signals remain", () => {
+  it("returns partial when a Named matrix row still carries an implementation gap", () => {
     assert.equal(
-      deriveRequirementStatus([finding("not_covered")]),
-      "not_applicable"
+      deriveRequirementStatus([
+        {
+          ...finding("present"),
+          matrixAddressing: "named",
+          gap: "Erasure limited to contract termination.",
+        },
+      ]),
+      "partial"
+    );
+  });
+
+  it("returns partial when supporting present findings are paired with a medium risk gap", () => {
+    assert.equal(
+      deriveRequirementStatus([
+        finding("present"),
+        {
+          ...finding("present"),
+          kind: "risk",
+          category: "portability_format_unaddressed",
+          severity: "medium",
+          gap: "No machine-readable format commitment.",
+        },
+      ]),
+      "partial"
     );
   });
 });

@@ -1,7 +1,7 @@
 import type { EvidenceStatus } from "../../models/clause-object.js";
 import type { DocumentSegment, SegmentedDocument } from "../../models/document-workspace.js";
-import type { AnalysisSkillConfig, ClauseRetrievalDict } from "../../skills/types.js";
-import { mergeClauseRetrievalMaps } from "../../skills/registry.js";
+import type { AnalysisSkillConfig, ClauseRetrievalDict } from "../../skills/runtime/catalog/types.js";
+import { mergeClauseRetrievalMaps } from "../../skills/runtime/catalog/registry.js";
 
 const MAX_CANDIDATES_PER_TYPE = 5;
 const MIN_SCORE = 20;

@@ -1,4 +1,4 @@
-import type { AnalysisSkillConfig, SkillRegimeRule } from "../../types.js";
+import type { AnalysisSkillConfig, SkillRegimeRule } from "../../runtime/catalog/types.js";
 import type { IntentRequirement } from "../../../models/intent.js";
 
 function rule(

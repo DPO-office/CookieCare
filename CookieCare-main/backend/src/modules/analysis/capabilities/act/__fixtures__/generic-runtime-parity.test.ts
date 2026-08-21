@@ -7,7 +7,7 @@ import {
   getSkillById,
   mergeClauseHeuristics,
   resetSkillRegistryForTests,
-} from "../../../skills/registry.js";
+} from "../../../skills/runtime/catalog/registry.js";
 import { buildInventoryArtifact, inventoryClaim, parseArtifactShape } from "../inventory-provisions.js";
 import { findRuleByRendererHook } from "../render-output.js";
 

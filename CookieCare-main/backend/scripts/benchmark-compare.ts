@@ -18,7 +18,7 @@
  *
  * Prerequisites
  * ──────────────
- *   • .env file present with GOOGLE_CLOUD_PROJECT set
+ *   • .env file present with GOOGLE_GEMINI_EXTERNAL_KEY set
  *   • Database not required — this script skips save/persist steps
  *   • Two sample .txt contracts are embedded inline so no files needed
  *
@@ -258,7 +258,7 @@ async function runModelComparison(finalState: CompareState) {
 
   // Temporarily override COMPARE_SUMMARY to Pro for this comparison call
   const proConfig = {
-    model: GeminiModel.GEMINI_2_5_PRO,
+    model: GeminiModel.GEMINI_3_1_PRO,
     temperature: 0.2,
     responseMimeType: "application/json",
     maxOutputTokens: 2048,

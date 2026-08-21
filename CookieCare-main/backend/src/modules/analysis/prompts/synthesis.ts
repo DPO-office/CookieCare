@@ -11,7 +11,7 @@ import type { RequirementAssessment } from "../models/requirement-assessment.js"
 import {
   groupAssessmentsForReport,
   humanizeRequirementId,
-} from "../capabilities/act/group-assessments.js";
+} from "../shared/group-assessments.js";
 import {
   REPORT_SECTION_DEFINITIONS,
   buildSectionGuidanceBlock,
@@ -19,6 +19,7 @@ import {
   normalizeReportSections,
   suggestedHeading,
 } from "./report-sections.js";
+import { LEGAL_MEMO_MARKDOWN_CRAFT } from "./memo-markdown-craft.js";
 
 export const SYNTHESIS_SECTION_LABELS: Record<ReportSectionId, string> = Object.fromEntries(
   Object.entries(REPORT_SECTION_DEFINITIONS).map(([id, def]) => [id, def.suggestedHeading])
@@ -55,6 +56,7 @@ export const SYNTHESIS_SYSTEM_PROMPT = [
   "",
   "Each report section has a distinct rhetorical role (see SECTION ARCHITECTURE in the user brief).",
   "Respect the declared section order. Adapt heading wording to the user's request when natural, but never merge scope with conclusion or state the overall verdict in the scope section.",
+  "Universal rule for every request and document type: write the Conclusion (or Bottom Line / Overall assessment) only after all analysis, qualifications, recommendations, and missing-materials sections. Never place it immediately after Scope when later sections exist. Only References may follow Conclusion.",
   "When analysis sections precede a conclusion, build the case first and synthesize the bottom line only in the conclusion section.",
   "Highlight contradictions, qualifications, and cross-references that materially affect the conclusion.",
   "Recommendations must follow from identified gaps. Do not invent generic checklists or advise whether to sign or litigate.",
@@ -67,6 +69,8 @@ export const SYNTHESIS_SYSTEM_PROMPT = [
   "If DOCUMENT PRESENTATION is individual, write a clearly separated section for each named document. Do not blend documents into one undivided report.",
   "If DOCUMENT PRESENTATION is unified and multiple documents were reviewed, write one combined report and name the documents in the scope section.",
   "If PRIOR CONVERSATION is supplied, answer the current user message in that context. Do not reprint the entire prior report unless the user asked to rewrite it.",
+  "",
+  LEGAL_MEMO_MARKDOWN_CRAFT,
 ].join("\n");
 
 export function buildSynthesisUserPrompt(

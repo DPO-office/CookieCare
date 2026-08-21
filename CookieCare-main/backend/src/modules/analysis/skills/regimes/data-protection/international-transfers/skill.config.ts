@@ -1,4 +1,4 @@
-import type { AnalysisSkillConfig, SkillRegimeRule } from "../../../types.js";
+import type { AnalysisSkillConfig, SkillRegimeRule } from "../../../runtime/catalog/types.js";
 import { DEFAULT_TRANSFER_MECHANISM_ALIASES } from "../../../../models/transfer-inventory.js";
 
 function rule(

@@ -1,4 +1,5 @@
 import type { AgentRunState, EntryMode } from "../pac/types.js";
+import type { AnalysisProfile, ThinkingMode } from "../pac/analysis-profile.js";
 import type { AnalysisPlan, MissingClarification, PlanAuditRecord } from "./analysis-plan.js";
 import type { CritiqueReport } from "./critique-report.js";
 import type { AnalysisConversation } from "./conversation.js";
@@ -12,11 +13,29 @@ import type {
   ClarificationRequest,
   DocumentPresentation,
   IntentClassification,
+  ReportSpec,
 } from "./intent.js";
 import type { OrgMemoryProfile } from "../memory/org-memory.js";
-import type { AnalysisSkillConfig, SkillRegimeRule } from "../skills/types.js";
-import type { ExpectedClauseCheck } from "../skills/types.js";
+import type { AnalysisSkillConfig, SkillRegimeRule } from "../skills/runtime/catalog/types.js";
+import type { ExpectedClauseCheck } from "../skills/runtime/catalog/types.js";
 import type { TierCCacheEntry, WorkUnitOutcome } from "./work-unit-outcome.js";
+
+/** Local repair payload — CRITIQUE → ACT without full PLAN. */
+export interface RepairContext {
+  analysisId: string;
+  kind: "synthesis" | "evaluation" | "package_shape" | "evidence";
+  affectedRequirementIds: string[];
+  affectedPackageIds: string[];
+  critiqueIssueDetails: string[];
+  preserveFindingsOutsideAffected: true;
+}
+
+/** Last synthesis call metadata for truncation-aware render retry. */
+export interface SynthesisMeta {
+  truncated: boolean;
+  maxOutputTokens: number;
+  depth: ReportSpec["depth"];
+}
 
 export interface AnalysisHistoryEntry {
   version: number;
@@ -57,10 +76,16 @@ export interface AnalysisState {
 
   entryMode?: EntryMode;
   agent?: AgentRunState;
+  /** Resolved once from request.thinkingMode — budgets + Gemini thinking overlays. */
+  analysisProfile?: AnalysisProfile;
   plan?: AnalysisPlan | null;
   critique?: CritiqueReport | null;
   conversation?: AnalysisConversation;
   fixPlan?: AnalysisFixPlan | null;
+  /** Set by CRITIQUE for ACT targeted repair (cleared after ACT). */
+  repairContext?: RepairContext | null;
+  /** Last synthesizeReport outcome — critique uses truncation for render-only redo. */
+  synthesisMeta?: SynthesisMeta | null;
   organizationId?: string;
 
   request: {
@@ -78,6 +103,8 @@ export interface AnalysisState {
     documentPresentation?: DocumentPresentation;
     /** Narrative prose vs tabular tables. */
     answerStyle?: AnswerStyle;
+    /** Compute / verification budget (lite | deep). Orthogonal to ReportDepth. */
+    thinkingMode?: ThinkingMode;
     /** Pre-loaded texts keyed by docId (handler resolves from files table). */
     documentTexts: Record<string, string>;
     documentTitles?: Record<string, string>;

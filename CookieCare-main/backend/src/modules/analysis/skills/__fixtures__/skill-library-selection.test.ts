@@ -6,13 +6,13 @@ process.env.GOOGLE_CLOUD_PROJECT ??= "skill-library-selection-test";
  */
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { extractInstructionFocus } from "../extract-instruction-focus.js";
-import { selectSkills } from "../select-skills.js";
+import { extractInstructionFocus } from "../runtime/focus/extract-instruction-focus.js";
+import { selectSkills } from "../runtime/selection/select-skills.js";
 import {
   getSkillById,
   resetSkillRegistryForTests,
-} from "../registry.js";
-import { assertSkillParity } from "../lint-skill-parity.js";
+} from "../runtime/catalog/registry.js";
+import { assertSkillParity } from "../runtime/lint/lint-skill-parity.js";
 
 const DSR_INSTRUCTION =
   "Review this DPA for GDPR data subject rights assistance (Articles 15-22) and Art 12(3) timeframes.";

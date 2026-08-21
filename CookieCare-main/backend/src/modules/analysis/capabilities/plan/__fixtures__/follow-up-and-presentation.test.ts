@@ -14,9 +14,9 @@ import {
   inheritFollowUpIntent,
   isMaterialTopicShift,
 } from "../follow-up-intent.js";
-import { replicateGraphForTargets } from "../../../skills/replicate-graph-for-targets.js";
+import { replicateGraphForTargets } from "../../../skills/runtime/graph/replicate-graph-for-targets.js";
 import type { AnalysisWorkUnit } from "../../../models/analysis-plan.js";
-import type { PackageResolution } from "../../../skills/resolve-packages.js";
+import type { PackageResolution } from "../../../skills/runtime/graph/resolve-packages.js";
 
 const PRIOR: IntentClassification = {
   scope: "whole_document",

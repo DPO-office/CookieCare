@@ -10,6 +10,8 @@ export const AnalysisRequestSchema = z.object({
   documentRoles: z.record(z.string(), z.enum(["target", "reference"])).optional(),
   documentMode: z.enum(["unified", "individual"]).optional(),
   answerStyle: z.enum(["narrative", "tabular"]).optional(),
+  /** Compute / verification budget — orthogonal to report depth. */
+  thinkingMode: z.enum(["lite", "deep"]).optional(),
 });
 
 export const ResumeAskRequestSchema = z.object({

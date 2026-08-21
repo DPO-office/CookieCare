@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
-import { getSkillById, resetSkillRegistryForTests } from "../../../skills/registry.js";
+import { getSkillById, resetSkillRegistryForTests } from "../../../skills/runtime/catalog/registry.js";
 
 const { buildInventoryArtifact, inventoryClaim, parseArtifactShape } = await import(
   "../inventory-provisions.js"

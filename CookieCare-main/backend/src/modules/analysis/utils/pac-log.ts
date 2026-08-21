@@ -1,6 +1,24 @@
 /** Terminal heartbeat for Analysis PAC — last line is whatever is currently running. */
 
+import type { AnalysisState } from "../models/analysis-state.js";
+
 const TAG = "[Analysis PAC]";
+
+/**
+ * Hold the memo until PAC is actually done. Streaming during ACT / lite
+ * critique is what makes the UI swap the report after deep critique.
+ */
+export function shouldHoldUserFacingOutput(state: AnalysisState): boolean {
+  const phase = state.agent?.phase;
+  return phase === "PLAN" || phase === "ACT" || phase === "CRITIQUE";
+}
+
+/** Stream only renderer-owned output. ACT findings and tool telemetry must never use this path. */
+export function emitAnalysisToken(state: AnalysisState, delta: string): void {
+  if (!delta) return;
+  if (shouldHoldUserFacingOutput(state)) return;
+  state.onToken?.(delta);
+}
 
 export function pacLog(message: string, extra?: Record<string, unknown>): void {
   const ts = new Date().toISOString().slice(11, 23);

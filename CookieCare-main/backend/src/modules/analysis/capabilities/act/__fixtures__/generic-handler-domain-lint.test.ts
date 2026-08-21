@@ -17,11 +17,16 @@ const HANDLERS = [
   "classify-document.ts",
   "extract-clauses.ts",
   "web-assisted-reference.ts",
-  "render-output.ts",
   "execute-act-plan.ts",
 ];
 
-const BUILD_ACT_GRAPH = path.join(ACT_DIR, "../../../skills/build-act-graph.ts");
+const REPORTING_HANDLERS = [
+  path.join(ACT_DIR, "../../reporting/render-output.ts"),
+  path.join(ACT_DIR, "../../reporting/synthesize-report.ts"),
+  path.join(ACT_DIR, "../../reporting/limitations-report.ts"),
+];
+
+const BUILD_ACT_GRAPH = path.join(ACT_DIR, "../../../skills/runtime/graph/build-act-graph.ts");
 
 const FORBIDDEN =
   /\b(gdpr|ccpa|hipaa|lgpd|pipl|art\s?12\.3|art\s?28\.3|article\s?(12|22|28)|transfer_inventory|data_subject_request)\b/i;
@@ -57,12 +62,25 @@ describe("generic ACT handler domain-coupling lint", () => {
         }
       });
     }
+    for (const file of REPORTING_HANDLERS) {
+      const src = readFileSync(file, "utf8");
+      const rel = path.relative(path.join(ACT_DIR, ".."), file);
+      src.split(/\r?\n/).forEach((line, index) => {
+        if (lineViolatesDomainLint(line)) {
+          hits.push(`${rel}:${index + 1}: ${line.trim()}`);
+        }
+      });
+    }
     assert.deepEqual(hits, [], hits.join("\n"));
   });
 
   it("forbids direct regime/doc-type skill imports in ACT handlers and graph builder", () => {
     const hits: string[] = [];
-    for (const file of [...HANDLERS.map((f) => path.join(ACT_DIR, "..", f)), BUILD_ACT_GRAPH]) {
+    for (const file of [
+      ...HANDLERS.map((f) => path.join(ACT_DIR, "..", f)),
+      ...REPORTING_HANDLERS,
+      BUILD_ACT_GRAPH,
+    ]) {
       const rel = path.relative(ACT_DIR, file);
       const src = readFileSync(file, "utf8");
       src.split(/\r?\n/).forEach((line, index) => {

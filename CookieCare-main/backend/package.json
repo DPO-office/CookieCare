@@ -8,7 +8,7 @@
     "build": "esbuild server.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=dist/server.js && node -e \"const fs=require('fs'),path=require('path');function copyAllMd(src,dst){if(!fs.existsSync(src))return;for(const e of fs.readdirSync(src,{withFileTypes:true})){const s=path.join(src,e.name),d=path.join(dst,e.name);if(e.isDirectory()){copyAllMd(s,d);}else if(e.name.endsWith('.md')){fs.mkdirSync(dst,{recursive:true});fs.copyFileSync(s,d);}}}copyAllMd('src/modules/drafting/packs','dist/packs');console.log('[build] Copied drafting packs to dist/packs!');\"",
     "setup-db": "tsx scripts/setupDb.ts",
     "lint": "tsc --noEmit",
-    "lint:skills": "node --import ./node_modules/tsx/dist/loader.mjs src/modules/analysis/skills/run-lint-skill-parity.ts",
+    "lint:skills": "node --import ./node_modules/tsx/dist/loader.mjs src/modules/analysis/skills/runtime/lint/run-lint-skill-parity.ts",
     "test": "npm run lint:skills && node --import ./node_modules/tsx/dist/loader.mjs --test test/**/*.test.ts src/modules/analysis/skills/__fixtures__/**/*.test.ts src/modules/analysis/capabilities/**/__fixtures__/**/*.test.ts"
   },
   "dependencies": {

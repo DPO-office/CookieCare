@@ -6,16 +6,16 @@ process.env.GOOGLE_CLOUD_PROJECT ??= "golden-cisco-dpa-dsr-test";
  */
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { extractInstructionFocus } from "../extract-instruction-focus.js";
-import { buildActGraphDetailed } from "../build-act-graph.js";
-import { selectSkills } from "../select-skills.js";
+import { extractInstructionFocus } from "../runtime/focus/extract-instruction-focus.js";
+import { buildActGraphDetailed } from "../runtime/graph/build-act-graph.js";
+import { selectSkills } from "../runtime/selection/select-skills.js";
 import {
   getSkillById,
   resolveDocTypeSkill,
   resetSkillRegistryForTests,
-} from "../registry.js";
-import { assertSkillParity } from "../lint-skill-parity.js";
-import { loadSkillMdSection } from "../load-skill-md.js";
+} from "../runtime/catalog/registry.js";
+import { assertSkillParity } from "../runtime/lint/lint-skill-parity.js";
+import { loadSkillMdSection } from "../runtime/catalog/load-skill-md.js";
 import type { IntentClassification } from "../../models/intent.js";
 
 const DSR_INSTRUCTION =
@@ -105,6 +105,33 @@ describe("golden cisco-dpa-dsr skills baseline", () => {
 
     const matrixRows = graph.workUnits.filter((u) => u.tool === "evaluate_matrix_row");
     assert.equal(matrixRows.length, 8);
+  });
+
+  it("keeps evaluate_matrix_row when the rights-matrix package is also selected", async () => {
+    const selection = selectSkills({
+      instruction: DSR_INSTRUCTION,
+      docType: "dpa",
+      promptLibraryId: "privacy",
+    });
+    const focus = await extractInstructionFocus(DSR_INSTRUCTION, selection.skills);
+    const graph = buildActGraphDetailed({
+      docId: "cisco-dpa",
+      instruction: DSR_INSTRUCTION,
+      skills: selection.skills,
+      intent: BASELINE_INTENT,
+      focus: {
+        ...focus!,
+        selectedPackageIds: ["gdpr.dsr.rights_matrix"],
+      },
+    });
+
+    const matrixRows = graph.workUnits.filter((u) => u.tool === "evaluate_matrix_row");
+    assert.equal(matrixRows.length, 8);
+    assert.equal(
+      graph.workUnits.filter((unit) => unit.tool === "evaluate_package").length,
+      0,
+      "matrix-owned package must defer to evaluate_matrix_row"
+    );
   });
 
   it("saas-agreement inherits commercial-agreement expectedClauses", () => {

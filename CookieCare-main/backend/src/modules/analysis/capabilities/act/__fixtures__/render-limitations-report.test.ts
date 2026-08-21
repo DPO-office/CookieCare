@@ -67,7 +67,7 @@ describe("render limitations report", () => {
     assert.doesNotMatch(report, /Art 28/);
   });
 
-  it("partial release wraps existing output with limitations header", () => {
+  it("partial release inserts skill/package limitations after Bottom Line", () => {
     const release = {
       verdict: "release_with_limitations" as const,
       reasons: ["coverage_gap" as const],
@@ -100,9 +100,56 @@ describe("render limitations report", () => {
         activeSkillIds: [],
       } as AnalysisState,
       release,
-      { wrapExisting: "## NDA findings\n\nConfidentiality is defined." }
+      {
+        wrapExisting:
+          "## 7. Bottom Line\n\nConfidentiality is defined.\n\n## 8. References\n\n[1] Doc",
+      }
     );
-    assert.match(wrapped, /Limitations/);
+    assert.match(wrapped, /Coverage limitations/);
     assert.match(wrapped, /Confidentiality is defined/);
+    assert.doesNotMatch(wrapped, /Do not treat it as a fully verified/);
+    const bottomIdx = wrapped.indexOf("## 7. Bottom Line");
+    const limitsIdx = wrapped.indexOf("## Coverage limitations");
+    const refsIdx = wrapped.indexOf("## 8. References");
+    assert.ok(bottomIdx < limitsIdx && limitsIdx < refsIdx);
+  });
+
+  it("partial release without skill/package gaps leaves body unchanged", () => {
+    const release = {
+      verdict: "release_with_limitations" as const,
+      reasons: ["unsupported_finding" as const],
+      requirementCoverage: {
+        total: 1,
+        covered: 1,
+        entries: [],
+        notCovered: [],
+        needsReplan: [],
+      },
+      alignment: { issues: [] },
+      placeholderReport: { detected: false },
+    };
+    const body = "## 7. Bottom Line\n\nAll clear.";
+    const wrapped = renderLimitationsReport(
+      {
+        request: {
+          sessionId: "s",
+          instruction: "test",
+          documentIds: [],
+          documentTexts: {},
+        },
+        workspace: { sessionId: "s", documents: [] },
+        findings: [],
+        draftTasks: [],
+        metadata: {
+          timestamp: "",
+          clauseTaxonomyVersion: "1",
+          riskTaxonomyVersion: "1",
+        },
+        activeSkillIds: [],
+      } as AnalysisState,
+      release,
+      { wrapExisting: body }
+    );
+    assert.equal(wrapped, body);
   });
 });

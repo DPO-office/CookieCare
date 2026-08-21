@@ -1,4 +1,4 @@
-import type { AnalysisSkillConfig, SkillRegimeRule } from "../../../types.js";
+import type { AnalysisSkillConfig, SkillRegimeRule } from "../../../runtime/catalog/types.js";
 
 function rule(
   ruleId: string,

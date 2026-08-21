@@ -11,10 +11,10 @@ import type { ClauseObject } from "../../models/clause-object.js";
 import type {
   MatrixApplicabilityGate,
   RightsMatrixRow,
-} from "../../skills/types.js";
+} from "../../skills/runtime/catalog/types.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
-import { getSkillById } from "../../skills/registry.js";
-import { loadSkillMdSection } from "../../skills/load-skill-md.js";
+import { getSkillById } from "../../skills/runtime/catalog/registry.js";
+import { loadSkillMdSection } from "../../skills/runtime/catalog/load-skill-md.js";
 import {
   compileAuthoredRegex,
   insufficient,
@@ -25,6 +25,8 @@ type MatrixJudgment = {
   addressing: MatrixAddressing;
   claim: string;
   gap?: string;
+  implementationGap?: string;
+  implementationSeverity?: "low" | "medium" | "high";
   clauseId?: string;
   quotedText?: string;
   severity: "low" | "medium" | "high";
@@ -103,6 +105,8 @@ async function _evaluateMatrixRowImpl(
       addressing: { type: "string", enum: ["named", "generic", "absent"] },
       claim: { type: "string" },
       gap: { type: "string" },
+      implementationGap: { type: "string" },
+      implementationSeverity: { type: "string", enum: ["low", "medium", "high"] },
       clauseId: { type: "string" },
       quotedText: { type: "string" },
       severity: { type: "string", enum: ["low", "medium", "high"] },
@@ -164,6 +168,15 @@ async function _evaluateMatrixRowImpl(
   const claimWithJustification = raw.justification
     ? `${raw.claim} (Justification: ${raw.justification})`
     : raw.claim;
+  const implementationGap = raw.implementationGap?.trim();
+  const resolvedGap =
+    implementationGap ||
+    raw.gap?.trim() ||
+    (raw.addressing === "absent" ? raw.gap : undefined);
+  const resolvedSeverity =
+    implementationGap && raw.implementationSeverity
+      ? raw.implementationSeverity
+      : raw.severity;
 
   const finding: Finding = {
     findingId: `f_matrix_${rowId}_${unit.workUnitId}`,
@@ -191,25 +204,31 @@ async function _evaluateMatrixRowImpl(
               },
             ]
           : [],
-    severity: raw.severity,
+    severity: resolvedSeverity,
     taxonomyVersion: RISK_TAXONOMY_VERSION,
     workUnitId: unit.workUnitId,
     skillId,
     visibility: "user_facing",
     matrixRowId: rowId,
     matrixAddressing: raw.addressing,
-    gap: raw.gap,
+    gap: resolvedGap,
     ruleSourceTier: "B",
   };
 
   let nextState = state;
-  if (!gateHit && raw.remedialInstruction?.trim() && finding.evidence[0]?.locator) {
+  if (
+    !gateHit &&
+    finding.evidence[0]?.locator &&
+    (raw.remedialInstruction?.trim() || implementationGap)
+  ) {
     const task: DraftTask = {
       sourceFindingId: finding.findingId,
       clauseLocator: finding.evidence[0].locator,
       evidence: finding.evidence,
       reason: `Matrix gap for ${label}`,
-      instruction: raw.remedialInstruction.trim(),
+      instruction:
+        raw.remedialInstruction?.trim() ||
+        `Revise the agreement to address ${implementationGap}`,
     };
     nextState = {
       ...state,
@@ -289,6 +308,8 @@ export function buildMatrixEvaluationPrompt(args: {
         ].join("\n"),
     "You MUST justify addressing against the Named vs Generic examples above — do not default to Generic without justification.",
     args.row.applicabilityGate?.llmGuidance ?? "",
+    "Even when addressing=named, set implementationGap to any operational shortfall the contract still has for this right (e.g. no numeric response timeframe, no machine-readable portability format, erasure only at termination, no Art 22 human-intervention/contest safeguards, no recipient-notification duty). Leave implementationGap empty only when the contract both names the right AND operationalises it.",
+    "When implementationGap is set, also set implementationSeverity (medium or high for material GDPR exposure).",
     "quotedText must be copied VERBATIM from a clause when addressing is named or generic.",
     `Clauses:\n${JSON.stringify(
       args.clauses.map((c) => ({

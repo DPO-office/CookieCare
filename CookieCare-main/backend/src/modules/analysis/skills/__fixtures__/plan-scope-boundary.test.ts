@@ -7,18 +7,23 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type { InstructionFocus } from "../../models/analysis-plan.js";
 import type { IntentClassification, IntentRequirement } from "../../models/intent.js";
-import type { AnalysisSkillConfig } from "../types.js";
+import type { AnalysisSkillConfig } from "../runtime/catalog/types.js";
 import {
   capabilityIdMatchesScope,
   extractExplicitScope,
   ruleIdMatchesScope,
   scopeBoundaryActive,
-} from "../extract-explicit-scope.js";
-import { buildResolutionCatalog } from "../build-resolution-catalog.js";
-import { collectStrongCatalogShortlist } from "../extract-instruction-focus.js";
-import { buildActGraphDetailed } from "../build-act-graph.js";
-import { resolvePackages } from "../resolve-packages.js";
-import { getSkillById, resetSkillRegistryForTests } from "../registry.js";
+} from "../runtime/focus/extract-explicit-scope.js";
+import { buildResolutionCatalog } from "../runtime/focus/build-resolution-catalog.js";
+import { collectStrongCatalogShortlist } from "../runtime/focus/extract-instruction-focus.js";
+import { buildActGraphDetailed } from "../runtime/graph/build-act-graph.js";
+import { resolvePackages } from "../runtime/graph/resolve-packages.js";
+import {
+  bothSkills,
+  gdpr,
+  intent as baseIntent,
+} from "../../__test-helpers__/package-graph-fixtures.js";
+import type { AnalysisSkillConfig } from "../runtime/catalog/types.js";
 
 const ART28_REVIEW =
   "Perform a rigorous GDPR Article 28 compliance review. Verify mandatory Article 28(3) clauses.";
@@ -38,14 +43,8 @@ const CROSS_REF_INSTRUCTION =
 
 function intent(requirements: IntentRequirement[] = []): IntentClassification {
   return {
-    scope: "whole_document",
-    operation: "compliance_check",
+    ...baseIntent(requirements),
     standard: "regime_pack:regimes/data-protection/gdpr",
-    outputForm: "memo",
-    compound: false,
-    subIntents: [],
-    requirements,
-    confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 },
   };
 }
 
@@ -59,17 +58,12 @@ function focus(partial: Partial<InstructionFocus>): InstructionFocus {
   };
 }
 
-function gdprSkills() {
-  resetSkillRegistryForTests();
-  return [getSkillById("regimes/data-protection/gdpr")!];
+function gdprSkills(): AnalysisSkillConfig[] {
+  return [gdpr()];
 }
 
-function transferSkills() {
-  resetSkillRegistryForTests();
-  return [
-    getSkillById("regimes/data-protection/gdpr")!,
-    getSkillById("regimes/data-protection/international-transfers")!,
-  ];
+function transferSkills(): AnalysisSkillConfig[] {
+  return bothSkills();
 }
 
 function ruleIdsFromGraph(workUnits: ReturnType<typeof buildActGraphDetailed>["workUnits"]): string[] {

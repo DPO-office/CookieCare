@@ -11,14 +11,14 @@ import {
   heuristicClassify,
   isBriefSummaryInstruction,
 } from "../../capabilities/plan/intent-heuristics.js";
-import { buildActGraphDetailed } from "../build-act-graph.js";
+import { buildActGraphDetailed } from "../runtime/graph/build-act-graph.js";
 import {
   extractArticleNumbers,
   extractInstructionFocus,
   normalizeForMatch,
-} from "../extract-instruction-focus.js";
-import { assertSkillParity } from "../lint-skill-parity.js";
-import { getSkillById, resetSkillRegistryForTests } from "../registry.js";
+} from "../runtime/focus/extract-instruction-focus.js";
+import { assertSkillParity } from "../runtime/lint/lint-skill-parity.js";
+import { getSkillById, resetSkillRegistryForTests } from "../runtime/catalog/registry.js";
 
 const REPRODUCTION =
   "Review how this agreement addresses data subject rights under GDPR Articles 15–22, including response timeframes.";

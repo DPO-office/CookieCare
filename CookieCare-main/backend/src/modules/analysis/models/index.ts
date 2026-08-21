@@ -8,3 +8,6 @@ export * from "./critique-report.js";
 export * from "./conversation.js";
 export * from "./document-workspace.js";
 export * from "./analysis-state.js";
+export * from "./requirement.js";
+export * from "./coverage-mapping.js";
+export * from "./active-skill-snapshot.js";

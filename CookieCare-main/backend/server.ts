@@ -116,8 +116,10 @@ async function startServer() {
     // Development: Vite dev server handles SPA + HMR
     // Vite root is the frontend folder
     process.env.VITE_MIDDLEWARE = "1";
+    const frontendRoot = path.resolve(process.cwd(), "frontend");
     const vite = await createViteServer({
-      root: path.resolve(process.cwd(), "frontend"),
+      configFile: path.resolve(frontendRoot, "vite.config.ts"),
+      root: frontendRoot,
       server: {
         middlewareMode: true,
         hmr: { server: httpServer },

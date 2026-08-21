@@ -9,8 +9,8 @@ import { normalizeStandard } from "../../capabilities/plan/resolve-standard.js";
 import {
   extractRequirementsHeuristic,
   extractInstructionFocus,
-} from "../extract-instruction-focus.js";
-import { getSkillById, resetSkillRegistryForTests } from "../registry.js";
+} from "../runtime/focus/extract-instruction-focus.js";
+import { getSkillById, resetSkillRegistryForTests } from "../runtime/catalog/registry.js";
 
 const ART28_DPA_INSTRUCTION = `Review this DPA for GDPR Article 28 compliance. Verify subject matter, duration, nature and purpose, categories of data, categories of data subjects, controller obligations and rights, that all mandatory Article 28(3) clauses are present and adequate.`;
 

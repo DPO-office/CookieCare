@@ -10,10 +10,11 @@ import type { Finding } from "../../models/finding.js";
 import type { SegmentedDocument } from "../../models/document-workspace.js";
 import { CLAUSE_TAXONOMY_VERSION } from "../../taxonomies/clause-taxonomy.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
-import { getRuntimeTaxonomies, getSkillById, mergeClauseHeuristics } from "../../skills/registry.js";
-import type { AnalysisSkillConfig } from "../../skills/types.js";
+import { getRuntimeTaxonomies, getSkillById, mergeClauseHeuristics } from "../../skills/runtime/catalog/registry.js";
+import type { AnalysisSkillConfig } from "../../skills/runtime/catalog/types.js";
 import { insufficient } from "./act-utils.js";
 import { pacLog } from "../../utils/pac-log.js";
+import { profileThinkingLevel } from "../../utils/profile-thinking.js";
 import {
   buildRetrievalDictionary,
   groupDocumentSections,
@@ -82,7 +83,12 @@ async function extractClauses(
   if (missing.length > 0) {
     const fbStart = Date.now();
     try {
-      const mapped = await headingsFallback(doc, missing, tracker);
+      const mapped = await headingsFallback(
+        doc,
+        missing,
+        tracker,
+        profileThinkingLevel(state, LLMTask.STRUCTURAL_JSON_LITE)
+      );
       fallbackCalls = 1;
       located = mergeFallback(located, mapped, doc);
     } catch (err) {
@@ -155,7 +161,8 @@ async function extractClauses(
 async function headingsFallback(
   doc: SegmentedDocument,
   missingTypes: string[],
-  tracker?: { tokensUsed: number }
+  tracker?: { tokensUsed: number },
+  thinkingLevel?: import("../../../../llm/index.js").GeminiThinkingLevel
 ): Promise<Array<{ clauseType: string; structuralPaths: string[] }>> {
   const sections = groupDocumentSections(doc);
   const headingIndex = sections
@@ -191,7 +198,7 @@ async function headingsFallback(
     schema,
     LLMTask.STRUCTURAL_JSON_LITE,
     LLMProvider.GEMINI,
-    tracker
+    { tracker, thinkingLevel }
   );
 }
 

@@ -18,15 +18,15 @@ import {
 } from "../../taxonomies/clause-taxonomy.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { orderByDependency } from "../../utils/topo-batches.js";
-import { resolveSkills } from "../../skills/resolve-skills.js";
+import { resolveSkills } from "../../skills/runtime/selection/resolve-skills.js";
 import {
   buildActGraphDetailed,
   resolveRelatedChecks,
-} from "../../skills/build-act-graph.js";
-import { extractInstructionFocus } from "../../skills/extract-instruction-focus.js";
+} from "../../skills/runtime/graph/build-act-graph.js";
+import { extractInstructionFocus } from "../../skills/runtime/focus/extract-instruction-focus.js";
 import { requestsRiskAnalysis } from "./intent-heuristics.js";
 import { applySensibleDefaults, fallbackReportType } from "./intent-sensible-defaults.js";
-import { getSkillById } from "../../skills/registry.js";
+import { getSkillById } from "../../skills/runtime/catalog/registry.js";
 import { pacLog } from "../../utils/pac-log.js";
 import { logPlanInspect } from "./plan-inspect-log.js";
 import { deriveReportOutline } from "./derive-report-outline.js";
@@ -40,7 +40,7 @@ import { loadOrgMemory } from "../../memory/org-memory.js";
 import { applyOrgRoutingDefaults } from "../../memory/resolve-org-defaults.js";
 import { resolveDocumentRoles } from "./resolve-document-roles.js";
 import { followUpKindForState, isMaterialTopicShift } from "./follow-up-intent.js";
-import { replicateGraphForTargets } from "../../skills/replicate-graph-for-targets.js";
+import { replicateGraphForTargets } from "../../skills/runtime/graph/replicate-graph-for-targets.js";
 import { injectAuthoredRequirements } from "./inject-authored-requirements.js";
 
 const SKILL_DRIVEN_OPERATIONS = new Set([

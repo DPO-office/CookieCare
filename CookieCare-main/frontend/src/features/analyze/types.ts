@@ -47,6 +47,9 @@ export interface InteractAnalyzeProps {
 export type DocumentMode = "unified" | "individual";
 export type AnswerStyle = "narrative" | "tabular";
 export type AnalysisDepth = "deep" | "lite";
+
+/** Wire name for the API — same values as AnalysisDepth. */
+export type ThinkingMode = AnalysisDepth;
 export type PromptTab = "write" | "library" | "questions";
 export type SidePanelType = "folder" | "upload";
 

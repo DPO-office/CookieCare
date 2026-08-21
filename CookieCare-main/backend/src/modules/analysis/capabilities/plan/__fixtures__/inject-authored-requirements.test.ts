@@ -5,7 +5,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { injectAuthoredRequirements } from "../inject-authored-requirements.js";
-import { getSkillById, resetSkillRegistryForTests } from "../../../skills/registry.js";
+import { getSkillById, resetSkillRegistryForTests } from "../../../skills/runtime/catalog/registry.js";
 import type { InstructionFocus } from "../../../models/analysis-plan.js";
 import type { IntentClassification } from "../../../models/intent.js";
 

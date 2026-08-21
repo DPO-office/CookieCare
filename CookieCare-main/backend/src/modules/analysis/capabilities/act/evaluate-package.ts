@@ -8,12 +8,13 @@ import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
 import type { Finding } from "../../models/finding.js";
 import type { EvidencePackageSourceMode } from "../../models/evidence-package.js";
 import type { GroupedRequirementResult } from "../../models/requirement-assessment.js";
-import { getSkillById } from "../../skills/registry.js";
-import { loadSkillMdSection } from "../../skills/load-skill-md.js";
+import { getSkillById } from "../../skills/runtime/catalog/registry.js";
+import { loadSkillMdSection } from "../../skills/runtime/catalog/load-skill-md.js";
 import { resolveRule } from "./check-against-rule.js";
 import { insufficient } from "./act-utils.js";
 import { groupedResultsToFindings } from "./grouped-results-to-findings.js";
 import { pacLog } from "../../utils/pac-log.js";
+import { profileThinkingLevel } from "../../utils/profile-thinking.js";
 import {
   EVALUATE_PACKAGE_SYSTEM_PROMPT,
   buildEvaluatePackageUserPrompt,
@@ -168,7 +169,7 @@ export async function evaluatePackage(
       schema,
       LLMTask.STRUCTURAL_JSON,
       LLMProvider.GEMINI,
-      tracker
+      { tracker, thinkingLevel: profileThinkingLevel(state, LLMTask.STRUCTURAL_JSON) }
     );
   } catch (err) {
     return {

@@ -80,13 +80,13 @@ export function deriveReportOutline(
   const used = new Set<string>();
   const outline: ReportOutlineItem[] = [];
 
+  // Always emit Scope alone. Legacy scope_and_conclusion expands to Scope here
+  // and a separate Conclusion at the end — never a combined early verdict.
   if (specSections.includes("scope") || specSections.includes("scope_and_conclusion")) {
     outline.push({
-      id: specSections.includes("scope_and_conclusion") ? "scope_and_conclusion" : "scope",
-      role: specSections.includes("scope_and_conclusion") ? SCOPE : SCOPE,
-      heading: specSections.includes("scope_and_conclusion")
-        ? "Scope and conclusion"
-        : "Scope",
+      id: "scope",
+      role: SCOPE,
+      heading: "Scope",
       requirementIds: [],
       source: "deterministic",
     });
@@ -163,7 +163,10 @@ export function deriveReportOutline(
     });
   }
 
-  if (specSections.includes("conclusion") && !specSections.includes("scope_and_conclusion")) {
+  if (
+    specSections.includes("conclusion") ||
+    specSections.includes("scope_and_conclusion")
+  ) {
     outline.push({
       id: "conclusion",
       role: CONCLUSION,

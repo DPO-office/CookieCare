@@ -21,8 +21,7 @@ type RunContext = {
 function buildInstruction(
   prompt: string,
   documentMode: DocumentMode,
-  answerStyle: AnswerStyle,
-  analysisDepth: AnalysisDepth = "deep"
+  answerStyle: AnswerStyle
 ): string {
   const extras: string[] = [];
   if (documentMode === "individual") {
@@ -32,15 +31,6 @@ function buildInstruction(
   }
   if (answerStyle === "tabular") {
     extras.push("Present findings as a table.");
-  }
-  if (analysisDepth === "lite") {
-    extras.push(
-      "Provide a concise, high-level summary. Focus on the most critical points only — keep the response brief."
-    );
-  } else {
-    extras.push(
-      "Provide a thorough, in-depth analysis. Cover all relevant clauses, risks, and implications in detail."
-    );
   }
   return [prompt.trim(), ...extras].join("\n\n");
 }
@@ -93,7 +83,11 @@ export function useAnalysis(authToken: string) {
   };
 
   const handleProgress = (message: string) => {
-    if (message === "Writing the report…") {
+    if (
+      message === "Writing the report…" ||
+      message === "Checking the analysis…" ||
+      message === "Verifying key findings…"
+    ) {
       resetLiveStream();
     }
     setAnalysisProgress(message);
@@ -145,7 +139,8 @@ export function useAnalysis(authToken: string) {
       return true;
     }
 
-    // Prefer the final rendered report only — never keep raw ACT stream dumps.
+    // Prefer the released report only. ACT/critique drafts are held server-side
+    // until persist, so this should not swap a visible memo.
     const finalText =
       outcome.kind === "out_of_scope"
         ? outcome.declineMessage
@@ -214,7 +209,7 @@ export function useAnalysis(authToken: string) {
           )
         : undefined;
 
-    const instruction = buildInstruction(customPromptText, documentMode, answerStyle, analysisDepth);
+    const instruction = buildInstruction(customPromptText, documentMode, answerStyle);
     runContextRef.current = {
       documentIds,
       instruction,
@@ -242,6 +237,7 @@ export function useAnalysis(authToken: string) {
         promptLibraryId: promptLibraryId || undefined,
         documentMode,
         answerStyle,
+        thinkingMode: analysisDepth,
       });
 
       const outcome = await waitForAnalysisJob({
@@ -318,7 +314,7 @@ export function useAnalysis(authToken: string) {
     savedDrafts: SavedDraft[],
     documentMode: DocumentMode,
     answerStyle: AnswerStyle,
-    analysisDepth: AnalysisDepth = "deep",
+    analysisDepth: AnalysisDepth = "lite",
     ephemeralFiles: EphemeralFile[] = []
   ) => {
     const trimmed = userText.trim();
@@ -342,7 +338,7 @@ export function useAnalysis(authToken: string) {
       return;
     }
 
-    const followUpInstruction = buildInstruction(trimmed, documentMode, answerStyle, analysisDepth);
+    const followUpInstruction = buildInstruction(trimmed, documentMode, answerStyle);
 
     setIsAnalyzing(true);
     setAnalysisError("");
@@ -357,6 +353,7 @@ export function useAnalysis(authToken: string) {
         sessionId: sessionId || undefined,
         documentMode,
         answerStyle,
+        thinkingMode: analysisDepth,
       });
 
       const outcome = await waitForAnalysisJob({

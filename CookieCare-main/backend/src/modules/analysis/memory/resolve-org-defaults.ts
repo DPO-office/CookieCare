@@ -1,14 +1,8 @@
 import type { AnalysisState } from "../models/analysis-state.js";
-import type { AnalysisSkillConfig } from "../skills/types.js";
+import type { AnalysisSkillConfig } from "../skills/runtime/catalog/types.js";
 import { preferredSkillId, type OrgMemoryProfile } from "./org-memory.js";
-import {
-  mergeExpectedClauses,
-  mergeRegimeRules,
-  mergeSkillClauseTypes,
-  mergeSkillRiskCategories,
-  getSkillById,
-} from "../skills/registry.js";
-import { loadSkillMarkdownForSkills } from "../skills/load-skill-md.js";
+import { getSkillById } from "../skills/runtime/catalog/registry.js";
+import { hydrateActiveSkills } from "../skills/runtime/catalog/hydrate-active-skills.js";
 import { INTENT_CONFIDENCE_THRESHOLD } from "../models/intent.js";
 import { pacLog } from "../utils/pac-log.js";
 
@@ -111,19 +105,12 @@ async function hydrateActiveSkill(
   skill: AnalysisSkillConfig,
   attributions: string[]
 ): Promise<AnalysisState> {
-  const skills = [skill];
-  const skillMd = await loadSkillMarkdownForSkills(skills);
-  return {
-    ...state,
-    activeSkills: skills,
-    activeSkillIds: [skill.skillId],
-    mergedClauseTypes: mergeSkillClauseTypes(skills),
-    mergedRiskCategories: mergeSkillRiskCategories(skills).map((r) => r.category),
-    mergedExpectedClauses: mergeExpectedClauses(skills),
-    mergedRegimeRules: mergeRegimeRules(skills),
-    skillMarkdown: skillMd,
+  return hydrateActiveSkills(state, [skill], {
     skillSelectionPath: state.skillSelectionPath === "library" ? "library" : "free_text",
-    pendingSkillClarification: undefined,
-    memoryAttributions: attributions,
-  };
+    updateMetadata: false,
+    patch: {
+      pendingSkillClarification: undefined,
+      memoryAttributions: attributions,
+    },
+  });
 }

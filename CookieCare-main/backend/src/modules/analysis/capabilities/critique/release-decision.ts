@@ -38,7 +38,7 @@ function hasUnsupportedFindings(deepResults?: DeepCritiqueResult[]): boolean {
  * force a hard withhold even when substantive output exists. Issues whose
  * declared action is `replan` (missing package, wrong execution shape) are NOT
  * treated as hard blocks: they are recoverable coverage gaps that should either
- * drive a replan (when turns remain) or degrade to release_with_limitations.
+ * drive a replan/targeted redo (when turns remain) or degrade to release_with_limitations.
  */
 function hasBlockingAlignment(alignment: AlignmentReport): boolean {
   return alignment.issues.some((i) => i.action === "withhold");
@@ -110,7 +110,9 @@ export function composeReleaseDecision(
     skeletonMismatch ||
     coverage.notCovered.length > 0 ||
     coverage.needsReplan.length > 0 ||
-    alignment.issues.some((i) => i.action === "replan");
+    alignment.issues.some(
+      (i) => i.action === "replan" || i.action === "targeted_redo"
+    );
 
   if (hardWithhold || (hasSoftGap && !shippableBody)) {
     verdict = "withhold";

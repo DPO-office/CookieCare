@@ -11,7 +11,9 @@ import type {
   FixItem,
 } from "../../models/critique-report.js";
 import type { Finding } from "../../models/finding.js";
+import { dedupeFixes } from "../../shared/dedupe.js";
 import { resolveRule } from "../act/check-against-rule.js";
+import { profileThinkingLevel } from "../../utils/profile-thinking.js";
 
 export interface DeepCritiqueRun {
   results: DeepCritiqueResult[];
@@ -86,7 +88,7 @@ export async function runDeepCritique(
       schema,
       LLMTask.CRITIQUE_CHECKLIST,
       LLMProvider.GEMINI,
-      tracker
+      { tracker, thinkingLevel: profileThinkingLevel(state, LLMTask.CRITIQUE_CHECKLIST) }
     );
     if (state.agent && tracker) state.agent.tokensUsed = tracker.tokensUsed;
     return materializeResults(state, targets, normalize(raw, allowedIds), 1);
@@ -321,14 +323,4 @@ function targetId(target: CritiqueTarget): string {
     target.findingId ??
     `${target.workUnitId}:${target.reason}`
   );
-}
-
-function dedupeFixes(fixes: FixItem[]): FixItem[] {
-  const seen = new Set<string>();
-  return fixes.filter((fix) => {
-    const key = `${fix.workUnitId}:${fix.sourceItemId}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
 }

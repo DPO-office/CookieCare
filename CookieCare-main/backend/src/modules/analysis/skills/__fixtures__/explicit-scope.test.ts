@@ -8,7 +8,7 @@ import {
   filterIdsByScope,
   ruleIdMatchesScope,
   scopeBoundaryActive,
-} from "../extract-explicit-scope.js";
+} from "../runtime/focus/extract-explicit-scope.js";
 
 const ART28_REVIEW =
   "Perform a rigorous GDPR Article 28 compliance review of this Data Processing Agreement. Verify subject matter, duration, nature and purpose of processing, categories of data and data subjects, obligations and rights of the controller, and whether all mandatory Article 28(3) clauses are present and adequate.";

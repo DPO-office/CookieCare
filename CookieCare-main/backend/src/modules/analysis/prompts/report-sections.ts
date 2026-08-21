@@ -1,4 +1,5 @@
 import type { ReportDepth, ReportSectionId, ReportType } from "../models/intent.js";
+import { LEGAL_MEMO_MARKDOWN_CRAFT } from "./memo-markdown-craft.js";
 
 /** Semantic role of each report section — guides the synthesis LLM, not a fixed template. */
 export interface ReportSectionDefinition {
@@ -80,17 +81,41 @@ export const REPORT_SECTION_DEFINITIONS: Record<ReportSectionId, ReportSectionDe
   },
 };
 
-/** Expand deprecated combined section for downstream validators. */
+/** All known report section ids — derived from REPORT_SECTION_DEFINITIONS. */
+export const ALL_REPORT_SECTION_IDS = Object.keys(
+  REPORT_SECTION_DEFINITIONS
+) as ReportSectionId[];
+
+/**
+ * Canonical user-facing section order. Conclusion is always last among report
+ * roles (References / appendices may follow in rendered markdown).
+ */
+export const CANONICAL_REPORT_SECTION_ORDER: ReportSectionId[] = [
+  "scope",
+  "chapeau_particulars",
+  "requirements_detail",
+  "qualifications",
+  "recommendations",
+  "missing_materials",
+  "conclusion",
+];
+
+/**
+ * Expand deprecated combined section and enforce canonical order so Conclusion
+ * never lands immediately after Scope when analysis sections follow.
+ */
 export function normalizeReportSections(sections: ReportSectionId[]): ReportSectionId[] {
-  const out: ReportSectionId[] = [];
+  const expanded: ReportSectionId[] = [];
   for (const section of sections) {
     if (section === "scope_and_conclusion") {
-      out.push("scope", "conclusion");
+      expanded.push("scope", "conclusion");
       continue;
     }
-    out.push(section);
+    expanded.push(section);
   }
-  return out;
+  const unique = [...new Set(expanded)].filter((id) => id !== "scope_and_conclusion");
+  const rank = new Map(CANONICAL_REPORT_SECTION_ORDER.map((id, index) => [id, index]));
+  return unique.sort((a, b) => (rank.get(a) ?? 99) - (rank.get(b) ?? 99));
 }
 
 export function sectionDefinition(section: ReportSectionId): ReportSectionDefinition {
@@ -122,6 +147,7 @@ export function buildSectionGuidanceBlock(sections: ReportSectionId[]): string {
     "SECTION ARCHITECTURE",
     "Each numbered item is a distinct rhetorical role. Use the suggested heading or a clear natural equivalent.",
     "Never merge roles: scope frames the review; analysis sections carry evidence and reasoning; conclusion synthesizes at the end.",
+    "HARD ORDERING RULE (applies to every user ask and every document type): if a Conclusion / Bottom Line section is included, it must be the last substantive report section — after analysis, qualifications, recommendations, and missing materials. Only References may follow it.",
   ];
 
   if (hasScope && hasConclusion && hasAnalysis) {
@@ -130,11 +156,13 @@ export function buildSectionGuidanceBlock(sections: ReportSectionId[]): string {
     );
   } else if (hasConclusion && !hasAnalysis) {
     arc.push(
-      "For this brief report: keep scope minimal if present, and let the conclusion carry the direct answer with only essential supporting detail."
+      "For this brief report: keep scope minimal if present, and place the conclusion after any framing — never before remaining analysis sections if they are present."
     );
+  } else if (hasConclusion) {
+    arc.push("Place the Conclusion section last among the report sections listed below.");
   }
 
-  return [...arc, "", ...lines].join("\n");
+  return [...arc, "", LEGAL_MEMO_MARKDOWN_CRAFT, "", ...lines].join("\n");
 }
 
 /** Narrative arc hint based on report shape — lets the LLM adapt tone without hard-coded templates. */
@@ -164,7 +192,7 @@ export function narrativeArcGuidance(
     ].join(" ");
   }
 
-  return "Write in the order declared. Match depth to the user's request without repeating the same point in multiple sections.";
+  return "Write in the declared section order. If a Conclusion section is included, place it last among substantive sections (only References may follow), for any user ask or document type.";
 }
 
 export function reportOutputContainsSection(output: string, section: ReportSectionId): boolean {
@@ -197,4 +225,112 @@ export function reportSectionsInOrder(output: string, sections: ReportSectionId[
   return positions.every(
     (position, index) => index === 0 || position > positions[index - 1]!
   );
+}
+
+interface MarkdownH2Block {
+  headingLine: string;
+  body: string;
+}
+
+function isConclusionHeading(headingLine: string): boolean {
+  // Match the section label itself — not incidental phrases inside analysis headings.
+  const text = headingLine
+    .replace(/^##\s+/, "")
+    .replace(/^\d+[\.\)]\s*/, "")
+    .trim();
+  return /^(conclusion|bottom line|overall assessment|overall position|overall finding|summary conclusion)\.?$/i.test(
+    text
+  );
+}
+
+/** Sections that must remain after the bottom-line conclusion. */
+function isPostConclusionTrailingHeading(headingLine: string): boolean {
+  const text = headingLine
+    .replace(/^##\s+/, "")
+    .replace(/^\d+[\.\)]\s*/, "")
+    .trim();
+  return /^(references|coverage limitations|limitations)\.?$/i.test(text);
+}
+
+function splitMarkdownH2Blocks(markdown: string): {
+  preamble: string;
+  blocks: MarkdownH2Block[];
+} {
+  const lines = markdown.split("\n");
+  const preamble: string[] = [];
+  const blocks: MarkdownH2Block[] = [];
+  let current: MarkdownH2Block | null = null;
+
+  for (const line of lines) {
+    if (/^##\s+/.test(line)) {
+      if (current) blocks.push(current);
+      current = { headingLine: line, body: "" };
+      continue;
+    }
+    if (current) {
+      current.body += (current.body.length > 0 ? "\n" : "") + line;
+    } else {
+      preamble.push(line);
+    }
+  }
+  if (current) blocks.push(current);
+
+  return {
+    preamble: preamble.join("\n"),
+    blocks,
+  };
+}
+
+function joinMarkdownH2Blocks(preamble: string, blocks: MarkdownH2Block[]): string {
+  const parts: string[] = [];
+  if (preamble.trim().length > 0) {
+    parts.push(preamble.replace(/\n+$/, ""));
+  }
+  for (const block of blocks) {
+    const body = block.body.replace(/\n+$/, "");
+    parts.push(body.length > 0 ? `${block.headingLine}\n${body}` : block.headingLine);
+  }
+  return parts.join("\n\n").replace(/\n{3,}/g, "\n\n").trim() + "\n";
+}
+
+/**
+ * Deterministic safety net for every user ask and document type: move any
+ * Conclusion / Bottom Line ## section after analysis sections and immediately
+ * before trailing appendix sections (Coverage limitations, References).
+ * Prompt guidance alone is not enough — models often front-load the verdict.
+ */
+export function enforceConclusionSectionLast(markdown: string): string {
+  if (!markdown.trim()) return markdown;
+  const { preamble, blocks } = splitMarkdownH2Blocks(markdown);
+  if (blocks.length === 0) return markdown;
+
+  const conclusionBlocks = blocks.filter((block) => isConclusionHeading(block.headingLine));
+  if (conclusionBlocks.length === 0) return markdown;
+
+  const nonConclusion = blocks.filter((block) => !isConclusionHeading(block.headingLine));
+  const insertAt = nonConclusion.findIndex((block) =>
+    isPostConclusionTrailingHeading(block.headingLine)
+  );
+  const reordered =
+    insertAt >= 0
+      ? [
+          ...nonConclusion.slice(0, insertAt),
+          ...conclusionBlocks,
+          ...nonConclusion.slice(insertAt),
+        ]
+      : [...nonConclusion, ...conclusionBlocks];
+
+  // No-op when already correctly placed.
+  if (
+    reordered.length === blocks.length &&
+    reordered.every(
+      (block, index) =>
+        block.headingLine === blocks[index]!.headingLine &&
+        block.body === blocks[index]!.body
+    )
+  ) {
+    return markdown;
+  }
+
+  return joinMarkdownH2Blocks(preamble, reordered);
 }

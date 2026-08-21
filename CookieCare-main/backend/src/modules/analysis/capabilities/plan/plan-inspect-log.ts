@@ -1,5 +1,10 @@
 import type { AnalysisWorkUnit, InstructionFocus, PlanAuditRecord } from "../../models/analysis-plan.js";
 import type { IntentClassification } from "../../models/intent.js";
+import {
+  summarizeTools,
+  truncate,
+  wrapPrefixed,
+} from "../../shared/inspect-format.js";
 import { pacLogBlock } from "../../utils/pac-log.js";
 import { countRequirementsByPriority } from "./intent-requirement-normalize.js";
 
@@ -235,42 +240,6 @@ function summarizeIds(ids: string[], emptyLabel: string): string {
   if (ids.length === 0) return emptyLabel;
   if (ids.length <= 8) return `${ids.length}: ${ids.join(", ")}`;
   return `${ids.length}: ${ids.slice(0, 6).join(", ")}, … (+${ids.length - 6} more)`;
-}
-
-function summarizeTools(units: AnalysisWorkUnit[]): string {
-  const counts = new Map<string, number>();
-  for (const unit of units) {
-    counts.set(unit.tool, (counts.get(unit.tool) ?? 0) + 1);
-  }
-  return [...counts.entries()]
-    .map(([tool, count]) => (count > 1 ? `${tool} x${count}` : tool))
-    .join(" → ");
-}
-
-function wrapPrefixed(prefix: string, text: string, width = 92): string[] {
-  const words = text.split(/\s+/).filter(Boolean);
-  if (words.length === 0) return [`${prefix}(empty)`];
-  const lines: string[] = [];
-  let current = prefix;
-  for (const word of words) {
-    if (current.length === prefix.length) {
-      current += word;
-      continue;
-    }
-    if (current.length + 1 + word.length <= width) {
-      current += ` ${word}`;
-      continue;
-    }
-    lines.push(current);
-    current = `${prefix}${word}`;
-  }
-  if (current.length > prefix.length) lines.push(current);
-  return lines;
-}
-
-function truncate(text: string, max: number): string {
-  const trimmed = text.replace(/\s+/g, " ").trim();
-  return trimmed.length <= max ? trimmed : `${trimmed.slice(0, max - 1)}…`;
 }
 
 function fmtConf(value: number | undefined): string {

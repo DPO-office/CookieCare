@@ -10,6 +10,11 @@ import type {
   RequirementCoverageSummary,
 } from "../../models/critique-report.js";
 import type { CritiqueLiteResult } from "./run-critique-lite.js";
+import {
+  countBy,
+  truncate,
+  wrapPrefixed,
+} from "../../shared/inspect-format.js";
 import { pacLogBlock } from "../../utils/pac-log.js";
 
 const REASON_LABEL: Record<CritiqueTarget["reason"], string> = {
@@ -270,9 +275,13 @@ function formatNextDrivers(
   const replanCount = report.metrics?.replanCount ?? 0;
   const alignmentReplan =
     report.release?.alignment.issues.some((i) => i.action === "replan") ?? false;
+  const alignmentTargeted =
+    report.release?.alignment.issues.some((i) => i.action === "targeted_redo") ??
+    false;
   const drivers: string[] = [];
   if (report.skeletonMismatch) drivers.push("skeletonMismatch");
   if (alignmentReplan) drivers.push("alignment.replan");
+  if (alignmentTargeted) drivers.push("alignment.targeted_redo");
   if (report.criticalFactSurfaced) drivers.push("criticalFactSurfaced");
   if (report.fixPlan.length > 0) {
     drivers.push(`fixPlan[${report.fixPlan.length}]`);
@@ -282,7 +291,7 @@ function formatNextDrivers(
   const lines: string[] = [
     "3. NEXT-PHASE DRIVERS",
     `   drivers        ${drivers.join(" | ")}`,
-    `   replanCount    ${replanCount}   (replan only allowed while < 1)`,
+    `   replanCount    ${replanCount}   (full PLAN only for alignment.replan / skeletonMismatch)`,
     `   turn           ${state.agent?.turn ?? 0}/${state.agent?.maxTurns ?? "-"}`,
   ];
   if (nextPhaseHint) {
@@ -303,44 +312,9 @@ function formatNextDrivers(
   return lines;
 }
 
-function countBy<T>(items: T[], key: (item: T) => string): Record<string, number> {
-  const out: Record<string, number> = {};
-  for (const item of items) {
-    const k = key(item);
-    out[k] = (out[k] ?? 0) + 1;
-  }
-  return out;
-}
-
 function fmtCounts(counts: Record<string, number>): string {
   return Object.entries(counts)
     .sort((a, b) => b[1] - a[1])
     .map(([k, n]) => `${k}=${n}`)
     .join("  ");
-}
-
-function wrapPrefixed(prefix: string, text: string, width = 92): string[] {
-  const words = text.split(/\s+/).filter(Boolean);
-  if (words.length === 0) return [`${prefix}(empty)`];
-  const lines: string[] = [];
-  let current = prefix;
-  for (const word of words) {
-    if (current.length === prefix.length) {
-      current += word;
-      continue;
-    }
-    if (current.length + 1 + word.length <= width) {
-      current += ` ${word}`;
-      continue;
-    }
-    lines.push(current);
-    current = `${prefix}${word}`;
-  }
-  if (current.length > prefix.length) lines.push(current);
-  return lines;
-}
-
-function truncate(text: string, max: number): string {
-  const trimmed = text.replace(/\s+/g, " ").trim();
-  return trimmed.length <= max ? trimmed : `${trimmed.slice(0, max - 1)}…`;
 }
