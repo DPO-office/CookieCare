@@ -1,4 +1,4 @@
-import type { AnalysisSkillConfig } from "../types.js";
+import type { AnalysisSkillConfig } from "../runtime/catalog/types.js";
 
 /**
  * Always-active global baseline. Selection hardcodes inclusion — no trigger matching.

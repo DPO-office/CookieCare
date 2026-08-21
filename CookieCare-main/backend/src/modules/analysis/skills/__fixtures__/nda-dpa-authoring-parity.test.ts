@@ -3,8 +3,8 @@
  */
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { getSkillById, resetSkillRegistryForTests } from "../registry.js";
-import type { AnalysisSkillConfig } from "../types.js";
+import { getSkillById, resetSkillRegistryForTests } from "../runtime/catalog/registry.js";
+import type { AnalysisSkillConfig } from "../runtime/catalog/types.js";
 
 function skill(id: string): AnalysisSkillConfig {
   resetSkillRegistryForTests();

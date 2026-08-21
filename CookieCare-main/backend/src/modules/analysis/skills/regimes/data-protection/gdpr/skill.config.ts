@@ -2,7 +2,7 @@ import type {
   AnalysisSkillConfig,
   RegimeCheckType,
   SkillRegimeRule,
-} from "../../../types.js";
+} from "../../../runtime/catalog/types.js";
 import { buildDataProtectionRightsMatrix } from "../_family-template.js";
 
 const GDPR_RIGHTS_MATRIX = buildDataProtectionRightsMatrix("gdpr", [

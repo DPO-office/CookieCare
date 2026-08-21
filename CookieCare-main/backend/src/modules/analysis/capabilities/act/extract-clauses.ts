@@ -10,8 +10,8 @@ import type { Finding } from "../../models/finding.js";
 import type { SegmentedDocument } from "../../models/document-workspace.js";
 import { CLAUSE_TAXONOMY_VERSION } from "../../taxonomies/clause-taxonomy.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
-import { getRuntimeTaxonomies, getSkillById, mergeClauseHeuristics } from "../../skills/registry.js";
-import type { AnalysisSkillConfig } from "../../skills/types.js";
+import { getRuntimeTaxonomies, getSkillById, mergeClauseHeuristics } from "../../skills/runtime/catalog/registry.js";
+import type { AnalysisSkillConfig } from "../../skills/runtime/catalog/types.js";
 import { insufficient } from "./act-utils.js";
 import { pacLog } from "../../utils/pac-log.js";
 import {

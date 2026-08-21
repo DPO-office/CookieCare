@@ -11,6 +11,7 @@ import type {
   FixItem,
 } from "../../models/critique-report.js";
 import type { Finding } from "../../models/finding.js";
+import { dedupeFixes } from "../../shared/dedupe.js";
 import { resolveRule } from "../act/check-against-rule.js";
 
 export interface DeepCritiqueRun {
@@ -321,14 +322,4 @@ function targetId(target: CritiqueTarget): string {
     target.findingId ??
     `${target.workUnitId}:${target.reason}`
   );
-}
-
-function dedupeFixes(fixes: FixItem[]): FixItem[] {
-  const seen = new Set<string>();
-  return fixes.filter((fix) => {
-    const key = `${fix.workUnitId}:${fix.sourceItemId}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
 }

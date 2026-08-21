@@ -8,12 +8,12 @@ import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
 import type { Finding } from "../../models/finding.js";
 import type { EvidenceSpan } from "../../models/locator.js";
 import type { ClauseObject } from "../../models/clause-object.js";
-import type { SkillRegimeRule } from "../../skills/types.js";
+import type { SkillRegimeRule } from "../../skills/runtime/catalog/types.js";
 import type { RuleSource } from "../../models/rule-source.js";
 import { tierFor } from "../../models/rule-source.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
-import { getSkillById } from "../../skills/registry.js";
-import { loadSkillMdSection } from "../../skills/load-skill-md.js";
+import { getSkillById } from "../../skills/runtime/catalog/registry.js";
+import { loadSkillMdSection } from "../../skills/runtime/catalog/load-skill-md.js";
 import { insufficient, stampRequirementIdsOnNewFindings, compileAuthoredRegex, interpolateMatch } from "./act-utils.js";
 
 export function resolveRule(skillIds: string[], ruleId: string) {

@@ -1,3 +1,4 @@
+import { INVENTORY_SYSTEM_PROMPT } from "../../prompts/inventory-provisions.js";
 import {
   executeJsonCompletion,
   LLMProvider,
@@ -13,7 +14,7 @@ import type {
 } from "../../models/evidence-package.js";
 import type { Finding } from "../../models/finding.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
-import { getSkillById } from "../../skills/registry.js";
+import { getSkillById } from "../../skills/runtime/catalog/registry.js";
 import { insufficient } from "./act-utils.js";
 import { pacLog } from "../../utils/pac-log.js";
 import {
@@ -24,12 +25,6 @@ import {
 
 const MAX_CANDIDATE_CHARS = 8_000;
 const MAX_RECORDS = 40;
-
-const INVENTORY_SYSTEM_PROMPT = [
-  "You extract structured inventory records from the supplied document sections.",
-  "Do not decide legal compliance. Do not invent provisions that are not in the text.",
-  "If a field is not stated, omit it or use unspecified.",
-].join(" ");
 
 interface RawInventoryRecord {
   id?: string;

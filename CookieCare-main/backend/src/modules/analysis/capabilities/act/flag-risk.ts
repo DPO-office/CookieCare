@@ -9,8 +9,8 @@ import type { ClauseObject } from "../../models/clause-object.js";
 import type { Finding } from "../../models/finding.js";
 import type { EvidenceSpan } from "../../models/locator.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
-import { getSkillById, mergeSkillRiskCategories } from "../../skills/registry.js";
-import { loadSkillMdSection } from "../../skills/load-skill-md.js";
+import { getSkillById, mergeSkillRiskCategories } from "../../skills/runtime/catalog/registry.js";
+import { loadSkillMdSection } from "../../skills/runtime/catalog/load-skill-md.js";
 import { insufficient, stampFindingsByCapability, compileAuthoredRegex } from "./act-utils.js";
 
 async function flagRisk(

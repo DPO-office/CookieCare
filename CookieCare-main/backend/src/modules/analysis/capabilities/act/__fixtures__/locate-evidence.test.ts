@@ -13,15 +13,15 @@ import {
   locateEvidence,
 } from "../locate-evidence.js";
 import { groupedResultsToFindings } from "../grouped-results-to-findings.js";
-import { getSkillById, resetSkillRegistryForTests } from "../../../skills/registry.js";
-import { buildActGraphDetailed } from "../../../skills/build-act-graph.js";
+import { getSkillById, resetSkillRegistryForTests } from "../../../skills/runtime/catalog/registry.js";
+import { buildActGraphDetailed } from "../../../skills/runtime/graph/build-act-graph.js";
 import { EXPLICIT_DEEP_DEPTH_RE } from "../../plan/intent-heuristics.js";
 import type { AnalysisWorkUnit } from "../../../models/analysis-plan.js";
 import type { IntentClassification } from "../../../models/intent.js";
 import type { SharedEvidenceBundle } from "../../../models/evidence-package.js";
 
 const { collectStrongCatalogShortlist } = await import(
-  "../../../skills/extract-instruction-focus.js"
+  "../../../skills/runtime/focus/extract-instruction-focus.js"
 );
 
 const SAMPLE_DPA = `

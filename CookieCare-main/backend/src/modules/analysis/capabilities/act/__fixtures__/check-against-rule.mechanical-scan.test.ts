@@ -4,8 +4,8 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type { AnalysisWorkUnit } from "../../../models/analysis-plan.js";
 import type { ClauseObject } from "../../../models/clause-object.js";
-import type { SkillRegimeRule } from "../../../skills/types.js";
-import { getSkillById, resetSkillRegistryForTests } from "../../../skills/registry.js";
+import type { SkillRegimeRule } from "../../../skills/runtime/catalog/types.js";
+import { getSkillById, resetSkillRegistryForTests } from "../../../skills/runtime/catalog/registry.js";
 
 const { runMechanicalScan } = await import("../check-against-rule.js");
 

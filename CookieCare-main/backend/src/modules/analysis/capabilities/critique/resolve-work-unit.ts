@@ -6,15 +6,15 @@ import type {
   AttemptRecord,
   WorkUnitOutcome,
 } from "../../models/work-unit-outcome.js";
-import { classifyFailureReason } from "./classify-failure-reason.js";
-import { formatFeedback } from "./format-feedback.js";
+import { logAuthoringBacklog } from "./log-authoring-backlog.js";
 import {
   buildNotCoveredFinding,
+  classifyFailureReason,
   fireTierCOnce,
-} from "./fire-tier-c-once.js";
-import { targetIdForUnit } from "./has-authored-content.js";
-import { logAuthoringBacklog } from "./log-authoring-backlog.js";
-import { hashFindingsForUnit } from "./output-hash.js";
+  formatFeedback,
+  hashFindingsForUnit,
+  targetIdForUnit,
+} from "./work-unit-resolution.js";
 import { pacLog } from "../../utils/pac-log.js";
 
 /** One targeted retry after the first attempt (2 total ACT runs max per unit). */

@@ -9,7 +9,7 @@ import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
 import type { Finding } from "../../models/finding.js";
 import type { PlaybookPosition } from "../../models/rule-source.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
-import { getRuntimeTaxonomies } from "../../skills/registry.js";
+import { getRuntimeTaxonomies } from "../../skills/runtime/catalog/registry.js";
 import { insufficient, locateText } from "./act-utils.js";
 
 /**

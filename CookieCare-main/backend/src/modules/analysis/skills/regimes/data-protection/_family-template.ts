@@ -1,4 +1,4 @@
-import type { RightsMatrixRow } from "../../types.js";
+import type { RightsMatrixRow } from "../../runtime/catalog/types.js";
 
 const PREFERRED_CLAUSE_TYPES = [
   "data_subject_request_handling",

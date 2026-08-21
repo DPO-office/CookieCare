@@ -3,7 +3,7 @@ import type {
   IntentRequirementType,
   ReportSpec,
 } from "./intent.js";
-import type { AnalysisSkillConfig } from "../skills/types.js";
+import type { AnalysisSkillConfig } from "../skills/runtime/catalog/types.js";
 
 export type AnalysisToolName =
   | "classify_document"

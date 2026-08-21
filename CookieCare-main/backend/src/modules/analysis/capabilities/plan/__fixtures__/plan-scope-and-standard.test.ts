@@ -15,7 +15,7 @@ import {
   normalizeStandard,
   resolveStandardConceptToRegistry,
 } from "../resolve-standard.js";
-import { resetSkillRegistryForTests } from "../../../skills/registry.js";
+import { resetSkillRegistryForTests } from "../../../skills/runtime/catalog/registry.js";
 
 describe("PLAN scope classification", () => {
   it("A: legal-article review of a document stays whole_document", () => {

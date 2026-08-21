@@ -4,44 +4,16 @@
  */
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { getSkillById, resetSkillRegistryForTests } from "../../../skills/registry.js";
-import { resolvePackages } from "../../../skills/resolve-packages.js";
-import { buildActGraphDetailed } from "../../../skills/build-act-graph.js";
+import { resolvePackages } from "../../../skills/runtime/graph/resolve-packages.js";
+import { buildActGraphDetailed } from "../../../skills/runtime/graph/build-act-graph.js";
 import { aggregateRequirements } from "../aggregate-requirements.js";
-import type { InstructionFocus } from "../../../models/analysis-plan.js";
-import type { IntentClassification } from "../../../models/intent.js";
 import type { Finding, FindingStatus } from "../../../models/finding.js";
 import type { AnalysisState } from "../../../models/analysis-state.js";
-
-function gdprSkill() {
-  resetSkillRegistryForTests();
-  const skill = getSkillById("regimes/data-protection/gdpr");
-  assert.ok(skill, "GDPR skill must be registered");
-  return skill!;
-}
-
-function focus(partial: Partial<InstructionFocus>): InstructionFocus {
-  return {
-    ruleIds: [],
-    matrixRowIds: [],
-    riskCategoryIds: [],
-    instructionText: "Review the DPA for GDPR Article 28 compliance.",
-    ...partial,
-  };
-}
-
-function intent(): IntentClassification {
-  return {
-    scope: "whole_document",
-    operation: "compliance_check",
-    standard: "regime_pack:gdpr",
-    outputForm: "memo",
-    compound: false,
-    subIntents: [],
-    requirements: [],
-    confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 },
-  };
-}
+import {
+  focus,
+  gdprSkill,
+  intent,
+} from "../../../__test-helpers__/package-graph-fixtures.js";
 
 describe("package resolution", () => {
   it("selects the Article 28(3) package when a member rule is in focus", () => {

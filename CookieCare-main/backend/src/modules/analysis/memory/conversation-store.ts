@@ -6,15 +6,9 @@ import {
   type AnalysisConversation,
   type ConversationRole,
 } from "../models/conversation.js";
-import { getSkillById } from "../skills/registry.js";
-import { selectSkills } from "../skills/select-skills.js";
-import { loadSkillMarkdownForSkills } from "../skills/load-skill-md.js";
-import {
-  mergeExpectedClauses,
-  mergeRegimeRules,
-  mergeSkillClauseTypes,
-  mergeSkillRiskCategories,
-} from "../skills/registry.js";
+import { getSkillById } from "../skills/runtime/catalog/registry.js";
+import { selectSkills } from "../skills/runtime/selection/select-skills.js";
+import { hydrateActiveSkills } from "../skills/runtime/catalog/hydrate-active-skills.js";
 
 export function ensureConversation(state: AnalysisState): AnalysisState {
   if (state.conversation) return state;
@@ -138,20 +132,12 @@ export async function applyUserAnswers(
             ReturnType<typeof getSkillById>
           >[]);
     if (skills.length > 0) {
-      const skillMd = await loadSkillMarkdownForSkills(skills);
-      next = {
-        ...next,
-        activeSkills: skills,
-        activeSkillIds: skills.map((s) => s.skillId),
-        mergedClauseTypes: mergeSkillClauseTypes(skills),
-        mergedRiskCategories: mergeSkillRiskCategories(skills).map((r) => r.category),
-        mergedExpectedClauses: mergeExpectedClauses(skills),
-        mergedRegimeRules: mergeRegimeRules(skills),
-        skillMarkdown: skillMd,
+      next = await hydrateActiveSkills(next, skills, {
         skillSelectionPath: "free_text",
-        pendingSkillClarification: undefined,
         partialCoverageWarning: composed.partialCoverageWarning,
-      };
+        updateMetadata: false,
+        patch: { pendingSkillClarification: undefined },
+      });
     }
   }
 

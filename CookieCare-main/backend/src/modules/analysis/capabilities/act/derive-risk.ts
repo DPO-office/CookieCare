@@ -3,7 +3,7 @@ import type { AnalysisState } from "../../models/analysis-state.js";
 import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
 import type { Finding } from "../../models/finding.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
-import { getSkillById, isKnownRiskCategory } from "../../skills/registry.js";
+import { getSkillById, isKnownRiskCategory } from "../../skills/runtime/catalog/registry.js";
 
 /**
  * Deterministic risk derivation (ACT refactor doc §10).

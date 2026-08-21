@@ -8,7 +8,7 @@ import {
 } from "./transitions.js";
 import { markForRedo, isBudgetExceeded, isMaxTurnsReached } from "./policy.js";
 import { markBudgetExhaustedOutcomes } from "../capabilities/critique/resolve-work-unit.js";
-import { renderLimitationsReport } from "../capabilities/act/render-limitations-report.js";
+import { renderLimitationsReport, hasSkillOrPackageLimitation } from "../capabilities/reporting/limitations-report.js";
 import { appendHistory } from "../utils/persisted-state.js";
 import type { PacCapabilities } from "../capabilities/types.js";
 import { pacLog, pacWarn } from "../utils/pac-log.js";
@@ -225,7 +225,11 @@ function applyReleaseGate(
     };
   }
 
-  if (release.verdict === "release_with_limitations" && state.renderedOutput) {
+  if (
+    release.verdict === "release_with_limitations" &&
+    state.renderedOutput &&
+    hasSkillOrPackageLimitation(release)
+  ) {
     return {
       ...state,
       renderedOutput: renderLimitationsReport(state, release, {

@@ -11,7 +11,7 @@ import type { RequirementAssessment } from "../models/requirement-assessment.js"
 import {
   groupAssessmentsForReport,
   humanizeRequirementId,
-} from "../capabilities/act/group-assessments.js";
+} from "../shared/group-assessments.js";
 import {
   REPORT_SECTION_DEFINITIONS,
   buildSectionGuidanceBlock,
@@ -19,6 +19,7 @@ import {
   normalizeReportSections,
   suggestedHeading,
 } from "./report-sections.js";
+import { LEGAL_MEMO_MARKDOWN_CRAFT } from "./memo-markdown-craft.js";
 
 export const SYNTHESIS_SECTION_LABELS: Record<ReportSectionId, string> = Object.fromEntries(
   Object.entries(REPORT_SECTION_DEFINITIONS).map(([id, def]) => [id, def.suggestedHeading])
@@ -67,6 +68,8 @@ export const SYNTHESIS_SYSTEM_PROMPT = [
   "If DOCUMENT PRESENTATION is individual, write a clearly separated section for each named document. Do not blend documents into one undivided report.",
   "If DOCUMENT PRESENTATION is unified and multiple documents were reviewed, write one combined report and name the documents in the scope section.",
   "If PRIOR CONVERSATION is supplied, answer the current user message in that context. Do not reprint the entire prior report unless the user asked to rewrite it.",
+  "",
+  LEGAL_MEMO_MARKDOWN_CRAFT,
 ].join("\n");
 
 export function buildSynthesisUserPrompt(

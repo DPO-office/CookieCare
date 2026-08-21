@@ -68,7 +68,15 @@ function coverageStateForRequirement(
   }
 
   const mappedUnits = unitsForRequirement(requirementId, workUnits);
-  if (mappedUnits.length === 0 && !path?.packageId) {
+  const supportedCandidate = candidates.find(
+    (p) =>
+      p.status === "supported" ||
+      p.status === "supported_via_dependency" ||
+      p.status === "direct_rule"
+  );
+  const pathPackageId =
+    supportedCandidate?.packageId ?? candidates[0]?.packageId;
+  if (mappedUnits.length === 0 && !pathPackageId) {
     return { state: "needs_replan", reason: "No work unit mapped to requirement" };
   }
 

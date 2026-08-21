@@ -1,6 +1,14 @@
 /** Terminal heartbeat for Analysis PAC — last line is whatever is currently running. */
 
+import type { AnalysisState } from "../models/analysis-state.js";
+
 const TAG = "[Analysis PAC]";
+
+/** Stream only renderer-owned output. ACT findings and tool telemetry must never use this path. */
+export function emitAnalysisToken(state: AnalysisState, delta: string): void {
+  if (!delta) return;
+  state.onToken?.(delta);
+}
 
 export function pacLog(message: string, extra?: Record<string, unknown>): void {
   const ts = new Date().toISOString().slice(11, 23);

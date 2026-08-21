@@ -6,16 +6,16 @@ process.env.GOOGLE_CLOUD_PROJECT ??= "golden-cisco-dpa-dsr-test";
  */
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { extractInstructionFocus } from "../extract-instruction-focus.js";
-import { buildActGraphDetailed } from "../build-act-graph.js";
-import { selectSkills } from "../select-skills.js";
+import { extractInstructionFocus } from "../runtime/focus/extract-instruction-focus.js";
+import { buildActGraphDetailed } from "../runtime/graph/build-act-graph.js";
+import { selectSkills } from "../runtime/selection/select-skills.js";
 import {
   getSkillById,
   resolveDocTypeSkill,
   resetSkillRegistryForTests,
-} from "../registry.js";
-import { assertSkillParity } from "../lint-skill-parity.js";
-import { loadSkillMdSection } from "../load-skill-md.js";
+} from "../runtime/catalog/registry.js";
+import { assertSkillParity } from "../runtime/lint/lint-skill-parity.js";
+import { loadSkillMdSection } from "../runtime/catalog/load-skill-md.js";
 import type { IntentClassification } from "../../models/intent.js";
 
 const DSR_INSTRUCTION =

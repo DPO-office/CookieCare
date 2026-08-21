@@ -3,7 +3,7 @@ import { describe, it } from "node:test";
 import type { AnalysisState } from "../../models/analysis-state.js";
 import type { ClauseObject } from "../../models/clause-object.js";
 import type { Finding } from "../../models/finding.js";
-import { getSkillById, getSkillRegistry, resetSkillRegistryForTests } from "../registry.js";
+import { getSkillById, getSkillRegistry, resetSkillRegistryForTests } from "../runtime/catalog/registry.js";
 
 process.env.GOOGLE_CLOUD_PROJECT ??= "render-output-test";
 const {
@@ -148,6 +148,7 @@ describe("render-output legal memo upgrade", () => {
     assert.equal(remedies?.length ?? 0, eligible.length);
     assert.match(output, /\[1\] Cisco Data Processing Addendum\.pdf/);
     assert.match(output, /Erasure limited to contract termination \(Art 17\)/);
+    assert.match(output, /\*\*Medium — Erasure limited to contract termination \(Art 17\)\.\*\*/);
     assert.match(
       output,
       /\| Automated individual decision-making \| 22 \| Insufficient evidence \|/
@@ -279,7 +280,7 @@ describe("render-output legal memo upgrade", () => {
     assert.match(output, /\| Article 15 \| A person can ask what personal data/);
     assert.match(output, /\*\*Article 16\.\*\*/);
     assert.match(output, /## Practical bottom line/);
-    assert.match(output, /extend this to Articles 18–22/);
+    assert.doesNotMatch(output, /Let me know if you'd like/i);
     assert.doesNotMatch(output, /Gaps That Could Result in a Violation/);
     assert.doesNotMatch(output, /Suggested Remedial Points/);
   });

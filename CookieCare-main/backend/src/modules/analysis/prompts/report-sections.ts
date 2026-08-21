@@ -1,4 +1,5 @@
 import type { ReportDepth, ReportSectionId, ReportType } from "../models/intent.js";
+import { LEGAL_MEMO_MARKDOWN_CRAFT } from "./memo-markdown-craft.js";
 
 /** Semantic role of each report section — guides the synthesis LLM, not a fixed template. */
 export interface ReportSectionDefinition {
@@ -80,6 +81,11 @@ export const REPORT_SECTION_DEFINITIONS: Record<ReportSectionId, ReportSectionDe
   },
 };
 
+/** All known report section ids — derived from REPORT_SECTION_DEFINITIONS. */
+export const ALL_REPORT_SECTION_IDS = Object.keys(
+  REPORT_SECTION_DEFINITIONS
+) as ReportSectionId[];
+
 /** Expand deprecated combined section for downstream validators. */
 export function normalizeReportSections(sections: ReportSectionId[]): ReportSectionId[] {
   const out: ReportSectionId[] = [];
@@ -134,7 +140,7 @@ export function buildSectionGuidanceBlock(sections: ReportSectionId[]): string {
     );
   }
 
-  return [...arc, "", ...lines].join("\n");
+  return [...arc, "", LEGAL_MEMO_MARKDOWN_CRAFT, "", ...lines].join("\n");
 }
 
 /** Narrative arc hint based on report shape — lets the LLM adapt tone without hard-coded templates. */

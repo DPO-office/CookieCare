@@ -3,7 +3,7 @@ import { describe, it } from "node:test";
 import type { AnalysisState } from "../../models/analysis-state.js";
 import { initAgentRunState } from "../types.js";
 import { resolveStoppedReason, nextPhaseAfterCritique } from "../transitions.js";
-import { renderLimitationsReport } from "../../capabilities/act/render-limitations-report.js";
+import { renderLimitationsReport } from "../../capabilities/reporting/limitations-report.js";
 import type { CritiqueReport, ReleaseDecision } from "../models/critique-report.js";
 
 function critiqueWithRelease(release: ReleaseDecision): CritiqueReport {

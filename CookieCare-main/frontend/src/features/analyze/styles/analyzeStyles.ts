@@ -184,7 +184,20 @@ export const ANALYZE_STYLES = `
 .analyze-report-prose .md-content h2,
 .analyze-report-prose .md-content h3 {
   color: #1a1a1a;
-  margin-top: 1.75rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  margin-top: 2rem;
+  margin-bottom: 0.65rem;
+}
+
+.analyze-report-prose .md-content h2 {
+  font-size: 1.15rem;
+  line-height: 1.35;
+}
+
+.analyze-report-prose .md-content h3 {
+  font-size: 1.02rem;
+  line-height: 1.4;
 }
 
 .analyze-report-prose .md-content h2:first-child,
@@ -209,7 +222,7 @@ export const ANALYZE_STYLES = `
 
 .analyze-report-prose .md-content strong {
   color: #1a1a1a;
-  font-weight: 600;
+  font-weight: 650;
 }
 
 .analyze-report-prose.is-streaming .md-content::after {

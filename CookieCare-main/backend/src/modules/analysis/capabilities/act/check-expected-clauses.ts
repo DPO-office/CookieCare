@@ -3,7 +3,7 @@ import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
 import type { Finding } from "../../models/finding.js";
 import type { SegmentedDocument } from "../../models/document-workspace.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
-import { getSkillById } from "../../skills/registry.js";
+import { getSkillById } from "../../skills/runtime/catalog/registry.js";
 import {
   fullTextLikelyHasClause,
   insufficient,

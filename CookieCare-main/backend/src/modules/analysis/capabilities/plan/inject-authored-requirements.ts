@@ -1,6 +1,6 @@
 import type { InstructionFocus } from "../../models/analysis-plan.js";
 import type { IntentClassification } from "../../models/intent.js";
-import type { AnalysisSkillConfig } from "../../skills/types.js";
+import type { AnalysisSkillConfig } from "../../skills/runtime/catalog/types.js";
 import { pacLog } from "../../utils/pac-log.js";
 
 /**

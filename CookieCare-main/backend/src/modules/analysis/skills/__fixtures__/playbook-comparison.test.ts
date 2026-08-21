@@ -6,10 +6,10 @@ import { describe, it } from "node:test";
 import {
   buildActGraphDetailed,
   MAX_PLAYBOOK_CHECK_SLOTS,
-} from "../build-act-graph.js";
-import { selectSkills } from "../select-skills.js";
-import { loadSkillMdSection, resetSkillMdCacheForTests } from "../load-skill-md.js";
-import { resetSkillRegistryForTests } from "../registry.js";
+} from "../runtime/graph/build-act-graph.js";
+import { selectSkills } from "../runtime/selection/select-skills.js";
+import { loadSkillMdSection, resetSkillMdCacheForTests } from "../runtime/catalog/load-skill-md.js";
+import { resetSkillRegistryForTests } from "../runtime/catalog/registry.js";
 import type { IntentClassification } from "../../models/intent.js";
 import { resolveDocumentRoles } from "../../capabilities/plan/resolve-document-roles.js";
 import type { AnalysisState } from "../../models/analysis-state.js";

@@ -10,6 +10,11 @@ import type {
   RequirementCoverageSummary,
 } from "../../models/critique-report.js";
 import type { CritiqueLiteResult } from "./run-critique-lite.js";
+import {
+  countBy,
+  truncate,
+  wrapPrefixed,
+} from "../../shared/inspect-format.js";
 import { pacLogBlock } from "../../utils/pac-log.js";
 
 const REASON_LABEL: Record<CritiqueTarget["reason"], string> = {
@@ -303,44 +308,9 @@ function formatNextDrivers(
   return lines;
 }
 
-function countBy<T>(items: T[], key: (item: T) => string): Record<string, number> {
-  const out: Record<string, number> = {};
-  for (const item of items) {
-    const k = key(item);
-    out[k] = (out[k] ?? 0) + 1;
-  }
-  return out;
-}
-
 function fmtCounts(counts: Record<string, number>): string {
   return Object.entries(counts)
     .sort((a, b) => b[1] - a[1])
     .map(([k, n]) => `${k}=${n}`)
     .join("  ");
-}
-
-function wrapPrefixed(prefix: string, text: string, width = 92): string[] {
-  const words = text.split(/\s+/).filter(Boolean);
-  if (words.length === 0) return [`${prefix}(empty)`];
-  const lines: string[] = [];
-  let current = prefix;
-  for (const word of words) {
-    if (current.length === prefix.length) {
-      current += word;
-      continue;
-    }
-    if (current.length + 1 + word.length <= width) {
-      current += ` ${word}`;
-      continue;
-    }
-    lines.push(current);
-    current = `${prefix}${word}`;
-  }
-  if (current.length > prefix.length) lines.push(current);
-  return lines;
-}
-
-function truncate(text: string, max: number): string {
-  const trimmed = text.replace(/\s+/g, " ").trim();
-  return trimmed.length <= max ? trimmed : `${trimmed.slice(0, max - 1)}…`;
 }

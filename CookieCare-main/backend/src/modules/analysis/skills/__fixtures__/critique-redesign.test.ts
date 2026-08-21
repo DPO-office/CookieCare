@@ -8,14 +8,14 @@ import type { CritiqueResult } from "../../models/critique-report.js";
 import type { Finding } from "../../models/finding.js";
 import { initAgentRunState } from "../../pac/types.js";
 import { nextPhaseAfterCritique } from "../../pac/transitions.js";
-import { classifyFailureReason } from "../../capabilities/critique/classify-failure-reason.js";
-import { formatFeedback } from "../../capabilities/critique/format-feedback.js";
 import {
+  classifyFailureReason,
+  formatFeedback,
   hasAuthoredContent,
+  hashFindingsForUnit,
   targetIdForUnit,
-} from "../../capabilities/critique/has-authored-content.js";
-import { hashFindingsForUnit } from "../../capabilities/critique/output-hash.js";
-import { getSkillById, resetSkillRegistryForTests } from "../registry.js";
+} from "../../capabilities/critique/work-unit-resolution.js";
+import { getSkillById, resetSkillRegistryForTests } from "../runtime/catalog/registry.js";
 
 const {
   markBudgetExhaustedOutcomes,
@@ -418,8 +418,13 @@ describe("critique redesign", () => {
     const memoNotCovered = buildRightsMatrixMemoDocument(state, [notCovered], "");
     assert.match(memoInsufficient, /Insufficient evidence/);
     assert.doesNotMatch(memoInsufficient, /Not yet supported/);
+    assert.doesNotMatch(memoInsufficient, /Coverage limitations/);
     assert.match(memoNotCovered, /Not yet supported/);
     assert.match(memoNotCovered, /Coverage limitations/);
+    const bottomIdx = memoNotCovered.indexOf("## 7. Bottom Line");
+    const limitsIdx = memoNotCovered.indexOf("## Coverage limitations");
+    const refsIdx = memoNotCovered.indexOf("## 8. References");
+    assert.ok(bottomIdx >= 0 && limitsIdx > bottomIdx && refsIdx > limitsIdx);
   });
 
   it("MAX_TIER2_ATTEMPTS allows one targeted retry after first attempt", () => {

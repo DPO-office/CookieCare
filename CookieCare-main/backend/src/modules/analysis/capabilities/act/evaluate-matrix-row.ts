@@ -11,10 +11,10 @@ import type { ClauseObject } from "../../models/clause-object.js";
 import type {
   MatrixApplicabilityGate,
   RightsMatrixRow,
-} from "../../skills/types.js";
+} from "../../skills/runtime/catalog/types.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
-import { getSkillById } from "../../skills/registry.js";
-import { loadSkillMdSection } from "../../skills/load-skill-md.js";
+import { getSkillById } from "../../skills/runtime/catalog/registry.js";
+import { loadSkillMdSection } from "../../skills/runtime/catalog/load-skill-md.js";
 import {
   compileAuthoredRegex,
   insufficient,

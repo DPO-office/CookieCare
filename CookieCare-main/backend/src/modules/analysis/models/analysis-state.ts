@@ -14,8 +14,8 @@ import type {
   IntentClassification,
 } from "./intent.js";
 import type { OrgMemoryProfile } from "../memory/org-memory.js";
-import type { AnalysisSkillConfig, SkillRegimeRule } from "../skills/types.js";
-import type { ExpectedClauseCheck } from "../skills/types.js";
+import type { AnalysisSkillConfig, SkillRegimeRule } from "../skills/runtime/catalog/types.js";
+import type { ExpectedClauseCheck } from "../skills/runtime/catalog/types.js";
 import type { TierCCacheEntry, WorkUnitOutcome } from "./work-unit-outcome.js";
 
 export interface AnalysisHistoryEntry {

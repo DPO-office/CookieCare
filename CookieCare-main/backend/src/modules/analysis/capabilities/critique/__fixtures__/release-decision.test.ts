@@ -6,7 +6,7 @@ import type { AnalysisState } from "../../models/analysis-state.js";
 import { initAgentRunState } from "../../../pac/types.js";
 import { composeReleaseDecision } from "../release-decision.js";
 import { resolveStoppedReason } from "../../../pac/transitions.js";
-import { renderLimitationsReport } from "../../act/render-limitations-report.js";
+import { renderLimitationsReport } from "../../reporting/limitations-report.js";
 
 function emptyCoverage() {
   return {

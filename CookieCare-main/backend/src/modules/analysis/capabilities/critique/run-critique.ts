@@ -4,6 +4,7 @@ import type {
   CritiqueReport,
   FixItem,
 } from "../../models/critique-report.js";
+import { dedupeFixes } from "../../shared/dedupe.js";
 import { pacLog } from "../../utils/pac-log.js";
 import { resolveWorkUnits } from "./resolve-work-unit.js";
 import { runCritiqueLite } from "./run-critique-lite.js";
@@ -245,14 +246,4 @@ function buildMetrics(
       (state.agent?.askRounds ?? 0),
     critiqueLLMCalls: (prior?.critiqueLLMCalls ?? 0) + critiqueLLMCalls,
   };
-}
-
-function dedupeFixes(fixes: FixItem[]): FixItem[] {
-  const seen = new Set<string>();
-  return fixes.filter((fix) => {
-    const key = `${fix.workUnitId}:${fix.sourceItemId}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
 }

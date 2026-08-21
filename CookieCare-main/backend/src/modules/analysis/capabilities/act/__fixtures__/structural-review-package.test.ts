@@ -4,9 +4,9 @@
  */
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { getSkillById, resetSkillRegistryForTests } from "../../../skills/registry.js";
-import { resolvePackages } from "../../../skills/resolve-packages.js";
-import { buildActGraphDetailed } from "../../../skills/build-act-graph.js";
+import { getSkillById, resetSkillRegistryForTests } from "../../../skills/runtime/catalog/registry.js";
+import { resolvePackages } from "../../../skills/runtime/graph/resolve-packages.js";
+import { buildActGraphDetailed } from "../../../skills/runtime/graph/build-act-graph.js";
 import { groupedResultsToFindings } from "../grouped-results-to-findings.js";
 import { aggregateRequirements } from "../aggregate-requirements.js";
 import { injectAuthoredRequirements } from "../../plan/inject-authored-requirements.js";

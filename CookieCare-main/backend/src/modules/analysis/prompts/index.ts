@@ -12,4 +12,6 @@ export {
   NARRATIVE_REPORT_SYSTEM_PROMPT,
   buildBottomLineUserPrompt,
   buildNarrativeReportUserPrompt,
-} from "./render-output.js";
+} from "./render-output-prompts.js";
+export { SEMANTIC_INTENT_SYSTEM_PROMPT } from "./classify-intent.js";
+export { INVENTORY_SYSTEM_PROMPT } from "./inventory-provisions.js";

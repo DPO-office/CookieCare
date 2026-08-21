@@ -2,7 +2,7 @@ process.env.GOOGLE_CLOUD_PROJECT ??= "report-spec-merge-test";
 
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { getSkillById, resetSkillRegistryForTests } from "../../../skills/registry.js";
+import { getSkillById, resetSkillRegistryForTests } from "../../../skills/runtime/catalog/registry.js";
 import { mergeAuthoredReportSections } from "../resolve-report-spec.js";
 
 describe("report spec merge from authored packages", () => {

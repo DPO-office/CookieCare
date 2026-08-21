@@ -5,7 +5,7 @@ import { describe, it } from "node:test";
 
 describe("render output NDA safety", () => {
   it("selectRenderer chooses memo for NDA structural review not brief_summary GDPR path", async () => {
-    const { selectRenderer } = await import("../../../skills/build-act-graph.js");
+    const { selectRenderer } = await import("../../../skills/runtime/graph/build-act-graph.js");
     const schema = selectRenderer({
       docType: "nda",
       reportSpec: {
