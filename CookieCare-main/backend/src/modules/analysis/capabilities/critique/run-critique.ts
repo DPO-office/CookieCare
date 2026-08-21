@@ -1,4 +1,4 @@
-import type { AnalysisState } from "../../models/analysis-state.js";
+import type { AnalysisState, RepairContext } from "../../models/analysis-state.js";
 import type {
   CritiqueMetrics,
   CritiqueReport,
@@ -10,11 +10,16 @@ import { resolveWorkUnits } from "./resolve-work-unit.js";
 import { runCritiqueLite } from "./run-critique-lite.js";
 import { runDeepCritique } from "./run-deep-critique.js";
 import { composeReleaseDecision } from "./release-decision.js";
-import { alignmentNeedsReplan } from "./alignment.js";
+import {
+  alignmentNeedsReplan,
+  alignmentNeedsTargetedRedo,
+} from "./alignment.js";
 import {
   logCritiqueFinalInspect,
   logCritiqueLiteInspect,
 } from "./critique-inspect-log.js";
+import { getAnalysisProfile } from "../../utils/profile-thinking.js";
+import { repairContextFromAlignment } from "../../skills/runtime/graph/apply-package-shape-repair.js";
 
 /**
  * Two-level CRITIQUE:
@@ -40,15 +45,19 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
   });
   logCritiqueLiteInspect(lite);
 
-  // After a targeted redo, Critique Lite is the final validation pass by
-  // default. Do not recursively launch another semantic loop for the same run.
   const targetedRedoCount = targetedRedoCountForRun(state);
-  const mayRunDeepCritique = targetedRedoCount === 0;
+  const profile = getAnalysisProfile(state);
+  const mayRunDeepCritique =
+    profile.enableDeepCritique &&
+    profile.critiqueUsesProChecklist &&
+    targetedRedoCount === 0;
   const targets = mayRunDeepCritique ? lite.deepCritiqueTargets : [];
   pacLog("deepCritiqueRequired", {
     value: targets.length > 0,
     targets: targets.length,
-    skippedAfterRedo: !mayRunDeepCritique || undefined,
+    thinkingMode: profile.thinkingMode,
+    skippedByProfile: !profile.enableDeepCritique || undefined,
+    skippedAfterRedo: targetedRedoCount > 0 || undefined,
     reasons:
       targets.length > 0
         ? [...new Set(targets.map((t) => t.reason))].join(",")
@@ -87,17 +96,57 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
     allResults,
     rawFixPlan
   );
-  const skeletonMismatch =
+
+  // Full PLAN only for true structural / global alignment replan — never for
+  // recoverable targeted_redo (package shape) or synthesis truncation.
+  const needsFullReplan =
     lite.skeletonMismatch ||
     resolved.skeletonMismatch ||
     alignmentNeedsReplan(lite.alignment);
+  const skeletonMismatch = needsFullReplan;
   const executionComplete = lite.executionComplete;
-  const structurallyValid =
-    lite.structurallyValid && !skeletonMismatch;
-  const finalFixPlan =
-    resolved.allUnitsTerminal || skeletonMismatch
-      ? []
-      : dedupeFixes(resolved.fixPlan);
+  const structurallyValid = lite.structurallyValid && !skeletonMismatch;
+
+  const alignmentTargeted = alignmentNeedsTargetedRedo(lite.alignment);
+  const alignmentFixes = alignmentTargeted
+    ? buildAlignmentTargetedFixes(resolvedState, lite.alignment.issues)
+    : [];
+
+  let finalFixPlan: FixItem[] = needsFullReplan
+    ? []
+    : dedupeFixes([...resolved.fixPlan, ...alignmentFixes]);
+
+  // Truncation with missing sections: ensure wu-render stays on the fix plan
+  // even when other units look terminal.
+  if (
+    !needsFullReplan &&
+    resolvedState.synthesisMeta?.truncated &&
+    finalFixPlan.every((f) => f.workUnitId !== "wu-render")
+  ) {
+    const renderFail = allResults.find(
+      (r) =>
+        (r.itemId === "report-output:contract" ||
+          r.itemId === "outline-analysis:contract") &&
+        (r.status === "fail" || r.status === "missing")
+    );
+    if (renderFail || !resolvedState.renderedOutput?.includes("Conclusion")) {
+      finalFixPlan = dedupeFixes([
+        ...finalFixPlan,
+        {
+          workUnitId: "wu-render",
+          instruction:
+            "Prior synthesis truncated; raise ceiling and complete missing ReportSpec sections",
+          sourceItemId: "report-output:truncated",
+          previousAttemptFeedback: `prior synthesis truncated at maxOutputTokens=${resolvedState.synthesisMeta.maxOutputTokens}`,
+        },
+      ]);
+    }
+  }
+
+  const repairContext = needsFullReplan
+    ? null
+    : resolveRepairContext(resolvedState, lite.alignment.issues, finalFixPlan);
+
   const release = composeReleaseDecision({
     state: resolvedState,
     coverage: lite.requirementCoverage,
@@ -143,6 +192,9 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
 
   pacLog("targetedRetry", {
     count: finalFixPlan.length > 0 ? targetedRedoCount + 1 : targetedRedoCount,
+    repairKind: repairContext?.kind,
+    fullReplan: needsFullReplan,
+    alignmentTargeted,
   });
 
   logCritiqueFinalInspect(resolvedState, report);
@@ -150,11 +202,128 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
   return {
     ...resolvedState,
     critique: report,
+    repairContext,
     metadata: {
       ...resolvedState.metadata,
       critiqueMetrics: metrics,
     },
   };
+}
+
+function buildAlignmentTargetedFixes(
+  state: AnalysisState,
+  issues: Array<{
+    action: string;
+    requirementId?: string;
+    packageId?: string;
+    detail: string;
+  }>
+): FixItem[] {
+  const targeted = issues.filter((i) => i.action === "targeted_redo");
+  if (targeted.length === 0) return [];
+
+  const fixes: FixItem[] = [];
+  const workUnits = state.plan?.workUnits ?? [];
+  const packageIds = new Set(
+    targeted.map((i) => i.packageId).filter((id): id is string => Boolean(id))
+  );
+  const requirementIds = new Set(
+    targeted.map((i) => i.requirementId).filter((id): id is string => Boolean(id))
+  );
+
+  for (const unit of workUnits) {
+    const unitPkg = String(unit.input.packageId ?? "");
+    const hitsPackage = unitPkg && packageIds.has(unitPkg);
+    const hitsReq = (unit.requirementIds ?? []).some((id) =>
+      requirementIds.has(id)
+    );
+    if (
+      hitsPackage ||
+      hitsReq ||
+      unit.tool === "aggregate_requirements" ||
+      unit.tool === "render_output" ||
+      unit.tool === "derive_risk"
+    ) {
+      if (
+        unit.tool === "evaluate_package" ||
+        unit.tool === "inventory_provisions" ||
+        unit.tool === "extract_shared_evidence" ||
+        unit.tool === "aggregate_requirements" ||
+        unit.tool === "derive_risk" ||
+        unit.tool === "render_output"
+      ) {
+        fixes.push({
+          workUnitId: unit.workUnitId,
+          instruction: `Targeted redo: ${targeted[0]?.detail ?? "package shape"}`,
+          sourceItemId: "alignment:targeted_redo",
+          requirementId: unit.requirementIds?.[0] ?? targeted[0]?.requirementId,
+          previousAttemptFeedback: targeted.map((t) => t.detail).join("; "),
+        });
+      }
+    }
+  }
+
+  // Placeholder so transitions can open ACT even before package units exist;
+  // applyPackageShapeRepair will replace the fix plan with injected unit ids.
+  if (fixes.length === 0) {
+    const render = workUnits.find((u) => u.tool === "render_output");
+    fixes.push({
+      workUnitId: render?.workUnitId ?? "wu-render",
+      instruction: "Targeted package-shape repair then re-render",
+      sourceItemId: "alignment:targeted_redo",
+      requirementId: targeted[0]?.requirementId,
+      previousAttemptFeedback: targeted.map((t) => t.detail).join("; "),
+    });
+  }
+
+  return dedupeFixes(fixes);
+}
+
+function resolveRepairContext(
+  state: AnalysisState,
+  alignmentIssues: Array<{
+    action: string;
+    requirementId?: string;
+    packageId?: string;
+    detail: string;
+  }>,
+  fixPlan: FixItem[]
+): RepairContext | null {
+  const fromAlignment = repairContextFromAlignment(state, alignmentIssues);
+  if (fromAlignment) return fromAlignment;
+
+  const renderOnly =
+    fixPlan.length > 0 &&
+    fixPlan.every((f) => f.workUnitId === "wu-render") &&
+    Boolean(state.synthesisMeta?.truncated);
+  if (renderOnly) {
+    return {
+      analysisId: state.request.sessionId,
+      kind: "synthesis",
+      affectedRequirementIds: [],
+      affectedPackageIds: [],
+      critiqueIssueDetails: [
+        `prior synthesis truncated at maxOutputTokens=${state.synthesisMeta?.maxOutputTokens}`,
+      ],
+      preserveFindingsOutsideAffected: true,
+    };
+  }
+
+  if (
+    fixPlan.length > 0 &&
+    fixPlan.every((f) => f.workUnitId === "wu-render")
+  ) {
+    return {
+      analysisId: state.request.sessionId,
+      kind: "synthesis",
+      affectedRequirementIds: [],
+      affectedPackageIds: [],
+      critiqueIssueDetails: fixPlan.map((f) => f.instruction),
+      preserveFindingsOutsideAffected: true,
+    };
+  }
+
+  return null;
 }
 
 function applyUncertainResults(

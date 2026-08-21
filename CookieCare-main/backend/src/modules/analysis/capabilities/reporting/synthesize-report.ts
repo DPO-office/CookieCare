@@ -19,6 +19,8 @@ import {
 import { emitAnalysisToken } from "../../utils/stream-tokens.js";
 import { pacLog } from "../../utils/pac-log.js";
 import { groupAssessmentsForReport } from "../../shared/group-assessments.js";
+import { profileThinkingLevel } from "../../utils/profile-thinking.js";
+import { resolveSynthesisMaxOutputTokens } from "../../utils/resolve-synthesis-ceiling.js";
 
 /**
  * Dynamic synthesis (ACT refactor doc §16). Produces the user-facing narrative
@@ -27,15 +29,9 @@ import { groupAssessmentsForReport } from "../../shared/group-assessments.js";
  * the package path.
  *
  * Verbosity is structural, not token-math (doc §15): the depth cue and the
- * per-status content rules drive length, and the program only sets a safe
- * output ceiling for the provider call.
+ * per-status content rules drive length. The numeric ceiling is profile- and
+ * complexity-aware so Deep thinking does not silently truncate the memo.
  */
-
-const DEPTH_CEILING: Record<ReportSpec["depth"], number> = {
-  narrow: 900,
-  standard: 1800,
-  deep: 3200,
-};
 
 export async function synthesizeReport(
   state: AnalysisState,
@@ -46,11 +42,14 @@ export async function synthesizeReport(
   const brief = buildSynthesisUserPrompt(state, findings, assessments, reportSpec);
   const tracker = state.agent ? { tokensUsed: state.agent.tokensUsed } : undefined;
   const synthStart = Date.now();
+  const maxOutputTokens = resolveSynthesisMaxOutputTokens(state, reportSpec);
   pacLog("synthesis prompt", {
     chars: brief.length,
     assessments: assessments.length,
     findings: findings.length,
     depth: reportSpec.depth,
+    thinkingMode: state.analysisProfile?.thinkingMode ?? state.request.thinkingMode,
+    maxOutputTokens,
   });
 
   try {
@@ -60,19 +59,26 @@ export async function synthesizeReport(
       LLMTask.REFINEMENT,
       LLMProvider.GEMINI,
       {
-        maxOutputTokens: DEPTH_CEILING[reportSpec.depth],
+        maxOutputTokens,
         onDelta: (delta) => emitAnalysisToken(state, delta),
         tracker,
+        thinkingLevel: profileThinkingLevel(state, LLMTask.REFINEMENT),
       }
     );
     if (state.agent && tracker) state.agent.tokensUsed = tracker.tokensUsed;
     const text = outcome.text.trim();
+    state.synthesisMeta = {
+      truncated: Boolean(outcome.truncated),
+      maxOutputTokens,
+      depth: reportSpec.depth,
+    };
     pacLog("synthesis llm", {
       ms: Date.now() - synthStart,
       outChars: text.length,
       truncated: outcome.truncated,
       depth: reportSpec.depth,
-      maxOutputTokens: DEPTH_CEILING[reportSpec.depth],
+      maxOutputTokens,
+      thinkingMode: state.analysisProfile?.thinkingMode ?? state.request.thinkingMode,
     });
     if (text) {
       const ordered = enforceConclusionSectionLast(text);
@@ -85,6 +91,11 @@ export async function synthesizeReport(
     }
   } catch (err) {
     console.warn("[synthesizeReport] synthesis failed; using deterministic brief:", err);
+    state.synthesisMeta = {
+      truncated: false,
+      maxOutputTokens,
+      depth: reportSpec.depth,
+    };
   }
 
   // Deterministic fallback keeps the pipeline resilient (doc §21): never fabricate.

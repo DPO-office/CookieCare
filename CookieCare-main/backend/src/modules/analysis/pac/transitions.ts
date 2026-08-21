@@ -43,14 +43,16 @@ export function nextPhaseAfterCritique(
     (issue) => issue.action === "replan"
   );
   const priorReplans = critique.metrics?.replanCount ?? 0;
+  const maxReplans = state.analysisProfile?.maxReplans ?? 1;
   // Only replan when we still have a concrete reason AND haven't already
   // burned a replan on the same structural pattern. Otherwise let the release
   // gate ship a `release_with_limitations` instead of thrashing.
   const shouldReplan =
-    (critique.skeletonMismatch || alignmentReplan) && priorReplans < 1;
+    (critique.skeletonMismatch || alignmentReplan) && priorReplans < maxReplans;
   if (shouldReplan) return "PLAN";
   if (criticalFactSurfaced(critique)) return "ASK";
-  if (critique.fixPlan.length > 0) return "ACT";
+  const maxTier2 = state.analysisProfile?.maxTier2Attempts ?? 1;
+  if (critique.fixPlan.length > 0 && maxTier2 > 0) return "ACT";
   return "DONE";
 }
 

@@ -16,8 +16,9 @@ import {
   targetIdForUnit,
 } from "./work-unit-resolution.js";
 import { pacLog } from "../../utils/pac-log.js";
+import { getAnalysisProfile } from "../../utils/profile-thinking.js";
 
-/** One targeted retry after the first attempt (2 total ACT runs max per unit). */
+/** Default when no analysis profile is attached (legacy tests). */
 export const MAX_TIER2_ATTEMPTS = 1;
 
 export interface ResolveWorkUnitsResult {
@@ -165,14 +166,15 @@ export async function resolveWorkUnits(
 
       case "tool_execution_error":
       case "verification_rejected": {
-        const maxAttempts = 1 + MAX_TIER2_ATTEMPTS;
+        const maxTier2 = getAnalysisProfile(state).maxTier2Attempts;
+        const maxAttempts = 1 + maxTier2;
         const lastHash = existing?.attempts.at(-1)?.outputHash;
         const sameOutput =
           lastHash !== undefined &&
           lastHash === outputHash &&
           attemptNumber >= 2;
 
-        if (sameOutput || attemptNumber >= maxAttempts) {
+        if (sameOutput || attemptNumber >= maxAttempts || maxTier2 <= 0) {
           const terminal = mergeOutcome(unit, existing, {
             terminalStatus: "retries_exhausted",
             attempts,
@@ -184,6 +186,7 @@ export async function resolveWorkUnits(
             unit: unit.workUnitId,
             sameOutput,
             attemptNumber,
+            maxTier2,
           });
           break;
         }

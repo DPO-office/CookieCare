@@ -330,6 +330,7 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
     findings,
     plan: { ...plan, workUnits: units },
     fixPlan: null,
+    repairContext: null,
   };
   logActInspect(finalState);
   return finalState;

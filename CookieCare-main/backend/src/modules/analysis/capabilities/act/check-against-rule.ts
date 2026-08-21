@@ -15,6 +15,7 @@ import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { getSkillById } from "../../skills/runtime/catalog/registry.js";
 import { loadSkillMdSection } from "../../skills/runtime/catalog/load-skill-md.js";
 import { insufficient, stampRequirementIdsOnNewFindings, compileAuthoredRegex, interpolateMatch } from "./act-utils.js";
+import { profileThinkingLevel } from "../../utils/profile-thinking.js";
 
 export function resolveRule(skillIds: string[], ruleId: string) {
   for (const id of skillIds) {
@@ -515,7 +516,7 @@ async function llmJudgeClauses(args: {
       schema,
       LLMTask.STRUCTURAL_JSON,
       LLMProvider.GEMINI,
-      tracker
+      { tracker, thinkingLevel: profileThinkingLevel(state, LLMTask.STRUCTURAL_JSON) }
     );
   } catch (err) {
     console.warn("[checkAgainstRule] batched clause judgment failed:", err);
@@ -677,7 +678,7 @@ async function llmJudge(args: {
       schema,
       LLMTask.STRUCTURAL_JSON,
       LLMProvider.GEMINI,
-      tracker
+      { tracker, thinkingLevel: profileThinkingLevel(state, LLMTask.STRUCTURAL_JSON) }
     );
   } catch (err) {
     console.warn("[checkAgainstRule] LLM failed:", err);

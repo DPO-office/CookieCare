@@ -12,6 +12,7 @@ import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { getSkillById, mergeSkillRiskCategories } from "../../skills/runtime/catalog/registry.js";
 import { loadSkillMdSection } from "../../skills/runtime/catalog/load-skill-md.js";
 import { insufficient, stampFindingsByCapability, compileAuthoredRegex } from "./act-utils.js";
+import { profileThinkingLevel } from "../../utils/profile-thinking.js";
 
 async function flagRisk(
   state: AnalysisState,
@@ -157,7 +158,7 @@ async function _flagRiskImpl(
       schema,
       LLMTask.STRUCTURAL_JSON,
       LLMProvider.GEMINI,
-      tracker
+      { tracker, thinkingLevel: profileThinkingLevel(state, LLMTask.STRUCTURAL_JSON) }
     );
   } catch (err) {
     console.warn("[flagRisk] LLM failed; heuristic risks:", err);

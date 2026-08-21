@@ -46,6 +46,7 @@ export function toPersistedState(state: AnalysisState): PersistedAnalysisState {
       documentRoles: state.request.documentRoles,
       documentPresentation: state.request.documentPresentation,
       answerStyle: state.request.answerStyle,
+      thinkingMode: state.request.thinkingMode,
       // Drop large texts from ledger — workspace keeps segmented form
       documentTexts: {},
       documentTitles: state.request.documentTitles,

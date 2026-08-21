@@ -1,4 +1,5 @@
 import { LLMProvider, LLMTask, PROVIDER_TASK_PRESETS } from "./config/model-specs.js";
+import type { GeminiThinkingLevel, TaskModelConfig } from "./config/model-specs.js";
 import { GeminiProvider } from "./provider/gemini-provider.js";
 import { OpenRouterLegacyProvider } from "./provider/openrouter-provider.js";
 import {
@@ -81,10 +82,36 @@ async function runProviderCall<T>(
 
 export type TokenBudgetTracker = { tokensUsed: number };
 
+export type CompletionCallOptions = {
+  maxOutputTokens?: number;
+  onDelta?: (delta: string) => void;
+  tracker?: TokenBudgetTracker;
+  /** Overlay Gemini 3.x thinking level without changing the task's model. */
+  thinkingLevel?: GeminiThinkingLevel;
+};
+
 function applyUsage(tracker: TokenBudgetTracker | undefined, usage: TokenUsage): void {
   if (tracker) {
     tracker.tokensUsed += usage.totalTokens;
   }
+}
+
+function mergeRuntimeConfig(
+  provider: LLMProvider,
+  task: LLMTask,
+  options: CompletionCallOptions = {}
+): TaskModelConfig {
+  const preset = PROVIDER_TASK_PRESETS[provider][task];
+  const runtimeConfig: TaskModelConfig = { ...preset };
+  if (typeof options.maxOutputTokens === "number") {
+    runtimeConfig.maxOutputTokens = options.maxOutputTokens;
+  }
+  if (options.thinkingLevel) {
+    runtimeConfig.thinkingLevel = options.thinkingLevel;
+    // Gemini 3.x uses thinkingLevel; clear legacy budget to avoid mixing.
+    delete runtimeConfig.thinkingBudget;
+  }
+  return runtimeConfig;
 }
 
 export async function executeCompletion(
@@ -105,17 +132,10 @@ export async function executeBoundedCompletion(
   systemInstruction: string,
   task: LLMTask,
   provider: LLMProvider = LLMProvider.GEMINI,
-  options: {
-    maxOutputTokens?: number;
-    onDelta?: (delta: string) => void;
-    tracker?: TokenBudgetTracker;
-  } = {}
+  options: CompletionCallOptions = {}
 ): Promise<CompletionOutcome> {
   const engine = getProviderEngine(provider);
-  const preset = PROVIDER_TASK_PRESETS[provider][task];
-  const runtimeConfig = options.maxOutputTokens
-    ? { ...preset, maxOutputTokens: options.maxOutputTokens }
-    : preset;
+  const runtimeConfig = mergeRuntimeConfig(provider, task, options);
 
   const { onDelta, tracker } = options;
   const t0 = Date.now();
@@ -139,12 +159,22 @@ export async function executeBoundedCompletion(
   }
   applyUsage(tracker, outcome.usage);
   console.log(
-    `[LLM] ${task} model=${runtimeConfig.model} ms=${Date.now() - t0} ` +
+    `[LLM] ${task} model=${runtimeConfig.model} thinking=${runtimeConfig.thinkingLevel ?? "-"} ms=${Date.now() - t0} ` +
       `promptChars=${prompt.length + (systemInstruction?.length ?? 0)} ` +
       `outChars=${outcome.text.length} inTok=${outcome.usage.promptTokens} ` +
       `outTok=${outcome.usage.completionTokens} totalTok=${outcome.usage.totalTokens}`
   );
   return outcome;
+}
+
+function normalizeJsonOptions(
+  trackerOrOptions?: TokenBudgetTracker | CompletionCallOptions
+): CompletionCallOptions {
+  if (!trackerOrOptions) return {};
+  if ("tokensUsed" in trackerOrOptions && !("thinkingLevel" in trackerOrOptions)) {
+    return { tracker: trackerOrOptions as TokenBudgetTracker };
+  }
+  return trackerOrOptions as CompletionCallOptions;
 }
 
 export async function executeJsonCompletion<T>(
@@ -153,10 +183,11 @@ export async function executeJsonCompletion<T>(
   jsonSchema: any,
   task: LLMTask,
   provider: LLMProvider = LLMProvider.GEMINI,
-  tracker?: TokenBudgetTracker
+  trackerOrOptions?: TokenBudgetTracker | CompletionCallOptions
 ): Promise<T> {
+  const options = normalizeJsonOptions(trackerOrOptions);
   const engine = getProviderEngine(provider);
-  const runtimeConfig = PROVIDER_TASK_PRESETS[provider][task];
+  const runtimeConfig = mergeRuntimeConfig(provider, task, options);
   const t0 = Date.now();
 
   const result = await runProviderCall(provider, task, () =>
@@ -166,11 +197,11 @@ export async function executeJsonCompletion<T>(
   const completionText = typeof result === "string" ? result : JSON.stringify(result);
   const usage = estimateTokenUsage(prompt, systemInstruction, completionText);
   // JSON path has no CompletionOutcome; estimate from serialized result for budget tracking.
-  if (tracker) {
-    applyUsage(tracker, usage);
+  if (options.tracker) {
+    applyUsage(options.tracker, usage);
   }
   console.log(
-    `[LLM] ${task} json model=${runtimeConfig.model} ms=${Date.now() - t0} ` +
+    `[LLM] ${task} json model=${runtimeConfig.model} thinking=${runtimeConfig.thinkingLevel ?? "-"} ms=${Date.now() - t0} ` +
       `promptChars=${prompt.length + (systemInstruction?.length ?? 0)} ` +
       `outChars=${completionText.length} inTok=${usage.promptTokens} ` +
       `outTok=${usage.completionTokens} totalTok=${usage.totalTokens}`

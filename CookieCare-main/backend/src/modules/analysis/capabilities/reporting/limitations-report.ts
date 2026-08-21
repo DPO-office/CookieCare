@@ -7,7 +7,10 @@ export function hasSkillOrPackageLimitation(release: ReleaseDecision): boolean {
   if (release.requirementCoverage.notCovered.length > 0) return true;
   if (release.requirementCoverage.needsReplan.length > 0) return true;
   return release.alignment.issues.some(
-    (i) => i.kind === "wrong_package" || i.action === "replan"
+    (i) =>
+      i.kind === "wrong_package" ||
+      i.action === "replan" ||
+      i.action === "targeted_redo"
   );
 }
 
@@ -26,7 +29,11 @@ function formatSkillPackageReasons(release: ReleaseDecision): string[] {
     );
   }
   for (const issue of release.alignment.issues) {
-    if (issue.kind === "wrong_package" || issue.action === "replan") {
+    if (
+      issue.kind === "wrong_package" ||
+      issue.action === "replan" ||
+      issue.action === "targeted_redo"
+    ) {
       lines.push(issue.detail);
     }
   }

@@ -50,7 +50,7 @@ export default function InteractAnalyze() {
   const [promptLibraryId, setPromptLibraryId] = useState<string | undefined>();
   const [documentMode, setDocumentMode] = useState<DocumentMode>("unified");
   const [answerStyle, setAnswerStyle] = useState<AnswerStyle>("narrative");
-  const [analysisDepth, setAnalysisDepth] = useState<AnalysisDepth>("deep");
+  const [analysisDepth, setAnalysisDepth] = useState<AnalysisDepth>("lite");
   const [playbookDocId, setPlaybookDocId] = useState<string | null>(null);
   const [chatInput, setChatInput] = useState("");
   const [validationMessage, setValidationMessage] = useState("");

@@ -263,6 +263,11 @@ describe("coverage and alignment", () => {
       },
     });
     const alignment = validateAlignment(state);
-    assert.ok(alignment.issues.some((i) => i.kind === "wrong_package"));
+    // Skills are not hydrated on this fixture — current skills cannot promote
+    // the path, so Critique must not open ACT/PLAN for an unsatisfiable gap.
+    assert.equal(
+      alignment.issues.some((i) => i.action === "targeted_redo" || i.action === "replan"),
+      false
+    );
   });
 });

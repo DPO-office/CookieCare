@@ -63,6 +63,7 @@ import { emitAnalysisToken } from "../../utils/stream-tokens.js";
 import { SEMANTIC_INTENT_SYSTEM_PROMPT } from "../../prompts/classify-intent.js";
 
 import { pacLog } from "../../utils/pac-log.js";
+import { profileThinkingLevel } from "../../utils/profile-thinking.js";
 import { logIntentInspect } from "./plan-inspect-log.js";
 
 import { classifyDocumentFromText } from "../act/classify-document.js";
@@ -569,7 +570,7 @@ export async function classifyIntent(state: AnalysisState): Promise<AnalysisStat
 
       LLMProvider.GEMINI,
 
-      tracker
+      { tracker, thinkingLevel: profileThinkingLevel(state, LLMTask.STRUCTURAL_JSON_LITE) }
 
     )) as RawIntentClassification;
 

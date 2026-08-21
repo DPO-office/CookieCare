@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(__dirname, '..');
 const cloudRunHost = 'cookiecare-git-855346886001.asia-southeast1.run.app';
 const allowedHosts = [cloudRunHost, '.run.app'];
 const standaloneVite = process.env.VITE_MIDDLEWARE !== '1';
@@ -12,13 +13,20 @@ const standaloneVite = process.env.VITE_MIDDLEWARE !== '1';
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   root: __dirname,
+  // Prefer the monorepo root install so Vite does not pick up a second React
+  // from frontend/node_modules (blank white screen / Invalid hook call).
+  cacheDir: path.resolve(repoRoot, 'node_modules/.vite'),
   build: {
     outDir: path.resolve(__dirname, 'dist'),
     emptyOutDir: true,
   },
   resolve: {
+    dedupe: ['react', 'react-dom', 'react-router-dom'],
     alias: {
       '@': path.resolve(__dirname, 'src'),
+      react: path.resolve(repoRoot, 'node_modules/react'),
+      'react-dom': path.resolve(repoRoot, 'node_modules/react-dom'),
+      'react-router-dom': path.resolve(repoRoot, 'node_modules/react-router-dom'),
     },
   },
   server: {

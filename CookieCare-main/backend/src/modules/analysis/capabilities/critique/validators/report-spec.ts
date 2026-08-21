@@ -108,11 +108,16 @@ export function validateReportSpec(
         : "Report sections do not follow ReportSpec ordering",
   });
   if (!outputOk) {
+    const truncated = Boolean(state.synthesisMeta?.truncated);
     fixes.push({
       workUnitId: "wu-render",
-      instruction:
-        "Render required ReportSpec sections using their declared labels and order",
+      instruction: truncated
+        ? "Prior synthesis truncated; raise ceiling and complete missing ReportSpec sections"
+        : "Render required ReportSpec sections using their declared labels and order",
       sourceItemId: "report-output:contract",
+      previousAttemptFeedback: truncated
+        ? `prior synthesis truncated at maxOutputTokens=${state.synthesisMeta?.maxOutputTokens}; raise ceiling and complete missing sections: ${missing.join(", ") || "ordering"}`
+        : undefined,
     });
   }
 

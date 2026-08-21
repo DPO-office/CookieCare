@@ -16,6 +16,7 @@ import { emitAnalysisToken } from "../../utils/stream-tokens.js";
 import { synthesizeReport } from "./synthesize-report.js";
 import { enforceConclusionSectionLast } from "../../prompts/report-sections.js";
 import { pacLog } from "../../utils/pac-log.js";
+import { profileThinkingLevel } from "../../utils/profile-thinking.js";
 import {
   BOTTOM_LINE_SYSTEM_PROMPT,
   NARRATIVE_REPORT_SYSTEM_PROMPT_WITH_CRAFT,
@@ -1263,6 +1264,7 @@ async function streamBottomLine(state: AnalysisState, sections: string): Promise
       {
         onDelta: (delta) => emitAnalysisToken(state, delta),
         tracker,
+        thinkingLevel: profileThinkingLevel(state, LLMTask.REFINEMENT),
       }
     );
     if (state.agent && tracker) {
@@ -1290,6 +1292,7 @@ async function streamNarrativeReport(
       {
         onDelta: (delta) => emitAnalysisToken(state, delta),
         tracker,
+        thinkingLevel: profileThinkingLevel(state, LLMTask.REFINEMENT),
       }
     );
     if (state.agent && tracker) {

@@ -12,6 +12,7 @@ import { renderLimitationsReport, hasSkillOrPackageLimitation } from "../capabil
 import { appendHistory } from "../utils/persisted-state.js";
 import type { PacCapabilities } from "../capabilities/types.js";
 import { pacLog, pacWarn } from "../utils/pac-log.js";
+import { applyPackageShapeRepair } from "../skills/runtime/graph/apply-package-shape-repair.js";
 
 /**
  * Analysis PAC controller — TypeScript owns the loop; LLM never chooses phase hops.
@@ -135,6 +136,7 @@ export class PacController {
           }
 
           if (next === "PLAN") {
+            state.repairContext = null;
             state.agent!.phase = "PLAN";
             break;
           }
@@ -144,8 +146,25 @@ export class PacController {
             break;
           }
 
-          if (!critique.fixPlan.length) {
+          if (!critique.fixPlan.length && state.repairContext?.kind !== "package_shape") {
             pacWarn("CRITIQUE → ACT with empty fixPlan; stopping to avoid a freeze loop");
+            state = applyReleaseGate(state, critique);
+            state.agent!.phase = "DONE";
+            state.agent!.stoppedReason = resolveStoppedReason(state, critique);
+            break;
+          }
+
+          if (state.repairContext?.kind === "package_shape") {
+            state = applyPackageShapeRepair(state);
+          }
+
+          const fixItems =
+            state.fixPlan?.items?.length && state.repairContext?.kind === "package_shape"
+              ? state.fixPlan.items
+              : critique.fixPlan;
+
+          if (!fixItems.length) {
+            pacWarn("CRITIQUE → ACT with empty fixPlan after repair; stopping");
             state = applyReleaseGate(state, critique);
             state.agent!.phase = "DONE";
             state.agent!.stoppedReason = resolveStoppedReason(state, critique);
@@ -155,10 +174,10 @@ export class PacController {
           if (state.plan) {
             state.plan = {
               ...state.plan,
-              workUnits: markForRedo(state.plan.workUnits, critique.fixPlan),
+              workUnits: markForRedo(state.plan.workUnits, fixItems),
             };
           }
-          state.fixPlan = { items: critique.fixPlan, targetedOnly: true };
+          state.fixPlan = { items: fixItems, targetedOnly: true };
           state.agent!.phase = "ACT";
           break;
         }

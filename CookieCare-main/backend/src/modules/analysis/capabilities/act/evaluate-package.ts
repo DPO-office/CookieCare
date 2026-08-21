@@ -14,6 +14,7 @@ import { resolveRule } from "./check-against-rule.js";
 import { insufficient } from "./act-utils.js";
 import { groupedResultsToFindings } from "./grouped-results-to-findings.js";
 import { pacLog } from "../../utils/pac-log.js";
+import { profileThinkingLevel } from "../../utils/profile-thinking.js";
 import {
   EVALUATE_PACKAGE_SYSTEM_PROMPT,
   buildEvaluatePackageUserPrompt,
@@ -168,7 +169,7 @@ export async function evaluatePackage(
       schema,
       LLMTask.STRUCTURAL_JSON,
       LLMProvider.GEMINI,
-      tracker
+      { tracker, thinkingLevel: profileThinkingLevel(state, LLMTask.STRUCTURAL_JSON) }
     );
   } catch (err) {
     return {

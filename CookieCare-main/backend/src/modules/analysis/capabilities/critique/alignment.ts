@@ -2,6 +2,8 @@ import type { AnalysisState } from "../../models/analysis-state.js";
 import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
 import type { AlignmentIssue, AlignmentReport } from "../../models/critique-report.js";
 import { analysisPackageKind } from "../../models/evidence-package.js";
+import { resolvePackages } from "../../skills/runtime/graph/resolve-packages.js";
+import { pacLog } from "../../utils/pac-log.js";
 
 function isTerminal(unit: AnalysisWorkUnit): boolean {
   return (
@@ -80,12 +82,29 @@ export function validateAlignment(state: AnalysisState): AlignmentReport {
       // If we have *any* supported execution path for this requirementId,
       // ignore the stale not_supported entry (PLAN/ACT reconciliation case).
       if (supportedRequirementIds.has(path.requirementId)) continue;
-      issues.push({
-        kind: "wrong_package",
-        action: "replan",
-        requirementId: path.requirementId,
-        detail: path.reason ?? `Requirement ${path.requirementId} has no supported package`,
-      });
+      const promotedPackageId = packageIdIfCurrentSkillsCanSupport(
+        state,
+        path.requirementId
+      );
+      if (promotedPackageId) {
+        // PLAN omitted a package the loaded skills can actually run.
+        issues.push({
+          kind: "wrong_package",
+          action: "targeted_redo",
+          requirementId: path.requirementId,
+          packageId: promotedPackageId,
+          detail:
+            path.reason ??
+            `Requirement ${path.requirementId} has no supported package in the graph`,
+        });
+      } else {
+        // Unsatisfiable under current skills (e.g. GDPR Art 28 on an NDA-only
+        // run). Coverage already records the gap — do not open ACT or PLAN.
+        pacLog("critique cause=unsatisfiable_under_skills", {
+          requirementId: path.requirementId,
+          reason: path.reason,
+        });
+      }
       continue;
     }
 
@@ -138,7 +157,7 @@ export function validateAlignment(state: AnalysisState): AlignmentReport {
       if (onlyRules || !executed) {
         issues.push({
           kind: "wrong_execution_shape",
-          action: "replan",
+          action: "targeted_redo",
           requirementId: path.requirementId,
           packageId: path.packageId,
           detail: `Expected package ${path.packageId} execution but graph ran a different shape`,
@@ -189,4 +208,38 @@ function matrixLinkedAllowedArticles(state: AnalysisState): Set<number> {
 
 export function alignmentNeedsReplan(report: AlignmentReport): boolean {
   return report.issues.some((issue) => issue.action === "replan");
+}
+
+export function alignmentNeedsTargetedRedo(report: AlignmentReport): boolean {
+  return report.issues.some((issue) => issue.action === "targeted_redo");
+}
+
+const SUPPORTED_PATH_STATUSES = new Set([
+  "supported",
+  "supported_via_dependency",
+  "direct_rule",
+]);
+
+/**
+ * True package-shape miss: current skills would give this requirement a
+ * supported path. Otherwise ACT cannot invent a package (limitation, not a loop).
+ */
+function packageIdIfCurrentSkillsCanSupport(
+  state: AnalysisState,
+  requirementId: string
+): string | undefined {
+  const skills = state.activeSkills ?? [];
+  if (skills.length === 0) return undefined;
+  const resolution = resolvePackages(
+    skills,
+    state.plan?.focus,
+    state.intent?.requirements
+  );
+  const path = resolution.requirementPaths.find(
+    (p) => p.requirementId === requirementId
+  );
+  if (path && SUPPORTED_PATH_STATUSES.has(path.status) && path.packageId) {
+    return path.packageId;
+  }
+  return resolution.requirementToPackageId[requirementId];
 }

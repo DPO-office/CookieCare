@@ -13,6 +13,7 @@ import type {
 import type { Finding } from "../../models/finding.js";
 import { dedupeFixes } from "../../shared/dedupe.js";
 import { resolveRule } from "../act/check-against-rule.js";
+import { profileThinkingLevel } from "../../utils/profile-thinking.js";
 
 export interface DeepCritiqueRun {
   results: DeepCritiqueResult[];
@@ -87,7 +88,7 @@ export async function runDeepCritique(
       schema,
       LLMTask.CRITIQUE_CHECKLIST,
       LLMProvider.GEMINI,
-      tracker
+      { tracker, thinkingLevel: profileThinkingLevel(state, LLMTask.CRITIQUE_CHECKLIST) }
     );
     if (state.agent && tracker) state.agent.tokensUsed = tracker.tokensUsed;
     return materializeResults(state, targets, normalize(raw, allowedIds), 1);

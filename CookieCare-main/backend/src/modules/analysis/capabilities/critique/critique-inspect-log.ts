@@ -275,9 +275,13 @@ function formatNextDrivers(
   const replanCount = report.metrics?.replanCount ?? 0;
   const alignmentReplan =
     report.release?.alignment.issues.some((i) => i.action === "replan") ?? false;
+  const alignmentTargeted =
+    report.release?.alignment.issues.some((i) => i.action === "targeted_redo") ??
+    false;
   const drivers: string[] = [];
   if (report.skeletonMismatch) drivers.push("skeletonMismatch");
   if (alignmentReplan) drivers.push("alignment.replan");
+  if (alignmentTargeted) drivers.push("alignment.targeted_redo");
   if (report.criticalFactSurfaced) drivers.push("criticalFactSurfaced");
   if (report.fixPlan.length > 0) {
     drivers.push(`fixPlan[${report.fixPlan.length}]`);
@@ -287,7 +291,7 @@ function formatNextDrivers(
   const lines: string[] = [
     "3. NEXT-PHASE DRIVERS",
     `   drivers        ${drivers.join(" | ")}`,
-    `   replanCount    ${replanCount}   (replan only allowed while < 1)`,
+    `   replanCount    ${replanCount}   (full PLAN only for alignment.replan / skeletonMismatch)`,
     `   turn           ${state.agent?.turn ?? 0}/${state.agent?.maxTurns ?? "-"}`,
   ];
   if (nextPhaseHint) {
