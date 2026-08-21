@@ -7,6 +7,7 @@ import {
   SlidersHorizontal,
   Zap,
   Microscope,
+  ChevronDown,
 } from "lucide-react";
 import { useAutoResize } from "../hooks/useAutoResize";
 import { DocumentMode, AnswerStyle, AnalysisDepth } from "../types";
@@ -44,8 +45,21 @@ interface AnalysisComposerProps {
   variant?: "landing" | "default";
 }
 
-/** Depth toggle pill — Lite / Deep Dive */
-function DepthToggle({
+const DEPTH_OPTIONS: { value: AnalysisDepth; label: string; icon: React.ReactNode }[] = [
+  {
+    value: "lite",
+    label: "Lite",
+    icon: <Zap className="h-[13px] w-[13px] shrink-0" strokeWidth={1.75} />,
+  },
+  {
+    value: "deep",
+    label: "Deep Dive",
+    icon: <Microscope className="h-[13px] w-[13px] shrink-0" strokeWidth={1.75} />,
+  },
+];
+
+/** Depth dropdown — Gemini-style inline picker inside the toolbar */
+function DepthDropdown({
   depth,
   onChange,
   disabled,
@@ -54,34 +68,64 @@ function DepthToggle({
   onChange: (d: AnalysisDepth) => void;
   disabled?: boolean;
 }) {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const active = DEPTH_OPTIONS.find((o) => o.value === depth)!;
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
   return (
-    <div
-      className="analyze-depth-toggle"
-      role="group"
-      aria-label="Analysis depth"
-    >
+    <div ref={containerRef} className="analyze-depth-dropdown-root">
       <button
         type="button"
         disabled={disabled}
-        onClick={() => onChange("lite")}
-        className={`analyze-depth-btn${depth === "lite" ? " is-active" : ""}`}
-        aria-pressed={depth === "lite"}
-        title="Lite — concise, high-level summary"
+        onClick={() => setOpen((v) => !v)}
+        className="analyze-depth-dropdown-trigger"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={`Analysis mode: ${active.label}`}
       >
-        <Zap className="h-[13px] w-[13px] shrink-0" strokeWidth={1.75} />
-        <span>Lite</span>
+        <span className="analyze-depth-dropdown-icon">{active.icon}</span>
+        <span className="analyze-depth-dropdown-label">{active.label}</span>
+        <ChevronDown
+          className={`analyze-depth-dropdown-chevron${open ? " is-open" : ""}`}
+          strokeWidth={2}
+        />
       </button>
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={() => onChange("deep")}
-        className={`analyze-depth-btn${depth === "deep" ? " is-active" : ""}`}
-        aria-pressed={depth === "deep"}
-        title="Deep Dive — thorough, clause-by-clause analysis"
-      >
-        <Microscope className="h-[13px] w-[13px] shrink-0" strokeWidth={1.75} />
-        <span>Deep Dive</span>
-      </button>
+
+      {open && (
+        <div className="analyze-depth-dropdown-menu" role="listbox" aria-label="Analysis mode">
+          {DEPTH_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              role="option"
+              aria-selected={depth === opt.value}
+              onClick={() => {
+                onChange(opt.value);
+                setOpen(false);
+              }}
+              className={`analyze-depth-dropdown-item${depth === opt.value ? " is-active" : ""}`}
+            >
+              <span className="analyze-depth-dropdown-item-icon">{opt.icon}</span>
+              <span className="analyze-depth-dropdown-item-label">{opt.label}</span>
+              {depth === opt.value && (
+                <span className="analyze-depth-dropdown-item-check" aria-hidden="true">✓</span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -115,7 +159,6 @@ export function AnalysisComposer({
 }: AnalysisComposerProps) {
   const { ref: textareaRef, adjust } = useAutoResize(72, 168);
   const [optionsOpen, setOptionsOpen] = useState(false);
-  const optionsRef = useRef<HTMLDivElement>(null);
   const optionsBtnRef = useRef<HTMLButtonElement>(null);
   const hasDocuments = documents.length > 0;
   const busy = isAnalyzing || isUploading;
@@ -159,20 +202,6 @@ export function AnalysisComposer({
             </span>
           </div>
         )}
-
-        {/* Depth mode toggle — floats above the composer, right-aligned */}
-        <div className="flex items-center justify-end mb-2 px-1">
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-medium text-[#98A2B3] uppercase tracking-[0.12em] select-none">
-              Mode
-            </span>
-            <DepthToggle
-              depth={analysisDepth}
-              onChange={onSetAnalysisDepth}
-              disabled={busy}
-            />
-          </div>
-        </div>
 
         <div className="pcl-composer relative overflow-visible">
           {hasDocuments && (
@@ -264,10 +293,12 @@ export function AnalysisComposer({
 
             <div className="flex-1" />
 
-            {/* Right: shortcut hint + send */}
-            <span className="hidden shrink-0 select-none text-[11px] tracking-wide text-[#98A2B3] sm:inline">
-              Ctrl+Y
-            </span>
+            {/* Right: mode dropdown + send */}
+            <DepthDropdown
+              depth={analysisDepth}
+              onChange={onSetAnalysisDepth}
+              disabled={busy}
+            />
 
             <button
               type="button"
