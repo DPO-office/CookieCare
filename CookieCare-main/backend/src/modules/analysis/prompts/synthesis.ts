@@ -7,7 +7,7 @@ import type {
 } from "../models/intent.js";
 import { conversationContextForIntent } from "../memory/conversation-window.js";
 import type { RequirementAssessment } from "../models/requirement-assessment.js";
-import { isConditionalLike, isMaterialIssueStatus } from "../models/requirement-assessment.js";
+import { isConditionalLike, isMaterialIssueStatus, displayRequirementStatus } from "../models/requirement-assessment.js";
 import {
   groupAssessmentsForReport,
   humanizeRequirementId,
@@ -44,15 +44,24 @@ export const SYNTHESIS_SYSTEM_PROMPT = [
   "Do not expose internal requirement IDs, work-unit IDs, package IDs, or finding IDs unless the user asked for them.",
   "",
   "Treat the supplied statuses as given. Explain them; do not silently reverse them.",
+  "Print Status cells with these user-facing labels only:",
+  "- Strong",
+  "- Present & adequate",
+  "- Minor drafting gap",
+  "- Gap",
+  "- Cannot determine",
+  "- Not applicable",
+  "Never print the internal tokens conditional, covered, partial, missing, or cannot_determine in a Status cell.",
   "Interpret statuses as follows:",
-  "- covered: the obligation is present in the reviewed materials with enough substance to support the conclusion.",
-  "- partial: some required elements are present and others are incomplete, weak, or qualified.",
-  "- missing: a positive gap in the reviewed text of a provision that was expected to contain the obligation.",
-  "- cannot_determine: the reviewed materials do not let you verify the point — including incomplete extraction, or substance that lives in an annex, schedule, SOW, appendix, policy, or other document not supplied.",
-  "- not_applicable: outside the scope of this agreement or request.",
+  "- strong / Strong: operative detail in this document fully substantiates the element.",
+  "- adequate / Present & adequate: the obligation is present and verifiable in this document.",
+  "- conditional / Minor drafting gap: the obligation exists here but is incomplete, annex/SOW-dependent, or thin. Name the schedule. Do not call this Cannot determine.",
+  "- gap / Gap: a positive absence in the reviewed text of a provision that was expected to contain the obligation.",
+  "- cannot_determine / Cannot determine: no usable quote — empty extract or unread truncated heading. Rare. An annex pointer is Minor drafting gap, not Cannot determine.",
+  "- not_applicable / Not applicable: outside the scope of this agreement or request.",
   "",
   "Absence from the extracted evidence is not, by itself, proof that the obligation is missing from the agreement.",
-  "If the document points to an annex, schedule, SOW, appendix, incorporated policy, or another agreement, say that compliance cannot be fully verified from the supplied materials. Do not treat the unavailability of that material as proof the obligation is absent.",
+  "If the document points to an annex, schedule, SOW, appendix, incorporated policy, or another agreement, status is Minor drafting gap: the pointer is in this contract; Obtain the schedule. Never label that row Cannot determine.",
   "Distinguish whether an obligation exists from whether its adequacy can be verified.",
   "",
   "Do not overstate. Prefer \"not identified in the reviewed materials\" over \"the agreement does not contain…\" unless the relevant agreement or section was actually reviewed in full.",
@@ -219,7 +228,7 @@ function renderThemeGroups(
           .filter(Boolean)
           .slice(0, 3);
         return [
-          `  - ${humanizeRequirementId(member.requirementId)} [${member.status}] ${member.summary}`,
+          `  - ${humanizeRequirementId(member.requirementId)} [${displayRequirementStatus(member.status)}] ${member.summary}`,
           member.recommendation ? `    Suggested fix: ${member.recommendation}` : "",
           quotes.length
             ? `    Evidence: ${quotes.map((q) => `"${q}"`).join(" | ")}`
@@ -230,7 +239,7 @@ function renderThemeGroups(
       });
       return [
         `### ${group.title}`,
-        `Combined status: ${group.status}`,
+        `Combined status: ${displayRequirementStatus(group.status)}`,
         group.members.length > 1
           ? "Write ONE assessment covering all members of this group."
           : "",
@@ -303,7 +312,7 @@ function renderThemeGroupMembersOnly(
       .filter(Boolean)
       .slice(0, 3);
     return [
-      `  - ${humanizeRequirementId(member.requirementId)} [${member.status}] ${member.summary}`,
+      `  - ${humanizeRequirementId(member.requirementId)} [${displayRequirementStatus(member.status)}] ${member.summary}`,
       member.recommendation ? `    Suggested fix: ${member.recommendation}` : "",
       quotes.length
         ? `    Evidence: ${quotes.map((q) => `"${q}"`).join(" | ")}`
@@ -314,7 +323,7 @@ function renderThemeGroupMembersOnly(
   });
 
   return [
-    `Combined status: ${group.status}`,
+    `Combined status: ${displayRequirementStatus(group.status)}`,
     group.members.length > 1
       ? "Write ONE assessment covering all members of this group."
       : "",
@@ -445,6 +454,8 @@ export const SYNTHESIS_SECTION_SYSTEM_PROMPT = [
   "Do not write other sections, a title page, or a closing offer to help.",
   "Do not expose internal requirement IDs, work-unit IDs, package IDs, or finding IDs unless the user asked for them.",
   "Treat supplied statuses as given. Do not silently reverse them.",
+  "Status cells: Strong, Present & adequate, Minor drafting gap, Gap, Cannot determine, Not applicable. Never print internal tokens in the Status column.",
+  "An annex/SOW pointer is Minor drafting gap, not Cannot determine.",
   "cannot_determine is not a legal gap. Never recommend amending the agreement from cannot_determine, insufficient evidence, or truncated quotes — use Obtain / Confirm / re-read.",
   "Use Amend only for missing or partial when the cited quote is complete.",
   "Answer what the user asked. Write 3–4 short paragraphs of professional prose.",
@@ -477,6 +488,8 @@ export function synthesisSectionSystemPrompt(state: AnalysisState): string {
     "Do not write other sections, a title page, or a closing offer to help.",
     "Do not expose internal requirement IDs, work-unit IDs, package IDs, or finding IDs unless the user asked for them.",
     "Treat supplied statuses as given. Do not silently reverse them.",
+    "Status cells: Strong, Present & adequate, Minor drafting gap, Gap, Cannot determine, Not applicable. Never print internal tokens in the Status column.",
+    "An annex/SOW pointer is Minor drafting gap, not Cannot determine.",
     "cannot_determine is not a legal gap. Never recommend amending the agreement from cannot_determine, insufficient evidence, or truncated quotes — use Obtain / Confirm / re-read.",
     "Use Amend only for missing or partial when the cited quote is complete.",
     "Answer what the user asked. Put the core analysis in markdown tables; keep framing prose short.",

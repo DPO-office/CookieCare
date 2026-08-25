@@ -7,8 +7,12 @@ import type {
   EvidencePackageSourceMode,
   SharedEvidenceBundle,
 } from "../../models/evidence-package.js";
-import type { GroupedRequirementResult } from "../../models/requirement-assessment.js";
+import type {
+  GroupedRequirementResult,
+  RequirementStatus,
+} from "../../models/requirement-assessment.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
+import { REFERENCED_ELSEWHERE_CLAIM_RE } from "./requirement-status-policy.js";
 
 const TIER_BY_SOURCE: Record<EvidencePackageSourceMode, RuleSourceTier> = {
   authored: "B",
@@ -38,8 +42,10 @@ export interface ConvertContext {
  *   cannot_determine        -> one `insufficient_evidence` finding
  *   not_applicable          -> one `not_covered` finding
  *
- * Every finding is tagged with `requirementId` so CRITIQUE can verify each
- * requirement independently and aggregation can group them.
+ * Annex/SOW pointers with a cited quote are remapped to conditional (not
+ * cannot_determine): the obligation exists here; particulars live in a schedule.
+ * Truncated unread extracts stay cannot_determine.
+ * Every finding is tagged with `requirementId` so aggregation can group them.
  */
 export function groupedResultsToFindings(
   results: GroupedRequirementResult[],
@@ -73,7 +79,9 @@ function findingsForResult(
     unverified: ctx.sourceMode === "web_runtime" || undefined,
   };
 
-  switch (result.status) {
+  const status = effectiveResultStatus(result, ctx);
+
+  switch (status) {
     case "strong":
     case "adequate":
     case "covered":
@@ -87,18 +95,6 @@ function findingsForResult(
       ];
     case "gap":
     case "missing": {
-      if (shouldTreatMissingAsIndeterminate(result, ctx)) {
-        return [
-          {
-            ...base,
-            findingId: id("cd", result.requirementId, ctx),
-            status: "insufficient_evidence",
-            claim:
-              result.rationale ||
-              "Requirement substance is referenced in another document or annex, not evidenced here.",
-          },
-        ];
-      }
       return [
         {
           ...base,
@@ -149,19 +145,43 @@ function findingsForResult(
   }
 }
 
-function shouldTreatMissingAsIndeterminate(
+function effectiveResultStatus(
+  result: GroupedRequirementResult,
+  ctx: ConvertContext
+): RequirementStatus {
+  if (citedEvidenceTruncated(result, ctx)) {
+    if (
+      result.status === "gap" ||
+      result.status === "missing" ||
+      result.status === "cannot_determine"
+    ) {
+      return "cannot_determine";
+    }
+  }
+  if (isAnnexPointerResult(result, ctx)) {
+    if (
+      result.status === "gap" ||
+      result.status === "missing" ||
+      result.status === "cannot_determine"
+    ) {
+      return "conditional";
+    }
+  }
+  if (
+    result.status === "cannot_determine" &&
+    resolveEvidence(result.evidenceRefs, ctx).some((e) => e.quotedText?.trim())
+  ) {
+    return "conditional";
+  }
+  return result.status;
+}
+
+function isAnnexPointerResult(
   result: GroupedRequirementResult,
   ctx: ConvertContext
 ): boolean {
-  if (citedEvidenceTruncated(result, ctx)) return true;
   const text = `${result.rationale} ${result.gap ?? ""}`;
-  if (
-    /\b(referenced (?:in|to|elsewhere)|incorporated by reference|see (?:the )?(?:annex|schedule|appendix|exhibit|sow)|cannot (?:be )?(?:fully )?verif)/i.test(
-      text
-    )
-  ) {
-    return true;
-  }
+  if (REFERENCED_ELSEWHERE_CLAIM_RE.test(text)) return true;
   return bundleHasReferencedElsewhere(result.evidenceRefs, ctx);
 }
 

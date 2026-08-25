@@ -11,16 +11,17 @@ import { findingsLinkedToRequirement } from "../../shared/article-linkage.js";
  * invent a different authoritative status.
  *
  * Precedence (highest first):
- *   1. conflicting / unresolvable evidence   -> cannot_determine
- *   2. clear legal / control gap             -> gap
- *   3. some elements met, others absent/weak -> conditional
- *   4. all required elements supported       -> adequate (strong when the quote is substantial)
+ *   1. clear legal / control gap             -> gap
+ *   2. some elements met, others absent/weak, or annex-dependent particulars -> conditional
+ *   3. all required elements supported       -> adequate (strong when the quote is substantial)
+ *   4. no extract / truncated unread clause  -> cannot_determine
  *   5. clearly outside scope / applicability -> not_applicable
  *
  * Legacy aliases: covered=adequate, partial=conditional, missing=gap.
  *
- * When there is no evidence at all, the requirement cannot be established and
- * resolves to `cannot_determine` (distinct from a positively-found gap).
+ * A contractual pointer to an annex/SOW is not "cannot determine": the obligation
+ * exists in this document; particulars live in a schedule. That is conditional.
+ * `cannot_determine` is only for empty extracts or unread truncated text.
  */
 
 /** A Finding "positively establishes" the requirement (element present/ok). */
@@ -49,12 +50,13 @@ function isGap(f: Finding): boolean {
 
 /**
  * Gap language that actually points to an annex/schedule/other document is
- * indeterminate, not a positive "missing from this agreement" finding.
+ * annex-dependent (conditional), not a positive "missing from this agreement"
+ * finding and not an empty-extract cannot_determine.
  */
-const REFERENCED_ELSEWHERE_CLAIM_RE =
+export const REFERENCED_ELSEWHERE_CLAIM_RE =
   /\b(referenced (?:in|to|elsewhere)|incorporated by reference|see (?:the )?(?:annex|schedule|appendix|exhibit|sow|statement of work)|cannot (?:be )?(?:fully )?verif(?:y|ied)|substance (?:is|lives) (?:in|elsewhere))\b/i;
 
-function isReferencedElsewhereClaim(f: Finding): boolean {
+export function isReferencedElsewhereClaim(f: Finding): boolean {
   return REFERENCED_ELSEWHERE_CLAIM_RE.test(`${f.claim} ${f.gap ?? ""}`);
 }
 
@@ -73,12 +75,17 @@ export function deriveRequirementStatus(findings: Finding[]): RequirementStatus 
 
   const supporting = findings.filter(isSupporting);
   const gaps = findings.filter(isGap);
+  const annexDependent = findings.filter(isReferencedElsewhereClaim);
   const indeterminate = findings.filter(
-    (f) => isIndeterminate(f) || isReferencedElsewhereClaim(f)
+    (f) => isIndeterminate(f) && !isReferencedElsewhereClaim(f)
   );
   const notApplicable = findings.filter(isNotApplicable);
 
   if (supporting.length > 0 && gaps.length > 0) {
+    return "conditional";
+  }
+
+  if (annexDependent.length > 0) {
     return "conditional";
   }
 

@@ -104,10 +104,14 @@ function buildSummary(
       (f.status === "absent_expected" || f.kind === "risk") && (f.gap || f.claim)
   );
   switch (status) {
+    case "strong":
+    case "adequate":
     case "covered":
       return covered?.claim ?? namedWithGap?.claim ?? "All required elements are supported.";
+    case "gap":
     case "missing":
       return gap?.gap ?? gap?.claim ?? "The required element is absent.";
+    case "conditional":
     case "partial":
       return [covered?.claim ?? namedWithGap?.claim, gap?.gap ?? gap?.claim ?? namedWithGap?.gap]
         .filter(Boolean)

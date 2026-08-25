@@ -79,7 +79,7 @@ describe("deriveRequirementStatus referenced-elsewhere language", () => {
       taxonomyVersion: "test",
       requirementId: "gdpr.security",
     };
-    assert.equal(deriveRequirementStatus([finding]), "cannot_determine");
+    assert.equal(deriveRequirementStatus([finding]), "conditional");
   });
 });
 
@@ -214,7 +214,7 @@ describe("evaluate-package prompt", () => {
       evidenceLines: ["(E1) [use_limitation status=referenced_elsewhere] See Annex A"],
     });
     assert.match(prompt, /does NOT automatically mean gap/);
-    assert.match(prompt, /cannot_determine \(not gap\)/);
+    assert.match(prompt, /conditional \(not gap and not cannot_determine\)/);
     assert.match(prompt, /status=referenced_elsewhere/);
   });
 

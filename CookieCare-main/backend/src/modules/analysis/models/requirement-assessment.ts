@@ -42,6 +42,29 @@ export function isMaterialIssueStatus(status: RequirementStatus): boolean {
 }
 
 /**
+ * User-facing Status cell. Internal enums stay on RequirementAssessment.status.
+ * Cannot determine is only for truly empty/unreadable extracts — not annex pointers.
+ */
+export function displayRequirementStatus(status: RequirementStatus): string {
+  switch (canonicalRequirementStatus(status)) {
+    case "strong":
+      return "Strong";
+    case "adequate":
+      return "Present & adequate";
+    case "conditional":
+      return "Minor drafting gap";
+    case "gap":
+      return "Gap";
+    case "not_applicable":
+      return "Not applicable";
+    case "cannot_determine":
+      return "Cannot determine";
+    default:
+      return "Cannot determine";
+  }
+}
+
+/**
  * RequirementAssessment — a reporting view over Findings, keyed by the PLAN
  * requirement it answers. It links to the authoritative Findings via
  * `supportingFindingIds` and never stores a competing verdict.

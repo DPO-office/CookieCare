@@ -158,6 +158,7 @@ describe("narrative vs tabular layout contract", () => {
     assert.ok(countMarkdownTables(out) >= 1);
     assert.match(out, /Requirement/);
     assert.match(out, /Access/i);
+    assert.match(out, /Present & adequate/);
   });
 
   it("preserves tabular outputForm instead of collapsing rights_matrix to memo", () => {

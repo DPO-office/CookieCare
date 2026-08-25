@@ -4,6 +4,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { deriveRequirementStatus } from "../requirement-status-policy.js";
+import { displayRequirementStatus } from "../../../models/requirement-assessment.js";
 import type { Finding, FindingStatus } from "../../../models/finding.js";
 
 function finding(status: FindingStatus, requirementId = "req.a"): Finding {
@@ -62,6 +63,18 @@ describe("deriveRequirementStatus", () => {
     );
   });
 
+  it("returns conditional when the claim only points at an annex or SOW", () => {
+    assert.equal(
+      deriveRequirementStatus([
+        {
+          ...finding("insufficient_evidence"),
+          claim: "Subject matter is incorporated by reference to Annex 2 of Addendum A1.",
+        },
+      ]),
+      "conditional"
+    );
+  });
+
   it("returns conditional when a Named matrix row still carries an implementation gap", () => {
     assert.equal(
       deriveRequirementStatus([
@@ -89,5 +102,17 @@ describe("deriveRequirementStatus", () => {
       ]),
       "conditional"
     );
+  });
+});
+
+describe("displayRequirementStatus", () => {
+  it("maps the 5-tier vocab to counsel-facing labels", () => {
+    assert.equal(displayRequirementStatus("strong"), "Strong");
+    assert.equal(displayRequirementStatus("adequate"), "Present & adequate");
+    assert.equal(displayRequirementStatus("covered"), "Present & adequate");
+    assert.equal(displayRequirementStatus("conditional"), "Minor drafting gap");
+    assert.equal(displayRequirementStatus("partial"), "Minor drafting gap");
+    assert.equal(displayRequirementStatus("gap"), "Gap");
+    assert.equal(displayRequirementStatus("cannot_determine"), "Cannot determine");
   });
 });

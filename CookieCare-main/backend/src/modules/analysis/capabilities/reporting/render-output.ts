@@ -11,6 +11,7 @@ import type { SegmentedDocument } from "../../models/document-workspace.js";
 import type { RuleSourceTier } from "../../models/rule-source.js";
 import type { ReportSpec } from "../../models/intent.js";
 import type { RequirementAssessment } from "../../models/requirement-assessment.js";
+import { displayRequirementStatus } from "../../models/requirement-assessment.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { humanizeRequirementId } from "../../shared/group-assessments.js";
 import { isTabularAnswerStyle, wantsMatrixTable } from "../../prompts/synthesis.js";
@@ -1390,7 +1391,7 @@ export function assessmentTableMarkdown(
       .find((f) => f);
     const quote = support?.evidence[0]?.quotedText ?? "";
     const finding = support?.claim ?? assessment.summary;
-    return `| ${mdCell(humanizeRequirementId(assessment.requirementId))} | ${mdCell(assessment.status)} | ${mdCell(quote || "—")} | ${mdCell(finding)} |`;
+    return `| ${mdCell(humanizeRequirementId(assessment.requirementId))} | **${mdCell(displayRequirementStatus(assessment.status))}** | ${mdCell(quote || "—")} | ${mdCell(finding)} |`;
   });
   return [...header, ...rows].join("\n");
 }
