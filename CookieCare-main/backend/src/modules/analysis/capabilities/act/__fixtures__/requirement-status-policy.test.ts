@@ -24,34 +24,34 @@ describe("deriveRequirementStatus", () => {
     assert.equal(deriveRequirementStatus([]), "cannot_determine");
   });
 
-  it("returns covered when every element is present", () => {
+  it("returns adequate when every element is present without a substantial quote", () => {
     assert.equal(
       deriveRequirementStatus([finding("present"), finding("present")]),
-      "covered"
+      "adequate"
     );
   });
 
-  it("returns missing when there is a gap and nothing supporting", () => {
+  it("returns gap when there is a gap and nothing supporting", () => {
     assert.equal(
       deriveRequirementStatus([finding("absent_expected")]),
-      "missing"
+      "gap"
     );
   });
 
-  it("returns partial when some elements are present and others absent", () => {
+  it("returns conditional when some elements are present and others absent", () => {
     assert.equal(
       deriveRequirementStatus([finding("present"), finding("absent_expected")]),
-      "partial"
+      "conditional"
     );
   });
 
-  it("returns partial when supported but weakened by insufficient evidence", () => {
+  it("returns conditional when supported but weakened by insufficient evidence", () => {
     assert.equal(
       deriveRequirementStatus([
         finding("present"),
         finding("insufficient_evidence"),
       ]),
-      "partial"
+      "conditional"
     );
   });
 
@@ -62,7 +62,7 @@ describe("deriveRequirementStatus", () => {
     );
   });
 
-  it("returns partial when a Named matrix row still carries an implementation gap", () => {
+  it("returns conditional when a Named matrix row still carries an implementation gap", () => {
     assert.equal(
       deriveRequirementStatus([
         {
@@ -71,11 +71,11 @@ describe("deriveRequirementStatus", () => {
           gap: "Erasure limited to contract termination.",
         },
       ]),
-      "partial"
+      "conditional"
     );
   });
 
-  it("returns partial when supporting present findings are paired with a medium risk gap", () => {
+  it("returns conditional when supporting present findings are paired with a medium risk gap", () => {
     assert.equal(
       deriveRequirementStatus([
         finding("present"),
@@ -87,7 +87,7 @@ describe("deriveRequirementStatus", () => {
           gap: "No machine-readable format commitment.",
         },
       ]),
-      "partial"
+      "conditional"
     );
   });
 });

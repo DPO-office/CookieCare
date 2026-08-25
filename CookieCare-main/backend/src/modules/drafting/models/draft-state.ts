@@ -7,6 +7,7 @@ import type { AgentRunState, EntryMode } from "../pac/types.js";
 import type { DraftPlan } from "./draft-plan.js";
 import type { CritiqueReport } from "./critique-report.js";
 import type { StructuredFacts, StructuredIntakeOverlay } from "./structured-facts.js";
+import type { DraftRequirementsState } from "./draft-requirements.js";
 import type { DraftConversation } from "./conversation.js";
 import type { FixPlan } from "./fix-plan.js";
 
@@ -114,6 +115,8 @@ export interface DraftState {
   plan?: DraftPlan | null;
   critique?: CritiqueReport | null;
   structuredFacts?: StructuredFacts;
+  /** Canonical requirement map (status/source/evidence) — ASK authority. */
+  draftRequirements?: DraftRequirementsState;
   intakeOverlay?: StructuredIntakeOverlay;
   conversation?: DraftConversation;
   fixPlan?: FixPlan | null;

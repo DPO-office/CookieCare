@@ -44,7 +44,11 @@ describe("refineReportOutlineViaLLM", () => {
     );
 
     const seedAnalysis = seedOutline.filter(
-      (i) => i.role === "analysis" || i.role === "chapeau_particulars"
+      (i) =>
+        i.role === "analysis" ||
+        i.role === "chapeau_particulars" ||
+        i.role === "key_findings" ||
+        i.role === "requirements_matrix"
     );
     assert.ok(seedAnalysis.length >= 2);
 
@@ -71,7 +75,11 @@ describe("refineReportOutlineViaLLM", () => {
     });
 
     const refinedAnalysis = refined.filter(
-      (i) => i.role === "analysis" || i.role === "chapeau_particulars"
+      (i) =>
+        i.role === "analysis" ||
+        i.role === "chapeau_particulars" ||
+        i.role === "key_findings" ||
+        i.role === "requirements_matrix"
     );
     assert.equal(refinedAnalysis.length, 1);
     assert.equal(refinedAnalysis[0]?.heading, "Merged analysis heading");

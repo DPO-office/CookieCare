@@ -27,6 +27,7 @@ import {
   type ResolvedPackage,
 } from "./resolve-packages.js";
 import { orderByDependency } from "../../../utils/topo-batches.js";
+import { MATRIX_SHARED_EVIDENCE_PACKAGE_ID } from "../../../capabilities/act/extract-shared-evidence.js";
 import type { RuleSource } from "../../../models/rule-source.js";
 
 /** Max playbook position check slots scheduled at PLAN time (fixed graph). */
@@ -60,13 +61,15 @@ export interface SelectRendererInput {
   hasReference: boolean;
   hasMatrixFocus: boolean;
   requirementCount?: number;
+  outputForm?: IntentClassification["outputForm"];
 }
 
 export function selectRenderer(
   input: SelectRendererInput
 ): BuildActGraphResult["rendererSchemaId"] {
   if (input.hasReference) return "playbook_comparison_memo";
-  if (input.hasMatrixFocus) return "rights_matrix_memo";
+  if (input.outputForm === "brief_summary") return "brief_summary";
+  if (input.hasMatrixFocus) return "memo";
   const reportType = input.reportSpec?.reportType ?? "regime_compliance_memo";
   if (reportType === "qa_answer") return "qa_thread";
   if (reportType === "extraction_table") return "table";
@@ -186,6 +189,7 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
     hasReference: Boolean(referenceDocId),
     hasMatrixFocus: Boolean(focus?.matrixRowIds.length),
     requirementCount: intent.requirements?.length,
+    outputForm: intent.outputForm,
   });
   const subIntents = effectiveSubIntents(intent);
 
@@ -427,7 +431,10 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
   // gate aggregation so it sees the complete finding set.
   let renderDeps: string[];
   const needsAggregate =
-    usePackages || skipLegacySubgraph || packageResolution.requirementPaths.some((p) => p.status === "not_supported");
+    usePackages ||
+    skipLegacySubgraph ||
+    packageResolution.requirementPaths.some((p) => p.status === "not_supported") ||
+    packageResolution.leftoverMatrixRowIds.length > 0;
   if (needsAggregate) {
     const deriveDeps = packageEvalLeaves.length > 0 ? packageEvalLeaves : ["wu-extract"];
     units.push({
@@ -637,8 +644,30 @@ function appendSubIntentUnits(
       leaves.push(wuId);
     }
 
-    for (const row of matrixRows) {
-      if (scheduled.matrixRowIds.has(row.rowId)) continue;
+    const pendingRows = matrixRows.filter((row) => !scheduled.matrixRowIds.has(row.rowId));
+    let matrixDep = ruleDep;
+    if (pendingRows.length > 0) {
+      const evidenceId = `wu-${prefix}matrix-shared-ev`;
+      const clauseTypes = [
+        ...new Set(pendingRows.flatMap((row) => row.preferredClauseTypes ?? [])),
+      ];
+      units.push({
+        workUnitId: evidenceId,
+        tool: "extract_shared_evidence",
+        input: {
+          docId,
+          packageId: MATRIX_SHARED_EVIDENCE_PACKAGE_ID,
+          clauseTypes,
+          skillIds,
+          instruction,
+        },
+        dependsOn: [ruleDep],
+        outputSchema: "ClauseObject[]",
+        status: "pending",
+      });
+      matrixDep = evidenceId;
+    }
+    for (const row of pendingRows) {
       scheduled.matrixRowIds.add(row.rowId);
       const wuId = `wu-${prefix}matrix-${row.rowId.replace(/\./g, "-")}`;
       const ownerRequirementIds =
@@ -658,8 +687,9 @@ function appendSubIntentUnits(
           matrixSkillId: row.skillId,
           instruction,
           skillIds,
+          sharedEvidencePackageId: MATRIX_SHARED_EVIDENCE_PACKAGE_ID,
         },
-        dependsOn: [ruleDep],
+        dependsOn: [matrixDep],
         outputSchema: "Finding[]",
         status: "pending",
         requirementIds: ownerRequirementIds.length ? ownerRequirementIds : undefined,

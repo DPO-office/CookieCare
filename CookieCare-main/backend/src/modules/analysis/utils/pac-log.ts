@@ -10,7 +10,7 @@ const TAG = "[Analysis PAC]";
  */
 export function shouldHoldUserFacingOutput(state: AnalysisState): boolean {
   const phase = state.agent?.phase;
-  return phase === "PLAN" || phase === "ACT" || phase === "CRITIQUE";
+  return phase === "PLAN" || phase === "ACT" || phase === "AUDIT" || phase === "CRITIQUE";
 }
 
 /** Stream only renderer-owned output. ACT findings and tool telemetry must never use this path. */

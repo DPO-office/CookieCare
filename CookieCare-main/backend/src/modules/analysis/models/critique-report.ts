@@ -23,6 +23,8 @@ export interface FixItem {
   findingId?: string;
   previousAttemptFeedback?: string;
   attemptNumber?: number;
+  /** Narrow a render retry to specific finalized outline/section ids. */
+  retrySectionIds?: string[];
 }
 
 export type CritiqueTargetReason =

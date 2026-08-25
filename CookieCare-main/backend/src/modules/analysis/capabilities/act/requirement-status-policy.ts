@@ -12,10 +12,12 @@ import { findingsLinkedToRequirement } from "../../shared/article-linkage.js";
  *
  * Precedence (highest first):
  *   1. conflicting / unresolvable evidence   -> cannot_determine
- *   2. clear legal / control gap             -> missing
- *   3. some elements met, others absent/weak -> partial
- *   4. all required elements supported       -> covered
+ *   2. clear legal / control gap             -> gap
+ *   3. some elements met, others absent/weak -> conditional
+ *   4. all required elements supported       -> adequate (strong when the quote is substantial)
  *   5. clearly outside scope / applicability -> not_applicable
+ *
+ * Legacy aliases: covered=adequate, partial=conditional, missing=gap.
  *
  * When there is no evidence at all, the requirement cannot be established and
  * resolves to `cannot_determine` (distinct from a positively-found gap).
@@ -40,7 +42,7 @@ function isGap(f: Finding): boolean {
     return true;
   }
   if (f.matrixAddressing === "generic" || f.matrixAddressing === "absent") {
-    return Boolean(f.gap || f.status === "absent_expected");
+    return Boolean(f.gap);
   }
   return false;
 }
@@ -77,7 +79,7 @@ export function deriveRequirementStatus(findings: Finding[]): RequirementStatus 
   const notApplicable = findings.filter(isNotApplicable);
 
   if (supporting.length > 0 && gaps.length > 0) {
-    return "partial";
+    return "conditional";
   }
 
   if (
@@ -89,15 +91,19 @@ export function deriveRequirementStatus(findings: Finding[]): RequirementStatus 
   }
 
   if (gaps.length > 0 && supporting.length === 0) {
-    return "missing";
+    return "gap";
   }
 
   if (supporting.length > 0 && indeterminate.length > 0) {
-    return "partial";
+    return "conditional";
   }
 
   if (supporting.length > 0) {
-    return "covered";
+    const quoteLen = Math.max(
+      0,
+      ...supporting.map((f) => f.evidence[0]?.quotedText?.trim().length ?? 0)
+    );
+    return quoteLen >= 80 ? "strong" : "adequate";
   }
 
   if (notApplicable.length > 0) {

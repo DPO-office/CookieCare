@@ -9,6 +9,7 @@ import { ensureConversation } from "../memory/conversation-store.js";
 /**
  * Single entry for Draft Agreement: always PAC (CREATE | HUMAN_REFINE).
  */
+
 export class DraftEntry {
   private readonly pac = new PacController(defaultPacCapabilities);
 
@@ -20,6 +21,7 @@ export class DraftEntry {
       agent: state.agent ?? initAgentRunState(entryMode),
     };
 
+    
     if (entryMode === "HUMAN_REFINE") {
       seeded = await applyFixPlan(seeded);
 

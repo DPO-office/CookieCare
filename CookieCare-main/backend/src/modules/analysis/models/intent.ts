@@ -47,29 +47,40 @@ export type ReportDepth = "narrow" | "standard" | "deep";
 
 export type ReportSectionId =
   | "scope"
+  | "executive_summary"
   | "conclusion"
   /** @deprecated Prefer separate `scope` and `conclusion`. Kept for legacy ReportSpec payloads. */
   | "scope_and_conclusion"
   | "chapeau_particulars"
+  | "requirements_matrix"
+  | "key_findings"
   | "requirements_detail"
+  | "material_gaps"
+  | "risk_summary"
   | "qualifications"
+  | "limitations"
   | "recommendations"
-  | "missing_materials";
+  | "missing_materials"
+  | "evidence";
 
 /**
  * Semantic role used by PLAN to build a dynamic outline.
- * This is separate from the legacy `ReportSectionId` contract.
- *
- * - `analysis` is the dynamic middle (subsections inside `requirements_detail`)
- * - `chapeau_particulars` is a structured Art 28(3) cluster (also inside `requirements_detail`)
+ * Analysis extras are top-level `##` sections, not nested under requirements_detail.
  */
 export type ReportSectionRole =
   | "scope"
+  | "executive_summary"
   | "analysis"
+  | "requirements_matrix"
+  | "key_findings"
   | "chapeau_particulars"
+  | "material_gaps"
+  | "risk_summary"
   | "qualifications"
+  | "limitations"
   | "recommendations"
   | "missing_materials"
+  | "evidence"
   | "conclusion";
 
 export interface ReportOutlineItem {
@@ -77,10 +88,14 @@ export interface ReportOutlineItem {
   id: string;
   /** Semantic role of this outline item. */
   role: ReportSectionRole;
-  /** User-facing heading used by synthesis as a subsection heading. */
+  /** Registry section this outline item renders as. */
+  sectionId?: ReportSectionId;
+  /** User-facing heading used by synthesis as a top-level `##` heading. */
   heading: string;
   /** Which semantic intent requirements this outline item covers. */
   requirementIds: string[];
+  /** Optional structured artifact types this section should consume. */
+  artifactTypes?: string[];
   /** Whether the outline was created deterministically or refined. */
   source: "deterministic" | "catalog_llm";
 }
@@ -201,11 +216,17 @@ export function deriveSections(
   depth: ReportDepth
 ): ReportSectionId[] {
   if (reportType === "qa_answer") {
-    return depth === "narrow" ? ["conclusion"] : ["scope", "conclusion"];
+    return depth === "narrow" ? ["evidence", "conclusion"] : ["scope", "evidence", "conclusion"];
   }
 
   if (reportType === "rights_matrix") {
-    return ["scope", "requirements_detail", "recommendations", "conclusion"];
+    return [
+      "executive_summary",
+      "requirements_matrix",
+      "material_gaps",
+      "recommendations",
+      "conclusion",
+    ];
   }
 
   const sections: ReportSectionId[] = ["scope"];

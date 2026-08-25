@@ -101,9 +101,9 @@ describe("per-requirement aggregation", () => {
     const byId = new Map(
       (result.state.requirementAssessments ?? []).map((a) => [a.requirementId, a])
     );
-    assert.equal(byId.get("req_covered")?.status, "covered");
-    assert.equal(byId.get("req_missing")?.status, "missing");
-    assert.equal(byId.get("req_partial")?.status, "partial");
+    assert.equal(byId.get("req_covered")?.status, "adequate");
+    assert.equal(byId.get("req_missing")?.status, "gap");
+    assert.equal(byId.get("req_partial")?.status, "conditional");
     assert.equal(byId.get("req_partial")?.supportingFindingIds.length, 2);
   });
 
@@ -150,7 +150,7 @@ describe("per-requirement aggregation", () => {
     const assessment = result.state.requirementAssessments?.find(
       (a) => a.requirementId === "nda.confidentiality.scope_of_information"
     );
-    assert.equal(assessment?.status, "covered");
+    assert.equal(assessment?.status, "adequate");
     assert.ok(assessment?.supportingFindingIds.includes("f_rule_ci"));
   });
 
@@ -201,5 +201,29 @@ describe("per-requirement aggregation", () => {
     assert.deepEqual(byId.get("nda.confidentiality")?.supportingFindingIds, ["f_r1"]);
     assert.equal(byId.get("nda.survival")?.status, "cannot_determine");
     assert.deepEqual(byId.get("nda.survival")?.supportingFindingIds, []);
+  });
+
+  it("recommends Obtain/Confirm, not Amend, when evidence is only insufficient", () => {
+    const findings: Finding[] = [
+      {
+        findingId: "f_cd",
+        kind: "compliance",
+        category: "processor_terms",
+        status: "insufficient_evidence",
+        claim: "Confidentiality remainder was truncated.",
+        evidence: [],
+        taxonomyVersion: "test",
+        requirementId: "gdpr.art28.3.b",
+      },
+    ];
+    const result = aggregateRequirements(
+      { findings } as unknown as AnalysisState,
+      { workUnitId: "wu-aggregate", input: {} } as never,
+      findings
+    );
+    const assessment = result.state.requirementAssessments?.[0];
+    assert.equal(assessment?.status, "cannot_determine");
+    assert.match(assessment?.recommendation ?? "", /Obtain or confirm/i);
+    assert.doesNotMatch(assessment?.recommendation ?? "", /\bAmend\b/);
   });
 });

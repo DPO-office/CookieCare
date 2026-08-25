@@ -6,23 +6,32 @@ import {
 import type { AnalysisState } from "../../models/analysis-state.js";
 import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
 import type { Finding } from "../../models/finding.js";
-import type { EvidencePackageSourceMode } from "../../models/evidence-package.js";
+import type { EvidencePackageSourceMode, SharedEvidenceBundle, SharedEvidenceItem } from "../../models/evidence-package.js";
 import type { GroupedRequirementResult } from "../../models/requirement-assessment.js";
+import type { SegmentedDocument } from "../../models/document-workspace.js";
 import { getSkillById } from "../../skills/runtime/catalog/registry.js";
 import { loadSkillMdSection } from "../../skills/runtime/catalog/load-skill-md.js";
 import { resolveRule } from "./check-against-rule.js";
 import { insufficient } from "./act-utils.js";
 import { groupedResultsToFindings } from "./grouped-results-to-findings.js";
 import { pacLog } from "../../utils/pac-log.js";
-import { profileThinkingLevel } from "../../utils/profile-thinking.js";
+import { profileEvidenceCharBudget, profileThinkingLevel } from "../../utils/profile-thinking.js";
 import {
   EVALUATE_PACKAGE_SYSTEM_PROMPT,
   buildEvaluatePackageUserPrompt,
 } from "../../prompts/evaluate-package.js";
+import {
+  expandSharedEvidenceItem,
+  isHeadingOnlyMatch,
+} from "./locate-evidence.js";
 
 const MAX_BRIEF_CHARS = 4000;
 
 const REQUIREMENT_STATUS_ENUM = [
+  "strong",
+  "adequate",
+  "conditional",
+  "gap",
   "covered",
   "partial",
   "missing",
@@ -100,70 +109,69 @@ export async function evaluatePackage(
     ? String(unit.input.previousAttemptFeedback)
     : "";
 
-  const evidenceLines = evidenceItems.map((e) => {
-    const status = e.evidenceStatus ? ` status=${e.evidenceStatus}` : "";
-    const elsewhere =
-      e.referencedDocuments && e.referencedDocuments.length > 0
-        ? ` referenced=${e.referencedDocuments.join(" | ")}`
-        : "";
-    return `(${e.ref}) [${e.clauseType}${status}${elsewhere}] ${e.quotedText}`;
-  });
-  const prompt = buildEvaluatePackageUserPrompt({
-    instruction,
-    depth,
-    requirementIds,
-    authoredRuleText: briefs
-      .map((b) => `[${b.id}] ${b.text}`)
-      .join("\n")
-      .slice(0, MAX_BRIEF_CHARS),
-    evidenceLines: [...evidenceLines, ...artifactLines],
-    previousFeedback: previousFeedback || undefined,
-    contextRuleText:
-      contextBriefs.length > 0
-        ? contextBriefs
-            .map((b) => `[${b.id}] ${b.text}`)
-            .join("\n")
-            .slice(0, MAX_BRIEF_CHARS)
-        : undefined,
-  });
-
-  const briefJoined = briefs.map((b) => `[${b.id}] ${b.text}`).join("\n");
-  const evidenceJoined = evidenceItems
-    .map((e) => `(${e.ref}) [${e.clauseType}] ${e.quotedText}`)
-    .join("\n");
-  pacLog("evaluate_package prompt", {
-    id: unit.workUnitId,
-    packageId,
-    requirements: requirementIds.length,
-    capabilities: capabilityIds.length,
-    contextCapabilities: contextCapabilityIds.length,
-    evidence: evidenceItems.length,
-    promptChars: prompt.length,
-    briefChars: briefJoined.length,
-    evidenceChars: evidenceJoined.length,
-  });
-
-  const schema = {
-    type: "array",
-    items: {
-      type: "object",
-      properties: {
-        requirementId: { type: "string", enum: requirementIds },
-        status: { type: "string", enum: REQUIREMENT_STATUS_ENUM },
-        rationale: { type: "string" },
-        gap: { type: "string" },
-        evidenceRefs: { type: "array", items: { type: "string" } },
-        recommendation: { type: "string" },
-      },
-      required: ["requirementId", "status", "rationale", "evidenceRefs"],
-    },
-  };
-
   const tracker = state.agent ? { tokensUsed: state.agent.tokensUsed } : undefined;
-  let results: GroupedRequirementResult[] = [];
-  const llmStart = Date.now();
-  try {
-    results = await executeJsonCompletion<GroupedRequirementResult[]>(
+  let nextState = state;
+  let workingBundle = bundle;
+  let workingItems = evidenceItems;
+
+  const runEval = async (
+    reqIds: string[],
+    items: SharedEvidenceItem[],
+    extraFeedback?: string
+  ): Promise<GroupedRequirementResult[]> => {
+    const evidenceLines = items.map((e) => formatEvidenceLine(e));
+    const prompt = buildEvaluatePackageUserPrompt({
+      instruction,
+      depth,
+      requirementIds: reqIds,
+      authoredRuleText: briefs
+        .map((b) => `[${b.id}] ${b.text}`)
+        .join("\n")
+        .slice(0, MAX_BRIEF_CHARS),
+      evidenceLines: [...evidenceLines, ...artifactLines],
+      previousFeedback: extraFeedback || previousFeedback || undefined,
+      contextRuleText:
+        contextBriefs.length > 0
+          ? contextBriefs
+              .map((b) => `[${b.id}] ${b.text}`)
+              .join("\n")
+              .slice(0, MAX_BRIEF_CHARS)
+          : undefined,
+    });
+    const briefJoined = briefs.map((b) => `[${b.id}] ${b.text}`).join("\n");
+    const evidenceJoined = items
+      .map((e) => `(${e.ref}) [${e.clauseType}] ${e.quotedText}`)
+      .join("\n");
+    pacLog("evaluate_package prompt", {
+      id: unit.workUnitId,
+      packageId,
+      requirements: reqIds.length,
+      capabilities: capabilityIds.length,
+      contextCapabilities: contextCapabilityIds.length,
+      evidence: items.length,
+      promptChars: prompt.length,
+      briefChars: briefJoined.length,
+      evidenceChars: evidenceJoined.length,
+      expansion: Boolean(extraFeedback),
+    });
+
+    const schema = {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          requirementId: { type: "string", enum: reqIds },
+          status: { type: "string", enum: REQUIREMENT_STATUS_ENUM },
+          rationale: { type: "string" },
+          gap: { type: "string" },
+          evidenceRefs: { type: "array", items: { type: "string" } },
+          recommendation: { type: "string" },
+        },
+        required: ["requirementId", "status", "rationale", "evidenceRefs"],
+      },
+    };
+
+    return executeJsonCompletion<GroupedRequirementResult[]>(
       prompt,
       EVALUATE_PACKAGE_SYSTEM_PROMPT,
       schema,
@@ -171,6 +179,12 @@ export async function evaluatePackage(
       LLMProvider.GEMINI,
       { tracker, thinkingLevel: profileThinkingLevel(state, LLMTask.STRUCTURAL_JSON) }
     );
+  };
+
+  let results: GroupedRequirementResult[] = [];
+  const llmStart = Date.now();
+  try {
+    results = await runEval(requirementIds, workingItems);
   } catch (err) {
     return {
       state,
@@ -192,6 +206,56 @@ export async function evaluatePackage(
     ms: Date.now() - llmStart,
   });
 
+  const alreadyExpanded = unit.input.evidenceExpansionDone === true;
+  if (!alreadyExpanded && workingBundle) {
+    const retryIds = requirementsNeedingEvidenceExpansion(results, workingBundle);
+    if (retryIds.length > 0) {
+      const doc = state.workspace.documents.find((d) => d.docId === docId);
+      const expanded = doc
+        ? expandBundleItems(
+            doc,
+            workingBundle,
+            retryIds,
+            results,
+            profileEvidenceCharBudget(state) * 3
+          )
+        : null;
+      if (expanded && expanded.changed) {
+        workingBundle = expanded.bundle;
+        workingItems = expanded.bundle.items;
+        const expandStart = Date.now();
+        try {
+          const retryResults = await runEval(
+            retryIds,
+            workingItems,
+            "Re-evaluate using the expanded complete clause text. Do not treat a previous prefix as the whole provision."
+          );
+          results = mergeRequirementResults(results, retryResults);
+          pacLog("evaluate_package expansion", {
+            id: unit.workUnitId,
+            packageId,
+            retry: retryIds.length,
+            ms: Date.now() - expandStart,
+          });
+        } catch (err) {
+          pacLog("evaluate_package expansion failed", {
+            id: unit.workUnitId,
+            packageId,
+            error: err instanceof Error ? err.message : String(err),
+          });
+        }
+        if (tracker && nextState.agent) nextState.agent.tokensUsed = tracker.tokensUsed;
+        nextState = {
+          ...nextState,
+          sharedEvidence: {
+            ...(nextState.sharedEvidence ?? {}),
+            [packageId]: workingBundle,
+          },
+        };
+      }
+    }
+  }
+
   const emitted = groupedResultsToFindings(normalize(results, requirementIds), {
     unit,
     docId,
@@ -199,7 +263,7 @@ export async function evaluatePackage(
     sourceMode,
     skillId: skillIds[0],
     findingCategory,
-    bundle,
+    bundle: workingBundle,
   });
 
   // Requirements the model silently dropped are surfaced as indeterminate so
@@ -220,10 +284,10 @@ export async function evaluatePackage(
     sourceMode,
     skillId: skillIds[0],
     findingCategory,
-    bundle,
+    bundle: workingBundle,
   });
 
-  return { state, findings: [...findings, ...emitted, ...missingFindings] };
+  return { state: nextState, findings: [...findings, ...emitted, ...missingFindings] };
 }
 
 function normalize(
@@ -246,6 +310,102 @@ function normalize(
     });
   }
   return out;
+}
+
+function formatEvidenceLine(e: SharedEvidenceItem): string {
+  const flags = [
+    e.evidenceStatus ? `status=${e.evidenceStatus}` : "",
+    e.truncated ? "truncated=true" : "",
+    isHeadingOnlyMatch(e.matchReason) ? "heading_only=true" : "",
+    e.referencedDocuments && e.referencedDocuments.length > 0
+      ? `referenced=${e.referencedDocuments.join(" | ")}`
+      : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const tag = flags ? ` ${flags}` : "";
+  return `(${e.ref}) [${e.clauseType}${tag}] ${e.quotedText}`;
+}
+
+function citedItems(
+  result: GroupedRequirementResult,
+  bundle: SharedEvidenceBundle
+): SharedEvidenceItem[] {
+  if (result.evidenceRefs.length === 0) return bundle.items;
+  const wanted = new Set(result.evidenceRefs);
+  const hit = bundle.items.filter((item) => wanted.has(item.ref));
+  return hit.length > 0 ? hit : bundle.items;
+}
+
+function evidenceIsIncomplete(
+  result: GroupedRequirementResult,
+  bundle: SharedEvidenceBundle
+): boolean {
+  const items = citedItems(result, bundle);
+  return items.some(
+    (item) => item.truncated || isHeadingOnlyMatch(item.matchReason)
+  );
+}
+
+function requirementsNeedingEvidenceExpansion(
+  results: GroupedRequirementResult[],
+  bundle: SharedEvidenceBundle
+): string[] {
+  return results
+    .filter(
+      (r) =>
+        (r.status === "cannot_determine" ||
+          r.status === "partial" ||
+          r.status === "conditional") &&
+        evidenceIsIncomplete(r, bundle)
+    )
+    .map((r) => r.requirementId);
+}
+
+function expandBundleItems(
+  doc: SegmentedDocument,
+  bundle: SharedEvidenceBundle,
+  retryIds: string[],
+  results: GroupedRequirementResult[],
+  maxChars: number
+): { bundle: SharedEvidenceBundle; changed: boolean } {
+  const retry = new Set(retryIds);
+  const refsToExpand = new Set<string>();
+  for (const result of results) {
+    if (!retry.has(result.requirementId)) continue;
+    for (const item of citedItems(result, bundle)) {
+      if (item.truncated || isHeadingOnlyMatch(item.matchReason)) {
+        refsToExpand.add(item.ref);
+      }
+    }
+  }
+  if (refsToExpand.size === 0) {
+    for (const item of bundle.items) {
+      if (item.truncated || isHeadingOnlyMatch(item.matchReason)) {
+        refsToExpand.add(item.ref);
+      }
+    }
+  }
+  let changed = false;
+  const items = bundle.items.map((item) => {
+    if (!refsToExpand.has(item.ref)) return item;
+    const expanded = expandSharedEvidenceItem(doc, item, maxChars);
+    if (!expanded) return item;
+    changed = true;
+    return expanded;
+  });
+  return { bundle: { ...bundle, items }, changed };
+}
+
+function mergeRequirementResults(
+  original: GroupedRequirementResult[],
+  retry: GroupedRequirementResult[]
+): GroupedRequirementResult[] {
+  const byId = new Map(original.map((r) => [r.requirementId, r]));
+  for (const next of retry) {
+    byId.set(next.requirementId, next);
+  }
+  return [...byId.values()];
 }
 
 async function buildCapabilityBriefs(

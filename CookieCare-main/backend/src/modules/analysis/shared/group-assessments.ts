@@ -2,6 +2,7 @@ import type {
   RequirementAssessment,
   RequirementStatus,
 } from "../models/requirement-assessment.js";
+import { canonicalRequirementStatus } from "../models/requirement-assessment.js";
 
 /**
  * User-facing theme used by synthesis. Internal requirement granularity is
@@ -193,17 +194,19 @@ function groupTitle(members: RequirementAssessment[]): string {
 }
 
 function combinedStatus(statuses: RequirementStatus[]): RequirementStatus {
-  const unique = new Set(statuses);
+  const unique = new Set(statuses.map(canonicalRequirementStatus));
   if (unique.size === 1) return statuses[0] ?? "cannot_determine";
   if (
-    unique.has("covered") &&
-    (unique.has("missing") || unique.has("partial") || unique.has("cannot_determine"))
+    (unique.has("adequate") || unique.has("strong")) &&
+    (unique.has("gap") || unique.has("conditional") || unique.has("cannot_determine"))
   ) {
-    return "partial";
+    return "conditional";
   }
-  if (unique.has("partial")) return "partial";
+  if (unique.has("conditional")) return "conditional";
   if (unique.has("cannot_determine")) return "cannot_determine";
-  if (unique.has("missing")) return "missing";
+  if (unique.has("gap")) return "gap";
   if (unique.has("not_applicable")) return "not_applicable";
+  if (unique.has("strong")) return "strong";
+  if (unique.has("adequate")) return "adequate";
   return "cannot_determine";
 }

@@ -494,6 +494,7 @@ async function llmJudgeClauses(args: {
         "Assess ALL supplied clauses in this single response.",
         "Return one entry ONLY for each clause that materially bears on the rule. Omit clauses that are irrelevant — do not pad the response.",
         "If no clause bears on the rule, return an empty array.",
+        "For each returned entry: put the strongest supporting quote in quotedText first, then any gap, then the status verdict.",
         tierNote,
         unit.input.previousAttemptFeedback
           ? String(unit.input.previousAttemptFeedback)

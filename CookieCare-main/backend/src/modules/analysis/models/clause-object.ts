@@ -25,4 +25,8 @@ export interface ClauseObject {
   matchReason?: string;
   /** Named annexes / schedules / SOWs when status is referenced_elsewhere. */
   referencedDocuments?: string[];
+  /** True when `text` is a bounded prefix of the logical section. */
+  truncated?: boolean;
+  /** End offset of the complete logical section before any evidence cap. */
+  logicalEndOffset?: number;
 }

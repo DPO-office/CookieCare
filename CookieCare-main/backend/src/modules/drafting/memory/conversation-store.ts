@@ -6,6 +6,8 @@ import {
   type DraftConversation,
   type ConversationRole,
 } from "../models/conversation.js";
+import { canonicalizeFieldId } from "../models/draft-requirements.js";
+import { markRequirementsAnswered } from "../capabilities/plan/resolve-requirements.js";
 
 export function ensureConversation(state: DraftState): DraftState {
   if (state.conversation) return state;
@@ -58,18 +60,18 @@ function answersToFactPatch(
 
     const fromOpen = byId.get(key);
     if (fromOpen) {
-      patch[fromOpen] = value;
+      patch[canonicalizeFieldId(fromOpen)] = value;
       continue;
     }
 
     // q-<field>-<index> from ask-user.ts
     const match = /^q-(.+)-(\d+)$/.exec(key);
     if (match) {
-      patch[match[1]] = value;
+      patch[canonicalizeFieldId(match[1])] = value;
       continue;
     }
 
-    patch[key] = value;
+    patch[canonicalizeFieldId(key)] = value;
   }
 
   return patch;
@@ -81,6 +83,7 @@ export function applyUserAnswers(
   answers: Record<string, string>
 ): DraftState {
   const factsPatch = answersToFactPatch(state, answers);
+  const answeredFields = new Set(Object.keys(factsPatch));
 
   let next = appendConversationTurns(state, [
     {
@@ -121,7 +124,7 @@ export function applyUserAnswers(
       ? {
           ...next.plan,
           missingFacts: (next.plan.missingFacts ?? []).filter(
-            (f) => !(f.field in factsPatch)
+            (f) => !answeredFields.has(canonicalizeFieldId(f.field))
           ),
           structuredFacts: {
             ...(next.plan.structuredFacts ?? {}),
@@ -138,6 +141,9 @@ export function applyUserAnswers(
         }
       : next.agent,
   };
+
+  // Mark canonical requirements satisfied so a later PLAN rebuild does not re-ask.
+  next = markRequirementsAnswered(next, factsPatch);
 
   return next;
 }

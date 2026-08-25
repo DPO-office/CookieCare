@@ -173,73 +173,6 @@ describe("critique redesign", () => {
     assert.match(notCovered!.claim, /not yet covered by an authored rule/i);
   });
 
-  it("resolveWorkUnits attaches previousAttemptFeedback for tier-2 redo", async () => {
-    resetSkillRegistryForTests();
-    const gdpr = getSkillById("regimes/data-protection/gdpr")!;
-    const unit = workUnit({
-      workUnitId: "wu-rule-gdpr-art12-3",
-      input: { ruleId: "gdpr.art12.3", docId: "doc1" },
-    });
-    const finding: Finding = {
-      findingId: "f1",
-      kind: "compliance",
-      category: "response_timeframe_gap",
-      status: "present",
-      claim: "One month response",
-      evidence: [{ locator: { docId: "doc1", structuralPath: "c1", charRange: [0, 10] }, quotedText: "month", sourceRole: "target" }],
-      severity: "medium",
-      taxonomyVersion: "1.1.0",
-      workUnitId: unit.workUnitId,
-      ruleId: "gdpr.art12.3",
-    };
-    const state = baseState({
-      activeSkills: [gdpr],
-      findings: [finding],
-      plan: {
-        intent: {
-          scope: "whole_document",
-          operation: "compliance_check",
-          standard: "regime_pack:gdpr",
-          outputForm: "memo",
-          compound: false,
-          subIntents: [],
-          requirements: [],
-          confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 },
-        },
-        workUnits: [unit],
-        missingClarifications: [],
-        outputForm: "memo",
-        rendererSchemaId: "rights_matrix_memo",
-        pinnedVersions: {
-          clauseTaxonomyVersion: "1.2.0",
-          riskTaxonomyVersion: "1.1.0",
-        },
-      },
-    });
-    const { resolved } = await resolveWorkUnits(
-      state,
-      [
-        {
-          itemId: "entail:f1",
-          status: "fail",
-          evidenceVerified: false,
-          workUnitId: unit.workUnitId,
-          detail: "Evidence does not entail claim",
-        },
-      ],
-      [
-        {
-          workUnitId: unit.workUnitId,
-          instruction: "Re-verify entailment",
-          sourceItemId: "f1",
-        },
-      ]
-    );
-    assert.equal(resolved.fixPlan.length, 1);
-    assert.ok(resolved.fixPlan[0]?.previousAttemptFeedback);
-    assert.match(resolved.fixPlan[0]!.previousAttemptFeedback!, /Previous attempt was rejected/);
-  });
-
   it("stops at retries_exhausted when outputHash repeats", async () => {
     resetSkillRegistryForTests();
     const gdpr = getSkillById("regimes/data-protection/gdpr")!;
@@ -427,8 +360,8 @@ describe("critique redesign", () => {
     assert.ok(bottomIdx >= 0 && limitsIdx > bottomIdx && refsIdx > limitsIdx);
   });
 
-  it("MAX_TIER2_ATTEMPTS allows one targeted retry after first attempt", () => {
-    assert.equal(MAX_TIER2_ATTEMPTS, 1);
+  it("MAX_TIER2_ATTEMPTS is zero — critique redo loops are retired", () => {
+    assert.equal(MAX_TIER2_ATTEMPTS, 0);
     assert.equal(targetIdForUnit(workUnit()), "gdpr.art99.1");
   });
 });

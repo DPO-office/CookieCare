@@ -20,6 +20,7 @@ import {
   insufficient,
   stampRequirementIdsOnNewFindings,
 } from "./act-utils.js";
+import { MATRIX_SHARED_EVIDENCE_PACKAGE_ID } from "./extract-shared-evidence.js";
 
 type MatrixJudgment = {
   addressing: MatrixAddressing;
@@ -37,6 +38,13 @@ type MatrixJudgment = {
 /**
  * Evaluate one rights-matrix row against extracted clauses.
  */
+export const MATRIX_ROW_MAX_OUTPUT_TOKENS = 1200;
+export const MATRIX_ROW_WALL_CLOCK_MS = 20_000;
+export const MATRIX_ROW_CLAUSE_CHAR_CAP = 800;
+export const MATRIX_ROW_MAX_CLAUSES = 12;
+
+export const MATRIX_ROW_SYSTEM_INSTRUCTION =
+  "Map one rights-matrix row to contract text. Return a short claim, gap, and justification only — no essay and no clause paste beyond quotedText. Do not invent clauses. Force a justified Named/Generic/Absent choice.";
 export async function evaluateMatrixRow(
   state: AnalysisState,
   unit: AnalysisWorkUnit,
@@ -72,7 +80,7 @@ async function _evaluateMatrixRowImpl(
     };
   }
 
-  const clauses = selectRelevantClauses(doc.clauses ?? [], row.preferredClauseTypes);
+  const clauses = resolveMatrixRowClauses(state, doc, unit, row);
   if (clauses.length === 0) {
     const finding: Finding = {
       findingId: `f_matrix_${rowId}_${unit.workUnitId}`,
@@ -103,15 +111,15 @@ async function _evaluateMatrixRowImpl(
     type: "object",
     properties: {
       addressing: { type: "string", enum: ["named", "generic", "absent"] },
-      claim: { type: "string" },
-      gap: { type: "string" },
-      implementationGap: { type: "string" },
+      claim: { type: "string", description: "At most two sentences." },
+      gap: { type: "string", description: "At most two sentences." },
+      implementationGap: { type: "string", description: "At most two sentences." },
       implementationSeverity: { type: "string", enum: ["low", "medium", "high"] },
       clauseId: { type: "string" },
-      quotedText: { type: "string" },
+      quotedText: { type: "string", description: "Verbatim clause excerpt, at most 400 characters." },
       severity: { type: "string", enum: ["low", "medium", "high"] },
-      remedialInstruction: { type: "string" },
-      justification: { type: "string" },
+      remedialInstruction: { type: "string", description: "At most two sentences." },
+      justification: { type: "string", description: "At most two sentences." },
     },
     required: ["addressing", "claim", "severity", "justification"],
   };
@@ -119,24 +127,47 @@ async function _evaluateMatrixRowImpl(
   let raw: MatrixJudgment;
 
   try {
-    raw = await executeJsonCompletion(
-      buildMatrixEvaluationPrompt({
-        row,
-        instruction,
-        previousAttemptFeedback: unit.input.previousAttemptFeedback
-          ? String(unit.input.previousAttemptFeedback)
-          : "",
-        matrixSection,
-        clauses,
-      }),
-      "You map one rights-matrix row to contract text. Do not invent clauses. Force a justified Named/Generic/Absent choice.",
-      schema,
-      LLMTask.STRUCTURAL_JSON,
-      LLMProvider.GEMINI,
-      tracker
+    raw = await withMatrixRowTimeout(
+      executeJsonCompletion(
+        buildMatrixEvaluationPrompt({
+          row,
+          instruction,
+          previousAttemptFeedback: unit.input.previousAttemptFeedback
+            ? String(unit.input.previousAttemptFeedback)
+            : "",
+          matrixSection,
+          clauses,
+        }),
+        MATRIX_ROW_SYSTEM_INSTRUCTION,
+        schema,
+        LLMTask.STRUCTURAL_JSON,
+        LLMProvider.GEMINI,
+        { tracker, maxOutputTokens: MATRIX_ROW_MAX_OUTPUT_TOKENS }
+      )
     );
   } catch (err) {
+    const timedOut = isMatrixRowTimeout(err);
     console.warn("[evaluateMatrixRow] LLM failed:", err);
+    if (timedOut) {
+      const finding: Finding = {
+        findingId: `f_matrix_${rowId}_${unit.workUnitId}`,
+        kind: "compliance",
+        category: row.findingCategory,
+        status: "insufficient_evidence",
+        claim: `Timed out while evaluating ${subject}.`,
+        evidence: [],
+        severity: "medium",
+        taxonomyVersion: RISK_TAXONOMY_VERSION,
+        workUnitId: unit.workUnitId,
+        skillId,
+        visibility: "user_facing",
+        matrixRowId: rowId,
+        matrixAddressing: "absent",
+        gap: "matrix_row_timeout",
+        ruleSourceTier: "B",
+      };
+      return { state, findings: [...findings, finding] };
+    }
     raw = {
       addressing: "absent",
       claim: `Could not determine whether ${subject} is addressed (LLM unavailable).`,
@@ -296,7 +327,7 @@ export function buildMatrixEvaluationPrompt(args: {
 }): string {
   const subject = matrixRowSubject(args.row);
   return [
-    `Evaluate how this agreement addresses ${subject}.`,
+    `Evaluate how this agreement addresses ${subject}. Keep claim, gap, implementationGap, and justification to at most two sentences each.`,
     `User instruction: ${args.instruction}`,
     args.previousAttemptFeedback,
     args.matrixSection
@@ -308,14 +339,14 @@ export function buildMatrixEvaluationPrompt(args: {
         ].join("\n"),
     "You MUST justify addressing against the Named vs Generic examples above — do not default to Generic without justification.",
     args.row.applicabilityGate?.llmGuidance ?? "",
-    "Even when addressing=named, set implementationGap to any operational shortfall the contract still has for this right (e.g. no numeric response timeframe, no machine-readable portability format, erasure only at termination, no Art 22 human-intervention/contest safeguards, no recipient-notification duty). Leave implementationGap empty only when the contract both names the right AND operationalises it.",
-    "When implementationGap is set, also set implementationSeverity (medium or high for material GDPR exposure).",
+    "Even when addressing=named, set implementationGap to any operational shortfall the contract still has for this right. Leave implementationGap empty only when the contract both names the right AND operationalises it.",
+    "When implementationGap is set, also set implementationSeverity (medium or high for material legal exposure).",
     "quotedText must be copied VERBATIM from a clause when addressing is named or generic.",
     `Clauses:\n${JSON.stringify(
       args.clauses.map((c) => ({
         clauseId: c.clauseId,
         clauseType: c.clauseType,
-        text: c.text.slice(0, 2500),
+        text: c.text.slice(0, MATRIX_ROW_CLAUSE_CHAR_CAP),
       }))
     )}`,
   ]
@@ -342,7 +373,84 @@ export function selectRelevantClauses(
   clauses: ClauseObject[],
   preferredClauseTypes?: string[]
 ): ClauseObject[] {
-  if (!preferredClauseTypes?.length) return clauses;
-  const preferred = clauses.filter((c) => preferredClauseTypes.includes(c.clauseType));
-  return preferred.length > 0 ? preferred : clauses.slice(0, 12);
+  const pool = !preferredClauseTypes?.length
+    ? clauses
+    : (() => {
+        const preferred = clauses.filter((c) => preferredClauseTypes.includes(c.clauseType));
+        return preferred.length > 0 ? preferred : clauses;
+      })();
+  return pool.slice(0, MATRIX_ROW_MAX_CLAUSES);
+}
+
+export function clausesFromSharedEvidence(
+  state: AnalysisState,
+  docId: string,
+  packageId?: string
+): ClauseObject[] {
+  const wanted = packageId ?? MATRIX_SHARED_EVIDENCE_PACKAGE_ID;
+  const bundle =
+    state.sharedEvidence?.[wanted] ??
+    Object.values(state.sharedEvidence ?? {}).find((item) => item.docId === docId);
+  if (!bundle) return [];
+  return bundle.items.map((item, index) => ({
+    clauseId: item.ref || `shared-${index + 1}`,
+    clauseType: item.clauseType,
+    text: item.quotedText,
+    locator: {
+      docId: bundle.docId,
+      structuralPath: item.structuralPath,
+      charRange: item.charRange,
+    },
+    taxonomyVersion: RISK_TAXONOMY_VERSION,
+    evidenceStatus: item.evidenceStatus,
+    matchReason: item.matchReason,
+    referencedDocuments: item.referencedDocuments,
+    truncated: item.truncated,
+    logicalEndOffset: item.logicalEndOffset,
+  }));
+}
+
+function resolveMatrixRowClauses(
+  state: AnalysisState,
+  doc: { clauses?: ClauseObject[]; docId?: string },
+  unit: AnalysisWorkUnit,
+  row: RightsMatrixRow
+): ClauseObject[] {
+  const packageId = String(
+    unit.input.sharedEvidencePackageId ?? MATRIX_SHARED_EVIDENCE_PACKAGE_ID
+  );
+  const fromShared = clausesFromSharedEvidence(state, String(unit.input.docId ?? ""), packageId);
+  const source = fromShared.length > 0 ? fromShared : (doc.clauses ?? []);
+  return selectRelevantClauses(source, row.preferredClauseTypes);
+}
+
+export class MatrixRowTimeoutError extends Error {
+  constructor() {
+    super("matrix_row_timeout");
+    this.name = "MatrixRowTimeoutError";
+  }
+}
+
+export function isMatrixRowTimeout(err: unknown): boolean {
+  return (
+    err instanceof MatrixRowTimeoutError ||
+    (err instanceof Error && err.message === "matrix_row_timeout")
+  );
+}
+
+export async function withMatrixRowTimeout<T>(
+  promise: Promise<T>,
+  ms = MATRIX_ROW_WALL_CLOCK_MS
+): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => reject(new MatrixRowTimeoutError()), ms);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 }

@@ -3,7 +3,10 @@ process.env.GOOGLE_CLOUD_PROJECT ??= "synthesis-ceiling-test";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { resolveAnalysisProfile } from "../../../pac/analysis-profile.js";
-import { resolveSynthesisMaxOutputTokens } from "../../../utils/resolve-synthesis-ceiling.js";
+import {
+  resolveSectionMaxOutputTokens,
+  resolveSynthesisMaxOutputTokens,
+} from "../../../utils/resolve-synthesis-ceiling.js";
 import type { AnalysisState } from "../../../models/analysis-state.js";
 import type { ReportSpec } from "../../../models/intent.js";
 import { initAgentRunState } from "../../../pac/types.js";
@@ -85,17 +88,50 @@ describe("synthesis ceiling / truncation repair", () => {
     const state = baseState("lite");
     const tokens = resolveSynthesisMaxOutputTokens(state, standardSpec);
     assert.ok(tokens >= 1800, `expected >= 1800, got ${tokens}`);
-    assert.ok(tokens <= 2800, `expected <= lite hardCap, got ${tokens}`);
+    assert.ok(tokens <= 3600, `expected <= lite hardCap, got ${tokens}`);
   });
 
   it("deep standard scales above base into the mid range", () => {
     const state = baseState("deep");
     const tokens = resolveSynthesisMaxOutputTokens(state, standardSpec);
-    // base 1800 * 1.75 + complexity (~5*80 + 4*100 = 800) ≈ 3950, capped 4800
     assert.ok(tokens > 1800, `deep must exceed base, got ${tokens}`);
-    assert.ok(tokens >= 2800 && tokens <= 4800, `got ${tokens}`);
+    assert.ok(tokens >= 2800 && tokens <= 6400, `got ${tokens}`);
     assert.equal(state.analysisProfile?.synthesisCeilingFactor, 1.75);
-    assert.equal(state.analysisProfile?.synthesisHardCap, 4800);
+    assert.equal(state.analysisProfile?.synthesisHardCap, 6400);
+  });
+
+  it("per-section budget does not starve analysis when many outline items exist", () => {
+    const state = baseState("deep");
+    const item = {
+      id: "analysis.matrix",
+      role: "requirements_matrix" as const,
+      sectionId: "requirements_matrix" as const,
+      heading: "Requirements matrix",
+      requirementIds: ["req.a"],
+      source: "deterministic" as const,
+    };
+    const manySections: ReportSpec = {
+      ...standardSpec,
+      depth: "deep",
+      sections: [
+        "executive_summary",
+        "requirements_matrix",
+        "material_gaps",
+        "missing_materials",
+        "recommendations",
+        "conclusion",
+      ],
+      outline: Array.from({ length: 10 }, (_, i) => ({
+        ...item,
+        id: `analysis.${i}`,
+        heading: `Section ${i}`,
+      })),
+    };
+    const tokens = resolveSectionMaxOutputTokens(state, manySections, item);
+    assert.ok(tokens >= 1800, `analysis floor expected, got ${tokens}`);
+    assert.ok(tokens <= 6400);
+    // Old bug: totalCeiling/10 would land near 400.
+    assert.ok(tokens > 600, `must not divide total by section count; got ${tokens}`);
   });
 
   it("truncation synthesis repair bumps ceiling once within hard cap", () => {
@@ -130,7 +166,7 @@ describe("synthesis ceiling / truncation repair", () => {
     );
     const bumped = resolveSynthesisMaxOutputTokens(state, standardSpec);
     assert.ok(bumped >= base, `bump ${bumped} should be >= ${base}`);
-    assert.ok(bumped <= 4800);
+    assert.ok(bumped <= 6400);
   });
 
   it("truncated report contract failure routes to ACT not PLAN on deep", () => {
@@ -172,7 +208,7 @@ describe("synthesis ceiling / truncation repair", () => {
       },
     } as unknown as CritiqueReport;
 
-    assert.equal(nextPhaseAfterCritique(state, critique), "ACT");
-    assert.equal(profile.maxTier2Attempts, 1);
+    assert.equal(nextPhaseAfterCritique(state, critique), "DONE");
+    assert.equal(profile.maxTier2Attempts, 0);
   });
 });

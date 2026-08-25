@@ -124,6 +124,13 @@ function buildSummary(
 }
 
 function buildRecommendation(supporting: Finding[]): string | undefined {
+  const hasAbsent = supporting.some((f) => f.status === "absent_expected");
+  const hasInsufficient = supporting.some(
+    (f) => f.status === "insufficient_evidence"
+  );
+  if (hasInsufficient && !hasAbsent) {
+    return "Obtain or confirm the referenced materials or unread remainder of the clause. Do not amend the agreement from incomplete evidence.";
+  }
   const gap = supporting.find(
     (f) =>
       f.status === "absent_expected" ||

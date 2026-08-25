@@ -305,7 +305,9 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     })
   );
   const graph = replicateGraphForTargets(graphs);
-  const packageList = graph.packageResolution.packages.map((item) => item.pkg);
+  const packageList =
+    graph.packageResolution.reportPackages ??
+    graph.packageResolution.packages.map((item) => item.pkg);
   const merged = resolveReportSpecFromPackages({
     intent,
     instruction: state.request.instruction,
@@ -358,8 +360,10 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     intent,
     workUnits,
     missingClarifications: [],
-    outputForm: reportTypeToOutputForm(reportSpec.reportType),
+    outputForm: resolvePlanOutputForm(intent, reportSpec.reportType, state.request.answerStyle),
     documentPresentation: intent.documentPresentation,
+    // Pause CRITIQUE for all analysis types (ACT → DONE). See CRITIQUE_PAUSED.
+    skipCritique: true,
     reportSpec,
     rendererSchemaId: graph.rendererSchemaId,
     activeSkillIds: skills.map((s) => s.skillId),
@@ -473,12 +477,24 @@ function emptyPlan(
     missingClarifications: missing,
     outputForm: intent.outputForm,
     documentPresentation: intent.documentPresentation,
+    skipCritique: true,
     rendererSchemaId: "checklist",
     pinnedVersions: {
       clauseTaxonomyVersion: CLAUSE_TAXONOMY_VERSION,
       riskTaxonomyVersion: RISK_TAXONOMY_VERSION,
     },
   };
+}
+
+export function resolvePlanOutputForm(
+  intent: IntentClassification,
+  reportType: ReportSpec["reportType"],
+  answerStyle: AnalysisState["request"]["answerStyle"]
+): AnalysisPlan["outputForm"] {
+  if (intent.outputForm === "table" || answerStyle === "tabular") return "table";
+  if (intent.outputForm === "brief_summary") return "brief_summary";
+  if (intent.outputForm === "qa_thread") return "qa_thread";
+  return reportTypeToOutputForm(reportType);
 }
 
 function rendererSchemaForIntent(

@@ -45,6 +45,10 @@ export interface SharedEvidenceItem {
   evidenceStatus?: EvidenceStatus;
   matchReason?: string;
   referencedDocuments?: string[];
+  /** True when quotedText is a bounded prefix of the logical section. */
+  truncated?: boolean;
+  /** End offset of the complete logical section before any evidence cap. */
+  logicalEndOffset?: number;
 }
 
 export interface SharedEvidenceBundle {
@@ -58,6 +62,11 @@ export interface EvidencePackage {
   id: string;
   /** Semantic requirement ids this package can establish (PLAN vocabulary). */
   requirementIds: string[];
+  /**
+   * PLAN ids that should select this package without being evaluated as extra
+   * rows (legacy lumped ids that expand to `requirementIds`).
+   */
+  requirementAliases?: string[];
   /**
    * Authored capability ids grouped by this package. Each id must resolve to a
    * real `regimeRules[].ruleId`, `rightsMatrixRows[].rowId`, or
@@ -104,11 +113,30 @@ export interface EvidencePackage {
   };
   /** Authored report structure for renderer / synthesis (P8). */
   report?: PackageReportSpec;
+  /**
+   * Generic orchestration hints for PLAN/ACT. Regime-specific ids stay out of
+   * graph handlers — skills author role / suppress / defer lists here.
+   */
+  orchestration?: PackageOrchestration;
+}
+
+export type PackageOrchestrationRole = "structural_review" | "matrix_owner" | "default";
+
+export interface PackageOrchestration {
+  role?: PackageOrchestrationRole;
+  /** Skip this package when instruction focus has matrix rows and the ask is not structural. */
+  suppressWhenMatrixFocus?: boolean;
+  /** Non-matrix capability ids treated as leftover-covered when deferring to the matrix subgraph. */
+  matrixDeferCapabilities?: string[];
 }
 
 export interface PackageOutlineExtra {
   heading: string;
   requirementTags?: string[];
+  /** Closed registry id this extra renders as a top-level section. */
+  sectionId?: ReportSectionId;
+  /** Structured artifacts this extra should consume when present. */
+  artifactTypes?: string[];
 }
 
 export interface PackageReportSpec {

@@ -3,107 +3,208 @@ import {
   LLMProvider,
   LLMTask,
 } from "../../../../llm/index.js";
-import type { AnalysisState } from "../../models/analysis-state.js";
+import type { AnalysisState, ReportSectionBlock } from "../../models/analysis-state.js";
 import type { Finding } from "../../models/finding.js";
 import type { RequirementAssessment } from "../../models/requirement-assessment.js";
-import type { ReportSpec } from "../../models/intent.js";
+import type { ReportOutlineItem, ReportSpec } from "../../models/intent.js";
 import {
-  SYNTHESIS_SYSTEM_PROMPT,
-  buildSynthesisUserPrompt,
+  buildSectionSynthesisUserPrompt,
+  synthesisSectionSystemPrompt,
 } from "../../prompts/synthesis.js";
 import {
   enforceConclusionSectionLast,
   normalizeReportSections,
+  outlineItemSectionId,
+  roleForSectionId,
   suggestedHeading,
 } from "../../prompts/report-sections.js";
 import { emitAnalysisToken } from "../../utils/stream-tokens.js";
 import { pacLog } from "../../utils/pac-log.js";
 import { groupAssessmentsForReport } from "../../shared/group-assessments.js";
 import { profileThinkingLevel } from "../../utils/profile-thinking.js";
-import { resolveSynthesisMaxOutputTokens } from "../../utils/resolve-synthesis-ceiling.js";
+import { resolveSectionMaxOutputTokens } from "../../utils/resolve-synthesis-ceiling.js";
+
+export interface SynthesizeReportOptions {
+  retrySectionIds?: string[];
+}
+
+function outlineItemsForSpec(spec: ReportSpec): ReportOutlineItem[] {
+  if (spec.outline && spec.outline.length > 0) return spec.outline;
+  return normalizeReportSections(spec.sections).map((id) => ({
+    id,
+    role: roleForSectionId(id),
+    sectionId: id,
+    heading: suggestedHeading(id),
+    requirementIds: [],
+    source: "deterministic" as const,
+  }));
+}
+
+function assembleSections(blocks: ReportSectionBlock[]): string {
+  return blocks
+    .map((block) => block.markdown.trim())
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+function ensureHeading(markdown: string, heading: string): string {
+  const trimmed = markdown.trim();
+  if (/^##\s+/.test(trimmed)) return trimmed;
+  return `## ${heading}\n\n${trimmed}`;
+}
 
 /**
- * Dynamic synthesis (ACT refactor doc §16). Produces the user-facing narrative
- * from RequirementAssessments + supporting findings + derived risks, structured
- * by ReportSpec.sections and depth. This replaces the finding-dump renderer for
- * the package path.
- *
- * Verbosity is structural, not token-math (doc §15): the depth cue and the
- * per-status content rules drive length. The numeric ceiling is profile- and
- * complexity-aware so Deep thinking does not silently truncate the memo.
+ * Dynamic synthesis: one LLM completion per finalized outline section, then assemble.
  */
-
 export async function synthesizeReport(
   state: AnalysisState,
   findings: Finding[],
-  reportSpec: ReportSpec
+  reportSpec: ReportSpec,
+  options: SynthesizeReportOptions = {}
 ): Promise<string> {
   const assessments = state.requirementAssessments ?? [];
-  const brief = buildSynthesisUserPrompt(state, findings, assessments, reportSpec);
-  const tracker = state.agent ? { tokensUsed: state.agent.tokensUsed } : undefined;
+  const items = outlineItemsForSpec(reportSpec);
+  const retry = new Set(options.retrySectionIds ?? []);
+  const prior = new Map((state.reportSections ?? []).map((block) => [block.id, block]));
   const synthStart = Date.now();
-  const maxOutputTokens = resolveSynthesisMaxOutputTokens(state, reportSpec);
+
   pacLog("synthesis prompt", {
-    chars: brief.length,
+    chars: 0,
+    sections: items.length,
+    retry: retry.size,
     assessments: assessments.length,
     findings: findings.length,
     depth: reportSpec.depth,
     thinkingMode: state.analysisProfile?.thinkingMode ?? state.request.thinkingMode,
-    maxOutputTokens,
+    answerStyle: state.request.answerStyle ?? "narrative",
   });
 
-  try {
-    const outcome = await executeBoundedCompletion(
-      brief,
-      SYNTHESIS_SYSTEM_PROMPT,
-      LLMTask.REFINEMENT,
-      LLMProvider.GEMINI,
-      {
-        maxOutputTokens,
-        onDelta: (delta) => emitAnalysisToken(state, delta),
-        tracker,
-        thinkingLevel: profileThinkingLevel(state, LLMTask.REFINEMENT),
-      }
-    );
-    if (state.agent && tracker) state.agent.tokensUsed = tracker.tokensUsed;
-    const text = outcome.text.trim();
-    state.synthesisMeta = {
-      truncated: Boolean(outcome.truncated),
-      maxOutputTokens,
-      depth: reportSpec.depth,
-    };
-    pacLog("synthesis llm", {
-      ms: Date.now() - synthStart,
-      outChars: text.length,
-      truncated: outcome.truncated,
-      depth: reportSpec.depth,
-      maxOutputTokens,
-      thinkingMode: state.analysisProfile?.thinkingMode ?? state.request.thinkingMode,
-    });
-    if (text) {
-      const ordered = enforceConclusionSectionLast(text);
-      if (outcome.truncated) {
-        const note = `\n\n[Report ended at the length limit for ${reportSpec.depth} depth. Remaining detail was omitted.]`;
-        emitAnalysisToken(state, note);
-        return `${ordered}${note}`;
-      }
-      return ordered;
+  const work = items.map(async (item): Promise<{
+    block: ReportSectionBlock;
+    tokensUsed: number;
+    truncated: boolean;
+  }> => {
+    const reuse = retry.size > 0 && !retry.has(item.id) && prior.get(item.id);
+    if (reuse) {
+      return { block: reuse, tokensUsed: 0, truncated: false };
     }
-  } catch (err) {
-    console.warn("[synthesizeReport] synthesis failed; using deterministic brief:", err);
-    state.synthesisMeta = {
-      truncated: false,
-      maxOutputTokens,
-      depth: reportSpec.depth,
-    };
-  }
+    const perSection = resolveSectionMaxOutputTokens(state, reportSpec, item);
+    const prompt = buildSectionSynthesisUserPrompt({
+      state,
+      findings,
+      assessments,
+      reportSpec,
+      item,
+    });
+    const sectionTracker = { tokensUsed: 0 };
+    try {
+      const outcome = await executeBoundedCompletion(
+        prompt,
+        synthesisSectionSystemPrompt(state),
+        LLMTask.REFINEMENT,
+        LLMProvider.GEMINI,
+        {
+          maxOutputTokens: perSection,
+          tracker: sectionTracker,
+          thinkingLevel: profileThinkingLevel(state, LLMTask.REFINEMENT),
+        }
+      );
+      return {
+        block: {
+          id: item.id,
+          heading: item.heading,
+          markdown: ensureHeading(outcome.text.trim(), item.heading),
+        },
+        tokensUsed: sectionTracker.tokensUsed,
+        truncated: outcome.truncated,
+      };
+    } catch (err) {
+      console.warn(
+        `[synthesizeReport] section ${item.id} failed; using deterministic fallback:`,
+        err
+      );
+      return {
+        block: {
+          id: item.id,
+          heading: item.heading,
+          markdown: buildDeterministicSection(item, assessments, findings),
+        },
+        tokensUsed: sectionTracker.tokensUsed,
+        truncated: false,
+      };
+    }
+  });
 
-  // Deterministic fallback keeps the pipeline resilient (doc §21): never fabricate.
+  const results = await Promise.all(work);
+  const blocks: ReportSectionBlock[] = results.map((result) => result.block);
+  const anyTruncated = results.some((result) => result.truncated);
+  const maxSectionTokens = items.reduce((max, item) => {
+    if (retry.size > 0 && !retry.has(item.id) && prior.get(item.id)) return max;
+    return Math.max(max, resolveSectionMaxOutputTokens(state, reportSpec, item));
+  }, 0);
+  if (state.agent) {
+    state.agent.tokensUsed += results.reduce((sum, result) => sum + result.tokensUsed, 0);
+  }
+  state.reportSections = blocks;
+  state.synthesisMeta = {
+    truncated: anyTruncated,
+    maxOutputTokens: maxSectionTokens,
+    depth: reportSpec.depth,
+  };
+  pacLog("synthesis llm", {
+    ms: Date.now() - synthStart,
+    outChars: blocks.reduce((n, b) => n + b.markdown.length, 0),
+    truncated: anyTruncated,
+    depth: reportSpec.depth,
+    maxOutputTokens: maxSectionTokens,
+    thinkingMode: state.analysisProfile?.thinkingMode ?? state.request.thinkingMode,
+  });
+
+  const assembled = enforceConclusionSectionLast(assembleSections(blocks));
+  if (anyTruncated) {
+    const note = `\n\n[Report ended at the length limit for ${reportSpec.depth} depth. Remaining detail was omitted.]`;
+    emitAnalysisToken(state, note);
+    return `${assembled}${note}`;
+  }
+  if (assembled.trim()) return assembled;
+
   const fallback = enforceConclusionSectionLast(
     buildDeterministicReport(state, assessments, reportSpec)
   );
   emitAnalysisToken(state, fallback);
   return fallback;
+}
+
+function buildDeterministicSection(
+  item: ReportOutlineItem,
+  assessments: RequirementAssessment[],
+  findings: Finding[]
+): string {
+  const sectionId = outlineItemSectionId(item);
+  const lines = [`## ${item.heading}`, ""];
+  if (sectionId === "risk_summary") {
+    const risks = findings.filter((f) => f.kind === "risk" && f.visibility !== "internal");
+    if (risks.length === 0) lines.push("No user-facing material risks were flagged.", "");
+    else for (const risk of risks) lines.push(`- ${risk.claim}`, "");
+    return lines.join("\n");
+  }
+  const wanted = new Set(item.requirementIds);
+  const sliced =
+    wanted.size > 0
+      ? assessments.filter((a) => wanted.has(a.requirementId))
+      : assessments;
+  const groups = groupAssessmentsForReport(sliced);
+  if (groups.length === 0) {
+    lines.push("No mapped assessments for this section.", "");
+    return lines.join("\n");
+  }
+  for (const group of groups) {
+    lines.push(`- ${group.status}: ${group.title}`);
+    const summaries = [...new Set(group.members.map((m) => m.summary).filter(Boolean))];
+    if (summaries.length > 0) lines.push(summaries.join(" "));
+    lines.push("");
+  }
+  return lines.join("\n");
 }
 
 /** Deterministic, evidence-faithful fallback used only if synthesis fails. */
@@ -112,81 +213,8 @@ function buildDeterministicReport(
   assessments: RequirementAssessment[],
   reportSpec: ReportSpec
 ): string {
-  const lines: string[] = [];
-  const groups = groupAssessmentsForReport(assessments);
-  lines.push(`# Analysis`, "");
-  lines.push(`Instruction: ${state.request.instruction}`, "");
-
-  const sections = normalizeReportSections(reportSpec.sections);
-  if (sections.includes("scope")) {
-    lines.push(`## ${suggestedHeading("scope")}`, "");
-    lines.push(
-      `Review of ${assessments.length} requirement(s) against the supplied document(s).`,
-      ""
-    );
-  }
-
-  if (sections.includes("requirements_detail")) {
-    lines.push(`## ${suggestedHeading("requirements_detail")}`, "");
-    const outline = reportSpec.outline ?? [];
-    const outlineAnalysisItems = outline.filter(
-      (item) => item.role === "analysis" || item.role === "chapeau_particulars"
-    );
-
-    if (outlineAnalysisItems.length > 0) {
-      const buckets = outlineAnalysisItems.map((item) => ({
-        item,
-        groups: [] as typeof groups,
-        requirementSet: new Set(item.requirementIds),
-      }));
-
-      for (const group of groups) {
-        const memberReqIds = new Set(group.members.map((m) => m.requirementId));
-        let bestIdx = 0;
-        let bestScore = -1;
-        for (let i = 0; i < buckets.length; i++) {
-          let score = 0;
-          for (const id of memberReqIds) {
-            if (buckets[i]!.requirementSet.has(id)) score += 1;
-          }
-          if (score > bestScore) {
-            bestScore = score;
-            bestIdx = i;
-          }
-        }
-        buckets[bestIdx]!.groups.push(group);
-      }
-
-      for (const bucket of buckets) {
-        if (bucket.groups.length === 0) continue;
-        lines.push(`### ${bucket.item.heading}`, "");
-        for (const group of bucket.groups) {
-          lines.push(`- ${group.status}: ${group.title}`, "");
-          const summaries = [
-            ...new Set(group.members.map((m) => m.summary).filter(Boolean)),
-          ];
-          if (summaries.length > 0) lines.push(summaries.join(" "), "");
-        }
-      }
-    } else {
-      for (const group of groups) {
-        lines.push(`### ${group.title} — ${group.status}`, "");
-        const summaries = [...new Set(group.members.map((m) => m.summary).filter(Boolean))];
-        lines.push(summaries.join(" "), "");
-        const rec = group.members.find((m) => m.recommendation)?.recommendation;
-        if (rec) lines.push(`Recommendation: ${rec}`, "");
-      }
-    }
-  }
-
-  if (sections.includes("conclusion")) {
-    const covered = assessments.filter((a) => a.status === "covered").length;
-    lines.push(`## ${suggestedHeading("conclusion")}`, "");
-    lines.push(
-      `${covered} of ${assessments.length} requirements are covered based on the document evidence.`,
-      ""
-    );
-  }
-
-  return lines.join("\n");
+  const items = outlineItemsForSpec(reportSpec);
+  return items
+    .map((item) => buildDeterministicSection(item, assessments, state.findings ?? []))
+    .join("\n");
 }

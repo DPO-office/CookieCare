@@ -2,9 +2,15 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { groupAssessmentsForReport } from "../group-assessments.js";
 import { deriveRequirementStatus } from "../requirement-status-policy.js";
-import { buildSynthesisUserPrompt } from "../../../prompts/synthesis.js";
+import {
+  SYNTHESIS_SYSTEM_PROMPT,
+  buildSectionSynthesisUserPrompt,
+  buildSynthesisUserPrompt,
+  synthesisSectionSystemPrompt,
+} from "../../../prompts/synthesis.js";
 import { buildEvaluatePackageUserPrompt } from "../../../prompts/evaluate-package.js";
 import type { RequirementAssessment } from "../../../models/requirement-assessment.js";
+import type { ReportOutlineItem } from "../../../models/intent.js";
 import type { AnalysisState } from "../../../models/analysis-state.js";
 import type { Finding } from "../../../models/finding.js";
 
@@ -46,7 +52,7 @@ describe("groupAssessmentsForReport", () => {
     assert.equal(business!.members.length, 1);
   });
 
-  it("marks mixed coverage in a group as partial", () => {
+  it("marks mixed coverage in a group as conditional", () => {
     const groups = groupAssessmentsForReport([
       assessment("ccpa.no_sell_share", "covered", "Sale restriction present."),
       assessment(
@@ -56,7 +62,7 @@ describe("groupAssessmentsForReport", () => {
       ),
     ]);
     assert.equal(groups.length, 1);
-    assert.equal(groups[0].status, "partial");
+    assert.equal(groups[0].status, "conditional");
   });
 });
 
@@ -170,7 +176,7 @@ describe("synthesis user prompt", () => {
       },
     } as unknown as AnalysisState;
 
-    const outline = [
+    const outline: ReportOutlineItem[] = [
       {
         id: "analysis.x",
         role: "analysis",
@@ -192,8 +198,8 @@ describe("synthesis user prompt", () => {
       }
     );
 
-    assert.match(prompt, /OUTLINE ANALYSIS SUBSECTIONS/);
-    assert.match(prompt, /### Mandatory Article 28\(3\) clauses/);
+    assert.match(prompt, /OUTLINE SECTIONS/);
+    assert.match(prompt, /## Mandatory Article 28\(3\) clauses/);
     assert.doesNotMatch(prompt, /THEME GROUPS/);
   });
 });
@@ -207,8 +213,196 @@ describe("evaluate-package prompt", () => {
       authoredRuleText: "[ccpa.no_sell_share] No sale or sharing.",
       evidenceLines: ["(E1) [use_limitation status=referenced_elsewhere] See Annex A"],
     });
-    assert.match(prompt, /does NOT automatically mean missing/);
-    assert.match(prompt, /cannot_determine \(not missing\)/);
+    assert.match(prompt, /does NOT automatically mean gap/);
+    assert.match(prompt, /cannot_determine \(not gap\)/);
     assert.match(prompt, /status=referenced_elsewhere/);
+  });
+
+  it("forbids missing and Amend when evidence is truncated or heading-only", () => {
+    const prompt = buildEvaluatePackageUserPrompt({
+      instruction: "Check GDPR Art 28",
+      depth: "standard",
+      requirementIds: ["gdpr.art28.3.b"],
+      authoredRuleText: "[gdpr.art28.3.b] Persons authorised to process are under confidentiality.",
+      evidenceLines: [
+        "(E1) [confidentiality truncated=true heading_only=true] 3.6 Security of the Processing",
+      ],
+    });
+    assert.match(prompt, /truncated=true or heading_only=true/);
+    assert.match(prompt, /Do NOT use gap/);
+    assert.match(
+      prompt,
+      /never recommend amending the agreement from cannot_determine, truncated, or heading_only/i
+    );
+    assert.match(prompt, /Recommend Amend only for gap or conditional/);
+  });
+});
+
+describe("synthesis prompt — incomplete evidence", () => {
+  it("forbids Amend from cannot_determine or truncated quotes", () => {
+    assert.match(
+      SYNTHESIS_SYSTEM_PROMPT,
+      /Never recommend amending the agreement from cannot_determine/
+    );
+    assert.match(SYNTHESIS_SYSTEM_PROMPT, /truncated quotes/);
+    assert.match(SYNTHESIS_SYSTEM_PROMPT, /Obtain \/ Confirm \/ re-read only/);
+    assert.match(
+      SYNTHESIS_SYSTEM_PROMPT,
+      /Use Amend only when the assessment status is missing or partial/
+    );
+  });
+});
+
+describe("per-section synthesis prompt", () => {
+  it("includes only mapped assessments and instructs a top-level H2", () => {
+    const state = {
+      request: {
+        sessionId: "s1",
+        instruction: "Review this NDA.",
+        documentIds: [],
+        documentTexts: {},
+      },
+      intent: {
+        scope: "whole_document",
+        operation: "compliance_check",
+        standard: "none",
+        outputForm: "memo",
+        compound: false,
+        subIntents: [],
+        requirements: [],
+        confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 },
+      },
+      workspace: {},
+      findings: [],
+      analysisArtifacts: {},
+    } as unknown as AnalysisState;
+
+    const prompt = buildSectionSynthesisUserPrompt({
+      state,
+      findings: [],
+      assessments: [
+        assessment("nda.confidentiality_definition", "covered"),
+        assessment("nda.term_and_survival", "missing"),
+      ],
+      reportSpec: {
+        reportType: "regime_compliance_memo",
+        depth: "standard",
+        sections: ["executive_summary", "key_findings", "conclusion"],
+      },
+      item: {
+        id: "analysis.confidentiality",
+        role: "key_findings",
+        sectionId: "key_findings",
+        heading: "Confidentiality",
+        requirementIds: ["nda.confidentiality_definition"],
+        source: "deterministic",
+      },
+    });
+
+    assert.match(prompt, /THIS SECTION ONLY/);
+    assert.match(prompt, /## Confidentiality/);
+    assert.match(prompt, /nda\.confidentiality_definition|Confidentiality/);
+    assert.doesNotMatch(prompt, /term_and_survival/);
+  });
+
+  it("enforces a table-first contract when answerStyle is tabular", () => {
+    const state = {
+      request: {
+        sessionId: "s1",
+        instruction: "Check processor terms.",
+        documentIds: [],
+        documentTexts: {},
+        answerStyle: "tabular",
+      },
+      intent: {
+        scope: "whole_document",
+        operation: "compliance_check",
+        standard: "none",
+        outputForm: "memo",
+        compound: false,
+        subIntents: [],
+        requirements: [],
+        confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 },
+      },
+      workspace: {},
+      findings: [],
+      analysisArtifacts: {},
+    } as unknown as AnalysisState;
+
+    const system = synthesisSectionSystemPrompt(state);
+    assert.match(system, /tabular form/i);
+    assert.match(system, /Requirement \| Status \| Evidence \| Finding/);
+
+    const prompt = buildSectionSynthesisUserPrompt({
+      state,
+      findings: [],
+      assessments: [assessment("req.instructions", "partial")],
+      reportSpec: {
+        reportType: "regime_compliance_memo",
+        depth: "standard",
+        sections: ["executive_summary", "requirements_matrix", "conclusion"],
+      },
+      item: {
+        id: "analysis.matrix",
+        role: "requirements_matrix",
+        sectionId: "requirements_matrix",
+        heading: "Requirements matrix",
+        requirementIds: ["req.instructions"],
+        source: "deterministic",
+      },
+    });
+    assert.match(prompt, /ANSWER STYLE/);
+    assert.match(prompt, /tabular/);
+    assert.match(prompt, /TABLE CONTRACT/);
+    assert.match(prompt, /Requirement \| Status \| Evidence \| Finding/);
+    assert.doesNotMatch(prompt, /\bgdpr\b/i);
+  });
+
+  it("uses a numbered-list contract for narrative rights-matrix sections", () => {
+    const state = {
+      request: {
+        sessionId: "s1",
+        instruction: "How does this agreement address data subject rights?",
+        documentIds: [],
+        documentTexts: {},
+        answerStyle: "narrative",
+      },
+      intent: {
+        scope: "whole_document",
+        operation: "compliance_check",
+        standard: "none",
+        outputForm: "memo",
+        compound: false,
+        subIntents: [],
+        requirements: [],
+        confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 },
+      },
+      workspace: {},
+      findings: [],
+      analysisArtifacts: {},
+    } as unknown as AnalysisState;
+
+    const prompt = buildSectionSynthesisUserPrompt({
+      state,
+      findings: [],
+      assessments: [assessment("req.access", "partial")],
+      reportSpec: {
+        reportType: "rights_matrix",
+        depth: "standard",
+        sections: ["executive_summary", "requirements_matrix", "conclusion"],
+      },
+      item: {
+        id: "analysis.matrix",
+        role: "requirements_matrix",
+        sectionId: "requirements_matrix",
+        heading: "Requirements matrix",
+        requirementIds: ["req.access"],
+        source: "deterministic",
+      },
+    });
+    assert.match(prompt, /NARRATIVE CONTRACT/);
+    assert.match(prompt, /numbered list/);
+    assert.doesNotMatch(prompt, /Prefer a markdown table/);
+    assert.doesNotMatch(prompt, /TABLE CONTRACT FOR THIS SECTION/);
   });
 });

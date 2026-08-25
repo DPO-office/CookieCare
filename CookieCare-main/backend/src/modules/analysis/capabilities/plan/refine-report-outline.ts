@@ -3,22 +3,31 @@ import {
   LLMProvider,
   LLMTask,
 } from "../../../../llm/index.js";
-import type { IntentClassification, ReportOutlineItem } from "../../models/intent.js";
-import type { ReportSectionRole } from "../../models/intent.js";
+import type { IntentClassification, ReportOutlineItem, ReportSectionRole } from "../../models/intent.js";
+import { sectionIdForRole } from "../../prompts/report-sections.js";
 import { pacWarn } from "../../utils/pac-log.js";
 
 const ANALYSIS_ROLES: Set<ReportSectionRole> = new Set([
   "analysis",
   "chapeau_particulars",
+  "requirements_matrix",
+  "key_findings",
 ]);
 
 const ALLOWED_ROLES: Set<ReportSectionRole> = new Set([
   "scope",
+  "executive_summary",
   "analysis",
+  "requirements_matrix",
+  "key_findings",
   "chapeau_particulars",
+  "material_gaps",
+  "risk_summary",
   "qualifications",
+  "limitations",
   "recommendations",
   "missing_materials",
+  "evidence",
   "conclusion",
 ]);
 
@@ -152,14 +161,23 @@ export async function refineReportOutlineViaLLM(
         depth,
         "",
         "Return ONLY JSON matching the schema.",
-      ],
+      ].join("\n"),
       "json",
       REFINE_SCHEMA as any,
       LLMTask.STRUCTURAL_JSON_LITE,
       LLMProvider.GEMINI
     )) as unknown as { analysisItems?: ReportOutlineItem[] };
 
-    const refinedItems = (raw.analysisItems ?? []) as ReportOutlineItem[];
+    const refinedItems = ((raw.analysisItems ?? []) as ReportOutlineItem[]).map(
+      (item) => {
+        const seed = seedAnalysisItems.find((candidate) => candidate.id === item.id);
+        return {
+          ...item,
+          sectionId: item.sectionId ?? seed?.sectionId ?? sectionIdForRole(item.role),
+          artifactTypes: item.artifactTypes ?? seed?.artifactTypes,
+        };
+      }
+    );
     const validation = validateRefinedAnalysisItems(
       seedAnalysisItems,
       refinedItems

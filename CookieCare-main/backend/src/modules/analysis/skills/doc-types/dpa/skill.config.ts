@@ -269,6 +269,10 @@ export const dpaDocTypeSkill: AnalysisSkillConfig = {
       requirementKinds: ["adequacy"],
       packageVersion: "0.1.0",
       label: "DPA structural review",
+      orchestration: {
+        role: "structural_review",
+        suppressWhenMatrixFocus: true,
+      },
       report: {
         sections: [
           "scope",

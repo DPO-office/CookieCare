@@ -177,6 +177,7 @@ export class GeminiProvider implements ILLMProvider {
         config: {
           systemInstruction: systemInstruction,
           temperature: runtimeConfig.temperature,
+          maxOutputTokens: runtimeConfig.maxOutputTokens,
           responseMimeType: "application/json",
           responseSchema: jsonSchema,
           thinkingConfig: buildThinkingConfig(runtimeConfig),
@@ -211,6 +212,7 @@ export class GeminiProvider implements ILLMProvider {
         config: {
           systemInstruction: systemInstruction,
           temperature: runtimeConfig.temperature,
+          maxOutputTokens: runtimeConfig.maxOutputTokens,
           responseMimeType: "application/json",
           responseSchema: jsonSchema,
           thinkingConfig: buildThinkingConfig(runtimeConfig),

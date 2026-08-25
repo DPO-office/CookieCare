@@ -34,6 +34,8 @@ export interface Finding {
   taxonomyVersion: string;
   workUnitId?: string;
   skillId?: string;
+  /** Package that emitted this finding, when the unit was package-scoped. */
+  packageId?: string;
   /** Audit vs user report. Default treated as user_facing when omitted. */
   visibility?: FindingVisibility;
   matrixRowId?: string;
