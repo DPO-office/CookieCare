@@ -1,15 +1,18 @@
 import type { RegimePack } from "../types.js";
+import { hipaaBaSkillConfig } from "./skill.config.js";
 
 export const hipaaBaPack: RegimePack = {
   id: "HIPAA_BA",
   triggerCondition: (facts) => {
     if (facts.phiInvolved === true) return true;
+    if (facts.phiInvolved === false) return false;
     const blob = JSON.stringify(facts).toLowerCase();
+    // Avoid matching the key name "phiInvolved" itself.
     return (
-      blob.includes("phi") ||
+      /\bphi\b/.test(blob) ||
       blob.includes("hipaa") ||
       blob.includes("patient") ||
-      blob.includes("health") ||
+      /\bhealth(?:care|care\s)?\b/.test(blob) ||
       blob.includes("medical")
     );
   },
@@ -24,4 +27,5 @@ export const hipaaBaPack: RegimePack = {
     },
   ],
   skillPaths: ["regimes/hipaa-ba"],
+  skillConfig: hipaaBaSkillConfig,
 };

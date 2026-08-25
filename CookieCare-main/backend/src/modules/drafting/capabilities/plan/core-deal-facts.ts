@@ -268,15 +268,24 @@ export function resolveDocTypeKey(documentType: string | undefined): string {
 
 /** Requirement schema for a document type — ASK only when status is missing/conflict. */
 export function getRequiredFactCatalog(
-  documentType?: string
+  documentType?: string,
+  skillFacts?: RequiredFactCatalogEntry[]
 ): RequiredFactCatalogEntry[] {
   const docKey = resolveDocTypeKey(documentType);
   const byId = new Map<string, RequiredFactCatalogEntry>();
   for (const entry of UNIVERSAL_CATALOG) {
     byId.set(entry.id, entry);
   }
-  for (const entry of DOC_TYPE_CATALOG[docKey] ?? []) {
-    byId.set(entry.id, entry);
+  // Skill-authored facts take precedence over hardcoded DOC_TYPE_CATALOG.
+  const skillList = skillFacts ?? [];
+  if (skillList.length > 0) {
+    for (const entry of skillList) {
+      byId.set(entry.id, entry);
+    }
+  } else {
+    for (const entry of DOC_TYPE_CATALOG[docKey] ?? []) {
+      byId.set(entry.id, entry);
+    }
   }
   return Array.from(byId.values());
 }

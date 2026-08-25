@@ -5,8 +5,11 @@ import { SYSTEM_CORE_GUARDRAILS } from "../../prompts/system-templates.js";
 import {
   applyDealIdentityToPlanGlossary,
   buildDealIdentity,
-  formatDealIdentityLock,
 } from "./deal-identity.js";
+import {
+  buildSectionContext,
+  DRAFTING_PRECEDENCE_BLOCK,
+} from "./build-section-context.js";
 
 /**
  * Draft a single section work unit.
@@ -21,31 +24,32 @@ export async function draftSection(state: DraftState, unit: WorkUnit): Promise<D
   const glossary = identity
     ? applyDealIdentityToPlanGlossary(state.plan?.glossary, identity)
     : state.plan?.glossary ?? {};
-  const approved = (state.retrieval.fallbackClauses ?? []).filter(
-    (c) => unit.clauseTypes.includes(c.clauseType) && c.isApproved
+
+  const sectionCtx = buildSectionContext(state, unit);
+  console.log(
+    `[draftSection] unit=${unit.id} skills=${sectionCtx.skillIds.join(",") || "(none)"} template=${sectionCtx.templateId ?? "none"} playbook=${sectionCtx.playbookId ?? "none"}`
   );
 
   const system = SYSTEM_CORE_GUARDRAILS;
   const prompt = [
     `Draft ONLY the section headed: ${unit.heading}`,
     `Work unit id: ${unit.id}`,
-    `Document type: ${state.plan?.documentType ?? "contract"}`,
+    `Document type: ${state.plan?.documentType ?? state.draftingContext?.documentType ?? "contract"}`,
     state.plan?.jurisdictionId ? `Governing law pack: ${state.plan.jurisdictionId}` : "",
-    identity ? formatDealIdentityLock(identity) : "",
+    DRAFTING_PRECEDENCE_BLOCK,
+    sectionCtx.identityLock,
     Object.keys(glossary).length
       ? `Defined terms glossary (locked party keys must not change):\n${JSON.stringify(glossary)}`
       : "",
-    approved.length
-      ? `Insert these approved clauses VERBATIM where applicable; only generate connective tissue:\n${approved
-          .map((c) => `[${c.id}] ${c.text}`)
-          .join("\n\n")}`
+    sectionCtx.sectionBriefBlock,
+    sectionCtx.playbookBlock,
+    sectionCtx.templateBlock,
+    sectionCtx.approvedClausesBlock
+      ? `${sectionCtx.approvedClausesBlock}\nInsert approved clauses VERBATIM where applicable; only generate connective tissue.`
       : "",
-    `Facts (use these EXACT values — never invent parties, dates, or jurisdictions):\n${JSON.stringify(state.structuredFacts ?? {})}`,
-    `Instructions: ${state.request.rawInstructions}`,
-    state.fixPlan?.items
-      .filter((f) => f.workUnitId === unit.id)
-      .map((f) => `Fix instruction: ${f.instruction}`)
-      .join("\n") || "",
+    `Canonical facts for this section (use EXACT values — never invent parties, dates, or jurisdictions):\n${JSON.stringify(sectionCtx.relevantFacts)}`,
+    `User instructions: ${state.request.rawInstructions}`,
+    sectionCtx.fixInstructions.map((f) => `Fix instruction: ${f}`).join("\n") || "",
     "HARD RULE — NO PLACEHOLDERS: Do not emit [● DATE], [PARTY NAME], [PURPOSE], TBD, TODO, or similar brackets. If a fact is missing, omit that optional detail or phrase it as 'the date of this Agreement' / 'the parties' without brackets.",
     "HARD RULE — PARTY CONSISTENCY: Never introduce alternate company names. Use only the DEAL IDENTITY LOCK parties above.",
     "Cross-references: write them in prose (e.g. 'as defined in the Definitions section') — never leave [[SEC:...]] tokens in the output.",
@@ -70,6 +74,9 @@ export async function draftSection(state: DraftState, unit: WorkUnit): Promise<D
   }
 
   const body = outcome.text.trim();
+  const approved = (state.retrieval.fallbackClauses ?? []).filter(
+    (c) => unit.clauseTypes.includes(c.clauseType) && c.isApproved
+  );
   const provenance =
     approved.length > 0
       ? approved.map((c) => {
@@ -83,7 +90,6 @@ export async function draftSection(state: DraftState, unit: WorkUnit): Promise<D
         })
       : [{ spanStart: 0, spanEnd: body.length, source: "generated" as const }];
 
-  // Extract defined terms, but never overwrite locked deal-identity keys.
   const glossaryAdds: Record<string, string> = {};
   const locked = new Set(Object.keys(identity?.glossary ?? {}));
   const termRe = /["“]([^"”]{2,60})["”]\s+means\s+/gi;

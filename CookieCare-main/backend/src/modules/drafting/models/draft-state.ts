@@ -34,6 +34,16 @@ export interface Clause {
   jurisdiction: string;
   riskLevel: "Low" | "Medium" | "High";
   isApproved: boolean;
+  /** Provenance — where this clause text came from. */
+  source?:
+    | "company_playbook"
+    | "company_template"
+    | "approved_clause_library"
+    | "clause_catalog"
+    | "library_items"
+    | "skill_default"
+    | "generic_fallback";
+  wasFallback?: boolean;
 }
 
 export interface PlaybookRule {
@@ -131,12 +141,19 @@ export interface DraftState {
     payloadFields?: { documentId: string };
     /** Optional vault / library template id for CREATE. */
     vaultDocumentId?: string | null;
+    /** Alias / preferred template asset id (same as vault when set from UI). */
     templateId?: string;
+    /** Selected library playbook / rulebook id. */
+    playbookId?: string | null;
+    /** Selected clause catalog / library ids. */
+    clauseIds?: string[];
     /** Optional counterparty / source agreement text for CREATE. */
     sourceText?: string;
     highlightedText?: string;
   };
   requirements: RequirementContext | null;
+  /** Assembled once in PLAN — skill briefs + retrieved assets for ACT/CRITIQUE. */
+  draftingContext?: import("./drafting-context.js").DraftingContext;
   retrieval: {
     matchedTemplate: string | null;
     applicablePlaybookRules: PlaybookRule[];
@@ -144,6 +161,11 @@ export interface DraftState {
     historicalReferences: ReferenceSnippet[];
     templateSource?: "vault" | "default_type" | "source_upload" | "none";
     clauseSource?: "library_items" | "clause_catalog" | "hardcoded_fallback" | "none";
+    /** Resolved asset ids (provenance for logs / DraftingContext). */
+    templateId?: string | null;
+    playbookId?: string | null;
+    /** Exact-ID misses — never silently invent unrelated assets. */
+    misses?: Array<{ asset: "template" | "playbook" | "clause"; id: string; reason: string }>;
   };
   context: {
     systemPrompt: string;

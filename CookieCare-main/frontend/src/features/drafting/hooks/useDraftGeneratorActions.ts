@@ -14,6 +14,9 @@ type DraftRequestPayload = {
   draftInstructions: string;
   uploadedDocument?: string | null;
   documentId?: string | null;
+  templateId?: string | null;
+  playbookId?: string | null;
+  clauseIds?: string[];
 };
 
 type RefineRequestPayload = {
@@ -31,14 +34,24 @@ type DraftUiState = {
   aiRulebookPrompt: string;
   sourceDocumentId: string;
   documentId?: string | null;
+  templateId?: string | null;
+  playbookId?: string | null;
+  clauseIds?: string[];
 };
 
 /** Unified PAC CREATE payload — optional upload / vault / prompt-only. No modes. */
 function buildGenerateStreamPayload(uiState: DraftUiState): DraftRequestPayload {
   const hasUpload = Boolean(uiState.sourceDocumentId?.trim());
-  const hasVault = Boolean(uiState.documentId);
+  const hasVault = Boolean(uiState.documentId || uiState.templateId);
   const isProactiveUi =
     uiState.mode === "Advanced" && uiState.advancedStep === "proactive";
+  const templateId = uiState.templateId ?? uiState.documentId ?? null;
+  const assetIds = {
+    templateId,
+    documentId: templateId,
+    playbookId: uiState.playbookId ?? null,
+    clauseIds: uiState.clauseIds?.length ? uiState.clauseIds : undefined,
+  };
 
   if (hasUpload) {
     return {
@@ -46,7 +59,7 @@ function buildGenerateStreamPayload(uiState: DraftUiState): DraftRequestPayload 
       draftInstructions:
         uiState.instructions || uiState.playbookGuidelines || "",
       uploadedDocument: uiState.sourceDocumentId,
-      documentId: hasVault ? uiState.documentId : null,
+      ...assetIds,
     };
   }
 
@@ -58,13 +71,14 @@ function buildGenerateStreamPayload(uiState: DraftUiState): DraftRequestPayload 
     return {
       draftInput,
       draftInstructions: uiState.aiRulebookPrompt || uiState.playbookGuidelines || "",
-      documentId: uiState.documentId ?? null,
+      ...assetIds,
     };
   }
 
   return {
     draftInput: uiState.instructions,
     draftInstructions: uiState.playbookGuidelines || "",
+    ...assetIds,
   };
 }
 
@@ -318,6 +332,9 @@ export function useDraftGeneratorActions({
     uploadText: string;
     sourceDocumentId: string;
     documentId?: string | null;
+    templateId?: string | null;
+    playbookId?: string | null;
+    clauseIds?: string[];
   }) => {
     setIsStreaming(true);
     reportProgress("Initiating drafting pipeline...");
@@ -348,6 +365,9 @@ export function useDraftGeneratorActions({
         aiRulebookPrompt: params.aiRulebookPrompt,
         sourceDocumentId: params.sourceDocumentId,
         documentId: params.documentId,
+        templateId: params.templateId ?? params.documentId,
+        playbookId: params.playbookId,
+        clauseIds: params.clauseIds,
       });
     } catch (validationErr: any) {
       setIsStreaming(false);

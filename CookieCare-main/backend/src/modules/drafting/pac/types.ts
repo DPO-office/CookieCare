@@ -9,7 +9,8 @@ export type StoppedReason =
   | "max_turns"
   | "budget_exceeded"
   | "awaiting_user"
-  | "blocked";
+  | "blocked"
+  | "critique_cap";
 
 export interface UserQuestion {
   id: string;
