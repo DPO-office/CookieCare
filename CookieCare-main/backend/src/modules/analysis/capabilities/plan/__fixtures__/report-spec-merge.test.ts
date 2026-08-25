@@ -15,8 +15,10 @@ describe("report spec merge from authored packages", () => {
       depth: "standard",
       packages: [pkg],
     });
-    assert.ok(merged.sections.includes("requirements_detail"));
+    assert.ok(merged.sections.includes("key_findings"));
+    assert.ok(merged.sections.includes("executive_summary"));
     assert.ok(!merged.sections.includes("chapeau_particulars"));
+    assert.ok(!merged.sections.includes("requirements_matrix"));
     assert.ok((merged.outlineExtras?.length ?? 0) >= 3);
   });
 
@@ -71,7 +73,9 @@ describe("report spec merge from authored packages", () => {
       depth: "standard",
       packages,
     });
-    assert.ok(merged.sections.includes("chapeau_particulars"));
+    assert.ok(merged.sections.includes("requirements_matrix"));
+    assert.ok(merged.sections.includes("executive_summary"));
+    assert.ok(!merged.sections.includes("recommendations"));
     const headings = (merged.outlineExtras ?? []).map((e) => e.heading);
     assert.ok(headings.some((h) => /particulars/i.test(h)));
     assert.ok(headings.some((h) => /mandatory/i.test(h)));
@@ -89,8 +93,9 @@ describe("report spec merge from authored packages", () => {
       packages: [pkg],
     });
     assert.deepEqual(merged.sections, [
-      "scope",
-      "requirements_detail",
+      "executive_summary",
+      "key_findings",
+      "material_gaps",
       "recommendations",
       "conclusion",
     ]);

@@ -6,6 +6,7 @@ import {
 import type { AnalysisState } from "../../models/analysis-state.js";
 import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
 import type { Finding, MatrixAddressing } from "../../models/finding.js";
+import type { AnalysisArtifact } from "../../models/evidence-package.js";
 import type { SegmentedDocument } from "../../models/document-workspace.js";
 import type { RuleSourceTier } from "../../models/rule-source.js";
 import type { ReportSpec } from "../../models/intent.js";
@@ -14,6 +15,7 @@ import { getSkillById } from "../../skills/runtime/catalog/registry.js";
 import { extractArticleNumbers } from "../../skills/runtime/focus/extract-instruction-focus.js";
 import { emitAnalysisToken } from "../../utils/stream-tokens.js";
 import { synthesizeReport } from "./synthesize-report.js";
+import { applyFinalizedReportSpec, finalizeReportSpec } from "./finalize-report-spec.js";
 import { enforceConclusionSectionLast } from "../../prompts/report-sections.js";
 import { pacLog } from "../../utils/pac-log.js";
 import { profileThinkingLevel } from "../../utils/profile-thinking.js";
@@ -57,14 +59,6 @@ function plainDescriptionForArticle(
   return `This article sets an obligation relevant to Article ${article}.`;
 }
 
-function resolveReportSpec(state: AnalysisState, schemaId: string): ReportSpec {
-  const spec = state.plan?.reportSpec;
-  if (spec) return spec;
-  throw new Error(
-    `Missing ReportSpec on analysis plan (schemaId=${schemaId}). PLAN must author report structure before render.`
-  );
-}
-
 const ADDRESSING_LABEL: Record<MatrixAddressing, string> = {
   named: "Named",
   generic: "Generic",
@@ -86,9 +80,22 @@ export async function renderOutput(
 ): Promise<AnalysisState> {
   const schemaId = String(unit.input.schemaId ?? "checklist");
   const skillIds = (unit.input.skillIds as string[]) ?? state.activeSkillIds ?? [];
-  const primarySkill = skillIds[0] ? getSkillById(skillIds[0]) : undefined;
-  const visible = consolidateFindingsForRender(
+  const primarySkill = titleSkillForRender(state, skillIds);
+  let visible = consolidateFindingsForRender(
     findings.filter((f) => f.visibility !== "internal")
+  );
+  visible = filterFindingsForMatrixFocus(visible, state);
+  state = attachRightsMatrixTableArtifact(
+    {
+      ...state,
+      findings: visible,
+      requirementAssessments: filterAssessmentsForMatrixFocus(
+        state.requirementAssessments ?? [],
+        visible,
+        state
+      ),
+    },
+    visible
   );
 
   const assessments = state.requirementAssessments ?? [];
@@ -101,8 +108,9 @@ export async function renderOutput(
     !wantsRequirementsDetail;
   const forceSynthesisFromSpec =
     schemaId === "brief_summary" && Boolean(wantsRequirementsDetail);
+  const matrixFindingsExist = visible.some((f) => Boolean(f.matrixRowId));
   const usesSynthesis =
-    (assessments.length > 0 || forceSynthesisFromSpec) &&
+    (assessments.length > 0 || forceSynthesisFromSpec || matrixFindingsExist) &&
     schemaId !== "rights_matrix_memo" &&
     schemaId !== "playbook_comparison_memo" &&
     !briefSummaryIsArticleQuickRef;
@@ -118,11 +126,15 @@ export async function renderOutput(
   let rendered: string;
   if (usesSynthesis) {
     const synthStarted = Date.now();
-    const spec = resolveReportSpec(state, schemaId);
+    const spec = finalizeReportSpec(state);
+    state = applyFinalizedReportSpec(state, spec);
+    const retrySectionIds = Array.isArray(unit.input.retrySectionIds)
+      ? (unit.input.retrySectionIds as string[])
+      : [];
     if (presentation === "individual" && targetDocs.length > 1) {
       rendered = await synthesizeIndividualReports(state, visible, spec, targetDocs);
     } else {
-      rendered = await synthesizeReport(state, visible, spec);
+      rendered = await synthesizeReport(state, visible, spec, { retrySectionIds });
     }
     pacLog("render synthesis", {
       ms: Date.now() - synthStarted,
@@ -257,6 +269,139 @@ export function consolidateFindingsForRender(findings: Finding[]): Finding[] {
   }
 
   return passthrough;
+}
+
+export function buildRightsMatrixTableMarkdown(
+  state: AnalysisState,
+  findings: Finding[]
+): string {
+  const citations = createCitationRegistry(state, findings);
+  const matrix = findings.filter(
+    (f) => f.matrixRowId && findingTier(f) === "B" && !f.unverified && !f.orgPlaybook
+  );
+  const rows = state.activeSkills?.flatMap((s) => s.rightsMatrixRows ?? []) ?? [];
+  const timeframeGaps = crossCuttingTimeframeFindings(findings, state);
+  if (matrix.length === 0) {
+    return "_No matrix-row findings were emitted._";
+  }
+  const lines = ["| Right | Article | Addressed? | Gap |", "|---|---|---|---|"];
+  for (const f of matrix) {
+    const meta = rows.find((r) => r.rowId === f.matrixRowId);
+    const right = meta?.label ?? f.matrixRowId ?? "—";
+    const article = meta?.article ?? "—";
+    const articleNum = Number(String(article).match(/\d+/)?.[0]);
+    const addressed =
+      f.status === "not_covered"
+        ? "Not yet supported"
+        : f.status === "insufficient_evidence"
+          ? "Insufficient evidence"
+          : f.matrixAddressing
+            ? ADDRESSING_LABEL[f.matrixAddressing]
+            : f.status === "absent_expected"
+              ? "Absent"
+              : "Named";
+    const gap = matrixGapCell(state, findings, f, articleNum, timeframeGaps, citations);
+    lines.push(`| ${right} | ${article} | ${addressed} | ${gap} |`);
+  }
+  return lines.join("\n");
+}
+
+export function filterFindingsForMatrixFocus(
+  findings: Finding[],
+  state: AnalysisState
+): Finding[] {
+  const matrixIds = state.plan?.focus?.matrixRowIds ?? [];
+  if (matrixIds.length === 0) return findings;
+  const structuralIds = new Set(
+    (state.activeSkills ?? [])
+      .flatMap((s) => s.evidencePackages ?? [])
+      .filter(
+        (pkg) =>
+          pkg.orchestration?.role === "structural_review" ||
+          pkg.orchestration?.suppressWhenMatrixFocus === true
+      )
+      .map((pkg) => pkg.id)
+  );
+  const leftoverRules = new Set(state.plan?.focus?.ruleIds ?? []);
+  const mappedReqIds = new Set(
+    (state.plan?.focus?.requirementMappings ?? [])
+      .filter((mapping) =>
+        mapping.capabilityIds.some(
+          (id) => matrixIds.includes(id) || leftoverRules.has(id)
+        )
+      )
+      .map((mapping) => mapping.requirementId)
+  );
+  return findings.filter((finding) => {
+    if (finding.packageId && structuralIds.has(finding.packageId)) return false;
+    if (finding.workUnitId) {
+      for (const id of structuralIds) {
+        if (finding.workUnitId.includes(id)) return false;
+      }
+    }
+    if (finding.matrixRowId) return matrixIds.includes(finding.matrixRowId);
+    if (finding.requirementId && mappedReqIds.has(finding.requirementId)) {
+      return true;
+    }
+    if (finding.ruleId && leftoverRules.has(finding.ruleId)) return true;
+    if (finding.kind === "risk" && finding.visibility !== "internal") return true;
+    if (finding.kind === "summary_point") return true;
+    return false;
+  });
+}
+
+export function filterAssessmentsForMatrixFocus(
+  assessments: NonNullable<AnalysisState["requirementAssessments"]>,
+  findings: Finding[],
+  state: AnalysisState
+): NonNullable<AnalysisState["requirementAssessments"]> {
+  if (!(state.plan?.focus?.matrixRowIds?.length)) return assessments;
+  const keptFindingIds = new Set(findings.map((f) => f.findingId));
+  const keptReqIds = new Set(
+    findings.map((f) => f.requirementId).filter((id): id is string => Boolean(id))
+  );
+  return assessments.filter((assessment) => {
+    if (keptReqIds.has(assessment.requirementId)) return true;
+    return assessment.supportingFindingIds.some((id) => keptFindingIds.has(id));
+  });
+}
+
+function attachRightsMatrixTableArtifact(
+  state: AnalysisState,
+  findings: Finding[]
+): AnalysisState {
+  if (!(state.plan?.focus?.matrixRowIds?.length)) return state;
+  const ownerId =
+    (state.activeSkills ?? [])
+      .flatMap((s) => s.evidencePackages ?? [])
+      .find((pkg) => pkg.orchestration?.role === "matrix_owner")?.id ??
+    "rights_matrix";
+  const artifact: AnalysisArtifact = {
+    id: "rights_matrix_table",
+    type: "rights_matrix_table",
+    packageId: ownerId,
+    sourceFindingIds: findings.filter((f) => f.matrixRowId).map((f) => f.findingId),
+    data: { markdown: buildRightsMatrixTableMarkdown(state, findings) },
+  };
+  return {
+    ...state,
+    analysisArtifacts: {
+      ...(state.analysisArtifacts ?? {}),
+      [artifact.id]: artifact,
+    },
+  };
+}
+
+function titleSkillForRender(state: AnalysisState, skillIds: string[]) {
+  const active = state.activeSkills ?? [];
+  return (
+    active.find((s) => s.axis === "regime") ??
+    active.find((s) => s.axis === "doc-type") ??
+    skillIds
+      .map((id) => getSkillById(id))
+      .find((s) => s && s.skillId !== "_global") ??
+    (skillIds[0] ? getSkillById(skillIds[0]) : undefined)
+  );
 }
 
 function consolidationKey(finding: Finding): string | null {
@@ -652,37 +797,9 @@ function buildRightsMatrixSections(
   lines.push("## 1. Architecture / Obligations Summary", "");
   lines.push(architectureParagraph(state, findings, citations), "");
 
-  const matrix = findings.filter(
-    (f) => f.matrixRowId && findingTier(f) === "B" && !f.unverified && !f.orgPlaybook
-  );
-  const rows = state.activeSkills?.flatMap((s) => s.rightsMatrixRows ?? []) ?? [];
-  const timeframeGaps = crossCuttingTimeframeFindings(findings, state);
+  const matrixTable = buildRightsMatrixTableMarkdown(state, findings);
   lines.push("## 2. Rights Matrix / Mapping", "");
-  if (matrix.length === 0) {
-    lines.push("_No matrix-row findings were emitted._", "");
-  } else {
-    lines.push("| Right | Article | Addressed? | Gap |");
-    lines.push("|---|---|---|---|");
-    for (const f of matrix) {
-      const meta = rows.find((r) => r.rowId === f.matrixRowId);
-      const right = meta?.label ?? f.matrixRowId ?? "—";
-      const article = meta?.article ?? "—";
-      const articleNum = Number(String(article).match(/\d+/)?.[0]);
-      const addressed =
-        f.status === "not_covered"
-          ? "Not yet supported"
-          : f.status === "insufficient_evidence"
-          ? "Insufficient evidence"
-          : f.matrixAddressing
-          ? ADDRESSING_LABEL[f.matrixAddressing]
-          : f.status === "absent_expected"
-            ? "Absent"
-            : "Named";
-      const gap = matrixGapCell(state, findings, f, articleNum, timeframeGaps, citations);
-      lines.push(`| ${right} | ${article} | ${addressed} | ${gap} |`);
-    }
-    lines.push("");
-  }
+  lines.push(matrixTable, "");
 
   const budgetExhausted = Object.values(state.workUnitOutcomes ?? {}).some(
     (o) =>

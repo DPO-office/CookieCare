@@ -11,6 +11,12 @@ import {
 } from "./policy.js";
 
 /**
+ * Temporary kill switch: ACT → DONE for every analysis type (no CRITIQUE /
+ * redo / replan loops). Flip to false to restore critique.
+ */
+export const CRITIQUE_PAUSED = true;
+
+/**
  * Pure phase transition table. Unit-testable with fixture states and zero LLM calls.
  */
 export function nextPhaseAfterPlan(state: AnalysisState): Phase {
@@ -30,7 +36,7 @@ export function nextPhaseAfterAsk(
 
 export function nextPhaseAfterAct(state: AnalysisState): Phase {
   if (isMaxTurnsReached(state) || isBudgetExceeded(state)) return "DONE";
-  if (state.plan?.skipCritique) return "DONE";
+  if (CRITIQUE_PAUSED || state.plan?.skipCritique) return "DONE";
   return "CRITIQUE";
 }
 

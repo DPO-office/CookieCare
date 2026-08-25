@@ -60,13 +60,15 @@ export interface SelectRendererInput {
   hasReference: boolean;
   hasMatrixFocus: boolean;
   requirementCount?: number;
+  outputForm?: IntentClassification["outputForm"];
 }
 
 export function selectRenderer(
   input: SelectRendererInput
 ): BuildActGraphResult["rendererSchemaId"] {
   if (input.hasReference) return "playbook_comparison_memo";
-  if (input.hasMatrixFocus) return "rights_matrix_memo";
+  if (input.outputForm === "brief_summary") return "brief_summary";
+  if (input.hasMatrixFocus) return "memo";
   const reportType = input.reportSpec?.reportType ?? "regime_compliance_memo";
   if (reportType === "qa_answer") return "qa_thread";
   if (reportType === "extraction_table") return "table";
@@ -186,6 +188,7 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
     hasReference: Boolean(referenceDocId),
     hasMatrixFocus: Boolean(focus?.matrixRowIds.length),
     requirementCount: intent.requirements?.length,
+    outputForm: intent.outputForm,
   });
   const subIntents = effectiveSubIntents(intent);
 
@@ -427,7 +430,10 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
   // gate aggregation so it sees the complete finding set.
   let renderDeps: string[];
   const needsAggregate =
-    usePackages || skipLegacySubgraph || packageResolution.requirementPaths.some((p) => p.status === "not_supported");
+    usePackages ||
+    skipLegacySubgraph ||
+    packageResolution.requirementPaths.some((p) => p.status === "not_supported") ||
+    packageResolution.leftoverMatrixRowIds.length > 0;
   if (needsAggregate) {
     const deriveDeps = packageEvalLeaves.length > 0 ? packageEvalLeaves : ["wu-extract"];
     units.push({

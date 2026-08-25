@@ -1,7 +1,11 @@
 export {
   SYNTHESIS_SYSTEM_PROMPT,
+  SYNTHESIS_SECTION_SYSTEM_PROMPT,
   SYNTHESIS_SECTION_LABELS,
   buildSynthesisUserPrompt,
+  buildSectionSynthesisUserPrompt,
+  synthesisSectionSystemPrompt,
+  isTabularAnswerStyle,
 } from "./synthesis.js";
 export {
   EVALUATE_PACKAGE_SYSTEM_PROMPT,

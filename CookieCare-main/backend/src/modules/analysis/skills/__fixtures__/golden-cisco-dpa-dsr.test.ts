@@ -75,7 +75,7 @@ describe("golden cisco-dpa-dsr skills baseline", () => {
     assert.ok(focus!.matrixRowIds.includes("gdpr.right.automated_decisions"));
   });
 
-  it("builds rights_matrix_memo graph with shared extract + matrix rows", async () => {
+  it("builds memo graph with shared extract + matrix rows", async () => {
     const selection = selectSkills({
       instruction: DSR_INSTRUCTION,
       docType: "dpa",
@@ -90,21 +90,26 @@ describe("golden cisco-dpa-dsr skills baseline", () => {
       focus,
     });
 
-    assert.equal(graph.rendererSchemaId, "rights_matrix_memo");
+    assert.equal(graph.rendererSchemaId, "memo");
     const tools = graph.workUnits.map((u) => u.tool);
     assert.equal(tools.filter((t) => t === "extract_clauses").length, 1, "single shared extract");
-    assert.ok(tools.includes("check_against_rule"));
     assert.ok(tools.includes("evaluate_matrix_row"));
     assert.ok(tools.includes("render_output"));
 
     const ruleIds = graph.workUnits
       .filter((u) => u.tool === "check_against_rule")
       .map((u) => String(u.input.ruleId));
-    assert.ok(ruleIds.includes("gdpr.art28.3.e"));
+    assert.equal(ruleIds.includes("gdpr.art15"), false);
+    assert.equal(ruleIds.includes("gdpr.art28.3.e"), false);
     assert.ok(ruleIds.includes("gdpr.art12.3"));
 
     const matrixRows = graph.workUnits.filter((u) => u.tool === "evaluate_matrix_row");
     assert.equal(matrixRows.length, 8);
+    assert.equal(
+      graph.workUnits.filter((unit) => unit.tool === "evaluate_package").length,
+      0,
+      "matrix focus must not schedule a structural or matrix-owner package eval"
+    );
   });
 
   it("keeps evaluate_matrix_row when the rights-matrix package is also selected", async () => {

@@ -131,7 +131,7 @@ describe("urgent Analysis ACT output regressions", () => {
     const ruleIds = graph.workUnits
       .filter((unit) => unit.tool === "check_against_rule")
       .map((unit) => String(unit.input.ruleId));
-    assert.deepEqual(ruleIds.sort(), ["gdpr.art12.3", "gdpr.art28.3.e"].sort());
+    assert.deepEqual(ruleIds.sort(), ["gdpr.art12.3"]);
     assert.ok(!ruleIds.some((ruleId) => /^gdpr\.art(?:5|6|7|8|9|10|11|13|14|24)/.test(ruleId)));
     assert.equal(
       graph.workUnits.filter((unit) => unit.tool === "evaluate_matrix_row").length,
@@ -172,7 +172,7 @@ describe("urgent Analysis ACT output regressions", () => {
     const ruleIds = graph.workUnits
       .filter((unit) => unit.tool === "check_against_rule")
       .map((unit) => String(unit.input.ruleId));
-    assert.deepEqual(ruleIds.sort(), ["gdpr.art12.3", "gdpr.art28.3.e"].sort());
+    assert.deepEqual(ruleIds.sort(), ["gdpr.art12.3"]);
     assert.equal(
       graph.workUnits.filter((unit) => unit.tool === "evaluate_matrix_row").length,
       8

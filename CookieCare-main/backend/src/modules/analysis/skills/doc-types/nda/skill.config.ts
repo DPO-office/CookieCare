@@ -203,33 +203,42 @@ export const ndaDocTypeSkill: AnalysisSkillConfig = {
       requirementKinds: ["adequacy", "verification"],
       packageVersion: "0.1.0",
       label: "NDA structural review",
+      orchestration: {
+        role: "structural_review",
+        suppressWhenMatrixFocus: true,
+      },
       report: {
         sections: [
-          "scope",
-          "requirements_detail",
-          "qualifications",
+          "executive_summary",
+          "key_findings",
+          "material_gaps",
           "recommendations",
           "conclusion",
         ],
         outlineExtras: [
           {
             heading: "Confidentiality",
+            sectionId: "key_findings",
             requirementTags: ["nda.confidentiality_definition", "nda.purpose_limitation"],
           },
           {
             heading: "Disclosures",
+            sectionId: "key_findings",
             requirementTags: ["nda.nlra_section_7"],
           },
           {
             heading: "Term and survival",
+            sectionId: "key_findings",
             requirementTags: ["nda.term_and_survival"],
           },
           {
             heading: "Return and destruction",
+            sectionId: "key_findings",
             requirementTags: ["nda.return_or_destruction"],
           },
           {
             heading: "Remedies and governing law",
+            sectionId: "key_findings",
             requirementTags: ["nda.governing_law"],
           },
         ],

@@ -33,7 +33,8 @@ const LITE_PROFILE: AnalysisProfile = {
   },
   critiqueUsesProChecklist: false,
   synthesisCeilingFactor: 1,
-  synthesisHardCap: 2800,
+  /** Per-section synthesis hard cap (sections are generated independently). */
+  synthesisHardCap: 3600,
 };
 
 const DEEP_PROFILE: AnalysisProfile = {
@@ -50,7 +51,8 @@ const DEEP_PROFILE: AnalysisProfile = {
   },
   critiqueUsesProChecklist: true,
   synthesisCeilingFactor: 1.75,
-  synthesisHardCap: 4800,
+  /** Per-section synthesis hard cap (sections are generated independently). */
+  synthesisHardCap: 6400,
 };
 
 /** API / UI default when the field is omitted. */

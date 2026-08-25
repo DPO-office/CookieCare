@@ -66,6 +66,7 @@ function findingsForResult(
     taxonomyVersion: RISK_TAXONOMY_VERSION,
     workUnitId: ctx.unit.workUnitId,
     skillId: ctx.skillId,
+    packageId: ctx.packageId,
     visibility: "user_facing" as const,
     ruleSourceTier: tier,
     requirementId: result.requirementId,
@@ -148,6 +149,7 @@ function shouldTreatMissingAsIndeterminate(
   result: GroupedRequirementResult,
   ctx: ConvertContext
 ): boolean {
+  if (citedEvidenceTruncated(result, ctx)) return true;
   const text = `${result.rationale} ${result.gap ?? ""}`;
   if (
     /\b(referenced (?:in|to|elsewhere)|incorporated by reference|see (?:the )?(?:annex|schedule|appendix|exhibit|sow)|cannot (?:be )?(?:fully )?verif)/i.test(
@@ -157,6 +159,18 @@ function shouldTreatMissingAsIndeterminate(
     return true;
   }
   return bundleHasReferencedElsewhere(result.evidenceRefs, ctx);
+}
+
+function citedEvidenceTruncated(
+  result: GroupedRequirementResult,
+  ctx: ConvertContext
+): boolean {
+  if (!ctx.bundle) return false;
+  const items =
+    result.evidenceRefs.length > 0
+      ? ctx.bundle.items.filter((item) => result.evidenceRefs.includes(item.ref))
+      : ctx.bundle.items;
+  return items.some((item) => item.truncated);
 }
 
 function bundleHasReferencedElsewhere(

@@ -305,7 +305,9 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     })
   );
   const graph = replicateGraphForTargets(graphs);
-  const packageList = graph.packageResolution.packages.map((item) => item.pkg);
+  const packageList =
+    graph.packageResolution.reportPackages ??
+    graph.packageResolution.packages.map((item) => item.pkg);
   const merged = resolveReportSpecFromPackages({
     intent,
     instruction: state.request.instruction,
@@ -360,6 +362,8 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     missingClarifications: [],
     outputForm: reportTypeToOutputForm(reportSpec.reportType),
     documentPresentation: intent.documentPresentation,
+    // Pause CRITIQUE for all analysis types (ACT → DONE). See CRITIQUE_PAUSED.
+    skipCritique: true,
     reportSpec,
     rendererSchemaId: graph.rendererSchemaId,
     activeSkillIds: skills.map((s) => s.skillId),
@@ -473,6 +477,7 @@ function emptyPlan(
     missingClarifications: missing,
     outputForm: intent.outputForm,
     documentPresentation: intent.documentPresentation,
+    skipCritique: true,
     rendererSchemaId: "checklist",
     pinnedVersions: {
       clauseTaxonomyVersion: CLAUSE_TAXONOMY_VERSION,

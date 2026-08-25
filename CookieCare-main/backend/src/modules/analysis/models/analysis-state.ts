@@ -1,7 +1,7 @@
 import type { AgentRunState, EntryMode } from "../pac/types.js";
 import type { AnalysisProfile, ThinkingMode } from "../pac/analysis-profile.js";
 import type { AnalysisPlan, MissingClarification, PlanAuditRecord } from "./analysis-plan.js";
-import type { CritiqueReport } from "./critique-report.js";
+import type { CritiqueReport, FixItem } from "./critique-report.js";
 import type { AnalysisConversation } from "./conversation.js";
 import type { AnalysisWorkspace } from "./document-workspace.js";
 import type { Finding } from "./finding.js";
@@ -37,6 +37,13 @@ export interface SynthesisMeta {
   depth: ReportSpec["depth"];
 }
 
+/** One generated report section, stored for assemble and targeted regen. */
+export interface ReportSectionBlock {
+  id: string;
+  heading: string;
+  markdown: string;
+}
+
 export interface AnalysisHistoryEntry {
   version: number;
   actor: "user" | "model" | "controller" | "validator";
@@ -58,15 +65,7 @@ export interface PriorAnalysisSnapshot {
 }
 
 export interface AnalysisFixPlan {
-  items: Array<{
-    workUnitId: string;
-    instruction: string;
-    sourceItemId: string;
-    requirementId?: string;
-    findingId?: string;
-    previousAttemptFeedback?: string;
-    attemptNumber?: number;
-  }>;
+  items: FixItem[];
   targetedOnly: boolean;
 }
 
@@ -86,6 +85,8 @@ export interface AnalysisState {
   repairContext?: RepairContext | null;
   /** Last synthesizeReport outcome — critique uses truncation for render-only redo. */
   synthesisMeta?: SynthesisMeta | null;
+  /** Per-section synthesis blocks for assemble and targeted regen. */
+  reportSections?: ReportSectionBlock[];
   organizationId?: string;
 
   request: {

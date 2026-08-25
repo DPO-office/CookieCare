@@ -202,4 +202,28 @@ describe("per-requirement aggregation", () => {
     assert.equal(byId.get("nda.survival")?.status, "cannot_determine");
     assert.deepEqual(byId.get("nda.survival")?.supportingFindingIds, []);
   });
+
+  it("recommends Obtain/Confirm, not Amend, when evidence is only insufficient", () => {
+    const findings: Finding[] = [
+      {
+        findingId: "f_cd",
+        kind: "compliance",
+        category: "processor_terms",
+        status: "insufficient_evidence",
+        claim: "Confidentiality remainder was truncated.",
+        evidence: [],
+        taxonomyVersion: "test",
+        requirementId: "gdpr.art28.3.b",
+      },
+    ];
+    const result = aggregateRequirements(
+      { findings } as unknown as AnalysisState,
+      { workUnitId: "wu-aggregate", input: {} } as never,
+      findings
+    );
+    const assessment = result.state.requirementAssessments?.[0];
+    assert.equal(assessment?.status, "cannot_determine");
+    assert.match(assessment?.recommendation ?? "", /Obtain or confirm/i);
+    assert.doesNotMatch(assessment?.recommendation ?? "", /\bAmend\b/);
+  });
 });

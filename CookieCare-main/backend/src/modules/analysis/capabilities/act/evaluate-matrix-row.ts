@@ -37,6 +37,10 @@ type MatrixJudgment = {
 /**
  * Evaluate one rights-matrix row against extracted clauses.
  */
+export const MATRIX_ROW_MAX_OUTPUT_TOKENS = 1200;
+
+export const MATRIX_ROW_SYSTEM_INSTRUCTION =
+  "Map one rights-matrix row to contract text. Return a short claim, gap, and justification only — no essay and no clause paste beyond quotedText. Do not invent clauses. Force a justified Named/Generic/Absent choice.";
 export async function evaluateMatrixRow(
   state: AnalysisState,
   unit: AnalysisWorkUnit,
@@ -129,11 +133,11 @@ async function _evaluateMatrixRowImpl(
         matrixSection,
         clauses,
       }),
-      "You map one rights-matrix row to contract text. Do not invent clauses. Force a justified Named/Generic/Absent choice.",
+      MATRIX_ROW_SYSTEM_INSTRUCTION,
       schema,
       LLMTask.STRUCTURAL_JSON,
       LLMProvider.GEMINI,
-      tracker
+      { tracker, maxOutputTokens: MATRIX_ROW_MAX_OUTPUT_TOKENS }
     );
   } catch (err) {
     console.warn("[evaluateMatrixRow] LLM failed:", err);
@@ -296,7 +300,7 @@ export function buildMatrixEvaluationPrompt(args: {
 }): string {
   const subject = matrixRowSubject(args.row);
   return [
-    `Evaluate how this agreement addresses ${subject}.`,
+    `Evaluate how this agreement addresses ${subject}. Keep claim, gap, implementationGap, and justification to at most two sentences each.`,
     `User instruction: ${args.instruction}`,
     args.previousAttemptFeedback,
     args.matrixSection
@@ -308,8 +312,8 @@ export function buildMatrixEvaluationPrompt(args: {
         ].join("\n"),
     "You MUST justify addressing against the Named vs Generic examples above — do not default to Generic without justification.",
     args.row.applicabilityGate?.llmGuidance ?? "",
-    "Even when addressing=named, set implementationGap to any operational shortfall the contract still has for this right (e.g. no numeric response timeframe, no machine-readable portability format, erasure only at termination, no Art 22 human-intervention/contest safeguards, no recipient-notification duty). Leave implementationGap empty only when the contract both names the right AND operationalises it.",
-    "When implementationGap is set, also set implementationSeverity (medium or high for material GDPR exposure).",
+    "Even when addressing=named, set implementationGap to any operational shortfall the contract still has for this right. Leave implementationGap empty only when the contract both names the right AND operationalises it.",
+    "When implementationGap is set, also set implementationSeverity (medium or high for material legal exposure).",
     "quotedText must be copied VERBATIM from a clause when addressing is named or generic.",
     `Clauses:\n${JSON.stringify(
       args.clauses.map((c) => ({

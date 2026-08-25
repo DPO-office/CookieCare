@@ -12,6 +12,10 @@ describe("LEGAL_MEMO_MARKDOWN_CRAFT", () => {
     assert.match(LEGAL_MEMO_MARKDOWN_CRAFT, /Status-led subheadings/);
     assert.match(LEGAL_MEMO_MARKDOWN_CRAFT, /No chatty closers/);
     assert.match(LEGAL_MEMO_MARKDOWN_CRAFT, /Let me know if you'd like/);
+    assert.match(
+      LEGAL_MEMO_MARKDOWN_CRAFT,
+      /Never use \*\*Amend\*\* for Cannot determine \/ insufficient \/ truncated evidence/
+    );
   });
 
   it("is wired into synthesis and narrative system prompts", () => {

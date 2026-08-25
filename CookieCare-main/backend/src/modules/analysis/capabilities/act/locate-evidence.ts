@@ -1,11 +1,16 @@
 import type { EvidenceStatus } from "../../models/clause-object.js";
 import type { DocumentSegment, SegmentedDocument } from "../../models/document-workspace.js";
+import type { SharedEvidenceItem } from "../../models/evidence-package.js";
 import type { AnalysisSkillConfig, ClauseRetrievalDict } from "../../skills/runtime/catalog/types.js";
 import { mergeClauseRetrievalMaps } from "../../skills/runtime/catalog/registry.js";
 
 const MAX_CANDIDATES_PER_TYPE = 5;
 const MIN_SCORE = 20;
-const MAX_CANDIDATE_CHARS = 2_400;
+/** Safety cap for one logical evidence unit — not a semantic clause boundary. */
+export const MAX_EVIDENCE_CHARS = 12_000;
+/** One bounded expansion round may send up to this much of the same unit. */
+export const MAX_EXPANDED_EVIDENCE_CHARS = 24_000;
+const MAX_MERGED_SIBLINGS = 24;
 
 const CROSS_REF_RE =
   /\b(?:set out|set forth|described|specified|detailed|contained|listed|as defined)\s+in\s+([^.;]{3,80})|\b(?:annex|schedule|exhibit|addendum|appendix|sow|statement of work)\s+[A-Z0-9][\w.-]*/gi;
@@ -19,6 +24,8 @@ export interface ClauseCandidate {
   text: string;
   matchReason: string;
   score: number;
+  truncated?: boolean;
+  logicalEndOffset?: number;
 }
 
 export interface ClauseLocatorResult {
@@ -183,7 +190,8 @@ function locateOneType(
   const scored: ClauseCandidate[] = [];
   const referenced = new Set<string>();
 
-  for (const section of sections) {
+  for (let index = 0; index < sections.length; index++) {
+    const section = sections[index]!;
     const headingNorm = normalize(section.headingText || section.title);
     const bodyNorm = normalize(section.text);
     let score = 0;
@@ -224,16 +232,18 @@ function locateOneType(
 
     if (score < MIN_SCORE) continue;
 
-    const span = clampSpan(doc, section.startOffset, section.endOffset);
+    const expanded = expandLogicalSection(sections, index, doc);
     scored.push({
       clauseType,
       segmentId: section.headingPath,
       sectionTitle: section.title,
-      startOffset: span[0],
-      endOffset: span[1],
-      text: doc.fullText.slice(span[0], span[1]).trim().slice(0, MAX_CANDIDATE_CHARS),
+      startOffset: expanded.startOffset,
+      endOffset: expanded.endOffset,
+      text: expanded.text,
       matchReason: reasons.join("; "),
       score,
+      truncated: expanded.truncated,
+      logicalEndOffset: expanded.logicalEndOffset,
     });
   }
 
@@ -300,6 +310,140 @@ function findReferencedElsewhere(
   return { refs: unique(refs), candidates };
 }
 
+export interface LogicalSectionSpan {
+  startOffset: number;
+  endOffset: number;
+  text: string;
+  truncated: boolean;
+  logicalEndOffset: number;
+  siblingCount: number;
+}
+
+/** Numbering prefix such as 3.6 / 3.6.1 from a heading or clause line. */
+export function headingNumberParts(headingText: string): number[] | null {
+  const trimmed = headingText.trim();
+  const labeled = trimmed.match(
+    /^(?:#{1,3}\s+)?(?:section|article|clause)\s+(\d+(?:\.\d+)*)\b/i
+  );
+  const bare = trimmed.match(/^(?:#{1,3}\s+)?(\d+(?:\.\d+)*)[.)]?(?:\s|$)/);
+  const raw = labeled?.[1] ?? bare?.[1];
+  if (!raw) return null;
+  return raw.split(".").map((n) => Number(n));
+}
+
+export function isChildNumber(parent: number[], child: number[]): boolean {
+  if (child.length <= parent.length) return false;
+  return parent.every((p, i) => child[i] === p);
+}
+
+/** Heading/alias hit with no body alias/anchor — likely only the section title was scored. */
+export function isHeadingOnlyMatch(matchReason?: string): boolean {
+  if (!matchReason) return false;
+  const hasHeading = /(^|;\s*)heading(-alias)?:/.test(matchReason);
+  const hasBody =
+    /(^|;\s*)alias:/.test(matchReason) || /(^|;\s*)anchor:/.test(matchReason);
+  return hasHeading && !hasBody;
+}
+
+/**
+ * Merge a numbered heading with following child sections until the next
+ * same-or-higher-level heading (3.6 + 3.6.1 + 3.6.2, stop at 3.7).
+ */
+export function expandLogicalSection(
+  sections: DocumentSection[],
+  startIndex: number,
+  doc: SegmentedDocument,
+  maxChars = MAX_EVIDENCE_CHARS
+): LogicalSectionSpan {
+  const start = sections[startIndex]!;
+  const parentParts =
+    headingNumberParts(start.headingText) || headingNumberParts(start.title);
+  let endOffset = start.endOffset;
+  let siblingCount = 1;
+  if (parentParts) {
+    for (
+      let i = startIndex + 1;
+      i < sections.length && siblingCount < MAX_MERGED_SIBLINGS;
+      i++
+    ) {
+      const next = sections[i]!;
+      const nextParts =
+        headingNumberParts(next.headingText) || headingNumberParts(next.title);
+      if (!nextParts || !isChildNumber(parentParts, nextParts)) break;
+      endOffset = next.endOffset;
+      siblingCount += 1;
+    }
+  }
+  const aligned = sliceAlignedEvidence(doc, start.startOffset, endOffset, maxChars);
+  return { ...aligned, siblingCount };
+}
+
+/**
+ * Rebuild a shared-evidence item from the complete logical section when the
+ * first pass was truncated or heading-only. Returns null when nothing new.
+ */
+export function expandSharedEvidenceItem(
+  doc: SegmentedDocument,
+  item: SharedEvidenceItem,
+  maxChars = MAX_EXPANDED_EVIDENCE_CHARS
+): SharedEvidenceItem | null {
+  const sections = groupDocumentSections(doc);
+  const idx = sections.findIndex(
+    (s) =>
+      s.headingPath === item.structuralPath ||
+      (s.startOffset <= item.charRange[0] && item.charRange[0] < s.endOffset)
+  );
+  const expanded =
+    idx >= 0
+      ? expandLogicalSection(sections, idx, doc, maxChars)
+      : sliceAlignedEvidence(
+          doc,
+          item.charRange[0],
+          item.logicalEndOffset ?? item.charRange[1],
+          maxChars
+        );
+  if (!expanded.text || expanded.text === item.quotedText) return null;
+  if (expanded.text.length <= item.quotedText.length) return null;
+  return {
+    ...item,
+    quotedText: expanded.text,
+    charRange: [expanded.startOffset, expanded.endOffset],
+    truncated: expanded.truncated,
+    logicalEndOffset: expanded.logicalEndOffset,
+  };
+}
+
+/** Clip evidence text to maxChars and keep charRange aligned with stored text. */
+export function sliceAlignedEvidence(
+  doc: SegmentedDocument,
+  start: number,
+  end: number,
+  maxChars: number
+): Omit<LogicalSectionSpan, "siblingCount"> {
+  const span = clampSpan(doc, start, end);
+  const raw = doc.fullText.slice(span[0], span[1]);
+  const lead = raw.match(/^\s*/)?.[0].length ?? 0;
+  const contentStart = span[0] + lead;
+  const content = raw.trim();
+  const logicalEndOffset = span[1];
+  if (content.length <= maxChars) {
+    return {
+      startOffset: contentStart,
+      endOffset: contentStart + content.length,
+      text: content,
+      truncated: false,
+      logicalEndOffset,
+    };
+  }
+  return {
+    startOffset: contentStart,
+    endOffset: contentStart + maxChars,
+    text: content.slice(0, maxChars),
+    truncated: true,
+    logicalEndOffset,
+  };
+}
+
 function clampSpan(
   doc: SegmentedDocument,
   start: number,
@@ -313,6 +457,19 @@ function clampSpan(
 function dedupeBySpan(candidates: ClauseCandidate[]): ClauseCandidate[] {
   const out: ClauseCandidate[] = [];
   for (const c of candidates) {
+    if (
+      out.some(
+        (o) => c.startOffset >= o.startOffset && c.endOffset <= o.endOffset
+      )
+    ) {
+      continue;
+    }
+    for (let i = out.length - 1; i >= 0; i--) {
+      const o = out[i]!;
+      if (o.startOffset >= c.startOffset && o.endOffset <= c.endOffset) {
+        out.splice(i, 1);
+      }
+    }
     const overlap = out.some(
       (o) =>
         o.segmentId === c.segmentId ||

@@ -1,4 +1,10 @@
-import type { ReportDepth, ReportSectionId, ReportType } from "../models/intent.js";
+import type {
+  ReportDepth,
+  ReportOutlineItem,
+  ReportSectionId,
+  ReportSectionRole,
+  ReportType,
+} from "../models/intent.js";
 import { LEGAL_MEMO_MARKDOWN_CRAFT } from "./memo-markdown-craft.js";
 
 /** Semantic role of each report section — guides the synthesis LLM, not a fixed template. */
@@ -18,7 +24,24 @@ export const REPORT_SECTION_DEFINITIONS: Record<ReportSectionId, ReportSectionDe
     suggestedHeading: "Scope",
     role:
       "Frame the review: what the user asked, which document(s) were reviewed, the legal framework, and material limits on what was in scope. Do not state the overall compliance verdict or bottom line here.",
-    headingPatterns: [/\bscope\b/i, /\breview scope\b/i, /\bdocuments reviewed\b/i],
+    headingPatterns: [
+      /\bscope\b/i,
+      /\breview scope\b/i,
+      /\bdocuments reviewed\b/i,
+      /\bexecutive summary\b/i,
+    ],
+  },
+  executive_summary: {
+    id: "executive_summary",
+    suggestedHeading: "Executive Summary",
+    role:
+      "Frame the review: what the user asked, which document(s) were reviewed, the legal framework, and material limits on what was in scope. Do not state the overall compliance verdict or bottom line here.",
+    headingPatterns: [
+      /\bexecutive summary\b/i,
+      /\bscope\b/i,
+      /\breview scope\b/i,
+      /\bdocuments reviewed\b/i,
+    ],
   },
   conclusion: {
     id: "conclusion",
@@ -30,6 +53,7 @@ export const REPORT_SECTION_DEFINITIONS: Record<ReportSectionId, ReportSectionDe
       /\bbottom line\b/i,
       /\boverall (assessment|position|finding)\b/i,
       /\bsummary conclusion\b/i,
+      /^##\s+answer\b/im,
     ],
   },
   scope_and_conclusion: {
@@ -41,10 +65,29 @@ export const REPORT_SECTION_DEFINITIONS: Record<ReportSectionId, ReportSectionDe
   },
   chapeau_particulars: {
     id: "chapeau_particulars",
-    suggestedHeading: "Chapeau particulars",
+    suggestedHeading: "Processing particulars",
     role:
-      "Assess the Article 28(3) chapeau particulars: subject matter, duration, nature and purpose, data categories, data subjects, and controller obligations.",
+      "Assess processing particulars: subject matter, duration, nature and purpose, data categories, data subjects, and controller obligations.",
     headingPatterns: [/\bchapeau particulars\b/i, /\bprocessing particulars\b/i],
+  },
+  requirements_matrix: {
+    id: "requirements_matrix",
+    suggestedHeading: "Requirements matrix",
+    role:
+      "Present the mapped requirements as a structured matrix or compact table of statuses with cited evidence. Do not write a second narrative of the same points later.",
+    headingPatterns: [/\brequirements matrix\b/i, /\bmatrix\b/i],
+  },
+  key_findings: {
+    id: "key_findings",
+    suggestedHeading: "Key findings",
+    role:
+      "The substantive analysis: key provisions or findings grounded in the assessments. This is where evidence and legal reasoning live.",
+    headingPatterns: [
+      /\bkey findings\b/i,
+      /\bkey provisions\b/i,
+      /\brequirements\b/i,
+      /\bfinding/i,
+    ],
   },
   requirements_detail: {
     id: "requirements_detail",
@@ -58,18 +101,38 @@ export const REPORT_SECTION_DEFINITIONS: Record<ReportSectionId, ReportSectionDe
       /\bassessment\b/i,
     ],
   },
+  material_gaps: {
+    id: "material_gaps",
+    suggestedHeading: "Material gaps",
+    role:
+      "Only the positive gaps: missing or partial obligations in the reviewed text. Do not restate cannot_determine items as legal gaps.",
+    headingPatterns: [/\bmaterial (gaps|issues)\b/i, /\bgaps\b/i],
+  },
+  risk_summary: {
+    id: "risk_summary",
+    suggestedHeading: "Risk summary",
+    role: "Summarize user-facing material risks only. Do not reprint the full analysis.",
+    headingPatterns: [/\brisk summary\b/i, /\brisks?\b/i],
+  },
   qualifications: {
     id: "qualifications",
     suggestedHeading: "Qualifications",
     role:
-      "Caveats that materially affect reliance on the analysis: annex/SOW dependencies, incomplete extraction, cross-references, and limits of the supplied materials.",
+      "Caveats that materially affect reliance on the analysis: annex/SOW dependencies, incomplete extraction, cross-references, and limits of the supplied materials. Do not repeat skill/package coverage limitations already in the appendix.",
     headingPatterns: [/\bqualifications\b/i, /\bcaveats\b/i, /\blimitations\b/i],
+  },
+  limitations: {
+    id: "limitations",
+    suggestedHeading: "Limitations",
+    role:
+      "Caveats that materially affect reliance on the analysis: annex/SOW dependencies, incomplete extraction, cross-references, and limits of the supplied materials. Do not repeat skill/package coverage limitations already in the appendix.",
+    headingPatterns: [/\blimitations\b/i, /\bqualifications\b/i, /\bcaveats\b/i],
   },
   recommendations: {
     id: "recommendations",
     suggestedHeading: "Recommendations",
     role:
-      "Prioritized, actionable next steps tied to identified gaps. Each recommendation must follow from a finding above.",
+      "Prioritized, actionable next steps tied to identified gaps. Each recommendation must follow from a finding above. Never recommend amending the agreement from cannot_determine or truncated evidence.",
     headingPatterns: [/\brecommendations\b/i],
   },
   missing_materials: {
@@ -78,6 +141,13 @@ export const REPORT_SECTION_DEFINITIONS: Record<ReportSectionId, ReportSectionDe
     role:
       "Documents or annexes referenced in the agreement but not supplied for review, when their absence limits verification.",
     headingPatterns: [/\bmissing materials\b/i, /\bdocuments not provided\b/i],
+  },
+  evidence: {
+    id: "evidence",
+    suggestedHeading: "Evidence",
+    role:
+      "Cite the operative quotes that support the answer. Do not introduce new legal conclusions here.",
+    headingPatterns: [/\bevidence\b/i],
   },
 };
 
@@ -91,14 +161,59 @@ export const ALL_REPORT_SECTION_IDS = Object.keys(
  * roles (References / appendices may follow in rendered markdown).
  */
 export const CANONICAL_REPORT_SECTION_ORDER: ReportSectionId[] = [
+  "executive_summary",
   "scope",
+  "evidence",
   "chapeau_particulars",
+  "requirements_matrix",
+  "key_findings",
   "requirements_detail",
+  "material_gaps",
+  "risk_summary",
+  "limitations",
   "qualifications",
   "recommendations",
   "missing_materials",
   "conclusion",
 ];
+
+const SECTION_RANK = new Map(
+  CANONICAL_REPORT_SECTION_ORDER.map((id, index) => [id, index])
+);
+
+const OPENING_IDS: ReportSectionId[] = ["executive_summary", "scope"];
+const CAVEAT_IDS: ReportSectionId[] = ["limitations", "qualifications"];
+const ANALYSIS_IDS: ReportSectionId[] = [
+  "chapeau_particulars",
+  "requirements_matrix",
+  "key_findings",
+  "requirements_detail",
+];
+
+export function isOpeningSectionId(id: ReportSectionId): boolean {
+  return OPENING_IDS.includes(id);
+}
+
+export function isCaveatSectionId(id: ReportSectionId): boolean {
+  return CAVEAT_IDS.includes(id);
+}
+
+export function isAnalysisSectionId(id: ReportSectionId): boolean {
+  return ANALYSIS_IDS.includes(id);
+}
+
+export function equivalentSectionIds(id: ReportSectionId): ReportSectionId[] {
+  if (isOpeningSectionId(id)) return [...OPENING_IDS];
+  if (isCaveatSectionId(id)) return [...CAVEAT_IDS];
+  return [id];
+}
+
+export function collapseAliasSections(sections: ReportSectionId[]): ReportSectionId[] {
+  const set = new Set(sections);
+  if (set.has("executive_summary") && set.has("scope")) set.delete("scope");
+  if (set.has("limitations") && set.has("qualifications")) set.delete("qualifications");
+  return [...set];
+}
 
 /**
  * Expand deprecated combined section and enforce canonical order so Conclusion
@@ -113,9 +228,10 @@ export function normalizeReportSections(sections: ReportSectionId[]): ReportSect
     }
     expanded.push(section);
   }
-  const unique = [...new Set(expanded)].filter((id) => id !== "scope_and_conclusion");
-  const rank = new Map(CANONICAL_REPORT_SECTION_ORDER.map((id, index) => [id, index]));
-  return unique.sort((a, b) => (rank.get(a) ?? 99) - (rank.get(b) ?? 99));
+  const unique = collapseAliasSections(
+    [...new Set(expanded)].filter((id) => id !== "scope_and_conclusion")
+  );
+  return unique.sort((a, b) => (SECTION_RANK.get(a) ?? 99) - (SECTION_RANK.get(b) ?? 99));
 }
 
 export function sectionDefinition(section: ReportSectionId): ReportSectionDefinition {
@@ -137,11 +253,9 @@ export function buildSectionGuidanceBlock(sections: ReportSectionId[]): string {
     ].join("\n");
   });
 
-  const hasScope = normalized.includes("scope");
+  const hasScope = normalized.some((id) => isOpeningSectionId(id));
   const hasConclusion = normalized.includes("conclusion");
-  const hasAnalysis = normalized.some((id) =>
-    ["requirements_detail", "chapeau_particulars"].includes(id)
-  );
+  const hasAnalysis = normalized.some((id) => isAnalysisSectionId(id));
 
   const arc: string[] = [
     "SECTION ARCHITECTURE",
@@ -172,7 +286,7 @@ export function narrativeArcGuidance(
   sections: ReportSectionId[]
 ): string {
   const normalized = normalizeReportSections(sections);
-  const hasAnalysis = normalized.includes("requirements_detail");
+  const hasAnalysis = normalized.some((id) => isAnalysisSectionId(id));
 
   if (reportType === "qa_answer") {
     return hasAnalysis
@@ -187,7 +301,7 @@ export function narrativeArcGuidance(
   if (reportType === "regime_compliance_memo" || reportType === "risk_audit") {
     return [
       "Form the overall legal position from the assessments before writing.",
-      "Do not front-load the verdict in the scope section.",
+      "Do not front-load the verdict in the opening section.",
       "Let the reader follow the analysis before the conclusion synthesizes the bottom line.",
     ].join(" ");
   }
@@ -196,22 +310,29 @@ export function narrativeArcGuidance(
 }
 
 export function reportOutputContainsSection(output: string, section: ReportSectionId): boolean {
-  const normalized = output.replace(/\s+/g, " ").trim().toLowerCase();
-  const def = REPORT_SECTION_DEFINITIONS[section];
-  if (normalized.includes(def.suggestedHeading.toLowerCase())) return true;
-  return def.headingPatterns.some((pattern) => pattern.test(output));
+  const ids = equivalentSectionIds(section);
+  return ids.some((id) => {
+    const def = REPORT_SECTION_DEFINITIONS[id];
+    if (!def) return false;
+    const normalized = output.replace(/\s+/g, " ").trim().toLowerCase();
+    if (normalized.includes(def.suggestedHeading.toLowerCase())) return true;
+    return def.headingPatterns.some((pattern) => pattern.test(output));
+  });
 }
 
 export function reportSectionPosition(output: string, section: ReportSectionId): number {
-  const def = REPORT_SECTION_DEFINITIONS[section];
-  const lower = output.toLowerCase();
-  const preferred = lower.indexOf(def.suggestedHeading.toLowerCase());
-  if (preferred >= 0) return preferred;
   let earliest = -1;
-  for (const pattern of def.headingPatterns) {
-    const match = output.match(pattern);
-    if (match?.index !== undefined && (earliest < 0 || match.index < earliest)) {
-      earliest = match.index;
+  for (const id of equivalentSectionIds(section)) {
+    const def = REPORT_SECTION_DEFINITIONS[id];
+    if (!def) continue;
+    const lower = output.toLowerCase();
+    const preferred = lower.indexOf(def.suggestedHeading.toLowerCase());
+    if (preferred >= 0 && (earliest < 0 || preferred < earliest)) earliest = preferred;
+    for (const pattern of def.headingPatterns) {
+      const match = output.match(pattern);
+      if (match?.index !== undefined && (earliest < 0 || match.index < earliest)) {
+        earliest = match.index;
+      }
     }
   }
   return earliest;
@@ -249,7 +370,7 @@ function isPostConclusionTrailingHeading(headingLine: string): boolean {
     .replace(/^##\s+/, "")
     .replace(/^\d+[\.\)]\s*/, "")
     .trim();
-  return /^(references|coverage limitations|limitations)\.?$/i.test(text);
+  return /^(references|coverage limitations)\.?$/i.test(text);
 }
 
 function splitMarkdownH2Blocks(markdown: string): {
@@ -333,4 +454,88 @@ export function enforceConclusionSectionLast(markdown: string): string {
   }
 
   return joinMarkdownH2Blocks(preamble, reordered);
+}
+
+export function roleForSectionId(id: ReportSectionId): ReportSectionRole {
+  switch (id) {
+    case "executive_summary":
+      return "executive_summary";
+    case "scope":
+    case "scope_and_conclusion":
+      return "scope";
+    case "requirements_matrix":
+      return "requirements_matrix";
+    case "key_findings":
+      return "key_findings";
+    case "chapeau_particulars":
+      return "chapeau_particulars";
+    case "material_gaps":
+      return "material_gaps";
+    case "risk_summary":
+      return "risk_summary";
+    case "limitations":
+      return "limitations";
+    case "qualifications":
+      return "qualifications";
+    case "recommendations":
+      return "recommendations";
+    case "missing_materials":
+      return "missing_materials";
+    case "evidence":
+      return "evidence";
+    case "conclusion":
+      return "conclusion";
+    case "requirements_detail":
+    default:
+      return "analysis";
+  }
+}
+
+export function sectionIdForRole(role: ReportSectionRole): ReportSectionId {
+  switch (role) {
+    case "executive_summary":
+      return "executive_summary";
+    case "scope":
+      return "scope";
+    case "requirements_matrix":
+      return "requirements_matrix";
+    case "key_findings":
+      return "key_findings";
+    case "chapeau_particulars":
+      return "chapeau_particulars";
+    case "material_gaps":
+      return "material_gaps";
+    case "risk_summary":
+      return "risk_summary";
+    case "limitations":
+      return "limitations";
+    case "qualifications":
+      return "qualifications";
+    case "recommendations":
+      return "recommendations";
+    case "missing_materials":
+      return "missing_materials";
+    case "evidence":
+      return "evidence";
+    case "conclusion":
+      return "conclusion";
+    case "analysis":
+    default:
+      return "key_findings";
+  }
+}
+
+export function outlineItemSectionId(item: ReportOutlineItem): ReportSectionId {
+  return item.sectionId ?? sectionIdForRole(item.role);
+}
+
+export const ANALYSIS_OUTLINE_ROLES: ReadonlySet<ReportSectionRole> = new Set([
+  "analysis",
+  "chapeau_particulars",
+  "requirements_matrix",
+  "key_findings",
+]);
+
+export function isAnalysisOutlineRole(role: ReportSectionRole): boolean {
+  return ANALYSIS_OUTLINE_ROLES.has(role);
 }

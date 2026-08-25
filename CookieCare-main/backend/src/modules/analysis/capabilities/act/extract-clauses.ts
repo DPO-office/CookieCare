@@ -17,8 +17,11 @@ import { pacLog } from "../../utils/pac-log.js";
 import { profileThinkingLevel } from "../../utils/profile-thinking.js";
 import {
   buildRetrievalDictionary,
+  expandLogicalSection,
   groupDocumentSections,
   locateEvidence,
+  sliceAlignedEvidence,
+  MAX_EVIDENCE_CHARS,
   type ClauseCandidate,
   type ClauseLocatorResult,
 } from "./locate-evidence.js";
@@ -214,17 +217,20 @@ function mergeFallback(
     const paths = byType.get(result.clauseType) ?? [];
     const candidates: ClauseCandidate[] = [];
     for (const path of paths) {
-      const section = sections.find((s) => s.headingPath === path);
-      if (!section) continue;
+      const sectionIndex = sections.findIndex((s) => s.headingPath === path);
+      if (sectionIndex < 0) continue;
+      const expanded = expandLogicalSection(sections, sectionIndex, doc);
       candidates.push({
         clauseType: result.clauseType,
-        segmentId: section.headingPath,
-        sectionTitle: section.title,
-        startOffset: section.startOffset,
-        endOffset: section.endOffset,
-        text: section.text.slice(0, 2_400),
+        segmentId: sections[sectionIndex]!.headingPath,
+        sectionTitle: sections[sectionIndex]!.title,
+        startOffset: expanded.startOffset,
+        endOffset: expanded.endOffset,
+        text: expanded.text,
         matchReason: "headings_llm",
         score: 50,
+        truncated: expanded.truncated,
+        logicalEndOffset: expanded.logicalEndOffset,
       });
     }
     if (candidates.length === 0) return result;
@@ -255,14 +261,17 @@ function mergeHeuristic(
       const idx = doc.fullText.indexOf(h.text.slice(0, 80));
       const start = idx >= 0 ? idx : 0;
       const end = Math.min(doc.fullText.length, start + h.text.length);
+      const aligned = sliceAlignedEvidence(doc, start, end, MAX_EVIDENCE_CHARS);
       return {
         clauseType: result.clauseType,
         segmentId: h.structuralPath ?? `heuristic-${i}`,
-        startOffset: start,
-        endOffset: end,
-        text: h.text.slice(0, 2_400),
+        startOffset: aligned.startOffset,
+        endOffset: aligned.endOffset,
+        text: aligned.text,
         matchReason: "heuristic",
         score: 30,
+        truncated: aligned.truncated,
+        logicalEndOffset: aligned.logicalEndOffset,
       };
     });
     return {
@@ -312,6 +321,8 @@ function materializeClauses(
         evidenceStatus: status,
         matchReason: candidate.matchReason,
         referencedDocuments: result.referencedDocuments,
+        truncated: candidate.truncated,
+        logicalEndOffset: candidate.logicalEndOffset,
       });
       index += 1;
     }

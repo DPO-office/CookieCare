@@ -8,9 +8,11 @@ import type {
 import type { ClauseObject } from "../../models/clause-object.js";
 import { pacLog } from "../../utils/pac-log.js";
 
-/** Cap the evidence text sent downstream so grouped prompts stay small. */
-const MAX_QUOTE_CHARS = 600;
-const MAX_ITEMS_PER_PACKAGE = 40;
+/**
+ * Prefer fewer complete evidence units over many clipped stubs.
+ * Do not raise this above the historical 40-item package cap.
+ */
+const MAX_ITEMS_PER_PACKAGE = 12;
 
 /**
  * Shared evidence extraction (ACT refactor doc §5).
@@ -38,12 +40,14 @@ export function extractSharedEvidence(
     .map((clause, index) => ({
       ref: `E${index + 1}`,
       clauseType: clause.clauseType,
-      quotedText: clause.text.slice(0, MAX_QUOTE_CHARS),
+      quotedText: clause.text,
       structuralPath: clause.locator.structuralPath,
       charRange: clause.locator.charRange,
       evidenceStatus: clause.evidenceStatus,
       matchReason: clause.matchReason,
       referencedDocuments: clause.referencedDocuments,
+      truncated: clause.truncated,
+      logicalEndOffset: clause.logicalEndOffset,
     }));
   pacLog("shared evidence", {
     id: unit.workUnitId,
@@ -51,6 +55,7 @@ export function extractSharedEvidence(
     clauses: clauses.length,
     items: items.length,
     chars: items.reduce((n, i) => n + i.quotedText.length, 0),
+    truncated: items.filter((i) => i.truncated).length,
   });
 
   const bundle: SharedEvidenceBundle = { packageId, docId, items };

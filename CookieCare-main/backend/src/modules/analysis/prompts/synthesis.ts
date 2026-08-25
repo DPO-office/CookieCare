@@ -3,7 +3,6 @@ import type { Finding } from "../models/finding.js";
 import type {
   ReportOutlineItem,
   ReportSectionId,
-  ReportSectionRole,
   ReportSpec,
 } from "../models/intent.js";
 import { conversationContextForIntent } from "../memory/conversation-window.js";
@@ -15,11 +14,15 @@ import {
 import {
   REPORT_SECTION_DEFINITIONS,
   buildSectionGuidanceBlock,
+  isAnalysisSectionId,
+  isCaveatSectionId,
+  isOpeningSectionId,
   narrativeArcGuidance,
   normalizeReportSections,
+  outlineItemSectionId,
   suggestedHeading,
 } from "./report-sections.js";
-import { LEGAL_MEMO_MARKDOWN_CRAFT } from "./memo-markdown-craft.js";
+import { LEGAL_MEMO_MARKDOWN_CRAFT, TABULAR_SECTION_MARKDOWN_CRAFT } from "./memo-markdown-craft.js";
 
 export const SYNTHESIS_SECTION_LABELS: Record<ReportSectionId, string> = Object.fromEntries(
   Object.entries(REPORT_SECTION_DEFINITIONS).map(([id, def]) => [id, def.suggestedHeading])
@@ -60,6 +63,8 @@ export const SYNTHESIS_SYSTEM_PROMPT = [
   "When analysis sections precede a conclusion, build the case first and synthesize the bottom line only in the conclusion section.",
   "Highlight contradictions, qualifications, and cross-references that materially affect the conclusion.",
   "Recommendations must follow from identified gaps. Do not invent generic checklists or advise whether to sign or litigate.",
+  "Never recommend amending the agreement from cannot_determine, insufficient evidence, truncated quotes, or unread remainder of a clause. Those items get Obtain / Confirm / re-read only.",
+  "Use Amend only when the assessment status is missing or partial and the suggested fix is tied to a complete cited operative quote.",
   "Introduce no new claim, right, timeframe, or citation that is not in the supplied assessments, findings, or evidence.",
     "Use only the requested sections, in order, and omit any that would be empty.",
   "The report should read like work from a senior legal or compliance analyst.",
@@ -87,7 +92,11 @@ export function buildSynthesisUserPrompt(
   const findingById = new Map(findings.map((f) => [f.findingId, f]));
   const outline = reportSpec.outline ?? [];
   const outlineAnalysisItems = outline.filter(
-    (item) => item.role === "analysis" || item.role === "chapeau_particulars"
+    (item) =>
+      item.role === "analysis" ||
+      item.role === "chapeau_particulars" ||
+      item.role === "requirements_matrix" ||
+      item.role === "key_findings"
   );
 
   const presentation =
@@ -142,11 +151,11 @@ export function buildSynthesisUserPrompt(
     narrativeArcGuidance(reportSpec.reportType, reportSpec.depth, reportSpec.sections),
     "",
     outlineAnalysisItems.length > 0
-      ? "Write the analysis subsections under the Requirements detail section using the outline headings below (use the headings verbatim). Each outline heading must contain the theme groups mapped to it; do not add additional analysis headings for the individual theme groups."
-      : "Write one user-facing section per THEME GROUP below. Internal members of a group are the same legal question; synthesize them into one assessment.",
+      ? "Write each outline item as a top-level `##` section using the heading verbatim. Do not nest them under a Requirements detail wrapper. Do not add extra analysis headings for internal theme members."
+      : "Write one user-facing `##` section per THEME GROUP below. Internal members of a group are the same legal question; synthesize them into one assessment.",
     "",
     outlineAnalysisItems.length > 0
-      ? "OUTLINE ANALYSIS SUBSECTIONS (within Requirements detail)"
+      ? "OUTLINE SECTIONS (top-level ## headings)"
       : "THEME GROUPS",
     outlineAnalysisItems.length > 0
       ? renderOutlineMappedThemeGroups(groups, findingById, outlineAnalysisItems)
@@ -270,7 +279,7 @@ function renderOutlineMappedThemeGroups(
   const blocks: string[] = [];
   for (const bucket of buckets) {
     if (bucket.groups.length === 0) continue;
-    blocks.push(`### ${bucket.item.heading}`);
+    blocks.push(`## ${bucket.item.heading}`);
     for (const group of bucket.groups) {
       blocks.push(renderThemeGroupMembersOnly(group, findingById));
     }
@@ -379,6 +388,7 @@ function renderArtifacts(state: AnalysisState): string {
   return artifacts
     .map((artifact) => {
       const data = artifact.data as {
+        markdown?: string;
         transfers?: Array<{
           mechanism?: string;
           destinationJurisdiction?: string;
@@ -389,7 +399,10 @@ function renderArtifacts(state: AnalysisState): string {
         mechanisms?: string[];
         jurisdictions?: string[];
       };
-      if (artifact.type === "transfer_inventory" && data.transfers) {
+      if (typeof data.markdown === "string" && data.markdown.trim()) {
+        return data.markdown;
+      }
+      if (Array.isArray(data.transfers) && data.transfers.length > 0) {
         const lines = data.transfers.slice(0, 20).map((row) => {
           const where = row.destinationJurisdiction || row.sectionIds?.join(", ") || "";
           return `- ${row.mechanism ?? "unspecified"}${where ? ` (${where})` : ""}${
@@ -423,4 +436,159 @@ function depthGuidance(depth: ReportSpec["depth"]): string {
     default:
       return "Depth = standard: balanced analysis with gap explanation where needed; conclusion states the bottom line after the reader has seen the key findings.";
   }
+}
+
+export const SYNTHESIS_SECTION_SYSTEM_PROMPT = [
+  "You write one section of a legal analysis report.",
+  "Output only that section: a `##` heading (verbatim as supplied) and its body.",
+  "Do not write other sections, a title page, or a closing offer to help.",
+  "Do not expose internal requirement IDs, work-unit IDs, package IDs, or finding IDs unless the user asked for them.",
+  "Treat supplied statuses as given. Do not silently reverse them.",
+  "cannot_determine is not a legal gap. Never recommend amending the agreement from cannot_determine, insufficient evidence, or truncated quotes — use Obtain / Confirm / re-read.",
+  "Use Amend only for missing or partial when the cited quote is complete.",
+  "Answer what the user asked. Do not pad with stock memo boilerplate that does not advance their question.",
+  "Finish the section completely — never stop mid-sentence or mid-table cell.",
+  LEGAL_MEMO_MARKDOWN_CRAFT,
+].join("\n");
+
+export function isTabularAnswerStyle(state: AnalysisState): boolean {
+  if (state.request.answerStyle === "tabular") return true;
+  if (state.intent?.outputForm === "table") return true;
+  return false;
+}
+
+export function synthesisSectionSystemPrompt(state: AnalysisState): string {
+  if (!isTabularAnswerStyle(state)) return SYNTHESIS_SECTION_SYSTEM_PROMPT;
+  return [
+    "You write one section of a legal analysis report in tabular form.",
+    "Output only that section: a `##` heading (verbatim as supplied) and its body.",
+    "Do not write other sections, a title page, or a closing offer to help.",
+    "Do not expose internal requirement IDs, work-unit IDs, package IDs, or finding IDs unless the user asked for them.",
+    "Treat supplied statuses as given. Do not silently reverse them.",
+    "cannot_determine is not a legal gap. Never recommend amending the agreement from cannot_determine, insufficient evidence, or truncated quotes — use Obtain / Confirm / re-read.",
+    "Use Amend only for missing or partial when the cited quote is complete.",
+    "Answer what the user asked. Put the core analysis in markdown tables; keep framing prose short.",
+    "Finish the section completely — never stop mid-sentence or mid-table cell.",
+    TABULAR_SECTION_MARKDOWN_CRAFT,
+  ].join("\n");
+}
+export function assessmentsForOutlineItem(
+  item: ReportOutlineItem,
+  assessments: RequirementAssessment[]
+): RequirementAssessment[] {
+  const sectionId = outlineItemSectionId(item);
+  if (item.requirementIds.length > 0) {
+    const wanted = new Set(item.requirementIds);
+    return assessments.filter((a) => wanted.has(a.requirementId));
+  }
+  if (isOpeningSectionId(sectionId) || sectionId === "conclusion") return assessments;
+  if (sectionId === "evidence") return assessments;
+  if (sectionId === "material_gaps" || sectionId === "recommendations") {
+    return assessments.filter((a) => a.status === "missing" || a.status === "partial");
+  }
+  if (sectionId === "missing_materials" || isCaveatSectionId(sectionId)) {
+    return assessments.filter((a) => a.status === "cannot_determine");
+  }
+  if (sectionId === "risk_summary") return [];
+  return assessments;
+}
+
+export function buildSectionSynthesisUserPrompt(input: {
+  state: AnalysisState;
+  findings: Finding[];
+  assessments: RequirementAssessment[];
+  reportSpec: ReportSpec;
+  item: ReportOutlineItem;
+}): string {
+  const { state, findings, assessments, reportSpec, item } = input;
+  const sectionId = outlineItemSectionId(item);
+  const def = REPORT_SECTION_DEFINITIONS[sectionId];
+  const slicedAssessments = assessmentsForOutlineItem(item, assessments);
+  const findingById = new Map(findings.map((f) => [f.findingId, f]));
+  const supportingIds = new Set(
+    slicedAssessments.flatMap((a) => a.supportingFindingIds)
+  );
+  const slicedFindings = findings.filter(
+    (f) =>
+      supportingIds.has(f.findingId) ||
+      (f.requirementId && slicedAssessments.some((a) => a.requirementId === f.requirementId))
+  );
+  const groups = groupAssessmentsForReport(slicedAssessments);
+  const artifactFilter = item.artifactTypes ?? [];
+  const artifacts =
+    artifactFilter.length > 0
+      ? Object.fromEntries(
+          Object.entries(state.analysisArtifacts ?? {}).filter(([, artifact]) =>
+            artifactFilter.includes(artifact.type)
+          )
+        )
+      : {};
+  const artifactState = { ...state, analysisArtifacts: artifacts } as AnalysisState;
+  const includeRisks = sectionId === "risk_summary";
+  const tabular = isTabularAnswerStyle(state);
+  const isAnalysis =
+    isAnalysisSectionId(sectionId) ||
+    item.role === "analysis" ||
+    item.role === "chapeau_particulars" ||
+    item.role === "requirements_matrix" ||
+    item.role === "key_findings" ||
+    sectionId === "material_gaps";
+  const compactStatuses =
+    isOpeningSectionId(sectionId) || sectionId === "conclusion"
+      ? slicedAssessments
+          .map((a) => `- ${a.status}: ${a.summary}`)
+          .join("\n") || "(none)"
+      : "";
+
+  return [
+    "USER REQUEST",
+    state.request.instruction.slice(0, 800),
+    "",
+    "ANSWER STYLE",
+    tabular
+      ? "tabular — core analysis in markdown tables; at most 2 short framing sentences before a table for analysis sections"
+      : "narrative — concise professional prose; tables only when they materially help",
+    "",
+    "THIS SECTION ONLY",
+    `Heading (use verbatim as ##): ${item.heading}`,
+    `Role: ${def?.role ?? item.role}`,
+    `Depth: ${reportSpec.depth}`,
+    depthGuidance(reportSpec.depth),
+    "Serve the user's request above. Do not invent unrelated stock sections or repeat the same gap story already covered elsewhere.",
+    "Complete every sentence and every table cell. Do not truncate mid-thought.",
+    "",
+    "LEGAL FRAMEWORK",
+    legalFramework(state),
+    "",
+    compactStatuses
+      ? ["ASSESSMENT STATUSES (compact)", compactStatuses, ""].join("\n")
+      : "",
+    tabular && isAnalysis
+      ? [
+          "TABLE CONTRACT FOR THIS SECTION",
+          "After at most two framing sentences, output a markdown table with columns:",
+          "| Requirement | Status | Evidence | Finding |",
+          "One row per mapped obligation or theme. Do not follow the table with a long prose restatement.",
+          "",
+        ].join("\n")
+      : sectionId === "requirements_matrix"
+        ? "Prefer a markdown table of obligation / status / evidence for this section."
+        : "",
+    "MATERIALS FOR THIS SECTION",
+    groups.length > 0
+      ? renderThemeGroups(groups, findingById)
+      : "(no requirement assessments mapped to this section)",
+    "",
+    "CROSS-REFERENCES",
+    renderCrossReferences(state, slicedFindings, slicedAssessments),
+    "",
+    artifactFilter.length > 0 ? "STRUCTURED INVENTORIES" : "",
+    artifactFilter.length > 0 ? renderArtifacts(artifactState) : "",
+    includeRisks ? "MATERIAL RISKS" : "",
+    includeRisks ? renderRisks(findings) : "",
+    "",
+    "Write only this section. Start with `## " + item.heading + "`.",
+  ]
+    .filter((line) => line !== "")
+    .join("\n");
 }

@@ -1,7 +1,7 @@
 /** Structured analysis skill contract — deterministic; never LLM-invented at runtime. */
 
 import type { EvidencePackage } from "../../../models/evidence-package.js";
-import type { IntentRequirement } from "../../../models/intent.js";
+import type { IntentRequirement, IntentRequirementType } from "../../../models/intent.js";
 
 export type SkillAxis = "global" | "doc-type" | "regime" | "jurisdiction" | "topic";
 export type SkillStatus = "draft" | "reviewed" | "published";
@@ -248,12 +248,26 @@ export interface AnalysisSkillConfig {
    */
   evidencePackages?: EvidencePackage[];
   /**
+   * Maps classifier/PLAN requirement ids or types onto authored capabilities
+   * (matrix rows, rules, or risk categories) without hardcoding regime tables
+   * in the graph resolver.
+   */
+  metaRequirementBindings?: MetaRequirementBinding[];
+  /**
    * Per-topic requirements this skill exposes when the user asks a broad
    * document review (no explicit focus/requirements). Injected into
    * intent.requirements at PLAN time and answered by the skill's
    * structural_review evidencePackage.
    */
   authoredRequirements?: IntentRequirement[];
+}
+
+export interface MetaRequirementBinding {
+  match: {
+    idIncludes?: string[];
+    types?: IntentRequirementType[];
+  };
+  capabilityIds: string[];
 }
 
 export interface SkillManifestEntry {

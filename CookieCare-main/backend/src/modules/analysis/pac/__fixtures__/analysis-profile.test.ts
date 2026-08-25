@@ -46,13 +46,13 @@ describe("analysis profile / thinkingMode", () => {
     assert.equal(profile.thinkingByTask[LLMTask.CRITIQUE_CHECKLIST], "high");
     assert.equal(profile.critiqueUsesProChecklist, true);
     assert.equal(profile.synthesisCeilingFactor, 1.75);
-    assert.equal(profile.synthesisHardCap, 4800);
+    assert.equal(profile.synthesisHardCap, 6400);
   });
 
   it("lite synthesis ceiling stays conservative", () => {
     const profile = resolveAnalysisProfile("lite");
     assert.equal(profile.synthesisCeilingFactor, 1);
-    assert.equal(profile.synthesisHardCap, 2800);
+    assert.equal(profile.synthesisHardCap, 3600);
   });
 
   it("API schema accepts thinkingMode lite|deep", () => {

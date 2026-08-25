@@ -3,12 +3,37 @@ import type { CritiqueIssue, FixItem } from "../../../models/critique-report.js"
 import type { ReportSectionId } from "../../../models/intent.js";
 import {
   ALL_REPORT_SECTION_IDS,
+  isAnalysisOutlineRole,
   normalizeReportSections,
+  outlineItemSectionId,
   reportOutputContainsSection,
   reportSectionsInOrder,
 } from "../../../prompts/report-sections.js";
 
 const REPORT_SECTIONS = new Set<ReportSectionId>(ALL_REPORT_SECTION_IDS);
+
+const INTERNAL_ID_LEAK =
+  /\b(?:wu-[a-z0-9_-]+|f_(?:pkg_|extract_|render_)[a-z0-9_-]+|workUnitId|packageId|requirementId)\b/i;
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function outlineCoversAnalysisSection(
+  state: AnalysisState,
+  section: ReportSectionId
+): boolean {
+  return (state.plan?.reportSpec?.outline ?? []).some(
+    (item) =>
+      isAnalysisOutlineRole(item.role) && outlineItemSectionId(item) === section
+  );
+}
+
+function h2Index(output: string, heading: string): number {
+  const re = new RegExp(`^##\\s+${escapeRegExp(heading)}\\s*$`, "im");
+  const match = re.exec(output);
+  return match?.index ?? -1;
+}
 
 function requiredReportSections(state: AnalysisState): ReportSectionId[] {
   const spec = state.plan?.reportSpec;
@@ -18,33 +43,68 @@ function requiredReportSections(state: AnalysisState): ReportSectionId[] {
   return sections.filter((section) => {
     switch (section) {
       case "scope":
-        return true;
+      case "executive_summary":
       case "conclusion":
+      case "evidence":
         return true;
       case "requirements_detail":
+      case "requirements_matrix":
+      case "key_findings":
+      case "chapeau_particulars":
+        if (outlineCoversAnalysisSection(state, section)) return false;
         return assessments.length > 0;
+      case "material_gaps":
+        return assessments.some(
+          (assessment) =>
+            assessment.status === "partial" || assessment.status === "missing"
+        );
       case "qualifications":
+      case "limitations":
         return assessments.some(
           (assessment) =>
             assessment.status === "partial" ||
             assessment.status === "cannot_determine"
         );
       case "recommendations":
-        return assessments.some((assessment) => assessment.recommendation);
+        return assessments.some(
+          (assessment) =>
+            (assessment.status === "missing" || assessment.status === "partial") &&
+            Boolean(assessment.recommendation)
+        );
       case "missing_materials":
         return assessments.some(
           (assessment) => assessment.status === "cannot_determine"
         );
-      case "chapeau_particulars":
-        return assessments.some((assessment) =>
-          /(subject|duration|nature|purpose|categor)/i.test(
-            assessment.requirementId
-          )
+      case "risk_summary":
+        return (state.findings ?? []).some(
+          (finding) => finding.kind === "risk" && finding.visibility !== "internal"
         );
       default:
         return false;
     }
   });
+}
+
+function leakedInternalIds(output: string): string[] {
+  const found = output.match(new RegExp(INTERNAL_ID_LEAK.source, "gi")) ?? [];
+  return [...new Set(found)];
+}
+
+function emptyRequiredBodies(
+  output: string,
+  headings: string[]
+): string[] {
+  const empty: string[] = [];
+  for (const heading of headings) {
+    const re = new RegExp(
+      `^##\\s+${escapeRegExp(heading)}\\s*\\n([\\s\\S]*?)(?=^##\\s+|$)`,
+      "im"
+    );
+    const match = output.match(re);
+    if (!match) continue;
+    if (!match[1] || match[1].trim().length === 0) empty.push(heading);
+  }
+  return empty;
 }
 
 export function validateReportSpec(
@@ -95,7 +155,8 @@ export function validateReportSpec(
   const required = requiredReportSections(state);
   const missing = required.filter((section) => !reportOutputContainsSection(output, section));
   const ordered = reportSectionsInOrder(output, required);
-  const outputOk = missing.length === 0 && ordered;
+  const leaks = leakedInternalIds(output);
+  const outputOk = missing.length === 0 && ordered && leaks.length === 0;
   results.push({
     itemId: "report-output:contract",
     status: outputOk ? "pass" : "fail",
@@ -103,9 +164,11 @@ export function validateReportSpec(
     workUnitId: "wu-render",
     detail: outputOk
       ? undefined
-      : missing.length > 0
-        ? `Required report sections missing: ${missing.join(", ")}`
-        : "Report sections do not follow ReportSpec ordering",
+      : leaks.length > 0
+        ? `Internal identifiers leaked in report: ${leaks.join(", ")}`
+        : missing.length > 0
+          ? `Required report sections missing: ${missing.join(", ")}`
+          : "Report sections do not follow ReportSpec ordering",
   });
   if (!outputOk) {
     const truncated = Boolean(state.synthesisMeta?.truncated);
@@ -121,29 +184,32 @@ export function validateReportSpec(
     });
   }
 
-  // Dynamic outline validation (user-shaped analysis subsections).
-  if (outputOk && spec.outline?.length) {
-    const outlineAnalysisItems = spec.outline.filter(
-      (item) => item.role === "analysis" || item.role === "chapeau_particulars"
+  if (spec.outline?.length) {
+    const outlineAnalysisItems = spec.outline.filter((item) =>
+      isAnalysisOutlineRole(item.role)
     );
-    const outputLower = output.toLowerCase();
-
-    const missing: string[] = [];
+    const missingHeadings: string[] = [];
+    const missingIds: string[] = [];
     const indices: number[] = [];
     for (const item of outlineAnalysisItems) {
-      const idx = outputLower.indexOf(item.heading.toLowerCase());
+      const idx = h2Index(output, item.heading);
       if (idx < 0) {
-        missing.push(item.heading);
+        missingHeadings.push(item.heading);
+        missingIds.push(item.id);
       } else {
         indices.push(idx);
       }
     }
 
-    const ordered =
+    const empty = emptyRequiredBodies(
+      output,
+      outlineAnalysisItems.map((item) => item.heading)
+    );
+    const orderedHeadings =
       indices.length === outlineAnalysisItems.length &&
       indices.every((pos, i) => i === 0 || pos > indices[i - 1]!);
 
-    const ok = missing.length === 0 && ordered;
+    const ok = missingHeadings.length === 0 && orderedHeadings && empty.length === 0;
     results.push({
       itemId: "outline-analysis:contract",
       status: ok ? "pass" : "fail",
@@ -151,18 +217,33 @@ export function validateReportSpec(
       workUnitId: "wu-render",
       detail: ok
         ? undefined
-        : missing.length > 0
-          ? `Missing outline analysis headings: ${missing.join(", ")}`
-          : "Outline analysis headings are not in the declared order",
+        : missingHeadings.length > 0
+          ? `Missing outline analysis headings: ${missingHeadings.join(", ")}`
+          : empty.length > 0
+            ? `Empty outline sections: ${empty.join(", ")}`
+            : "Outline analysis headings are not in the declared order",
     });
 
     if (!ok) {
+      const retrySectionIds =
+        missingIds.length > 0
+          ? missingIds
+          : empty
+              .map((heading) =>
+                outlineAnalysisItems.find((item) => item.heading === heading)?.id
+              )
+              .filter((id): id is string => Boolean(id));
       fixes.push({
         workUnitId: "wu-render",
         instruction:
-          "Under the Requirements detail section, render the analysis outline headings verbatim and in the declared order (use the headings from the PLAN outline).",
+          "Render the analysis outline headings as top-level ## sections verbatim and in the declared order.",
         sourceItemId: "outline-analysis:contract",
+        retrySectionIds: retrySectionIds.length > 0 ? retrySectionIds : undefined,
       });
     }
   }
+}
+
+export function outlineSectionIds(state: AnalysisState): string[] {
+  return (state.plan?.reportSpec?.outline ?? []).map((item) => item.id);
 }

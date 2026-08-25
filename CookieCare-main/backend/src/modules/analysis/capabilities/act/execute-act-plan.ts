@@ -123,6 +123,12 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
           : [];
         input.retryRequirementIds = [...new Set([...prior, fix.requirementId])];
       }
+      if (fix.retrySectionIds?.length) {
+        const prior = Array.isArray(input.retrySectionIds)
+          ? (input.retrySectionIds as string[])
+          : [];
+        input.retrySectionIds = [...new Set([...prior, ...fix.retrySectionIds])];
+      }
       return { ...u, input };
     });
     // A targeted retry can change the findings that the user should see.

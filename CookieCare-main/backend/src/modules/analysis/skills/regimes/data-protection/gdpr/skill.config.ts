@@ -767,6 +767,18 @@ const GDPR_RULES: SkillRegimeRule[] = [
   ),
 ];
 
+function linkChapterIiiRulesToMatrix(rules: SkillRegimeRule[]): SkillRegimeRule[] {
+  const byArticle: Record<string, string> = {};
+  for (const row of GDPR_RIGHTS_MATRIX) {
+    byArticle[`gdpr.art${row.article}`] = row.rowId;
+  }
+  return rules.map((rule) => {
+    const rowId = byArticle[rule.ruleId];
+    if (!rowId || rule.matrixLinkage) return rule;
+    return { ...rule, matrixLinkage: { matrixRowIds: [rowId] } };
+  });
+}
+
 /**
  * EU GDPR operational skill. It deliberately excludes Chapters VI-VII and
  * provisions directed to Member States, supervisory authorities, the EDPB,
@@ -1357,9 +1369,27 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
     },
     { category: "other_known_risk", displayLabel: "Other material contractual risk", guidance: "Other material contractual risk." },
   ],
-  regimeRules: GDPR_RULES,
+  regimeRules: linkChapterIiiRulesToMatrix(GDPR_RULES),
   regimeRuleIds: GDPR_RULES.map((rule) => rule.ruleId),
   rightsMatrixRows: GDPR_RIGHTS_MATRIX,
+  metaRequirementBindings: [
+    {
+      match: { idIncludes: ["response_timeframe", "timeframes"] },
+      capabilityIds: ["gdpr.art12.3", "dsr_no_response_timeframe"],
+    },
+    {
+      match: { idIncludes: ["assistance_obligation", "processor_assistance"] },
+      capabilityIds: [
+        "gdpr.art28.3.e",
+        "dsr_assistance_not_operational",
+        ...GDPR_RIGHTS_MATRIX.map((row) => row.rowId),
+      ],
+    },
+    {
+      match: { idIncludes: ["gap_analysis", "compliance_gap"] },
+      capabilityIds: DSR_RISK_IDS,
+    },
+  ],
   instructionFocusMap: [
     {
       triggerPhrases: [
@@ -1517,16 +1547,16 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
       packageVersion: "1.0.0",
       report: {
         sections: [
-          "scope",
-          "chapeau_particulars",
-          "requirements_detail",
-          "qualifications",
-          "recommendations",
+          "executive_summary",
+          "requirements_matrix",
+          "material_gaps",
+          "missing_materials",
           "conclusion",
         ],
         outlineExtras: [
           {
             heading: "Processing particulars (Art 28(3) chapeau)",
+            sectionId: "requirements_matrix",
             requirementTags: [
               "subject_matter",
               "duration",
@@ -1574,15 +1604,16 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
       packageVersion: "1.0.0",
       report: {
         sections: [
-          "scope",
-          "requirements_detail",
-          "qualifications",
-          "recommendations",
+          "executive_summary",
+          "requirements_matrix",
+          "material_gaps",
+          "missing_materials",
           "conclusion",
         ],
         outlineExtras: [
           {
             heading: "Mandatory Article 28(3) clauses",
+            sectionId: "requirements_matrix",
             requirementTags: ["mandatory_article28_clauses", "clause_adequacy"],
           },
         ],
@@ -1605,6 +1636,28 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
       ],
       sourceMode: "authored",
       packageVersion: "1.0.0",
+      orchestration: {
+        role: "matrix_owner",
+        matrixDeferCapabilities: ["gdpr.art28.3.e"],
+      },
+      report: {
+        reportType: "rights_matrix",
+        sections: [
+          "executive_summary",
+          "requirements_matrix",
+          "material_gaps",
+          "recommendations",
+          "conclusion",
+        ],
+        outlineExtras: [
+          {
+            heading: "Rights and obligations matrix",
+            sectionId: "requirements_matrix",
+            artifactTypes: ["rights_matrix_table"],
+            requirementTags: ["data_subject_rights"],
+          },
+        ],
+      },
     },
   ],
   relatedChecks: [

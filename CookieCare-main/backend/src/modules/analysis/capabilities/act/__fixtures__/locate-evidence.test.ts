@@ -6,11 +6,19 @@ process.env.GOOGLE_CLOUD_PROJECT ??= "locate-evidence-test";
  */
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { segmentDocument } from "../../../segmentation/segment-document.js";
+import { NUMBERED_CLAUSE_RE, segmentDocument } from "../../../segmentation/segment-document.js";
 import {
   buildRetrievalDictionary,
   extractCrossReferences,
+  expandLogicalSection,
+  expandSharedEvidenceItem,
+  groupDocumentSections,
+  headingNumberParts,
+  isChildNumber,
+  isHeadingOnlyMatch,
   locateEvidence,
+  MAX_EVIDENCE_CHARS,
+  MAX_EXPANDED_EVIDENCE_CHARS,
 } from "../locate-evidence.js";
 import { groupedResultsToFindings } from "../grouped-results-to-findings.js";
 import { getSkillById, resetSkillRegistryForTests } from "../../../skills/runtime/catalog/registry.js";
@@ -247,5 +255,173 @@ describe("explicit deep depth", () => {
       EXPLICIT_DEEP_DEPTH_RE.test("Please produce a thorough, comprehensive analysis."),
       true
     );
+  });
+});
+
+const CONFIDENTIALITY_DICT = {
+  confidentiality: {
+    headings: ["confidentiality"],
+    aliases: ["confidentiality"],
+    anchorTerms: ["bound by a duty of confidentiality"],
+  },
+};
+
+const LATE_DUTY =
+  "Personnel of the Processor shall be bound by a duty of confidentiality.";
+
+describe("evidence units (logical sections)", () => {
+  it("keeps a late-in-section operative sentence instead of a clipped prefix", () => {
+    const filler = "The processor hosts systems and provides support. ".repeat(70);
+    assert.ok(filler.length > 2400, "filler must exceed the retired 2400-char clip");
+    assert.ok(filler.length < MAX_EVIDENCE_CHARS);
+    const text = `CONFIDENTIALITY\n${filler}\n${LATE_DUTY}`;
+    const doc = segmentDocument("late-section", text, { title: "DPA" });
+    const [result] = locateEvidence(doc, ["confidentiality"], CONFIDENTIALITY_DICT);
+    const candidate = result.candidates[0];
+    assert.ok(candidate, "expected a confidentiality candidate");
+    assert.match(candidate.text, /bound by a duty of confidentiality/);
+    assert.equal(
+      candidate.endOffset - candidate.startOffset,
+      candidate.text.length,
+      "charRange must align with stored text"
+    );
+  });
+
+  it("merges numbered siblings (3.6 + 3.6.1 + 3.6.2) and stops at 3.7", () => {
+    const text = `
+3.6 Security of the Processing, Confidentiality, and Data Protection
+The processor shall implement appropriate technical and organisational measures.
+
+3.6.1 Technical and organisational measures
+Encryption at rest is required for personal data.
+
+3.6.2 Personnel confidentiality
+${LATE_DUTY}
+
+3.7 Return or deletion
+Upon termination the processor shall delete personal data.
+`.trim();
+    const doc = segmentDocument("siblings", text, { title: "DPA" });
+    assert.ok(NUMBERED_CLAUSE_RE.test("3.6 Security of the Processing"));
+    assert.ok(NUMBERED_CLAUSE_RE.test("3.6.1 Technical and organisational measures"));
+    assert.ok(NUMBERED_CLAUSE_RE.test("1. Processing of Personal Data"));
+    assert.equal(NUMBERED_CLAUSE_RE.test("28 The processor shall"), false);
+    assert.ok(
+      doc.segments.some((s) => s.kind === "clause" && s.locator.structuralPath === "clause-3.6")
+    );
+    assert.ok(
+      doc.segments.some((s) => s.kind === "clause" && s.locator.structuralPath === "clause-3.6.1")
+    );
+    assert.ok(
+      doc.segments.some((s) => s.kind === "clause" && s.locator.structuralPath === "clause-3.7")
+    );
+
+    const sections = groupDocumentSections(doc);
+    const start = sections.findIndex((s) => headingNumberParts(s.headingText)?.join(".") === "3.6");
+    assert.ok(start >= 0);
+    const expanded = expandLogicalSection(sections, start, doc);
+    assert.match(expanded.text, /technical and organisational measures/i);
+    assert.match(expanded.text, /Encryption at rest/);
+    assert.match(expanded.text, /bound by a duty of confidentiality/);
+    assert.doesNotMatch(expanded.text, /Upon termination/);
+    assert.ok(expanded.siblingCount >= 3);
+
+    const [located] = locateEvidence(doc, ["confidentiality"], CONFIDENTIALITY_DICT);
+    const candidate = located.candidates[0];
+    assert.ok(candidate);
+    assert.match(candidate.text, /bound by a duty of confidentiality/);
+    assert.match(candidate.text, /Encryption at rest/);
+    assert.doesNotMatch(candidate.text, /Upon termination/);
+  });
+
+  it("caps oversized sections with truncated=true and aligned charRange", () => {
+    const filler = "The processor hosts systems and provides support. ".repeat(400);
+    assert.ok(filler.length > MAX_EVIDENCE_CHARS);
+    const text = `CONFIDENTIALITY\n${filler}`;
+    const doc = segmentDocument("huge-section", text, { title: "DPA" });
+    const [result] = locateEvidence(doc, ["confidentiality"], CONFIDENTIALITY_DICT);
+    const candidate = result.candidates[0];
+    assert.ok(candidate);
+    assert.equal(candidate.truncated, true);
+    assert.equal(candidate.text.length, MAX_EVIDENCE_CHARS);
+    assert.equal(candidate.endOffset - candidate.startOffset, candidate.text.length);
+    assert.ok((candidate.logicalEndOffset ?? 0) > candidate.endOffset);
+
+    const expanded = expandSharedEvidenceItem(
+      doc,
+      {
+        ref: "E1",
+        clauseType: "confidentiality",
+        quotedText: candidate.text,
+        structuralPath: candidate.segmentId,
+        charRange: [candidate.startOffset, candidate.endOffset],
+        truncated: true,
+        logicalEndOffset: candidate.logicalEndOffset,
+      },
+      MAX_EXPANDED_EVIDENCE_CHARS
+    );
+    assert.ok(expanded);
+    assert.ok(expanded.quotedText.length > candidate.text.length);
+    assert.ok(expanded.quotedText.length <= MAX_EXPANDED_EVIDENCE_CHARS);
+  });
+
+  it("classifies heading-only match reasons", () => {
+    assert.equal(isHeadingOnlyMatch("heading:confidentiality"), true);
+    assert.equal(isHeadingOnlyMatch("heading-alias:confidentiality"), true);
+    assert.equal(
+      isHeadingOnlyMatch("heading:confidentiality; alias:duty of confidentiality"),
+      false
+    );
+    assert.equal(isChildNumber([3, 6], [3, 6, 1]), true);
+    assert.equal(isChildNumber([3, 6], [3, 7]), false);
+    assert.deepEqual(headingNumberParts("3.6 Security of the Processing"), [3, 6]);
+    assert.deepEqual(headingNumberParts("3.6.2 Personnel confidentiality"), [3, 6, 2]);
+  });
+});
+
+describe("groupedResultsToFindings truncated evidence", () => {
+  it("does not emit a hard missing finding when cited evidence is truncated", () => {
+    const unit = {
+      workUnitId: "wu-pkg-eval-trunc",
+      tool: "evaluate_package",
+      input: {},
+      dependsOn: [],
+      outputSchema: "Finding[]",
+      status: "succeeded",
+    } as unknown as AnalysisWorkUnit;
+    const bundle: SharedEvidenceBundle = {
+      packageId: "gdpr.art28.confidentiality",
+      docId: "d1",
+      items: [
+        {
+          ref: "E1",
+          clauseType: "confidentiality",
+          quotedText: "3.6 Security of the Processing, Confidentiality",
+          structuralPath: "clause-3.6",
+          charRange: [0, 48],
+          truncated: true,
+        },
+      ],
+    };
+    const findings = groupedResultsToFindings(
+      [
+        {
+          requirementId: "gdpr.art28.3.b",
+          status: "missing",
+          rationale: "Confidentiality duty not in the extracted prefix.",
+          evidenceRefs: ["E1"],
+        },
+      ],
+      {
+        unit,
+        docId: "d1",
+        packageId: "gdpr.art28.confidentiality",
+        sourceMode: "authored",
+        findingCategory: "processor_terms_incomplete",
+        bundle,
+      }
+    );
+    assert.equal(findings.length, 1);
+    assert.equal(findings[0].status, "insufficient_evidence");
   });
 });
