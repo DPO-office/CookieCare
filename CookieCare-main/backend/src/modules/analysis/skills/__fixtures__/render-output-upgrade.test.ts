@@ -4,7 +4,10 @@ import type { AnalysisState } from "../../models/analysis-state.js";
 import type { ClauseObject } from "../../models/clause-object.js";
 import type { Finding } from "../../models/finding.js";
 import { getSkillById, getSkillRegistry, resetSkillRegistryForTests } from "../runtime/catalog/registry.js";
-import { shouldHoldUserFacingOutput } from "../../utils/pac-log.js";
+import {
+  beginRenderStreaming,
+  shouldHoldUserFacingOutput,
+} from "../../utils/pac-log.js";
 import { initAgentRunState } from "../../pac/types.js";
 
 process.env.GOOGLE_CLOUD_PROJECT ??= "render-output-test";
@@ -455,6 +458,15 @@ describe("render-output legal memo upgrade", () => {
     state.agent!.phase = "CRITIQUE";
     assert.equal(shouldHoldUserFacingOutput(state), true);
     state.agent!.phase = "DONE";
+    assert.equal(shouldHoldUserFacingOutput(state), false);
+  });
+
+  it("opens the hold when the renderer starts streaming", () => {
+    const state = { agent: initAgentRunState("CREATE") } as AnalysisState;
+    state.agent!.phase = "ACT";
+    beginRenderStreaming(state);
+    assert.equal(shouldHoldUserFacingOutput(state), false);
+    state.agent!.phase = "AUDIT";
     assert.equal(shouldHoldUserFacingOutput(state), false);
   });
 });

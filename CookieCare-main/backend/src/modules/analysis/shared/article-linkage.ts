@@ -71,9 +71,49 @@ export function articleNumberFromRequirementId(requirementId: string): number | 
 }
 
 /**
+ * Letter/paragraph grain for an id (`28.3.a`, `28.4`, `12.3`). Lettered
+ * sub-provisions must not inherit every finding that merely shares the
+ * parent article number.
+ */
+export function subprovisionKeyFromId(id: string): string | undefined {
+  if (!id) return undefined;
+  const lettered = id.match(
+    /(?:^|[._-])art(?:icle)?[._-]?(\d{1,3})[._-](\d+)[._-]([a-h])(?=$|[._-])/i
+  );
+  if (lettered) {
+    return `${lettered[1]}.${lettered[2]}.${lettered[3].toLowerCase()}`;
+  }
+  const named = id.match(
+    /(?:^|[._-])art(?:icle)?[._-]?(\d{1,3})[._-](\d+)[._-](chapeau)(?=$|[._-])/i
+  );
+  if (named) {
+    return `${named[1]}.${named[2]}.chapeau`;
+  }
+  const paragraph = id.match(
+    /(?:^|[._-])art(?:icle)?[._-]?(\d{1,3})[._-](\d+)(?=$|[._-])/i
+  );
+  if (paragraph) {
+    return `${paragraph[1]}.${paragraph[2]}`;
+  }
+  return undefined;
+}
+
+function findingSubprovisionKey(finding: Finding): string | undefined {
+  return (
+    (finding.requirementId
+      ? subprovisionKeyFromId(finding.requirementId)
+      : undefined) ||
+    (finding.ruleId ? subprovisionKeyFromId(finding.ruleId) : undefined)
+  );
+}
+
+/**
  * Findings that speak to the same article as a requirement — even when they
  * were stamped against a matrix row or risk category rather than the
  * requirement id itself.
+ *
+ * Lettered/numbered sub-provisions stay isolated: a deletion finding must
+ * not become the evidence row for confidentiality or audit.
  */
 export function findingsLinkedToRequirement(
   requirementId: string,
@@ -84,15 +124,29 @@ export function findingsLinkedToRequirement(
   const meta = metaRequirementFindings(requirementId, findings);
   if (meta) return dedupeFindings([...direct, ...meta]);
 
+  const reqKey = subprovisionKeyFromId(requirementId);
+  if (reqKey) {
+    const keyed = findings.filter((f) => {
+      if (f.visibility === "internal") return false;
+      if (f.requirementId === requirementId) return true;
+      return findingSubprovisionKey(f) === reqKey;
+    });
+    return dedupeFindings(keyed);
+  }
+
   const article = articleNumberFromRequirementId(requirementId);
   if (!article) return direct;
 
   const linked = findings.filter((f) => {
     if (f.requirementId === requirementId) return false;
     if (f.visibility === "internal") return false;
+    // A finding already stamped to another requirement is that row's
+    // evidence, not a generic same-article hit.
+    if (f.requirementId && f.requirementId !== requirementId) return false;
+    if (findingSubprovisionKey(f)) return false;
     return articleNumberForFinding(f, state) === article;
   });
-  return [...direct, ...linked];
+  return dedupeFindings([...direct, ...linked]);
 }
 
 function metaRequirementFindings(

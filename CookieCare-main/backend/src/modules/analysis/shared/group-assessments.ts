@@ -96,8 +96,21 @@ export function groupAssessmentsForReport(
 }
 
 export function humanizeRequirementId(id: string): string {
+  const lettered = id.match(
+    /art(?:icle)?[._-]?(\d{1,3})[._-](\d+)[._-]([a-h])(?=$|[._-])/i
+  );
+  if (lettered && lettered.index !== undefined) {
+    const tail = id
+      .slice(lettered.index + lettered[0].length)
+      .replace(/^[._-]+/, "")
+      .replace(/[._-]+/g, " ")
+      .trim();
+    const titled = tail.replace(/\b\w/g, (c) => c.toUpperCase());
+    const base = `Art ${lettered[1]}(${lettered[2]})(${lettered[3].toLowerCase()})`;
+    return titled ? `${base} ${titled}` : base;
+  }
   return id
-    .replace(/^[a-z]+\.[a-z0-9.]+\./i, "")
+    .replace(/^[a-z]{2,12}\.(?=[a-z])/i, "")
     .replace(/[._-]+/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }

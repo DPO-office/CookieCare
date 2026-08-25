@@ -55,5 +55,7 @@ export function buildEvaluatePackageUserPrompt(input: {
     "If evidence is marked truncated=true or heading_only=true, you did not receive the complete logical clause. Do NOT use gap. Default to cannot_determine unless the visible text already proves the duty is absent from a section that would have contained it in the opening.",
     "Recommendations: never recommend amending the agreement from cannot_determine, truncated, or heading_only evidence. Use Obtain/Confirm/re-read instead. Recommend Amend only for gap or conditional when the cited quote is complete (not truncated).",
     "Ground every conclusion in evidence refs. If you cannot cite a ref, do not claim coverage.",
+    "Evaluate each requirementId independently. Do not copy another requirement's rationale, gap, or evidenceRefs unless that quote independently substantiates THIS requirement.",
+    "A retention or deletion extract does not prove confidentiality, security, subprocessors, assistance, or audit. Cite none and use cannot_determine or conditional when the extract does not speak to this requirement.",
   ].join("\n");
 }

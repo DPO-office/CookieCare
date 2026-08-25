@@ -49,6 +49,8 @@ export const TABULAR_SECTION_MARKDOWN_CRAFT = [
   "- Opening / conclusion / recommendations still use a table when comparing two or more items; otherwise one short paragraph is allowed.",
   "- Do not write Key Regulatory Findings, Summary of Compliance Findings, or any paragraph block that restates table rows.",
   "- Row cells: one sentence each. Do not use ASCII box drawings.",
+  "- Evidence cell: a short verbatim quote for THIS row only. If there is no quote, write `No verbatim extract` — never an em dash, hyphen, or copied quote from another row.",
+  "- Finding cell: the conclusion for THIS requirement. Never repeat another row's finding.",
   "- Finish every cell and every sentence. Never stop mid-cell or mid-clause.",
   "",
   "Status words (bold sparingly): Strong, Present & adequate, Minor drafting gap, Gap, Cannot determine, Not applicable.",

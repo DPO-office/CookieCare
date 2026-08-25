@@ -235,6 +235,8 @@ describe("evaluate-package prompt", () => {
       /never recommend amending the agreement from cannot_determine, truncated, or heading_only/i
     );
     assert.match(prompt, /Recommend Amend only for gap or conditional/);
+    assert.match(prompt, /Evaluate each requirementId independently/);
+    assert.match(prompt, /Do not copy another requirement's rationale/);
   });
 });
 

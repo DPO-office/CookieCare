@@ -35,10 +35,17 @@ function requirementsForExtra(
 ): string[] {
   if (!extra.requirementTags?.length) return extra.artifactTypes?.length ? [] : [];
   return requirementIds.filter((id) =>
-    extra.requirementTags!.some(
-      (tag) => id === tag || id.includes(tag) || id.startsWith(`${tag}.`)
-    )
+    extra.requirementTags!.some((tag) => idMatchesRequirementTag(id, tag))
   );
+}
+
+/** Tag match with separators — `subject_matter` must not swallow `pkg.subject_matter_defined`. */
+export function idMatchesRequirementTag(id: string, tag: string): boolean {
+  if (!tag) return false;
+  if (id === tag) return true;
+  if (id.startsWith(`${tag}.`) || id.startsWith(`${tag}_`)) return true;
+  if (id.includes(`.${tag}.`) || id.endsWith(`.${tag}`)) return true;
+  return false;
 }
 
 function extraRole(extra: PackageOutlineExtra): ReportSectionRole {

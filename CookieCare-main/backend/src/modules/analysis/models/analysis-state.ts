@@ -73,6 +73,10 @@ export interface AnalysisFixPlan {
 export interface AnalysisState {
   onProgress?: (percent: number, message: string) => Promise<void>;
   onToken?: (delta: string) => void;
+  /** When true, renderer tokens may reach the UI during ACT/AUDIT. */
+  streamRenderOutput?: boolean;
+  /** Chars already sent via onToken — persist skips a duplicate dump. */
+  userFacingCharsEmitted?: number;
 
   entryMode?: EntryMode;
   agent?: AgentRunState;

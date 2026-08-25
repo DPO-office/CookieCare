@@ -18,11 +18,12 @@ import {
   roleForSectionId,
   suggestedHeading,
 } from "../../prompts/report-sections.js";
-import { emitAnalysisToken } from "../../utils/stream-tokens.js";
+import { emitAnalysisToken, beginRenderStreaming } from "../../utils/stream-tokens.js";
 import { pacLog } from "../../utils/pac-log.js";
 import { groupAssessmentsForReport } from "../../shared/group-assessments.js";
 import { profileThinkingLevel } from "../../utils/profile-thinking.js";
 import { resolveSectionMaxOutputTokens } from "../../utils/resolve-synthesis-ceiling.js";
+import { createOrderedSectionStream } from "../../utils/ordered-section-stream.js";
 
 export interface SynthesizeReportOptions {
   retrySectionIds?: string[];
@@ -67,6 +68,10 @@ export async function synthesizeReport(
   const retry = new Set(options.retrySectionIds ?? []);
   const prior = new Map((state.reportSections ?? []).map((block) => [block.id, block]));
   const synthStart = Date.now();
+  beginRenderStreaming(state);
+  const live = createOrderedSectionStream(items.length, (delta) =>
+    emitAnalysisToken(state, delta)
+  );
 
   pacLog("synthesis prompt", {
     chars: 0,
@@ -79,13 +84,15 @@ export async function synthesizeReport(
     answerStyle: state.request.answerStyle ?? "narrative",
   });
 
-  const work = items.map(async (item): Promise<{
+  const work = items.map(async (item, index): Promise<{
     block: ReportSectionBlock;
     tokensUsed: number;
     truncated: boolean;
   }> => {
     const reuse = retry.size > 0 && !retry.has(item.id) && prior.get(item.id);
     if (reuse) {
+      live.push(index, reuse.markdown);
+      live.close(index);
       return { block: reuse, tokensUsed: 0, truncated: false };
     }
     const perSection = resolveSectionMaxOutputTokens(state, reportSpec, item);
@@ -107,8 +114,10 @@ export async function synthesizeReport(
           maxOutputTokens: perSection,
           tracker: sectionTracker,
           thinkingLevel: profileThinkingLevel(state, LLMTask.REFINEMENT),
+          onDelta: (delta) => live.push(index, delta),
         }
       );
+      live.close(index);
       return {
         block: {
           id: item.id,
@@ -123,11 +132,14 @@ export async function synthesizeReport(
         `[synthesizeReport] section ${item.id} failed; using deterministic fallback:`,
         err
       );
+      const markdown = buildDeterministicSection(item, assessments, findings);
+      live.push(index, markdown);
+      live.close(index);
       return {
         block: {
           id: item.id,
           heading: item.heading,
-          markdown: buildDeterministicSection(item, assessments, findings),
+          markdown,
         },
         tokensUsed: sectionTracker.tokensUsed,
         truncated: false,

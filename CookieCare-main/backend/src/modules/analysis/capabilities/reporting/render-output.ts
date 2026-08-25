@@ -11,7 +11,7 @@ import type { SegmentedDocument } from "../../models/document-workspace.js";
 import type { RuleSourceTier } from "../../models/rule-source.js";
 import type { ReportSpec } from "../../models/intent.js";
 import type { RequirementAssessment } from "../../models/requirement-assessment.js";
-import { displayRequirementStatus } from "../../models/requirement-assessment.js";
+import { displayRequirementStatus, isConditionalLike } from "../../models/requirement-assessment.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { humanizeRequirementId } from "../../shared/group-assessments.js";
 import { isTabularAnswerStyle, wantsMatrixTable } from "../../prompts/synthesis.js";
@@ -21,7 +21,7 @@ import { emitAnalysisToken } from "../../utils/stream-tokens.js";
 import { synthesizeReport } from "./synthesize-report.js";
 import { applyFinalizedReportSpec, finalizeReportSpec } from "./finalize-report-spec.js";
 import { enforceConclusionSectionLast } from "../../prompts/report-sections.js";
-import { pacLog } from "../../utils/pac-log.js";
+import { pacLog, beginRenderStreaming } from "../../utils/pac-log.js";
 import { profileThinkingLevel } from "../../utils/profile-thinking.js";
 import {
   BOTTOM_LINE_SYSTEM_PROMPT,
@@ -35,6 +35,7 @@ import {
   crossCuttingTimeframeFindings,
   gapFindingsForArticle,
 } from "../../shared/article-linkage.js";
+import { isReferencedElsewhereClaim } from "../act/requirement-status-policy.js";
 
 /** Find the first authored rule whose rendererHooks[hook] is truthy. */
 export function findRuleByRendererHook(
@@ -82,6 +83,7 @@ export async function renderOutput(
   findings: Finding[],
   unit: AnalysisWorkUnit
 ): Promise<AnalysisState> {
+  beginRenderStreaming(state);
   const schemaId = String(unit.input.schemaId ?? "checklist");
   const skillIds = (unit.input.skillIds as string[]) ?? state.activeSkillIds ?? [];
   const primarySkill = titleSkillForRender(state, skillIds);
@@ -1373,12 +1375,54 @@ function tableText(lines: string[], range: { startLine: number; endLine: number 
 }
 
 function mdCell(value: string): string {
-  return value.replace(/\|/g, "/").replace(/\s+/g, " ").trim().slice(0, 220);
+  return value.replace(/\|/g, "/").replace(/\s+/g, " ").trim().slice(0, 360);
+}
+
+function requirementLabel(
+  requirementId: string,
+  state?: AnalysisState
+): string {
+  const description = state?.intent?.requirements?.find((r) => r.id === requirementId)
+    ?.description?.trim();
+  if (description && description !== requirementId && description.length <= 80) {
+    return description;
+  }
+  return humanizeRequirementId(requirementId);
+}
+
+function pickRowFinding(
+  assessment: RequirementAssessment,
+  findingById: Map<string, Finding>
+): Finding | undefined {
+  const linked = assessment.supportingFindingIds
+    .map((id) => findingById.get(id))
+    .filter((f): f is Finding => Boolean(f));
+  const direct = linked.filter((f) => f.requirementId === assessment.requirementId);
+  const pool = direct.length > 0 ? direct : linked;
+  return (
+    pool.find((f) => Boolean(f.evidence[0]?.quotedText?.trim())) ?? pool[0]
+  );
+}
+
+function evidenceCellText(
+  assessment: RequirementAssessment,
+  finding: Finding | undefined
+): string {
+  const quote = finding?.evidence[0]?.quotedText?.trim() ?? "";
+  if (quote) return quote;
+  if (finding && isReferencedElsewhereClaim(finding)) {
+    return "Particulars referenced outside this extract";
+  }
+  if (isConditionalLike(assessment.status)) {
+    return "Particulars referenced outside this extract";
+  }
+  return "No verbatim extract";
 }
 
 export function assessmentTableMarkdown(
   assessments: RequirementAssessment[],
-  findings: Finding[]
+  findings: Finding[],
+  state?: AnalysisState
 ): string {
   const findingById = new Map(findings.map((f) => [f.findingId, f]));
   const header = [
@@ -1386,12 +1430,9 @@ export function assessmentTableMarkdown(
     "| :--- | :--- | :--- | :--- |",
   ];
   const rows = assessments.map((assessment) => {
-    const support = assessment.supportingFindingIds
-      .map((id) => findingById.get(id))
-      .find((f) => f);
-    const quote = support?.evidence[0]?.quotedText ?? "";
+    const support = pickRowFinding(assessment, findingById);
     const finding = support?.claim ?? assessment.summary;
-    return `| ${mdCell(humanizeRequirementId(assessment.requirementId))} | **${mdCell(displayRequirementStatus(assessment.status))}** | ${mdCell(quote || "—")} | ${mdCell(finding)} |`;
+    return `| ${mdCell(requirementLabel(assessment.requirementId, state))} | **${mdCell(displayRequirementStatus(assessment.status))}** | ${mdCell(evidenceCellText(assessment, support))} | ${mdCell(finding)} |`;
   });
   return [...header, ...rows].join("\n");
 }
@@ -1432,11 +1473,26 @@ function keepLargestMarkdownTable(markdown: string, preferText?: string): string
   return lines.filter((_, i) => !drop.has(i)).join("\n");
 }
 
+function assessmentsForHeading(
+  heading: string,
+  state: AnalysisState,
+  assessments: RequirementAssessment[]
+): RequirementAssessment[] {
+  const outline = state.plan?.reportSpec?.outline ?? [];
+  const needle = heading.trim().toLowerCase();
+  const item = outline.find((entry) => entry.heading.trim().toLowerCase() === needle);
+  if (!item?.requirementIds?.length) return [];
+  const wanted = new Set(item.requirementIds);
+  return assessments.filter((assessment) => wanted.has(assessment.requirementId));
+}
+
 function injectAssessmentTableIntoSections(
   markdown: string,
-  table: string
+  state: AnalysisState,
+  assessments: RequirementAssessment[]
 ): string {
-  if (!table.trim()) return markdown;
+  if (assessments.length === 0) return markdown;
+  const findings = state.findings ?? [];
   const lines = markdown.split(/\n/);
   const headingIdxs: number[] = [];
   for (let i = 0; i < lines.length; i++) {
@@ -1444,25 +1500,56 @@ function injectAssessmentTableIntoSections(
   }
   if (headingIdxs.length === 0) {
     if (countMarkdownTables(markdown) > 0) return markdown;
-    return `${markdown.trim()}\n\n${table}\n`;
+    return `${markdown.trim()}\n\n${assessmentTableMarkdown(assessments, findings, state)}\n`;
   }
-  const injectAt = new Set<number>();
+  const inject: Array<{ at: number; table: string }> = [];
   for (let h = 0; h < headingIdxs.length; h++) {
     const start = headingIdxs[h]!;
     const end = headingIdxs[h + 1] ?? lines.length;
     const heading = (lines[start] ?? "").replace(/^##\s+/, "").trim();
     if (SKIP_TABULAR_INJECT_HEADING.test(heading)) continue;
     const body = lines.slice(start + 1, end).join("\n");
-    if (countMarkdownTables(body) === 0) injectAt.add(end);
+    if (countMarkdownTables(body) > 0) continue;
+    const scoped = assessmentsForHeading(heading, state, assessments);
+    if (scoped.length === 0) continue;
+    inject.push({ at: end, table: assessmentTableMarkdown(scoped, findings, state) });
   }
-  if (injectAt.size === 0) return markdown;
+  if (inject.length === 0) {
+    if (countMarkdownTables(markdown) > 0) return markdown;
+    const first = headingIdxs.find((idx) => {
+      const heading = (lines[idx] ?? "").replace(/^##\s+/, "").trim();
+      return !SKIP_TABULAR_INJECT_HEADING.test(heading);
+    });
+    if (first === undefined) {
+      return `${markdown.trim()}\n\n${assessmentTableMarkdown(assessments, findings, state)}\n`;
+    }
+    inject.push({
+      at: headingIdxs[headingIdxs.indexOf(first) + 1] ?? lines.length,
+      table: assessmentTableMarkdown(assessments, findings, state),
+    });
+  }
+  const byLine = new Map(inject.map((item) => [item.at, item.table]));
   const out: string[] = [];
   for (let i = 0; i <= lines.length; i++) {
-    if (injectAt.has(i)) {
+    const table = byLine.get(i);
+    if (table) {
       if (out.length > 0 && out[out.length - 1] !== "") out.push("");
       out.push(table, "");
     }
     if (i < lines.length) out.push(lines[i] ?? "");
+  }
+  return out.join("\n");
+}
+
+function normalizeMarkdownTables(markdown: string): string {
+  const lines = markdown.split(/\n/);
+  const out: string[] = [];
+  for (const line of lines) {
+    const prev = out[out.length - 1];
+    if (isTableLine(line) && prev !== undefined && prev.trim() !== "" && !isTableLine(prev)) {
+      out.push("");
+    }
+    out.push(line);
   }
   return out.join("\n");
 }
@@ -1472,15 +1559,13 @@ export function enforceAnswerStyleLayout(
   state: AnalysisState
 ): string {
   if (!markdown.trim()) return markdown;
+  const separated = normalizeMarkdownTables(markdown);
   if (isTabularAnswerStyle(state)) {
     const assessments = state.requirementAssessments ?? [];
-    if (assessments.length === 0) return markdown;
-    return injectAssessmentTableIntoSections(
-      markdown,
-      assessmentTableMarkdown(assessments, state.findings ?? [])
-    );
+    if (assessments.length === 0) return separated;
+    return injectAssessmentTableIntoSections(separated, state, assessments);
   }
-  if (countMarkdownTables(markdown) > 1) {
+  if (countMarkdownTables(separated) > 1) {
     const artifactMd =
       typeof state.analysisArtifacts?.rights_matrix_table?.data === "object"
         ? String(
@@ -1488,9 +1573,9 @@ export function enforceAnswerStyleLayout(
               .markdown ?? ""
           )
         : "";
-    return keepLargestMarkdownTable(markdown, artifactMd || undefined);
+    return keepLargestMarkdownTable(separated, artifactMd || undefined);
   }
-  return markdown;
+  return separated;
 }
 
 const INTERNAL_OUTPUT_PATTERNS = [

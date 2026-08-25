@@ -236,6 +236,9 @@ export default function ReportView({
   // Collect all unique sources for the references panel
   const allRefs = useMemo(() => buildRefList(chatMessages), [chatMessages]);
   const hasRefs = allRefs.length > 0;
+  const hasMarkdownTable = chatMessages.some(
+    (m) => m.sender === "gemini" && /\|.+\|/.test(m.text || "")
+  );
 
   return (
     <>
@@ -282,7 +285,7 @@ export default function ReportView({
             <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-4 pt-6">
               <div
                 className="mx-auto space-y-7 print-container"
-                style={{ maxWidth: hasRefs ? 720 : 768 }}
+                style={{ maxWidth: hasMarkdownTable ? 1100 : hasRefs ? 720 : 768 }}
               >
                 {chatMessages.length === 0 && openQuestions.length === 0 && (
                   <div className="flex items-center gap-2.5">
@@ -400,7 +403,7 @@ export default function ReportView({
               <form
                 onSubmit={onSendMessage}
                 className="analyze-report-composer mx-auto"
-                style={{ maxWidth: hasRefs ? 720 : 768 }}
+                style={{ maxWidth: hasMarkdownTable ? 1100 : hasRefs ? 720 : 768 }}
               >
                 <button
                   type="button"

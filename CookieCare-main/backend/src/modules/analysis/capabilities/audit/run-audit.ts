@@ -5,7 +5,7 @@ import {
 } from "../../../../llm/index.js";
 import type { AnalysisState } from "../../models/analysis-state.js";
 import { groundFindings } from "./ground-findings.js";
-import { pacLog } from "../../utils/pac-log.js";
+import { emitAnalysisToken, pacLog } from "../../utils/pac-log.js";
 import { profileThinkingLevel } from "../../utils/profile-thinking.js";
 
 const VERIFY_TIMEOUT_MS = 15_000;
@@ -73,6 +73,8 @@ async function maybeAppendVerificationNotes(state: AnalysisState): Promise<Analy
     const contradictions = (result.contradictions ?? []).filter(Boolean).slice(0, 8);
     if (contradictions.length === 0) return state;
     const notes = ["## Verification notes", ...contradictions.map((c) => `- ${c}`)].join("\n");
+    const appendix = `\n\n${notes}\n`;
+    emitAnalysisToken(state, appendix);
     return {
       ...state,
       auditReport: {
@@ -81,7 +83,7 @@ async function maybeAppendVerificationNotes(state: AnalysisState): Promise<Analy
         contradictions,
         notes: [...(state.auditReport?.notes ?? []), "LLM verifier appended verification notes."],
       },
-      renderedOutput: `${state.renderedOutput.trim()}\n\n${notes}\n`,
+      renderedOutput: `${state.renderedOutput.trim()}${appendix}`,
     };
   } catch (err) {
     pacLog("audit verifier skipped", {

@@ -9,6 +9,7 @@ import { resolvePlanOutputForm } from "../../plan/build-plan.js";
 import { wantsMatrixTable } from "../../../prompts/synthesis.js";
 import {
   attachRightsMatrixTableArtifact,
+  assessmentTableMarkdown,
   countMarkdownTables,
   enforceAnswerStyleLayout,
 } from "../render-output.js";
@@ -159,6 +160,129 @@ describe("narrative vs tabular layout contract", () => {
     assert.match(out, /Requirement/);
     assert.match(out, /Access/i);
     assert.match(out, /Present & adequate/);
+  });
+
+  it("does not dump every assessment into a section that already has a table", () => {
+    const markdown = [
+      "## Processing particulars",
+      "",
+      "| Requirement | Status | Evidence | Finding |",
+      "| :--- | :--- | :--- | :--- |",
+      "| Subject matter of processing | **Minor drafting gap** | Annex 2 | Confirm annex particulars. |",
+      "",
+      "## Conclusion",
+      "Confirm the annex.",
+    ].join("\n");
+    const out = enforceAnswerStyleLayout(
+      markdown,
+      state({
+        request: {
+          sessionId: "s1",
+          instruction: "Present as a table",
+          documentIds: ["doc-1"],
+          documentTexts: {},
+          answerStyle: "tabular",
+        },
+        requirementAssessments: [
+          {
+            requirementId: "req.access",
+            supportingFindingIds: ["f1"],
+            status: "covered",
+            summary: "Access is named.",
+          },
+          {
+            requirementId: "art28_3_g_deletion_return",
+            supportingFindingIds: ["f_del"],
+            status: "conditional",
+            summary: "Deletion exception is broad.",
+          },
+        ],
+        findings: [
+          finding("f1", "The processor shall assist with access requests."),
+          {
+            ...finding("f_del", "unless applicable local law requires storage"),
+            requirementId: "art28_3_g_deletion_return",
+            claim: "The deletion exception is broader than Union or Member State law.",
+          },
+        ],
+        plan: {
+          focus: { matrixRowIds: ["row.access"] },
+          outputForm: "table",
+          reportSpec: {
+            reportType: "regime_compliance_memo",
+            depth: "standard",
+            sections: ["requirements_matrix", "conclusion"],
+            outline: [
+              {
+                id: "chapeau",
+                role: "chapeau_particulars",
+                sectionId: "chapeau_particulars",
+                heading: "Processing particulars",
+                requirementIds: ["req.access"],
+                source: "deterministic",
+              },
+            ],
+          },
+        },
+      })
+    );
+    assert.equal(countMarkdownTables(out), 1);
+    assert.doesNotMatch(out, /Art 28\(3\)\(g\)/);
+    assert.doesNotMatch(out, /deletion exception is broader/i);
+  });
+
+  it("uses this row's quote and never an em dash for empty evidence", () => {
+    const markdown = assessmentTableMarkdown(
+      [
+        {
+          requirementId: "art28_3_b_confidentiality",
+          supportingFindingIds: ["f_conf", "f_del"],
+          status: "adequate",
+          summary: "Staff confidentiality is present.",
+        },
+        {
+          requirementId: "art28_3_g_deletion_return",
+          supportingFindingIds: ["f_del"],
+          status: "conditional",
+          summary: "Deletion exception is broad.",
+        },
+        {
+          requirementId: "duration",
+          supportingFindingIds: ["f_duration"],
+          status: "strong",
+          summary: "Duration follows the agreement term.",
+        },
+      ],
+      [
+        {
+          ...finding("f_conf", "Personnel shall keep personal data confidential."),
+          requirementId: "art28_3_b_confidentiality",
+          claim: "Staff are bound to confidentiality.",
+        },
+        {
+          ...finding("f_del", "unless applicable local law requires storage"),
+          requirementId: "art28_3_g_deletion_return",
+          claim: "The deletion exception is broader than Union or Member State law.",
+        },
+        {
+          ...finding("f_duration", ""),
+          requirementId: "duration",
+          claim: "Duration follows the agreement term.",
+          evidence: [],
+        },
+      ]
+    );
+    assert.match(markdown, /Personnel shall keep personal data confidential/);
+    assert.match(markdown, /Staff are bound to confidentiality/);
+    const confidentialityRow = markdown
+      .split("\n")
+      .find((line) => /confidentiality/i.test(line));
+    assert.ok(confidentialityRow);
+    assert.doesNotMatch(confidentialityRow!, /deletion exception is broader/i);
+    assert.doesNotMatch(confidentialityRow!, /unless applicable local law/i);
+    assert.match(markdown, /No verbatim extract/);
+    assert.doesNotMatch(markdown, /\| — \|/);
+    assert.doesNotMatch(markdown, /\| - \|/);
   });
 
   it("preserves tabular outputForm instead of collapsing rights_matrix to memo", () => {

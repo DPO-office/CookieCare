@@ -351,6 +351,45 @@ export const ANALYZE_STYLES = `
   color: #667085;
 }
 
+.analyze-report-prose .md-content .md-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin: 1rem 0 1.25rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  background: #fff;
+}
+
+.analyze-report-prose .md-content table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.analyze-report-prose .md-content thead th,
+.analyze-report-prose .md-content tbody td {
+  vertical-align: top;
+  text-align: left;
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid #eef2f6;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.analyze-report-prose .md-content thead th {
+  background: #f8fafc;
+  font-weight: 650;
+  color: #1a1a1a;
+}
+
+.analyze-report-prose .md-content tbody td {
+  min-width: 7rem;
+  max-width: 22rem;
+  color: #344054;
+}
+
 .analyze-report-prose .md-content strong {
   color: #1a1a1a;
   font-weight: 650;
