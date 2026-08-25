@@ -18,6 +18,8 @@ export type AnalysisProfile = {
   synthesisCeilingFactor: number;
   /** Absolute maxOutputTokens hard cap for synthesis (never blind 5k for every run). */
   synthesisHardCap: number;
+  /** Per-capability quoted-evidence character budget for locate/evaluate. */
+  evidenceCharBudget: number;
 };
 
 const LITE_PROFILE: AnalysisProfile = {
@@ -35,14 +37,15 @@ const LITE_PROFILE: AnalysisProfile = {
   synthesisCeilingFactor: 1,
   /** Per-section synthesis hard cap (sections are generated independently). */
   synthesisHardCap: 3600,
+  evidenceCharBudget: 2_000,
 };
 
 const DEEP_PROFILE: AnalysisProfile = {
   thinkingMode: "deep",
-  maxTurns: 2,
-  enableDeepCritique: true,
-  maxTier2Attempts: 1,
-  maxReplans: 1,
+  maxTurns: 1,
+  enableDeepCritique: false,
+  maxTier2Attempts: 0,
+  maxReplans: 0,
   thinkingByTask: {
     [LLMTask.STRUCTURAL_JSON_LITE]: "low",
     [LLMTask.STRUCTURAL_JSON]: "medium",
@@ -53,6 +56,7 @@ const DEEP_PROFILE: AnalysisProfile = {
   synthesisCeilingFactor: 1.75,
   /** Per-section synthesis hard cap (sections are generated independently). */
   synthesisHardCap: 6400,
+  evidenceCharBudget: 8_000,
 };
 
 /** API / UI default when the field is omitted. */

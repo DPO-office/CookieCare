@@ -52,7 +52,7 @@ describe("groupAssessmentsForReport", () => {
     assert.equal(business!.members.length, 1);
   });
 
-  it("marks mixed coverage in a group as partial", () => {
+  it("marks mixed coverage in a group as conditional", () => {
     const groups = groupAssessmentsForReport([
       assessment("ccpa.no_sell_share", "covered", "Sale restriction present."),
       assessment(
@@ -62,7 +62,7 @@ describe("groupAssessmentsForReport", () => {
       ),
     ]);
     assert.equal(groups.length, 1);
-    assert.equal(groups[0].status, "partial");
+    assert.equal(groups[0].status, "conditional");
   });
 });
 
@@ -213,8 +213,8 @@ describe("evaluate-package prompt", () => {
       authoredRuleText: "[ccpa.no_sell_share] No sale or sharing.",
       evidenceLines: ["(E1) [use_limitation status=referenced_elsewhere] See Annex A"],
     });
-    assert.match(prompt, /does NOT automatically mean missing/);
-    assert.match(prompt, /cannot_determine \(not missing\)/);
+    assert.match(prompt, /does NOT automatically mean gap/);
+    assert.match(prompt, /cannot_determine \(not gap\)/);
     assert.match(prompt, /status=referenced_elsewhere/);
   });
 
@@ -229,12 +229,12 @@ describe("evaluate-package prompt", () => {
       ],
     });
     assert.match(prompt, /truncated=true or heading_only=true/);
-    assert.match(prompt, /Do NOT use missing/);
+    assert.match(prompt, /Do NOT use gap/);
     assert.match(
       prompt,
       /never recommend amending the agreement from cannot_determine, truncated, or heading_only/i
     );
-    assert.match(prompt, /Recommend Amend only for missing or partial/);
+    assert.match(prompt, /Recommend Amend only for gap or conditional/);
   });
 });
 
@@ -356,5 +356,53 @@ describe("per-section synthesis prompt", () => {
     assert.match(prompt, /TABLE CONTRACT/);
     assert.match(prompt, /Requirement \| Status \| Evidence \| Finding/);
     assert.doesNotMatch(prompt, /\bgdpr\b/i);
+  });
+
+  it("uses a numbered-list contract for narrative rights-matrix sections", () => {
+    const state = {
+      request: {
+        sessionId: "s1",
+        instruction: "How does this agreement address data subject rights?",
+        documentIds: [],
+        documentTexts: {},
+        answerStyle: "narrative",
+      },
+      intent: {
+        scope: "whole_document",
+        operation: "compliance_check",
+        standard: "none",
+        outputForm: "memo",
+        compound: false,
+        subIntents: [],
+        requirements: [],
+        confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 },
+      },
+      workspace: {},
+      findings: [],
+      analysisArtifacts: {},
+    } as unknown as AnalysisState;
+
+    const prompt = buildSectionSynthesisUserPrompt({
+      state,
+      findings: [],
+      assessments: [assessment("req.access", "partial")],
+      reportSpec: {
+        reportType: "rights_matrix",
+        depth: "standard",
+        sections: ["executive_summary", "requirements_matrix", "conclusion"],
+      },
+      item: {
+        id: "analysis.matrix",
+        role: "requirements_matrix",
+        sectionId: "requirements_matrix",
+        heading: "Requirements matrix",
+        requirementIds: ["req.access"],
+        source: "deterministic",
+      },
+    });
+    assert.match(prompt, /NARRATIVE CONTRACT/);
+    assert.match(prompt, /numbered list/);
+    assert.doesNotMatch(prompt, /Prefer a markdown table/);
+    assert.doesNotMatch(prompt, /TABLE CONTRACT FOR THIS SECTION/);
   });
 });

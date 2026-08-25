@@ -19,3 +19,8 @@ export function profileThinkingLevel(
 ): GeminiThinkingLevel | undefined {
   return thinkingLevelForTask(getAnalysisProfile(state), task);
 }
+
+/** Per-item evidence quote budget (lite 2k / deep 8k). */
+export function profileEvidenceCharBudget(state: AnalysisState): number {
+  return getAnalysisProfile(state).evidenceCharBudget;
+}

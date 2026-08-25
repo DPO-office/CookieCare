@@ -47,7 +47,7 @@ const PARALLEL_SAFE_TOOLS = new Set<AnalysisToolName>([
 
 const ACT_CONCURRENCY = Math.max(
   1,
-  Number(process.env.ANALYSIS_ACT_CONCURRENCY || 4)
+  Number(process.env.ANALYSIS_ACT_CONCURRENCY || 8)
 );
 
 async function runConcurrent<T, R>(
@@ -148,7 +148,7 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
     emitActProgress(state, 40, "Analyzing…", lastProgress);
   }
 
-  const batches = topologicalBatches(runnable, 4);
+  const batches = topologicalBatches(runnable, Math.max(8, ACT_CONCURRENCY));
   let findings = [...state.findings];
   const totalUnits = Math.max(runnable.length, 1);
   let finishedUnits = 0;

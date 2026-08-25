@@ -74,7 +74,7 @@ export const REPORT_SECTION_DEFINITIONS: Record<ReportSectionId, ReportSectionDe
     id: "requirements_matrix",
     suggestedHeading: "Requirements matrix",
     role:
-      "Present the mapped requirements as a structured matrix or compact table of statuses with cited evidence. Do not write a second narrative of the same points later.",
+      "Present the mapped requirements as statuses with cited evidence. In narrative mode use a compact numbered list; in tabular mode use one markdown table. Do not write a second narrative of the same points later.",
     headingPatterns: [/\brequirements matrix\b/i, /\bmatrix\b/i],
   },
   key_findings: {

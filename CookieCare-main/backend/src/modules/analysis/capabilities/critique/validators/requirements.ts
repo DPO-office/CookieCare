@@ -8,10 +8,30 @@ import type {
 import type { Finding } from "../../../models/finding.js";
 import { deriveRequirementStatus } from "../../act/requirement-status-policy.js";
 import {
+  canonicalRequirementStatus,
+  isConditionalLike,
+  isCoveredLike,
+  isGapLike,
+  type RequirementStatus,
+} from "../../../models/requirement-assessment.js";
+import {
   addTarget,
   packageIdForUnit,
   packageUnitForRequirement,
 } from "./shared.js";
+
+function statusesAlign(
+  assessmentStatus: RequirementStatus,
+  derivedStatus: RequirementStatus
+): boolean {
+  const assessment = canonicalRequirementStatus(assessmentStatus);
+  const derived = canonicalRequirementStatus(derivedStatus);
+  if (assessment === derived) return true;
+  if (isCoveredLike(assessment) && isCoveredLike(derived)) return true;
+  if (isConditionalLike(assessment) && isConditionalLike(derived)) return true;
+  if (isGapLike(assessment) && isGapLike(derived)) return true;
+  return false;
+}
 
 export function validateRequirements(
   state: AnalysisState,
@@ -99,7 +119,7 @@ export function validateRequirements(
     });
 
     const derived = deriveRequirementStatus(linked);
-    const statusConsistent = derived === assessment.status;
+    const statusConsistent = statusesAlign(assessment.status, derived);
     const consistencyId = `requirement-consistency:${assessment.requirementId}`;
     results.push({
       itemId: consistencyId,

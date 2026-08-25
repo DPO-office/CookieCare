@@ -19,6 +19,7 @@ import {
   locateEvidence,
   MAX_EVIDENCE_CHARS,
   MAX_EXPANDED_EVIDENCE_CHARS,
+  truncateAtWordBoundary,
 } from "../locate-evidence.js";
 import { groupedResultsToFindings } from "../grouped-results-to-findings.js";
 import { getSkillById, resetSkillRegistryForTests } from "../../../skills/runtime/catalog/registry.js";
@@ -343,7 +344,8 @@ Upon termination the processor shall delete personal data.
     const candidate = result.candidates[0];
     assert.ok(candidate);
     assert.equal(candidate.truncated, true);
-    assert.equal(candidate.text.length, MAX_EVIDENCE_CHARS);
+    assert.ok(candidate.text.length <= MAX_EVIDENCE_CHARS);
+    assert.ok(candidate.text.length < filler.length);
     assert.equal(candidate.endOffset - candidate.startOffset, candidate.text.length);
     assert.ok((candidate.logicalEndOffset ?? 0) > candidate.endOffset);
 
@@ -423,5 +425,23 @@ describe("groupedResultsToFindings truncated evidence", () => {
     );
     assert.equal(findings.length, 1);
     assert.equal(findings[0].status, "insufficient_evidence");
+  });
+
+  it("does not truncate evidence in the middle of a word", () => {
+    const cut = truncateAtWordBoundary("Standard Contractual Clauses apply to transfers.", 24);
+    assert.ok(cut.length <= 24);
+    assert.doesNotMatch(cut, /Clau$/);
+    assert.match(cut, /Standard Contractual$/);
+  });
+
+  it("honors a smaller per-item evidence budget", () => {
+    const filler = "The processor hosts systems and provides support. ".repeat(80);
+    const text = `CONFIDENTIALITY\n${filler}`;
+    const doc = segmentDocument("budget-section", text, { title: "DPA" });
+    const [result] = locateEvidence(doc, ["confidentiality"], CONFIDENTIALITY_DICT, 2000);
+    const candidate = result.candidates[0];
+    assert.ok(candidate);
+    assert.ok(candidate.text.length <= 2000);
+    assert.doesNotMatch(candidate.text, /and pr$/);
   });
 });

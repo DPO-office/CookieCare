@@ -32,11 +32,11 @@ export interface ConvertContext {
  * (ACT refactor doc §8). Each result yields findings whose statuses reproduce
  * the requirement verdict under the deterministic status policy:
  *
- *   covered           -> one `present` finding
- *   missing           -> one `absent_expected` finding
- *   partial           -> a `present` finding + an `absent_expected` gap finding
- *   cannot_determine  -> one `insufficient_evidence` finding
- *   not_applicable    -> one `not_covered` finding
+ *   strong/adequate/covered -> one `present` finding
+ *   gap/missing             -> one `absent_expected` finding
+ *   conditional/partial     -> a `present` finding + an `absent_expected` gap finding
+ *   cannot_determine        -> one `insufficient_evidence` finding
+ *   not_applicable          -> one `not_covered` finding
  *
  * Every finding is tagged with `requirementId` so CRITIQUE can verify each
  * requirement independently and aggregation can group them.
@@ -74,6 +74,8 @@ function findingsForResult(
   };
 
   switch (result.status) {
+    case "strong":
+    case "adequate":
     case "covered":
       return [
         {
@@ -83,6 +85,7 @@ function findingsForResult(
           claim: result.rationale,
         },
       ];
+    case "gap":
     case "missing": {
       if (shouldTreatMissingAsIndeterminate(result, ctx)) {
         return [
@@ -106,6 +109,7 @@ function findingsForResult(
         },
       ];
     }
+    case "conditional":
     case "partial":
       return [
         {

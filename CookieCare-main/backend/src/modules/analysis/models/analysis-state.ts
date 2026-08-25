@@ -2,6 +2,7 @@ import type { AgentRunState, EntryMode } from "../pac/types.js";
 import type { AnalysisProfile, ThinkingMode } from "../pac/analysis-profile.js";
 import type { AnalysisPlan, MissingClarification, PlanAuditRecord } from "./analysis-plan.js";
 import type { CritiqueReport, FixItem } from "./critique-report.js";
+import type { AuditReport } from "./audit-report.js";
 import type { AnalysisConversation } from "./conversation.js";
 import type { AnalysisWorkspace } from "./document-workspace.js";
 import type { Finding } from "./finding.js";
@@ -79,6 +80,7 @@ export interface AnalysisState {
   analysisProfile?: AnalysisProfile;
   plan?: AnalysisPlan | null;
   critique?: CritiqueReport | null;
+  auditReport?: AuditReport | null;
   conversation?: AnalysisConversation;
   fixPlan?: AnalysisFixPlan | null;
   /** Set by CRITIQUE for ACT targeted repair (cleared after ACT). */

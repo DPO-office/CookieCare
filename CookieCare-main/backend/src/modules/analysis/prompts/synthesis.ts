@@ -7,6 +7,7 @@ import type {
 } from "../models/intent.js";
 import { conversationContextForIntent } from "../memory/conversation-window.js";
 import type { RequirementAssessment } from "../models/requirement-assessment.js";
+import { isConditionalLike, isMaterialIssueStatus } from "../models/requirement-assessment.js";
 import {
   groupAssessmentsForReport,
   humanizeRequirementId,
@@ -364,7 +365,7 @@ function renderContradictions(
   const mixed = groups.filter(
     (g) => g.members.length > 1 && new Set(g.members.map((m) => m.status)).size > 1
   );
-  const partial = assessments.filter((a) => a.status === "partial");
+  const partial = assessments.filter((a) => isConditionalLike(a.status));
   if (mixed.length === 0 && partial.length === 0) {
     return "No material contradictions were flagged in the assessments.";
   }
@@ -446,7 +447,9 @@ export const SYNTHESIS_SECTION_SYSTEM_PROMPT = [
   "Treat supplied statuses as given. Do not silently reverse them.",
   "cannot_determine is not a legal gap. Never recommend amending the agreement from cannot_determine, insufficient evidence, or truncated quotes — use Obtain / Confirm / re-read.",
   "Use Amend only for missing or partial when the cited quote is complete.",
-  "Answer what the user asked. Do not pad with stock memo boilerplate that does not advance their question.",
+  "Answer what the user asked. Write 3–4 short paragraphs of professional prose.",
+  "Do not emit markdown tables unless STRUCTURED INVENTORIES already include a matrix artifact the user asked for.",
+  "Do not pad with stock memo boilerplate that does not advance their question.",
   "Finish the section completely — never stop mid-sentence or mid-table cell.",
   LEGAL_MEMO_MARKDOWN_CRAFT,
 ].join("\n");
@@ -454,7 +457,16 @@ export const SYNTHESIS_SECTION_SYSTEM_PROMPT = [
 export function isTabularAnswerStyle(state: AnalysisState): boolean {
   if (state.request.answerStyle === "tabular") return true;
   if (state.intent?.outputForm === "table") return true;
+  if (state.plan?.outputForm === "table") return true;
   return false;
+}
+
+export function wantsMatrixTable(state: AnalysisState): boolean {
+  if (isTabularAnswerStyle(state)) return true;
+  const text = `${state.request.instruction ?? ""} ${state.intent?.outputForm ?? ""}`;
+  return /\b(rights\s+matrix|as\s+a\s+(?:rights\s+)?matrix|matrix\s+of\s+rights|as(?:\s+a)?\s+table|in\s+a\s+table)\b/i.test(
+    text
+  );
 }
 
 export function synthesisSectionSystemPrompt(state: AnalysisState): string {
@@ -484,7 +496,7 @@ export function assessmentsForOutlineItem(
   if (isOpeningSectionId(sectionId) || sectionId === "conclusion") return assessments;
   if (sectionId === "evidence") return assessments;
   if (sectionId === "material_gaps" || sectionId === "recommendations") {
-    return assessments.filter((a) => a.status === "missing" || a.status === "partial");
+    return assessments.filter((a) => isMaterialIssueStatus(a.status));
   }
   if (sectionId === "missing_materials" || isCaveatSectionId(sectionId)) {
     return assessments.filter((a) => a.status === "cannot_determine");
@@ -546,8 +558,8 @@ export function buildSectionSynthesisUserPrompt(input: {
     "",
     "ANSWER STYLE",
     tabular
-      ? "tabular — core analysis in markdown tables; at most 2 short framing sentences before a table for analysis sections"
-      : "narrative — concise professional prose; tables only when they materially help",
+      ? "tabular — one lead sentence then one markdown table; at most one closing sentence; no paragraph restatements of rows"
+      : "narrative — 3–4 short paragraphs; no markdown tables unless STRUCTURED INVENTORIES already contain a user-requested matrix artifact; cite evidence inline as [E1]",
     "",
     "THIS SECTION ONLY",
     `Heading (use verbatim as ##): ${item.heading}`,
@@ -566,13 +578,13 @@ export function buildSectionSynthesisUserPrompt(input: {
     tabular && isAnalysis
       ? [
           "TABLE CONTRACT FOR THIS SECTION",
-          "After at most two framing sentences, output a markdown table with columns:",
+          "One lead sentence, then a markdown table with columns:",
           "| Requirement | Status | Evidence | Finding |",
-          "One row per mapped obligation or theme. Do not follow the table with a long prose restatement.",
+          "One row per mapped obligation or theme. Cells are one sentence. No Key findings prose after the table.",
           "",
         ].join("\n")
-      : sectionId === "requirements_matrix"
-        ? "Prefer a markdown table of obligation / status / evidence for this section."
+      : sectionId === "requirements_matrix" && !tabular
+        ? "NARRATIVE CONTRACT: numbered list of rights/obligations with status and a short evidence cite. No markdown table."
         : "",
     "MATERIALS FOR THIS SECTION",
     groups.length > 0

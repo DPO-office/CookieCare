@@ -167,13 +167,16 @@ export function deriveReportOutline(
       analysisGroups.length <= maxThemeSections
         ? analysisGroups
         : [
+            ...analysisGroups.slice(0, maxThemeSections - 1),
             {
               title:
                 authoredAnalysisCount > 0
                   ? suggestedHeading(remainderId)
                   : "Key findings",
-              members: analysisGroups.flatMap((group) => group.members),
-              status: "covered" as const,
+              members: analysisGroups
+                .slice(maxThemeSections - 1)
+                .flatMap((group) => group.members),
+              status: "adequate" as const,
             },
           ];
 

@@ -66,10 +66,7 @@ export async function synthesizeReport(
   const items = outlineItemsForSpec(reportSpec);
   const retry = new Set(options.retrySectionIds ?? []);
   const prior = new Map((state.reportSections ?? []).map((block) => [block.id, block]));
-  const tracker = state.agent ? { tokensUsed: state.agent.tokensUsed } : undefined;
   const synthStart = Date.now();
-  let anyTruncated = false;
-  let maxSectionTokens = 0;
 
   pacLog("synthesis prompt", {
     chars: 0,
@@ -82,15 +79,16 @@ export async function synthesizeReport(
     answerStyle: state.request.answerStyle ?? "narrative",
   });
 
-  const blocks: ReportSectionBlock[] = [];
-  for (const item of items) {
+  const work = items.map(async (item): Promise<{
+    block: ReportSectionBlock;
+    tokensUsed: number;
+    truncated: boolean;
+  }> => {
     const reuse = retry.size > 0 && !retry.has(item.id) && prior.get(item.id);
     if (reuse) {
-      blocks.push(reuse);
-      continue;
+      return { block: reuse, tokensUsed: 0, truncated: false };
     }
     const perSection = resolveSectionMaxOutputTokens(state, reportSpec, item);
-    maxSectionTokens = Math.max(maxSectionTokens, perSection);
     const prompt = buildSectionSynthesisUserPrompt({
       state,
       findings,
@@ -98,6 +96,7 @@ export async function synthesizeReport(
       reportSpec,
       item,
     });
+    const sectionTracker = { tokensUsed: 0 };
     try {
       const outcome = await executeBoundedCompletion(
         prompt,
@@ -106,28 +105,46 @@ export async function synthesizeReport(
         LLMProvider.GEMINI,
         {
           maxOutputTokens: perSection,
-          onDelta: (delta) => emitAnalysisToken(state, delta),
-          tracker,
+          tracker: sectionTracker,
           thinkingLevel: profileThinkingLevel(state, LLMTask.REFINEMENT),
         }
       );
-      if (outcome.truncated) anyTruncated = true;
-      const markdown = ensureHeading(outcome.text.trim(), item.heading);
-      blocks.push({ id: item.id, heading: item.heading, markdown });
+      return {
+        block: {
+          id: item.id,
+          heading: item.heading,
+          markdown: ensureHeading(outcome.text.trim(), item.heading),
+        },
+        tokensUsed: sectionTracker.tokensUsed,
+        truncated: outcome.truncated,
+      };
     } catch (err) {
       console.warn(
         `[synthesizeReport] section ${item.id} failed; using deterministic fallback:`,
         err
       );
-      blocks.push({
-        id: item.id,
-        heading: item.heading,
-        markdown: buildDeterministicSection(item, assessments, findings),
-      });
+      return {
+        block: {
+          id: item.id,
+          heading: item.heading,
+          markdown: buildDeterministicSection(item, assessments, findings),
+        },
+        tokensUsed: sectionTracker.tokensUsed,
+        truncated: false,
+      };
     }
-  }
+  });
 
-  if (state.agent && tracker) state.agent.tokensUsed = tracker.tokensUsed;
+  const results = await Promise.all(work);
+  const blocks: ReportSectionBlock[] = results.map((result) => result.block);
+  const anyTruncated = results.some((result) => result.truncated);
+  const maxSectionTokens = items.reduce((max, item) => {
+    if (retry.size > 0 && !retry.has(item.id) && prior.get(item.id)) return max;
+    return Math.max(max, resolveSectionMaxOutputTokens(state, reportSpec, item));
+  }, 0);
+  if (state.agent) {
+    state.agent.tokensUsed += results.reduce((sum, result) => sum + result.tokensUsed, 0);
+  }
   state.reportSections = blocks;
   state.synthesisMeta = {
     truncated: anyTruncated,

@@ -363,8 +363,14 @@ describe("matrix-focus ACT graph", () => {
       }),
     });
     assert.equal(graph.rendererSchemaId, "memo");
+    const shared = graph.workUnits.filter((unit) => unit.tool === "extract_shared_evidence");
+    assert.equal(shared.length, 1);
+    assert.equal(shared[0]?.input.packageId, "_matrix_shared");
     const matrixRows = graph.workUnits.filter((unit) => unit.tool === "evaluate_matrix_row");
     assert.equal(matrixRows.length, 2);
+    assert.ok(
+      matrixRows.every((unit) => unit.dependsOn.includes(shared[0]!.workUnitId))
+    );
     const leftoverRules = graph.workUnits
       .filter((unit) => unit.tool === "check_against_rule")
       .map((unit) => String(unit.input.ruleId));

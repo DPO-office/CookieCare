@@ -101,9 +101,9 @@ describe("per-requirement aggregation", () => {
     const byId = new Map(
       (result.state.requirementAssessments ?? []).map((a) => [a.requirementId, a])
     );
-    assert.equal(byId.get("req_covered")?.status, "covered");
-    assert.equal(byId.get("req_missing")?.status, "missing");
-    assert.equal(byId.get("req_partial")?.status, "partial");
+    assert.equal(byId.get("req_covered")?.status, "adequate");
+    assert.equal(byId.get("req_missing")?.status, "gap");
+    assert.equal(byId.get("req_partial")?.status, "conditional");
     assert.equal(byId.get("req_partial")?.supportingFindingIds.length, 2);
   });
 
@@ -150,7 +150,7 @@ describe("per-requirement aggregation", () => {
     const assessment = result.state.requirementAssessments?.find(
       (a) => a.requirementId === "nda.confidentiality.scope_of_information"
     );
-    assert.equal(assessment?.status, "covered");
+    assert.equal(assessment?.status, "adequate");
     assert.ok(assessment?.supportingFindingIds.includes("f_rule_ci"));
   });
 

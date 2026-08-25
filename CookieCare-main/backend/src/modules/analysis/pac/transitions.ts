@@ -2,7 +2,6 @@ import type { Phase } from "./types.js";
 import type { CritiqueReport } from "../models/critique-report.js";
 import type { AnalysisState } from "../models/analysis-state.js";
 import {
-  criticalFactSurfaced,
   isBudgetExceeded,
   isMaxTurnsReached,
   isOutOfScope,
@@ -11,8 +10,7 @@ import {
 } from "./policy.js";
 
 /**
- * Temporary kill switch: ACT → DONE for every analysis type (no CRITIQUE /
- * redo / replan loops). Flip to false to restore critique.
+ * Critique redo loops are retired. Deep mode uses AUDIT instead of CRITIQUE.
  */
 export const CRITIQUE_PAUSED = true;
 
@@ -36,29 +34,19 @@ export function nextPhaseAfterAsk(
 
 export function nextPhaseAfterAct(state: AnalysisState): Phase {
   if (isMaxTurnsReached(state) || isBudgetExceeded(state)) return "DONE";
-  if (CRITIQUE_PAUSED || state.plan?.skipCritique) return "DONE";
-  return "CRITIQUE";
+  if (state.analysisProfile?.thinkingMode === "deep") return "AUDIT";
+  return "DONE";
+}
+
+export function nextPhaseAfterAudit(_state: AnalysisState): Phase {
+  return "DONE";
 }
 
 export function nextPhaseAfterCritique(
   state: AnalysisState,
-  critique: CritiqueReport
+  _critique: CritiqueReport
 ): Phase {
   if (isMaxTurnsReached(state) || isBudgetExceeded(state)) return "DONE";
-  const alignmentReplan = critique.release?.alignment.issues.some(
-    (issue) => issue.action === "replan"
-  );
-  const priorReplans = critique.metrics?.replanCount ?? 0;
-  const maxReplans = state.analysisProfile?.maxReplans ?? 1;
-  // Only replan when we still have a concrete reason AND haven't already
-  // burned a replan on the same structural pattern. Otherwise let the release
-  // gate ship a `release_with_limitations` instead of thrashing.
-  const shouldReplan =
-    (critique.skeletonMismatch || alignmentReplan) && priorReplans < maxReplans;
-  if (shouldReplan) return "PLAN";
-  if (criticalFactSurfaced(critique)) return "ASK";
-  const maxTier2 = state.analysisProfile?.maxTier2Attempts ?? 1;
-  if (critique.fixPlan.length > 0 && maxTier2 > 0) return "ACT";
   return "DONE";
 }
 

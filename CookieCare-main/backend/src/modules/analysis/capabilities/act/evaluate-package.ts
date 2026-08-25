@@ -15,7 +15,7 @@ import { resolveRule } from "./check-against-rule.js";
 import { insufficient } from "./act-utils.js";
 import { groupedResultsToFindings } from "./grouped-results-to-findings.js";
 import { pacLog } from "../../utils/pac-log.js";
-import { profileThinkingLevel } from "../../utils/profile-thinking.js";
+import { profileEvidenceCharBudget, profileThinkingLevel } from "../../utils/profile-thinking.js";
 import {
   EVALUATE_PACKAGE_SYSTEM_PROMPT,
   buildEvaluatePackageUserPrompt,
@@ -28,6 +28,10 @@ import {
 const MAX_BRIEF_CHARS = 4000;
 
 const REQUIREMENT_STATUS_ENUM = [
+  "strong",
+  "adequate",
+  "conditional",
+  "gap",
   "covered",
   "partial",
   "missing",
@@ -208,7 +212,13 @@ export async function evaluatePackage(
     if (retryIds.length > 0) {
       const doc = state.workspace.documents.find((d) => d.docId === docId);
       const expanded = doc
-        ? expandBundleItems(doc, workingBundle, retryIds, results)
+        ? expandBundleItems(
+            doc,
+            workingBundle,
+            retryIds,
+            results,
+            profileEvidenceCharBudget(state) * 3
+          )
         : null;
       if (expanded && expanded.changed) {
         workingBundle = expanded.bundle;
@@ -344,7 +354,9 @@ function requirementsNeedingEvidenceExpansion(
   return results
     .filter(
       (r) =>
-        (r.status === "cannot_determine" || r.status === "partial") &&
+        (r.status === "cannot_determine" ||
+          r.status === "partial" ||
+          r.status === "conditional") &&
         evidenceIsIncomplete(r, bundle)
     )
     .map((r) => r.requirementId);
@@ -354,7 +366,8 @@ function expandBundleItems(
   doc: SegmentedDocument,
   bundle: SharedEvidenceBundle,
   retryIds: string[],
-  results: GroupedRequirementResult[]
+  results: GroupedRequirementResult[],
+  maxChars: number
 ): { bundle: SharedEvidenceBundle; changed: boolean } {
   const retry = new Set(retryIds);
   const refsToExpand = new Set<string>();
@@ -376,7 +389,7 @@ function expandBundleItems(
   let changed = false;
   const items = bundle.items.map((item) => {
     if (!refsToExpand.has(item.ref)) return item;
-    const expanded = expandSharedEvidenceItem(doc, item);
+    const expanded = expandSharedEvidenceItem(doc, item, maxChars);
     if (!expanded) return item;
     changed = true;
     return expanded;

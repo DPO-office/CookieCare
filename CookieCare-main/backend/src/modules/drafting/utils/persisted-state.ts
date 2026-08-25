@@ -3,6 +3,7 @@ import type { DraftConversation } from "../models/conversation.js";
 import type { DraftPlan } from "../models/draft-plan.js";
 import type { CritiqueReport } from "../models/critique-report.js";
 import type { StructuredFacts } from "../models/structured-facts.js";
+import type { DraftRequirementsState } from "../models/draft-requirements.js";
 import type { AgentRunState, EntryMode } from "../pac/types.js";
 
 /**
@@ -24,6 +25,7 @@ export interface PersistedDraftState {
   plan?: DraftPlan | null;
   critique?: CritiqueReport | null;
   structuredFacts?: StructuredFacts;
+  draftRequirements?: DraftRequirementsState;
   intakeOverlay?: DraftState["intakeOverlay"];
   conversation?: DraftConversation;
   exhibits?: DraftedExhibit[];
@@ -54,6 +56,7 @@ export function toPersistedState(state: DraftState): PersistedDraftState {
     plan: state.plan,
     critique: state.critique,
     structuredFacts: state.structuredFacts,
+    draftRequirements: state.draftRequirements,
     intakeOverlay: state.intakeOverlay,
     conversation: state.conversation,
     exhibits: state.exhibits,

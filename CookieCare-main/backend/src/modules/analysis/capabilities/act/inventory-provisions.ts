@@ -17,6 +17,7 @@ import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { getSkillById } from "../../skills/runtime/catalog/registry.js";
 import { insufficient } from "./act-utils.js";
 import { pacLog } from "../../utils/pac-log.js";
+import { profileEvidenceCharBudget } from "../../utils/profile-thinking.js";
 import {
   buildRetrievalDictionary,
   locateEvidence,
@@ -73,7 +74,7 @@ export async function inventoryProvisions(
     skills as NonNullable<ReturnType<typeof getSkillById>>[],
     clauseTypes
   );
-  const located = clauseTypes.length > 0 ? locateEvidence(doc, clauseTypes, dict) : [];
+  const located = clauseTypes.length > 0 ? locateEvidence(doc, clauseTypes, dict, profileEvidenceCharBudget(state)) : [];
   const candidates: ClauseCandidate[] = located.flatMap((result) => result.candidates);
   const extraFromClauses = (doc.clauses ?? [])
     .filter((c) => clauseTypes.length === 0 || clauseTypes.includes(c.clauseType))

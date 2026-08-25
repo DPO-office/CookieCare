@@ -6,6 +6,7 @@ export {
   buildSectionSynthesisUserPrompt,
   synthesisSectionSystemPrompt,
   isTabularAnswerStyle,
+  wantsMatrixTable,
 } from "./synthesis.js";
 export {
   EVALUATE_PACKAGE_SYSTEM_PROMPT,

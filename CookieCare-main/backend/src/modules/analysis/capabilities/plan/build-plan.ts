@@ -360,7 +360,7 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     intent,
     workUnits,
     missingClarifications: [],
-    outputForm: reportTypeToOutputForm(reportSpec.reportType),
+    outputForm: resolvePlanOutputForm(intent, reportSpec.reportType, state.request.answerStyle),
     documentPresentation: intent.documentPresentation,
     // Pause CRITIQUE for all analysis types (ACT → DONE). See CRITIQUE_PAUSED.
     skipCritique: true,
@@ -484,6 +484,17 @@ function emptyPlan(
       riskTaxonomyVersion: RISK_TAXONOMY_VERSION,
     },
   };
+}
+
+export function resolvePlanOutputForm(
+  intent: IntentClassification,
+  reportType: ReportSpec["reportType"],
+  answerStyle: AnalysisState["request"]["answerStyle"]
+): AnalysisPlan["outputForm"] {
+  if (intent.outputForm === "table" || answerStyle === "tabular") return "table";
+  if (intent.outputForm === "brief_summary") return "brief_summary";
+  if (intent.outputForm === "qa_thread") return "qa_thread";
+  return reportTypeToOutputForm(reportType);
 }
 
 function rendererSchemaForIntent(

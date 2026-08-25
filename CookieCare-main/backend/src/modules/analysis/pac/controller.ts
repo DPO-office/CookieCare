@@ -2,17 +2,14 @@ import type { AnalysisState } from "../models/analysis-state.js";
 import { initAgentRunState, type EntryMode } from "./types.js";
 import {
   nextPhaseAfterAct,
-  nextPhaseAfterCritique,
+  nextPhaseAfterAudit,
   nextPhaseAfterPlan,
   resolveStoppedReason,
 } from "./transitions.js";
-import { markForRedo, isBudgetExceeded, isMaxTurnsReached } from "./policy.js";
 import { markBudgetExhaustedOutcomes } from "../capabilities/critique/resolve-work-unit.js";
-import { renderLimitationsReport, hasSkillOrPackageLimitation } from "../capabilities/reporting/limitations-report.js";
 import { appendHistory } from "../utils/persisted-state.js";
 import type { PacCapabilities } from "../capabilities/types.js";
 import { pacLog, pacWarn } from "../utils/pac-log.js";
-import { applyPackageShapeRepair } from "../skills/runtime/graph/apply-package-shape-repair.js";
 
 /**
  * Analysis PAC controller — TypeScript owns the loop; LLM never chooses phase hops.
@@ -103,82 +100,24 @@ export class PacController {
           break;
         }
 
-        case "CRITIQUE": {
-          void state.onProgress?.(88, "Checking the analysis…");
-          state = await this.capabilities.runCritique(state);
-          state.agent!.turn++;
-          const critique = state.critique!;
-          const next = nextPhaseAfterCritique(state, critique);
-          const fails = critique.results.filter(
-            (r) => r.status === "fail" || r.status === "missing"
-          ).length;
-          pacLog(`CRITIQUE ${critique.isGreen ? "GREEN" : "not green"} → ${next}`, {
+        case "AUDIT": {
+          void state.onProgress?.(90, "Verifying evidence…");
+          state = await this.capabilities.runAudit(state);
+          state = this.audit(state, "AUDIT complete");
+          const next = nextPhaseAfterAudit(state);
+          pacLog(`AUDIT done → ${next}`, {
             ms: Date.now() - phaseStarted,
-            iter: critique.iteration,
-            fail: fails,
-            fixes: critique.fixPlan.length,
-            skeleton: critique.skeletonMismatch ? "yes" : "no",
-            release: critique.release?.verdict,
-            deepTargets: critique.deepCritiqueTargets?.length ?? 0,
-            deepReasons: critique.deepCritiqueTargets?.length
-              ? [...new Set(critique.deepCritiqueTargets.map((t) => t.reason))].join(",")
-              : undefined,
+            findingDowngrades: state.auditReport?.findingsChanged.length ?? 0,
           });
+          state.agent!.phase = next;
+          state.agent!.stoppedReason = state.agent!.stoppedReason ?? "green";
+          break;
+        }
 
-          if (next === "DONE") {
-            state = applyReleaseGate(state, critique);
-            state.agent!.phase = "DONE";
-            state.agent!.stoppedReason = resolveStoppedReason(state, critique);
-            if (isMaxTurnsReached(state) || isBudgetExceeded(state)) {
-              state = markBudgetExhaustedOutcomes(state);
-            }
-            break;
-          }
-
-          if (next === "PLAN") {
-            state.repairContext = null;
-            state.agent!.phase = "PLAN";
-            break;
-          }
-
-          if (next === "ASK") {
-            state.agent!.phase = "ASK";
-            break;
-          }
-
-          if (!critique.fixPlan.length && state.repairContext?.kind !== "package_shape") {
-            pacWarn("CRITIQUE → ACT with empty fixPlan; stopping to avoid a freeze loop");
-            state = applyReleaseGate(state, critique);
-            state.agent!.phase = "DONE";
-            state.agent!.stoppedReason = resolveStoppedReason(state, critique);
-            break;
-          }
-
-          if (state.repairContext?.kind === "package_shape") {
-            state = applyPackageShapeRepair(state);
-          }
-
-          const fixItems =
-            state.fixPlan?.items?.length && state.repairContext?.kind === "package_shape"
-              ? state.fixPlan.items
-              : critique.fixPlan;
-
-          if (!fixItems.length) {
-            pacWarn("CRITIQUE → ACT with empty fixPlan after repair; stopping");
-            state = applyReleaseGate(state, critique);
-            state.agent!.phase = "DONE";
-            state.agent!.stoppedReason = resolveStoppedReason(state, critique);
-            break;
-          }
-
-          if (state.plan) {
-            state.plan = {
-              ...state.plan,
-              workUnits: markForRedo(state.plan.workUnits, fixItems),
-            };
-          }
-          state.fixPlan = { items: fixItems, targetedOnly: true };
-          state.agent!.phase = "ACT";
+        case "CRITIQUE": {
+          pacWarn("CRITIQUE phase is retired; going DONE without redo");
+          state.agent!.phase = "DONE";
+          state.agent!.stoppedReason = resolveStoppedReason(state, state.critique);
           break;
         }
 
@@ -229,34 +168,4 @@ export class PacController {
       timestamp: new Date().toISOString(),
     });
   }
-}
-
-function applyReleaseGate(
-  state: AnalysisState,
-  critique: NonNullable<AnalysisState["critique"]>
-): AnalysisState {
-  const release = critique.release;
-  if (!release) return state;
-
-  if (release.verdict === "withhold") {
-    return {
-      ...state,
-      renderedOutput: renderLimitationsReport(state, release),
-    };
-  }
-
-  if (
-    release.verdict === "release_with_limitations" &&
-    state.renderedOutput &&
-    hasSkillOrPackageLimitation(release)
-  ) {
-    return {
-      ...state,
-      renderedOutput: renderLimitationsReport(state, release, {
-        wrapExisting: state.renderedOutput,
-      }),
-    };
-  }
-
-  return state;
 }

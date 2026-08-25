@@ -151,4 +151,44 @@ describe("generic matrix row metadata", () => {
     });
     assert.match(prompt, /at most two sentences/);
   });
+
+  it("never dumps more than MATRIX_ROW_MAX_CLAUSES and truncates clause text", async () => {
+    const {
+      MATRIX_ROW_MAX_CLAUSES,
+      MATRIX_ROW_CLAUSE_CHAR_CAP,
+    } = await import("../evaluate-matrix-row.js");
+    const many: ClauseObject[] = Array.from({ length: 40 }, (_, index) => ({
+      clauseId: `c${index}`,
+      clauseType: "other",
+      text: "x".repeat(2000),
+      locator: { docId: "d", structuralPath: `c${index}`, charRange: [0, 10] },
+      taxonomyVersion: "test",
+    }));
+    const selected = selectRelevantClauses(many);
+    assert.equal(selected.length, MATRIX_ROW_MAX_CLAUSES);
+    const prompt = buildMatrixEvaluationPrompt({
+      row: {
+        rowId: "fixture.right.access",
+        article: "1",
+        label: "Access",
+        findingCategory: "fixture_access_gap",
+      },
+      instruction: "Map this right",
+      previousAttemptFeedback: "",
+      matrixSection: "",
+      clauses: selected,
+    });
+    assert.equal(prompt.includes("x".repeat(MATRIX_ROW_CLAUSE_CHAR_CAP + 1)), false);
+  });
+
+  it("times out a hung completion without waiting for it", async () => {
+    const { withMatrixRowTimeout, isMatrixRowTimeout } = await import(
+      "../evaluate-matrix-row.js"
+    );
+    const hung = new Promise<string>(() => undefined);
+    await assert.rejects(
+      () => withMatrixRowTimeout(hung, 20),
+      (err: unknown) => isMatrixRowTimeout(err)
+    );
+  });
 });

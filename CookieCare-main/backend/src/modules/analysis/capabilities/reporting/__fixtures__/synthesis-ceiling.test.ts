@@ -208,7 +208,7 @@ describe("synthesis ceiling / truncation repair", () => {
       },
     } as unknown as CritiqueReport;
 
-    assert.equal(nextPhaseAfterCritique(state, critique), "ACT");
-    assert.equal(profile.maxTier2Attempts, 1);
+    assert.equal(nextPhaseAfterCritique(state, critique), "DONE");
+    assert.equal(profile.maxTier2Attempts, 0);
   });
 });

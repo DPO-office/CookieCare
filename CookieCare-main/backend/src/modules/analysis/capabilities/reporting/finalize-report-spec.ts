@@ -6,6 +6,7 @@ import type {
   ReportSpec,
 } from "../../models/intent.js";
 import type { RequirementAssessment } from "../../models/requirement-assessment.js";
+import { isMaterialIssueStatus } from "../../models/requirement-assessment.js";
 import { hasSkillOrPackageLimitation } from "./limitations-report.js";
 import {
   isAnalysisOutlineRole,
@@ -20,7 +21,7 @@ import {
 
 function hasLegalGap(assessments: RequirementAssessment[]): boolean {
   return assessments.some(
-    (a) => a.status === "missing" || a.status === "partial"
+    (a) => isMaterialIssueStatus(a.status)
   );
 }
 
@@ -127,7 +128,7 @@ export function finalizeReportSpec(state: AnalysisState): ReportSpec {
       kept.push({
         ...item,
         requirementIds: assessments
-          .filter((a) => a.status === "missing" || a.status === "partial")
+          .filter((a) => isMaterialIssueStatus(a.status))
           .map((a) => a.requirementId),
       });
       continue;
@@ -137,7 +138,7 @@ export function finalizeReportSpec(state: AnalysisState): ReportSpec {
       kept.push({
         ...item,
         requirementIds: assessments
-          .filter((a) => a.status === "missing" || a.status === "partial")
+          .filter((a) => isMaterialIssueStatus(a.status))
           .map((a) => a.requirementId),
       });
       continue;
@@ -192,7 +193,7 @@ export function finalizeReportSpec(state: AnalysisState): ReportSpec {
     "material_gaps",
     legalGap,
     assessments
-      .filter((a) => a.status === "missing" || a.status === "partial")
+      .filter((a) => isMaterialIssueStatus(a.status))
       .map((a) => a.requirementId)
   );
   inject("risk_summary", risks.length > 0, []);
@@ -200,7 +201,7 @@ export function finalizeReportSpec(state: AnalysisState): ReportSpec {
     "recommendations",
     legalGap,
     assessments
-      .filter((a) => a.status === "missing" || a.status === "partial")
+      .filter((a) => isMaterialIssueStatus(a.status))
       .map((a) => a.requirementId)
   );
   inject(

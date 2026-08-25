@@ -251,6 +251,12 @@ export function resolvePackages(
       list.push(pkg);
       requirementIdToPackages.set(key, list);
     }
+    for (const alias of pkg.requirementAliases ?? []) {
+      const key = normalizeRequirementId(alias);
+      const list = requirementIdToPackages.get(key) ?? [];
+      if (!list.includes(pkg)) list.push(pkg);
+      requirementIdToPackages.set(key, list);
+    }
     for (const kind of pkg.requirementKinds ?? []) {
       const list = kindToPackages.get(kind) ?? [];
       list.push(pkg);
@@ -598,7 +604,12 @@ export function resolvePackages(
       });
     }
     const authored = pkg.requirementIds;
-    const extra = [...(packageExtraRequirements.get(pkg.id) ?? new Set())];
+    const aliasSet = new Set(
+      (pkg.requirementAliases ?? []).map((id) => normalizeRequirementId(id))
+    );
+    const extra = [...(packageExtraRequirements.get(pkg.id) ?? new Set())].filter(
+      (id) => !aliasSet.has(normalizeRequirementId(id))
+    );
     const requirementIds = [...new Set([...authored, ...extra])];
     for (const reqId of authored) {
       if (!requirementToPackageId[reqId]) requirementToPackageId[reqId] = pkg.id;

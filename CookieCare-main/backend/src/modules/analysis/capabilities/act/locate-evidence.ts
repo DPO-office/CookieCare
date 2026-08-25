@@ -159,11 +159,12 @@ export function groupDocumentSections(doc: SegmentedDocument): DocumentSection[]
 export function locateEvidence(
   doc: SegmentedDocument,
   clauseTypes: string[],
-  dictionary: Record<string, ClauseRetrievalDict>
+  dictionary: Record<string, ClauseRetrievalDict>,
+  maxChars = MAX_EVIDENCE_CHARS
 ): ClauseLocatorResult[] {
   const sections = groupDocumentSections(doc);
   return clauseTypes.map((clauseType) =>
-    locateOneType(clauseType, sections, dictionary[clauseType], doc)
+    locateOneType(clauseType, sections, dictionary[clauseType], doc, maxChars)
   );
 }
 
@@ -181,7 +182,8 @@ function locateOneType(
   clauseType: string,
   sections: DocumentSection[],
   dict: ClauseRetrievalDict | undefined,
-  doc: SegmentedDocument
+  doc: SegmentedDocument,
+  maxChars = MAX_EVIDENCE_CHARS
 ): ClauseLocatorResult {
   const headings = (dict?.headings ?? []).map(normalize);
   const aliases = (dict?.aliases ?? []).map(normalize);
@@ -232,7 +234,7 @@ function locateOneType(
 
     if (score < MIN_SCORE) continue;
 
-    const expanded = expandLogicalSection(sections, index, doc);
+    const expanded = expandLogicalSection(sections, index, doc, maxChars);
     scored.push({
       clauseType,
       segmentId: section.headingPath,
@@ -414,6 +416,20 @@ export function expandSharedEvidenceItem(
 }
 
 /** Clip evidence text to maxChars and keep charRange aligned with stored text. */
+export function truncateAtWordBoundary(text: string, maxChars: number): string {
+  if (text.length <= maxChars) return text;
+  const slice = text.slice(0, maxChars);
+  const breakAt = Math.max(
+    slice.lastIndexOf("\n"),
+    slice.lastIndexOf(". "),
+    slice.lastIndexOf(" ")
+  );
+  if (breakAt >= Math.floor(maxChars * 0.5)) {
+    return slice.slice(0, breakAt === slice.lastIndexOf(". ") ? breakAt + 1 : breakAt).trimEnd();
+  }
+  return slice.replace(/\S+$/, "").trimEnd() || slice;
+}
+
 export function sliceAlignedEvidence(
   doc: SegmentedDocument,
   start: number,
@@ -435,10 +451,11 @@ export function sliceAlignedEvidence(
       logicalEndOffset,
     };
   }
+  const cut = truncateAtWordBoundary(content, maxChars);
   return {
     startOffset: contentStart,
-    endOffset: contentStart + maxChars,
-    text: content.slice(0, maxChars),
+    endOffset: contentStart + cut.length,
+    text: cut,
     truncated: true,
     logicalEndOffset,
   };

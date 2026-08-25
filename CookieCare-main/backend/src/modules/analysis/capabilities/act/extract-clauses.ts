@@ -14,14 +14,13 @@ import { getRuntimeTaxonomies, getSkillById, mergeClauseHeuristics } from "../..
 import type { AnalysisSkillConfig } from "../../skills/runtime/catalog/types.js";
 import { insufficient } from "./act-utils.js";
 import { pacLog } from "../../utils/pac-log.js";
-import { profileThinkingLevel } from "../../utils/profile-thinking.js";
+import { profileEvidenceCharBudget, profileThinkingLevel } from "../../utils/profile-thinking.js";
 import {
   buildRetrievalDictionary,
   expandLogicalSection,
   groupDocumentSections,
   locateEvidence,
   sliceAlignedEvidence,
-  MAX_EVIDENCE_CHARS,
   type ClauseCandidate,
   type ClauseLocatorResult,
 } from "./locate-evidence.js";
@@ -71,7 +70,8 @@ async function extractClauses(
   const dictionary = buildRetrievalDictionary(skills, neededTypes);
 
   const locStart = Date.now();
-  let located = locateEvidence(doc, neededTypes, dictionary);
+  const evidenceBudget = profileEvidenceCharBudget(state);
+  let located = locateEvidence(doc, neededTypes, dictionary, evidenceBudget);
   const locMs = Date.now() - locStart;
   const candidateCount = located.reduce((n, r) => n + r.candidates.length, 0);
 
@@ -93,10 +93,10 @@ async function extractClauses(
         profileThinkingLevel(state, LLMTask.STRUCTURAL_JSON_LITE)
       );
       fallbackCalls = 1;
-      located = mergeFallback(located, mapped, doc);
+      located = mergeFallback(located, mapped, doc, evidenceBudget);
     } catch (err) {
       console.warn("[extractClauses] headings fallback failed; using heuristic:", err);
-      located = mergeHeuristic(located, heuristicExtract(doc, missing, skills), doc);
+      located = mergeHeuristic(located, heuristicExtract(doc, missing, skills), doc, evidenceBudget);
     }
     fallbackMs = Date.now() - fbStart;
   }
@@ -208,7 +208,8 @@ async function headingsFallback(
 function mergeFallback(
   located: ClauseLocatorResult[],
   mapped: Array<{ clauseType: string; structuralPaths: string[] }>,
-  doc: SegmentedDocument
+  doc: SegmentedDocument,
+  maxChars: number
 ): ClauseLocatorResult[] {
   const byType = new Map(mapped.map((m) => [m.clauseType, m.structuralPaths ?? []]));
   const sections = groupDocumentSections(doc);
@@ -219,7 +220,7 @@ function mergeFallback(
     for (const path of paths) {
       const sectionIndex = sections.findIndex((s) => s.headingPath === path);
       if (sectionIndex < 0) continue;
-      const expanded = expandLogicalSection(sections, sectionIndex, doc);
+      const expanded = expandLogicalSection(sections, sectionIndex, doc, maxChars);
       candidates.push({
         clauseType: result.clauseType,
         segmentId: sections[sectionIndex]!.headingPath,
@@ -245,7 +246,8 @@ function mergeFallback(
 function mergeHeuristic(
   located: ClauseLocatorResult[],
   extracted: Array<{ clauseType: string; structuralPath?: string; text: string }>,
-  doc: SegmentedDocument
+  doc: SegmentedDocument,
+  maxChars: number
 ): ClauseLocatorResult[] {
   const byType = new Map<string, typeof extracted>();
   for (const e of extracted) {
@@ -261,7 +263,7 @@ function mergeHeuristic(
       const idx = doc.fullText.indexOf(h.text.slice(0, 80));
       const start = idx >= 0 ? idx : 0;
       const end = Math.min(doc.fullText.length, start + h.text.length);
-      const aligned = sliceAlignedEvidence(doc, start, end, MAX_EVIDENCE_CHARS);
+      const aligned = sliceAlignedEvidence(doc, start, end, maxChars);
       return {
         clauseType: result.clauseType,
         segmentId: h.structuralPath ?? `heuristic-${i}`,

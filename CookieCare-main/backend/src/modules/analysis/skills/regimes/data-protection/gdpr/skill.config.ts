@@ -1571,7 +1571,21 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
     },
     {
       id: "gdpr.art28.3.mandatory_clauses",
-      requirementIds: ["mandatory_article28_clauses"],
+      requirementIds: [
+        "art28_3_a_instructions",
+        "art28_3_b_confidentiality",
+        "art28_3_c_security",
+        "art28_3_d_subprocessors",
+        "art28_3_e_dsr_assistance",
+        "art28_3_f_security_assistance",
+        "art28_3_g_deletion_return",
+        "art28_3_h_audit",
+        "art28_4_subprocessor_flow_down",
+      ],
+      requirementAliases: [
+        "mandatory_article28_clauses",
+        "mandatory_article_28_3_clauses",
+      ],
       capabilityIds: [
         "gdpr.art28.3.a",
         "gdpr.art28.3.b",
@@ -1614,7 +1628,12 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
           {
             heading: "Mandatory Article 28(3) clauses",
             sectionId: "requirements_matrix",
-            requirementTags: ["mandatory_article28_clauses", "clause_adequacy"],
+            requirementTags: [
+              "art28_3",
+              "art28_4",
+              "mandatory_article28_clauses",
+              "clause_adequacy",
+            ],
           },
         ],
       },

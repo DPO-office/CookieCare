@@ -63,6 +63,11 @@ export interface EvidencePackage {
   /** Semantic requirement ids this package can establish (PLAN vocabulary). */
   requirementIds: string[];
   /**
+   * PLAN ids that should select this package without being evaluated as extra
+   * rows (legacy lumped ids that expand to `requirementIds`).
+   */
+  requirementAliases?: string[];
+  /**
    * Authored capability ids grouped by this package. Each id must resolve to a
    * real `regimeRules[].ruleId`, `rightsMatrixRows[].rowId`, or
    * `riskCategories[].category` on an active skill (enforced by parity lint).

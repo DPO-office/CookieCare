@@ -14,6 +14,9 @@ import { pacLog } from "../../utils/pac-log.js";
  */
 const MAX_ITEMS_PER_PACKAGE = 12;
 
+/** Shared bundle key for leftover / focused matrix-row evaluations. */
+export const MATRIX_SHARED_EVIDENCE_PACKAGE_ID = "_matrix_shared";
+
 /**
  * Shared evidence extraction (ACT refactor doc §5).
  *
