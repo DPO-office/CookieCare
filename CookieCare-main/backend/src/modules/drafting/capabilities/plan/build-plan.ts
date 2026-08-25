@@ -10,18 +10,16 @@ import {
   applyDealIdentityToPlanGlossary,
   buildDealIdentity,
 } from "../act/deal-identity.js";
+import {
+  assembleDraftingContext,
+  collectSkillConfigs,
+  resolveConditionalWorkUnits,
+} from "./assemble-drafting-context.js";
 
 /** PLAN capability — resolve requirements, detect-gaps checklist, compute ASK gaps. */
 export async function buildPlan(state: DraftState): Promise<DraftState> {
-  const { typePack, regimes, jurisdiction, jurisdictionId, facts } =
-    resolveApplicablePacks(state);
-
-  const workUnits: WorkUnit[] = orderByDependency([
-    ...typePack.skeleton.map((u) => ({ ...u, status: "pending" as const })),
-    ...regimes.flatMap((r) =>
-      r.additionalWorkUnits.map((u) => ({ ...u, status: "pending" as const }))
-    ),
-  ]);
+  const applicableInitial = resolveApplicablePacks(state);
+  const { typePack, facts } = applicableInitial;
 
   // Merge pack facts + extracted structuredFacts, then resolve catalog statuses.
   const factBag = sanitizeKnownFacts({
@@ -46,6 +44,24 @@ export async function buildPlan(state: DraftState): Promise<DraftState> {
 
   working = resolveRequirements(working);
 
+  const applicable = resolveApplicablePacks(working);
+  const skills = collectSkillConfigs(applicable);
+  const conditionalUnits = resolveConditionalWorkUnits(
+    skills,
+    working.structuredFacts ?? {}
+  );
+
+  const workUnits: WorkUnit[] = orderByDependency([
+    ...applicable.typePack.skeleton.map((u) => ({
+      ...u,
+      status: "pending" as const,
+    })),
+    ...applicable.regimes.flatMap((r) =>
+      r.additionalWorkUnits.map((u) => ({ ...u, status: "pending" as const }))
+    ),
+    ...conditionalUnits,
+  ]);
+
   // detect-gaps: checklist is authoritative; missingFacts are hints only.
   const gaps = await detectGaps(working);
   const missingFacts = computeGapsAndConflicts(working, gaps.missingFacts);
@@ -60,26 +76,38 @@ export async function buildPlan(state: DraftState): Promise<DraftState> {
   };
   const identity = buildDealIdentity(
     structuredFacts,
-    typePack.id || state.requirements?.contractType
+    applicable.typePack.id || state.requirements?.contractType
   );
 
+  const draftingContext = assembleDraftingContext(
+    working,
+    applicable,
+    workUnits
+  );
+  draftingContext.gaps = missingFacts;
+
   const plan: DraftPlan = {
-    documentType: typePack.id,
-    packId: typePack.id,
-    title: typePack.id.toUpperCase(),
+    documentType: applicable.typePack.id,
+    packId: applicable.typePack.id,
+    title: applicable.typePack.id.toUpperCase(),
     workUnits,
     structuredFacts,
     missingFacts,
-    applicableRegimes: regimes.map((r) => r.id),
-    jurisdictionId: jurisdiction?.id ?? jurisdictionId,
+    applicableRegimes: applicable.regimes.map((r) => r.id),
+    jurisdictionId: applicable.jurisdiction?.id ?? applicable.jurisdictionId,
     mandatoryChecklist: gaps.checklist,
     loadedSkillPaths: [
       "orchestrator-system",
-      ...typePack.skillPaths,
-      ...regimes.flatMap((r) => r.skillPaths),
-      ...(jurisdiction?.skillPaths ?? []),
+      ...applicable.typePack.skillPaths,
+      ...applicable.regimes.flatMap((r) => r.skillPaths),
+      ...(applicable.jurisdiction?.skillPaths ?? []),
     ],
-    selectedClauseIds: [],
+    selectedTemplateId:
+      draftingContext.template?.id ||
+      working.request.templateId ||
+      working.request.vaultDocumentId ||
+      undefined,
+    selectedClauseIds: working.request.clauseIds ?? [],
     negotiationPositions: working.retrieval.applicablePlaybookRules ?? [],
     glossary: identity
       ? applyDealIdentityToPlanGlossary({}, identity)
@@ -95,6 +123,7 @@ export async function buildPlan(state: DraftState): Promise<DraftState> {
   return {
     ...working,
     structuredFacts: plan.structuredFacts,
+    draftingContext,
     plan,
     context: {
       systemPrompt: working.context?.systemPrompt ?? "",

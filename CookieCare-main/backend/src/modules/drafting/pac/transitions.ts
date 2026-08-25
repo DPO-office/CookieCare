@@ -32,6 +32,10 @@ export function nextPhaseAfterAct(state: DraftState): Phase {
 export function nextPhaseAfterCritique(state: DraftState, critique: CritiqueReport): Phase {
   if (isMaxTurnsReached(state) || isBudgetExceeded(state)) return "DONE";
   if (critique.isGreen) return "DONE";
+  // Iteration cap — stop rather than spinning ACT↔CRITIQUE.
+  const maxIter = Math.max(1, Number(process.env.DRAFTING_CRITIQUE_MAX_ITER || 2));
+  if (critique.iteration >= maxIter) return "DONE";
+  if (critique.fixPlan.length === 0 && !critique.skeletonMismatch) return "DONE";
   if (critique.skeletonMismatch) return "PLAN";
   if (criticalFactSurfaced(critique)) return "ASK";
   return "ACT";
@@ -49,5 +53,9 @@ export function resolveStoppedReason(
     }
   }
   if (critique?.isGreen) return "green";
+  const maxIter = Math.max(1, Number(process.env.DRAFTING_CRITIQUE_MAX_ITER || 2));
+  if (critique && critique.iteration >= maxIter && !critique.isGreen) {
+    return "critique_cap";
+  }
   return "blocked";
 }

@@ -14,8 +14,20 @@ export function criticalFactSurfaced(critique: CritiqueReport): boolean {
   return critique.criticalFactSurfaced === true;
 }
 
-export function markForRedraft(workUnits: WorkUnit[], fixPlan: FixItem[]): WorkUnit[] {
-  const targets = new Set(fixPlan.map((f) => f.workUnitId));
+export function markForRedraft(
+  workUnits: WorkUnit[],
+  fixPlan: FixItem[],
+  opts?: { planChange?: boolean }
+): WorkUnit[] {
+  const targets = new Set(fixPlan.map((f) => f.workUnitId).filter(Boolean));
+  // Never flip more than the flagged units unless plan_change is set.
+  if (opts?.planChange) {
+    return workUnits.map((u) =>
+      targets.has(u.id) || u.status === "pending"
+        ? { ...u, status: "flagged" as const }
+        : u
+    );
+  }
   return workUnits.map((u) =>
     targets.has(u.id) ? { ...u, status: "flagged" as const } : u
   );

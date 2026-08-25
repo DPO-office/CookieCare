@@ -14,6 +14,43 @@ import {
   sanitizeKnownFacts,
   type RequiredFactCatalogEntry,
 } from "./core-deal-facts.js";
+import { resolveApplicablePacks } from "../../packs/resolve-applicable-packs.js";
+import { collectSkillConfigs } from "./assemble-drafting-context.js";
+
+function skillFactsFromState(state: DraftState): RequiredFactCatalogEntry[] {
+  try {
+    const applicable = resolveApplicablePacks(state);
+    const skills = collectSkillConfigs(applicable);
+    const byId = new Map<string, RequiredFactCatalogEntry>();
+    for (const skill of skills) {
+      for (const fact of skill.requiredFacts ?? []) {
+        byId.set(fact.id, fact);
+      }
+      // Apply safeDefaults onto catalog entries when present.
+      if (skill.safeDefaults) {
+        for (const [id, value] of Object.entries(skill.safeDefaults)) {
+          const existing = byId.get(id);
+          if (existing && existing.safeDefault === undefined) {
+            byId.set(id, { ...existing, safeDefault: value });
+          } else if (!existing) {
+            // Optional assumed defaults — non-blocking.
+            byId.set(id, {
+              id,
+              priority: "critical",
+              blocking: false,
+              question: `Confirm value for ${id}`,
+              reasonRequired: `Skill safe default from ${skill.skillId}`,
+              safeDefault: value,
+            });
+          }
+        }
+      }
+    }
+    return Array.from(byId.values());
+  } catch {
+    return [];
+  }
+}
 
 function readFactValue(
   facts: Record<string, unknown>,
@@ -79,7 +116,8 @@ export function resolveRequirements(state: DraftState): DraftState {
   }) as Record<string, unknown>;
 
   const catalog = getRequiredFactCatalog(
-    documentType || (typeof facts.documentType === "string" ? facts.documentType : undefined)
+    documentType || (typeof facts.documentType === "string" ? facts.documentType : undefined),
+    skillFactsFromState(state)
   );
 
   const prior = state.draftRequirements?.byId ?? {};
