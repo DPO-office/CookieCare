@@ -28,10 +28,39 @@ async function extractTextFromStorageUrl(fileUrl: string): Promise<string> {
 async function handleInitialDraftingJob(jobId: string, userId: string, payload: any): Promise<any> {
     // Unified PAC CREATE feed — no BASIC/PROACTIVE/REACTIVE modes.
     // Inputs: draftInput + draftInstructions, optional uploadedDocument / vault documentId.
-    const { draftInput, draftInstructions, uploadedDocument, documentId, intake } = payload;
+    const {
+      draftInput,
+      draftInstructions,
+      uploadedDocument,
+      documentId,
+      templateId,
+      playbookId,
+      clauseIds,
+      intake,
+    } = payload;
+    const resolvedTemplateId =
+      (typeof templateId === "string" && templateId.trim()
+        ? templateId.trim()
+        : null) ||
+      (typeof documentId === "string" && documentId.trim()
+        ? documentId.trim()
+        : null);
+    const resolvedPlaybookId =
+      typeof playbookId === "string" && playbookId.trim()
+        ? playbookId.trim()
+        : null;
+    const resolvedClauseIds = Array.isArray(clauseIds)
+      ? clauseIds.map(String).filter((id: string) => id.trim().length > 0)
+      : [];
     console.log(
       "Entered handleInitialDraftingJob (PAC CREATE)",
-      uploadedDocument ? "with source upload" : documentId ? "with vault template" : "prompt-only"
+      uploadedDocument
+        ? "with source upload"
+        : resolvedTemplateId
+          ? "with vault template"
+          : "prompt-only",
+      resolvedPlaybookId ? `playbook=${resolvedPlaybookId}` : "",
+      resolvedClauseIds.length ? `clauses=${resolvedClauseIds.length}` : ""
     );
 
     await updateJobProgress(jobId, userId, 20, "Extracting compliance parameters and routing tracking slots...");
@@ -88,7 +117,10 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
         intent: "CREATE",
         rawInstructions: composedInstructions,
         sourceText: resolvedSourceText,
-        vaultDocumentId: documentId ? String(documentId) : null,
+        vaultDocumentId: resolvedTemplateId,
+        templateId: resolvedTemplateId ?? undefined,
+        playbookId: resolvedPlaybookId,
+        clauseIds: resolvedClauseIds.length > 0 ? resolvedClauseIds : undefined,
         payloadFields: { documentId: targetDocId },
       },
       requirements: {

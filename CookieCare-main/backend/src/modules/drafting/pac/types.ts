@@ -9,7 +9,8 @@ export type StoppedReason =
   | "max_turns"
   | "budget_exceeded"
   | "awaiting_user"
-  | "blocked";
+  | "blocked"
+  | "critique_cap";
 
 /**
  * How the frontend should render the input for this question.

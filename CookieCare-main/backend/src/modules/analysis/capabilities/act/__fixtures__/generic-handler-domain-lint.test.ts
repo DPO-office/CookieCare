@@ -23,10 +23,15 @@ const HANDLERS = [
 const REPORTING_HANDLERS = [
   path.join(ACT_DIR, "../../reporting/render-output.ts"),
   path.join(ACT_DIR, "../../reporting/synthesize-report.ts"),
+  path.join(ACT_DIR, "../../reporting/finalize-report-spec.ts"),
   path.join(ACT_DIR, "../../reporting/limitations-report.ts"),
 ];
 
 const BUILD_ACT_GRAPH = path.join(ACT_DIR, "../../../skills/runtime/graph/build-act-graph.ts");
+const GRAPH_TOKEN_HANDLERS = [
+  path.join(ACT_DIR, "../../../skills/runtime/graph/resolve-packages.ts"),
+  path.join(ACT_DIR, "../../../skills/runtime/graph/meta-requirement-bindings.ts"),
+];
 
 const FORBIDDEN =
   /\b(gdpr|ccpa|hipaa|lgpd|pipl|art\s?12\.3|art\s?28\.3|article\s?(12|22|28)|transfer_inventory|data_subject_request)\b/i;
@@ -37,6 +42,7 @@ function isAllowedDomainLintLine(line: string): boolean {
   if (/^\s*\| "/.test(line)) return true;
   if (/DocumentTypeId|docTypeId:/.test(line)) return true;
   if (/clauseType:/.test(line)) return true;
+  if (/mandatory_article/.test(line)) return true;
   return false;
 }
 
@@ -62,7 +68,7 @@ describe("generic ACT handler domain-coupling lint", () => {
         }
       });
     }
-    for (const file of REPORTING_HANDLERS) {
+    for (const file of [...REPORTING_HANDLERS, ...GRAPH_TOKEN_HANDLERS]) {
       const src = readFileSync(file, "utf8");
       const rel = path.relative(path.join(ACT_DIR, ".."), file);
       src.split(/\r?\n/).forEach((line, index) => {
@@ -80,6 +86,7 @@ describe("generic ACT handler domain-coupling lint", () => {
       ...HANDLERS.map((f) => path.join(ACT_DIR, "..", f)),
       ...REPORTING_HANDLERS,
       BUILD_ACT_GRAPH,
+      ...GRAPH_TOKEN_HANDLERS,
     ]) {
       const rel = path.relative(ACT_DIR, file);
       const src = readFileSync(file, "utf8");

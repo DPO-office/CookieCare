@@ -2,7 +2,12 @@ import type { Locator } from "../models/locator.js";
 import type { DocumentSegment, SegmentedDocument } from "../models/document-workspace.js";
 
 const HEADING_RE = /^(#{1,3}\s+.+|[A-Z][A-Z0-9 \-/]{8,}|Article\s+\d+[.:)].*|\d+\.\s+[A-Z].+)$/m;
-const NUMBERED_CLAUSE_RE = /^(\d+(?:\.\d+)*)[.)]\s+/;
+/**
+ * Numbered clauses: `1. Title`, `1) Title`, and dotted `3.6 Title` / `3.6.1 Title`.
+ * Does not treat a bare integer + capital (`28 The processor`) as a clause.
+ */
+export const NUMBERED_CLAUSE_RE =
+  /^(\d+(?:\.\d+)*)[.)]\s+|^(\d+\.\d+(?:\.\d+)*)\s+/;
 
 /**
  * Deterministic structural segmentation of plain text.
@@ -36,7 +41,8 @@ export function segmentDocument(
     const numbered = trimmed.match(NUMBERED_CLAUSE_RE);
     if (numbered) {
       clauseCounter += 1;
-      const path = `clause-${numbered[1]}`;
+      const number = numbered[1] ?? numbered[2]!;
+      const path = `clause-${number}`;
       segments.push({
         locator: makeLocator(docId, path, lineStart, lineEnd),
         text: trimmed,

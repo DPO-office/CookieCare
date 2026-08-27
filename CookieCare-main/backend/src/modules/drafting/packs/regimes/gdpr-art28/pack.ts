@@ -1,4 +1,5 @@
 import type { RegimePack } from "../types.js";
+import { gdprArt28SkillConfig } from "./skill.config.js";
 
 export const gdprArt28Pack: RegimePack = {
   id: "GDPR_ART28",
@@ -16,4 +17,5 @@ export const gdprArt28Pack: RegimePack = {
   },
   additionalWorkUnits: [],
   skillPaths: ["regimes/gdpr-art28"],
+  skillConfig: gdprArt28SkillConfig,
 };

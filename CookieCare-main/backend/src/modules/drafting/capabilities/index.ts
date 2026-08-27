@@ -1,5 +1,6 @@
 import type { PacCapabilities } from "./types.js";
 import { extractRequirements } from "./plan/extract-requirements.js";
+import { extractDealFacts } from "./plan/extract-deal-facts.js";
 import { retrieveContext } from "./plan/retrieve-context.js";
 import { buildPlan } from "./plan/build-plan.js";
 import { executeActPlan } from "./act/execute-act-plan.js";
@@ -10,6 +11,7 @@ import { persistDraft } from "./persist/persist-draft.js";
 /** Production capability bundle — detect-gaps runs inside buildPlan once. */
 export const defaultPacCapabilities: PacCapabilities = {
   extractRequirements,
+  extractDealFacts,
   retrieveContext,
   buildPlan,
   executeActPlan,

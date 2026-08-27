@@ -350,6 +350,9 @@ export default function DraftAgreement({
       uploadText: generatorState.uploadText,
       sourceDocumentId,
       documentId: selectedTemplate?.id ?? null,
+      templateId: selectedTemplate?.id ?? generatorState.selectedTemplateId,
+      playbookId: selectedPlaybook?.id ?? generatorState.selectedPlaybookId,
+      clauseIds: generatorState.selectedClauseIds,
     });
   };
 

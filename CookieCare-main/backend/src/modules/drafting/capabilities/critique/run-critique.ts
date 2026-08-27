@@ -1,5 +1,5 @@
 import type { DraftState } from "../../models/draft-state.js";
-import type { CritiqueReport, CritiqueResult } from "../../models/critique-report.js";
+import type { CritiqueReport, CritiqueResult, FixItem } from "../../models/critique-report.js";
 import { executeJsonCompletion, LLMProvider, LLMTask } from "../../../../llm/index.js";
 import {
   findDraftPlaceholders,
@@ -10,6 +10,12 @@ import {
   buildDealIdentity,
   findForeignPartyNames,
 } from "../act/deal-identity.js";
+import { runSkillValidationRules } from "./skill-validation.js";
+import { applyDeterministicFixes } from "./apply-deterministic-fixes.js";
+import {
+  classifyFixItems,
+  partitionClassifiedFixes,
+} from "./classify-fix.js";
 
 function normalize(s: string): string {
   return s.replace(/\s+/g, " ").trim().toLowerCase();
@@ -71,9 +77,11 @@ function deterministicChecks(state: DraftState): CritiqueResult[] {
         evidenceVerified: false,
       });
     }
-    // Both locked parties should appear at least once in a finished draft.
     const lower = doc.toLowerCase();
-    if (!lower.includes(identity.partyA.toLowerCase()) || !lower.includes(identity.partyB.toLowerCase())) {
+    if (
+      !lower.includes(identity.partyA.toLowerCase()) ||
+      !lower.includes(identity.partyB.toLowerCase())
+    ) {
       results.push({
         itemId: "party-presence",
         status: "fail",
@@ -101,14 +109,30 @@ const CRITIQUE_SCHEMA = {
   },
 };
 
+export const DRAFTING_CRITIQUE_MAX_ITER = Math.max(
+  1,
+  Number(process.env.DRAFTING_CRITIQUE_MAX_ITER || 2)
+);
+
 /**
- * CRITIQUE — deterministic + LLM checklist + evidence substring verification.
- * A "pass" whose evidence is not in the draft is downgraded to ambiguous.
+ * CRITIQUE — deterministic scrub → skill rules → (optional) LLM checklist.
+ * Fix plan only contains section_redraft items for targeted ACT.
  */
 export async function runCritique(state: DraftState): Promise<DraftState> {
-  const doc = state.draft?.formattedDocument ?? "";
-  const deterministic = deterministicChecks(state);
-  const tracker = state.agent ? { tokensUsed: state.agent.tokensUsed } : undefined;
+  // Deterministic scrub first — avoid spending Pro on placeholders / party scrub.
+  let working = applyDeterministicFixes(state);
+
+  const doc = working.draft?.formattedDocument ?? "";
+  const deterministic = deterministicChecks(working);
+  const skillCheck = runSkillValidationRules(working);
+  const tracker = working.agent ? { tokensUsed: working.agent.tokensUsed } : undefined;
+
+  const detHardFail = deterministic.some(
+    (r) => r.status === "fail" || r.status === "missing"
+  );
+  const skillHardFail = skillCheck.results.some(
+    (r) => r.status === "fail" || r.status === "missing"
+  );
 
   let llmRaw: Array<{
     itemId: string;
@@ -118,10 +142,17 @@ export async function runCritique(state: DraftState): Promise<DraftState> {
     instruction?: string;
   }> = [];
 
-  const checklist = state.plan?.mandatoryChecklist ?? [];
-  // Cap size: 43+ items + full draft routinely times out / "fetch failed" on Pro.
+  const checklist = working.plan?.mandatoryChecklist ?? [];
   const critiqueChecklist = checklist.slice(0, 25);
-  if (checklist.length > 0 && doc) {
+
+  // LLM checklist only when deterministic + skill validation are clean (or only ambiguous).
+  const shouldRunLlm =
+    checklist.length > 0 &&
+    doc &&
+    !detHardFail &&
+    !skillHardFail;
+
+  if (shouldRunLlm) {
     try {
       llmRaw = await executeJsonCompletion(
         [
@@ -138,10 +169,14 @@ export async function runCritique(state: DraftState): Promise<DraftState> {
     } catch (err) {
       console.warn("[runCritique] LLM checklist failed; using deterministic only:", err);
     }
+  } else if (checklist.length > 0 && (detHardFail || skillHardFail)) {
+    console.log(
+      "[runCritique] skipping LLM checklist — deterministic/skill fails present"
+    );
   }
 
-  if (state.agent && tracker) {
-    state.agent.tokensUsed = tracker.tokensUsed;
+  if (working.agent && tracker) {
+    working.agent.tokensUsed = tracker.tokensUsed;
   }
 
   const llmResults: CritiqueResult[] = llmRaw.map((r) => {
@@ -154,15 +189,19 @@ export async function runCritique(state: DraftState): Promise<DraftState> {
       itemId: r.itemId,
       status,
       evidenceQuote: r.evidenceQuote,
-      evidenceVerified: (status === "pass" ? verified : verified) || status !== 'pass',
+      evidenceVerified: status === "pass" ? verified : verified || status !== "pass",
     };
   });
 
-  const results = [...deterministic, ...llmResults];
-  const fixPlan = llmRaw
+  const results = [...deterministic, ...skillCheck.results, ...llmResults];
+
+  const llmFixPlan: FixItem[] = llmRaw
     .filter((r) => r.status === "fail" || r.status === "missing")
     .map((r) => ({
-      workUnitId: r.workUnitId || checklist.find((c) => c.id === r.itemId)?.sectionTarget || "sec-misc",
+      workUnitId:
+        r.workUnitId ||
+        checklist.find((c) => c.id === r.itemId)?.sectionTarget ||
+        "sec-misc",
       instruction: r.instruction || `Address checklist item ${r.itemId}`,
       sourceChecklistItemId: r.itemId,
     }));
@@ -171,33 +210,35 @@ export async function runCritique(state: DraftState): Promise<DraftState> {
     (r) => r.itemId.startsWith("skeleton:") && r.status === "missing"
   );
 
-  const isGreen =
-    results.every((r) => r.status === "pass" || r.status === "ambiguous") &&
-    !results.some((r) => r.status === "fail" || r.status === "missing") &&
-    fixPlan.length === 0;
-
-  // Treat only hard fails/missing as non-green; ambiguous alone does not block green if no fails
-  const hasHardFail = results.some((r) => r.status === "fail" || r.status === "missing");
+  const hasHardFail = results.some(
+    (r) => r.status === "fail" || r.status === "missing"
+  );
   const placeholders = findDraftPlaceholders(doc);
   const identity = buildDealIdentity(
-    state.structuredFacts ?? state.plan?.structuredFacts,
-    state.plan?.documentType
+    working.structuredFacts ?? working.plan?.structuredFacts,
+    working.plan?.documentType
   );
   const foreignParties = identity ? findForeignPartyNames(doc, identity) : [];
   const placeholderFacts = missingFactsFromPlaceholders(placeholders).filter(
-    (f) => !isFactSatisfied((state.structuredFacts ?? {}) as Record<string, unknown>, f.field)
+    (f) =>
+      !isFactSatisfied(
+        (working.structuredFacts ?? {}) as Record<string, unknown>,
+        f.field
+      )
   );
 
-  let nextState: DraftState = state;
-  if (placeholderFacts.length > 0 && state.plan) {
-    const existingFields = new Set((state.plan.missingFacts ?? []).map((f) => f.field));
+  let nextState: DraftState = working;
+  if (placeholderFacts.length > 0 && working.plan) {
+    const existingFields = new Set(
+      (working.plan.missingFacts ?? []).map((f) => f.field)
+    );
     const toAdd = placeholderFacts.filter((f) => !existingFields.has(f.field));
     if (toAdd.length > 0) {
       nextState = {
-        ...state,
+        ...working,
         plan: {
-          ...state.plan,
-          missingFacts: [...(state.plan.missingFacts ?? []), ...toAdd],
+          ...working.plan,
+          missingFacts: [...(working.plan.missingFacts ?? []), ...toAdd],
         },
       };
       console.warn(
@@ -206,10 +247,17 @@ export async function runCritique(state: DraftState): Promise<DraftState> {
     }
   }
 
-  const partyFixItems =
+  // Build candidate fixes, then classify — only section_redraft goes to ACT.
+  const partyFixItems: FixItem[] =
     identity && foreignParties.length > 0
-      ? (state.plan?.workUnits ?? [])
-          .filter((u) => u.status === "drafted" || u.status === "flagged" || u.status === "pending")
+      ? (working.plan?.workUnits ?? [])
+          .filter(
+            (u) =>
+              u.status === "drafted" ||
+              u.status === "flagged" ||
+              u.status === "pending"
+          )
+          .slice(0, 3) // surgical: at most a few units, not all 13
           .map((u) => ({
             workUnitId: u.id,
             instruction: `PARTY LOCK: Rewrite this unit using ONLY "${identity.partyA}" as ${identity.roleA} and ONLY "${identity.partyB}" as ${identity.roleB}. Remove these foreign names: ${foreignParties.slice(0, 8).join(", ")}. Do not invent any other company names.`,
@@ -217,7 +265,7 @@ export async function runCritique(state: DraftState): Promise<DraftState> {
           }))
       : [];
 
-  const placeholderFixItems =
+  const placeholderFixItems: FixItem[] =
     placeholders.length > 0
       ? [
           {
@@ -228,12 +276,45 @@ export async function runCritique(state: DraftState): Promise<DraftState> {
         ]
       : [];
 
-  const mergedFix =
-    partyFixItems.length > 0 || placeholderFixItems.length > 0
+  const candidateFix: FixItem[] =
+    placeholderFixItems.length > 0 || partyFixItems.length > 0
       ? [...placeholderFixItems, ...partyFixItems]
-      : hasHardFail
-        ? fixPlan
-        : [];
+      : skillCheck.fixItems.length > 0
+        ? skillCheck.fixItems
+        : hasHardFail
+          ? llmFixPlan
+          : [];
+
+  const classified = classifyFixItems(candidateFix, results);
+  const { deterministic: detFixes, sectionRedraft, planChange } =
+    partitionClassifiedFixes(classified);
+
+  // Deterministic items were already scrubbed via applyDeterministicFixes;
+  // if they still fail after scrub they become section_redraft.
+  const stillNeedAct: FixItem[] = [
+    ...sectionRedraft.map((c) => c.item),
+    // If deterministic scrub didn't clear placeholders/parties, escalate those units.
+    ...detFixes
+      .filter((c) => {
+        if (c.item.sourceChecklistItemId === "placeholders") {
+          return findDraftPlaceholders(doc).length > 0;
+        }
+        if (c.item.sourceChecklistItemId === "party-consistency") {
+          return foreignParties.length > 0;
+        }
+        return false;
+      })
+      .map((c) => c.item),
+  ];
+
+  // Deduplicate by workUnitId
+  const seenUnits = new Set<string>();
+  const mergedFix: FixItem[] = [];
+  for (const item of stillNeedAct) {
+    if (seenUnits.has(item.workUnitId)) continue;
+    seenUnits.add(item.workUnitId);
+    mergedFix.push(item);
+  }
 
   if (foreignParties.length > 0) {
     console.warn(
@@ -241,29 +322,58 @@ export async function runCritique(state: DraftState): Promise<DraftState> {
     );
   }
 
+  const iteration = (working.critique?.iteration ?? 0) + 1;
+  const hitCap = iteration >= DRAFTING_CRITIQUE_MAX_ITER;
+
   const report: CritiqueReport = {
     isGreen:
       !hasHardFail &&
       !skeletonMissing &&
       placeholders.length === 0 &&
       foreignParties.length === 0,
-    iteration: (state.critique?.iteration ?? 0) + 1,
+    iteration,
     results,
-    fixPlan: mergedFix,
-    skeletonMismatch: false,
+    fixPlan: hitCap ? [] : mergedFix,
+    skeletonMismatch: planChange.length > 0 && skeletonMissing,
     criticalFactSurfaced: placeholderFacts.length > 0,
   };
 
   report.skeletonMismatch =
-    deterministic.filter((r) => r.itemId.startsWith("skeleton:") && r.status === "missing").length >
-    Math.max(1, Math.floor(deterministic.filter((r) => r.itemId.startsWith("skeleton:")).length / 2));
+    deterministic.filter(
+      (r) => r.itemId.startsWith("skeleton:") && r.status === "missing"
+    ).length >
+    Math.max(
+      1,
+      Math.floor(
+        deterministic.filter((r) => r.itemId.startsWith("skeleton:")).length / 2
+      )
+    );
 
-  void isGreen;
+  if (hitCap && !report.isGreen) {
+    console.warn(
+      `[runCritique] critique iteration cap (${DRAFTING_CRITIQUE_MAX_ITER}) reached — stopping redraft loop`
+    );
+  }
 
-  return { ...nextState, critique: report };
-}
+  console.log(
+    `[runCritique] iter=${iteration} green=${report.isGreen} sectionFixes=${mergedFix.length} detScrubbed=${detFixes.length} llm=${llmRaw.length}`
+  );
 
-function planHalfMissing(state: DraftState): number {
-  const n = state.plan?.workUnits.filter((u) => u.kind === "section").length ?? 0;
-  return Math.max(1, Math.floor(n / 2));
+  return {
+    ...nextState,
+    critique: report,
+    fixPlan:
+      !hitCap && mergedFix.length > 0
+        ? { items: mergedFix, targetedOnly: true }
+        : nextState.fixPlan,
+    metadata: {
+      ...nextState.metadata,
+      critiqueCap: hitCap,
+      critiqueClassification: {
+        deterministic: detFixes.length,
+        sectionRedraft: sectionRedraft.length,
+        planChange: planChange.length,
+      },
+    },
+  };
 }

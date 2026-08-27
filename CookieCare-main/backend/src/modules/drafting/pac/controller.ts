@@ -33,8 +33,9 @@ export class PacController {
       switch (state.agent.phase) {
         case "PLAN": {
           state = await this.capabilities.extractRequirements(state);
+          state = await this.capabilities.extractDealFacts(state);
           state = await this.capabilities.retrieveContext(state);
-          // buildPlan owns the single detect-gaps call and freezes checklist/missingFacts.
+          // buildPlan owns resolveRequirements + detect-gaps + computeGaps.
           state = await this.capabilities.buildPlan(state);
           state = this.audit(state, "PLAN complete");
           state.agent!.phase = nextPhaseAfterPlan(state);

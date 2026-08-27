@@ -32,11 +32,11 @@ export interface ConvertContext {
  * (ACT refactor doc §8). Each result yields findings whose statuses reproduce
  * the requirement verdict under the deterministic status policy:
  *
- *   covered           -> one `present` finding
- *   missing           -> one `absent_expected` finding
- *   partial           -> a `present` finding + an `absent_expected` gap finding
- *   cannot_determine  -> one `insufficient_evidence` finding
- *   not_applicable    -> one `not_covered` finding
+ *   strong/adequate/covered -> one `present` finding
+ *   gap/missing             -> one `absent_expected` finding
+ *   conditional/partial     -> a `present` finding + an `absent_expected` gap finding
+ *   cannot_determine        -> one `insufficient_evidence` finding
+ *   not_applicable          -> one `not_covered` finding
  *
  * Every finding is tagged with `requirementId` so CRITIQUE can verify each
  * requirement independently and aggregation can group them.
@@ -66,6 +66,7 @@ function findingsForResult(
     taxonomyVersion: RISK_TAXONOMY_VERSION,
     workUnitId: ctx.unit.workUnitId,
     skillId: ctx.skillId,
+    packageId: ctx.packageId,
     visibility: "user_facing" as const,
     ruleSourceTier: tier,
     requirementId: result.requirementId,
@@ -73,6 +74,8 @@ function findingsForResult(
   };
 
   switch (result.status) {
+    case "strong":
+    case "adequate":
     case "covered":
       return [
         {
@@ -82,6 +85,7 @@ function findingsForResult(
           claim: result.rationale,
         },
       ];
+    case "gap":
     case "missing": {
       if (shouldTreatMissingAsIndeterminate(result, ctx)) {
         return [
@@ -105,6 +109,7 @@ function findingsForResult(
         },
       ];
     }
+    case "conditional":
     case "partial":
       return [
         {
@@ -148,6 +153,7 @@ function shouldTreatMissingAsIndeterminate(
   result: GroupedRequirementResult,
   ctx: ConvertContext
 ): boolean {
+  if (citedEvidenceTruncated(result, ctx)) return true;
   const text = `${result.rationale} ${result.gap ?? ""}`;
   if (
     /\b(referenced (?:in|to|elsewhere)|incorporated by reference|see (?:the )?(?:annex|schedule|appendix|exhibit|sow)|cannot (?:be )?(?:fully )?verif)/i.test(
@@ -157,6 +163,18 @@ function shouldTreatMissingAsIndeterminate(
     return true;
   }
   return bundleHasReferencedElsewhere(result.evidenceRefs, ctx);
+}
+
+function citedEvidenceTruncated(
+  result: GroupedRequirementResult,
+  ctx: ConvertContext
+): boolean {
+  if (!ctx.bundle) return false;
+  const items =
+    result.evidenceRefs.length > 0
+      ? ctx.bundle.items.filter((item) => result.evidenceRefs.includes(item.ref))
+      : ctx.bundle.items;
+  return items.some((item) => item.truncated);
 }
 
 function bundleHasReferencedElsewhere(

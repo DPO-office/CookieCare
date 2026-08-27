@@ -17,8 +17,14 @@ export const DraftRequestSchema = z.object({
   draftInstructions: z.string().default(""),
   /** Counterparty / source document id (from process-uploaded-template). */
   uploadedDocument: z.string().nullable().optional(),
-  /** Optional vault template document id. */
+  /** Optional vault template document id (legacy alias for templateId). */
   documentId: z.string().nullable().optional(),
+  /** Preferred vault / library template id — authoritative over prose. */
+  templateId: z.string().nullable().optional(),
+  /** Selected library playbook / rulebook id — authoritative over prose. */
+  playbookId: z.string().nullable().optional(),
+  /** Selected library / catalog clause ids — preferred over type heuristics. */
+  clauseIds: z.array(z.string()).optional(),
   organizationId: z.string().nullable().optional(),
   intake: StructuredIntakeSchema,
   /** Accepted but ignored — legacy clients may still send BASIC/PROACTIVE/REACTIVE. */

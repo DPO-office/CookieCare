@@ -5,7 +5,7 @@ import { initAgentRunState } from "../types.js";
 import { resolveStoppedReason, nextPhaseAfterCritique } from "../transitions.js";
 import { renderLimitationsReport } from "../../capabilities/reporting/limitations-report.js";
 import { shouldHoldUserFacingOutput } from "../../utils/pac-log.js";
-import type { CritiqueReport, ReleaseDecision } from "../models/critique-report.js";
+import type { CritiqueReport, ReleaseDecision } from "../../models/critique-report.js";
 
 function critiqueWithRelease(release: ReleaseDecision): CritiqueReport {
   return {
@@ -23,6 +23,8 @@ describe("PAC release gate transitions", () => {
     const state = { agent: initAgentRunState("CREATE") } as AnalysisState;
     assert.equal(shouldHoldUserFacingOutput(state), true);
     state.agent!.phase = "ACT";
+    assert.equal(shouldHoldUserFacingOutput(state), true);
+    state.agent!.phase = "AUDIT";
     assert.equal(shouldHoldUserFacingOutput(state), true);
     state.agent!.phase = "CRITIQUE";
     assert.equal(shouldHoldUserFacingOutput(state), true);
@@ -110,6 +112,6 @@ describe("PAC release gate transitions", () => {
       },
       placeholderReport: { detected: false },
     });
-    assert.equal(nextPhaseAfterCritique({ agent: initAgentRunState("CREATE") } as AnalysisState, critique), "PLAN");
+    assert.equal(nextPhaseAfterCritique({ agent: initAgentRunState("CREATE") } as AnalysisState, critique), "DONE");
   });
 });

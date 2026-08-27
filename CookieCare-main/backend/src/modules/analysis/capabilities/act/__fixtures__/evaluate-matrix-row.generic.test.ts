@@ -13,6 +13,8 @@ const {
   matrixRowSubject,
   resolveMatrixRow,
   selectRelevantClauses,
+  MATRIX_ROW_MAX_OUTPUT_TOKENS,
+  MATRIX_ROW_SYSTEM_INSTRUCTION,
 } = await import("../evaluate-matrix-row.js");
 
 function unit(overrides: Record<string, unknown> = {}): AnalysisWorkUnit {
@@ -35,10 +37,10 @@ describe("generic matrix row metadata", () => {
 
     const expectedCategory: Record<string, string> = {
       "gdpr.right.access": "dsr_generic_no_named_rights",
-      "gdpr.right.rectification": "dsr_assistance_not_operational",
+      "gdpr.right.rectification": "dsr_generic_no_named_rights",
       "gdpr.right.erasure": "erasure_termination_only_gap",
       "gdpr.right.restriction": "dsr_assistance_not_operational",
-      "gdpr.right.notification": "dsr_assistance_not_operational",
+      "gdpr.right.notification": "recipient_notification_gap",
       "gdpr.right.portability": "portability_format_unaddressed",
       "gdpr.right.object": "dsr_assistance_not_operational",
       "gdpr.right.automated_decisions": "automated_decision_gap",
@@ -128,5 +130,65 @@ describe("generic matrix row metadata", () => {
     assert.match(prompt, /CPRA Article 1798\.105/);
     assert.doesNotMatch(prompt, /GDPR/i);
     assert.ok(selectRelevantClauses(clauses, row.preferredClauseTypes).length > 0);
+  });
+
+  it("caps JSON completion output and keeps the judgment prompt short", () => {
+    assert.equal(MATRIX_ROW_MAX_OUTPUT_TOKENS, 1200);
+    assert.match(MATRIX_ROW_SYSTEM_INSTRUCTION, /short claim/);
+    assert.match(MATRIX_ROW_SYSTEM_INSTRUCTION, /no essay/);
+    const prompt = buildMatrixEvaluationPrompt({
+      row: {
+        rowId: "fixture.right.access",
+        article: "1",
+        label: "Access",
+        findingCategory: "fixture_access_gap",
+        regimeLabel: "Fixture",
+      },
+      instruction: "Map this right",
+      previousAttemptFeedback: "",
+      matrixSection: "",
+      clauses: [],
+    });
+    assert.match(prompt, /at most two sentences/);
+  });
+
+  it("never dumps more than MATRIX_ROW_MAX_CLAUSES and truncates clause text", async () => {
+    const {
+      MATRIX_ROW_MAX_CLAUSES,
+      MATRIX_ROW_CLAUSE_CHAR_CAP,
+    } = await import("../evaluate-matrix-row.js");
+    const many: ClauseObject[] = Array.from({ length: 40 }, (_, index) => ({
+      clauseId: `c${index}`,
+      clauseType: "other",
+      text: "x".repeat(2000),
+      locator: { docId: "d", structuralPath: `c${index}`, charRange: [0, 10] },
+      taxonomyVersion: "test",
+    }));
+    const selected = selectRelevantClauses(many);
+    assert.equal(selected.length, MATRIX_ROW_MAX_CLAUSES);
+    const prompt = buildMatrixEvaluationPrompt({
+      row: {
+        rowId: "fixture.right.access",
+        article: "1",
+        label: "Access",
+        findingCategory: "fixture_access_gap",
+      },
+      instruction: "Map this right",
+      previousAttemptFeedback: "",
+      matrixSection: "",
+      clauses: selected,
+    });
+    assert.equal(prompt.includes("x".repeat(MATRIX_ROW_CLAUSE_CHAR_CAP + 1)), false);
+  });
+
+  it("times out a hung completion without waiting for it", async () => {
+    const { withMatrixRowTimeout, isMatrixRowTimeout } = await import(
+      "../evaluate-matrix-row.js"
+    );
+    const hung = new Promise<string>(() => undefined);
+    await assert.rejects(
+      () => withMatrixRowTimeout(hung, 20),
+      (err: unknown) => isMatrixRowTimeout(err)
+    );
   });
 });

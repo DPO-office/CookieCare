@@ -1,5 +1,6 @@
 import type { DocumentTypePack } from "../types.js";
 import type { WorkUnit } from "../../../models/draft-plan.js";
+import { dpaSkillConfig } from "./skill.config.js";
 
 const skeleton: WorkUnit[] = [
   {
@@ -105,6 +106,7 @@ export const dpaPack: DocumentTypePack = {
   aliases: ["dpa", "data processing agreement", "data processing addendum", "gdpr dpa"],
   skeleton,
   skillPaths: ["document-types/dpa"],
+  skillConfig: dpaSkillConfig,
   prompts: {
     plan: (ctx) => `Plan a DPA from facts: ${JSON.stringify(ctx.facts)}`,
     actSection: (ctx) => `Draft DPA section ${ctx.unit.heading}`,

@@ -147,8 +147,9 @@ export function formatDealIdentityLock(identity: DealIdentity): string {
     .join("\n");
 }
 
+/** Formal corporate suffixes only — require a space before the suffix. */
 const ENTITY_SUFFIX_RE =
-  /\b([A-Z][A-Za-z0-9 .,&'’-]{1,80}?(?:Inc\.|Incorporated|LLC|L\.L\.C\.|Ltd\.?|Limited|GmbH|AG|Corp\.|Corporation|PLC|LLP|Company|Group|Servers|Analytics|Systems|Solutions|Technologies|Media))\b/g;
+  /\b([A-Z][A-Za-z0-9,&'’.-]*(?:\s+[A-Z][A-Za-z0-9,&'’.-]*)*\s+(?:Inc\.?|Incorporated|LLC|L\.L\.C\.|Ltd\.?|Limited|GmbH|AG|Corp\.?|Corporation|PLC|LLP))\b/g;
 
 function normalizeName(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
@@ -170,7 +171,14 @@ export function findForeignPartyNames(
   for (const hit of hits) {
     const n = normalizeName(hit);
     if (!n || n.length < 4) continue;
-    // Allow if it is (or is contained in) a frozen party name
+    // Skip bare suffix-only matches (e.g. "Limited" alone).
+    const withoutSuffix = n
+      .replace(
+        /\b(inc|incorporated|llc|l l c|ltd|limited|gmbh|ag|corp|corporation|plc|llp)\b/g,
+        ""
+      )
+      .trim();
+    if (!withoutSuffix || withoutSuffix.length < 2) continue;
     let ok = false;
     for (const a of allowed) {
       if (n === a || a.includes(n) || n.includes(a)) {

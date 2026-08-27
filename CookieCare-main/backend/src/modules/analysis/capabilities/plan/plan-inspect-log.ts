@@ -219,7 +219,7 @@ function formatGraphSection(args: {
     `   depth          ${spec.depth}`,
     `   sections       ${spec.sections.join(" → ") || "(none)"}`,
     `   outlineItems   ${spec.outline?.length ?? 0}`,
-    `   outlineAnalysis ${spec.outline?.filter((i) => i.role === "analysis" || i.role === "chapeau_particulars").length ?? 0}`,
+    `   outlineAnalysis ${spec.outline?.filter((i) => i.role === "analysis" || i.role === "chapeau_particulars" || i.role === "key_findings" || i.role === "requirements_matrix").length ?? 0}`,
     `   renderer       ${args.rendererSchemaId}`,
     `   relatedChecks  ${args.relatedCount}`,
     `   webLookup      ${args.intent.unresolvedStandard ? args.intent.unresolvedStandard : "no"}`,

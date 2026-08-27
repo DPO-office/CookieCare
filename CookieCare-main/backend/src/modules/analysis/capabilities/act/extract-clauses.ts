@@ -14,11 +14,13 @@ import { getRuntimeTaxonomies, getSkillById, mergeClauseHeuristics } from "../..
 import type { AnalysisSkillConfig } from "../../skills/runtime/catalog/types.js";
 import { insufficient } from "./act-utils.js";
 import { pacLog } from "../../utils/pac-log.js";
-import { profileThinkingLevel } from "../../utils/profile-thinking.js";
+import { profileEvidenceCharBudget, profileThinkingLevel } from "../../utils/profile-thinking.js";
 import {
   buildRetrievalDictionary,
+  expandLogicalSection,
   groupDocumentSections,
   locateEvidence,
+  sliceAlignedEvidence,
   type ClauseCandidate,
   type ClauseLocatorResult,
 } from "./locate-evidence.js";
@@ -68,7 +70,8 @@ async function extractClauses(
   const dictionary = buildRetrievalDictionary(skills, neededTypes);
 
   const locStart = Date.now();
-  let located = locateEvidence(doc, neededTypes, dictionary);
+  const evidenceBudget = profileEvidenceCharBudget(state);
+  let located = locateEvidence(doc, neededTypes, dictionary, evidenceBudget);
   const locMs = Date.now() - locStart;
   const candidateCount = located.reduce((n, r) => n + r.candidates.length, 0);
 
@@ -90,10 +93,10 @@ async function extractClauses(
         profileThinkingLevel(state, LLMTask.STRUCTURAL_JSON_LITE)
       );
       fallbackCalls = 1;
-      located = mergeFallback(located, mapped, doc);
+      located = mergeFallback(located, mapped, doc, evidenceBudget);
     } catch (err) {
       console.warn("[extractClauses] headings fallback failed; using heuristic:", err);
-      located = mergeHeuristic(located, heuristicExtract(doc, missing, skills), doc);
+      located = mergeHeuristic(located, heuristicExtract(doc, missing, skills), doc, evidenceBudget);
     }
     fallbackMs = Date.now() - fbStart;
   }
@@ -205,7 +208,8 @@ async function headingsFallback(
 function mergeFallback(
   located: ClauseLocatorResult[],
   mapped: Array<{ clauseType: string; structuralPaths: string[] }>,
-  doc: SegmentedDocument
+  doc: SegmentedDocument,
+  maxChars: number
 ): ClauseLocatorResult[] {
   const byType = new Map(mapped.map((m) => [m.clauseType, m.structuralPaths ?? []]));
   const sections = groupDocumentSections(doc);
@@ -214,17 +218,20 @@ function mergeFallback(
     const paths = byType.get(result.clauseType) ?? [];
     const candidates: ClauseCandidate[] = [];
     for (const path of paths) {
-      const section = sections.find((s) => s.headingPath === path);
-      if (!section) continue;
+      const sectionIndex = sections.findIndex((s) => s.headingPath === path);
+      if (sectionIndex < 0) continue;
+      const expanded = expandLogicalSection(sections, sectionIndex, doc, maxChars);
       candidates.push({
         clauseType: result.clauseType,
-        segmentId: section.headingPath,
-        sectionTitle: section.title,
-        startOffset: section.startOffset,
-        endOffset: section.endOffset,
-        text: section.text.slice(0, 2_400),
+        segmentId: sections[sectionIndex]!.headingPath,
+        sectionTitle: sections[sectionIndex]!.title,
+        startOffset: expanded.startOffset,
+        endOffset: expanded.endOffset,
+        text: expanded.text,
         matchReason: "headings_llm",
         score: 50,
+        truncated: expanded.truncated,
+        logicalEndOffset: expanded.logicalEndOffset,
       });
     }
     if (candidates.length === 0) return result;
@@ -239,7 +246,8 @@ function mergeFallback(
 function mergeHeuristic(
   located: ClauseLocatorResult[],
   extracted: Array<{ clauseType: string; structuralPath?: string; text: string }>,
-  doc: SegmentedDocument
+  doc: SegmentedDocument,
+  maxChars: number
 ): ClauseLocatorResult[] {
   const byType = new Map<string, typeof extracted>();
   for (const e of extracted) {
@@ -255,14 +263,17 @@ function mergeHeuristic(
       const idx = doc.fullText.indexOf(h.text.slice(0, 80));
       const start = idx >= 0 ? idx : 0;
       const end = Math.min(doc.fullText.length, start + h.text.length);
+      const aligned = sliceAlignedEvidence(doc, start, end, maxChars);
       return {
         clauseType: result.clauseType,
         segmentId: h.structuralPath ?? `heuristic-${i}`,
-        startOffset: start,
-        endOffset: end,
-        text: h.text.slice(0, 2_400),
+        startOffset: aligned.startOffset,
+        endOffset: aligned.endOffset,
+        text: aligned.text,
         matchReason: "heuristic",
         score: 30,
+        truncated: aligned.truncated,
+        logicalEndOffset: aligned.logicalEndOffset,
       };
     });
     return {
@@ -312,6 +323,8 @@ function materializeClauses(
         evidenceStatus: status,
         matchReason: candidate.matchReason,
         referencedDocuments: result.referencedDocuments,
+        truncated: candidate.truncated,
+        logicalEndOffset: candidate.logicalEndOffset,
       });
       index += 1;
     }

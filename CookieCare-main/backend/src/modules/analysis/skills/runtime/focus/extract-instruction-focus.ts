@@ -28,6 +28,7 @@ import {
 
 import { normalizeForMatch } from "./normalize-for-match.js";
 import { dedupeStrings } from "../../../shared/dedupe.js";
+import { matchMetaRequirementBindings } from "../graph/meta-requirement-bindings.js";
 
 export { normalizeForMatch } from "./normalize-for-match.js";
 
@@ -93,6 +94,24 @@ function addArticleExpression(numbers: Set<number>, expression: string): void {
   }
 }
 
+export function phraseMapCompanionRuleIds(
+  skills: AnalysisSkillConfig[],
+  matrixRowIds: string[]
+): string[] {
+  if (matrixRowIds.length === 0) return [];
+  const matrixSet = new Set(matrixRowIds);
+  const out: string[] = [];
+  for (const skill of skills) {
+    for (const entry of skill.instructionFocusMap ?? []) {
+      const mapRows = entry.focus.matrixRowIds ?? [];
+      if (mapRows.length === 0) continue;
+      if (!mapRows.every((id) => matrixSet.has(id))) continue;
+      out.push(...(entry.focus.ruleIds ?? []));
+    }
+  }
+  return dedupeStrings(out);
+}
+
 function matrixLinkedSupportingRuleIds(
   skills: AnalysisSkillConfig[],
   matrixRowIds: string[]
@@ -103,17 +122,16 @@ function matrixLinkedSupportingRuleIds(
   for (const skill of skills) {
     for (const rule of skill.regimeRules ?? []) {
       const linked = rule.matrixLinkage?.matrixRowIds ?? [];
-      if (linked.some((id) => matrixSet.has(id))) out.push(rule.ruleId);
-    }
-    for (const pkg of skill.evidencePackages ?? []) {
-      if (!pkg.capabilityIds.some((id) => matrixSet.has(id))) continue;
-      for (const capId of pkg.capabilityIds) {
-        if (matrixSet.has(capId)) continue;
-        if (/\.art\d+/i.test(capId)) out.push(capId);
-      }
+      if (linked.length === 0) continue;
+      if (!linked.some((id) => matrixSet.has(id))) continue;
+      // 1:1 row linkage is the matrix evaluator itself — do not also schedule the rule.
+      if (linked.length === 1) continue;
+      // Cross-cutting linkage only when every linked row is in focus (do not broaden).
+      if (!linked.every((id) => matrixSet.has(id))) continue;
+      out.push(rule.ruleId);
     }
   }
-  return dedupeStrings(out);
+  return dedupeStrings([...out, ...phraseMapCompanionRuleIds(skills, matrixRowIds)]);
 }
 
 function articleNumberFromRuleId(ruleId: string): number | undefined {
@@ -394,6 +412,59 @@ function buildCompletenessCheck(
         mappedCapabilityIds.length > 0 ? undefined : "Partial capability coverage only",
     };
   });
+}
+
+function applyAuthoredMetaBindings(args: {
+  requirements: InstructionRequirement[];
+  requirementMappings: RequirementCapabilityMapping[];
+  skills: AnalysisSkillConfig[];
+  intentRequirements?: IntentRequirement[];
+  validCatalogSet: Set<string>;
+  catalog: ResolutionCandidate[];
+}): { ruleIds: string[]; matrixRowIds: string[]; riskCategoryIds: string[] } {
+  const typeById = new Map(
+    (args.intentRequirements ?? []).map((req) => [req.id, req.type])
+  );
+  const ruleIds: string[] = [];
+  const matrixRowIds: string[] = [];
+  const riskCategoryIds: string[] = [];
+  for (const req of args.requirements) {
+    const extra = matchMetaRequirementBindings(
+      {
+        id: req.id,
+        label: req.label,
+        type: typeById.get(req.id),
+      },
+      args.skills
+    ).filter((id) => args.validCatalogSet.has(id));
+    if (extra.length === 0) continue;
+    const existing = args.requirementMappings.find(
+      (mapping) => mapping.requirementId === req.id
+    );
+    if (existing) {
+      existing.capabilityIds = dedupeStrings([
+        ...existing.capabilityIds,
+        ...extra,
+      ]);
+    } else {
+      args.requirementMappings.push({
+        requirementId: req.id,
+        capabilityIds: extra,
+        source: "phrase_map",
+      });
+    }
+    for (const id of extra) {
+      const kind = kindOfId(id, args.catalog);
+      if (kind === "rule") ruleIds.push(id);
+      else if (kind === "matrix_row") matrixRowIds.push(id);
+      else if (kind === "risk_category") riskCategoryIds.push(id);
+    }
+  }
+  return {
+    ruleIds: dedupeStrings(ruleIds),
+    matrixRowIds: dedupeStrings(matrixRowIds),
+    riskCategoryIds: dedupeStrings(riskCategoryIds),
+  };
 }
 
 /**
@@ -684,7 +755,22 @@ export async function extractInstructionFocus(
     capabilityIds: mapping.capabilityIds.filter((id) => validCatalogSet.has(id)),
   }));
 
-  const unresolvedNeedDetails = catalogResult.unresolvedNeeds;
+  const metaBound = applyAuthoredMetaBindings({
+    requirements,
+    requirementMappings,
+    skills,
+    intentRequirements: options.intentRequirements,
+    validCatalogSet,
+    catalog,
+  });
+
+  const unresolvedNeedDetails = catalogResult.unresolvedNeeds.filter(
+    (item) =>
+      !requirementMappings.some(
+        (mapping) =>
+          mapping.requirementId === item.requirement && mapping.capabilityIds.length > 0
+      )
+  );
   const completenessCheck = buildCompletenessCheck(
     requirements,
     requirementMappings,
@@ -697,7 +783,10 @@ export async function extractInstructionFocus(
     combinedRuleIds.length > 0 ||
     combinedMatrixRowIds.length > 0 ||
     combinedRiskCategoryIds.length > 0 ||
-    catalogPackageIds.length > 0;
+    catalogPackageIds.length > 0 ||
+    metaBound.ruleIds.length > 0 ||
+    metaBound.matrixRowIds.length > 0 ||
+    metaBound.riskCategoryIds.length > 0;
 
   if (!hasExecutionIds && unresolvedNeedDetails.length === 0 && requirements.length === 0) {
     if (!phraseMatched && !articleFocus) {
@@ -715,9 +804,12 @@ export async function extractInstructionFocus(
   }
 
   return {
-    ruleIds: combinedRuleIds,
-    matrixRowIds: combinedMatrixRowIds,
-    riskCategoryIds: combinedRiskCategoryIds,
+    ruleIds: dedupeStrings([...combinedRuleIds, ...metaBound.ruleIds]),
+    matrixRowIds: dedupeStrings([...combinedMatrixRowIds, ...metaBound.matrixRowIds]),
+    riskCategoryIds: dedupeStrings([
+      ...combinedRiskCategoryIds,
+      ...metaBound.riskCategoryIds,
+    ]),
     instructionText: instruction,
     requirements,
     requiredCapabilities: requiredIds,

@@ -22,7 +22,13 @@ function intentWithRequirements(ids: string[]): IntentClassification {
 }
 
 function analysisItems(outline: ReportOutlineItem[]) {
-  return outline.filter((i) => i.role === "analysis" || i.role === "chapeau_particulars");
+  return outline.filter(
+    (i) =>
+      i.role === "analysis" ||
+      i.role === "chapeau_particulars" ||
+      i.role === "requirements_matrix" ||
+      i.role === "key_findings"
+  );
 }
 
 const ART28_SECTIONS = [
@@ -105,6 +111,40 @@ describe("deriveReportOutline", () => {
     assert.ok(outline.some((i) => i.role === "recommendations"));
   });
 
+  it("does not inject recommendations or qualifications unless the spec lists them", () => {
+    const intent = intentWithRequirements(["subject_matter"]);
+    const outline = deriveReportOutline(
+      intent,
+      "regime_compliance_memo",
+      "standard",
+      ["scope", "requirements_detail", "conclusion"]
+    );
+    assert.ok(!outline.some((i) => i.role === "recommendations"));
+    assert.ok(!outline.some((i) => i.role === "qualifications"));
+    assert.ok(outline.some((i) => i.role === "conclusion"));
+  });
+
+  it("emits extras as top-level sections with authored sectionId", () => {
+    const intent = intentWithRequirements(["nda.confidentiality_definition"]);
+    const outline = deriveReportOutline(
+      intent,
+      "regime_compliance_memo",
+      "standard",
+      ["executive_summary", "key_findings", "conclusion"],
+      [
+        {
+          heading: "Confidentiality",
+          sectionId: "key_findings",
+          requirementTags: ["nda.confidentiality_definition"],
+        },
+      ]
+    );
+    const extra = outline.find((i) => i.heading === "Confidentiality");
+    assert.equal(extra?.sectionId, "key_findings");
+    assert.equal(extra?.role, "key_findings");
+    assert.ok(!outline.some((i) => i.heading === "Requirements detail"));
+  });
+
   it("returns scope + conclusion only for narrow depth", () => {
     const intent = intentWithRequirements(["subject_matter"]);
     const outline = deriveReportOutline(intent, "regime_compliance_memo", "narrow");
@@ -127,6 +167,33 @@ describe("deriveReportOutline", () => {
     const analysis = analysisItems(outline);
 
     assert.ok(analysis.some((i) => i.requirementIds.includes("some_other_requirement")));
+  });
+
+  it("does not explode leftover requirements into many theme sections when extras exist", () => {
+    const intent = intentWithRequirements([
+      "mandatory_article_28_3_clauses",
+      "clause_adequacy",
+      "theme_alpha",
+      "theme_beta",
+      "theme_gamma",
+      "theme_delta",
+      "theme_epsilon",
+    ]);
+    const outline = deriveReportOutline(
+      intent,
+      "regime_compliance_memo",
+      "standard",
+      ["scope", "requirements_detail", "conclusion"],
+      [ART28_OUTLINE_EXTRAS[1]!]
+    );
+    const analysis = analysisItems(outline);
+    // One authored extra + at most one remainder bucket.
+    assert.ok(analysis.length <= 2, `expected <=2 analysis sections, got ${analysis.length}`);
+    assert.ok(
+      analysis.some((item) =>
+        item.requirementIds.some((id) => id.startsWith("theme_"))
+      )
+    );
   });
 
   it("builds analysis sections for multi-requirement qa_answer (not scope+conclusion only)", () => {

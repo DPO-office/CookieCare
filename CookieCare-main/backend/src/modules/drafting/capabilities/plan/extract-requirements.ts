@@ -146,11 +146,11 @@ function resolveCatalogFilters(
     contractType: extracted.contractType || undefined,
     jurisdiction: extracted.jurisdiction || undefined,
     industry: extracted.industry || undefined,
-    templateId: state.request.templateId,
-    organizationId: readStringField(
-      state.metadata as Record<string, unknown>,
-      "organizationId"
-    ),
+    templateId: state.request.templateId || state.request.vaultDocumentId || undefined,
+    clauseIds: state.request.clauseIds,
+    organizationId:
+      state.organizationId ||
+      readStringField(state.metadata as Record<string, unknown>, "organizationId"),
   };
 }
 

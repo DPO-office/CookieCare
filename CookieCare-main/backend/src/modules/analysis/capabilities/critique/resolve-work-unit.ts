@@ -18,8 +18,8 @@ import {
 import { pacLog } from "../../utils/pac-log.js";
 import { getAnalysisProfile } from "../../utils/profile-thinking.js";
 
-/** Default when no analysis profile is attached (legacy tests). */
-export const MAX_TIER2_ATTEMPTS = 1;
+/** Default when no analysis profile is attached — redo loops are retired. */
+export const MAX_TIER2_ATTEMPTS = 0;
 
 export interface ResolveWorkUnitsResult {
   outcomes: WorkUnitOutcome[];

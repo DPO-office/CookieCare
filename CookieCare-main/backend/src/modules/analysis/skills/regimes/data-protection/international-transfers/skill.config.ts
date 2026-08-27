@@ -234,14 +234,22 @@ export const internationalTransfersSkill: AnalysisSkillConfig = {
       outputArtifactType: "transfer_inventory",
       report: {
         reportType: "regime_compliance_memo",
-        sections: ["scope", "requirements_detail", "recommendations", "conclusion"],
+        sections: [
+          "executive_summary",
+          "key_findings",
+          "material_gaps",
+          "recommendations",
+          "conclusion",
+        ],
         outlineExtras: [
           {
             heading: "International transfer provisions",
+            sectionId: "key_findings",
             requirementTags: [
               "international_data_transfer",
               "transfer_inventory",
             ],
+            artifactTypes: ["transfer_inventory"],
           },
         ],
       },

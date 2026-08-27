@@ -285,7 +285,7 @@ describe("targeted repair classification and package-shape", () => {
         },
       },
     } as unknown as CritiqueReport;
-    assert.equal(nextPhaseAfterCritique(state, actCritique), "ACT");
+    assert.equal(nextPhaseAfterCritique(state, actCritique), "DONE");
 
     const planCritique = {
       ...actCritique,
@@ -305,7 +305,7 @@ describe("targeted repair classification and package-shape", () => {
         },
       },
     } as unknown as CritiqueReport;
-    assert.equal(nextPhaseAfterCritique(state, planCritique), "PLAN");
+    assert.equal(nextPhaseAfterCritique(state, planCritique), "DONE");
   });
 
   it("applyPackageShapeRepair injects evaluate_package and preserves unrelated findings", () => {

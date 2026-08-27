@@ -12,10 +12,11 @@ export const LEGAL_MEMO_MARKDOWN_CRAFT = [
   "- Always place the report-level Conclusion section last among substantive sections (only References may follow), regardless of document type or user phrasing.",
   "",
   "Selective bold (use sparingly — never bold entire paragraphs):",
-  "- **Status words** when stating an assessment: Covered, Partial, Gap, Missing, Cannot determine, Not applicable.",
+  "- **Status words** when stating an assessment: Strong, Adequate, Conditional, Gap, Covered, Partial, Missing, Cannot determine, Not applicable.",
   "- **Obligation or theme names** at the start of an analysis subheading or lead sentence.",
   "- **Article or clause references** (e.g. **Article 28(3)(e)**) when they anchor a finding.",
   "- **Recommendation verbs** at the start of each recommendation bullet (e.g. **Amend**, **Confirm**, **Obtain**).",
+  "- Never use **Amend** for Cannot determine / insufficient / truncated evidence. Those bullets start with **Obtain** or **Confirm**.",
   "",
   "Lists:",
   "- Use bullet lists for Recommendations and Missing materials only.",
@@ -23,10 +24,34 @@ export const LEGAL_MEMO_MARKDOWN_CRAFT = [
   "- Status-led subheadings are encouraged: `### Data subject assistance — Partial`.",
   "",
   "Tables:",
-  "- Use markdown tables only when they materially improve comparison (e.g. rights matrix, side-by-side statuses).",
+  "- Do not emit markdown tables in narrative mode unless this section's MATERIALS already include a rights-matrix artifact the user asked for.",
+  "- Prefer a compact numbered list for obligation statuses in prose.",
   "",
   "Tone:",
   "- Senior legal or compliance analyst voice. No chatty closers (e.g. \"Let me know if you'd like…\").",
   "- Do not expose internal requirement IDs, package IDs, or work-unit IDs.",
   "- Preserve `[N]` citation markers and the References section when evidence quotes are cited.",
+].join("\n");
+
+/**
+ * When the user asked for tabular output: analysis is tables-first, not essay-first.
+ * Framing prose is allowed; the substance of findings must live in markdown tables.
+ */
+export const TABULAR_SECTION_MARKDOWN_CRAFT = [
+  "MARKDOWN CRAFT (tabular answer — not a long memo essay)",
+  "",
+  "Structure:",
+  "- Start with the supplied `##` heading.",
+  "- For every section: at most one lead sentence, then a markdown table. At most one closing sentence after the table.",
+  "- Prefer this table shape when assessing obligations:",
+  "  | Requirement | Status | Evidence | Finding |",
+  "  | :--- | :--- | :--- | :--- |",
+  "- Opening / conclusion / recommendations still use a table when comparing two or more items; otherwise one short paragraph is allowed.",
+  "- Do not write Key Regulatory Findings, Summary of Compliance Findings, or any paragraph block that restates table rows.",
+  "- Row cells: one sentence each. Do not use ASCII box drawings.",
+  "- Finish every cell and every sentence. Never stop mid-cell or mid-clause.",
+  "",
+  "Status words (bold sparingly): Strong, Adequate, Conditional, Gap, Covered, Partial, Missing, Cannot determine, Not applicable.",
+  "Recommendation verbs: **Amend** only for missing/partial with complete quotes; otherwise **Obtain** / **Confirm**.",
+  "Do not expose internal requirement IDs, package IDs, or work-unit IDs.",
 ].join("\n");

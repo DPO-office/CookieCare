@@ -1,5 +1,6 @@
 import type { ChecklistItem, WorkUnit } from "../../models/draft-plan.js";
 import type { StructuredFacts } from "../../models/structured-facts.js";
+import type { DraftingSkillConfig } from "../skill-contract.js";
 
 export interface PlanContext {
   facts: StructuredFacts;
@@ -22,6 +23,8 @@ export interface DocumentTypePack {
   aliases: string[];
   skeleton: WorkUnit[];
   skillPaths: string[];
+  /** Optional executable skill config (preferred over markdown-only). */
+  skillConfig?: DraftingSkillConfig;
   prompts: {
     plan: (ctx: PlanContext) => string;
     actSection: (ctx: ActContext) => string;

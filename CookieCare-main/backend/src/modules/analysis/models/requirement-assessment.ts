@@ -7,11 +7,39 @@ import type { ReportSectionId } from "./intent.js";
  * independent legal verdict. `Finding` remains the single source of truth.
  */
 export type RequirementStatus =
+  | "strong"
+  | "adequate"
+  | "conditional"
+  | "gap"
   | "covered"
   | "partial"
   | "missing"
   | "not_applicable"
   | "cannot_determine";
+
+/** Map legacy statuses to the 5-tier vocab; identity for already-canonical values. */
+export function canonicalRequirementStatus(status: RequirementStatus): RequirementStatus {
+  if (status === "covered") return "adequate";
+  if (status === "partial") return "conditional";
+  if (status === "missing") return "gap";
+  return status;
+}
+
+export function isCoveredLike(status: RequirementStatus): boolean {
+  return status === "strong" || status === "adequate" || status === "covered";
+}
+
+export function isConditionalLike(status: RequirementStatus): boolean {
+  return status === "conditional" || status === "partial";
+}
+
+export function isGapLike(status: RequirementStatus): boolean {
+  return status === "gap" || status === "missing";
+}
+
+export function isMaterialIssueStatus(status: RequirementStatus): boolean {
+  return isGapLike(status) || isConditionalLike(status);
+}
 
 /**
  * RequirementAssessment — a reporting view over Findings, keyed by the PLAN

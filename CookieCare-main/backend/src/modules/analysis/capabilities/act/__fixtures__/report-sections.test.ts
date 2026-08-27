@@ -30,8 +30,11 @@ describe("deriveSections", () => {
     ]);
   });
 
-  it("uses conclusion-only for narrow Q&A", () => {
-    assert.deepEqual(deriveSections("qa_answer", "narrow"), ["conclusion"]);
+  it("uses evidence + conclusion for narrow Q&A", () => {
+    assert.deepEqual(deriveSections("qa_answer", "narrow"), [
+      "evidence",
+      "conclusion",
+    ]);
   });
 });
 
@@ -74,6 +77,20 @@ describe("report section guidance", () => {
         "recommendations",
       ]),
       ["scope", "requirements_detail", "recommendations", "conclusion"]
+    );
+  });
+
+  it("collapses executive_summary/scope and limitations/qualifications aliases", () => {
+    assert.deepEqual(
+      normalizeReportSections([
+        "executive_summary",
+        "scope",
+        "key_findings",
+        "limitations",
+        "qualifications",
+        "conclusion",
+      ]),
+      ["executive_summary", "key_findings", "limitations", "conclusion"]
     );
   });
 

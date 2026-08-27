@@ -223,7 +223,11 @@ export interface AnalysisPlan {
   missingClarifications: MissingClarification[];
   outputForm: IntentClassification["outputForm"];
   documentPresentation?: IntentClassification["documentPresentation"];
-  /** Follow-up re-render / Q&A — skip CRITIQUE and go DONE after ACT. */
+  /**
+   * Skip CRITIQUE and go DONE after ACT.
+   * Used for follow-up re-render / Q&A, and temporarily for all analysis types
+   * while critique is paused (`CRITIQUE_PAUSED` in pac/transitions).
+   */
   skipCritique?: boolean;
   reportSpec?: ReportSpec;
   rendererSchemaId:

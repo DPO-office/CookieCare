@@ -157,7 +157,7 @@ describe("structural-review requirementId (Point 1 regression)", () => {
     for (const reqId of reqIds) {
       const a = assessments.find((x) => x.requirementId === reqId);
       assert.ok(a, reqId);
-      assert.equal(a!.status, "covered");
+      assert.equal(a!.status, "adequate");
       assert.equal(a!.supportingFindingIds.length, 1);
     }
   });

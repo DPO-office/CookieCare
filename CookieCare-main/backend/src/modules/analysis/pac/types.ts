@@ -1,6 +1,6 @@
 /** PAC controller types — TypeScript owns phase transitions; LLM never decides skips. */
 
-export type Phase = "PLAN" | "ACT" | "CRITIQUE" | "ASK" | "DONE";
+export type Phase = "PLAN" | "ACT" | "AUDIT" | "CRITIQUE" | "ASK" | "DONE";
 
 export type EntryMode = "CREATE" | "RESUME";
 

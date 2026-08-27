@@ -1,89 +1,114 @@
 import type { DraftState } from "../../models/draft-state.js";
-import type { DraftPlan, WorkUnit, MissingFact } from "../../models/draft-plan.js";
+import type { DraftPlan, WorkUnit } from "../../models/draft-plan.js";
 import { orderByDependency } from "../../utils/topo-batches.js";
 import { resolveApplicablePacks } from "../../packs/resolve-applicable-packs.js";
 import { detectGaps } from "./detect-gaps.js";
-import {
-  isFactSatisfied,
-  mergeCoreMissingFacts,
-  prioritizeMissingFacts,
-  sanitizeKnownFacts,
-} from "./core-deal-facts.js";
+import { sanitizeKnownFacts } from "./core-deal-facts.js";
+import { resolveRequirements } from "./resolve-requirements.js";
+import { computeGapsAndConflicts } from "./compute-gaps.js";
 import {
   applyDealIdentityToPlanGlossary,
   buildDealIdentity,
 } from "../act/deal-identity.js";
+import {
+  assembleDraftingContext,
+  collectSkillConfigs,
+  resolveConditionalWorkUnits,
+} from "./assemble-drafting-context.js";
 
-function dropSatisfiedGaps(
-  missingFacts: MissingFact[],
-  facts: Record<string, unknown>
-): MissingFact[] {
-  return missingFacts.filter((f) => !isFactSatisfied(facts, f.field));
-}
-
-/** PLAN capability — three-axis pack merge + one-shot LLM detect-gaps freeze. */
+/** PLAN capability — resolve requirements, detect-gaps checklist, compute ASK gaps. */
 export async function buildPlan(state: DraftState): Promise<DraftState> {
-  const { typePack, regimes, jurisdiction, jurisdictionId, facts } =
-    resolveApplicablePacks(state);
+  const applicableInitial = resolveApplicablePacks(state);
+  const { typePack, facts } = applicableInitial;
 
-  const workUnits: WorkUnit[] = orderByDependency([
-    ...typePack.skeleton.map((u) => ({ ...u, status: "pending" as const })),
-    ...regimes.flatMap((r) =>
-      r.additionalWorkUnits.map((u) => ({ ...u, status: "pending" as const }))
-    ),
-  ]);
-
-  // Only pass real known facts into detect-gaps (drop placeholders / inventions).
+  // Merge pack facts + extracted structuredFacts, then resolve catalog statuses.
   const factBag = sanitizeKnownFacts({
     ...(facts as Record<string, unknown>),
     ...((state.structuredFacts ?? {}) as Record<string, unknown>),
+    documentType:
+      state.structuredFacts?.documentType ||
+      typePack.id ||
+      state.requirements?.contractType,
   });
 
-  // Single detect-gaps call for this deal — checklist/missingFacts frozen here.
-  const gaps = await detectGaps({
+  let working: DraftState = {
     ...state,
-    structuredFacts: factBag,
-  });
+    structuredFacts: {
+      ...factBag,
+      documentType:
+        (typeof factBag.documentType === "string"
+          ? factBag.documentType
+          : undefined) || typePack.id,
+    },
+  };
 
-  let missingFacts = dropSatisfiedGaps(gaps.missingFacts, factBag);
-  // Deterministic core ASK: universal + document-type deal facts; promote LLM gaps to critical.
-  missingFacts = mergeCoreMissingFacts(
-    missingFacts,
-    factBag,
-    typePack.id || state.requirements?.contractType
+  working = resolveRequirements(working);
+
+  const applicable = resolveApplicablePacks(working);
+  const skills = collectSkillConfigs(applicable);
+  const conditionalUnits = resolveConditionalWorkUnits(
+    skills,
+    working.structuredFacts ?? {}
   );
-  missingFacts = dropSatisfiedGaps(missingFacts, factBag);
-  missingFacts = prioritizeMissingFacts(missingFacts, 10);
+
+  const workUnits: WorkUnit[] = orderByDependency([
+    ...applicable.typePack.skeleton.map((u) => ({
+      ...u,
+      status: "pending" as const,
+    })),
+    ...applicable.regimes.flatMap((r) =>
+      r.additionalWorkUnits.map((u) => ({ ...u, status: "pending" as const }))
+    ),
+    ...conditionalUnits,
+  ]);
+
+  // detect-gaps: checklist is authoritative; missingFacts are hints only.
+  const gaps = await detectGaps(working);
+  const missingFacts = computeGapsAndConflicts(working, gaps.missingFacts);
 
   const criticalCount = missingFacts.filter((f) => f.severity === "critical").length;
   console.log(
     `[buildPlan] missingFacts total=${missingFacts.length} critical=${criticalCount} fields=${missingFacts.map((f) => `${f.field}:${f.severity}`).join(",") || "(none)"}`
   );
 
-  const structuredFacts = { ...facts, ...factBag };
+  const structuredFacts = {
+    ...(working.structuredFacts ?? {}),
+  };
   const identity = buildDealIdentity(
     structuredFacts,
-    typePack.id || state.requirements?.contractType
+    applicable.typePack.id || state.requirements?.contractType
   );
 
+  const draftingContext = assembleDraftingContext(
+    working,
+    applicable,
+    workUnits
+  );
+  draftingContext.gaps = missingFacts;
+
   const plan: DraftPlan = {
-    documentType: typePack.id,
-    packId: typePack.id,
-    title: typePack.id.toUpperCase(),
+    documentType: applicable.typePack.id,
+    packId: applicable.typePack.id,
+    title: applicable.typePack.id.toUpperCase(),
     workUnits,
     structuredFacts,
     missingFacts,
-    applicableRegimes: regimes.map((r) => r.id),
-    jurisdictionId: jurisdiction?.id ?? jurisdictionId,
+    applicableRegimes: applicable.regimes.map((r) => r.id),
+    jurisdictionId: applicable.jurisdiction?.id ?? applicable.jurisdictionId,
     mandatoryChecklist: gaps.checklist,
     loadedSkillPaths: [
       "orchestrator-system",
-      ...typePack.skillPaths,
-      ...regimes.flatMap((r) => r.skillPaths),
-      ...(jurisdiction?.skillPaths ?? []),
+      ...applicable.typePack.skillPaths,
+      ...applicable.regimes.flatMap((r) => r.skillPaths),
+      ...(applicable.jurisdiction?.skillPaths ?? []),
     ],
-    selectedClauseIds: [],
-    negotiationPositions: state.retrieval.applicablePlaybookRules ?? [],
+    selectedTemplateId:
+      draftingContext.template?.id ||
+      working.request.templateId ||
+      working.request.vaultDocumentId ||
+      undefined,
+    selectedClauseIds: working.request.clauseIds ?? [],
+    negotiationPositions: working.retrieval.applicablePlaybookRules ?? [],
     glossary: identity
       ? applyDealIdentityToPlanGlossary({}, identity)
       : {},
@@ -96,14 +121,15 @@ export async function buildPlan(state: DraftState): Promise<DraftState> {
   }
 
   return {
-    ...state,
+    ...working,
     structuredFacts: plan.structuredFacts,
+    draftingContext,
     plan,
     context: {
-      systemPrompt: state.context?.systemPrompt ?? "",
-      assembledPrompt: state.context?.assembledPrompt ?? "",
+      systemPrompt: working.context?.systemPrompt ?? "",
+      assembledPrompt: working.context?.assembledPrompt ?? "",
       documentSkeleton: workUnits.map((u) => u.heading),
-      draftSummary: state.context?.draftSummary,
+      draftSummary: working.context?.draftSummary,
     },
   };
 }
