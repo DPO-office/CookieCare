@@ -2,7 +2,6 @@ import React, { useRef, useEffect, useState, useMemo } from "react";
 import {
   ArrowLeft,
   Copy,
-  Download,
   Printer,
   Send,
   Check,
@@ -223,11 +222,30 @@ export default function ReportView({
   onOpenHistory,
 }: ReportViewProps) {
   const chatBottomRef = useRef<HTMLDivElement>(null);
+  const reportBodyRef = useRef<HTMLDivElement>(null);
   const [questionModalOpen, setQuestionModalOpen] = useState(false);
 
   useEffect(() => {
     chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages, progressMessage]);
+
+  // Delegated handler for Show more / Show less toggles injected by markdownToHtml
+  useEffect(() => {
+    const container = reportBodyRef.current;
+    if (!container) return;
+
+    function handleToggleClick(e: MouseEvent) {
+      const btn = (e.target as HTMLElement).closest(".md-clause-toggle");
+      if (!btn) return;
+      const textSpan = btn.previousElementSibling;
+      if (!textSpan || !textSpan.classList.contains("md-clause-text")) return;
+      const expanded = textSpan.classList.toggle("md-clause-expanded");
+      btn.textContent = expanded ? "Show less" : "Show more";
+    }
+
+    container.addEventListener("click", handleToggleClick);
+    return () => container.removeEventListener("click", handleToggleClick);
+  }, []);
 
   const primaryReport = chatMessages.find(
     (m) => m.sender === "gemini" && !m.loading && !m.streaming && Boolean(m.text)
@@ -258,9 +276,7 @@ export default function ReportView({
                 </p>
               </div>
             </button>
-            <span className="score-badge hidden shrink-0 bg-[#EEF2FF] text-[11px] font-medium text-[#4F5BD9] sm:inline-flex">
-              Analyze
-            </span>
+
             {onOpenHistory && (
               <button
                 type="button"
@@ -276,13 +292,13 @@ export default function ReportView({
         </header>
 
         {/* Body: main content + optional RHS references panel */}
-        <div className="min-h-0 flex-1 flex overflow-hidden">
+        <div className="min-h-0 flex-1 flex min-w-0">
           {/* Main scrollable report area */}
-          <div className="min-h-0 flex-1 flex flex-col overflow-hidden">
-            <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-4 pt-6">
+          <div className="min-h-0 flex-1 flex flex-col min-w-0">
+            <div ref={reportBodyRef} className="min-h-0 flex-1 overflow-y-auto px-6 pb-4 pt-6">
               <div
-                className="mx-auto space-y-7 print-container"
-                style={{ maxWidth: hasRefs ? 720 : 768 }}
+                className="mx-auto space-y-7 print-container analyze-prose-container"
+                data-has-refs={hasRefs ? "true" : "false"}
               >
                 {chatMessages.length === 0 && openQuestions.length === 0 && (
                   <div className="flex items-center gap-2.5">
@@ -319,45 +335,23 @@ export default function ReportView({
                   return (
                     <div key={idx} className="w-full">
                       <div
-                        className={`flex items-center justify-between gap-3 ${
+                        className={`flex items-center gap-3 ${
                           isThinking ? "" : "mb-3"
                         }`}
                       >
-                        <div className="flex min-w-0 items-center gap-2.5">
-                          <img
-                            src={LORA_MARK}
-                            alt=""
-                            width={32}
-                            height={32}
-                            className="h-8 w-8 shrink-0 rounded-[9px] object-cover"
-                          />
-                          {isThinking ? (
-                            <StreamStatus message={progressMessage || "Thinking…"} />
-                          ) : (
-                            <p className="m-0 text-[13px] font-semibold tracking-[-0.01em] text-[#1a1a1a]">
-                              {isLiveWriting ? "Writing…" : "LORA"}
-                            </p>
-                          )}
-                        </div>
-                        {isFirstAi && primaryReport && (
-                          <div className="no-print flex shrink-0 items-center gap-0.5">
-                            {[
-                              { icon: Copy, label: "Copy", onClick: onCopy },
-                              { icon: Download, label: "Download", onClick: onDownload },
-                              { icon: Printer, label: "Print", onClick: onPrint },
-                            ].map(({ icon: Icon, label, onClick }) => (
-                              <button
-                                key={label}
-                                type="button"
-                                onClick={onClick}
-                                title={label}
-                                className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full border-none bg-transparent px-2.5 text-[11px] font-medium text-[#667085] transition-colors hover:bg-[#EEF2FF] hover:text-[#4F5BD9]"
-                              >
-                                <Icon className="h-3.5 w-3.5" strokeWidth={1.75} />
-                                <span className="hidden sm:inline">{label}</span>
-                              </button>
-                            ))}
-                          </div>
+                        <img
+                          src={LORA_MARK}
+                          alt=""
+                          width={32}
+                          height={32}
+                          className="h-8 w-8 shrink-0 rounded-[9px] object-cover"
+                        />
+                        {isThinking ? (
+                          <StreamStatus message={progressMessage || "Thinking…"} />
+                        ) : (
+                          <p className="m-0 text-[13px] font-semibold tracking-[-0.01em] text-[#1a1a1a]">
+                            {isLiveWriting ? "Writing…" : "LORA"}
+                          </p>
                         )}
                       </div>
 
@@ -374,6 +368,25 @@ export default function ReportView({
                               <StreamStatus message={progressMessage || "Thinking…"} />
                             )}
                           </div>
+                          {isFirstAi && primaryReport && (
+                            <div className="no-print mt-3 flex items-center gap-0.5">
+                              {[
+                                { icon: Copy, label: "Copy", onClick: onCopy },
+                                { icon: Printer, label: "Print", onClick: onPrint },
+                              ].map(({ icon: Icon, label, onClick }) => (
+                                <button
+                                  key={label}
+                                  type="button"
+                                  onClick={onClick}
+                                  title={label}
+                                  className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full border-none bg-transparent px-2.5 text-[11px] font-medium text-[#667085] transition-colors hover:bg-[#EEF2FF] hover:text-[#4F5BD9]"
+                                >
+                                  <Icon className="h-3.5 w-3.5" strokeWidth={1.75} />
+                                  <span className="hidden sm:inline">{label}</span>
+                                </button>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>

@@ -7,6 +7,7 @@ import DraftSplitWorkspace from "./components/DraftSplitWorkspace";
 import CreateDocModal from "./components/CreateDocModal";
 import SaveDraftModal from "./components/SaveDraftModal";
 import { DraftLibraryPicker } from "./components/DraftLibraryPicker";
+import { DraftHistoryPanel } from "./components/DraftHistoryPanel";
 import { VaultPickerSheet } from "../analyze/components/VaultPickerSheet";
 import { useDraftEditorState } from "./hooks/useDraftEditorState";
 import { useDraftGeneratorState } from "./hooks/useDraftGeneratorState";
@@ -14,12 +15,15 @@ import { useDraftApiActions } from "./hooks/useDraftApiActions";
 import { useDraftGeneratorActions } from "./hooks/useDraftGeneratorActions";
 import { useDraftChat } from "./hooks/useDraftChat";
 import { useDraftLibrary } from "./hooks/useDraftLibrary";
+import { useDraftHistory } from "./hooks/useDraftHistory";
 import { useDraftPromptLibrary } from "./hooks/useDraftPromptLibrary";
 import { useAnalyzeData } from "../analyze/hooks/useAnalyzeData";
 import { getSelectedDocuments } from "../analyze/documentSelection";
 import { composeDraftContext } from "./utils/composeDraftContext";
+import { markdownToHtml } from "../../shared/utils/markdownToHtml";
 import { DraftAgreementProps } from "./types";
 import type { RichTextSelectionSnapshot } from "../../shared/components/RichTextEditor";
+import type { DraftHistoryItem } from "./hooks/useDraftHistory";
 
 export default function DraftAgreement({
   initialDocumentId: initialDocumentIdProp,
@@ -41,7 +45,137 @@ export default function DraftAgreement({
   const [vaultPickerOpen, setVaultPickerOpen] = useState(false);
   const [libraryPicker, setLibraryPicker] = useState<"template" | "playbook" | "clauses" | null>(null);
 
-  const { templates, clauses: clauseLibrary, playbooks } = useDraftLibrary(authToken);
+  // --- History panel state ---
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [draftUnavailable, setDraftUnavailable] = useState(false);
+  const { history, fetchHistory, deleteEntry, loading: historyLoading, error: historyError, deleteError, clearDeleteError } = useDraftHistory(authToken);
+
+  const handleOpenHistory = () => {
+    setIsHistoryOpen(true);
+    fetchHistory();
+  };
+
+  const handleCloseHistory = () => {
+    setIsHistoryOpen(false);
+  };
+
+  const handleLoadHistoryEntry = async (entry: DraftHistoryItem) => {
+    // Mark generator as active so workspace is fully initialized
+    editorState.setIsGeneratorActive(true);
+
+    // Normalize raw content: if it's already HTML leave it alone, otherwise
+    // convert from Markdown so markup characters never appear in the editor.
+    const normalizeContent = (raw: string): string => {
+      const isHtml = /<[a-z][\s\S]*>/i.test(raw.trim());
+      return isHtml ? raw : markdownToHtml(raw);
+    };
+
+    /** Opens the workspace showing the "Draft unavailable" message instead of
+     *  a blank editor. The history entry is kept intact. */
+    const showUnavailable = () => {
+      setIsHistoryOpen(false);
+      setDraftUnavailable(true);
+      setIsWorkspaceOpen(true);
+      setSessionTitle(entry.title || "Untitled");
+    };
+
+    if (entry.formatted_text) {
+      // We have content from the 3-tier backend fallback — use it directly.
+      const normalized = normalizeContent(entry.formatted_text);
+      editorState.setEditorContent(normalized);
+
+      if (entry.documentId) {
+        const doc = documents.find((d: any) => d.id === entry.documentId);
+        if (doc) {
+          // Raise the suppress flag so the selectedDoc sync effect does NOT
+          // overwrite what we just set.
+          // Edge-case: if `doc` is the *exact same reference* already in
+          // selectedDoc, React will bail out of setSelectedDoc and the effect
+          // will never fire — meaning suppressDocSyncRef would stay `true`
+          // forever and block the next legitimate document switch.
+          // Guard: if the reference is identical, skip setSelectedDoc entirely
+          // (content is already set above) and ensure the flag stays false.
+          if (doc === editorState.selectedDoc) {
+            // Same ref — effect won't run; flag must stay clear.
+            editorState.suppressDocSyncRef.current = false;
+          } else {
+            editorState.suppressDocSyncRef.current = true;
+            editorState.setSelectedDoc(doc);
+          }
+          onSelectDocument(doc);
+        }
+        // If doc not in local list, content is still set above — nothing more needed.
+      }
+    } else if (entry.status === "failed") {
+      // Failed job — there is genuinely no content to show.
+      showUnavailable();
+      return;
+    } else {
+      // formatted_text is null for a completed job — the ledger entry may be
+      // missing (e.g. updateJobState failed after the pipeline finished).
+      // Fall back to loading from the associated document if one exists.
+      if (entry.documentId) {
+        const doc = documents.find((d: any) => d.id === entry.documentId);
+        if (doc) {
+          // Only use the doc fallback if it actually has content — a placeholder
+          // files row created before the pipeline ran stores "" and would cause
+          // the same blank editor as the original bug.
+          const docHasContent = !!(doc.content || "").trim();
+          if (!docHasContent) {
+            // Incomplete draft — no content anywhere.
+            showUnavailable();
+            return;
+          }
+          // Let the selectedDoc effect run normally — it will load doc.content.
+          // Only suppress if it's a different doc to avoid clobbering nothing.
+          editorState.suppressDocSyncRef.current = false;
+          if (doc !== editorState.selectedDoc) {
+            editorState.setSelectedDoc(doc);
+          } else {
+            // Same doc already selected — manually sync content from it.
+            const raw = doc.content || "";
+            const isHtml = /<[a-z][\s\S]*>/i.test(raw.trim());
+            editorState.setEditorContent(isHtml ? raw : markdownToHtml(raw));
+          }
+          onSelectDocument(doc);
+        } else {
+          // Document not in local list — content is genuinely unavailable.
+          showUnavailable();
+          return;
+        }
+      } else {
+        // No documentId and no formatted_text — content is unavailable.
+        showUnavailable();
+        return;
+      }
+    }
+
+    // Successful load — clear any prior unavailable state.
+    setDraftUnavailable(false);
+    setIsHistoryOpen(false);
+    setIsWorkspaceOpen(true);
+    setSessionTitle(entry.title || "Untitled");
+  };
+
+  const handleDeleteHistoryEntry = async (jobId: string): Promise<boolean> => {
+    const success = await deleteEntry(jobId);
+    if (success) {
+      await fetchHistory();
+    }
+    return success;
+  };
+
+  const {
+    templates,
+    clauses: clauseLibrary,
+    playbooks,
+    privateTemplates,
+    orgTemplates,
+    privateClauses,
+    orgClauses,
+    privatePlaybooks,
+    orgPlaybooks,
+  } = useDraftLibrary(authToken);
   const { starterPrompts, customPrompts, addPrompt, removePrompt } = useDraftPromptLibrary(authToken);
   const {
     folders,
@@ -137,6 +271,11 @@ export default function DraftAgreement({
       draftChat.addAssistantMessage(
         "Your draft is ready in the editor. You can edit it directly or ask follow-up questions here."
       );
+      // Refresh history list if the panel is currently open so the new entry
+      // appears immediately without the user having to close and reopen it.
+      if (isHistoryOpen) {
+        fetchHistory();
+      }
     },
     onRefineComplete: () => {
       draftChat.addAssistantMessage("I've updated the draft based on your request.");
@@ -148,6 +287,7 @@ export default function DraftAgreement({
     editorState.setSelectedDoc(doc);
     editorState.setIsGeneratorActive(false);
     setIsWorkspaceOpen(true);
+    setDraftUnavailable(false);
     setSessionTitle(doc.title);
     onSelectDocument(doc);
   };
@@ -156,12 +296,12 @@ export default function DraftAgreement({
     editorState.setSelectedDoc(null);
     editorState.setIsGeneratorActive(true);
     setIsWorkspaceOpen(false);
+    setDraftUnavailable(false);
     draftChat.reset();
     setWorkspaceChatInput("");
     setSessionTitle("Draft session");
     onSelectDocument(null);
   };
-
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     generatorState.setIsDragging(true);
@@ -238,6 +378,7 @@ export default function DraftAgreement({
     draftChat.updateProgressMessage("Starting draft generation…");
     setIsWorkspaceOpen(true);
     editorState.setIsGeneratorActive(false);
+    setDraftUnavailable(false);
 
     const mode = hasSource ? "Advanced" : "Basic";
     const advancedStep = hasSource ? "reactive" : generatorState.advancedStep;
@@ -444,6 +585,7 @@ export default function DraftAgreement({
         <DraftSplitWorkspace
           sessionTitle={sessionTitle}
           documentTitle={editorState.selectedDoc?.title || "Draft Agreement"}
+          draftUnavailable={draftUnavailable}
           messages={draftChat.messages}
           chatInput={workspaceChatInput}
           onChatInputChange={setWorkspaceChatInput}
@@ -488,6 +630,8 @@ export default function DraftAgreement({
           onSave={handleSaveClick}
           onExport={handleExport}
           onAskSubmit={handleAskSubmit}
+          onBack={handleOpenGenerator}
+          onOpenHistory={handleOpenHistory}
         />
       ) : editorState.isGeneratorActive ? (
         <DraftChatLanding
@@ -529,6 +673,7 @@ export default function DraftAgreement({
           customPrompts={customPrompts}
           onAddPrompt={addPrompt}
           onRemovePrompt={removePrompt}
+          onOpenHistory={handleOpenHistory}
         />
       ) : null}
 
@@ -549,7 +694,8 @@ export default function DraftAgreement({
         <DraftLibraryPicker
           title="Select template"
           description="Choose a boilerplate structure from your vault."
-          items={templates}
+          privateItems={privateTemplates}
+          orgItems={orgTemplates}
           selectedIds={generatorState.selectedTemplateId ? [generatorState.selectedTemplateId] : []}
           emptyLabel="No templates in your vault yet."
           onChange={(ids) => {
@@ -566,7 +712,8 @@ export default function DraftAgreement({
         <DraftLibraryPicker
           title="Select playbook"
           description="Apply company playbook rules from your vault."
-          items={playbooks}
+          privateItems={privatePlaybooks}
+          orgItems={orgPlaybooks}
           selectedIds={generatorState.selectedPlaybookId ? [generatorState.selectedPlaybookId] : []}
           emptyLabel="No playbooks in your vault yet."
           onChange={(ids) => generatorState.setSelectedPlaybookId(ids[0] ?? null)}
@@ -578,7 +725,8 @@ export default function DraftAgreement({
         <DraftLibraryPicker
           title="Select clauses"
           description="Add standardized clauses to include in this draft."
-          items={clauseLibrary}
+          privateItems={privateClauses}
+          orgItems={orgClauses}
           selectedIds={generatorState.selectedClauseIds}
           multiple
           emptyLabel="No clauses in your vault yet."
@@ -589,6 +737,20 @@ export default function DraftAgreement({
             );
           }}
           onClose={() => setLibraryPicker(null)}
+        />
+      )}
+
+      {/* History panel — rendered at root level so it works from both landing and workspace */}
+      {isHistoryOpen && (
+        <DraftHistoryPanel
+          history={history}
+          loading={historyLoading}
+          error={historyError}
+          deleteError={deleteError}
+          onClearDeleteError={clearDeleteError}
+          onClose={handleCloseHistory}
+          onSelectEntry={handleLoadHistoryEntry}
+          onDeleteEntry={handleDeleteHistoryEntry}
         />
       )}
 

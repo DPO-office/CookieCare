@@ -55,6 +55,7 @@ export default function InteractAnalyze() {
   const [chatInput, setChatInput] = useState("");
   const [validationMessage, setValidationMessage] = useState("");
 
+  // ── Modal open flags ─────────────────────────────────────────────────────
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
   const [sidePanelType, setSidePanelType] = useState<SidePanelType>("upload");
   const [newFolderName, setNewFolderName] = useState("");
@@ -241,7 +242,6 @@ export default function InteractAnalyze() {
             error={analysis.analysisError}
             label="Analyzing"
             subtitle={analysis.activeReportDocName || "document"}
-            illustration="scan"
             onRetry={
               analysis.analysisError
                 ? () => {
@@ -391,6 +391,7 @@ export default function InteractAnalyze() {
             error={history.error}
             onClose={() => setHistoryOpen(false)}
             onSelectSession={handleSelectHistorySession}
+            onDeleteEntry={history.deleteEntry}
           />
         )}
       </div>

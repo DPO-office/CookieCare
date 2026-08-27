@@ -210,6 +210,13 @@ export const VAULT_STYLES = `
 }
 .vlt-tabs::-webkit-scrollbar { display: none; }
 
+/* Hide scrollbar on any horizontal-scroll table wrapper while keeping scroll functional */
+.vlt-scroll-x {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.vlt-scroll-x::-webkit-scrollbar { display: none; }
+
 .vlt-overline {
   font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
   text-transform: uppercase; color: #98A2B3;

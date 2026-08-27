@@ -6,7 +6,7 @@ import {
   ResumeAskRequestSchema,
 } from "./schema.js";
 import { withTransaction } from "../../../utils/dbUtils.js";
-import { encryptData } from "../../../utils/crypto.js";
+import { encryptData, decryptData } from "../../../utils/crypto.js";
 import crypto from "crypto";
 import { extractText } from "../../../utils/extractText.js";
 import { pool } from "../../../config/database.js";
@@ -112,6 +112,126 @@ export const getConversationController = async (req: Request, res: Response): Pr
             conversation: snapshot.conversation ?? { documentId, organizationId: "", turns: [] },
         });
     } catch (err: any) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+export const getDraftHistoryController = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const userId = req.user!.id;
+        const userRole = req.user!.role ?? "USER";
+        const limit = Math.min(Math.max(1, Number(req.query.limit) || 50), 100);
+
+        const rows = await withTransaction(userId, userRole, async (client) => {
+            const { rows } = await client.query(
+                `SELECT
+                    j.id                                 AS job_id,
+                    j.status,
+                    j.created_at,
+                    COALESCE(
+                        NULLIF(j.payload->>'draftInstructions', ''),
+                        NULLIF(j.payload->>'draftInput', ''),
+                        'Untitled draft'
+                    )                                    AS instruction,
+                    COALESCE(j.result->>'file_id', j.result->>'documentId') AS document_id,
+                    dsl.formatted_text                   AS formatted_text,
+                    dsl.state_snapshot_json->'draft'->>'formattedDocument' AS formatted_document,
+                    f.content                            AS file_content,
+                    f.is_encrypted                       AS file_is_encrypted
+                 FROM jobs j
+                 LEFT JOIN LATERAL (
+                     -- Fix: prefer the highest version that has real content (non-empty
+                     -- formatted_text) over a bare ASK-pause snapshot (version=0,
+                     -- formatted_text='').  Without this, a draft whose ASK resume
+                     -- succeeded would still return the version=0 empty row because
+                     -- plain ORDER BY version DESC does not skip empty-text rows.
+                     SELECT formatted_text, state_snapshot_json
+                     FROM draft_state_ledger d
+                     WHERE d.document_id = COALESCE(j.result->>'file_id', j.result->>'documentId')
+                     ORDER BY
+                         CASE WHEN d.formatted_text IS NOT NULL
+                                   AND d.formatted_text <> ''
+                              THEN 0 ELSE 1 END,
+                         d.version DESC
+                     LIMIT 1
+                 ) dsl ON true
+                 LEFT JOIN files f
+                    ON f.id = COALESCE(j.result->>'file_id', j.result->>'documentId')
+                 WHERE j.user_id = current_setting('app.current_user_id', true)
+                   AND j.type = 'template_drafting'
+                   AND (j.payload->>'intent' IS NULL OR j.payload->>'intent' = 'CREATE')
+                   AND j.status IN ('completed', 'failed')
+                 ORDER BY j.created_at DESC
+                 LIMIT $1`,
+                [limit]
+            );
+            return rows;
+        });
+
+        const history = rows.map((r: any) => {
+            // Resolve content using a three-tier fallback:
+            // 1. formatted_text from draft_state_ledger (best — already plain text/HTML)
+            // 2. formattedDocument extracted from state_snapshot_json
+            // 3. files.content — the saved document, decrypted if needed
+            //
+            // Fix: use .trim() so an empty-string or whitespace-only formatted_text
+            // (written by the ASK-pause saveStep) is treated as no-content and the
+            // chain falls through to the next tier rather than stopping at a falsy "".
+            let resolvedContent: string | null =
+                r.formatted_text?.trim() || r.formatted_document?.trim() || null;
+
+            if (!resolvedContent && r.file_content) {
+                try {
+                    const raw = r.file_is_encrypted
+                        ? decryptData(String(r.file_content))
+                        : String(r.file_content);
+                    // Only accept non-empty decrypted content — a placeholder files row
+                    // created before the pipeline ran stores "" and must not be returned
+                    // as content (it would cause a blank editor instead of the
+                    // "content unavailable" message).
+                    resolvedContent = raw.trim() || null;
+                } catch {
+                    resolvedContent = null;
+                }
+            }
+
+            return {
+                jobId:          String(r.job_id),
+                documentId:     r.document_id || null,
+                title:          String(r.instruction || "Untitled draft").slice(0, 120).replace(/\n[\s\S]*/g, "").trim(),
+                status:         String(r.status),
+                createdAt:      String(r.created_at),
+                formatted_text: resolvedContent,
+            };
+        });
+
+        res.json({ history });
+    } catch (err: any) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+export const deleteDraftHistoryController = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const userId = req.user!.id;
+        const userRole = req.user!.role;
+        const jobId = String(req.params.jobId || "");
+        if (!jobId) { res.status(400).json({ error: "jobId required" }); return; }
+
+        await withTransaction(userId, userRole, async (client) => {
+            const result = await client.query(
+                `DELETE FROM jobs
+                 WHERE id = $1
+                   AND type = 'template_drafting'
+                   AND user_id = current_setting('app.current_user_id', true)`,
+                [jobId]
+            );
+            if (result.rowCount === 0) throw new Error("NOT_FOUND");
+        });
+
+        res.json({ success: true });
+    } catch (err: any) {
+        if (err.message === "NOT_FOUND") { res.status(404).json({ error: "History entry not found." }); return; }
         res.status(500).json({ error: err.message });
     }
 };

@@ -383,27 +383,37 @@ async function handleRefinementJob(jobId: string, userId: string, payload: any):
     const finalizedState = await draftEntry.run(refineState);
     const refinedTextOutputResult = finalizedState.draft?.formattedDocument || documentText;
   
-    // 5. Query user data elements for application files sync
-    const title = `Refined Text - ${new Date().toLocaleDateString()}`;
-    const { email: creatorEmail } = await withTransaction(userId, 'USER', async (client) => {
-      const { rows } = await client.query("SELECT email FROM users WHERE id = $1", [userId]);
-      return { email: rows[0]?.email || "" };
+    // 5. Query user data elements for application files sync.
+    //    Preserve the existing document title — never overwrite it with a
+    //    generic "Refined Text - <date>" string.  Only fall back to a generated
+    //    title when the document row doesn't exist yet (insert path below).
+    const { email: creatorEmail, existingTitle } = await withTransaction(userId, 'USER', async (client) => {
+      const userRow = await client.query("SELECT email FROM users WHERE id = $1", [userId]);
+      const fileRow = await client.query("SELECT title FROM files WHERE id = $1", [targetDocId]);
+      return {
+        email: userRow.rows[0]?.email || "",
+        existingTitle: fileRow.rows[0]?.title ?? null,
+      };
     });
   
     const encryptedContent = encryptData(refinedTextOutputResult);
   
-    // 6. Overwrite files data records and commit a new entry row to versions table
+    // 6. Overwrite files data records and commit a new entry row to versions table.
+    //    When updating an existing document, keep its current title unchanged.
     await withTransaction(userId, 'USER', async (client) => {
       if (!documentId) {
+        // No existing document — create one.  Use a sensible fallback title.
+        const fallbackTitle = existingTitle || `Refined Text - ${new Date().toLocaleDateString()}`;
         await client.query(
           `INSERT INTO files (id, title, type, content, creator_id, creator_email, is_encrypted, shared_with, audit_logs)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-          [targetDocId, title, "draft", encryptedContent, userId, creatorEmail, true, JSON.stringify([]), JSON.stringify([])]
+          [targetDocId, fallbackTitle, "draft", encryptedContent, userId, creatorEmail, true, JSON.stringify([]), JSON.stringify([])]
         );
       } else {
+        // Existing document — update content only, preserve the title.
         await client.query(
-          "UPDATE files SET content = $1, title = $2, updated_at = NOW() WHERE id = $3",
-          [encryptedContent, title, targetDocId]
+          "UPDATE files SET content = $1, updated_at = NOW() WHERE id = $2",
+          [encryptedContent, targetDocId]
         );
       }
   

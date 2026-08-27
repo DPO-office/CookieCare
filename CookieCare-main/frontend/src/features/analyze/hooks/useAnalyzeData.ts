@@ -29,6 +29,7 @@ export function useAnalyzeData(authToken: string) {
   const [savedDrafts, setSavedDrafts] = useState<SavedDraft[]>([]);
   const [promptLibrary, setPromptLibrary] = useState<PromptLibraryItem[]>([]);
   const [questionsLibrary, setQuestionsLibrary] = useState<string[]>([]);
+
   /** File ids waiting to be selected after the next folders refresh. */
   const pendingSelectIdsRef = useRef<Set<string>>(new Set());
   /** Ephemeral files uploaded directly in the composer — never in the vault. */

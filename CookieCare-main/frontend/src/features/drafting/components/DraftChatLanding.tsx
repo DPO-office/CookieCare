@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { DRAFT_PAGE_STYLES } from "../styles/draftPageStyles";
+import { Clock } from "lucide-react";
 import { DraftComposer, DraftComposerDoc } from "./DraftComposer";
 import { DraftContextStrip } from "./DraftContextStrip";
 import { DraftLibraryItem } from "../hooks/useDraftLibrary";
@@ -36,6 +37,7 @@ export interface DraftChatLandingProps {
   customPrompts: DraftPrompt[];
   onAddPrompt: (title: string, prompt: string) => Promise<unknown>;
   onRemovePrompt: (id: string) => void;
+  onOpenHistory?: () => void;
 }
 
 export default function DraftChatLanding({
@@ -68,6 +70,7 @@ export default function DraftChatLanding({
   customPrompts,
   onAddPrompt,
   onRemovePrompt,
+  onOpenHistory,
 }: DraftChatLandingProps) {
   const [libraryOpen, setLibraryOpen] = useState(false);
 
@@ -81,6 +84,20 @@ export default function DraftChatLanding({
     <>
       <style>{DRAFT_PAGE_STYLES}</style>
       <div className="dpa-results-bg draft-page flex flex-1 flex-col min-h-0 overflow-hidden font-sans">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB]">
+          <div />
+          <button
+            type="button"
+            onClick={onOpenHistory}
+            className="draft-history-btn"
+            aria-label="View draft history"
+          >
+            <Clock className="h-[15px] w-[15px]" strokeWidth={1.75} />
+            <span>History</span>
+          </button>
+        </div>
+
         <div className="flex flex-1 flex-col items-center justify-center min-h-0 px-6 py-8 overflow-y-auto">
           <p className="draft-rise-1 mb-3 text-[10px] font-medium uppercase tracking-[0.14em] text-[#98A2B3]">
             Legal Space · Draft

@@ -1,12 +1,25 @@
 import { apiUrl } from "../../../config";
 
+/**
+ * How the frontend should render the input for this question.
+ * Mirrors backend QuestionInputType from modules/drafting/pac/types,
+ * extended with "number" for duration/quantity fields.
+ */
+export type QuestionInputType = "text" | "textarea" | "date" | "chips" | "chips-multi" | "number";
+
 /** Mirrors backend UserQuestion from modules/drafting/pac/types. */
 export type DraftOpenQuestion = {
   id: string;
   field: string;
   question: string;
   severity: "critical" | "optional";
+  /** Populated when inputType is "chips" or "chips-multi". */
   options?: string[];
+  /**
+   * Render hint emitted by the LLM.
+   * Falls back to "chips" when options[] is present, "text" otherwise.
+   */
+  inputType?: QuestionInputType;
 };
 
 export type DraftJobResult = {
@@ -61,18 +74,15 @@ function extractDraftContent(result: DraftJobResult | undefined): string {
  */
 export function waitForDraftJob(options: WaitForDraftJobOptions): Promise<DraftJobOutcome> {
   const { authToken, jobId, onProgress, onToken } = options;
-
   return new Promise((resolve) => {
     const eventSource = new EventSource(apiUrl(`/api/jobs/sse?token=${authToken}`));
     let settled = false;
-
     const finish = (outcome: DraftJobOutcome) => {
       if (settled) return;
       settled = true;
       eventSource.close();
       resolve(outcome);
     };
-
     eventSource.onmessage = (event) => {
       let payload: any;
       try {
@@ -80,32 +90,25 @@ export function waitForDraftJob(options: WaitForDraftJobOptions): Promise<DraftJ
       } catch {
         return;
       }
-
       if (payload.event === "draft_token" && payload.jobId === jobId) {
         const delta = payload.delta || "";
         if (delta) onToken?.(delta);
         return;
       }
-
       if (payload.event !== "job_update" || payload.job?.id !== jobId) return;
-
       const job = payload.job;
       if (job.message) onProgress?.(job.message);
-
       if (job.status === "processing") {
         if (!job.message) onProgress?.("Working…");
         return;
       }
-
       if (job.status === "failed") {
         finish({ kind: "failed", error: job.error || "Drafting job failed." });
         return;
       }
-
       if (job.status === "completed") {
         const result = (job.result || {}) as DraftJobResult;
         const documentId = result.file_id || result.documentId || "";
-
         if (result.status === "needs_input") {
           finish({
             kind: "needs_input",
@@ -115,7 +118,6 @@ export function waitForDraftJob(options: WaitForDraftJobOptions): Promise<DraftJ
           });
           return;
         }
-
         finish({
           kind: "success",
           content: extractDraftContent(result),
@@ -124,7 +126,6 @@ export function waitForDraftJob(options: WaitForDraftJobOptions): Promise<DraftJ
         });
       }
     };
-
     eventSource.onerror = () => {
       finish({
         kind: "failed",

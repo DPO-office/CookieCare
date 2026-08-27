@@ -209,6 +209,9 @@ export const  uploadDocument = async (req: Request, res: Response) => {
   const systemFileType = req.body.category?.trim().toLowerCase() || "upload";
   // ephemeral=true means the file is for on-the-go analysis only — skip vault folder assignment
   const isEphemeral = req.body.ephemeral === "true" || req.body.ephemeral === true;
+  // Ownership scope — 'private' (current user only) or 'org' (organisation-wide).
+  const rawSource = req.body.source?.trim().toLowerCase();
+  const itemSource: "private" | "org" = rawSource === "org" ? "org" : "private";
 
   // Templates are document-type-specific and need contractType.
   // Playbooks are company-wide (no contractType required).
@@ -273,8 +276,8 @@ export const  uploadDocument = async (req: Request, res: Response) => {
       libraryItemId = "lib_" + crypto.randomUUID();
       await withTransaction(userId, userRole, async (client) => {
         await client.query(
-          `INSERT INTO library_items (id, user_id, type, name, description, tags, details)
-           VALUES ($1, $2, 'rulebook', $3, $4, $5, $6)`,
+          `INSERT INTO library_items (id, user_id, type, name, description, tags, details, source)
+           VALUES ($1, $2, 'rulebook', $3, $4, $5, $6, $7)`,
           [
             libraryItemId,
             userId,
@@ -287,6 +290,7 @@ export const  uploadDocument = async (req: Request, res: Response) => {
               scope: "company",
               stage: "queued",
             }),
+            itemSource,
           ]
         );
       });
@@ -298,8 +302,8 @@ export const  uploadDocument = async (req: Request, res: Response) => {
       const tplType = String(contractType).trim();
       await withTransaction(userId, userRole, async (client) => {
         await client.query(
-          `INSERT INTO library_items (id, user_id, type, name, description, tags, details)
-           VALUES ($1, $2, 'templates', $3, $4, $5, $6)`,
+          `INSERT INTO library_items (id, user_id, type, name, description, tags, details, source)
+           VALUES ($1, $2, 'templates', $3, $4, $5, $6, $7)`,
           [
             libraryItemId,
             userId,
@@ -313,6 +317,7 @@ export const  uploadDocument = async (req: Request, res: Response) => {
               jurisdiction: jurisdiction ? String(jurisdiction).trim() : null,
               stage: "queued",
             }),
+            itemSource,
           ]
         );
       });
@@ -327,8 +332,8 @@ export const  uploadDocument = async (req: Request, res: Response) => {
           : "General";
       await withTransaction(userId, userRole, async (client) => {
         await client.query(
-          `INSERT INTO library_items (id, user_id, type, name, description, tags, details)
-           VALUES ($1, $2, 'clauses', $3, $4, $5, $6)`,
+          `INSERT INTO library_items (id, user_id, type, name, description, tags, details, source)
+           VALUES ($1, $2, 'clauses', $3, $4, $5, $6, $7)`,
           [
             libraryItemId,
             userId,
@@ -343,6 +348,7 @@ export const  uploadDocument = async (req: Request, res: Response) => {
               stage: "queued",
               isPack: true,
             }),
+            itemSource,
           ]
         );
       });

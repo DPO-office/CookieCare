@@ -67,8 +67,9 @@ export async function fetchFolders(authToken: string) {
   return unwrap(res);
 }
 
-export async function fetchLibraryItems(authToken: string) {
-  const res = await cachedFetch(apiUrl("/api/library-items?limit=500"), authToken);
+export async function fetchLibraryItems(authToken: string, source?: "private" | "org") {
+  const qs = source ? `?limit=500&source=${source}` : "?limit=500";
+  const res = await cachedFetch(apiUrl(`/api/library-items${qs}`), authToken);
   return unwrap(res);
 }
 
@@ -86,8 +87,25 @@ export async function deleteFolder(authToken: string, id: string): Promise<boole
   return res.ok;
 }
 
+/**
+ * Delete a document from the `files` table (uploaded files, drafts).
+ * Used for items whose ID starts with `doc_`.
+ */
 export async function deleteDocument(authToken: string, id: string): Promise<boolean> {
   const res = await fetch(apiUrl(`/api/documents/${id}`), {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${authToken}` },
+  });
+  if (res.ok) invalidateVaultCache(authToken);
+  return res.ok;
+}
+
+/**
+ * Delete an item from the `library_items` table (rulebook, templates, clauses,
+ * prompts, questions, websites, tags). Used for items whose ID starts with `lib_`.
+ */
+export async function deleteLibraryItem(authToken: string, id: string): Promise<boolean> {
+  const res = await fetch(apiUrl(`/api/library-items/${id}`), {
     method: "DELETE",
     headers: { Authorization: `Bearer ${authToken}` },
   });
@@ -112,12 +130,13 @@ export async function createLibraryItem(
   name: string,
   description: string,
   tags: string,
-  details: string
+  details: string,
+  source: "private" | "org" = "private"
 ) {
   const res = await fetch(apiUrl("/api/library-items"), {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
-    body: JSON.stringify({ type, name, description, tags, details }),
+    body: JSON.stringify({ type, name, description, tags, details, source }),
   });
   if (res.ok) invalidateVaultCache(authToken);
   return res.ok;
@@ -153,6 +172,7 @@ export type VaultIngestCategory = "playbook" | "templates" | "clauses";
 /**
  * Upload a vault asset for structured ingest (playbook / templates / clauses).
  * Backend routes on `category`. contractType is required only for templates.
+ * source controls ownership scope: 'private' (default) or 'org'.
  */
 export async function uploadVaultAsset(
   authToken: string,
@@ -162,6 +182,7 @@ export async function uploadVaultAsset(
     contractType?: string;
     jurisdiction?: string;
     folderId?: string;
+    source?: "private" | "org";
   },
   onJobId: (jobId: string) => void
 ): Promise<{ sync: boolean; fileId?: string; libraryItemId?: string }> {
@@ -171,6 +192,7 @@ export async function uploadVaultAsset(
   if (params.contractType) formData.append("contractType", params.contractType);
   if (params.jurisdiction) formData.append("jurisdiction", params.jurisdiction);
   if (params.folderId) formData.append("folder_id", params.folderId);
+  formData.append("source", params.source ?? "private");
 
   const res = await fetch(apiUrl("/api/documents/upload"), {
     method: "POST",

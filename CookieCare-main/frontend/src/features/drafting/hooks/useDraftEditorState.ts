@@ -13,6 +13,9 @@ export function useDraftEditorState(documents: LegalDocument[], initialDocumentI
   const tiptapEditorRef = useRef<Editor | null>(null);
   const undoStackRef = useRef<string[]>([]);
   const redoStackRef = useRef<string[]>([]);
+  // When true, the selectedDoc sync effect will skip overwriting editorContent.
+  // Used when loading from history so the history content is not clobbered.
+  const suppressDocSyncRef = useRef(false);
 
   // When an initialDocumentId is provided, pre-select that document
   useEffect(() => {
@@ -30,6 +33,14 @@ export function useDraftEditorState(documents: LegalDocument[], initialDocumentI
   // Sync editor if document selection changes
   useEffect(() => {
     if (selectedDoc) {
+      // Skip if we just loaded content from history — don't overwrite it.
+      // Always clear the flag here so a stale true can never block a later
+      // legitimate selection (e.g. same-reference doc where setSelectedDoc
+      // was a no-op and the effect still ran via other deps).
+      if (suppressDocSyncRef.current) {
+        suppressDocSyncRef.current = false;
+        return;
+      }
       const raw = selectedDoc.content || "";
       const isHtml = /<[a-z][\s\S]*>/i.test(raw.trim());
       setEditorContent(isHtml ? raw : markdownToHtml(raw));
@@ -128,6 +139,7 @@ export function useDraftEditorState(documents: LegalDocument[], initialDocumentI
     tiptapEditorRef,
     undoStackRef,
     redoStackRef,
+    suppressDocSyncRef,
     pushUndoSnapshot,
     handleUndo,
     handleRedo,

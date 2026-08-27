@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { apiUrl } from "../../../config";
+import { fetchLibraryItems } from "../../vault/api/vaultApi";
 
 export interface DraftLibraryItem {
   id: string;
@@ -20,10 +20,34 @@ function asDetails(raw: unknown): string {
   return "";
 }
 
-export function useDraftLibrary(authToken: string) {
-  const [templates, setTemplates] = useState<DraftLibraryItem[]>([]);
-  const [clauses, setClauses] = useState<DraftLibraryItem[]>([]);
-  const [playbooks, setPlaybooks] = useState<DraftLibraryItem[]>([]);
+const mapItem = (i: any): DraftLibraryItem => ({
+  id: String(i.id),
+  name: String(i.name || "Untitled"),
+  description: String(i.description || ""),
+  details: asDetails(i.details),
+});
+
+export interface DraftLibraryData {
+  // Combined (private + org) — used for resolving selected items by ID
+  templates: DraftLibraryItem[];
+  clauses: DraftLibraryItem[];
+  playbooks: DraftLibraryItem[];
+  // Scope-split arrays — used by the picker to show Private / Organisation tabs
+  privateTemplates: DraftLibraryItem[];
+  orgTemplates: DraftLibraryItem[];
+  privateClauses: DraftLibraryItem[];
+  orgClauses: DraftLibraryItem[];
+  privatePlaybooks: DraftLibraryItem[];
+  orgPlaybooks: DraftLibraryItem[];
+}
+
+export function useDraftLibrary(authToken: string): DraftLibraryData {
+  const [privateTemplates, setPrivateTemplates] = useState<DraftLibraryItem[]>([]);
+  const [orgTemplates, setOrgTemplates] = useState<DraftLibraryItem[]>([]);
+  const [privateClauses, setPrivateClauses] = useState<DraftLibraryItem[]>([]);
+  const [orgClauses, setOrgClauses] = useState<DraftLibraryItem[]>([]);
+  const [privatePlaybooks, setPrivatePlaybooks] = useState<DraftLibraryItem[]>([]);
+  const [orgPlaybooks, setOrgPlaybooks] = useState<DraftLibraryItem[]>([]);
 
   useEffect(() => {
     if (!authToken) return;
@@ -31,24 +55,30 @@ export function useDraftLibrary(authToken: string) {
 
     const load = async () => {
       try {
-        const res = await fetch(apiUrl("/api/library-items"), {
-          headers: { Authorization: `Bearer ${authToken}` },
-        });
-        if (!res.ok) return;
-        const data = await res.json();
-        if (cancelled || !Array.isArray(data)) return;
+        // Fetch both scopes in parallel — the vault cache deduplicates concurrent
+        // calls automatically (different URLs, so independently cached entries).
+        const [privateRows, orgRows] = await Promise.all([
+          fetchLibraryItems(authToken, "private"),
+          fetchLibraryItems(authToken, "org"),
+        ]);
+        if (cancelled) return;
 
-        const mapItem = (i: any): DraftLibraryItem => ({
-          id: String(i.id),
-          name: String(i.name || "Untitled"),
-          description: String(i.description || ""),
-          details: asDetails(i.details),
-        });
+        const pr = Array.isArray(privateRows) ? privateRows : [];
+        const or = Array.isArray(orgRows) ? orgRows : [];
 
-        setTemplates(data.filter((i: any) => i.type === "templates").map(mapItem));
-        setClauses(data.filter((i: any) => i.type === "clauses").map(mapItem));
-        setPlaybooks(
-          data
+        setPrivateTemplates(pr.filter((i: any) => i.type === "templates").map(mapItem));
+        setOrgTemplates(or.filter((i: any) => i.type === "templates").map(mapItem));
+
+        setPrivateClauses(pr.filter((i: any) => i.type === "clauses").map(mapItem));
+        setOrgClauses(or.filter((i: any) => i.type === "clauses").map(mapItem));
+
+        setPrivatePlaybooks(
+          pr
+            .filter((i: any) => i.type === "rulebook" || i.type === "playbook")
+            .map(mapItem)
+        );
+        setOrgPlaybooks(
+          or
             .filter((i: any) => i.type === "rulebook" || i.type === "playbook")
             .map(mapItem)
         );
@@ -63,5 +93,26 @@ export function useDraftLibrary(authToken: string) {
     };
   }, [authToken]);
 
-  return { templates, clauses, playbooks };
+  // Combine for backward-compatible ID resolution (e.g. selectedTemplate lookup).
+  // Deduplicate by id in case an org item also appears in the user's private list.
+  const dedup = (a: DraftLibraryItem[], b: DraftLibraryItem[]): DraftLibraryItem[] => {
+    const seen = new Set<string>();
+    return [...a, ...b].filter(({ id }) => {
+      if (seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    });
+  };
+
+  return {
+    templates: dedup(privateTemplates, orgTemplates),
+    clauses: dedup(privateClauses, orgClauses),
+    playbooks: dedup(privatePlaybooks, orgPlaybooks),
+    privateTemplates,
+    orgTemplates,
+    privateClauses,
+    orgClauses,
+    privatePlaybooks,
+    orgPlaybooks,
+  };
 }

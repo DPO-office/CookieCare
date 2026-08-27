@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { X, Upload, Check, AlertCircle } from "lucide-react";
-import { LibraryTabId } from "../types";
+import { LibraryTabId, LibraryItemSource } from "../types";
 
 interface VaultIngestModalProps {
   activeTab: LibraryTabId;
@@ -13,7 +13,12 @@ interface VaultIngestModalProps {
   vaultJurisdiction: string;
   onChangeContractType: (v: string) => void;
   onChangeJurisdiction: (v: string) => void;
-  onFileSelect: (file: File) => void;
+  /**
+   * Called when a file is selected with the chosen source value.
+   * The modal owns the scope state internally; the parent only receives the
+   * final value at upload time.
+   */
+  onFileSelect: (file: File, source: LibraryItemSource) => void;
   onClose: () => void;
 }
 
@@ -46,8 +51,11 @@ function getRowHint(tab: LibraryTabId): string {
   return "Row appears in the tab while processing continues.";
 }
 
-const inputCls =
-  "w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition";
+function getTabLabel(tab: LibraryTabId): string {
+  if (tab === "rulebook") return "AI Rulebook";
+  if (tab === "templates") return "Templates";
+  return "Clauses";
+}
 
 export function VaultIngestModal({
   activeTab,
@@ -63,49 +71,182 @@ export function VaultIngestModal({
   onFileSelect,
   onClose,
 }: VaultIngestModalProps) {
+  // The modal owns its own scope state so it doesn't depend on page-level state.
+  // Defaults to 'private' every time the modal opens (reset happens via key prop
+  // or when parent closes/reopens the modal).
+  const [scope, setScope] = useState<LibraryItemSource>("private");
+
   const title = getIngestTitle(activeTab);
   const hint = getIngestHint(activeTab);
   const isRulebook = activeTab === "rulebook";
   const isTemplates = activeTab === "templates";
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="w-full max-w-md bg-white border border-gray-100 shadow-2xl rounded-2xl relative overflow-hidden">
-        {/* Top accent */}
-        <div className="h-1 w-full" style={{ background: "var(--brand-primary)" }} />
+    <div className="vlt-overlay">
+      <div className="vlt-modal" style={{ maxWidth: 480 }}>
+        {/* Top gradient accent */}
+        <div
+          style={{
+            height: 1,
+            background: "linear-gradient(90deg, transparent, #E4E4E7, transparent)",
+          }}
+        />
 
-        <div className="p-6">
+        <div style={{ padding: "24px 24px 24px" }}>
+          {/* Close */}
           <button
             onClick={onClose}
-            className="absolute right-4 top-5 w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-700 hover:bg-gray-50 cursor-pointer transition"
+            className="vlt-icon-btn"
+            style={{ position: "absolute", right: 16, top: 16 }}
           >
-            <X className="w-4 h-4" />
+            <X style={{ width: 14, height: 14 }} />
           </button>
 
-          <div className="pb-4 border-b border-gray-100 mb-5">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400 mb-0.5">
-              Vault ingest
+          {/* Header */}
+          <div
+            style={{
+              paddingBottom: 18,
+              borderBottom: "1px solid var(--border-light)",
+              marginBottom: 20,
+            }}
+          >
+            <p className="vlt-overline" style={{ marginBottom: 5 }}>{getTabLabel(activeTab)}</p>
+            <h3
+              style={{
+                fontSize: 18,
+                fontWeight: 700,
+                letterSpacing: "-0.03em",
+                color: "var(--text-primary)",
+                lineHeight: 1.15,
+              }}
+            >
+              {title}
+            </h3>
+            <p
+              style={{
+                fontSize: 12.5,
+                color: "var(--text-muted)",
+                marginTop: 5,
+                lineHeight: 1.55,
+              }}
+            >
+              {hint}
             </p>
-            <h3 className="font-bold text-lg text-gray-900 tracking-tight">{title}</h3>
-            <p className="text-sm text-gray-500 mt-1 leading-relaxed">{hint}</p>
           </div>
 
-          <div className="space-y-4">
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+
+            {/* ── Who can access this? — Templates, Clauses and AI Rulebook ── */}
+            {(isTemplates || isRulebook || activeTab === "clauses") && (
+              <div>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: 10.5,
+                    fontWeight: 600,
+                    letterSpacing: "0.12em",
+                    textTransform: "uppercase",
+                    color: "var(--text-muted)",
+                    marginBottom: 8,
+                  }}
+                >
+                  Who can access this?
+                </label>
+                <div style={{ display: "flex", gap: 8 }}>
+                  {(["private", "org"] as const).map((opt) => {
+                    const isSelected = scope === opt;
+                    const labelText =
+                      opt === "private" ? "My Private Space" : "My organisation";
+                    return (
+                      <label
+                        key={opt}
+                        style={{
+                          flex: 1,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                          padding: "9px 12px",
+                          borderRadius: 12,
+                          cursor: "pointer",
+                          fontSize: 13,
+                          fontWeight: isSelected ? 600 : 400,
+                          color: isSelected ? "#111827" : "#667085",
+                          border: `1.5px solid ${isSelected ? "#4F5BD9" : "rgba(16,24,40,0.10)"}`,
+                          background: isSelected ? "#F5F6FF" : "#FAFAFA",
+                          transition:
+                            "border-color 160ms ease, background 160ms ease, color 160ms ease",
+                          userSelect: "none",
+                        }}
+                      >
+                        <input
+                          type="radio"
+                          name="vaultIngestScope"
+                          value={opt}
+                          checked={isSelected}
+                          onChange={() => setScope(opt)}
+                          style={{
+                            accentColor: "#4F5BD9",
+                            width: 15,
+                            height: 15,
+                            flexShrink: 0,
+                            cursor: "pointer",
+                          }}
+                        />
+                        {labelText}
+                      </label>
+                    );
+                  })}
+                </div>
+                <p
+                  style={{
+                    fontSize: 11.5,
+                    color: "var(--text-faint)",
+                    marginTop: 7,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {scope === "org"
+                    ? "Items are stored centrally for your organisation. Access is granted by team or organisation membership and each member's read / write / admin role — never tied to a single person."
+                    : "Items stored in your private space are only visible to you."}
+                </p>
+              </div>
+            )}
+
             {/* Contract type */}
             {!isRulebook && (
               <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: 10.5,
+                    fontWeight: 600,
+                    letterSpacing: "0.12em",
+                    textTransform: "uppercase",
+                    color: "var(--text-muted)",
+                    marginBottom: 7,
+                  }}
+                >
                   Contract type{" "}
                   {isTemplates ? (
-                    <span className="text-red-400">*</span>
+                    <span style={{ color: "rgba(239,68,68,0.75)" }}>*</span>
                   ) : (
-                    <span className="text-gray-400 normal-case font-medium">(optional)</span>
+                    <span
+                      style={{
+                        color: "var(--text-faint)",
+                        textTransform: "none",
+                        fontWeight: 400,
+                        letterSpacing: 0,
+                      }}
+                    >
+                      (optional)
+                    </span>
                   )}
                 </label>
                 <select
                   value={vaultContractType}
                   onChange={(e) => onChangeContractType(e.target.value)}
-                  className={`${inputCls} cursor-pointer`}
+                  className="vlt-input"
+                  style={{ cursor: "pointer" }}
                 >
                   {activeTab === "clauses" && <option value="">General (reusable)</option>}
                   {CONTRACT_TYPES.map((ct) => (
@@ -118,85 +259,199 @@ export function VaultIngestModal({
             {/* Jurisdiction */}
             {!isRulebook && (
               <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
-                  Jurisdiction <span className="text-gray-400 normal-case font-medium">(optional)</span>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: 10.5,
+                    fontWeight: 600,
+                    letterSpacing: "0.12em",
+                    textTransform: "uppercase",
+                    color: "var(--text-muted)",
+                    marginBottom: 7,
+                  }}
+                >
+                  Jurisdiction{" "}
+                  <span
+                    style={{
+                      color: "var(--text-faint)",
+                      textTransform: "none",
+                      fontWeight: 400,
+                      letterSpacing: 0,
+                    }}
+                  >
+                    (optional)
+                  </span>
                 </label>
                 <input
                   type="text"
                   value={vaultJurisdiction}
                   onChange={(e) => onChangeJurisdiction(e.target.value)}
                   placeholder="e.g. Delaware"
-                  className={inputCls}
+                  className="vlt-input"
                 />
               </div>
             )}
 
-            {/* File drop zone */}
-            <label className="block border-2 border-dashed border-gray-200 hover:border-blue-200 hover:bg-blue-50/20 transition-colors p-8 text-center rounded-2xl bg-gray-50 cursor-pointer">
+            {/* Drop zone */}
+            <label className="vlt-dropzone" style={{ display: "block" }}>
               <input
                 type="file"
                 accept=".pdf,.doc,.docx,.txt,.md,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
-                className="hidden"
+                style={{ display: "none" }}
                 disabled={
-                  uploadStatus === "uploading" ||
-                  (isTemplates && !vaultContractType)
+                  uploadStatus === "uploading" || (isTemplates && !vaultContractType)
                 }
                 onChange={(e) => {
                   const file = e.target.files?.[0];
-                  if (file) onFileSelect(file);
+                  if (file) onFileSelect(file, scope);
                 }}
               />
-              <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center mx-auto mb-3">
-                <Upload className="w-5 h-5 text-gray-400" />
+              <div
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 12,
+                  background: "rgba(16,24,40,0.05)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  margin: "0 auto 12px",
+                }}
+              >
+                <Upload style={{ width: 18, height: 18, color: "var(--text-faint)" }} />
               </div>
-              <p className="text-sm font-semibold text-gray-700">Drop or click to upload</p>
-              <p className="text-xs text-gray-400 mt-1">PDF, DOCX, TXT, Markdown</p>
+              <p
+                style={{
+                  fontSize: 13.5,
+                  fontWeight: 600,
+                  color: "var(--text-secondary)",
+                  marginBottom: 4,
+                }}
+              >
+                Drop or click to upload
+              </p>
+              <p style={{ fontSize: 12, color: "var(--text-faint)" }}>PDF, DOCX, TXT, Markdown</p>
             </label>
 
-            {/* Status feedback */}
+            {/* Status: uploading */}
             {uploadStatus === "uploading" && (
-              <div className="space-y-2.5 text-sm bg-blue-50 border border-blue-100 p-4 rounded-xl">
-                <div className="flex items-center gap-2 text-blue-700 font-semibold">
-                  <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin shrink-0" />
-                  <span>{uploadProgressMessage || getProcessingMessage(activeTab)}</span>
-                </div>
-                <div className="h-1.5 w-full rounded-full bg-blue-100 overflow-hidden">
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
+                  fontSize: 13,
+                  background: "rgba(33,117,217,0.05)",
+                  border: "1px solid rgba(33,117,217,0.12)",
+                  borderRadius: 16,
+                  padding: "14px 16px",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    color: "var(--accent)",
+                    fontWeight: 600,
+                  }}
+                >
                   <div
-                    className="h-full rounded-full transition-all duration-500 ease-out"
                     style={{
-                      width: `${Math.max(8, uploadProgressPercent)}%`,
-                      background: "var(--brand-primary)",
+                      width: 14,
+                      height: 14,
+                      border: "2px solid var(--accent)",
+                      borderTopColor: "transparent",
+                      borderRadius: "50%",
+                      animation: "spin 0.75s linear infinite",
+                      flexShrink: 0,
                     }}
                   />
+                  <span>{uploadProgressMessage || getProcessingMessage(activeTab)}</span>
                 </div>
-                <div className="flex justify-between text-[11px] text-blue-600/80 gap-3">
+                <div className="vlt-progress-track">
+                  <div
+                    className="vlt-progress-fill"
+                    style={{ width: `${Math.max(8, uploadProgressPercent)}%` }}
+                  />
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    fontSize: 11,
+                    color: "rgba(33,117,217,0.65)",
+                    gap: 12,
+                  }}
+                >
                   <span>{getRowHint(activeTab)}</span>
-                  <span className="font-mono tabular-nums shrink-0 font-semibold">
+                  <span
+                    style={{
+                      fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+                      fontVariantNumeric: "tabular-nums",
+                      fontWeight: 600,
+                      flexShrink: 0,
+                    }}
+                  >
                     {Math.round(uploadProgressPercent)}%
                   </span>
                 </div>
               </div>
             )}
+
+            {/* Status: success */}
             {uploadStatus === "success" && (
-              <div className="flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 p-3 rounded-xl">
-                <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span className="font-medium">{uploadResultMessage || "Ingest completed."}</span>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: "#047857",
+                  background: "rgba(16,185,129,0.06)",
+                  border: "1px solid rgba(16,185,129,0.18)",
+                  borderRadius: 14,
+                  padding: "10px 14px",
+                }}
+              >
+                <Check style={{ width: 14, height: 14, color: "#10B981", flexShrink: 0 }} />
+                <span>{uploadResultMessage || "Ingest completed."}</span>
               </div>
             )}
+
+            {/* Status: error */}
             {uploadStatus === "error" && (
-              <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 border border-red-200 p-3 rounded-xl">
-                <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  fontSize: 13,
+                  color: "#DC2626",
+                  background: "rgba(239,68,68,0.05)",
+                  border: "1px solid rgba(239,68,68,0.16)",
+                  borderRadius: 14,
+                  padding: "10px 14px",
+                }}
+              >
+                <AlertCircle style={{ width: 14, height: 14, color: "#EF4444", flexShrink: 0 }} />
                 <span>{uploadError || "Upload failed."}</span>
               </div>
             )}
           </div>
 
-          <div className="flex justify-end gap-2.5 pt-5 border-t border-gray-100 mt-5">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-gray-200 text-gray-600 hover:text-gray-900 rounded-xl text-sm font-medium bg-white hover:bg-gray-50 transition cursor-pointer"
-            >
+          {/* Footer */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              paddingTop: 20,
+              marginTop: 20,
+              borderTop: "1px solid var(--border-light)",
+            }}
+          >
+            <button type="button" onClick={onClose} className="vlt-btn-ghost">
               {uploadStatus === "uploading" ? "Close (keeps processing)" : "Close"}
             </button>
           </div>

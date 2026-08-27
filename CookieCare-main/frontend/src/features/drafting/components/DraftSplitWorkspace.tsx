@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FileText, Save, Upload, Minus, Plus, Loader2 } from "lucide-react";
+import { FileText, Save, Upload, Minus, Plus, Loader2, Clock, ArrowLeft, AlertCircle } from "lucide-react";
 import type { Editor } from "@tiptap/react";
 import type { RichTextSelectionSnapshot } from "../../../shared/components/RichTextEditor";
 import EditorToolbar from "./EditorToolbar";
@@ -51,12 +51,17 @@ export interface DraftSplitWorkspaceProps {
   onSave: () => void;
   onExport: () => void;
   onAskSubmit?: (messageId: string, answers: Record<string, string>) => void;
+  onBack?: () => void;
+  onOpenHistory?: () => void;
+  /** When true, renders the "Draft unavailable" message instead of the editor. */
+  draftUnavailable?: boolean;
 }
 
 export default function DraftSplitWorkspace(props: DraftSplitWorkspaceProps) {
   const [zoom, setZoom] = useState(100);
   const [editorInstance, setEditorInstance] = useState<Editor | null>(null);
   const { railWidth, containerRef, onDragStart } = useResizableRail(320);
+  const draftUnavailable = props.draftUnavailable ?? false;
 
   const handleEditorReady = (editor: Editor) => {
     setEditorInstance(editor);
@@ -70,6 +75,17 @@ export default function DraftSplitWorkspace(props: DraftSplitWorkspaceProps) {
         <div className="draft-card mb-3 shrink-0">
         <header className="draft-workspace-header flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
+            {props.onBack && (
+              <button
+                type="button"
+                onClick={props.onBack}
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#98A2B3] transition-colors hover:bg-[#EEF2FF] hover:text-[#4F5BD9]"
+                aria-label="Back to drafting"
+                title="Back to drafting"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </button>
+            )}
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF] text-[#4F5BD9]">
               <FileText className="h-4 w-4" strokeWidth={1.75} />
             </div>
@@ -99,6 +115,17 @@ export default function DraftSplitWorkspace(props: DraftSplitWorkspaceProps) {
               <span className="score-badge bg-badge-green text-[11px] font-medium text-badge-green-text">
                 {props.savingMsg}
               </span>
+            )}
+            {props.onOpenHistory && (
+              <button
+                type="button"
+                onClick={props.onOpenHistory}
+                className="draft-history-btn"
+                aria-label="View draft history"
+              >
+                <Clock className="h-[15px] w-[15px]" strokeWidth={1.75} />
+                <span>History</span>
+              </button>
             )}
             <button
               type="button"
@@ -131,6 +158,32 @@ export default function DraftSplitWorkspace(props: DraftSplitWorkspaceProps) {
 
         <div ref={containerRef} className="flex min-h-0 flex-1 overflow-hidden">
           <div className="draft-editor-canvas relative min-h-0 min-w-0 flex-1 overflow-hidden">
+            {draftUnavailable ? (
+              <div className="flex h-full items-center justify-center px-8 py-12">
+                <div className="flex max-w-sm flex-col items-center gap-4 text-center">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#FEF3F2] text-[#F04438]">
+                    <AlertCircle className="h-5 w-5" strokeWidth={1.75} />
+                  </div>
+                  <div>
+                    <p className="m-0 text-[15px] font-semibold text-[#1a1a1a]">
+                      Draft unavailable
+                    </p>
+                    <p className="m-0 mt-1.5 text-[13px] leading-relaxed text-[#667085]">
+                      This draft could not be displayed because the drafting process was not completed successfully. Please create a new draft to continue.
+                    </p>
+                  </div>
+                  {props.onBack && (
+                    <button
+                      type="button"
+                      onClick={props.onBack}
+                      className="mt-1 rounded-lg border border-[#D0D5DD] bg-white px-4 py-2 text-[13px] font-medium text-[#344054] transition-colors hover:bg-[#F9FAFB]"
+                    >
+                      Start a new draft
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : (
             <div className="scrollbar-hide h-full overflow-y-auto px-8 py-6 sm:px-12">
               <div className="draft-editor-paper mx-auto" style={{ zoom: zoom / 100 }}>
                 {props.isStreaming && (
@@ -162,7 +215,9 @@ export default function DraftSplitWorkspace(props: DraftSplitWorkspaceProps) {
                 />
               </div>
             </div>
+            )}
 
+            {!draftUnavailable && (
             <div className="draft-zoom-pill absolute bottom-5 left-5 flex items-center gap-0.5 px-1.5 py-1">
               <button
                 type="button"
@@ -184,6 +239,7 @@ export default function DraftSplitWorkspace(props: DraftSplitWorkspaceProps) {
                 <Plus className="h-3 w-3" />
               </button>
             </div>
+            )}
           </div>
 
           <div

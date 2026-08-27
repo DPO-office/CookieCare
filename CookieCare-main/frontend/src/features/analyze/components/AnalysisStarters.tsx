@@ -1,66 +1,8 @@
 import { useState } from "react";
-import {
-  Shield,
-  FileSearch,
-  Scale,
-  AlertTriangle,
-  BookOpen,
-  MessageSquareText,
-} from "lucide-react";
-import { DEFAULT_PROMPT_CATEGORIES, DEFAULT_QUESTION_CATEGORIES } from "../constants";
+import { BookOpen } from "lucide-react";
 import PromptLibraryModal from "./PromptLibraryModal";
 import QuestionLibraryModal from "./QuestionLibraryModal";
 import { PromptLibraryItem } from "../hooks/useAnalyzeData";
-
-interface MixedSuggestion {
-  title: string;
-  text: string;
-  icon: React.ElementType;
-  libraryId?: string;
-}
-
-const SUGGESTION_ICONS = [Shield, FileSearch, Scale, AlertTriangle, BookOpen, MessageSquareText];
-
-function getCuratedSuggestions(): MixedSuggestion[] {
-  const fromPrompts = DEFAULT_PROMPT_CATEGORIES.slice(0, 2).flatMap((cat) => {
-    const p = cat.prompts[0];
-    if (!p) return [];
-    return [{ title: p.title, text: p.prompt, libraryId: cat.id }];
-  });
-
-  const fromQuestions = DEFAULT_QUESTION_CATEGORIES.slice(0, 2).flatMap((cat) => {
-    const q = cat.questions[0];
-    if (!q) return [];
-    return [{ title: q.title, text: q.question, libraryId: cat.id }];
-  });
-
-  return [...fromPrompts, ...fromQuestions].slice(0, 4).map((item, i) => ({
-    ...item,
-    icon: SUGGESTION_ICONS[i % SUGGESTION_ICONS.length],
-  }));
-}
-
-function QuickChip({
-  label,
-  icon: Icon,
-  onClick,
-}: {
-  label: string;
-  icon: React.ElementType;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="analyze-chip"
-      title={label}
-    >
-      <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
-      <span>{label}</span>
-    </button>
-  );
-}
 
 interface AnalysisStartersProps {
   promptLibrary: PromptLibraryItem[];
@@ -97,31 +39,17 @@ export function AnalysisStarters({
     if (controlledQuestionOpen === undefined) setInternalQuestionOpen(open);
   };
 
-  const suggestions = getCuratedSuggestions();
-
   return (
     <>
-      <div className="flex flex-col items-center w-full">
-        <div className="flex flex-wrap items-center justify-center gap-2 w-full">
-          {suggestions.map((item) => (
-            <QuickChip
-              key={item.title}
-              label={item.title}
-              icon={item.icon}
-              onClick={() => onApply(item.text, item.libraryId)}
-            />
-          ))}
-        </div>
-
-        <div className="mt-5 flex items-center justify-center gap-6">
-          <button
-            type="button"
-            onClick={() => setPromptOpen(true)}
-            className="analyze-link"
-          >
-            Browse prompts
-          </button>
-        </div>
+      <div className="flex items-center justify-center">
+        <button
+          type="button"
+          onClick={() => setPromptOpen(true)}
+          className="analyze-link"
+        >
+          <BookOpen className="h-3.5 w-3.5" strokeWidth={1.75} />
+          Browse prompts
+        </button>
       </div>
 
       {promptModalOpen && (
