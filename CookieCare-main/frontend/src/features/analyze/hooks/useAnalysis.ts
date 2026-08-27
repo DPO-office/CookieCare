@@ -423,6 +423,16 @@ export function useAnalysis(authToken: string) {
 
   const handlePrintReport = () => window.print();
 
+  const cancelAnalysis = () => {
+    cancelStreamFlush();
+    streamBufferRef.current = "";
+    setIsAnalyzing(false);
+    setAnalysisProgress("");
+    setAnalysisError("");
+    setChatMessages([]);
+    setViewMode("form");
+  };
+
   return {
     viewMode,
     setViewMode,
@@ -443,5 +453,6 @@ export function useAnalysis(authToken: string) {
     handleDownloadReport,
     handlePrintReport,
     restoreSession,
+    cancelAnalysis,
   };
 }

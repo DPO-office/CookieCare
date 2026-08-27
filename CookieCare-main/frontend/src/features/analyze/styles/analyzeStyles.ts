@@ -58,7 +58,7 @@ export const ANALYZE_STYLES = `
   opacity: 0.45;
   cursor: not-allowed;
 }
-
+/* Active state — shown when a library resource (template/clause/rulebook) is selected */
 .analyze-enter-btn {
   width: 2.375rem;
   height: 2.375rem;
@@ -109,16 +109,23 @@ export const ANALYZE_STYLES = `
 }
 
 .analyze-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 13px;
-  font-weight: 500;
-  color: #98A2B3;
-  background: transparent;
-  border: none;
+  font-weight: 600;
+  color: #4F5BD9;
+  background: #EEF2FF;
+  border: 1.5px solid #C7D2FE;
+  border-radius: 999px;
+  padding: 6px 16px;
   cursor: pointer;
-  transition: color 150ms ease;
+  transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
 }
 .analyze-link:hover {
-  color: #1a1a1a;
+  background: #E0E7FF;
+  color: #3730A3;
+  border-color: #A5B4FC;
 }
 
 .analyze-options-panel {
@@ -429,58 +436,282 @@ export const ANALYZE_STYLES = `
   box-shadow: 0 1px 2px rgba(16,24,40,0.04), 0 0 0 1px rgba(16,24,40,0.06);
 }
 
+/* ── Analyze report prose — ChatGPT-style ──────────────────────────────── */
 .analyze-report-prose .md-content {
-  font-size: 15.5px;
-  line-height: 1.75;
-  color: #344054;
-  letter-spacing: -0.011em;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #1F2937;
+  letter-spacing: -0.008em;
   max-width: none;
 }
 
-.analyze-report-prose .md-content h2,
-.analyze-report-prose .md-content h3 {
-  color: #1a1a1a;
-  font-weight: 650;
-  letter-spacing: -0.02em;
-  margin-top: 2rem;
-  margin-bottom: 0.65rem;
+/* Section headings: bold, spaced, numbered feel */
+.analyze-report-prose .md-content h1 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.025em;
+  margin-top: 2.25rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #E9EAEC;
 }
 
 .analyze-report-prose .md-content h2 {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.02em;
+  margin-top: 2rem;
+  margin-bottom: 0.45rem;
   line-height: 1.35;
 }
 
 .analyze-report-prose .md-content h3 {
-  font-size: 1.02rem;
+  font-size: 0.975rem;
+  font-weight: 650;
+  color: #1F2937;
+  letter-spacing: -0.015em;
+  margin-top: 1.5rem;
+  margin-bottom: 0.35rem;
   line-height: 1.4;
 }
 
+.analyze-report-prose .md-content h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+  margin-top: 1.25rem;
+  margin-bottom: 0.3rem;
+}
+
+.analyze-report-prose .md-content h1:first-child,
 .analyze-report-prose .md-content h2:first-child,
-.analyze-report-prose .md-content h3:first-child {
+.analyze-report-prose .md-content h3:first-child,
+.analyze-report-prose .md-content h4:first-child {
   margin-top: 0;
 }
 
 .analyze-report-prose .md-content p {
-  margin-bottom: 0.9rem;
+  margin-bottom: 0.85rem;
+  color: #374151;
 }
 
+/* Lists */
 .analyze-report-prose .md-content ul,
 .analyze-report-prose .md-content ol {
-  margin: 0.5rem 0 1rem;
-  padding-left: 1.15rem;
+  margin: 0.4rem 0 1rem;
+  padding-left: 1.35rem;
 }
 
 .analyze-report-prose .md-content li {
-  margin-bottom: 0.65rem;
-  color: #667085;
+  margin-bottom: 0.45rem;
+  color: #374151;
+  line-height: 1.7;
+}
+
+.analyze-report-prose .md-content li > p {
+  margin-bottom: 0.25rem;
 }
 
 .analyze-report-prose .md-content strong {
-  color: #1a1a1a;
-  font-weight: 650;
+  color: #111827;
+  font-weight: 700;
 }
 
+/* Blockquote — callout style */
+.analyze-report-prose .md-content blockquote {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid #6366F1;
+  background: #F5F3FF;
+  border-radius: 0 8px 8px 0;
+  color: #4338CA;
+  font-size: 14px;
+}
+
+/* Horizontal rule between major sections */
+.analyze-report-prose .md-content hr {
+  border: none;
+  border-top: 1px solid #E9EAEC;
+  margin: 1.75rem 0;
+}
+
+/* ── Prose container: constrain text, free tables ─────────────────────────
+   The outer container has no max-width so tables can use full available
+   width. Message blocks (avatar + content) are constrained for readability
+   but wider than before to give tables room to breathe.
+
+   data-has-refs="true"  → refs panel visible  → 720px
+   data-has-refs="false" → full report          → 900px (was 768px)
+   ────────────────────────────────────────────────────────────────────── */
+.analyze-prose-container {
+  width: 100%;
+}
+
+/* Message blocks: readable prose width */
+.analyze-prose-container > div {
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.analyze-prose-container[data-has-refs="true"] > div {
+  max-width: 720px;
+}
+
+/* ── Tables inside analyze prose ────────────────────────────────────────── */
+.analyze-report-prose .md-content .md-table-wrap {
+  width: 100%;
+  margin-top: 1rem;
+  margin-bottom: 1.25rem;
+  border-radius: 10px;
+  /* No horizontal scroll — the table always fits the content width */
+  overflow-x: visible;
+  overflow-y: visible;
+}
+
+.analyze-report-prose .md-content table {
+  font-size: 13px;
+  line-height: 1.5;
+  /* fixed: honour percentage widths exactly; never let content fight for space */
+  table-layout: fixed;
+  width: 100%;
+  /* Neutralise index.css overrides that would re-introduce max-content sizing */
+  min-width: 0;
+}
+
+.analyze-report-prose .md-content thead tr {
+  position: static;
+}
+
+.analyze-report-prose .md-content thead th {
+  padding: 9px 14px;
+  font-size: 11px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  min-width: 0;
+  max-width: none;
+}
+
+.analyze-report-prose .md-content tbody td {
+  padding: 11px 14px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  min-width: 0;
+  max-width: none;
+}
+
+/* ── 4-column compliance table: percentage column widths (total = 100%) ───
+   Actual column order from the LLM output:
+   col 1  Category / Requirement  20%  — short label
+   col 2  Status                  16%  — badge / short phrase
+   col 3  Evidence / Clause       28%  — clamped prose, expand on demand
+   col 4  Finding                 36%  — AI commentary, primary reading column
+   ────────────────────────────────────────────────────────────────────── */
+.analyze-report-prose .md-content table th:nth-child(1),
+.analyze-report-prose .md-content table td:nth-child(1) { width: 20%; } /* Category */
+
+.analyze-report-prose .md-content table th:nth-child(2),
+.analyze-report-prose .md-content table td:nth-child(2) { width: 16%; overflow: hidden; } /* Status */
+
+.analyze-report-prose .md-content table th:nth-child(3),
+.analyze-report-prose .md-content table td:nth-child(3) { width: 28%; } /* Evidence / Clause */
+
+.analyze-report-prose .md-content table th:nth-child(4),
+.analyze-report-prose .md-content table td:nth-child(4) { width: 36%; } /* Finding */
+
+/* 5-column+ tables: revert to auto so the browser distributes extra columns */
+.analyze-report-prose .md-content table.md-table-many-cols {
+  table-layout: auto;
+  width: 100%;
+}
+
+/* ── Evidence / clause cell: 3-line clamp with expand ────────────────────
+   .md-clause-text          — clamped to 3 lines by default
+   .md-clause-text.md-clause-expanded — full text, clamp removed
+   .md-clause-toggle        — "Show more" / "Show less" button
+
+   Critical: -webkit-line-clamp only works when ALL four properties are set
+   on the SAME element: display:-webkit-box, -webkit-box-orient:vertical,
+   overflow:hidden, and -webkit-line-clamp. The td itself must NOT have
+   overflow:hidden or it will clip the expanded state.
+   ────────────────────────────────────────────────────────────────────── */
+.md-clause-text {
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  /* Reset any block-level margin that td children might pick up */
+  margin: 0;
+  padding: 0;
+}
+
+.md-clause-text.md-clause-expanded {
+  /* Remove the box model that enables the clamp */
+  display: block !important;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+.md-clause-toggle {
+  display: block;
+  margin-top: 6px;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #4F5BD9;
+  line-height: 1;
+  transition: color 130ms ease;
+  text-align: left;
+}
+.md-clause-toggle:hover {
+  color: #3730A3;
+}
+
+/* ── Status badge pills (scoped to analyze prose) ────────────────────────
+   markdownToHtml.ts injects <span class="md-status md-status-{variant}">
+   around cells that match a known status keyword. These rules render them
+   as compact coloured pill badges matching the reference design.
+   ────────────────────────────────────────────────────────────────────── */
+.analyze-report-prose .md-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 8px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 500;
+  /* Allow wrapping inside the column — never bleed into adjacent cells */
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+.analyze-report-prose .md-status::before {
+  content: "";
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 5px; /* vertically centre with first line of text */
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.analyze-report-prose .md-status-green  { background: rgba(22, 163, 74, 0.10);  color: #16A34A; }
+.analyze-report-prose .md-status-yellow { background: rgba(245, 158, 11, 0.12); color: #B45309; }
+.analyze-report-prose .md-status-orange { background: rgba(234, 88, 12, 0.12);  color: #C2410C; }
+.analyze-report-prose .md-status-red    { background: rgba(220, 38, 38, 0.10);  color: #DC2626; }
+.analyze-report-prose .md-status-grey   { background: rgba(107, 114, 128, 0.10); color: #4B5563; }
+
+/* Streaming caret */
 .analyze-report-prose.is-streaming .md-content::after {
   content: "";
   display: inline-block;
@@ -564,13 +795,13 @@ export const ANALYZE_STYLES = `
 }
 
 .analyze-user-bubble {
-  background: #EBF2FD;
-  color: #1a1a1a;
-  border-radius: 20px 20px 6px 20px;
+  background: #6366F1;
+  color: #ffffff;
+  border-radius: 18px 18px 4px 18px;
   font-size: 14.5px;
   line-height: 1.55;
   letter-spacing: -0.01em;
-  box-shadow: 0 0 0 1px rgba(33, 117, 217, 0.10);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
 }
 
 .analyze-composer-fade {
@@ -663,4 +894,141 @@ export const ANALYZE_STYLES = `
 }
 .lib-modal-list-item:hover { background: #F7F8FB; }
 .lib-modal-list-item.is-selected { background: #F7F8FB; }
+
+/* Thin vertical rule between the two groups */
+.acb-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(16,24,40,0.09);
+  margin: 0 16px;
+  flex-shrink: 0;
+}
+
+/* ── Below-composer settings row ────────────────────────────────────────
+   Two compact inline dropdowns: "Output: Narrative ▾  ·  Documents: Combined ▾"
+   Intentionally quiet — muted text, no backgrounds, no borders.
+   ────────────────────────────────────────────────────────────────────── */
+.analyze-settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 9px;
+}
+
+.analyze-settings-dot {
+  font-size: 13px;
+  color: #D0D5DD;
+  line-height: 1;
+  user-select: none;
+  margin: 0 2px;
+}
+
+/* ── Each setting control ────────────────────────────────────────── */
+.analyze-setting-root {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.analyze-setting-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  transition: background 130ms ease;
+  line-height: 1;
+}
+.analyze-setting-trigger:hover:not(:disabled) {
+  background: rgba(16,24,40,0.05);
+}
+.analyze-setting-trigger:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.analyze-setting-label {
+  font-size: 12.5px;
+  font-weight: 400;
+  color: #98A2B3;
+  white-space: nowrap;
+}
+
+.analyze-setting-value {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #344054;
+  white-space: nowrap;
+}
+
+.analyze-setting-chevron {
+  width: 11px;
+  height: 11px;
+  color: #98A2B3;
+  flex-shrink: 0;
+  transition: transform 160ms ease;
+}
+.analyze-setting-chevron.is-open {
+  transform: rotate(180deg);
+}
+
+/* ── Dropdown menu ───────────────────────────────────────────────── */
+.analyze-setting-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 130px;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 5px;
+  box-shadow:
+    0 1px 2px rgba(16,24,40,0.04),
+    0 0 0 1px rgba(16,24,40,0.07),
+    0 8px 24px rgba(16,24,40,0.10);
+  z-index: 9999;
+  animation: analyze-setting-in 130ms ease;
+}
+
+@keyframes analyze-setting-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(-3px) scale(0.98); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0)    scale(1);    }
+}
+
+.analyze-setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 7px 10px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #344054;
+  text-align: left;
+  transition: background 110ms ease;
+}
+.analyze-setting-item:hover {
+  background: #F7F8FB;
+}
+.analyze-setting-item.is-active {
+  background: #EEF2FF;
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.analyze-setting-check {
+  font-size: 11px;
+  color: #4F5BD9;
+  font-weight: 700;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
 `;

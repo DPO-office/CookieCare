@@ -422,7 +422,8 @@
 .draft-streaming-content,
 .ProseMirror {
   color: #1f2937;
-  line-height: 1.7;
+  font-size: 15px;
+  line-height: 1.75;
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
@@ -445,45 +446,46 @@
 .richtext-editor h1,
 .draft-streaming-content h1,
 .ProseMirror h1 {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 700;
   line-height: 1.3;
   color: #111827;
-  margin: 1.75rem 0 0.75rem;
-  letter-spacing: -0.01em;
+  margin: 2rem 0 0.65rem;
+  letter-spacing: -0.02em;
 }
 
 .md-content h2,
 .richtext-editor h2,
 .draft-streaming-content h2,
 .ProseMirror h2 {
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   font-weight: 700;
   line-height: 1.35;
   color: #111827;
-  margin: 1.5rem 0 0.6rem;
+  margin: 1.75rem 0 0.5rem;
+  letter-spacing: -0.015em;
 }
 
 .md-content h3,
 .richtext-editor h3,
 .draft-streaming-content h3,
 .ProseMirror h3 {
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 600;
   line-height: 1.4;
   color: #111827;
-  margin: 1.25rem 0 0.5rem;
+  margin: 1.35rem 0 0.4rem;
 }
 
 .md-content h4,
 .richtext-editor h4,
 .draft-streaming-content h4,
 .ProseMirror h4 {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
   line-height: 1.4;
-  color: #1f2937;
-  margin: 1.1rem 0 0.4rem;
+  color: #374151;
+  margin: 1.1rem 0 0.35rem;
 }
 
 .md-content p,
@@ -502,7 +504,7 @@
 .ProseMirror ul,
 .ProseMirror ol {
   margin: 0 0 0.9rem;
-  padding-left: 1.35rem;
+  padding-left: 1.4rem;
 }
 
 .md-content ul,
@@ -523,8 +525,9 @@
 .richtext-editor li,
 .draft-streaming-content li,
 .ProseMirror li {
-  margin: 0.2rem 0;
+  margin: 0.3rem 0;
   padding-left: 0.15rem;
+  color: #374151;
 }
 
 .md-content li > p,
@@ -564,7 +567,7 @@
 .ProseMirror hr {
   border: 0;
   border-top: 1px solid #e5e7eb;
-  margin: 1.4rem 0;
+  margin: 1.5rem 0;
 }
 
 .md-content blockquote,
@@ -572,7 +575,7 @@
 .draft-streaming-content blockquote,
 .ProseMirror blockquote {
   margin: 0.9rem 0;
-  padding: 0.55rem 0.9rem;
+  padding: 0.6rem 1rem;
   border-left: 3px solid #c7d7f5;
   background: #f8fafc;
   color: #4b5563;
@@ -584,7 +587,7 @@
 .draft-streaming-content code,
 .ProseMirror code {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.9em;
+  font-size: 0.875em;
   background: #f3f4f6;
   border: 1px solid #e5e7eb;
   border-radius: 0.35rem;
@@ -616,57 +619,107 @@
   font-size: inherit;
 }
 
-/* Tables: horizontal scroll + readable cells (critical for analysis reports) */
+/* ── Tables: ChatGPT-style readable layout ────────────────────────────────
+   Design principles:
+   - table-layout: auto — browser sizes columns by content, not equal splits
+   - Table is never narrower than its content; wide tables overflow and scroll
+   - The wrapper div handles horizontal scrolling (not the page)
+   - Clean row separators only (no column grid lines)
+   - Generous padding and sensible min-widths for readability
+   - Status badge pills rendered inline via .md-status-* classes
+   ───────────────────────────────────────────────────────────────────────── */
 .md-content .md-table-wrap,
 .richtext-editor .md-table-wrap,
 .draft-streaming-content .md-table-wrap {
+  /* Shrink to content width but never overflow the parent — scroll instead */
+  display: block;
   width: 100%;
   overflow-x: auto;
-  margin: 1rem 0 1.25rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.75rem;
-  background: #fff;
   -webkit-overflow-scrolling: touch;
+  margin: 1.25rem 0 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #E9EAEC;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  /* Subtle scrollbar — visible when needed, unobtrusive otherwise */
+  scrollbar-width: thin;
+  scrollbar-color: #D1D5DB transparent;
+}
+.md-content .md-table-wrap::-webkit-scrollbar {
+  height: 5px;
+}
+.md-content .md-table-wrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+.md-content .md-table-wrap::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 9999px;
+}
+.md-content .md-table-wrap::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
 }
 
 .md-content table,
 .richtext-editor table,
 .draft-streaming-content table,
 .ProseMirror table {
-  width: max-content;
+  /* auto: browser determines column widths from content — no more equal-split compression */
+  table-layout: auto;
+  /* Fill the container; only overflow (and scroll) when columns genuinely can't fit */
+  width: 100%;
   min-width: 100%;
   border-collapse: collapse;
-  font-size: 0.78rem;
-  line-height: 1.45;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+/* Header */
+.md-content thead tr,
+.richtext-editor thead tr,
+.draft-streaming-content thead tr,
+.ProseMirror thead tr {
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .md-content thead th,
 .richtext-editor thead th,
 .draft-streaming-content thead th,
 .ProseMirror thead th {
-  background: #f8fafc;
-  color: #374151;
+  background: #F7F8FA;
+  color: #6B7280;
   font-weight: 600;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   text-align: left;
+  /* Allow header text to wrap for very long headers, but keep a sensible floor */
   white-space: normal;
-  overflow-wrap: break-word;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 0.65rem 0.75rem;
+  min-width: 100px;
+  /* ChatGPT-style cap: headers never balloon past ~48 characters wide */
+  max-width: 48ch;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid #E9EAEC;
+  padding: 10px 16px;
 }
 
+/* Body cells */
 .md-content tbody td,
 .richtext-editor tbody td,
 .draft-streaming-content tbody td,
 .ProseMirror tbody td {
   vertical-align: top;
-  border-bottom: 1px solid #f1f5f9;
-  padding: 0.7rem 0.75rem;
-  color: #4b5563;
-  min-width: 7rem;
-  max-width: 18rem;
+  border-bottom: 1px solid #F3F4F6;
+  padding: 13px 16px;
+  color: #374151;
   white-space: normal;
   overflow-wrap: anywhere;
   word-break: break-word;
+  /* ChatGPT-style cap: prose wraps at ~48 chars, never forces the table to overflow */
+  max-width: 48ch;
+  /* Prevent cells from being crushed below a readable width */
+  min-width: 100px;
 }
 
 .md-content tbody tr:last-child td,
@@ -676,36 +729,105 @@
   border-bottom: 0;
 }
 
-.md-content tbody tr:nth-child(even) td,
-.richtext-editor tbody tr:nth-child(even) td,
-.draft-streaming-content tbody tr:nth-child(even) td,
-.ProseMirror tbody tr:nth-child(even) td {
-  background: #fafbfc;
+/* Subtle hover on rows */
+.md-content tbody tr:hover td,
+.richtext-editor tbody tr:hover td,
+.draft-streaming-content tbody tr:hover td {
+  background: #FAFBFC;
 }
 
+/* First column = label — slightly darker */
 .md-content tbody td:first-child,
 .richtext-editor tbody td:first-child,
 .draft-streaming-content tbody td:first-child,
 .ProseMirror tbody td:first-child {
-  font-weight: 600;
-  color: #374151;
+  font-weight: 550;
+  color: #111827;
 }
 
-/* Only a genuine row-counter column may be narrowed and kept on one line.
-   Applying this to every table clips text labels such as "Clause / Protection". */
-.md-content .md-table-indexed tbody td:first-child,
-.richtext-editor .md-table-indexed tbody td:first-child,
-.draft-streaming-content .md-table-indexed tbody td:first-child {
-  color: #6b7280;
-  min-width: 2.5rem;
-  max-width: 3.5rem;
-  white-space: nowrap;
-}
-
+/* Index column (short counter like "#", "No.") */
 .md-content .md-table-indexed thead th:first-child,
 .richtext-editor .md-table-indexed thead th:first-child,
 .draft-streaming-content .md-table-indexed thead th:first-child {
-  width: 2.5rem;
+  width: 3rem;
+  min-width: 2.5rem;
+}
+
+.md-content .md-table-indexed tbody td:first-child,
+.richtext-editor .md-table-indexed tbody td:first-child,
+.draft-streaming-content .md-table-indexed tbody td:first-child {
+  color: #6B7280;
+  font-weight: 500;
+  white-space: nowrap;
+  width: 3rem;
+  min-width: 2.5rem;
+}
+
+/* ── Status badge pills ────────────────────────────────────────────────────
+   Injected by markdownToHtml.ts when a cell matches a known status pattern.
+   Each .md-status wraps a colored dot + the label text.
+   ───────────────────────────────────────────────────────────────────────── */
+.md-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.md-status::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Green: compliant / strong / present / adequate */
+.md-status-green {
+  color: #065F46;
+}
+.md-status-green::before {
+  background: #10B981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+/* Yellow/amber: conditional / partial / minor gap */
+.md-status-yellow {
+  color: #92400E;
+}
+.md-status-yellow::before {
+  background: #F59E0B;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+}
+
+/* Orange: needs clarification / not fully specified */
+.md-status-orange {
+  color: #9A3412;
+}
+.md-status-orange::before {
+  background: #F97316;
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2);
+}
+
+/* Red: non-compliant / cannot determine / missing */
+.md-status-red {
+  color: #991B1B;
+}
+.md-status-red::before {
+  background: #EF4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+/* Grey: unknown / not assessed */
+.md-status-grey {
+  color: #4B5563;
+}
+.md-status-grey::before {
+  background: #9CA3AF;
+  box-shadow: 0 0 0 2px rgba(156, 163, 175, 0.2);
 }
 
 /* Draft documents: slightly more open legal-document rhythm */
@@ -715,6 +837,12 @@
   font-size: 15px;
   line-height: 1.85;
   color: #1a2234;
+}
+
+.richtext-editor table,
+.draft-streaming-content table,
+.ProseMirror.richtext-editor table {
+  table-layout: auto;
 }
 
 .richtext-editor h1,

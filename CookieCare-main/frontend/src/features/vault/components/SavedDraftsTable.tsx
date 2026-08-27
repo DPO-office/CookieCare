@@ -1,7 +1,7 @@
 import React from "react";
 import { FilePen, Copy, Trash2, ExternalLink, ScrollText } from "lucide-react";
 import { LegalDocument } from "../../../shared/types";
-import { fmtDate } from "../utils";
+import { fmtDate } from "../services/libraryService";
 
 interface SavedDraftsTableProps {
   drafts: any[];
@@ -44,7 +44,7 @@ export function SavedDraftsTable({ drafts, onDelete, onOpenInDraftEditor }: Save
 
   return (
     <>
-      <div style={{ overflowX: "auto" }}>
+      <div style={{ overflowX: "auto" }} className="vlt-scroll-x">
         <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 600 }}>
           <thead>
             <tr style={{ borderBottom: "1px solid var(--border-light)" }}>

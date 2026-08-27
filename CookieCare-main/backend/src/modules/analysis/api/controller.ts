@@ -142,3 +142,33 @@ export const getHistoryController = async (req: Request, res: Response): Promise
     res.status(500).json({ error: err.message });
   }
 };
+
+/**
+ * DELETE /api/analysis/history/:jobId
+ * Hard-deletes a history entry. Only the owning user can delete their own job.
+ */
+export const deleteHistoryController = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const jobId = String(req.params.jobId || "");
+    if (!jobId) {
+      res.status(400).json({ error: "jobId required" });
+      return;
+    }
+
+    const userId = req.user!.id;
+    const userRole = req.user!.role ?? "USER";
+
+    await withTransaction(userId, userRole, async (client) => {
+      await client.query(
+        `DELETE FROM jobs
+         WHERE id = $1
+           AND type = 'analysis_pac'`,
+        [jobId]
+      );
+    });
+
+    res.json({ success: true });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+};

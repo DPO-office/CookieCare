@@ -10,12 +10,13 @@ import {
   Copy,
   Trash2,
 } from "lucide-react";
-import { LibraryItem } from "../types";
+import { LibraryItem, LibraryTabId } from "../types";
 import { TagChips } from "./TagChips";
 import { PaginationFooter } from "./PaginationFooter";
 
 interface LibraryItemsTableProps {
   items: LibraryItem[];
+  activeTab: LibraryTabId;
   currentPage: number;
   totalPages: number;
   recordsPerPage: number;
@@ -89,6 +90,7 @@ function FailedPill() {
   return <span className="vlt-status-failed shrink-0">Failed</span>;
 }
 
+
 function SortHeader({
   label,
   field,
@@ -101,8 +103,7 @@ function SortHeader({
   active: boolean;
   onClick: (f: keyof LibraryItem) => void;
   align?: "left" | "center" | "right";
-}) {
-  return (
+}) {  return (
     <th
       onClick={() => onClick(field)}
       style={{
@@ -135,6 +136,7 @@ function SortHeader({
 
 export function LibraryItemsTable({
   items,
+  activeTab,
   currentPage,
   totalPages,
   recordsPerPage,
@@ -152,6 +154,9 @@ export function LibraryItemsTable({
   const indexOfLast = currentPage * recordsPerPage;
   const indexOfFirst = indexOfLast - recordsPerPage;
   const currentRecords = items.slice(indexOfFirst, indexOfLast);
+
+  // Items count is meaningless for single-item tab types — each row is always "1 item".
+  const showItemsCol = activeTab !== "prompts" && activeTab !== "questions";
 
   if (items.length === 0) {
     return (
@@ -171,14 +176,16 @@ export function LibraryItemsTable({
 
   return (
     <>
-      <div style={{ overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 800 }}>
+      <div style={{ overflowX: "auto" }} className="vlt-scroll-x">
+        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: showItemsCol ? 760 : 700 }}>
           <thead>
             <tr style={{ borderBottom: "1px solid var(--border-light)" }}>
               <SortHeader label="Name" field="name" active={sortField === "name"} onClick={onSort} />
               <SortHeader label="Description" field="description" active={sortField === "description"} onClick={onSort} />
               <SortHeader label="Tags" field="tags" active={sortField === "tags"} onClick={onSort} />
-              <SortHeader label="Items" field="itemsCount" active={sortField === "itemsCount"} onClick={onSort} align="center" />
+              {showItemsCol && (
+                <SortHeader label="Items" field="itemsCount" active={sortField === "itemsCount"} onClick={onSort} align="center" />
+              )}
               <SortHeader label="Modified" field="dateModified" active={sortField === "dateModified"} onClick={onSort} align="center" />
               <SortHeader label="Created by" field="createdBy" active={sortField === "createdBy"} onClick={onSort} />
               <th
@@ -208,7 +215,7 @@ export function LibraryItemsTable({
                       style={{
                         fontSize: 13.5, fontWeight: 500, letterSpacing: "-0.01em",
                         color: "var(--text-primary)",
-                        maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                        maxWidth: 240, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                       }}
                     >
                       {item.name}
@@ -222,7 +229,7 @@ export function LibraryItemsTable({
                   style={{
                     padding: "13px 20px", fontSize: 13, lineHeight: 1.5,
                     color: "var(--text-muted)",
-                    maxWidth: 300, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                    maxWidth: 340, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                   }}
                 >
                   {item.description}
@@ -234,6 +241,7 @@ export function LibraryItemsTable({
                 </td>
 
                 {/* Items count */}
+                {showItemsCol && (
                 <td style={{ padding: "13px 20px", textAlign: "center" }}>
                   <span
                     style={{
@@ -246,6 +254,7 @@ export function LibraryItemsTable({
                     {item.type === "files" ? item.fileList?.length : item.itemsCount}
                   </span>
                 </td>
+                )}
 
                 {/* Modified */}
                 <td
@@ -292,7 +301,10 @@ export function LibraryItemsTable({
                     </button>
                     <button
                       title="Delete"
-                      onClick={(e) => onDelete(item.id, e)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(item.id, e);
+                      }}
                       className="vlt-icon-btn danger"
                     >
                       <Trash2 style={{ width: 12, height: 12 }} />

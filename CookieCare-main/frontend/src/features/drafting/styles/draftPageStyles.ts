@@ -109,13 +109,50 @@ export const DRAFT_PAGE_STYLES = `
   color: #1a1a1a;
 }
 .draft-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 13px;
   font-weight: 500;
-  color: #98A2B3;
-  background: transparent;
-  border: none;
+  color: #4F5BD9;
+  background: #EEF2FF;
+  border: 1.5px solid #C7D2FE;
+  border-radius: 999px;
+  padding: 7px 18px;
   cursor: pointer;
-  transition: color 150ms ease;
+  transition: background 150ms ease, color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
 }
-.draft-link:hover { color: #1a1a1a; }
+.draft-link:hover {
+  background: #E0E7FF;
+  color: #3730A3;
+  border-color: #A5B4FC;
+  box-shadow: 0 1px 4px rgba(79,91,217,0.12);
+}
+
+.draft-history-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px 7px 11px;
+  border-radius: 9999px;
+  border: 1px solid rgba(16,24,40,0.08);
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #667085;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease, box-shadow 150ms ease;
+  box-shadow: 0 1px 2px rgba(16,24,40,0.04);
+  white-space: nowrap;
+}
+.draft-history-btn:hover {
+  background: #ffffff;
+  color: #1a1a1a;
+  box-shadow: 0 1px 3px rgba(16,24,40,0.08), 0 0 0 1px rgba(16,24,40,0.08);
+}
+.draft-history-btn svg {
+  color: #4F5BD9;
+}
 `;

@@ -1,5 +1,5 @@
-import React from "react";
-import { X, Upload, FileText, FolderOpen, Check, XCircle, AlertCircle } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { X, Upload, FileText, FolderOpen, Check, XCircle, AlertCircle, ChevronDown, Folder } from "lucide-react";
 import { LibraryItem, VaultPendingUpload } from "../types";
 import { VAULT_UPLOAD_ACCEPT } from "../constants";
 
@@ -39,6 +39,217 @@ function Label({ text }: { text: string }) {
     >
       {text}
     </label>
+  );
+}
+
+function FolderDropdown({
+  value,
+  folders,
+  disabled,
+  onChange,
+}: {
+  value: string;
+  folders: LibraryItem[];
+  disabled: boolean;
+  onChange: (id: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const selected = folders.find((f) => f.id === value);
+  const label = selected
+    ? `${selected.name} (${selected.fileList?.length || 0} files)`
+    : "Select a folder…";
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    function handler(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  return (
+    <div ref={ref} style={{ position: "relative" }}>
+      {/* Trigger */}
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => setOpen((o) => !o)}
+        style={{
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          background: "#FFFFFF",
+          border: "none",
+          borderRadius: 14,
+          padding: "10px 14px",
+          fontSize: 13.5,
+          fontWeight: value ? 500 : 400,
+          color: value ? "var(--text-primary)" : "var(--text-faint)",
+          boxShadow: open
+            ? "0 0 0 1.5px #8e98ff, 0 8px 24px rgba(96,107,235,0.08)"
+            : "0 1px 2px rgba(16,24,40,0.04), 0 0 0 1px rgba(16,24,40,0.06)",
+          cursor: disabled ? "not-allowed" : "pointer",
+          opacity: disabled ? 0.4 : 1,
+          transition: "box-shadow 180ms ease",
+          fontFamily: "inherit",
+          textAlign: "left",
+        }}
+      >
+        {value && (
+          <div
+            style={{
+              width: 24,
+              height: 24,
+              borderRadius: 8,
+              background: "rgba(251,191,36,0.08)",
+              border: "1px solid rgba(251,191,36,0.18)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <Folder style={{ width: 12, height: 12, color: "#F59E0B" }} />
+          </div>
+        )}
+        <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {label}
+        </span>
+        <ChevronDown
+          style={{
+            width: 14,
+            height: 14,
+            color: "var(--text-muted)",
+            flexShrink: 0,
+            transition: "transform 180ms ease",
+            transform: open ? "rotate(180deg)" : "rotate(0deg)",
+          }}
+        />
+      </button>
+
+      {/* Dropdown panel */}
+      {open && (
+        <div
+          style={{
+            position: "absolute",
+            top: "calc(100% + 6px)",
+            left: 0,
+            right: 0,
+            zIndex: 60,
+            background: "#FFFFFF",
+            borderRadius: 16,
+            boxShadow: "0 4px 6px rgba(16,24,40,0.04), 0 12px 32px rgba(16,24,40,0.10), 0 0 0 1px rgba(16,24,40,0.07)",
+            overflow: "hidden",
+            animation: "vlt-rise 0.18s cubic-bezier(0.16,1,0.3,1) both",
+          }}
+        >
+          {folders.length === 0 ? (
+            <div
+              style={{
+                padding: "16px 16px",
+                fontSize: 13,
+                color: "var(--text-faint)",
+                textAlign: "center",
+              }}
+            >
+              No folders yet
+            </div>
+          ) : (
+            <div style={{ padding: 6, display: "flex", flexDirection: "column", gap: 2 }}>
+              {folders.map((fld) => {
+                const isActive = fld.id === value;
+                return (
+                  <button
+                    key={fld.id}
+                    type="button"
+                    onClick={() => {
+                      onChange(fld.id);
+                      setOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      width: "100%",
+                      padding: "9px 10px",
+                      borderRadius: 10,
+                      border: "none",
+                      background: isActive ? "#EEF2FF" : "transparent",
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                      textAlign: "left",
+                      transition: "background 120ms ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isActive) e.currentTarget.style.background = "#F7F8FB";
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive) e.currentTarget.style.background = "transparent";
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: 8,
+                        background: isActive ? "rgba(79,91,217,0.10)" : "rgba(251,191,36,0.08)",
+                        border: `1px solid ${isActive ? "rgba(79,91,217,0.18)" : "rgba(251,191,36,0.18)"}`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Folder
+                        style={{
+                          width: 13,
+                          height: 13,
+                          color: isActive ? "var(--accent)" : "#F59E0B",
+                        }}
+                      />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p
+                        style={{
+                          fontSize: 13,
+                          fontWeight: isActive ? 600 : 500,
+                          color: isActive ? "var(--accent)" : "var(--text-primary)",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          letterSpacing: "-0.01em",
+                        }}
+                      >
+                        {fld.name}
+                      </p>
+                      <p
+                        style={{
+                          fontSize: 11,
+                          color: isActive ? "rgba(79,91,217,0.55)" : "var(--text-faint)",
+                          marginTop: 1,
+                        }}
+                      >
+                        {fld.fileList?.length || 0} files
+                      </p>
+                    </div>
+                    {isActive && (
+                      <Check
+                        style={{ width: 13, height: 13, color: "var(--accent)", flexShrink: 0 }}
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -98,7 +309,7 @@ export function FileUploadModal({
                   display: "flex", alignItems: "center", gap: 12,
                   border: "1px solid rgba(251,191,36,0.18)",
                   background: "rgba(251,191,36,0.06)",
-                  borderRadius: 12, padding: "10px 14px",
+                  borderRadius: 14, padding: "10px 14px",
                 }}
               >
                 <FolderOpen style={{ width: 15, height: 15, color: "rgba(251,191,36,0.70)", flexShrink: 0 }} />
@@ -114,20 +325,12 @@ export function FileUploadModal({
             ) : (
               <div>
                 <Label text="Target folder" />
-                <select
-                  disabled={uploadStatus === "uploading"}
+                <FolderDropdown
                   value={formFolderTarget}
-                  onChange={(e) => onChangeFolderTarget(e.target.value)}
-                  className="vlt-input"
-                  style={{ cursor: uploadStatus === "uploading" ? "not-allowed" : "pointer" }}
-                >
-                  <option value="" disabled>Select a folder…</option>
-                  {folders.map((fld) => (
-                    <option key={fld.id} value={fld.id}>
-                      {fld.name} ({fld.fileList?.length || 0} files)
-                    </option>
-                  ))}
-                </select>
+                  folders={folders}
+                  disabled={uploadStatus === "uploading"}
+                  onChange={onChangeFolderTarget}
+                />
               </div>
             )}
 

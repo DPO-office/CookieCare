@@ -12,6 +12,7 @@ import {
   fetchDocuments,
   deleteFolder,
   deleteDocument,
+  deleteLibraryItem,
   createFolder,
   createLibraryItem,
   uploadFileToFolder,
@@ -27,6 +28,7 @@ export type { VaultIngestCategory };
 export {
   deleteFolder,
   deleteDocument,
+  deleteLibraryItem,
   createFolder,
   createLibraryItem,
   uploadFileToFolder,
@@ -36,11 +38,26 @@ export {
 
 // ─── Domain model helpers ────────────────────────────────────────────────────
 
-function formatDate(raw: string | undefined): string {
+/**
+ * Formats an ISO date string into DD-MM-YY.
+ * Exported so other vault components (e.g. SavedDraftsTable) can reuse it
+ * without duplicating the logic.
+ */
+export function fmtDate(raw: string | undefined): string {
   if (!raw) return "-";
   return new Date(raw)
     .toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" })
     .replace(/\//g, "-");
+}
+
+/**
+ * Converts a byte count into a human-readable size string (KB / MB).
+ * Returns "—" when the value is absent or zero.
+ */
+function fmtFileSize(bytes: number | undefined | null): string {
+  if (!bytes || bytes <= 0) return "—";
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 function buildDisplayTags(
@@ -102,7 +119,7 @@ export async function loadLibraryData(authToken: string): Promise<LibraryData> {
   const formattedFolders: LibraryItem[] = foldersData.map((f: any) => {
     const fileList = docsData
       .filter((d: any) => d.folder_id === f.id)
-      .map((d: any) => ({ id: d.id, name: d.title || d.name, size: "N/A", type: d.type }));
+      .map((d: any) => ({ id: d.id, name: d.title || d.name, size: fmtFileSize(d.file_size), type: d.type }));
 
     return {
       id: f.id,
@@ -111,7 +128,7 @@ export async function loadLibraryData(authToken: string): Promise<LibraryData> {
       description: "-",
       tags: "-",
       itemsCount: fileList.length,
-      dateModified: formatDate(f.updated_at),
+      dateModified: fmtDate(f.updated_at),
       createdBy: "User",
       fileList,
     };
@@ -126,8 +143,10 @@ export async function loadLibraryData(authToken: string): Promise<LibraryData> {
       description: i.description || "-",
       tags: buildDisplayTags(i, detailsObj),
       itemsCount: "1 item",
-      dateModified: formatDate(i.updated_at),
+      dateModified: fmtDate(i.updated_at),
       createdBy: "User",
+      // Normalise: legacy rows without a source column default to 'private'.
+      source: (i.source === "org" ? "org" : "private") as "private" | "org",
       details: i.details,
     };
   });

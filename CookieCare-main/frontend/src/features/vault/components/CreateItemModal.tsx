@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { X } from "lucide-react";
-import { LibraryTabId } from "../types";
+import { LibraryTabId, LibraryItemSource } from "../types";
 import { TabConfig } from "../constants";
 
 interface CreateItemModalProps {
@@ -14,7 +14,12 @@ interface CreateItemModalProps {
   onChangeDescription: (v: string) => void;
   onChangeTags: (v: string) => void;
   onChangeDetails: (v: string) => void;
-  onSubmit: (e: React.FormEvent) => void;
+  /**
+   * Called on submit. The second argument carries the chosen source
+   * ('private' | 'org') for Templates, Clauses, and AI Rulebook.
+   * For all other tabs it is always 'private'.
+   */
+  onSubmit: (e: React.FormEvent, source: LibraryItemSource) => void;
   onClose: () => void;
 }
 
@@ -47,6 +52,14 @@ export function CreateItemModal({
   onSubmit,
   onClose,
 }: CreateItemModalProps) {
+  // Scope is relevant for Templates, Clauses, and AI Rulebook; defaults to 'private'.
+  const [scope, setScope] = useState<LibraryItemSource>("private");
+  const isTemplates = activeTab === "templates";
+  const isClauses = activeTab === "clauses";
+  const isRulebook = activeTab === "rulebook";
+  // Show the scope selector for any of the three types that support private/org.
+  const showScopeSelector = isTemplates || isClauses || isRulebook;
+
   return (
     <div className="vlt-overlay">
       <div className="vlt-modal" style={{ maxWidth: 500 }}>
@@ -68,7 +81,7 @@ export function CreateItemModal({
             <X style={{ width: 14, height: 14 }} />
           </button>
 
-          <form onSubmit={onSubmit}>
+          <form onSubmit={(e) => onSubmit(e, showScopeSelector ? scope : "private")}>
             {/* Header */}
             <div style={{ paddingBottom: 18, borderBottom: "1px solid var(--border-light)", marginBottom: 20 }}>
               <p className="vlt-overline" style={{ marginBottom: 5 }}>{activeTabInfo.label}</p>
@@ -87,6 +100,71 @@ export function CreateItemModal({
 
             {/* Fields */}
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+              {/* ── Who can access this? — Templates, Clauses, and AI Rulebook ── */}
+              {showScopeSelector && (
+                <div>
+                  <Label text="Who can access this?" />
+                  <div style={{ display: "flex", gap: 8 }}>
+                    {(["private", "org"] as const).map((opt) => {
+                      const isSelected = scope === opt;
+                      const labelText =
+                        opt === "private" ? "My Private Space" : "My organisation";
+                      return (
+                        <label
+                          key={opt}
+                          style={{
+                            flex: 1,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                            padding: "9px 12px",
+                            borderRadius: 12,
+                            cursor: "pointer",
+                            fontSize: 13,
+                            fontWeight: isSelected ? 600 : 400,
+                            color: isSelected ? "#111827" : "#667085",
+                            border: `1.5px solid ${isSelected ? "#4F5BD9" : "rgba(16,24,40,0.10)"}`,
+                            background: isSelected ? "#F5F6FF" : "#FAFAFA",
+                            transition:
+                              "border-color 160ms ease, background 160ms ease, color 160ms ease",
+                            userSelect: "none",
+                          }}
+                        >
+                          <input
+                            type="radio"
+                            name="createItemScope"
+                            value={opt}
+                            checked={isSelected}
+                            onChange={() => setScope(opt)}
+                            style={{
+                              accentColor: "#4F5BD9",
+                              width: 15,
+                              height: 15,
+                              flexShrink: 0,
+                              cursor: "pointer",
+                            }}
+                          />
+                          {labelText}
+                        </label>
+                      );
+                    })}
+                  </div>
+                  <p
+                    style={{
+                      fontSize: 11.5,
+                      color: "var(--text-faint)",
+                      marginTop: 7,
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    {scope === "org"
+                      ? "Items are stored centrally for your organisation. Access is granted by team or organisation membership."
+                      : "Items stored in your private space are only visible to you."}
+                  </p>
+                </div>
+              )}
+
               <div>
                 <Label text="Name" required />
                 <input

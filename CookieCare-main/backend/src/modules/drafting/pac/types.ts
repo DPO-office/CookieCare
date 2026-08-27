@@ -12,12 +12,29 @@ export type StoppedReason =
   | "blocked"
   | "critique_cap";
 
+/**
+ * How the frontend should render the input for this question.
+ *
+ * - "text"        → free-form single-line text input (default)
+ * - "textarea"    → free-form multi-line text input (long descriptions)
+ * - "date"        → date picker
+ * - "chips"       → single-select chip group (radio semantics); requires `options`
+ * - "chips-multi" → multi-select chip group (checkbox semantics); requires `options`
+ */
+export type QuestionInputType = "text" | "textarea" | "date" | "chips" | "chips-multi";
+
 export interface UserQuestion {
   id: string;
   field: string;
   question: string;
   severity: "critical" | "optional";
+  /** Populated when inputType is "chips" or "chips-multi". */
   options?: string[];
+  /**
+   * Render hint for the frontend.
+   * Defaults to "chips" when options are present, "text" otherwise.
+   */
+  inputType?: QuestionInputType;
 }
 
 export interface AgentRunState {

@@ -7,7 +7,8 @@ interface FolderDetailViewProps {
   onClose: () => void;
   onAddFiles: (folderId: string) => void;
   onDeleteFile: (folderId: string, fileId: string) => void;
-  onDeleteFolder: (id: string, e: React.MouseEvent) => void;
+  /** Returns true if the folder was actually deleted, false if cancelled or failed. */
+  onDeleteFolder: (id: string, e: React.MouseEvent) => Promise<boolean>;
 }
 
 export function FolderDetailView({
@@ -18,84 +19,214 @@ export function FolderDetailView({
   onDeleteFolder,
 }: FolderDetailViewProps) {
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="w-full max-w-2xl bg-white border border-gray-100 shadow-2xl rounded-2xl relative overflow-hidden">
-        {/* Top accent */}
-        <div className="h-1 w-full" style={{ background: "var(--brand-primary)" }} />
+    <div className="vlt-overlay">
+      <div className="vlt-modal" style={{ maxWidth: 640 }}>
+        {/* Top gradient accent */}
+        <div
+          style={{
+            height: 1,
+            background: "linear-gradient(90deg, transparent, #E4E4E7, transparent)",
+          }}
+        />
 
-        <div className="p-6">
-          <button
-            onClick={onClose}
-            className="absolute right-4 top-5 w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-700 hover:bg-gray-50 cursor-pointer transition"
-          >
-            <X className="w-4 h-4" />
-          </button>
-
+        <div style={{ padding: "24px 24px 24px" }}>
           {/* Header */}
-          <div className="mb-5 pb-4 border-b border-gray-100 flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center shrink-0">
-              <Folder className="w-5 h-5 text-amber-500" />
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 12,
+              paddingBottom: 18,
+              borderBottom: "1px solid var(--border-light)",
+              marginBottom: 20,
+            }}
+          >
+            <div
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 12,
+                background: "rgba(251,191,36,0.08)",
+                border: "1px solid rgba(251,191,36,0.18)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <Folder style={{ width: 18, height: 18, color: "#F59E0B" }} />
             </div>
-            <div className="min-w-0 flex-1">
-              <h3 className="font-bold text-lg text-gray-900 truncate tracking-tight">{folder.name}</h3>
-              <p className="text-xs text-gray-400 mt-0.5 font-mono">
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <p className="vlt-overline" style={{ marginBottom: 3 }}>Folder</p>
+              <h3
+                style={{
+                  fontSize: 17,
+                  fontWeight: 700,
+                  letterSpacing: "-0.03em",
+                  color: "var(--text-primary)",
+                  lineHeight: 1.2,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {folder.name}
+              </h3>
+              <p
+                style={{
+                  fontSize: 11.5,
+                  color: "var(--text-faint)",
+                  marginTop: 2,
+                  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+                }}
+              >
                 {folder.id} · By {folder.createdBy}
               </p>
             </div>
-            <button
-              onClick={() => onAddFiles(folder.id)}
-              className="inline-flex items-center gap-2 text-white text-sm font-semibold px-3.5 py-2 rounded-xl transition shrink-0 cursor-pointer shadow-sm hover:opacity-90"
-              style={{ background: "var(--brand-primary)" }}
-            >
-              <Upload className="w-3.5 h-3.5" />
-              <span>Add files</span>
-            </button>
+            {/* Actions — Add files + Close, side by side, no overlap */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+              <button
+                onClick={() => onAddFiles(folder.id)}
+                className="vlt-btn-primary"
+              >
+                <Upload style={{ width: 13, height: 13 }} />
+                Add files
+              </button>
+              <button
+                onClick={onClose}
+                className="vlt-icon-btn"
+              >
+                <X style={{ width: 14, height: 14 }} />
+              </button>
+            </div>
           </div>
 
-          {/* File list */}
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-              Files <span className="text-gray-600 font-bold">({folder.fileList?.length || 0})</span>
+          {/* Files section label */}
+          <div style={{ marginBottom: 10 }}>
+            <p className="vlt-overline">
+              Files{" "}
+              <span style={{ color: "var(--text-secondary)", fontWeight: 700 }}>
+                ({folder.fileList?.length || 0})
+              </span>
             </p>
           </div>
 
+          {/* File list or empty state */}
           {!folder.fileList || folder.fileList.length === 0 ? (
-            <div className="border-2 border-dashed border-gray-200 rounded-2xl p-10 text-center bg-gray-50">
-              <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center mx-auto mb-3">
-                <AlertCircle className="w-5 h-5 text-gray-300" />
+            <div
+              style={{
+                borderRadius: 20,
+                background: "#F7F8FB",
+                boxShadow: "inset 0 0 0 1px rgba(16,24,40,0.06)",
+                padding: "40px 24px",
+                textAlign: "center",
+              }}
+            >
+              <div
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 12,
+                  background: "rgba(16,24,40,0.05)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  margin: "0 auto 12px",
+                }}
+              >
+                <AlertCircle style={{ width: 18, height: 18, color: "#C0C8D8" }} />
               </div>
-              <p className="text-sm font-semibold text-gray-600">No files yet</p>
-              <p className="text-xs text-gray-400 mt-1">Use the button above to upload files.</p>
+              <p
+                style={{ fontSize: 13.5, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 4 }}
+              >
+                No files yet
+              </p>
+              <p style={{ fontSize: 12, color: "var(--text-faint)" }}>
+                Use the button above to upload files.
+              </p>
             </div>
           ) : (
-            <div className="max-h-64 overflow-y-auto space-y-2 border border-gray-100 p-2.5 rounded-2xl bg-gray-50">
+            <div
+              style={{
+                maxHeight: 272,
+                overflowY: "auto",
+                display: "flex",
+                flexDirection: "column",
+                gap: 6,
+                borderRadius: 20,
+                background: "#F7F8FB",
+                boxShadow: "inset 0 0 0 1px rgba(16,24,40,0.06)",
+                padding: "10px",
+              }}
+            >
               {folder.fileList.map((file, idx) => (
                 <div
                   key={file.id ?? idx}
-                  className="bg-white border border-gray-200 rounded-xl p-3 flex justify-between items-center hover:border-gray-300 hover:shadow-sm transition text-sm"
+                  style={{
+                    background: "#FFFFFF",
+                    borderRadius: 14,
+                    boxShadow: "0 1px 2px rgba(16,24,40,0.04), 0 0 0 1px rgba(16,24,40,0.06)",
+                    padding: "10px 12px",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    transition: "box-shadow 130ms ease",
+                    fontSize: 13,
+                  }}
                 >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
-                      <FileText className="w-4 h-4 text-blue-400" />
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                    <div
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: 10,
+                        background: "rgba(33,117,217,0.07)",
+                        border: "1px solid rgba(33,117,217,0.14)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <FileText style={{ width: 15, height: 15, color: "var(--accent)" }} />
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-gray-900 font-semibold truncate tracking-tight">{file.name}</p>
-                      <p className="text-xs text-gray-400 mt-0.5 tabular-nums">
+                    <div style={{ minWidth: 0 }}>
+                      <p
+                        style={{
+                          fontWeight: 600,
+                          color: "var(--text-primary)",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          letterSpacing: "-0.01em",
+                        }}
+                      >
+                        {file.name}
+                      </p>
+                      <p
+                        style={{
+                          fontSize: 11,
+                          color: "var(--text-faint)",
+                          marginTop: 1,
+                          fontVariantNumeric: "tabular-nums",
+                        }}
+                      >
                         {file.size} · {file.type}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-lg">
-                      Synced
-                    </span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                    <span className="vlt-status-synced">Synced</span>
                     <button
+                      title={file.id ? "Delete file" : "Cannot delete — file ID unavailable"}
+                      disabled={!file.id}
                       onClick={() => {
                         if (file.id) onDeleteFile(folder.id, file.id);
                       }}
-                      className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-100 rounded-lg transition cursor-pointer"
+                      className="vlt-icon-btn danger"
+                      style={!file.id ? { opacity: 0.35, cursor: "not-allowed" } : undefined}
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 style={{ width: 13, height: 13 }} />
                     </button>
                   </div>
                 </div>
@@ -104,21 +235,42 @@ export function FolderDetailView({
           )}
 
           {/* Footer */}
-          <div className="flex justify-between items-center pt-5 border-t border-gray-100 mt-5">
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              paddingTop: 18,
+              borderTop: "1px solid var(--border-light)",
+              marginTop: 20,
+            }}
+          >
             <button
-              onClick={(e) => {
-                onDeleteFolder(folder.id, e);
-                onClose();
+              onClick={async (e) => {
+                const deleted = await onDeleteFolder(folder.id, e);
+                if (deleted) onClose();
               }}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-red-500 hover:text-red-700 cursor-pointer transition"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                fontSize: 13,
+                fontWeight: 500,
+                color: "#EF4444",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: 0,
+                transition: "color 150ms ease",
+                fontFamily: "inherit",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#DC2626")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "#EF4444")}
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <Trash2 style={{ width: 13, height: 13 }} />
               Delete folder
             </button>
-            <button
-              onClick={onClose}
-              className="px-5 py-2 border border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 rounded-xl text-sm font-semibold transition cursor-pointer text-gray-700 shadow-sm"
-            >
+            <button onClick={onClose} className="vlt-btn-ghost">
               Close
             </button>
           </div>
