@@ -22,6 +22,7 @@ import { synthesizeReport } from "./synthesize-report.js";
 import { applyFinalizedReportSpec, finalizeReportSpec } from "./finalize-report-spec.js";
 import { enforceConclusionSectionLast } from "../../prompts/report-sections.js";
 import { pacLog, beginRenderStreaming } from "../../utils/pac-log.js";
+import { groundFindings } from "../audit/ground-findings.js";
 import { profileThinkingLevel } from "../../utils/profile-thinking.js";
 import {
   BOTTOM_LINE_SYSTEM_PROMPT,
@@ -36,6 +37,10 @@ import {
   gapFindingsForArticle,
 } from "../../shared/article-linkage.js";
 import { isReferencedElsewhereClaim } from "../act/requirement-status-policy.js";
+import {
+  filterAssessmentsByRequirementIds,
+  findingSupportsRequirement,
+} from "../../shared/requirement-identity.js";
 
 /** Find the first authored rule whose rendererHooks[hook] is truthy. */
 export function findRuleByRendererHook(
@@ -91,18 +96,29 @@ export async function renderOutput(
     findings.filter((f) => f.visibility !== "internal")
   );
   visible = filterFindingsForMatrixFocus(visible, state);
-  state = attachRightsMatrixTableArtifact(
-    {
-      ...state,
-      findings: visible,
-      requirementAssessments: filterAssessmentsForMatrixFocus(
-        state.requirementAssessments ?? [],
-        visible,
-        state
-      ),
-    },
-    visible
-  );
+  state = {
+    ...state,
+    findings: visible,
+    requirementAssessments: filterAssessmentsForMatrixFocus(
+      state.requirementAssessments ?? [],
+      visible,
+      state
+    ),
+  };
+  state = groundFindings(state);
+  visible = (state.findings ?? []).filter((f) => f.visibility !== "internal");
+  state = attachRightsMatrixTableArtifact(state, visible);
+
+  const followUpKind = String(unit.input.followUpKind ?? "");
+  if (followUpKind === "conversational_qa") {
+    const targeted = assessmentsMentionedInInstruction(
+      state.request.instruction,
+      state.requirementAssessments ?? []
+    );
+    if (targeted.length > 0) {
+      state = { ...state, requirementAssessments: targeted };
+    }
+  }
 
   const assessments = state.requirementAssessments ?? [];
   const requestedArticles = extractArticleNumbers(state.request.instruction);
@@ -370,6 +386,30 @@ export function filterAssessmentsForMatrixFocus(
   return assessments.filter((assessment) => {
     if (keptReqIds.has(assessment.requirementId)) return true;
     return assessment.supportingFindingIds.some((id) => keptFindingIds.has(id));
+  });
+}
+
+export function assessmentsMentionedInInstruction(
+  instruction: string,
+  assessments: RequirementAssessment[]
+): RequirementAssessment[] {
+  const hay = instruction.toLowerCase();
+  const articleHits = [...hay.matchAll(/\b(?:art(?:icle)?\s*)(\d{1,3})(?:\s*\(\s*(\d+)\s*\))?(?:\s*\(\s*([a-h])\s*\))?/gi)];
+  return assessments.filter((row) => {
+    const id = row.requirementId.toLowerCase();
+    if (hay.includes(id)) return true;
+    const tokens = id.replace(/[._-]+/g, " ").split(/\s+/).filter((t) => t.length >= 4);
+    if (tokens.some((token) => hay.includes(token))) return true;
+    return articleHits.some((match) => {
+      const article = match[1];
+      const para = match[2];
+      const letter = match[3]?.toLowerCase();
+      if (!id.includes(article ?? "")) return false;
+      if (letter && !id.includes(`_${letter}_`) && !id.endsWith(`_${letter}`) && !id.includes(`.${letter}`)) {
+        return Boolean(para) && id.includes(para);
+      }
+      return true;
+    });
   });
 }
 
@@ -1397,7 +1437,9 @@ function pickRowFinding(
   const linked = assessment.supportingFindingIds
     .map((id) => findingById.get(id))
     .filter((f): f is Finding => Boolean(f));
-  const direct = linked.filter((f) => f.requirementId === assessment.requirementId);
+  const direct = linked.filter((f) =>
+    findingSupportsRequirement(f.requirementId, assessment.requirementId)
+  );
   const pool = direct.length > 0 ? direct : linked;
   return (
     pool.find((f) => Boolean(f.evidence[0]?.quotedText?.trim())) ?? pool[0]
@@ -1413,7 +1455,10 @@ function evidenceCellText(
   if (finding && isReferencedElsewhereClaim(finding)) {
     return "Particulars referenced outside this extract";
   }
-  if (isConditionalLike(assessment.status)) {
+  if (
+    isConditionalLike(assessment.status) ||
+    assessment.judgement?.evidenceState === "incorporated"
+  ) {
     return "Particulars referenced outside this extract";
   }
   return "No verbatim extract";
@@ -1432,7 +1477,7 @@ export function assessmentTableMarkdown(
   const rows = assessments.map((assessment) => {
     const support = pickRowFinding(assessment, findingById);
     const finding = support?.claim ?? assessment.summary;
-    return `| ${mdCell(requirementLabel(assessment.requirementId, state))} | **${mdCell(displayRequirementStatus(assessment.status))}** | ${mdCell(evidenceCellText(assessment, support))} | ${mdCell(finding)} |`;
+    return `| ${mdCell(requirementLabel(assessment.requirementId, state))} | **${mdCell(displayRequirementStatus(assessment))}** | ${mdCell(evidenceCellText(assessment, support))} | ${mdCell(finding)} |`;
   });
   return [...header, ...rows].join("\n");
 }
@@ -1482,8 +1527,43 @@ function assessmentsForHeading(
   const needle = heading.trim().toLowerCase();
   const item = outline.find((entry) => entry.heading.trim().toLowerCase() === needle);
   if (!item?.requirementIds?.length) return [];
-  const wanted = new Set(item.requirementIds);
-  return assessments.filter((assessment) => wanted.has(assessment.requirementId));
+  return filterAssessmentsByRequirementIds(assessments, item.requirementIds);
+}
+
+export function stripMarkdownTables(markdown: string): string {
+  const lines = markdown.split(/\n/);
+  const drop = new Set(
+    markdownTableRanges(markdown).flatMap((range) => {
+      const idxs: number[] = [];
+      for (let i = range.startLine; i < range.endLine; i++) idxs.push(i);
+      return idxs;
+    })
+  );
+  return lines
+    .filter((_, i) => !drop.has(i))
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function leadSentence(prose: string): string {
+  const trimmed = prose.trim();
+  if (!trimmed) return "";
+  const firstPara = (trimmed.split(/\n\s*\n/)[0] ?? "").replace(/\n/g, " ").trim();
+  const match = firstPara.match(/^(.+?[.!?])(?:\s|$)/);
+  return (match?.[1] ?? firstPara).trim();
+}
+
+function sectionWithLockedTable(body: string, table: string): string {
+  // Strip formal markdown tables and leftover pipe-rows (LLM often emits a
+  // headerless "| Duration | Cannot determine |" that is not a GFM table).
+  const withoutTables = stripMarkdownTables(body);
+  const withoutPipeRows = withoutTables
+    .split("\n")
+    .filter((line) => !/^\|.*\|$/.test(line.trim()))
+    .join("\n");
+  const lead = leadSentence(withoutPipeRows);
+  return lead ? `${lead}\n\n${table}` : table;
 }
 
 function injectAssessmentTableIntoSections(
@@ -1493,52 +1573,56 @@ function injectAssessmentTableIntoSections(
 ): string {
   if (assessments.length === 0) return markdown;
   const findings = state.findings ?? [];
+  const locked = (rows: RequirementAssessment[]) =>
+    assessmentTableMarkdown(rows, findings, state);
   const lines = markdown.split(/\n/);
   const headingIdxs: number[] = [];
   for (let i = 0; i < lines.length; i++) {
     if (/^##\s+/.test(lines[i] ?? "")) headingIdxs.push(i);
   }
   if (headingIdxs.length === 0) {
-    if (countMarkdownTables(markdown) > 0) return markdown;
-    return `${markdown.trim()}\n\n${assessmentTableMarkdown(assessments, findings, state)}\n`;
+    return `${sectionWithLockedTable(markdown, locked(assessments))}\n`;
   }
-  const inject: Array<{ at: number; table: string }> = [];
+
+  const rebuilt: string[] = [];
+  const prefix = lines.slice(0, headingIdxs[0]).join("\n").trimEnd();
+  if (prefix) rebuilt.push(prefix);
+
+  let attachedAny = false;
   for (let h = 0; h < headingIdxs.length; h++) {
     const start = headingIdxs[h]!;
     const end = headingIdxs[h + 1] ?? lines.length;
-    const heading = (lines[start] ?? "").replace(/^##\s+/, "").trim();
-    if (SKIP_TABULAR_INJECT_HEADING.test(heading)) continue;
+    const headingLine = lines[start] ?? "";
+    const heading = headingLine.replace(/^##\s+/, "").trim();
     const body = lines.slice(start + 1, end).join("\n");
-    if (countMarkdownTables(body) > 0) continue;
+    if (rebuilt.length > 0) rebuilt.push("");
+    rebuilt.push(headingLine);
+    if (SKIP_TABULAR_INJECT_HEADING.test(heading)) {
+      const kept = body.replace(/^\n+/, "").replace(/\n+$/, "");
+      if (kept) {
+        rebuilt.push("");
+        rebuilt.push(kept);
+      }
+      continue;
+    }
     const scoped = assessmentsForHeading(heading, state, assessments);
-    if (scoped.length === 0) continue;
-    inject.push({ at: end, table: assessmentTableMarkdown(scoped, findings, state) });
-  }
-  if (inject.length === 0) {
-    if (countMarkdownTables(markdown) > 0) return markdown;
-    const first = headingIdxs.find((idx) => {
-      const heading = (lines[idx] ?? "").replace(/^##\s+/, "").trim();
-      return !SKIP_TABULAR_INJECT_HEADING.test(heading);
-    });
-    if (first === undefined) {
-      return `${markdown.trim()}\n\n${assessmentTableMarkdown(assessments, findings, state)}\n`;
+    if (scoped.length > 0) {
+      rebuilt.push("");
+      rebuilt.push(sectionWithLockedTable(body, locked(scoped)));
+      attachedAny = true;
+      continue;
     }
-    inject.push({
-      at: headingIdxs[headingIdxs.indexOf(first) + 1] ?? lines.length,
-      table: assessmentTableMarkdown(assessments, findings, state),
-    });
-  }
-  const byLine = new Map(inject.map((item) => [item.at, item.table]));
-  const out: string[] = [];
-  for (let i = 0; i <= lines.length; i++) {
-    const table = byLine.get(i);
-    if (table) {
-      if (out.length > 0 && out[out.length - 1] !== "") out.push("");
-      out.push(table, "");
+    const prose = stripMarkdownTables(body);
+    if (prose) {
+      rebuilt.push("");
+      rebuilt.push(prose);
     }
-    if (i < lines.length) out.push(lines[i] ?? "");
   }
-  return out.join("\n");
+
+  if (!attachedAny) {
+    return `${sectionWithLockedTable(rebuilt.join("\n"), locked(assessments))}\n`;
+  }
+  return `${rebuilt.join("\n").replace(/\n{3,}/g, "\n\n").trim()}\n`;
 }
 
 function normalizeMarkdownTables(markdown: string): string {

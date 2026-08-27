@@ -63,7 +63,7 @@ describe("deriveRequirementStatus", () => {
     );
   });
 
-  it("returns conditional when the claim only points at an annex or SOW", () => {
+  it("returns cannot_determine when the claim only points at an annex or SOW without binding coverage", () => {
     assert.equal(
       deriveRequirementStatus([
         {
@@ -71,7 +71,7 @@ describe("deriveRequirementStatus", () => {
           claim: "Subject matter is incorporated by reference to Annex 2 of Addendum A1.",
         },
       ]),
-      "conditional"
+      "cannot_determine"
     );
   });
 
@@ -88,7 +88,7 @@ describe("deriveRequirementStatus", () => {
     );
   });
 
-  it("returns conditional when supporting present findings are paired with a medium risk gap", () => {
+  it("keeps Present compliance when a medium risk annotation is also linked", () => {
     assert.equal(
       deriveRequirementStatus([
         finding("present"),
@@ -100,7 +100,7 @@ describe("deriveRequirementStatus", () => {
           gap: "No machine-readable format commitment.",
         },
       ]),
-      "conditional"
+      "adequate"
     );
   });
 });
@@ -114,5 +114,20 @@ describe("displayRequirementStatus", () => {
     assert.equal(displayRequirementStatus("partial"), "Minor drafting gap");
     assert.equal(displayRequirementStatus("gap"), "Gap");
     assert.equal(displayRequirementStatus("cannot_determine"), "Cannot determine");
+    assert.equal(
+      displayRequirementStatus({
+        status: "conditional",
+        judgement: {
+          compliance: "partial",
+          evidenceState: "direct",
+          referenceBinding: "none",
+          evidenceConfidence: "medium",
+          draftingQuality: "could_be_clearer",
+          materiality: "high",
+          recommendationKind: "clarify",
+        },
+      }),
+      "Minor drafting gap"
+    );
   });
 });

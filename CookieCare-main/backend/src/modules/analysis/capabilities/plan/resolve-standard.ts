@@ -1,4 +1,4 @@
-import type { StandardAxis } from "../../models/intent.js";
+x`import type { StandardAxis } from "../../models/intent.js";
 import { hasPlaybookRule, hasRegimeRule } from "../../skills/runtime/catalog/registry.js";
 
 /** Map classifier / user-facing standard ids to canonical regime pack ids. */

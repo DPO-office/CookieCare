@@ -1543,6 +1543,56 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
         "data_subject_categories",
         "controller_obligations_rights",
       ],
+      requirementEvidence: {
+        subject_matter: {
+          hypothesis:
+            "The contract sets out the subject matter of the processing.",
+          evidenceHints: [
+            "subject matter",
+            "offer",
+            "offers",
+            "disclosures",
+            "applies to the processing",
+          ],
+        },
+        duration: {
+          hypothesis: "The contract sets out the duration of the processing.",
+          evidenceHints: [
+            "duration",
+            "term",
+            "period",
+            "termination",
+            "in force",
+            "set forth",
+          ],
+        },
+        nature_purpose: {
+          hypothesis:
+            "The contract sets out the nature and purpose of the processing.",
+          evidenceHints: ["nature", "purpose", "offer", "offers", "provision of"],
+        },
+        data_categories: {
+          hypothesis: "The contract sets out the types of personal data.",
+          evidenceHints: ["categories of personal data", "types of personal data"],
+        },
+        data_subject_categories: {
+          hypothesis: "The contract sets out the categories of data subjects.",
+          evidenceHints: ["data subjects", "categories of data subjects"],
+        },
+        controller_obligations_rights: {
+          hypothesis:
+            "The contract sets out the controller's obligations and rights.",
+          evidenceHints: [
+            "obligations",
+            "rights",
+            "instructions",
+            "lawful",
+            "minimise",
+            "minimize",
+            "data protection laws",
+          ],
+        },
+      },
       sourceMode: "authored",
       packageVersion: "1.0.0",
       report: {
@@ -1614,6 +1664,75 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
         "return_or_deletion",
         "audit_rights",
       ],
+      requirementEvidence: {
+        art28_3_a_instructions: {
+          hypothesis:
+            "The processor processes personal data only on documented instructions from the controller.",
+          evidenceHints: ["documented instructions", "instructions"],
+        },
+        art28_3_b_confidentiality: {
+          hypothesis:
+            "Persons authorised to process personal data are committed to confidentiality.",
+          evidenceHints: ["confidential", "secrecy", "authorised persons", "authorized persons"],
+        },
+        art28_3_c_security: {
+          hypothesis:
+            "The processor implements appropriate technical and organisational security measures.",
+          evidenceHints: ["security", "technical and organisational", "tom"],
+        },
+        art28_3_d_subprocessors: {
+          hypothesis:
+            "The processor does not engage another processor without controller authorisation.",
+          evidenceHints: [
+            "sub-processor",
+            "subprocessor",
+            "authorisation",
+            "authorization",
+            "notice",
+            "object",
+            "written agreement",
+            "thirty days",
+            "30 days",
+          ],
+        },
+        art28_3_e_dsr_assistance: {
+          hypothesis:
+            "The processor assists the controller in responding to data-subject rights requests.",
+          evidenceHints: [
+            "data subject",
+            "assist",
+            "rights request",
+            "supervisory",
+          ],
+        },
+        art28_3_f_security_assistance: {
+          hypothesis:
+            "The processor assists the controller with security, personal-data-breach, and DPIA obligations.",
+          evidenceHints: [
+            "assist",
+            "breach",
+            "dpia",
+            "security of processing",
+            "prior consultation",
+            "supervisory",
+          ],
+        },
+        art28_3_g_deletion_return: {
+          hypothesis:
+            "At the end of the services the processor deletes or returns personal data and existing copies.",
+          evidenceHints: ["delete", "deletion", "return", "erasure", "copies"],
+        },
+        art28_3_h_audit: {
+          hypothesis:
+            "The processor makes available information necessary to demonstrate compliance and allows audits and inspections.",
+          evidenceHints: ["audit", "inspection", "demonstrate compliance"],
+        },
+        art28_4_subprocessor_flow_down: {
+          hypothesis:
+            "A subprocessor is bound by the same data-protection obligations as the processor.",
+          evidenceHints: ["flow-down", "same obligations", "subprocessor"],
+        },
+      },
       sourceMode: "authored",
       packageVersion: "1.0.0",
       report: {

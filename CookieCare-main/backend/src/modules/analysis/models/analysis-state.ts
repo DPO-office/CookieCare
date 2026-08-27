@@ -7,6 +7,7 @@ import type { AnalysisConversation } from "./conversation.js";
 import type { AnalysisWorkspace } from "./document-workspace.js";
 import type { Finding } from "./finding.js";
 import type { RequirementAssessment } from "./requirement-assessment.js";
+import type { AnalyticalSynthesis } from "./analytical-synthesis.js";
 import type { AnalysisArtifact, SharedEvidenceBundle } from "./evidence-package.js";
 import type { DraftTask } from "./draft-task.js";
 import type {
@@ -63,6 +64,7 @@ export interface PriorAnalysisSnapshot {
   analysisArtifacts?: Record<string, AnalysisArtifact>;
   renderedOutput?: string;
   activeSkillIds?: string[];
+  analyticalSynthesis?: AnalyticalSynthesis;
 }
 
 export interface AnalysisFixPlan {
@@ -144,6 +146,10 @@ export interface AnalysisState {
    * Never an authoritative verdict store — derived from findings in ACT.
    */
   requirementAssessments?: RequirementAssessment[];
+  /**
+   * Interpretive layer over locked assessments. Must not mutate statuses.
+   */
+  analyticalSynthesis?: AnalyticalSynthesis | null;
   /** Shared evidence extracted once per package and reused by evaluations. */
   sharedEvidence?: Record<string, SharedEvidenceBundle>;
   /** Structured package outputs (inventories, comparisons). Keyed by artifact id. */

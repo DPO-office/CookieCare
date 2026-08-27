@@ -19,7 +19,12 @@ import { deriveRisk } from "./derive-risk.js";
 import { aggregateRequirements } from "./aggregate-requirements.js";
 import { insufficient } from "./act-utils.js";
 import { pacLog, pacWarn } from "../../utils/pac-log.js";
-import { logActInspect } from "./act-inspect-log.js";
+import {
+  logActGraphInspect,
+  logActInspect,
+  logActSegmentationInspect,
+  logActStepInspect,
+} from "./act-inspect-log.js";
 
 const SILENT_SUCCESS_NOTES: Partial<Record<AnalysisToolName, string>> = {
   classify_document: "classification only, no finding by design",
@@ -182,6 +187,9 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
     total: units.length,
     groupedEvals: packageEvalCount,
   });
+  logActSegmentationInspect(state);
+  logActGraphInspect(state, runnable);
+  let stepCounter = 0;
 
   for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
     const batch = batches[batchIndex];
@@ -195,6 +203,7 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
       emitActProgress(state, actPercent(), parallelLabel, lastProgress);
       const base = findings;
       const baseIds = new Set(base.map((f) => f.findingId));
+      const batchPriorState = state;
       const outcomes = await runConcurrent(parallel, ACT_CONCURRENCY, async (unit) => {
         const started = Date.now();
         const waitMs = started - batchStart;
@@ -207,20 +216,28 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
         try {
           const result = await runTool(state, unit, base);
           const emitted = result.findings.filter((f) => !baseIds.has(f.findingId));
+          const ms = Date.now() - started;
           pacLog(`ACT ✓ ${unit.tool}`, {
             id: unit.workUnitId,
-            ms: Date.now() - started,
+            ms,
             findings: emitted.length,
             tokens: state.agent?.tokensUsed,
             batch: batchIndex,
             concurrent: true,
             wait_ms: waitMs,
           });
-          return { unit, emitted, failed: false as const };
+          return {
+            unit,
+            emitted,
+            failed: false as const,
+            ms,
+            toolState: result.state,
+          };
         } catch (err) {
+          const ms = Date.now() - started;
           pacWarn(`ACT ✗ ${unit.tool}`, {
             id: unit.workUnitId,
-            ms: Date.now() - started,
+            ms,
             err: err instanceof Error ? err.message : String(err),
           });
           return {
@@ -228,12 +245,37 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
             emitted: [] as Finding[],
             failed: true as const,
             note: err instanceof Error ? err.message : String(err),
+            ms,
+            toolState: state,
           };
         }
       });
 
       for (const outcome of outcomes) {
         findings = [...findings, ...outcome.emitted];
+        // Parallel tools share a frozen pre-batch state; merge only package-local
+        // evidence expansions so concurrent evaluate_package runs don't clobber.
+        if (!outcome.failed && outcome.toolState.sharedEvidence) {
+          state = {
+            ...state,
+            sharedEvidence: {
+              ...(state.sharedEvidence ?? {}),
+              ...outcome.toolState.sharedEvidence,
+            },
+          };
+        }
+        stepCounter += 1;
+        logActStepInspect({
+          unit: outcome.unit,
+          state: outcome.toolState,
+          priorState: batchPriorState,
+          emitted: outcome.emitted,
+          ms: outcome.ms,
+          stepIndex: stepCounter,
+          stepTotal: runnable.length,
+          failed: outcome.failed,
+          error: outcome.failed ? outcome.note : undefined,
+        });
         units = units.map((u) =>
           u.workUnitId === outcome.unit.workUnitId
             ? outcome.failed
@@ -267,7 +309,8 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
         TOOL_PROGRESS_LABELS[unit.tool] ?? "Analyzing…",
         lastProgress
       );
-      const prior = findings;
+      const priorFindings = findings;
+      const priorState = state;
       const started = Date.now();
       const waitMs = started - batchStart;
       pacLog(`ACT ▶ ${unit.tool}`, {
@@ -280,7 +323,8 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
         const result = await runTool(state, unit, findings);
         state = result.state;
         findings = result.findings;
-        const emitted = findings.length - prior.length;
+        const emittedFindings = findings.slice(priorFindings.length);
+        const emitted = emittedFindings.length;
         units = units.map((u) =>
           u.workUnitId === unit.workUnitId
             ? {
@@ -294,20 +338,44 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
               }
             : u
         );
+        const ms = Date.now() - started;
         pacLog(`ACT ✓ ${unit.tool}`, {
           id: unit.workUnitId,
-          ms: Date.now() - started,
+          ms,
           findings: emitted,
           tokens: state.agent?.tokensUsed,
           batch: batchIndex,
           concurrent: false,
           wait_ms: waitMs,
         });
+        stepCounter += 1;
+        logActStepInspect({
+          unit,
+          state,
+          priorState,
+          emitted: emittedFindings,
+          ms,
+          stepIndex: stepCounter,
+          stepTotal: runnable.length,
+        });
       } catch (err) {
+        const ms = Date.now() - started;
         pacWarn(`ACT ✗ ${unit.tool}`, {
           id: unit.workUnitId,
-          ms: Date.now() - started,
+          ms,
           err: err instanceof Error ? err.message : String(err),
+        });
+        stepCounter += 1;
+        logActStepInspect({
+          unit,
+          state,
+          priorState,
+          emitted: [],
+          ms,
+          stepIndex: stepCounter,
+          stepTotal: runnable.length,
+          failed: true,
+          error: err instanceof Error ? err.message : String(err),
         });
         units = units.map((u) =>
           u.workUnitId === unit.workUnitId

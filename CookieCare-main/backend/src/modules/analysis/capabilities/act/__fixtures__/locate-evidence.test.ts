@@ -239,13 +239,10 @@ describe("groupedResultsToFindings referenced_elsewhere", () => {
         bundle,
       }
     );
-    assert.equal(findings.length, 2);
-    assert.ok(findings.some((f) => f.status === "present"));
-    assert.ok(findings.some((f) => f.status === "absent_expected"));
-    assert.equal(
-      findings.every((f) => f.status !== "insufficient_evidence"),
-      true
-    );
+    assert.equal(findings.length, 1);
+    assert.equal(findings[0].status, "insufficient_evidence");
+    assert.equal(findings[0].judgement?.compliance, "insufficient_evidence");
+    assert.equal(findings[0].judgement?.referenceBinding, "floating");
   });
 });
 

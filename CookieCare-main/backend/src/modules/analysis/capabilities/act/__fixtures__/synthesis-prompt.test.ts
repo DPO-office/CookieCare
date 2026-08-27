@@ -79,7 +79,7 @@ describe("deriveRequirementStatus referenced-elsewhere language", () => {
       taxonomyVersion: "test",
       requirementId: "gdpr.security",
     };
-    assert.equal(deriveRequirementStatus([finding]), "conditional");
+    assert.equal(deriveRequirementStatus([finding]), "cannot_determine");
   });
 });
 
@@ -209,21 +209,34 @@ describe("evaluate-package prompt", () => {
     const prompt = buildEvaluatePackageUserPrompt({
       instruction: "Check CCPA",
       depth: "standard",
-      requirementIds: ["ccpa.no_sell_share"],
+      requirements: [
+        {
+          requirementId: "ccpa.no_sell_share",
+          hypothesis: "The contract prohibits selling or sharing personal information.",
+          candidateEvidenceRefs: ["E1"],
+        },
+      ],
       authoredRuleText: "[ccpa.no_sell_share] No sale or sharing.",
       evidenceLines: ["(E1) [use_limitation status=referenced_elsewhere] See Annex A"],
     });
-    assert.match(prompt, /does NOT automatically mean gap/);
-    assert.match(prompt, /conditional \(not gap and not cannot_determine\)/);
+    assert.match(prompt, /not_mentioned is not a gap/);
+    assert.match(prompt, /Do not mark present merely because a pointer exists/);
+    assert.match(prompt, /Baseline contractual substance/);
     assert.match(prompt, /status=referenced_elsewhere/);
   });
 
   it("forbids missing and Amend when evidence is truncated or heading-only", () => {
     const prompt = buildEvaluatePackageUserPrompt({
-      instruction: "Check GDPR Art 28",
+      instruction: "Check processor confidentiality",
       depth: "standard",
-      requirementIds: ["gdpr.art28.3.b"],
-      authoredRuleText: "[gdpr.art28.3.b] Persons authorised to process are under confidentiality.",
+      requirements: [
+        {
+          requirementId: "confidentiality_of_staff",
+          hypothesis: "Authorized personnel are bound by confidentiality.",
+          candidateEvidenceRefs: ["E1"],
+        },
+      ],
+      authoredRuleText: "[confidentiality] Persons authorised to process are under confidentiality.",
       evidenceLines: [
         "(E1) [confidentiality truncated=true heading_only=true] 3.6 Security of the Processing",
       ],
@@ -232,9 +245,9 @@ describe("evaluate-package prompt", () => {
     assert.match(prompt, /Do NOT use gap/);
     assert.match(
       prompt,
-      /never recommend amending the agreement from cannot_determine, truncated, or heading_only/i
+      /never recommend amending the agreement from insufficient_evidence, truncated, heading_only/i
     );
-    assert.match(prompt, /Recommend Amend only for gap or conditional/);
+    assert.match(prompt, /Recommend Amend only for gap or partial/);
     assert.match(prompt, /Evaluate each requirementId independently/);
     assert.match(prompt, /Do not copy another requirement's rationale/);
   });
@@ -250,7 +263,7 @@ describe("synthesis prompt — incomplete evidence", () => {
     assert.match(SYNTHESIS_SYSTEM_PROMPT, /Obtain \/ Confirm \/ re-read only/);
     assert.match(
       SYNTHESIS_SYSTEM_PROMPT,
-      /Use Amend only when the assessment status is missing or partial/
+      /Use Amend only when the assessment status is gap or partial/
     );
   });
 });
@@ -356,6 +369,7 @@ describe("per-section synthesis prompt", () => {
     assert.match(prompt, /ANSWER STYLE/);
     assert.match(prompt, /tabular/);
     assert.match(prompt, /TABLE CONTRACT/);
+    assert.match(prompt, /Do not emit a markdown findings table/);
     assert.match(prompt, /Requirement \| Status \| Evidence \| Finding/);
     assert.doesNotMatch(prompt, /\bgdpr\b/i);
   });

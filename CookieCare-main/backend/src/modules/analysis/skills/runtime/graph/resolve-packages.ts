@@ -19,27 +19,13 @@ import {
 } from "../focus/extract-explicit-scope.js";
 import { matchMetaRequirementBindings } from "./meta-requirement-bindings.js";
 import { phraseMapCompanionRuleIds } from "../focus/extract-instruction-focus.js";
+import {
+  canonicalRequirementId,
+  registerPackageRequirementIds,
+} from "../../../shared/requirement-identity.js";
 
 /** Max named rules that may execute as direct check_against_rule for verification. */
 export const NAMED_RULE_DIRECT_THRESHOLD = 3;
-
-const REQUIREMENT_ID_ALIASES: Record<string, string> = {
-  nature_and_purpose: "nature_purpose",
-  nature_purpose: "nature_purpose",
-  categories_of_data: "data_categories",
-  data_categories: "data_categories",
-  categories_of_data_subjects: "data_subject_categories",
-  data_subject_categories: "data_subject_categories",
-  controller_obligations_and_rights: "controller_obligations_rights",
-  controller_obligations_rights: "controller_obligations_rights",
-  mandatory_article_28_3_clauses: "mandatory_article28_clauses",
-  mandatory_article28_clauses: "mandatory_article28_clauses",
-  international_data_transfers: "international_data_transfer",
-  international_data_transfer: "international_data_transfer",
-  international_transfer: "international_data_transfer",
-  "dsr.response_timeframes": "dsr.response_timeframes",
-  "dsr.gap_analysis": "dsr.gap_analysis",
-};
 
 export interface ResolvedPackage {
   pkg: EvidencePackage;
@@ -532,6 +518,18 @@ export function resolvePackages(
     }
   }
 
+  for (const pkg of [...selected.values()]) {
+    if (!pkg.orchestration?.suppressWhenPeerEvaluation) continue;
+    if (!isStructuralReviewPackage(pkg)) continue;
+    const hasPeerEvaluation = [...selected.values()].some(
+      (other) =>
+        other.id !== pkg.id &&
+        !isStructuralReviewPackage(other) &&
+        analysisPackageKind(other) === "evaluation"
+    );
+    if (hasPeerEvaluation) selected.delete(pkg.id);
+  }
+
   for (const mapping of focus?.requirementMappings ?? []) {
     for (const capId of mapping.capabilityIds) {
       const pkg = packageById.get(capId) ?? capabilityToPackage.get(capId);
@@ -603,18 +601,23 @@ export function resolvePackages(
         droppedCapabilityIds: contextCapabilityIds,
       });
     }
+    // Eval list is package-authored natives only. PLAN ids stay in
+    // requirementToPackageId / coverage paths as aliases — they must not
+    // become a second eval identity alongside duration / art28_3_* etc.
     const authored = pkg.requirementIds;
-    const aliasSet = new Set(
-      (pkg.requirementAliases ?? []).map((id) => normalizeRequirementId(id))
-    );
-    const extra = [...(packageExtraRequirements.get(pkg.id) ?? new Set())].filter(
-      (id) => !aliasSet.has(normalizeRequirementId(id))
-    );
-    const requirementIds = [...new Set([...authored, ...extra])];
+    registerPackageRequirementIds(authored);
+    for (const reqId of packageExtraRequirements.get(pkg.id) ?? []) {
+      if (!requirementToPackageId[reqId]) requirementToPackageId[reqId] = pkg.id;
+    }
     for (const reqId of authored) {
       if (!requirementToPackageId[reqId]) requirementToPackageId[reqId] = pkg.id;
     }
-    packages.push({ pkg, requirementIds, capabilityIds, contextCapabilityIds });
+    packages.push({
+      pkg,
+      requirementIds: [...authored],
+      capabilityIds,
+      contextCapabilityIds,
+    });
   }
 
   const ownedCaps = new Set<string>();
@@ -709,8 +712,7 @@ export function hasUnsupportedExtraction(resolution: PackageResolution): boolean
 }
 
 export function normalizeRequirementId(id: string): string {
-  const raw = id.trim().toLowerCase().replace(/[\s-]+/g, "_");
-  return REQUIREMENT_ID_ALIASES[raw] ?? raw;
+  return canonicalRequirementId(id);
 }
 
 function collectPlanRequirements(

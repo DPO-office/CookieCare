@@ -53,7 +53,13 @@ export function isMaterialTopicShift(
 
   const priorConcept = normalizeConcept(prior.standardConcept);
   const currentConcept = normalizeConcept(current.standardConcept);
-  if (priorConcept && currentConcept && priorConcept !== currentConcept) {
+  if (
+    priorConcept &&
+    currentConcept &&
+    priorConcept !== currentConcept &&
+    !priorConcept.includes(currentConcept) &&
+    !currentConcept.includes(priorConcept)
+  ) {
     return true;
   }
 
@@ -65,6 +71,14 @@ export function isMaterialTopicShift(
 
   const overlap = currentReqIds.filter((id) => priorReqIds.has(id)).length;
   if (overlap === 0) {
+    if (
+      current.operation === "explain_qa" &&
+      (current.standard === "none" ||
+        prior.standard === "none" ||
+        current.standard === prior.standard)
+    ) {
+      return false;
+    }
     return true;
   }
 

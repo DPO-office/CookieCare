@@ -92,9 +92,9 @@ describe("deriveReportOutline", () => {
       new Set([
         "subject_matter",
         "duration",
-        "nature_and_purpose",
-        "categories_of_data",
-        "categories_of_data_subjects",
+        "nature_purpose",
+        "data_categories",
+        "data_subject_categories",
         "controller_obligations_rights",
       ])
     );
@@ -103,7 +103,7 @@ describe("deriveReportOutline", () => {
     const mandatory = analysis.find((i) => i.role === "analysis")!;
     assert.deepEqual(
       new Set(mandatory.requirementIds),
-      new Set(["mandatory_article_28_3_clauses", "clause_adequacy"])
+      new Set(["mandatory_article28_clauses", "clause_adequacy"])
     );
     assert.match(mandatory.heading, /Mandatory Article 28/);
 

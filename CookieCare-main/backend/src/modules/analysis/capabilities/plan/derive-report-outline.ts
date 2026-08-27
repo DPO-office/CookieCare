@@ -12,6 +12,11 @@ import {
   roleForSectionId,
   suggestedHeading,
 } from "../../prompts/report-sections.js";
+import {
+  canonicalRequirementId,
+  collapseToCanonicalRequirementIds,
+  requirementIdsEquivalent,
+} from "../../shared/requirement-identity.js";
 
 function specHas(sections: ReportSectionId[], ...ids: ReportSectionId[]): boolean {
   const set = new Set(sections);
@@ -34,17 +39,25 @@ function requirementsForExtra(
   requirementIds: string[]
 ): string[] {
   if (!extra.requirementTags?.length) return extra.artifactTypes?.length ? [] : [];
-  return requirementIds.filter((id) =>
+  const matched = requirementIds.filter((id) =>
     extra.requirementTags!.some((tag) => idMatchesRequirementTag(id, tag))
   );
+  // Outline joins assessments by id — store canonical keys so PLAN aliases
+  // (`gdpr.article28.duration`) meet package-native assessments (`duration`).
+  return collapseToCanonicalRequirementIds(matched, { expandUmbrellas: true });
 }
 
 /** Tag match with separators — `subject_matter` must not swallow `pkg.subject_matter_defined`. */
 export function idMatchesRequirementTag(id: string, tag: string): boolean {
   if (!tag) return false;
   if (id === tag) return true;
+  if (requirementIdsEquivalent(id, tag)) return true;
   if (id.startsWith(`${tag}.`) || id.startsWith(`${tag}_`)) return true;
   if (id.includes(`.${tag}.`) || id.endsWith(`.${tag}`)) return true;
+  const canon = canonicalRequirementId(id);
+  if (canon === tag || canon.startsWith(`${tag}_`) || canon.startsWith(`${tag}.`)) {
+    return true;
+  }
   return false;
 }
 
@@ -154,9 +167,20 @@ export function deriveReportOutline(
       source: "deterministic",
     });
     for (const id of memberIds) used.add(id);
+    // Also mark PLAN source ids as used so remainder does not duplicate them.
+    for (const planId of requirementIds) {
+      if (memberIds.includes(canonicalRequirementId(planId))) used.add(planId);
+    }
   }
 
-  const remaining = requirementIds.filter((id) => !used.has(id));
+  const remaining = requirementIds.filter((id) => {
+    if (used.has(id)) return false;
+    if (used.has(canonicalRequirementId(id))) return false;
+    return true;
+  });
+  const remainingCanonical = collapseToCanonicalRequirementIds(remaining, {
+    expandUmbrellas: true,
+  }).filter((id) => !used.has(id));
   const remainderId = remainingSectionId(specSections);
   const authoredAnalysisCount = outline.filter((item) =>
     isAnalysisOutlineRole(item.role)
@@ -165,9 +189,9 @@ export function deriveReportOutline(
   // Avoid theme-group explosion: package extras already shaped the middle of the
   // report. Leftover requirements become at most one additional analysis section.
   // When there are no extras, keep a small number of theme groups (not one per id).
-  if (remaining.length > 0) {
+  if (remainingCanonical.length > 0) {
     const analysisGroups = groupAssessmentsForReport(
-      buildPseudoAssessments(remaining)
+      buildPseudoAssessments(remainingCanonical)
     ).filter((group) => group.members.length > 0);
     const maxThemeSections = authoredAnalysisCount > 0 ? 1 : 3;
     const groupsToEmit =

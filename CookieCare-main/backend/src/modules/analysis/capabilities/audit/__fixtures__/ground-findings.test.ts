@@ -140,7 +140,7 @@ describe("grounding audit", () => {
     assert.ok(statuses.includes("present"));
     assert.ok(statuses.includes("insufficient_evidence"));
     assert.ok(
-      next.auditReport?.findingsChanged.some((c) => c.reason === "duplicate_art28_quote")
+      next.auditReport?.findingsChanged.some((c) => c.reason === "duplicate_sibling_quote")
     );
   });
 

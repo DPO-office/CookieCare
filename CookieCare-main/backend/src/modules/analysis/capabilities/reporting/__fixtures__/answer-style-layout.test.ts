@@ -162,13 +162,14 @@ describe("narrative vs tabular layout contract", () => {
     assert.match(out, /Present & adequate/);
   });
 
-  it("does not dump every assessment into a section that already has a table", () => {
+  it("replaces an LLM findings table with locked labels for that section only", () => {
     const markdown = [
       "## Processing particulars",
+      "The mapped obligations are mixed.",
       "",
       "| Requirement | Status | Evidence | Finding |",
       "| :--- | :--- | :--- | :--- |",
-      "| Subject matter of processing | **Minor drafting gap** | Annex 2 | Confirm annex particulars. |",
+      "| Subject matter of processing | **Gap** | Annex 2 | Confirm annex particulars. |",
       "",
       "## Conclusion",
       "Confirm the annex.",
@@ -227,6 +228,8 @@ describe("narrative vs tabular layout contract", () => {
       })
     );
     assert.equal(countMarkdownTables(out), 1);
+    assert.match(out, /Present & adequate/);
+    assert.doesNotMatch(out, /\|\s*Subject matter of processing\s*\|\s*\*\*Gap\*\*/);
     assert.doesNotMatch(out, /Art 28\(3\)\(g\)/);
     assert.doesNotMatch(out, /deletion exception is broader/i);
   });
@@ -283,6 +286,87 @@ describe("narrative vs tabular layout contract", () => {
     assert.match(markdown, /No verbatim extract/);
     assert.doesNotMatch(markdown, /\| — \|/);
     assert.doesNotMatch(markdown, /\| - \|/);
+  });
+
+  it("injects locked Present duration when outline still carries PLAN ids", () => {
+    const quote =
+      "The duration of the Processing under this DPA is determined by You and as set forth in the Agreement.";
+    const out = enforceAnswerStyleLayout(
+      ["## Processing particulars", "", "| Duration | **Cannot determine** | No verbatim extract |", ""].join(
+        "\n"
+      ),
+      state({
+        request: {
+          sessionId: "s1",
+          instruction: "Review Art 28 duration.",
+          documentIds: ["doc-1"],
+          documentTexts: {},
+          answerStyle: "tabular",
+        },
+        intent: {
+          scope: "whole_document",
+          operation: "compliance_check",
+          standard: "regime_pack:gdpr",
+          outputForm: "table",
+          compound: false,
+          subIntents: [],
+          requirements: [
+            {
+              id: "gdpr.article28.duration",
+              description: "Verify duration",
+              type: "adequacy",
+              priority: "required",
+            },
+          ],
+          confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 },
+        },
+        requirementAssessments: [
+          {
+            requirementId: "duration",
+            supportingFindingIds: ["f_duration"],
+            status: "strong",
+            judgement: {
+              compliance: "present",
+              evidenceState: "direct",
+              referenceBinding: "none",
+              evidenceConfidence: "high",
+              draftingQuality: "clean",
+              materiality: "low",
+              recommendationKind: "none",
+            },
+            summary: "Duration is set forth in the Agreement.",
+          },
+        ],
+        findings: [
+          {
+            ...finding("f_duration", quote),
+            requirementId: "duration",
+            claim: "Duration is set forth in the Agreement.",
+          },
+        ],
+        plan: {
+          outputForm: "table",
+          reportSpec: {
+            reportType: "regime_compliance_memo",
+            depth: "deep",
+            sections: ["executive_summary", "requirements_matrix", "conclusion"],
+            outline: [
+              {
+                id: "analysis.particulars",
+                role: "chapeau_particulars",
+                sectionId: "chapeau_particulars",
+                heading: "Processing particulars",
+                requirementIds: ["gdpr.article28.duration"],
+                source: "deterministic",
+              },
+            ],
+          },
+        },
+      })
+    );
+    assert.match(out, /Strong|Present/);
+    assert.match(out, /set forth in the Agreement/);
+    assert.doesNotMatch(out, /Cannot determine/);
   });
 
   it("preserves tabular outputForm instead of collapsing rights_matrix to memo", () => {

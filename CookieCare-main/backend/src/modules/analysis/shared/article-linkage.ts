@@ -1,6 +1,10 @@
 import type { AnalysisState } from "../models/analysis-state.js";
 import type { Finding } from "../models/finding.js";
 import type { RightsMatrixRow } from "../skills/runtime/catalog/types.js";
+import {
+  findingSupportsRequirement,
+  isWholeArticleRequirement,
+} from "./requirement-identity.js";
 
 /** Authored risk categories that map to a specific GDPR article. */
 const CATEGORY_ARTICLE: Record<string, number> = {
@@ -108,19 +112,23 @@ function findingSubprovisionKey(finding: Finding): string | undefined {
 }
 
 /**
- * Findings that speak to the same article as a requirement — even when they
- * were stamped against a matrix row or risk category rather than the
- * requirement id itself.
+ * Findings that speak to a requirement — by canonical/alias stamp, lettered
+ * subprovision key, or (whole-article requirements only) unstamped same-article
+ * matrix/rule/risk findings.
  *
  * Lettered/numbered sub-provisions stay isolated: a deletion finding must
  * not become the evidence row for confidentiality or audit.
+ * Particular PLAN ids like `gdpr.article28.duration` must not inherit every
+ * unstamped Article 28 risk.
  */
 export function findingsLinkedToRequirement(
   requirementId: string,
   findings: Finding[],
   state?: AnalysisState
 ): Finding[] {
-  const direct = findings.filter((f) => f.requirementId === requirementId);
+  const direct = findings.filter((f) =>
+    findingSupportsRequirement(f.requirementId, requirementId)
+  );
   const meta = metaRequirementFindings(requirementId, findings);
   if (meta) return dedupeFindings([...direct, ...meta]);
 
@@ -128,21 +136,28 @@ export function findingsLinkedToRequirement(
   if (reqKey) {
     const keyed = findings.filter((f) => {
       if (f.visibility === "internal") return false;
-      if (f.requirementId === requirementId) return true;
+      if (findingSupportsRequirement(f.requirementId, requirementId)) return true;
+      // Already-stamped findings belong only to their requirement (or alias).
+      if (f.requirementId) return false;
       return findingSubprovisionKey(f) === reqKey;
     });
     return dedupeFindings(keyed);
   }
 
+  // Particular / topic requirements: aliases only — no article-wide risk dump.
+  if (!isWholeArticleRequirement(requirementId)) {
+    return dedupeFindings(direct);
+  }
+
   const article = articleNumberFromRequirementId(requirementId);
-  if (!article) return direct;
+  if (!article) return dedupeFindings(direct);
 
   const linked = findings.filter((f) => {
-    if (f.requirementId === requirementId) return false;
+    if (findingSupportsRequirement(f.requirementId, requirementId)) return false;
     if (f.visibility === "internal") return false;
     // A finding already stamped to another requirement is that row's
     // evidence, not a generic same-article hit.
-    if (f.requirementId && f.requirementId !== requirementId) return false;
+    if (f.requirementId) return false;
     if (findingSubprovisionKey(f)) return false;
     return articleNumberForFinding(f, state) === article;
   });

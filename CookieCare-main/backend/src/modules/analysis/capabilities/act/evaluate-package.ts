@@ -14,6 +14,17 @@ import { loadSkillMdSection } from "../../skills/runtime/catalog/load-skill-md.j
 import { resolveRule } from "./check-against-rule.js";
 import { insufficient } from "./act-utils.js";
 import { groupedResultsToFindings } from "./grouped-results-to-findings.js";
+import {
+  candidateRefsByRequirement,
+  coverageShouldBePreserved,
+  hintsForRequirement,
+  resolveEvidenceRefsForRequirement,
+  type RequirementEvidenceProfile,
+} from "./isolate-requirement-evidence.js";
+import {
+  canonicalRequirementId,
+  requirementIdsEquivalent,
+} from "../../shared/requirement-identity.js";
 import { pacLog } from "../../utils/pac-log.js";
 import { profileEvidenceCharBudget, profileThinkingLevel } from "../../utils/profile-thinking.js";
 import {
@@ -38,6 +49,29 @@ const REQUIREMENT_STATUS_ENUM = [
   "not_applicable",
   "cannot_determine",
 ];
+
+const COMPLIANCE_ENUM = [
+  "present",
+  "partial",
+  "gap",
+  "insufficient_evidence",
+  "not_applicable",
+];
+
+const EVIDENCE_STATE_ENUM = [
+  "direct",
+  "incorporated",
+  "truncated",
+  "unavailable",
+  "conflicting",
+  "not_found",
+];
+
+const NLI_ENUM = ["entailed", "contradicted", "not_mentioned"];
+const BINDING_ENUM = ["binding", "floating", "none"];
+const CONFIDENCE_ENUM = ["high", "medium", "low"];
+const DRAFTING_ENUM = ["clean", "could_be_clearer", "operational_weakness"];
+const MATERIALITY_ENUM = ["low", "medium", "high"];
 
 interface CapabilityBrief {
   id: string;
@@ -77,6 +111,12 @@ export async function evaluatePackage(
     (unit.input.sourceMode as EvidencePackageSourceMode) ?? "authored";
   const depth = String(unit.input.depth ?? "standard");
   const skillIds = (unit.input.skillIds as string[]) ?? state.activeSkillIds ?? [];
+  const extractionTargets = (unit.input.extractionTargets as string[]) ?? [];
+  const requirementEvidence =
+    (unit.input.requirementEvidence as Record<string, RequirementEvidenceProfile> | undefined) ??
+    {};
+  const requirementBindings =
+    (unit.input.requirementBindings as Record<string, string[]> | undefined) ?? {};
 
   if (requirementIds.length === 0) {
     return {
@@ -119,15 +159,44 @@ export async function evaluatePackage(
     items: SharedEvidenceItem[],
     extraFeedback?: string
   ): Promise<GroupedRequirementResult[]> => {
-    const evidenceLines = items.map((e) => formatEvidenceLine(e));
+    const candidates = candidateRefsByRequirement(
+      reqIds,
+      items,
+      extractionTargets,
+      requirementEvidence
+    );
+    const candidateSet = new Set(Object.values(candidates).flat());
+    const visibleItems =
+      candidateSet.size > 0
+        ? items.filter((item) => candidateSet.has(item.ref))
+        : items;
+    const evidenceLines = visibleItems.map((e) =>
+      formatEvidenceLine(e, candidateOwners(e.ref, candidates))
+    );
+    const requirements = reqIds.map((requirementId) => ({
+      requirementId,
+      hypothesis: hypothesisFor(
+        requirementId,
+        requirementEvidence[requirementId],
+        state
+      ),
+      candidateEvidenceRefs: candidates[requirementId] ?? [],
+    }));
+    const authoredRuleText = briefsForRequirements(
+      reqIds,
+      briefs,
+      capabilityIds,
+      packageRequirementIds,
+      requirementBindings
+    )
+      .map((b) => `[${b.id}] ${b.text}`)
+      .join("\n")
+      .slice(0, MAX_BRIEF_CHARS);
     const prompt = buildEvaluatePackageUserPrompt({
       instruction,
       depth,
-      requirementIds: reqIds,
-      authoredRuleText: briefs
-        .map((b) => `[${b.id}] ${b.text}`)
-        .join("\n")
-        .slice(0, MAX_BRIEF_CHARS),
+      requirements,
+      authoredRuleText,
       evidenceLines: [...evidenceLines, ...artifactLines],
       previousFeedback: extraFeedback || previousFeedback || undefined,
       contextRuleText:
@@ -138,8 +207,7 @@ export async function evaluatePackage(
               .slice(0, MAX_BRIEF_CHARS)
           : undefined,
     });
-    const briefJoined = briefs.map((b) => `[${b.id}] ${b.text}`).join("\n");
-    const evidenceJoined = items
+    const evidenceJoined = visibleItems
       .map((e) => `(${e.ref}) [${e.clauseType}] ${e.quotedText}`)
       .join("\n");
     pacLog("evaluate_package prompt", {
@@ -148,9 +216,9 @@ export async function evaluatePackage(
       requirements: reqIds.length,
       capabilities: capabilityIds.length,
       contextCapabilities: contextCapabilityIds.length,
-      evidence: items.length,
+      evidence: visibleItems.length,
       promptChars: prompt.length,
-      briefChars: briefJoined.length,
+      briefChars: authoredRuleText.length,
       evidenceChars: evidenceJoined.length,
       expansion: Boolean(extraFeedback),
     });
@@ -162,12 +230,27 @@ export async function evaluatePackage(
         properties: {
           requirementId: { type: "string", enum: reqIds },
           status: { type: "string", enum: REQUIREMENT_STATUS_ENUM },
+          compliance: { type: "string", enum: COMPLIANCE_ENUM },
+          evidenceState: { type: "string", enum: EVIDENCE_STATE_ENUM },
+          referenceBinding: { type: "string", enum: BINDING_ENUM },
+          evidenceConfidence: { type: "string", enum: CONFIDENCE_ENUM },
+          draftingQuality: { type: "string", enum: DRAFTING_ENUM },
+          materiality: { type: "string", enum: MATERIALITY_ENUM },
+          nli: { type: "string", enum: NLI_ENUM },
           rationale: { type: "string" },
           gap: { type: "string" },
           evidenceRefs: { type: "array", items: { type: "string" } },
           recommendation: { type: "string" },
         },
-        required: ["requirementId", "status", "rationale", "evidenceRefs"],
+        required: [
+          "requirementId",
+          "status",
+          "compliance",
+          "evidenceState",
+          "nli",
+          "rationale",
+          "evidenceRefs",
+        ],
       },
     };
 
@@ -256,7 +339,14 @@ export async function evaluatePackage(
     }
   }
 
-  const emitted = groupedResultsToFindings(normalize(results, requirementIds), {
+  const normalized = isolateAndNormalize(
+    results,
+    requirementIds,
+    workingItems,
+    extractionTargets,
+    requirementEvidence
+  );
+  const emitted = groupedResultsToFindings(normalized, {
     unit,
     docId,
     packageId,
@@ -266,13 +356,13 @@ export async function evaluatePackage(
     bundle: workingBundle,
   });
 
-  // Requirements the model silently dropped are surfaced as indeterminate so
-  // CRITIQUE completeness catches them rather than assuming coverage.
-  const answered = new Set(results.map((r) => r.requirementId));
+  // Use post-isolation ids only — raw LLM ids may be PLAN aliases that were
+  // remapped (or dropped). Counting raw ids falsely marks natives as answered.
+  const answered = new Set(normalized.map((r) => r.requirementId));
   const missingResults: GroupedRequirementResult[] = requirementIds
-    .filter((id) => !answered.has(id))
+    .filter((id) => !answered.has(canonicalRequirementId(id)) && !answered.has(id))
     .map((id) => ({
-      requirementId: id,
+      requirementId: canonicalRequirementId(id),
       status: "cannot_determine",
       rationale: "The grouped evaluation returned no result for this requirement.",
       evidenceRefs: [],
@@ -290,29 +380,161 @@ export async function evaluatePackage(
   return { state: nextState, findings: [...findings, ...emitted, ...missingFindings] };
 }
 
-function normalize(
+/**
+ * Map an LLM-returned requirement id onto the package's allowed native id.
+ * PLAN aliases (`gdpr.article28.duration`) and near-matches must not be dropped.
+ */
+export function resolveAllowedRequirementId(
+  rawId: string,
+  allowedIds: string[]
+): string | undefined {
+  if (!rawId || allowedIds.length === 0) return undefined;
+  for (const allowed of allowedIds) {
+    if (requirementIdsEquivalent(rawId, allowed)) {
+      return canonicalRequirementId(allowed);
+    }
+  }
+  const rawCanon = canonicalRequirementId(rawId);
+  for (const allowed of allowedIds) {
+    if (canonicalRequirementId(allowed) === rawCanon) {
+      return rawCanon;
+    }
+  }
+  const rawNorm = rawId.trim().toLowerCase().replace(/[\s-]+/g, "_");
+  for (const allowed of allowedIds) {
+    const allowedNorm = allowed.trim().toLowerCase().replace(/[\s-]+/g, "_");
+    if (
+      rawNorm === allowedNorm ||
+      rawNorm.endsWith(`.${allowedNorm}`) ||
+      rawNorm.endsWith(`_${allowedNorm}`) ||
+      rawNorm.endsWith(allowedNorm)
+    ) {
+      return canonicalRequirementId(allowed);
+    }
+  }
+  return undefined;
+}
+
+function isolateAndNormalize(
   results: GroupedRequirementResult[],
-  requirementIds: string[]
+  requirementIds: string[],
+  items: SharedEvidenceItem[],
+  extractionTargets: string[],
+  profiles: Record<string, RequirementEvidenceProfile | undefined>
 ): GroupedRequirementResult[] {
-  const allowed = new Set(requirementIds);
+  const allowedList = requirementIds.map((id) => canonicalRequirementId(id));
+  const allowed = new Set(allowedList);
   const seen = new Set<string>();
+  const candidates = candidateRefsByRequirement(
+    allowedList,
+    items,
+    extractionTargets,
+    Object.fromEntries(
+      allowedList.map((id) => {
+        const profile =
+          profiles[id] ??
+          profiles[
+            requirementIds.find((raw) => canonicalRequirementId(raw) === id) ?? id
+          ];
+        return [id, profile];
+      })
+    )
+  );
   const out: GroupedRequirementResult[] = [];
   for (const r of results) {
-    if (!r || !allowed.has(r.requirementId) || seen.has(r.requirementId)) continue;
-    seen.add(r.requirementId);
+    if (!r) continue;
+    const resolvedId = resolveAllowedRequirementId(r.requirementId, allowedList);
+    if (!resolvedId || !allowed.has(resolvedId) || seen.has(resolvedId)) continue;
+    seen.add(resolvedId);
+    const profile =
+      profiles[resolvedId] ??
+      profiles[
+        requirementIds.find((raw) => canonicalRequirementId(raw) === resolvedId) ??
+          resolvedId
+      ];
+    const hints = hintsForRequirement(resolvedId, extractionTargets, profile);
+    const refs = resolveEvidenceRefsForRequirement(
+      Array.isArray(r.evidenceRefs) ? r.evidenceRefs : [],
+      items,
+      candidates[resolvedId],
+      hints
+    );
+    const forceInsufficient =
+      refs.length === 0 && !coverageShouldBePreserved(r);
     out.push({
-      requirementId: r.requirementId,
-      status: r.status,
+      requirementId: resolvedId,
+      status: forceInsufficient ? "cannot_determine" : r.status,
+      compliance: forceInsufficient ? "insufficient_evidence" : r.compliance,
+      evidenceState: forceInsufficient
+        ? "not_found"
+        : r.evidenceState,
+      referenceBinding: r.referenceBinding,
+      evidenceConfidence: forceInsufficient ? "low" : r.evidenceConfidence,
+      draftingQuality: r.draftingQuality,
+      materiality: r.materiality,
+      nli: forceInsufficient && !r.nli ? "not_mentioned" : r.nli,
       rationale: r.rationale ?? "",
       gap: r.gap,
-      evidenceRefs: Array.isArray(r.evidenceRefs) ? r.evidenceRefs : [],
+      evidenceRefs: refs,
       recommendation: r.recommendation,
     });
   }
   return out;
 }
 
-function formatEvidenceLine(e: SharedEvidenceItem): string {
+function hypothesisFor(
+  requirementId: string,
+  profile: RequirementEvidenceProfile | undefined,
+  state: AnalysisState
+): string {
+  if (profile?.hypothesis?.trim()) return profile.hypothesis.trim();
+  const fromIntent = state.intent?.requirements?.find((req) =>
+    requirementIdsEquivalent(req.id, requirementId)
+  )
+    ?.description?.trim();
+  if (fromIntent) return fromIntent;
+  return `The reviewed instrument satisfies ${requirementId.replace(/[._-]+/g, " ")}.`;
+}
+
+function candidateOwners(
+  ref: string,
+  candidates: Record<string, string[]>
+): string[] {
+  return Object.entries(candidates)
+    .filter(([, refs]) => refs.includes(ref))
+    .map(([id]) => id);
+}
+
+function briefsForRequirements(
+  reqIds: string[],
+  briefs: CapabilityBrief[],
+  capabilityIds: string[],
+  packageRequirementIds: string[],
+  bindings: Record<string, string[]>
+): CapabilityBrief[] {
+  const wanted = new Set<string>();
+  const hasBindings = reqIds.some((id) => (bindings[id] ?? []).length > 0);
+  const zip =
+    !hasBindings &&
+    packageRequirementIds.length === capabilityIds.length &&
+    packageRequirementIds.length > 0;
+  for (const reqId of reqIds) {
+    const bound = bindings[reqId];
+    if (bound?.length) {
+      for (const capId of bound) wanted.add(capId);
+      continue;
+    }
+    if (zip) {
+      const index = packageRequirementIds.indexOf(reqId);
+      if (index >= 0 && capabilityIds[index]) wanted.add(capabilityIds[index]);
+    }
+  }
+  if (wanted.size === 0) return briefs;
+  const filtered = briefs.filter((brief) => wanted.has(brief.id));
+  return filtered.length > 0 ? filtered : briefs;
+}
+
+function formatEvidenceLine(e: SharedEvidenceItem, owners: string[] = []): string {
   const flags = [
     e.evidenceStatus ? `status=${e.evidenceStatus}` : "",
     e.truncated ? "truncated=true" : "",
@@ -324,7 +546,9 @@ function formatEvidenceLine(e: SharedEvidenceItem): string {
     .filter(Boolean)
     .join(" ");
   const tag = flags ? ` ${flags}` : "";
-  return `(${e.ref}) [${e.clauseType}${tag}] ${e.quotedText}`;
+  const owner =
+    owners.length > 0 ? ` candidates=${owners.join("|")}` : "";
+  return `(${e.ref}) [${e.clauseType}${tag}${owner}] ${e.quotedText}`;
 }
 
 function citedItems(
@@ -356,7 +580,9 @@ function requirementsNeedingEvidenceExpansion(
       (r) =>
         (r.status === "cannot_determine" ||
           r.status === "partial" ||
-          r.status === "conditional") &&
+          r.status === "conditional" ||
+          r.compliance === "insufficient_evidence" ||
+          r.compliance === "partial") &&
         evidenceIsIncomplete(r, bundle)
     )
     .map((r) => r.requirementId);

@@ -43,25 +43,29 @@ export const SYNTHESIS_SYSTEM_PROMPT = [
   "User-facing granularity is coarser than internal granularity. Collapse overlapping or duplicate requirements into a single assessment. Never write two sections that reach the same conclusion in different words.",
   "Do not expose internal requirement IDs, work-unit IDs, package IDs, or finding IDs unless the user asked for them.",
   "",
-  "Treat the supplied statuses as given. Explain them; do not silently reverse them.",
+  "Treat the supplied statuses as given. Explain them; do not silently reverse them. Do not change compliance, invent a gap, invent evidence, or add a recommendation kind.",
   "Print Status cells with these user-facing labels only:",
   "- Strong",
   "- Present & adequate",
+  "- Present, particulars in schedule",
   "- Minor drafting gap",
   "- Gap",
   "- Cannot determine",
   "- Not applicable",
-  "Never print the internal tokens conditional, covered, partial, missing, or cannot_determine in a Status cell.",
+  "Never print the internal tokens conditional, covered, partial, missing, cannot_determine, nli, or evidenceState in a Status cell.",
   "Interpret statuses as follows:",
   "- strong / Strong: operative detail in this document fully substantiates the element.",
   "- adequate / Present & adequate: the obligation is present and verifiable in this document.",
-  "- conditional / Minor drafting gap: the obligation exists here but is incomplete, annex/SOW-dependent, or thin. Name the schedule. Do not call this Cannot determine.",
+  "- Present, particulars in schedule: the requirement is binding in this instrument; particulars live in a named schedule. Rec is Obtain, not Amend, and not Minor drafting gap.",
+  "- conditional / Minor drafting gap: the obligation exists here but wording is incomplete or could be clearer. Not used for annex pointers.",
   "- gap / Gap: a positive absence in the reviewed text of a provision that was expected to contain the obligation.",
-  "- cannot_determine / Cannot determine: no usable quote — empty extract or unread truncated heading. Rare. An annex pointer is Minor drafting gap, not Cannot determine.",
+  "- cannot_determine / Cannot determine: no usable quote, unread truncated heading, or a floating/non-binding schedule pointer without enough contractual substance.",
   "- not_applicable / Not applicable: outside the scope of this agreement or request.",
   "",
   "Absence from the extracted evidence is not, by itself, proof that the obligation is missing from the agreement.",
-  "If the document points to an annex, schedule, SOW, appendix, incorporated policy, or another agreement, status is Minor drafting gap: the pointer is in this contract; Obtain the schedule. Never label that row Cannot determine.",
+  "A mere 'see Schedule X' pointer without enough contractual substance is Cannot determine (Obtain the schedule) — not Present and not Minor drafting gap.",
+  "A binding incorporation that materially covers the requirement is Present, particulars in schedule.",
+  "NLI is not compliance. Do not treat entailed as Present or not_mentioned as Gap.",
   "Distinguish whether an obligation exists from whether its adequacy can be verified.",
   "",
   "Do not overstate. Prefer \"not identified in the reviewed materials\" over \"the agreement does not contain…\" unless the relevant agreement or section was actually reviewed in full.",
@@ -74,7 +78,7 @@ export const SYNTHESIS_SYSTEM_PROMPT = [
   "Highlight contradictions, qualifications, and cross-references that materially affect the conclusion.",
   "Recommendations must follow from identified gaps. Do not invent generic checklists or advise whether to sign or litigate.",
   "Never recommend amending the agreement from cannot_determine, insufficient evidence, truncated quotes, or unread remainder of a clause. Those items get Obtain / Confirm / re-read only.",
-  "Use Amend only when the assessment status is missing or partial and the suggested fix is tied to a complete cited operative quote.",
+  "Use Amend only when the assessment status is gap or partial and the suggested fix is tied to a complete cited operative quote.",
   "Introduce no new claim, right, timeframe, or citation that is not in the supplied assessments, findings, or evidence.",
     "Use only the requested sections, in order, and omit any that would be empty.",
   "The report should read like work from a senior legal or compliance analyst.",
@@ -228,7 +232,7 @@ function renderThemeGroups(
           .filter(Boolean)
           .slice(0, 3);
         return [
-          `  - ${humanizeRequirementId(member.requirementId)} [${displayRequirementStatus(member.status)}] ${member.summary}`,
+          `  - ${humanizeRequirementId(member.requirementId)} [${displayRequirementStatus(member)}] ${member.summary}`,
           member.recommendation ? `    Suggested fix: ${member.recommendation}` : "",
           quotes.length
             ? `    Evidence: ${quotes.map((q) => `"${q}"`).join(" | ")}`
@@ -239,7 +243,7 @@ function renderThemeGroups(
       });
       return [
         `### ${group.title}`,
-        `Combined status: ${displayRequirementStatus(group.status)}`,
+        `Combined status: ${displayRequirementStatus(group.members[0] ?? { status: group.status })}`,
         group.members.length > 1
           ? "Write ONE assessment covering all members of this group."
           : "",
@@ -312,7 +316,7 @@ function renderThemeGroupMembersOnly(
       .filter(Boolean)
       .slice(0, 3);
     return [
-      `  - ${humanizeRequirementId(member.requirementId)} [${displayRequirementStatus(member.status)}] ${member.summary}`,
+      `  - ${humanizeRequirementId(member.requirementId)} [${displayRequirementStatus(member)}] ${member.summary}`,
       member.recommendation ? `    Suggested fix: ${member.recommendation}` : "",
       quotes.length
         ? `    Evidence: ${quotes.map((q) => `"${q}"`).join(" | ")}`
@@ -323,7 +327,7 @@ function renderThemeGroupMembersOnly(
   });
 
   return [
-    `Combined status: ${displayRequirementStatus(group.status)}`,
+    `Combined status: ${displayRequirementStatus(group.members[0] ?? { status: group.status })}`,
     group.members.length > 1
       ? "Write ONE assessment covering all members of this group."
       : "",
@@ -453,11 +457,12 @@ export const SYNTHESIS_SECTION_SYSTEM_PROMPT = [
   "Output only that section: a `##` heading (verbatim as supplied) and its body.",
   "Do not write other sections, a title page, or a closing offer to help.",
   "Do not expose internal requirement IDs, work-unit IDs, package IDs, or finding IDs unless the user asked for them.",
-  "Treat supplied statuses as given. Do not silently reverse them.",
-  "Status cells: Strong, Present & adequate, Minor drafting gap, Gap, Cannot determine, Not applicable. Never print internal tokens in the Status column.",
-  "An annex/SOW pointer is Minor drafting gap, not Cannot determine.",
-  "cannot_determine is not a legal gap. Never recommend amending the agreement from cannot_determine, insufficient evidence, or truncated quotes — use Obtain / Confirm / re-read.",
-  "Use Amend only for missing or partial when the cited quote is complete.",
+  "Treat supplied statuses as given. Do not silently reverse them. Do not change compliance, invent a gap, invent evidence, or add a recommendation.",
+  "Status cells: Strong, Present & adequate, Present, particulars in schedule, Minor drafting gap, Gap, Cannot determine, Not applicable. Never print internal tokens in the Status column.",
+  "A binding schedule incorporation is Present, particulars in schedule (Obtain). A floating pointer is Cannot determine (Obtain), not Minor drafting gap and not Amend.",
+  "cannot_determine is not a legal gap. Never recommend amending the agreement from cannot_determine, insufficient evidence, truncated quotes, or unavailable annexes — use Obtain / Confirm / re-read.",
+  "Use Amend only for gap or partial when the cited quote is complete and the defect is in this instrument.",
+  "If ANALYTICAL SYNTHESIS is supplied, use it for interpretation. Do not contradict its fact rollup or the locked row labels.",
   "Answer what the user asked. Write 3–4 short paragraphs of professional prose.",
   "Do not emit markdown tables unless STRUCTURED INVENTORIES already include a matrix artifact the user asked for.",
   "Do not pad with stock memo boilerplate that does not advance their question.",
@@ -488,12 +493,12 @@ export function synthesisSectionSystemPrompt(state: AnalysisState): string {
     "Do not write other sections, a title page, or a closing offer to help.",
     "Do not expose internal requirement IDs, work-unit IDs, package IDs, or finding IDs unless the user asked for them.",
     "Treat supplied statuses as given. Do not silently reverse them.",
-    "Status cells: Strong, Present & adequate, Minor drafting gap, Gap, Cannot determine, Not applicable. Never print internal tokens in the Status column.",
-    "An annex/SOW pointer is Minor drafting gap, not Cannot determine.",
+    "Do not emit a markdown findings table. The renderer attaches the locked Requirement | Status | Evidence | Finding table.",
+    "A floating schedule pointer is Cannot determine (Obtain), not Minor drafting gap.",
     "cannot_determine is not a legal gap. Never recommend amending the agreement from cannot_determine, insufficient evidence, or truncated quotes — use Obtain / Confirm / re-read.",
-    "Use Amend only for missing or partial when the cited quote is complete.",
-    "Answer what the user asked. Put the core analysis in markdown tables; keep framing prose short.",
-    "Finish the section completely — never stop mid-sentence or mid-table cell.",
+    "Use Amend only for gap or partial when the cited quote is complete.",
+    "Answer what the user asked. One lead sentence of framing prose; do not invent Status/Evidence/Finding cells.",
+    "Finish the section completely — never stop mid-sentence.",
     TABULAR_SECTION_MARKDOWN_CRAFT,
   ].join("\n");
 }
@@ -561,9 +566,31 @@ export function buildSectionSynthesisUserPrompt(input: {
   const compactStatuses =
     isOpeningSectionId(sectionId) || sectionId === "conclusion"
       ? slicedAssessments
-          .map((a) => `- ${a.status}: ${a.summary}`)
+          .map((a) => `- ${displayRequirementStatus(a)}: ${a.summary}`)
           .join("\n") || "(none)"
       : "";
+  const synthesis = state.analyticalSynthesis;
+  const analyticalBlock = synthesis
+    ? [
+        "ANALYTICAL SYNTHESIS (interpret; do not change locked statuses)",
+        `Fact rollup:\n${synthesis.factRollup}`,
+        `Overall: ${synthesis.overallAssessment}`,
+        synthesis.substantiveVsDrafting
+          ? `Substantive vs drafting: ${synthesis.substantiveVsDrafting}`
+          : "",
+        synthesis.residualUncertainty
+          ? `Residual uncertainty: ${synthesis.residualUncertainty}`
+          : "",
+        synthesis.keyThemes.length
+          ? `Themes:\n${synthesis.keyThemes
+              .map((theme) => `- ${theme.title}: ${theme.analysis}`)
+              .join("\n")}`
+          : "",
+        "",
+      ]
+        .filter(Boolean)
+        .join("\n")
+    : "";
 
   return [
     "USER REQUEST",
@@ -571,7 +598,7 @@ export function buildSectionSynthesisUserPrompt(input: {
     "",
     "ANSWER STYLE",
     tabular
-      ? "tabular — one lead sentence then one markdown table; at most one closing sentence; no paragraph restatements of rows"
+      ? "tabular — one lead sentence only; do not emit a findings table (the renderer attaches the locked table); no paragraph restatements of rows"
       : "narrative — 3–4 short paragraphs; no markdown tables unless STRUCTURED INVENTORIES already contain a user-requested matrix artifact; cite evidence inline as [E1]",
     "",
     "THIS SECTION ONLY",
@@ -588,12 +615,12 @@ export function buildSectionSynthesisUserPrompt(input: {
     compactStatuses
       ? ["ASSESSMENT STATUSES (compact)", compactStatuses, ""].join("\n")
       : "",
+    analyticalBlock,
     tabular && isAnalysis
       ? [
           "TABLE CONTRACT FOR THIS SECTION",
-          "One lead sentence, then a markdown table with columns:",
-          "| Requirement | Status | Evidence | Finding |",
-          "One row per mapped obligation or theme. Cells are one sentence. No Key findings prose after the table.",
+          "Write at most one lead sentence. Do not emit a markdown findings table.",
+          "The renderer will attach the locked Requirement | Status | Evidence | Finding table from validated assessments.",
           "",
         ].join("\n")
       : sectionId === "requirements_matrix" && !tabular

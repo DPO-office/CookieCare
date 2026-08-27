@@ -1,6 +1,7 @@
 import type { EvidenceSpan } from "./locator.js";
 import type { RuleSourceTier } from "./rule-source.js";
 import type { TerminalStatus } from "./work-unit-outcome.js";
+import type { RequirementJudgement } from "./requirement-assessment.js";
 
 export type FindingKind =
   | "risk"
@@ -68,4 +69,9 @@ export interface Finding {
    * without making the finding itself requirement-scoped.
    */
   requirementId?: string;
+  /**
+   * Locked per-requirement axes stamped at evaluation. Aggregation prefers
+   * this over re-deriving from Finding.status alone.
+   */
+  judgement?: RequirementJudgement;
 }

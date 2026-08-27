@@ -21,9 +21,11 @@ import {
 import { emitAnalysisToken, beginRenderStreaming } from "../../utils/stream-tokens.js";
 import { pacLog } from "../../utils/pac-log.js";
 import { groupAssessmentsForReport } from "../../shared/group-assessments.js";
+import { filterAssessmentsByRequirementIds } from "../../shared/requirement-identity.js";
 import { profileThinkingLevel } from "../../utils/profile-thinking.js";
 import { resolveSectionMaxOutputTokens } from "../../utils/resolve-synthesis-ceiling.js";
 import { createOrderedSectionStream } from "../../utils/ordered-section-stream.js";
+import { runAnalyticalSynthesis } from "./analytical-synthesis.js";
 
 export interface SynthesizeReportOptions {
   retrySectionIds?: string[];
@@ -64,6 +66,9 @@ export async function synthesizeReport(
   options: SynthesizeReportOptions = {}
 ): Promise<string> {
   const assessments = state.requirementAssessments ?? [];
+  if (!state.analyticalSynthesis && assessments.length > 0) {
+    state.analyticalSynthesis = await runAnalyticalSynthesis(state, assessments);
+  }
   const items = outlineItemsForSpec(reportSpec);
   const retry = new Set(options.retrySectionIds ?? []);
   const prior = new Map((state.reportSections ?? []).map((block) => [block.id, block]));
@@ -200,10 +205,10 @@ function buildDeterministicSection(
     else for (const risk of risks) lines.push(`- ${risk.claim}`, "");
     return lines.join("\n");
   }
-  const wanted = new Set(item.requirementIds);
+  const wanted = item.requirementIds;
   const sliced =
-    wanted.size > 0
-      ? assessments.filter((a) => wanted.has(a.requirementId))
+    wanted.length > 0
+      ? filterAssessmentsByRequirementIds(assessments, wanted)
       : assessments;
   const groups = groupAssessmentsForReport(sliced);
   if (groups.length === 0) {

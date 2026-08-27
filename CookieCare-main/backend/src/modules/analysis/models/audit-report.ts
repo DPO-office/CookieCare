@@ -5,7 +5,10 @@ export type AuditDowngradeReason =
   | "quote_not_in_source"
   | "covered_without_support"
   | "matrix_missing_row_id"
-  | "duplicate_art28_quote";
+  | "duplicate_art28_quote"
+  | "duplicate_sibling_quote"
+  | "cite_not_for_requirement"
+  | "amend_from_incomplete_evidence";
 
 export interface AuditFindingChange {
   findingId: string;
