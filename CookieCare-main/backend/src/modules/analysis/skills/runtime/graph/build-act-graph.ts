@@ -18,6 +18,7 @@ import {
 } from "../catalog/registry.js";
 import {
   analysisPackageKind,
+  type EvidencePackage,
 } from "../../../models/evidence-package.js";
 import {
   hasUnsupportedExtraction,
@@ -62,6 +63,30 @@ export interface SelectRendererInput {
   hasMatrixFocus: boolean;
   requirementCount?: number;
   outputForm?: IntentClassification["outputForm"];
+}
+
+/**
+ * Package extract types: authored clauseTypes plus types the package's
+ * capabilities already declare. Prevents ACT from dropping confidentiality /
+ * deletion because the package list lagged the rules.
+ */
+export function clauseTypesForPackageEvidence(
+  pkg: EvidencePackage,
+  capabilityIds: string[],
+  skills: AnalysisSkillConfig[]
+): string[] {
+  const wanted = new Set(capabilityIds);
+  const fromRules = skills.flatMap((skill) =>
+    (skill.regimeRules ?? [])
+      .filter((rule) => wanted.has(rule.ruleId))
+      .flatMap((rule) => rule.appliesToClauseTypes ?? [])
+  );
+  const fromMatrix = skills.flatMap((skill) =>
+    (skill.rightsMatrixRows ?? [])
+      .filter((row) => wanted.has(row.rowId))
+      .flatMap((row) => row.preferredClauseTypes ?? [])
+  );
+  return [...new Set([...pkg.clauseTypes, ...fromRules, ...fromMatrix])];
 }
 
 export function selectRenderer(
@@ -308,6 +333,7 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
         docId,
         instruction,
         skillIds,
+        skills,
         depth,
         extractDep: "wu-extract",
       })
@@ -322,12 +348,16 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
   if (
     packageResolution.leftoverRuleIds.length > 0 ||
     packageResolution.leftoverMatrixRowIds.length > 0 ||
-    packageResolution.leftoverRiskCategoryIds.length > 0
+    (!usePackages && packageResolution.leftoverRiskCategoryIds.length > 0)
   ) {
     const leftoverFocus: InstructionFocus = {
       ruleIds: packageResolution.leftoverRuleIds,
       matrixRowIds: packageResolution.leftoverMatrixRowIds,
-      riskCategoryIds: packageResolution.leftoverRiskCategoryIds,
+      // Package compliance path: never schedule leftover flag_risk. Risk is
+      // derived after aggregation from compliance gaps.
+      riskCategoryIds: usePackages
+        ? []
+        : packageResolution.leftoverRiskCategoryIds,
       instructionText: instruction,
     };
     const leftoverLeaves = appendSubIntentUnits(units, {
@@ -429,6 +459,7 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
   // Package path (or unsupported-extraction with no packages): aggregate into
   // RequirementAssessments before the single render. Non-package leaves still
   // gate aggregation so it sees the complete finding set.
+  // Authority: package eval → aggregate (compliance) → derive_risk (annotation).
   let renderDeps: string[];
   const needsAggregate =
     usePackages ||
@@ -436,15 +467,12 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
     packageResolution.requirementPaths.some((p) => p.status === "not_supported") ||
     packageResolution.leftoverMatrixRowIds.length > 0;
   if (needsAggregate) {
-    const deriveDeps = packageEvalLeaves.length > 0 ? packageEvalLeaves : ["wu-extract"];
-    units.push({
-      workUnitId: "wu-derive-risk",
-      tool: "derive_risk",
-      input: { docId, skillIds, instruction },
-      dependsOn: deriveDeps,
-      outputSchema: "Finding[]",
-      status: "pending",
-    });
+    const aggregateDeps =
+      packageEvalLeaves.length > 0
+        ? [...packageEvalLeaves, ...subgraphLeaves]
+        : subgraphLeaves.length > 0
+          ? subgraphLeaves
+          : ["wu-extract"];
     units.push({
       workUnitId: "wu-aggregate",
       tool: "aggregate_requirements",
@@ -455,11 +483,19 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
           (path) => path.status === "not_supported" && !path.requirementId.startsWith("_dep:")
         ),
       },
-      dependsOn: ["wu-derive-risk", ...subgraphLeaves],
+      dependsOn: [...new Set(aggregateDeps)],
       outputSchema: "string",
       status: "pending",
     });
-    renderDeps = ["wu-aggregate"];
+    units.push({
+      workUnitId: "wu-derive-risk",
+      tool: "derive_risk",
+      input: { docId, skillIds, instruction },
+      dependsOn: ["wu-aggregate"],
+      outputSchema: "Finding[]",
+      status: "pending",
+    });
+    renderDeps = ["wu-derive-risk"];
   } else {
     renderDeps = subgraphLeaves.length > 0 ? subgraphLeaves : ["wu-extract"];
   }
@@ -551,11 +587,14 @@ function appendSubIntentUnits(
   const hasDocTypeStructure = skills.some(
     (skill) => skill.axis === "doc-type" && skill.expectedClauses.length > 0
   );
+  const skipLeftoverRisk =
+    args.prefix === "left-" && (focus?.riskCategoryIds?.length ?? 0) === 0;
   const runRisk =
-    si.operation === "risk_flag" ||
-    si.operation === "extract" ||
-    (focus != null && (focus.riskCategoryIds?.length ?? 0) > 0) ||
-    (!focusHasCapabilities && hasDocTypeStructure);
+    !skipLeftoverRisk &&
+    (si.operation === "risk_flag" ||
+      si.operation === "extract" ||
+      (focus != null && (focus.riskCategoryIds?.length ?? 0) > 0) ||
+      (!focusHasCapabilities && hasDocTypeStructure));
   const runCompliance =
     si.operation === "compliance_check" ||
     Boolean(focus) ||
@@ -716,11 +755,12 @@ function appendPackageUnits(
     docId: string;
     instruction: string;
     skillIds: string[];
+    skills: AnalysisSkillConfig[];
     depth: ReportDepth;
     extractDep: string;
   }
 ): string[] {
-  const { packages, docId, instruction, skillIds, depth, extractDep } = args;
+  const { packages, docId, instruction, skillIds, skills, depth, extractDep } = args;
   const leafByPackage = new Map<string, string>();
   const evalLeaves: string[] = [];
 
@@ -732,6 +772,12 @@ function appendPackageUnits(
       .filter((id): id is string => Boolean(id));
     const dependsOn = depLeaves.length > 0 ? [extractDep, ...depLeaves] : [extractDep];
 
+    const evidenceClauseTypes = clauseTypesForPackageEvidence(
+      pkg,
+      pkg.capabilityIds,
+      skills
+    );
+
     if (kind === "inventory") {
       const invId = `wu-pkg-inv-${safeId}`;
       units.push({
@@ -740,7 +786,7 @@ function appendPackageUnits(
         input: {
           docId,
           packageId: pkg.id,
-          clauseTypes: pkg.clauseTypes,
+          clauseTypes: evidenceClauseTypes,
           extractionTargets: pkg.extractionTargets,
           outputArtifactType: pkg.outputArtifactType ?? "inventory",
           requirementIds,
@@ -767,7 +813,7 @@ function appendPackageUnits(
         input: {
           docId,
           packageId: pkg.id,
-          clauseTypes: pkg.clauseTypes,
+          clauseTypes: evidenceClauseTypes,
           extractionTargets: pkg.extractionTargets,
           skillIds,
           instruction,
@@ -791,7 +837,7 @@ function appendPackageUnits(
       input: {
         docId,
         packageId: pkg.id,
-        clauseTypes: pkg.clauseTypes,
+        clauseTypes: evidenceClauseTypes,
         extractionTargets: pkg.extractionTargets,
         skillIds,
         instruction,

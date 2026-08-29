@@ -131,6 +131,45 @@ function splitPackageCapabilities(
   return { capabilityIds, contextCapabilityIds };
 }
 
+/** Extract regime article family, e.g. gdpr.art28.1 → "28". */
+function articleFamilyFromCapabilityId(id: string): string | undefined {
+  const match = id.match(/(?:^|[._-])art(?:icle)?[._-]?(\d{1,3})(?:$|[._-])/i);
+  return match?.[1];
+}
+
+/**
+ * Move leftover rules that share an article with a selected evaluation package
+ * onto that package as contextCapabilityIds. Returns the residual leftovers that
+ * still need standalone check_against_rule units.
+ */
+function absorbSameArticleLeftoverRules(
+  packages: ResolvedPackage[],
+  leftoverRuleIds: string[]
+): string[] {
+  if (leftoverRuleIds.length === 0 || packages.length === 0) return leftoverRuleIds;
+  const residual: string[] = [];
+  for (const ruleId of leftoverRuleIds) {
+    const family = articleFamilyFromCapabilityId(ruleId);
+    if (!family) {
+      residual.push(ruleId);
+      continue;
+    }
+    const cover = packages.find((resolved) =>
+      resolved.pkg.capabilityIds.some(
+        (capId) => articleFamilyFromCapabilityId(capId) === family
+      )
+    );
+    if (!cover) {
+      residual.push(ruleId);
+      continue;
+    }
+    if (!cover.contextCapabilityIds.includes(ruleId)) {
+      cover.contextCapabilityIds.push(ruleId);
+    }
+  }
+  return residual;
+}
+
 function packageEligibleUnderScope(pkg: EvidencePackage, focus?: InstructionFocus): boolean {
   const scope = focus?.explicitScope;
   if (!scope || !scopeBoundaryActive(scope)) return true;
@@ -623,6 +662,8 @@ export function resolvePackages(
   const ownedCaps = new Set<string>();
   for (const resolved of packages) {
     for (const capId of resolved.capabilityIds) ownedCaps.add(capId);
+    // Also treat authored package caps as owned so leftovers are only true orphans.
+    for (const capId of resolved.pkg.capabilityIds) ownedCaps.add(capId);
   }
 
   const leftoverRuleCandidates = (focus?.ruleIds ?? []).filter(
@@ -635,7 +676,7 @@ export function resolvePackages(
   const companionRuleIds = new Set(
     phraseMapCompanionRuleIds(skills, leftoverMatrixRowIds)
   );
-  const leftoverRuleIds = leftoverRuleCandidates.filter((id) => {
+  let leftoverRuleIds = leftoverRuleCandidates.filter((id) => {
     const inScope =
       scopedRuleIds([id], focus).length > 0 || companionRuleIds.has(id);
     if (!inScope) return false;
@@ -655,6 +696,11 @@ export function resolvePackages(
     }
     leftoverRuleIds.push(id);
   }
+
+  // Same-article leftover rules (e.g. gdpr.art28.1/.2/.10 when Art 28 packages
+  // already run) become context on the covering package — they must not compete
+  // as parallel check_against_rule units with package evaluation.
+  leftoverRuleIds = absorbSameArticleLeftoverRules(packages, leftoverRuleIds);
 
   const deferredReportPackages = allPackages.filter(
     (pkg) => defersToMatrixSubgraph(pkg, focus) && !selected.has(pkg.id)

@@ -1533,7 +1533,13 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
         "controller_obligations_rights",
       ],
       capabilityIds: ["gdpr.art28.3.chapeau", "gdpr.art28.9"],
-      clauseTypes: ["processor_terms", "data_protection"],
+      clauseTypes: [
+        "processor_terms",
+        "data_protection",
+        "termination",
+        "definitions",
+        "records_of_processing",
+      ],
       extractionTargets: [
         "subject_matter",
         "duration",
@@ -1653,6 +1659,11 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
         "information_security",
         "retention_and_deletion",
         "audit_and_compliance_evidence",
+        "confidentiality",
+        "deletion_on_termination",
+        "data_subject_request_handling",
+        "processor_assistance_obligation",
+        "security_dpia_assistance",
       ],
       extractionTargets: [
         "instructions_only_processing",

@@ -1,0 +1,1037 @@
+{
+  "intent": {
+    "scope": "cross_document",
+    "operation": "compare",
+    "standard": "none",
+    "standardConcept": "Playbook Alignment",
+    "outputForm": "memo",
+    "reportType": "risk_audit",
+    "depth": "standard",
+    "compound": false,
+    "subIntents": [],
+    "requirements": [
+      {
+        "id": "playbook.alignment_check",
+        "description": "Compare the Data Protection Agreement against the specified playbook to identify deviations, risks, and compliance gaps.",
+        "type": "comparison",
+        "priority": "required"
+      }
+    ],
+    "unresolvedNeeds": [],
+    "confidence": {
+      "scope": 0.95,
+      "operation": 0.95,
+      "standard": 0.9,
+      "outputForm": 0.85
+    },
+    "docTypeHint": "dpa",
+    "documentPresentation": "unified"
+  },
+  "clarificationRequest": null,
+  "declineMessage": null,
+  "plan": {
+    "intent": {
+      "scope": "cross_document",
+      "operation": "compare",
+      "standard": "none",
+      "standardConcept": "Playbook Alignment",
+      "outputForm": "memo",
+      "reportType": "risk_audit",
+      "depth": "standard",
+      "compound": false,
+      "subIntents": [],
+      "requirements": [
+        {
+          "id": "playbook.alignment_check",
+          "description": "Compare the Data Protection Agreement against the specified playbook to identify deviations, risks, and compliance gaps.",
+          "type": "comparison",
+          "priority": "required"
+        }
+      ],
+      "unresolvedNeeds": [],
+      "confidence": {
+        "scope": 0.95,
+        "operation": 0.95,
+        "standard": 0.9,
+        "outputForm": 0.85
+      },
+      "docTypeHint": "dpa",
+      "documentPresentation": "unified"
+    },
+    "workUnits": [
+      {
+        "workUnitId": "wu-classify",
+        "tool": "classify_document",
+        "input": {
+          "docId": "dpa"
+        },
+        "dependsOn": [],
+        "outputSchema": "string",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-extract",
+        "tool": "extract_playbook_positions",
+        "input": {
+          "docId": "playbook",
+          "playbookDocId": "playbook",
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-extract",
+        "tool": "extract_clauses",
+        "input": {
+          "docId": "dpa",
+          "clauseTypes": [
+            "indemnity",
+            "limitation_of_liability",
+            "termination",
+            "governing_law",
+            "confidentiality",
+            "payment",
+            "dispute_resolution",
+            "assignment",
+            "force_majeure",
+            "warranties",
+            "data_protection",
+            "subprocessor_flow_down",
+            "deletion_on_termination",
+            "international_transfer_mechanism",
+            "security_dpia_assistance",
+            "definitions",
+            "lawful_basis",
+            "consent_management",
+            "special_category_data",
+            "criminal_offence_data",
+            "privacy_notice",
+            "data_subject_rights",
+            "data_subject_request_handling",
+            "retention_and_deletion",
+            "information_security",
+            "controller_accountability",
+            "privacy_by_design",
+            "joint_controller_arrangement",
+            "eu_representative",
+            "processor_terms",
+            "processor_assistance_obligation",
+            "audit_and_compliance_evidence",
+            "records_of_processing",
+            "data_subject_breach_notice",
+            "data_protection_impact_assessment",
+            "data_protection_officer",
+            "government_access_request",
+            "automated_decision_disclosure",
+            "judicial_remedies_and_compensation",
+            "research_and_statistics"
+          ],
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?",
+          "unionPlaybookClauseTypes": true,
+          "referenceDocId": "playbook"
+        },
+        "dependsOn": [
+          "wu-classify",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "ClauseObject[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-pos-0",
+        "tool": "check_against_rule",
+        "input": {
+          "docId": "dpa",
+          "referenceDocId": "playbook",
+          "playbookPositionIndex": 0,
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-extract",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-pos-1",
+        "tool": "check_against_rule",
+        "input": {
+          "docId": "dpa",
+          "referenceDocId": "playbook",
+          "playbookPositionIndex": 1,
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-extract",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-pos-2",
+        "tool": "check_against_rule",
+        "input": {
+          "docId": "dpa",
+          "referenceDocId": "playbook",
+          "playbookPositionIndex": 2,
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-extract",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-pos-3",
+        "tool": "check_against_rule",
+        "input": {
+          "docId": "dpa",
+          "referenceDocId": "playbook",
+          "playbookPositionIndex": 3,
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-extract",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-pos-4",
+        "tool": "check_against_rule",
+        "input": {
+          "docId": "dpa",
+          "referenceDocId": "playbook",
+          "playbookPositionIndex": 4,
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-extract",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-pos-5",
+        "tool": "check_against_rule",
+        "input": {
+          "docId": "dpa",
+          "referenceDocId": "playbook",
+          "playbookPositionIndex": 5,
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-extract",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-pos-6",
+        "tool": "check_against_rule",
+        "input": {
+          "docId": "dpa",
+          "referenceDocId": "playbook",
+          "playbookPositionIndex": 6,
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-extract",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-pos-7",
+        "tool": "check_against_rule",
+        "input": {
+          "docId": "dpa",
+          "referenceDocId": "playbook",
+          "playbookPositionIndex": 7,
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-extract",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-pos-8",
+        "tool": "check_against_rule",
+        "input": {
+          "docId": "dpa",
+          "referenceDocId": "playbook",
+          "playbookPositionIndex": 8,
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-extract",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-pos-9",
+        "tool": "check_against_rule",
+        "input": {
+          "docId": "dpa",
+          "referenceDocId": "playbook",
+          "playbookPositionIndex": 9,
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-extract",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-pos-10",
+        "tool": "check_against_rule",
+        "input": {
+          "docId": "dpa",
+          "referenceDocId": "playbook",
+          "playbookPositionIndex": 10,
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-extract",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-pos-11",
+        "tool": "check_against_rule",
+        "input": {
+          "docId": "dpa",
+          "referenceDocId": "playbook",
+          "playbookPositionIndex": 11,
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-extract",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-pos-12",
+        "tool": "check_against_rule",
+        "input": {
+          "docId": "dpa",
+          "referenceDocId": "playbook",
+          "playbookPositionIndex": 12,
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-extract",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-pos-13",
+        "tool": "check_against_rule",
+        "input": {
+          "docId": "dpa",
+          "referenceDocId": "playbook",
+          "playbookPositionIndex": 13,
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-extract",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-pos-14",
+        "tool": "check_against_rule",
+        "input": {
+          "docId": "dpa",
+          "referenceDocId": "playbook",
+          "playbookPositionIndex": 14,
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-extract",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-pos-15",
+        "tool": "check_against_rule",
+        "input": {
+          "docId": "dpa",
+          "referenceDocId": "playbook",
+          "playbookPositionIndex": 15,
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-extract",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-pos-16",
+        "tool": "check_against_rule",
+        "input": {
+          "docId": "dpa",
+          "referenceDocId": "playbook",
+          "playbookPositionIndex": 16,
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-extract",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-pos-17",
+        "tool": "check_against_rule",
+        "input": {
+          "docId": "dpa",
+          "referenceDocId": "playbook",
+          "playbookPositionIndex": 17,
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-extract",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-pos-18",
+        "tool": "check_against_rule",
+        "input": {
+          "docId": "dpa",
+          "referenceDocId": "playbook",
+          "playbookPositionIndex": 18,
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-extract",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-pos-19",
+        "tool": "check_against_rule",
+        "input": {
+          "docId": "dpa",
+          "referenceDocId": "playbook",
+          "playbookPositionIndex": 19,
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-extract",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-pos-20",
+        "tool": "check_against_rule",
+        "input": {
+          "docId": "dpa",
+          "referenceDocId": "playbook",
+          "playbookPositionIndex": 20,
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-extract",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-pos-21",
+        "tool": "check_against_rule",
+        "input": {
+          "docId": "dpa",
+          "referenceDocId": "playbook",
+          "playbookPositionIndex": 21,
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-extract",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-pos-22",
+        "tool": "check_against_rule",
+        "input": {
+          "docId": "dpa",
+          "referenceDocId": "playbook",
+          "playbookPositionIndex": 22,
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-extract",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-playbook-pos-23",
+        "tool": "check_against_rule",
+        "input": {
+          "docId": "dpa",
+          "referenceDocId": "playbook",
+          "playbookPositionIndex": 23,
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-extract",
+          "wu-playbook-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-check-expected",
+        "tool": "check_expected_clauses",
+        "input": {
+          "docId": "dpa",
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?",
+          "subIntent": "compare",
+          "requirementMappings": []
+        },
+        "dependsOn": [
+          "wu-extract"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-flag-risk",
+        "tool": "flag_risk",
+        "input": {
+          "docId": "dpa",
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?",
+          "riskCategoryIds": [],
+          "subIntent": "compare",
+          "requirementMappings": []
+        },
+        "dependsOn": [
+          "wu-check-expected"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-aggregate",
+        "tool": "aggregate_requirements",
+        "input": {
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?",
+          "unsupportedRequirements": [
+            {
+              "requirementId": "playbook.alignment_check",
+              "status": "not_supported",
+              "requirementType": "comparison",
+              "reason": "No analysis package or named-rule mapping for \"playbook.alignment_check\""
+            }
+          ]
+        },
+        "dependsOn": [
+          "wu-playbook-pos-0",
+          "wu-playbook-pos-1",
+          "wu-playbook-pos-2",
+          "wu-playbook-pos-3",
+          "wu-playbook-pos-4",
+          "wu-playbook-pos-5",
+          "wu-playbook-pos-6",
+          "wu-playbook-pos-7",
+          "wu-playbook-pos-8",
+          "wu-playbook-pos-9",
+          "wu-playbook-pos-10",
+          "wu-playbook-pos-11",
+          "wu-playbook-pos-12",
+          "wu-playbook-pos-13",
+          "wu-playbook-pos-14",
+          "wu-playbook-pos-15",
+          "wu-playbook-pos-16",
+          "wu-playbook-pos-17",
+          "wu-playbook-pos-18",
+          "wu-playbook-pos-19",
+          "wu-playbook-pos-20",
+          "wu-playbook-pos-21",
+          "wu-playbook-pos-22",
+          "wu-playbook-pos-23",
+          "wu-flag-risk"
+        ],
+        "outputSchema": "string",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-derive-risk",
+        "tool": "derive_risk",
+        "input": {
+          "docId": "dpa",
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?"
+        },
+        "dependsOn": [
+          "wu-aggregate"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-render",
+        "tool": "render_output",
+        "input": {
+          "schemaId": "playbook_comparison_memo",
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Does this agreement align with our playbook?",
+          "relatedNotes": [],
+          "referenceDocId": "playbook"
+        },
+        "dependsOn": [
+          "wu-derive-risk"
+        ],
+        "outputSchema": "string",
+        "status": "pending"
+      }
+    ],
+    "missingClarifications": [],
+    "outputForm": "memo",
+    "documentPresentation": "unified",
+    "skipCritique": true,
+    "reportSpec": {
+      "reportType": "risk_audit",
+      "depth": "standard",
+      "sections": [
+        "scope",
+        "requirements_detail",
+        "qualifications",
+        "recommendations",
+        "conclusion"
+      ],
+      "outline": [
+        {
+          "id": "scope",
+          "role": "scope",
+          "sectionId": "scope",
+          "heading": "Scope",
+          "requirementIds": [],
+          "source": "deterministic"
+        },
+        {
+          "id": "analysis.alignment_check",
+          "role": "analysis",
+          "sectionId": "requirements_detail",
+          "heading": "Alignment Check",
+          "requirementIds": [
+            "playbook.alignment_check"
+          ],
+          "source": "deterministic"
+        },
+        {
+          "id": "qualifications",
+          "role": "qualifications",
+          "sectionId": "qualifications",
+          "heading": "Qualifications",
+          "requirementIds": [],
+          "source": "deterministic"
+        },
+        {
+          "id": "recommendations",
+          "role": "recommendations",
+          "sectionId": "recommendations",
+          "heading": "Recommendations",
+          "requirementIds": [],
+          "source": "deterministic"
+        },
+        {
+          "id": "conclusion",
+          "role": "conclusion",
+          "sectionId": "conclusion",
+          "heading": "Conclusion",
+          "requirementIds": [],
+          "source": "deterministic"
+        }
+      ]
+    },
+    "rendererSchemaId": "playbook_comparison_memo",
+    "activeSkillIds": [
+      "_global",
+      "doc-types/dpa",
+      "regimes/data-protection/gdpr"
+    ],
+    "focus": {
+      "ruleIds": [],
+      "matrixRowIds": [],
+      "riskCategoryIds": [],
+      "instructionText": "Does this agreement align with our playbook?",
+      "requirements": [
+        {
+          "id": "playbook.alignment_check",
+          "label": "playbook.alignment_check",
+          "sourceText": "Does this agreement align with our playbook?"
+        }
+      ],
+      "requiredCapabilities": [],
+      "supportingCapabilities": [],
+      "requirementMappings": [],
+      "completenessCheck": [
+        {
+          "requirementId": "playbook.alignment_check",
+          "label": "playbook.alignment_check",
+          "status": "missing",
+          "mappedCapabilityIds": [],
+          "reason": "The catalog does not contain a capability or rule for evaluating an agreement against a specific custom organizational playbook."
+        }
+      ],
+      "requiredIds": [],
+      "supportingIds": [],
+      "unresolvedNeeds": [
+        "playbook.alignment_check"
+      ],
+      "unresolvedNeedDetails": [
+        {
+          "requirement": "playbook.alignment_check",
+          "reason": "The catalog does not contain a capability or rule for evaluating an agreement against a specific custom organizational playbook."
+        }
+      ],
+      "droppedCandidateIds": [],
+      "provenance": [],
+      "selectedPackageIds": [],
+      "explicitScope": {
+        "articles": [],
+        "contextArticles": [],
+        "allowCrossReferencedContext": true,
+        "allowOutOfScopeRules": true
+      }
+    },
+    "auditRecord": {
+      "resolvedSkillIds": [
+        "_global",
+        "doc-types/dpa",
+        "regimes/data-protection/gdpr"
+      ],
+      "resolvedRuleIds": [],
+      "resolvedMatrixRowIds": [],
+      "resolvedRiskCategoryIds": [],
+      "reportSpec": {
+        "reportType": "risk_audit",
+        "depth": "standard",
+        "sections": [
+          "scope",
+          "requirements_detail",
+          "qualifications",
+          "recommendations",
+          "conclusion"
+        ],
+        "outline": [
+          {
+            "id": "scope",
+            "role": "scope",
+            "sectionId": "scope",
+            "heading": "Scope",
+            "requirementIds": [],
+            "source": "deterministic"
+          },
+          {
+            "id": "analysis.alignment_check",
+            "role": "analysis",
+            "sectionId": "requirements_detail",
+            "heading": "Alignment Check",
+            "requirementIds": [
+              "playbook.alignment_check"
+            ],
+            "source": "deterministic"
+          },
+          {
+            "id": "qualifications",
+            "role": "qualifications",
+            "sectionId": "qualifications",
+            "heading": "Qualifications",
+            "requirementIds": [],
+            "source": "deterministic"
+          },
+          {
+            "id": "recommendations",
+            "role": "recommendations",
+            "sectionId": "recommendations",
+            "heading": "Recommendations",
+            "requirementIds": [],
+            "source": "deterministic"
+          },
+          {
+            "id": "conclusion",
+            "role": "conclusion",
+            "sectionId": "conclusion",
+            "heading": "Conclusion",
+            "requirementIds": [],
+            "source": "deterministic"
+          }
+        ]
+      },
+      "resolutionSources": [],
+      "droppedCandidateIds": [],
+      "requirements": [
+        {
+          "id": "playbook.alignment_check",
+          "label": "playbook.alignment_check",
+          "sourceText": "Does this agreement align with our playbook?"
+        }
+      ],
+      "requiredCapabilities": [],
+      "supportingCapabilities": [],
+      "requirementMappings": [],
+      "completenessCheck": [
+        {
+          "requirementId": "playbook.alignment_check",
+          "label": "playbook.alignment_check",
+          "status": "missing",
+          "mappedCapabilityIds": [],
+          "reason": "The catalog does not contain a capability or rule for evaluating an agreement against a specific custom organizational playbook."
+        }
+      ],
+      "unresolvedNeeds": [
+        {
+          "requirement": "playbook.alignment_check",
+          "reason": "The catalog does not contain a capability or rule for evaluating an agreement against a specific custom organizational playbook."
+        }
+      ],
+      "provenance": [],
+      "resolvedPackageIds": [],
+      "requirementToPackageId": {},
+      "requirementExecutionPaths": [
+        {
+          "requirementId": "playbook.alignment_check",
+          "status": "not_supported",
+          "requirementType": "comparison",
+          "reason": "No analysis package or named-rule mapping for \"playbook.alignment_check\""
+        }
+      ],
+      "rawIntent": {
+        "scope": "cross_document",
+        "operation": "compare",
+        "standard": "none",
+        "standardConcept": "Playbook Alignment",
+        "outputForm": "memo",
+        "reportType": "risk_audit",
+        "depth": "standard",
+        "compound": false,
+        "subIntents": [],
+        "requirements": [
+          {
+            "id": "playbook.alignment_check",
+            "description": "Compare the Data Protection Agreement against the specified playbook to identify deviations, risks, and compliance gaps.",
+            "type": "comparison",
+            "priority": "required"
+          }
+        ],
+        "unresolvedNeeds": [],
+        "confidence": {
+          "scope": 0.95,
+          "operation": 0.95,
+          "standard": 0.9,
+          "outputForm": 0.85
+        },
+        "docTypeHint": "dpa",
+        "documentPresentation": "unified"
+      },
+      "intentNormalizations": [],
+      "scopeAudit": []
+    },
+    "requirementExecutionPaths": [
+      {
+        "requirementId": "playbook.alignment_check",
+        "status": "not_supported",
+        "requirementType": "comparison",
+        "reason": "No analysis package or named-rule mapping for \"playbook.alignment_check\""
+      }
+    ],
+    "pinnedVersions": {
+      "clauseTaxonomyVersion": "1.2.0",
+      "riskTaxonomyVersion": "1.1.0",
+      "modelTask": "STRUCTURAL_JSON"
+    }
+  }
+}

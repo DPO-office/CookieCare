@@ -31,5 +31,14 @@ describe("Art 28(3) mandatory package requirement split", () => {
     assert.equal(ART28_3_IDS.filter((id) => pkg.requirementIds.includes(id)).length, 8);
     assert.ok(!(pkg.requirementIds.includes("mandatory_article28_clauses")));
     assert.ok(pkg.requirementAliases?.includes("mandatory_article28_clauses"));
+    for (const clauseType of [
+      "confidentiality",
+      "deletion_on_termination",
+      "data_subject_request_handling",
+      "processor_assistance_obligation",
+      "security_dpia_assistance",
+    ]) {
+      assert.ok(pkg.clauseTypes.includes(clauseType), `missing ${clauseType}`);
+    }
   });
 });

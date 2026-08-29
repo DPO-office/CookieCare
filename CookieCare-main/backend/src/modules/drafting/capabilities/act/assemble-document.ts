@@ -3,6 +3,7 @@ import type { ExhibitSpec } from "../../models/draft-exhibits.js";
 import { buildDealIdentity } from "./deal-identity.js";
 import { runAssemblyCheck } from "./assembly-check.js";
 
+
 function stripMarkdownHeading(body: string): { heading: string | null; rest: string } {
   const lines = body.replace(/^\uFEFF/, "").split(/\r?\n/);
   let i = 0;

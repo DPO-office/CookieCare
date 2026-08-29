@@ -247,6 +247,66 @@ describe("render-output legal memo upgrade", () => {
     assert.equal(eligible.length, 1);
   });
 
+  it("preserves both present and absent_expected findings for a requirement in consolidation", async () => {
+    const { groundFindings } = await import("../../capabilities/audit/ground-findings.js");
+    const presentFinding = finding({
+      findingId: "f_pkg_part",
+      kind: "compliance",
+      category: "processor_terms",
+      status: "present",
+      requirementId: "gdpr.article28.nature_and_purpose",
+      claim: "Nature and purpose partially present.",
+      evidence: [{ locator, quotedText: "Section 5 processing terms", sourceRole: "target" }],
+    });
+    const gapFinding = finding({
+      findingId: "f_pkg_partgap",
+      kind: "compliance",
+      category: "processor_terms",
+      status: "absent_expected",
+      requirementId: "gdpr.article28.nature_and_purpose",
+      claim: "Nature and purpose relies on SOWs.",
+      gap: "Nature and purpose relies on SOWs.",
+      evidence: [{ locator, quotedText: "Section 5 processing terms", sourceRole: "target" }],
+    });
+    const consolidated = consolidateFindingsForRender([presentFinding, gapFinding]);
+    assert.equal(consolidated.length, 2);
+    assert.ok(consolidated.some((f) => f.status === "present"));
+    assert.ok(consolidated.some((f) => f.status === "absent_expected"));
+
+    const state = {
+      findings: consolidated,
+      workspace: {
+        sessionId: "s1",
+        documents: [
+          {
+            docId: "cisco-dpa",
+            role: "target",
+            fullText: "Section 5 processing terms",
+            segments: [],
+            clauses: [],
+          },
+        ],
+      },
+      intent: {
+        requirements: [
+          {
+            id: "gdpr.article28.nature_and_purpose",
+            description: "",
+            type: "adequacy",
+            priority: "required",
+          },
+        ],
+      },
+    } as unknown as AnalysisState;
+
+    const groundedState = groundFindings(state);
+    const assessment = groundedState.requirementAssessments?.find(
+      (a) => a.requirementId === "gdpr.article28.nature_and_purpose"
+    );
+    assert.ok(assessment);
+    assert.notEqual(assessment?.status, "cannot_determine");
+  });
+
   it("collapses timeframe risk and Art 12(3) compliance into one remedial point", () => {
     resetSkillRegistryForTests();
     const gdpr = getSkillById("regimes/data-protection/gdpr")!;

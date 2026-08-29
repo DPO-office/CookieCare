@@ -2,6 +2,9 @@
  * Canonical requirement identity — collapse PLAN ids and package-native ids
  * into one assessment key so findings stamped as `duration` satisfy
  * `gdpr.article28.duration` (and vice versa).
+ *
+ * Preference: PLAN-shaped ids are canonical when present in an alias group.
+ * Package natives are aliases of those PLAN keys.
  */
 
 export type RequirementIdentity = {
@@ -11,58 +14,77 @@ export type RequirementIdentity = {
 
 /** Short-form / PLAN ↔ package-native pairs for Art 28 and common GDPR asks. */
 const STATIC_ALIAS_GROUPS: string[][] = [
-  ["subject_matter", "gdpr.article28.subject_matter", "article28.subject_matter"],
-  ["duration", "gdpr.article28.duration", "article28.duration"],
+  ["gdpr.article28.subject_matter", "article28.subject_matter", "subject_matter"],
+  ["gdpr.article28.duration", "article28.duration", "duration"],
   [
-    "nature_purpose",
-    "nature_and_purpose",
     "gdpr.article28.nature_and_purpose",
     "article28.nature_and_purpose",
+    "nature_and_purpose",
+    "nature_purpose",
   ],
   [
-    "data_categories",
-    "categories_of_data",
     "gdpr.article28.categories_of_data",
     "article28.categories_of_data",
+    "categories_of_data",
+    "data_categories",
   ],
   [
-    "data_subject_categories",
-    "categories_of_data_subjects",
     "gdpr.article28.categories_of_data_subjects",
     "article28.categories_of_data_subjects",
+    "categories_of_data_subjects",
+    "data_subject_categories",
   ],
-  // Combined PLAN categories row maps to both category natives; canonical is the PLAN-facing aggregate key.
+  // Combined PLAN categories row — live PLAN spellings omit "of_" or repeat "data_".
   [
     "gdpr.article28.categories_of_data_and_subjects",
+    "gdpr.article28.categories_data_and_subjects",
+    "gdpr.article28.categories_of_data_and_data_subjects",
+    "gdpr.article28.categories_data_and_data_subjects",
     "article28.categories_of_data_and_subjects",
+    "article28.categories_data_and_subjects",
+    "article28.categories_of_data_and_data_subjects",
+    "article28.categories_data_and_data_subjects",
     "categories_of_data_and_subjects",
+    "categories_data_and_subjects",
+    "categories_of_data_and_data_subjects",
+    "categories_data_and_data_subjects",
   ],
   [
-    "controller_obligations_rights",
-    "controller_obligations_and_rights",
     "gdpr.article28.controller_obligations_and_rights",
+    "gdpr.article28.controller_obligations_rights",
     "article28.controller_obligations_and_rights",
+    "article28.controller_obligations_rights",
+    "controller_obligations_and_rights",
+    "controller_obligations_rights",
   ],
   [
+    "gdpr.article28_3.mandatory_clauses_adequacy",
+    "gdpr.article28.mandatory_clauses_adequacy",
+    "gdpr.article28.mandatory_clauses_completeness",
+    "gdpr.article28_3.mandatory_clauses_completeness",
+    "article28_3.mandatory_clauses_adequacy",
+    "article28.mandatory_clauses_completeness",
     "mandatory_article28_clauses",
     "mandatory_article_28_3_clauses",
-    "gdpr.article28.mandatory_clauses_completeness",
-    "article28.mandatory_clauses_completeness",
   ],
   ["dsr.response_timeframes"],
   ["dsr.gap_analysis"],
   ["international_data_transfer", "international_data_transfers", "international_transfer"],
 ];
 
-/** Prefer package-native / shortest stable id as canonical when present. */
+/** Prefer PLAN-shaped ids as canonical when present. */
 const CANONICAL_PREFERENCE = [
-  "subject_matter",
-  "duration",
-  "nature_purpose",
-  "data_categories",
-  "data_subject_categories",
-  "controller_obligations_rights",
-  "mandatory_article28_clauses",
+  "gdpr.article28.subject_matter",
+  "gdpr.article28.duration",
+  "gdpr.article28.nature_and_purpose",
+  "gdpr.article28.categories_of_data",
+  "gdpr.article28.categories_of_data_subjects",
+  "gdpr.article28.categories_of_data_and_subjects",
+  "gdpr.article28.categories_data_and_subjects",
+  "gdpr.article28.controller_obligations_and_rights",
+  "gdpr.article28.controller_obligations_rights",
+  "gdpr.article28_3.mandatory_clauses_adequacy",
+  "gdpr.article28.mandatory_clauses_adequacy",
   "international_data_transfer",
   "dsr.response_timeframes",
   "dsr.gap_analysis",
@@ -78,9 +100,9 @@ function pickCanonical(members: string[]): string {
     const hit = normalized.find((m) => m === preferred);
     if (hit) return hit;
   }
-  // Prefer non-PLAN-prefixed package-native style ids.
-  const native = normalized.find((m) => !m.includes("article") && !m.includes("."));
-  if (native) return native;
+  // Prefer PLAN-shaped ids (contain "article") over bare natives.
+  const planShaped = normalized.find((m) => m.includes("article"));
+  if (planShaped) return planShaped;
   const short = [...normalized].sort((a, b) => a.length - b.length)[0];
   return short ?? normalized[0]!;
 }
@@ -101,60 +123,73 @@ const STATIC_MAP = buildStaticAliasMap();
 
 /**
  * Combined categories PLAN id is an umbrella: findings stamped to either
- * data_categories or data_subject_categories support it, but assessments
- * still emit the two natives (and optionally the umbrella only when PLAN asked).
+ * data_categories or data_subject_categories support it.
+ * Mandatory coverage umbrellas collect lettered Art 28(3) package rows.
  */
+const LETTERED_ART28_MEMBERS = [
+  "art28_3_a_instructions",
+  "art28_3_b_confidentiality",
+  "art28_3_c_security",
+  "art28_3_d_subprocessors",
+  "art28_3_e_dsr_assistance",
+  "art28_3_f_security_assistance",
+  "art28_3_g_deletion_return",
+  "art28_3_h_audit",
+  "art28_4_subprocessor_flow_down",
+];
+
+const CATEGORY_UMBRELLA_MEMBERS = ["data_categories", "data_subject_categories"];
+
 const UMBRELLA_TO_MEMBERS: Record<string, string[]> = {
-  "gdpr.article28.categories_of_data_and_subjects": [
-    "data_categories",
-    "data_subject_categories",
-  ],
-  "article28.categories_of_data_and_subjects": [
-    "data_categories",
-    "data_subject_categories",
-  ],
-  categories_of_data_and_subjects: ["data_categories", "data_subject_categories"],
-  mandatory_article28_clauses: [
-    "art28_3_a_instructions",
-    "art28_3_b_confidentiality",
-    "art28_3_c_security",
-    "art28_3_d_subprocessors",
-    "art28_3_e_dsr_assistance",
-    "art28_3_f_security_assistance",
-    "art28_3_g_deletion_return",
-    "art28_3_h_audit",
-    "art28_4_subprocessor_flow_down",
-  ],
-  mandatory_article_28_3_clauses: [
-    "art28_3_a_instructions",
-    "art28_3_b_confidentiality",
-    "art28_3_c_security",
-    "art28_3_d_subprocessors",
-    "art28_3_e_dsr_assistance",
-    "art28_3_f_security_assistance",
-    "art28_3_g_deletion_return",
-    "art28_3_h_audit",
-    "art28_4_subprocessor_flow_down",
-  ],
-  "gdpr.article28.mandatory_clauses_completeness": [
-    "art28_3_a_instructions",
-    "art28_3_b_confidentiality",
-    "art28_3_c_security",
-    "art28_3_d_subprocessors",
-    "art28_3_e_dsr_assistance",
-    "art28_3_f_security_assistance",
-    "art28_3_g_deletion_return",
-    "art28_3_h_audit",
-    "art28_4_subprocessor_flow_down",
-  ],
+  "gdpr.article28.categories_of_data_and_subjects": CATEGORY_UMBRELLA_MEMBERS,
+  "gdpr.article28.categories_data_and_subjects": CATEGORY_UMBRELLA_MEMBERS,
+  "gdpr.article28.categories_of_data_and_data_subjects": CATEGORY_UMBRELLA_MEMBERS,
+  "gdpr.article28.categories_data_and_data_subjects": CATEGORY_UMBRELLA_MEMBERS,
+  "article28.categories_of_data_and_subjects": CATEGORY_UMBRELLA_MEMBERS,
+  "article28.categories_data_and_subjects": CATEGORY_UMBRELLA_MEMBERS,
+  "article28.categories_of_data_and_data_subjects": CATEGORY_UMBRELLA_MEMBERS,
+  "article28.categories_data_and_data_subjects": CATEGORY_UMBRELLA_MEMBERS,
+  categories_of_data_and_subjects: CATEGORY_UMBRELLA_MEMBERS,
+  categories_data_and_subjects: CATEGORY_UMBRELLA_MEMBERS,
+  categories_of_data_and_data_subjects: CATEGORY_UMBRELLA_MEMBERS,
+  categories_data_and_data_subjects: CATEGORY_UMBRELLA_MEMBERS,
+  mandatory_article28_clauses: LETTERED_ART28_MEMBERS,
+  mandatory_article_28_3_clauses: LETTERED_ART28_MEMBERS,
+  "gdpr.article28.mandatory_clauses_completeness": LETTERED_ART28_MEMBERS,
+  "gdpr.article28.mandatory_clauses_adequacy": LETTERED_ART28_MEMBERS,
+  "gdpr.article28_3.mandatory_clauses_adequacy": LETTERED_ART28_MEMBERS,
+  "gdpr.article28_3.mandatory_clauses_completeness": LETTERED_ART28_MEMBERS,
+  "article28_3.mandatory_clauses_adequacy": LETTERED_ART28_MEMBERS,
 };
+
+export function getUmbrellaMembers(id: string): string[] | undefined {
+  if (!id) return undefined;
+  const key = rawNormalize(id);
+  const canonical = canonicalRequirementId(id);
+  const exact =
+    UMBRELLA_TO_MEMBERS[id] ??
+    UMBRELLA_TO_MEMBERS[key] ??
+    UMBRELLA_TO_MEMBERS[canonical];
+  if (exact) return exact;
+
+  if (key.includes("categor") && (key.includes("data") || key.includes("subject"))) {
+    return CATEGORY_UMBRELLA_MEMBERS;
+  }
+  if (
+    key.includes("mandatory") &&
+    (key.includes("article28") || key.includes("art28") || key.includes("clause"))
+  ) {
+    return LETTERED_ART28_MEMBERS;
+  }
+  return undefined;
+}
 
 export function normalizeRequirementKey(id: string): string {
   return rawNormalize(id);
 }
 
 /**
- * Resolve any known alias to its canonical package-native (or preferred) id.
+ * Resolve any known alias to its canonical PLAN-shaped (or preferred) id.
  * Unknown ids return themselves (normalized).
  */
 export function canonicalRequirementId(id: string): string {
@@ -188,10 +223,7 @@ export function matchingRequirementIds(requirementId: string): Set<string> {
     }
   }
 
-  const umbrellaMembers =
-    UMBRELLA_TO_MEMBERS[requirementId] ??
-    UMBRELLA_TO_MEMBERS[key] ??
-    UMBRELLA_TO_MEMBERS[canonical];
+  const umbrellaMembers = getUmbrellaMembers(requirementId);
   if (umbrellaMembers) {
     for (const member of umbrellaMembers) {
       out.add(rawNormalize(member));
@@ -232,9 +264,19 @@ export function isWholeArticleRequirement(requirementId: string): boolean {
 }
 
 /**
+ * True when this PLAN/coverage id collects member findings rather than being
+ * a single evaluated package-native row.
+ */
+export function isUmbrellaRequirementId(requirementId: string): boolean {
+  return Boolean(getUmbrellaMembers(requirementId));
+}
+
+/**
  * Collapse a list of requirement ids to unique canonical ids (stable order).
- * Umbrella PLAN coverage ids expand to their member natives when members are
- * present in `availableFindingIds` or when `expandUmbrellas` is true.
+ *
+ * For locked assessments, pass `expandUmbrellas: false` so a PLAN umbrella
+ * (categories / mandatory clauses) stays one row that collects member findings.
+ * Outline helpers may still expand when they need member tags.
  */
 export function collapseToCanonicalRequirementIds(
   ids: string[],
@@ -260,9 +302,7 @@ export function collapseToCanonicalRequirementIds(
   };
 
   for (const id of ids) {
-    const key = rawNormalize(id);
-    const umbrella =
-      UMBRELLA_TO_MEMBERS[id] ?? UMBRELLA_TO_MEMBERS[key] ?? undefined;
+    const umbrella = getUmbrellaMembers(id);
     if (expand && umbrella) {
       if (available.size === 0) {
         // No stamped findings yet — keep a single coverage/umbrella row.
@@ -312,6 +352,8 @@ export function assessmentMatchesWantedIds(
     if (requirementIdsEquivalent(assessmentId, wanted)) return true;
     const matchSet = matchingRequirementIds(wanted);
     if (matchSet.has(assessmentKey) || matchSet.has(assessmentCanon)) return true;
+    // Wanted tag may be a package-native member of an umbrella assessment.
+    if (findingSupportsRequirement(wanted, assessmentId)) return true;
   }
   return false;
 }

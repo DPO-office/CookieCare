@@ -806,10 +806,15 @@ export async function extractInstructionFocus(
   return {
     ruleIds: dedupeStrings([...combinedRuleIds, ...metaBound.ruleIds]),
     matrixRowIds: dedupeStrings([...combinedMatrixRowIds, ...metaBound.matrixRowIds]),
-    riskCategoryIds: dedupeStrings([
-      ...combinedRiskCategoryIds,
-      ...metaBound.riskCategoryIds,
-    ]),
+    // Compliance requests must not schedule leftover flag_risk. Keep related
+    // risks on supportingCapabilities / provenance only unless the user asked
+    // for risk analysis.
+    riskCategoryIds: riskAnalysisRequested
+      ? dedupeStrings([
+          ...combinedRiskCategoryIds,
+          ...metaBound.riskCategoryIds,
+        ])
+      : [],
     instructionText: instruction,
     requirements,
     requiredCapabilities: requiredIds,
