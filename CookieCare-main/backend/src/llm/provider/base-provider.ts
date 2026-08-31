@@ -45,4 +45,6 @@ export interface ILLMProvider {
     runtimeConfig: TaskModelConfig,
     onDelta: (delta: string) => void
   ): Promise<CompletionOutcome>;
+  /** Batch text embedding. Not all providers support this (e.g. OpenRouter). */
+  embed?(texts: string[]): Promise<Array<number[] | null>>;
 }

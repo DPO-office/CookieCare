@@ -122,6 +122,49 @@ function buildStaticAliasMap(): Map<string, string> {
 const STATIC_MAP = buildStaticAliasMap();
 
 /**
+ * Words that carry no identifying content — stripped before the token-set
+ * fallback compares two ids. Includes the namespace prefixes ("gdpr",
+ * "article"/"art" with or without a trailing number) so only the topic words
+ * are compared.
+ */
+const IGNORED_ID_TOKEN = /^(?:gdpr|and|of|the|article|art)\d*$/;
+
+/**
+ * Order-independent identity for an id's topic words, e.g.
+ * "controller_rights_and_obligations" and "controller_obligations_and_rights"
+ * both reduce to "controller_obligations_rights". Classify-intent is an LLM
+ * call — it can phrase a known concept with a different word order than any
+ * hand-authored alias anticipated (see the ART28-ATTEMPTS retrospective: a
+ * PLAN run said "controller_rights_and_obligations", every static alias said
+ * "controller_obligations_and_rights", and the mismatch silently dropped an
+ * already-VERIFIED finding at the LOCK stage). This fallback makes new word
+ * orderings of an *already-known* concept resolve correctly without needing
+ * a hand-added alias for every permutation; it never merges two id groups
+ * that weren't already aliased to each other.
+ */
+function tokenSetKey(id: string): string {
+  const tokens = rawNormalize(id)
+    .split(/[._]+/)
+    .filter((t) => t.length > 0 && !IGNORED_ID_TOKEN.test(t));
+  if (tokens.length === 0) return "";
+  return [...new Set(tokens)].sort().join("_");
+}
+
+function buildTokenSetFallbackMap(): Map<string, string> {
+  const map = new Map<string, string>();
+  for (const group of STATIC_ALIAS_GROUPS) {
+    const canonical = pickCanonical(group);
+    for (const member of group) {
+      const key = tokenSetKey(member);
+      if (key) map.set(key, canonical);
+    }
+  }
+  return map;
+}
+
+const TOKEN_SET_FALLBACK_MAP = buildTokenSetFallbackMap();
+
+/**
  * Combined categories PLAN id is an umbrella: findings stamped to either
  * data_categories or data_subject_categories support it.
  * Mandatory coverage umbrellas collect lettered Art 28(3) package rows.
@@ -194,7 +237,11 @@ export function normalizeRequirementKey(id: string): string {
  */
 export function canonicalRequirementId(id: string): string {
   const key = rawNormalize(id);
-  return STATIC_MAP.get(key) ?? key;
+  const exact = STATIC_MAP.get(key);
+  if (exact) return exact;
+  const tokenKey = tokenSetKey(id);
+  const fallback = tokenKey ? TOKEN_SET_FALLBACK_MAP.get(tokenKey) : undefined;
+  return fallback ?? key;
 }
 
 /** True when `a` and `b` refer to the same canonical requirement. */

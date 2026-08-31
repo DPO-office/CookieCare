@@ -8,12 +8,18 @@ import type {
 import type { ClauseObject } from "../../models/clause-object.js";
 import { pacLog } from "../../utils/pac-log.js";
 import { tokenizeForEvidence } from "./isolate-requirement-evidence.js";
+import { logSharedEvidenceCut } from "./evidence-pool-log.js";
 
 /**
  * Candidate-pool cap for one package. This is not the evaluator packet —
  * evaluate_package still sends 3–5 extracts per requirement.
  */
-const MAX_ITEMS_PER_PACKAGE = 40;
+// Gate 2 pool size. Raised from 40 so the LLM candidate selector receives
+// essentially the whole extracted clause set (this doc extracts ~65-90),
+// making gate 2's regex scorer a near-no-op cut rather than a lossy one — the
+// selector, not the regex, decides relevance. The hybrid/lexical fallback
+// path simply ranks a slightly larger pool; behaviour is otherwise unchanged.
+const MAX_ITEMS_PER_PACKAGE = 60;
 const MIN_PER_CLAUSE_TYPE = 2;
 
 /** Shared bundle key for leftover / focused matrix-row evaluations. */
@@ -44,6 +50,15 @@ export function extractSharedEvidence(
   const ranked = rankClausesForPackage(clauses, clauseTypes, extractionTargets);
   const pooled = capPackagePool(ranked, MAX_ITEMS_PER_PACKAGE);
   const matched = selectRelevantClauses(clauses, clauseTypes);
+  logSharedEvidenceCut(
+    state,
+    packageId,
+    clauses,
+    clauseTypes,
+    extractionTargets,
+    MAX_ITEMS_PER_PACKAGE,
+    new Set(pooled.map((c) => clauseKey(c)))
+  );
   const items: SharedEvidenceItem[] = pooled.map((clause, index) => ({
     ref: `E${index + 1}`,
     clauseType: clause.clauseType,

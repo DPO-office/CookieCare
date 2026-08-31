@@ -8,7 +8,7 @@ import {
   ILLMProvider,
   TokenUsage,
 } from "./provider/base-provider.js";
-import { geminiScheduler } from "../modules/compare/utils/llm-scheduler.js";
+import { geminiScheduler, geminiEmbedScheduler } from "../modules/compare/utils/llm-scheduler.js";
 
 export type { CompletionOutcome, TokenUsage } from "./provider/base-provider.js";
 export { estimateTokenUsage } from "./provider/base-provider.js";
@@ -223,4 +223,51 @@ export async function executeCompletionStream(
     tracker,
   });
   return text;
+}
+
+const EMBED_BATCH_SIZE = Math.max(1, Number(process.env.GEMINI_EMBED_BATCH_SIZE || 64));
+
+/**
+ * Batch text embedding (Semantic Retrieval plan, R0). Gemini-only today —
+ * OpenRouter has no embedding endpoint on this stack. Runs through its own
+ * scheduler lane (`geminiEmbedScheduler`), never the generation lane, so a
+ * burst of clause embeddings cannot starve chat/JSON calls.
+ *
+ * Never throws: a failed batch returns `null` at each of its indices so
+ * callers (retrieval) fall back to lexical-only for those items instead of
+ * failing the whole run. Order is preserved and matches `texts`.
+ */
+export async function executeEmbedding(
+  texts: string[],
+  provider: LLMProvider = LLMProvider.GEMINI
+): Promise<Array<number[] | null>> {
+  if (texts.length === 0) return [];
+  const engine = getProviderEngine(provider);
+  if (!engine.embed) {
+    console.warn(`[LLM] embed() unsupported for provider=${provider} — returning nulls`);
+    return texts.map(() => null);
+  }
+
+  const results: Array<number[] | null> = new Array(texts.length).fill(null);
+  for (let start = 0; start < texts.length; start += EMBED_BATCH_SIZE) {
+    const batch = texts.slice(start, start + EMBED_BATCH_SIZE);
+    const t0 = Date.now();
+    try {
+      const vectors = await geminiEmbedScheduler.execute(
+        () => engine.embed!(batch),
+        `embed batch[${batch.length}]`
+      );
+      for (let i = 0; i < vectors.length; i++) results[start + i] = vectors[i];
+      console.log(
+        `[LLM] embed batch=${batch.length} ms=${Date.now() - t0} ` +
+          `ok=${vectors.filter((v) => v !== null).length}/${vectors.length}`
+      );
+    } catch (err) {
+      console.warn(
+        `[LLM] embed batch failed (${batch.length} texts) — leaving nulls:`,
+        err instanceof Error ? err.message : err
+      );
+    }
+  }
+  return results;
 }

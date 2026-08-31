@@ -4,6 +4,8 @@ import {
   VERIFY_PROPOSITION_SYSTEM_PROMPT,
   buildVerifyPropositionUserPrompt,
 } from "../../prompts/verify-proposition.js";
+import type { AnalysisState } from "../../models/analysis-state.js";
+import { profileThinkingLevel } from "../../utils/profile-thinking.js";
 
 export type VerifyVerdict = "proves" | "contradicts" | "related_not_proof" | "irrelevant";
 
@@ -100,16 +102,27 @@ function enrichmentFields(raw: RawVerifyOutput) {
  * reasoning behind its verdict as structured data rather than discarding it.
  */
 export async function verifyProposition(
-  input: VerifyPropositionInput
+  input: VerifyPropositionInput,
+  state?: AnalysisState
 ): Promise<VerifyPropositionResult> {
   const prompt = buildVerifyPropositionUserPrompt(input);
 
+  // Single-passage entailment is simpler than evaluate_package's grouped
+  // judgment (6-9 requirements against ~40 evidence items in one call),
+  // which already runs on this same tier successfully. CRITIQUE_CHECKLIST
+  // (Pro, thinking=high) was the wrong tier for a per-candidate check called
+  // up to verifyCandidateCap times per requirement — see evaluate-package.ts.
+  // thinkingLevel mirrors the grouped path's own STRUCTURAL_JSON tier
+  // (low/medium by profile) rather than falling to the bare "minimal" base
+  // default, so this doesn't quietly cut VERIFY's rigor below what the old
+  // grouped-LLM path already used successfully for a harder judgment call.
   const raw = await executeJsonCompletion<RawVerifyOutput>(
     prompt,
     VERIFY_PROPOSITION_SYSTEM_PROMPT,
     VERIFY_PROPOSITION_SCHEMA,
-    LLMTask.CRITIQUE_CHECKLIST,
-    LLMProvider.GEMINI
+    LLMTask.STRUCTURAL_JSON,
+    LLMProvider.GEMINI,
+    state ? { thinkingLevel: profileThinkingLevel(state, LLMTask.STRUCTURAL_JSON) } : undefined
   );
 
   if (raw.verdict === "irrelevant" || !raw.quote.trim()) {

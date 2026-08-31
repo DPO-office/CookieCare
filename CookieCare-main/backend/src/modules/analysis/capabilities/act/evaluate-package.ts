@@ -51,6 +51,10 @@ import {
   expandSharedEvidenceItem,
   isHeadingOnlyMatch,
 } from "./locate-evidence.js";
+import { buildInMemoryIndex, type ClauseIndex } from "./clause-index.js";
+import { logVerifyCandidates } from "./verify-inspect-log.js";
+import { logRetrievalRanking, logSelectedCandidates } from "./evidence-pool-log.js";
+import { selectCandidates, buildSectionCandidates } from "./select-candidates.js";
 
 const MAX_BRIEF_CHARS = 4000;
 
@@ -483,6 +487,18 @@ function isSupportingPriority(requirementId: string, state: AnalysisState): bool
  * carefully. Every candidate that IS checked, and every requirement that IS
  * investigated, gets the identical VERIFY call in both modes.
  */
+/**
+ * With semantic retrieval actually engaged (not just flagged on — the index
+ * has real embedded vectors for this package), the hybrid retriever puts the
+ * right clause in the top 3 instead of buried at rank 6-8 the way the old
+ * lexical-only ranker did (the cap=10 in analysis-profile.ts was deliberately
+ * kept high specifically because that ranker missed the target at rank 6/40
+ * — see that file's comment). A small cap here is what actually cashes in
+ * the plan's "retrieval quality and VERIFY cost are the same lever" claim.
+ * Falls back to the profile's full cap whenever the index isn't usable.
+ */
+const SEMANTIC_VERIFY_CANDIDATE_CAP = 4;
+
 async function evaluateWithVerify(
   reqIds: string[],
   items: SharedEvidenceItem[],
@@ -494,6 +510,90 @@ async function evaluateWithVerify(
   const findings: Finding[] = [];
   const candidateCap = profileVerifyCandidateCap(state);
   const skipSupporting = profileSkipsSupportingPriority(state);
+  const doc = state.workspace.documents.find((d) => d.docId === ctx.docId);
+  const expandMaxChars = profileEvidenceCharBudget(state) * 3;
+  const llmSelectEnabled = process.env.ANALYSIS_LLM_CANDIDATE_SELECT === "1";
+
+  // Candidate source for the LLM selector: the document's OWN logical sections
+  // (whole-document), not the clause-type-dictionary extraction (`items`). This
+  // closes the Gate 1 leak — a passage matching no clause-type dictionary (an
+  // "only on documented instructions" line inside a jurisdiction addendum) is
+  // just another section here, so selection can see and pick it. `items` (the
+  // type-extracted pool) is kept only for the hybrid/lexical fallback path.
+  const selectorPool = llmSelectEnabled && doc ? buildSectionCandidates(doc) : items;
+
+  // Only build the embedding index for the hybrid fallback — when LLM
+  // selection is on it replaces the index entirely, so skipping it saves the
+  // embedding round-trip on the hot path.
+  let clauseIndex: ClauseIndex | undefined;
+  let semanticIndexReady = false;
+  if (!llmSelectEnabled && process.env.ANALYSIS_SEMANTIC_RETRIEVAL === "1" && items.length > 0) {
+    const indexStart = Date.now();
+    clauseIndex = await buildInMemoryIndex(items);
+    const embeddedCount = [...clauseIndex.vectors.values()].filter((v) => v !== null).length;
+    semanticIndexReady = embeddedCount > 0;
+    pacLog("[INVESTIGATE] semantic index built", {
+      packageId: ctx.packageId,
+      items: items.length,
+      embedded: embeddedCount,
+      ms: Date.now() - indexStart,
+    });
+  }
+  const effectiveCap = semanticIndexReady
+    ? Math.min(candidateCap, SEMANTIC_VERIFY_CANDIDATE_CAP)
+    : candidateCap;
+  // How many candidates the selector may return per requirement (each becomes
+  // one VERIFY call). Kept small — good selection means the answer is in the
+  // top 1-3, so this is the latency lever.
+  const selectCap = Math.min(candidateCap, SEMANTIC_VERIFY_CANDIDATE_CAP);
+
+  // LLM candidate selection (one batched call for the whole package) replaces
+  // the keyword/embedding candidate ranking with a semantic pick. When it
+  // succeeds, each requirement's candidates come from the model's ranked
+  // choice; when the call fails outright, the whole package falls back to the
+  // hybrid/lexical retriever below. A requirement the model ANSWERED with an
+  // empty list is honoured as "nothing in this document bears on it" (the
+  // whole point of the selector) — only a requirement it OMITTED falls back.
+  let selectionByReq: Map<string, SharedEvidenceItem[]> | null = null;
+  if (llmSelectEnabled && selectorPool.length > 0) {
+    const eligible = reqIds
+      .filter((id) => {
+        const p = profiles[id];
+        return (
+          Boolean(p?.proofStandard?.trim()) &&
+          !(skipSupporting && isSupportingPriority(id, state))
+        );
+      })
+      .map((id) => {
+        const p = profiles[id];
+        return {
+          requirementId: id,
+          hypothesis: hypothesisFor(id, p, state),
+          proofStandard: p!.proofStandard!.trim(),
+        };
+      });
+    if (eligible.length > 0) {
+      const selStart = Date.now();
+      selectionByReq = await selectCandidates({
+        requirements: eligible,
+        pool: selectorPool,
+        maxPerRequirement: selectCap,
+        state,
+      });
+      pacLog("[INVESTIGATE] llm candidate selection", {
+        packageId: ctx.packageId,
+        requirements: eligible.length,
+        pool: selectorPool.length,
+        source: "document-sections",
+        selected: selectionByReq
+          ? [...selectionByReq.values()].reduce((n, a) => n + a.length, 0)
+          : 0,
+        fellBack: selectionByReq ? "no" : "yes (whole package → hybrid)",
+        ms: Date.now() - selStart,
+      });
+      if (selectionByReq) logSelectedCandidates(state, ctx.packageId, selectionByReq);
+    }
+  }
 
   for (const requirementId of reqIds) {
     const profile = profiles[requirementId];
@@ -512,13 +612,22 @@ async function evaluateWithVerify(
     }
 
     const hypothesis = hypothesisFor(requirementId, profile, state);
-    const candidates = resolveRecallCandidates(
-      requirementId,
-      items,
-      extractionTargets,
-      profile,
-      candidateCap
-    );
+    const candidates = selectionByReq?.has(requirementId)
+      ? selectionByReq.get(requirementId)!
+      : await resolveRecallCandidates(
+          requirementId,
+          items,
+          extractionTargets,
+          profile,
+          effectiveCap,
+          clauseIndex
+            ? {
+                index: clauseIndex,
+                queryText: proofStandard,
+                trace: (rows) => logRetrievalRanking(state, requirementId, proofStandard, rows),
+              }
+            : undefined
+        );
 
     if (candidates.length === 0) {
       findings.push(
@@ -531,14 +640,25 @@ async function evaluateWithVerify(
       continue;
     }
 
+    const expandedCandidates = doc
+      ? candidates.map((item) => {
+          if (!item.truncated) return item;
+          const expanded = expandSharedEvidenceItem(doc, item, expandMaxChars);
+          return expanded ?? item;
+        })
+      : candidates;
+
     const verdicts = await Promise.all(
-      candidates.map((item) =>
-        verifyProposition({
-          hypothesis,
-          proofStandard,
-          candidatePassage: item.quotedText,
-          candidateLocator: item.structuralPath,
-        }).then((result) => ({ item, result }))
+      expandedCandidates.map((item) =>
+        verifyProposition(
+          {
+            hypothesis,
+            proofStandard,
+            candidatePassage: item.quotedText,
+            candidateLocator: item.structuralPath,
+          },
+          state
+        ).then((result) => ({ item, result }))
       )
     );
 
@@ -551,6 +671,15 @@ async function evaluateWithVerify(
     const winner = proving ?? contradicting;
 
     if (winner) {
+      const winnerIndex = verdicts.indexOf(winner);
+      logVerifyCandidates({
+        requirementId,
+        hypothesis,
+        proofStandard,
+        outcomes: verdicts,
+        winnerIndex,
+        winnerVerdict: winner.result.verdict === "proves" ? "proves" : "contradicts",
+      });
       findings.push(
         buildVerifiedFinding(
           requirementId,
@@ -563,13 +692,24 @@ async function evaluateWithVerify(
       continue;
     }
 
-    // No proof, but the closest related_not_proof verdict often carries the
-    // exact enrichment content the research doc's Mastercard example calls
-    // for ("specifies the consequence, not the duration itself") — surface
-    // it on the insufficient-evidence finding rather than discarding it.
-    const closest = verdicts.find(
-      (v) => v.result.verdict === "related_not_proof" && v.result.gapDescription
-    );
+    // No proof. Prefer a candidate that carries a `dependency` — the prompt
+    // asks the model to fill it "regardless of verdict", so a candidate
+    // marked irrelevant/related_not_proof can still be the one that names
+    // the missing Annex/Schedule; picking only from related_not_proof rows
+    // (the old logic) silently dropped that signal when it landed on a
+    // differently-verdicted candidate. Fall back to the richest
+    // related_not_proof row when nothing carries a dependency.
+    const closest =
+      verdicts.find((v) => v.result.dependency) ??
+      verdicts.find((v) => v.result.verdict === "related_not_proof" && v.result.gapDescription);
+    const closestIndex = closest ? verdicts.indexOf(closest) : undefined;
+    logVerifyCandidates({
+      requirementId,
+      hypothesis,
+      proofStandard,
+      outcomes: verdicts,
+      closestIndex,
+    });
     findings.push(
       buildInsufficientVerifyFinding(
         requirementId,
@@ -649,6 +789,22 @@ function buildVerifiedFinding(
   };
 }
 
+/**
+ * ACT-Phase — a requirement VERIFY couldn't prove/contradict is not always a
+ * bare "cannot determine": when the closest candidate carried a `dependency`
+ * (the proof standard is satisfied by an Annex/Schedule/SOW the document
+ * itself incorporates but that wasn't supplied), that is a materially
+ * different, more informative outcome — "the contract specifies this by
+ * reference; obtain the schedule to confirm" — not "nothing found". Stamping
+ * compliance=partial / evidenceState=incorporated / referenceBinding=binding
+ * here (rather than the flat insufficient_evidence/not_found this always used
+ * to emit) is picked up verbatim by aggregate-requirements.ts's "stamped
+ * judgement wins" fast paths (requirement-status-policy.ts) and renders as
+ * "Present, particulars in schedule" with an "obtain" recommendation instead
+ * of the uninformative "Cannot determine" — using data VERIFY was already
+ * computing (verify-proposition.ts's prompt asks for `dependency` "regardless
+ * of verdict") but the finding builder previously discarded.
+ */
 function buildInsufficientVerifyFinding(
   requirementId: string,
   ctx: VerifyFindingContext,
@@ -656,25 +812,39 @@ function buildInsufficientVerifyFinding(
   closest?: VerifyPropositionResult
 ): Finding {
   const canonicalId = canonicalRequirementId(requirementId);
-  const judgementBase: Omit<RequirementJudgement, "recommendationKind"> = {
-    compliance: "insufficient_evidence",
-    evidenceState: "not_found",
-    referenceBinding: "none",
-    evidenceConfidence: "low",
-    materiality: "low",
-    nli: "not_mentioned",
-  };
+  const dependency = closest?.dependency;
+  const judgementBase: Omit<RequirementJudgement, "recommendationKind"> = dependency
+    ? {
+        compliance: "partial",
+        evidenceState: "incorporated",
+        referenceBinding: "binding",
+        evidenceConfidence: "medium",
+        materiality: "medium",
+        nli: "not_mentioned",
+      }
+    : {
+        compliance: "insufficient_evidence",
+        evidenceState: "not_found",
+        referenceBinding: "none",
+        evidenceConfidence: "low",
+        materiality: "low",
+        nli: "not_mentioned",
+      };
   const judgement: RequirementJudgement = {
     ...judgementBase,
     recommendationKind: recommendationKindFromAxes(judgementBase),
   };
+
+  const claim = dependency
+    ? `Specified by incorporation of ${dependency.document} — ${dependency.whyNeeded}`
+    : (closest?.gapDescription ?? rationale);
 
   return {
     findingId: sanitizeForId(`f_verify_cd_${canonicalId}_${ctx.unit.workUnitId}`),
     kind: "compliance",
     category: ctx.findingCategory,
     status: "insufficient_evidence",
-    claim: closest?.gapDescription ?? rationale,
+    claim,
     evidence: [],
     taxonomyVersion: RISK_TAXONOMY_VERSION,
     workUnitId: ctx.unit.workUnitId,

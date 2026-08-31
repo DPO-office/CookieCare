@@ -11,6 +11,12 @@ export enum GeminiModel {
   GEMINI_3_1_PRO = "gemini-3.1-pro-preview",
 }
 
+/** Native output dimensionality of GEMINI_EMBEDDING_MODEL — matches legal_document_chunks.embedding vector(768). */
+export const GEMINI_EMBEDDING_DIMENSIONS = 768;
+
+/** Text embedding model — separate quota lane from chat/JSON generation models above. */
+export const GEMINI_EMBEDDING_MODEL = "gemini-embedding-001";
+
 export enum OpenRouterModel {
   LLAMA_3_3_70B = "meta-llama/llama-3.3-70b-instruct",
   CLAUDE_3_5_SONNET = "anthropic/claude-3.5-sonnet",

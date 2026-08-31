@@ -1,4 +1,6 @@
 import type { SharedEvidenceItem } from "../../models/evidence-package.js";
+import type { ClauseIndex } from "./clause-index.js";
+import { retrieveCandidates, type RetrievalTraceRow } from "./retrieve-candidates.js";
 
 export interface RequirementEvidenceProfile {
   hypothesis?: string;
@@ -99,26 +101,6 @@ export function hintsForRequirement(
 const GENERIC_HINT_TOKENS = new Set(["process", "terms", "under", "such", "including"]);
 const MAX_REFS_PER_REQUIREMENT = 5;
 
-const DURATION_SIGNALS = [
-  /\bduration\b/,
-  /\bterm of\b/,
-  /\bin force\b/,
-  /\bset forth\b/,
-  /\bexpiry or termination\b/,
-];
-const RETENTION_NOISE = [
-  /\bretain(?:ed|s|ing)?\b/,
-  /\bretention\b/,
-  /\bdestr(?:oy|uction|oyed)\b/,
-  /\bargentina\b/,
-  /\bbrazil\b/,
-  /\bnigeria\b/,
-  /\bturkey\b/,
-  /\bpersonal data protection act\b/,
-  /\beu sccs?\b/,
-  /\bstandard contractual clauses\b/,
-];
-
 function tokenMatchesHay(needle: string, hay: string, tokens: Set<string>): boolean {
   if (needle.includes(" ")) return hay.includes(needle);
   if (STOPWORDS.has(needle) || GENERIC_HINT_TOKENS.has(needle)) return false;
@@ -131,18 +113,6 @@ function tokenMatchesHay(needle: string, hay: string, tokens: Set<string>): bool
     }
   }
   return false;
-}
-
-function countPatterns(hay: string, patterns: RegExp[]): number {
-  let n = 0;
-  for (const pattern of patterns) {
-    if (pattern.test(hay)) n += 1;
-  }
-  return n;
-}
-
-function blobLooksLike(blob: string, needles: string[]): boolean {
-  return needles.some((needle) => blob.includes(needle));
 }
 
 export interface EvidenceScoreContext {
@@ -198,30 +168,6 @@ export function scoreEvidenceItem(
     }
   }
 
-  const focusBlob = `${idNorm} ${hints.join(" ")}`.toLowerCase();
-  if (blobLooksLike(focusBlob, ["confidential"])) {
-    if (item.clauseType === "confidentiality") score += 48;
-    if (item.clauseType === "information_security") score -= 28;
-  }
-  if (blobLooksLike(focusBlob, ["deletion", "delete", "return_or_deletion", "erasure"])) {
-    if (item.clauseType === "deletion_on_termination") score += 48;
-  }
-  if (blobLooksLike(focusBlob, ["duration"])) {
-    const durationHits = countPatterns(hay, DURATION_SIGNALS);
-    const retentionHits = countPatterns(hay, RETENTION_NOISE);
-    score += durationHits * 24;
-    if (item.clauseType === "termination") score += 36;
-    if (/\bduration of (?:the )?process/.test(hay)) score += 40;
-    if (retentionHits > durationHits) score -= 50;
-    if (
-      retentionHits > 0 &&
-      durationHits === 0 &&
-      !/\bduration of (?:the )?process|\bterm of (?:the )?(?:agreement|services)\b/.test(hay)
-    ) {
-      score -= 40;
-    }
-  }
-
   return score;
 }
 
@@ -243,67 +189,11 @@ const MAX_SUPPORTING = 3;
 const MAX_CONTEXTUAL = 2;
 const MAX_INSUFFICIENT = 2;
 
-type FocusKind = "duration" | "confidentiality" | "deletion" | "generic";
-
-function focusKindFor(
-  requirementId: string,
-  hints: string[]
-): FocusKind {
-  const blob = `${requirementId} ${hints.join(" ")}`.toLowerCase();
-  if (blobLooksLike(blob, ["duration"])) return "duration";
-  if (blobLooksLike(blob, ["confidential"])) return "confidentiality";
-  if (blobLooksLike(blob, ["deletion", "delete", "return_or_deletion", "erasure"])) {
-    return "deletion";
-  }
-  return "generic";
-}
-
-function hasDurationProof(hay: string): boolean {
-  return (
-    /\bduration of (?:the )?process/.test(hay) ||
-    /\bterm of (?:the )?(?:agreement|services|dpa)\b/.test(hay) ||
-    /\bin force\b/.test(hay) ||
-    /\bset forth\b/.test(hay) ||
-    /\bexpiry or termination\b/.test(hay) ||
-    /\b§\s*2\.2\s*\(a\)/.test(hay) ||
-    /\bsection\s+2\.2\s*\(a\)/.test(hay)
-  );
-}
-
-function isJurisdictionOrSccStub(hay: string, clauseType: string): boolean {
-  if (clauseType === "title" || hay.trim().length < 40) return true;
-  return (
-    /\bargentina\b|\bbrazil\b|\bnigeria\b|\bturkey\b|\beu sccs?\b|\bstandard contractual clauses\b|\bpersonal data protection act\b/.test(
-      hay
-    ) && !hasDurationProof(hay)
-  );
-}
-
-function isRetentionOnly(hay: string): boolean {
-  const durationHits = countPatterns(hay, DURATION_SIGNALS);
-  const retentionHits = countPatterns(hay, [
-    /\bretain(?:ed|s|ing)?\b/,
-    /\bretention\b/,
-    /\bdestr(?:oy|uction|oyed)\b/,
-  ]);
-  return retentionHits > 0 && durationHits === 0 && !hasDurationProof(hay);
-}
-
-function isDeletionProof(hay: string, clauseType: string): boolean {
-  if (clauseType === "deletion_on_termination") return true;
-  return (
-    /\b(?:shall|must|will)\s+(?:delete|return|erase)\b/.test(hay) ||
-    /\bdelete or return\b/.test(hay) ||
-    /\breturn or delete\b/.test(hay) ||
-    /\bat (?:the )?(?:end|expiry|termination) of (?:the )?(?:services|processing|agreement)\b/.test(
-      hay
-    )
-  );
-}
-
 /**
  * Classify one pool item for a requirement into supporting / contextual /
- * contradicting / insufficient. Deterministic — no LLM.
+ * contradicting / insufficient. Score-only — no topic-specific branches.
+ * Recall comes from the hybrid retriever (R2); this classifier is only used
+ * by the grouped-LLM path (`resolveEvidence` / `packetsByRequirement`).
  */
 export function classifyEvidenceRole(
   item: SharedEvidenceItem,
@@ -311,54 +201,12 @@ export function classifyEvidenceRole(
   hints: string[],
   context: EvidenceScoreContext = {}
 ): EvidenceRole {
-  const hay = `${item.clauseType} ${item.quotedText} ${item.matchReason ?? ""}`.toLowerCase();
-  const kind = focusKindFor(requirementId, hints);
   const score = scoreEvidenceItem(item, hints, {
     ...context,
     requirementId,
   });
 
-  if (kind === "duration") {
-    if (isJurisdictionOrSccStub(hay, item.clauseType)) return "insufficient";
-    if (hasDurationProof(hay) || (item.clauseType === "termination" && score > 0 && !isRetentionOnly(hay))) {
-      return "supporting";
-    }
-    if (isRetentionOnly(hay) || item.clauseType === "retention_and_deletion") {
-      return "contextual";
-    }
-    if (score <= 0) return "insufficient";
-    return "contextual";
-  }
-
-  if (kind === "confidentiality") {
-    if (item.clauseType === "confidentiality" || /\bconfidential(?:ity)?\b/.test(hay)) {
-      return "supporting";
-    }
-    if (
-      item.clauseType === "information_security" ||
-      /\btechnical and organisational\b|\bsecurity measures\b|\btoms?\b/.test(hay)
-    ) {
-      return "contextual";
-    }
-    if (score <= 0) return "insufficient";
-    return "contextual";
-  }
-
-  if (kind === "deletion") {
-    if (isDeletionProof(hay, item.clauseType)) return "supporting";
-    if (
-      item.clauseType === "retention_and_deletion" ||
-      isRetentionOnly(hay) ||
-      /\bretention\b|\bretain(?:ed|s|ing)?\b/.test(hay)
-    ) {
-      return "contextual";
-    }
-    if (score <= 0) return "insufficient";
-    return "contextual";
-  }
-
   if (score <= 0) return "insufficient";
-  // Generic: top-scoring items are treated as supporting by the resolver caps.
   return "supporting";
 }
 
@@ -401,8 +249,7 @@ export function resolveEvidence(
     }
   }
 
-  // Generic focus: promote highest-scoring unscored leftovers into supporting.
-  if (focusKindFor(requirementId, hints) === "generic" && supporting.length === 0) {
+  if (supporting.length === 0) {
     for (const item of ranked) {
       if (supporting.length >= MAX_SUPPORTING) break;
       if (scoreEvidenceItem(item, hints, context) <= 0) continue;
@@ -540,26 +387,43 @@ export function resolveEvidenceRefsForRequirement(
 
 const DEFAULT_RECALL_CAP = 10;
 
+function semanticRetrievalEnabled(): boolean {
+  return process.env.ANALYSIS_SEMANTIC_RETRIEVAL === "1";
+}
+
 /**
- * ACT-Phase 5 — recall-oriented candidate generation for requirements that
- * have an authored `proofStandard`: rank the whole pool by the existing
- * generic `scoreEvidenceItem` and return the top N, with NO role
- * classification (`classifyEvidenceRole`'s duration/confidentiality/deletion
- * heuristics are precision tools for the old grouped-LLM path — once VERIFY
- * exists, isolation's only job for these requirements is "don't miss the
- * right passage," per the research doc's precision/recall split). A passage
- * merely has to be plausible enough to be worth VERIFY checking, not
- * pre-scored as strong evidence.
+ * Recall-oriented candidate generation: rank the pool and return the top N.
+ * When ANALYSIS_SEMANTIC_RETRIEVAL=1 and a clause index is provided, uses
+ * hybrid dense+lexical retrieval (RRF fusion). Otherwise pure lexical.
+ * Isolation's only job is "don't miss the right passage" — VERIFY is the
+ * precision gate.
  */
-export function resolveRecallCandidates(
+export async function resolveRecallCandidates(
   requirementId: string,
   candidatePool: SharedEvidenceItem[],
   extractionTargets: string[] = [],
   profile?: RequirementEvidenceProfile,
-  cap: number = DEFAULT_RECALL_CAP
-): SharedEvidenceItem[] {
+  cap: number = DEFAULT_RECALL_CAP,
+  options?: {
+    index?: ClauseIndex;
+    queryText?: string;
+    trace?: (rows: RetrievalTraceRow[]) => void;
+  }
+): Promise<SharedEvidenceItem[]> {
   const hints = hintsForRequirement(requirementId, extractionTargets, profile);
   const context: EvidenceScoreContext = { requirementId, extractionTargets };
+
+  if (semanticRetrievalEnabled() && options?.index && options?.queryText) {
+    return retrieveCandidates({
+      queryText: options.queryText,
+      pool: candidatePool,
+      index: options.index,
+      lexicalScore: (item) => scoreEvidenceItem(item, hints, context),
+      cap,
+      trace: options.trace,
+    });
+  }
+
   return [...candidatePool]
     .filter((item) => item.quotedText.trim().length > 0)
     .sort(

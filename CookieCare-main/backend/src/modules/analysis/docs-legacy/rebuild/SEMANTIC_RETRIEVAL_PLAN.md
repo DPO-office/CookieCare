@@ -49,7 +49,7 @@ ceiling** problem in the retrieval substrate, not a reasoning problem.
 | Query text | The requirement's **authored `proofStandard`** (or PLAN hypothesis, or user follow-up) | Already describes the *shape* of proof incl. termination-triggered duration — the perfect semantic query, already authored |
 | Context expansion | **Parent-document retrieval** — retrieve sub-clause, hand VERIFY the full parent clause + referenced defined terms | Reuse `expandSharedEvidenceItem`; protects clause integrity |
 | Embedding lifecycle | **In-memory per analysis run + persist to pgvector async** | Analysis never waits on a cold index; follow-ups hit the warm store |
-| Provider | **Gemini `text-embedding-004`** (native 768-dim) | Same `@google/genai` client + key already in use; matches `legal_document_chunks.embedding vector(768)` |
+| Provider | **Gemini `gemini-embedding-001`** (native 768-dim) | Same `@google/genai` client + key already in use; matches `legal_document_chunks.embedding vector(768)` |
 | Rate limit | Embeddings get a **separate scheduler lane**; raise generation window with the new key | Embedding quota ≫ Pro generation quota — no reason to share the `REQUESTS_PER_WINDOW=3` budget |
 | Rollout | Behind a **feature flag**, lexical remains the fallback | Zero-risk; matches the `ANALYSIS_DISABLE_VERIFY` kill-switch pattern |
 

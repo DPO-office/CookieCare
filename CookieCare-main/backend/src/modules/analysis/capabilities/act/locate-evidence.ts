@@ -4,7 +4,12 @@ import type { SharedEvidenceItem } from "../../models/evidence-package.js";
 import type { AnalysisSkillConfig, ClauseRetrievalDict } from "../../skills/runtime/catalog/types.js";
 import { mergeClauseRetrievalMaps } from "../../skills/runtime/catalog/registry.js";
 
-const MAX_CANDIDATES_PER_TYPE = 5;
+// Gate 1 recall width. Raised from 5 — the old cap was actively evicting
+// role-correct clauses (a Roles/Scope clause bearing the subject matter lost
+// its slot to keyword-dense jurisdiction boilerplate on multi-region DPAs).
+// The LLM candidate selector downstream provides precision, so this only
+// needs to not throw the right clause away before selection ever sees it.
+const MAX_CANDIDATES_PER_TYPE = 8;
 const MIN_SCORE = 20;
 /** Safety cap for one logical evidence unit — not a semantic clause boundary. */
 export const MAX_EVIDENCE_CHARS = 12_000;
