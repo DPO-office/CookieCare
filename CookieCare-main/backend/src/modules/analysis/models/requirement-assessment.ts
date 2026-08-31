@@ -249,6 +249,18 @@ export function withRecommendationKind(
   };
 }
 
+/** `{ document, whyNeeded }` — only resolvable via an incorporated-but-unsupplied document. */
+export interface AssessmentDependency {
+  document: string;
+  whyNeeded: string;
+}
+
+/** Below / meets / exceeds a stated standard, with the reason — not a bare pass/fail. */
+export interface BaselineComparison {
+  comparison: "below" | "meets" | "exceeds";
+  reason: string;
+}
+
 /**
  * RequirementAssessment — canonical reporting object keyed by PLAN requirement.
  * `status` is a derived projection for older consumers; `judgement` is the
@@ -265,6 +277,26 @@ export interface RequirementAssessment {
   recommendation?: string;
   /** Optional hint for which report section this assessment belongs under. */
   reportSection?: ReportSectionId;
+  /**
+   * Enrichment fields (ACT-Phase 2) — VERIFY is the only stage that ever
+   * reads the evidence, so it captures the rich reasoning behind a status
+   * enum as structured data instead of discarding it. RENDER may only
+   * rephrase/compose these; it cannot invent a claim, comparison, or
+   * remediation VERIFY didn't establish (same discipline
+   * `unsupported-inference.ts` already enforces for gap language).
+   */
+  /** What the evidence actually shows, in the verifier's own words. */
+  establishedBy?: string;
+  /** The specific delta between proof standard and what was found. */
+  gapDescription?: string;
+  /** Set when only resolvable via an incorporated-but-unsupplied document. */
+  dependency?: AssessmentDependency;
+  /** Below/meets/exceeds a stated standard, with reason — not bare pass/fail. */
+  baselineComparison?: BaselineComparison;
+  /** Drafting-quality observation in prose (e.g. "dispersed across several clauses"). */
+  structuralNote?: string;
+  /** The specific action that closes the gap, as an instruction — not "needs improvement". */
+  remediation?: string;
 }
 
 /**

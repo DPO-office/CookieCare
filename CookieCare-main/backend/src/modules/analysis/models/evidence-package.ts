@@ -84,7 +84,12 @@ export interface EvidencePackage {
    */
   requirementEvidence?: Record<
     string,
-    { hypothesis?: string; evidenceHints?: string[] }
+    {
+      hypothesis?: string;
+      evidenceHints?: string[];
+      /** ACT-Phase 3 — precise proof criteria; see RequirementEvidenceProfile. */
+      proofStandard?: string;
+    }
   >;
   /**
    * Optional requirementId → capabilityIds map. When omitted and both arrays

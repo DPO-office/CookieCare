@@ -182,6 +182,28 @@ export interface IntentClassification {
   unresolvedStandard?: string;
   /** Detected document type passed into classification (audit). */
   docTypeHint?: string;
+  /**
+   * Whose side the ask is being answered from (e.g. "customer", "processor").
+   * Inferred from context where possible; asked when genuinely ambiguous (§5.2).
+   */
+  partyPerspective?: string | null;
+  /**
+   * User-stated scoping instruction ("just the top 3 risks", "skip drafting
+   * nitpicks"), separate from the Lite/Deep compute budget (Gap 2).
+   */
+  exhaustiveness?: IntentExhaustiveness;
+  /**
+   * Document version/hash per docId, so a follow-up turn can tell whether a
+   * prior-turn locked assessment is still valid or must be re-investigated
+   * after a revised upload (§5.5).
+   */
+  documentVersionRef?: Record<string, string> | null;
+}
+
+export interface IntentExhaustiveness {
+  mode: "default" | "user_capped";
+  /** Present when mode === "user_capped", e.g. "top 3 risks" → 3. */
+  limit?: number;
 }
 
 /** Axes that change what runs — low confidence → ASK. */

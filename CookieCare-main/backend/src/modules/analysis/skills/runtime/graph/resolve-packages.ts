@@ -131,7 +131,7 @@ function splitPackageCapabilities(
   return { capabilityIds, contextCapabilityIds };
 }
 
-/** Extract regime article family, e.g. gdpr.art28.1 → "28". */
+/** Extract the numbered article/section family from a capability id, e.g. "…art28.1" → "28". */
 function articleFamilyFromCapabilityId(id: string): string | undefined {
   const match = id.match(/(?:^|[._-])art(?:icle)?[._-]?(\d{1,3})(?:$|[._-])/i);
   return match?.[1];
@@ -697,9 +697,10 @@ export function resolvePackages(
     leftoverRuleIds.push(id);
   }
 
-  // Same-article leftover rules (e.g. gdpr.art28.1/.2/.10 when Art 28 packages
-  // already run) become context on the covering package — they must not compete
-  // as parallel check_against_rule units with package evaluation.
+  // Same-article-family leftover rules (numbered sub-clauses of an article
+  // already covered by a package) become context on the covering package —
+  // they must not compete as parallel check_against_rule units with package
+  // evaluation.
   leftoverRuleIds = absorbSameArticleLeftoverRules(packages, leftoverRuleIds);
 
   const deferredReportPackages = allPackages.filter(

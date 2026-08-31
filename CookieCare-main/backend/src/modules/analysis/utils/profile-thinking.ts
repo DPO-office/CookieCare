@@ -24,3 +24,13 @@ export function profileThinkingLevel(
 export function profileEvidenceCharBudget(state: AnalysisState): number {
   return getAnalysisProfile(state).evidenceCharBudget;
 }
+
+/** ACT-Phase 10 — max recall candidates VERIFY checks per requirement (lite 5 / deep 10). */
+export function profileVerifyCandidateCap(state: AnalysisState): number {
+  return getAnalysisProfile(state).verifyCandidateCap;
+}
+
+/** ACT-Phase 10 — whether Lite skips PLAN-authored "supporting"-priority requirements. */
+export function profileSkipsSupportingPriority(state: AnalysisState): boolean {
+  return getAnalysisProfile(state).verifySkipSupportingPriority;
+}

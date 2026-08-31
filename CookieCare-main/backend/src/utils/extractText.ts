@@ -42,6 +42,25 @@ async function extractPdfWithPdfJs(buffer: Buffer): Promise<string> {
 }
 
 /**
+ * Turn mammoth's HTML output back into plain text, preserving paragraph,
+ * heading, and list-item boundaries as newlines instead of losing them.
+ */
+function htmlToStructuredText(html: string): string {
+  return html
+    .replace(/<\/(p|li|h[1-6]|tr)>/gi, "\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+/**
  * Extract plaintext from a file buffer.
  *
  * @param buffer   Raw file bytes
@@ -72,8 +91,17 @@ export async function extractText(
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
     mimeType === "application/msword"
   ) {
-    const data = await mammoth.extractRawText({ buffer });
-    return data.value;
+    // mammoth.extractRawText() only inserts a newline between text runs it
+    // recognizes as separate paragraphs. On some real-world docx files —
+    // notably PDF-to-DOCX conversions — the underlying paragraph marks
+    // themselves are coarse, so several logical clauses can share one Word
+    // paragraph and collapse onto a single line, breaking downstream
+    // line-based segmentation (segment-document.ts). convertToHtml() exposes
+    // the same paragraph/heading/list boundaries as real tags, which we turn
+    // back into newlines — a strictly-more-faithful text rendering than the
+    // raw-text mode for this purpose.
+    const { value: html } = await mammoth.convertToHtml({ buffer });
+    return htmlToStructuredText(html);
   }
 
   if (mimeType.startsWith("text/") || mimeType === "application/json") {

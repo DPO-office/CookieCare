@@ -4,7 +4,10 @@ import { groupedResultsToFindings } from "../../capabilities/act/grouped-results
 import { deriveRequirementJudgement } from "../../capabilities/act/requirement-status-policy.js";
 import { aggregateRequirements } from "../../capabilities/act/aggregate-requirements.js";
 import { displayRequirementStatus } from "../../models/requirement-assessment.js";
-import { guardUnsupportedInference } from "../../capabilities/reporting/unsupported-inference.js";
+import {
+  guardUnsupportedInference,
+  guardUnsupportedDependencyClaim,
+} from "../../capabilities/reporting/unsupported-inference.js";
 import {
   assessmentTableMarkdown,
   enforceAnswerStyleLayout,
@@ -162,6 +165,56 @@ describe("Art 28 obligation golden (deterministic)", () => {
       assessments
     );
     assert.ok(hits.length > 0);
+  });
+
+  it("flags dependency/incorporated-by-reference language with no locked dependency field (ACT-Phase 7)", () => {
+    const assessments = aggregateRequirements(
+      { findings: [] } as unknown as AnalysisState,
+      { workUnitId: "wu-aggregate", input: {} } as never,
+      [
+        {
+          findingId: "f-subject-matter",
+          kind: "compliance",
+          category: "processor_terms",
+          status: "present",
+          claim: "Subject matter is present.",
+          evidence: [],
+          taxonomyVersion: "test",
+          requirementId: "gdpr.article28.subject_matter",
+        },
+      ]
+    ).state.requirementAssessments ?? [];
+    const hits = guardUnsupportedDependencyClaim(
+      "Categories of data are delegated to Annex 1 and not verifiable from the DPA alone.",
+      assessments
+    );
+    assert.ok(hits.length > 0);
+  });
+
+  it("allows dependency language when a locked row actually carries a dependency (ACT-Phase 7)", () => {
+    const assessments = aggregateRequirements(
+      { findings: [] } as unknown as AnalysisState,
+      { workUnitId: "wu-aggregate", input: {} } as never,
+      [
+        {
+          findingId: "f-categories",
+          kind: "compliance",
+          category: "processor_terms",
+          status: "insufficient_evidence",
+          claim: "Categories of data are referenced but not confirmed.",
+          evidence: [],
+          taxonomyVersion: "test",
+          requirementId: "gdpr.article28.categories_of_data",
+          verifiedByProposition: true,
+          dependency: { document: "Offer Disclosure", whyNeeded: "lists the data categories" },
+        },
+      ]
+    ).state.requirementAssessments ?? [];
+    const hits = guardUnsupportedDependencyClaim(
+      "Categories of data are delegated to the Offer Disclosure and not verifiable from the DPA alone.",
+      assessments
+    );
+    assert.equal(hits.length, 0);
   });
 });
 

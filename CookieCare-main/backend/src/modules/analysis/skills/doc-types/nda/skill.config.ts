@@ -88,7 +88,8 @@ const AUTHORED_REQUIREMENTS: IntentRequirement[] = [
   },
   {
     id: "nda.nlra_section_7",
-    description: "Whether employee-facing confidentiality language would reasonably restrict NLRA Section 7 activity.",
+    description:
+      "Whether the confidentiality obligations avoid restricting employees' NLRA Section 7 rights to discuss wages, working conditions, or other concerted activity.",
     type: "adequacy",
     priority: "required",
   },
@@ -105,6 +106,75 @@ const AUTHORED_REQUIREMENTS: IntentRequirement[] = [
     priority: "supporting",
   },
 ];
+
+/**
+ * ACT-Phase 8 — proves the VERIFY primitive is genuinely regime/doc-type
+ * agnostic, not just tuned for GDPR: same read-aloud bar, same schema field,
+ * zero changes to any ACT capability file. `nda.nlra_section_7`'s
+ * description above is deliberately phrased as the PROTECTIVE absence of a
+ * restriction (matching every other requirement's "proves = good" polarity)
+ * rather than "does this clause create the risk" — so it slots into the same
+ * proves/contradicts/insufficient_evidence pipeline as every adequacy check,
+ * without needing a separate risk-shaped code path.
+ */
+const NDA_PROOF_STANDARDS: Record<string, string> = {
+  "nda.confidentiality_definition":
+    "Proven only by text that (a) defines what counts as Confidential Information " +
+    "with reasonable specificity — not merely 'any information disclosed' — AND " +
+    "(b) states the standard exclusions: information that is public, " +
+    "independently developed, rightfully received from a third party without a " +
+    "confidentiality restriction, or already known before disclosure. This is a " +
+    "MUTUAL NDA, so the definition and its exclusions must bind BOTH parties " +
+    "symmetrically (each is both a discloser and a recipient) — a definition " +
+    "that only restricts one named party's use of the other's information, " +
+    "while leaving the other party's own information unprotected, does not " +
+    "satisfy this for a mutual instrument. A bare statement that the parties " +
+    "'may share confidential information,' with no specific definition or no " +
+    "exclusions, is insufficient.",
+  "nda.purpose_limitation":
+    "Proven only by text that names a specific permitted purpose (e.g. " +
+    "'evaluating a potential business relationship,' 'the Project') and " +
+    "restricts USE of confidential information to that purpose. A clause that " +
+    "only prohibits disclosure to third parties, without also restricting the " +
+    "receiving party's own internal use of the information to the stated " +
+    "purpose, does not satisfy this — non-disclosure and use-limitation are " +
+    "different obligations. General business-cooperation language with no " +
+    "named purpose is insufficient.",
+  "nda.return_or_destruction":
+    "Proven only by text obligating a party to return or destroy the other's " +
+    "confidential information upon request, termination, or completion of the " +
+    "stated purpose. A clause merely stating a party 'may request return,' " +
+    "without the receiving party being independently obligated to comply, does " +
+    "not satisfy this. A residual-copy exception for legal/compliance " +
+    "retention is consistent with this requirement and does not defeat it.",
+  "nda.nlra_section_7":
+    "Proven only by text that either (a) expressly carves out discussions of " +
+    "wages, working conditions, or other NLRA Section 7 protected concerted " +
+    "activity from the confidentiality duty, or (b) confines the confidentiality " +
+    "duty to genuinely commercial/trade-secret information with no plausible " +
+    "reading that reaches wages or working conditions — e.g. a mutual NDA " +
+    "between two contracting businesses that never addresses either party's own " +
+    "employees at all. Contradicted only by text that, on its plain terms, " +
+    "would restrict employees or workers from discussing wages, working " +
+    "conditions, or other concerted activity, with no such carve-out. If the " +
+    "instrument has no employee-facing confidentiality language at all (a pure " +
+    "business-to-business NDA), this proposition is not raised by anything in " +
+    "the text — treat as irrelevant, not proved.",
+  "nda.term_and_survival":
+    "Proven only by text stating (a) how long the agreement itself lasts, AND " +
+    "(b) how long the confidentiality duty survives after expiry or " +
+    "termination (an explicit survival period, or 'indefinitely' if that is " +
+    "what the text actually says). A clause stating only the agreement's term " +
+    "with no separate survival statement is partial, not proven — silence on " +
+    "survival is a real gap, not something to infer favorably. Do not treat a " +
+    "termination-for-convenience clause as answering this; termination rights " +
+    "and confidentiality survival are different questions.",
+  "nda.governing_law":
+    "Proven only by text naming a specific governing law (a named jurisdiction " +
+    "or body of law) or a specific forum/venue for disputes. A clause " +
+    "referencing 'applicable law' without naming which law, or a generic " +
+    "dispute-resolution clause with no named forum, does not satisfy this.",
+};
 
 export const ndaDocTypeSkill: AnalysisSkillConfig = {
   skillId: "doc-types/nda",
@@ -199,6 +269,12 @@ export const ndaDocTypeSkill: AnalysisSkillConfig = {
         "term",
         "return_or_destruction",
       ],
+      requirementEvidence: Object.fromEntries(
+        AUTHORED_REQUIREMENTS.map((r) => [
+          r.id,
+          { hypothesis: r.description, proofStandard: NDA_PROOF_STANDARDS[r.id] },
+        ])
+      ),
       sourceMode: "authored",
       requirementKinds: ["adequacy", "verification"],
       packageVersion: "0.1.0",

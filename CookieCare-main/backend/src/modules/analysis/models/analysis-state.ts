@@ -1,6 +1,11 @@
 import type { AgentRunState, EntryMode } from "../pac/types.js";
 import type { AnalysisProfile, ThinkingMode } from "../pac/analysis-profile.js";
-import type { AnalysisPlan, MissingClarification, PlanAuditRecord } from "./analysis-plan.js";
+import type {
+  AnalysisPlan,
+  DocumentRoleResolution,
+  MissingClarification,
+  PlanAuditRecord,
+} from "./analysis-plan.js";
 import type { CritiqueReport, FixItem } from "./critique-report.js";
 import type { AuditReport } from "./audit-report.js";
 import type { AnalysisConversation } from "./conversation.js";
@@ -124,6 +129,14 @@ export interface AnalysisState {
 
   workspace: AnalysisWorkspace;
   intent?: IntentClassification | null;
+  /** Set by classify-intent (§5.1); carried into plan.documentRoleResolution by build-plan. */
+  documentRoleResolution?: DocumentRoleResolution;
+  /**
+   * Document-role / party-perspective clarifications found before buildPlan
+   * runs — build-plan prepends these into plan.missingClarifications so ASK
+   * picks them up through the existing mustAskUser() path.
+   */
+  pendingDocumentClarifications?: MissingClarification[];
   /** Resolved in PLAN from promptLibraryId or free-text selection. */
   activeSkills?: AnalysisSkillConfig[];
   activeSkillIds?: string[];

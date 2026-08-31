@@ -67,6 +67,15 @@ export interface Finding {
    * PLAN requirement id this finding helps establish. Enables per-requirement
    * aggregation (RequirementAssessment) and independent CRITIQUE verification
    * without making the finding itself requirement-scoped.
+   *
+   * Optional at the type level because handlers emit raw findings before the
+   * generic `stampRequirementIdsOnNewFindings` / `stampFindingsByCapability`
+   * helpers (act-utils.ts) enrich them post-hoc — a required field here would
+   * force every handler to supply a placeholder before stamping runs.
+   * Effectively required by the time a finding leaves ACT for any
+   * user-facing (`visibility !== "internal"`) `compliance`/`risk` finding —
+   * enforced at runtime by `critique/validators/findings.ts`'s
+   * `validateFindings` (ACT-Phase 1).
    */
   requirementId?: string;
   /**
@@ -74,4 +83,26 @@ export interface Finding {
    * this over re-deriving from Finding.status alone.
    */
   judgement?: RequirementJudgement;
+  /**
+   * ACT-Phase 5 — true only for findings constructed directly from a
+   * `verifyProposition()` verdict (never re-derived by the generic
+   * `judgementForResult` heuristics, which don't know about VERIFY and could
+   * silently upgrade/downgrade its verdict). Lets aggregation enforce "LOCK
+   * only promotes proves/contradicts-verdict findings" as a structural
+   * guarantee for this path specifically, with zero effect on any other.
+   */
+  verifiedByProposition?: boolean;
+  /**
+   * ACT-Phase 7 enrichment — VERIFY is the only stage that ever reads the
+   * evidence, so it captures the rich reasoning behind a verdict as
+   * structured data instead of discarding it. Only ever populated on
+   * `verifiedByProposition` findings; aggregation copies whichever of these
+   * are present onto the locked RequirementAssessment (models/
+   * requirement-assessment.ts's matching fields from ACT-Phase 2).
+   */
+  establishedBy?: string;
+  gapDescription?: string;
+  dependency?: { document: string; whyNeeded: string };
+  structuralNote?: string;
+  remediation?: string;
 }

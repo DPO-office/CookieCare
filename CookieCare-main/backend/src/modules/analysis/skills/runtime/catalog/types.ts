@@ -260,6 +260,29 @@ export interface AnalysisSkillConfig {
    * structural_review evidencePackage.
    */
   authoredRequirements?: IntentRequirement[];
+  /**
+   * S2 proposition-generation patterns (PLAN's generate-propositions.ts).
+   * Generated only when the document's own inventory shows a matching
+   * clause type — never for a clause type absent from the document.
+   */
+  propositionPatterns?: PropositionPattern[];
+}
+
+/**
+ * One S2 (doc-type/topic skill) proposition pattern. `hypothesis` and
+ * `proofStandard` may contain the literal token `{{party}}`, substituted at
+ * generation time with the resolved party perspective (§5.2) so the standard
+ * reads "adequate for the customer", not a generic "adequate".
+ */
+export interface PropositionPattern {
+  id: string;
+  /** Inventory clause type(s) that must be present for this pattern to fire. */
+  clauseTypes: string[];
+  hypothesis: string;
+  /** Written the way you'd brief a first-year associate — specific and checkable. */
+  proofStandard: string;
+  /** Higher = investigated first / kept under Lite-mode trimming. */
+  priority: number;
 }
 
 export interface MetaRequirementBinding {
