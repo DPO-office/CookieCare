@@ -47,7 +47,7 @@ export const REPORT_SECTION_DEFINITIONS: Record<ReportSectionId, ReportSectionDe
     id: "conclusion",
     suggestedHeading: "Conclusion",
     role:
-      "Synthesize the bottom line after the analysis: overall compliance position, the most material gaps, and whether verification was limited. Be concise. Do not introduce new findings or repeat the full analysis.",
+      "One tight paragraph (2–4 sentences): the overall position and the one or two items that most need attention, ending on what the reader should do next. The reader has already seen the matrix and the executive summary — do NOT restate each requirement, re-list every gap, or re-explain findings covered above. Add the decision, not a recap.",
     headingPatterns: [
       /\bconclusion\b/i,
       /\bbottom line\b/i,
@@ -105,7 +105,7 @@ export const REPORT_SECTION_DEFINITIONS: Record<ReportSectionId, ReportSectionDe
     id: "material_gaps",
     suggestedHeading: "Material gaps",
     role:
-      "Only the positive gaps: missing or partial obligations in the reviewed text. Do not restate cannot_determine items as legal gaps.",
+      "A short signpost to the gap rows already shown in the matrix — at most one or two sentences naming which requirements are gaps and why they matter as a group. Do NOT re-explain each gap's rationale and recommendation one by one; the Finding and Action columns already carry that. Only the positive gaps (missing or partial obligations); never restate cannot_determine items as legal gaps.",
     headingPatterns: [/\bmaterial (gaps|issues)\b/i, /\bgaps\b/i],
   },
   risk_summary: {

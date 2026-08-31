@@ -109,6 +109,21 @@ export function humanizeRequirementId(id: string): string {
     const base = `Art ${lettered[1]}(${lettered[2]})(${lettered[3].toLowerCase()})`;
     return titled ? `${base} ${titled}` : base;
   }
+  // Article with an optional paragraph but no lettered sub-point, e.g.
+  // "gdpr.article28_3.mandatory_clauses_adequacy" → "Art 28(3) Mandatory
+  // Clauses Adequacy", "gdpr.article28.categories_of_data_and_subjects" →
+  // "Art 28 Categories Of Data And Subjects" (was the raw "Article28 …").
+  const numbered = id.match(/\bart(?:icle)?[._-]?(\d{1,3})(?:[._-](\d+))?/i);
+  if (numbered && numbered.index !== undefined) {
+    const base = `Art ${numbered[1]}${numbered[2] ? `(${numbered[2]})` : ""}`;
+    const tail = id
+      .slice(numbered.index + numbered[0].length)
+      .replace(/^[._-]+/, "")
+      .replace(/[._-]+/g, " ")
+      .trim()
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+    return tail ? `${base} ${tail}` : base;
+  }
   return id
     .replace(/^[a-z]{2,12}\.(?=[a-z])/i, "")
     .replace(/[._-]+/g, " ")

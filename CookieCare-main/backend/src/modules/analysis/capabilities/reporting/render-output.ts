@@ -1419,7 +1419,35 @@ function tableText(lines: string[], range: { startLine: number; endLine: number 
 }
 
 function mdCell(value: string): string {
-  return value.replace(/\|/g, "/").replace(/\s+/g, " ").trim().slice(0, 360);
+  const clean = value.replace(/\|/g, "/").replace(/\s+/g, " ").trim();
+  if (clean.length <= 360) return clean;
+  // Truncate at a word boundary and add an ellipsis rather than slicing
+  // mid-word (the old behaviour produced "…retrieval, analys").
+  const cut = clean.slice(0, 360);
+  const lastSpace = cut.lastIndexOf(" ");
+  const trimmed = (lastSpace > 240 ? cut.slice(0, lastSpace) : cut).replace(/[.,;:\s]+$/, "");
+  return `${trimmed}…`;
+}
+
+/**
+ * Prettify a GDPR-article requirement id that lacks a trailing letter (the
+ * lettered case is already handled by humanizeRequirementId). Turns
+ * "gdpr.article28_3.mandatory_clauses_adequacy" into
+ * "Art 28(3) — Mandatory Clauses Adequacy" instead of the raw
+ * "Article28 3 Mandatory Clauses Adequacy". Local to rendering so the shared
+ * humanizeRequirementId (and its test) stay untouched.
+ */
+function prettyArticleLabel(id: string): string | null {
+  const m = id.match(/article[._-]?(\d{1,3})(?:[._-](\d+))?/i);
+  if (!m || m.index === undefined) return null;
+  const base = `Art ${m[1]}${m[2] ? `(${m[2]})` : ""}`;
+  const tail = id
+    .slice(m.index + m[0].length)
+    .replace(/^[._-]+/, "")
+    .replace(/[._-]+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return tail ? `${base} — ${tail}` : base;
 }
 
 function requirementLabel(
@@ -1431,7 +1459,13 @@ function requirementLabel(
   if (description && description !== requirementId && description.length <= 80) {
     return description;
   }
-  return humanizeRequirementId(requirementId);
+  const humanized = humanizeRequirementId(requirementId);
+  // humanizeRequirementId handles lettered ids ("Art 28(3)(g)…"); catch the
+  // non-lettered article ids it leaves as "Article28 3 …".
+  if (/^Article\d/.test(humanized)) {
+    return prettyArticleLabel(requirementId) ?? humanized;
+  }
+  return humanized;
 }
 
 function pickRowFinding(
@@ -1450,12 +1484,26 @@ function pickRowFinding(
   );
 }
 
+/** "clause-3.6.3" → "cl. 3.6.3"; leaves section/article-style paths as-is; drops opaque ids. */
+function formatLocator(path?: string): string {
+  if (!path) return "";
+  const clause = path.match(/^clause-(.+)$/i);
+  if (clause) return `cl. ${clause[1]}`;
+  if (/section|article|art\b|appendix|annex|schedule/i.test(path)) {
+    return path.replace(/[-_]+/g, " ");
+  }
+  return "";
+}
+
 function evidenceCellText(
   assessment: RequirementAssessment,
   finding: Finding | undefined
 ): string {
   const quote = finding?.evidence[0]?.quotedText?.trim() ?? "";
-  if (quote) return quote;
+  if (quote) {
+    const loc = formatLocator(finding?.evidence[0]?.locator.structuralPath);
+    return loc ? `${loc} — ${quote}` : quote;
+  }
   if (finding && isReferencedElsewhereClaim(finding)) {
     return "Particulars referenced outside this extract";
   }
@@ -1487,8 +1535,32 @@ function enrichmentSuffix(assessment: RequirementAssessment, base: string): stri
       `Depends on ${assessment.dependency.document}: ${assessment.dependency.whyNeeded}`
     );
   }
-  if (assessment.remediation) parts.push(`Remediation: ${assessment.remediation}`);
+  // Remediation is no longer crammed here — it renders in its own Action cell.
   return parts.join(" ");
+}
+
+/**
+ * The per-row next step. Prefers VERIFY's specific, locked `remediation`; falls
+ * back to a short verb-led phrase from the recommendation kind. Covered rows
+ * with nothing to do return "" (a blank cell — never "—", which the layout
+ * contract forbids). This is the industry-standard "what to do" column that
+ * keeps the Finding cell to the finding itself instead of a truncated wall.
+ */
+function actionCellText(assessment: RequirementAssessment): string {
+  const remedy = assessment.remediation?.trim();
+  if (remedy) return remedy;
+  switch (assessment.judgement?.recommendationKind) {
+    case "obtain":
+      return "Obtain the referenced schedule or materials.";
+    case "amend":
+      return "Amend the text to close the gap.";
+    case "confirm":
+      return "Confirm the incorporated schedule.";
+    case "clarify":
+      return "Clarify the wording.";
+    default:
+      return "";
+  }
 }
 
 export function assessmentTableMarkdown(
@@ -1498,14 +1570,14 @@ export function assessmentTableMarkdown(
 ): string {
   const findingById = new Map(findings.map((f) => [f.findingId, f]));
   const header = [
-    "| Requirement | Status | Evidence | Finding |",
-    "| :--- | :--- | :--- | :--- |",
+    "| Requirement | Status | Evidence | Finding | Action |",
+    "| :--- | :--- | :--- | :--- | :--- |",
   ];
   const rows = assessments.map((assessment) => {
     const support = pickRowFinding(assessment, findingById);
     const base = assessment.establishedBy ?? support?.claim ?? assessment.summary;
     const finding = [base, enrichmentSuffix(assessment, base)].filter(Boolean).join(" ");
-    return `| ${mdCell(requirementLabel(assessment.requirementId, state))} | **${mdCell(displayRequirementStatus(assessment))}** | ${mdCell(evidenceCellText(assessment, support))} | ${mdCell(finding)} |`;
+    return `| ${mdCell(requirementLabel(assessment.requirementId, state))} | **${mdCell(displayRequirementStatus(assessment))}** | ${mdCell(evidenceCellText(assessment, support))} | ${mdCell(finding)} | ${mdCell(actionCellText(assessment))} |`;
   });
   return [...header, ...rows].join("\n");
 }
@@ -1616,6 +1688,13 @@ function injectAssessmentTableIntoSections(
   const prefix = lines.slice(0, headingIdxs[0]).join("\n").trimEnd();
   if (prefix) rebuilt.push(prefix);
 
+  // Each locked assessment row belongs in exactly ONE section table. Recap
+  // sections (Material gaps / Missing materials) list requirement ids that
+  // overlap the requirement sections, which used to re-print the same rows
+  // verbatim 2–3×. First occurrence (the requirement section) wins; a later
+  // recap section whose rows were all already shown renders its prose lead
+  // only, as a pointer back to the matrix — no duplicate table.
+  const emitted = new Set<string>();
   let attachedAny = false;
   for (let h = 0; h < headingIdxs.length; h++) {
     const start = headingIdxs[h]!;
@@ -1633,8 +1712,11 @@ function injectAssessmentTableIntoSections(
       }
       continue;
     }
-    const scoped = assessmentsForHeading(heading, state, assessments);
+    const scoped = assessmentsForHeading(heading, state, assessments).filter(
+      (a) => !emitted.has(canonicalRequirementId(a.requirementId))
+    );
     if (scoped.length > 0) {
+      for (const a of scoped) emitted.add(canonicalRequirementId(a.requirementId));
       rebuilt.push("");
       rebuilt.push(sectionWithLockedTable(body, locked(scoped)));
       attachedAny = true;
