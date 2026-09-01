@@ -9,6 +9,7 @@ import {
   Check,
   Copy,
   Trash2,
+  ExternalLink,
 } from "lucide-react";
 import { LibraryItem, LibraryTabId } from "../types";
 import { TagChips } from "./TagChips";
@@ -28,6 +29,8 @@ interface LibraryItemsTableProps {
   onRowClick: (item: LibraryItem) => void;
   onCopyId: (id: string, e: React.MouseEvent) => void;
   onDelete: (id: string, e: React.MouseEvent) => void;
+  onOpen?: (item: LibraryItem, e: React.MouseEvent) => void;
+  openingId?: string | null;
   onPageChange: (page: number) => void;
   onRecordsPerPageChange: (n: number) => void;
 }
@@ -148,6 +151,8 @@ export function LibraryItemsTable({
   onRowClick,
   onCopyId,
   onDelete,
+  onOpen,
+  openingId,
   onPageChange,
   onRecordsPerPageChange,
 }: LibraryItemsTableProps) {
@@ -157,6 +162,9 @@ export function LibraryItemsTable({
 
   // Items count is meaningless for single-item tab types — each row is always "1 item".
   const showItemsCol = activeTab !== "prompts" && activeTab !== "questions";
+
+  // Open button is only shown for rulebook and templates tabs.
+  const showOpenBtn = (activeTab === "rulebook" || activeTab === "templates") && !!onOpen;
 
   if (items.length === 0) {
     return (
@@ -290,6 +298,47 @@ export function LibraryItemsTable({
                       row.addEventListener("mouseleave", () => { el.style.opacity = "0"; });
                     }}
                   >
+                    {showOpenBtn && (
+                      <button
+                        title="Open document"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onOpen!(item, e);
+                        }}
+                        className="vlt-icon-btn"
+                        disabled={openingId === item.id}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: 26,
+                          height: 26,
+                          borderRadius: 6,
+                          color: openingId === item.id ? "var(--text-muted)" : "#4F5BD9",
+                          background: openingId === item.id ? "transparent" : "rgba(79,91,217,0.07)",
+                          border: "1px solid rgba(79,91,217,0.18)",
+                          cursor: openingId === item.id ? "default" : "pointer",
+                          transition: "all 150ms ease",
+                          flexShrink: 0,
+                        }}
+                      >
+                        {openingId === item.id ? (
+                          <span
+                            style={{
+                              width: 10,
+                              height: 10,
+                              display: "inline-block",
+                              borderRadius: "50%",
+                              border: "1.5px solid rgba(79,91,217,0.5)",
+                              borderTopColor: "transparent",
+                              animation: "spin 0.8s linear infinite",
+                            }}
+                          />
+                        ) : (
+                          <ExternalLink style={{ width: 12, height: 12 }} />
+                        )}
+                      </button>
+                    )}
                     <button
                       title="Copy ID"
                       onClick={(e) => onCopyId(item.id, e)}

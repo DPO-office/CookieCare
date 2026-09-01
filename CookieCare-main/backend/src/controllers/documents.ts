@@ -22,30 +22,66 @@ export const getDocuments = async (req: Request, res: Response) => {
   const limit = Math.min(Math.max(1, Number(req.query.limit) || 100), 500);
   const offset = Math.max(0, Number(req.query.offset) || 0);
 
+  // Optional type filter — e.g. ?type=upload or ?type=draft
+  // "upload" covers files uploaded via the vault uploader (category=upload).
+  // "draft"  covers AI-generated saved drafts.
+  // When omitted all non-ephemeral types are returned (existing behaviour).
+  const typeFilter = typeof req.query.type === "string" && req.query.type.trim()
+    ? req.query.type.trim()
+    : null;
+
+  // Optional search filter — case-insensitive substring match on title.
+  const searchFilter = typeof req.query.search === "string" && req.query.search.trim()
+    ? `%${req.query.search.trim()}%`
+    : null;
+
   try {
     const { docs, total } = await withTransaction(userId, userRole, async (client) => {
+      const accessClause = `(
+        creator_id = current_setting('app.current_user_id', true)
+        OR shared_with::jsonb @> $1::jsonb
+        OR shared_with::jsonb @> $2::jsonb
+      )`;
+      const baseWhere = `${accessClause} AND type NOT IN ('ephemeral_upload', 'vault_asset_source')`;
+
+      // Build dynamic extra conditions (type + search).
+      // Params $1/$2 are always the email JSON arrays; extra params start at $3.
+      const extraConditions: string[] = [];
+      const extraParams: any[] = [];
+      let paramIdx = 3;
+
+      if (typeFilter) {
+        extraConditions.push(`type = $${paramIdx++}`);
+        extraParams.push(typeFilter);
+      }
+      if (searchFilter) {
+        extraConditions.push(`LOWER(title) LIKE LOWER($${paramIdx++})`);
+        extraParams.push(searchFilter);
+      }
+
+      const whereClause = extraConditions.length
+        ? `${baseWhere} AND ${extraConditions.join(" AND ")}`
+        : baseWhere;
+
+      const baseQueryParams = [
+        JSON.stringify([userEmail]),
+        JSON.stringify([{ email: userEmail }]),
+        ...extraParams,
+      ];
+
       // Total count for pagination metadata (no content fetch).
       const { rows: countRows } = await client.query(
-        `SELECT COUNT(*) AS total FROM files
-         WHERE (
-           creator_id = current_setting('app.current_user_id', true)
-           OR shared_with::jsonb @> $1::jsonb
-           OR shared_with::jsonb @> $2::jsonb
-         ) AND type != 'ephemeral_upload'`,
-        [JSON.stringify([userEmail]), JSON.stringify([{ email: userEmail }])]
+        `SELECT COUNT(*) AS total FROM files WHERE ${whereClause}`,
+        baseQueryParams
       );
       const total = Number(countRows[0].total);
 
       const { rows } = await client.query(
         `SELECT * FROM files
-         WHERE (
-           creator_id = current_setting('app.current_user_id', true)
-           OR shared_with::jsonb @> $1::jsonb
-           OR shared_with::jsonb @> $2::jsonb
-         ) AND type != 'ephemeral_upload'
+         WHERE ${whereClause}
          ORDER BY created_at DESC
-         LIMIT $3 OFFSET $4`,
-        [JSON.stringify([userEmail]), JSON.stringify([{ email: userEmail }]), limit, offset]
+         LIMIT $${paramIdx} OFFSET $${paramIdx + 1}`,
+        [...baseQueryParams, limit, offset]
       );
       return { docs: rows, total };
     }).catch(e => {
@@ -243,11 +279,26 @@ export const  uploadDocument = async (req: Request, res: Response) => {
   }
 
   try {
+    // Determine the type stored in the files table.
+    // - Regular uploads:              type = "upload"          → visible in Vault Files
+    // - Playbook / template / clause: type = "vault_asset_source" → NOT shown as regular
+    //   vault files; their user-visible entry is the library_items row instead.
+    //   This prevents source files from leaking into the Negotiate document picker
+    //   (which filters on type='upload' or type='draft') and from cluttering Vault→Files.
+    // - Ephemeral uploads:            type = "ephemeral_upload" → session-only, excluded
+    //   from all Vault lists by the getDocuments baseWhere clause.
+    const isVaultAsset = ["playbook", "templates", "template", "clauses", "clause"].includes(systemFileType);
+    const fileType = isEphemeral
+      ? "ephemeral_upload"
+      : isVaultAsset
+      ? "vault_asset_source"
+      : "upload";
+
     await withTransaction(userId, userRole, async (client) => {
       await client.query(
-        `INSERT INTO files (id, title, type, content, creator_id, creator_email, mime_type, folder_id)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-        [fileId, fileTitle, isEphemeral ? "ephemeral_upload" : "upload", "", req.user!.id, req.user!.email, file.mimetype, resolvedFolderId]
+        `INSERT INTO files (id, title, type, content, creator_id, creator_email, mime_type, folder_id, original_file)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        [fileId, fileTitle, fileType, "", req.user!.id, req.user!.email, file.mimetype, resolvedFolderId, file.buffer.toString("base64")]
       );
     }).catch(e => {
       console.error("Database insert failed during upload:", e);
@@ -382,6 +433,59 @@ export const  uploadDocument = async (req: Request, res: Response) => {
     console.error("Document upload route crash:", err);
     const message = err.message === "DB_UPLOAD_FAILED" ? "Failed to register upload in security log." : "Internal error during background job queueing.";
     res.status(500).json({ error: message });
+  }
+};
+
+/**
+ * GET /api/documents/:id/raw
+ * Streams the original uploaded file back to the caller with the correct
+ * Content-Type so the browser can render it natively (PDF, DOCX, etc.).
+ * Only the creator or a shared recipient may access the file.
+ */
+export const getRawDocument = async (req: Request, res: Response) => {
+  const userId   = req.user!.id;
+  const userRole = req.user!.role;
+  const userEmail = req.user!.email.toLowerCase();
+
+  try {
+    const row = await withTransaction(userId, userRole, async (client) => {
+      const { rows } = await client.query(
+        `SELECT id, title, mime_type, original_file
+         FROM files
+         WHERE id = $1
+           AND (
+             creator_id = current_setting('app.current_user_id', true)
+             OR shared_with::jsonb @> $2::jsonb
+             OR shared_with::jsonb @> $3::jsonb
+           )`,
+        [req.params.id, JSON.stringify([userEmail]), JSON.stringify([{ email: userEmail }])]
+      );
+      return rows[0] ?? null;
+    });
+
+    if (!row) {
+      return res.status(404).json({ error: "Document not found." });
+    }
+
+    if (!row.original_file) {
+      return res.status(404).json({ error: "Original file not available for this document." });
+    }
+
+    const buffer   = Buffer.from(row.original_file, "base64");
+    const mimeType = row.mime_type || "application/octet-stream";
+
+    // Send back with inline disposition so the browser opens it directly.
+    res.setHeader("Content-Type", mimeType);
+    res.setHeader("Content-Length", buffer.length);
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="${encodeURIComponent(row.title || "document")}"`
+    );
+    res.setHeader("Cache-Control", "private, max-age=3600");
+    return res.send(buffer);
+  } catch (err: any) {
+    console.error("[getRawDocument] error:", err);
+    return res.status(500).json({ error: "Failed to retrieve original file." });
   }
 };
 
