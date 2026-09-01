@@ -11,7 +11,14 @@ import type { SegmentedDocument } from "../../models/document-workspace.js";
 import type { RuleSourceTier } from "../../models/rule-source.js";
 import type { ReportSpec } from "../../models/intent.js";
 import type { RequirementAssessment } from "../../models/requirement-assessment.js";
-import { displayRequirementStatus, isConditionalLike } from "../../models/requirement-assessment.js";
+import {
+  displayRequirementStatus,
+  isConditionalLike,
+  isCoveredLike,
+  isGapLike,
+  isMaterialIssueStatus,
+} from "../../models/requirement-assessment.js";
+import { deterministicFactRollup } from "../../prompts/analytical-synthesis.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { humanizeRequirementId } from "../../shared/group-assessments.js";
 import { isTabularAnswerStyle, wantsMatrixTable } from "../../prompts/synthesis.js";
@@ -147,6 +154,7 @@ export async function renderOutput(
   );
 
   let rendered: string;
+  let usedBluf = false;
   if (usesSynthesis) {
     const synthStarted = Date.now();
     const spec = finalizeReportSpec(state);
@@ -154,7 +162,13 @@ export async function renderOutput(
     const retrySectionIds = Array.isArray(unit.input.retrySectionIds)
       ? (unit.input.retrySectionIds as string[])
       : [];
-    if (presentation === "individual" && targetDocs.length > 1) {
+    // BLUF collapse (flagged): one bottom-line call + a deterministic matrix,
+    // instead of the section-per-call synthesis. Individual per-document
+    // presentation keeps the existing path (BLUF is a single-document layout).
+    if (blufReportEnabled() && !(presentation === "individual" && targetDocs.length > 1)) {
+      rendered = await buildBlufReport(state, visible, spec);
+      usedBluf = true;
+    } else if (presentation === "individual" && targetDocs.length > 1) {
       rendered = await synthesizeIndividualReports(state, visible, spec, targetDocs);
     } else {
       rendered = await synthesizeReport(state, visible, spec, { retrySectionIds });
@@ -164,6 +178,7 @@ export async function renderOutput(
       assessments: assessments.length,
       presentation,
       schemaId,
+      bluf: usedBluf,
     });
   } else if (schemaId === "brief_summary") {
     rendered = buildBriefSummaryDocument(state, visible);
@@ -194,7 +209,9 @@ export async function renderOutput(
   }
   rendered = replaceRawCategoryIds(rendered, state, visible);
   rendered = sanitizeRenderedOutput(rendered);
-  rendered = enforceAnswerStyleLayout(rendered, state);
+  // BLUF already built its own single-matrix layout — the tabular table
+  // injection would append a duplicate matrix, so skip it for BLUF output.
+  if (!usedBluf) rendered = enforceAnswerStyleLayout(rendered, state);
 
   const renderFinding: Finding = {
     findingId: `f_render_${unit.workUnitId}`,
@@ -1830,6 +1847,202 @@ async function streamBottomLine(state: AnalysisState, sections: string): Promise
     console.warn("[renderOutput] bottom-line stream failed:", err);
     return "See the rights matrix and gaps above; no additional narrative was generated.";
   }
+}
+
+/**
+ * BLUF (bottom-line-up-front) report — behind ANALYSIS_BLUF_REPORT. Replaces
+ * the multi-pass per-section LLM synthesis (which restated the same findings
+ * in an executive summary, several matrix sections, a material-gaps prose
+ * block, and a conclusion) with ONE inverted-pyramid layout:
+ *   ## Bottom line            — one short LLM paragraph (the only LLM call)
+ *   ## Requirements at a glance — one deterministic matrix, severity-ordered
+ *   ## What needs attention   — deterministic one-liners for the problem rows
+ *   ## Missing materials      — deterministic list of incorporated-but-unsupplied docs
+ * Each fact appears once. Fewer LLM calls than the section-per-call path, so
+ * it is also faster. Off by default → the existing path is unchanged.
+ */
+export function blufReportEnabled(): boolean {
+  return process.env.ANALYSIS_BLUF_REPORT === "1";
+}
+
+/** Problems first: gap → conditional/partial → cannot_determine → covered → n/a. */
+function severityRank(status: RequirementAssessment["status"]): number {
+  if (isGapLike(status)) return 0;
+  if (isConditionalLike(status)) return 1;
+  if (status === "cannot_determine") return 2;
+  if (isCoveredLike(status)) return 3;
+  return 4;
+}
+
+async function streamBlufBottomLine(
+  state: AnalysisState,
+  assessments: RequirementAssessment[],
+  riskFindings: Finding[] = []
+): Promise<string> {
+  const rollup = deterministicFactRollup(assessments);
+  const system = [
+    "You are a senior analyst writing the BOTTOM LINE of a document review for counsel.",
+    "Write 2–4 sentences: the overall position, then the one or two items that most need attention, ending on what to do next.",
+    "Use only the supplied counts, residual items, and risks. Do not invent findings, do not enumerate every item, do not restate a matrix, do not write a heading. No preamble such as 'In summary'.",
+  ].join(" ");
+  const riskSummary =
+    riskFindings.length > 0
+      ? (() => {
+          const by = { high: 0, medium: 0, low: 0 } as Record<string, number>;
+          for (const r of riskFindings) by[r.severity ?? "medium"] = (by[r.severity ?? "medium"] ?? 0) + 1;
+          const top = riskFindings
+            .filter((r) => r.severity === "high")
+            .slice(0, 3)
+            .map((r) => displayLabelForFinding(state, r));
+          return [
+            `Risks identified: ${riskFindings.length} (high ${by.high}, medium ${by.medium}, low ${by.low}).`,
+            top.length > 0 ? `Most serious: ${top.join("; ")}.` : "",
+          ]
+            .filter(Boolean)
+            .join(" ");
+        })()
+      : "";
+  const user = [
+    `User request: ${state.request.instruction.slice(0, 400)}`,
+    "",
+    rollup,
+    riskSummary,
+  ]
+    .filter(Boolean)
+    .join("\n");
+  const tracker = state.agent ? { tokensUsed: state.agent.tokensUsed } : undefined;
+  try {
+    const outcome = await executeBoundedCompletion(
+      user,
+      system,
+      LLMTask.REFINEMENT,
+      LLMProvider.GEMINI,
+      {
+        onDelta: (delta) => emitAnalysisToken(state, delta),
+        tracker,
+        thinkingLevel: profileThinkingLevel(state, LLMTask.REFINEMENT),
+      }
+    );
+    if (state.agent && tracker) state.agent.tokensUsed = tracker.tokensUsed;
+    return outcome.text.trim();
+  } catch (err) {
+    console.warn("[buildBlufReport] bottom line failed; using deterministic counts:", err);
+    const fallback = rollup.split("\n")[0] ?? "See the requirements matrix below.";
+    emitAnalysisToken(state, fallback);
+    return fallback;
+  }
+}
+
+function dedupeDependencies(
+  assessments: RequirementAssessment[]
+): Array<{ document: string; whyNeeded: string }> {
+  const seen = new Set<string>();
+  const out: Array<{ document: string; whyNeeded: string }> = [];
+  for (const a of assessments) {
+    const dep = a.dependency;
+    if (!dep?.document) continue;
+    const key = dep.document.trim().toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({ document: dep.document.trim(), whyNeeded: dep.whyNeeded?.trim() ?? "" });
+  }
+  return out;
+}
+
+async function buildBlufReport(
+  state: AnalysisState,
+  findings: Finding[],
+  _spec: ReportSpec
+): Promise<string> {
+  beginRenderStreaming(state);
+  const allAssessments = [...(state.requirementAssessments ?? [])].sort(
+    (a, b) => severityRank(a.status) - severityRank(b.status)
+  );
+  const findingList = state.findings ?? findings;
+  const findingById = new Map(findingList.map((f) => [f.findingId, f]));
+
+  // A requirement whose only support is risk findings (e.g. an open "biggest
+  // risks" ask) isn't a compliance row — its content renders in Key risks
+  // below, not as a "Cannot determine" matrix row.
+  const isRiskOnly = (a: RequirementAssessment): boolean => {
+    const supp = a.supportingFindingIds
+      .map((id) => findingById.get(id))
+      .filter((f): f is Finding => Boolean(f));
+    return supp.length > 0 && supp.every((f) => f.kind === "risk");
+  };
+  const assessments = allAssessments.filter((a) => !isRiskOnly(a));
+  const riskFindings = findingList.filter(
+    (f) => f.kind === "risk" && f.visibility !== "internal"
+  );
+
+  const parts: string[] = [];
+
+  // 1. Bottom line — the only LLM call, streamed live.
+  emitAnalysisToken(state, "## Bottom line\n\n");
+  const bottomLine = await streamBlufBottomLine(state, allAssessments, riskFindings);
+  emitAnalysisToken(state, "\n\n");
+  parts.push("## Bottom line", "", bottomLine, "");
+
+  // 2. One deterministic compliance matrix, severity-ordered.
+  if (assessments.length > 0) {
+    const matrix = `## Requirements at a glance\n\n${assessmentTableMarkdown(assessments, findingList, state)}\n`;
+    emitAnalysisToken(state, `${matrix}\n`);
+    parts.push(matrix, "");
+  }
+
+  // 2b. Key risks — open/document-derived risk findings, most serious first.
+  if (riskFindings.length > 0) {
+    const sevRank: Record<string, number> = { high: 0, medium: 1, low: 2 };
+    const sorted = [...riskFindings].sort(
+      (a, b) => (sevRank[a.severity ?? "medium"] ?? 1) - (sevRank[b.severity ?? "medium"] ?? 1)
+    );
+    const lines = ["## Key risks", ""];
+    for (const r of sorted) {
+      const sev = (r.severity ?? "medium").toUpperCase();
+      const ev = r.evidence[0];
+      const loc = ev ? formatLocator(ev.locator.structuralPath) : "";
+      const quote = ev?.quotedText ? ` — “${cleanQuote(ev.quotedText, 180)}”` : "";
+      lines.push(`### ${displayLabelForFinding(state, r)} — **${sev}**`);
+      lines.push(`${ensureSentence(r.claim)}${loc ? ` (${loc})` : ""}${quote}`);
+      lines.push("");
+    }
+    const section = lines.join("\n");
+    emitAnalysisToken(state, `${section}\n`);
+    parts.push(section, "");
+  }
+
+  // 3. What needs attention — problem rows only, one line each.
+  const attention = assessments.filter(
+    (a) => isMaterialIssueStatus(a.status) || a.status === "cannot_determine"
+  );
+  if (attention.length > 0) {
+    const lines = ["## What needs attention", ""];
+    for (const a of attention) {
+      const action = actionCellText(a) || "Review with counsel.";
+      lines.push(
+        `- **${requirementLabel(a.requirementId, state)}** — ${displayRequirementStatus(a)}: ${action}`
+      );
+    }
+    lines.push("");
+    const section = lines.join("\n");
+    emitAnalysisToken(state, `${section}\n`);
+    parts.push(section, "");
+  }
+
+  // 4. Missing materials — incorporated-but-unsupplied documents.
+  const deps = dedupeDependencies(assessments);
+  if (deps.length > 0) {
+    const lines = ["## Missing materials", ""];
+    for (const dep of deps) {
+      lines.push(`- **${dep.document}**${dep.whyNeeded ? ` — ${dep.whyNeeded}` : ""}`);
+    }
+    lines.push("");
+    const section = lines.join("\n");
+    emitAnalysisToken(state, section);
+    parts.push(section);
+  }
+
+  return parts.join("\n").replace(/\n{3,}/g, "\n\n").trim();
 }
 
 async function streamNarrativeReport(

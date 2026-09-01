@@ -40,6 +40,8 @@ import { loadOrgMemory } from "../../memory/org-memory.js";
 import { applyOrgRoutingDefaults } from "../../memory/resolve-org-defaults.js";
 import { resolveDocumentRoles } from "./resolve-document-roles.js";
 import { followUpKindForState, isMaterialTopicShift } from "./follow-up-intent.js";
+import { buildOpenPlan } from "./build-open-plan.js";
+import type { EvidencePackage } from "../../models/evidence-package.js";
 import { replicateGraphForTargets } from "../../skills/runtime/graph/replicate-graph-for-targets.js";
 import { injectAuthoredRequirements } from "./inject-authored-requirements.js";
 
@@ -267,14 +269,58 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     intent.operation,
     intent.subIntents
   );
-  const catalogStarted = Date.now();
-  const focus = await extractInstructionFocus(state.request.instruction, skills, {
-    riskAnalysisRequested,
-    intentRequirements: intent.requirements,
-  });
-  pacLog("PLAN catalog/focus", { ms: Date.now() - catalogStarted, reqs: focus?.requirements?.length ?? 0 });
-  intent = injectAuthoredRequirements(intent, skills, focus);
-  state = { ...state, intent };
+  const primaryDocId = roleResolution.targetDocId || docIds[0];
+  const referenceDocId = roleResolution.referenceDocId;
+
+  // Lane router. Open/general asks (no regime standard, or a risk/QA/compare
+  // operation) go through the document-first proposition brain: inventory the
+  // document, generate propositions with proof standards for what is actually
+  // in it, and run them through the same evaluate_package/VERIFY spine as an
+  // authored package. Compliance asks (a regime_pack standard) keep the
+  // authored-catalogue path. Flag-gated; off = current behavior.
+  const openLaneEnabled = process.env.ANALYSIS_OPEN_PROPOSITIONS === "1";
+  const isRegimeCompliance =
+    typeof intent.standard === "string" && intent.standard.startsWith("regime_pack:");
+  const preferOpenLane =
+    openLaneEnabled &&
+    !isRegimeCompliance &&
+    (intent.standard === "none" ||
+      intent.operation === "risk_flag" ||
+      intent.operation === "explain_qa" ||
+      intent.operation === "compare");
+
+  let focus: InstructionFocus | undefined;
+  let extraPackages: EvidencePackage[] | undefined;
+
+  if (preferOpenLane) {
+    const open = await buildOpenPlan(state, primaryDocId, referenceDocId);
+    if (open.ambiguity && open.ambiguity.severity === "critical") {
+      return { ...open.state, plan: emptyPlan(open.intent, [open.ambiguity]) };
+    }
+    if (open.hasPropositions) {
+      state = open.state;
+      intent = open.intent;
+      extraPackages = open.extraPackages;
+      focus = undefined;
+      pacLog("PLAN open-analysis lane", {
+        requirements: intent.requirements?.length ?? 0,
+        packages: extraPackages?.length ?? 0,
+      });
+    }
+  }
+
+  if (!extraPackages) {
+    // Compliance / catalogue lane (existing).
+    const catalogStarted = Date.now();
+    focus = await extractInstructionFocus(state.request.instruction, skills, {
+      riskAnalysisRequested,
+      intentRequirements: intent.requirements,
+    });
+    pacLog("PLAN catalog/focus", { ms: Date.now() - catalogStarted, reqs: focus?.requirements?.length ?? 0 });
+    intent = injectAuthoredRequirements(intent, skills, focus);
+    state = { ...state, intent };
+  }
+
   const seedReportType = intent.reportType ?? fallbackReportType(intent.operation);
   const seedDepth = intent.depth ?? "standard";
   const seedReportSpec: ReportSpec = {
@@ -283,8 +329,6 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     sections: deriveSections(seedReportType, seedDepth),
   };
   const relatedChecks = resolveRelatedChecks(skills, state.request.instruction, focus);
-  const primaryDocId = roleResolution.targetDocId || docIds[0];
-  const referenceDocId = roleResolution.referenceDocId;
   const targetDocIds =
     roleResolution.targetDocIds.length > 0
       ? roleResolution.targetDocIds
@@ -302,6 +346,7 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
       unresolvedStandard: intent.unresolvedStandard,
       referenceDocId,
       reportSpec: seedReportSpec,
+      extraPackages,
     })
   );
   const graph = replicateGraphForTargets(graphs);

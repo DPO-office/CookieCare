@@ -47,6 +47,8 @@ export interface BuildActGraphInput {
   referenceDocId?: string;
   /** Clause types known from a prior extract (rare); usually empty at PLAN. */
   playbookClauseTypes?: string[];
+  /** Runtime packages (e.g. open-analysis propositions) merged into resolution. */
+  extraPackages?: EvidencePackage[];
 }
 
 export interface BuildActGraphResult {
@@ -218,7 +220,7 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
   });
   const subIntents = effectiveSubIntents(intent);
 
-  const packageResolution = resolvePackages(skills, focus, intent.requirements);
+  const packageResolution = resolvePackages(skills, focus, intent.requirements, input.extraPackages);
   validatePlannedWork(packageResolution);
   const usePackages = packageResolution.packages.length > 0;
   const docTypeStructuralFallback = skills.some(

@@ -215,9 +215,16 @@ interface PlanReq {
 export function resolvePackages(
   skills: AnalysisSkillConfig[],
   focus?: InstructionFocus,
-  intentRequirements?: IntentRequirement[]
+  intentRequirements?: IntentRequirement[],
+  /**
+   * Runtime-injected packages (e.g. the open-analysis proposition package
+   * built by PLAN from generated propositions) that are not authored on any
+   * skill. Merged into the authored packages so they resolve and run through
+   * the same evaluate_package / VERIFY path.
+   */
+  extraPackages?: EvidencePackage[]
 ): PackageResolution {
-  const allPackages = mergeEvidencePackages(skills);
+  const allPackages = [...mergeEvidencePackages(skills), ...(extraPackages ?? [])];
   const empty: PackageResolution = {
     packages: [],
     requirementToPackageId: {},
