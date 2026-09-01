@@ -1,8 +1,9 @@
-﻿import React from "react";
+﻿import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Upload } from "lucide-react";
 import { LegalDocument } from "../../shared/types";
 import { isPlaceholderVaultDocument } from "../analyze/utils/vaultDocumentFilters";
+import { fetchRawDocument } from "./api/vaultApi";
 import { TABS_CONFIG } from "./constants";
 import { useLibrary } from "./hooks/useLibrary";
 import { useLibraryUI } from "./hooks/useLibraryUI";
@@ -111,6 +112,48 @@ export default function LibraryManager(_props: LibraryProps = {}) {
   } = useLibraryUI();
 
   const activeTabInfo = TABS_CONFIG.find((t) => t.id === activeTab) ?? TABS_CONFIG[0];
+
+  // ── Open document in new tab ──────────────────────────────────────────────
+  const [openingId, setOpeningId] = useState<string | null>(null);
+
+  const handleOpenDocument = useCallback(
+    async (item: import("./types").LibraryItem, e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (openingId) return;
+
+      // Extract sourceFileId from item.details
+      let sourceFileId: string | null = null;
+      try {
+        const details =
+          typeof item.details === "string" ? JSON.parse(item.details) : item.details;
+        sourceFileId = details?.sourceFileId ?? null;
+      } catch { /* ignore */ }
+
+      if (!sourceFileId) {
+        alert("Source file not available for this item.");
+        return;
+      }
+
+      setOpeningId(item.id);
+      try {
+        const result = await fetchRawDocument(authToken, sourceFileId);
+        if (!result) {
+          alert("Could not load the original file. It may still be processing.");
+          return;
+        }
+        const blob = new Blob([result.buffer], { type: result.mimeType });
+        const url  = URL.createObjectURL(blob);
+        const tab  = window.open(url, "_blank", "noopener,noreferrer");
+        if (tab) {
+          // Revoke after the browser has had time to load the blob.
+          setTimeout(() => URL.revokeObjectURL(url), 60_000);
+        }
+      } finally {
+        setOpeningId(null);
+      }
+    },
+    [authToken, openingId]
+  );
   const isVaultIngestTab =
     activeTab === "rulebook" || activeTab === "templates" || activeTab === "clauses";
   // Tabs that support the private / org scope split.
@@ -373,6 +416,8 @@ export default function LibraryManager(_props: LibraryProps = {}) {
                   }}
                   onCopyId={handleCopyId}
                   onDelete={(id, e) => handleDeleteItem(id, activeTab, e)}
+                  onOpen={handleOpenDocument}
+                  openingId={openingId}
                   onPageChange={setCurrentPage}
                   onRecordsPerPageChange={(n) => {
                     setRecordsPerPage(n);

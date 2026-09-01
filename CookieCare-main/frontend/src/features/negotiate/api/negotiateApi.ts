@@ -1,20 +1,39 @@
 import { apiUrl } from "../../../config";
-import { AgentMarkup } from "../types";
+import { AgentMarkup, NegotiationContext, NegotiationStrategy, StrategyDraftResult, StrategyPosition } from "../types";
 
 export async function evaluateDocument(
   authToken: string,
   content: string,
   documentTitle: string,
-  documentType: string
-): Promise<{ markups: AgentMarkup[] }> {
+  documentType: string,
+  playbookId?: string | null
+): Promise<{ markups: AgentMarkup[]; info?: string }> {
   const res = await fetch(apiUrl("/api/negotiate/evaluate"), {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
-    body: JSON.stringify({ content, documentTitle, documentType }),
+    body: JSON.stringify({
+      content,
+      documentTitle,
+      documentType,
+      ...(playbookId ? { playbookId } : {}),
+    }),
   });
+
   const parsed = await res.json();
-  if (!res.ok) throw new Error(parsed.error || "Evaluation failed.");
-  return { markups: parsed.data?.markups || [] };
+
+  // Surface any server-side error — this was previously masked by the old
+  // endpoint returning HTTP 200 { markups: [], warning: "..." } on failure,
+  // which caused the UI to silently show "All clear" instead of an error.
+  if (!res.ok) {
+    throw new Error(parsed.error || parsed.detail || "Clause evaluation failed.");
+  }
+
+  // Pass through the optional info message (e.g. large document notice) so
+  // the hook layer can display it if desired.
+  return {
+    markups: parsed.data?.markups || [],
+    ...(parsed.info ? { info: parsed.info } : {}),
+  };
 }
 
 export async function submitRedline(
@@ -60,16 +79,102 @@ export async function generateCompromise(
   authToken: string,
   originalText: string,
   riskExplanation: string,
-  playbookPreferred: boolean
-): Promise<string> {
+  playbookPreferred: boolean,
+  userInstruction?: string
+): Promise<string>;
+export async function generateCompromise(
+  authToken: string,
+  originalText: string,
+  riskExplanation: string,
+  playbookPreferred: boolean,
+  userInstruction: string | undefined,
+  strategyOptions: {
+    strategyPosition: StrategyPosition & { tier: "preferred" | "balanced" | "fallback"; confidence?: number };
+    analysisFinding?: NegotiationContext["analysisFinding"];
+    compareFinding?: NegotiationContext["compareFinding"];
+    playbookRule?: NegotiationContext["playbookRule"];
+  }
+): Promise<StrategyDraftResult>;
+export async function generateCompromise(
+  authToken: string,
+  originalText: string,
+  riskExplanation: string,
+  playbookPreferred: boolean,
+  userInstruction?: string,
+  strategyOptions?: {
+    strategyPosition: StrategyPosition & { tier: "preferred" | "balanced" | "fallback"; confidence?: number };
+    analysisFinding?: NegotiationContext["analysisFinding"];
+    compareFinding?: NegotiationContext["compareFinding"];
+    playbookRule?: NegotiationContext["playbookRule"];
+  }
+): Promise<string | StrategyDraftResult> {
+  const body: Record<string, unknown> = {
+    originalText,
+    riskExplanation,
+    userPrompt: userInstruction ?? "",
+    playbookPreferred,
+  };
+
+  if (strategyOptions) {
+    body.strategyPosition = strategyOptions.strategyPosition;
+    if (strategyOptions.analysisFinding) body.analysisFinding = strategyOptions.analysisFinding;
+    if (strategyOptions.compareFinding)  body.compareFinding  = strategyOptions.compareFinding;
+    if (strategyOptions.playbookRule)    body.playbookRule    = strategyOptions.playbookRule;
+  }
+
   const res = await fetch(apiUrl("/api/negotiate/compromise"), {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
-    body: JSON.stringify({ originalText, riskExplanation, userPrompt: "", playbookPreferred }),
+    body: JSON.stringify(body),
   });
   const parsed = await res.json();
   if (!res.ok) throw new Error(parsed.error || "Failed to generate compromise");
-  return parsed.result;
+
+  // Strategy path: server returns { result, draftMeta }
+  if (strategyOptions && parsed.draftMeta) {
+    // Guard: ensure result is present to avoid silent undefined replacement
+    if (!parsed.result) throw new Error("Strategy draft returned empty result.");
+    return parsed as StrategyDraftResult;
+  }
+  // Legacy path: server returns { result: string }
+  return parsed.result as string;
+}
+
+export async function fetchNegotiationContext(
+  authToken: string,
+  params: {
+    documentId: string;
+    original: string;
+    clauseId: string;
+    clauseType?: string;
+    charOffset?: number;
+    userInstruction?: string;
+    /** ID of the Vault AI Rulebook selected by the user, if any */
+    playbookId?: string;
+  }
+): Promise<NegotiationContext> {
+  const res = await fetch(apiUrl("/api/negotiate/context"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
+    body: JSON.stringify(params),
+  });
+  const parsed = await res.json();
+  if (!res.ok) throw new Error(parsed.error || "Failed to fetch negotiation context");
+  return parsed.context as NegotiationContext;
+}
+
+export async function fetchNegotiationStrategy(
+  authToken: string,
+  context: NegotiationContext
+): Promise<NegotiationStrategy> {
+  const res = await fetch(apiUrl("/api/negotiate/strategy"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
+    body: JSON.stringify({ context }),
+  });
+  const parsed = await res.json();
+  if (!res.ok) throw new Error(parsed.error || "Failed to generate negotiation strategy");
+  return parsed.strategy as NegotiationStrategy;
 }
 
 export async function fetchDocumentDetails(authToken: string, docId: string): Promise<any> {
@@ -117,6 +222,7 @@ export async function exportDocument(
       title,
       content,
       format,
+      contentType: "legal_document",
     }),
   });
   if (!res.ok) throw new Error("Failed to export document");
