@@ -207,16 +207,19 @@ function ToolbarDropdown({
 }
 
 function getActiveFontFamily(editor: Editor): string {
+  if (!editor.view) return "Times New Roman, Times, serif";
   const attrs = editor.getAttributes("textStyle");
   return attrs.fontFamily || "Times New Roman, Times, serif";
 }
 
 function getActiveFontSize(editor: Editor): string {
+  if (!editor.view) return "12pt";
   const attrs = editor.getAttributes("textStyle");
   return attrs.fontSize || "12pt";
 }
 
 function getActiveBlockStyle(editor: Editor): string {
+  if (!editor.view) return "paragraph";
   if (editor.isActive("heading", { level: 1 })) return "h1";
   if (editor.isActive("heading", { level: 2 })) return "h2";
   if (editor.isActive("heading", { level: 3 })) return "h3";
@@ -224,6 +227,7 @@ function getActiveBlockStyle(editor: Editor): string {
 }
 
 function getActiveColor(editor: Editor): string {
+  if (!editor.view) return "#111827";
   return editor.getAttributes("textStyle").color || "#111827";
 }
 
@@ -237,25 +241,44 @@ export default function EditorToolbar({
 }: EditorToolbarProps) {
   const editor = useEditorToolbarState(editorProp);
   const colorInputRef = useRef<HTMLInputElement>(null);
-  const disabled = !editor;
+
+  // An editor instance is only safe to query when it exists AND its ProseMirror
+  // view is mounted. During streaming or content updates the view can briefly be
+  // null even while the editor object is non-null.
+  const editorReady = !!(editor && editor.view);
+  const disabled = !editorReady;
+
+  // Safe wrapper around editor.can() — Tiptap throws if view is null
+  const safeCanUndo = (): boolean => {
+    if (!editorReady) return false;
+    try { return editor!.can().undo(); } catch { return false; }
+  };
+  const safeCanRedo = (): boolean => {
+    if (!editorReady) return false;
+    try { return editor!.can().redo(); } catch { return false; }
+  };
 
   const sync = () => {
-    if (editor) onSetEditorContent(editor.getHTML());
+    if (editorReady) onSetEditorContent(editor!.getHTML());
   };
 
   const run = (fn: () => void) => {
-    if (!editor) return;
+    if (!editorReady) return;
     fn();
     sync();
   };
 
-  const isActive = (type: string | Record<string, unknown>, attrs?: object) =>
-    typeof type === "string"
-      ? (editor?.isActive(type, attrs) ?? false)
-      : (editor?.isActive(type) ?? false);
+  const isActive = (type: string | Record<string, unknown>, attrs?: object) => {
+    if (!editorReady) return false;
+    try {
+      return typeof type === "string"
+        ? (editor!.isActive(type, attrs) ?? false)
+        : (editor!.isActive(type) ?? false);
+    } catch { return false; }
+  };
 
   const applyBlockStyle = (value: string) => {
-    if (!editor) return;
+    if (!editorReady) return;
     const chain = editor.chain().focus();
     if (value === "paragraph") chain.setParagraph().run();
     else if (value === "h1") chain.toggleHeading({ level: 1 }).run();
@@ -265,7 +288,7 @@ export default function EditorToolbar({
   };
 
   const setLink = () => {
-    if (!editor) return;
+    if (!editorReady) return;
     const previous = editor.getAttributes("link").href as string | undefined;
     const url = window.prompt("Enter URL", previous || "https://");
     if (url === null) return;
@@ -278,7 +301,7 @@ export default function EditorToolbar({
   };
 
   const insertTable = () => {
-    if (!editor) return;
+    if (!editorReady) return;
     editor
       .chain()
       .focus()
@@ -292,14 +315,14 @@ export default function EditorToolbar({
       <div className="draft-toolbar-row">
         <Group>
         <TBtn
-          disabled={disabled || !editor?.can().undo()}
+          disabled={disabled || !safeCanUndo()}
           onClick={() => run(() => editor!.chain().focus().undo().run())}
           title="Undo"
         >
           <Undo2 className="w-3.5 h-3.5" />
         </TBtn>
         <TBtn
-          disabled={disabled || !editor?.can().redo()}
+          disabled={disabled || !safeCanRedo()}
           onClick={() => run(() => editor!.chain().focus().redo().run())}
           title="Redo"
         >
@@ -309,8 +332,8 @@ export default function EditorToolbar({
           disabled={disabled}
           onClick={() => {
             onPushUndoSnapshot(editorContent);
-            if (editor) {
-              editor.chain().focus().clearContent().run();
+            if (editorReady) {
+              editor!.chain().focus().clearContent().run();
               sync();
             } else {
               onSetEditorContent("<p></p>");
@@ -324,7 +347,7 @@ export default function EditorToolbar({
 
         <Group>
         <ToolbarDropdown
-          value={editor ? getActiveFontFamily(editor) : FONT_FAMILIES[0].value}
+          value={editorReady ? getActiveFontFamily(editor!) : FONT_FAMILIES[0].value}
           label="Font family"
           minWidth="132px"
           disabled={disabled}
@@ -333,7 +356,7 @@ export default function EditorToolbar({
         />
 
         <ToolbarDropdown
-          value={editor ? getActiveFontSize(editor) : "12pt"}
+          value={editorReady ? getActiveFontSize(editor!) : "12pt"}
           label="Font size"
           minWidth="52px"
           disabled={disabled}
@@ -342,7 +365,7 @@ export default function EditorToolbar({
         />
 
         <ToolbarDropdown
-          value={editor ? getActiveBlockStyle(editor) : "paragraph"}
+          value={editorReady ? getActiveBlockStyle(editor!) : "paragraph"}
           label="Block style"
           minWidth="96px"
           disabled={disabled}
@@ -397,14 +420,14 @@ export default function EditorToolbar({
             <span className="text-[11px] font-bold leading-none">A</span>
             <span
               className="w-3.5 h-[2.5px] rounded-full mt-0.5"
-              style={{ background: editor ? getActiveColor(editor) : "#0F172A" }}
+              style={{ background: editorReady ? getActiveColor(editor!) : "#0F172A" }}
             />
           </button>
           <input
             ref={colorInputRef}
             type="color"
             className="sr-only"
-            value={editor ? getActiveColor(editor) : "#0F172A"}
+            value={editorReady ? getActiveColor(editor!) : "#0F172A"}
             onChange={(e) =>
               run(() => editor!.chain().focus().setColor(e.target.value).run())
             }

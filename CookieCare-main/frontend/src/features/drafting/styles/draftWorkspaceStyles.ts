@@ -71,6 +71,32 @@ export const DRAFT_WORKSPACE_STYLES = `
   color: #4F5BD9;
 }
 
+.draft-history-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px 7px 11px;
+  border-radius: 9999px;
+  border: 1px solid rgba(16,24,40,0.08);
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #667085;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease, box-shadow 150ms ease;
+  box-shadow: 0 1px 2px rgba(16,24,40,0.04);
+  white-space: nowrap;
+}
+.draft-history-btn:hover {
+  background: #ffffff;
+  color: #1a1a1a;
+  box-shadow: 0 1px 3px rgba(16,24,40,0.08), 0 0 0 1px rgba(16,24,40,0.08);
+}
+.draft-history-btn svg {
+  color: #4F5BD9;
+}
 .draft-export-btn {
   display: inline-flex;
   align-items: center;

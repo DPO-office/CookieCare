@@ -79,9 +79,37 @@ export function useLibraryUpload(
       ?.split("/")[0];
     if (rootFolder) setSuggestedVaultFolderName(rootFolder);
 
+    // Collect all warning/error messages so nothing is silently dropped.
+    // Compute everything before touching state so there are no races.
+    const batchErrorParts: string[] = [];
+
+    if (oversized > 0) {
+      batchErrorParts.push(
+        `${oversized} file${oversized === 1 ? "" : "s"} exceeded the 25 MB limit`
+      );
+    }
+    if (unsupported > 0) {
+      batchErrorParts.push(
+        `${unsupported} unsupported or empty file${unsupported === 1 ? "" : "s"}`
+      );
+    }
+
+    // Pre-compute how many accepted files will be skipped by the queue cap
+    // so we can report it without relying on the state updater's closure.
     setPendingVaultFiles((current) => {
       const available = Math.max(0, VAULT_MAX_UPLOAD_FILES - current.length);
-      const added = accepted.slice(0, available).map((file) => ({
+      const capped = accepted.slice(0, available);
+      const skippedByLimit = accepted.length - capped.length;
+
+      if (skippedByLimit > 0) {
+        // Safe to mutate here — batchErrorParts is a local array in the outer scope
+        // and this updater runs synchronously before setVaultBatchError is called.
+        batchErrorParts.unshift(
+          `maximum ${VAULT_MAX_UPLOAD_FILES} files per upload — ${skippedByLimit} file${skippedByLimit === 1 ? "" : "s"} not added`
+        );
+      }
+
+      const added = capped.map((file) => ({
         id:
           globalThis.crypto?.randomUUID?.() ||
           Math.random().toString(36).slice(2),
@@ -91,26 +119,21 @@ export function useLibraryUpload(
             .webkitRelativePath || undefined,
         status: "pending" as const,
       }));
-      if (accepted.length > available) {
-        setVaultBatchError(
-          `Maximum ${VAULT_MAX_UPLOAD_FILES} files per upload. ${accepted.length - available} file(s) were not added.`
-        );
-      }
+
       return [...current, ...added];
     });
 
-    if (oversized > 0) {
-      setVaultBatchError(
-        `${oversized} file(s) exceeded the 25 MB limit and were not added.`
-      );
-    } else if (unsupported > 0) {
-      setVaultBatchError(
-        `${unsupported} unsupported or empty file(s) were not added.`
-      );
-    } else if (accepted.length > 0) {
-      setVaultBatchError(null);
-    } else {
+    // After the state updater runs synchronously, apply the combined error.
+    if (accepted.length === 0 && batchErrorParts.length === 0) {
+      // Every file was rejected but no specific category caught — generic fallback.
       setVaultBatchError("No supported documents were found.");
+    } else if (batchErrorParts.length > 0) {
+      // Capitalise first letter and join with "; " for readability.
+      const msg = batchErrorParts.join("; ");
+      setVaultBatchError(msg.charAt(0).toUpperCase() + msg.slice(1) + ".");
+    } else {
+      // All files accepted cleanly — clear any stale error from a prior call.
+      setVaultBatchError(null);
     }
   }, []);
 
@@ -243,6 +266,7 @@ export function useLibraryUpload(
     file: File;
     contractType?: string;
     jurisdiction?: string;
+    source?: "private" | "org";
   }): Promise<boolean> => {
     if (params.tab === "templates" && !params.contractType?.trim()) {
       setUploadStatus("error");
@@ -278,6 +302,7 @@ export function useLibraryUpload(
           category: categoryMap[params.tab],
           contractType: params.contractType?.trim() || undefined,
           jurisdiction: params.jurisdiction?.trim() || undefined,
+          source: params.source ?? "private",
         },
         (jobId) => {
           // Only update the progress bar while the job runs — no full data

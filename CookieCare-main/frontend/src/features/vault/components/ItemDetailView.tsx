@@ -6,70 +6,165 @@ import { TagChips } from "./TagChips";
 interface ItemDetailViewProps {
   item: LibraryItem;
   onClose: () => void;
-  onDelete: (id: string, type: LibraryTabId, e: React.MouseEvent) => void;
+  /** Returns true if the item was actually deleted, false if cancelled or failed. */
+  onDelete: (id: string, type: LibraryTabId, e: React.MouseEvent) => Promise<boolean>;
 }
 
 export function ItemDetailView({ item, onClose, onDelete }: ItemDetailViewProps) {
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="w-full max-w-lg bg-white border border-gray-100 shadow-2xl rounded-2xl relative overflow-hidden">
-        {/* Top accent */}
-        <div className="h-1 w-full" style={{ background: "var(--brand-primary)" }} />
+    <div className="vlt-overlay">
+      <div className="vlt-modal" style={{ maxWidth: 520 }}>
+        {/* Top gradient accent */}
+        <div
+          style={{
+            height: 1,
+            background: "linear-gradient(90deg, transparent, #E4E4E7, transparent)",
+          }}
+        />
 
-        <div className="p-6">
+        <div style={{ padding: "24px 24px 24px" }}>
+          {/* Close */}
           <button
             onClick={onClose}
-            className="absolute right-4 top-5 w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-700 hover:bg-gray-50 cursor-pointer transition"
+            className="vlt-icon-btn"
+            style={{ position: "absolute", right: 16, top: 16 }}
           >
-            <X className="w-4 h-4" />
+            <X style={{ width: 14, height: 14 }} />
           </button>
 
           {/* Header */}
-          <div className="mb-5 pb-4 border-b border-gray-100 flex items-start gap-3">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 12,
+              paddingBottom: 18,
+              borderBottom: "1px solid var(--border-light)",
+              marginBottom: 20,
+            }}
+          >
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: "var(--brand-primary-light)" }}
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 12,
+                background: "rgba(33,117,217,0.07)",
+                border: "1px solid rgba(33,117,217,0.14)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
             >
-              <FileCode className="w-5 h-5" style={{ color: "var(--brand-primary)" }} />
+              <FileCode style={{ width: 18, height: 18, color: "var(--accent)" }} />
             </div>
-            <div className="min-w-0">
-              <h3 className="font-bold text-base text-gray-900 leading-tight tracking-tight">
+            <div style={{ minWidth: 0 }}>
+              <p className="vlt-overline" style={{ marginBottom: 3 }}>{item.type}</p>
+              <h3
+                style={{
+                  fontSize: 17,
+                  fontWeight: 700,
+                  letterSpacing: "-0.03em",
+                  color: "var(--text-primary)",
+                  lineHeight: 1.2,
+                }}
+              >
                 {item.name}
               </h3>
-              <p className="text-xs text-gray-400 mt-0.5 font-mono">
-                {item.id} · {item.type}
+              <p
+                style={{
+                  fontSize: 11,
+                  color: "var(--text-faint)",
+                  marginTop: 3,
+                  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+                }}
+              >
+                {item.id}
               </p>
             </div>
           </div>
 
           {/* Content */}
-          <div className="space-y-4 max-h-[350px] overflow-y-auto pr-1">
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 16,
+              maxHeight: 340,
+              overflowY: "auto",
+              paddingRight: 2,
+            }}
+          >
+            {/* Description */}
             <div>
-              <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">
-                Description
-              </span>
-              <p className="text-sm text-gray-700 bg-gray-50 border border-gray-100 rounded-xl p-3 leading-relaxed">
+              <p className="vlt-overline" style={{ marginBottom: 6 }}>Description</p>
+              <p
+                style={{
+                  fontSize: 13.5,
+                  color: "var(--text-secondary)",
+                  background: "#F7F8FB",
+                  boxShadow: "inset 0 0 0 1px rgba(16,24,40,0.06)",
+                  borderRadius: 14,
+                  padding: "10px 14px",
+                  lineHeight: 1.6,
+                }}
+              >
                 {item.description}
               </p>
             </div>
 
+            {/* Details / URL */}
             {item.details && (
               <div>
-                <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">
+                <p className="vlt-overline" style={{ marginBottom: 6 }}>
                   {item.type === "websites" ? "URL" : "Content"}
-                </span>
+                </p>
                 {item.type === "websites" ? (
                   <a
                     href={String(item.details)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm font-mono text-blue-600 hover:underline flex items-center gap-1.5 bg-blue-50 p-3 border border-blue-100 rounded-xl"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      fontSize: 13,
+                      fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+                      color: "var(--accent)",
+                      background: "rgba(33,117,217,0.05)",
+                      border: "1px solid rgba(33,117,217,0.12)",
+                      borderRadius: 14,
+                      padding: "10px 14px",
+                      textDecoration: "none",
+                      overflow: "hidden",
+                    }}
                   >
-                    <Globe className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                    <span className="truncate">{String(item.details)}</span>
+                    <Globe style={{ width: 13, height: 13, color: "var(--accent)", flexShrink: 0 }} />
+                    <span
+                      style={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {String(item.details)}
+                    </span>
                   </a>
                 ) : (
-                  <pre className="text-xs font-mono p-3 bg-gray-50 border border-gray-100 rounded-xl text-gray-700 leading-relaxed whitespace-pre-wrap">
+                  <pre
+                    style={{
+                      fontSize: 12,
+                      fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+                      padding: "10px 14px",
+                      background: "#F7F8FB",
+                      boxShadow: "inset 0 0 0 1px rgba(16,24,40,0.06)",
+                      borderRadius: 14,
+                      color: "var(--text-secondary)",
+                      lineHeight: 1.65,
+                      whiteSpace: "pre-wrap",
+                      margin: 0,
+                    }}
+                  >
                     {typeof item.details === "string"
                       ? item.details
                       : JSON.stringify(item.details, null, 2)}
@@ -78,36 +173,74 @@ export function ItemDetailView({ item, onClose, onDelete }: ItemDetailViewProps)
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-4 border-t border-gray-100 pt-4">
+            {/* Tags + Created by */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 16,
+                borderTop: "1px solid var(--border-light)",
+                paddingTop: 16,
+              }}
+            >
               <div>
-                <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">Tags</span>
-                <div className="flex flex-wrap gap-1">
+                <p className="vlt-overline" style={{ marginBottom: 6 }}>Tags</p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
                   <TagChips tags={item.tags} maxVisible={6} />
                 </div>
               </div>
               <div>
-                <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">Created by</span>
-                <span className="text-sm font-semibold text-gray-800">{item.createdBy}</span>
+                <p className="vlt-overline" style={{ marginBottom: 6 }}>Created by</p>
+                <span
+                  style={{
+                    fontSize: 13.5,
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                  }}
+                >
+                  {item.createdBy}
+                </span>
               </div>
             </div>
           </div>
 
           {/* Footer */}
-          <div className="flex justify-between items-center pt-4 border-t border-gray-100 mt-5">
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              paddingTop: 18,
+              borderTop: "1px solid var(--border-light)",
+              marginTop: 20,
+            }}
+          >
             <button
-              onClick={(e) => {
-                onDelete(item.id, item.type as LibraryTabId, e);
-                onClose();
+              onClick={async (e) => {
+                const deleted = await onDelete(item.id, item.type as LibraryTabId, e);
+                if (deleted) onClose();
               }}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-red-500 hover:text-red-700 cursor-pointer transition"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                fontSize: 13,
+                fontWeight: 500,
+                color: "#EF4444",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: 0,
+                transition: "color 150ms ease",
+                fontFamily: "inherit",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#DC2626")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "#EF4444")}
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <Trash2 style={{ width: 13, height: 13 }} />
               Delete
             </button>
-            <button
-              onClick={onClose}
-              className="px-5 py-2 border border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 rounded-xl text-sm font-semibold transition cursor-pointer text-gray-700 shadow-sm"
-            >
+            <button onClick={onClose} className="vlt-btn-ghost">
               Close
             </button>
           </div>

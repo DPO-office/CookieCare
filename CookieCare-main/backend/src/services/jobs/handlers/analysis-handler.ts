@@ -57,6 +57,7 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
       : prior?.request.thinkingMode
   );
   const analysisProfile = resolveAnalysisProfile(thinkingMode);
+
   console.log(
     `[Analysis PAC] job create jobId=${jobId} session=${sessionId} docs=${documentIds.length} library=${payload.promptLibraryId || "-"} followUp=${Boolean(prior)} thinkingMode=${thinkingMode}`
   );

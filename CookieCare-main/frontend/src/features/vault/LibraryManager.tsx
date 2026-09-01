@@ -8,6 +8,7 @@ import { useLibrary } from "./hooks/useLibrary";
 import { useLibraryUI } from "./hooks/useLibraryUI";
 import { VAULT_STYLES } from "./styles/vaultStyles";
 import { useAppContext } from "../../contexts/AppContext";
+import { LibraryItemSource } from "./types";
 
 import { SavedDraftsTable } from "./components/SavedDraftsTable";
 import { LibraryItemsTable } from "./components/LibraryItemsTable";
@@ -16,6 +17,7 @@ import { ItemDetailView } from "./components/ItemDetailView";
 import { CreateItemModal } from "./components/CreateItemModal";
 import { FileUploadModal } from "./components/FileUploadModal";
 import { VaultIngestModal } from "./components/VaultIngestModal";
+import { VaultScopeSelector } from "./components/VaultScopeSelector";
 
 interface LibraryProps {
   /** @deprecated Read from AppContext; kept for backward-compat */
@@ -36,6 +38,7 @@ export default function LibraryManager(_props: LibraryProps = {}) {
     setOpenDraftId(doc.id);
     navigate("/drafting");
   };
+
   const {
     items,
     savedDrafts,
@@ -88,6 +91,8 @@ export default function LibraryManager(_props: LibraryProps = {}) {
     isVaultIngestOpen,
     setIsVaultIngestOpen,
     openVaultIngest,
+    scopeFilter,
+    setScopeFilter,
     vaultContractType,
     setVaultContractType,
     vaultJurisdiction,
@@ -108,9 +113,14 @@ export default function LibraryManager(_props: LibraryProps = {}) {
   const activeTabInfo = TABS_CONFIG.find((t) => t.id === activeTab) ?? TABS_CONFIG[0];
   const isVaultIngestTab =
     activeTab === "rulebook" || activeTab === "templates" || activeTab === "clauses";
+  // Tabs that support the private / org scope split.
+  const isScopedTab = isVaultIngestTab;
 
+  // Unified item list filtered by tab type + optional scope + search query.
   const filteredTabItems = items.filter((item) => {
     if (item.type !== activeTab) return false;
+    // Apply scope filter only on tabs that carry source metadata.
+    if (isScopedTab && scopeFilter !== "all" && item.source !== scopeFilter) return false;
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
     return (
@@ -120,6 +130,14 @@ export default function LibraryManager(_props: LibraryProps = {}) {
       item.createdBy.toLowerCase().includes(q)
     );
   });
+
+  // Counts for the VaultScopeSelector badges (unaffected by current scope selection).
+  const privateCount = isScopedTab
+    ? items.filter((i) => i.type === activeTab && i.source === "private").length
+    : 0;
+  const orgCount = isScopedTab
+    ? items.filter((i) => i.type === activeTab && i.source === "org").length
+    : 0;
 
   const sortedItems = [...filteredTabItems].sort((a, b) => {
     let fa: any = a[sortField] ?? "";
@@ -142,9 +160,10 @@ export default function LibraryManager(_props: LibraryProps = {}) {
 
   const folderItems = items.filter((i) => i.type === "files");
 
-  const onCreateSubmit = async (e: React.FormEvent) => {
+  // onSubmit now receives the scope chosen inside the modal.
+  const onCreateSubmit = async (e: React.FormEvent, source: LibraryItemSource) => {
     e.preventDefault();
-    const ok = await handleCreateNewItem(activeTab, formName, formDescription, formTags, formDetails);
+    const ok = await handleCreateNewItem(activeTab, formName, formDescription, formTags, formDetails, source);
     if (ok) {
       resetCreateForm();
       setIsCreateOpen(false);
@@ -182,12 +201,14 @@ export default function LibraryManager(_props: LibraryProps = {}) {
     resetUploadProgress();
   };
 
-  const handleVaultFileSelect = async (file: File) => {
+  // The modal passes the chosen scope as a second argument when a file is selected.
+  const handleVaultFileSelect = async (file: File, source: LibraryItemSource) => {
     const ok = await handleVaultAssetUpload({
       tab: activeTab as "rulebook" | "templates" | "clauses",
       file,
       contractType: activeTab === "rulebook" ? undefined : vaultContractType || undefined,
       jurisdiction: activeTab === "rulebook" ? undefined : vaultJurisdiction || undefined,
+      source,
     });
     if (ok) setTimeout(closeVaultIngestModal, 2200);
   };
@@ -277,7 +298,20 @@ export default function LibraryManager(_props: LibraryProps = {}) {
                 <span className="text-[14px] font-semibold tracking-[-0.01em] text-[#1a1a1a]">
                   All {activeTabInfo.label}
                 </span>
-                <div className="relative w-full sm:w-64">
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  {isScopedTab && (
+                    <VaultScopeSelector
+                      scope={scopeFilter}
+                      onScopeChange={(s) => {
+                        // Clicking the already-active segment resets to "all" (show everything).
+                        setScopeFilter((prev) => (prev === s ? "all" : s));
+                        setCurrentPage(1);
+                      }}
+                      privateCount={privateCount}
+                      orgCount={orgCount}
+                    />
+                  )}
+                  <div className="relative w-full sm:w-64 flex-shrink-0">
                   <svg
                     style={{
                       position: "absolute",
@@ -311,6 +345,7 @@ export default function LibraryManager(_props: LibraryProps = {}) {
                     }}
                     placeholder={activeTabInfo.placeholder}
                   />
+                  </div>
                 </div>
               </div>
 
@@ -323,6 +358,7 @@ export default function LibraryManager(_props: LibraryProps = {}) {
               ) : (
                 <LibraryItemsTable
                   items={sortedItems}
+                  activeTab={activeTab}
                   currentPage={currentPage}
                   totalPages={totalPages}
                   recordsPerPage={recordsPerPage}
@@ -385,10 +421,7 @@ export default function LibraryManager(_props: LibraryProps = {}) {
           <ItemDetailView
             item={viewDetailItem}
             onClose={() => setViewDetailItem(null)}
-            onDelete={(id, type, e) => {
-              handleDeleteItem(id, type, e);
-              setViewDetailItem(null);
-            }}
+            onDelete={(id, type, e) => handleDeleteItem(id, type, e)}
           />
         )}
 

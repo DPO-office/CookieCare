@@ -183,7 +183,28 @@ class BackgroundJobRegistry {
   public scanner = new ScannerService();
 
   public broadcast(userId: string, job: any): void {
-    const payloadStr = JSON.stringify({ event: "job_update", job });
+    let payloadStr: string;
+    try {
+      payloadStr = JSON.stringify({ event: "job_update", job });
+    } catch (serializeErr) {
+      console.error("[JobRegistry] Failed to serialize broadcast payload for job:", job?.id, serializeErr);
+      // Send a stripped-down event so the frontend is never left hanging.
+      // Include id and status so waitForDraftJob can still resolve the Promise.
+      try {
+        payloadStr = JSON.stringify({
+          event: "job_update",
+          job: {
+            id: job?.id,
+            status: job?.status ?? "failed",
+            error: "Result serialization error — check server logs.",
+          },
+        });
+      } catch {
+        // Absolute last resort: the job id itself was non-serializable (shouldn't happen)
+        console.error("[JobRegistry] Could not serialize even the fallback payload. Dropping broadcast.");
+        return;
+      }
+    }
     for (const client of this.clients) {
       if (client.userId === userId) {
         client.send(`data: ${payloadStr}\n\n`);

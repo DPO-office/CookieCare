@@ -6,13 +6,17 @@
  */
 
 import { useState } from "react";
-import { LibraryTabId, LibraryItem } from "../types";
+import { LibraryTabId, LibraryItem, LibraryItemSource } from "../types";
 
 export function useLibraryUI() {
   // Tab & search
   const [activeTab, setActiveTab] = useState<LibraryTabId>("files");
   const [searchQuery, setSearchQuery] = useState("");
   const [savedDraftsSearch, setSavedDraftsSearch] = useState("");
+
+  // Scope filter — only active for tabs that support private/org (rulebook, templates, clauses).
+  // "all" means show everything the user can see (own private + all org).
+  const [scopeFilter, setScopeFilter] = useState<"all" | LibraryItemSource>("all");
 
   // Pagination & sort
   const [currentPage, setCurrentPage] = useState(1);
@@ -42,6 +46,8 @@ export function useLibraryUI() {
     setActiveTab(tabId);
     setSearchQuery("");
     setCurrentPage(1);
+    // Reset scope filter when switching tabs so stale scopes don't carry over.
+    setScopeFilter("all");
   };
 
   const toggleSort = (field: keyof LibraryItem) => {
@@ -74,6 +80,10 @@ export function useLibraryUI() {
     savedDraftsSearch,
     setSavedDraftsSearch,
     handleTabChange,
+
+    // Scope filter (rulebook / templates / clauses only)
+    scopeFilter,
+    setScopeFilter,
 
     // Pagination & sort
     currentPage,

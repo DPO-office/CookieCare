@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import {
   fetchAnalysisHistory,
   fetchAnalysisSession,
+  deleteAnalysisHistoryEntry,
   type AnalysisHistoryItem,
 } from "../api/analyzeApi";
 import type { Message } from "../types";
@@ -108,6 +109,15 @@ export function useAnalysisHistory(authToken: string) {
     [authToken]
   );
 
+  const deleteEntry = useCallback(
+    async (jobId: string): Promise<boolean> => {
+      const ok = await deleteAnalysisHistoryEntry(authToken, jobId);
+      if (ok) setHistory((prev) => prev.filter((item) => item.jobId !== jobId));
+      return ok;
+    },
+    [authToken]
+  );
+
   return {
     history,
     loading,
@@ -115,5 +125,6 @@ export function useAnalysisHistory(authToken: string) {
     error,
     fetchHistory,
     loadSession,
+    deleteEntry,
   };
 }

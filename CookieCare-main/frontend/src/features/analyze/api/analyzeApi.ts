@@ -35,6 +35,18 @@ export interface AnalysisHistoryItem {
   renderedOutput?: string | null;
 }
 
+/** Delete a history entry by jobId. Returns true on success. */
+export async function deleteAnalysisHistoryEntry(
+  authToken: string,
+  jobId: string,
+): Promise<boolean> {
+  const res = await fetch(apiUrl(`/api/analysis/history/${encodeURIComponent(jobId)}`), {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${authToken}` },
+  });
+  return res.ok;
+}
+
 /** Fetch the user's past analysis runs, newest first. */
 export async function fetchAnalysisHistory(
   authToken: string,

@@ -206,6 +206,7 @@ async function setupDb() {
         description TEXT,
         tags JSONB DEFAULT '[]'::jsonb,
         details JSONB DEFAULT '{}'::jsonb,
+        source VARCHAR(20) NOT NULL DEFAULT 'private' CHECK (source IN ('private', 'org')),
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
 
@@ -412,6 +413,13 @@ async function setupDb() {
     await client.query(`
       ALTER TABLE library_items
       ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+    `);
+
+    // Vault scope: 'private' = current user only, 'org' = organisation-wide
+    await client.query(`
+      ALTER TABLE library_items
+      ADD COLUMN IF NOT EXISTS source VARCHAR(20) NOT NULL DEFAULT 'private'
+        CHECK (source IN ('private', 'org'));
     `);
 
     // Seed Admin

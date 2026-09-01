@@ -2,12 +2,17 @@ import { useMemo, useState } from "react";
 import { Check, Search, X } from "lucide-react";
 import { LibraryModalOverlay } from "../../analyze/components/LibraryModalColumns";
 import { ANALYZE_STYLES } from "../../analyze/styles/analyzeStyles";
+import { VaultScopeSelector } from "../../vault/components/VaultScopeSelector";
+import type { LibraryItemSource } from "../../vault/types";
 import { DraftLibraryItem } from "../hooks/useDraftLibrary";
 
 interface DraftLibraryPickerProps {
   title: string;
   description: string;
-  items: DraftLibraryItem[];
+  /** Items belonging to the current user's private vault. */
+  privateItems: DraftLibraryItem[];
+  /** Items shared across the organisation vault. */
+  orgItems: DraftLibraryItem[];
   selectedIds: string[];
   multiple?: boolean;
   emptyLabel: string;
@@ -18,7 +23,8 @@ interface DraftLibraryPickerProps {
 export function DraftLibraryPicker({
   title,
   description,
-  items,
+  privateItems,
+  orgItems,
   selectedIds,
   multiple = false,
   emptyLabel,
@@ -26,17 +32,26 @@ export function DraftLibraryPicker({
   onClose,
 }: DraftLibraryPickerProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [scope, setScope] = useState<LibraryItemSource>("private");
+
   const selected = useMemo(() => new Set(selectedIds), [selectedIds]);
+
+  // Switch scope without losing search query
+  const handleScopeChange = (next: LibraryItemSource) => {
+    setScope(next);
+  };
+
+  const activeItems = scope === "private" ? privateItems : orgItems;
 
   const filtered = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
-    if (!q) return items;
-    return items.filter(
+    if (!q) return activeItems;
+    return activeItems.filter(
       (item) =>
         item.name.toLowerCase().includes(q) ||
         item.description.toLowerCase().includes(q)
     );
-  }, [items, searchQuery]);
+  }, [activeItems, searchQuery]);
 
   const toggle = (id: string) => {
     if (multiple) {
@@ -60,6 +75,7 @@ export function DraftLibraryPicker({
           }}
           onClick={(e) => e.stopPropagation()}
         >
+          {/* Header */}
           <div className="flex shrink-0 items-start justify-between gap-3 px-6 py-5">
             <div>
               <h2 className="m-0 text-[17px] font-semibold tracking-[-0.02em] text-[#1a1a1a]">
@@ -79,6 +95,17 @@ export function DraftLibraryPicker({
             </button>
           </div>
 
+          {/* Private / Organisation scope selector */}
+          <div className="shrink-0 px-6 pb-4">
+            <VaultScopeSelector
+              scope={scope}
+              onScopeChange={handleScopeChange}
+              privateCount={privateItems.length}
+              orgCount={orgItems.length}
+            />
+          </div>
+
+          {/* Search */}
           <div className="shrink-0 px-6 pb-4">
             <div className="relative">
               <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98A2B3]" />
@@ -92,16 +119,23 @@ export function DraftLibraryPicker({
             </div>
           </div>
 
+          {/* Item list */}
           <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-4">
             {filtered.length === 0 ? (
               <div className="flex flex-col items-center px-6 py-16 text-center">
                 <p className="m-0 text-[13px] font-medium text-[#1a1a1a]">
-                  {searchQuery ? "No matches." : emptyLabel}
+                  {searchQuery
+                    ? "No matches."
+                    : scope === "private"
+                      ? emptyLabel
+                      : `No organisation ${title.toLowerCase().replace("select ", "")}s yet.`}
                 </p>
                 <p className="m-0 mt-1.5 text-[12px] text-dark-200">
                   {searchQuery
                     ? "Try a different search term."
-                    : "Add items in Vault, then return here."}
+                    : scope === "private"
+                      ? "Add items in Vault, then return here."
+                      : "Ask an admin to add shared resources to the organisation vault."}
                 </p>
               </div>
             ) : (
@@ -152,6 +186,7 @@ export function DraftLibraryPicker({
             )}
           </div>
 
+          {/* Footer */}
           <div className="flex shrink-0 items-center justify-between gap-3 px-6 py-4">
             <span className="text-[13px] text-[#98A2B3]">
               {selectedIds.length} selected
