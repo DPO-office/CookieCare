@@ -11,6 +11,14 @@ import type { SegmentedDocument } from "../../models/document-workspace.js";
 import type { RuleSourceTier } from "../../models/rule-source.js";
 import type { ReportSpec } from "../../models/intent.js";
 import type { RequirementAssessment } from "../../models/requirement-assessment.js";
+import {
+  displayRequirementStatus,
+  isConditionalLike,
+  isCoveredLike,
+  isGapLike,
+  isMaterialIssueStatus,
+} from "../../models/requirement-assessment.js";
+import { deterministicFactRollup } from "../../prompts/analytical-synthesis.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { humanizeRequirementId } from "../../shared/group-assessments.js";
 import { isTabularAnswerStyle, wantsMatrixTable } from "../../prompts/synthesis.js";
@@ -20,7 +28,8 @@ import { emitAnalysisToken } from "../../utils/stream-tokens.js";
 import { synthesizeReport } from "./synthesize-report.js";
 import { applyFinalizedReportSpec, finalizeReportSpec } from "./finalize-report-spec.js";
 import { enforceConclusionSectionLast } from "../../prompts/report-sections.js";
-import { pacLog } from "../../utils/pac-log.js";
+import { pacLog, beginRenderStreaming } from "../../utils/pac-log.js";
+import { groundFindings } from "../audit/ground-findings.js";
 import { profileThinkingLevel } from "../../utils/profile-thinking.js";
 import {
   BOTTOM_LINE_SYSTEM_PROMPT,
@@ -34,6 +43,12 @@ import {
   crossCuttingTimeframeFindings,
   gapFindingsForArticle,
 } from "../../shared/article-linkage.js";
+import { isReferencedElsewhereClaim } from "../act/requirement-status-policy.js";
+import {
+  canonicalRequirementId,
+  filterAssessmentsByRequirementIds,
+  findingSupportsRequirement,
+} from "../../shared/requirement-identity.js";
 
 /** Find the first authored rule whose rendererHooks[hook] is truthy. */
 export function findRuleByRendererHook(
@@ -81,6 +96,7 @@ export async function renderOutput(
   findings: Finding[],
   unit: AnalysisWorkUnit
 ): Promise<AnalysisState> {
+  beginRenderStreaming(state);
   const schemaId = String(unit.input.schemaId ?? "checklist");
   const skillIds = (unit.input.skillIds as string[]) ?? state.activeSkillIds ?? [];
   const primarySkill = titleSkillForRender(state, skillIds);
@@ -88,18 +104,29 @@ export async function renderOutput(
     findings.filter((f) => f.visibility !== "internal")
   );
   visible = filterFindingsForMatrixFocus(visible, state);
-  state = attachRightsMatrixTableArtifact(
-    {
-      ...state,
-      findings: visible,
-      requirementAssessments: filterAssessmentsForMatrixFocus(
-        state.requirementAssessments ?? [],
-        visible,
-        state
-      ),
-    },
-    visible
-  );
+  state = {
+    ...state,
+    findings: visible,
+    requirementAssessments: filterAssessmentsForMatrixFocus(
+      state.requirementAssessments ?? [],
+      visible,
+      state
+    ),
+  };
+  state = groundFindings(state);
+  visible = (state.findings ?? []).filter((f) => f.visibility !== "internal");
+  state = attachRightsMatrixTableArtifact(state, visible);
+
+  const followUpKind = String(unit.input.followUpKind ?? "");
+  if (followUpKind === "conversational_qa") {
+    const targeted = assessmentsMentionedInInstruction(
+      state.request.instruction,
+      state.requirementAssessments ?? []
+    );
+    if (targeted.length > 0) {
+      state = { ...state, requirementAssessments: targeted };
+    }
+  }
 
   const assessments = state.requirementAssessments ?? [];
   const requestedArticles = extractArticleNumbers(state.request.instruction);
@@ -127,6 +154,7 @@ export async function renderOutput(
   );
 
   let rendered: string;
+  let usedBluf = false;
   if (usesSynthesis) {
     const synthStarted = Date.now();
     const spec = finalizeReportSpec(state);
@@ -134,7 +162,13 @@ export async function renderOutput(
     const retrySectionIds = Array.isArray(unit.input.retrySectionIds)
       ? (unit.input.retrySectionIds as string[])
       : [];
-    if (presentation === "individual" && targetDocs.length > 1) {
+    // BLUF collapse (flagged): one bottom-line call + a deterministic matrix,
+    // instead of the section-per-call synthesis. Individual per-document
+    // presentation keeps the existing path (BLUF is a single-document layout).
+    if (blufReportEnabled() && !(presentation === "individual" && targetDocs.length > 1)) {
+      rendered = await buildBlufReport(state, visible, spec);
+      usedBluf = true;
+    } else if (presentation === "individual" && targetDocs.length > 1) {
       rendered = await synthesizeIndividualReports(state, visible, spec, targetDocs);
     } else {
       rendered = await synthesizeReport(state, visible, spec, { retrySectionIds });
@@ -144,6 +178,7 @@ export async function renderOutput(
       assessments: assessments.length,
       presentation,
       schemaId,
+      bluf: usedBluf,
     });
   } else if (schemaId === "brief_summary") {
     rendered = buildBriefSummaryDocument(state, visible);
@@ -174,7 +209,9 @@ export async function renderOutput(
   }
   rendered = replaceRawCategoryIds(rendered, state, visible);
   rendered = sanitizeRenderedOutput(rendered);
-  rendered = enforceAnswerStyleLayout(rendered, state);
+  // BLUF already built its own single-matrix layout — the tabular table
+  // injection would append a duplicate matrix, so skip it for BLUF output.
+  if (!usedBluf) rendered = enforceAnswerStyleLayout(rendered, state);
 
   const renderFinding: Finding = {
     findingId: `f_render_${unit.workUnitId}`,
@@ -370,6 +407,30 @@ export function filterAssessmentsForMatrixFocus(
   });
 }
 
+export function assessmentsMentionedInInstruction(
+  instruction: string,
+  assessments: RequirementAssessment[]
+): RequirementAssessment[] {
+  const hay = instruction.toLowerCase();
+  const articleHits = [...hay.matchAll(/\b(?:art(?:icle)?\s*)(\d{1,3})(?:\s*\(\s*(\d+)\s*\))?(?:\s*\(\s*([a-h])\s*\))?/gi)];
+  return assessments.filter((row) => {
+    const id = row.requirementId.toLowerCase();
+    if (hay.includes(id)) return true;
+    const tokens = id.replace(/[._-]+/g, " ").split(/\s+/).filter((t) => t.length >= 4);
+    if (tokens.some((token) => hay.includes(token))) return true;
+    return articleHits.some((match) => {
+      const article = match[1];
+      const para = match[2];
+      const letter = match[3]?.toLowerCase();
+      if (!id.includes(article ?? "")) return false;
+      if (letter && !id.includes(`_${letter}_`) && !id.endsWith(`_${letter}`) && !id.includes(`.${letter}`)) {
+        return Boolean(para) && id.includes(para);
+      }
+      return true;
+    });
+  });
+}
+
 export function attachRightsMatrixTableArtifact(
   state: AnalysisState,
   findings: Finding[]
@@ -412,6 +473,9 @@ function titleSkillForRender(state: AnalysisState, skillIds: string[]) {
 function consolidationKey(finding: Finding): string | null {
   if (finding.orgPlaybook || finding.unverified) return null;
   if (finding.matrixRowId) return `matrix:${finding.matrixRowId}`;
+  if (finding.requirementId) {
+    return `req:${finding.skillId ?? ""}:${finding.kind}:${finding.status}:${canonicalRequirementId(finding.requirementId)}`;
+  }
   if (finding.kind === "compliance" && finding.ruleId) {
     return `rule:${finding.skillId ?? ""}:${finding.ruleId}`;
   }
@@ -1372,25 +1436,165 @@ function tableText(lines: string[], range: { startLine: number; endLine: number 
 }
 
 function mdCell(value: string): string {
-  return value.replace(/\|/g, "/").replace(/\s+/g, " ").trim().slice(0, 220);
+  const clean = value.replace(/\|/g, "/").replace(/\s+/g, " ").trim();
+  if (clean.length <= 360) return clean;
+  // Truncate at a word boundary and add an ellipsis rather than slicing
+  // mid-word (the old behaviour produced "…retrieval, analys").
+  const cut = clean.slice(0, 360);
+  const lastSpace = cut.lastIndexOf(" ");
+  const trimmed = (lastSpace > 240 ? cut.slice(0, lastSpace) : cut).replace(/[.,;:\s]+$/, "");
+  return `${trimmed}…`;
+}
+
+/**
+ * Prettify a GDPR-article requirement id that lacks a trailing letter (the
+ * lettered case is already handled by humanizeRequirementId). Turns
+ * "gdpr.article28_3.mandatory_clauses_adequacy" into
+ * "Art 28(3) — Mandatory Clauses Adequacy" instead of the raw
+ * "Article28 3 Mandatory Clauses Adequacy". Local to rendering so the shared
+ * humanizeRequirementId (and its test) stay untouched.
+ */
+function prettyArticleLabel(id: string): string | null {
+  const m = id.match(/article[._-]?(\d{1,3})(?:[._-](\d+))?/i);
+  if (!m || m.index === undefined) return null;
+  const base = `Art ${m[1]}${m[2] ? `(${m[2]})` : ""}`;
+  const tail = id
+    .slice(m.index + m[0].length)
+    .replace(/^[._-]+/, "")
+    .replace(/[._-]+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return tail ? `${base} — ${tail}` : base;
+}
+
+function requirementLabel(
+  requirementId: string,
+  state?: AnalysisState
+): string {
+  const description = state?.intent?.requirements?.find((r) => r.id === requirementId)
+    ?.description?.trim();
+  if (description && description !== requirementId && description.length <= 80) {
+    return description;
+  }
+  const humanized = humanizeRequirementId(requirementId);
+  // humanizeRequirementId handles lettered ids ("Art 28(3)(g)…"); catch the
+  // non-lettered article ids it leaves as "Article28 3 …".
+  if (/^Article\d/.test(humanized)) {
+    return prettyArticleLabel(requirementId) ?? humanized;
+  }
+  return humanized;
+}
+
+function pickRowFinding(
+  assessment: RequirementAssessment,
+  findingById: Map<string, Finding>
+): Finding | undefined {
+  const linked = assessment.supportingFindingIds
+    .map((id) => findingById.get(id))
+    .filter((f): f is Finding => Boolean(f));
+  const direct = linked.filter((f) =>
+    findingSupportsRequirement(f.requirementId, assessment.requirementId)
+  );
+  const pool = direct.length > 0 ? direct : linked;
+  return (
+    pool.find((f) => Boolean(f.evidence[0]?.quotedText?.trim())) ?? pool[0]
+  );
+}
+
+/** "clause-3.6.3" → "cl. 3.6.3"; leaves section/article-style paths as-is; drops opaque ids. */
+function formatLocator(path?: string): string {
+  if (!path) return "";
+  const clause = path.match(/^clause-(.+)$/i);
+  if (clause) return `cl. ${clause[1]}`;
+  if (/section|article|art\b|appendix|annex|schedule/i.test(path)) {
+    return path.replace(/[-_]+/g, " ");
+  }
+  return "";
+}
+
+function evidenceCellText(
+  assessment: RequirementAssessment,
+  finding: Finding | undefined
+): string {
+  const quote = finding?.evidence[0]?.quotedText?.trim() ?? "";
+  if (quote) {
+    const loc = formatLocator(finding?.evidence[0]?.locator.structuralPath);
+    return loc ? `${loc} — ${quote}` : quote;
+  }
+  if (finding && isReferencedElsewhereClaim(finding)) {
+    return "Particulars referenced outside this extract";
+  }
+  if (
+    isConditionalLike(assessment.status) ||
+    assessment.judgement?.evidenceState === "incorporated"
+  ) {
+    return "Particulars referenced outside this extract";
+  }
+  return "No verbatim extract";
+}
+
+/**
+ * ACT-Phase 7 — compose (never invent) VERIFY's locked enrichment fields
+ * into the table's Finding cell. Only ever present on requirements
+ * evaluated through the VERIFY path; a requirement with none of these
+ * fields renders exactly as before.
+ */
+function enrichmentSuffix(assessment: RequirementAssessment, base: string): string {
+  const parts: string[] = [];
+  // VERIFY-produced findings often set the finding's own claim to the same
+  // text as the assessment's gapDescription (buildInsufficientVerifyFinding)
+  // — skip re-appending it verbatim when `base` already carries it.
+  if (assessment.gapDescription && !base.includes(assessment.gapDescription)) {
+    parts.push(assessment.gapDescription);
+  }
+  if (assessment.dependency) {
+    parts.push(
+      `Depends on ${assessment.dependency.document}: ${assessment.dependency.whyNeeded}`
+    );
+  }
+  // Remediation is no longer crammed here — it renders in its own Action cell.
+  return parts.join(" ");
+}
+
+/**
+ * The per-row next step. Prefers VERIFY's specific, locked `remediation`; falls
+ * back to a short verb-led phrase from the recommendation kind. Covered rows
+ * with nothing to do return "" (a blank cell — never "—", which the layout
+ * contract forbids). This is the industry-standard "what to do" column that
+ * keeps the Finding cell to the finding itself instead of a truncated wall.
+ */
+function actionCellText(assessment: RequirementAssessment): string {
+  const remedy = assessment.remediation?.trim();
+  if (remedy) return remedy;
+  switch (assessment.judgement?.recommendationKind) {
+    case "obtain":
+      return "Obtain the referenced schedule or materials.";
+    case "amend":
+      return "Amend the text to close the gap.";
+    case "confirm":
+      return "Confirm the incorporated schedule.";
+    case "clarify":
+      return "Clarify the wording.";
+    default:
+      return "";
+  }
 }
 
 export function assessmentTableMarkdown(
   assessments: RequirementAssessment[],
-  findings: Finding[]
+  findings: Finding[],
+  state?: AnalysisState
 ): string {
   const findingById = new Map(findings.map((f) => [f.findingId, f]));
   const header = [
-    "| Requirement | Status | Evidence | Finding |",
-    "| :--- | :--- | :--- | :--- |",
+    "| Requirement | Status | Evidence | Finding | Action |",
+    "| :--- | :--- | :--- | :--- | :--- |",
   ];
   const rows = assessments.map((assessment) => {
-    const support = assessment.supportingFindingIds
-      .map((id) => findingById.get(id))
-      .find((f) => f);
-    const quote = support?.evidence[0]?.quotedText ?? "";
-    const finding = support?.claim ?? assessment.summary;
-    return `| ${mdCell(humanizeRequirementId(assessment.requirementId))} | ${mdCell(assessment.status)} | ${mdCell(quote || "—")} | ${mdCell(finding)} |`;
+    const support = pickRowFinding(assessment, findingById);
+    const base = assessment.establishedBy ?? support?.claim ?? assessment.summary;
+    const finding = [base, enrichmentSuffix(assessment, base)].filter(Boolean).join(" ");
+    return `| ${mdCell(requirementLabel(assessment.requirementId, state))} | **${mdCell(displayRequirementStatus(assessment))}** | ${mdCell(evidenceCellText(assessment, support))} | ${mdCell(finding)} | ${mdCell(actionCellText(assessment))} |`;
   });
   return [...header, ...rows].join("\n");
 }
@@ -1431,37 +1635,132 @@ function keepLargestMarkdownTable(markdown: string, preferText?: string): string
   return lines.filter((_, i) => !drop.has(i)).join("\n");
 }
 
+function assessmentsForHeading(
+  heading: string,
+  state: AnalysisState,
+  assessments: RequirementAssessment[]
+): RequirementAssessment[] {
+  const outline = state.plan?.reportSpec?.outline ?? [];
+  const needle = heading.trim().toLowerCase();
+  const item = outline.find((entry) => entry.heading.trim().toLowerCase() === needle);
+  if (!item?.requirementIds?.length) return [];
+  return filterAssessmentsByRequirementIds(assessments, item.requirementIds);
+}
+
+export function stripMarkdownTables(markdown: string): string {
+  const lines = markdown.split(/\n/);
+  const drop = new Set(
+    markdownTableRanges(markdown).flatMap((range) => {
+      const idxs: number[] = [];
+      for (let i = range.startLine; i < range.endLine; i++) idxs.push(i);
+      return idxs;
+    })
+  );
+  return lines
+    .filter((_, i) => !drop.has(i))
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function leadSentence(prose: string): string {
+  const trimmed = prose.trim();
+  if (!trimmed) return "";
+  const firstPara = (trimmed.split(/\n\s*\n/)[0] ?? "").replace(/\n/g, " ").trim();
+  const match = firstPara.match(/^(.+?[.!?])(?:\s|$)/);
+  return (match?.[1] ?? firstPara).trim();
+}
+
+function sectionWithLockedTable(body: string, table: string): string {
+  // Strip formal markdown tables and leftover pipe-rows (LLM often emits a
+  // headerless "| Duration | Cannot determine |" that is not a GFM table).
+  const withoutTables = stripMarkdownTables(body);
+  const withoutPipeRows = withoutTables
+    .split("\n")
+    .filter((line) => !/^\|.*\|$/.test(line.trim()))
+    .join("\n");
+  const lead = leadSentence(withoutPipeRows);
+  return lead ? `${lead}\n\n${table}` : table;
+}
+
 function injectAssessmentTableIntoSections(
   markdown: string,
-  table: string
+  state: AnalysisState,
+  assessments: RequirementAssessment[]
 ): string {
-  if (!table.trim()) return markdown;
+  if (assessments.length === 0) return markdown;
+  const findings = state.findings ?? [];
+  const locked = (rows: RequirementAssessment[]) =>
+    assessmentTableMarkdown(rows, findings, state);
   const lines = markdown.split(/\n/);
   const headingIdxs: number[] = [];
   for (let i = 0; i < lines.length; i++) {
     if (/^##\s+/.test(lines[i] ?? "")) headingIdxs.push(i);
   }
   if (headingIdxs.length === 0) {
-    if (countMarkdownTables(markdown) > 0) return markdown;
-    return `${markdown.trim()}\n\n${table}\n`;
+    return `${sectionWithLockedTable(markdown, locked(assessments))}\n`;
   }
-  const injectAt = new Set<number>();
+
+  const rebuilt: string[] = [];
+  const prefix = lines.slice(0, headingIdxs[0]).join("\n").trimEnd();
+  if (prefix) rebuilt.push(prefix);
+
+  // Each locked assessment row belongs in exactly ONE section table. Recap
+  // sections (Material gaps / Missing materials) list requirement ids that
+  // overlap the requirement sections, which used to re-print the same rows
+  // verbatim 2–3×. First occurrence (the requirement section) wins; a later
+  // recap section whose rows were all already shown renders its prose lead
+  // only, as a pointer back to the matrix — no duplicate table.
+  const emitted = new Set<string>();
+  let attachedAny = false;
   for (let h = 0; h < headingIdxs.length; h++) {
     const start = headingIdxs[h]!;
     const end = headingIdxs[h + 1] ?? lines.length;
-    const heading = (lines[start] ?? "").replace(/^##\s+/, "").trim();
-    if (SKIP_TABULAR_INJECT_HEADING.test(heading)) continue;
+    const headingLine = lines[start] ?? "";
+    const heading = headingLine.replace(/^##\s+/, "").trim();
     const body = lines.slice(start + 1, end).join("\n");
-    if (countMarkdownTables(body) === 0) injectAt.add(end);
-  }
-  if (injectAt.size === 0) return markdown;
-  const out: string[] = [];
-  for (let i = 0; i <= lines.length; i++) {
-    if (injectAt.has(i)) {
-      if (out.length > 0 && out[out.length - 1] !== "") out.push("");
-      out.push(table, "");
+    if (rebuilt.length > 0) rebuilt.push("");
+    rebuilt.push(headingLine);
+    if (SKIP_TABULAR_INJECT_HEADING.test(heading)) {
+      const kept = body.replace(/^\n+/, "").replace(/\n+$/, "");
+      if (kept) {
+        rebuilt.push("");
+        rebuilt.push(kept);
+      }
+      continue;
     }
-    if (i < lines.length) out.push(lines[i] ?? "");
+    const scoped = assessmentsForHeading(heading, state, assessments).filter(
+      (a) => !emitted.has(canonicalRequirementId(a.requirementId))
+    );
+    if (scoped.length > 0) {
+      for (const a of scoped) emitted.add(canonicalRequirementId(a.requirementId));
+      rebuilt.push("");
+      rebuilt.push(sectionWithLockedTable(body, locked(scoped)));
+      attachedAny = true;
+      continue;
+    }
+    const prose = stripMarkdownTables(body);
+    if (prose) {
+      rebuilt.push("");
+      rebuilt.push(prose);
+    }
+  }
+
+  if (!attachedAny) {
+    return `${sectionWithLockedTable(rebuilt.join("\n"), locked(assessments))}\n`;
+  }
+  return `${rebuilt.join("\n").replace(/\n{3,}/g, "\n\n").trim()}\n`;
+}
+
+function normalizeMarkdownTables(markdown: string): string {
+  const lines = markdown.split(/\n/);
+  const out: string[] = [];
+  for (const line of lines) {
+    const prev = out[out.length - 1];
+    if (isTableLine(line) && prev !== undefined && prev.trim() !== "" && !isTableLine(prev)) {
+      out.push("");
+    }
+    out.push(line);
   }
   return out.join("\n");
 }
@@ -1471,15 +1770,13 @@ export function enforceAnswerStyleLayout(
   state: AnalysisState
 ): string {
   if (!markdown.trim()) return markdown;
+  const separated = normalizeMarkdownTables(markdown);
   if (isTabularAnswerStyle(state)) {
     const assessments = state.requirementAssessments ?? [];
-    if (assessments.length === 0) return markdown;
-    return injectAssessmentTableIntoSections(
-      markdown,
-      assessmentTableMarkdown(assessments, state.findings ?? [])
-    );
+    if (assessments.length === 0) return separated;
+    return injectAssessmentTableIntoSections(separated, state, assessments);
   }
-  if (countMarkdownTables(markdown) > 1) {
+  if (countMarkdownTables(separated) > 1) {
     const artifactMd =
       typeof state.analysisArtifacts?.rights_matrix_table?.data === "object"
         ? String(
@@ -1487,9 +1784,9 @@ export function enforceAnswerStyleLayout(
               .markdown ?? ""
           )
         : "";
-    return keepLargestMarkdownTable(markdown, artifactMd || undefined);
+    return keepLargestMarkdownTable(separated, artifactMd || undefined);
   }
-  return markdown;
+  return separated;
 }
 
 const INTERNAL_OUTPUT_PATTERNS = [
@@ -1550,6 +1847,202 @@ async function streamBottomLine(state: AnalysisState, sections: string): Promise
     console.warn("[renderOutput] bottom-line stream failed:", err);
     return "See the rights matrix and gaps above; no additional narrative was generated.";
   }
+}
+
+/**
+ * BLUF (bottom-line-up-front) report — behind ANALYSIS_BLUF_REPORT. Replaces
+ * the multi-pass per-section LLM synthesis (which restated the same findings
+ * in an executive summary, several matrix sections, a material-gaps prose
+ * block, and a conclusion) with ONE inverted-pyramid layout:
+ *   ## Bottom line            — one short LLM paragraph (the only LLM call)
+ *   ## Requirements at a glance — one deterministic matrix, severity-ordered
+ *   ## What needs attention   — deterministic one-liners for the problem rows
+ *   ## Missing materials      — deterministic list of incorporated-but-unsupplied docs
+ * Each fact appears once. Fewer LLM calls than the section-per-call path, so
+ * it is also faster. Off by default → the existing path is unchanged.
+ */
+export function blufReportEnabled(): boolean {
+  return process.env.ANALYSIS_BLUF_REPORT === "1";
+}
+
+/** Problems first: gap → conditional/partial → cannot_determine → covered → n/a. */
+function severityRank(status: RequirementAssessment["status"]): number {
+  if (isGapLike(status)) return 0;
+  if (isConditionalLike(status)) return 1;
+  if (status === "cannot_determine") return 2;
+  if (isCoveredLike(status)) return 3;
+  return 4;
+}
+
+async function streamBlufBottomLine(
+  state: AnalysisState,
+  assessments: RequirementAssessment[],
+  riskFindings: Finding[] = []
+): Promise<string> {
+  const rollup = deterministicFactRollup(assessments);
+  const system = [
+    "You are a senior analyst writing the BOTTOM LINE of a document review for counsel.",
+    "Write 2–4 sentences: the overall position, then the one or two items that most need attention, ending on what to do next.",
+    "Use only the supplied counts, residual items, and risks. Do not invent findings, do not enumerate every item, do not restate a matrix, do not write a heading. No preamble such as 'In summary'.",
+  ].join(" ");
+  const riskSummary =
+    riskFindings.length > 0
+      ? (() => {
+          const by = { high: 0, medium: 0, low: 0 } as Record<string, number>;
+          for (const r of riskFindings) by[r.severity ?? "medium"] = (by[r.severity ?? "medium"] ?? 0) + 1;
+          const top = riskFindings
+            .filter((r) => r.severity === "high")
+            .slice(0, 3)
+            .map((r) => displayLabelForFinding(state, r));
+          return [
+            `Risks identified: ${riskFindings.length} (high ${by.high}, medium ${by.medium}, low ${by.low}).`,
+            top.length > 0 ? `Most serious: ${top.join("; ")}.` : "",
+          ]
+            .filter(Boolean)
+            .join(" ");
+        })()
+      : "";
+  const user = [
+    `User request: ${state.request.instruction.slice(0, 400)}`,
+    "",
+    rollup,
+    riskSummary,
+  ]
+    .filter(Boolean)
+    .join("\n");
+  const tracker = state.agent ? { tokensUsed: state.agent.tokensUsed } : undefined;
+  try {
+    const outcome = await executeBoundedCompletion(
+      user,
+      system,
+      LLMTask.REFINEMENT,
+      LLMProvider.GEMINI,
+      {
+        onDelta: (delta) => emitAnalysisToken(state, delta),
+        tracker,
+        thinkingLevel: profileThinkingLevel(state, LLMTask.REFINEMENT),
+      }
+    );
+    if (state.agent && tracker) state.agent.tokensUsed = tracker.tokensUsed;
+    return outcome.text.trim();
+  } catch (err) {
+    console.warn("[buildBlufReport] bottom line failed; using deterministic counts:", err);
+    const fallback = rollup.split("\n")[0] ?? "See the requirements matrix below.";
+    emitAnalysisToken(state, fallback);
+    return fallback;
+  }
+}
+
+function dedupeDependencies(
+  assessments: RequirementAssessment[]
+): Array<{ document: string; whyNeeded: string }> {
+  const seen = new Set<string>();
+  const out: Array<{ document: string; whyNeeded: string }> = [];
+  for (const a of assessments) {
+    const dep = a.dependency;
+    if (!dep?.document) continue;
+    const key = dep.document.trim().toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({ document: dep.document.trim(), whyNeeded: dep.whyNeeded?.trim() ?? "" });
+  }
+  return out;
+}
+
+async function buildBlufReport(
+  state: AnalysisState,
+  findings: Finding[],
+  _spec: ReportSpec
+): Promise<string> {
+  beginRenderStreaming(state);
+  const allAssessments = [...(state.requirementAssessments ?? [])].sort(
+    (a, b) => severityRank(a.status) - severityRank(b.status)
+  );
+  const findingList = state.findings ?? findings;
+  const findingById = new Map(findingList.map((f) => [f.findingId, f]));
+
+  // A requirement whose only support is risk findings (e.g. an open "biggest
+  // risks" ask) isn't a compliance row — its content renders in Key risks
+  // below, not as a "Cannot determine" matrix row.
+  const isRiskOnly = (a: RequirementAssessment): boolean => {
+    const supp = a.supportingFindingIds
+      .map((id) => findingById.get(id))
+      .filter((f): f is Finding => Boolean(f));
+    return supp.length > 0 && supp.every((f) => f.kind === "risk");
+  };
+  const assessments = allAssessments.filter((a) => !isRiskOnly(a));
+  const riskFindings = findingList.filter(
+    (f) => f.kind === "risk" && f.visibility !== "internal"
+  );
+
+  const parts: string[] = [];
+
+  // 1. Bottom line — the only LLM call, streamed live.
+  emitAnalysisToken(state, "## Bottom line\n\n");
+  const bottomLine = await streamBlufBottomLine(state, allAssessments, riskFindings);
+  emitAnalysisToken(state, "\n\n");
+  parts.push("## Bottom line", "", bottomLine, "");
+
+  // 2. One deterministic compliance matrix, severity-ordered.
+  if (assessments.length > 0) {
+    const matrix = `## Requirements at a glance\n\n${assessmentTableMarkdown(assessments, findingList, state)}\n`;
+    emitAnalysisToken(state, `${matrix}\n`);
+    parts.push(matrix, "");
+  }
+
+  // 2b. Key risks — open/document-derived risk findings, most serious first.
+  if (riskFindings.length > 0) {
+    const sevRank: Record<string, number> = { high: 0, medium: 1, low: 2 };
+    const sorted = [...riskFindings].sort(
+      (a, b) => (sevRank[a.severity ?? "medium"] ?? 1) - (sevRank[b.severity ?? "medium"] ?? 1)
+    );
+    const lines = ["## Key risks", ""];
+    for (const r of sorted) {
+      const sev = (r.severity ?? "medium").toUpperCase();
+      const ev = r.evidence[0];
+      const loc = ev ? formatLocator(ev.locator.structuralPath) : "";
+      const quote = ev?.quotedText ? ` — “${cleanQuote(ev.quotedText, 180)}”` : "";
+      lines.push(`### ${displayLabelForFinding(state, r)} — **${sev}**`);
+      lines.push(`${ensureSentence(r.claim)}${loc ? ` (${loc})` : ""}${quote}`);
+      lines.push("");
+    }
+    const section = lines.join("\n");
+    emitAnalysisToken(state, `${section}\n`);
+    parts.push(section, "");
+  }
+
+  // 3. What needs attention — problem rows only, one line each.
+  const attention = assessments.filter(
+    (a) => isMaterialIssueStatus(a.status) || a.status === "cannot_determine"
+  );
+  if (attention.length > 0) {
+    const lines = ["## What needs attention", ""];
+    for (const a of attention) {
+      const action = actionCellText(a) || "Review with counsel.";
+      lines.push(
+        `- **${requirementLabel(a.requirementId, state)}** — ${displayRequirementStatus(a)}: ${action}`
+      );
+    }
+    lines.push("");
+    const section = lines.join("\n");
+    emitAnalysisToken(state, `${section}\n`);
+    parts.push(section, "");
+  }
+
+  // 4. Missing materials — incorporated-but-unsupplied documents.
+  const deps = dedupeDependencies(assessments);
+  if (deps.length > 0) {
+    const lines = ["## Missing materials", ""];
+    for (const dep of deps) {
+      lines.push(`- **${dep.document}**${dep.whyNeeded ? ` — ${dep.whyNeeded}` : ""}`);
+    }
+    lines.push("");
+    const section = lines.join("\n");
+    emitAnalysisToken(state, section);
+    parts.push(section);
+  }
+
+  return parts.join("\n").replace(/\n{3,}/g, "\n\n").trim();
 }
 
 async function streamNarrativeReport(

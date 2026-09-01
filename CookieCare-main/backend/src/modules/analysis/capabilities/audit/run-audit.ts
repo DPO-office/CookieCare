@@ -5,7 +5,8 @@ import {
 } from "../../../../llm/index.js";
 import type { AnalysisState } from "../../models/analysis-state.js";
 import { groundFindings } from "./ground-findings.js";
-import { pacLog } from "../../utils/pac-log.js";
+import { logAuditInspect } from "./audit-inspect-log.js";
+import { emitAnalysisToken, pacLog } from "../../utils/pac-log.js";
 import { profileThinkingLevel } from "../../utils/profile-thinking.js";
 
 const VERIFY_TIMEOUT_MS = 15_000;
@@ -16,9 +17,15 @@ const VERIFY_TIMEOUT_MS = 15_000;
  */
 export async function runAudit(state: AnalysisState): Promise<AnalysisState> {
   const started = Date.now();
+  const before = state;
   let next = groundFindings(state);
+  let verifierRan = false;
+  let verifierSkippedReason: string | undefined;
   if (next.renderedOutput) {
+    verifierRan = true;
     next = await maybeAppendVerificationNotes(next);
+  } else {
+    verifierSkippedReason = "no rendered memo yet";
   }
   pacLog("audit complete", {
     ms: Date.now() - started,
@@ -26,6 +33,7 @@ export async function runAudit(state: AnalysisState): Promise<AnalysisState> {
     assessmentDowngrades: next.auditReport?.assessmentsChanged.length ?? 0,
     contradictions: next.auditReport?.contradictions.length ?? 0,
   });
+  logAuditInspect(before, next, { verifierRan, verifierSkippedReason });
   return next;
 }
 
@@ -73,6 +81,8 @@ async function maybeAppendVerificationNotes(state: AnalysisState): Promise<Analy
     const contradictions = (result.contradictions ?? []).filter(Boolean).slice(0, 8);
     if (contradictions.length === 0) return state;
     const notes = ["## Verification notes", ...contradictions.map((c) => `- ${c}`)].join("\n");
+    const appendix = `\n\n${notes}\n`;
+    emitAnalysisToken(state, appendix);
     return {
       ...state,
       auditReport: {
@@ -81,7 +91,7 @@ async function maybeAppendVerificationNotes(state: AnalysisState): Promise<Analy
         contradictions,
         notes: [...(state.auditReport?.notes ?? []), "LLM verifier appended verification notes."],
       },
-      renderedOutput: `${state.renderedOutput.trim()}\n\n${notes}\n`,
+      renderedOutput: `${state.renderedOutput.trim()}${appendix}`,
     };
   } catch (err) {
     pacLog("audit verifier skipped", {

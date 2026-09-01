@@ -19,27 +19,13 @@ import {
 } from "../focus/extract-explicit-scope.js";
 import { matchMetaRequirementBindings } from "./meta-requirement-bindings.js";
 import { phraseMapCompanionRuleIds } from "../focus/extract-instruction-focus.js";
+import {
+  canonicalRequirementId,
+  registerPackageRequirementIds,
+} from "../../../shared/requirement-identity.js";
 
 /** Max named rules that may execute as direct check_against_rule for verification. */
 export const NAMED_RULE_DIRECT_THRESHOLD = 3;
-
-const REQUIREMENT_ID_ALIASES: Record<string, string> = {
-  nature_and_purpose: "nature_purpose",
-  nature_purpose: "nature_purpose",
-  categories_of_data: "data_categories",
-  data_categories: "data_categories",
-  categories_of_data_subjects: "data_subject_categories",
-  data_subject_categories: "data_subject_categories",
-  controller_obligations_and_rights: "controller_obligations_rights",
-  controller_obligations_rights: "controller_obligations_rights",
-  mandatory_article_28_3_clauses: "mandatory_article28_clauses",
-  mandatory_article28_clauses: "mandatory_article28_clauses",
-  international_data_transfers: "international_data_transfer",
-  international_data_transfer: "international_data_transfer",
-  international_transfer: "international_data_transfer",
-  "dsr.response_timeframes": "dsr.response_timeframes",
-  "dsr.gap_analysis": "dsr.gap_analysis",
-};
 
 export interface ResolvedPackage {
   pkg: EvidencePackage;
@@ -145,6 +131,45 @@ function splitPackageCapabilities(
   return { capabilityIds, contextCapabilityIds };
 }
 
+/** Extract the numbered article/section family from a capability id, e.g. "…art28.1" → "28". */
+function articleFamilyFromCapabilityId(id: string): string | undefined {
+  const match = id.match(/(?:^|[._-])art(?:icle)?[._-]?(\d{1,3})(?:$|[._-])/i);
+  return match?.[1];
+}
+
+/**
+ * Move leftover rules that share an article with a selected evaluation package
+ * onto that package as contextCapabilityIds. Returns the residual leftovers that
+ * still need standalone check_against_rule units.
+ */
+function absorbSameArticleLeftoverRules(
+  packages: ResolvedPackage[],
+  leftoverRuleIds: string[]
+): string[] {
+  if (leftoverRuleIds.length === 0 || packages.length === 0) return leftoverRuleIds;
+  const residual: string[] = [];
+  for (const ruleId of leftoverRuleIds) {
+    const family = articleFamilyFromCapabilityId(ruleId);
+    if (!family) {
+      residual.push(ruleId);
+      continue;
+    }
+    const cover = packages.find((resolved) =>
+      resolved.pkg.capabilityIds.some(
+        (capId) => articleFamilyFromCapabilityId(capId) === family
+      )
+    );
+    if (!cover) {
+      residual.push(ruleId);
+      continue;
+    }
+    if (!cover.contextCapabilityIds.includes(ruleId)) {
+      cover.contextCapabilityIds.push(ruleId);
+    }
+  }
+  return residual;
+}
+
 function packageEligibleUnderScope(pkg: EvidencePackage, focus?: InstructionFocus): boolean {
   const scope = focus?.explicitScope;
   if (!scope || !scopeBoundaryActive(scope)) return true;
@@ -190,9 +215,16 @@ interface PlanReq {
 export function resolvePackages(
   skills: AnalysisSkillConfig[],
   focus?: InstructionFocus,
-  intentRequirements?: IntentRequirement[]
+  intentRequirements?: IntentRequirement[],
+  /**
+   * Runtime-injected packages (e.g. the open-analysis proposition package
+   * built by PLAN from generated propositions) that are not authored on any
+   * skill. Merged into the authored packages so they resolve and run through
+   * the same evaluate_package / VERIFY path.
+   */
+  extraPackages?: EvidencePackage[]
 ): PackageResolution {
-  const allPackages = mergeEvidencePackages(skills);
+  const allPackages = [...mergeEvidencePackages(skills), ...(extraPackages ?? [])];
   const empty: PackageResolution = {
     packages: [],
     requirementToPackageId: {},
@@ -532,6 +564,18 @@ export function resolvePackages(
     }
   }
 
+  for (const pkg of [...selected.values()]) {
+    if (!pkg.orchestration?.suppressWhenPeerEvaluation) continue;
+    if (!isStructuralReviewPackage(pkg)) continue;
+    const hasPeerEvaluation = [...selected.values()].some(
+      (other) =>
+        other.id !== pkg.id &&
+        !isStructuralReviewPackage(other) &&
+        analysisPackageKind(other) === "evaluation"
+    );
+    if (hasPeerEvaluation) selected.delete(pkg.id);
+  }
+
   for (const mapping of focus?.requirementMappings ?? []) {
     for (const capId of mapping.capabilityIds) {
       const pkg = packageById.get(capId) ?? capabilityToPackage.get(capId);
@@ -603,23 +647,30 @@ export function resolvePackages(
         droppedCapabilityIds: contextCapabilityIds,
       });
     }
+    // Eval list is package-authored natives only. PLAN ids stay in
+    // requirementToPackageId / coverage paths as aliases — they must not
+    // become a second eval identity alongside duration / art28_3_* etc.
     const authored = pkg.requirementIds;
-    const aliasSet = new Set(
-      (pkg.requirementAliases ?? []).map((id) => normalizeRequirementId(id))
-    );
-    const extra = [...(packageExtraRequirements.get(pkg.id) ?? new Set())].filter(
-      (id) => !aliasSet.has(normalizeRequirementId(id))
-    );
-    const requirementIds = [...new Set([...authored, ...extra])];
+    registerPackageRequirementIds(authored);
+    for (const reqId of packageExtraRequirements.get(pkg.id) ?? []) {
+      if (!requirementToPackageId[reqId]) requirementToPackageId[reqId] = pkg.id;
+    }
     for (const reqId of authored) {
       if (!requirementToPackageId[reqId]) requirementToPackageId[reqId] = pkg.id;
     }
-    packages.push({ pkg, requirementIds, capabilityIds, contextCapabilityIds });
+    packages.push({
+      pkg,
+      requirementIds: [...authored],
+      capabilityIds,
+      contextCapabilityIds,
+    });
   }
 
   const ownedCaps = new Set<string>();
   for (const resolved of packages) {
     for (const capId of resolved.capabilityIds) ownedCaps.add(capId);
+    // Also treat authored package caps as owned so leftovers are only true orphans.
+    for (const capId of resolved.pkg.capabilityIds) ownedCaps.add(capId);
   }
 
   const leftoverRuleCandidates = (focus?.ruleIds ?? []).filter(
@@ -632,7 +683,7 @@ export function resolvePackages(
   const companionRuleIds = new Set(
     phraseMapCompanionRuleIds(skills, leftoverMatrixRowIds)
   );
-  const leftoverRuleIds = leftoverRuleCandidates.filter((id) => {
+  let leftoverRuleIds = leftoverRuleCandidates.filter((id) => {
     const inScope =
       scopedRuleIds([id], focus).length > 0 || companionRuleIds.has(id);
     if (!inScope) return false;
@@ -652,6 +703,12 @@ export function resolvePackages(
     }
     leftoverRuleIds.push(id);
   }
+
+  // Same-article-family leftover rules (numbered sub-clauses of an article
+  // already covered by a package) become context on the covering package —
+  // they must not compete as parallel check_against_rule units with package
+  // evaluation.
+  leftoverRuleIds = absorbSameArticleLeftoverRules(packages, leftoverRuleIds);
 
   const deferredReportPackages = allPackages.filter(
     (pkg) => defersToMatrixSubgraph(pkg, focus) && !selected.has(pkg.id)
@@ -709,8 +766,7 @@ export function hasUnsupportedExtraction(resolution: PackageResolution): boolean
 }
 
 export function normalizeRequirementId(id: string): string {
-  const raw = id.trim().toLowerCase().replace(/[\s-]+/g, "_");
-  return REQUIREMENT_ID_ALIASES[raw] ?? raw;
+  return canonicalRequirementId(id);
 }
 
 function collectPlanRequirements(

@@ -4,7 +4,10 @@ import type { AnalysisState } from "../../models/analysis-state.js";
 import type { ClauseObject } from "../../models/clause-object.js";
 import type { Finding } from "../../models/finding.js";
 import { getSkillById, getSkillRegistry, resetSkillRegistryForTests } from "../runtime/catalog/registry.js";
-import { shouldHoldUserFacingOutput } from "../../utils/pac-log.js";
+import {
+  beginRenderStreaming,
+  shouldHoldUserFacingOutput,
+} from "../../utils/pac-log.js";
 import { initAgentRunState } from "../../pac/types.js";
 
 process.env.GOOGLE_CLOUD_PROJECT ??= "render-output-test";
@@ -244,6 +247,66 @@ describe("render-output legal memo upgrade", () => {
     assert.equal(eligible.length, 1);
   });
 
+  it("preserves both present and absent_expected findings for a requirement in consolidation", async () => {
+    const { groundFindings } = await import("../../capabilities/audit/ground-findings.js");
+    const presentFinding = finding({
+      findingId: "f_pkg_part",
+      kind: "compliance",
+      category: "processor_terms",
+      status: "present",
+      requirementId: "gdpr.article28.nature_and_purpose",
+      claim: "Nature and purpose partially present.",
+      evidence: [{ locator, quotedText: "Section 5 processing terms", sourceRole: "target" }],
+    });
+    const gapFinding = finding({
+      findingId: "f_pkg_partgap",
+      kind: "compliance",
+      category: "processor_terms",
+      status: "absent_expected",
+      requirementId: "gdpr.article28.nature_and_purpose",
+      claim: "Nature and purpose relies on SOWs.",
+      gap: "Nature and purpose relies on SOWs.",
+      evidence: [{ locator, quotedText: "Section 5 processing terms", sourceRole: "target" }],
+    });
+    const consolidated = consolidateFindingsForRender([presentFinding, gapFinding]);
+    assert.equal(consolidated.length, 2);
+    assert.ok(consolidated.some((f) => f.status === "present"));
+    assert.ok(consolidated.some((f) => f.status === "absent_expected"));
+
+    const state = {
+      findings: consolidated,
+      workspace: {
+        sessionId: "s1",
+        documents: [
+          {
+            docId: "cisco-dpa",
+            role: "target",
+            fullText: "Section 5 processing terms",
+            segments: [],
+            clauses: [],
+          },
+        ],
+      },
+      intent: {
+        requirements: [
+          {
+            id: "gdpr.article28.nature_and_purpose",
+            description: "",
+            type: "adequacy",
+            priority: "required",
+          },
+        ],
+      },
+    } as unknown as AnalysisState;
+
+    const groundedState = groundFindings(state);
+    const assessment = groundedState.requirementAssessments?.find(
+      (a) => a.requirementId === "gdpr.article28.nature_and_purpose"
+    );
+    assert.ok(assessment);
+    assert.notEqual(assessment?.status, "cannot_determine");
+  });
+
   it("collapses timeframe risk and Art 12(3) compliance into one remedial point", () => {
     resetSkillRegistryForTests();
     const gdpr = getSkillById("regimes/data-protection/gdpr")!;
@@ -455,6 +518,15 @@ describe("render-output legal memo upgrade", () => {
     state.agent!.phase = "CRITIQUE";
     assert.equal(shouldHoldUserFacingOutput(state), true);
     state.agent!.phase = "DONE";
+    assert.equal(shouldHoldUserFacingOutput(state), false);
+  });
+
+  it("opens the hold when the renderer starts streaming", () => {
+    const state = { agent: initAgentRunState("CREATE") } as AnalysisState;
+    state.agent!.phase = "ACT";
+    beginRenderStreaming(state);
+    assert.equal(shouldHoldUserFacingOutput(state), false);
+    state.agent!.phase = "AUDIT";
     assert.equal(shouldHoldUserFacingOutput(state), false);
   });
 });

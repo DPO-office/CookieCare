@@ -10,6 +10,16 @@ export const NUMBERED_CLAUSE_RE =
   /^(\d+(?:\.\d+)*)[.)]\s+|^(\d+\.\d+(?:\.\d+)*)\s+/;
 
 /**
+ * Mid-line compound-numbered clause markers, e.g. `... 8.1. Notification.` or
+ * `... 9.2. Except for ...`. Some docx→text conversions (particularly
+ * PDF-to-DOCX round trips) lose paragraph breaks between adjacent numbered
+ * items, collapsing several clauses onto one line/paragraph. Requiring a
+ * dotted (compound) number here — not a bare top-level `8.` — keeps this from
+ * false-matching ordinary numbers in running prose ("30 days").
+ */
+const INLINE_CLAUSE_RE = /(\d+\.\d+(?:\.\d+)*)[.)]\s+(?=[A-Z"“(])/g;
+
+/**
  * Deterministic structural segmentation of plain text.
  * Produces stable structuralPath + charRange for Locator schema.
  * v1: headings + numbered clauses; no OCR/table parser.
@@ -38,41 +48,62 @@ export function segmentDocument(
       continue;
     }
 
-    const numbered = trimmed.match(NUMBERED_CLAUSE_RE);
-    if (numbered) {
-      clauseCounter += 1;
-      const number = numbered[1] ?? numbered[2]!;
-      const path = `clause-${number}`;
+    const leadingWs = line.length - line.trimStart().length;
+    const trimmedStart = lineStart + leadingWs;
+
+    // Split this line at any mid-line compound-numbered clause markers first,
+    // so a collapsed multi-clause line becomes one segment per clause instead
+    // of one giant blob (see INLINE_CLAUSE_RE).
+    const boundaries = [0];
+    for (const m of trimmed.matchAll(INLINE_CLAUSE_RE)) {
+      if (m.index! > 0) boundaries.push(m.index!);
+    }
+    boundaries.push(trimmed.length);
+
+    for (let i = 0; i < boundaries.length - 1; i++) {
+      const chunkRaw = trimmed.slice(boundaries[i], boundaries[i + 1]);
+      const chunkLeadingWs = chunkRaw.length - chunkRaw.trimStart().length;
+      const chunk = chunkRaw.trim();
+      if (!chunk) continue;
+
+      const chunkStart = trimmedStart + boundaries[i] + chunkLeadingWs;
+      const chunkEnd = chunkStart + chunk.length;
+
+      const numbered = chunk.match(NUMBERED_CLAUSE_RE);
+      if (numbered) {
+        clauseCounter += 1;
+        const number = numbered[1] ?? numbered[2]!;
+        const path = `clause-${number}`;
+        segments.push({
+          locator: makeLocator(docId, path, chunkStart, chunkEnd),
+          text: chunk,
+          kind: "clause",
+        });
+        currentHeadingPath = path;
+        continue;
+      }
+
+      if (HEADING_RE.test(chunk) && chunk.length < 120) {
+        const slug = slugify(chunk.replace(/^#+\s*/, ""));
+        const path = `heading-${slug}`;
+        segments.push({
+          locator: makeLocator(docId, path, chunkStart, chunkEnd),
+          text: chunk,
+          kind: "heading",
+        });
+        currentHeadingPath = path;
+        continue;
+      }
+
+      paraCounter += 1;
+      const path = `${currentHeadingPath}.para-${paraCounter}`;
       segments.push({
-        locator: makeLocator(docId, path, lineStart, lineEnd),
-        text: trimmed,
-        kind: "clause",
+        locator: makeLocator(docId, path, chunkStart, chunkEnd),
+        text: chunk,
+        kind: "paragraph",
       });
-      currentHeadingPath = path;
-      offset = lineEnd + 1;
-      continue;
     }
 
-    if (HEADING_RE.test(trimmed) && trimmed.length < 120) {
-      const slug = slugify(trimmed.replace(/^#+\s*/, ""));
-      const path = `heading-${slug}`;
-      segments.push({
-        locator: makeLocator(docId, path, lineStart, lineEnd),
-        text: trimmed,
-        kind: "heading",
-      });
-      currentHeadingPath = path;
-      offset = lineEnd + 1;
-      continue;
-    }
-
-    paraCounter += 1;
-    const path = `${currentHeadingPath}.para-${paraCounter}`;
-    segments.push({
-      locator: makeLocator(docId, path, lineStart, lineEnd),
-      text: trimmed,
-      kind: "paragraph",
-    });
     offset = lineEnd + 1;
   }
 

@@ -4,6 +4,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { deriveRequirementStatus } from "../requirement-status-policy.js";
+import { displayRequirementStatus } from "../../../models/requirement-assessment.js";
 import type { Finding, FindingStatus } from "../../../models/finding.js";
 
 function finding(status: FindingStatus, requirementId = "req.a"): Finding {
@@ -62,6 +63,18 @@ describe("deriveRequirementStatus", () => {
     );
   });
 
+  it("returns cannot_determine when the claim only points at an annex or SOW without binding coverage", () => {
+    assert.equal(
+      deriveRequirementStatus([
+        {
+          ...finding("insufficient_evidence"),
+          claim: "Subject matter is incorporated by reference to Annex 2 of Addendum A1.",
+        },
+      ]),
+      "cannot_determine"
+    );
+  });
+
   it("returns conditional when a Named matrix row still carries an implementation gap", () => {
     assert.equal(
       deriveRequirementStatus([
@@ -75,7 +88,7 @@ describe("deriveRequirementStatus", () => {
     );
   });
 
-  it("returns conditional when supporting present findings are paired with a medium risk gap", () => {
+  it("keeps Present compliance when a medium risk annotation is also linked", () => {
     assert.equal(
       deriveRequirementStatus([
         finding("present"),
@@ -87,7 +100,34 @@ describe("deriveRequirementStatus", () => {
           gap: "No machine-readable format commitment.",
         },
       ]),
-      "conditional"
+      "adequate"
+    );
+  });
+});
+
+describe("displayRequirementStatus", () => {
+  it("maps the 5-tier vocab to counsel-facing labels", () => {
+    assert.equal(displayRequirementStatus("strong"), "Strong");
+    assert.equal(displayRequirementStatus("adequate"), "Present & adequate");
+    assert.equal(displayRequirementStatus("covered"), "Present & adequate");
+    assert.equal(displayRequirementStatus("conditional"), "Minor drafting gap");
+    assert.equal(displayRequirementStatus("partial"), "Minor drafting gap");
+    assert.equal(displayRequirementStatus("gap"), "Gap");
+    assert.equal(displayRequirementStatus("cannot_determine"), "Cannot determine");
+    assert.equal(
+      displayRequirementStatus({
+        status: "conditional",
+        judgement: {
+          compliance: "partial",
+          evidenceState: "direct",
+          referenceBinding: "none",
+          evidenceConfidence: "medium",
+          draftingQuality: "could_be_clearer",
+          materiality: "high",
+          recommendationKind: "clarify",
+        },
+      }),
+      "Minor drafting gap"
     );
   });
 });

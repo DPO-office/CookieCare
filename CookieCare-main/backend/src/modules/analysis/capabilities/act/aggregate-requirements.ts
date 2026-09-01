@@ -5,21 +5,31 @@ import type {
   RequirementExecutionPath,
 } from "../../models/analysis-plan.js";
 import type { Finding } from "../../models/finding.js";
-import type { RequirementAssessment } from "../../models/requirement-assessment.js";
+import type {
+  ComplianceStatus,
+  RequirementAssessment,
+} from "../../models/requirement-assessment.js";
+import {
+  recommendationText,
+  statusFromJudgement,
+} from "../../models/requirement-assessment.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import {
-  deriveRequirementStatus,
+  canonicalRequirementId,
+  collapseToCanonicalRequirementIds,
+  requirementIdsEquivalent,
+} from "../../shared/requirement-identity.js";
+import {
+  deriveRequirementJudgement,
   findingsForRequirement,
 } from "./requirement-status-policy.js";
 
 /**
- * Build the RequirementAssessment reporting view from the authoritative
- * Findings. The link from requirement to finding is now the single field
- * `Finding.requirementId`, stamped at PLAN time onto the work unit
- * (`AnalysisWorkUnit.requirementIds`) and propagated into every finding by
- * the requirement-aware ACT handlers. Aggregation no longer bridges via
- * capability mappings, id prefix, or "same skill" heuristics — an
- * unmatched requirement stays honestly unmatched.
+ * Build the locked RequirementAssessment view from Findings.
+ * Writers may explain this object; they may not change its axes.
+ *
+ * Assessments are keyed by PLAN requirement ids. Package-native finding stamps
+ * (`duration`) join via alias equivalence — they do not create duplicate rows.
  */
 export function aggregateRequirements(
   state: AnalysisState,
@@ -34,7 +44,9 @@ export function aggregateRequirements(
 
   const extraFindings: Finding[] = [];
   for (const path of unsupported) {
-    if (findings.some((f) => f.requirementId === path.requirementId)) continue;
+    if (findings.some((f) => requirementIdsEquivalent(f.requirementId ?? "", path.requirementId))) {
+      continue;
+    }
     extraFindings.push({
       findingId: `f_unresolved_${path.requirementId}_${crypto.randomUUID().slice(0, 6)}`,
       kind: "compliance",
@@ -47,22 +59,26 @@ export function aggregateRequirements(
       taxonomyVersion: RISK_TAXONOMY_VERSION,
       workUnitId: unit.workUnitId,
       visibility: "user_facing",
-      requirementId: path.requirementId,
+      requirementId: canonicalRequirementId(path.requirementId),
     });
   }
 
   const allFindings = [...findings, ...extraFindings];
-  const requirementIds = orderedRequirementIds(allFindings, state);
+  const requirementIds = orderedCanonicalRequirementIds(allFindings, state);
 
   const assessments: RequirementAssessment[] = requirementIds.map((requirementId) => {
     const supporting = findingsForRequirement(requirementId, allFindings, state);
-    const status = deriveRequirementStatus(supporting);
+    const judgement = deriveRequirementJudgement(supporting);
+    const status = statusFromJudgement(judgement);
+    const gapText = supporting.find((f) => f.gap)?.gap;
     return {
       requirementId,
       supportingFindingIds: supporting.map((f) => f.findingId),
       status,
-      summary: buildSummary(supporting, status),
-      recommendation: buildRecommendation(supporting),
+      judgement,
+      summary: buildSummary(supporting, status, judgement.compliance),
+      recommendation: recommendationText(judgement.recommendationKind, gapText),
+      ...enrichmentFromFindings(supporting),
     };
   });
 
@@ -72,71 +88,96 @@ export function aggregateRequirements(
   };
 }
 
-function orderedRequirementIds(
+/**
+ * Locked assessment keys = PLAN requirement ids (no umbrella expansion into
+ * orphan native duplicates). Leftover package-native finding stamps that
+ * already alias a PLAN row are not emitted as extra assessments.
+ */
+function orderedCanonicalRequirementIds(
   findings: Finding[],
   state: AnalysisState
 ): string[] {
-  const seen = new Set<string>();
-  const ordered: string[] = [];
-  for (const req of state.intent?.requirements ?? []) {
-    if (seen.has(req.id)) continue;
-    seen.add(req.id);
-    ordered.push(req.id);
+  const planIds = (state.intent?.requirements ?? []).map((req) => req.id);
+  const findingReqIds = findings
+    .map((f) => f.requirementId)
+    .filter((id): id is string => Boolean(id));
+
+  if (planIds.length > 0) {
+    // Keep PLAN umbrellas as single rows; member findings join via aliases.
+    return collapseToCanonicalRequirementIds(planIds, {
+      expandUmbrellas: false,
+    });
   }
-  for (const f of findings) {
-    if (!f.requirementId || seen.has(f.requirementId)) continue;
-    seen.add(f.requirementId);
-    ordered.push(f.requirementId);
-  }
-  return ordered;
+
+  const fromFindings = collapseToCanonicalRequirementIds(findingReqIds, {
+    expandUmbrellas: false,
+  });
+  return fromFindings;
+}
+
+/**
+ * ACT-Phase 7 — copy VERIFY's enrichment fields from the finding(s) driving
+ * this assessment onto the locked record. Only ever populated on
+ * `verifiedByProposition` findings, so a requirement evaluated through the
+ * old grouped-LLM path (no proofStandard authored yet) gets none of these —
+ * a graceful, silent no-op rather than a change in its rendered output.
+ */
+function enrichmentFromFindings(
+  supporting: Finding[]
+): Pick<
+  RequirementAssessment,
+  "establishedBy" | "gapDescription" | "dependency" | "structuralNote" | "remediation"
+> {
+  const verified = supporting.filter((f) => f.verifiedByProposition);
+  return {
+    establishedBy: verified.find((f) => f.establishedBy)?.establishedBy,
+    gapDescription: verified.find((f) => f.gapDescription)?.gapDescription,
+    dependency: verified.find((f) => f.dependency)?.dependency,
+    structuralNote: verified.find((f) => f.structuralNote)?.structuralNote,
+    remediation: verified.find((f) => f.remediation)?.remediation,
+  };
 }
 
 function buildSummary(
   supporting: Finding[],
-  status: RequirementAssessment["status"]
+  status: RequirementAssessment["status"],
+  compliance: ComplianceStatus
 ): string {
-  const covered = supporting.find((f) => f.status === "present" && !f.gap);
-  const namedWithGap = supporting.find(
+  const complianceFindings = supporting.filter((f) => f.kind !== "risk");
+  const pool = complianceFindings.length > 0 ? complianceFindings : supporting;
+  const covered = pool.find((f) => f.status === "present" && !f.gap);
+  const namedWithGap = pool.find(
     (f) => f.status === "present" && Boolean(f.gap)
   );
-  const gap = supporting.find(
+  const gap = pool.find(
     (f) =>
       (f.status === "absent_expected" || f.kind === "risk") && (f.gap || f.claim)
   );
+  if (compliance === "insufficient_evidence" || status === "cannot_determine") {
+    return (
+      pool[0]?.claim ??
+      "The available evidence is insufficient to reach a conclusion."
+    );
+  }
   switch (status) {
+    case "strong":
+    case "adequate":
     case "covered":
       return covered?.claim ?? namedWithGap?.claim ?? "All required elements are supported.";
+    case "gap":
     case "missing":
       return gap?.gap ?? gap?.claim ?? "The required element is absent.";
+    case "conditional":
     case "partial":
       return [covered?.claim ?? namedWithGap?.claim, gap?.gap ?? gap?.claim ?? namedWithGap?.gap]
         .filter(Boolean)
         .join(" However, ");
     case "not_applicable":
-      return supporting[0]?.claim ?? "Outside the authored scope for this analysis.";
-    case "cannot_determine":
+      return pool[0]?.claim ?? "Outside the authored scope for this analysis.";
     default:
       return (
-        supporting[0]?.claim ??
+        pool[0]?.claim ??
         "The available evidence is insufficient to reach a conclusion."
       );
   }
-}
-
-function buildRecommendation(supporting: Finding[]): string | undefined {
-  const hasAbsent = supporting.some((f) => f.status === "absent_expected");
-  const hasInsufficient = supporting.some(
-    (f) => f.status === "insufficient_evidence"
-  );
-  if (hasInsufficient && !hasAbsent) {
-    return "Obtain or confirm the referenced materials or unread remainder of the clause. Do not amend the agreement from incomplete evidence.";
-  }
-  const gap = supporting.find(
-    (f) =>
-      f.status === "absent_expected" ||
-      Boolean(f.gap) ||
-      (f.kind === "risk" && (f.severity === "medium" || f.severity === "high"))
-  );
-  if (!gap) return undefined;
-  return gap.gap ? `Address the gap: ${gap.gap}` : undefined;
 }

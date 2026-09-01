@@ -2,7 +2,7 @@ process.env.GOOGLE_CLOUD_PROJECT ??= "release-decision-test";
 
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import type { AnalysisState } from "../../models/analysis-state.js";
+import type { AnalysisState } from "../../../models/analysis-state.js";
 import { initAgentRunState } from "../../../pac/types.js";
 import { composeReleaseDecision } from "../release-decision.js";
 import { resolveStoppedReason } from "../../../pac/transitions.js";

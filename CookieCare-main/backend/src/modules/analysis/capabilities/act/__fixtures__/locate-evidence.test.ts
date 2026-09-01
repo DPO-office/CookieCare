@@ -241,6 +241,8 @@ describe("groupedResultsToFindings referenced_elsewhere", () => {
     );
     assert.equal(findings.length, 1);
     assert.equal(findings[0].status, "insufficient_evidence");
+    assert.equal(findings[0].judgement?.compliance, "insufficient_evidence");
+    assert.equal(findings[0].judgement?.referenceBinding, "floating");
   });
 });
 
@@ -425,6 +427,56 @@ describe("groupedResultsToFindings truncated evidence", () => {
     );
     assert.equal(findings.length, 1);
     assert.equal(findings[0].status, "insufficient_evidence");
+  });
+
+  it("downgrades present when rationale says extracts do not contain the obligation", () => {
+    const unit = {
+      workUnitId: "wu-pkg-eval-contradiction",
+      tool: "evaluate_package",
+      input: {},
+      dependsOn: [],
+      outputSchema: "Finding[]",
+      status: "succeeded",
+    } as unknown as AnalysisWorkUnit;
+    const bundle: SharedEvidenceBundle = {
+      packageId: "gdpr.art28.particulars",
+      docId: "d1",
+      items: [
+        {
+          ref: "E3",
+          clauseType: "processor_terms",
+          quotedText:
+            "3.7.5.3 For the purposes of the EU SCCs that apply pursuant to section 3.7.5.2 of this Data Processing Agreement.",
+          structuralPath: "3.7.5.3",
+          charRange: [0, 120],
+        },
+      ],
+    };
+    const findings = groupedResultsToFindings(
+      [
+        {
+          requirementId: "duration",
+          status: "adequate",
+          compliance: "present",
+          evidenceState: "unavailable",
+          nli: "not_mentioned",
+          rationale:
+            "The candidate extract (E3) addresses EU SCC operational rules but does not state or incorporate the duration of the processing.",
+          evidenceRefs: ["E3"],
+        },
+      ],
+      {
+        unit,
+        docId: "d1",
+        packageId: "gdpr.art28.particulars",
+        sourceMode: "authored",
+        findingCategory: "processor_terms_incomplete",
+        bundle,
+      }
+    );
+    assert.equal(findings.length, 1);
+    assert.equal(findings[0].status, "insufficient_evidence");
+    assert.equal(findings[0].judgement?.compliance, "insufficient_evidence");
   });
 
   it("does not truncate evidence in the middle of a word", () => {

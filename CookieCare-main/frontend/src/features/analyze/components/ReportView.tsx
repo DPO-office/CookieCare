@@ -254,6 +254,9 @@ export default function ReportView({
   // Collect all unique sources for the references panel
   const allRefs = useMemo(() => buildRefList(chatMessages), [chatMessages]);
   const hasRefs = allRefs.length > 0;
+  const hasMarkdownTable = chatMessages.some(
+    (m) => m.sender === "gemini" && /\|.+\|/.test(m.text || "")
+  );
 
   return (
     <>
@@ -413,7 +416,7 @@ export default function ReportView({
               <form
                 onSubmit={onSendMessage}
                 className="analyze-report-composer mx-auto"
-                style={{ maxWidth: hasRefs ? 720 : 768 }}
+                style={{ maxWidth: hasMarkdownTable ? 1100 : hasRefs ? 720 : 768 }}
               >
                 <button
                   type="button"

@@ -13,12 +13,25 @@ import { getSkillById, mergeSkillRiskCategories } from "../../skills/runtime/cat
 import { loadSkillMdSection } from "../../skills/runtime/catalog/load-skill-md.js";
 import { insufficient, stampFindingsByCapability, compileAuthoredRegex } from "./act-utils.js";
 import { profileThinkingLevel } from "../../utils/profile-thinking.js";
+import { buildSectionCandidates } from "./select-candidates.js";
+import { canonicalRequirementId } from "../../shared/requirement-identity.js";
+import { pacLog } from "../../utils/pac-log.js";
 
 async function flagRisk(
   state: AnalysisState,
   unit: AnalysisWorkUnit,
   findings: Finding[]
 ): Promise<{ state: AnalysisState; findings: Finding[] }> {
+  // Document-first, open-vocabulary risk discovery (flagged). The closed-
+  // taxonomy path below pre-decides which risk categories to look for at PLAN
+  // time and crams every clause into one prompt; the open path instead reads
+  // the whole document as sections and lets the model surface the risks that
+  // are actually in the text — general purpose, no authored risk catalogue
+  // required. Already stamps its own requirementId, so it bypasses the
+  // category-based capability stamp.
+  if (process.env.ANALYSIS_OPEN_RISK === "1") {
+    return flagRiskOpen(state, unit, findings);
+  }
   const result = await _flagRiskImpl(state, unit, findings);
   return {
     state: result.state,
@@ -26,6 +39,151 @@ async function flagRisk(
       f.category,
     ]),
   };
+}
+
+interface OpenRisk {
+  ref: string;
+  title: string;
+  explanation: string;
+  severity: "low" | "medium" | "high";
+  quote: string;
+}
+
+const OPEN_RISK_SYSTEM = [
+  "You are a contract risk analyst reviewing a document for the party who asked the question.",
+  "Read the supplied clauses and surface the MATERIAL risks that actually arise from the text — the provisions a careful lawyer would flag on this specific document.",
+  "For each risk return: the clause ref it arises from, a short specific title, a plain-English explanation of why it is a risk to the reviewing party, a severity (low/medium/high), and the VERBATIM triggering quote copied character-for-character from that clause.",
+  "Only genuine, material, text-grounded risks. Do not pad with generic boilerplate, do not invent, and never include a risk you cannot ground in a verbatim quote from the supplied text. Order by severity, most serious first. Aim for the 5–12 risks that matter, not an exhaustive list.",
+].join(" ");
+
+function riskCategorySlug(title: string): string {
+  const slug = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 48);
+  return slug || "other_known_risk";
+}
+
+async function discoverOpenRisks(
+  state: AnalysisState,
+  instruction: string,
+  sections: ReturnType<typeof buildSectionCandidates>
+): Promise<OpenRisk[]> {
+  if (sections.length === 0) return [];
+  const clauseLines = sections
+    .map(
+      (s) =>
+        `${s.ref} [${s.clauseType}${s.structuralPath ? ` · ${s.structuralPath}` : ""}] ${s.quotedText}`
+    )
+    .join("\n");
+  const prompt = [
+    `User question: ${instruction.slice(0, 400)}`,
+    "",
+    "Clauses (cite `ref` only from this list):",
+    clauseLines,
+  ].join("\n");
+  const schema = {
+    type: "array",
+    items: {
+      type: "object",
+      properties: {
+        ref: { type: "string", enum: sections.map((s) => s.ref) },
+        title: { type: "string" },
+        explanation: { type: "string" },
+        severity: { type: "string", enum: ["low", "medium", "high"] },
+        quote: { type: "string" },
+      },
+      required: ["ref", "title", "explanation", "severity", "quote"],
+    },
+  };
+  const tracker = state.agent ? { tokensUsed: state.agent.tokensUsed } : undefined;
+  try {
+    const out = await executeJsonCompletion<OpenRisk[]>(
+      prompt,
+      OPEN_RISK_SYSTEM,
+      schema,
+      LLMTask.STRUCTURAL_JSON,
+      LLMProvider.GEMINI,
+      { tracker, thinkingLevel: profileThinkingLevel(state, LLMTask.STRUCTURAL_JSON) }
+    );
+    if (state.agent && tracker) state.agent.tokensUsed = tracker.tokensUsed;
+    return Array.isArray(out) ? out : [];
+  } catch (err) {
+    console.warn("[flagRiskOpen] discovery failed:", err);
+    return [];
+  }
+}
+
+async function flagRiskOpen(
+  state: AnalysisState,
+  unit: AnalysisWorkUnit,
+  findings: Finding[]
+): Promise<{ state: AnalysisState; findings: Finding[] }> {
+  const docId = String(unit.input.docId ?? "");
+  const instruction = String(unit.input.instruction ?? state.request.instruction ?? "");
+  const skillIds = (unit.input.skillIds as string[]) ?? state.activeSkillIds ?? ["_global"];
+  const reqId = Array.isArray(unit.input.requirementIds)
+    ? String((unit.input.requirementIds as string[])[0] ?? "")
+    : "";
+  const doc = state.workspace.documents.find((d) => d.docId === docId);
+  if (!doc) {
+    return {
+      state,
+      findings: [...findings, insufficient(unit, `Document ${docId} missing for risk flag`)],
+    };
+  }
+
+  const sections = buildSectionCandidates(doc);
+  const started = Date.now();
+  const risks = await discoverOpenRisks(state, instruction, sections);
+  const byRef = new Map(sections.map((s) => [s.ref, s]));
+
+  const riskFindings: Finding[] = [];
+  const seen = new Set<string>();
+  risks.forEach((r, i) => {
+    const sec = byRef.get(r.ref);
+    if (!sec || !r.quote?.trim()) return;
+    // Verbatim-quote gate — same discipline as the compliance VERIFY path.
+    if (!sec.quotedText.toLowerCase().includes(r.quote.toLowerCase().slice(0, 80))) return;
+    const key = r.title.trim().toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    riskFindings.push({
+      findingId: `f_risk_open_${unit.workUnitId}_${i}`,
+      kind: "risk",
+      category: riskCategorySlug(r.title),
+      status: "present",
+      claim: r.explanation?.trim() || r.title.trim(),
+      evidence: [
+        {
+          locator: {
+            docId,
+            structuralPath: sec.structuralPath,
+            charRange: sec.charRange,
+          },
+          quotedText: r.quote,
+          sourceRole: "target",
+        },
+      ],
+      severity: r.severity,
+      taxonomyVersion: RISK_TAXONOMY_VERSION,
+      workUnitId: unit.workUnitId,
+      skillId: skillIds[0],
+      visibility: "user_facing",
+      requirementId: reqId ? canonicalRequirementId(reqId) : undefined,
+    });
+  });
+
+  pacLog("[VERIFY] open risk discovery", {
+    docId,
+    sections: sections.length,
+    proposed: risks.length,
+    kept: riskFindings.length,
+    ms: Date.now() - started,
+  });
+
+  return { state, findings: [...findings, ...riskFindings] };
 }
 
 async function _flagRiskImpl(

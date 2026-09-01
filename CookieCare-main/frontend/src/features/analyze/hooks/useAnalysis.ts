@@ -83,11 +83,9 @@ export function useAnalysis(authToken: string) {
   };
 
   const handleProgress = (message: string) => {
-    if (
-      message === "Writing the report…" ||
-      message === "Checking the analysis…" ||
-      message === "Verifying key findings…"
-    ) {
+    // Clear leftover only before the first report token. Never wipe a live memo
+    // when audit/verify progress fires after render streaming has started.
+    if (message === "Writing the report…" && !streamBufferRef.current) {
       resetLiveStream();
     }
     setAnalysisProgress(message);
@@ -139,8 +137,8 @@ export function useAnalysis(authToken: string) {
       return true;
     }
 
-    // Prefer the released report only. ACT/critique drafts are held server-side
-    // until persist, so this should not swap a visible memo.
+    // Canonical memo from the job result. Live SSE tokens are a progressive draft;
+    // sanitize/layout may differ slightly, so replace once at completion.
     const finalText =
       outcome.kind === "out_of_scope"
         ? outcome.declineMessage

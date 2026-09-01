@@ -5,7 +5,10 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { resolvePackages } from "../../../skills/runtime/graph/resolve-packages.js";
-import { buildActGraphDetailed } from "../../../skills/runtime/graph/build-act-graph.js";
+import {
+  buildActGraphDetailed,
+  clauseTypesForPackageEvidence,
+} from "../../../skills/runtime/graph/build-act-graph.js";
 import { aggregateRequirements } from "../aggregate-requirements.js";
 import type { Finding, FindingStatus } from "../../../models/finding.js";
 import type { AnalysisState } from "../../../models/analysis-state.js";
@@ -13,7 +16,7 @@ import {
   focus,
   gdprSkill,
   intent,
-} from "../../../__test-helpers__/package-graph-fixtures.js";
+} from "../../../../__test-helpers__/package-graph-fixtures.js";
 
 describe("package resolution", () => {
   it("selects the Article 28(3) package when a member rule is in focus", () => {
@@ -69,9 +72,46 @@ describe("package graph shape", () => {
     assert.ok(tools.has("aggregate_requirements"));
     assert.ok(tools.has("render_output"));
 
-    // render must run last (depends on aggregation).
+    // render must run last (depends on derive_risk after aggregate).
     const render = workUnits.find((u) => u.tool === "render_output");
-    assert.deepEqual(render?.dependsOn, ["wu-aggregate"]);
+    assert.deepEqual(render?.dependsOn, ["wu-derive-risk"]);
+    const derive = workUnits.find((u) => u.tool === "derive_risk");
+    assert.deepEqual(derive?.dependsOn, ["wu-aggregate"]);
+  });
+
+  it("unions rule appliesToClauseTypes onto mandatory shared-evidence clauseTypes", () => {
+    const skill = gdprSkill();
+    const { workUnits } = buildActGraphDetailed({
+      docId: "doc1",
+      instruction: "Review the DPA for GDPR Article 28 compliance.",
+      skills: [skill],
+      intent: intent(),
+      focus: focus({ ruleIds: ["gdpr.art28.3.a", "gdpr.art28.3.b", "gdpr.art28.3.g"] }),
+    });
+    const extract = workUnits.find(
+      (unit) =>
+        unit.tool === "extract_shared_evidence" &&
+        unit.input.packageId === "gdpr.art28.3.mandatory_clauses"
+    );
+    const types = (extract?.input.clauseTypes as string[]) ?? [];
+    assert.ok(types.includes("confidentiality"), `got ${types.join(", ")}`);
+    assert.ok(types.includes("deletion_on_termination"), `got ${types.join(", ")}`);
+    assert.ok(types.includes("data_subject_request_handling"));
+  });
+
+  it("still unions rule types when the package list is stale", () => {
+    const skill = gdprSkill();
+    const pkg = skill.evidencePackages?.find(
+      (item) => item.id === "gdpr.art28.3.mandatory_clauses"
+    );
+    assert.ok(pkg);
+    const types = clauseTypesForPackageEvidence(
+      { ...pkg, clauseTypes: ["processor_terms"] },
+      pkg.capabilityIds,
+      [skill]
+    );
+    assert.ok(types.includes("confidentiality"));
+    assert.ok(types.includes("deletion_on_termination"));
   });
 });
 

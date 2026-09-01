@@ -154,6 +154,23 @@ describe("topic shift detection", () => {
     };
     assert.equal(isMaterialTopicShift(prior, current), true);
   });
+
+  it("does not treat a follow-up presence question as a topic shift", () => {
+    const current: IntentClassification = {
+      ...PRIOR,
+      operation: "explain_qa",
+      standardConcept: "GDPR Article 28",
+      requirements: [
+        {
+          id: "gdpr.article34.presence",
+          description: "Is Article 34 present?",
+          type: "verification",
+          priority: "required",
+        },
+      ],
+    };
+    assert.equal(isMaterialTopicShift(PRIOR, current), false);
+  });
 });
 
 describe("explicit presentation overlays", () => {

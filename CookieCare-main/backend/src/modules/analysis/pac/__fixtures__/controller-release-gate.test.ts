@@ -4,7 +4,11 @@ import type { AnalysisState } from "../../models/analysis-state.js";
 import { initAgentRunState } from "../types.js";
 import { resolveStoppedReason, nextPhaseAfterCritique } from "../transitions.js";
 import { renderLimitationsReport } from "../../capabilities/reporting/limitations-report.js";
-import { shouldHoldUserFacingOutput } from "../../utils/pac-log.js";
+import {
+  beginRenderStreaming,
+  emitAnalysisToken,
+  shouldHoldUserFacingOutput,
+} from "../../utils/pac-log.js";
 import type { CritiqueReport, ReleaseDecision } from "../../models/critique-report.js";
 
 function critiqueWithRelease(release: ReleaseDecision): CritiqueReport {
@@ -30,6 +34,21 @@ describe("PAC release gate transitions", () => {
     assert.equal(shouldHoldUserFacingOutput(state), true);
     state.agent!.phase = "DONE";
     assert.equal(shouldHoldUserFacingOutput(state), false);
+  });
+
+  it("lets renderer tokens through during ACT once streaming starts", () => {
+    const chunks: string[] = [];
+    const state = {
+      agent: initAgentRunState("CREATE"),
+      onToken: (delta: string) => chunks.push(delta),
+    } as AnalysisState;
+    state.agent!.phase = "ACT";
+    emitAnalysisToken(state, "held");
+    assert.deepEqual(chunks, []);
+    beginRenderStreaming(state);
+    assert.equal(shouldHoldUserFacingOutput(state), false);
+    emitAnalysisToken(state, "memo");
+    assert.deepEqual(chunks, ["memo"]);
   });
   it("blocked withhold never preserves misleading renderedOutput in limitations report", () => {
     const release: ReleaseDecision = {

@@ -1,0 +1,948 @@
+{
+  "intent": {
+    "scope": "whole_document",
+    "operation": "risk_flag",
+    "standard": "none",
+    "standardConcept": "Contractual Risk Analysis & Negotiation Strategy",
+    "outputForm": "memo",
+    "reportType": "risk_audit",
+    "depth": "standard",
+    "compound": true,
+    "subIntents": [
+      {
+        "operation": "risk_flag",
+        "standard": "none",
+        "outputForm": "memo",
+        "reportType": "risk_audit",
+        "depth": "standard",
+        "description": "Identify contract weaknesses and risk areas.",
+        "requirements": [
+          {
+            "id": "contract.weaknesses_identification",
+            "description": "Identify the primary weaknesses, unfavorable terms, and legal/business risks in the agreement.",
+            "type": "adequacy",
+            "priority": "required"
+          }
+        ]
+      },
+      {
+        "operation": "draft_suggestion",
+        "standard": "none",
+        "outputForm": "memo",
+        "reportType": "risk_audit",
+        "depth": "standard",
+        "description": "Provide negotiation recommendations and drafting points.",
+        "requirements": [
+          {
+            "id": "contract.negotiation_recommendations",
+            "description": "Provide actionable negotiation suggestions and recommended changes to mitigate identified weaknesses.",
+            "type": "recommendation",
+            "priority": "required"
+          }
+        ]
+      }
+    ],
+    "requirements": [
+      {
+        "id": "contract.weaknesses_identification",
+        "description": "Identify the primary weaknesses, unfavorable terms, and legal/business risks in the agreement.",
+        "type": "adequacy",
+        "priority": "required"
+      },
+      {
+        "id": "contract.negotiation_recommendations",
+        "description": "Provide actionable negotiation suggestions and recommended changes to mitigate identified weaknesses.",
+        "type": "recommendation",
+        "priority": "required"
+      }
+    ],
+    "unresolvedNeeds": [],
+    "confidence": {
+      "scope": 0.95,
+      "operation": 0.95,
+      "standard": 0.9,
+      "outputForm": 0.9
+    },
+    "docTypeHint": "dpa",
+    "documentPresentation": "unified"
+  },
+  "clarificationRequest": null,
+  "declineMessage": null,
+  "plan": {
+    "intent": {
+      "scope": "whole_document",
+      "operation": "risk_flag",
+      "standard": "none",
+      "standardConcept": "Contractual Risk Analysis & Negotiation Strategy",
+      "outputForm": "memo",
+      "reportType": "risk_audit",
+      "depth": "standard",
+      "compound": true,
+      "subIntents": [
+        {
+          "operation": "risk_flag",
+          "standard": "none",
+          "outputForm": "memo",
+          "reportType": "risk_audit",
+          "depth": "standard",
+          "description": "Identify contract weaknesses and risk areas.",
+          "requirements": [
+            {
+              "id": "contract.weaknesses_identification",
+              "description": "Identify the primary weaknesses, unfavorable terms, and legal/business risks in the agreement.",
+              "type": "adequacy",
+              "priority": "required"
+            }
+          ]
+        },
+        {
+          "operation": "draft_suggestion",
+          "standard": "none",
+          "outputForm": "memo",
+          "reportType": "risk_audit",
+          "depth": "standard",
+          "description": "Provide negotiation recommendations and drafting points.",
+          "requirements": [
+            {
+              "id": "contract.negotiation_recommendations",
+              "description": "Provide actionable negotiation suggestions and recommended changes to mitigate identified weaknesses.",
+              "type": "recommendation",
+              "priority": "required"
+            }
+          ]
+        }
+      ],
+      "requirements": [
+        {
+          "id": "contract.weaknesses_identification",
+          "description": "Identify the primary weaknesses, unfavorable terms, and legal/business risks in the agreement.",
+          "type": "adequacy",
+          "priority": "required"
+        },
+        {
+          "id": "contract.negotiation_recommendations",
+          "description": "Provide actionable negotiation suggestions and recommended changes to mitigate identified weaknesses.",
+          "type": "recommendation",
+          "priority": "required"
+        }
+      ],
+      "unresolvedNeeds": [],
+      "confidence": {
+        "scope": 0.95,
+        "operation": 0.95,
+        "standard": 0.9,
+        "outputForm": 0.9
+      },
+      "docTypeHint": "dpa",
+      "documentPresentation": "unified"
+    },
+    "workUnits": [
+      {
+        "workUnitId": "wu-classify",
+        "tool": "classify_document",
+        "input": {
+          "docId": "dpa"
+        },
+        "dependsOn": [],
+        "outputSchema": "string",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-extract",
+        "tool": "extract_clauses",
+        "input": {
+          "docId": "dpa",
+          "clauseTypes": [
+            "data_protection",
+            "subprocessor_flow_down",
+            "deletion_on_termination",
+            "international_transfer_mechanism",
+            "security_dpia_assistance",
+            "definitions",
+            "termination",
+            "confidentiality",
+            "limitation_of_liability",
+            "indemnity",
+            "governing_law",
+            "processor_terms",
+            "processor_assistance_obligation",
+            "information_security",
+            "audit_and_compliance_evidence"
+          ],
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "What are the biggest weaknesses in this contract? What should I negotiate?",
+          "unionPlaybookClauseTypes": false
+        },
+        "dependsOn": [
+          "wu-classify"
+        ],
+        "outputSchema": "ClauseObject[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-pkg-ev-dpa.structural_review",
+        "tool": "extract_shared_evidence",
+        "input": {
+          "docId": "dpa",
+          "packageId": "dpa.structural_review",
+          "clauseTypes": [
+            "data_protection",
+            "subprocessor_flow_down",
+            "deletion_on_termination",
+            "international_transfer_mechanism",
+            "security_dpia_assistance",
+            "definitions",
+            "termination",
+            "confidentiality",
+            "limitation_of_liability",
+            "indemnity",
+            "governing_law"
+          ],
+          "extractionTargets": [
+            "subject_matter",
+            "duration",
+            "nature_and_purpose",
+            "subprocessor_list",
+            "deletion_terms",
+            "transfer_mechanism"
+          ],
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "What are the biggest weaknesses in this contract? What should I negotiate?"
+        },
+        "dependsOn": [
+          "wu-extract"
+        ],
+        "outputSchema": "ClauseObject[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-pkg-eval-dpa.structural_review",
+        "tool": "evaluate_package",
+        "input": {
+          "docId": "dpa",
+          "packageId": "dpa.structural_review",
+          "capabilityIds": [
+            "dpa.subject_matter_defined",
+            "dpa.duration_defined",
+            "dpa.nature_and_purpose_defined",
+            "dpa.subprocessor_flowdown_present",
+            "dpa.deletion_on_termination_present",
+            "dpa.security_and_dpia_assistance_present",
+            "dpa.international_transfer_mechanism_present",
+            "dpa.confidentiality_of_staff_present"
+          ],
+          "contextCapabilityIds": [],
+          "requirementIds": [
+            "dpa.subject_matter_defined",
+            "dpa.duration_defined",
+            "dpa.nature_and_purpose_defined",
+            "dpa.subprocessor_flowdown_present",
+            "dpa.deletion_on_termination_present",
+            "dpa.security_and_dpia_assistance_present",
+            "dpa.international_transfer_mechanism_present",
+            "dpa.confidentiality_of_staff_present"
+          ],
+          "sourceMode": "authored",
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "What are the biggest weaknesses in this contract? What should I negotiate?",
+          "depth": "standard",
+          "extractionTargets": [
+            "subject_matter",
+            "duration",
+            "nature_and_purpose",
+            "subprocessor_list",
+            "deletion_terms",
+            "transfer_mechanism"
+          ],
+          "requirementEvidence": {},
+          "requirementBindings": {},
+          "inputArtifactIds": []
+        },
+        "dependsOn": [
+          "wu-pkg-ev-dpa.structural_review"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending",
+        "requirementIds": [
+          "dpa.subject_matter_defined",
+          "dpa.duration_defined",
+          "dpa.nature_and_purpose_defined",
+          "dpa.subprocessor_flowdown_present",
+          "dpa.deletion_on_termination_present",
+          "dpa.security_and_dpia_assistance_present",
+          "dpa.international_transfer_mechanism_present",
+          "dpa.confidentiality_of_staff_present"
+        ]
+      },
+      {
+        "workUnitId": "wu-aggregate",
+        "tool": "aggregate_requirements",
+        "input": {
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "What are the biggest weaknesses in this contract? What should I negotiate?",
+          "unsupportedRequirements": [
+            {
+              "requirementId": "contract.negotiation_recommendations",
+              "status": "not_supported",
+              "requirementType": "recommendation",
+              "reason": "No analysis package or named-rule mapping for \"contract.negotiation_recommendations\""
+            }
+          ]
+        },
+        "dependsOn": [
+          "wu-pkg-eval-dpa.structural_review"
+        ],
+        "outputSchema": "string",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-derive-risk",
+        "tool": "derive_risk",
+        "input": {
+          "docId": "dpa",
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "What are the biggest weaknesses in this contract? What should I negotiate?"
+        },
+        "dependsOn": [
+          "wu-aggregate"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-render",
+        "tool": "render_output",
+        "input": {
+          "schemaId": "memo",
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "What are the biggest weaknesses in this contract? What should I negotiate?",
+          "relatedNotes": []
+        },
+        "dependsOn": [
+          "wu-derive-risk"
+        ],
+        "outputSchema": "string",
+        "status": "pending"
+      }
+    ],
+    "missingClarifications": [],
+    "outputForm": "memo",
+    "documentPresentation": "unified",
+    "skipCritique": true,
+    "reportSpec": {
+      "reportType": "risk_audit",
+      "depth": "standard",
+      "sections": [
+        "scope",
+        "chapeau_particulars",
+        "requirements_detail",
+        "qualifications",
+        "recommendations",
+        "missing_materials",
+        "conclusion"
+      ],
+      "outline": [
+        {
+          "id": "scope",
+          "role": "scope",
+          "sectionId": "scope",
+          "heading": "Scope",
+          "requirementIds": [],
+          "source": "deterministic"
+        },
+        {
+          "id": "analysis.weaknesses_identification",
+          "role": "analysis",
+          "sectionId": "requirements_detail",
+          "heading": "Weaknesses Identification",
+          "requirementIds": [
+            "contract.weaknesses_identification"
+          ],
+          "source": "deterministic"
+        },
+        {
+          "id": "analysis.negotiation_recommendations",
+          "role": "analysis",
+          "sectionId": "requirements_detail",
+          "heading": "Negotiation Recommendations",
+          "requirementIds": [
+            "contract.negotiation_recommendations"
+          ],
+          "source": "deterministic"
+        },
+        {
+          "id": "qualifications",
+          "role": "qualifications",
+          "sectionId": "qualifications",
+          "heading": "Qualifications",
+          "requirementIds": [],
+          "source": "deterministic"
+        },
+        {
+          "id": "recommendations",
+          "role": "recommendations",
+          "sectionId": "recommendations",
+          "heading": "Recommendations",
+          "requirementIds": [],
+          "source": "deterministic"
+        },
+        {
+          "id": "missing_materials",
+          "role": "missing_materials",
+          "sectionId": "missing_materials",
+          "heading": "Missing materials",
+          "requirementIds": [],
+          "source": "deterministic"
+        },
+        {
+          "id": "conclusion",
+          "role": "conclusion",
+          "sectionId": "conclusion",
+          "heading": "Conclusion",
+          "requirementIds": [],
+          "source": "deterministic"
+        }
+      ]
+    },
+    "rendererSchemaId": "memo",
+    "activeSkillIds": [
+      "_global",
+      "doc-types/dpa",
+      "regimes/data-protection/gdpr"
+    ],
+    "focus": {
+      "ruleIds": [],
+      "matrixRowIds": [],
+      "riskCategoryIds": [
+        "uncapped_liability",
+        "one_sided_indemnity",
+        "unilateral_termination",
+        "ambiguous_definition",
+        "missing_limitation_of_liability",
+        "missing_indemnity",
+        "other_known_risk"
+      ],
+      "instructionText": "What are the biggest weaknesses in this contract? What should I negotiate?",
+      "requirements": [
+        {
+          "id": "contract.weaknesses_identification",
+          "label": "Identify contract weaknesses, unfavorable terms, and risks",
+          "sourceText": "What are the biggest weaknesses in this contract?"
+        },
+        {
+          "id": "contract.negotiation_recommendations",
+          "label": "Provide actionable negotiation suggestions and mitigation steps",
+          "sourceText": "What should I negotiate?"
+        }
+      ],
+      "requiredCapabilities": [
+        "uncapped_liability",
+        "one_sided_indemnity",
+        "unilateral_termination",
+        "ambiguous_definition",
+        "missing_limitation_of_liability",
+        "missing_indemnity",
+        "other_known_risk"
+      ],
+      "supportingCapabilities": [],
+      "requirementMappings": [
+        {
+          "requirementId": "contract.weaknesses_identification",
+          "capabilityIds": [
+            "uncapped_liability",
+            "one_sided_indemnity",
+            "unilateral_termination",
+            "ambiguous_definition",
+            "missing_limitation_of_liability",
+            "missing_indemnity",
+            "other_known_risk"
+          ],
+          "source": "catalog_llm"
+        },
+        {
+          "requirementId": "contract.negotiation_recommendations",
+          "capabilityIds": [
+            "uncapped_liability",
+            "one_sided_indemnity",
+            "unilateral_termination",
+            "ambiguous_definition",
+            "missing_limitation_of_liability",
+            "missing_indemnity",
+            "other_known_risk"
+          ],
+          "source": "catalog_llm"
+        }
+      ],
+      "completenessCheck": [
+        {
+          "requirementId": "contract.weaknesses_identification",
+          "label": "Identify contract weaknesses, unfavorable terms, and risks",
+          "status": "covered",
+          "mappedCapabilityIds": [
+            "uncapped_liability",
+            "one_sided_indemnity",
+            "unilateral_termination",
+            "ambiguous_definition",
+            "missing_limitation_of_liability",
+            "missing_indemnity",
+            "other_known_risk"
+          ]
+        },
+        {
+          "requirementId": "contract.negotiation_recommendations",
+          "label": "Provide actionable negotiation suggestions and mitigation steps",
+          "status": "covered",
+          "mappedCapabilityIds": [
+            "uncapped_liability",
+            "one_sided_indemnity",
+            "unilateral_termination",
+            "ambiguous_definition",
+            "missing_limitation_of_liability",
+            "missing_indemnity",
+            "other_known_risk"
+          ]
+        }
+      ],
+      "requiredIds": [
+        "uncapped_liability",
+        "one_sided_indemnity",
+        "unilateral_termination",
+        "ambiguous_definition",
+        "missing_limitation_of_liability",
+        "missing_indemnity",
+        "other_known_risk"
+      ],
+      "supportingIds": [],
+      "unresolvedNeeds": [],
+      "unresolvedNeedDetails": [],
+      "droppedCandidateIds": [],
+      "provenance": [
+        {
+          "id": "uncapped_liability",
+          "kind": "risk_category",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "The user asks for a general contractual review to identify major weaknesses, unfavorable terms, legal/business risks, and corresponding negotiation recommendations. The seed requirements 'contract.weaknesses_identification' and 'contract.negotiation_recommendations' fully capture these asks. To satisfy both requirements, the global contractual risk categories (uncapped liability, one-sided indemnity, unilateral termination, ambiguous definitions, missing limitation of liability, missing indemnity, and other material contractual risks) are selected."
+        },
+        {
+          "id": "one_sided_indemnity",
+          "kind": "risk_category",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "The user asks for a general contractual review to identify major weaknesses, unfavorable terms, legal/business risks, and corresponding negotiation recommendations. The seed requirements 'contract.weaknesses_identification' and 'contract.negotiation_recommendations' fully capture these asks. To satisfy both requirements, the global contractual risk categories (uncapped liability, one-sided indemnity, unilateral termination, ambiguous definitions, missing limitation of liability, missing indemnity, and other material contractual risks) are selected."
+        },
+        {
+          "id": "unilateral_termination",
+          "kind": "risk_category",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "The user asks for a general contractual review to identify major weaknesses, unfavorable terms, legal/business risks, and corresponding negotiation recommendations. The seed requirements 'contract.weaknesses_identification' and 'contract.negotiation_recommendations' fully capture these asks. To satisfy both requirements, the global contractual risk categories (uncapped liability, one-sided indemnity, unilateral termination, ambiguous definitions, missing limitation of liability, missing indemnity, and other material contractual risks) are selected."
+        },
+        {
+          "id": "ambiguous_definition",
+          "kind": "risk_category",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "The user asks for a general contractual review to identify major weaknesses, unfavorable terms, legal/business risks, and corresponding negotiation recommendations. The seed requirements 'contract.weaknesses_identification' and 'contract.negotiation_recommendations' fully capture these asks. To satisfy both requirements, the global contractual risk categories (uncapped liability, one-sided indemnity, unilateral termination, ambiguous definitions, missing limitation of liability, missing indemnity, and other material contractual risks) are selected."
+        },
+        {
+          "id": "missing_limitation_of_liability",
+          "kind": "risk_category",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "The user asks for a general contractual review to identify major weaknesses, unfavorable terms, legal/business risks, and corresponding negotiation recommendations. The seed requirements 'contract.weaknesses_identification' and 'contract.negotiation_recommendations' fully capture these asks. To satisfy both requirements, the global contractual risk categories (uncapped liability, one-sided indemnity, unilateral termination, ambiguous definitions, missing limitation of liability, missing indemnity, and other material contractual risks) are selected."
+        },
+        {
+          "id": "missing_indemnity",
+          "kind": "risk_category",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "The user asks for a general contractual review to identify major weaknesses, unfavorable terms, legal/business risks, and corresponding negotiation recommendations. The seed requirements 'contract.weaknesses_identification' and 'contract.negotiation_recommendations' fully capture these asks. To satisfy both requirements, the global contractual risk categories (uncapped liability, one-sided indemnity, unilateral termination, ambiguous definitions, missing limitation of liability, missing indemnity, and other material contractual risks) are selected."
+        },
+        {
+          "id": "other_known_risk",
+          "kind": "risk_category",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "The user asks for a general contractual review to identify major weaknesses, unfavorable terms, legal/business risks, and corresponding negotiation recommendations. The seed requirements 'contract.weaknesses_identification' and 'contract.negotiation_recommendations' fully capture these asks. To satisfy both requirements, the global contractual risk categories (uncapped liability, one-sided indemnity, unilateral termination, ambiguous definitions, missing limitation of liability, missing indemnity, and other material contractual risks) are selected."
+        }
+      ],
+      "selectedPackageIds": [],
+      "explicitScope": {
+        "articles": [],
+        "contextArticles": [],
+        "allowCrossReferencedContext": true,
+        "allowOutOfScopeRules": true
+      }
+    },
+    "auditRecord": {
+      "resolvedSkillIds": [
+        "_global",
+        "doc-types/dpa",
+        "regimes/data-protection/gdpr"
+      ],
+      "resolvedRuleIds": [],
+      "resolvedMatrixRowIds": [],
+      "resolvedRiskCategoryIds": [
+        "uncapped_liability",
+        "one_sided_indemnity",
+        "unilateral_termination",
+        "ambiguous_definition",
+        "missing_limitation_of_liability",
+        "missing_indemnity",
+        "other_known_risk"
+      ],
+      "reportSpec": {
+        "reportType": "risk_audit",
+        "depth": "standard",
+        "sections": [
+          "scope",
+          "chapeau_particulars",
+          "requirements_detail",
+          "qualifications",
+          "recommendations",
+          "missing_materials",
+          "conclusion"
+        ],
+        "outline": [
+          {
+            "id": "scope",
+            "role": "scope",
+            "sectionId": "scope",
+            "heading": "Scope",
+            "requirementIds": [],
+            "source": "deterministic"
+          },
+          {
+            "id": "analysis.weaknesses_identification",
+            "role": "analysis",
+            "sectionId": "requirements_detail",
+            "heading": "Weaknesses Identification",
+            "requirementIds": [
+              "contract.weaknesses_identification"
+            ],
+            "source": "deterministic"
+          },
+          {
+            "id": "analysis.negotiation_recommendations",
+            "role": "analysis",
+            "sectionId": "requirements_detail",
+            "heading": "Negotiation Recommendations",
+            "requirementIds": [
+              "contract.negotiation_recommendations"
+            ],
+            "source": "deterministic"
+          },
+          {
+            "id": "qualifications",
+            "role": "qualifications",
+            "sectionId": "qualifications",
+            "heading": "Qualifications",
+            "requirementIds": [],
+            "source": "deterministic"
+          },
+          {
+            "id": "recommendations",
+            "role": "recommendations",
+            "sectionId": "recommendations",
+            "heading": "Recommendations",
+            "requirementIds": [],
+            "source": "deterministic"
+          },
+          {
+            "id": "missing_materials",
+            "role": "missing_materials",
+            "sectionId": "missing_materials",
+            "heading": "Missing materials",
+            "requirementIds": [],
+            "source": "deterministic"
+          },
+          {
+            "id": "conclusion",
+            "role": "conclusion",
+            "sectionId": "conclusion",
+            "heading": "Conclusion",
+            "requirementIds": [],
+            "source": "deterministic"
+          }
+        ]
+      },
+      "resolutionSources": [
+        "catalog_llm"
+      ],
+      "droppedCandidateIds": [],
+      "requirements": [
+        {
+          "id": "contract.weaknesses_identification",
+          "label": "Identify contract weaknesses, unfavorable terms, and risks",
+          "sourceText": "What are the biggest weaknesses in this contract?"
+        },
+        {
+          "id": "contract.negotiation_recommendations",
+          "label": "Provide actionable negotiation suggestions and mitigation steps",
+          "sourceText": "What should I negotiate?"
+        }
+      ],
+      "requiredCapabilities": [
+        "uncapped_liability",
+        "one_sided_indemnity",
+        "unilateral_termination",
+        "ambiguous_definition",
+        "missing_limitation_of_liability",
+        "missing_indemnity",
+        "other_known_risk"
+      ],
+      "supportingCapabilities": [],
+      "requirementMappings": [
+        {
+          "requirementId": "contract.weaknesses_identification",
+          "capabilityIds": [
+            "uncapped_liability",
+            "one_sided_indemnity",
+            "unilateral_termination",
+            "ambiguous_definition",
+            "missing_limitation_of_liability",
+            "missing_indemnity",
+            "other_known_risk"
+          ],
+          "source": "catalog_llm"
+        },
+        {
+          "requirementId": "contract.negotiation_recommendations",
+          "capabilityIds": [
+            "uncapped_liability",
+            "one_sided_indemnity",
+            "unilateral_termination",
+            "ambiguous_definition",
+            "missing_limitation_of_liability",
+            "missing_indemnity",
+            "other_known_risk"
+          ],
+          "source": "catalog_llm"
+        }
+      ],
+      "completenessCheck": [
+        {
+          "requirementId": "contract.weaknesses_identification",
+          "label": "Identify contract weaknesses, unfavorable terms, and risks",
+          "status": "covered",
+          "mappedCapabilityIds": [
+            "uncapped_liability",
+            "one_sided_indemnity",
+            "unilateral_termination",
+            "ambiguous_definition",
+            "missing_limitation_of_liability",
+            "missing_indemnity",
+            "other_known_risk"
+          ]
+        },
+        {
+          "requirementId": "contract.negotiation_recommendations",
+          "label": "Provide actionable negotiation suggestions and mitigation steps",
+          "status": "covered",
+          "mappedCapabilityIds": [
+            "uncapped_liability",
+            "one_sided_indemnity",
+            "unilateral_termination",
+            "ambiguous_definition",
+            "missing_limitation_of_liability",
+            "missing_indemnity",
+            "other_known_risk"
+          ]
+        }
+      ],
+      "unresolvedNeeds": [],
+      "provenance": [
+        {
+          "id": "uncapped_liability",
+          "kind": "risk_category",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "The user asks for a general contractual review to identify major weaknesses, unfavorable terms, legal/business risks, and corresponding negotiation recommendations. The seed requirements 'contract.weaknesses_identification' and 'contract.negotiation_recommendations' fully capture these asks. To satisfy both requirements, the global contractual risk categories (uncapped liability, one-sided indemnity, unilateral termination, ambiguous definitions, missing limitation of liability, missing indemnity, and other material contractual risks) are selected."
+        },
+        {
+          "id": "one_sided_indemnity",
+          "kind": "risk_category",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "The user asks for a general contractual review to identify major weaknesses, unfavorable terms, legal/business risks, and corresponding negotiation recommendations. The seed requirements 'contract.weaknesses_identification' and 'contract.negotiation_recommendations' fully capture these asks. To satisfy both requirements, the global contractual risk categories (uncapped liability, one-sided indemnity, unilateral termination, ambiguous definitions, missing limitation of liability, missing indemnity, and other material contractual risks) are selected."
+        },
+        {
+          "id": "unilateral_termination",
+          "kind": "risk_category",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "The user asks for a general contractual review to identify major weaknesses, unfavorable terms, legal/business risks, and corresponding negotiation recommendations. The seed requirements 'contract.weaknesses_identification' and 'contract.negotiation_recommendations' fully capture these asks. To satisfy both requirements, the global contractual risk categories (uncapped liability, one-sided indemnity, unilateral termination, ambiguous definitions, missing limitation of liability, missing indemnity, and other material contractual risks) are selected."
+        },
+        {
+          "id": "ambiguous_definition",
+          "kind": "risk_category",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "The user asks for a general contractual review to identify major weaknesses, unfavorable terms, legal/business risks, and corresponding negotiation recommendations. The seed requirements 'contract.weaknesses_identification' and 'contract.negotiation_recommendations' fully capture these asks. To satisfy both requirements, the global contractual risk categories (uncapped liability, one-sided indemnity, unilateral termination, ambiguous definitions, missing limitation of liability, missing indemnity, and other material contractual risks) are selected."
+        },
+        {
+          "id": "missing_limitation_of_liability",
+          "kind": "risk_category",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "The user asks for a general contractual review to identify major weaknesses, unfavorable terms, legal/business risks, and corresponding negotiation recommendations. The seed requirements 'contract.weaknesses_identification' and 'contract.negotiation_recommendations' fully capture these asks. To satisfy both requirements, the global contractual risk categories (uncapped liability, one-sided indemnity, unilateral termination, ambiguous definitions, missing limitation of liability, missing indemnity, and other material contractual risks) are selected."
+        },
+        {
+          "id": "missing_indemnity",
+          "kind": "risk_category",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "The user asks for a general contractual review to identify major weaknesses, unfavorable terms, legal/business risks, and corresponding negotiation recommendations. The seed requirements 'contract.weaknesses_identification' and 'contract.negotiation_recommendations' fully capture these asks. To satisfy both requirements, the global contractual risk categories (uncapped liability, one-sided indemnity, unilateral termination, ambiguous definitions, missing limitation of liability, missing indemnity, and other material contractual risks) are selected."
+        },
+        {
+          "id": "other_known_risk",
+          "kind": "risk_category",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "The user asks for a general contractual review to identify major weaknesses, unfavorable terms, legal/business risks, and corresponding negotiation recommendations. The seed requirements 'contract.weaknesses_identification' and 'contract.negotiation_recommendations' fully capture these asks. To satisfy both requirements, the global contractual risk categories (uncapped liability, one-sided indemnity, unilateral termination, ambiguous definitions, missing limitation of liability, missing indemnity, and other material contractual risks) are selected."
+        }
+      ],
+      "resolvedPackageIds": [
+        "dpa.structural_review"
+      ],
+      "requirementToPackageId": {
+        "contract.weaknesses_identification": "dpa.structural_review",
+        "dpa.subject_matter_defined": "dpa.structural_review",
+        "dpa.duration_defined": "dpa.structural_review",
+        "dpa.nature_and_purpose_defined": "dpa.structural_review",
+        "dpa.subprocessor_flowdown_present": "dpa.structural_review",
+        "dpa.deletion_on_termination_present": "dpa.structural_review",
+        "dpa.security_and_dpia_assistance_present": "dpa.structural_review",
+        "dpa.international_transfer_mechanism_present": "dpa.structural_review",
+        "dpa.confidentiality_of_staff_present": "dpa.structural_review"
+      },
+      "requirementExecutionPaths": [
+        {
+          "requirementId": "contract.weaknesses_identification",
+          "status": "supported",
+          "packageId": "dpa.structural_review",
+          "requirementType": "adequacy"
+        },
+        {
+          "requirementId": "contract.negotiation_recommendations",
+          "status": "not_supported",
+          "requirementType": "recommendation",
+          "reason": "No analysis package or named-rule mapping for \"contract.negotiation_recommendations\""
+        }
+      ],
+      "rawIntent": {
+        "scope": "whole_document",
+        "operation": "risk_flag",
+        "standard": "none",
+        "standardConcept": "Contractual Risk Analysis & Negotiation Strategy",
+        "outputForm": "memo",
+        "reportType": "risk_audit",
+        "depth": "standard",
+        "compound": true,
+        "subIntents": [
+          {
+            "operation": "risk_flag",
+            "standard": "none",
+            "outputForm": "memo",
+            "reportType": "risk_audit",
+            "depth": "standard",
+            "description": "Identify contract weaknesses and risk areas.",
+            "requirements": [
+              {
+                "id": "contract.weaknesses_identification",
+                "description": "Identify the primary weaknesses, unfavorable terms, and legal/business risks in the agreement.",
+                "type": "adequacy",
+                "priority": "required"
+              }
+            ]
+          },
+          {
+            "operation": "draft_suggestion",
+            "standard": "none",
+            "outputForm": "memo",
+            "reportType": "risk_audit",
+            "depth": "standard",
+            "description": "Provide negotiation recommendations and drafting points.",
+            "requirements": [
+              {
+                "id": "contract.negotiation_recommendations",
+                "description": "Provide actionable negotiation suggestions and recommended changes to mitigate identified weaknesses.",
+                "type": "recommendation",
+                "priority": "required"
+              }
+            ]
+          }
+        ],
+        "requirements": [
+          {
+            "id": "contract.weaknesses_identification",
+            "description": "Identify the primary weaknesses, unfavorable terms, and legal/business risks in the agreement.",
+            "type": "adequacy",
+            "priority": "required"
+          },
+          {
+            "id": "contract.negotiation_recommendations",
+            "description": "Provide actionable negotiation suggestions and recommended changes to mitigate identified weaknesses.",
+            "type": "recommendation",
+            "priority": "required"
+          }
+        ],
+        "unresolvedNeeds": [],
+        "confidence": {
+          "scope": 0.95,
+          "operation": 0.95,
+          "standard": 0.9,
+          "outputForm": 0.9
+        },
+        "docTypeHint": "dpa",
+        "documentPresentation": "unified"
+      },
+      "intentNormalizations": [],
+      "scopeAudit": []
+    },
+    "requirementExecutionPaths": [
+      {
+        "requirementId": "contract.weaknesses_identification",
+        "status": "supported",
+        "packageId": "dpa.structural_review",
+        "requirementType": "adequacy"
+      },
+      {
+        "requirementId": "contract.negotiation_recommendations",
+        "status": "not_supported",
+        "requirementType": "recommendation",
+        "reason": "No analysis package or named-rule mapping for \"contract.negotiation_recommendations\""
+      }
+    ],
+    "pinnedVersions": {
+      "clauseTaxonomyVersion": "1.2.0",
+      "riskTaxonomyVersion": "1.1.0",
+      "modelTask": "STRUCTURAL_JSON"
+    }
+  }
+}

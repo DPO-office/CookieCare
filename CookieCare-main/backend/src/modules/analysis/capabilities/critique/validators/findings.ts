@@ -44,6 +44,34 @@ export function validateFindings(
     });
     if (!statusOk) addFindingFix(fixes, finding, "Emit a valid Finding status");
 
+    // Requirement-id stamping (ACT-Phase 1): every user-facing compliance/risk
+    // finding must be stamped with the requirementId it establishes/gaps by
+    // the time it leaves ACT — `requirementId` stays optional on the type
+    // itself (handlers emit raw findings before the generic stamp helpers in
+    // act-utils.ts enrich them), so this is where the "required" property
+    // from the ACT rebuild plan is actually enforced.
+    if (
+      (finding.kind === "compliance" || finding.kind === "risk") &&
+      finding.visibility !== "internal" &&
+      !finding.requirementId
+    ) {
+      const issueId = `requirement-id-stamp:${finding.findingId}`;
+      results.push({
+        itemId: issueId,
+        status: "fail",
+        evidenceVerified: false,
+        findingId: finding.findingId,
+        workUnitId: finding.workUnitId,
+        detail: "User-facing compliance/risk finding is missing requirementId",
+      });
+      addFindingFix(
+        fixes,
+        finding,
+        "Stamp the finding with the requirementId it establishes",
+        issueId
+      );
+    }
+
     if (finding.unverified || finding.orgPlaybook) continue;
 
     if (

@@ -1,0 +1,814 @@
+[Analysis PAC] ========================================================================
+[Analysis PAC] REQUIREMENT: nature_purpose
+[Analysis PAC] HYPOTHESIS:  The contract sets out the nature and purpose of the processing.
+[Analysis PAC] PROOF STD:   Proven only when the text describes BOTH what activities are performed on the data (nature — e.g. storage, hosting, transmission, analysis) AND why (purpose — e.g. to provide the contracted Offerings …
+[Analysis PAC]
+[Analysis PAC] CANDIDATES CHECKED (4) — ranked by the retriever, in this order:
+[Analysis PAC]
+[Analysis PAC]   [1] S8  Roles of the Parties. (clause-3.3)  →  RELATED_NOT_PROOF  quoteVerified=false → carried as closest
+[Analysis PAC]       passage: "3.3. Roles of the Parties. The Parties agree that Mastercard is a Business and/or Controller (or similar status that determines the purposes and means of Proces…"
+[Analysis PAC]       quote:   "Supplier is a Service Provider and/or Processor (or other similar status acting on behalf of Mastercard under applicable Privacy and Data Protection Law), and/o…"
+[Analysis PAC]       why:     The text explicitly specifies the purpose ('for the purpose of providing the Services specified in the Agreement') but omits a description of the specific operations or activities …
+[Analysis PAC]       gap:     The passage provides the purpose of the processing (to provide the Services) but fails to describe the nature of the processing operations (e.g., storage, hosting, transmission, an…
+[Analysis PAC]       note:    The clause relies on external context ('Services specified in the Agreement and as implemented by each individual Statement of Work') without providing the conc…
+[Analysis PAC]       fix:     Include an explicit description of the nature of the processing operations (e.g., collection, recording, organization, structuring, storage, retrieval, analysis…
+[Analysis PAC]
+[Analysis PAC]   [2] S132  Roles of the Parties. The Parties acknowledge an (clause-4.3)  →  RELATED_NOT_PROOF  quoteVerified=true
+[Analysis PAC]       passage: "4.3. Roles of the Parties. The Parties acknowledge and confirm that each Party is responsible for the Processing of Personal Data for its own Business Purposes …"
+[Analysis PAC]       quote:   "The Parties acknowledge and confirm that each Party is responsible for the Processing of Personal Data for its own Business Purposes (as specified in Annex 1 of…"
+[Analysis PAC]       why:     The passage references Business Purposes being defined elsewhere (Annex 1 of Addendum A2 or SOW) and states each party acts as an independent Controller, but fails to detail the sp…
+[Analysis PAC]       gap:     The passage mentions that Business Purposes are specified in Annex 1 of Addendum A2 or an SOW, but does not itself describe the specific nature (processing activities) or purpose o…
+[Analysis PAC]       note:    The clause contains a drafting typo in the final sentence ('Supplier warrants that it will not a) any Personal Data...').
+[Analysis PAC]       fix:     Provide Annex 1 of Addendum A2 or the relevant SOW containing the explicit description of the processing activities (nature) and objectives (purpose).
+[Analysis PAC]
+[Analysis PAC]   [3] S4  Definitions. (clause-2)  →  RELATED_NOT_PROOF  quoteVerified=true
+[Analysis PAC]       passage: "2. Definitions. In this Data Processing Agreement, the following definitions apply: “Business Purpose” means the use of Personal Data for Mastercard or Supplier…"
+[Analysis PAC]       quote:   "“Business Purpose” means the use of Personal Data for Mastercard or Supplier’s operational purposes, or other notified purposes as agreed under this Agreement o…"
+[Analysis PAC]       why:     The passage defines 'Business Purpose' abstractly and refers to the SoW for specific agreed purposes, but does not state the concrete processing activities (nature) or specific pur…
+[Analysis PAC]       gap:     The passage provides general legal definitions (including an abstract definition of 'Business Purpose' and references to future SoWs) but fails to explicitly detail the actual proc…
+[Analysis PAC]       note:    The clause contains only definitions without operative provisions specifying the concrete details of processing.
+[Analysis PAC]       fix:     Provide the relevant SOW or clause detailing the specific nature (processing activities) and purpose of the personal data processing.        
+[Analysis PAC]
+[Analysis PAC]   [4] S108  “Business Purpose” (or “Purpose") means the use  (clause-3.2)  →  RELATED_NOT_PROOF  quoteVerified=true
+[Analysis PAC]       passage: "3.2. “Business Purpose” (or “Purpose") means the use of Personal Data for Mastercard or Supplier’s operational purposes, or other notified purposes, provided th…"
+[Analysis PAC]       quote:   "3.2. “Business Purpose” (or “Purpose") means the use of Personal Data for Mastercard or Supplier’s operational purposes, or other notified purposes"
+[Analysis PAC]       why:     The quote defines 'Business Purpose' (the 'why'), but fails to describe the specific processing activities or operations performed on the data (the 'nature').
+[Analysis PAC]       gap:     The passage defines the term 'Business Purpose' generally, satisfying the purpose requirement, but lacks any description of the specific processing activities (nature) such as coll…
+[Analysis PAC]       fix:     Add an explicit description of the nature of the processing activities carried out under the agreement alongside the purpose.
+[Analysis PAC]
+[Analysis PAC] RESULT: no candidate proved/contradicted → insufficient_evidence. Closest carried: S8 (related_not_proof).
+[Analysis PAC] ========================================================================
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=8754 promptChars=5891 outChars=1098 inTok=1473 outTok=275 totalTok=1748
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=11535 promptChars=6269 outChars=999 inTok=1568 outTok=250 totalTok=1818
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=13974 promptChars=7229 outChars=1765 inTok=1808 outTok=442 totalTok=2250
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=14439 promptChars=5921 outChars=1219 inTok=1481 outTok=305 totalTok=1786
+[Analysis PAC] 20:10:31.925
+[Analysis PAC] ========================================================================
+[Analysis PAC] [VERIFY] candidate-by-candidate — art28_3_c_security
+[Analysis PAC] ========================================================================
+[Analysis PAC] REQUIREMENT: art28_3_c_security
+[Analysis PAC] HYPOTHESIS:  The processor implements appropriate technical and organisational security measures.
+[Analysis PAC] PROOF STD:   Proven only by text obligating the processor to implement technical and organisational measures appropriate to the risk (e.g. referencing encryption, access controls, resilience, testing, or an incorp…
+[Analysis PAC]
+[Analysis PAC] CANDIDATES CHECKED (4) — ranked by the retriever, in this order:
+[Analysis PAC]
+[Analysis PAC]   [1] S20  3.6.1 it  has  implemented  and  maintains  a  c (clause-3.6.1)  →  PROVES  quoteVerified=true ★ WINNER
+[Analysis PAC]       passage: "3.6.1 it has implemented and maintains a comprehensive written information security program that complies with Privacy and Data Protection Law and Appendix 1 of…"
+[Analysis PAC]       quote:   "Supplier’s written information security program must include appropriate technical and organizational measures to ensure a level of security appropriate to the …"
+[Analysis PAC]       why:     The quote explicitly mandates appropriate technical and organizational measures including encryption, ongoing resilience, restoration abilities, and regular security testing.
+[Analysis PAC]       established: The clause explicitly obligates the supplier to maintain technical and organizational measures appropriate to the risk, specifying requirements for encryption, confidentiality, int…
+[Analysis PAC]
+[Analysis PAC]   [2] S59  SECURITY OF THE DATA (heading-security-of-the-data)  →  RELATED_NOT_PROOF  quoteVerified=true
+[Analysis PAC]       passage: "SECURITY OF THE DATA Description of the technical and organisational measures implemented by the data importer(s) (including any relevant certifications) to ens…"
+[Analysis PAC]       quote:   "Supplier will, as a minimum, implement the security measures listed in “Security Requirements for Suppliers and Business Partners” at https://procurement.master…"
+[Analysis PAC]       why:     The clause obligates implementation of security measures specified in an external web link/document, but that document is not provided/confirmed within the passage.
+[Analysis PAC]       gap:     The passage points to external security requirements via a URL rather than providing the actual security measures or an incorporated schedule within the text.
+[Analysis PAC]       needs:   Security Requirements for Suppliers and Business Partners (https://procurement.mastercard.com/information_suppliers.html) — To confirm that the external document actually details appropriate technical and organizational security measures to satisfy the proof stand…
+[Analysis PAC]       fix:     Include the text of the security measures directly in the agreement schedule or provide the contents of the referenced URL for verification. 
+[Analysis PAC]
+[Analysis PAC]   [3] S167  it has implemented and maintains a comprehensive (clause-7.1)  →  PROVES  quoteVerified=true
+[Analysis PAC]       passage: "7.1. it has implemented and maintains a comprehensive written information security program that complies with Privacy and Data Protection Law and Appendix 1 of …"
+[Analysis PAC]       quote:   "Supplier’s written information security program must include appropriate technical, operational and organizational measures to to ensure a level of security app…"
+[Analysis PAC]       why:     The sentence explicitly requires the Supplier to maintain an information security program including appropriate technical and organizational measures to ensure security appropriate…
+[Analysis PAC]       established: The passage obligates the processor (Supplier) to implement appropriate technical, operational, and organizational measures tailored to risk, explicitly encompassing measures such …
+[Analysis PAC]
+[Analysis PAC]   [4] S183  SECURITY OF THE DATA (heading-security-of-the-data)  →  RELATED_NOT_PROOF  quoteVerified=true
+[Analysis PAC]       passage: "SECURITY OF THE DATA Description of the technical and organisational measures implemented by the data importer(s) (including any relevant certifications) to ens…"
+[Analysis PAC]       quote:   "Supplier will, as a minimum, implement the security measures listed in “Security Requirements for Suppliers and Business Partners” at https://procurement.master…"
+[Analysis PAC]       why:     The text mandates compliance with an external security document referenced via URL, but the contents of that external document are not provided in the passage.
+[Analysis PAC]       gap:     The passage references an external security document ('Security Requirements for Suppliers and Business Partners') via a URL rather than detailing the technical and organizational …
+[Analysis PAC]       needs:   Security Requirements for Suppliers and Business Partners (https://procurement.mastercard.com/information_suppliers.html) — To confirm that the external document actually contains specific technical and organizational security measures appropriate to the risk.
+[Analysis PAC]       fix:     Provide or incorporate the actual text of the 'Security Requirements for Suppliers and Business Partners' to verify the concrete technical and organizational se…
+[Analysis PAC]
+[Analysis PAC] RESULT: proves — S20 wins.
+[Analysis PAC] ========================================================================
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=9988 promptChars=5406 outChars=697 inTok=1352 outTok=175 totalTok=1527
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=10437 promptChars=5381 outChars=701 inTok=1346 outTok=176 totalTok=1522
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=12657 promptChars=6410 outChars=785 inTok=1603 outTok=197 totalTok=1800
+[GeminiScheduler] Pacing 214ms before STRUCTURAL_JSON (7/10 requests in window, inFlight=2)
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=12843 promptChars=6333 outChars=675 inTok=1584 outTok=169 totalTok=1753
+[Analysis PAC] 20:10:36.622
+[Analysis PAC] ========================================================================
+[Analysis PAC] [VERIFY] candidate-by-candidate — data_categories
+[Analysis PAC] ========================================================================
+[Analysis PAC] REQUIREMENT: data_categories
+[Analysis PAC] HYPOTHESIS:  The contract sets out the types of personal data.
+[Analysis PAC] PROOF STD:   Proven only by text that names or categorizes the type(s) of personal data processed — e.g. contact details, account credentials, health data, employee data. An explicit, named cross-reference to an A…
+[Analysis PAC]
+[Analysis PAC] CANDIDATES CHECKED (4) — ranked by the retriever, in this order:
+[Analysis PAC]
+[Analysis PAC]   [1] S118  “Personal Data” or “Personal Information” (which (clause-3.12)  →  RELATED_NOT_PROOF  quoteVerified=false
+[Analysis PAC]       passage: "3.12. “Personal Data” or “Personal Information” (which may be used interchangeably in this Agreement) means any information relating to an identified or identif…"
+[Analysis PAC]       quote:   "contact information, demographic information, passport number, Social Security number or other national identification number, bank account information, Primary…"
+[Analysis PAC]       why:     Downgraded from "proves" — claimed quote does not appear verbatim in the candidate passage. Original rationale: The explicit listing of specific categories such as contact informat…
+[Analysis PAC]       established: defines Personal Data by explicitly listing specific data categories including contact details, national identification numbers, bank account details, and authentication credential…
+[Analysis PAC]
+[Analysis PAC]   [2] S123  “Sensitive  Data”  (or  “Sensitive  Personal  Da (clause-3.17)  →  PROVES  quoteVerified=true ★ WINNER
+[Analysis PAC]       passage: "3.17. “Sensitive Data” (or “Sensitive Personal Data,” which may be used interchangeably in this Agreement) means any Personal Data considered to be sensitive ac…"
+[Analysis PAC]       quote:   "may include data revealing racial or ethnic origin, political opinions, cult, religious or philosophical beliefs, or trade union membership, criminal records, g…"
+[Analysis PAC]       why:     The quote explicitly enumerates specific categories of personal data, including genetic data, biometric data, health data, and criminal records.
+[Analysis PAC]       established: Defines Sensitive Personal Data by explicitly listing specific categories of personal data, such as racial/ethnic origin, political opinions, trade union membership, genetic data, …
+[Analysis PAC]
+[Analysis PAC]   [3] S35  3.7.6 Swiss Specific Provision: (clause-3.7.6)  →  PROVES  quoteVerified=true
+[Analysis PAC]       passage: "3.7.6 Swiss Specific Provision: In respect of Personal Data to which Swiss Data Protection Law applies, (i) in deviation of clause 13 (a) of the EU SCCs in conn…"
+[Analysis PAC]       quote:   "(v) in supplementation of clause 8.7 of the SCCs, the term “sensitive data” shall include data on the intimate sphere, trade union related views or activities, …"
+[Analysis PAC]       why:     The quote explicitly names specific categories of sensitive personal data (e.g., trade union related views, political/religious activities, criminal proceedings).
+[Analysis PAC]       established: The clause explicitly categorizes types of sensitive personal data applicable under Swiss Data Protection Law, including data regarding political, religious, or philosophical activ…
+[Analysis PAC]
+[Analysis PAC]   [4] S162  In respect of Swiss Personal Data, (i) in deviat (clause-6.1.1.8)  →  PROVES  quoteVerified=true
+[Analysis PAC]       passage: "6.1.1.8. In respect of Swiss Personal Data, (i) in deviation of clause 13 (a) of the SCCs in connection with its Annex I.C., the competent supervisory authority…"
+[Analysis PAC]       quote:   "the term “sensitive data” shall include data on the intimate sphere, trade union related views or activities, political, religious or philosophical activities, …"
+[Analysis PAC]       why:     The quote explicitly names and categorizes types of sensitive personal data for Swiss Personal Data.
+[Analysis PAC]       established: Specifies categories of personal data covered by defining sensitive data to include intimate sphere data, trade union views/activities, political/religious/philosophical activities…
+[Analysis PAC]
+[Analysis PAC] RESULT: proves — S123 wins.
+[Analysis PAC] ========================================================================
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=7205 promptChars=7815 outChars=587 inTok=1954 outTok=147 totalTok=2101
+[GeminiScheduler] Pacing 106ms before STRUCTURAL_JSON (8/10 requests in window, inFlight=2)
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=7499 promptChars=5103 outChars=813 inTok=1276 outTok=204 totalTok=1480
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=10110 promptChars=5711 outChars=975 inTok=1428 outTok=244 totalTok=1672
+[GeminiScheduler] Pacing 41ms before STRUCTURAL_JSON (9/10 requests in window, inFlight=2)
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=10469 promptChars=5313 outChars=1062 inTok=1329 outTok=266 totalTok=1595
+[Analysis PAC] 20:10:42.396
+[Analysis PAC] ========================================================================
+[Analysis PAC] [VERIFY] candidate-by-candidate — art28_3_d_subprocessors
+[Analysis PAC] ========================================================================
+[Analysis PAC] REQUIREMENT: art28_3_d_subprocessors
+[Analysis PAC] HYPOTHESIS:  The processor does not engage another processor without controller authorisation.
+[Analysis PAC] PROOF STD:   Proven only by text requiring the processor to obtain the controller's prior GENERAL or SPECIFIC written authorization before engaging a subprocessor, AND (for general authorization) giving the contro…
+[Analysis PAC]
+[Analysis PAC] CANDIDATES CHECKED (4) — ranked by the retriever, in this order:
+[Analysis PAC]
+[Analysis PAC]   [1] S33  3.7.5.3 For the purposes of the EU SCCs that app (clause-3.7.5.3)  →  PROVES  quoteVerified=true ★ WINNER
+[Analysis PAC]       passage: "3.7.5.3 For the purposes of the EU SCCs that apply pursuant to section 3.7.5.2 of this Data Processing Agreement, the Parties agree the following: a) the text f…"
+[Analysis PAC]       quote:   "for the purposes of clause 9(a) of the EU SCCs, as applicable under modules two and three, option 1 applies with 60 business days as the specified time period f…"
+[Analysis PAC]       why:     The passage explicitly incorporates Option 1 of Clause 9(a) of the EU SCCs, requiring specific written authorization prior to engaging subprocessors.
+[Analysis PAC]       established: Establishes that the processor must obtain specific prior written authorization to engage subprocessors by incorporating Option 1 of Clause 9(a) of the EU SCCs.
+[Analysis PAC]
+[Analysis PAC]   [2] S40  3.8.1 Supplier must not share, transfer, transmi (clause-3.8.1)  →  PROVES  quoteVerified=true
+[Analysis PAC]       passage: "3.8.1 Supplier must not share, transfer, transmit, disclose or otherwise provide access to or make available any Personal Data to any person (whether a natural …"
+[Analysis PAC]       quote:   "Supplier must not share, transfer, transmit, disclose or otherwise provide access to or make available any Personal Data to any person (whether a natural person…"
+[Analysis PAC]       why:     The phrase 'otherwise authorized by Mastercard in writing in advance' establishes the requirement for prior written authorization before engaging subprocessors beyond those pre-lis…
+[Analysis PAC]       established: The passage explicitly prohibits sharing Personal Data with any third parties or subprocessors except those listed in Annex 1 or otherwise authorized by Mastercard in writing in ad…
+[Analysis PAC]
+[Analysis PAC]   [3] S43  3.8.4 Supplier  must  inform  Mastercard  in  wr (clause-3.8.4)  →  RELATED_NOT_PROOF  quoteVerified=false
+[Analysis PAC]       passage: "3.8.4 Supplier must inform Mastercard in writing at least 60 calendar days prior to any change to the role or status of the Sub- Processor. Mastercard may objec…"
+[Analysis PAC]       quote:   "Supplier must inform Mastercard in writing at least 60 calendar days prior to any change to the role or status of the Sub-Processor. Mastercard may object in wr…"
+[Analysis PAC]       why:     The clause provides prior notice and an opportunity to object, but fails to explicitly establish prior general or specific written authorization as required by the proof standard.
+[Analysis PAC]       gap:     The passage establishes prior notice (60 days) and an opportunity for the controller to object (within 30 days), but lacks an explicit requirement for controller authorization (gen…
+[Analysis PAC]       fix:     Add express language stating that the processor shall not engage any subprocessor without the controller's prior written authorization (general or specific).
+[Analysis PAC]
+[Analysis PAC]   [4] S46  3.8.7 Supplier  will  notify  Mastercard  in  wr (clause-3.8.7)  →  PROVES  quoteVerified=true
+[Analysis PAC]       passage: "3.8.7 Supplier will notify Mastercard in writing to TPRM@mastercard.com , with the subject line “Europe Data Processing Addendum Notification”, about engaging a…"
+[Analysis PAC]       quote:   "Where Mastercard does not consent to the intended new Sub-Processor(s) or subsequent Sub-Processor(s) and the Processing of Personal Data is not possible withou…"
+[Analysis PAC]       why:     The phrase 'Where Mastercard does not consent to the intended new Sub-Processor(s)... that was objected to by Mastercard' establishes an authorization and objection mechanism.
+[Analysis PAC]       established: The clause requires 60 business days' advance written notice prior to engaging a new subprocessor and explicitly provides Mastercard with the ability to withhold consent/object, pr…
+[Analysis PAC]
+[Analysis PAC] RESULT: proves — S33 wins.
+[Analysis PAC] ========================================================================
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=7956 promptChars=5808 outChars=853 inTok=1452 outTok=214 totalTok=1666
+[GeminiScheduler] Pacing 138ms before STRUCTURAL_JSON (9/10 requests in window, inFlight=2)
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=8218 promptChars=5672 outChars=811 inTok=1418 outTok=203 totalTok=1621
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=10152 promptChars=4790 outChars=736 inTok=1198 outTok=184 totalTok=1382
+[Analysis PAC] 20:10:46.776
+[Analysis PAC] ========================================================================
+[Analysis PAC] [VERIFY] candidate-by-candidate — data_subject_categories
+[Analysis PAC] ========================================================================
+[Analysis PAC] REQUIREMENT: data_subject_categories
+[Analysis PAC] HYPOTHESIS:  The contract sets out the categories of data subjects.
+[Analysis PAC] PROOF STD:   Proven only by text identifying WHO the data subjects are — e.g. Customer's employees, customers, or end users — distinct from what data is processed about them. A clause describing only the types of …
+[Analysis PAC]
+[Analysis PAC] CANDIDATES CHECKED (3) — ranked by the retriever, in this order:
+[Analysis PAC]
+[Analysis PAC]   [1] S16  3.5.4 Notification Obligations: immediately info (clause-3.5.4)  →  RELATED_NOT_PROOF  quoteVerified=true → carried as closest
+[Analysis PAC]       passage: "3.5.4 Notification Obligations: immediately inform Mastercard, in writing, in relation to any Personal Data Processed in the context of the Services of: (i) any…"
+[Analysis PAC]       quote:   "any request or complaint received from Mastercard’s customers, consumers, employees or any other individual or Data Subject"
+[Analysis PAC]       why:     The clause lists potential sources of requests/complaints in a notification obligation, rather than defining or setting out the categories of data subjects whose data is being proc…
+[Analysis PAC]       gap:     The passage mentions 'Mastercard’s customers, consumers, employees or any other individual' as potential sources of complaints under a notification obligation, but does not formall…
+[Analysis PAC]       fix:     Add an explicit schedule or clause defining the categories of data subjects (e.g., in a DPA annex detailing the scope of processing).        
+[Analysis PAC]
+[Analysis PAC]   [2] S46  3.8.7 Supplier  will  notify  Mastercard  in  wr (clause-3.8.7)  →  RELATED_NOT_PROOF  quoteVerified=true
+[Analysis PAC]       passage: "3.8.7 Supplier will notify Mastercard in writing to TPRM@mastercard.com , with the subject line “Europe Data Processing Addendum Notification”, about engaging a…"
+[Analysis PAC]       quote:   "categories of Data Subjects and the categories of Personal Data Processed"
+[Analysis PAC]       why:     The passage only mentions that future notifications regarding Sub-Processors must include the 'categories of Data Subjects', but does not actually set out or list those categories …
+[Analysis PAC]       gap:     The clause requires the Supplier to include categories of Data Subjects in future notifications when engaging sub-processors, rather than identifying or setting out the actual cate…
+[Analysis PAC]       fix:     Add an explicit schedule, annex, or clause that specifically lists the categories of data subjects (e.g., Mastercard's employees, end users, or customers) whose…
+[Analysis PAC]
+[Analysis PAC]   [3] S110  "Data Subject" means a natural person whose Pers (clause-3.4)  →  RELATED_NOT_PROOF  quoteVerified=true
+[Analysis PAC]       passage: "3.4. "Data Subject" means a natural person whose Personal Data are Processed in the context of the Agreement."
+[Analysis PAC]       quote:   "3.4. "Data Subject" means a natural person whose Personal Data are Processed in the context of the Agreement."
+[Analysis PAC]       why:     The passage defines the general term 'Data Subject' as 'a natural person' but does not identify the specific categories of data subjects involved (e.g., employees, end users, custo…
+[Analysis PAC]       gap:     The text provides a generic legal definition of a 'Data Subject' rather than specifying the concrete categories of data subjects whose personal data will be processed under the con…
+[Analysis PAC]       fix:     Add explicit categories of data subjects (e.g., Customer's employees, contractors, end-users, or prospective customers) to the clause or an accompanying annex.
+[Analysis PAC]
+[Analysis PAC] RESULT: no candidate proved/contradicted → insufficient_evidence. Closest carried: S16 (related_not_proof).
+[Analysis PAC] ========================================================================
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=5063 promptChars=6047 outChars=766 inTok=1512 outTok=192 totalTok=1704
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=7300 promptChars=5129 outChars=1014 inTok=1283 outTok=254 totalTok=1537
+[GeminiScheduler] Pacing 123ms before STRUCTURAL_JSON (9/10 requests in window, inFlight=2)
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=7577 promptChars=6070 outChars=921 inTok=1518 outTok=231 totalTok=1749
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=9359 promptChars=5314 outChars=822 inTok=1329 outTok=206 totalTok=1535
+[Analysis PAC] 20:10:51.757
+[Analysis PAC] ========================================================================
+[Analysis PAC] [VERIFY] candidate-by-candidate — art28_3_e_dsr_assistance
+[Analysis PAC] ========================================================================
+[Analysis PAC] REQUIREMENT: art28_3_e_dsr_assistance
+[Analysis PAC] HYPOTHESIS:  The processor assists the controller in responding to data-subject rights requests.
+[Analysis PAC] PROOF STD:   Proven only by text obligating the processor to assist the controller (by appropriate technical and organisational measures) in responding to data subject rights requests (access, rectification, erasu…
+[Analysis PAC]
+[Analysis PAC] CANDIDATES CHECKED (4) — ranked by the retriever, in this order:
+[Analysis PAC]
+[Analysis PAC]   [1] S17  3.5.5 Cooperation and Assistance: cooperate with (clause-3.5.5)  →  PROVES  quoteVerified=true ★ WINNER
+[Analysis PAC]       passage: "3.5.5 Cooperation and Assistance: cooperate with Mastercard to ensure compliance with Privacy and Data Protection Law, this Data Processing Agreement, and Maste…"
+[Analysis PAC]       quote:   "assist Mastercard in fulfilling its own obligations under Privacy and Data Protection Law and as applicable Mastercard’s or Mastercard’s customer’s instructions…"
+[Analysis PAC]       why:     The quote explicitly requires the supplier to assist Mastercard in fulfilling its obligations, including complying with individuals' or Data Subjects' requests to exercise their Da…
+[Analysis PAC]       established: The passage explicitly obligates the processor to assist the controller in fulfilling its obligations under Data Protection Law, specifically including compliance with data subject…
+[Analysis PAC]
+[Analysis PAC]   [2] S16  3.5.4 Notification Obligations: immediately info (clause-3.5.4)  →  RELATED_NOT_PROOF  quoteVerified=true
+[Analysis PAC]       passage: "3.5.4 Notification Obligations: immediately inform Mastercard, in writing, in relation to any Personal Data Processed in the context of the Services of: (i) any…"
+[Analysis PAC]       quote:   "immediately inform Mastercard, in writing, in relation to any Personal Data Processed in the context of the Services of: (i) any requests from individuals or Da…"
+[Analysis PAC]       why:     The clause only mandates notifying Mastercard and forwarding request copies rather than providing substantive assistance or technical/organisational measures to help Mastercard ful…
+[Analysis PAC]       gap:     The passage establishes notification and forwarding obligations for data subject requests, but lacks an explicit requirement for the supplier to assist the controller in fulfilling…
+[Analysis PAC]       fix:     Add an express obligation requiring the supplier to assist Mastercard (including through appropriate technical and organizational measures) in responding to dat…
+[Analysis PAC]
+[Analysis PAC]   [3] S136  Data Subject Rights. put in place a mechanism to (clause-4.4.3)  →  RELATED_NOT_PROOF  quoteVerified=true
+[Analysis PAC]       passage: "4.4.3. Data Subject Rights. put in place a mechanism to allow a Data Subject to exercise their rights relative to their Personal Data under applicable Privacy a…"
+[Analysis PAC]       quote:   "put in place a mechanism to allow a Data Subject to exercise their rights relative to their Personal Data under applicable Privacy and Data Protection Law."
+[Analysis PAC]       why:     The passage requires creating a mechanism for data subjects to exercise rights directly, but does not explicitly obligate the processor to assist the controller in responding to re…
+[Analysis PAC]       gap:     The clause obligates putting in place a mechanism for data subjects to exercise rights directly, rather than explicitly committing the processor to assist the controller (by approp…
+[Analysis PAC]       fix:     Add an explicit obligation stating that the processor shall assist the controller, taking into account the nature of the processing, by appropriate technical an…
+[Analysis PAC]
+[Analysis PAC]   [4] S137  Cooperation  and  Assistance.  cooperate  with   (clause-4.4.4)  →  PROVES  quoteVerified=true
+[Analysis PAC]       passage: "4.4.4. Cooperation and Assistance. cooperate with the other Party in good faith to fulfil their respective data protection compliance obligations under Privacy …"
+[Analysis PAC]       quote:   "cooperate with the other Party in good faith to fulfil their respective data protection compliance obligations under Privacy and Data Protection Law, including …"
+[Analysis PAC]       why:     The words 'cooperate with the other Party in good faith to fulfil their respective data protection compliance obligations... including complying with individuals’ requests to exerc…
+[Analysis PAC]       established: The passage obligates the processor to cooperate in good faith to fulfill compliance obligations, explicitly including complying with individuals' requests to exercise their Data P…
+[Analysis PAC]
+[Analysis PAC] RESULT: proves — S17 wins.
+[Analysis PAC] ========================================================================
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=5718 promptChars=6037 outChars=642 inTok=1510 outTok=161 totalTok=1671
+[GeminiScheduler] Pacing 1014ms before STRUCTURAL_JSON (10/10 requests in window, inFlight=2)
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=6645 promptChars=6243 outChars=507 inTok=1561 outTok=127 totalTok=1688
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=8250 promptChars=5753 outChars=798 inTok=1439 outTok=200 totalTok=1639
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=10016 promptChars=5294 outChars=610 inTok=1324 outTok=153 totalTok=1477
+[Analysis PAC] 20:10:56.796
+[Analysis PAC] ========================================================================
+[Analysis PAC] [VERIFY] candidate-by-candidate — controller_obligations_rights
+[Analysis PAC] ========================================================================
+[Analysis PAC] REQUIREMENT: controller_obligations_rights
+[Analysis PAC] HYPOTHESIS:  The contract sets out the controller's obligations and rights.
+[Analysis PAC] PROOF STD:   Proven only by text stating what the CONTROLLER (not the processor) must do or is entitled to do — e.g. the controller's duty to give lawful instructions or ensure a legal basis for the processing, or…
+[Analysis PAC]
+[Analysis PAC] CANDIDATES CHECKED (4) — ranked by the retriever, in this order:
+[Analysis PAC]
+[Analysis PAC]   [1] S8  Roles of the Parties. (clause-3.3)  →  PROVES  quoteVerified=true ★ WINNER
+[Analysis PAC]       passage: "3.3. Roles of the Parties. The Parties agree that Mastercard is a Business and/or Controller (or similar status that determines the purposes and means of Proces…"
+[Analysis PAC]       quote:   "Mastercard, or the customers on whose behalf Mastercard may act, have the sole and exclusive authority to determine the purposes and means of the Processing of …"
+[Analysis PAC]       why:     The quote explicitly establishes the controller's (Mastercard's or its customers') exclusive right/authority to determine processing purposes and means.
+[Analysis PAC]       established: Establishes the controller's right by granting Mastercard (or its customers acting as controllers) sole and exclusive authority over the purposes and means of processing personal d…
+[Analysis PAC]
+[Analysis PAC]   [2] S9  3.4.1 Mastercard’s  instructions  are  documente (clause-3.4.1)  →  PROVES  quoteVerified=true
+[Analysis PAC]       passage: "3.4.1 Mastercard’s instructions are documented in Annex 1 of Addendum A1 of the Agreement and any applicable SOW(s). Mastercard may issue additional instruction…"
+[Analysis PAC]       quote:   "Mastercard may issue additional instructions to Supplier as it deems necessary to comply with Privacy and Data Protection Law."
+[Analysis PAC]       why:     The sentence explicitly grants the controller ('Mastercard') the right ('may issue') to issue additional processing instructions to the supplier.
+[Analysis PAC]       established: Establishes the controller's right to issue additional binding instructions to the processor whenever deemed necessary for compliance with privacy and data protection law.
+[Analysis PAC]
+[Analysis PAC]   [3] S49  3.9.1 Upon request by Mastercard and subject to  (clause-3.9.1)  →  PROVES  quoteVerified=true
+[Analysis PAC]       passage: "3.9.1 Upon request by Mastercard and subject to Mastercard’s reasonable discretion, Supplier allows Mastercard or, as applicable, Mastercard's customers, or an …"
+[Analysis PAC]       quote:   "Supplier allows Mastercard or, as applicable, Mastercard's customers, or an inspection body composed of independent members selected by Mastercard or Mastercard…"
+[Analysis PAC]       why:     The phrase 'allows Mastercard... to audit and review' explicitly establishes the controller's right to inspect and audit the processor's operations and compliance.
+[Analysis PAC]       established: The passage explicitly establishes the controller's (Mastercard's) right to audit and review the processor's Information Security Program, data processing facilities, and data prot…
+[Analysis PAC]
+[Analysis PAC]   [4] S173  Upon request by Mastercard and subject to Master (clause-8.1)  →  PROVES  quoteVerified=true
+[Analysis PAC]       passage: "8.1. Upon request by Mastercard and subject to Mastercard’s reasonable discretion, Supplier allows Mastercard or an inspection body composed of independent memb…"
+[Analysis PAC]       quote:   "Supplier allows Mastercard or an inspection body composed of independent members to audit and review Supplier’s Information Security Program, data processing fa…"
+[Analysis PAC]       why:     The quote establishes Mastercard's (the controller's) right to audit and review the supplier's security programs, facilities, and compliance.
+[Analysis PAC]       established: Establishes the controller's contractual right to audit and review the supplier's security programs, data processing facilities, and compliance mechanisms.
+[Analysis PAC]
+[Analysis PAC] RESULT: proves — S8 wins.
+[Analysis PAC] ========================================================================
+[Analysis PAC] 20:10:56.797 ACT ✓ [VERIFY] evaluate_package id=wu-pkg-eval-gdpr.art28.particulars ms=62958 findings=6 tokens=37761 batch=3 concurrent=true wait_ms=0       
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=5601 promptChars=7335 outChars=583 inTok=1834 outTok=146 totalTok=1980
+[GeminiScheduler] Pacing 676ms before STRUCTURAL_JSON (10/10 requests in window, inFlight=2)
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=6739 promptChars=6445 outChars=528 inTok=1612 outTok=132 totalTok=1744
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=8225 promptChars=6049 outChars=1210 inTok=1513 outTok=303 totalTok=1816
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=10203 promptChars=5316 outChars=1181 inTok=1329 outTok=296 totalTok=1625
+[Analysis PAC] 20:11:01.966
+[Analysis PAC] ========================================================================
+[Analysis PAC] [VERIFY] candidate-by-candidate — art28_3_f_security_assistance
+[Analysis PAC] ========================================================================
+[Analysis PAC] REQUIREMENT: art28_3_f_security_assistance
+[Analysis PAC] HYPOTHESIS:  The processor assists the controller with security, personal-data-breach, and DPIA obligations.
+[Analysis PAC] PROOF STD:   Proven only by text obligating the processor to assist the controller with the CONTROLLER's own Article 32-36 obligations — security of processing, breach notification to the supervisory authority/dat…
+[Analysis PAC]
+[Analysis PAC] CANDIDATES CHECKED (4) — ranked by the retriever, in this order:
+[Analysis PAC]
+[Analysis PAC]   [1] S23  3.6.4 Supplier will inform Mastercard of any Per (clause-3.6.4)  →  PROVES  quoteVerified=true ★ WINNER
+[Analysis PAC]       passage: "3.6.4 Supplier will inform Mastercard of any Personal Data Breach or where there is a reasonable suspicion that a Personal Data Breach has occurred i) in writin…"
+[Analysis PAC]       quote:   "Supplier will assist Mastercard in complying with its own obligations or with Mastercard’s customers’ obligations under Privacy and Data Protection Law to notif…"
+[Analysis PAC]       why:     The quote expressly obligates the Supplier to assist Mastercard with complying with its own obligations under law to notify a Personal Data Breach.
+[Analysis PAC]       established: The passage establishes that the processor (Supplier) must assist the controller (Mastercard) with complying with its own obligations to notify a Personal Data Breach under privacy…
+[Analysis PAC]
+[Analysis PAC]   [2] S170  Supplier must  notify Mastercard of any Personal (clause-7.4)  →  PROVES  quoteVerified=true
+[Analysis PAC]       passage: "7.4. Supplier must notify Mastercard of any Personal Data Breach or where there is a reasonable suspicion that such a Personal Data Breach has occurred i) by co…"
+[Analysis PAC]       quote:   "Supplier will assist Mastercard in complying with its own obligations under Privacy and Data Protection Law to notify a Personal Data Breach."
+[Analysis PAC]       why:     The exact wording explicitly obligates the Supplier to assist Mastercard with its own statutory breach notification duties.
+[Analysis PAC]       established: The passage confirms that the processor is required to assist the controller in complying with the controller's own obligations under Privacy and Data Protection Law to notify a pe…
+[Analysis PAC]
+[Analysis PAC]   [3] S17  3.5.5 Cooperation and Assistance: cooperate with (clause-3.5.5)  →  RELATED_NOT_PROOF  quoteVerified=false
+[Analysis PAC]       passage: "3.5.5 Cooperation and Assistance: cooperate with Mastercard to ensure compliance with Privacy and Data Protection Law, this Data Processing Agreement, and Maste…"
+[Analysis PAC]       quote:   "assist Mastercard in fulfilling its own obligations under Privacy and Data Protection Law and as applicable Mastercard’s or Mastercard’s customer’s instructions…"
+[Analysis PAC]       why:     Downgraded from "proves" — claimed quote does not appear verbatim in the candidate passage. Original rationale: The phrase 'assist Mastercard in fulfilling its own obligations unde…
+[Analysis PAC]       established: Expressly obligates the Supplier to assist Mastercard in fulfilling its own statutory obligations, specifically enumerating data protection impact assessments and supervisory consu…
+[Analysis PAC]
+[Analysis PAC]   [4] S137  Cooperation  and  Assistance.  cooperate  with   (clause-4.4.4)  →  RELATED_NOT_PROOF  quoteVerified=true
+[Analysis PAC]       passage: "4.4.4. Cooperation and Assistance. cooperate with the other Party in good faith to fulfil their respective data protection compliance obligations under Privacy …"
+[Analysis PAC]       quote:   "cooperate with the other Party in good faith to fulfil their respective data protection compliance obligations under Privacy and Data Protection Law, including …"
+[Analysis PAC]       why:     The text broadly mentions cooperation to fulfil compliance obligations (specifically data subject rights and government inquiries), but lacks explicit obligations to assist with se…
+[Analysis PAC]       gap:     The clause provides general cooperation wording and specific assistance for data subject rights and regulatory inquiries, but omits explicit commitments to assist the controller wi…
+[Analysis PAC]       fix:     Add express terms requiring the processor to assist the controller with security obligations, breach notification requirements, and data protection impact asses…
+[Analysis PAC]
+[Analysis PAC] RESULT: proves — S23 wins.
+[Analysis PAC] ========================================================================
+[GeminiScheduler] Pacing 400ms before STRUCTURAL_JSON (9/10 requests in window, inFlight=2)
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=2819 promptChars=6169 outChars=945 inTok=1543 outTok=237 totalTok=1780
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=3636 promptChars=5663 outChars=1206 inTok=1416 outTok=302 totalTok=1718
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=5109 promptChars=5201 outChars=984 inTok=1301 outTok=246 totalTok=1547
+[Analysis PAC] 20:11:07.077
+[Analysis PAC] ========================================================================
+[Analysis PAC] [VERIFY] candidate-by-candidate — art28_3_g_deletion_return
+[Analysis PAC] ========================================================================
+[Analysis PAC] REQUIREMENT: art28_3_g_deletion_return
+[Analysis PAC] HYPOTHESIS:  At the end of the services the processor deletes or returns personal data and existing copies.
+[Analysis PAC] PROOF STD:   Proven only by text obligating the processor, at the end of the provision of services (not merely 'on request' at an unspecified time), to delete or return all personal data and delete existing copies…
+[Analysis PAC]
+[Analysis PAC] CANDIDATES CHECKED (3) — ranked by the retriever, in this order:
+[Analysis PAC]
+[Analysis PAC]   [1] S18  3.5.6 Return  and  Deletion  of  Personal  Data: (clause-3.5.6)  →  RELATED_NOT_PROOF  quoteVerified=true
+[Analysis PAC]       passage: "3.5.6 Return and Deletion of Personal Data: upon expiry or termination of the Agreement and/or relevant SOW, or if the Agreement or any relevant part of the Agr…"
+[Analysis PAC]       quote:   "upon expiry or termination of the Agreement and/or relevant SOW, or if the Agreement or any relevant part of the Agreement authorizing Supplier to Process Perso…"
+[Analysis PAC]       why:     The deletion or return obligation at termination is conditioned on complying with 'Mastercard’s request' rather than being an automatic obligation of the processor.
+[Analysis PAC]       gap:     The passage conditions the end-of-service deletion or return on receiving a specific request from the controller ('comply with Mastercard’s request, and at Mastercard’s sole option…
+[Analysis PAC]       fix:     Amend clause 3.5.6 to mandate that the Supplier automatically deletes or returns all Personal Data and existing copies upon expiry or termination, rather than c…
+[Analysis PAC]
+[Analysis PAC]   [2] S85  5.1.4 If the Processing of Personal Data of Data (clause-5.1.4)  →  PROVES  quoteVerified=true ★ WINNER
+[Analysis PAC]       passage: "5.1.4 If the Processing of Personal Data of Data Subjects is subject to the Argentina Personal Data Protection Act 25.326 (PDPA) (Ley de Protección de los Datos…"
+[Analysis PAC]       quote:   "Once the corresponding contractual obligations have been performed, the Exported Personal Information processed must be destroyed, except where there is an expr…"
+[Analysis PAC]       why:     The phrase 'Once the corresponding contractual obligations have been performed, the Exported Personal Information processed must be destroyed' mandates destruction upon completion …
+[Analysis PAC]       established: Establishes that upon performance of the contractual obligations, processed personal data must be destroyed unless explicitly authorized for future services under specified conditi…
+[Analysis PAC]
+[Analysis PAC]   [3] S139  Termination. upon termination of the Agreement a (clause-4.4.6)  →  RELATED_NOT_PROOF  quoteVerified=true
+[Analysis PAC]       passage: "4.4.6. Termination. upon termination of the Agreement and/or relevant SOW, or as set forth within the relevant SOW, comply with Mastercard’s request, and secure…"
+[Analysis PAC]       quote:   "upon termination of the Agreement and/or relevant SOW, or as set forth within the relevant SOW, comply with Mastercard’s request, and securely delete existing c…"
+[Analysis PAC]       why:     The deletion obligation upon termination is conditioned on complying 'with Mastercard's request' rather than being an absolute/independent obligation to delete or return all person…
+[Analysis PAC]       gap:     The passage conditions deletion upon termination on receiving a specific request from Mastercard ('comply with Mastercard's request'), rather than establishing an affirmative, mand…
+[Analysis PAC]       fix:     Amend the clause to state that upon termination or completion of services, the Supplier shall automatically delete or return all Personal Data and existing copi…
+[Analysis PAC]
+[Analysis PAC] RESULT: proves — S85 wins.
+[Analysis PAC] ========================================================================
+[GeminiScheduler] Pacing 400ms before STRUCTURAL_JSON (7/10 requests in window, inFlight=2)
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=2973 promptChars=5971 outChars=1052 inTok=1493 outTok=263 totalTok=1756
+[GeminiScheduler] Pacing 29ms before STRUCTURAL_JSON (7/10 requests in window, inFlight=2)
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=3345 promptChars=5353 outChars=1245 inTok=1339 outTok=312 totalTok=1651
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=5373 promptChars=6074 outChars=926 inTok=1519 outTok=232 totalTok=1751
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=7600 promptChars=5512 outChars=918 inTok=1378 outTok=230 totalTok=1608
+[Analysis PAC] 20:11:14.678
+[Analysis PAC] ========================================================================
+[Analysis PAC] [VERIFY] candidate-by-candidate — art28_3_h_audit
+[Analysis PAC] ========================================================================
+[Analysis PAC] REQUIREMENT: art28_3_h_audit
+[Analysis PAC] HYPOTHESIS:  The processor makes available information necessary to demonstrate compliance and allows audits and inspections.
+[Analysis PAC] PROOF STD:   Proven only by text obligating the processor to make available information necessary to demonstrate compliance AND to allow for and contribute to audits, including inspections, conducted by the contro…
+[Analysis PAC]
+[Analysis PAC] CANDIDATES CHECKED (4) — ranked by the retriever, in this order:
+[Analysis PAC]
+[Analysis PAC]   [1] S49  3.9.1 Upon request by Mastercard and subject to  (clause-3.9.1)  →  RELATED_NOT_PROOF  quoteVerified=true → carried as closest
+[Analysis PAC]       passage: "3.9.1 Upon request by Mastercard and subject to Mastercard’s reasonable discretion, Supplier allows Mastercard or, as applicable, Mastercard's customers, or an …"
+[Analysis PAC]       quote:   "Supplier allows Mastercard or, as applicable, Mastercard's customers, or an inspection body composed of independent members selected by Mastercard or Mastercard…"
+[Analysis PAC]       why:     The clause explicitly grants audit and inspection rights to verify compliance, but omits the explicit obligation to 'make available information necessary to demonstrate compliance'…
+[Analysis PAC]       gap:     The passage provides for audits and inspections to verify compliance, but lacks an express obligation requiring the processor to make available all information necessary to demonst…
+[Analysis PAC]       fix:     Add an explicit provision requiring Supplier to make available to Mastercard all information necessary to demonstrate compliance with the obligations in this Ag…
+[Analysis PAC]
+[Analysis PAC]   [2] S50  3.9.2 The  Parties  will  mutually  agree  upon  (clause-3.9.2)  →  RELATED_NOT_PROOF  quoteVerified=true
+[Analysis PAC]       passage: "3.9.2 The Parties will mutually agree upon the scope, timing, and duration of the Data Protection and Security Audit. The Data Protection and Security Audit may…"
+[Analysis PAC]       quote:   "The Data Protection and Security Audit may be conducted by an independent third-party auditor designated by Mastercard, in which case Supplier will make availab…"
+[Analysis PAC]       why:     The clause only provides for making available the results of audits conducted by an auditor designated by Mastercard, rather than explicitly obligating the processor to make availa…
+[Analysis PAC]       gap:     The passage restricts audits to third-party audits designated by Mastercard and only obligates sharing the audit results, failing to explicitly grant the controller (or its mandate…
+[Analysis PAC]       fix:     Amend the clause to explicitly state that the Supplier will make available to the controller all information necessary to demonstrate compliance with these obli…
+[Analysis PAC]
+[Analysis PAC]   [3] S51  3.9.3 Supplier agrees to fully cooperate with su (clause-3.9.3)  →  RELATED_NOT_PROOF  quoteVerified=true
+[Analysis PAC]       passage: "3.9.3 Supplier agrees to fully cooperate with such Data Protection and Security Audit and implement all commercially reasonable changes to its Information Secur…"
+[Analysis PAC]       quote:   "Supplier agrees to fully cooperate with such Data Protection and Security Audit and implement all commercially reasonable changes to its Information Security Pr…"
+[Analysis PAC]       why:     The passage addresses cooperation with audits and security program changes, but omits the explicit requirement to make available to the controller all information necessary to demo…
+[Analysis PAC]       gap:     The passage obligates cooperation with audits, but lacks an explicit provision requiring the processor to make available to the controller all information necessary to demonstrate …
+[Analysis PAC]       fix:     Add express language requiring the Supplier to make available to Mastercard all information necessary to demonstrate compliance with these data protection oblig…
+[Analysis PAC]
+[Analysis PAC]   [4] S173  Upon request by Mastercard and subject to Master (clause-8.1)  →  RELATED_NOT_PROOF  quoteVerified=true
+[Analysis PAC]       passage: "8.1. Upon request by Mastercard and subject to Mastercard’s reasonable discretion, Supplier allows Mastercard or an inspection body composed of independent memb…"
+[Analysis PAC]       quote:   "Supplier allows Mastercard or an inspection body composed of independent members to audit and review Supplier’s Information Security Program, data processing fa…"
+[Analysis PAC]       why:     The clause grants audit and review rights over programs and facilities, but does not explicitly contain the obligation to make available all information necessary to demonstrate co…
+[Analysis PAC]       gap:     The passage establishes the right to audit facilities and programs, but lacks express wording obligating the processor to make available all information necessary to demonstrate co…
+[Analysis PAC]       fix:     Add an explicit provision requiring the Supplier to make available to Mastercard all information necessary to demonstrate compliance with its data protection ob…
+[Analysis PAC]
+[Analysis PAC] RESULT: no candidate proved/contradicted → insufficient_evidence. Closest carried: S49 (related_not_proof).
+[Analysis PAC] ========================================================================
+[GeminiScheduler] Pacing 400ms before STRUCTURAL_JSON (6/10 requests in window, inFlight=2)
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=2562 promptChars=5303 outChars=681 inTok=1326 outTok=171 totalTok=1497
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=2761 promptChars=5286 outChars=832 inTok=1322 outTok=208 totalTok=1530
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=5502 promptChars=5207 outChars=1031 inTok=1302 outTok=258 totalTok=1560
+[Analysis PAC] 20:11:20.183
+[Analysis PAC] ========================================================================
+[Analysis PAC] [VERIFY] candidate-by-candidate — art28_4_subprocessor_flow_down
+[Analysis PAC] ========================================================================
+[Analysis PAC] REQUIREMENT: art28_4_subprocessor_flow_down
+[Analysis PAC] HYPOTHESIS:  A subprocessor is bound by the same data-protection obligations as the processor.
+[Analysis PAC] PROOF STD:   Proven only by text requiring the SAME data protection obligations imposed on the processor by this DPA to be imposed on any subprocessor by contract, specifically by reference to the processor's own …
+[Analysis PAC]
+[Analysis PAC] CANDIDATES CHECKED (3) — ranked by the retriever, in this order:
+[Analysis PAC]
+[Analysis PAC]   [1] S41  3.8.2 Without prejudice to Section 3.8.1 above,  (clause-3.8.2)  →  PROVES  quoteVerified=true ★ WINNER
+[Analysis PAC]       passage: "3.8.2 Without prejudice to Section 3.8.1 above, Supplier must ensure that, in each instance in which it engages a Sub-Processor to Process Personal Data on Mast…"
+[Analysis PAC]       quote:   "Supplier must ensure that, in each instance in which it engages a Sub-Processor to Process Personal Data on Mastercard’s behalf it must enter into a binding wri…"
+[Analysis PAC]       why:     The passage uses 'must enter into a binding written agreement with the Sub-Processor with the same security and privacy and data protection obligations that apply to Supplier under…
+[Analysis PAC]       established: Establishes that the Supplier (processor) is contractually bound to pass down the exact same security, privacy, and data protection obligations contained in the DPA to any engaged …
+[Analysis PAC]
+[Analysis PAC]   [2] S42  3.8.3 Prior to any sub-processing, Supplier must (clause-3.8.3)  →  PROVES  quoteVerified=true
+[Analysis PAC]       passage: "3.8.3 Prior to any sub-processing, Supplier must carry out adequate due diligence to ensure that the Sub-Processor is capable of (i) Processing Personal Data wi…"
+[Analysis PAC]       quote:   "complying with the same security and privacy and data protection obligations as are imposed on Supplier under this Data Processing Agreement"
+[Analysis PAC]       why:     The phrase 'complying with the same security and privacy and data protection obligations as are imposed on Supplier under this Data Processing Agreement' explicitly requires imposi…
+[Analysis PAC]       established: The passage mandates that prior to sub-processing, the Supplier must ensure via due diligence that the subprocessor is capable of complying with the exact same data protection and …
+[Analysis PAC]
+[Analysis PAC]   [3] S45  3.8.6 Supplier will remain fully liable towards  (clause-3.8.6)  →  RELATED_NOT_PROOF  quoteVerified=false
+[Analysis PAC]       passage: "3.8.6 Supplier will remain fully liable towards Mastercard for the performance by each Sub-Processor of any and all Sub-Processor’s obligations under the agreem…"
+[Analysis PAC]       quote:   "Supplier will remain fully liable towards Mastercard for the performance by each Sub-Processor of any and all Sub-Processor’s obligations under the agreement be…"
+[Analysis PAC]       why:     The clause addresses supplier liability for subprocessor acts rather than requiring the subprocessor to be contractually bound by the same data protection obligations imposed on th…
+[Analysis PAC]       gap:     The passage establishes that the Supplier remains fully liable for the Sub-Processor's performance, acts, or omissions, but it does not contractually mandate that the Sub-Processor…
+[Analysis PAC]       fix:     Add explicit contractual language requiring the Supplier to flow down the same data protection obligations imposed under this DPA to any Sub-Processor via a wri…
+[Analysis PAC]
+[Analysis PAC] RESULT: proves — S41 wins.
+[Analysis PAC] ========================================================================
+[Analysis PAC] 20:11:20.185 ACT ✓ [VERIFY] evaluate_package id=wu-pkg-eval-gdpr.art28.3.mandatory_clauses ms=86346 findings=9 tokens=37761 batch=3 concurrent=true wait_ms=0
+[Analysis PAC] 20:11:20.186
+[Analysis PAC] ========================================================================
+[Analysis PAC] ACT STEP — [VERIFY] evaluate_package
+[Analysis PAC] ========================================================================
+[Analysis PAC] STEP 5/9  [VERIFY]  tool=evaluate_package  id=wu-pkg-eval-gdpr.art28.particulars  ms=62958
+[Analysis PAC]    deps=wu-pkg-ev-gdpr.art28.particulars
+[Analysis PAC]
+[Analysis PAC] INPUT
+[Analysis PAC]    docId=doc_3610aa84-c1ca-4c7f-8d8a-bb7f657c1deb
+[Analysis PAC]    packageId=gdpr.art28.particulars
+[Analysis PAC]    skillIds=[3] _global, doc-types/dpa, regimes/data-protection/gdpr
+[Analysis PAC]    requirementIds=[6] subject_matter, duration, nature_purpose, data_categories, data_subject_categories, controller_obligations_rights
+[Analysis PAC]    unit.requirementIds=[6] subject_matter, duration, nature_purpose, data_categories, data_subject_categories, controller_obligations_rights
+[Analysis PAC]
+[Analysis PAC] OUTPUT
+[Analysis PAC]    packageId=gdpr.art28.particulars
+[Analysis PAC]    packageRequirementIds=[6] subject_matter, duration, nature_purpose, data_categories, data_subject_categories, controller_obligations_rights
+[Analysis PAC]    emitted=6  byStatus present=4  insufficient_evidence=2
+[Analysis PAC]    stampedRequirementIds  gdpr.article28.subject_matter=1  gdpr.article28.duration=1  gdpr.article28.nature_and_purpose=1  gdpr.article28.categories_of_data=1  gdpr.article28.categories_of_data_subjects=1  gdpr.article28.controller_obligations_and_rights=1
+[Analysis PAC]
+[Analysis PAC] EMITTED FINDINGS (6)
+[Analysis PAC]    * f_verify_cov_gdpr.article28.subject_matter_wu-pkg-eval-gdpr.art28.particulars  kind=compliance  status=present  req=gdpr.article28.subject_matter  rule=-
+[Analysis PAC]      judgement compliance=present  evidence=direct  drafting=clean
+[Analysis PAC]      claim: The quote defines the subject matter of the processing as the processing of
+[Analysis PAC]      claim: Personal Data for the purpose of providing the Services specified in the
+[Analysis PAC]      claim: Agreement.
+[Analysis PAC]      quote: for the Processing of Personal Data for the purpose of providing the Services
+[Analysis PAC]      quote: specified in the Agreement and as implemented by each individ…
+[Analysis PAC]    * f_verify_cov_gdpr.article28.duration_wu-pkg-eval-gdpr.art28.particulars  kind=compliance  status=present  req=gdpr.article28.duration  rule=-
+[Analysis PAC]      judgement compliance=present  evidence=direct  drafting=clean
+[Analysis PAC]      claim: The phrase 'retain Personal Data until such time, no longer than is necessary
+[Analysis PAC]      claim: for the Purposes for which the Personal Data are Processed' establishes an end
+[Analysis PAC]      claim: co…
+[Analysis PAC]      quote: retain Personal Data until such time, no longer than is necessary for the
+[Analysis PAC]      quote: Purposes for which the Personal Data are Processed unless a longe…
+[Analysis PAC]    * f_verify_cd_gdpr.article28.nature_and_purpose_wu-pkg-eval-gdpr.art28.particulars  kind=compliance  status=insufficient_evidence  req=gdpr.article28.nature_and_purpose  rule=-
+[Analysis PAC]      judgement compliance=insufficient_evidence  evidence=not_found  drafting=-
+[Analysis PAC]      claim: The passage provides the purpose of the processing (to provide the Services) but
+[Analysis PAC]      claim: fails to describe the nature of the processing operations (e.g., storage, host…
+[Analysis PAC]      evidence: (none)
+[Analysis PAC]    * f_verify_cov_gdpr.article28.categories_of_data_wu-pkg-eval-gdpr.art28.particulars  kind=compliance  status=present  req=gdpr.article28.categories_of_data  rule=-
+[Analysis PAC]      judgement compliance=present  evidence=direct  drafting=clean
+[Analysis PAC]      claim: The quote explicitly enumerates specific categories of personal data, including
+[Analysis PAC]      claim: genetic data, biometric data, health data, and criminal records.
+[Analysis PAC]      quote: may include data revealing racial or ethnic origin, political opinions, cult,
+[Analysis PAC]      quote: religious or philosophical beliefs, or trade union membership…
+[Analysis PAC]    * f_verify_cd_gdpr.article28.categories_of_data_subjects_wu-pkg-eval-gdpr.art28.particulars  kind=compliance  status=insufficient_evidence  req=gdpr.article28.categories_of_data_subjects  rule=-
+[Analysis PAC]      judgement compliance=insufficient_evidence  evidence=not_found  drafting=-
+[Analysis PAC]      claim: The passage mentions 'Mastercard’s customers, consumers, employees or any other
+[Analysis PAC]      claim: individual' as potential sources of complaints under a notification obligation,…
+[Analysis PAC]      evidence: (none)
+[Analysis PAC]    * f_verify_cov_gdpr.article28.controller_obligations_and_rights_wu-pkg-eval-gdpr.art28.particulars  kind=compliance  status=present  req=gdpr.article28.controller_obligations_and_rights  rule=-
+[Analysis PAC]      judgement compliance=present  evidence=direct  drafting=clean
+[Analysis PAC]      claim: The quote explicitly establishes the controller's (Mastercard's or its
+[Analysis PAC]      claim: customers') exclusive right/authority to determine processing purposes and
+[Analysis PAC]      claim: means.
+[Analysis PAC]      quote: Mastercard, or the customers on whose behalf Mastercard may act, have the sole
+[Analysis PAC]      quote: and exclusive authority to determine the purposes and means …
+[Analysis PAC] ========================================================================
+[Analysis PAC] 20:11:20.189
+[Analysis PAC] ========================================================================
+[Analysis PAC] ACT STEP — [VERIFY] evaluate_package
+[Analysis PAC] ========================================================================
+[Analysis PAC] STEP 6/9  [VERIFY]  tool=evaluate_package  id=wu-pkg-eval-gdpr.art28.3.mandatory_clauses  ms=86346
+[Analysis PAC]    deps=wu-pkg-ev-gdpr.art28.3.mandatory_clauses
+[Analysis PAC]
+[Analysis PAC] INPUT
+[Analysis PAC]    docId=doc_3610aa84-c1ca-4c7f-8d8a-bb7f657c1deb
+[Analysis PAC]    packageId=gdpr.art28.3.mandatory_clauses
+[Analysis PAC]    skillIds=[3] _global, doc-types/dpa, regimes/data-protection/gdpr
+[Analysis PAC]    requirementIds=[9] art28_3_a_instructions, art28_3_b_confidentiality, art28_3_c_security, art28_3_d_subprocessors, art28_3_e_dsr_assistance, art28_3_f_security_assistance, art28_3_g_deletion_return, art28_3_h_audit, art28_4_subprocessor_flow_down
+[Analysis PAC]    unit.requirementIds=[9] art28_3_a_instructions, art28_3_b_confidentiality, art28_3_c_security, art28_3_d_subprocessors, art28_3_e_dsr_assistance, art28_3_f_security_assistance, art28_3_g_deletion_return, art28_3_h_audit, art28_4_subprocessor_flow_down
+[Analysis PAC]
+[Analysis PAC] OUTPUT
+[Analysis PAC]    packageId=gdpr.art28.3.mandatory_clauses
+[Analysis PAC]    packageRequirementIds=[9] art28_3_a_instructions, art28_3_b_confidentiality, art28_3_c_security, art28_3_d_subprocessors, art28_3_e_dsr_assistance, art28_3_f_security_assistance, art28_3_g_deletion_return, art28_3_h_audit, art28_4_subprocessor_flow_down
+[Analysis PAC]    emitted=9  byStatus present=8  insufficient_evidence=1
+[Analysis PAC]    stampedRequirementIds  art28_3_a_instructions=1  art28_3_b_confidentiality=1  art28_3_c_security=1  art28_3_d_subprocessors=1  art28_3_e_dsr_assistance=1  art28_3_f_security_assistance=1  art28_3_g_deletion_return=1  art28_3_h_audit=1  art28_4_subprocessor_flow_down=1
+[Analysis PAC]
+[Analysis PAC] EMITTED FINDINGS (9)
+[Analysis PAC]    * f_verify_cov_art28_3_a_instructions_wu-pkg-eval-gdpr.art28.3.mandatory_clauses  kind=compliance  status=present  req=art28_3_a_instructions  rule=-    
+[Analysis PAC]      judgement compliance=present  evidence=direct  drafting=clean
+[Analysis PAC]      claim: The phrase 'must only Process Personal Data on Mastercard’s behalf and
+[Analysis PAC]      claim: instructions' explicitly restricts processing to documented instructions.
+[Analysis PAC]      quote: Supplier must only Process Personal Data on Mastercard’s behalf and
+[Analysis PAC]      quote: instructions, or of Mastercard’s customers, for a Business Purpose as s…
+[Analysis PAC]    * f_verify_cov_art28_3_b_confidentiality_wu-pkg-eval-gdpr.art28.3.mandatory_clauses  kind=compliance  status=present  req=art28_3_b_confidentiality  rule=-
+[Analysis PAC]      judgement compliance=present  evidence=direct  drafting=clean
+[Analysis PAC]      claim: The words 'any person... who has access to Personal Data... is subject to a duly
+[Analysis PAC]      claim: enforceable contractual or statutory confidentiality obligation' directly bind…
+[Analysis PAC]      quote: Supplier must take steps to ensure that any person (whether an individual, a
+[Analysis PAC]      quote: legal entity or any other organization) acting under its autho…
+[Analysis PAC]    * f_verify_cov_art28_3_c_security_wu-pkg-eval-gdpr.art28.3.mandatory_clauses  kind=compliance  status=present  req=art28_3_c_security  rule=-
+[Analysis PAC]      judgement compliance=present  evidence=direct  drafting=clean
+[Analysis PAC]      claim: The quote explicitly mandates appropriate technical and organizational measures
+[Analysis PAC]      claim: including encryption, ongoing resilience, restoration abilities, and regular se…
+[Analysis PAC]      quote: Supplier’s written information security program must include appropriate
+[Analysis PAC]      quote: technical and organizational measures to ensure a level of securit…
+[Analysis PAC]    * f_verify_cov_art28_3_d_subprocessors_wu-pkg-eval-gdpr.art28.3.mandatory_clauses  kind=compliance  status=present  req=art28_3_d_subprocessors  rule=-  
+[Analysis PAC]      judgement compliance=present  evidence=direct  drafting=clean
+[Analysis PAC]      claim: The passage explicitly incorporates Option 1 of Clause 9(a) of the EU SCCs,
+[Analysis PAC]      claim: requiring specific written authorization prior to engaging subprocessors.
+[Analysis PAC]      quote: for the purposes of clause 9(a) of the EU SCCs, as applicable under modules two
+[Analysis PAC]      quote: and three, option 1 applies with 60 business days as the sp…
+[Analysis PAC]    * f_verify_cov_art28_3_e_dsr_assistance_wu-pkg-eval-gdpr.art28.3.mandatory_clauses  kind=compliance  status=present  req=art28_3_e_dsr_assistance  rule=-
+[Analysis PAC]      judgement compliance=present  evidence=direct  drafting=clean
+[Analysis PAC]      claim: The quote explicitly requires the supplier to assist Mastercard in fulfilling
+[Analysis PAC]      claim: its obligations, including complying with individuals' or Data Subjects'
+[Analysis PAC]      claim: requests…
+[Analysis PAC]      quote: assist Mastercard in fulfilling its own obligations under Privacy and Data
+[Analysis PAC]      quote: Protection Law and as applicable Mastercard’s or Mastercard’s cu…
+[Analysis PAC]    * f_verify_cov_art28_3_f_security_assistance_wu-pkg-eval-gdpr.art28.3.mandatory_clauses  kind=compliance  status=present  req=art28_3_f_security_assistance  rule=-
+[Analysis PAC]      judgement compliance=present  evidence=direct  drafting=clean
+[Analysis PAC]      claim: The quote expressly obligates the Supplier to assist Mastercard with complying
+[Analysis PAC]      claim: with its own obligations under law to notify a Personal Data Breach.
+[Analysis PAC]      quote: Supplier will assist Mastercard in complying with its own obligations or with
+[Analysis PAC]      quote: Mastercard’s customers’ obligations under Privacy and Data Pr…
+[Analysis PAC]    * f_verify_cov_art28_3_g_deletion_return_wu-pkg-eval-gdpr.art28.3.mandatory_clauses  kind=compliance  status=present  req=art28_3_g_deletion_return  rule=-
+[Analysis PAC]      judgement compliance=present  evidence=direct  drafting=clean
+[Analysis PAC]      claim: The phrase 'Once the corresponding contractual obligations have been performed,
+[Analysis PAC]      claim: the Exported Personal Information processed must be destroyed' mandates destruc…
+[Analysis PAC]      quote: Once the corresponding contractual obligations have been performed, the Exported
+[Analysis PAC]      quote: Personal Information processed must be destroyed, except w…
+[Analysis PAC]    * f_verify_cd_art28_3_h_audit_wu-pkg-eval-gdpr.art28.3.mandatory_clauses  kind=compliance  status=insufficient_evidence  req=art28_3_h_audit  rule=-     
+[Analysis PAC]      judgement compliance=insufficient_evidence  evidence=not_found  drafting=-
+[Analysis PAC]      claim: The passage provides for audits and inspections to verify compliance, but lacks
+[Analysis PAC]      claim: an express obligation requiring the processor to make available all information…
+[Analysis PAC]      evidence: (none)
+[Analysis PAC]    * f_verify_cov_art28_4_subprocessor_flow_down_wu-pkg-eval-gdpr.art28.3.mandatory_clauses  kind=compliance  status=present  req=art28_4_subprocessor_flow_down  rule=-
+[Analysis PAC]      judgement compliance=present  evidence=direct  drafting=clean
+[Analysis PAC]      claim: The passage uses 'must enter into a binding written agreement with the
+[Analysis PAC]      claim: Sub-Processor with the same security and privacy and data protection obligations
+[Analysis PAC]      claim: that ap…
+[Analysis PAC]      quote: Supplier must ensure that, in each instance in which it engages a Sub-Processor
+[Analysis PAC]      quote: to Process Personal Data on Mastercard’s behalf it must ent…
+[Analysis PAC] ========================================================================
+[Analysis PAC] 20:11:20.193 ACT ▶ [LOCK] aggregate_requirements id=wu-aggregate batch=4 concurrent=false wait_ms=0
+[Analysis PAC] 20:11:20.195 ACT ✓ [LOCK] aggregate_requirements id=wu-aggregate ms=2 findings=0 tokens=37761 batch=4 concurrent=false wait_ms=0
+[Analysis PAC] 20:11:20.195
+[Analysis PAC] ========================================================================
+[Analysis PAC] ACT STEP — [LOCK] aggregate_requirements
+[Analysis PAC] ========================================================================
+[Analysis PAC] STEP 7/9  [LOCK]  tool=aggregate_requirements  id=wu-aggregate  ms=2
+[Analysis PAC]    deps=wu-pkg-eval-gdpr.art28.particulars,wu-pkg-eval-gdpr.art28.3.mandatory_clauses
+[Analysis PAC]
+[Analysis PAC] INPUT
+[Analysis PAC]    skillIds=[3] _global, doc-types/dpa, regimes/data-protection/gdpr
+[Analysis PAC]
+[Analysis PAC] OUTPUT
+[Analysis PAC]    assessments=6  strong=3  conditional=2  cannot_determine=1
+[Analysis PAC]      * gdpr.article28.subject_matter  status=strong  compliance=present  evidence=direct  findings=1
+[Analysis PAC]        supporting=[f_verify_cov_gdpr.article28.subject_matter_wu-pkg-eval-gdpr.art28.particulars]
+[Analysis PAC]        The quote defines the subject matter of the processing as the processing of Personal
+[Analysis PAC]        Data for the purpose of providing the Services specified in the Agreement.
+[Analysis PAC]      * gdpr.article28.duration  status=strong  compliance=present  evidence=direct  findings=1
+[Analysis PAC]        supporting=[f_verify_cov_gdpr.article28.duration_wu-pkg-eval-gdpr.art28.particulars]
+[Analysis PAC]        The phrase 'retain Personal Data until such time, no longer than is necessary for the
+[Analysis PAC]        Purposes for which the Personal Data are Processed' establishes an end co…
+[Analysis PAC]      * gdpr.article28.nature_and_purpose  status=cannot_determine  compliance=insufficient_evidence  evidence=not_found  findings=1
+[Analysis PAC]        supporting=[f_verify_cd_gdpr.article28.nature_and_purpose_wu-pkg-eval-gdpr.art28.particulars]
+[Analysis PAC]        The passage provides the purpose of the processing (to provide the Services) but
+[Analysis PAC]        fails to describe the nature of the processing operations (e.g., storage, host…
+[Analysis PAC]      * gdpr.article28.categories_of_data_and_subjects  status=conditional  compliance=partial  evidence=direct  findings=2
+[Analysis PAC]        supporting=[f_verify_cov_gdpr.article28.categories_of_data_wu-pkg-eval-gdpr.art28.particulars, f_verify_cd_gdpr.article28.categories_of_data_subjects_wu-pkg-eval-gdpr.art28.particulars]
+[Analysis PAC]        The quote explicitly enumerates specific categories of personal data, including
+[Analysis PAC]        genetic data, biometric data, health data, and criminal records.
+[Analysis PAC]      * gdpr.article28.controller_obligations_and_rights  status=strong  compliance=present  evidence=direct  findings=1
+[Analysis PAC]        supporting=[f_verify_cov_gdpr.article28.controller_obligations_and_rights_wu-pkg-eval-gdpr.art28.particulars]
+[Analysis PAC]        The quote explicitly establishes the controller's (Mastercard's or its customers')
+[Analysis PAC]        exclusive right/authority to determine processing purposes and means.
+[Analysis PAC]      * gdpr.article28_3.mandatory_clauses_adequacy  status=conditional  compliance=partial  evidence=direct  findings=9
+[Analysis PAC]        supporting=[f_verify_cov_art28_3_a_instructions_wu-pkg-eval-gdpr.art28.3.mandatory_clauses, f_verify_cov_art28_3_b_confidentiality_wu-pkg-eval-gdpr.art28.3.mandatory_clauses, f_verify_cov_art28_3_c_security_wu-pkg-eval-gdpr.art28.3.mandatory_clauses, f_verify_cov_art28_3_d_subprocessors_wu-pkg-eval-gdpr.art28.3.mandatory_clauses, f_verify_cov_art28_3_e_dsr_assistance_wu-pkg-eval-gdpr.art28.3.mandatory_clauses, f_verify_cov_art28_3_f_security_assistance_wu-pkg-eval-gdpr.art28.3.mandatory_clauses, f_verify_cov_art28_3_g_deletion_return_wu-pkg-eval-gdpr.art28.3.mandatory_clauses, f_verify_cd_art28_3_h_audit_wu-pkg-eval-gdpr.art28.3.mandatory_clauses, f_verify_cov_art28_4_subprocessor_flow_down_wu-pkg-eval-gdpr.art28.3.mandatory_clauses]
+[Analysis PAC]        The phrase 'must only Process Personal Data on Mastercard’s behalf and instructions'
+[Analysis PAC]        explicitly restricts processing to documented instructions.
+[Analysis PAC]
+[Analysis PAC] EMITTED FINDINGS (0)
+[Analysis PAC] ========================================================================
+[Analysis PAC] 20:11:20.198 ACT ▶ [VERIFY] derive_risk id=wu-derive-risk batch=5 concurrent=false wait_ms=1
+[Analysis PAC] 20:11:20.198 ACT ✓ [VERIFY] derive_risk id=wu-derive-risk ms=0 findings=0 tokens=37761 batch=5 concurrent=false wait_ms=1
+[Analysis PAC] 20:11:20.198
+[Analysis PAC] ========================================================================
+[Analysis PAC] ACT STEP — [VERIFY] derive_risk
+[Analysis PAC] ========================================================================
+[Analysis PAC] STEP 8/9  [VERIFY]  tool=derive_risk  id=wu-derive-risk  ms=0
+[Analysis PAC]    deps=wu-aggregate
+[Analysis PAC]
+[Analysis PAC] INPUT
+[Analysis PAC]    docId=doc_3610aa84-c1ca-4c7f-8d8a-bb7f657c1deb
+[Analysis PAC]    skillIds=[3] _global, doc-types/dpa, regimes/data-protection/gdpr
+[Analysis PAC]
+[Analysis PAC] OUTPUT
+[Analysis PAC]    emitted=0  byKind (none)  byStatus (none)
+[Analysis PAC]
+[Analysis PAC] EMITTED FINDINGS (0)
+[Analysis PAC] ========================================================================
+[Analysis PAC] 20:11:20.200 ACT ▶ [RENDER] render_output id=wu-render batch=6 concurrent=false wait_ms=0
+[LLM] STRUCTURAL_JSON json model=gemini-3.6-flash thinking=low ms=6640 promptChars=7145 outChars=3318 inTok=1787 outTok=830 totalTok=2617
+[Analysis PAC] 20:11:26.842 analytical_synthesis ms=6640 rows=6
+[Analysis PAC] 20:11:26.843 synthesis prompt chars=0 sections=7 retry=0 assessments=6 findings=15 depth=deep thinkingMode=lite answerStyle=tabular
+[GeminiScheduler] Pacing 400ms before REFINEMENT stream (4/10 requests in window, inFlight=2)
+[LLM] REFINEMENT model=gemini-3.6-flash thinking=low ms=1892 promptChars=8295 outChars=259 inTok=1679 outTok=56 totalTok=1735
+[LLM] REFINEMENT model=gemini-3.6-flash thinking=low ms=6181 promptChars=10691 outChars=2263 inTok=2142 outTok=393 totalTok=2882
+[LLM] REFINEMENT model=gemini-3.6-flash thinking=low ms=7780 promptChars=7358 outChars=749 inTok=1485 outTok=136 totalTok=2220
+[LLM] REFINEMENT model=gemini-3.6-flash thinking=low ms=8487 promptChars=6974 outChars=1045 inTok=1399 outTok=209 totalTok=1608
+[LLM] REFINEMENT model=gemini-3.6-flash thinking=low ms=11440 promptChars=7822 outChars=1982 inTok=1571 outTok=353 totalTok=1924
+[LLM] REFINEMENT model=gemini-3.6-flash thinking=low ms=12823 promptChars=6496 outChars=1143 inTok=1306 outTok=215 totalTok=1782
+[LLM] REFINEMENT model=gemini-3.6-flash thinking=low ms=16224 promptChars=10686 outChars=1210 inTok=2136 outTok=192 totalTok=2654
+[Analysis PAC] 20:11:43.069 synthesis llm ms=16226 outChars=8651 truncated=false depth=deep maxOutputTokens=2070 thinkingMode=lite
+[Analysis PAC] 20:11:43.069 render synthesis ms=22867 assessments=6 presentation=unified schemaId=memo
+[Analysis PAC] 20:11:43.072 ACT ✓ [RENDER] render_output id=wu-render ms=22872 findings=1 tokens=55183 batch=6 concurrent=false wait_ms=0
+[Analysis PAC] 20:11:43.072
+[Analysis PAC] ========================================================================
+[Analysis PAC] ACT STEP — [RENDER] render_output
+[Analysis PAC] ========================================================================
+[Analysis PAC] STEP 9/9  [RENDER]  tool=render_output  id=wu-render  ms=22872
+[Analysis PAC]    deps=wu-derive-risk
+[Analysis PAC]
+[Analysis PAC] INPUT
+[Analysis PAC]    skillIds=[3] _global, doc-types/dpa, regimes/data-protection/gdpr
+[Analysis PAC]
+[Analysis PAC] OUTPUT
+[Analysis PAC] 6. RENDER OUTPUT
+[Analysis PAC]    renderer       memo
+[Analysis PAC]    reportType     regime_compliance_memo
+[Analysis PAC]    sections       executive_summary → requirements_matrix → material_gaps → missing_materials → conclusion
+[Analysis PAC]    outputChars    10038
+[Analysis PAC]      head: ## Executive Summary
+[Analysis PAC]
+[Analysis PAC] EMITTED FINDINGS (1)
+[Analysis PAC]    * f_render_wu-render  kind=summary_point  status=present  req=(none)  rule=-
+[Analysis PAC]      claim: Rendered memo for skill(s) _global, doc-types/dpa, regimes/data-protection/gdpr
+[Analysis PAC]      claim: with 16 prior findings.
+[Analysis PAC]      evidence: (none)
+[Analysis PAC] ========================================================================
+[Analysis PAC] 20:11:43.073 ACT done ms=111155 groupedEvals=2 requirements=6 findings=17
+[Analysis PAC] 20:11:43.074
+[Analysis PAC] ========================================================================
+[Analysis PAC] ACT INSPECT — execution result
+[Analysis PAC] ========================================================================
+[Analysis PAC] 0. STAGE ROLLUP  (INVESTIGATE → VERIFY → LOCK → RENDER)
+[Analysis PAC]    INVESTIGATE units=4  findings=1  failed=0  (extract_clauses → extract_shared_evidence x2 → classify_document)
+[Analysis PAC]    VERIFY      units=3  findings=15  failed=0  (evaluate_package x2 → derive_risk)
+[Analysis PAC]    LOCK        units=1  findings=0  failed=0  (aggregate_requirements)
+[Analysis PAC]    RENDER      units=1  findings=1  failed=0  (render_output)
+[Analysis PAC]
+[Analysis PAC] 1. WHAT RAN
+[Analysis PAC]    workUnits      9   done=9  failed=0  skipped=0  other=0
+[Analysis PAC]    tool mix       classify_document → extract_clauses → extract_shared_evidence x2 → evaluate_package x2 → aggregate_requirements → derive_risk → render_output
+[Analysis PAC]    silent-ok      5   (terminal units with 0 findings — usually valid)
+[Analysis PAC]    per-tool outcomes
+[Analysis PAC]      classify_document  x1  findings=0  failed=0  zero-finding=1
+[Analysis PAC]      extract_clauses  x1  findings=1  failed=0  zero-finding=0
+[Analysis PAC]      extract_shared_evidence  x2  findings=0  failed=0  zero-finding=2
+[Analysis PAC]      evaluate_package  x2  findings=15  failed=0  zero-finding=0
+[Analysis PAC]      aggregate_requirements  x1  findings=0  failed=0  zero-finding=1
+[Analysis PAC]      derive_risk  x1  findings=0  failed=0  zero-finding=1
+[Analysis PAC]      render_output  x1  findings=1  failed=0  zero-finding=0
+[Analysis PAC]
+[Analysis PAC] 2. WHAT WAS FOUND
+[Analysis PAC]    findings       17 total   visible=15  internal=2
+[Analysis PAC]    by kind        compliance=15
+[Analysis PAC]    by status      present=12  insufficient_evidence=3
+[Analysis PAC]    by severity    (none set)
+[Analysis PAC]    high material  0   (risk/compliance severity=high — Deep Critique bait)
+[Analysis PAC]    missing evid.  0  (present risk/compliance with 0 evidence)
+[Analysis PAC]
+[Analysis PAC] 3. FINDING → REQUIREMENT LINKAGE
+[Analysis PAC]    stamped        15  (have requirementId)
+[Analysis PAC]    unstamped UF   0  (user-facing compliance/risk without requirementId)
+[Analysis PAC]      gdpr.article28.subject_matter  n=1  present=1
+[Analysis PAC]        - f_verify_cov_gdpr.article28.subject_matter_wu-pkg-eval-gdpr.art28.particulars  present  The quote defines the subject matter of the processing as the processing of Per…
+[Analysis PAC]      gdpr.article28.duration  n=1  present=1
+[Analysis PAC]        - f_verify_cov_gdpr.article28.duration_wu-pkg-eval-gdpr.art28.particulars  present  The phrase 'retain Personal Data until such time, no longer than is necessary f…
+[Analysis PAC]      gdpr.article28.nature_and_purpose  n=1  insufficient_evidence=1
+[Analysis PAC]        - f_verify_cd_gdpr.article28.nature_and_purpose_wu-pkg-eval-gdpr.art28.particulars  insufficient_evidence  The passage provides the purpose of the processing (to provide the Services) bu…
+[Analysis PAC]      gdpr.article28.categories_of_data  n=1  present=1
+[Analysis PAC]        - f_verify_cov_gdpr.article28.categories_of_data_wu-pkg-eval-gdpr.art28.particulars  present  The quote explicitly enumerates specific categories of personal data, including…
+[Analysis PAC]      gdpr.article28.categories_of_data_subjects  n=1  insufficient_evidence=1
+[Analysis PAC]        - f_verify_cd_gdpr.article28.categories_of_data_subjects_wu-pkg-eval-gdpr.art28.particulars  insufficient_evidence  The passage mentions 'Mastercard’s customers, consumers, employees or any other…
+[Analysis PAC]      gdpr.article28.controller_obligations_and_rights  n=1  present=1
+[Analysis PAC]        - f_verify_cov_gdpr.article28.controller_obligations_and_rights_wu-pkg-eval-gdpr.art28.particulars  present  The quote explicitly establishes the controller's (Mastercard's or its customer…
+[Analysis PAC]      art28_3_a_instructions  n=1  present=1
+[Analysis PAC]        - f_verify_cov_art28_3_a_instructions_wu-pkg-eval-gdpr.art28.3.mandatory_clauses  present  The phrase 'must only Process Personal Data on Mastercard’s behalf and instruct…
+[Analysis PAC]      art28_3_b_confidentiality  n=1  present=1
+[Analysis PAC]        - f_verify_cov_art28_3_b_confidentiality_wu-pkg-eval-gdpr.art28.3.mandatory_clauses  present  The words 'any person... who has access to Personal Data... is subject to a dul…
+[Analysis PAC]      art28_3_c_security  n=1  present=1
+[Analysis PAC]        - f_verify_cov_art28_3_c_security_wu-pkg-eval-gdpr.art28.3.mandatory_clauses  present  The quote explicitly mandates appropriate technical and organizational measures…
+[Analysis PAC]      art28_3_d_subprocessors  n=1  present=1
+[Analysis PAC]        - f_verify_cov_art28_3_d_subprocessors_wu-pkg-eval-gdpr.art28.3.mandatory_clauses  present  The passage explicitly incorporates Option 1 of Clause 9(a) of the EU SCCs, req…
+[Analysis PAC]      art28_3_e_dsr_assistance  n=1  present=1
+[Analysis PAC]        - f_verify_cov_art28_3_e_dsr_assistance_wu-pkg-eval-gdpr.art28.3.mandatory_clauses  present  The quote explicitly requires the supplier to assist Mastercard in fulfilling i…
+[Analysis PAC]      art28_3_f_security_assistance  n=1  present=1
+[Analysis PAC]        - f_verify_cov_art28_3_f_security_assistance_wu-pkg-eval-gdpr.art28.3.mandatory_clauses  present  The quote expressly obligates the Supplier to assist Mastercard with complying …
+[Analysis PAC]      art28_3_g_deletion_return  n=1  present=1
+[Analysis PAC]        - f_verify_cov_art28_3_g_deletion_return_wu-pkg-eval-gdpr.art28.3.mandatory_clauses  present  The phrase 'Once the corresponding contractual obligations have been performed,…
+[Analysis PAC]      art28_3_h_audit  n=1  insufficient_evidence=1
+[Analysis PAC]        - f_verify_cd_art28_3_h_audit_wu-pkg-eval-gdpr.art28.3.mandatory_clauses  insufficient_evidence  The passage provides for audits and inspections to verify compliance, but lacks…
+[Analysis PAC]      art28_4_subprocessor_flow_down  n=1  present=1
+[Analysis PAC]        - f_verify_cov_art28_4_subprocessor_flow_down_wu-pkg-eval-gdpr.art28.3.mandatory_clauses  present  The passage uses 'must enter into a binding written agreement with the Sub-Proc…
+[Analysis PAC]
+[Analysis PAC] 4. REQUIREMENT ASSESSMENTS
+[Analysis PAC]    assessments    6   strong=3  conditional=2  cannot_determine=1
+[Analysis PAC]      [X] gdpr.article28.subject_matter  status=strong  compliance=present  findings=1
+[Analysis PAC]          supporting=[f_verify_cov_gdpr.article28.subject_matter_wu-pkg-eval-gdpr.art28.particulars]
+[Analysis PAC]          The quote defines the subject matter of the processing as the processing of
+[Analysis PAC]          Personal Data for the purpose of providing the Services specifi…
+[Analysis PAC]      [X] gdpr.article28.duration  status=strong  compliance=present  findings=1
+[Analysis PAC]          supporting=[f_verify_cov_gdpr.article28.duration_wu-pkg-eval-gdpr.art28.particulars]
+[Analysis PAC]          The phrase 'retain Personal Data until such time, no longer than is necessary for
+[Analysis PAC]          the Purposes for which the Personal Data are Processed' e…
+[Analysis PAC]      [X] gdpr.article28.nature_and_purpose  status=cannot_determine  compliance=insufficient_evidence  findings=1
+[Analysis PAC]          supporting=[f_verify_cd_gdpr.article28.nature_and_purpose_wu-pkg-eval-gdpr.art28.particulars]
+[Analysis PAC]          The passage provides the purpose of the processing (to provide the Services) but
+[Analysis PAC]          fails to describe the nature of the processing operations …
+[Analysis PAC]      [X] gdpr.article28.categories_of_data_and_subjects  status=conditional  compliance=partial  findings=2
+[Analysis PAC]          supporting=[f_verify_cov_gdpr.article28.categories_of_data_wu-pkg-eval-gdpr.art28.particulars, f_verify_cd_gdpr.article28.categories_of_data_subjects_wu-pkg-eval-gdpr.art28.particulars]
+[Analysis PAC]          The quote explicitly enumerates specific categories of personal data, including
+[Analysis PAC]          genetic data, biometric data, health data, and criminal rec…
+[Analysis PAC]      [X] gdpr.article28.controller_obligations_and_rights  status=strong  compliance=present  findings=1
+[Analysis PAC]          supporting=[f_verify_cov_gdpr.article28.controller_obligations_and_rights_wu-pkg-eval-gdpr.art28.particulars]
+[Analysis PAC]          The quote explicitly establishes the controller's (Mastercard's or its customers')
+[Analysis PAC]          exclusive right/authority to determine processing purpos…
+[Analysis PAC]      [X] gdpr.article28_3.mandatory_clauses_adequacy  status=conditional  compliance=partial  findings=9
+[Analysis PAC]          supporting=[f_verify_cov_art28_3_a_instructions_wu-pkg-eval-gdpr.art28.3.mandatory_clauses, f_verify_cov_art28_3_b_confidentiality_wu-pkg-eval-gdpr.art28.3.mandatory_clauses, f_verify_cov_art28_3_c_security_wu-pkg-eval-gdpr.art28.3.mandatory_clauses, f_verify_cov_art28_3_d_subprocessors_wu-pkg-eval-gdpr.art28.3.mandatory_clauses, f_verify_cov_art28_3_e_dsr_assistance_wu-pkg-eval-gdpr.art28.3.mandatory_clauses, f_verify_cov_art28_3_f_security_assistance_wu-pkg-eval-gdpr.art28.3.mandatory_clauses, f_verify_cov_art28_3_g_deletion_return_wu-pkg-eval-gdpr.art28.3.mandatory_clauses, f_verify_cd_art28_3_h_audit_wu-pkg-eval-gdpr.art28.3.mandatory_clauses, f_verify_cov_art28_4_subprocessor_flow_down_wu-pkg-eval-gdpr.art28.3.mandatory_clauses]
+[Analysis PAC]          The phrase 'must only Process Personal Data on Mastercard’s behalf and
+[Analysis PAC]          instructions' explicitly restricts processing to documented instruct…
+[Analysis PAC]
+[Analysis PAC] 5. SHARED EVIDENCE BUNDLES
+[Analysis PAC]    bundles=2
+[Analysis PAC]      gdpr.art28.particulars  doc=doc_3610aa84-c1ca-4c7f-8d8a-bb7f657c1deb  items=60  chars=60005  truncated=12
+[Analysis PAC]        E1 termination chars=458  4.4.6. Termination. upon termination of the Agreement and/or relevant SOW, or as set fort…
+[Analysis PAC]        E2 termination chars=989  3.8.7 Supplier will notify Mastercard in writing to TPRM@mastercard.com , with the subjec…
+[Analysis PAC]        E3 processor_terms chars=693  3.7.9 For the purpose of Processing of Personal Data subject to EU Data Protection Law, S…
+[Analysis PAC]        E4 processor_terms chars=1996 trunc  3.7.5.3 For the purposes of the EU SCCs that apply pursuant to section 3.7.5.2 of this Da…
+[Analysis PAC]        E5 records_of_processing chars=258  3.5.2 Internal Records: maintain internal records of all Processing conducted on behalf o…
+[Analysis PAC]        E6 retention_and_deletion chars=458  4.4.6. Termination. upon termination of the Agreement and/or relevant SOW, or as set fort…
+[Analysis PAC]        … (+54 more items)
+[Analysis PAC]      gdpr.art28.3.mandatory_clauses  doc=doc_3610aa84-c1ca-4c7f-8d8a-bb7f657c1deb  items=60  chars=64045  truncated=17
+[Analysis PAC]        E1 confidentiality chars=1999 trunc  3.6. Security of the Processing, Confidentiality, and Personal Data Breach Notification. …
+[Analysis PAC]        E2 confidentiality chars=1997 trunc  7. Security of the Processing, Confidentiality, and Personal Data Breach Notification. Su…
+[Analysis PAC]        E3 processor_assistance_obligation chars=1999 trunc  3.6. Security of the Processing, Confidentiality, and Personal Data Breach Notification. …      
+[Analysis PAC]        E4 processor_assistance_obligation chars=1997 trunc  2. Definitions. In this Data Processing Agreement, the following definitions apply: “Busi…      
+[Analysis PAC]        E5 subprocessor_flow_down chars=1995 trunc  2023) and its Implementing Regulations; (10) Nigeria Data Protection Act 2023 and its sub…
+[Analysis PAC]        E6 subprocessor_flow_down chars=168  3.18. “Sub-Processor” means the entity engaged by a Party or any further sub-contractor t…
+[Analysis PAC]        … (+54 more items)
+[Analysis PAC]
+[Analysis PAC] 6. RENDER OUTPUT
+[Analysis PAC]    renderer       memo
+[Analysis PAC]    reportType     regime_compliance_memo
+[Analysis PAC]    sections       executive_summary → requirements_matrix → material_gaps → missing_materials → conclusion
+[Analysis PAC]    outputChars    10038
+[Analysis PAC]      head: ## Executive Summary
+[Analysis PAC] ========================================================================
+[Analysis PAC] 20:11:43.084 ACT done → DONE ms=111170 findings=17 tokens=55183
+[Analysis PAC] 20:11:43.084 run end reason=green ms=121972 findings=17 tokens=55183
+[Analysis PAC] job done jobId=d100ee90-fb84-4a34-96ba-95f0d78315c7 reason=green findings=17 phase=DONE
+[QueryLogger] 74ms | SELECT id, email, name, status, role FROM users WHERE id = $1
+[QueryLogger] 572ms | SELECT id, email, name, status, role FROM users WHERE id = $1
+[QueryLogger] 587ms | SELECT id, email, name, status, role FROM users WHERE id = $1
+[QueryLogger] 593ms | SELECT id, email, name, status, role FROM users WHERE id = $1
+[QueryLogger] 73ms | SELECT COUNT(*) AS total FROM folders
+       WHERE user_id = $1
+[QueryLogger] 596ms | SELECT id, email, name, status, role FROM users WHERE id = $1
+        

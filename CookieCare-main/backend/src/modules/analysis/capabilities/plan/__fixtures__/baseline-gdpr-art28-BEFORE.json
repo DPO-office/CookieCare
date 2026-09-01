@@ -1,0 +1,1457 @@
+{
+  "intent": {
+    "scope": "whole_document",
+    "operation": "compliance_check",
+    "standard": "regime_pack:regimes/data-protection/gdpr",
+    "standardConcept": "GDPR Article 28",
+    "outputForm": "memo",
+    "reportType": "regime_compliance_memo",
+    "depth": "standard",
+    "compound": false,
+    "subIntents": [],
+    "requirements": [
+      {
+        "id": "gdpr.article28.compliance",
+        "description": "Perform a GDPR Article 28 compliance review of the Data Protection Agreement (DPA).",
+        "type": "adequacy",
+        "priority": "required"
+      }
+    ],
+    "unresolvedNeeds": [],
+    "confidence": {
+      "scope": 0.95,
+      "operation": 0.95,
+      "standard": 0.95,
+      "outputForm": 0.9
+    },
+    "docTypeHint": "dpa",
+    "documentPresentation": "unified"
+  },
+  "clarificationRequest": null,
+  "declineMessage": null,
+  "plan": {
+    "intent": {
+      "scope": "whole_document",
+      "operation": "compliance_check",
+      "standard": "regime_pack:regimes/data-protection/gdpr",
+      "standardConcept": "GDPR Article 28",
+      "outputForm": "memo",
+      "reportType": "regime_compliance_memo",
+      "depth": "standard",
+      "compound": false,
+      "subIntents": [],
+      "requirements": [
+        {
+          "id": "gdpr.article28.compliance",
+          "description": "Perform a GDPR Article 28 compliance review of the Data Protection Agreement (DPA).",
+          "type": "adequacy",
+          "priority": "required"
+        }
+      ],
+      "unresolvedNeeds": [],
+      "confidence": {
+        "scope": 0.95,
+        "operation": 0.95,
+        "standard": 0.95,
+        "outputForm": 0.9
+      },
+      "docTypeHint": "dpa",
+      "documentPresentation": "unified"
+    },
+    "workUnits": [
+      {
+        "workUnitId": "wu-classify",
+        "tool": "classify_document",
+        "input": {
+          "docId": "dpa"
+        },
+        "dependsOn": [],
+        "outputSchema": "string",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-extract",
+        "tool": "extract_clauses",
+        "input": {
+          "docId": "dpa",
+          "clauseTypes": [
+            "processor_terms",
+            "data_protection",
+            "termination",
+            "definitions",
+            "records_of_processing",
+            "subprocessor_flow_down",
+            "information_security",
+            "retention_and_deletion",
+            "audit_and_compliance_evidence",
+            "confidentiality",
+            "deletion_on_termination",
+            "data_subject_request_handling",
+            "processor_assistance_obligation",
+            "security_dpia_assistance",
+            "limitation_of_liability",
+            "indemnity",
+            "governing_law"
+          ],
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Perform a GDPR Article 28 compliance review of this DPA.",
+          "unionPlaybookClauseTypes": false
+        },
+        "dependsOn": [
+          "wu-classify"
+        ],
+        "outputSchema": "ClauseObject[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-pkg-ev-gdpr.art28.particulars",
+        "tool": "extract_shared_evidence",
+        "input": {
+          "docId": "dpa",
+          "packageId": "gdpr.art28.particulars",
+          "clauseTypes": [
+            "processor_terms",
+            "data_protection",
+            "termination",
+            "definitions",
+            "records_of_processing"
+          ],
+          "extractionTargets": [
+            "subject_matter",
+            "duration",
+            "nature",
+            "purpose",
+            "personal_data_categories",
+            "data_subject_categories",
+            "controller_obligations_rights"
+          ],
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Perform a GDPR Article 28 compliance review of this DPA."
+        },
+        "dependsOn": [
+          "wu-extract"
+        ],
+        "outputSchema": "ClauseObject[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "tool": "evaluate_package",
+        "input": {
+          "docId": "dpa",
+          "packageId": "gdpr.art28.particulars",
+          "capabilityIds": [
+            "gdpr.art28.3.chapeau",
+            "gdpr.art28.9"
+          ],
+          "contextCapabilityIds": [
+            "gdpr.art28.1",
+            "gdpr.art28.2",
+            "gdpr.art28.10"
+          ],
+          "requirementIds": [
+            "subject_matter",
+            "duration",
+            "nature_purpose",
+            "data_categories",
+            "data_subject_categories",
+            "controller_obligations_rights"
+          ],
+          "sourceMode": "authored",
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Perform a GDPR Article 28 compliance review of this DPA.",
+          "depth": "standard",
+          "extractionTargets": [
+            "subject_matter",
+            "duration",
+            "nature",
+            "purpose",
+            "personal_data_categories",
+            "data_subject_categories",
+            "controller_obligations_rights"
+          ],
+          "requirementEvidence": {
+            "subject_matter": {
+              "hypothesis": "The contract sets out the subject matter of the processing.",
+              "evidenceHints": [
+                "subject matter",
+                "offer",
+                "offers",
+                "disclosures",
+                "applies to the processing"
+              ]
+            },
+            "duration": {
+              "hypothesis": "The contract sets out the duration of the processing.",
+              "evidenceHints": [
+                "duration",
+                "term",
+                "period",
+                "termination",
+                "in force",
+                "set forth"
+              ]
+            },
+            "nature_purpose": {
+              "hypothesis": "The contract sets out the nature and purpose of the processing.",
+              "evidenceHints": [
+                "nature",
+                "purpose",
+                "offer",
+                "offers",
+                "provision of"
+              ]
+            },
+            "data_categories": {
+              "hypothesis": "The contract sets out the types of personal data.",
+              "evidenceHints": [
+                "categories of personal data",
+                "types of personal data"
+              ]
+            },
+            "data_subject_categories": {
+              "hypothesis": "The contract sets out the categories of data subjects.",
+              "evidenceHints": [
+                "data subjects",
+                "categories of data subjects"
+              ]
+            },
+            "controller_obligations_rights": {
+              "hypothesis": "The contract sets out the controller's obligations and rights.",
+              "evidenceHints": [
+                "obligations",
+                "rights",
+                "instructions",
+                "lawful",
+                "minimise",
+                "minimize",
+                "data protection laws"
+              ]
+            }
+          },
+          "requirementBindings": {},
+          "inputArtifactIds": []
+        },
+        "dependsOn": [
+          "wu-pkg-ev-gdpr.art28.particulars"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending",
+        "requirementIds": [
+          "subject_matter",
+          "duration",
+          "nature_purpose",
+          "data_categories",
+          "data_subject_categories",
+          "controller_obligations_rights"
+        ]
+      },
+      {
+        "workUnitId": "wu-pkg-ev-gdpr.art28.3.mandatory_clauses",
+        "tool": "extract_shared_evidence",
+        "input": {
+          "docId": "dpa",
+          "packageId": "gdpr.art28.3.mandatory_clauses",
+          "clauseTypes": [
+            "processor_terms",
+            "subprocessor_flow_down",
+            "information_security",
+            "retention_and_deletion",
+            "audit_and_compliance_evidence",
+            "confidentiality",
+            "deletion_on_termination",
+            "data_subject_request_handling",
+            "processor_assistance_obligation",
+            "security_dpia_assistance",
+            "data_protection",
+            "international_transfer_mechanism"
+          ],
+          "extractionTargets": [
+            "instructions_only_processing",
+            "confidentiality",
+            "security_measures",
+            "subprocessor_flow_down",
+            "dsr_assistance",
+            "breach_security_assistance",
+            "return_or_deletion",
+            "audit_rights"
+          ],
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Perform a GDPR Article 28 compliance review of this DPA."
+        },
+        "dependsOn": [
+          "wu-extract"
+        ],
+        "outputSchema": "ClauseObject[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "tool": "evaluate_package",
+        "input": {
+          "docId": "dpa",
+          "packageId": "gdpr.art28.3.mandatory_clauses",
+          "capabilityIds": [
+            "gdpr.art28.3.a",
+            "gdpr.art28.3.b",
+            "gdpr.art28.3.c",
+            "gdpr.art28.3.d",
+            "gdpr.art28.3.e",
+            "gdpr.art28.3.f",
+            "gdpr.art28.3.g",
+            "gdpr.art28.3.h",
+            "gdpr.art28.4"
+          ],
+          "contextCapabilityIds": [],
+          "requirementIds": [
+            "art28_3_a_instructions",
+            "art28_3_b_confidentiality",
+            "art28_3_c_security",
+            "art28_3_d_subprocessors",
+            "art28_3_e_dsr_assistance",
+            "art28_3_f_security_assistance",
+            "art28_3_g_deletion_return",
+            "art28_3_h_audit",
+            "art28_4_subprocessor_flow_down"
+          ],
+          "sourceMode": "authored",
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Perform a GDPR Article 28 compliance review of this DPA.",
+          "depth": "standard",
+          "extractionTargets": [
+            "instructions_only_processing",
+            "confidentiality",
+            "security_measures",
+            "subprocessor_flow_down",
+            "dsr_assistance",
+            "breach_security_assistance",
+            "return_or_deletion",
+            "audit_rights"
+          ],
+          "requirementEvidence": {
+            "art28_3_a_instructions": {
+              "hypothesis": "The processor processes personal data only on documented instructions from the controller.",
+              "evidenceHints": [
+                "documented instructions",
+                "instructions"
+              ]
+            },
+            "art28_3_b_confidentiality": {
+              "hypothesis": "Persons authorised to process personal data are committed to confidentiality.",
+              "evidenceHints": [
+                "confidential",
+                "secrecy",
+                "authorised persons",
+                "authorized persons"
+              ]
+            },
+            "art28_3_c_security": {
+              "hypothesis": "The processor implements appropriate technical and organisational security measures.",
+              "evidenceHints": [
+                "security",
+                "technical and organisational",
+                "tom"
+              ]
+            },
+            "art28_3_d_subprocessors": {
+              "hypothesis": "The processor does not engage another processor without controller authorisation.",
+              "evidenceHints": [
+                "sub-processor",
+                "subprocessor",
+                "authorisation",
+                "authorization",
+                "notice",
+                "object",
+                "written agreement",
+                "thirty days",
+                "30 days"
+              ]
+            },
+            "art28_3_e_dsr_assistance": {
+              "hypothesis": "The processor assists the controller in responding to data-subject rights requests.",
+              "evidenceHints": [
+                "data subject",
+                "assist",
+                "rights request",
+                "supervisory"
+              ]
+            },
+            "art28_3_f_security_assistance": {
+              "hypothesis": "The processor assists the controller with security, personal-data-breach, and DPIA obligations.",
+              "evidenceHints": [
+                "assist",
+                "breach",
+                "dpia",
+                "security of processing",
+                "prior consultation",
+                "supervisory"
+              ]
+            },
+            "art28_3_g_deletion_return": {
+              "hypothesis": "At the end of the services the processor deletes or returns personal data and existing copies.",
+              "evidenceHints": [
+                "delete",
+                "deletion",
+                "return",
+                "erasure",
+                "copies"
+              ]
+            },
+            "art28_3_h_audit": {
+              "hypothesis": "The processor makes available information necessary to demonstrate compliance and allows audits and inspections.",
+              "evidenceHints": [
+                "audit",
+                "inspection",
+                "demonstrate compliance"
+              ]
+            },
+            "art28_4_subprocessor_flow_down": {
+              "hypothesis": "A subprocessor is bound by the same data-protection obligations as the processor.",
+              "evidenceHints": [
+                "flow-down",
+                "same obligations",
+                "subprocessor"
+              ]
+            }
+          },
+          "requirementBindings": {},
+          "inputArtifactIds": []
+        },
+        "dependsOn": [
+          "wu-pkg-ev-gdpr.art28.3.mandatory_clauses"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending",
+        "requirementIds": [
+          "art28_3_a_instructions",
+          "art28_3_b_confidentiality",
+          "art28_3_c_security",
+          "art28_3_d_subprocessors",
+          "art28_3_e_dsr_assistance",
+          "art28_3_f_security_assistance",
+          "art28_3_g_deletion_return",
+          "art28_3_h_audit",
+          "art28_4_subprocessor_flow_down"
+        ]
+      },
+      {
+        "workUnitId": "wu-aggregate",
+        "tool": "aggregate_requirements",
+        "input": {
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Perform a GDPR Article 28 compliance review of this DPA.",
+          "unsupportedRequirements": []
+        },
+        "dependsOn": [
+          "wu-pkg-eval-gdpr.art28.particulars",
+          "wu-pkg-eval-gdpr.art28.3.mandatory_clauses"
+        ],
+        "outputSchema": "string",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-derive-risk",
+        "tool": "derive_risk",
+        "input": {
+          "docId": "dpa",
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Perform a GDPR Article 28 compliance review of this DPA."
+        },
+        "dependsOn": [
+          "wu-aggregate"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-render",
+        "tool": "render_output",
+        "input": {
+          "schemaId": "memo",
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Perform a GDPR Article 28 compliance review of this DPA.",
+          "relatedNotes": []
+        },
+        "dependsOn": [
+          "wu-derive-risk"
+        ],
+        "outputSchema": "string",
+        "status": "pending"
+      }
+    ],
+    "missingClarifications": [],
+    "outputForm": "memo",
+    "documentPresentation": "unified",
+    "skipCritique": true,
+    "reportSpec": {
+      "reportType": "regime_compliance_memo",
+      "depth": "standard",
+      "sections": [
+        "executive_summary",
+        "requirements_matrix",
+        "material_gaps",
+        "missing_materials",
+        "conclusion"
+      ],
+      "outline": [
+        {
+          "id": "executive_summary",
+          "role": "executive_summary",
+          "sectionId": "executive_summary",
+          "heading": "Executive Summary",
+          "requirementIds": [],
+          "source": "deterministic"
+        },
+        {
+          "id": "analysis.article28_compliance",
+          "role": "requirements_matrix",
+          "sectionId": "requirements_matrix",
+          "heading": "Article28 Compliance",
+          "requirementIds": [
+            "gdpr.article28.compliance"
+          ],
+          "source": "deterministic"
+        },
+        {
+          "id": "material_gaps",
+          "role": "material_gaps",
+          "sectionId": "material_gaps",
+          "heading": "Material gaps",
+          "requirementIds": [],
+          "source": "deterministic"
+        },
+        {
+          "id": "missing_materials",
+          "role": "missing_materials",
+          "sectionId": "missing_materials",
+          "heading": "Missing materials",
+          "requirementIds": [],
+          "source": "deterministic"
+        },
+        {
+          "id": "conclusion",
+          "role": "conclusion",
+          "sectionId": "conclusion",
+          "heading": "Conclusion",
+          "requirementIds": [],
+          "source": "deterministic"
+        }
+      ]
+    },
+    "rendererSchemaId": "memo",
+    "activeSkillIds": [
+      "_global",
+      "doc-types/dpa",
+      "regimes/data-protection/gdpr"
+    ],
+    "focus": {
+      "ruleIds": [
+        "gdpr.art28.1",
+        "gdpr.art28.2",
+        "gdpr.art28.3.chapeau",
+        "gdpr.art28.3.a",
+        "gdpr.art28.3.b",
+        "gdpr.art28.3.c",
+        "gdpr.art28.3.d",
+        "gdpr.art28.3.e",
+        "gdpr.art28.3.f",
+        "gdpr.art28.3.g",
+        "gdpr.art28.3.h",
+        "gdpr.art28.4",
+        "gdpr.art28.9",
+        "gdpr.art28.10"
+      ],
+      "matrixRowIds": [],
+      "riskCategoryIds": [],
+      "instructionText": "Perform a GDPR Article 28 compliance review of this DPA.",
+      "requirements": [
+        {
+          "id": "gdpr.article28.compliance",
+          "label": "Perform a GDPR Article 28 compliance review of the Data Protection Agreement (DPA)."
+        }
+      ],
+      "requiredCapabilities": [
+        "gdpr.art28.1",
+        "gdpr.art28.2",
+        "gdpr.art28.3.chapeau",
+        "gdpr.art28.3.a",
+        "gdpr.art28.3.b",
+        "gdpr.art28.3.c",
+        "gdpr.art28.3.d",
+        "gdpr.art28.3.e",
+        "gdpr.art28.3.f",
+        "gdpr.art28.3.g",
+        "gdpr.art28.3.h",
+        "gdpr.art28.4",
+        "gdpr.art28.9",
+        "gdpr.art28.10",
+        "gdpr.art28.particulars",
+        "gdpr.art28.3.mandatory_clauses"
+      ],
+      "supportingCapabilities": [
+        "gdpr.art28.1.processor_due_diligence_gap",
+        "gdpr.art28.2.prior_subprocessor_authorisation_gap",
+        "gdpr.art28.3.chapeau.mandatory_processing_agreement_particulars_gap",
+        "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+        "gdpr.art28.3.b.confidentiality_of_authorised_persons_gap",
+        "gdpr.art28.3.c.processor_security_measures_gap",
+        "gdpr.art28.3.d.subprocessor_conditions_and_flow_down_gap",
+        "dsr_assistance_not_operational",
+        "gdpr.art28.3.f.processor_assistance_with_security_breach_dpia_and_consultation_duties_gap",
+        "gdpr.art28.3.g.return_or_deletion_after_services_gap",
+        "gdpr.art28.3.h.compliance_evidence_audits_and_unlawful_instruction_warning_gap",
+        "gdpr.art28.4.subprocessor_equivalent_obligations_and_processor_liability_gap",
+        "gdpr.art28.9.written_processor_terms_gap",
+        "gdpr.art28.10.processor_acting_as_controller_gap",
+        "processor_terms_incomplete",
+        "subprocessor_authorisation_or_flowdown_gap",
+        "processor_return_deletion_gap",
+        "processor_audit_evidence_gap",
+        "security_measures_not_risk_based"
+      ],
+      "requirementMappings": [
+        {
+          "requirementId": "gdpr.article28.compliance",
+          "capabilityIds": [
+            "gdpr.art28.1",
+            "gdpr.art28.2",
+            "gdpr.art28.particulars",
+            "gdpr.art28.3.mandatory_clauses",
+            "gdpr.art28.9",
+            "gdpr.art28.10"
+          ],
+          "source": "catalog_llm"
+        }
+      ],
+      "completenessCheck": [
+        {
+          "requirementId": "gdpr.article28.compliance",
+          "label": "Perform a GDPR Article 28 compliance review of the Data Protection Agreement (DPA).",
+          "status": "covered",
+          "mappedCapabilityIds": [
+            "gdpr.art28.1",
+            "gdpr.art28.2",
+            "gdpr.art28.particulars",
+            "gdpr.art28.3.mandatory_clauses",
+            "gdpr.art28.9",
+            "gdpr.art28.10"
+          ]
+        }
+      ],
+      "requiredIds": [
+        "gdpr.art28.1",
+        "gdpr.art28.2",
+        "gdpr.art28.3.chapeau",
+        "gdpr.art28.3.a",
+        "gdpr.art28.3.b",
+        "gdpr.art28.3.c",
+        "gdpr.art28.3.d",
+        "gdpr.art28.3.e",
+        "gdpr.art28.3.f",
+        "gdpr.art28.3.g",
+        "gdpr.art28.3.h",
+        "gdpr.art28.4",
+        "gdpr.art28.9",
+        "gdpr.art28.10",
+        "gdpr.art28.particulars",
+        "gdpr.art28.3.mandatory_clauses"
+      ],
+      "supportingIds": [
+        "gdpr.art28.1.processor_due_diligence_gap",
+        "gdpr.art28.2.prior_subprocessor_authorisation_gap",
+        "gdpr.art28.3.chapeau.mandatory_processing_agreement_particulars_gap",
+        "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+        "gdpr.art28.3.b.confidentiality_of_authorised_persons_gap",
+        "gdpr.art28.3.c.processor_security_measures_gap",
+        "gdpr.art28.3.d.subprocessor_conditions_and_flow_down_gap",
+        "dsr_assistance_not_operational",
+        "gdpr.art28.3.f.processor_assistance_with_security_breach_dpia_and_consultation_duties_gap",
+        "gdpr.art28.3.g.return_or_deletion_after_services_gap",
+        "gdpr.art28.3.h.compliance_evidence_audits_and_unlawful_instruction_warning_gap",
+        "gdpr.art28.4.subprocessor_equivalent_obligations_and_processor_liability_gap",
+        "gdpr.art28.9.written_processor_terms_gap",
+        "gdpr.art28.10.processor_acting_as_controller_gap",
+        "processor_terms_incomplete",
+        "subprocessor_authorisation_or_flowdown_gap",
+        "processor_return_deletion_gap",
+        "processor_audit_evidence_gap",
+        "security_measures_not_risk_based"
+      ],
+      "unresolvedNeeds": [],
+      "unresolvedNeedDetails": [],
+      "droppedCandidateIds": [],
+      "provenance": [
+        {
+          "id": "gdpr.art28.1",
+          "kind": "rule",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.2",
+          "kind": "rule",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.3.chapeau",
+          "kind": "rule",
+          "source": "explicit_number",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.3.a",
+          "kind": "rule",
+          "source": "explicit_number",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.3.b",
+          "kind": "rule",
+          "source": "explicit_number",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.3.c",
+          "kind": "rule",
+          "source": "explicit_number",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.3.d",
+          "kind": "rule",
+          "source": "explicit_number",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.3.e",
+          "kind": "rule",
+          "source": "explicit_number",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.3.f",
+          "kind": "rule",
+          "source": "explicit_number",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.3.g",
+          "kind": "rule",
+          "source": "explicit_number",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.3.h",
+          "kind": "rule",
+          "source": "explicit_number",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.4",
+          "kind": "rule",
+          "source": "explicit_number",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.9",
+          "kind": "rule",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.10",
+          "kind": "rule",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.1.processor_due_diligence_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.2.prior_subprocessor_authorisation_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.3.chapeau.mandatory_processing_agreement_particulars_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.3.b.confidentiality_of_authorised_persons_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.3.c.processor_security_measures_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.3.d.subprocessor_conditions_and_flow_down_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "dsr_assistance_not_operational",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.3.f.processor_assistance_with_security_breach_dpia_and_consultation_duties_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.3.g.return_or_deletion_after_services_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.3.h.compliance_evidence_audits_and_unlawful_instruction_warning_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.4.subprocessor_equivalent_obligations_and_processor_liability_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.9.written_processor_terms_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.10.processor_acting_as_controller_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.particulars",
+          "kind": "package",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "The user explicitly requested a GDPR Article 28 compliance review of a DPA, setting the strict scope boundary to Article 28. To satisfy this review comprehensively, we select the two comprehensive packages covering Article 28(3) mandatory elements (`gdpr.art28.particulars` for Article 28(3) chapeau particulars and `gdpr.art28.3.mandatory_clauses` for Article 28(3)(a)-(h) and 28(4) obligations) along with the individual Article 28 rules (`gdpr.art28.1`, `gdpr.art28.2`, `gdpr.art28.9`, `gdpr.art28.10`). All cross-referenced articles (e.g., Arts 32-36 under Art 28(3)(f)) and adjacent articles (e.g., Art 29) are excluded from requiredIds per instructions."
+        },
+        {
+          "id": "gdpr.art28.3.mandatory_clauses",
+          "kind": "package",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "The user explicitly requested a GDPR Article 28 compliance review of a DPA, setting the strict scope boundary to Article 28. To satisfy this review comprehensively, we select the two comprehensive packages covering Article 28(3) mandatory elements (`gdpr.art28.particulars` for Article 28(3) chapeau particulars and `gdpr.art28.3.mandatory_clauses` for Article 28(3)(a)-(h) and 28(4) obligations) along with the individual Article 28 rules (`gdpr.art28.1`, `gdpr.art28.2`, `gdpr.art28.9`, `gdpr.art28.10`). All cross-referenced articles (e.g., Arts 32-36 under Art 28(3)(f)) and adjacent articles (e.g., Art 29) are excluded from requiredIds per instructions."
+        },
+        {
+          "id": "processor_terms_incomplete",
+          "kind": "risk_category",
+          "source": "phrase_map",
+          "required": false,
+          "reason": "authored phrase map (supporting signal)"
+        },
+        {
+          "id": "subprocessor_authorisation_or_flowdown_gap",
+          "kind": "risk_category",
+          "source": "phrase_map",
+          "required": false,
+          "reason": "authored phrase map (supporting signal)"
+        },
+        {
+          "id": "processor_return_deletion_gap",
+          "kind": "risk_category",
+          "source": "phrase_map",
+          "required": false,
+          "reason": "authored phrase map (supporting signal)"
+        },
+        {
+          "id": "processor_audit_evidence_gap",
+          "kind": "risk_category",
+          "source": "phrase_map",
+          "required": false,
+          "reason": "authored phrase map (supporting signal)"
+        },
+        {
+          "id": "security_measures_not_risk_based",
+          "kind": "risk_category",
+          "source": "phrase_map",
+          "required": false,
+          "reason": "authored phrase map (supporting signal)"
+        }
+      ],
+      "selectedPackageIds": [
+        "gdpr.art28.particulars",
+        "gdpr.art28.3.mandatory_clauses"
+      ],
+      "explicitScope": {
+        "articles": [
+          28
+        ],
+        "contextArticles": [],
+        "allowCrossReferencedContext": true,
+        "allowOutOfScopeRules": false
+      }
+    },
+    "auditRecord": {
+      "resolvedSkillIds": [
+        "_global",
+        "doc-types/dpa",
+        "regimes/data-protection/gdpr"
+      ],
+      "resolvedRuleIds": [
+        "gdpr.art28.1",
+        "gdpr.art28.2",
+        "gdpr.art28.3.chapeau",
+        "gdpr.art28.3.a",
+        "gdpr.art28.3.b",
+        "gdpr.art28.3.c",
+        "gdpr.art28.3.d",
+        "gdpr.art28.3.e",
+        "gdpr.art28.3.f",
+        "gdpr.art28.3.g",
+        "gdpr.art28.3.h",
+        "gdpr.art28.4",
+        "gdpr.art28.9",
+        "gdpr.art28.10"
+      ],
+      "resolvedMatrixRowIds": [],
+      "resolvedRiskCategoryIds": [],
+      "reportSpec": {
+        "reportType": "regime_compliance_memo",
+        "depth": "standard",
+        "sections": [
+          "executive_summary",
+          "requirements_matrix",
+          "material_gaps",
+          "missing_materials",
+          "conclusion"
+        ],
+        "outline": [
+          {
+            "id": "executive_summary",
+            "role": "executive_summary",
+            "sectionId": "executive_summary",
+            "heading": "Executive Summary",
+            "requirementIds": [],
+            "source": "deterministic"
+          },
+          {
+            "id": "analysis.article28_compliance",
+            "role": "requirements_matrix",
+            "sectionId": "requirements_matrix",
+            "heading": "Article28 Compliance",
+            "requirementIds": [
+              "gdpr.article28.compliance"
+            ],
+            "source": "deterministic"
+          },
+          {
+            "id": "material_gaps",
+            "role": "material_gaps",
+            "sectionId": "material_gaps",
+            "heading": "Material gaps",
+            "requirementIds": [],
+            "source": "deterministic"
+          },
+          {
+            "id": "missing_materials",
+            "role": "missing_materials",
+            "sectionId": "missing_materials",
+            "heading": "Missing materials",
+            "requirementIds": [],
+            "source": "deterministic"
+          },
+          {
+            "id": "conclusion",
+            "role": "conclusion",
+            "sectionId": "conclusion",
+            "heading": "Conclusion",
+            "requirementIds": [],
+            "source": "deterministic"
+          }
+        ]
+      },
+      "resolutionSources": [
+        "catalog_llm",
+        "explicit_number",
+        "phrase_map"
+      ],
+      "droppedCandidateIds": [],
+      "requirements": [
+        {
+          "id": "gdpr.article28.compliance",
+          "label": "Perform a GDPR Article 28 compliance review of the Data Protection Agreement (DPA)."
+        }
+      ],
+      "requiredCapabilities": [
+        "gdpr.art28.1",
+        "gdpr.art28.2",
+        "gdpr.art28.3.chapeau",
+        "gdpr.art28.3.a",
+        "gdpr.art28.3.b",
+        "gdpr.art28.3.c",
+        "gdpr.art28.3.d",
+        "gdpr.art28.3.e",
+        "gdpr.art28.3.f",
+        "gdpr.art28.3.g",
+        "gdpr.art28.3.h",
+        "gdpr.art28.4",
+        "gdpr.art28.9",
+        "gdpr.art28.10",
+        "gdpr.art28.particulars",
+        "gdpr.art28.3.mandatory_clauses"
+      ],
+      "supportingCapabilities": [
+        "gdpr.art28.1.processor_due_diligence_gap",
+        "gdpr.art28.2.prior_subprocessor_authorisation_gap",
+        "gdpr.art28.3.chapeau.mandatory_processing_agreement_particulars_gap",
+        "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+        "gdpr.art28.3.b.confidentiality_of_authorised_persons_gap",
+        "gdpr.art28.3.c.processor_security_measures_gap",
+        "gdpr.art28.3.d.subprocessor_conditions_and_flow_down_gap",
+        "dsr_assistance_not_operational",
+        "gdpr.art28.3.f.processor_assistance_with_security_breach_dpia_and_consultation_duties_gap",
+        "gdpr.art28.3.g.return_or_deletion_after_services_gap",
+        "gdpr.art28.3.h.compliance_evidence_audits_and_unlawful_instruction_warning_gap",
+        "gdpr.art28.4.subprocessor_equivalent_obligations_and_processor_liability_gap",
+        "gdpr.art28.9.written_processor_terms_gap",
+        "gdpr.art28.10.processor_acting_as_controller_gap",
+        "processor_terms_incomplete",
+        "subprocessor_authorisation_or_flowdown_gap",
+        "processor_return_deletion_gap",
+        "processor_audit_evidence_gap",
+        "security_measures_not_risk_based"
+      ],
+      "requirementMappings": [
+        {
+          "requirementId": "gdpr.article28.compliance",
+          "capabilityIds": [
+            "gdpr.art28.1",
+            "gdpr.art28.2",
+            "gdpr.art28.particulars",
+            "gdpr.art28.3.mandatory_clauses",
+            "gdpr.art28.9",
+            "gdpr.art28.10"
+          ],
+          "source": "catalog_llm"
+        }
+      ],
+      "completenessCheck": [
+        {
+          "requirementId": "gdpr.article28.compliance",
+          "label": "Perform a GDPR Article 28 compliance review of the Data Protection Agreement (DPA).",
+          "status": "covered",
+          "mappedCapabilityIds": [
+            "gdpr.art28.1",
+            "gdpr.art28.2",
+            "gdpr.art28.particulars",
+            "gdpr.art28.3.mandatory_clauses",
+            "gdpr.art28.9",
+            "gdpr.art28.10"
+          ]
+        }
+      ],
+      "unresolvedNeeds": [],
+      "provenance": [
+        {
+          "id": "gdpr.art28.1",
+          "kind": "rule",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.2",
+          "kind": "rule",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.3.chapeau",
+          "kind": "rule",
+          "source": "explicit_number",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.3.a",
+          "kind": "rule",
+          "source": "explicit_number",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.3.b",
+          "kind": "rule",
+          "source": "explicit_number",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.3.c",
+          "kind": "rule",
+          "source": "explicit_number",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.3.d",
+          "kind": "rule",
+          "source": "explicit_number",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.3.e",
+          "kind": "rule",
+          "source": "explicit_number",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.3.f",
+          "kind": "rule",
+          "source": "explicit_number",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.3.g",
+          "kind": "rule",
+          "source": "explicit_number",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.3.h",
+          "kind": "rule",
+          "source": "explicit_number",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.4",
+          "kind": "rule",
+          "source": "explicit_number",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.9",
+          "kind": "rule",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.10",
+          "kind": "rule",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "explicit article reference"
+        },
+        {
+          "id": "gdpr.art28.1.processor_due_diligence_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.2.prior_subprocessor_authorisation_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.3.chapeau.mandatory_processing_agreement_particulars_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.3.b.confidentiality_of_authorised_persons_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.3.c.processor_security_measures_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.3.d.subprocessor_conditions_and_flow_down_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "dsr_assistance_not_operational",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.3.f.processor_assistance_with_security_breach_dpia_and_consultation_duties_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.3.g.return_or_deletion_after_services_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.3.h.compliance_evidence_audits_and_unlawful_instruction_warning_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.4.subprocessor_equivalent_obligations_and_processor_liability_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.9.written_processor_terms_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.10.processor_acting_as_controller_gap",
+          "kind": "risk_category",
+          "source": "explicit_number",
+          "required": false,
+          "reason": "related risk category (supporting; risk analysis not explicitly requested)"
+        },
+        {
+          "id": "gdpr.art28.particulars",
+          "kind": "package",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "The user explicitly requested a GDPR Article 28 compliance review of a DPA, setting the strict scope boundary to Article 28. To satisfy this review comprehensively, we select the two comprehensive packages covering Article 28(3) mandatory elements (`gdpr.art28.particulars` for Article 28(3) chapeau particulars and `gdpr.art28.3.mandatory_clauses` for Article 28(3)(a)-(h) and 28(4) obligations) along with the individual Article 28 rules (`gdpr.art28.1`, `gdpr.art28.2`, `gdpr.art28.9`, `gdpr.art28.10`). All cross-referenced articles (e.g., Arts 32-36 under Art 28(3)(f)) and adjacent articles (e.g., Art 29) are excluded from requiredIds per instructions."
+        },
+        {
+          "id": "gdpr.art28.3.mandatory_clauses",
+          "kind": "package",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "The user explicitly requested a GDPR Article 28 compliance review of a DPA, setting the strict scope boundary to Article 28. To satisfy this review comprehensively, we select the two comprehensive packages covering Article 28(3) mandatory elements (`gdpr.art28.particulars` for Article 28(3) chapeau particulars and `gdpr.art28.3.mandatory_clauses` for Article 28(3)(a)-(h) and 28(4) obligations) along with the individual Article 28 rules (`gdpr.art28.1`, `gdpr.art28.2`, `gdpr.art28.9`, `gdpr.art28.10`). All cross-referenced articles (e.g., Arts 32-36 under Art 28(3)(f)) and adjacent articles (e.g., Art 29) are excluded from requiredIds per instructions."
+        },
+        {
+          "id": "processor_terms_incomplete",
+          "kind": "risk_category",
+          "source": "phrase_map",
+          "required": false,
+          "reason": "authored phrase map (supporting signal)"
+        },
+        {
+          "id": "subprocessor_authorisation_or_flowdown_gap",
+          "kind": "risk_category",
+          "source": "phrase_map",
+          "required": false,
+          "reason": "authored phrase map (supporting signal)"
+        },
+        {
+          "id": "processor_return_deletion_gap",
+          "kind": "risk_category",
+          "source": "phrase_map",
+          "required": false,
+          "reason": "authored phrase map (supporting signal)"
+        },
+        {
+          "id": "processor_audit_evidence_gap",
+          "kind": "risk_category",
+          "source": "phrase_map",
+          "required": false,
+          "reason": "authored phrase map (supporting signal)"
+        },
+        {
+          "id": "security_measures_not_risk_based",
+          "kind": "risk_category",
+          "source": "phrase_map",
+          "required": false,
+          "reason": "authored phrase map (supporting signal)"
+        }
+      ],
+      "resolvedPackageIds": [
+        "gdpr.art28.particulars",
+        "gdpr.art28.3.mandatory_clauses"
+      ],
+      "requirementToPackageId": {
+        "gdpr.article28.compliance": "dpa.structural_review",
+        "subject_matter": "gdpr.art28.particulars",
+        "duration": "gdpr.art28.particulars",
+        "nature_purpose": "gdpr.art28.particulars",
+        "data_categories": "gdpr.art28.particulars",
+        "data_subject_categories": "gdpr.art28.particulars",
+        "controller_obligations_rights": "gdpr.art28.particulars",
+        "art28_3_a_instructions": "gdpr.art28.3.mandatory_clauses",
+        "art28_3_b_confidentiality": "gdpr.art28.3.mandatory_clauses",
+        "art28_3_c_security": "gdpr.art28.3.mandatory_clauses",
+        "art28_3_d_subprocessors": "gdpr.art28.3.mandatory_clauses",
+        "art28_3_e_dsr_assistance": "gdpr.art28.3.mandatory_clauses",
+        "art28_3_f_security_assistance": "gdpr.art28.3.mandatory_clauses",
+        "art28_3_g_deletion_return": "gdpr.art28.3.mandatory_clauses",
+        "art28_3_h_audit": "gdpr.art28.3.mandatory_clauses",
+        "art28_4_subprocessor_flow_down": "gdpr.art28.3.mandatory_clauses"
+      },
+      "requirementExecutionPaths": [
+        {
+          "requirementId": "gdpr.article28.compliance",
+          "status": "supported",
+          "packageId": "dpa.structural_review",
+          "requirementType": "adequacy"
+        }
+      ],
+      "rawIntent": {
+        "scope": "whole_document",
+        "operation": "compliance_check",
+        "standard": "regime_pack:regimes/data-protection/gdpr",
+        "standardConcept": "GDPR Article 28",
+        "outputForm": "memo",
+        "reportType": "regime_compliance_memo",
+        "depth": "standard",
+        "compound": false,
+        "subIntents": [],
+        "requirements": [
+          {
+            "id": "gdpr.article28.compliance",
+            "description": "Perform a GDPR Article 28 compliance review of the Data Protection Agreement (DPA).",
+            "type": "adequacy",
+            "priority": "required"
+          }
+        ],
+        "unresolvedNeeds": [],
+        "confidence": {
+          "scope": 0.95,
+          "operation": 0.95,
+          "standard": 0.95,
+          "outputForm": 0.9
+        },
+        "docTypeHint": "dpa",
+        "documentPresentation": "unified"
+      },
+      "intentNormalizations": [],
+      "scopeAudit": []
+    },
+    "requirementExecutionPaths": [
+      {
+        "requirementId": "gdpr.article28.compliance",
+        "status": "supported",
+        "packageId": "dpa.structural_review",
+        "requirementType": "adequacy"
+      }
+    ],
+    "pinnedVersions": {
+      "clauseTaxonomyVersion": "1.2.0",
+      "riskTaxonomyVersion": "1.1.0",
+      "modelTask": "STRUCTURAL_JSON"
+    }
+  }
+}

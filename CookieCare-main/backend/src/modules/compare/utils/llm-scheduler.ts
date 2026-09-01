@@ -43,20 +43,37 @@
 
 // ─── Configuration ────────────────────────────────────────────────────────────
 
-/** How many Gemini requests are allowed within WINDOW_MS before pacing kicks in */
-const REQUESTS_PER_WINDOW = Number(process.env.GEMINI_REQUESTS_PER_WINDOW || 8);
-
-/** Rolling window duration in ms used for adaptive pacing */
-const WINDOW_MS = Number(process.env.GEMINI_WINDOW_MS || 12_000);
-
-/** Minimum inter-request gap when running at full throughput (ms) */
-const MIN_INTER_REQUEST_MS = Number(process.env.GEMINI_MIN_GAP_MS || 400);
-
 /**
- * Max in-flight Gemini calls. Set to 1 for free/low quotas; the multi-region
- * pool and 429 failover absorb bursts above that.
+ * Per-lane pacing config. Generation and embedding calls hit different Gemini
+ * quota pools, so they get independently-tuned scheduler instances rather than
+ * sharing one budget — a burst of clause embeddings must never starve (or be
+ * starved by) chat/JSON generation calls. See constructor below.
  */
-const MAX_IN_FLIGHT = Math.max(1, Number(process.env.GEMINI_MAX_IN_FLIGHT || 4));
+export interface SchedulerConfig {
+  /** How many requests are allowed within windowMs before pacing kicks in */
+  requestsPerWindow: number;
+  /** Rolling window duration in ms used for adaptive pacing */
+  windowMs: number;
+  /** Minimum inter-request gap when running at full throughput (ms) */
+  minInterRequestMs: number;
+  /** Max in-flight calls. The multi-region pool + 429 failover absorb bursts above this. */
+  maxInFlight: number;
+}
+
+const DEFAULT_CONFIG: SchedulerConfig = {
+  requestsPerWindow: Number(process.env.GEMINI_REQUESTS_PER_WINDOW || 8),
+  windowMs: Number(process.env.GEMINI_WINDOW_MS || 12_000),
+  minInterRequestMs: Number(process.env.GEMINI_MIN_GAP_MS || 400),
+  maxInFlight: Math.max(1, Number(process.env.GEMINI_MAX_IN_FLIGHT || 4)),
+};
+
+/** Embedding lane — separate, generous budget (embedding quota » Pro generation quota). */
+const EMBED_CONFIG: SchedulerConfig = {
+  requestsPerWindow: Number(process.env.GEMINI_EMBED_REQUESTS_PER_WINDOW || 60),
+  windowMs: Number(process.env.GEMINI_EMBED_WINDOW_MS || 12_000),
+  minInterRequestMs: Number(process.env.GEMINI_EMBED_MIN_GAP_MS || 50),
+  maxInFlight: Math.max(1, Number(process.env.GEMINI_EMBED_MAX_IN_FLIGHT || 4)),
+};
 
 /** Base backoff delay for the first 429 retry (ms) */
 const BASE_BACKOFF_MS = 2_000;
@@ -140,6 +157,8 @@ function sleep(ms: number): Promise<void> {
 // ─── Scheduler class ──────────────────────────────────────────────────────────
 
 export class GeminiScheduler {
+  private readonly config: SchedulerConfig;
+
   /** Timestamps (epoch ms) of the last N started requests */
   private readonly requestTimestamps: number[] = [];
 
@@ -155,8 +174,12 @@ export class GeminiScheduler {
     totalLlmMs: 0,
   };
 
+  constructor(config: SchedulerConfig = DEFAULT_CONFIG) {
+    this.config = config;
+  }
+
   private async acquireSlot(): Promise<void> {
-    if (this.inFlight < MAX_IN_FLIGHT) {
+    if (this.inFlight < this.config.maxInFlight) {
       this.inFlight += 1;
       return;
     }
@@ -182,7 +205,7 @@ export class GeminiScheduler {
    */
   private computePaceDelay(): number {
     const now = Date.now();
-    const windowStart = now - WINDOW_MS;
+    const windowStart = now - this.config.windowMs;
 
     // Drop timestamps outside the rolling window
     while (
@@ -192,18 +215,18 @@ export class GeminiScheduler {
       this.requestTimestamps.shift();
     }
 
-    if (this.requestTimestamps.length < REQUESTS_PER_WINDOW) {
+    if (this.requestTimestamps.length < this.config.requestsPerWindow) {
       // Below rate threshold — only enforce minimum gap
       if (this.requestTimestamps.length === 0) return 0;
       const lastTs = this.requestTimestamps[this.requestTimestamps.length - 1];
       const gap = now - lastTs;
-      return gap >= MIN_INTER_REQUEST_MS ? 0 : MIN_INTER_REQUEST_MS - gap;
+      return gap >= this.config.minInterRequestMs ? 0 : this.config.minInterRequestMs - gap;
     }
 
     // At or above threshold — compute delay to push oldest request out of window
     const oldestInWindow = this.requestTimestamps[0];
-    const timeUntilWindowSlides = WINDOW_MS - (now - oldestInWindow);
-    return Math.max(0, timeUntilWindowSlides + MIN_INTER_REQUEST_MS);
+    const timeUntilWindowSlides = this.config.windowMs - (now - oldestInWindow);
+    return Math.max(0, timeUntilWindowSlides + this.config.minInterRequestMs);
   }
 
   private recordRequest(): void {
@@ -234,7 +257,7 @@ export class GeminiScheduler {
       if (paceDelay > 0) {
         console.log(
           `[GeminiScheduler] Pacing ${paceDelay}ms before ${label} ` +
-            `(${this.requestTimestamps.length}/${REQUESTS_PER_WINDOW} requests in window, inFlight=${this.inFlight})`
+            `(${this.requestTimestamps.length}/${this.config.requestsPerWindow} requests in window, inFlight=${this.inFlight})`
         );
         this.stats.totalWaitMs += paceDelay;
         await sleep(paceDelay);
@@ -315,7 +338,15 @@ export class GeminiScheduler {
 // ─── Global singleton ─────────────────────────────────────────────────────────
 
 /**
- * Single shared scheduler for all Compare pipeline LLM calls.
- * Exported so the workflow can retrieve stats after execution.
+ * Single shared scheduler for all Compare pipeline (and general PAC) LLM
+ * generation calls. Exported so the workflow can retrieve stats after execution.
  */
-export const geminiScheduler = new GeminiScheduler();
+export const geminiScheduler = new GeminiScheduler(DEFAULT_CONFIG);
+
+/**
+ * Separate lane for embedding calls (Semantic Retrieval plan, R0). Embedding
+ * quota is a different, larger pool than chat/JSON generation — a burst of
+ * clause embeddings must never starve (or be starved by) generation calls,
+ * so this is a fully independent scheduler instance, not a shared budget.
+ */
+export const geminiEmbedScheduler = new GeminiScheduler(EMBED_CONFIG);

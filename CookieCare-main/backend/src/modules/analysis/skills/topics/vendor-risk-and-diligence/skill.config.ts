@@ -1,4 +1,8 @@
-import type { AnalysisSkillConfig, SkillRegimeRule } from "../../runtime/catalog/types.js";
+import type {
+  AnalysisSkillConfig,
+  PropositionPattern,
+  SkillRegimeRule,
+} from "../../runtime/catalog/types.js";
 
 function rule(
   ruleId: string,
@@ -68,6 +72,74 @@ const NIST_RULES: SkillRegimeRule[] = [
 
 const RULES = [...EBA_RULES, ...NIST_RULES];
 
+/**
+ * S2 negotiation-risk patterns (Plan-Phase 5). Distinct from the EBA/NIST
+ * regimeRules above — those are regulatory compliance checks; these are
+ * general commercial-risk patterns PLAN's generate-propositions.ts matches
+ * against whatever the inventory pass actually found in the document.
+ * Authoring bar: would a first-year associate know exactly what to check and
+ * reject from this sentence alone (ACT_AND_PLAN_REDESIGN_RESEARCH.md Phase 3).
+ */
+const VENDOR_RISK_PATTERNS: PropositionPattern[] = [
+  {
+    id: "termination_asymmetry",
+    clauseTypes: ["termination"],
+    hypothesis: "The termination rights in this agreement are not balanced between the parties.",
+    proofStandard:
+      "Compare each party's termination grounds and notice/cure periods as stated. Flag as " +
+      "asymmetric only if one party may terminate for convenience, or on materially shorter " +
+      "notice or more lenient breach/cure thresholds, than the other — cite the specific " +
+      "sub-clause granting the narrower right. Do not flag a difference that reflects the " +
+      "parties' different roles (e.g. a data controller's statutory right to object to a " +
+      "subprocessor change) as asymmetry, and do not flag it if both parties' rights match on " +
+      "their face.",
+    priority: 80,
+  },
+  {
+    id: "liability_cap_adequacy",
+    clauseTypes: ["limitation_of_liability"],
+    hypothesis: "The liability cap may not adequately protect {{party}}.",
+    proofStandard:
+      "Identify the stated cap (a fee multiple, fixed sum, or carve-out structure) and whether " +
+      "{{party}}'s realistic exposure — data breach costs, third-party claims, regulatory fines " +
+      "— could exceed it. Flag as inadequate for {{party}} only if the cap is below 12 months' " +
+      "fees AND has no carve-out excluding data-breach or confidentiality liability from the " +
+      "cap. A cap that excludes those categories from the cap (i.e. leaves them uncapped) is " +
+      "adequate. Do not flag a cap as inadequate merely because a cap exists — a cap is a normal " +
+      "commercial term.",
+    priority: 90,
+  },
+  {
+    id: "indemnification_scope",
+    clauseTypes: ["indemnity"],
+    hypothesis: "The indemnification obligations may be one-sided or too narrow to cover {{party}}'s realistic risk.",
+    proofStandard:
+      "Check whether indemnification runs in both directions or only from one party, and " +
+      "whether the indemnified categories include the risks relevant to this agreement (data " +
+      "breach, IP infringement, third-party claims, confidentiality breach). Flag as inadequate " +
+      "for {{party}} only if indemnification does not run in {{party}}'s favor for the " +
+      "counterparty's own breaches, or if data-protection/confidentiality breaches are excluded " +
+      "from the indemnified categories entirely. Do not flag standard carve-outs (e.g. excluding " +
+      "indirect/consequential damages) as inadequate — that is ordinary drafting.",
+    priority: 85,
+  },
+  {
+    id: "audit_rights_adequacy",
+    clauseTypes: ["audit_rights"],
+    hypothesis: "The audit rights may be insufficient for {{party}} to verify compliance.",
+    proofStandard:
+      "Identify whether {{party}} has the right to audit the counterparty's data-processing " +
+      "controls, including: frequency (at least annually), scope (access to relevant records, " +
+      "facilities, and personnel), who may conduct the audit ({{party}} directly or an " +
+      "independent third-party auditor), and whether prior notice is required. Flag as inadequate " +
+      "only if audit rights are absent entirely, limited to reviewing SOC reports with no " +
+      "on-site option, or subject to unreasonable conditions (e.g. counterparty can refuse an " +
+      "audit without cause). Do not flag reasonable administrative requirements (advance notice, " +
+      "confidentiality of audit findings) as inadequate.",
+    priority: 70,
+  },
+];
+
 export const vendorRiskDiligenceSkill: AnalysisSkillConfig = {
   skillId: "topics/vendor-risk-and-diligence",
   axis: "topic",
@@ -82,6 +154,14 @@ export const vendorRiskDiligenceSkill: AnalysisSkillConfig = {
     "vendor diligence",
     "third-party risk",
     "critical or important function",
+    "biggest weaknesses",
+    "what should i negotiate",
+    "negotiation risk",
+    "unfavorable terms",
+    "contract weaknesses",
+    "top risks",
+    "key risks",
+    "main risks",
   ],
   promptLibraryIds: ["vendor-risk", "eba-outsourcing", "nist-800-161"],
   clauseTypes: [
@@ -144,6 +224,7 @@ export const vendorRiskDiligenceSkill: AnalysisSkillConfig = {
   ],
   regimeRules: RULES,
   regimeRuleIds: RULES.map((r) => r.ruleId),
+  propositionPatterns: VENDOR_RISK_PATTERNS,
   instructionFocusMap: [
     {
       triggerPhrases: ["eba", "outsourcing", "critical or important"],

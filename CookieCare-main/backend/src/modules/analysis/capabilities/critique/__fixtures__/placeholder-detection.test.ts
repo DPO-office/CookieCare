@@ -2,7 +2,7 @@ process.env.GOOGLE_CLOUD_PROJECT ??= "placeholder-detection-test";
 
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import type { AnalysisState } from "../../models/analysis-state.js";
+import type { AnalysisState } from "../../../models/analysis-state.js";
 import { detectPlaceholderOutput } from "../placeholder-report.js";
 
 function stateWithOutput(output: string, assessments = []): AnalysisState {

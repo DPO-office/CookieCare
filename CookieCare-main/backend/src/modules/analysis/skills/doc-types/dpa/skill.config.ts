@@ -272,6 +272,7 @@ export const dpaDocTypeSkill: AnalysisSkillConfig = {
       orchestration: {
         role: "structural_review",
         suppressWhenMatrixFocus: true,
+        suppressWhenPeerEvaluation: true,
       },
       report: {
         sections: [

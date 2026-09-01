@@ -20,6 +20,18 @@ export type AnalysisProfile = {
   synthesisHardCap: number;
   /** Per-capability quoted-evidence character budget for locate/evaluate. */
   evidenceCharBudget: number;
+  /**
+   * ACT-Phase 10 — max recall-oriented candidates VERIFY checks per
+   * requirement. Kept identical for Lite and Deep (currently 10): shrinking
+   * this for Lite was tried and reverted after it empirically missed the
+   * correct clause on a real document (see LITE_PROFILE's comment) — the
+   * existing candidate-ranking heuristic isn't reliable enough to cut this
+   * safely yet. Lite's scope reduction comes from
+   * `verifySkipSupportingPriority` instead.
+   */
+  verifyCandidateCap: number;
+  /** ACT-Phase 10 — skip PLAN-authored "supporting"-priority requirements under Lite; keep "required". */
+  verifySkipSupportingPriority: boolean;
 };
 
 const LITE_PROFILE: AnalysisProfile = {
@@ -32,12 +44,30 @@ const LITE_PROFILE: AnalysisProfile = {
     [LLMTask.STRUCTURAL_JSON_LITE]: "minimal",
     [LLMTask.STRUCTURAL_JSON]: "low",
     [LLMTask.REFINEMENT]: "low",
+    // Deliberately no CRITIQUE_CHECKLIST override here: research doc §10 is
+    // explicit that VERIFY's own rigor must not differ between Lite and
+    // Deep ("budget as scope, never as rigor" — a wrong Present is exactly
+    // as much a liability in a 2-minute Lite run). Falls through to
+    // model-specs.ts's "high" default, identical to Deep's explicit "high"
+    // below. Lite saves time via candidate cap / requirement inclusion
+    // (verifyCandidateCap, verifySkipSupportingPriority) — scope, not depth
+    // of any individual check.
   },
   critiqueUsesProChecklist: false,
   synthesisCeilingFactor: 1,
   /** Per-section synthesis hard cap (sections are generated independently). */
   synthesisHardCap: 3600,
   evidenceCharBudget: 2_000,
+  // ACT-Phase 10 — deliberately the SAME as Deep, not lower. Verified
+  // empirically on a real NDA: the recall pool's existing generic ranking
+  // heuristic placed the actual return/destroy clause at position 6 of 40,
+  // so a cap of 5 silently missed it — a real "identical correctness"
+  // violation (research doc §10: "budget as scope, never as rigor"), not
+  // an acceptable Lite tradeoff. Lite's savings come from
+  // verifySkipSupportingPriority alone; shrinking recall itself is not
+  // safe until the ranking heuristic is proven reliable enough to cut.
+  verifyCandidateCap: 10,
+  verifySkipSupportingPriority: true,
 };
 
 const DEEP_PROFILE: AnalysisProfile = {
@@ -57,6 +87,8 @@ const DEEP_PROFILE: AnalysisProfile = {
   /** Per-section synthesis hard cap (sections are generated independently). */
   synthesisHardCap: 6400,
   evidenceCharBudget: 8_000,
+  verifyCandidateCap: 10,
+  verifySkipSupportingPriority: false,
 };
 
 /** API / UI default when the field is omitted. */

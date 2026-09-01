@@ -6,6 +6,7 @@ async function connectWithRetry(retries = 5, delay = 2000): Promise<any> {
   for (let i = 0; i < retries; i++) {
     try {
       const client = await pool.connect();
+      console.log("Connected to database.");
       return client;
     } catch (err: any) {
       const isLast = i === retries - 1;
@@ -30,6 +31,62 @@ async function connectWithRetry(retries = 5, delay = 2000): Promise<any> {
   throw new Error("Failed to connect to database after retries");
 }
 
+async function queryWithTimeout(
+  client: any,
+  text: string,
+  params: unknown[] | undefined,
+  ms: number
+): Promise<any> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(
+      () => reject(new Error(`Database query timed out after ${ms}ms: ${text.slice(0, 80)}`)),
+      ms
+    );
+  });
+  try {
+    return await Promise.race([
+      params ? client.query(text, params) : client.query(text),
+      timeout,
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+async function ensureVectorExtension(client: any): Promise<void> {
+  try {
+    const installed = await queryWithTimeout(
+      client,
+      `SELECT 1 FROM pg_extension WHERE extname = 'vector' LIMIT 1`,
+      undefined,
+      8000
+    );
+    if (installed.rowCount) {
+      console.log("pgvector extension already installed.");
+      return;
+    }
+  } catch (err: any) {
+    console.warn(`Could not check pgvector (${err.message || err}). Continuing without it.`);
+    return;
+  }
+
+  try {
+    console.log("Installing pgvector extension...");
+    // One round-trip so PgBouncer keeps SET + CREATE EXTENSION together.
+    await queryWithTimeout(
+      client,
+      `SET lock_timeout = '8s'; SET statement_timeout = '12s'; CREATE EXTENSION IF NOT EXISTS vector;`,
+      undefined,
+      15000
+    );
+  } catch (err: any) {
+    console.warn(
+      `Skipping pgvector extension (${err.message || err}). Embeddings may be unavailable.`
+    );
+  }
+}
+
 async function setupDb() {
   if (config.skipDb) {
     console.log("SKIP_DB=true — skipping database setup.");
@@ -37,12 +94,47 @@ async function setupDb() {
   }
 
   const client = await connectWithRetry();
+  let inTransaction = false;
+  let timedOut = false;
 
   try {
-    await client.query("BEGIN");
-    console.log("Starting database setup...");
+    // SET LOCAL must live inside a transaction — Neon pooler / PgBouncer
+    // discards session SET between queries.
+    console.log("Checking whether the schema already exists...");
+    await queryWithTimeout(client, "BEGIN", undefined, 8000);
+    inTransaction = true;
+    await client.query("SET LOCAL lock_timeout = '8s'");
+    await client.query("SET LOCAL statement_timeout = '15s'");
 
-    await client.query("CREATE EXTENSION IF NOT EXISTS vector;");
+    const existing = await queryWithTimeout(
+      client,
+      `SELECT to_regclass('public.users') AS users_table`,
+      undefined,
+      10000
+    );
+    const schemaReady = Boolean(existing.rows[0]?.users_table);
+
+    if (schemaReady) {
+      // Do not ALTER TABLE on every `npm run dev`. ADD COLUMN takes an
+      // AccessExclusiveLock and will fail (or hang) if another session is
+      // idle-in-transaction — which is exactly how the previous setup freeze
+      // left the database.
+      await client.query("COMMIT");
+      inTransaction = false;
+      console.log("Database schema already present — skipping setup.");
+      return;
+    }
+
+    await client.query("COMMIT");
+    inTransaction = false;
+
+    console.log("Starting first-time database setup...");
+    await ensureVectorExtension(client);
+
+    await queryWithTimeout(client, "BEGIN", undefined, 8000);
+    inTransaction = true;
+    await client.query("SET LOCAL lock_timeout = '8s'");
+    await client.query("SET LOCAL statement_timeout = '60s'");
 
     // Tables Creation
     await client.query(`
@@ -375,7 +467,8 @@ async function setupDb() {
     }
 
     await client.query("COMMIT");
-    console.log("Database setup successful.");
+    inTransaction = false;
+    console.log("Database schema created.");
 
     // ── Seed Prompt & Question Library items (idempotent) ─────────────────
     // These are scoped to the admin user so they appear in the Vault Repository.
@@ -427,14 +520,39 @@ async function setupDb() {
     }
 
     console.log("Prompt and Question library seeds applied.");
+    console.log("Database setup successful.");
 
-  } catch (err) {
-    await client.query("ROLLBACK");
-    console.error("Database setup failed, transaction rolled back:", err);
+  } catch (err: any) {
+    timedOut = /timed out/i.test(err?.message || "");
+    if (inTransaction) {
+      try {
+        await client.query("ROLLBACK");
+      } catch {
+        // Connection may already be dead after a timeout.
+      }
+      inTransaction = false;
+    }
+    console.error("Database setup failed:", err?.message || err);
+    if (timedOut) {
+      console.error(
+        "A previous Node process is likely holding a database lock. Stop the frozen `npm run dev` with Ctrl+C, then retry."
+      );
+    }
     throw err;
   } finally {
-    client.release();
-    pool.end();
+    try {
+      client.release(true);
+    } catch {
+      // ignore
+    }
+    try {
+      await Promise.race([
+        pool.end(),
+        new Promise((resolve) => setTimeout(resolve, 2000)),
+      ]);
+    } catch {
+      // ignore
+    }
   }
 }
 

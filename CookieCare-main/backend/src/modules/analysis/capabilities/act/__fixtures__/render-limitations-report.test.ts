@@ -2,7 +2,7 @@ process.env.GOOGLE_CLOUD_PROJECT ??= "render-limitations-test";
 
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import type { AnalysisState } from "../../models/analysis-state.js";
+import type { AnalysisState } from "../../../models/analysis-state.js";
 import { renderLimitationsReport } from "../render-limitations-report.js";
 
 describe("render limitations report", () => {

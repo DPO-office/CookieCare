@@ -12,7 +12,7 @@ export async function persistAnalysis(state: AnalysisState): Promise<AnalysisSta
     next.agent?.phase === "DONE" && next.agent.stoppedReason !== "awaiting_user"
       ? next.declineMessage || next.renderedOutput
       : undefined;
-  if (released) emitAnalysisToken(next, released);
+  if (released && (next.userFacingCharsEmitted ?? 0) === 0) emitAnalysisToken(next, released);
 
   if (next.declineMessage) {
     next = appendConversationTurns(next, [

@@ -1,6 +1,10 @@
 import type { AnalysisState } from "../models/analysis-state.js";
 import type { Finding } from "../models/finding.js";
 import type { RightsMatrixRow } from "../skills/runtime/catalog/types.js";
+import {
+  findingSupportsRequirement,
+  isWholeArticleRequirement,
+} from "./requirement-identity.js";
 
 /** Authored risk categories that map to a specific GDPR article. */
 const CATEGORY_ARTICLE: Record<string, number> = {
@@ -71,28 +75,93 @@ export function articleNumberFromRequirementId(requirementId: string): number | 
 }
 
 /**
- * Findings that speak to the same article as a requirement — even when they
- * were stamped against a matrix row or risk category rather than the
- * requirement id itself.
+ * Letter/paragraph grain for an id (`28.3.a`, `28.4`, `12.3`). Lettered
+ * sub-provisions must not inherit every finding that merely shares the
+ * parent article number.
+ */
+export function subprovisionKeyFromId(id: string): string | undefined {
+  if (!id) return undefined;
+  const lettered = id.match(
+    /(?:^|[._-])art(?:icle)?[._-]?(\d{1,3})[._-](\d+)[._-]([a-h])(?=$|[._-])/i
+  );
+  if (lettered) {
+    return `${lettered[1]}.${lettered[2]}.${lettered[3].toLowerCase()}`;
+  }
+  const named = id.match(
+    /(?:^|[._-])art(?:icle)?[._-]?(\d{1,3})[._-](\d+)[._-](chapeau)(?=$|[._-])/i
+  );
+  if (named) {
+    return `${named[1]}.${named[2]}.chapeau`;
+  }
+  const paragraph = id.match(
+    /(?:^|[._-])art(?:icle)?[._-]?(\d{1,3})[._-](\d+)(?=$|[._-])/i
+  );
+  if (paragraph) {
+    return `${paragraph[1]}.${paragraph[2]}`;
+  }
+  return undefined;
+}
+
+function findingSubprovisionKey(finding: Finding): string | undefined {
+  return (
+    (finding.requirementId
+      ? subprovisionKeyFromId(finding.requirementId)
+      : undefined) ||
+    (finding.ruleId ? subprovisionKeyFromId(finding.ruleId) : undefined)
+  );
+}
+
+/**
+ * Findings that speak to a requirement — by canonical/alias stamp, lettered
+ * subprovision key, or (whole-article requirements only) unstamped same-article
+ * matrix/rule/risk findings.
+ *
+ * Lettered/numbered sub-provisions stay isolated: a deletion finding must
+ * not become the evidence row for confidentiality or audit.
+ * Particular PLAN ids like `gdpr.article28.duration` must not inherit every
+ * unstamped Article 28 risk.
  */
 export function findingsLinkedToRequirement(
   requirementId: string,
   findings: Finding[],
   state?: AnalysisState
 ): Finding[] {
-  const direct = findings.filter((f) => f.requirementId === requirementId);
+  const direct = findings.filter((f) =>
+    findingSupportsRequirement(f.requirementId, requirementId)
+  );
   const meta = metaRequirementFindings(requirementId, findings);
   if (meta) return dedupeFindings([...direct, ...meta]);
 
+  const reqKey = subprovisionKeyFromId(requirementId);
+  if (reqKey) {
+    const keyed = findings.filter((f) => {
+      if (f.visibility === "internal") return false;
+      if (findingSupportsRequirement(f.requirementId, requirementId)) return true;
+      // Already-stamped findings belong only to their requirement (or alias).
+      if (f.requirementId) return false;
+      return findingSubprovisionKey(f) === reqKey;
+    });
+    return dedupeFindings(keyed);
+  }
+
+  // Particular / topic requirements: aliases only — no article-wide risk dump.
+  if (!isWholeArticleRequirement(requirementId)) {
+    return dedupeFindings(direct);
+  }
+
   const article = articleNumberFromRequirementId(requirementId);
-  if (!article) return direct;
+  if (!article) return dedupeFindings(direct);
 
   const linked = findings.filter((f) => {
-    if (f.requirementId === requirementId) return false;
+    if (findingSupportsRequirement(f.requirementId, requirementId)) return false;
     if (f.visibility === "internal") return false;
+    // A finding already stamped to another requirement is that row's
+    // evidence, not a generic same-article hit.
+    if (f.requirementId) return false;
+    if (findingSubprovisionKey(f)) return false;
     return articleNumberForFinding(f, state) === article;
   });
-  return [...direct, ...linked];
+  return dedupeFindings([...direct, ...linked]);
 }
 
 function metaRequirementFindings(

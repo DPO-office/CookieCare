@@ -8,7 +8,7 @@ import { NARRATIVE_REPORT_SYSTEM_PROMPT_WITH_CRAFT } from "../../../prompts/rend
 describe("LEGAL_MEMO_MARKDOWN_CRAFT", () => {
   it("defines selective bold, status-led headings, and bans chatty closers", () => {
     assert.match(LEGAL_MEMO_MARKDOWN_CRAFT, /Selective bold/);
-    assert.match(LEGAL_MEMO_MARKDOWN_CRAFT, /Strong, Adequate, Conditional, Gap/);
+    assert.match(LEGAL_MEMO_MARKDOWN_CRAFT, /Present & adequate, Present, particulars in schedule, Minor drafting gap, Gap/);
     assert.match(LEGAL_MEMO_MARKDOWN_CRAFT, /Status-led subheadings/);
     assert.match(LEGAL_MEMO_MARKDOWN_CRAFT, /No chatty closers/);
     assert.match(LEGAL_MEMO_MARKDOWN_CRAFT, /Let me know if you'd like/);

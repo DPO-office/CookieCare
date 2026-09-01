@@ -1,12 +1,18 @@
 import type { AgentRunState, EntryMode } from "../pac/types.js";
 import type { AnalysisProfile, ThinkingMode } from "../pac/analysis-profile.js";
-import type { AnalysisPlan, MissingClarification, PlanAuditRecord } from "./analysis-plan.js";
+import type {
+  AnalysisPlan,
+  DocumentRoleResolution,
+  MissingClarification,
+  PlanAuditRecord,
+} from "./analysis-plan.js";
 import type { CritiqueReport, FixItem } from "./critique-report.js";
 import type { AuditReport } from "./audit-report.js";
 import type { AnalysisConversation } from "./conversation.js";
 import type { AnalysisWorkspace } from "./document-workspace.js";
 import type { Finding } from "./finding.js";
 import type { RequirementAssessment } from "./requirement-assessment.js";
+import type { AnalyticalSynthesis } from "./analytical-synthesis.js";
 import type { AnalysisArtifact, SharedEvidenceBundle } from "./evidence-package.js";
 import type { DraftTask } from "./draft-task.js";
 import type {
@@ -63,6 +69,7 @@ export interface PriorAnalysisSnapshot {
   analysisArtifacts?: Record<string, AnalysisArtifact>;
   renderedOutput?: string;
   activeSkillIds?: string[];
+  analyticalSynthesis?: AnalyticalSynthesis;
 }
 
 export interface AnalysisFixPlan {
@@ -73,6 +80,10 @@ export interface AnalysisFixPlan {
 export interface AnalysisState {
   onProgress?: (percent: number, message: string) => Promise<void>;
   onToken?: (delta: string) => void;
+  /** When true, renderer tokens may reach the UI during ACT/AUDIT. */
+  streamRenderOutput?: boolean;
+  /** Chars already sent via onToken — persist skips a duplicate dump. */
+  userFacingCharsEmitted?: number;
 
   entryMode?: EntryMode;
   agent?: AgentRunState;
@@ -118,6 +129,14 @@ export interface AnalysisState {
 
   workspace: AnalysisWorkspace;
   intent?: IntentClassification | null;
+  /** Set by classify-intent (§5.1); carried into plan.documentRoleResolution by build-plan. */
+  documentRoleResolution?: DocumentRoleResolution;
+  /**
+   * Document-role / party-perspective clarifications found before buildPlan
+   * runs — build-plan prepends these into plan.missingClarifications so ASK
+   * picks them up through the existing mustAskUser() path.
+   */
+  pendingDocumentClarifications?: MissingClarification[];
   /** Resolved in PLAN from promptLibraryId or free-text selection. */
   activeSkills?: AnalysisSkillConfig[];
   activeSkillIds?: string[];
@@ -140,6 +159,10 @@ export interface AnalysisState {
    * Never an authoritative verdict store — derived from findings in ACT.
    */
   requirementAssessments?: RequirementAssessment[];
+  /**
+   * Interpretive layer over locked assessments. Must not mutate statuses.
+   */
+  analyticalSynthesis?: AnalyticalSynthesis | null;
   /** Shared evidence extracted once per package and reused by evaluations. */
   sharedEvidence?: Record<string, SharedEvidenceBundle>;
   /** Structured package outputs (inventories, comparisons). Keyed by artifact id. */

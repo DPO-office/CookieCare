@@ -78,6 +78,24 @@ export interface EvidencePackage {
   clauseTypes: string[];
   /** Named evidence targets the grouped evaluation expects to reason over. */
   extractionTargets: string[];
+  /**
+   * Per-requirement hypothesis and evidence hints for isolated evaluation.
+   * Authored on the skill package; generic handlers never hard-code ids.
+   */
+  requirementEvidence?: Record<
+    string,
+    {
+      hypothesis?: string;
+      evidenceHints?: string[];
+      /** ACT-Phase 3 — precise proof criteria; see RequirementEvidenceProfile. */
+      proofStandard?: string;
+    }
+  >;
+  /**
+   * Optional requirementId → capabilityIds map. When omitted and both arrays
+   * are the same length, requirementIds are zipped to capabilityIds.
+   */
+  requirementBindings?: Record<string, string[]>;
   /** Provenance of the package definition — controls tier separation. */
   sourceMode: EvidencePackageSourceMode;
   /** Optional authored version for audit reproducibility. */
@@ -126,6 +144,11 @@ export interface PackageOrchestration {
   role?: PackageOrchestrationRole;
   /** Skip this package when instruction focus has matrix rows and the ask is not structural. */
   suppressWhenMatrixFocus?: boolean;
+  /**
+   * Skip this structural package when another non-structural evaluation
+   * package is already selected (avoids duplicate DPA+regime rows).
+   */
+  suppressWhenPeerEvaluation?: boolean;
   /** Non-matrix capability ids treated as leftover-covered when deferring to the matrix subgraph. */
   matrixDeferCapabilities?: string[];
 }

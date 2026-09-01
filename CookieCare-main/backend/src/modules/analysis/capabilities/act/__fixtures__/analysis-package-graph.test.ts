@@ -15,7 +15,7 @@ import {
   bothSkills,
   gdpr,
   intent,
-} from "../../../__test-helpers__/package-graph-fixtures.js";
+} from "../../../../__test-helpers__/package-graph-fixtures.js";
 
 const ART28_REVIEW =
   "Perform a rigorous GDPR Article 28 compliance review. Verify mandatory Article 28(3) clauses.";
@@ -361,6 +361,66 @@ describe("kinded analysis packages — existing GDPR grouped eval", () => {
     assert.ok(
       resolution.packages.some((p) => p.pkg.id === "gdpr.art28.3.mandatory_clauses")
     );
+  });
+
+  it("absorbs leftover Art 28.1/2/10 into package context and does not schedule competing rules or flag_risk", () => {
+    const skill = gdpr();
+    const scope = extractExplicitScope(ART28_REVIEW);
+    const art28Focus = focus({
+      instructionText: ART28_REVIEW,
+      ruleIds: [
+        "gdpr.art28.1",
+        "gdpr.art28.2",
+        "gdpr.art28.3.a",
+        "gdpr.art28.3.b",
+        "gdpr.art28.10",
+      ],
+      riskCategoryIds: [
+        "processor_terms_incomplete",
+        "processor_audit_evidence_gap",
+      ],
+      selectedPackageIds: ["gdpr.art28.particulars", "gdpr.art28.3.mandatory_clauses"],
+      explicitScope: scope,
+    });
+    const resolution = resolvePackages([skill], art28Focus);
+    assert.ok(
+      !resolution.leftoverRuleIds.includes("gdpr.art28.1"),
+      `leftover still has art28.1: ${resolution.leftoverRuleIds.join(", ")}`
+    );
+    assert.ok(!resolution.leftoverRuleIds.includes("gdpr.art28.2"));
+    assert.ok(!resolution.leftoverRuleIds.includes("gdpr.art28.10"));
+    const absorbed = resolution.packages.some((p) =>
+      p.contextCapabilityIds.some((id) =>
+        ["gdpr.art28.1", "gdpr.art28.2", "gdpr.art28.10"].includes(id)
+      )
+    );
+    assert.ok(absorbed, "expected Art 28 leftovers absorbed as contextCapabilityIds");
+
+    const { workUnits } = buildActGraphDetailed({
+      docId: "dpa",
+      instruction: ART28_REVIEW,
+      skills: [skill],
+      intent: {
+        ...intent(),
+        operation: "compliance_check",
+      },
+      focus: art28Focus,
+    });
+    const leftoverRisk = workUnits.filter(
+      (u) => u.tool === "flag_risk" && String(u.workUnitId).includes("left")
+    );
+    assert.equal(leftoverRisk.length, 0, "package compliance path must not schedule leftover flag_risk");
+    const leftoverRules = workUnits.filter(
+      (u) =>
+        u.tool === "check_against_rule" &&
+        ["gdpr.art28.1", "gdpr.art28.2", "gdpr.art28.10"].includes(String(u.input.ruleId))
+    );
+    assert.equal(leftoverRules.length, 0);
+    assert.ok(workUnits.some((u) => u.tool === "evaluate_package"));
+    assert.ok(workUnits.some((u) => u.tool === "aggregate_requirements"));
+    assert.ok(workUnits.some((u) => u.tool === "derive_risk"));
+    const derive = workUnits.find((u) => u.tool === "derive_risk");
+    assert.deepEqual(derive?.dependsOn, ["wu-aggregate"]);
   });
 
   it("does not schedule leftover checks for out-of-scope catalog rules", () => {

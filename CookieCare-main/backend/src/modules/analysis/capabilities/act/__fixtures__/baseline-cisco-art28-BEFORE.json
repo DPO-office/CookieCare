@@ -1,0 +1,1399 @@
+{
+  "capturedAt": "2026-08-30T08:08:35.420Z",
+  "ask": "Review this DPA for GDPR Article 28 compliance.",
+  "stoppedReason": "green",
+  "phase": "DONE",
+  "intent": {
+    "scope": "whole_document",
+    "operation": "compliance_check",
+    "standard": "regime_pack:regimes/data-protection/gdpr",
+    "standardConcept": "GDPR Article 28",
+    "outputForm": "memo",
+    "reportType": "regime_compliance_memo",
+    "depth": "standard",
+    "compound": false,
+    "subIntents": [],
+    "requirements": [
+      {
+        "id": "gdpr.article28.1.sufficient_guarantees",
+        "description": "Verify whether the DPA establishes that the processor provides sufficient guarantees to implement appropriate technical and organizational measures under GDPR Article 28(1).",
+        "type": "adequacy",
+        "priority": "required"
+      },
+      {
+        "id": "gdpr.article28.2.subprocessor_consent",
+        "description": "Verify whether the DPA complies with GDPR Article 28(2) requirements regarding prior specific or general written authorization for engaging sub-processors.",
+        "type": "adequacy",
+        "priority": "required"
+      },
+      {
+        "id": "gdpr.article28.3.a.documented_instructions",
+        "description": "Verify whether the DPA requires processing only on documented instructions from the controller, including regarding transfers, per GDPR Article 28(3)(a).",
+        "type": "adequacy",
+        "priority": "required"
+      },
+      {
+        "id": "gdpr.article28.3.b.confidentiality_commitment",
+        "description": "Verify whether persons authorized to process personal data have committed themselves to confidentiality per GDPR Article 28(3)(b).",
+        "type": "adequacy",
+        "priority": "required"
+      },
+      {
+        "id": "gdpr.article28.3.c.security_measures",
+        "description": "Verify whether the DPA obligates the processor to take all security measures required pursuant to Article 32 per GDPR Article 28(3)(c).",
+        "type": "adequacy",
+        "priority": "required"
+      },
+      {
+        "id": "gdpr.article28.3.d.subprocessor_obligations",
+        "description": "Verify whether the DPA imposes equivalent data protection obligations on sub-processors per GDPR Article 28(3)(d).",
+        "type": "adequacy",
+        "priority": "required"
+      },
+      {
+        "id": "gdpr.article28.3.e.data_subject_rights_assistance",
+        "description": "Verify whether the DPA obligates the processor to assist the controller in responding to data subjects exercising their rights per GDPR Article 28(3)(e).",
+        "type": "adequacy",
+        "priority": "required"
+      },
+      {
+        "id": "gdpr.article28.3.f.compliance_assistance",
+        "description": "Verify whether the DPA obligates the processor to assist the controller with security, breach notification, DPIA, and prior consultation per GDPR Article 28(3)(f).",
+        "type": "adequacy",
+        "priority": "required"
+      },
+      {
+        "id": "gdpr.article28.3.g.data_deletion_or_return",
+        "description": "Verify whether the DPA mandates that the processor delete or return all personal data after the end of the provision of services per GDPR Article 28(3)(g).",
+        "type": "adequacy",
+        "priority": "required"
+      },
+      {
+        "id": "gdpr.article28.3.h.audits_and_inspections",
+        "description": "Verify whether the DPA makes available all information necessary to demonstrate compliance and allows for/contributes to audits per GDPR Article 28(3)(h).",
+        "type": "adequacy",
+        "priority": "required"
+      }
+    ],
+    "unresolvedNeeds": [],
+    "confidence": {
+      "scope": 0.95,
+      "operation": 0.95,
+      "standard": 0.95,
+      "outputForm": 0.9
+    },
+    "docTypeHint": "dpa",
+    "documentPresentation": "unified",
+    "partyPerspective": "controller"
+  },
+  "planWorkUnitCount": 21,
+  "planWorkUnitTools": [
+    "classify_document",
+    "extract_clauses",
+    "extract_shared_evidence",
+    "evaluate_package",
+    "check_against_rule",
+    "check_against_rule",
+    "check_against_rule",
+    "check_against_rule",
+    "check_against_rule",
+    "check_against_rule",
+    "check_against_rule",
+    "check_against_rule",
+    "check_against_rule",
+    "check_against_rule",
+    "check_against_rule",
+    "check_against_rule",
+    "check_against_rule",
+    "check_against_rule",
+    "aggregate_requirements",
+    "derive_risk",
+    "render_output"
+  ],
+  "findingsCount": 34,
+  "findings": [
+    {
+      "findingId": "f_extract_wu-extract",
+      "kind": "extraction",
+      "category": "other_known_risk",
+      "status": "present",
+      "claim": "Located 55 evidence spans from document dpa (skill-scoped).",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-1.6",
+            "charRange": [
+              3496,
+              3800
+            ]
+          },
+          "quotedText": "1.6. “Controller” means an entity that determines the purposes and means of the processing of Personal Data. It will have the same meaning ascribed to “controller” under the GDPR and other equivalent terms under applicable Data Protection Laws (e.g.: “Business” as defined under the CCPA), as applicable.",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-1.17",
+            "charRange": [
+              6361,
+              6662
+            ]
+          },
+          "quotedText": "1.17. “Processor” means  an  entity  that  processes  Personal  Data  on  behalf  of  a  Controller.  It will have  the  same meaning ascribed to “processor” under the GDPR and other equivalent terms under other Data Protection Laws (e.g.: “Service Provider” as defined under the CCPA), as applicable.",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-2.3",
+            "charRange": [
+              7590,
+              8827
+            ]
+          },
+          "quotedText": "2.3. You will: a. use the Cisco Offers in compliance with Data Protection Laws; b. ensure all instructions given by You to Cisco in respect of the Processing of Personal Data are at all times in accordance with Data Protection Laws; c. ensure all Personal Data provided to Cisco has been collected in accordance with Data Protection Laws and that You have all authorizations and/or consents necessary to provide such Personal Data to Cisco;\nd. keep  the  amount  of  Personal  Data  provided  to  Cis",
+          "sourceRole": "target"
+        }
+      ],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-extract",
+      "visibility": "internal"
+    },
+    {
+      "findingId": "f_compliance_gdpr.art28.1_wu-left-rule-gdpr-art28-1_cl_dpa_32_information_security",
+      "kind": "compliance",
+      "category": "gdpr.art28.1.processor_due_diligence_gap",
+      "status": "present",
+      "claim": "The processor commits to implementing and maintaining appropriate technical and organisational security measures to protect Personal Data and monitor compliance.",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-6",
+            "charRange": [
+              14819,
+              15041
+            ]
+          },
+          "quotedText": "6. Security Controls for the protection of Personal Data. Cisco will implement and maintain the security measures specified in the Information Security Exhibit and regularly monitor compliance with these security measures.",
+          "sourceRole": "target"
+        }
+      ],
+      "ruleId": "gdpr.art28.1",
+      "ruleVersion": "2.0.1",
+      "severity": "low",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-left-rule-gdpr-art28-1",
+      "skillId": "regimes/data-protection/gdpr",
+      "visibility": "user_facing",
+      "gap": "",
+      "ruleSourceTier": "B",
+      "requirementId": "gdpr.article28.1.sufficient_guarantees"
+    },
+    {
+      "findingId": "f_compliance_gdpr.art28.2_wu-left-rule-gdpr-art28-2_cl_dpa_7_subprocessor_flow_down",
+      "kind": "compliance",
+      "category": "gdpr.art28.2.prior_subprocessor_authorisation_gap",
+      "status": "insufficient_evidence",
+      "claim": "The agreement does not provide enough verifiable language to confirm prior subprocessor authorisation.",
+      "evidence": [],
+      "ruleId": "gdpr.art28.2",
+      "ruleVersion": "2.0.1",
+      "severity": "medium",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-left-rule-gdpr-art28-2",
+      "skillId": "regimes/data-protection/gdpr",
+      "visibility": "user_facing",
+      "gap": "The available document language was not specific enough to support a confirmed assessment.",
+      "ruleSourceTier": "B",
+      "requirementId": "gdpr.article28.2.subprocessor_consent"
+    },
+    {
+      "findingId": "f_compliance_gdpr.art28.3.chapeau_wu-left-rule-gdpr-art28-3-chapeau_cl_dpa_2_data_protection",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.chapeau.mandatory_processing_agreement_particulars_gap",
+      "status": "present",
+      "claim": "The agreement outlines obligations and rights of the controller regarding processing compliance, instructions, and data quality.",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-2.3",
+            "charRange": [
+              7590,
+              8827
+            ]
+          },
+          "quotedText": "You will: a. use the Cisco Offers in compliance with Data Protection Laws; b. ensure all instructions given by You to Cisco in respect of the Processing of Personal Data are at all times in accordance with Data Protection Laws",
+          "sourceRole": "target"
+        }
+      ],
+      "ruleId": "gdpr.art28.3.chapeau",
+      "ruleVersion": "2.0.1",
+      "severity": "low",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-left-rule-gdpr-art28-3-chapeau",
+      "skillId": "regimes/data-protection/gdpr",
+      "visibility": "user_facing",
+      "gap": "While controller obligations are set forth, explicit details regarding subject matter, duration, nature, purpose, personal data types, and data subject categories must be set out in the contract or referenced Offer Disclosures.",
+      "ruleSourceTier": "B"
+    },
+    {
+      "findingId": "f_compliance_gdpr.art28.3.chapeau_wu-left-rule-gdpr-art28-3-chapeau_cl_dpa_3_data_protection",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.chapeau.mandatory_processing_agreement_particulars_gap",
+      "status": "insufficient_evidence",
+      "claim": "The agreement does not provide enough verifiable language to confirm mandatory processing agreement particulars.",
+      "evidence": [],
+      "ruleId": "gdpr.art28.3.chapeau",
+      "ruleVersion": "2.0.1",
+      "severity": "medium",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-left-rule-gdpr-art28-3-chapeau",
+      "skillId": "regimes/data-protection/gdpr",
+      "visibility": "user_facing",
+      "gap": "The available document language was not specific enough to support a confirmed assessment.",
+      "ruleSourceTier": "B"
+    },
+    {
+      "findingId": "f_compliance_gdpr.art28.3.chapeau_wu-left-rule-gdpr-art28-3-chapeau_cl_dpa_22_processor_terms",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.chapeau.mandatory_processing_agreement_particulars_gap",
+      "status": "insufficient_evidence",
+      "claim": "The agreement does not provide enough verifiable language to confirm mandatory processing agreement particulars.",
+      "evidence": [],
+      "ruleId": "gdpr.art28.3.chapeau",
+      "ruleVersion": "2.0.1",
+      "severity": "medium",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-left-rule-gdpr-art28-3-chapeau",
+      "skillId": "regimes/data-protection/gdpr",
+      "visibility": "user_facing",
+      "gap": "The available document language was not specific enough to support a confirmed assessment.",
+      "ruleSourceTier": "B"
+    },
+    {
+      "findingId": "f_compliance_gdpr.art28.3.a_wu-left-rule-gdpr-art28-3-a_cl_dpa_3_data_protection",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+      "status": "insufficient_evidence",
+      "claim": "The agreement does not provide enough verifiable language to confirm documented instructions-only processing.",
+      "evidence": [],
+      "ruleId": "gdpr.art28.3.a",
+      "ruleVersion": "2.0.1",
+      "severity": "medium",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-left-rule-gdpr-art28-3-a",
+      "skillId": "regimes/data-protection/gdpr",
+      "visibility": "user_facing",
+      "gap": "The available document language was not specific enough to support a confirmed assessment.",
+      "ruleSourceTier": "B",
+      "requirementId": "gdpr.article28.3.a.documented_instructions"
+    },
+    {
+      "findingId": "f_compliance_gdpr.art28.3.a_wu-left-rule-gdpr-art28-3-a_cl_dpa_22_processor_terms",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+      "status": "insufficient_evidence",
+      "claim": "The agreement does not provide enough verifiable language to confirm documented instructions-only processing.",
+      "evidence": [],
+      "ruleId": "gdpr.art28.3.a",
+      "ruleVersion": "2.0.1",
+      "severity": "medium",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-left-rule-gdpr-art28-3-a",
+      "skillId": "regimes/data-protection/gdpr",
+      "visibility": "user_facing",
+      "gap": "The available document language was not specific enough to support a confirmed assessment.",
+      "ruleSourceTier": "B",
+      "requirementId": "gdpr.article28.3.a.documented_instructions"
+    },
+    {
+      "findingId": "f_compliance_gdpr.art28.3.b_wu-left-rule-gdpr-art28-3-b_cl_dpa_18_confidentiality",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.b.confidentiality_of_authorised_persons_gap",
+      "status": "present",
+      "claim": "The processor ensures that persons authorised to process personal data have written contractual obligations to maintain confidentiality or are under an appropriate statutory obligation of confidentiality.",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-2.4",
+            "charRange": [
+              8828,
+              10823
+            ]
+          },
+          "quotedText": "ensure its applicable Representatives who may Process Personal Data have written contractual obligations in place with Cisco to keep the Personal Data confidential or are under an appropriate statutory obligation of confidentiality;",
+          "sourceRole": "target"
+        }
+      ],
+      "ruleId": "gdpr.art28.3.b",
+      "ruleVersion": "2.0.1",
+      "severity": "low",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-left-rule-gdpr-art28-3-b",
+      "skillId": "regimes/data-protection/gdpr",
+      "visibility": "user_facing",
+      "gap": "",
+      "ruleSourceTier": "B",
+      "requirementId": "gdpr.article28.3.b.confidentiality_commitment"
+    },
+    {
+      "findingId": "f_compliance_gdpr.art28.3.b_wu-left-rule-gdpr-art28-3-b_cl_dpa_22_processor_terms",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.b.confidentiality_of_authorised_persons_gap",
+      "status": "present",
+      "claim": "The processor ensures that persons authorised to process personal data have written contractual obligations to maintain confidentiality or are under an appropriate statutory obligation of confidentiality.",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-2.4",
+            "charRange": [
+              8828,
+              10823
+            ]
+          },
+          "quotedText": "ensure its applicable Representatives who may Process Personal Data have written contractual obligations in place with Cisco to keep the Personal Data confidential or are under an appropriate statutory obligation of confidentiality;",
+          "sourceRole": "target"
+        }
+      ],
+      "ruleId": "gdpr.art28.3.b",
+      "ruleVersion": "2.0.1",
+      "severity": "low",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-left-rule-gdpr-art28-3-b",
+      "skillId": "regimes/data-protection/gdpr",
+      "visibility": "user_facing",
+      "gap": "",
+      "ruleSourceTier": "B",
+      "requirementId": "gdpr.article28.3.b.confidentiality_commitment"
+    },
+    {
+      "findingId": "f_compliance_gdpr.art28.3.c_wu-left-rule-gdpr-art28-3-c_cl_dpa_10_security_dpia_assistance",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.c.processor_security_measures_gap",
+      "status": "present",
+      "claim": "The processor commits to implementing and maintaining technical and organizational security measures specified in the Information Security Exhibit.",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-6",
+            "charRange": [
+              14819,
+              15041
+            ]
+          },
+          "quotedText": "6. Security Controls for the protection of Personal Data. Cisco will implement and maintain the security measures specified in the Information Security Exhibit and regularly monitor compliance with these security measures.",
+          "sourceRole": "target"
+        }
+      ],
+      "ruleId": "gdpr.art28.3.c",
+      "ruleVersion": "2.0.1",
+      "severity": "low",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-left-rule-gdpr-art28-3-c",
+      "skillId": "regimes/data-protection/gdpr",
+      "visibility": "user_facing",
+      "gap": "",
+      "ruleSourceTier": "B",
+      "requirementId": "gdpr.article28.3.c.security_measures"
+    },
+    {
+      "findingId": "f_compliance_gdpr.art28.3.c_wu-left-rule-gdpr-art28-3-c_cl_dpa_32_information_security",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.c.processor_security_measures_gap",
+      "status": "present",
+      "claim": "The processor commits to implementing and maintaining appropriate security measures to protect personal data.",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-6",
+            "charRange": [
+              14819,
+              15041
+            ]
+          },
+          "quotedText": "6. Security Controls for the protection of Personal Data. Cisco will implement and maintain the security measures specified in the Information Security Exhibit and regularly monitor compliance with these security measures.",
+          "sourceRole": "target"
+        }
+      ],
+      "ruleId": "gdpr.art28.3.c",
+      "ruleVersion": "2.0.1",
+      "severity": "low",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-left-rule-gdpr-art28-3-c",
+      "skillId": "regimes/data-protection/gdpr",
+      "visibility": "user_facing",
+      "gap": "",
+      "ruleSourceTier": "B",
+      "requirementId": "gdpr.article28.3.c.security_measures"
+    },
+    {
+      "findingId": "f_compliance_gdpr.art28.3.d_wu-left-rule-gdpr-art28-3-d_cl_dpa_5_subprocessor_flow_down",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.d.subprocessor_conditions_and_flow_down_gap",
+      "status": "present",
+      "claim": "The processor remains fully liable to the controller for subprocessor performance.",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-4.3",
+            "charRange": [
+              14118,
+              14818
+            ]
+          },
+          "quotedText": "Cisco will be liable for the acts or omissions of Subprocessors to the same extent it is liable for its own actions or omissions under this DPA.",
+          "sourceRole": "target"
+        }
+      ],
+      "ruleId": "gdpr.art28.3.d",
+      "ruleVersion": "2.0.1",
+      "severity": "low",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-left-rule-gdpr-art28-3-d",
+      "skillId": "regimes/data-protection/gdpr",
+      "visibility": "user_facing",
+      "gap": "",
+      "ruleSourceTier": "B",
+      "requirementId": "gdpr.article28.3.d.subprocessor_obligations"
+    },
+    {
+      "findingId": "f_compliance_gdpr.art28.3.d_wu-left-rule-gdpr-art28-3-d_cl_dpa_7_subprocessor_flow_down",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.d.subprocessor_conditions_and_flow_down_gap",
+      "status": "insufficient_evidence",
+      "claim": "The agreement does not provide enough verifiable language to confirm subprocessor conditions and flow-down.",
+      "evidence": [],
+      "ruleId": "gdpr.art28.3.d",
+      "ruleVersion": "2.0.1",
+      "severity": "medium",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-left-rule-gdpr-art28-3-d",
+      "skillId": "regimes/data-protection/gdpr",
+      "visibility": "user_facing",
+      "gap": "The available document language was not specific enough to support a confirmed assessment.",
+      "ruleSourceTier": "B",
+      "requirementId": "gdpr.article28.3.d.subprocessor_obligations"
+    },
+    {
+      "findingId": "f_compliance_gdpr.art28.3.d_wu-left-rule-gdpr-art28-3-d_cl_dpa_9_subprocessor_flow_down",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.d.subprocessor_conditions_and_flow_down_gap",
+      "status": "present",
+      "claim": "The processor enters into written agreements with subprocessors imposing data protection obligations at least as protective as those in the main agreement.",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-4.1",
+            "charRange": [
+              13075,
+              13304
+            ]
+          },
+          "quotedText": "Where Cisco appoints a Subprocessor, Cisco will execute a written agreement with the Subprocessor containing terms at least as protective as this DPA.",
+          "sourceRole": "target"
+        }
+      ],
+      "ruleId": "gdpr.art28.3.d",
+      "ruleVersion": "2.0.1",
+      "severity": "low",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-left-rule-gdpr-art28-3-d",
+      "skillId": "regimes/data-protection/gdpr",
+      "visibility": "user_facing",
+      "gap": "",
+      "ruleSourceTier": "B",
+      "requirementId": "gdpr.article28.3.d.subprocessor_obligations"
+    },
+    {
+      "kind": "compliance",
+      "category": "dpa_subject_matter_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-4.2",
+            "charRange": [
+              13305,
+              14117
+            ]
+          },
+          "quotedText": "4.2. Cisco will not  subcontract  its obligations  under  this DPA to  new  Subprocessors,  in  whole  or  in  part,  without providing You with at least 30 days advance notice (e.g.: by publishing this information at Cisco’s Trust Portal and/or by email upon Your subscription at Cisco’s Trust Portal) and an opportunity to object. If within 10 days of Cisco’s notice, You  object to  the  proposed  subcontracting by providing reasonable  grounds  related  to  the protection of the Personal Data and the Parties cannot resolve the objection within 30 days of Cisco’s notice, then You may on written notice, terminate the applicable part of the Agreement and/or purchase order relating to those Cisco Offers which cannot be provided by Cisco without the use of the Subprocessor(s) giving rise to the objection.",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-4.3",
+            "charRange": [
+              14118,
+              14818
+            ]
+          },
+          "quotedText": "4.3. Cisco will be liable for the acts or omissions of Subprocessors to the same extent it is liable for its own actions or omissions under this DPA. 5. Rights of Data Subjects Data  Subject  requests. To  the  extent  legally  permitted,  Cisco  will  promptly  redirect  the  Data  Subjects  to  send  their requests to You or notify You if it receives a Data Subject request. Unless required by Data Protection Laws, Cisco will not respond to any such Data Subject request without Your prior written consent except to redirect the Data Subject request to You. Cisco will provide such information and cooperation and take such action as You reasonably request in relation to a Data Subject request.",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-8.1",
+            "charRange": [
+              15830,
+              16425
+            ]
+          },
+          "quotedText": "8.1. Notification. Cisco will notify You within 48 hours of confirmation of a Data Breach under applicable law relating to  Your  Personal  Data.  Cisco will  provide  all  such timely  information  and  cooperation  as  You  may  reasonably require for  You to fulfil  Your  Data Breach reporting obligations under (and in accordance with the timescales required by) Data Protection Law. Cisco will further take such measures and actions as it considers necessary or appropriate to remedy or mitigate the effects of the Data Breach and will keep You informed in connection with the Data Breach.",
+          "sourceRole": "target"
+        }
+      ],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-pkg-eval-dpa.structural_review",
+      "skillId": "_global",
+      "packageId": "dpa.structural_review",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "dpa.subject_matter_defined",
+      "judgement": {
+        "compliance": "insufficient_evidence",
+        "evidenceState": "unavailable",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "materiality": "low",
+        "nli": "not_mentioned",
+        "recommendationKind": "obtain"
+      },
+      "findingId": "f_pkg_cd_dpa.subject_matter_defined_wu-pkg-eval-dpa.structural_review_2fe777",
+      "status": "insufficient_evidence",
+      "claim": "The supplied candidate evidence extracts (E16, E17, E24) govern subprocessor objections, data subject request handling, and breach notifications. They do not contain provisions defining the subject matter of processing."
+    },
+    {
+      "kind": "compliance",
+      "category": "dpa_subject_matter_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "root.para-1",
+            "charRange": [
+              0,
+              1778
+            ]
+          },
+          "quotedText": "cisco-master-data-protection-agreement.pdf_draft.docx\nGenerated by randtrust • 8/10/2026\ncisco-master-data-protection-agreement.pdf\nDPA Version: 8\nTemplate date: September 2025                                                                                                                  Page 1 of 5\nData Protection Agreement\nApplies to Customer’s Personal Data This  Data  Protection  Agreement  (“DPA”),  forms  part  of  the  Agreement  (as  defined  below) and  applies  where,  and  to  the extent that, Cisco Processes Personal Data as a Processor for You when providing Cisco Offers (as defined below) under the Agreement, (each a “Party” and together the “Parties”). This DPA shall become effective on the Effective Date of the Agreement and shall remain in force for the term of the Agreement. Either Party may terminate this DPA for cause upon written notice if the other Party materially breaches this DPA and fails to cure such breach within thirty (30) days of receipt of such notice. This DPA will terminate automatically upon the termination or expiration of the Agreement. Upon such termination, Processor shall cease all processing of Personal Data under the Agreement. Unless otherwise specified in this DPA, the terms of the Agreement will continue in full force and effect. All capitalized terms not  defined  in Section  1  or  otherwise  in this DPA will have  the  meanings  set  forth  in  the  Agreement.  Any  privacy  or  data protection related clauses or agreement previously entered into by Cisco and You, with regards to the subject matter of this DPA, will be superseded by and replaced with this DPA. No one other than a Party to this DPA, their successors and permitted assignees will have any right to enforce any of its terms.\n• Definitions",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "root.para-1",
+            "charRange": [
+              0,
+              1778
+            ]
+          },
+          "quotedText": "cisco-master-data-protection-agreement.pdf_draft.docx\nGenerated by randtrust • 8/10/2026\ncisco-master-data-protection-agreement.pdf\nDPA Version: 8\nTemplate date: September 2025                                                                                                                  Page 1 of 5\nData Protection Agreement\nApplies to Customer’s Personal Data This  Data  Protection  Agreement  (“DPA”),  forms  part  of  the  Agreement  (as  defined  below) and  applies  where,  and  to  the extent that, Cisco Processes Personal Data as a Processor for You when providing Cisco Offers (as defined below) under the Agreement, (each a “Party” and together the “Parties”). This DPA shall become effective on the Effective Date of the Agreement and shall remain in force for the term of the Agreement. Either Party may terminate this DPA for cause upon written notice if the other Party materially breaches this DPA and fails to cure such breach within thirty (30) days of receipt of such notice. This DPA will terminate automatically upon the termination or expiration of the Agreement. Upon such termination, Processor shall cease all processing of Personal Data under the Agreement. Unless otherwise specified in this DPA, the terms of the Agreement will continue in full force and effect. All capitalized terms not  defined  in Section  1  or  otherwise  in this DPA will have  the  meanings  set  forth  in  the  Agreement.  Any  privacy  or  data protection related clauses or agreement previously entered into by Cisco and You, with regards to the subject matter of this DPA, will be superseded by and replaced with this DPA. No one other than a Party to this DPA, their successors and permitted assignees will have any right to enforce any of its terms.\n• Definitions",
+          "sourceRole": "target"
+        }
+      ],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-pkg-eval-dpa.structural_review",
+      "skillId": "_global",
+      "packageId": "dpa.structural_review",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "dpa.duration_defined",
+      "judgement": {
+        "compliance": "present",
+        "evidenceState": "direct",
+        "referenceBinding": "binding",
+        "evidenceConfidence": "medium",
+        "draftingQuality": "clean",
+        "materiality": "low",
+        "nli": "entailed",
+        "recommendationKind": "none"
+      },
+      "findingId": "f_pkg_cov_dpa.duration_defined_wu-pkg-eval-dpa.structural_review_11eb77",
+      "status": "present",
+      "claim": "The agreement defines the duration of processing, stating that the DPA becomes effective on the Effective Date of the Agreement, remains in force for the term of the Agreement, and terminates automatically upon termination or expiration of the Agreement (E1, E3)."
+    },
+    {
+      "kind": "compliance",
+      "category": "dpa_subject_matter_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-2.4",
+            "charRange": [
+              8828,
+              13074
+            ]
+          },
+          "quotedText": "2.4. Cisco will: a. only Process Personal Data in accordance with Data Protection Laws, the applicable Offer Disclosure(s), the Information  Security  Exhibit, this DPA,  and  any  other  of  Your agreed documented  instructions.  Cisco  will promptly  notify  You  if  Cisco  reasonably  believes  that any of Your  instructions  are  inconsistent  with  Data Protection Laws;\nb. ensure its applicable Representatives who may Process Personal Data have written contractual obligations in place with Cisco to keep the Personal Data confidential or are under an appropriate statutory obligation of confidentiality; c. appoint  data  protection  lead(s).  Upon  request,  Cisco  will  provide  the  contact  details  of  the  appointed person(s); d. assist You as  reasonably  needed  to  respond  to  requests  from  supervisory  authorities,  Data  Subjects, customers, or others to provide information related to Cisco’s Processing of Personal Data; e. if  required  by  Data  Protection  Laws,  court  order,  subpoena,  or  other  legal  or  judicial  process  to  Process Personal Data other than in accordance with Your instructions, notify You without undue delay of any such requirement  before  Processing  the  Personal  Data  (unless  mandatory  applicable  law  prohibits  such notification, in particular on important grounds of public interest); f. maintain records of the Processing of any Personal Data received from You under the Agreement; g. not lease, sell, distribute, or otherwise encumber Personal Data unless mutually agreed to by the Parties in a separate agreement; h. not combine Personal Data received from or on behalf of You and Personal Data collected by Cisco’s own interactions with the Data Subject other than as provided in the Agreement or as otherwise permitted by Data Protection Laws;\ni. provide such assistance as You reasonably require (either on its own behalf or on behalf of its customers), and Cisco or a Representative is able to provide, in order to meet any applicable filing, approval or similar requirements in relation to Data Protection Laws; j. provide  such  information  and  assistance  as  You  reasonably  require  (taking  into  account  the  nature  of Processing and the information available to Cisco) to enable Your compliance with Your obligations under Data Protection Laws with respect to: i. security of Processing; ii. data protection impact assessments (as such term is defined by the GDPR); iii. prior consultation with a supervisory authority regarding high-risk Processing; and iv. notifications to the applicable supervisory authority and/or communications to Data Subjects by You in response to any Data Breach;\nk. on  termination  of  the DPA for  whatever  reason,  cease  to  Process  Personal  Data,  and  upon  Your  written request and without undue delay, (i) return, or make available for return, Personal Data in its possession or control,  or  (ii)  securely  delete  or  permanently  render  unreadable  or  inaccessible  existing  copies  of  the Personal  Data;  unless  continued  retention  and  Processing  is  required  or  is  permitted  by  Data  Protection Laws and/or mandatory applicable law. At Your request, Cisco will give You confirmation in writing that it has  fully complied  with  this  Section  2.4  (k)  or  provide  a  justification  as  to  why  such  compliance  is  not feasible. 3. Transfers of Personal Data Cisco may transfer and Process Personal Data to and in locations where Cisco or its Subprocessors Process Personal Data to provide the Cisco Offers, as further detailed in the respective Offer Disclosure(s). Cisco will conduct such transfers in accordance with the transfer mechanisms set out at Cisco’s DPA Portal, which in any event will be subject to the terms and conditions of this DPA. Any further changes to such transfer mechanisms approved with an official decision by the\nDPA Version: 8\nTemplate date: September 2025                                                                                                                  Page 4 of 5 applicable competent authority will be incorporated by reference to this DPA and a copy of the new transfer mechanism will be available at Cisco’s DPA Portal. 4. Subprocessing",
+          "sourceRole": "target"
+        }
+      ],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-pkg-eval-dpa.structural_review",
+      "skillId": "_global",
+      "packageId": "dpa.structural_review",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "dpa.nature_and_purpose_defined",
+      "judgement": {
+        "compliance": "present",
+        "evidenceState": "incorporated",
+        "referenceBinding": "binding",
+        "evidenceConfidence": "high",
+        "draftingQuality": "clean",
+        "materiality": "low",
+        "nli": "entailed",
+        "recommendationKind": "obtain"
+      },
+      "findingId": "f_pkg_cov_dpa.nature_and_purpose_defined_wu-pkg-eval-dpa.structural_review_c83ca3",
+      "status": "present",
+      "claim": "Section 2.4(a) and Section 3 state that Cisco will process Personal Data to provide the Cisco Offers as further detailed in the DPA and the applicable Offer Disclosure(s), establishing the baseline contractual purpose and nature of processing."
+    },
+    {
+      "kind": "compliance",
+      "category": "dpa_subject_matter_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-1.19",
+            "charRange": [
+              6854,
+              7045
+            ]
+          },
+          "quotedText": "1.19. “Subprocessor” means another Processor engaged by Cisco to carry out Processing of Your Personal Data, as set forth in the applicable Offer Disclosure(s). 2. Processing of Personal Data",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-4.1",
+            "charRange": [
+              13075,
+              13304
+            ]
+          },
+          "quotedText": "4.1. Where Cisco appoints a Subprocessor, Cisco will execute a written agreement with the Subprocessor containing terms at least as protective as this DPA. Current Subprocessor(s) are listed in the applicable Offer Disclosure(s).",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-4.3",
+            "charRange": [
+              14118,
+              14818
+            ]
+          },
+          "quotedText": "4.3. Cisco will be liable for the acts or omissions of Subprocessors to the same extent it is liable for its own actions or omissions under this DPA. 5. Rights of Data Subjects Data  Subject  requests. To  the  extent  legally  permitted,  Cisco  will  promptly  redirect  the  Data  Subjects  to  send  their requests to You or notify You if it receives a Data Subject request. Unless required by Data Protection Laws, Cisco will not respond to any such Data Subject request without Your prior written consent except to redirect the Data Subject request to You. Cisco will provide such information and cooperation and take such action as You reasonably request in relation to a Data Subject request.",
+          "sourceRole": "target"
+        }
+      ],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-pkg-eval-dpa.structural_review",
+      "skillId": "_global",
+      "packageId": "dpa.structural_review",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "dpa.subprocessor_flowdown_present",
+      "judgement": {
+        "compliance": "present",
+        "evidenceState": "direct",
+        "referenceBinding": "binding",
+        "evidenceConfidence": "medium",
+        "draftingQuality": "clean",
+        "materiality": "low",
+        "nli": "entailed",
+        "recommendationKind": "none"
+      },
+      "findingId": "f_pkg_cov_dpa.subprocessor_flowdown_present_wu-pkg-eval-dpa.structural_review_2e1095",
+      "status": "present",
+      "claim": "Section 4.1 explicitly states that where Cisco appoints a Subprocessor, it will execute a written agreement with terms at least as protective as this DPA (E7). Additionally, Cisco remains liable for Subprocessor acts/omissions under Section 4.3 (E35)."
+    },
+    {
+      "kind": "compliance",
+      "category": "dpa_subject_matter_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-2.4",
+            "charRange": [
+              8828,
+              13074
+            ]
+          },
+          "quotedText": "2.4. Cisco will: a. only Process Personal Data in accordance with Data Protection Laws, the applicable Offer Disclosure(s), the Information  Security  Exhibit, this DPA,  and  any  other  of  Your agreed documented  instructions.  Cisco  will promptly  notify  You  if  Cisco  reasonably  believes  that any of Your  instructions  are  inconsistent  with  Data Protection Laws;\nb. ensure its applicable Representatives who may Process Personal Data have written contractual obligations in place with Cisco to keep the Personal Data confidential or are under an appropriate statutory obligation of confidentiality; c. appoint  data  protection  lead(s).  Upon  request,  Cisco  will  provide  the  contact  details  of  the  appointed person(s); d. assist You as  reasonably  needed  to  respond  to  requests  from  supervisory  authorities,  Data  Subjects, customers, or others to provide information related to Cisco’s Processing of Personal Data; e. if  required  by  Data  Protection  Laws,  court  order,  subpoena,  or  other  legal  or  judicial  process  to  Process Personal Data other than in accordance with Your instructions, notify You without undue delay of any such requirement  before  Processing  the  Personal  Data  (unless  mandatory  applicable  law  prohibits  such notification, in particular on important grounds of public interest); f. maintain records of the Processing of any Personal Data received from You under the Agreement; g. not lease, sell, distribute, or otherwise encumber Personal Data unless mutually agreed to by the Parties in a separate agreement; h. not combine Personal Data received from or on behalf of You and Personal Data collected by Cisco’s own interactions with the Data Subject other than as provided in the Agreement or as otherwise permitted by Data Protection Laws;\ni. provide such assistance as You reasonably require (either on its own behalf or on behalf of its customers), and Cisco or a Representative is able to provide, in order to meet any applicable filing, approval or similar requirements in relation to Data Protection Laws; j. provide  such  information  and  assistance  as  You  reasonably  require  (taking  into  account  the  nature  of Processing and the information available to Cisco) to enable Your compliance with Your obligations under Data Protection Laws with respect to: i. security of Processing; ii. data protection impact assessments (as such term is defined by the GDPR); iii. prior consultation with a supervisory authority regarding high-risk Processing; and iv. notifications to the applicable supervisory authority and/or communications to Data Subjects by You in response to any Data Breach;\nk. on  termination  of  the DPA for  whatever  reason,  cease  to  Process  Personal  Data,  and  upon  Your  written request and without undue delay, (i) return, or make available for return, Personal Data in its possession or control,  or  (ii)  securely  delete  or  permanently  render  unreadable  or  inaccessible  existing  copies  of  the Personal  Data;  unless  continued  retention  and  Processing  is  required  or  is  permitted  by  Data  Protection Laws and/or mandatory applicable law. At Your request, Cisco will give You confirmation in writing that it has  fully complied  with  this  Section  2.4  (k)  or  provide  a  justification  as  to  why  such  compliance  is  not feasible. 3. Transfers of Personal Data Cisco may transfer and Process Personal Data to and in locations where Cisco or its Subprocessors Process Personal Data to provide the Cisco Offers, as further detailed in the respective Offer Disclosure(s). Cisco will conduct such transfers in accordance with the transfer mechanisms set out at Cisco’s DPA Portal, which in any event will be subject to the terms and conditions of this DPA. Any further changes to such transfer mechanisms approved with an official decision by the\nDPA Version: 8\nTemplate date: September 2025                                                                                                                  Page 4 of 5 applicable competent authority will be incorporated by reference to this DPA and a copy of the new transfer mechanism will be available at Cisco’s DPA Portal. 4. Subprocessing",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "root.para-1",
+            "charRange": [
+              0,
+              1778
+            ]
+          },
+          "quotedText": "cisco-master-data-protection-agreement.pdf_draft.docx\nGenerated by randtrust • 8/10/2026\ncisco-master-data-protection-agreement.pdf\nDPA Version: 8\nTemplate date: September 2025                                                                                                                  Page 1 of 5\nData Protection Agreement\nApplies to Customer’s Personal Data This  Data  Protection  Agreement  (“DPA”),  forms  part  of  the  Agreement  (as  defined  below) and  applies  where,  and  to  the extent that, Cisco Processes Personal Data as a Processor for You when providing Cisco Offers (as defined below) under the Agreement, (each a “Party” and together the “Parties”). This DPA shall become effective on the Effective Date of the Agreement and shall remain in force for the term of the Agreement. Either Party may terminate this DPA for cause upon written notice if the other Party materially breaches this DPA and fails to cure such breach within thirty (30) days of receipt of such notice. This DPA will terminate automatically upon the termination or expiration of the Agreement. Upon such termination, Processor shall cease all processing of Personal Data under the Agreement. Unless otherwise specified in this DPA, the terms of the Agreement will continue in full force and effect. All capitalized terms not  defined  in Section  1  or  otherwise  in this DPA will have  the  meanings  set  forth  in  the  Agreement.  Any  privacy  or  data protection related clauses or agreement previously entered into by Cisco and You, with regards to the subject matter of this DPA, will be superseded by and replaced with this DPA. No one other than a Party to this DPA, their successors and permitted assignees will have any right to enforce any of its terms.\n• Definitions",
+          "sourceRole": "target"
+        }
+      ],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-pkg-eval-dpa.structural_review",
+      "skillId": "_global",
+      "packageId": "dpa.structural_review",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "dpa.deletion_on_termination_present",
+      "judgement": {
+        "compliance": "insufficient_evidence",
+        "evidenceState": "unavailable",
+        "referenceBinding": "none",
+        "evidenceConfidence": "low",
+        "draftingQuality": "could_be_clearer",
+        "materiality": "medium",
+        "nli": "not_mentioned",
+        "recommendationKind": "obtain"
+      },
+      "findingId": "f_pkg_cd_dpa.deletion_on_termination_present_wu-pkg-eval-dpa.structural_review_c5a7ed",
+      "status": "insufficient_evidence",
+      "claim": "Only contextual evidence references (E20, E1) were provided for this requirement. Under the evaluation rules, contextual evidence alone cannot support a finding of present compliance, requiring an evaluation of insufficient_evidence."
+    },
+    {
+      "kind": "compliance",
+      "category": "dpa_subject_matter_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-7",
+            "charRange": [
+              15042,
+              15795
+            ]
+          },
+          "quotedText": "7. Audits and Certifications Upon  Your  written  request,  and  subject  to  the  confidentiality  obligations  set  forth  in  the  Agreement, Cisco  will  make available to You reasonably necessary information to demonstrate Cisco’s compliance with the obligations of this DPA and  Data  Protection  Laws,  in  accordance  with  the  Information  Security  Exhibit, including  copies  of  third-party  audit reports or certifications it maintains in the ordinary course of business (such as SOC1, SOC2, SOC3 attestations, or ISO 27001:2013 certifications, or their equivalent under any successor standards) that apply to the relevant Cisco Offer. The security certifications that Cisco holds for the Cisco Offers can be found on Cisco’s Trust Portal.",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-6",
+            "charRange": [
+              14819,
+              15041
+            ]
+          },
+          "quotedText": "6. Security Controls for the protection of Personal Data. Cisco will implement and maintain the security measures specified in the Information Security Exhibit and regularly monitor compliance with these security measures.",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-1.8",
+            "charRange": [
+              3925,
+              4132
+            ]
+          },
+          "quotedText": "1.8. “Data  Breach” means  a  breach  of the  Information  Security  Exhibit, leading  to  the  accidental  or  unlawful destruction, loss, alteration, unauthorized disclosure of, or access to Personal Data.",
+          "sourceRole": "target"
+        }
+      ],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-pkg-eval-dpa.structural_review",
+      "skillId": "_global",
+      "packageId": "dpa.structural_review",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "dpa.security_and_dpia_assistance_present",
+      "judgement": {
+        "compliance": "present",
+        "evidenceState": "direct",
+        "referenceBinding": "binding",
+        "evidenceConfidence": "medium",
+        "draftingQuality": "clean",
+        "materiality": "low",
+        "nli": "entailed",
+        "recommendationKind": "none"
+      },
+      "findingId": "f_pkg_cov_dpa.security_and_dpia_assistance_present_wu-pkg-eval-dpa.structural_review_4a882e",
+      "status": "present",
+      "claim": "The DPA includes dedicated security clauses (Section 6) requiring Cisco to implement and maintain security measures specified in the Information Security Exhibit (E11) and audits/certifications provisions (Section 7) to demonstrate compliance (E10)."
+    },
+    {
+      "kind": "compliance",
+      "category": "dpa_subject_matter_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-2.4",
+            "charRange": [
+              8828,
+              13074
+            ]
+          },
+          "quotedText": "2.4. Cisco will: a. only Process Personal Data in accordance with Data Protection Laws, the applicable Offer Disclosure(s), the Information  Security  Exhibit, this DPA,  and  any  other  of  Your agreed documented  instructions.  Cisco  will promptly  notify  You  if  Cisco  reasonably  believes  that any of Your  instructions  are  inconsistent  with  Data Protection Laws;\nb. ensure its applicable Representatives who may Process Personal Data have written contractual obligations in place with Cisco to keep the Personal Data confidential or are under an appropriate statutory obligation of confidentiality; c. appoint  data  protection  lead(s).  Upon  request,  Cisco  will  provide  the  contact  details  of  the  appointed person(s); d. assist You as  reasonably  needed  to  respond  to  requests  from  supervisory  authorities,  Data  Subjects, customers, or others to provide information related to Cisco’s Processing of Personal Data; e. if  required  by  Data  Protection  Laws,  court  order,  subpoena,  or  other  legal  or  judicial  process  to  Process Personal Data other than in accordance with Your instructions, notify You without undue delay of any such requirement  before  Processing  the  Personal  Data  (unless  mandatory  applicable  law  prohibits  such notification, in particular on important grounds of public interest); f. maintain records of the Processing of any Personal Data received from You under the Agreement; g. not lease, sell, distribute, or otherwise encumber Personal Data unless mutually agreed to by the Parties in a separate agreement; h. not combine Personal Data received from or on behalf of You and Personal Data collected by Cisco’s own interactions with the Data Subject other than as provided in the Agreement or as otherwise permitted by Data Protection Laws;\ni. provide such assistance as You reasonably require (either on its own behalf or on behalf of its customers), and Cisco or a Representative is able to provide, in order to meet any applicable filing, approval or similar requirements in relation to Data Protection Laws; j. provide  such  information  and  assistance  as  You  reasonably  require  (taking  into  account  the  nature  of Processing and the information available to Cisco) to enable Your compliance with Your obligations under Data Protection Laws with respect to: i. security of Processing; ii. data protection impact assessments (as such term is defined by the GDPR); iii. prior consultation with a supervisory authority regarding high-risk Processing; and iv. notifications to the applicable supervisory authority and/or communications to Data Subjects by You in response to any Data Breach;\nk. on  termination  of  the DPA for  whatever  reason,  cease  to  Process  Personal  Data,  and  upon  Your  written request and without undue delay, (i) return, or make available for return, Personal Data in its possession or control,  or  (ii)  securely  delete  or  permanently  render  unreadable  or  inaccessible  existing  copies  of  the Personal  Data;  unless  continued  retention  and  Processing  is  required  or  is  permitted  by  Data  Protection Laws and/or mandatory applicable law. At Your request, Cisco will give You confirmation in writing that it has  fully complied  with  this  Section  2.4  (k)  or  provide  a  justification  as  to  why  such  compliance  is  not feasible. 3. Transfers of Personal Data Cisco may transfer and Process Personal Data to and in locations where Cisco or its Subprocessors Process Personal Data to provide the Cisco Offers, as further detailed in the respective Offer Disclosure(s). Cisco will conduct such transfers in accordance with the transfer mechanisms set out at Cisco’s DPA Portal, which in any event will be subject to the terms and conditions of this DPA. Any further changes to such transfer mechanisms approved with an official decision by the\nDPA Version: 8\nTemplate date: September 2025                                                                                                                  Page 4 of 5 applicable competent authority will be incorporated by reference to this DPA and a copy of the new transfer mechanism will be available at Cisco’s DPA Portal. 4. Subprocessing",
+          "sourceRole": "target"
+        }
+      ],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-pkg-eval-dpa.structural_review",
+      "skillId": "_global",
+      "packageId": "dpa.structural_review",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "dpa.international_transfer_mechanism_present",
+      "judgement": {
+        "compliance": "present",
+        "evidenceState": "incorporated",
+        "referenceBinding": "binding",
+        "evidenceConfidence": "high",
+        "draftingQuality": "clean",
+        "materiality": "low",
+        "nli": "entailed",
+        "recommendationKind": "obtain"
+      },
+      "findingId": "f_pkg_cov_dpa.international_transfer_mechanism_present_wu-pkg-eval-dpa.structural_review_818a0c",
+      "status": "present",
+      "claim": "Section 3 explicitly establishes that cross-border transfers of personal data will be conducted in accordance with transfer mechanisms set out at Cisco's DPA Portal and incorporated by reference into the DPA."
+    },
+    {
+      "kind": "compliance",
+      "category": "dpa_subject_matter_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-7",
+            "charRange": [
+              15042,
+              15795
+            ]
+          },
+          "quotedText": "7. Audits and Certifications Upon  Your  written  request,  and  subject  to  the  confidentiality  obligations  set  forth  in  the  Agreement, Cisco  will  make available to You reasonably necessary information to demonstrate Cisco’s compliance with the obligations of this DPA and  Data  Protection  Laws,  in  accordance  with  the  Information  Security  Exhibit, including  copies  of  third-party  audit reports or certifications it maintains in the ordinary course of business (such as SOC1, SOC2, SOC3 attestations, or ISO 27001:2013 certifications, or their equivalent under any successor standards) that apply to the relevant Cisco Offer. The security certifications that Cisco holds for the Cisco Offers can be found on Cisco’s Trust Portal.",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-7",
+            "charRange": [
+              15042,
+              15795
+            ]
+          },
+          "quotedText": "7. Audits and Certifications Upon  Your  written  request,  and  subject  to  the  confidentiality  obligations  set  forth  in  the  Agreement, Cisco  will  make available to You reasonably necessary information to demonstrate Cisco’s compliance with the obligations of this DPA and  Data  Protection  Laws,  in  accordance  with  the  Information  Security  Exhibit, including  copies  of  third-party  audit reports or certifications it maintains in the ordinary course of business (such as SOC1, SOC2, SOC3 attestations, or ISO 27001:2013 certifications, or their equivalent under any successor standards) that apply to the relevant Cisco Offer. The security certifications that Cisco holds for the Cisco Offers can be found on Cisco’s Trust Portal.",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-9.3",
+            "charRange": [
+              18522,
+              18790
+            ]
+          },
+          "quotedText": "9.3. Where  a  Data  Breach  and/or  breach  of  this DPA is  also  a  breach  of  any  confidentiality  or  non-disclosure obligations in the Agreement, the liability cap in Section 9.2 will apply.\nConfidential Document • Powered by randtrust Multi-Agent Legal Engine",
+          "sourceRole": "target"
+        }
+      ],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-pkg-eval-dpa.structural_review",
+      "skillId": "_global",
+      "packageId": "dpa.structural_review",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "dpa.confidentiality_of_staff_present",
+      "judgement": {
+        "compliance": "insufficient_evidence",
+        "evidenceState": "unavailable",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "materiality": "low",
+        "nli": "not_mentioned",
+        "recommendationKind": "obtain"
+      },
+      "findingId": "f_pkg_cd_dpa.confidentiality_of_staff_present_wu-pkg-eval-dpa.structural_review_ec331c",
+      "status": "insufficient_evidence",
+      "claim": "The cited supporting extracts (E10, E12, E13) address general agreement confidentiality and audit requirements rather than personnel confidentiality commitments (which appear in contextual extract E20, not included in supporting evidence)."
+    },
+    {
+      "findingId": "f_compliance_gdpr.art28.3.e_wu-left-rule-gdpr-art28-3-e_document",
+      "kind": "compliance",
+      "category": "dsr_assistance_not_operational",
+      "status": "present",
+      "claim": "The processor is obligated to provide assistance to the controller in responding to data subject requests and fulfilling their rights under applicable data protection laws.",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-4.3",
+            "charRange": [
+              14118,
+              14818
+            ]
+          },
+          "quotedText": "Cisco will provide such information and cooperation and take such action as You reasonably request in relation to a Data Subject request.",
+          "sourceRole": "target"
+        }
+      ],
+      "ruleId": "gdpr.art28.3.e",
+      "ruleVersion": "2.0.1",
+      "severity": "low",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-left-rule-gdpr-art28-3-e",
+      "skillId": "regimes/data-protection/gdpr",
+      "visibility": "user_facing",
+      "gap": "",
+      "ruleSourceTier": "B",
+      "requirementId": "gdpr.article28.3.e.data_subject_rights_assistance"
+    },
+    {
+      "findingId": "f_compliance_gdpr.art28.3.f_wu-left-rule-gdpr-art28-3-f_cl_dpa_22_processor_terms",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.f.processor_assistance_with_security_breach_dpia_and_consultation_duties_gap",
+      "status": "insufficient_evidence",
+      "claim": "Assistance obligation clause is truncated and does not explicitly confirm complete assistance with security (Art 32), breach notification (Art 33/34), DPIAs (Art 35), or prior consultation (Art 36).",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-2.4",
+            "charRange": [
+              8828,
+              10823
+            ]
+          },
+          "quotedText": "provide such assistance as You reasonably require (either on its own behalf or on behalf of its customers), and Cisco or a Representative is able to provide, in order to",
+          "sourceRole": "target"
+        }
+      ],
+      "ruleId": "gdpr.art28.3.f",
+      "ruleVersion": "2.0.1",
+      "severity": "high",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-left-rule-gdpr-art28-3-f",
+      "skillId": "regimes/data-protection/gdpr",
+      "visibility": "user_facing",
+      "gap": "Clause 2.4(i) cuts off mid-sentence ('provide such assistance as You reasonably require... in order to') without completing the scope of required processor assistance under Art 28(3)(f).",
+      "ruleSourceTier": "B",
+      "requirementId": "gdpr.article28.3.f.compliance_assistance"
+    },
+    {
+      "findingId": "f_compliance_gdpr.art28.3.f_wu-left-rule-gdpr-art28-3-f_cl_dpa_28_processor_assistance_obligation",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.f.processor_assistance_with_security_breach_dpia_and_consultation_duties_gap",
+      "status": "insufficient_evidence",
+      "claim": "Assistance obligation clause is truncated and fails to detail full compliance with Article 28(3)(f) obligations regarding Art 32-36 assistance.",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-2.4",
+            "charRange": [
+              8828,
+              10823
+            ]
+          },
+          "quotedText": "provide such assistance as You reasonably require (either on its own behalf or on behalf of its customers), and Cisco or a Representative is able to provide, in order to",
+          "sourceRole": "target"
+        }
+      ],
+      "ruleId": "gdpr.art28.3.f",
+      "ruleVersion": "2.0.1",
+      "severity": "high",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-left-rule-gdpr-art28-3-f",
+      "skillId": "regimes/data-protection/gdpr",
+      "visibility": "user_facing",
+      "gap": "The provision ends incomplete ('in order to') and does not specify assistance with security, data breach notifications, DPIAs, or supervisory consultation.",
+      "ruleSourceTier": "B",
+      "requirementId": "gdpr.article28.3.f.compliance_assistance"
+    },
+    {
+      "findingId": "f_compliance_gdpr.art28.3.g_wu-left-rule-gdpr-art28-3-g_document",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.g.return_or_deletion_after_services_gap",
+      "status": "insufficient_evidence",
+      "claim": "The agreement does not provide enough verifiable language to confirm return or deletion after services.",
+      "evidence": [],
+      "ruleId": "gdpr.art28.3.g",
+      "ruleVersion": "2.0.1",
+      "severity": "medium",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-left-rule-gdpr-art28-3-g",
+      "skillId": "regimes/data-protection/gdpr",
+      "visibility": "user_facing",
+      "gap": "No supplied clause materially addressed this obligation.",
+      "ruleSourceTier": "B",
+      "requirementId": "gdpr.article28.3.g.data_deletion_or_return"
+    },
+    {
+      "findingId": "f_compliance_gdpr.art28.3.h_wu-left-rule-gdpr-art28-3-h_cl_dpa_22_processor_terms",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.h.compliance_evidence_audits_and_unlawful_instruction_warning_gap",
+      "status": "present",
+      "claim": "The processor must promptly notify the controller if an instruction infringes Data Protection Laws.",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-2.4",
+            "charRange": [
+              8828,
+              10823
+            ]
+          },
+          "quotedText": "Cisco  will promptly  notify  You  if  Cisco  reasonably  believes  that any of Your  instructions  are  inconsistent  with  Data Protection Laws;",
+          "sourceRole": "target"
+        }
+      ],
+      "ruleId": "gdpr.art28.3.h",
+      "ruleVersion": "2.0.1",
+      "severity": "low",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-left-rule-gdpr-art28-3-h",
+      "skillId": "regimes/data-protection/gdpr",
+      "visibility": "user_facing",
+      "gap": "",
+      "ruleSourceTier": "B",
+      "requirementId": "gdpr.article28.3.h.audits_and_inspections"
+    },
+    {
+      "findingId": "f_compliance_gdpr.art28.3.h_wu-left-rule-gdpr-art28-3-h_cl_dpa_37_audit_and_compliance_evidence",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.h.compliance_evidence_audits_and_unlawful_instruction_warning_gap",
+      "status": "present",
+      "claim": "The processor must make available information to demonstrate compliance with the DPA and Data Protection Laws, including third-party audit reports or certifications.",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-7",
+            "charRange": [
+              15042,
+              15795
+            ]
+          },
+          "quotedText": "Cisco  will  make available to You reasonably necessary information to demonstrate Cisco’s compliance with the obligations of this DPA and  Data  Protection  Laws,  in  accordance  with  the  Information  Security  Exhibit, including  copies  of  third-party  audit reports or certifications it maintains in the ordinary course of business",
+          "sourceRole": "target"
+        }
+      ],
+      "ruleId": "gdpr.art28.3.h",
+      "ruleVersion": "2.0.1",
+      "severity": "medium",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-left-rule-gdpr-art28-3-h",
+      "skillId": "regimes/data-protection/gdpr",
+      "visibility": "user_facing",
+      "gap": "Clause allows providing information and third-party audit reports/certifications upon request, but does not explicitly explicitly state full provision for controller-conducted on-site inspections/audits directly.",
+      "ruleSourceTier": "B",
+      "requirementId": "gdpr.article28.3.h.audits_and_inspections"
+    },
+    {
+      "findingId": "f_compliance_gdpr.art28.4_wu-left-rule-gdpr-art28-4_cl_dpa_5_subprocessor_flow_down",
+      "kind": "compliance",
+      "category": "gdpr.art28.4.subprocessor_equivalent_obligations_and_processor_liability_gap",
+      "status": "present",
+      "claim": "The processor remains liable for the performance of its subprocessors.",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-4.3",
+            "charRange": [
+              14118,
+              14818
+            ]
+          },
+          "quotedText": "Cisco will be liable for the acts or omissions of Subprocessors to the same extent it is liable for its own actions or omissions under this DPA.",
+          "sourceRole": "target"
+        }
+      ],
+      "ruleId": "gdpr.art28.4",
+      "ruleVersion": "2.0.1",
+      "severity": "low",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-left-rule-gdpr-art28-4",
+      "skillId": "regimes/data-protection/gdpr",
+      "visibility": "user_facing",
+      "gap": "",
+      "ruleSourceTier": "B"
+    },
+    {
+      "findingId": "f_compliance_gdpr.art28.4_wu-left-rule-gdpr-art28-4_cl_dpa_9_subprocessor_flow_down",
+      "kind": "compliance",
+      "category": "gdpr.art28.4.subprocessor_equivalent_obligations_and_processor_liability_gap",
+      "status": "present",
+      "claim": "The processor must impose equivalent data protection obligations on subprocessors by written contract.",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-4.1",
+            "charRange": [
+              13075,
+              13304
+            ]
+          },
+          "quotedText": "Where Cisco appoints a Subprocessor, Cisco will execute a written agreement with the Subprocessor containing terms at least as protective as this DPA.",
+          "sourceRole": "target"
+        }
+      ],
+      "ruleId": "gdpr.art28.4",
+      "ruleVersion": "2.0.1",
+      "severity": "low",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-left-rule-gdpr-art28-4",
+      "skillId": "regimes/data-protection/gdpr",
+      "visibility": "user_facing",
+      "gap": "",
+      "ruleSourceTier": "B"
+    },
+    {
+      "findingId": "f_compliance_gdpr.art28.9_wu-left-rule-gdpr-art28-9_document",
+      "kind": "compliance",
+      "category": "gdpr.art28.9.written_processor_terms_gap",
+      "status": "insufficient_evidence",
+      "claim": "The agreement does not provide enough verifiable language to confirm written processor terms.",
+      "evidence": [],
+      "ruleId": "gdpr.art28.9",
+      "ruleVersion": "2.0.1",
+      "severity": "medium",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-left-rule-gdpr-art28-9",
+      "skillId": "regimes/data-protection/gdpr",
+      "visibility": "user_facing",
+      "gap": "No supplied clause materially addressed this obligation.",
+      "ruleSourceTier": "B"
+    },
+    {
+      "findingId": "f_compliance_gdpr.art28.10_wu-left-rule-gdpr-art28-10_document",
+      "kind": "compliance",
+      "category": "gdpr.art28.10.processor_acting_as_controller_gap",
+      "status": "insufficient_evidence",
+      "claim": "The agreement does not provide enough verifiable language to confirm processor acting as controller.",
+      "evidence": [],
+      "ruleId": "gdpr.art28.10",
+      "ruleVersion": "2.0.1",
+      "severity": "medium",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-left-rule-gdpr-art28-10",
+      "skillId": "regimes/data-protection/gdpr",
+      "visibility": "user_facing",
+      "gap": "No supplied clause materially addressed this obligation.",
+      "ruleSourceTier": "B"
+    },
+    {
+      "findingId": "f_render_wu-render",
+      "kind": "summary_point",
+      "category": "other_known_risk",
+      "status": "present",
+      "claim": "Rendered memo for skill(s) _global, doc-types/dpa, regimes/data-protection/gdpr with 33 prior findings.",
+      "evidence": [],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-render",
+      "skillId": "_global",
+      "visibility": "internal"
+    }
+  ],
+  "requirementAssessments": [
+    {
+      "requirementId": "gdpr.article28.1.sufficient_guarantees",
+      "supportingFindingIds": [
+        "f_compliance_gdpr.art28.1_wu-left-rule-gdpr-art28-1_cl_dpa_32_information_security"
+      ],
+      "status": "strong",
+      "judgement": {
+        "compliance": "present",
+        "evidenceState": "direct",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "draftingQuality": "clean",
+        "materiality": "low",
+        "recommendationKind": "none"
+      },
+      "summary": "The processor commits to implementing and maintaining appropriate technical and organisational security measures to protect Personal Data and monitor compliance."
+    },
+    {
+      "requirementId": "gdpr.article28.2.subprocessor_consent",
+      "supportingFindingIds": [
+        "f_compliance_gdpr.art28.2_wu-left-rule-gdpr-art28-2_cl_dpa_7_subprocessor_flow_down"
+      ],
+      "status": "cannot_determine",
+      "judgement": {
+        "compliance": "insufficient_evidence",
+        "evidenceState": "not_found",
+        "referenceBinding": "none",
+        "evidenceConfidence": "low",
+        "materiality": "medium",
+        "recommendationKind": "obtain"
+      },
+      "summary": "The agreement does not provide enough verifiable language to confirm prior subprocessor authorisation.",
+      "recommendation": "Obtain or confirm the referenced materials or unread remainder of the clause. Do not amend the agreement from incomplete evidence."
+    },
+    {
+      "requirementId": "gdpr.article28.3.a.documented_instructions",
+      "supportingFindingIds": [
+        "f_compliance_gdpr.art28.3.a_wu-left-rule-gdpr-art28-3-a_cl_dpa_3_data_protection"
+      ],
+      "status": "cannot_determine",
+      "judgement": {
+        "compliance": "insufficient_evidence",
+        "evidenceState": "not_found",
+        "referenceBinding": "none",
+        "evidenceConfidence": "low",
+        "materiality": "medium",
+        "recommendationKind": "obtain"
+      },
+      "summary": "The agreement does not provide enough verifiable language to confirm documented instructions-only processing.",
+      "recommendation": "Obtain or confirm the referenced materials or unread remainder of the clause. Do not amend the agreement from incomplete evidence."
+    },
+    {
+      "requirementId": "gdpr.article28.3.b.confidentiality_commitment",
+      "supportingFindingIds": [
+        "f_compliance_gdpr.art28.3.b_wu-left-rule-gdpr-art28-3-b_cl_dpa_18_confidentiality"
+      ],
+      "status": "strong",
+      "judgement": {
+        "compliance": "present",
+        "evidenceState": "direct",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "draftingQuality": "clean",
+        "materiality": "low",
+        "recommendationKind": "none"
+      },
+      "summary": "The processor ensures that persons authorised to process personal data have written contractual obligations to maintain confidentiality or are under an appropriate statutory obligation of confidentiality."
+    },
+    {
+      "requirementId": "gdpr.article28.3.c.security_measures",
+      "supportingFindingIds": [
+        "f_compliance_gdpr.art28.3.c_wu-left-rule-gdpr-art28-3-c_cl_dpa_10_security_dpia_assistance"
+      ],
+      "status": "strong",
+      "judgement": {
+        "compliance": "present",
+        "evidenceState": "direct",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "draftingQuality": "clean",
+        "materiality": "low",
+        "recommendationKind": "none"
+      },
+      "summary": "The processor commits to implementing and maintaining technical and organizational security measures specified in the Information Security Exhibit."
+    },
+    {
+      "requirementId": "gdpr.article28.3.d.subprocessor_obligations",
+      "supportingFindingIds": [
+        "f_compliance_gdpr.art28.3.d_wu-left-rule-gdpr-art28-3-d_cl_dpa_5_subprocessor_flow_down",
+        "f_compliance_gdpr.art28.3.d_wu-left-rule-gdpr-art28-3-d_cl_dpa_7_subprocessor_flow_down"
+      ],
+      "status": "conditional",
+      "judgement": {
+        "compliance": "partial",
+        "evidenceState": "direct",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "draftingQuality": "clean",
+        "materiality": "medium",
+        "recommendationKind": "amend"
+      },
+      "summary": "The processor remains fully liable to the controller for subprocessor performance.",
+      "recommendation": "Address the gap: The available document language was not specific enough to support a confirmed assessment."
+    },
+    {
+      "requirementId": "gdpr.article28.3.e.data_subject_rights_assistance",
+      "supportingFindingIds": [
+        "f_compliance_gdpr.art28.3.e_wu-left-rule-gdpr-art28-3-e_document"
+      ],
+      "status": "strong",
+      "judgement": {
+        "compliance": "present",
+        "evidenceState": "direct",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "draftingQuality": "clean",
+        "materiality": "low",
+        "recommendationKind": "none"
+      },
+      "summary": "The processor is obligated to provide assistance to the controller in responding to data subject requests and fulfilling their rights under applicable data protection laws."
+    },
+    {
+      "requirementId": "gdpr.article28.3.f.compliance_assistance",
+      "supportingFindingIds": [
+        "f_compliance_gdpr.art28.3.f_wu-left-rule-gdpr-art28-3-f_cl_dpa_22_processor_terms"
+      ],
+      "status": "cannot_determine",
+      "judgement": {
+        "compliance": "insufficient_evidence",
+        "evidenceState": "not_found",
+        "referenceBinding": "none",
+        "evidenceConfidence": "low",
+        "materiality": "medium",
+        "recommendationKind": "obtain"
+      },
+      "summary": "Assistance obligation clause is truncated and does not explicitly confirm complete assistance with security (Art 32), breach notification (Art 33/34), DPIAs (Art 35), or prior consultation (Art 36).",
+      "recommendation": "Obtain or confirm the referenced materials or unread remainder of the clause. Do not amend the agreement from incomplete evidence."
+    },
+    {
+      "requirementId": "gdpr.article28.3.g.data_deletion_or_return",
+      "supportingFindingIds": [
+        "f_compliance_gdpr.art28.3.g_wu-left-rule-gdpr-art28-3-g_document"
+      ],
+      "status": "cannot_determine",
+      "judgement": {
+        "compliance": "insufficient_evidence",
+        "evidenceState": "not_found",
+        "referenceBinding": "none",
+        "evidenceConfidence": "low",
+        "materiality": "medium",
+        "recommendationKind": "obtain"
+      },
+      "summary": "The agreement does not provide enough verifiable language to confirm return or deletion after services.",
+      "recommendation": "Obtain or confirm the referenced materials or unread remainder of the clause. Do not amend the agreement from incomplete evidence."
+    },
+    {
+      "requirementId": "gdpr.article28.3.h.audits_and_inspections",
+      "supportingFindingIds": [
+        "f_compliance_gdpr.art28.3.h_wu-left-rule-gdpr-art28-3-h_cl_dpa_37_audit_and_compliance_evidence"
+      ],
+      "status": "strong",
+      "judgement": {
+        "compliance": "present",
+        "evidenceState": "direct",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "draftingQuality": "clean",
+        "materiality": "low",
+        "recommendationKind": "none"
+      },
+      "summary": "The processor must make available information to demonstrate compliance with the DPA and Data Protection Laws, including third-party audit reports or certifications."
+    }
+  ],
+  "renderedOutput": "## Scope\n\nThis review evaluates the provided Data Processing Agreement (DPA) for compliance with **GDPR Article 28** statutory requirements governing data controller-processor arrangements under European Union data protection law. The objective is to identify whether the DPA incorporates mandatory standard contractual clauses mandated under **Article 28(3)**, assess processor commitments regarding technical and organizational security controls under **Article 28(1)**, and review subprocessor flow-down obligations.\n\nThe scope of analysis focuses on the standard regulatory pillars of **GDPR Article 28**, including documented instructions, processor confidentiality commitments, security measures, subprocessor authorization and liability, assistance with data subject rights, broader compliance support (such as security, breach notification, DPIAs, and prior consultation), data deletion or return upon service completion, and audit mechanisms [E1]. \n\nMaterial limitations exist regarding extrinsic documents referenced within the agreement. Provisions incorporating external terms—such as the underlying Agreement, applicable Offer Disclosure(s), and the Information Security Exhibit—were reviewed solely to the extent reflected in the provided text. Certain truncated clauses and referenced external schedules were not fully available, establishing specific evidentiary boundaries for this assessment.\n\n## Article28 1 Sufficient Guarantees\n\nThe Data Processing Agreement satisfies the requirement to provide sufficient guarantees under **GDPR Article 28(1)**. The processor explicitly commits to implementing and maintaining appropriate technical and organizational measures designed to ensure the protection of personal data [E1]. This baseline guarantee establishes that the processor operates with an adequate compliance posture to support lawful processing on behalf of the controller.\n\nUnder **Section 6**, the processor obligates itself to maintain the security controls detailed in the Information Security Exhibit and to regularly monitor its compliance with these security standards [E1]. The assessment status for **Article 28(1)** is **Strong**, reflecting a robust contractual commitment to data protection standards and active security oversight. \n\nBecause the security commitments are clearly articulated within the agreement and tied to ongoing compliance monitoring, no contractual amendments are required for this specific provision. The controller can rely on **Section 6** as satisfying the initial legal threshold for selecting a processor that provides sufficient technical and organizational guarantees under the GDPR.\n\n## Art 28(3)(d) Subprocessor Obligations\n\nUnder **Article 28(3)(d)** and **Article 28(2)** of the GDPR, a data processor must not engage another processor without prior specific or general written authorisation of the controller, and must impose the same data protection obligations on subprocessors via a binding contract. While the Data Processing Agreement establishes core liability for downstream processors, full compliance across subprocessor engagements remains partially unverified due to missing contractual provisions in the provided text. \n\nRegarding subprocessor flow-down requirements under **Article 28(3)(d)**, the agreement presents a **Minor drafting gap**. The instrument explicitly binds Cisco to execute written agreements with subprocessors containing terms at least as protective as those in the DPA, and confirms that Cisco remains fully liable for the acts or omissions of its subprocessors to the same extent as its own actions [E1]. However, to ensure full technical alignment with statutory mandates, the agreement requires precise flow-down language ensuring all mandatory **Article 28(3)** operational obligations are explicitly imposed downstream. Consequently, the controller should **Amend** the flow-down provisions to explicitly mirror each specific controller instruction and compliance standard.\n\nRegarding subprocessor authorization under **Article 28(2)**, the assessment is **Cannot determine**. The available document text does not contain sufficient verifiable language detailing the precise mechanisms for obtaining prior written authorisation or managing controller objections to subprocessor changes. Because this uncertainty stems from missing provisions across the provided materials rather than an established substantive flaw, the controller must **Obtain** and **Confirm** the complete subprocessor appointment clauses from the underlying agreement before determining whether contractual modifications are required.\n\n## Key findings\n\nThe Data Processing Agreement (DPA) exhibits robust protections across several core operational requirements under GDPR **Article 28**, but it suffers from crucial evidentiary gaps and minor drafting deficiencies. The agreement establishes **Strong** controls governing confidentiality obligations, security safeguards, data subject assistance, and audit oversight. Specifically, the processor ensures that personnel authorized to process personal data are bound by written contractual or statutory confidentiality duties under **Article 28(3)(b)** [E1]. Technical and organizational security controls are maintained pursuant to **Article 28(3)(c)** [E1], and the processor commits to assisting the controller with data subject requests under **Article 28(3)(e)** [E1]. Furthermore, compliance verification under **Article 28(3)(h)** is satisfied through provisions requiring the processor to provide necessary compliance documentation and notify the controller of instructions violating applicable laws [E1].\n\nHowever, subprocessor management provisions present a **Minor drafting gap** regarding full flow-down terms under **Article 28(3)(d)**. While subprocessor performance liabilities remain with the processor, the agreement requires minor language drafting amendments to explicitly mandate that subprocessors be bound by equivalent data protection obligations to those imposed on the primary processor. Additionally, verifiable evidence is missing regarding prior subprocessor authorization under **Article 28(2)**, leaving the compliance status for subprocessor consent unresolved based solely on the present excerpt.\n\nSignificant evidentiary gaps impair the evaluation of processing scope, assistance, and post-termination disposition. Statuses for documented processing instructions (**Article 28(3)(a)**) and post-service data deletion or return (**Article 28(3)(g)**) are evaluated as **Cannot determine** due to missing clause text in the provided materials. Similarly, compliance assistance under **Article 28(3)(f)** is **Cannot determine** because the relevant provision is truncated, preventing confirmation of full support for security, breach notifications, data protection impact assessments (DPIAs), or prior consultations [E1]. Because these gaps stem from incomplete evidence rather than confirmed contractual omissions, the appropriate recourse is to obtain and review the complete un-truncated text and associated schedules rather than immediately drafting substantive amendments.\n\n## Recommendations\n\n**Amend** the subprocessor flow-down provisions under **Article 28(3)(d)** to explicitly enforce equivalent data protection obligations across all downstream processors. While the current terms establish that Cisco remains liable for subprocessor acts or omissions and mandates written agreements with subprocessors [E1], a **Minor drafting gap** exists regarding the complete scope of flow-down protections required by GDPR Article 28(3)(d). Counsel should update the subprocessor appointment clause to expressly state that all specific Article 28(3) obligations are directly imposed upon appointed subprocessors.\n\n**Obtain** missing agreement schedules and complete clause texts where compliance status currently remains **Cannot determine**. Specifically, missing or truncated text prevents verification of fundamental controller-processor terms under **Article 28(2)** (prior authorization for subprocessor engagement), **Article 28(3)(a)** (processing strictly on documented instructions), **Article 28(3)(f)** (assistance with DPIAs, breach notification, and prior consultation), and **Article 28(3)(g)** (post-termination data deletion or return). The controller should request the full, unredacted DPA annexes and applicable Offer Disclosures referenced throughout the contract to evaluate these requirements before execution.\n\n**Confirm** that the operational controls detailed in the Information Security Exhibit and Offer Disclosures align with the overall risk profile of the processing activities once full documentation is provided. Once the missing schedules are acquired, a final cross-functional review should ensure that audit rights under **Article 28(3)(h)** and technical security measures seamlessly integrate with the primary agreement without conflicting terms.\n\n## Missing materials\n\nFull regulatory compliance verification under **Article 28** cannot be achieved due to missing external schedules and truncated agreement provisions referenced throughout the text [E1]. The primary instrument relies heavily on unsupplied cross-referenced documents—specifically the applicable **Offer Disclosure(s)**, the main **Agreement**, and linked security exhibits [E1]. Because these referenced materials define the scope of processing, specific subprocessor rules, and technical controls, their absence directly restricts a complete legal assessment.\n\nThe principal missing materials necessary for verification include:\n- **Offer Disclosure(s)**: Referenced repeatedly to establish the specific subject matter, duration, nature, and purpose of processing, as well as specific data deletion or return protocols [E1].\n- **Main Agreement**: Referenced regarding general commercial terms, termination mechanisms, and overarching liability frameworks governing the processing relationship [E1].\n- ** complete Subprocessor Authorisation and Instruction Terms**: Unsupplied provisions needed to verify standard operating procedures for subprocessor engagement and documented controller instructions [E1].\n\nIn addition to missing schedules, several critical statutory obligations evaluated under **Article 28** were assessed as **Cannot determine** because key clauses are truncated or absent in the supplied excerpt [E1]. Specifically, verifiable text is missing for **Article 28(2)** (prior subprocessor consent), **Article 28(3)(a)** (processing strictly on documented instructions), **Article 28(3)(f)** (assistance with security, breach notification, DPIAs, and prior consultation), and **Article 28(3)(g)** (post-termination data deletion or return) [E1]. For instance, the compliance assistance provision cuts off mid-sentence after \"in order to\" [E1], rendering it impossible to confirm full statutory alignment without reviewing the complete instrument.\n\nTo establish full legal certainty and verify compliance with **Article 28**, the reviewing party must **Obtain** the complete, unredacted text of the DPA and all referenced **Offer Disclosure(s)** [E1]. **Confirm** and re-read the fully executed provisions before concluding whether formal contract amendments are required.\n\n## Conclusion\n\nThe Data Processing Agreement (DPA) demonstrates a strong baseline position across several foundational GDPR Article 28 requirements. Specifically, the agreement establishes **Strong** mechanisms regarding processor guarantees under **Article 28(1)**, mandatory confidentiality commitments for authorized personnel under **Article 28(3)(b)**, robust technical and organizational security controls under **Article 28(3)(c)**, assistance with data subject requests under **Article 28(3)(e)**, and compliance audit rights under **Article 28(3)(h)** [E1]. \n\nHowever, full regulatory alignment cannot be confirmed due to truncated evidence and missing clause provisions. Key elements—including documented processing instructions under **Article 28(3)(a)**, prior authorization mechanisms for subprocessors under **Article 28(2)**, broader compliance assistance for security, breach notifications, and DPIAs under **Article 28(3)(f)**, and post-termination data deletion or return obligations under **Article 28(3)(g)**—remain assessed as **Cannot determine** [E1]. Additionally, subprocessor pass-through terms contain a **Minor drafting gap** under **Article 28(3)(d)** despite clear processor liability commitments [E1].\n\nTo achieve full compliance, the controller should first **Obtain** and review the uncompleted text and referenced attachments—such as the complete assistance provisions, subprocessor consent mechanics, and post-service data disposition terms—rather than amending based on truncated excerpts. Once complete text is verified, the controller should **Amend** the subprocessor pass-through provisions to ensure comprehensive statutory flow-down requirements are explicitly embodied in the agreement.",
+  "auditReport": {
+    "findingsChanged": [],
+    "assessmentsChanged": [],
+    "contradictions": [],
+    "notes": []
+  }
+}

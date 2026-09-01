@@ -1533,7 +1533,13 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
         "controller_obligations_rights",
       ],
       capabilityIds: ["gdpr.art28.3.chapeau", "gdpr.art28.9"],
-      clauseTypes: ["processor_terms", "data_protection"],
+      clauseTypes: [
+        "processor_terms",
+        "data_protection",
+        "termination",
+        "definitions",
+        "records_of_processing",
+      ],
       extractionTargets: [
         "subject_matter",
         "duration",
@@ -1543,6 +1549,105 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
         "data_subject_categories",
         "controller_obligations_rights",
       ],
+      requirementEvidence: {
+        subject_matter: {
+          hypothesis:
+            "The contract sets out the subject matter of the processing.",
+          evidenceHints: [
+            "subject matter",
+            "offer",
+            "offers",
+            "disclosures",
+            "applies to the processing",
+          ],
+          proofStandard:
+            "Proven only by text stating what personal-data processing activity or " +
+            "service this agreement covers (e.g. 'processing of Customer Personal Data " +
+            "in connection with the Offerings'). An explicit, named cross-reference to " +
+            "another document (an Offer, SOW, or Order Form) counts only if that " +
+            "referenced document itself states the subject matter — a bare pointer with " +
+            "no confirmation the target document contains it is a dependency, not proof. " +
+            "General recitals about the parties' business relationship, or a bare " +
+            "definition of 'Personal Data'/'Processing', do not establish subject matter " +
+            "unless they also say what is being processed under this specific agreement.",
+        },
+        duration: {
+          hypothesis: "The contract sets out the duration of the processing.",
+          evidenceHints: [
+            "duration",
+            "term",
+            "period",
+            "termination",
+            "in force",
+            "set forth",
+          ],
+          proofStandard:
+            "Proven only by text stating how long the processing continues — an " +
+            "explicit term (e.g. 'for the duration of the Agreement'), a fixed period, " +
+            "or an end condition tied to a specific event. Termination rights, notice " +
+            "periods, or post-termination data-deletion timelines do NOT by themselves " +
+            "establish duration unless they also state or clearly reference the term of " +
+            "the underlying processing itself. A bare statement that 'this DPA remains " +
+            "in effect' without saying what period that tracks against does not count.",
+        },
+        nature_purpose: {
+          hypothesis:
+            "The contract sets out the nature and purpose of the processing.",
+          evidenceHints: ["nature", "purpose", "offer", "offers", "provision of"],
+          proofStandard:
+            "Proven only when the text describes BOTH what activities are performed on " +
+            "the data (nature — e.g. storage, hosting, transmission, analysis) AND why " +
+            "(purpose — e.g. to provide the contracted Offerings to the Customer). Both " +
+            "halves must be present: a clause stating only the purpose without " +
+            "describing the kind of processing activity, or vice versa, is partial, not " +
+            "present. A generic statement like 'Cisco will process data in accordance " +
+            "with the Agreement' describes neither and does not count.",
+        },
+        data_categories: {
+          hypothesis: "The contract sets out the types of personal data.",
+          evidenceHints: ["categories of personal data", "types of personal data"],
+          proofStandard:
+            "Proven only by text that names or categorizes the type(s) of personal " +
+            "data processed — e.g. contact details, account credentials, health data, " +
+            "employee data. An explicit, named cross-reference to an Annex/Schedule/" +
+            "Order Form counts only if that referenced document itself lists the " +
+            "categories — a bare pointer such as 'as described in the Offer' without " +
+            "confirming the Offer actually contains such a list is a dependency on an " +
+            "unsupplied document, not proof of the requirement.",
+        },
+        data_subject_categories: {
+          hypothesis: "The contract sets out the categories of data subjects.",
+          evidenceHints: ["data subjects", "categories of data subjects"],
+          proofStandard:
+            "Proven only by text identifying WHO the data subjects are — e.g. " +
+            "Customer's employees, customers, or end users — distinct from what data " +
+            "is processed about them. A clause describing only the types of DATA does " +
+            "not establish the types of PEOPLE the data is about. As with data " +
+            "categories, an explicit named cross-reference to a document that itself " +
+            "lists data-subject categories counts; an unconfirmed pointer does not.",
+        },
+        controller_obligations_rights: {
+          hypothesis:
+            "The contract sets out the controller's obligations and rights.",
+          evidenceHints: [
+            "obligations",
+            "rights",
+            "instructions",
+            "lawful",
+            "minimise",
+            "minimize",
+            "data protection laws",
+          ],
+          proofStandard:
+            "Proven only by text stating what the CONTROLLER (not the processor) must " +
+            "do or is entitled to do — e.g. the controller's duty to give lawful " +
+            "instructions or ensure a legal basis for the processing, or its right to " +
+            "audit/inspect the processor's compliance. A clause describing only the " +
+            "PROCESSOR's duties (the more common Art 28(3)(a)-(h) content) does not " +
+            "satisfy this particular unless it also names something the controller " +
+            "itself must or may do.",
+        },
+      },
       sourceMode: "authored",
       packageVersion: "1.0.0",
       report: {
@@ -1603,6 +1708,11 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
         "information_security",
         "retention_and_deletion",
         "audit_and_compliance_evidence",
+        "confidentiality",
+        "deletion_on_termination",
+        "data_subject_request_handling",
+        "processor_assistance_obligation",
+        "security_dpia_assistance",
       ],
       extractionTargets: [
         "instructions_only_processing",
@@ -1614,6 +1724,170 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
         "return_or_deletion",
         "audit_rights",
       ],
+      requirementEvidence: {
+        art28_3_a_instructions: {
+          hypothesis:
+            "The processor processes personal data only on documented instructions from the controller.",
+          evidenceHints: ["documented instructions", "instructions"],
+          proofStandard:
+            "Proven only by text that requires the processor to act ONLY on the " +
+            "controller's documented/written instructions — not merely to comply " +
+            "with data protection law generally, and not merely a description of " +
+            "the processing already agreed in the contract. A general statement " +
+            "that the processor 'will process personal data in accordance with " +
+            "Data Protection Laws' is a compliance obligation, not an " +
+            "instructions-only constraint, and does not by itself satisfy this. " +
+            "The clause must specifically tie processing to controller " +
+            "instructions (a carve-out for legally required processing, paired " +
+            "with a duty to notify the controller first, is consistent with " +
+            "this particular and does not defeat it).",
+        },
+        art28_3_b_confidentiality: {
+          hypothesis:
+            "Persons authorised to process personal data are committed to confidentiality.",
+          evidenceHints: ["confidential", "secrecy", "authorised persons", "authorized persons"],
+          proofStandard:
+            "Proven only by text imposing a confidentiality duty specifically on " +
+            "the PERSONS who process the data (employees, staff, " +
+            "representatives) — via written contractual confidentiality " +
+            "obligations or a statutory duty of confidentiality binding those " +
+            "persons. A general corporate confidentiality clause covering the " +
+            "parties' business information, without specifically extending to " +
+            "persons handling personal data, does not satisfy this. Do not " +
+            "confuse with the technical/security-measures particular — this one " +
+            "is about people being bound to secrecy, not about systems being " +
+            "secured.",
+        },
+        art28_3_c_security: {
+          hypothesis:
+            "The processor implements appropriate technical and organisational security measures.",
+          evidenceHints: ["security", "technical and organisational", "tom"],
+          proofStandard:
+            "Proven only by text obligating the processor to implement technical " +
+            "and organisational measures appropriate to the risk (e.g. " +
+            "referencing encryption, access controls, resilience, testing, or " +
+            "an incorporated security exhibit/schedule). A bare cross-reference " +
+            "to 'the Information Security Exhibit' or similar counts only if " +
+            "that referenced document is confirmed to actually contain security " +
+            "measures — an unconfirmed pointer is a dependency on an unsupplied " +
+            "document, not proof.",
+        },
+        art28_3_d_subprocessors: {
+          hypothesis:
+            "The processor does not engage another processor without controller authorisation.",
+          evidenceHints: [
+            "sub-processor",
+            "subprocessor",
+            "authorisation",
+            "authorization",
+            "notice",
+            "object",
+            "written agreement",
+            "thirty days",
+            "30 days",
+          ],
+          proofStandard:
+            "Proven only by text requiring the processor to obtain the " +
+            "controller's prior GENERAL or SPECIFIC written authorization " +
+            "before engaging a subprocessor, AND (for general authorization) " +
+            "giving the controller an opportunity to object to changes. A " +
+            "clause that merely says the processor 'will notify' or 'may " +
+            "engage subprocessors' without any authorization/objection " +
+            "mechanism does not satisfy this — notice alone is not " +
+            "authorization.",
+        },
+        art28_3_e_dsr_assistance: {
+          hypothesis:
+            "The processor assists the controller in responding to data-subject rights requests.",
+          evidenceHints: [
+            "data subject",
+            "assist",
+            "rights request",
+            "supervisory",
+          ],
+          proofStandard:
+            "Proven only by text obligating the processor to assist the " +
+            "controller (by appropriate technical and organisational measures) " +
+            "in responding to data subject rights requests (access, " +
+            "rectification, erasure, portability, objection, etc.) made to the " +
+            "controller. A clause obligating the processor merely to forward or " +
+            "redirect a data subject's own request to the controller is a " +
+            "weaker, narrower obligation than 'assist responding to requests' — " +
+            "treat it as partial/gap unless it also commits to some " +
+            "substantive assistance (providing the means, information, or " +
+            "technical support the controller needs to fulfill the request), " +
+            "not merely notice/redirection.",
+        },
+        art28_3_f_security_assistance: {
+          hypothesis:
+            "The processor assists the controller with security, personal-data-breach, and DPIA obligations.",
+          evidenceHints: [
+            "assist",
+            "breach",
+            "dpia",
+            "security of processing",
+            "prior consultation",
+            "supervisory",
+          ],
+          proofStandard:
+            "Proven only by text obligating the processor to assist the " +
+            "controller with the CONTROLLER's own Article 32-36 obligations — " +
+            "security of processing, breach notification to the supervisory " +
+            "authority/data subjects, data protection impact assessments, or " +
+            "prior consultation with a supervisory authority. A clause stating " +
+            "only that the processor will notify the controller of a breach " +
+            "affecting the processor's own systems is the processor's OWN " +
+            "breach-notification duty (a different, narrower obligation) — " +
+            "this particular requires the processor to help the controller " +
+            "satisfy the controller's own downstream obligations, not just " +
+            "report upward.",
+        },
+        art28_3_g_deletion_return: {
+          hypothesis:
+            "At the end of the services the processor deletes or returns personal data and existing copies.",
+          evidenceHints: ["delete", "deletion", "return", "erasure", "copies"],
+          proofStandard:
+            "Proven only by text obligating the processor, at the end of the " +
+            "provision of services (not merely 'on request' at an unspecified " +
+            "time), to delete or return all personal data and delete existing " +
+            "copies, unless EU/Member State law requires continued storage. A " +
+            "clause giving the controller only a vague 'right to request " +
+            "deletion' without the processor being independently obligated to " +
+            "delete/return at end-of-service does not satisfy this.",
+        },
+        art28_3_h_audit: {
+          hypothesis:
+            "The processor makes available information necessary to demonstrate compliance and allows audits and inspections.",
+          evidenceHints: ["audit", "inspection", "demonstrate compliance"],
+          proofStandard:
+            "Proven only by text obligating the processor to make available " +
+            "information necessary to demonstrate compliance AND to allow for " +
+            "and contribute to audits, including inspections, conducted by the " +
+            "controller or an auditor mandated by the controller. Providing " +
+            "only third-party certifications/reports (e.g. SOC2, ISO 27001) on " +
+            "request, with no independent right for the controller (or its " +
+            "auditor) to conduct or contribute to an actual audit/inspection, " +
+            "is a weaker, narrower obligation — treat it as partial/gap, not " +
+            "full satisfaction, since this particular requires both the " +
+            "information AND the audit/inspection right.",
+        },
+        art28_4_subprocessor_flow_down: {
+          hypothesis:
+            "A subprocessor is bound by the same data-protection obligations as the processor.",
+          evidenceHints: ["flow-down", "same obligations", "subprocessor"],
+          proofStandard:
+            "Proven only by text requiring the SAME data protection obligations " +
+            "imposed on the processor by this DPA to be imposed on any " +
+            "subprocessor by contract, specifically by reference to the " +
+            "processor's own Article 28(3) obligations — not merely a general " +
+            "statement that subprocessors must comply with data protection law, " +
+            "and not merely that the processor remains liable for the " +
+            "subprocessor's acts. Liability for a subprocessor's conduct is a " +
+            "different, narrower guarantee that does NOT by itself establish " +
+            "that the same contractual obligations were actually imposed on " +
+            "the subprocessor.",
+        },
+      },
       sourceMode: "authored",
       packageVersion: "1.0.0",
       report: {

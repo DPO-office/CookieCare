@@ -175,6 +175,19 @@ export interface MissingClarification {
   options?: string[];
 }
 
+/**
+ * Explicit, surfaced target-vs-reference resolution (§5.1) — never a silent
+ * guess. `reasons` records why each document got its role so the decision is
+ * inspectable in plan-inspect-log output, not just a hidden heuristic.
+ */
+export interface DocumentRoleResolution {
+  targetDocId: string;
+  targetDocIds: string[];
+  referenceDocId?: string;
+  roles: Record<string, "target" | "reference">;
+  reasons: Record<string, string>;
+}
+
 export interface ScopeAuditEntry {
   packageId: string;
   /** Authored capability ids excluded from standalone evaluation (kept as context). */
@@ -244,6 +257,8 @@ export interface AnalysisPlan {
   auditRecord?: PlanAuditRecord;
   /** PLAN-time package execution paths (audit + aggregation of unsupported reqs). */
   requirementExecutionPaths?: RequirementExecutionPath[];
+  /** Surfaced target/reference decision (§5.1) — see DocumentRoleResolution. */
+  documentRoleResolution?: DocumentRoleResolution;
   /** Pack / taxonomy versions pinned for audit reproducibility. */
   pinnedVersions: {
     clauseTaxonomyVersion: string;

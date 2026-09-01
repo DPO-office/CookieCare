@@ -11,3 +11,4 @@ export * from "./analysis-state.js";
 export * from "./requirement.js";
 export * from "./coverage-mapping.js";
 export * from "./active-skill-snapshot.js";
+export * from "./proposition.js";

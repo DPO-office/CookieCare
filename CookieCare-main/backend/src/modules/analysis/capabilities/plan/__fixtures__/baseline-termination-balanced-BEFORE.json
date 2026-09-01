@@ -1,0 +1,518 @@
+{
+  "intent": {
+    "scope": "whole_document",
+    "operation": "explain_qa",
+    "standard": "none",
+    "standardConcept": "none",
+    "outputForm": "memo",
+    "reportType": "qa_answer",
+    "depth": "standard",
+    "compound": false,
+    "subIntents": [],
+    "requirements": [
+      {
+        "id": "termination.balance_assessment",
+        "description": "Assess whether the termination clauses, grounds, notice periods, and remedies in the agreement are balanced between the parties.",
+        "type": "adequacy",
+        "priority": "required"
+      }
+    ],
+    "unresolvedNeeds": [],
+    "confidence": {
+      "scope": 0.95,
+      "operation": 0.95,
+      "standard": 1,
+      "outputForm": 0.95
+    },
+    "docTypeHint": "dpa",
+    "documentPresentation": "unified"
+  },
+  "clarificationRequest": null,
+  "declineMessage": null,
+  "plan": {
+    "intent": {
+      "scope": "whole_document",
+      "operation": "explain_qa",
+      "standard": "none",
+      "standardConcept": "none",
+      "outputForm": "memo",
+      "reportType": "qa_answer",
+      "depth": "standard",
+      "compound": false,
+      "subIntents": [],
+      "requirements": [
+        {
+          "id": "termination.balance_assessment",
+          "description": "Assess whether the termination clauses, grounds, notice periods, and remedies in the agreement are balanced between the parties.",
+          "type": "adequacy",
+          "priority": "required"
+        }
+      ],
+      "unresolvedNeeds": [],
+      "confidence": {
+        "scope": 0.95,
+        "operation": 0.95,
+        "standard": 1,
+        "outputForm": 0.95
+      },
+      "docTypeHint": "dpa",
+      "documentPresentation": "unified"
+    },
+    "workUnits": [
+      {
+        "workUnitId": "wu-classify",
+        "tool": "classify_document",
+        "input": {
+          "docId": "dpa"
+        },
+        "dependsOn": [],
+        "outputSchema": "string",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-extract",
+        "tool": "extract_clauses",
+        "input": {
+          "docId": "dpa",
+          "clauseTypes": [
+            "data_protection",
+            "subprocessor_flow_down",
+            "deletion_on_termination",
+            "international_transfer_mechanism",
+            "security_dpia_assistance",
+            "definitions",
+            "termination",
+            "confidentiality",
+            "limitation_of_liability",
+            "indemnity",
+            "governing_law",
+            "processor_terms",
+            "processor_assistance_obligation",
+            "information_security",
+            "audit_and_compliance_evidence"
+          ],
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Is termination balanced in this agreement?",
+          "unionPlaybookClauseTypes": false
+        },
+        "dependsOn": [
+          "wu-classify"
+        ],
+        "outputSchema": "ClauseObject[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-pkg-ev-dpa.structural_review",
+        "tool": "extract_shared_evidence",
+        "input": {
+          "docId": "dpa",
+          "packageId": "dpa.structural_review",
+          "clauseTypes": [
+            "data_protection",
+            "subprocessor_flow_down",
+            "deletion_on_termination",
+            "international_transfer_mechanism",
+            "security_dpia_assistance",
+            "definitions",
+            "termination",
+            "confidentiality",
+            "limitation_of_liability",
+            "indemnity",
+            "governing_law"
+          ],
+          "extractionTargets": [
+            "subject_matter",
+            "duration",
+            "nature_and_purpose",
+            "subprocessor_list",
+            "deletion_terms",
+            "transfer_mechanism"
+          ],
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Is termination balanced in this agreement?"
+        },
+        "dependsOn": [
+          "wu-extract"
+        ],
+        "outputSchema": "ClauseObject[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-pkg-eval-dpa.structural_review",
+        "tool": "evaluate_package",
+        "input": {
+          "docId": "dpa",
+          "packageId": "dpa.structural_review",
+          "capabilityIds": [
+            "dpa.subject_matter_defined",
+            "dpa.duration_defined",
+            "dpa.nature_and_purpose_defined",
+            "dpa.subprocessor_flowdown_present",
+            "dpa.deletion_on_termination_present",
+            "dpa.security_and_dpia_assistance_present",
+            "dpa.international_transfer_mechanism_present",
+            "dpa.confidentiality_of_staff_present"
+          ],
+          "contextCapabilityIds": [],
+          "requirementIds": [
+            "dpa.subject_matter_defined",
+            "dpa.duration_defined",
+            "dpa.nature_and_purpose_defined",
+            "dpa.subprocessor_flowdown_present",
+            "dpa.deletion_on_termination_present",
+            "dpa.security_and_dpia_assistance_present",
+            "dpa.international_transfer_mechanism_present",
+            "dpa.confidentiality_of_staff_present"
+          ],
+          "sourceMode": "authored",
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Is termination balanced in this agreement?",
+          "depth": "standard",
+          "extractionTargets": [
+            "subject_matter",
+            "duration",
+            "nature_and_purpose",
+            "subprocessor_list",
+            "deletion_terms",
+            "transfer_mechanism"
+          ],
+          "requirementEvidence": {},
+          "requirementBindings": {},
+          "inputArtifactIds": []
+        },
+        "dependsOn": [
+          "wu-pkg-ev-dpa.structural_review"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending",
+        "requirementIds": [
+          "dpa.subject_matter_defined",
+          "dpa.duration_defined",
+          "dpa.nature_and_purpose_defined",
+          "dpa.subprocessor_flowdown_present",
+          "dpa.deletion_on_termination_present",
+          "dpa.security_and_dpia_assistance_present",
+          "dpa.international_transfer_mechanism_present",
+          "dpa.confidentiality_of_staff_present"
+        ]
+      },
+      {
+        "workUnitId": "wu-aggregate",
+        "tool": "aggregate_requirements",
+        "input": {
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Is termination balanced in this agreement?",
+          "unsupportedRequirements": []
+        },
+        "dependsOn": [
+          "wu-pkg-eval-dpa.structural_review"
+        ],
+        "outputSchema": "string",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-derive-risk",
+        "tool": "derive_risk",
+        "input": {
+          "docId": "dpa",
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Is termination balanced in this agreement?"
+        },
+        "dependsOn": [
+          "wu-aggregate"
+        ],
+        "outputSchema": "Finding[]",
+        "status": "pending"
+      },
+      {
+        "workUnitId": "wu-render",
+        "tool": "render_output",
+        "input": {
+          "schemaId": "qa_thread",
+          "skillIds": [
+            "_global",
+            "doc-types/dpa",
+            "regimes/data-protection/gdpr"
+          ],
+          "instruction": "Is termination balanced in this agreement?",
+          "relatedNotes": []
+        },
+        "dependsOn": [
+          "wu-derive-risk"
+        ],
+        "outputSchema": "string",
+        "status": "pending"
+      }
+    ],
+    "missingClarifications": [],
+    "outputForm": "qa_thread",
+    "documentPresentation": "unified",
+    "skipCritique": true,
+    "reportSpec": {
+      "reportType": "qa_answer",
+      "depth": "standard",
+      "sections": [
+        "scope",
+        "chapeau_particulars",
+        "requirements_detail",
+        "qualifications",
+        "recommendations",
+        "missing_materials",
+        "conclusion"
+      ],
+      "outline": [
+        {
+          "id": "evidence",
+          "role": "evidence",
+          "sectionId": "evidence",
+          "heading": "Evidence",
+          "requirementIds": [],
+          "source": "deterministic"
+        },
+        {
+          "id": "conclusion",
+          "role": "conclusion",
+          "sectionId": "conclusion",
+          "heading": "Conclusion",
+          "requirementIds": [],
+          "source": "deterministic"
+        }
+      ]
+    },
+    "rendererSchemaId": "qa_thread",
+    "activeSkillIds": [
+      "_global",
+      "doc-types/dpa",
+      "regimes/data-protection/gdpr"
+    ],
+    "focus": {
+      "ruleIds": [],
+      "matrixRowIds": [],
+      "riskCategoryIds": [],
+      "instructionText": "Is termination balanced in this agreement?",
+      "requirements": [
+        {
+          "id": "termination.balance_assessment",
+          "label": "Assess whether the termination clauses, grounds, notice periods, and remedies in the agreement are balanced between the parties.",
+          "sourceText": "Is termination balanced in this agreement?"
+        }
+      ],
+      "requiredCapabilities": [
+        "unilateral_termination"
+      ],
+      "supportingCapabilities": [],
+      "requirementMappings": [
+        {
+          "requirementId": "termination.balance_assessment",
+          "capabilityIds": [
+            "unilateral_termination"
+          ],
+          "source": "catalog_llm"
+        }
+      ],
+      "completenessCheck": [
+        {
+          "requirementId": "termination.balance_assessment",
+          "label": "Assess whether the termination clauses, grounds, notice periods, and remedies in the agreement are balanced between the parties.",
+          "status": "covered",
+          "mappedCapabilityIds": [
+            "unilateral_termination"
+          ]
+        }
+      ],
+      "requiredIds": [
+        "unilateral_termination"
+      ],
+      "supportingIds": [],
+      "unresolvedNeeds": [],
+      "unresolvedNeedDetails": [],
+      "droppedCandidateIds": [],
+      "provenance": [
+        {
+          "id": "unilateral_termination",
+          "kind": "risk_category",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "The user asks whether termination clauses in the agreement are balanced. Candidate risk category `unilateral_termination` evaluates whether termination rights favor one party without reciprocal rights, directly satisfying this requirement."
+        }
+      ],
+      "selectedPackageIds": [],
+      "explicitScope": {
+        "articles": [],
+        "contextArticles": [],
+        "allowCrossReferencedContext": true,
+        "allowOutOfScopeRules": true
+      }
+    },
+    "auditRecord": {
+      "resolvedSkillIds": [
+        "_global",
+        "doc-types/dpa",
+        "regimes/data-protection/gdpr"
+      ],
+      "resolvedRuleIds": [],
+      "resolvedMatrixRowIds": [],
+      "resolvedRiskCategoryIds": [],
+      "reportSpec": {
+        "reportType": "qa_answer",
+        "depth": "standard",
+        "sections": [
+          "scope",
+          "chapeau_particulars",
+          "requirements_detail",
+          "qualifications",
+          "recommendations",
+          "missing_materials",
+          "conclusion"
+        ],
+        "outline": [
+          {
+            "id": "evidence",
+            "role": "evidence",
+            "sectionId": "evidence",
+            "heading": "Evidence",
+            "requirementIds": [],
+            "source": "deterministic"
+          },
+          {
+            "id": "conclusion",
+            "role": "conclusion",
+            "sectionId": "conclusion",
+            "heading": "Conclusion",
+            "requirementIds": [],
+            "source": "deterministic"
+          }
+        ]
+      },
+      "resolutionSources": [
+        "catalog_llm"
+      ],
+      "droppedCandidateIds": [],
+      "requirements": [
+        {
+          "id": "termination.balance_assessment",
+          "label": "Assess whether the termination clauses, grounds, notice periods, and remedies in the agreement are balanced between the parties.",
+          "sourceText": "Is termination balanced in this agreement?"
+        }
+      ],
+      "requiredCapabilities": [
+        "unilateral_termination"
+      ],
+      "supportingCapabilities": [],
+      "requirementMappings": [
+        {
+          "requirementId": "termination.balance_assessment",
+          "capabilityIds": [
+            "unilateral_termination"
+          ],
+          "source": "catalog_llm"
+        }
+      ],
+      "completenessCheck": [
+        {
+          "requirementId": "termination.balance_assessment",
+          "label": "Assess whether the termination clauses, grounds, notice periods, and remedies in the agreement are balanced between the parties.",
+          "status": "covered",
+          "mappedCapabilityIds": [
+            "unilateral_termination"
+          ]
+        }
+      ],
+      "unresolvedNeeds": [],
+      "provenance": [
+        {
+          "id": "unilateral_termination",
+          "kind": "risk_category",
+          "source": "catalog_llm",
+          "required": true,
+          "reason": "The user asks whether termination clauses in the agreement are balanced. Candidate risk category `unilateral_termination` evaluates whether termination rights favor one party without reciprocal rights, directly satisfying this requirement."
+        }
+      ],
+      "resolvedPackageIds": [
+        "dpa.structural_review"
+      ],
+      "requirementToPackageId": {
+        "termination.balance_assessment": "dpa.structural_review",
+        "dpa.subject_matter_defined": "dpa.structural_review",
+        "dpa.duration_defined": "dpa.structural_review",
+        "dpa.nature_and_purpose_defined": "dpa.structural_review",
+        "dpa.subprocessor_flowdown_present": "dpa.structural_review",
+        "dpa.deletion_on_termination_present": "dpa.structural_review",
+        "dpa.security_and_dpia_assistance_present": "dpa.structural_review",
+        "dpa.international_transfer_mechanism_present": "dpa.structural_review",
+        "dpa.confidentiality_of_staff_present": "dpa.structural_review"
+      },
+      "requirementExecutionPaths": [
+        {
+          "requirementId": "termination.balance_assessment",
+          "status": "supported",
+          "packageId": "dpa.structural_review",
+          "requirementType": "adequacy"
+        }
+      ],
+      "rawIntent": {
+        "scope": "whole_document",
+        "operation": "explain_qa",
+        "standard": "none",
+        "standardConcept": "none",
+        "outputForm": "memo",
+        "reportType": "qa_answer",
+        "depth": "standard",
+        "compound": false,
+        "subIntents": [],
+        "requirements": [
+          {
+            "id": "termination.balance_assessment",
+            "description": "Assess whether the termination clauses, grounds, notice periods, and remedies in the agreement are balanced between the parties.",
+            "type": "adequacy",
+            "priority": "required"
+          }
+        ],
+        "unresolvedNeeds": [],
+        "confidence": {
+          "scope": 0.95,
+          "operation": 0.95,
+          "standard": 1,
+          "outputForm": 0.95
+        },
+        "docTypeHint": "dpa",
+        "documentPresentation": "unified"
+      },
+      "intentNormalizations": [],
+      "scopeAudit": []
+    },
+    "requirementExecutionPaths": [
+      {
+        "requirementId": "termination.balance_assessment",
+        "status": "supported",
+        "packageId": "dpa.structural_review",
+        "requirementType": "adequacy"
+      }
+    ],
+    "pinnedVersions": {
+      "clauseTaxonomyVersion": "1.2.0",
+      "riskTaxonomyVersion": "1.1.0",
+      "modelTask": "STRUCTURAL_JSON"
+    }
+  }
+}

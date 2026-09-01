@@ -4,6 +4,8 @@ import {
   TaskModelConfig,
   GEMINI_ENV_CONFIG,
   GeminiThinkingLevel,
+  GEMINI_EMBEDDING_MODEL,
+  GEMINI_EMBEDDING_DIMENSIONS,
 } from "../config/model-specs.js";
 
 function isTruncated(finishReason: unknown): boolean {
@@ -234,6 +236,28 @@ export class GeminiProvider implements ILLMProvider {
       return { result: JSON.parse(rawText) as T, usage };
     } catch (err: any) {
       throw new Error(`Gemini JSON Processing Circuit failure: ${err.message}`);
+    }
+  }
+
+  /**
+   * Batch text embedding. Returns one vector per input text, in order — or
+   * `null` at that index on failure, so callers (retrieval) degrade to
+   * lexical-only for that item instead of failing the whole batch/run.
+   * Never throws.
+   */
+  async embed(texts: string[]): Promise<Array<number[] | null>> {
+    if (texts.length === 0) return [];
+    try {
+      const response = await this.client.models.embedContent({
+        model: GEMINI_EMBEDDING_MODEL,
+        contents: texts,
+        config: { outputDimensionality: GEMINI_EMBEDDING_DIMENSIONS },
+      });
+      const embeddings = response.embeddings ?? [];
+      return texts.map((_, i) => embeddings[i]?.values ?? null);
+    } catch (err: any) {
+      console.warn(`[Gemini] embed() failed for batch of ${texts.length}:`, err?.message ?? err);
+      return texts.map(() => null);
     }
   }
 }

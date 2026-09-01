@@ -8,6 +8,7 @@ import type {
 import type { RequirementAssessment } from "../../models/requirement-assessment.js";
 import { isMaterialIssueStatus } from "../../models/requirement-assessment.js";
 import { hasSkillOrPackageLimitation } from "./limitations-report.js";
+import { filterAssessmentsByRequirementIds } from "../../shared/requirement-identity.js";
 import {
   isAnalysisOutlineRole,
   isAnalysisSectionId,
@@ -34,8 +35,7 @@ function matchingAssessments(
   assessments: RequirementAssessment[]
 ): RequirementAssessment[] {
   if (item.requirementIds.length === 0) return [];
-  const wanted = new Set(item.requirementIds);
-  return assessments.filter((a) => wanted.has(a.requirementId));
+  return filterAssessmentsByRequirementIds(assessments, item.requirementIds);
 }
 
 function hasMatchingArtifact(

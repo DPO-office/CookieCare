@@ -1,3 +1,4 @@
+// TEMP: LEGACY passthrough — replaced phase-by-phase during rebuild.
 import type { PacCapabilities } from "./types.js";
 import { classifyIntent } from "./plan/classify-intent.js";
 import { buildPlan } from "./plan/build-plan.js";

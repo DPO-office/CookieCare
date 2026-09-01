@@ -24,6 +24,7 @@ import {
   type ClauseCandidate,
   type ClauseLocatorResult,
 } from "./locate-evidence.js";
+import { logExtractedClausePool, logHeadingsFallbackResult } from "./evidence-pool-log.js";
 
 async function extractClauses(
   state: AnalysisState,
@@ -93,6 +94,7 @@ async function extractClauses(
         profileThinkingLevel(state, LLMTask.STRUCTURAL_JSON_LITE)
       );
       fallbackCalls = 1;
+      logHeadingsFallbackResult(state, unit, missing, mapped);
       located = mergeFallback(located, mapped, doc, evidenceBudget);
     } catch (err) {
       console.warn("[extractClauses] headings fallback failed; using heuristic:", err);
@@ -104,6 +106,7 @@ async function extractClauses(
   const mergeStart = Date.now();
   const clauses = materializeClauses(docId, located, runtime.clauseTypes);
   const mergeMs = Date.now() - mergeStart;
+  logExtractedClausePool(state, unit, clauses);
 
   if (state.agent && tracker) {
     state.agent.tokensUsed = tracker.tokensUsed;

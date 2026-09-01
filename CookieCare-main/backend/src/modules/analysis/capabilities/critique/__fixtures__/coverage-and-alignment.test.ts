@@ -2,8 +2,8 @@ process.env.GOOGLE_CLOUD_PROJECT ??= "critique-coverage-test";
 
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import type { AnalysisState } from "../../models/analysis-state.js";
-import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
+import type { AnalysisState } from "../../../models/analysis-state.js";
+import type { AnalysisWorkUnit } from "../../../models/analysis-plan.js";
 import { initAgentRunState } from "../../../pac/types.js";
 import { validateRequirementCoverage } from "../coverage.js";
 import { validateAlignment } from "../alignment.js";

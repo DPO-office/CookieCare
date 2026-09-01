@@ -92,9 +92,9 @@ describe("deriveReportOutline", () => {
       new Set([
         "subject_matter",
         "duration",
-        "nature_and_purpose",
-        "categories_of_data",
-        "categories_of_data_subjects",
+        "nature_purpose",
+        "data_categories",
+        "data_subject_categories",
         "controller_obligations_rights",
       ])
     );
@@ -103,7 +103,7 @@ describe("deriveReportOutline", () => {
     const mandatory = analysis.find((i) => i.role === "analysis")!;
     assert.deepEqual(
       new Set(mandatory.requirementIds),
-      new Set(["mandatory_article_28_3_clauses", "clause_adequacy"])
+      new Set(["mandatory_article28_clauses", "clause_adequacy"])
     );
     assert.match(mandatory.heading, /Mandatory Article 28/);
 
@@ -167,6 +167,33 @@ describe("deriveReportOutline", () => {
     const analysis = analysisItems(outline);
 
     assert.ok(analysis.some((i) => i.requirementIds.includes("some_other_requirement")));
+  });
+
+  it("does not place pkg.subject_matter_defined under a subject_matter extra", () => {
+    const intent = intentWithRequirements([
+      "subject_matter",
+      "duration",
+      "pkg.subject_matter_defined",
+      "art28_3_a_instructions",
+    ]);
+    const outline = deriveReportOutline(
+      intent,
+      "regime_compliance_memo",
+      "standard",
+      [...ART28_SECTIONS],
+      [
+        ART28_OUTLINE_EXTRAS[0]!,
+        {
+          heading: "Mandatory Article 28(3) clauses",
+          requirementTags: ["art28_3", "clause_adequacy"],
+        },
+      ]
+    );
+    const chapeau = analysisItems(outline).find((i) => i.role === "chapeau_particulars");
+    assert.deepEqual(new Set(chapeau?.requirementIds), new Set(["subject_matter", "duration"]));
+    assert.ok(!chapeau?.requirementIds.includes("pkg.subject_matter_defined"));
+    const mandatory = analysisItems(outline).find((i) => /Mandatory Article 28/.test(i.heading));
+    assert.ok(mandatory?.requirementIds.includes("art28_3_a_instructions"));
   });
 
   it("does not explode leftover requirements into many theme sections when extras exist", () => {
