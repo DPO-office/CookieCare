@@ -14,6 +14,9 @@ export interface RequirementEvidenceProfile {
    * ACT-Phase 5, when VERIFY replaces this mechanism).
    */
   proofStandard?: string;
+  /** Carried onto the resulting Finding for the compare lane (see Finding.compareGroup). */
+  compareGroup?: string;
+  compareRole?: string;
 }
 
 const STOPWORDS = new Set([

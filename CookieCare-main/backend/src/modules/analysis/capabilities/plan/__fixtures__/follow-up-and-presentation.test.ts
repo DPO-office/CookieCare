@@ -3,7 +3,6 @@ import { describe, it } from "node:test";
 import type { IntentClassification } from "../../../models/intent.js";
 import {
   classifyFollowUpKind,
-  detectDocumentPresentation,
   heuristicClassify,
   isNarrativeInstruction,
   isNewAnalysisFollowUpInstruction,
@@ -24,7 +23,6 @@ const PRIOR: IntentClassification = {
   standard: "regime_pack:regimes/data-protection/gdpr",
   standardConcept: "GDPR",
   outputForm: "memo",
-  documentPresentation: "unified",
   reportType: "regime_compliance_memo",
   compound: false,
   subIntents: [],
@@ -45,19 +43,6 @@ describe("presentation heuristics", () => {
     assert.equal(isTabularInstruction("show this in tabular mode"), true);
     assert.equal(isNarrativeInstruction("rewrite this in narrative mode"), true);
     assert.equal(isNarrativeInstruction("give me a memo in prose"), true);
-  });
-
-  it("detects individual vs combined document presentation", () => {
-    assert.equal(
-      detectDocumentPresentation(
-        "Analyze each attached document individually rather than as a single combined review."
-      ),
-      "individual"
-    );
-    assert.equal(
-      detectDocumentPresentation("Give me a combined review of both DPAs"),
-      "unified"
-    );
   });
 
   it("heuristicClassify honors an explicit table ask", () => {
@@ -170,24 +155,6 @@ describe("topic shift detection", () => {
       ],
     };
     assert.equal(isMaterialTopicShift(PRIOR, current), false);
-  });
-});
-
-describe("explicit presentation overlays", () => {
-  it("lets current-turn tabular wording override a narrative UI setting", () => {
-    const next = applyExplicitPresentation(PRIOR, "now present this as a table", {
-      answerStyle: "narrative",
-      documentPresentation: "unified",
-    });
-    assert.equal(next.outputForm, "table");
-    assert.equal(next.documentPresentation, "unified");
-  });
-
-  it("honors the individual UI mode when the text does not contradict it", () => {
-    const next = applyExplicitPresentation(PRIOR, "Review these DPAs", {
-      documentPresentation: "individual",
-    });
-    assert.equal(next.documentPresentation, "individual");
   });
 });
 

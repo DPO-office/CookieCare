@@ -513,6 +513,15 @@ async function evaluateWithVerify(
   const doc = state.workspace.documents.find((d) => d.docId === ctx.docId);
   const expandMaxChars = profileEvidenceCharBudget(state) * 3;
   const llmSelectEnabled = process.env.ANALYSIS_LLM_CANDIDATE_SELECT === "1";
+  // Open risk lane: a `contradicts` verdict means "the risk is not present"
+  // (reassuring), not "compliance gap". Only risk_flag flips the mapping;
+  // compliance_check and every other operation keep the compliance meaning.
+  const isRiskLane = state.intent?.operation === "risk_flag";
+  // Compare lane: paired side_a/side_b propositions from decomposeReasoningAsk
+  // keep ordinary compliance verdict semantics (proves = this side's claim is
+  // established) — only the finding's kind/compareGroup/compareRole change,
+  // so render/synthesis can pair the two sides back into one comparison.
+  const isCompareLane = state.intent?.operation === "compare";
 
   // Candidate source for the LLM selector: the document's OWN logical sections
   // (whole-document), not the clause-type-dictionary extraction (`items`). This
@@ -686,7 +695,9 @@ async function evaluateWithVerify(
           winner.result.verdict === "proves" ? "proves" : "contradicts",
           winner.result,
           winner.item,
-          ctx
+          ctx,
+          isRiskLane,
+          isCompareLane ? { compareGroup: profile?.compareGroup, compareRole: profile?.compareRole } : undefined
         )
       );
       continue;
@@ -732,9 +743,79 @@ function buildVerifiedFinding(
   verdict: Extract<VerifyVerdict, "proves" | "contradicts">,
   result: VerifyPropositionResult,
   item: SharedEvidenceItem,
-  ctx: VerifyFindingContext
+  ctx: VerifyFindingContext,
+  isRiskLane: boolean,
+  compareMeta?: { compareGroup?: string; compareRole?: string }
 ): Finding {
   const canonicalId = canonicalRequirementId(requirementId);
+
+  const evidence: EvidenceSpan[] = [
+    {
+      locator: {
+        docId: ctx.docId,
+        structuralPath: item.structuralPath,
+        charRange: item.charRange,
+      },
+      quotedText: result.quote,
+      sourceRole: "target",
+    },
+  ];
+
+  const findingBase = {
+    category: ctx.findingCategory,
+    evidence,
+    taxonomyVersion: RISK_TAXONOMY_VERSION,
+    workUnitId: ctx.unit.workUnitId,
+    skillId: ctx.skillId,
+    packageId: ctx.packageId,
+    visibility: "user_facing" as const,
+    ruleSourceTier: TIER_BY_SOURCE[ctx.sourceMode],
+    requirementId: canonicalId,
+    verifiedByProposition: true,
+    establishedBy: result.establishedBy,
+    gapDescription: result.gapDescription,
+    dependency: result.dependency,
+    structuralNote: result.structuralNote,
+    remediation: result.remediation,
+  };
+
+  // Open risk lane (operation=risk_flag) inverts the compliance meaning of the
+  // verdict. A risk proposition is framed "an adverse thing is true about the
+  // document", so:
+  //   proves      → the risk IS present     → a real risk finding to surface
+  //   contradicts → the risk is NOT present → reassuring; NOT a compliance gap
+  // Compliance-lane findings keep their original meaning (proves = requirement
+  // met, contradicts = gap). requirement-status-policy.ts already treats
+  // kind:"risk" findings correctly (never counts them as compliance gaps) —
+  // stamping the kind here is the wiring that finally lets that fire. The
+  // present/absent signal rides on materiality + nli, not on a "gap".
+  if (isRiskLane) {
+    const riskPresent = verdict === "proves";
+    const judgementBase: Omit<RequirementJudgement, "recommendationKind"> = {
+      compliance: "present",
+      evidenceState: "direct",
+      referenceBinding: "none",
+      evidenceConfidence: "high",
+      materiality: riskPresent ? "high" : "low",
+      nli: riskPresent ? "entailed" : "contradicted",
+    };
+    const judgement: RequirementJudgement = {
+      ...judgementBase,
+      recommendationKind: recommendationKindFromAxes(judgementBase),
+    };
+    return {
+      ...findingBase,
+      findingId: sanitizeForId(
+        `f_verify_${riskPresent ? "riskpresent" : "riskabsent"}_${canonicalId}_${ctx.unit.workUnitId}`
+      ),
+      kind: "risk",
+      status: "present",
+      claim: result.rationale,
+      gap: undefined,
+      judgement,
+    };
+  }
+
   const compliance = verdict === "proves" ? "present" : "gap";
   const judgementBase: Omit<RequirementJudgement, "recommendationKind"> = {
     compliance,
@@ -750,42 +831,18 @@ function buildVerifiedFinding(
     recommendationKind: recommendationKindFromAxes(judgementBase),
   };
 
-  const evidence: EvidenceSpan[] = [
-    {
-      locator: {
-        docId: ctx.docId,
-        structuralPath: item.structuralPath,
-        charRange: item.charRange,
-      },
-      quotedText: result.quote,
-      sourceRole: "target",
-    },
-  ];
-
   return {
+    ...findingBase,
     findingId: sanitizeForId(
       `f_verify_${verdict === "proves" ? "cov" : "gap"}_${canonicalId}_${ctx.unit.workUnitId}`
     ),
-    kind: "compliance",
-    category: ctx.findingCategory,
+    kind: compareMeta ? "comparison_delta" : "compliance",
     status: verdict === "proves" ? "present" : "absent_expected",
     claim: result.rationale,
     gap: verdict === "contradicts" ? result.rationale : undefined,
-    evidence,
-    taxonomyVersion: RISK_TAXONOMY_VERSION,
-    workUnitId: ctx.unit.workUnitId,
-    skillId: ctx.skillId,
-    packageId: ctx.packageId,
-    visibility: "user_facing",
-    ruleSourceTier: TIER_BY_SOURCE[ctx.sourceMode],
-    requirementId: canonicalId,
     judgement,
-    verifiedByProposition: true,
-    establishedBy: result.establishedBy,
-    gapDescription: result.gapDescription,
-    dependency: result.dependency,
-    structuralNote: result.structuralNote,
-    remediation: result.remediation,
+    compareGroup: compareMeta?.compareGroup,
+    compareRole: compareMeta?.compareRole,
   };
 }
 

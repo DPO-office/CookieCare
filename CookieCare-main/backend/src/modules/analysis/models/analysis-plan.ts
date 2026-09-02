@@ -173,6 +173,14 @@ export interface MissingClarification {
   question: string;
   severity: "critical" | "optional";
   options?: string[];
+  /**
+   * For field:"documentRoles" — lets the UI render one target/reference
+   * choice per document, labeled with the user's own uploaded filename
+   * instead of an internal docId. `options` alone can't drive this: each
+   * document needs its own role, not a single shared answer, and the raw
+   * docId is meaningless to the user.
+   */
+  perDocumentRoles?: Array<{ docId: string; title: string }>;
 }
 
 /**
@@ -197,7 +205,7 @@ export interface ScopeAuditEntry {
 }
 
 export interface IntentNormalization {
-  field: "scope" | "outputForm" | "reportType" | "depth" | "documentPresentation";
+  field: "scope" | "outputForm" | "reportType" | "depth";
   from: string | undefined;
   to: string;
   reason: "missing_field" | "low_confidence";
@@ -235,7 +243,6 @@ export interface AnalysisPlan {
   workUnits: AnalysisWorkUnit[];
   missingClarifications: MissingClarification[];
   outputForm: IntentClassification["outputForm"];
-  documentPresentation?: IntentClassification["documentPresentation"];
   /**
    * Skip CRITIQUE and go DONE after ACT.
    * Used for follow-up re-render / Q&A, and temporarily for all analysis types

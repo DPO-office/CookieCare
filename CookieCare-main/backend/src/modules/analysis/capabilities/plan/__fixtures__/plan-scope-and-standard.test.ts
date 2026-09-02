@@ -151,7 +151,6 @@ describe("intent preservation via applySensibleDefaults", () => {
     outputForm: "memo",
     reportType: "qa_answer",
     depth: "deep",
-    documentPresentation: "unified",
     compound: false,
     subIntents: [],
     requirements: [],

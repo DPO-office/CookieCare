@@ -156,10 +156,6 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     request: {
       ...state.request,
       documentRoles: { ...state.request.documentRoles, ...roleResolution.roles },
-      documentPresentation:
-        intent.documentPresentation ??
-        state.request.documentPresentation ??
-        "unified",
     },
     workspace: {
       ...state.workspace,
@@ -217,7 +213,6 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
       ],
       missingClarifications: [],
       outputForm: intent.outputForm,
-      documentPresentation: intent.documentPresentation,
       skipCritique: true,
       reportSpec,
       rendererSchemaId: schemaId,
@@ -326,7 +321,7 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
   const seedReportSpec: ReportSpec = {
     reportType: seedReportType,
     depth: seedDepth,
-    sections: deriveSections(seedReportType, seedDepth),
+    sections: deriveSections(seedReportType, seedDepth, intent.operation),
   };
   const relatedChecks = resolveRelatedChecks(skills, state.request.instruction, focus);
   const targetDocIds =
@@ -406,7 +401,6 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     workUnits,
     missingClarifications: [],
     outputForm: resolvePlanOutputForm(intent, reportSpec.reportType, state.request.answerStyle),
-    documentPresentation: intent.documentPresentation,
     // Pause CRITIQUE for all analysis types (ACT → DONE). See CRITIQUE_PAUSED.
     skipCritique: true,
     reportSpec,
@@ -521,7 +515,6 @@ function emptyPlan(
     workUnits: [],
     missingClarifications: missing,
     outputForm: intent.outputForm,
-    documentPresentation: intent.documentPresentation,
     skipCritique: true,
     rendererSchemaId: "checklist",
     pinnedVersions: {

@@ -18,7 +18,6 @@ import type { DraftTask } from "./draft-task.js";
 import type {
   AnswerStyle,
   ClarificationRequest,
-  DocumentPresentation,
   IntentClassification,
   ReportSpec,
 } from "./intent.js";
@@ -113,8 +112,6 @@ export interface AnalysisState {
      * Values: "target" | "reference".
      */
     documentRoles?: Record<string, "target" | "reference">;
-    /** Combined vs per-document presentation when more than one target is uploaded. */
-    documentPresentation?: DocumentPresentation;
     /** Narrative prose vs tabular tables. */
     answerStyle?: AnswerStyle;
     /** Compute / verification budget (lite | deep). Orthogonal to ReportDepth. */

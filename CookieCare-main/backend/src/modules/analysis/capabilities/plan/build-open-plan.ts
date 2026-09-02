@@ -86,7 +86,12 @@ export async function buildOpenPlan(
   const requirementEvidence = Object.fromEntries(
     deduped.map((p, i) => [
       `open.p${i + 1}`,
-      { hypothesis: p.hypothesis, proofStandard: p.proofStandard },
+      {
+        hypothesis: p.hypothesis,
+        proofStandard: p.proofStandard,
+        compareGroup: p.compareGroup,
+        compareRole: p.compareRole,
+      },
     ])
   );
 

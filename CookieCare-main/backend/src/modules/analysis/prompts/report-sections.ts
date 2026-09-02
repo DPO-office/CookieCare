@@ -114,6 +114,13 @@ export const REPORT_SECTION_DEFINITIONS: Record<ReportSectionId, ReportSectionDe
     role: "Summarize user-facing material risks only. Do not reprint the full analysis.",
     headingPatterns: [/\brisk summary\b/i, /\brisks?\b/i],
   },
+  comparison: {
+    id: "comparison",
+    suggestedHeading: "Comparison",
+    role:
+      "Present both sides of the comparison side by side, grounded only in what was actually established for each (comparison_delta findings, grouped by compareGroup). State plainly which side the balance favors, if either — do not hedge into a false-neutral summary when the evidence clearly favors one side.",
+    headingPatterns: [/\bcomparison\b/i, /\bside[- ]by[- ]side\b/i, /\bbalance(d)?\b/i],
+  },
   qualifications: {
     id: "qualifications",
     suggestedHeading: "Qualifications",
@@ -170,6 +177,7 @@ export const CANONICAL_REPORT_SECTION_ORDER: ReportSectionId[] = [
   "requirements_detail",
   "material_gaps",
   "risk_summary",
+  "comparison",
   "limitations",
   "qualifications",
   "recommendations",
@@ -473,6 +481,8 @@ export function roleForSectionId(id: ReportSectionId): ReportSectionRole {
       return "material_gaps";
     case "risk_summary":
       return "risk_summary";
+    case "comparison":
+      return "comparison";
     case "limitations":
       return "limitations";
     case "qualifications":
@@ -507,6 +517,8 @@ export function sectionIdForRole(role: ReportSectionRole): ReportSectionId {
       return "material_gaps";
     case "risk_summary":
       return "risk_summary";
+    case "comparison":
+      return "comparison";
     case "limitations":
       return "limitations";
     case "qualifications":

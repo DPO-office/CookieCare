@@ -7,6 +7,8 @@ export type AnalysisOpenQuestion = {
   question: string;
   severity: "critical" | "optional";
   options?: string[];
+  /** field:"documentRoles" only — one target/reference choice per uploaded document. */
+  perDocumentRoles?: Array<{ docId: string; title: string }>;
 };
 
 export type AnalysisFinding = {

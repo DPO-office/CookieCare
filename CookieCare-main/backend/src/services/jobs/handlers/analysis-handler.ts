@@ -43,10 +43,6 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
     payload.documentRoles && typeof payload.documentRoles === "object"
       ? (payload.documentRoles as Record<string, "target" | "reference">)
       : prior?.request.documentRoles;
-  const documentPresentation =
-    payload.documentMode === "individual" || payload.documentMode === "unified"
-      ? payload.documentMode
-      : prior?.request.documentPresentation;
   const answerStyle =
     payload.answerStyle === "tabular" || payload.answerStyle === "narrative"
       ? payload.answerStyle
@@ -108,7 +104,6 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
         : prior?.request.promptLibraryId,
       documentIds,
       documentRoles,
-      documentPresentation,
       answerStyle,
       thinkingMode,
       documentTexts,

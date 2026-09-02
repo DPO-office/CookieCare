@@ -32,6 +32,18 @@ function isRiskFinding(f: Finding): boolean {
 }
 
 /**
+ * A risk-lane VERIFY finding (evaluate-package.ts's isRiskLane branch) is as
+ * authoritative as a compliance finding — it went through the same
+ * per-proposition VERIFY rigor, just stamped kind:"risk" because the
+ * proposition is framed as a risk hypothesis rather than a requirement. A
+ * heuristic/derived risk finding (flag-risk.ts, derive-risk.ts) carries no
+ * such guarantee and must stay annotation-only.
+ */
+function isVerifiedRiskFinding(f: Finding): boolean {
+  return f.kind === "risk" && f.verifiedByProposition === true;
+}
+
+/**
  * ACT-Phase 5 — for VERIFY-produced findings specifically, "present" alone
  * is not enough: LOCK may only promote a `proves`-verdict finding into the
  * supporting set (research doc §2.1 stage 3). Scoped to
@@ -198,8 +210,15 @@ function pickNli(complianceFindings: Finding[]): RequirementJudgement["nli"] {
 export function deriveRequirementJudgement(findings: Finding[]): RequirementJudgement {
   const complianceFindings = findings.filter(isComplianceFinding);
   const riskFindings = findings.filter(isRiskFinding);
+  // No compliance findings for this requirement (the pure risk-lane case,
+  // e.g. an open "biggest risk" ask): fall back to this requirement's own
+  // verified risk findings so their stamped judgement still drives the
+  // assessment, instead of the channel going empty and every such
+  // requirement defaulting to insufficient_evidence/cannot_determine
+  // regardless of what VERIFY actually concluded.
+  const verifiedRisk = riskFindings.filter(isVerifiedRiskFinding);
   const channel =
-    complianceFindings.length > 0 ? complianceFindings : [];
+    complianceFindings.length > 0 ? complianceFindings : verifiedRisk;
 
   const compliance = complianceFromFindings(channel);
   const evidenceState = evidenceStateFromFindings(

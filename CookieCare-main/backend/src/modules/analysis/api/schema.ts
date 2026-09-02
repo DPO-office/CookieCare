@@ -8,7 +8,6 @@ export const AnalysisRequestSchema = z.object({
   organizationId: z.string().nullable().optional(),
   sessionId: z.string().optional(),
   documentRoles: z.record(z.string(), z.enum(["target", "reference"])).optional(),
-  documentMode: z.enum(["unified", "individual"]).optional(),
   answerStyle: z.enum(["narrative", "tabular"]).optional(),
   /** Compute / verification budget — orthogonal to report depth. */
   thinkingMode: z.enum(["lite", "deep"]).optional(),

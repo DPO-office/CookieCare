@@ -7,7 +7,6 @@ import type { AnalysisState } from "../../models/analysis-state.js";
 import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
 import type { Finding, MatrixAddressing } from "../../models/finding.js";
 import type { AnalysisArtifact } from "../../models/evidence-package.js";
-import type { SegmentedDocument } from "../../models/document-workspace.js";
 import type { RuleSourceTier } from "../../models/rule-source.js";
 import type { ReportSpec } from "../../models/intent.js";
 import type { RequirementAssessment } from "../../models/requirement-assessment.js";
@@ -145,14 +144,6 @@ export async function renderOutput(
     schemaId !== "playbook_comparison_memo" &&
     !briefSummaryIsArticleQuickRef;
 
-  const presentation =
-    state.intent?.documentPresentation ??
-    state.request.documentPresentation ??
-    "unified";
-  const targetDocs = (state.workspace.documents ?? []).filter(
-    (d) => d.role !== "reference"
-  );
-
   let rendered: string;
   let usedBluf = false;
   if (usesSynthesis) {
@@ -163,20 +154,26 @@ export async function renderOutput(
       ? (unit.input.retrySectionIds as string[])
       : [];
     // BLUF collapse (flagged): one bottom-line call + a deterministic matrix,
-    // instead of the section-per-call synthesis. Individual per-document
-    // presentation keeps the existing path (BLUF is a single-document layout).
-    if (blufReportEnabled() && !(presentation === "individual" && targetDocs.length > 1)) {
+    // instead of the section-per-call synthesis. The open risk and compare
+    // lanes (operation=risk_flag/compare) always skip BLUF: their answer
+    // shapes come from designRiskOutline/designComparisonOutline + synthesis.ts's
+    // lane-aware content blocks (Part 3b/3c), which BLUF's fixed "Requirements
+    // at a glance" / "Key risks" template does not implement — BLUF shows every
+    // kind:"risk" or kind:"comparison_delta" finding as an undifferentiated row
+    // (no nli filtering, no compareGroup pairing, no Finding.severity),
+    // producing generic "Other material contractual risk — MEDIUM" entries
+    // instead of a real answer.
+    const usesDynamicOutlineLane =
+      state.intent?.operation === "risk_flag" || state.intent?.operation === "compare";
+    if (blufReportEnabled() && !usesDynamicOutlineLane) {
       rendered = await buildBlufReport(state, visible, spec);
       usedBluf = true;
-    } else if (presentation === "individual" && targetDocs.length > 1) {
-      rendered = await synthesizeIndividualReports(state, visible, spec, targetDocs);
     } else {
       rendered = await synthesizeReport(state, visible, spec, { retrySectionIds });
     }
     pacLog("render synthesis", {
       ms: Date.now() - synthStarted,
       assessments: assessments.length,
-      presentation,
       schemaId,
       bluf: usedBluf,
     });
@@ -231,46 +228,6 @@ export async function renderOutput(
     renderedOutput: rendered,
     findings: [...findings, renderFinding],
   };
-}
-
-async function synthesizeIndividualReports(
-  state: AnalysisState,
-  findings: Finding[],
-  spec: ReportSpec,
-  docs: SegmentedDocument[]
-): Promise<string> {
-  const parts: string[] = [];
-  for (const [index, doc] of docs.entries()) {
-    const docFindings = findings.filter((finding) =>
-      findingBelongsToDoc(finding, doc.docId, index)
-    );
-    const findingIds = new Set(docFindings.map((finding) => finding.findingId));
-    const assessments = (state.requirementAssessments ?? []).filter((assessment) =>
-      assessment.supportingFindingIds.length === 0
-        ? docFindings.length > 0
-        : assessment.supportingFindingIds.some((id) => findingIds.has(id))
-    );
-    const heading = `# Analysis for: ${doc.title || doc.docId}`;
-    emitAnalysisToken(state, `\n\n${heading}\n\n`);
-    const scoped: AnalysisState = {
-      ...state,
-      findings: docFindings,
-      requirementAssessments: assessments,
-      request: {
-        ...state.request,
-        instruction: `${state.request.instruction}\n\nWrite this section only for document: ${doc.title || doc.docId}.`,
-      },
-    };
-    const body = await synthesizeReport(scoped, docFindings, spec);
-    parts.push(`${heading}\n\n${body}`);
-  }
-  return parts.join("\n\n---\n\n");
-}
-
-function findingBelongsToDoc(finding: Finding, docId: string, docIndex: number): boolean {
-  if (finding.evidence.some((span) => span.locator.docId === docId)) return true;
-  if (finding.workUnitId?.startsWith(`d${docIndex}-`)) return true;
-  return false;
 }
 
 const INTERNAL_VERIFICATION_CLAIM =

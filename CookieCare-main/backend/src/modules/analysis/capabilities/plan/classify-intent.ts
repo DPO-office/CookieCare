@@ -524,7 +524,6 @@ export async function classifyIntent(state: AnalysisState): Promise<AnalysisStat
     );
     pacLog("PLAN classify-intent follow-up presentation change", {
       outputForm: intent.outputForm,
-      presentation: intent.documentPresentation,
     });
     logClassifiedIntent(intent, instruction);
     return { ...state, intent, declineMessage: undefined, clarificationRequest: undefined };

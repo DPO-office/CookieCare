@@ -19,6 +19,7 @@ export interface UserQuestion {
   question: string;
   severity: "critical" | "optional";
   options?: string[];
+  perDocumentRoles?: Array<{ docId: string; title: string }>;
 }
 
 export interface AgentRunState {

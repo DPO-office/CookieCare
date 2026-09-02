@@ -85,8 +85,7 @@ export const SYNTHESIS_SYSTEM_PROMPT = [
   "",
   "If OUTPUT FORM is tabular, write the analysis as markdown tables with a short prose bottom line. Do not write long narrative sections.",
   "If OUTPUT FORM is narrative, write flowing prose. Use tables only when they materially help.",
-  "If DOCUMENT PRESENTATION is individual, write a clearly separated section for each named document. Do not blend documents into one undivided report.",
-  "If DOCUMENT PRESENTATION is unified and multiple documents were reviewed, write one combined report and name the documents in the scope section.",
+  "When multiple documents were reviewed, write one combined report and name the documents in the scope section.",
   "If PRIOR CONVERSATION is supplied, answer the current user message in that context. Do not reprint the entire prior report unless the user asked to rewrite it.",
   "",
   LEGAL_MEMO_MARKDOWN_CRAFT,
@@ -113,10 +112,6 @@ export function buildSynthesisUserPrompt(
       item.role === "key_findings"
   );
 
-  const presentation =
-    state.intent?.documentPresentation ??
-    state.request.documentPresentation ??
-    "unified";
   const outputForm = state.intent?.outputForm ?? (state.request.answerStyle === "tabular" ? "table" : "memo");
   const conversation = conversationContextForIntent({
     conversation: state.conversation,
@@ -140,10 +135,6 @@ export function buildSynthesisUserPrompt(
         ? "brief summary — short prose, no exhaustive tables"
         : "narrative — memo/prose",
     "",
-    "DOCUMENT PRESENTATION",
-    presentation === "individual"
-      ? "individual — a separate headed section per uploaded document"
-      : "unified — one combined report covering all target documents",
     documents ? `Documents:\n${documents}` : "",
     "",
     "LEGAL FRAMEWORK",
@@ -437,7 +428,57 @@ function renderArtifacts(state: AnalysisState): string {
 function renderRisks(findings: Finding[]): string {
   const risks = findings.filter((f) => f.kind === "risk" && f.visibility !== "internal");
   if (risks.length === 0) return "None flagged as user-facing material risks.";
-  return risks.map((f) => `- ${f.claim} (severity: ${f.severity ?? "n/a"})`).join("\n");
+  // A risk proposition VERIFY *contradicted* means the risk is NOT present —
+  // the document actually protects on that point (buildVerifiedFinding's risk
+  // lane stamps nli="contradicted"). These must never be written up as risks;
+  // separate them so the writer presents them as reassurance, not problems.
+  const present = risks.filter((f) => f.judgement?.nli !== "contradicted");
+  const cleared = risks.filter((f) => f.judgement?.nli === "contradicted");
+  const lines: string[] = [];
+  if (present.length > 0) {
+    lines.push("CONFIRMED RISKS (verified present in the document):");
+    for (const f of present) {
+      lines.push(`- ${f.claim}${f.severity ? ` (severity: ${f.severity})` : ""}`);
+    }
+  }
+  if (cleared.length > 0) {
+    if (lines.length > 0) lines.push("");
+    lines.push(
+      "CHECKED — NOT A RISK (the document protects the party on these points; present as reassurance, never as problems):"
+    );
+    for (const f of cleared) lines.push(`- ${f.claim}`);
+  }
+  return lines.join("\n");
+}
+
+/**
+ * Compare lane — pair kind:"comparison_delta" findings back into their
+ * compareGroup (decomposeReasoningAsk's side_a/side_b split) so the writer
+ * sees both sides of each dimension together instead of as unrelated rows.
+ * A side with no established finding (VERIFY returned insufficient_evidence)
+ * is named as unresolved rather than silently dropped, so the comparison
+ * never implicitly favors the side that happened to verify.
+ */
+function renderComparison(findings: Finding[]): string {
+  const deltas = findings.filter(
+    (f) => f.kind === "comparison_delta" && f.visibility !== "internal"
+  );
+  if (deltas.length === 0) return "None flagged as a user-facing comparison.";
+  const groups = new Map<string, Finding[]>();
+  for (const f of deltas) {
+    const key = f.compareGroup ?? f.requirementId ?? f.findingId;
+    groups.set(key, [...(groups.get(key) ?? []), f]);
+  }
+  const lines: string[] = [];
+  for (const [group, members] of groups) {
+    const sideA = members.find((m) => m.compareRole === "side_a");
+    const sideB = members.find((m) => m.compareRole === "side_b");
+    lines.push(`Dimension: ${group.replace(/^compare_/, "").replace(/_/g, " ")}`);
+    lines.push(`- Side A: ${sideA ? sideA.claim : "(not independently established)"}`);
+    lines.push(`- Side B: ${sideB ? sideB.claim : "(not independently established)"}`);
+    lines.push("");
+  }
+  return lines.join("\n").trim();
 }
 
 function depthGuidance(depth: ReportSpec["depth"]): string {
@@ -554,7 +595,26 @@ export function buildSectionSynthesisUserPrompt(input: {
         )
       : {};
   const artifactState = { ...state, analysisArtifacts: artifacts } as AnalysisState;
-  const includeRisks = sectionId === "risk_summary";
+  // Risk lane surfaces the risk material into the sections that must speak to
+  // it: the direct-answer/lead, the recommendations ("what to negotiate"), and
+  // the bottom line — not only a dedicated risk_summary section.
+  const isRiskLane = state.intent?.operation === "risk_flag";
+  const includeRisks =
+    sectionId === "risk_summary" ||
+    (isRiskLane &&
+      (isOpeningSectionId(sectionId) ||
+        sectionId === "conclusion" ||
+        sectionId === "recommendations"));
+  // Compare lane surfaces the paired comparison into the same section shape
+  // risk_flag uses: the direct-answer/lead, the dedicated comparison section,
+  // recommendations, and the bottom line.
+  const isCompareLane = state.intent?.operation === "compare";
+  const includeComparison =
+    sectionId === "comparison" ||
+    (isCompareLane &&
+      (isOpeningSectionId(sectionId) ||
+        sectionId === "conclusion" ||
+        sectionId === "recommendations"));
   const tabular = isTabularAnswerStyle(state);
   const isAnalysis =
     isAnalysisSectionId(sectionId) ||
@@ -638,6 +698,8 @@ export function buildSectionSynthesisUserPrompt(input: {
     artifactFilter.length > 0 ? renderArtifacts(artifactState) : "",
     includeRisks ? "MATERIAL RISKS" : "",
     includeRisks ? renderRisks(findings) : "",
+    includeComparison ? "COMPARISON MATERIAL (side A vs side B, grouped by dimension)" : "",
+    includeComparison ? renderComparison(findings) : "",
     "",
     "Write only this section. Start with `## " + item.heading + "`.",
   ]

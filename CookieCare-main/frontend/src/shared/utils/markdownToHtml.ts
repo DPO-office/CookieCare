@@ -121,60 +121,45 @@ function injectStatusBadges(html: string): string {
   });
 }
 
+/** Column indices (0-based) that receive a 3-line clamp + "Show more" toggle. */
+const CLAMP_COLUMN_INDICES = new Set([2, 3, 4]);
+
+function wrapCellWithClamp(tdOpen: string, inner: string, minChars = 120): string {
+  const plainLen = stripTags(inner).length;
+  if (plainLen <= minChars) return tdOpen + inner.trim() + "</td>";
+  return (
+    tdOpen +
+    '<span class="md-clause-text">' +
+    inner.trim() +
+    "</span>" +
+    '<button class="md-clause-toggle" type="button">Show more</button>' +
+    "</td>"
+  );
+}
+
 /**
- * Injects a 3-line clamp + "Show more" toggle into the Evidence/clause column.
+ * Injects a 3-line clamp + "Show more" toggle into long prose columns.
  *
- * The 3rd <td> in every <tbody> row (column index 2, zero-based) is the
- * Evidence / Referenced Clause column. Actual column order from the LLM:
- * Category(0) → Status(1) → Clause(2) → Finding(3)
- * <span class="md-clause-text"> (CSS clamps to 3 lines) and append a
- * <button class="md-clause-toggle"> immediately after it inside the cell.
- *
- * Cells with plain text ≤ 120 chars are left untouched — no clamp needed.
- *
- * NOTE: We rebuild the <tr> string by splitting on </td> boundaries rather
- * than using nested String.replace(), which avoids $ special-character bugs
- * in replacement strings when cell content contains HTML.
+ * Standard 4-col table: Evidence (index 2), Finding (index 3).
+ * Requirements table: Evidence (2), Finding (3), Action (4).
  */
-function injectClauseToggles(tableHtml: string): string {
+function injectClauseToggles(tableHtml: string, clampIndices: Set<number> = CLAMP_COLUMN_INDICES): string {
   return tableHtml.replace(
     /(<tbody\b[^>]*>)([\s\S]*?)(<\/tbody>)/gi,
     (_match, open, body, close) => {
-      // Split body into individual <tr>…</tr> blocks
       const processedBody = body.replace(
         /(<tr\b[^>]*>)([\s\S]*?)(<\/tr>)/gi,
         (_trMatch: string, trOpen: string, cells: string, trClose: string) => {
-          // Split cells by </td> — each segment except the last starts with <td…>content
           const parts = cells.split("</td>");
-          // Last split is trailing whitespace/newline after the last </td> — keep it
           const rebuilt = parts.map((part, idx) => {
-            // Not a real cell segment (trailing fragment after last </td>)
             if (idx === parts.length - 1) return part;
+            if (!clampIndices.has(idx)) return part + "</td>";
 
-            // Only process column index 2 (3rd column — Evidence/Clause)
-            // Actual column order: Category(0) → Status(1) → Clause(2) → Finding(3)
-            if (idx !== 2) return part + "</td>";
-
-            // Extract <td attrs> and inner content
             const cellMatch = part.match(/^(<td\b[^>]*>)([\s\S]*)$/i);
             if (!cellMatch) return part + "</td>";
 
             const [, tdOpen, inner] = cellMatch;
-            const plainLen = stripTags(inner).length;
-
-            // Skip short cells — no clamp needed
-            if (plainLen <= 120) return part + "</td>";
-
-            // Wrap and append toggle — use a raw string concatenation so no
-            // $ substitution magic from String.replace applies here
-            return (
-              tdOpen +
-              '<span class="md-clause-text">' +
-              inner.trim() +
-              "</span>" +
-              '<button class="md-clause-toggle" type="button">Show more</button>' +
-              "</td>"
-            );
+            return wrapCellWithClamp(tdOpen, inner);
           });
 
           return trOpen + rebuilt.join("") + trClose;
@@ -182,6 +167,21 @@ function injectClauseToggles(tableHtml: string): string {
       );
       return open + processedBody + close;
     }
+  );
+}
+
+/** True when the table is the locked 5-column requirements matrix. */
+function isRequirementsTable(tableHtml: string): boolean {
+  const headers = [...tableHtml.matchAll(/<th\b[^>]*>([\s\S]*?)<\/th>/gi)].map((m) =>
+    stripTags(m[1]).trim().toLowerCase()
+  );
+  if (headers.length !== 5) return false;
+  return (
+    headers[0] === "requirement" &&
+    headers[1] === "status" &&
+    headers[2] === "evidence" &&
+    headers[3] === "finding" &&
+    headers[4] === "action"
   );
 }
 
@@ -203,28 +203,39 @@ function wrapTables(html: string): string {
       .trim();
     const indexed = firstHeader !== undefined && INDEX_HEADER.test(firstHeader);
 
-    // Count columns from the first header row
     const headerCols = (table.match(/<th\b/gi) || []).length;
-    const manyColsClass = headerCols >= 5 ? " md-table-many-cols" : "";
+    const requirements = isRequirementsTable(table);
+    const manyColsClass =
+      !requirements && headerCols >= 5 ? " md-table-many-cols" : "";
+    const requirementsClass = requirements ? " md-table-requirements" : "";
 
-    // Build table class string
-    const tableClass = [
-      manyColsClass.trim(),
-    ].filter(Boolean).join(" ");
+    const tableClass = [requirementsClass.trim(), manyColsClass.trim()]
+      .filter(Boolean)
+      .join(" ");
 
-    // Inject status badges, then clause toggles
     let processed = injectStatusBadges(table);
-    processed = injectClauseToggles(processed);
+    processed = injectClauseToggles(
+      processed,
+      requirements ? new Set([2, 3, 4]) : new Set([2, 3])
+    );
 
-    // Add class to <table> element if needed
     if (tableClass) {
       processed = processed.replace(/<table\b/, `<table class="${tableClass}"`);
     }
 
-    const wrapClass = indexed ? "md-table-wrap md-table-indexed" : "md-table-wrap";
+    const wrapClass = [
+      "md-table-wrap",
+      indexed ? "md-table-indexed" : "",
+      requirements ? "md-table-requirements-wrap" : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
     return `<div class="${wrapClass}">${processed}</div>`;
   });
 }
+
+const MARKDOWN_CACHE_MAX = 24;
+const markdownHtmlCache = new Map<string, string>();
 
 /**
  * Converts a Markdown string into an HTML string suitable for TipTap's
@@ -237,6 +248,16 @@ export function markdownToHtml(markdown: string): string {
   if (!markdown || !markdown.trim()) {
     return "<p></p>";
   }
+  const cached = markdownHtmlCache.get(markdown);
+  if (cached !== undefined) return cached;
+
   const cleaned = stripOuterCodeFences(markdown);
-  return wrapTables(md.render(cleaned));
+  const html = wrapTables(md.render(cleaned));
+
+  if (markdownHtmlCache.size >= MARKDOWN_CACHE_MAX) {
+    const oldest = markdownHtmlCache.keys().next().value;
+    if (oldest !== undefined) markdownHtmlCache.delete(oldest);
+  }
+  markdownHtmlCache.set(markdown, html);
+  return html;
 }

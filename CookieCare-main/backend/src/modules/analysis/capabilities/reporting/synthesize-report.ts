@@ -26,6 +26,8 @@ import { profileThinkingLevel } from "../../utils/profile-thinking.js";
 import { resolveSectionMaxOutputTokens } from "../../utils/resolve-synthesis-ceiling.js";
 import { createOrderedSectionStream } from "../../utils/ordered-section-stream.js";
 import { runAnalyticalSynthesis } from "./analytical-synthesis.js";
+import { designRiskOutline } from "./design-risk-outline.js";
+import { designComparisonOutline } from "./design-comparison-outline.js";
 
 export interface SynthesizeReportOptions {
   retrySectionIds?: string[];
@@ -69,7 +71,18 @@ export async function synthesizeReport(
   if (!state.analyticalSynthesis && assessments.length > 0) {
     state.analyticalSynthesis = await runAnalyticalSynthesis(state, assessments);
   }
-  const items = outlineItemsForSpec(reportSpec);
+  let items = outlineItemsForSpec(reportSpec);
+  // Open risk lane: let an LLM design the section shape/headings around the
+  // risks actually found (Part 3c). Grounded + fallback-safe; skipped on retry
+  // so a render-only redo reuses the shape it already streamed.
+  if (state.intent?.operation === "risk_flag" && !options.retrySectionIds?.length) {
+    items = await designRiskOutline(state, findings, items);
+  }
+  // Compare lane: same Part-3c treatment as risk_flag — let an LLM design
+  // the section shape/headings around the dimensions actually compared.
+  if (state.intent?.operation === "compare" && !options.retrySectionIds?.length) {
+    items = await designComparisonOutline(state, findings, items);
+  }
   const retry = new Set(options.retrySectionIds ?? []);
   const prior = new Map((state.reportSections ?? []).map((block) => [block.id, block]));
   const synthStart = Date.now();
@@ -203,6 +216,28 @@ function buildDeterministicSection(
     const risks = findings.filter((f) => f.kind === "risk" && f.visibility !== "internal");
     if (risks.length === 0) lines.push("No user-facing material risks were flagged.", "");
     else for (const risk of risks) lines.push(`- ${risk.claim}`, "");
+    return lines.join("\n");
+  }
+  if (sectionId === "comparison") {
+    const deltas = findings.filter(
+      (f) => f.kind === "comparison_delta" && f.visibility !== "internal"
+    );
+    if (deltas.length === 0) {
+      lines.push("No comparison material was established.", "");
+      return lines.join("\n");
+    }
+    const groups = new Map<string, Finding[]>();
+    for (const f of deltas) {
+      const key = f.compareGroup ?? f.requirementId ?? f.findingId;
+      groups.set(key, [...(groups.get(key) ?? []), f]);
+    }
+    for (const [group, members] of groups) {
+      const sideA = members.find((m) => m.compareRole === "side_a");
+      const sideB = members.find((m) => m.compareRole === "side_b");
+      lines.push(`- ${group.replace(/^compare_/, "").replace(/_/g, " ")}:`);
+      lines.push(`  Side A — ${sideA ? sideA.claim : "(not established)"}`);
+      lines.push(`  Side B — ${sideB ? sideB.claim : "(not established)"}`, "");
+    }
     return lines.join("\n");
   }
   const wanted = item.requirementIds;

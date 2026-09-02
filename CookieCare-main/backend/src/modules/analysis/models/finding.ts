@@ -105,4 +105,12 @@ export interface Finding {
   dependency?: { document: string; whyNeeded: string };
   structuralNote?: string;
   remediation?: string;
+  /**
+   * Set only on kind:"comparison_delta" findings, threaded from the
+   * originating Proposition (models/proposition.ts) through
+   * RequirementEvidenceProfile so render/synthesis can pair side_a/side_b
+   * findings back into one comparison instead of two unrelated rows.
+   */
+  compareGroup?: string;
+  compareRole?: string;
 }

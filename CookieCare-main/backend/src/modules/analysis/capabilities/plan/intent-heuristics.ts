@@ -1,5 +1,4 @@
 import type {
-  DocumentPresentation,
   IntentClassification,
   OperationAxis,
   OutputFormAxis,
@@ -86,26 +85,6 @@ export function isNarrativeInstruction(instruction: string): boolean {
   );
 }
 
-export function detectDocumentPresentation(
-  instruction: string
-): DocumentPresentation | undefined {
-  if (
-    /\b(each(?:\s+attached)?\s+document\s+individually|individually\s+rather\s+than|per[- ]document|separate(?:ly)?(?:\s+for\s+each)|one\s+report\s+per\s+document|individual\s+mode)\b/i.test(
-      instruction
-    )
-  ) {
-    return "individual";
-  }
-  if (
-    /\b(combined\s+(?:review|report|analysis|mode)|unified(?:\s+mode)?|together\s+as\s+(?:a\s+)?(?:single|one)|single\s+combined|as\s+one\s+(?:report|review))\b/i.test(
-      instruction
-    )
-  ) {
-    return "unified";
-  }
-  return undefined;
-}
-
 export type FollowUpKind =
   | "none"
   | "presentation_change"
@@ -113,7 +92,7 @@ export type FollowUpKind =
   | "new_analysis";
 
 const PRESENTATION_ONLY_RE =
-  /^\s*(please\s+|can you\s+|could you\s+)?(now\s+|instead\s+)?(show|present|format|rewrite|reformat|render|give|make)\b.{0,80}\b(table|tabular|narrative|memo|prose|individually|combined|unified|separately)\b/i;
+  /^\s*(please\s+|can you\s+|could you\s+)?(now\s+|instead\s+)?(show|present|format|rewrite|reformat|render|give|make)\b.{0,80}\b(table|tabular|narrative|memo|prose)\b/i;
 
 const NEW_ANALYSIS_FOLLOWUP_RE =
   /\b(?:(?:can|could)\s+you\s+(?:also\s+)?(?:check|review|analyze|analyse|assess|run|perform|look at|evaluate|audit|scan|inspect)|(?:also|additionally|now|next)\s+(?:check|review|analyze|analyse|assess|run|perform|look at|evaluate)|(?:please\s+)?(?:check|review|analyze|analyse|assess)\s+(?:this|the|my)\s+(?:dpa|document|agreement|contract|msa|nda)\s+(?:for|against))\b/i;
@@ -140,7 +119,6 @@ export function classifyFollowUpKind(args: {
   const presentationAsked =
     isTabularInstruction(text) ||
     isNarrativeInstruction(text) ||
-    Boolean(detectDocumentPresentation(text)) ||
     PRESENTATION_ONLY_RE.test(text);
 
   if (presentationAsked && args.hasPriorFindings && isMostlyPresentationAsk(text)) {
@@ -154,13 +132,10 @@ export function classifyFollowUpKind(args: {
 
 function isMostlyPresentationAsk(instruction: string): boolean {
   const stripped = instruction
-    .replace(
-      /\b(present findings as a table|analyze each attached document individually rather than as a single combined review)\.?/gi,
-      " "
-    )
+    .replace(/\b(present findings as a table)\.?/gi, " ")
     .replace(PRESENTATION_ONLY_RE, " ")
     .replace(
-      /\b(tabular(?:\s+mode)?|narrative(?:\s+mode)?|as(?:\s+a)?\s+table|in\s+a\s+table|in\s+prose|individually|combined|unified)\b/gi,
+      /\b(tabular(?:\s+mode)?|narrative(?:\s+mode)?|as(?:\s+a)?\s+table|in\s+a\s+table|in\s+prose)\b/gi,
       " "
     )
     .replace(/\b(please|now|instead|show|present|format|rewrite|reformat|render|give|make|the|a|an|in|as|to|me)\b/gi, " ")
@@ -184,7 +159,6 @@ export function heuristicClassify(instruction: string): {
   operation: OperationAxis;
   standard: string;
   outputForm: OutputFormAxis;
-  documentPresentation?: DocumentPresentation;
   reportType?: ReportType;
   depth?: ReportDepth;
   compound: boolean;
@@ -243,7 +217,6 @@ export function heuristicClassify(instruction: string): {
     depth = "deep";
   }
 
-  const documentPresentation = detectDocumentPresentation(instruction);
   const explicitForm = isTabularInstruction(instruction) || isNarrativeInstruction(instruction);
 
   void INTENT_CONFIDENCE_THRESHOLD;
@@ -252,7 +225,6 @@ export function heuristicClassify(instruction: string): {
     operation,
     standard: "none",
     outputForm,
-    documentPresentation,
     reportType,
     depth,
     compound: false,

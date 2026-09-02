@@ -151,6 +151,152 @@ export async function generateS4Proposition(
   };
 }
 
+/** Default breadth for an open risk survey when the user names no number. */
+const DEFAULT_RISK_PROPOSITION_COUNT = 6;
+/** Upper bound on how many the author is asked for, even when the user says "top 50". */
+const MAX_RISK_PROPOSITION_REQUEST = 15;
+
+/**
+ * How many risk propositions to author. Honors an explicit user count
+ * ("top 10 risks" → exhaustiveness.mode="user_capped", limit=10); otherwise
+ * defaults to a 5–6 survey. `applyExhaustivenessTrim` and
+ * `MAX_OPEN_PROPOSITIONS` (build-open-plan) remain the downstream ceilings —
+ * this only decides how many to *generate*.
+ */
+function targetRiskPropositionCount(state: AnalysisState): number {
+  const ex = state.intent?.exhaustiveness;
+  if (ex?.mode === "user_capped" && ex.limit && ex.limit > 0) {
+    return Math.min(ex.limit, MAX_RISK_PROPOSITION_REQUEST);
+  }
+  return DEFAULT_RISK_PROPOSITION_COUNT;
+}
+
+interface S4AuthoredPropositions {
+  propositions: Array<{
+    hypothesis: string;
+    proofStandard: string;
+    priority: number;
+    /** Best-effort RISK_CLUSTERS key the item addresses; used for clusterId. */
+    cluster?: string;
+  }>;
+}
+
+const S4_MULTI_SCHEMA = {
+  type: "object",
+  properties: {
+    propositions: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          hypothesis: { type: "string" },
+          proofStandard: { type: "string" },
+          priority: { type: "number" },
+          cluster: { type: "string" },
+        },
+        required: ["hypothesis", "proofStandard", "priority"],
+      },
+    },
+  },
+  required: ["propositions"],
+};
+
+const S4_MULTI_SYSTEM_PROMPT = [
+  "You are a senior contracts lawyer surveying a contract for the risks that",
+  "most matter to the party asking. The user asked an open risk question that",
+  "no existing skill or pattern covers, so you must author several distinct",
+  '"propositions" — one per candidate risk worth investigating.',
+  "",
+  "Each proposition has:",
+  "- hypothesis: a one-sentence statement of a SPECIFIC ADVERSE thing that may",
+  "  be true about the document — phrased so it turns out true (the risk is",
+  "  present), false (the risk is not present), or unaddressed. Frame the",
+  '  adverse case, never the protection: write "The agreement caps the',
+  '  vendor\'s liability below the customer\'s realistic exposure", NOT "The',
+  '  agreement adequately protects the customer". A later step verifies each',
+  "  one; proving it means the risk is real, contradicting it means the",
+  "  customer is protected on that point.",
+  "- proofStandard: precise instructions for what to look for in the document",
+  "  and how to score it, the way you'd brief a first-year associate — name",
+  "  the concrete clause(s) and textual signals that would prove, disprove, or",
+  "  leave the hypothesis unaddressed. Never vague boilerplate.",
+  "- priority: integer 1-100, how central this risk is to what the user asked",
+  "  (a direct, explicit concern scores 70+).",
+  "- cluster (optional): which risk area this addresses — one of",
+  '  "risk_exposure", "exit_and_control", or "data_governance".',
+  "",
+  "Rules:",
+  "- You have not read the document, only its clause-type inventory. Do not",
+  "  answer the question or assume what the document says — proofStandard is",
+  "  instructions for a later verification step, not a conclusion.",
+  "- Author DISTINCT, non-overlapping risks. Spread them across the risk areas",
+  "  suggested below rather than restating one risk several ways. Anchor each",
+  "  to clause types the inventory actually shows where you can.",
+  "- Order by priority, highest first.",
+].join("\n");
+
+/**
+ * §4 step 8b, S4 fallback (risk-survey variant) — for an open `risk_flag`
+ * question no S1/S2 source covers, author SEVERAL bespoke risk propositions
+ * (default 5–6, or the user's explicit count) rather than a single guess.
+ * Seeds the author with the document's own clause-type inventory plus the
+ * RISK_CLUSTERS lenses so coverage spans liability, exit/control, and data
+ * governance. Each hypothesis is framed as "an adverse thing is true", so
+ * downstream VERIFY reads proves=risk-present / contradicts=risk-absent
+ * (buildVerifiedFinding's risk lane). Falls back to `generateS4Proposition`
+ * (single) at the call site if this returns nothing.
+ */
+export async function generateS4Propositions(
+  state: AnalysisState,
+  inventory: InventoryItem[]
+): Promise<Proposition[]> {
+  const instruction = state.request.instruction.trim();
+  if (!instruction) return [];
+
+  const party = state.intent?.partyPerspective ?? undefined;
+  const clauseTypes = [...new Set(inventory.map((item) => item.clauseType))];
+  const count = targetRiskPropositionCount(state);
+
+  const clusterLenses = Object.entries(RISK_CLUSTERS)
+    .map(([id, types]) => `- ${id}: ${types.join(", ")}`)
+    .join("\n");
+
+  const prompt = [
+    `User's question: "${instruction}"`,
+    `The document's own clause-type inventory found: ${clauseTypes.join(", ") || "(nothing recognized)"}.`,
+    `Risk areas to consider (cluster: relevant clause types):\n${clusterLenses}`,
+    party ? `The user is asking from the perspective of: ${party}.` : "",
+    `Author ${count} distinct risk propositions to investigate against the document, ordered by priority.`,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+
+  const authored = await executeJsonCompletion<S4AuthoredPropositions>(
+    prompt,
+    S4_MULTI_SYSTEM_PROMPT,
+    S4_MULTI_SCHEMA,
+    LLMTask.STRUCTURAL_JSON_LITE,
+    LLMProvider.GEMINI
+  );
+
+  const items = authored?.propositions ?? [];
+  return items
+    .filter((item) => item.hypothesis?.trim() && item.proofStandard?.trim())
+    .map((item) => {
+      const clusterId =
+        item.cluster && item.cluster in RISK_CLUSTERS ? item.cluster : undefined;
+      return {
+        hypothesis: item.hypothesis,
+        proofStandard: item.proofStandard,
+        source: "S4" as const,
+        priority: typeof item.priority === "number" ? item.priority : 50,
+        partyPerspective: party,
+        clusterId,
+      };
+    })
+    .sort((a, b) => b.priority - a.priority);
+}
+
 /**
  * extract_playbook_positions locates each position's `sourceLocator` with a
  * naive raw-text `indexOf` (act-utils.ts's locateText) that silently falls
@@ -502,6 +648,17 @@ export async function generatePropositions(
     const paired = await decomposeReasoningAsk(state, inventory);
     if (paired.length > 0) {
       return { propositions: applyExhaustivenessTrim(paired, state) };
+    }
+  }
+
+  // Open risk questions survey several distinct risks (default 5–6, or the
+  // user's explicit count) instead of testing a single guess. Gated to
+  // risk_flag so it lines up with buildVerifiedFinding's risk lane; the other
+  // investigation operations keep the neutral single-item author.
+  if (operation === "risk_flag") {
+    const riskProps = await generateS4Propositions(state, inventory);
+    if (riskProps.length > 0) {
+      return { propositions: applyExhaustivenessTrim(riskProps, state) };
     }
   }
 

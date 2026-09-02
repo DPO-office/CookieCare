@@ -20,6 +20,8 @@ export async function askUser(state: AnalysisState): Promise<AnalysisState> {
     question: m.question,
     severity: m.severity,
     options: m.options,
+    perDocumentRoles: (m as { perDocumentRoles?: Array<{ docId: string; title: string }> })
+      .perDocumentRoles,
   }));
 
   if (state.agent) {

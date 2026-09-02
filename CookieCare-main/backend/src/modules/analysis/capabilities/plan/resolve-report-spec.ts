@@ -19,6 +19,7 @@ export function mergeAuthoredReportSections(args: {
   reportType: ReportType;
   depth: ReportDepth;
   packages: EvidencePackage[];
+  operation?: import("../../models/intent.js").OperationAxis;
 }): {
   reportType: ReportType;
   sections: ReportSectionId[];
@@ -45,7 +46,7 @@ export function mergeAuthoredReportSections(args: {
   const sections =
     sectionSet.size > 0
       ? sortSections([...sectionSet])
-      : deriveSections(mergedType, depth);
+      : deriveSections(mergedType, depth, args.operation);
 
   return { reportType: mergedType, sections, outlineExtras: outlineExtras ?? [] };
 }
@@ -62,6 +63,7 @@ export function resolveReportSpecFromPackages(args: {
     reportType,
     depth,
     packages: args.packages,
+    operation: args.intent.operation,
   });
   return {
     reportType: merged.reportType,

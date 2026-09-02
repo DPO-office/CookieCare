@@ -108,23 +108,12 @@ export function applySensibleDefaults(
     });
   }
 
-  let documentPresentation = intent.documentPresentation;
-  if (documentPresentation === undefined) {
-    documentPresentation = "unified";
-    normalizations.push({
-      field: "documentPresentation",
-      from: undefined,
-      to: documentPresentation,
-      reason: "missing_field",
-    });
-  }
 
   return {
     intent: {
       ...intent,
       scope,
       outputForm,
-      documentPresentation,
       reportType,
       depth,
       confidence,
