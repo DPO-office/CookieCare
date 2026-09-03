@@ -90,6 +90,126 @@ function art28State(extra?: Partial<AnalysisState>): AnalysisState {
 }
 
 describe("canonical requirement aggregation (Art 28 PLAN bleed)", () => {
+  it("preserves native child assessments for a broad package umbrella", () => {
+    const parentId = "regime.article28.compliance_assessment";
+    const findings: Finding[] = [
+      finding({
+        findingId: "f_a",
+        requirementId: "native.a",
+        requestRequirementIds: [parentId],
+        packageId: "pkg",
+        judgement: presentJudgement(),
+      }),
+      finding({
+        findingId: "f_b",
+        requirementId: "native.b",
+        requestRequirementIds: [parentId],
+        packageId: "pkg",
+        judgement: presentJudgement(),
+      }),
+      finding({
+        findingId: "f_c",
+        requirementId: "native.c",
+        requestRequirementIds: [parentId],
+        packageId: "pkg",
+        status: "absent_expected",
+        gap: "Missing child C.",
+      }),
+    ];
+    const state = {
+      intent: {
+        requirements: [
+          {
+            id: parentId,
+            type: "adequacy",
+            priority: "required",
+            description: "Broad review",
+          },
+        ],
+      },
+      plan: {
+        requirementBindings: ["native.a", "native.b", "native.c"].map(
+          (nativeRequirementId) => ({
+            requestRequirementId: parentId,
+            nativeRequirementId,
+            packageId: "pkg",
+            relation: "child" as const,
+            source: "subprovision" as const,
+          })
+        ),
+      },
+      activeSkills: [],
+    } as unknown as AnalysisState;
+    const result = aggregateRequirements(
+      state,
+      { workUnitId: "wu-aggregate", input: {} } as never,
+      findings
+    );
+    const assessments = result.state.requirementAssessments ?? [];
+    assert.equal(assessments.length, 4);
+    assert.equal(
+      assessments.find((assessment) => assessment.requirementId === parentId)?.status,
+      "conditional"
+    );
+    for (const nativeId of ["native.a", "native.b", "native.c"]) {
+      const component = assessments.find(
+        (assessment) => assessment.requirementId === nativeId
+      );
+      assert.equal(component?.componentOfRequirementId, parentId);
+      assert.equal(component?.supportingFindingIds.length, 1);
+    }
+  });
+
+  it("does not mark a broad parent Strong when bound component evaluation is incomplete", () => {
+    const parentId = "regime.compliance.assessment";
+    const state = {
+      intent: {
+        requirements: [
+          {
+            id: parentId,
+            type: "adequacy",
+            priority: "required",
+            description: "Overall compliance",
+          },
+        ],
+      },
+      plan: {
+        requirementBindings: ["native.a", "native.b", "native.c"].map(
+          (nativeRequirementId) => ({
+            requestRequirementId: parentId,
+            nativeRequirementId,
+            packageId: "pkg",
+            relation: "child" as const,
+            source: "capability" as const,
+          })
+        ),
+      },
+      activeSkills: [],
+    } as unknown as AnalysisState;
+    const result = aggregateRequirements(
+      state,
+      { workUnitId: "wu-aggregate", input: {} } as never,
+      [
+        finding({
+          findingId: "f_a",
+          requirementId: "native.a",
+          requestRequirementIds: [parentId],
+          packageId: "pkg",
+          judgement: presentJudgement(),
+        }),
+      ]
+    );
+    const assessments = result.state.requirementAssessments ?? [];
+    const parent = assessments.find((assessment) => assessment.requirementId === parentId);
+    assert.equal(parent?.status, "cannot_determine");
+    assert.equal(parent?.judgement?.evidenceState, "unavailable");
+    assert.match(parent?.summary ?? "", /1 of 3/);
+    assert.equal(
+      assessments.filter((assessment) => assessment.componentOfRequirementId === parentId).length,
+      3
+    );
+  });
+
   it("attaches native duration Present to PLAN duration and ignores unstamped Art 28 risks", () => {
     const findings: Finding[] = [
       finding({

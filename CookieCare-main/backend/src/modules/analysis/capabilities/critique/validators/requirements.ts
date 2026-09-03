@@ -19,6 +19,10 @@ import {
   packageIdForUnit,
   packageUnitForRequirement,
 } from "./shared.js";
+import {
+  requirementIdsEquivalent,
+} from "../../../shared/requirement-identity.js";
+import { findingSupportsLockedAssessment } from "../../../shared/article-linkage.js";
 
 function statusesAlign(
   assessmentStatus: RequirementStatus,
@@ -42,9 +46,6 @@ export function validateRequirements(
   targets: CritiqueTarget[]
 ): void {
   const assessments = state.requirementAssessments ?? [];
-  const assessmentById = new Map(
-    assessments.map((assessment) => [assessment.requirementId, assessment])
-  );
   const findingById = new Map(findings.map((finding) => [finding.findingId, finding]));
   const requiredIds = new Set(
     (state.plan?.intent.requirements ?? [])
@@ -56,7 +57,9 @@ export function validateRequirements(
   }
 
   for (const requirementId of requiredIds) {
-    const assessment = assessmentById.get(requirementId);
+    const assessment = assessments.find((candidate) =>
+      requirementIdsEquivalent(candidate.requirementId, requirementId)
+    );
     const validTerminalWithoutEvidence =
       assessment?.status === "not_applicable" ||
       assessment?.status === "cannot_determine";
@@ -101,7 +104,11 @@ export function validateRequirements(
       linked.every(
         (finding) =>
           !finding.requirementId ||
-          finding.requirementId === assessment.requirementId
+          findingSupportsLockedAssessment(
+            finding,
+            assessment.requirementId,
+            state
+          )
       );
     const referenceId = `requirement-refs:${assessment.requirementId}`;
     results.push({

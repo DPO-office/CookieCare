@@ -26,6 +26,7 @@ export function buildBottomLineUserPrompt(sections: string): string {
     "Do not invent rights, timeframes, citations, or any new claim not traceable to a listed finding.",
     "Do not advise whether to sign or litigate.",
     "Prefer \"not identified in the reviewed materials\" over \"the agreement does not contain…\" unless the relevant section was reviewed in full.",
+    "EVIDENCE COMPLETENESS IS BINDING: if any structured row is Cannot determine, Insufficient data, or Present with particulars in a referenced schedule/annex/SOW, the bottom line must state that limitation and must not say the review is complete, fully documented/verified/compliant, has no residual items, or is ready to finalize.",
     "",
     sections,
   ].join("\n");

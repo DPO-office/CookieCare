@@ -12,11 +12,12 @@ import {
 import { aggregateRequirements } from "../aggregate-requirements.js";
 import type { Finding, FindingStatus } from "../../../models/finding.js";
 import type { AnalysisState } from "../../../models/analysis-state.js";
+import type { EvidencePackage } from "../../../models/evidence-package.js";
 import {
   focus,
   gdprSkill,
   intent,
-} from "../../../../__test-helpers__/package-graph-fixtures.js";
+} from "../../../__test-helpers__/package-graph-fixtures.js";
 
 describe("package resolution", () => {
   it("selects the Article 28(3) package when a member rule is in focus", () => {
@@ -57,6 +58,64 @@ describe("package resolution", () => {
 });
 
 describe("package graph shape", () => {
+  it("uses the lean verified graph for focused Q&A", () => {
+    const openPackage: EvidencePackage = {
+      id: "open_analysis",
+      kind: "evaluation",
+      sourceMode: "authored",
+      requirementIds: ["open.p1"],
+      capabilityIds: [],
+      clauseTypes: [],
+      extractionTargets: [],
+      requirementEvidence: {
+        "open.p1": {
+          hypothesis: "The document identifies the parties' processing roles.",
+          proofStandard: "A passage expressly identifies the relevant parties and roles.",
+          polarity: "neutral_fact",
+        },
+      },
+    };
+    const { workUnits } = buildActGraphDetailed({
+      docId: "doc1",
+      instruction: "Who is the controller and who is the processor?",
+      skills: [gdprSkill()],
+      intent: {
+        ...intent(),
+        operation: "extract",
+        reportType: "qa_answer",
+        outputForm: "qa_thread",
+        requirements: [
+          {
+            id: "open.p1",
+            description: "Identify the parties' processing roles.",
+            type: "extraction",
+            priority: "required",
+          },
+        ],
+      },
+      reportSpec: {
+        reportType: "qa_answer",
+        depth: "standard",
+        sections: ["scope", "evidence", "conclusion"],
+      },
+      extraPackages: [openPackage],
+    });
+    const tools = workUnits.map((unit) => unit.tool);
+    assert.deepEqual(tools, [
+      "classify_document",
+      "extract_shared_evidence",
+      "evaluate_package",
+      "render_output",
+    ]);
+    const evidence = workUnits.find((unit) => unit.tool === "extract_shared_evidence");
+    assert.equal(evidence?.input.documentSectionEvidence, true);
+    const render = workUnits.find((unit) => unit.tool === "render_output");
+    assert.deepEqual(render?.dependsOn, ["wu-pkg-eval-open_analysis"]);
+    assert.equal(render?.input.capabilityOperation, "extract");
+    assert.equal(render?.input.capabilityGraph, "lean_verified");
+    assert.equal(render?.input.evidenceCardinality, "structured_rows");
+  });
+
   it("emits shared-evidence, grouped eval, derive-risk and aggregate units", () => {
     const { workUnits } = buildActGraphDetailed({
       docId: "doc1",
@@ -75,6 +134,17 @@ describe("package graph shape", () => {
     // render must run last (depends on derive_risk after aggregate).
     const render = workUnits.find((u) => u.tool === "render_output");
     assert.deepEqual(render?.dependsOn, ["wu-derive-risk"]);
+    assert.equal(render?.input.capabilityOperation, "compliance_check");
+    assert.equal(render?.input.capabilityGraph, "full");
+    assert.equal(render?.input.evidenceCardinality, "requirement_isolated");
+    const packageEval = workUnits.find(
+      (unit) =>
+        unit.tool === "evaluate_package" &&
+        unit.input.packageId === "gdpr.art28.3.mandatory_clauses"
+    );
+    assert.deepEqual(packageEval?.input.evidenceScope, {
+      relationshipScopes: ["controller_to_processor"],
+    });
     const derive = workUnits.find((u) => u.tool === "derive_risk");
     assert.deepEqual(derive?.dependsOn, ["wu-aggregate"]);
   });

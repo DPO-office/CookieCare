@@ -1,7 +1,8 @@
-import { useRef, useState } from "react";
-import { CustomFolder, SavedDraft, Message, DocumentMode, AnswerStyle, AnalysisDepth } from "../types";
+import { useRef, useState, startTransition } from "react";
+import { CustomFolder, SavedDraft, Message, AnswerStyle, AnalysisDepth } from "../types";
 import { collectAnalysisDocumentIds } from "../documentSelection";
 import type { EphemeralFile } from "./useAnalyzeData";
+import { createStreamingStore, type StreamingStore } from "../streamingStore";
 import {
   ANALYSIS_MAX_DOCS,
   enqueueAnalysisJob,
@@ -20,15 +21,9 @@ type RunContext = {
 
 function buildInstruction(
   prompt: string,
-  documentMode: DocumentMode,
   answerStyle: AnswerStyle
 ): string {
   const extras: string[] = [];
-  if (documentMode === "individual") {
-    extras.push(
-      "Analyze each attached document individually rather than as a single combined review."
-    );
-  }
   if (answerStyle === "tabular") {
     extras.push("Present findings as a table.");
   }
@@ -49,37 +44,37 @@ export function useAnalysis(authToken: string) {
 
   const runContextRef = useRef<RunContext | null>(null);
   const streamBufferRef = useRef("");
-  const streamRafRef = useRef<number | null>(null);
+  const streamingStoreRef = useRef<StreamingStore>(createStreamingStore());
+  const progressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingProgressRef = useRef("");
 
-  const flushStreamToUi = () => {
-    streamRafRef.current = null;
-    const text = streamBufferRef.current;
-    setChatMessages((prev) =>
-      prev.map((m) => (m.streaming ? { ...m, text } : m))
-    );
+  const cancelProgressFlush = () => {
+    if (progressTimerRef.current != null) {
+      clearTimeout(progressTimerRef.current);
+      progressTimerRef.current = null;
+    }
   };
 
-  const cancelStreamFlush = () => {
-    if (streamRafRef.current != null) {
-      cancelAnimationFrame(streamRafRef.current);
-      streamRafRef.current = null;
-    }
+  const flushProgressToUi = () => {
+    progressTimerRef.current = null;
+    setAnalysisProgress(pendingProgressRef.current);
+  };
+
+  const scheduleProgressUpdate = (message: string) => {
+    pendingProgressRef.current = message;
+    if (progressTimerRef.current != null) return;
+    progressTimerRef.current = setTimeout(flushProgressToUi, 350);
   };
 
   const appendStreamToken = (delta: string) => {
     if (!delta) return;
     streamBufferRef.current += delta;
-    if (streamRafRef.current == null) {
-      streamRafRef.current = requestAnimationFrame(flushStreamToUi);
-    }
+    streamingStoreRef.current.setText(streamBufferRef.current);
   };
 
   const resetLiveStream = () => {
     streamBufferRef.current = "";
-    cancelStreamFlush();
-    setChatMessages((prev) =>
-      prev.map((m) => (m.streaming ? { ...m, text: "" } : m))
-    );
+    streamingStoreRef.current.setText("");
   };
 
   const handleProgress = (message: string) => {
@@ -88,12 +83,12 @@ export function useAnalysis(authToken: string) {
     if (message === "Writing the report…" && !streamBufferRef.current) {
       resetLiveStream();
     }
-    setAnalysisProgress(message);
+    scheduleProgressUpdate(message);
   };
 
   const beginStreamingReply = (userText: string, replaceThread: boolean) => {
     streamBufferRef.current = "";
-    cancelStreamFlush();
+    streamingStoreRef.current.setText("");
     setViewMode("report");
     setChatMessages((prev) => {
       const base = replaceThread ? [] : prev.filter((m) => !m.loading && !m.streaming);
@@ -115,7 +110,7 @@ export function useAnalysis(authToken: string) {
             ? {
                 ...m,
                 streaming: false,
-                text: m.text || "Analysis failed. Please try again.",
+                text: m.text || streamBufferRef.current || "Analysis failed. Please try again.",
               }
             : m
         )
@@ -137,8 +132,6 @@ export function useAnalysis(authToken: string) {
       return true;
     }
 
-    // Canonical memo from the job result. Live SSE tokens are a progressive draft;
-    // sanitize/layout may differ slightly, so replace once at completion.
     const finalText =
       outcome.kind === "out_of_scope"
         ? outcome.declineMessage
@@ -146,7 +139,8 @@ export function useAnalysis(authToken: string) {
           ? outcome.report
           : streamBufferRef.current || "Analysis complete.";
     streamBufferRef.current = "";
-    cancelStreamFlush();
+    streamingStoreRef.current.setText("");
+    cancelProgressFlush();
 
     setSessionId(
       outcome.kind === "out_of_scope" || outcome.kind === "success"
@@ -155,19 +149,23 @@ export function useAnalysis(authToken: string) {
     );
     setOpenQuestions([]);
     setAskResolved(false);
-    setChatMessages((prev) => {
-      const withoutLoading = prev.filter((m) => !m.loading);
-      const next = withoutLoading.some((m) => m.sender === "user" && m.text === userText)
-        ? withoutLoading
-        : [...withoutLoading, { sender: "user", text: userText }];
-      const streamIdx = [...next].reverse().findIndex((m) => m.sender === "gemini" && m.streaming);
-      const realIdx = streamIdx === -1 ? -1 : next.length - 1 - streamIdx;
-      if (realIdx >= 0) {
-        const updated = [...next];
-        updated[realIdx] = { sender: "gemini", text: finalText, streaming: false };
-        return updated;
-      }
-      return [...next, { sender: "gemini", text: finalText }];
+    startTransition(() => {
+      setChatMessages((prev) => {
+        const withoutLoading = prev.filter((m) => !m.loading);
+        const next: Message[] = withoutLoading.some(
+          (m) => m.sender === "user" && m.text === userText
+        )
+          ? withoutLoading
+          : [...withoutLoading, { sender: "user" as const, text: userText }];
+        const streamIdx = [...next].reverse().findIndex((m) => m.sender === "gemini" && m.streaming);
+        const realIdx = streamIdx === -1 ? -1 : next.length - 1 - streamIdx;
+        if (realIdx >= 0) {
+          const updated = [...next];
+          updated[realIdx] = { sender: "gemini", text: finalText, streaming: false };
+          return updated;
+        }
+        return [...next, { sender: "gemini", text: finalText }];
+      });
     });
     setViewMode("report");
     return true;
@@ -178,7 +176,6 @@ export function useAnalysis(authToken: string) {
     savedDrafts: SavedDraft[],
     ephemeralFiles: EphemeralFile[],
     customPromptText: string,
-    documentMode: DocumentMode,
     answerStyle: AnswerStyle,
     analysisDepth: AnalysisDepth,
     promptLibraryId?: string,
@@ -207,7 +204,7 @@ export function useAnalysis(authToken: string) {
           )
         : undefined;
 
-    const instruction = buildInstruction(customPromptText, documentMode, answerStyle);
+    const instruction = buildInstruction(customPromptText, answerStyle);
     runContextRef.current = {
       documentIds,
       instruction,
@@ -221,7 +218,8 @@ export function useAnalysis(authToken: string) {
     setAskResolved(false);
     setSessionId(null);
     streamBufferRef.current = "";
-    cancelStreamFlush();
+    streamingStoreRef.current.setText("");
+    cancelProgressFlush();
     setIsAnalyzing(true);
     setAnalysisError("");
     setAnalysisProgress("Thinking…");
@@ -233,7 +231,6 @@ export function useAnalysis(authToken: string) {
         documentIds,
         documentRoles,
         promptLibraryId: promptLibraryId || undefined,
-        documentMode,
         answerStyle,
         thinkingMode: analysisDepth,
       });
@@ -251,11 +248,17 @@ export function useAnalysis(authToken: string) {
       setChatMessages((prev) =>
         prev.map((m) =>
           m.streaming
-            ? { ...m, streaming: false, text: m.text || err.message || "Analysis failed." }
+            ? {
+                ...m,
+                streaming: false,
+                text: m.text || streamBufferRef.current || err.message || "Analysis failed.",
+              }
             : m
         )
       );
     } finally {
+      cancelProgressFlush();
+      flushProgressToUi();
       setIsAnalyzing(false);
       setAnalysisProgress("");
     }
@@ -297,10 +300,14 @@ export function useAnalysis(authToken: string) {
       setAnalysisError(err.message || "Failed to resume analysis.");
       setChatMessages((prev) =>
         prev.map((m) =>
-          m.streaming ? { ...m, streaming: false, text: m.text || err.message } : m
+          m.streaming
+            ? { ...m, streaming: false, text: m.text || streamBufferRef.current || err.message }
+            : m
         )
       );
     } finally {
+      cancelProgressFlush();
+      flushProgressToUi();
       setIsAnalyzing(false);
       setAnalysisProgress("");
     }
@@ -310,7 +317,6 @@ export function useAnalysis(authToken: string) {
     userText: string,
     folders: CustomFolder[],
     savedDrafts: SavedDraft[],
-    documentMode: DocumentMode,
     answerStyle: AnswerStyle,
     analysisDepth: AnalysisDepth = "lite",
     ephemeralFiles: EphemeralFile[] = []
@@ -324,7 +330,7 @@ export function useAnalysis(authToken: string) {
         ? { documentIds: ctx.documentIds }
         : collectAnalysisDocumentIds(folders, savedDrafts, ephemeralFiles);
 
-    if (documentIds.length === 0) {
+    if (documentIds.length === 0 && !sessionId) {
       setChatMessages((prev) => [
         ...prev,
         { sender: "user", text: trimmed },
@@ -336,7 +342,7 @@ export function useAnalysis(authToken: string) {
       return;
     }
 
-    const followUpInstruction = buildInstruction(trimmed, documentMode, answerStyle);
+    const followUpInstruction = buildInstruction(trimmed, answerStyle);
 
     setIsAnalyzing(true);
     setAnalysisError("");
@@ -345,11 +351,10 @@ export function useAnalysis(authToken: string) {
     try {
       const jobId = await enqueueAnalysisJob(authToken, "/api/analysis/run", {
         instruction: followUpInstruction,
-        documentIds,
+        documentIds: documentIds.length ? documentIds : undefined,
         documentRoles: ctx?.documentRoles,
         promptLibraryId: ctx?.promptLibraryId,
         sessionId: sessionId || undefined,
-        documentMode,
         answerStyle,
         thinkingMode: analysisDepth,
       });
@@ -369,32 +374,40 @@ export function useAnalysis(authToken: string) {
             ? {
                 ...m,
                 streaming: false,
-                text: m.text || "I encountered an error while processing your request. Please try again.",
+                text:
+                  m.text ||
+                  streamBufferRef.current ||
+                  "I encountered an error while processing your request. Please try again.",
               }
             : m
         )
       );
     } finally {
+      cancelProgressFlush();
+      flushProgressToUi();
       setIsAnalyzing(false);
       setAnalysisProgress("");
     }
   };
 
-  /** Restore a past session directly into report view — no analysis is triggered. */
-  const restoreSession = (messages: Message[], docName: string) => {
-    // Guard: never enter report view with no content — it would show "Thinking…"
+  const restoreSession = (
+    messages: Message[],
+    docName: string,
+    restoredSessionId?: string | null
+  ) => {
     if (messages.length === 0) return;
 
-    cancelStreamFlush();
+    cancelProgressFlush();
     streamBufferRef.current = "";
+    streamingStoreRef.current.setText("");
     setIsAnalyzing(false);
     setAnalysisProgress("");
     setAnalysisError("");
     setOpenQuestions([]);
     setAskResolved(false);
-    setSessionId(null);
+    setSessionId(restoredSessionId || null);
+    runContextRef.current = null;
     setActiveReportDocName(docName);
-    // Set messages first, then flip view mode so ReportView never sees empty state
     setChatMessages(messages);
     setViewMode("report");
   };
@@ -422,8 +435,9 @@ export function useAnalysis(authToken: string) {
   const handlePrintReport = () => window.print();
 
   const cancelAnalysis = () => {
-    cancelStreamFlush();
+    cancelProgressFlush();
     streamBufferRef.current = "";
+    streamingStoreRef.current.setText("");
     setIsAnalyzing(false);
     setAnalysisProgress("");
     setAnalysisError("");
@@ -452,5 +466,6 @@ export function useAnalysis(authToken: string) {
     handlePrintReport,
     restoreSession,
     cancelAnalysis,
+    streamingStore: streamingStoreRef.current,
   };
 }

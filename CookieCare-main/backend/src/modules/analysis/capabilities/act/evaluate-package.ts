@@ -4,11 +4,27 @@ import {
   LLMTask,
 } from "../../../../llm/index.js";
 import type { AnalysisState } from "../../models/analysis-state.js";
-import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
-import type { Finding } from "../../models/finding.js";
+import type { AnalysisExecutionState } from "../../models/analysis-execution.js";
+import type { AnalysisWorkUnit, RequirementBinding } from "../../models/analysis-plan.js";
+import type {
+  Finding,
+  FindingApplicabilityScope,
+  FindingPerspective,
+  FindingPolarity,
+} from "../../models/finding.js";
+import { requestIdsForNative } from "../../shared/requirement-binding.js";
 import type { EvidenceSpan } from "../../models/locator.js";
-import type { EvidencePackageSourceMode, SharedEvidenceBundle, SharedEvidenceItem } from "../../models/evidence-package.js";
-import type { GroupedRequirementResult, RequirementJudgement } from "../../models/requirement-assessment.js";
+import type {
+  EvidencePackageSourceMode,
+  EvidenceScopeConstraint,
+  SharedEvidenceBundle,
+  SharedEvidenceItem,
+} from "../../models/evidence-package.js";
+import type {
+  EvidenceState,
+  GroupedRequirementResult,
+  RequirementJudgement,
+} from "../../models/requirement-assessment.js";
 import { recommendationKindFromAxes } from "../../models/requirement-assessment.js";
 import type { SegmentedDocument } from "../../models/document-workspace.js";
 import { getSkillById } from "../../skills/runtime/catalog/registry.js";
@@ -18,6 +34,7 @@ import { insufficient } from "./act-utils.js";
 import { groupedResultsToFindings, TIER_BY_SOURCE } from "./grouped-results-to-findings.js";
 import {
   verifyProposition,
+  verifyPropositionCandidates,
   type VerifyVerdict,
   type VerifyPropositionResult,
 } from "../act/verify-proposition.js";
@@ -40,9 +57,12 @@ import { pacLog } from "../../utils/pac-log.js";
 import {
   profileEvidenceCharBudget,
   profileSkipsSupportingPriority,
+  profileSelectedVerifyCandidateCap,
   profileThinkingLevel,
   profileVerifyCandidateCap,
+  profileVerifyRequirementConcurrency,
 } from "../../utils/profile-thinking.js";
+import { adaptiveVerificationTimeoutMs } from "../../utils/adaptive-time-budget.js";
 import {
   EVALUATE_PACKAGE_SYSTEM_PROMPT,
   buildEvaluatePackageUserPrompt,
@@ -54,7 +74,12 @@ import {
 import { buildInMemoryIndex, type ClauseIndex } from "./clause-index.js";
 import { logVerifyCandidates } from "./verify-inspect-log.js";
 import { logRetrievalRanking, logSelectedCandidates } from "./evidence-pool-log.js";
-import { selectCandidates, buildSectionCandidates } from "./select-candidates.js";
+import {
+  selectCandidates,
+  buildSectionCandidates,
+  filterCandidatesByEvidenceScope,
+} from "./select-candidates.js";
+import { normalizePartyPerspective } from "../../shared/finding-semantics.js";
 
 const MAX_BRIEF_CHARS = 4000;
 
@@ -132,18 +157,34 @@ export async function evaluatePackage(
   const depth = String(unit.input.depth ?? "standard");
   const skillIds = (unit.input.skillIds as string[]) ?? state.activeSkillIds ?? [];
   const extractionTargets = (unit.input.extractionTargets as string[]) ?? [];
+  const evidenceScope = unit.input.evidenceScope as EvidenceScopeConstraint | undefined;
   const requirementEvidence =
     (unit.input.requirementEvidence as Record<string, RequirementEvidenceProfile> | undefined) ??
     {};
   const requirementBindings =
     (unit.input.requirementBindings as Record<string, string[]> | undefined) ?? {};
 
+  // Phase 2 — request↔native bindings for this package. Stamp each new finding
+  // with the request/classifier ids it answers (join key) without touching its
+  // native `requirementId` (evaluation identity).
+  const requestBindings =
+    (unit.input.requestRequirementBindings as RequirementBinding[] | undefined) ?? [];
+  const stampRequest = <T extends Finding>(newFindings: T[]): T[] =>
+    requestBindings.length === 0
+      ? newFindings
+      : newFindings.map((f) => {
+          const requestIds = requestIdsForNative(requestBindings, f.requirementId);
+          return requestIds.length > 0 ? { ...f, requestRequirementIds: requestIds } : f;
+        });
+
   if (requirementIds.length === 0) {
     return {
       state,
       findings: [
         ...findings,
-        insufficient(unit, `Package ${packageId} resolved no requirements`),
+        ...stampRequest([
+          insufficient(unit, `Package ${packageId} resolved no requirements`),
+        ]),
       ],
     };
   }
@@ -164,15 +205,60 @@ export async function evaluatePackage(
   // free-form LLM call. Any package without proofStandard authored is
   // completely untouched — same grouped-LLM path as before.
   if (allRequirementsHaveProofStandard(requirementIds, requirementEvidence)) {
-    const verifyFindings = await evaluateWithVerify(
+    let verifyFindings = await evaluateWithVerify(
       requirementIds,
       evidenceItems,
       extractionTargets,
       requirementEvidence,
       state,
-      { unit, docId, packageId, sourceMode, skillId: skillIds[0], findingCategory }
+      {
+        unit,
+        docId,
+        packageId,
+        sourceMode,
+        skillId: skillIds[0],
+        findingCategory,
+        evidenceScope,
+      }
     );
-    return { state, findings: [...findings, ...verifyFindings] };
+    const retryIds = [...new Set(
+      verifyFindings
+        .filter((finding) =>
+          finding.requirementId &&
+          (finding.analysisExecution?.status === "failed" ||
+            finding.analysisExecution?.status === "timed_out")
+        )
+        .map((finding) => finding.requirementId!)
+    )];
+    if (retryIds.length > 0 && canRetryFailedBranchRequirements(state, unit)) {
+      pacLog("[VERIFY] deep branch retry", {
+        facetId: unit.facetId,
+        packageId,
+        requirements: retryIds.join(","),
+      });
+      const retried = await evaluateWithVerify(
+        retryIds,
+        evidenceItems,
+        extractionTargets,
+        requirementEvidence,
+        state,
+        {
+          unit,
+          docId,
+          packageId,
+          sourceMode,
+          skillId: skillIds[0],
+          findingCategory,
+          evidenceScope,
+        }
+      );
+      const retriedIds = new Set(retried.map((finding) => finding.requirementId));
+      verifyFindings = [
+        ...verifyFindings.filter((finding) => !retriedIds.has(finding.requirementId)),
+        ...retried,
+      ];
+    }
+    return { state, findings: [...findings, ...stampRequest(verifyFindings)] };
   }
 
   const inputArtifactIds = (unit.input.inputArtifactIds as string[]) ?? [];
@@ -213,6 +299,7 @@ export async function evaluatePackage(
           requirementEvidence[requirementId],
           state
         ),
+        proofStandard: requirementEvidence[requirementId]?.proofStandard,
         candidateEvidenceRefs: refs,
         evidenceLines: formatPacketEvidenceLines(packet),
         packetRoles: {
@@ -317,12 +404,14 @@ export async function evaluatePackage(
       state,
       findings: [
         ...findings,
-        insufficient(
-          unit,
-          `Grouped evaluation failed for package ${packageId}: ${
-            err instanceof Error ? err.message : String(err)
-          }`
-        ),
+        ...stampRequest([
+          insufficient(
+            unit,
+            `Grouped evaluation failed for package ${packageId}: ${
+              err instanceof Error ? err.message : String(err)
+            }`
+          ),
+        ]),
       ],
     };
   }
@@ -421,7 +510,10 @@ export async function evaluatePackage(
     bundle: workingBundle,
   });
 
-  return { state: nextState, findings: [...findings, ...emitted, ...missingFindings] };
+  return {
+    state: nextState,
+    findings: [...findings, ...stampRequest([...emitted, ...missingFindings])],
+  };
 }
 
 /**
@@ -451,6 +543,31 @@ interface VerifyFindingContext {
   sourceMode: EvidencePackageSourceMode;
   skillId?: string;
   findingCategory: string;
+  evidenceScope?: EvidenceScopeConstraint;
+}
+
+function canRetryFailedBranchRequirements(
+  state: AnalysisState,
+  unit: AnalysisWorkUnit
+): boolean {
+  if (!unit.facetId || state.request.thinkingMode !== "deep") return false;
+  const branch = state.plan?.branches?.find((item) => item.facetId === unit.facetId);
+  if (!branch || branch.timeBudget.retryFailedRequirements < 1) return false;
+  const startedAt = state.branchDiagnostics?.[unit.facetId]?.startedAtMs;
+  if (!startedAt) return true;
+  const remaining = branch.timeBudget.hardCeilingMs - (Date.now() - startedAt);
+  return remaining >= branch.timeBudget.baseVerificationMs;
+}
+
+function remainingBranchBudgetMs(
+  state: AnalysisState,
+  unit: AnalysisWorkUnit
+): number | undefined {
+  if (!unit.facetId) return undefined;
+  const branch = state.plan?.branches?.find((item) => item.facetId === unit.facetId);
+  const startedAt = state.branchDiagnostics?.[unit.facetId]?.startedAtMs;
+  if (!branch || !startedAt) return undefined;
+  return Math.max(0, branch.timeBudget.hardCeilingMs - (Date.now() - startedAt));
 }
 
 /**
@@ -498,6 +615,202 @@ function isSupportingPriority(requirementId: string, state: AnalysisState): bool
  * Falls back to the profile's full cap whenever the index isn't usable.
  */
 const SEMANTIC_VERIFY_CANDIDATE_CAP = 4;
+/**
+ * Compliance keeps one verifier call per requirement, so widening the
+ * shortlist raises recall without returning to per-candidate LLM fan-out.
+ */
+const COMPLIANCE_VERIFY_CANDIDATE_CAP = 8;
+
+/**
+ * A compliance request commonly evaluates several packages against the same
+ * uploaded document. Cache the full-section index by the in-memory document
+ * object so those packages share one embedding pass. WeakMap keeps the cache
+ * request-lifetime friendly without retaining completed workspaces.
+ */
+const COMPLIANCE_SECTION_INDEX_CACHE = new WeakMap<
+  SegmentedDocument,
+  Promise<ClauseIndex>
+>();
+
+function complianceSectionIndex(
+  doc: SegmentedDocument,
+  sections: SharedEvidenceItem[]
+): Promise<ClauseIndex> {
+  const cached = COMPLIANCE_SECTION_INDEX_CACHE.get(doc);
+  if (cached) return cached;
+  const pending = buildInMemoryIndex(sections);
+  COMPLIANCE_SECTION_INDEX_CACHE.set(doc, pending);
+  return pending;
+}
+
+/**
+ * Max requirements per selectCandidates() call. Kept small deliberately: the
+ * failure mode this guards against is the model shallow-passing most of a
+ * large joint batch to an empty list rather than doing the harder semantic
+ * mapping for each one — see the call site's comment for the confirmed real
+ * run this was tuned against.
+ */
+const SELECT_CANDIDATES_CHUNK_SIZE = 4;
+
+async function mapWithConcurrency<T, R>(
+  values: T[],
+  limit: number,
+  worker: (value: T, index: number) => Promise<R>
+): Promise<R[]> {
+  const results = new Array<R>(values.length);
+  let cursor = 0;
+  const runWorker = async () => {
+    while (cursor < values.length) {
+      const index = cursor;
+      cursor += 1;
+      results[index] = await worker(values[index]!, index);
+    }
+  };
+  await Promise.all(
+    Array.from({ length: Math.min(Math.max(1, limit), values.length) }, runWorker)
+  );
+  return results;
+}
+
+async function withDeadline<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  let timer: NodeJS.Timeout | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(
+          () => reject(new Error(`VERIFY candidate timed out after ${timeoutMs}ms`)),
+          timeoutMs
+        );
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+export interface VerifyOutcome {
+  item: SharedEvidenceItem;
+  result: VerifyPropositionResult;
+}
+
+interface FindingSemanticContext {
+  kind: Extract<Finding["kind"], "risk" | "compliance" | "comparison_delta">;
+  polarity: FindingPolarity;
+  partyPerspective: FindingPerspective;
+  compareGroup?: string;
+  compareRole?: string;
+}
+
+function semanticContextFor(
+  profile: RequirementEvidenceProfile | undefined,
+  state: AnalysisState,
+  isRiskLane: boolean,
+  isCompareLane: boolean
+): FindingSemanticContext {
+  return {
+    kind: isRiskLane ? "risk" : isCompareLane ? "comparison_delta" : "compliance",
+    polarity:
+      profile?.polarity ??
+      (isRiskLane
+        ? "risk_present"
+        : isCompareLane
+          ? "neutral_fact"
+          : "compliance_met"),
+    partyPerspective: normalizePartyPerspective(
+      profile?.partyPerspective ?? state.intent?.partyPerspective
+    ),
+    compareGroup: isCompareLane ? profile?.compareGroup : undefined,
+    compareRole: isCompareLane ? profile?.compareRole : undefined,
+  };
+}
+
+function normalizedScopeValues(values: string[] | undefined): Set<string> {
+  return new Set(
+    (values ?? [])
+      .map((value) => value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim())
+      .filter(Boolean)
+  );
+}
+
+function dimensionIsDisjoint(a: string[] | undefined, b: string[] | undefined): boolean {
+  const left = normalizedScopeValues(a);
+  const right = normalizedScopeValues(b);
+  if (left.size === 0 || right.size === 0) return false;
+  return ![...left].some((value) => right.has(value));
+}
+
+/** True only where VERIFY identified a concrete reason the passages do not share scope. */
+export function verifyOutcomesHaveDistinctScopes(
+  left: VerifyPropositionResult,
+  right: VerifyPropositionResult
+): boolean {
+  if (
+    left.scopeRole &&
+    right.scopeRole &&
+    left.scopeRole !== "unspecified" &&
+    right.scopeRole !== "unspecified" &&
+    left.scopeRole !== right.scopeRole
+  ) {
+    return true;
+  }
+  const a = left.applicabilityScope;
+  const b = right.applicabilityScope;
+  if (!a || !b) return false;
+  return (
+    dimensionIsDisjoint(a.parties, b.parties) ||
+    dimensionIsDisjoint(a.jurisdictions, b.jurisdictions) ||
+    dimensionIsDisjoint(a.timePeriods, b.timePeriods) ||
+    dimensionIsDisjoint(a.conditions, b.conditions)
+  );
+}
+
+function decisiveOutcome(outcome: VerifyOutcome): boolean {
+  if (!outcome.result.quoteVerified) return false;
+  if (outcome.result.verdict === "proves") return true;
+  return outcome.result.verdict === "contradicts" && !outcome.item.truncated;
+}
+
+export function firstDistinctScopePair(
+  outcomes: VerifyOutcome[]
+): [VerifyOutcome, VerifyOutcome] | undefined {
+  const grounded = outcomes.filter(
+    ({ result }) => result.verdict !== "irrelevant" && result.quoteVerified
+  );
+  for (let left = 0; left < grounded.length; left += 1) {
+    for (let right = left + 1; right < grounded.length; right += 1) {
+      if (verifyOutcomesHaveDistinctScopes(grounded[left]!.result, grounded[right]!.result)) {
+        return [grounded[left]!, grounded[right]!];
+      }
+    }
+  }
+  return undefined;
+}
+
+function isComplianceReport(state: AnalysisState): boolean {
+  const reportType = state.plan?.reportSpec?.reportType ?? state.intent?.reportType;
+  return (
+    state.intent?.operation === "compliance_check" &&
+    reportType === "regime_compliance_memo"
+  );
+}
+
+/**
+ * Retrieval asks what evidence would establish the proposition. The longer
+ * proof standard also contains traps and negative examples; embedding those
+ * caused the retriever to rank the warned-against passages themselves. Keep
+ * the strict proof standard for VERIFY and use only positive, authored recall
+ * language for the compliance retrieval query.
+ */
+export function complianceRetrievalQuery(
+  hypothesis: string,
+  profile: RequirementEvidenceProfile | undefined
+): string {
+  return [hypothesis, ...(profile?.evidenceHints ?? [])]
+    .map((part) => part.trim().replace(/[.!?]+$/, ""))
+    .filter(Boolean)
+    .join(". ");
+}
 
 async function evaluateWithVerify(
   reqIds: string[],
@@ -512,7 +825,21 @@ async function evaluateWithVerify(
   const skipSupporting = profileSkipsSupportingPriority(state);
   const doc = state.workspace.documents.find((d) => d.docId === ctx.docId);
   const expandMaxChars = profileEvidenceCharBudget(state) * 3;
-  const llmSelectEnabled = process.env.ANALYSIS_LLM_CANDIDATE_SELECT === "1";
+  const complianceReport = isComplianceReport(state);
+  // Compliance uses full-document hybrid retrieval followed by one bounded
+  // verifier call per requirement. Other report types retain their established
+  // LLM selector path unchanged.
+  const llmSelectEnabled =
+    process.env.ANALYSIS_LLM_CANDIDATE_SELECT === "1" && !complianceReport;
+  // Open risk lane: a `contradicts` verdict means "the risk is not present"
+  // (reassuring), not "compliance gap". Only risk_flag flips the mapping;
+  // compliance_check and every other operation keep the compliance meaning.
+  const isRiskLane = state.intent?.operation === "risk_flag";
+  // Compare lane: paired side_a/side_b propositions from decomposeReasoningAsk
+  // keep ordinary compliance verdict semantics (proves = this side's claim is
+  // established) — only the finding's kind/compareGroup/compareRole change,
+  // so render/synthesis can pair the two sides back into one comparison.
+  const isCompareLane = state.intent?.operation === "compare";
 
   // Candidate source for the LLM selector: the document's OWN logical sections
   // (whole-document), not the clause-type-dictionary extraction (`items`). This
@@ -520,32 +847,52 @@ async function evaluateWithVerify(
   // "only on documented instructions" line inside a jurisdiction addendum) is
   // just another section here, so selection can see and pick it. `items` (the
   // type-extracted pool) is kept only for the hybrid/lexical fallback path.
-  const selectorPool = llmSelectEnabled && doc ? buildSectionCandidates(doc) : items;
+  const documentSections = doc ? buildSectionCandidates(doc) : items;
+  const selectorPool = filterCandidatesByEvidenceScope(
+    llmSelectEnabled || complianceReport ? documentSections : items,
+    complianceReport ? ctx.evidenceScope : undefined
+  );
+  const recallPool = complianceReport ? selectorPool : items;
 
   // Only build the embedding index for the hybrid fallback — when LLM
   // selection is on it replaces the index entirely, so skipping it saves the
   // embedding round-trip on the hot path.
   let clauseIndex: ClauseIndex | undefined;
   let semanticIndexReady = false;
-  if (!llmSelectEnabled && process.env.ANALYSIS_SEMANTIC_RETRIEVAL === "1" && items.length > 0) {
+  if (
+    !llmSelectEnabled &&
+    process.env.ANALYSIS_SEMANTIC_RETRIEVAL === "1" &&
+    recallPool.length > 0
+  ) {
     const indexStart = Date.now();
-    clauseIndex = await buildInMemoryIndex(items);
+    clauseIndex =
+      complianceReport && doc
+        ? await complianceSectionIndex(doc, documentSections)
+        : await buildInMemoryIndex(recallPool);
     const embeddedCount = [...clauseIndex.vectors.values()].filter((v) => v !== null).length;
     semanticIndexReady = embeddedCount > 0;
     pacLog("[INVESTIGATE] semantic index built", {
       packageId: ctx.packageId,
-      items: items.length,
+      items: recallPool.length,
       embedded: embeddedCount,
       ms: Date.now() - indexStart,
     });
   }
   const effectiveCap = semanticIndexReady
-    ? Math.min(candidateCap, SEMANTIC_VERIFY_CANDIDATE_CAP)
-    : candidateCap;
+    ? complianceReport
+      ? Math.min(candidateCap, COMPLIANCE_VERIFY_CANDIDATE_CAP)
+      : Math.min(candidateCap, SEMANTIC_VERIFY_CANDIDATE_CAP)
+    : complianceReport
+      ? Math.min(candidateCap, COMPLIANCE_VERIFY_CANDIDATE_CAP)
+      : candidateCap;
   // How many candidates the selector may return per requirement (each becomes
   // one VERIFY call). Kept small — good selection means the answer is in the
   // top 1-3, so this is the latency lever.
-  const selectCap = Math.min(candidateCap, SEMANTIC_VERIFY_CANDIDATE_CAP);
+  const selectCap = Math.min(
+    candidateCap,
+    SEMANTIC_VERIFY_CANDIDATE_CAP,
+    profileSelectedVerifyCandidateCap(state)
+  );
 
   // LLM candidate selection (one batched call for the whole package) replaces
   // the keyword/embedding candidate ranking with a semantic pick. When it
@@ -574,70 +921,133 @@ async function evaluateWithVerify(
       });
     if (eligible.length > 0) {
       const selStart = Date.now();
-      selectionByReq = await selectCandidates({
-        requirements: eligible,
-        pool: selectorPool,
-        maxPerRequirement: selectCap,
-        state,
-      });
+      // One call asked to jointly search the whole pool for every requirement
+      // reliably shallow-passes most of them once the requirement count gets
+      // into double digits — the model does the few obvious matches properly
+      // and defaults the rest to an empty list rather than doing the harder
+      // conceptual mapping for each one (confirmed on a real 14-requirement
+      // run: only 3 got any candidates at all). Splitting into small groups
+      // gives each call a much smaller simultaneous search burden — more
+      // calls, but selection calls are cheap relative to the VERIFY calls
+      // that follow, and a missed candidate here means VERIFY never runs at
+      // all for that requirement.
+      const chunks: typeof eligible[] = [];
+      for (let i = 0; i < eligible.length; i += SELECT_CANDIDATES_CHUNK_SIZE) {
+        chunks.push(eligible.slice(i, i + SELECT_CANDIDATES_CHUNK_SIZE));
+      }
+      const chunkResults = await Promise.all(
+        chunks.map((chunk) =>
+          selectCandidates({
+            requirements: chunk,
+            pool: selectorPool,
+            maxPerRequirement: selectCap,
+            state,
+          })
+        )
+      );
+      selectionByReq = chunkResults.some((r) => r !== null)
+        ? new Map(chunkResults.flatMap((r) => (r ? [...r.entries()] : [])))
+        : null;
       pacLog("[INVESTIGATE] llm candidate selection", {
         packageId: ctx.packageId,
         requirements: eligible.length,
+        chunks: chunks.length,
+        chunkSize: SELECT_CANDIDATES_CHUNK_SIZE,
         pool: selectorPool.length,
         source: "document-sections",
         selected: selectionByReq
           ? [...selectionByReq.values()].reduce((n, a) => n + a.length, 0)
           : 0,
-        fellBack: selectionByReq ? "no" : "yes (whole package → hybrid)",
+        chunksFailed: chunkResults.filter((r) => r === null).length,
         ms: Date.now() - selStart,
       });
       if (selectionByReq) logSelectedCandidates(state, ctx.packageId, selectionByReq);
     }
   }
 
-  for (const requirementId of reqIds) {
+  await mapWithConcurrency(
+    reqIds,
+    profileVerifyRequirementConcurrency(state),
+    async (requirementId) => {
     const profile = profiles[requirementId];
     const proofStandard = profile?.proofStandard?.trim();
-    if (!proofStandard) continue;
+    if (!proofStandard) return;
+    const requirementUsesRiskSemantics =
+      isRiskLane || (complianceReport && profile?.polarity === "risk_present");
+    const semantics = semanticContextFor(
+      profile,
+      state,
+      requirementUsesRiskSemantics,
+      isCompareLane
+    );
 
     if (skipSupporting && isSupportingPriority(requirementId, state)) {
       findings.push(
         buildInsufficientVerifyFinding(
           requirementId,
           ctx,
-          "Not investigated under Lite mode — PLAN marked this a supporting, not required, priority."
+          "Not investigated under Lite mode - PLAN marked this a supporting, not required, priority.",
+          undefined,
+          {
+            ...semantics,
+            analysisExecution: complianceReport
+              ? {
+                  status: "not_run",
+                  detail: "Lite mode omitted a supporting-priority requirement.",
+                }
+              : undefined,
+          }
         )
       );
-      continue;
+      return;
     }
 
     const hypothesis = hypothesisFor(requirementId, profile, state);
-    const candidates = selectionByReq?.has(requirementId)
-      ? selectionByReq.get(requirementId)!
-      : await resolveRecallCandidates(
-          requirementId,
-          items,
-          extractionTargets,
-          profile,
-          effectiveCap,
-          clauseIndex
-            ? {
-                index: clauseIndex,
-                queryText: proofStandard,
-                trace: (rows) => logRetrievalRanking(state, requirementId, proofStandard, rows),
-              }
-            : undefined
-        );
+    const retrievalQuery = complianceReport
+      ? complianceRetrievalQuery(hypothesis, profile)
+      : proofStandard;
+    const selected = selectionByReq?.get(requirementId);
+    // A requirement the selector never mentioned at all falls back
+    // immediately (existing behavior). A requirement it explicitly returned
+    // empty for is a weaker signal than it looks: batching many
+    // requirements (esp. paraphrased playbook positions) against a large
+    // section pool in one call reliably makes the model give up on most of
+    // them rather than truly finding no match — confirmed by a real run
+    // where 11/14 playbook-position requirements came back empty from
+    // selection despite the document plainly addressing several of them.
+    // Cross-check an explicit empty against the lexical/hybrid retriever
+    // before accepting "nothing found" as fact; only skip the fallback when
+    // the selector positively named at least one candidate.
+    const candidates =
+      selected && selected.length > 0
+        ? selected
+        : await resolveRecallCandidates(
+            requirementId,
+            recallPool,
+            extractionTargets,
+            profile,
+            effectiveCap,
+            clauseIndex
+              ? {
+                  index: clauseIndex,
+                  queryText: retrievalQuery,
+                  trace: (rows) =>
+                    logRetrievalRanking(state, requirementId, retrievalQuery, rows),
+                }
+              : undefined
+          );
 
     if (candidates.length === 0) {
       findings.push(
         buildInsufficientVerifyFinding(
           requirementId,
           ctx,
-          "No candidate evidence was found in the document for this requirement."
+          "No related clauses were found.",
+          undefined,
+          semantics
         )
       );
-      continue;
+      return;
     }
 
     const expandedCandidates = doc
@@ -648,27 +1058,229 @@ async function evaluateWithVerify(
         })
       : candidates;
 
-    const verdicts = await Promise.all(
-      expandedCandidates.map((item) =>
-        verifyProposition(
+    const adaptiveTimeoutMs = adaptiveVerificationTimeoutMs({
+      thinkingMode:
+        state.analysisProfile?.thinkingMode ??
+        (state.request.thinkingMode === "deep" ? "deep" : "lite"),
+      selectedCandidateCount: expandedCandidates.length,
+      evidenceChars: expandedCandidates.reduce(
+        (total, candidate) => total + candidate.quotedText.length,
+        0
+      ),
+    });
+    const remainingBranchMs = remainingBranchBudgetMs(state, ctx.unit);
+    if (remainingBranchMs !== undefined && remainingBranchMs <= 1_000) {
+      findings.push(
+        buildInsufficientVerifyFinding(
+          requirementId,
+          ctx,
+          "This branch reached its execution ceiling before this requirement could be checked.",
+          undefined,
+          {
+            ...semantics,
+            evidenceState: "unavailable",
+            analysisExecution: {
+              status: "timed_out",
+              detail: "The branch execution ceiling was reached.",
+            },
+          }
+        )
+      );
+      return;
+    }
+    const timeoutMs = Math.max(
+      1_000,
+      Math.min(adaptiveTimeoutMs, remainingBranchMs ?? adaptiveTimeoutMs)
+    );
+    let verdicts: VerifyOutcome[] = [];
+    let failedCandidateCount = 0;
+    let executionIssue: AnalysisExecutionState | undefined;
+
+    if (complianceReport) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const batch = await verifyPropositionCandidates(
           {
             hypothesis,
             proofStandard,
-            candidatePassage: item.quotedText,
-            candidateLocator: item.structuralPath,
+            candidates: expandedCandidates.map((item) => ({
+              ref: item.ref,
+              passage: item.quotedText,
+              locator: item.contextHeading
+                ? `${item.contextHeading} > ${item.structuralPath}`
+                : item.structuralPath,
+              context: [
+                item.contextHeading,
+                item.relationshipScope && item.relationshipScope !== "unspecified"
+                  ? `relationship scope: ${item.relationshipScope}`
+                  : undefined,
+              ]
+                .filter(Boolean)
+                .join("; ") || undefined,
+            })),
           },
-          state
-        ).then((result) => ({ item, result }))
-      )
+          state,
+          { abortSignal: controller.signal }
+        );
+        const byRef = new Map(expandedCandidates.map((item) => [item.ref, item]));
+        verdicts = batch.flatMap(({ ref, result }) => {
+          const item = byRef.get(ref);
+          return item ? [{ item, result }] : [];
+        });
+        failedCandidateCount = Math.max(0, expandedCandidates.length - verdicts.length);
+        if (failedCandidateCount > 0) {
+          executionIssue = {
+            status: "failed",
+            detail: "The verifier returned an incomplete candidate set.",
+          };
+        }
+      } catch (error) {
+        const timedOut = controller.signal.aborted;
+        failedCandidateCount = expandedCandidates.length;
+        executionIssue = {
+          status: timedOut ? "timed_out" : "failed",
+          detail: timedOut
+            ? `Verification exceeded the ${Math.round(timeoutMs / 1000)}-second limit.`
+            : "The verification service did not complete this requirement.",
+        };
+        pacLog("[VERIFY] compliance requirement unavailable", {
+          requirementId,
+          status: executionIssue.status,
+          timeoutMs,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      } finally {
+        clearTimeout(timer);
+      }
+    } else {
+      const settledVerdicts = await Promise.allSettled(
+        expandedCandidates.map((item) =>
+          withDeadline(
+            verifyProposition(
+              {
+                hypothesis,
+                proofStandard,
+                candidatePassage: item.quotedText,
+                candidateLocator: item.contextHeading
+                  ? `${item.contextHeading} > ${item.structuralPath}`
+                  : item.structuralPath,
+                candidateContext: item.contextHeading,
+              },
+              state
+            ),
+            timeoutMs
+          ).then((result) => ({ item, result }))
+        )
+      );
+      verdicts = settledVerdicts.flatMap((settled) =>
+        settled.status === "fulfilled" ? [settled.value] : []
+      );
+      failedCandidateCount = settledVerdicts.filter(
+        (settled) => settled.status === "rejected"
+      ).length;
+    }
+    if (failedCandidateCount > 0) {
+      pacLog("[VERIFY] candidate failures isolated", {
+        requirementId,
+        failed: failedCandidateCount,
+        succeeded: verdicts.length,
+        timeoutMs,
+      });
+    }
+    if (verdicts.length === 0) {
+      findings.push(
+        buildInsufficientVerifyFinding(
+          requirementId,
+          ctx,
+          "Candidate verification did not complete; no legal conclusion was reached for this requirement.",
+          undefined,
+          {
+            ...semantics,
+            evidenceState: "unavailable",
+            analysisExecution: executionIssue,
+          }
+        )
+      );
+      return;
+    }
+
+    const proving = verdicts.filter(
+      (v) => decisiveOutcome(v) && v.result.verdict === "proves"
+    );
+    const contradicting = verdicts.filter(
+      (v) => decisiveOutcome(v) && v.result.verdict === "contradicts"
     );
 
-    const proving = verdicts.find(
-      (v) => v.result.verdict === "proves" && v.result.quoteVerified
-    );
-    const contradicting = verdicts.find(
-      (v) => v.result.verdict === "contradicts" && v.result.quoteVerified
-    );
-    const winner = proving ?? contradicting;
+    // Mixed decisive evidence is never resolved by array order. Distinct
+    // scopes (jurisdiction/party/time/condition or main-rule/exception) are
+    // kept scope-dependent; overlapping or unknown scopes are a genuine
+    // conflict. Either way LOCK receives an indeterminate, explicitly
+    // reconciled result rather than the old "first proves wins" status.
+    if (proving.length > 0 && contradicting.length > 0) {
+      const proof = proving[0]!;
+      const contradiction = contradicting[0]!;
+      const distinct = verifyOutcomesHaveDistinctScopes(
+        proof.result,
+        contradiction.result
+      );
+      pacLog("[VERIFY] mixed evidence reconciled", {
+        requirementId,
+        resolution: distinct ? "scope_dependent" : "conflicting",
+        proving: proving.length,
+        contradicting: contradicting.length,
+      });
+      logVerifyCandidates({
+        requirementId,
+        hypothesis,
+        proofStandard,
+        outcomes: verdicts,
+        mixedResolution: distinct ? "scope_dependent" : "conflicting",
+      });
+      findings.push(
+        buildMixedVerifyFinding(
+          requirementId,
+          ctx,
+          semantics,
+          proof,
+          contradiction,
+          distinct
+        )
+      );
+      return;
+    }
+
+    // A direct Q&A proposition can be compositional: separate passages may
+    // describe different parties, jurisdictions, periods, or conditions.
+    // When VERIFY has grounded multiple relevant passages and their scopes
+    // are demonstrably distinct, preserve both for the answer instead of
+    // allowing the first single-passage verdict to erase the other scope.
+    // This consumes only VERIFY outputs already produced above; it performs
+    // no extra document transmission and contains no domain-specific terms.
+    if (state.intent?.reportType === "qa_answer") {
+      const scopedPair = firstDistinctScopePair(verdicts);
+      if (scopedPair) {
+        const scopedRefs = scopedPair.map(({ item }) => item.ref);
+        pacLog("[VERIFY] scoped Q&A evidence preserved", {
+          requirementId,
+          resolution: "scope_dependent",
+          passages: scopedRefs,
+        });
+        logVerifyCandidates({
+          requirementId,
+          hypothesis,
+          proofStandard,
+          outcomes: verdicts,
+          scopeDependentRefs: scopedRefs,
+        });
+        findings.push(
+          buildScopedQaFinding(requirementId, ctx, semantics, scopedPair)
+        );
+        return;
+      }
+    }
+
+    const winner = proving[0] ?? contradicting[0];
 
     if (winner) {
       const winnerIndex = verdicts.indexOf(winner);
@@ -686,13 +1298,54 @@ async function evaluateWithVerify(
           winner.result.verdict === "proves" ? "proves" : "contradicts",
           winner.result,
           winner.item,
-          ctx
+          ctx,
+          requirementUsesRiskSemantics,
+          semantics
         )
       );
-      continue;
+      return;
     }
 
-    // No proof. Prefer a candidate that carries a `dependency` — the prompt
+    if (complianceReport && executionIssue) {
+      findings.push(
+        buildInsufficientVerifyFinding(
+          requirementId,
+          ctx,
+          "Verification did not complete for every candidate, so no legal conclusion was reached for this requirement.",
+          undefined,
+          {
+            ...semantics,
+            evidenceState: "unavailable",
+            analysisExecution: executionIssue,
+          }
+        )
+      );
+      return;
+    }
+
+    const partial = complianceReport
+      ? verdicts.find(
+          ({ result }) =>
+            result.verdict === "related_not_proof" &&
+            result.quoteVerified &&
+            result.partialCoverage === true
+        )
+      : undefined;
+    if (partial) {
+      logVerifyCandidates({
+        requirementId,
+        hypothesis,
+        proofStandard,
+        outcomes: verdicts,
+        partialIndex: verdicts.indexOf(partial),
+      });
+      findings.push(
+        buildPartialVerifyFinding(requirementId, partial, ctx, semantics)
+      );
+      return;
+    }
+
+    // No proof. Prefer a candidate that carries a `dependency` - the prompt
     // asks the model to fill it "regardless of verdict", so a candidate
     // marked irrelevant/related_not_proof can still be the one that names
     // the missing Annex/Schedule; picking only from related_not_proof rows
@@ -702,6 +1355,19 @@ async function evaluateWithVerify(
     const closest =
       verdicts.find((v) => v.result.dependency) ??
       verdicts.find((v) => v.result.verdict === "related_not_proof" && v.result.gapDescription);
+    const incomplete = verdicts.find(
+      (v) =>
+        v.item.truncated &&
+        v.result.quoteVerified &&
+        v.result.verdict === "contradicts"
+    );
+    if (incomplete) {
+      pacLog("[VERIFY] decisive verdict withheld", {
+        requirementId,
+        reason: "logical_clause_still_truncated",
+        ref: incomplete.item.ref,
+      });
+    }
     const closestIndex = closest ? verdicts.indexOf(closest) : undefined;
     logVerifyCandidates({
       requirementId,
@@ -714,11 +1380,28 @@ async function evaluateWithVerify(
       buildInsufficientVerifyFinding(
         requirementId,
         ctx,
-        "No candidate passage proved or contradicted this requirement's proof standard.",
-        closest?.result
+        incomplete
+          ? "The complete logical clause could not be loaded, so the apparent verdict could not be safely finalized. Review the full clause manually."
+          : "No candidate passage proved or contradicted this requirement's proof standard.",
+        closest?.result ?? incomplete?.result,
+        {
+          ...semantics,
+          evidenceState: incomplete
+            ? "truncated"
+            : closest?.result.dependency
+              ? undefined
+              : closest
+                ? "direct"
+                : undefined,
+          // A related passage that falls short of the proof standard is still
+          // direct reviewed evidence. Preserve it for the report instead of
+          // incorrectly turning "not adequate" into "no clause found".
+          evidenceItem: incomplete?.item ?? closest?.item,
+        }
       )
     );
-  }
+    }
+  );
 
   return findings;
 }
@@ -727,14 +1410,175 @@ function sanitizeForId(value: string): string {
   return value.replace(/[^a-zA-Z0-9._-]/g, "_");
 }
 
+/**
+ * VERIFY may return a valid verbatim prefix that stops mid-word or before the
+ * sentence finishes. Extend only within the same source passage and only to a
+ * nearby punctuation boundary, so the report never displays artificial `...`
+ * or a chopped word while retaining source-grounded evidence.
+ */
+export function completeEvidenceQuote(passage: string, quote: string): string {
+  const normalizedPassage = passage.replace(/\s+/g, " ").trim();
+  const normalizedQuote = quote.replace(/\s+/g, " ").trim();
+  if (!normalizedQuote || /[.!?;:]$/.test(normalizedQuote)) return normalizedQuote;
+  const start = normalizedPassage.toLowerCase().indexOf(normalizedQuote.toLowerCase());
+  if (start < 0) return normalizedQuote;
+  const quoteEnd = start + normalizedQuote.length;
+  const extensionLimit = Math.min(normalizedPassage.length, quoteEnd + 800);
+  const tail = normalizedPassage.slice(quoteEnd, extensionLimit);
+  const boundary = tail.search(/[.!?;](?=\s|$)/);
+  if (boundary < 0) return normalizedQuote;
+  return normalizedPassage.slice(start, quoteEnd + boundary + 1);
+}
+
+/**
+ * A grounded clause may establish only one material part of a compound proof
+ * standard. Preserve that legal state as partial coverage; it is neither a
+ * full pass nor an evidence/analysis failure.
+ */
+function buildPartialVerifyFinding(
+  requirementId: string,
+  outcome: VerifyOutcome,
+  ctx: VerifyFindingContext,
+  semantics: FindingSemanticContext
+): Finding {
+  const canonicalId = canonicalRequirementId(requirementId);
+  const { item, result } = outcome;
+  const dependsOnExternalMaterial = Boolean(result.dependency);
+  const judgementBase: Omit<RequirementJudgement, "recommendationKind"> = {
+    compliance: "partial",
+    evidenceState: dependsOnExternalMaterial ? "incorporated" : "direct",
+    referenceBinding: dependsOnExternalMaterial ? "binding" : "none",
+    evidenceConfidence: "medium",
+    draftingQuality: "could_be_clearer",
+    materiality: "medium",
+    nli: "entailed",
+  };
+  return {
+    findingId: sanitizeForId(
+      `f_verify_partial_${canonicalId}_${ctx.unit.workUnitId}`
+    ),
+    kind: semantics.kind,
+    category: ctx.findingCategory,
+    status: "present",
+    claim: result.establishedBy ?? result.rationale,
+    evidence: [
+      {
+        locator: {
+          docId: item.sourceDocId ?? ctx.docId,
+          structuralPath: item.structuralPath,
+          charRange: item.charRange,
+        },
+        quotedText: completeEvidenceQuote(item.quotedText, result.quote),
+        sourceRole: "target",
+      },
+    ],
+    taxonomyVersion: RISK_TAXONOMY_VERSION,
+    workUnitId: ctx.unit.workUnitId,
+    skillId: ctx.skillId,
+    packageId: ctx.packageId,
+    visibility: "user_facing",
+    ruleSourceTier: TIER_BY_SOURCE[ctx.sourceMode],
+    requirementId: canonicalId,
+    judgement: {
+      ...judgementBase,
+      recommendationKind: recommendationKindFromAxes(judgementBase),
+    },
+    verifiedByProposition: true,
+    gap: result.gapDescription,
+    gapDescription: result.gapDescription,
+    dependency: result.dependency,
+    structuralNote: result.structuralNote,
+    remediation: result.remediation,
+    polarity: semantics.polarity,
+    partyPerspective: semantics.partyPerspective,
+    applicabilityScope: result.applicabilityScope,
+    compareGroup: semantics.compareGroup,
+    compareRole: semantics.compareRole,
+  };
+}
+
 function buildVerifiedFinding(
   requirementId: string,
   verdict: Extract<VerifyVerdict, "proves" | "contradicts">,
   result: VerifyPropositionResult,
   item: SharedEvidenceItem,
-  ctx: VerifyFindingContext
+  ctx: VerifyFindingContext,
+  isRiskLane: boolean,
+  semantics: FindingSemanticContext
 ): Finding {
   const canonicalId = canonicalRequirementId(requirementId);
+
+  const evidence: EvidenceSpan[] = [
+    {
+      locator: {
+        docId: item.sourceDocId ?? ctx.docId,
+        structuralPath: item.structuralPath,
+        charRange: item.charRange,
+      },
+      quotedText: completeEvidenceQuote(item.quotedText, result.quote),
+      sourceRole: "target",
+    },
+  ];
+
+  const findingBase = {
+    category: ctx.findingCategory,
+    evidence,
+    taxonomyVersion: RISK_TAXONOMY_VERSION,
+    workUnitId: ctx.unit.workUnitId,
+    skillId: ctx.skillId,
+    packageId: ctx.packageId,
+    visibility: "user_facing" as const,
+    ruleSourceTier: TIER_BY_SOURCE[ctx.sourceMode],
+    requirementId: canonicalId,
+    verifiedByProposition: true,
+    establishedBy: result.establishedBy,
+    gapDescription: result.gapDescription,
+    dependency: result.dependency,
+    structuralNote: result.structuralNote,
+    remediation: result.remediation,
+    polarity: semantics.polarity,
+    partyPerspective: semantics.partyPerspective,
+    applicabilityScope: result.applicabilityScope,
+  };
+
+  // Open risk lane (operation=risk_flag) inverts the compliance meaning of the
+  // verdict. A risk proposition is framed "an adverse thing is true about the
+  // document", so:
+  //   proves      → the risk IS present     → a real risk finding to surface
+  //   contradicts → the risk is NOT present → reassuring; NOT a compliance gap
+  // Compliance-lane findings keep their original meaning (proves = requirement
+  // met, contradicts = gap). requirement-status-policy.ts already treats
+  // kind:"risk" findings correctly (never counts them as compliance gaps) —
+  // stamping the kind here is the wiring that finally lets that fire. The
+  // present/absent signal rides on materiality + nli, not on a "gap".
+  if (isRiskLane) {
+    const riskPresent = verdict === "proves";
+    const judgementBase: Omit<RequirementJudgement, "recommendationKind"> = {
+      compliance: "present",
+      evidenceState: "direct",
+      referenceBinding: "none",
+      evidenceConfidence: "high",
+      materiality: riskPresent ? "high" : "low",
+      nli: riskPresent ? "entailed" : "contradicted",
+    };
+    const judgement: RequirementJudgement = {
+      ...judgementBase,
+      recommendationKind: recommendationKindFromAxes(judgementBase),
+    };
+    return {
+      ...findingBase,
+      findingId: sanitizeForId(
+        `f_verify_${riskPresent ? "riskpresent" : "riskabsent"}_${canonicalId}_${ctx.unit.workUnitId}`
+      ),
+      kind: "risk",
+      status: "present",
+      claim: result.rationale,
+      gap: undefined,
+      judgement,
+      polarity: riskPresent ? "risk_present" : "control_present",
+    };
+  }
+
   const compliance = verdict === "proves" ? "present" : "gap";
   const judgementBase: Omit<RequirementJudgement, "recommendationKind"> = {
     compliance,
@@ -750,42 +1594,18 @@ function buildVerifiedFinding(
     recommendationKind: recommendationKindFromAxes(judgementBase),
   };
 
-  const evidence: EvidenceSpan[] = [
-    {
-      locator: {
-        docId: ctx.docId,
-        structuralPath: item.structuralPath,
-        charRange: item.charRange,
-      },
-      quotedText: result.quote,
-      sourceRole: "target",
-    },
-  ];
-
   return {
+    ...findingBase,
     findingId: sanitizeForId(
       `f_verify_${verdict === "proves" ? "cov" : "gap"}_${canonicalId}_${ctx.unit.workUnitId}`
     ),
-    kind: "compliance",
-    category: ctx.findingCategory,
+    kind: semantics.kind,
     status: verdict === "proves" ? "present" : "absent_expected",
     claim: result.rationale,
     gap: verdict === "contradicts" ? result.rationale : undefined,
-    evidence,
-    taxonomyVersion: RISK_TAXONOMY_VERSION,
-    workUnitId: ctx.unit.workUnitId,
-    skillId: ctx.skillId,
-    packageId: ctx.packageId,
-    visibility: "user_facing",
-    ruleSourceTier: TIER_BY_SOURCE[ctx.sourceMode],
-    requirementId: canonicalId,
     judgement,
-    verifiedByProposition: true,
-    establishedBy: result.establishedBy,
-    gapDescription: result.gapDescription,
-    dependency: result.dependency,
-    structuralNote: result.structuralNote,
-    remediation: result.remediation,
+    compareGroup: semantics.compareGroup,
+    compareRole: semantics.compareRole,
   };
 }
 
@@ -805,15 +1625,187 @@ function buildVerifiedFinding(
  * computing (verify-proposition.ts's prompt asks for `dependency` "regardless
  * of verdict") but the finding builder previously discarded.
  */
+function evidenceFromOutcome(outcome: VerifyOutcome, docId: string): EvidenceSpan {
+  return {
+    locator: {
+      docId: outcome.item.sourceDocId ?? docId,
+      structuralPath: outcome.item.structuralPath,
+      charRange: outcome.item.charRange,
+    },
+    quotedText: completeEvidenceQuote(outcome.item.quotedText, outcome.result.quote),
+    sourceRole: "target",
+  };
+}
+
+function buildScopedQaFinding(
+  requirementId: string,
+  ctx: VerifyFindingContext,
+  semantics: FindingSemanticContext,
+  outcomes: [VerifyOutcome, VerifyOutcome]
+): Finding {
+  const canonicalId = canonicalRequirementId(requirementId);
+  const scopeLabels = outcomes.map(
+    ({ item }) => item.contextHeading?.trim() || item.structuralPath
+  );
+  const judgementBase: Omit<RequirementJudgement, "recommendationKind"> = {
+    compliance: semantics.polarity === "neutral_fact" ? "present" : "partial",
+    evidenceState: "direct",
+    referenceBinding: "none",
+    evidenceConfidence: "high",
+    materiality: "low",
+    nli: "entailed",
+  };
+  return {
+    findingId: sanitizeForId(`f_verify_scoped_qa_${canonicalId}_${ctx.unit.workUnitId}`),
+    kind: semantics.kind,
+    category: ctx.findingCategory,
+    status: "present",
+    claim: `The document addresses the question through distinct operative scopes: ${scopeLabels.join("; ")}.`,
+    evidence: outcomes.map((outcome) => evidenceFromOutcome(outcome, ctx.docId)),
+    taxonomyVersion: RISK_TAXONOMY_VERSION,
+    workUnitId: ctx.unit.workUnitId,
+    skillId: ctx.skillId,
+    packageId: ctx.packageId,
+    visibility: "user_facing",
+    ruleSourceTier: TIER_BY_SOURCE[ctx.sourceMode],
+    requirementId: canonicalId,
+    judgement: {
+      ...judgementBase,
+      recommendationKind: recommendationKindFromAxes(judgementBase),
+    },
+    verifiedByProposition: true,
+    polarity: semantics.polarity,
+    partyPerspective: semantics.partyPerspective,
+    applicabilityResolution: "scope_dependent",
+    compareGroup: semantics.compareGroup,
+    compareRole: semantics.compareRole,
+    structuralNote: `Evidence retained from both ${scopeLabels.join(" and ")} because their applicability scopes differ.`,
+  };
+}
+
+function buildMixedVerifyFinding(
+  requirementId: string,
+  ctx: VerifyFindingContext,
+  semantics: FindingSemanticContext,
+  proving: VerifyOutcome,
+  contradicting: VerifyOutcome,
+  distinctScopes: boolean
+): Finding {
+  const canonicalId = canonicalRequirementId(requirementId);
+  if (distinctScopes) {
+    const judgementBase: Omit<RequirementJudgement, "recommendationKind"> = {
+      compliance: semantics.polarity === "neutral_fact" ? "present" : "partial",
+      evidenceState: "direct",
+      referenceBinding: "none",
+      evidenceConfidence: "high",
+      materiality: semantics.polarity === "neutral_fact" ? "low" : "medium",
+      nli: "entailed",
+    };
+    const judgement: RequirementJudgement = {
+      ...judgementBase,
+      recommendationKind: recommendationKindFromAxes(judgementBase),
+    };
+    const scopeExplanation =
+      `Scope-dependent answer: ${proving.result.rationale} ` +
+      `In a different stated scope, ${contradicting.result.rationale}`;
+    return {
+      findingId: sanitizeForId(`f_verify_scoped_${canonicalId}_${ctx.unit.workUnitId}`),
+      kind: semantics.kind,
+      category: ctx.findingCategory,
+      status: "present",
+      claim: scopeExplanation,
+      evidence: [
+        evidenceFromOutcome(proving, ctx.docId),
+        evidenceFromOutcome(contradicting, ctx.docId),
+      ],
+      taxonomyVersion: RISK_TAXONOMY_VERSION,
+      workUnitId: ctx.unit.workUnitId,
+      skillId: ctx.skillId,
+      packageId: ctx.packageId,
+      visibility: "user_facing",
+      ruleSourceTier: TIER_BY_SOURCE[ctx.sourceMode],
+      requirementId: canonicalId,
+      judgement,
+      verifiedByProposition: true,
+      polarity: semantics.polarity,
+      partyPerspective: semantics.partyPerspective,
+      applicabilityResolution: "scope_dependent",
+      compareGroup: semantics.compareGroup,
+      compareRole: semantics.compareRole,
+      structuralNote: scopeExplanation,
+    };
+  }
+
+  const judgementBase: Omit<RequirementJudgement, "recommendationKind"> = {
+    compliance: "insufficient_evidence",
+    evidenceState: "conflicting",
+    referenceBinding: "none",
+    evidenceConfidence: "medium",
+    materiality: "medium",
+    nli: "not_mentioned",
+  };
+  const judgement: RequirementJudgement = {
+    ...judgementBase,
+    recommendationKind: recommendationKindFromAxes(judgementBase),
+  };
+  const scopeExplanation =
+    "The evidence both proves and contradicts the proposition within overlapping or unresolved scope; the conflict requires manual reconciliation.";
+  return {
+    findingId: sanitizeForId(`f_verify_mixed_${canonicalId}_${ctx.unit.workUnitId}`),
+    kind: semantics.kind,
+    category: ctx.findingCategory,
+    status: "insufficient_evidence",
+    claim: scopeExplanation,
+    evidence: [
+      evidenceFromOutcome(proving, ctx.docId),
+      evidenceFromOutcome(contradicting, ctx.docId),
+    ],
+    taxonomyVersion: RISK_TAXONOMY_VERSION,
+    workUnitId: ctx.unit.workUnitId,
+    skillId: ctx.skillId,
+    packageId: ctx.packageId,
+    visibility: "user_facing",
+    ruleSourceTier: TIER_BY_SOURCE[ctx.sourceMode],
+    requirementId: canonicalId,
+    judgement,
+    verifiedByProposition: true,
+    polarity: semantics.polarity,
+    partyPerspective: semantics.partyPerspective,
+    applicabilityResolution: "conflicting",
+    compareGroup: semantics.compareGroup,
+    compareRole: semantics.compareRole,
+    structuralNote: scopeExplanation,
+  };
+}
+
+interface InsufficientVerifyOptions extends FindingSemanticContext {
+  evidenceState?: Extract<
+    EvidenceState,
+    "direct" | "truncated" | "conflicting" | "unavailable"
+  >;
+  evidenceItem?: SharedEvidenceItem;
+  analysisExecution?: AnalysisExecutionState;
+}
+
 function buildInsufficientVerifyFinding(
   requirementId: string,
   ctx: VerifyFindingContext,
   rationale: string,
-  closest?: VerifyPropositionResult
+  closest?: VerifyPropositionResult,
+  options?: InsufficientVerifyOptions
 ): Finding {
   const canonicalId = canonicalRequirementId(requirementId);
   const dependency = closest?.dependency;
-  const judgementBase: Omit<RequirementJudgement, "recommendationKind"> = dependency
+  const judgementBase: Omit<RequirementJudgement, "recommendationKind"> = options?.evidenceState
+    ? {
+        compliance: "insufficient_evidence",
+        evidenceState: options.evidenceState,
+        referenceBinding: "none",
+        evidenceConfidence: "low",
+        materiality: "medium",
+        nli: "not_mentioned",
+      }
+    : dependency
     ? {
         compliance: "partial",
         evidenceState: "incorporated",
@@ -841,11 +1833,25 @@ function buildInsufficientVerifyFinding(
 
   return {
     findingId: sanitizeForId(`f_verify_cd_${canonicalId}_${ctx.unit.workUnitId}`),
-    kind: "compliance",
+    kind: options?.kind ?? "compliance",
     category: ctx.findingCategory,
     status: "insufficient_evidence",
     claim,
-    evidence: [],
+    evidence: 
+      options?.evidenceItem && closest?.quoteVerified && closest.quote
+        ? [
+            {
+              locator: {
+                docId: options.evidenceItem.sourceDocId ?? ctx.docId,
+                structuralPath: options.evidenceItem.structuralPath,
+                charRange: options.evidenceItem.charRange,
+              },
+              quotedText: closest.quote,
+              sourceRole: "target",
+            },
+          ]
+        : [],
+    analysisExecution: options?.analysisExecution,
     taxonomyVersion: RISK_TAXONOMY_VERSION,
     workUnitId: ctx.unit.workUnitId,
     skillId: ctx.skillId,
@@ -859,6 +1865,11 @@ function buildInsufficientVerifyFinding(
     dependency: closest?.dependency,
     structuralNote: closest?.structuralNote,
     remediation: closest?.remediation,
+    polarity: options?.polarity ?? "compliance_met",
+    partyPerspective: options?.partyPerspective ?? "unspecified",
+    applicabilityScope: closest?.applicabilityScope,
+    compareGroup: options?.compareGroup,
+    compareRole: options?.compareRole,
   };
 }
 
@@ -1094,11 +2105,7 @@ function requirementsNeedingEvidenceExpansion(
   return results
     .filter(
       (r) =>
-        (r.status === "cannot_determine" ||
-          r.status === "partial" ||
-          r.status === "conditional" ||
-          r.compliance === "insufficient_evidence" ||
-          r.compliance === "partial") &&
+        r.status !== "not_applicable" &&
         evidenceIsIncomplete(r, bundle)
     )
     .map((r) => r.requirementId);

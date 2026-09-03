@@ -23,7 +23,6 @@ import {
   gdpr,
   intent as baseIntent,
 } from "../../__test-helpers__/package-graph-fixtures.js";
-import type { AnalysisSkillConfig } from "../runtime/catalog/types.js";
 
 const ART28_REVIEW =
   "Perform a rigorous GDPR Article 28 compliance review. Verify mandatory Article 28(3) clauses.";
@@ -88,6 +87,11 @@ function mockRequiresPackagesSkill(): AnalysisSkillConfig {
     axis: "regime",
     status: "published",
     label: "Scope gate test",
+    version: "test",
+    appliesToDocTypes: [],
+    triggerPhrases: [],
+    promptLibraryIds: [],
+    defaultOperation: "compliance_check",
     regimeRules: [],
     riskCategories: [],
     rightsMatrixRows: [],
@@ -99,6 +103,8 @@ function mockRequiresPackagesSkill(): AnalysisSkillConfig {
         requirementIds: ["art28_test"],
         capabilityIds: ["gdpr.art28.3.a"],
         clauseTypes: ["processor_obligations"],
+        extractionTargets: ["processor_obligations"],
+        sourceMode: "authored",
         requiresPackages: ["gdpr.art32.inventory_test"],
       },
       {
@@ -106,6 +112,9 @@ function mockRequiresPackagesSkill(): AnalysisSkillConfig {
         requirementIds: [],
         capabilityIds: [],
         clauseTypes: ["international_transfer_mechanism"],
+        extractionTargets: ["international_transfer_mechanism"],
+        sourceMode: "authored",
+        kind: "inventory",
         config: { artifactShape: "typed_records" },
       },
     ],

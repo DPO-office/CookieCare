@@ -290,4 +290,35 @@ describe("PLAN stamps requirementIds on rule/matrix/risk work units", () => {
       "flag_risk unit must carry the compact requirementMappings payload"
     );
   });
+
+  it("derives matrix-row ownership from matching article numbers when mappings are package-level", () => {
+    const skill = gdprSkill();
+    const row = skill.rightsMatrixRows?.find((candidate) => /\b15\b/.test(candidate.article));
+    assert.ok(row, "GDPR skill must expose the Article 15 matrix row");
+    const requirementId = "gdpr.article15.access";
+    const intent = baseIntent();
+    intent.requirements = [
+      {
+        id: requirementId,
+        description: "GDPR Article 15 access",
+        type: "verification",
+        priority: "required",
+      },
+    ];
+    const { workUnits } = buildActGraphDetailed({
+      docId: "doc1",
+      instruction: "Review GDPR Article 15 access rights.",
+      skills: [skill],
+      intent,
+      focus: makeFocus({
+        matrixRowIds: [row!.rowId],
+        requirements: [{ id: requirementId, label: "GDPR Article 15 access" }],
+      }),
+    });
+    const matrixUnit = workUnits.find(
+      (unit) => unit.tool === "evaluate_matrix_row" && unit.input.rowId === row!.rowId
+    );
+    assert.ok(matrixUnit);
+    assert.deepEqual(matrixUnit!.requirementIds, [requirementId]);
+  });
 });

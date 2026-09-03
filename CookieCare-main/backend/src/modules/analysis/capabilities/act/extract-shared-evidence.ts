@@ -9,6 +9,7 @@ import type { ClauseObject } from "../../models/clause-object.js";
 import { pacLog } from "../../utils/pac-log.js";
 import { tokenizeForEvidence } from "./isolate-requirement-evidence.js";
 import { logSharedEvidenceCut } from "./evidence-pool-log.js";
+import { buildSectionCandidates } from "./select-candidates.js";
 
 /**
  * Candidate-pool cap for one package. This is not the evaluator packet —
@@ -44,6 +45,32 @@ export function extractSharedEvidence(
 
   const doc = state.workspace.documents.find((d) => d.docId === docId);
   const clauses = doc?.clauses ?? [];
+
+  // Focused, proof-standard-backed Q&A does not need the broad clause-type
+  // extraction pass. Build its evidence pool directly from the document's
+  // logical sections so targeted selection and VERIFY retain the same rigor
+  // without first classifying every contract clause.
+  if (unit.input.documentSectionEvidence === true && doc) {
+    const items = buildSectionCandidates(doc);
+    pacLog("shared evidence", {
+      id: unit.workUnitId,
+      packageId,
+      source: "document-sections",
+      items: items.length,
+      chars: items.reduce((n, i) => n + i.quotedText.length, 0),
+      truncated: items.filter((i) => i.truncated).length,
+    });
+    return {
+      state: {
+        ...state,
+        sharedEvidence: {
+          ...(state.sharedEvidence ?? {}),
+          [packageId]: { packageId, docId, items },
+        },
+      },
+      findings,
+    };
+  }
 
   // Full extract is the candidate pool. clauseTypes boost ranking but must not
   // hard-filter out duration/termination (etc.) before per-requirement resolve.

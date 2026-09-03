@@ -22,8 +22,10 @@ export function replicateGraphForTargets(
         leftoverMatrixRowIds: [],
         leftoverRiskCategoryIds: [],
         requirementToPackageId: {},
+        requirementBindings: [],
         requirementPaths: [],
         blockedCapabilityIds: [],
+        scopeAudit: [],
       },
     };
   }

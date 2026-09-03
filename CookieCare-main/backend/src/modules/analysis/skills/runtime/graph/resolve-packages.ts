@@ -5,9 +5,13 @@ import {
 } from "../../../models/evidence-package.js";
 import type {
   InstructionFocus,
+  RequirementBinding,
   RequirementExecutionPath,
   ScopeAuditEntry,
 } from "../../../models/analysis-plan.js";
+import { deriveStructuralBindings } from "../../../shared/requirement-binding.js";
+import { requirementTokens } from "../../../shared/requirement-binding.js";
+import { articleNumberFromRequirementId } from "../../../shared/article-linkage.js";
 import type { IntentRequirement, IntentRequirementType } from "../../../models/intent.js";
 import { mergeEvidencePackages } from "../catalog/registry.js";
 import { pacLog } from "../../../utils/pac-log.js";
@@ -46,6 +50,11 @@ export interface PackageResolution {
   packages: ResolvedPackage[];
   /** requirementId -> packageId (first package that can establish it wins). */
   requirementToPackageId: Record<string, string>;
+  /**
+   * Phase 2 — structural request-id ↔ package-native-id bindings. The authoritative
+   * join for finding→requirement aggregation; replaces fuzzy id matching.
+   */
+  requirementBindings: RequirementBinding[];
   requirementPaths: RequirementExecutionPath[];
   leftoverRuleIds: string[];
   leftoverMatrixRowIds: string[];
@@ -228,6 +237,7 @@ export function resolvePackages(
   const empty: PackageResolution = {
     packages: [],
     requirementToPackageId: {},
+    requirementBindings: [],
     requirementPaths: [],
     leftoverRuleIds: [],
     leftoverMatrixRowIds: [],
@@ -346,6 +356,9 @@ export function resolvePackages(
           packageById.has(capId) ? packageById.get(capId) : capabilityToPackage.get(capId)
         )
         .filter((pkg): pkg is EvidencePackage => Boolean(pkg));
+      const byExplicitPackage = mappedCaps
+        .map((capId) => packageById.get(capId))
+        .filter((pkg): pkg is EvidencePackage => Boolean(pkg));
 
       const matrixScopedReq = isMatrixScopedRequirement(
         req,
@@ -353,6 +366,49 @@ export function resolvePackages(
         focusedMatrixIds,
         skills
       );
+
+      // A whole-article request is a structural composite. Select every
+      // evaluation package whose authored capabilities belong to that article;
+      // this derives the component set from the skill graph rather than a
+      // phrase/alias table.
+      const requestArticle = articleNumberFromRequirementId(req.id);
+      const broadArticlePackages =
+        requestArticle && requirementTokens(req.id).size === 0
+          ? allPackages.filter(
+              (pkg) =>
+                analysisPackageKind(pkg) === "evaluation" &&
+                pkg.orchestration?.role !== "matrix_owner" &&
+                (() => {
+                  const articleCaps = pkg.capabilityIds
+                    .map(articleNumberFromRequirementId)
+                    .filter((article): article is number => Boolean(article));
+                  return (
+                    articleCaps.length > 0 &&
+                    articleCaps.every((article) => article === requestArticle)
+                  );
+                })()
+            )
+          : [];
+      if (broadArticlePackages.length > 1) {
+        const eligible = broadArticlePackages.filter((pkg) =>
+          packageEligibleUnderScope(pkg, focus)
+        );
+        if (eligible.length > 0) {
+          for (const pkg of eligible) {
+            selected.set(pkg.id, pkg);
+            addExtraRequirement(packageExtraRequirements, pkg.id, req.id);
+          }
+          requirementToPackageId[req.id] = eligible[0]!.id;
+          requirementPaths.push({
+            requirementId: req.id,
+            status: "supported",
+            packageId: eligible[0]!.id,
+            requirementType: req.type,
+            reason: `Whole-article requirement executes across ${eligible.map((pkg) => pkg.id).join(", ")}`,
+          });
+          continue;
+        }
+      }
 
       if (matrixFocusActive && (matrixScopedReq || metaCaps.length > 0)) {
         const matrixIds = mappedCaps.filter((id) => focusedMatrixIds.includes(id));
@@ -387,6 +443,8 @@ export function resolvePackages(
       const isInventoryReq = req.type === "extraction" || req.type === "coverage";
       let candidate =
         pickKindMatch(byReqId, req.type) ??
+        pickKindMatch(byExplicitPackage, req.type) ??
+        byExplicitPackage[0] ??
         byTopic ??
         (isInventoryReq ? undefined : pickKindMatch(byKind, req.type) ?? byCap[0]);
 
@@ -710,6 +768,12 @@ export function resolvePackages(
   // evaluation.
   leftoverRuleIds = absorbSameArticleLeftoverRules(packages, leftoverRuleIds);
 
+  const requirementBindings = buildResolutionBindings(
+    packages,
+    planReqs,
+    focus
+  );
+
   const deferredReportPackages = allPackages.filter(
     (pkg) => defersToMatrixSubgraph(pkg, focus) && !selected.has(pkg.id)
   );
@@ -717,6 +781,7 @@ export function resolvePackages(
   const resolution: PackageResolution = {
     packages,
     requirementToPackageId,
+    requirementBindings,
     requirementPaths,
     leftoverRuleIds,
     leftoverMatrixRowIds,
@@ -809,15 +874,107 @@ function inferRequirementType(text: string): IntentRequirementType {
   return "other";
 }
 
+/**
+ * nativeRequirementId → authored capability ids for a package. Uses the authored
+ * `requirementBindings` map when present; otherwise zips requirementIds to
+ * capabilityIds when they line up 1:1 (the documented default).
+ */
+function nativeCapabilityMap(pkg: EvidencePackage): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  if (pkg.requirementBindings) {
+    for (const [reqId, caps] of Object.entries(pkg.requirementBindings)) {
+      out.set(reqId, caps ?? []);
+    }
+    return out;
+  }
+  if (
+    pkg.capabilityIds.length > 0 &&
+    pkg.requirementIds.length === pkg.capabilityIds.length
+  ) {
+    pkg.requirementIds.forEach((reqId, i) => out.set(reqId, [pkg.capabilityIds[i]!]));
+  }
+  return out;
+}
+
+/**
+ * Phase 2 — derive structural request↔native bindings for every selected package
+ * against the request requirements that selected it. Only classifier/instruction
+ * requirements (planReqs) act as request ids; authored natives are the binding
+ * targets, not sources.
+ */
+function buildResolutionBindings(
+  packages: ResolvedPackage[],
+  planReqs: PlanReq[],
+  focus?: InstructionFocus
+): RequirementBinding[] {
+  const out: RequirementBinding[] = [];
+  const requestDescriptions = new Map(planReqs.map((req) => [req.id, req.label]));
+  const selectedPackageIds = packages.map((resolved) => resolved.pkg.id);
+  for (const resolved of packages) {
+    // Derivation is fail-closed, so it is safe to offer every PLAN request to
+    // every selected package. Only structural, authored-semantic, or uniquely
+    // capability-backed matches survive. This also lets one explicitly-authored
+    // umbrella bind across multiple component packages.
+    // Runtime facet packages carry explicit aliases authored by PLAN. Treat
+    // those aliases as ownership boundaries: offering sibling facet requests
+    // here would let fuzzy semantic matching cross-wire their findings.
+    const aliasedRequestIds = resolved.pkg.requirementAliases ?? [];
+    const requestIds = resolved.pkg.facetId && aliasedRequestIds.length > 0
+      ? planReqs
+          .filter((req) =>
+            aliasedRequestIds.some(
+              (alias) =>
+                alias === req.id ||
+                normalizeRequirementId(alias) === normalizeRequirementId(req.id)
+            )
+          )
+          .map((req) => req.id)
+      : planReqs.map((req) => req.id);
+    if (requestIds.length === 0) continue;
+    out.push(
+      ...deriveStructuralBindings(
+        requestIds,
+        (requestId) => mappedCapabilitiesFor(requestId, focus),
+        {
+          packageId: resolved.pkg.id,
+          nativeRequirementIds: resolved.requirementIds,
+          selectedPackageIds,
+          requestRequirementCount: planReqs.length,
+          nativeCapabilities: nativeCapabilityMap(resolved.pkg),
+          requestDescriptions,
+          nativeDescriptions: Object.fromEntries(
+            Object.entries(resolved.pkg.requirementEvidence ?? {}).map(
+              ([nativeId, profile]) => [
+                nativeId,
+                [
+                  profile.hypothesis,
+                  profile.proofStandard,
+                  ...(profile.evidenceHints ?? []),
+                ].filter(Boolean).join(" "),
+              ]
+            )
+          ),
+          packageDescription: [
+            resolved.pkg.label,
+            resolved.pkg.description,
+          ].filter(Boolean).join(" "),
+          packageCapabilityIds: resolved.pkg.capabilityIds,
+          explicitRequestRequirementIds: resolved.pkg.requirementAliases,
+          facetId: resolved.pkg.facetId,
+        }
+      )
+    );
+  }
+  return out;
+}
+
 function mappedCapabilitiesFor(requirementId: string, focus?: InstructionFocus): string[] {
   const mapping = focus?.requirementMappings?.find(
     (item) =>
       item.requirementId === requirementId ||
       normalizeRequirementId(item.requirementId) === normalizeRequirementId(requirementId)
   );
-  const fromMapping = mapping?.capabilityIds ?? [];
-  const selectedPackages = focus?.selectedPackageIds ?? [];
-  return [...new Set([...fromMapping, ...selectedPackages])];
+  return [...new Set(mapping?.capabilityIds ?? [])];
 }
 
 function collectRequestedCapabilities(focus?: InstructionFocus): Set<string> {

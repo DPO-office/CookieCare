@@ -7,13 +7,13 @@ import type { AnalysisState } from "../../../models/analysis-state.js";
 import type { CritiqueIssue, FixItem } from "../../../models/critique-report.js";
 import type { RequirementAssessment } from "../../../models/requirement-assessment.js";
 
-function state(output: string): AnalysisState {
+function state(output: string, sections: string[] = ["executive_summary", "key_findings", "conclusion"]): AnalysisState {
   return {
     plan: {
       reportSpec: {
         reportType: "regime_compliance_memo",
         depth: "standard",
-        sections: ["executive_summary", "key_findings", "conclusion"],
+        sections,
         outline: [
           {
             id: "executive_summary",
@@ -56,6 +56,59 @@ function state(output: string): AnalysisState {
 }
 
 describe("validateReportSpec", () => {
+  it("treats scope as satisfied by BLUF bottom-line", () => {
+    const fixture = state(
+      [
+        "## Bottom line",
+        "The agreement needs attention.",
+        "",
+        "## Requirements at a glance",
+        "| Requirement | Status | Evidence | Finding | Action |",
+        "| --- | --- | --- | --- | --- |",
+        "| Confidentiality | Strong | clause 1 | Covered | |",
+        "",
+        "## What needs attention",
+        "- None.",
+      ].join("\n"),
+      ["scope", "executive_summary", "key_findings", "conclusion"]
+    );
+    const results: CritiqueIssue[] = [];
+    const fixes: FixItem[] = [];
+    validateReportSpec(fixture, results, fixes);
+    assert.equal(
+      results.find((r) => r.itemId === "report-output:contract")?.status,
+      "pass"
+    );
+  });
+
+  it("accepts the compact BLUF renderer as a semantic ReportSpec projection", () => {
+    const fixture = state(
+      [
+        "## Bottom line",
+        "The agreement needs attention.",
+        "",
+        "## Requirements at a glance",
+        "| Requirement | Status | Evidence | Finding | Action |",
+        "| --- | --- | --- | --- | --- |",
+        "| Confidentiality | Strong | clause 1 | Covered | |",
+        "",
+        "## What needs attention",
+        "- None.",
+      ].join("\n")
+    );
+    const results: CritiqueIssue[] = [];
+    const fixes: FixItem[] = [];
+    validateReportSpec(fixture, results, fixes);
+    assert.equal(
+      results.find((r) => r.itemId === "report-output:contract")?.status,
+      "pass"
+    );
+    assert.equal(
+      results.some((r) => r.itemId === "outline-analysis:contract"),
+      false
+    );
+  });
+
   it("requests retrySectionIds for a missing outline heading", () => {
     const output = [
       "## Executive Summary",

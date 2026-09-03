@@ -12,6 +12,8 @@ const {
   buildMatrixEvaluationPrompt,
   matrixRowSubject,
   resolveMatrixRow,
+  resolveGroundedMatrixQuote,
+  resolveGroundedMatrixEvidence,
   selectRelevantClauses,
   MATRIX_ROW_MAX_OUTPUT_TOKENS,
   MATRIX_ROW_SYSTEM_INSTRUCTION,
@@ -150,6 +152,90 @@ describe("generic matrix row metadata", () => {
       clauses: [],
     });
     assert.match(prompt, /at most two sentences/);
+  });
+
+  it("maps an exact matrix quote back to a verbatim source substring", () => {
+    const source = "The Processor shall assist\n  the Controller with access requests.";
+    assert.equal(
+      resolveGroundedMatrixQuote(
+        source,
+        "the processor shall assist the controller with access requests."
+      ),
+      source
+    );
+  });
+
+  it("replaces an ellipsized matrix quote with a contiguous source excerpt", () => {
+    const source =
+      "Data Protection Rights include the right to know and access Personal Data, the right to rectification and erasure, and the right not to be subject to automated decision-making.";
+    const resolved = resolveGroundedMatrixQuote(
+      source,
+      "Data Protection Rights include...automated decision-making"
+    );
+    assert.equal(resolved, source.slice(0, -1));
+    assert.equal(source.includes(resolved ?? "missing"), true);
+    assert.equal(resolved?.includes("..."), false);
+  });
+
+  it("rejects paraphrased evidence instead of manufacturing a locator", () => {
+    assert.equal(
+      resolveGroundedMatrixQuote(
+        "The Processor shall assist the Controller.",
+        "The vendor will help the customer."
+      ),
+      undefined
+    );
+  });
+
+  it("keeps multi-clause matrix support as separately grounded evidence", () => {
+    const clauses: ClauseObject[] = [
+      {
+        clauseId: "rights",
+        clauseType: "data_subject_request_handling",
+        text: "Data Protection Rights include the right to erasure.",
+        locator: { docId: "d", structuralPath: "3.3", charRange: [10, 64] },
+        taxonomyVersion: "test",
+      },
+      {
+        clauseId: "assistance",
+        clauseType: "processor_assistance_obligation",
+        text: "The Processor shall assist the Controller with individual requests.",
+        locator: { docId: "d", structuralPath: "3.5.5", charRange: [65, 132] },
+        taxonomyVersion: "test",
+      },
+    ];
+    const evidence = resolveGroundedMatrixEvidence(clauses, {
+      evidence: [
+        { clauseId: "rights", quotedText: "the right to erasure" },
+        {
+          clauseId: "assistance",
+          quotedText: "assist the Controller with individual requests",
+        },
+      ],
+    });
+    assert.equal(evidence.length, 2);
+    assert.equal(evidence[0].quotedText, "the right to erasure");
+    assert.equal(evidence[1].locator.structuralPath, "3.5.5");
+  });
+
+  it("drops an invented clause id while retaining independently valid support", () => {
+    const clauses: ClauseObject[] = [
+      {
+        clauseId: "real",
+        clauseType: "consumer_rights",
+        text: "A consumer may request deletion.",
+        locator: { docId: "d", structuralPath: "7", charRange: [0, 32] },
+        taxonomyVersion: "test",
+      },
+    ];
+    const evidence = resolveGroundedMatrixEvidence(clauses, {
+      evidence: [
+        { clauseId: "invented", quotedText: "Anything at all" },
+        { clauseId: "real", quotedText: "request deletion" },
+      ],
+    });
+    assert.equal(evidence.length, 1);
+    assert.equal(evidence[0].quotedText, "request deletion");
   });
 
   it("never dumps more than MATRIX_ROW_MAX_CLAUSES and truncates clause text", async () => {

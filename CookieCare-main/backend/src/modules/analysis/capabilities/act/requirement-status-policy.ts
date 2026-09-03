@@ -1,4 +1,5 @@
 import type { Finding } from "../../models/finding.js";
+import { isConfirmedRiskFinding } from "../../shared/finding-semantics.js";
 import type {
   ComplianceStatus,
   EvidenceState,
@@ -29,6 +30,18 @@ function isComplianceFinding(f: Finding): boolean {
 
 function isRiskFinding(f: Finding): boolean {
   return f.kind === "risk";
+}
+
+/**
+ * A risk-lane VERIFY finding (evaluate-package.ts's isRiskLane branch) is as
+ * authoritative as a compliance finding — it went through the same
+ * per-proposition VERIFY rigor, just stamped kind:"risk" because the
+ * proposition is framed as a risk hypothesis rather than a requirement. A
+ * heuristic/derived risk finding (flag-risk.ts, derive-risk.ts) carries no
+ * such guarantee and must stay annotation-only.
+ */
+function isVerifiedRiskFinding(f: Finding): boolean {
+  return f.kind === "risk" && f.verifiedByProposition === true;
 }
 
 /**
@@ -123,6 +136,22 @@ function evidenceStateFromFindings(findings: Finding[]): EvidenceState {
 function complianceFromFindings(findings: Finding[]): ComplianceStatus {
   if (findings.length === 0) return "insufficient_evidence";
 
+  // Matrix addressing is itself a locked adequacy signal. A generic catch-all
+  // cannot become Strong merely because an evaluator also stamped a
+  // compliance="present" axis; it is partial by definition. Likewise an
+  // absent row cannot be promoted by a contradictory sibling stamp.
+  const matrixGeneric = findings.some(
+    (finding) => finding.matrixAddressing === "generic"
+  );
+  const matrixAbsent = findings.some(
+    (finding) => finding.matrixAddressing === "absent"
+  );
+  const matrixNamed = findings.some(
+    (finding) => finding.matrixAddressing === "named" && isSupporting(finding)
+  );
+  if (matrixGeneric) return "partial";
+  if (matrixAbsent) return matrixNamed ? "partial" : "gap";
+
   // When every compliance finding agrees on a stamped compliance axis, use it.
   // Never take a single finding's judgement when siblings disagree.
   const stampedValues = findings
@@ -146,6 +175,13 @@ function complianceFromFindings(findings: Finding[]): ComplianceStatus {
   if (truncated && supporting.length === 0) return "insufficient_evidence";
 
   if (supporting.length > 0 && gaps.length > 0) return "partial";
+
+  // Preserve an explicitly verified partial child when a parent requirement
+  // also contains fully covered siblings. Otherwise the generic
+  // `supporting.length > 0` fallback would incorrectly promote the parent to
+  // fully present merely because partial findings are grounded and therefore
+  // also count as supporting evidence.
+  if (stampedValues.includes("partial")) return "partial";
 
   if (annexDependent.length > 0 && supporting.length === 0 && gaps.length === 0) {
     return binding === "binding" ? "present" : "insufficient_evidence";
@@ -174,7 +210,9 @@ function materialityFromFindings(
   const stampedCompliance = complianceFindings.find((f) => f.judgement?.materiality)
     ?.judgement?.materiality;
   const highRisk = riskFindings.some(
-    (f) => f.severity === "high" || f.severity === "medium"
+    (f) =>
+      isConfirmedRiskFinding(f) &&
+      (f.severity === "high" || f.severity === "medium")
   );
   if (compliance === "gap") return "high";
   if (highRisk) return stampedCompliance === "high" ? "high" : "high";
@@ -198,8 +236,15 @@ function pickNli(complianceFindings: Finding[]): RequirementJudgement["nli"] {
 export function deriveRequirementJudgement(findings: Finding[]): RequirementJudgement {
   const complianceFindings = findings.filter(isComplianceFinding);
   const riskFindings = findings.filter(isRiskFinding);
+  // No compliance findings for this requirement (the pure risk-lane case,
+  // e.g. an open "biggest risk" ask): fall back to this requirement's own
+  // verified risk findings so their stamped judgement still drives the
+  // assessment, instead of the channel going empty and every such
+  // requirement defaulting to insufficient_evidence/cannot_determine
+  // regardless of what VERIFY actually concluded.
+  const verifiedRisk = riskFindings.filter(isVerifiedRiskFinding);
   const channel =
-    complianceFindings.length > 0 ? complianceFindings : [];
+    complianceFindings.length > 0 ? complianceFindings : verifiedRisk;
 
   const compliance = complianceFromFindings(channel);
   const evidenceState = evidenceStateFromFindings(

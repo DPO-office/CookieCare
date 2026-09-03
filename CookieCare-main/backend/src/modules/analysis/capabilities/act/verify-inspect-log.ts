@@ -31,10 +31,23 @@ export function logVerifyCandidates(args: {
   outcomes: VerifyCandidateOutcome[];
   winnerIndex?: number;
   winnerVerdict?: "proves" | "contradicts";
+  partialIndex?: number;
   closestIndex?: number;
+  mixedResolution?: "scope_dependent" | "conflicting";
+  scopeDependentRefs?: string[];
 }): void {
-  const { requirementId, hypothesis, proofStandard, outcomes, winnerIndex, winnerVerdict, closestIndex } =
-    args;
+  const {
+    requirementId,
+    hypothesis,
+    proofStandard,
+    outcomes,
+    winnerIndex,
+    winnerVerdict,
+    partialIndex,
+    closestIndex,
+    mixedResolution,
+    scopeDependentRefs,
+  } = args;
 
   const lines: string[] = [];
   lines.push(`REQUIREMENT: ${requirementId}`);
@@ -48,11 +61,20 @@ export function logVerifyCandidates(args: {
     const { item, result } = outcome;
     const n = i + 1;
     const marker =
-      i === winnerIndex ? " ★ WINNER" : i === closestIndex ? " → carried as closest" : "";
+      i === winnerIndex
+        ? " ★ WINNER"
+        : i === partialIndex
+          ? " ★ PARTIAL"
+          : i === closestIndex
+            ? " → carried as closest"
+            : "";
     const verdictTag = result.verdict.toUpperCase();
     lines.push(
       `  [${n}] ${item.ref}  ${item.clauseType}${item.structuralPath ? ` (${item.structuralPath})` : ""}  →  ${verdictTag}  quoteVerified=${result.quoteVerified}${marker}`
     );
+    if (result.partialCoverage) {
+      lines.push("      coverage: PARTIAL — a material portion is established");
+    }
     lines.push(`      passage: "${truncate(item.quotedText, 160)}"`);
     if (result.quote?.trim()) {
       lines.push(`      quote:   "${truncate(result.quote, 160)}"`);
@@ -70,8 +92,30 @@ export function logVerifyCandidates(args: {
     lines.push("");
   });
 
-  if (winnerIndex !== undefined) {
+  if (scopeDependentRefs?.length) {
+    lines.push(
+      `RESULT: relevant evidence applies to distinct scopes - scope_dependent. Read together: ${scopeDependentRefs.join(", ")}.`
+    );
+  } else if (mixedResolution !== undefined) {
+    const provingRefs = outcomes
+      .filter(({ result }) => result.verdict === "proves" && result.quoteVerified)
+      .map(({ item }) => item.ref)
+      .join(", ");
+    const contradictingRefs = outcomes
+      .filter(({ result }) => result.verdict === "contradicts" && result.quoteVerified)
+      .map(({ item }) => item.ref)
+      .join(", ");
+    lines.push(
+      mixedResolution === "scope_dependent"
+        ? `RESULT: decisive evidence applies to distinct scopes - scope_dependent. Proves: ${provingRefs}; contradicts: ${contradictingRefs}.`
+        : `RESULT: decisive evidence overlaps or has unresolved scope - conflicting. Proves: ${provingRefs}; contradicts: ${contradictingRefs}.`
+    );
+  } else if (winnerIndex !== undefined) {
     lines.push(`RESULT: ${winnerVerdict} — ${outcomes[winnerIndex].item.ref} wins.`);
+  } else if (partialIndex !== undefined) {
+    lines.push(
+      `RESULT: partial coverage — ${outcomes[partialIndex].item.ref} establishes a material portion of the proof standard.`
+    );
   } else if (closestIndex !== undefined) {
     lines.push(
       `RESULT: no candidate proved/contradicted → insufficient_evidence. Closest carried: ${outcomes[closestIndex].item.ref} (${outcomes[closestIndex].result.verdict}).`

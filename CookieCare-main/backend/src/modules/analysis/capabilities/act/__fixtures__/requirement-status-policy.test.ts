@@ -88,6 +88,18 @@ describe("deriveRequirementStatus", () => {
     );
   });
 
+  it("never promotes generic matrix coverage to Strong", () => {
+    assert.equal(
+      deriveRequirementStatus([
+        {
+          ...finding("present"),
+          matrixAddressing: "generic",
+        },
+      ]),
+      "conditional"
+    );
+  });
+
   it("keeps Present compliance when a medium risk annotation is also linked", () => {
     assert.equal(
       deriveRequirementStatus([
@@ -114,6 +126,21 @@ describe("displayRequirementStatus", () => {
     assert.equal(displayRequirementStatus("partial"), "Minor drafting gap");
     assert.equal(displayRequirementStatus("gap"), "Gap");
     assert.equal(displayRequirementStatus("cannot_determine"), "Cannot determine");
+    assert.equal(
+      displayRequirementStatus({
+        status: "cannot_determine",
+        judgement: {
+          compliance: "insufficient_evidence",
+          evidenceState: "not_found",
+          referenceBinding: "none",
+          evidenceConfidence: "low",
+          draftingQuality: "clean",
+          materiality: "low",
+          recommendationKind: "obtain",
+        },
+      }),
+      "Insufficient data"
+    );
     assert.equal(
       displayRequirementStatus({
         status: "conditional",

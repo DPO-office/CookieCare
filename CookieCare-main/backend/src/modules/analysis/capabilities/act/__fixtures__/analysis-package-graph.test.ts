@@ -10,18 +10,95 @@ import { buildActGraphDetailed } from "../../../skills/runtime/graph/build-act-g
 import { selectSkills } from "../../../skills/runtime/selection/select-skills.js";
 import type { InstructionFocus } from "../../../models/analysis-plan.js";
 import type { IntentRequirement } from "../../../models/intent.js";
+import type { EvidencePackage } from "../../../models/evidence-package.js";
 import { extractExplicitScope, filterIdsByScope } from "../../../skills/runtime/focus/extract-explicit-scope.js";
 import {
   bothSkills,
   gdpr,
   intent,
-} from "../../../../__test-helpers__/package-graph-fixtures.js";
+} from "../../../__test-helpers__/package-graph-fixtures.js";
 
 const ART28_REVIEW =
   "Perform a rigorous GDPR Article 28 compliance review. Verify mandatory Article 28(3) clauses.";
 
 const TRANSFER_INSTRUCTION =
   "Analyse all international data transfer provisions. Identify whether Standard Contractual Clauses, Binding Corporate Rules, or adequacy decisions are referenced; whether Schrems II supplementary measures are addressed; transfers to third countries and the legal basis for each; and any gaps in transfer mechanisms.";
+
+describe("compound runtime facet packages", () => {
+  it("selects each facet by explicit alias and preserves facet bindings", () => {
+    const requirements: IntentRequirement[] = [
+      {
+        id: "termination.balance",
+        description: "Assess termination balance",
+        type: "adequacy",
+        priority: "required",
+      },
+      {
+        id: "liability.cap",
+        description: "Assess customer liability protection",
+        type: "adequacy",
+        priority: "required",
+      },
+    ];
+    const packages: EvidencePackage[] = [
+      {
+        id: "open_analysis.facet_1",
+        facetId: "facet_1",
+        kind: "evaluation",
+        sourceMode: "authored",
+        requirementIds: ["open.facet_1.p1", "open.facet_1.p2"],
+        requirementAliases: ["termination.balance"],
+        capabilityIds: [],
+        clauseTypes: ["termination"],
+        extractionTargets: [],
+        requirementEvidence: {
+          "open.facet_1.p1": { hypothesis: "Customer termination rights" },
+          "open.facet_1.p2": { hypothesis: "Supplier termination rights" },
+        },
+      },
+      {
+        id: "open_analysis.facet_2",
+        facetId: "facet_2",
+        kind: "evaluation",
+        sourceMode: "authored",
+        requirementIds: ["open.facet_2.p1"],
+        requirementAliases: ["liability.cap"],
+        capabilityIds: [],
+        clauseTypes: ["limitation_of_liability"],
+        extractionTargets: [],
+        requirementEvidence: {
+          "open.facet_2.p1": { hypothesis: "Customer liability exposure" },
+        },
+      },
+    ];
+
+    const resolution = resolvePackages([], focus({}), requirements, packages);
+
+    assert.deepEqual(
+      resolution.packages.map((item) => item.pkg.id),
+      ["open_analysis.facet_1", "open_analysis.facet_2"]
+    );
+    assert.deepEqual(
+      new Set(
+        resolution.requirementBindings
+          .filter((binding) => binding.requestRequirementId === "termination.balance")
+          .map((binding) => binding.nativeRequirementId)
+      ),
+      new Set(["open.facet_1.p1", "open.facet_1.p2"])
+    );
+    assert.ok(
+      resolution.requirementBindings
+        .filter((binding) => binding.requestRequirementId === "termination.balance")
+        .every((binding) => binding.facetId === "facet_1")
+    );
+    assert.equal(
+      resolution.requirementBindings.find(
+        (binding) => binding.requestRequirementId === "liability.cap"
+      )?.facetId,
+      "facet_2"
+    );
+  });
+});
 
 function focus(partial: Partial<InstructionFocus>): InstructionFocus {
   return {
@@ -33,7 +110,89 @@ function focus(partial: Partial<InstructionFocus>): InstructionFocus {
   };
 }
 
-describe("kinded analysis packages — international transfers", () => {
+describe("kinded analysis packages - international transfers", () => {
+  it("binds the live Q13 SCCs, measures, and destinations requirements one-to-one", () => {
+    const skills = bothSkills();
+    const requirements: IntentRequirement[] = [
+      {
+        id: "international_transfers.sccs",
+        description:
+          "Review compliance with Standard Contractual Clauses (SCCs) for international data transfers",
+        type: "verification",
+        priority: "required",
+      },
+      {
+        id: "international_transfers.supplementary_measures",
+        description:
+          "Assess the adequacy and presence of supplementary technical, organizational, and contractual measures for cross-border data transfers",
+        type: "adequacy",
+        priority: "required",
+      },
+      {
+        id: "international_transfers.destinations",
+        description:
+          "Verify transfer destinations and geographic scope specified in the agreement",
+        type: "verification",
+        priority: "required",
+      },
+    ];
+    const resolution = resolvePackages(
+      skills,
+      focus({
+        selectedPackageIds: [
+          "international_transfer_inventory",
+          "international_transfer_evaluation",
+        ],
+        requirements: requirements.map((req) => ({ id: req.id, label: req.description })),
+        requirementMappings: [
+          {
+            requirementId: requirements[0]!.id,
+            capabilityIds: [
+              "transfers.scc_module_selection",
+              "international_transfer_evaluation",
+            ],
+            source: "catalog_llm",
+          },
+          {
+            requirementId: requirements[1]!.id,
+            capabilityIds: [
+              "transfers.supplementary_measures",
+              "international_transfer_evaluation",
+            ],
+            source: "catalog_llm",
+          },
+          {
+            requirementId: requirements[2]!.id,
+            capabilityIds: [
+              "international_transfer_inventory",
+              "international_transfer_evaluation",
+            ],
+            source: "catalog_llm",
+          },
+        ],
+      }),
+      requirements
+    );
+    const transferBindings = resolution.requirementBindings.filter(
+      (binding) => binding.packageId === "international_transfer_evaluation"
+    );
+    assert.equal(transferBindings.length, 3);
+    assert.deepEqual(
+      Object.fromEntries(
+        transferBindings.map((binding) => [
+          binding.requestRequirementId,
+          binding.nativeRequirementId,
+        ])
+      ),
+      {
+        "international_transfers.sccs": "transfer_mechanism_identification",
+        "international_transfers.supplementary_measures":
+          "schrems_supplementary_measures",
+        "international_transfers.destinations": "international_data_transfer",
+      }
+    );
+  });
+
   it("selects inventory + evaluation and does not fan out Chapter V rule checks", () => {
     const skills = bothSkills();
     const extraction: IntentRequirement = {
@@ -354,7 +513,144 @@ describe("kinded analysis packages — named rule vs unsupported extraction", ()
   });
 });
 
-describe("kinded analysis packages — existing GDPR grouped eval", () => {
+describe("kinded analysis packages - existing GDPR grouped eval", () => {
+  it("prefers explicit requirement-package mappings over a broad doc-type semantic match", () => {
+    resetSkillRegistryForTests();
+    const skills = [
+      getSkillById("doc-types/dpa")!,
+      getSkillById("regimes/data-protection/gdpr")!,
+    ];
+    const requirements: IntentRequirement[] = [
+      {
+        id: "gdpr.article28.data_categories_and_subjects",
+        description: "Verify the specification of data categories and data subjects",
+        type: "adequacy",
+        priority: "required",
+      },
+      {
+        id: "gdpr.article28.processor_obligations",
+        description: "Check whether all mandatory processor obligations are present and adequate",
+        type: "adequacy",
+        priority: "required",
+      },
+    ];
+    const resolution = resolvePackages(
+      skills,
+      focus({
+        instructionText: ART28_REVIEW,
+        selectedPackageIds: [
+          "gdpr.art28.particulars",
+          "gdpr.art28.3.mandatory_clauses",
+        ],
+        requirements: requirements.map((req) => ({ id: req.id, label: req.description })),
+        requirementMappings: [
+          {
+            requirementId: requirements[0]!.id,
+            capabilityIds: ["gdpr.art28.particulars"],
+            source: "catalog_llm",
+          },
+          {
+            requirementId: requirements[1]!.id,
+            capabilityIds: ["gdpr.art28.3.mandatory_clauses"],
+            source: "catalog_llm",
+          },
+        ],
+      }),
+      requirements
+    );
+    const pathByRequirement = new Map(
+      resolution.requirementPaths.map((path) => [path.requirementId, path.packageId])
+    );
+    assert.equal(
+      pathByRequirement.get(requirements[0]!.id),
+      "gdpr.art28.particulars"
+    );
+    assert.equal(
+      pathByRequirement.get(requirements[1]!.id),
+      "gdpr.art28.3.mandatory_clauses"
+    );
+    const processorBindings = resolution.requirementBindings.filter(
+      (binding) => binding.requestRequirementId === requirements[1]!.id
+    );
+    assert.equal(processorBindings.length, 9);
+    assert.ok(
+      processorBindings.every(
+        (binding) => binding.packageId === "gdpr.art28.3.mandatory_clauses"
+      )
+    );
+  });
+
+  it("runs both Article 28 component packages for the live Q3 overall umbrella", () => {
+    const skills = [gdpr()];
+    const requirement: IntentRequirement = {
+      id: "gdpr.dpa_compliance",
+      description: "Assess whether the Data Processing Agreement is compliant with GDPR, including Article 28 requirements.",
+      type: "adequacy",
+      priority: "required",
+    };
+    const resolution = resolvePackages(
+      skills,
+      focus({
+        instructionText: ART28_REVIEW,
+        selectedPackageIds: [
+          "gdpr.art28.particulars",
+          "gdpr.art28.3.mandatory_clauses",
+        ],
+        requirements: [{ id: requirement.id, label: requirement.description }],
+        requirementMappings: [
+          {
+            requirementId: requirement.id,
+            capabilityIds: [
+              "gdpr.art28.particulars",
+              "gdpr.art28.3.mandatory_clauses",
+              "gdpr.art28.1",
+              "gdpr.art28.2",
+              "gdpr.art28.9",
+              "gdpr.art28.10",
+            ],
+            source: "catalog_llm",
+          },
+        ],
+      }),
+      [requirement]
+    );
+    const selectedIds = resolution.packages.map((item) => item.pkg.id);
+    assert.ok(selectedIds.includes("gdpr.art28.particulars"));
+    assert.ok(selectedIds.includes("gdpr.art28.3.mandatory_clauses"));
+    const umbrellaBindings = resolution.requirementBindings.filter(
+      (binding) => binding.requestRequirementId === requirement.id
+    );
+    assert.equal(umbrellaBindings.length, 15);
+    assert.equal(
+      new Set(umbrellaBindings.map((binding) => binding.nativeRequirementId)).size,
+      15
+    );
+  });
+
+  it("binds the live Q4 combined data/categories row to exactly its two natives", () => {
+    const skills = [gdpr()];
+    const requirement: IntentRequirement = {
+      id: "gdpr.article28.categories_data_and_subjects",
+      description: "Check categories of data and data subjects",
+      type: "adequacy",
+      priority: "required",
+    };
+    const resolution = resolvePackages(
+      skills,
+      focus({
+        instructionText: ART28_REVIEW,
+        selectedPackageIds: ["gdpr.art28.particulars"],
+        requirements: [{ id: requirement.id, label: requirement.description }],
+      }),
+      [requirement]
+    );
+    const bound = resolution.requirementBindings
+      .filter((binding) => binding.requestRequirementId === requirement.id)
+      .map((binding) => binding.nativeRequirementId)
+      .sort();
+    assert.deepEqual(bound, ["data_categories", "data_subject_categories"]);
+  });
+
   it("still groups Article 28(3) into evaluate_package", () => {
     const skill = gdpr();
     const resolution = resolvePackages([skill], focus({ ruleIds: ["gdpr.art28.3.a"] }));

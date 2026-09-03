@@ -1,5 +1,9 @@
 import type { AnalysisState } from "../models/analysis-state.js";
 import type { Finding } from "../models/finding.js";
+import {
+  isConfirmedRiskFinding,
+  isProtectiveFinding,
+} from "../shared/finding-semantics.js";
 import type {
   ReportOutlineItem,
   ReportSectionId,
@@ -51,15 +55,18 @@ export const SYNTHESIS_SYSTEM_PROMPT = [
   "- Minor drafting gap",
   "- Gap",
   "- Cannot determine",
+  "- Insufficient data",
   "- Not applicable",
   "Never print the internal tokens conditional, covered, partial, missing, cannot_determine, nli, or evidenceState in a Status cell.",
   "Interpret statuses as follows:",
   "- strong / Strong: operative detail in this document fully substantiates the element.",
   "- adequate / Present & adequate: the obligation is present and verifiable in this document.",
   "- Present, particulars in schedule: the requirement is binding in this instrument; particulars live in a named schedule. Rec is Obtain, not Amend, and not Minor drafting gap.",
+  "If any supplied assessment is Present, particulars in schedule, the overall conclusion must name that documentary dependency. It must not say the review, evidence, compliance, or requirements are fully documented, fully verified, complete, or free of residual uncertainty.",
   "- conditional / Minor drafting gap: the obligation exists here but wording is incomplete or could be clearer. Not used for annex pointers.",
   "- gap / Gap: a positive absence in the reviewed text of a provision that was expected to contain the obligation.",
-  "- cannot_determine / Cannot determine: no usable quote, unread truncated heading, or a floating/non-binding schedule pointer without enough contractual substance.",
+  "- cannot_determine / Cannot determine: the clause was found but is truncated, unclear, or only a floating schedule pointer — not enough to confirm.",
+  "- Insufficient data: no related clauses were found in the reviewed text. Not a Gap.",
   "- not_applicable / Not applicable: outside the scope of this agreement or request.",
   "",
   "Absence from the extracted evidence is not, by itself, proof that the obligation is missing from the agreement.",
@@ -85,8 +92,7 @@ export const SYNTHESIS_SYSTEM_PROMPT = [
   "",
   "If OUTPUT FORM is tabular, write the analysis as markdown tables with a short prose bottom line. Do not write long narrative sections.",
   "If OUTPUT FORM is narrative, write flowing prose. Use tables only when they materially help.",
-  "If DOCUMENT PRESENTATION is individual, write a clearly separated section for each named document. Do not blend documents into one undivided report.",
-  "If DOCUMENT PRESENTATION is unified and multiple documents were reviewed, write one combined report and name the documents in the scope section.",
+  "When multiple documents were reviewed, write one combined report and name the documents in the scope section.",
   "If PRIOR CONVERSATION is supplied, answer the current user message in that context. Do not reprint the entire prior report unless the user asked to rewrite it.",
   "",
   LEGAL_MEMO_MARKDOWN_CRAFT,
@@ -113,10 +119,6 @@ export function buildSynthesisUserPrompt(
       item.role === "key_findings"
   );
 
-  const presentation =
-    state.intent?.documentPresentation ??
-    state.request.documentPresentation ??
-    "unified";
   const outputForm = state.intent?.outputForm ?? (state.request.answerStyle === "tabular" ? "table" : "memo");
   const conversation = conversationContextForIntent({
     conversation: state.conversation,
@@ -140,10 +142,6 @@ export function buildSynthesisUserPrompt(
         ? "brief summary — short prose, no exhaustive tables"
         : "narrative — memo/prose",
     "",
-    "DOCUMENT PRESENTATION",
-    presentation === "individual"
-      ? "individual — a separate headed section per uploaded document"
-      : "unified — one combined report covering all target documents",
     documents ? `Documents:\n${documents}` : "",
     "",
     "LEGAL FRAMEWORK",
@@ -437,7 +435,61 @@ function renderArtifacts(state: AnalysisState): string {
 function renderRisks(findings: Finding[]): string {
   const risks = findings.filter((f) => f.kind === "risk" && f.visibility !== "internal");
   if (risks.length === 0) return "None flagged as user-facing material risks.";
-  return risks.map((f) => `- ${f.claim} (severity: ${f.severity ?? "n/a"})`).join("\n");
+  // A risk proposition VERIFY *contradicted* means the risk is NOT present —
+  // the document actually protects on that point (buildVerifiedFinding's risk
+  // lane stamps nli="contradicted"). These must never be written up as risks;
+  // separate them so the writer presents them as reassurance, not problems.
+  const present = risks.filter(isConfirmedRiskFinding);
+  const cleared = risks.filter(isProtectiveFinding);
+  const lines: string[] = [];
+  if (present.length > 0) {
+    lines.push("CONFIRMED RISKS (verified present in the document):");
+    for (const f of present) {
+      lines.push(`- ${f.claim}${f.severity ? ` (severity: ${f.severity})` : ""}`);
+    }
+  }
+  if (cleared.length > 0) {
+    if (lines.length > 0) lines.push("");
+    lines.push(
+      "CHECKED — NOT A RISK (the document protects the party on these points; present as reassurance, never as problems):"
+    );
+    for (const f of cleared) lines.push(`- ${f.claim}`);
+  }
+  return lines.join("\n");
+}
+
+/**
+ * Compare lane — pair kind:"comparison_delta" findings back into their
+ * compareGroup (decomposeReasoningAsk's side_a/side_b split) so the writer
+ * sees both sides of each dimension together instead of as unrelated rows.
+ * A side with no established finding (VERIFY returned insufficient_evidence)
+ * is named as unresolved rather than silently dropped, so the comparison
+ * never implicitly favors the side that happened to verify.
+ */
+function renderComparison(findings: Finding[]): string {
+  const deltas = findings.filter(
+    (f) => f.kind === "comparison_delta" && f.visibility !== "internal"
+  );
+  if (deltas.length === 0) return "None flagged as a user-facing comparison.";
+  const groups = new Map<string, Finding[]>();
+  for (const f of deltas) {
+    const key = f.compareGroup ?? f.requirementId ?? f.findingId;
+    groups.set(key, [...(groups.get(key) ?? []), f]);
+  }
+  const lines: string[] = [];
+  for (const [group, members] of groups) {
+    const sideA = members.find(
+      (m) => m.compareRole === "side_a" && m.status === "present"
+    );
+    const sideB = members.find(
+      (m) => m.compareRole === "side_b" && m.status === "present"
+    );
+    lines.push(`Dimension: ${group.replace(/^compare_/, "").replace(/_/g, " ")}`);
+    lines.push(`- Side A: ${sideA ? sideA.claim : "(not independently established)"}`);
+    lines.push(`- Side B: ${sideB ? sideB.claim : "(not independently established)"}`);
+    lines.push("");
+  }
+  return lines.join("\n").trim();
 }
 
 function depthGuidance(depth: ReportSpec["depth"]): string {
@@ -458,8 +510,9 @@ export const SYNTHESIS_SECTION_SYSTEM_PROMPT = [
   "Do not write other sections, a title page, or a closing offer to help.",
   "Do not expose internal requirement IDs, work-unit IDs, package IDs, or finding IDs unless the user asked for them.",
   "Treat supplied statuses as given. Do not silently reverse them. Do not change compliance, invent a gap, invent evidence, or add a recommendation.",
-  "Status cells: Strong, Present & adequate, Present, particulars in schedule, Minor drafting gap, Gap, Cannot determine, Not applicable. Never print internal tokens in the Status column.",
+  "Status cells: Strong, Present & adequate, Present, particulars in schedule, Minor drafting gap, Gap, Cannot determine, Insufficient data, Not applicable. Never print internal tokens in the Status column.",
   "A binding schedule incorporation is Present, particulars in schedule (Obtain). A floating pointer is Cannot determine (Obtain), not Minor drafting gap and not Amend.",
+  "If any supplied assessment is Present, particulars in schedule, carry that dependency into an overall or conclusion section and never describe the review as fully documented, fully verified, complete, or free of residual uncertainty.",
   "cannot_determine is not a legal gap. Never recommend amending the agreement from cannot_determine, insufficient evidence, truncated quotes, or unavailable annexes — use Obtain / Confirm / re-read.",
   "Use Amend only for gap or partial when the cited quote is complete and the defect is in this instrument.",
   "If ANALYTICAL SYNTHESIS is supplied, use it for interpretation. Do not contradict its fact rollup or the locked row labels.",
@@ -486,7 +539,23 @@ export function wantsMatrixTable(state: AnalysisState): boolean {
 }
 
 export function synthesisSectionSystemPrompt(state: AnalysisState): string {
-  if (!isTabularAnswerStyle(state)) return SYNTHESIS_SECTION_SYSTEM_PROMPT;
+  if (!isTabularAnswerStyle(state)) {
+    if (state.plan?.reportSpec?.reportType === "qa_answer") {
+      return [
+        SYNTHESIS_SECTION_SYSTEM_PROMPT,
+        "",
+        "Q&A MARKDOWN CONTRACT:",
+        "- Make the answer easy to scan; do not write a wall of prose.",
+        "- In the Answer section, begin with one short bold bottom-line sentence.",
+        "- When the material has distinct scopes or themes, use 2-4 bullets with short bold labels.",
+        "- The Answer section must not add a Key Evidence/Evidence subsection or quote list; the separate Evidence section owns those details.",
+        "- In the Evidence section, use one bullet per operative clause or source: bold locator/point, then the exact quote and [E#] citation.",
+        "- Use blockquotes only for a material qualification. Do not use markdown tables.",
+        "- Bold only the conclusion and short labels; never bold whole paragraphs.",
+      ].join("\n");
+    }
+    return SYNTHESIS_SECTION_SYSTEM_PROMPT;
+  }
   return [
     "You write one section of a legal analysis report in tabular form.",
     "Output only that section: a `##` heading (verbatim as supplied) and its body.",
@@ -495,6 +564,7 @@ export function synthesisSectionSystemPrompt(state: AnalysisState): string {
     "Treat supplied statuses as given. Do not silently reverse them.",
     "Do not emit a markdown findings table. The renderer attaches the locked Requirement | Status | Evidence | Finding table.",
     "A floating schedule pointer is Cannot determine (Obtain), not Minor drafting gap.",
+    "If any supplied assessment is Present, particulars in schedule, carry that dependency into an overall or conclusion section and never describe the review as fully documented, fully verified, complete, or free of residual uncertainty.",
     "cannot_determine is not a legal gap. Never recommend amending the agreement from cannot_determine, insufficient evidence, or truncated quotes — use Obtain / Confirm / re-read.",
     "Use Amend only for gap or partial when the cited quote is complete.",
     "Answer what the user asked. One lead sentence of framing prose; do not invent Status/Evidence/Finding cells.",
@@ -554,8 +624,28 @@ export function buildSectionSynthesisUserPrompt(input: {
         )
       : {};
   const artifactState = { ...state, analysisArtifacts: artifacts } as AnalysisState;
-  const includeRisks = sectionId === "risk_summary";
+  // Risk lane surfaces the risk material into the sections that must speak to
+  // it: the direct-answer/lead, the recommendations ("what to negotiate"), and
+  // the bottom line — not only a dedicated risk_summary section.
+  const isRiskLane = state.intent?.operation === "risk_flag";
+  const includeRisks =
+    sectionId === "risk_summary" ||
+    (isRiskLane &&
+      (isOpeningSectionId(sectionId) ||
+        sectionId === "conclusion" ||
+        sectionId === "recommendations"));
+  // Compare lane surfaces the paired comparison into the same section shape
+  // risk_flag uses: the direct-answer/lead, the dedicated comparison section,
+  // recommendations, and the bottom line.
+  const isCompareLane = state.intent?.operation === "compare";
+  const includeComparison =
+    sectionId === "comparison" ||
+    (isCompareLane &&
+      (isOpeningSectionId(sectionId) ||
+        sectionId === "conclusion" ||
+        sectionId === "recommendations"));
   const tabular = isTabularAnswerStyle(state);
+  const isQa = reportSpec.reportType === "qa_answer";
   const isAnalysis =
     isAnalysisSectionId(sectionId) ||
     item.role === "analysis" ||
@@ -598,8 +688,10 @@ export function buildSectionSynthesisUserPrompt(input: {
     "",
     "ANSWER STYLE",
     tabular
-      ? "tabular — one lead sentence only; do not emit a findings table (the renderer attaches the locked table); no paragraph restatements of rows"
-      : "narrative — 3–4 short paragraphs; no markdown tables unless STRUCTURED INVENTORIES already contain a user-requested matrix artifact; cite evidence inline as [E1]",
+      ? "tabular - one lead sentence only; do not emit a findings table (the renderer attaches the locked table); no paragraph restatements of rows"
+      : isQa
+        ? "Q&A markdown - one bold direct answer, compact labelled bullets for distinct scopes/themes, and clause-by-clause evidence bullets; no table and no dense paragraphs"
+      : "narrative - 3-4 short paragraphs; no markdown tables unless STRUCTURED INVENTORIES already contain a user-requested matrix artifact; cite evidence inline as [E1]",
     "",
     "THIS SECTION ONLY",
     `Heading (use verbatim as ##): ${item.heading}`,
@@ -625,6 +717,10 @@ export function buildSectionSynthesisUserPrompt(input: {
         ].join("\n")
       : sectionId === "requirements_matrix" && !tabular
         ? "NARRATIVE CONTRACT: numbered list of rights/obligations with status and a short evidence cite. No markdown table."
+        : isQa && sectionId === "key_findings"
+          ? "Q&A ANSWER CONTRACT: start with one bold bottom-line sentence. If scopes/themes differ, follow with 2-4 bullets using short bold labels. Keep paragraphs to at most two sentences. Do not add Key Evidence, Evidence, quotes, or another heading; those belong only in the separate Evidence section."
+          : isQa && sectionId === "evidence"
+            ? "Q&A EVIDENCE CONTRACT: use a bullet per operative clause/source with a bold locator or point, followed by an exact quote and its [E#] citation. Do not repeat the conclusion."
         : "",
     "MATERIALS FOR THIS SECTION",
     groups.length > 0
@@ -638,6 +734,8 @@ export function buildSectionSynthesisUserPrompt(input: {
     artifactFilter.length > 0 ? renderArtifacts(artifactState) : "",
     includeRisks ? "MATERIAL RISKS" : "",
     includeRisks ? renderRisks(findings) : "",
+    includeComparison ? "COMPARISON MATERIAL (side A vs side B, grouped by dimension)" : "",
+    includeComparison ? renderComparison(findings) : "",
     "",
     "Write only this section. Start with `## " + item.heading + "`.",
   ]

@@ -44,7 +44,6 @@ export interface InteractAnalyzeProps {
   onSelectDocument?: (doc: LegalDocument | null) => void;
 }
 
-export type DocumentMode = "unified" | "individual";
 export type AnswerStyle = "narrative" | "tabular";
 export type AnalysisDepth = "deep" | "lite";
 

@@ -6,6 +6,10 @@ import type {
   RequirementCoverageSummary,
 } from "../../models/critique-report.js";
 import type { Finding } from "../../models/finding.js";
+import {
+  requirementIdsEquivalent,
+} from "../../shared/requirement-identity.js";
+import { findingSupportsLockedAssessment } from "../../shared/article-linkage.js";
 
 const PLACEHOLDER_CLAIM_PATTERNS = [
   /no analysis package available/i,
@@ -33,9 +37,13 @@ function unitsForRequirement(
 ): AnalysisWorkUnit[] {
   return workUnits.filter(
     (unit) =>
-      unit.requirementIds?.includes(requirementId) ||
+      unit.requirementIds?.some((id) =>
+        requirementIdsEquivalent(id, requirementId)
+      ) ||
       (Array.isArray(unit.input.requirementIds) &&
-        (unit.input.requirementIds as string[]).includes(requirementId))
+        (unit.input.requirementIds as string[]).some((id) =>
+          requirementIdsEquivalent(id, requirementId)
+        ))
   );
 }
 
@@ -46,7 +54,9 @@ function coverageStateForRequirement(
   findings: Finding[]
 ): { state: CoverageState; reason?: string } {
   const paths = state.plan?.requirementExecutionPaths ?? [];
-  const candidates = paths.filter((p) => p.requirementId === requirementId);
+  const candidates = paths.filter((p) =>
+    requirementIdsEquivalent(p.requirementId, requirementId)
+  );
   const hasAnySupported = candidates.some(
     (p) =>
       p.status === "supported" ||
@@ -121,7 +131,7 @@ function coverageStateForRequirement(
   }
 
   const assessment = (state.requirementAssessments ?? []).find(
-    (a) => a.requirementId === requirementId
+    (a) => requirementIdsEquivalent(a.requirementId, requirementId)
   );
   if (!assessment) {
     return { state: "not_covered", reason: "No requirement assessment" };
@@ -140,7 +150,12 @@ function coverageStateForRequirement(
   const supporting = assessment.supportingFindingIds
     .map((id) => findings.find((f) => f.findingId === id))
     .filter((f): f is Finding => Boolean(f));
-  const hasMeaningful = supporting.some(isMeaningfulFinding);
+  const hasMeaningful = supporting.some(
+    (finding) =>
+      isMeaningfulFinding(finding) &&
+      (!finding.requirementId ||
+        findingSupportsLockedAssessment(finding, assessment.requirementId, state))
+  );
 
   if (
     assessment.status === "covered" ||

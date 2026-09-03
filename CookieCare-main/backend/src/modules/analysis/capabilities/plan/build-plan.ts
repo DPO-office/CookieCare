@@ -41,9 +41,16 @@ import { applyOrgRoutingDefaults } from "../../memory/resolve-org-defaults.js";
 import { resolveDocumentRoles } from "./resolve-document-roles.js";
 import { followUpKindForState, isMaterialTopicShift } from "./follow-up-intent.js";
 import { buildOpenPlan } from "./build-open-plan.js";
+import { operationSupportsOpenProposition } from "./generate-propositions.js";
 import type { EvidencePackage } from "../../models/evidence-package.js";
+import { capabilityContractFor } from "../contracts/analysis-capability-contract.js";
 import { replicateGraphForTargets } from "../../skills/runtime/graph/replicate-graph-for-targets.js";
 import { injectAuthoredRequirements } from "./inject-authored-requirements.js";
+import {
+  branchOrchestrationMode,
+  buildCompoundBranchGraph,
+  decomposeCompoundSubIntents,
+} from "./build-branch-orchestration.js";
 
 const SKILL_DRIVEN_OPERATIONS = new Set([
   "risk_flag",
@@ -53,6 +60,33 @@ const SKILL_DRIVEN_OPERATIONS = new Set([
   "compare",
   "explain_qa",
 ]);
+
+export function shouldPreferOpenAnalysisLane(input: {
+  enabled: boolean;
+  operation?: string;
+  standard?: string;
+}): boolean {
+  if (!input.enabled) return false;
+
+  const isRegimeCompliance =
+    typeof input.standard === "string" && input.standard.startsWith("regime_pack:");
+  const contract = capabilityContractFor(input.operation);
+
+  // Direct investigation operations must preserve the user's proposition even
+  // when intent classification also recognizes a legal regime.  A catalog
+  // rule may provide useful context, but it is not a substitute for the fact,
+  // comparison, or risk question the user actually asked.  Explicit regime
+  // compliance checks continue to use the authored catalog path.
+  if (contract.bypassRegimeCatalog && operationSupportsOpenProposition(input.operation)) {
+    return true;
+  }
+
+  return (
+    contract.supportsOpenPropositions &&
+    !isRegimeCompliance &&
+    input.standard === "none"
+  );
+}
 
 /**
  * PLAN pipeline:
@@ -90,6 +124,8 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
   }
   state = await applyOrgRoutingDefaults(state, state.orgMemory);
   intent = state.intent ?? intent;
+  intent = decomposeCompoundSubIntents(intent);
+  state = { ...state, intent };
 
   const missing: MissingClarification[] = [];
   if (state.clarificationRequest?.questions.length) {
@@ -156,10 +192,6 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     request: {
       ...state.request,
       documentRoles: { ...state.request.documentRoles, ...roleResolution.roles },
-      documentPresentation:
-        intent.documentPresentation ??
-        state.request.documentPresentation ??
-        "unified",
     },
     workspace: {
       ...state.workspace,
@@ -217,7 +249,6 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
       ],
       missingClarifications: [],
       outputForm: intent.outputForm,
-      documentPresentation: intent.documentPresentation,
       skipCritique: true,
       reportSpec,
       rendererSchemaId: schemaId,
@@ -279,20 +310,23 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
   // authored package. Compliance asks (a regime_pack standard) keep the
   // authored-catalogue path. Flag-gated; off = current behavior.
   const openLaneEnabled = process.env.ANALYSIS_OPEN_PROPOSITIONS === "1";
-  const isRegimeCompliance =
-    typeof intent.standard === "string" && intent.standard.startsWith("regime_pack:");
-  const preferOpenLane =
-    openLaneEnabled &&
-    !isRegimeCompliance &&
-    (intent.standard === "none" ||
-      intent.operation === "risk_flag" ||
-      intent.operation === "explain_qa" ||
-      intent.operation === "compare");
+  const preferOpenLane = shouldPreferOpenAnalysisLane({
+    enabled: openLaneEnabled,
+    operation: intent.operation,
+    standard: intent.standard,
+  });
 
   let focus: InstructionFocus | undefined;
   let extraPackages: EvidencePackage[] | undefined;
+  // True once the open lane has already extracted the reference/playbook doc
+  // via generateS3Propositions and run its positions through VERIFY. Tier P
+  // (extract_playbook_positions + check_against_rule, built unconditionally
+  // in build-act-graph.ts whenever referenceDocId is set) would otherwise
+  // re-check the exact same positions through a separate, less rigorous path
+  // — producing duplicate, sometimes disagreeing verdicts on the same clause.
+  let openLaneHandledReference = false;
 
-  if (preferOpenLane) {
+  if (preferOpenLane || intent.compound) {
     const open = await buildOpenPlan(state, primaryDocId, referenceDocId);
     if (open.ambiguity && open.ambiguity.severity === "critical") {
       return { ...open.state, plan: emptyPlan(open.intent, [open.ambiguity]) };
@@ -302,14 +336,16 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
       intent = open.intent;
       extraPackages = open.extraPackages;
       focus = undefined;
+      openLaneHandledReference = Boolean(open.handledReference);
       pacLog("PLAN open-analysis lane", {
         requirements: intent.requirements?.length ?? 0,
         packages: extraPackages?.length ?? 0,
+        openLaneHandledReference,
       });
     }
   }
 
-  if (!extraPackages) {
+  if (!extraPackages || intent.compound) {
     // Compliance / catalogue lane (existing).
     const catalogStarted = Date.now();
     focus = await extractInstructionFocus(state.request.instruction, skills, {
@@ -321,18 +357,29 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     state = { ...state, intent };
   }
 
+  // Target+playbook is a compliance check, not a peer comparison — the
+  // playbook's positions are rules to satisfy, not a second document to
+  // compare against on equal footing. The "compare" operation's
+  // executive_summary/comparison/recommendations archetype is for genuine
+  // peer-document or within-document party comparisons (comparison_delta
+  // findings); a playbook check produces ordinary compliance/risk findings,
+  // so it renders best as the default compliance skeleton (a matrix of
+  // positions vs. target), not a shape built for content it never produces.
+  const sectionOperation =
+    intent.operation === "compare" && openLaneHandledReference ? undefined : intent.operation;
   const seedReportType = intent.reportType ?? fallbackReportType(intent.operation);
   const seedDepth = intent.depth ?? "standard";
   const seedReportSpec: ReportSpec = {
     reportType: seedReportType,
     depth: seedDepth,
-    sections: deriveSections(seedReportType, seedDepth),
+    sections: deriveSections(seedReportType, seedDepth, sectionOperation),
   };
   const relatedChecks = resolveRelatedChecks(skills, state.request.instruction, focus);
   const targetDocIds =
     roleResolution.targetDocIds.length > 0
       ? roleResolution.targetDocIds
       : [primaryDocId];
+  const effectiveReferenceDocId = openLaneHandledReference ? undefined : referenceDocId;
 
   const graphStarted = Date.now();
   const graphs = targetDocIds.map((docId) =>
@@ -344,12 +391,34 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
       focus,
       relatedChecks,
       unresolvedStandard: intent.unresolvedStandard,
-      referenceDocId,
+      referenceDocId: effectiveReferenceDocId,
       reportSpec: seedReportSpec,
       extraPackages,
     })
   );
   const graph = replicateGraphForTargets(graphs);
+  const capabilityContract = capabilityContractFor(intent.operation);
+  const graphProfiles = [
+    ...new Set(
+      graphs.map((item) =>
+        String(
+          item.workUnits.find((unit) => unit.tool === "render_output")?.input
+            .capabilityGraph ?? "full"
+        )
+      )
+    ),
+  ];
+  pacLog("PLAN capability contract", {
+    operation: capabilityContract.operation,
+    reportType: seedReportType,
+    graph: graphProfiles.join(","),
+    evidence: capabilityContract.evidenceCardinality,
+    inventory: capabilityContract.needsOpenInventory,
+    relatedChecks: capabilityContract.allowRelatedChecks,
+    comparativeChecks: capabilityContract.allowComparativeChecks,
+    outline: capabilityContract.outlineDesigner,
+    bluf: capabilityContract.allowBluf,
+  });
   const packageList =
     graph.packageResolution.reportPackages ??
     graph.packageResolution.packages.map((item) => item.pkg);
@@ -358,6 +427,11 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     instruction: state.request.instruction,
     packages: packageList,
     fallbackReportType: seedReportType,
+    // resolveReportSpecFromPackages re-derives sections itself (falling back
+    // to deriveSections when no authored package defines its own — true for
+    // the open lane's synthetic package) — pass the same reference-adjusted
+    // operation so it doesn't undo the compliance-vs-comparison routing above.
+    sectionOperation,
   });
   const reportSpec = buildFinalReportSpec({
     intent,
@@ -372,6 +446,49 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     units: graph.workUnits.length,
     targets: targetDocIds.length,
   });
+
+  const configuredBranchMode = branchOrchestrationMode();
+  const branchGraph =
+    intent.compound &&
+    intent.subIntents.length > 1 &&
+    configuredBranchMode !== "off"
+      ? buildCompoundBranchGraph({
+          parentIntent: intent,
+          instruction: state.request.instruction,
+          skills,
+          targetDocIds,
+          referenceDocId,
+          focus,
+          relatedChecks,
+          extraPackages,
+          thinkingMode: state.analysisProfile?.thinkingMode ?? state.request.thinkingMode,
+        })
+      : undefined;
+  if (branchGraph) {
+    pacLog("PLAN branch orchestration", {
+      mode: configuredBranchMode,
+      branches: branchGraph.branches.length,
+      operations: branchGraph.branches.map((branch) => branch.intent.operation).join(","),
+      units: branchGraph.workUnits.length,
+      legacyUnits: graph.workUnits.length,
+      estimatedMs: branchGraph.branches
+        .map((branch) => `${branch.facetId}:${branch.timeBudget.estimatedCriticalPathMs}`)
+        .join(","),
+    });
+    for (const branch of branchGraph.branches) {
+      pacLog("PLAN branch", {
+        facetId: branch.facetId,
+        order: branch.order,
+        operation: branch.intent.operation,
+        standard: branch.intent.standard,
+        requirements: branch.intent.requirements.length,
+        workUnits: branch.workUnitIds.length,
+        sharedPreparation: branch.workUnitIds.filter((id) => id.startsWith("shared-")).length,
+        estimatedMs: branch.timeBudget.estimatedCriticalPathMs,
+        hardCeilingMs: branch.timeBudget.hardCeilingMs,
+      });
+    }
+  }
 
   const provenance = focus?.provenance ?? [];
   const scopeAudit = graph.packageResolution.scopeAudit ?? [];
@@ -388,7 +505,11 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     droppedOutOfScope,
   });
 
-  const workUnits: AnalysisWorkUnit[] = orderByDependency(graph.workUnits);
+  const workUnits: AnalysisWorkUnit[] = orderByDependency(
+    configuredBranchMode === "compound" && branchGraph
+      ? branchGraph.workUnits
+      : graph.workUnits
+  );
 
   if (state.agent) {
     state.agent.docCount = docIds.length;
@@ -406,15 +527,26 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     workUnits,
     missingClarifications: [],
     outputForm: resolvePlanOutputForm(intent, reportSpec.reportType, state.request.answerStyle),
-    documentPresentation: intent.documentPresentation,
     // Pause CRITIQUE for all analysis types (ACT → DONE). See CRITIQUE_PAUSED.
     skipCritique: true,
     reportSpec,
     rendererSchemaId: graph.rendererSchemaId,
     activeSkillIds: skills.map((s) => s.skillId),
     focus,
+    branches: branchGraph?.branches,
+    branchMode:
+      branchGraph && configuredBranchMode !== "off"
+        ? configuredBranchMode
+        : undefined,
     auditRecord,
-    requirementExecutionPaths: graph.packageResolution.requirementPaths,
+    requirementExecutionPaths:
+      configuredBranchMode === "compound" && branchGraph
+        ? branchGraph.requirementExecutionPaths
+        : graph.packageResolution.requirementPaths,
+    requirementBindings:
+      configuredBranchMode === "compound" && branchGraph
+        ? branchGraph.requirementBindings
+        : graph.packageResolution.requirementBindings,
     pinnedVersions: {
       clauseTaxonomyVersion:
         state.metadata.clauseTaxonomyVersion ?? CLAUSE_TAXONOMY_VERSION,
@@ -476,6 +608,7 @@ function buildAuditRecord(
   packageResolution?: {
     packages: { pkg: { id: string } }[];
     requirementToPackageId: Record<string, string>;
+    requirementBindings: PlanAuditRecord["requirementBindings"];
     requirementPaths: PlanAuditRecord["requirementExecutionPaths"];
     scopeAudit?: PlanAuditRecord["scopeAudit"];
   },
@@ -506,6 +639,7 @@ function buildAuditRecord(
     resolvedPackageIds: packageResolution?.packages.map((item) => item.pkg.id) ?? [],
     requirementToPackageId: packageResolution?.requirementToPackageId ?? {},
     requirementExecutionPaths: packageResolution?.requirementPaths ?? [],
+    requirementBindings: packageResolution?.requirementBindings ?? [],
     rawIntent: intentAudit?.rawIntent,
     intentNormalizations: intentAudit?.intentNormalizations,
     scopeAudit: packageResolution?.scopeAudit,
@@ -521,7 +655,6 @@ function emptyPlan(
     workUnits: [],
     missingClarifications: missing,
     outputForm: intent.outputForm,
-    documentPresentation: intent.documentPresentation,
     skipCritique: true,
     rendererSchemaId: "checklist",
     pinnedVersions: {

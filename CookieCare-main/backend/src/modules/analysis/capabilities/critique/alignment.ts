@@ -4,6 +4,7 @@ import type { AlignmentIssue, AlignmentReport } from "../../models/critique-repo
 import { analysisPackageKind } from "../../models/evidence-package.js";
 import { resolvePackages } from "../../skills/runtime/graph/resolve-packages.js";
 import { pacLog } from "../../utils/pac-log.js";
+import { requirementIdsEquivalent } from "../../shared/requirement-identity.js";
 
 function isTerminal(unit: AnalysisWorkUnit): boolean {
   return (
@@ -148,6 +149,29 @@ export function validateAlignment(state: AnalysisState): AlignmentReport {
     );
     const executed = relatedUnits.some((u) => isTerminal(u) && u.status !== "failed");
     if (relatedUnits.length === 0 || !executed) {
+      // Multiple active skills may contribute paths for the same requirement.
+      // Package resolution can intentionally suppress a broad structural
+      // package when a more specific peer package is scheduled. Any completed
+      // equivalent path therefore satisfies the execution-shape contract.
+      const equivalentExecuted = paths
+        .filter(
+          (candidate) =>
+            candidate.packageId &&
+            candidate.packageId !== path.packageId &&
+            requirementIdsEquivalent(
+              candidate.requirementId,
+              path.requirementId
+            )
+        )
+        .some((candidate) =>
+          workUnits.some(
+            (unit) =>
+              String(unit.input.packageId ?? "") === candidate.packageId &&
+              isTerminal(unit) &&
+              unit.status !== "failed"
+          )
+        );
+      if (equivalentExecuted) continue;
       const onlyRules = workUnits.some(
         (u) =>
           u.tool === "check_against_rule" &&

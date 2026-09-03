@@ -1,24 +1,33 @@
 import type { AnalysisState } from "../../models/analysis-state.js";
 import type { AnalysisWorkUnit, MissingClarification } from "../../models/analysis-plan.js";
 import type { Proposition } from "../../models/proposition.js";
+import type { PropositionPolarity } from "../../models/proposition.js";
 import type { InventoryItem } from "./build-inventory.js";
 import { executeJsonCompletion, LLMProvider, LLMTask } from "../../../../llm/index.js";
 import { extractPlaybookPositions } from "../act/extract-playbook-positions.js";
 import { ensureSegmented } from "./build-inventory.js";
+import { capabilityContractFor } from "../contracts/analysis-capability-contract.js";
 
-/** Operations shaped like "establish something and verify it" — S4 is only worth authoring for these. */
-const INVESTIGATION_OPERATIONS = new Set([
-  "risk_flag",
-  "compliance_check",
-  "explain_qa",
-  "compare",
-]);
+export function operationSupportsOpenProposition(
+  operation: string | undefined
+): boolean {
+  return capabilityContractFor(operation).supportsOpenPropositions;
+}
 
 const COMPARISON_RE =
   /\b(balanced|one[- ]sided|symmetric|asymmetric|mutual|reciprocal|favor|favou?rable|equitable|fair|equal|unequal|lopsided|disproportionate)\b/i;
 
 const COMPARISON_DIMENSIONS_RE =
   /\b(termination|liability|indemnif|data[- ]?use|data[- ]?processing|confidentiality|ip|intellectual property|non[- ]?compete|exclusivity|warranty|limitation of liability|governing law|jurisdiction|force majeure|assignment|subcontract|audit|breach|cure|notice)\b/gi;
+
+/** PLAN owns proposition meaning; ACT must not infer it from whichever lane ran. */
+function propositionPolarityForOperation(
+  operation: string | undefined
+): PropositionPolarity {
+  if (operation === "risk_flag") return "risk_present";
+  if (operation === "compliance_check") return "compliance_met";
+  return "neutral_fact";
+}
 
 /**
  * §4 step 8b, S2 source only — cross-reference the inventory (Plan-Phase 4)
@@ -51,6 +60,7 @@ export function generateS2Propositions(
         hypothesis: fillPartyTemplate(pattern.hypothesis, party),
         proofStandard: fillPartyTemplate(pattern.proofStandard, party),
         source: "S2",
+        polarity: propositionPolarityForOperation(state.intent?.operation),
         priority: pattern.priority,
         partyPerspective: party,
         clusterId,
@@ -129,6 +139,9 @@ export async function generateS4Proposition(
     `User's question: "${instruction}"`,
     `The document's own clause-type inventory found: ${clauseTypes.join(", ") || "(nothing recognized)"}.`,
     party ? `The user is asking from the perspective of: ${party}.` : "",
+    state.intent?.operation === "risk_flag"
+      ? "Frame the hypothesis as the specific adverse risk being tested, so proving it means the risk is present and contradicting it means the protection is present."
+      : "",
     "Author a single proposition to investigate this question against the document.",
   ]
     .filter(Boolean)
@@ -146,9 +159,157 @@ export async function generateS4Proposition(
     hypothesis: authored.hypothesis,
     proofStandard: authored.proofStandard,
     source: "S4",
+    polarity: propositionPolarityForOperation(state.intent?.operation),
     priority: authored.priority,
     partyPerspective: party,
   };
+}
+
+/** Default breadth for an open risk survey when the user names no number. */
+const DEFAULT_RISK_PROPOSITION_COUNT = 6;
+/** Upper bound on how many the author is asked for, even when the user says "top 50". */
+const MAX_RISK_PROPOSITION_REQUEST = 15;
+
+/**
+ * How many risk propositions to author. Honors an explicit user count
+ * ("top 10 risks" → exhaustiveness.mode="user_capped", limit=10); otherwise
+ * defaults to a 5–6 survey. `applyExhaustivenessTrim` and
+ * `MAX_OPEN_PROPOSITIONS` (build-open-plan) remain the downstream ceilings —
+ * this only decides how many to *generate*.
+ */
+function targetRiskPropositionCount(state: AnalysisState): number {
+  const ex = state.intent?.exhaustiveness;
+  if (ex?.mode === "user_capped" && ex.limit && ex.limit > 0) {
+    return Math.min(ex.limit, MAX_RISK_PROPOSITION_REQUEST);
+  }
+  return DEFAULT_RISK_PROPOSITION_COUNT;
+}
+
+interface S4AuthoredPropositions {
+  propositions: Array<{
+    hypothesis: string;
+    proofStandard: string;
+    priority: number;
+    /** Best-effort RISK_CLUSTERS key the item addresses; used for clusterId. */
+    cluster?: string;
+  }>;
+}
+
+const S4_MULTI_SCHEMA = {
+  type: "object",
+  properties: {
+    propositions: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          hypothesis: { type: "string" },
+          proofStandard: { type: "string" },
+          priority: { type: "number" },
+          cluster: { type: "string" },
+        },
+        required: ["hypothesis", "proofStandard", "priority"],
+      },
+    },
+  },
+  required: ["propositions"],
+};
+
+const S4_MULTI_SYSTEM_PROMPT = [
+  "You are a senior contracts lawyer surveying a contract for the risks that",
+  "most matter to the party asking. The user asked an open risk question that",
+  "no existing skill or pattern covers, so you must author several distinct",
+  '"propositions" — one per candidate risk worth investigating.',
+  "",
+  "Each proposition has:",
+  "- hypothesis: a one-sentence statement of a SPECIFIC ADVERSE thing that may",
+  "  be true about the document — phrased so it turns out true (the risk is",
+  "  present), false (the risk is not present), or unaddressed. Frame the",
+  '  adverse case, never the protection: write "The agreement caps the',
+  '  vendor\'s liability below the customer\'s realistic exposure", NOT "The',
+  '  agreement adequately protects the customer". A later step verifies each',
+  "  one; proving it means the risk is real, contradicting it means the",
+  "  customer is protected on that point.",
+  "- proofStandard: precise instructions for what to look for in the document",
+  "  and how to score it, the way you'd brief a first-year associate — name",
+  "  the concrete clause(s) and textual signals that would prove, disprove, or",
+  "  leave the hypothesis unaddressed. Never vague boilerplate.",
+  "- priority: integer 1-100, how central this risk is to what the user asked",
+  "  (a direct, explicit concern scores 70+).",
+  "- cluster (optional): which risk area this addresses — one of",
+  '  "risk_exposure", "exit_and_control", or "data_governance".',
+  "",
+  "Rules:",
+  "- You have not read the document, only its clause-type inventory. Do not",
+  "  answer the question or assume what the document says — proofStandard is",
+  "  instructions for a later verification step, not a conclusion.",
+  "- Author DISTINCT, non-overlapping risks. Spread them across the risk areas",
+  "  suggested below rather than restating one risk several ways. Anchor each",
+  "  to clause types the inventory actually shows where you can.",
+  "- Order by priority, highest first.",
+].join("\n");
+
+/**
+ * §4 step 8b, S4 fallback (risk-survey variant) — for an open `risk_flag`
+ * question no S1/S2 source covers, author SEVERAL bespoke risk propositions
+ * (default 5–6, or the user's explicit count) rather than a single guess.
+ * Seeds the author with the document's own clause-type inventory plus the
+ * RISK_CLUSTERS lenses so coverage spans liability, exit/control, and data
+ * governance. Each hypothesis is framed as "an adverse thing is true", so
+ * downstream VERIFY reads proves=risk-present / contradicts=risk-absent
+ * (buildVerifiedFinding's risk lane). Falls back to `generateS4Proposition`
+ * (single) at the call site if this returns nothing.
+ */
+export async function generateS4Propositions(
+  state: AnalysisState,
+  inventory: InventoryItem[]
+): Promise<Proposition[]> {
+  const instruction = state.request.instruction.trim();
+  if (!instruction) return [];
+
+  const party = state.intent?.partyPerspective ?? undefined;
+  const clauseTypes = [...new Set(inventory.map((item) => item.clauseType))];
+  const count = targetRiskPropositionCount(state);
+
+  const clusterLenses = Object.entries(RISK_CLUSTERS)
+    .map(([id, types]) => `- ${id}: ${types.join(", ")}`)
+    .join("\n");
+
+  const prompt = [
+    `User's question: "${instruction}"`,
+    `The document's own clause-type inventory found: ${clauseTypes.join(", ") || "(nothing recognized)"}.`,
+    `Risk areas to consider (cluster: relevant clause types):\n${clusterLenses}`,
+    party ? `The user is asking from the perspective of: ${party}.` : "",
+    `Author ${count} distinct risk propositions to investigate against the document, ordered by priority.`,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+
+  const authored = await executeJsonCompletion<S4AuthoredPropositions>(
+    prompt,
+    S4_MULTI_SYSTEM_PROMPT,
+    S4_MULTI_SCHEMA,
+    LLMTask.STRUCTURAL_JSON_LITE,
+    LLMProvider.GEMINI
+  );
+
+  const items = authored?.propositions ?? [];
+  return items
+    .filter((item) => item.hypothesis?.trim() && item.proofStandard?.trim())
+    .map((item) => {
+      const clusterId =
+        item.cluster && item.cluster in RISK_CLUSTERS ? item.cluster : undefined;
+      return {
+        hypothesis: item.hypothesis,
+        proofStandard: item.proofStandard,
+        source: "S4" as const,
+        polarity: "risk_present" as const,
+        priority: typeof item.priority === "number" ? item.priority : 50,
+        partyPerspective: party,
+        clusterId,
+      };
+    })
+    .sort((a, b) => b.priority - a.priority);
 }
 
 /**
@@ -230,6 +391,7 @@ export async function generateS3Propositions(
         `judge against any other standard. Severity if this position is violated: ` +
         `${position.severityIfViolated}.`,
       source: "S3",
+      polarity: "control_present",
       priority: severityToPriority(position.severityIfViolated),
       partyPerspective: party,
     };
@@ -358,6 +520,7 @@ export async function decomposeReasoningAsk(
       hypothesis: decomposed.side_a.hypothesis,
       proofStandard: decomposed.side_a.proofStandard,
       source: "S4",
+      polarity: "neutral_fact",
       priority: 80,
       partyPerspective: party,
       compareGroup: groupId,
@@ -367,6 +530,7 @@ export async function decomposeReasoningAsk(
       hypothesis: decomposed.side_b.hypothesis,
       proofStandard: decomposed.side_b.proofStandard,
       source: "S4",
+      polarity: "neutral_fact",
       priority: 80,
       partyPerspective: party,
       compareGroup: groupId,
@@ -466,9 +630,59 @@ function applyExhaustivenessTrim(
   state: AnalysisState
 ): Proposition[] {
   const ex = state.intent?.exhaustiveness;
-  if (!ex || ex.mode !== "user_capped" || !ex.limit) return propositions;
-  const sorted = [...propositions].sort((a, b) => b.priority - a.priority);
-  return sorted.slice(0, ex.limit);
+  const limit =
+    ex?.mode === "user_capped" && ex.limit
+      ? ex.limit
+      : state.intent?.operation === "risk_flag"
+        ? explicitRiskResultLimit(state.request.instruction)
+        : undefined;
+  if (!limit) return propositions;
+
+  const instructionTerms = significantTerms(state.request.instruction);
+  const sorted = [...propositions].sort((a, b) => {
+    const relevanceDelta =
+      instructionRelevance(b, instructionTerms) -
+      instructionRelevance(a, instructionTerms);
+    return relevanceDelta || b.priority - a.priority;
+  });
+  return sorted.slice(0, limit);
+}
+
+export function explicitRiskResultLimit(instruction: string): number | undefined {
+  const match = instruction.match(
+    /\b(?:top|first|highest|rank(?:ed|ing)?(?:\s+the)?(?:\s+top)?)\s+(\d{1,2})\b/i
+  );
+  if (!match) return undefined;
+  const parsed = Number(match[1]);
+  return Number.isFinite(parsed) && parsed > 0
+    ? Math.min(parsed, MAX_RISK_PROPOSITION_REQUEST)
+    : undefined;
+}
+
+function significantTerms(text: string): Set<string> {
+  return new Set(
+    text
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, " ")
+      .split(/\s+/)
+      .filter((term) => term.length >= 5)
+      .map((term) => term.replace(/(?:ing|ed|es|s)$/i, ""))
+  );
+}
+
+function instructionRelevance(
+  proposition: Proposition,
+  instructionTerms: Set<string>
+): number {
+  if (instructionTerms.size === 0) return 0;
+  const propositionTerms = significantTerms(
+    `${proposition.hypothesis} ${proposition.proofStandard} ${proposition.clusterId ?? ""}`
+  );
+  let score = 0;
+  for (const term of instructionTerms) {
+    if (propositionTerms.has(term)) score += 1;
+  }
+  return score;
 }
 
 /**
@@ -493,7 +707,7 @@ export async function generatePropositions(
   }
 
   const operation = state.intent?.operation;
-  if (!operation || !INVESTIGATION_OPERATIONS.has(operation)) {
+  if (!operationSupportsOpenProposition(operation)) {
     return { propositions: [] };
   }
 
@@ -502,6 +716,22 @@ export async function generatePropositions(
     const paired = await decomposeReasoningAsk(state, inventory);
     if (paired.length > 0) {
       return { propositions: applyExhaustivenessTrim(paired, state) };
+    }
+  }
+
+  // Open risk questions survey several distinct risks (default 5–6, or the
+  // user's explicit count) instead of testing a single guess. Gated to
+  // risk_flag so it lines up with buildVerifiedFinding's risk lane; the other
+  // investigation operations keep the neutral single-item author.
+  const requiredCount = (state.intent?.requirements ?? []).filter(
+    (requirement) => requirement.priority === "required"
+  ).length;
+  const boundedSingleRisk =
+    requiredCount === 1 && state.intent?.exhaustiveness?.mode !== "user_capped";
+  if (operation === "risk_flag" && !boundedSingleRisk) {
+    const riskProps = await generateS4Propositions(state, inventory);
+    if (riskProps.length > 0) {
+      return { propositions: applyExhaustivenessTrim(riskProps, state) };
     }
   }
 

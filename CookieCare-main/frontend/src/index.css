@@ -673,6 +673,18 @@
   line-height: 1.55;
 }
 
+/* Requirements matrix: fixed column widths, scroll inside .md-table-requirements-wrap */
+.md-content table.md-table-requirements {
+  width: max-content;
+  min-width: 1180px;
+  table-layout: auto;
+}
+
+.md-content table.md-table-requirements thead th,
+.md-content table.md-table-requirements tbody td {
+  max-width: none;
+}
+
 /* Header */
 .md-content thead tr,
 .richtext-editor thead tr,

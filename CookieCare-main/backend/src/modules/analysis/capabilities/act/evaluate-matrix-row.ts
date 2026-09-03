@@ -30,6 +30,7 @@ type MatrixJudgment = {
   implementationSeverity?: "low" | "medium" | "high";
   clauseId?: string;
   quotedText?: string;
+  evidence?: Array<{ clauseId: string; quotedText: string }>;
   severity: "low" | "medium" | "high";
   remedialInstruction?: string;
   justification?: string;
@@ -87,7 +88,7 @@ async function _evaluateMatrixRowImpl(
       kind: "compliance",
       category: row.findingCategory,
       status: "insufficient_evidence",
-      claim: `No relevant clauses were available to evaluate ${subject}.`,
+      claim: `No related clauses were found for ${subject}.`,
       evidence: [],
       severity: "medium",
       taxonomyVersion: RISK_TAXONOMY_VERSION,
@@ -117,11 +118,28 @@ async function _evaluateMatrixRowImpl(
       implementationSeverity: { type: "string", enum: ["low", "medium", "high"] },
       clauseId: { type: "string" },
       quotedText: { type: "string", description: "Verbatim clause excerpt, at most 400 characters." },
+      evidence: {
+        type: "array",
+        maxItems: 3,
+        description:
+          "Source support. Each item must pair one supplied clauseId with a verbatim substring from that same clause. Use multiple items when the judgment relies on multiple clauses; use [] when addressing is absent.",
+        items: {
+          type: "object",
+          properties: {
+            clauseId: { type: "string" },
+            quotedText: {
+              type: "string",
+              description: "Verbatim excerpt from the identified clause, at most 400 characters.",
+            },
+          },
+          required: ["clauseId", "quotedText"],
+        },
+      },
       severity: { type: "string", enum: ["low", "medium", "high"] },
       remedialInstruction: { type: "string", description: "At most two sentences." },
       justification: { type: "string", description: "At most two sentences." },
     },
-    required: ["addressing", "claim", "severity", "justification"],
+    required: ["addressing", "claim", "severity", "justification", "evidence"],
   };
 
   let raw: MatrixJudgment;
@@ -163,17 +181,16 @@ async function _evaluateMatrixRowImpl(
         visibility: "user_facing",
         matrixRowId: rowId,
         matrixAddressing: "absent",
-        gap: "matrix_row_timeout",
         ruleSourceTier: "B",
+        terminalStatus: "retries_exhausted",
       };
       return { state, findings: [...findings, finding] };
     }
     raw = {
       addressing: "absent",
-      claim: `Could not determine whether ${subject} is addressed (LLM unavailable).`,
-      gap: "Insufficient evidence to classify this right.",
+      claim: `The check for ${subject} could not be completed because analysis was temporarily unavailable.`,
       severity: "medium",
-      justification: "LLM unavailable",
+      justification: "Temporary analysis failure.",
     };
   }
 
@@ -192,10 +209,13 @@ async function _evaluateMatrixRowImpl(
     };
   }
 
-  const clause =
-    (raw.clauseId && clauses.find((c) => c.clauseId === raw.clauseId)) ||
-    clauses[0];
-  const quote = raw.quotedText?.trim();
+  // Positive matrix findings must keep a deterministic provenance chain back
+  // to the candidate clauses. Never silently attach an LLM quote to the first
+  // clause: missing/invented ids and non-source text fail closed. Multiple
+  // evidence items let a judgment rely on (for example) a named right in one
+  // clause and an operational assistance duty in another without joining the
+  // two passages into a fabricated quote.
+  const evidence = resolveGroundedMatrixEvidence(clauses, raw);
   const claimWithJustification = raw.justification
     ? `${raw.claim} (Justification: ${raw.justification})`
     : raw.claim;
@@ -219,22 +239,7 @@ async function _evaluateMatrixRowImpl(
         ? "absent_expected"
         : "present",
     claim: claimWithJustification,
-    evidence:
-      quote && clause
-        ? [{ locator: clause.locator, quotedText: quote, sourceRole: "target" }]
-        : quote
-          ? [
-              {
-                locator: {
-                  docId,
-                  structuralPath: "matrix-row",
-                  charRange: [0, Math.min(quote.length, doc.fullText.length)] as [number, number],
-                },
-                quotedText: quote,
-                sourceRole: "target" as const,
-              },
-            ]
-          : [],
+    evidence,
     severity: resolvedSeverity,
     taxonomyVersion: RISK_TAXONOMY_VERSION,
     workUnitId: unit.workUnitId,
@@ -341,7 +346,7 @@ export function buildMatrixEvaluationPrompt(args: {
     args.row.applicabilityGate?.llmGuidance ?? "",
     "Even when addressing=named, set implementationGap to any operational shortfall the contract still has for this right. Leave implementationGap empty only when the contract both names the right AND operationalises it.",
     "When implementationGap is set, also set implementationSeverity (medium or high for material legal exposure).",
-    "quotedText must be copied VERBATIM from a clause when addressing is named or generic.",
+    "When addressing is named or generic, evidence must contain every clause needed for the judgment. Each evidence item must use exactly one supplied clauseId and quotedText copied VERBATIM from that same clause. Never join text from different clauses into one quote; use separate evidence items. When addressing is absent, return evidence=[].",
     `Clauses:\n${JSON.stringify(
       args.clauses.map((c) => ({
         clauseId: c.clauseId,
@@ -380,6 +385,153 @@ export function selectRelevantClauses(
         return preferred.length > 0 ? preferred : clauses;
       })();
   return pool.slice(0, MATRIX_ROW_MAX_CLAUSES);
+}
+
+type NormalizedSource = {
+  text: string;
+  starts: number[];
+  ends: number[];
+};
+
+function normalizeSourceWithOffsets(source: string): NormalizedSource {
+  let text = "";
+  const starts: number[] = [];
+  const ends: number[] = [];
+
+  for (let index = 0; index < source.length; index += 1) {
+    const char = source[index];
+    if (/\s/.test(char)) {
+      if (text.length === 0) continue;
+      if (text[text.length - 1] === " ") {
+        ends[ends.length - 1] = index + 1;
+      } else {
+        text += " ";
+        starts.push(index);
+        ends.push(index + 1);
+      }
+      continue;
+    }
+
+    const lowered = char.toLowerCase();
+    for (const loweredChar of lowered) {
+      text += loweredChar;
+      starts.push(index);
+      ends.push(index + 1);
+    }
+  }
+
+  if (text.endsWith(" ")) {
+    text = text.slice(0, -1);
+    starts.pop();
+    ends.pop();
+  }
+  return { text, starts, ends };
+}
+
+function exactSourceSlice(
+  source: string,
+  normalized: NormalizedSource,
+  normalizedStart: number,
+  normalizedLength: number
+): string | undefined {
+  if (normalizedStart < 0 || normalizedLength <= 0) return undefined;
+  const start = normalized.starts[normalizedStart];
+  const end = normalized.ends[normalizedStart + normalizedLength - 1];
+  if (start === undefined || end === undefined) return undefined;
+  return source.slice(start, end).trim();
+}
+
+/**
+ * Resolve model-supplied matrix evidence to an exact source substring.
+ *
+ * Exact quotes are mapped back to their original spacing/casing. If the model
+ * improperly joined source fragments with an ellipsis, the ordered anchors are
+ * located in the source and replaced with one contiguous source excerpt. A
+ * quote that cannot be resolved is rejected instead of being approximately or
+ * synthetically grounded.
+ */
+export function resolveGroundedMatrixQuote(
+  source: string,
+  rawQuote?: string,
+  maxChars = 400
+): string | undefined {
+  const candidate = rawQuote?.trim();
+  if (!candidate || !source.trim()) return undefined;
+
+  const normalizedSource = normalizeSourceWithOffsets(source);
+  const normalizedQuote = candidate.replace(/\s+/g, " ").trim().toLowerCase();
+  const exactIndex = normalizedSource.text.indexOf(normalizedQuote);
+  if (exactIndex >= 0) {
+    return exactSourceSlice(
+      source,
+      normalizedSource,
+      exactIndex,
+      normalizedQuote.length
+    );
+  }
+
+  const anchors = candidate
+    .split(/(?:\.\.\.|…)/)
+    .map((part) => part.replace(/\s+/g, " ").trim().toLowerCase())
+    .filter((part) => part.length >= 8);
+  if (anchors.length < 2) return undefined;
+
+  const matches: Array<{ start: number; end: number }> = [];
+  let cursor = 0;
+  for (const anchor of anchors) {
+    const start = normalizedSource.text.indexOf(anchor, cursor);
+    if (start < 0) return undefined;
+    matches.push({ start, end: start + anchor.length });
+    cursor = start + anchor.length;
+  }
+
+  const spanStart = matches[0].start;
+  const spanEnd = matches[matches.length - 1].end;
+  const full = exactSourceSlice(
+    source,
+    normalizedSource,
+    spanStart,
+    spanEnd - spanStart
+  );
+  if (full && full.length <= maxChars) return full;
+
+  // When distant fragments exceed the evidence cap, keep an exact window
+  // around the final anchor. The trailing fragment normally contains the
+  // discriminating right/obligation after a generic lead-in.
+  const focus = matches[matches.length - 1];
+  const focusStart = normalizedSource.starts[focus.start];
+  const focusEnd = normalizedSource.ends[focus.end - 1];
+  if (focusStart === undefined || focusEnd === undefined) return undefined;
+  const padding = Math.max(0, maxChars - (focusEnd - focusStart));
+  const start = Math.max(0, focusStart - Math.floor(padding / 2));
+  const end = Math.min(source.length, start + maxChars);
+  return source.slice(start, end).trim();
+}
+
+/** Resolve structured (or legacy single-item) matrix evidence without guessing. */
+export function resolveGroundedMatrixEvidence(
+  clauses: ClauseObject[],
+  judgment: Pick<MatrixJudgment, "evidence" | "clauseId" | "quotedText">
+): Finding["evidence"] {
+  const refs = judgment.evidence?.length
+    ? judgment.evidence
+    : judgment.clauseId && judgment.quotedText
+      ? [{ clauseId: judgment.clauseId, quotedText: judgment.quotedText }]
+      : [];
+
+  const resolved: Finding["evidence"] = [];
+  for (const ref of refs) {
+    const clause = clauses.find((candidate) => candidate.clauseId === ref.clauseId);
+    if (!clause) continue;
+    const quotedText = resolveGroundedMatrixQuote(clause.text, ref.quotedText);
+    if (!quotedText) continue;
+    resolved.push({
+      locator: clause.locator,
+      quotedText,
+      sourceRole: "target",
+    });
+  }
+  return resolved;
 }
 
 export function clausesFromSharedEvidence(

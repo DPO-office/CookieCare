@@ -577,6 +577,80 @@ export const ANALYZE_STYLES = `
   margin: 1.75rem 0;
 }
 
+/* Compound reports: overview + operation-specific workstream cards. */
+.analyze-report-prose .md-analysis-overview {
+  margin: 0 0 1.5rem;
+  padding: 1.5rem 1.6rem 1.35rem;
+  border: 1px solid #E0E7FF;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #FFFFFF 0%, #F7F8FF 100%);
+  box-shadow: 0 8px 28px rgba(79, 91, 217, 0.07);
+}
+
+.analyze-report-prose .md-content .md-analysis-title {
+  margin: 0 0 0.75rem;
+  padding: 0;
+  border: 0;
+  font-size: 1.55rem;
+  letter-spacing: -0.035em;
+}
+
+.analyze-report-prose .md-analysis-overview blockquote {
+  margin: 0.65rem 0 1rem;
+  border-left-color: #4F5BD9;
+  background: rgba(238, 242, 255, 0.8);
+}
+
+.analyze-report-prose .md-analysis-overview .md-table-wrap {
+  margin: 0.8rem 0 0;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
+}
+
+.analyze-report-prose .md-analysis-workstream {
+  margin: 1.35rem 0;
+  padding: 1.45rem 1.6rem 1.6rem;
+  border: 1px solid #E9EAEC;
+  border-radius: 18px;
+  background: #FFFFFF;
+  box-shadow: 0 5px 20px rgba(15, 23, 42, 0.045);
+}
+
+.analyze-report-prose .md-analysis-workstream > h2 {
+  margin: 0 0 0.3rem;
+  padding: 0 0 0.7rem;
+  border-bottom: 1px solid #EEF0F4;
+  color: #1F2A5A;
+  font-size: 1.2rem;
+  letter-spacing: -0.028em;
+}
+
+.analyze-report-prose .md-analysis-workstream > h2 + p {
+  margin: 0.45rem 0 1.1rem;
+  color: #667085;
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.analyze-report-prose .md-analysis-workstream h3 {
+  margin-top: 1.45rem;
+  padding-top: 0.1rem;
+  color: #111827;
+  font-size: 1rem;
+}
+
+.analyze-report-prose .md-analysis-workstream h4 {
+  color: #344054;
+  font-size: 0.92rem;
+}
+
+@media (max-width: 720px) {
+  .analyze-report-prose .md-analysis-overview,
+  .analyze-report-prose .md-analysis-workstream {
+    padding: 1.1rem;
+    border-radius: 14px;
+  }
+}
+
 /* ── Prose container: constrain text, free tables ─────────────────────────
    The outer container has no max-width so tables can use full available
    width. Message blocks (avatar + content) are constrained for readability
@@ -600,18 +674,61 @@ export const ANALYZE_STYLES = `
   max-width: 720px;
 }
 
+.analyze-prose-container[data-has-wide-table="true"] > div {
+  max-width: 1100px;
+  min-width: 0;
+}
+
+.analyze-prose-container[data-has-refs="true"][data-has-wide-table="true"] > div {
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* Wide requirements table: constrain flex children so inner scroll wrapper works */
+.analyze-report-prose--wide-table {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.analyze-report-prose--wide-table .md-content {
+  min-width: 0;
+  max-width: 100%;
+}
+
 /* ── Tables inside analyze prose ────────────────────────────────────────── */
 .analyze-report-prose .md-content .md-table-wrap {
   width: 100%;
+  max-width: 100%;
   margin-top: 1rem;
   margin-bottom: 1.25rem;
   border-radius: 10px;
-  /* No horizontal scroll — the table always fits the content width */
-  overflow-x: visible;
-  overflow-y: visible;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  overscroll-behavior-y: none;
+  scrollbar-width: thin;
+  scrollbar-color: #C4C9D2 #F3F4F6;
 }
 
-.analyze-report-prose .md-content table {
+.analyze-report-prose .md-content .md-table-wrap::-webkit-scrollbar {
+  height: 8px;
+}
+
+.analyze-report-prose .md-content .md-table-wrap::-webkit-scrollbar-track {
+  background: #F3F4F6;
+  border-radius: 0 0 10px 10px;
+}
+
+.analyze-report-prose .md-content .md-table-wrap::-webkit-scrollbar-thumb {
+  background: #C4C9D2;
+  border-radius: 9999px;
+}
+
+.analyze-report-prose .md-content .md-table-wrap::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
+.analyze-report-prose .md-content table:not(.md-table-requirements) {
   font-size: 13px;
   line-height: 1.5;
   /* fixed: honour percentage widths exactly; never let content fight for space */
@@ -649,24 +766,161 @@ export const ANALYZE_STYLES = `
    col 2  Status                  16%  — badge / short phrase
    col 3  Evidence / Clause       28%  — clamped prose, expand on demand
    col 4  Finding                 36%  — AI commentary, primary reading column
+   (Skip requirements + other 5+ column tables — they have their own layout.)
    ────────────────────────────────────────────────────────────────────── */
-.analyze-report-prose .md-content table th:nth-child(1),
-.analyze-report-prose .md-content table td:nth-child(1) { width: 20%; } /* Category */
+.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-many-cols) th:nth-child(1),
+.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-many-cols) td:nth-child(1) { width: 20%; }
 
-.analyze-report-prose .md-content table th:nth-child(2),
-.analyze-report-prose .md-content table td:nth-child(2) { width: 16%; overflow: hidden; } /* Status */
+.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-many-cols) th:nth-child(2),
+.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-many-cols) td:nth-child(2) { width: 16%; overflow: hidden; }
 
-.analyze-report-prose .md-content table th:nth-child(3),
-.analyze-report-prose .md-content table td:nth-child(3) { width: 28%; } /* Evidence / Clause */
+.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-many-cols) th:nth-child(3),
+.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-many-cols) td:nth-child(3) { width: 28%; }
 
-.analyze-report-prose .md-content table th:nth-child(4),
-.analyze-report-prose .md-content table td:nth-child(4) { width: 36%; } /* Finding */
+.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-many-cols) th:nth-child(4),
+.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-many-cols) td:nth-child(4) { width: 36%; }
 
-/* 5-column+ tables: revert to auto so the browser distributes extra columns */
+/* 5-column+ tables (non-requirements): revert to auto so the browser distributes extra columns */
 .analyze-report-prose .md-content table.md-table-many-cols {
   table-layout: auto;
   width: 100%;
 }
+
+/* ── Requirements at a glance — 5-column tabular layout ───────────────── */
+.analyze-report-prose .md-content .md-table-requirements-wrap {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  overscroll-behavior-y: none;
+  margin-top: 0.75rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #E9EAEC;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  scrollbar-width: thin;
+  scrollbar-color: #C4C9D2 #F3F4F6;
+}
+
+.analyze-report-prose .md-content .md-table-requirements-wrap::-webkit-scrollbar {
+  height: 8px;
+}
+
+.analyze-report-prose .md-content .md-table-requirements-wrap::-webkit-scrollbar-track {
+  background: #F3F4F6;
+  border-radius: 0 0 12px 12px;
+}
+
+.analyze-report-prose .md-content .md-table-requirements-wrap::-webkit-scrollbar-thumb {
+  background: #C4C9D2;
+  border-radius: 9999px;
+}
+
+.analyze-report-prose .md-content .md-table-requirements-wrap::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
+.analyze-report-prose .md-content table.md-table-requirements {
+  display: table;
+  width: max-content;
+  min-width: 1180px;
+  /* auto: honour per-column min-widths and force the wrapper to scroll */
+  table-layout: auto;
+  border-collapse: collapse;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.analyze-report-prose .md-content table.md-table-requirements thead {
+  display: table-header-group;
+}
+
+.analyze-report-prose .md-content table.md-table-requirements tbody {
+  display: table-row-group;
+}
+
+.analyze-report-prose .md-content table.md-table-requirements tr {
+  display: table-row;
+}
+
+.analyze-report-prose .md-content table.md-table-requirements th,
+.analyze-report-prose .md-content table.md-table-requirements td {
+  display: table-cell;
+  vertical-align: top;
+  text-align: left;
+  padding: 11px 14px;
+  border-bottom: 1px solid #F2F4F7;
+  max-width: none !important;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  color: #344054;
+  overflow: hidden;
+}
+
+.analyze-report-prose .md-content table.md-table-requirements thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #F7F8FA;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6B7280;
+  border-bottom: 1px solid #E9EAEC;
+  white-space: nowrap;
+  padding: 10px 14px;
+}
+
+.analyze-report-prose .md-content table.md-table-requirements th:nth-child(1),
+.analyze-report-prose .md-content table.md-table-requirements td:nth-child(1) {
+  width: 180px;
+  min-width: 180px;
+}
+
+.analyze-report-prose .md-content table.md-table-requirements th:nth-child(2),
+.analyze-report-prose .md-content table.md-table-requirements td:nth-child(2) {
+  width: 160px;
+  min-width: 160px;
+}
+
+.analyze-report-prose .md-content table.md-table-requirements th:nth-child(3),
+.analyze-report-prose .md-content table.md-table-requirements td:nth-child(3) {
+  width: 260px;
+  min-width: 260px;
+}
+
+.analyze-report-prose .md-content table.md-table-requirements th:nth-child(4),
+.analyze-report-prose .md-content table.md-table-requirements td:nth-child(4) {
+  width: 320px;
+  min-width: 320px;
+}
+
+.analyze-report-prose .md-content table.md-table-requirements th:nth-child(5),
+.analyze-report-prose .md-content table.md-table-requirements td:nth-child(5) {
+  width: 260px;
+  min-width: 260px;
+}
+
+.analyze-report-prose .md-content table.md-table-requirements tbody td:nth-child(1) {
+  font-weight: 650;
+  color: #111827;
+}
+
+.analyze-report-prose .md-content table.md-table-requirements tbody td:nth-child(2) {
+  overflow: hidden;
+}
+
+.analyze-report-prose .md-content table.md-table-requirements tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Hover highlight disabled while scrolling — see .analyze-report-scroll.is-scrolling above */
 
 /* ── Evidence / clause cell: 3-line clamp with expand ────────────────────
    .md-clause-text          — clamped to 3 lines by default
@@ -751,7 +1005,8 @@ export const ANALYZE_STYLES = `
 .analyze-report-prose .md-status-grey   { background: rgba(107, 114, 128, 0.10); color: #4B5563; }
 
 /* Streaming caret */
-.analyze-report-prose.is-streaming .md-content::after {
+.analyze-report-prose.is-streaming .md-content::after,
+.analyze-report-prose.is-streaming .md-content--plain-stream::after {
   content: "";
   display: inline-block;
   width: 0.45em;
@@ -826,11 +1081,41 @@ export const ANALYZE_STYLES = `
 }
 
 .analyze-chat-session {
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.92);
   border-radius: 999px;
   box-shadow: 0 1px 2px rgba(16,24,40,0.04), 0 0 0 1px rgba(16,24,40,0.06);
+}
+
+.analyze-report-scroll {
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
+  scroll-behavior: auto;
+  overflow-anchor: auto;
+  transform: translateZ(0);
+}
+
+@media (pointer: coarse) {
+  .analyze-report-scroll .md-table-wrap,
+  .analyze-report-scroll .md-table-requirements-wrap {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+.analyze-report-prose .md-content table.md-table-requirements tbody tr:hover td {
+  background: #FAFBFC;
+}
+
+.analyze-report-scroll.is-scrolling .analyze-report-prose table.md-table-requirements tbody tr:hover td {
+  background: transparent;
+}
+
+.analyze-report-prose .md-content--plain-stream {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: #3F3F46;
 }
 
 .analyze-user-bubble {

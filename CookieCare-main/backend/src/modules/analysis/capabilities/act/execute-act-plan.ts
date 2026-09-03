@@ -1,6 +1,7 @@
 import type { AnalysisState } from "../../models/analysis-state.js";
 import type { AnalysisWorkUnit, AnalysisToolName } from "../../models/analysis-plan.js";
 import type { Finding } from "../../models/finding.js";
+import { normalizeFindingSemantics } from "../../shared/finding-semantics.js";
 import { segmentDocument, resolveSpan } from "../../segmentation/segment-document.js";
 import { topologicalBatches } from "../../utils/topo-batches.js";
 import { classifyDocument } from "./classify-document.js";
@@ -17,6 +18,7 @@ import { evaluatePackage } from "./evaluate-package.js";
 import { inventoryProvisions } from "./inventory-provisions.js";
 import { deriveRisk } from "./derive-risk.js";
 import { aggregateRequirements } from "./aggregate-requirements.js";
+import { mergeBranchOutputs } from "../reporting/merge-branch-outputs.js";
 import { insufficient } from "./act-utils.js";
 import { pacLog, pacWarn } from "../../utils/pac-log.js";
 import {
@@ -35,6 +37,7 @@ const SILENT_SUCCESS_NOTES: Partial<Record<AnalysisToolName, string>> = {
   inventory_provisions: "no inventory records extracted",
   aggregate_requirements: "requirement assessments built, no finding by design",
   derive_risk: "no mechanically-implied risk to derive",
+  merge_branch_outputs: "branch reports merged deterministically",
 };
 
 /**
@@ -178,6 +181,18 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
   }
 
   const actStarted = Date.now();
+  if (plan.branches?.length) {
+    state = {
+      ...state,
+      branchReports: {},
+      branchDiagnostics: Object.fromEntries(
+        plan.branches.map((branch) => [
+          branch.facetId,
+          { status: "pending" as const, startedAtMs: actStarted, modelCalls: 0 },
+        ])
+      ),
+    };
+  }
   const packageEvalCount = runnable.filter(
     (u) => u.tool === "evaluate_package"
   ).length;
@@ -207,6 +222,7 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
       const batchPriorState = state;
       const outcomes = await runConcurrent(parallel, ACT_CONCURRENCY, async (unit) => {
         const started = Date.now();
+        const tokensBefore = state.agent?.tokensUsed ?? 0;
         const waitMs = started - batchStart;
         pacLog(`ACT ▶ [${actStageForTool(unit.tool)}] ${unit.tool}`, {
           id: unit.workUnitId,
@@ -215,8 +231,16 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
           wait_ms: waitMs,
         });
         try {
+          const ceilingReason = branchCeilingReason(state, unit, started);
+          if (ceilingReason) throw new Error(ceilingReason);
           const result = await runTool(state, unit, base);
-          const emitted = result.findings.filter((f) => !baseIds.has(f.findingId));
+          const emitted = stampFacetOnFindings(
+            normalizeFindingSemantics(
+              result.findings.filter((f) => !baseIds.has(f.findingId)),
+              state
+            ),
+            unit
+          );
           const ms = Date.now() - started;
           pacLog(`ACT ✓ [${actStageForTool(unit.tool)}] ${unit.tool}`, {
             id: unit.workUnitId,
@@ -232,6 +256,7 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
             emitted,
             failed: false as const,
             ms,
+            tokenDelta: Math.max(0, (result.state.agent?.tokensUsed ?? tokensBefore) - tokensBefore),
             toolState: result.state,
           };
         } catch (err) {
@@ -247,6 +272,7 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
             failed: true as const,
             note: err instanceof Error ? err.message : String(err),
             ms,
+            tokenDelta: 0,
             toolState: state,
           };
         }
@@ -265,6 +291,14 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
             },
           };
         }
+        state = recordBranchOutcome(
+          state,
+          outcome.unit,
+          outcome.ms,
+          outcome.failed ? outcome.note : undefined,
+          outcome.emitted,
+          outcome.tokenDelta
+        );
         stepCounter += 1;
         logActStepInspect({
           unit: outcome.unit,
@@ -313,6 +347,7 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
       const priorFindings = findings;
       const priorState = state;
       const started = Date.now();
+      const tokensBefore = state.agent?.tokensUsed ?? 0;
       const waitMs = started - batchStart;
       pacLog(`ACT ▶ [${actStageForTool(unit.tool)}] ${unit.tool}`, {
         id: unit.workUnitId,
@@ -321,9 +356,14 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
         wait_ms: waitMs,
       });
       try {
+        const ceilingReason = branchCeilingReason(state, unit, started);
+        if (ceilingReason) throw new Error(ceilingReason);
         const result = await runTool(state, unit, findings);
         state = result.state;
-        findings = result.findings;
+        findings = stampFacetOnFindings(
+          normalizeFindingSemantics(result.findings, state),
+          unit
+        );
         const emittedFindings = findings.slice(priorFindings.length);
         const emitted = emittedFindings.length;
         units = units.map((u) =>
@@ -340,6 +380,14 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
             : u
         );
         const ms = Date.now() - started;
+        state = recordBranchOutcome(
+          state,
+          unit,
+          ms,
+          undefined,
+          emittedFindings,
+          Math.max(0, (state.agent?.tokensUsed ?? tokensBefore) - tokensBefore)
+        );
         pacLog(`ACT ✓ [${actStageForTool(unit.tool)}] ${unit.tool}`, {
           id: unit.workUnitId,
           ms,
@@ -388,21 +436,36 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
               }
             : u
         );
+        state = recordBranchOutcome(
+          state,
+          unit,
+          ms,
+          err instanceof Error ? err.message : String(err),
+          [],
+          0
+        );
       }
       finishedUnits += 1;
     }
   }
 
+  const normalizedFindings = normalizeFindingSemantics(findings, state);
+  pacLog("ACT finding channels", {
+    compliance: normalizedFindings.filter((f) => f.polarity === "compliance_met").length,
+    risks: normalizedFindings.filter((f) => f.polarity === "risk_present").length,
+    controls: normalizedFindings.filter((f) => f.polarity === "control_present").length,
+    neutral: normalizedFindings.filter((f) => f.polarity === "neutral_fact").length,
+  });
   pacLog("ACT done", {
     ms: Date.now() - actStarted,
     groupedEvals: packageEvalCount,
     requirements: state.requirementAssessments?.length ?? 0,
-    findings: findings.length,
+    findings: normalizedFindings.length,
   });
 
   const finalState = {
     ...state,
-    findings,
+    findings: normalizedFindings,
     plan: { ...plan, workUnits: units },
     fixPlan: null,
     repairContext: null,
@@ -482,11 +545,107 @@ async function runTool(
       const next = await renderOutput(state, findings, unit);
       return { state: next, findings: next.findings };
     }
+    case "merge_branch_outputs":
+      return mergeBranchOutputs(state, unit, findings);
     default: {
       const _exhaustive: never = unit.tool;
       throw new Error(`Unhandled ACT tool: ${String(_exhaustive)}`);
     }
   }
+}
+
+function stampFacetOnFindings(
+  findings: Finding[],
+  unit: AnalysisWorkUnit
+): Finding[] {
+  if (!unit.facetId) return findings;
+  return findings.map((finding) =>
+    finding.facetId || finding.workUnitId !== unit.workUnitId
+      ? finding
+      : { ...finding, facetId: unit.facetId }
+  );
+}
+
+function branchCeilingReason(
+  state: AnalysisState,
+  unit: AnalysisWorkUnit,
+  now: number
+): string | undefined {
+  if (!unit.facetId || unit.tool === "render_output" || unit.tool === "merge_branch_outputs") {
+    return undefined;
+  }
+  const branch = state.plan?.branches?.find((item) => item.facetId === unit.facetId);
+  const startedAt = state.branchDiagnostics?.[unit.facetId]?.startedAtMs;
+  if (!branch || !startedAt) return undefined;
+  if (now - startedAt < branch.timeBudget.hardCeilingMs) return undefined;
+  return `Branch hard ceiling reached after ${Math.round(branch.timeBudget.hardCeilingMs / 1000)} seconds.`;
+}
+
+function recordBranchOutcome(
+  state: AnalysisState,
+  unit: AnalysisWorkUnit,
+  elapsedMs: number,
+  error: string | undefined,
+  emitted: Finding[],
+  tokenDelta = 0
+): AnalysisState {
+  if (!unit.facetId) return state;
+  const prior = state.branchDiagnostics?.[unit.facetId] ?? { status: "pending" as const };
+  const modelCall = [
+    "evaluate_package",
+    "check_against_rule",
+    "evaluate_matrix_row",
+    "flag_risk",
+    "render_output",
+    "web_assisted_reference",
+  ].includes(unit.tool)
+    ? 1
+    : 0;
+  const failedLayer: "ACT" | "LOCK" | "RENDER" | "MERGE" =
+    unit.tool === "aggregate_requirements"
+      ? "LOCK"
+      : unit.tool === "render_output"
+        ? "RENDER"
+        : unit.tool === "merge_branch_outputs"
+          ? "MERGE"
+          : "ACT";
+  const evidenceCount = new Set(
+    emitted.flatMap((finding) =>
+      finding.evidence.map(
+        (span) => `${span.locator.docId}:${span.locator.charRange[0]}:${span.locator.charRange[1]}`
+      )
+    )
+  ).size;
+  const next = {
+    ...prior,
+    status: error ? ("incomplete" as const) : prior.status,
+    elapsedMs: (prior.elapsedMs ?? 0) + elapsedMs,
+    modelCalls: (prior.modelCalls ?? 0) + modelCall,
+    evidenceCount: (prior.evidenceCount ?? 0) + evidenceCount,
+    tokenDelta: (prior.tokenDelta ?? 0) + tokenDelta,
+    ...(error ? { failedLayer, reason: error } : {}),
+  };
+  pacLog(`${failedLayer} branch`, {
+    facetId: unit.facetId,
+    operation: state.plan?.branches?.find((branch) => branch.facetId === unit.facetId)?.intent.operation,
+    unit: unit.workUnitId,
+    ms: elapsedMs,
+    findings: emitted.length,
+    evidence: evidenceCount,
+    tokens: tokenDelta,
+    cacheHits:
+      state.plan?.branches
+        ?.find((branch) => branch.facetId === unit.facetId)
+        ?.workUnitIds.filter((id) => id.startsWith("shared-")).length ?? 0,
+    failed: Boolean(error),
+  });
+  return {
+    ...state,
+    branchDiagnostics: {
+      ...(state.branchDiagnostics ?? {}),
+      [unit.facetId]: next,
+    },
+  };
 }
 
 /** Exported for critique verification. */

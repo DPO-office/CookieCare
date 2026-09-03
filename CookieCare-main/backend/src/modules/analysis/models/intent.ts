@@ -30,9 +30,6 @@ export type OutputFormAxis =
   | "qa_thread"
   | "brief_summary";
 
-/** How multi-document results are presented. */
-export type DocumentPresentation = "unified" | "individual";
-
 /** User-facing answer style from the Analyze UI. */
 export type AnswerStyle = "narrative" | "tabular";
 
@@ -57,6 +54,7 @@ export type ReportSectionId =
   | "requirements_detail"
   | "material_gaps"
   | "risk_summary"
+  | "comparison"
   | "qualifications"
   | "limitations"
   | "recommendations"
@@ -76,6 +74,7 @@ export type ReportSectionRole =
   | "chapeau_particulars"
   | "material_gaps"
   | "risk_summary"
+  | "comparison"
   | "qualifications"
   | "limitations"
   | "recommendations"
@@ -161,8 +160,6 @@ export interface IntentClassification {
   /** Semantic standard/regime named by the user (e.g. "GDPR Article 28"). */
   standardConcept?: string;
   outputForm: OutputFormAxis;
-  /** unified = one combined report; individual = a section per uploaded document. */
-  documentPresentation?: DocumentPresentation;
   reportType?: ReportType;
   depth?: ReportDepth;
   compound: boolean;
@@ -235,10 +232,13 @@ export const LEGAL_ADVICE_REFRAMES = [
 
 export function deriveSections(
   reportType: ReportType,
-  depth: ReportDepth
+  depth: ReportDepth,
+  operation?: OperationAxis
 ): ReportSectionId[] {
   if (reportType === "qa_answer") {
-    return depth === "narrow" ? ["evidence", "conclusion"] : ["scope", "evidence", "conclusion"];
+    return depth === "narrow"
+      ? ["key_findings", "evidence"]
+      : ["key_findings", "evidence", "qualifications"];
   }
 
   if (reportType === "rights_matrix") {
@@ -249,6 +249,27 @@ export function deriveSections(
       "recommendations",
       "conclusion",
     ];
+  }
+
+  // Open risk questions ("what's the biggest risk if we onboard this vendor")
+  // are answered as a risk narrative, not a compliance matrix: lead with the
+  // direct answer / biggest exposure, then the ranked risks, what to negotiate,
+  // and the bottom line. Gated to risk_flag so it lines up with the risk lane
+  // in PLAN (generate-propositions) and ACT (buildVerifiedFinding).
+  if (operation === "risk_flag") {
+    if (depth === "narrow") return ["executive_summary", "conclusion"];
+    return ["executive_summary", "risk_summary", "recommendations", "conclusion"];
+  }
+
+  // Comparison questions ("is this termination clause balanced between the
+  // parties") are answered side-by-side, not as a compliance matrix: lead
+  // with the direct answer, then the comparison itself, what to negotiate,
+  // and the bottom line. Gated to `compare` so it lines up with PLAN's
+  // decomposeReasoningAsk (paired side_a/side_b propositions) and ACT's
+  // comparison_delta finding kind.
+  if (operation === "compare") {
+    if (depth === "narrow") return ["executive_summary", "conclusion"];
+    return ["executive_summary", "comparison", "recommendations", "conclusion"];
   }
 
   const sections: ReportSectionId[] = ["scope"];

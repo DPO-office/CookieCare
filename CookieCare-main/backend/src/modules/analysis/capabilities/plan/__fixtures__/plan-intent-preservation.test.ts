@@ -17,7 +17,6 @@ function highConfidenceIntent(
     outputForm: "memo",
     reportType: "qa_answer",
     depth: "deep",
-    documentPresentation: "unified",
     compound: false,
     subIntents: [],
     requirements: [],

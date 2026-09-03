@@ -12,7 +12,7 @@ export const LEGAL_MEMO_MARKDOWN_CRAFT = [
   "- Always place the report-level Conclusion section last among substantive sections (only References may follow), regardless of document type or user phrasing.",
   "",
   "Selective bold (use sparingly — never bold entire paragraphs):",
-  "- **Status words** when stating an assessment: Strong, Present & adequate, Present, particulars in schedule, Minor drafting gap, Gap, Cannot determine, Not applicable.",
+  "- **Status words** when stating an assessment: Strong, Present & adequate, Present, particulars in schedule, Minor drafting gap, Gap, Cannot determine, Insufficient data, Not applicable.",
   "- **Obligation or theme names** at the start of an analysis subheading or lead sentence.",
   "- **Article or clause references** (e.g. **Article 28(3)(e)**) when they anchor a finding.",
   "- **Recommendation verbs** at the start of each recommendation bullet (e.g. **Amend**, **Confirm**, **Obtain**).",
@@ -48,7 +48,7 @@ export const TABULAR_SECTION_MARKDOWN_CRAFT = [
   "- Do not write Key Regulatory Findings, Summary of Compliance Findings, or any paragraph block that restates table rows.",
   "- Finish every sentence. Never stop mid-clause.",
   "",
-  "Status words (bold sparingly, in prose only): Strong, Present & adequate, Present, particulars in schedule, Minor drafting gap, Gap, Cannot determine, Not applicable.",
+  "Status words (bold sparingly, in prose only): Strong, Present & adequate, Present, particulars in schedule, Minor drafting gap, Gap, Cannot determine, Insufficient data, Not applicable.",
   "Recommendation verbs: **Amend** only for missing/partial with complete quotes; otherwise **Obtain** / **Confirm**.",
   "Do not expose internal requirement IDs, package IDs, or work-unit IDs.",
 ].join("\n");

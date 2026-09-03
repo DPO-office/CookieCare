@@ -7,6 +7,7 @@ import type { AnalysisState } from "../../models/analysis-state.js";
 import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
 import type { ClauseObject } from "../../models/clause-object.js";
 import type { Finding } from "../../models/finding.js";
+import type { FindingPerspective, FindingPolarity } from "../../models/finding.js";
 import type { EvidenceSpan } from "../../models/locator.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { getSkillById, mergeSkillRiskCategories } from "../../skills/runtime/catalog/registry.js";
@@ -16,6 +17,7 @@ import { profileThinkingLevel } from "../../utils/profile-thinking.js";
 import { buildSectionCandidates } from "./select-candidates.js";
 import { canonicalRequirementId } from "../../shared/requirement-identity.js";
 import { pacLog } from "../../utils/pac-log.js";
+import { normalizePartyPerspective } from "../../shared/finding-semantics.js";
 
 async function flagRisk(
   state: AnalysisState,
@@ -47,12 +49,16 @@ interface OpenRisk {
   explanation: string;
   severity: "low" | "medium" | "high";
   quote: string;
+  polarity: Extract<FindingPolarity, "risk_present" | "control_present">;
+  partyPerspective?: FindingPerspective;
 }
 
 const OPEN_RISK_SYSTEM = [
   "You are a contract risk analyst reviewing a document for the party who asked the question.",
   "Read the supplied clauses and surface the MATERIAL risks that actually arise from the text — the provisions a careful lawyer would flag on this specific document.",
-  "For each risk return: the clause ref it arises from, a short specific title, a plain-English explanation of why it is a risk to the reviewing party, a severity (low/medium/high), and the VERBATIM triggering quote copied character-for-character from that clause.",
+  "For each item return: the clause ref, a short specific title, a plain-English explanation, severity (low/medium/high), polarity, partyPerspective, and the VERBATIM triggering quote.",
+  "Use polarity=risk_present only when the quoted text creates adverse exposure. Use polarity=control_present when the text is a safeguard, restriction, or obligation that mitigates exposure; never relabel a protective control as a risk merely because it mentions a risky topic.",
+  "risk_present requires a concrete adverse effect on the reviewing party stated in the explanation. If the explanation merely restates a safeguard or a duty imposed on the counterparty, classify it as control_present.",
   "Only genuine, material, text-grounded risks. Do not pad with generic boilerplate, do not invent, and never include a risk you cannot ground in a verbatim quote from the supplied text. Order by severity, most serious first. Aim for the 5–12 risks that matter, not an exhaustive list.",
 ].join(" ");
 
@@ -93,8 +99,13 @@ async function discoverOpenRisks(
         explanation: { type: "string" },
         severity: { type: "string", enum: ["low", "medium", "high"] },
         quote: { type: "string" },
+        polarity: { type: "string", enum: ["risk_present", "control_present"] },
+        partyPerspective: {
+          type: "string",
+          enum: ["customer", "supplier", "controller", "processor", "mutual", "unspecified"],
+        },
       },
-      required: ["ref", "title", "explanation", "severity", "quote"],
+      required: ["ref", "title", "explanation", "severity", "quote", "polarity", "partyPerspective"],
     },
   };
   const tracker = state.agent ? { tokensUsed: state.agent.tokensUsed } : undefined;
@@ -171,7 +182,13 @@ async function flagRiskOpen(
       workUnitId: unit.workUnitId,
       skillId: skillIds[0],
       visibility: "user_facing",
+      // Preserve the PLAN lane boundary. Related checks may be useful context,
+      // but they must not be promoted into the primary risk verdict/report.
+      relatedNotRequested: unit.input.relatedNotRequested === true || undefined,
       requirementId: reqId ? canonicalRequirementId(reqId) : undefined,
+      polarity: r.polarity,
+      partyPerspective:
+        r.partyPerspective ?? normalizePartyPerspective(state.intent?.partyPerspective),
     });
   });
 
@@ -272,6 +289,11 @@ async function _flagRiskImpl(
         claim: { type: "string" },
         severity: { type: "string", enum: ["low", "medium", "high"] },
         quotedText: { type: "string" },
+        polarity: { type: "string", enum: ["risk_present", "control_present"] },
+        partyPerspective: {
+          type: "string",
+          enum: ["customer", "supplier", "controller", "processor", "mutual", "unspecified"],
+        },
       },
       required: ["clauseId", "category", "claim", "severity", "quotedText"],
     },
@@ -283,6 +305,8 @@ async function _flagRiskImpl(
     claim: string;
     severity: "low" | "medium" | "high";
     quotedText: string;
+    polarity?: Extract<FindingPolarity, "risk_present" | "control_present">;
+    partyPerspective?: FindingPerspective;
   }> = [];
 
   try {
@@ -300,7 +324,10 @@ async function _flagRiskImpl(
         skillMdOneSection
           ? `Authored risk section (one section only):\n${skillMdOneSection}`
           : "",
-        "Every finding must include quotedText copied VERBATIM from the clause — the specific triggering language, not a paraphrase of the concern.",
+        "Every finding must include quotedText copied VERBATIM from the clause - the specific triggering language, not a paraphrase of the concern.",
+        "For each item set polarity=risk_present only for adverse exposure, or polarity=control_present when the quote is a safeguard/restriction/obligation that mitigates exposure. A control is not a risk merely because it discusses a risky topic.",
+        "risk_present requires a concrete adverse effect on the reviewing party stated in the claim. If the claim merely restates a safeguard or a duty imposed on the counterparty, classify it as control_present.",
+        `Reviewing-party perspective: ${state.intent?.partyPerspective ?? "unspecified"}.`,
         "If you cannot quote triggering language from a clause, omit that finding.",
         `Clauses:\n${JSON.stringify(
           clauses.map((c) => ({
@@ -360,6 +387,9 @@ async function _flagRiskImpl(
       visibility: "user_facing",
       relatedNotRequested: relatedNotRequested || undefined,
       ruleSourceTier: comparativeCheckId ? "B" : undefined,
+      polarity: r.polarity ?? "risk_present",
+      partyPerspective:
+        r.partyPerspective ?? normalizePartyPerspective(state.intent?.partyPerspective),
     });
   }
 
@@ -388,7 +418,7 @@ async function _flagRiskImpl(
 export function collapseRisksByCategory(findings: Finding[]): Finding[] {
   const grouped = new Map<string, Finding[]>();
   for (const finding of findings) {
-    const key = finding.category;
+    const key = `${finding.category}:${finding.polarity ?? "risk_present"}`;
     grouped.set(key, [...(grouped.get(key) ?? []), finding]);
   }
   const severityRank = { high: 3, medium: 2, low: 1 } as const;
@@ -461,6 +491,7 @@ export function evaluateSilencePatterns(
       skillId,
       visibility: "user_facing",
       ruleSourceTier: "B",
+      polarity: "risk_present",
     });
   }
   return out;
@@ -521,6 +552,7 @@ function orgPlaybookRisks(
       visibility: "user_facing",
       orgPlaybook: true,
       orgPlaybookNote: rule.overrideNote,
+      polarity: "risk_present",
     });
   }
   return out;

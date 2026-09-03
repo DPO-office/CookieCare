@@ -2,6 +2,7 @@ import type { EvidenceSpan } from "./locator.js";
 import type { RuleSourceTier } from "./rule-source.js";
 import type { TerminalStatus } from "./work-unit-outcome.js";
 import type { RequirementJudgement } from "./requirement-assessment.js";
+import type { AnalysisExecutionState } from "./analysis-execution.js";
 
 export type FindingKind =
   | "risk"
@@ -21,14 +22,54 @@ export type FindingVisibility = "internal" | "user_facing";
 
 export type MatrixAddressing = "named" | "generic" | "absent";
 
+/**
+ * What proposition the finding establishes. This is deliberately independent
+ * from `kind`: a risk-scanning work unit may discover that a clause is a
+ * protective control, while a compliance work unit may explain a neutral fact.
+ */
+export type FindingPolarity =
+  | "compliance_met"
+  | "risk_present"
+  | "control_present"
+  | "neutral_fact";
+
+/** Party whose position the finding describes or affects. */
+export type FindingPerspective =
+  | "customer"
+  | "supplier"
+  | "controller"
+  | "processor"
+  | "mutual"
+  | "unspecified";
+
+/** Scope dimensions captured by VERIFY so mixed evidence is not blended. */
+export interface FindingApplicabilityScope {
+  parties?: string[];
+  jurisdictions?: string[];
+  timePeriods?: string[];
+  conditions?: string[];
+}
+
 export interface Finding {
   findingId: string;
+  /** Compound sub-ask that produced this finding; absent for single-intent work. */
+  facetId?: string;
   kind: FindingKind;
   /** Member of risk taxonomy or rule_id — versioned. */
   category: string;
   status: FindingStatus;
   claim: string;
   evidence: EvidenceSpan[];
+  /** Runtime completion, kept independent from contractual/legal status. */
+  analysisExecution?: AnalysisExecutionState;
+  /** Explicit proposition channel; normalized before findings leave ACT. */
+  polarity?: FindingPolarity;
+  /** Explicit reviewing-party perspective; normalized before findings leave ACT. */
+  partyPerspective?: FindingPerspective;
+  /** Evidence scope identified by VERIFY, used for conflict reconciliation. */
+  applicabilityScope?: FindingApplicabilityScope;
+  /** Result of reconciling mixed proving/contradicting evidence. */
+  applicabilityResolution?: "scope_dependent" | "conflicting";
   ruleId?: string;
   ruleVersion?: string;
   severity?: "low" | "medium" | "high";
@@ -79,6 +120,18 @@ export interface Finding {
    */
   requirementId?: string;
   /**
+   * Phase 2 (requirement binding graph) — the PLAN/classifier requirement ids
+   * this finding answers, computed structurally at PLAN time and threaded onto
+   * the work unit (never re-derived by fuzzy id matching downstream). ADDS to,
+   * never replaces, the native `requirementId` above: a package finding keeps
+   * its authored native identity for evaluation, while this carries the
+   * request-vocabulary id(s) every join site reads to reach it. Empty/undefined
+   * means no binding was computed — join sites fall back to the legacy
+   * canonical-id match, and a request requirement with no binding renders as an
+   * engine coverage gap, never a fabricated "insufficient data" conclusion.
+   */
+  requestRequirementIds?: string[];
+  /**
    * Locked per-requirement axes stamped at evaluation. Aggregation prefers
    * this over re-deriving from Finding.status alone.
    */
@@ -105,4 +158,12 @@ export interface Finding {
   dependency?: { document: string; whyNeeded: string };
   structuralNote?: string;
   remediation?: string;
+  /**
+   * Set only on kind:"comparison_delta" findings, threaded from the
+   * originating Proposition (models/proposition.ts) through
+   * RequirementEvidenceProfile so render/synthesis can pair side_a/side_b
+   * findings back into one comparison instead of two unrelated rows.
+   */
+  compareGroup?: string;
+  compareRole?: string;
 }

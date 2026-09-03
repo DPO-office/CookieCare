@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import type { SharedEvidenceItem } from "../../../models/evidence-package.js";
 import {
   candidateRefsByRequirement,
+  citeableRefsFromPacket,
   resolveEvidence,
   resolveEvidenceRefsForRequirement,
   validateEvidenceRefs,
@@ -18,8 +19,8 @@ function item(ref: string, clauseType: string, quotedText: string): SharedEviden
   };
 }
 
-describe("resolveEvidence packets (P0 three-requirement contract)", () => {
-  it("duration: processing-term supporting, retention contextual", () => {
+describe("resolveEvidence packets (recall before VERIFY)", () => {
+  it("duration: ranks operative processing-term evidence before related retention language", () => {
     const pool = [
       item(
         "E1",
@@ -47,11 +48,11 @@ describe("resolveEvidence packets (P0 three-requirement contract)", () => {
       }
     );
     assert.ok(packet.supporting.some((i) => i.ref === "E1" || i.ref === "E2"));
-    assert.ok(packet.supporting.every((i) => i.ref !== "E3"));
-    assert.ok(packet.contextual.some((i) => i.ref === "E3"));
+    assert.ok(packet.supporting.findIndex((i) => i.ref === "E3") > 0);
+    assert.deepEqual(packet.contextual, []);
   });
 
-  it("confidentiality: confidentiality supporting, security contextual", () => {
+  it("confidentiality: does not make adjacent security citeable as confidentiality proof", () => {
     const pool = [
       item(
         "E1",
@@ -78,13 +79,10 @@ describe("resolveEvidence packets (P0 three-requirement contract)", () => {
       packet.supporting.map((i) => i.ref),
       ["E1"]
     );
-    assert.deepEqual(
-      packet.contextual.map((i) => i.ref),
-      ["E2"]
-    );
+    assert.deepEqual(citeableRefsFromPacket(packet), ["E1"]);
   });
 
-  it("deletion: deletion-on-termination supporting, retention contextual", () => {
+  it("deletion: ranks the end-of-services obligation before retention context", () => {
     const pool = [
       item(
         "E1",
@@ -109,9 +107,9 @@ describe("resolveEvidence packets (P0 three-requirement contract)", () => {
     );
     assert.deepEqual(
       packet.supporting.map((i) => i.ref),
-      ["E2"]
+      ["E2", "E1"]
     );
-    assert.ok(packet.contextual.some((i) => i.ref === "E1"));
+    assert.deepEqual(packet.contextual, []);
   });
 });
 

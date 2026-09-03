@@ -125,19 +125,72 @@ export function deriveReportOutline(
   const effectiveDepth = depth ?? intent.depth ?? "standard";
   const isQA = reportType === "qa_answer";
   const isNarrow = effectiveDepth === "narrow";
-  const requirementCount = intent.requirements?.length ?? 0;
   const requirementIds = (intent.requirements ?? []).map((r) => r.id);
   const specSections = sections ?? [];
 
-  if (isNarrow || (isQA && requirementCount <= 1)) {
+  // Q&A has a different reading order from a memo: answer first, proof second,
+  // then only material qualifications. Reuse the existing key-findings role
+  // so the answer receives the verified findings, but give it the user-facing
+  // heading that matches the task.
+  if (isQA) {
+    const outline: ReportOutlineItem[] = [
+      {
+        id: "answer",
+        role: "key_findings",
+        sectionId: "key_findings",
+        heading: "Answer",
+        requirementIds,
+        source: "deterministic",
+      },
+    ];
+    if (specSections.length === 0 || specHas(specSections, "evidence")) {
+      outline.push(staticItem("evidence", requirementIds));
+    }
+    if (specHas(specSections, "limitations")) {
+      outline.push(staticItem("limitations", requirementIds));
+    } else if (specHas(specSections, "qualifications")) {
+      outline.push(staticItem("qualifications", requirementIds));
+    }
+    return outline;
+  }
+
+  if (isNarrow) {
     const outline: ReportOutlineItem[] = [];
-    if (!isQA && specHas(specSections, "executive_summary", "scope", "scope_and_conclusion")) {
+    if (specHas(specSections, "executive_summary", "scope", "scope_and_conclusion")) {
       outline.push(openingItem(specSections));
-    } else if (!isQA) {
+    } else {
       outline.push(openingItem([]));
     }
-    if (specHas(specSections, "evidence") || isQA) {
+    if (specHas(specSections, "evidence")) {
       outline.push(staticItem("evidence"));
+    }
+    outline.push(staticItem("conclusion"));
+    return outline;
+  }
+
+  if (intent.compound && intent.subIntents.length > 1) {
+    const outline: ReportOutlineItem[] = [openingItem(specSections)];
+    for (const [index, facet] of intent.subIntents.entries()) {
+      const facetRequirementIds = (facet.requirements ?? []).map(
+        (requirement) => requirement.id
+      );
+      const sectionId: ReportSectionId =
+        facet.operation === "risk_flag"
+          ? "risk_summary"
+          : facet.operation === "compare"
+            ? "comparison"
+            : "requirements_detail";
+      outline.push({
+        id: `facet.${index + 1}`,
+        role: roleForSectionId(sectionId),
+        sectionId,
+        heading: facet.description?.trim() || `Analysis ${index + 1}`,
+        requirementIds: facetRequirementIds,
+        source: "deterministic",
+      });
+    }
+    if (specHas(specSections, "recommendations")) {
+      outline.push(staticItem("recommendations"));
     }
     outline.push(staticItem("conclusion"));
     return outline;

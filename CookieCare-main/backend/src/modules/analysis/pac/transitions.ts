@@ -55,6 +55,19 @@ export function resolveStoppedReason(
   critique?: CritiqueReport | null
 ): NonNullable<AnalysisState["agent"]>["stoppedReason"] {
   if (isOutOfScope(state)) return "out_of_scope";
+
+  // A completed release decision is the authoritative terminal outcome. The
+  // controller's single allowed turn is normally consumed by a successful run,
+  // so checking maxTurns first would mislabel healthy releases as exhausted.
+  const verdict = critique?.release?.verdict;
+  const executionComplete =
+    critique?.executionComplete ?? critique?.allUnitsTerminal ?? false;
+  if (executionComplete && verdict === "release") return "green";
+  if (executionComplete && verdict === "release_with_limitations") {
+    return "green_partial";
+  }
+  if (executionComplete && verdict === "withhold") return "blocked";
+
   if (isMaxTurnsReached(state)) return "max_turns";
   if (isBudgetExceeded(state)) return "budget_exceeded";
   if (state.agent?.phase === "ASK" || state.agent?.openQuestions?.length) {
@@ -63,7 +76,6 @@ export function resolveStoppedReason(
     }
   }
 
-  const verdict = critique?.release?.verdict;
   if (verdict === "release") return "green";
   if (verdict === "release_with_limitations") return "green_partial";
   if (verdict === "withhold") return "blocked";

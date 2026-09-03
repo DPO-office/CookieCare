@@ -13,6 +13,9 @@ const { runCritiqueLite } = await import(
 const { runCritique } = await import(
   "../../capabilities/critique/run-critique.js"
 );
+const { replaceRenderMarker } = await import(
+  "../../capabilities/reporting/render-output.js"
+);
 
 const TEXT =
   "The processor shall use personal data only for the documented business purpose.";
@@ -154,6 +157,10 @@ function state(
         axis: "global",
         label: "Global",
         version: "test",
+        appliesToDocTypes: [],
+        triggerPhrases: [],
+        promptLibraryIds: [],
+        defaultOperation: "risk_flag",
         riskCategories: [
           {
             category: "other_known_risk",
@@ -192,6 +199,94 @@ describe("Critique Lite trigger policy", () => {
     assert.equal(result.critique?.deepCritiqueRequired, false);
     assert.equal(result.critique?.metrics?.critiqueLLMCalls, 0);
     assert.equal(result.critique?.executionComplete, true);
+  });
+
+  it("A3: presentation-only re-render uses its own release contract", async () => {
+    const current = state(
+      [finding("f1", "old-requirement")],
+      [assessment("old-requirement", ["f1"])]
+    );
+    current.intent!.requirements = [
+      {
+        id: "old-requirement",
+        description: "Previously locked requirement",
+        type: "verification",
+        priority: "required",
+      },
+    ];
+    current.plan = {
+      ...current.plan!,
+      skipCritique: true,
+      workUnits: [
+        {
+          workUnitId: "wu-render",
+          tool: "render_output",
+          input: {
+            schemaId: "table",
+            followUpKind: "presentation_change",
+          },
+          dependsOn: [],
+          outputSchema: "string",
+          status: "done",
+        },
+      ],
+    };
+
+    const result = await runCritique(current);
+
+    assert.equal(result.critique?.release?.verdict, "release");
+    assert.equal(result.critique?.structurallyValid, true);
+    assert.equal(result.critique?.release?.requirementCoverage.total, 0);
+    assert.deepEqual(result.critique?.release?.alignment.issues, []);
+    assert.equal(result.critique?.metrics?.critiqueLLMCalls, 0);
+  });
+
+  it("A4: presentation-only re-render with empty output is withheld", async () => {
+    const current = state([finding("f1", "req")], [assessment("req", ["f1"])]);
+    current.renderedOutput = "";
+    current.plan = {
+      ...current.plan!,
+      skipCritique: true,
+      workUnits: [
+        {
+          workUnitId: "wu-render",
+          tool: "render_output",
+          input: { followUpKind: "presentation_change" },
+          dependsOn: [],
+          outputSchema: "string",
+          status: "done",
+        },
+      ],
+    };
+
+    const result = await runCritique(current);
+
+    assert.equal(result.critique?.release?.verdict, "withhold");
+    assert.equal(result.critique?.release?.placeholderReport.kind, "empty_body");
+  });
+
+  it("A5: repeated render markers replace instead of duplicate", () => {
+    const prior = finding("f_render_wu-render", "req", {
+      kind: "summary_point",
+      visibility: "internal",
+      claim: "Prior render marker",
+      evidence: [],
+    });
+    const current = {
+      ...prior,
+      claim: "Current render marker",
+    };
+
+    const replaced = replaceRenderMarker([finding("f1", "req"), prior], current);
+
+    assert.equal(
+      replaced.filter((item) => item.findingId === "f_render_wu-render").length,
+      1
+    );
+    assert.equal(
+      replaced.find((item) => item.findingId === "f_render_wu-render")?.claim,
+      "Current render marker"
+    );
   });
 
   it("B: invalid quote/locator creates a targeted deterministic repair only", () => {
