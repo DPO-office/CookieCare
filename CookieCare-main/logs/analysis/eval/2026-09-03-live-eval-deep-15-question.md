@@ -28,6 +28,16 @@ Iteration: post compliance-retrieval and explicit partial-coverage implementatio
 | Q7 | Lite | Playbook comparison | Agreement versus uploaded playbook | `an_869c1651-b3ba-4da7-b623-26676fa1f410` | 108.769 s | **No** | **Partial** | **Fail** | Correct setup and several useful deltas, but false transfer/flow-down gaps, one-citation collapse, contradictory title/body, and truncation. |
 | Q15 | Deep | Format follow-up | Show Q5 as table | `an_660c45b8-1efd-4f81-92db-2c504175ca2a` | 35.414 s | Yes | **Partial** | **Partial** | Correctly preserves session and changes only format, but faithfully re-renders Q5's incomplete/incorrect four-row substance; audit JSON parse failed and was skipped. |
 | Q15 | Lite | Format follow-up | Show Q5 as table | `an_d083d1b8-17fb-4809-9ac4-8509ac90aa55` | 15.970 s | Yes | **No** | **Fail** | Preserves format intent, but collapses all three parent rows onto the same liability quote and loses the actual negotiation recommendations. |
+| Q8 | Lite | Compound / multi-doc | Art 28 + playbook + top-5 risks | `an_32a6ad08-5c65-4c38-974a-631f2fcaf85e` | ~236 s | **Partial** | **Partial** | **Partial** | Real improvement over 09-02: Article 28 particulars/mandatory-clause table is now correct and grounded. But the playbook facet leaks an internal id (`Facet 2 P6`) and contradicts its own evidence (`Insufficient data` headline over a table of mostly `Strong` findings), and the risk-ranking facet truncates after ~2.5 of 5 requested risks with no negotiation content. Deep run skipped for this question at user's direction. |
+| Q9a | Lite | Follow-up chain / baseline | Analyze GDPR compliance | `an_a5255808-29b4-440c-afac-2b87c4d99bb2` | ~219 s | **Partial** | **Partial** | **Partial** | 18-row real requirements table (up from 1 generic row on 09-02), but (3)(g)/(h) are `Cannot determine` in this run despite the same clauses being `Strong` in Q8 minutes earlier on the same document — cross-run VERIFY nondeterminism. Duration `Strong` again cites cross-section clause 4.4.5. A HIGH risk cites an unrelated marketing/cookies clause and leaks an internal label (`gdpr art12 4 reasoned refusal notice gap`) into user text. |
+| Q9b | Lite | Follow-up chain | Focus on subprocessors | same session | ~40 s | Yes | **Partial** | **Partial** | Correctly scoped to subprocessors with 3 real, correctly grounded `Strong` findings (cl. 3.8.7, 3.8.2) — a major improvement over 09-02 (which reported real subprocessor clauses missing). But misses clause 3.8.6 (Supplier remains fully liable for Sub-Processor obligations), rendering "processor's liability for sub-processor compliance" as `Insufficient data` although the clause is in the same evidence pool logged for this session. |
+| Q9c | Lite | Follow-up chain | Object to a subprocessor change? | same session | fast | Yes | **No** | **Fail** | Answers "insufficient data / no express clause identified" for subprocessor objection rights, directly contradicting clause 3.8.7 — quoted two turns earlier in this exact session (Q9b) — which gives Mastercard an explicit objection/suspend/terminate right. A same-session, same-document self-contradiction more severe than 09-02's version of this fault (which merely re-rendered stale content; this one actively re-investigated and got the opposite answer). |
+| Q9d | Lite | Follow-up chain / negotiation | Negotiate that clause | same session | 3 s to ASK pause | **No** | n/a | **Fail** | Exact reproduction of the 09-02 bug: a clear `draft_suggestion`/negotiation ask is blocked with "Operation draft_suggestion is not fully supported in this release. Confirm to run a risk-flag analysis instead, or rephrase," offering only `run_risk_flag`/`cancel`. Unfixed since 2026-09-02. |
+| Q10 | Lite | Open-ended | Unusual/one-sided clauses | `an_714c1f79-1af2-41d3-af10-3cbba29b876b` | ~99 s | **No** | Yes | **Fail** | Same tunnel-vision defect as 09-02: the broad "find unusual/one-sided clauses" ask narrows to only 2 propositions, both about liability, leaving unflagged real one-sided material already visible in the log (e.g. cl. 3.12's unilateral Mastercard-driven amendment right). Every finding is hedged `Cannot determine` even where the reviewed text itself answers the specific proposition, deferring to an unread main agreement that isn't actually needed for the two propositions asked. |
+| Q11 | Lite | Open-ended | Contradictions/inconsistencies | `an_0454c881-22c6-44de-a200-b55b5088f2eb` | ~99 s | **No** | n/a | **Fail** | A different but arguably worse failure than 09-02's (which at least attempted the task and mislabeled an SCC rule as a contradiction). This run never searches for or reports a single candidate inconsistency; it answers the "find contradictions" ask with an explanation of the SCC precedence/hierarchy clause and concludes contradictions are structurally "neutralized," treating the presence of a conflict-resolution clause as proof no conflicts exist rather than as one input to the actual search. |
+| Q12 | Lite | Compliance | GDPR Arts. 15-22 rights | `an_09d417e1-52eb-4b52-8782-414942a2a0ee` | ~117 s | Yes | **Partial** | **Partial** | Clear improvement over 09-02 (which produced contradictory statuses on a generic rights clause): all 8 articles get distinct rows. But Arts. 15/16/17/21 are `Strong`/`Present & adequate` while 18/19/20/22 are `Partially covered` off the *same* clause 3.3, which names restriction/portability/automated-decision-making just as explicitly as access/rectification/erasure/objection — an unexplained inconsistent verdict on equivalent evidence. Justification text also leaks internal evidence-pool labels (`clause E4`, `clause E5.5`) into user-facing prose. |
+| Q13 | Lite | Compliance | International transfers | `an_51f750ad-7dc2-4137-8344-ff8320b4b248` | ~88 s | Yes | Yes | **Partial** | Major improvement over 09-02 (all 3 requirements were orphaned there despite a rich transfer inventory); here all 3 get real, well-grounded, multi-jurisdiction citations (EU/Swiss/UK/Brazil SCC clauses 3.7.1-3.7.5.3, 3.7.8). Sole defect: one finding leaks raw internal pipeline syntax verbatim into user-facing text — `"Per proofStandard, because the operative restriction is binding... evidenceState=incorporated"` — the most literal internal-key leak seen in this suite. |
+| Q14 | Lite | Narrow QA | Post-termination data | `an_d18d0015-c6ab-4013-8957-c4c7268b4d7f` | ~54 s | Yes | **Partial** | **Partial** | Large improvement over 09-02 (which turned a missing fixed deadline into "nothing can be determined"): direct, correct, well-organized answer distinguishing Controller-to-Processor (return/delete on Mastercard's instruction, law-required-retention exception) from Controller-to-Controller scope. Both evidence quotes are truncated mid-sentence, and citations use the raw internal marker `[open.p1]` instead of a clean `[E1]`/`[E2]` style. |
 
 ---
 
@@ -426,3 +436,113 @@ Does this agreement align with our playbook? Flag every playbook position that i
 3. Add deterministic title/body polarity checks and reject outputs containing planning/meta-instruction phrases.
 4. Render playbook comparisons as a compact table with `Playbook position`, `Agreement evidence`, `Status`, `Difference`, and `Action`; fall back to this deterministic table when prose synthesis truncates.
 5. Treat unrestricted/on-request rights as satisfying an annual minimum unless a contractual frequency restriction makes them weaker.
+
+---
+
+## Q8 - Lite only - compound multi-doc (Article 28 + playbook + top-5 risks)
+
+- **Documents:** DPA target + `Playbook.pdf` (marked playbook/reference; a different, generic playbook than Q7's `DPA_AI_Prompt_Repository_Playbook.docx.pdf`, uploaded fresh for this run since the vault did not have a playbook loaded)
+- **thinkingMode:** lite (Deep skipped for this question at user's direction)
+- **Session id:** `an_32a6ad08-5c65-4c38-974a-631f2fcaf85e`
+- **Wall time:** ~236 s (19:19:21Z start to first render-complete observation ~19:23:57Z)
+- **Backend evidence trace:** `logs/analysis/an_32a6ad08-5c65-4c38-974a-631f2fcaf85e.log`
+
+### Question (verbatim)
+
+Check this DPA for GDPR Article 28 compliance — subject matter, duration, nature and purpose, data categories and data subjects, and whether the mandatory Article 28(3) processor obligations are present and adequate. Also check it against our uploaded playbook. Separately, rank the top 5 customer-side onboarding risks (liability, audit, subprocessors, termination, transfers) with evidence from the DPA.
+
+### What should be returned
+
+Three clearly separated facets: (1) an Article 28 particulars + mandatory-clause table matching Q4's expectations; (2) a playbook alignment check citing both documents; (3) five ranked customer-side onboarding risks (liability, audit, subprocessors, termination, transfers) each with DPA evidence and a negotiation angle.
+
+### What was rendered
+
+**Facet 1 (Article 28):** Materially correct and a clear improvement over the 2026-09-02 run and over L1/L2 in the lite-only file. Duration, nature/purpose, and both categories rows are correctly labelled `Partially covered` / `Partially covered - details in schedule` with real clause quotes (3.5.6, 2.3, 5.1.3) and an accurate missing-materials list (Annex 1 of Addendum 2; Annex 1 of Addendum A1). Subject matter and all eight Article 28(3)(a)-(h) mandatory clauses plus Article 28(4) flow-down are `Strong` with distinct, correctly grounded clause citations (3.3, 3.6.3, 3.6.1, 3.8.7, 3.5.5 ×2, 3.5.6, 3.9.1, 3.8.2) — no orphaned parent row, no single-passage overreach.
+
+**Facet 2 (playbook):** Structurally weaker. The compliance-check paragraph states an overall `Insufficient data` headline while its own body cites mostly `Strong`/`Present & adequate`-style findings for other DPA obligations — a title/body contradiction of the same kind flagged in Q7 Lite. It also leaks an internal identifier into user-facing prose: *"the agreement contains a critical Gap regarding Facet 2 P6"*. The one substantive finding — general (non-privacy) liability is uncapped, no 12-month fee cap or consequential-damages exclusion — is a real, well-evidenced playbook gap, but it is buried in noise.
+
+**Facet 3 (top-5 risks):** Only produces ~2.5 of 5 requested risk items (subprocessor management, transfers, then liability cut off mid-sentence) before the response hits `[Report ended at the length limit for standard depth. Remaining detail was omitted.]`. Audit and termination risks — both explicitly requested — never appear. No negotiation recommendations are rendered for this facet at all, contrary to the question's "with evidence" framing implying actionable ranking.
+
+### Faults
+
+1. **Symptom:** playbook facet's headline status (`Insufficient data`) contradicts the mostly-strong findings in its own narrative.
+   **Likely layer:** RENDER/synthesis polarity check (same defect class as Q7 Lite/Deep).
+   **Severity:** high.
+2. **Symptom:** internal requirement id `Facet 2 P6` rendered directly into user-facing text.
+   **Likely layer:** RENDER label sanitization.
+   **Severity:** medium.
+3. **Symptom:** the risk-ranking facet is truncated after 2-3 of 5 requested items; audit and termination risks are dropped entirely, and no negotiation content survives for any of them.
+   **Likely layer:** output token budgeting for compound multi-facet standard-depth reports; same defect class as Q5/Q6/Q7's mid-sentence truncations, but here it also silently drops explicitly enumerated user sub-asks (audit, termination) rather than merely cutting prose.
+   **Severity:** high.
+
+### Lite vs Deep
+
+Deep was skipped for this question at the user's direction; no comparison available.
+
+### What to enhance
+
+1. Reuse Q4's now-correctly-working Article 28 particulars pipeline as the template for the other two facets in a compound run — it demonstrates aggregation and status/evidence consistency are solvable.
+2. Apply the same title/body polarity check recommended for Q7 to every facet independently, not just the primary compliance facet.
+3. For an explicit N-item ranked list (top 5 risks), reserve output budget per named item before free-form prose, and never let the length cap silently drop an item that was named in the user's question (audit, termination).
+
+---
+
+## Q9a-d - Lite only - follow-up memory chain
+
+- **Documents:** Mastercard DPA only
+- **thinkingMode:** lite
+- **Session id (all four turns, same thread):** `an_a5255808-29b4-440c-afac-2b87c4d99bb2`
+- **Backend evidence trace:** `logs/analysis/an_a5255808-29b4-440c-afac-2b87c4d99bb2.log`
+
+### Q9a - "Analyze GDPR compliance." (baseline, ~219 s)
+
+Materially better than 09-02's Q9a, which collapsed 55 findings into one generic row plus a contradictory risk. This run renders 18 distinct rows (Article 28 particulars + all mandatory clauses), 10 `Strong`, 3 `Partially covered`, 5 `Cannot determine`.
+
+**Faults:**
+1. **Cross-run VERIFY nondeterminism on identical clauses.** Article 28(3)(g) (deletion/return, cl. 3.5.6) and (3)(h) (audit, cl. 3.9.1) are `Cannot determine` here, but the *same clauses on the same document* were `Strong` in Q8 (`an_32a6ad08...`), run minutes earlier. Nothing about the document changed between runs; only the surrounding question did. This generalizes the Q3-Deep-vs-Lite nondeterminism already logged — it now reproduces **within the same lite mode, run-to-run**, which is a stronger signal that VERIFY thresholds are not deterministic for a fixed clause/requirement pair. Severity: high.
+2. **Cross-section duration contamination persists.** Duration is `Strong` again via clause 4.4.5, which the 09-03-lite-only report's root-cause section already identified as belonging to the controller-to-controller section, not the controller-to-processor relationship this DPA governs for Supplier. This is the same unfixed defect (`Recommended next implementation slice #3`). Severity: high.
+3. **Risk citation/evidence mismatch plus leaked internal label.** The HIGH risk "Reasoned refusal notice" cites clause 3.5.3 (marketing communications/cookies opt-in-opt-out) as evidence — a clause with no connection to GDPR Article 12(4) refusal notices — and its own finding text is the raw internal label `gdpr art12 4 reasoned refusal notice gap` rather than a rendered sentence. This is both a grounding failure (wrong clause) and a render sanitization failure (internal key leaked verbatim). Severity: high.
+4. Progress UI showed "Checking the playbook…" as a step label even though no playbook document was attached to this analysis — a cosmetic but potentially confusing mislabeled stage name.
+
+### Q9b - "Focus on subprocessors." (follow-up, ~40 s)
+
+A clear improvement over 09-02, where the equivalent follow-up reported real subprocessor clauses as missing. Here it correctly narrows scope and grounds three requirements in clause 3.8.7 (notice/objection/suspension/termination) and 3.8.2 (flow-down), both `Strong` and accurately quoted.
+
+**Fault:** "Verify the primary processor's liability for sub-processor compliance and performance" is rendered `Insufficient data — No related clauses found`, but clause 3.8.6 ("Supplier will remain fully liable towards Mastercard for the performance by each Sub-Processor...") is on record in this exact session's evidence pool (visible in the Q8 retrieval trace under `outsourcing_governance`). The requirement was not matched to evidence that both exists and was already retrieved once in this document. Severity: medium-high.
+
+### Q9c - "Can we object to a subprocessor change?" (follow-up, fast)
+
+**This is the most severe fault found in the Q8-Q14 continuation.** The answer states: *"It is currently uncertain whether you can object... No express contractual clause governing subprocessor appointment, notification timelines, or objection procedures was identified within the provided text fragments."* This directly contradicts clause 3.8.7, quoted two turns earlier in this *same session* (Q9b), which gives Mastercard an explicit right to object to a new subprocessor and, if the objection cannot be accommodated, to suspend processing or terminate the agreement. Unlike 09-02's Q9c (which merely re-rendered stale prior findings without investigating the new ask), this run re-investigated from scratch and reached the *opposite, wrong* conclusion despite the correct evidence being available in the same conversation. This indicates the follow-up path is not reliably reusing or re-deriving from evidence already surfaced earlier in the same session. Severity: blocker.
+
+### Q9d - "What should we negotiate on that clause?" (follow-up, 3 s to ASK pause)
+
+Exact reproduction of the 09-02 Q9d bug, unfixed after this iteration's other pipeline work: the system responds *"I need a few details before I can finish this analysis: Operation 'draft_suggestion' is not fully supported in this release. Confirm to run a risk-flag analysis instead, or rephrase,"* offering only `run_risk_flag` / `cancel`. A clear, high-confidence negotiation ask referencing established conversational context ("that clause") is blocked rather than answered. Severity: blocker.
+
+### What to enhance
+
+1. Make VERIFY status for a fixed (clause, requirement) pair deterministic — cache or reuse the Q8-style strong verification of clauses 3.5.6/3.9.1 instead of re-deriving a different answer for the same document in a sibling run.
+2. Fix the clause 4.4.5 cross-section contamination (controller-to-controller duration used to answer a controller-to-processor question) — flagged in the 09-03-lite-only report and still present.
+3. Add an entailment/relevance check before a risk finding is allowed to cite a clause — 3.5.3 (marketing/cookies) should never ground a "reasoned refusal notice" finding — and never render an internal snake_case/lowercase label as the finding sentence.
+4. Before answering a follow-up that revisits a topic covered in an earlier turn of the same session, prefer the evidence already retrieved and verified in that session over a fresh independent verification that can silently contradict it (Q9c vs Q9b).
+5. Implement `draft_suggestion`/negotiation as a real path, or at minimum let it run risk-flag-based negotiation framing automatically instead of blocking on a manual ASK step for a well-formed, high-confidence request.
+
+---
+
+## Overall conclusion - Q8-Q14 continuation (2026-09-03, second half of the 15-question suite)
+
+All 15 planned questions have now been run live at least once across the three 2026-09 eval files (Q1-Q7 and Q15 paired lite/deep in the first half of this file; Q8-Q14 lite-only here, per user direction to skip Deep on Q8 onward).
+
+**What has clearly improved since 2026-09-02 and since the mid-suite 2026-09-03 lite-only checkpoint:**
+- The Article 28 particulars/mandatory-clause pipeline (Q4/Q8/Q9a) now reliably grounds most sub-requirements in specific, correct clauses instead of collapsing to one orphaned parent row — the dominant 09-02 failure mode is largely fixed for this shape of question.
+- Follow-up scoping works structurally: Q9b correctly narrowed to subprocessors, Q15 (in the first half) correctly preserved session/format-only intent.
+- Broad compliance questions (Q12 rights review, Q13 transfers) now produce complete, mostly well-grounded per-requirement tables instead of orphaning findings — a major regression from 09-02 that appears resolved.
+
+**What is newly visible or still broken in this continuation, roughly in order of severity:**
+1. **Same-session self-contradiction (Q9c)** — the single worst fault of the whole suite: the system denied a fact it had proven with a citation one turn earlier in the same conversation. This is more damaging to user trust than any truncation or hedging fault, because it means even a session's own established findings are not reliably reused.
+2. **Cross-run/cross-mode VERIFY nondeterminism** — the same clause/requirement pair (Art 28(3)(g)/(h), cl. 3.5.6/3.9.1) was `Strong` in Q8 and `Cannot determine` in Q9a minutes later, on the identical document. This generalizes a defect previously seen only Deep-vs-Lite (Q3) to lite-vs-lite, run-to-run.
+3. **Negotiation/draft_suggestion is still entirely blocked (Q9d)** — an exact, unfixed reproduction of the 09-02 bug.
+4. **Internal key/label leakage into user-facing prose** is now the most common single defect class, appearing in some form in nearly every question run this session: `Facet 2 P6` (Q8), `gdpr art12 4 reasoned refusal notice gap` (Q9a), `clause E4`/`clause E5.5` (Q12), `Per proofStandard... evidenceState=incorporated` (Q13), `[open.p1]` citations (Q14). This looks like a single missing render-sanitization pass that would fix many findings at once.
+5. **Broad, open-ended asks with no explicit checklist (Q10, Q11) still underperform** relative to explicit-checklist questions. Q10 tunnel-visions onto 2 liability propositions; Q11 answers "find contradictions" by describing a precedence clause instead of searching for any. This suggests the open-proposition-generation step still needs a broader default materiality/topic scan specifically for unscoped requests, even though scoped/explicit requests (Q4, Q12, Q13) now perform well.
+6. **Cross-section role contamination persists** (clause 4.4.5, controller-to-controller duration answering controller-to-processor questions) — flagged in the 09-03 lite-only report's root-cause list and reproduced again in Q9a.
+
+**Net assessment:** the explicit, checklist-shaped compliance questions (Q4, Q8's particulars facet, Q12, Q13) have moved from broadly failing to broadly partial/passing since 09-02. The remaining failures cluster in three places: (a) open-ended/unscoped asks that need a materiality scan rather than a narrow hypothesis set, (b) follow-up/session consistency (Q9b-d), where new evidence is not reliably reconciled with prior-turn evidence in the same conversation, and (c) a render-layer leak of internal pipeline vocabulary into user text, which is likely the cheapest of the three to fix and would improve the polish of nearly every answer in this suite.
