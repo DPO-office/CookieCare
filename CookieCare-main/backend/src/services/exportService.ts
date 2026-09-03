@@ -1,4 +1,4 @@
-import { browserManager } from "../utils/browserManager.js";
+import PDFDocument from "pdfkit";
 import {
   Document,
   Packer,
@@ -22,15 +22,6 @@ const md = new MarkdownIt({ html: false, linkify: true, typographer: false });
  */
 function isHtmlContent(content: string): boolean {
   return /<[a-z][\s\S]*>/i.test(content.trim());
-}
-
-/**
- * Normalise content for export:
- * - If already HTML, return as-is.
- * - If Markdown, render to HTML using markdown-it.
- */
-function contentToHtml(content: string): string {
-  return isHtmlContent(content) ? content : md.render(content);
 }
 
 /**
@@ -89,59 +80,302 @@ function stripTags(html: string): string {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PDF — unchanged, working correctly via Playwright
+// PDF — pure Node.js via PDFKit (no browser required)
 // ─────────────────────────────────────────────────────────────────────────────
+
+// A4 dimensions in points (1 pt = 1/72 inch)
+const PAGE_WIDTH = 595.28;
+const MARGIN = 56; // ~20mm
+const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
+
+// Colours
+const COLOR_BLACK   = "#111827";
+const COLOR_GREY    = "#6B7280";
+const COLOR_LIGHT   = "#9CA3AF";
+const COLOR_RULE    = "#E5E7EB";
+
+/**
+ * Render a markdown-it token stream into a PDFKit document.
+ * Handles: headings, paragraphs, bullet + ordered lists, code blocks, hr, tables.
+ */
+function renderTokensToPdf(doc: typeof PDFDocument.prototype, tokens: any[]): void {
+  let i = 0;
+  let listCounter = 0;
+
+  // Helper: render inline children (bold / italic / plain) into the current
+  // text stream using PDFKit's continuation API.
+  const renderInline = (inlineTok: any, opts: { size?: number; color?: string; indent?: number } = {}) => {
+    if (!inlineTok?.children?.length) {
+      const text = inlineTok?.content ?? "";
+      if (text) doc.text(text, { continued: false, ...( opts.indent ? { indent: opts.indent } : {}) });
+      return;
+    }
+
+    const children = inlineTok.children as any[];
+    let bold = false;
+    let italic = false;
+
+    // Collect runs so we can set continued=true on all but the last
+    type Run = { text: string; bold: boolean; italic: boolean };
+    const runs: Run[] = [];
+
+    for (const tok of children) {
+      if (tok.type === "strong_open")  { bold   = true;  continue; }
+      if (tok.type === "strong_close") { bold   = false; continue; }
+      if (tok.type === "em_open")      { italic = true;  continue; }
+      if (tok.type === "em_close")     { italic = false; continue; }
+      if (tok.type === "softbreak" || tok.type === "hardbreak") {
+        runs.push({ text: "\n", bold, italic });
+        continue;
+      }
+      if (tok.type === "link_open" || tok.type === "link_close") continue;
+      const text = tok.content ?? "";
+      if (text) runs.push({ text, bold, italic });
+    }
+
+    if (!runs.length) return;
+
+    const baseSize  = opts.size  ?? 11;
+    const baseColor = opts.color ?? COLOR_BLACK;
+    const indent    = opts.indent ?? 0;
+
+    for (let r = 0; r < runs.length; r++) {
+      const run = runs[r];
+      const isLast = r === runs.length - 1;
+      doc
+        .fontSize(run.bold ? baseSize : baseSize)
+        .fillColor(baseColor)
+        .font(run.bold && run.italic ? "Helvetica-BoldOblique"
+            : run.bold               ? "Helvetica-Bold"
+            : run.italic             ? "Helvetica-Oblique"
+            :                          "Helvetica")
+        .text(run.text, {
+          continued: !isLast && run.text !== "\n",
+          indent: r === 0 ? indent : 0,
+          width: CONTENT_WIDTH - indent,
+          align: "justify",
+          lineGap: 2,
+        });
+    }
+    // Reset font after inline block
+    doc.font("Helvetica").fontSize(baseSize).fillColor(COLOR_BLACK);
+  };
+
+  while (i < tokens.length) {
+    const tok = tokens[i];
+
+    // ── Headings ────────────────────────────────────────────────────────────
+    if (tok.type === "heading_open") {
+      const level = parseInt(tok.tag.replace("h", ""), 10);
+      const inline = tokens[i + 1];
+      const text   = inline?.content ?? stripTags(inline?.children?.map((c: any) => c.content ?? "").join("") ?? "");
+
+      const sizes: Record<number, number> = { 1: 18, 2: 15, 3: 13, 4: 12, 5: 11, 6: 10 };
+      const size = sizes[level] ?? 12;
+
+      doc.moveDown(level <= 2 ? 0.6 : 0.4);
+      doc.font("Helvetica-Bold").fontSize(size).fillColor(COLOR_BLACK).text(text, { width: CONTENT_WIDTH });
+
+      if (level <= 2) {
+        doc.moveDown(0.1);
+        doc.moveTo(MARGIN, doc.y).lineTo(MARGIN + CONTENT_WIDTH, doc.y)
+           .strokeColor(level === 1 ? COLOR_BLACK : COLOR_RULE).lineWidth(level === 1 ? 1 : 0.5).stroke();
+      }
+      doc.moveDown(0.3).font("Helvetica").fontSize(11).fillColor(COLOR_BLACK);
+      i += 3;
+      continue;
+    }
+
+    // ── Paragraphs ──────────────────────────────────────────────────────────
+    if (tok.type === "paragraph_open") {
+      const inline = tokens[i + 1];
+      doc.moveDown(0.3);
+      doc.font("Helvetica").fontSize(11).fillColor(COLOR_BLACK);
+      renderInline(inline);
+      i += 3;
+      continue;
+    }
+
+    // ── Bullet lists ────────────────────────────────────────────────────────
+    if (tok.type === "bullet_list_open") {
+      i++;
+      while (i < tokens.length && tokens[i].type !== "bullet_list_close") {
+        if (tokens[i].type === "list_item_open") {
+          i++;
+          while (i < tokens.length && tokens[i].type !== "list_item_close") {
+            if (tokens[i].type === "paragraph_open" || tokens[i].type === "inline") {
+              const inline = tokens[i].type === "inline" ? tokens[i] : tokens[i + 1];
+              doc.font("Helvetica").fontSize(11).fillColor(COLOR_BLACK);
+              // Bullet character
+              doc.text("•", MARGIN, doc.y, { continued: true, width: 14 });
+              renderInline(inline, { indent: 0 });
+              doc.moveDown(0.15);
+              if (tokens[i].type === "paragraph_open") i += 3; else i++;
+              continue;
+            }
+            i++;
+          }
+        }
+        i++;
+      }
+      i++;
+      continue;
+    }
+
+    // ── Ordered lists ───────────────────────────────────────────────────────
+    if (tok.type === "ordered_list_open") {
+      listCounter = parseInt(tok.attrGet?.("start") ?? "1", 10);
+      i++;
+      while (i < tokens.length && tokens[i].type !== "ordered_list_close") {
+        if (tokens[i].type === "list_item_open") {
+          const num = listCounter++;
+          i++;
+          while (i < tokens.length && tokens[i].type !== "list_item_close") {
+            if (tokens[i].type === "paragraph_open" || tokens[i].type === "inline") {
+              const inline = tokens[i].type === "inline" ? tokens[i] : tokens[i + 1];
+              doc.font("Helvetica").fontSize(11).fillColor(COLOR_BLACK);
+              doc.text(`${num}.`, MARGIN, doc.y, { continued: true, width: 20 });
+              renderInline(inline, { indent: 0 });
+              doc.moveDown(0.15);
+              if (tokens[i].type === "paragraph_open") i += 3; else i++;
+              continue;
+            }
+            i++;
+          }
+        }
+        i++;
+      }
+      i++;
+      continue;
+    }
+
+    // ── Code blocks ─────────────────────────────────────────────────────────
+    if (tok.type === "code_block" || tok.type === "fence") {
+      doc.moveDown(0.3);
+      doc.font("Courier").fontSize(9).fillColor(COLOR_GREY)
+         .text(tok.content ?? "", { width: CONTENT_WIDTH, lineGap: 1 });
+      doc.font("Helvetica").fontSize(11).fillColor(COLOR_BLACK).moveDown(0.3);
+      i++;
+      continue;
+    }
+
+    // ── Horizontal rule ─────────────────────────────────────────────────────
+    if (tok.type === "hr") {
+      doc.moveDown(0.4);
+      doc.moveTo(MARGIN, doc.y).lineTo(MARGIN + CONTENT_WIDTH, doc.y)
+         .strokeColor(COLOR_RULE).lineWidth(0.5).stroke();
+      doc.moveDown(0.4);
+      i++;
+      continue;
+    }
+
+    // ── Tables ──────────────────────────────────────────────────────────────
+    if (tok.type === "table_open") {
+      // Collect all cell texts first so we can lay them out
+      const rows: { text: string; isHeader: boolean }[][] = [];
+      i++;
+      while (i < tokens.length && tokens[i].type !== "table_close") {
+        if (tokens[i].type === "tr_open") {
+          const row: { text: string; isHeader: boolean }[] = [];
+          i++;
+          while (i < tokens.length && tokens[i].type !== "tr_close") {
+            const isHeader = tokens[i].type === "th_open";
+            if (isHeader || tokens[i].type === "td_open") {
+              i++;
+              const cellText = tokens[i]?.content ?? tokens[i]?.children?.map((c: any) => c.content ?? "").join("") ?? "";
+              row.push({ text: cellText, isHeader });
+              i += 2; // inline + th/td_close
+              continue;
+            }
+            i++;
+          }
+          if (row.length) rows.push(row);
+        }
+        i++;
+      }
+
+      if (rows.length) {
+        const colCount  = rows[0].length;
+        const colWidth  = CONTENT_WIDTH / colCount;
+        const rowHeight = 20;
+        doc.moveDown(0.4);
+        let tableY = doc.y;
+
+        for (const row of rows) {
+          let x = MARGIN;
+          for (const cell of row) {
+            // Cell border
+            doc.rect(x, tableY, colWidth, rowHeight).strokeColor(COLOR_RULE).lineWidth(0.5).stroke();
+            // Cell text
+            doc.font(cell.isHeader ? "Helvetica-Bold" : "Helvetica")
+               .fontSize(9).fillColor(COLOR_BLACK)
+               .text(cell.text, x + 4, tableY + 5, { width: colWidth - 8, height: rowHeight - 6, ellipsis: true });
+            x += colWidth;
+          }
+          tableY += rowHeight;
+        }
+        doc.y = tableY;
+        doc.moveDown(0.4);
+      }
+      i++;
+      continue;
+    }
+
+    i++;
+  }
+}
+
 export const buildPdfBuffer = async (
   title: string,
   contentType: string,
   content: string
 ): Promise<Buffer> => {
-  const page = await browserManager.newPage();
-  const context = page.context();
-  try {
-    // Accept both HTML and Markdown content from the editor
-    const renderedContent = contentToHtml(content);
-    const htmlContent = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <style>
-    body { font-family: 'Helvetica', sans-serif; padding: 40px; color: #111827; line-height: 1.6; }
-    h1 { font-size: 24px; color: #000; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; text-transform: uppercase; }
-    h2 { font-size: 18px; margin-top: 30px; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; }
-    h3 { font-size: 16px; margin-top: 20px; font-weight: bold; }
-    p  { margin-bottom: 15px; text-align: justify; }
-    ul, ol { margin-bottom: 15px; padding-left: 20px; }
-    li { margin-bottom: 5px; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-    th, td { border: 1px solid #e5e7eb; padding: 10px; text-align: left; font-size: 12px; }
-    th { background-color: #f9fafb; font-weight: bold; }
-    .header { color: #6b7280; font-size: 12px; margin-bottom: 40px; }
-    .footer { margin-top: 50px; font-size: 10px; color: #9ca3af; border-top: 1px solid #e5e7eb; padding-top: 10px; }
-    .content-area { font-size: 14px; }
-  </style>
-</head>
-<body>
-  <div class="header">
-    LORA Digital Asset Vault • ${contentType.toUpperCase().replace("_", " ")}
-    <br>Generated on ${new Date().toLocaleString()}
-  </div>
-  <h1>${title}</h1>
-  <div class="content-area">${renderedContent}</div>
-  <div class="footer">Confidential Document • Powered by LORA Multi-Agent Legal Engine</div>
-</body>
-</html>`;
-    await page.setContent(htmlContent);
-    const pdfBuffer = await page.pdf({
-      format: "A4",
-      margin: { top: "20mm", bottom: "20mm", left: "20mm", right: "20mm" },
-      printBackground: true,
-    });
-    return Buffer.from(pdfBuffer);
-  } finally {
-    await page.close();
-    await context.close();
-  }
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ size: "A4", margin: MARGIN, bufferPages: true });
+    const chunks: Buffer[] = [];
+
+    doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+    doc.on("end",  () => resolve(Buffer.concat(chunks)));
+    doc.on("error", reject);
+
+    const label = (contentType ?? "DOCUMENT").toUpperCase().replace(/_/g, " ");
+
+    // ── Header bar ──────────────────────────────────────────────────────────
+    doc.fontSize(9).font("Helvetica").fillColor(COLOR_GREY)
+       .text(`LORA Digital Asset Vault  •  ${label}`, MARGIN, MARGIN - 20, { width: CONTENT_WIDTH, align: "left" })
+       .text(new Date().toLocaleString(), MARGIN, MARGIN - 20, { width: CONTENT_WIDTH, align: "right" });
+
+    doc.moveDown(0.5);
+
+    // ── Title ───────────────────────────────────────────────────────────────
+    doc.fontSize(20).font("Helvetica-Bold").fillColor(COLOR_BLACK)
+       .text(title.toUpperCase(), { width: CONTENT_WIDTH });
+    doc.moveDown(0.2);
+    doc.moveTo(MARGIN, doc.y).lineTo(MARGIN + CONTENT_WIDTH, doc.y)
+       .strokeColor(COLOR_BLACK).lineWidth(1.5).stroke();
+    doc.moveDown(0.6);
+
+    // ── Body ────────────────────────────────────────────────────────────────
+    doc.fontSize(11).font("Helvetica").fillColor(COLOR_BLACK);
+    const tokens = contentToTokens(content);
+    renderTokensToPdf(doc, tokens);
+
+    // ── Footer on every page ────────────────────────────────────────────────
+    const pages = doc.bufferedPageRange();
+    for (let p = 0; p < pages.count; p++) {
+      doc.switchToPage(pages.start + p);
+      const footerY = doc.page.height - MARGIN + 8;
+      doc.moveTo(MARGIN, footerY - 4).lineTo(MARGIN + CONTENT_WIDTH, footerY - 4)
+         .strokeColor(COLOR_RULE).lineWidth(0.5).stroke();
+      doc.fontSize(8).font("Helvetica").fillColor(COLOR_LIGHT)
+         .text(
+           `Confidential Document  •  Powered by LORA Multi-Agent Legal Engine  •  Page ${p + 1} of ${pages.count}`,
+           MARGIN, footerY, { width: CONTENT_WIDTH, align: "center" }
+         );
+    }
+
+    doc.end();
+  });
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

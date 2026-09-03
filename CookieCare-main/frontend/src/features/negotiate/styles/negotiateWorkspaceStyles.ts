@@ -98,4 +98,32 @@ export const NEGOTIATE_WORKSPACE_STYLES = `
   0% { filter: blur(5px); opacity: 0.35; background: rgba(79, 91, 217, 0.22); }
   100% { filter: blur(0); opacity: 1; background: rgba(79, 91, 217, 0.12); }
 }
+
+/* ── Clause focused (scroll-to from sidebar finding click) ───────────────── */
+/* Temporary focus ring that fades out — distinct from the working/applied    */
+/* states and from the manual-selection grey highlight.                        */
+
+.negotiate-clause-focused {
+  outline: 2px solid rgba(79, 91, 217, 0.55) !important;
+  outline-offset: 2px;
+  border-radius: 4px;
+  animation: negotiate-clause-focus-fade 1.4s ease-out forwards;
+}
+
+@keyframes negotiate-clause-focus-fade {
+  0%   { outline-color: rgba(79, 91, 217, 0.55); }
+  60%  { outline-color: rgba(79, 91, 217, 0.30); }
+  100% { outline-color: rgba(79, 91, 217, 0); }
+}
+
+/* ── Manual text-selection highlight ─────────────────────────────────────── */
+/* The visual highlight is now rendered as absolutely-positioned overlay divs  */
+/* in React state — no DOM injection into the document body.                   */
+/* This rule suppresses the browser's default ::selection colour while a       */
+/* manual selection is active so the native blue doesn't fight the overlay.    */
+
+/* Suppress browser ::selection colour while a manual selection is active */
+.negotiate-document-body.has-manual-selection ::selection {
+  background: transparent;
+}
 `;

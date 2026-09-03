@@ -87,6 +87,71 @@ async function ensureVectorExtension(client: any): Promise<void> {
   }
 }
 
+// ─── Idempotent column migrations ────────────────────────────────────────────
+//
+// Every ALTER TABLE in this function uses ADD COLUMN IF NOT EXISTS (or an
+// equivalent idempotent guard) so it is safe to run against both a brand-new
+// database and one that has been running in production for months.
+//
+// NEW databases:  setupDb() calls this after completing the full schema setup.
+// EXISTING databases: setupDb() calls this instead of early-returning, so any
+//                     column added after the initial schema creation is picked
+//                     up automatically on the next `npm run dev` / deploy.
+//
+// Rules for adding migrations here:
+//   - Always use IF NOT EXISTS / ON CONFLICT DO NOTHING / idempotent guards.
+//   - Never DROP or TRUNCATE a column or table.
+//   - Always supply a safe DEFAULT for new NOT NULL columns.
+async function runIdempotentMigrations(client: any): Promise<void> {
+  console.log("Running idempotent column migrations...");
+
+  // Embedding column type upgrade (guarded by an information_schema check)
+  try {
+    const embeddingTypeResult = await client.query(`
+      SELECT data_type FROM information_schema.columns
+      WHERE table_name = 'legal_document_chunks' AND column_name = 'embedding'
+    `);
+    if (embeddingTypeResult.rows.length === 0 || embeddingTypeResult.rows[0].data_type !== 'USER-DEFINED') {
+      await client.query("ALTER TABLE legal_document_chunks ALTER COLUMN embedding TYPE vector(768) USING embedding::vector(768);");
+    }
+  } catch (err: any) {
+    // pgvector may not be installed on this deployment — non-fatal.
+    console.warn(`[migrations] Skipping embedding type upgrade: ${err.message}`);
+  }
+
+  // jobs table columns added post-initial-setup
+  await client.query(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS result JSONB DEFAULT NULL;`);
+  await client.query(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS error TEXT DEFAULT NULL;`);
+  await client.query(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;`);
+
+  // Google auth: make password_hash nullable for Google-only users
+  await client.query(`ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL;`);
+  await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_provider VARCHAR(50) NOT NULL DEFAULT 'LOCAL';`);
+  await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS google_sub VARCHAR(255) UNIQUE;`);
+
+  // Vault library rows: UI shows dateModified from updated_at
+  await client.query(`
+    ALTER TABLE library_items
+    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+  `);
+
+  // Vault scope: 'private' = current user only, 'org' = organisation-wide
+  await client.query(`
+    ALTER TABLE library_items
+    ADD COLUMN IF NOT EXISTS source VARCHAR(20) NOT NULL DEFAULT 'private'
+      CHECK (source IN ('private', 'org'));
+  `);
+
+  // Negotiate: original file storage — raw uploaded bytes (base64 text) so the
+  // Vault "Open" button and getRawDocument can serve back the exact original file.
+  // Required by uploadDocument() and getRawDocument() in controllers/documents.ts.
+  await client.query(`
+    ALTER TABLE files ADD COLUMN IF NOT EXISTS original_file TEXT DEFAULT NULL;
+  `);
+
+  console.log("Idempotent column migrations applied.");
+}
+
 async function setupDb() {
   if (config.skipDb) {
     console.log("SKIP_DB=true — skipping database setup.");
@@ -121,7 +186,8 @@ async function setupDb() {
       // left the database.
       await client.query("COMMIT");
       inTransaction = false;
-      console.log("Database schema already present — skipping setup.");
+      console.log("Database schema already present — running idempotent column migrations.");
+      await runIdempotentMigrations(client);
       return;
     }
 
@@ -390,37 +456,10 @@ async function setupDb() {
 
     `);
 
-    // Embedding column update (idempotent check)
-    const embeddingTypeResult = await client.query(`
-      SELECT data_type FROM information_schema.columns
-      WHERE table_name = 'legal_document_chunks' AND column_name = 'embedding'
-    `);
-    if (embeddingTypeResult.rows.length === 0 || embeddingTypeResult.rows[0].data_type !== 'USER-DEFINED') {
-      await client.query("ALTER TABLE legal_document_chunks ALTER COLUMN embedding TYPE vector(768) USING embedding::vector(768);");
-    }
-
-    // Idempotent migrations for jobs table columns added post-initial-setup
-    await client.query(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS result JSONB DEFAULT NULL;`);
-    await client.query(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS error TEXT DEFAULT NULL;`);
-    await client.query(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;`);
-
-    // Google auth: make password_hash nullable for Google-only users
-    await client.query(`ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL;`);
-    await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_provider VARCHAR(50) NOT NULL DEFAULT 'LOCAL';`);
-    await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS google_sub VARCHAR(255) UNIQUE;`);
-
-    // Vault library rows: UI shows dateModified from updated_at
-    await client.query(`
-      ALTER TABLE library_items
-      ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
-    `);
-
-    // Vault scope: 'private' = current user only, 'org' = organisation-wide
-    await client.query(`
-      ALTER TABLE library_items
-      ADD COLUMN IF NOT EXISTS source VARCHAR(20) NOT NULL DEFAULT 'private'
-        CHECK (source IN ('private', 'org'));
-    `);
+    // Idempotent column migrations — shared with the existing-database path.
+    // These are all ADD COLUMN IF NOT EXISTS / idempotent guards so running
+    // them on a brand-new schema is safe and produces the same final state.
+    await runIdempotentMigrations(client);
 
     // Seed Admin
     const hashedSeedPassword = await argon2.hash("MamuSecure2026!");

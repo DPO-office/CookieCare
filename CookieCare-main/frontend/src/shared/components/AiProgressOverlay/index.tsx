@@ -30,7 +30,7 @@ export default function AiProgressOverlay({
   illustration = "ring",
 }: AiProgressOverlayProps) {
   return (
-    <div style={{ position: "relative" }}>
+    <>
       <ProcessingOverlay
         mode="dialog"
         visible={visible}
@@ -80,6 +80,6 @@ export default function AiProgressOverlay({
           </button>
         </div>
       )}
-    </div>
+    </>
   );
 }
