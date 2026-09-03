@@ -35,9 +35,11 @@ export function nextPhaseAfterCritique(state: DraftState, critique: CritiqueRepo
   // Iteration cap — stop rather than spinning ACT↔CRITIQUE.
   const maxIter = Math.max(1, Number(process.env.DRAFTING_CRITIQUE_MAX_ITER || 2));
   if (critique.iteration >= maxIter) return "DONE";
+  // A newly surfaced critical fact is user input, not a drafting repair. It
+  // must be handled before the empty-fix-plan terminal guard.
+  if (criticalFactSurfaced(critique)) return "ASK";
   if (critique.fixPlan.length === 0 && !critique.skeletonMismatch) return "DONE";
   if (critique.skeletonMismatch) return "PLAN";
-  if (criticalFactSurfaced(critique)) return "ASK";
   return "ACT";
 }
 

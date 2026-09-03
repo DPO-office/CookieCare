@@ -4,6 +4,7 @@ import {
   LLMTask,
 } from "../../../../llm/index.js";
 import type { AnalysisState } from "../../models/analysis-state.js";
+import { isAnalysisExecutionIncomplete } from "../../models/analysis-execution.js";
 import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
 import type { Finding, MatrixAddressing } from "../../models/finding.js";
 import type { AnalysisArtifact } from "../../models/evidence-package.js";
@@ -48,6 +49,8 @@ import {
   filterAssessmentsByRequirementIds,
   findingSupportsRequirement,
 } from "../../shared/requirement-identity.js";
+import { isConfirmedRiskFinding } from "../../shared/finding-semantics.js";
+import { capabilityContractFor } from "../contracts/analysis-capability-contract.js";
 
 /** Find the first authored rule whose rendererHooks[hook] is truthy. */
 export function findRuleByRendererHook(
@@ -95,8 +98,111 @@ export async function renderOutput(
   findings: Finding[],
   unit: AnalysisWorkUnit
 ): Promise<AnalysisState> {
+  const facetId = unit.facetId ??
+    (typeof unit.input.facetId === "string" ? unit.input.facetId : undefined);
+  const branchScoped = unit.input.__branchScoped === true;
+  if (facetId && !branchScoped) {
+    const branch = state.plan?.branches?.find((candidate) => candidate.facetId === facetId);
+    if (!branch) {
+      return {
+        ...state,
+        branchDiagnostics: {
+          ...(state.branchDiagnostics ?? {}),
+          [facetId]: {
+            status: "incomplete",
+            failedLayer: "RENDER",
+            reason: "The branch plan was unavailable during rendering.",
+          },
+        },
+      };
+    }
+    const branchFindings = findings.filter((finding) => finding.facetId === facetId);
+    const branchAssessments = (state.requirementAssessments ?? []).filter(
+      (assessment) => assessment.facetId === facetId
+    );
+    const branchState: AnalysisState = {
+      ...state,
+      onToken: undefined,
+      streamRenderOutput: false,
+      userFacingCharsEmitted: 0,
+      request: { ...state.request, instruction: branch.instruction },
+      intent: branch.intent,
+      activeSkillIds: branch.activeSkillIds,
+      findings: branchFindings,
+      requirementAssessments: branchAssessments,
+      analyticalSynthesis: null,
+      reportSections: [],
+      renderedOutput: undefined,
+      plan: state.plan
+        ? {
+            ...state.plan,
+            intent: branch.intent,
+            outputForm: branch.intent.outputForm,
+            reportSpec: branch.reportSpec,
+            rendererSchemaId: branch.rendererSchemaId,
+            activeSkillIds: branch.activeSkillIds,
+            focus: branch.focus,
+            requirementBindings: branch.requirementBindings,
+            requirementExecutionPaths: branch.requirementExecutionPaths,
+            branches: undefined,
+            branchMode: undefined,
+          }
+        : state.plan,
+    };
+    const renderedBranch = await renderOutput(branchState, branchFindings, {
+      ...unit,
+      input: { ...unit.input, __branchScoped: true },
+    });
+    const output = renderedBranch.renderedOutput?.trim();
+    const marker = renderedBranch.findings.find(
+      (finding) => finding.findingId === `f_render_${unit.workUnitId}`
+    );
+    return {
+      ...state,
+      findings: marker
+        ? replaceRenderMarker(findings, { ...marker, facetId })
+        : findings,
+      analysisArtifacts: {
+        ...(state.analysisArtifacts ?? {}),
+        ...(renderedBranch.analysisArtifacts ?? {}),
+      },
+      branchReports: {
+        ...(state.branchReports ?? {}),
+        ...(output ? { [facetId]: output } : {}),
+      },
+      branchDiagnostics: {
+        ...(state.branchDiagnostics ?? {}),
+        [facetId]: output
+          ? {
+              ...(state.branchDiagnostics?.[facetId] ?? {}),
+              status:
+                state.branchDiagnostics?.[facetId]?.status === "incomplete"
+                  ? "incomplete"
+                  : "complete",
+            }
+          : {
+              ...(state.branchDiagnostics?.[facetId] ?? {}),
+              status: "incomplete",
+              failedLayer: "RENDER",
+              reason: "The branch renderer returned no usable output.",
+            },
+      },
+    };
+  }
   beginRenderStreaming(state);
   const schemaId = String(unit.input.schemaId ?? "checklist");
+  const capabilityContract = capabilityContractFor(state.intent?.operation);
+  pacLog("RENDER capability contract", {
+    operation: String(unit.input.capabilityOperation ?? capabilityContract.operation),
+    reportType: state.plan?.reportSpec?.reportType ?? capabilityContract.defaultReportType,
+    graph: String(unit.input.capabilityGraph ?? "legacy"),
+    evidence: String(
+      unit.input.evidenceCardinality ?? capabilityContract.evidenceCardinality
+    ),
+    outline: String(unit.input.outlineDesigner ?? capabilityContract.outlineDesigner),
+    blufAllowed: unit.input.allowBluf ?? capabilityContract.allowBluf,
+    schemaId,
+  });
   const skillIds = (unit.input.skillIds as string[]) ?? state.activeSkillIds ?? [];
   const primarySkill = titleSkillForRender(state, skillIds);
   let visible = consolidateFindingsForRender(
@@ -164,7 +270,8 @@ export async function renderOutput(
     // producing generic "Other material contractual risk — MEDIUM" entries
     // instead of a real answer.
     const usesDynamicOutlineLane =
-      state.intent?.operation === "risk_flag" || state.intent?.operation === "compare";
+      state.plan?.reportSpec?.reportType === "qa_answer" ||
+      !capabilityContract.allowBluf;
     if (blufReportEnabled() && !usesDynamicOutlineLane) {
       rendered = await buildBlufReport(state, visible, spec);
       usedBluf = true;
@@ -212,6 +319,7 @@ export async function renderOutput(
 
   const renderFinding: Finding = {
     findingId: `f_render_${unit.workUnitId}`,
+    facetId,
     kind: "summary_point",
     category: "other_known_risk",
     status: "present",
@@ -223,11 +331,25 @@ export async function renderOutput(
     visibility: "internal",
   };
 
+  // A presentation-only follow-up deliberately reuses the prior finding store.
+  // Replace the previous marker for this stable render unit instead of appending
+  // another finding with the same id on every re-render.
   return {
     ...state,
     renderedOutput: rendered,
-    findings: [...findings, renderFinding],
+    findings: replaceRenderMarker(findings, renderFinding),
   };
+}
+
+/** Replace the internal marker for a stable render unit across follow-up turns. */
+export function replaceRenderMarker(
+  findings: Finding[],
+  renderFinding: Finding
+): Finding[] {
+  return [
+    ...findings.filter((finding) => finding.findingId !== renderFinding.findingId),
+    renderFinding,
+  ];
 }
 
 const INTERNAL_VERIFICATION_CLAIM =
@@ -340,7 +462,7 @@ export function filterFindingsForMatrixFocus(
       return true;
     }
     if (finding.ruleId && leftoverRules.has(finding.ruleId)) return true;
-    if (finding.kind === "risk" && finding.visibility !== "internal") return true;
+    if (isConfirmedRiskFinding(finding)) return true;
     if (finding.kind === "summary_point") return true;
     return false;
   });
@@ -1147,7 +1269,7 @@ export function getEligibleRemedialFindings(
       !finding.unverified &&
       !finding.orgPlaybook &&
       (finding.severity === "medium" || finding.severity === "high") &&
-      (finding.kind === "risk" ||
+      (isConfirmedRiskFinding(finding) ||
         finding.status !== "present" ||
         finding.matrixAddressing === "generic" ||
         finding.matrixAddressing === "absent")
@@ -1393,23 +1515,17 @@ function tableText(lines: string[], range: { startLine: number; endLine: number 
 }
 
 function mdCell(value: string): string {
-  const clean = value.replace(/\|/g, "/").replace(/\s+/g, " ").trim();
-  if (clean.length <= 360) return clean;
-  // Truncate at a word boundary and add an ellipsis rather than slicing
-  // mid-word (the old behaviour produced "…retrieval, analys").
-  const cut = clean.slice(0, 360);
-  const lastSpace = cut.lastIndexOf(" ");
-  const trimmed = (lastSpace > 240 ? cut.slice(0, lastSpace) : cut).replace(/[.,;:\s]+$/, "");
-  return `${trimmed}…`;
+  // Preserve the complete verified text in the report. The frontend already
+  // line-clamps these cells and supplies Show more/Show less; truncating here
+  // meant that control could never reveal the omitted paragraph remainder.
+  return value.replace(/\|/g, "/").replace(/\s+/g, " ").trim();
 }
 
 /**
- * Prettify a GDPR-article requirement id that lacks a trailing letter (the
- * lettered case is already handled by humanizeRequirementId). Turns
- * "gdpr.article28_3.mandatory_clauses_adequacy" into
- * "Art 28(3) — Mandatory Clauses Adequacy" instead of the raw
- * "Article28 3 Mandatory Clauses Adequacy". Local to rendering so the shared
- * humanizeRequirementId (and its test) stay untouched.
+ * Prettify a legal-article requirement id that lacks a trailing letter (the
+ * lettered case is already handled by humanizeRequirementId). This turns a
+ * namespaced article/subsection identifier into a readable legal citation
+ * plus title, while remaining independent of any particular regime.
  */
 function prettyArticleLabel(id: string): string | null {
   const m = id.match(/article[._-]?(\d{1,3})(?:[._-](\d+))?/i);
@@ -1438,8 +1554,8 @@ function requirementLabel(
     return description.length <= 80 ? description : `${description.slice(0, 77).trimEnd()}…`;
   }
   const humanized = humanizeRequirementId(requirementId);
-  // humanizeRequirementId handles lettered ids ("Art 28(3)(g)…"); catch the
-  // non-lettered article ids it leaves as "Article28 3 …".
+  // Catch non-lettered article ids that otherwise retain their compact
+  // identifier shape after the shared humanizer runs.
   if (/^Article\d/.test(humanized)) {
     return prettyArticleLabel(requirementId) ?? humanized;
   }
@@ -1477,6 +1593,9 @@ function evidenceCellText(
   assessment: RequirementAssessment,
   finding: Finding | undefined
 ): string {
+  if (isAnalysisExecutionIncomplete(assessment.analysisExecution)) {
+    return "Verification did not complete; no document conclusion was reached.";
+  }
   const quote = finding?.evidence[0]?.quotedText?.trim() ?? "";
   if (quote) {
     const loc = formatLocator(finding?.evidence[0]?.locator.structuralPath);
@@ -1528,6 +1647,9 @@ function enrichmentSuffix(assessment: RequirementAssessment, base: string): stri
  * keeps the Finding cell to the finding itself instead of a truncated wall.
  */
 function actionCellText(assessment: RequirementAssessment): string {
+  if (isAnalysisExecutionIncomplete(assessment.analysisExecution)) {
+    return "Retry this requirement; do not treat this as a contractual gap.";
+  }
   const remedy = assessment.remediation?.trim();
   if (remedy) return remedy;
   switch (assessment.judgement?.recommendationKind) {
@@ -1544,6 +1666,32 @@ function actionCellText(assessment: RequirementAssessment): string {
   }
 }
 
+function renderedAssessmentStatus(
+  assessment: RequirementAssessment,
+  state?: AnalysisState
+): string {
+  if (assessment.analysisExecution?.status === "timed_out") {
+    return "Analysis incomplete (timed out)";
+  }
+  if (isAnalysisExecutionIncomplete(assessment.analysisExecution)) {
+    return "Analysis incomplete";
+  }
+  if (
+    state?.intent?.operation === "compliance_check" &&
+    assessment.judgement?.compliance === "partial"
+  ) {
+    if (
+      assessment.judgement.referenceBinding === "binding" &&
+      (assessment.judgement.evidenceState === "incorporated" ||
+        assessment.judgement.evidenceState === "unavailable")
+    ) {
+      return "Partially covered - details in schedule";
+    }
+    return "Partially covered";
+  }
+  return displayRequirementStatus(assessment);
+}
+
 export function assessmentTableMarkdown(
   assessments: RequirementAssessment[],
   findings: Finding[],
@@ -1558,7 +1706,7 @@ export function assessmentTableMarkdown(
     const support = pickRowFinding(assessment, findingById);
     const base = assessment.establishedBy ?? support?.claim ?? assessment.summary;
     const finding = [base, enrichmentSuffix(assessment, base)].filter(Boolean).join(" ");
-    return `| ${mdCell(requirementLabel(assessment.requirementId, state))} | **${mdCell(displayRequirementStatus(assessment))}** | ${mdCell(evidenceCellText(assessment, support))} | ${mdCell(finding)} | ${mdCell(actionCellText(assessment))} |`;
+    return `| ${mdCell(requirementLabel(assessment.requirementId, state))} | **${mdCell(renderedAssessmentStatus(assessment, state))}** | ${mdCell(evidenceCellText(assessment, support))} | ${mdCell(finding)} | ${mdCell(actionCellText(assessment))} |`;
   });
   return [...header, ...rows].join("\n");
 }
@@ -1818,6 +1966,7 @@ const BOTTOM_LINE_COMPLETENESS_OVERCLAIM =
 
 function assessmentHasIncompleteEvidence(assessment: RequirementAssessment): boolean {
   return (
+    isAnalysisExecutionIncomplete(assessment.analysisExecution) ||
     assessment.status === "cannot_determine" ||
     assessment.judgement?.evidenceState === "incorporated" ||
     assessment.judgement?.evidenceState === "truncated" ||
@@ -1840,6 +1989,10 @@ export function enforceBottomLineEvidenceLimits(
   );
   if (incomplete.length === 0) return bottomLine.trim();
 
+  const executionIncomplete = incomplete.filter((assessment) =>
+    isAnalysisExecutionIncomplete(assessment.analysisExecution)
+  );
+
   const sentences = bottomLine
     .match(/[^.!?]+[.!?]+|[^.!?]+$/g)
     ?.map((sentence) => sentence.trim())
@@ -1847,9 +2000,21 @@ export function enforceBottomLineEvidenceLimits(
   const safe = sentences.filter(
     (sentence) => !BOTTOM_LINE_COMPLETENESS_OVERCLAIM.test(sentence)
   );
-  const noun = incomplete.length === 1 ? "requirement remains" : "requirements remain";
-  const qualifier = `${incomplete.length} ${noun} dependent on referenced, truncated, conflicting, or unavailable material. Obtain and review that material before treating the analysis as complete.`;
-  return [...safe, qualifier].join(" ").trim();
+  const qualifiers: string[] = [];
+  if (executionIncomplete.length > 0) {
+    const noun = executionIncomplete.length === 1 ? "requirement was" : "requirements were";
+    qualifiers.push(
+      `${executionIncomplete.length} ${noun} not fully analysed because verification did not complete. Retry those checks; do not interpret them as contractual gaps.`
+    );
+  }
+  const evidenceIncomplete = incomplete.length - executionIncomplete.length;
+  if (evidenceIncomplete > 0) {
+    const noun = evidenceIncomplete === 1 ? "requirement remains" : "requirements remain";
+    qualifiers.push(
+      `${evidenceIncomplete} ${noun} dependent on referenced, truncated, conflicting, or unavailable material. Obtain and review that material before treating the analysis as complete.`
+    );
+  }
+  return [...safe, ...qualifiers].join(" ").trim();
 }
 
 /**
@@ -1886,11 +2051,15 @@ async function streamBlufBottomLine(
   const incompleteEvidenceCount = assessments.filter(
     assessmentHasIncompleteEvidence
   ).length;
+  const incompleteExecutionCount = assessments.filter((assessment) =>
+    isAnalysisExecutionIncomplete(assessment.analysisExecution)
+  ).length;
   const system = [
     "You are a senior analyst writing the BOTTOM LINE of a document review for counsel.",
     "Write 2–4 sentences: the overall position, then the one or two items that most need attention, ending on what to do next.",
     "Use only the supplied counts, residual items, and risks. Do not invent findings, do not enumerate every item, do not restate a matrix, do not write a heading. No preamble such as 'In summary'.",
     "Evidence limitations are binding. If the input reports any incorporated, referenced, truncated, conflicting, unavailable, or not-found evidence, explicitly qualify the conclusion and never describe the review as complete, fully verified/documented/compliant, free of residual items, or ready to finalize.",
+    "Analysis-execution failures are not document gaps. Describe them as checks that must be retried, never as missing or inadequate contract language.",
   ].join(" ");
   const riskSummary =
     riskFindings.length > 0
@@ -1916,6 +2085,9 @@ async function streamBlufBottomLine(
     incompleteEvidenceCount > 0
       ? `Evidence limitations: ${incompleteEvidenceCount} requirement(s) depend on referenced, truncated, conflicting, unavailable, or not-found material.`
       : "Evidence limitations: none.",
+    incompleteExecutionCount > 0
+      ? `Execution limitations: ${incompleteExecutionCount} requirement check(s) did not complete and must be retried.`
+      : "Execution limitations: none.",
     riskSummary,
   ]
     .filter(Boolean)
@@ -1987,9 +2159,7 @@ async function buildBlufReport(
     return supp.length > 0 && supp.every((f) => f.kind === "risk");
   };
   const assessments = allAssessments.filter((a) => !isRiskOnly(a));
-  const riskFindings = findingList.filter(
-    (f) => f.kind === "risk" && f.visibility !== "internal"
-  );
+  const riskFindings = findingList.filter(isConfirmedRiskFinding);
 
   const parts: string[] = [];
 
@@ -2036,7 +2206,7 @@ async function buildBlufReport(
     for (const a of attention) {
       const action = actionCellText(a) || "Review with counsel.";
       lines.push(
-        `- **${requirementLabel(a.requirementId, state)}** — ${displayRequirementStatus(a)}: ${action}`
+        `- **${requirementLabel(a.requirementId, state)}** - ${renderedAssessmentStatus(a, state)}: ${action}`
       );
     }
     lines.push("");

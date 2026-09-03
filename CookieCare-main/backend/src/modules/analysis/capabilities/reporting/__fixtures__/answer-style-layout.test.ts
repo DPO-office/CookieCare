@@ -14,6 +14,7 @@ import {
   enforceAnswerStyleLayout,
   enforceBottomLineEvidenceLimits,
 } from "../render-output.js";
+import { stripRedundantQaEvidenceSubsection } from "../synthesize-report.js";
 import { RISK_TAXONOMY_VERSION } from "../../../taxonomies/index.js";
 
 function finding(id: string, quote: string): Finding {
@@ -78,6 +79,26 @@ function state(overrides: Record<string, unknown> = {}): AnalysisState {
 }
 
 describe("narrative vs tabular layout contract", () => {
+  it("removes duplicated nested evidence from an answer-first Q&A report", () => {
+    const markdown = [
+      "## Answer",
+      "",
+      "**Yes.** The document separates two scopes.",
+      "",
+      "### Key Evidence",
+      "",
+      "- duplicated quote",
+      "",
+      "## Evidence",
+      "",
+      "- **Clause 1:** complete quote [E1]",
+    ].join("\n");
+    const cleaned = stripRedundantQaEvidenceSubsection(markdown);
+    assert.doesNotMatch(cleaned, /### Key Evidence/);
+    assert.match(cleaned, /## Evidence/);
+    assert.match(cleaned, /complete quote/);
+  });
+
   it("cannot render a fully-complete bottom line over incorporated evidence", () => {
     const guarded = enforceBottomLineEvidenceLimits(
       state({
@@ -318,6 +339,29 @@ describe("narrative vs tabular layout contract", () => {
     assert.match(markdown, /No related clauses found/);
     assert.doesNotMatch(markdown, /\| — \|/);
     assert.doesNotMatch(markdown, /\| - \|/);
+  });
+
+  it("keeps the complete verified evidence paragraph for the UI Show more control", () => {
+    const quote = `The processor shall preserve the entire verified paragraph ${"including operative detail ".repeat(24)}END-OF-VERIFIED-PARAGRAPH.`;
+    const markdown = assessmentTableMarkdown(
+      [
+        {
+          requirementId: "complete_evidence",
+          supportingFindingIds: ["f_complete"],
+          status: "strong",
+          summary: "Complete evidence is available.",
+        },
+      ],
+      [
+        {
+          ...finding("f_complete", quote),
+          requirementId: "complete_evidence",
+          claim: "Complete evidence is available.",
+        },
+      ]
+    );
+
+    assert.match(markdown, /END-OF-VERIFIED-PARAGRAPH/);
   });
 
   it("injects locked Present duration when outline still carries PLAN ids", () => {

@@ -20,6 +20,7 @@ import {
 } from "./critique-inspect-log.js";
 import { getAnalysisProfile } from "../../utils/profile-thinking.js";
 import { repairContextFromAlignment } from "../../skills/runtime/graph/apply-package-shape-repair.js";
+import { detectPlaceholderOutput } from "./placeholder-report.js";
 
 /**
  * Two-level CRITIQUE:
@@ -28,6 +29,16 @@ import { repairContextFromAlignment } from "../../skills/runtime/graph/apply-pac
  */
 export async function runCritique(state: AnalysisState): Promise<AnalysisState> {
   const iteration = (state.critique?.iteration ?? 0) + 1;
+
+  // Presentation-only follow-ups reuse an already locked analysis and execute
+  // only the renderer. Running the full PLAN/ACT coverage validator here would
+  // incorrectly demand fresh evidence/package units that this turn is expressly
+  // designed not to run. Keep a deterministic release gate, but validate the
+  // actual contract of this turn: one completed render and substantive output.
+  if (isPresentationOnlyRerender(state)) {
+    return runPresentationRerenderGate(state, iteration);
+  }
+
   const liteStarted = Date.now();
   pacLog("CRITIQUE-LITE start", {
     findings: state.findings.length,
@@ -205,6 +216,107 @@ export async function runCritique(state: AnalysisState): Promise<AnalysisState> 
     repairContext,
     metadata: {
       ...resolvedState.metadata,
+      critiqueMetrics: metrics,
+    },
+  };
+}
+
+function isPresentationOnlyRerender(state: AnalysisState): boolean {
+  const units = state.plan?.workUnits ?? [];
+  return (
+    state.plan?.skipCritique === true &&
+    units.length === 1 &&
+    units[0]?.tool === "render_output" &&
+    units[0]?.input.followUpKind === "presentation_change"
+  );
+}
+
+function runPresentationRerenderGate(
+  state: AnalysisState,
+  iteration: number
+): AnalysisState {
+  const started = Date.now();
+  const renderUnit = state.plan!.workUnits[0]!;
+  const executionComplete = renderUnit.status === "done";
+  const placeholderReport = detectPlaceholderOutput(state);
+  const structurallyValid = executionComplete && !placeholderReport.detected;
+  const reasons = structurallyValid
+    ? []
+    : placeholderReport.detected
+      ? (["placeholder_output"] as const)
+      : (["unrecoverable_execution_failure"] as const);
+  const requirementCoverage = {
+    total: 0,
+    covered: 0,
+    entries: [],
+    notCovered: [],
+    needsReplan: [],
+  };
+  const alignment = { issues: [] };
+  const release = {
+    verdict: structurallyValid ? ("release" as const) : ("withhold" as const),
+    reasons: [...reasons],
+    requirementCoverage,
+    alignment,
+    placeholderReport,
+  };
+  const results = structurallyValid
+    ? []
+    : [
+        {
+          itemId: placeholderReport.detected
+            ? "placeholder-output"
+            : `complete:${renderUnit.workUnitId}`,
+          status: "fail" as const,
+          evidenceVerified: false,
+          workUnitId: renderUnit.workUnitId,
+          detail:
+            placeholderReport.detail ??
+            "Presentation re-render did not complete successfully",
+        },
+      ];
+  const metrics: CritiqueMetrics = {
+    critiqueLiteMs: Date.now() - started,
+    deepCritiqueMs: 0,
+    deepCritiqueTriggered: false,
+    deepCritiqueTargets: 0,
+    targetedRedoCount: targetedRedoCountForRun(state),
+    replanCount: state.critique?.metrics?.replanCount ?? 0,
+    askCount: state.critique?.metrics?.askCount ?? state.agent?.askRounds ?? 0,
+    critiqueLLMCalls: state.critique?.metrics?.critiqueLLMCalls ?? 0,
+  };
+  const report: CritiqueReport = {
+    isGreen: structurallyValid,
+    iteration,
+    results,
+    executionComplete,
+    structurallyValid,
+    structuralIssues: results,
+    deepCritiqueRequired: false,
+    deepCritiqueTargets: [],
+    deepCritiqueResults: [],
+    fixPlan: [],
+    skeletonMismatch: false,
+    criticalFactSurfaced: false,
+    outcomes: [],
+    allUnitsTerminal: executionComplete,
+    metrics,
+    release,
+  };
+
+  pacLog("CRITIQUE presentation re-render gate", {
+    executionComplete,
+    placeholder: placeholderReport.detected,
+    verdict: release.verdict,
+    reusedFindings: state.findings.filter((finding) => finding.visibility !== "internal").length,
+  });
+
+  return {
+    ...state,
+    critique: report,
+    repairContext: null,
+    metadata: {
+      ...state.metadata,
       critiqueMetrics: metrics,
     },
   };

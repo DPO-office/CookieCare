@@ -1,4 +1,5 @@
 import type { ReportSectionId } from "./intent.js";
+import type { AnalysisExecutionState } from "./analysis-execution.js";
 
 /**
  * Reporting/aggregation status for a single user requirement.
@@ -270,10 +271,14 @@ export interface BaselineComparison {
  */
 export interface RequirementAssessment {
   requirementId: string;
+  /** Compound branch that owns this locked assessment. */
+  facetId?: string;
   /** Request requirement whose composite analysis this native component belongs to. */
   componentOfRequirementId?: string;
   /** Ids of the authoritative Findings that support this assessment. */
   supportingFindingIds: string[];
+  /** Runtime completion, kept independent from the locked legal judgement. */
+  analysisExecution?: AnalysisExecutionState;
   /** Human-readable one/two line summary for synthesis input. */
   summary: string;
   status: RequirementStatus;

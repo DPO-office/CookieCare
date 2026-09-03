@@ -104,6 +104,7 @@ export class GeminiProvider implements ILLMProvider {
         model: runtimeConfig.model,
         contents: prompt,
         config: {
+          abortSignal: runtimeConfig.abortSignal,
           systemInstruction: systemInstruction,
           temperature: runtimeConfig.temperature,
           maxOutputTokens: runtimeConfig.maxOutputTokens,
@@ -133,6 +134,7 @@ export class GeminiProvider implements ILLMProvider {
         model: runtimeConfig.model,
         contents: prompt,
         config: {
+          abortSignal: runtimeConfig.abortSignal,
           systemInstruction: systemInstruction,
           temperature: runtimeConfig.temperature,
           maxOutputTokens: runtimeConfig.maxOutputTokens,
@@ -177,6 +179,7 @@ export class GeminiProvider implements ILLMProvider {
         model: runtimeConfig.model,
         contents: prompt,
         config: {
+          abortSignal: runtimeConfig.abortSignal,
           systemInstruction: systemInstruction,
           temperature: runtimeConfig.temperature,
           maxOutputTokens: runtimeConfig.maxOutputTokens,

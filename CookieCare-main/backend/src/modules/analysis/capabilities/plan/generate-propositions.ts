@@ -1,24 +1,33 @@
 import type { AnalysisState } from "../../models/analysis-state.js";
 import type { AnalysisWorkUnit, MissingClarification } from "../../models/analysis-plan.js";
 import type { Proposition } from "../../models/proposition.js";
+import type { PropositionPolarity } from "../../models/proposition.js";
 import type { InventoryItem } from "./build-inventory.js";
 import { executeJsonCompletion, LLMProvider, LLMTask } from "../../../../llm/index.js";
 import { extractPlaybookPositions } from "../act/extract-playbook-positions.js";
 import { ensureSegmented } from "./build-inventory.js";
+import { capabilityContractFor } from "../contracts/analysis-capability-contract.js";
 
-/** Operations shaped like "establish something and verify it" — S4 is only worth authoring for these. */
-const INVESTIGATION_OPERATIONS = new Set([
-  "risk_flag",
-  "compliance_check",
-  "explain_qa",
-  "compare",
-]);
+export function operationSupportsOpenProposition(
+  operation: string | undefined
+): boolean {
+  return capabilityContractFor(operation).supportsOpenPropositions;
+}
 
 const COMPARISON_RE =
   /\b(balanced|one[- ]sided|symmetric|asymmetric|mutual|reciprocal|favor|favou?rable|equitable|fair|equal|unequal|lopsided|disproportionate)\b/i;
 
 const COMPARISON_DIMENSIONS_RE =
   /\b(termination|liability|indemnif|data[- ]?use|data[- ]?processing|confidentiality|ip|intellectual property|non[- ]?compete|exclusivity|warranty|limitation of liability|governing law|jurisdiction|force majeure|assignment|subcontract|audit|breach|cure|notice)\b/gi;
+
+/** PLAN owns proposition meaning; ACT must not infer it from whichever lane ran. */
+function propositionPolarityForOperation(
+  operation: string | undefined
+): PropositionPolarity {
+  if (operation === "risk_flag") return "risk_present";
+  if (operation === "compliance_check") return "compliance_met";
+  return "neutral_fact";
+}
 
 /**
  * §4 step 8b, S2 source only — cross-reference the inventory (Plan-Phase 4)
@@ -51,6 +60,7 @@ export function generateS2Propositions(
         hypothesis: fillPartyTemplate(pattern.hypothesis, party),
         proofStandard: fillPartyTemplate(pattern.proofStandard, party),
         source: "S2",
+        polarity: propositionPolarityForOperation(state.intent?.operation),
         priority: pattern.priority,
         partyPerspective: party,
         clusterId,
@@ -129,6 +139,9 @@ export async function generateS4Proposition(
     `User's question: "${instruction}"`,
     `The document's own clause-type inventory found: ${clauseTypes.join(", ") || "(nothing recognized)"}.`,
     party ? `The user is asking from the perspective of: ${party}.` : "",
+    state.intent?.operation === "risk_flag"
+      ? "Frame the hypothesis as the specific adverse risk being tested, so proving it means the risk is present and contradicting it means the protection is present."
+      : "",
     "Author a single proposition to investigate this question against the document.",
   ]
     .filter(Boolean)
@@ -146,6 +159,7 @@ export async function generateS4Proposition(
     hypothesis: authored.hypothesis,
     proofStandard: authored.proofStandard,
     source: "S4",
+    polarity: propositionPolarityForOperation(state.intent?.operation),
     priority: authored.priority,
     partyPerspective: party,
   };
@@ -289,6 +303,7 @@ export async function generateS4Propositions(
         hypothesis: item.hypothesis,
         proofStandard: item.proofStandard,
         source: "S4" as const,
+        polarity: "risk_present" as const,
         priority: typeof item.priority === "number" ? item.priority : 50,
         partyPerspective: party,
         clusterId,
@@ -376,6 +391,7 @@ export async function generateS3Propositions(
         `judge against any other standard. Severity if this position is violated: ` +
         `${position.severityIfViolated}.`,
       source: "S3",
+      polarity: "control_present",
       priority: severityToPriority(position.severityIfViolated),
       partyPerspective: party,
     };
@@ -504,6 +520,7 @@ export async function decomposeReasoningAsk(
       hypothesis: decomposed.side_a.hypothesis,
       proofStandard: decomposed.side_a.proofStandard,
       source: "S4",
+      polarity: "neutral_fact",
       priority: 80,
       partyPerspective: party,
       compareGroup: groupId,
@@ -513,6 +530,7 @@ export async function decomposeReasoningAsk(
       hypothesis: decomposed.side_b.hypothesis,
       proofStandard: decomposed.side_b.proofStandard,
       source: "S4",
+      polarity: "neutral_fact",
       priority: 80,
       partyPerspective: party,
       compareGroup: groupId,
@@ -612,9 +630,59 @@ function applyExhaustivenessTrim(
   state: AnalysisState
 ): Proposition[] {
   const ex = state.intent?.exhaustiveness;
-  if (!ex || ex.mode !== "user_capped" || !ex.limit) return propositions;
-  const sorted = [...propositions].sort((a, b) => b.priority - a.priority);
-  return sorted.slice(0, ex.limit);
+  const limit =
+    ex?.mode === "user_capped" && ex.limit
+      ? ex.limit
+      : state.intent?.operation === "risk_flag"
+        ? explicitRiskResultLimit(state.request.instruction)
+        : undefined;
+  if (!limit) return propositions;
+
+  const instructionTerms = significantTerms(state.request.instruction);
+  const sorted = [...propositions].sort((a, b) => {
+    const relevanceDelta =
+      instructionRelevance(b, instructionTerms) -
+      instructionRelevance(a, instructionTerms);
+    return relevanceDelta || b.priority - a.priority;
+  });
+  return sorted.slice(0, limit);
+}
+
+export function explicitRiskResultLimit(instruction: string): number | undefined {
+  const match = instruction.match(
+    /\b(?:top|first|highest|rank(?:ed|ing)?(?:\s+the)?(?:\s+top)?)\s+(\d{1,2})\b/i
+  );
+  if (!match) return undefined;
+  const parsed = Number(match[1]);
+  return Number.isFinite(parsed) && parsed > 0
+    ? Math.min(parsed, MAX_RISK_PROPOSITION_REQUEST)
+    : undefined;
+}
+
+function significantTerms(text: string): Set<string> {
+  return new Set(
+    text
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, " ")
+      .split(/\s+/)
+      .filter((term) => term.length >= 5)
+      .map((term) => term.replace(/(?:ing|ed|es|s)$/i, ""))
+  );
+}
+
+function instructionRelevance(
+  proposition: Proposition,
+  instructionTerms: Set<string>
+): number {
+  if (instructionTerms.size === 0) return 0;
+  const propositionTerms = significantTerms(
+    `${proposition.hypothesis} ${proposition.proofStandard} ${proposition.clusterId ?? ""}`
+  );
+  let score = 0;
+  for (const term of instructionTerms) {
+    if (propositionTerms.has(term)) score += 1;
+  }
+  return score;
 }
 
 /**
@@ -639,7 +707,7 @@ export async function generatePropositions(
   }
 
   const operation = state.intent?.operation;
-  if (!operation || !INVESTIGATION_OPERATIONS.has(operation)) {
+  if (!operationSupportsOpenProposition(operation)) {
     return { propositions: [] };
   }
 
@@ -655,7 +723,12 @@ export async function generatePropositions(
   // user's explicit count) instead of testing a single guess. Gated to
   // risk_flag so it lines up with buildVerifiedFinding's risk lane; the other
   // investigation operations keep the neutral single-item author.
-  if (operation === "risk_flag") {
+  const requiredCount = (state.intent?.requirements ?? []).filter(
+    (requirement) => requirement.priority === "required"
+  ).length;
+  const boundedSingleRisk =
+    requiredCount === 1 && state.intent?.exhaustiveness?.mode !== "user_capped";
+  if (operation === "risk_flag" && !boundedSingleRisk) {
     const riskProps = await generateS4Propositions(state, inventory);
     if (riskProps.length > 0) {
       return { propositions: applyExhaustivenessTrim(riskProps, state) };

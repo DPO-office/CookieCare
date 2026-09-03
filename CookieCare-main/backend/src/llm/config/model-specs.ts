@@ -71,6 +71,8 @@ export interface TaskModelConfig {
    * Fast/JSON tasks → minimal|low; heavy Pro tasks → medium|high.
    */
   thinkingLevel?: GeminiThinkingLevel;
+  /** Optional client-side cancellation for a bounded runtime call. */
+  abortSignal?: AbortSignal;
 }
 
 export interface LLMTaskPreset {

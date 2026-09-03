@@ -5,6 +5,10 @@ import {
 } from "../../../../llm/index.js";
 import type { AnalysisState } from "../../models/analysis-state.js";
 import type { Finding } from "../../models/finding.js";
+import {
+  isConfirmedRiskFinding,
+  isProtectiveFinding,
+} from "../../shared/finding-semantics.js";
 import type { ReportOutlineItem, ReportSectionRole } from "../../models/intent.js";
 import { sectionIdForRole, suggestedHeading } from "../../prompts/report-sections.js";
 import { roleForSectionId } from "../../prompts/report-sections.js";
@@ -94,11 +98,8 @@ function toOutlineItem(section: DesignedSection): ReportOutlineItem | null {
 
 function riskClaims(findings: Finding[], contradicted: boolean): string[] {
   return findings
-    .filter(
-      (f) =>
-        f.kind === "risk" &&
-        f.visibility !== "internal" &&
-        (f.judgement?.nli === "contradicted") === contradicted
+    .filter((f) =>
+      contradicted ? isProtectiveFinding(f) : isConfirmedRiskFinding(f)
     )
     .map((f) => `- ${f.claim}`)
     .slice(0, 20);

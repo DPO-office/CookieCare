@@ -36,6 +36,43 @@ function findingBoundToRequirement(
   return findingSupportsRequirement(finding.requirementId, requirementId);
 }
 
+/**
+ * Whether a finding is a valid reference for a locked assessment.
+ *
+ * A package finding keeps its authored/native `requirementId`, while PLAN stamps
+ * every request requirement it satisfies onto `requestRequirementIds`.  Locked
+ * umbrella assessments therefore legitimately reference child/native findings.
+ * Validation must accept either identity without weakening the stricter
+ * retrieval join used by `findingsLinkedToRequirement`.
+ */
+export function findingSupportsLockedAssessment(
+  finding: Finding,
+  assessmentId: string,
+  state?: AnalysisState
+): boolean {
+  if (findingSupportsRequirement(finding.requirementId, assessmentId)) return true;
+  if (
+    finding.requestRequirementIds?.some((id) =>
+      requirementIdsEquivalent(id, assessmentId)
+    )
+  ) {
+    return true;
+  }
+
+  return Boolean(
+    finding.requirementId &&
+      state?.plan?.requirementBindings?.some(
+        (binding) =>
+          requirementIdsEquivalent(binding.requestRequirementId, assessmentId) &&
+          requirementIdsEquivalent(
+            binding.nativeRequirementId,
+            finding.requirementId!
+          ) &&
+          (!finding.packageId || binding.packageId === finding.packageId)
+      )
+  );
+}
+
 /** Authored risk categories that map to a specific GDPR article. */
 const CATEGORY_ARTICLE: Record<string, number> = {
   "gdpr.art15.access_gap": 15,

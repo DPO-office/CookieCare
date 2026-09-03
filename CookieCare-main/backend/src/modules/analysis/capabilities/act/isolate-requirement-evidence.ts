@@ -1,4 +1,5 @@
 import type { SharedEvidenceItem } from "../../models/evidence-package.js";
+import type { PropositionPolarity } from "../../models/proposition.js";
 import type { ClauseIndex } from "./clause-index.js";
 import { retrieveCandidates, type RetrievalTraceRow } from "./retrieve-candidates.js";
 
@@ -14,6 +15,10 @@ export interface RequirementEvidenceProfile {
    * ACT-Phase 5, when VERIFY replaces this mechanism).
    */
   proofStandard?: string;
+  /** Explicit proposition channel supplied by PLAN. */
+  polarity?: PropositionPolarity;
+  /** Reviewing party or role supplied by PLAN. */
+  partyPerspective?: string;
   /** Carried onto the resulting Finding for the compare lane (see Finding.compareGroup). */
   compareGroup?: string;
   compareRole?: string;

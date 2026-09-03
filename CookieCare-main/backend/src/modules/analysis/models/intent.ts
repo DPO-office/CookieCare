@@ -236,7 +236,9 @@ export function deriveSections(
   operation?: OperationAxis
 ): ReportSectionId[] {
   if (reportType === "qa_answer") {
-    return depth === "narrow" ? ["evidence", "conclusion"] : ["scope", "evidence", "conclusion"];
+    return depth === "narrow"
+      ? ["key_findings", "evidence"]
+      : ["key_findings", "evidence", "qualifications"];
   }
 
   if (reportType === "rights_matrix") {

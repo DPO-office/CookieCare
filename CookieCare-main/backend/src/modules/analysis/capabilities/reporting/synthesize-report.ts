@@ -5,6 +5,7 @@ import {
 } from "../../../../llm/index.js";
 import type { AnalysisState, ReportSectionBlock } from "../../models/analysis-state.js";
 import type { Finding } from "../../models/finding.js";
+import { isConfirmedRiskFinding } from "../../shared/finding-semantics.js";
 import type { RequirementAssessment } from "../../models/requirement-assessment.js";
 import type { ReportOutlineItem, ReportSpec } from "../../models/intent.js";
 import {
@@ -28,6 +29,7 @@ import { createOrderedSectionStream } from "../../utils/ordered-section-stream.j
 import { runAnalyticalSynthesis } from "./analytical-synthesis.js";
 import { designRiskOutline } from "./design-risk-outline.js";
 import { designComparisonOutline } from "./design-comparison-outline.js";
+import { capabilityContractFor } from "../contracts/analysis-capability-contract.js";
 
 export interface SynthesizeReportOptions {
   retrySectionIds?: string[];
@@ -52,6 +54,18 @@ function assembleSections(blocks: ReportSectionBlock[]): string {
     .join("\n\n");
 }
 
+/** Remove a writer-added evidence subsection when Q&A already has Evidence. */
+export function stripRedundantQaEvidenceSubsection(markdown: string): string {
+  if (!/^##\s+Evidence\b/im.test(markdown)) return markdown;
+  return markdown
+    .replace(
+      /\n###\s+(?:Key\s+)?Evidence\b[\s\S]*?(?=\n##\s+Evidence\b)/i,
+      "\n"
+    )
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 function ensureHeading(markdown: string, heading: string): string {
   const trimmed = markdown.trim();
   if (/^##\s+/.test(trimmed)) return trimmed;
@@ -72,15 +86,16 @@ export async function synthesizeReport(
     state.analyticalSynthesis = await runAnalyticalSynthesis(state, assessments);
   }
   let items = outlineItemsForSpec(reportSpec);
+  const outlineDesigner = capabilityContractFor(state.intent?.operation).outlineDesigner;
   // Open risk lane: let an LLM design the section shape/headings around the
   // risks actually found (Part 3c). Grounded + fallback-safe; skipped on retry
   // so a render-only redo reuses the shape it already streamed.
-  if (state.intent?.operation === "risk_flag" && !options.retrySectionIds?.length) {
+  if (outlineDesigner === "risk" && !options.retrySectionIds?.length) {
     items = await designRiskOutline(state, findings, items);
   }
   // Compare lane: same Part-3c treatment as risk_flag — let an LLM design
   // the section shape/headings around the dimensions actually compared.
-  if (state.intent?.operation === "compare" && !options.retrySectionIds?.length) {
+  if (outlineDesigner === "comparison" && !options.retrySectionIds?.length) {
     items = await designComparisonOutline(state, findings, items);
   }
   const retry = new Set(options.retrySectionIds ?? []);
@@ -190,7 +205,10 @@ export async function synthesizeReport(
     thinkingMode: state.analysisProfile?.thinkingMode ?? state.request.thinkingMode,
   });
 
-  const assembled = enforceConclusionSectionLast(assembleSections(blocks));
+  let assembled = enforceConclusionSectionLast(assembleSections(blocks));
+  if (reportSpec.reportType === "qa_answer") {
+    assembled = stripRedundantQaEvidenceSubsection(assembled);
+  }
   if (anyTruncated) {
     const note = `\n\n[Report ended at the length limit for ${reportSpec.depth} depth. Remaining detail was omitted.]`;
     emitAnalysisToken(state, note);
@@ -213,7 +231,7 @@ function buildDeterministicSection(
   const sectionId = outlineItemSectionId(item);
   const lines = [`## ${item.heading}`, ""];
   if (sectionId === "risk_summary") {
-    const risks = findings.filter((f) => f.kind === "risk" && f.visibility !== "internal");
+    const risks = findings.filter(isConfirmedRiskFinding);
     if (risks.length === 0) lines.push("No user-facing material risks were flagged.", "");
     else for (const risk of risks) lines.push(`- ${risk.claim}`, "");
     return lines.join("\n");

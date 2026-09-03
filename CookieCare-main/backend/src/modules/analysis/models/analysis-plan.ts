@@ -4,6 +4,7 @@ import type {
   ReportSpec,
 } from "./intent.js";
 import type { AnalysisSkillConfig } from "../skills/runtime/catalog/types.js";
+import type { AnalysisCapabilityContract } from "../capabilities/contracts/analysis-capability-contract.js";
 
 export type AnalysisToolName =
   | "classify_document"
@@ -19,7 +20,8 @@ export type AnalysisToolName =
   | "inventory_provisions"
   | "derive_risk"
   | "aggregate_requirements"
-  | "render_output";
+  | "render_output"
+  | "merge_branch_outputs";
 
 export type AnalysisOutputSchema =
   | "ClauseObject[]"
@@ -31,6 +33,8 @@ export type WorkUnitStatus = "pending" | "done" | "flagged" | "skipped" | "faile
 
 export interface AnalysisWorkUnit {
   workUnitId: string;
+  /** Stable compound-ask branch identity. Undefined means shared/legacy work. */
+  facetId?: string;
   tool: AnalysisToolName;
   input: Record<string, unknown>;
   dependsOn: string[];
@@ -75,6 +79,8 @@ export type RequirementExecutionStatus =
 
 export interface RequirementExecutionPath {
   requirementId: string;
+  /** Compound branch that owns this execution path. */
+  facetId?: string;
   status: RequirementExecutionStatus;
   packageId?: string;
   ruleIds?: string[];
@@ -293,6 +299,12 @@ export interface AnalysisPlan {
     | "playbook_comparison_memo";
   activeSkillIds?: string[];
   focus?: InstructionFocus;
+  /**
+   * Additive compound orchestration plan. Absent for the legacy and every
+   * single-operation path, so enabling this cannot change their behavior.
+   */
+  branches?: AnalysisBranchPlan[];
+  branchMode?: "shadow" | "compound";
   auditRecord?: PlanAuditRecord;
   /** PLAN-time package execution paths (audit + aggregation of unsupported reqs). */
   requirementExecutionPaths?: RequirementExecutionPath[];
@@ -306,6 +318,36 @@ export interface AnalysisPlan {
     riskTaxonomyVersion: string;
     modelTask?: string;
   };
+}
+
+export interface AnalysisBranchTimeBudget {
+  thinkingMode: "lite" | "deep";
+  baseVerificationMs: number;
+  maxVerificationMs: number;
+  hardCeilingMs: number;
+  retryFailedRequirements: number;
+  estimatedCriticalPathMs: number;
+}
+
+/** One independently planned, executed and rendered part of a compound ask. */
+export interface AnalysisBranchPlan {
+  facetId: string;
+  order: number;
+  label: string;
+  instruction: string;
+  intent: IntentClassification;
+  targetDocIds: string[];
+  referenceDocId?: string;
+  partyPerspective?: string | null;
+  capabilityContract: AnalysisCapabilityContract;
+  reportSpec: ReportSpec;
+  rendererSchemaId: AnalysisPlan["rendererSchemaId"];
+  activeSkillIds: string[];
+  focus?: InstructionFocus;
+  requirementExecutionPaths: RequirementExecutionPath[];
+  requirementBindings: RequirementBinding[];
+  workUnitIds: string[];
+  timeBudget: AnalysisBranchTimeBudget;
 }
 
 export interface PlanOutput {

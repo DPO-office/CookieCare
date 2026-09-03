@@ -577,6 +577,80 @@ export const ANALYZE_STYLES = `
   margin: 1.75rem 0;
 }
 
+/* Compound reports: overview + operation-specific workstream cards. */
+.analyze-report-prose .md-analysis-overview {
+  margin: 0 0 1.5rem;
+  padding: 1.5rem 1.6rem 1.35rem;
+  border: 1px solid #E0E7FF;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #FFFFFF 0%, #F7F8FF 100%);
+  box-shadow: 0 8px 28px rgba(79, 91, 217, 0.07);
+}
+
+.analyze-report-prose .md-content .md-analysis-title {
+  margin: 0 0 0.75rem;
+  padding: 0;
+  border: 0;
+  font-size: 1.55rem;
+  letter-spacing: -0.035em;
+}
+
+.analyze-report-prose .md-analysis-overview blockquote {
+  margin: 0.65rem 0 1rem;
+  border-left-color: #4F5BD9;
+  background: rgba(238, 242, 255, 0.8);
+}
+
+.analyze-report-prose .md-analysis-overview .md-table-wrap {
+  margin: 0.8rem 0 0;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
+}
+
+.analyze-report-prose .md-analysis-workstream {
+  margin: 1.35rem 0;
+  padding: 1.45rem 1.6rem 1.6rem;
+  border: 1px solid #E9EAEC;
+  border-radius: 18px;
+  background: #FFFFFF;
+  box-shadow: 0 5px 20px rgba(15, 23, 42, 0.045);
+}
+
+.analyze-report-prose .md-analysis-workstream > h2 {
+  margin: 0 0 0.3rem;
+  padding: 0 0 0.7rem;
+  border-bottom: 1px solid #EEF0F4;
+  color: #1F2A5A;
+  font-size: 1.2rem;
+  letter-spacing: -0.028em;
+}
+
+.analyze-report-prose .md-analysis-workstream > h2 + p {
+  margin: 0.45rem 0 1.1rem;
+  color: #667085;
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.analyze-report-prose .md-analysis-workstream h3 {
+  margin-top: 1.45rem;
+  padding-top: 0.1rem;
+  color: #111827;
+  font-size: 1rem;
+}
+
+.analyze-report-prose .md-analysis-workstream h4 {
+  color: #344054;
+  font-size: 0.92rem;
+}
+
+@media (max-width: 720px) {
+  .analyze-report-prose .md-analysis-overview,
+  .analyze-report-prose .md-analysis-workstream {
+    padding: 1.1rem;
+    border-radius: 14px;
+  }
+}
+
 /* ── Prose container: constrain text, free tables ─────────────────────────
    The outer container has no max-width so tables can use full available
    width. Message blocks (avatar + content) are constrained for readability

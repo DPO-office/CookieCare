@@ -1549,6 +1549,9 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
         "data_subject_categories",
         "controller_obligations_rights",
       ],
+      evidenceScope: {
+        relationshipScopes: ["controller_to_processor"],
+      },
       requirementEvidence: {
         subject_matter: {
           hypothesis:
@@ -1559,6 +1562,9 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
             "offers",
             "disclosures",
             "applies to the processing",
+            "services",
+            "business purpose",
+            "statement of work",
           ],
           proofStandard:
             "Proven only by text stating what personal-data processing activity or " +
@@ -1580,6 +1586,9 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
             "termination",
             "in force",
             "set forth",
+            "expiry",
+            "end of services",
+            "statement of work",
           ],
           proofStandard:
             "Proven only by text stating how long the processing continues — an " +
@@ -1587,13 +1596,25 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
             "or an end condition tied to a specific event. Termination rights, notice " +
             "periods, or post-termination data-deletion timelines do NOT by themselves " +
             "establish duration unless they also state or clearly reference the term of " +
-            "the underlying processing itself. A bare statement that 'this DPA remains " +
+            "the underlying processing itself. A binding end-of-processing consequence " +
+            "expressly tied to expiry, termination, or the end of services establishes " +
+            "a material end boundary and is partial coverage when the complete active " +
+            "processing term is not stated. A bare statement that 'this DPA remains " +
             "in effect' without saying what period that tracks against does not count.",
         },
         nature_purpose: {
           hypothesis:
             "The contract sets out the nature and purpose of the processing.",
-          evidenceHints: ["nature", "purpose", "offer", "offers", "provision of"],
+          evidenceHints: [
+            "nature",
+            "purpose",
+            "processing activities",
+            "services",
+            "business purpose",
+            "schedule",
+            "statement of work",
+            "provision of",
+          ],
           proofStandard:
             "Proven only when the text describes BOTH what activities are performed on " +
             "the data (nature — e.g. storage, hosting, transmission, analysis) AND why " +
@@ -1605,19 +1626,37 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
         },
         data_categories: {
           hypothesis: "The contract sets out the types of personal data.",
-          evidenceHints: ["categories of personal data", "types of personal data"],
+          evidenceHints: [
+            "categories of personal data",
+            "types of personal data",
+            "processing operations",
+            "annex",
+            "schedule",
+            "statement of work",
+          ],
           proofStandard:
             "Proven only by text that names or categorizes the type(s) of personal " +
             "data processed — e.g. contact details, account credentials, health data, " +
             "employee data. An explicit, named cross-reference to an Annex/Schedule/" +
             "Order Form counts only if that referenced document itself lists the " +
-            "categories — a bare pointer such as 'as described in the Offer' without " +
+            "categories - a bare pointer such as 'as described in the Offer' without " +
             "confirming the Offer actually contains such a list is a dependency on an " +
-            "unsupplied document, not proof of the requirement.",
+            "unsupplied document, not proof of the requirement. A general definition " +
+            "listing data that could qualify as personal or sensitive data does not " +
+            "prove that those categories are actually processed under the services.",
         },
         data_subject_categories: {
           hypothesis: "The contract sets out the categories of data subjects.",
-          evidenceHints: ["data subjects", "categories of data subjects"],
+          evidenceHints: [
+            "data subjects",
+            "categories of data subjects",
+            "employees",
+            "customers",
+            "end users",
+            "annex",
+            "schedule",
+            "statement of work",
+          ],
           proofStandard:
             "Proven only by text identifying WHO the data subjects are — e.g. " +
             "Customer's employees, customers, or end users — distinct from what data " +
@@ -1724,6 +1763,9 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
         "return_or_deletion",
         "audit_rights",
       ],
+      evidenceScope: {
+        relationshipScopes: ["controller_to_processor"],
+      },
       requirementEvidence: {
         art28_3_a_instructions: {
           hypothesis:

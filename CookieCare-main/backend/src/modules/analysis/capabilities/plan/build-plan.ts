@@ -41,9 +41,16 @@ import { applyOrgRoutingDefaults } from "../../memory/resolve-org-defaults.js";
 import { resolveDocumentRoles } from "./resolve-document-roles.js";
 import { followUpKindForState, isMaterialTopicShift } from "./follow-up-intent.js";
 import { buildOpenPlan } from "./build-open-plan.js";
+import { operationSupportsOpenProposition } from "./generate-propositions.js";
 import type { EvidencePackage } from "../../models/evidence-package.js";
+import { capabilityContractFor } from "../contracts/analysis-capability-contract.js";
 import { replicateGraphForTargets } from "../../skills/runtime/graph/replicate-graph-for-targets.js";
 import { injectAuthoredRequirements } from "./inject-authored-requirements.js";
+import {
+  branchOrchestrationMode,
+  buildCompoundBranchGraph,
+  decomposeCompoundSubIntents,
+} from "./build-branch-orchestration.js";
 
 const SKILL_DRIVEN_OPERATIONS = new Set([
   "risk_flag",
@@ -53,6 +60,33 @@ const SKILL_DRIVEN_OPERATIONS = new Set([
   "compare",
   "explain_qa",
 ]);
+
+export function shouldPreferOpenAnalysisLane(input: {
+  enabled: boolean;
+  operation?: string;
+  standard?: string;
+}): boolean {
+  if (!input.enabled) return false;
+
+  const isRegimeCompliance =
+    typeof input.standard === "string" && input.standard.startsWith("regime_pack:");
+  const contract = capabilityContractFor(input.operation);
+
+  // Direct investigation operations must preserve the user's proposition even
+  // when intent classification also recognizes a legal regime.  A catalog
+  // rule may provide useful context, but it is not a substitute for the fact,
+  // comparison, or risk question the user actually asked.  Explicit regime
+  // compliance checks continue to use the authored catalog path.
+  if (contract.bypassRegimeCatalog && operationSupportsOpenProposition(input.operation)) {
+    return true;
+  }
+
+  return (
+    contract.supportsOpenPropositions &&
+    !isRegimeCompliance &&
+    input.standard === "none"
+  );
+}
 
 /**
  * PLAN pipeline:
@@ -90,6 +124,8 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
   }
   state = await applyOrgRoutingDefaults(state, state.orgMemory);
   intent = state.intent ?? intent;
+  intent = decomposeCompoundSubIntents(intent);
+  state = { ...state, intent };
 
   const missing: MissingClarification[] = [];
   if (state.clarificationRequest?.questions.length) {
@@ -274,14 +310,11 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
   // authored package. Compliance asks (a regime_pack standard) keep the
   // authored-catalogue path. Flag-gated; off = current behavior.
   const openLaneEnabled = process.env.ANALYSIS_OPEN_PROPOSITIONS === "1";
-  const isRegimeCompliance =
-    typeof intent.standard === "string" && intent.standard.startsWith("regime_pack:");
-  const preferOpenLane =
-    openLaneEnabled &&
-    (intent.operation === "risk_flag" ||
-      intent.operation === "explain_qa" ||
-      intent.operation === "compare" ||
-      (!isRegimeCompliance && intent.standard === "none"));
+  const preferOpenLane = shouldPreferOpenAnalysisLane({
+    enabled: openLaneEnabled,
+    operation: intent.operation,
+    standard: intent.standard,
+  });
 
   let focus: InstructionFocus | undefined;
   let extraPackages: EvidencePackage[] | undefined;
@@ -293,7 +326,7 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
   // — producing duplicate, sometimes disagreeing verdicts on the same clause.
   let openLaneHandledReference = false;
 
-  if (preferOpenLane) {
+  if (preferOpenLane || intent.compound) {
     const open = await buildOpenPlan(state, primaryDocId, referenceDocId);
     if (open.ambiguity && open.ambiguity.severity === "critical") {
       return { ...open.state, plan: emptyPlan(open.intent, [open.ambiguity]) };
@@ -303,7 +336,7 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
       intent = open.intent;
       extraPackages = open.extraPackages;
       focus = undefined;
-      openLaneHandledReference = Boolean(referenceDocId);
+      openLaneHandledReference = Boolean(open.handledReference);
       pacLog("PLAN open-analysis lane", {
         requirements: intent.requirements?.length ?? 0,
         packages: extraPackages?.length ?? 0,
@@ -312,7 +345,7 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     }
   }
 
-  if (!extraPackages) {
+  if (!extraPackages || intent.compound) {
     // Compliance / catalogue lane (existing).
     const catalogStarted = Date.now();
     focus = await extractInstructionFocus(state.request.instruction, skills, {
@@ -364,6 +397,28 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     })
   );
   const graph = replicateGraphForTargets(graphs);
+  const capabilityContract = capabilityContractFor(intent.operation);
+  const graphProfiles = [
+    ...new Set(
+      graphs.map((item) =>
+        String(
+          item.workUnits.find((unit) => unit.tool === "render_output")?.input
+            .capabilityGraph ?? "full"
+        )
+      )
+    ),
+  ];
+  pacLog("PLAN capability contract", {
+    operation: capabilityContract.operation,
+    reportType: seedReportType,
+    graph: graphProfiles.join(","),
+    evidence: capabilityContract.evidenceCardinality,
+    inventory: capabilityContract.needsOpenInventory,
+    relatedChecks: capabilityContract.allowRelatedChecks,
+    comparativeChecks: capabilityContract.allowComparativeChecks,
+    outline: capabilityContract.outlineDesigner,
+    bluf: capabilityContract.allowBluf,
+  });
   const packageList =
     graph.packageResolution.reportPackages ??
     graph.packageResolution.packages.map((item) => item.pkg);
@@ -392,6 +447,49 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     targets: targetDocIds.length,
   });
 
+  const configuredBranchMode = branchOrchestrationMode();
+  const branchGraph =
+    intent.compound &&
+    intent.subIntents.length > 1 &&
+    configuredBranchMode !== "off"
+      ? buildCompoundBranchGraph({
+          parentIntent: intent,
+          instruction: state.request.instruction,
+          skills,
+          targetDocIds,
+          referenceDocId,
+          focus,
+          relatedChecks,
+          extraPackages,
+          thinkingMode: state.analysisProfile?.thinkingMode ?? state.request.thinkingMode,
+        })
+      : undefined;
+  if (branchGraph) {
+    pacLog("PLAN branch orchestration", {
+      mode: configuredBranchMode,
+      branches: branchGraph.branches.length,
+      operations: branchGraph.branches.map((branch) => branch.intent.operation).join(","),
+      units: branchGraph.workUnits.length,
+      legacyUnits: graph.workUnits.length,
+      estimatedMs: branchGraph.branches
+        .map((branch) => `${branch.facetId}:${branch.timeBudget.estimatedCriticalPathMs}`)
+        .join(","),
+    });
+    for (const branch of branchGraph.branches) {
+      pacLog("PLAN branch", {
+        facetId: branch.facetId,
+        order: branch.order,
+        operation: branch.intent.operation,
+        standard: branch.intent.standard,
+        requirements: branch.intent.requirements.length,
+        workUnits: branch.workUnitIds.length,
+        sharedPreparation: branch.workUnitIds.filter((id) => id.startsWith("shared-")).length,
+        estimatedMs: branch.timeBudget.estimatedCriticalPathMs,
+        hardCeilingMs: branch.timeBudget.hardCeilingMs,
+      });
+    }
+  }
+
   const provenance = focus?.provenance ?? [];
   const scopeAudit = graph.packageResolution.scopeAudit ?? [];
   const droppedOutOfScope = scopeAudit.reduce(
@@ -407,7 +505,11 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     droppedOutOfScope,
   });
 
-  const workUnits: AnalysisWorkUnit[] = orderByDependency(graph.workUnits);
+  const workUnits: AnalysisWorkUnit[] = orderByDependency(
+    configuredBranchMode === "compound" && branchGraph
+      ? branchGraph.workUnits
+      : graph.workUnits
+  );
 
   if (state.agent) {
     state.agent.docCount = docIds.length;
@@ -431,9 +533,20 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     rendererSchemaId: graph.rendererSchemaId,
     activeSkillIds: skills.map((s) => s.skillId),
     focus,
+    branches: branchGraph?.branches,
+    branchMode:
+      branchGraph && configuredBranchMode !== "off"
+        ? configuredBranchMode
+        : undefined,
     auditRecord,
-    requirementExecutionPaths: graph.packageResolution.requirementPaths,
-    requirementBindings: graph.packageResolution.requirementBindings,
+    requirementExecutionPaths:
+      configuredBranchMode === "compound" && branchGraph
+        ? branchGraph.requirementExecutionPaths
+        : graph.packageResolution.requirementPaths,
+    requirementBindings:
+      configuredBranchMode === "compound" && branchGraph
+        ? branchGraph.requirementBindings
+        : graph.packageResolution.requirementBindings,
     pinnedVersions: {
       clauseTaxonomyVersion:
         state.metadata.clauseTaxonomyVersion ?? CLAUSE_TAXONOMY_VERSION,

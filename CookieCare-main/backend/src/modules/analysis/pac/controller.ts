@@ -92,8 +92,12 @@ export class PacController {
             tokens: state.agent?.tokensUsed,
           });
           if (next === "DONE") {
+            // The redo-oriented CRITIQUE phase is retired, but every run must
+            // still pass the deterministic Critique Lite release gate.
+            state = await this.capabilities.runCritique(state);
+            state = this.audit(state, "CRITIQUE-LITE release gate");
             state.agent!.phase = "DONE";
-            state.agent!.stoppedReason = state.agent!.stoppedReason ?? "green";
+            state.agent!.stoppedReason = resolveStoppedReason(state, state.critique);
             break;
           }
           state.agent!.phase = next;
@@ -109,8 +113,12 @@ export class PacController {
             ms: Date.now() - phaseStarted,
             findingDowngrades: state.auditReport?.findingsChanged.length ?? 0,
           });
+          // Deep mode audits evidence first, then uses the same deterministic
+          // release gate. Semantic deep critique remains profile-controlled.
+          state = await this.capabilities.runCritique(state);
+          state = this.audit(state, "CRITIQUE-LITE release gate after AUDIT");
           state.agent!.phase = next;
-          state.agent!.stoppedReason = state.agent!.stoppedReason ?? "green";
+          state.agent!.stoppedReason = resolveStoppedReason(state, state.critique);
           break;
         }
 

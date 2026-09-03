@@ -152,9 +152,11 @@ export function useAnalysis(authToken: string) {
     startTransition(() => {
       setChatMessages((prev) => {
         const withoutLoading = prev.filter((m) => !m.loading);
-        const next = withoutLoading.some((m) => m.sender === "user" && m.text === userText)
+        const next: Message[] = withoutLoading.some(
+          (m) => m.sender === "user" && m.text === userText
+        )
           ? withoutLoading
-          : [...withoutLoading, { sender: "user", text: userText }];
+          : [...withoutLoading, { sender: "user" as const, text: userText }];
         const streamIdx = [...next].reverse().findIndex((m) => m.sender === "gemini" && m.streaming);
         const realIdx = streamIdx === -1 ? -1 : next.length - 1 - streamIdx;
         if (realIdx >= 0) {
@@ -328,7 +330,7 @@ export function useAnalysis(authToken: string) {
         ? { documentIds: ctx.documentIds }
         : collectAnalysisDocumentIds(folders, savedDrafts, ephemeralFiles);
 
-    if (documentIds.length === 0) {
+    if (documentIds.length === 0 && !sessionId) {
       setChatMessages((prev) => [
         ...prev,
         { sender: "user", text: trimmed },
@@ -349,7 +351,7 @@ export function useAnalysis(authToken: string) {
     try {
       const jobId = await enqueueAnalysisJob(authToken, "/api/analysis/run", {
         instruction: followUpInstruction,
-        documentIds,
+        documentIds: documentIds.length ? documentIds : undefined,
         documentRoles: ctx?.documentRoles,
         promptLibraryId: ctx?.promptLibraryId,
         sessionId: sessionId || undefined,
@@ -388,7 +390,11 @@ export function useAnalysis(authToken: string) {
     }
   };
 
-  const restoreSession = (messages: Message[], docName: string) => {
+  const restoreSession = (
+    messages: Message[],
+    docName: string,
+    restoredSessionId?: string | null
+  ) => {
     if (messages.length === 0) return;
 
     cancelProgressFlush();
@@ -399,7 +405,8 @@ export function useAnalysis(authToken: string) {
     setAnalysisError("");
     setOpenQuestions([]);
     setAskResolved(false);
-    setSessionId(null);
+    setSessionId(restoredSessionId || null);
+    runContextRef.current = null;
     setActiveReportDocName(docName);
     setChatMessages(messages);
     setViewMode("report");

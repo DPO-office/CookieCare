@@ -106,8 +106,12 @@ function comparisonPairs(findings: Finding[]): ComparisonPair[] {
   }
   return [...groups.entries()].map(([group, members]) => ({
     dimension: group.replace(/^compare_/, "").replace(/_/g, " "),
-    sideA: members.find((m) => m.compareRole === "side_a")?.claim ?? null,
-    sideB: members.find((m) => m.compareRole === "side_b")?.claim ?? null,
+    sideA:
+      members.find((m) => m.compareRole === "side_a" && m.status === "present")
+        ?.claim ?? null,
+    sideB:
+      members.find((m) => m.compareRole === "side_b" && m.status === "present")
+        ?.claim ?? null,
   }));
 }
 

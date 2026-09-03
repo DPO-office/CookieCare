@@ -71,7 +71,7 @@ describe("refineReportOutlineViaLLM", () => {
             source: "catalog_llm",
           },
         ],
-      }),
+      } as never),
     });
 
     const refinedAnalysis = refined.filter(
@@ -121,7 +121,7 @@ describe("refineReportOutlineViaLLM", () => {
             source: "catalog_llm",
           },
         ],
-      }),
+      } as never),
     });
 
     // Should be exactly the seed outline (fallback).

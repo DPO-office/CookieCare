@@ -70,6 +70,10 @@ function findingsForResult(
   const requirementId = canonicalRequirementId(result.requirementId);
 
   const base = {
+    facetId:
+      typeof ctx.unit.input?.facetId === "string"
+        ? ctx.unit.input.facetId
+        : undefined,
     kind: "compliance" as const,
     category: ctx.findingCategory,
     evidence,
@@ -164,6 +168,10 @@ export function judgementForResult(
   const materiality = normalizeMateriality(result, compliance);
   const evidenceConfidence = normalizeConfidence(result, hasQuote, truncated);
 
+  // A bounded prefix cannot safely establish absence or contradiction: the
+  // omitted remainder may contain the missing operative text. An express
+  // positive obligation that is already present in a verified quote is not
+  // erased merely because the surrounding section is long.
   if (truncated && (compliance === "gap" || emptyRefs || compliance === "insufficient_evidence")) {
     compliance = "insufficient_evidence";
     evidenceState = "truncated";

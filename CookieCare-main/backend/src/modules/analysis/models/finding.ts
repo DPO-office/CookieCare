@@ -2,6 +2,7 @@ import type { EvidenceSpan } from "./locator.js";
 import type { RuleSourceTier } from "./rule-source.js";
 import type { TerminalStatus } from "./work-unit-outcome.js";
 import type { RequirementJudgement } from "./requirement-assessment.js";
+import type { AnalysisExecutionState } from "./analysis-execution.js";
 
 export type FindingKind =
   | "risk"
@@ -21,14 +22,54 @@ export type FindingVisibility = "internal" | "user_facing";
 
 export type MatrixAddressing = "named" | "generic" | "absent";
 
+/**
+ * What proposition the finding establishes. This is deliberately independent
+ * from `kind`: a risk-scanning work unit may discover that a clause is a
+ * protective control, while a compliance work unit may explain a neutral fact.
+ */
+export type FindingPolarity =
+  | "compliance_met"
+  | "risk_present"
+  | "control_present"
+  | "neutral_fact";
+
+/** Party whose position the finding describes or affects. */
+export type FindingPerspective =
+  | "customer"
+  | "supplier"
+  | "controller"
+  | "processor"
+  | "mutual"
+  | "unspecified";
+
+/** Scope dimensions captured by VERIFY so mixed evidence is not blended. */
+export interface FindingApplicabilityScope {
+  parties?: string[];
+  jurisdictions?: string[];
+  timePeriods?: string[];
+  conditions?: string[];
+}
+
 export interface Finding {
   findingId: string;
+  /** Compound sub-ask that produced this finding; absent for single-intent work. */
+  facetId?: string;
   kind: FindingKind;
   /** Member of risk taxonomy or rule_id — versioned. */
   category: string;
   status: FindingStatus;
   claim: string;
   evidence: EvidenceSpan[];
+  /** Runtime completion, kept independent from contractual/legal status. */
+  analysisExecution?: AnalysisExecutionState;
+  /** Explicit proposition channel; normalized before findings leave ACT. */
+  polarity?: FindingPolarity;
+  /** Explicit reviewing-party perspective; normalized before findings leave ACT. */
+  partyPerspective?: FindingPerspective;
+  /** Evidence scope identified by VERIFY, used for conflict reconciliation. */
+  applicabilityScope?: FindingApplicabilityScope;
+  /** Result of reconciling mixed proving/contradicting evidence. */
+  applicabilityResolution?: "scope_dependent" | "conflicting";
   ruleId?: string;
   ruleVersion?: string;
   severity?: "low" | "medium" | "high";

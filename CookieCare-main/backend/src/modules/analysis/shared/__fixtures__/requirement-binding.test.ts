@@ -196,6 +196,44 @@ describe("structural requirement binding", () => {
     assert.equal(bindings[0]!.source, "semantic");
   });
 
+  it("honors explicit package edges and blocks fuzzy cross-package bindings", () => {
+    const selectedPackageIds = ["regime.particulars", "regime.mandatory"];
+    const descriptions = new Map([
+      ["regime.duration", "Verify processing duration under the applicable rule"],
+      ["regime.processor_obligations", "Check whether all mandatory processor obligations are present"],
+    ]);
+    const durationAgainstWrongPackage = deriveStructuralBindings(
+      ["regime.duration"],
+      () => ["regime.particulars"],
+      {
+        packageId: "regime.mandatory",
+        nativeRequirementIds: ["documented_instructions", "confidentiality"],
+        selectedPackageIds,
+        requestDescriptions: descriptions,
+        nativeDescriptions: {
+          documented_instructions: "Processing only under documented instructions",
+          confidentiality: "Persons processing data are bound by confidentiality",
+        },
+      }
+    );
+    assert.deepEqual(durationAgainstWrongPackage, []);
+
+    const broadMandatory = deriveStructuralBindings(
+      ["regime.processor_obligations"],
+      () => ["regime.mandatory"],
+      {
+        packageId: "regime.mandatory",
+        nativeRequirementIds: ["documented_instructions", "confidentiality"],
+        selectedPackageIds,
+        requestDescriptions: descriptions,
+      }
+    );
+    assert.deepEqual(
+      broadMandatory.map((binding) => binding.nativeRequirementId),
+      ["documented_instructions", "confidentiality"]
+    );
+  });
+
   it("binds every native only when the request structurally names the package umbrella", () => {
     const bindings = deriveStructuralBindings(
       ["gdpr.article28.mandatory_clauses_adequacy"],

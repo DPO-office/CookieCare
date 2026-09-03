@@ -6,25 +6,12 @@ import {
   type ReportType,
 } from "../../models/intent.js";
 import { EXPLICIT_DEEP_DEPTH_RE } from "./intent-heuristics.js";
+import { capabilityContractFor } from "../contracts/analysis-capability-contract.js";
 
 const SHALLOW_OUTPUT_SIGNAL = /\b(brief|concise|short answer|pass\/fail|just give me)\b/i;
 
 function fallbackReportType(operation: IntentClassification["operation"]): ReportType {
-  switch (operation) {
-    case "extract":
-      return "extraction_table";
-    case "risk_flag":
-    case "compare":
-      return "risk_audit";
-    case "compliance_check":
-      return "regime_compliance_memo";
-    case "summarize":
-    case "explain_qa":
-    case "out_of_scope":
-    case "draft_suggestion":
-    default:
-      return "qa_answer";
-  }
+  return capabilityContractFor(operation).defaultReportType;
 }
 
 function fallbackDepth(instruction: string): ReportDepth {

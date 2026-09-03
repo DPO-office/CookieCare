@@ -32,6 +32,7 @@ import { orderByDependency } from "../../../utils/topo-batches.js";
 import { MATRIX_SHARED_EVIDENCE_PACKAGE_ID } from "../../../capabilities/act/extract-shared-evidence.js";
 import type { RuleSource } from "../../../models/rule-source.js";
 import { articleNumberFromRequirementId } from "../../../shared/article-linkage.js";
+import { capabilityContractFor } from "../../../capabilities/contracts/analysis-capability-contract.js";
 
 /** Max playbook position check slots scheduled at PLAN time (fixed graph). */
 export const MAX_PLAYBOOK_CHECK_SLOTS = 24;
@@ -219,15 +220,17 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
     skills.find((s) => s.axis === "doc-type") ??
     skills[0];
   const skillIds = skills.map((s) => s.skillId);
+  const capabilityContract = capabilityContractFor(intent.operation);
+  const laneRelatedChecks = capabilityContract.allowRelatedChecks ? relatedChecks : [];
   const focusedRiskIds = new Set(focus?.riskCategoryIds ?? []);
   const relatedRiskIds = [
     ...new Set(
-      relatedChecks
+      laneRelatedChecks
         .flatMap((rule) => rule.related)
         .filter((category) => !focusedRiskIds.has(category))
     ),
   ];
-  const relatedClauseTypes = relatedChecks.flatMap((r) =>
+  const relatedClauseTypes = laneRelatedChecks.flatMap((r) =>
     r.related.filter((id) => skills.some((s) => s.clauseTypes.includes(id)))
   );
   const mergedClauseTypes = [
@@ -255,6 +258,19 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
   const packageResolution = resolvePackages(skills, focus, intent.requirements, input.extraPackages);
   validatePlannedWork(packageResolution);
   const usePackages = packageResolution.packages.length > 0;
+  const verifiedQaPath =
+    capabilityContract.leanVerifiedGraph &&
+    reportSpec?.reportType === "qa_answer" &&
+    !referenceDocId &&
+    !unresolvedStandard &&
+    laneRelatedChecks.length === 0 &&
+    usePackages &&
+    packageResolution.packages.every(({ pkg, requirementIds }) =>
+      requirementIds.length > 0 &&
+      requirementIds.every((requirementId) =>
+        Boolean(pkg.requirementEvidence?.[requirementId]?.proofStandard?.trim())
+      )
+    );
   const docTypeStructuralFallback = skills.some(
     (skill) => skill.axis === "doc-type" && skill.expectedClauses.length > 0
   );
@@ -307,22 +323,26 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
     ? ["wu-classify", "wu-playbook-extract"]
     : ["wu-classify"];
 
-  units.push({
-    workUnitId: "wu-extract",
-    tool: "extract_clauses",
-    input: {
-      docId,
-      clauseTypes: extractClauseTypes.length > 0 ? extractClauseTypes : mergedClauseTypes,
-      skillIds,
-      instruction,
-      /** Runtime union with playbook position clauseTypes when reference present. */
-      unionPlaybookClauseTypes: Boolean(referenceDocId),
-      referenceDocId,
-    },
-    dependsOn: extractDeps,
-    outputSchema: "ClauseObject[]",
-    status: "pending",
-  });
+  if (!verifiedQaPath) {
+    units.push({
+      workUnitId: "wu-extract",
+      tool: "extract_clauses",
+      input: {
+        docId,
+        clauseTypes: extractClauseTypes.length > 0 ? extractClauseTypes : mergedClauseTypes,
+        skillIds,
+        instruction,
+        /** Runtime union with playbook position clauseTypes when reference present. */
+        unionPlaybookClauseTypes: Boolean(referenceDocId),
+        referenceDocId,
+      },
+      dependsOn: extractDeps,
+      outputSchema: "ClauseObject[]",
+      status: "pending",
+    });
+  }
+
+  const evidenceRootDep = verifiedQaPath ? "wu-classify" : "wu-extract";
 
   const subgraphLeaves: string[] = [];
 
@@ -370,7 +390,8 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
         skillIds,
         skills,
         depth,
-        extractDep: "wu-extract",
+        extractDep: evidenceRootDep,
+        documentSectionEvidence: verifiedQaPath,
       })
     );
   }
@@ -433,8 +454,8 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
     });
   }
 
-  if (relatedChecks.length > 0 && relatedRiskIds.length > 0) {
-    const note = relatedChecks.map((r) => r.note).filter(Boolean).join(" ");
+  if (laneRelatedChecks.length > 0 && relatedRiskIds.length > 0) {
+    const note = laneRelatedChecks.map((r) => r.note).filter(Boolean).join(" ");
     units.push({
       workUnitId: "wu-related-flag-risk",
       tool: "flag_risk",
@@ -453,7 +474,10 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
     subgraphLeaves.push("wu-related-flag-risk");
   }
 
-  const comparative = collectComparativeChecks(skills);
+  const comparative =
+    verifiedQaPath || !capabilityContract.allowComparativeChecks
+      ? []
+      : collectComparativeChecks(skills);
   for (const check of comparative) {
     const wuId = `wu-comparative-${check.checkId.replace(/[^a-zA-Z0-9._-]/g, "-")}`;
     units.push({
@@ -497,10 +521,11 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
   // Authority: package eval → aggregate (compliance) → derive_risk (annotation).
   let renderDeps: string[];
   const needsAggregate =
+    !verifiedQaPath && (
     usePackages ||
     skipLegacySubgraph ||
     packageResolution.requirementPaths.some((p) => p.status === "not_supported") ||
-    packageResolution.leftoverMatrixRowIds.length > 0;
+    packageResolution.leftoverMatrixRowIds.length > 0);
   if (needsAggregate) {
     const aggregateDeps =
       packageEvalLeaves.length > 0
@@ -532,7 +557,12 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
     });
     renderDeps = ["wu-derive-risk"];
   } else {
-    renderDeps = subgraphLeaves.length > 0 ? subgraphLeaves : ["wu-extract"];
+    renderDeps =
+      packageEvalLeaves.length > 0
+        ? [...packageEvalLeaves, ...subgraphLeaves]
+        : subgraphLeaves.length > 0
+          ? subgraphLeaves
+          : [evidenceRootDep];
   }
 
   units.push({
@@ -542,8 +572,13 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
       schemaId,
       skillIds,
       instruction,
-      relatedNotes: relatedChecks.map((r) => r.note).filter(Boolean),
+      relatedNotes: laneRelatedChecks.map((r) => r.note).filter(Boolean),
       referenceDocId,
+      capabilityOperation: capabilityContract.operation,
+      capabilityGraph: verifiedQaPath ? "lean_verified" : "full",
+      evidenceCardinality: capabilityContract.evidenceCardinality,
+      outlineDesigner: capabilityContract.outlineDesigner,
+      allowBluf: capabilityContract.allowBluf,
     },
     dependsOn: renderDeps,
     outputSchema: "string",
@@ -794,6 +829,7 @@ function appendPackageUnits(
     skills: AnalysisSkillConfig[];
     depth: ReportDepth;
     extractDep: string;
+    documentSectionEvidence?: boolean;
   }
 ): string[] {
   const {
@@ -805,6 +841,7 @@ function appendPackageUnits(
     skills,
     depth,
     extractDep,
+    documentSectionEvidence = false,
   } = args;
   const leafByPackage = new Map<string, string>();
   const evalLeaves: string[] = [];
@@ -831,6 +868,7 @@ function appendPackageUnits(
         input: {
           docId,
           packageId: pkg.id,
+          facetId: pkg.facetId,
           clauseTypes: evidenceClauseTypes,
           extractionTargets: pkg.extractionTargets,
           outputArtifactType: pkg.outputArtifactType ?? "inventory",
@@ -858,6 +896,7 @@ function appendPackageUnits(
         input: {
           docId,
           packageId: pkg.id,
+          facetId: pkg.facetId,
           clauseTypes: evidenceClauseTypes,
           extractionTargets: pkg.extractionTargets,
           skillIds,
@@ -882,10 +921,12 @@ function appendPackageUnits(
       input: {
         docId,
         packageId: pkg.id,
+        facetId: pkg.facetId,
         clauseTypes: evidenceClauseTypes,
         extractionTargets: pkg.extractionTargets,
         skillIds,
         instruction,
+        documentSectionEvidence,
       },
       dependsOn,
       outputSchema: "ClauseObject[]",
@@ -898,6 +939,7 @@ function appendPackageUnits(
       input: {
         docId,
         packageId: pkg.id,
+        facetId: pkg.facetId,
         capabilityIds,
         contextCapabilityIds,
         requirementIds,
@@ -906,6 +948,7 @@ function appendPackageUnits(
         instruction,
         depth,
         extractionTargets: pkg.extractionTargets,
+        evidenceScope: pkg.evidenceScope,
         requirementEvidence: pkg.requirementEvidence ?? {},
         requirementBindings: pkg.requirementBindings ?? {},
         // Phase 2 — structural request↔native bindings for THIS package, so

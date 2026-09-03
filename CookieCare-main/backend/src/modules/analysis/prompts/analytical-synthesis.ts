@@ -1,6 +1,13 @@
 import type { RequirementAssessment } from "../models/requirement-assessment.js";
 import { displayRequirementStatus } from "../models/requirement-assessment.js";
 import { humanizeRequirementId } from "../shared/group-assessments.js";
+import { isAnalysisExecutionIncomplete } from "../models/analysis-execution.js";
+
+function synthesisStatus(row: RequirementAssessment): string {
+  if (row.analysisExecution?.status === "timed_out") return "Analysis incomplete (timed out)";
+  if (isAnalysisExecutionIncomplete(row.analysisExecution)) return "Analysis incomplete";
+  return displayRequirementStatus(row);
+}
 
 export const ANALYTICAL_SYNTHESIS_SYSTEM_PROMPT = [
   "You interpret validated requirement findings for counsel.",
@@ -8,6 +15,7 @@ export const ANALYTICAL_SYNTHESIS_SYSTEM_PROMPT = [
   "You must not change any status, invent a new gap, invent evidence, introduce a new recommendation, or reinterpret a clause against the locked judgement.",
   "Every claim must cite requirement ids from the supplied locked rows.",
   "NLI is not compliance. Do not treat entailed as present or not_mentioned as a gap.",
+  "A row marked analysisExecution incomplete is an operational failure, not a document finding. State that it must be retried; never describe it as missing contract language.",
   "Some rows carry enrichment lines (establishedBy / gapDescription / dependency",
   "/ structuralNote / remediation) written by the verifier who actually read",
   "the evidence — this is locked, verifier-authored content, not your own",
@@ -44,7 +52,10 @@ export function buildAnalyticalSynthesisUserPrompt(input: {
       .filter(Boolean)
       .map((line) => `\n  ${line}`)
       .join("");
-    return `- ${row.requirementId} [${displayRequirementStatus(row)}] ${axes}\n  ${row.summary}${enrichment}`;
+    const execution = row.analysisExecution
+      ? `; analysisExecution=${row.analysisExecution.status}`
+      : "";
+    return `- ${row.requirementId} [${synthesisStatus(row)}] ${axes}${execution}\n  ${row.summary}${enrichment}`;
   });
   return [
     "USER QUESTION",
@@ -74,9 +85,14 @@ export function deterministicFactRollup(assessments: RequirementAssessment[]): s
     partial: 0,
     gap: 0,
     insufficient: 0,
+    analysisIncomplete: 0,
     na: 0,
   };
   for (const row of assessments) {
+    if (isAnalysisExecutionIncomplete(row.analysisExecution)) {
+      counts.analysisIncomplete += 1;
+      continue;
+    }
     const compliance = row.judgement?.compliance;
     if (compliance === "present") counts.present += 1;
     else if (compliance === "partial") counts.partial += 1;
@@ -91,14 +107,14 @@ export function deterministicFactRollup(assessments: RequirementAssessment[]): s
     })
     .map(
       (row) =>
-        `- ${humanizeRequirementId(row.requirementId)}: ${displayRequirementStatus(row)}${
+        `- ${humanizeRequirementId(row.requirementId)}: ${synthesisStatus(row)}${
           row.judgement?.recommendationKind && row.judgement.recommendationKind !== "none"
             ? ` (${row.judgement.recommendationKind})`
             : ""
         }`
     );
   return [
-    `Counts: ${counts.present} Present, ${counts.partial} Partial, ${counts.gap} Gap, ${counts.insufficient} Insufficient evidence, ${counts.na} Not applicable.`,
+    `Counts: ${counts.present} Present, ${counts.partial} Partial, ${counts.gap} Gap, ${counts.insufficient} Insufficient evidence, ${counts.analysisIncomplete} Analysis incomplete, ${counts.na} Not applicable.`,
     residual.length > 0
       ? `Material residual items:\n${residual.join("\n")}`
       : "Material residual items: none.",

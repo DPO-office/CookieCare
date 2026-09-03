@@ -1,5 +1,9 @@
 import type { AnalysisState } from "../models/analysis-state.js";
 import type { Finding } from "../models/finding.js";
+import {
+  isConfirmedRiskFinding,
+  isProtectiveFinding,
+} from "../shared/finding-semantics.js";
 import type {
   ReportOutlineItem,
   ReportSectionId,
@@ -435,8 +439,8 @@ function renderRisks(findings: Finding[]): string {
   // the document actually protects on that point (buildVerifiedFinding's risk
   // lane stamps nli="contradicted"). These must never be written up as risks;
   // separate them so the writer presents them as reassurance, not problems.
-  const present = risks.filter((f) => f.judgement?.nli !== "contradicted");
-  const cleared = risks.filter((f) => f.judgement?.nli === "contradicted");
+  const present = risks.filter(isConfirmedRiskFinding);
+  const cleared = risks.filter(isProtectiveFinding);
   const lines: string[] = [];
   if (present.length > 0) {
     lines.push("CONFIRMED RISKS (verified present in the document):");
@@ -474,8 +478,12 @@ function renderComparison(findings: Finding[]): string {
   }
   const lines: string[] = [];
   for (const [group, members] of groups) {
-    const sideA = members.find((m) => m.compareRole === "side_a");
-    const sideB = members.find((m) => m.compareRole === "side_b");
+    const sideA = members.find(
+      (m) => m.compareRole === "side_a" && m.status === "present"
+    );
+    const sideB = members.find(
+      (m) => m.compareRole === "side_b" && m.status === "present"
+    );
     lines.push(`Dimension: ${group.replace(/^compare_/, "").replace(/_/g, " ")}`);
     lines.push(`- Side A: ${sideA ? sideA.claim : "(not independently established)"}`);
     lines.push(`- Side B: ${sideB ? sideB.claim : "(not independently established)"}`);
@@ -531,7 +539,23 @@ export function wantsMatrixTable(state: AnalysisState): boolean {
 }
 
 export function synthesisSectionSystemPrompt(state: AnalysisState): string {
-  if (!isTabularAnswerStyle(state)) return SYNTHESIS_SECTION_SYSTEM_PROMPT;
+  if (!isTabularAnswerStyle(state)) {
+    if (state.plan?.reportSpec?.reportType === "qa_answer") {
+      return [
+        SYNTHESIS_SECTION_SYSTEM_PROMPT,
+        "",
+        "Q&A MARKDOWN CONTRACT:",
+        "- Make the answer easy to scan; do not write a wall of prose.",
+        "- In the Answer section, begin with one short bold bottom-line sentence.",
+        "- When the material has distinct scopes or themes, use 2-4 bullets with short bold labels.",
+        "- The Answer section must not add a Key Evidence/Evidence subsection or quote list; the separate Evidence section owns those details.",
+        "- In the Evidence section, use one bullet per operative clause or source: bold locator/point, then the exact quote and [E#] citation.",
+        "- Use blockquotes only for a material qualification. Do not use markdown tables.",
+        "- Bold only the conclusion and short labels; never bold whole paragraphs.",
+      ].join("\n");
+    }
+    return SYNTHESIS_SECTION_SYSTEM_PROMPT;
+  }
   return [
     "You write one section of a legal analysis report in tabular form.",
     "Output only that section: a `##` heading (verbatim as supplied) and its body.",
@@ -621,6 +645,7 @@ export function buildSectionSynthesisUserPrompt(input: {
         sectionId === "conclusion" ||
         sectionId === "recommendations"));
   const tabular = isTabularAnswerStyle(state);
+  const isQa = reportSpec.reportType === "qa_answer";
   const isAnalysis =
     isAnalysisSectionId(sectionId) ||
     item.role === "analysis" ||
@@ -663,8 +688,10 @@ export function buildSectionSynthesisUserPrompt(input: {
     "",
     "ANSWER STYLE",
     tabular
-      ? "tabular — one lead sentence only; do not emit a findings table (the renderer attaches the locked table); no paragraph restatements of rows"
-      : "narrative — 3–4 short paragraphs; no markdown tables unless STRUCTURED INVENTORIES already contain a user-requested matrix artifact; cite evidence inline as [E1]",
+      ? "tabular - one lead sentence only; do not emit a findings table (the renderer attaches the locked table); no paragraph restatements of rows"
+      : isQa
+        ? "Q&A markdown - one bold direct answer, compact labelled bullets for distinct scopes/themes, and clause-by-clause evidence bullets; no table and no dense paragraphs"
+      : "narrative - 3-4 short paragraphs; no markdown tables unless STRUCTURED INVENTORIES already contain a user-requested matrix artifact; cite evidence inline as [E1]",
     "",
     "THIS SECTION ONLY",
     `Heading (use verbatim as ##): ${item.heading}`,
@@ -690,6 +717,10 @@ export function buildSectionSynthesisUserPrompt(input: {
         ].join("\n")
       : sectionId === "requirements_matrix" && !tabular
         ? "NARRATIVE CONTRACT: numbered list of rights/obligations with status and a short evidence cite. No markdown table."
+        : isQa && sectionId === "key_findings"
+          ? "Q&A ANSWER CONTRACT: start with one bold bottom-line sentence. If scopes/themes differ, follow with 2-4 bullets using short bold labels. Keep paragraphs to at most two sentences. Do not add Key Evidence, Evidence, quotes, or another heading; those belong only in the separate Evidence section."
+          : isQa && sectionId === "evidence"
+            ? "Q&A EVIDENCE CONTRACT: use a bullet per operative clause/source with a bold locator or point, followed by an exact quote and its [E#] citation. Do not repeat the conclusion."
         : "",
     "MATERIALS FOR THIS SECTION",
     groups.length > 0

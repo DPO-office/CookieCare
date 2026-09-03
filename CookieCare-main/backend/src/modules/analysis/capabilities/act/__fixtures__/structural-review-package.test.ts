@@ -82,8 +82,8 @@ describe("structural-review ACT graph", () => {
       "extract_clauses",
       "extract_shared_evidence",
       "evaluate_package",
-      "derive_risk",
       "aggregate_requirements",
+      "derive_risk",
       "render_output",
     ]);
     assert.equal(
@@ -124,11 +124,18 @@ describe("structural-review requirementId (Point 1 regression)", () => {
   it("grouped findings and assessments stay 1:1 with authored NDA requirements", () => {
     const nda = skill("doc-types/nda");
     const reqIds = (nda.authoredRequirements ?? []).map((r) => r.id);
-    const results = reqIds.map((requirementId) => ({
+    const evidenceItems = reqIds.map((requirementId, index) => ({
+      ref: `E${index + 1}`,
+      clauseType: "authored_requirement",
+      quotedText: `The agreement expressly addresses ${requirementId}.`,
+      structuralPath: `section-${index + 1}`,
+      charRange: [0, 48] as [number, number],
+    }));
+    const results = reqIds.map((requirementId, index) => ({
       requirementId,
       status: "covered" as const,
       rationale: `${requirementId} present.`,
-      evidenceRefs: [] as string[],
+      evidenceRefs: [evidenceItems[index]!.ref],
     }));
     const findings = groupedResultsToFindings(results, {
       unit: { workUnitId: "wu-pkg-eval-nda.structural_review" } as never,
@@ -137,6 +144,11 @@ describe("structural-review requirementId (Point 1 regression)", () => {
       sourceMode: "authored",
       skillId: "doc-types/nda",
       findingCategory: "nda_definition_gap",
+      bundle: {
+        packageId: "nda.structural_review",
+        docId: "doc1",
+        items: evidenceItems,
+      },
     });
     assert.equal(findings.length, reqIds.length);
     for (const f of findings) {

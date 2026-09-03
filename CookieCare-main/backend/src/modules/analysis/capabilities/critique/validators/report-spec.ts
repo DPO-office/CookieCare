@@ -73,7 +73,9 @@ function requiredReportSections(state: AnalysisState): ReportSectionId[] {
         );
       case "missing_materials":
         return assessments.some(
-          (assessment) => assessment.status === "cannot_determine"
+          (assessment) =>
+            Boolean(assessment.dependency?.document) ||
+            assessment.judgement?.evidenceState === "incorporated"
         );
       case "risk_summary":
         return (state.findings ?? []).some(
@@ -152,11 +154,52 @@ export function validateReportSpec(
 
   if ((state.requirementAssessments ?? []).length === 0) return;
   const output = state.renderedOutput ?? "";
+  const compactBluf =
+    /^##\s+Bottom line\s*$/im.test(output) &&
+    /^##\s+Requirements at a glance\s*$/im.test(output);
   const required = requiredReportSections(state);
-  const missing = required.filter((section) => !reportOutputContainsSection(output, section));
-  const ordered = reportSectionsInOrder(output, required);
+  const compactSectionSatisfied = (section: ReportSectionId): boolean => {
+    if (!compactBluf) return false;
+    if (
+      section === "executive_summary" ||
+      section === "conclusion" ||
+      section === "scope"
+    ) {
+      return /^##\s+Bottom line\s*$/im.test(output);
+    }
+    if (
+      section === "requirements_matrix" ||
+      section === "requirements_detail" ||
+      section === "key_findings" ||
+      section === "chapeau_particulars"
+    ) {
+      return /^##\s+Requirements at a glance\s*$/im.test(output);
+    }
+    if (
+      section === "material_gaps" ||
+      section === "recommendations" ||
+      section === "qualifications" ||
+      section === "limitations"
+    ) {
+      return /^##\s+What needs attention\s*$/im.test(output);
+    }
+    return false;
+  };
+  const missing = required.filter(
+    (section) =>
+      !compactSectionSatisfied(section) &&
+      !reportOutputContainsSection(output, section)
+  );
+  // The compact BLUF renderer has a deliberate fixed reading order and
+  // collapses semantic ReportSpec sections into non-duplicative blocks.
+  const ordered = compactBluf || reportSectionsInOrder(output, required);
   const leaks = leakedInternalIds(output);
   const outputOk = missing.length === 0 && ordered && leaks.length === 0;
+  const compactHint =
+    "BLUF report layout is a projection: "
+    + "use 'Bottom line' for scope/executive summary/conclusion, "
+    + "'Requirements at a glance' for requirements/evidence blocks, and "
+    + "'What needs attention' for qualifications/limitations/recommendations.";
   results.push({
     itemId: "report-output:contract",
     status: outputOk ? "pass" : "fail",
@@ -167,7 +210,7 @@ export function validateReportSpec(
       : leaks.length > 0
         ? `Internal identifiers leaked in report: ${leaks.join(", ")}`
         : missing.length > 0
-          ? `Required report sections missing: ${missing.join(", ")}`
+          ? `${compactBluf ? compactHint + " " : ""}Required report sections missing: ${missing.join(", ")}`
           : "Report sections do not follow ReportSpec ordering",
   });
   if (!outputOk) {
@@ -176,7 +219,9 @@ export function validateReportSpec(
       workUnitId: "wu-render",
       instruction: truncated
         ? "Prior synthesis truncated; raise ceiling and complete missing ReportSpec sections"
-        : "Render required ReportSpec sections using their declared labels and order",
+        : compactBluf
+          ? `BLUF renderer: keep a strict section projection (${compactHint}) and ensure all required requirement rows are present.`
+          : "Render required ReportSpec sections using their declared labels and order",
       sourceItemId: "report-output:contract",
       previousAttemptFeedback: truncated
         ? `prior synthesis truncated at maxOutputTokens=${state.synthesisMeta?.maxOutputTokens}; raise ceiling and complete missing sections: ${missing.join(", ") || "ordering"}`
@@ -184,7 +229,7 @@ export function validateReportSpec(
     });
   }
 
-  if (spec.outline?.length) {
+  if (spec.outline?.length && !compactBluf) {
     const outlineAnalysisItems = spec.outline.filter((item) =>
       isAnalysisOutlineRole(item.role)
     );

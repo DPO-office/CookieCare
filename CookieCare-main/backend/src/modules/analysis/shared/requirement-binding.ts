@@ -111,6 +111,8 @@ export interface PackageBindingInput {
   /** Package metadata used only to detect an exact package-wide umbrella. */
   packageDescription?: string;
   packageCapabilityIds?: string[];
+  /** Request requirements that explicitly select this runtime package. */
+  explicitRequestRequirementIds?: string[];
   facetId?: string;
 }
 
@@ -227,6 +229,12 @@ export function deriveStructuralBindings(
     );
     const packageConcept = combinedTokens(pkg.packageId, pkg.packageDescription);
     const packageArticles = articleFamilies(pkg.packageCapabilityIds ?? []);
+    const requestDescription = pkg.requestDescriptions?.get(requestId);
+    const explicitlyRequestsPackageBreadth =
+      reqCaps.has(pkg.packageId) &&
+      /\b(?:all|every|complete|completeness|mandatory|overall|entire|full)\b/i.test(
+        `${requestId} ${requestDescription ?? ""}`
+      );
     // A single classifier requirement explicitly mapped to multiple selected
     // component packages is their structural parent even when its generated id
     // contains substantive-looking words. This reads the PLAN graph rather than
@@ -245,10 +253,12 @@ export function deriveStructuralBindings(
     // package-selection fallback.
     const explicitPackageUmbrella =
       explicitMultiPackageUmbrella ||
+      Boolean(pkg.explicitRequestRequirementIds?.includes(requestId)) ||
       ((reqTokens.size === 0 || isContentFreeUmbrellaId(requestId)) &&
         reqCaps.has(pkg.packageId));
     const umbrella =
       explicitPackageUmbrella ||
+      explicitlyRequestsPackageBreadth ||
       equalTokens(requestConcept, packageConcept) ||
       (Boolean(reqArticle) && reqTokens.size === 0 && packageArticles.has(reqArticle!));
     if (umbrella) {
@@ -290,7 +300,15 @@ export function deriveStructuralBindings(
       continue;
     }
 
-    const requestDescription = pkg.requestDescriptions?.get(requestId);
+    // When PLAN mapped this request to a different selected package, do not let
+    // fuzzy prose overlap create a cross-package binding (for example,
+    // duration accidentally binding to documented-instructions because both
+    // descriptions mention processing under the same legal article).
+    const mapsAnotherSelectedPackage = (pkg.selectedPackageIds ?? []).some(
+      (packageId) => packageId !== pkg.packageId && reqCaps.has(packageId)
+    );
+    if (!reqCaps.has(pkg.packageId) && mapsAnotherSelectedPackage) continue;
+
     const nativeConcepts = pkg.nativeRequirementIds.map((nativeId) => ({
       nativeId,
       tokens: combinedTokens(nativeId, pkg.nativeDescriptions?.[nativeId]),

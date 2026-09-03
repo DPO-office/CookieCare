@@ -82,7 +82,11 @@ export default function InteractAnalyze() {
     const restored = await history.loadSession(item);
     if (!restored) return;
     setHistoryOpen(false);
-    analysis.restoreSession(restored.messages, restored.docName);
+    analysis.restoreSession(
+      restored.messages,
+      restored.docName,
+      restored.sessionId
+    );
   };
 
   const handleAddNewFolder = async (e: React.FormEvent) => {

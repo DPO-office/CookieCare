@@ -42,6 +42,14 @@ describe("requirement-identity", () => {
       canonicalRequirementId("gdpr.article28_3.mandatory_clauses_adequacy"),
       "gdpr.article28_3.mandatory_clauses_adequacy"
     );
+    assert.equal(
+      canonicalRequirementId("gdpr.article28.data_categories_and_subjects"),
+      "gdpr.article28.categories_of_data_and_subjects"
+    );
+    assert.equal(
+      canonicalRequirementId("gdpr.article28_3.mandatory_obligations_adequacy"),
+      "gdpr.article28_3.mandatory_clauses_adequacy"
+    );
     assert.ok(
       findingSupportsRequirement(
         "data_categories",

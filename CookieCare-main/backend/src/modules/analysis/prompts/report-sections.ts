@@ -298,8 +298,8 @@ export function narrativeArcGuidance(
 
   if (reportType === "qa_answer") {
     return hasAnalysis
-      ? "Answer the user's question directly. Use scope to frame what you reviewed, then give the answer."
-      : "Answer the user's question directly and concisely in the conclusion section.";
+      ? "Lead with a direct Answer to the user's question. Use a bold bottom-line sentence, then compact bullets with bold labels when the answer has distinct scopes or themes. Show supporting evidence separately and include only material qualifications."
+      : "Answer the user's question directly and concisely, using a bold bottom-line sentence and compact labelled bullets when they improve scanning.";
   }
 
   if (depth === "narrow" || !hasAnalysis) {

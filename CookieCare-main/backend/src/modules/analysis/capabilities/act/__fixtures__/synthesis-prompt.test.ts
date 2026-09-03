@@ -10,7 +10,7 @@ import {
 } from "../../../prompts/synthesis.js";
 import { buildEvaluatePackageUserPrompt } from "../../../prompts/evaluate-package.js";
 import type { RequirementAssessment } from "../../../models/requirement-assessment.js";
-import type { ReportOutlineItem } from "../../../models/intent.js";
+import type { ReportOutlineItem, ReportSpec } from "../../../models/intent.js";
 import type { AnalysisState } from "../../../models/analysis-state.js";
 import type { Finding } from "../../../models/finding.js";
 
@@ -445,6 +445,60 @@ describe("per-section synthesis prompt", () => {
     assert.match(prompt, /Do not emit a markdown findings table/);
     assert.match(prompt, /Requirement \| Status \| Evidence \| Finding/);
     assert.doesNotMatch(prompt, /\bgdpr\b/i);
+  });
+
+  it("uses a scannable markdown contract for narrative Q&A", () => {
+    const reportSpec: ReportSpec = {
+      reportType: "qa_answer",
+      depth: "standard",
+      sections: ["key_findings", "evidence"],
+    };
+    const state = {
+      request: {
+        sessionId: "s1",
+        instruction: "Explain how the two contractual scopes differ.",
+        documentIds: [],
+        documentTexts: {},
+        answerStyle: "narrative",
+      },
+      intent: {
+        scope: "whole_document",
+        operation: "explain_qa",
+        standard: "none",
+        outputForm: "qa_thread",
+        reportType: "qa_answer",
+        compound: false,
+        subIntents: [],
+        requirements: [],
+        confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 },
+      },
+      workspace: {},
+      findings: [],
+      analysisArtifacts: {},
+      plan: { reportSpec },
+    } as unknown as AnalysisState;
+
+    const system = synthesisSectionSystemPrompt(state);
+    assert.match(system, /Q&A MARKDOWN CONTRACT/);
+    assert.match(system, /bold bottom-line sentence/);
+    assert.match(system, /one bullet per operative clause/);
+
+    const prompt = buildSectionSynthesisUserPrompt({
+      state,
+      findings: [],
+      assessments: [],
+      reportSpec,
+      item: {
+        id: "answer",
+        role: "key_findings",
+        sectionId: "key_findings",
+        heading: "Answer",
+        requirementIds: [],
+        source: "deterministic",
+      },
+    });
+    assert.match(prompt, /Q&A ANSWER CONTRACT/);
+    assert.match(prompt, /2-4 bullets using short bold labels/);
   });
 
   it("uses a numbered-list contract for narrative rights-matrix sections", () => {

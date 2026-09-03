@@ -164,7 +164,7 @@ export default function DocumentPicker({ documents, onConfirm }: DocumentPickerP
 
                       <span
                         className={`score-badge shrink-0 text-[10px] font-medium ${
-                          doc.type === "draft"
+                          (doc.type as string) === "draft"
                             ? "bg-[#EEF2FF] text-[#4F5BD9]"
                             : "bg-[#F7F8FB] text-[#667085]"
                         }`}

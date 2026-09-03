@@ -356,6 +356,9 @@ export function resolvePackages(
           packageById.has(capId) ? packageById.get(capId) : capabilityToPackage.get(capId)
         )
         .filter((pkg): pkg is EvidencePackage => Boolean(pkg));
+      const byExplicitPackage = mappedCaps
+        .map((capId) => packageById.get(capId))
+        .filter((pkg): pkg is EvidencePackage => Boolean(pkg));
 
       const matrixScopedReq = isMatrixScopedRequirement(
         req,
@@ -440,6 +443,8 @@ export function resolvePackages(
       const isInventoryReq = req.type === "extraction" || req.type === "coverage";
       let candidate =
         pickKindMatch(byReqId, req.type) ??
+        pickKindMatch(byExplicitPackage, req.type) ??
+        byExplicitPackage[0] ??
         byTopic ??
         (isInventoryReq ? undefined : pickKindMatch(byKind, req.type) ?? byCap[0]);
 
@@ -910,7 +915,21 @@ function buildResolutionBindings(
     // every selected package. Only structural, authored-semantic, or uniquely
     // capability-backed matches survive. This also lets one explicitly-authored
     // umbrella bind across multiple component packages.
-    const requestIds = planReqs.map((req) => req.id);
+    // Runtime facet packages carry explicit aliases authored by PLAN. Treat
+    // those aliases as ownership boundaries: offering sibling facet requests
+    // here would let fuzzy semantic matching cross-wire their findings.
+    const aliasedRequestIds = resolved.pkg.requirementAliases ?? [];
+    const requestIds = resolved.pkg.facetId && aliasedRequestIds.length > 0
+      ? planReqs
+          .filter((req) =>
+            aliasedRequestIds.some(
+              (alias) =>
+                alias === req.id ||
+                normalizeRequirementId(alias) === normalizeRequirementId(req.id)
+            )
+          )
+          .map((req) => req.id)
+      : planReqs.map((req) => req.id);
     if (requestIds.length === 0) continue;
     out.push(
       ...deriveStructuralBindings(
@@ -940,6 +959,8 @@ function buildResolutionBindings(
             resolved.pkg.description,
           ].filter(Boolean).join(" "),
           packageCapabilityIds: resolved.pkg.capabilityIds,
+          explicitRequestRequirementIds: resolved.pkg.requirementAliases,
+          facetId: resolved.pkg.facetId,
         }
       )
     );

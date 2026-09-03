@@ -1,4 +1,5 @@
 import type { Finding } from "../../models/finding.js";
+import { isConfirmedRiskFinding } from "../../shared/finding-semantics.js";
 import type {
   ComplianceStatus,
   EvidenceState,
@@ -175,6 +176,13 @@ function complianceFromFindings(findings: Finding[]): ComplianceStatus {
 
   if (supporting.length > 0 && gaps.length > 0) return "partial";
 
+  // Preserve an explicitly verified partial child when a parent requirement
+  // also contains fully covered siblings. Otherwise the generic
+  // `supporting.length > 0` fallback would incorrectly promote the parent to
+  // fully present merely because partial findings are grounded and therefore
+  // also count as supporting evidence.
+  if (stampedValues.includes("partial")) return "partial";
+
   if (annexDependent.length > 0 && supporting.length === 0 && gaps.length === 0) {
     return binding === "binding" ? "present" : "insufficient_evidence";
   }
@@ -202,7 +210,9 @@ function materialityFromFindings(
   const stampedCompliance = complianceFindings.find((f) => f.judgement?.materiality)
     ?.judgement?.materiality;
   const highRisk = riskFindings.some(
-    (f) => f.severity === "high" || f.severity === "medium"
+    (f) =>
+      isConfirmedRiskFinding(f) &&
+      (f.severity === "high" || f.severity === "medium")
   );
   if (compliance === "gap") return "high";
   if (highRisk) return stampedCompliance === "high" ? "high" : "high";

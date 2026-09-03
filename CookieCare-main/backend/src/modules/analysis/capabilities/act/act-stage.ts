@@ -29,6 +29,7 @@ const STAGE_BY_TOOL: Record<AnalysisToolName, ActStage> = {
   derive_risk: "VERIFY",
   aggregate_requirements: "LOCK",
   render_output: "RENDER",
+  merge_branch_outputs: "RENDER",
 };
 
 export function actStageForTool(tool: AnalysisToolName): ActStage {

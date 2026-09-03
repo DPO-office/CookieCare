@@ -234,6 +234,31 @@ function wrapTables(html: string): string {
   });
 }
 
+/**
+ * Give deterministic compound-analysis markdown a real visual hierarchy.
+ * The backend reserves H1 for the report and H2 for independently analyzed
+ * workstreams; branch-internal headings are H3+. Keeping this transformation
+ * here means copy/print still receive ordinary, portable Markdown.
+ */
+function wrapCompoundAnalysis(html: string): string {
+  if (!/<h1>\s*Analysis report\s*<\/h1>/i.test(html)) return html;
+  const firstWorkstream = html.search(/<h2>/i);
+  if (firstWorkstream < 0) return html;
+
+  const overview = html.slice(0, firstWorkstream)
+    .replace(/<h1>/i, '<h1 class="md-analysis-title">');
+  const workstreamHtml = html.slice(firstWorkstream).replace(/<hr>\s*/gi, "");
+  const workstreams = workstreamHtml.match(/<h2>[\s\S]*?(?=<h2>|$)/gi) ?? [];
+  if (workstreams.length < 2) return html;
+
+  return [
+    `<section class="md-analysis-overview">${overview}</section>`,
+    ...workstreams.map(
+      (section) => `<section class="md-analysis-workstream">${section}</section>`
+    ),
+  ].join("\n");
+}
+
 const MARKDOWN_CACHE_MAX = 24;
 const markdownHtmlCache = new Map<string, string>();
 
@@ -252,7 +277,7 @@ export function markdownToHtml(markdown: string): string {
   if (cached !== undefined) return cached;
 
   const cleaned = stripOuterCodeFences(markdown);
-  const html = wrapTables(md.render(cleaned));
+  const html = wrapCompoundAnalysis(wrapTables(md.render(cleaned)));
 
   if (markdownHtmlCache.size >= MARKDOWN_CACHE_MAX) {
     const oldest = markdownHtmlCache.keys().next().value;

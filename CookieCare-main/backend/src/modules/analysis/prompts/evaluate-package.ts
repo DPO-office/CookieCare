@@ -144,6 +144,7 @@ export function buildEvaluatePackageUserPrompt(input: {
     "evidenceConfidence: high | medium | low",
     "",
     "If evidence is marked truncated=true or heading_only=true, you did not receive the complete logical clause. Do NOT use gap. Default to insufficient_evidence / evidenceState=truncated.",
+    "Applicability comes before verdict. If proving and contradicting passages concern different jurisdictions, parties, time periods, conditions, or a main rule versus its exception, do not blend them into partial compliance. Explain the scope split and use insufficient_evidence / evidenceState=conflicting unless one scope is expressly the only scope requested. If they concern the same scope and genuinely conflict, also use insufficient_evidence / evidenceState=conflicting. Partial is only for a single coherent scope where some required elements are met and others are absent.",
     "Recommendations: never recommend amending the agreement from insufficient_evidence, truncated, heading_only, floating pointers, or unavailable annexes. Use Obtain/Confirm. Recommend Amend only for gap or partial when the cited quote is complete and the defect is in this instrument.",
     "Ground every conclusion in evidence refs from THAT requirement's candidate list. If you cannot cite a valid candidate ref, do not claim coverage.",
     "Evaluate each requirementId independently. Do not copy another requirement's rationale, gap, or evidenceRefs unless that quote independently substantiates THIS hypothesis.",

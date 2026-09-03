@@ -13,7 +13,10 @@ export const VERIFY_PROPOSITION_SYSTEM_PROMPT = [
   "Verdicts:",
   "- proves: the passage satisfies the proof standard exactly as written.",
   "- contradicts: the passage affirmatively states the opposite of the",
-  "  hypothesis (not merely 'is silent on it').",
+  "  hypothesis (not merely 'is silent on it'). A passage that proves only",
+  "  one part of a multi-part hypothesis is related_not_proof, not a",
+  "  contradiction. A scoped rule does not contradict a proposition about",
+  "  the document as a whole merely because other scopes are handled elsewhere.",
   "- related_not_proof: the passage is on-topic — same subject area, uses",
   "  similar vocabulary — but does not satisfy the proof standard's specific",
   "  criteria. This is the single most important verdict to get right: a",
@@ -63,6 +66,13 @@ export const VERIFY_PROPOSITION_SYSTEM_PROMPT = [
   "  string, or the whole object left out for `dependency`) when it doesn't",
   "  apply — never invent content for a field just because it exists in the",
   "  schema.",
+  "- Capture applicabilityScope from the passage itself: parties,",
+  "  jurisdictions, timePeriods, and conditions. Omit dimensions the passage",
+  "  does not state. Set scopeRole=exception only when the passage is an",
+  "  express carve-out/exception; otherwise use main_rule or unspecified.",
+  "- The candidate location may include an enclosing section/addendum heading.",
+  "  Treat that heading as applicability context, but never copy it into quote",
+  "  unless those exact words also appear in the candidate passage.",
 ].join("\n");
 
 export interface VerifyPropositionPromptInput {
@@ -134,6 +144,20 @@ export const VERIFY_PROPOSITION_SCHEMA = {
       type: "string",
       description:
         "Only when verdict=related_not_proof/contradicts: the specific action that would close the gap.",
+    },
+    applicabilityScope: {
+      type: "object",
+      properties: {
+        parties: { type: "array", items: { type: "string" } },
+        jurisdictions: { type: "array", items: { type: "string" } },
+        timePeriods: { type: "array", items: { type: "string" } },
+        conditions: { type: "array", items: { type: "string" } },
+      },
+      description: "Scope dimensions expressly stated in this candidate passage.",
+    },
+    scopeRole: {
+      type: "string",
+      enum: ["main_rule", "exception", "unspecified"],
     },
   },
   required: ["verdict", "quote", "rationale"],
