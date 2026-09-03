@@ -118,7 +118,7 @@ export function groundFindings(state: AnalysisState): AnalysisState {
     const letter = letteredSibling(finding);
     const family = siblingKey(finding);
     const quote = primaryQuote(finding);
-    if (letter && family && quote) {
+    if (!finding.matrixRowId && letter && family && quote) {
       const key = `${family}::${quote}`;
       const owner = seenSiblingQuotes.get(key);
       if (owner && owner !== finding.findingId) {

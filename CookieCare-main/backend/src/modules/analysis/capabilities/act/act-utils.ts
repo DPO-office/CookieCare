@@ -80,12 +80,20 @@ export function stampRequirementIdsOnNewFindings(
   const beforeIds = new Set(before.map((f) => f.findingId));
   const out: Finding[] = [];
   for (const f of after) {
-    if (beforeIds.has(f.findingId) || f.requirementId) {
+    if (beforeIds.has(f.findingId)) {
       out.push(f);
       continue;
     }
+    if (f.requirementId) {
+      out.push({ ...f, requestRequirementIds: [...new Set(reqIds)] });
+      continue;
+    }
     if (reqIds.length === 1) {
-      out.push({ ...f, requirementId: reqIds[0] });
+      out.push({
+        ...f,
+        requirementId: reqIds[0],
+        requestRequirementIds: [reqIds[0]!],
+      });
       continue;
     }
     for (const reqId of reqIds) {
@@ -94,6 +102,7 @@ export function stampRequirementIdsOnNewFindings(
         ...f,
         findingId: `${f.findingId}__req_${safe}`,
         requirementId: reqId,
+        requestRequirementIds: [reqId],
       });
     }
   }
@@ -167,7 +176,11 @@ export function stampFindingsByCapability(
       continue;
     }
     if (reqIds.length === 1) {
-      out.push({ ...f, requirementId: reqIds[0] });
+      out.push({
+        ...f,
+        requirementId: reqIds[0],
+        requestRequirementIds: [reqIds[0]!],
+      });
       continue;
     }
     for (const reqId of reqIds) {
@@ -176,6 +189,7 @@ export function stampFindingsByCapability(
         ...f,
         findingId: `${f.findingId}__req_${safe}`,
         requirementId: reqId,
+        requestRequirementIds: [reqId],
       });
     }
   }

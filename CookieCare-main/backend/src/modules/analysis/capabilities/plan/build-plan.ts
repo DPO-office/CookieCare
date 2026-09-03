@@ -278,14 +278,20 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     typeof intent.standard === "string" && intent.standard.startsWith("regime_pack:");
   const preferOpenLane =
     openLaneEnabled &&
-    !isRegimeCompliance &&
-    (intent.standard === "none" ||
-      intent.operation === "risk_flag" ||
+    (intent.operation === "risk_flag" ||
       intent.operation === "explain_qa" ||
-      intent.operation === "compare");
+      intent.operation === "compare" ||
+      (!isRegimeCompliance && intent.standard === "none"));
 
   let focus: InstructionFocus | undefined;
   let extraPackages: EvidencePackage[] | undefined;
+  // True once the open lane has already extracted the reference/playbook doc
+  // via generateS3Propositions and run its positions through VERIFY. Tier P
+  // (extract_playbook_positions + check_against_rule, built unconditionally
+  // in build-act-graph.ts whenever referenceDocId is set) would otherwise
+  // re-check the exact same positions through a separate, less rigorous path
+  // — producing duplicate, sometimes disagreeing verdicts on the same clause.
+  let openLaneHandledReference = false;
 
   if (preferOpenLane) {
     const open = await buildOpenPlan(state, primaryDocId, referenceDocId);
@@ -297,9 +303,11 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
       intent = open.intent;
       extraPackages = open.extraPackages;
       focus = undefined;
+      openLaneHandledReference = Boolean(referenceDocId);
       pacLog("PLAN open-analysis lane", {
         requirements: intent.requirements?.length ?? 0,
         packages: extraPackages?.length ?? 0,
+        openLaneHandledReference,
       });
     }
   }
@@ -316,18 +324,29 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     state = { ...state, intent };
   }
 
+  // Target+playbook is a compliance check, not a peer comparison — the
+  // playbook's positions are rules to satisfy, not a second document to
+  // compare against on equal footing. The "compare" operation's
+  // executive_summary/comparison/recommendations archetype is for genuine
+  // peer-document or within-document party comparisons (comparison_delta
+  // findings); a playbook check produces ordinary compliance/risk findings,
+  // so it renders best as the default compliance skeleton (a matrix of
+  // positions vs. target), not a shape built for content it never produces.
+  const sectionOperation =
+    intent.operation === "compare" && openLaneHandledReference ? undefined : intent.operation;
   const seedReportType = intent.reportType ?? fallbackReportType(intent.operation);
   const seedDepth = intent.depth ?? "standard";
   const seedReportSpec: ReportSpec = {
     reportType: seedReportType,
     depth: seedDepth,
-    sections: deriveSections(seedReportType, seedDepth, intent.operation),
+    sections: deriveSections(seedReportType, seedDepth, sectionOperation),
   };
   const relatedChecks = resolveRelatedChecks(skills, state.request.instruction, focus);
   const targetDocIds =
     roleResolution.targetDocIds.length > 0
       ? roleResolution.targetDocIds
       : [primaryDocId];
+  const effectiveReferenceDocId = openLaneHandledReference ? undefined : referenceDocId;
 
   const graphStarted = Date.now();
   const graphs = targetDocIds.map((docId) =>
@@ -339,7 +358,7 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
       focus,
       relatedChecks,
       unresolvedStandard: intent.unresolvedStandard,
-      referenceDocId,
+      referenceDocId: effectiveReferenceDocId,
       reportSpec: seedReportSpec,
       extraPackages,
     })
@@ -353,6 +372,11 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     instruction: state.request.instruction,
     packages: packageList,
     fallbackReportType: seedReportType,
+    // resolveReportSpecFromPackages re-derives sections itself (falling back
+    // to deriveSections when no authored package defines its own — true for
+    // the open lane's synthetic package) — pass the same reference-adjusted
+    // operation so it doesn't undo the compliance-vs-comparison routing above.
+    sectionOperation,
   });
   const reportSpec = buildFinalReportSpec({
     intent,
@@ -409,6 +433,7 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     focus,
     auditRecord,
     requirementExecutionPaths: graph.packageResolution.requirementPaths,
+    requirementBindings: graph.packageResolution.requirementBindings,
     pinnedVersions: {
       clauseTaxonomyVersion:
         state.metadata.clauseTaxonomyVersion ?? CLAUSE_TAXONOMY_VERSION,
@@ -470,6 +495,7 @@ function buildAuditRecord(
   packageResolution?: {
     packages: { pkg: { id: string } }[];
     requirementToPackageId: Record<string, string>;
+    requirementBindings: PlanAuditRecord["requirementBindings"];
     requirementPaths: PlanAuditRecord["requirementExecutionPaths"];
     scopeAudit?: PlanAuditRecord["scopeAudit"];
   },
@@ -500,6 +526,7 @@ function buildAuditRecord(
     resolvedPackageIds: packageResolution?.packages.map((item) => item.pkg.id) ?? [],
     requirementToPackageId: packageResolution?.requirementToPackageId ?? {},
     requirementExecutionPaths: packageResolution?.requirementPaths ?? [],
+    requirementBindings: packageResolution?.requirementBindings ?? [],
     rawIntent: intentAudit?.rawIntent,
     intentNormalizations: intentAudit?.intentNormalizations,
     scopeAudit: packageResolution?.scopeAudit,

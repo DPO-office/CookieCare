@@ -237,10 +237,8 @@ function userSafeFinding(finding: Finding): Finding {
   if (!INTERNAL_VERIFICATION_CLAIM.test(finding.claim)) return finding;
   return {
     ...finding,
-    claim:
-      "The agreement does not provide enough verifiable language to confirm this obligation.",
-    gap:
-      "The available document language was not specific enough to support a confirmed assessment.",
+    claim: "Insufficient data — no related clauses were found.",
+    gap: "No related clauses were found in the reviewed text.",
   };
 }
 
@@ -702,7 +700,9 @@ function memoStatusLabel(f: Finding): string {
   if (f.matrixAddressing === "absent") return "Gap";
   if (f.status === "present") return "Covered";
   if (f.status === "absent_expected") return "Gap";
-  if (f.status === "insufficient_evidence") return "Cannot determine";
+  if (f.status === "insufficient_evidence") {
+    return f.evidence.length === 0 ? "Insufficient data" : "Cannot determine";
+  }
   if (f.status === "not_covered") return "Not yet supported";
   return humanizeCategory(f.status);
 }
@@ -1430,8 +1430,12 @@ function requirementLabel(
 ): string {
   const description = state?.intent?.requirements?.find((r) => r.id === requirementId)
     ?.description?.trim();
-  if (description && description !== requirementId && description.length <= 80) {
-    return description;
+  // A real hypothesis/description is almost always a full sentence over 80
+  // chars — discarding it outright when long left nothing but the internal
+  // id ("open.p1" → "P1"), which tells the user nothing about what was
+  // actually investigated. Truncate instead of discarding.
+  if (description && description !== requirementId) {
+    return description.length <= 80 ? description : `${description.slice(0, 77).trimEnd()}…`;
   }
   const humanized = humanizeRequirementId(requirementId);
   // humanizeRequirementId handles lettered ids ("Art 28(3)(g)…"); catch the
@@ -1487,7 +1491,10 @@ function evidenceCellText(
   ) {
     return "Particulars referenced outside this extract";
   }
-  return "No verbatim extract";
+  if (assessment.judgement?.evidenceState === "not_found" || !finding?.evidence?.length) {
+    return "No related clauses found";
+  }
+  return "Insufficient data";
 }
 
 /**
@@ -1799,11 +1806,50 @@ async function streamBottomLine(state: AnalysisState, sections: string): Promise
     if (state.agent && tracker) {
       state.agent.tokensUsed = tracker.tokensUsed;
     }
-    return outcome.text.trim();
+    return enforceBottomLineEvidenceLimits(state, outcome.text.trim());
   } catch (err) {
     console.warn("[renderOutput] bottom-line stream failed:", err);
     return "See the rights matrix and gaps above; no additional narrative was generated.";
   }
+}
+
+const BOTTOM_LINE_COMPLETENESS_OVERCLAIM =
+  /\b(?:no (?:material )?(?:residual|outstanding|open|unresolved) (?:items?|issues?|gaps?|risks?)|fully (?:documented|verified|complete|compliant|in place|safeguarded)|all\b[^.!?]{0,80}\b(?:present|satisfied|met|complete)|(?:finalize|finalizing|finalized) compliance)\b/i;
+
+function assessmentHasIncompleteEvidence(assessment: RequirementAssessment): boolean {
+  return (
+    assessment.status === "cannot_determine" ||
+    assessment.judgement?.evidenceState === "incorporated" ||
+    assessment.judgement?.evidenceState === "truncated" ||
+    assessment.judgement?.evidenceState === "unavailable" ||
+    assessment.judgement?.evidenceState === "not_found" ||
+    assessment.judgement?.evidenceState === "conflicting"
+  );
+}
+
+/**
+ * Deterministic last-mile guard for every BLUF report. The prose model may
+ * improve wording, but it cannot erase a locked evidence limitation.
+ */
+export function enforceBottomLineEvidenceLimits(
+  state: AnalysisState,
+  bottomLine: string
+): string {
+  const incomplete = (state.requirementAssessments ?? []).filter(
+    assessmentHasIncompleteEvidence
+  );
+  if (incomplete.length === 0) return bottomLine.trim();
+
+  const sentences = bottomLine
+    .match(/[^.!?]+[.!?]+|[^.!?]+$/g)
+    ?.map((sentence) => sentence.trim())
+    .filter(Boolean) ?? [];
+  const safe = sentences.filter(
+    (sentence) => !BOTTOM_LINE_COMPLETENESS_OVERCLAIM.test(sentence)
+  );
+  const noun = incomplete.length === 1 ? "requirement remains" : "requirements remain";
+  const qualifier = `${incomplete.length} ${noun} dependent on referenced, truncated, conflicting, or unavailable material. Obtain and review that material before treating the analysis as complete.`;
+  return [...safe, qualifier].join(" ").trim();
 }
 
 /**
@@ -1837,10 +1883,14 @@ async function streamBlufBottomLine(
   riskFindings: Finding[] = []
 ): Promise<string> {
   const rollup = deterministicFactRollup(assessments);
+  const incompleteEvidenceCount = assessments.filter(
+    assessmentHasIncompleteEvidence
+  ).length;
   const system = [
     "You are a senior analyst writing the BOTTOM LINE of a document review for counsel.",
     "Write 2–4 sentences: the overall position, then the one or two items that most need attention, ending on what to do next.",
     "Use only the supplied counts, residual items, and risks. Do not invent findings, do not enumerate every item, do not restate a matrix, do not write a heading. No preamble such as 'In summary'.",
+    "Evidence limitations are binding. If the input reports any incorporated, referenced, truncated, conflicting, unavailable, or not-found evidence, explicitly qualify the conclusion and never describe the review as complete, fully verified/documented/compliant, free of residual items, or ready to finalize.",
   ].join(" ");
   const riskSummary =
     riskFindings.length > 0
@@ -1863,6 +1913,9 @@ async function streamBlufBottomLine(
     `User request: ${state.request.instruction.slice(0, 400)}`,
     "",
     rollup,
+    incompleteEvidenceCount > 0
+      ? `Evidence limitations: ${incompleteEvidenceCount} requirement(s) depend on referenced, truncated, conflicting, unavailable, or not-found material.`
+      : "Evidence limitations: none.",
     riskSummary,
   ]
     .filter(Boolean)
@@ -1881,12 +1934,18 @@ async function streamBlufBottomLine(
       }
     );
     if (state.agent && tracker) state.agent.tokensUsed = tracker.tokensUsed;
-    return outcome.text.trim();
+    return enforceBottomLineEvidenceLimits(
+      { ...state, requirementAssessments: assessments },
+      outcome.text.trim()
+    );
   } catch (err) {
     console.warn("[buildBlufReport] bottom line failed; using deterministic counts:", err);
     const fallback = rollup.split("\n")[0] ?? "See the requirements matrix below.";
     emitAnalysisToken(state, fallback);
-    return fallback;
+    return enforceBottomLineEvidenceLimits(
+      { ...state, requirementAssessments: assessments },
+      fallback
+    );
   }
 }
 

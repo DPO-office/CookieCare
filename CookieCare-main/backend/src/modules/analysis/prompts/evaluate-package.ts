@@ -10,6 +10,8 @@ export const EVALUATE_PACKAGE_SYSTEM_PROMPT = [
 export interface EvaluatePackageRequirementPrompt {
   requirementId: string;
   hypothesis: string;
+  /** Authored, domain-specific definition of what is sufficient proof. */
+  proofStandard?: string;
   candidateEvidenceRefs: string[];
   /** Packet for this requirement only — never sibling extracts. */
   evidenceLines?: string[];
@@ -45,6 +47,7 @@ export function buildEvaluatePackageUserPrompt(input: {
       const lines = [
         `- ${req.requirementId}`,
         `  hypothesis: ${req.hypothesis}`,
+        ...(req.proofStandard ? [`  proofStandard: ${req.proofStandard}`] : []),
         `  candidateEvidenceRefs: ${refs}`,
       ];
       if (req.packetRoles) {
@@ -85,6 +88,7 @@ export function buildEvaluatePackageUserPrompt(input: {
     "",
     "Requirements to establish (return exactly one result per requirementId).",
     "Judge the hypothesis against that row's candidateEvidenceRefs and the evidence listed under THAT requirement only.",
+    "When a proofStandard is supplied, apply it exactly; a related clause is not sufficient unless it meets that standard.",
     "Do not use another requirement's evidence packet.",
     "Evidence tagged candidates=supporting may prove the hypothesis. Evidence tagged candidates=contextual is related but does not by itself prove the hypothesis.",
     "If only contextual refs are available, compliance must be insufficient_evidence or partial — never present.",

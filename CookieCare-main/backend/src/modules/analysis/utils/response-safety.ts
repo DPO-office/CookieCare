@@ -12,13 +12,13 @@ const INTERNAL_VERIFICATION_CLAIM =
 /** Rewrite pipeline verifier jargon into honest user-facing wording. */
 export function userSafeFindingClaim(claim: string): string {
   if (INTERNAL_VERIFICATION_CLAIM.test(claim)) {
-    return "The agreement does not provide enough verifiable language to confirm this obligation.";
+    return "Insufficient data — no related clauses were found.";
   }
   if (/^Could not evaluate rule .+ \(LLM unavailable\)\.?$/i.test(claim)) {
     return "This obligation could not be evaluated because analysis was temporarily unavailable.";
   }
   if (/^No clause available to evaluate rule .+\.?$/i.test(claim)) {
-    return "No relevant clause text was available to evaluate this obligation.";
+    return "No related clauses were found.";
   }
   if (/^Previous attempt was rejected:/i.test(claim)) {
     return "The prior assessment could not be confirmed from the document text.";
@@ -36,7 +36,7 @@ export function sanitizeFindingsForApi<T extends { claim: string; gap?: string; 
       claim: userSafeFindingClaim(finding.claim),
       gap:
         finding.gap && INTERNAL_VERIFICATION_CLAIM.test(finding.gap)
-          ? "The available document language was not specific enough to support a confirmed assessment."
+          ? "No related clauses were found in the reviewed text."
           : finding.gap,
     }));
 }
@@ -53,7 +53,7 @@ export function sanitizeRenderedAnalysisOutput(value: string | undefined): strin
     .replace(/Checking compliance rules/gi, "Compliance review")
     .replace(
       RAW_VERIFICATION_REJECTION,
-      "The agreement did not provide enough verifiable language to confirm this obligation."
+      "Insufficient data — no related clauses were found."
     )
     .replace(INTERNAL_STATUS_TOKEN, (_match, status: string) =>
       status.replace(/_/g, " ")

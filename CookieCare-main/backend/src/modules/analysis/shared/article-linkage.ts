@@ -4,7 +4,37 @@ import type { RightsMatrixRow } from "../skills/runtime/catalog/types.js";
 import {
   findingSupportsRequirement,
   isWholeArticleRequirement,
+  requirementIdsEquivalent,
 } from "./requirement-identity.js";
+
+/**
+ * Phase 2 — a finding is directly linked to a requirement when the structural
+ * binding graph stamped that request id onto it (`requestRequirementIds`), OR
+ * when the legacy canonical/alias match holds. The binding is authoritative;
+ * the fuzzy match is the fallback for un-stamped (non-package) findings.
+ */
+function findingBoundToRequirement(
+  finding: Finding,
+  requirementId: string,
+  state?: AnalysisState
+): boolean {
+  if (finding.requestRequirementIds?.length) {
+    return finding.requestRequirementIds.some((id) =>
+      requirementIdsEquivalent(id, requirementId)
+    );
+  }
+  if (
+    finding.packageId &&
+    state?.plan?.workUnits?.some(
+      (unit) =>
+        unit.tool === "evaluate_package" &&
+        String(unit.input.packageId ?? "") === finding.packageId
+    )
+  ) {
+    return false;
+  }
+  return findingSupportsRequirement(finding.requirementId, requirementId);
+}
 
 /** Authored risk categories that map to a specific GDPR article. */
 const CATEGORY_ARTICLE: Record<string, number> = {
@@ -127,7 +157,7 @@ export function findingsLinkedToRequirement(
   state?: AnalysisState
 ): Finding[] {
   const direct = findings.filter((f) =>
-    findingSupportsRequirement(f.requirementId, requirementId)
+    findingBoundToRequirement(f, requirementId, state)
   );
   const meta = metaRequirementFindings(requirementId, findings);
   if (meta) return dedupeFindings([...direct, ...meta]);
@@ -136,9 +166,9 @@ export function findingsLinkedToRequirement(
   if (reqKey) {
     const keyed = findings.filter((f) => {
       if (f.visibility === "internal") return false;
-      if (findingSupportsRequirement(f.requirementId, requirementId)) return true;
+      if (findingBoundToRequirement(f, requirementId, state)) return true;
       // Already-stamped findings belong only to their requirement (or alias).
-      if (f.requirementId) return false;
+      if (f.requirementId || f.requestRequirementIds?.length) return false;
       return findingSubprovisionKey(f) === reqKey;
     });
     return dedupeFindings(keyed);
@@ -153,11 +183,11 @@ export function findingsLinkedToRequirement(
   if (!article) return dedupeFindings(direct);
 
   const linked = findings.filter((f) => {
-    if (findingSupportsRequirement(f.requirementId, requirementId)) return false;
+    if (findingBoundToRequirement(f, requirementId, state)) return false;
     if (f.visibility === "internal") return false;
-    // A finding already stamped to another requirement is that row's
+    // A finding already stamped/bound to another requirement is that row's
     // evidence, not a generic same-article hit.
-    if (f.requirementId) return false;
+    if (f.requirementId || f.requestRequirementIds?.length) return false;
     if (findingSubprovisionKey(f)) return false;
     return articleNumberForFinding(f, state) === article;
   });

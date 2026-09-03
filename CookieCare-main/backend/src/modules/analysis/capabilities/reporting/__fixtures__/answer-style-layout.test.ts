@@ -12,6 +12,7 @@ import {
   assessmentTableMarkdown,
   countMarkdownTables,
   enforceAnswerStyleLayout,
+  enforceBottomLineEvidenceLimits,
 } from "../render-output.js";
 import { RISK_TAXONOMY_VERSION } from "../../../taxonomies/index.js";
 
@@ -77,6 +78,37 @@ function state(overrides: Record<string, unknown> = {}): AnalysisState {
 }
 
 describe("narrative vs tabular layout contract", () => {
+  it("cannot render a fully-complete bottom line over incorporated evidence", () => {
+    const guarded = enforceBottomLineEvidenceLimits(
+      state({
+        requirementAssessments: [
+          {
+            requirementId: "transfer.destinations",
+            supportingFindingIds: ["f1"],
+            status: "adequate",
+            summary: "The restriction is binding; particulars are in a schedule.",
+            judgement: {
+              compliance: "present",
+              evidenceState: "incorporated",
+              referenceBinding: "binding",
+              evidenceConfidence: "medium",
+              materiality: "medium",
+              recommendationKind: "obtain",
+            },
+          } satisfies RequirementAssessment,
+        ],
+      }),
+      "All three requirements are present with no material residual items outstanding. Counsel should finalize compliance."
+    );
+    assert.doesNotMatch(guarded, /no material residual/i);
+    assert.doesNotMatch(guarded, /finalize compliance/i);
+    assert.match(
+      guarded,
+      /dependent on referenced, truncated, conflicting, or unavailable material/i
+    );
+    assert.match(guarded, /before treating the analysis as complete/i);
+  });
+
   it("does not attach a rights-matrix table artifact in narrative mode", () => {
     const next = attachRightsMatrixTableArtifact(state(), state().findings ?? []);
     assert.equal(next.analysisArtifacts?.rights_matrix_table, undefined);
@@ -283,7 +315,7 @@ describe("narrative vs tabular layout contract", () => {
     assert.ok(confidentialityRow);
     assert.doesNotMatch(confidentialityRow!, /deletion exception is broader/i);
     assert.doesNotMatch(confidentialityRow!, /unless applicable local law/i);
-    assert.match(markdown, /No verbatim extract/);
+    assert.match(markdown, /No related clauses found/);
     assert.doesNotMatch(markdown, /\| — \|/);
     assert.doesNotMatch(markdown, /\| - \|/);
   });

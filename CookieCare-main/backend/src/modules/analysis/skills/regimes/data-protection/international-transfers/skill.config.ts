@@ -303,6 +303,46 @@ export const internationalTransfersSkill: AnalysisSkillConfig = {
         "schrems_supplementary_measures",
         "international_data_transfer",
       ],
+      // Author the semantic ownership explicitly because this package has more
+      // capabilities than native requirements. Without this map, request/native
+      // binding has to guess from generated wording and must fail closed when
+      // two transfer concepts score too closely.
+      requirementBindings: {
+        transfer_mechanism_identification: [
+          "gdpr.art44",
+          "gdpr.art45.1",
+          "gdpr.art46",
+          "gdpr.art47",
+          "gdpr.art48",
+          "gdpr.art49",
+          "transfers.scc_module_selection",
+          "transfers.scc_docking",
+        ],
+        schrems_supplementary_measures: [
+          "transfers.tia_documented",
+          "transfers.supplementary_measures",
+        ],
+        international_data_transfer: ["international_transfer_inventory"],
+      },
+      requirementEvidence: {
+        transfer_mechanism_identification: {
+          hypothesis:
+            "The agreement identifies the lawful transfer mechanism, including Standard Contractual Clauses (SCCs), adequacy, or Binding Corporate Rules.",
+          evidenceHints: ["SCC", "standard contractual clauses", "adequacy", "BCR"],
+        },
+        schrems_supplementary_measures: {
+          hypothesis:
+            "The agreement addresses Schrems II supplementary measures and transfer impact assessments.",
+          evidenceHints: ["supplementary measures", "Schrems", "transfer impact assessment", "TIA"],
+        },
+        international_data_transfer: {
+          hypothesis:
+            "The agreement identifies international transfer destinations, destination jurisdictions, or third countries.",
+          evidenceHints: ["destination", "jurisdiction", "third country"],
+          proofStandard:
+            "Establish both the operative destination restriction and whether the reviewed materials identify the actual permitted destination jurisdictions. If the restriction is binding but the destination list exists only in a referenced annex, schedule, SOW, or equivalent material that was not supplied, classify the contractual obligation as present with evidenceState=incorporated and referenceBinding=binding, explicitly identify the missing particulars, and do not describe the destinations or the review as fully documented.",
+        },
+      },
       requirementKinds: ["verification", "adequacy"],
       semanticTopics: [
         "international_data_transfer",

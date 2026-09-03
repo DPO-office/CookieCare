@@ -79,6 +79,18 @@ export interface Finding {
    */
   requirementId?: string;
   /**
+   * Phase 2 (requirement binding graph) — the PLAN/classifier requirement ids
+   * this finding answers, computed structurally at PLAN time and threaded onto
+   * the work unit (never re-derived by fuzzy id matching downstream). ADDS to,
+   * never replaces, the native `requirementId` above: a package finding keeps
+   * its authored native identity for evaluation, while this carries the
+   * request-vocabulary id(s) every join site reads to reach it. Empty/undefined
+   * means no binding was computed — join sites fall back to the legacy
+   * canonical-id match, and a request requirement with no binding renders as an
+   * engine coverage gap, never a fabricated "insufficient data" conclusion.
+   */
+  requestRequirementIds?: string[];
+  /**
    * Locked per-requirement axes stamped at evaluation. Aggregation prefers
    * this over re-deriving from Finding.status alone.
    */

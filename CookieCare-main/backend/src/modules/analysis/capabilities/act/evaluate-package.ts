@@ -4,8 +4,9 @@ import {
   LLMTask,
 } from "../../../../llm/index.js";
 import type { AnalysisState } from "../../models/analysis-state.js";
-import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
+import type { AnalysisWorkUnit, RequirementBinding } from "../../models/analysis-plan.js";
 import type { Finding } from "../../models/finding.js";
+import { requestIdsForNative } from "../../shared/requirement-binding.js";
 import type { EvidenceSpan } from "../../models/locator.js";
 import type { EvidencePackageSourceMode, SharedEvidenceBundle, SharedEvidenceItem } from "../../models/evidence-package.js";
 import type { GroupedRequirementResult, RequirementJudgement } from "../../models/requirement-assessment.js";
@@ -138,12 +139,27 @@ export async function evaluatePackage(
   const requirementBindings =
     (unit.input.requirementBindings as Record<string, string[]> | undefined) ?? {};
 
+  // Phase 2 — request↔native bindings for this package. Stamp each new finding
+  // with the request/classifier ids it answers (join key) without touching its
+  // native `requirementId` (evaluation identity).
+  const requestBindings =
+    (unit.input.requestRequirementBindings as RequirementBinding[] | undefined) ?? [];
+  const stampRequest = <T extends Finding>(newFindings: T[]): T[] =>
+    requestBindings.length === 0
+      ? newFindings
+      : newFindings.map((f) => {
+          const requestIds = requestIdsForNative(requestBindings, f.requirementId);
+          return requestIds.length > 0 ? { ...f, requestRequirementIds: requestIds } : f;
+        });
+
   if (requirementIds.length === 0) {
     return {
       state,
       findings: [
         ...findings,
-        insufficient(unit, `Package ${packageId} resolved no requirements`),
+        ...stampRequest([
+          insufficient(unit, `Package ${packageId} resolved no requirements`),
+        ]),
       ],
     };
   }
@@ -172,7 +188,7 @@ export async function evaluatePackage(
       state,
       { unit, docId, packageId, sourceMode, skillId: skillIds[0], findingCategory }
     );
-    return { state, findings: [...findings, ...verifyFindings] };
+    return { state, findings: [...findings, ...stampRequest(verifyFindings)] };
   }
 
   const inputArtifactIds = (unit.input.inputArtifactIds as string[]) ?? [];
@@ -213,6 +229,7 @@ export async function evaluatePackage(
           requirementEvidence[requirementId],
           state
         ),
+        proofStandard: requirementEvidence[requirementId]?.proofStandard,
         candidateEvidenceRefs: refs,
         evidenceLines: formatPacketEvidenceLines(packet),
         packetRoles: {
@@ -317,12 +334,14 @@ export async function evaluatePackage(
       state,
       findings: [
         ...findings,
-        insufficient(
-          unit,
-          `Grouped evaluation failed for package ${packageId}: ${
-            err instanceof Error ? err.message : String(err)
-          }`
-        ),
+        ...stampRequest([
+          insufficient(
+            unit,
+            `Grouped evaluation failed for package ${packageId}: ${
+              err instanceof Error ? err.message : String(err)
+            }`
+          ),
+        ]),
       ],
     };
   }
@@ -421,7 +440,10 @@ export async function evaluatePackage(
     bundle: workingBundle,
   });
 
-  return { state: nextState, findings: [...findings, ...emitted, ...missingFindings] };
+  return {
+    state: nextState,
+    findings: [...findings, ...stampRequest([...emitted, ...missingFindings])],
+  };
 }
 
 /**
@@ -498,6 +520,15 @@ function isSupportingPriority(requirementId: string, state: AnalysisState): bool
  * Falls back to the profile's full cap whenever the index isn't usable.
  */
 const SEMANTIC_VERIFY_CANDIDATE_CAP = 4;
+
+/**
+ * Max requirements per selectCandidates() call. Kept small deliberately: the
+ * failure mode this guards against is the model shallow-passing most of a
+ * large joint batch to an empty list rather than doing the harder semantic
+ * mapping for each one — see the call site's comment for the confirmed real
+ * run this was tuned against.
+ */
+const SELECT_CANDIDATES_CHUNK_SIZE = 4;
 
 async function evaluateWithVerify(
   reqIds: string[],
@@ -583,21 +614,44 @@ async function evaluateWithVerify(
       });
     if (eligible.length > 0) {
       const selStart = Date.now();
-      selectionByReq = await selectCandidates({
-        requirements: eligible,
-        pool: selectorPool,
-        maxPerRequirement: selectCap,
-        state,
-      });
+      // One call asked to jointly search the whole pool for every requirement
+      // reliably shallow-passes most of them once the requirement count gets
+      // into double digits — the model does the few obvious matches properly
+      // and defaults the rest to an empty list rather than doing the harder
+      // conceptual mapping for each one (confirmed on a real 14-requirement
+      // run: only 3 got any candidates at all). Splitting into small groups
+      // gives each call a much smaller simultaneous search burden — more
+      // calls, but selection calls are cheap relative to the VERIFY calls
+      // that follow, and a missed candidate here means VERIFY never runs at
+      // all for that requirement.
+      const chunks: typeof eligible[] = [];
+      for (let i = 0; i < eligible.length; i += SELECT_CANDIDATES_CHUNK_SIZE) {
+        chunks.push(eligible.slice(i, i + SELECT_CANDIDATES_CHUNK_SIZE));
+      }
+      const chunkResults = await Promise.all(
+        chunks.map((chunk) =>
+          selectCandidates({
+            requirements: chunk,
+            pool: selectorPool,
+            maxPerRequirement: selectCap,
+            state,
+          })
+        )
+      );
+      selectionByReq = chunkResults.some((r) => r !== null)
+        ? new Map(chunkResults.flatMap((r) => (r ? [...r.entries()] : [])))
+        : null;
       pacLog("[INVESTIGATE] llm candidate selection", {
         packageId: ctx.packageId,
         requirements: eligible.length,
+        chunks: chunks.length,
+        chunkSize: SELECT_CANDIDATES_CHUNK_SIZE,
         pool: selectorPool.length,
         source: "document-sections",
         selected: selectionByReq
           ? [...selectionByReq.values()].reduce((n, a) => n + a.length, 0)
           : 0,
-        fellBack: selectionByReq ? "no" : "yes (whole package → hybrid)",
+        chunksFailed: chunkResults.filter((r) => r === null).length,
         ms: Date.now() - selStart,
       });
       if (selectionByReq) logSelectedCandidates(state, ctx.packageId, selectionByReq);
@@ -621,29 +675,42 @@ async function evaluateWithVerify(
     }
 
     const hypothesis = hypothesisFor(requirementId, profile, state);
-    const candidates = selectionByReq?.has(requirementId)
-      ? selectionByReq.get(requirementId)!
-      : await resolveRecallCandidates(
-          requirementId,
-          items,
-          extractionTargets,
-          profile,
-          effectiveCap,
-          clauseIndex
-            ? {
-                index: clauseIndex,
-                queryText: proofStandard,
-                trace: (rows) => logRetrievalRanking(state, requirementId, proofStandard, rows),
-              }
-            : undefined
-        );
+    const selected = selectionByReq?.get(requirementId);
+    // A requirement the selector never mentioned at all falls back
+    // immediately (existing behavior). A requirement it explicitly returned
+    // empty for is a weaker signal than it looks: batching many
+    // requirements (esp. paraphrased playbook positions) against a large
+    // section pool in one call reliably makes the model give up on most of
+    // them rather than truly finding no match — confirmed by a real run
+    // where 11/14 playbook-position requirements came back empty from
+    // selection despite the document plainly addressing several of them.
+    // Cross-check an explicit empty against the lexical/hybrid retriever
+    // before accepting "nothing found" as fact; only skip the fallback when
+    // the selector positively named at least one candidate.
+    const candidates =
+      selected && selected.length > 0
+        ? selected
+        : await resolveRecallCandidates(
+            requirementId,
+            items,
+            extractionTargets,
+            profile,
+            effectiveCap,
+            clauseIndex
+              ? {
+                  index: clauseIndex,
+                  queryText: proofStandard,
+                  trace: (rows) => logRetrievalRanking(state, requirementId, proofStandard, rows),
+                }
+              : undefined
+          );
 
     if (candidates.length === 0) {
       findings.push(
         buildInsufficientVerifyFinding(
           requirementId,
           ctx,
-          "No candidate evidence was found in the document for this requirement."
+          "No related clauses were found."
         )
       );
       continue;

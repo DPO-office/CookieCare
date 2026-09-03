@@ -135,6 +135,22 @@ function evidenceStateFromFindings(findings: Finding[]): EvidenceState {
 function complianceFromFindings(findings: Finding[]): ComplianceStatus {
   if (findings.length === 0) return "insufficient_evidence";
 
+  // Matrix addressing is itself a locked adequacy signal. A generic catch-all
+  // cannot become Strong merely because an evaluator also stamped a
+  // compliance="present" axis; it is partial by definition. Likewise an
+  // absent row cannot be promoted by a contradictory sibling stamp.
+  const matrixGeneric = findings.some(
+    (finding) => finding.matrixAddressing === "generic"
+  );
+  const matrixAbsent = findings.some(
+    (finding) => finding.matrixAddressing === "absent"
+  );
+  const matrixNamed = findings.some(
+    (finding) => finding.matrixAddressing === "named" && isSupporting(finding)
+  );
+  if (matrixGeneric) return "partial";
+  if (matrixAbsent) return matrixNamed ? "partial" : "gap";
+
   // When every compliance finding agrees on a stamped compliance axis, use it.
   // Never take a single finding's judgement when siblings disagree.
   const stampedValues = findings

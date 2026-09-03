@@ -23,7 +23,6 @@ import {
   gdpr,
   intent as baseIntent,
 } from "../../__test-helpers__/package-graph-fixtures.js";
-import type { AnalysisSkillConfig } from "../runtime/catalog/types.js";
 
 const ART28_REVIEW =
   "Perform a rigorous GDPR Article 28 compliance review. Verify mandatory Article 28(3) clauses.";

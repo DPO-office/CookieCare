@@ -294,9 +294,31 @@ describe("evaluate-package prompt", () => {
     assert.doesNotMatch(durationBlock, /Argentine law/);
     assert.match(prompt, /Do not use another requirement's evidence packet/);
   });
+
+  it("includes an authored proof standard in grouped package evaluation", () => {
+    const prompt = buildEvaluatePackageUserPrompt({
+      instruction: "Review the agreement.",
+      depth: "standard",
+      requirements: [
+        {
+          requirementId: "destination_particulars",
+          hypothesis: "The agreement identifies permitted destinations.",
+          proofStandard:
+            "A reference to an unavailable schedule does not establish the actual destination list.",
+          candidateEvidenceRefs: ["E1"],
+          evidenceLines: ["(E1) See Schedule 1 for permitted destinations."],
+        },
+      ],
+      authoredRuleText: "Transfers require appropriate safeguards.",
+      evidenceLines: [],
+    });
+
+    assert.match(prompt, /proofStandard: A reference to an unavailable schedule/);
+    assert.match(prompt, /apply it exactly/);
+  });
 });
 
-describe("synthesis prompt — incomplete evidence", () => {
+describe("synthesis prompt - incomplete evidence", () => {
   it("forbids Amend from cannot_determine or truncated quotes", () => {
     assert.match(
       SYNTHESIS_SYSTEM_PROMPT,
@@ -308,6 +330,14 @@ describe("synthesis prompt — incomplete evidence", () => {
       SYNTHESIS_SYSTEM_PROMPT,
       /Use Amend only when the assessment status is gap or partial/
     );
+  });
+
+  it("forbids a fully-complete conclusion when particulars live in a schedule", () => {
+    assert.match(
+      SYNTHESIS_SYSTEM_PROMPT,
+      /If any supplied assessment is Present, particulars in schedule/
+    );
+    assert.match(SYNTHESIS_SYSTEM_PROMPT, /free of residual uncertainty/);
   });
 });
 

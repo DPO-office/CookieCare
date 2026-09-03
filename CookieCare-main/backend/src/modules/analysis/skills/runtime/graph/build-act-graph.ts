@@ -2,6 +2,7 @@ import type {
   AnalysisPlan,
   AnalysisWorkUnit,
   InstructionFocus,
+  RequirementBinding,
 } from "../../../models/analysis-plan.js";
 import type { IntentClassification, IntentSubIntent } from "../../../models/intent.js";
 import type {
@@ -30,6 +31,7 @@ import {
 import { orderByDependency } from "../../../utils/topo-batches.js";
 import { MATRIX_SHARED_EVIDENCE_PACKAGE_ID } from "../../../capabilities/act/extract-shared-evidence.js";
 import type { RuleSource } from "../../../models/rule-source.js";
+import { articleNumberFromRequirementId } from "../../../shared/article-linkage.js";
 
 /** Max playbook position check slots scheduled at PLAN time (fixed graph). */
 export const MAX_PLAYBOOK_CHECK_SLOTS = 24;
@@ -136,14 +138,40 @@ export function buildActGraph(input: BuildActGraphInput): AnalysisWorkUnit[] {
  * findings without any post-hoc guessing in aggregation.
  */
 function buildCapabilityToRequirementIds(
-  focus?: InstructionFocus
+  focus?: InstructionFocus,
+  intent?: IntentClassification,
+  skills: AnalysisSkillConfig[] = []
 ): Map<string, string[]> {
   const out = new Map<string, string[]>();
+  const add = (capabilityId: string, requirementId: string) => {
+    const list = out.get(capabilityId) ?? [];
+    if (!list.includes(requirementId)) list.push(requirementId);
+    out.set(capabilityId, list);
+  };
   for (const mapping of focus?.requirementMappings ?? []) {
     for (const capId of mapping.capabilityIds) {
-      const list = out.get(capId) ?? [];
-      if (!list.includes(mapping.requirementId)) list.push(mapping.requirementId);
-      out.set(capId, list);
+      add(capId, mapping.requirementId);
+    }
+  }
+  // Classifier mappings are sometimes package-level even though focus already
+  // resolved article-specific rows/rules. Recover that ownership structurally
+  // from the article number; this works for any regime/article and does not
+  // depend on a phrase table.
+  for (const requirement of intent?.requirements ?? []) {
+    const article = articleNumberFromRequirementId(requirement.id);
+    if (!article) continue;
+    for (const skill of skills) {
+      for (const row of skill.rightsMatrixRows ?? []) {
+        if (!(focus?.matrixRowIds ?? []).includes(row.rowId)) continue;
+        const rowArticle = Number(row.article.match(/\d{1,3}/)?.[0]);
+        if (rowArticle === article) add(row.rowId, requirement.id);
+      }
+      for (const rule of skill.regimeRules ?? []) {
+        if (!(focus?.ruleIds ?? []).includes(rule.ruleId)) continue;
+        if (articleNumberFromRequirementId(rule.ruleId) === article) {
+          add(rule.ruleId, requirement.id);
+        }
+      }
     }
   }
   return out;
@@ -180,7 +208,11 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
     referenceDocId,
     playbookClauseTypes = [],
   } = input;
-  const capabilityToRequirementIds = buildCapabilityToRequirementIds(focus);
+  const capabilityToRequirementIds = buildCapabilityToRequirementIds(
+    focus,
+    intent,
+    skills
+  );
   const requirementMappingsPayload = compactMappingsFor(capabilityToRequirementIds);
   const primary =
     skills.find((s) => s.axis === "regime") ??
@@ -332,6 +364,7 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
     packageEvalLeaves.push(
       ...appendPackageUnits(units, {
         packages: packageResolution.packages,
+        requirementBindings: packageResolution.requirementBindings,
         docId,
         instruction,
         skillIds,
@@ -754,6 +787,7 @@ function appendPackageUnits(
   units: AnalysisWorkUnit[],
   args: {
     packages: ResolvedPackage[];
+    requirementBindings?: RequirementBinding[];
     docId: string;
     instruction: string;
     skillIds: string[];
@@ -762,7 +796,16 @@ function appendPackageUnits(
     extractDep: string;
   }
 ): string[] {
-  const { packages, docId, instruction, skillIds, skills, depth, extractDep } = args;
+  const {
+    packages,
+    requirementBindings = [],
+    docId,
+    instruction,
+    skillIds,
+    skills,
+    depth,
+    extractDep,
+  } = args;
   const leafByPackage = new Map<string, string>();
   const evalLeaves: string[] = [];
 
@@ -865,6 +908,11 @@ function appendPackageUnits(
         extractionTargets: pkg.extractionTargets,
         requirementEvidence: pkg.requirementEvidence ?? {},
         requirementBindings: pkg.requirementBindings ?? {},
+        // Phase 2 — structural request↔native bindings for THIS package, so
+        // findings can be stamped with the request ids they answer (join key).
+        requestRequirementBindings: requirementBindings.filter(
+          (b) => b.packageId === pkg.id
+        ),
         inputArtifactIds: pkg.requiresPackages ?? [],
       },
       dependsOn: [evidenceId, ...depLeaves],

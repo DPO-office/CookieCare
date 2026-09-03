@@ -16,7 +16,7 @@ import {
   focus,
   gdprSkill,
   intent,
-} from "../../../../__test-helpers__/package-graph-fixtures.js";
+} from "../../../__test-helpers__/package-graph-fixtures.js";
 
 describe("package resolution", () => {
   it("selects the Article 28(3) package when a member rule is in focus", () => {

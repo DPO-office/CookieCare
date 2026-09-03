@@ -82,6 +82,36 @@ export interface RequirementExecutionPath {
   requirementType?: IntentRequirementType;
 }
 
+/** How a request requirement id was bound to a package-native requirement id. */
+export type RequirementBindingRelation = "direct" | "child" | "semantic";
+
+/** How confident the derivation is — governs whether a report may lean on it. */
+export type RequirementBindingSource =
+  | "canonical" // identical/alias/token-set — lexically the same concept
+  | "subprovision" // native id nests under the request id's article/paragraph
+  | "capability" // request→capability→package-native capability path intersects
+  | "semantic"; // unique semantic score or validated one-call PLAN refinement
+
+/**
+ * Phase 2 — an explicit, structurally-derived link between a request/classifier
+ * requirement id (what the user's ask was classified into, freshly authored by
+ * an LLM each run) and a package-native requirement id (authored on the skill,
+ * stable). Replaces the hand-maintained alias tables in
+ * `shared/requirement-identity.ts` as the SOURCE OF CORRECTNESS for joining ACT
+ * findings back to the requirements a report renders. Computed once per run in
+ * `resolvePackages`, threaded onto `evaluate_package` work units, and read by
+ * every finding↔requirement join site.
+ */
+export interface RequirementBinding {
+  requestRequirementId: string;
+  nativeRequirementId: string;
+  packageId: string;
+  relation: RequirementBindingRelation;
+  source: RequirementBindingSource;
+  /** Which compound facet this binding belongs to (Phase 7); undefined = single-intent. */
+  facetId?: string;
+}
+
 /** Semantic requirement extracted from the user's instruction (not just keywords). */
 export interface InstructionRequirement {
   id: string;
@@ -230,6 +260,8 @@ export interface PlanAuditRecord {
   resolvedPackageIds?: string[];
   requirementToPackageId?: Record<string, string>;
   requirementExecutionPaths?: RequirementExecutionPath[];
+  /** Cached Phase 2 request-to-package-native joins for all downstream stages. */
+  requirementBindings?: RequirementBinding[];
   /** Classifier output before PLAN normalization defaults. */
   rawIntent?: IntentClassification;
   /** Field-level defaults applied during PLAN (empty when nothing changed). */
@@ -264,6 +296,8 @@ export interface AnalysisPlan {
   auditRecord?: PlanAuditRecord;
   /** PLAN-time package execution paths (audit + aggregation of unsupported reqs). */
   requirementExecutionPaths?: RequirementExecutionPath[];
+  /** Cached Phase 2 request-to-package-native joins; never re-derived in ACT/LOCK. */
+  requirementBindings?: RequirementBinding[];
   /** Surfaced target/reference decision (§5.1) — see DocumentRoleResolution. */
   documentRoleResolution?: DocumentRoleResolution;
   /** Pack / taxonomy versions pinned for audit reproducibility. */

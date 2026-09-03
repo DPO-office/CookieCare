@@ -238,7 +238,7 @@ describe("urgent Analysis ACT output regressions", () => {
       "Could not verify that the target document satisfies rule gdpr.art28.3.e: no verbatim supporting quote was returned.";
     const safe = sanitizeRenderedAnalysisOutput(raw)!;
     assert.equal(containsInternalAnalysisLeak(safe), false);
-    assert.match(safe, /did not provide enough verifiable language/i);
+    assert.match(safe, /Insufficient data/i);
     assert.doesNotMatch(safe, /gdpr\.art28\.3\.e|no verbatim supporting quote/i);
   });
 
@@ -253,7 +253,7 @@ describe("urgent Analysis ACT output regressions", () => {
       },
     ]);
     assert.doesNotMatch(safe.claim, /Could not verify that|gdpr\.art28\.3\.e/i);
-    assert.match(safe.claim, /verifiable language/i);
+    assert.match(safe.claim, /Insufficient data|No related clauses/i);
   });
 
 });

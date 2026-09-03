@@ -17,6 +17,27 @@ import { loadSkillMdSection } from "../../skills/runtime/catalog/load-skill-md.j
 import { insufficient, stampRequirementIdsOnNewFindings, compileAuthoredRegex, interpolateMatch } from "./act-utils.js";
 import { profileThinkingLevel } from "../../utils/profile-thinking.js";
 
+export const RULE_EVALUATION_MAX_CLAUSES = 18;
+export const RULE_EVALUATION_CLAUSE_CHAR_CAP = 1200;
+export const RULE_EVALUATION_WALL_CLOCK_MS = 20_000;
+
+async function withRuleEvaluationTimeout<T>(promise: Promise<T>): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(
+          () => reject(new Error("rule_evaluation_timeout")),
+          RULE_EVALUATION_WALL_CLOCK_MS
+        );
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
 export function resolveRule(skillIds: string[], ruleId: string) {
   for (const id of skillIds) {
     const skill = getSkillById(id);
@@ -225,8 +246,8 @@ async function _checkAgainstRuleImpl(
                 : `web.${slugCategory(source.query)}.unverified`,
           status: "insufficient_evidence",
           claim: label
-            ? `No relevant clause text was available to evaluate ${label.toLowerCase()}.`
-            : "No relevant clause text was available to evaluate this obligation.",
+            ? `No related clauses were found for ${label.toLowerCase()}.`
+            : "No related clauses were found.",
           evidence: playbookEvidence,
           ruleId: source.kind === "authored" ? source.ruleId : undefined,
           ruleVersion: source.kind === "authored" ? source.ruleVersion : undefined,
@@ -485,9 +506,11 @@ async function llmJudgeClauses(args: {
     severity: "low" | "medium" | "high";
     gap?: string;
   }>;
+  let technicalFailure = false;
+  const boundedApplicable = applicable.slice(0, RULE_EVALUATION_MAX_CLAUSES);
 
   try {
-    raw = await executeJsonCompletion(
+    raw = await withRuleEvaluationTimeout(executeJsonCompletion(
       [
         "Evaluate whether the extracted TARGET clauses satisfy the FIXED rule below.",
         "You must NOT reinterpret the rule — only assess compliance against the given rule text.",
@@ -504,10 +527,10 @@ async function llmJudgeClauses(args: {
         legalHook ? `Authored legal hook / source note: ${legalHook}` : "",
         "When status is present or absent_expected with a quote, quotedText MUST be copied VERBATIM from that clause.",
         `Clauses:\n${JSON.stringify(
-          applicable.map((c) => ({
+          boundedApplicable.map((c) => ({
             clauseId: c.clauseId,
             clauseType: c.clauseType,
-            text: c.text.slice(0, 3000),
+            text: c.text.slice(0, RULE_EVALUATION_CLAUSE_CHAR_CAP),
           }))
         )}`,
       ]
@@ -517,10 +540,15 @@ async function llmJudgeClauses(args: {
       schema,
       LLMTask.STRUCTURAL_JSON,
       LLMProvider.GEMINI,
-      { tracker, thinkingLevel: profileThinkingLevel(state, LLMTask.STRUCTURAL_JSON) }
-    );
+      {
+        tracker,
+        maxOutputTokens: 2400,
+        thinkingLevel: profileThinkingLevel(state, LLMTask.STRUCTURAL_JSON),
+      }
+    ));
   } catch (err) {
     console.warn("[checkAgainstRule] batched clause judgment failed:", err);
+    technicalFailure = true;
     raw = [];
   }
 
@@ -528,7 +556,7 @@ async function llmJudgeClauses(args: {
     state.agent.tokensUsed = tracker.tokensUsed;
   }
 
-  const byClause = new Map(applicable.map((c) => [c.clauseId, c]));
+  const byClause = new Map(boundedApplicable.map((c) => [c.clauseId, c]));
   const results = raw.filter((entry) => byClause.has(entry.clauseId));
 
   // LLM clause-judgment can occasionally return duplicate entries for the
@@ -557,10 +585,14 @@ async function llmJudgeClauses(args: {
     return [
       judgeResultToFinding(args, {
         status: "insufficient_evidence",
-        claim: label
-          ? `The agreement does not provide enough verifiable language to confirm ${label.toLowerCase()}.`
-          : "The agreement does not provide enough verifiable language to confirm this obligation.",
-        gap: "No supplied clause materially addressed this obligation.",
+        claim: technicalFailure
+          ? "This check could not be completed because analysis was temporarily unavailable."
+          : label
+            ? `The agreement does not provide enough verifiable language to confirm ${label.toLowerCase()}.`
+            : "The agreement does not provide enough verifiable language to confirm this obligation.",
+        gap: technicalFailure
+          ? undefined
+          : "No supplied clause materially addressed this obligation.",
         severity: "medium",
       }, "document"),
     ];
@@ -650,7 +682,8 @@ async function llmJudge(args: {
         : "";
 
   try {
-    result = await executeJsonCompletion(
+    const boundedApplicable = applicable.slice(0, RULE_EVALUATION_MAX_CLAUSES);
+    result = await withRuleEvaluationTimeout(executeJsonCompletion(
       [
         "Evaluate whether the extracted TARGET clauses satisfy the FIXED rule below.",
         "You must NOT reinterpret the rule — only assess compliance against the given rule text.",
@@ -666,10 +699,10 @@ async function llmJudge(args: {
         legalHook ? `Authored legal hook / source note: ${legalHook}` : "",
         "When status is present or absent_expected with a quote, quotedText MUST be copied VERBATIM from a clause.",
         `Clauses:\n${JSON.stringify(
-          applicable.map((c) => ({
+          boundedApplicable.map((c) => ({
             clauseId: c.clauseId,
             clauseType: c.clauseType,
-            text: c.text.slice(0, 3000),
+            text: c.text.slice(0, RULE_EVALUATION_CLAUSE_CHAR_CAP),
           }))
         )}`,
       ]
@@ -679,8 +712,12 @@ async function llmJudge(args: {
       schema,
       LLMTask.STRUCTURAL_JSON,
       LLMProvider.GEMINI,
-      { tracker, thinkingLevel: profileThinkingLevel(state, LLMTask.STRUCTURAL_JSON) }
-    );
+      {
+        tracker,
+        maxOutputTokens: 1200,
+        thinkingLevel: profileThinkingLevel(state, LLMTask.STRUCTURAL_JSON),
+      }
+    ));
   } catch (err) {
     console.warn("[checkAgainstRule] LLM failed:", err);
     result = {

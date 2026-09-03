@@ -1,4 +1,5 @@
 import { executeJsonCompletion, LLMProvider, LLMTask } from "../../../../llm/index.js";
+import type { GeminiThinkingLevel } from "../../../../llm/config/model-specs.js";
 import type { AnalysisState } from "../../models/analysis-state.js";
 import type { SharedEvidenceItem } from "../../models/evidence-package.js";
 import type { SegmentedDocument } from "../../models/document-workspace.js";
@@ -66,6 +67,32 @@ export interface SelectCandidatesInput {
  * deep in a clause) is visible to selection rather than truncated away. */
 const SNIPPET_CHARS = 1500;
 
+const THINKING_RANK: Record<GeminiThinkingLevel, number> = {
+  minimal: 0,
+  low: 1,
+  medium: 2,
+  high: 3,
+};
+
+/**
+ * Lite mode pins STRUCTURAL_JSON to "low" — fine for a single well-defined
+ * lookup, but this call asks for N independent semantic matches (paraphrased
+ * business language against a large, undifferentiated clause pool) in one
+ * pass. At low effort the model does the few obvious matches properly and
+ * shallow-passes the rest to an empty list rather than doing the harder
+ * conceptual mapping for each one — confirmed on a real run where 11 of 14
+ * requirements came back empty despite the document plainly addressing
+ * several of them. This is a rigor cut hiding inside what Lite mode's
+ * design intends only as a scope cut ("budget as scope, never as rigor" —
+ * see analysis-profile.ts) — so it's floored at "medium" regardless of
+ * profile, not lifted for every STRUCTURAL_JSON caller.
+ */
+function selectionThinkingLevel(profileLevel: GeminiThinkingLevel | undefined): GeminiThinkingLevel {
+  const floor: GeminiThinkingLevel = "medium";
+  if (!profileLevel) return floor;
+  return THINKING_RANK[profileLevel] >= THINKING_RANK[floor] ? profileLevel : floor;
+}
+
 interface RawSelection {
   requirementId: string;
   refs: string[];
@@ -119,7 +146,12 @@ export async function selectCandidates(
       schema,
       LLMTask.STRUCTURAL_JSON,
       LLMProvider.GEMINI,
-      { tracker, thinkingLevel: profileThinkingLevel(input.state, LLMTask.STRUCTURAL_JSON) }
+      {
+        tracker,
+        thinkingLevel: selectionThinkingLevel(
+          profileThinkingLevel(input.state, LLMTask.STRUCTURAL_JSON)
+        ),
+      }
     );
   } catch {
     return null;

@@ -68,7 +68,17 @@ export function aggregateRequirements(
 
   const assessments: RequirementAssessment[] = requirementIds.map((requirementId) => {
     const supporting = findingsForRequirement(requirementId, allFindings, state);
-    const judgement = deriveRequirementJudgement(supporting);
+    const baseJudgement = deriveRequirementJudgement(supporting);
+    const coverage = bindingCoverage(state, allFindings, requirementId);
+    const judgement = coverage.incomplete
+      ? {
+          ...baseJudgement,
+          compliance: supporting.length > 0 ? "partial" as const : "insufficient_evidence" as const,
+          evidenceState: "unavailable" as const,
+          evidenceConfidence: "low" as const,
+          recommendationKind: "obtain" as const,
+        }
+      : baseJudgement;
     const status = statusFromJudgement(judgement);
     const gapText = supporting.find((f) => f.gap)?.gap;
     return {
@@ -76,16 +86,133 @@ export function aggregateRequirements(
       supportingFindingIds: supporting.map((f) => f.findingId),
       status,
       judgement,
-      summary: buildSummary(supporting, status, judgement.compliance),
-      recommendation: recommendationText(judgement.recommendationKind, gapText),
+      summary: coverage.incomplete
+        ? technicalCoverageSummary(coverage.observed, coverage.expected)
+        : buildSummary(supporting, status, judgement.compliance),
+      recommendation: coverage.incomplete
+        ? "Retry the incomplete analysis. This is a technical coverage failure, not evidence that the document lacks the provision."
+        : recommendationText(judgement.recommendationKind, gapText),
       ...enrichmentFromFindings(supporting),
     };
   });
 
+  // Preserve the evaluated children of a genuinely broad/composite request.
+  // Two-child merges (for example data + data-subject categories) remain one
+  // requested row; larger package umbrellas expose their native checks so a
+  // parent summary cannot erase several material gaps.
+  const componentAssessments = componentRequirementAssessments(
+    state,
+    allFindings,
+    requirementIds
+  );
+
   return {
-    state: { ...state, requirementAssessments: assessments },
+    state: {
+      ...state,
+      requirementAssessments: [...assessments, ...componentAssessments],
+    },
     findings: allFindings,
   };
+}
+
+function componentRequirementAssessments(
+  state: AnalysisState,
+  findings: Finding[],
+  existingRequirementIds: string[]
+): RequirementAssessment[] {
+  const byRequest = new Map<string, string[]>();
+  for (const binding of state.plan?.requirementBindings ?? []) {
+    const list = byRequest.get(binding.requestRequirementId) ?? [];
+    if (!list.some((id) => requirementIdsEquivalent(id, binding.nativeRequirementId))) {
+      list.push(binding.nativeRequirementId);
+    }
+    byRequest.set(binding.requestRequirementId, list);
+  }
+
+  const existing = new Set(existingRequirementIds.map(canonicalRequirementId));
+  const out: RequirementAssessment[] = [];
+  for (const [requestId, nativeIds] of byRequest) {
+    if (nativeIds.length < 3) continue;
+    for (const nativeId of nativeIds) {
+      const canonicalNative = canonicalRequirementId(nativeId);
+      if (existing.has(canonicalNative)) continue;
+      const supporting = findings.filter(
+        (finding) =>
+          finding.requirementId != null &&
+          requirementIdsEquivalent(finding.requirementId, nativeId)
+      );
+      if (supporting.length === 0) {
+        out.push({
+          requirementId: nativeId,
+          componentOfRequirementId: requestId,
+          supportingFindingIds: [],
+          status: "cannot_determine",
+          judgement: {
+            compliance: "insufficient_evidence",
+            evidenceState: "unavailable",
+            referenceBinding: "none",
+            evidenceConfidence: "low",
+            draftingQuality: "clean",
+            materiality: "low",
+            recommendationKind: "obtain",
+          },
+          summary: "This component was not evaluated because its analysis path did not complete. No legal conclusion was reached.",
+          recommendation: "Retry the incomplete analysis. Do not treat this technical failure as a document gap.",
+        });
+        existing.add(canonicalNative);
+        continue;
+      }
+      const judgement = deriveRequirementJudgement(supporting);
+      const status = statusFromJudgement(judgement);
+      const gapText = supporting.find((finding) => finding.gap)?.gap;
+      out.push({
+        requirementId: nativeId,
+        componentOfRequirementId: requestId,
+        supportingFindingIds: supporting.map((finding) => finding.findingId),
+        status,
+        judgement,
+        summary: buildSummary(supporting, status, judgement.compliance),
+        recommendation: recommendationText(judgement.recommendationKind, gapText),
+        ...enrichmentFromFindings(supporting),
+      });
+      existing.add(canonicalNative);
+    }
+  }
+  return out;
+}
+
+function bindingCoverage(
+  state: AnalysisState,
+  findings: Finding[],
+  requestId: string
+): { expected: number; observed: number; incomplete: boolean } {
+  const bindings = (state.plan?.requirementBindings ?? []).filter((binding) =>
+    requirementIdsEquivalent(binding.requestRequirementId, requestId)
+  );
+  const expectedNativeIds = [...new Set(bindings.map((binding) => binding.nativeRequirementId))];
+  if (expectedNativeIds.length <= 1) {
+    return {
+      expected: expectedNativeIds.length,
+      observed: expectedNativeIds.length,
+      incomplete: false,
+    };
+  }
+  const observed = expectedNativeIds.filter((nativeId) =>
+    findings.some(
+      (finding) =>
+        finding.requirementId != null &&
+        requirementIdsEquivalent(finding.requirementId, nativeId)
+    )
+  ).length;
+  return {
+    expected: expectedNativeIds.length,
+    observed,
+    incomplete: observed < expectedNativeIds.length,
+  };
+}
+
+function technicalCoverageSummary(observed: number, expected: number): string {
+  return `Analysis completed for ${observed} of ${expected} bound components. The remaining component evaluations did not complete, so no overall legal conclusion is available.`;
 }
 
 /**

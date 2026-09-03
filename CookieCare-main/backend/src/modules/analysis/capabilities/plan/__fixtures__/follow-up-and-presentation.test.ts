@@ -194,8 +194,10 @@ describe("replicateGraphForTargets", () => {
       leftoverMatrixRowIds: [],
       leftoverRiskCategoryIds: [],
       requirementToPackageId: {},
+      requirementBindings: [],
       requirementPaths: [],
       blockedCapabilityIds: [],
+      scopeAudit: [],
     };
     const unit = (
       workUnitId: string,
