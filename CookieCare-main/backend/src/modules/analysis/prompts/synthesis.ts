@@ -713,6 +713,7 @@ export function buildSectionSynthesisUserPrompt(input: {
           "TABLE CONTRACT FOR THIS SECTION",
           "Write at most one lead sentence. Do not emit a markdown findings table.",
           "The renderer will attach the locked Requirement | Status | Evidence | Finding table from validated assessments.",
+          "Keep any framing concise; full clause text and detailed legal reasoning belong in narrative analysis, not table cells.",
           "",
         ].join("\n")
       : sectionId === "requirements_matrix" && !tabular

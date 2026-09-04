@@ -519,9 +519,10 @@ export const ANALYZE_STYLES = `
   width: 100%;
   overflow-x: auto;
   margin: 1rem 0 1.25rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid rgba(228, 232, 240, 0.9);
   border-radius: 0.75rem;
-  background: #fff;
+  /* Let the analysis-page surface continue behind the table. */
+  background: transparent;
 }
 
 .analyze-report-prose .md-content table {
@@ -543,7 +544,7 @@ export const ANALYZE_STYLES = `
 }
 
 .analyze-report-prose .md-content thead th {
-  background: #f8fafc;
+  background: rgba(238, 242, 255, 0.34);
   font-weight: 650;
   color: #1a1a1a;
 }
@@ -675,7 +676,9 @@ export const ANALYZE_STYLES = `
 }
 
 .analyze-prose-container[data-has-wide-table="true"] > div {
-  max-width: 1100px;
+  /* Keep the overall report at a readable line length. Wide evidence matrices
+     scroll inside this centered report instead of stretching the whole page. */
+  max-width: min(1100px, 100%);
   min-width: 0;
 }
 
@@ -708,6 +711,25 @@ export const ANALYZE_STYLES = `
   overscroll-behavior-y: none;
   scrollbar-width: thin;
   scrollbar-color: #C4C9D2 #F3F4F6;
+  transition: -webkit-mask-image 120ms ease, mask-image 120ms ease;
+}
+
+/* Reveal horizontal overflow without placing a solid overlay over the table.
+   The mask fades table content into the page's existing background and is
+   updated by useReportScroll as the user moves between the scroll edges. */
+.analyze-report-prose .md-content .md-table-wrap[data-scroll="right"] {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 64px), transparent 100%);
+  mask-image: linear-gradient(to right, #000 calc(100% - 64px), transparent 100%);
+}
+
+.analyze-report-prose .md-content .md-table-wrap[data-scroll="left"] {
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 48px);
+  mask-image: linear-gradient(to right, transparent 0, #000 48px);
+}
+
+.analyze-report-prose .md-content .md-table-wrap[data-scroll="both"] {
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 48px, #000 calc(100% - 64px), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 48px, #000 calc(100% - 64px), transparent 100%);
 }
 
 .analyze-report-prose .md-content .md-table-wrap::-webkit-scrollbar {
@@ -715,7 +737,7 @@ export const ANALYZE_STYLES = `
 }
 
 .analyze-report-prose .md-content .md-table-wrap::-webkit-scrollbar-track {
-  background: #F3F4F6;
+  background: transparent;
   border-radius: 0 0 10px 10px;
 }
 
@@ -758,6 +780,8 @@ export const ANALYZE_STYLES = `
   word-break: break-word;
   min-width: 0;
   max-width: none;
+  font-weight: 450;
+  color: #2F3B52;
 }
 
 /* ── 4-column compliance table: percentage column widths (total = 100%) ───
@@ -798,12 +822,11 @@ export const ANALYZE_STYLES = `
   overscroll-behavior-y: none;
   margin-top: 0.75rem;
   margin-bottom: 1.5rem;
-  border: 1px solid #E9EAEC;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  /* No card fill — the table sits directly on the page's gradient background,
+     delineated only by its internal row/column dividers and header underline. */
+  background: transparent;
   scrollbar-width: thin;
-  scrollbar-color: #C4C9D2 #F3F4F6;
+  scrollbar-color: #C4C9D2 transparent;
 }
 
 .analyze-report-prose .md-content .md-table-requirements-wrap::-webkit-scrollbar {
@@ -811,7 +834,7 @@ export const ANALYZE_STYLES = `
 }
 
 .analyze-report-prose .md-content .md-table-requirements-wrap::-webkit-scrollbar-track {
-  background: #F3F4F6;
+  background: transparent;
   border-radius: 0 0 12px 12px;
 }
 
@@ -826,8 +849,10 @@ export const ANALYZE_STYLES = `
 
 .analyze-report-prose .md-content table.md-table-requirements {
   display: table;
-  width: max-content;
-  min-width: 1180px;
+  /* The evidence-heavy columns need more space than the report viewport.
+     Deliberately keep the matrix wide and let its wrapper scroll horizontally. */
+  width: 100%;
+  min-width: 1560px;
   /* auto: honour per-column min-widths and force the wrapper to scroll */
   table-layout: auto;
   border-collapse: collapse;
@@ -858,7 +883,8 @@ export const ANALYZE_STYLES = `
   white-space: normal;
   word-break: break-word;
   overflow-wrap: anywhere;
-  color: #344054;
+  color: #2F3B52;
+  font-weight: 450;
   overflow: hidden;
 }
 
@@ -866,9 +892,9 @@ export const ANALYZE_STYLES = `
   position: sticky;
   top: 0;
   z-index: 1;
-  background: #F7F8FA;
+  background: rgba(238, 242, 255, 0.34);
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 650;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #6B7280;
@@ -879,36 +905,36 @@ export const ANALYZE_STYLES = `
 
 .analyze-report-prose .md-content table.md-table-requirements th:nth-child(1),
 .analyze-report-prose .md-content table.md-table-requirements td:nth-child(1) {
-  width: 180px;
-  min-width: 180px;
+  width: 260px;
+  min-width: 260px;
 }
 
 .analyze-report-prose .md-content table.md-table-requirements th:nth-child(2),
 .analyze-report-prose .md-content table.md-table-requirements td:nth-child(2) {
-  width: 160px;
-  min-width: 160px;
+  width: 180px;
+  min-width: 180px;
 }
 
 .analyze-report-prose .md-content table.md-table-requirements th:nth-child(3),
 .analyze-report-prose .md-content table.md-table-requirements td:nth-child(3) {
-  width: 260px;
-  min-width: 260px;
+  width: 360px;
+  min-width: 360px;
 }
 
 .analyze-report-prose .md-content table.md-table-requirements th:nth-child(4),
 .analyze-report-prose .md-content table.md-table-requirements td:nth-child(4) {
-  width: 320px;
-  min-width: 320px;
+  width: 420px;
+  min-width: 420px;
 }
 
 .analyze-report-prose .md-content table.md-table-requirements th:nth-child(5),
 .analyze-report-prose .md-content table.md-table-requirements td:nth-child(5) {
-  width: 260px;
-  min-width: 260px;
+  width: 340px;
+  min-width: 340px;
 }
 
 .analyze-report-prose .md-content table.md-table-requirements tbody td:nth-child(1) {
-  font-weight: 650;
+  font-weight: 675;
   color: #111827;
 }
 
@@ -940,6 +966,7 @@ export const ANALYZE_STYLES = `
   /* Reset any block-level margin that td children might pick up */
   margin: 0;
   padding: 0;
+  cursor: zoom-in;
 }
 
 .md-clause-text.md-clause-expanded {
@@ -947,25 +974,18 @@ export const ANALYZE_STYLES = `
   display: block !important;
   -webkit-line-clamp: unset;
   overflow: visible;
+  cursor: zoom-out;
 }
 
-.md-clause-toggle {
-  display: block;
-  margin-top: 6px;
-  padding: 0;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 11.5px;
-  font-weight: 600;
-  color: #4F5BD9;
-  line-height: 1;
-  transition: color 130ms ease;
-  text-align: left;
+.md-clause-text:focus-visible {
+  outline: 2px solid rgba(79, 91, 217, 0.45);
+  outline-offset: 3px;
+  border-radius: 3px;
 }
-.md-clause-toggle:hover {
-  color: #3730A3;
+
+.md-row-toggle,
+.md-clause-toggle {
+  display: none !important;
 }
 
 /* ── Status badge pills (scoped to analyze prose) ────────────────────────
@@ -980,7 +1000,7 @@ export const ANALYZE_STYLES = `
   padding: 4px 10px 4px 8px;
   border-radius: 999px;
   font-size: 11.5px;
-  font-weight: 500;
+  font-weight: 600;
   /* Allow wrapping inside the column — never bleed into adjacent cells */
   white-space: normal;
   word-break: break-word;
@@ -1103,7 +1123,7 @@ export const ANALYZE_STYLES = `
 }
 
 .analyze-report-prose .md-content table.md-table-requirements tbody tr:hover td {
-  background: #FAFBFC;
+  background: transparent;
 }
 
 .analyze-report-scroll.is-scrolling .analyze-report-prose table.md-table-requirements tbody tr:hover td {

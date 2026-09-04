@@ -419,6 +419,7 @@ interface DecomposedPair {
   dimension: string;
   side_a: { hypothesis: string; proofStandard: string };
   side_b: { hypothesis: string; proofStandard: string };
+  additional_question?: { hypothesis: string; proofStandard: string } | null;
 }
 
 const DECOMPOSE_SCHEMA = {
@@ -438,6 +439,18 @@ const DECOMPOSE_SCHEMA = {
     },
     side_b: {
       type: "object",
+      properties: {
+        hypothesis: { type: "string" },
+        proofStandard: { type: "string" },
+      },
+      required: ["hypothesis", "proofStandard"],
+    },
+    additional_question: {
+      type: ["object", "null"],
+      description:
+        "Only present when the user's instruction asks something beyond the " +
+        "balance/comparison judgment (e.g. a compound ask joined by 'and'). " +
+        "Omit or set null when the instruction is a single comparison question.",
       properties: {
         hypothesis: { type: "string" },
         proofStandard: { type: "string" },
@@ -465,6 +478,18 @@ const DECOMPOSE_SYSTEM_PROMPT = [
   "  for THIS side only — specific clause references, textual signals, the",
   "  exact factual question a verifier should answer. Written as you'd brief",
   "  a first-year associate. Never vague.",
+  "",
+  "The user's instruction may ALSO ask something else, joined by 'and' or a",
+  "second question mark, that is NOT part of the balance/comparison judgment",
+  '(e.g. "Is termination balanced between the parties, AND does the liability',
+  'cap adequately protect the customer?" — the liability-cap question is',
+  "unrelated to the termination comparison). When that happens:",
+  "- Set additional_question to a third, independent proposition covering",
+  "  ONLY that separate ask, with its own hypothesis and proofStandard, using",
+  "  the same rules as above.",
+  "- If the instruction is a single comparison question with nothing else in",
+  "  it, omit additional_question (or set it to null). Do not invent an",
+  "  additional_question that isn't actually asked.",
   "",
   "Rules:",
   '- Each sub-proposition must be independently investigable — a verifier',
@@ -500,7 +525,9 @@ export async function decomposeReasoningAsk(
       : "",
     party ? `The user is asking from the perspective of: ${party}.` : "",
     "Decompose this into two independently investigable sub-propositions,",
-    "one for each side of the comparison.",
+    "one for each side of the comparison. If the instruction also asks",
+    "something separate from the comparison, add that as additional_question",
+    "— do not drop it.",
   ]
     .filter(Boolean)
     .join("\n\n");
@@ -535,6 +562,34 @@ export async function decomposeReasoningAsk(
       partyPerspective: party,
       compareGroup: groupId,
       compareRole: "side_b",
+    },
+    ...additionalQuestionProposition(decomposed.additional_question, party),
+  ];
+}
+
+/**
+ * The user's instruction can contain a second, unrelated ask alongside a
+ * comparison question (e.g. "Is termination balanced... AND does the
+ * liability cap adequately protect the customer?"). Without this,
+ * decomposeReasoningAsk returned only the two comparison sub-propositions
+ * and silently dropped the second ask. Kept as its own proposition (no
+ * compareGroup/compareRole) since it isn't part of the balance judgment.
+ */
+function additionalQuestionProposition(
+  additional: DecomposedPair["additional_question"],
+  party: string | undefined
+): Proposition[] {
+  if (!additional?.hypothesis?.trim() || !additional?.proofStandard?.trim()) {
+    return [];
+  }
+  return [
+    {
+      hypothesis: additional.hypothesis,
+      proofStandard: additional.proofStandard,
+      source: "S4",
+      polarity: "neutral_fact",
+      priority: 80,
+      partyPerspective: party,
     },
   ];
 }

@@ -489,7 +489,7 @@ const ReportFollowUpComposer = memo(function ReportFollowUpComposer({
         onSubmit={onSendMessage}
         className="analyze-report-composer mx-auto"
         style={{
-          maxWidth: hasRequirementsTable ? 1100 : hasMarkdownTable ? 1100 : hasRefs ? 720 : 768,
+          maxWidth: hasRequirementsTable ? 1360 : hasMarkdownTable ? 1100 : hasRefs ? 720 : 768,
         }}
       >
         <button
@@ -566,22 +566,54 @@ export default function ReportView({
     onSendFollowUp(text);
   };
 
-  // Delegated handler for Show more / Show less toggles injected by markdownToHtml
+  // Clicking the truncated text itself expands/collapses every long cell in
+  // that row. No separate visual button is necessary.
   useEffect(() => {
     const container = reportBodyRef.current;
     if (!container) return;
 
+    function toggleRow(control: HTMLElement) {
+      const row = control.closest("tr");
+      if (!row) return;
+      const expanded = !row.classList.contains("md-row-expanded");
+      row.classList.toggle("md-row-expanded", expanded);
+      row.querySelectorAll(".md-clause-text").forEach((textSpan) => {
+        textSpan.classList.toggle("md-clause-expanded", expanded);
+        textSpan.setAttribute("aria-expanded", String(expanded));
+        textSpan.setAttribute(
+          "aria-label",
+          expanded ? "Collapse row" : "Expand row"
+        );
+        textSpan.setAttribute(
+          "title",
+          expanded ? "Click to collapse row" : "Click to expand row"
+        );
+      });
+    }
+
     function handleToggleClick(e: MouseEvent) {
-      const btn = (e.target as HTMLElement).closest(".md-clause-toggle");
-      if (!btn) return;
-      const textSpan = btn.previousElementSibling;
-      if (!textSpan || !textSpan.classList.contains("md-clause-text")) return;
-      const expanded = textSpan.classList.toggle("md-clause-expanded");
-      btn.textContent = expanded ? "Show less" : "Show more";
+      const target = e.target as HTMLElement;
+      if (target.closest("a")) return;
+      const control = target.closest<HTMLElement>(".md-clause-text");
+      if (control) toggleRow(control);
+    }
+
+    function handleToggleKeyDown(e: KeyboardEvent) {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      const control = (e.target as HTMLElement).closest<HTMLElement>(
+        ".md-clause-text"
+      );
+      if (!control) return;
+      e.preventDefault();
+      toggleRow(control);
     }
 
     container.addEventListener("click", handleToggleClick);
-    return () => container.removeEventListener("click", handleToggleClick);
+    container.addEventListener("keydown", handleToggleKeyDown);
+    return () => {
+      container.removeEventListener("click", handleToggleClick);
+      container.removeEventListener("keydown", handleToggleKeyDown);
+    };
   }, []);
 
   const allRefs = useMemo(() => buildRefList(chatMessages), [chatMessages]);

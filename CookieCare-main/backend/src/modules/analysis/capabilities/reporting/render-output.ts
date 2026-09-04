@@ -1515,10 +1515,45 @@ function tableText(lines: string[], range: { startLine: number; endLine: number 
 }
 
 function mdCell(value: string): string {
-  // Preserve the complete verified text in the report. The frontend already
-  // line-clamps these cells and supplies Show more/Show less; truncating here
-  // meant that control could never reveal the omitted paragraph remainder.
+  // Cell sizing is applied deliberately by assessmentTableMarkdown before
+  // Markdown escaping. This helper only normalizes the prepared cell value.
   return value.replace(/\|/g, "/").replace(/\s+/g, " ").trim();
+}
+
+const TABLE_CELL_LIMITS = {
+  requirement: 180,
+  evidence: 360,
+  finding: 260,
+  action: 180,
+} as const;
+
+/**
+ * Table mode is a scanning surface, not the detailed evidence store. Keep a
+ * complete sentence/semicolon-delimited thought when possible, otherwise cut
+ * only at a word boundary. Full findings and evidence spans remain unchanged
+ * for narrative sections, citations, exports, and follow-up analysis.
+ */
+function conciseTableText(
+  value: string,
+  maxChars: number,
+  suffix = "…"
+): string {
+  const normalized = value.replace(/\s+/g, " ").trim();
+  if (normalized.length <= maxChars) return normalized;
+
+  const bodyLimit = Math.max(40, maxChars - suffix.length);
+  const candidate = normalized.slice(0, bodyLimit + 1);
+  const minimumBoundary = Math.floor(bodyLimit * 0.55);
+  const punctuationBoundaries = [...candidate.matchAll(/[.;:](?=\s|$)/g)]
+    .map((match) => match.index ?? -1)
+    .filter((index) => index >= minimumBoundary && index < bodyLimit);
+  const punctuationEnd = punctuationBoundaries.at(-1);
+  if (punctuationEnd !== undefined) {
+    return `${candidate.slice(0, punctuationEnd + 1).trim()}${suffix}`;
+  }
+
+  const wordEnd = candidate.lastIndexOf(" ", bodyLimit);
+  return `${candidate.slice(0, wordEnd >= minimumBoundary ? wordEnd : bodyLimit).trim()}${suffix}`;
 }
 
 /**
@@ -1546,12 +1581,10 @@ function requirementLabel(
 ): string {
   const description = state?.intent?.requirements?.find((r) => r.id === requirementId)
     ?.description?.trim();
-  // A real hypothesis/description is almost always a full sentence over 80
-  // chars — discarding it outright when long left nothing but the internal
-  // id ("open.p1" → "P1"), which tells the user nothing about what was
-  // actually investigated. Truncate instead of discarding.
+  // Preserve the complete requirement. The frontend applies a reversible
+  // visual clamp, so expanding a row can reveal the original wording.
   if (description && description !== requirementId) {
-    return description.length <= 80 ? description : `${description.slice(0, 77).trimEnd()}…`;
+    return description;
   }
   const humanized = humanizeRequirementId(requirementId);
   // Catch non-lettered article ids that otherwise retain their compact
@@ -1599,7 +1632,11 @@ function evidenceCellText(
   const quote = finding?.evidence[0]?.quotedText?.trim() ?? "";
   if (quote) {
     const loc = formatLocator(finding?.evidence[0]?.locator.structuralPath);
-    return loc ? `${loc} — ${quote}` : quote;
+    return conciseTableText(
+      loc ? `${loc} - ${quote}` : quote,
+      TABLE_CELL_LIMITS.evidence,
+      " [excerpt]"
+    );
   }
   if (finding && isReferencedElsewhereClaim(finding)) {
     return "Particulars referenced outside this extract";
@@ -1641,10 +1678,9 @@ function enrichmentSuffix(assessment: RequirementAssessment, base: string): stri
 
 /**
  * The per-row next step. Prefers VERIFY's specific, locked `remediation`; falls
- * back to a short verb-led phrase from the recommendation kind. Covered rows
- * with nothing to do return "" (a blank cell — never "—", which the layout
- * contract forbids). This is the industry-standard "what to do" column that
- * keeps the Finding cell to the finding itself instead of a truncated wall.
+ * back to a short verb-led phrase from the recommendation kind. Every row gets
+ * an explicit, neutral action state so the report never releases blank cells.
+ * This keeps the Finding cell focused on analysis rather than remediation.
  */
 function actionCellText(assessment: RequirementAssessment): string {
   if (isAnalysisExecutionIncomplete(assessment.analysisExecution)) {
@@ -1662,7 +1698,15 @@ function actionCellText(assessment: RequirementAssessment): string {
     case "clarify":
       return "Clarify the wording.";
     default:
-      return "";
+      if (assessment.status === "not_applicable") return "No action required.";
+      if (isCoveredLike(assessment.status)) return "No action needed.";
+      if (isConditionalLike(assessment.status)) {
+        return "Review and address the partial coverage.";
+      }
+      if (isGapLike(assessment.status)) {
+        return "Add or amend language to address the requirement.";
+      }
+      return "Review the available evidence and confirm the requirement.";
   }
 }
 
@@ -1706,7 +1750,16 @@ export function assessmentTableMarkdown(
     const support = pickRowFinding(assessment, findingById);
     const base = assessment.establishedBy ?? support?.claim ?? assessment.summary;
     const finding = [base, enrichmentSuffix(assessment, base)].filter(Boolean).join(" ");
-    return `| ${mdCell(requirementLabel(assessment.requirementId, state))} | **${mdCell(renderedAssessmentStatus(assessment, state))}** | ${mdCell(evidenceCellText(assessment, support))} | ${mdCell(finding)} | ${mdCell(actionCellText(assessment))} |`;
+    const requirement = conciseTableText(
+      requirementLabel(assessment.requirementId, state),
+      TABLE_CELL_LIMITS.requirement
+    );
+    const conciseFinding = conciseTableText(finding, TABLE_CELL_LIMITS.finding);
+    const action = conciseTableText(
+      actionCellText(assessment),
+      TABLE_CELL_LIMITS.action
+    );
+    return `| ${mdCell(requirement)} | **${mdCell(renderedAssessmentStatus(assessment, state))}** | ${mdCell(evidenceCellText(assessment, support))} | ${mdCell(conciseFinding)} | ${mdCell(action)} |`;
   });
   return [...header, ...rows].join("\n");
 }

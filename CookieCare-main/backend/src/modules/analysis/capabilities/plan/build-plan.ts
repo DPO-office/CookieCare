@@ -59,6 +59,12 @@ const SKILL_DRIVEN_OPERATIONS = new Set([
   "summarize",
   "compare",
   "explain_qa",
+  // Has a full capability contract (analysis-capability-contract.ts) and is
+  // already a first-class operation in classify-intent's schema and in
+  // build-branch-orchestration's compound-facet merging — this allowlist was
+  // never updated to match, so a well-formed negotiation/drafting ask was
+  // always hard-blocked into an ASK clarification instead of running.
+  "draft_suggestion",
 ]);
 
 export function shouldPreferOpenAnalysisLane(input: {

@@ -337,11 +337,13 @@ describe("narrative vs tabular layout contract", () => {
     assert.doesNotMatch(confidentialityRow!, /deletion exception is broader/i);
     assert.doesNotMatch(confidentialityRow!, /unless applicable local law/i);
     assert.match(markdown, /No related clauses found/);
-    assert.doesNotMatch(markdown, /\| — \|/);
+    assert.match(markdown, /No action needed/);
+    assert.match(markdown, /Review and address the partial coverage/);
+    assert.doesNotMatch(markdown, /\| - \|/);
     assert.doesNotMatch(markdown, /\| - \|/);
   });
 
-  it("keeps the complete verified evidence paragraph for the UI Show more control", () => {
+  it("keeps tables concise while leaving the underlying verified evidence intact", () => {
     const quote = `The processor shall preserve the entire verified paragraph ${"including operative detail ".repeat(24)}END-OF-VERIFIED-PARAGRAPH.`;
     const markdown = assessmentTableMarkdown(
       [
@@ -361,7 +363,9 @@ describe("narrative vs tabular layout contract", () => {
       ]
     );
 
-    assert.match(markdown, /END-OF-VERIFIED-PARAGRAPH/);
+    assert.doesNotMatch(markdown, /END-OF-VERIFIED-PARAGRAPH/);
+    assert.match(markdown, /\[excerpt\]/);
+    assert.equal(quote.endsWith("END-OF-VERIFIED-PARAGRAPH."), true);
   });
 
   it("injects locked Present duration when outline still carries PLAN ids", () => {

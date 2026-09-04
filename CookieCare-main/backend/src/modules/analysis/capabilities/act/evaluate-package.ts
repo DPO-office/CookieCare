@@ -827,10 +827,23 @@ async function evaluateWithVerify(
   const expandMaxChars = profileEvidenceCharBudget(state) * 3;
   const complianceReport = isComplianceReport(state);
   // Compliance uses full-document hybrid retrieval followed by one bounded
-  // verifier call per requirement. Other report types retain their established
-  // LLM selector path unchanged.
+  // verifier call per requirement. Non-compliance report types (extract,
+  // explain_qa, risk_flag, draft_suggestion, compare) use the LLM candidate
+  // selector, which picks candidates by MEANING from the whole document's
+  // sections rather than from the keyword/type-capped `items` pool.
+  //
+  // Graduated to on-by-default (was opt-in behind ANALYSIS_LLM_CANDIDATE_SELECT
+  // === "1"). Live A/B over Q1 (termination notice), Q5 (onboarding risk) and
+  // Q14 (post-termination) showed the keyword path silently missed genuinely
+  // relevant but mis-typed clauses (e.g. a subprocessor objection/suspension
+  // clause labelled `termination`), which the whole-document semantic selector
+  // finds. Failure is safe: selectCandidates returns null on any error → the
+  // hybrid/lexical retriever below runs unchanged; an explicit empty result is
+  // still cross-checked against that retriever before "nothing found" is
+  // accepted. Set ANALYSIS_LLM_CANDIDATE_SELECT="0" to fall back to the old
+  // keyword-only path.
   const llmSelectEnabled =
-    process.env.ANALYSIS_LLM_CANDIDATE_SELECT === "1" && !complianceReport;
+    process.env.ANALYSIS_LLM_CANDIDATE_SELECT !== "0" && !complianceReport;
   // Open risk lane: a `contradicts` verdict means "the risk is not present"
   // (reassuring), not "compliance gap". Only risk_flag flips the mapping;
   // compliance_check and every other operation keep the compliance meaning.
