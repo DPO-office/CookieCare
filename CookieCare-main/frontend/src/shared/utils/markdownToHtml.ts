@@ -67,7 +67,7 @@ const STATUS_PATTERNS: Array<{ pattern: RegExp; variant: string }> = [
 
   // ── Yellow — conditional / partial ─────────────────────────────────────
   { pattern: /\bconditionally\s+(compliant|adequate)\b/i,   variant: "yellow" },
-  { pattern: /\bpartially?\s+adequate\b/i,                  variant: "yellow" },
+  { pattern: /\bpartial(?:ly)?\s+(adequate|covered)\b/i,    variant: "yellow" },
   { pattern: /\bminor\s+(gap|drafting)\b/i,                 variant: "yellow" },
   { pattern: /\b(conditional|partial|incomplete)\b/i,       variant: "yellow" },
 
@@ -112,33 +112,67 @@ function stripTags(html: string): string {
  * pattern with `<td><span class="md-status md-status-{variant}">…</span></td>`.
  */
 function injectStatusBadges(html: string): string {
-  return html.replace(/<td\b([^>]*)>([\s\S]*?)<\/td>/gi, (match, attrs, inner) => {
-    const plain = stripTags(inner);
-    const variant = detectStatusVariant(plain);
-    if (!variant) return match;
-    // Preserve inner HTML (may have <strong> etc.) but wrap in badge span
-    return `<td${attrs}><span class="md-status md-status-${variant}">${inner.trim()}</span></td>`;
-  });
+  const headers = [...html.matchAll(/<th\b[^>]*>([\s\S]*?)<\/th>/gi)].map(
+    (match) => stripTags(match[1]).toLowerCase()
+  );
+  const statusColumn = headers.findIndex((header) =>
+    /^(status|assessment|outcome|result)$/.test(header)
+  );
+  if (statusColumn < 0) return html;
+
+  return html.replace(
+    /(<tbody\b[^>]*>)([\s\S]*?)(<\/tbody>)/gi,
+    (_match, open, body, close) => {
+      const processedBody = body.replace(
+        /(<tr\b[^>]*>)([\s\S]*?)(<\/tr>)/gi,
+        (_rowMatch: string, rowOpen: string, cells: string, rowClose: string) => {
+          const parts = cells.split("</td>");
+          const rebuilt = parts.map((part, index) => {
+            if (index === parts.length - 1 || index !== statusColumn) {
+              return index === parts.length - 1 ? part : part + "</td>";
+            }
+            const cellMatch = part.match(/^(\s*<td\b)([^>]*)>([\s\S]*)$/i);
+            if (!cellMatch) return part + "</td>";
+            const [, tdOpen, attrs, inner] = cellMatch;
+            const variant = detectStatusVariant(stripTags(inner));
+            if (!variant) return part + "</td>";
+            return `${tdOpen}${attrs}><span class="md-status md-status-${variant}">${inner.trim()}</span></td>`;
+          });
+          return rowOpen + rebuilt.join("") + rowClose;
+        }
+      );
+      return open + processedBody + close;
+    }
+  );
 }
 
-/** Column indices (0-based) that receive a 3-line clamp + "Show more" toggle. */
+/** Column indices (0-based) whose long content participates in row expansion. */
 const CLAMP_COLUMN_INDICES = new Set([2, 3, 4]);
 
-function wrapCellWithClamp(tdOpen: string, inner: string, minChars = 120): string {
+function clampThresholdForColumn(index: number): number {
+  return index === 0 ? 70 : 120;
+}
+
+function wrapCellWithClamp(
+  tdOpen: string,
+  inner: string,
+  minChars = 120
+): string {
   const plainLen = stripTags(inner).length;
   if (plainLen <= minChars) return tdOpen + inner.trim() + "</td>";
   return (
     tdOpen +
-    '<span class="md-clause-text">' +
+    '<span class="md-clause-text" role="button" tabindex="0" aria-label="Expand row" aria-expanded="false" title="Click to expand row">' +
     inner.trim() +
     "</span>" +
-    '<button class="md-clause-toggle" type="button">Show more</button>' +
     "</td>"
   );
 }
 
 /**
- * Injects a 3-line clamp + "Show more" toggle into long prose columns.
+ * Clamps every long prose cell in a row. The clamped text itself is the row
+ * expansion control, so the native visible ellipsis does not need a separate
+ * button beneath it.
  *
  * Standard 4-col table: Evidence (index 2), Finding (index 3).
  * Requirements table: Evidence (2), Finding (3), Action (4).
@@ -155,11 +189,15 @@ function injectClauseToggles(tableHtml: string, clampIndices: Set<number> = CLAM
             if (idx === parts.length - 1) return part;
             if (!clampIndices.has(idx)) return part + "</td>";
 
-            const cellMatch = part.match(/^(<td\b[^>]*>)([\s\S]*)$/i);
+            const cellMatch = part.match(/^(\s*<td\b[^>]*>)([\s\S]*)$/i);
             if (!cellMatch) return part + "</td>";
 
             const [, tdOpen, inner] = cellMatch;
-            return wrapCellWithClamp(tdOpen, inner);
+            return wrapCellWithClamp(
+              tdOpen,
+              inner,
+              clampThresholdForColumn(idx)
+            );
           });
 
           return trOpen + rebuilt.join("") + trClose;
@@ -216,7 +254,7 @@ function wrapTables(html: string): string {
     let processed = injectStatusBadges(table);
     processed = injectClauseToggles(
       processed,
-      requirements ? new Set([2, 3, 4]) : new Set([2, 3])
+      requirements ? new Set([0, 2, 3, 4]) : new Set([2, 3])
     );
 
     if (tableClass) {

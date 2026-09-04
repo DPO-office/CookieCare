@@ -15,12 +15,23 @@ import { buildSectionCandidates } from "./select-candidates.js";
  * Candidate-pool cap for one package. This is not the evaluator packet —
  * evaluate_package still sends 3–5 extracts per requirement.
  */
-// Gate 2 pool size. Raised from 40 so the LLM candidate selector receives
-// essentially the whole extracted clause set (this doc extracts ~65-90),
-// making gate 2's regex scorer a near-no-op cut rather than a lossy one — the
-// selector, not the regex, decides relevance. The hybrid/lexical fallback
-// path simply ranks a slightly larger pool; behaviour is otherwise unchanged.
-const MAX_ITEMS_PER_PACKAGE = 60;
+// Gate 2 pool size. The intent is that this cut be near-lossless — the
+// downstream selector (whole-document for compliance) / per-requirement recall
+// ranker, not this coarse package-level regex scorer, decides relevance. The
+// prior value (60) assumed docs extract ~65-90 clauses; real DPAs extract more
+// (the Mastercard DPA extracts 103), so 60 silently became a LOSSY cut for the
+// non-compliance fallback path (extract / explain_qa / risk_flag /
+// draft_suggestion / compare), which ranks over THIS pool rather than the
+// whole-document sections. A genuinely-relevant but mis-typed clause (e.g. the
+// subprocessor objection/suspension clause labelled `termination` because its
+// body also says "terminate") could score 0 on the package's own clause-types
+// and be dropped before VERIFY ever saw it. Raised to 200 to keep the cut
+// near-lossless for realistically-sized agreements while retaining a bound
+// against pathological documents. Compliance reports are unaffected (they pool
+// over whole-document sections, not this cap); with the default flags the
+// non-compliance path adds no LLM/embedding cost from the larger pool — the
+// per-requirement recall ranker still caps to a handful of candidates.
+const MAX_ITEMS_PER_PACKAGE = 200;
 const MIN_PER_CLAUSE_TYPE = 2;
 
 /** Shared bundle key for leftover / focused matrix-row evaluations. */

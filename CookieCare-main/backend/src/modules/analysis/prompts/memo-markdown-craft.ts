@@ -44,6 +44,7 @@ export const TABULAR_SECTION_MARKDOWN_CRAFT = [
   "- Start with the supplied `##` heading.",
   "- Write at most one lead sentence. Do not emit a markdown findings table.",
   "- The renderer will attach the locked Requirement | Status | Evidence | Finding table from validated assessments. Do not invent Status, Evidence, or Finding cells.",
+  "- Treat tables as concise decision surfaces: short requirement label, clause locator plus a brief evidence excerpt, one-sentence finding, and one short action. Put detailed reasoning in narrative sections, not table cells.",
   "- Opening / conclusion / recommendations: short prose. Do not invent status tables.",
   "- Do not write Key Regulatory Findings, Summary of Compliance Findings, or any paragraph block that restates table rows.",
   "- Finish every sentence. Never stop mid-clause.",
