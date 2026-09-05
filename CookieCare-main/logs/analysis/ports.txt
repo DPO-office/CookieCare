@@ -1,0 +1,7 @@
+netstat:
+  TCP    0.0.0.0:3000           0.0.0.0:0              LISTENING       7300
+  TCP    127.0.0.1:55389        127.0.0.1:3000         TIME_WAIT       0
+  TCP    127.0.0.1:55396        127.0.0.1:3000         TIME_WAIT       0
+
+netstat5173:
+Command failed: netstat -ano | findstr :5173

@@ -65,7 +65,8 @@ export interface VerifyPropositionResult {
    * ACT-Phase 7 enrichment — VERIFY is the only stage that ever reads the
    * evidence, so these capture the rich reasoning behind the verdict as
    * structured data instead of discarding it once a verdict is picked.
-   * Populated selectively depending on the verdict; see the system prompt.
+   * Populated selectively depending on the verdict — including residual
+   * limitations on a `proves` verdict when `partialCoverage` is true.
    */
   establishedBy?: string;
   gapDescription?: string;
@@ -235,9 +236,16 @@ const VERIFY_CANDIDATES_SYSTEM_PROMPT = [
   "Evaluate every candidate independently and return exactly one row for each",
   "candidateRef. Do not combine text from different candidates into one quote.",
   "For each row, separately classify coverage as full, partial, none, or",
-  "contradicted. Keep it consistent with verdict: full=proves,",
-  "contradicted=contradicts, partial=related_not_proof, and none is used for",
-  "irrelevant or a merely topical related_not_proof passage.",
+  "contradicted. Keep it consistent with verdict, with one exception for",
+  "residual limitations: full=proves (complete satisfaction);",
+  "contradicted=contradicts; none=irrelevant or a merely topical",
+  "related_not_proof; and coverage=partial is used in two distinct cases —",
+  "(1) verdict=proves when the passage satisfies the CORE of the proof",
+  "standard but misses a named sub-element of a compound or choice-based",
+  "standard (e.g. \"A or B, at X's choice\" where only A is offered);",
+  "(2) verdict=related_not_proof when the passage does not establish the",
+  "core at all and only touches part of the topic. Do not use case (2) for",
+  "a passage that satisfies the core proposition.",
   "",
   "Use coverage=partial only when the quoted passage affirmatively establishes",
   "a material portion of the proof standard but falls short of the complete",
@@ -248,12 +256,16 @@ const VERIFY_CANDIDATES_SYSTEM_PROMPT = [
   "particular is specified in an identified incorporated annex, schedule, or",
   "statement of work that is not among the supplied passages. For case (3),",
   "also populate dependency with the named material and why it must be checked.",
+  "For case (1) when the core still holds, pair coverage=partial with",
+  "verdict=proves (not related_not_proof).",
   "",
   "When coverage=partial, populate establishedBy with the material portion the",
-  "quote establishes and gapDescription with the portion still missing or",
-  "unverified. Do not use partial for a heading, definition, generic topic",
-  "mention, generic cross-reference, or a proof-standard trap that establishes",
-  "none of the proposition's substantive elements.",
+  "quote establishes and gapDescription + remediation with the SAME rigor",
+  "required for a failure verdict: name the specific unaddressed part and the",
+  "concrete action that would close it. Do not use partial for a heading,",
+  "definition, generic topic mention, generic cross-reference, or a",
+  "proof-standard trap that establishes none of the proposition's substantive",
+  "elements.",
 ].join("\n");
 
 function buildVerifyCandidatesSchema(candidateRefs: string[]) {
@@ -278,7 +290,12 @@ function buildVerifyCandidatesSchema(candidateRefs: string[]) {
         gapDescription: {
           type: "string",
           description:
-            "When coverage is partial, or verdict is related_not_proof/contradicts, state the specific remaining delta. Otherwise return an empty string.",
+            "When coverage is partial (including verdict=proves with a residual limitation), or verdict is related_not_proof/contradicts, state the specific remaining delta. Otherwise return an empty string.",
+        },
+        remediation: {
+          type: "string",
+          description:
+            "When coverage is partial (including verdict=proves with a residual limitation), or verdict is related_not_proof/contradicts, the specific action that would close the gap. Otherwise return an empty string.",
         },
       },
       required: [

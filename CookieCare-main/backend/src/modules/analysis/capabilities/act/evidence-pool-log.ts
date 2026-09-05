@@ -4,6 +4,7 @@ import type { AnalysisState } from "../../models/analysis-state.js";
 import type { ClauseObject } from "../../models/clause-object.js";
 import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
 import type { SharedEvidenceItem } from "../../models/evidence-package.js";
+import { analysisLogEnabled } from "../../utils/pac-log.js";
 import { scoreClauseForPackage } from "./extract-shared-evidence.js";
 
 /**
@@ -47,7 +48,16 @@ function ensureDirAndHeader(state: AnalysisState): string {
   return filePath;
 }
 
-function appendSection(state: AnalysisState, title: string, lines: string[]): void {
+/**
+ * Exported so other ACT-phase loggers (e.g. verify-inspect-log.ts's
+ * per-candidate VERIFY trace, which previously only reached ephemeral
+ * console.log/stdout via pacLogBlock — easy to lose across a server restart
+ * and hard to correlate with a specific session) can append into this same
+ * persistent per-session file instead of maintaining their own.
+ */
+export function appendSection(state: AnalysisState, title: string, lines: string[]): void {
+  // Master kill-switch (ANALYSIS_LOG=0) — same gate as pacLog / inspect dumps.
+  if (!analysisLogEnabled()) return;
   // A trace without a real run/session cannot be correlated and only creates
   // test artifacts. Skip it while leaving analysis behavior untouched.
   if (!state.request?.sessionId) return;

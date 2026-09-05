@@ -1,0 +1,56 @@
+[
+  {
+    "status": 200,
+    "url": "http://localhost:3000/api/auth/login",
+    "method": "POST",
+    "at": "2026-09-05T05:48:00.350Z"
+  },
+  {
+    "status": 202,
+    "url": "http://localhost:3000/api/documents/upload",
+    "method": "POST",
+    "at": "2026-09-05T05:48:03.884Z"
+  },
+  {
+    "status": 200,
+    "url": "http://localhost:3000/api/jobs/6a059c8a-0333-4a6f-a24b-6180291baac8",
+    "method": "GET",
+    "at": "2026-09-05T05:48:04.557Z"
+  },
+  {
+    "status": 200,
+    "url": "http://localhost:3000/api/jobs/6a059c8a-0333-4a6f-a24b-6180291baac8",
+    "method": "GET",
+    "at": "2026-09-05T05:48:05.921Z"
+  },
+  {
+    "status": 200,
+    "url": "http://localhost:3000/api/jobs/6a059c8a-0333-4a6f-a24b-6180291baac8",
+    "method": "GET",
+    "at": "2026-09-05T05:48:06.770Z"
+  },
+  {
+    "status": 200,
+    "url": "http://localhost:3000/api/jobs/6a059c8a-0333-4a6f-a24b-6180291baac8",
+    "method": "GET",
+    "at": "2026-09-05T05:48:07.575Z"
+  },
+  {
+    "status": 200,
+    "url": "http://localhost:3000/api/jobs/6a059c8a-0333-4a6f-a24b-6180291baac8",
+    "method": "GET",
+    "at": "2026-09-05T05:48:08.407Z"
+  },
+  {
+    "status": 202,
+    "url": "http://localhost:3000/api/analysis/run",
+    "method": "POST",
+    "at": "2026-09-05T05:48:10.024Z"
+  },
+  {
+    "status": 200,
+    "url": "http://localhost:3000/api/jobs/sse?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InN1cHJlbWVfYWRtaW5faWQiLCJlbWFpbCI6InN3YXJuYWFpc2h3YXJ5YTE3QGdtYWlsLmNvbSIsImlhdCI6MTc4ODU4NzI4MCwiZXhwIjoxNzg4NjczNjgwfQ.VMwfpPKsoYekjTufo7TxjRMoQkX4wD6TyY8L3hj_MFQ",
+    "method": "GET",
+    "at": "2026-09-05T05:48:10.034Z"
+  }
+]

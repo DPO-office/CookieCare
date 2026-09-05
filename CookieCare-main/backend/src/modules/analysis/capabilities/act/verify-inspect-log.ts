@@ -1,5 +1,7 @@
 import type { SharedEvidenceItem } from "../../models/evidence-package.js";
+import type { AnalysisState } from "../../models/analysis-state.js";
 import { pacLogBlock } from "../../utils/pac-log.js";
+import { appendSection } from "./evidence-pool-log.js";
 import type { VerifyPropositionResult } from "./verify-proposition.js";
 
 /** One candidate + its VERIFY verdict, in the order they were checked. */
@@ -35,6 +37,17 @@ export function logVerifyCandidates(args: {
   closestIndex?: number;
   mixedResolution?: "scope_dependent" | "conflicting";
   scopeDependentRefs?: string[];
+  /**
+   * When supplied, this trace is also appended to the persistent
+   * logs/analysis/<sessionId>.log file (same file the extraction/retrieval
+   * trace already writes to), not just stdout. Without this, the ONLY record
+   * of what VERIFY actually saw and decided was ephemeral console output —
+   * easy to lose across a restart and impossible to correlate to one session
+   * after the fact. This was the missing half of the pipeline trace: the
+   * extraction/retrieval steps were always durably logged, VERIFY's own
+   * clause-in / verdict-out reasoning was not.
+   */
+  state?: AnalysisState;
 }): void {
   const {
     requirementId,
@@ -47,6 +60,7 @@ export function logVerifyCandidates(args: {
     closestIndex,
     mixedResolution,
     scopeDependentRefs,
+    state,
   } = args;
 
   const lines: string[] = [];
@@ -124,5 +138,7 @@ export function logVerifyCandidates(args: {
     lines.push("RESULT: no candidate proved/contradicted → insufficient_evidence. Nothing worth carrying forward.");
   }
 
-  pacLogBlock(`[VERIFY] candidate-by-candidate — ${requirementId}`, lines);
+  const title = `[VERIFY] candidate-by-candidate — ${requirementId}`;
+  pacLogBlock(title, lines);
+  if (state) appendSection(state, title, lines);
 }

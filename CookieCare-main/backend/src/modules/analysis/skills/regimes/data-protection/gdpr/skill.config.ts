@@ -1782,7 +1782,11 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
             "The clause must specifically tie processing to controller " +
             "instructions (a carve-out for legally required processing, paired " +
             "with a duty to notify the controller first, is consistent with " +
-            "this particular and does not defeat it).",
+            "this particular and does not defeat it). The separate duty to " +
+            "immediately warn the controller that an instruction is unlawful is " +
+            "Article 28(3)'s closing sentence, already scoped to " +
+            "art28_3_h_audit / gdpr.art28.3.h — do not treat its absence as a " +
+            "defect of this particular.",
         },
         art28_3_b_confidentiality: {
           hypothesis:
@@ -1886,16 +1890,21 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
         },
         art28_3_g_deletion_return: {
           hypothesis:
-            "At the end of the services the processor deletes or returns personal data and existing copies.",
+            "At the end of the services the controller may choose whether the processor deletes or returns personal data and existing copies.",
           evidenceHints: ["delete", "deletion", "return", "erasure", "copies"],
           proofStandard:
-            "Proven only by text obligating the processor, at the end of the " +
-            "provision of services (not merely 'on request' at an unspecified " +
-            "time), to delete or return all personal data and delete existing " +
-            "copies, unless EU/Member State law requires continued storage. A " +
-            "clause giving the controller only a vague 'right to request " +
-            "deletion' without the processor being independently obligated to " +
-            "delete/return at end-of-service does not satisfy this.",
+            "Proven only by text that, at the end of the provision of services " +
+            "(not merely 'on request' at an unspecified time), gives the " +
+            "CONTROLLER an actual choice between deletion and return of all " +
+            "personal data, and requires deletion of existing copies, unless " +
+            "EU/Member State law requires continued storage. It is not enough " +
+            "that the processor performs one of those outcomes unilaterally. A " +
+            "clause obligating deletion only, with no return option the " +
+            "controller can elect, does not fully satisfy this — flag " +
+            "partialCoverage. A clause giving the controller only a vague " +
+            "'right to request deletion' without the processor being " +
+            "independently obligated to delete or return at end-of-service " +
+            "does not satisfy this.",
         },
         art28_3_h_audit: {
           hypothesis:

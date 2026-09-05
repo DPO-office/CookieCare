@@ -1,0 +1,32 @@
+data_categories verify=false
+data_categories string=data_categories,data_categories,data_categories
+Staff including=6
+Personal details=0
+Collecting, recording=0
+Term means=0
+
+S42 context:
+PROCESSING SUBJECT MATTER Data Subjects. The personal data transferred concern the following categories of data subjects.
+[009] data_protection                  multiple_candidates via=heading:data protection; heading-alias:personal data; alias:personal data|processing|data protection; anchor:processor|personal data|processing path=clause-4.1
+      4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Personal Data, as required by Data Protection Legislation, Alaio will (taking into account the…
+[010] data_protection                  multiple_candidates via=heading:data protection; heading-alias:processing; alias:process
+
+duration candidates:
+[1] S12  DURATION OF THIS DPA (clause-3)  →  RELATED_NOT_PROOF  quoteVerified=true
+[2] S10  2.5 Deletion on Term Expiry. On expiry of the Te (clause-2.5)  →  RELATED_NOT_PROOF  quoteVerified=true ★ PARTIAL
+[3] S22  7.4 Objection Right for New Sub-processors. (clause-7.4)  →  RELATED_NOT_PROOF  quoteVerified=true
+[4] S34  11.3.2 Specific for data transfers from EU, UK a (clause-11.3.2)  →  IRRELEVANT  quoteVerified=true
+[5] S2  APPLICATION OF THIS DPA (heading-application-of-this-dpa)  →  RELATED_NOT_PROOF  quoteVerified=true
+[6] S9  2.4 By entering into this Data Processing Agreem (clause-2.4)  →  RELATED_NOT_PROOF  quoteVerified=true
+[7] S4  1.1 DEFINITIONS AND INTERPRETATION (clause-1.1)  →  RELATED_NOT_PROOF  quoteVerified=true
+[8] S1  DATA PROCESSING AGREEMENT (heading-data-processing-agreement)  →  RELATED_NOT_PROOF  quoteVerified=true
+
+duration mentions Term definition=true
+
+insufficient_evidence lines:
+ULT: no candidate proved/contradicted → insufficient_evidence. Closest carried: S44 (related_not_proof).
+ULT: no candidate proved/contradicted → insufficient_evidence. Closest carried: S44 (related_not_proof).
+
+no candidate proved lines:
+RESULT: no candidate proved/contradicted → insufficient_evidence. Closest carried: S44 (related_not_proof).
+RESULT: no candidate proved/contradicted → insufficient_evidence. Closest carried: S44 (related_not_proof).

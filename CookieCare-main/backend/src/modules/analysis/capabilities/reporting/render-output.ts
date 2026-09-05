@@ -1710,15 +1710,47 @@ function actionCellText(assessment: RequirementAssessment): string {
   }
 }
 
+/**
+ * Prefix the user-facing status label with a glyph that survives copy,
+ * print, and export. The frontend badge system (`STATUS_PATTERNS`) matches
+ * on the status words, not on emoji, so a leading glyph is additive.
+ */
+function withStatusEmoji(label: string): string {
+  const t = label.toLowerCase();
+  if (
+    t.includes("cannot determine") ||
+    t.includes("insufficient data") ||
+    t.includes("not applicable") ||
+    t.includes("analysis incomplete")
+  ) {
+    return `➖ ${label}`;
+  }
+  // Check partial/conditional before "gap" — "Minor drafting gap" is yellow.
+  if (
+    t.includes("partial") ||
+    t.includes("minor drafting") ||
+    t.includes("conditional")
+  ) {
+    return `⚠️ ${label}`;
+  }
+  if (t === "gap" || t.startsWith("gap ")) {
+    return `❌ ${label}`;
+  }
+  if (t.includes("strong") || t.includes("present") || t.includes("adequate")) {
+    return `✅ ${label}`;
+  }
+  return label;
+}
+
 function renderedAssessmentStatus(
   assessment: RequirementAssessment,
   state?: AnalysisState
 ): string {
   if (assessment.analysisExecution?.status === "timed_out") {
-    return "Analysis incomplete (timed out)";
+    return withStatusEmoji("Analysis incomplete (timed out)");
   }
   if (isAnalysisExecutionIncomplete(assessment.analysisExecution)) {
-    return "Analysis incomplete";
+    return withStatusEmoji("Analysis incomplete");
   }
   if (
     state?.intent?.operation === "compliance_check" &&
@@ -1729,11 +1761,11 @@ function renderedAssessmentStatus(
       (assessment.judgement.evidenceState === "incorporated" ||
         assessment.judgement.evidenceState === "unavailable")
     ) {
-      return "Partially covered - details in schedule";
+      return withStatusEmoji("Partially covered - details in schedule");
     }
-    return "Partially covered";
+    return withStatusEmoji("Partially covered");
   }
-  return displayRequirementStatus(assessment);
+  return withStatusEmoji(displayRequirementStatus(assessment));
 }
 
 export function assessmentTableMarkdown(

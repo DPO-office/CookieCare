@@ -1248,6 +1248,7 @@ async function evaluateWithVerify(
         hypothesis,
         proofStandard,
         outcomes: verdicts,
+        state,
         mixedResolution: distinct ? "scope_dependent" : "conflicting",
       });
       findings.push(
@@ -1284,6 +1285,7 @@ async function evaluateWithVerify(
           hypothesis,
           proofStandard,
           outcomes: verdicts,
+        state,
           scopeDependentRefs: scopedRefs,
         });
         findings.push(
@@ -1302,6 +1304,7 @@ async function evaluateWithVerify(
         hypothesis,
         proofStandard,
         outcomes: verdicts,
+        state,
         winnerIndex,
         winnerVerdict: winner.result.verdict === "proves" ? "proves" : "contradicts",
       });
@@ -1350,6 +1353,7 @@ async function evaluateWithVerify(
         hypothesis,
         proofStandard,
         outcomes: verdicts,
+        state,
         partialIndex: verdicts.indexOf(partial),
       });
       findings.push(
@@ -1387,6 +1391,7 @@ async function evaluateWithVerify(
       hypothesis,
       proofStandard,
       outcomes: verdicts,
+      state,
       closestIndex,
     });
     findings.push(
@@ -1592,14 +1597,20 @@ function buildVerifiedFinding(
     };
   }
 
-  const compliance = verdict === "proves" ? "present" : "gap";
+  const provingPartial = verdict === "proves" && result.partialCoverage === true;
+  const compliance =
+    verdict === "proves" ? (provingPartial ? "partial" : "present") : "gap";
   const judgementBase: Omit<RequirementJudgement, "recommendationKind"> = {
     compliance,
     evidenceState: "direct",
     referenceBinding: "none",
     evidenceConfidence: "high",
-    draftingQuality: verdict === "proves" ? "clean" : undefined,
-    materiality: verdict === "contradicts" ? "high" : "low",
+    draftingQuality: provingPartial
+      ? "could_be_clearer"
+      : verdict === "proves"
+        ? "clean"
+        : undefined,
+    materiality: verdict === "contradicts" ? "high" : provingPartial ? "medium" : "low",
     nli: verdict === "proves" ? "entailed" : "contradicted",
   };
   const judgement: RequirementJudgement = {

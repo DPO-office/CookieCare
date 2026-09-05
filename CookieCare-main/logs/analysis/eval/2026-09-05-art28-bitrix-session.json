@@ -1,0 +1,1972 @@
+{
+  "success": true,
+  "sessionId": "an_d8021da4-5d61-4837-b7db-15dc0296775e",
+  "findings": [
+    {
+      "kind": "extraction",
+      "claim": "Located 78 evidence spans from document doc_4e946481-71c7-4f18-be0f-14021f79a897 (skill-scoped).",
+      "status": "present",
+      "category": "other_known_risk",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "doc_4e946481-71c7-4f18-be0f-14021f79a897",
+            "charRange": [
+              0,
+              892
+            ],
+            "structuralPath": "heading-data-processing-agreement"
+          },
+          "quotedText": "DATA PROCESSING AGREEMENT \nLast updated 29th November 2024 \nThis Data Processing Agreement (“DPA”, “Agreement”) is an addendum to and forms part  of the master agreement between the Administrator of Bitrix24 Customer Account  and Alaio (https://www.bitrix24.com/terms/) to reflect the parties’ agreement for the  provision of the Processor Services (as amended from time to time) and processing  of Bitrix24 Customer Account User’s Personal Data in accordance with the  requirements of the Data Prote",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "doc_4e946481-71c7-4f18-be0f-14021f79a897",
+            "charRange": [
+              8449,
+              10440
+            ],
+            "structuralPath": "clause-2"
+          },
+          "quotedText": "2. PROCESSING OF PERSONAL DATA \n2.1 Roles and Regulatory Compliance; Authorization. \n2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subject matter and details of the processing  of Personal Data; \n(b) Alaio is a processor (service provider under the California Privacy Rights Act of 2020  and any other applicable federal and state USA privacy legislation) of Personal Data under  the applicable Data Protection ",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "doc_4e946481-71c7-4f18-be0f-14021f79a897",
+            "charRange": [
+              12865,
+              13537
+            ],
+            "structuralPath": "clause-4.1"
+          },
+          "quotedText": "4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to  correct, amend, block or delete Personal Data, as required by Data Protection Legislation,  Alaio will (taking into account the nature of the processing of Personal Data and, if  applicable, Article 11 of the GDPR) assist Administrator in fulfilling any obligation of  Administrator to respond to requests by data subjects, including (if applicable)  Administrator´s obligation to respond to requests for ",
+          "sourceRole": "target"
+        }
+      ],
+      "polarity": "neutral_fact",
+      "findingId": "f_extract_wu-extract",
+      "visibility": "internal",
+      "workUnitId": "wu-extract",
+      "taxonomyVersion": "1.1.0",
+      "partyPerspective": "unspecified"
+    },
+    {
+      "kind": "compliance",
+      "claim": "Specified by incorporation of Appendix 1 to the Agreement — To verify the actual stated subject matter and details of the processing of Personal Data.",
+      "status": "insufficient_evidence",
+      "skillId": "_global",
+      "category": "gdpr.art28.3.chapeau.mandatory_processing_agreement_particulars_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "doc_4e946481-71c7-4f18-be0f-14021f79a897",
+            "charRange": [
+              8449,
+              12590
+            ],
+            "structuralPath": "clause-2"
+          },
+          "quotedText": "Appendix 1 to the Agreement describes the subject matter and details of the processing of Personal Data;",
+          "sourceRole": "target"
+        }
+      ],
+      "polarity": "compliance_met",
+      "findingId": "f_verify_cd_gdpr.article28.subject_matter_wu-pkg-eval-gdpr.art28.particulars",
+      "judgement": {
+        "nli": "not_mentioned",
+        "compliance": "partial",
+        "materiality": "medium",
+        "evidenceState": "incorporated",
+        "referenceBinding": "binding",
+        "evidenceConfidence": "medium",
+        "recommendationKind": "obtain"
+      },
+      "packageId": "gdpr.art28.particulars",
+      "dependency": {
+        "document": "Appendix 1 to the Agreement",
+        "whyNeeded": "To verify the actual stated subject matter and details of the processing of Personal Data."
+      },
+      "visibility": "user_facing",
+      "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+      "requirementId": "gdpr.article28.subject_matter",
+      "gapDescription": "States that Appendix 1 describes the subject matter, making it an unfulfilled external dependency rather than inline proof.",
+      "ruleSourceTier": "B",
+      "taxonomyVersion": "1.1.0",
+      "partyPerspective": "unspecified",
+      "applicabilityScope": {
+        "conditions": [
+          "PROCESSING SUBJECT MATTER"
+        ]
+      },
+      "requestRequirementIds": [
+        "gdpr.article28.subject_matter"
+      ],
+      "verifiedByProposition": true
+    },
+    {
+      "gap": "Defines the post-termination end boundary, but does not explicitly state the active duration of the processing prior to Term expiry.",
+      "kind": "compliance",
+      "claim": "Establishes a 90-day post-termination deletion timeline as a binding end boundary for processing following Term expiry.",
+      "status": "present",
+      "skillId": "_global",
+      "category": "gdpr.art28.3.chapeau.mandatory_processing_agreement_particulars_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "doc_4e946481-71c7-4f18-be0f-14021f79a897",
+            "charRange": [
+              11037,
+              12017
+            ],
+            "structuralPath": "clause-2.5"
+          },
+          "quotedText": "On expiry of the Term, Administrator instructs Alaio to delete all Personal Data (including existing copies) from Bitrix24 systems in accordance with applicable law. Alaio will comply with this instruction as soon as reasonably practicable and within a maximum period of 90 days, unless any applicable law requires storage.",
+          "sourceRole": "target"
+        }
+      ],
+      "polarity": "compliance_met",
+      "findingId": "f_verify_partial_gdpr.article28.duration_wu-pkg-eval-gdpr.art28.particulars",
+      "judgement": {
+        "nli": "entailed",
+        "compliance": "partial",
+        "materiality": "medium",
+        "evidenceState": "direct",
+        "draftingQuality": "could_be_clearer",
+        "referenceBinding": "none",
+        "evidenceConfidence": "medium",
+        "recommendationKind": "clarify"
+      },
+      "packageId": "gdpr.art28.particulars",
+      "visibility": "user_facing",
+      "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+      "remediation": "Add an explicit statement defining the active processing duration (e.g., 'for the duration of the main Agreement') prior to the post-termination deletion phase.",
+      "requirementId": "gdpr.article28.duration",
+      "gapDescription": "Defines the post-termination end boundary, but does not explicitly state the active duration of the processing prior to Term expiry.",
+      "ruleSourceTier": "B",
+      "taxonomyVersion": "1.1.0",
+      "partyPerspective": "unspecified",
+      "applicabilityScope": {
+        "conditions": [
+          "APPLICATION OF THIS DPA"
+        ]
+      },
+      "requestRequirementIds": [
+        "gdpr.article28.duration"
+      ],
+      "verifiedByProposition": true
+    },
+    {
+      "gap": "The passage specifies purpose but relies on Appendix 1 to set out the nature and details of processing, which is not provided.",
+      "kind": "compliance",
+      "claim": "Establishes the processing purpose ('to provide the Processor Services and any related technical support') and notes that processing details are in Appendix 1.",
+      "status": "present",
+      "skillId": "_global",
+      "category": "gdpr.art28.3.chapeau.mandatory_processing_agreement_particulars_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "doc_4e946481-71c7-4f18-be0f-14021f79a897",
+            "charRange": [
+              8449,
+              12590
+            ],
+            "structuralPath": "clause-2"
+          },
+          "quotedText": "2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subject matter and details of the processing of Personal Data;",
+          "sourceRole": "target"
+        }
+      ],
+      "polarity": "compliance_met",
+      "findingId": "f_verify_partial_gdpr.article28.nature_and_purpose_wu-pkg-eval-gdpr.art28.particulars",
+      "judgement": {
+        "nli": "entailed",
+        "compliance": "partial",
+        "materiality": "medium",
+        "evidenceState": "direct",
+        "draftingQuality": "could_be_clearer",
+        "referenceBinding": "none",
+        "evidenceConfidence": "medium",
+        "recommendationKind": "clarify"
+      },
+      "packageId": "gdpr.art28.particulars",
+      "visibility": "user_facing",
+      "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+      "remediation": "Provide Appendix 1 detailing the specific data processing activities and operations (nature).",
+      "requirementId": "gdpr.article28.nature_and_purpose",
+      "gapDescription": "The passage specifies purpose but relies on Appendix 1 to set out the nature and details of processing, which is not provided.",
+      "ruleSourceTier": "B",
+      "structuralNote": "The complete subject matter and nature details are incorporated by reference via Appendix 1 rather than set out in full in the body text of the clause.",
+      "taxonomyVersion": "1.1.0",
+      "partyPerspective": "unspecified",
+      "applicabilityScope": {
+        "conditions": [
+          "PROCESSING SUBJECT MATTER"
+        ]
+      },
+      "requestRequirementIds": [
+        "gdpr.article28.nature_and_purpose"
+      ],
+      "verifiedByProposition": true
+    },
+    {
+      "kind": "compliance",
+      "claim": "Specified by incorporation of Appendix 1 — To verify if Appendix 1 actually sets out the categories of data subjects.",
+      "status": "insufficient_evidence",
+      "skillId": "_global",
+      "category": "gdpr.art28.3.chapeau.mandatory_processing_agreement_particulars_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "doc_4e946481-71c7-4f18-be0f-14021f79a897",
+            "charRange": [
+              8449,
+              12590
+            ],
+            "structuralPath": "clause-2"
+          },
+          "quotedText": "Appendix 1 to the Agreement describes the subject matter and details of the processing of Personal Data",
+          "sourceRole": "target"
+        }
+      ],
+      "polarity": "compliance_met",
+      "findingId": "f_verify_cd_gdpr.article28.categories_of_data_subjects_wu-pkg-eval-gdpr.art28.particulars",
+      "judgement": {
+        "nli": "not_mentioned",
+        "compliance": "partial",
+        "materiality": "medium",
+        "evidenceState": "incorporated",
+        "referenceBinding": "binding",
+        "evidenceConfidence": "medium",
+        "recommendationKind": "obtain"
+      },
+      "packageId": "gdpr.art28.particulars",
+      "dependency": {
+        "document": "Appendix 1",
+        "whyNeeded": "To verify if Appendix 1 actually sets out the categories of data subjects."
+      },
+      "visibility": "user_facing",
+      "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+      "requirementId": "gdpr.article28.categories_of_data_subjects",
+      "gapDescription": "Refers to Appendix 1 for processing details generally rather than providing the list of categories of data subjects or an explicit reference showing where data subjects are listed.",
+      "ruleSourceTier": "B",
+      "taxonomyVersion": "1.1.0",
+      "partyPerspective": "unspecified",
+      "applicabilityScope": {
+        "conditions": [
+          "PROCESSING SUBJECT MATTER"
+        ]
+      },
+      "requestRequirementIds": [
+        "gdpr.article28.categories_of_data_subjects"
+      ],
+      "verifiedByProposition": true
+    },
+    {
+      "kind": "compliance",
+      "claim": "Explicitly sets out the controller's (Administrator's) obligations regarding processing, instructions, and data legality.",
+      "status": "present",
+      "skillId": "_global",
+      "category": "gdpr.art28.3.chapeau.mandatory_processing_agreement_particulars_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "doc_4e946481-71c7-4f18-be0f-14021f79a897",
+            "charRange": [
+              8534,
+              9870
+            ],
+            "structuralPath": "clause-2.1.1"
+          },
+          "quotedText": "Administrator shall, in its use or receipt of the Services, Process Personal Data in accordance with the requirements of Data Protection Legislation and will ensure that its instructions for the Processing of Personal Data shall comply with Data Protection Legislation. Administrator shall have sole responsibility for the accuracy, quality, and legality of Personal Data and the means by which Administrator acquired Personal Data.",
+          "sourceRole": "target"
+        }
+      ],
+      "polarity": "compliance_met",
+      "findingId": "f_verify_cov_gdpr.article28.controller_obligations_and_rights_wu-pkg-eval-gdpr.art28.particulars",
+      "judgement": {
+        "nli": "entailed",
+        "compliance": "present",
+        "materiality": "low",
+        "evidenceState": "direct",
+        "draftingQuality": "clean",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "recommendationKind": "none"
+      },
+      "packageId": "gdpr.art28.particulars",
+      "visibility": "user_facing",
+      "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+      "establishedBy": "The passage establishes the controller's obligation to process personal data and give processing instructions in compliance with Data Protection Legislation, as well as its sole responsibility for data accuracy, quality, and lawful acquisition.",
+      "requirementId": "gdpr.article28.controller_obligations_and_rights",
+      "ruleSourceTier": "B",
+      "taxonomyVersion": "1.1.0",
+      "partyPerspective": "unspecified",
+      "applicabilityScope": {
+        "conditions": [
+          "APPLICATION OF THIS DPA; relationship scope: controller_to_processor"
+        ]
+      },
+      "requestRequirementIds": [
+        "gdpr.article28.controller_rights_obligations"
+      ],
+      "verifiedByProposition": true
+    },
+    {
+      "kind": "compliance",
+      "claim": "Verification did not complete for every candidate, so no legal conclusion was reached for this requirement.",
+      "status": "insufficient_evidence",
+      "skillId": "_global",
+      "category": "gdpr.art28.3.chapeau.mandatory_processing_agreement_particulars_gap",
+      "evidence": [],
+      "polarity": "compliance_met",
+      "findingId": "f_verify_cd_gdpr.article28.categories_of_data_wu-pkg-eval-gdpr.art28.particulars",
+      "judgement": {
+        "nli": "not_mentioned",
+        "compliance": "insufficient_evidence",
+        "materiality": "medium",
+        "evidenceState": "unavailable",
+        "referenceBinding": "none",
+        "evidenceConfidence": "low",
+        "recommendationKind": "obtain"
+      },
+      "packageId": "gdpr.art28.particulars",
+      "visibility": "user_facing",
+      "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+      "requirementId": "gdpr.article28.categories_of_data",
+      "ruleSourceTier": "B",
+      "taxonomyVersion": "1.1.0",
+      "partyPerspective": "unspecified",
+      "analysisExecution": {
+        "detail": "The verifier returned an incomplete candidate set.",
+        "status": "failed"
+      },
+      "requestRequirementIds": [
+        "gdpr.article28.categories_of_data",
+        "gdpr.article28.categories_of_data_subjects"
+      ],
+      "verifiedByProposition": true
+    },
+    {
+      "kind": "compliance",
+      "claim": "The quote explicitly restricts processing to the Administrator's instructions, permitting processing 'only' under listed categories including terms documented in the DPA and further written instructions.",
+      "status": "present",
+      "skillId": "_global",
+      "category": "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "doc_4e946481-71c7-4f18-be0f-14021f79a897",
+            "charRange": [
+              10374,
+              11035
+            ],
+            "structuralPath": "clause-2.4"
+          },
+          "quotedText": "Administrator instructs Alaio to process Personal Data only in accordance with applicable law: (a) to provide the Processor Services and any related technical support; (b) as further specified via Administrator´s use of the Processor Services (including in the settings and other functionality of the Processor Services) and any related technical support; (c) as documented in this Data Processing Agreement; and (d) as further documented in any other written instructions given by Administrator and acknowledged by Bitrix24 as constituting instructions for purposes of this Data Processing Agreement.",
+          "sourceRole": "target"
+        }
+      ],
+      "polarity": "compliance_met",
+      "findingId": "f_verify_cov_gdpr.article28.3a.documented_instructions_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+      "judgement": {
+        "nli": "entailed",
+        "compliance": "present",
+        "materiality": "low",
+        "evidenceState": "direct",
+        "draftingQuality": "clean",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "recommendationKind": "none"
+      },
+      "packageId": "gdpr.art28.3.mandatory_clauses",
+      "visibility": "user_facing",
+      "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+      "establishedBy": "Establishes that the processor processes personal data only pursuant to documented instructions from the controller.",
+      "requirementId": "gdpr.article28.3a.documented_instructions",
+      "ruleSourceTier": "B",
+      "taxonomyVersion": "1.1.0",
+      "partyPerspective": "unspecified",
+      "applicabilityScope": {
+        "parties": [
+          "Administrator",
+          "Alaio"
+        ],
+        "conditions": [
+          "APPLICATION OF THIS DPA"
+        ]
+      },
+      "requestRequirementIds": [
+        "gdpr.article28_3a.documented_instructions",
+        "gdpr.article28_3g.data_deletion_or_return"
+      ],
+      "verifiedByProposition": true
+    },
+    {
+      "kind": "compliance",
+      "claim": "The quote expressly confirms that all persons authorized to process personal data are committed to contractual or statutory confidentiality.",
+      "status": "present",
+      "skillId": "_global",
+      "category": "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "doc_4e946481-71c7-4f18-be0f-14021f79a897",
+            "charRange": [
+              15829,
+              16289
+            ],
+            "structuralPath": "clause-6.3"
+          },
+          "quotedText": "ensuring that all persons authorised to process Personal Data have committed themselves to confidentiality or are under an appropriate statutory obligation of confidentiality as described in the Appendix 2 to this DPA.",
+          "sourceRole": "target"
+        }
+      ],
+      "polarity": "compliance_met",
+      "findingId": "f_verify_cov_gdpr.article28.3b.confidentiality_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+      "judgement": {
+        "nli": "entailed",
+        "compliance": "present",
+        "materiality": "low",
+        "evidenceState": "direct",
+        "draftingQuality": "clean",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "recommendationKind": "none"
+      },
+      "packageId": "gdpr.art28.3.mandatory_clauses",
+      "visibility": "user_facing",
+      "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+      "establishedBy": "Alaio ensures that all persons authorized to process personal data have committed themselves to confidentiality or are under an appropriate statutory obligation of confidentiality.",
+      "requirementId": "gdpr.article28.3b.confidentiality",
+      "ruleSourceTier": "B",
+      "taxonomyVersion": "1.1.0",
+      "partyPerspective": "unspecified",
+      "applicabilityScope": {
+        "parties": [
+          "Alaio"
+        ],
+        "conditions": [
+          "APPLICATION OF THIS DPA"
+        ]
+      },
+      "requestRequirementIds": [
+        "gdpr.article28_3b.confidentiality",
+        "gdpr.article28_3g.data_deletion_or_return"
+      ],
+      "verifiedByProposition": true
+    },
+    {
+      "kind": "compliance",
+      "claim": "Expressly obligates implementation of technical, physical, and organisational measures and details specific categories including ongoing confidentiality, availability, resilience, timely restoration, and testing of effectiveness.",
+      "status": "present",
+      "skillId": "_global",
+      "category": "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "doc_4e946481-71c7-4f18-be0f-14021f79a897",
+            "charRange": [
+              14963,
+              15827
+            ],
+            "structuralPath": "clause-6.2"
+          },
+          "quotedText": "Alaio will implement and maintain technical, physical and organisational measures to protect confidentiality and integrity of Personal Data against accidental or unlawful destruction, loss, alteration, unauthorised disclosure or access as described in the Appendix 2 to this DPA (the “Security Measures”). As described in the Appendix 2 to this DPA, the Security Measures include measures: (a) to help ensure the ongoing confidentiality, integrity, availability and resilience of Bitrix24 systems and services; (b) to help restore timely access to personal data following an incident; and (c) for regular testing of effectiveness.",
+          "sourceRole": "target"
+        }
+      ],
+      "polarity": "compliance_met",
+      "findingId": "f_verify_cov_gdpr.article28.3c.security_measures_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+      "judgement": {
+        "nli": "entailed",
+        "compliance": "present",
+        "materiality": "low",
+        "evidenceState": "direct",
+        "draftingQuality": "clean",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "recommendationKind": "none"
+      },
+      "packageId": "gdpr.art28.3.mandatory_clauses",
+      "visibility": "user_facing",
+      "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+      "establishedBy": "Establishes that the processor must implement and maintain technical, physical, and organisational security measures covering confidentiality, resilience, restoration, and regular testing.",
+      "requirementId": "gdpr.article28.3c.security_measures",
+      "ruleSourceTier": "B",
+      "taxonomyVersion": "1.1.0",
+      "partyPerspective": "unspecified",
+      "applicabilityScope": {
+        "conditions": [
+          "APPLICATION OF THIS DPA"
+        ]
+      },
+      "requestRequirementIds": [
+        "gdpr.article28_3c.security_measures",
+        "gdpr.article28_3g.data_deletion_or_return"
+      ],
+      "verifiedByProposition": true
+    },
+    {
+      "kind": "compliance",
+      "claim": "States that Alaio will assist Administrator in responding to data subjects' requests to exercise their rights under Chapter III GDPR by providing service functionality.",
+      "status": "present",
+      "skillId": "_global",
+      "category": "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "doc_4e946481-71c7-4f18-be0f-14021f79a897",
+            "charRange": [
+              12865,
+              13537
+            ],
+            "structuralPath": "clause-4.1"
+          },
+          "quotedText": "Alaio will (taking into account the nature of the processing of Personal Data and, if applicable, Article 11 of the GDPR) assist Administrator in fulfilling any obligation of Administrator to respond to requests by data subjects, including (if applicable) Administrator´s obligation to respond to requests for exercising the data subject’s rights laid down in Chapter III of the GDPR and other Data Protection Legislation, by providing the functionality of the Processor Services;",
+          "sourceRole": "target"
+        }
+      ],
+      "polarity": "compliance_met",
+      "findingId": "f_verify_cov_gdpr.article28.3e.data_subject_rights_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+      "judgement": {
+        "nli": "entailed",
+        "compliance": "present",
+        "materiality": "low",
+        "evidenceState": "direct",
+        "draftingQuality": "clean",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "recommendationKind": "none"
+      },
+      "packageId": "gdpr.art28.3.mandatory_clauses",
+      "visibility": "user_facing",
+      "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+      "establishedBy": "Establishes that the processor (Alaio) will assist the controller in fulfilling obligations to respond to data subject rights requests under Chapter III GDPR by providing the functionality of the Processor Services.",
+      "requirementId": "gdpr.article28.3e.data_subject_rights",
+      "ruleSourceTier": "B",
+      "taxonomyVersion": "1.1.0",
+      "partyPerspective": "unspecified",
+      "applicabilityScope": {
+        "parties": [
+          "Alaio",
+          "Administrator"
+        ],
+        "conditions": [
+          "APPLICATION OF THIS DPA"
+        ],
+        "timePeriods": []
+      },
+      "requestRequirementIds": [
+        "gdpr.article28_3e.data_subject_rights_assistance",
+        "gdpr.article28_3g.data_deletion_or_return"
+      ],
+      "verifiedByProposition": true
+    },
+    {
+      "kind": "compliance",
+      "claim": "requires advance notification of new subprocessors and explicitly grants the administrator the right to object in writing.",
+      "status": "present",
+      "skillId": "_global",
+      "category": "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "doc_4e946481-71c7-4f18-be0f-14021f79a897",
+            "charRange": [
+              18047,
+              19611
+            ],
+            "structuralPath": "clause-7.4"
+          },
+          "quotedText": "When any new Sub-processor is engaged during the Term, and if the GDPR applies to the processing of Personal Data, Alaio will, at least 10 days before the new Sub-processor processes any Personal Data, inform Administrator of the engagement (including the name and location of the relevant sub-processor and the activities it will perform) by sending an email to the Notification Email Address. Administrator may object to any new Sub-processor by notifying Alaio promptly in writing within five (5) business days after receipt of Alaio notice.",
+          "sourceRole": "target"
+        }
+      ],
+      "polarity": "compliance_met",
+      "findingId": "f_verify_cov_gdpr.article28.3d.subprocessors_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+      "judgement": {
+        "nli": "entailed",
+        "compliance": "partial",
+        "materiality": "medium",
+        "evidenceState": "direct",
+        "draftingQuality": "could_be_clearer",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "recommendationKind": "clarify"
+      },
+      "packageId": "gdpr.art28.3.mandatory_clauses",
+      "visibility": "user_facing",
+      "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+      "remediation": "Extend the advance notification and objection mechanism to all processing under the DPA regardless of GDPR applicability.",
+      "establishedBy": "Establishes a general authorization framework with prior notice and an explicit right for the controller/administrator to object to new sub-processors under the GDPR.",
+      "requirementId": "gdpr.article28.3d.subprocessors",
+      "gapDescription": "Applies specifically when the GDPR applies to the processing of personal data, rather than being an unconditional requirement across all jurisdictions/processing.",
+      "ruleSourceTier": "B",
+      "structuralNote": "This clause represents the general authorization mechanism when read in conjunction with the initial authorization in clause 7.1.",
+      "taxonomyVersion": "1.1.0",
+      "partyPerspective": "unspecified",
+      "applicabilityScope": {
+        "conditions": [
+          "APPLICATION OF THIS DPA"
+        ]
+      },
+      "requestRequirementIds": [
+        "gdpr.article28_3d.subprocessors",
+        "gdpr.article28_3g.data_deletion_or_return"
+      ],
+      "verifiedByProposition": true
+    },
+    {
+      "kind": "compliance",
+      "claim": "Explicitly commits the processor to assist the controller with its security and breach obligations under Articles 32-34.",
+      "status": "present",
+      "skillId": "_global",
+      "category": "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "doc_4e946481-71c7-4f18-be0f-14021f79a897",
+            "charRange": [
+              16291,
+              16832
+            ],
+            "structuralPath": "clause-6.4"
+          },
+          "quotedText": "Alaio will assist in ensuring compliance with any obligations of Administrator in respect of security of personal data and personal data breaches, including (if applicable) Administrator’s obligations pursuant to Articles 32 to 34 (inclusive) of the GDPR, by: (a) implementing and maintaining the Security Measures in accordance with the Appendix 2 to this DPA;",
+          "sourceRole": "target"
+        }
+      ],
+      "polarity": "compliance_met",
+      "findingId": "f_verify_cov_gdpr.article28.3f.controller_assistance_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+      "judgement": {
+        "nli": "entailed",
+        "compliance": "partial",
+        "materiality": "medium",
+        "evidenceState": "direct",
+        "draftingQuality": "could_be_clearer",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "recommendationKind": "clarify"
+      },
+      "packageId": "gdpr.art28.3.mandatory_clauses",
+      "visibility": "user_facing",
+      "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+      "remediation": "Combine with clause 10 to establish assistance across all Articles 32-36.",
+      "establishedBy": "Establishes that the processor assists the controller with security of processing and personal data breach obligations (Articles 32-34).",
+      "requirementId": "gdpr.article28.3f.controller_assistance",
+      "gapDescription": "Does not cover DPIA and prior consultation obligations under Articles 35-36 (which are covered in clause 10 / S30).",
+      "ruleSourceTier": "B",
+      "structuralNote": "Security/breach assistance and DPIA assistance are split across separate clauses in the DPA.",
+      "taxonomyVersion": "1.1.0",
+      "partyPerspective": "unspecified",
+      "applicabilityScope": {
+        "conditions": [
+          "APPLICATION OF THIS DPA"
+        ]
+      },
+      "requestRequirementIds": [
+        "gdpr.article28_3g.data_deletion_or_return",
+        "gdpr.article28_3f.security_and_breach_assistance"
+      ],
+      "verifiedByProposition": true
+    },
+    {
+      "kind": "compliance",
+      "claim": "Clause 2.5 mandates deletion of all Personal Data including existing copies on term expiry unless applicable law requires storage, satisfying the core end-of-service processing mandate but omitting the return choice option.",
+      "status": "present",
+      "skillId": "_global",
+      "category": "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "doc_4e946481-71c7-4f18-be0f-14021f79a897",
+            "charRange": [
+              11037,
+              12017
+            ],
+            "structuralPath": "clause-2.5"
+          },
+          "quotedText": "On expiry of the Term, Administrator instructs Alaio to delete all Personal Data (including existing copies) from Bitrix24 systems in accordance with applicable law. Alaio will comply with this instruction as soon as reasonably practicable and within a maximum period of 90 days, unless any applicable law requires storage.",
+          "sourceRole": "target"
+        }
+      ],
+      "polarity": "compliance_met",
+      "findingId": "f_verify_cov_gdpr.article28.3g.deletion_or_return_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+      "judgement": {
+        "nli": "entailed",
+        "compliance": "partial",
+        "materiality": "medium",
+        "evidenceState": "direct",
+        "draftingQuality": "could_be_clearer",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "recommendationKind": "clarify"
+      },
+      "packageId": "gdpr.art28.3.mandatory_clauses",
+      "visibility": "user_facing",
+      "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+      "remediation": "Add express terms providing the Administrator with the option to choose between the return or deletion of personal data upon term expiry.",
+      "establishedBy": "The passage establishes an automatic instruction upon term expiry to delete all Personal Data (including existing copies) subject to legal storage exceptions.",
+      "requirementId": "gdpr.article28.3g.deletion_or_return",
+      "gapDescription": "The passage mandates deletion only and does not provide an alternative option for the controller (Administrator) to elect the return of personal data.",
+      "ruleSourceTier": "B",
+      "taxonomyVersion": "1.1.0",
+      "partyPerspective": "unspecified",
+      "applicabilityScope": {
+        "conditions": [
+          "APPLICATION OF THIS DPA"
+        ]
+      },
+      "requestRequirementIds": [
+        "gdpr.article28_3g.data_deletion_or_return"
+      ],
+      "verifiedByProposition": true
+    },
+    {
+      "kind": "compliance",
+      "claim": "The clause explicitly obligates Alaio to make available compliance information to the Administrator or its auditor and allows for on-site inspections.",
+      "status": "present",
+      "skillId": "_global",
+      "category": "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "doc_4e946481-71c7-4f18-be0f-14021f79a897",
+            "charRange": [
+              21167,
+              22546
+            ],
+            "structuralPath": "clause-9.2"
+          },
+          "quotedText": "Alaio shall make available to User that is not a competitor of Alaio (or Administrator´s independent, third-party auditor that is not a competitor of Bitrix24) information regarding Alaio compliance with the obligations set forth in this DPA and the security measures as described in the Appendix 2 to this DPA. Administrator may contact Alaio to request an on-site inspection of the architecture, systems and procedures relevant to the protection of Personal Data at locations where Personal Data is stored.",
+          "sourceRole": "target"
+        }
+      ],
+      "polarity": "compliance_met",
+      "findingId": "f_verify_cov_gdpr.article28.3h.audits_and_inspections_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+      "judgement": {
+        "nli": "entailed",
+        "compliance": "present",
+        "materiality": "low",
+        "evidenceState": "direct",
+        "draftingQuality": "clean",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "recommendationKind": "none"
+      },
+      "packageId": "gdpr.art28.3.mandatory_clauses",
+      "visibility": "user_facing",
+      "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+      "establishedBy": "Establishes that the processor makes information available to demonstrate compliance and permits on-site audits/inspections by the controller or its auditor.",
+      "requirementId": "gdpr.article28.3h.audits_and_inspections",
+      "ruleSourceTier": "B",
+      "structuralNote": "Imposes a condition that the auditor/User cannot be a competitor.",
+      "taxonomyVersion": "1.1.0",
+      "partyPerspective": "unspecified",
+      "applicabilityScope": {
+        "conditions": [
+          "APPLICATION OF THIS DPA"
+        ]
+      },
+      "requestRequirementIds": [
+        "gdpr.article28_3g.data_deletion_or_return",
+        "gdpr.article28_3h.audits_and_inspections"
+      ],
+      "verifiedByProposition": true
+    },
+    {
+      "kind": "compliance",
+      "claim": "Explicitly requires imposing Article 28(3) data protection obligations on the Sub-processor and entering into a written agreement containing obligations not less protective than those in the DPA.",
+      "status": "present",
+      "skillId": "_global",
+      "category": "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "doc_4e946481-71c7-4f18-be0f-14021f79a897",
+            "charRange": [
+              17132,
+              18045
+            ],
+            "structuralPath": "clause-7.2"
+          },
+          "quotedText": "(ii) if the GDPR applies to the processing of Personal Data, the data protection obligations set out in Article 28(3) of the GDPR are imposed on the Sub-processor; (b) Alaio have entered into a written agreement with each Sub-processor containing data protection obligations not less protective than those in this DPA with respect to the protection of Personal Data to the extent applicable to the nature of the Services provided by such Sub-processor;",
+          "sourceRole": "target"
+        }
+      ],
+      "polarity": "compliance_met",
+      "findingId": "f_verify_cov_gdpr.article28.4.subprocessor_flow_down_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+      "judgement": {
+        "nli": "entailed",
+        "compliance": "present",
+        "materiality": "low",
+        "evidenceState": "direct",
+        "draftingQuality": "clean",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "recommendationKind": "none"
+      },
+      "packageId": "gdpr.art28.3.mandatory_clauses",
+      "visibility": "user_facing",
+      "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+      "establishedBy": "Alaio must ensure by written contract that Article 28(3) obligations are imposed on the Sub-processor and that data protection obligations are not less protective than those in the DPA.",
+      "requirementId": "gdpr.article28.4.subprocessor_flow_down",
+      "ruleSourceTier": "B",
+      "structuralNote": "Clause 7.2 combines standard contract terms, Article 28(3) references, and subprocessor liability in a single section.",
+      "taxonomyVersion": "1.1.0",
+      "partyPerspective": "unspecified",
+      "applicabilityScope": {
+        "conditions": [
+          "APPLICATION OF THIS DPA"
+        ]
+      },
+      "requestRequirementIds": [
+        "gdpr.article28_3g.data_deletion_or_return",
+        "gdpr.article28_4.subprocessor_flowdown"
+      ],
+      "verifiedByProposition": true
+    },
+    {
+      "kind": "summary_point",
+      "claim": "Rendered memo for skill(s) _global, doc-types/dpa, regimes/data-protection/gdpr, regimes/data-protection/international-transfers with 16 prior findings.",
+      "status": "present",
+      "skillId": "_global",
+      "category": "other_known_risk",
+      "evidence": [],
+      "polarity": "neutral_fact",
+      "findingId": "f_render_wu-render",
+      "visibility": "internal",
+      "workUnitId": "wu-render",
+      "taxonomyVersion": "1.1.0",
+      "partyPerspective": "unspecified"
+    }
+  ],
+  "renderedOutput": "## Requirements at a glance\n| Requirement | Status | Evidence | Finding | Action |\n| :--- | :--- | :--- | :--- | :--- |\n| Specify the subject matter of processing. | **⚠️ Partially covered - details in schedule** | cl. 2 - Appendix 1 to the Agreement describes the subject matter and details of the processing of Personal Data; | Specified by incorporation of Appendix 1 to the Agreement — To verify the actual stated subject matter and details of the processing of Personal Data.… | Obtain the referenced schedule or materials. |\n| Specify the duration of processing. | **⚠️ Partially covered** | cl. 2.5 - On expiry of the Term, Administrator instructs Alaio to delete all Personal Data (including existing copies) from Bitrix24 systems in accordance with applicable law. Alaio will comply with this instruction as soon as reasonably practicable and within a maximum period of 90 days, unless any applicable law requires storage. | Establishes a 90-day post-termination deletion timeline as a binding end boundary for processing following Term expiry. Defines the post-termination end boundary, but does not explicitly state the active duration of the processing prior to Term expiry. | Add an explicit statement defining the active processing duration (e.g., 'for the duration of the main Agreement') prior to the post-termination deletion phase. |\n| Specify the nature and purpose of processing. | **⚠️ Partially covered** | cl. 2 - 2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subject matter and details of the processing of Personal Data; | Establishes the processing purpose ('to provide the Processor Services and any related technical support') and notes that processing details are in Appendix 1.… | Provide Appendix 1 detailing the specific data processing activities and operations (nature). |\n| Art 28(3) D Subprocessors | **⚠️ Partially covered** | cl. 7.4 - When any new Sub-processor is engaged during the Term, and if the GDPR applies to the processing of Personal Data, Alaio will, at least 10 days before the new Sub-processor processes any Personal Data, inform Administrator of the engagement (including the name and location of the relevant sub-processor and the activities it will perform) [excerpt] | Establishes a general authorization framework with prior notice and an explicit right for the controller/administrator to object to new sub-processors under the GDPR.… | Extend the advance notification and objection mechanism to all processing under the DPA regardless of GDPR applicability. |\n| At controller's choice, delete or return all personal data after end of services (Article 28(3)(g)). | **⚠️ Partially covered** | cl. 2.4 - Administrator instructs Alaio to process Personal Data only in accordance with applicable law: (a) to provide the Processor Services and any related technical support; (b) as further specified via Administrator´s use of the Processor Services (including in the settings and other functionality of the Processor Services) and any related [excerpt] | Establishes that the processor processes personal data only pursuant to documented instructions from the controller. Applies specifically when the GDPR applies to the processing of personal data, rather than being an unconditional requirement across all… | Extend the advance notification and objection mechanism to all processing under the DPA regardless of GDPR applicability. |\n| Art 28(3)(f) Security Assistance | **⚠️ Partially covered** | cl. 6.4 - Alaio will assist in ensuring compliance with any obligations of Administrator in respect of security of personal data and personal data breaches, including (if applicable) Administrator’s obligations pursuant to Articles 32 to 34 (inclusive) of the GDPR, by: [excerpt] | Establishes that the processor assists the controller with security of processing and personal data breach obligations (Articles 32-34). Does not cover DPIA and prior consultation obligations under Articles 35-36 (which are covered in clause 10 / S30). | Combine with clause 10 to establish assistance across all Articles 32-36. |\n| Art 28(3)(g) Deletion Return | **⚠️ Partially covered** | cl. 2.5 - On expiry of the Term, Administrator instructs Alaio to delete all Personal Data (including existing copies) from Bitrix24 systems in accordance with applicable law. Alaio will comply with this instruction as soon as reasonably practicable and within a maximum period of 90 days, unless any applicable law requires storage. | The passage establishes an automatic instruction upon term expiry to delete all Personal Data (including existing copies) subject to legal storage exceptions.… | Add express terms providing the Administrator with the option to choose between the return or deletion of personal data upon term expiry. |\n| Specify the categories of personal data. | **➖ Analysis incomplete** | Verification did not complete; no document conclusion was reached. | Verification did not complete for every candidate, so no legal conclusion was reached for this requirement. | Retry this requirement; do not treat this as a contractual gap. |\n| Specify the categories of data subjects. | **➖ Analysis incomplete** | Verification did not complete; no document conclusion was reached. | Specified by incorporation of Appendix 1 — To verify if Appendix 1 actually sets out the categories of data subjects. Refers to Appendix 1 for processing details generally rather than providing the list of categories of data subjects or an explicit reference… | Retry this requirement; do not treat this as a contractual gap. |\n| Art 28 Controller Obligations And Rights | **✅ Strong** | cl. 2.1.1 - Administrator shall, in its use or receipt of the Services, Process Personal Data in accordance with the requirements of Data Protection Legislation and will ensure that its instructions for the Processing of Personal Data shall comply with Data Protection Legislation. [excerpt] | The passage establishes the controller's obligation to process personal data and give processing instructions in compliance with Data Protection Legislation, as well as its sole responsibility for data accuracy, quality, and lawful acquisition. | No action needed. |\n| Art 28(3) A Documented Instructions | **✅ Strong** | cl. 2.4 - Administrator instructs Alaio to process Personal Data only in accordance with applicable law: (a) to provide the Processor Services and any related technical support; (b) as further specified via Administrator´s use of the Processor Services (including in the settings and other functionality of the Processor Services) and any related [excerpt] | Establishes that the processor processes personal data only pursuant to documented instructions from the controller. | No action needed. |\n| Art 28(3) B Confidentiality | **✅ Strong** | cl. 6.3 - ensuring that all persons authorised to process Personal Data have committed themselves to confidentiality or are under an appropriate statutory obligation of confidentiality as described in the Appendix 2 to this DPA. | Alaio ensures that all persons authorized to process personal data have committed themselves to confidentiality or are under an appropriate statutory obligation of confidentiality. | No action needed. |\n| Art 28(3) C Security Measures | **✅ Strong** | cl. 6.2 - Alaio will implement and maintain technical, physical and organisational measures to protect confidentiality and integrity of Personal Data against accidental or unlawful destruction, loss, alteration, unauthorised disclosure or access as described in the Appendix 2 to this DPA (the “Security Measures”). [excerpt] | Establishes that the processor must implement and maintain technical, physical, and organisational security measures covering confidentiality, resilience, restoration, and regular testing. | No action needed. |\n| Assist controller in responding to data subjects' requests exercising their rights (Article 28(3)(e)). | **✅ Strong** | cl. 4.1 - Alaio will (taking into account the nature of the processing of Personal Data and, if applicable, Article 11 of the GDPR) assist Administrator in fulfilling any obligation of Administrator to respond to requests by data subjects, including (if applicable) Administrator´s obligation to respond to requests for exercising the data subject’s [excerpt] | Establishes that the processor (Alaio) will assist the controller in fulfilling obligations to respond to data subject rights requests under Chapter III GDPR by providing the functionality of the Processor Services. | No action needed. |\n| Art 28(3) H Audits And Inspections | **✅ Strong** | cl. 9.2 - Alaio shall make available to User that is not a competitor of Alaio (or Administrator´s independent, third-party auditor that is not a competitor of Bitrix24) information regarding Alaio compliance with the obligations set forth in this DPA and the security measures as described in the Appendix 2 to this DPA. [excerpt] | Establishes that the processor makes information available to demonstrate compliance and permits on-site audits/inspections by the controller or its auditor. | No action needed. |\n| Flow down identical data protection obligations onto subprocessors (Article 28(4)). | **✅ Strong** | cl. 7.2 - (ii) if the GDPR applies to the processing of Personal Data, the data protection obligations set out in Article 28(3) of the GDPR are imposed on the Sub-processor; (b) Alaio have entered into a written agreement with each Sub-processor containing data protection obligations not less protective than those in this DPA with respect to the [excerpt] | Alaio must ensure by written contract that Article 28(3) obligations are imposed on the Sub-processor and that data protection obligations are not less protective than those in the DPA. | No action needed. |\n| Art 28(3)(e) Dsr Assistance | **✅ Strong** | cl. 4.1 - Alaio will (taking into account the nature of the processing of Personal Data and, if applicable, Article 11 of the GDPR) assist Administrator in fulfilling any obligation of Administrator to respond to requests by data subjects, including (if applicable) Administrator´s obligation to respond to requests for exercising the data subject’s [excerpt] | Establishes that the processor (Alaio) will assist the controller in fulfilling obligations to respond to data subject rights requests under Chapter III GDPR by providing the functionality of the Processor Services. | No action needed. |\n| Art 28(4) Subprocessor Flow Down | **✅ Strong** | cl. 7.2 - (ii) if the GDPR applies to the processing of Personal Data, the data protection obligations set out in Article 28(3) of the GDPR are imposed on the Sub-processor; (b) Alaio have entered into a written agreement with each Sub-processor containing data protection obligations not less protective than those in this DPA with respect to the [excerpt] | Alaio must ensure by written contract that Article 28(3) obligations are imposed on the Sub-processor and that data protection obligations are not less protective than those in the DPA. | No action needed. |\n\n## What needs attention\n- **Specify the subject matter of processing.** - ⚠️ Partially covered - details in schedule: Obtain the referenced schedule or materials.\n- **Specify the duration of processing.** - ⚠️ Partially covered: Add an explicit statement defining the active processing duration (e.g., 'for the duration of the main Agreement') prior to the post-termination deletion phase.\n- **Specify the nature and purpose of processing.** - ⚠️ Partially covered: Provide Appendix 1 detailing the specific data processing activities and operations (nature).\n- **Art 28(3) D Subprocessors** - ⚠️ Partially covered: Extend the advance notification and objection mechanism to all processing under the DPA regardless of GDPR applicability.\n- **At controller's choice, delete or return all personal data after end of services (Article 28(3)(g)).** - ⚠️ Partially covered: Extend the advance notification and objection mechanism to all processing under the DPA regardless of GDPR applicability.\n- **Art 28(3)(f) Security Assistance** - ⚠️ Partially covered: Combine with clause 10 to establish assistance across all Articles 32-36.\n- **Art 28(3)(g) Deletion Return** - ⚠️ Partially covered: Add express terms providing the Administrator with the option to choose between the return or deletion of personal data upon term expiry.\n- **Specify the categories of personal data.** - ➖ Analysis incomplete: Retry this requirement; do not treat this as a contractual gap.\n- **Specify the categories of data subjects.** - ➖ Analysis incomplete: Retry this requirement; do not treat this as a contractual gap.\n\n## Missing materials\n- **Appendix 1 to the Agreement** — To verify the actual stated subject matter and details of the processing of Personal Data.\n- **Appendix 1** — To verify if Appendix 1 actually sets out the categories of data subjects.\n\n## Bottom line\nThe Data Processing Agreement substantially addresses GDPR Article 28 requirements with 9 elements present and 7 partially met, though this assessment remains qualified and incomplete as three requirements rely on unavailable external material and two analysis checks failed to execute. Primary attention must be given to minor drafting gaps surrounding processing duration, subprocessor obligations, security assistance, and data deletion or return terms, alongside retrieving the referenced subject matter schedule. Counsel should re-run the two uncompleted checks for data categories and data subjects, obtain the missing schedule, and amend the identified drafting deficiencies. 2 requirements were not fully analysed because verification did not complete. Retry those checks; do not interpret them as contractual gaps. 1 requirement remains dependent on referenced, truncated, conflicting, or unavailable material. Obtain and review that material before treating the analysis as complete.\n",
+  "conversation": {
+    "turns": [
+      {
+        "id": "turn_f3a60386-1faa-479c-816a-80defe7e62a2",
+        "role": "user",
+        "content": "Perform an evidence-based GDPR Article 28 compliance review of the uploaded Data Processing Agreement.\n\nAnalysis target:\nTreat the uploaded DPA as the target document. Apply the active GDPR Article 28 compliance rule package as the governing standard.\n\nScope:\nAssess whether the agreement adequately specifies:\n\nThe subject matter of processing.\nThe duration of processing.\nThe nature and purpose of processing.\nThe categories of personal data.\nThe categories of data subjects.\nThe controller’s relevant rights and obligations.\nEvery mandatory processor obligation under GDPR Article 28(3)(a)–(h).\nAny mandatory subprocessor flow-down requirement relevant to Article 28.\nEvidence standard:\nFor every requirement, identify the exact clause or provision supporting the conclusion. Include the clause number and a complete, relevant quotation. Do not treat definitions, unrelated provisions, or generic compliance statements as proof of a specific obligation.\n\nAdequacy rules:\nDistinguish between:\n\nPresent and adequate\nPartially covered\nMissing\nDependent on referenced material\nNot applicable\n\nMark a requirement “Present and adequate” only when the available agreement contains sufficient operative language to satisfy that requirement.\n\nMissing-material treatment:\nIf a requirement may be covered by a referenced annex, schedule, SOW, policy, or external document that was not uploaded, do not classify it as definitively missing or satisfied. Mark it as “Dependent on referenced material” and identify the exact missing document.\n\nDo not invent clauses, infer unseen language, or rely on general assumptions about standard DPAs.\n\nOutput:\nProvide:\n\nA concise overall conclusion.\nA requirement matrix with columns:\n   Requirement | Status | Clause and evidence | Analysis | Recommended action\nA separate list of material gaps.\nA list of missing referenced documents.\nA prioritized remediation summary.\nKeep conclusions consistent with the cited evidence and clearly separate contractual gaps from unavailable evidence.",
+        "createdAt": "2026-09-05T05:49:55.713Z"
+      },
+      {
+        "id": "turn_6830eaa9-1eee-4dbf-a56e-f7e5edd352a8",
+        "role": "assistant",
+        "content": "## Requirements at a glance\n| Requirement | Status | Evidence | Finding | Action |\n| :--- | :--- | :--- | :--- | :--- |\n| Specify the subject matter of processing. | **⚠️ Partially covered - details in schedule** | cl. 2 - Appendix 1 to the Agreement describes the subject matter and details of the processing of Personal Data; | Specified by incorporation of Appendix 1 to the Agreement — To verify the actual stated subject matter and details of the processing of Personal Data.… | Obtain the referenced schedule or materials. |\n| Specify the duration of processing. | **⚠️ Partially covered** | cl. 2.5 - On expiry of the Term, Administrator instructs Alaio to delete all Personal Data (including existing copies) from Bitrix24 systems in accordance with applicable law. Alaio will comply with this instruction as soon as reasonably practicable and within a maximum period of 90 days, unless any applicable law requires storage. | Establishes a 90-day post-termination deletion timeline as a binding end boundary for processing following Term expiry. Defines the post-termination end boundary, but does not explicitly state the active duration of the processing prior to Term expiry. | Add an explicit statement defining the active processing duration (e.g., 'for the duration of the main Agreement') prior to the post-termination deletion phase. |\n| Specify the nature and purpose of processing. | **⚠️ Partially covered** | cl. 2 - 2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subject matter and details of the processing of Personal Data; | Establishes the processing purpose ('to provide the Processor Services and any related technical support') and notes that processing details are in Appendix 1.… | Provide Appendix 1 detailing the specific data processing activities and operations (nature). |\n| Art 28(3) D Subprocessors | **⚠️ Partially covered** | cl. 7.4 - When any new Sub-processor is engaged during the Term, and if the GDPR applies to the processing of Personal Data, Alaio will, at least 10 days before the new Sub-processor processes any Personal Data, inform Administrator of the engagement (including the name and location of the relevant sub-processor and the activities it will perform) [excerpt] | Establishes a general authorization framework with prior notice and an explicit right for the controller/administrator to object to new sub-processors under the GDPR.… | Extend the advance notification and objection mechanism to all processing under the DPA regardless of GDPR applicability. |\n| At controller's choice, delete or return all personal data after end of services (Article 28(3)(g)). | **⚠️ Partially covered** | cl. 2.4 - Administrator instructs Alaio to process Personal Data only in accordance with applicable law: (a) to provide the Processor Services and any related technical support; (b) as further specified via Administrator´s use of the Processor Services (including in the settings and other functionality of the Processor Services) and any related [excerpt] | Establishes that the processor processes personal data only pursuant to documented instructions from the controller. Applies specifically when the GDPR applies to the processing of personal data, rather than being an unconditional requirement across all… | Extend the advance notification and objection mechanism to all processing under the DPA regardless of GDPR applicability. |\n| Art 28(3)(f) Security Assistance | **⚠️ Partially covered** | cl. 6.4 - Alaio will assist in ensuring compliance with any obligations of Administrator in respect of security of personal data and personal data breaches, including (if applicable) Administrator’s obligations pursuant to Articles 32 to 34 (inclusive) of the GDPR, by: [excerpt] | Establishes that the processor assists the controller with security of processing and personal data breach obligations (Articles 32-34). Does not cover DPIA and prior consul",
+        "createdAt": "2026-09-05T05:49:55.713Z"
+      }
+    ],
+    "sessionId": "an_d8021da4-5d61-4837-b7db-15dc0296775e",
+    "organizationId": ""
+  },
+  "agent": {
+    "turn": 0,
+    "phase": "DONE",
+    "maxDocs": 10,
+    "docCount": 1,
+    "maxTurns": 1,
+    "askRounds": 0,
+    "entryMode": "CREATE",
+    "tokensUsed": 8157,
+    "tokenBudget": 500000,
+    "maxAskRounds": 2,
+    "openQuestions": [],
+    "stoppedReason": "green_partial",
+    "maxExtractionUnits": 200,
+    "extractionUnitsUsed": 78
+  },
+  "critique": {
+    "fixPlan": [],
+    "isGreen": false,
+    "metrics": {
+      "askCount": 0,
+      "replanCount": 0,
+      "critiqueLiteMs": 4,
+      "deepCritiqueMs": 0,
+      "critiqueLLMCalls": 0,
+      "targetedRedoCount": 0,
+      "deepCritiqueTargets": 0,
+      "deepCritiqueTriggered": false
+    },
+    "release": {
+      "reasons": [],
+      "verdict": "release_with_limitations",
+      "alignment": {
+        "issues": []
+      },
+      "placeholderReport": {
+        "detected": false
+      },
+      "requirementCoverage": {
+        "total": 14,
+        "covered": 12,
+        "entries": [
+          {
+            "state": "covered",
+            "requirementId": "gdpr.article28.subject_matter"
+          },
+          {
+            "state": "covered",
+            "requirementId": "gdpr.article28.duration"
+          },
+          {
+            "state": "covered",
+            "requirementId": "gdpr.article28.nature_and_purpose"
+          },
+          {
+            "state": "cannot_determine",
+            "reason": "Assessment status: cannot_determine",
+            "requirementId": "gdpr.article28.categories_of_data"
+          },
+          {
+            "state": "cannot_determine",
+            "reason": "Assessment status: cannot_determine",
+            "requirementId": "gdpr.article28.categories_of_data_subjects"
+          },
+          {
+            "state": "covered",
+            "requirementId": "gdpr.article28.controller_rights_obligations"
+          },
+          {
+            "state": "covered",
+            "requirementId": "gdpr.article28_3a.documented_instructions"
+          },
+          {
+            "state": "covered",
+            "requirementId": "gdpr.article28_3b.confidentiality"
+          },
+          {
+            "state": "covered",
+            "requirementId": "gdpr.article28_3c.security_measures"
+          },
+          {
+            "state": "covered",
+            "requirementId": "gdpr.article28_3d.subprocessors"
+          },
+          {
+            "state": "covered",
+            "requirementId": "gdpr.article28_3e.data_subject_rights_assistance"
+          },
+          {
+            "state": "covered",
+            "requirementId": "gdpr.article28_3g.data_deletion_or_return"
+          },
+          {
+            "state": "covered",
+            "requirementId": "gdpr.article28_3h.audits_and_inspections"
+          },
+          {
+            "state": "covered",
+            "requirementId": "gdpr.article28_4.subprocessor_flowdown"
+          }
+        ],
+        "notCovered": [],
+        "needsReplan": []
+      }
+    },
+    "results": [
+      {
+        "detail": "classification only, no finding by design",
+        "itemId": "complete:wu-classify",
+        "status": "pass",
+        "workUnitId": "wu-classify",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "complete:wu-extract",
+        "status": "pass",
+        "workUnitId": "wu-extract",
+        "evidenceVerified": true
+      },
+      {
+        "detail": "shared evidence cached, no finding by design",
+        "itemId": "complete:wu-pkg-ev-gdpr.art28.particulars",
+        "status": "pass",
+        "workUnitId": "wu-pkg-ev-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "complete:wu-pkg-eval-gdpr.art28.particulars",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "detail": "shared evidence cached, no finding by design",
+        "itemId": "complete:wu-pkg-ev-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "workUnitId": "wu-pkg-ev-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "complete:wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "detail": "requirement assessments built, no finding by design",
+        "itemId": "complete:wu-aggregate",
+        "status": "pass",
+        "workUnitId": "wu-aggregate",
+        "evidenceVerified": true
+      },
+      {
+        "detail": "no mechanically-implied risk to derive",
+        "itemId": "complete:wu-derive-risk",
+        "status": "pass",
+        "workUnitId": "wu-derive-risk",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "complete:wu-render",
+        "status": "pass",
+        "workUnitId": "wu-render",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-id:f_extract_wu-extract",
+        "status": "pass",
+        "findingId": "f_extract_wu-extract",
+        "workUnitId": "wu-extract",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-status:f_extract_wu-extract",
+        "status": "pass",
+        "findingId": "f_extract_wu-extract",
+        "workUnitId": "wu-extract",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "locator:f_extract_wu-extract:heading-data-processing-agreement",
+        "status": "pass",
+        "findingId": "f_extract_wu-extract",
+        "workUnitId": "wu-extract",
+        "evidenceQuote": "DATA PROCESSING AGREEMENT \nLast updated 29th November 2024 \nThis Data Processing Agreement (“DPA”, “Agreement”) is an addendum to and forms part  of the master agreement between the Administrator of Bitrix24 Customer Account  and Alaio (https://www.bitrix24.com/terms/) to reflect the parties’ agreement for the  provision of the Processor Services (as amended from time to time) and processing  of Bitrix24 Customer Account User’s Personal Data in accordance with the  requirements of the Data Prote",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "locator:f_extract_wu-extract:clause-2",
+        "status": "pass",
+        "findingId": "f_extract_wu-extract",
+        "workUnitId": "wu-extract",
+        "evidenceQuote": "2. PROCESSING OF PERSONAL DATA \n2.1 Roles and Regulatory Compliance; Authorization. \n2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subject matter and details of the processing  of Personal Data; \n(b) Alaio is a processor (service provider under the California Privacy Rights Act of 2020  and any other applicable federal and state USA privacy legislation) of Personal Data under  the applicable Data Protection ",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "locator:f_extract_wu-extract:clause-4.1",
+        "status": "pass",
+        "findingId": "f_extract_wu-extract",
+        "workUnitId": "wu-extract",
+        "evidenceQuote": "4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to  correct, amend, block or delete Personal Data, as required by Data Protection Legislation,  Alaio will (taking into account the nature of the processing of Personal Data and, if  applicable, Article 11 of the GDPR) assist Administrator in fulfilling any obligation of  Administrator to respond to requests by data subjects, including (if applicable)  Administrator´s obligation to respond to requests for ",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-id:f_verify_cd_gdpr.article28.subject_matter_wu-pkg-eval-gdpr.art28.particulars",
+        "status": "pass",
+        "findingId": "f_verify_cd_gdpr.article28.subject_matter_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-status:f_verify_cd_gdpr.article28.subject_matter_wu-pkg-eval-gdpr.art28.particulars",
+        "status": "pass",
+        "findingId": "f_verify_cd_gdpr.article28.subject_matter_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "locator:f_verify_cd_gdpr.article28.subject_matter_wu-pkg-eval-gdpr.art28.particulars:clause-2",
+        "status": "pass",
+        "findingId": "f_verify_cd_gdpr.article28.subject_matter_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceQuote": "Appendix 1 to the Agreement describes the subject matter and details of the processing of Personal Data;",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-id:f_verify_partial_gdpr.article28.duration_wu-pkg-eval-gdpr.art28.particulars",
+        "status": "pass",
+        "findingId": "f_verify_partial_gdpr.article28.duration_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-status:f_verify_partial_gdpr.article28.duration_wu-pkg-eval-gdpr.art28.particulars",
+        "status": "pass",
+        "findingId": "f_verify_partial_gdpr.article28.duration_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "locator:f_verify_partial_gdpr.article28.duration_wu-pkg-eval-gdpr.art28.particulars:clause-2.5",
+        "status": "pass",
+        "findingId": "f_verify_partial_gdpr.article28.duration_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceQuote": "On expiry of the Term, Administrator instructs Alaio to delete all Personal Data (including existing copies) from Bitrix24 systems in accordance with applicable law. Alaio will comply with this instruction as soon as reasonably practicable and within a maximum period of 90 days, unless any applicable law requires storage.",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-id:f_verify_partial_gdpr.article28.nature_and_purpose_wu-pkg-eval-gdpr.art28.particulars",
+        "status": "pass",
+        "findingId": "f_verify_partial_gdpr.article28.nature_and_purpose_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-status:f_verify_partial_gdpr.article28.nature_and_purpose_wu-pkg-eval-gdpr.art28.particulars",
+        "status": "pass",
+        "findingId": "f_verify_partial_gdpr.article28.nature_and_purpose_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "locator:f_verify_partial_gdpr.article28.nature_and_purpose_wu-pkg-eval-gdpr.art28.particulars:clause-2",
+        "status": "pass",
+        "findingId": "f_verify_partial_gdpr.article28.nature_and_purpose_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceQuote": "2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subject matter and details of the processing of Personal Data;",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-id:f_verify_cd_gdpr.article28.categories_of_data_subjects_wu-pkg-eval-gdpr.art28.particulars",
+        "status": "pass",
+        "findingId": "f_verify_cd_gdpr.article28.categories_of_data_subjects_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-status:f_verify_cd_gdpr.article28.categories_of_data_subjects_wu-pkg-eval-gdpr.art28.particulars",
+        "status": "pass",
+        "findingId": "f_verify_cd_gdpr.article28.categories_of_data_subjects_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "locator:f_verify_cd_gdpr.article28.categories_of_data_subjects_wu-pkg-eval-gdpr.art28.particulars:clause-2",
+        "status": "pass",
+        "findingId": "f_verify_cd_gdpr.article28.categories_of_data_subjects_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceQuote": "Appendix 1 to the Agreement describes the subject matter and details of the processing of Personal Data",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-id:f_verify_cov_gdpr.article28.controller_obligations_and_rights_wu-pkg-eval-gdpr.art28.particulars",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.controller_obligations_and_rights_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-status:f_verify_cov_gdpr.article28.controller_obligations_and_rights_wu-pkg-eval-gdpr.art28.particulars",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.controller_obligations_and_rights_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "locator:f_verify_cov_gdpr.article28.controller_obligations_and_rights_wu-pkg-eval-gdpr.art28.particulars:clause-2.1.1",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.controller_obligations_and_rights_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceQuote": "Administrator shall, in its use or receipt of the Services, Process Personal Data in accordance with the requirements of Data Protection Legislation and will ensure that its instructions for the Processing of Personal Data shall comply with Data Protection Legislation. Administrator shall have sole responsibility for the accuracy, quality, and legality of Personal Data and the means by which Administrator acquired Personal Data.",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-id:f_verify_cd_gdpr.article28.categories_of_data_wu-pkg-eval-gdpr.art28.particulars",
+        "status": "pass",
+        "findingId": "f_verify_cd_gdpr.article28.categories_of_data_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-status:f_verify_cd_gdpr.article28.categories_of_data_wu-pkg-eval-gdpr.art28.particulars",
+        "status": "pass",
+        "findingId": "f_verify_cd_gdpr.article28.categories_of_data_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-id:f_verify_cov_gdpr.article28.3a.documented_instructions_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3a.documented_instructions_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-status:f_verify_cov_gdpr.article28.3a.documented_instructions_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3a.documented_instructions_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "locator:f_verify_cov_gdpr.article28.3a.documented_instructions_wu-pkg-eval-gdpr.art28.3.mandatory_clauses:clause-2.4",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3a.documented_instructions_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceQuote": "Administrator instructs Alaio to process Personal Data only in accordance with applicable law: (a) to provide the Processor Services and any related technical support; (b) as further specified via Administrator´s use of the Processor Services (including in the settings and other functionality of the Processor Services) and any related technical support; (c) as documented in this Data Processing Agreement; and (d) as further documented in any other written instructions given by Administrator and acknowledged by Bitrix24 as constituting instructions for purposes of this Data Processing Agreement.",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-id:f_verify_cov_gdpr.article28.3b.confidentiality_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3b.confidentiality_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-status:f_verify_cov_gdpr.article28.3b.confidentiality_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3b.confidentiality_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "locator:f_verify_cov_gdpr.article28.3b.confidentiality_wu-pkg-eval-gdpr.art28.3.mandatory_clauses:clause-6.3",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3b.confidentiality_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceQuote": "ensuring that all persons authorised to process Personal Data have committed themselves to confidentiality or are under an appropriate statutory obligation of confidentiality as described in the Appendix 2 to this DPA.",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-id:f_verify_cov_gdpr.article28.3c.security_measures_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3c.security_measures_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-status:f_verify_cov_gdpr.article28.3c.security_measures_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3c.security_measures_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "locator:f_verify_cov_gdpr.article28.3c.security_measures_wu-pkg-eval-gdpr.art28.3.mandatory_clauses:clause-6.2",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3c.security_measures_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceQuote": "Alaio will implement and maintain technical, physical and organisational measures to protect confidentiality and integrity of Personal Data against accidental or unlawful destruction, loss, alteration, unauthorised disclosure or access as described in the Appendix 2 to this DPA (the “Security Measures”). As described in the Appendix 2 to this DPA, the Security Measures include measures: (a) to help ensure the ongoing confidentiality, integrity, availability and resilience of Bitrix24 systems and services; (b) to help restore timely access to personal data following an incident; and (c) for regular testing of effectiveness.",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-id:f_verify_cov_gdpr.article28.3e.data_subject_rights_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3e.data_subject_rights_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-status:f_verify_cov_gdpr.article28.3e.data_subject_rights_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3e.data_subject_rights_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "locator:f_verify_cov_gdpr.article28.3e.data_subject_rights_wu-pkg-eval-gdpr.art28.3.mandatory_clauses:clause-4.1",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3e.data_subject_rights_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceQuote": "Alaio will (taking into account the nature of the processing of Personal Data and, if applicable, Article 11 of the GDPR) assist Administrator in fulfilling any obligation of Administrator to respond to requests by data subjects, including (if applicable) Administrator´s obligation to respond to requests for exercising the data subject’s rights laid down in Chapter III of the GDPR and other Data Protection Legislation, by providing the functionality of the Processor Services;",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-id:f_verify_cov_gdpr.article28.3d.subprocessors_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3d.subprocessors_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-status:f_verify_cov_gdpr.article28.3d.subprocessors_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3d.subprocessors_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "locator:f_verify_cov_gdpr.article28.3d.subprocessors_wu-pkg-eval-gdpr.art28.3.mandatory_clauses:clause-7.4",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3d.subprocessors_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceQuote": "When any new Sub-processor is engaged during the Term, and if the GDPR applies to the processing of Personal Data, Alaio will, at least 10 days before the new Sub-processor processes any Personal Data, inform Administrator of the engagement (including the name and location of the relevant sub-processor and the activities it will perform) by sending an email to the Notification Email Address. Administrator may object to any new Sub-processor by notifying Alaio promptly in writing within five (5) business days after receipt of Alaio notice.",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-id:f_verify_cov_gdpr.article28.3f.controller_assistance_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3f.controller_assistance_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-status:f_verify_cov_gdpr.article28.3f.controller_assistance_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3f.controller_assistance_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "locator:f_verify_cov_gdpr.article28.3f.controller_assistance_wu-pkg-eval-gdpr.art28.3.mandatory_clauses:clause-6.4",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3f.controller_assistance_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceQuote": "Alaio will assist in ensuring compliance with any obligations of Administrator in respect of security of personal data and personal data breaches, including (if applicable) Administrator’s obligations pursuant to Articles 32 to 34 (inclusive) of the GDPR, by: (a) implementing and maintaining the Security Measures in accordance with the Appendix 2 to this DPA;",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-id:f_verify_cov_gdpr.article28.3g.deletion_or_return_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3g.deletion_or_return_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-status:f_verify_cov_gdpr.article28.3g.deletion_or_return_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3g.deletion_or_return_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "locator:f_verify_cov_gdpr.article28.3g.deletion_or_return_wu-pkg-eval-gdpr.art28.3.mandatory_clauses:clause-2.5",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3g.deletion_or_return_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceQuote": "On expiry of the Term, Administrator instructs Alaio to delete all Personal Data (including existing copies) from Bitrix24 systems in accordance with applicable law. Alaio will comply with this instruction as soon as reasonably practicable and within a maximum period of 90 days, unless any applicable law requires storage.",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-id:f_verify_cov_gdpr.article28.3h.audits_and_inspections_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3h.audits_and_inspections_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-status:f_verify_cov_gdpr.article28.3h.audits_and_inspections_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3h.audits_and_inspections_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "locator:f_verify_cov_gdpr.article28.3h.audits_and_inspections_wu-pkg-eval-gdpr.art28.3.mandatory_clauses:clause-9.2",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3h.audits_and_inspections_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceQuote": "Alaio shall make available to User that is not a competitor of Alaio (or Administrator´s independent, third-party auditor that is not a competitor of Bitrix24) information regarding Alaio compliance with the obligations set forth in this DPA and the security measures as described in the Appendix 2 to this DPA. Administrator may contact Alaio to request an on-site inspection of the architecture, systems and procedures relevant to the protection of Personal Data at locations where Personal Data is stored.",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-id:f_verify_cov_gdpr.article28.4.subprocessor_flow_down_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.4.subprocessor_flow_down_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-status:f_verify_cov_gdpr.article28.4.subprocessor_flow_down_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.4.subprocessor_flow_down_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "locator:f_verify_cov_gdpr.article28.4.subprocessor_flow_down_wu-pkg-eval-gdpr.art28.3.mandatory_clauses:clause-7.2",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.4.subprocessor_flow_down_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceQuote": "(ii) if the GDPR applies to the processing of Personal Data, the data protection obligations set out in Article 28(3) of the GDPR are imposed on the Sub-processor; (b) Alaio have entered into a written agreement with each Sub-processor containing data protection obligations not less protective than those in this DPA with respect to the protection of Personal Data to the extent applicable to the nature of the Services provided by such Sub-processor;",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-id:f_render_wu-render",
+        "status": "pass",
+        "findingId": "f_render_wu-render",
+        "workUnitId": "wu-render",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-status:f_render_wu-render",
+        "status": "pass",
+        "findingId": "f_render_wu-render",
+        "workUnitId": "wu-render",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "taxonomy:f_verify_cd_gdpr.article28.subject_matter_wu-pkg-eval-gdpr.art28.particulars",
+        "status": "pass",
+        "findingId": "f_verify_cd_gdpr.article28.subject_matter_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "taxonomy:f_verify_partial_gdpr.article28.duration_wu-pkg-eval-gdpr.art28.particulars",
+        "status": "pass",
+        "findingId": "f_verify_partial_gdpr.article28.duration_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "taxonomy:f_verify_partial_gdpr.article28.nature_and_purpose_wu-pkg-eval-gdpr.art28.particulars",
+        "status": "pass",
+        "findingId": "f_verify_partial_gdpr.article28.nature_and_purpose_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "taxonomy:f_verify_cd_gdpr.article28.categories_of_data_subjects_wu-pkg-eval-gdpr.art28.particulars",
+        "status": "pass",
+        "findingId": "f_verify_cd_gdpr.article28.categories_of_data_subjects_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "taxonomy:f_verify_cov_gdpr.article28.controller_obligations_and_rights_wu-pkg-eval-gdpr.art28.particulars",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.controller_obligations_and_rights_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "taxonomy:f_verify_cd_gdpr.article28.categories_of_data_wu-pkg-eval-gdpr.art28.particulars",
+        "status": "pass",
+        "findingId": "f_verify_cd_gdpr.article28.categories_of_data_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "taxonomy:f_verify_cov_gdpr.article28.3a.documented_instructions_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3a.documented_instructions_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "taxonomy:f_verify_cov_gdpr.article28.3b.confidentiality_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3b.confidentiality_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "taxonomy:f_verify_cov_gdpr.article28.3c.security_measures_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3c.security_measures_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "taxonomy:f_verify_cov_gdpr.article28.3e.data_subject_rights_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3e.data_subject_rights_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "taxonomy:f_verify_cov_gdpr.article28.3d.subprocessors_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3d.subprocessors_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "taxonomy:f_verify_cov_gdpr.article28.3f.controller_assistance_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3f.controller_assistance_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "taxonomy:f_verify_cov_gdpr.article28.3g.deletion_or_return_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3g.deletion_or_return_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "taxonomy:f_verify_cov_gdpr.article28.3h.audits_and_inspections_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3h.audits_and_inspections_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "taxonomy:f_verify_cov_gdpr.article28.4.subprocessor_flow_down_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.4.subprocessor_flow_down_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-coverage:gdpr.article28.subject_matter",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-coverage:gdpr.article28.duration",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-coverage:gdpr.article28.nature_and_purpose",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-coverage:gdpr.article28.categories_of_data",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-coverage:gdpr.article28.categories_of_data_subjects",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-coverage:gdpr.article28.controller_rights_obligations",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-coverage:gdpr.article28_3a.documented_instructions",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-coverage:gdpr.article28_3b.confidentiality",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-coverage:gdpr.article28_3c.security_measures",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-coverage:gdpr.article28_3d.subprocessors",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-coverage:gdpr.article28_3e.data_subject_rights_assistance",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-coverage:gdpr.article28_3g.data_deletion_or_return",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-coverage:gdpr.article28_3h.audits_and_inspections",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-coverage:gdpr.article28_4.subprocessor_flowdown",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "detail": "Required requirement gdpr.article28_3f.security_and_breach_assistance lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28_3f.security_and_breach_assistance",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "itemId": "requirement-refs:gdpr.article28.subject_matter",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-consistency:gdpr.article28.subject_matter",
+        "status": "pass",
+        "findingId": "f_verify_cd_gdpr.article28.subject_matter_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-refs:gdpr.article28.duration",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-consistency:gdpr.article28.duration",
+        "status": "pass",
+        "findingId": "f_verify_partial_gdpr.article28.duration_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-refs:gdpr.article28.nature_and_purpose",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-consistency:gdpr.article28.nature_and_purpose",
+        "status": "pass",
+        "findingId": "f_verify_partial_gdpr.article28.nature_and_purpose_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-refs:gdpr.article28.categories_of_data",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-consistency:gdpr.article28.categories_of_data",
+        "status": "pass",
+        "findingId": "f_verify_cd_gdpr.article28.categories_of_data_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-refs:gdpr.article28.categories_of_data_subjects",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "detail": "Assessment status cannot_determine conflicts with derived status conditional",
+        "itemId": "requirement-consistency:gdpr.article28.categories_of_data_subjects",
+        "status": "ambiguous",
+        "findingId": "f_verify_cd_gdpr.article28.categories_of_data_subjects_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": false
+      },
+      {
+        "itemId": "requirement-refs:gdpr.article28.controller_obligations_and_rights",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-consistency:gdpr.article28.controller_obligations_and_rights",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.controller_obligations_and_rights_wu-pkg-eval-gdpr.art28.particulars",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-refs:gdpr.article28.3a.documented_instructions",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-consistency:gdpr.article28.3a.documented_instructions",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3a.documented_instructions_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-refs:gdpr.article28.3b.confidentiality",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-consistency:gdpr.article28.3b.confidentiality",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3b.confidentiality_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-refs:gdpr.article28.3c.security_measures",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-consistency:gdpr.article28.3c.security_measures",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3c.security_measures_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-refs:gdpr.article28.3d.subprocessors",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-consistency:gdpr.article28.3d.subprocessors",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3d.subprocessors_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-refs:gdpr.article28_3e.data_subject_rights_assistance",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-consistency:gdpr.article28_3e.data_subject_rights_assistance",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3e.data_subject_rights_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-refs:gdpr.article28_3g.data_deletion_or_return",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-consistency:gdpr.article28_3g.data_deletion_or_return",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3a.documented_instructions_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-refs:gdpr.article28.3h.audits_and_inspections",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-consistency:gdpr.article28.3h.audits_and_inspections",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3h.audits_and_inspections_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-refs:gdpr.article28_4.subprocessor_flowdown",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-consistency:gdpr.article28_4.subprocessor_flowdown",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.4.subprocessor_flow_down_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-refs:art28_3_e_dsr_assistance",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-consistency:art28_3_e_dsr_assistance",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3e.data_subject_rights_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-refs:art28_3_f_security_assistance",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-consistency:art28_3_f_security_assistance",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3f.controller_assistance_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-refs:art28_3_g_deletion_return",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-consistency:art28_3_g_deletion_return",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.3g.deletion_or_return_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-refs:art28_4_subprocessor_flow_down",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-consistency:art28_4_subprocessor_flow_down",
+        "status": "pass",
+        "findingId": "f_verify_cov_gdpr.article28.4.subprocessor_flow_down_wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28.subject_matter",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28.duration",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28.nature_and_purpose",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28.categories_of_data",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28.categories_of_data_subjects",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28.controller_rights_obligations",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28_3a.documented_instructions",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28_3b.confidentiality",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28_3c.security_measures",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28_3d.subprocessors",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28_3e.data_subject_rights_assistance",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28_3f.security_and_breach_assistance",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28_3g.data_deletion_or_return",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28_3h.audits_and_inspections",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28_4.subprocessor_flowdown",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "report-spec:contract",
+        "status": "pass",
+        "workUnitId": "wu-render",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "report-output:contract",
+        "status": "pass",
+        "workUnitId": "wu-render",
+        "evidenceVerified": true
+      }
+    ],
+    "outcomes": [
+      {
+        "attempts": [],
+        "workUnitId": "wu-classify",
+        "terminalStatus": "verified"
+      },
+      {
+        "attempts": [],
+        "workUnitId": "wu-extract",
+        "terminalStatus": "verified"
+      },
+      {
+        "attempts": [],
+        "workUnitId": "wu-pkg-ev-gdpr.art28.particulars",
+        "terminalStatus": "verified"
+      },
+      {
+        "attempts": [],
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "terminalStatus": "verified"
+      },
+      {
+        "attempts": [],
+        "workUnitId": "wu-pkg-ev-gdpr.art28.3.mandatory_clauses",
+        "terminalStatus": "verified"
+      },
+      {
+        "attempts": [],
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "terminalStatus": "verified"
+      },
+      {
+        "attempts": [],
+        "workUnitId": "wu-aggregate",
+        "terminalStatus": "verified"
+      },
+      {
+        "attempts": [],
+        "workUnitId": "wu-derive-risk",
+        "terminalStatus": "verified"
+      },
+      {
+        "attempts": [],
+        "workUnitId": "wu-render",
+        "terminalStatus": "verified"
+      }
+    ],
+    "iteration": 1,
+    "allUnitsTerminal": true,
+    "skeletonMismatch": false,
+    "structuralIssues": [
+      {
+        "detail": "Required requirement gdpr.article28_3f.security_and_breach_assistance lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28_3f.security_and_breach_assistance",
+        "status": "missing",
+        "evidenceVerified": false
+      }
+    ],
+    "executionComplete": true,
+    "structurallyValid": false,
+    "deepCritiqueResults": [],
+    "deepCritiqueTargets": [],
+    "criticalFactSurfaced": false,
+    "deepCritiqueRequired": false
+  }
+}
