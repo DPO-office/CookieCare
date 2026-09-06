@@ -30,6 +30,12 @@ export type AnalysisProfile = {
    * `verifySkipSupportingPriority` instead.
    */
   verifyCandidateCap: number;
+  /** Max LLM-selected passages verified per requirement after semantic selection succeeds. */
+  selectedVerifyCandidateCap: number;
+  /** Requirements verified concurrently inside one evidence package. */
+  verifyRequirementConcurrency: number;
+  /** Per-candidate VERIFY deadline; a timed-out candidate cannot fail the whole package. */
+  verifyCandidateTimeoutMs: number;
   /** ACT-Phase 10 — skip PLAN-authored "supporting"-priority requirements under Lite; keep "required". */
   verifySkipSupportingPriority: boolean;
 };
@@ -67,6 +73,11 @@ const LITE_PROFILE: AnalysisProfile = {
   // verifySkipSupportingPriority alone; shrinking recall itself is not
   // safe until the ranking heuristic is proven reliable enough to cut.
   verifyCandidateCap: 10,
+  // Lite is an interactive review: semantic selection narrows each requirement
+  // to its two best passages. Lexical fallback retains the broader recall cap.
+  selectedVerifyCandidateCap: 2,
+  verifyRequirementConcurrency: 3,
+  verifyCandidateTimeoutMs: 45_000,
   verifySkipSupportingPriority: true,
 };
 
@@ -88,6 +99,9 @@ const DEEP_PROFILE: AnalysisProfile = {
   synthesisHardCap: 6400,
   evidenceCharBudget: 8_000,
   verifyCandidateCap: 10,
+  selectedVerifyCandidateCap: 4,
+  verifyRequirementConcurrency: 2,
+  verifyCandidateTimeoutMs: 90_000,
   verifySkipSupportingPriority: false,
 };
 

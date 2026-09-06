@@ -18,7 +18,6 @@ import type { DraftTask } from "./draft-task.js";
 import type {
   AnswerStyle,
   ClarificationRequest,
-  DocumentPresentation,
   IntentClassification,
   ReportSpec,
 } from "./intent.js";
@@ -100,6 +99,22 @@ export interface AnalysisState {
   synthesisMeta?: SynthesisMeta | null;
   /** Per-section synthesis blocks for assemble and targeted regen. */
   reportSections?: ReportSectionBlock[];
+  /** Internal compound-branch render buffers; never exposed as a new API field. */
+  branchReports?: Record<string, string>;
+  /** Branch-local execution metadata used by deterministic merge and eval logs. */
+  branchDiagnostics?: Record<
+    string,
+    {
+      status: "pending" | "complete" | "incomplete";
+      startedAtMs?: number;
+      elapsedMs?: number;
+      failedLayer?: "PLAN" | "ACT" | "LOCK" | "RENDER" | "MERGE";
+      reason?: string;
+      modelCalls?: number;
+      tokenDelta?: number;
+      evidenceCount?: number;
+    }
+  >;
   organizationId?: string;
 
   request: {
@@ -113,8 +128,6 @@ export interface AnalysisState {
      * Values: "target" | "reference".
      */
     documentRoles?: Record<string, "target" | "reference">;
-    /** Combined vs per-document presentation when more than one target is uploaded. */
-    documentPresentation?: DocumentPresentation;
     /** Narrative prose vs tabular tables. */
     answerStyle?: AnswerStyle;
     /** Compute / verification budget (lite | deep). Orthogonal to ReportDepth. */

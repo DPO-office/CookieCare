@@ -3,6 +3,7 @@ process.env.GOOGLE_CLOUD_PROJECT ??= "release-decision-test";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type { AnalysisState } from "../../../models/analysis-state.js";
+import type { CritiqueReport, ReleaseDecision } from "../../../models/critique-report.js";
 import { initAgentRunState } from "../../../pac/types.js";
 import { composeReleaseDecision } from "../release-decision.js";
 import { resolveStoppedReason } from "../../../pac/transitions.js";
@@ -15,6 +16,20 @@ function emptyCoverage() {
     entries: [{ requirementId: "r1", state: "covered" as const }],
     notCovered: [],
     needsReplan: [],
+  };
+}
+
+function critiqueWithRelease(
+  release: ReleaseDecision,
+  isGreen: boolean
+): CritiqueReport {
+  return {
+    release,
+    isGreen,
+    iteration: 1,
+    results: [],
+    fixPlan: [],
+    skeletonMismatch: false,
   };
 }
 
@@ -40,7 +55,10 @@ describe("release decision", () => {
       skeletonMismatch: false,
     });
     assert.equal(release.verdict, "release");
-    assert.equal(resolveStoppedReason({} as AnalysisState, { release, fixPlan: [], isGreen: true }), "green");
+    assert.equal(
+      resolveStoppedReason({} as AnalysisState, critiqueWithRelease(release, true)),
+      "green"
+    );
   });
 
   it("releases with limitations when soft coverage gaps exist but memo body is shippable", () => {
@@ -95,7 +113,7 @@ describe("release decision", () => {
         metadata: { timestamp: "", clauseTaxonomyVersion: "1", riskTaxonomyVersion: "1" },
         activeSkillIds: [],
         renderedOutput: "No analysis package available for this request.",
-        plan: { intent: { requirements: [{ id: "r1", description: "", type: "other", priority: "required" }], scope: "whole_document", operation: "compliance_check", standard: "none", outputForm: "memo", compound: false, subIntents: [], confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 } }, workUnits: [], missingClarifications: [], outputForm: "memo" },
+        plan: { intent: { requirements: [{ id: "r1", description: "", type: "other", priority: "required" }], scope: "whole_document", operation: "compliance_check", standard: "none", outputForm: "memo", compound: false, subIntents: [], confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 } }, workUnits: [], missingClarifications: [], outputForm: "memo", rendererSchemaId: "memo", pinnedVersions: { clauseTaxonomyVersion: "1", riskTaxonomyVersion: "1" } },
       },
       coverage: emptyCoverage(),
       alignment: { issues: [] },
@@ -111,7 +129,7 @@ describe("release decision", () => {
     });
     assert.equal(release.verdict, "withhold");
     assert.equal(
-      resolveStoppedReason({} as AnalysisState, { release, fixPlan: [], isGreen: false }),
+      resolveStoppedReason({} as AnalysisState, critiqueWithRelease(release, false)),
       "blocked"
     );
     const report = renderLimitationsReport(
@@ -122,7 +140,7 @@ describe("release decision", () => {
         draftTasks: [],
         metadata: { timestamp: "", clauseTaxonomyVersion: "1", riskTaxonomyVersion: "1" },
         activeSkillIds: ["doc-types/nda"],
-        plan: { intent: { requirements: [], scope: "whole_document", operation: "compliance_check", standard: "none", outputForm: "memo", compound: false, subIntents: [], confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 } }, workUnits: [], missingClarifications: [], outputForm: "memo", requirementExecutionPaths: [] },
+        plan: { intent: { requirements: [], scope: "whole_document", operation: "compliance_check", standard: "none", outputForm: "memo", compound: false, subIntents: [], confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 } }, workUnits: [], missingClarifications: [], outputForm: "memo", rendererSchemaId: "memo", pinnedVersions: { clauseTaxonomyVersion: "1", riskTaxonomyVersion: "1" }, requirementExecutionPaths: [] },
       } as AnalysisState,
       release
     );
@@ -158,7 +176,7 @@ describe("release decision", () => {
     });
     assert.equal(release.verdict, "release_with_limitations");
     assert.equal(
-      resolveStoppedReason({} as AnalysisState, { release, fixPlan: [], isGreen: false }),
+      resolveStoppedReason({} as AnalysisState, critiqueWithRelease(release, false)),
       "green_partial"
     );
   });

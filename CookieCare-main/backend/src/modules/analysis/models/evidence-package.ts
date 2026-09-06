@@ -5,6 +5,7 @@ import type {
   ReportSectionId,
   ReportType,
 } from "./intent.js";
+import type { PropositionPolarity } from "./proposition.js";
 
 /**
  * AnalysisPackage (exported as EvidencePackage for skill-config compatibility) —
@@ -30,6 +31,18 @@ export type AnalysisPackageKind =
   | "risk"
   | "synthesis";
 
+/** Relationship governed by the document section containing an evidence span. */
+export type EvidenceRelationshipScope =
+  | "controller_to_processor"
+  | "controller_to_controller"
+  | "processor_to_processor"
+  | "unspecified";
+
+/** Authored, data-driven evidence boundary. Generic handlers only enforce it. */
+export interface EvidenceScopeConstraint {
+  relationshipScopes?: Exclude<EvidenceRelationshipScope, "unspecified">[];
+}
+
 /**
  * One piece of shared evidence extracted for a package. Reuses the existing
  * clause/locator model (no parallel evidence store) so the same span can be
@@ -38,7 +51,13 @@ export type AnalysisPackageKind =
 export interface SharedEvidenceItem {
   /** Stable reference key used by the grouped evaluation (e.g. "E1"). */
   ref: string;
+  /** Source document when a VERIFY pass follows an uploaded cross-reference. */
+  sourceDocId?: string;
   clauseType: string;
+  /** Nearest enclosing document heading, retained as non-quotable scope context. */
+  contextHeading?: string;
+  /** Deterministically inferred from the enclosing heading/operative role text. */
+  relationshipScope?: EvidenceRelationshipScope;
   quotedText: string;
   structuralPath: string;
   charRange: [number, number];
@@ -60,6 +79,8 @@ export interface SharedEvidenceBundle {
 export interface EvidencePackage {
   /** Stable package id, e.g. "gdpr.art28.particulars". */
   id: string;
+  /** Compound sub-ask that owns this runtime package; absent for single-intent work. */
+  facetId?: string;
   /** Semantic requirement ids this package can establish (PLAN vocabulary). */
   requirementIds: string[];
   /**
@@ -78,6 +99,8 @@ export interface EvidencePackage {
   clauseTypes: string[];
   /** Named evidence targets the grouped evaluation expects to reason over. */
   extractionTargets: string[];
+  /** Optional applicability boundary authored by the selected skill/package. */
+  evidenceScope?: EvidenceScopeConstraint;
   /**
    * Per-requirement hypothesis and evidence hints for isolated evaluation.
    * Authored on the skill package; generic handlers never hard-code ids.
@@ -87,8 +110,14 @@ export interface EvidencePackage {
     {
       hypothesis?: string;
       evidenceHints?: string[];
-      /** ACT-Phase 3 — precise proof criteria; see RequirementEvidenceProfile. */
+      /** ACT-Phase 3 - precise proof criteria; see RequirementEvidenceProfile. */
       proofStandard?: string;
+      /** Explicit proposition channel, preserved through VERIFY and rendering. */
+      polarity?: PropositionPolarity;
+      /** Reviewing party or role supplied by PLAN. */
+      partyPerspective?: string;
+      compareGroup?: string;
+      compareRole?: string;
     }
   >;
   /**

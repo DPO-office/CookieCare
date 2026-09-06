@@ -9,7 +9,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useAutoResize } from "../hooks/useAutoResize";
-import { DocumentMode, AnswerStyle, AnalysisDepth } from "../types";
+import { AnswerStyle, AnalysisDepth } from "../types";
 import { SelectedDocument } from "../documentSelection";
 import { ComposerDocumentCard } from "./ComposerDocumentCard";
 
@@ -25,10 +25,8 @@ interface AnalysisComposerProps {
   onRemoveDocument: (doc: SelectedDocument) => void;
   playbookDocId?: string | null;
   onTogglePlaybook?: (doc: SelectedDocument) => void;
-  documentMode: DocumentMode;
   answerStyle: AnswerStyle;
   analysisDepth: AnalysisDepth;
-  onSetDocumentMode: (mode: DocumentMode) => void;
   onSetAnswerStyle: (style: AnswerStyle) => void;
   onSetAnalysisDepth: (depth: AnalysisDepth) => void;
   canAnalyze: boolean;
@@ -153,22 +151,22 @@ function DepthDropdown({ depth, onChange, disabled }: { depth: AnalysisDepth; on
 export function AnalysisComposer({
   value, onChange, onAnalyze, onAttachFiles, onOpenVault,
   documents, onRemoveDocument, playbookDocId = null, onTogglePlaybook,
-  documentMode, answerStyle, analysisDepth,
-  onSetDocumentMode, onSetAnswerStyle, onSetAnalysisDepth,
+  answerStyle, analysisDepth,
+  onSetAnswerStyle, onSetAnalysisDepth,
   canAnalyze: _canAnalyze, isAnalyzing, isUploading = false, uploadProgress, validationMessage,
   isDragging = false, onDragOver, onDragLeave, onDrop, variant = "landing",
 }: AnalysisComposerProps) {
   const { ref: textareaRef, adjust } = useAutoResize(72, 168);
   const hasDocuments = documents.length > 0;
-  const busy = isAnalyzing || isUploading;
+  const submitBlocked = isAnalyzing || isUploading;
   const isLanding = variant === "landing";
-  const canSend = value.trim().length > 0 && !busy;
+  const canSend = value.trim().length > 0 && !submitBlocked;
 
   useEffect(() => { adjust(); }, [value, adjust]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); if (value.trim() && !busy) onAnalyze(); }
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") { e.preventDefault(); if (value.trim() && !busy) onAnalyze(); }
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); if (value.trim() && !submitBlocked) onAnalyze(); }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") { e.preventDefault(); if (value.trim() && !submitBlocked) onAnalyze(); }
   };
 
   const placeholder = "Ask a question or describe the analysis you want LORA to perform\u2026";
@@ -201,7 +199,7 @@ export function AnalysisComposer({
             <textarea
               ref={textareaRef} value={value} rows={3}
               onChange={(e) => { onChange(e.target.value); adjust(); }}
-              onKeyDown={handleKeyDown} placeholder={placeholder} disabled={busy}
+              onKeyDown={handleKeyDown} placeholder={placeholder} disabled={isAnalyzing}
               className="pcl-input flex-1 bg-transparent text-[14px] leading-[1.55] resize-none outline-none"
               style={{ minHeight: 72, maxHeight: 168, color: "#1a1a1a", fontWeight: 400 }}
               aria-label="Analysis request"
@@ -210,16 +208,16 @@ export function AnalysisComposer({
 
           {/* ── Toolbar row ─────────────────────────────────────────────── */}
           <div className="flex items-center gap-2 px-4 pb-3.5 pt-2">
-            <button type="button" onClick={onAttachFiles} disabled={busy} className="analyze-icon-btn" aria-label="Attach file">
+            <button type="button" onClick={onAttachFiles} disabled={isAnalyzing || isUploading} className="analyze-icon-btn" aria-label="Attach file">
               <Paperclip className="h-[15px] w-[15px]" strokeWidth={1.75} />
             </button>
-            <button type="button" onClick={onOpenVault} disabled={busy} className="analyze-icon-btn" aria-label="Select from Vault">
+            <button type="button" onClick={onOpenVault} disabled={isAnalyzing} className="analyze-icon-btn" aria-label="Select from Vault">
               <Archive className="h-[15px] w-[15px]" strokeWidth={1.75} />
             </button>
             <div className="flex-1" />
-            <DepthDropdown depth={analysisDepth} onChange={onSetAnalysisDepth} disabled={busy} />
+            <DepthDropdown depth={analysisDepth} onChange={onSetAnalysisDepth} disabled={isAnalyzing} />
             <button type="button" disabled={!canSend} onClick={onAnalyze} className="analyze-enter-btn primary-gradient" aria-label={isAnalyzing ? "Analyzing\u2026" : "Analyze"}>
-              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <CornerDownLeft className="h-4 w-4" strokeWidth={2} />}
+              {submitBlocked ? <Loader2 className="h-4 w-4 animate-spin" /> : <CornerDownLeft className="h-4 w-4" strokeWidth={2} />}
             </button>
           </div>
         </div>
@@ -234,18 +232,7 @@ export function AnalysisComposer({
             ]}
             value={answerStyle}
             onChange={onSetAnswerStyle}
-            disabled={busy}
-          />
-          <span className="analyze-settings-dot" aria-hidden="true">·</span>
-          <SettingDropdown
-            label="Documents"
-            options={[
-              { value: "unified",    label: "Combined"    },
-              { value: "individual", label: "Individual"  },
-            ]}
-            value={documentMode}
-            onChange={onSetDocumentMode}
-            disabled={busy}
+            disabled={isAnalyzing}
           />
         </div>
 
@@ -266,15 +253,15 @@ export function AnalysisComposer({
     <div className="w-full relative max-w-[720px] mx-auto" onDragOver={onDragOver} onDragLeave={onDragLeave} onDrop={onDrop}>
       <div className="pcl-composer relative overflow-visible">
         <div className="flex items-start gap-3 px-5 pt-4 pb-1">
-          <textarea ref={textareaRef} value={value} onChange={(e) => { onChange(e.target.value); adjust(); }} onKeyDown={handleKeyDown} placeholder={placeholder} disabled={busy} className="pcl-input flex-1 bg-transparent text-[14px] leading-[1.55] resize-none outline-none" style={{ minHeight: 72, maxHeight: 168, color: "#1a1a1a" }} rows={3} />
+          <textarea ref={textareaRef} value={value} onChange={(e) => { onChange(e.target.value); adjust(); }} onKeyDown={handleKeyDown} placeholder={placeholder} disabled={isAnalyzing} className="pcl-input flex-1 bg-transparent text-[14px] leading-[1.55] resize-none outline-none" style={{ minHeight: 72, maxHeight: 168, color: "#1a1a1a" }} rows={3} />
         </div>
         <div className="flex items-center gap-2 px-4 pb-3.5 pt-2">
-          <button type="button" onClick={onAttachFiles} disabled={busy} className="pcl-attach-btn w-8 h-8 flex items-center justify-center rounded-full bg-[#F4F4F5] text-[#71717A]">
+          <button type="button" onClick={onAttachFiles} disabled={isAnalyzing || isUploading} className="pcl-attach-btn w-8 h-8 flex items-center justify-center rounded-full bg-[#F4F4F5] text-[#71717A]">
             <Paperclip className="w-[15px] h-[15px]" />
           </button>
           <div className="flex-1" />
           <button type="button" disabled={!canSend} onClick={onAnalyze} className="pcl-enter-btn w-9 h-9 flex items-center justify-center rounded-full disabled:opacity-40 bg-[#18181B] text-white">
-            {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <CornerDownLeft className="w-4 h-4" />}
+            {submitBlocked ? <Loader2 className="w-4 h-4 animate-spin" /> : <CornerDownLeft className="w-4 h-4" />}
           </button>
         </div>
       </div>

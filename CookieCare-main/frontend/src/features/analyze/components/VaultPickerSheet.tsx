@@ -9,7 +9,7 @@ import {
   Check,
   AlertTriangle,
 } from "lucide-react";
-import { CustomFolder } from "../types";
+import { CustomFolder, SavedDraft } from "../types";
 import { isPlaceholderVaultDocument } from "../utils/vaultDocumentFilters";
 import { ANALYZE_STYLES } from "../styles/analyzeStyles";
 import { SYSTEM_FOLDER_NAME } from "../constants";
@@ -17,7 +17,7 @@ import { LibraryModalOverlay } from "./LibraryModalColumns";
 
 interface VaultPickerSheetProps {
   folders: CustomFolder[];
-  savedDrafts?: never[]; // kept for prop-compat but no longer rendered
+  savedDrafts?: SavedDraft[]; // kept for prop-compat but no longer rendered
   onToggleFolderSelection: (id: string) => void;
   onToggleFolderExpanded: (id: string, e: React.MouseEvent) => void;
   onToggleFileSelection: (folderId: string, fileId: string, e: React.MouseEvent) => void;

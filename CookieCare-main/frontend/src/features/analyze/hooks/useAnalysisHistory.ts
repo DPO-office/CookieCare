@@ -63,7 +63,11 @@ export function useAnalysisHistory(authToken: string) {
   const loadSession = useCallback(
     async (
       item: AnalysisHistoryItem
-    ): Promise<{ messages: Message[]; docName: string } | null> => {
+    ): Promise<{
+      messages: Message[];
+      docName: string;
+      sessionId: string | null;
+    } | null> => {
       const docName = item.title || "Untitled analysis";
 
       // Fast path — renderedOutput is already in the history item
@@ -71,6 +75,7 @@ export function useAnalysisHistory(authToken: string) {
         return {
           messages: snapshotToMessages(item.title, item.renderedOutput),
           docName,
+          sessionId: item.sessionId,
         };
       }
 
@@ -86,7 +91,7 @@ export function useAnalysisHistory(authToken: string) {
               snapshot.conversation as any
             );
             if (messages.length > 0) {
-              return { messages, docName };
+              return { messages, docName, sessionId: snapshot.sessionId };
             }
           }
         } catch {
@@ -101,6 +106,7 @@ export function useAnalysisHistory(authToken: string) {
         return {
           messages: [{ sender: "user", text: item.title }],
           docName,
+          sessionId: item.sessionId,
         };
       }
 

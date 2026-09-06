@@ -48,7 +48,7 @@ describe("render-output live stream gate", () => {
     const state = {
       agent: initAgentRunState("CREATE"),
       onToken: (delta: string) => chunks.push(delta),
-    } as AnalysisState;
+    } as unknown as AnalysisState;
     state.agent!.phase = "ACT";
     emitAnalysisToken(state, "finding");
     assert.deepEqual(chunks, []);

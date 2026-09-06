@@ -1,6 +1,5 @@
 import type {
   AnswerStyle,
-  DocumentPresentation,
   IntentClassification,
   OutputFormAxis,
   ReportType,
@@ -8,7 +7,6 @@ import type {
 import type { AnalysisState } from "../../models/analysis-state.js";
 import {
   classifyFollowUpKind,
-  detectDocumentPresentation,
   isNarrativeInstruction,
   isTabularInstruction,
   type FollowUpKind,
@@ -111,14 +109,11 @@ export function applyExplicitPresentation(
   instruction: string,
   request: {
     answerStyle?: AnswerStyle;
-    documentPresentation?: DocumentPresentation;
   }
 ): IntentClassification {
   let outputForm = intent.outputForm;
   let reportType = intent.reportType;
   let confidence = { ...intent.confidence };
-  let documentPresentation =
-    intent.documentPresentation ?? request.documentPresentation ?? "unified";
 
   if (request.answerStyle === "tabular" && !isNarrativeInstruction(instruction)) {
     outputForm = "table";
@@ -143,14 +138,7 @@ export function applyExplicitPresentation(
     }
   }
 
-  const fromText = detectDocumentPresentation(instruction);
-  if (fromText) {
-    documentPresentation = fromText;
-  } else if (request.documentPresentation) {
-    documentPresentation = request.documentPresentation;
-  }
-
-  return { ...intent, outputForm, reportType, documentPresentation, confidence };
+  return { ...intent, outputForm, reportType, confidence };
 }
 
 export function inheritFollowUpIntent(
@@ -164,7 +152,6 @@ export function inheritFollowUpIntent(
     return {
       ...prior,
       outputForm: current.outputForm,
-      documentPresentation: current.documentPresentation ?? prior.documentPresentation,
       reportType: reportTypeForOutputForm(current.outputForm, current.reportType ?? prior.reportType, prior),
       confidence: {
         ...prior.confidence,
@@ -187,10 +174,6 @@ export function inheritFollowUpIntent(
       ...next.confidence,
       standard: Math.max(next.confidence.standard, prior.confidence.standard),
     };
-  }
-
-  if (!current.documentPresentation && prior.documentPresentation) {
-    next.documentPresentation = prior.documentPresentation;
   }
 
   if (kind === "conversational_qa") {

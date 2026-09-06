@@ -4,6 +4,7 @@ import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
 import type { Finding } from "../../models/finding.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 import { getSkillById, isKnownRiskCategory } from "../../skills/runtime/catalog/registry.js";
+import { normalizePartyPerspective } from "../../shared/finding-semantics.js";
 
 /**
  * Deterministic risk derivation (ACT refactor doc §10).
@@ -55,6 +56,9 @@ export function deriveRisk(
       ruleSourceTier: f.ruleSourceTier,
       requirementId: f.requirementId,
       gap: f.gap,
+      polarity: "risk_present",
+      partyPerspective:
+        f.partyPerspective ?? normalizePartyPerspective(state.intent?.partyPerspective),
     });
   }
 

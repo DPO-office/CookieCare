@@ -4,6 +4,7 @@ import type {
   ReportSpec,
 } from "./intent.js";
 import type { AnalysisSkillConfig } from "../skills/runtime/catalog/types.js";
+import type { AnalysisCapabilityContract } from "../capabilities/contracts/analysis-capability-contract.js";
 
 export type AnalysisToolName =
   | "classify_document"
@@ -19,7 +20,8 @@ export type AnalysisToolName =
   | "inventory_provisions"
   | "derive_risk"
   | "aggregate_requirements"
-  | "render_output";
+  | "render_output"
+  | "merge_branch_outputs";
 
 export type AnalysisOutputSchema =
   | "ClauseObject[]"
@@ -31,6 +33,8 @@ export type WorkUnitStatus = "pending" | "done" | "flagged" | "skipped" | "faile
 
 export interface AnalysisWorkUnit {
   workUnitId: string;
+  /** Stable compound-ask branch identity. Undefined means shared/legacy work. */
+  facetId?: string;
   tool: AnalysisToolName;
   input: Record<string, unknown>;
   dependsOn: string[];
@@ -75,11 +79,43 @@ export type RequirementExecutionStatus =
 
 export interface RequirementExecutionPath {
   requirementId: string;
+  /** Compound branch that owns this execution path. */
+  facetId?: string;
   status: RequirementExecutionStatus;
   packageId?: string;
   ruleIds?: string[];
   reason?: string;
   requirementType?: IntentRequirementType;
+}
+
+/** How a request requirement id was bound to a package-native requirement id. */
+export type RequirementBindingRelation = "direct" | "child" | "semantic";
+
+/** How confident the derivation is — governs whether a report may lean on it. */
+export type RequirementBindingSource =
+  | "canonical" // identical/alias/token-set — lexically the same concept
+  | "subprovision" // native id nests under the request id's article/paragraph
+  | "capability" // request→capability→package-native capability path intersects
+  | "semantic"; // unique semantic score or validated one-call PLAN refinement
+
+/**
+ * Phase 2 — an explicit, structurally-derived link between a request/classifier
+ * requirement id (what the user's ask was classified into, freshly authored by
+ * an LLM each run) and a package-native requirement id (authored on the skill,
+ * stable). Replaces the hand-maintained alias tables in
+ * `shared/requirement-identity.ts` as the SOURCE OF CORRECTNESS for joining ACT
+ * findings back to the requirements a report renders. Computed once per run in
+ * `resolvePackages`, threaded onto `evaluate_package` work units, and read by
+ * every finding↔requirement join site.
+ */
+export interface RequirementBinding {
+  requestRequirementId: string;
+  nativeRequirementId: string;
+  packageId: string;
+  relation: RequirementBindingRelation;
+  source: RequirementBindingSource;
+  /** Which compound facet this binding belongs to (Phase 7); undefined = single-intent. */
+  facetId?: string;
 }
 
 /** Semantic requirement extracted from the user's instruction (not just keywords). */
@@ -173,6 +209,14 @@ export interface MissingClarification {
   question: string;
   severity: "critical" | "optional";
   options?: string[];
+  /**
+   * For field:"documentRoles" — lets the UI render one target/reference
+   * choice per document, labeled with the user's own uploaded filename
+   * instead of an internal docId. `options` alone can't drive this: each
+   * document needs its own role, not a single shared answer, and the raw
+   * docId is meaningless to the user.
+   */
+  perDocumentRoles?: Array<{ docId: string; title: string }>;
 }
 
 /**
@@ -197,7 +241,7 @@ export interface ScopeAuditEntry {
 }
 
 export interface IntentNormalization {
-  field: "scope" | "outputForm" | "reportType" | "depth" | "documentPresentation";
+  field: "scope" | "outputForm" | "reportType" | "depth";
   from: string | undefined;
   to: string;
   reason: "missing_field" | "low_confidence";
@@ -222,6 +266,8 @@ export interface PlanAuditRecord {
   resolvedPackageIds?: string[];
   requirementToPackageId?: Record<string, string>;
   requirementExecutionPaths?: RequirementExecutionPath[];
+  /** Cached Phase 2 request-to-package-native joins for all downstream stages. */
+  requirementBindings?: RequirementBinding[];
   /** Classifier output before PLAN normalization defaults. */
   rawIntent?: IntentClassification;
   /** Field-level defaults applied during PLAN (empty when nothing changed). */
@@ -235,7 +281,6 @@ export interface AnalysisPlan {
   workUnits: AnalysisWorkUnit[];
   missingClarifications: MissingClarification[];
   outputForm: IntentClassification["outputForm"];
-  documentPresentation?: IntentClassification["documentPresentation"];
   /**
    * Skip CRITIQUE and go DONE after ACT.
    * Used for follow-up re-render / Q&A, and temporarily for all analysis types
@@ -254,9 +299,17 @@ export interface AnalysisPlan {
     | "playbook_comparison_memo";
   activeSkillIds?: string[];
   focus?: InstructionFocus;
+  /**
+   * Additive compound orchestration plan. Absent for the legacy and every
+   * single-operation path, so enabling this cannot change their behavior.
+   */
+  branches?: AnalysisBranchPlan[];
+  branchMode?: "shadow" | "compound";
   auditRecord?: PlanAuditRecord;
   /** PLAN-time package execution paths (audit + aggregation of unsupported reqs). */
   requirementExecutionPaths?: RequirementExecutionPath[];
+  /** Cached Phase 2 request-to-package-native joins; never re-derived in ACT/LOCK. */
+  requirementBindings?: RequirementBinding[];
   /** Surfaced target/reference decision (§5.1) — see DocumentRoleResolution. */
   documentRoleResolution?: DocumentRoleResolution;
   /** Pack / taxonomy versions pinned for audit reproducibility. */
@@ -265,6 +318,36 @@ export interface AnalysisPlan {
     riskTaxonomyVersion: string;
     modelTask?: string;
   };
+}
+
+export interface AnalysisBranchTimeBudget {
+  thinkingMode: "lite" | "deep";
+  baseVerificationMs: number;
+  maxVerificationMs: number;
+  hardCeilingMs: number;
+  retryFailedRequirements: number;
+  estimatedCriticalPathMs: number;
+}
+
+/** One independently planned, executed and rendered part of a compound ask. */
+export interface AnalysisBranchPlan {
+  facetId: string;
+  order: number;
+  label: string;
+  instruction: string;
+  intent: IntentClassification;
+  targetDocIds: string[];
+  referenceDocId?: string;
+  partyPerspective?: string | null;
+  capabilityContract: AnalysisCapabilityContract;
+  reportSpec: ReportSpec;
+  rendererSchemaId: AnalysisPlan["rendererSchemaId"];
+  activeSkillIds: string[];
+  focus?: InstructionFocus;
+  requirementExecutionPaths: RequirementExecutionPath[];
+  requirementBindings: RequirementBinding[];
+  workUnitIds: string[];
+  timeBudget: AnalysisBranchTimeBudget;
 }
 
 export interface PlanOutput {

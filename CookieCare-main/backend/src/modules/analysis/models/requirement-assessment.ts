@@ -1,4 +1,5 @@
 import type { ReportSectionId } from "./intent.js";
+import type { AnalysisExecutionState } from "./analysis-execution.js";
 
 /**
  * Reporting/aggregation status for a single user requirement.
@@ -108,6 +109,8 @@ export function displayFromStatus(status: RequirementStatus): string {
 
 export function displayFromJudgement(judgement: RequirementJudgement): string {
   if (judgement.compliance === "not_applicable") return "Not applicable";
+  // No related clause in the reviewed text — not a legal gap, just nothing to score.
+  if (judgement.evidenceState === "not_found") return "Insufficient data";
   if (judgement.evidenceState === "truncated") return "Cannot determine";
   if (judgement.compliance === "insufficient_evidence") return "Cannot determine";
 
@@ -132,11 +135,11 @@ export function displayFromJudgement(judgement: RequirementJudgement): string {
   }
 
   if (judgement.compliance === "partial") {
+    // `truncated` / `not_found` already returned above (lines ~112-113) before
+    // compliance is inspected, so only annex-pointer states can reach here.
     const evidentiary =
       judgement.evidenceState === "incorporated" ||
-      judgement.evidenceState === "unavailable" ||
-      judgement.evidenceState === "truncated" ||
-      judgement.evidenceState === "not_found";
+      judgement.evidenceState === "unavailable";
     if (evidentiary && judgement.referenceBinding === "binding") {
       return "Present, particulars in schedule";
     }
@@ -268,8 +271,14 @@ export interface BaselineComparison {
  */
 export interface RequirementAssessment {
   requirementId: string;
+  /** Compound branch that owns this locked assessment. */
+  facetId?: string;
+  /** Request requirement whose composite analysis this native component belongs to. */
+  componentOfRequirementId?: string;
   /** Ids of the authoritative Findings that support this assessment. */
   supportingFindingIds: string[];
+  /** Runtime completion, kept independent from the locked legal judgement. */
+  analysisExecution?: AnalysisExecutionState;
   /** Human-readable one/two line summary for synthesis input. */
   summary: string;
   status: RequirementStatus;

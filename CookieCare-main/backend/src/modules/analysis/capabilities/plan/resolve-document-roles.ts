@@ -25,6 +25,9 @@ export function resolveDocumentRoles(state: AnalysisState): ResolvedDocRoles {
   const docIds = state.request.documentIds;
   const texts = state.request.documentTexts ?? {};
   const explicit = state.request.documentRoles ?? {};
+  const titles = state.request.documentTitles ?? {};
+  const perDocumentRoles = (ids: string[]) =>
+    ids.map((id) => ({ docId: id, title: titles[id] || id }));
 
   if (docIds.length === 0) {
     return {
@@ -41,23 +44,12 @@ export function resolveDocumentRoles(state: AnalysisState): ResolvedDocRoles {
 
   const roles: Record<string, "target" | "reference"> = { ...explicit };
 
-  const presentation =
-    state.intent?.documentPresentation ?? state.request.documentPresentation;
-  const treatAllAsTargets = presentation === "unified" || presentation === "individual";
-
-  if (treatAllAsTargets) {
-    for (const id of docIds) {
-      if (roles[id] === "reference") continue;
-      roles[id] = "target";
-    }
-    const references = docIds.filter((id) => roles[id] === "reference");
-    const targets = docIds.filter((id) => roles[id] === "target");
-    return {
-      targetDocId: targets[0] ?? docIds[0],
-      targetDocIds: targets.length ? targets : [docIds[0]],
-      referenceDocId: references[0],
-      roles,
-    };
+  // A lone upload is always the target — there is nothing to compare it
+  // against, so it must never be heuristically classified as "reference"
+  // even if its language happens to score as normative/playbook-like.
+  if (docIds.length === 1) {
+    roles[docIds[0]] = roles[docIds[0]] === "reference" ? roles[docIds[0]] : "target";
+    return { targetDocId: docIds[0], targetDocIds: [docIds[0]], roles };
   }
 
   const std = state.intent?.standard;
@@ -81,11 +73,6 @@ export function resolveDocumentRoles(state: AnalysisState): ResolvedDocRoles {
   const targets = docIds.filter((id) => roles[id] === "target");
   const unset = docIds.filter((id) => !roles[id]);
 
-  if (docIds.length === 1) {
-    roles[docIds[0]] = roles[docIds[0]] ?? "target";
-    return { targetDocId: docIds[0], targetDocIds: [docIds[0]], roles };
-  }
-
   if (references.length > 1) {
     return {
       targetDocId: targets[0] ?? docIds[0],
@@ -96,7 +83,7 @@ export function resolveDocumentRoles(state: AnalysisState): ResolvedDocRoles {
         question:
           "Multiple documents look like playbooks/references. Mark exactly one as the playbook (reference) and one as the target agreement.",
         severity: "critical",
-        options: docIds.map((id) => `${id}:reference_or_target`),
+        perDocumentRoles: perDocumentRoles(docIds),
       },
     };
   }
@@ -131,7 +118,7 @@ export function resolveDocumentRoles(state: AnalysisState): ResolvedDocRoles {
         question:
           "You uploaded multiple documents. Mark which is the target agreement and which (if any) is a playbook/reference to compare against.",
         severity: "critical",
-        options: docIds.flatMap((id) => [`${id}:target`, `${id}:reference`]),
+        perDocumentRoles: perDocumentRoles(docIds),
       },
     };
   }

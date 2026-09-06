@@ -90,12 +90,12 @@ describe("deriveReportOutline", () => {
     assert.deepEqual(
       new Set(chapeau.requirementIds),
       new Set([
-        "subject_matter",
-        "duration",
-        "nature_purpose",
-        "data_categories",
-        "data_subject_categories",
-        "controller_obligations_rights",
+        "gdpr.article28.subject_matter",
+        "gdpr.article28.duration",
+        "gdpr.article28.nature_and_purpose",
+        "gdpr.article28.categories_of_data",
+        "gdpr.article28.categories_of_data_subjects",
+        "gdpr.article28.controller_obligations_and_rights",
       ])
     );
     assert.match(chapeau.heading, /Processing particulars/i);
@@ -103,7 +103,10 @@ describe("deriveReportOutline", () => {
     const mandatory = analysis.find((i) => i.role === "analysis")!;
     assert.deepEqual(
       new Set(mandatory.requirementIds),
-      new Set(["mandatory_article28_clauses", "clause_adequacy"])
+      new Set([
+        "gdpr.article28_3.mandatory_clauses_adequacy",
+        "clause_adequacy",
+      ])
     );
     assert.match(mandatory.heading, /Mandatory Article 28/);
 
@@ -190,7 +193,13 @@ describe("deriveReportOutline", () => {
       ]
     );
     const chapeau = analysisItems(outline).find((i) => i.role === "chapeau_particulars");
-    assert.deepEqual(new Set(chapeau?.requirementIds), new Set(["subject_matter", "duration"]));
+    assert.deepEqual(
+      new Set(chapeau?.requirementIds),
+      new Set([
+        "gdpr.article28.subject_matter",
+        "gdpr.article28.duration",
+      ])
+    );
     assert.ok(!chapeau?.requirementIds.includes("pkg.subject_matter_defined"));
     const mandatory = analysisItems(outline).find((i) => /Mandatory Article 28/.test(i.heading));
     assert.ok(mandatory?.requirementIds.includes("art28_3_a_instructions"));
@@ -233,8 +242,51 @@ describe("deriveReportOutline", () => {
       "nda.confidentiality.mutuality",
     ];
     const intent = intentWithRequirements(ids);
-    const outline = deriveReportOutline(intent, "qa_answer", "standard");
+    const outline = deriveReportOutline(
+      intent,
+      "qa_answer",
+      "standard",
+      ["key_findings", "evidence", "qualifications"]
+    );
     assert.ok(analysisItems(outline).length >= 1);
-    assert.notDeepEqual(outline.map((i) => i.role), ["scope", "conclusion"]);
+    assert.deepEqual(outline.map((i) => i.heading), ["Answer", "Evidence", "Qualifications"]);
+  });
+
+  it("keeps compound sub-asks in distinct report sections", () => {
+    const compound = intentWithRequirements(["termination.balance", "liability.cap"]);
+    compound.compound = true;
+    compound.subIntents = [
+      {
+        operation: "compare",
+        standard: "none",
+        outputForm: "memo",
+        description: "Termination balance",
+        requirements: [compound.requirements[0]!],
+      },
+      {
+        operation: "risk_flag",
+        standard: "none",
+        outputForm: "memo",
+        description: "Customer liability protection",
+        requirements: [compound.requirements[1]!],
+      },
+    ];
+
+    const outline = deriveReportOutline(
+      compound,
+      "risk_audit",
+      "standard",
+      ["executive_summary", "risk_summary", "recommendations", "conclusion"]
+    );
+
+    const termination = outline.find((item) => item.heading === "Termination balance");
+    const liability = outline.find(
+      (item) => item.heading === "Customer liability protection"
+    );
+    assert.deepEqual(termination?.requirementIds, ["termination.balance"]);
+    assert.deepEqual(liability?.requirementIds, ["liability.cap"]);
+    assert.equal(termination?.sectionId, "comparison");
+    assert.equal(liability?.sectionId, "risk_summary");
+    assert.equal(outline.at(-1)?.sectionId, "conclusion");
   });
 });

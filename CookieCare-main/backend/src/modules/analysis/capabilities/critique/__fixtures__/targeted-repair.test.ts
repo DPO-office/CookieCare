@@ -13,8 +13,13 @@ import {
 import { getSkillById, resetSkillRegistryForTests } from "../../../skills/runtime/catalog/registry.js";
 import type { AnalysisState } from "../../../models/analysis-state.js";
 import type { CritiqueReport } from "../../../models/critique-report.js";
+import type { AnalysisPlan } from "../../../models/analysis-plan.js";
 
-function baseState(overrides: Partial<AnalysisState> = {}): AnalysisState {
+type FixtureOverrides = Omit<Partial<AnalysisState>, "plan"> & {
+  plan?: Partial<AnalysisPlan>;
+};
+
+function baseState(overrides: FixtureOverrides = {}): AnalysisState {
   const profile = resolveAnalysisProfile("deep");
   return {
     analysisProfile: profile,
@@ -76,7 +81,7 @@ function baseState(overrides: Partial<AnalysisState> = {}): AnalysisState {
       confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 },
     },
     ...overrides,
-  };
+  } as AnalysisState;
 }
 
 describe("targeted repair classification and package-shape", () => {

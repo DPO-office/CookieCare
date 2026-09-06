@@ -130,6 +130,7 @@ export async function loadLibraryData(authToken: string): Promise<LibraryData> {
       itemsCount: fileList.length,
       dateModified: fmtDate(f.updated_at),
       createdBy: "User",
+      source: "private" as const,
       fileList,
     };
   });

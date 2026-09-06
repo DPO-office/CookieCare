@@ -94,16 +94,16 @@ describe("placeholder detection", () => {
   it("passes substantive output", () => {
     const result = detectPlaceholderOutput(
       stateWithOutput(
-        "# NDA Review\n\n## Scope\n\nThe agreement defines confidential information with standard exclusions.\n\n## Conclusion\n\nOverall adequate."
-      ),
-      [
-        {
-          requirementId: "r1",
-          supportingFindingIds: ["f1"],
-          summary: "Covered",
-          status: "covered",
-        },
-      ]
+        "# NDA Review\n\n## Scope\n\nThe agreement defines confidential information with standard exclusions.\n\n## Conclusion\n\nOverall adequate.",
+        [
+          {
+            requirementId: "r1",
+            supportingFindingIds: ["f1"],
+            summary: "Covered",
+            status: "covered",
+          },
+        ]
+      )
     );
     assert.equal(result.detected, false);
   });

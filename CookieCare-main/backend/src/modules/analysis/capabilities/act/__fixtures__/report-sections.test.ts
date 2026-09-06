@@ -30,10 +30,10 @@ describe("deriveSections", () => {
     ]);
   });
 
-  it("uses evidence + conclusion for narrow Q&A", () => {
+  it("uses answer-first evidence for narrow Q&A", () => {
     assert.deepEqual(deriveSections("qa_answer", "narrow"), [
+      "key_findings",
       "evidence",
-      "conclusion",
     ]);
   });
 });

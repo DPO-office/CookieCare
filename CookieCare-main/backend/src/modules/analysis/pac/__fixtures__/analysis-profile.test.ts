@@ -33,6 +33,9 @@ describe("analysis profile / thinkingMode", () => {
     assert.equal(profile.thinkingByTask[LLMTask.STRUCTURAL_JSON_LITE], "minimal");
     assert.equal(profile.critiqueUsesProChecklist, false);
     assert.equal(profile.evidenceCharBudget, 2000);
+    assert.equal(profile.selectedVerifyCandidateCap, 2);
+    assert.equal(profile.verifyRequirementConcurrency, 3);
+    assert.equal(profile.verifyCandidateTimeoutMs, 45_000);
   });
 
   it("deep uses Flash medium on evaluate/synthesis and never loops", () => {
@@ -49,6 +52,9 @@ describe("analysis profile / thinkingMode", () => {
     assert.equal(profile.synthesisCeilingFactor, 1.75);
     assert.equal(profile.synthesisHardCap, 6400);
     assert.equal(profile.evidenceCharBudget, 8000);
+    assert.equal(profile.selectedVerifyCandidateCap, 4);
+    assert.equal(profile.verifyRequirementConcurrency, 2);
+    assert.equal(profile.verifyCandidateTimeoutMs, 90_000);
   });
 
   it("lite synthesis ceiling stays conservative", () => {
@@ -70,6 +76,20 @@ describe("analysis profile / thinkingMode", () => {
       thinkingMode: "turbo",
     });
     assert.equal(bad.success, false);
+  });
+
+  it("API schema allows a persisted session to recover its documents", () => {
+    const continued = AnalysisRequestSchema.safeParse({
+      instruction: "Show the prior answer as a table",
+      sessionId: "an_existing",
+      answerStyle: "tabular",
+    });
+    assert.equal(continued.success, true);
+
+    const freshWithoutDocuments = AnalysisRequestSchema.safeParse({
+      instruction: "Review this DPA",
+    });
+    assert.equal(freshWithoutDocuments.success, false);
   });
 
   it("lite profile does not open ACT redo from critique fixes", () => {

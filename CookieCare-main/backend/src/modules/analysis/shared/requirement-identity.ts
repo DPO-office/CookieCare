@@ -37,6 +37,7 @@ const STATIC_ALIAS_GROUPS: string[][] = [
   // Combined PLAN categories row — live PLAN spellings omit "of_" or repeat "data_".
   [
     "gdpr.article28.categories_of_data_and_subjects",
+    "gdpr.article28.data_categories_and_subjects",
     "gdpr.article28.categories_data_and_subjects",
     "gdpr.article28.categories_of_data_and_data_subjects",
     "gdpr.article28.categories_data_and_data_subjects",
@@ -48,6 +49,7 @@ const STATIC_ALIAS_GROUPS: string[][] = [
     "categories_data_and_subjects",
     "categories_of_data_and_data_subjects",
     "categories_data_and_data_subjects",
+    "data_categories_and_subjects",
   ],
   [
     "gdpr.article28.controller_obligations_and_rights",
@@ -59,6 +61,8 @@ const STATIC_ALIAS_GROUPS: string[][] = [
   ],
   [
     "gdpr.article28_3.mandatory_clauses_adequacy",
+    "gdpr.article28_3.mandatory_obligations_adequacy",
+    "gdpr.article28.processor_obligations",
     "gdpr.article28.mandatory_clauses_adequacy",
     "gdpr.article28.mandatory_clauses_completeness",
     "gdpr.article28_3.mandatory_clauses_completeness",
@@ -185,6 +189,7 @@ const CATEGORY_UMBRELLA_MEMBERS = ["data_categories", "data_subject_categories"]
 
 const UMBRELLA_TO_MEMBERS: Record<string, string[]> = {
   "gdpr.article28.categories_of_data_and_subjects": CATEGORY_UMBRELLA_MEMBERS,
+  "gdpr.article28.data_categories_and_subjects": CATEGORY_UMBRELLA_MEMBERS,
   "gdpr.article28.categories_data_and_subjects": CATEGORY_UMBRELLA_MEMBERS,
   "gdpr.article28.categories_of_data_and_data_subjects": CATEGORY_UMBRELLA_MEMBERS,
   "gdpr.article28.categories_data_and_data_subjects": CATEGORY_UMBRELLA_MEMBERS,
@@ -196,11 +201,14 @@ const UMBRELLA_TO_MEMBERS: Record<string, string[]> = {
   categories_data_and_subjects: CATEGORY_UMBRELLA_MEMBERS,
   categories_of_data_and_data_subjects: CATEGORY_UMBRELLA_MEMBERS,
   categories_data_and_data_subjects: CATEGORY_UMBRELLA_MEMBERS,
+  data_categories_and_subjects: CATEGORY_UMBRELLA_MEMBERS,
   mandatory_article28_clauses: LETTERED_ART28_MEMBERS,
   mandatory_article_28_3_clauses: LETTERED_ART28_MEMBERS,
   "gdpr.article28.mandatory_clauses_completeness": LETTERED_ART28_MEMBERS,
   "gdpr.article28.mandatory_clauses_adequacy": LETTERED_ART28_MEMBERS,
   "gdpr.article28_3.mandatory_clauses_adequacy": LETTERED_ART28_MEMBERS,
+  "gdpr.article28_3.mandatory_obligations_adequacy": LETTERED_ART28_MEMBERS,
+  "gdpr.article28.processor_obligations": LETTERED_ART28_MEMBERS,
   "gdpr.article28_3.mandatory_clauses_completeness": LETTERED_ART28_MEMBERS,
   "article28_3.mandatory_clauses_adequacy": LETTERED_ART28_MEMBERS,
 };

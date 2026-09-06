@@ -24,6 +24,8 @@ import {
 
   type IntentClassification,
 
+  type IntentExhaustiveness,
+
   type IntentSubIntent,
 
   type OperationAxis,
@@ -160,6 +162,23 @@ const REQUIREMENT_TYPE_ENUM = [
 const REQUIREMENT_PRIORITY_ENUM = ["required", "supporting"] as const;
 
 const DOC_EXCERPT_CHARS = 4000;
+
+/**
+ * Preserve an explicit user result cap independently from compute depth.
+ * This is intentionally domain-neutral: it recognizes cardinality language,
+ * not any particular contract type, rule, or risk taxonomy.
+ */
+export function parseExhaustiveness(
+  instruction: string
+): IntentExhaustiveness | undefined {
+  const normalized = instruction.toLowerCase().replace(/[,;:]/g, " ");
+  const match =
+    normalized.match(/\b(?:top|first|only)\s+(\d{1,3})\b/) ??
+    normalized.match(/\b(\d{1,3})\s+(?:most|biggest|highest|top|key)\b/);
+  const limit = Number(match?.[1]);
+  if (!Number.isInteger(limit) || limit < 1 || limit > 100) return undefined;
+  return { mode: "user_capped", limit };
+}
 
 
 
@@ -524,7 +543,6 @@ export async function classifyIntent(state: AnalysisState): Promise<AnalysisStat
     );
     pacLog("PLAN classify-intent follow-up presentation change", {
       outputForm: intent.outputForm,
-      presentation: intent.documentPresentation,
     });
     logClassifiedIntent(intent, instruction);
     return { ...state, intent, declineMessage: undefined, clarificationRequest: undefined };
@@ -668,6 +686,8 @@ export async function classifyIntent(state: AnalysisState): Promise<AnalysisStat
     unresolvedStandard: standardResult.unresolvedStandard,
 
     docTypeHint,
+
+    exhaustiveness: parseExhaustiveness(instruction),
 
   };
 

@@ -12,7 +12,9 @@ import {
   assessmentTableMarkdown,
   countMarkdownTables,
   enforceAnswerStyleLayout,
+  enforceBottomLineEvidenceLimits,
 } from "../render-output.js";
+import { stripRedundantQaEvidenceSubsection } from "../synthesize-report.js";
 import { RISK_TAXONOMY_VERSION } from "../../../taxonomies/index.js";
 
 function finding(id: string, quote: string): Finding {
@@ -77,6 +79,57 @@ function state(overrides: Record<string, unknown> = {}): AnalysisState {
 }
 
 describe("narrative vs tabular layout contract", () => {
+  it("removes duplicated nested evidence from an answer-first Q&A report", () => {
+    const markdown = [
+      "## Answer",
+      "",
+      "**Yes.** The document separates two scopes.",
+      "",
+      "### Key Evidence",
+      "",
+      "- duplicated quote",
+      "",
+      "## Evidence",
+      "",
+      "- **Clause 1:** complete quote [E1]",
+    ].join("\n");
+    const cleaned = stripRedundantQaEvidenceSubsection(markdown);
+    assert.doesNotMatch(cleaned, /### Key Evidence/);
+    assert.match(cleaned, /## Evidence/);
+    assert.match(cleaned, /complete quote/);
+  });
+
+  it("cannot render a fully-complete bottom line over incorporated evidence", () => {
+    const guarded = enforceBottomLineEvidenceLimits(
+      state({
+        requirementAssessments: [
+          {
+            requirementId: "transfer.destinations",
+            supportingFindingIds: ["f1"],
+            status: "adequate",
+            summary: "The restriction is binding; particulars are in a schedule.",
+            judgement: {
+              compliance: "present",
+              evidenceState: "incorporated",
+              referenceBinding: "binding",
+              evidenceConfidence: "medium",
+              materiality: "medium",
+              recommendationKind: "obtain",
+            },
+          } satisfies RequirementAssessment,
+        ],
+      }),
+      "All three requirements are present with no material residual items outstanding. Counsel should finalize compliance."
+    );
+    assert.doesNotMatch(guarded, /no material residual/i);
+    assert.doesNotMatch(guarded, /finalize compliance/i);
+    assert.match(
+      guarded,
+      /dependent on referenced, truncated, conflicting, or unavailable material/i
+    );
+    assert.match(guarded, /before treating the analysis as complete/i);
+  });
+
   it("does not attach a rights-matrix table artifact in narrative mode", () => {
     const next = attachRightsMatrixTableArtifact(state(), state().findings ?? []);
     assert.equal(next.analysisArtifacts?.rights_matrix_table, undefined);
@@ -283,9 +336,36 @@ describe("narrative vs tabular layout contract", () => {
     assert.ok(confidentialityRow);
     assert.doesNotMatch(confidentialityRow!, /deletion exception is broader/i);
     assert.doesNotMatch(confidentialityRow!, /unless applicable local law/i);
-    assert.match(markdown, /No verbatim extract/);
-    assert.doesNotMatch(markdown, /\| — \|/);
+    assert.match(markdown, /No related clauses found/);
+    assert.match(markdown, /No action needed/);
+    assert.match(markdown, /Review and address the partial coverage/);
     assert.doesNotMatch(markdown, /\| - \|/);
+    assert.doesNotMatch(markdown, /\| - \|/);
+  });
+
+  it("keeps tables concise while leaving the underlying verified evidence intact", () => {
+    const quote = `The processor shall preserve the entire verified paragraph ${"including operative detail ".repeat(24)}END-OF-VERIFIED-PARAGRAPH.`;
+    const markdown = assessmentTableMarkdown(
+      [
+        {
+          requirementId: "complete_evidence",
+          supportingFindingIds: ["f_complete"],
+          status: "strong",
+          summary: "Complete evidence is available.",
+        },
+      ],
+      [
+        {
+          ...finding("f_complete", quote),
+          requirementId: "complete_evidence",
+          claim: "Complete evidence is available.",
+        },
+      ]
+    );
+
+    assert.doesNotMatch(markdown, /END-OF-VERIFIED-PARAGRAPH/);
+    assert.match(markdown, /\[excerpt\]/);
+    assert.equal(quote.endsWith("END-OF-VERIFIED-PARAGRAPH."), true);
   });
 
   it("injects locked Present duration when outline still carries PLAN ids", () => {

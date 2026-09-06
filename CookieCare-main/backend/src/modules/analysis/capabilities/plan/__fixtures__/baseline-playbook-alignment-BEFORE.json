@@ -24,8 +24,7 @@
       "standard": 0.9,
       "outputForm": 0.85
     },
-    "docTypeHint": "dpa",
-    "documentPresentation": "unified"
+    "docTypeHint": "dpa"
   },
   "clarificationRequest": null,
   "declineMessage": null,
@@ -55,8 +54,7 @@
         "standard": 0.9,
         "outputForm": 0.85
       },
-      "docTypeHint": "dpa",
-      "documentPresentation": "unified"
+      "docTypeHint": "dpa"
     },
     "workUnits": [
       {
@@ -779,7 +777,6 @@
     ],
     "missingClarifications": [],
     "outputForm": "memo",
-    "documentPresentation": "unified",
     "skipCritique": true,
     "reportSpec": {
       "reportType": "risk_audit",
@@ -1014,8 +1011,7 @@
           "standard": 0.9,
           "outputForm": 0.85
         },
-        "docTypeHint": "dpa",
-        "documentPresentation": "unified"
+        "docTypeHint": "dpa"
       },
       "intentNormalizations": [],
       "scopeAudit": []

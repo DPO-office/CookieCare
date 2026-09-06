@@ -67,7 +67,7 @@ const STATUS_PATTERNS: Array<{ pattern: RegExp; variant: string }> = [
 
   // ── Yellow — conditional / partial ─────────────────────────────────────
   { pattern: /\bconditionally\s+(compliant|adequate)\b/i,   variant: "yellow" },
-  { pattern: /\bpartially?\s+adequate\b/i,                  variant: "yellow" },
+  { pattern: /\bpartial(?:ly)?\s+(adequate|covered)\b/i,    variant: "yellow" },
   { pattern: /\bminor\s+(gap|drafting)\b/i,                 variant: "yellow" },
   { pattern: /\b(conditional|partial|incomplete)\b/i,       variant: "yellow" },
 
@@ -112,68 +112,91 @@ function stripTags(html: string): string {
  * pattern with `<td><span class="md-status md-status-{variant}">…</span></td>`.
  */
 function injectStatusBadges(html: string): string {
-  return html.replace(/<td\b([^>]*)>([\s\S]*?)<\/td>/gi, (match, attrs, inner) => {
-    const plain = stripTags(inner);
-    const variant = detectStatusVariant(plain);
-    if (!variant) return match;
-    // Preserve inner HTML (may have <strong> etc.) but wrap in badge span
-    return `<td${attrs}><span class="md-status md-status-${variant}">${inner.trim()}</span></td>`;
-  });
+  const headers = [...html.matchAll(/<th\b[^>]*>([\s\S]*?)<\/th>/gi)].map(
+    (match) => stripTags(match[1]).toLowerCase()
+  );
+  const statusColumn = headers.findIndex((header) =>
+    /^(status|assessment|outcome|result)$/.test(header)
+  );
+  if (statusColumn < 0) return html;
+
+  return html.replace(
+    /(<tbody\b[^>]*>)([\s\S]*?)(<\/tbody>)/gi,
+    (_match, open, body, close) => {
+      const processedBody = body.replace(
+        /(<tr\b[^>]*>)([\s\S]*?)(<\/tr>)/gi,
+        (_rowMatch: string, rowOpen: string, cells: string, rowClose: string) => {
+          const parts = cells.split("</td>");
+          const rebuilt = parts.map((part, index) => {
+            if (index === parts.length - 1 || index !== statusColumn) {
+              return index === parts.length - 1 ? part : part + "</td>";
+            }
+            const cellMatch = part.match(/^(\s*<td\b)([^>]*)>([\s\S]*)$/i);
+            if (!cellMatch) return part + "</td>";
+            const [, tdOpen, attrs, inner] = cellMatch;
+            const variant = detectStatusVariant(stripTags(inner));
+            if (!variant) return part + "</td>";
+            return `${tdOpen}${attrs}><span class="md-status md-status-${variant}">${inner.trim()}</span></td>`;
+          });
+          return rowOpen + rebuilt.join("") + rowClose;
+        }
+      );
+      return open + processedBody + close;
+    }
+  );
+}
+
+/** Column indices (0-based) whose long content participates in row expansion. */
+const CLAMP_COLUMN_INDICES = new Set([2, 3, 4]);
+
+function clampThresholdForColumn(index: number): number {
+  return index === 0 ? 70 : 120;
+}
+
+function wrapCellWithClamp(
+  tdOpen: string,
+  inner: string,
+  minChars = 120
+): string {
+  const plainLen = stripTags(inner).length;
+  if (plainLen <= minChars) return tdOpen + inner.trim() + "</td>";
+  return (
+    tdOpen +
+    '<span class="md-clause-text" role="button" tabindex="0" aria-label="Expand row" aria-expanded="false" title="Click to expand row">' +
+    inner.trim() +
+    "</span>" +
+    "</td>"
+  );
 }
 
 /**
- * Injects a 3-line clamp + "Show more" toggle into the Evidence/clause column.
+ * Clamps every long prose cell in a row. The clamped text itself is the row
+ * expansion control, so the native visible ellipsis does not need a separate
+ * button beneath it.
  *
- * The 3rd <td> in every <tbody> row (column index 2, zero-based) is the
- * Evidence / Referenced Clause column. Actual column order from the LLM:
- * Category(0) → Status(1) → Clause(2) → Finding(3)
- * <span class="md-clause-text"> (CSS clamps to 3 lines) and append a
- * <button class="md-clause-toggle"> immediately after it inside the cell.
- *
- * Cells with plain text ≤ 120 chars are left untouched — no clamp needed.
- *
- * NOTE: We rebuild the <tr> string by splitting on </td> boundaries rather
- * than using nested String.replace(), which avoids $ special-character bugs
- * in replacement strings when cell content contains HTML.
+ * Standard 4-col table: Evidence (index 2), Finding (index 3).
+ * Requirements table: Evidence (2), Finding (3), Action (4).
  */
-function injectClauseToggles(tableHtml: string): string {
+function injectClauseToggles(tableHtml: string, clampIndices: Set<number> = CLAMP_COLUMN_INDICES): string {
   return tableHtml.replace(
     /(<tbody\b[^>]*>)([\s\S]*?)(<\/tbody>)/gi,
     (_match, open, body, close) => {
-      // Split body into individual <tr>…</tr> blocks
       const processedBody = body.replace(
         /(<tr\b[^>]*>)([\s\S]*?)(<\/tr>)/gi,
         (_trMatch: string, trOpen: string, cells: string, trClose: string) => {
-          // Split cells by </td> — each segment except the last starts with <td…>content
           const parts = cells.split("</td>");
-          // Last split is trailing whitespace/newline after the last </td> — keep it
           const rebuilt = parts.map((part, idx) => {
-            // Not a real cell segment (trailing fragment after last </td>)
             if (idx === parts.length - 1) return part;
+            if (!clampIndices.has(idx)) return part + "</td>";
 
-            // Only process column index 2 (3rd column — Evidence/Clause)
-            // Actual column order: Category(0) → Status(1) → Clause(2) → Finding(3)
-            if (idx !== 2) return part + "</td>";
-
-            // Extract <td attrs> and inner content
-            const cellMatch = part.match(/^(<td\b[^>]*>)([\s\S]*)$/i);
+            const cellMatch = part.match(/^(\s*<td\b[^>]*>)([\s\S]*)$/i);
             if (!cellMatch) return part + "</td>";
 
             const [, tdOpen, inner] = cellMatch;
-            const plainLen = stripTags(inner).length;
-
-            // Skip short cells — no clamp needed
-            if (plainLen <= 120) return part + "</td>";
-
-            // Wrap and append toggle — use a raw string concatenation so no
-            // $ substitution magic from String.replace applies here
-            return (
-              tdOpen +
-              '<span class="md-clause-text">' +
-              inner.trim() +
-              "</span>" +
-              '<button class="md-clause-toggle" type="button">Show more</button>' +
-              "</td>"
+            return wrapCellWithClamp(
+              tdOpen,
+              inner,
+              clampThresholdForColumn(idx)
             );
           });
 
@@ -182,6 +205,21 @@ function injectClauseToggles(tableHtml: string): string {
       );
       return open + processedBody + close;
     }
+  );
+}
+
+/** True when the table is the locked 5-column requirements matrix. */
+function isRequirementsTable(tableHtml: string): boolean {
+  const headers = [...tableHtml.matchAll(/<th\b[^>]*>([\s\S]*?)<\/th>/gi)].map((m) =>
+    stripTags(m[1]).trim().toLowerCase()
+  );
+  if (headers.length !== 5) return false;
+  return (
+    headers[0] === "requirement" &&
+    headers[1] === "status" &&
+    headers[2] === "evidence" &&
+    headers[3] === "finding" &&
+    headers[4] === "action"
   );
 }
 
@@ -203,28 +241,64 @@ function wrapTables(html: string): string {
       .trim();
     const indexed = firstHeader !== undefined && INDEX_HEADER.test(firstHeader);
 
-    // Count columns from the first header row
     const headerCols = (table.match(/<th\b/gi) || []).length;
-    const manyColsClass = headerCols >= 5 ? " md-table-many-cols" : "";
+    const requirements = isRequirementsTable(table);
+    const manyColsClass =
+      !requirements && headerCols >= 5 ? " md-table-many-cols" : "";
+    const requirementsClass = requirements ? " md-table-requirements" : "";
 
-    // Build table class string
-    const tableClass = [
-      manyColsClass.trim(),
-    ].filter(Boolean).join(" ");
+    const tableClass = [requirementsClass.trim(), manyColsClass.trim()]
+      .filter(Boolean)
+      .join(" ");
 
-    // Inject status badges, then clause toggles
     let processed = injectStatusBadges(table);
-    processed = injectClauseToggles(processed);
+    processed = injectClauseToggles(
+      processed,
+      requirements ? new Set([0, 2, 3, 4]) : new Set([2, 3])
+    );
 
-    // Add class to <table> element if needed
     if (tableClass) {
       processed = processed.replace(/<table\b/, `<table class="${tableClass}"`);
     }
 
-    const wrapClass = indexed ? "md-table-wrap md-table-indexed" : "md-table-wrap";
+    const wrapClass = [
+      "md-table-wrap",
+      indexed ? "md-table-indexed" : "",
+      requirements ? "md-table-requirements-wrap" : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
     return `<div class="${wrapClass}">${processed}</div>`;
   });
 }
+
+/**
+ * Give deterministic compound-analysis markdown a real visual hierarchy.
+ * The backend reserves H1 for the report and H2 for independently analyzed
+ * workstreams; branch-internal headings are H3+. Keeping this transformation
+ * here means copy/print still receive ordinary, portable Markdown.
+ */
+function wrapCompoundAnalysis(html: string): string {
+  if (!/<h1>\s*Analysis report\s*<\/h1>/i.test(html)) return html;
+  const firstWorkstream = html.search(/<h2>/i);
+  if (firstWorkstream < 0) return html;
+
+  const overview = html.slice(0, firstWorkstream)
+    .replace(/<h1>/i, '<h1 class="md-analysis-title">');
+  const workstreamHtml = html.slice(firstWorkstream).replace(/<hr>\s*/gi, "");
+  const workstreams = workstreamHtml.match(/<h2>[\s\S]*?(?=<h2>|$)/gi) ?? [];
+  if (workstreams.length < 2) return html;
+
+  return [
+    `<section class="md-analysis-overview">${overview}</section>`,
+    ...workstreams.map(
+      (section) => `<section class="md-analysis-workstream">${section}</section>`
+    ),
+  ].join("\n");
+}
+
+const MARKDOWN_CACHE_MAX = 24;
+const markdownHtmlCache = new Map<string, string>();
 
 /**
  * Converts a Markdown string into an HTML string suitable for TipTap's
@@ -237,6 +311,16 @@ export function markdownToHtml(markdown: string): string {
   if (!markdown || !markdown.trim()) {
     return "<p></p>";
   }
+  const cached = markdownHtmlCache.get(markdown);
+  if (cached !== undefined) return cached;
+
   const cleaned = stripOuterCodeFences(markdown);
-  return wrapTables(md.render(cleaned));
+  const html = wrapCompoundAnalysis(wrapTables(md.render(cleaned)));
+
+  if (markdownHtmlCache.size >= MARKDOWN_CACHE_MAX) {
+    const oldest = markdownHtmlCache.keys().next().value;
+    if (oldest !== undefined) markdownHtmlCache.delete(oldest);
+  }
+  markdownHtmlCache.set(markdown, html);
+  return html;
 }

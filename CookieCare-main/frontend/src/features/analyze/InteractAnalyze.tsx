@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { History } from "lucide-react";
 import { useAppContext } from "../../contexts/AppContext";
 import AiProgressOverlay from "../../shared/components/AiProgressOverlay";
@@ -14,11 +14,11 @@ import { useUpload } from "./hooks/useUpload";
 import { useAnalysisHistory } from "./hooks/useAnalysisHistory";
 import { getSelectedDocuments, hasSelectedDocuments } from "./documentSelection";
 import { ACCEPTED_UPLOAD_ACCEPT_STRING } from "./constants";
-import type { DocumentMode, AnswerStyle, AnalysisDepth, SidePanelType } from "./types";
+import type { AnswerStyle, AnalysisDepth, SidePanelType } from "./types";
 import { createAnalyzeFolder } from "./api/analyzeApi";
 import { toPromptLibraryId } from "./api/analysisJobs";
 import { PREMIUM_CHAT_LANDING_STYLES } from "../../shared/styles/premiumChatLandingStyles";
-import { ANALYZE_STYLES } from "./styles/analyzeStyles";
+import { ensureAnalyzeStyles } from "./ensureAnalyzeStyles";
 
 export default function InteractAnalyze() {
   const { authToken: ctxToken, fetchDocuments } = useAppContext();
@@ -48,11 +48,9 @@ export default function InteractAnalyze() {
 
   const [customPromptText, setCustomPromptText] = useState("");
   const [promptLibraryId, setPromptLibraryId] = useState<string | undefined>();
-  const [documentMode, setDocumentMode] = useState<DocumentMode>("unified");
   const [answerStyle, setAnswerStyle] = useState<AnswerStyle>("narrative");
   const [analysisDepth, setAnalysisDepth] = useState<AnalysisDepth>("lite");
   const [playbookDocId, setPlaybookDocId] = useState<string | null>(null);
-  const [chatInput, setChatInput] = useState("");
   const [validationMessage, setValidationMessage] = useState("");
 
   // ── Modal open flags ─────────────────────────────────────────────────────
@@ -65,6 +63,10 @@ export default function InteractAnalyze() {
   const [historyOpen, setHistoryOpen] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    ensureAnalyzeStyles();
+  }, []);
 
   const selectedDocuments = getSelectedDocuments(folders, savedDrafts, ephemeralFiles);
   const hasDocuments = hasSelectedDocuments(folders, savedDrafts, ephemeralFiles);
@@ -80,7 +82,11 @@ export default function InteractAnalyze() {
     const restored = await history.loadSession(item);
     if (!restored) return;
     setHistoryOpen(false);
-    analysis.restoreSession(restored.messages, restored.docName);
+    analysis.restoreSession(
+      restored.messages,
+      restored.docName,
+      restored.sessionId
+    );
   };
 
   const handleAddNewFolder = async (e: React.FormEvent) => {
@@ -114,7 +120,6 @@ export default function InteractAnalyze() {
       savedDrafts,
       ephemeralFiles,
       customPromptText,
-      documentMode,
       answerStyle,
       analysisDepth,
       promptLibraryId,
@@ -122,12 +127,15 @@ export default function InteractAnalyze() {
     );
   };
 
-  const handleSendChatMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!chatInput.trim()) return;
-    const text = chatInput.trim();
-    setChatInput("");
-    analysis.handleSendChatMessage(text, folders, savedDrafts, documentMode, answerStyle, analysisDepth, ephemeralFiles);
+  const handleSendFollowUp = (text: string) => {
+    analysis.handleSendChatMessage(
+      text,
+      folders,
+      savedDrafts,
+      answerStyle,
+      analysisDepth,
+      ephemeralFiles
+    );
   };
 
   const attachUploadedFiles = (result: { fileIds: string[]; fileTitles: Record<string, string>; error?: string }) => {
@@ -184,11 +192,8 @@ export default function InteractAnalyze() {
         <ReportView
           activeReportDocName={analysis.activeReportDocName}
           chatMessages={analysis.chatMessages}
-          chatInput={chatInput}
           showCopyToast={analysis.showCopyToast}
           onBack={() => analysis.setViewMode("form")}
-          onChatInputChange={setChatInput}
-          onSendMessage={handleSendChatMessage}
           onCopy={analysis.handleCopyReport}
           onDownload={analysis.handleDownloadReport}
           onPrint={analysis.handlePrintReport}
@@ -198,6 +203,8 @@ export default function InteractAnalyze() {
           onAskSubmit={analysis.handleResumeAsk}
           isStreaming={analysis.isAnalyzing}
           progressMessage={analysis.analysisProgress}
+          streamingStore={analysis.streamingStore}
+          onSendFollowUp={handleSendFollowUp}
           questionsLibrary={questionsLibrary}
           onOpenHistory={handleOpenHistory}
         />
@@ -218,7 +225,6 @@ export default function InteractAnalyze() {
   return (
     <>
       <style>{PREMIUM_CHAT_LANDING_STYLES}</style>
-      <style>{ANALYZE_STYLES}</style>
 
       <div className="dpa-results-bg analyze-landing flex-1 flex flex-col min-h-0 overflow-hidden relative font-sans">
 
@@ -294,10 +300,8 @@ export default function InteractAnalyze() {
               onTogglePlaybook={(doc) =>
                 setPlaybookDocId((prev) => (prev === doc.id ? null : doc.id))
               }
-              documentMode={documentMode}
               answerStyle={answerStyle}
               analysisDepth={analysisDepth}
-              onSetDocumentMode={setDocumentMode}
               onSetAnswerStyle={setAnswerStyle}
               onSetAnalysisDepth={setAnalysisDepth}
               canAnalyze={canAnalyze}

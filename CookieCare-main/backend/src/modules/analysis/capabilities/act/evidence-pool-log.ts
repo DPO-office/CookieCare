@@ -20,7 +20,10 @@ import { scoreClauseForPackage } from "./extract-shared-evidence.js";
 const LOG_DIR = path.join(process.cwd(), "logs", "analysis");
 
 function resolveLogPath(state: AnalysisState): string {
-  const sessionId = state.request.sessionId || "unknown-session";
+  // Diagnostics must never become a pipeline dependency. Unit fixtures and
+  // recovery paths can legitimately construct a partial state before the
+  // request envelope exists.
+  const sessionId = state.request?.sessionId || "unknown-session";
   return path.join(LOG_DIR, `${sessionId}.log`);
 }
 
@@ -28,10 +31,12 @@ function ensureDirAndHeader(state: AnalysisState): string {
   const filePath = resolveLogPath(state);
   if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR, { recursive: true });
   if (!fs.existsSync(filePath)) {
+    const sessionId = state.request?.sessionId || "unknown-session";
+    const documentIds = state.request?.documentIds ?? [];
     const header = [
       "=".repeat(88),
       "EVIDENCE POOL TRACE",
-      `session=${state.request.sessionId}  docIds=${state.request.documentIds.join(",")}`,
+      `session=${sessionId}  docIds=${documentIds.join(",")}`,
       `started=${new Date().toISOString()}`,
       "=".repeat(88),
       "",
@@ -43,6 +48,9 @@ function ensureDirAndHeader(state: AnalysisState): string {
 }
 
 function appendSection(state: AnalysisState, title: string, lines: string[]): void {
+  // A trace without a real run/session cannot be correlated and only creates
+  // test artifacts. Skip it while leaving analysis behavior untouched.
+  if (!state.request?.sessionId) return;
   const filePath = ensureDirAndHeader(state);
   const block = [
     "",

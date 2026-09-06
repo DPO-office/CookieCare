@@ -14,12 +14,20 @@
  */
 export type PropositionSource = "S1" | "S2" | "S3" | "S4" | "S5a" | "S5b";
 
+export type PropositionPolarity =
+  | "compliance_met"
+  | "risk_present"
+  | "control_present"
+  | "neutral_fact";
+
 export interface Proposition {
   /** What ACT is being asked to establish. */
   hypothesis: string;
   /** Written the way you'd brief a first-year associate — specific and checkable. */
   proofStandard: string;
   source: PropositionSource;
+  /** Semantic channel VERIFY is testing; never inferred later from the lane. */
+  polarity: PropositionPolarity;
   /** Higher = investigated first / kept under Lite-mode trimming. */
   priority: number;
   /** Threaded into proofStandard content, not left unread (Gap 1). */

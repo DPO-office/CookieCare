@@ -3,12 +3,17 @@ process.env.GOOGLE_CLOUD_PROJECT ??= "critique-coverage-test";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type { AnalysisState } from "../../../models/analysis-state.js";
-import type { AnalysisWorkUnit } from "../../../models/analysis-plan.js";
+import type { AnalysisPlan, AnalysisWorkUnit } from "../../../models/analysis-plan.js";
 import { initAgentRunState } from "../../../pac/types.js";
 import { validateRequirementCoverage } from "../coverage.js";
 import { validateAlignment } from "../alignment.js";
+import { validateRequirements } from "../validators/requirements.js";
 
-function baseState(overrides: Partial<AnalysisState> = {}): AnalysisState {
+type FixtureOverrides = Omit<Partial<AnalysisState>, "plan"> & {
+  plan?: Partial<AnalysisPlan>;
+};
+
+function baseState(overrides: FixtureOverrides = {}): AnalysisState {
   return {
     agent: initAgentRunState("CREATE"),
     request: {
@@ -45,10 +50,175 @@ function baseState(overrides: Partial<AnalysisState> = {}): AnalysisState {
       confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 },
     },
     ...overrides,
-  };
+  } as AnalysisState;
 }
 
 describe("coverage and alignment", () => {
+  it("accepts package-native child findings referenced by a PLAN umbrella assessment", () => {
+    const requestId = "gdpr.article28_3.processor_obligations";
+    const nativeId = "art28_3_a_instructions";
+    const intent = {
+      ...baseState().intent!,
+      requirements: [
+        {
+          id: requestId,
+          description: "Verify all mandatory processor obligations",
+          type: "adequacy" as const,
+          priority: "required" as const,
+        },
+      ],
+    };
+    const workUnit: AnalysisWorkUnit = {
+      workUnitId: "wu-mandatory",
+      tool: "evaluate_package",
+      input: {
+        packageId: "gdpr.art28.3.mandatory_clauses",
+        requirementIds: [nativeId],
+      },
+      requirementIds: [requestId],
+      dependsOn: [],
+      outputSchema: "Finding[]",
+      status: "done",
+    };
+    const state = baseState({
+      intent,
+      findings: [
+        {
+          findingId: "f-instructions",
+          kind: "compliance",
+          category: "processor_terms_incomplete",
+          status: "present",
+          claim: "The processor acts only on documented instructions.",
+          evidence: [],
+          taxonomyVersion: "1.1.0",
+          requirementId: nativeId,
+          requestRequirementIds: [requestId],
+          packageId: "gdpr.art28.3.mandatory_clauses",
+          workUnitId: workUnit.workUnitId,
+        },
+      ],
+      requirementAssessments: [
+        {
+          requirementId: requestId,
+          supportingFindingIds: ["f-instructions"],
+          summary: "One mandatory component is present.",
+          status: "conditional",
+        },
+      ],
+      plan: {
+        intent,
+        workUnits: [workUnit],
+        missingClarifications: [],
+        outputForm: "memo",
+        requirementExecutionPaths: [
+          {
+            requirementId: requestId,
+            status: "supported",
+            packageId: "gdpr.art28.3.mandatory_clauses",
+          },
+        ],
+        requirementBindings: [
+          {
+            requestRequirementId: requestId,
+            nativeRequirementId: nativeId,
+            packageId: "gdpr.art28.3.mandatory_clauses",
+            relation: "child",
+            source: "capability",
+          },
+        ],
+      },
+    });
+
+    const coverage = validateRequirementCoverage(state);
+    assert.equal(coverage.covered, 1);
+    assert.deepEqual(coverage.notCovered, []);
+
+    const results: Parameters<typeof validateRequirements>[3] = [];
+    const fixes: Parameters<typeof validateRequirements>[4] = [];
+    const targets: Parameters<typeof validateRequirements>[5] = [];
+    validateRequirements(state, state.findings, [workUnit], results, fixes, targets);
+    assert.equal(
+      results.find((item) => item.itemId === `requirement-refs:${requestId}`)?.status,
+      "pass"
+    );
+  });
+
+  it("matches PLAN and locked assessments through canonical requirement identity", () => {
+    const fixture = baseState({
+      intent: {
+        ...baseState().intent!,
+        requirements: [
+          {
+            id: "gdpr.article28.data_categories_and_subjects",
+            description: "Data categories and subjects",
+            type: "adequacy",
+            priority: "required",
+          },
+        ],
+      },
+      requirementAssessments: [
+        {
+          requirementId: "gdpr.article28.categories_of_data_and_subjects",
+          supportingFindingIds: ["f-categories"],
+          summary: "Covered",
+          status: "covered",
+        },
+      ],
+      findings: [
+        {
+          findingId: "f-categories",
+          kind: "compliance",
+          category: "data_categories",
+          status: "present",
+          claim: "Categories are specified.",
+          evidence: [],
+          taxonomyVersion: "1.1.0",
+          requirementId: "data_categories",
+          workUnitId: "wu-categories",
+        },
+      ],
+      plan: {
+        intent: {
+          ...baseState().intent!,
+          requirements: [
+            {
+              id: "gdpr.article28.data_categories_and_subjects",
+              description: "Data categories and subjects",
+              type: "adequacy",
+              priority: "required",
+            },
+          ],
+        },
+        workUnits: [
+          {
+            workUnitId: "wu-categories",
+            tool: "evaluate_package",
+            input: {
+              packageId: "gdpr.art28.particulars",
+              requirementIds: ["gdpr.article28.categories_of_data_and_subjects"],
+            },
+            requirementIds: ["gdpr.article28.categories_of_data_and_subjects"],
+            dependsOn: [],
+            outputSchema: "Finding[]",
+            status: "done",
+          },
+        ],
+        missingClarifications: [],
+        outputForm: "memo",
+        requirementExecutionPaths: [
+          {
+            requirementId: "gdpr.article28.data_categories_and_subjects",
+            status: "supported",
+            packageId: "gdpr.art28.particulars",
+          },
+        ],
+      },
+    });
+    const coverage = validateRequirementCoverage(fixture);
+    assert.equal(coverage.covered, 1);
+    assert.deepEqual(coverage.notCovered, []);
+  });
+
   it("marks covered NDA requirement when assessment and finding exist", () => {
     const state = baseState({
       requirementAssessments: [

@@ -43,6 +43,7 @@ export interface ClauseLocatorResult {
 export interface DocumentSection {
   title: string;
   headingPath: string;
+  contextHeading?: string;
   startOffset: number;
   endOffset: number;
   text: string;
@@ -100,11 +101,13 @@ export function buildRetrievalDictionary(
 
 export function groupDocumentSections(doc: SegmentedDocument): DocumentSection[] {
   const sections: DocumentSection[] = [];
+  let activeHeading = "";
   let current: {
     title: string;
     headingPath: string;
     start: number;
     headingText: string;
+    contextHeading?: string;
     parts: DocumentSegment[];
   } | null = null;
 
@@ -119,6 +122,7 @@ export function groupDocumentSections(doc: SegmentedDocument): DocumentSection[]
     sections.push({
       title: current.title,
       headingPath: current.headingPath,
+      contextHeading: current.contextHeading,
       startOffset: current.start,
       endOffset: end,
       text,
@@ -132,11 +136,13 @@ export function groupDocumentSections(doc: SegmentedDocument): DocumentSection[]
     const isStart = seg.kind === "heading" || seg.kind === "clause";
     if (isStart) {
       flush();
+      if (seg.kind === "heading") activeHeading = seg.text.trim();
       current = {
         title: seg.text.replace(/^(#{1,3}\s+|\d+(?:\.\d+)*[.)]\s+)/, "").trim(),
         headingPath: seg.locator.structuralPath,
         start: seg.locator.charRange[0],
         headingText: seg.text,
+        contextHeading: activeHeading || undefined,
         parts: [seg],
       };
       continue;
@@ -147,6 +153,7 @@ export function groupDocumentSections(doc: SegmentedDocument): DocumentSection[]
         headingPath: seg.locator.structuralPath,
         start: seg.locator.charRange[0],
         headingText: "",
+        contextHeading: activeHeading || undefined,
         parts: [seg],
       };
       continue;

@@ -159,12 +159,12 @@ describe("finalizeReportSpec", () => {
     assert.ok(spec.sections.includes("conclusion"));
   });
 
-  it("uses evidence + conclusion for narrow Q&A", () => {
+  it("preserves answer-first ordering for narrow Q&A", () => {
     const seed = buildFinalReportSpec({
       intent: intent(["q1"]),
       reportType: "qa_answer",
       depth: "narrow",
-      sections: ["evidence", "conclusion"],
+      sections: ["key_findings", "evidence"],
       outlineExtras: [],
       instruction: "What is the term?",
     });
@@ -175,8 +175,9 @@ describe("finalizeReportSpec", () => {
     } as unknown as AnalysisState);
     assert.deepEqual(
       spec.outline?.map((item) => outlineItemSectionId(item)),
-      ["evidence", "conclusion"]
+      ["key_findings", "evidence"]
     );
+    assert.equal(spec.outline?.[0]?.heading, "Answer");
   });
 
   it("skips qualifications when missing_materials already covers indeterminate items", () => {

@@ -88,6 +88,8 @@ export type CompletionCallOptions = {
   tracker?: TokenBudgetTracker;
   /** Overlay Gemini 3.x thinking level without changing the task's model. */
   thinkingLevel?: GeminiThinkingLevel;
+  /** Optional client-side cancellation; callers own the controller/timer. */
+  abortSignal?: AbortSignal;
 };
 
 function applyUsage(tracker: TokenBudgetTracker | undefined, usage: TokenUsage): void {
@@ -110,6 +112,9 @@ function mergeRuntimeConfig(
     runtimeConfig.thinkingLevel = options.thinkingLevel;
     // Gemini 3.x uses thinkingLevel; clear legacy budget to avoid mixing.
     delete runtimeConfig.thinkingBudget;
+  }
+  if (options.abortSignal) {
+    runtimeConfig.abortSignal = options.abortSignal;
   }
   return runtimeConfig;
 }

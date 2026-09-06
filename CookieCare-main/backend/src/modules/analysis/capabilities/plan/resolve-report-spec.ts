@@ -19,6 +19,7 @@ export function mergeAuthoredReportSections(args: {
   reportType: ReportType;
   depth: ReportDepth;
   packages: EvidencePackage[];
+  operation?: import("../../models/intent.js").OperationAxis;
 }): {
   reportType: ReportType;
   sections: ReportSectionId[];
@@ -45,7 +46,7 @@ export function mergeAuthoredReportSections(args: {
   const sections =
     sectionSet.size > 0
       ? sortSections([...sectionSet])
-      : deriveSections(mergedType, depth);
+      : deriveSections(mergedType, depth, args.operation);
 
   return { reportType: mergedType, sections, outlineExtras: outlineExtras ?? [] };
 }
@@ -55,6 +56,15 @@ export function resolveReportSpecFromPackages(args: {
   instruction: string;
   packages: EvidencePackage[];
   fallbackReportType: ReportType;
+  /**
+   * Overrides args.intent.operation for section derivation only (e.g. a
+   * target+playbook "compare" ask that should render as the default
+   * compliance skeleton, not the peer-comparison archetype, because it
+   * produces ordinary compliance/risk findings, never comparison_delta).
+   * Pass `undefined` explicitly to force the default archetype; omit the
+   * field entirely to use args.intent.operation unchanged.
+   */
+  sectionOperation?: import("../../models/intent.js").OperationAxis | undefined;
 }): Omit<ReportSpec, "outline"> & { outlineExtras: NonNullable<EvidencePackage["report"]>["outlineExtras"] } {
   const depth = args.intent.depth ?? "standard";
   const reportType = args.intent.reportType ?? args.fallbackReportType;
@@ -62,6 +72,7 @@ export function resolveReportSpecFromPackages(args: {
     reportType,
     depth,
     packages: args.packages,
+    operation: "sectionOperation" in args ? args.sectionOperation : args.intent.operation,
   });
   return {
     reportType: merged.reportType,

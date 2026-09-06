@@ -27,8 +27,7 @@
         "standard": 0.95,
         "outputForm": 0.9
       },
-      "docTypeHint": "dpa",
-      "documentPresentation": "unified"
+      "docTypeHint": "dpa"
     },
     "clarificationRequest": null,
     "declineMessage": null,
@@ -58,8 +57,7 @@
           "standard": 0.95,
           "outputForm": 0.9
         },
-        "docTypeHint": "dpa",
-        "documentPresentation": "unified"
+        "docTypeHint": "dpa"
       },
       "workUnits": [
         {
@@ -600,7 +598,6 @@
       ],
       "missingClarifications": [],
       "outputForm": "memo",
-      "documentPresentation": "unified",
       "skipCritique": true,
       "reportSpec": {
         "reportType": "rights_matrix",
@@ -994,8 +991,7 @@
             "standard": 0.95,
             "outputForm": 0.9
           },
-          "docTypeHint": "dpa",
-          "documentPresentation": "unified"
+          "docTypeHint": "dpa"
         },
         "intentNormalizations": [],
         "scopeAudit": []
@@ -1061,8 +1057,7 @@
         "standard": 0.9,
         "outputForm": 0.9
       },
-      "docTypeHint": "dpa",
-      "documentPresentation": "unified"
+      "docTypeHint": "dpa"
     },
     "clarificationRequest": null,
     "declineMessage": null,
@@ -1110,8 +1105,7 @@
           "standard": 0.9,
           "outputForm": 0.9
         },
-        "docTypeHint": "dpa",
-        "documentPresentation": "unified"
+        "docTypeHint": "dpa"
       },
       "workUnits": [
         {
@@ -1443,7 +1437,6 @@
       ],
       "missingClarifications": [],
       "outputForm": "memo",
-      "documentPresentation": "unified",
       "skipCritique": true,
       "reportSpec": {
         "reportType": "regime_compliance_memo",
@@ -1951,8 +1944,7 @@
             "standard": 0.9,
             "outputForm": 0.9
           },
-          "docTypeHint": "dpa",
-          "documentPresentation": "unified"
+          "docTypeHint": "dpa"
         },
         "intentNormalizations": [],
         "scopeAudit": []
@@ -2017,8 +2009,7 @@
         "standard": 1,
         "outputForm": 0.95
       },
-      "docTypeHint": "dpa",
-      "documentPresentation": "unified"
+      "docTypeHint": "dpa"
     },
     "clarificationRequest": null,
     "declineMessage": null,
@@ -2047,8 +2038,7 @@
           "standard": 1,
           "outputForm": 0.95
         },
-        "docTypeHint": "dpa",
-        "documentPresentation": "unified"
+        "docTypeHint": "dpa"
       },
       "workUnits": [
         {
@@ -2174,7 +2164,6 @@
       ],
       "missingClarifications": [],
       "outputForm": "qa_thread",
-      "documentPresentation": "unified",
       "skipCritique": true,
       "reportSpec": {
         "reportType": "qa_answer",
@@ -2388,8 +2377,7 @@
             "standard": 1,
             "outputForm": 0.95
           },
-          "docTypeHint": "dpa",
-          "documentPresentation": "unified"
+          "docTypeHint": "dpa"
         },
         "intentNormalizations": [],
         "scopeAudit": []

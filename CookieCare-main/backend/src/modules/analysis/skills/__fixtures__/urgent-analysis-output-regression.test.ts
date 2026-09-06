@@ -59,7 +59,7 @@ describe("urgent Analysis ACT output regressions", () => {
         ["gdpr.art12.3", "gdpr.art28.3.e"].sort()
       );
       assert.equal(focus!.matrixRowIds.length, 8);
-      assert.ok(focus!.riskCategoryIds.includes("cost_allocation_silent"));
+      assert.ok(!focus!.riskCategoryIds.includes("cost_allocation_silent"));
     });
   }
 
@@ -137,13 +137,17 @@ describe("urgent Analysis ACT output regressions", () => {
       graph.workUnits.filter((unit) => unit.tool === "evaluate_matrix_row").length,
       8
     );
-    const focusedRiskUnit = graph.workUnits.find(
+    const adjacentRiskUnit = graph.workUnits.find(
       (unit) =>
         unit.tool === "flag_risk" &&
         Array.isArray(unit.input.riskCategoryIds) &&
         (unit.input.riskCategoryIds as string[]).includes("cost_allocation_silent")
     );
-    assert.ok(focusedRiskUnit, "focused DSR graph must evaluate silent cost allocation");
+    assert.equal(
+      adjacentRiskUnit,
+      undefined,
+      "a focused compliance graph must not inject an unrequested adjacent risk"
+    );
   });
 
   it("compound sub-intents stay inside the instruction focus", async () => {
@@ -238,7 +242,7 @@ describe("urgent Analysis ACT output regressions", () => {
       "Could not verify that the target document satisfies rule gdpr.art28.3.e: no verbatim supporting quote was returned.";
     const safe = sanitizeRenderedAnalysisOutput(raw)!;
     assert.equal(containsInternalAnalysisLeak(safe), false);
-    assert.match(safe, /did not provide enough verifiable language/i);
+    assert.match(safe, /Insufficient data/i);
     assert.doesNotMatch(safe, /gdpr\.art28\.3\.e|no verbatim supporting quote/i);
   });
 
@@ -253,7 +257,7 @@ describe("urgent Analysis ACT output regressions", () => {
       },
     ]);
     assert.doesNotMatch(safe.claim, /Could not verify that|gdpr\.art28\.3\.e/i);
-    assert.match(safe.claim, /verifiable language/i);
+    assert.match(safe.claim, /Insufficient data|No related clauses/i);
   });
 
 });

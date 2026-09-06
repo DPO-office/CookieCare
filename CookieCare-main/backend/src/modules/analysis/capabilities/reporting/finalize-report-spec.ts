@@ -9,6 +9,7 @@ import type { RequirementAssessment } from "../../models/requirement-assessment.
 import { isMaterialIssueStatus } from "../../models/requirement-assessment.js";
 import { hasSkillOrPackageLimitation } from "./limitations-report.js";
 import { filterAssessmentsByRequirementIds } from "../../shared/requirement-identity.js";
+import { isConfirmedRiskFinding } from "../../shared/finding-semantics.js";
 import {
   isAnalysisOutlineRole,
   isAnalysisSectionId,
@@ -50,9 +51,7 @@ function hasMatchingArtifact(
 }
 
 function userFacingRisks(findings: Finding[]): Finding[] {
-  return findings.filter(
-    (f) => f.kind === "risk" && f.visibility !== "internal"
-  );
+  return findings.filter(isConfirmedRiskFinding);
 }
 
 function coverageAppendixWillRender(state: AnalysisState): boolean {
@@ -212,9 +211,17 @@ export function finalizeReportSpec(state: AnalysisState): ReportSpec {
       .map((a) => a.requirementId)
   );
 
-  const sections = normalizeReportSections(
-    kept.map((item) => outlineItemSectionId(item))
-  );
+  const outlineSectionIds = [
+    ...new Set(kept.map((item) => outlineItemSectionId(item))),
+  ];
+  // Q&A deliberately uses an inverted-pyramid order (Answer before Evidence).
+  // The memo normalizer's canonical order puts evidence before key findings,
+  // which is correct for a legal memo but reverses a direct answer. Preserve
+  // PLAN's explicit Q&A outline; keep canonical sorting for every memo shape.
+  const sections =
+    seed.reportType === "qa_answer"
+      ? outlineSectionIds
+      : normalizeReportSections(outlineSectionIds);
   const rank = new Map(sections.map((id, index) => [id, index]));
   kept.sort(
     (a, b) =>
