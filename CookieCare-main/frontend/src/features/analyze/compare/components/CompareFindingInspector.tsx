@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { CATEGORY_LABELS, DIFF_LABELS, ALIGN_LABELS, RISK_BADGE } from "../constants";
+import { CATEGORY_LABELS, CHANGE_TYPE_STYLE, ALIGN_LABELS, RISK_BADGE } from "../constants";
 import type {
   CompareRiskFinding,
   CompareClauseDifference,
@@ -75,7 +75,7 @@ function RiskDetail({ item }: { item: CompareRiskFinding }) {
 }
 
 function DiffDetail({ item }: { item: CompareClauseDifference }) {
-  const meta = DIFF_LABELS[item.classification] ?? DIFF_LABELS.NEUTRAL_REPHRASE;
+  const meta = CHANGE_TYPE_STYLE[item.classification] ?? CHANGE_TYPE_STYLE.NEUTRAL_REPHRASE;
   return (
     <>
       <div className="space-y-2.5 border-b border-light-blue-200 px-5 py-4">

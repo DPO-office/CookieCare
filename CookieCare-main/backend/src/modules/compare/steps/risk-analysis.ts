@@ -245,12 +245,27 @@ export async function riskAnalysisStep(
     state.structure.clausesB.map((c) => [c.id, c])
   );
 
+  // Build alignment map so we can check matchConfidence per diff (P0-3)
+  const alignmentMap = new Map(
+    (state.alignment ?? []).map((p) => [p.id, p])
+  );
+
   // ── Stage 1: Filter — enrich risk-eligible differences only ──────────────
   const enriched: EnrichedDifference[] = [];
   let skipped = 0;
   let adminSkipped = 0;
+  let fallbackSkipped = 0;
 
   for (const diff of state.differences) {
+    // P0-2: Skip differences that are artefacts of an LLM alignment failure.
+    // When the alignment LLM was unavailable, fallback pairs were emitted with
+    // detectionMethod "fallback". These represent uncertain alignment, not a
+    // confirmed content change, so they must never generate risk findings.
+    if (diff.detectionMethod === "fallback") {
+      fallbackSkipped += 1;
+      continue;
+    }
+
     const e = enrichDifference(diff, clauseMapA, clauseMapB);
     if (e === null) {
       skipped += 1;
@@ -273,7 +288,8 @@ export async function riskAnalysisStep(
   console.log(
     `[riskAnalysisStep] Filtering: ${enriched.length} risk-eligible difference(s) | ` +
       `${skipped} skipped (UNCHANGED/NEUTRAL_REPHRASE) | ` +
-      `${adminSkipped} skipped (admin/procedural)`
+      `${adminSkipped} skipped (admin/procedural) | ` +
+      `${fallbackSkipped} skipped (alignment-fallback/uncertain)`
   );
 
   if (enriched.length === 0) {
@@ -314,10 +330,42 @@ export async function riskAnalysisStep(
       `(HIGH=${high} MEDIUM=${medium} LOW=${low})`
   );
 
-  // ── Stage 4: Merge and sort ───────────────────────────────────────────────
+  // ── Stage 4: Merge, cap low-confidence findings (P0-3), and sort ──────────
+  //
+  // Risk findings derived from low-confidence semantic alignment must NOT be
+  // presented as equally trustworthy as findings from exact/deterministic matches.
+  // For any finding whose source alignment pair had matchConfidence < 0.75 and
+  // alignmentType "semantic", cap the finding level to MEDIUM (never HIGH).
+  // The rationale is annotated so reviewers understand the qualification.
+  const LOW_ALIGNMENT_THRESHOLD = 0.75;
+
+  const capFinding = (f: RiskFinding): RiskFinding => {
+    const pair = alignmentMap.get(f.pairId);
+    if (!pair) return f;
+    if (
+      pair.alignmentType !== "semantic" ||
+      pair.matchConfidence >= LOW_ALIGNMENT_THRESHOLD
+    ) {
+      return f;
+    }
+    // Cap HIGH → MEDIUM; MEDIUM and LOW are left as-is
+    if (f.level !== "HIGH") return f;
+
+    console.log(
+      `[riskAnalysisStep] P0-3 risk cap: ${f.id} HIGH → MEDIUM ` +
+        `(alignment matchConfidence=${pair.matchConfidence.toFixed(2)} < ${LOW_ALIGNMENT_THRESHOLD})`
+    );
+    return {
+      ...f,
+      level: "MEDIUM" as RiskLevel,
+      rationale:
+        `${f.rationale} (Note: alignment confidence is low (${Math.round(pair.matchConfidence * 100)}%) — manual review recommended.)`,
+    };
+  };
+
   const allFindings: RiskFinding[] = [
-    ...normalisedDeterministic,
-    ...llmFindings,
+    ...normalisedDeterministic.map(capFinding),
+    ...llmFindings.map(capFinding),
   ].sort((a, b) => LEVEL_ORDER[a.level] - LEVEL_ORDER[b.level]);
 
   console.log(

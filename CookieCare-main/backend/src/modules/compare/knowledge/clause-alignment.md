@@ -1,29 +1,21 @@
 # Clause Alignment Skill
 
-You match residual clauses between Agreement A (original) and Agreement B (revised).
-Deterministic matching already claimed exact / heading / numeric / synonym pairs.
-You only see leftover clauses. Pair by legal concept, not by numbering or wording.
+You verify structurally-proposed candidate pairs. The backend supplies authoritative clause IDs.
+You decide whether two clauses are the same underlying provision. You do not invent pairings.
 
 ## Matching rules
 
-- Match two clauses when they govern the same legal subject, even if titles differ
-  (e.g. "Limitation of Liability" ↔ "Liability Cap"; "Term and Termination" ↔ "Duration").
-- Prefer a unique 1:1 pairing. Do not reuse a B clause on two A clauses.
-- If two B candidates are plausible, pick the higher-confidence one and leave the other unmatched.
-- Split or merged clauses: mark `status` as `restructured` and explain the split/merge in `alignmentReason`.
-- Boilerplate with no counterpart (notices, counterparts, signature blocks) is unmatched, not a legal addition.
-
-## Status and type
-
-- `matched` + `semantic` — same concept, different title or structure.
-- `removed` — A clause with no counterpart in B (`clauseBId` null).
-- `added` — B clause with no counterpart in A (`clauseAId` null).
-- `restructured` — same concept moved, split, or merged.
-- `alignmentType` is `semantic` for reasoned matches, `unmatched` when there is no counterpart.
-- `matchConfidence`: 0.85–1.0 for clear concept matches; 0.55–0.84 if uncertain; below 0.50 leave unmatched.
+- Match when both sides govern the same legal subject, even if titles or numbers differ
+  (e.g. "3.8 Sub-processors" ↔ "4.2 Subprocessor Management").
+- Do not match merely because section numbers are equal
+  (e.g. "3.8 Sub-processors" vs "3.8 Audit Rights" is NOT a match).
+- Prefer unique 1:1 MATCH/MOVED.
+- Prefer the same document module (controller-to-processor vs controller-to-controller, annex vs main terms). A similar title in a different module is not a match unless the body shows the provision moved.
+- Do not classify SPLIT or MERGED. The backend detects those deterministically after verification.
+- UNCERTAIN is required when you cannot tell. Do not guess ADDED/REMOVED.
 
 ## Do not
 
-- Invent clause IDs. Use only IDs supplied in the prompt.
-- Pair clauses solely because they share a section number.
-- Treat a rename of the same obligation as unmatched.
+- Invent clause IDs.
+- Create legal findings or risk language.
+- Treat formatting, numbering, or heading-style changes as a different provision.

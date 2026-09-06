@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { CATEGORY_LABELS, DIFF_LABELS, ALIGN_LABELS, RISK_BADGE } from "../constants";
+import { CATEGORY_LABELS, CHANGE_TYPE_STYLE, ALIGN_LABELS, RISK_BADGE } from "../constants";
 import type {
   CompareRiskFinding,
   CompareClauseDifference,
@@ -71,7 +71,7 @@ export function CompareDiffRow({
   selected: boolean;
   onSelect: () => void;
 }) {
-  const meta = DIFF_LABELS[diff.classification] ?? DIFF_LABELS.NEUTRAL_REPHRASE;
+  const meta = CHANGE_TYPE_STYLE[diff.classification] ?? CHANGE_TYPE_STYLE.NEUTRAL_REPHRASE;
   return (
     <RowShell selected={selected} onClick={onSelect}>
       <div className="flex min-w-0 items-start gap-3">

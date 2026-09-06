@@ -41,6 +41,22 @@ export interface CompareSessionData {
   risks: any[] | null;
   executiveSummary: any | null;
 
+  /**
+   * Renderable PDF buffers for the comparison viewer.
+   *
+   * For PDF uploads this is the original uploaded PDF bytes.
+   * For DOCX uploads this is the Playwright-converted PDF.
+   *
+   * Stored so the frontend can fetch them via
+   *   GET /api/compare/:jobId/pdf?doc=original|revised
+   * without requiring the browser to retain the original File objects.
+   *
+   * Intentionally kept as Buffer (not Base64) — they are never serialised to
+   * JSON and only served via the streaming PDF endpoint.
+   */
+  pdfA: Buffer | null;
+  pdfB: Buffer | null;
+
   /** Wall-clock time of last access — used for TTL eviction */
   lastAccessedAt: number;
   /** Creation time */

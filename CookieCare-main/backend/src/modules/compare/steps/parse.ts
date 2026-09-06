@@ -47,11 +47,11 @@ export async function parseStep(state: CompareState): Promise<CompareState> {
   const { original, revised } = state.files;
 
   // ── Extract text from both documents ────────────────────────────────────
-  let rawA: string;
-  let rawB: string;
+  let resultA: import("../../../utils/extractText.js").ExtractionResult;
+  let resultB: import("../../../utils/extractText.js").ExtractionResult;
 
   try {
-    rawA = await extractText(original.buffer, original.mimeType);
+    resultA = await extractText(original.buffer, original.mimeType);
   } catch (err: any) {
     throw new Error(
       `[parseStep] Failed to extract text from original document "${original.fileName}": ${err.message}`
@@ -59,7 +59,7 @@ export async function parseStep(state: CompareState): Promise<CompareState> {
   }
 
   try {
-    rawB = await extractText(revised.buffer, revised.mimeType);
+    resultB = await extractText(revised.buffer, revised.mimeType);
   } catch (err: any) {
     throw new Error(
       `[parseStep] Failed to extract text from revised document "${revised.fileName}": ${err.message}`
@@ -67,8 +67,8 @@ export async function parseStep(state: CompareState): Promise<CompareState> {
   }
 
   // ── Normalise ────────────────────────────────────────────────────────────
-  const textA = normaliseExtractedText(rawA);
-  const textB = normaliseExtractedText(rawB);
+  const textA = normaliseExtractedText(resultA.text);
+  const textB = normaliseExtractedText(resultB.text);
 
   // ── Sanity guard: reject near-empty documents ────────────────────────────
   // 150-char threshold matches the DPA review route pattern.
@@ -94,6 +94,6 @@ export async function parseStep(state: CompareState): Promise<CompareState> {
 
   return {
     ...state,
-    parsed: { textA, textB, metaA, metaB },
+    parsed: { textA, textB, metaA, metaB, pageBreaksA: resultA.pageBreaks, pageBreaksB: resultB.pageBreaks },
   };
 }

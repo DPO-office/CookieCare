@@ -8,7 +8,7 @@
 import { Router } from "express";
 import multer from "multer";
 import { authenticateToken } from "../../../middleware/auth.js";
-import { compareStartController } from "./controller.js";
+import { compareStartController, comparePdfController } from "./controller.js";
 import { compareChatController } from "./chat-controller.js";
 import { COMPARE_MAX_FILE_SIZE_BYTES } from "./schema.js";
 
@@ -37,6 +37,16 @@ router.post(
   ]),
   compareStartController
 );
+
+/**
+ * GET /api/compare/:jobId/pdf?doc=original|revised
+ *
+ * Stream the renderable PDF for a comparison session.
+ * For PDF uploads: returns the original uploaded PDF.
+ * For DOCX uploads: returns the Playwright-converted PDF.
+ * Requires the requesting user to own the session.
+ */
+router.get("/:jobId/pdf", authenticateToken, comparePdfController);
 
 /**
  * POST /api/compare/chat

@@ -22,7 +22,70 @@ import {
   CompareStartRequestSchema,
 } from "./schema.js";
 import { addJobToQueue } from "../../../services/jobQueue.js";
+import { compareSessionStore } from "../session/compare-session-store.js";
 
+/**
+ * GET /api/compare/:jobId/pdf?doc=original|revised
+ *
+ * Stream the stored PDF for a comparison session back to the requesting user.
+ * Only the user who owns the session may access it.
+ */
+export const comparePdfController = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { jobId } = req.params;
+  const doc = req.query.doc as string;
+
+  if (doc !== "original" && doc !== "revised") {
+    res.status(400).json({ error: 'Query param "doc" must be "original" or "revised".' });
+    return;
+  }
+
+  const session = compareSessionStore.get(jobId);
+
+  if (!session) {
+    res.status(404).json({ error: "Comparison session not found or has expired." });
+    return;
+  }
+
+  // Ownership check — same user that started the comparison
+  if (session.userId !== req.user!.id) {
+    res.status(403).json({ error: "Access denied." });
+    return;
+  }
+
+  const pdfBuffer = doc === "original" ? session.pdfA : session.pdfB;
+
+  if (!pdfBuffer || pdfBuffer.length === 0) {
+    res.status(404).json({
+      error: `PDF for ${doc} document is not available in this session.`,
+    });
+    return;
+  }
+
+  const fileName =
+    doc === "original" ? session.originalFileName : session.revisedFileName;
+  const safeFileName = fileName.replace(/[^\w.\-]/g, "_").replace(/\.docx?$/i, ".pdf");
+
+  res.set({
+    "Content-Type": "application/pdf",
+    "Content-Length": String(pdfBuffer.length),
+    "Content-Disposition": `inline; filename="${safeFileName}"`,
+    // Cache for the session TTL — avoids re-fetching on every tab focus
+    "Cache-Control": "private, max-age=14400",
+  });
+
+  res.send(pdfBuffer);
+};
+
+/**
+ * POST /api/compare/start
+ *
+ * Accept two document uploads (original + revised), validate them, and
+ * dispatch a contract_comparison job to the queue.  Returns 202 Accepted
+ * with the job_id so the client can poll for results.
+ */
 export const compareStartController = async (
   req: Request,
   res: Response

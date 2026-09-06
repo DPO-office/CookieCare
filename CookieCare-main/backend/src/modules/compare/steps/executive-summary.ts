@@ -112,6 +112,98 @@ function buildFallbackSummary(
   };
 }
 
+// ─── Item 3: unrelated-document guard ────────────────────────────────────────
+
+interface AlignmentStatsSnapshot {
+  match: number;
+  moved: number;
+  added: number;
+  removed: number;
+  split: number;
+  merged: number;
+  uncertain: number;
+}
+
+/** Minimum total alignment pairs before the guard is evaluated — a handful of
+ *  UNCERTAIN pairs on a tiny document is noise, not a signal. */
+const MISMATCH_MIN_PAIRS = 6;
+
+/** Above this fraction of UNCERTAIN pairs, correspondence is dominated by "could not match". */
+const MISMATCH_UNCERTAIN_RATIO = 0.8;
+
+/** Below this fraction of confident MATCH/MOVED pairs, there is almost no confirmed structural overlap. */
+const MISMATCH_CONFIDENT_RATIO = 0.05;
+
+/**
+ * Conservative guard built entirely from the alignment pipeline's own
+ * relationship counts (state.metadata.alignmentStats, populated by
+ * clauseAlignStep) — never re-derives correspondence itself.
+ *
+ * Fires only when BOTH confident structural overlap is almost absent AND
+ * UNCERTAIN pairs overwhelmingly dominate. A heavily revised version of the
+ * same agreement still accumulates a meaningful mix of confirmed
+ * ADDED/REMOVED/MERGED evidence even when MATCH/MOVED is sparse — the
+ * validated Mastercard DPA case (MATCH 4, MOVED 2, ADDED 11, REMOVED 68,
+ * MERGED 10, UNCERTAIN 94) has confident ratio ~3% but uncertain ratio only
+ * ~50%, and must NOT trigger this guard. Two unrelated documents instead
+ * produce almost nothing BUT UNCERTAIN, because there is no structural basis
+ * for even a confirmed ADDED/REMOVED call.
+ */
+function detectLikelyUnrelatedDocuments(
+  stats: AlignmentStatsSnapshot | undefined
+): { likely: boolean; confidentPct: number; uncertainPct: number; total: number } {
+  if (!stats) return { likely: false, confidentPct: 0, uncertainPct: 0, total: 0 };
+  const total =
+    stats.match + stats.moved + stats.added + stats.removed +
+    stats.split + stats.merged + stats.uncertain;
+  if (total < MISMATCH_MIN_PAIRS) {
+    return { likely: false, confidentPct: 0, uncertainPct: 0, total };
+  }
+  const confident = stats.match + stats.moved;
+  const confidentRatio = confident / total;
+  const uncertainRatio = stats.uncertain / total;
+  const likely =
+    confidentRatio < MISMATCH_CONFIDENT_RATIO && uncertainRatio >= MISMATCH_UNCERTAIN_RATIO;
+  return {
+    likely,
+    confidentPct: Math.round(confidentRatio * 100),
+    uncertainPct: Math.round(uncertainRatio * 100),
+    total,
+  };
+}
+
+/**
+ * Deterministic, conservative summary returned instead of calling the LLM
+ * when detectLikelyUnrelatedDocuments fires. Grounded entirely in the
+ * computed ratios — never invents findings.
+ */
+function buildMismatchSummary(
+  titleA: string,
+  titleB: string,
+  confidentPct: number,
+  uncertainPct: number
+): ExecutiveSummary {
+  return {
+    overallAssessment:
+      `This comparison shows very low structural correspondence between ${titleA} and ${titleB}: ` +
+      `only ${confidentPct}% of clause pairs could be confidently matched, and ${uncertainPct}% could ` +
+      `not be matched at all. This pattern is more consistent with two unrelated documents than two ` +
+      `versions of the same agreement. Treat any Added/Removed/Modified findings below with caution ` +
+      `until the document relationship is confirmed.`,
+    overallRisk: "MEDIUM",
+    keyFindings: [
+      `Low-confidence comparison: only ${confidentPct}% of clauses could be confidently matched between the two documents, and ${uncertainPct}% could not be matched at all.`,
+    ],
+    criticalRedlines: [],
+    missingProtections: [],
+    negotiationPriorities: [
+      "Confirm both documents are versions of the same underlying agreement before relying on this comparison as a redline.",
+    ],
+    recommendation:
+      "Verify these documents are related before treating this as a reliable redline. If confirmed related, review individual findings with extra scrutiny.",
+  };
+}
+
 // ─── Main step ────────────────────────────────────────────────────────────────
 
 /**
@@ -157,6 +249,27 @@ export async function executiveSummaryStep(
       `risks=${stats.totalRiskFindings} (H=${stats.riskHigh} M=${stats.riskMedium} L=${stats.riskLow})`
   );
 
+  // ── Item 3: unrelated-document guard ────────────────────────────────────
+  // Checked before the clean-comparison exit and before the LLM call — a
+  // document-relationship problem should not be masked by either path.
+  const alignmentStats = state.metadata?.alignmentStats as AlignmentStatsSnapshot | undefined;
+  const mismatch = detectLikelyUnrelatedDocuments(alignmentStats);
+  if (mismatch.likely) {
+    console.log(
+      `[executiveSummaryStep] Unrelated-document guard fired — ` +
+        `confident=${mismatch.confidentPct}% uncertain=${mismatch.uncertainPct}% of ${mismatch.total} pair(s). ` +
+        `Returning a conservative mismatch summary instead of a standard redline.`
+    );
+    return {
+      ...state,
+      executiveSummary: buildMismatchSummary(titleA, titleB, mismatch.confidentPct, mismatch.uncertainPct),
+      metadata: {
+        ...state.metadata,
+        documentRelationshipWarning: true,
+      },
+    };
+  }
+
   // ── Early-exit for completely clean comparisons ────────────────────────
   // When every difference is UNCHANGED or NEUTRAL_REPHRASE and there are
   // no risk findings, skip the LLM and return a deterministic clean summary.
@@ -164,8 +277,7 @@ export async function executiveSummaryStep(
     stats.added +
     stats.removed +
     stats.modifiedBroader +
-    stats.modifiedNarrower +
-    stats.fallbackCount;
+    stats.modifiedNarrower;
 
   if (materialCount === 0 && stats.totalRiskFindings === 0) {
     console.log(
