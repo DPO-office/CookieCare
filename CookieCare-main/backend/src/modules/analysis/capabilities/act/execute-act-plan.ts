@@ -39,6 +39,7 @@ import {
   recordIngestMarkers,
   recordIngestTables,
   recordPhase3Investigation,
+  recordLlmAssistedInvestigation,
   recordLlmBundleVerification,
   recordLockValidation,
   recordPhase7Render,
@@ -52,6 +53,8 @@ import {
   recordSourceMarkers,
   recordStageDuration,
   recordStructuralNodes,
+  getComplianceRenderedReport,
+  complianceSkipLiveVerifyEnabled,
 } from "./compliance-observability.js";
 
 const SILENT_SUCCESS_NOTES: Partial<Record<AnalysisToolName, string>> = {
@@ -64,6 +67,39 @@ const SILENT_SUCCESS_NOTES: Partial<Record<AnalysisToolName, string>> = {
   derive_risk: "no mechanically-implied risk to derive",
   merge_branch_outputs: "branch reports merged deterministically",
 };
+
+/**
+ * Legacy live VERIFY spine — skipped once Phase 4-7 locked rows exist (see
+ * `skipLiveVerify` below, gated on `complianceSkipLiveVerifyEnabled()` AND
+ * `state.intent?.operation === "compliance_check"` AND at least one accepted
+ * lock). Each tool here is confirmed unused by the new pipeline for that
+ * exact case:
+ *   - evaluate_package / extract_shared_evidence / inventory_provisions /
+ *     evaluate_matrix_row / check_expected_clauses / check_against_rule /
+ *     flag_risk / derive_risk / web_assisted_reference: superseded by
+ *     Phase 3-7's own retrieval + verification + lock.
+ *   - aggregate_requirements: its only output (`requirementAssessments`) is
+ *     unconditionally overwritten by `applyLockedComplianceToState` at the
+ *     top of `renderOutput` whenever locked rows exist (the exact condition
+ *     that gates this skip) — running it first is pure waste.
+ *
+ * `extract_clauses` / `classify_document` are deliberately NOT here: other
+ * report schemas reachable from `compliance_check` (e.g. `rights_matrix_memo`
+ * via `renderRightsMatrixMemo` → `numericSlaContrastParagraph`) still read
+ * `doc.clauses`, and `classify_document` seeds doc metadata used everywhere.
+ */
+const LIVE_COMPLIANCE_VERIFY_TOOLS = new Set<AnalysisToolName>([
+  "evaluate_package",
+  "extract_shared_evidence",
+  "inventory_provisions",
+  "evaluate_matrix_row",
+  "check_expected_clauses",
+  "check_against_rule",
+  "flag_risk",
+  "derive_risk",
+  "web_assisted_reference",
+  "aggregate_requirements",
+]);
 
 /**
  * Tools that only emit findings and never mutate shared workspace state, so
@@ -280,6 +316,13 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
   // expansion, and evidence bundle with scope partitions. Pure side-channel:
   // nothing here feeds VERIFY yet (Phase 4 will consume the bundles).
   complianceStage("investigate", () => recordPhase3Investigation(state));
+  // GENERIC LLM-ASSISTED INVESTIGATION — feature-flagged
+  // (LLM_ASSISTED_INVESTIGATION=1), regime-agnostic replacement for the
+  // deterministic Phase 3A-C retrieval above. No-ops unless the flag is set.
+  // Only swaps into the bundle Phase 4 consumes when
+  // LLM_ASSISTED_INVESTIGATION_CANONICAL=1 is ALSO set — otherwise it runs
+  // purely for `compliance.investigation.compare` side-by-side logging.
+  await complianceStageAsync("llm_investigation", () => recordLlmAssistedInvestigation(state));
   // PHASE 4A — publish the versioned element-schema registry once per run.
   complianceStage("element_registry", () => recordElementRegistry(state));
   // PHASE 4B — deterministic side-channel matrix over Phase 3C bundles.
@@ -312,16 +355,39 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
   // locked set yet (Phase 7 will).
   complianceStage("lock", () => recordLockValidation(state));
   // PHASE 7 — locked-only rendering. Projects accepted LockedAssessments into
-  // matrix rows + bottom-line synthesis with lockedAssessmentId anchors. Live
-  // rendering unchanged (§Phase 7 stop gate).
+  // matrix rows + bottom-line synthesis. When ANALYSIS_COMPLIANCE_LIVE_RENDER
+  // is enabled (default), renderOutput replaces live VERIFY assessments with
+  // these locked rows (chat is locked-only).
   complianceStage("render", () => recordPhase7Render(state));
   const plannedRequirementIds = collectPlannedRequirementIds(runnable);
   recordPlannedRequirements(state, plannedRequirementIds);
 
+  const lockedRowsReady =
+    (getComplianceRenderedReport(state)?.rows.length ?? 0) > 0;
+  const skipLiveVerify =
+    complianceSkipLiveVerifyEnabled() &&
+    state.intent?.operation === "compliance_check" &&
+    lockedRowsReady;
+  if (skipLiveVerify) {
+    pacLog("ACT skip live VERIFY", {
+      reason: "locked_phase4_7_ready",
+      lockedRows: getComplianceRenderedReport(state)?.rows.length ?? 0,
+      skippedTools: [...LIVE_COMPLIANCE_VERIFY_TOOLS],
+    });
+  }
+
   let stepCounter = 0;
 
   for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
-    const batch = batches[batchIndex];
+    const batch = batches[batchIndex].filter(
+      (u) => !(skipLiveVerify && LIVE_COMPLIANCE_VERIFY_TOOLS.has(u.tool))
+    );
+    if (batch.length === 0) {
+      finishedUnits += batches[batchIndex].length;
+      continue;
+    }
+    const skippedInBatch = batches[batchIndex].length - batch.length;
+    if (skippedInBatch > 0) finishedUnits += skippedInBatch;
     const batchStart = Date.now();
     const parallel = batch.filter((u) => PARALLEL_SAFE_TOOLS.has(u.tool));
     const serial = batch.filter((u) => !PARALLEL_SAFE_TOOLS.has(u.tool));

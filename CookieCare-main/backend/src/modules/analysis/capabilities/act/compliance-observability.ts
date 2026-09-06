@@ -1,9 +1,10 @@
 /**
- * Compliance-check observability (side-channel only — does not change VERIFY).
+ * Compliance-check observability + locked live-render.
  *
- * Logging is intentionally narrow: only Phase 3C evidence bundles are written
- * (`compliance.bundle.created`). Earlier phase emitters still run for structure /
- * Phase 3 computation, but their events are suppressed from console + file.
+ * Phases 1–8 compute the side-channel matrix/lock/render into the compliance
+ * log. When `ANALYSIS_COMPLIANCE_LIVE_RENDER` is enabled (default),
+ * `applyLockedComplianceToState` replaces live VERIFY assessments with
+ * accepted Phase 4–7 locks so chat shows the locked matrix only.
  *
  * Sinks (always on — independent of ANALYSIS_LOG):
  *  1. Console via `pacLogAlways` — short `[compliance]` summary per bundle.
@@ -15,6 +16,16 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 import type { AnalysisState } from "../../models/analysis-state.js";
+import {
+  withRecommendationKind,
+  type ComplianceStatus,
+  type DraftingQuality,
+  type EvidenceConfidence,
+  type EvidenceState,
+  type MaterialityLevel,
+  type RequirementAssessment,
+  type RequirementStatus,
+} from "../../models/requirement-assessment.js";
 import { pacLogAlways } from "../../utils/pac-log.js";
 import {
   buildStructuralNodes,
@@ -39,7 +50,7 @@ import {
 import type { RequirementEvidenceProfile } from "./isolate-requirement-evidence.js";
 import {
   ARTICLE_28_ELEMENT_REGISTRY,
-  elementSchemaFor,
+  resolveElementSchema,
   type RequirementElementSchema,
 } from "./element-schemas.js";
 import { verifyRequirement, type RequirementMatrix } from "./phase4-verify.js";
@@ -68,9 +79,45 @@ import {
   type RenderedReport,
   type SupplementalRequestRow,
 } from "./phase7-render.js";
+import {
+  requirementFromProfile,
+  requirementFromSchema,
+} from "./investigation-requirements.js";
+import {
+  DEFAULT_INVESTIGATION_BUDGET,
+  llmAssistedInvestigationCanonicalEnabled,
+  llmAssistedInvestigationEnabled,
+  type ComplianceRequirement,
+} from "./investigation-types.js";
+import {
+  runLlmAssistedInvestigation,
+  toPhase3Bundle,
+} from "./investigation-orchestrator.js";
 
 /** Bump this when the implementation phase advances (Phase 1A → "1A", etc.). */
-export const IMPLEMENTATION_PHASE = "8";
+export const IMPLEMENTATION_PHASE = "live";
+
+/**
+ * When true (default), Phase 6/7 locked assessments replace live
+ * `requirementAssessments` in chat. Set `ANALYSIS_COMPLIANCE_LIVE_RENDER=0`
+ * to keep the old live-only report.
+ */
+export function complianceLiveRenderEnabled(): boolean {
+  const raw = process.env.ANALYSIS_COMPLIANCE_LIVE_RENDER;
+  if (raw === undefined || raw === "") return true;
+  return raw !== "0" && raw.toLowerCase() !== "false";
+}
+
+/**
+ * When true (default), skip the legacy live VERIFY / evaluate_package spine
+ * for `compliance_check` once Phase 4–7 has produced locked rows.
+ * Set `ANALYSIS_COMPLIANCE_SKIP_LIVE_VERIFY=0` to keep the old live ACT path.
+ */
+export function complianceSkipLiveVerifyEnabled(): boolean {
+  const raw = process.env.ANALYSIS_COMPLIANCE_SKIP_LIVE_VERIFY;
+  if (raw === undefined || raw === "") return true;
+  return raw !== "0" && raw.toLowerCase() !== "false";
+}
 
 /**
  * PHASE 8 — performance controls for the side-channel pipeline itself.
@@ -200,6 +247,9 @@ interface ComplianceRunTracker {
   lockDecisions: LockDecision[];
   renderEmitted: boolean;
   renderedReport: RenderedReport | null;
+  /** Cache for `requirementEvidenceProfiles` — built once per run. */
+  requirementProfiles: Map<string, RequirementEvidenceProfile> | null;
+  llmInvestigationEmitted: boolean;
 }
 
 const RUNS = new Map<string, ComplianceRunTracker>();
@@ -239,6 +289,8 @@ function tracker(state: AnalysisState): ComplianceRunTracker {
       lockDecisions: [],
       renderEmitted: false,
       renderedReport: null,
+      requirementProfiles: null,
+      llmInvestigationEmitted: false,
     };
     RUNS.set(key, existing);
   }
@@ -291,6 +343,20 @@ const PERSISTED_EVENTS = new Set<string>([
   "compliance.render.reconciliation",
   "compliance.run.timing",
   "compliance.run.reconciliation",
+  // Generic LLM-assisted investigation (feature-flagged, side-channel).
+  "compliance.investigation.plan.started",
+  "compliance.investigation.plan.completed",
+  "compliance.investigation.search.executed",
+  "compliance.investigation.candidate.retrieved",
+  "compliance.investigation.context.expanded",
+  "compliance.investigation.candidate.reviewed",
+  "compliance.investigation.followup.started",
+  "compliance.investigation.followup.completed",
+  "compliance.investigation.bundle.created",
+  "compliance.investigation.bundle.validated",
+  "compliance.investigation.incomplete",
+  "compliance.investigation.timing",
+  "compliance.investigation.compare",
 ]);
 function shouldLogComplianceEvent(event: string): boolean {
   return PERSISTED_EVENTS.has(event);
@@ -963,6 +1029,51 @@ export function recordRequestResolutions(state: AnalysisState): void {
 }
 
 /** Union of every RequirementBinding threaded onto the plan's work units. */
+/**
+ * GENERAL-PURPOSE — collect every native requirement's authored evidence
+ * profile (`hypothesis` / `proofStandard` / `evidenceHints`) from whatever
+ * skill config built the plan's `evaluate_package` work units, for ANY
+ * regime, not just GDPR Article 28. This is the same authoring data
+ * `evaluate_package` itself already reads to decide VERIFY vs grouped-
+ * judgment; `resolveElementSchema` reuses it as the auto-derive fallback so
+ * Phase 4B/5/6/7 aren't limited to the hand-authored registry. Cached once
+ * per run since `state.plan.workUnits` doesn't change mid-run.
+ */
+function requirementEvidenceProfiles(
+  state: AnalysisState
+): Map<string, RequirementEvidenceProfile> {
+  const t = tracker(state);
+  if (t.requirementProfiles) return t.requirementProfiles;
+  const map = new Map<string, RequirementEvidenceProfile>();
+  const units = state.plan?.workUnits ?? [];
+  for (const u of units) {
+    if (u.tool !== "evaluate_package") continue;
+    const requirementEvidence = u.input?.requirementEvidence as
+      | Record<string, RequirementEvidenceProfile | undefined>
+      | undefined;
+    if (!requirementEvidence) continue;
+    for (const [requirementId, profile] of Object.entries(requirementEvidence)) {
+      if (profile && !map.has(requirementId)) map.set(requirementId, profile);
+    }
+  }
+  t.requirementProfiles = map;
+  return map;
+}
+
+/**
+ * Single call site for schema resolution across every Phase 4-7 emitter —
+ * tries the hand-authored registry first, then auto-derives from whatever
+ * evidence profile the owning skill config authored for this requirement.
+ */
+function schemaForRequirement(
+  state: AnalysisState,
+  nativeRequirementId: string,
+  canonicalKey: string
+): RequirementElementSchema | undefined {
+  const profile = requirementEvidenceProfiles(state).get(nativeRequirementId);
+  return resolveElementSchema(nativeRequirementId, canonicalKey, profile);
+}
+
 function collectBindings(state: AnalysisState): RequirementBinding[] {
   const units = state.plan?.workUnits ?? [];
   const seen = new Set<string>();
@@ -1064,13 +1175,125 @@ export function recordPhase3Investigation(state: AnalysisState): void {
 }
 
 /**
+ * GENERIC LLM-ASSISTED INVESTIGATION — feature-flagged (`LLM_ASSISTED_
+ * INVESTIGATION=1`), regime-agnostic replacement for the deterministic
+ * Phase 3A-C retrieval path. Requirements are loaded from WHATEVER the
+ * selected skill/config authors — hand-authored `RequirementElementSchema`
+ * rows (Article 28 today) or a plain `RequirementEvidenceProfile`
+ * (hypothesis/proofStandard/evidenceHints, any other regime) — never a
+ * hardcoded GDPR schema. Search plans and candidate review come from LLM
+ * calls that reason about MEANING, not a hand-typed phrase list.
+ *
+ * Side-channel by default: runs alongside the existing `recordPhase3Investigation`
+ * (which must run first — this reuses its requirement enumeration) and only
+ * REPLACES the bundle Phase 4 consumes when `LLM_ASSISTED_INVESTIGATION_
+ * CANONICAL=1` is also set. A `compliance.investigation.compare` event is
+ * always emitted per requirement so the two paths can be diffed before the
+ * new one is trusted. Downstream (Phase 4-7) is completely unmodified — it
+ * only ever sees a `Phase3Bundle`, produced here by `toPhase3Bundle`.
+ */
+export async function recordLlmAssistedInvestigation(state: AnalysisState): Promise<void> {
+  if (!llmAssistedInvestigationEnabled()) return;
+  const t = tracker(state);
+  if (t.llmInvestigationEmitted) return;
+  t.llmInvestigationEmitted = true;
+  if (t.phase3Results.length === 0) return; // needs the enumeration Phase 3A already built
+
+  const nodesByDoc = t.structuralNodesByDoc;
+  const allNodes: StructuralNode[] = [];
+  for (const list of nodesByDoc.values()) allNodes.push(...list);
+  const refIndex = allNodes.length > 0 ? buildReferenceIndex(allNodes) : { references: [], definitions: [] };
+
+  const bindings = collectBindings(state);
+  const canonicalByRequest = new Map<string, string>();
+  for (const b of bindings) {
+    canonicalByRequest.set(b.nativeRequirementId, canonicalRequirementId(b.nativeRequirementId));
+  }
+  const profiles = requirementEvidenceProfiles(state);
+
+  // STEP 1 — load ComplianceRequirement[] for every requirement Phase 3A
+  // already enumerated, grouped by document (one investigation batch per
+  // document, matching "one LLM call for a package of logically related
+  // requirements" rather than one call per clause).
+  const byDoc = new Map<
+    string,
+    { requirements: ComplianceRequirement[]; docText: string }
+  >();
+  for (const r of t.phase3Results) {
+    const docId = r.bundle.items[0]?.scope?.documentId;
+    if (!docId) continue;
+    const doc = state.workspace?.documents.find((d) => d.docId === docId);
+    if (!doc?.fullText) continue;
+    const canonical = canonicalByRequest.get(r.requirementId) ?? canonicalRequirementId(r.requirementId);
+    const authored = ARTICLE_28_ELEMENT_REGISTRY.find(
+      (s) => s.canonicalKey === canonical || s.requirementUid === canonical || s.aliases?.includes(canonical)
+    );
+    const requirement = authored
+      ? requirementFromSchema(authored, r.packageId)
+      : requirementFromProfile(r.requirementId, profiles.get(r.requirementId) ?? {}, r.packageId);
+    if (!requirement) continue;
+    const entry = byDoc.get(docId) ?? { requirements: [], docText: doc.fullText };
+    if (!entry.requirements.some((req) => req.requirementId === requirement.requirementId)) {
+      entry.requirements.push(requirement);
+    }
+    byDoc.set(docId, entry);
+  }
+  if (byDoc.size === 0) return;
+
+  const log = (event: string, payload: Record<string, unknown>) => emitComplianceEvent(state, event, payload);
+  const canonicalMode = llmAssistedInvestigationCanonicalEnabled();
+
+  for (const [docId, { requirements, docText }] of byDoc) {
+    const nodes = nodesByDoc.get(docId) ?? [];
+    let result;
+    try {
+      result = await runLlmAssistedInvestigation({
+        state,
+        requirements,
+        documentId: docId,
+        documentText: docText,
+        structuralNodes: nodes,
+        definitions: refIndex.definitions,
+        references: refIndex.references,
+        budget: DEFAULT_INVESTIGATION_BUDGET,
+        log,
+      });
+    } catch (err) {
+      log("compliance.investigation.incomplete", {
+        documentId: docId,
+        requirementIds: requirements.map((r) => r.requirementId),
+        reasons: [`error:${err instanceof Error ? err.message : String(err)}`],
+      });
+      continue;
+    }
+
+    for (const [requirementId, newBundle] of result.bundlesByRequirement) {
+      const oldEntry = t.phase3Results.find((r) => r.requirementId === requirementId);
+      const newPhase3Bundle = toPhase3Bundle(newBundle);
+      log("compliance.investigation.compare", {
+        requirementId,
+        oldEvidenceSpanIds: oldEntry?.bundle.items.map((i) => i.spanId) ?? [],
+        newEvidenceSpanIds: newPhase3Bundle.items.map((i) => i.spanId),
+        oldItemCount: oldEntry?.bundle.items.length ?? 0,
+        newItemCount: newPhase3Bundle.items.length,
+        newInvestigationComplete: newBundle.investigationComplete,
+        newIncompleteReasons: newBundle.incompleteReasons,
+      });
+      if (canonicalMode && oldEntry) {
+        oldEntry.bundle = newPhase3Bundle;
+      }
+    }
+  }
+}
+
+/**
  * PHASE 4A — publish the versioned element-schema registry, once per run.
  * Emits one `compliance.element.registry` event per authored requirement
  * schema with its full element list (proposition, kind, proofGuidance,
  * nonProofTraps, applicabilityRule, remediationGuidance, version).
  */
 export function recordElementRegistry(state: AnalysisState): void {
-  for (const schema of ARTICLE_28_ELEMENT_REGISTRY) {
+  const emitSchema = (schema: RequirementElementSchema) => {
     emitComplianceEvent(state, "compliance.element.registry", {
       requirementUid: schema.requirementUid,
       canonicalKey: schema.canonicalKey,
@@ -1091,6 +1314,33 @@ export function recordElementRegistry(state: AnalysisState): void {
         version: el.version,
       })),
     });
+  };
+
+  for (const schema of ARTICLE_28_ELEMENT_REGISTRY) emitSchema(schema);
+
+  // GENERAL-PURPOSE COVERAGE — publish an `auto_derived` registry entry for
+  // every native requirement THIS RUN actually touches (from the plan's own
+  // evaluate_package units) that has no hand-authored entry above but DOES
+  // have an authored evidence profile (hypothesis/proofStandard/evidenceHints)
+  // in its skill config. This is what makes Phase 4B/5/6/7 apply beyond GDPR
+  // Article 28 — any regime's skill config that authors requirementEvidence
+  // gets a schema here, with no hand-typed registry entry required.
+  const profiles = requirementEvidenceProfiles(state);
+  const bindings = collectBindings(state);
+  const seen = new Set<string>();
+  for (const b of bindings) {
+    if (seen.has(b.nativeRequirementId)) continue;
+    seen.add(b.nativeRequirementId);
+    const canonical = canonicalRequirementId(b.nativeRequirementId);
+    if (ARTICLE_28_ELEMENT_REGISTRY.some(
+      (s) => s.canonicalKey === canonical || s.requirementUid === canonical || s.aliases?.includes(canonical)
+    )) {
+      continue; // already emitted above as a hand-authored entry
+    }
+    const profile = profiles.get(b.nativeRequirementId);
+    if (!profile) continue;
+    const derived = resolveElementSchema(b.nativeRequirementId, canonical, profile);
+    if (derived) emitSchema(derived);
   }
 }
 
@@ -1117,7 +1367,7 @@ export function recordPhase4Verification(state: AnalysisState): void {
   const matrices: RequirementMatrix[] = [];
   for (const [requirementId, phase3] of bundlesByRequirement) {
     const canonical = canonicalByRequest.get(requirementId) ?? canonicalRequirementId(requirementId);
-    const schema = elementSchemaFor(canonical);
+    const schema = schemaForRequirement(state, requirementId, canonical);
     if (!schema) continue;
     const matrix = verifyRequirement({
       requirementId,
@@ -1198,7 +1448,7 @@ export function recordPhase5Assessment(state: AnalysisState): void {
     const canonical =
       canonicalByRequest.get(matrix.requirementId) ??
       canonicalRequirementId(matrix.requirementId);
-    const schema = elementSchemaFor(canonical);
+    const schema = schemaForRequirement(state, matrix.requirementId, canonical);
     if (!schema) continue;
     const bundle = bundlesByRequirement.get(matrix.requirementId)?.bundle;
     const unresolvedDeps = bundle
@@ -1310,7 +1560,10 @@ export async function recordRetrievalFallback(state: AnalysisState): Promise<voi
     const canonical =
       canonicalByRequest.get(matrix.requirementId) ??
       canonicalRequirementId(matrix.requirementId);
-    return Boolean(elementSchemaFor(canonical)) && bundlesByRequirement.has(matrix.requirementId);
+    return (
+      Boolean(schemaForRequirement(state, matrix.requirementId, canonical)) &&
+      bundlesByRequirement.has(matrix.requirementId)
+    );
   });
 
   const outcomes = await runBoundedWithBudget(
@@ -1321,7 +1574,7 @@ export async function recordRetrievalFallback(state: AnalysisState): Promise<voi
       const canonical =
         canonicalByRequest.get(matrix.requirementId) ??
         canonicalRequirementId(matrix.requirementId);
-      const schema = elementSchemaFor(canonical)!;
+      const schema = schemaForRequirement(state, matrix.requirementId, canonical)!;
       const phase3 = bundlesByRequirement.get(matrix.requirementId)!;
       const docId = phase3.bundle.items[0]?.scope.documentId;
       const doc = docId ? state.workspace?.documents.find((d) => d.docId === docId) : undefined;
@@ -1466,7 +1719,7 @@ export async function recordLlmBundleVerification(state: AnalysisState): Promise
     ([requirementId]) => {
       const canonical =
         canonicalByRequest.get(requirementId) ?? canonicalRequirementId(requirementId);
-      return Boolean(elementSchemaFor(canonical));
+      return Boolean(schemaForRequirement(state, requirementId, canonical));
     }
   );
 
@@ -1509,7 +1762,7 @@ export async function recordLlmBundleVerification(state: AnalysisState): Promise
     async ([requirementId, phase3]): Promise<{ requirementId: string; outcome: LlmVerifyOutcome }> => {
       const canonical =
         canonicalByRequest.get(requirementId) ?? canonicalRequirementId(requirementId);
-      const schema = elementSchemaFor(canonical)!;
+      const schema = schemaForRequirement(state, requirementId, canonical)!;
       try {
         const outcome = await verifyRequirementWithLlm({
           state,
@@ -1533,7 +1786,7 @@ export async function recordLlmBundleVerification(state: AnalysisState): Promise
     ([requirementId, phase3]) => {
       const canonical =
         canonicalByRequest.get(requirementId) ?? canonicalRequirementId(requirementId);
-      const schema = elementSchemaFor(canonical)!;
+      const schema = schemaForRequirement(state, requirementId, canonical)!;
       return {
         requirementId,
         outcome: buildFailureOutcome(requirementId, schema, phase3.bundle, "budget_exceeded"),
@@ -1641,7 +1894,7 @@ export function recordLockValidation(state: AnalysisState): void {
     const canonical =
       canonicalByRequest.get(assessment.requirementId) ??
       canonicalRequirementId(assessment.requirementId);
-    const schema = elementSchemaFor(canonical);
+    const schema = schemaForRequirement(state, assessment.requirementId, canonical);
     const matrix = matrixByReq.get(assessment.requirementId);
     const bundle = bundlesByRequirement.get(assessment.requirementId)?.bundle;
     const explanation = explByReq.get(assessment.requirementId);
@@ -1771,7 +2024,7 @@ export function recordPhase7Render(state: AnalysisState): void {
       const explanation = explByReq.get(row.requirementId);
       const matrix = matrixByReq.get(row.requirementId);
       const bundle = bundlesByRequirement.get(row.requirementId)?.bundle;
-      const schema = elementSchemaFor(row.canonicalKey);
+      const schema = schemaForRequirement(state, row.requirementId, row.canonicalKey);
       if (!assessment || !explanation || !matrix || !bundle || !schema) return [];
       return [{ ...row, assessment, explanation, matrix, bundle, schema }];
     }),
@@ -1822,6 +2075,195 @@ export function recordPhase7Render(state: AnalysisState): void {
     supplementalCount: report.supplementalRequests.length,
     bottomLineClaimCount: report.bottomLine.length,
   });
+}
+
+/** Phase 7 locked report for this session, if Phase 7 already ran. */
+export function getComplianceRenderedReport(
+  state: AnalysisState
+): RenderedReport | null {
+  return tracker(state).renderedReport;
+}
+
+/**
+ * Project accepted Phase 5/6/7 locked assessments into live
+ * `RequirementAssessment` objects so `renderOutput` / BLUF can show them.
+ */
+export function projectLockedRequirementAssessments(
+  state: AnalysisState
+): RequirementAssessment[] {
+  const t = tracker(state);
+  const report = t.renderedReport;
+  if (!report || report.rows.length === 0) return [];
+
+  const explByReq = new Map(
+    t.phase5Explanations.map((e) => [e.requirementId, e] as const)
+  );
+
+  return report.rows.map((row) => {
+    const expl = explByReq.get(row.requirementId);
+    const mapped = mapLockedStatusToLive(row.status);
+    return {
+      requirementId: row.requirementId,
+      supportingFindingIds: [],
+      summary:
+        expl?.conclusion ||
+        row.conclusion ||
+        `${row.statusLabel}: ${row.title}`,
+      status: mapped.status,
+      judgement: withRecommendationKind({
+        compliance: mapped.compliance,
+        evidenceState: mapped.evidenceState,
+        referenceBinding: "none",
+        evidenceConfidence: mapped.evidenceConfidence,
+        draftingQuality: mapped.draftingQuality,
+        materiality: mapped.materiality,
+      }),
+      recommendation: row.recommendedAction || expl?.recommendedAction,
+      establishedBy: expl?.whatTheDocumentProvides || row.whatTheDocumentProvides,
+      gapDescription: expl?.whatIsMissingOrUnclear || row.whatIsMissingOrUnclear,
+      remediation: row.recommendedAction || expl?.recommendedAction,
+      structuralNote: `Locked ${row.lockedAssessmentId} · ${row.statusLabel}`,
+    };
+  });
+}
+
+function mapLockedStatusToLive(status: string): {
+  status: RequirementStatus;
+  compliance: ComplianceStatus;
+  evidenceState: EvidenceState;
+  evidenceConfidence: EvidenceConfidence;
+  draftingQuality: DraftingQuality;
+  materiality: MaterialityLevel;
+} {
+  switch (status) {
+    case "present":
+      return {
+        status: "adequate",
+        compliance: "present",
+        evidenceState: "direct",
+        evidenceConfidence: "high",
+        draftingQuality: "clean",
+        materiality: "low",
+      };
+    case "partial":
+      return {
+        status: "conditional",
+        compliance: "partial",
+        evidenceState: "direct",
+        evidenceConfidence: "medium",
+        draftingQuality: "could_be_clearer",
+        materiality: "medium",
+      };
+    case "gap":
+      return {
+        status: "gap",
+        compliance: "gap",
+        evidenceState: "not_found",
+        evidenceConfidence: "high",
+        draftingQuality: "clean",
+        materiality: "high",
+      };
+    case "not_applicable":
+      return {
+        status: "not_applicable",
+        compliance: "not_applicable",
+        evidenceState: "not_found",
+        evidenceConfidence: "high",
+        draftingQuality: "clean",
+        materiality: "low",
+      };
+    case "cannot_determine":
+    case "verification_incomplete":
+    case "judgment_required":
+    case "conflicting":
+    default:
+      return {
+        status: "cannot_determine",
+        compliance: "insufficient_evidence",
+        evidenceState: "truncated",
+        evidenceConfidence: "low",
+        draftingQuality: "clean",
+        materiality: "medium",
+      };
+  }
+}
+
+/**
+ * Replace live VERIFY assessments with Phase 4–7 locked rows for chat.
+ * Call again after `groundFindings`, which would otherwise downgrade locked
+ * Present rows that have empty supportingFindingIds.
+ */
+export function applyLockedComplianceToState(state: AnalysisState): AnalysisState {
+  if (!complianceLiveRenderEnabled()) return state;
+  if (state.intent?.operation && state.intent.operation !== "compliance_check") {
+    return state;
+  }
+  const locked = projectLockedRequirementAssessments(state);
+  if (locked.length === 0) return state;
+
+  return {
+    ...state,
+    requirementAssessments: locked,
+    metadata: {
+      ...state.metadata,
+      complianceLiveLockRender: true,
+      complianceLockedRowCount: locked.length,
+      complianceSuppressedLiveAssessments:
+        (state.requirementAssessments ?? []).length,
+    },
+  };
+}
+
+/** Markdown block with element-level locked detail for the chat report. */
+export function lockedComplianceDetailMarkdown(state: AnalysisState): string {
+  const report = getComplianceRenderedReport(state);
+  if (!report || report.rows.length === 0) return "";
+  const lines: string[] = [
+    "## Element-level compliance (locked)",
+    "",
+    "_Statuses below come from the Phase 4–7 locked matrix (accepted locks only)._",
+    "",
+  ];
+  for (const row of report.rows) {
+    lines.push(`### ${row.title || row.requirementId} — **${row.statusLabel}**`);
+    lines.push("");
+    if (row.whatTheDocumentProvides) {
+      lines.push(`**What the document provides:** ${row.whatTheDocumentProvides}`);
+      lines.push("");
+    }
+    if (row.whatIsMissingOrUnclear) {
+      lines.push(`**What is missing / unclear:** ${row.whatIsMissingOrUnclear}`);
+      lines.push("");
+    }
+    if (row.supportedElementIds.length || row.missingElementIds.length) {
+      lines.push(
+        `**Elements:** supported ${row.supportedElementIds.join(", ") || "—"} · outstanding ${row.missingElementIds.join(", ") || "—"}`
+      );
+      lines.push("");
+    }
+    if (row.evidence.length > 0) {
+      const top = row.evidence.slice(0, 2);
+      for (const ev of top) {
+        const path = ev.structuralPath || "locator";
+        const quote = (ev.quote || "").replace(/\s+/g, " ").slice(0, 180);
+        lines.push(`- \`${path}\`: “${quote}${quote.length >= 180 ? "…" : ""}”`);
+      }
+      lines.push("");
+    }
+    if (row.recommendedAction && row.status !== "present") {
+      lines.push(`**Action:** ${row.recommendedAction}`);
+      lines.push("");
+    }
+  }
+  if (report.bottomLine.length > 0) {
+    lines.push("### Locked bottom line");
+    lines.push("");
+    for (const claim of report.bottomLine) {
+      lines.push(`- ${claim.claim}`);
+    }
+    lines.push("");
+  }
+  return lines.join("\n");
 }
 
 /** Extract user-request propositions that didn't map to a canonical requirement. */

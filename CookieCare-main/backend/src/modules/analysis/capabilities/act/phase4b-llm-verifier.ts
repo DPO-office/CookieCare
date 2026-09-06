@@ -62,6 +62,9 @@ const SYSTEM_PROMPT = [
   "5. Return exactly one entry per expected elementId.",
   "6. `state` must be one of: supported, contradicted, not_located, ambiguous, unresolved_dependency, not_applicable.",
   "7. Use `not_applicable` only for a conditional element whose applicabilityRule is not satisfied by the bundle.",
+  "8. Do NOT treat two legal obligations as the same merely because they share a word or an abbreviation. Read the element's exact proposition and require the passage to address THAT specific obligation, not a nearby or similarly-named one. Example failure mode to avoid: a 'Data Protection Impact Assessment' clause (a distinct GDPR obligation) is NOT evidence for a 'Transfer Impact Assessment' element just because both contain the word 'assessment' — verify the passage is actually about the element's own subject matter before citing it.",
+  "9. Do NOT treat the mere existence of one mechanism as proof that a related but separate obligation was also satisfied. Example: a clause naming a transfer mechanism (e.g. Standard Contractual Clauses) proves that mechanism exists — it does NOT by itself prove a distinct requirement to assess or document supplementary measures, unless the passage itself performs or refers to that assessment.",
+  "10. When in doubt between `supported` and `not_located`/`ambiguous`, prefer the more conservative state. A plausible-sounding passage that does not actually state the element's proposition is not evidence for it.",
 ].join("\n");
 
 interface RawVerdict {

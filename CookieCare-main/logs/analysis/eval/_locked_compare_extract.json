@@ -1,0 +1,1368 @@
+[
+  {
+    "log": "an_ba0d8e55-327d-46cd-a1f0-13df14d1eb88.compliance.log",
+    "eventCount": 149,
+    "renderRows": [
+      {
+        "requirementId": "subject_matter",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "SM1"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "clause-2.1.1",
+            "quote": "2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subje"
+          }
+        ]
+      },
+      {
+        "requirementId": "duration",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "DU1"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "clause-7.4",
+            "quote": "7.4 Objection Right for New Sub-processors. When any new Sub-processor is engaged during the Term, and if the GDPR applies to the processing"
+          }
+        ]
+      },
+      {
+        "requirementId": "nature_purpose",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "NP1",
+          "NP2"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "document/application-of-this-dpa/def-effective-date",
+            "quote": ". “Effective Date” means, as applicable: The date on which User clicked to accept or the parties otherwise agreed to this DPA. “Notification"
+          }
+        ]
+      },
+      {
+        "requirementId": "data_categories",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "CD1"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "clause-2",
+            "quote": "2. Data subjects about whom personal data is transferred to Alaio in connection with the Processor Services by, at the direction of, or on b"
+          }
+        ]
+      },
+      {
+        "requirementId": "data_subject_categories",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "DS1"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "clause-2",
+            "quote": "2. Data subjects about whom personal data is transferred to Alaio in connection with the Processor Services by, at the direction of, or on b"
+          }
+        ]
+      },
+      {
+        "requirementId": "art28_3_a_instructions",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "A1",
+          "A2"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "document/application-of-this-dpa/para@10374",
+            "quote": "2.4 By entering into this Data Processing Agreement, Administrator instructs Alaio to process Personal Data only in accordance with applicab"
+          }
+        ]
+      },
+      {
+        "requirementId": "art28_3_f_security_assistance",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "F1",
+          "F2",
+          "F3"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "document/application-of-this-dpa/para@27363",
+            "quote": "11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by a"
+          }
+        ]
+      },
+      {
+        "requirementId": "art28_3_g_deletion_return",
+        "status": "partial",
+        "statusLabel": "Partial",
+        "supportedElementIds": [
+          "G2",
+          "G4"
+        ],
+        "missingElementIds": [
+          "G1",
+          "G3"
+        ],
+        "recommendedAction": "G1: Reword the post-termination clause to grant the controller a choice. G3: Add a return obligation (format specified where reasonable).",
+        "whatIsMissingOrUnclear": "G1: No bundle item matched proof guidance for element G1. G3: No bundle item matched proof guidance for element G3.",
+        "evidence": [
+          {
+            "path": "document/application-of-this-dpa/para@13539",
+            "quote": "4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, "
+          }
+        ]
+      }
+    ],
+    "lockSummary": [
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "subject_matter"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "duration"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "nature_purpose"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "data_categories"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "data_subject_categories"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "art28_3_a_instructions"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "art28_3_f_security_assistance"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "art28_3_g_deletion_return"
+      }
+    ],
+    "assessSummary": [
+      {
+        "requirementId": "subject_matter",
+        "status": "present"
+      },
+      {
+        "requirementId": "duration",
+        "status": "present"
+      },
+      {
+        "requirementId": "nature_purpose",
+        "status": "present"
+      },
+      {
+        "requirementId": "data_categories",
+        "status": "present"
+      },
+      {
+        "requirementId": "data_subject_categories",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_a_instructions",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_f_security_assistance",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_g_deletion_return",
+        "status": "partial"
+      }
+    ],
+    "bottomLine": [],
+    "sampleQuote": "{\"event\":\"compliance.render.row\",\"analysisId\":\"an_ba0d8e55-327d-46cd-a1f0-13df14d1eb88\",\"timestamp\":\"2026-09-06T07:36:51.468Z\",\"implementationPhase\":\"live\",\"requirementId\":\"subject_matter\",\"canonicalK",
+    "docHint": "1bc4ca772f5dde99"
+  },
+  {
+    "log": "an_9922f418-61f0-4a20-87dc-0e93611ce38e.compliance.log",
+    "eventCount": 149,
+    "renderRows": [
+      {
+        "requirementId": "subject_matter",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "SM1"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "clause-2.1.1",
+            "quote": "2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subje"
+          }
+        ]
+      },
+      {
+        "requirementId": "duration",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "DU1"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "clause-7.4",
+            "quote": "7.4 Objection Right for New Sub-processors. When any new Sub-processor is engaged during the Term, and if the GDPR applies to the processing"
+          }
+        ]
+      },
+      {
+        "requirementId": "nature_purpose",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "NP1",
+          "NP2"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "document/application-of-this-dpa/def-effective-date",
+            "quote": ". “Effective Date” means, as applicable: The date on which User clicked to accept or the parties otherwise agreed to this DPA. “Notification"
+          }
+        ]
+      },
+      {
+        "requirementId": "data_categories",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "CD1"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "clause-2",
+            "quote": "2. Data subjects about whom personal data is transferred to Alaio in connection with the Processor Services by, at the direction of, or on b"
+          }
+        ]
+      },
+      {
+        "requirementId": "data_subject_categories",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "DS1"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "clause-2",
+            "quote": "2. Data subjects about whom personal data is transferred to Alaio in connection with the Processor Services by, at the direction of, or on b"
+          }
+        ]
+      },
+      {
+        "requirementId": "art28_3_a_instructions",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "A1",
+          "A2"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "document/application-of-this-dpa/para@10374",
+            "quote": "2.4 By entering into this Data Processing Agreement, Administrator instructs Alaio to process Personal Data only in accordance with applicab"
+          }
+        ]
+      },
+      {
+        "requirementId": "art28_3_f_security_assistance",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "F1",
+          "F2",
+          "F3"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "document/application-of-this-dpa/para@27363",
+            "quote": "11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by a"
+          }
+        ]
+      },
+      {
+        "requirementId": "art28_3_g_deletion_return",
+        "status": "partial",
+        "statusLabel": "Partial",
+        "supportedElementIds": [
+          "G2",
+          "G4"
+        ],
+        "missingElementIds": [
+          "G1",
+          "G3"
+        ],
+        "recommendedAction": "G1: Reword the post-termination clause to grant the controller a choice. G3: Add a return obligation (format specified where reasonable).",
+        "whatIsMissingOrUnclear": "G1: No bundle item matched proof guidance for element G1. G3: No bundle item matched proof guidance for element G3.",
+        "evidence": [
+          {
+            "path": "document/application-of-this-dpa/para@13539",
+            "quote": "4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, "
+          }
+        ]
+      }
+    ],
+    "lockSummary": [
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "subject_matter"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "duration"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "nature_purpose"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "data_categories"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "data_subject_categories"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "art28_3_a_instructions"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "art28_3_f_security_assistance"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "art28_3_g_deletion_return"
+      }
+    ],
+    "assessSummary": [
+      {
+        "requirementId": "subject_matter",
+        "status": "present"
+      },
+      {
+        "requirementId": "duration",
+        "status": "present"
+      },
+      {
+        "requirementId": "nature_purpose",
+        "status": "present"
+      },
+      {
+        "requirementId": "data_categories",
+        "status": "present"
+      },
+      {
+        "requirementId": "data_subject_categories",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_a_instructions",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_f_security_assistance",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_g_deletion_return",
+        "status": "partial"
+      }
+    ],
+    "bottomLine": [],
+    "sampleQuote": "{\"event\":\"compliance.render.row\",\"analysisId\":\"an_9922f418-61f0-4a20-87dc-0e93611ce38e\",\"timestamp\":\"2026-09-06T07:26:01.257Z\",\"implementationPhase\":\"8\",\"requirementId\":\"subject_matter\",\"canonicalKey\"",
+    "docHint": "ed5301928317f218"
+  },
+  {
+    "log": "an_7a536dd3-7984-4f2c-9db5-41fc414bd39c.compliance.log",
+    "eventCount": 149,
+    "renderRows": [
+      {
+        "requirementId": "subject_matter",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "SM1"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "clause-2.1.1",
+            "quote": "2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subje"
+          }
+        ]
+      },
+      {
+        "requirementId": "duration",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "DU1"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "clause-7.4",
+            "quote": "7.4 Objection Right for New Sub-processors. When any new Sub-processor is engaged during the Term, and if the GDPR applies to the processing"
+          }
+        ]
+      },
+      {
+        "requirementId": "nature_purpose",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "NP1",
+          "NP2"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "document/application-of-this-dpa/def-effective-date",
+            "quote": ". “Effective Date” means, as applicable: The date on which User clicked to accept or the parties otherwise agreed to this DPA. “Notification"
+          }
+        ]
+      },
+      {
+        "requirementId": "data_categories",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "CD1"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "clause-2",
+            "quote": "2. Data subjects about whom personal data is transferred to Alaio in connection with the Processor Services by, at the direction of, or on b"
+          }
+        ]
+      },
+      {
+        "requirementId": "data_subject_categories",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "DS1"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "clause-2",
+            "quote": "2. Data subjects about whom personal data is transferred to Alaio in connection with the Processor Services by, at the direction of, or on b"
+          }
+        ]
+      },
+      {
+        "requirementId": "art28_3_a_instructions",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "A1",
+          "A2"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "document/application-of-this-dpa/para@10374",
+            "quote": "2.4 By entering into this Data Processing Agreement, Administrator instructs Alaio to process Personal Data only in accordance with applicab"
+          }
+        ]
+      },
+      {
+        "requirementId": "art28_3_f_security_assistance",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "F1",
+          "F2",
+          "F3"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "document/application-of-this-dpa/para@27363",
+            "quote": "11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by a"
+          }
+        ]
+      },
+      {
+        "requirementId": "art28_3_g_deletion_return",
+        "status": "partial",
+        "statusLabel": "Partial",
+        "supportedElementIds": [
+          "G2",
+          "G4"
+        ],
+        "missingElementIds": [
+          "G1",
+          "G3"
+        ],
+        "recommendedAction": "G1: Reword the post-termination clause to grant the controller a choice. G3: Add a return obligation (format specified where reasonable).",
+        "whatIsMissingOrUnclear": "G1: No bundle item matched proof guidance for element G1. G3: No bundle item matched proof guidance for element G3.",
+        "evidence": [
+          {
+            "path": "document/application-of-this-dpa/para@13539",
+            "quote": "4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, "
+          }
+        ]
+      }
+    ],
+    "lockSummary": [
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "subject_matter"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "duration"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "nature_purpose"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "data_categories"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "data_subject_categories"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "art28_3_a_instructions"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "art28_3_f_security_assistance"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "art28_3_g_deletion_return"
+      }
+    ],
+    "assessSummary": [
+      {
+        "requirementId": "subject_matter",
+        "status": "present"
+      },
+      {
+        "requirementId": "duration",
+        "status": "present"
+      },
+      {
+        "requirementId": "nature_purpose",
+        "status": "present"
+      },
+      {
+        "requirementId": "data_categories",
+        "status": "present"
+      },
+      {
+        "requirementId": "data_subject_categories",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_a_instructions",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_f_security_assistance",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_g_deletion_return",
+        "status": "partial"
+      }
+    ],
+    "bottomLine": [],
+    "sampleQuote": "{\"event\":\"compliance.render.row\",\"analysisId\":\"an_7a536dd3-7984-4f2c-9db5-41fc414bd39c\",\"timestamp\":\"2026-09-06T07:08:30.252Z\",\"implementationPhase\":\"8\",\"requirementId\":\"subject_matter\",\"canonicalKey\"",
+    "docHint": "69b6cd87359ff2a5"
+  },
+  {
+    "log": "an_63172615-339c-4171-9708-1990cc17219f.compliance.log",
+    "eventCount": 147,
+    "renderRows": [
+      {
+        "requirementId": "subject_matter",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "SM1"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "clause-2.1.1",
+            "quote": "2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subje"
+          }
+        ]
+      },
+      {
+        "requirementId": "duration",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "DU1"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "clause-7.4",
+            "quote": "7.4 Objection Right for New Sub-processors. When any new Sub-processor is engaged during the Term, and if the GDPR applies to the processing"
+          }
+        ]
+      },
+      {
+        "requirementId": "nature_purpose",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "NP1",
+          "NP2"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "document/application-of-this-dpa/def-effective-date",
+            "quote": ". “Effective Date” means, as applicable: The date on which User clicked to accept or the parties otherwise agreed to this DPA. “Notification"
+          }
+        ]
+      },
+      {
+        "requirementId": "data_categories",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "CD1"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "clause-2",
+            "quote": "2. Data subjects about whom personal data is transferred to Alaio in connection with the Processor Services by, at the direction of, or on b"
+          }
+        ]
+      },
+      {
+        "requirementId": "data_subject_categories",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "DS1"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "clause-2",
+            "quote": "2. Data subjects about whom personal data is transferred to Alaio in connection with the Processor Services by, at the direction of, or on b"
+          }
+        ]
+      },
+      {
+        "requirementId": "art28_3_a_instructions",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "A1",
+          "A2"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "document/application-of-this-dpa/para@10374",
+            "quote": "2.4 By entering into this Data Processing Agreement, Administrator instructs Alaio to process Personal Data only in accordance with applicab"
+          }
+        ]
+      },
+      {
+        "requirementId": "art28_3_f_security_assistance",
+        "status": "present",
+        "statusLabel": "Present",
+        "supportedElementIds": [
+          "F1",
+          "F2",
+          "F3"
+        ],
+        "missingElementIds": [],
+        "recommendedAction": "None — obligation satisfied.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "evidence": [
+          {
+            "path": "document/application-of-this-dpa/para@27363",
+            "quote": "11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by a"
+          }
+        ]
+      },
+      {
+        "requirementId": "art28_3_g_deletion_return",
+        "status": "partial",
+        "statusLabel": "Partial",
+        "supportedElementIds": [
+          "G2",
+          "G4"
+        ],
+        "missingElementIds": [
+          "G1",
+          "G3"
+        ],
+        "recommendedAction": "G1: Reword the post-termination clause to grant the controller a choice. G3: Add a return obligation (format specified where reasonable).",
+        "whatIsMissingOrUnclear": "G1: No bundle item matched proof guidance for element G1. G3: No bundle item matched proof guidance for element G3.",
+        "evidence": [
+          {
+            "path": "document/application-of-this-dpa/para@13539",
+            "quote": "4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, "
+          }
+        ]
+      }
+    ],
+    "lockSummary": [
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "subject_matter"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "duration"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "nature_purpose"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "data_categories"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "data_subject_categories"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "art28_3_a_instructions"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "art28_3_f_security_assistance"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "art28_3_g_deletion_return"
+      }
+    ],
+    "assessSummary": [
+      {
+        "requirementId": "subject_matter",
+        "status": "present"
+      },
+      {
+        "requirementId": "duration",
+        "status": "present"
+      },
+      {
+        "requirementId": "nature_purpose",
+        "status": "present"
+      },
+      {
+        "requirementId": "data_categories",
+        "status": "present"
+      },
+      {
+        "requirementId": "data_subject_categories",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_a_instructions",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_f_security_assistance",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_g_deletion_return",
+        "status": "partial"
+      }
+    ],
+    "bottomLine": [],
+    "sampleQuote": "{\"event\":\"compliance.render.row\",\"analysisId\":\"an_63172615-339c-4171-9708-1990cc17219f\",\"timestamp\":\"2026-09-06T06:54:09.161Z\",\"implementationPhase\":\"7\",\"requirementId\":\"subject_matter\",\"canonicalKey\"",
+    "docHint": "91ec4de2142270c3"
+  },
+  {
+    "log": "an_4fa11225-3e5f-47ff-bdf2-93a1c5075023.compliance.log",
+    "eventCount": 136,
+    "renderRows": [],
+    "lockSummary": [
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "subject_matter"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "duration"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "nature_purpose"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "data_categories"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "data_subject_categories"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "art28_3_a_instructions"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "art28_3_f_security_assistance"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "art28_3_g_deletion_return"
+      }
+    ],
+    "assessSummary": [
+      {
+        "requirementId": "subject_matter",
+        "status": "present"
+      },
+      {
+        "requirementId": "duration",
+        "status": "present"
+      },
+      {
+        "requirementId": "nature_purpose",
+        "status": "present"
+      },
+      {
+        "requirementId": "data_categories",
+        "status": "present"
+      },
+      {
+        "requirementId": "data_subject_categories",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_a_instructions",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_f_security_assistance",
+        "status": "partial"
+      },
+      {
+        "requirementId": "art28_3_g_deletion_return",
+        "status": "present"
+      }
+    ],
+    "bottomLine": [],
+    "sampleQuote": "{\"event\":\"compliance.assess.result\",\"analysisId\":\"an_4fa11225-3e5f-47ff-bdf2-93a1c5075023\",\"timestamp\":\"2026-09-05T22:32:23.383Z\",\"implementationPhase\":\"5B\",\"requirementId\":\"subject_matter\",\"canonical",
+    "docHint": "3f24f7678151c0cc"
+  },
+  {
+    "log": "an_81f42314-5a38-4106-bd10-a87d8fbb28c9.compliance.log",
+    "eventCount": 136,
+    "renderRows": [],
+    "lockSummary": [
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "subject_matter"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "duration"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "nature_purpose"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "data_categories"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "data_subject_categories"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "art28_3_a_instructions"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "art28_3_f_security_assistance"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "art28_3_g_deletion_return"
+      }
+    ],
+    "assessSummary": [
+      {
+        "requirementId": "subject_matter",
+        "status": "present"
+      },
+      {
+        "requirementId": "duration",
+        "status": "present"
+      },
+      {
+        "requirementId": "nature_purpose",
+        "status": "present"
+      },
+      {
+        "requirementId": "data_categories",
+        "status": "present"
+      },
+      {
+        "requirementId": "data_subject_categories",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_a_instructions",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_f_security_assistance",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_g_deletion_return",
+        "status": "partial"
+      }
+    ],
+    "bottomLine": [],
+    "sampleQuote": "{\"event\":\"compliance.assess.result\",\"analysisId\":\"an_81f42314-5a38-4106-bd10-a87d8fbb28c9\",\"timestamp\":\"2026-09-05T22:27:05.912Z\",\"implementationPhase\":\"5B\",\"requirementId\":\"subject_matter\",\"canonical",
+    "docHint": "44ea320aec294014"
+  },
+  {
+    "log": "an_ebde9e22-646d-4050-ba51-45760df5e49f.compliance.log",
+    "eventCount": 138,
+    "renderRows": [],
+    "lockSummary": [
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "subject_matter"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "duration"
+      },
+      {
+        "event": "compliance.lock.rejected",
+        "requirementId": "nature_purpose",
+        "reasonCodes": [
+          "INCOMPATIBLE_SCOPE_JOINT_SUPPORT"
+        ]
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "data_categories"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "data_subject_categories"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "art28_3_a_instructions"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "art28_3_f_security_assistance"
+      },
+      {
+        "event": "compliance.lock.rejected",
+        "requirementId": "art28_3_g_deletion_return",
+        "reasonCodes": [
+          "INCOMPATIBLE_SCOPE_JOINT_SUPPORT"
+        ]
+      }
+    ],
+    "assessSummary": [
+      {
+        "requirementId": "subject_matter",
+        "status": "present"
+      },
+      {
+        "requirementId": "duration",
+        "status": "present"
+      },
+      {
+        "requirementId": "nature_purpose",
+        "status": "present"
+      },
+      {
+        "requirementId": "data_categories",
+        "status": "present"
+      },
+      {
+        "requirementId": "data_subject_categories",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_a_instructions",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_f_security_assistance",
+        "status": "partial"
+      },
+      {
+        "requirementId": "art28_3_g_deletion_return",
+        "status": "partial"
+      }
+    ],
+    "bottomLine": [],
+    "sampleQuote": "{\"event\":\"compliance.assess.result\",\"analysisId\":\"an_ebde9e22-646d-4050-ba51-45760df5e49f\",\"timestamp\":\"2026-09-05T21:54:10.575Z\",\"implementationPhase\":\"5B\",\"requirementId\":\"subject_matter\",\"canonical",
+    "docHint": "33141f786780feb2"
+  },
+  {
+    "log": "an_d780c453-6d3f-4bfe-ab99-22582fb4ea5c.compliance.log",
+    "eventCount": 136,
+    "renderRows": [],
+    "lockSummary": [
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "subject_matter"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "duration"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "nature_purpose"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "data_categories"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "data_subject_categories"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "art28_3_a_instructions"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "art28_3_f_security_assistance"
+      },
+      {
+        "event": "compliance.lock.accepted",
+        "requirementId": "art28_3_g_deletion_return"
+      }
+    ],
+    "assessSummary": [
+      {
+        "requirementId": "subject_matter",
+        "status": "present"
+      },
+      {
+        "requirementId": "duration",
+        "status": "present"
+      },
+      {
+        "requirementId": "nature_purpose",
+        "status": "present"
+      },
+      {
+        "requirementId": "data_categories",
+        "status": "present"
+      },
+      {
+        "requirementId": "data_subject_categories",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_a_instructions",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_f_security_assistance",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_g_deletion_return",
+        "status": "partial"
+      }
+    ],
+    "bottomLine": [],
+    "sampleQuote": "{\"event\":\"compliance.assess.result\",\"analysisId\":\"an_d780c453-6d3f-4bfe-ab99-22582fb4ea5c\",\"timestamp\":\"2026-09-05T21:49:46.056Z\",\"implementationPhase\":\"5B\",\"requirementId\":\"subject_matter\",\"canonical",
+    "docHint": "d7dd98c8d5107653"
+  },
+  {
+    "log": "an_91c6b78b-ee53-41bc-a71b-3203c3f56695.compliance.log",
+    "eventCount": 90,
+    "renderRows": [],
+    "lockSummary": [],
+    "assessSummary": [
+      {
+        "requirementId": "subject_matter",
+        "status": "present"
+      },
+      {
+        "requirementId": "duration",
+        "status": "present"
+      },
+      {
+        "requirementId": "nature_purpose",
+        "status": "present"
+      },
+      {
+        "requirementId": "data_categories",
+        "status": "present"
+      },
+      {
+        "requirementId": "data_subject_categories",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_a_instructions",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_f_security_assistance",
+        "status": "partial"
+      },
+      {
+        "requirementId": "art28_3_g_deletion_return",
+        "status": "partial"
+      }
+    ],
+    "bottomLine": [],
+    "sampleQuote": "{\"event\":\"compliance.assess.result\",\"analysisId\":\"an_91c6b78b-ee53-41bc-a71b-3203c3f56695\",\"timestamp\":\"2026-09-05T19:37:39.751Z\",\"implementationPhase\":\"5B\",\"requirementId\":\"subject_matter\",\"canonical",
+    "docHint": null
+  },
+  {
+    "log": "an_ff125c81-71fb-4f3e-bb8f-57011885fbae.compliance.log",
+    "eventCount": 88,
+    "renderRows": [],
+    "lockSummary": [],
+    "assessSummary": [
+      {
+        "requirementId": "subject_matter",
+        "status": "present"
+      },
+      {
+        "requirementId": "duration",
+        "status": "present"
+      },
+      {
+        "requirementId": "nature_purpose",
+        "status": "present"
+      },
+      {
+        "requirementId": "data_categories",
+        "status": "present"
+      },
+      {
+        "requirementId": "data_subject_categories",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_a_instructions",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_f_security_assistance",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_g_deletion_return",
+        "status": "partial"
+      }
+    ],
+    "bottomLine": [],
+    "sampleQuote": "{\"event\":\"compliance.assess.result\",\"analysisId\":\"an_ff125c81-71fb-4f3e-bb8f-57011885fbae\",\"timestamp\":\"2026-09-05T19:35:08.070Z\",\"implementationPhase\":\"5B\",\"requirementId\":\"subject_matter\",\"canonical",
+    "docHint": null
+  },
+  {
+    "log": "an_5c929289-33e1-4303-abac-47779f4d5e91.compliance.log",
+    "eventCount": 78,
+    "renderRows": [],
+    "lockSummary": [],
+    "assessSummary": [
+      {
+        "requirementId": "subject_matter",
+        "status": "present"
+      },
+      {
+        "requirementId": "duration",
+        "status": "present"
+      },
+      {
+        "requirementId": "nature_purpose",
+        "status": "present"
+      },
+      {
+        "requirementId": "data_categories",
+        "status": "present"
+      },
+      {
+        "requirementId": "data_subject_categories",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_a_instructions",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_f_security_assistance",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_g_deletion_return",
+        "status": "partial"
+      }
+    ],
+    "bottomLine": [],
+    "sampleQuote": "{\"event\":\"compliance.assess.result\",\"analysisId\":\"an_5c929289-33e1-4303-abac-47779f4d5e91\",\"timestamp\":\"2026-09-05T16:24:18.130Z\",\"implementationPhase\":\"5B\",\"requirementId\":\"subject_matter\",\"canonical",
+    "docHint": null
+  },
+  {
+    "log": "an_7d107bb4-4d03-4e4d-93d5-343457f3f598.compliance.log",
+    "eventCount": 78,
+    "renderRows": [],
+    "lockSummary": [],
+    "assessSummary": [
+      {
+        "requirementId": "subject_matter",
+        "status": "present"
+      },
+      {
+        "requirementId": "duration",
+        "status": "present"
+      },
+      {
+        "requirementId": "nature_purpose",
+        "status": "present"
+      },
+      {
+        "requirementId": "data_categories",
+        "status": "present"
+      },
+      {
+        "requirementId": "data_subject_categories",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_a_instructions",
+        "status": "present"
+      },
+      {
+        "requirementId": "art28_3_f_security_assistance",
+        "status": "partial"
+      },
+      {
+        "requirementId": "art28_3_g_deletion_return",
+        "status": "partial"
+      }
+    ],
+    "bottomLine": [],
+    "sampleQuote": "{\"event\":\"compliance.assess.result\",\"analysisId\":\"an_7d107bb4-4d03-4e4d-93d5-343457f3f598\",\"timestamp\":\"2026-09-05T16:22:13.317Z\",\"implementationPhase\":\"5B\",\"requirementId\":\"subject_matter\",\"canonical",
+    "docHint": null
+  }
+]

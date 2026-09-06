@@ -109,6 +109,34 @@ export function verifyRequirement(input: Phase4Input): RequirementMatrix {
   };
 }
 
+/**
+ * Left-word-boundary-aware substring check — replaces every naive
+ * `hay.includes(tok)` in this file. A raw substring check silently collides
+ * on short tokens: the acronym "TIA" (Transfer Impact Assessment) matches
+ * inside "confiden-TIA-lity", which let a plain Article 32 security clause
+ * ("...protect confidentiality and integrity...") pass the gate for Schrems
+ * II supplementary measures on a real Bitrix run.
+ *
+ * Fix requires a boundary BEFORE the token but deliberately NOT after it —
+ * several authored `distinctiveTokens` are intentional stems, not whole
+ * words (e.g. G2's "delet" is meant to match delete/deletes/deleted/deletion
+ * without listing every inflection). A full two-sided boundary check "fixed"
+ * the acronym collision but silently broke every stemmed token: "delet" no
+ * longer matched "delete" because the boundary check demanded a
+ * non-alphanumeric character immediately after "delet", which the letter "e"
+ * never satisfies. That regression was caught live — Bitrix's
+ * §2.5 ("...instructs Alaio to delete all Personal Data...") is in the
+ * bundle, but the deterministic verifier reported G2 (delete) as
+ * `not_located` because of this. Left-boundary-only still rejects "tia"
+ * inside "confidentiality" (the character immediately before "tia" there is
+ * "n", not a boundary) while accepting "delet" + any suffix.
+ */
+export function containsToken(hay: string, tokenLower: string): boolean {
+  if (!tokenLower) return false;
+  const escaped = tokenLower.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(?:^|[^a-z0-9])${escaped}`).test(hay);
+}
+
 function verifyElement(
   el: ElementSchema,
   items: Phase3BundleItem[],
@@ -119,7 +147,7 @@ function verifyElement(
   if (el.kind === "conditional" && el.applicabilityRule) {
     const triggers = signalTokens(el.applicabilityRule);
     const triggered = items.some((it) =>
-      triggers.some((tok) => it.quotedText.toLowerCase().includes(tok))
+      triggers.some((tok) => containsToken(it.quotedText.toLowerCase(), tok))
     );
     if (!triggered) {
       return baseVerdict(el, "not_applicable", {
@@ -152,7 +180,7 @@ function verifyElement(
     // security clauses from bleeding into F2 (breach) / F3 (DPIA).
     if (
       distinctiveTokens.length > 0 &&
-      !distinctiveTokens.some((tok) => hay.includes(tok))
+      !distinctiveTokens.some((tok) => containsToken(hay, tok))
     ) {
       continue;
     }
@@ -163,7 +191,7 @@ function verifyElement(
     // common; only the intersection is 28(3)(g)'s closing proviso.
     if (
       requiredTokenGroups.length > 0 &&
-      !requiredTokenGroups.every((group) => group.some((tok) => hay.includes(tok)))
+      !requiredTokenGroups.every((group) => group.some((tok) => containsToken(hay, tok)))
     ) {
       continue;
     }
@@ -175,7 +203,7 @@ function verifyElement(
     if (requiredTokenGroups.length > 0) {
       for (const group of requiredTokenGroups) {
         for (const tok of group) {
-          if (hay.includes(tok)) {
+          if (containsToken(hay, tok)) {
             score += 2;
             hitTokens.add(tok);
             break;
@@ -184,7 +212,7 @@ function verifyElement(
       }
     }
     for (const tok of proofSignals) {
-      if (hay.includes(tok)) {
+      if (containsToken(hay, tok)) {
         score += 1;
         hitTokens.add(tok);
       }
@@ -193,7 +221,7 @@ function verifyElement(
     // capitalized phrase (e.g. "documented instructions"), a full-phrase hit
     // is worth more than the sum of its parts.
     for (const phrase of distinctivePhrases(el.proofGuidance)) {
-      if (hay.includes(phrase)) {
+      if (containsToken(hay, phrase)) {
         score += 3;
         hitTokens.add(phrase);
       }
@@ -201,13 +229,13 @@ function verifyElement(
     // Authored-distinctive hits count toward the score too, so an item that
     // clears the gate still needs enough signal to reach the threshold.
     for (const tok of distinctiveTokens) {
-      if (hay.includes(tok)) {
+      if (containsToken(hay, tok)) {
         score += 2;
         hitTokens.add(tok);
       }
     }
     if (score > 0) scored.push({ item, score, hitTokens });
-    if (trapSignals.length > 0 && trapSignals.some((t) => hay.includes(t))) {
+    if (trapSignals.length > 0 && trapSignals.some((t) => containsToken(hay, t))) {
       // Trap alone does not contradict — a passage may quote a non-proof
       // pattern in passing. Only count as trap if no proof signal is also
       // present in this item.
@@ -228,7 +256,7 @@ function verifyElement(
     (d) =>
       d.state !== "resolved_internal" &&
       proofSignals.some((tok) =>
-        d.reference.toLowerCase().includes(tok)
+        containsToken(d.reference.toLowerCase(), tok)
       )
   );
   if (supportItems.length === 0 && dependencyBlocker) {

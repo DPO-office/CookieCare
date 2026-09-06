@@ -161,6 +161,13 @@ export function groundFindings(state: AnalysisState): AnalysisState {
     findings
   );
   const assessments = (aggregated.state.requirementAssessments ?? []).map((assessment) => {
+    // Locked Phase 4–7 projections intentionally have empty supportingFindingIds.
+    if (
+      aggregated.state.metadata?.complianceLiveLockRender ||
+      assessment.structuralNote?.startsWith("Locked ")
+    ) {
+      return assessment;
+    }
     const support = findings.filter(
       (f) =>
         assessment.supportingFindingIds.includes(f.findingId) && f.status === "present"

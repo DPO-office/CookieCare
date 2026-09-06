@@ -63,8 +63,19 @@ export interface RequirementElementSchema {
   elements: ElementSchema[];
   /** Bumped by legal review when any element or aggregation rule changes. */
   version: string;
-  /** Legally reviewed? Emitted as-is on `compliance.element.registry`. */
-  reviewStatus: "authored" | "legal_reviewed";
+  /**
+   * Legally reviewed? Emitted as-is on `compliance.element.registry`.
+   *   "authored"      — hand-typed in this file, tuned against real DPAs,
+   *                      not yet legally reviewed.
+   *   "legal_reviewed" — signed off by counsel.
+   *   "auto_derived"   — synthesized at runtime from a skill's own authored
+   *                      `hypothesis` / `proofStandard` / `evidenceHints`
+   *                      (see `synthesizeElementSchemaFromProfile` below).
+   *                      Single-element, AND-only, no hand-tuned traps or
+   *                      compound token gates — a real but coarser schema
+   *                      than a hand-authored one for the same requirement.
+   */
+  reviewStatus: "authored" | "legal_reviewed" | "auto_derived";
   /**
    * Alternate identity keys the runtime may present for this requirement —
    * anything `canonicalRequirementId()` might return, plus any package-native
@@ -586,4 +597,86 @@ export function elementSchemaFor(
 
 function looseKey(id: string): string {
   return id.toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+/**
+ * GENERAL-PURPOSE FALLBACK — auto-derive a one-element schema from whatever a
+ * skill's own `requirementEvidence` (hypothesis / proofStandard /
+ * evidenceHints) already authors for a requirement, with NO hand-typed
+ * per-regime entry required.
+ *
+ * Why this exists: `ARTICLE_28_ELEMENT_REGISTRY` only covers the 8 GDPR
+ * Article 28 requirements that got full legal-element decomposition. Every
+ * other authored regime (international transfers / SCCs / Schrems II, NDA,
+ * and any future pack) already carries `hypothesis` + `proofStandard` +
+ * `evidenceHints` per requirement in its own skill.config.ts — the same
+ * authoring surface product/legal already uses for `evaluate_package`'s
+ * per-candidate VERIFY path. Deriving a schema from that data means Phase
+ * 4B/5/6/7 cover every regime that authors evidence profiles TODAY, and any
+ * new regime the moment its skill config authors them — no parallel
+ * TypeScript element registry to hand-maintain per regime, consistent with
+ * this project's standing rule against hand-maintained lookup tables as the
+ * mechanism of correctness.
+ *
+ * The result is deliberately coarser than a hand-authored schema: one
+ * element (`E1`), AND aggregation, no non-proof traps, and `evidenceHints`
+ * used as a soft `distinctiveTokens` OR-gate (not the compound AND-group
+ * precision hand-tuning gave Article 28(3)(g)). It's a real, auditable
+ * schema — not a placeholder — but `reviewStatus: "auto_derived"` keeps it
+ * honestly distinguishable from `"authored"` / `"legal_reviewed"` everywhere
+ * it's logged (registry, verify, assess, lock, render events all pass
+ * `reviewStatus` through unchanged).
+ */
+export function synthesizeElementSchemaFromProfile(
+  nativeRequirementId: string,
+  canonicalKey: string,
+  profile: { hypothesis?: string; proofStandard?: string; evidenceHints?: string[] }
+): RequirementElementSchema | undefined {
+  const proposition = (profile.hypothesis ?? profile.proofStandard ?? "").trim();
+  if (!proposition) return undefined; // nothing authored — genuinely nothing to verify against
+  const proofGuidance = (profile.proofStandard ?? profile.hypothesis ?? "").trim();
+  const hints = (profile.evidenceHints ?? []).map((h) => h.trim()).filter(Boolean);
+  const title = proposition.length > 90 ? `${proposition.slice(0, 87)}...` : proposition;
+
+  return {
+    requirementUid: nativeRequirementId,
+    canonicalKey,
+    legalCitation: nativeRequirementId,
+    title,
+    aggregationRule: "AND",
+    elements: [
+      {
+        elementId: "E1",
+        proposition,
+        kind: "mandatory",
+        proofGuidance: proofGuidance || proposition,
+        nonProofTraps: [],
+        remediationGuidance: `Add or clarify contract language establishing: ${proposition}`,
+        version: "auto-0.1.0",
+        distinctiveTokens: hints.length > 0 ? hints : undefined,
+      },
+    ],
+    version: "auto-0.1.0",
+    reviewStatus: "auto_derived",
+  };
+}
+
+/**
+ * Full resolution ladder for a requirement's element schema:
+ *   1. Hand-authored registry entry (`elementSchemaFor`) — highest precision.
+ *   2. Auto-derived from the skill's own authored evidence profile — general
+ *      coverage for every regime that authors `hypothesis`/`proofStandard`.
+ *   3. `undefined` — the package authored nothing verifiable for this
+ *      requirement; correctly stays outside Phase 4B/5/6/7 scope rather than
+ *      fabricating a schema from nothing.
+ */
+export function resolveElementSchema(
+  nativeRequirementId: string,
+  canonicalKey: string,
+  profile?: { hypothesis?: string; proofStandard?: string; evidenceHints?: string[] }
+): RequirementElementSchema | undefined {
+  const authored = elementSchemaFor(canonicalKey) ?? elementSchemaFor(nativeRequirementId);
+  if (authored) return authored;
+  if (!profile) return undefined;
+  return synthesizeElementSchemaFromProfile(nativeRequirementId, canonicalKey, profile);
 }

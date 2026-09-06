@@ -3,54 +3,60 @@
     "status": 200,
     "url": "http://localhost:3000/api/auth/login",
     "method": "POST",
-    "at": "2026-09-05T05:48:00.350Z"
+    "at": "2026-09-06T08:16:46.525Z"
   },
   {
     "status": 202,
     "url": "http://localhost:3000/api/documents/upload",
     "method": "POST",
-    "at": "2026-09-05T05:48:03.884Z"
+    "at": "2026-09-06T08:16:48.520Z"
   },
   {
     "status": 200,
-    "url": "http://localhost:3000/api/jobs/6a059c8a-0333-4a6f-a24b-6180291baac8",
+    "url": "http://localhost:3000/api/jobs/691c2326-0618-419b-9ea2-fdf84952691c",
     "method": "GET",
-    "at": "2026-09-05T05:48:04.557Z"
+    "at": "2026-09-06T08:16:48.928Z"
   },
   {
     "status": 200,
-    "url": "http://localhost:3000/api/jobs/6a059c8a-0333-4a6f-a24b-6180291baac8",
+    "url": "http://localhost:3000/api/jobs/691c2326-0618-419b-9ea2-fdf84952691c",
     "method": "GET",
-    "at": "2026-09-05T05:48:05.921Z"
+    "at": "2026-09-06T08:16:50.145Z"
   },
   {
     "status": 200,
-    "url": "http://localhost:3000/api/jobs/6a059c8a-0333-4a6f-a24b-6180291baac8",
+    "url": "http://localhost:3000/api/jobs/691c2326-0618-419b-9ea2-fdf84952691c",
     "method": "GET",
-    "at": "2026-09-05T05:48:06.770Z"
+    "at": "2026-09-06T08:16:50.988Z"
   },
   {
     "status": 200,
-    "url": "http://localhost:3000/api/jobs/6a059c8a-0333-4a6f-a24b-6180291baac8",
+    "url": "http://localhost:3000/api/jobs/691c2326-0618-419b-9ea2-fdf84952691c",
     "method": "GET",
-    "at": "2026-09-05T05:48:07.575Z"
+    "at": "2026-09-06T08:16:51.790Z"
   },
   {
     "status": 200,
-    "url": "http://localhost:3000/api/jobs/6a059c8a-0333-4a6f-a24b-6180291baac8",
+    "url": "http://localhost:3000/api/jobs/691c2326-0618-419b-9ea2-fdf84952691c",
     "method": "GET",
-    "at": "2026-09-05T05:48:08.407Z"
+    "at": "2026-09-06T08:16:52.738Z"
+  },
+  {
+    "status": 200,
+    "url": "http://localhost:3000/api/jobs/691c2326-0618-419b-9ea2-fdf84952691c",
+    "method": "GET",
+    "at": "2026-09-06T08:16:53.579Z"
   },
   {
     "status": 202,
     "url": "http://localhost:3000/api/analysis/run",
     "method": "POST",
-    "at": "2026-09-05T05:48:10.024Z"
+    "at": "2026-09-06T08:16:55.209Z"
   },
   {
     "status": 200,
-    "url": "http://localhost:3000/api/jobs/sse?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InN1cHJlbWVfYWRtaW5faWQiLCJlbWFpbCI6InN3YXJuYWFpc2h3YXJ5YTE3QGdtYWlsLmNvbSIsImlhdCI6MTc4ODU4NzI4MCwiZXhwIjoxNzg4NjczNjgwfQ.VMwfpPKsoYekjTufo7TxjRMoQkX4wD6TyY8L3hj_MFQ",
+    "url": "http://localhost:3000/api/jobs/sse?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InN1cHJlbWVfYWRtaW5faWQiLCJlbWFpbCI6InN3YXJuYWFpc2h3YXJ5YTE3QGdtYWlsLmNvbSIsImlhdCI6MTc4ODY4MjYwNiwiZXhwIjoxNzg4NzY5MDA2fQ.s1zKf6KTzhrHN_mZrEoFoI1062TFngythBUF8Klrgz0",
     "method": "GET",
-    "at": "2026-09-05T05:48:10.034Z"
+    "at": "2026-09-06T08:16:55.218Z"
   }
 ]
