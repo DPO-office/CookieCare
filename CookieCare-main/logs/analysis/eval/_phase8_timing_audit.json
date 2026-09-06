@@ -1,0 +1,501 @@
+{
+  "checkedAt": "2026-09-06T07:10:16.254Z",
+  "recent": [
+    {
+      "log": "an_7a536dd3-7984-4f2c-9db5-41fc414bd39c.compliance.log",
+      "doc": "bitrix",
+      "analysisId": "an_7a536dd3-7984-4f2c-9db5-41fc414bd39c",
+      "hasTiming": true,
+      "hasReconciliation": true,
+      "timingKeys": [
+        "totalMs",
+        "stages"
+      ],
+      "reconKeys": [
+        "planned",
+        "terminal",
+        "missingRequirementIds",
+        "duplicateRequirementIds"
+      ],
+      "reconSummary": {
+        "planned": 15,
+        "keys": [
+          "planned",
+          "terminal",
+          "missingRequirementIds",
+          "duplicateRequirementIds"
+        ]
+      },
+      "stageKeys": [
+        "compliance.structure",
+        "compliance.reference_index",
+        "compliance.requirement_registry",
+        "compliance.request_resolution",
+        "compliance.investigate",
+        "compliance.element_registry",
+        "compliance.verify",
+        "compliance.fallback",
+        "compliance.llm_verify",
+        "compliance.assess",
+        "compliance.lock",
+        "compliance.render",
+        "retrieve",
+        "verify",
+        "assess",
+        "render"
+      ],
+      "complianceStageKeys": [
+        "compliance.structure",
+        "compliance.reference_index",
+        "compliance.requirement_registry",
+        "compliance.request_resolution",
+        "compliance.investigate",
+        "compliance.element_registry",
+        "compliance.verify",
+        "compliance.fallback",
+        "compliance.llm_verify",
+        "compliance.assess",
+        "compliance.lock",
+        "compliance.render"
+      ],
+      "liveStageKeys": [
+        "retrieve",
+        "verify",
+        "assess",
+        "render"
+      ],
+      "stageMs": {
+        "compliance.structure": 9,
+        "compliance.reference_index": 9,
+        "compliance.requirement_registry": 0,
+        "compliance.request_resolution": 1,
+        "compliance.investigate": 189,
+        "compliance.element_registry": 7,
+        "compliance.verify": 43,
+        "compliance.fallback": 6639,
+        "compliance.llm_verify": 18768,
+        "compliance.assess": 28,
+        "compliance.lock": 30,
+        "compliance.render": 15,
+        "retrieve": 2166,
+        "verify": 176731,
+        "assess": 3,
+        "render": 4463
+      },
+      "structureMs": 9,
+      "investigateMs": 189,
+      "fallbackMs": 6639,
+      "llmVerifyMs": 18768,
+      "expectedPresent": [
+        "compliance.structure",
+        "compliance.reference_index",
+        "compliance.requirement_registry",
+        "compliance.request_resolution",
+        "compliance.investigate",
+        "compliance.element_registry",
+        "compliance.verify",
+        "compliance.fallback",
+        "compliance.llm_verify",
+        "compliance.assess",
+        "compliance.lock",
+        "compliance.render"
+      ],
+      "expectedMissing": [],
+      "budgetExceededEvents": 0,
+      "budgetSample": [],
+      "documentHash": "69b6cd87359ff2a5",
+      "acceptance": {
+        "timingPersisted": true,
+        "reconciliationPersisted": true,
+        "hasCompliancePrefixedStages": true,
+        "hasStructureStage": true,
+        "hasInvestigateStage": true,
+        "hasFallbackOrLlmVerify": true
+      },
+      "iso": "2026-09-06T07:10:09.084Z"
+    },
+    {
+      "log": "an_63172615-339c-4171-9708-1990cc17219f.compliance.log",
+      "doc": "bitrix",
+      "analysisId": "an_63172615-339c-4171-9708-1990cc17219f",
+      "hasTiming": false,
+      "hasReconciliation": false,
+      "timingKeys": [],
+      "reconKeys": [],
+      "reconSummary": null,
+      "stageKeys": [],
+      "complianceStageKeys": [],
+      "liveStageKeys": [],
+      "stageMs": {},
+      "expectedPresent": [],
+      "expectedMissing": [
+        "compliance.structure",
+        "compliance.reference_index",
+        "compliance.requirement_registry",
+        "compliance.request_resolution",
+        "compliance.investigate",
+        "compliance.element_registry",
+        "compliance.verify",
+        "compliance.fallback",
+        "compliance.llm_verify",
+        "compliance.assess",
+        "compliance.lock",
+        "compliance.render"
+      ],
+      "budgetExceededEvents": 0,
+      "budgetSample": [],
+      "documentHash": "91ec4de2142270c3",
+      "acceptance": {
+        "timingPersisted": false,
+        "reconciliationPersisted": false,
+        "hasCompliancePrefixedStages": false,
+        "hasStructureStage": false,
+        "hasInvestigateStage": false,
+        "hasFallbackOrLlmVerify": false
+      },
+      "iso": "2026-09-06T06:54:09.174Z"
+    },
+    {
+      "log": "an_4fa11225-3e5f-47ff-bdf2-93a1c5075023.compliance.log",
+      "doc": "mastercard",
+      "analysisId": "an_4fa11225-3e5f-47ff-bdf2-93a1c5075023",
+      "hasTiming": false,
+      "hasReconciliation": false,
+      "timingKeys": [],
+      "reconKeys": [],
+      "reconSummary": null,
+      "stageKeys": [],
+      "complianceStageKeys": [],
+      "liveStageKeys": [],
+      "stageMs": {},
+      "expectedPresent": [],
+      "expectedMissing": [
+        "compliance.structure",
+        "compliance.reference_index",
+        "compliance.requirement_registry",
+        "compliance.request_resolution",
+        "compliance.investigate",
+        "compliance.element_registry",
+        "compliance.verify",
+        "compliance.fallback",
+        "compliance.llm_verify",
+        "compliance.assess",
+        "compliance.lock",
+        "compliance.render"
+      ],
+      "budgetExceededEvents": 0,
+      "budgetSample": [],
+      "documentHash": "3f24f7678151c0cc",
+      "acceptance": {
+        "timingPersisted": false,
+        "reconciliationPersisted": false,
+        "hasCompliancePrefixedStages": false,
+        "hasStructureStage": false,
+        "hasInvestigateStage": false,
+        "hasFallbackOrLlmVerify": false
+      },
+      "iso": "2026-09-05T22:32:23.476Z"
+    },
+    {
+      "log": "an_81f42314-5a38-4106-bd10-a87d8fbb28c9.compliance.log",
+      "doc": "bitrix",
+      "analysisId": "an_81f42314-5a38-4106-bd10-a87d8fbb28c9",
+      "hasTiming": false,
+      "hasReconciliation": false,
+      "timingKeys": [],
+      "reconKeys": [],
+      "reconSummary": null,
+      "stageKeys": [],
+      "complianceStageKeys": [],
+      "liveStageKeys": [],
+      "stageMs": {},
+      "expectedPresent": [],
+      "expectedMissing": [
+        "compliance.structure",
+        "compliance.reference_index",
+        "compliance.requirement_registry",
+        "compliance.request_resolution",
+        "compliance.investigate",
+        "compliance.element_registry",
+        "compliance.verify",
+        "compliance.fallback",
+        "compliance.llm_verify",
+        "compliance.assess",
+        "compliance.lock",
+        "compliance.render"
+      ],
+      "budgetExceededEvents": 0,
+      "budgetSample": [],
+      "documentHash": "44ea320aec294014",
+      "acceptance": {
+        "timingPersisted": false,
+        "reconciliationPersisted": false,
+        "hasCompliancePrefixedStages": false,
+        "hasStructureStage": false,
+        "hasInvestigateStage": false,
+        "hasFallbackOrLlmVerify": false
+      },
+      "iso": "2026-09-05T22:27:05.999Z"
+    },
+    {
+      "log": "an_ebde9e22-646d-4050-ba51-45760df5e49f.compliance.log",
+      "doc": "mastercard",
+      "analysisId": "an_ebde9e22-646d-4050-ba51-45760df5e49f",
+      "hasTiming": false,
+      "hasReconciliation": false,
+      "timingKeys": [],
+      "reconKeys": [],
+      "reconSummary": null,
+      "stageKeys": [],
+      "complianceStageKeys": [],
+      "liveStageKeys": [],
+      "stageMs": {},
+      "expectedPresent": [],
+      "expectedMissing": [
+        "compliance.structure",
+        "compliance.reference_index",
+        "compliance.requirement_registry",
+        "compliance.request_resolution",
+        "compliance.investigate",
+        "compliance.element_registry",
+        "compliance.verify",
+        "compliance.fallback",
+        "compliance.llm_verify",
+        "compliance.assess",
+        "compliance.lock",
+        "compliance.render"
+      ],
+      "budgetExceededEvents": 0,
+      "budgetSample": [],
+      "documentHash": "33141f786780feb2",
+      "acceptance": {
+        "timingPersisted": false,
+        "reconciliationPersisted": false,
+        "hasCompliancePrefixedStages": false,
+        "hasStructureStage": false,
+        "hasInvestigateStage": false,
+        "hasFallbackOrLlmVerify": false
+      },
+      "iso": "2026-09-05T21:54:10.627Z"
+    }
+  ],
+  "withTimingOrRecon": [
+    {
+      "log": "an_7a536dd3-7984-4f2c-9db5-41fc414bd39c.compliance.log",
+      "doc": "bitrix",
+      "analysisId": "an_7a536dd3-7984-4f2c-9db5-41fc414bd39c",
+      "hasTiming": true,
+      "hasReconciliation": true,
+      "timingKeys": [
+        "totalMs",
+        "stages"
+      ],
+      "reconKeys": [
+        "planned",
+        "terminal",
+        "missingRequirementIds",
+        "duplicateRequirementIds"
+      ],
+      "reconSummary": {
+        "planned": 15,
+        "keys": [
+          "planned",
+          "terminal",
+          "missingRequirementIds",
+          "duplicateRequirementIds"
+        ]
+      },
+      "stageKeys": [
+        "compliance.structure",
+        "compliance.reference_index",
+        "compliance.requirement_registry",
+        "compliance.request_resolution",
+        "compliance.investigate",
+        "compliance.element_registry",
+        "compliance.verify",
+        "compliance.fallback",
+        "compliance.llm_verify",
+        "compliance.assess",
+        "compliance.lock",
+        "compliance.render",
+        "retrieve",
+        "verify",
+        "assess",
+        "render"
+      ],
+      "complianceStageKeys": [
+        "compliance.structure",
+        "compliance.reference_index",
+        "compliance.requirement_registry",
+        "compliance.request_resolution",
+        "compliance.investigate",
+        "compliance.element_registry",
+        "compliance.verify",
+        "compliance.fallback",
+        "compliance.llm_verify",
+        "compliance.assess",
+        "compliance.lock",
+        "compliance.render"
+      ],
+      "liveStageKeys": [
+        "retrieve",
+        "verify",
+        "assess",
+        "render"
+      ],
+      "stageMs": {
+        "compliance.structure": 9,
+        "compliance.reference_index": 9,
+        "compliance.requirement_registry": 0,
+        "compliance.request_resolution": 1,
+        "compliance.investigate": 189,
+        "compliance.element_registry": 7,
+        "compliance.verify": 43,
+        "compliance.fallback": 6639,
+        "compliance.llm_verify": 18768,
+        "compliance.assess": 28,
+        "compliance.lock": 30,
+        "compliance.render": 15,
+        "retrieve": 2166,
+        "verify": 176731,
+        "assess": 3,
+        "render": 4463
+      },
+      "structureMs": 9,
+      "investigateMs": 189,
+      "fallbackMs": 6639,
+      "llmVerifyMs": 18768,
+      "expectedPresent": [
+        "compliance.structure",
+        "compliance.reference_index",
+        "compliance.requirement_registry",
+        "compliance.request_resolution",
+        "compliance.investigate",
+        "compliance.element_registry",
+        "compliance.verify",
+        "compliance.fallback",
+        "compliance.llm_verify",
+        "compliance.assess",
+        "compliance.lock",
+        "compliance.render"
+      ],
+      "expectedMissing": [],
+      "budgetExceededEvents": 0,
+      "budgetSample": [],
+      "documentHash": "69b6cd87359ff2a5",
+      "acceptance": {
+        "timingPersisted": true,
+        "reconciliationPersisted": true,
+        "hasCompliancePrefixedStages": true,
+        "hasStructureStage": true,
+        "hasInvestigateStage": true,
+        "hasFallbackOrLlmVerify": true
+      },
+      "iso": "2026-09-06T07:10:09.084Z"
+    },
+    {
+      "log": "an_965ab7ee-ca25-427c-8230-e22c5c75e45a.compliance.log",
+      "doc": "unknown",
+      "analysisId": "an_965ab7ee-ca25-427c-8230-e22c5c75e45a",
+      "hasTiming": true,
+      "hasReconciliation": true,
+      "timingKeys": [
+        "totalMs",
+        "stages"
+      ],
+      "reconKeys": [
+        "planned",
+        "terminal",
+        "missingRequirementIds",
+        "duplicateRequirementIds"
+      ],
+      "reconSummary": {
+        "planned": 15,
+        "keys": [
+          "planned",
+          "terminal",
+          "missingRequirementIds",
+          "duplicateRequirementIds"
+        ]
+      },
+      "stageKeys": [
+        "retrieve",
+        "verify",
+        "assess",
+        "render"
+      ],
+      "complianceStageKeys": [],
+      "liveStageKeys": [
+        "retrieve",
+        "verify",
+        "assess",
+        "render"
+      ],
+      "stageMs": {
+        "retrieve": 3245,
+        "verify": 123355,
+        "assess": 5,
+        "render": 5842
+      },
+      "expectedPresent": [],
+      "expectedMissing": [
+        "compliance.structure",
+        "compliance.reference_index",
+        "compliance.requirement_registry",
+        "compliance.request_resolution",
+        "compliance.investigate",
+        "compliance.element_registry",
+        "compliance.verify",
+        "compliance.fallback",
+        "compliance.llm_verify",
+        "compliance.assess",
+        "compliance.lock",
+        "compliance.render"
+      ],
+      "budgetExceededEvents": 0,
+      "budgetSample": [],
+      "documentHash": null,
+      "acceptance": {
+        "timingPersisted": true,
+        "reconciliationPersisted": true,
+        "hasCompliancePrefixedStages": false,
+        "hasStructureStage": false,
+        "hasInvestigateStage": false,
+        "hasFallbackOrLlmVerify": false
+      },
+      "iso": "2026-09-05T13:43:06.392Z"
+    }
+  ],
+  "structureByDocumentHash": {
+    "69b6cd87359ff2a5": [
+      {
+        "log": "an_7a536dd3-7984-4f2c-9db5-41fc414bd39c.compliance.log",
+        "doc": "bitrix",
+        "structureMs": 9,
+        "iso": "2026-09-06T07:10:09.084Z"
+      },
+      {
+        "log": "an_7a536dd3-7984-4f2c-9db5-41fc414bd39c.compliance.log",
+        "doc": "bitrix",
+        "structureMs": 9,
+        "iso": "2026-09-06T07:10:09.084Z"
+      }
+    ]
+  },
+  "overall": {
+    "anyTimingPersisted": true,
+    "anyReconPersisted": true,
+    "latest": {
+      "log": "an_7a536dd3-7984-4f2c-9db5-41fc414bd39c.compliance.log",
+      "doc": "bitrix",
+      "timingPersisted": true,
+      "reconciliationPersisted": true,
+      "hasCompliancePrefixedStages": true,
+      "hasStructureStage": true,
+      "hasInvestigateStage": true,
+      "hasFallbackOrLlmVerify": true,
+      "structureMs": 9,
+      "expectedMissing": []
+    }
+  }
+}

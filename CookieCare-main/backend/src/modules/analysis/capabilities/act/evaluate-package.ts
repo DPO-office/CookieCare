@@ -74,6 +74,7 @@ import {
 import { buildInMemoryIndex, type ClauseIndex } from "./clause-index.js";
 import { logVerifyCandidates } from "./verify-inspect-log.js";
 import { logRetrievalRanking, logSelectedCandidates } from "./evidence-pool-log.js";
+import { recordRetrievalPool } from "./compliance-observability.js";
 import {
   selectCandidates,
   buildSectionCandidates,
@@ -861,11 +862,22 @@ async function evaluateWithVerify(
   // just another section here, so selection can see and pick it. `items` (the
   // type-extracted pool) is kept only for the hybrid/lexical fallback path.
   const documentSections = doc ? buildSectionCandidates(doc) : items;
+  const selectorPoolInput = llmSelectEnabled || complianceReport ? documentSections : items;
   const selectorPool = filterCandidatesByEvidenceScope(
-    llmSelectEnabled || complianceReport ? documentSections : items,
+    selectorPoolInput,
     complianceReport ? ctx.evidenceScope : undefined
   );
   const recallPool = complianceReport ? selectorPool : items;
+  // PHASE 0 observability — the per-package retrieval cut inside VERIFY, so a
+  // reviewer can compare how many candidates entered vs survived the scope
+  // filter vs the final per-requirement cap. Emitted once per package.
+  recordRetrievalPool(state, {
+    packageId: ctx.packageId,
+    source: llmSelectEnabled || complianceReport ? "document-sections" : "clause-items",
+    beforeFilter: selectorPoolInput.length,
+    afterScopeFilter: selectorPool.length,
+    afterCap: recallPool.length,
+  });
 
   // Only build the embedding index for the hybrid fallback — when LLM
   // selection is on it replaces the index entirely, so skipping it saves the

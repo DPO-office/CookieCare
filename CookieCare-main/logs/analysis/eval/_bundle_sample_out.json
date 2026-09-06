@@ -1,0 +1,43 @@
+{
+  "file": "an_75bdc670-6047-489f-bce4-bc493264bda9.compliance.log",
+  "created": {
+    "requirementId": "duration",
+    "bundleId": "B-duration-doc_af3d4424-b629-4e32-ad3f-08d341d51b43",
+    "nSpans": 23,
+    "estimatedTokens": 3996,
+    "first3": [
+      "doc_af3d4424-b629-4e32-ad3f-08d341d51b43::section::18047-19611",
+      "doc_af3d4424-b629-4e32-ad3f-08d341d51b43::section::11037-12017",
+      "doc_af3d4424-b629-4e32-ad3f-08d341d51b43::section::12592-12835"
+    ]
+  },
+  "partitions": [
+    {
+      "partitionId": "P1",
+      "scope": {
+        "relationship": "unspecified"
+      },
+      "n": 22
+    },
+    {
+      "partitionId": "P2",
+      "scope": {
+        "relationship": "controller_to_processor"
+      },
+      "n": 1
+    }
+  ],
+  "exclReasons": {
+    "budget": 20
+  },
+  "depCount": 301,
+  "depStates": {
+    "resolved_internal": 290,
+    "unresolved_external": 11
+  },
+  "sampleDep": {
+    "reference": "Administrator",
+    "state": "resolved_internal",
+    "targets": 1
+  }
+}

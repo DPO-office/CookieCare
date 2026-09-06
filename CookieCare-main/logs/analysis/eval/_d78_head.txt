@@ -1,0 +1,7 @@
+========================================================================
+PHASE 3C EVIDENCE BUNDLES ONLY
+session=an_d78ffdf0-563a-4118-8486-52a6a0fcf094
+started=2026-09-05T14:56:17.362Z
+One compliance.bundle.created JSON line per requirement.
+========================================================================
+{"event":"compliance.bundle.created","analysisId":"an_d78ffdf0-563a-4118-8486-52a6a0fcf094","timestamp":"2026-09-05T14:56:17.361Z","implementationPhase":"3C","packageId":"gdpr.art28.particulars","requirementId":"subject_matter","bundleId":"B-subject_matter-doc_53683a39-0544-4510-946e-c8c3d7f24f7f","estimatedTokens":5999,"evidenceSpanIds":["doc_53683a39-0544-4510-946e-c8c3d7f24f7f::list::ecd90f15eb5f","doc_53683a39-0544-4510-946e-c8c3d7f24f7f::section::30754-32965","doc_53683a39-05

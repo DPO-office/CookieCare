@@ -1,0 +1,14 @@
+FILE c:\\Program Files\\CookieCare\\CookieCare-main\\logs\\analysis\an_7a2750ca-398d-4cda-99ab-4e13b6dd414d.compliance.log mtime=1788611624.256876 size=15235
+  LIFE {"event": "compliance.requirement.lifecycle", "analysisId": "an_7a2750ca-398d-4cda-99ab-4e13b6dd414d", "timestamp": "2026-09-05T12:33:44.199Z", "implementationPhase": "1A", "requirementId": "data_categories", "retrieved": true, "verified": true, "assessed": false, "rendered": false, "terminal": false}
+  RECON {"event": "compliance.run.reconciliation", "analysisId": "an_7a2750ca-398d-4cda-99ab-4e13b6dd414d", "timestamp": "2026-09-05T12:33:44.252Z", "implementationPhase": "1A", "planned": 15, "terminal": 15, "missingRequirementIds": ["subject_matter", "duration", "nature_purpose", "data_categories", "data_subject_categories", "controller_obligations_rights"], "duplicateRequirementIds": []}
+  counts={"compliance.source.marker": 5, "compliance.ingest.marker": 4, "compliance.plan.requirements": 1, "compliance.retrieval.pool": 4, "compliance.requirement.lifecycle": 34, "compliance.run.reconciliation": 1, "compliance.run.timing": 1}
+  tables=0 rows=0
+  MARKER data_categories raw=True norm=True
+  MARKER data_subjects raw=True norm=True
+  MARKER term_definition raw=True norm=True
+  MARKER appendix_body raw=True norm=True
+FILE c:\\Program Files\\CookieCare\\CookieCare-main\\logs\\analysis\an_fc227d1e-cd01-47f6-bc87-fcaa60fedb2a.compliance.log mtime=1788610713.968 size=13740
+  LIFE {"event": "compliance.requirement.lifecycle", "analysisId": "an_fc227d1e-cd01-47f6-bc87-fcaa60fedb2a", "timestamp": "2026-09-05T12:18:33.925Z", "implementationPhase": "0", "requirementId": "data_categories", "retrieved": true, "verified": true, "assessed": false, "rendered": false, "terminal": false}
+  RECON {"event": "compliance.run.reconciliation", "analysisId": "an_fc227d1e-cd01-47f6-bc87-fcaa60fedb2a", "timestamp": "2026-09-05T12:18:33.964Z", "implementationPhase": "0", "planned": 15, "terminal": 15, "missingRequirementIds": ["subject_matter", "duration", "nature_purpose", "data_categories", "data_subject_categories", "controller_obligations_rights"], "duplicateRequirementIds": []}
+  counts={"compliance.source.marker": 5, "compliance.plan.requirements": 1, "compliance.retrieval.pool": 4, "compliance.requirement.lifecycle": 33, "compliance.run.reconciliation": 1, "compliance.run.timing": 1}
+  tables=0 rows=0

@@ -1,0 +1,53 @@
+session=an_80bfbbe5 phase=1C
+total_json_events=931
+
+=== structure.summary ===
+{"documentId":"doc_4d6684ab-a670-494b-b45e-697b4b8e97c8","totalNodes":254,"orphanCount":0,"countsByKind":{"document":1,"section":9,"heading":11,"appendix":2,"paragraph":154,"clause":24,"list":8,"list_item":30,"definition":15}}
+
+=== appendix nodes (2) ===
+{"spanId":"doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::appendix::a5384f47ac97","path":"document/appendix-1","parentSpanId":"doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::document::f11f408c804a","childCount":3,"preview":"Appendix 1 SUBJECT MATTER AND DETAILS OF THE DATA PROCESSING SUBJECT MATTER Data Subjects. The personal data transferred concern the following categories of dat"}
+  children(3): heading:heading, section:subject-matter-and-details-of-the-data, section:processing-subject-matter
+{"spanId":"doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::appendix::c2311fe8098d","path":"document/appendix-2","parentSpanId":"doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::document::f11f408c804a","childCount":6,"preview":"Appendix 2 SECURITY MEASURES Alaio will implement and maintain the Security Measures set out in this Appendix 2. Alaio may update or modify such Security Measur"}
+  children(6): heading:heading, section:security-measures, section:availability, section:business-continuity-plan, section:media-destruction, section:infrastructure-maintenance
+
+=== orphans (0) ===
+
+=== definitions (15) ===
+Term indexed=true
+{"event":"compliance.definition.indexed","analysisId":"an_80bfbbe5-6826-4847-8b22-b4d50837fb1a","timestamp":"2026-09-05T12:55:38.089Z","implementationPhase":"1C","documentId":"doc_4d6684ab-a670-494b-b45e-697b4b8e97c8","term":"Term","definitionSpanId":"doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::definition::791b1ee6ccbf"}
+sample defs: Administrator | Bitrix24 | User Personal Data | Data Incident | Data Protection Legislation | Effective Date | Notification Email Address | Personal Data | Processing of personal data | Security measures | Processor Services | Sub-processors
+
+=== refs detected=416 resolved=395 unresolved=21
+unresolved breakdown: ambiguous=0 unresolved=21 unresolved_external=0
+
+=== appendix references (28) ===
+{"text":"Appendix 2","state":"resolved_internal","targets":["doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::appendix::c2311fe8098d"]}
+{"text":"Appendix 1","state":"resolved_internal","targets":["doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::appendix::a5384f47ac97"]}
+{"text":"Appendix  2","state":"resolved_internal","targets":["doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::appendix::c2311fe8098d"]}
+{"text":"Appendix 1","state":"resolved_internal","targets":["doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::appendix::a5384f47ac97"]}
+{"text":"Appendix 1","state":"resolved_internal","targets":["doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::appendix::a5384f47ac97"]}
+{"text":"Appendix 2","state":"resolved_internal","targets":["doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::appendix::c2311fe8098d"]}
+{"text":"Appendix 2","state":"resolved_internal","targets":["doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::appendix::c2311fe8098d"]}
+{"text":"Appendix 2","state":"resolved_internal","targets":["doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::appendix::c2311fe8098d"]}
+{"text":"Appendix 2","state":"resolved_internal","targets":["doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::appendix::c2311fe8098d"]}
+{"text":"Appendix 1","state":"resolved_internal","targets":["doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::appendix::a5384f47ac97"]}
+{"text":"Appendix 2","state":"resolved_internal","targets":["doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::appendix::c2311fe8098d"]}
+{"text":"Appendix 2","state":"resolved_internal","targets":["doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::appendix::c2311fe8098d"]}
+{"text":"Appendix 2","state":"resolved_internal","targets":["doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::appendix::c2311fe8098d"]}
+{"text":"Appendix  2","state":"resolved_internal","targets":["doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::appendix::c2311fe8098d"]}
+{"text":"Appendix  2","state":"resolved_internal","targets":["doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::appendix::c2311fe8098d"]}
+{"text":"Appendix 2","state":"resolved_internal","targets":["doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::appendix::c2311fe8098d"]}
+{"text":"Appendix 2","state":"resolved_internal","targets":["doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::appendix::c2311fe8098d"]}
+{"text":"Appendix 2","state":"resolved_internal","targets":["doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::appendix::c2311fe8098d"]}
+{"text":"Appendix 2","state":"resolved_internal","targets":["doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::appendix::c2311fe8098d"]}
+{"text":"Appendix 2","state":"resolved_internal","targets":["doc_4d6684ab-a670-494b-b45e-697b4b8e97c8::appendix::c2311fe8098d"]}
+
+=== emitted structure.node kinds ===
+{"section":9,"heading":11,"appendix":2,"clause":24,"list":8,"definition":15}
+
+=== source markers ===
+appendix_heading present=true
+appendix_body present=true
+term_definition present=true
+data_categories present=true
+data_subjects present=true

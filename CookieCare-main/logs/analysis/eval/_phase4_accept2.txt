@@ -1,0 +1,78 @@
+file=an_db93a7eb-e41d-4796-8888-2407e0c839eb.compliance.log
+phase=4B
+mtime=2026-09-05T15:41:49.081Z
+counts={"compliance.bundle.created":15,"compliance.element.registry":8,"compliance.verify.input":8,"compliance.verify.element":15,"compliance.verify.completeness":8}
+
+=== 4A registry ===
+count=8
+review=["authored"]
+gdpr.article28.subject_matter aliases=["article28.subject_matter","subject_matter","gdpr.article28.subject_matter_and_duration"] elems=SM1
+gdpr.article28.duration aliases=["article28.duration","duration"] elems=DU1
+gdpr.article28.nature_and_purpose aliases=["article28.nature_and_purpose","nature_and_purpose","nature_purpose"] elems=NP1,NP2
+gdpr.article28.categories_of_data aliases=["article28.categories_of_data","categories_of_data","data_categories"] elems=CD1
+gdpr.article28.categories_of_data_subjects aliases=["article28.categories_of_data_subjects","categories_of_data_subjects","data_subject_categories"] elems=DS1
+gdpr.article28.3a.documented_instructions aliases=["gdpr.article28_3.a.documented_instructions","art28_3_a_instructions","article28.3a.documented_instructions","documented_instructions"] elems=A1,A2
+gdpr.article28.3f.controller_assistance aliases=["gdpr.article28_3.f.security_assistance","art28_3_f_security_assistance","article28.3f.controller_assistance","controller_assistance"] elems=F1,F2,F3
+gdpr.article28.3g.deletion_or_return aliases=["gdpr.article28_3.g.return_or_deletion","art28_3_g_deletion_return","article28.3g.deletion_or_return","deletion_or_return","return_or_deletion"] elems=G1,G2,G3,G4
+
+=== 4B inputs (expect 8) ===
+unique_reqs=8
+{"req":"subject_matter","canonicalKey":"gdpr.article28.subject_matter","schemaCanonicalKey":"gdpr.article28.subject_matter","matchedVia":"canonicalKey","schemaVersion":"0.1.0","reviewStatus":"authored","elementIds":["SM1"]}
+{"req":"duration","canonicalKey":"gdpr.article28.duration","schemaCanonicalKey":"gdpr.article28.duration","matchedVia":"canonicalKey","schemaVersion":"0.1.0","reviewStatus":"authored","elementIds":["DU1"]}
+{"req":"nature_purpose","canonicalKey":"gdpr.article28.nature_and_purpose","schemaCanonicalKey":"gdpr.article28.nature_and_purpose","matchedVia":"canonicalKey","schemaVersion":"0.1.0","reviewStatus":"authored","elementIds":["NP1","NP2"]}
+{"req":"data_categories","canonicalKey":"gdpr.article28.categories_of_data","schemaCanonicalKey":"gdpr.article28.categories_of_data","matchedVia":"canonicalKey","schemaVersion":"0.1.0","reviewStatus":"authored","elementIds":["CD1"]}
+{"req":"data_subject_categories","canonicalKey":"gdpr.article28.categories_of_data_subjects","schemaCanonicalKey":"gdpr.article28.categories_of_data_subjects","matchedVia":"canonicalKey","schemaVersion":"0.1.0","reviewStatus":"authored","elementIds":["DS1"]}
+{"req":"art28_3_a_instructions","canonicalKey":"gdpr.article28.3a.documented_instructions","schemaCanonicalKey":"gdpr.article28.3a.documented_instructions","matchedVia":"canonicalKey","schemaVersion":"0.1.0","reviewStatus":"authored","elementIds":["A1","A2"]}
+{"req":"art28_3_f_security_assistance","canonicalKey":"gdpr.article28.3f.controller_assistance","schemaCanonicalKey":"gdpr.article28.3f.controller_assistance","matchedVia":"canonicalKey","schemaVersion":"0.1.0","reviewStatus":"authored","elementIds":["F1","F2","F3"]}
+{"req":"art28_3_g_deletion_return","canonicalKey":"gdpr.article28.3g.deletion_or_return","schemaCanonicalKey":"gdpr.article28.3g.deletion_or_return","matchedVia":"canonicalKey","schemaVersion":"0.1.0","reviewStatus":"authored","elementIds":["G1","G2","G3","G4"]}
+
+=== matchedVia != canonicalKey ===
+count=0
+
+=== completeness missing ===
+any_missing=0
+subject_matter: expected=SM1 missing=[]
+duration: expected=DU1 missing=[]
+nature_purpose: expected=NP1,NP2 missing=[]
+data_categories: expected=CD1 missing=[]
+data_subject_categories: expected=DS1 missing=[]
+art28_3_a_instructions: expected=A1,A2 missing=[]
+art28_3_f_security_assistance: expected=F1,F2,F3 missing=[]
+art28_3_g_deletion_return: expected=G1,G2,G3,G4 missing=[]
+
+=== (f) F1/F2/F3 ===
+fReq=art28_3_f_security_assistance rows=3
+{"elementId":"F1","state":"supported","nSpans":1,"quoteVerified":true,"scope":{"relationship":"unspecified","exception":"main_rule"},"has64":true,"has10":false,"hasBreach":false,"paths":["clause-6.4"],"fact":"The processor assists the controller in ensuring compliance with Article 32 (security of processing). Supported at clause-6.4.","gap":"","q0":"6.4 Alaio Security Assistance. Administrator agrees that Alaio will assist in ensuring  compliance with any obligations "}
+{"elementId":"F2","state":"supported","nSpans":6,"quoteVerified":true,"scope":{"relationship":"unspecified","exception":"main_rule"},"has64":true,"has10":true,"hasBreach":true,"paths":["clause-6.4","clause-8.4","clause-10","clause-12.3","clause-7.4"],"fact":"The processor assists with Articles 33-34 (personal-data-breach notification to the supervisory authority and to data subjects). Supported a","gap":"","q0":"6.4 Alaio Security Assistance. Administrator agrees that Alaio will assist in ensuring  compliance with any obligations "}
+{"elementId":"F3","state":"supported","nSpans":2,"quoteVerified":true,"scope":{"relationship":"unspecified","exception":"main_rule"},"has64":false,"has10":true,"hasBreach":false,"paths":["clause-10","clause-4.2"],"fact":"The processor assists with Articles 35-36 (DPIAs and prior consultation). Supported at clause-10, clause-4.2.","gap":"","q0":"10. DATA PROTECTION IMPACT ASSESSMENT \nUpon Administrator´s request, Alaio will assist Administrator in ensuring complia"}
+
+=== (g) G1-G4 ===
+gReq=art28_3_g_deletion_return rows=4
+{"elementId":"G1","state":"contradicted","nSpans":2,"scope":{"documentId":"doc_8b2a991b-d84e-41dc-8bc0-ecedfbc6bfdc","structuralPath":"clause-4.2","relationship":"unspecified"},"fact":"","gap":"Non-proof trap detected: A deletion-only clause with no return branch..","q0":"4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a  request from a Data Su"}
+{"elementId":"G2","state":"supported","nSpans":6,"scope":{"relationship":"unspecified","exception":"main_rule"},"fact":"The processor is obligated to delete on request. Supported at clause-4.2, clause-4.1, clause-9.2.","gap":"","q0":"4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a  request from a Data Su"}
+{"elementId":"G3","state":"supported","nSpans":6,"scope":{"relationship":"unspecified","exception":"main_rule"},"fact":"The processor is obligated to return on request. Supported at clause-4.1, clause-9.2, clause-4.2.","gap":"","q0":"4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to  correct, amend, block or "}
+{"elementId":"G4","state":"supported","nSpans":23,"scope":{"relationship":"unspecified","exception":"main_rule"},"fact":"The processor deletes existing copies unless Union or Member State law requires storage. Supported at clause-4.1, clause-2.1.1, clause-7.2.","gap":"","q0":"4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to  correct, amend, block or "}
+
+=== (a) A1/A2 ===
+{"elementId":"CD1","state":"supported","nSpans":24,"paths":["clause-2","clause-9.2","clause-6.3","clause-5.1"],"gap":"","q0":"2. Data subjects about whom personal data is transferred to Alaio in connection with  the Processor "}
+
+=== Appendix particulars (status only) ===
+subject_matter/SM1: state=supported appendixPath=0 paths0=clause-2.1.1
+data_categories/CD1: state=supported appendixPath=0 paths0=clause-2
+data_subject_categories/DS1: state=supported appendixPath=0 paths0=clause-2
+
+=== scope mix on supported ===
+subject_matter/SM1: rel=unspecified
+duration/DU1: rel=unspecified
+nature_purpose/NP1: rel=unspecified
+nature_purpose/NP2: rel=unspecified
+data_categories/CD1: rel=unspecified
+data_subject_categories/DS1: rel=unspecified
+art28_3_a_instructions/A1: rel=unspecified
+art28_3_a_instructions/A2: rel=unspecified
+art28_3_f_security_assistance/F1: rel=unspecified
+art28_3_f_security_assistance/F2: rel=unspecified
+art28_3_f_security_assistance/F3: rel=unspecified
+art28_3_g_deletion_return/G2: rel=unspecified
+art28_3_g_deletion_return/G3: rel=unspecified
+art28_3_g_deletion_return/G4: rel=unspecified

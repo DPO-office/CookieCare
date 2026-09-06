@@ -1,0 +1,33 @@
+
+==== Bitrix an_5c929289-33e1-4303-abac-47779f4d5e91.compliance.log ====
+art28_3_g_deletion_return: status=partial reasons=["CONTROLLER_CHOICE_NOT_LOCATED","DELETE_PRESENT","RETURN_NOT_LOCATED","LEGAL_RETENTION_NOT_LOCATED"]
+  matrix={"G1":{"state":"not_located","paths":0,"q0":""},"G2":{"state":"supported","paths":5,"q0":"4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to,"},"G3":{"state":"not_located","paths":0,"q0":""},"G4":{"state":"not_located","paths":0,"q0":""}}
+art28_3_f_security_assistance: status=present reasons=["SECURITY_ASSISTANCE_PRESENT","BREACH_NOTIFICATION_ASSISTANCE_PRESENT","DPIA_ASSISTANCE_PRESENT"]
+  matrix={"F1":{"state":"supported","paths":21,"q0":"11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by "},"F2":{"state":"supported","paths":13,"q0":"8.4 Third Party Notifications. Administrator is solely responsible for complying with breach notification laws applicable to Administrator "},"F3":{"state":"supported","paths":1,"q0":"10. DATA PROTECTION IMPACT ASSESSMENT Upon Administrator´s request, Alaio will assist Administrator in ensuring compliance with any obliga"}}
+art28_3_a_instructions: status=present reasons=["DOCUMENTED_INSTRUCTIONS_PRESENT","INSTRUCTION_LAW_PROVISO_PRESENT"]
+  matrix={"A1":{"state":"supported","paths":8,"q0":"2.4 By entering into this Data Processing Agreement, Administrator instructs Alaio to process Personal Data only in accordance with applica"},"A2":{"state":"supported","paths":16,"q0":"2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subje"}}
+G1=not_located G3=not_located q3=
+G4=not_located q4=
+F3=supported qF3=10. DATA PROTECTION IMPACT ASSESSMENT Upon Administrator´s request, Alaio will assist Administrator in ensuring complia
+
+==== MC an_7d107bb4-4d03-4e4d-93d5-343457f3f598.compliance.log ====
+art28_3_g_deletion_return: status=partial reasons=["CONTROLLER_CHOICE_NOT_LOCATED","DELETE_PRESENT","RETURN_PRESENT","LEGAL_RETENTION_UNRESOLVED_DEPENDENCY"]
+  matrix={"G1":{"state":"not_located","paths":0,"q0":""},"G2":{"state":"supported","paths":5,"q0":"3.5.6 Return and Deletion of Personal Data: upon expiry or termination of the Agreement and/or relevant SOW, or if the A"},"G3":{"state":"supported","paths":1,"q0":"3.5.6 Return and Deletion of Personal Data: upon expiry or termination of the Agreement and/or relevant SOW, or if the A"},"G4":{"state":"unresolved_dependency","paths":0,"q0":""}}
+art28_3_f_security_assistance: status=partial reasons=["SECURITY_ASSISTANCE_PRESENT","BREACH_NOTIFICATION_ASSISTANCE_PRESENT","DPIA_ASSISTANCE_NOT_LOCATED"]
+  matrix={"F1":{"state":"supported","paths":10,"q0":"3.6.1 it has implemented and maintains a comprehensive written information security program that complies with Privacy and "},"F2":{"state":"supported","paths":10,"q0":"2023) and its Implementing Regulations; (10) Nigeria Data Protection Act 2023 and its subsidiary regulations and guidelines; (11) Turkey La"},"F3":{"state":"not_located","paths":0,"q0":""}}
+art28_3_a_instructions: status=present reasons=["DOCUMENTED_INSTRUCTIONS_PRESENT","INSTRUCTION_LAW_PROVISO_PRESENT"]
+  matrix={"A1":{"state":"supported","paths":12,"q0":"3.4.1 Mastercard’s instructions are documented in Annex 1 of Addendum A1 of the Agreement and any applicable SOW(s). Masterc"},"A2":{"state":"supported","paths":18,"q0":"3.3. Roles of the Parties. The Parties agree that Mastercard is a Business and/or Controller (or similar status that determines the purpose"}}
+G1=not_located G3=supported q3=3.5.6 Return and Deletion of Personal Data: upon expiry or termination of the Agreement and/or relevant S
+G4=unresolved_dependency q4=
+F3=not_located qF3=
+
+==== Bitrix an_70e8df41-a682-4ea2-b108-5ff52f0407a0.compliance.log ====
+art28_3_g_deletion_return: status=partial reasons=["CONTROLLER_CHOICE_NOT_LOCATED","DELETE_PRESENT","RETURN_NOT_LOCATED","LEGAL_RETENTION_NOT_LOCATED"]
+  matrix={"G1":{"state":"not_located","paths":0,"q0":""},"G2":{"state":"supported","paths":5,"q0":"4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to,"},"G3":{"state":"not_located","paths":0,"q0":""},"G4":{"state":"not_located","paths":0,"q0":""}}
+art28_3_f_security_assistance: status=present reasons=["SECURITY_ASSISTANCE_PRESENT","BREACH_NOTIFICATION_ASSISTANCE_PRESENT","DPIA_ASSISTANCE_PRESENT"]
+  matrix={"F1":{"state":"supported","paths":21,"q0":"11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by "},"F2":{"state":"supported","paths":13,"q0":"8.4 Third Party Notifications. Administrator is solely responsible for complying with breach notification laws applicable to Administrator "},"F3":{"state":"supported","paths":1,"q0":"10. DATA PROTECTION IMPACT ASSESSMENT Upon Administrator´s request, Alaio will assist Administrator in ensuring compliance with any obliga"}}
+art28_3_a_instructions: status=present reasons=["DOCUMENTED_INSTRUCTIONS_PRESENT","INSTRUCTION_LAW_PROVISO_PRESENT"]
+  matrix={"A1":{"state":"supported","paths":8,"q0":"2.4 By entering into this Data Processing Agreement, Administrator instructs Alaio to process Personal Data only in accordance with applica"},"A2":{"state":"supported","paths":16,"q0":"2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subje"}}
+G1=not_located G3=not_located q3=
+G4=not_located q4=
+F3=supported qF3=10. DATA PROTECTION IMPACT ASSESSMENT Upon Administrator´s request, Alaio will assist Administrator in ensuring complia

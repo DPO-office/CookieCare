@@ -1,0 +1,35 @@
+header_bundle_only=true
+jsonLines=15
+all_bundle_created=true
+phase=3C
+other_events=compliance.bundle.created
+reqs=["subject_matter","duration","nature_purpose","data_categories","data_subject_categories","controller_obligations_rights","art28_3_a_instructions","art28_3_b_confidentiality","art28_3_c_security","art28_3_d_subprocessors","art28_3_e_dsr_assistance","art28_3_f_security_assistance","art28_3_g_deletion_return","art28_3_h_audit","art28_4_subprocessor_flow_down"]
+unique=15
+subject_matter | items=36 | tok=5999 | parts=2[P1:unspecified/main_rule#35;P2:controller_to_processor/main#1] | excl={"budget":19} | deps=341{"resolved_internal":327,"unresolved_external":14} | src={"expansion":1,"seed":35} | textOK=true | fieldsOK=true | spanIdsMatch=true
+duration | items=43 | tok=5344 | parts=3[P1:unspecified/main_rule#41;P2:controller_to_processor/main#1;P3:unspecified/exception#1] | excl={} | deps=301{"resolved_internal":290,"unresolved_external":11} | src={"expansion":20,"seed":23} | textOK=true | fieldsOK=true | spanIdsMatch=true
+nature_purpose | items=33 | tok=5995 | parts=2[P1:unspecified/main_rule#31;P2:controller_to_processor/main_rule#2] | excl={"budget":15} | deps=336{"resolved_internal":325,"unresolved_external":11} | src={"expansion":11,"seed":22} | textOK=true | fieldsOK=true | spanIdsMatch=true
+data_categories | items=43 | tok=6000 | parts=1[P1:unspecified/main_rule#43] | excl={"budget":22} | deps=364{"resolved_internal":351,"unresolved_external":13} | src={"expansion":3,"seed":40} | textOK=true | fieldsOK=true | spanIdsMatch=true
+data_subject_categories | items=43 | tok=5994 | parts=2[P1:unspecified/main_rule#42;P2:controller_to_processor/main#1] | excl={"budget":18} | deps=361{"resolved_internal":348,"unresolved_external":13} | src={"expansion":5,"seed":38} | textOK=true | fieldsOK=true | spanIdsMatch=true
+controller_obligations_rights | items=39 | tok=5998 | parts=3[P1:unspecified/main_rule#37;P2:controller_to_processor/main#1;P3:unspecified/exception#1] | excl={"budget":15} | deps=345{"resolved_internal":334,"unresolved_external":11} | src={"expansion":5,"seed":34} | textOK=true | fieldsOK=true | spanIdsMatch=true
+art28_3_a_instructions | items=45 | tok=4966 | parts=3[P1:unspecified/main_rule#43;P2:controller_to_processor/main#1;P3:unspecified/exception#1] | excl={} | deps=311{"resolved_internal":298,"unresolved_external":13} | src={"expansion":20,"seed":25} | textOK=true | fieldsOK=true | spanIdsMatch=true
+art28_3_b_confidentiality | items=37 | tok=5986 | parts=2[P1:unspecified/main_rule#36;P2:controller_to_processor/main_rule#1] | excl={"budget":15} | deps=324{"resolved_internal":310,"unresolved_external":14} | src={"expansion":8,"seed":29} | textOK=true | fieldsOK=true | spanIdsMatch=true
+art28_3_c_security | items=39 | tok=6000 | parts=3[P1:controller_to_processor/main_rule#2;P2:unspecified/main_rule#36;P3:unspecified/exception#1] | excl={"budget":7} | deps=308{"unresolved_external":13,"resolved_internal":295} | src={"expansion":13,"seed":26} | textOK=true | fieldsOK=true | spanIdsMatch=true
+art28_3_d_subprocessors | items=39 | tok=3587 | parts=2[P1:unspecified/main_rule#38;P2:unspecified/exception#1] | excl={} | deps=302{"unresolved_external":14,"resolved_internal":288} | src={"expansion":20,"seed":19} | textOK=true | fieldsOK=true | spanIdsMatch=true
+art28_3_e_dsr_assistance | items=38 | tok=5592 | parts=3[P1:unspecified/main_rule#35;P2:controller_to_processor/main_rule#1;P3:unspecified/exception#2] | excl={} | deps=306{"unresolved_external":13,"resolved_internal":293} | src={"expansion":20,"seed":18} | textOK=true | fieldsOK=true | spanIdsMatch=true
+art28_3_f_security_assistance | items=49 | tok=5961 | parts=3[P1:unspecified/main_rule#47;P2:controller_to_processor/main#1;P3:unspecified/exception#1] | excl={} | deps=315{"resolved_internal":302,"unresolved_external":13} | src={"expansion":20,"seed":29} | textOK=true | fieldsOK=true | spanIdsMatch=true
+art28_3_g_deletion_return | items=38 | tok=5999 | parts=2[P1:unspecified/main_rule#37;P2:controller_to_processor/main#1] | excl={"budget":16} | deps=321{"resolved_internal":307,"unresolved_external":14} | src={"expansion":5,"seed":33} | textOK=true | fieldsOK=true | spanIdsMatch=true
+art28_3_h_audit | items=44 | tok=5719 | parts=3[P1:unspecified/main_rule#42;P2:controller_to_processor/main#1;P3:unspecified/exception#1] | excl={} | deps=317{"unresolved_external":13,"resolved_internal":304} | src={"expansion":20,"seed":24} | textOK=true | fieldsOK=true | spanIdsMatch=true
+art28_4_subprocessor_flow_down | items=38 | tok=3519 | parts=3[P1:unspecified/main_rule#36;P2:controller_to_processor/main#1;P3:unspecified/exception#1] | excl={} | deps=285{"unresolved_external":13,"resolved_internal":272} | src={"expansion":20,"seed":18} | textOK=true | fieldsOK=true | spanIdsMatch=true
+---content_samples---
+data_categories: [{"path":"document/application-of-this-dpa/list@1718","src":"expansion","rel":"unspecified","q":"a) Alaio Cloud Limited a company registered under the laws of the Republic of Cyprus with its registered office at Frema House, office 102,"},{"path":"clause-2","src":"seed","rel":"unspecified","q":"2. Data subjects about whom personal data is transferred to Alaio in connection with the Processor Services by, at the direction of, or on "}]
+duration: [{"path":"document/application-of-this-dpa/list@1718","src":"expansion","rel":"unspecified","q":"a) Alaio Cloud Limited a company registered under the laws of the Republic of Cyprus with its registered office at Frema House, office 102,"},{"path":"clause-5.1","src":"seed","rel":"unspecified","q":"5.1 Alaio shall ensure that its personnel engaged in the Processing of Personal Data are informed of the confidential nature of the Persona"}]
+art28_3_f: [{"path":"document/application-of-this-dpa/list@1718","src":"expansion","rel":"unspecified","q":"a) Alaio Cloud Limited a company registered under the laws of the Republic of Cyprus with its registered office at Frema House, office 102,"},{"path":"clause-8.4","src":"seed","rel":"unspecified","q":"8.4 Third Party Notifications. Administrator is solely responsible for complying with breach notification laws applicable to Administrator "}]
+---content_flags---
+categories_has_appendix_path=false
+categories_has_list_body=true
+duration_has_term_path=false
+duration_has_term_text=true
+f_has_assist_or_security=true
+any_empty_items=false
+tok_gt_4000=subject_matter:5999,duration:5344,nature_purpose:5995,data_categories:6000,data_subject_categories:5994,controller_obligations_rights:5998,art28_3_a_instructions:4966,art28_3_b_confidentiality:5986,art28_3_c_security:6000,art28_3_e_dsr_assistance:5592,art28_3_f_security_assistance:5961,art28_3_g_deletion_return:5999,art28_3_h_audit:5719
+incompatible_scope_total=0

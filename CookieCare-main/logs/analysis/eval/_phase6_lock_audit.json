@@ -1,0 +1,142 @@
+{
+  "checkedAt": "2026-09-05T21:51:07.575Z",
+  "sessionsWithLock": [
+    {
+      "log": "an_d780c453-6d3f-4bfe-ab99-22582fb4ea5c.compliance.log",
+      "iso": "2026-09-05T21:49:46.118Z",
+      "doc": "bitrix",
+      "analysisId": "an_d780c453-6d3f-4bfe-ab99-22582fb4ea5c",
+      "implementationPhases": [
+        "5B"
+      ],
+      "lockEventTypes": [
+        "compliance.lock.attempt",
+        "compliance.lock.accepted",
+        "compliance.lock.summary"
+      ],
+      "counts": {
+        "attempt": 8,
+        "accepted": 8,
+        "rejected": 0,
+        "summary": 1
+      },
+      "attemptFields": [
+        {
+          "requirementId": "subject_matter",
+          "canonicalKey": "gdpr.article28.subject_matter",
+          "assessmentHash": "9317a3e31d67dc2f",
+          "keys": [
+            "requirementId",
+            "canonicalKey",
+            "assessmentHash"
+          ]
+        },
+        {
+          "requirementId": "duration",
+          "canonicalKey": "gdpr.article28.duration",
+          "assessmentHash": "657c89a23d372020",
+          "keys": [
+            "requirementId",
+            "canonicalKey",
+            "assessmentHash"
+          ]
+        },
+        {
+          "requirementId": "nature_purpose",
+          "canonicalKey": "gdpr.article28.nature_and_purpose",
+          "assessmentHash": "58853b676de9d1e6",
+          "keys": [
+            "requirementId",
+            "canonicalKey",
+            "assessmentHash"
+          ]
+        }
+      ],
+      "acceptedSample": [
+        {
+          "requirementId": "subject_matter",
+          "lockedAssessmentId": "L-gdpr.article28.subject_matter-9317a3e31d",
+          "assessmentHash": "9317a3e31d67dc2f",
+          "documentHash": "d7dd98c8d5107653",
+          "ruleVersion": "0.1.0",
+          "status": "present"
+        },
+        {
+          "requirementId": "duration",
+          "lockedAssessmentId": "L-gdpr.article28.duration-657c89a23d",
+          "assessmentHash": "657c89a23d372020",
+          "documentHash": "d7dd98c8d5107653",
+          "ruleVersion": "0.1.0",
+          "status": "present"
+        },
+        {
+          "requirementId": "nature_purpose",
+          "lockedAssessmentId": "L-gdpr.article28.nature_and_purpose-58853b676d",
+          "assessmentHash": "58853b676de9d1e6",
+          "documentHash": "d7dd98c8d5107653",
+          "ruleVersion": "0.1.0",
+          "status": "present"
+        }
+      ],
+      "rejectedSample": [],
+      "reasonCodeHist": {},
+      "summary": {
+        "attempted": 8,
+        "accepted": 8,
+        "rejected": 0,
+        "duplicateCanonicalKeys": [],
+        "plannedButNotAttempted": [],
+        "rawKeys": [
+          "event",
+          "analysisId",
+          "timestamp",
+          "implementationPhase",
+          "attempted",
+          "accepted",
+          "rejected",
+          "duplicateCanonicalKeys",
+          "plannedButNotAttempted"
+        ]
+      },
+      "acceptanceChecks": {
+        "hasAttemptPerAcceptedOrRejected": true,
+        "hasExactlyOneSummary": true,
+        "summaryCountsMatch": true,
+        "allAttemptsHaveCanonicalAndHash": true,
+        "allAcceptedHaveDocHashAndRuleVersion": true,
+        "plannedButNotAttemptedIsArray": true,
+        "duplicateCanonicalKeysIsArray": true
+      }
+    }
+  ],
+  "codeGatesPresent": {
+    "QUOTE_NOT_VERIFIED": true,
+    "DUPLICATE_CANONICAL_ASSESSMENT": true,
+    "EXPLANATION_STATUS_MISMATCH": true,
+    "gateReasonCodesFoundInSource": [
+      "CANONICAL_KEY_MISSING",
+      "SCHEMA_VERSION_MISSING",
+      "DUPLICATE_CANONICAL_ASSESSMENT",
+      "ELEMENT_STATE_INVALID",
+      "ELEMENT_STATE_MISSING",
+      "EVIDENCE_ID_NOT_IN_BUNDLE",
+      "QUOTE_NOT_VERIFIED",
+      "INCOMPATIBLE_SCOPE_JOINT_SUPPORT",
+      "UNRESOLVED_INTERNAL_REFERENCE",
+      "GAP_WITHOUT_COMPLETENESS_BASIS",
+      "STATUS_AGGREGATION_MISMATCH",
+      "EXPLANATION_STATUS_MISMATCH",
+      "EXPLANATION_SUPPORTED_MISMATCH",
+      "EXPLANATION_MISSING_MISMATCH",
+      "REMEDIATION_MISALIGNED",
+      "DOCUMENT_HASH_MISSING",
+      "RULE_VERSION_MISSING"
+    ],
+    "gateReasonCodesMissingInSource": []
+  },
+  "overall": {
+    "sessionCount": 1,
+    "anyRejected": false,
+    "allHaveSummary": true
+  }
+}

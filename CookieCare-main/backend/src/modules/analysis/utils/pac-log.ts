@@ -41,18 +41,20 @@ export function emitAnalysisToken(state: AnalysisState, delta: string): void {
 
 export function pacLog(message: string, extra?: Record<string, unknown>): void {
   if (!analysisLogEnabled()) return;
-  const ts = new Date().toISOString().slice(11, 23);
-  const suffix =
-    extra && Object.keys(extra).length > 0 ? ` ${formatExtra(extra)}` : "";
-  console.log(`${TAG} ${ts} ${message}${suffix}`);
+  writePacLine("log", message, extra);
 }
 
 export function pacWarn(message: string, extra?: Record<string, unknown>): void {
   if (!analysisLogEnabled()) return;
-  const ts = new Date().toISOString().slice(11, 23);
-  const suffix =
-    extra && Object.keys(extra).length > 0 ? ` ${formatExtra(extra)}` : "";
-  console.warn(`${TAG} ${ts} WARN ${message}${suffix}`);
+  writePacLine("warn", message, extra);
+}
+
+/**
+ * Always emits — used by Phase 0 compliance.* telemetry so stop-gate greps
+ * still work when ANALYSIS_LOG=0 has silenced inspect / evidence-pool dumps.
+ */
+export function pacLogAlways(message: string, extra?: Record<string, unknown>): void {
+  writePacLine("log", message, extra);
 }
 
 /** Multi-line inspect dump — keeps PLAN / ACT quality reviews readable in the terminal. */
@@ -68,6 +70,19 @@ export function pacLogBlock(title: string, lines: string[]): void {
     console.log(`${TAG} ${line}`);
   }
   console.log(`${TAG} ${bar}`);
+}
+
+function writePacLine(
+  level: "log" | "warn",
+  message: string,
+  extra?: Record<string, unknown>
+): void {
+  const ts = new Date().toISOString().slice(11, 23);
+  const suffix =
+    extra && Object.keys(extra).length > 0 ? ` ${formatExtra(extra)}` : "";
+  const line = `${TAG} ${ts} ${message}${suffix}`;
+  if (level === "warn") console.warn(line);
+  else console.log(line);
 }
 
 function formatExtra(extra: Record<string, unknown>): string {

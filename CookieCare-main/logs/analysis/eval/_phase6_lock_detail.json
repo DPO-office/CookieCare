@@ -1,0 +1,163 @@
+{
+  "acceptedRequirementIds": [
+    "subject_matter",
+    "duration",
+    "nature_purpose",
+    "data_categories",
+    "data_subject_categories",
+    "art28_3_a_instructions",
+    "art28_3_f_security_assistance",
+    "art28_3_g_deletion_return"
+  ],
+  "summary": {
+    "event": "compliance.lock.summary",
+    "analysisId": "an_d780c453-6d3f-4bfe-ab99-22582fb4ea5c",
+    "timestamp": "2026-09-05T21:49:46.116Z",
+    "implementationPhase": "5B",
+    "attempted": 8,
+    "accepted": 8,
+    "rejected": 0,
+    "duplicateCanonicalKeys": [],
+    "plannedButNotAttempted": []
+  },
+  "g": {
+    "assessG": {
+      "event": "compliance.assess.result",
+      "analysisId": "an_d780c453-6d3f-4bfe-ab99-22582fb4ea5c",
+      "timestamp": "2026-09-05T21:49:46.082Z",
+      "implementationPhase": "5B",
+      "requirementId": "art28_3_g_deletion_return",
+      "canonicalKey": "gdpr.article28.3g.deletion_or_return",
+      "status": "partial",
+      "reasonCodes": [
+        "CONTROLLER_CHOICE_NOT_LOCATED",
+        "DELETE_PRESENT",
+        "RETURN_NOT_LOCATED",
+        "LEGAL_RETENTION_NOT_LOCATED"
+      ],
+      "ruleVersion": "0.1.0",
+      "elementStates": {
+        "G1": "not_located",
+        "G2": "supported",
+        "G3": "not_located",
+        "G4": "not_located"
+      },
+      "completeness": {
+        "verificationComplete": true,
+        "investigationComplete": false,
+        "missingElementIds": [],
+        "unresolvedDependencyCount": 14
+      }
+    },
+    "explainG": {
+      "event": "compliance.explain.draft",
+      "analysisId": "an_d780c453-6d3f-4bfe-ab99-22582fb4ea5c",
+      "timestamp": "2026-09-05T21:49:46.084Z",
+      "implementationPhase": "5B",
+      "requirementId": "art28_3_g_deletion_return",
+      "status": "partial",
+      "supportedElementIds": [
+        "G2"
+      ],
+      "missingElementIds": [
+        "G1",
+        "G3",
+        "G4"
+      ],
+      "evidenceSpanIds": [
+        "doc_6f9c3935-e80c-44d0-acc8-ad398a4ced00::section::13539-14388",
+        "doc_6f9c3935-e80c-44d0-acc8-ad398a4ced00::section::12865-13537",
+        "doc_6f9c3935-e80c-44d0-acc8-ad398a4ced00::section::12018-12590",
+        "doc_6f9c3935-e80c-44d0-acc8-ad398a4ced00::section::11037-12017",
+        "doc_6f9c3935-e80c-44d0-acc8-ad398a4ced00::section::12592-12835"
+      ],
+      "elementReferences": [
+        "G1:not_located",
+        "G2:supported",
+        "G3:not_located",
+        "G4:not_located"
+      ],
+      "whatTheDocumentProvides": "G2: The processor is obligated to delete on request. Supported at clause-4.2, clause-4.1, clause-2.5.2.",
+      "whatIsMissingOrUnclear": "G1: No bundle item matched proof guidance for element G1. G3: No bundle item matched proof guidance for element G3. G4: No bundle item matched proof guidance for element G4.",
+      "whyItMatters": "GDPR Article 28(3)(g): At the choice of the controller, the processor deletes or returns all personal data at the end of the provision of services.",
+      "conclusion": "At the choice of the controller, the processor deletes or returns all personal data at the end of the provision of services is partial — 1 of 4 mandatory elements supported; 3 outstanding.",
+      "recommendedAction": "G1: Reword the post-termination clause to grant the controller a choice. G3: Add a return obligation (format specified where reasonable). G4: Add the closing proviso limiting retention to legally required cases.",
+      "ruleVersion": "0.1.0"
+    },
+    "lockG": {
+      "event": "compliance.lock.accepted",
+      "analysisId": "an_d780c453-6d3f-4bfe-ab99-22582fb4ea5c",
+      "timestamp": "2026-09-05T21:49:46.115Z",
+      "implementationPhase": "5B",
+      "requirementId": "art28_3_g_deletion_return",
+      "canonicalKey": "gdpr.article28.3g.deletion_or_return",
+      "lockedAssessmentId": "L-gdpr.article28.3g.deletion_or_return-c537bfae86",
+      "assessmentHash": "c537bfae8675af67",
+      "documentHash": "d7dd98c8d5107653",
+      "ruleVersion": "0.1.0",
+      "status": "partial"
+    },
+    "verifyG": [
+      "G1=not_located",
+      "G2=supported",
+      "G3=not_located",
+      "G4=not_located"
+    ]
+  },
+  "supportedQuoteStats": {
+    "n": 12,
+    "withQuotes": 12,
+    "withoutQuotes": 0,
+    "sample": [
+      {
+        "req": "subject_matter",
+        "el": "SM1",
+        "quoteCount": 4,
+        "evidenceCount": 15
+      },
+      {
+        "req": "duration",
+        "el": "DU1",
+        "quoteCount": 4,
+        "evidenceCount": 18
+      },
+      {
+        "req": "nature_purpose",
+        "el": "NP1",
+        "quoteCount": 4,
+        "evidenceCount": 9
+      },
+      {
+        "req": "nature_purpose",
+        "el": "NP2",
+        "quoteCount": 4,
+        "evidenceCount": 4
+      },
+      {
+        "req": "data_categories",
+        "el": "CD1",
+        "quoteCount": 4,
+        "evidenceCount": 24
+      },
+      {
+        "req": "data_subject_categories",
+        "el": "DS1",
+        "quoteCount": 4,
+        "evidenceCount": 14
+      },
+      {
+        "req": "art28_3_a_instructions",
+        "el": "A1",
+        "quoteCount": 4,
+        "evidenceCount": 8
+      },
+      {
+        "req": "art28_3_a_instructions",
+        "el": "A2",
+        "quoteCount": 4,
+        "evidenceCount": 16
+      }
+    ]
+  },
+  "note": "Phase 6 validates artifact consistency; it can accept a legally-wrong G4=not_located if explain/assess/matrix agree."
+}

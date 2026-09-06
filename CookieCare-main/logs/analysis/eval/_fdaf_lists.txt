@@ -1,0 +1,23 @@
+{
+  "app1Lists": [
+    {
+      "path": "document/appendix-1/processing-subject-matter/list@30933",
+      "parent": "doc_4af476e7-7451-49c8-9ff0-1fac1d617270::section::082b1e05bcd5",
+      "preview": "● Staff including volunteers, agents, temporary and casual workers ● Users and clients (including their staff) ● Suppliers (including their staff) ● Members or ",
+      "childCount": 6
+    },
+    {
+      "path": "document/appendix-1/processing-subject-matter/list@31301",
+      "parent": "doc_4af476e7-7451-49c8-9ff0-1fac1d617270::section::082b1e05bcd5",
+      "preview": "● Personal details, including any information that identifies the data subject and their personal characteristics, including: first and last name, business cont",
+      "childCount": 11
+    },
+    {
+      "path": "document/appendix-1/processing-subject-matter/list@32152",
+      "parent": "doc_4af476e7-7451-49c8-9ff0-1fac1d617270::section::082b1e05bcd5",
+      "preview": "● IT, digital, technology or telecom services, including provision of technology products or services, telecoms and network services, digital services, hosting,",
+      "childCount": 2
+    }
+  ],
+  "categoryItems": []
+}

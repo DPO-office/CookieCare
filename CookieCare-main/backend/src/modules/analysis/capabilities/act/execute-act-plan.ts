@@ -27,7 +27,32 @@ import {
   logActSegmentationInspect,
   logActStepInspect,
 } from "./act-inspect-log.js";
-import { actStageForTool } from "./act-stage.js";
+import { actStageForTool, type ActStage } from "./act-stage.js";
+import {
+  beginComplianceRun,
+  finalizeComplianceRun,
+  markAssessed,
+  markRendered,
+  markRetrieved,
+  markVerified,
+  recordElementRegistry,
+  recordIngestMarkers,
+  recordIngestTables,
+  recordPhase3Investigation,
+  recordLlmBundleVerification,
+  recordLockValidation,
+  recordPhase7Render,
+  recordPhase4Verification,
+  recordPhase5Assessment,
+  recordRetrievalFallback,
+  recordPlannedRequirements,
+  recordReferenceIndex,
+  recordRequestResolutions,
+  recordRequirementRegistry,
+  recordSourceMarkers,
+  recordStageDuration,
+  recordStructuralNodes,
+} from "./compliance-observability.js";
 
 const SILENT_SUCCESS_NOTES: Partial<Record<AnalysisToolName, string>> = {
   classify_document: "classification only, no finding by design",
@@ -205,6 +230,94 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
   });
   logActSegmentationInspect(state);
   logActGraphInspect(state, runnable);
+
+  // PHASE 0 observability — start the compliance-run tracker and capture the
+  // plan + source markers before any work-unit runs. Behaviour is unchanged.
+  beginComplianceRun(state);
+  recordSourceMarkers(state);
+  // PHASE 1A ingest telemetry — one `compliance.ingest.table` per detected
+  // DOCX table, one `compliance.ingest.table_row` per row, and one
+  // `compliance.ingest.marker` per Phase 1A marker (rawPresent vs
+  // normalizedPresent). Detection reads the persisted plaintext only.
+  recordIngestTables(state);
+  recordIngestMarkers(state);
+  // PHASE 8 — every side-channel stage below is timed and folded into
+  // `compliance.run.timing.stages` (plan §Phase 8: "Every run records
+  // stage-level and end-to-end latency"), so a reviewer can see where the
+  // side-channel's own cost lands without instrumenting each stage by hand.
+  const complianceStage = <T>(stage: string, fn: () => T): T => {
+    const t0 = Date.now();
+    try {
+      return fn();
+    } finally {
+      recordStageDuration(state, `compliance.${stage}`, Date.now() - t0);
+    }
+  };
+  const complianceStageAsync = async <T>(
+    stage: string,
+    fn: () => Promise<T>
+  ): Promise<T> => {
+    const t0 = Date.now();
+    try {
+      return await fn();
+    } finally {
+      recordStageDuration(state, `compliance.${stage}`, Date.now() - t0);
+    }
+  };
+
+  // PHASE 1B — build the canonical structural-node graph and emit summary /
+  // node / orphan events. Side-channel only; segmentation still drives ACT.
+  // PHASE 8 — content-addressed cache inside recordStructuralNodes means a
+  // repeat run on the same document version is near-free here.
+  complianceStage("structure", () => recordStructuralNodes(state));
+  // PHASE 1C — definition + internal-reference indexes over those nodes.
+  complianceStage("reference_index", () => recordReferenceIndex(state));
+  // PHASE 2A/2B — requirement-registry resolution + request/proposition
+  // resolution over the request↔native bindings the planner already computed.
+  complianceStage("requirement_registry", () => recordRequirementRegistry(state));
+  complianceStage("request_resolution", () => recordRequestResolutions(state));
+  // PHASE 3A/3B/3C — batched multi-query retrieval, deterministic structural
+  // expansion, and evidence bundle with scope partitions. Pure side-channel:
+  // nothing here feeds VERIFY yet (Phase 4 will consume the bundles).
+  complianceStage("investigate", () => recordPhase3Investigation(state));
+  // PHASE 4A — publish the versioned element-schema registry once per run.
+  complianceStage("element_registry", () => recordElementRegistry(state));
+  // PHASE 4B — deterministic side-channel matrix over Phase 3C bundles.
+  // Live VERIFY prompt remains unchanged (§Phase 4A stop gate: legal review
+  // must sign off on element schemas before touching verify prompts).
+  complianceStage("verify", () => recordPhase4Verification(state));
+  // Bounded LLM-assisted retrieval fallback — up to two rounds per requirement
+  // when the initial matrix has not_located/ambiguous/unresolved-dep elements
+  // or would coarsely read Partial/Gap. Additive side-channel: fills gaps in
+  // the requirement-specific bundle with candidates from the full document.
+  // Live retrieval / VERIFY / rendering untouched. PHASE 8 — bounded
+  // concurrency + a wall-clock stage budget live inside recordRetrievalFallback
+  // (ANALYSIS_COMPLIANCE_SIDE_CHANNEL_CONCURRENCY / _BUDGET_MS); requirements
+  // that don't fit the budget are skipped explicitly, never truncated.
+  await complianceStageAsync("fallback", () => recordRetrievalFallback(state));
+  // LLM-backed bundle verifier — one JSON call per requirement, judges
+  // whether the bundle items support each authored element. Deterministic
+  // post-validation still enforces element completeness, cite existence,
+  // exact-quote substrings, and scope compatibility. Additive to the
+  // deterministic matrix; nothing consumes it yet — Phase 5 keeps its
+  // current input until a reviewer nominates the LLM matrix as canonical.
+  // Same PHASE 8 bounded-concurrency + budget guard as the fallback stage.
+  await complianceStageAsync("llm_verify", () => recordLlmBundleVerification(state));
+  // PHASE 5A + 5B — status calculation + factual explanation over the matrix.
+  // Side-channel; live rendering / assessment unchanged (§Phase 5 stop gate).
+  complianceStage("assess", () => recordPhase5Assessment(state));
+  // PHASE 6 — lock validation. Gates each assessment against 12 correctness
+  // rules; a rejected assessment is NOT promoted to a legal status. Emits
+  // per-attempt / accepted / rejected / summary events. Nothing consumes the
+  // locked set yet (Phase 7 will).
+  complianceStage("lock", () => recordLockValidation(state));
+  // PHASE 7 — locked-only rendering. Projects accepted LockedAssessments into
+  // matrix rows + bottom-line synthesis with lockedAssessmentId anchors. Live
+  // rendering unchanged (§Phase 7 stop gate).
+  complianceStage("render", () => recordPhase7Render(state));
+  const plannedRequirementIds = collectPlannedRequirementIds(runnable);
+  recordPlannedRequirements(state, plannedRequirementIds);
+
   let stepCounter = 0;
 
   for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
@@ -280,6 +393,7 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
 
       for (const outcome of outcomes) {
         findings = [...findings, ...outcome.emitted];
+        recordUnitLifecycle(state, outcome.unit, outcome.emitted, outcome.ms);
         // Parallel tools share a frozen pre-batch state; merge only package-local
         // evidence expansions so concurrent evaluate_package runs don't clobber.
         if (!outcome.failed && outcome.toolState.sharedEvidence) {
@@ -366,6 +480,7 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
         );
         const emittedFindings = findings.slice(priorFindings.length);
         const emitted = emittedFindings.length;
+        recordUnitLifecycle(state, unit, emittedFindings, Date.now() - started);
         units = units.map((u) =>
           u.workUnitId === unit.workUnitId
             ? {
@@ -471,7 +586,112 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
     repairContext: null,
   };
   logActInspect(finalState);
+
+  // PHASE 0 observability — reconcile planned vs terminal (assessed/rendered)
+  // requirements and emit stage-total timing. Behaviour is unchanged.
+  const terminalRequirementIds = collectTerminalRequirementIds(finalState);
+  const duplicateRequirementIds = collectDuplicateRequirementIds(finalState);
+  finalizeComplianceRun(finalState, {
+    terminalRequirementIds,
+    duplicateRequirementIds,
+    totalMs: Date.now() - actStarted,
+  });
+
   return finalState;
+}
+
+function collectPlannedRequirementIds(units: AnalysisWorkUnit[]): string[] {
+  const ids = new Set<string>();
+  for (const unit of units) {
+    for (const id of unit.requirementIds ?? []) ids.add(id);
+    const inputIds = unit.input?.requirementIds;
+    if (Array.isArray(inputIds)) {
+      for (const id of inputIds) if (typeof id === "string") ids.add(id);
+    }
+  }
+  return [...ids];
+}
+
+function requirementIdsForUnit(
+  unit: AnalysisWorkUnit,
+  emitted: Finding[]
+): string[] {
+  const ids = new Set<string>();
+  for (const id of unit.requirementIds ?? []) ids.add(id);
+  const inputIds = unit.input?.requirementIds;
+  if (Array.isArray(inputIds)) {
+    for (const id of inputIds) if (typeof id === "string") ids.add(id);
+  }
+  for (const finding of emitted) {
+    if (finding.requirementId) ids.add(finding.requirementId);
+    for (const id of finding.requestRequirementIds ?? []) ids.add(id);
+  }
+  return [...ids];
+}
+
+function recordUnitLifecycle(
+  state: AnalysisState,
+  unit: AnalysisWorkUnit,
+  emitted: Finding[],
+  elapsedMs: number
+): void {
+  const stage: ActStage = actStageForTool(unit.tool);
+  recordStageDuration(state, stageKey(stage), elapsedMs);
+  const ids = requirementIdsForUnit(unit, emitted);
+  if (ids.length === 0 && stage !== "RENDER") return;
+  switch (stage) {
+    case "INVESTIGATE":
+    case "SETUP":
+      markRetrieved(state, ids);
+      break;
+    case "VERIFY":
+      // The VERIFY stage in this codebase both retrieves per-requirement
+      // candidates AND runs the entailment call, so mark both to stay honest.
+      markRetrieved(state, ids);
+      markVerified(state, ids);
+      break;
+    case "LOCK":
+      markAssessed(state, ids);
+      break;
+    case "RENDER":
+      markRendered(state, ids.length > 0 ? ids : allKnownRequirementIds(state));
+      break;
+  }
+}
+
+function stageKey(stage: ActStage): string {
+  switch (stage) {
+    case "INVESTIGATE":
+    case "SETUP":
+      return "retrieve";
+    case "VERIFY":
+      return "verify";
+    case "LOCK":
+      return "assess";
+    case "RENDER":
+      return "render";
+  }
+}
+
+function allKnownRequirementIds(state: AnalysisState): string[] {
+  const ids = new Set<string>();
+  for (const a of state.requirementAssessments ?? []) ids.add(a.requirementId);
+  for (const f of state.findings ?? []) if (f.requirementId) ids.add(f.requirementId);
+  return [...ids];
+}
+
+function collectTerminalRequirementIds(state: AnalysisState): string[] {
+  const ids = new Set<string>();
+  for (const a of state.requirementAssessments ?? []) ids.add(a.requirementId);
+  return [...ids];
+}
+
+function collectDuplicateRequirementIds(state: AnalysisState): string[] {
+  const seen = new Map<string, number>();
+  for (const a of state.requirementAssessments ?? []) {
+    seen.set(a.requirementId, (seen.get(a.requirementId) ?? 0) + 1);
+  }
+  return [...seen.entries()].filter(([, n]) => n > 1).map(([id]) => id);
 }
 
 function ensureSegmented(state: AnalysisState): AnalysisState {

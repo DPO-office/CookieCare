@@ -1,0 +1,14 @@
+Appendix 1=true
+has Personal details=true
+has Staff including=true
+--- first table snippet ---
+(no table)
+--- around appendix ---
+on.
+2. PROCESSING OF PERSONAL DATA 
+2.1 Roles and Regulatory Compliance; Authorization. 
+2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subject matter and details of the processing  of Personal Data; 
+(b) Alaio is a processor (service provider under the California Privacy Rights Act of 2020  and any other applicable federal and state USA privacy legislation) of Personal Data under  the applicable Data Protection Legislation; 
+(c) Administrator is a controller or processor, as applicable, of Personal Data under the  Data Protection Legislation; and 
+(d) each party will comply with the obligations applicable to it under the Data Protection  Legislation with respect to the processing of Personal Data; 
+(e) Administrator shall, in its use or receipt of the Services, Process Personal Data in  accordance with the requirements of Data Protection Legislation and wil

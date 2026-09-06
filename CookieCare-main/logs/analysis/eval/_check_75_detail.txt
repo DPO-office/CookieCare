@@ -1,0 +1,26 @@
+subject_matter all6=false kinds=requirement,element,exact_anchor,clause_type,definition
+duration all6=false kinds=requirement,element,clause_type,definition
+nature_purpose all6=false kinds=requirement,element,exact_anchor,clause_type
+data_categories all6=false kinds=requirement,element,exact_anchor,clause_type,definition
+data_subject_categories all6=false kinds=requirement,element,exact_anchor,clause_type,definition
+controller_obligations_rights all6=false kinds=requirement,element,exact_anchor,clause_type
+art28_3_a_instructions all6=true kinds=requirement,element,exact_anchor,clause_type,definition,cross_reference
+art28_3_b_confidentiality all6=true kinds=requirement,element,exact_anchor,clause_type,definition,cross_reference
+art28_3_c_security all6=true kinds=requirement,element,exact_anchor,clause_type,definition,cross_reference
+art28_3_d_subprocessors all6=false kinds=requirement,element,exact_anchor,clause_type,cross_reference
+art28_3_e_dsr_assistance all6=false kinds=requirement,element,exact_anchor,clause_type,cross_reference
+art28_3_f_security_assistance all6=true kinds=requirement,element,exact_anchor,clause_type,definition,cross_reference
+art28_3_g_deletion_return all6=true kinds=requirement,element,exact_anchor,clause_type,definition,cross_reference
+art28_3_h_audit all6=false kinds=requirement,element,exact_anchor,clause_type,cross_reference
+art28_4_subprocessor_flow_down all6=false kinds=requirement,element,exact_anchor,clause_type,cross_reference
+
+definition_query_ids=6
+hits_from_definition_queries=448
+sample_def_hits=[{"req":"subject_matter","span":"doc_af3d4424-b629-4e32-ad3f-08d341d51b43::section::0-892","selectedBy":["lexical"]},{"req":"subject_matter","span":"doc_af3d4424-b629-4e32-ad3f-08d341d51b43::section::1402-8448","selectedBy":["lexical"]},{"req":"subject_matter","span":"doc_af3d4424-b629-4e32-ad3f-08d341d51b43::section::11037-12017","selectedBy":["lexical"]},{"req":"subject_matter","span":"doc_af3d4424-b629-4e32-ad3f-08d341d51b43::section::12018-12590","selectedBy":["lexical"]},{"req":"subject_matter","span":"doc_af3d4424-b629-4e32-ad3f-08d341d51b43::section::18047-19611","selectedBy":["lexical"]}]
+
+internal_reference expands=2
+{"req":"art28_3_b_confidentiality","seed":"doc_af3d4424-b629-4e32-ad3f-08d341d51b43::paragraph::23fbaa40afda","added":"doc_af3d4424-b629-4e32-ad3f-08d341d51b43::appendix::c2311fe8098d"}
+{"req":"art28_3_e_dsr_assistance","seed":"doc_af3d4424-b629-4e32-ad3f-08d341d51b43::paragraph::b2b17297db5b","added":"doc_af3d4424-b629-4e32-ad3f-08d341d51b43::clause::9e775eb4fbde"}
+
+duration_has_definition=true
+data_categories_has_definition=true

@@ -1,0 +1,328 @@
+{
+  "subject_matter": {
+    "n": 36,
+    "hits": [
+      {
+        "flags": [
+          "listish",
+          "app_offset"
+        ],
+        "path": "clause-2",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::30754-32965",
+        "q": "2. Data subjects about whom personal data is transferred to Alaio in connection with the Processor Services by, at the direction of, or on behalf of Administra"
+      },
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "clause-11.4",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::27363-27958",
+        "q": "11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguar"
+      },
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "clause-4.1",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::12865-13537",
+        "q": "4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Personal Data, as required by Dat"
+      },
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "clause-4.2",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::13539-14388",
+        "q": "4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, correction, amendme"
+      },
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "clause-6.2",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::14963-15827",
+        "q": "6.2 Alaio Security Measures. Alaio will implement and maintain technical, physical and organisational measures to protect confidentiality and integrity of Pers"
+      },
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "clause-6.3",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::15829-16289",
+        "q": "6.3 Security Compliance by Alaio Staff. Alaio will take appropriate steps to ensure compliance with the Security Measures by its employees, contractors and Sub"
+      },
+      {
+        "flags": [
+          "appendix"
+        ],
+        "path": "clause-2.1.1",
+        "src": "seed",
+        "span": "10-946e-c8c3d7f24f7f::section::8534-9870",
+        "q": "2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subject matter and detail"
+      },
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "heading-infrastructure-maintenance",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::42694-45285",
+        "q": "INFRASTRUCTURE MAINTENANCE Equipment maintenance. AWS monitors and performs preventative maintenance of electrical and mechanical equipment to maintain the con"
+      }
+    ],
+    "hitCount": 17
+  },
+  "data_categories": {
+    "n": 43,
+    "hits": [
+      {
+        "flags": [
+          "listish",
+          "app_offset"
+        ],
+        "path": "clause-2",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::30754-32965",
+        "q": "2. Data subjects about whom personal data is transferred to Alaio in connection with the Processor Services by, at the direction of, or on behalf of Administra"
+      },
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "clause-11.4",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::27363-27958",
+        "q": "11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguar"
+      },
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "clause-6.3",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::15829-16289",
+        "q": "6.3 Security Compliance by Alaio Staff. Alaio will take appropriate steps to ensure compliance with the Security Measures by its employees, contractors and Sub"
+      },
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "clause-2.3",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::35250-35682",
+        "q": "2.3 No Alaio employees may install any software of their own, whether that software is supplied on physical media or whether it is downloaded, without the appr"
+      },
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "clause-4.1",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::12865-13537",
+        "q": "4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Personal Data, as required by Dat"
+      },
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "clause-4.2",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::13539-14388",
+        "q": "4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, correction, amendme"
+      },
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "clause-3.1",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::35717-35962",
+        "q": "3.1 Alaio IT Systems (including all computers and servers) are protected with suitable anti-virus, firewall, and other suitable internet security software. All"
+      },
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "clause-8.1",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::19633-19882",
+        "q": "8.1 Incident Notification. If Alaio becomes aware of a Data Incident, Alaio will: (a) notify Administrator of the Data Incident promptly and without undue dela"
+      }
+    ],
+    "hitCount": 21
+  },
+  "duration": {
+    "n": 43,
+    "hits": [
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "clause-4.2",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::13539-14388",
+        "q": "4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, correction, amendme"
+      },
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "clause-11.4",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::27363-27958",
+        "q": "11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguar"
+      },
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "clause-2.2",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::35038-35247",
+        "q": "2.2 Where any security flaw is identified in any software that flaw is fixed immediately or the software may be withdrawn from the IT Systems until such time "
+      },
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "clause-6.3",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::15829-16289",
+        "q": "6.3 Security Compliance by Alaio Staff. Alaio will take appropriate steps to ensure compliance with the Security Measures by its employees, contractors and Sub"
+      },
+      {
+        "flags": [
+          "appendix"
+        ],
+        "path": "clause-13.2",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::30029-30476",
+        "q": "13.2 Notification of Changes. If Alaio makes any updates to this DPA, Alaio will inform Administrator by either: (a) sending an email to the Notification Email"
+      },
+      {
+        "flags": [
+          "term"
+        ],
+        "path": "clause-7.4",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::18047-19611",
+        "q": "7.4 Objection Right for New Sub-processors. When any new Sub-processor is engaged during the Term, and if the GDPR applies to the processing of Personal Data"
+      },
+      {
+        "flags": [
+          "term"
+        ],
+        "path": "clause-2.5",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::11037-12017",
+        "q": "2.5 Deletion on Term Expiry. On expiry of the Term, Administrator instructs Alaio to delete all Personal Data (including existing copies) from Bitrix24 systems"
+      },
+      {
+        "flags": [
+          "term"
+        ],
+        "path": "clause-3",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::12592-12835",
+        "q": "3. DURATION OF THIS DPA This DPA will take effect on the Effective Date and, notwithstanding expiry of the Term, remain in effect until, and automatically exp"
+      }
+    ],
+    "hitCount": 18
+  },
+  "f": {
+    "n": 49,
+    "hits": [
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "clause-8.4",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::20473-20699",
+        "q": "8.4 Third Party Notifications. Administrator is solely responsible for complying with breach notification laws applicable to Administrator and fulfilling any t"
+      },
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "clause-1.10",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::34584-34735",
+        "q": "1.10 All breaches of security pertaining to the IT Systems or any data stored thereon are reported and subsequently investigated by the IT Department."
+      },
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "clause-4.1",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::12865-13537",
+        "q": "4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Personal Data, as required by Dat"
+      },
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "clause-11.4",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::27363-27958",
+        "q": "11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguar"
+      },
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "clause-4.2",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::13539-14388",
+        "q": "4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, correction, amendme"
+      },
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "clause-8.1",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::19633-19882",
+        "q": "8.1 Incident Notification. If Alaio becomes aware of a Data Incident, Alaio will: (a) notify Administrator of the Data Incident promptly and without undue dela"
+      },
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "clause-2.3",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::35250-35682",
+        "q": "2.3 No Alaio employees may install any software of their own, whether that software is supplied on physical media or whether it is downloaded, without the appr"
+      },
+      {
+        "flags": [
+          "f_related"
+        ],
+        "path": "clause-6.2",
+        "src": "seed",
+        "span": "-946e-c8c3d7f24f7f::section::14963-15827",
+        "q": "6.2 Alaio Security Measures. Alaio will implement and maintain technical, physical and organisational measures to protect confidentiality and integrity of Pers"
+      }
+    ],
+    "hitCount": 27
+  },
+  "tokenStats": {
+    "min": 3519,
+    "max": 6000,
+    "over4000": 13,
+    "over6000": 0
+  },
+  "firstItemPathCounts": {
+    "document/application-of-this-dpa/list@1718": 11,
+    "document/application-of-this-dpa/def-administrator": 2,
+    "document/application-of-this-dpa/def-personal-data": 1,
+    "document/application-of-this-dpa/def-sub-processors": 1
+  }
+}

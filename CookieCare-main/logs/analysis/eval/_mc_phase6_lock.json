@@ -1,0 +1,181 @@
+{
+  "log": "logs/analysis/an_ebde9e22-646d-4050-ba51-45760df5e49f.compliance.log",
+  "doc": "mastercard",
+  "analysisId": "an_ebde9e22-646d-4050-ba51-45760df5e49f",
+  "counts": {
+    "attempt": 8,
+    "accepted": 6,
+    "rejected": 2,
+    "summary": 1
+  },
+  "attempts": [
+    {
+      "requirementId": "subject_matter",
+      "canonicalKey": "gdpr.article28.subject_matter",
+      "assessmentHash": "43fefc3f8c6bb9f3"
+    },
+    {
+      "requirementId": "duration",
+      "canonicalKey": "gdpr.article28.duration",
+      "assessmentHash": "972727239963dbbb"
+    },
+    {
+      "requirementId": "nature_purpose",
+      "canonicalKey": "gdpr.article28.nature_and_purpose",
+      "assessmentHash": "c64aa7b2a6a12b43"
+    },
+    {
+      "requirementId": "data_categories",
+      "canonicalKey": "gdpr.article28.categories_of_data",
+      "assessmentHash": "687e5cb872ee8d4f"
+    },
+    {
+      "requirementId": "data_subject_categories",
+      "canonicalKey": "gdpr.article28.categories_of_data_subjects",
+      "assessmentHash": "52133cc257736ab4"
+    },
+    {
+      "requirementId": "art28_3_a_instructions",
+      "canonicalKey": "gdpr.article28.3a.documented_instructions",
+      "assessmentHash": "716bd8820c3ebbfb"
+    },
+    {
+      "requirementId": "art28_3_f_security_assistance",
+      "canonicalKey": "gdpr.article28.3f.controller_assistance",
+      "assessmentHash": "899bbc48a9a6dbc9"
+    },
+    {
+      "requirementId": "art28_3_g_deletion_return",
+      "canonicalKey": "gdpr.article28.3g.deletion_or_return",
+      "assessmentHash": "083b66f9b04ea299"
+    }
+  ],
+  "accepted": [
+    {
+      "requirementId": "subject_matter",
+      "lockedAssessmentId": "L-gdpr.article28.subject_matter-43fefc3f8c",
+      "assessmentHash": "43fefc3f8c6bb9f3",
+      "documentHash": "33141f786780feb2",
+      "ruleVersion": "0.1.0",
+      "status": "present"
+    },
+    {
+      "requirementId": "duration",
+      "lockedAssessmentId": "L-gdpr.article28.duration-9727272399",
+      "assessmentHash": "972727239963dbbb",
+      "documentHash": "33141f786780feb2",
+      "ruleVersion": "0.1.0",
+      "status": "present"
+    },
+    {
+      "requirementId": "data_categories",
+      "lockedAssessmentId": "L-gdpr.article28.categories_of_data-687e5cb872",
+      "assessmentHash": "687e5cb872ee8d4f",
+      "documentHash": "33141f786780feb2",
+      "ruleVersion": "0.1.0",
+      "status": "present"
+    },
+    {
+      "requirementId": "data_subject_categories",
+      "lockedAssessmentId": "L-gdpr.article28.categories_of_data_subjects-52133cc257",
+      "assessmentHash": "52133cc257736ab4",
+      "documentHash": "33141f786780feb2",
+      "ruleVersion": "0.1.0",
+      "status": "present"
+    },
+    {
+      "requirementId": "art28_3_a_instructions",
+      "lockedAssessmentId": "L-gdpr.article28.3a.documented_instructions-716bd8820c",
+      "assessmentHash": "716bd8820c3ebbfb",
+      "documentHash": "33141f786780feb2",
+      "ruleVersion": "0.1.0",
+      "status": "present"
+    },
+    {
+      "requirementId": "art28_3_f_security_assistance",
+      "lockedAssessmentId": "L-gdpr.article28.3f.controller_assistance-899bbc48a9",
+      "assessmentHash": "899bbc48a9a6dbc9",
+      "documentHash": "33141f786780feb2",
+      "ruleVersion": "0.1.0",
+      "status": "partial"
+    }
+  ],
+  "rejected": [
+    {
+      "requirementId": "nature_purpose",
+      "canonicalKey": "gdpr.article28.nature_and_purpose",
+      "reasonCodes": [
+        "INCOMPATIBLE_SCOPE_JOINT_SUPPORT"
+      ],
+      "details": [
+        "INCOMPATIBLE_SCOPE_JOINT_SUPPORT: elementId=NP2 scopes=[{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"clause-3.3\",\"relationship\":\"controller_to_processor\"},{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"heading-security-of-the-data\",\"relationship\":\"unspecified\"},{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"heading-security-of-the-data\",\"relationship\":\"unspecified\"},{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"clause-6.3\",\"relationship\":\"controller_to_controller\"},{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"clause-5.1.4\",\"relationship\":\"unspecified\"},{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"clause-4.3\",\"relationship\":\"controller_to_controller\"},{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"clause-4.4\",\"relationship\":\"controller_to_controller\"},{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"clause-2.3\",\"relationship\":\"unspecified\"},{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"clause-6\",\"relationship\":\"controller_to_controller\"}]"
+      ]
+    },
+    {
+      "requirementId": "art28_3_g_deletion_return",
+      "canonicalKey": "gdpr.article28.3g.deletion_or_return",
+      "reasonCodes": [
+        "INCOMPATIBLE_SCOPE_JOINT_SUPPORT"
+      ],
+      "details": [
+        "INCOMPATIBLE_SCOPE_JOINT_SUPPORT: elementId=G2 scopes=[{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"clause-3.5.6\",\"relationship\":\"controller_to_processor\"},{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"clause-5.1.4\",\"relationship\":\"unspecified\"},{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"clause-4.4.6\",\"relationship\":\"controller_to_controller\"},{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"clause-2.8.2\",\"relationship\":\"unspecified\"},{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"clause-2.7.2\",\"relationship\":\"unspecified\"}]"
+      ]
+    }
+  ],
+  "reasonHist": {
+    "INCOMPATIBLE_SCOPE_JOINT_SUPPORT": 2
+  },
+  "summary": {
+    "attempted": 8,
+    "accepted": 6,
+    "rejected": 2,
+    "duplicateCanonicalKeys": [],
+    "plannedButNotAttempted": []
+  },
+  "matrix": {
+    "verifyG": [
+      "G1=not_located",
+      "G2=supported",
+      "G3=supported",
+      "G4=unresolved_dependency"
+    ],
+    "verifyF": [
+      "F1=supported",
+      "F2=supported",
+      "F3=not_located"
+    ],
+    "assessG": {
+      "status": "partial",
+      "reasonCodes": [
+        "CONTROLLER_CHOICE_NOT_LOCATED",
+        "DELETE_PRESENT",
+        "RETURN_PRESENT",
+        "LEGAL_RETENTION_UNRESOLVED_DEPENDENCY"
+      ],
+      "elementStates": {
+        "G1": "not_located",
+        "G2": "supported",
+        "G3": "supported",
+        "G4": "unresolved_dependency"
+      }
+    },
+    "assessF": {
+      "status": "partial",
+      "reasonCodes": [
+        "SECURITY_ASSISTANCE_PRESENT",
+        "BREACH_NOTIFICATION_ASSISTANCE_PRESENT",
+        "DPIA_ASSISTANCE_NOT_LOCATED"
+      ],
+      "elementStates": {
+        "F1": "supported",
+        "F2": "supported",
+        "F3": "not_located"
+      }
+    }
+  },
+  "fieldChecks": {
+    "attemptsHaveFields": true,
+    "acceptedHaveFields": true,
+    "summaryCountsMatch": true
+  }
+}

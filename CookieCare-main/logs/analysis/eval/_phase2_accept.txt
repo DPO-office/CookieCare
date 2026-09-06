@@ -1,0 +1,34 @@
+TARGET=an_313bf2c5-c208-4ddd-b96f-39a437333e5f.compliance.log
+phase=2B
+{"f":"an_313bf2c5-c208-4ddd-b96f-39a437333e5f.compliance.log","phase":"2B","mtime":"2026-09-05T13:21:03.559Z","resolved":15,"conflict":0,"requestResolve":6,"requestUnresolved":0}
+
+=== canonicalKey groups ===
+{"key":"gdpr.article28.3a.documented_instructions","inputs":["art28_3_a_instructions"],"aliasCount":1}
+{"key":"gdpr.article28.3b.confidentiality","inputs":["art28_3_b_confidentiality"],"aliasCount":1}
+{"key":"gdpr.article28.3c.security_measures","inputs":["art28_3_c_security"],"aliasCount":1}
+{"key":"gdpr.article28.3d.subprocessors","inputs":["art28_3_d_subprocessors"],"aliasCount":1}
+{"key":"gdpr.article28.3e.data_subject_rights","inputs":["art28_3_e_dsr_assistance"],"aliasCount":1}
+{"key":"gdpr.article28.3f.controller_assistance","inputs":["art28_3_f_security_assistance"],"aliasCount":1}
+{"key":"gdpr.article28.3g.deletion_or_return","inputs":["art28_3_g_deletion_return"],"aliasCount":1}
+{"key":"gdpr.article28.3h.audits_and_inspections","inputs":["art28_3_h_audit"],"aliasCount":1}
+{"key":"gdpr.article28.4.subprocessor_flow_down","inputs":["art28_4_subprocessor_flow_down"],"aliasCount":1}
+{"key":"gdpr.article28.categories_of_data","inputs":["data_categories"],"aliasCount":1}
+{"key":"gdpr.article28.categories_of_data_subjects","inputs":["data_subject_categories"],"aliasCount":1}
+{"key":"gdpr.article28.controller_obligations_and_rights","inputs":["controller_obligations_rights"],"aliasCount":1}
+{"key":"gdpr.article28.duration","inputs":["duration"],"aliasCount":1}
+{"key":"gdpr.article28.nature_and_purpose","inputs":["nature_purpose"],"aliasCount":1}
+{"key":"gdpr.article28.subject_matter","inputs":["subject_matter"],"aliasCount":1}
+
+=== conflicts (0) ===
+
+=== request.resolve (6) ===
+{"requestId":"gdpr.article28.subject_matter","resolution":"matched","nativeLen":1,"natives":["subject_matter"],"canons":["gdpr.article28.subject_matter"],"shapeOk":true}
+{"requestId":"gdpr.article28.duration","resolution":"matched","nativeLen":1,"natives":["duration"],"canons":["gdpr.article28.duration"],"shapeOk":true}
+{"requestId":"gdpr.article28.nature_and_purpose","resolution":"matched","nativeLen":1,"natives":["nature_purpose"],"canons":["gdpr.article28.nature_and_purpose"],"shapeOk":true}
+{"requestId":"gdpr.article28.categories_data_and_subjects","resolution":"split_match","nativeLen":2,"natives":["data_categories","data_subject_categories"],"canons":["gdpr.article28.categories_of_data","gdpr.article28.categories_of_data_subjects"],"shapeOk":true}
+{"requestId":"gdpr.article28.controller_obligations_and_rights","resolution":"matched","nativeLen":1,"natives":["controller_obligations_rights"],"canons":["gdpr.article28.controller_obligations_and_rights"],"shapeOk":true}
+{"requestId":"gdpr.article28_3.clause_adequacy","resolution":"split_match","nativeLen":9,"natives":["art28_3_a_instructions","art28_3_b_confidentiality","art28_3_c_security","art28_3_d_subprocessors","art28_3_e_dsr_assistance","art28_3_f_security_assistance","art28_3_g_deletion_return","art28_3_h_audit","art28_4_subprocessor_flow_down"],"canons":["gdpr.article28.3a.documented_instructions","gdpr.article28.3b.confidentiality","gdpr.article28.3c.security_measures","gdpr.article28.3d.subprocessors","gdpr.article28.3e.data_subject_rights","gdpr.article28.3f.controller_assistance","gdpr.article28.3g.deletion_or_return","gdpr.article28.3h.audits_and_inspections","gdpr.article28.4.subprocessor_flow_down"],"shapeOk":true}
+
+=== request.unresolved (0) ===
+
+open.p* resolve=0 unresolved=0

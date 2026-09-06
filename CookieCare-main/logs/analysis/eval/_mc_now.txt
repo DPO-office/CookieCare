@@ -1,0 +1,34 @@
+phase=3C events=14842
+structure={"document":1,"section":7,"heading":14,"appendix":7,"paragraph":1016,"clause":105,"list":23,"list_item":25,"definition":27} orphan=0
+markers=appendix_heading=true, appendix_body=true, term_definition=false, data_categories=true, data_subjects=true
+
+=== per-req query kinds ===
+subject_matter all6=false [requirement,element,exact_anchor,clause_type,definition]
+duration all6=false [requirement,element,clause_type]
+nature_purpose all6=false [requirement,element,exact_anchor,clause_type,definition]
+data_categories all6=false [requirement,element,exact_anchor,clause_type,definition]
+data_subject_categories all6=false [requirement,element,exact_anchor,clause_type,definition]
+controller_obligations_rights all6=false [requirement,element,exact_anchor,clause_type,definition]
+art28_3_a_instructions all6=true [requirement,element,exact_anchor,clause_type,definition,cross_reference]
+art28_3_b_confidentiality all6=false [requirement,element,exact_anchor,clause_type,cross_reference]
+art28_3_c_security all6=false [requirement,element,exact_anchor,clause_type,cross_reference]
+art28_3_d_subprocessors all6=false [requirement,element,exact_anchor,clause_type,cross_reference]
+art28_3_e_dsr_assistance all6=true [requirement,element,exact_anchor,clause_type,definition,cross_reference]
+art28_3_f_security_assistance all6=true [requirement,element,exact_anchor,clause_type,definition,cross_reference]
+art28_3_g_deletion_return all6=true [requirement,element,exact_anchor,clause_type,definition,cross_reference]
+art28_3_h_audit all6=false [requirement,element,exact_anchor,clause_type,cross_reference]
+art28_4_subprocessor_flow_down all6=true [requirement,element,exact_anchor,clause_type,definition,cross_reference]
+kinds_union=requirement,element,exact_anchor,clause_type,definition,cross_reference
+all6=5/15
+hits=1320 denseNull=true
+recalls=15 planned=15
+missingRecall=none
+zeroRecall=none
+expandMax=20 reasons={"parent":15,"heading":14,"child":271}
+fHits=84
+fInternal=0
+internal_ref_total=0
+durationPartitions=controller_to_processor,controller_to_controller,unspecified
+excluded={"budget":638,"incompatible_scope":57}
+reqs_with_definition_query=subject_matter,nature_purpose,data_categories,data_subject_categories,controller_obligations_rights,art28_3_a_instructions,art28_3_e_dsr_assistance,art28_3_f_security_assistance,art28_3_g_deletion_return,art28_4_subprocessor_flow_down
+recon=undefined

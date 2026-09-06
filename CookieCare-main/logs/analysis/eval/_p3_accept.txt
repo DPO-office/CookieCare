@@ -1,0 +1,59 @@
+TARGET=an_965ab7ee-ca25-427c-8230-e22c5c75e45a.compliance.log phase=3C
+{"f":"an_965ab7ee-ca25-427c-8230-e22c5c75e45a.compliance.log","phase":"3C","mtime":"2026-09-05T13:41:29.343Z","queries":6,"hit":292,"recall":6,"expand":120,"expLimit":6,"bundle":6,"scope":10,"excluded":133,"dep":1604}
+
+=== queries (6) ===
+{"requirementId":"subject_matter","queryCount":5,"kinds":["requirement","element"],"missing":["exact_anchor","clause_type","definition","cross_reference"]}
+{"requirementId":"duration","queryCount":6,"kinds":["requirement","element"],"missing":["exact_anchor","clause_type","definition","cross_reference"]}
+{"requirementId":"nature_purpose","queryCount":6,"kinds":["requirement","element"],"missing":["exact_anchor","clause_type","definition","cross_reference"]}
+{"requirementId":"data_categories","queryCount":5,"kinds":["requirement","element"],"missing":["exact_anchor","clause_type","definition","cross_reference"]}
+{"requirementId":"data_subject_categories","queryCount":6,"kinds":["requirement","element"],"missing":["exact_anchor","clause_type","definition","cross_reference"]}
+{"requirementId":"controller_obligations_rights","queryCount":4,"kinds":["requirement","element"],"missing":["exact_anchor","clause_type","definition","cross_reference"]}
+queries_with_all_6_kinds=0/6
+
+=== hits (292) sample ===
+[{"requirementId":"subject_matter","spanId":"doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::30754-32965","selectedBy":["lexical"],"lexicalRank":1,"denseRank":null},{"requirementId":"subject_matter","spanId":"doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::28454-29390","selectedBy":["lexical"],"lexicalRank":2,"denseRank":null},{"requirementId":"subject_matter","spanId":"doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::8534-9870","selectedBy":["lexical"],"lexicalRank":3,"denseRank":null},{"requirementId":"subject_matter","spanId":"doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::42694-45285","selectedBy":["lexical"],"lexicalRank":4,"denseRank":null},{"requirementId":"subject_matter","spanId":"doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::1402-8448","selectedBy":["lexical"],"lexicalRank":5,"denseRank":null}]
+hits_denseRank_null=292/292
+
+=== recall_summary (6) ===
+{"requirementId":"subject_matter","uniqueCandidateCount":22,"elementsWithCandidates":["E1","E2","E3","E4"],"elementsWithoutCandidates":[]}
+{"requirementId":"duration","uniqueCandidateCount":29,"elementsWithCandidates":["E1","E2","E3","E4","E5"],"elementsWithoutCandidates":[]}
+{"requirementId":"nature_purpose","uniqueCandidateCount":29,"elementsWithCandidates":["E1","E2","E3","E4","E5"],"elementsWithoutCandidates":[]}
+{"requirementId":"data_categories","uniqueCandidateCount":30,"elementsWithCandidates":["E1","E2","E3","E4"],"elementsWithoutCandidates":[]}
+{"requirementId":"data_subject_categories","uniqueCandidateCount":27,"elementsWithCandidates":["E1","E2","E3","E4","E5"],"elementsWithoutCandidates":[]}
+{"requirementId":"controller_obligations_rights","uniqueCandidateCount":24,"elementsWithCandidates":["E1","E2","E3"],"elementsWithoutCandidates":[]}
+silent_zero_recall_count=0
+planned=0 with_recall=6 missing_recall=[]
+
+=== appendix-1 span=doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::appendix::a5384f47ac97 range=[30465,32955] ===
+{"req":"data_categories","hitCount":46,"uniqueSpans":30,"appendixHits":0,"definitionish":0,"sampleSpans":["doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::30754-32965","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::1402-8448","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::28454-29390","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::21167-22546","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::23209-23774"]}
+{"req":"data_subject_categories","hitCount":50,"uniqueSpans":27,"appendixHits":0,"definitionish":0,"sampleSpans":["doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::30754-32965","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::28454-29390","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::30519-30642","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::30644-30752","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::41692-42163"]}
+{"req":"duration","hitCount":60,"uniqueSpans":29,"appendixHits":0,"definitionish":0,"sampleSpans":["doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::18047-19611","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::11037-12017","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::12592-12835","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::29418-30027","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::14404-14793"]}
+{"req":"gdpr.article28.categories_of_data","hitCount":0,"uniqueSpans":0,"appendixHits":0,"definitionish":0,"sampleSpans":[]}
+{"req":"gdpr.article28.duration","hitCount":0,"uniqueSpans":0,"appendixHits":0,"definitionish":0,"sampleSpans":[]}
+{"req":"art28_3_f_security_assistance","hitCount":0,"uniqueSpans":0,"appendixHits":0,"definitionish":0,"sampleSpans":[]}
+{"req":"gdpr.article28.3f.controller_assistance","hitCount":0,"uniqueSpans":0,"appendixHits":0,"definitionish":0,"sampleSpans":[]}
+
+=== (f) hits (0) ===
+[]
+f_has_6.4_signal=false f_has_10_signal=false
+
+=== expands (120) ===
+reqs_with_expand=6 over_20=[]
+expand_reasons={"parent":6,"heading":7,"child":100,"definition":7}
+f_internal_ref_expands=0
+
+=== expansion_limit (6) ===
+{"requirementId":"subject_matter","limitType":"node","omitted":5405}
+{"requirementId":"duration","limitType":"node","omitted":7204}
+{"requirementId":"nature_purpose","limitType":"node","omitted":2339}
+{"requirementId":"data_categories","limitType":"node","omitted":5527}
+{"requirementId":"data_subject_categories","limitType":"node","omitted":5766}
+{"requirementId":"controller_obligations_rights","limitType":"node","omitted":5776}
+
+=== bundles created=6 scopes=10 excluded=133 deps=1634
+incompatible_scope=0
+excluded_reasons={"budget":133}
+duration_scope_partitions=2
+{"event":"compliance.bundle.scope_partition","analysisId":"an_965ab7ee-ca25-427c-8230-e22c5c75e45a","timestamp":"2026-09-05T13:41:17.818Z","implementationPhase":"3C","requirementId":"duration","bundleId":"B-duration-doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9","partitionId":"P1","scope":{"relationship":"unspecified"},"evidenceSpanIds":["doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::18047-19611","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::11037-12017","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::12592-12835","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::29418-30027","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::14404-14793","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::24401-26085","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::28454-29390","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::13539-14388","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::0-892","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::1402-8448","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::895-1216","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::1218-1400","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::16291-16832","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::16853-17127","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::21167-22546","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::27363-27958","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::39526-40528","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::35038-35247","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::15829-16289","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::19633-19882","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::heading::d4da56772df6","doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::clause::1c5eeffc0ceb"]}
+{"event":"compliance.bundle.scope_partition","analysisId":"an_965ab7ee-ca25-427c-8230-e22c5c75e45a","timestamp":"2026-09-05T13:41:17.822Z","implementationPhase":"3C","requirementId":"duration","bundleId":"B-duration-doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9","partitionId":"P2","scope":{"relationship":"controller_to_processor"},"evidenceSpanIds":["doc_fd576e41-3c3e-4320-8b2b-19cb4eeed8f9::section::8534-9870"]}
+dep_states={"resolved_internal":1575,"unresolved_external":59}

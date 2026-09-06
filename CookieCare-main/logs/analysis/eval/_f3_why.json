@@ -1,0 +1,31 @@
+{
+  "f_items_matching": [
+    {
+      "path": "clause-3.5.5",
+      "len": 1102,
+      "hits": [],
+      "aroundImpact": "horities; conducting \ndata  protection  impact  assessments  and  consultations  and  other  interac",
+      "hasSpecial": true,
+      "snippet": "3.5.5 Cooperation and Assistance: cooperate with Mastercard to ensure compliance with Privacy and Data Protection Law, this Data Processing Agreement, and Mastercard’s or Mastercard’s customers’ instructions, and to assist Mastercard in fulfilling its own obligations under Privacy and Data Protectio"
+    },
+    {
+      "path": "clause-2023",
+      "len": 1500,
+      "hits": [],
+      "aroundImpact": null,
+      "hasSpecial": true,
+      "snippet": "2023) and its Implementing Regulations; (10) Nigeria Data Protection Act 2023 and its subsidiary regulations and guidelines; (11) Turkey Law on the Protection Of Personal Data (DPL) No. 6698 and its regulations and successors; (12) Canadian federal and provincial laws governing the processing of Per"
+    }
+  ],
+  "c356_len": 920,
+  "c356_g1_checks": {
+    "delete or return": false,
+    "at the option": false,
+    "sole option": false,
+    "or return": false,
+    "around_option": "and  at  \nmastercard’s  sole  option,  securely  delete  existing  copies  of  the  personal  data  or  return",
+    "around_unless": "unless applicable local law requires storage of the personal data, in which case",
+    "g4_dist": []
+  },
+  "c356_full": "3.5.6 Return and Deletion of Personal Data: upon expiry or termination of the Agreement and/or relevant SOW, or if the Agreement or any relevant part of the Agreement authorizing Supplier to Process Personal Data has been revoked, rescinded, or held void, invalid or unenforceable, or as set forth within the relevant SOW, comply with Mastercard’s request, and at Mastercard’s sole option, securely delete existing copies of the Personal Data or return the same to Mastercard without retention of any hard or soft copies, unless applicable local law requires storage of the Personal Data, in which case Supplier will protect the confidentiality of the Personal Data, will not actively Process the Personal Data anymore, and will continue to comply with this Data Processing Agreement. Supplier will issue a certificate of deletion upon Mastercard’s request."
+}

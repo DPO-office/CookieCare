@@ -1,0 +1,60 @@
+file=an_46c8c8c6-bc51-4d3b-8fd5-c10b1fffacbc.compliance.log
+phase=4B
+counts={"compliance.bundle.created":15,"compliance.element.registry":8,"compliance.verify.input":8,"compliance.verify.element":15,"compliance.verify.completeness":8}
+duration_partitions=[{"id":"P1","rel":"unspecified","n":7},{"id":"P2","rel":"controller_to_controller","n":5},{"id":"P3","rel":"controller_to_processor","n":14}]
+bundle_excl_totals={"budget":466,"incompatible_scope":124}
+dep_sample_duration=690
+
+registry=8 review=authored
+verify.input unique=8
+subject_matter: matchedVia=canonicalKey canon=gdpr.article28.subject_matter schema=gdpr.article28.subject_matter
+duration: matchedVia=canonicalKey canon=gdpr.article28.duration schema=gdpr.article28.duration
+nature_purpose: matchedVia=canonicalKey canon=gdpr.article28.nature_and_purpose schema=gdpr.article28.nature_and_purpose
+data_categories: matchedVia=canonicalKey canon=gdpr.article28.categories_of_data schema=gdpr.article28.categories_of_data
+data_subject_categories: matchedVia=canonicalKey canon=gdpr.article28.categories_of_data_subjects schema=gdpr.article28.categories_of_data_subjects
+art28_3_a_instructions: matchedVia=canonicalKey canon=gdpr.article28.3a.documented_instructions schema=gdpr.article28.3a.documented_instructions
+art28_3_f_security_assistance: matchedVia=canonicalKey canon=gdpr.article28.3f.controller_assistance schema=gdpr.article28.3f.controller_assistance
+art28_3_g_deletion_return: matchedVia=canonicalKey canon=gdpr.article28.3g.deletion_or_return schema=gdpr.article28.3g.deletion_or_return
+alias_or_loose=0
+completeness_missing=0
+
+=== (f) F1/F2/F3 ===
+{"id":"F1","state":"supported","n":2,"paths":["clause-3.6.1","clause-3.6.2"],"has64":false,"has10":false,"hasBreach":false,"q0":"3.6.1 it  has  implemented  and  maintains  a  comprehensive  written  information  security  program  that  c","gap":""}
+{"id":"F2","state":"supported","n":6,"paths":["clause-2023","clause-3.6","clause-3.5.5","clause-3.5.4","clause-7.2","clause-3.6.1"],"has64":false,"has10":true,"hasBreach":true,"q0":"2023) and its Implementing Regulations; (10) Nigeria Data Protection Act 2023 and its subsidiary regulations a","gap":""}
+{"id":"F3","state":"supported","n":1,"paths":["clause-3.5.5"],"has64":false,"has10":false,"hasBreach":false,"q0":"3.5.5 Cooperation and Assistance: cooperate with Mastercard to ensure compliance with Privacy and Data Protect","gap":""}
+
+=== (g) G1-G4 ===
+{"id":"G1","state":"supported","n":2,"paths":["clause-3.5.6","clause-3.7.7"],"q0":"3.5.6 Return  and  Deletion  of  Personal  Data:  upon  expiry  or  termination  of  the  Agreement  and/or  r","gap":"","fact":"The controller has a right to choose between deletion and return. Supported at clause-3.5.6, clause-3.7.7."}
+{"id":"G2","state":"supported","n":8,"paths":["clause-3.5.4","clause-3.5.6","clause-5.1.4","clause-3.9.1"],"q0":"3.5.4 Notification Obligations: immediately inform Mastercard, in writing, in relation to any Personal Data Pr","gap":"","fact":"The processor is obligated to delete on request. Supported at clause-3.5.4, clause-3.5.6, clause-5.1.4."}
+{"id":"G3","state":"supported","n":8,"paths":["clause-3.5.4","clause-5.1.4","clause-3.5.6","clause-3.9.1"],"q0":"3.5.4 Notification Obligations: immediately inform Mastercard, in writing, in relation to any Personal Data Pr","gap":"","fact":"The processor is obligated to return on request. Supported at clause-3.5.4, clause-5.1.4, clause-3.5.6."}
+{"id":"G4","state":"supported","n":19,"paths":["clause-3.5.4","clause-5.1.4","clause-3.9.1","clause-7.2"],"q0":"3.5.4 Notification Obligations: immediately inform Mastercard, in writing, in relation to any Personal Data Pr","gap":"","fact":"The processor deletes existing copies unless Union or Member State law requires storage. Supported at clause-3.5.4, clau"}
+
+=== (a) A1/A2 ===
+{"id":"A1","state":"supported","n":12,"paths":["clause-3.4.1","clause-3.5.4","clause-5.1.4","clause-4.2"],"q0":"3.4.1 Mastercard’s  instructions  are  documented  in  Annex  1  of Addendum  A1  of the  Agreement "}
+{"id":"A2","state":"supported","n":18,"paths":["clause-3.3","clause-5.1.4","clause-4.2","clause-2023"],"q0":"3.3. Roles of the Parties. \nThe Parties agree that Mastercard is a Business and/or Controller (or si"}
+
+=== particulars appendix paths ===
+subject_matter/SM1: state=supported appendix=0 rel=controller_to_controller p0=heading-security-of-the-data
+data_categories/CD1: state=supported appendix=0 rel=controller_to_controller p0=clause-6.2
+data_subject_categories/DS1: state=supported appendix=0 rel=controller_to_processor p0=clause-3.5.4
+duration/DU1: state=supported appendix=0 rel=controller_to_processor p0=heading-security-of-the-data
+
+=== supported scopes ===
+subject_matter/SM1: controller_to_controller
+duration/DU1: controller_to_processor
+nature_purpose/NP1: controller_to_processor
+nature_purpose/NP2: unspecified
+data_categories/CD1: controller_to_controller
+data_subject_categories/DS1: controller_to_processor
+art28_3_a_instructions/A1: controller_to_processor
+art28_3_a_instructions/A2: controller_to_processor
+art28_3_f_security_assistance/F1: controller_to_processor
+art28_3_f_security_assistance/F2: controller_to_processor
+art28_3_f_security_assistance/F3: controller_to_processor
+art28_3_g_deletion_return/G1: controller_to_processor
+art28_3_g_deletion_return/G2: unspecified
+art28_3_g_deletion_return/G3: unspecified
+art28_3_g_deletion_return/G4: unspecified
+
+=== vs Bitrix an_db93a7eb (summary) ===
+MC fingerprint: higher deps (~690+), more budget excl, duration partitions often include C→C

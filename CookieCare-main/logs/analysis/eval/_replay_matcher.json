@@ -1,0 +1,159 @@
+{
+  "bitrix_G4_on_g_bundle": {
+    "itemCount": 38,
+    "passedGate": 0,
+    "supportCount": 0,
+    "topPassed": [],
+    "rejectedSample": [
+      {
+        "path": "document/application-of-this-dpa/list@1718",
+        "rejected": "distinctive_gate",
+        "snippet": "a) Alaio Cloud Limited a company registered under the laws of the Republic of Cyprus with its registered office at Frema House, office 102, No. 9, Constantinou "
+      },
+      {
+        "path": "clause-4.2",
+        "rejected": "distinctive_gate",
+        "snippet": "4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, correction, amendmen"
+      },
+      {
+        "path": "clause-4.1",
+        "rejected": "distinctive_gate",
+        "snippet": "4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Personal Data, as required by Data"
+      }
+    ],
+    "clause356": [],
+    "clause25": [
+      {
+        "rejected": "distinctive_gate",
+        "score": 0,
+        "fullHasProviso": true
+      }
+    ],
+    "clause355": []
+  },
+  "bitrix_G1_on_g_bundle": {
+    "itemCount": 38,
+    "passedGate": 0,
+    "supportCount": 0,
+    "topPassed": [],
+    "rejectedSample": [
+      {
+        "path": "document/application-of-this-dpa/list@1718",
+        "rejected": "distinctive_gate",
+        "snippet": "a) Alaio Cloud Limited a company registered under the laws of the Republic of Cyprus with its registered office at Frema House, office 102, No. 9, Constantinou "
+      },
+      {
+        "path": "clause-4.2",
+        "rejected": "distinctive_gate",
+        "snippet": "4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, correction, amendmen"
+      },
+      {
+        "path": "clause-4.1",
+        "rejected": "distinctive_gate",
+        "snippet": "4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Personal Data, as required by Data"
+      }
+    ],
+    "clause356": [],
+    "clause25": [
+      {
+        "rejected": "distinctive_gate",
+        "score": 0,
+        "fullHasProviso": true
+      }
+    ],
+    "clause355": []
+  },
+  "mc_G1_on_g_bundle": {
+    "itemCount": 28,
+    "passedGate": 0,
+    "supportCount": 0,
+    "topPassed": [],
+    "rejectedSample": [
+      {
+        "path": "clause-3.8.1",
+        "rejected": "distinctive_gate",
+        "snippet": "3.8.1 Supplier must not share, transfer, transmit, disclose or otherwise provide access to or make available any Personal Data to any person (whether a natural "
+      },
+      {
+        "path": "clause-3.8",
+        "rejected": "distinctive_gate",
+        "snippet": "3.8. “EU Standard Contractual Clauses” or “SCCs” means: in respect of the EU Personal Data, the standard contractual clauses for the transfer of personal data t"
+      },
+      {
+        "path": "clause-3.6",
+        "rejected": "distinctive_gate",
+        "snippet": "3.6. “EU Personal Data” means the processing of personal data to which data protection legislation of the European Union, or of a Member State of the European U"
+      }
+    ],
+    "clause356": [
+      {
+        "rejected": "distinctive_gate",
+        "score": 0
+      }
+    ],
+    "clause25": [],
+    "clause355": []
+  },
+  "mc_G4_on_g_bundle": {
+    "itemCount": 28,
+    "passedGate": 0,
+    "supportCount": 0,
+    "topPassed": [],
+    "rejectedSample": [
+      {
+        "path": "clause-3.8.1",
+        "rejected": "distinctive_gate",
+        "snippet": "3.8.1 Supplier must not share, transfer, transmit, disclose or otherwise provide access to or make available any Personal Data to any person (whether a natural "
+      },
+      {
+        "path": "clause-3.8",
+        "rejected": "distinctive_gate",
+        "snippet": "3.8. “EU Standard Contractual Clauses” or “SCCs” means: in respect of the EU Personal Data, the standard contractual clauses for the transfer of personal data t"
+      },
+      {
+        "path": "clause-3.6",
+        "rejected": "distinctive_gate",
+        "snippet": "3.6. “EU Personal Data” means the processing of personal data to which data protection legislation of the European Union, or of a Member State of the European U"
+      }
+    ],
+    "clause356": [
+      {
+        "rejected": "distinctive_gate",
+        "score": 0
+      }
+    ],
+    "clause25": [],
+    "clause355": []
+  },
+  "mc_F3_on_f_bundle": {
+    "itemCount": 31,
+    "passedGate": 0,
+    "supportCount": 0,
+    "topPassed": [],
+    "rejectedSample": [
+      {
+        "path": "clause-3.6",
+        "rejected": "distinctive_gate",
+        "snippet": "3.6. Security of the Processing, Confidentiality, and Personal Data Breach Notification. Supplier agrees and warrants that:"
+      },
+      {
+        "path": "heading-security-of-the-data",
+        "rejected": "distinctive_gate",
+        "snippet": "SECURITY OF THE DATA Description of the technical and organisational measures implemented by the data importer(s) (including any relevant certifications) to ens"
+      },
+      {
+        "path": "clause-7",
+        "rejected": "distinctive_gate",
+        "snippet": "7. Security of the Processing, Confidentiality, and Personal Data Breach Notification. Supplier agrees and warrants that:"
+      }
+    ],
+    "clause356": [],
+    "clause25": [],
+    "clause355": [
+      {
+        "rejected": "distinctive_gate",
+        "score": 0
+      }
+    ]
+  }
+}
