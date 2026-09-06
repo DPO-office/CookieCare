@@ -24,14 +24,23 @@ export interface StoredChatMessage {
 function serializeMessages(messages: ChatMessage[]): StoredChatMessage[] {
   return messages
     .filter((m) => !m.isStreaming)
-    .map((m) => ({
-      id: m.id,
-      role: m.role,
-      content: m.content.replace(/\*\*/g, ""),
-      timestamp: m.timestamp.toISOString(),
-      files: m.files,
-      compareResult: m.compareResult,
-    }));
+    .map((m) => {
+      // Strip pdfFiles before serializing — File/Blob objects cannot survive
+      // JSON.stringify and would become empty {} objects, causing "Invalid PDF
+      // structure" errors when the result is restored from history.
+      // pdfFiles is intentionally in-memory only (active session).
+      const compareResult = m.compareResult
+        ? { ...m.compareResult, pdfFiles: undefined }
+        : undefined;
+      return {
+        id: m.id,
+        role: m.role,
+        content: m.content.replace(/\*\*/g, ""),
+        timestamp: m.timestamp.toISOString(),
+        files: m.files,
+        compareResult,
+      };
+    });
 }
 
 function deserializeMessages(stored: StoredChatMessage[]): ChatMessage[] {

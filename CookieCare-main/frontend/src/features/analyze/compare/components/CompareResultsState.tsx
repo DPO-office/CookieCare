@@ -1,16 +1,19 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { ChatMessage, CompareResult } from "../../../randtrustAI/types";
 import type { ComposerProps } from "../../../randtrustAI/components/Composer";
 import type { CompareHistoryEntry } from "../utils/compareHistory";
-import { RISK_BADGE } from "../constants";
+import { RISK_BADGE, COMPARE_RISK_BADGE } from "../constants";
 import { CompareChatToolbar } from "./CompareChatToolbar";
 import { CompareAnalyzingState } from "./CompareAnalyzingState";
 import { CompareAskPanel, type CompareNote } from "./CompareAskPanel";
 import { CompareFindingInspector, type CompareInspectTarget } from "./CompareFindingInspector";
 import { CompareAlignRow, CompareDiffRow, CompareRiskRow } from "./CompareFindingRow";
+import { CompareDocumentView, type CompareNavState } from "./CompareDocumentView";
 
 const CARD_SHADOW = "0 1px 2px rgba(16,24,40,0.04), 0 0 0 1px rgba(16,24,40,0.06)";
 
+// Top-level view selector — kept for the Report fallback path type only
 type ResultsView = "summary" | "risks" | "changes";
 
 interface CompareResultsStateProps {
@@ -57,55 +60,6 @@ function extractNotes(messages: ChatMessage[]): { notes: CompareNote[]; pending:
   return { notes, pending };
 }
 
-function Workspace({
-  title,
-  subtitle,
-  counts,
-  empty,
-  emptyMessage,
-  children,
-  inspector,
-}: {
-  title: string;
-  subtitle: string;
-  counts: { label: string; value: number; cls: string }[];
-  empty: boolean;
-  emptyMessage: string;
-  children: ReactNode;
-  inspector: ReactNode;
-}) {
-  return (
-    <section className="overflow-hidden rounded-2xl bg-white" style={{ boxShadow: CARD_SHADOW }}>
-      <div className="flex items-start justify-between gap-4 bg-light-blue-200 px-5 py-4 sm:px-6">
-        <div className="min-w-0">
-          <h3 className="text-[16px] font-semibold tracking-tight text-gray-900">{title}</h3>
-          <p className="mt-1 text-[13px] leading-relaxed text-dark-200">{subtitle}</p>
-        </div>
-      </div>
-      <div className="grid grid-cols-3 gap-3 bg-white px-5 py-4 sm:px-6">
-        {counts.map((c) => (
-          <div key={c.label} className={`rounded-2xl px-3 py-3 text-center ${c.cls}`}>
-            <p className="text-[18px] font-bold leading-none tabular-nums">{c.value}</p>
-            <p className="mt-1 text-[10px] font-semibold uppercase tracking-wider opacity-80">{c.label}</p>
-          </div>
-        ))}
-      </div>
-      <div className="flex min-h-[360px] flex-col bg-white xl:flex-row">
-        <div className="min-w-0 flex-1 border-t border-light-blue-200 p-3 sm:p-4 xl:border-r xl:border-t-0">
-          {empty ? (
-            <div className="py-14 text-center">
-              <p className="text-[13px] text-dark-200">{emptyMessage}</p>
-            </div>
-          ) : (
-            <div className="space-y-1">{children}</div>
-          )}
-        </div>
-        <div className="w-full shrink-0 xl:w-[400px]">{inspector}</div>
-      </div>
-    </section>
-  );
-}
-
 export function CompareResultsState({
   messages,
   isLoading,
@@ -147,6 +101,11 @@ export function CompareResultsState({
 
   const { notes, pending } = useMemo(() => extractNotes(messages), [messages]);
 
+  const hasClauseData = Boolean(
+    result?.clausesA?.length || result?.clausesB?.length
+  );
+
+  // ── Loading / error states ──────────────────────────────────────────────
   if (!result && (isLoading || streamingMsg)) {
     return (
       <CompareAnalyzingState
@@ -186,11 +145,23 @@ export function CompareResultsState({
   }
 
   if (!result) {
+    return <CompareAnalyzingState originalName={fileA} revisedName={fileB} />;
+  }
+
+  // ── Documents view (3-pane layout) — default and only entry point ──────
+  if (hasClauseData) {
     return (
-      <CompareAnalyzingState originalName={fileA} revisedName={fileB} />
+      <DocumentsView
+        result={result}
+        fileA={fileA}
+        fileB={fileB}
+        mounted={mounted}
+        onReset={onReset}
+      />
     );
   }
 
+  // ── Report view — fallback when clause data is absent ──────────────────
   return (
     <CompareReport
       result={result}
@@ -216,6 +187,113 @@ export function CompareResultsState({
     />
   );
 }
+
+// ─── Documents view (new 3-pane layout) ──────────────────────────────────────
+
+function DocumentsView({
+  result,
+  fileA,
+  fileB,
+  mounted,
+  onReset,
+}: {
+  result: CompareResult;
+  fileA: string;
+  fileB: string;
+  mounted: boolean;
+  onReset: () => void;
+}) {
+  const [navState, setNavState] = useState<CompareNavState | null>(null);
+
+  const riskTone = COMPARE_RISK_BADGE[result.executiveSummary.overallRisk] ?? COMPARE_RISK_BADGE.MEDIUM;
+  const diffs = result.differences ?? [];
+  const risks = result.risks ?? [];
+  const materialCount = diffs.filter(
+    (d) => d.classification !== "UNCHANGED" && d.classification !== "NEUTRAL_REPHRASE",
+  ).length;
+  const riskCount = risks.length;
+
+  return (
+    <div
+      className="flex h-full flex-col overflow-hidden"
+      style={{ opacity: mounted ? 1 : 0, transition: "opacity 0.25s ease" }}
+    >
+      {/* ── Header row ── */}
+      <div className="flex shrink-0 items-center gap-2 border-b border-[#E4E4E7] bg-white px-4 py-2 sm:px-5">
+
+        {/* Risk badge + counts */}
+        <div className="flex items-center gap-2">
+          <span className={`score-badge text-[10.5px] font-semibold ${riskTone.badge}`}>
+            {riskTone.label} overall
+          </span>
+          <span className="hidden text-[11px] text-[#6B7280] sm:inline">
+            {materialCount} material changes
+          </span>
+          <span className="hidden text-[#D1D5DB] sm:inline">·</span>
+          <span className="hidden text-[11px] text-[#6B7280] sm:inline">
+            {riskCount} risks
+          </span>
+        </div>
+
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Prev / Next finding navigation */}
+        {navState && (
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={navState.handlePrev}
+              disabled={navState.selectedIndex <= 0}
+              className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#E4E4E7] bg-white text-[#374151] transition-colors hover:bg-[#F3F4F6] disabled:cursor-not-allowed disabled:opacity-30"
+              aria-label="Previous finding"
+            >
+              <ChevronLeft className="h-3.5 w-3.5" />
+            </button>
+            <span className="min-w-[52px] text-center text-[11px] text-[#6B7280]">
+              {navState.selectedIndex >= 0
+                ? `${navState.selectedIndex + 1} / ${navState.filteredLength}`
+                : "—"}
+            </span>
+            <button
+              type="button"
+              onClick={navState.handleNext}
+              disabled={
+                navState.selectedIndex < 0 ||
+                navState.selectedIndex >= navState.filteredLength - 1
+              }
+              className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#E4E4E7] bg-white text-[#374151] transition-colors hover:bg-[#F3F4F6] disabled:cursor-not-allowed disabled:opacity-30"
+              aria-label="Next finding"
+            >
+              <ChevronRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
+
+        {/* New comparison */}
+        <button
+          type="button"
+          onClick={onReset}
+          className="inline-flex h-8 cursor-pointer items-center rounded-full border border-gray-200 bg-white px-4 text-[13px] font-medium text-dark-200 transition-colors hover:bg-light-blue-100"
+        >
+          New comparison
+        </button>
+      </div>
+
+      {/* Full-height 3-pane view */}
+      <div className="min-h-0 flex-1 overflow-hidden">
+        <CompareDocumentView
+          result={result}
+          fileA={fileA}
+          fileB={fileB}
+          onNavStateChange={setNavState}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ─── Report view (existing tab layout, unchanged) ─────────────────────────────
 
 function CompareReport({
   result,
@@ -296,17 +374,20 @@ function CompareReport({
       }}
     >
       <div className="mx-auto w-full max-w-6xl px-6 py-8 sm:px-10">
+        {/* Report nav row */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <nav className="flex min-w-0 items-center gap-2 text-[13px] font-medium text-dark-200" aria-label="Breadcrumb">
-            <span>Legal Space</span>
-            <span className="text-gray-300">/</span>
-            <span>Compare</span>
-            <span className="text-gray-300">/</span>
-            <span className="inline-flex max-w-[320px] items-center gap-1.5 truncate text-[#1a1a1a]">
-              <img src="/icons/info.svg" alt="" className="h-4 w-4 object-contain" />
-              {shortName(fileA, 22)} vs {shortName(fileB, 22)}
-            </span>
-          </nav>
+          <div className="flex items-center gap-4">
+            <nav className="flex min-w-0 items-center gap-2 text-[13px] font-medium text-dark-200" aria-label="Breadcrumb">
+              <span>Legal Space</span>
+              <span className="text-gray-300">/</span>
+              <span>Compare</span>
+              <span className="text-gray-300">/</span>
+              <span className="inline-flex max-w-[320px] items-center gap-1.5 truncate text-[#1a1a1a]">
+                <img src="/icons/info.svg" alt="" className="h-4 w-4 object-contain" />
+                {shortName(fileA, 22)} vs {shortName(fileB, 22)}
+              </span>
+            </nav>
+          </div>
           <CompareChatToolbar
             onNew={onReset}
             historyOpen={historyOpen}
@@ -526,6 +607,57 @@ function CompareReport({
         />
       </div>
     </div>
+  );
+}
+
+// ─── Shared sub-components (report view) ─────────────────────────────────────
+
+function Workspace({
+  title,
+  subtitle,
+  counts,
+  empty,
+  emptyMessage,
+  children,
+  inspector,
+}: {
+  title: string;
+  subtitle: string;
+  counts: { label: string; value: number; cls: string }[];
+  empty: boolean;
+  emptyMessage: string;
+  children: ReactNode;
+  inspector: ReactNode;
+}) {
+  return (
+    <section className="overflow-hidden rounded-2xl bg-white" style={{ boxShadow: CARD_SHADOW }}>
+      <div className="flex items-start justify-between gap-4 bg-light-blue-200 px-5 py-4 sm:px-6">
+        <div className="min-w-0">
+          <h3 className="text-[16px] font-semibold tracking-tight text-gray-900">{title}</h3>
+          <p className="mt-1 text-[13px] leading-relaxed text-dark-200">{subtitle}</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-3 bg-white px-5 py-4 sm:px-6">
+        {counts.map((c) => (
+          <div key={c.label} className={`rounded-2xl px-3 py-3 text-center ${c.cls}`}>
+            <p className="text-[18px] font-bold leading-none tabular-nums">{c.value}</p>
+            <p className="mt-1 text-[10px] font-semibold uppercase tracking-wider opacity-80">{c.label}</p>
+          </div>
+        ))}
+      </div>
+      <div className="flex min-h-[360px] flex-col bg-white xl:flex-row">
+        <div className="min-w-0 flex-1 border-t border-light-blue-200 p-3 sm:p-4 xl:border-r xl:border-t-0">
+          {empty ? (
+            <div className="py-14 text-center">
+              <p className="text-[13px] text-dark-200">{emptyMessage}</p>
+            </div>
+          ) : (
+            <div className="space-y-1">{children}</div>
+          )}
+        </div>
+        <div className="w-full shrink-0 xl:w-[400px]">{inspector}</div>
+      </div>
+    </section>
   );
 }
 

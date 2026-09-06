@@ -20,6 +20,12 @@ export default defineConfig({
     outDir: path.resolve(__dirname, 'dist'),
     emptyOutDir: true,
   },
+  optimizeDeps: {
+    // pdfjs-dist ships pre-built ESM — pre-bundling it causes the worker
+    // version mismatch and double-loading issues. Exclude it so Vite uses
+    // the package's own build artefacts directly.
+    exclude: ['pdfjs-dist'],
+  },
   resolve: {
     dedupe: ['react', 'react-dom', 'react-router-dom'],
     alias: {

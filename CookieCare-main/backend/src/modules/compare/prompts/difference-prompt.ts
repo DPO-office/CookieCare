@@ -22,13 +22,29 @@ Return ONLY a raw JSON array (no markdown fences). Each element:
   "clauseBId": string | null,
   "classification": "UNCHANGED" | "ADDED" | "REMOVED" | "MODIFIED_BROADER" | "MODIFIED_NARROWER" | "NEUTRAL_REPHRASE",
   "semanticSummary": string,
-  "confidence": number (0.0–1.0)
+  "confidence": number (0.0–1.0),
+  "changes": [
+    {
+      "topic": string,
+      "classification": "MODIFIED_BROADER" | "MODIFIED_NARROWER" | "NEUTRAL_REPHRASE",
+      "summary": string,
+      "originalSnippet": string,
+      "modifiedSnippet": string,
+      "confidence": number (0.0–1.0)
+    }
+  ]
 }
 
 Rules:
-- Exactly one entry per pair — no more, no fewer.
-- semanticSummary: empty string for UNCHANGED, ADDED, REMOVED; 1–3 factual sentences for MODIFIED_* and NEUTRAL_REPHRASE.
-- No risk assessment or recommendations in semanticSummary.
+- Exactly one array entry per pair — no more, no fewer. Do not invent pairIds or clause IDs.
+- classification and semanticSummary are hints only; the backend rolls them up from changes.
+- changes: list each independent obligation, metric, standard, or right that actually changed (one topic per edit).
+- Every change MUST be supported by concrete evidence: originalSnippet MUST be copied verbatim from A, modifiedSnippet MUST be copied verbatim from B. Do not paraphrase snippets.
+- Do not infer or invent a change merely because wording differs. If no concrete independent change can be identified, return changes: [].
+- Do not restate the whole clause as a single change.
+- changes MUST be [] for UNCHANGED, ADDED, and REMOVED.
+- Line-wrap, punctuation, and whitespace-only differences are UNCHANGED or NEUTRAL_REPHRASE with changes: [].
+- No risk assessment or recommendations in summary fields.
 `.trim();
 
 // ─── Prompt builder ───────────────────────────────────────────────────────────
@@ -66,10 +82,11 @@ export function resolveClauseTexts(
       clauseBId: p.clauseBId,
       titleA: clauseA?.title ?? null,
       titleB: clauseB?.title ?? null,
-      // Cap at 1500 chars per clause to stay within token limits.
-      // The full text is sufficient for semantic reasoning at this length.
-      textA: clauseA ? clauseA.text.slice(0, 1500) : null,
-      textB: clauseB ? clauseB.text.slice(0, 1500) : null,
+        // Send full clause text — truncation caused nondeterministic classification
+      // when Modified clauses exceeded the cap, giving the LLM incomplete evidence
+      // and producing inconsistent atomic-change snippets across runs.
+      textA: clauseA ? clauseA.text : null,
+      textB: clauseB ? clauseB.text : null,
     };
   });
 }
@@ -90,7 +107,8 @@ export function buildDifferencePrompt(pairs: ResolvedPair[]): string {
 
   return (
     `Classify the semantic difference for each of the following ${pairs.length} clause pair(s). ` +
-    `Produce one JSON array entry per pair in order.\n\n` +
+    `Produce one JSON array entry per pair in order. ` +
+    `For matched pairs, list independent evidenced edits in changes; if none can be quoted from both sides, changes must be [].\n\n` +
     formatted.join("\n\n")
   );
 }
