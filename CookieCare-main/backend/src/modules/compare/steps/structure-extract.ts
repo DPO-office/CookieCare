@@ -24,15 +24,40 @@ import {
 const MIN_CLAUSE_CHARS = 40;
 
 /**
+ * Given a sorted array of cumulative page-start offsets and a clause char
+ * position within the flat extracted text, return the 1-indexed page number.
+ *
+ * Binary search: O(log n) over number of pages.
+ */
+function resolvePageNumber(
+  position: number,
+  pageBreaks: number[] | undefined
+): number | undefined {
+  if (!pageBreaks || pageBreaks.length === 0) return undefined;
+  // pageBreaks[i] is the char offset at which page i+1 begins.
+  // We want the largest i such that pageBreaks[i] <= position.
+  let lo = 0;
+  let hi = pageBreaks.length - 1;
+  while (lo < hi) {
+    const mid = Math.ceil((lo + hi) / 2);
+    if (pageBreaks[mid] <= position) lo = mid;
+    else hi = mid - 1;
+  }
+  return lo + 1; // 1-indexed
+}
+
+/**
  * Convert a RawSegment array produced by clause-boundaries.ts into
  * ExtractedClause objects with stable IDs.
  *
- * @param segments  Raw segments from the boundary detector
- * @param docKey    "a" or "b" — used to namespace clause IDs
+ * @param segments    Raw segments from the boundary detector
+ * @param docKey      "a" or "b" — used to namespace clause IDs
+ * @param pageBreaks  Cumulative page offsets from extractText (PDF only)
  */
 function toExtractedClauses(
   segments: RawSegment[],
-  docKey: "a" | "b"
+  docKey: "a" | "b",
+  pageBreaks?: number[]
 ): ExtractedClause[] {
   return segments
     .filter((s) => s.text.trim().length >= MIN_CLAUSE_CHARS)
@@ -42,6 +67,7 @@ function toExtractedClauses(
       text: s.text.trim(),
       position: s.position,
       sectionPath: s.sectionPath,
+      pageNumber: resolvePageNumber(s.position, pageBreaks),
     }));
 }
 
@@ -49,7 +75,11 @@ function toExtractedClauses(
  * Segment one document's text into clauses, with a fallback to paragraph
  * chunking if the heading-based approach yields fewer than 2 segments.
  */
-function extractClauses(text: string, docKey: "a" | "b"): ExtractedClause[] {
+function extractClauses(
+  text: string,
+  docKey: "a" | "b",
+  pageBreaks?: number[]
+): ExtractedClause[] {
   let segments = segmentIntoRawClauses(text);
 
   // Fallback: unstructured documents (e.g. no numbered sections or headings)
@@ -61,7 +91,7 @@ function extractClauses(text: string, docKey: "a" | "b"): ExtractedClause[] {
     segments = chunkByParagraphs(text);
   }
 
-  return toExtractedClauses(segments, docKey);
+  return toExtractedClauses(segments, docKey, pageBreaks);
 }
 
 /**
@@ -79,10 +109,10 @@ export async function structureExtractStep(
     );
   }
 
-  const { textA, textB } = state.parsed;
+  const { textA, textB, pageBreaksA, pageBreaksB } = state.parsed;
 
-  const clausesA = extractClauses(textA, "a");
-  const clausesB = extractClauses(textB, "b");
+  const clausesA = extractClauses(textA, "a", pageBreaksA);
+  const clausesB = extractClauses(textB, "b", pageBreaksB);
 
   console.log(
     `[structureExtractStep] Segmentation complete — ` +

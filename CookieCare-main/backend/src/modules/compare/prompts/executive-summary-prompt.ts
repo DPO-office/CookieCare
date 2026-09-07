@@ -176,7 +176,8 @@ export function buildExecutiveSummaryPrompt(
     .filter(
       (d) =>
         d.classification !== "UNCHANGED" &&
-        d.classification !== "NEUTRAL_REPHRASE"
+        d.classification !== "NEUTRAL_REPHRASE" &&
+        d.detectionMethod !== "fallback"
     )
     .map((d) => ({
       pairId: d.pairId,
@@ -223,7 +224,7 @@ export function buildExecutiveSummaryPrompt(
 
   const fallbackNote =
     stats.fallbackCount > 0
-      ? `\nNOTE: ${stats.fallbackCount} difference(s) unclassified (fallback) — mention in overallAssessment and add manual review to negotiationPriorities.`
+      ? `\nNOTE: ${stats.fallbackCount} pair(s) have uncertain alignment or unclassified semantics. These are NOT confirmed additions, deletions, or material modifications. Mention the review-needed count in overallAssessment and add manual review of uncertain pairs to negotiationPriorities. Do not describe them as removed or added clauses.`
       : "";
 
   return `${statsBlock}\n${riskBlock}\n${diffBlock}${fallbackNote}\n\nGenerate the executive summary JSON now.`;

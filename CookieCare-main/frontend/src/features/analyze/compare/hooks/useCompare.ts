@@ -19,6 +19,9 @@ import type {
   CompareClauseDifference,
   CompareAlignedPair,
   CompareExecutiveSummary,
+  CompareClauseRecord,
+  AtomicChange,
+  AtomicChangeClassification,
 } from "../../../randtrustAI/types";
 import { formatExecutiveSummaryMarkdown } from "../utils/formatCompareResult";
 
@@ -146,7 +149,14 @@ export function useCompare({
           }
 
           // Build the structured CompareResult — include the jobId as the session key
-          const compareResult = buildCompareResult(raw, original.name, revised.name, jobId);
+          // and retain the original File objects for PDF rendering in the active session.
+          const compareResult = buildCompareResult(
+            raw,
+            original.name,
+            revised.name,
+            jobId,
+            { original, revised }
+          );
           const markdown = formatExecutiveSummaryMarkdown(compareResult);
 
           console.log("[useCompare] Pipeline complete — sessionId:", compareResult.sessionId, "| jobId:", jobId);
@@ -194,6 +204,38 @@ function progressToStage(progress: number): string {
   return COMPARE_PROGRESS_STAGES[5];                     // Summary
 }
 
+const ATOMIC_CLASSIFICATIONS = new Set<AtomicChangeClassification>([
+  "MODIFIED_BROADER",
+  "MODIFIED_NARROWER",
+  "NEUTRAL_REPHRASE",
+]);
+
+/**
+ * Maps the backend's raw `changes` (AtomicChange[]) array through untouched.
+ * Defensive only — drops any entry missing the fields required to render it
+ * honestly (topic + both snippets); never invents a change that isn't there.
+ */
+function mapAtomicChanges(raw: any): AtomicChange[] | undefined {
+  if (!Array.isArray(raw) || raw.length === 0) return undefined;
+  const mapped: AtomicChange[] = [];
+  for (const c of raw) {
+    if (!c || typeof c.topic !== "string" || typeof c.summary !== "string") continue;
+    if (typeof c.originalSnippet !== "string" || typeof c.modifiedSnippet !== "string") continue;
+    const classification: AtomicChangeClassification = ATOMIC_CLASSIFICATIONS.has(c.classification)
+      ? c.classification
+      : "NEUTRAL_REPHRASE";
+    mapped.push({
+      topic: c.topic,
+      classification,
+      summary: c.summary,
+      originalSnippet: c.originalSnippet,
+      modifiedSnippet: c.modifiedSnippet,
+      confidence: typeof c.confidence === "number" ? c.confidence : 0.5,
+    });
+  }
+  return mapped.length > 0 ? mapped : undefined;
+}
+
 /**
  * Extracts and normalises the fields we need from the raw job result
  * (which is a serialised CompareState).
@@ -202,7 +244,8 @@ function buildCompareResult(
   raw: any,
   originalFileName: string,
   revisedFileName: string,
-  sessionId?: string
+  sessionId?: string,
+  pdfFiles?: { original?: File; revised?: File }
 ): CompareResult {
   const executiveSummary: CompareExecutiveSummary = raw.executiveSummary ?? {
     overallAssessment: "Analysis complete.",
@@ -222,6 +265,7 @@ function buildCompareResult(
     rationale: r.rationale ?? "",
     confidence: r.confidence ?? 0.5,
     source: r.source ?? "llm",
+    triggeredRule: r.triggeredRule ?? undefined,
   }));
 
   const differences: CompareClauseDifference[] = (raw.differences ?? []).map((d: any) => ({
@@ -231,6 +275,10 @@ function buildCompareResult(
     classification: d.classification ?? "UNCHANGED",
     semanticSummary: d.semanticSummary ?? "",
     confidence: d.confidence ?? 0.5,
+    detectionMethod: d.detectionMethod ?? undefined,
+    // Granular evidenced edits (e.g. "TLS → TLS 1.2+") — pass through verbatim.
+    // Never fabricated here: absent/malformed entries are simply dropped.
+    changes: mapAtomicChanges(d.changes),
   }));
 
   const alignment: CompareAlignedPair[] = (raw.alignment ?? []).map((a: any, i: number) => ({
@@ -241,7 +289,31 @@ function buildCompareResult(
     matchConfidence: a.matchConfidence ?? 1,
     alignmentReason: a.alignmentReason ?? "",
     status: a.status ?? "matched",
+    // Preserve the canonical relationship type from the backend.
+    // Optional — absent in historical results that pre-date this mapping.
+    relationshipType: a.relationshipType ?? undefined,
   }));
 
-  return { executiveSummary, risks, differences, alignment, originalFileName, revisedFileName, sessionId };
+  // Map clause records from the backend structure output.
+  // The backend returns structure.clausesA and structure.clausesB as arrays of
+  // ExtractedClause objects. We pass them through as ClauseRecords for the
+  // new inline diff evidence UI.
+  const mapClauses = (arr: any[]): CompareClauseRecord[] =>
+    arr.map((c: any) => ({
+      id: c.id ?? "",
+      title: c.title ?? "",
+      text: c.text ?? "",
+      position: typeof c.position === "number" ? c.position : undefined,
+      sectionPath: Array.isArray(c.sectionPath) ? c.sectionPath : undefined,
+      pageNumber: typeof c.pageNumber === "number" ? c.pageNumber : undefined,
+    }));
+
+  const clausesA: CompareClauseRecord[] = mapClauses(
+    raw.structure?.clausesA ?? []
+  );
+  const clausesB: CompareClauseRecord[] = mapClauses(
+    raw.structure?.clausesB ?? []
+  );
+
+  return { executiveSummary, risks, differences, alignment, originalFileName, revisedFileName, sessionId, clausesA, clausesB, pdfFiles };
 }

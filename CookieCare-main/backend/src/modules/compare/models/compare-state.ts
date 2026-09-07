@@ -45,12 +45,41 @@ export interface ExtractedClause {
    * Used by Phase 2 (ClauseAlignment) to prefer structurally adjacent matches.
    */
   sectionPath: string[];
+  /**
+   * 1-indexed PDF page number on which this clause starts.
+   * Populated only for PDF documents — undefined for DOCX/TXT.
+   * Derived from pageBreaks emitted by extractText during PDF parsing.
+   */
+  pageNumber?: number;
 }
 
 // ─── Phase 2: Clause Alignment ───────────────────────────────────────────────
 
 export type AlignmentType = "exact" | "semantic" | "unmatched";
 export type AlignmentStatus = "matched" | "added" | "removed" | "restructured";
+
+/**
+ * Structure-first alignment relationship.
+ *
+ * Ordinary MATCH/MOVED are 1:1. SPLIT/MERGED are the only relationships
+ * allowed to consume the same clause on more than one pair.
+ * UNCERTAIN means correspondence could not be established — it is NOT a
+ * confirmed legal addition or deletion.
+ */
+export type AlignmentRelationship =
+  | "MATCH"
+  | "ADDED"
+  | "REMOVED"
+  | "MOVED"
+  | "SPLIT"
+  | "MERGED"
+  | "UNCERTAIN";
+
+export type AlignmentMethod =
+  | "structural"
+  | "structural+semantic"
+  | "semantic"
+  | "fallback";
 
 export interface AlignedPair {
   /** Stable pair identifier: "pair-{index}" */
@@ -75,6 +104,15 @@ export interface AlignedPair {
   alignmentReason: string;
   /** Overall alignment disposition */
   status: AlignmentStatus;
+  /**
+   * Canonical relationship (structure-first contract). Optional so older
+   * fixtures remain valid; pipeline steps always populate it.
+   */
+  relationshipType?: AlignmentRelationship;
+  /** How the relationship was produced. */
+  alignmentMethod?: AlignmentMethod;
+  /** Discrete evidence signals that produced the score/decision. */
+  alignmentReasons?: string[];
 }
 
 // ─── Phase 3: Difference Detection ──────────────────────────────────────────
@@ -93,6 +131,25 @@ export type DiffClassification =
   | "MODIFIED_NARROWER"  // Obligation or scope was narrowed in B relative to A
   | "NEUTRAL_REPHRASE";  // Wording changed but meaning is substantively the same
 
+/** One evidenced obligation/metric/right edit inside a matched clause pair. */
+export type AtomicChangeClassification =
+  | "MODIFIED_BROADER"
+  | "MODIFIED_NARROWER"
+  | "NEUTRAL_REPHRASE";
+
+export interface AtomicChange {
+  /** Normalised snake_case subject, e.g. tls_in_transit. */
+  topic: string;
+  classification: AtomicChangeClassification;
+  /** Factual description of this one change. No risk language. */
+  summary: string;
+  /** Verbatim span copied from original (A) text. */
+  originalSnippet: string;
+  /** Verbatim span copied from modified (B) text. */
+  modifiedSnippet: string;
+  confidence: number;
+}
+
 export interface ClauseDifference {
   /** References the AlignedPair.id that produced this pair */
   pairId: string;
@@ -103,6 +160,7 @@ export interface ClauseDifference {
    * One-to-three sentence factual description of what changed.
    * No risk language. No legal opinion. Only semantic observation.
    * Empty string when classification is UNCHANGED, ADDED, or REMOVED.
+   * For LLM-matched pairs this is rolled up from atomic changes.
    */
   semanticSummary: string;
   /** Confidence in the classification — 0.0 to 1.0 */
@@ -115,6 +173,12 @@ export interface ClauseDifference {
    * - "fallback"    — LLM failed; deterministic fallback applied
    */
   detectionMethod: "identical" | "similarity" | "llm" | "fallback";
+  /**
+   * Independent evidenced edits inside this pair. Empty for deterministic
+   * ADDED/REMOVED/UNCHANGED/UNCERTAIN paths and when no concrete change
+   * can be quoted from both sides.
+   */
+  changes?: AtomicChange[];
 }
 
 // ─── Phase 4: Risk Analysis ───────────────────────────────────────────────────
@@ -194,6 +258,13 @@ export interface CompareState {
     textB: string;
     metaA: DocumentMeta;
     metaB: DocumentMeta;
+    /**
+     * Cumulative character offsets (in normalised textA) where each new page
+     * begins. pageBreaksA[0] is always 0 (start of page 1).
+     * Only populated for PDF documents — undefined for DOCX/TXT.
+     */
+    pageBreaksA?: number[];
+    pageBreaksB?: number[];
   } | null;
 
   // ── Phase 1: structure extraction outputs ─────────────────────────────────
