@@ -101,6 +101,76 @@ export const delawareJurisdictionSkill: AnalysisSkillConfig = {
   ],
   regimeRules: RULES,
   regimeRuleIds: RULES.map((r) => r.ruleId),
+  evidencePackages: [
+    {
+      // "de.public_policy_noncompete" deliberately excluded: whether a
+      // Delaware choice-of-law clause improperly evades another state's
+      // non-compete policy turns on facts outside the four corners of the
+      // contract (where the restrained party actually lives/works), not on
+      // anything the contract text alone can prove or contradict. Left on
+      // the judgment-only path rather than authoring a proof standard the
+      // text can't actually satisfy.
+      id: "de.structural_review",
+      requirementIds: ["de.choice_of_law_2708", "de.forum_exclusivity", "de.ueta_esign"],
+      capabilityIds: ["de.choice_of_law_2708", "de.forum_exclusivity", "de.ueta_esign"],
+      clauseTypes: ["governing_law", "electronic_signature"],
+      extractionTargets: ["choice_of_law_clause", "forum_selection_clause", "esign_clause"],
+      requirementEvidence: {
+        "de.choice_of_law_2708": {
+          hypothesis:
+            "The agreement selects Delaware law to govern in language that qualifies for 6 Del. C. §2708(a)'s deeming provision — a written choice-of-law clause in a contract, agreement, or undertaking covering not less than $100,000 in the aggregate.",
+          evidenceHints: ["governed by the laws of the State of Delaware", "choice of law", "6 Del. C.", "2708"],
+          proofStandard:
+            "Proven only by an express written clause selecting Delaware law to " +
+            "govern the agreement. A choice-of-law clause naming a different state, " +
+            "or one that is silent on governing law entirely, does not satisfy this. " +
+            "Note in the finding (do not treat as a proof failure) when the " +
+            "agreement's stated value cannot be confirmed to meet the $100,000 " +
+            "aggregate threshold that §2708(a)'s deeming provision requires — that " +
+            "is a scope caveat on the statute's applicability, not evidence against " +
+            "the clause itself.",
+        },
+        "de.forum_exclusivity": {
+          hypothesis:
+            "Where the agreement pairs Delaware governing law with a Delaware forum, the forum-selection clause expressly states that the named Delaware forum is exclusive.",
+          evidenceHints: ["exclusive jurisdiction", "sole and exclusive forum", "irrevocably submit", "courts of the State of Delaware"],
+          proofStandard:
+            "Proven only by text expressly using an exclusivity term (e.g. 'exclusive " +
+            "jurisdiction,' 'sole and exclusive forum') when naming the Delaware " +
+            "forum. A forum clause that merely states the parties 'consent to' or " +
+            "'submit to' jurisdiction in Delaware, without an exclusivity term, does " +
+            "NOT satisfy this — under Delaware UETA/forum practice, a forum clause is " +
+            "not exclusive unless expressly stated, so non-exclusive or ambiguous " +
+            "language is a gap. If the agreement contains no Delaware forum clause " +
+            "at all (governing law only, no forum selection), this proposition is not " +
+            "raised — treat as not applicable.",
+        },
+        "de.ueta_esign": {
+          hypothesis:
+            "The agreement treats electronic signatures and records as having the same legal effect as original wet-ink signatures, with no general wet-ink or seal requirement for this ordinary commercial contract.",
+          evidenceHints: ["electronic signature", "same force and effect", "counterparts", "wet ink", "original signature"],
+          proofStandard:
+            "Proven only by text either (a) expressly permitting electronic " +
+            "execution with the same effect as an original (e.g. a standard " +
+            "'counterparts/electronic signature' boilerplate clause), or (b) " +
+            "containing no clause requiring wet-ink or original manual signature. " +
+            "Contradicted by text expressly requiring an original, manually-signed, " +
+            "or notarized/sealed signature for what is an ordinary commercial " +
+            "contract with no statutory seal requirement.",
+        },
+      },
+      sourceMode: "authored",
+      packageVersion: "1.0.0",
+      label: "Delaware jurisdiction overlay review",
+      orchestration: {
+        role: "structural_review",
+        suppressWhenMatrixFocus: true,
+      },
+      report: {
+        sections: ["executive_summary", "key_findings", "material_gaps", "conclusion"],
+      },
+    },
+  ],
   comparativeChecks: [
     {
       checkId: "de.non_compete_reasonableness",

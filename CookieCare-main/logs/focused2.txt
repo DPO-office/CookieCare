@@ -1,0 +1,41 @@
+▶ DSR graded schemas → Partial on one-limb hit
+  ✔ resolves art21_objection to a multi-element authored schema (1.6324ms)
+  ✔ marks Art 21 Partial when only the LI objection limb is supported (1.5901ms)
+  ✔ marks Art 17 Partial when mid-term erasure is present but Art 17(2) notice is missing when applicable (0.6153ms)
+  ✔ marks Art 22 not_applicable when both ADM limbs are not_applicable (0.3968ms)
+✔ DSR graded schemas → Partial on one-limb hit (6.4945ms)
+[Analysis PAC] 15:19:01.206 PLAN package resolution packages=[1] requirementToPackageId={"R_alpha":"gdpr.art28.particulars","subject_matter":"gdpr.art28.particulars","duration":"gdpr.art28.particulars","nature_purpose":"gdpr.art28.particulars","data_categories":"gdpr.art28.particulars","data_subject_categories":"gdpr.art28.particulars","controller_obligations_rights":"gdpr.art28.particulars"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:19:01.211 PLAN package resolution packages=[0] requirementToPackageId={} requirementPaths=[0] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:19:01.217 PLAN package resolution packages=[1] requirementToPackageId={"gdpr.article15.access":"gdpr.dsr.rights_verification","art12_3_response_timeframe":"gdpr.dsr.rights_verification","art15_access":"gdpr.dsr.rights_verification","art16_rectification":"gdpr.dsr.rights_verification","art17_erasure":"gdpr.dsr.rights_verification","art18_restriction":"gdpr.dsr.rights_verification","art19_recipient_notification":"gdpr.dsr.rights_verification","art20_portability":"gdpr.dsr.rights_verification","art21_objection":"gdpr.dsr.rights_verification","art22_automated_decisions":"gdpr.dsr.rights_verification"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[1]
+▶ stampRequirementIdsOnNewFindings
+  ✔ stamps single-requirement work unit onto new findings (1.4304ms)
+  ✔ fans one finding out into N findings when unit binds N requirements (0.4384ms)
+  ✔ does not overwrite an already-tagged finding (0.1971ms)
+  ✔ passes through unchanged when unit has no requirementIds (0.1494ms)
+  ✔ never mutates carry-over findings from earlier handlers (0.2044ms)
+✔ stampRequirementIdsOnNewFindings (3.9216ms)
+▶ stampFindingsByCapability
+  ✔ stamps per-finding using the category lookup (0.6283ms)
+  ✔ leaves unmapped findings orphaned (no guessing) (0.2159ms)
+  ✔ passes through when no mappings are supplied (0.16ms)
+✔ stampFindingsByCapability (1.3199ms)
+▶ requirementIdsForCapability
+  ✔ returns all requirements bound to a capability (0.9841ms)
+✔ requirementIdsForCapability (1.1411ms)
+▶ groupedResultsToFindings preserves requirementId (package regression)
+  ✔ tags every emitted finding with the source requirementId (2.0281ms)
+✔ groupedResultsToFindings preserves requirementId (package regression) (2.1695ms)
+▶ PLAN stamps requirementIds on rule/matrix/risk work units
+  ✔ stamps rule check_against_rule units with their owning requirementIds (9.2901ms)
+  ✔ passes requirementMappings on flag_risk units so per-finding stamping works (1.7135ms)
+  ✔ derives matrix-row ownership from matching article numbers when mappings are package-level (5.3444ms)
+✔ PLAN stamps requirementIds on rule/matrix/risk work units (16.5939ms)
+ℹ tests 17
+ℹ suites 6
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2033.2921
+DONE

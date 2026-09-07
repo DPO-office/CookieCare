@@ -1,0 +1,5 @@
+
+> cookiecare-backend@0.0.0 lint:skills
+> node --import ./node_modules/tsx/dist/loader.mjs src/modules/analysis/skills/runtime/lint/run-lint-skill-parity.ts
+
+[lint-skill-parity] ok

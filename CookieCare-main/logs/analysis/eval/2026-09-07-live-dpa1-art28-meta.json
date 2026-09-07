@@ -1,0 +1,10 @@
+{
+  "promptId": "art28",
+  "prompt": "Perform a rigorous GDPR Article 28 compliance review of this Data Processing Agreement. Verify: subject matter, duration, nature and purpose of processing, categories of data and data subjects, obligations and rights of the controller, and whether all mandatory Article 28(3) clauses are present and adequate.",
+  "document": "C:\\Users\\abhinav.yadav_randst\\Downloads\\DPA Templates-20260907T045915Z-1-001\\DPA Templates\\DPA - 1.pdf",
+  "mode": "lite",
+  "jobId": "3a0df03a-a9ca-4af9-a508-9e914c11af02",
+  "sessionId": "an_093ce4f3-44eb-4e80-b258-f5c146774607",
+  "status": "completed",
+  "elapsedMs": 1553
+}

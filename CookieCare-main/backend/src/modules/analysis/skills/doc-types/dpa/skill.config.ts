@@ -264,10 +264,176 @@ export const dpaDocTypeSkill: AnalysisSkillConfig = {
         "subprocessor_list",
         "deletion_terms",
         "transfer_mechanism",
+        "security_assistance",
+        "staff_confidentiality",
       ],
+      // Structural presence only — not Art 28 / Chapter V adequacy (those live in
+      // regimes/data-protection/gdpr and international-transfers).
+      requirementEvidence: {
+        "dpa.subject_matter_defined": {
+          hypothesis:
+            "The DPA defines or annexes the subject matter of the processing — what personal-data processing activity the processor is engaged to perform.",
+          evidenceHints: [
+            "subject matter",
+            "applies to the processing",
+            "processing of personal data",
+            "services",
+            "offerings",
+            "statement of work",
+            "annex",
+          ],
+          proofStandard:
+            "Proven only by text stating what personal-data processing activity or " +
+            "service this DPA covers (e.g. processing in connection with named " +
+            "Offerings or Services). A bare definition of 'Personal Data' or " +
+            "'Processing', or a recital about the parties' commercial relationship " +
+            "with no processing activity named, does not establish subject matter. " +
+            "A cross-reference to an Offer/SOW/Order Form counts only if that " +
+            "referenced document itself states the subject matter — a bare pointer " +
+            "with no confirmation the target contains it is a dependency, not proof.",
+        },
+        "dpa.duration_defined": {
+          hypothesis:
+            "The DPA states how long processing lasts — a term, a link to the principal agreement's term, or another duration.",
+          evidenceHints: [
+            "duration",
+            "term",
+            "period",
+            "for the duration",
+            "in force",
+            "termination",
+            "end of services",
+          ],
+          proofStandard:
+            "Proven only by text stating how long the processing continues — an " +
+            "explicit term (e.g. 'for the duration of the Agreement'), a fixed " +
+            "period, or an end condition tied to a specific event. Termination " +
+            "rights, notice periods, or post-termination deletion timelines alone " +
+            "do NOT establish duration unless they also state or clearly reference " +
+            "the active processing term. Silence on duration is a gap, not proof.",
+        },
+        "dpa.nature_and_purpose_defined": {
+          hypothesis:
+            "The DPA describes both the nature (what is done with the data) and the purpose (why) of the processing.",
+          evidenceHints: [
+            "nature",
+            "purpose",
+            "processing activities",
+            "business purpose",
+            "provision of",
+            "schedule",
+            "annex",
+          ],
+          proofStandard:
+            "Proven only when the text describes BOTH what activities are performed " +
+            "on the data (nature — e.g. storage, hosting, transmission, analysis) " +
+            "AND why (purpose — e.g. to provide the contracted services). Nature " +
+            "without purpose, or purpose without nature, is partial, not present. " +
+            "A generic 'Processor will process data in accordance with the " +
+            "Agreement' statement describes neither and does not count.",
+        },
+        "dpa.subprocessor_flowdown_present": {
+          hypothesis:
+            "The DPA addresses whether subprocessors may be used and that processor obligations flow down to them.",
+          evidenceHints: [
+            "subprocessor",
+            "sub-processor",
+            "subcontractor",
+            "prior written authorisation",
+            "flow-down",
+            "same obligations",
+            "subprocessor list",
+          ],
+          proofStandard:
+            "Proven only by text that (a) addresses whether the processor may engage " +
+            "subprocessors and (b) states that data-protection obligations flow down " +
+            "to them (or an equivalent contractual imposition). A bare definition of " +
+            "'Subprocessor' with no engagement/flow-down mechanics is insufficient. " +
+            "Silence on subprocessors entirely is a gap. This is a structural " +
+            "presence check — it does not judge Art 28(2)/(4) authorisation adequacy.",
+        },
+        "dpa.deletion_on_termination_present": {
+          hypothesis:
+            "The DPA states whether personal data is returned or deleted when the processing ends.",
+          evidenceHints: [
+            "delete",
+            "deletion",
+            "return",
+            "upon termination",
+            "end of processing",
+            "destroy",
+            "at the choice of the controller",
+          ],
+          proofStandard:
+            "Proven only by text stating a post-termination (or end-of-processing) " +
+            "handling outcome for personal data — return, deletion/destruction, or " +
+            "controller choice between those. A mid-term data-subject erasure right " +
+            "alone does not satisfy this structural termination-handling check. " +
+            "Silence on return/deletion at end of processing is a gap, not proof.",
+        },
+        "dpa.security_and_dpia_assistance_present": {
+          hypothesis:
+            "The DPA contains a security or DPIA-assistance section — technical and organisational measures, or assistance with security assessments — as a structural heading.",
+          evidenceHints: [
+            "technical and organisational measures",
+            "security measures",
+            "TOM",
+            "DPIA",
+            "data protection impact assessment",
+            "security assistance",
+            "Annex",
+          ],
+          proofStandard:
+            "Proven only by text that includes a dedicated security / TOM section or " +
+            "an express assistance duty for security assessments or DPIAs (including " +
+            "by annex/schedule of measures). A bare 'comply with applicable law' " +
+            "recital with no security or assistance section does not count. This " +
+            "check is structural presence only — it does not judge Art 32 adequacy.",
+        },
+        "dpa.international_transfer_mechanism_present": {
+          hypothesis:
+            "The DPA identifies, as a structural matter, whether a cross-border transfer or localisation mechanism is present (named module, annex, SCCs/IDTA reference, or transfer restriction).",
+          evidenceHints: [
+            "international transfer",
+            "cross-border",
+            "standard contractual clauses",
+            "SCC",
+            "IDTA",
+            "transfer mechanism",
+            "localisation",
+            "adequacy",
+          ],
+          proofStandard:
+            "Proven only by text that structurally identifies a transfer/localisation " +
+            "mechanism — e.g. named SCCs/IDTA module or annex, an express transfer " +
+            "restriction, or a stated localisation commitment. Silence on transfers " +
+            "entirely is a gap for this structural placeholder check. This does NOT " +
+            "evaluate Chapter V / Schrems adequacy — that lives in the international-" +
+            "transfers regime skill.",
+        },
+        "dpa.confidentiality_of_staff_present": {
+          hypothesis:
+            "The DPA states that persons authorised to process personal data are under a confidentiality duty.",
+          evidenceHints: [
+            "confidentiality",
+            "confidentiality obligation",
+            "authorised persons",
+            "personnel",
+            "employees",
+            "bound to confidentiality",
+            "statutory obligation of confidentiality",
+          ],
+          proofStandard:
+            "Proven only by text obligating persons authorised to process personal " +
+            "data to confidentiality (contractual or statutory). A general NDA " +
+            "between the corporate parties about commercial confidential information, " +
+            "with no duty on authorised processing personnel, does NOT satisfy this. " +
+            "Silence on staff/authorised-person confidentiality is a gap, not proof.",
+        },
+      },
       sourceMode: "authored",
       requirementKinds: ["adequacy"],
-      packageVersion: "0.1.0",
+      packageVersion: "1.0.0",
       label: "DPA structural review",
       orchestration: {
         role: "structural_review",

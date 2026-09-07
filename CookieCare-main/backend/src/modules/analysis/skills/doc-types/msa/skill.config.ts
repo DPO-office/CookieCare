@@ -126,6 +126,80 @@ export const msaDocTypeSkill: AnalysisSkillConfig = {
   ],
   regimeRules: RULES,
   regimeRuleIds: RULES.map((r) => r.ruleId),
+  evidencePackages: [
+    {
+      id: "msa.structural_review",
+      requirementIds: RULES.map((r) => r.ruleId),
+      capabilityIds: RULES.map((r) => r.ruleId),
+      clauseTypes: ["sow_hierarchy", "acceptance", "intellectual_property", "limitation_of_liability"],
+      extractionTargets: ["sow_hierarchy", "acceptance_window", "work_product_ownership", "liability_cap"],
+      requirementEvidence: {
+        "msa.sow_hierarchy": {
+          hypothesis:
+            "The MSA governs all statements of work issued under it and prevails over conflicting SOW terms unless a SOW expressly identifies the MSA section it overrides.",
+          evidenceHints: ["order of precedence", "conflict", "statement of work", "prevails", "governs"],
+          proofStandard:
+            "Proven only by text stating an explicit order of precedence under which " +
+            "the MSA controls over a conflicting SOW, with any override mechanism " +
+            "requiring the SOW to expressly identify the MSA provision it displaces " +
+            "(not a bare 'the SOW governs' silence). A precedence clause running the " +
+            "other way (SOW controls over MSA on conflict) or an agreement silent on " +
+            "precedence entirely does not satisfy this.",
+        },
+        "msa.acceptance_window": {
+          hypothesis:
+            "The customer has an explicit inspection/testing window before a deliverable is accepted and payment becomes due, rather than deliverables being deemed accepted automatically on delivery.",
+          evidenceHints: ["acceptance", "inspection period", "testing window", "deemed accepted", "days to review"],
+          proofStandard:
+            "Proven only by text stating a specific inspection/testing period during " +
+            "which the customer may accept or reject a deliverable before payment is " +
+            "due. Contradicted by text stating a deliverable is deemed accepted " +
+            "immediately, automatically, or 'upon delivery' with no customer review " +
+            "window. Silence on acceptance entirely is a gap, not proof.",
+        },
+        "msa.work_product_ownership": {
+          hypothesis:
+            "Custom deliverables and work product created for the customer vest in the customer upon payment, with the vendor retaining only its own pre-existing background IP and granting the customer a license to any pre-existing IP embedded in the deliverables.",
+          evidenceHints: ["work product", "deliverables", "vests in", "assigns", "background ip", "pre-existing ip"],
+          proofStandard:
+            "Proven only by text that assigns or vests ownership of custom deliverables " +
+            "in the customer (typically upon payment), while separately preserving " +
+            "vendor ownership of its own background/pre-existing IP and granting the " +
+            "customer a license to use any such background IP embedded in the " +
+            "deliverables. Text that has the vendor retain ownership of custom " +
+            "deliverables and merely license them to the customer does NOT satisfy " +
+            "this — that is the contradicting position this element is checking for.",
+        },
+        "msa.liability_cap_baseline": {
+          hypothesis:
+            "The limitation of liability is mutual and capped at no less than approximately 12 months' fees (or one times annual contract value), with named carve-outs (typically uncapped or super-capped) for IP infringement, confidentiality breach, and gross negligence or willful misconduct.",
+          evidenceHints: ["limitation of liability", "aggregate liability", "12 months", "fees paid", "carve-out", "gross negligence"],
+          proofStandard:
+            "Proven only by text stating a liability cap that (a) applies MUTUALLY to " +
+            "both parties (not solely limiting the vendor's liability while leaving " +
+            "the customer uncapped, or vice versa), (b) is set at a numeric level " +
+            "equal to or greater than approximately 12 months' fees paid or payable " +
+            "(or an equivalent ACV-based formulation), and (c) names carve-outs from " +
+            "the cap for at least IP infringement, confidentiality breach, and gross " +
+            "negligence/willful misconduct. A unilateral cap protecting only the " +
+            "vendor, or a cap below the 12-month baseline with no stated carve-outs, " +
+            "is a gap, not proof. An uncapped liability clause with no named carve-out " +
+            "structure at all does not by itself prove this specific, structured " +
+            "baseline either.",
+        },
+      },
+      sourceMode: "authored",
+      packageVersion: "1.0.0",
+      label: "MSA structural review",
+      orchestration: {
+        role: "structural_review",
+        suppressWhenMatrixFocus: true,
+      },
+      report: {
+        sections: ["executive_summary", "key_findings", "material_gaps", "recommendations", "conclusion"],
+      },
+    },
+  ],
   relatedChecks: [
     {
       primary: "acceptance",

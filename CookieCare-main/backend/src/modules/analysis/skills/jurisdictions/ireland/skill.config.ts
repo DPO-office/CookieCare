@@ -76,6 +76,55 @@ export const irelandJurisdictionSkill: AnalysisSkillConfig = {
   ],
   regimeRules: RULES,
   regimeRuleIds: RULES.map((r) => r.ruleId),
+  evidencePackages: [
+    {
+      id: "ie.structural_review",
+      requirementIds: ["ie.eca_eidas_esign", "ie.companies_act_s43_seal"],
+      capabilityIds: ["ie.eca_eidas_esign", "ie.companies_act_s43_seal"],
+      clauseTypes: ["electronic_signature", "execution_formalities"],
+      extractionTargets: ["esign_clause", "seal_execution_clause"],
+      requirementEvidence: {
+        "ie.eca_eidas_esign": {
+          hypothesis:
+            "Where the document is executed electronically, the document is not one of the categories excluded from standard electronic signature (a document requiring a seal, statutory witnessing, or one concerning an interest in real property) or, if it is, the execution uses an advanced electronic signature or wet-ink rather than a standard e-signature.",
+          evidenceHints: ["electronic signature", "eIDAS", "advanced electronic signature", "seal", "witness", "real property"],
+          proofStandard:
+            "Proven only where either (a) the document is executed electronically AND " +
+            "is not a seal document, a statutorily-witnessed document, or a real-" +
+            "property instrument, or (b) it IS one of those excluded categories AND " +
+            "the execution language specifies an advanced electronic signature (or " +
+            "wet-ink) rather than a standard e-signature platform with no such " +
+            "qualification. Contradicted by a standard e-signature execution block " +
+            "applied to a document that is itself described as requiring a seal, a " +
+            "statutory witness, or as conveying/assigning an interest in real " +
+            "property, with no advanced-signature or wet-ink qualification.",
+        },
+        "ie.companies_act_s43_seal": {
+          hypothesis:
+            "Where the company seal is used to execute this instrument, the execution block reflects that the seal's use was authorised by a prior board resolution.",
+          evidenceHints: ["common seal", "affixed", "board resolution", "duly authorised"],
+          proofStandard:
+            "Proven only where the execution block uses the company seal AND " +
+            "recites or otherwise confirms board authorisation for that use (e.g. " +
+            "'the common seal of the Company was affixed in the presence of, and " +
+            "pursuant to a resolution of, the board of directors'). A seal-execution " +
+            "block with no reference to board authorisation at all is a gap, not " +
+            "proof. If the document is not sealed (ordinary signature execution " +
+            "only), this proposition is not raised — treat as not applicable.",
+        },
+      },
+      sourceMode: "authored",
+      packageVersion: "1.0.0",
+      label: "Ireland jurisdiction overlay review",
+      orchestration: {
+        role: "structural_review",
+        suppressWhenMatrixFocus: true,
+      },
+      report: {
+        sections: ["executive_summary", "key_findings", "material_gaps", "conclusion"],
+      },
+    },
+  ],
   comparativeChecks: [
     {
       checkId: "ie.non_compete_reasonableness",

@@ -1,0 +1,811 @@
+[Analysis PAC] 15:21:40.158 PLAN package resolution packages=[2] requirementToPackageId={"termination.balance":"open_analysis.facet_1","liability.cap":"open_analysis.facet_2","open.facet_1.p1":"open_analysis.facet_1","open.facet_1.p2":"open_analysis.facet_1","open.facet_2.p1":"open_analysis.facet_2"} requirementPaths=[2] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:40.196 PLAN package resolution packages=[2] requirementToPackageId={"international_transfers.sccs":"international_transfer_evaluation","international_transfers.supplementary_measures":"international_transfer_evaluation","international_transfers.destinations":"international_transfer_evaluation","international_data_transfer":"international_transfer_inventory","transfer_inventory":"international_transfer_inventory","transfer_mechanism_identification":"international_transfer_evaluation","schrems_supplementary_measures":"international_transfer_evaluation"} requirementPaths=[3] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:40.207 PLAN package resolution packages=[2] requirementToPackageId={"international_data_transfer":"international_transfer_inventory","transfer_mechanism_identification":"international_transfer_evaluation","transfer_inventory":"international_transfer_inventory","schrems_supplementary_measures":"international_transfer_evaluation"} requirementPaths=[2] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:40.213 PLAN package resolution packages=[2] requirementToPackageId={"international_data_transfer":"international_transfer_inventory","transfer_mechanism_identification":"international_transfer_evaluation","transfer_inventory":"international_transfer_inventory","schrems_supplementary_measures":"international_transfer_evaluation"} requirementPaths=[2] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:40.222 PLAN package resolution packages=[1] requirementToPackageId={"international_data_transfer":"international_transfer_inventory","transfer_inventory":"international_transfer_inventory"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:40.239 PLAN package resolution packages=[1] requirementToPackageId={"scc_reference":"international_transfer_inventory","bcr_reference":"international_transfer_inventory","adequacy":"international_transfer_inventory","schrems_ii":"international_transfer_inventory","third_country_transfers":"international_transfer_inventory","international_data_transfer":"international_transfer_inventory","transfer_inventory":"international_transfer_inventory"} requirementPaths=[5] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:40.242 PLAN package resolution packages=[1] requirementToPackageId={"cross_border_safeguards":"international_transfer_inventory","international_data_transfer":"international_transfer_inventory","transfer_inventory":"international_transfer_inventory"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:40.257 PLAN package resolution packages=[1] requirementToPackageId={"audit_right":"gdpr.dsr.rights_verification","art12_3_response_timeframe":"gdpr.dsr.rights_verification","art15_access":"gdpr.dsr.rights_verification","art16_rectification":"gdpr.dsr.rights_verification","art17_erasure":"gdpr.dsr.rights_verification","art18_restriction":"gdpr.dsr.rights_verification","art19_recipient_notification":"gdpr.dsr.rights_verification","art20_portability":"gdpr.dsr.rights_verification","art21_objection":"gdpr.dsr.rights_verification","art22_automated_decisions":"gdpr.dsr.rights_verification"} requirementPaths=[1] leftoverRuleIds=[1] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:40.262 PLAN package resolution packages=[0] requirementToPackageId={} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:40.264 PLAN package resolution packages=[0] requirementToPackageId={} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:40.271 PLAN package resolution packages=[2] requirementToPackageId={"gdpr.article28.data_categories_and_subjects":"gdpr.art28.particulars","gdpr.article28.processor_obligations":"gdpr.art28.3.mandatory_clauses","subject_matter":"gdpr.art28.particulars","duration":"gdpr.art28.particulars","nature_purpose":"gdpr.art28.particulars","data_categories":"gdpr.art28.particulars","data_subject_categories":"gdpr.art28.particulars","controller_obligations_rights":"gdpr.art28.particulars","art28_3_a_instructions":"gdpr.art28.3.mandatory_clauses","art28_3_b_confidentiality":"gdpr.art28.3.mandatory_clauses","art28_3_c_security":"gdpr.art28.3.mandatory_clauses","art28_3_d_subprocessors":"gdpr.art28.3.mandatory_clauses","art28_3_e_dsr_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_f_security_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_g_deletion_return":"gdpr.art28.3.mandatory_clauses","art28_3_h_audit":"gdpr.art28.3.mandatory_clauses","art28_4_subprocessor_flow_down":"gdpr.art28.3.mandatory_clauses"} requirementPaths=[2] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:40.280 PLAN package resolution packages=[2] requirementToPackageId={"gdpr.dpa_compliance":"gdpr.art28.particulars","subject_matter":"gdpr.art28.particulars","duration":"gdpr.art28.particulars","nature_purpose":"gdpr.art28.particulars","data_categories":"gdpr.art28.particulars","data_subject_categories":"gdpr.art28.particulars","controller_obligations_rights":"gdpr.art28.particulars","art28_3_a_instructions":"gdpr.art28.3.mandatory_clauses","art28_3_b_confidentiality":"gdpr.art28.3.mandatory_clauses","art28_3_c_security":"gdpr.art28.3.mandatory_clauses","art28_3_d_subprocessors":"gdpr.art28.3.mandatory_clauses","art28_3_e_dsr_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_f_security_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_g_deletion_return":"gdpr.art28.3.mandatory_clauses","art28_3_h_audit":"gdpr.art28.3.mandatory_clauses","art28_4_subprocessor_flow_down":"gdpr.art28.3.mandatory_clauses"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:40.291 PLAN package resolution packages=[2] requirementToPackageId={"gdpr.article28.categories_data_and_subjects":"gdpr.dsr.rights_verification","subject_matter":"gdpr.art28.particulars","duration":"gdpr.art28.particulars","nature_purpose":"gdpr.art28.particulars","data_categories":"gdpr.art28.particulars","data_subject_categories":"gdpr.art28.particulars","controller_obligations_rights":"gdpr.art28.particulars","art12_3_response_timeframe":"gdpr.dsr.rights_verification","art15_access":"gdpr.dsr.rights_verification","art16_rectification":"gdpr.dsr.rights_verification","art17_erasure":"gdpr.dsr.rights_verification","art18_restriction":"gdpr.dsr.rights_verification","art19_recipient_notification":"gdpr.dsr.rights_verification","art20_portability":"gdpr.dsr.rights_verification","art21_objection":"gdpr.dsr.rights_verification","art22_automated_decisions":"gdpr.dsr.rights_verification"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:40.305 PLAN package resolution packages=[1] requirementToPackageId={"art28_3_a_instructions":"gdpr.art28.3.mandatory_clauses","art28_3_b_confidentiality":"gdpr.art28.3.mandatory_clauses","art28_3_c_security":"gdpr.art28.3.mandatory_clauses","art28_3_d_subprocessors":"gdpr.art28.3.mandatory_clauses","art28_3_e_dsr_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_f_security_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_g_deletion_return":"gdpr.art28.3.mandatory_clauses","art28_3_h_audit":"gdpr.art28.3.mandatory_clauses","art28_4_subprocessor_flow_down":"gdpr.art28.3.mandatory_clauses"} requirementPaths=[0] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:40.313 PLAN package resolution packages=[2] requirementToPackageId={"subject_matter":"gdpr.art28.particulars","duration":"gdpr.art28.particulars","nature_purpose":"gdpr.art28.particulars","data_categories":"gdpr.art28.particulars","data_subject_categories":"gdpr.art28.particulars","controller_obligations_rights":"gdpr.art28.particulars","art28_3_a_instructions":"gdpr.art28.3.mandatory_clauses","art28_3_b_confidentiality":"gdpr.art28.3.mandatory_clauses","art28_3_c_security":"gdpr.art28.3.mandatory_clauses","art28_3_d_subprocessors":"gdpr.art28.3.mandatory_clauses","art28_3_e_dsr_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_f_security_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_g_deletion_return":"gdpr.art28.3.mandatory_clauses","art28_3_h_audit":"gdpr.art28.3.mandatory_clauses","art28_4_subprocessor_flow_down":"gdpr.art28.3.mandatory_clauses"} requirementPaths=[0] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:40.314 PLAN package resolution packages=[2] requirementToPackageId={"subject_matter":"gdpr.art28.particulars","duration":"gdpr.art28.particulars","nature_purpose":"gdpr.art28.particulars","data_categories":"gdpr.art28.particulars","data_subject_categories":"gdpr.art28.particulars","controller_obligations_rights":"gdpr.art28.particulars","art28_3_a_instructions":"gdpr.art28.3.mandatory_clauses","art28_3_b_confidentiality":"gdpr.art28.3.mandatory_clauses","art28_3_c_security":"gdpr.art28.3.mandatory_clauses","art28_3_d_subprocessors":"gdpr.art28.3.mandatory_clauses","art28_3_e_dsr_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_f_security_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_g_deletion_return":"gdpr.art28.3.mandatory_clauses","art28_3_h_audit":"gdpr.art28.3.mandatory_clauses","art28_4_subprocessor_flow_down":"gdpr.art28.3.mandatory_clauses"} requirementPaths=[0] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:40.328 PLAN package resolution packages=[2] requirementToPackageId={"subject_matter":"gdpr.art28.particulars","duration":"gdpr.art28.particulars","nature_purpose":"gdpr.art28.particulars","data_categories":"gdpr.art28.particulars","data_subject_categories":"gdpr.art28.particulars","controller_obligations_rights":"gdpr.art28.particulars","art28_3_a_instructions":"gdpr.art28.3.mandatory_clauses","art28_3_b_confidentiality":"gdpr.art28.3.mandatory_clauses","art28_3_c_security":"gdpr.art28.3.mandatory_clauses","art28_3_d_subprocessors":"gdpr.art28.3.mandatory_clauses","art28_3_e_dsr_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_f_security_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_g_deletion_return":"gdpr.art28.3.mandatory_clauses","art28_3_h_audit":"gdpr.art28.3.mandatory_clauses","art28_4_subprocessor_flow_down":"gdpr.art28.3.mandatory_clauses"} requirementPaths=[0] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:40.334 PLAN package resolution packages=[0] requirementToPackageId={} requirementPaths=[3] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+▶ compound runtime facet packages
+  ✔ selects each facet by explicit alias and preserves facet bindings (29.271ms)
+✔ compound runtime facet packages (33.0896ms)
+▶ kinded analysis packages - international transfers
+  ✔ binds the live Q13 SCCs, measures, and destinations requirements one-to-one (21.3882ms)
+  ✔ selects inventory + evaluation and does not fan out Chapter V rule checks (19.3638ms)
+  ✔ inventory-only instruction does not schedule Chapter V evaluation (5.471ms)
+  ✔ auto-pairs the transfers overlay for an international-transfer DPA review (5.3746ms)
+  ✔ privacy library path makes transfers overlay available (2.1963ms)
+  ✔ resolves catalog-style extraction ids to inventory via semanticTopics, not Chapter V rules (7.7292ms)
+  ✔ matches unaliased extraction ids when requirement text hits a package topic (3.7765ms)
+  ✔ does not auto-pair transfers for a DSR-only instruction (3.2016ms)
+✔ kinded analysis packages - international transfers (71.3306ms)
+▶ kinded analysis packages — named rule vs unsupported extraction
+  ✔ audit-right verification uses the Article 28 evaluation package, not inventory (11.3354ms)
+  ✔ unsupported extraction is explicit not_supported, not silent rule fan-out (4.6326ms)
+✔ kinded analysis packages — named rule vs unsupported extraction (16.8806ms)
+▶ kinded analysis packages - existing GDPR grouped eval
+  ✔ prefers explicit requirement-package mappings over a broad doc-type semantic match (6.615ms)
+  ✔ runs both Article 28 component packages for the live Q3 overall umbrella (9.9447ms)
+  ✔ binds the live Q4 combined data/categories row to exactly its two natives (9.5839ms)
+  ✔ still groups Article 28(3) into evaluate_package (13.415ms)
+  ✔ absorbs leftover Art 28.1/2/10 into package context and does not schedule competing rules or flag_risk (20.4635ms)
+  ✔ does not schedule leftover checks for out-of-scope catalog rules (2.8673ms)
+✔ kinded analysis packages - existing GDPR grouped eval (64.0437ms)
+▶ doc-type DPA — broad analysis without regime packages
+  ✔ selects doc-types/dpa for a DPA doc-type hint and instruction (2.1455ms)
+  ✔ schedules structural checks instead of only aggregate when requirements are unmapped (3.9853ms)
+✔ doc-type DPA — broad analysis without regime packages (6.6482ms)
+▶ subprovisionKeyFromId
+  ✔ isolates lettered and paragraph keys (5.0236ms)
+✔ subprovisionKeyFromId (9.1197ms)
+▶ findingsLinkedToRequirement
+  ✔ does not attach a deletion finding to confidentiality or chapeau rows (10.243ms)
+  ✔ still joins unstamped matrix findings to a whole-article requirement (2.169ms)
+✔ findingsLinkedToRequirement (13.2026ms)
+▶ aggregateRequirements lettered isolation
+  ✖ does not copy a sibling letter's status onto another letter (15.0144ms)
+✖ aggregateRequirements lettered isolation (15.6821ms)
+▶ humanizeRequirementId
+  ✔ prints lettered ids as Art n(m)(x) rather than Art28 3 A (2.294ms)
+✔ humanizeRequirementId (2.8463ms)
+▶ canonical requirement aggregation (Art 28 PLAN bleed)
+  ✔ preserves native child assessments for a broad package umbrella (16.5506ms)
+  ✔ does not mark a broad parent Strong when bound component evaluation is incomplete (2.9091ms)
+  ✔ attaches native duration Present to PLAN duration and ignores unstamped Art 28 risks (8.7231ms)
+  ✔ still joins unstamped matrix findings to a whole-article requirement (2.2292ms)
+  ✔ collapses live PLAN spellings onto native findings without orphan empty rows (3.5693ms)
+✔ canonical requirement aggregation (Art 28 PLAN bleed) (40.4201ms)
+▶ analysis capability contracts
+  ✔ defines exactly one internally consistent contract per operation (5.0797ms)
+  ✔ keeps focused Q&A lean, compositional, and free of adjacent checks (0.5455ms)
+  ✔ keeps compliance requirement-isolated and on the authored regime path (1.3013ms)
+  ✔ keeps risk and comparison output semantics separate (0.7943ms)
+  ✔ does not force summary through proposition verification (0.878ms)
+✔ analysis capability contracts (18.5016ms)
+▶ runMechanicalScan
+  ✔ returns the three authored outcomes for a synthetic rule (6.0403ms)
+  ✔ preserves authored GDPR Art 12(3) copy for the same three outcomes (6.1813ms)
+  ✔ does nothing when a rule did not opt into mechanicalScan (0.6677ms)
+✔ runMechanicalScan (17.3684ms)
+▶ deriveSections — compare archetype
+  ✔ gives compare a side-by-side shape, not a compliance matrix (6.0071ms)
+  ✔ keeps a short direct-answer shape for a narrow comparison question (0.7381ms)
+✔ deriveSections — compare archetype (12.6544ms)
+▶ compare rendering — pairs side_a/side_b back into one comparison
+  ✔ groups paired findings by compareGroup and labels both sides (5.0771ms)
+  ✔ names a side as not established rather than dropping it silently (0.9313ms)
+  ✔ surfaces comparison material into the lead answer section in the compare lane (0.8508ms)
+✔ compare rendering — pairs side_a/side_b back into one comparison (8.0011ms)
+◇ injected env (34) from ..\.env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+▶ compliance evidence and execution boundary
+  ✔ excludes an explicitly controller-to-controller section from a processor package (7.0724ms)
+  ✔ authors the Article 28 scope in skill data rather than the generic handler (5.2139ms)
+  ✔ retrieves with positive evidence language rather than proof-standard traps (1.5991ms)
+  ✔ preserves a verified partial child when covered siblings are aggregated (4.3483ms)
+  ✔ uses an explicit partial label only for compliance reports (6.5384ms)
+  ✔ embeds status emoji so copy/print/export keep the severity marker (4.133ms)
+  ✔ keeps a verifier timeout operational instead of presenting it as a contract gap (11.2001ms)
+  ✔ does not change legacy status wording when no execution failure is stamped (1.1051ms)
+  ✔ separates incomplete execution from insufficient document evidence in rollups (1.7343ms)
+✔ compliance evidence and execution boundary (49.228ms)
+▶ DSR graded schemas → Partial on one-limb hit
+  ✔ resolves art21_objection to a multi-element authored schema (4.1252ms)
+  ✔ marks Art 21 Partial when only the LI objection limb is supported (3.0771ms)
+  ✔ marks Art 17 Partial when mid-term erasure is present but Art 17(2) notice is missing when applicable (1.4506ms)
+  ✔ marks Art 22 not_applicable when both ADM limbs are not_applicable (0.8897ms)
+✔ DSR graded schemas → Partial on one-limb hit (14.3477ms)
+▶ generic matrix row metadata
+  ✔ stamps authored findingCategory / preferredClauseTypes / regimeLabel on all GDPR rows (12.2499ms)
+  ✔ applies the authored automated-decision gate with the previous copy (4.4262ms)
+  ✔ builds a CPRA prompt with no GDPR string (5.8148ms)
+  ✔ caps JSON completion output and keeps the judgment prompt short (35.7882ms)
+  ✔ maps an exact matrix quote back to a verbatim source substring (2.53ms)
+  ✔ replaces an ellipsized matrix quote with a contiguous source excerpt (2.2929ms)
+  ✔ rejects paraphrased evidence instead of manufacturing a locator (1.4318ms)
+  ✔ keeps multi-clause matrix support as separately grounded evidence (3.5036ms)
+  ✔ drops an invented clause id while retaining independently valid support (0.9934ms)
+  ✔ never dumps more than MATRIX_ROW_MAX_CLAUSES and truncates clause text (8.5638ms)
+  ✔ times out a hung completion without waiting for it (25.7786ms)
+✔ generic matrix row metadata (111.7582ms)
+▶ resolveAllowedRequirementId
+  ✔ maps PLAN Art 28 aliases onto PLAN-shaped canonical ids (3.3343ms)
+  ✖ maps package-native ids to PLAN-shaped canonicals (9.7008ms)
+  ✔ rejects unrelated ids so they become missing-results instead of silent drops (0.9353ms)
+✖ resolveAllowedRequirementId (18.3985ms)
+[Analysis PAC] 15:21:40.626 shared evidence id=wu-shared packageId=pkg.confidentiality clauses=1 matched=1 items=1 chars=2160 truncated=0
+[Analysis PAC] 15:21:40.650 shared evidence id=wu-shared packageId=pkg.confidentiality clauses=1 matched=1 items=1 chars=1200 truncated=1
+[Analysis PAC] 15:21:40.653 shared evidence id=wu-shared packageId=pkg.confidentiality clauses=18 matched=18 items=18 chars=458 truncated=0
+[Analysis PAC] 15:21:40.656 shared evidence id=wu-shared packageId=pkg.confidentiality clauses=2 matched=2 items=2 chars=166 truncated=0
+[Analysis PAC] 15:21:40.658 shared evidence id=wu-shared packageId=pkg.particulars clauses=2 matched=1 items=2 chars=172 truncated=0
+[Analysis PAC] 15:21:40.665 shared evidence id=wu-shared packageId=pkg.confidentiality clauses=22 matched=22 items=22 chars=657 truncated=0
+▶ extractSharedEvidence
+  ✔ passes the complete clause text instead of a 600-character stub (25.4671ms)
+  ✔ forwards truncated and logicalEndOffset onto the bundle item (1.6853ms)
+  ✔ keeps more than 12 matching clauses instead of first-N document order (2.4487ms)
+  ✔ ranks duration language above earlier unrelated processor terms (3.1512ms)
+  ✔ includes termination clauses in a particulars-style pool and ranks them for duration (1.7878ms)
+  ✔ keeps confidentiality and deletion types when processor_terms would fill a 12-item bag (6.0977ms)
+✔ extractSharedEvidence (45.4549ms)
+▶ authored silencePattern
+  ✔ fires the GDPR cost-allocation silence detector on assistance without cost language (10.9618ms)
+  ✔ fires a synthetic non-GDPR silence pattern without any GDPR terms in the handler (1.7559ms)
+✔ authored silencePattern (18.1925ms)
+▶ authored heuristic fallbacks
+  ✔ reproduces the three previous category heuristics from authored metadata (18.7243ms)
+  ✔ runs a synthetic non-GDPR heuristic from category metadata (0.759ms)
+  ✔ collapses the same risk category across clauses to one finding (1.2447ms)
+✔ authored heuristic fallbacks (21.6412ms)
+▶ generic ACT handler domain-coupling lint
+  ✔ forbids regime/doc-type tokens in generic ACT handlers (57.2606ms)
+  ✔ forbids direct regime/doc-type skill imports in ACT handlers and graph builder (35.2926ms)
+✔ generic ACT handler domain-coupling lint (96.9167ms)
+◇ injected env (34) from ..\.env // tip: ⌁ auth for agents [www.vestauth.com]
+▶ generic ACT runtime parity
+  ✔ classifies DPA samples via authored docTypeClassifiers (3.5399ms)
+  ✔ merges GDPR clause heuristics without hardcoding in extract-clauses (11.9345ms)
+  ✔ builds transfer inventory artifacts from fieldSpec metadata (4.8814ms)
+  ✔ resolves renderer hooks from authored rule metadata (2.3596ms)
+  ✔ CCPA skill uses the same generic matrix row shape without regime strings in ACT (1.5012ms)
+✔ generic ACT runtime parity (30.0529ms)
+▶ inventory artifactShape
+  ✔ materializes TransferRecord inventories from typed_records fieldSpec config (24.7304ms)
+  ✔ materializes generic records when artifactShape.kind is records (0.7946ms)
+  ✔ authors artifactShape on the international-transfer inventory package (13.6208ms)
+  ✔ does not contain a hardcoded artifact-type branch string (5.9578ms)
+✔ inventory artifactShape (68.7159ms)
+▶ resolveEvidence packets (recall before VERIFY)
+  ✔ duration: ranks operative processing-term evidence before related retention language (10.0009ms)
+  ✔ confidentiality: does not make adjacent security citeable as confidentiality proof (1.6004ms)
+  ✔ deletion: ranks the end-of-services obligation before retention context (1.3426ms)
+✔ resolveEvidence packets (recall before VERIFY) (33.3567ms)
+▶ candidateRefsByRequirement
+  ✔ does not assign a deletion extract to a confidentiality requirement (2.2435ms)
+  ✔ drops sibling cites that fail overlap (0.8406ms)
+  ✔ keeps an extract that supports two hypotheses (0.7863ms)
+  ✔ recovers candidates when the model cites nothing (0.9098ms)
+  ✔ prefers confidentiality over security for confidentiality hypothesis (1.3479ms)
+  ✔ prefers deletion_on_termination over retention for deletion hypothesis (11.5375ms)
+  ✔ prefers processing-duration language over Argentina retention for duration (1.4508ms)
+  ✔ prefers termination/duration clauses over Nigeria or SCC schedules for duration (1.3213ms)
+✔ candidateRefsByRequirement (32.2873ms)
+[Analysis PAC] 15:21:43.869 PLAN package resolution packages=[1] requirementToPackageId={"art28_3_a_instructions":"gdpr.art28.3.mandatory_clauses","art28_3_b_confidentiality":"gdpr.art28.3.mandatory_clauses","art28_3_c_security":"gdpr.art28.3.mandatory_clauses","art28_3_d_subprocessors":"gdpr.art28.3.mandatory_clauses","art28_3_e_dsr_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_f_security_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_g_deletion_return":"gdpr.art28.3.mandatory_clauses","art28_3_h_audit":"gdpr.art28.3.mandatory_clauses","art28_4_subprocessor_flow_down":"gdpr.art28.3.mandatory_clauses"} requirementPaths=[0] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+▶ locateEvidence
+  ✔ retrieves authored clause types from headings and aliases without an LLM (43.964ms)
+  ✔ marks particulars referenced in another annex as referenced_elsewhere (5.6255ms)
+  ✔ returns not_found when the document has no matching section (3.33ms)
+✔ locateEvidence (58.5752ms)
+▶ collectStrongCatalogShortlist
+  ✔ shortlists Article 28 capabilities and package siblings (7.8684ms)
+  ✔ does not shortlist a broad GDPR review (3.0539ms)
+✔ collectStrongCatalogShortlist (11.8635ms)
+▶ package extract clauseTypes
+  ✔ scopes wu-extract to package clause types instead of the full GDPR taxonomy (59.8089ms)
+✔ package extract clauseTypes (60.5447ms)
+▶ groupedResultsToFindings referenced_elsewhere
+  ✔ does not emit a hard missing finding when evidence is only referenced elsewhere (6.6264ms)
+✔ groupedResultsToFindings referenced_elsewhere (7.3426ms)
+▶ explicit deep depth
+  ✔ does not treat a normal Article 28 verify-request as deep (1.0445ms)
+✔ explicit deep depth (1.4716ms)
+▶ evidence units (logical sections)
+  ✔ keeps a late-in-section operative sentence instead of a clipped prefix (3.1491ms)
+  ✔ merges numbered siblings (3.6 + 3.6.1 + 3.6.2) and stops at 3.7 (2.2597ms)
+  ✔ caps oversized sections with truncated=true and aligned charRange (2.7236ms)
+  ✔ classifies heading-only match reasons (4.0061ms)
+✔ evidence units (logical sections) (13.0552ms)
+▶ groupedResultsToFindings truncated evidence
+  ✔ does not emit a hard missing finding when cited evidence is truncated (3.2436ms)
+  ✔ downgrades present when rationale says extracts do not contain the obligation (1.3093ms)
+  ✔ does not truncate evidence in the middle of a word (0.736ms)
+  ✔ honors a smaller per-item evidence budget (1.0138ms)
+✔ groupedResultsToFindings truncated evidence (7.0371ms)
+▶ LEGAL_MEMO_MARKDOWN_CRAFT
+  ✔ defines selective bold, status-led headings, and bans chatty closers (2.9645ms)
+  ✔ is wired into synthesis and narrative system prompts (0.6758ms)
+  ✔ is included in section guidance for report authors (1.4439ms)
+✔ LEGAL_MEMO_MARKDOWN_CRAFT (9.1564ms)
+[Analysis PAC] 15:21:45.989 PLAN package resolution packages=[1] requirementToPackageId={"art28_3_a_instructions":"gdpr.art28.3.mandatory_clauses","art28_3_b_confidentiality":"gdpr.art28.3.mandatory_clauses","art28_3_c_security":"gdpr.art28.3.mandatory_clauses","art28_3_d_subprocessors":"gdpr.art28.3.mandatory_clauses","art28_3_e_dsr_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_f_security_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_g_deletion_return":"gdpr.art28.3.mandatory_clauses","art28_3_h_audit":"gdpr.art28.3.mandatory_clauses","art28_4_subprocessor_flow_down":"gdpr.art28.3.mandatory_clauses"} requirementPaths=[0] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:46.006 PLAN package resolution packages=[10] requirementToPackageId={"subject_matter":"gdpr.art28.particulars","duration":"gdpr.art28.particulars","nature_purpose":"gdpr.art28.particulars","data_categories":"gdpr.art28.particulars","data_subject_categories":"gdpr.art28.particulars","controller_obligations_rights":"gdpr.art28.particulars","art28_3_a_instructions":"gdpr.art28.3.mandatory_clauses","art28_3_b_confidentiality":"gdpr.art28.3.mandatory_clauses","art28_3_c_security":"gdpr.art28.3.mandatory_clauses","art28_3_d_subprocessors":"gdpr.art28.3.mandatory_clauses","art28_3_e_dsr_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_f_security_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_g_deletion_return":"gdpr.art28.3.mandatory_clauses","art28_3_h_audit":"gdpr.art28.3.mandatory_clauses","art28_4_subprocessor_flow_down":"gdpr.art28.3.mandatory_clauses","art12_3_response_timeframe":"gdpr.dsr.rights_verification","art15_access":"gdpr.dsr.rights_verification","art16_rectification":"gdpr.dsr.rights_verification","art17_erasure":"gdpr.dsr.rights_verification","art18_restriction":"gdpr.dsr.rights_verification","art19_recipient_notification":"gdpr.dsr.rights_verification","art20_portability":"gdpr.dsr.rights_verification","art21_objection":"gdpr.dsr.rights_verification","art22_automated_decisions":"gdpr.dsr.rights_verification","data_subject_rights":"gdpr.dsr.rights_matrix","art32_security":"gdpr.security.breach_and_accountability","art33_2_processor_breach_notice":"gdpr.security.breach_and_accountability","art33_5_breach_documentation":"gdpr.security.breach_and_accountability","art34_individual_notice":"gdpr.security.breach_and_accountability","art35_dpia":"gdpr.security.breach_and_accountability","art36_prior_consultation":"gdpr.security.breach_and_accountability","art5_1_principles":"gdpr.principles.consent_and_accountability","art5_2_accountability":"gdpr.principles.consent_and_accountability","art6_1_lawful_basis":"gdpr.principles.consent_and_accountability","art7_consent_conditions":"gdpr.principles.consent_and_accountability","art24_controller_responsibility":"gdpr.principles.consent_and_accountability","art25_dp_by_design":"gdpr.principles.consent_and_accountability","art26_joint_controllers":"gdpr.principles.consent_and_accountability","art27_eu_representative":"gdpr.principles.consent_and_accountability","art30_ropa":"gdpr.principles.consent_and_accountability","art6_4_purpose_compatibility":"gdpr.transparency.special_categories_and_notices","art8_child_consent":"gdpr.transparency.special_categories_and_notices","art9_special_categories":"gdpr.transparency.special_categories_and_notices","art10_criminal_data":"gdpr.transparency.special_categories_and_notices","art11_1_non_identification":"gdpr.transparency.special_categories_and_notices","art11_2_rights_without_identification":"gdpr.transparency.special_categories_and_notices","art12_1_2_transparent_info":"gdpr.transparency.special_categories_and_notices","art12_4_reasoned_refusal":"gdpr.transparency.special_categories_and_notices","art12_7_privacy_icons":"gdpr.transparency.special_categories_and_notices","art12_5_6_free_requests":"gdpr.transparency.special_categories_and_notices","art13_1_2_direct_collection_notice":"gdpr.transparency.special_categories_and_notices","art13_3_4_new_purpose_notice":"gdpr.transparency.special_categories_and_notices","art14_1_2_indirect_collection_notice":"gdpr.transparency.special_categories_and_notices","art14_3_5_timing_and_exceptions":"gdpr.transparency.special_categories_and_notices","art29_processing_under_authority":"gdpr.governance.dpo_codes_and_processor_extras","art37_dpo_designation":"gdpr.governance.dpo_codes_and_processor_extras","art38_dpo_position":"gdpr.governance.dpo_codes_and_processor_extras","art39_1_dpo_tasks":"gdpr.governance.dpo_codes_and_processor_extras","art40_3_code_transfer_commitments":"gdpr.governance.dpo_codes_and_processor_extras","art42_2_certification_transfer_commitments":"gdpr.governance.dpo_codes_and_processor_extras","art44_general_transfer_principle":"gdpr.chapter5.transfers","art45_1_adequacy":"gdpr.chapter5.transfers","art46_appropriate_safeguards":"gdpr.chapter5.transfers","art47_binding_corporate_rules":"gdpr.chapter5.transfers","art48_foreign_disclosure_orders":"gdpr.chapter5.transfers","art49_transfer_derogations":"gdpr.chapter5.transfers","art77_1_complaint_right":"gdpr.remedies.and_safeguards","art79_judicial_remedy":"gdpr.remedies.and_safeguards","art80_1_mandated_representative":"gdpr.remedies.and_safeguards","art82_compensation_liability":"gdpr.remedies.and_safeguards","art89_1_research_safeguards":"gdpr.remedies.and_safeguards"} requirementPaths=[0] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:46.010 PLAN package resolution packages=[2] requirementToPackageId={"my_dsr_requirement":"gdpr.art28.3.mandatory_clauses","art28_3_a_instructions":"gdpr.art28.3.mandatory_clauses","art28_3_b_confidentiality":"gdpr.art28.3.mandatory_clauses","art28_3_c_security":"gdpr.art28.3.mandatory_clauses","art28_3_d_subprocessors":"gdpr.art28.3.mandatory_clauses","art28_3_e_dsr_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_f_security_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_g_deletion_return":"gdpr.art28.3.mandatory_clauses","art28_3_h_audit":"gdpr.art28.3.mandatory_clauses","art28_4_subprocessor_flow_down":"gdpr.art28.3.mandatory_clauses","data_subject_rights":"gdpr.dsr.rights_matrix"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:46.024 PLAN package resolution packages=[1] requirementToPackageId={"open.p1":"open_analysis"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:46.032 PLAN package resolution packages=[2] requirementToPackageId={"art28_3_a_instructions":"gdpr.art28.3.mandatory_clauses","art28_3_b_confidentiality":"gdpr.art28.3.mandatory_clauses","art28_3_c_security":"gdpr.art28.3.mandatory_clauses","art28_3_d_subprocessors":"gdpr.art28.3.mandatory_clauses","art28_3_e_dsr_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_f_security_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_g_deletion_return":"gdpr.art28.3.mandatory_clauses","art28_3_h_audit":"gdpr.art28.3.mandatory_clauses","art28_4_subprocessor_flow_down":"gdpr.art28.3.mandatory_clauses","data_subject_rights":"gdpr.dsr.rights_matrix"} requirementPaths=[0] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:46.036 PLAN package resolution packages=[1] requirementToPackageId={"art28_3_a_instructions":"gdpr.art28.3.mandatory_clauses","art28_3_b_confidentiality":"gdpr.art28.3.mandatory_clauses","art28_3_c_security":"gdpr.art28.3.mandatory_clauses","art28_3_d_subprocessors":"gdpr.art28.3.mandatory_clauses","art28_3_e_dsr_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_f_security_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_g_deletion_return":"gdpr.art28.3.mandatory_clauses","art28_3_h_audit":"gdpr.art28.3.mandatory_clauses","art28_4_subprocessor_flow_down":"gdpr.art28.3.mandatory_clauses"} requirementPaths=[0] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+▶ package resolution
+  ✔ selects the Article 28(3) package when a member rule is in focus (24.4237ms)
+  ✔ runs every authored package when the focus requests nothing specific (4.4438ms)
+  ✔ maps PLAN requirements to a package through requirement mappings (3.5891ms)
+✔ package resolution (37.5611ms)
+▶ package graph shape
+  ✔ uses the lean verified graph for focused Q&A (16.325ms)
+  ✔ emits shared-evidence, grouped eval, derive-risk and aggregate units (4.1987ms)
+  ✔ unions rule appliesToClauseTypes onto mandatory shared-evidence clauseTypes (3.2427ms)
+  ✔ still unions rule types when the package list is stale (1.6492ms)
+✔ package graph shape (26.9986ms)
+▶ per-requirement aggregation
+  ✔ derives one assessment per requirement with deterministic status (15.0069ms)
+  ✔ links rule findings via Finding.requirementId (no capability guessing) (1.5637ms)
+  ✔ does NOT attach unrelated findings when a requirement has no matches (1.7893ms)
+  ✔ recommends Obtain/Confirm, not Amend, when evidence is only insufficient (1.489ms)
+✔ per-requirement aggregation (20.9674ms)
+◇ injected env (34) from ..\.env // tip: ⌘ override existing { override: true }
+▶ Phase 3 applicability reconciliation
+  ✔ routes direct extraction Q&A through the open proposition spine (3.4605ms)
+  ✔ keeps explicit regime compliance checks on the authored catalog path (0.6798ms)
+  ✔ skips broad PLAN inventory for focused Q&A but keeps it for survey operations (1.1493ms)
+  ✔ recognizes different jurisdictions as distinct scopes (1.212ms)
+  ✔ recognizes a main rule and express exception as distinct scopes (0.6742ms)
+  ✔ does not invent a scope split when VERIFY supplied no scope evidence (0.5321ms)
+  ✔ retains enclosing section headings as generic applicability context (6.6211ms)
+  ✔ preserves grounded Q&A evidence when relevant passages have distinct scopes (3.7978ms)
+  ✔ extends a verified quote fragment to a real source boundary (1.1885ms)
+✔ Phase 3 applicability reconciliation (25.3438ms)
+▶ Phase 3 polarity and perspective channels
+  ✔ normalizes risk, control, compliance, and neutral findings without prompt-specific ids (2.5723ms)
+  ✔ a high-severity protective control cannot inflate a compliant row's materiality (3.2255ms)
+  ✔ a related-only risk cannot enter the primary risk lane (0.4987ms)
+✔ Phase 3 polarity and perspective channels (7.2719ms)
+▶ render limitations report
+  ✔ withhold report does not leak pre-render body (6.2634ms)
+  ✔ partial release inserts skill/package limitations after Bottom Line (2.4157ms)
+  ✔ partial release without skill/package gaps leaves body unchanged (0.8056ms)
+✔ render limitations report (15.9636ms)
+◇ injected env (33) from ..\.env // tip: ⌘ enable debugging { debug: true }
+▶ render output NDA safety
+  ✔ selectRenderer chooses memo for NDA structural review not brief_summary GDPR path (3908.8394ms)
+  ✔ sanitizeRenderedOutput strips internal routing diagnostics (2119.411ms)
+  ✔ sanitizeRenderedOutput moves conclusion last for any memo (4.1584ms)
+✔ render output NDA safety (6039.0745ms)
+▶ deriveSections
+  ✔ places scope first and conclusion last for deep compliance memos (2.7744ms)
+  ✔ uses brief scope + conclusion for narrow depth (3.6427ms)
+  ✔ uses answer-first evidence for narrow Q&A (0.4099ms)
+✔ deriveSections (11.0527ms)
+▶ report section guidance
+  ✔ expands legacy combined section (1.3861ms)
+  ✔ places conclusion last when expanding legacy combined section among analysis sections (2.7822ms)
+  ✔ forces conclusion last even when authored out of order (1.679ms)
+  ✔ collapses executive_summary/scope and limitations/qualifications aliases (0.6817ms)
+  ✔ guides the writer to separate scope from conclusion (2.5485ms)
+  ✔ moves front-loaded conclusion before references for any report (3.5808ms)
+  ✔ keeps coverage limitations after conclusion (0.96ms)
+  ✔ detects flexible section headings in rendered output (7.8339ms)
+  ✔ includes section architecture in synthesis prompt without BLUF-at-top instruction (12.9894ms)
+✔ report section guidance (37.7914ms)
+[Analysis PAC] 15:21:46.380 PLAN package resolution packages=[0] requirementToPackageId={} requirementPaths=[0] leftoverRuleIds=[1] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:46.397 PLAN package resolution packages=[0] requirementToPackageId={} requirementPaths=[0] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:46.414 PLAN package resolution packages=[1] requirementToPackageId={"gdpr.article15.access":"gdpr.dsr.rights_verification","art12_3_response_timeframe":"gdpr.dsr.rights_verification","art15_access":"gdpr.dsr.rights_verification","art16_rectification":"gdpr.dsr.rights_verification","art17_erasure":"gdpr.dsr.rights_verification","art18_restriction":"gdpr.dsr.rights_verification","art19_recipient_notification":"gdpr.dsr.rights_verification","art20_portability":"gdpr.dsr.rights_verification","art21_objection":"gdpr.dsr.rights_verification","art22_automated_decisions":"gdpr.dsr.rights_verification"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[1]
+▶ stampRequirementIdsOnNewFindings
+  ✔ stamps single-requirement work unit onto new findings (4.0503ms)
+  ✔ fans one finding out into N findings when unit binds N requirements (0.9992ms)
+  ✔ does not overwrite an already-tagged finding (0.6602ms)
+  ✔ passes through unchanged when unit has no requirementIds (0.6333ms)
+  ✔ never mutates carry-over findings from earlier handlers (0.8846ms)
+✔ stampRequirementIdsOnNewFindings (12.2088ms)
+▶ stampFindingsByCapability
+  ✔ stamps per-finding using the category lookup (1.9076ms)
+  ✔ leaves unmapped findings orphaned (no guessing) (0.6498ms)
+  ✔ passes through when no mappings are supplied (0.6209ms)
+✔ stampFindingsByCapability (4.31ms)
+▶ requirementIdsForCapability
+  ✔ returns all requirements bound to a capability (2.7511ms)
+✔ requirementIdsForCapability (3.3529ms)
+▶ groupedResultsToFindings preserves requirementId (package regression)
+  ✔ tags every emitted finding with the source requirementId (5.4797ms)
+✔ groupedResultsToFindings preserves requirementId (package regression) (5.9247ms)
+▶ PLAN stamps requirementIds on rule/matrix/risk work units
+  ✔ stamps rule check_against_rule units with their owning requirementIds (36.6205ms)
+  ✔ passes requirementMappings on flag_risk units so per-finding stamping works (4.2654ms)
+  ✔ derives matrix-row ownership from matching article numbers when mappings are package-level (22.0756ms)
+✔ PLAN stamps requirementIds on rule/matrix/risk work units (63.74ms)
+▶ deriveRequirementStatus
+  ✔ returns cannot_determine when there are no findings (4.9279ms)
+  ✔ returns adequate when every element is present without a substantial quote (3.0722ms)
+  ✔ returns gap when there is a gap and nothing supporting (0.594ms)
+  ✔ returns conditional when some elements are present and others absent (0.6934ms)
+  ✔ returns conditional when supported but weakened by insufficient evidence (0.6201ms)
+  ✔ returns cannot_determine when evidence is only insufficient (12.089ms)
+  ✔ returns cannot_determine when the claim only points at an annex or SOW without binding coverage (1.5223ms)
+  ✔ returns conditional when a Named matrix row still carries an implementation gap (0.9404ms)
+  ✔ never promotes generic matrix coverage to Strong (0.9134ms)
+  ✔ keeps Present compliance when a medium risk annotation is also linked (1.3722ms)
+✔ deriveRequirementStatus (32.9309ms)
+▶ displayRequirementStatus
+  ✔ maps the 5-tier vocab to counsel-facing labels (0.9962ms)
+✔ displayRequirementStatus (1.4197ms)
+▶ deriveSections — operation-aware archetype (Part 3a)
+  ✔ gives risk_flag a risk-narrative shape, not a compliance matrix (4.9565ms)
+  ✔ keeps a short direct-answer shape for a narrow risk question (0.5438ms)
+  ✔ leaves the default (compliance) shape unchanged when operation is absent (0.6315ms)
+  ✔ does not divert a compliance_check to the risk archetype (0.7287ms)
+✔ deriveSections — operation-aware archetype (Part 3a) (12.0386ms)
+▶ risk rendering — confirmed vs. checked-not-a-risk (Part 3b)
+  ✔ lists contradicted risk propositions as reassurance, never as risks (4.1292ms)
+  ✔ surfaces the risk material into the lead answer section in the risk lane (0.8711ms)
+✔ risk rendering — confirmed vs. checked-not-a-risk (Part 3b) (5.9323ms)
+▶ static alias table drift (live Cisco baseline, 2026-08-29)
+  ✔ has no umbrella for the live PLAN-authored merged subject_matter+duration id (4.2361ms)
+  ✔ orphans two correctly-evidenced present findings under the merged PLAN id (real repro) (7.1139ms)
+  ✔ control: the table DOES bridge a merge someone already anticipated (categories) (2.7946ms)
+✔ static alias table drift (live Cisco baseline, 2026-08-29) (18.7553ms)
+[Analysis PAC] 15:21:47.366 PLAN inject authoredRequirements count=6 ids=nda.confidentiality_definition,nda.purpose_limitation,nda.return_or_destruction,nda.nlra_section_7,nda.term_and_survival,nda.governing_law
+[Analysis PAC] 15:21:47.394 PLAN package resolution packages=[1] requirementToPackageId={"nda.confidentiality_definition":"nda.structural_review","nda.purpose_limitation":"nda.structural_review","nda.return_or_destruction":"nda.structural_review","nda.nlra_section_7":"nda.structural_review","nda.term_and_survival":"nda.structural_review","nda.governing_law":"nda.structural_review"} requirementPaths=[6] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:47.401 PLAN inject authoredRequirements count=8 ids=dpa.subject_matter_defined,dpa.duration_defined,dpa.nature_and_purpose_defined,dpa.subprocessor_flowdown_present,dpa.deletion_on_termination_present,dpa.security_and_dpia_assistance_present,dpa.international_transfer_mechanism_present,dpa.confidentiality_of_staff_present
+[Analysis PAC] 15:21:47.406 PLAN package resolution packages=[1] requirementToPackageId={"dpa.subject_matter_defined":"dpa.structural_review","dpa.duration_defined":"dpa.structural_review","dpa.nature_and_purpose_defined":"dpa.structural_review","dpa.subprocessor_flowdown_present":"dpa.structural_review","dpa.deletion_on_termination_present":"dpa.structural_review","dpa.security_and_dpia_assistance_present":"dpa.structural_review","dpa.international_transfer_mechanism_present":"dpa.structural_review","dpa.confidentiality_of_staff_present":"dpa.structural_review"} requirementPaths=[8] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:47.409 PLAN inject authoredRequirements count=6 ids=nda.confidentiality_definition,nda.purpose_limitation,nda.return_or_destruction,nda.nlra_section_7,nda.term_and_survival,nda.governing_law
+[Analysis PAC] 15:21:47.415 PLAN package resolution packages=[1] requirementToPackageId={"nda.confidentiality_definition":"nda.structural_review","nda.purpose_limitation":"nda.structural_review","nda.return_or_destruction":"nda.structural_review","nda.nlra_section_7":"nda.structural_review","nda.term_and_survival":"nda.structural_review","nda.governing_law":"nda.structural_review"} requirementPaths=[6] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+▶ structural-review package selection
+  ✔ selects nda.structural_review for injected NDA requirements (37.5211ms)
+  ✔ selects dpa.structural_review for injected DPA requirements (6.8366ms)
+✔ structural-review package selection (48.266ms)
+▶ structural-review ACT graph
+  ✔ emits the package evaluation path for a broad NDA review, not rule fan-out (11.0201ms)
+  ✔ resolves every NDA structural_review capabilityId to an authored regime rule (1.9047ms)
+  ✔ resolves every DPA structural_review capabilityId to an authored regime rule (1.9684ms)
+✔ structural-review ACT graph (16.0553ms)
+▶ structural-review requirementId (Point 1 regression)
+  ✔ grouped findings and assessments stay 1:1 with authored NDA requirements (28.3763ms)
+✔ structural-review requirementId (Point 1 regression) (29.0686ms)
+▶ groupAssessmentsForReport
+  ✔ collapses overlapping sale/share requirements into one theme (22.7803ms)
+  ✔ marks mixed coverage in a group as conditional (1.1485ms)
+✔ groupAssessmentsForReport (37.6258ms)
+▶ deriveRequirementStatus referenced-elsewhere language
+  ✔ does not treat annex/cross-reference gaps as missing (4.9608ms)
+✔ deriveRequirementStatus referenced-elsewhere language (5.5266ms)
+▶ synthesis user prompt
+  ✔ structures the brief around the user request and theme groups (5.8505ms)
+  ✔ uses reportSpec.outline to drive analysis subsections (2.619ms)
+✔ synthesis user prompt (9.2528ms)
+▶ evaluate-package prompt
+  ✔ tells the model not to treat extraction misses as missing (3.4393ms)
+  ✔ forbids missing and Amend when evidence is truncated or heading-only (0.922ms)
+  ✔ partitions evidence so duration cannot see sibling retention extracts (0.9305ms)
+  ✔ includes an authored proof standard in grouped package evaluation (0.5225ms)
+✔ evaluate-package prompt (6.8403ms)
+▶ synthesis prompt - incomplete evidence
+  ✔ forbids Amend from cannot_determine or truncated quotes (0.8368ms)
+  ✔ forbids a fully-complete conclusion when particulars live in a schedule (0.3748ms)
+✔ synthesis prompt - incomplete evidence (1.5574ms)
+▶ per-section synthesis prompt
+  ✔ includes only mapped assessments and instructs a top-level H2 (7.8128ms)
+  ✔ enforces a table-first contract when answerStyle is tabular (2.4877ms)
+  ✔ uses a scannable markdown contract for narrative Q&A (0.996ms)
+  ✔ uses a numbered-list contract for narrative rights-matrix sections (1.0868ms)
+✔ per-section synthesis prompt (13.1176ms)
+◇ injected env (34) from ..\.env // tip: ⌁ auth for agents [www.vestauth.com]
+▶ validateFindings — requirement-id stamping (ACT-Phase 1)
+  ✔ fails a user-facing compliance finding with no requirementId (4.2662ms)
+  ✔ fails a user-facing risk finding with no requirementId (1.0259ms)
+  ✔ passes when requirementId is present (0.7011ms)
+  ✔ does not require requirementId on internal-visibility findings (0.744ms)
+  ✔ does not require requirementId on extraction/summary_point kinds (0.7679ms)
+✔ validateFindings — requirement-id stamping (ACT-Phase 1) (12.2244ms)
+◇ injected env (34) from ..\.env // tip: ◈ secrets for agents [www.dotenvx.com]
+▶ grounding audit
+  ✔ keeps a present finding whose quote appears in the source (21.146ms)
+  ✔ downgrades a present finding whose quote is not in the source (2.0529ms)
+  ✔ ACT-Phase 9: does not re-check a verifiedByProposition finding's quote against the source (1.2414ms)
+  ✔ still downgrades a non-verified finding's fabricated quote alongside a verified one (1.4847ms)
+  ✔ downgrades matrix findings that lack matrixRowId (3.1022ms)
+  ✔ does not let 28(3)(a)-(h) share an identical quote (10.9308ms)
+  ✖ downgrades covered-like assessments with no supporting present finding (30.4175ms)
+  ✔ routes lite ACT to DONE and deep ACT to AUDIT (1.111ms)
+✖ grounding audit (83.245ms)
+[Analysis PAC] 15:21:47.159 critique cause=unsatisfiable_under_skills requirementId=nda.confidentiality_definition reason=No package
+▶ coverage and alignment
+  ✔ accepts package-native child findings referenced by a PLAN umbrella assessment (17.6059ms)
+  ✔ matches PLAN and locked assessments through canonical requirement identity (1.3576ms)
+  ✔ marks covered NDA requirement when assessment and finding exist (0.8893ms)
+  ✔ detects wrong execution shape when inventory package planned but only rules ran (2.1187ms)
+  ✔ detects scope creep when Article 29 scheduled under Article 28-only scope (1.4295ms)
+  ✔ allows matrix-linked Art 28 assistance when Arts 15-22 matrix rows are in focus (1.1188ms)
+  ✔ detects wrong package when requirement is not_supported (4.8949ms)
+✔ coverage and alignment (33.7678ms)
+▶ placeholder detection
+  ✔ detects known placeholder phrases (10.4216ms)
+  ✔ detects all-not_covered assessments (0.8713ms)
+  ✔ passes substantive output (0.6437ms)
+✔ placeholder detection (16.7174ms)
+▶ release decision
+  ✔ releases when coverage complete and structure valid (3.1666ms)
+  ✔ releases with limitations when soft coverage gaps exist but memo body is shippable (0.7551ms)
+  ✔ withholds on placeholder output and maps to blocked (2.8974ms)
+  ✔ partial release maps to green_partial (0.8386ms)
+✔ release decision (12.04ms)
+▶ validateReportSpec
+  ✔ treats scope as satisfied by BLUF bottom-line (6.1475ms)
+  ✔ accepts the compact BLUF renderer as a semantic ReportSpec projection (1.013ms)
+  ✔ requests retrySectionIds for a missing outline heading (5.6003ms)
+  ✔ requests retrySectionIds for an empty outline section body (1.7231ms)
+✔ validateReportSpec (19.0145ms)
+[Analysis PAC] 15:21:50.559 PLAN package resolution packages=[1] requirementToPackageId={"nda.confidentiality_definition":"nda.structural_review","nda.purpose_limitation":"nda.structural_review","nda.return_or_destruction":"nda.structural_review","nda.nlra_section_7":"nda.structural_review","nda.term_and_survival":"nda.structural_review","nda.governing_law":"nda.structural_review"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:50.565 PLAN package resolution packages=[0] requirementToPackageId={} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:50.566 critique cause=unsatisfiable_under_skills requirementId=gdpr.article28.3.completeness reason=No analysis package for coverage requirement "gdpr.article28.3.completeness"
+[Analysis PAC] 15:21:50.577 PLAN package resolution packages=[1] requirementToPackageId={"nda.confidentiality_definition":"nda.structural_review","nda.purpose_limitation":"nda.structural_review","nda.return_or_destruction":"nda.structural_review","nda.nlra_section_7":"nda.structural_review","nda.term_and_survival":"nda.structural_review","nda.governing_law":"nda.structural_review"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:50.582 package-shape repair injected=2 flagged=3 packages=1 paths=1
+[Analysis PAC] 15:21:50.586 PLAN package resolution packages=[0] requirementToPackageId={} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:50.588 package-shape repair skipped: unsatisfiable under current skills requirements=[1] packages=0
+▶ targeted repair classification and package-shape
+  ✔ emits targeted_redo for wrong_execution_shape (13.6046ms)
+  ✔ emits targeted_redo for not_supported when current skills can run a package (24.1295ms)
+  ✔ does not loop on GDPR not_supported when only NDA skills are active (4.1128ms)
+  ✔ keeps replan when package skill is not active (1.1172ms)
+  ✔ targeted_redo + fixPlan → ACT; alignment replan → PLAN (0.837ms)
+  ✔ applyPackageShapeRepair injects evaluate_package and preserves unrelated findings (13.3451ms)
+  ✔ package-shape repair is a no-op when the requirement stays unsupported (5.6564ms)
+✔ targeted repair classification and package-shape (68.0235ms)
+[Analysis PAC] 15:21:50.964 PLAN package resolution packages=[1] requirementToPackageId={"req.compliance":"runtime.facet_1","native.facet_1":"runtime.facet_1"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:50.982 PLAN package resolution packages=[1] requirementToPackageId={"req.playbook":"runtime.facet_2","native.facet_2":"runtime.facet_2"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:50.984 PLAN package resolution packages=[1] requirementToPackageId={"req.risk":"runtime.facet_3","native.facet_3":"runtime.facet_3"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:51.084 PLAN package resolution packages=[1] requirementToPackageId={"gdpr.article28.processor_obligations":"gdpr.art28.3.mandatory_clauses","art28_3_a_instructions":"gdpr.art28.3.mandatory_clauses","art28_3_b_confidentiality":"gdpr.art28.3.mandatory_clauses","art28_3_c_security":"gdpr.art28.3.mandatory_clauses","art28_3_d_subprocessors":"gdpr.art28.3.mandatory_clauses","art28_3_e_dsr_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_f_security_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_g_deletion_return":"gdpr.art28.3.mandatory_clauses","art28_3_h_audit":"gdpr.art28.3.mandatory_clauses","art28_4_subprocessor_flow_down":"gdpr.art28.3.mandatory_clauses"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:51.089 PLAN package resolution packages=[1] requirementToPackageId={"req.playbook":"runtime.facet_2","native.facet_2":"runtime.facet_2"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:51.091 PLAN package resolution packages=[1] requirementToPackageId={"req.risk":"runtime.facet_3","native.facet_3":"runtime.facet_3"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:51.098 PLAN package resolution packages=[1] requirementToPackageId={"req.compliance":"runtime.facet_1","native.facet_1":"runtime.facet_1"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:51.099 PLAN package resolution packages=[1] requirementToPackageId={"req.playbook":"runtime.facet_2","native.facet_2":"runtime.facet_2"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:51.102 PLAN package resolution packages=[1] requirementToPackageId={"req.risk":"runtime.facet_3","native.facet_3":"runtime.facet_3"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:51.108 PLAN package resolution packages=[1] requirementToPackageId={"req.compliance":"runtime.facet_1","native.facet_1":"runtime.facet_1"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:51.109 PLAN package resolution packages=[1] requirementToPackageId={"req.playbook":"runtime.facet_2","native.facet_2":"runtime.facet_2"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:51.110 PLAN package resolution packages=[2] requirementToPackageId={"req.risk":"runtime.facet_3","req.negotiation":"runtime.facet_4","native.facet_3":"runtime.facet_3","native.facet_4":"runtime.facet_4"} requirementPaths=[2] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:51.158 MERGE branch facetId=facet_1 operation=compliance_check status=complete evidence=0 findings=0 validation=ok modelCalls=0 tokens=0 ms=0 cacheHits=0 failedLayer=none timeoutReason=none
+[Analysis PAC] 15:21:51.160 MERGE branch facetId=facet_2 operation=compliance_check status=incomplete evidence=0 findings=0 validation=missing_or_too_short modelCalls=0 tokens=0 ms=0 cacheHits=0 failedLayer=ACT timeoutReason=none
+[Analysis PAC] 15:21:51.161 MERGE done branches=2 complete=1 incomplete=1
+✔ compound planning creates isolated operation branches and shares preparation (107.5696ms)
+✔ mixed compliance and playbook requirements normalize into separate branches (2.1668ms)
+✔ comparison-typed risk requirements do not inherit the playbook (0.4947ms)
+✔ generic ranked-risk wording bounds the investigation breadth (1.0261ms)
+✔ real authored compliance package stays in its branch beside open compare and risk packages (43.7996ms)
+✔ duplicate equivalent sub-intents reuse one investigation (9.8048ms)
+✔ negotiation drafting is derived from an existing risk investigation (7.6822ms)
+✔ LOCK cannot use a sibling playbook branch finding (6.5356ms)
+✔ adaptive timeout respects Lite and Deep caps (18.0319ms)
+✔ merge keeps a successful branch when a sibling branch fails (22.231ms)
+▶ derive-report-outline has no hardcoded GDPR clusters
+  ✔ does not contain CHAPEAU_REQ_IDS, MANDATORY_REQ_IDS, or Art 28 strings (34.2002ms)
+✔ derive-report-outline has no hardcoded GDPR clusters (39.5391ms)
+▶ deriveReportOutline
+  ✔ splits Art 28 particulars and mandatory clauses into separate analysis items (10.1189ms)
+  ✔ does not inject recommendations or qualifications unless the spec lists them (15.4259ms)
+  ✔ emits extras as top-level sections with authored sectionId (1.1539ms)
+  ✔ returns scope + conclusion only for narrow depth (1.5088ms)
+  ✔ creates additional analysis items for remaining requirements (3.0071ms)
+  ✖ does not place pkg.subject_matter_defined under a subject_matter extra (22.1133ms)
+  ✔ does not explode leftover requirements into many theme sections when extras exist (2.9492ms)
+  ✔ builds analysis sections for multi-requirement qa_answer (not scope+conclusion only) (1.4316ms)
+  ✔ keeps compound sub-asks in distinct report sections (1.5288ms)
+✖ deriveReportOutline (70.1656ms)
+▶ documentRoles clarification — human labels and parseable answers
+  ✔ labels each option with the user's uploaded filename, not the docId (17.0166ms)
+  ✔ falls back to the docId as the label only when no title was supplied (1.1018ms)
+  ✔ round-trips a composed per-document answer back into request.documentRoles (4.566ms)
+✔ documentRoles clarification — human labels and parseable answers (28.0275ms)
+▶ explicit result caps
+  ✔ parses common top/first/most cardinality language (6.546ms)
+  ✔ does not turn general depth language into a result cap (3.0437ms)
+  ✔ rejects unsafe or nonsensical caps (0.7916ms)
+✔ explicit result caps (15.1094ms)
+▶ presentation heuristics
+  ✔ detects tabular and narrative asks (5.0404ms)
+  ✔ heuristicClassify honors an explicit table ask (1.7684ms)
+✔ presentation heuristics (11.9771ms)
+▶ follow-up kind
+  ✔ treats format-only follow-ups as presentation changes (5.4632ms)
+  ✔ treats short clarifying questions as conversational Q&A (1.8031ms)
+  ✔ treats a new analytical ask as new analysis (0.51ms)
+  ✔ treats can-you-also-check follow-ups as new analysis, not conversational Q&A (0.7758ms)
+✔ follow-up kind (9.8556ms)
+▶ topic shift detection
+  ✔ detects a shift from international transfers to GDPR Article 28 (1.1142ms)
+  ✔ does not treat a follow-up presence question as a topic shift (0.8691ms)
+✔ topic shift detection (2.6709ms)
+▶ inherit follow-up intent
+  ✔ keeps the prior legal ask when the user only changes format (1.2257ms)
+  ✔ inherits the prior standard for a short follow-up question (6.2253ms)
+✔ inherit follow-up intent (10.8627ms)
+▶ replicateGraphForTargets
+  ✔ prefixes per-document units and keeps a single render (3.0382ms)
+✔ replicateGraphForTargets (3.4832ms)
+[Analysis PAC] 15:21:49.213 PLAN inject authoredRequirements count=6 ids=nda.confidentiality_definition,nda.purpose_limitation,nda.return_or_destruction,nda.nlra_section_7,nda.term_and_survival,nda.governing_law
+[Analysis PAC] 15:21:49.255 PLAN inject authoredRequirements count=6 ids=nda.confidentiality_definition,nda.purpose_limitation,nda.return_or_destruction,nda.nlra_section_7,nda.term_and_survival,nda.governing_law
+▶ injectAuthoredRequirements
+  ✔ injects NDA authored requirements for a broad review with no classifier requirements (44.108ms)
+  ✔ does not inject when the classifier already produced requirements (1.7321ms)
+  ✔ does not inject when the user focused a named rule (4.376ms)
+  ✔ does not inject when explicit article scope is set (1.1938ms)
+  ✔ does not inject when only a regime skill is active (1.1523ms)
+  ✔ injects only doc-type authored requirements when NDA and GDPR are both active (9.2124ms)
+✔ injectAuthoredRequirements (67.2231ms)
+▶ intent requirement normalization
+  ✔ dedupes by semantic id and preserves first-seen order (4.9409ms)
+  ✔ trims and drops malformed entries (0.6852ms)
+  ✔ normalizes unresolved needs with default reason (1.5321ms)
+  ✔ counts required vs supporting priorities (0.7654ms)
+  ✔ coverage guard accepts well-formed requirement lists without throwing (1.9366ms)
+  ✔ expands Articles 15-22 into one requirement per article and drops umbrellas (8.6941ms)
+  ✔ detects umbrella range requirements (0.7536ms)
+✔ intent requirement normalization (27.5247ms)
+▶ plan intent preservation
+  ▶ A: NDA broad analysis parity
+    ✔ preserves intent for "Analyse this NDA." (7.0737ms)
+    ✔ preserves intent for "Review this NDA." (0.5455ms)
+    ✔ preserves intent for "Give me an in-depth NDA analysis." (0.4566ms)
+    ✔ preserves intent for "Perform a detailed review of this NDA." (0.6148ms)
+    ✔ produces identical outputs for equivalent NDA prompts (1.7817ms)
+  ✔ A: NDA broad analysis parity (14.3865ms)
+  ▶ B: DPA broad analysis
+    ✔ does not turn explain_qa into compliance_check (0.8436ms)
+  ✔ B: DPA broad analysis (1.4394ms)
+  ▶ C: explicit GDPR compliance_check
+    ✔ preserves operation, depth, and reportType (0.9047ms)
+  ✔ C: explicit GDPR compliance_check (1.6268ms)
+  ▶ D: narrow request
+    ✔ preserves narrow depth (0.6187ms)
+  ✔ D: narrow request (1.1665ms)
+  ▶ E: explicit depth preservation without regex match
+    ✔ keeps deep when instruction lacks explicit deep signal (0.773ms)
+  ✔ E: explicit depth preservation without regex match (1.0746ms)
+  ▶ F: explicit reportType preservation
+    ✔ keeps rights_matrix and records no reportType normalization (0.6977ms)
+  ✔ F: explicit reportType preservation (1.4796ms)
+  ▶ audit shape
+    ✔ returns empty normalizations for fully-populated high-confidence intent (0.6535ms)
+  ✔ audit shape (0.895ms)
+  ▶ low-confidence outputForm defaulting
+    ✔ derives outputForm and records low_confidence normalization (0.6319ms)
+  ✔ low-confidence outputForm defaulting (0.8476ms)
+✔ plan intent preservation (26.5751ms)
+▶ PLAN scope classification
+  ✔ A: legal-article review of a document stays whole_document (11.0399ms)
+  ✔ B: an explicitly named document section stays named_section (1.1916ms)
+  ✔ C: a numbered document section stays named_section (0.5003ms)
+  ✔ D: multiple legal articles across the document stay whole_document (0.7672ms)
+  ✔ never overrides a correct non-section scope (0.5472ms)
+  ✔ namesDocumentSection distinguishes sections from legal articles (0.5488ms)
+✔ PLAN scope classification (19.986ms)
+▶ PLAN standard resolution
+  ✔ A: GDPR Article 28 concept resolves to the existing GDPR regime pack (7.8632ms)
+  ✔ B: bare GDPR concept resolves to the existing GDPR regime pack (3.1231ms)
+  ✔ C: no standard concept leaves the standard as none (0.8739ms)
+  ✔ D: an unknown concept is never fabricated into a registry id (4.9077ms)
+  ✔ resolves overlapping keywords to the most specific pack (2.8072ms)
+  ✔ normalizeStandard resolves aliases and refuses unknown ids (1.4735ms)
+✔ PLAN standard resolution (22.9142ms)
+▶ PLAN risk-analysis selection gate
+  ✔ treats explicit risk-flag language as requesting risk analysis (1.2095ms)
+  ✔ does not treat a pure compliance review as requesting risk analysis (0.8065ms)
+✔ PLAN risk-analysis selection gate (2.6838ms)
+▶ intent preservation via applySensibleDefaults
+  ✔ preserves classifier operation, depth, reportType, and outputForm (27.8109ms)
+  ✔ does not rewrite extract+identify NDA review into risk_flag (0.5439ms)
+✔ intent preservation via applySensibleDefaults (29.1065ms)
+[Analysis PAC] 15:21:51.610 outline refinement rejected; using seed outline reason=missing requirementId in refined outline: gdpr.article28.subject_matter
+▶ refineReportOutlineViaLLM
+  ✔ accepts a valid refined merge of analysis items (15.2496ms)
+  ✔ rejects invalid refined output with duplicate requirementIds and falls back to seed (11.7615ms)
+✔ refineReportOutlineViaLLM (31.1617ms)
+▶ report spec merge from authored packages
+  ✔ NDA structural_review supplies NDA sections without GDPR chapeau defaults (7.9339ms)
+  ✔ DPA structural_review includes chapeau_particulars (2.0771ms)
+  ✔ every authored package keeps conclusion last after merge (1.851ms)
+  ✔ GDPR Art 28 packages preserve chapeau and mandatory outline extras (1.8856ms)
+  ✔ international transfer inventory uses transfer-oriented sections (3.7024ms)
+  ✔ CCPA packages supply service-provider sections (1.6283ms)
+✔ report spec merge from authored packages (23.9171ms)
+◇ injected env (34) from ..\.env // tip: ⌘ enable debugging { debug: true }
+▶ narrative vs tabular layout contract
+  ✔ removes duplicated nested evidence from an answer-first Q&A report (3.3491ms)
+  ✔ cannot render a fully-complete bottom line over incorporated evidence (2.5669ms)
+  ✔ does not attach a rights-matrix table artifact in narrative mode (1.1662ms)
+  ✔ attaches a rights-matrix table artifact when tabular or the user asked for a table (1.891ms)
+  ✔ keeps at most one markdown table in narrative output (1.499ms)
+  ✔ injects an assessment table when a tabular section has no table (3.8071ms)
+  ✔ replaces an LLM findings table with locked labels for that section only (2.0591ms)
+  ✔ uses this row's quote and never an em dash for empty evidence (1.4904ms)
+  ✔ keeps tables concise while leaving the underlying verified evidence intact (0.589ms)
+  ✔ injects locked Present duration when outline still carries PLAN ids (0.9278ms)
+  ✔ preserves tabular outputForm instead of collapsing rights_matrix to memo (0.3082ms)
+✔ narrative vs tabular layout contract (22.9064ms)
+▶ finalizeReportSpec
+  ✔ produces different structures for NDA, Article 28, and transfers (41.9555ms)
+  ✔ omits recommendations and missing materials when assessments do not need them (4.8893ms)
+  ✔ preserves answer-first ordering for narrow Q&A (3.152ms)
+  ✔ skips qualifications when missing_materials already covers indeterminate items (3.597ms)
+✔ finalizeReportSpec (59.1211ms)
+▶ ordered section stream
+  ✔ holds later sections until earlier ones close, then dumps in outline order (10.9929ms)
+  ✔ streams the head section live and flushes a finished successor (1.1874ms)
+✔ ordered section stream (16.5131ms)
+▶ render-output live stream gate
+  ✔ drops ACT tokens until beginRenderStreaming (2.702ms)
+✔ render-output live stream gate (3.3902ms)
+▶ synthesis ceiling / truncation repair
+  ✔ lite standard stays near the depth base (4.4694ms)
+  ✔ deep standard scales above base into the mid range (0.9059ms)
+  ✔ per-section budget does not starve analysis when many outline items exist (1.9269ms)
+  ✔ truncation synthesis repair bumps ceiling once within hard cap (0.9741ms)
+  ✔ truncated report contract failure routes to ACT not PLAN on deep (0.9116ms)
+✔ synthesis ceiling / truncation repair (14.1827ms)
+◇ injected env (34) from ..\.env // tip: ◈ encrypted .env [www.dotenvx.com]
+✔ taxonomy versions are pinned and closed (2.3729ms)
+✔ segmentDocument produces stable locators with charRange (2.8642ms)
+✔ heuristicClassify maps risk instruction to risk_flag (2.4234ms)
+✔ legal-advice heuristic path is out_of_scope via regex gate (0.6072ms)
+✔ PLAN → DONE when out_of_scope (6.6793ms)
+[Gemini] Using Gemini API (apiKey) — models routed via PROVIDER_TASK_PRESETS
+(node:344) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[LLM] STRUCTURAL_JSON_LITE json model=gemini-3.6-flash thinking=minimal ms=7313 promptChars=2834 outChars=3531 inTok=709 outTok=883 totalTok=1592
+[LLM] STRUCTURAL_JSON_LITE json model=gemini-3.6-flash thinking=minimal ms=5702 promptChars=2430 outChars=3053 inTok=608 outTok=764 totalTok=1372
+✔ buildPlan for risk_flag produces skill-scoped ACT graph (13080.9545ms)
+✔ ACT → DONE for lite; CRITIQUE always exits DONE (0.574ms)
+✔ CRITIQUE → DONE when allUnitsTerminal even if isGreen is false (0.1809ms)
+✔ golden fixture expects missing LoL as absent category (0.1484ms)
+◇ injected env (34) from ..\.env // tip: ⌁ auth for agents [www.vestauth.com]
+⚠️ SENTRY_DSN not found. Sentry error tracking is disabled.
+✅ Environment validation successful.
+[auth.test.ts] Skipping tests — NODE_ENV is not 'test'. Set NODE_ENV=test to run these against a dedicated test database.
+✔ test\auth.test.ts (11654.7985ms)
+[Analysis PAC] 15:21:54.150 PLAN package resolution packages=[10] requirementToPackageId={"subject_matter":"gdpr.art28.particulars","duration":"gdpr.art28.particulars","nature_purpose":"gdpr.art28.particulars","data_categories":"gdpr.art28.particulars","data_subject_categories":"gdpr.art28.particulars","controller_obligations_rights":"gdpr.art28.particulars","art28_3_a_instructions":"gdpr.art28.3.mandatory_clauses","art28_3_b_confidentiality":"gdpr.art28.3.mandatory_clauses","art28_3_c_security":"gdpr.art28.3.mandatory_clauses","art28_3_d_subprocessors":"gdpr.art28.3.mandatory_clauses","art28_3_e_dsr_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_f_security_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_g_deletion_return":"gdpr.art28.3.mandatory_clauses","art28_3_h_audit":"gdpr.art28.3.mandatory_clauses","art28_4_subprocessor_flow_down":"gdpr.art28.3.mandatory_clauses","art12_3_response_timeframe":"gdpr.dsr.rights_verification","art15_access":"gdpr.dsr.rights_verification","art16_rectification":"gdpr.dsr.rights_verification","art17_erasure":"gdpr.dsr.rights_verification","art18_restriction":"gdpr.dsr.rights_verification","art19_recipient_notification":"gdpr.dsr.rights_verification","art20_portability":"gdpr.dsr.rights_verification","art21_objection":"gdpr.dsr.rights_verification","art22_automated_decisions":"gdpr.dsr.rights_verification","data_subject_rights":"gdpr.dsr.rights_matrix","art32_security":"gdpr.security.breach_and_accountability","art33_2_processor_breach_notice":"gdpr.security.breach_and_accountability","art33_5_breach_documentation":"gdpr.security.breach_and_accountability","art34_individual_notice":"gdpr.security.breach_and_accountability","art35_dpia":"gdpr.security.breach_and_accountability","art36_prior_consultation":"gdpr.security.breach_and_accountability","art5_1_principles":"gdpr.principles.consent_and_accountability","art5_2_accountability":"gdpr.principles.consent_and_accountability","art6_1_lawful_basis":"gdpr.principles.consent_and_accountability","art7_consent_conditions":"gdpr.principles.consent_and_accountability","art24_controller_responsibility":"gdpr.principles.consent_and_accountability","art25_dp_by_design":"gdpr.principles.consent_and_accountability","art26_joint_controllers":"gdpr.principles.consent_and_accountability","art27_eu_representative":"gdpr.principles.consent_and_accountability","art30_ropa":"gdpr.principles.consent_and_accountability","art6_4_purpose_compatibility":"gdpr.transparency.special_categories_and_notices","art8_child_consent":"gdpr.transparency.special_categories_and_notices","art9_special_categories":"gdpr.transparency.special_categories_and_notices","art10_criminal_data":"gdpr.transparency.special_categories_and_notices","art11_1_non_identification":"gdpr.transparency.special_categories_and_notices","art11_2_rights_without_identification":"gdpr.transparency.special_categories_and_notices","art12_1_2_transparent_info":"gdpr.transparency.special_categories_and_notices","art12_4_reasoned_refusal":"gdpr.transparency.special_categories_and_notices","art12_7_privacy_icons":"gdpr.transparency.special_categories_and_notices","art12_5_6_free_requests":"gdpr.transparency.special_categories_and_notices","art13_1_2_direct_collection_notice":"gdpr.transparency.special_categories_and_notices","art13_3_4_new_purpose_notice":"gdpr.transparency.special_categories_and_notices","art14_1_2_indirect_collection_notice":"gdpr.transparency.special_categories_and_notices","art14_3_5_timing_and_exceptions":"gdpr.transparency.special_categories_and_notices","art29_processing_under_authority":"gdpr.governance.dpo_codes_and_processor_extras","art37_dpo_designation":"gdpr.governance.dpo_codes_and_processor_extras","art38_dpo_position":"gdpr.governance.dpo_codes_and_processor_extras","art39_1_dpo_tasks":"gdpr.governance.dpo_codes_and_processor_extras","art40_3_code_transfer_commitments":"gdpr.governance.dpo_codes_and_processor_extras","art42_2_certification_transfer_commitments":"gdpr.governance.dpo_codes_and_processor_extras","art44_general_transfer_principle":"gdpr.chapter5.transfers","art45_1_adequacy":"gdpr.chapter5.transfers","art46_appropriate_safeguards":"gdpr.chapter5.transfers","art47_binding_corporate_rules":"gdpr.chapter5.transfers","art48_foreign_disclosure_orders":"gdpr.chapter5.transfers","art49_transfer_derogations":"gdpr.chapter5.transfers","art77_1_complaint_right":"gdpr.remedies.and_safeguards","art79_judicial_remedy":"gdpr.remedies.and_safeguards","art80_1_mandated_representative":"gdpr.remedies.and_safeguards","art82_compensation_liability":"gdpr.remedies.and_safeguards","art89_1_research_safeguards":"gdpr.remedies.and_safeguards"} requirementPaths=[0] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+▶ buildActGraph
+  ✔ schedules extract → evaluate/flag → render for general-review alias (6.7634ms)
+  ✔ schedules GDPR regime work for privacy-gdpr-dpa alias (7.7289ms)
+✔ buildActGraph (16.2765ms)
+✔ ensureConversation seeds documentId (11.2257ms)
+✔ appendConversationTurns accumulates user/assistant turns (1.9218ms)
+✔ windowConversation keeps last N and summarizes older (2.646ms)
+✔ applyUserAnswers merges facts and clears open questions (2.757ms)
+✔ evidence quote found in draft verifies (5.1766ms)
+✔ fabricated evidence does not verify (0.7122ms)
+✔ pass without quote is not verified (0.5077ms)
+▶ Gemini JSON maxOutputTokens
+  ✔ sends maxOutputTokens on JSON generateContent calls (4.4127ms)
+✔ Gemini JSON maxOutputTokens (7.8366ms)
+▶ golden analysis risk (general-review expectedClauses)
+  ✔ flags missing limitation_of_liability per skill checklist (24.693ms)
+  ✔ does not flag absent for extracted clause types (1.6389ms)
+✔ golden analysis risk (general-review expectedClauses) (30.5661ms)
+✔ golden DPA fixture resolves expected packs and exhibits (4.9573ms)
+✔ golden DPA loadSkillDocs returns document-type, regime, and jurisdiction skills (46.2541ms)
+[detectGaps] skillDocs=4 knownFactKeys=documentType,governingLaw,parties,phiInvolved,dataTransfer
+[detectGaps] llm missingFacts=1 critical=1 checklist=8
+[detectGaps] skillDocs=4 knownFactKeys=documentType,governingLaw,parties,phiInvolved,dataTransfer
+[detectGaps] llm missingFacts=1 critical=1 checklist=8
+✔ detectGaps on golden fixture (mocked LLM): critical SCC + checklist coverage + stable ids (32.6398ms)
+﹣ detectGaps live golden fixture: critical items + idempotent ids (0.9453ms) # SKIP
+✔ pack integrity: every registered skillPath has a skill.md (68.8712ms)
+✔ ireland jurisdiction resolves from governingLaw hint (1.3977ms)
+✔ PLAN → ASK when critical gap present (13.6672ms)
+✔ PLAN → ACT when no critical gap (0.6903ms)
+✔ ASK → PLAN when user submits answers (0.6351ms)
+✔ ASK stays paused when no answers (0.6159ms)
+✔ ACT → CRITIQUE (0.6285ms)
+✔ CRITIQUE → DONE when green (0.6575ms)
+✔ CRITIQUE → PLAN on skeleton mismatch (1.2307ms)
+✔ CRITIQUE → ACT for targeted fix (0.7202ms)
+✔ CRITIQUE → ASK when critical fact surfaced (0.8105ms)
+✔ budget / max turns → DONE from PLAN (0.9567ms)
+▶ selectSkills
+  ✔ Path A resolves privacy category without LLM (7.1869ms)
+  ✔ Path A falls back to general-review for unknown library id (0.5233ms)
+  ✔ Path B matches commercial triggers for indemnity/liability (1.1493ms)
+  ✔ Path B falls back to general-review when no triggers match (0.6782ms)
+  ✔ flags ambiguity when top two skills score within margin (0.7402ms)
+✔ selectSkills (13.1069ms)
+▶ skill registry
+  ✔ loads authored skills at boot and resolves legacy aliases (7.4625ms)
+  ✔ builds runtime taxonomy union from skills (1.3915ms)
+  ✔ getRuntimeTaxonomies includes skill-specific categories (0.5328ms)
+  ✔ finds skills by prompt library category id (0.4315ms)
+✔ skill registry (13.1015ms)
+ℹ tests 410
+ℹ suites 105
+ℹ pass 405
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 33119.5592
+
+✖ failing tests:
+
+test at src\modules\analysis\capabilities\act\__fixtures__\article-linkage.test.ts:1:2697
+✖ does not copy a sibling letter's status onto another letter (15.0144ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - 'strong'
+  
+      at TestContext.<anonymous> (C:\Program Files\CookieCare\CookieCare-main\backend\src\modules\analysis\capabilities\act\__fixtures__\article-linkage.test.ts:139:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.start (node:internal/test_runner/test:1257:17)
+      at node:internal/test_runner/test:1887:71
+      at node:internal/per_context/primordials:504:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:478:3)
+      at node:internal/per_context/primordials:504:9
+      at Array.map (<anonymous>) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 'strong',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\modules\analysis\capabilities\act\__fixtures__\evaluate-package-id-remap.test.ts:1:799
+✖ maps package-native ids to PLAN-shaped canonicals (9.7008ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'gdpr.article28.3b.confidentiality'
+  - 'art28_3_b_confidentiality'
+  
+      at TestContext.<anonymous> (C:\Program Files\CookieCare\CookieCare-main\backend\src\modules\analysis\capabilities\act\__fixtures__\evaluate-package-id-remap.test.ts:37:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1889:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'gdpr.article28.3b.confidentiality',
+    expected: 'art28_3_b_confidentiality',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\modules\analysis\capabilities\audit\__fixtures__\ground-findings.test.ts:1:4447
+✖ downgrades covered-like assessments with no supporting present finding (30.4175ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(assessment)
+  
+      at TestContext.<anonymous> (C:\Program Files\CookieCare\CookieCare-main\backend\src\modules\analysis\capabilities\audit\__fixtures__\ground-findings.test.ts:208:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at src\modules\analysis\capabilities\plan\__fixtures__\derive-report-outline.test.ts:1:4466
+✖ does not place pkg.subject_matter_defined under a subject_matter extra (22.1133ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(mandatory?.requirementIds.includes("art28_3_a_instructions"))
+  
+      at TestContext.<anonymous> (C:\Program Files\CookieCare\CookieCare-main\backend\src\modules\analysis\capabilities\plan\__fixtures__\derive-report-outline.test.ts:205:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

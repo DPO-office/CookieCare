@@ -15,7 +15,22 @@
  *
  * NB: Phase 4A ships the schemas + registry. Phase 4B consumes them to build
  * the element matrix; VERIFY prompt changes are the Phase 4B stop gate.
+ *
+ * Hand-authored coverage: Article 28 (this file + remaining), Chapter III DSR,
+ * GDPR security, CCPA, HIPAA, AI Act, transfers, commercial, and vendor-risk
+ * schemas. Lookup uses `AUTHORED_ELEMENT_REGISTRY`. Everything else falls
+ * through to `synthesizeElementSchemaFromProfile`.
  */
+
+import { DSR_CHAPTER_III_ELEMENT_REGISTRY } from "./dsr-element-schemas.js";
+import { ARTICLE_28_REMAINING_ELEMENT_REGISTRY } from "./art28-remaining-element-schemas.js";
+import { CCPA_ELEMENT_REGISTRY } from "./ccpa-element-schemas.js";
+import { HIPAA_ELEMENT_REGISTRY } from "./hipaa-element-schemas.js";
+import { AIACT_ELEMENT_REGISTRY } from "./aiact-element-schemas.js";
+import { TRANSFERS_ELEMENT_REGISTRY } from "./transfers-element-schemas.js";
+import { COMMERCIAL_ELEMENT_REGISTRY } from "./commercial-element-schemas.js";
+import { VENDOR_RISK_ELEMENT_REGISTRY } from "./vendor-risk-element-schemas.js";
+import { GDPR_SECURITY_ELEMENT_REGISTRY } from "./gdpr-security-element-schemas.js";
 
 export type ElementKind = "mandatory" | "conditional" | "alternative";
 export type AggregationRule =
@@ -568,13 +583,39 @@ export const ARTICLE_28_ELEMENT_REGISTRY: RequirementElementSchema[] = [
   },
 ];
 
+/** All hand-authored element schemas across regimes. */
+export const AUTHORED_ELEMENT_REGISTRY: RequirementElementSchema[] = [
+  ...ARTICLE_28_ELEMENT_REGISTRY,
+  ...ARTICLE_28_REMAINING_ELEMENT_REGISTRY,
+  ...DSR_CHAPTER_III_ELEMENT_REGISTRY,
+  ...GDPR_SECURITY_ELEMENT_REGISTRY,
+  ...CCPA_ELEMENT_REGISTRY,
+  ...HIPAA_ELEMENT_REGISTRY,
+  ...AIACT_ELEMENT_REGISTRY,
+  ...TRANSFERS_ELEMENT_REGISTRY,
+  ...COMMERCIAL_ELEMENT_REGISTRY,
+  ...VENDOR_RISK_ELEMENT_REGISTRY,
+];
+
+export {
+  DSR_CHAPTER_III_ELEMENT_REGISTRY,
+  ARTICLE_28_REMAINING_ELEMENT_REGISTRY,
+  GDPR_SECURITY_ELEMENT_REGISTRY,
+  CCPA_ELEMENT_REGISTRY,
+  HIPAA_ELEMENT_REGISTRY,
+  AIACT_ELEMENT_REGISTRY,
+  TRANSFERS_ELEMENT_REGISTRY,
+  COMMERCIAL_ELEMENT_REGISTRY,
+  VENDOR_RISK_ELEMENT_REGISTRY,
+};
+
 /**
  * Look up the element schema for a resolved canonical requirement key.
  * Matches (in order): `canonicalKey` → `requirementUid` → `aliases[]` →
  * loose equivalence with underscore/dot normalization.
  *
- * A registry index would be faster but the registry is tiny (~8 entries) and
- * a scan makes the alias precedence auditable.
+ * A registry index would be faster but the registry is still small and a
+ * scan makes the alias precedence auditable.
  */
 export function elementSchemaFor(
   canonicalKey: string
@@ -582,12 +623,12 @@ export function elementSchemaFor(
   if (!canonicalKey) return undefined;
   const key = canonicalKey.trim();
   const loose = looseKey(key);
-  for (const s of ARTICLE_28_ELEMENT_REGISTRY) {
+  for (const s of AUTHORED_ELEMENT_REGISTRY) {
     if (s.canonicalKey === key) return s;
     if (s.requirementUid === key) return s;
     if (s.aliases?.some((a) => a === key)) return s;
   }
-  for (const s of ARTICLE_28_ELEMENT_REGISTRY) {
+  for (const s of AUTHORED_ELEMENT_REGISTRY) {
     if (looseKey(s.canonicalKey) === loose) return s;
     if (looseKey(s.requirementUid) === loose) return s;
     if (s.aliases?.some((a) => looseKey(a) === loose)) return s;
@@ -605,18 +646,17 @@ function looseKey(id: string): string {
  * evidenceHints) already authors for a requirement, with NO hand-typed
  * per-regime entry required.
  *
- * Why this exists: `ARTICLE_28_ELEMENT_REGISTRY` only covers the 8 GDPR
- * Article 28 requirements that got full legal-element decomposition. Every
- * other authored regime (international transfers / SCCs / Schrems II, NDA,
- * and any future pack) already carries `hypothesis` + `proofStandard` +
- * `evidenceHints` per requirement in its own skill.config.ts — the same
- * authoring surface product/legal already uses for `evaluate_package`'s
- * per-candidate VERIFY path. Deriving a schema from that data means Phase
- * 4B/5/6/7 cover every regime that authors evidence profiles TODAY, and any
- * new regime the moment its skill config authors them — no parallel
- * TypeScript element registry to hand-maintain per regime, consistent with
- * this project's standing rule against hand-maintained lookup tables as the
- * mechanism of correctness.
+ * Why this exists: `AUTHORED_ELEMENT_REGISTRY` covers hand-decomposed
+ * requirements (Art 28, DSR, CCPA, HIPAA, AI Act, transfers, etc.). Other regime
+ * (international transfers / SCCs / Schrems II, NDA, and any future pack)
+ * already carries `hypothesis` + `proofStandard` + `evidenceHints` per
+ * requirement in its own skill.config.ts — the same authoring surface
+ * product/legal already uses for `evaluate_package`'s per-candidate VERIFY
+ * path. Deriving a schema from that data means Phase 4B/5/6/7 cover every
+ * regime that authors evidence profiles TODAY, and any new regime the moment
+ * its skill config authors them — no parallel TypeScript element registry to
+ * hand-maintain for the long tail, consistent with this project's standing
+ * rule against hand-maintained lookup tables as the mechanism of correctness.
  *
  * The result is deliberately coarser than a hand-authored schema: one
  * element (`E1`), AND aggregation, no non-proof traps, and `evidenceHints`

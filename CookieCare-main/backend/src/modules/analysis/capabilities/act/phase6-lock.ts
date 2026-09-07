@@ -293,6 +293,12 @@ function rederiveStatus(
 ): AssessmentResult["status"] {
   if (!assessment.completeness.verificationComplete) return "verification_incomplete";
   const applicable = matrix.elements.filter((e) => e.state !== "not_applicable");
+  // Kept in sync with phase5-assess.ts's same guard: every element came back
+  // not_applicable, so every `.every(...)` below is vacuously true — without
+  // this, a fully not-applicable schema re-derives as "present" here, which
+  // would disagree with phase5's now-correct "not_applicable" and reject
+  // the assessment as STATUS_AGGREGATION_MISMATCH.
+  if (applicable.length === 0) return "not_applicable";
   if (applicable.some((e) => e.state === "contradicted")) return "conflicting";
   // Kept in sync with phase5-assess.ts's `mandatory` filter: an applicable
   // `conditional` element (already passed the not_applicable filter above,

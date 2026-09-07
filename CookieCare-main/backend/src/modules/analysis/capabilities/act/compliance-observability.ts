@@ -49,7 +49,7 @@ import {
 } from "./phase3-investigate.js";
 import type { RequirementEvidenceProfile } from "./isolate-requirement-evidence.js";
 import {
-  ARTICLE_28_ELEMENT_REGISTRY,
+  AUTHORED_ELEMENT_REGISTRY,
   resolveElementSchema,
   type RequirementElementSchema,
 } from "./element-schemas.js";
@@ -120,16 +120,21 @@ export function complianceSkipLiveVerifyEnabled(): boolean {
 }
 
 /**
- * Default OFF — set LLM_VERIFY_CANONICAL=1 to make AI verifier judgment
- * canonical for every requirement, every regime, replacing the deterministic
- * keyword-gated matrix in `t.phase4Matrices` wherever the LLM path validated
- * successfully. Off until the negation, evidence-merge, and coverage-gap
- * fixes in this change have a live test round; flip the default to true here
- * once that round passes.
+ * Default ON — AI verifier judgment is canonical for every requirement,
+ * every regime, replacing the deterministic keyword-gated matrix in
+ * `t.phase4Matrices` wherever the LLM path validated successfully (and
+ * safely deferring to `verification_incomplete`, never a guess, wherever it
+ * didn't — see `recordLlmVerifyCanonicalSwap`). Flipped on after a live test
+ * round across five real DPAs (Bitrix, Salesforce, Entrust Datacard, an
+ * unfilled template, and Mastercard) covering GDPR Article 28 and
+ * international-transfer checks, both DOCX and PDF sources, with zero
+ * infrastructure-level regressions on the final passes. Set
+ * LLM_VERIFY_CANONICAL=0 to fall back to the pure deterministic path if a
+ * future regression demands it.
  */
 export function llmVerifyCanonicalEnabled(): boolean {
   const raw = process.env.LLM_VERIFY_CANONICAL;
-  if (raw === undefined || raw === "") return false;
+  if (raw === undefined || raw === "") return true;
   return raw === "1" || raw.toLowerCase() === "true";
 }
 
@@ -1244,7 +1249,7 @@ export async function recordLlmAssistedInvestigation(state: AnalysisState): Prom
     const doc = state.workspace?.documents.find((d) => d.docId === docId);
     if (!doc?.fullText) continue;
     const canonical = canonicalByRequest.get(r.requirementId) ?? canonicalRequirementId(r.requirementId);
-    const authored = ARTICLE_28_ELEMENT_REGISTRY.find(
+    const authored = AUTHORED_ELEMENT_REGISTRY.find(
       (s) => s.canonicalKey === canonical || s.requirementUid === canonical || s.aliases?.includes(canonical)
     );
     const requirement = authored
@@ -1335,15 +1340,16 @@ export function recordElementRegistry(state: AnalysisState): void {
     });
   };
 
-  for (const schema of ARTICLE_28_ELEMENT_REGISTRY) emitSchema(schema);
+  for (const schema of AUTHORED_ELEMENT_REGISTRY) emitSchema(schema);
 
   // GENERAL-PURPOSE COVERAGE — publish an `auto_derived` registry entry for
   // every native requirement THIS RUN actually touches (from the plan's own
   // evaluate_package units) that has no hand-authored entry above but DOES
   // have an authored evidence profile (hypothesis/proofStandard/evidenceHints)
-  // in its skill config. This is what makes Phase 4B/5/6/7 apply beyond GDPR
-  // Article 28 — any regime's skill config that authors requirementEvidence
-  // gets a schema here, with no hand-typed registry entry required.
+  // in its skill config. This is what makes Phase 4B/5/6/7 apply beyond
+  // hand-authored Art 28 / DSR schemas — any regime's skill config that
+  // authors requirementEvidence gets a schema here, with no hand-typed
+  // registry entry required.
   const profiles = requirementEvidenceProfiles(state);
   const bindings = collectBindings(state);
   const seen = new Set<string>();
@@ -1351,7 +1357,7 @@ export function recordElementRegistry(state: AnalysisState): void {
     if (seen.has(b.nativeRequirementId)) continue;
     seen.add(b.nativeRequirementId);
     const canonical = canonicalRequirementId(b.nativeRequirementId);
-    if (ARTICLE_28_ELEMENT_REGISTRY.some(
+    if (AUTHORED_ELEMENT_REGISTRY.some(
       (s) => s.canonicalKey === canonical || s.requirementUid === canonical || s.aliases?.includes(canonical)
     )) {
       continue; // already emitted above as a hand-authored entry
