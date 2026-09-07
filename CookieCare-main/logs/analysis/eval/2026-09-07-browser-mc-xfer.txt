@@ -1,0 +1,62 @@
+SESSION: an_7a89d489-a8b9-4fad-a75b-a8aa8ffde8dc
+JOB: ee058909-2d9c-4a9d-87c8-45858c3f1729
+STATUS: blocked
+
+## Requirements at a glance
+| Requirement | Status | Evidence | Finding | Action |
+| :--- | :--- | :--- | :--- | :--- |
+| The agreement identifies the lawful transfer mechanism, including Standard Contractual ... | **Verification incomplete** | document/appendix 2/controller to controller specific terms /def european data protection law - . “European Data Protection Law” means the GDPR, the UK GDPR and the e-Privacy Directive 2002/58/EC (as amended by Directive 2009/136/EC, and as amended and replaced from time to time) and their respective national implementing legislations (as amended [excerpt] | E1: The agreement identifies the lawful transfer mechanism, including Standard Contractual Clauses (SCCs), adequacy, or Binding Corporate Rules.… | Re-run analysis — technical verification did not return a valid element matrix. |
+| The agreement identifies international transfer destinations, destination jurisdictions... | **➖ Cannot determine** | No related clauses found | No mandatory elements are supported by the current evidence bundle. E1: Proof guidance not met: Establish both the operative destination restriction and whether the reviewed materials identify the actual permitted destination jurisdictions.… | E1: Add or clarify contract language establishing: The agreement identifies international transfer destinations, destination jurisdictions, or third countries. |
+| The agreement addresses Schrems II supplementary measures and transfer impact assessments. | **✅ Present** | cl. 3.7.8 - prior to any new intended data transfer to a country that is not subject to a European Commission adequacy decision, or deemed a country not providing for adequate data protection legislation by the Federal Council, as applicable including the justification of the necessity of the transfer, an explanation of any adequate supplementary [excerpt] | E1: The agreement addresses Schrems II supplementary measures and transfer impact assessments by requiring the supplier to notify Mastercard prior to data transfers outside of Europe to a non-adequate country, including an explanation of any adequate… | None — obligation satisfied. |
+
+## Element-level compliance (locked)
+_Statuses below come from the Phase 4–7 locked matrix (accepted locks only)._
+
+### The agreement identifies the lawful transfer mechanism, including Standard Contractual ... — **Verification incomplete**
+
+**What the document provides:** E1: The agreement identifies the lawful transfer mechanism, including Standard Contractual Clauses (SCCs), adequacy, or Binding Corporate Rules. Supported at document/appendix-2/controller-to-controller-specific-terms-/def-european-data-protection-law, clause-7.1, clause-7.1.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported E1 · outstanding —
+
+- `document/appendix-2/controller-to-controller-specific-terms-/def-european-data-protection-law`: “. “European Data Protection Law” means the GDPR, the UK GDPR and the e-Privacy Directive 2002/58/EC (as amended by Directive 2009/136/EC, and as amended and replaced from time to t…”
+- `clause-7.1`: “7.1 Brazil Standard Contractual Clauses”, or “Brazil SCCs”: means one of the mechanisms for transferring personal data under the Brazil GDPA to international processing agents, ado…”
+
+**Action:** Re-run analysis — technical verification did not return a valid element matrix.
+
+### The agreement addresses Schrems II supplementary measures and transfer impact assessments. — **Present**
+
+**What the document provides:** E1: The agreement addresses Schrems II supplementary measures and transfer impact assessments by requiring the supplier to notify Mastercard prior to data transfers outside of Europe to a non-adequate country, including an explanation of any adequate supplementary measures implemented to ensure essential equivalence or why such safeguards are not necessary.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported E1 · outstanding —
+
+- `clause-3.7.8`: “prior to any new intended data transfer to a country that is not subject to a European Commission adequacy decision, or deemed a country not providing for adequate data protection …”
+
+### The agreement identifies international transfer destinations, destination jurisdictions... — **Cannot determine**
+
+**What the document provides:** No mandatory elements are supported by the current evidence bundle.
+
+**What is missing / unclear:** E1: Proof guidance not met: Establish both the operative destination restriction and whether the reviewed materials identify the actual permitted destination jurisdictions. If the restriction is binding but the destination list exists only in a referenced annex, schedule, SOW, or equivalent material that was not supplied, classify the contractual obligation as present with evidenceState=incorporated and referenceBinding=binding, explicitly identify the missing particulars, and do not describe the destinations or the review as fully documented.
+
+**Elements:** supported — · outstanding E1
+
+**Action:** E1: Add or clarify contract language establishing: The agreement identifies international transfer destinations, destination jurisdictions, or third countries.
+
+### Locked bottom line
+
+- 1 obligation present: The agreement addresses Schrems II supplementary measures and transfer impact assessments..
+- 1 obligation could not be determined without further material: The agreement identifies international transfer destinations, destination jurisdictions....
+- 1 obligation could not be verified — re-run required: The agreement identifies the lawful transfer mechanism, including Standard Contractual ....
+
+## What needs attention
+- **The agreement identifies the lawful transfer mechanism, including Standard Contractual ...** - Verification incomplete: Re-run analysis — technical verification did not return a valid element matrix.
+- **The agreement identifies international transfer destinations, destination jurisdictions...** - ➖ Cannot determine: E1: Add or clarify contract language establishing: The agreement identifies international transfer destinations, destination jurisdictions, or third countries.
+
+## Bottom line
+The primary areas requiring attention are the inability to confirm the specific transfer mechanisms and the overall scope of international data transfers, both of which currently lack sufficient evidence. Counsel should request and review the missing underlying transfer documentation to establish the applicable legal bases and ensure all cross-border data flows are properly supported. 2 requirements remain dependent on referenced, truncated, conflicting, or unavailable material. Obtain and review that material before treating the analysis as complete.
+
+## Verification notes
+- The memo presents multiple claims and findings regarding requirements, obligations, compliance statuses, and contract clauses, but the underlying findings provided are empty.

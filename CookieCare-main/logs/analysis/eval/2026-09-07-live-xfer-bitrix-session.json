@@ -1,0 +1,722 @@
+{
+  "success": true,
+  "sessionId": "an_a3cb7008-a0da-4b3e-b473-bc8878e785b6",
+  "findings": [
+    {
+      "kind": "extraction",
+      "claim": "Located 97 evidence spans from document doc_edfb851d-5477-4c0a-9f75-409ff9e73941 (skill-scoped).",
+      "status": "present",
+      "category": "other_known_risk",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "doc_edfb851d-5477-4c0a-9f75-409ff9e73941",
+            "charRange": [
+              27363,
+              27958
+            ],
+            "structuralPath": "clause-11.4"
+          },
+          "quotedText": "11.4 The security of data and the data subject rights under GDPR for the data  processing activities in Russian Federation are protected by appropriate safeguards under  article 46 GDPR, specifically by the Standard Contractual Clauses adopted by the  European Commission in accordance with the examination procedure. European  Commission decided that standard contractual clauses offer sufficient safeguards on data  protection for the data to be transferred internationally. You have a right to req",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "doc_edfb851d-5477-4c0a-9f75-409ff9e73941",
+            "charRange": [
+              24175,
+              26173
+            ],
+            "structuralPath": "clause-11.3"
+          },
+          "quotedText": "11.3 International transfers.  \n11.3.1 Alaio may process User Personal Data in Russian Federation subject to appropriate  safeguards under article 46 GDPR (see schedule 11.4) and in the USA (see  schedules 11.3.2 and 11.3.3) \n11.3.2 Specific for data transfers from EU, UK and Switzerland to the USA, Alaio, Inc  complies with the EU-U.S. Data Privacy Framework (EU-U.S. DPF), the UK  Extension to the EU-U.S. DPF, and the Swiss-U.S. Data Privacy Framework (Swiss U.S. DPF) as set forth by the U.S. D",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "doc_edfb851d-5477-4c0a-9f75-409ff9e73941",
+            "charRange": [
+              28454,
+              29390
+            ],
+            "structuralPath": "clause-12.3"
+          },
+          "quotedText": "12.3 For data transfers outside the EEA listed in schedules 11.3.4 protected by appropriate  safeguards under article 46 GDPR, specifically by the standard data protection clauses  adopted by the Commission in accordance with the examination procedure from controllers  in the EU to processors established outside the EU and Users when the processing is in the  context of the activities of an establishment of EEA countries other than Republic of Cyprus \nand/or Users offering services to data subje",
+          "sourceRole": "target"
+        }
+      ],
+      "polarity": "neutral_fact",
+      "findingId": "f_extract_wu-extract",
+      "visibility": "internal",
+      "workUnitId": "wu-extract",
+      "taxonomyVersion": "1.1.0",
+      "partyPerspective": "unspecified"
+    },
+    {
+      "kind": "summary_point",
+      "claim": "Rendered memo for skill(s) _global, doc-types/dpa, regimes/data-protection/gdpr, regimes/data-protection/uk-gdpr-idta, regimes/data-protection/international-transfers with 1 prior findings.",
+      "status": "present",
+      "skillId": "_global",
+      "category": "other_known_risk",
+      "evidence": [],
+      "polarity": "neutral_fact",
+      "findingId": "f_render_wu-render",
+      "visibility": "internal",
+      "workUnitId": "wu-render",
+      "taxonomyVersion": "1.1.0",
+      "partyPerspective": "unspecified"
+    }
+  ],
+  "renderedOutput": "## Requirements at a glance\n| Requirement | Status | Evidence | Finding | Action |\n| :--- | :--- | :--- | :--- | :--- |\n| The agreement addresses Schrems II supplementary measures and transfer impact assessments. | **❌ Gap** | No related clauses found | No mandatory elements are supported by the current evidence bundle. E1: Proof guidance not met: The agreement addresses Schrems II supplementary measures and transfer impact assessments. | E1: Add or clarify contract language establishing: The agreement addresses Schrems II supplementary measures and transfer impact assessments. |\n| The agreement identifies the lawful transfer mechanism, including Standard Contractual ... | **✅ Present** | 11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguards under article 46 GDPR, specifically by the Standard Contractual Clauses adopted by the European Commission in accordance with the examination procedure. | E1: No unresolved elements. | None — obligation satisfied. |\n| The agreement identifies international transfer destinations, destination jurisdictions... | **✅ Present** | cl. 11.1 - All Data obtained via Bitrix24.eu, Bitrix24.de, Bitrix.it, Bitrix24.pl, Bitrix24.uk and Bitrix24.fr domain zones is processed by Alaio Cloud Limited registered on Republic of Cyprus inside the European Union Economic Area and hosted inside the European Union in Frankfurt, Germany by Amazon Web Services data centers | E1: The agreement identifies specific international transfer destinations and destination jurisdictions, including the Russian Federation, the USA, and EU/EEA locations (such as Germany and Cyprus). No unresolved elements. | None — obligation satisfied. |\n\n## Element-level compliance (locked)\n_Statuses below come from the Phase 4–7 locked matrix (accepted locks only)._\n\n### The agreement identifies the lawful transfer mechanism, including Standard Contractual ... — **Present**\n\n**What the document provides:** E1: \n\n**What is missing / unclear:** No unresolved elements.\n\n**Elements:** supported E1 · outstanding —\n\n- `document/application-of-this-dpa/para@27363`: “11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguards under article 46 G…”\n- `clause-11.3.2`: “11.3.2 Specific for data transfers from EU, UK and Switzerland to the USA, Alaio, Inc complies with the EU-U.S. Data Privacy Framework (EU-U.S. DPF), the UK Extension to the EU-U.S…”\n\n### The agreement addresses Schrems II supplementary measures and transfer impact assessments. — **Gap**\n\n**What the document provides:** No mandatory elements are supported by the current evidence bundle.\n\n**What is missing / unclear:** E1: Proof guidance not met: The agreement addresses Schrems II supplementary measures and transfer impact assessments.\n\n**Elements:** supported — · outstanding E1\n\n**Action:** E1: Add or clarify contract language establishing: The agreement addresses Schrems II supplementary measures and transfer impact assessments.\n\n### The agreement identifies international transfer destinations, destination jurisdictions... — **Present**\n\n**What the document provides:** E1: The agreement identifies specific international transfer destinations and destination jurisdictions, including the Russian Federation, the USA, and EU/EEA locations (such as Germany and Cyprus).\n\n**What is missing / unclear:** No unresolved elements.\n\n**Elements:** supported E1 · outstanding —\n\n- `clause-11.1`: “All Data obtained via Bitrix24.eu, Bitrix24.de, Bitrix.it, Bitrix24.pl, Bitrix24.uk and Bitrix24.fr domain zones is processed by Alaio Cloud Limited registered on Republic of Cypru…”\n- `document/application-of-this-dpa/para@24207`: “11.3.1 Alaio may process User Personal Data in Russian Federation subject to appropriate safeguards under article 46 GDPR (see schedule 11.4) and in the USA (see schedules 11.3.2 a…”\n\n### Locked bottom line\n\n- 2 obligations present: The agreement identifies the lawful transfer mechanism, including Standard Contractual ...; The agreement identifies international transfer destinations, destination jurisdictions....\n- 1 gap — obligation not present: The agreement addresses Schrems II supplementary measures and transfer impact assessments..\n\n## What needs attention\n- **The agreement addresses Schrems II supplementary measures and transfer impact assessments.** - ❌ Gap: E1: Add or clarify contract language establishing: The agreement addresses Schrems II supplementary measures and transfer impact assessments.\n\n## Bottom line\nThe primary issues requiring attention are an unaddressed gap in the transfer mechanisms and insufficient data regarding Schrems II supplementary measures. Counsel should obtain the missing supplementary measures documentation and remediate the transfer mechanism gap prior to taking further action. 1 requirement remains dependent on referenced, truncated, conflicting, or unavailable material. Obtain and review that material before treating the analysis as complete.\n",
+  "conversation": {
+    "turns": [
+      {
+        "id": "turn_acae365b-c656-4a94-b61c-1d20f0e6b3fa",
+        "role": "user",
+        "content": "Analyse all international data transfer provisions. Identify: whether Standard Contractual Clauses, Binding Corporate Rules, or adequacy decisions are referenced, whether Schrems II supplementary measures are addressed, transfers to third countries and the legal basis for each, and any gaps in transfer mechanisms.",
+        "createdAt": "2026-09-06T19:31:52.991Z"
+      },
+      {
+        "id": "turn_84cb1573-8615-4639-8535-07bfdf6cd33f",
+        "role": "assistant",
+        "content": "## Requirements at a glance\n| Requirement | Status | Evidence | Finding | Action |\n| :--- | :--- | :--- | :--- | :--- |\n| The agreement addresses Schrems II supplementary measures and transfer impact assessments. | **❌ Gap** | No related clauses found | No mandatory elements are supported by the current evidence bundle. E1: Proof guidance not met: The agreement addresses Schrems II supplementary measures and transfer impact assessments. | E1: Add or clarify contract language establishing: The agreement addresses Schrems II supplementary measures and transfer impact assessments. |\n| The agreement identifies the lawful transfer mechanism, including Standard Contractual ... | **✅ Present** | 11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguards under article 46 GDPR, specifically by the Standard Contractual Clauses adopted by the European Commission in accordance with the examination procedure. | E1: No unresolved elements. | None — obligation satisfied. |\n| The agreement identifies international transfer destinations, destination jurisdictions... | **✅ Present** | cl. 11.1 - All Data obtained via Bitrix24.eu, Bitrix24.de, Bitrix.it, Bitrix24.pl, Bitrix24.uk and Bitrix24.fr domain zones is processed by Alaio Cloud Limited registered on Republic of Cyprus inside the European Union Economic Area and hosted inside the European Union in Frankfurt, Germany by Amazon Web Services data centers | E1: The agreement identifies specific international transfer destinations and destination jurisdictions, including the Russian Federation, the USA, and EU/EEA locations (such as Germany and Cyprus). No unresolved elements. | None — obligation satisfied. |\n\n## Element-level compliance (locked)\n_Statuses below come from the Phase 4–7 locked matrix (accepted locks only)._\n\n### The agreement identifies the lawful transfer mechanism, including Standard Contractual ... — **Present**\n\n**What the document provides:** E1: \n\n**What is missing / unclear:** No unresolved elements.\n\n**Elements:** supported E1 · outstanding —\n\n- `document/application-of-this-dpa/para@27363`: “11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguards under article 46 G…”\n- `clause-11.3.2`: “11.3.2 Specific for data transfers from EU, UK and Switzerland to the USA, Alaio, Inc complies with the EU-U.S. Data Privacy Framework (EU-U.S. DPF), the UK Extension to the EU-U.S…”\n\n### The agreement addresses Schrems II supplementary measures and transfer impact assessments. — **Gap**\n\n**What the document provides:** No mandatory elements are supported by the current evidence bundle.\n\n**What is missing / unclear:** E1: Proof guidance not met: The agreement addresses Schrems II supplementary measures and transfer impact assessments.\n\n**Elements:** supported — · outstanding E1\n\n**Action:** E1: Add or clarify contract language establishing: The agreement addresses Schrems II supplementary measures and transfer impact assessments.\n\n### The agreement identifies international transfer destinations, destination jurisdictions... — **Present**\n\n**What the document provides:** E1: The agreement identifies specific international transfer destinations and destination jurisdictions, including the Russian Federation, the USA, and EU/EEA locations (such as Germany and Cyprus).\n\n**What is missing / unclear:** No unresolved elements.\n\n**Elements:** supported E1 · outstanding —\n\n- `clause-11.1`: “All Data obtained via Bitrix24.eu, Bitrix24.de, Bitrix.it, Bitrix24.pl, Bitrix24.uk and Bitrix24.fr domain zones is processed by Alaio Cloud Limited registered on Republic of Cypru…”\n- `document/application-of-this-dpa/para@24207`: “11.3.1 Alaio may process User Personal Data in Russian Federation subject to appropriate safeguards under article 46 GDPR (see schedule 11.4) and in the USA (see schedules 11.",
+        "createdAt": "2026-09-06T19:31:52.991Z"
+      }
+    ],
+    "sessionId": "an_a3cb7008-a0da-4b3e-b473-bc8878e785b6",
+    "organizationId": ""
+  },
+  "agent": {
+    "turn": 0,
+    "phase": "DONE",
+    "maxDocs": 10,
+    "docCount": 1,
+    "maxTurns": 1,
+    "askRounds": 0,
+    "entryMode": "CREATE",
+    "tokensUsed": 43802,
+    "tokenBudget": 500000,
+    "maxAskRounds": 2,
+    "openQuestions": [],
+    "stoppedReason": "blocked",
+    "maxExtractionUnits": 200,
+    "extractionUnitsUsed": 97
+  },
+  "critique": {
+    "fixPlan": [],
+    "isGreen": false,
+    "metrics": {
+      "askCount": 0,
+      "replanCount": 0,
+      "critiqueLiteMs": 3,
+      "deepCritiqueMs": 0,
+      "critiqueLLMCalls": 0,
+      "targetedRedoCount": 0,
+      "deepCritiqueTargets": 0,
+      "deepCritiqueTriggered": false
+    },
+    "release": {
+      "reasons": [
+        "coverage_gap",
+        "alignment_mismatch",
+        "placeholder_output",
+        "unrecoverable_execution_failure"
+      ],
+      "verdict": "withhold",
+      "alignment": {
+        "issues": [
+          {
+            "kind": "wrong_execution_shape",
+            "action": "targeted_redo",
+            "detail": "Expected package international_transfer_inventory execution but graph ran a different shape",
+            "packageId": "international_transfer_inventory",
+            "requirementId": "international_transfer.third_countries_and_legal_basis"
+          }
+        ]
+      },
+      "placeholderReport": {
+        "kind": "all_not_covered",
+        "detail": "All requirement assessments are missing or without supporting findings",
+        "detected": true
+      },
+      "requirementCoverage": {
+        "total": 4,
+        "covered": 0,
+        "entries": [
+          {
+            "state": "not_covered",
+            "reason": "No requirement assessment",
+            "requirementId": "international_transfer.mechanisms_reference"
+          },
+          {
+            "state": "not_covered",
+            "reason": "No requirement assessment",
+            "requirementId": "international_transfer.schrems_ii_measures"
+          },
+          {
+            "state": "not_covered",
+            "reason": "No requirement assessment",
+            "requirementId": "international_transfer.third_countries_and_legal_basis"
+          },
+          {
+            "state": "not_covered",
+            "reason": "No requirement assessment",
+            "requirementId": "international_transfer.mechanism_gaps"
+          }
+        ],
+        "notCovered": [
+          "international_transfer.mechanisms_reference",
+          "international_transfer.schrems_ii_measures",
+          "international_transfer.third_countries_and_legal_basis",
+          "international_transfer.mechanism_gaps"
+        ],
+        "needsReplan": []
+      }
+    },
+    "results": [
+      {
+        "detail": "classification only, no finding by design",
+        "itemId": "complete:wu-classify",
+        "status": "pass",
+        "workUnitId": "wu-classify",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "complete:wu-extract",
+        "status": "pass",
+        "workUnitId": "wu-extract",
+        "evidenceVerified": true
+      },
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-pkg-inv-international_transfer_inventory",
+        "status": "missing",
+        "workUnitId": "wu-pkg-inv-international_transfer_inventory",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-pkg-ev-international_transfer_evaluation",
+        "status": "missing",
+        "workUnitId": "wu-pkg-ev-international_transfer_evaluation",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-pkg-eval-international_transfer_evaluation",
+        "status": "missing",
+        "workUnitId": "wu-pkg-eval-international_transfer_evaluation",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-left-rule-gdpr-art40-3",
+        "status": "missing",
+        "workUnitId": "wu-left-rule-gdpr-art40-3",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-left-rule-gdpr-art42-2",
+        "status": "missing",
+        "workUnitId": "wu-left-rule-gdpr-art42-2",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-related-flag-risk",
+        "status": "missing",
+        "workUnitId": "wu-related-flag-risk",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-aggregate",
+        "status": "missing",
+        "workUnitId": "wu-aggregate",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-derive-risk",
+        "status": "missing",
+        "workUnitId": "wu-derive-risk",
+        "evidenceVerified": false
+      },
+      {
+        "itemId": "complete:wu-render",
+        "status": "pass",
+        "workUnitId": "wu-render",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-id:f_extract_wu-extract",
+        "status": "pass",
+        "findingId": "f_extract_wu-extract",
+        "workUnitId": "wu-extract",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-status:f_extract_wu-extract",
+        "status": "pass",
+        "findingId": "f_extract_wu-extract",
+        "workUnitId": "wu-extract",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "locator:f_extract_wu-extract:clause-11.4",
+        "status": "pass",
+        "findingId": "f_extract_wu-extract",
+        "workUnitId": "wu-extract",
+        "evidenceQuote": "11.4 The security of data and the data subject rights under GDPR for the data  processing activities in Russian Federation are protected by appropriate safeguards under  article 46 GDPR, specifically by the Standard Contractual Clauses adopted by the  European Commission in accordance with the examination procedure. European  Commission decided that standard contractual clauses offer sufficient safeguards on data  protection for the data to be transferred internationally. You have a right to req",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "locator:f_extract_wu-extract:clause-11.3",
+        "status": "pass",
+        "findingId": "f_extract_wu-extract",
+        "workUnitId": "wu-extract",
+        "evidenceQuote": "11.3 International transfers.  \n11.3.1 Alaio may process User Personal Data in Russian Federation subject to appropriate  safeguards under article 46 GDPR (see schedule 11.4) and in the USA (see  schedules 11.3.2 and 11.3.3) \n11.3.2 Specific for data transfers from EU, UK and Switzerland to the USA, Alaio, Inc  complies with the EU-U.S. Data Privacy Framework (EU-U.S. DPF), the UK  Extension to the EU-U.S. DPF, and the Swiss-U.S. Data Privacy Framework (Swiss U.S. DPF) as set forth by the U.S. D",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "locator:f_extract_wu-extract:clause-12.3",
+        "status": "pass",
+        "findingId": "f_extract_wu-extract",
+        "workUnitId": "wu-extract",
+        "evidenceQuote": "12.3 For data transfers outside the EEA listed in schedules 11.3.4 protected by appropriate  safeguards under article 46 GDPR, specifically by the standard data protection clauses  adopted by the Commission in accordance with the examination procedure from controllers  in the EU to processors established outside the EU and Users when the processing is in the  context of the activities of an establishment of EEA countries other than Republic of Cyprus \nand/or Users offering services to data subje",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-id:f_render_wu-render",
+        "status": "pass",
+        "findingId": "f_render_wu-render",
+        "workUnitId": "wu-render",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-status:f_render_wu-render",
+        "status": "pass",
+        "findingId": "f_render_wu-render",
+        "workUnitId": "wu-render",
+        "evidenceVerified": true
+      },
+      {
+        "detail": "Required requirement international_transfer.mechanisms_reference lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:international_transfer.mechanisms_reference",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement international_transfer.schrems_ii_measures lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:international_transfer.schrems_ii_measures",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement international_transfer.third_countries_and_legal_basis lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:international_transfer.third_countries_and_legal_basis",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement international_transfer.mechanism_gaps lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:international_transfer.mechanism_gaps",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "itemId": "requirement-refs:transfer_mechanism_identification",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-international_transfer_evaluation",
+        "evidenceVerified": true
+      },
+      {
+        "detail": "Assessment status adequate conflicts with derived status cannot_determine",
+        "itemId": "requirement-consistency:transfer_mechanism_identification",
+        "status": "ambiguous",
+        "workUnitId": "wu-pkg-eval-international_transfer_evaluation",
+        "evidenceVerified": false
+      },
+      {
+        "itemId": "requirement-refs:schrems_supplementary_measures",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-international_transfer_evaluation",
+        "evidenceVerified": true
+      },
+      {
+        "detail": "Assessment status gap conflicts with derived status cannot_determine",
+        "itemId": "requirement-consistency:schrems_supplementary_measures",
+        "status": "ambiguous",
+        "workUnitId": "wu-pkg-eval-international_transfer_evaluation",
+        "evidenceVerified": false
+      },
+      {
+        "itemId": "requirement-refs:international_data_transfer",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-international_transfer_evaluation",
+        "evidenceVerified": true
+      },
+      {
+        "detail": "Assessment status adequate conflicts with derived status cannot_determine",
+        "itemId": "requirement-consistency:international_data_transfer",
+        "status": "ambiguous",
+        "workUnitId": "wu-pkg-eval-international_transfer_evaluation",
+        "evidenceVerified": false
+      },
+      {
+        "itemId": "requirement-mapping:international_transfer.mechanisms_reference",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:international_transfer.schrems_ii_measures",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:international_transfer.third_countries_and_legal_basis",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:international_transfer.mechanism_gaps",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "report-spec:contract",
+        "status": "pass",
+        "workUnitId": "wu-render",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "report-output:contract",
+        "status": "pass",
+        "workUnitId": "wu-render",
+        "evidenceVerified": true
+      },
+      {
+        "detail": "No requirement assessment",
+        "itemId": "coverage:international_transfer.mechanisms_reference",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "No requirement assessment",
+        "itemId": "coverage:international_transfer.schrems_ii_measures",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "No requirement assessment",
+        "itemId": "coverage:international_transfer.third_countries_and_legal_basis",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "No requirement assessment",
+        "itemId": "coverage:international_transfer.mechanism_gaps",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Expected package international_transfer_inventory execution but graph ran a different shape",
+        "itemId": "alignment:wrong_execution_shape:international_transfer.third_countries_and_legal_basis",
+        "status": "fail",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "All requirement assessments are missing or without supporting findings",
+        "itemId": "placeholder-output",
+        "status": "fail",
+        "workUnitId": "wu-render",
+        "evidenceVerified": false
+      }
+    ],
+    "outcomes": [
+      {
+        "attempts": [],
+        "workUnitId": "wu-classify",
+        "terminalStatus": "verified"
+      },
+      {
+        "attempts": [],
+        "workUnitId": "wu-extract",
+        "terminalStatus": "verified"
+      },
+      {
+        "attempts": [
+          {
+            "outcome": "rejected",
+            "outputHash": "no-findings",
+            "attemptNumber": 1,
+            "rejectionReason": "Work unit did not reach an allowed terminal status"
+          }
+        ],
+        "workUnitId": "wu-pkg-inv-international_transfer_inventory",
+        "failureReason": {
+          "kind": "verification_rejected",
+          "critiqueReason": "Work unit did not reach an allowed terminal status"
+        },
+        "terminalStatus": "retries_exhausted"
+      },
+      {
+        "attempts": [
+          {
+            "outcome": "rejected",
+            "outputHash": "no-findings",
+            "attemptNumber": 1,
+            "rejectionReason": "Work unit did not reach an allowed terminal status"
+          }
+        ],
+        "workUnitId": "wu-pkg-ev-international_transfer_evaluation",
+        "failureReason": {
+          "kind": "verification_rejected",
+          "critiqueReason": "Work unit did not reach an allowed terminal status"
+        },
+        "terminalStatus": "retries_exhausted"
+      },
+      {
+        "attempts": [
+          {
+            "outcome": "rejected",
+            "outputHash": "no-findings",
+            "attemptNumber": 1,
+            "rejectionReason": "Work unit did not reach an allowed terminal status"
+          }
+        ],
+        "workUnitId": "wu-pkg-eval-international_transfer_evaluation",
+        "failureReason": {
+          "kind": "verification_rejected",
+          "critiqueReason": "Work unit did not reach an allowed terminal status"
+        },
+        "terminalStatus": "retries_exhausted"
+      },
+      {
+        "attempts": [
+          {
+            "outcome": "rejected",
+            "outputHash": "no-findings",
+            "attemptNumber": 1,
+            "rejectionReason": "Work unit did not reach an allowed terminal status"
+          }
+        ],
+        "workUnitId": "wu-left-rule-gdpr-art40-3",
+        "failureReason": {
+          "kind": "verification_rejected",
+          "critiqueReason": "Work unit did not reach an allowed terminal status"
+        },
+        "terminalStatus": "retries_exhausted"
+      },
+      {
+        "attempts": [
+          {
+            "outcome": "rejected",
+            "outputHash": "no-findings",
+            "attemptNumber": 1,
+            "rejectionReason": "Work unit did not reach an allowed terminal status"
+          }
+        ],
+        "workUnitId": "wu-left-rule-gdpr-art42-2",
+        "failureReason": {
+          "kind": "verification_rejected",
+          "critiqueReason": "Work unit did not reach an allowed terminal status"
+        },
+        "terminalStatus": "retries_exhausted"
+      },
+      {
+        "attempts": [
+          {
+            "outcome": "rejected",
+            "outputHash": "no-findings",
+            "attemptNumber": 1,
+            "rejectionReason": "Work unit did not reach an allowed terminal status"
+          }
+        ],
+        "workUnitId": "wu-related-flag-risk",
+        "failureReason": {
+          "kind": "verification_rejected",
+          "critiqueReason": "Work unit did not reach an allowed terminal status"
+        },
+        "terminalStatus": "retries_exhausted"
+      },
+      {
+        "attempts": [
+          {
+            "outcome": "rejected",
+            "outputHash": "no-findings",
+            "attemptNumber": 1,
+            "rejectionReason": "Work unit did not reach an allowed terminal status"
+          }
+        ],
+        "workUnitId": "wu-aggregate",
+        "failureReason": {
+          "kind": "verification_rejected",
+          "critiqueReason": "Work unit did not reach an allowed terminal status"
+        },
+        "terminalStatus": "retries_exhausted"
+      },
+      {
+        "attempts": [
+          {
+            "outcome": "rejected",
+            "outputHash": "no-findings",
+            "attemptNumber": 1,
+            "rejectionReason": "Work unit did not reach an allowed terminal status"
+          }
+        ],
+        "workUnitId": "wu-derive-risk",
+        "failureReason": {
+          "kind": "verification_rejected",
+          "critiqueReason": "Work unit did not reach an allowed terminal status"
+        },
+        "terminalStatus": "retries_exhausted"
+      },
+      {
+        "attempts": [
+          {
+            "outcome": "rejected",
+            "outputHash": "bff719aa8165cf41",
+            "attemptNumber": 1,
+            "rejectionReason": "All requirement assessments are missing or without supporting findings"
+          }
+        ],
+        "workUnitId": "wu-render",
+        "failureReason": {
+          "kind": "verification_rejected",
+          "critiqueReason": "All requirement assessments are missing or without supporting findings"
+        },
+        "terminalStatus": "retries_exhausted"
+      }
+    ],
+    "iteration": 1,
+    "allUnitsTerminal": true,
+    "skeletonMismatch": true,
+    "structuralIssues": [
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-pkg-inv-international_transfer_inventory",
+        "status": "missing",
+        "workUnitId": "wu-pkg-inv-international_transfer_inventory",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-pkg-ev-international_transfer_evaluation",
+        "status": "missing",
+        "workUnitId": "wu-pkg-ev-international_transfer_evaluation",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-pkg-eval-international_transfer_evaluation",
+        "status": "missing",
+        "workUnitId": "wu-pkg-eval-international_transfer_evaluation",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-left-rule-gdpr-art40-3",
+        "status": "missing",
+        "workUnitId": "wu-left-rule-gdpr-art40-3",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-left-rule-gdpr-art42-2",
+        "status": "missing",
+        "workUnitId": "wu-left-rule-gdpr-art42-2",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-related-flag-risk",
+        "status": "missing",
+        "workUnitId": "wu-related-flag-risk",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-aggregate",
+        "status": "missing",
+        "workUnitId": "wu-aggregate",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-derive-risk",
+        "status": "missing",
+        "workUnitId": "wu-derive-risk",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement international_transfer.mechanisms_reference lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:international_transfer.mechanisms_reference",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement international_transfer.schrems_ii_measures lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:international_transfer.schrems_ii_measures",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement international_transfer.third_countries_and_legal_basis lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:international_transfer.third_countries_and_legal_basis",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement international_transfer.mechanism_gaps lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:international_transfer.mechanism_gaps",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "No requirement assessment",
+        "itemId": "coverage:international_transfer.mechanisms_reference",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "No requirement assessment",
+        "itemId": "coverage:international_transfer.schrems_ii_measures",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "No requirement assessment",
+        "itemId": "coverage:international_transfer.third_countries_and_legal_basis",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "No requirement assessment",
+        "itemId": "coverage:international_transfer.mechanism_gaps",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Expected package international_transfer_inventory execution but graph ran a different shape",
+        "itemId": "alignment:wrong_execution_shape:international_transfer.third_countries_and_legal_basis",
+        "status": "fail",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "All requirement assessments are missing or without supporting findings",
+        "itemId": "placeholder-output",
+        "status": "fail",
+        "workUnitId": "wu-render",
+        "evidenceVerified": false
+      }
+    ],
+    "executionComplete": false,
+    "structurallyValid": false,
+    "deepCritiqueResults": [],
+    "deepCritiqueTargets": [],
+    "criticalFactSurfaced": false,
+    "deepCritiqueRequired": false
+  }
+}

@@ -117,7 +117,7 @@ export function lockAssessment(input: LockInput): LockDecision {
     if (el.state === "supported") {
       for (const q of el.quotes) {
         const item = bundleItemById.get(q.spanId);
-        if (!item || !item.quotedText.includes(q.quote)) {
+        if (!item || !quoteAppearsIn(q.quote, item.quotedText)) {
           push("QUOTE_NOT_VERIFIED", `elementId=${el.elementId} spanId=${q.spanId}`);
         }
       }
@@ -246,6 +246,31 @@ function dedupeReasons(codes: LockGateCode[]): LockGateCode[] {
   return Array.from(new Set(codes));
 }
 
+/**
+ * Whitespace- and punctuation-normalized verbatim check — same discipline as
+ * `verify-proposition.ts`'s `quoteAppearsIn` and `phase4b-llm-verifier.ts`'s
+ * copy of it. Must match Phase 4B's own quote check exactly: a quote that
+ * Phase 4B accepted (post-normalization) must not be re-rejected here by a
+ * stricter raw substring check, or PDF-sourced documents (whose extracted
+ * text routinely carries irregular double-spacing / non-breaking spaces /
+ * typeset punctuation like curly quotes) would pass verify only to fail at
+ * lock.
+ */
+function quoteAppearsIn(quote: string, passage: string): boolean {
+  const normalize = (s: string) =>
+    s
+      .replace(/[‘’‚‛]/g, "'")
+      .replace(/[“”„‟]/g, '"')
+      .replace(/[–—]/g, "-")
+      .replace(/…/g, "...")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase();
+  const q = normalize(quote);
+  if (!q) return false;
+  return normalize(passage).includes(q);
+}
+
 function allScopesCompatible(scopes: Phase3ScopeVector[]): boolean {
   const nonEmpty = scopes.filter(
     (s) => s.relationship && s.relationship !== "unspecified"
@@ -269,7 +294,16 @@ function rederiveStatus(
   if (!assessment.completeness.verificationComplete) return "verification_incomplete";
   const applicable = matrix.elements.filter((e) => e.state !== "not_applicable");
   if (applicable.some((e) => e.state === "contradicted")) return "conflicting";
-  const mandatory = applicable.filter((e) => kindFor(schema, e.elementId) === "mandatory");
+  // Kept in sync with phase5-assess.ts's `mandatory` filter: an applicable
+  // `conditional` element (already passed the not_applicable filter above,
+  // so its applicabilityRule matched this bundle) counts as mandatory for
+  // aggregation purposes here too, or this re-derivation would disagree with
+  // the now-correct phase5 result and reject every such assessment as
+  // STATUS_AGGREGATION_MISMATCH.
+  const mandatory = applicable.filter((e) => {
+    const kind = kindFor(schema, e.elementId);
+    return kind === "mandatory" || kind === "conditional";
+  });
   const alternatives = applicable.filter((e) => kindFor(schema, e.elementId) === "alternative");
   const supportedCount = applicable.filter((e) => e.state === "supported").length;
   const anyUnresolvedDep = applicable.some((e) => e.state === "unresolved_dependency");

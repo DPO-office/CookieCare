@@ -120,6 +120,20 @@ export function complianceSkipLiveVerifyEnabled(): boolean {
 }
 
 /**
+ * Default OFF — set LLM_VERIFY_CANONICAL=1 to make AI verifier judgment
+ * canonical for every requirement, every regime, replacing the deterministic
+ * keyword-gated matrix in `t.phase4Matrices` wherever the LLM path validated
+ * successfully. Off until the negation, evidence-merge, and coverage-gap
+ * fixes in this change have a live test round; flip the default to true here
+ * once that round passes.
+ */
+export function llmVerifyCanonicalEnabled(): boolean {
+  const raw = process.env.LLM_VERIFY_CANONICAL;
+  if (raw === undefined || raw === "") return false;
+  return raw === "1" || raw.toLowerCase() === "true";
+}
+
+/**
  * PHASE 8 — performance controls for the side-channel pipeline itself.
  *
  * The side-channel (Phase 3-7) is additive work that runs synchronously
@@ -209,6 +223,7 @@ export type ComplianceStage =
   | "retrieve"
   | "bundle"
   | "verify"
+  | "verify_canonical"
   | "assess"
   | "lock"
   | "render";
@@ -243,6 +258,7 @@ interface ComplianceRunTracker {
   fallbackOutcomes: FallbackOutcome[];
   llmVerifyEmitted: boolean;
   llmVerifyOutcomes: LlmVerifyOutcome[];
+  llmVerifyCanonicalSwapEmitted: boolean;
   lockEmitted: boolean;
   lockDecisions: LockDecision[];
   renderEmitted: boolean;
@@ -285,6 +301,7 @@ function tracker(state: AnalysisState): ComplianceRunTracker {
       fallbackOutcomes: [],
       llmVerifyEmitted: false,
       llmVerifyOutcomes: [],
+      llmVerifyCanonicalSwapEmitted: false,
       lockEmitted: false,
       lockDecisions: [],
       renderEmitted: false,
@@ -333,6 +350,7 @@ const PERSISTED_EVENTS = new Set<string>([
   "compliance.verify.llm.element",
   "compliance.verify.llm.completeness",
   "compliance.verify.compare",
+  "compliance.verify.canonical",
   "compliance.lock.attempt",
   "compliance.lock.accepted",
   "compliance.lock.rejected",
@@ -341,6 +359,7 @@ const PERSISTED_EVENTS = new Set<string>([
   "compliance.render.supplemental",
   "compliance.render.bottom_line",
   "compliance.render.reconciliation",
+  "compliance.render.coverage_gap",
   "compliance.run.timing",
   "compliance.run.reconciliation",
   // Generic LLM-assisted investigation (feature-flagged, side-channel).
@@ -1615,6 +1634,49 @@ export async function recordRetrievalFallback(state: AnalysisState): Promise<voi
   );
 
   for (const outcome of outcomes) {
+    // Merge fallback-expanded evidence back into the live bundle by
+    // evidence-IDENTITY (added/removed/replaced spans), not item count — a
+    // retry round that swaps one wrong candidate for one correct one at the
+    // same count must still be picked up. Unconditional (not gated behind
+    // LLM_VERIFY_CANONICAL): this is a strict evidence-completeness fix that
+    // benefits the deterministic path too, and `recordLlmBundleVerification`
+    // (which runs after this stage) reads `t.phase3Results[].bundle` at call
+    // time, so it needs no changes to see the merged evidence.
+    const initialIds = new Set(outcome.initialBundleEvidenceIds);
+    const finalIds = new Set(outcome.finalBundleEvidenceIds);
+    const bundleChanged =
+      initialIds.size !== finalIds.size ||
+      [...finalIds].some((id) => !initialIds.has(id));
+    if (bundleChanged) {
+      const phase3Entry = bundlesByRequirement.get(outcome.requirementId);
+      if (phase3Entry) {
+        phase3Entry.bundle = outcome.finalBundle;
+      }
+      // Refresh the deterministic verdict against the same evidence the
+      // fallback round actually judged, so `t.phase4Matrices` and
+      // `compliance.verify.compare` never reference a stale pre-retry
+      // snapshot. Cheap — no LLM call.
+      const matrixEntry = t.phase4Matrices.find(
+        (m) => m.requirementId === outcome.requirementId
+      );
+      if (matrixEntry) {
+        const canonical =
+          canonicalByRequest.get(outcome.requirementId) ??
+          canonicalRequirementId(outcome.requirementId);
+        const schema = schemaForRequirement(state, outcome.requirementId, canonical);
+        if (schema) {
+          const refreshed = verifyRequirement({
+            requirementId: outcome.requirementId,
+            bundle: outcome.finalBundle,
+            schema,
+          });
+          matrixEntry.elements = refreshed.elements;
+          matrixEntry.returnedElementIds = refreshed.returnedElementIds;
+          matrixEntry.missingElementIds = refreshed.missingElementIds;
+          matrixEntry.estimatedTokens = refreshed.estimatedTokens;
+        }
+      }
+    }
     for (const round of outcome.rounds) {
       emitComplianceEvent(state, "compliance.fallback.round", {
         requirementId: outcome.requirementId,
@@ -1675,6 +1737,7 @@ function skippedFallbackOutcome(
     finalBundleEvidenceIds: evidenceIds,
     initialMatrix: matrix,
     finalMatrix: matrix,
+    finalBundle: bundle,
     retrievalComplete: reason !== "budget_exceeded",
     unresolvedReferences: bundle.dependencies
       .filter((d) => d.state !== "resolved_internal")
@@ -1753,6 +1816,7 @@ export async function recordLlmBundleVerification(state: AnalysisState): Promise
     llmError: reason,
     repairAttempted: false,
     validationErrors: [],
+    matrixValidated: false,
   });
 
   const results = await runBoundedWithBudget(
@@ -1847,6 +1911,112 @@ export async function recordLlmBundleVerification(state: AnalysisState): Promise
     }
   }
   t.llmVerifyOutcomes = outcomes;
+}
+
+/**
+ * PHASE 5.5 — make LLM verifier judgment canonical over the deterministic
+ * keyword-gated matrix, requirement by requirement, when `LLM_VERIFY_CANONICAL`
+ * is on. No-op (deterministic matrices in `t.phase4Matrices` stand as-is) when
+ * the flag is off.
+ *
+ * For each requirement:
+ *  - LLM outcome validated cleanly (`llmCallOk && validationErrors.length === 0`)
+ *    → adopt the LLM matrix's elements/returnedElementIds/missingElementIds/
+ *    estimatedTokens in place. `requirementId`/`bundleId`/`schemaVersion`/
+ *    `reviewStatus` are left untouched (identity fields, not judgment output).
+ *  - Otherwise (no outcome, call failed, or validation failed) → the
+ *    deterministic verdict is NOT trusted for ANY element state, not just
+ *    `supported`/`contradicted`. `not_located`/`ambiguous` can become a
+ *    confident `gap` in Phase 5, and `not_applicable` is itself a keyword
+ *    heuristic — so the whole requirement is marked incomplete
+ *    (`missingElementIds` = every expected element id), which makes
+ *    `assessRequirement` return `verification_incomplete` rather than a
+ *    false `present`/`gap`/`conflicting`. The deterministic states remain on
+ *    `matrix.elements` for audit visibility only — never treated as the
+ *    answer.
+ */
+export function recordLlmVerifyCanonicalSwap(state: AnalysisState): void {
+  if (!llmVerifyCanonicalEnabled()) return;
+  const t = tracker(state);
+  if (t.llmVerifyCanonicalSwapEmitted) return;
+  t.llmVerifyCanonicalSwapEmitted = true;
+
+  const bindings = collectBindings(state);
+  const canonicalByRequest = new Map<string, string>();
+  for (const b of bindings) {
+    canonicalByRequest.set(
+      b.nativeRequirementId,
+      canonicalRequirementId(b.nativeRequirementId)
+    );
+  }
+  const llmByReq = new Map(
+    t.llmVerifyOutcomes.map((o) => [o.matrix.requirementId, o] as const)
+  );
+
+  for (const matrix of t.phase4Matrices) {
+    const canonical =
+      canonicalByRequest.get(matrix.requirementId) ??
+      canonicalRequirementId(matrix.requirementId);
+    const schema = schemaForRequirement(state, matrix.requirementId, canonical);
+    const outcome = llmByReq.get(matrix.requirementId);
+
+    let source: "llm" | "deterministic_fallback";
+    let reason:
+      | "llm_validated"
+      | "llm_not_applicable_no_outcome"
+      | "llm_call_failed"
+      | "llm_validation_failed";
+    if (!outcome) {
+      source = "deterministic_fallback";
+      reason = "llm_not_applicable_no_outcome";
+    } else if (!outcome.llmCallOk) {
+      source = "deterministic_fallback";
+      reason = "llm_call_failed";
+    } else if (!outcome.matrixValidated) {
+      // Both the first attempt AND the one bounded repair failed validation —
+      // NOT the same as "validationErrors.length > 0", which also fires when
+      // a repair fixed everything (validationErrors then holds the FIRST
+      // attempt's now-stale errors purely for diagnostics; matrixValidated is
+      // the actual trust signal — see LlmVerifyOutcome).
+      source = "deterministic_fallback";
+      reason = "llm_validation_failed";
+    } else {
+      source = "llm";
+      reason = "llm_validated";
+    }
+
+    const deterministicStates = Object.fromEntries(
+      matrix.elements.map((e) => [e.elementId, e.state])
+    );
+
+    if (source === "llm" && outcome) {
+      matrix.elements = outcome.matrix.elements;
+      matrix.returnedElementIds = outcome.matrix.returnedElementIds;
+      matrix.missingElementIds = outcome.matrix.missingElementIds;
+      matrix.estimatedTokens = outcome.matrix.estimatedTokens;
+    } else {
+      matrix.missingElementIds = matrix.expectedElementIds.slice();
+      const note = `Keyword match only — AI verification was unavailable this run (${reason}); no individual element's state (supported, contradicted, not_located, or not_applicable) can be trusted without it. Needs manual review.`;
+      matrix.elements = matrix.elements.map((e) => ({
+        ...e,
+        gapDescription: e.gapDescription ? `${e.gapDescription} ${note}` : note,
+      }));
+    }
+
+    emitComplianceEvent(state, "compliance.verify.canonical", {
+      requirementId: matrix.requirementId,
+      canonicalKey: canonical,
+      schemaCanonicalKey: schema?.canonicalKey,
+      reviewStatus: schema?.reviewStatus,
+      source,
+      reason,
+      llmCallOk: outcome ? outcome.llmCallOk : null,
+      validationErrorCount: outcome ? outcome.validationErrors.length : null,
+      repairAttempted: outcome ? outcome.repairAttempted : null,
+      deterministicStates,
+      finalStates: Object.fromEntries(matrix.elements.map((e) => [e.elementId, e.state])),
+    });
+  }
 }
 
 /**
@@ -2031,6 +2201,51 @@ export function recordPhase7Render(state: AnalysisState): void {
     supplementalRequests: collectSupplementalRequests(state),
   };
   const report = renderLockedOnly(input);
+
+  // Coverage gate (round-2 point 2): a requirement that reached Phase 4
+  // (resolved a schema, was eligible for judgment — i.e. appears in
+  // t.phase4Matrices) but never produced an accepted locked row must not be
+  // silently absent from the rendered report — a log line alone does not
+  // stop a wrong-looking "fully compliant" impression. `t.plannedRequirementIds`
+  // is captured BEFORE this stage runs (moved ahead of render in
+  // execute-act-plan.ts) specifically so this comparison is possible here.
+  // Requirements that never resolved a schema at all are a separate,
+  // pre-existing gap already surfaced via `compliance.run.reconciliation` —
+  // not this gate, which is only about judgment that started but didn't
+  // finish.
+  const renderedReqIds = new Set(report.rows.map((r) => r.requirementId));
+  const eligibleReqIds = new Set(t.phase4Matrices.map((m) => m.requirementId));
+  const decisionByReq = new Map<string, LockDecision>();
+  for (let i = 0; i < t.lockDecisions.length; i++) {
+    const a = t.phase5Assessments[i];
+    const d = t.lockDecisions[i];
+    if (a && d) decisionByReq.set(a.requirementId, d);
+  }
+  const assessedReqIds = new Set(t.phase5Assessments.map((a) => a.requirementId));
+  const coverageGap = t.plannedRequirementIds
+    .filter((id) => eligibleReqIds.has(id) && !renderedReqIds.has(id))
+    .map((id) => {
+      const decision = decisionByReq.get(id);
+      const reason =
+        decision && decision.kind === "rejected"
+          ? `lock rejected: ${decision.reasonCodes.join(", ")}`
+          : assessedReqIds.has(id)
+            ? "assessed but did not reach an accepted lock"
+            : "did not complete assessment";
+      return { requirementId: id, reason };
+    });
+
+  if (coverageGap.length > 0) {
+    report.bottomLine.unshift({
+      claim: `${coverageGap.length} required check${coverageGap.length === 1 ? "" : "s"} could not be completed and ${coverageGap.length === 1 ? "is" : "are"} NOT reflected in this assessment: ${coverageGap.map((g) => g.requirementId).join(", ")}.`,
+      lockedAssessmentIds: [],
+    });
+    emitComplianceEvent(state, "compliance.render.coverage_gap", {
+      requirementIds: coverageGap.map((g) => g.requirementId),
+      details: coverageGap,
+    });
+  }
+
   t.renderedReport = report;
 
   for (const row of report.rows) {

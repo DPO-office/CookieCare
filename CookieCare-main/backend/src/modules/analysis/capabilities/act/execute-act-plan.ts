@@ -41,6 +41,7 @@ import {
   recordPhase3Investigation,
   recordLlmAssistedInvestigation,
   recordLlmBundleVerification,
+  recordLlmVerifyCanonicalSwap,
   recordLockValidation,
   recordPhase7Render,
   recordPhase4Verification,
@@ -346,6 +347,14 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
   // current input until a reviewer nominates the LLM matrix as canonical.
   // Same PHASE 8 bounded-concurrency + budget guard as the fallback stage.
   await complianceStageAsync("llm_verify", () => recordLlmBundleVerification(state));
+  // Canonical swap — when LLM_VERIFY_CANONICAL=1, replaces each requirement's
+  // deterministic keyword-gated matrix with the validated LLM verdict in
+  // place; otherwise the deterministic matrix stands untouched. When the AI
+  // path didn't validate for a requirement, the ENTIRE requirement (not just
+  // its supported/contradicted elements) is marked incomplete rather than
+  // trusting any deterministic state — see recordLlmVerifyCanonicalSwap for
+  // why a bare per-state guard is insufficient.
+  complianceStage("verify_canonical", () => recordLlmVerifyCanonicalSwap(state));
   // PHASE 5A + 5B — status calculation + factual explanation over the matrix.
   // Side-channel; live rendering / assessment unchanged (§Phase 5 stop gate).
   complianceStage("assess", () => recordPhase5Assessment(state));
@@ -354,13 +363,17 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
   // per-attempt / accepted / rejected / summary events. Nothing consumes the
   // locked set yet (Phase 7 will).
   complianceStage("lock", () => recordLockValidation(state));
+  // Planned-requirement capture must happen BEFORE render so the render stage
+  // can compare "what was planned and schema-resolved" against "what actually
+  // reached a locked row" and flag any coverage gap in the rendered report
+  // itself, not only in a log line.
+  const plannedRequirementIds = collectPlannedRequirementIds(runnable);
+  recordPlannedRequirements(state, plannedRequirementIds);
   // PHASE 7 — locked-only rendering. Projects accepted LockedAssessments into
   // matrix rows + bottom-line synthesis. When ANALYSIS_COMPLIANCE_LIVE_RENDER
   // is enabled (default), renderOutput replaces live VERIFY assessments with
   // these locked rows (chat is locked-only).
   complianceStage("render", () => recordPhase7Render(state));
-  const plannedRequirementIds = collectPlannedRequirementIds(runnable);
-  recordPlannedRequirements(state, plannedRequirementIds);
 
   const lockedRowsReady =
     (getComplianceRenderedReport(state)?.rows.length ?? 0) > 0;

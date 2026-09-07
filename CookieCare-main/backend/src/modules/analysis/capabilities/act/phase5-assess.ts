@@ -121,9 +121,19 @@ export function assessRequirement(input: AssessmentInput): AssessmentResult {
     };
   }
 
-  const mandatory = applicable.filter((e) =>
-    schemaKindFor(schema, e.elementId) === "mandatory"
-  );
+  // A `conditional` element that reached here already passed the
+  // `not_applicable` filter above — its own `applicabilityRule` matched this
+  // bundle, so the obligation it describes genuinely applies to this
+  // agreement. Treating it as anything less than mandatory-once-applicable
+  // would silently drop a real, applicable gap from the status (confirmed
+  // live: GDPR Art 28(3)(a)'s A2 proviso, correctly judged `not_located` by
+  // the verifier, was being ignored here, so a requirement with one
+  // satisfied mandatory element and one unmet applicable conditional element
+  // was reported `present` instead of `partial`).
+  const mandatory = applicable.filter((e) => {
+    const kind = schemaKindFor(schema, e.elementId);
+    return kind === "mandatory" || kind === "conditional";
+  });
   const alternatives = applicable.filter(
     (e) => schemaKindFor(schema, e.elementId) === "alternative"
   );

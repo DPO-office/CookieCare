@@ -1,0 +1,66 @@
+{
+  "jobId": "6462f6bc-9572-481b-b441-1a05fbc52dbf",
+  "sessionId": "an_a3cb7008-a0da-4b3e-b473-bc8878e785b6",
+  "apiEventsTail": [
+    {
+      "status": 200,
+      "url": "http://localhost:3000/api/auth/login",
+      "method": "POST",
+      "at": "2026-09-06T19:31:15.850Z"
+    },
+    {
+      "status": 202,
+      "url": "http://localhost:3000/api/documents/upload",
+      "method": "POST",
+      "at": "2026-09-06T19:31:18.717Z"
+    },
+    {
+      "status": 200,
+      "url": "http://localhost:3000/api/jobs/faa4c008-11df-4b8f-a144-1075a23275fb",
+      "method": "GET",
+      "at": "2026-09-06T19:31:19.370Z"
+    },
+    {
+      "status": 200,
+      "url": "http://localhost:3000/api/jobs/faa4c008-11df-4b8f-a144-1075a23275fb",
+      "method": "GET",
+      "at": "2026-09-06T19:31:20.583Z"
+    },
+    {
+      "status": 200,
+      "url": "http://localhost:3000/api/jobs/faa4c008-11df-4b8f-a144-1075a23275fb",
+      "method": "GET",
+      "at": "2026-09-06T19:31:21.402Z"
+    },
+    {
+      "status": 200,
+      "url": "http://localhost:3000/api/jobs/faa4c008-11df-4b8f-a144-1075a23275fb",
+      "method": "GET",
+      "at": "2026-09-06T19:31:22.172Z"
+    },
+    {
+      "status": 200,
+      "url": "http://localhost:3000/api/jobs/faa4c008-11df-4b8f-a144-1075a23275fb",
+      "method": "GET",
+      "at": "2026-09-06T19:31:22.931Z"
+    },
+    {
+      "status": 200,
+      "url": "http://localhost:3000/api/jobs/faa4c008-11df-4b8f-a144-1075a23275fb",
+      "method": "GET",
+      "at": "2026-09-06T19:31:23.696Z"
+    },
+    {
+      "status": 202,
+      "url": "http://localhost:3000/api/analysis/run",
+      "method": "POST",
+      "at": "2026-09-06T19:31:24.683Z"
+    },
+    {
+      "status": 200,
+      "url": "http://localhost:3000/api/jobs/sse?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InN1cHJlbWVfYWRtaW5faWQiLCJlbWFpbCI6InN3YXJuYWFpc2h3YXJ5YTE3QGdtYWlsLmNvbSIsImlhdCI6MTc4ODcyMzA3NSwiZXhwIjoxNzg4ODA5NDc1fQ.4v7d8EM5qk6nUHRIPkJ-ECC4ocaBob_HertFpU8h1DI",
+      "method": "GET",
+      "at": "2026-09-06T19:31:24.694Z"
+    }
+  ]
+}

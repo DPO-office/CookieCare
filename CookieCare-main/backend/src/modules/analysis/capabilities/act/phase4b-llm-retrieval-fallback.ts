@@ -128,6 +128,11 @@ export interface FallbackOutcome {
   /** The matrix Phase 4B produced before this fallback ran (unmodified). */
   initialMatrix: RequirementMatrix;
   finalMatrix: RequirementMatrix;
+  /** The actual expanded bundle (not just its evidence IDs) — callers merge
+   * this back into the requirement's live bundle so later stages (the LLM
+   * verifier) judge the evidence a retry round actually found, not the
+   * pre-retry snapshot. */
+  finalBundle: Phase3Bundle;
   retrievalComplete: boolean;
   unresolvedReferences: string[];
   investigationIncomplete: boolean;
@@ -155,6 +160,7 @@ export async function runFallbackForRequirement(
       finalBundleEvidenceIds: initialBundleEvidenceIds,
       initialMatrix: input.initialMatrix,
       finalMatrix: input.initialMatrix,
+      finalBundle: input.initialBundle,
       retrievalComplete: retrievalCompleteFor(input.initialBundle),
       unresolvedReferences: unresolvedRefs(input.initialBundle),
       investigationIncomplete: false,
@@ -254,6 +260,7 @@ export async function runFallbackForRequirement(
     finalBundleEvidenceIds: currentBundle.items.map((i) => i.spanId),
     initialMatrix: input.initialMatrix,
     finalMatrix: currentMatrix,
+    finalBundle: currentBundle,
     retrievalComplete: !investigationIncomplete,
     unresolvedReferences: unresolvedRefs(currentBundle),
     investigationIncomplete,

@@ -65,6 +65,10 @@ const SYSTEM_PROMPT = [
   "8. Do NOT treat two legal obligations as the same merely because they share a word or an abbreviation. Read the element's exact proposition and require the passage to address THAT specific obligation, not a nearby or similarly-named one. Example failure mode to avoid: a 'Data Protection Impact Assessment' clause (a distinct GDPR obligation) is NOT evidence for a 'Transfer Impact Assessment' element just because both contain the word 'assessment' — verify the passage is actually about the element's own subject matter before citing it.",
   "9. Do NOT treat the mere existence of one mechanism as proof that a related but separate obligation was also satisfied. Example: a clause naming a transfer mechanism (e.g. Standard Contractual Clauses) proves that mechanism exists — it does NOT by itself prove a distinct requirement to assess or document supplementary measures, unless the passage itself performs or refers to that assessment.",
   "10. When in doubt between `supported` and `not_located`/`ambiguous`, prefer the more conservative state. A plausible-sounding passage that does not actually state the element's proposition is not evidence for it.",
+  "11. Judge each passage against the element's OWN proposition, not the mere presence of a negation word or a conditional/future phrase. " +
+    "Negation: if the proposition itself requires a prohibition or restraint (e.g. 'the processor must not disclose Personal Data without authorization'), a passage stating that prohibition SUPPORTS the element — negation is the compliance evidence in that case, not a contradiction of it. Mark `contradicted` only when the passage negates, excludes, or disclaims what the PROPOSITION itself requires to be true (e.g. the proposition requires an affirmative obligation to delete data, and the passage states the processor is NOT obligated to delete it). " +
+    "Future/conditional obligations: a binding obligation triggered by a defined future event or condition (e.g. 'on expiry of the Term, the processor shall delete all Personal Data') is a REAL, PRESENT, enforceable obligation and should be marked `supported` when the passage states it — an obligation existing now but contingent on a later trigger is ordinary, extremely common contract drafting, and is NOT the same as the obligation not existing. Only mark `not_located` or `ambiguous` when the passage expresses a mere INTENTION to negotiate or agree on something at an unspecified later time, with no defined trigger and no present commitment (e.g. 'the parties intend to agree on deletion procedures in a future amendment') — that has no binding content yet. " +
+    "Wrong party: mark `not_located` or `ambiguous` (never `supported`) when the obligation is imposed on the wrong party — the proposition needs the processor to act, but the passage only binds the controller, or vice versa.",
 ].join("\n");
 
 interface RawVerdict {
@@ -128,7 +132,15 @@ export interface LlmVerifyOutcome {
   llmCallOk: boolean;
   llmError?: string;
   repairAttempted: boolean;
+  /** Errors from earlier attempt(s), kept for diagnostics even when a later
+   * repair fixed them — NOT a signal that `matrix` itself is untrustworthy.
+   * Callers must check `matrixValidated`, not `validationErrors.length`, to
+   * decide whether to trust `matrix`. */
   validationErrors: string[];
+  /** True iff `matrix` came from a verdict set that passed validation
+   * (first try or after repair) — false only when both attempts failed and
+   * `matrix` is the `verificationIncompleteMatrix` placeholder. */
+  matrixValidated: boolean;
 }
 
 export async function verifyRequirementWithLlm(
@@ -159,6 +171,7 @@ export async function verifyRequirementWithLlm(
       llmCallOk: true,
       repairAttempted: false,
       validationErrors: [],
+      matrixValidated: true,
     };
   }
 
@@ -183,7 +196,10 @@ export async function verifyRequirementWithLlm(
       matrix: buildMatrix(requirementId, bundle, schema, secondAttempt.verdicts),
       llmCallOk: true,
       repairAttempted: true,
+      // Historical — the repair fixed these; `matrix` above is the corrected,
+      // fully-validated result and is just as trustworthy as a clean first try.
       validationErrors: firstAttempt.errors,
+      matrixValidated: true,
     };
   }
 
@@ -194,6 +210,7 @@ export async function verifyRequirementWithLlm(
     llmError: firstError ?? repairError,
     repairAttempted: true,
     validationErrors: [...firstAttempt.errors, ...secondAttempt.errors],
+    matrixValidated: false,
   };
 }
 
@@ -258,6 +275,33 @@ async function callLlm(
   return raw ?? { verdicts: [] };
 }
 
+/**
+ * Deterministic verbatim check, whitespace-normalized — same discipline as
+ * `verify-proposition.ts`'s `quoteAppearsIn`. PDF-extracted spans routinely
+ * carry irregular double-spacing / non-breaking spaces that a raw
+ * `.includes()` never matches even when the LLM's quote is genuinely
+ * verbatim (it naturally collapses that noise), which was rejecting real,
+ * correct citations from PDF-sourced documents far more often than
+ * DOCX-sourced ones. Normalizing both sides before comparing keeps the
+ * anti-fabrication guarantee (invented text still won't match) while fixing
+ * that false-rejection rate.
+ */
+function normalizeForQuoteMatch(text: string): string {
+  return text
+    .replace(/[\u2018\u2019\u201A\u201B]/g, "'")
+    .replace(/[\u201C\u201D\u201E\u201F]/g, '"')
+    .replace(/[\u2013\u2014]/g, "-")
+    .replace(/\u2026/g, "...")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+function quoteAppearsIn(quote: string, passage: string): boolean {
+  const q = normalizeForQuoteMatch(quote);
+  if (!q) return false;
+  return normalizeForQuoteMatch(passage).includes(q);
+}
+
 function validate(
   raw: RawVerdict[] | undefined,
   expectedIds: string[],
@@ -306,7 +350,7 @@ function validate(
         errors.push(`quote_spanId_not_in_bundle_${v.elementId}_${q.spanId}`);
         continue;
       }
-      if (!item.quotedText.includes(q.quote)) {
+      if (!quoteAppearsIn(q.quote, item.quotedText)) {
         errors.push(`quote_not_exact_substring_${v.elementId}_${q.spanId}`);
       }
     }
@@ -350,7 +394,7 @@ function toElementVerdict(
       return {
         spanId: q.spanId!,
         quote: q.quote!,
-        quoteVerified: item.quotedText.includes(q.quote!),
+        quoteVerified: quoteAppearsIn(q.quote!, item.quotedText),
         charRange: item.charRange,
       };
     });
