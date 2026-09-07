@@ -22,7 +22,6 @@ import { useCompare } from "../analyze/compare/hooks/useCompare";
 import { useCompareChat } from "../analyze/compare/hooks/useCompareChat";
 import {
   getCompareHistory,
-  saveCompareToHistory,
   restoreCompareHistoryEntry,
   deleteCompareHistoryEntry,
   type CompareHistoryEntry,
@@ -129,17 +128,12 @@ export default function LORAAI({
     }
   }, [finaliseCompareMessage, activateCompareSession]);
 
-  // Persist completed comparisons to local history
-  useEffect(() => {
-    if (!isCompareMode || isLanding || isLoading) return;
-    const hasResult = messages.some((m) => m.compareResult);
-    if (!hasResult) return;
-    const saved = saveCompareToHistory(messages);
-    if (saved) {
-      setActiveHistoryId(saved.id);
-      setHistoryEntries(getCompareHistory());
-    }
-  }, [messages, isCompareMode, isLanding, isLoading]);
+  // History persistence has been removed from the Documents compare flow.
+  // The History UI is no longer shown in the Compare Documents view, so there
+  // is no reason to serialize large CompareResult payloads (clausesA/B,
+  // differences, alignment, risks) into localStorage — doing so caused a
+  // QuotaExceededError. The compareHistory utility is preserved for any future
+  // Report/ChatView flows that may restore sessions from history.
 
   // ── Compare AI engine — wired to the chat message flow ───────────────────
   const { startCompare } = useCompare({

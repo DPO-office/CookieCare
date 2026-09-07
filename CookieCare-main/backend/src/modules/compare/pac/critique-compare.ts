@@ -28,6 +28,7 @@ import type {
   RiskFinding,
 } from "../models/compare-state.js";
 import type { ExecutiveSummary } from "../schemas/executive-summary-schema.js";
+import { findDuplicateOrdinaryMappings } from "../utils/alignment-contract.js";
 
 // ─── Result types ─────────────────────────────────────────────────────────────
 
@@ -153,6 +154,19 @@ function validateAlignments(
         )
       );
     }
+  }
+
+  const duplicateMappings = findDuplicateOrdinaryMappings(pairs);
+  for (const v of duplicateMappings) {
+    issues.push(
+      issue(
+        "alignment:duplicate-ordinary-mapping",
+        "error",
+        `Ordinary MATCH/MOVED maps clause ${v.side} "${v.clauseId}" to multiple pairs (${v.pairIds.join(", ")}). ` +
+          "Split/merge must be explicit; duplicate ordinary mappings are forbidden.",
+        v.clauseId
+      )
+    );
   }
 }
 

@@ -13,6 +13,7 @@ import { updateJobProgress } from "../../jobQueue.js";
 import { CompareState } from "../../../modules/compare/models/compare-state.js";
 import { CompareWorkflowOrchestrator } from "../../../modules/compare/workflows/compare-workflow.js";
 import { compareSessionStore } from "../../../modules/compare/session/compare-session-store.js";
+import { docxToPdf, requiresPdfConversion } from "../../../utils/docxToPdf.js";
 
 export async function executeContractComparison(
   jobId: string,
@@ -37,20 +38,71 @@ export async function executeContractComparison(
   const originalBuffer = Buffer.from(original.fileBufferBase64, "base64");
   const revisedBuffer = Buffer.from(revised.fileBufferBase64, "base64");
 
+  // ── DOCX → PDF conversion (Phase 2b) ─────────────────────────────────────
+  // For DOCX/DOC files we convert to PDF before running the pipeline.
+  // The converted PDF is used for:
+  //   1. Visual rendering in the browser (served via GET /api/compare/:jobId/pdf)
+  //   2. Text extraction with page-break metadata (so pageNumber is consistent
+  //      with the rendered PDF pages, not with the DOCX paragraph layout)
+  //
+  // For PDF files we keep the original bytes unchanged.
+
+  await updateJobProgress(jobId, userId, 5, "Starting comparison pipeline...");
+
+  let pdfBufferA: Buffer;
+  let mimeTypeA: string;
+  let pdfBufferB: Buffer;
+  let mimeTypeB: string;
+
+  if (requiresPdfConversion(original.mimeType)) {
+    await updateJobProgress(jobId, userId, 7, "Converting original document to PDF...");
+    try {
+      pdfBufferA = await docxToPdf(originalBuffer, original.fileName);
+      mimeTypeA = "application/pdf";
+      console.log(`[compare-handler] Converted original DOCX "${original.fileName}" → PDF`);
+    } catch (err: any) {
+      console.error("[compare-handler] DOCX→PDF conversion failed for original:", err.message);
+      // Fall back to DOCX buffer — text extraction still works, no page numbers
+      pdfBufferA = originalBuffer;
+      mimeTypeA = original.mimeType;
+    }
+  } else {
+    pdfBufferA = originalBuffer;
+    mimeTypeA = original.mimeType;
+  }
+
+  if (requiresPdfConversion(revised.mimeType)) {
+    await updateJobProgress(jobId, userId, 8, "Converting revised document to PDF...");
+    try {
+      pdfBufferB = await docxToPdf(revisedBuffer, revised.fileName);
+      mimeTypeB = "application/pdf";
+      console.log(`[compare-handler] Converted revised DOCX "${revised.fileName}" → PDF`);
+    } catch (err: any) {
+      console.error("[compare-handler] DOCX→PDF conversion failed for revised:", err.message);
+      pdfBufferB = revisedBuffer;
+      mimeTypeB = revised.mimeType;
+    }
+  } else {
+    pdfBufferB = revisedBuffer;
+    mimeTypeB = revised.mimeType;
+  }
+
   // ── Build initial CompareState ────────────────────────────────────────────
+  // Use the (possibly converted) PDF buffers so that page-break extraction
+  // in extractText.ts corresponds to the same pages the viewer will render.
   const initialState: CompareState = {
     onProgress: async (percent: number, message: string) => {
       await updateJobProgress(jobId, userId, percent, message);
     },
     files: {
       original: {
-        buffer: originalBuffer,
-        mimeType: original.mimeType,
+        buffer: pdfBufferA,
+        mimeType: mimeTypeA,
         fileName: original.fileName,
       },
       revised: {
-        buffer: revisedBuffer,
-        mimeType: revised.mimeType,
+        buffer: pdfBufferB,
+        mimeType: mimeTypeB,
         fileName: revised.fileName,
       },
     },
@@ -61,8 +113,6 @@ export async function executeContractComparison(
       title,
     },
   };
-
-  await updateJobProgress(jobId, userId, 5, "Starting comparison pipeline...");
 
   // ── Run the pipeline ──────────────────────────────────────────────────────
   const orchestrator = new CompareWorkflowOrchestrator();
@@ -82,7 +132,26 @@ export async function executeContractComparison(
           textB: serializableState.parsed.textB,
         }
       : null,
-    structure: serializableState.structure,
+    structure: serializableState.structure
+      ? {
+          clausesA: serializableState.structure.clausesA.map((c) => ({
+            id: c.id,
+            title: c.title,
+            text: c.text,
+            position: c.position,
+            sectionPath: c.sectionPath,
+            pageNumber: c.pageNumber,
+          })),
+          clausesB: serializableState.structure.clausesB.map((c) => ({
+            id: c.id,
+            title: c.title,
+            text: c.text,
+            position: c.position,
+            sectionPath: c.sectionPath,
+            pageNumber: c.pageNumber,
+          })),
+        }
+      : null,
     alignment: serializableState.alignment ?? null,
     differences: serializableState.differences ?? null,
     risks: serializableState.risks ?? null,
@@ -108,16 +177,21 @@ export async function executeContractComparison(
       id: c.id,
       title: c.title,
       text: c.text,
+      pageNumber: c.pageNumber,
     })) ?? null,
     clausesB: serializableState.structure?.clausesB?.map((c) => ({
       id: c.id,
       title: c.title,
       text: c.text,
+      pageNumber: c.pageNumber,
     })) ?? null,
     alignment: serializableState.alignment ?? null,
     differences: serializableState.differences ?? null,
     risks: serializableState.risks ?? null,
     executiveSummary: serializableState.executiveSummary ?? null,
+    // Renderable PDFs — original bytes for PDFs, converted bytes for DOCX.
+    pdfA: pdfBufferA,
+    pdfB: pdfBufferB,
   });
 
   return resultPayload;
