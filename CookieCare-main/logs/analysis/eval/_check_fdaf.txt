@@ -1,0 +1,18 @@
+phase=1C events=942
+summary={"countsByKind":{"document":1,"section":9,"heading":11,"appendix":2,"paragraph":135,"clause":24,"list":11,"list_item":49,"definition":15},"orphanCount":0,"totalNodes":257}
+appendices=2
+document/appendix-1 childCount=3 kids=heading,section,section
+document/appendix-2 childCount=6 kids=heading,section,section,section,section,section
+lists=11 parents=document/application-of-this-dpa/list@1718 | document/application-of-this-dpa/list@8734 | document/application-of-this-dpa/list@16612 | document/application-of-this-dpa/list@17226 | document/application-of-this-dpa/list@29465 | document/appendix-1/processing-subject-matter | document/appendix-1/processing-subject-matter | document/appendix-1/processing-subject-matter | document/appendix-2/security-measures | document/appendix-2/security-measures | document/appendix-2/infrastructure-maintenance
+Term_indexed=true
+orphans=0
+appendix_refs=28 resolved_internalish=28
+category_lines_in_emitted_nodes=2 kinds=list
+recon=undefined
+
+--- db diag snippet ---
+count=3
+=== waiting (ungranted) locks ===
+count=0
+count=0
+=== idle-in-transaction count=0 ===

@@ -1,0 +1,138 @@
+[
+  {
+    "label": "Bitrix an_965ab7ee",
+    "phase": "3C",
+    "events": 6554,
+    "queries": 15,
+    "kinds": [
+      "requirement",
+      "element",
+      "cross_reference"
+    ],
+    "all6": "0/15",
+    "hits": 817,
+    "denseNull": true,
+    "recalls": 15,
+    "recallIds": [
+      "subject_matter",
+      "duration",
+      "nature_purpose",
+      "data_categories",
+      "data_subject_categories",
+      "controller_obligations_rights",
+      "art28_3_a_instructions",
+      "art28_3_b_confidentiality",
+      "art28_3_c_security",
+      "art28_3_d_subprocessors",
+      "art28_3_e_dsr_assistance",
+      "art28_3_f_security_assistance",
+      "art28_3_g_deletion_return",
+      "art28_3_h_audit",
+      "art28_4_subprocessor_flow_down"
+    ],
+    "missingRecall": [],
+    "zeroRecall": [],
+    "expandMax": 20,
+    "expandReasons": {
+      "parent": 15,
+      "heading": 17,
+      "child": 257,
+      "definition": 11
+    },
+    "fHits": 51,
+    "fInternal": 0,
+    "durationPartitions": [
+      "unspecified",
+      "controller_to_processor"
+    ],
+    "exclReasons": {
+      "budget": 247
+    },
+    "incompatible_scope": 0,
+    "deps": {
+      "resolved_internal": 3947,
+      "unresolved_external": 150
+    },
+    "structure": {
+      "document": 1,
+      "section": 9,
+      "heading": 11,
+      "appendix": 2,
+      "paragraph": 135,
+      "clause": 24,
+      "list": 11,
+      "list_item": 49,
+      "definition": 15
+    },
+    "termMarker": true
+  },
+  {
+    "label": "Mastercard-like an_a5a9bb6f",
+    "phase": "3C",
+    "events": 11128,
+    "queries": 15,
+    "kinds": [
+      "requirement",
+      "element",
+      "cross_reference"
+    ],
+    "all6": "0/15",
+    "hits": 837,
+    "denseNull": true,
+    "recalls": 15,
+    "recallIds": [
+      "subject_matter",
+      "duration",
+      "nature_purpose",
+      "data_categories",
+      "data_subject_categories",
+      "controller_obligations_rights",
+      "art28_3_a_instructions",
+      "art28_3_b_confidentiality",
+      "art28_3_c_security",
+      "art28_3_d_subprocessors",
+      "art28_3_e_dsr_assistance",
+      "art28_3_f_security_assistance",
+      "art28_3_g_deletion_return",
+      "art28_3_h_audit",
+      "art28_4_subprocessor_flow_down"
+    ],
+    "missingRecall": [],
+    "zeroRecall": [],
+    "expandMax": 20,
+    "expandReasons": {
+      "parent": 15,
+      "heading": 9,
+      "child": 276
+    },
+    "fHits": 51,
+    "fInternal": 0,
+    "durationPartitions": [
+      "controller_to_processor",
+      "controller_to_controller",
+      "unspecified"
+    ],
+    "exclReasons": {
+      "budget": 426,
+      "incompatible_scope": 50
+    },
+    "incompatible_scope": 50,
+    "deps": {
+      "resolved_internal": 3814,
+      "unresolved_external": 1899,
+      "ambiguous": 1736
+    },
+    "structure": {
+      "document": 1,
+      "section": 7,
+      "heading": 14,
+      "appendix": 7,
+      "paragraph": 1016,
+      "clause": 105,
+      "list": 23,
+      "list_item": 25,
+      "definition": 27
+    },
+    "termMarker": false
+  }
+]

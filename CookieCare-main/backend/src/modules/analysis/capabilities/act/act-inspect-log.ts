@@ -8,11 +8,12 @@ import {
   truncate,
   wrapPrefixed,
 } from "../../shared/inspect-format.js";
-import { pacLogBlock } from "../../utils/pac-log.js";
+import { analysisLogEnabled, pacLogBlock } from "../../utils/pac-log.js";
 import { actStageForTool, type ActStage } from "./act-stage.js";
 
 /** Set ANALYSIS_ACT_STEP_INSPECT=0 to silence per-step dumps (final ACT INSPECT still runs). */
 function stepInspectEnabled(): boolean {
+  if (!analysisLogEnabled()) return false;
   const raw = process.env.ANALYSIS_ACT_STEP_INSPECT;
   if (raw === undefined || raw === "") return true;
   return !["0", "false", "off", "no"].includes(raw.trim().toLowerCase());
@@ -138,6 +139,7 @@ export function logActStepInspect(args: ActStepInspectArgs): void {
  * traced back to what ACT actually produced (not just unit counts).
  */
 export function logActInspect(state: AnalysisState): void {
+  if (!analysisLogEnabled()) return;
   const units = state.plan?.workUnits ?? [];
   const findings = state.findings ?? [];
   const assessments = state.requirementAssessments ?? [];

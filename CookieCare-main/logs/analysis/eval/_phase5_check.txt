@@ -1,0 +1,157 @@
+newest_logs=an_5c929289-33e1-4303-abac-47779f4d5e91.compliance.log | an_7d107bb4-4d03-4e4d-93d5-343457f3f598.compliance.log | an_70e8df41-a682-4ea2-b108-5ff52f0407a0.compliance.log | an_8d46b63d-1d3e-4074-9935-73f757f359c2.compliance.log | an_cd827214-4d71-4834-9e22-10d69d829b9e.compliance.log
+with_assess=5
+
+======== Bitrix-like an_5c929289-33e1-4303-abac-47779f4d5e91.compliance.log ========
+phase=5B assess=true parts=["unspecified","controller_to_processor","unspecified"] excl={"budget":127}
+counts={"compliance.bundle.created":15,"compliance.element.registry":8,"compliance.verify.input":8,"compliance.verify.element":15,"compliance.verify.completeness":8,"compliance.assess.input":8,"compliance.assess.result":8,"compliance.explain.draft":8}
+assess.input=8 assess.result=8 explain.draft=8
+
+--- assess.results ---
+{"req":"subject_matter","canonicalKey":"gdpr.article28.subject_matter","status":"present","reasonCodes":["SUBJECT_MATTER_PRESENT"],"ruleVersion":"0.1.0"}
+{"req":"duration","canonicalKey":"gdpr.article28.duration","status":"present","reasonCodes":["DURATION_PRESENT"],"ruleVersion":"0.1.0"}
+{"req":"nature_purpose","canonicalKey":"gdpr.article28.nature_and_purpose","status":"present","reasonCodes":["PROCESSING_NATURE_PRESENT","PROCESSING_PURPOSE_PRESENT"],"ruleVersion":"0.1.0"}
+{"req":"data_categories","canonicalKey":"gdpr.article28.categories_of_data","status":"present","reasonCodes":["CATEGORIES_OF_DATA_PRESENT"],"ruleVersion":"0.1.0"}
+{"req":"data_subject_categories","canonicalKey":"gdpr.article28.categories_of_data_subjects","status":"present","reasonCodes":["CATEGORIES_OF_DATA_SUBJECTS_PRESENT"],"ruleVersion":"0.1.0"}
+{"req":"art28_3_a_instructions","canonicalKey":"gdpr.article28.3a.documented_instructions","status":"present","reasonCodes":["DOCUMENTED_INSTRUCTIONS_PRESENT","INSTRUCTION_LAW_PROVISO_PRESENT"],"ruleVersion":"0.1.0"}
+{"req":"art28_3_f_security_assistance","canonicalKey":"gdpr.article28.3f.controller_assistance","status":"present","reasonCodes":["SECURITY_ASSISTANCE_PRESENT","BREACH_NOTIFICATION_ASSISTANCE_PRESENT","DPIA_ASSISTANCE_PRESENT"],"ruleVersion":"0.1.0"}
+{"req":"art28_3_g_deletion_return","canonicalKey":"gdpr.article28.3g.deletion_or_return","status":"partial","reasonCodes":["CONTROLLER_CHOICE_NOT_LOCATED","DELETE_PRESENT","RETURN_NOT_LOCATED","LEGAL_RETENTION_NOT_LOCATED"],"ruleVersion":"0.1.0"}
+
+--- (g) acceptance ---
+{"status":"partial","reasonCodes":["CONTROLLER_CHOICE_NOT_LOCATED","DELETE_PRESENT","RETURN_NOT_LOCATED","LEGAL_RETENTION_NOT_LOCATED"],"pass_partial":true,"pass_DELETE_PRESENT":true,"pass_RETURN_NOT_LOCATED":true,"pass_LEGAL_RETENTION_NOT_LOCATED":true,"pass_choice":true,"bitrix_g_accept":true}
+
+--- (f) ---
+{"status":"present","reasonCodes":["SECURITY_ASSISTANCE_PRESENT","BREACH_NOTIFICATION_ASSISTANCE_PRESENT","DPIA_ASSISTANCE_PRESENT"],"matrix":{"F1":"supported","F2":"supported","F3":"supported"}}
+
+--- (a) ---
+{"status":"present","reasonCodes":["DOCUMENTED_INSTRUCTIONS_PRESENT","INSTRUCTION_LAW_PROVISO_PRESENT"],"matrix":{"A1":"supported","A2":"supported"}}
+
+--- particulars ---
+subject_matter: status=present reasons=["SUBJECT_MATTER_PRESENT"] matrix={"SM1":"supported"}
+duration: status=present reasons=["DURATION_PRESENT"] matrix={"DU1":"supported"}
+nature_purpose: status=present reasons=["PROCESSING_NATURE_PRESENT","PROCESSING_PURPOSE_PRESENT"] matrix={"NP1":"supported","NP2":"supported"}
+data_categories: status=present reasons=["CATEGORIES_OF_DATA_PRESENT"] matrix={"CD1":"supported"}
+data_subject_categories: status=present reasons=["CATEGORIES_OF_DATA_SUBJECTS_PRESENT"] matrix={"DS1":"supported"}
+
+--- verification_incomplete not gap ---
+status=verification_incomplete count=0; gap+VERIFICATION_INCOMPLETE reason=0
+verification_incomplete rows never status gap: true
+
+--- unresolved deps ---
+subject_matter: unresolvedDependencyCount=14 status=present elementStates={"SM1":"supported"}
+duration: unresolvedDependencyCount=11 status=present elementStates={"DU1":"supported"}
+nature_purpose: unresolvedDependencyCount=11 status=present elementStates={"NP1":"supported","NP2":"supported"}
+data_categories: unresolvedDependencyCount=13 status=present elementStates={"CD1":"supported"}
+data_subject_categories: unresolvedDependencyCount=13 status=present elementStates={"DS1":"supported"}
+art28_3_a_instructions: unresolvedDependencyCount=13 status=present elementStates={"A1":"supported","A2":"supported"}
+art28_3_f_security_assistance: unresolvedDependencyCount=13 status=present elementStates={"F1":"supported","F2":"supported","F3":"supported"}
+art28_3_g_deletion_return: unresolvedDependencyCount=14 status=partial elementStates={"G1":"not_located","G2":"supported","G3":"not_located","G4":"not_located"}
+
+--- explain cite integrity ---
+span cites ok=133 bad=0; supportedIds ok=12 bad=0; conclusion ok=8 bad=0
+
+--- (g) explain sample ---
+{"conclusion":"At the choice of the controller, the processor deletes or returns all personal data at the end of the provision of services is partial — 1 of 4 mandatory elements supported; 3 outstanding.","whatProvides":"G2: The processor is obligated to delete on request. Supported at clause-4.2, clause-4.1, clause-2.5.2.","whatMissing":"G1: No bundle item matched proof guidance for element G1. G3: No bundle item matched proof guidance for element G3. G4: No bundle item matched proof guidance for element G4.","action":"G1: Reword the post-termination clause to grant the controller a choice. G3: Add a return obligation (format specified where reasonable). G4: Add the closing proviso limiting retention to legally required cases.","supportedElementIds":["G2"],"missingElementIds":["G1","G3","G4"],"nSpans":5}
+
+======== MC-like an_7d107bb4-4d03-4e4d-93d5-343457f3f598.compliance.log ========
+phase=5B assess=true parts=["unspecified","controller_to_controller","controller_to_processor"] excl={"budget":466,"incompatible_scope":124}
+counts={"compliance.bundle.created":15,"compliance.element.registry":8,"compliance.verify.input":8,"compliance.verify.element":15,"compliance.verify.completeness":8,"compliance.assess.input":8,"compliance.assess.result":8,"compliance.explain.draft":8}
+assess.input=8 assess.result=8 explain.draft=8
+
+--- assess.results ---
+{"req":"subject_matter","canonicalKey":"gdpr.article28.subject_matter","status":"present","reasonCodes":["SUBJECT_MATTER_PRESENT"],"ruleVersion":"0.1.0"}
+{"req":"duration","canonicalKey":"gdpr.article28.duration","status":"present","reasonCodes":["DURATION_PRESENT"],"ruleVersion":"0.1.0"}
+{"req":"nature_purpose","canonicalKey":"gdpr.article28.nature_and_purpose","status":"present","reasonCodes":["PROCESSING_NATURE_PRESENT","PROCESSING_PURPOSE_PRESENT"],"ruleVersion":"0.1.0"}
+{"req":"data_categories","canonicalKey":"gdpr.article28.categories_of_data","status":"present","reasonCodes":["CATEGORIES_OF_DATA_PRESENT"],"ruleVersion":"0.1.0"}
+{"req":"data_subject_categories","canonicalKey":"gdpr.article28.categories_of_data_subjects","status":"present","reasonCodes":["CATEGORIES_OF_DATA_SUBJECTS_PRESENT"],"ruleVersion":"0.1.0"}
+{"req":"art28_3_a_instructions","canonicalKey":"gdpr.article28.3a.documented_instructions","status":"present","reasonCodes":["DOCUMENTED_INSTRUCTIONS_PRESENT","INSTRUCTION_LAW_PROVISO_PRESENT"],"ruleVersion":"0.1.0"}
+{"req":"art28_3_f_security_assistance","canonicalKey":"gdpr.article28.3f.controller_assistance","status":"partial","reasonCodes":["SECURITY_ASSISTANCE_PRESENT","BREACH_NOTIFICATION_ASSISTANCE_PRESENT","DPIA_ASSISTANCE_NOT_LOCATED"],"ruleVersion":"0.1.0"}
+{"req":"art28_3_g_deletion_return","canonicalKey":"gdpr.article28.3g.deletion_or_return","status":"partial","reasonCodes":["CONTROLLER_CHOICE_NOT_LOCATED","DELETE_PRESENT","RETURN_PRESENT","LEGAL_RETENTION_UNRESOLVED_DEPENDENCY"],"ruleVersion":"0.1.0"}
+
+--- (g) acceptance ---
+{"status":"partial","reasonCodes":["CONTROLLER_CHOICE_NOT_LOCATED","DELETE_PRESENT","RETURN_PRESENT","LEGAL_RETENTION_UNRESOLVED_DEPENDENCY"],"pass_partial":true,"pass_DELETE_PRESENT":true,"pass_RETURN_NOT_LOCATED":false,"pass_LEGAL_RETENTION_NOT_LOCATED":false,"pass_choice":true,"bitrix_g_accept":false}
+
+--- (f) ---
+{"status":"partial","reasonCodes":["SECURITY_ASSISTANCE_PRESENT","BREACH_NOTIFICATION_ASSISTANCE_PRESENT","DPIA_ASSISTANCE_NOT_LOCATED"],"matrix":{"F1":"supported","F2":"supported","F3":"not_located"}}
+
+--- (a) ---
+{"status":"present","reasonCodes":["DOCUMENTED_INSTRUCTIONS_PRESENT","INSTRUCTION_LAW_PROVISO_PRESENT"],"matrix":{"A1":"supported","A2":"supported"}}
+
+--- particulars ---
+subject_matter: status=present reasons=["SUBJECT_MATTER_PRESENT"] matrix={"SM1":"supported"}
+duration: status=present reasons=["DURATION_PRESENT"] matrix={"DU1":"supported"}
+nature_purpose: status=present reasons=["PROCESSING_NATURE_PRESENT","PROCESSING_PURPOSE_PRESENT"] matrix={"NP1":"supported","NP2":"supported"}
+data_categories: status=present reasons=["CATEGORIES_OF_DATA_PRESENT"] matrix={"CD1":"supported"}
+data_subject_categories: status=present reasons=["CATEGORIES_OF_DATA_SUBJECTS_PRESENT"] matrix={"DS1":"supported"}
+
+--- verification_incomplete not gap ---
+status=verification_incomplete count=0; gap+VERIFICATION_INCOMPLETE reason=0
+verification_incomplete rows never status gap: true
+
+--- unresolved deps ---
+subject_matter: unresolvedDependencyCount=321 status=present elementStates={"SM1":"supported"}
+duration: unresolvedDependencyCount=319 status=present elementStates={"DU1":"supported"}
+nature_purpose: unresolvedDependencyCount=319 status=present elementStates={"NP1":"supported","NP2":"supported"}
+data_categories: unresolvedDependencyCount=319 status=present elementStates={"CD1":"supported"}
+data_subject_categories: unresolvedDependencyCount=319 status=present elementStates={"DS1":"supported"}
+art28_3_a_instructions: unresolvedDependencyCount=326 status=present elementStates={"A1":"supported","A2":"supported"}
+art28_3_f_security_assistance: unresolvedDependencyCount=319 status=partial elementStates={"F1":"supported","F2":"supported","F3":"not_located"}
+art28_3_g_deletion_return: unresolvedDependencyCount=328 status=partial elementStates={"G1":"not_located","G2":"supported","G3":"supported","G4":"unresolved_dependency"}
+matrix unresolved art28_3_g_deletion_return: G4 => status=partial
+
+--- explain cite integrity ---
+span cites ok=106 bad=0; supportedIds ok=12 bad=0; conclusion ok=8 bad=0
+
+--- (g) explain sample ---
+{"conclusion":"At the choice of the controller, the processor deletes or returns all personal data at the end of the provision of services is partial — 2 of 4 mandatory elements supported; 2 outstanding.","whatProvides":"G2: The processor is obligated to delete on request. Supported at clause-3.5.6, clause-5.1.4, clause-4.4.6. G3: The processor is obligated to return on request. Supported at clause-3.5.6.","whatMissing":"G1: No bundle item matched proof guidance for element G1. G4: Bundle references 'Privacy and Data Protection Law' but it is ambiguous.","action":"G1: Reword the post-termination clause to grant the controller a choice. G4: Add the closing proviso limiting retention to legally required cases.","supportedElementIds":["G2","G3"],"missingElementIds":["G1","G4"],"nSpans":5}
+
+======== MC-like an_7d107bb4-4d03-4e4d-93d5-343457f3f598.compliance.log ========
+phase=5B assess=true parts=["unspecified","controller_to_controller","controller_to_processor"] excl={"budget":466,"incompatible_scope":124}
+counts={"compliance.bundle.created":15,"compliance.element.registry":8,"compliance.verify.input":8,"compliance.verify.element":15,"compliance.verify.completeness":8,"compliance.assess.input":8,"compliance.assess.result":8,"compliance.explain.draft":8}
+assess.input=8 assess.result=8 explain.draft=8
+
+--- assess.results ---
+{"req":"subject_matter","canonicalKey":"gdpr.article28.subject_matter","status":"present","reasonCodes":["SUBJECT_MATTER_PRESENT"],"ruleVersion":"0.1.0"}
+{"req":"duration","canonicalKey":"gdpr.article28.duration","status":"present","reasonCodes":["DURATION_PRESENT"],"ruleVersion":"0.1.0"}
+{"req":"nature_purpose","canonicalKey":"gdpr.article28.nature_and_purpose","status":"present","reasonCodes":["PROCESSING_NATURE_PRESENT","PROCESSING_PURPOSE_PRESENT"],"ruleVersion":"0.1.0"}
+{"req":"data_categories","canonicalKey":"gdpr.article28.categories_of_data","status":"present","reasonCodes":["CATEGORIES_OF_DATA_PRESENT"],"ruleVersion":"0.1.0"}
+{"req":"data_subject_categories","canonicalKey":"gdpr.article28.categories_of_data_subjects","status":"present","reasonCodes":["CATEGORIES_OF_DATA_SUBJECTS_PRESENT"],"ruleVersion":"0.1.0"}
+{"req":"art28_3_a_instructions","canonicalKey":"gdpr.article28.3a.documented_instructions","status":"present","reasonCodes":["DOCUMENTED_INSTRUCTIONS_PRESENT","INSTRUCTION_LAW_PROVISO_PRESENT"],"ruleVersion":"0.1.0"}
+{"req":"art28_3_f_security_assistance","canonicalKey":"gdpr.article28.3f.controller_assistance","status":"partial","reasonCodes":["SECURITY_ASSISTANCE_PRESENT","BREACH_NOTIFICATION_ASSISTANCE_PRESENT","DPIA_ASSISTANCE_NOT_LOCATED"],"ruleVersion":"0.1.0"}
+{"req":"art28_3_g_deletion_return","canonicalKey":"gdpr.article28.3g.deletion_or_return","status":"partial","reasonCodes":["CONTROLLER_CHOICE_NOT_LOCATED","DELETE_PRESENT","RETURN_PRESENT","LEGAL_RETENTION_UNRESOLVED_DEPENDENCY"],"ruleVersion":"0.1.0"}
+
+--- (g) acceptance ---
+{"status":"partial","reasonCodes":["CONTROLLER_CHOICE_NOT_LOCATED","DELETE_PRESENT","RETURN_PRESENT","LEGAL_RETENTION_UNRESOLVED_DEPENDENCY"],"pass_partial":true,"pass_DELETE_PRESENT":true,"pass_RETURN_NOT_LOCATED":false,"pass_LEGAL_RETENTION_NOT_LOCATED":false,"pass_choice":true,"bitrix_g_accept":false}
+
+--- (f) ---
+{"status":"partial","reasonCodes":["SECURITY_ASSISTANCE_PRESENT","BREACH_NOTIFICATION_ASSISTANCE_PRESENT","DPIA_ASSISTANCE_NOT_LOCATED"],"matrix":{"F1":"supported","F2":"supported","F3":"not_located"}}
+
+--- (a) ---
+{"status":"present","reasonCodes":["DOCUMENTED_INSTRUCTIONS_PRESENT","INSTRUCTION_LAW_PROVISO_PRESENT"],"matrix":{"A1":"supported","A2":"supported"}}
+
+--- particulars ---
+subject_matter: status=present reasons=["SUBJECT_MATTER_PRESENT"] matrix={"SM1":"supported"}
+duration: status=present reasons=["DURATION_PRESENT"] matrix={"DU1":"supported"}
+nature_purpose: status=present reasons=["PROCESSING_NATURE_PRESENT","PROCESSING_PURPOSE_PRESENT"] matrix={"NP1":"supported","NP2":"supported"}
+data_categories: status=present reasons=["CATEGORIES_OF_DATA_PRESENT"] matrix={"CD1":"supported"}
+data_subject_categories: status=present reasons=["CATEGORIES_OF_DATA_SUBJECTS_PRESENT"] matrix={"DS1":"supported"}
+
+--- verification_incomplete not gap ---
+status=verification_incomplete count=0; gap+VERIFICATION_INCOMPLETE reason=0
+verification_incomplete rows never status gap: true
+
+--- unresolved deps ---
+subject_matter: unresolvedDependencyCount=321 status=present elementStates={"SM1":"supported"}
+duration: unresolvedDependencyCount=319 status=present elementStates={"DU1":"supported"}
+nature_purpose: unresolvedDependencyCount=319 status=present elementStates={"NP1":"supported","NP2":"supported"}
+data_categories: unresolvedDependencyCount=319 status=present elementStates={"CD1":"supported"}
+data_subject_categories: unresolvedDependencyCount=319 status=present elementStates={"DS1":"supported"}
+art28_3_a_instructions: unresolvedDependencyCount=326 status=present elementStates={"A1":"supported","A2":"supported"}
+art28_3_f_security_assistance: unresolvedDependencyCount=319 status=partial elementStates={"F1":"supported","F2":"supported","F3":"not_located"}
+art28_3_g_deletion_return: unresolvedDependencyCount=328 status=partial elementStates={"G1":"not_located","G2":"supported","G3":"supported","G4":"unresolved_dependency"}
+matrix unresolved art28_3_g_deletion_return: G4 => status=partial
+
+--- explain cite integrity ---
+span cites ok=106 bad=0; supportedIds ok=12 bad=0; conclusion ok=8 bad=0
+
+--- (g) explain sample ---
+{"conclusion":"At the choice of the controller, the processor deletes or returns all personal data at the end of the provision of services is partial — 2 of 4 mandatory elements supported; 2 outstanding.","whatProvides":"G2: The processor is obligated to delete on request. Supported at clause-3.5.6, clause-5.1.4, clause-4.4.6. G3: The processor is obligated to return on request. Supported at clause-3.5.6.","whatMissing":"G1: No bundle item matched proof guidance for element G1. G4: Bundle references 'Privacy and Data Protection Law' but it is ambiguous.","action":"G1: Reword the post-termination clause to grant the controller a choice. G4: Add the closing proviso limiting retention to legally required cases.","supportedElementIds":["G2","G3"],"missingElementIds":["G1","G4"],"nSpans":5}

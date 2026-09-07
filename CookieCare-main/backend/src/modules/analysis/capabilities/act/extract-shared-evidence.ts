@@ -10,6 +10,7 @@ import { pacLog } from "../../utils/pac-log.js";
 import { tokenizeForEvidence } from "./isolate-requirement-evidence.js";
 import { logSharedEvidenceCut } from "./evidence-pool-log.js";
 import { buildSectionCandidates } from "./select-candidates.js";
+import { recordRetrievalPool } from "./compliance-observability.js";
 
 /**
  * Candidate-pool cap for one package. This is not the evaluator packet —
@@ -71,6 +72,13 @@ export function extractSharedEvidence(
       chars: items.reduce((n, i) => n + i.quotedText.length, 0),
       truncated: items.filter((i) => i.truncated).length,
     });
+    recordRetrievalPool(state, {
+      packageId,
+      source: "document-sections",
+      beforeFilter: items.length,
+      afterScopeFilter: items.length,
+      afterCap: items.length,
+    });
     return {
       state: {
         ...state,
@@ -117,6 +125,13 @@ export function extractSharedEvidence(
     items: items.length,
     chars: items.reduce((n, i) => n + i.quotedText.length, 0),
     truncated: items.filter((i) => i.truncated).length,
+  });
+  recordRetrievalPool(state, {
+    packageId,
+    source: "clause-pool",
+    beforeFilter: clauses.length,
+    afterScopeFilter: matched.length,
+    afterCap: items.length,
   });
 
   const bundle: SharedEvidenceBundle = { packageId, docId, items };

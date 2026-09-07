@@ -1,0 +1,57 @@
+phase=4B
+header=true
+counts={"compliance.bundle.created":15,"compliance.element.registry":8,"compliance.verify.input":5,"compliance.verify.element":6,"compliance.verify.completeness":5}
+bundles=15
+registry=8
+verify.input=5
+verify.element=6
+verify.completeness=5
+verify.input reqs=["subject_matter","duration","nature_purpose","data_categories","data_subject_categories"]
+---per_req_states---
+subject_matter: {"supported":1,"_els":1}
+duration: {"supported":1,"_els":1}
+nature_purpose: {"supported":2,"_els":2}
+data_categories: {"supported":1,"_els":1}
+data_subject_categories: {"supported":1,"_els":1}
+global_states={"supported":6}
+---completeness---
+subject_matter: expected=1 returned=1 missing=[] schema=0.1.0 review=authored
+duration: expected=1 returned=1 missing=[] schema=0.1.0 review=authored
+nature_purpose: expected=2 returned=2 missing=[] schema=0.1.0 review=authored
+data_categories: expected=1 returned=1 missing=[] schema=0.1.0 review=authored
+data_subject_categories: expected=1 returned=1 missing=[] schema=0.1.0 review=authored
+---sample duration---
+[
+  {
+    "id": "DU1",
+    "state": "supported",
+    "spans": 18,
+    "quotes": 4,
+    "quoteVerified": true,
+    "fact": "The contract specifies the duration of the processing, either by a defined term (e.g., 'Term') or by tying it to the ter",
+    "gap": "",
+    "q0": "7.4 Objection Right for New Sub-processors.  \nWhen any new Sub-processor is engaged during the Term,"
+  }
+]
+---sample data_categories---
+[
+  {
+    "id": "CD1",
+    "state": "supported",
+    "spans": 24,
+    "quotes": 4,
+    "quoteVerified": true,
+    "fact": "The contract lists the categories of personal data processed. Supported at clause-2, clause-9.2, clause-6.3.",
+    "gap": "",
+    "q0": "2. Data subjects about whom personal data is transferred to Alaio in connection with  the Processor "
+  }
+]
+---sample art28_3_f---
+[]
+---sample art28_3_g---
+[]
+---registry---
+keys=["gdpr.article28.subject_matter","gdpr.article28.duration","gdpr.article28.nature_and_purpose","gdpr.article28.categories_of_data","gdpr.article28.categories_of_data_subjects","gdpr.article28_3.a.documented_instructions","gdpr.article28_3.f.security_assistance","gdpr.article28_3.g.return_or_deletion"]
+reviewStatuses=["authored"]
+bundle_reqs=15 ["subject_matter","duration","nature_purpose","data_categories","data_subject_categories","controller_obligations_rights","art28_3_a_instructions","art28_3_b_confidentiality","art28_3_c_security","art28_3_d_subprocessors","art28_3_e_dsr_assistance","art28_3_f_security_assistance","art28_3_g_deletion_return","art28_3_h_audit","art28_4_subprocessor_flow_down"]
+inputs_vs_bundles_missing=["controller_obligations_rights","art28_3_a_instructions","art28_3_b_confidentiality","art28_3_c_security","art28_3_d_subprocessors","art28_3_e_dsr_assistance","art28_3_f_security_assistance","art28_3_g_deletion_return","art28_3_h_audit","art28_4_subprocessor_flow_down"]

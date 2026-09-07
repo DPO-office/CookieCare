@@ -74,6 +74,7 @@ import {
 import { buildInMemoryIndex, type ClauseIndex } from "./clause-index.js";
 import { logVerifyCandidates } from "./verify-inspect-log.js";
 import { logRetrievalRanking, logSelectedCandidates } from "./evidence-pool-log.js";
+import { recordRetrievalPool } from "./compliance-observability.js";
 import {
   selectCandidates,
   buildSectionCandidates,
@@ -861,11 +862,22 @@ async function evaluateWithVerify(
   // just another section here, so selection can see and pick it. `items` (the
   // type-extracted pool) is kept only for the hybrid/lexical fallback path.
   const documentSections = doc ? buildSectionCandidates(doc) : items;
+  const selectorPoolInput = llmSelectEnabled || complianceReport ? documentSections : items;
   const selectorPool = filterCandidatesByEvidenceScope(
-    llmSelectEnabled || complianceReport ? documentSections : items,
+    selectorPoolInput,
     complianceReport ? ctx.evidenceScope : undefined
   );
   const recallPool = complianceReport ? selectorPool : items;
+  // PHASE 0 observability — the per-package retrieval cut inside VERIFY, so a
+  // reviewer can compare how many candidates entered vs survived the scope
+  // filter vs the final per-requirement cap. Emitted once per package.
+  recordRetrievalPool(state, {
+    packageId: ctx.packageId,
+    source: llmSelectEnabled || complianceReport ? "document-sections" : "clause-items",
+    beforeFilter: selectorPoolInput.length,
+    afterScopeFilter: selectorPool.length,
+    afterCap: recallPool.length,
+  });
 
   // Only build the embedding index for the hybrid fallback — when LLM
   // selection is on it replaces the index entirely, so skipping it saves the
@@ -1248,6 +1260,7 @@ async function evaluateWithVerify(
         hypothesis,
         proofStandard,
         outcomes: verdicts,
+        state,
         mixedResolution: distinct ? "scope_dependent" : "conflicting",
       });
       findings.push(
@@ -1284,6 +1297,7 @@ async function evaluateWithVerify(
           hypothesis,
           proofStandard,
           outcomes: verdicts,
+        state,
           scopeDependentRefs: scopedRefs,
         });
         findings.push(
@@ -1302,6 +1316,7 @@ async function evaluateWithVerify(
         hypothesis,
         proofStandard,
         outcomes: verdicts,
+        state,
         winnerIndex,
         winnerVerdict: winner.result.verdict === "proves" ? "proves" : "contradicts",
       });
@@ -1350,6 +1365,7 @@ async function evaluateWithVerify(
         hypothesis,
         proofStandard,
         outcomes: verdicts,
+        state,
         partialIndex: verdicts.indexOf(partial),
       });
       findings.push(
@@ -1387,6 +1403,7 @@ async function evaluateWithVerify(
       hypothesis,
       proofStandard,
       outcomes: verdicts,
+      state,
       closestIndex,
     });
     findings.push(
@@ -1592,14 +1609,20 @@ function buildVerifiedFinding(
     };
   }
 
-  const compliance = verdict === "proves" ? "present" : "gap";
+  const provingPartial = verdict === "proves" && result.partialCoverage === true;
+  const compliance =
+    verdict === "proves" ? (provingPartial ? "partial" : "present") : "gap";
   const judgementBase: Omit<RequirementJudgement, "recommendationKind"> = {
     compliance,
     evidenceState: "direct",
     referenceBinding: "none",
     evidenceConfidence: "high",
-    draftingQuality: verdict === "proves" ? "clean" : undefined,
-    materiality: verdict === "contradicts" ? "high" : "low",
+    draftingQuality: provingPartial
+      ? "could_be_clearer"
+      : verdict === "proves"
+        ? "clean"
+        : undefined,
+    materiality: verdict === "contradicts" ? "high" : provingPartial ? "medium" : "low",
     nli: verdict === "proves" ? "entailed" : "contradicted",
   };
   const judgement: RequirementJudgement = {

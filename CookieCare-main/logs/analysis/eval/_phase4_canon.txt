@@ -1,0 +1,18 @@
+subject_matter => gdpr.article28.subject_matter => schema=gdpr.article28.subject_matter
+duration => gdpr.article28.duration => schema=gdpr.article28.duration
+nature_purpose => gdpr.article28.nature_and_purpose => schema=gdpr.article28.nature_and_purpose
+data_categories => gdpr.article28.categories_of_data => schema=gdpr.article28.categories_of_data
+data_subject_categories => gdpr.article28.categories_of_data_subjects => schema=gdpr.article28.categories_of_data_subjects
+art28_3_a_instructions => gdpr.article28.3a.documented_instructions => schema=NONE
+art28_3_f_security_assistance => gdpr.article28.3f.controller_assistance => schema=NONE
+art28_3_g_deletion_return => gdpr.article28.3g.deletion_or_return => schema=NONE
+controller_obligations_rights => gdpr.article28.controller_obligations_and_rights => schema=NONE
+---registry keys---
+gdpr.article28.subject_matter | gdpr.art28.subject_matter
+gdpr.article28.duration | gdpr.art28.duration
+gdpr.article28.nature_and_purpose | gdpr.art28.nature_and_purpose
+gdpr.article28.categories_of_data | gdpr.art28.categories_of_data
+gdpr.article28.categories_of_data_subjects | gdpr.art28.categories_of_data_subjects
+gdpr.article28_3.a.documented_instructions | gdpr.art28_3.a.documented_instructions
+gdpr.article28_3.f.security_assistance | gdpr.art28_3.f.security_assistance
+gdpr.article28_3.g.return_or_deletion | gdpr.art28_3.g.return_or_deletion

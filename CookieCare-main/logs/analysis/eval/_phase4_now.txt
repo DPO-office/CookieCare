@@ -1,0 +1,42 @@
+
+######## MC-like an_77df02b9-4012-4e79-a474-862f8aab9e55.compliance.log
+phase=4B mtime=2026-09-05T16:03:28.791Z
+matrices=8/8 elements=15 missing=0 durationParts=["unspecified","controller_to_controller","controller_to_processor"] excl={"budget":466,"incompatible_scope":124}
+--- (a) ---
+[{"id":"A1","state":"supported","n":12},{"id":"A2","state":"supported","n":18}]
+--- (f) ---
+[{"id":"F1","state":"supported","n":10,"paths":["clause-3.6.1","heading-security-of-the-data","heading-security-of-the-data","clause-3.6.2","clause-3.6"],"has64":false,"has10":false,"q0":"3.6.1 it has implemented and maintains a comprehensive written information securi"},{"id":"F2","state":"supported","n":10,"paths":["clause-2023","clause-3.6","clause-3.5.4","clause-3.7.6","clause-7.2"],"has64":false,"has10":false,"q0":"2023) and its Implementing Regulations; (10) Nigeria Data Protection Act 2023 and its subs"},{"id":"F3","state":"not_located","n":0,"paths":[],"has64":false,"has10":false,"q0":""}]
+--- (g) ---
+[{"id":"G1","state":"not_located","n":0,"paths":[],"gap":"No bundle item matched proof guidance for element G1.","q0":""},{"id":"G2","state":"supported","n":5,"paths":["clause-3.5.6","clause-5.1.4","clause-4.4.6"],"gap":"","q0":"3.5.6 Return and Deletion of Personal Data: upon expiry or termination of the "},{"id":"G3","state":"not_located","n":0,"paths":[],"gap":"No bundle item matched proof guidance for element G3.","q0":""},{"id":"G4","state":"supported","n":4,"paths":["clause-6.1","clause-6.1","clause-3.5.6"],"gap":"","q0":"6.1 Unless the Parties can rely on other cross-border transfer mechanisms as permitted und"}]
+--- appendix ---
+subject_matter/SM1: state=supported appendix=0 p0=heading-security-of-the-data
+data_categories/CD1: state=supported appendix=0 p0=clause-6.2
+data_subject_categories/DS1: state=supported appendix=0 p0=clause-3.5.4
+
+######## Bitrix-like an_d0984515-2cc0-4812-a691-bc3fd1e82e31.compliance.log
+phase=4B mtime=2026-09-05T15:51:33.956Z
+matrices=8/8 elements=15 missing=0 durationParts=["unspecified","controller_to_processor","unspecified"] excl={"budget":127}
+--- (a) ---
+[{"id":"A1","state":"supported","n":8},{"id":"A2","state":"supported","n":16}]
+--- (f) ---
+[{"id":"F1","state":"supported","n":21,"paths":["clause-11.4","clause-6.4","clause-1.10","clause-2.3","clause-6.2"],"has64":true,"has10":false,"q0":"11.4 The security of data and the data subject rights under GDPR for the data processing "},{"id":"F2","state":"supported","n":13,"paths":["clause-8.4","clause-6.4","clause-10","clause-12.3","clause-7.4"],"has64":true,"has10":true,"q0":"8.4 Third Party Notifications. Administrator is solely responsible for complying with brea"},{"id":"F3","state":"supported","n":1,"paths":["clause-10"],"has64":false,"has10":true,"q0":"10. DATA PROTECTION IMPACT ASSESSMENT Upon Administrator´s request, Alaio will assist Adm"}]
+--- (g) ---
+[{"id":"G1","state":"not_located","n":0,"paths":[],"gap":"No bundle item matched proof guidance for element G1.","q0":""},{"id":"G2","state":"supported","n":5,"paths":["clause-4.2","clause-4.1","clause-2.5.2"],"gap":"","q0":"4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it rece"},{"id":"G3","state":"not_located","n":0,"paths":[],"gap":"No bundle item matched proof guidance for element G3.","q0":""},{"id":"G4","state":"supported","n":2,"paths":["clause-1.3","clause-2.5"],"gap":"","q0":"1.3 No data, and in particular personal data, is transferred to any computer or device pe"}]
+--- appendix ---
+subject_matter/SM1: state=supported appendix=0 p0=clause-2.1.1
+data_categories/CD1: state=supported appendix=0 p0=clause-2
+data_subject_categories/DS1: state=supported appendix=0 p0=clause-2
+
+######## MC-like an_46c8c8c6-bc51-4d3b-8fd5-c10b1fffacbc.compliance.log
+phase=4B mtime=2026-09-05T15:48:51.330Z
+matrices=8/8 elements=15 missing=0 durationParts=["unspecified","controller_to_controller","controller_to_processor"] excl={"budget":466,"incompatible_scope":124}
+--- (a) ---
+[{"id":"A1","state":"supported","n":12},{"id":"A2","state":"supported","n":18}]
+--- (f) ---
+[{"id":"F1","state":"supported","n":2,"paths":["clause-3.6.1","clause-3.6.2"],"has64":false,"has10":false,"q0":"3.6.1 it has implemented and maintains a comprehensive written information securi"},{"id":"F2","state":"supported","n":6,"paths":["clause-2023","clause-3.6","clause-3.5.5","clause-3.5.4","clause-7.2"],"has64":false,"has10":false,"q0":"2023) and its Implementing Regulations; (10) Nigeria Data Protection Act 2023 and its subs"},{"id":"F3","state":"supported","n":1,"paths":["clause-3.5.5"],"has64":false,"has10":false,"q0":"3.5.5 Cooperation and Assistance: cooperate with Mastercard to ensure compliance with Priv"}]
+--- (g) ---
+[{"id":"G1","state":"supported","n":2,"paths":["clause-3.5.6","clause-3.7.7"],"gap":"","q0":"3.5.6 Return and Deletion of Personal Data: upon expiry or termination of the "},{"id":"G2","state":"supported","n":8,"paths":["clause-3.5.4","clause-3.5.6","clause-5.1.4"],"gap":"","q0":"3.5.4 Notification Obligations: immediately inform Mastercard, in writing, in relation to "},{"id":"G3","state":"supported","n":8,"paths":["clause-3.5.4","clause-5.1.4","clause-3.5.6"],"gap":"","q0":"3.5.4 Notification Obligations: immediately inform Mastercard, in writing, in relation to "},{"id":"G4","state":"supported","n":19,"paths":["clause-3.5.4","clause-5.1.4","clause-3.9.1"],"gap":"","q0":"3.5.4 Notification Obligations: immediately inform Mastercard, in writing, in relation to "}]
+--- appendix ---
+subject_matter/SM1: state=supported appendix=0 p0=heading-security-of-the-data
+data_categories/CD1: state=supported appendix=0 p0=clause-6.2
+data_subject_categories/DS1: state=supported appendix=0 p0=clause-3.5.4

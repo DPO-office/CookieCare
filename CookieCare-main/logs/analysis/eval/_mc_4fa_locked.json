@@ -1,0 +1,160 @@
+{
+  "log": "logs/analysis/an_4fa11225-3e5f-47ff-bdf2-93a1c5075023.compliance.log",
+  "assess": [
+    {
+      "requirementId": "subject_matter",
+      "status": "present",
+      "elementStates": {
+        "SM1": "supported"
+      },
+      "reasonCodes": [
+        "SUBJECT_MATTER_PRESENT"
+      ]
+    },
+    {
+      "requirementId": "duration",
+      "status": "present",
+      "elementStates": {
+        "DU1": "supported"
+      },
+      "reasonCodes": [
+        "DURATION_PRESENT"
+      ]
+    },
+    {
+      "requirementId": "nature_purpose",
+      "status": "present",
+      "elementStates": {
+        "NP1": "supported",
+        "NP2": "supported"
+      },
+      "reasonCodes": [
+        "PROCESSING_NATURE_PRESENT",
+        "PROCESSING_PURPOSE_PRESENT"
+      ]
+    },
+    {
+      "requirementId": "data_categories",
+      "status": "present",
+      "elementStates": {
+        "CD1": "supported"
+      },
+      "reasonCodes": [
+        "CATEGORIES_OF_DATA_PRESENT"
+      ]
+    },
+    {
+      "requirementId": "data_subject_categories",
+      "status": "present",
+      "elementStates": {
+        "DS1": "supported"
+      },
+      "reasonCodes": [
+        "CATEGORIES_OF_DATA_SUBJECTS_PRESENT"
+      ]
+    },
+    {
+      "requirementId": "art28_3_a_instructions",
+      "status": "present",
+      "elementStates": {
+        "A1": "supported",
+        "A2": "supported"
+      },
+      "reasonCodes": [
+        "DOCUMENTED_INSTRUCTIONS_PRESENT",
+        "INSTRUCTION_LAW_PROVISO_PRESENT"
+      ]
+    },
+    {
+      "requirementId": "art28_3_f_security_assistance",
+      "status": "partial",
+      "elementStates": {
+        "F1": "supported",
+        "F2": "supported",
+        "F3": "not_located"
+      },
+      "reasonCodes": [
+        "SECURITY_ASSISTANCE_PRESENT",
+        "BREACH_NOTIFICATION_ASSISTANCE_PRESENT",
+        "DPIA_ASSISTANCE_NOT_LOCATED"
+      ]
+    },
+    {
+      "requirementId": "art28_3_g_deletion_return",
+      "status": "present",
+      "elementStates": {
+        "G1": "supported",
+        "G2": "supported",
+        "G3": "supported",
+        "G4": "supported"
+      },
+      "reasonCodes": [
+        "CONTROLLER_CHOICE_PRESENT",
+        "DELETE_PRESENT",
+        "RETURN_PRESENT",
+        "LEGAL_RETENTION_PRESENT"
+      ]
+    }
+  ],
+  "lock": [
+    {
+      "event": "compliance.lock.accepted",
+      "requirementId": "subject_matter",
+      "status": "present"
+    },
+    {
+      "event": "compliance.lock.accepted",
+      "requirementId": "duration",
+      "status": "present"
+    },
+    {
+      "event": "compliance.lock.accepted",
+      "requirementId": "nature_purpose",
+      "status": "present"
+    },
+    {
+      "event": "compliance.lock.accepted",
+      "requirementId": "data_categories",
+      "status": "present"
+    },
+    {
+      "event": "compliance.lock.accepted",
+      "requirementId": "data_subject_categories",
+      "status": "present"
+    },
+    {
+      "event": "compliance.lock.accepted",
+      "requirementId": "art28_3_a_instructions",
+      "status": "present"
+    },
+    {
+      "event": "compliance.lock.accepted",
+      "requirementId": "art28_3_f_security_assistance",
+      "status": "partial"
+    },
+    {
+      "event": "compliance.lock.accepted",
+      "requirementId": "art28_3_g_deletion_return",
+      "status": "present"
+    }
+  ],
+  "render": [],
+  "eventTypes": [
+    "compliance.assess.input",
+    "compliance.assess.result",
+    "compliance.bundle.created",
+    "compliance.element.registry",
+    "compliance.explain.draft",
+    "compliance.fallback.outcome",
+    "compliance.fallback.round",
+    "compliance.lock.accepted",
+    "compliance.lock.attempt",
+    "compliance.lock.summary",
+    "compliance.verify.compare",
+    "compliance.verify.completeness",
+    "compliance.verify.element",
+    "compliance.verify.input",
+    "compliance.verify.llm.completeness",
+    "compliance.verify.llm.element"
+  ]
+}

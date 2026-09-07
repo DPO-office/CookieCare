@@ -1,0 +1,12 @@
+an_ba0d8e55-327d-46cd-a1f0-13df14d1eb88.compliance.log | rows=8 | g=Partial | a=Present | ev=2.1.1 Processor and Controller Responsibilities. The parties acknowled
+an_9922f418-61f0-4a20-87dc-0e93611ce38e.compliance.log | rows=8 | g=Partial | a=Present | ev=2.1.1 Processor and Controller Responsibilities. The parties acknowled
+an_7a536dd3-7984-4f2c-9db5-41fc414bd39c.compliance.log | rows=8 | g=Partial | a=Present | ev=2.1.1 Processor and Controller Responsibilities. The parties acknowled
+an_63172615-339c-4171-9708-1990cc17219f.compliance.log | rows=8 | g=Partial | a=Present | ev=2.1.1 Processor and Controller Responsibilities. The parties acknowled
+an_4fa11225-3e5f-47ff-bdf2-93a1c5075023.compliance.log | rows=0 | g=- | a=- | ev=
+an_81f42314-5a38-4106-bd10-a87d8fbb28c9.compliance.log | rows=0 | g=- | a=- | ev=
+an_ebde9e22-646d-4050-ba51-45760df5e49f.compliance.log | rows=0 | g=- | a=- | ev=
+an_d780c453-6d3f-4bfe-ab99-22582fb4ea5c.compliance.log | rows=0 | g=- | a=- | ev=
+an_91c6b78b-ee53-41bc-a71b-3203c3f56695.compliance.log | rows=0 | g=- | a=- | ev=
+an_ff125c81-71fb-4f3e-bb8f-57011885fbae.compliance.log | rows=0 | g=- | a=- | ev=
+an_5c929289-33e1-4303-abac-47779f4d5e91.compliance.log | rows=0 | g=- | a=- | ev=
+an_7d107bb4-4d03-4e4d-93d5-343457f3f598.compliance.log | rows=0 | g=- | a=- | ev=

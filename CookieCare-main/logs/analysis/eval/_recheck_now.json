@@ -1,0 +1,317 @@
+{
+  "checkedAt": "2026-09-05T19:36:29.001Z",
+  "docTruth": {
+    "bitrix_source": {
+      "g4_proviso_in_doc": true,
+      "g2_delete_in_doc": true,
+      "g1_chooser_hits": 0,
+      "g3_return_obligation_hits": 0,
+      "f3_dpia_in_doc": true,
+      "g4_quote": "unless any applicable law requires storage. 2.5.1 Account dele"
+    }
+  },
+  "latestBitrix": {
+    "label": "bitrix",
+    "log": "an_ff125c81-71fb-4f3e-bb8f-57011885fbae.compliance.log",
+    "mtime": "2026-09-05T19:35:08.116Z",
+    "verifyG": [
+      {
+        "el": "G1",
+        "state": "not_located"
+      },
+      {
+        "el": "G2",
+        "state": "supported"
+      },
+      {
+        "el": "G3",
+        "state": "not_located"
+      },
+      {
+        "el": "G4",
+        "state": "not_located"
+      }
+    ],
+    "verifyF": [
+      {
+        "el": "F1",
+        "state": "supported"
+      },
+      {
+        "el": "F2",
+        "state": "supported"
+      },
+      {
+        "el": "F3",
+        "state": "supported"
+      }
+    ],
+    "assessG": [],
+    "assessF": [],
+    "bundle": {
+      "gCount": 38,
+      "fCount": 49,
+      "has_clause_2_5": true,
+      "has_clause_3_5_6": false,
+      "has_clause_3_5_5_or_dpia": true
+    },
+    "gates": {
+      "bitrix_G4_on_2_5": {
+        "len": 980,
+        "hasDoubleSpaceOrNL": true,
+        "distinctiveRawHits": [],
+        "distinctiveNormHits": [],
+        "distinctiveGateRawPass": false,
+        "distinctiveGateNormPass": false,
+        "groupsRaw": [
+          true,
+          true,
+          true
+        ],
+        "groupsNorm": [
+          true,
+          true,
+          true
+        ],
+        "groupsRawPass": true,
+        "groupsNormPass": true,
+        "snippetNorm": "2.5 deletion on term expiry. on expiry of the term, administrator instructs alaio to delete all personal data (including existing copies) from bitrix24 systems in accordance with applicable law. alaio will comply with th"
+      },
+      "mc_G1_on_3_5_6": null,
+      "mc_G4_on_3_5_6": null,
+      "mc_F3_on_3_5_5": {
+        "len": 639,
+        "hasDoubleSpaceOrNL": true,
+        "distinctiveRawHits": [
+          "impact assessment",
+          "prior consultation",
+          "data protection impact"
+        ],
+        "distinctiveNormHits": [
+          "impact assessment",
+          "prior consultation",
+          "data protection impact"
+        ],
+        "distinctiveGateRawPass": true,
+        "distinctiveGateNormPass": true,
+        "groupsRaw": [
+          true,
+          true
+        ],
+        "groupsNorm": [
+          true,
+          true
+        ],
+        "groupsRawPass": true,
+        "groupsNormPass": true,
+        "snippetNorm": "10. data protection impact assessment upon administrator´s request, alaio will assist administrator in ensuring compliance with any obligations of administrator in respect of data protection impact assessments and prior "
+      }
+    }
+  },
+  "latestMastercard": {
+    "label": "mastercard",
+    "log": "an_7d107bb4-4d03-4e4d-93d5-343457f3f598.compliance.log",
+    "mtime": "2026-09-05T16:22:13.338Z",
+    "verifyG": [
+      {
+        "el": "G1",
+        "state": "not_located"
+      },
+      {
+        "el": "G2",
+        "state": "supported"
+      },
+      {
+        "el": "G3",
+        "state": "supported"
+      },
+      {
+        "el": "G4",
+        "state": "unresolved_dependency"
+      }
+    ],
+    "verifyF": [
+      {
+        "el": "F1",
+        "state": "supported"
+      },
+      {
+        "el": "F2",
+        "state": "supported"
+      },
+      {
+        "el": "F3",
+        "state": "not_located"
+      }
+    ],
+    "assessG": [],
+    "assessF": [],
+    "bundle": {
+      "gCount": 28,
+      "fCount": 31,
+      "has_clause_2_5": false,
+      "has_clause_3_5_6": true,
+      "has_clause_3_5_5_or_dpia": true
+    },
+    "gates": {
+      "bitrix_G4_on_2_5": null,
+      "mc_G1_on_3_5_6": {
+        "len": 920,
+        "hasDoubleSpaceOrNL": true,
+        "distinctiveRawHits": [],
+        "distinctiveNormHits": [
+          "sole option"
+        ],
+        "distinctiveGateRawPass": false,
+        "distinctiveGateNormPass": true,
+        "groupsRaw": null,
+        "groupsNorm": null,
+        "groupsRawPass": null,
+        "groupsNormPass": null,
+        "snippetNorm": "3.5.6 return and deletion of personal data: upon expiry or termination of the agreement and/or relevant sow, or if the agreement or any relevant part of the agreement authorizing supplier to process personal data has bee"
+      },
+      "mc_G4_on_3_5_6": {
+        "len": 920,
+        "hasDoubleSpaceOrNL": true,
+        "distinctiveRawHits": [],
+        "distinctiveNormHits": [],
+        "distinctiveGateRawPass": false,
+        "distinctiveGateNormPass": false,
+        "groupsRaw": [
+          true,
+          true,
+          true
+        ],
+        "groupsNorm": [
+          true,
+          true,
+          true
+        ],
+        "groupsRawPass": true,
+        "groupsNormPass": true,
+        "snippetNorm": "3.5.6 return and deletion of personal data: upon expiry or termination of the agreement and/or relevant sow, or if the agreement or any relevant part of the agreement authorizing supplier to process personal data has bee"
+      },
+      "mc_F3_on_3_5_5": {
+        "len": 1102,
+        "hasDoubleSpaceOrNL": true,
+        "distinctiveRawHits": [],
+        "distinctiveNormHits": [
+          "impact assessment",
+          "data protection impact"
+        ],
+        "distinctiveGateRawPass": false,
+        "distinctiveGateNormPass": true,
+        "groupsRaw": [
+          true,
+          true
+        ],
+        "groupsNorm": [
+          true,
+          true
+        ],
+        "groupsRawPass": true,
+        "groupsNormPass": true,
+        "snippetNorm": "3.5.5 cooperation and assistance: cooperate with mastercard to ensure compliance with privacy and data protection law, this data processing agreement, and mastercard’s or mastercard’s customers’ instructions, and to assi"
+      }
+    }
+  },
+  "verdict": {
+    "bitrix": [
+      {
+        "el": "G1",
+        "matrix": "not_located",
+        "inDoc": false,
+        "ok": true
+      },
+      {
+        "el": "G2",
+        "matrix": "supported",
+        "inDoc": true,
+        "ok": true
+      },
+      {
+        "el": "G3",
+        "matrix": "not_located",
+        "inDoc": false,
+        "ok": true
+      },
+      {
+        "el": "G4",
+        "matrix": "not_located",
+        "inDoc": true,
+        "ok": false,
+        "note": "FALSE MISS if not_located"
+      }
+    ],
+    "mastercard": [
+      {
+        "el": "G1",
+        "matrix": "not_located",
+        "inDoc": true,
+        "ok": false,
+        "note": "FALSE MISS if not_located"
+      },
+      {
+        "el": "G2",
+        "matrix": "supported",
+        "inDoc": true,
+        "ok": true
+      },
+      {
+        "el": "G3",
+        "matrix": "supported",
+        "inDoc": true,
+        "ok": true
+      },
+      {
+        "el": "G4",
+        "matrix": "unresolved_dependency",
+        "inDoc": true,
+        "ok": false,
+        "note": "FALSE MISS / cascade if not supported"
+      },
+      {
+        "el": "F3",
+        "matrix": "not_located",
+        "inDoc": true,
+        "ok": false,
+        "note": "FALSE MISS if not_located"
+      }
+    ]
+  },
+  "summary": {
+    "bitrixFalseMisses": [
+      {
+        "el": "G4",
+        "matrix": "not_located",
+        "inDoc": true,
+        "ok": false,
+        "note": "FALSE MISS if not_located"
+      }
+    ],
+    "mastercardFalseMisses": [
+      {
+        "el": "G1",
+        "matrix": "not_located",
+        "inDoc": true,
+        "ok": false,
+        "note": "FALSE MISS if not_located"
+      },
+      {
+        "el": "G4",
+        "matrix": "unresolved_dependency",
+        "inDoc": true,
+        "ok": false,
+        "note": "FALSE MISS / cascade if not supported"
+      },
+      {
+        "el": "F3",
+        "matrix": "not_located",
+        "inDoc": true,
+        "ok": false,
+        "note": "FALSE MISS if not_located"
+      }
+    ],
+    "diagnosisStillHolds": true
+  }
+}

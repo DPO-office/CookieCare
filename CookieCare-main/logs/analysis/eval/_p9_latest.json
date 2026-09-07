@@ -1,0 +1,58 @@
+[
+  {
+    "n": "an_9922f418-61f0-4a20-87dc-0e93611ce38e.compliance.log",
+    "p": "logs\\analysis\\an_9922f418-61f0-4a20-87dc-0e93611ce38e.compliance.log",
+    "mtime": 1788679639604.0535,
+    "iso": "2026-09-06T07:27:19.604Z",
+    "size": 1563971
+  },
+  {
+    "n": "an_7a536dd3-7984-4f2c-9db5-41fc414bd39c.compliance.log",
+    "p": "logs\\analysis\\an_7a536dd3-7984-4f2c-9db5-41fc414bd39c.compliance.log",
+    "mtime": 1788678609084.0874,
+    "iso": "2026-09-06T07:10:09.084Z",
+    "size": 1563886
+  },
+  {
+    "n": "an_63172615-339c-4171-9708-1990cc17219f.compliance.log",
+    "p": "logs\\analysis\\an_63172615-339c-4171-9708-1990cc17219f.compliance.log",
+    "mtime": 1788677649174.0798,
+    "iso": "2026-09-06T06:54:09.174Z",
+    "size": 1561337
+  },
+  {
+    "n": "an_4fa11225-3e5f-47ff-bdf2-93a1c5075023.compliance.log",
+    "p": "logs\\analysis\\an_4fa11225-3e5f-47ff-bdf2-93a1c5075023.compliance.log",
+    "mtime": 1788647543476.3464,
+    "iso": "2026-09-05T22:32:23.476Z",
+    "size": 2382626
+  },
+  {
+    "n": "an_81f42314-5a38-4106-bd10-a87d8fbb28c9.compliance.log",
+    "p": "logs\\analysis\\an_81f42314-5a38-4106-bd10-a87d8fbb28c9.compliance.log",
+    "mtime": 1788647225999.0544,
+    "iso": "2026-09-05T22:27:05.999Z",
+    "size": 1535804
+  },
+  {
+    "n": "an_ebde9e22-646d-4050-ba51-45760df5e49f.compliance.log",
+    "p": "logs\\analysis\\an_ebde9e22-646d-4050-ba51-45760df5e49f.compliance.log",
+    "mtime": 1788645250627.3252,
+    "iso": "2026-09-05T21:54:10.627Z",
+    "size": 2409970
+  },
+  {
+    "n": "an_d780c453-6d3f-4bfe-ab99-22582fb4ea5c.compliance.log",
+    "p": "logs\\analysis\\an_d780c453-6d3f-4bfe-ab99-22582fb4ea5c.compliance.log",
+    "mtime": 1788644986118.2402,
+    "iso": "2026-09-05T21:49:46.118Z",
+    "size": 1532449
+  },
+  {
+    "n": "an_91c6b78b-ee53-41bc-a71b-3203c3f56695.compliance.log",
+    "p": "logs\\analysis\\an_91c6b78b-ee53-41bc-a71b-3203c3f56695.compliance.log",
+    "mtime": 1788637059781.3914,
+    "iso": "2026-09-05T19:37:39.781Z",
+    "size": 2384518
+  }
+]

@@ -32,6 +32,11 @@ import { pacLog, beginRenderStreaming } from "../../utils/pac-log.js";
 import { groundFindings } from "../audit/ground-findings.js";
 import { profileThinkingLevel } from "../../utils/profile-thinking.js";
 import {
+  applyLockedComplianceToState,
+  getComplianceRenderedReport,
+  lockedComplianceDetailMarkdown,
+} from "../act/compliance-observability.js";
+import {
   BOTTOM_LINE_SYSTEM_PROMPT,
   NARRATIVE_REPORT_SYSTEM_PROMPT_WITH_CRAFT,
   buildBottomLineUserPrompt,
@@ -98,6 +103,9 @@ export async function renderOutput(
   findings: Finding[],
   unit: AnalysisWorkUnit
 ): Promise<AnalysisState> {
+  // Locked Phase 4–7 matrix replaces live VERIFY rows for compliance_check.
+  state = applyLockedComplianceToState(state);
+
   const facetId = unit.facetId ??
     (typeof unit.input.facetId === "string" ? unit.input.facetId : undefined);
   const branchScoped = unit.input.__branchScoped === true;
@@ -219,6 +227,8 @@ export async function renderOutput(
     ),
   };
   state = groundFindings(state);
+  // Re-assert locked-only assessments after grounding.
+  state = applyLockedComplianceToState(state);
   visible = (state.findings ?? []).filter((f) => f.visibility !== "internal");
   state = attachRightsMatrixTableArtifact(state, visible);
 
@@ -283,7 +293,15 @@ export async function renderOutput(
       assessments: assessments.length,
       schemaId,
       bluf: usedBluf,
+      complianceLiveLock: Boolean(state.metadata?.complianceLiveLockRender),
     });
+    if (!usedBluf) {
+      const lockedDetail = lockedComplianceDetailMarkdown(state);
+      if (lockedDetail) {
+        emitAnalysisToken(state, `\n${lockedDetail}\n`);
+        rendered = `${rendered}\n\n${lockedDetail}`;
+      }
+    }
   } else if (schemaId === "brief_summary") {
     rendered = buildBriefSummaryDocument(state, visible);
     emitAnalysisToken(state, `${rendered}\n`);
@@ -473,6 +491,7 @@ export function filterAssessmentsForMatrixFocus(
   findings: Finding[],
   state: AnalysisState
 ): NonNullable<AnalysisState["requirementAssessments"]> {
+  if (state.metadata?.complianceLiveLockRender) return assessments;
   if (!(state.plan?.focus?.matrixRowIds?.length)) return assessments;
   const keptFindingIds = new Set(findings.map((f) => f.findingId));
   const keptReqIds = new Set(
@@ -1575,10 +1594,19 @@ function prettyArticleLabel(id: string): string | null {
   return tail ? `${base} — ${tail}` : base;
 }
 
+function lockedRenderedRow(requirementId: string, state?: AnalysisState) {
+  if (!state?.metadata?.complianceLiveLockRender) return undefined;
+  return getComplianceRenderedReport(state)?.rows.find(
+    (row) => row.requirementId === requirementId
+  );
+}
+
 function requirementLabel(
   requirementId: string,
   state?: AnalysisState
 ): string {
+  const lockedTitle = lockedRenderedRow(requirementId, state)?.title?.trim();
+  if (lockedTitle) return lockedTitle;
   const description = state?.intent?.requirements?.find((r) => r.id === requirementId)
     ?.description?.trim();
   // Preserve the complete requirement. The frontend applies a reversible
@@ -1624,7 +1652,8 @@ function formatLocator(path?: string): string {
 
 function evidenceCellText(
   assessment: RequirementAssessment,
-  finding: Finding | undefined
+  finding: Finding | undefined,
+  state?: AnalysisState
 ): string {
   if (isAnalysisExecutionIncomplete(assessment.analysisExecution)) {
     return "Verification did not complete; no document conclusion was reached.";
@@ -1634,6 +1663,16 @@ function evidenceCellText(
     const loc = formatLocator(finding?.evidence[0]?.locator.structuralPath);
     return conciseTableText(
       loc ? `${loc} - ${quote}` : quote,
+      TABLE_CELL_LIMITS.evidence,
+      " [excerpt]"
+    );
+  }
+  const lockedEv = lockedRenderedRow(assessment.requirementId, state)?.evidence?.[0];
+  if (lockedEv?.quote?.trim()) {
+    const loc = formatLocator(lockedEv.structuralPath);
+    const lockedQuote = lockedEv.quote.trim();
+    return conciseTableText(
+      loc ? `${loc} - ${lockedQuote}` : lockedQuote,
       TABLE_CELL_LIMITS.evidence,
       " [excerpt]"
     );
@@ -1710,15 +1749,51 @@ function actionCellText(assessment: RequirementAssessment): string {
   }
 }
 
+/**
+ * Prefix the user-facing status label with a glyph that survives copy,
+ * print, and export. The frontend badge system (`STATUS_PATTERNS`) matches
+ * on the status words, not on emoji, so a leading glyph is additive.
+ */
+function withStatusEmoji(label: string): string {
+  const t = label.toLowerCase();
+  if (
+    t.includes("cannot determine") ||
+    t.includes("insufficient data") ||
+    t.includes("not applicable") ||
+    t.includes("analysis incomplete")
+  ) {
+    return `➖ ${label}`;
+  }
+  // Check partial/conditional before "gap" — "Minor drafting gap" is yellow.
+  if (
+    t.includes("partial") ||
+    t.includes("minor drafting") ||
+    t.includes("conditional")
+  ) {
+    return `⚠️ ${label}`;
+  }
+  if (t === "gap" || t.startsWith("gap ")) {
+    return `❌ ${label}`;
+  }
+  if (t.includes("strong") || t.includes("present") || t.includes("adequate")) {
+    return `✅ ${label}`;
+  }
+  return label;
+}
+
 function renderedAssessmentStatus(
   assessment: RequirementAssessment,
   state?: AnalysisState
 ): string {
   if (assessment.analysisExecution?.status === "timed_out") {
-    return "Analysis incomplete (timed out)";
+    return withStatusEmoji("Analysis incomplete (timed out)");
   }
   if (isAnalysisExecutionIncomplete(assessment.analysisExecution)) {
-    return "Analysis incomplete";
+    return withStatusEmoji("Analysis incomplete");
+  }
+  const lockedLabel = lockedRenderedRow(assessment.requirementId, state)?.statusLabel;
+  if (lockedLabel) {
+    return withStatusEmoji(lockedLabel);
   }
   if (
     state?.intent?.operation === "compliance_check" &&
@@ -1729,11 +1804,11 @@ function renderedAssessmentStatus(
       (assessment.judgement.evidenceState === "incorporated" ||
         assessment.judgement.evidenceState === "unavailable")
     ) {
-      return "Partially covered - details in schedule";
+      return withStatusEmoji("Partially covered - details in schedule");
     }
-    return "Partially covered";
+    return withStatusEmoji("Partially covered");
   }
-  return displayRequirementStatus(assessment);
+  return withStatusEmoji(displayRequirementStatus(assessment));
 }
 
 export function assessmentTableMarkdown(
@@ -1759,7 +1834,7 @@ export function assessmentTableMarkdown(
       actionCellText(assessment),
       TABLE_CELL_LIMITS.action
     );
-    return `| ${mdCell(requirement)} | **${mdCell(renderedAssessmentStatus(assessment, state))}** | ${mdCell(evidenceCellText(assessment, support))} | ${mdCell(conciseFinding)} | ${mdCell(action)} |`;
+    return `| ${mdCell(requirement)} | **${mdCell(renderedAssessmentStatus(assessment, state))}** | ${mdCell(evidenceCellText(assessment, support, state))} | ${mdCell(conciseFinding)} | ${mdCell(action)} |`;
   });
   return [...header, ...rows].join("\n");
 }
@@ -2227,6 +2302,13 @@ async function buildBlufReport(
     const matrix = `## Requirements at a glance\n\n${assessmentTableMarkdown(assessments, findingList, state)}\n`;
     emitAnalysisToken(state, `${matrix}\n`);
     parts.push(matrix, "");
+  }
+
+  // 2a. Element-level locked matrix (Phase 4–7) when live overlay is on.
+  const lockedDetail = lockedComplianceDetailMarkdown(state);
+  if (lockedDetail) {
+    emitAnalysisToken(state, `${lockedDetail}\n`);
+    parts.push(lockedDetail, "");
   }
 
   // 2b. Key risks — open/document-derived risk findings, most serious first.

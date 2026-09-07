@@ -138,11 +138,70 @@ describe("compliance evidence and execution boundary", () => {
       [],
       { intent: { operation: "compliance_check" } } as unknown as AnalysisState
     );
-    assert.match(complianceTable, /Partially covered/i);
+    assert.match(complianceTable, /⚠️ Partially covered/);
 
     const legacyTable = assessmentTableMarkdown([assessment], []);
-    assert.match(legacyTable, /Minor drafting gap/i);
+    assert.match(legacyTable, /⚠️ Minor drafting gap/);
     assert.doesNotMatch(legacyTable, /Partially covered/i);
+  });
+
+  it("embeds status emoji so copy/print/export keep the severity marker", () => {
+    const strong: RequirementAssessment = {
+      requirementId: "test.strong",
+      supportingFindingIds: [],
+      summary: "The clause satisfies the requirement.",
+      status: "strong",
+      judgement: {
+        compliance: "present",
+        evidenceState: "direct",
+        referenceBinding: "none",
+        evidenceConfidence: "high",
+        draftingQuality: "clean",
+        materiality: "low",
+        recommendationKind: "none",
+      },
+    };
+    const gap: RequirementAssessment = {
+      requirementId: "test.gap",
+      supportingFindingIds: [],
+      summary: "The clause contradicts the requirement.",
+      status: "gap",
+      judgement: {
+        compliance: "gap",
+        evidenceState: "direct",
+        referenceBinding: "none",
+        evidenceConfidence: "high",
+        materiality: "high",
+        recommendationKind: "amend",
+      },
+    };
+    const unknown: RequirementAssessment = {
+      requirementId: "test.unknown",
+      supportingFindingIds: [],
+      summary: "No related clause was found.",
+      status: "cannot_determine",
+      judgement: {
+        compliance: "insufficient_evidence",
+        evidenceState: "not_found",
+        referenceBinding: "none",
+        evidenceConfidence: "low",
+        materiality: "low",
+        recommendationKind: "obtain",
+      },
+    };
+    const strongTable = assessmentTableMarkdown([strong], []);
+    const gapTable = assessmentTableMarkdown([gap], []);
+    const unknownTable = assessmentTableMarkdown([unknown], []);
+    assert.match(strongTable, /✅ Strong/);
+    assert.match(gapTable, /❌ Gap/);
+    assert.match(unknownTable, /➖ Insufficient data/);
+    // Frontend STATUS_PATTERNS match on words via `\b`, not emoji. A leading
+    // glyph + space must not break those badges.
+    assert.match("✅ Strong", /\b(strong|adequate|sufficient|satisf|met)\b/i);
+    assert.match("⚠️ Partially covered", /\bpartial(?:ly)?\s+(adequate|covered)\b/i);
+    assert.match("⚠️ Minor drafting gap", /\bminor\s+(gap|drafting)\b/i);
+    assert.match("❌ Gap", /\b(gap|unclear|needs\s+improvement)\b/i);
+    assert.match("➖ Cannot determine", /\bcannot\s+determine\b/i);
   });
 
   it("keeps a verifier timeout operational instead of presenting it as a contract gap", () => {

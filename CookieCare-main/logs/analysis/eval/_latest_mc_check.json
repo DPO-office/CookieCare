@@ -1,0 +1,312 @@
+{
+  "checkedAt": "2026-09-05T22:36:20.674Z",
+  "results": [
+    {
+      "log": "an_4fa11225-3e5f-47ff-bdf2-93a1c5075023.compliance.log",
+      "iso": "2026-09-05T22:32:23.476Z",
+      "doc": "mastercard",
+      "analysisId": "an_4fa11225-3e5f-47ff-bdf2-93a1c5075023",
+      "hasLock": true,
+      "lock": {
+        "attempt": 8,
+        "accepted": 8,
+        "rejected": 0,
+        "summary": {
+          "attempted": 8,
+          "accepted": 8,
+          "rejected": 0,
+          "duplicateCanonicalKeys": [],
+          "plannedButNotAttempted": []
+        },
+        "acceptedReqs": [
+          "subject_matter:present",
+          "duration:present",
+          "nature_purpose:present",
+          "data_categories:present",
+          "data_subject_categories:present",
+          "art28_3_a_instructions:present",
+          "art28_3_f_security_assistance:partial",
+          "art28_3_g_deletion_return:present"
+        ],
+        "rejectedReqs": [],
+        "reasonHist": {}
+      },
+      "matrix": {
+        "g": [
+          "G1=supported",
+          "G2=supported",
+          "G3=supported",
+          "G4=supported"
+        ],
+        "f": [
+          "F1=supported",
+          "F2=supported",
+          "F3=not_located"
+        ],
+        "assessG": {
+          "status": "present",
+          "reasonCodes": [
+            "CONTROLLER_CHOICE_PRESENT",
+            "DELETE_PRESENT",
+            "RETURN_PRESENT",
+            "LEGAL_RETENTION_PRESENT"
+          ],
+          "elementStates": {
+            "G1": "supported",
+            "G2": "supported",
+            "G3": "supported",
+            "G4": "supported"
+          }
+        },
+        "assessF": {
+          "status": "partial",
+          "reasonCodes": [
+            "SECURITY_ASSISTANCE_PRESENT",
+            "BREACH_NOTIFICATION_ASSISTANCE_PRESENT",
+            "DPIA_ASSISTANCE_NOT_LOCATED"
+          ],
+          "elementStates": {
+            "F1": "supported",
+            "F2": "supported",
+            "F3": "not_located"
+          }
+        }
+      }
+    },
+    {
+      "log": "an_81f42314-5a38-4106-bd10-a87d8fbb28c9.compliance.log",
+      "iso": "2026-09-05T22:27:05.999Z",
+      "doc": "bitrix",
+      "analysisId": "an_81f42314-5a38-4106-bd10-a87d8fbb28c9",
+      "hasLock": true,
+      "lock": {
+        "attempt": 8,
+        "accepted": 8,
+        "rejected": 0,
+        "summary": {
+          "attempted": 8,
+          "accepted": 8,
+          "rejected": 0,
+          "duplicateCanonicalKeys": [],
+          "plannedButNotAttempted": []
+        },
+        "acceptedReqs": [
+          "subject_matter:present",
+          "duration:present",
+          "nature_purpose:present",
+          "data_categories:present",
+          "data_subject_categories:present",
+          "art28_3_a_instructions:present",
+          "art28_3_f_security_assistance:present",
+          "art28_3_g_deletion_return:partial"
+        ],
+        "rejectedReqs": [],
+        "reasonHist": {}
+      },
+      "matrix": {
+        "g": [
+          "G1=not_located",
+          "G2=supported",
+          "G3=not_located",
+          "G4=ambiguous"
+        ],
+        "f": [
+          "F1=supported",
+          "F2=supported",
+          "F3=supported"
+        ],
+        "assessG": {
+          "status": "partial",
+          "reasonCodes": [
+            "CONTROLLER_CHOICE_NOT_LOCATED",
+            "DELETE_PRESENT",
+            "RETURN_NOT_LOCATED",
+            "LEGAL_RETENTION_AMBIGUOUS"
+          ],
+          "elementStates": {
+            "G1": "not_located",
+            "G2": "supported",
+            "G3": "not_located",
+            "G4": "ambiguous"
+          }
+        },
+        "assessF": {
+          "status": "present",
+          "reasonCodes": [
+            "SECURITY_ASSISTANCE_PRESENT",
+            "BREACH_NOTIFICATION_ASSISTANCE_PRESENT",
+            "DPIA_ASSISTANCE_PRESENT"
+          ],
+          "elementStates": {
+            "F1": "supported",
+            "F2": "supported",
+            "F3": "supported"
+          }
+        }
+      }
+    },
+    {
+      "log": "an_ebde9e22-646d-4050-ba51-45760df5e49f.compliance.log",
+      "iso": "2026-09-05T21:54:10.627Z",
+      "doc": "mastercard",
+      "analysisId": "an_ebde9e22-646d-4050-ba51-45760df5e49f",
+      "hasLock": true,
+      "lock": {
+        "attempt": 8,
+        "accepted": 6,
+        "rejected": 2,
+        "summary": {
+          "attempted": 8,
+          "accepted": 6,
+          "rejected": 2,
+          "duplicateCanonicalKeys": [],
+          "plannedButNotAttempted": []
+        },
+        "acceptedReqs": [
+          "subject_matter:present",
+          "duration:present",
+          "data_categories:present",
+          "data_subject_categories:present",
+          "art28_3_a_instructions:present",
+          "art28_3_f_security_assistance:partial"
+        ],
+        "rejectedReqs": [
+          {
+            "requirementId": "nature_purpose",
+            "reasonCodes": [
+              "INCOMPATIBLE_SCOPE_JOINT_SUPPORT"
+            ],
+            "details": [
+              "INCOMPATIBLE_SCOPE_JOINT_SUPPORT: elementId=NP2 scopes=[{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"clause-3.3\",\"relationship\":\"controller_to_processor\"},{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"heading-security-of-the-data\",\"relationship\":\"unspecified\"},{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"heading-security-of-the-data\",\"relationship\":\"unspecified\"},{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"clause-6.3\",\"relationship\":\"controller_to_controller\"},{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"clause-5.1.4\",\"relationship\":\"unspecified\"},{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"clause-4.3\",\"relationship\":\"controller_to_controller\"},{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"clause-4.4\",\"relationship\":\"controller_to_controller\"},{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"clause-2.3\",\"relationship\":\"unspecified\"},{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"clause-6\",\"relationship\":\"controller_to_controller\"}]"
+            ]
+          },
+          {
+            "requirementId": "art28_3_g_deletion_return",
+            "reasonCodes": [
+              "INCOMPATIBLE_SCOPE_JOINT_SUPPORT"
+            ],
+            "details": [
+              "INCOMPATIBLE_SCOPE_JOINT_SUPPORT: elementId=G2 scopes=[{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"clause-3.5.6\",\"relationship\":\"controller_to_processor\"},{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"clause-5.1.4\",\"relationship\":\"unspecified\"},{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"clause-4.4.6\",\"relationship\":\"controller_to_controller\"},{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"clause-2.8.2\",\"relationship\":\"unspecified\"},{\"documentId\":\"doc_e5c6d51e-2417-408c-97ed-27c7b792af86\",\"structuralPath\":\"clause-2.7.2\",\"relationship\":\"unspecified\"}]"
+            ]
+          }
+        ],
+        "reasonHist": {
+          "INCOMPATIBLE_SCOPE_JOINT_SUPPORT": 2
+        }
+      },
+      "matrix": {
+        "g": [
+          "G1=not_located",
+          "G2=supported",
+          "G3=supported",
+          "G4=unresolved_dependency"
+        ],
+        "f": [
+          "F1=supported",
+          "F2=supported",
+          "F3=not_located"
+        ],
+        "assessG": {
+          "status": "partial",
+          "reasonCodes": [
+            "CONTROLLER_CHOICE_NOT_LOCATED",
+            "DELETE_PRESENT",
+            "RETURN_PRESENT",
+            "LEGAL_RETENTION_UNRESOLVED_DEPENDENCY"
+          ],
+          "elementStates": {
+            "G1": "not_located",
+            "G2": "supported",
+            "G3": "supported",
+            "G4": "unresolved_dependency"
+          }
+        },
+        "assessF": {
+          "status": "partial",
+          "reasonCodes": [
+            "SECURITY_ASSISTANCE_PRESENT",
+            "BREACH_NOTIFICATION_ASSISTANCE_PRESENT",
+            "DPIA_ASSISTANCE_NOT_LOCATED"
+          ],
+          "elementStates": {
+            "F1": "supported",
+            "F2": "supported",
+            "F3": "not_located"
+          }
+        }
+      }
+    },
+    {
+      "log": "an_d780c453-6d3f-4bfe-ab99-22582fb4ea5c.compliance.log",
+      "iso": "2026-09-05T21:49:46.118Z",
+      "doc": "bitrix",
+      "analysisId": "an_d780c453-6d3f-4bfe-ab99-22582fb4ea5c",
+      "hasLock": true,
+      "lock": {
+        "attempt": 8,
+        "accepted": 8,
+        "rejected": 0,
+        "summary": {
+          "attempted": 8,
+          "accepted": 8,
+          "rejected": 0,
+          "duplicateCanonicalKeys": [],
+          "plannedButNotAttempted": []
+        },
+        "acceptedReqs": [
+          "subject_matter:present",
+          "duration:present",
+          "nature_purpose:present",
+          "data_categories:present",
+          "data_subject_categories:present",
+          "art28_3_a_instructions:present",
+          "art28_3_f_security_assistance:present",
+          "art28_3_g_deletion_return:partial"
+        ],
+        "rejectedReqs": [],
+        "reasonHist": {}
+      },
+      "matrix": {
+        "g": [
+          "G1=not_located",
+          "G2=supported",
+          "G3=not_located",
+          "G4=not_located"
+        ],
+        "f": [
+          "F1=supported",
+          "F2=supported",
+          "F3=supported"
+        ],
+        "assessG": {
+          "status": "partial",
+          "reasonCodes": [
+            "CONTROLLER_CHOICE_NOT_LOCATED",
+            "DELETE_PRESENT",
+            "RETURN_NOT_LOCATED",
+            "LEGAL_RETENTION_NOT_LOCATED"
+          ],
+          "elementStates": {
+            "G1": "not_located",
+            "G2": "supported",
+            "G3": "not_located",
+            "G4": "not_located"
+          }
+        },
+        "assessF": {
+          "status": "present",
+          "reasonCodes": [
+            "SECURITY_ASSISTANCE_PRESENT",
+            "BREACH_NOTIFICATION_ASSISTANCE_PRESENT",
+            "DPIA_ASSISTANCE_PRESENT"
+          ],
+          "elementStates": {
+            "F1": "supported",
+            "F2": "supported",
+            "F3": "supported"
+          }
+        }
+      }
+    }
+  ]
+}

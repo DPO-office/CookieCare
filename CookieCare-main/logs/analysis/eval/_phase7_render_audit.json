@@ -1,0 +1,204 @@
+{
+  "checkedAt": "2026-09-06T06:57:20.894Z",
+  "sessions": [
+    {
+      "log": "an_63172615-339c-4171-9708-1990cc17219f.compliance.log",
+      "doc": "bitrix",
+      "analysisId": "an_63172615-339c-4171-9708-1990cc17219f",
+      "hasPhase7": true,
+      "counts": {
+        "rows": 8,
+        "supplemental": 0,
+        "bottomLines": 2,
+        "reconciliation": 1,
+        "lockAccepted": 8
+      },
+      "rowSample": [
+        {
+          "requirementId": "subject_matter",
+          "canonicalKey": "gdpr.article28.subject_matter",
+          "lockedAssessmentId": "L-gdpr.article28.subject_matter-9bba5590a6",
+          "status": "present",
+          "statusLabel": "Present",
+          "recommendedAction": "None — obligation satisfied.",
+          "supportedElementIds": [
+            "SM1"
+          ],
+          "missingElementIds": [],
+          "evidenceCount": 4,
+          "evidenceSample": {
+            "spanId": "doc_d1d63536-fd15-48e2-9b83-49998b4326ff::section::8534-9870",
+            "structuralPath": "clause-2.1.1",
+            "charRange": [
+              8534,
+              9870
+            ],
+            "documentId": "doc_d1d63536-fd15-48e2-9b83-49998b4326ff",
+            "quotePreview": "2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agr"
+          },
+          "hasNarrative": true,
+          "ruleVersion": "0.1.0",
+          "documentHash": "91ec4de2142270c3"
+        },
+        {
+          "requirementId": "duration",
+          "canonicalKey": "gdpr.article28.duration",
+          "lockedAssessmentId": "L-gdpr.article28.duration-0bc4943c73",
+          "status": "present",
+          "statusLabel": "Present",
+          "recommendedAction": "None — obligation satisfied.",
+          "supportedElementIds": [
+            "DU1"
+          ],
+          "missingElementIds": [],
+          "evidenceCount": 4,
+          "evidenceSample": {
+            "spanId": "doc_d1d63536-fd15-48e2-9b83-49998b4326ff::section::18047-19611",
+            "structuralPath": "clause-7.4",
+            "charRange": [
+              18047,
+              19611
+            ],
+            "documentId": "doc_d1d63536-fd15-48e2-9b83-49998b4326ff",
+            "quotePreview": "7.4 Objection Right for New Sub-processors.  \nWhen any new Sub-processor is enga"
+          },
+          "hasNarrative": true,
+          "ruleVersion": "0.1.0",
+          "documentHash": "91ec4de2142270c3"
+        }
+      ],
+      "statusBucketsInRows": {
+        "present": [
+          {
+            "requirementId": "subject_matter",
+            "statusLabel": "Present",
+            "recommendedAction": "None — obligation satisfied."
+          },
+          {
+            "requirementId": "duration",
+            "statusLabel": "Present",
+            "recommendedAction": "None — obligation satisfied."
+          },
+          {
+            "requirementId": "nature_purpose",
+            "statusLabel": "Present",
+            "recommendedAction": "None — obligation satisfied."
+          },
+          {
+            "requirementId": "data_categories",
+            "statusLabel": "Present",
+            "recommendedAction": "None — obligation satisfied."
+          },
+          {
+            "requirementId": "data_subject_categories",
+            "statusLabel": "Present",
+            "recommendedAction": "None — obligation satisfied."
+          },
+          {
+            "requirementId": "art28_3_a_instructions",
+            "statusLabel": "Present",
+            "recommendedAction": "None — obligation satisfied."
+          },
+          {
+            "requirementId": "art28_3_f_security_assistance",
+            "statusLabel": "Present",
+            "recommendedAction": "None — obligation satisfied."
+          }
+        ],
+        "partial": [
+          {
+            "requirementId": "art28_3_g_deletion_return",
+            "statusLabel": "Partial",
+            "recommendedAction": "G1: Reword the post-termination clause to grant the controller a choice. G3: Add a return obligation (format specified w"
+          }
+        ]
+      },
+      "bottomLines": [
+        {
+          "claim": "7 obligations present: Subject matter of the processing; Duration of the processing; Nature and purpose of the processin",
+          "lockedAssessmentIds": [
+            "L-gdpr.article28.subject_matter-9bba5590a6",
+            "L-gdpr.article28.duration-0bc4943c73",
+            "L-gdpr.article28.nature_and_purpose-7bb1ca431f",
+            "L-gdpr.article28.categories_of_data-26aa40ceb0",
+            "L-gdpr.article28.categories_of_data_subjects-bf0db891b6",
+            "L-gdpr.article28.3a.documented_instructions-6b57e01e95",
+            "L-gdpr.article28.3f.controller_assistance-9498505d43"
+          ],
+          "keys": [
+            "claim",
+            "lockedAssessmentIds"
+          ]
+        },
+        {
+          "claim": "1 obligation partially met — remediation required: At the choice of the controller, the processor deletes or returns all",
+          "lockedAssessmentIds": [
+            "L-gdpr.article28.3g.deletion_or_return-06dc7d3ab7"
+          ],
+          "keys": [
+            "claim",
+            "lockedAssessmentIds"
+          ]
+        }
+      ],
+      "supplemental": [],
+      "reconciliation": {
+        "lockedAssessmentIds": [
+          "L-gdpr.article28.subject_matter-9bba5590a6",
+          "L-gdpr.article28.duration-0bc4943c73",
+          "L-gdpr.article28.nature_and_purpose-7bb1ca431f",
+          "L-gdpr.article28.categories_of_data-26aa40ceb0",
+          "L-gdpr.article28.categories_of_data_subjects-bf0db891b6",
+          "L-gdpr.article28.3a.documented_instructions-6b57e01e95",
+          "L-gdpr.article28.3f.controller_assistance-9498505d43",
+          "L-gdpr.article28.3g.deletion_or_return-06dc7d3ab7"
+        ],
+        "renderedAssessmentIds": [
+          "L-gdpr.article28.subject_matter-9bba5590a6",
+          "L-gdpr.article28.duration-0bc4943c73",
+          "L-gdpr.article28.nature_and_purpose-7bb1ca431f",
+          "L-gdpr.article28.categories_of_data-26aa40ceb0",
+          "L-gdpr.article28.categories_of_data_subjects-bf0db891b6",
+          "L-gdpr.article28.3a.documented_instructions-6b57e01e95",
+          "L-gdpr.article28.3f.controller_assistance-9498505d43",
+          "L-gdpr.article28.3g.deletion_or_return-06dc7d3ab7"
+        ],
+        "missing": [],
+        "duplicates": [],
+        "rowCount": 8,
+        "supplementalCount": 0,
+        "bottomLineClaimCount": 2
+      },
+      "checks": {
+        "missingRowFields": [],
+        "statusLabelMismatches": [],
+        "unknownStatuses": [],
+        "evidenceEntries": 38,
+        "evidenceOk": 38,
+        "evidenceBad": [],
+        "bottomLineOutsideLock": [],
+        "lockedFromAcceptCount": 8,
+        "renderedFromRowsCount": 8
+      },
+      "acceptance": {
+        "noDuplicateRows": true,
+        "noRenderedWithoutLock": true,
+        "statusLabel1to1": true,
+        "bottomLineRefsLocksOnly": true,
+        "evidenceHasLocatorAndQuote": true,
+        "reconCounts": true,
+        "rowCountEqualsAcceptedLocks": true,
+        "allRequiredRowFieldsPresent": true
+      }
+    }
+  ],
+  "codeHasDistinctLabels": {
+    "cannot_determine": true,
+    "gap": true,
+    "verification_incomplete": true
+  },
+  "overall": {
+    "sessionCount": 1,
+    "allPassCore": true
+  }
+}

@@ -71,6 +71,27 @@ const STATIC_ALIAS_GROUPS: string[][] = [
     "mandatory_article28_clauses",
     "mandatory_article_28_3_clauses",
   ],
+  // Individual Art 28(3)(a)-(h) + 28(4) sub-clauses — PLAN-shaped id (left,
+  // as classify-intent actually phrases it for an explicit "(a)-(h)" ask)
+  // paired with the mandatory-clauses package's own native requirement id
+  // (right, from gdpr.art28.3.mandatory_clauses.requirementIds in
+  // skill.config.ts). Without these, a request that spells out each letter
+  // explicitly gets each sub-clause evaluated TWICE under two unaliased ids —
+  // once via the package's native evaluation (correct evidence) and once as
+  // an orphaned PLAN-shaped duplicate (falls back to a single generic
+  // passage) — producing two contradictory rows for the same legal
+  // obligation in one report. Confirmed live on a "GDPR Article 28(3)(a)-(h)"
+  // prompt: gdpr.article28.3a.documented_instructions and
+  // art28_3_a_instructions both ended up as separate rows for clause 2.4.
+  ["gdpr.article28.3a.documented_instructions", "art28_3_a_instructions"],
+  ["gdpr.article28.3b.confidentiality", "art28_3_b_confidentiality"],
+  ["gdpr.article28.3c.security_measures", "art28_3_c_security"],
+  ["gdpr.article28.3d.subprocessors", "art28_3_d_subprocessors"],
+  ["gdpr.article28.3e.data_subject_rights", "art28_3_e_dsr_assistance"],
+  ["gdpr.article28.3f.controller_assistance", "art28_3_f_security_assistance"],
+  ["gdpr.article28.3g.deletion_or_return", "art28_3_g_deletion_return"],
+  ["gdpr.article28.3h.audits_and_inspections", "art28_3_h_audit"],
+  ["gdpr.article28.4.subprocessor_flow_down", "art28_4_subprocessor_flow_down"],
   ["dsr.response_timeframes"],
   ["dsr.gap_analysis"],
   ["international_data_transfer", "international_data_transfers", "international_transfer"],

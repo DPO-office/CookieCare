@@ -1,0 +1,1073 @@
+{
+  "success": true,
+  "sessionId": "an_71021ffd-dcc0-477c-a8bd-0ed3d151c8b3",
+  "findings": [
+    {
+      "kind": "extraction",
+      "claim": "Located 78 evidence spans from document doc_be214ec0-f979-4257-99bf-51fe02c8bc7e (skill-scoped).",
+      "status": "present",
+      "category": "other_known_risk",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "doc_be214ec0-f979-4257-99bf-51fe02c8bc7e",
+            "charRange": [
+              0,
+              892
+            ],
+            "structuralPath": "heading-data-processing-agreement"
+          },
+          "quotedText": "DATA PROCESSING AGREEMENT \nLast updated 29th November 2024 \nThis Data Processing Agreement (“DPA”, “Agreement”) is an addendum to and forms part  of the master agreement between the Administrator of Bitrix24 Customer Account  and Alaio (https://www.bitrix24.com/terms/) to reflect the parties’ agreement for the  provision of the Processor Services (as amended from time to time) and processing  of Bitrix24 Customer Account User’s Personal Data in accordance with the  requirements of the Data Prote",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "doc_be214ec0-f979-4257-99bf-51fe02c8bc7e",
+            "charRange": [
+              8449,
+              10440
+            ],
+            "structuralPath": "clause-2"
+          },
+          "quotedText": "2. PROCESSING OF PERSONAL DATA \n2.1 Roles and Regulatory Compliance; Authorization. \n2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subject matter and details of the processing  of Personal Data; \n(b) Alaio is a processor (service provider under the California Privacy Rights Act of 2020  and any other applicable federal and state USA privacy legislation) of Personal Data under  the applicable Data Protection ",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "doc_be214ec0-f979-4257-99bf-51fe02c8bc7e",
+            "charRange": [
+              12865,
+              13537
+            ],
+            "structuralPath": "clause-4.1"
+          },
+          "quotedText": "4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to  correct, amend, block or delete Personal Data, as required by Data Protection Legislation,  Alaio will (taking into account the nature of the processing of Personal Data and, if  applicable, Article 11 of the GDPR) assist Administrator in fulfilling any obligation of  Administrator to respond to requests by data subjects, including (if applicable)  Administrator´s obligation to respond to requests for ",
+          "sourceRole": "target"
+        }
+      ],
+      "polarity": "neutral_fact",
+      "findingId": "f_extract_wu-extract",
+      "visibility": "internal",
+      "workUnitId": "wu-extract",
+      "taxonomyVersion": "1.1.0",
+      "partyPerspective": "unspecified"
+    },
+    {
+      "kind": "summary_point",
+      "claim": "Rendered memo for skill(s) _global, doc-types/dpa, regimes/data-protection/gdpr, regimes/data-protection/international-transfers with 1 prior findings.",
+      "status": "present",
+      "skillId": "_global",
+      "category": "other_known_risk",
+      "evidence": [],
+      "polarity": "neutral_fact",
+      "findingId": "f_render_wu-render",
+      "visibility": "internal",
+      "workUnitId": "wu-render",
+      "taxonomyVersion": "1.1.0",
+      "partyPerspective": "unspecified"
+    }
+  ],
+  "renderedOutput": "## Requirements at a glance\n| Requirement | Status | Evidence | Finding | Action |\n| :--- | :--- | :--- | :--- | :--- |\n| At the choice of the controller, the processor deletes or returns all personal data at the end of the provision of services | **⚠️ Partial** | 4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, correction, amendment, restriction, deletion or exercising any other rights under the GDPR or other Data Protection Legislation of that person’s Personal Dat | G2: The processor is obligated to delete on request. Supported at document/application-of-this-dpa/para@13539, document/application-of-this-dpa/para@12865, document/application-of-this-dpa/para@12018. G4:… | G1: Reword the post-termination clause to grant the controller a choice. G3: Add a return obligation (format specified where reasonable). |\n| Subject matter of the processing | **✅ Present** | cl. 2.1.1 - 2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subject matter and details of the processing of Personal Data; (b) Alaio is a processor (service provider under the California Privacy Rights Act of 2020 and any | SM1: The contract identifies the subject matter of the processing (what is being processed and why the processor is engaged). Supported at clause-2.1.1, heading-processing-subject-matter, document/application-of-this-dpa/para@14404. No unresolved elements. | None — obligation satisfied. |\n| Duration of the processing | **✅ Present** | cl. 7.4 - 7.4 Objection Right for New Sub-processors. When any new Sub-processor is engaged during the Term, and if the GDPR applies to the processing of Personal Data, Alaio will, at least 10 days before the new Sub-processor processes any Personal Data, inform Administrator of the engagement (including | DU1: The contract specifies the duration of the processing, either by a defined term (e.g., 'Term') or by tying it to the term of the main services agreement. Supported at clause-7.4, heading-data-processing-agreement, clause-13.2. No unresolved elements. | None — obligation satisfied. |\n| Nature and purpose of the processing | **✅ Present** | . “Effective Date” means, as applicable: The date on which User clicked to accept or the parties otherwise agreed to this DPA. “Notification Email Address” means Primary email addresses associated with your account used by the first administrator for portal registration, used also to receive cert | NP1: The contract states the nature of the processing (the operations performed). Supported at document/application-of-this-dpa/def-effective-date, document/application-of-this-dpa/def-personal-data, clause-2. NP2:… | None — obligation satisfied. |\n| Categories of personal data | **✅ Present** | cl. 2 - 2. Data subjects about whom personal data is transferred to Alaio in connection with the Processor Services by, at the direction of, or on behalf of Administrator. Including: ● Staff including volunteers, agents, temporary and casual workers ● Users and clients (including their staff) ● Suppli | CD1: The contract lists the categories of personal data processed. Supported at clause-2, clause-9.2, document/application-of-this-dpa/para@15829. No unresolved elements. | None — obligation satisfied. |\n| Categories of data subjects | **✅ Present** | cl. 2 - 2. Data subjects about whom personal data is transferred to Alaio in connection with the Processor Services by, at the direction of, or on behalf of Administrator. Including: ● Staff including volunteers, agents, temporary and casual workers ● Users and clients (including their staff) ● Suppli | DS1: The contract lists the categories of data subjects whose data is processed. Supported at clause-2, clause-12.3, document/application-of-this-dpa/para@15829. No unresolved elements. | None — obligation satisfied. |\n| Processor acts only on documented instructions | **✅ Present** | 2.4 By entering into this Data Processing Agreement, Administrator instructs Alaio to process Personal Data only in accordance with applicable law: (a) to provide the Processor Services and any related technical support; (b) as further specified via Administrator´s use of the Processor Services ( | A1: The processor processes personal data only on documented instructions from the controller. Supported at document/application-of-this-dpa/para@10374, clause-2.1.1, clause-7.2. A2:… | None — obligation satisfied. |\n| Processor assists the controller with obligations under Articles 32 to 36 (security, breach notification, DPIAs, prior consultation) | **✅ Present** | 11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguards under article 46 GDPR, specifically by the Standard Contractual Clauses adopted by the European Commission in accordance with the exami | F1: The processor assists the controller in ensuring compliance with Article 32 (security of processing). Supported at document/application-of-this-dpa/para@27363, clause-6.4, document/appendix-2/security-measures/para@34584. F2:… | None — obligation satisfied. |\n\n## Element-level compliance (locked)\n_Statuses below come from the Phase 4–7 locked matrix (accepted locks only)._\n\n### Subject matter of the processing — **Present**\n\n**What the document provides:** SM1: The contract identifies the subject matter of the processing (what is being processed and why the processor is engaged). Supported at clause-2.1.1, heading-processing-subject-matter, document/application-of-this-dpa/para@14404.\n\n**What is missing / unclear:** No unresolved elements.\n\n**Elements:** supported SM1 · outstanding —\n\n- `clause-2.1.1`: “2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subject matter and details of the processing …”\n- `heading-processing-subject-matter`: “PROCESSING SUBJECT MATTER Data Subjects. The personal data transferred concern the following categories of data subjects.”\n\n### Duration of the processing — **Present**\n\n**What the document provides:** DU1: The contract specifies the duration of the processing, either by a defined term (e.g., 'Term') or by tying it to the term of the main services agreement. Supported at clause-7.4, heading-data-processing-agreement, clause-13.2.\n\n**What is missing / unclear:** No unresolved elements.\n\n**Elements:** supported DU1 · outstanding —\n\n- `clause-7.4`: “7.4 Objection Right for New Sub-processors. When any new Sub-processor is engaged during the Term, and if the GDPR applies to the processing of Personal Data, Alaio will, at least …”\n- `heading-data-processing-agreement`: “DATA PROCESSING AGREEMENT Last updated 29th November 2024 This Data Processing Agreement (“DPA”, “Agreement”) is an addendum to and forms part of the master agreement between the A…”\n\n### Nature and purpose of the processing — **Present**\n\n**What the document provides:** NP1: The contract states the nature of the processing (the operations performed). Supported at document/application-of-this-dpa/def-effective-date, document/application-of-this-dpa/def-personal-data, clause-2. NP2: The contract states the purpose of the processing. Supported at document/application-of-this-dpa/def-effective-date, document/application-of-this-dpa/def-personal-data, document/application-of-this-dpa/def-processor-services.\n\n**What is missing / unclear:** No unresolved elements.\n\n**Elements:** supported NP1, NP2 · outstanding —\n\n- `document/application-of-this-dpa/def-effective-date`: “. “Effective Date” means, as applicable: The date on which User clicked to accept or the parties otherwise agreed to this DPA. “Notification Email Address” means Primary email addr…”\n- `document/application-of-this-dpa/def-personal-data`: “. “Personal Data” means any information relating to an identified or identifiable natural person ('data subject'); an identifiable person is one who can be identified, directly or …”\n\n### Categories of personal data — **Present**\n\n**What the document provides:** CD1: The contract lists the categories of personal data processed. Supported at clause-2, clause-9.2, document/application-of-this-dpa/para@15829.\n\n**What is missing / unclear:** No unresolved elements.\n\n**Elements:** supported CD1 · outstanding —\n\n- `clause-2`: “2. Data subjects about whom personal data is transferred to Alaio in connection with the Processor Services by, at the direction of, or on behalf of Administrator. Including: ● Sta…”\n- `clause-9.2`: “9.2 Upon Administrator´s request, and subject to the confidentiality obligations set forth in this DPA, Alaio shall make available to User that is not a competitor of Alaio (or Adm…”\n\n### Categories of data subjects — **Present**\n\n**What the document provides:** DS1: The contract lists the categories of data subjects whose data is processed. Supported at clause-2, clause-12.3, document/application-of-this-dpa/para@15829.\n\n**What is missing / unclear:** No unresolved elements.\n\n**Elements:** supported DS1 · outstanding —\n\n- `clause-2`: “2. Data subjects about whom personal data is transferred to Alaio in connection with the Processor Services by, at the direction of, or on behalf of Administrator. Including: ● Sta…”\n- `clause-12.3`: “12.3 For data transfers outside the EEA listed in schedules 11.3.4 protected by appropriate safeguards under article 46 GDPR, specifically by the standard data protection clauses a…”\n\n### Processor acts only on documented instructions — **Present**\n\n**What the document provides:** A1: The processor processes personal data only on documented instructions from the controller. Supported at document/application-of-this-dpa/para@10374, clause-2.1.1, clause-7.2. A2: Instructions to make an international transfer are also processed only on documented instructions, unless required by law (with a notification obligation). Supported at clause-2.1.1, clause-12.3, document/application-of-this-dpa/para@12865.\n\n**What is missing / unclear:** No unresolved elements.\n\n**Elements:** supported A1, A2 · outstanding —\n\n- `document/application-of-this-dpa/para@10374`: “2.4 By entering into this Data Processing Agreement, Administrator instructs Alaio to process Personal Data only in accordance with applicable law: (a) to provide the Processor Ser…”\n- `clause-2.1.1`: “2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subject matter and details of the processing …”\n\n### Processor assists the controller with obligations under Articles 32 to 36 (security, breach notification, DPIAs, prior consultation) — **Present**\n\n**What the document provides:** F1: The processor assists the controller in ensuring compliance with Article 32 (security of processing). Supported at document/application-of-this-dpa/para@27363, clause-6.4, document/appendix-2/security-measures/para@34584. F2: The processor assists with Articles 33-34 (personal-data-breach notification to the supervisory authority and to data subjects). Supported at document/application-of-this-dpa/para@20473, clause-6.4, clause-10. F3: The processor assists with Articles 35-36 (DPIAs and prior consultation). Supported at clause-10.\n\n**What is missing / unclear:** No unresolved elements.\n\n**Elements:** supported F1, F2, F3 · outstanding —\n\n- `document/application-of-this-dpa/para@27363`: “11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguards under article 46 G…”\n- `clause-6.4`: “6.4 Alaio Security Assistance. Administrator agrees that Alaio will assist in ensuring compliance with any obligations of Administrator in respect of security of personal data and …”\n\n### At the choice of the controller, the processor deletes or returns all personal data at the end of the provision of services — **Partial**\n\n**What the document provides:** G2: The processor is obligated to delete on request. Supported at document/application-of-this-dpa/para@13539, document/application-of-this-dpa/para@12865, document/application-of-this-dpa/para@12018. G4: The processor deletes existing copies unless Union or Member State law requires storage. Supported at clause-2.5.\n\n**What is missing / unclear:** G1: No bundle item matched proof guidance for element G1. G3: No bundle item matched proof guidance for element G3.\n\n**Elements:** supported G2, G4 · outstanding G1, G3\n\n- `document/application-of-this-dpa/para@13539`: “4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, correction, amendment, restriction, dele…”\n- `document/application-of-this-dpa/para@12865`: “4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Personal Data, as required by Data Protection Legislat…”\n\n**Action:** G1: Reword the post-termination clause to grant the controller a choice. G3: Add a return obligation (format specified where reasonable).\n\n### Locked bottom line\n\n- 7 obligations present: Subject matter of the processing; Duration of the processing; Nature and purpose of the processing; Categories of personal data; Categories of data subjects; Processor acts only on documented instructions; Processor assists the controller with obligations under Articles 32 to 36 (security, breach notification, DPIAs, prior consultation).\n- 1 obligation partially met — remediation required: At the choice of the controller, the processor deletes or returns all personal data at the end of the provision of services.\n\n## What needs attention\n- **At the choice of the controller, the processor deletes or returns all personal data at the end of the provision of services** - ⚠️ Partial: G1: Reword the post-termination clause to grant the controller a choice. G3: Add a return obligation (format specified where reasonable).\n\n## Bottom line\nThe uploaded Data Processing Agreement demonstrates strong alignment with GDPR Article 28 standards, fully satisfying seven core requirements. The primary area requiring attention is a minor drafting gap under Article 28(3)(g) regarding the deletion or return of personal data upon completion of services. Counsel should clarify the deletion and return language to resolve this single partial finding prior to execution.\n",
+  "conversation": {
+    "turns": [
+      {
+        "id": "turn_47028138-1dc9-4fdc-9dde-23347f6840ae",
+        "role": "user",
+        "content": "Perform an evidence-based GDPR Article 28 compliance review of the uploaded Data Processing Agreement.\n\nAnalysis target:\nTreat the uploaded DPA as the target document. Apply the active GDPR Article 28 compliance rule package as the governing standard.\n\nScope:\nAssess whether the agreement adequately specifies:\n\nThe subject matter of processing.\nThe duration of processing.\nThe nature and purpose of processing.\nThe categories of personal data.\nThe categories of data subjects.\nThe controller’s relevant rights and obligations.\nEvery mandatory processor obligation under GDPR Article 28(3)(a)–(h).\nAny mandatory subprocessor flow-down requirement relevant to Article 28.\nEvidence standard:\nFor every requirement, identify the exact clause or provision supporting the conclusion. Include the clause number and a complete, relevant quotation. Do not treat definitions, unrelated provisions, or generic compliance statements as proof of a specific obligation.\n\nAdequacy rules:\nDistinguish between:\n\nPresent and adequate\nPartially covered\nMissing\nDependent on referenced material\nNot applicable\n\nMark a requirement “Present and adequate” only when the available agreement contains sufficient operative language to satisfy that requirement.\n\nMissing-material treatment:\nIf a requirement may be covered by a referenced annex, schedule, SOW, policy, or external document that was not uploaded, do not classify it as definitively missing or satisfied. Mark it as “Dependent on referenced material” and identify the exact missing document.\n\nDo not invent clauses, infer unseen language, or rely on general assumptions about standard DPAs.\n\nOutput:\nProvide:\n\nA concise overall conclusion.\nA requirement matrix with columns:\n   Requirement | Status | Clause and evidence | Analysis | Recommended action\nA separate list of material gaps.\nA list of missing referenced documents.\nA prioritized remediation summary.\nKeep conclusions consistent with the cited evidence and clearly separate contractual gaps from unavailable evidence.",
+        "createdAt": "2026-09-06T08:17:45.119Z"
+      },
+      {
+        "id": "turn_b4aec655-cdcd-4394-bf57-128dee38f693",
+        "role": "assistant",
+        "content": "## Requirements at a glance\n| Requirement | Status | Evidence | Finding | Action |\n| :--- | :--- | :--- | :--- | :--- |\n| At the choice of the controller, the processor deletes or returns all personal data at the end of the provision of services | **⚠️ Partial** | 4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, correction, amendment, restriction, deletion or exercising any other rights under the GDPR or other Data Protection Legislation of that person’s Personal Dat | G2: The processor is obligated to delete on request. Supported at document/application-of-this-dpa/para@13539, document/application-of-this-dpa/para@12865, document/application-of-this-dpa/para@12018. G4:… | G1: Reword the post-termination clause to grant the controller a choice. G3: Add a return obligation (format specified where reasonable). |\n| Subject matter of the processing | **✅ Present** | cl. 2.1.1 - 2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subject matter and details of the processing of Personal Data; (b) Alaio is a processor (service provider under the California Privacy Rights Act of 2020 and any | SM1: The contract identifies the subject matter of the processing (what is being processed and why the processor is engaged). Supported at clause-2.1.1, heading-processing-subject-matter, document/application-of-this-dpa/para@14404. No unresolved elements. | None — obligation satisfied. |\n| Duration of the processing | **✅ Present** | cl. 7.4 - 7.4 Objection Right for New Sub-processors. When any new Sub-processor is engaged during the Term, and if the GDPR applies to the processing of Personal Data, Alaio will, at least 10 days before the new Sub-processor processes any Personal Data, inform Administrator of the engagement (including | DU1: The contract specifies the duration of the processing, either by a defined term (e.g., 'Term') or by tying it to the term of the main services agreement. Supported at clause-7.4, heading-data-processing-agreement, clause-13.2. No unresolved elements. | None — obligation satisfied. |\n| Nature and purpose of the processing | **✅ Present** | . “Effective Date” means, as applicable: The date on which User clicked to accept or the parties otherwise agreed to this DPA. “Notification Email Address” means Primary email addresses associated with your account used by the first administrator for portal registration, used also to receive cert | NP1: The contract states the nature of the processing (the operations performed). Supported at document/application-of-this-dpa/def-effective-date, document/application-of-this-dpa/def-personal-data, clause-2. NP2:… | None — obligation satisfied. |\n| Categories of personal data | **✅ Present** | cl. 2 - 2. Data subjects about whom personal data is transferred to Alaio in connection with the Processor Services by, at the direction of, or on behalf of Administrator. Including: ● Staff including volunteers, agents, temporary and casual workers ● Users and clients (including their staff) ● Suppli | CD1: The contract lists the categories of personal data processed. Supported at clause-2, clause-9.2, document/application-of-this-dpa/para@15829. No unresolved elements. | None — obligation satisfied. |\n| Categories of data subjects | **✅ Present** | cl. 2 - 2. Data subjects about whom personal data is transferred to Alaio in connection with the Processor Services by, at the direction of, or on behalf of Administrator. Including: ● Staff including volunteers, agents, temporary and casual workers ● Users and clients (including their staff) ● Suppli | DS1: The contract lists the categories of data subjects whose data is processed. Supported at clause-2, clause-12.3, document/application-of-this-dpa/para@15829. No unresolved elements. | None — obligation satisfied. |\n| Processor acts only on documented instructions | **✅",
+        "createdAt": "2026-09-06T08:17:45.119Z"
+      }
+    ],
+    "sessionId": "an_71021ffd-dcc0-477c-a8bd-0ed3d151c8b3",
+    "organizationId": ""
+  },
+  "agent": {
+    "turn": 0,
+    "phase": "DONE",
+    "maxDocs": 10,
+    "docCount": 1,
+    "maxTurns": 1,
+    "askRounds": 0,
+    "entryMode": "CREATE",
+    "tokensUsed": 66225,
+    "tokenBudget": 500000,
+    "maxAskRounds": 2,
+    "openQuestions": [],
+    "stoppedReason": "blocked",
+    "maxExtractionUnits": 200,
+    "extractionUnitsUsed": 78
+  },
+  "critique": {
+    "fixPlan": [],
+    "isGreen": false,
+    "metrics": {
+      "askCount": 0,
+      "replanCount": 0,
+      "critiqueLiteMs": 7,
+      "deepCritiqueMs": 0,
+      "critiqueLLMCalls": 0,
+      "targetedRedoCount": 0,
+      "deepCritiqueTargets": 0,
+      "deepCritiqueTriggered": false
+    },
+    "release": {
+      "reasons": [
+        "coverage_gap",
+        "placeholder_output",
+        "unrecoverable_execution_failure"
+      ],
+      "verdict": "withhold",
+      "alignment": {
+        "issues": []
+      },
+      "placeholderReport": {
+        "kind": "all_not_covered",
+        "detail": "All requirement assessments are missing or without supporting findings",
+        "detected": true
+      },
+      "requirementCoverage": {
+        "total": 15,
+        "covered": 0,
+        "entries": [
+          {
+            "state": "not_covered",
+            "reason": "Mapped work did not complete",
+            "requirementId": "gdpr.article28.subject_matter"
+          },
+          {
+            "state": "not_covered",
+            "reason": "Mapped work did not complete",
+            "requirementId": "gdpr.article28.duration"
+          },
+          {
+            "state": "not_covered",
+            "reason": "Mapped work did not complete",
+            "requirementId": "gdpr.article28.nature_and_purpose"
+          },
+          {
+            "state": "not_covered",
+            "reason": "Mapped work did not complete",
+            "requirementId": "gdpr.article28.categories_of_data"
+          },
+          {
+            "state": "not_covered",
+            "reason": "Mapped work did not complete",
+            "requirementId": "gdpr.article28.categories_of_data_subjects"
+          },
+          {
+            "state": "not_covered",
+            "reason": "Mapped work did not complete",
+            "requirementId": "gdpr.article28.controller_rights_and_obligations"
+          },
+          {
+            "state": "not_covered",
+            "reason": "Mapped work did not complete",
+            "requirementId": "gdpr.article28.3a.documented_instructions"
+          },
+          {
+            "state": "not_covered",
+            "reason": "Mapped work did not complete",
+            "requirementId": "gdpr.article28.3b.confidentiality"
+          },
+          {
+            "state": "not_covered",
+            "reason": "Mapped work did not complete",
+            "requirementId": "gdpr.article28.3c.security_measures"
+          },
+          {
+            "state": "not_covered",
+            "reason": "Mapped work did not complete",
+            "requirementId": "gdpr.article28.3d.subprocessors"
+          },
+          {
+            "state": "not_covered",
+            "reason": "Mapped work did not complete",
+            "requirementId": "gdpr.article28.3e.data_subject_rights"
+          },
+          {
+            "state": "not_covered",
+            "reason": "No requirement assessment",
+            "requirementId": "gdpr.article28.3f.security_and_breach_assistance"
+          },
+          {
+            "state": "not_covered",
+            "reason": "Mapped work did not complete",
+            "requirementId": "gdpr.article28.3g.deletion_or_return"
+          },
+          {
+            "state": "not_covered",
+            "reason": "Mapped work did not complete",
+            "requirementId": "gdpr.article28.3h.audits_and_inspections"
+          },
+          {
+            "state": "not_covered",
+            "reason": "No requirement assessment",
+            "requirementId": "gdpr.article28.subprocessor_flowdown"
+          }
+        ],
+        "notCovered": [
+          "gdpr.article28.subject_matter",
+          "gdpr.article28.duration",
+          "gdpr.article28.nature_and_purpose",
+          "gdpr.article28.categories_of_data",
+          "gdpr.article28.categories_of_data_subjects",
+          "gdpr.article28.controller_rights_and_obligations",
+          "gdpr.article28.3a.documented_instructions",
+          "gdpr.article28.3b.confidentiality",
+          "gdpr.article28.3c.security_measures",
+          "gdpr.article28.3d.subprocessors",
+          "gdpr.article28.3e.data_subject_rights",
+          "gdpr.article28.3f.security_and_breach_assistance",
+          "gdpr.article28.3g.deletion_or_return",
+          "gdpr.article28.3h.audits_and_inspections",
+          "gdpr.article28.subprocessor_flowdown"
+        ],
+        "needsReplan": []
+      }
+    },
+    "results": [
+      {
+        "detail": "classification only, no finding by design",
+        "itemId": "complete:wu-classify",
+        "status": "pass",
+        "workUnitId": "wu-classify",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "complete:wu-extract",
+        "status": "pass",
+        "workUnitId": "wu-extract",
+        "evidenceVerified": true
+      },
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-pkg-ev-gdpr.art28.particulars",
+        "status": "missing",
+        "workUnitId": "wu-pkg-ev-gdpr.art28.particulars",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-pkg-eval-gdpr.art28.particulars",
+        "status": "missing",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-pkg-ev-gdpr.art28.3.mandatory_clauses",
+        "status": "missing",
+        "workUnitId": "wu-pkg-ev-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "missing",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "requirement assessments built, no finding by design",
+        "itemId": "complete:wu-aggregate",
+        "status": "pass",
+        "workUnitId": "wu-aggregate",
+        "evidenceVerified": true
+      },
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-derive-risk",
+        "status": "missing",
+        "workUnitId": "wu-derive-risk",
+        "evidenceVerified": false
+      },
+      {
+        "itemId": "complete:wu-render",
+        "status": "pass",
+        "workUnitId": "wu-render",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-id:f_extract_wu-extract",
+        "status": "pass",
+        "findingId": "f_extract_wu-extract",
+        "workUnitId": "wu-extract",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-status:f_extract_wu-extract",
+        "status": "pass",
+        "findingId": "f_extract_wu-extract",
+        "workUnitId": "wu-extract",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "locator:f_extract_wu-extract:heading-data-processing-agreement",
+        "status": "pass",
+        "findingId": "f_extract_wu-extract",
+        "workUnitId": "wu-extract",
+        "evidenceQuote": "DATA PROCESSING AGREEMENT \nLast updated 29th November 2024 \nThis Data Processing Agreement (“DPA”, “Agreement”) is an addendum to and forms part  of the master agreement between the Administrator of Bitrix24 Customer Account  and Alaio (https://www.bitrix24.com/terms/) to reflect the parties’ agreement for the  provision of the Processor Services (as amended from time to time) and processing  of Bitrix24 Customer Account User’s Personal Data in accordance with the  requirements of the Data Prote",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "locator:f_extract_wu-extract:clause-2",
+        "status": "pass",
+        "findingId": "f_extract_wu-extract",
+        "workUnitId": "wu-extract",
+        "evidenceQuote": "2. PROCESSING OF PERSONAL DATA \n2.1 Roles and Regulatory Compliance; Authorization. \n2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subject matter and details of the processing  of Personal Data; \n(b) Alaio is a processor (service provider under the California Privacy Rights Act of 2020  and any other applicable federal and state USA privacy legislation) of Personal Data under  the applicable Data Protection ",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "locator:f_extract_wu-extract:clause-4.1",
+        "status": "pass",
+        "findingId": "f_extract_wu-extract",
+        "workUnitId": "wu-extract",
+        "evidenceQuote": "4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to  correct, amend, block or delete Personal Data, as required by Data Protection Legislation,  Alaio will (taking into account the nature of the processing of Personal Data and, if  applicable, Article 11 of the GDPR) assist Administrator in fulfilling any obligation of  Administrator to respond to requests by data subjects, including (if applicable)  Administrator´s obligation to respond to requests for ",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-id:f_render_wu-render",
+        "status": "pass",
+        "findingId": "f_render_wu-render",
+        "workUnitId": "wu-render",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "finding-status:f_render_wu-render",
+        "status": "pass",
+        "findingId": "f_render_wu-render",
+        "workUnitId": "wu-render",
+        "evidenceVerified": true
+      },
+      {
+        "detail": "Required requirement gdpr.article28.subject_matter lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.subject_matter",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.duration lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.duration",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.nature_and_purpose lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.nature_and_purpose",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.categories_of_data lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.categories_of_data",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.categories_of_data_subjects lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.categories_of_data_subjects",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.controller_rights_and_obligations lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.controller_rights_and_obligations",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.3a.documented_instructions lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.3a.documented_instructions",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.3b.confidentiality lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.3b.confidentiality",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.3c.security_measures lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.3c.security_measures",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.3d.subprocessors lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.3d.subprocessors",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.3e.data_subject_rights lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.3e.data_subject_rights",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.3f.security_and_breach_assistance lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.3f.security_and_breach_assistance",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.3g.deletion_or_return lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.3g.deletion_or_return",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.3h.audits_and_inspections lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.3h.audits_and_inspections",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.subprocessor_flowdown lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.subprocessor_flowdown",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "itemId": "requirement-refs:subject_matter",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "detail": "Assessment status adequate conflicts with derived status cannot_determine",
+        "itemId": "requirement-consistency:subject_matter",
+        "status": "ambiguous",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": false
+      },
+      {
+        "itemId": "requirement-refs:duration",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "detail": "Assessment status adequate conflicts with derived status cannot_determine",
+        "itemId": "requirement-consistency:duration",
+        "status": "ambiguous",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": false
+      },
+      {
+        "itemId": "requirement-refs:nature_purpose",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "detail": "Assessment status adequate conflicts with derived status cannot_determine",
+        "itemId": "requirement-consistency:nature_purpose",
+        "status": "ambiguous",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": false
+      },
+      {
+        "itemId": "requirement-refs:data_categories",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "detail": "Assessment status adequate conflicts with derived status cannot_determine",
+        "itemId": "requirement-consistency:data_categories",
+        "status": "ambiguous",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": false
+      },
+      {
+        "itemId": "requirement-refs:data_subject_categories",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": true
+      },
+      {
+        "detail": "Assessment status adequate conflicts with derived status cannot_determine",
+        "itemId": "requirement-consistency:data_subject_categories",
+        "status": "ambiguous",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": false
+      },
+      {
+        "itemId": "requirement-refs:art28_3_a_instructions",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "detail": "Assessment status adequate conflicts with derived status cannot_determine",
+        "itemId": "requirement-consistency:art28_3_a_instructions",
+        "status": "ambiguous",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": false
+      },
+      {
+        "itemId": "requirement-refs:art28_3_f_security_assistance",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "detail": "Assessment status adequate conflicts with derived status cannot_determine",
+        "itemId": "requirement-consistency:art28_3_f_security_assistance",
+        "status": "ambiguous",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": false
+      },
+      {
+        "itemId": "requirement-refs:art28_3_g_deletion_return",
+        "status": "pass",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": true
+      },
+      {
+        "detail": "Assessment status conditional conflicts with derived status cannot_determine",
+        "itemId": "requirement-consistency:art28_3_g_deletion_return",
+        "status": "ambiguous",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": false
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28.subject_matter",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28.duration",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28.nature_and_purpose",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28.categories_of_data",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28.categories_of_data_subjects",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28.controller_rights_and_obligations",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28.3a.documented_instructions",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28.3b.confidentiality",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28.3c.security_measures",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28.3d.subprocessors",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28.3e.data_subject_rights",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28.3f.security_and_breach_assistance",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28.3g.deletion_or_return",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28.3h.audits_and_inspections",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "requirement-mapping:gdpr.article28.subprocessor_flowdown",
+        "status": "pass",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "report-spec:contract",
+        "status": "pass",
+        "workUnitId": "wu-render",
+        "evidenceVerified": true
+      },
+      {
+        "itemId": "report-output:contract",
+        "status": "pass",
+        "workUnitId": "wu-render",
+        "evidenceVerified": true
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.subject_matter",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.duration",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.nature_and_purpose",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.categories_of_data",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.categories_of_data_subjects",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.controller_rights_and_obligations",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.3a.documented_instructions",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.3b.confidentiality",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.3c.security_measures",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.3d.subprocessors",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.3e.data_subject_rights",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "No requirement assessment",
+        "itemId": "coverage:gdpr.article28.3f.security_and_breach_assistance",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.3g.deletion_or_return",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.3h.audits_and_inspections",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "No requirement assessment",
+        "itemId": "coverage:gdpr.article28.subprocessor_flowdown",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "All requirement assessments are missing or without supporting findings",
+        "itemId": "placeholder-output",
+        "status": "fail",
+        "workUnitId": "wu-render",
+        "evidenceVerified": false
+      }
+    ],
+    "outcomes": [
+      {
+        "attempts": [],
+        "workUnitId": "wu-classify",
+        "terminalStatus": "verified"
+      },
+      {
+        "attempts": [],
+        "workUnitId": "wu-extract",
+        "terminalStatus": "verified"
+      },
+      {
+        "attempts": [
+          {
+            "outcome": "rejected",
+            "outputHash": "no-findings",
+            "attemptNumber": 1,
+            "rejectionReason": "Work unit did not reach an allowed terminal status"
+          }
+        ],
+        "workUnitId": "wu-pkg-ev-gdpr.art28.particulars",
+        "failureReason": {
+          "kind": "verification_rejected",
+          "critiqueReason": "Work unit did not reach an allowed terminal status"
+        },
+        "terminalStatus": "retries_exhausted"
+      },
+      {
+        "attempts": [
+          {
+            "outcome": "rejected",
+            "outputHash": "no-findings",
+            "attemptNumber": 1,
+            "rejectionReason": "Work unit did not reach an allowed terminal status"
+          }
+        ],
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "failureReason": {
+          "kind": "verification_rejected",
+          "critiqueReason": "Work unit did not reach an allowed terminal status"
+        },
+        "terminalStatus": "retries_exhausted"
+      },
+      {
+        "attempts": [
+          {
+            "outcome": "rejected",
+            "outputHash": "no-findings",
+            "attemptNumber": 1,
+            "rejectionReason": "Work unit did not reach an allowed terminal status"
+          }
+        ],
+        "workUnitId": "wu-pkg-ev-gdpr.art28.3.mandatory_clauses",
+        "failureReason": {
+          "kind": "verification_rejected",
+          "critiqueReason": "Work unit did not reach an allowed terminal status"
+        },
+        "terminalStatus": "retries_exhausted"
+      },
+      {
+        "attempts": [
+          {
+            "outcome": "rejected",
+            "outputHash": "no-findings",
+            "attemptNumber": 1,
+            "rejectionReason": "Work unit did not reach an allowed terminal status"
+          }
+        ],
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "failureReason": {
+          "kind": "verification_rejected",
+          "critiqueReason": "Work unit did not reach an allowed terminal status"
+        },
+        "terminalStatus": "retries_exhausted"
+      },
+      {
+        "attempts": [],
+        "workUnitId": "wu-aggregate",
+        "terminalStatus": "verified"
+      },
+      {
+        "attempts": [
+          {
+            "outcome": "rejected",
+            "outputHash": "no-findings",
+            "attemptNumber": 1,
+            "rejectionReason": "Work unit did not reach an allowed terminal status"
+          }
+        ],
+        "workUnitId": "wu-derive-risk",
+        "failureReason": {
+          "kind": "verification_rejected",
+          "critiqueReason": "Work unit did not reach an allowed terminal status"
+        },
+        "terminalStatus": "retries_exhausted"
+      },
+      {
+        "attempts": [
+          {
+            "outcome": "rejected",
+            "outputHash": "00a86f897ba6c12e",
+            "attemptNumber": 1,
+            "rejectionReason": "All requirement assessments are missing or without supporting findings"
+          }
+        ],
+        "workUnitId": "wu-render",
+        "failureReason": {
+          "kind": "verification_rejected",
+          "critiqueReason": "All requirement assessments are missing or without supporting findings"
+        },
+        "terminalStatus": "retries_exhausted"
+      }
+    ],
+    "iteration": 1,
+    "allUnitsTerminal": true,
+    "skeletonMismatch": true,
+    "structuralIssues": [
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-pkg-ev-gdpr.art28.particulars",
+        "status": "missing",
+        "workUnitId": "wu-pkg-ev-gdpr.art28.particulars",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-pkg-eval-gdpr.art28.particulars",
+        "status": "missing",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.particulars",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-pkg-ev-gdpr.art28.3.mandatory_clauses",
+        "status": "missing",
+        "workUnitId": "wu-pkg-ev-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "status": "missing",
+        "workUnitId": "wu-pkg-eval-gdpr.art28.3.mandatory_clauses",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Work unit did not reach an allowed terminal status",
+        "itemId": "complete:wu-derive-risk",
+        "status": "missing",
+        "workUnitId": "wu-derive-risk",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.subject_matter lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.subject_matter",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.duration lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.duration",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.nature_and_purpose lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.nature_and_purpose",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.categories_of_data lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.categories_of_data",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.categories_of_data_subjects lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.categories_of_data_subjects",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.controller_rights_and_obligations lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.controller_rights_and_obligations",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.3a.documented_instructions lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.3a.documented_instructions",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.3b.confidentiality lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.3b.confidentiality",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.3c.security_measures lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.3c.security_measures",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.3d.subprocessors lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.3d.subprocessors",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.3e.data_subject_rights lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.3e.data_subject_rights",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.3f.security_and_breach_assistance lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.3f.security_and_breach_assistance",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.3g.deletion_or_return lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.3g.deletion_or_return",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.3h.audits_and_inspections lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.3h.audits_and_inspections",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Required requirement gdpr.article28.subprocessor_flowdown lacks a valid assessment/finding",
+        "itemId": "requirement-coverage:gdpr.article28.subprocessor_flowdown",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.subject_matter",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.duration",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.nature_and_purpose",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.categories_of_data",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.categories_of_data_subjects",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.controller_rights_and_obligations",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.3a.documented_instructions",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.3b.confidentiality",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.3c.security_measures",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.3d.subprocessors",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.3e.data_subject_rights",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "No requirement assessment",
+        "itemId": "coverage:gdpr.article28.3f.security_and_breach_assistance",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.3g.deletion_or_return",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "Mapped work did not complete",
+        "itemId": "coverage:gdpr.article28.3h.audits_and_inspections",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "No requirement assessment",
+        "itemId": "coverage:gdpr.article28.subprocessor_flowdown",
+        "status": "missing",
+        "evidenceVerified": false
+      },
+      {
+        "detail": "All requirement assessments are missing or without supporting findings",
+        "itemId": "placeholder-output",
+        "status": "fail",
+        "workUnitId": "wu-render",
+        "evidenceVerified": false
+      }
+    ],
+    "executionComplete": false,
+    "structurallyValid": false,
+    "deepCritiqueResults": [],
+    "deepCritiqueTargets": [],
+    "criticalFactSurfaced": false,
+    "deepCritiqueRequired": false
+  }
+}

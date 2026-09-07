@@ -1,0 +1,13 @@
+??? injected env (34) from .env // tip: ??? auth for agents [www.vestauth.com]
+targets=5
+{"pid":494240,"state":"active","wait_event_type":"Client","wait_event":"ClientWrite","query":"SELECT * FROM jobs WHERE user_id = current_setting('app.current_user_id', true) ORDER BY created_at DESC","query_age":{"minutes":3,"seconds":23,"milliseconds":346.039}}
+  terminate pid=494240 ok=true
+{"pid":494342,"state":"active","wait_event_type":"Lock","wait_event":"relation","query":"ALTER TABLE jobs ADD COLUMN IF NOT EXISTS result JSONB DEFAULT NULL;","query_age":{"minutes":1,"milliseconds":816.436}}
+  terminate pid=494342 ok=true
+{"pid":494322,"state":"active","wait_event_type":"Lock","wait_event":"relation","query":"ALTER TABLE jobs ADD COLUMN IF NOT EXISTS result JSONB DEFAULT NULL;","query_age":{"minutes":1,"seconds":27,"milliseconds":234.158}}
+  terminate pid=494322 ok=true
+{"pid":494248,"state":"active","wait_event_type":"Client","wait_event":"ClientWrite","query":"SELECT * FROM jobs WHERE user_id = current_setting('app.current_user_id', true) ORDER BY created_at DESC","query_age":{"minutes":3,"seconds":3,"milliseconds":218.148}}
+  terminate pid=494248 ok=true
+{"pid":493935,"state":"active","wait_event_type":"Lock","wait_event":"relation","query":"UPDATE jobs SET progress = $1, message = $2 WHERE id = $3","query_age":{"minutes":1,"seconds":23,"milliseconds":476.517}}
+  terminate pid=493935 ok=true
+done

@@ -44,6 +44,17 @@ export const VERIFY_PROPOSITION_SYSTEM_PROMPT = [
   "  \"specifies the end-of-processing consequence via an explicit reference",
   "  to the underlying Agreement's term\") — richer than `rationale`, written",
   "  for a reader who will never see the raw passage.",
+  "- Residual limitation on a `proves` verdict (compound / choice-based",
+  "  standards): when the passage satisfies the CORE of the proof standard",
+  "  but only one branch or part of a compound or choice-based standard",
+  "  (e.g. \"A or B, at X's choice\" where only A is offered; \"A and B\"",
+  "  where only A is stated), the verdict is still `proves` — the core",
+  "  proposition holds; do not manufacture a false `related_not_proof`.",
+  "  Set `partialCoverage` to true, and fill `gapDescription` and",
+  "  `remediation` with the SAME rigor required for a failure verdict:",
+  "  name the specific unaddressed part (e.g. \"obligates deletion only;",
+  "  the controller has no return option\") and the concrete action that",
+  "  would close it. Never a generic caveat.",
   "- If verdict is `related_not_proof` or `contradicts`: fill",
   "  `gapDescription` with the SPECIFIC delta between what the proof standard",
   "  needs and what this passage actually gives (e.g. \"specifies the",
@@ -99,7 +110,10 @@ export function buildVerifyPropositionUserPrompt(
     "the candidate passage above, or empty string if verdict is irrelevant),",
     "a one-line rationale naming the specific words that do the work, and",
     "whichever of establishedBy / gapDescription / dependency / structuralNote",
-    "/ remediation genuinely apply (leave the rest empty — see system prompt).",
+    "/ remediation / partialCoverage genuinely apply (leave the rest empty —",
+    "see system prompt). If the core is proved but a named sub-element is",
+    "missing, verdict is still proves with partialCoverage=true and a specific",
+    "gapDescription + remediation.",
   ].join("\n");
 }
 
@@ -123,10 +137,15 @@ export const VERIFY_PROPOSITION_SCHEMA = {
       type: "string",
       description: "Only when verdict=proves: what the evidence shows, report-ready prose.",
     },
+    partialCoverage: {
+      type: "boolean",
+      description:
+        "True when verdict=proves but a named sub-element of a compound or choice-based proof standard is unaddressed. Omit or false otherwise.",
+    },
     gapDescription: {
       type: "string",
       description:
-        "Only when verdict=related_not_proof/contradicts: the specific delta between the proof standard and what was found.",
+        "When verdict=related_not_proof/contradicts, or when verdict=proves with partialCoverage=true: the specific delta between the proof standard and what was found.",
     },
     dependency: {
       type: "object",
@@ -143,7 +162,7 @@ export const VERIFY_PROPOSITION_SCHEMA = {
     remediation: {
       type: "string",
       description:
-        "Only when verdict=related_not_proof/contradicts: the specific action that would close the gap.",
+        "When verdict=related_not_proof/contradicts, or when verdict=proves with partialCoverage=true: the specific action that would close the gap.",
     },
     applicabilityScope: {
       type: "object",
