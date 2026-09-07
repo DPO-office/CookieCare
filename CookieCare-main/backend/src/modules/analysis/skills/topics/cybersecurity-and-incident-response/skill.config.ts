@@ -117,6 +117,85 @@ export const cybersecurityIncidentSkill: AnalysisSkillConfig = {
   ],
   regimeRules: RULES,
   regimeRuleIds: RULES.map((r) => r.ruleId),
+  evidencePackages: [
+    {
+      id: "cybersecurity.structural_review",
+      requirementIds: RULES.map((r) => r.ruleId),
+      capabilityIds: RULES.map((r) => r.ruleId),
+      clauseTypes: ["security_measures", "incident_response"],
+      extractionTargets: ["risk_management_measures", "incident_reporting_timelines", "governance_outcomes", "detect_respond_recover"],
+      requirementEvidence: {
+        "nis2.art21.risk_management": {
+          hypothesis:
+            "Where an in-scope essential or important entity is a party, the contract reflects appropriate and proportionate technical, operational, and organisational measures to manage network and information system risks, including incident handling, supply-chain security, and vulnerability handling.",
+          evidenceHints: ["risk management measures", "technical and organisational measures", "supply chain security", "vulnerability handling", "business continuity"],
+          proofStandard:
+            "Proven only by text naming at least several of the specific NIS2 Article " +
+            "21 measure categories — incident handling, supply-chain security, " +
+            "vulnerability handling/disclosure, or business continuity — not a bare " +
+            "'appropriate security measures' boilerplate with none of these named. A " +
+            "generic information-security clause with no supply-chain or " +
+            "vulnerability-handling content is a partial gap. If neither party is " +
+            "identifiable as an in-scope NIS2 essential/important entity, this " +
+            "proposition is not raised — treat as not applicable rather than " +
+            "contradicted.",
+        },
+        "nis2.art23.incident_reporting": {
+          hypothesis:
+            "Where an in-scope entity is a party, the contract's incident-notification path does not impose a longer or exclusive timeline that would prevent that entity meeting NIS2's statutory clocks — an early warning without undue delay and within 24 hours of becoming aware, incident notification within 72 hours, and a final report.",
+          evidenceHints: ["24 hours", "72 hours", "early warning", "without undue delay", "significant incident", "notify the authority"],
+          proofStandard:
+            "Proven only where the contract's incident-notification timeline is " +
+            "silent on, or expressly compatible with (equal to or faster than), the " +
+            "24-hour early-warning and 72-hour notification clocks — e.g. it does " +
+            "not require internal/contractual notice review or sign-off that would " +
+            "structurally prevent meeting a 24-hour external deadline. Contradicted " +
+            "by a contractual notice clock LONGER than 72 hours that is framed as " +
+            "the exclusive or gating notification path (e.g. 'the sole notice " +
+            "mechanism is the vendor's incident portal, updated within 5 business " +
+            "days'), which would obstruct the statutory timeline. If neither party " +
+            "is an in-scope NIS2 entity, this proposition is not raised.",
+        },
+        "nist.csf.govern": {
+          hypothesis:
+            "Where the parties adopt NIST CSF 2.0 as a binding contractual standard, the contract reflects Govern-function outcomes — a cybersecurity risk-management strategy, defined roles, oversight, and supply-chain risk governance.",
+          evidenceHints: ["nist csf", "govern function", "risk management strategy", "roles and responsibilities", "supply chain risk"],
+          proofStandard:
+            "Proven only where the contract (a) makes CSF 2.0 binding (an express " +
+            "incorporation clause, not merely a passing mention), AND (b) names at " +
+            "least a risk-management strategy/policy and defined security roles or " +
+            "oversight. A bare reference to 'NIST CSF' with no binding-incorporation " +
+            "language and no Govern-outcome content does not satisfy this. If CSF is " +
+            "not adopted as a contractual standard at all, this proposition is not " +
+            "raised — treat as not applicable.",
+        },
+        "nist.csf.detect_respond_recover": {
+          hypothesis:
+            "Where the parties adopt NIST CSF 2.0 as the chosen framework, the contract's incident-response and restoration language reflects Detect, Respond, and Recover outcomes, distinct from any separate NIS2 Article 23 legal reporting clock.",
+          evidenceHints: ["detect", "respond", "recover", "restoration", "incident response plan", "business continuity"],
+          proofStandard:
+            "Proven only where the contract (a) makes CSF 2.0 binding, AND (b) its " +
+            "incident-response provisions address detection capability, a response " +
+            "process, AND a recovery/restoration commitment — not merely a " +
+            "notification-timing clause alone (notification timing satisfies NIS2 " +
+            "Article 23, not the broader CSF Detect/Respond/Recover outcomes). If CSF " +
+            "is not adopted as a contractual standard at all, this proposition is not " +
+            "raised — treat as not applicable.",
+        },
+      },
+      sourceMode: "authored",
+      packageVersion: "1.0.0",
+      requirementKinds: ["adequacy", "verification"],
+      label: "Cybersecurity and incident response structural review",
+      orchestration: {
+        role: "structural_review",
+        suppressWhenMatrixFocus: true,
+      },
+      report: {
+        sections: ["executive_summary", "requirements_matrix", "material_gaps", "recommendations", "conclusion"],
+      },
+    },
+  ],
   instructionFocusMap: [
     {
       triggerPhrases: ["nis2", "essential entit", "important entit", "24 hours", "72 hours"],

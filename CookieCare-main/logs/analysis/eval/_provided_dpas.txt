@@ -1,0 +1,80 @@
+DIR C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001\DPA Templates
+C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001\DPA Templates\DPA - 1.pdf | 300828
+C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001\DPA Templates\DPA - 10(1).pdf | 195355
+C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001\DPA Templates\DPA - 10.pdf | 108417
+C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001\DPA Templates\DPA - 2.pdf | 949330
+C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001\DPA Templates\DPA - 3.pdf | 273370
+C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001\DPA Templates\DPA - 4.pdf | 110731
+C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001\DPA Templates\DPA - 5.pdf | 296523
+C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001\DPA Templates\DPA - 6.pdf | 889923
+C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001\DPA Templates\DPA - 7.docx | 81400
+C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001\DPA Templates\DPA - 8.pdf | 312374
+C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001\DPA Templates\DPA - 9.pdf | 638155
+C:\Users\abhinav.yadav_randst\Downloads\AI model Training templates - Sheet1.pdf | 30381
+C:\Users\abhinav.yadav_randst\Downloads\DPA - 1 (1).docx | 38769
+C:\Users\abhinav.yadav_randst\Downloads\DPA - 1.docx | 38769
+DIR C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001
+DIR C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001\DPA Templates
+C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001\DPA Templates\DPA - 1.pdf | 300828
+C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001\DPA Templates\DPA - 10(1).pdf | 195355
+C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001\DPA Templates\DPA - 10.pdf | 108417
+C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001\DPA Templates\DPA - 2.pdf | 949330
+C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001\DPA Templates\DPA - 3.pdf | 273370
+C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001\DPA Templates\DPA - 4.pdf | 110731
+C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001\DPA Templates\DPA - 5.pdf | 296523
+C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001\DPA Templates\DPA - 6.pdf | 889923
+C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001\DPA Templates\DPA - 7.docx | 81400
+C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001\DPA Templates\DPA - 8.pdf | 312374
+C:\Users\abhinav.yadav_randst\Downloads\DPA Templates-20260907T045915Z-1-001\DPA Templates\DPA - 9.pdf | 638155
+C:\Users\abhinav.yadav_randst\Downloads\DPA-1-extracted.txt | 46267
+C:\Users\abhinav.yadav_randst\Downloads\dpa-omnihealth-media-cybershield-cloud-hosting-gdpr-ccpa.docx | 46760
+C:\Users\abhinav.yadav_randst\Downloads\DPA_AI_Prompt_Repository_Playbook.docx.pdf | 180202
+C:\Users\abhinav.yadav_randst\Downloads\GDPR-Articles-15–22-Data-Subject-Rights-Review-Cisco-MDPA.md | 7264
+C:\Users\abhinav.yadav_randst\Downloads\International-transfers-under-UK-GDPR-ICO,UK.pdf | 374287
+C:\Users\abhinav.yadav_randst\Downloads\Perform-a-rigorous-GDPR-Article-28-compliance-review-of-this-Data-Processing-Agr.md | 10891
+C:\Users\abhinav.yadav_randst\Downloads\Randstad Digital - Data Processing Addendum - Salesloft_Drift (Processor) - Customer (Controller) - 06.2024v7 (685b0a5df8) (version 1) (1) (4).docx.pdf | 507981
+C:\Users\abhinav.yadav_randst\Downloads\randstrd\RD_ Master Service Agreement (MSA)+DPA.docx.pdf | 368723
+DIR C:\Users\abhinav.yadav_randst\Downloads\skills\doc-types\dpa
+C:\Users\abhinav.yadav_randst\Downloads\skils folder\regime\GDPR EU.pdf | 982296
+C:\Users\abhinav.yadav_randst\Downloads\skils folder\regime\GDPR UK.pdf | 36398
+C:\Users\abhinav.yadav_randst\Downloads\something DPA.docx | 19171
+C:\Program Files\CookieCare\CookieCare-main\docs\analysis-phase-problems\P-4B-01-lexical-matcher-bitrix-vs-mastercard.md | 15966
+DIR C:\Program Files\CookieCare\CookieCare-main\backend\node_modules\@babel\template
+DIR C:\Program Files\CookieCare\CookieCare-main\backend\node_modules\@types\babel__template
+DIR C:\Program Files\CookieCare\CookieCare-main\backend\node_modules\help-me\fixture
+C:\Program Files\CookieCare\CookieCare-main\backend\node_modules\playwright\ThirdPartyNotices.txt | 705
+C:\Program Files\CookieCare\CookieCare-main\backend\node_modules\playwright-core\ThirdPartyNotices.txt | 676
+DIR C:\Program Files\CookieCare\CookieCare-main\backend\node_modules\sonic-boom\fixtures
+C:\Program Files\CookieCare\CookieCare-main\backend\node_modules\typescript\ThirdPartyNoticeText.txt | 37824
+C:\Program Files\CookieCare\CookieCare-main\backend\prompts\skills\dpa-privacy-risk-review.md | 23300
+DIR C:\Program Files\CookieCare\CookieCare-main\backend\scripts\fixtures
+C:\Program Files\CookieCare\CookieCare-main\backend\scripts\fixtures\art28-latency-dpa.txt | 7311
+DIR C:\Program Files\CookieCare\CookieCare-main\backend\src\llm\__fixtures__
+C:\Program Files\CookieCare\CookieCare-main\docs\analysis-phase-problems\P-4B-01-lexical-matcher-bitrix-vs-mastercard.md | 15966
+DIR C:\Program Files\CookieCare\CookieCare-main\frontend\src\features\dpaReviewer
+DIR C:\Program Files\CookieCare\CookieCare-main\logs\analysis\eval
+C:\Program Files\CookieCare\CookieCare-main\logs\analysis\eval\2026-09-05-art28-bitrix-ui-report.txt | 14873
+C:\Program Files\CookieCare\CookieCare-main\logs\analysis\eval\2026-09-05-live-art28-bitrix.md | 5475
+C:\Program Files\CookieCare\CookieCare-main\logs\analysis\eval\2026-09-07-live-xfer-bitrix-ui-report.txt | 5234
+C:\Program Files\CookieCare\CookieCare-main\logs\analysis\eval\_bitrix_appendix1_slice.txt | 1101
+C:\Program Files\CookieCare\CookieCare-main\logs\analysis\eval\_bitrix_docx_inspect.txt | 412
+C:\Program Files\CookieCare\CookieCare-main\logs\analysis\eval\_bitrix_dpa_full.txt | 46713
+C:\Program Files\CookieCare\CookieCare-main\logs\analysis\eval\_bitrix_from_docx_now.txt | 46713
+C:\Program Files\CookieCare\CookieCare-main\logs\analysis\eval\_bitrix_mammoth.txt | 1197
+C:\Program Files\CookieCare\CookieCare-main\logs\analysis\eval\_mc_extract_DPA - 1.docx.txt | 46713
+C:\Program Files\CookieCare\CookieCare-main\logs\analysis\eval\_mc_extract_dpa-omnihealth-media-cybershield-cloud-hosting-gdpr-ccpa.docx.txt | 27878
+C:\Program Files\CookieCare\CookieCare-main\logs\analysis\eval\_mc_extract_something DPA.docx.txt | 37506
+C:\Program Files\CookieCare\CookieCare-main\logs\analysis\eval\_p3_bitrix_mc.txt | 3071
+DIR C:\Program Files\CookieCare\CookieCare-main\node_modules\@babel\template
+DIR C:\Program Files\CookieCare\CookieCare-main\node_modules\@types\babel__template
+DIR C:\Program Files\CookieCare\CookieCare-main\node_modules\fast-uri\test\fixtures
+DIR C:\Program Files\CookieCare\CookieCare-main\node_modules\help-me\fixture
+DIR C:\Program Files\CookieCare\CookieCare-main\node_modules\json-schema-traverse\spec\fixtures
+C:\Program Files\CookieCare\CookieCare-main\node_modules\mammoth\.github\ISSUE_TEMPLATE.md | 425
+C:\Program Files\CookieCare\CookieCare-main\node_modules\mammoth\.github\pull_request_template.md | 140
+DIR C:\Program Files\CookieCare\CookieCare-main\node_modules\on-exit-leak-free\test\fixtures
+DIR C:\Program Files\CookieCare\CookieCare-main\node_modules\pino\test\fixtures
+DIR C:\Program Files\CookieCare\CookieCare-main\node_modules\pino-abstract-transport\test\fixtures
+C:\Program Files\CookieCare\CookieCare-main\node_modules\playwright\ThirdPartyNotices.txt | 705
+C:\Program Files\CookieCare\CookieCare-main\node_modules\playwright-core\ThirdPartyNotices.txt | 676
+DIR C:\Program Files\CookieCare\CookieCare-main\node_modules\puppeteer-core\src\templates

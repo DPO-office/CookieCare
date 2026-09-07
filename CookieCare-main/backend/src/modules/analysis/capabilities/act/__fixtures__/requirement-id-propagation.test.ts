@@ -232,14 +232,49 @@ describe("PLAN stamps requirementIds on rule/matrix/risk work units", () => {
 
   it("stamps rule check_against_rule units with their owning requirementIds", () => {
     const skill = gdprSkill();
-    const ruleId = skill.regimeRules[0]?.ruleId;
-    assert.ok(ruleId, "GDPR skill must expose at least one regime rule");
+    // Prefer an unpackaged judgment rule. Packaged capabilities route to
+    // evaluate_package instead of check_against_rule.
+    const packagedCaps = new Set(
+      (skill.evidencePackages ?? []).flatMap((p) => p.capabilityIds ?? [])
+    );
+    const ruleId = skill.regimeRules.find((r) => !packagedCaps.has(r.ruleId))?.ruleId;
+
+    if (!ruleId) {
+      // All GDPR rules are packaged — stamp check happens on evaluate_package.
+      const pkg = skill.evidencePackages?.[0];
+      assert.ok(pkg, "GDPR skill must expose at least one evidence package");
+      const focus = makeFocus({
+        requirementMappings: [
+          {
+            requirementId: "R_alpha",
+            capabilityIds: pkg!.capabilityIds ?? [],
+            source: "catalog_llm",
+          },
+        ],
+      });
+      const { workUnits } = buildActGraphDetailed({
+        docId: "doc1",
+        instruction: "test",
+        skills: [skill],
+        intent: baseIntent(),
+        focus,
+      });
+      const evalUnit = workUnits.find((u) => u.tool === "evaluate_package");
+      assert.ok(evalUnit, "expected an evaluate_package unit when all rules are packaged");
+      assert.ok(
+        (evalUnit!.requirementIds?.length ?? 0) > 0 ||
+          Array.isArray(evalUnit!.input.requirementIds),
+        "evaluate_package unit should carry requirement ids"
+      );
+      return;
+    }
+
     const focus = makeFocus({
-      ruleIds: [ruleId!],
+      ruleIds: [ruleId],
       requirementMappings: [
         {
           requirementId: "R_alpha",
-          capabilityIds: [ruleId!],
+          capabilityIds: [ruleId],
           source: "catalog_llm",
         },
       ],

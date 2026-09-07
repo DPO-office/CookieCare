@@ -109,6 +109,28 @@ export function assessRequirement(input: AssessmentInput): AssessmentResult {
     (e) => e.state !== "not_applicable"
   );
 
+  // Nothing left to judge — every element (mandatory, conditional, or
+  // alternative) came back not_applicable. Every `.every(...)` check below
+  // is vacuously true on an empty array, so without this guard a fully
+  // not-applicable schema would fall through to `present` under "AND" (and
+  // similarly under OR/EXCEPTION) — confirmed live: GDPR Art 22's single E1
+  // element correctly judged not_applicable ("no automated decision-making
+  // described in this agreement") was being reported as the WHOLE
+  // requirement being "Present," with zero supporting evidence, which is a
+  // materially different and misleading claim. `not_applicable` already had
+  // this exact guard for the "CONDITIONAL" aggregation rule below; this
+  // makes it apply to every rule instead of just that one.
+  if (applicable.length === 0) {
+    return {
+      requirementId: input.requirementId,
+      status: "not_applicable",
+      reasonCodes: ["ALL_ELEMENTS_NOT_APPLICABLE", ...baseReasonCodes],
+      ruleVersion: RULE_VERSION,
+      elementStates,
+      completeness,
+    };
+  }
+
   // Conflicts win over everything except incompleteness.
   if (applicable.some((e) => e.state === "contradicted")) {
     return {

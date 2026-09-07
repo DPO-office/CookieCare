@@ -153,6 +153,126 @@ export const hipaaBaaSkill: AnalysisSkillConfig = {
   ],
   regimeRules: RULES,
   regimeRuleIds: RULES.map((r) => r.ruleId),
+  evidencePackages: [
+    {
+      id: "hipaa.baa.structural_review",
+      requirementIds: RULES.map((r) => r.ruleId),
+      capabilityIds: RULES.map((r) => r.ruleId),
+      clauseTypes: [
+        "phi_use_disclosure",
+        "hipaa_safeguards",
+        "breach_notification",
+        "subprocessor_flow_down",
+        "deletion_on_termination",
+      ],
+      extractionTargets: [
+        "permitted_uses",
+        "minimum_necessary",
+        "security_safeguards",
+        "subcontractor_flow_down",
+        "breach_notice_timing",
+        "return_or_destroy",
+      ],
+      requirementEvidence: {
+        "hipaa.baa.permitted_uses": {
+          hypothesis:
+            "The business associate may use or disclose PHI only as permitted or required by the BAA itself or as required by law, not for any other or unaffiliated purpose.",
+          evidenceHints: ["permitted uses and disclosures", "except as permitted", "as required by law", "not further use or disclose"],
+          proofStandard:
+            "Proven only by text expressly limiting the business associate's use and " +
+            "disclosure of PHI to what is permitted or required by the BAA or by " +
+            "law — e.g. 'Business Associate shall not use or further disclose " +
+            "Protected Health Information other than as permitted or required by " +
+            "this Agreement or as Required by Law.' An open-ended license (e.g. " +
+            "'Business Associate may use PHI to provide the Services and for its own " +
+            "business purposes' with no BAA-bounded limitation) does not satisfy " +
+            "this. Silence on permitted-uses scope entirely is not proof.",
+        },
+        "hipaa.baa.minimum_necessary": {
+          hypothesis:
+            "Uses, access, and disclosures of PHI by the business associate are limited to the minimum necessary to perform the permitted services.",
+          evidenceHints: ["minimum necessary", "limit its request", "limited to the minimum amount"],
+          proofStandard:
+            "Proven only by text expressly requiring the business associate to limit " +
+            "PHI use, access, and disclosure to the MINIMUM NECESSARY to accomplish " +
+            "the intended purpose. A general permitted-uses clause with no separate " +
+            "minimum-necessary limitation does not satisfy this — minimum necessary " +
+            "is a distinct 45 CFR §164.502(b) requirement, not implied by a bare " +
+            "permitted-use scope statement.",
+        },
+        "hipaa.baa.safeguards": {
+          hypothesis:
+            "The business associate implements administrative, physical, and technical safeguards that reasonably and appropriately protect the confidentiality, integrity, and availability of electronic PHI.",
+          evidenceHints: ["administrative, physical, and technical safeguards", "security rule", "confidentiality, integrity, and availability", "appropriate safeguards"],
+          proofStandard:
+            "Proven only by text requiring safeguards across ALL THREE categories — " +
+            "administrative, physical, AND technical — appropriate to protect ePHI's " +
+            "confidentiality, integrity, and availability. A clause addressing only " +
+            "general 'information security measures' or only technical/IT security " +
+            "with no administrative or physical safeguards named is partial, not " +
+            "full proof. A bare 'Business Associate will comply with the Security " +
+            "Rule' cross-reference, with no substantive safeguard content at all, is " +
+            "a thin but not necessarily insufficient reference — treat as partial " +
+            "coverage rather than full proof unless it expressly commits to the " +
+            "three safeguard categories.",
+        },
+        "hipaa.baa.subcontractor_flowdown": {
+          hypothesis:
+            "Agents and subcontractors that create, receive, maintain, or transmit PHI for the business associate are bound by written restrictions at least as protective as the BAA itself, including Security Rule safeguards for ePHI.",
+          evidenceHints: ["subcontractor", "agent", "same restrictions", "flow down", "at least as protective"],
+          proofStandard:
+            "Proven only by text requiring the business associate's subcontractors/" +
+            "agents handling PHI to be bound, IN WRITING, by restrictions that are " +
+            "'the same' or 'at least as protective' as those in the BAA, including " +
+            "the Security Rule safeguards for ePHI. A general statement that " +
+            "subcontractors must 'comply with applicable law,' with no requirement " +
+            "that they be bound by BAA-equivalent restrictions specifically, does not " +
+            "satisfy this. Silence on subcontractors entirely is not proof — if the " +
+            "business associate uses no subcontractors at all this may be genuinely " +
+            "inapplicable, but a BAA template should still address the contingency.",
+        },
+        "hipaa.baa.breach_notice": {
+          hypothesis:
+            "The business associate must notify the covered entity in writing of a Breach or Security Incident without unreasonable delay, and in any event no later than the HIPAA outer limit of 60 days after discovery, with the notice trigger tied to discovery rather than confirmation or investigation completion.",
+          evidenceHints: ["notify the covered entity", "without unreasonable delay", "60 days", "discovery of the breach", "security incident"],
+          proofStandard:
+            "Proven only by text stating a NUMERIC notice deadline, measured from " +
+            "DISCOVERY of the breach/security incident, that is at or inside HIPAA's " +
+            "outer 60-day limit (a shorter, more protective window such as 2 or 5 " +
+            "business days also satisfies this — shorter is not a gap). Contradicted " +
+            "by a notice window longer than 60 days, or one measured from a trigger " +
+            "OTHER than discovery (e.g. from 'confirmation of a reportable breach,' " +
+            "which can be materially later than discovery). A purely vague standard " +
+            "('promptly notify') with no numeric backstop does not satisfy this.",
+        },
+        "hipaa.baa.return_or_destroy": {
+          hypothesis:
+            "On termination, the business associate returns or destroys PHI in its possession, with a documented infeasibility exception under which continuing protections apply if return or destruction is not feasible.",
+          evidenceHints: ["return or destroy", "upon termination", "not feasible", "extend the protections"],
+          proofStandard:
+            "Proven only by text requiring the business associate to return OR " +
+            "destroy PHI at termination AND addressing the infeasibility exception " +
+            "(where return/destruction is not feasible, the same protections " +
+            "continue to apply to the retained PHI for as long as it is retained). A " +
+            "clause requiring destruction/return with no infeasibility carve-out at " +
+            "all is partial — treat as a gap on the infeasibility element " +
+            "specifically, not a full defeat of the core obligation. Silence on " +
+            "return/destroy at termination entirely is not proof.",
+        },
+      },
+      sourceMode: "authored",
+      packageVersion: "1.0.0",
+      requirementKinds: ["adequacy", "verification"],
+      label: "HIPAA BAA structural review",
+      orchestration: {
+        role: "structural_review",
+        suppressWhenMatrixFocus: true,
+      },
+      report: {
+        sections: ["executive_summary", "requirements_matrix", "material_gaps", "recommendations", "conclusion"],
+      },
+    },
+  ],
   instructionFocusMap: [
     {
       triggerPhrases: ["breach", "security incident"],

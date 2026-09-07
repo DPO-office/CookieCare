@@ -223,6 +223,51 @@ export const ccpaCpraSkill: AnalysisSkillConfig = {
         "business_purpose_limitation",
         "combining_prohibition",
       ],
+      requirementEvidence: {
+        no_sell_share: {
+          hypothesis:
+            "The service provider is contractually prohibited from selling or sharing the personal information it processes for the business, including for cross-context behavioural advertising.",
+          evidenceHints: ["shall not sell", "shall not share", "cross-context behavioral advertising", "cross-context behavioural advertising"],
+          proofStandard:
+            "Proven only by text expressly prohibiting the service provider from " +
+            "SELLING or SHARING personal information received from or on behalf of " +
+            "the business — 'share' under CPRA specifically includes disclosure for " +
+            "cross-context behavioural advertising, so the prohibition must reach " +
+            "that use, not merely a sale in the traditional monetary sense. A clause " +
+            "prohibiting only 'sale' of personal information, with no mention of " +
+            "'sharing' or cross-context advertising, is a partial gap under CPRA's " +
+            "expanded definition, not full proof. Silence on sell/share entirely is " +
+            "not proof.",
+        },
+        business_purpose_limit: {
+          hypothesis:
+            "The service provider may retain, use, or disclose personal information only for the specified business purpose stated in the contract (or as otherwise permitted by the contract and the CPRA), not for its own independent purposes outside the direct business relationship.",
+          evidenceHints: ["business purpose", "specified in this agreement", "not retain, use, or disclose", "for its own commercial purposes"],
+          proofStandard:
+            "Proven only by text that ties the service provider's retention, use, and " +
+            "disclosure of personal information to the SPECIFIC business purpose(s) " +
+            "stated in the contract, and expressly excludes use for the provider's " +
+            "own independent/unrelated business purposes. A clause permitting use " +
+            "'as necessary to provide the Services' with no express exclusion of " +
+            "independent provider purposes is partial — the CPRA-specific carve-out " +
+            "against independent use is the operative element, not merely a services-" +
+            "scoped license. Silence on purpose limitation entirely is not proof.",
+        },
+        no_combine: {
+          hypothesis:
+            "The service provider does not combine personal information received from or on behalf of the business with personal information from another source or from its own consumer interactions, except to perform a business purpose required by the business and permitted by the CCPA/CPRA.",
+          evidenceHints: ["shall not combine", "combine personal information", "except as permitted", "another source"],
+          proofStandard:
+            "Proven only by text expressly prohibiting the service provider from " +
+            "COMBINING the business's personal information with data from other " +
+            "sources or its own consumer interactions, subject only to the narrow " +
+            "CPRA-permitted-purpose exception. A general confidentiality or data-" +
+            "segregation clause with no express combining prohibition does not " +
+            "satisfy this — 'combine' is a distinct CPRA-defined restriction, not " +
+            "implied by confidentiality alone. Silence on combining entirely is not " +
+            "proof.",
+        },
+      },
       sourceMode: "authored",
       packageVersion: "1.0.0",
       report: {
@@ -249,6 +294,36 @@ export const ccpaCpraSkill: AnalysisSkillConfig = {
         "request_forwarding",
         "technical_organisational_measures",
       ],
+      requirementEvidence: {
+        consumer_rights_assistance: {
+          hypothesis:
+            "The service provider assists the business with verifiable consumer requests (delete, know/access, correct) and forwards any consumer request it receives directly to the business rather than responding to it as if it were the business.",
+          evidenceHints: ["assist the business", "verifiable consumer request", "forward", "right to know", "right to delete", "right to correct"],
+          proofStandard:
+            "Proven only by text that (a) obligates the provider to assist the " +
+            "business in responding to verifiable consumer requests covering at " +
+            "least delete and know/access, AND (b) requires the provider to FORWARD " +
+            "any consumer request it receives directly to the business rather than " +
+            "acting on it directly. A clause obligating assistance but silent on the " +
+            "forward-rather-than-respond duty is partial — the forwarding duty " +
+            "specifically prevents the provider from purporting to act as the " +
+            "business, and its absence is a real gap. Silence on consumer-rights " +
+            "assistance entirely is not proof.",
+        },
+        security_measures: {
+          hypothesis:
+            "The service provider implements technical and organisational measures appropriate to the nature of the personal information, covering confidentiality, integrity, availability, and resilience, and does not lower the documented security level without recording the change.",
+          evidenceHints: ["technical and organizational measures", "confidentiality, integrity", "availability and resilience", "security level"],
+          proofStandard:
+            "Proven only by text requiring technical AND organisational measures " +
+            "that address confidentiality, integrity, and availability/resilience of " +
+            "the personal information — a bare 'commercially reasonable security' " +
+            "statement with none of these dimensions named is insufficient. A clause " +
+            "silent on whether the security level can be lowered (no anti-" +
+            "degradation or change-documentation language) is a partial gap on that " +
+            "specific element, not a full defeat of the core measures requirement.",
+        },
+      },
       sourceMode: "authored",
       packageVersion: "1.0.0",
       report: {

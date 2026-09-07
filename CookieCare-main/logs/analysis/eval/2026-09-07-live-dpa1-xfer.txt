@@ -1,0 +1,215 @@
+## Requirements at a glance
+| Requirement | Status | Evidence | Finding | Action |
+| :--- | :--- | :--- | :--- | :--- |
+| Nature and purpose of the processing | **⚠️ Partial** | cl. 2.4 - By entering into this Data Processing Agreement, Administrator instructs Alaio to process Personal Data only in accordance with applicable law: (a) to provide the Processor Services and any related technical support | NP2: The contract explicitly specifies that the processor is instructed to process personal data to provide the Processor Services and related technical support. NP1:… | NP1: Enumerate the processing operations in the DPA or its schedule. |
+| Processor acts only on documented instructions | **⚠️ Partial** | cl. 2.4 - 2.4 By entering into this Data Processing Agreement, Administrator instructs Alaio to process Personal Data only in accordance with applicable law: (a) to provide the Processor Services and any related technical support; [excerpt] | A1: The processor processes personal data only in accordance with documented instructions from the controller, as set forth in clause 2.4. A2: While the agreement provisions permit cross-border processing/transfers under appropriate safeguards (e.g.… | A2: Add the proviso allowing law-mandated processing with a controller-notification obligation. |
+| Subject matter of the processing | **Verification incomplete** | cl. 2.1.1 - 2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subject matter and details of the processing of Personal Data; (b) Alaio is a processor (service provider under the California Privacy Rights Act of 2020 and any | SM1: The contract identifies the subject matter of the processing (what is being processed and why the processor is engaged). Supported at clause-2.1.1, heading-processing-subject-matter, clause-5.1. No unresolved elements. | Re-run analysis — technical verification did not return a valid element matrix. |
+| Categories of data subjects | **Verification incomplete** | cl. 2 - 2. Data subjects about whom personal data is transferred to Alaio in connection with the Processor Services by, at the direction of, or on behalf of Administrator. Including: ● Staff including volunteers, agents, temporary and casual workers ● Users and clients (including their staff) ● Supp | DS1: The contract lists the categories of data subjects whose data is processed. Supported at clause-2, clause-12.3, heading-processing-subject-matter. No unresolved elements. | Re-run analysis — technical verification did not return a valid element matrix. |
+| The contract sets out the controller's obligations and rights. | **Verification incomplete** | cl. 2.1.1 - 2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subject matter and details of the processing of Personal Data; (b) Alaio is a processor (service provider under the California Privacy Rights Act of 2020 and any | E1: The contract sets out the controller's obligations and rights. Supported at clause-2.1.1, clause-13.1, clause-9.2. No unresolved elements. | Re-run analysis — technical verification did not return a valid element matrix. |
+| The processor does not engage another processor without controller authorisation. | **Verification incomplete** | cl. 7.4 - 7.4 Objection Right for New Sub-processors. When any new Sub-processor is engaged during the Term, and if the GDPR applies to the processing of Personal Data, Alaio will, at least 10 days before the new Sub-processor processes any Personal Data, inform Administrator of the engagement (including | E1: The processor does not engage another processor without controller authorisation. Supported at clause-7.4, clause-13.2, clause-7.2. No unresolved elements. | Re-run analysis — technical verification did not return a valid element matrix. |
+| At the choice of the controller, the processor deletes or returns all personal data at the end of the provision of services | **Conflicting** | cl. 2.5 - On expiry of the Term, Administrator instructs Alaio to delete all Personal Data (including existing copies) from Bitrix24 systems in accordance with applicable law. Alaio will comply with this instruction as soon as reasonably practicable and within a maximum period of 90 days, unless any applicable law requires storage. | G2: The processor is obligated to delete all Personal Data upon expiry of the Term within a maximum of 90 days. G4: The processor deletes all Personal Data including existing copies upon term expiry unless applicable law requires storage. G3:… | G3: Add a return obligation (format specified where reasonable). |
+| A subprocessor is bound by the same data-protection obligations as the processor. | **Verification incomplete** | cl. 9 - 9. SUBPROCESSOR SECURITY Before onboarding Sub-processors, Alaio conducts an audit of the security and privacy practices of Sub-processors to ensure Sub-processors provide a level of security and privacy appropriate to their access to data and the scope of the services they are engaged to provid | E1: A subprocessor is bound by the same data-protection obligations as the processor. Supported at clause-9. No unresolved elements. | Re-run analysis — technical verification did not return a valid element matrix. |
+| Duration of the processing | **✅ Present** | cl. 3 - 3. DURATION OF THIS DPA This DPA will take effect on the Effective Date and, notwithstanding expiry of the Term, remain in effect until, and automatically expire upon, deletion of all User Personal Data by Bitrix24 as described in this DPA. | DU1: The DPA specifies that it takes effect on the Effective Date and remains in effect until, and automatically expires upon, deletion of all User Personal Data by Bitrix24 as described in the DPA. No unresolved elements. | None — obligation satisfied. |
+| Categories of personal data | **✅ Present** | cl. 2 - Categories of data The personal data transferred concern the following categories of data: ● Personal details, including any information that identifies the data subject and their personal characteristics, including: first and last name, business contact details; ● Communications metadata ● Employment data which may include: [excerpt] | CD1: The agreement lists the categories of personal data processed, including personal details (first and last name, business contact details), communications metadata, employment data, and goods or services provided. No unresolved elements. | None — obligation satisfied. |
+| Persons authorised to process personal data are committed to confidentiality. | **✅ Present** | cl. 5.1 - 5.1 Alaio shall ensure that its personnel engaged in the Processing of Personal Data are informed of the confidential nature of the Personal Data, have received appropriate training on their responsibilities and are subject to obligations of confidentiality as described in the Appendix 2 to this DPA and such obligations survive the [excerpt] | E1: The processor ensures that its personnel involved in processing personal data are informed of its confidential nature, subject to confidentiality obligations that survive termination, and that all persons authorised to process personal data have committed… | None — obligation satisfied. |
+| The processor implements appropriate technical and organisational security measures. | **✅ Present** | cl. 6.2 - 6.2 Alaio Security Measures. Alaio will implement and maintain technical, physical and organisational measures to protect confidentiality and integrity of Personal Data against accidental or unlawful destruction, loss, alteration, unauthorised disclosure or access as described in the Appendix 2 to this DPA (the “Security Measures”). [excerpt] | E1: The processor (Alaio) is obligated to implement and maintain appropriate technical, physical, and organisational security measures to protect the confidentiality, integrity, availability, and resilience of Personal Data and system infrastructure, as… | None — obligation satisfied. |
+| The processor assists the controller in responding to data-subject rights requests. | **✅ Present** | cl. 4.1 - 4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Personal Data, as required by Data Protection Legislation, Alaio will (taking into account the nature of the processing of Personal Data and, if applicable, Article 11 of the GDPR) assist Administrator in [excerpt] | E1: The processor (Alaio) is required to assist the controller (Administrator) in fulfilling data subject rights requests under Chapter III of the GDPR and other Data Protection Legislation through the functionality of the Processor Services, cooperation, and… | None — obligation satisfied. |
+| Processor assists the controller with obligations under Articles 32 to 36 (security, breach notification, DPIAs, prior consultation) | **✅ Present** | cl. 6.4 - 6.4 Alaio Security Assistance. Administrator agrees that Alaio will assist in ensuring compliance with any obligations of Administrator in respect of security of personal data and personal data breaches, including (if applicable) Administrator’s obligations pursuant to Articles 32 to 34 (inclusive) of the GDPR, by: [excerpt] | F1: The processor assists the controller in ensuring compliance with Article 32 (security of processing) through specific implemented measures and documentation. F2:… | None — obligation satisfied. |
+| The processor makes available information necessary to demonstrate compliance and allow... | **✅ Present** | cl. 9.2 - 9.2 Upon Administrator ́s request, and subject to the confidentiality obligations set forth in this DPA, Alaio shall make available to User that is not a competitor of Alaio (or Administrator ́s independent, third-party auditor that is not a competitor of Bitrix24) information regarding Alaio compliance with the obligations set forth in [excerpt] | E1: The processor makes available information regarding compliance with DPA obligations and security measures upon request, and allows for inspections, including on-site inspections of systems and procedures by the controller or its third-party auditor.… | None — obligation satisfied. |
+
+## Element-level compliance (locked)
+_Statuses below come from the Phase 4–7 locked matrix (accepted locks only)._
+
+### Subject matter of the processing — **Verification incomplete**
+
+**What the document provides:** SM1: The contract identifies the subject matter of the processing (what is being processed and why the processor is engaged). Supported at clause-2.1.1, heading-processing-subject-matter, clause-5.1.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported SM1 · outstanding —
+
+- `clause-2.1.1`: “2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subject matter and details of the processing …”
+- `heading-processing-subject-matter`: “PROCESSING SUBJECT MATTER Data Subjects. The personal data transferred concern the following categories of data subjects.”
+
+**Action:** Re-run analysis — technical verification did not return a valid element matrix.
+
+### Duration of the processing — **Present**
+
+**What the document provides:** DU1: The DPA specifies that it takes effect on the Effective Date and remains in effect until, and automatically expires upon, deletion of all User Personal Data by Bitrix24 as described in the DPA.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported DU1 · outstanding —
+
+- `clause-3`: “3. DURATION OF THIS DPA This DPA will take effect on the Effective Date and, notwithstanding expiry of the Term, remain in effect until, and automatically expire upon, deletion of …”
+
+### Nature and purpose of the processing — **Partial**
+
+**What the document provides:** NP2: The contract explicitly specifies that the processor is instructed to process personal data to provide the Processor Services and related technical support.
+
+**What is missing / unclear:** NP1: No text in the provided bundle enumerated or specified the particular operations/nature of processing (e.g. collection, recording, organization, structuring, storage, adaptation, retrieval, consultation, use, disclosure, erasure, or destruction).
+
+**Elements:** supported NP2 · outstanding NP1
+
+- `clause-2.4`: “By entering into this Data Processing Agreement, Administrator instructs Alaio to process Personal Data only in accordance with applicable law: (a) to provide the Processor Service…”
+
+**Action:** NP1: Enumerate the processing operations in the DPA or its schedule.
+
+### Categories of personal data — **Present**
+
+**What the document provides:** CD1: The agreement lists the categories of personal data processed, including personal details (first and last name, business contact details), communications metadata, employment data, and goods or services provided.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported CD1 · outstanding —
+
+- `clause-2`: “Categories of data The personal data transferred concern the following categories of data: ● Personal details, including any information that identifies the data subject and their …”
+
+### Categories of data subjects — **Verification incomplete**
+
+**What the document provides:** DS1: The contract lists the categories of data subjects whose data is processed. Supported at clause-2, clause-12.3, heading-processing-subject-matter.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported DS1 · outstanding —
+
+- `clause-2`: “2. Data subjects about whom personal data is transferred to Alaio in connection with the Processor Services by, at the direction of, or on behalf of Administrator. Including: ● Sta…”
+- `clause-12.3`: “12.3 For data transfers outside the EEA listed in schedules 11.3.4 protected by appropriate safeguards under article 46 GDPR, specifically by the standard data protection clauses a…”
+
+**Action:** Re-run analysis — technical verification did not return a valid element matrix.
+
+### The contract sets out the controller's obligations and rights. — **Verification incomplete**
+
+**What the document provides:** E1: The contract sets out the controller's obligations and rights. Supported at clause-2.1.1, clause-13.1, clause-9.2.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported E1 · outstanding —
+
+- `clause-2.1.1`: “2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subject matter and details of the processing …”
+- `clause-13.1`: “13.1 Alaio may change this DPA if the change: (a) is expressly permitted by this DPA; (b) reflects a change in the name or form of a legal entity; (c) is required to comply with ap…”
+
+**Action:** Re-run analysis — technical verification did not return a valid element matrix.
+
+### Processor acts only on documented instructions — **Partial**
+
+**What the document provides:** A1: The processor processes personal data only in accordance with documented instructions from the controller, as set forth in clause 2.4.
+
+**What is missing / unclear:** A2: While the agreement provisions permit cross-border processing/transfers under appropriate safeguards (e.g. SCCs under Article 46 GDPR), it does not include the specific Article 28(3)(a) proviso requiring international transfers to be made only on documented instructions unless required by law (along with a pre-processing notification obligation).
+
+**Elements:** supported A1 · outstanding A2
+
+- `clause-2.4`: “2.4 By entering into this Data Processing Agreement, Administrator instructs Alaio to process Personal Data only in accordance with applicable law: (a) to provide the Processor Ser…”
+
+**Action:** A2: Add the proviso allowing law-mandated processing with a controller-notification obligation.
+
+### Persons authorised to process personal data are committed to confidentiality. — **Present**
+
+**What the document provides:** E1: The processor ensures that its personnel involved in processing personal data are informed of its confidential nature, subject to confidentiality obligations that survive termination, and that all persons authorised to process personal data have committed themselves to confidentiality or are under an appropriate statutory obligation of confidentiality.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported E1 · outstanding —
+
+- `clause-5.1`: “5.1 Alaio shall ensure that its personnel engaged in the Processing of Personal Data are informed of the confidential nature of the Personal Data, have received appropriate trainin…”
+- `clause-6.3`: “6.3 Security Compliance by Alaio Staff. Alaio will take appropriate steps to ensure compliance with the Security Measures by its employees, contractors and Sub-processors to the ex…”
+
+### The processor implements appropriate technical and organisational security measures. — **Present**
+
+**What the document provides:** E1: The processor (Alaio) is obligated to implement and maintain appropriate technical, physical, and organisational security measures to protect the confidentiality, integrity, availability, and resilience of Personal Data and system infrastructure, as detailed in Clause 6.2 and Appendix 2.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported E1 · outstanding —
+
+- `clause-6.2`: “6.2 Alaio Security Measures. Alaio will implement and maintain technical, physical and organisational measures to protect confidentiality and integrity of Personal Data against acc…”
+- `heading-security-measures`: “SECURITY MEASURES Alaio will implement and maintain the Security Measures set out in this Appendix 2.”
+
+### The processor does not engage another processor without controller authorisation. — **Verification incomplete**
+
+**What the document provides:** E1: The processor does not engage another processor without controller authorisation. Supported at clause-7.4, clause-13.2, clause-7.2.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported E1 · outstanding —
+
+- `clause-7.4`: “7.4 Objection Right for New Sub-processors. When any new Sub-processor is engaged during the Term, and if the GDPR applies to the processing of Personal Data, Alaio will, at least …”
+- `clause-13.2`: “13.2 Notification of Changes. If Alaio makes any updates to this DPA, Alaio will inform Administrator by either: (a) sending an email to the Notification Email Address; or (b) aler…”
+
+**Action:** Re-run analysis — technical verification did not return a valid element matrix.
+
+### The processor assists the controller in responding to data-subject rights requests. — **Present**
+
+**What the document provides:** E1: The processor (Alaio) is required to assist the controller (Administrator) in fulfilling data subject rights requests under Chapter III of the GDPR and other Data Protection Legislation through the functionality of the Processor Services, cooperation, and assistance.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported E1 · outstanding —
+
+- `clause-4.1`: “4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Personal Data, as required by Data Protection Legislat…”
+- `clause-4.2`: “Alaio shall provide Administrator with cooperation and assistance in relation to handling of a Data Subject’s request for access to that person’s Personal Data or exercising any ot…”
+
+### Processor assists the controller with obligations under Articles 32 to 36 (security, breach notification, DPIAs, prior consultation) — **Present**
+
+**What the document provides:** F1: The processor assists the controller in ensuring compliance with Article 32 (security of processing) through specific implemented measures and documentation. F2: The processor assists the controller with obligations pursuant to Articles 33 and 34 of the GDPR regarding personal data breaches. F3: The processor provides assistance for data protection impact assessments and prior consultation under Articles 35 and 36 of the GDPR.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported F1, F2, F3 · outstanding —
+
+- `clause-6.4`: “6.4 Alaio Security Assistance. Administrator agrees that Alaio will assist in ensuring compliance with any obligations of Administrator in respect of security of personal data and …”
+- `clause-10`: “10. DATA PROTECTION IMPACT ASSESSMENT Upon Administrator ́s request, Alaio will assist Administrator in ensuring compliance with any obligations of Administrator in respect of data…”
+
+### At the choice of the controller, the processor deletes or returns all personal data at the end of the provision of services — **Conflicting**
+
+**What the document provides:** G2: The processor is obligated to delete all Personal Data upon expiry of the Term within a maximum of 90 days. G4: The processor deletes all Personal Data including existing copies upon term expiry unless applicable law requires storage.
+
+**What is missing / unclear:** G3: The provided text contains no obligation for the processor to return personal data to the controller at the end of services or upon request.
+
+**Elements:** supported G2, G4 · outstanding G3
+
+- `clause-2.5`: “On expiry of the Term, Administrator instructs Alaio to delete all Personal Data (including existing copies) from Bitrix24 systems in accordance with applicable law. Alaio will com…”
+
+**Action:** G3: Add a return obligation (format specified where reasonable).
+
+### The processor makes available information necessary to demonstrate compliance and allow... — **Present**
+
+**What the document provides:** E1: The processor makes available information regarding compliance with DPA obligations and security measures upon request, and allows for inspections, including on-site inspections of systems and procedures by the controller or its third-party auditor.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported E1 · outstanding —
+
+- `clause-9.2`: “9.2 Upon Administrator ́s request, and subject to the confidentiality obligations set forth in this DPA, Alaio shall make available to User that is not a competitor of Alaio (or Ad…”
+
+### A subprocessor is bound by the same data-protection obligations as the processor. — **Verification incomplete**
+
+**What the document provides:** E1: A subprocessor is bound by the same data-protection obligations as the processor. Supported at clause-9.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported E1 · outstanding —
+
+- `clause-9`: “9. SUBPROCESSOR SECURITY Before onboarding Sub-processors, Alaio conducts an audit of the security and privacy practices of Sub-processors to ensure Sub-processors provide a level …”
+
+**Action:** Re-run analysis — technical verification did not return a valid element matrix.
+
+### Locked bottom line
+
+- 7 obligations present: Duration of the processing; Categories of personal data; Persons authorised to process personal data are committed to confidentiality.; The processor implements appropriate technical and organisational security measures.; The processor assists the controller in responding to data-subject rights requests.; Processor assists the controller with obligations under Articles 32 to 36 (security, breach notification, DPIAs, prior consultation); The processor makes available information necessary to demonstrate compliance and allow....
+- 2 obligations partially met — remediation required: Nature and purpose of the processing; Processor acts only on documented instructions.
+- 1 obligation shows conflicting evidence in scope: At the choice of the controller, the processor deletes or returns all personal data at the end of the provision of services.
+- 5 obligations could not be verified — re-run required: Subject matter of the processing; Categories of data subjects; The contract sets out the controller's obligations and rights.; The processor does not engage another processor without controller authorisation.; A subprocessor is bound by the same data-protection obligations as the processor..
+
+## What needs attention
+- **Nature and purpose of the processing** - ⚠️ Partial: NP1: Enumerate the processing operations in the DPA or its schedule.
+- **Processor acts only on documented instructions** - ⚠️ Partial: A2: Add the proviso allowing law-mandated processing with a controller-notification obligation.
+- **Subject matter of the processing** - Verification incomplete: Re-run analysis — technical verification did not return a valid element matrix.
+- **Categories of data subjects** - Verification incomplete: Re-run analysis — technical verification did not return a valid element matrix.
+- **The contract sets out the controller's obligations and rights.** - Verification incomplete: Re-run analysis — technical verification did not return a valid element matrix.
+- **The processor does not engage another processor without controller authorisation.** - Verification incomplete: Re-run analysis — technical verification did not return a valid element matrix.
+- **At the choice of the controller, the processor deletes or returns all personal data at the end of the provision of services** - Conflicting: G3: Add a return obligation (format specified where reasonable).
+- **A subprocessor is bound by the same data-protection obligations as the processor.** - Verification incomplete: Re-run analysis — technical verification did not return a valid element matrix.
+
+## Bottom line
+Attention must primarily focus on obtaining the unverified terms governing Subject Matter, Data Subject Categories, Controller Obligations and Rights, and core subprocessor and data deletion rules. Counsel should secure the missing material and resolve the minor drafting gaps regarding processing nature, purpose, and instructions before proceeding. 6 requirements remain dependent on referenced, truncated, conflicting, or unavailable material. Obtain and review that material before treating the analysis as complete.

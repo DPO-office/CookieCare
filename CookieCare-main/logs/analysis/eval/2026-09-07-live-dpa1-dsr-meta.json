@@ -1,0 +1,10 @@
+{
+  "promptId": "dsr",
+  "prompt": "Review how this agreement addresses data subject rights under GDPR Articles 15–22. Identify: obligations to assist the controller with access, erasure, rectification, and portability requests, defined response timeframes, and any gaps that could result in a GDPR violation.",
+  "document": "C:\\Users\\abhinav.yadav_randst\\Downloads\\DPA Templates-20260907T045915Z-1-001\\DPA Templates\\DPA - 1.pdf",
+  "mode": "lite",
+  "jobId": "684b5e42-0947-45e9-9d9a-e330c042ef33",
+  "sessionId": "an_093ce4f3-44eb-4e80-b258-f5c146774607",
+  "status": "completed",
+  "elapsedMs": 1758
+}

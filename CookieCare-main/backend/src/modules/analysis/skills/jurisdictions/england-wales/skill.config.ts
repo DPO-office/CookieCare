@@ -95,6 +95,70 @@ export const englandWalesJurisdictionSkill: AnalysisSkillConfig = {
   ],
   regimeRules: RULES,
   regimeRuleIds: RULES.map((r) => r.ruleId),
+  evidencePackages: [
+    {
+      id: "ew.structural_review",
+      requirementIds: ["ew.simple_contract_or_deed", "ew.companies_act_s44", "ew.physical_witnessing"],
+      capabilityIds: ["ew.simple_contract_or_deed", "ew.companies_act_s44", "ew.physical_witnessing"],
+      clauseTypes: ["execution_formalities", "governing_law", "electronic_signature"],
+      extractionTargets: ["execution_block", "governing_law_clause", "witnessing_clause"],
+      requirementEvidence: {
+        "ew.simple_contract_or_deed": {
+          hypothesis:
+            "The agreement's execution block correctly matches its legal character — a simple contract is executed by signature of an authorised person (no deed formalities), a deed uses deed-specific execution formalities — and, if the governing law is England and Wales (rather than Scotland or Northern Ireland), the clause names 'England and Wales' expressly rather than the ambiguous 'UK.'",
+          evidenceHints: ["executed as a deed", "signed by", "governing law", "england and wales", "united kingdom"],
+          proofStandard:
+            "Proven only by text where the execution block's formality LEVEL matches " +
+            "how the document is labelled — a document that is NOT labelled or " +
+            "described as a deed uses ordinary signature-by-authorised-person " +
+            "execution (no deed-witnessing language), while a document labelled a " +
+            "deed uses deed execution formalities — AND, where governing law is " +
+            "stated, it names 'England and Wales' specifically rather than the " +
+            "ambiguous 'UK' or 'United Kingdom' (unless the clause separately " +
+            "confirms Scotland or Northern Ireland is meant). Contradicted by a " +
+            "mismatch (e.g. deed-witnessing language on a document nowhere described " +
+            "as a deed, or vice versa) or by a governing-law clause that says only " +
+            "'UK law' with no jurisdiction-specific confirmation.",
+        },
+        "ew.companies_act_s44": {
+          hypothesis:
+            "Where a company executes this instrument as a deed, the execution block satisfies Companies Act 2006 s.44 — signature by two directors, by a director and the company secretary, or by one director in the presence of a witness who attests the signature.",
+          evidenceHints: ["executed as a deed by", "director and secretary", "in the presence of a witness", "duly authorised"],
+          proofStandard:
+            "Proven only where the document is executed as a deed by a company AND " +
+            "the execution block shows one of the three valid s.44 combinations: (a) " +
+            "two directors' signatures, (b) one director plus the company secretary, " +
+            "or (c) one director's signature attested by a witness. A single " +
+            "director's signature with no witness and no secretary does not satisfy " +
+            "this. If the document is not executed as a deed at all, this " +
+            "proposition is not raised — treat as not applicable, not contradicted.",
+        },
+        "ew.physical_witnessing": {
+          hypothesis:
+            "Where a deed requires witnessing, the witness attestation contemplates physical presence with the signatory rather than remote or video witnessing.",
+          evidenceHints: ["in the presence of", "witness", "remote witnessing", "video call", "virtually witnessed"],
+          proofStandard:
+            "Proven only where the document is executed as a deed requiring a witness " +
+            "AND the witnessing language states or implies physical presence (e.g. " +
+            "'signed in the presence of' with no remote-witnessing carve-out). " +
+            "Contradicted by text expressly permitting remote, virtual, or video " +
+            "witnessing for the deed signature. If the document is not a deed, or a " +
+            "deed with no witness requirement engaged, this proposition is not " +
+            "raised — treat as not applicable.",
+        },
+      },
+      sourceMode: "authored",
+      packageVersion: "1.0.0",
+      label: "England and Wales jurisdiction overlay review",
+      orchestration: {
+        role: "structural_review",
+        suppressWhenMatrixFocus: true,
+      },
+      report: {
+        sections: ["executive_summary", "key_findings", "material_gaps", "conclusion"],
+      },
+    },
+  ],
   comparativeChecks: [
     {
       checkId: "ew.restrictive_covenant_reasonableness",

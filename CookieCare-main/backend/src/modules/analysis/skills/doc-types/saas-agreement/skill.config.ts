@@ -168,6 +168,105 @@ export const saasAgreementSkill: AnalysisSkillConfig = {
   ],
   regimeRules: RULES,
   regimeRuleIds: RULES.map((r) => r.ruleId),
+  evidencePackages: [
+    {
+      id: "saas.structural_review",
+      requirementIds: RULES.map((r) => r.ruleId),
+      capabilityIds: RULES.map((r) => r.ruleId),
+      clauseTypes: [
+        "service_levels",
+        "service_credits",
+        "uptime_commitment",
+        "customer_data",
+        "data_archive",
+        "limitation_of_liability",
+      ],
+      extractionTargets: [
+        "availability_sla",
+        "service_credit_table",
+        "sole_remedy_language",
+        "customer_data_ownership",
+        "exit_archive",
+      ],
+      requirementEvidence: {
+        "saas.availability_sla": {
+          hypothesis:
+            "The SaaS terms state a numeric availability commitment (benchmark: at least 99% measured quarterly) with stated maintenance windows and exclusions, rather than a best-efforts uptime statement only.",
+          evidenceHints: ["99%", "availability service level", "uptime", "measured", "maintenance window", "excluded downtime"],
+          proofStandard:
+            "Proven only by text stating a specific NUMERIC availability percentage " +
+            "(e.g. '99.9% availability') together with a stated measurement window " +
+            "(e.g. monthly or quarterly). A best-efforts or 'commercially reasonable " +
+            "uptime' statement with no numeric percentage does not satisfy this. A " +
+            "numeric percentage below approximately 99% measured quarterly, or with " +
+            "no stated measurement window at all, is a partial gap, not full proof.",
+        },
+        "saas.service_credits": {
+          hypothesis:
+            "Missed availability produces stated service credits, following a defined credit scale (benchmark: roughly 1% credit per whole 1% of unavailability below the availability SLA in the measurement period).",
+          evidenceHints: ["service credit", "credit table", "% credit", "unavailability", "measurement period"],
+          proofStandard:
+            "Proven only by text stating a specific credit remedy tied to missed " +
+            "availability, with a defined scale or table relating the shortfall " +
+            "(percentage points below the SLA) to a stated credit amount or " +
+            "percentage. A clause stating only that 'customer may be entitled to " +
+            "credits' with no scale, percentage, or table does not satisfy this. " +
+            "Silence on any credit remedy for missed SLA is not proof.",
+        },
+        "saas.credits_sole_remedy": {
+          hypothesis:
+            "The SLA credit clause characterizes service credits as the customer's sole and exclusive remedy for an availability failure.",
+          polarity: "risk_present",
+          evidenceHints: ["sole remedy", "exclusive remedy", "sole and exclusive"],
+          proofStandard:
+            "Proven (i.e., the risk is present) only by text expressly stating that " +
+            "service credits are the customer's SOLE or EXCLUSIVE remedy for failure " +
+            "to meet the availability SLA. A credit clause that is silent on whether " +
+            "other remedies remain available does not prove this risk — silence is " +
+            "not the same as an express sole-remedy statement. General limitation-of-" +
+            "liability language capping damages is a related but distinct risk and " +
+            "does not by itself prove this specific 'sole remedy' characterization " +
+            "unless it expressly ties back to the SLA credit as the only remedy.",
+        },
+        "saas.customer_data_ownership": {
+          hypothesis:
+            "The customer owns all rights in Customer Data, and personal data processing is addressed through a separate DPA rather than left as an implied license to the supplier.",
+          evidenceHints: ["customer data", "customer owns", "all right, title and interest", "dpa", "data processing agreement"],
+          proofStandard:
+            "Proven only by text expressly stating that the CUSTOMER owns (or retains " +
+            "all right, title, and interest in) Customer Data, AND that personal-data " +
+            "processing is governed by a referenced DPA. Text that grants the supplier " +
+            "a broad, perpetual, or ownership-like license to Customer Data (rather " +
+            "than a narrow license limited to providing the service) is a gap, not " +
+            "proof. Silence on data ownership, or a generic 'all IP in the platform " +
+            "belongs to Supplier' clause that does not distinguish Customer Data from " +
+            "platform IP, does not satisfy this.",
+        },
+        "saas.exit_archive": {
+          hypothesis:
+            "There is a post-termination online and/or offline archive/retrieval path for Customer Data (benchmark: online archive for approximately 12 months after termination, then offline retrieval for a further 12 months).",
+          evidenceHints: ["post-termination", "archive", "retrieval", "12 months", "offline retention", "exit assistance"],
+          proofStandard:
+            "Proven only by text stating a specific post-termination window during " +
+            "which the customer can retrieve or access Customer Data (online archive, " +
+            "offline archive, or export assistance), naming at least an approximate " +
+            "duration. A clause stating only that data is 'deleted upon termination' " +
+            "with no retrieval window contradicts this. Silence on any post-" +
+            "termination data access is a gap, not proof.",
+        },
+      },
+      sourceMode: "authored",
+      packageVersion: "1.0.0",
+      label: "SaaS structural review",
+      orchestration: {
+        role: "structural_review",
+        suppressWhenMatrixFocus: true,
+      },
+      report: {
+        sections: ["executive_summary", "key_findings", "material_gaps", "recommendations", "conclusion"],
+      },
+    },
+  ],
   instructionFocusMap: [
     {
       triggerPhrases: ["uptime", "availability", "sla", "service credit"],

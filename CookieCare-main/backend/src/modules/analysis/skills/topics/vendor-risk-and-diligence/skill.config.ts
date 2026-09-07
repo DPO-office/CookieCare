@@ -225,6 +225,167 @@ export const vendorRiskDiligenceSkill: AnalysisSkillConfig = {
   regimeRules: RULES,
   regimeRuleIds: RULES.map((r) => r.ruleId),
   propositionPatterns: VENDOR_RISK_PATTERNS,
+  evidencePackages: [
+    {
+      id: "vendor_risk.structural_review",
+      kind: "evaluation",
+      requirementIds: RULES.map((r) => r.ruleId),
+      capabilityIds: RULES.map((r) => r.ruleId),
+      clauseTypes: [
+        "outsourcing_governance",
+        "audit_rights",
+        "exit_strategy",
+        "subprocessor_flow_down",
+      ],
+      extractionTargets: [
+        "pre_outsourcing_analysis",
+        "audit_access_rights",
+        "exit_strategy",
+        "suboutsourcing_controls",
+        "cscm_practices",
+      ],
+      requirementEvidence: {
+        "eba.outsourcing.pre_assessment": {
+          hypothesis:
+            "Before outsourcing a critical or important function, the arrangement reflects a pre-outsourcing analysis covering supervisory conditions, operational and concentration risk, and whether the arrangement is outsourcing at all.",
+          evidenceHints: [
+            "pre-outsourcing",
+            "critical or important function",
+            "outsourcing assessment",
+            "concentration risk",
+            "due diligence",
+            "outsourcing register",
+          ],
+          proofStandard:
+            "Proven only by text documenting or contractually requiring a pre-" +
+            "outsourcing analysis for a critical or important function — covering " +
+            "at least supervisory/conditions review, operational risk, and " +
+            "concentration risk (or an equivalent diligence pack). A generic " +
+            "'vendor due diligence was performed' recital with no critical/" +
+            "important-function assessment content does not satisfy this. This " +
+            "applies to in-scope financial institutions under EBA/GL/2019/02; if " +
+            "the document/parties are clearly outside that supervisory scope, " +
+            "treat as not applicable rather than a gap. Silence on any pre-" +
+            "outsourcing analysis for an in-scope critical outsourcing is a gap.",
+        },
+        "eba.outsourcing.audit_access": {
+          hypothesis:
+            "Outsourcing arrangements for critical or important functions preserve the institution's and competent authority's access, information, and audit rights, including over sub-outsourced service locations where relevant.",
+          evidenceHints: [
+            "audit rights",
+            "access rights",
+            "information rights",
+            "competent authority",
+            "regulator audit",
+            "subcontractor locations",
+          ],
+          proofStandard:
+            "Proven only by text granting the institution (and, where stated, the " +
+            "competent authority) access, information, and audit rights over the " +
+            "outsourced service — including, where sub-outsourcing is contemplated, " +
+            "rights that reach sub-outsourced locations or an equivalent flow-down. " +
+            "A right limited solely to receiving a SOC/ISO report with no on-site " +
+            "or records-access option, or silence on audit/access entirely, is a " +
+            "gap for critical/important outsourcing. Reasonable notice and " +
+            "confidentiality conditions on audits do not defeat this.",
+        },
+        "eba.outsourcing.exit": {
+          hypothesis:
+            "For critical or important outsourcing, the arrangement includes a documented exit strategy and contractual termination assistance so the function can be reintegrated or transferred without undue disruption.",
+          evidenceHints: [
+            "exit strategy",
+            "termination assistance",
+            "transition services",
+            "reintegration",
+            "transfer of services",
+            "wind-down",
+          ],
+          proofStandard:
+            "Proven only by text that provides BOTH (a) an exit/transition plan or " +
+            "express exit-strategy commitment for the outsourced function and (b) " +
+            "contractual termination assistance (or equivalent transition services) " +
+            "enabling reintegration or transfer. A bare termination-for-convenience " +
+            "right with no assistance/transition mechanics is partial at best, not " +
+            "full proof. Silence on exit/termination assistance for critical " +
+            "outsourcing is a gap.",
+        },
+        "eba.outsourcing.suboutsourcing": {
+          hypothesis:
+            "Sub-outsourcing of critical or important functions requires prior notice or consent mechanics and equivalent flow-down of audit, access, and security duties.",
+          evidenceHints: [
+            "sub-outsourcing",
+            "subcontractor",
+            "prior written consent",
+            "prior notice",
+            "flow-down",
+            "equivalent obligations",
+          ],
+          proofStandard:
+            "Proven only by text that (a) requires prior notice and/or consent " +
+            "before sub-outsourcing critical or important functions and (b) flows " +
+            "down audit, access, and security (or equivalent) duties to sub-" +
+            "outsourcers. A bare right for the provider to use subcontractors " +
+            "freely, with no notice/consent and no flow-down, does not satisfy " +
+            "this. Silence on sub-outsourcing controls is a gap where critical/" +
+            "important outsourcing is in scope.",
+        },
+        "nist.800161.cscm": {
+          hypothesis:
+            "Where NIST SP 800-161 is the chosen diligence standard, the arrangement reflects cyber supply-chain risk management practices: supplier assessment, flow-down of security requirements, and ongoing monitoring.",
+          evidenceHints: [
+            "NIST 800-161",
+            "C-SCRM",
+            "supply chain risk",
+            "supplier assessment",
+            "security requirements flow-down",
+            "ongoing monitoring",
+          ],
+          proofStandard:
+            "Proven only when NIST SP 800-161 / C-SCRM is clearly the chosen " +
+            "diligence standard (by incorporation or instruction focus) AND the " +
+            "text addresses supplier assessment, security-requirement flow-down, " +
+            "and ongoing monitoring (or equivalent C-SCRM practices). If NIST " +
+            "800-161 is not invoked as the standard for this review, treat as " +
+            "not applicable — do not invent a gap from silence. Where the " +
+            "standard is chosen, a generic 'comply with industry security " +
+            "practices' statement with no supplier-assessment or flow-down/" +
+            "monitoring content is a gap, not proof.",
+        },
+      },
+      sourceMode: "authored",
+      requirementKinds: ["adequacy"],
+      packageVersion: "1.0.0",
+      label: "Vendor risk and outsourcing structural review",
+      orchestration: {
+        role: "structural_review",
+        suppressWhenMatrixFocus: true,
+      },
+      report: {
+        sections: [
+          "executive_summary",
+          "key_findings",
+          "material_gaps",
+          "recommendations",
+          "conclusion",
+        ],
+        outlineExtras: [
+          {
+            heading: "EBA outsourcing controls",
+            requirementTags: [
+              "eba.outsourcing.pre_assessment",
+              "eba.outsourcing.audit_access",
+              "eba.outsourcing.exit",
+              "eba.outsourcing.suboutsourcing",
+            ],
+          },
+          {
+            heading: "NIST C-SCRM",
+            requirementTags: ["nist.800161.cscm"],
+          },
+        ],
+      },
+    },
+  ],
   instructionFocusMap: [
     {
       triggerPhrases: ["eba", "outsourcing", "critical or important"],

@@ -76,6 +76,60 @@ export const californiaJurisdictionSkill: AnalysisSkillConfig = {
   ],
   regimeRules: RULES,
   regimeRuleIds: RULES.map((r) => r.ruleId),
+  evidencePackages: [
+    {
+      id: "ca.structural_review",
+      requirementIds: ["ca.ueta_mutual_consent", "ca.commercial_vs_employment_restraint"],
+      capabilityIds: ["ca.ueta_mutual_consent", "ca.commercial_vs_employment_restraint"],
+      clauseTypes: ["electronic_signature", "non_compete"],
+      extractionTargets: ["e_consent_clause", "non_compete_scope"],
+      requirementEvidence: {
+        "ca.ueta_mutual_consent": {
+          hypothesis:
+            "The parties expressly agreed, before or at execution, to conduct this transaction and execute this agreement by electronic means.",
+          evidenceHints: ["electronic means", "agree to conduct", "electronic signature", "electronically executed"],
+          proofStandard:
+            "Proven only by text in which the parties expressly agree to conduct the " +
+            "transaction and/or execute the agreement electronically (e.g. 'the " +
+            "parties agree this Agreement may be executed and delivered by " +
+            "electronic signature'). A signature block that merely uses an " +
+            "e-signature platform, with no accompanying textual consent to " +
+            "transact electronically, does not satisfy California UETA's prior-" +
+            "agreement condition — the mechanical presence of an e-signature is not " +
+            "itself proof of the required mutual consent.",
+        },
+        "ca.commercial_vs_employment_restraint": {
+          hypothesis:
+            "A non-compete or similar restraint of trade binding a California employee, or an employee under California-governed law, exists in the agreement notwithstanding Cal. Bus. & Prof. Code §16600's general prohibition.",
+          polarity: "risk_present",
+          evidenceHints: ["non-compete", "non-solicit", "restraint of trade", "shall not compete", "for a period following termination"],
+          proofStandard:
+            "Proven (the risk is present) only by text that restrains an EMPLOYEE " +
+            "(not a commercial counterparty business) from competing, working for a " +
+            "competitor, or soliciting after termination of employment, where the " +
+            "agreement is with a California employee or is otherwise California-" +
+            "governed. A purely commercial restrictive covenant between two " +
+            "businesses (e.g. a reseller or distributor non-compete) does NOT prove " +
+            "this element — Section 16600's employee-protective rule and the " +
+            "narrower commercial rule-of-reason are different tests, and this " +
+            "proposition is scoped to the employee-facing restraint only. Where the " +
+            "agreement is a purely commercial, non-employment instrument with no " +
+            "employee-facing restraint, this proposition is not raised — treat as " +
+            "not applicable rather than proved or contradicted.",
+        },
+      },
+      sourceMode: "authored",
+      packageVersion: "1.0.0",
+      label: "California jurisdiction overlay review",
+      orchestration: {
+        role: "structural_review",
+        suppressWhenMatrixFocus: true,
+      },
+      report: {
+        sections: ["executive_summary", "key_findings", "material_gaps", "conclusion"],
+      },
+    },
+  ],
   comparativeChecks: [
     {
       checkId: "ca.non_compete_enforceability",
