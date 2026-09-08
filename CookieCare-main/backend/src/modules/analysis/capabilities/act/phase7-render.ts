@@ -203,16 +203,18 @@ function buildRow(
   // Evidence must come from the matrix's supported elements only, and every
   // quote must resolve to a bundle item's exact substring (Phase 6 already
   // verified this; we just carry it through).
-  const supported = a.matrix.elements.filter((e) => e.state === "supported");
+  const supported = a.matrix.elements.filter((e) =>
+    e.state === "supported" || e.state === "contradicted" || e.state === "ambiguous" || e.state === "unresolved_dependency"
+  );
   const bundleItemById = new Map(a.bundle.items.map((i) => [i.spanId, i]));
   for (const el of supported) {
     for (const q of el.quotes) {
-      if (seenSpanIds.has(q.spanId)) continue;
+      if (!q.quoteVerified || seenSpanIds.has(`${q.spanId}:${q.quote}`)) continue;
       const item = bundleItemById.get(q.spanId);
       if (!item) continue; // impossible after lock, defensive
       // Never mix scopes on a rendered row's evidence — the lock rejects that,
       // so any span we see here is already scope-compatible with the row.
-      seenSpanIds.add(q.spanId);
+      seenSpanIds.add(`${q.spanId}:${q.quote}`);
       evidence.push({
         spanId: q.spanId,
         quote: q.quote,

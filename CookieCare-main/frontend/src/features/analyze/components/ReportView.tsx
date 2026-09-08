@@ -347,13 +347,21 @@ const ReportMessageList = memo(function ReportMessageList({
         m.text || ""
       )
   );
+  const hasComplianceTable = chatMessages.some(
+    (m) =>
+      m.sender === "gemini" &&
+      /\|\s*Requirement\s*\|\s*Status\s*\|\s*Contract provision\s*\|\s*Assessment\s*\|/i.test(
+        m.text || ""
+      )
+  );
+  const hasWideTable = hasRequirementsTable || hasComplianceTable;
   const hasRefs = useMemo(() => buildRefList(chatMessages).length > 0, [chatMessages]);
 
   return (
     <div
       className="mx-auto space-y-7 print-container analyze-prose-container"
       data-has-refs={hasRefs ? "true" : "false"}
-      data-has-wide-table={hasRequirementsTable ? "true" : "false"}
+      data-has-wide-table={hasWideTable ? "true" : "false"}
     >
       {chatMessages.length === 0 && openQuestions.length === 0 && (
         <div className="analyze-report-message flex items-center gap-2.5">
@@ -404,11 +412,11 @@ const ReportMessageList = memo(function ReportMessageList({
             </div>
 
             {(isStreamingMsg && streamingStore) || message.text ? (
-              <div className={hasRequirementsTable ? "min-w-0" : "pl-[42px]"}>
+              <div className={hasWideTable ? "min-w-0" : "pl-[42px]"}>
                 <div
                   className={`analyze-report-prose${
                     isStreamingMsg ? " is-streaming" : ""
-                  }${hasRequirementsTable ? " analyze-report-prose--wide-table" : ""}`}
+                  }${hasWideTable ? " analyze-report-prose--wide-table" : ""}`}
                 >
                   {isStreamingMsg && streamingStore ? (
                     <StreamingPlainText store={streamingStore} />
@@ -627,9 +635,12 @@ export default function ReportView({
       chatMessages.some(
         (m) =>
           m.sender === "gemini" &&
-          /\|\s*Requirement\s*\|\s*Status\s*\|\s*Evidence\s*\|\s*Finding\s*\|\s*Action\s*\|/i.test(
+          (/\|\s*Requirement\s*\|\s*Status\s*\|\s*Evidence\s*\|\s*Finding\s*\|\s*Action\s*\|/i.test(
             m.text || ""
-          )
+          ) ||
+            /\|\s*Requirement\s*\|\s*Status\s*\|\s*Contract provision\s*\|\s*Assessment\s*\|/i.test(
+              m.text || ""
+            ))
       ),
     [chatMessages]
   );

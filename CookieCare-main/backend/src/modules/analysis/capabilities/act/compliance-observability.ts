@@ -16,6 +16,10 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 import type { AnalysisState } from "../../models/analysis-state.js";
+import type { ComplianceOutstandingCheck } from "../../models/compliance-report.js";
+import { buildComplianceSnapshot } from "../reporting/compliance-snapshot.js";
+import { usesCanonicalComplianceReport } from "../reporting/compliance-release.js";
+import { humanizeRequirementId } from "../../shared/group-assessments.js";
 import {
   withRecommendationKind,
   type ComplianceStatus,
@@ -254,6 +258,7 @@ interface ComplianceRunTracker {
   requestResolutionEmitted: boolean;
   phase3Emitted: boolean;
   phase3Results: Phase3PerRequirementResult[];
+  investigatedDocuments: Map<string, Set<string>>;
   phase4Emitted: boolean;
   phase4Matrices: RequirementMatrix[];
   phase5Emitted: boolean;
@@ -266,6 +271,7 @@ interface ComplianceRunTracker {
   llmVerifyCanonicalSwapEmitted: boolean;
   lockEmitted: boolean;
   lockDecisions: LockDecision[];
+  lockDecisionsByRequirement: Map<string, LockDecision>;
   renderEmitted: boolean;
   renderedReport: RenderedReport | null;
   /** Cache for `requirementEvidenceProfiles` — built once per run. */
@@ -297,6 +303,7 @@ function tracker(state: AnalysisState): ComplianceRunTracker {
       requestResolutionEmitted: false,
       phase3Emitted: false,
       phase3Results: [],
+      investigatedDocuments: new Map(),
       phase4Emitted: false,
       phase4Matrices: [],
       phase5Emitted: false,
@@ -309,6 +316,7 @@ function tracker(state: AnalysisState): ComplianceRunTracker {
       llmVerifyCanonicalSwapEmitted: false,
       lockEmitted: false,
       lockDecisions: [],
+      lockDecisionsByRequirement: new Map(),
       renderEmitted: false,
       renderedReport: null,
       requirementProfiles: null,
@@ -424,7 +432,8 @@ export function emitComplianceEvent(
 }
 
 /** Start (or re-open) the per-run tracker; safe to call more than once. */
-export function beginComplianceRun(state: AnalysisState): void {
+export function beginComplianceRun(state: AnalysisState, reset = false): void {
+  if (reset) RUNS.delete(sessionKey(state));
   const t = tracker(state);
   if (t.startedAtMs === 0) t.startedAtMs = Date.now();
 }
@@ -1180,6 +1189,11 @@ export function recordPhase3Investigation(state: AnalysisState): void {
     definitions: refIndex.definitions,
   });
   t.phase3Results = results;
+  for (const task of tasks) {
+    const ids = t.investigatedDocuments.get(task.requirementId) ?? new Set<string>();
+    ids.add(task.docId);
+    t.investigatedDocuments.set(task.requirementId, ids);
+  }
 
   // One log line per requirement: the full Phase 3C bundle (no 3A/3B spam).
   for (const r of results) {
@@ -2089,6 +2103,7 @@ export function recordLockValidation(state: AnalysisState): void {
       duplicateCanonicalKeys: duplicates,
     });
     decisions.push(decision);
+    t.lockDecisionsByRequirement.set(assessment.requirementId, decision);
 
     emitComplianceEvent(state, "compliance.lock.attempt", {
       requirementId: assessment.requirementId,
@@ -2151,7 +2166,6 @@ export function recordPhase7Render(state: AnalysisState): void {
   if (t.renderEmitted) return;
   t.renderEmitted = true;
   const decisions = t.lockDecisions;
-  if (decisions.length === 0) return;
 
   const bundlesByRequirement = new Map(
     t.phase3Results.map((r) => [r.requirementId, r] as const)
@@ -2180,10 +2194,9 @@ export function recordPhase7Render(state: AnalysisState): void {
   // `recordLockValidation` iterates assessments in order and pushes decisions
   // in the same order, so index correspondence holds.
   const assessments = t.phase5Assessments;
-  for (let i = 0; i < decisions.length; i++) {
-    const d = decisions[i];
-    const a = assessments[i];
-    if (!a) continue;
+  for (const a of assessments) {
+    const d = t.lockDecisionsByRequirement.get(a.requirementId);
+    if (!d) continue;
     if (d.kind !== "accepted") continue;
     acceptedRows.push({
       requirementId: a.requirementId,
@@ -2220,16 +2233,10 @@ export function recordPhase7Render(state: AnalysisState): void {
   // not this gate, which is only about judgment that started but didn't
   // finish.
   const renderedReqIds = new Set(report.rows.map((r) => r.requirementId));
-  const eligibleReqIds = new Set(t.phase4Matrices.map((m) => m.requirementId));
-  const decisionByReq = new Map<string, LockDecision>();
-  for (let i = 0; i < t.lockDecisions.length; i++) {
-    const a = t.phase5Assessments[i];
-    const d = t.lockDecisions[i];
-    if (a && d) decisionByReq.set(a.requirementId, d);
-  }
+  const decisionByReq = t.lockDecisionsByRequirement;
   const assessedReqIds = new Set(t.phase5Assessments.map((a) => a.requirementId));
   const coverageGap = t.plannedRequirementIds
-    .filter((id) => eligibleReqIds.has(id) && !renderedReqIds.has(id))
+    .filter((id) => !renderedReqIds.has(id))
     .map((id) => {
       const decision = decisionByReq.get(id);
       const reason =
@@ -2253,6 +2260,73 @@ export function recordPhase7Render(state: AnalysisState): void {
   }
 
   t.renderedReport = report;
+
+  if (usesCanonicalComplianceReport(state)) {
+    const bindings = collectBindings(state);
+    const requests = state.intent?.requirements ?? [];
+    const requestedTitle = (id: string) => requests.find(r => r.id === id)?.description;
+    const titleFor = (id: string) =>
+      schemaForRequirement(state, id, canonicalRequirementId(id))?.title ||
+      requestedTitle(id) || humanizeRequirementId(id);
+    const outstanding = new Map<string, ComplianceOutstandingCheck>();
+    // Work units can use request IDs while locked assessments use native IDs.
+    // A request is satisfied only if ALL of its bound native checks were locked.
+    const planned = new Set([...t.plannedRequirementIds, ...requests.map(r => r.id)]);
+    for (const id of planned) {
+      const mapped = bindings.filter(b => b.requestRequirementId === id).map(b => b.nativeRequirementId);
+      const required = mapped.length ? mapped : [id];
+      for (const requiredId of required) {
+        if (renderedReqIds.has(requiredId)) continue;
+        const decision = decisionByReq.get(requiredId);
+        const rejected = decision?.kind === "rejected";
+        const unmatched = !schemaForRequirement(state, requiredId, canonicalRequirementId(requiredId));
+        outstanding.set(requiredId, {
+          requirementId: requiredId, title: titleFor(requiredId),
+          kind: rejected ? "rejected" : unmatched ? "unmatched" : "unfinished",
+          reason: rejected ? "The assessment did not pass verification checks; this is not a finding that the contract is deficient."
+            : unmatched ? "This requested requirement could not be matched to a supported compliance check."
+              : "Verification of this requirement did not finish. A fresh check is needed before concluding.",
+        });
+      }
+    }
+    // The current investigation enumerator can coalesce identical requirements
+    // across targets. Expose any target it did not investigate rather than
+    // treating a lock from one agreement as proof about another agreement.
+    for (const unit of state.plan?.workUnits ?? []) {
+      if (unit.tool !== "evaluate_package") continue;
+      const docId = String(unit.input.docId ?? "");
+      if (!docId) continue;
+      const ids = (Array.isArray(unit.input.requirementIds) ? unit.input.requirementIds : unit.requirementIds ?? []) as string[];
+      for (const id of ids) {
+        if (renderedReqIds.has(id) && !t.investigatedDocuments.get(id)?.has(docId)) {
+          const title = state.workspace.documents.find(d => d.docId === docId)?.title || "Additional document";
+          outstanding.set(`${id}::${docId}`, {
+            requirementId: `${id}::${docId}`, title: `${title}: ${titleFor(id)}`, kind: "unfinished",
+            reason: "This requirement was assessed for another document, but verification did not complete for this document. Review it separately before concluding.",
+          });
+        }
+      }
+    }
+    const snapshotReport: RenderedReport = { ...report, rows: report.rows.map(row => {
+      const schema = schemaForRequirement(state, row.requirementId, row.canonicalKey);
+      // Auto-derived schemas use an internal ID as their citation and a clipped
+      // proposition as title. Format the catalog name, never invent a legal hook.
+      return { ...row,
+        title: schema?.reviewStatus === "auto_derived" ? humanizeRequirementId(row.requirementId) : row.title,
+        legalCitation: row.legalCitation === row.requirementId ? "" : row.legalCitation,
+        reviewedDocumentIds: [...(t.investigatedDocuments.get(row.requirementId) ?? [])],
+      };
+    }) };
+    state.complianceReportSnapshot = buildComplianceSnapshot(
+      state, snapshotReport, t.structuralNodesByDoc, [...outstanding.values()],
+      t.phase3Results.flatMap(r => r.bundle.dependencies
+        .filter(d => d.state !== "resolved_internal")
+        .map(d => ({ requirementId: r.requirementId, reference: d.reference,
+          reason: d.state === "ambiguous" ? "The referenced provision could not be resolved confidently." : "The referenced material was not available for verification." })))
+    );
+    state.compliancePresentationPlan = undefined;
+    state.complianceReportValidation = undefined;
+  }
 
   for (const row of report.rows) {
     emitComplianceEvent(state, "compliance.render.row", {

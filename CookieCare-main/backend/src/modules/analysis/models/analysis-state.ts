@@ -8,6 +8,11 @@ import type {
 } from "./analysis-plan.js";
 import type { CritiqueReport, FixItem } from "./critique-report.js";
 import type { AuditReport } from "./audit-report.js";
+import type {
+  ComplianceReportSnapshot,
+  CompliancePresentationPlan,
+  ComplianceReportValidation,
+} from "./compliance-report.js";
 import type { AnalysisConversation } from "./conversation.js";
 import type { AnalysisWorkspace } from "./document-workspace.js";
 import type { Finding } from "./finding.js";
@@ -69,6 +74,8 @@ export interface PriorAnalysisSnapshot {
   renderedOutput?: string;
   activeSkillIds?: string[];
   analyticalSynthesis?: AnalyticalSynthesis;
+  complianceReportSnapshot?: ComplianceReportSnapshot;
+  compliancePresentationPlan?: CompliancePresentationPlan;
 }
 
 export interface AnalysisFixPlan {
@@ -176,6 +183,11 @@ export interface AnalysisState {
    * Interpretive layer over locked assessments. Must not mutate statuses.
    */
   analyticalSynthesis?: AnalyticalSynthesis | null;
+  /** Canonical compliance results and source identity retained across follow-ups. */
+  complianceReportSnapshot?: ComplianceReportSnapshot;
+  compliancePresentationPlan?: CompliancePresentationPlan;
+  /** Validates only the current rendered output; never inherited by a follow-up. */
+  complianceReportValidation?: ComplianceReportValidation;
   /** Shared evidence extracted once per package and reused by evaluations. */
   sharedEvidence?: Record<string, SharedEvidenceBundle>;
   /** Structured package outputs (inventories, comparisons). Keyed by artifact id. */

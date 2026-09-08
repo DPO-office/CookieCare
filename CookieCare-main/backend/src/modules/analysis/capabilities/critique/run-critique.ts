@@ -21,6 +21,7 @@ import {
 import { getAnalysisProfile } from "../../utils/profile-thinking.js";
 import { repairContextFromAlignment } from "../../skills/runtime/graph/apply-package-shape-repair.js";
 import { detectPlaceholderOutput } from "./placeholder-report.js";
+import { runComplianceReportGate, usesCanonicalComplianceReport } from "../reporting/compliance-release.js";
 
 /**
  * Two-level CRITIQUE:
@@ -28,6 +29,9 @@ import { detectPlaceholderOutput } from "./placeholder-report.js";
  * 2. targeted semantic verification only for suspicious/material targets.
  */
 export async function runCritique(state: AnalysisState): Promise<AnalysisState> {
+  if (usesCanonicalComplianceReport(state) && state.complianceReportValidation) {
+    return runComplianceReportGate(state);
+  }
   const iteration = (state.critique?.iteration ?? 0) + 1;
 
   // Presentation-only follow-ups reuse an already locked analysis and execute

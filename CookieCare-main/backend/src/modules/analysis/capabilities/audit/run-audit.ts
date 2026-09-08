@@ -8,6 +8,7 @@ import { groundFindings } from "./ground-findings.js";
 import { logAuditInspect } from "./audit-inspect-log.js";
 import { emitAnalysisToken, pacLog } from "../../utils/pac-log.js";
 import { profileThinkingLevel } from "../../utils/profile-thinking.js";
+import { usesCanonicalComplianceReport } from "../reporting/compliance-release.js";
 
 const VERIFY_TIMEOUT_MS = 15_000;
 
@@ -16,6 +17,13 @@ const VERIFY_TIMEOUT_MS = 15_000;
  * verifier appends contradictions as Verification notes and never rewrites.
  */
 export async function runAudit(state: AnalysisState): Promise<AnalysisState> {
+  // Compliance presentation already passed its bounded semantic and citation
+  // checks. General audit uses the legacy findings and can append unvalidated
+  // text; leave final output-hash enforcement to the compliance release gate.
+  if (usesCanonicalComplianceReport(state) && state.complianceReportValidation) {
+    return { ...state, auditReport: { findingsChanged: [], assessmentsChanged: [],
+      contradictions: [], notes: ["Compliance report conformance checked against canonical results."] } };
+  }
   const started = Date.now();
   const before = state;
   let next = groundFindings(state);

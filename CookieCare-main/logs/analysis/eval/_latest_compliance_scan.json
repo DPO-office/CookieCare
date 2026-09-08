@@ -1,0 +1,432 @@
+{
+  "file": "an_5345b4e5-1aa1-437e-85ec-ea85796c7cf1.compliance.log",
+  "mtime": "2026-09-07T15:59:54.661Z",
+  "size": 1111907,
+  "lines": 214,
+  "eventTypes": {
+    "compliance.bundle.created": 9,
+    "compliance.element.registry": 50,
+    "compliance.verify.input": 9,
+    "compliance.verify.element": 11,
+    "compliance.verify.completeness": 9,
+    "compliance.fallback.outcome": 9,
+    "compliance.fallback.round": 12,
+    "compliance.verify.llm.element": 11,
+    "compliance.verify.llm.completeness": 9,
+    "compliance.verify.compare": 9,
+    "compliance.verify.canonical": 9,
+    "compliance.assess.input": 9,
+    "compliance.assess.result": 9,
+    "compliance.explain.draft": 9,
+    "compliance.lock.attempt": 9,
+    "compliance.lock.accepted": 9,
+    "compliance.lock.summary": 1,
+    "compliance.render.row": 9,
+    "compliance.render.bottom_line": 3,
+    "compliance.render.reconciliation": 1,
+    "compliance.run.reconciliation": 1,
+    "compliance.run.timing": 1
+  },
+  "statuses": {
+    "present": 16,
+    "gap": 16,
+    "partial": 4
+  },
+  "zeroCand": 0,
+  "withCand": 0,
+  "verified": 22,
+  "unverified": 0,
+  "samples": [
+    {
+      "id": "art44_general_transfer_principle",
+      "event": "compliance.bundle.created"
+    },
+    {
+      "id": "art45_1_adequacy",
+      "event": "compliance.bundle.created"
+    },
+    {
+      "id": "art46_appropriate_safeguards",
+      "event": "compliance.bundle.created"
+    }
+  ]
+}
+{
+  "file": "an_ac5907aa-3b21-47d5-9a1c-6ae53568edd2.compliance.log",
+  "mtime": "2026-09-07T15:58:40.568Z",
+  "size": 1728057,
+  "lines": 319,
+  "eventTypes": {
+    "compliance.bundle.created": 15,
+    "compliance.element.registry": 48,
+    "compliance.verify.input": 15,
+    "compliance.verify.element": 29,
+    "compliance.verify.completeness": 15,
+    "compliance.fallback.outcome": 15,
+    "compliance.fallback.round": 5,
+    "compliance.verify.llm.element": 29,
+    "compliance.verify.llm.completeness": 15,
+    "compliance.verify.compare": 15,
+    "compliance.verify.canonical": 15,
+    "compliance.assess.input": 15,
+    "compliance.assess.result": 15,
+    "compliance.explain.draft": 15,
+    "compliance.lock.attempt": 15,
+    "compliance.lock.accepted": 15,
+    "compliance.lock.summary": 1,
+    "compliance.render.row": 15,
+    "compliance.render.bottom_line": 3,
+    "compliance.render.reconciliation": 1,
+    "compliance.run.reconciliation": 1,
+    "compliance.run.timing": 1
+  },
+  "statuses": {
+    "present": 36,
+    "partial": 16,
+    "verification_incomplete": 8
+  },
+  "zeroCand": 0,
+  "withCand": 0,
+  "verified": 58,
+  "unverified": 0,
+  "samples": [
+    {
+      "id": "subject_matter",
+      "event": "compliance.bundle.created"
+    },
+    {
+      "id": "duration",
+      "event": "compliance.bundle.created"
+    },
+    {
+      "id": "nature_purpose",
+      "event": "compliance.bundle.created"
+    }
+  ]
+}
+{
+  "file": "an_624e3273-ec56-438f-9b22-1ae8d85ca4d4.compliance.log",
+  "mtime": "2026-09-07T15:56:38.639Z",
+  "size": 1091555,
+  "lines": 227,
+  "eventTypes": {
+    "compliance.bundle.created": 9,
+    "compliance.element.registry": 47,
+    "compliance.verify.input": 9,
+    "compliance.verify.element": 20,
+    "compliance.verify.completeness": 9,
+    "compliance.fallback.outcome": 9,
+    "compliance.fallback.round": 10,
+    "compliance.verify.llm.element": 20,
+    "compliance.verify.llm.completeness": 9,
+    "compliance.verify.compare": 9,
+    "compliance.verify.canonical": 9,
+    "compliance.assess.input": 9,
+    "compliance.assess.result": 9,
+    "compliance.explain.draft": 9,
+    "compliance.lock.attempt": 9,
+    "compliance.lock.accepted": 9,
+    "compliance.lock.summary": 1,
+    "compliance.render.row": 9,
+    "compliance.render.bottom_line": 3,
+    "compliance.render.reconciliation": 1,
+    "compliance.run.reconciliation": 1,
+    "compliance.run.timing": 1
+  },
+  "statuses": {
+    "gap": 20,
+    "partial": 8,
+    "present": 4,
+    "not_applicable": 4
+  },
+  "zeroCand": 0,
+  "withCand": 0,
+  "verified": 40,
+  "unverified": 0,
+  "samples": [
+    {
+      "id": "art12_3_response_timeframe",
+      "event": "compliance.bundle.created"
+    },
+    {
+      "id": "art15_access",
+      "event": "compliance.bundle.created"
+    },
+    {
+      "id": "art16_rectification",
+      "event": "compliance.bundle.created"
+    }
+  ]
+}
+{
+  "file": "an_5999021d-e980-4e3f-a363-b852f504c017.compliance.log",
+  "mtime": "2026-09-07T12:04:36.956Z",
+  "size": 1024827,
+  "lines": 198,
+  "eventTypes": {
+    "compliance.bundle.created": 9,
+    "compliance.element.registry": 17,
+    "compliance.verify.input": 9,
+    "compliance.verify.element": 20,
+    "compliance.verify.completeness": 9,
+    "compliance.fallback.outcome": 9,
+    "compliance.fallback.round": 10,
+    "compliance.verify.llm.element": 20,
+    "compliance.verify.llm.completeness": 9,
+    "compliance.verify.compare": 9,
+    "compliance.verify.canonical": 9,
+    "compliance.assess.input": 9,
+    "compliance.assess.result": 9,
+    "compliance.explain.draft": 9,
+    "compliance.lock.attempt": 9,
+    "compliance.lock.accepted": 9,
+    "compliance.lock.summary": 1,
+    "compliance.render.row": 9,
+    "compliance.render.supplemental": 1,
+    "compliance.render.bottom_line": 3,
+    "compliance.render.reconciliation": 1,
+    "compliance.run.reconciliation": 1,
+    "compliance.run.timing": 1
+  },
+  "statuses": {
+    "gap": 12,
+    "partial": 12,
+    "present": 8,
+    "not_applicable": 4
+  },
+  "zeroCand": 0,
+  "withCand": 0,
+  "verified": 40,
+  "unverified": 0,
+  "samples": [
+    {
+      "id": "art12_3_response_timeframe",
+      "event": "compliance.bundle.created"
+    },
+    {
+      "id": "art15_access",
+      "event": "compliance.bundle.created"
+    },
+    {
+      "id": "art16_rectification",
+      "event": "compliance.bundle.created"
+    }
+  ]
+}
+{
+  "file": "an_4e647b04-c815-4de4-b10a-14c4e8e28db0.compliance.log",
+  "mtime": "2026-09-07T09:49:02.694Z",
+  "size": 1006940,
+  "lines": 177,
+  "eventTypes": {
+    "compliance.bundle.created": 9,
+    "compliance.element.registry": 17,
+    "compliance.verify.input": 9,
+    "compliance.verify.element": 9,
+    "compliance.verify.completeness": 9,
+    "compliance.fallback.outcome": 9,
+    "compliance.fallback.round": 12,
+    "compliance.verify.llm.element": 9,
+    "compliance.verify.llm.completeness": 9,
+    "compliance.verify.compare": 9,
+    "compliance.verify.canonical": 9,
+    "compliance.assess.input": 9,
+    "compliance.assess.result": 9,
+    "compliance.explain.draft": 9,
+    "compliance.lock.attempt": 9,
+    "compliance.lock.accepted": 9,
+    "compliance.lock.summary": 1,
+    "compliance.render.row": 9,
+    "compliance.render.supplemental": 2,
+    "compliance.render.bottom_line": 1,
+    "compliance.render.reconciliation": 1,
+    "compliance.run.reconciliation": 1,
+    "compliance.run.timing": 1
+  },
+  "statuses": {
+    "gap": 32,
+    "not_applicable": 4
+  },
+  "zeroCand": 0,
+  "withCand": 0,
+  "verified": 18,
+  "unverified": 0,
+  "samples": [
+    {
+      "id": "art12_3_response_timeframe",
+      "event": "compliance.bundle.created"
+    },
+    {
+      "id": "art15_access",
+      "event": "compliance.bundle.created"
+    },
+    {
+      "id": "art16_rectification",
+      "event": "compliance.bundle.created"
+    }
+  ]
+}
+{
+  "file": "an_8266ec3f-7a9f-4640-97e9-83e1fbd5e3d1.compliance.log",
+  "mtime": "2026-09-07T09:34:58.494Z",
+  "size": 984478,
+  "lines": 175,
+  "eventTypes": {
+    "compliance.bundle.created": 9,
+    "compliance.element.registry": 17,
+    "compliance.verify.input": 9,
+    "compliance.verify.element": 9,
+    "compliance.verify.completeness": 9,
+    "compliance.fallback.outcome": 9,
+    "compliance.fallback.round": 11,
+    "compliance.verify.llm.element": 9,
+    "compliance.verify.llm.completeness": 9,
+    "compliance.verify.compare": 9,
+    "compliance.verify.canonical": 9,
+    "compliance.assess.input": 9,
+    "compliance.assess.result": 9,
+    "compliance.explain.draft": 9,
+    "compliance.lock.attempt": 9,
+    "compliance.lock.accepted": 9,
+    "compliance.lock.summary": 1,
+    "compliance.render.row": 9,
+    "compliance.render.bottom_line": 2,
+    "compliance.render.reconciliation": 1,
+    "compliance.run.reconciliation": 1,
+    "compliance.run.timing": 1
+  },
+  "statuses": {
+    "gap": 28,
+    "present": 4,
+    "not_applicable": 4
+  },
+  "zeroCand": 0,
+  "withCand": 0,
+  "verified": 18,
+  "unverified": 0,
+  "samples": [
+    {
+      "id": "art12_3_response_timeframe",
+      "event": "compliance.bundle.created"
+    },
+    {
+      "id": "art15_access",
+      "event": "compliance.bundle.created"
+    },
+    {
+      "id": "art16_rectification",
+      "event": "compliance.bundle.created"
+    }
+  ]
+}
+{
+  "file": "an_5b631a5b-0dd5-4831-b41f-079c1a59899d.compliance.log",
+  "mtime": "2026-09-07T09:21:43.976Z",
+  "size": 1043155,
+  "lines": 175,
+  "eventTypes": {
+    "compliance.bundle.created": 9,
+    "compliance.element.registry": 17,
+    "compliance.verify.input": 9,
+    "compliance.verify.element": 9,
+    "compliance.verify.completeness": 9,
+    "compliance.fallback.outcome": 9,
+    "compliance.fallback.round": 12,
+    "compliance.verify.llm.element": 9,
+    "compliance.verify.llm.completeness": 9,
+    "compliance.verify.compare": 9,
+    "compliance.verify.canonical": 9,
+    "compliance.assess.input": 9,
+    "compliance.assess.result": 9,
+    "compliance.explain.draft": 9,
+    "compliance.lock.attempt": 9,
+    "compliance.lock.accepted": 5,
+    "compliance.lock.rejected": 4,
+    "compliance.lock.summary": 1,
+    "compliance.render.coverage_gap": 1,
+    "compliance.render.row": 5,
+    "compliance.render.supplemental": 1,
+    "compliance.render.bottom_line": 3,
+    "compliance.render.reconciliation": 1,
+    "compliance.run.reconciliation": 1,
+    "compliance.run.timing": 1
+  },
+  "statuses": {
+    "gap": 20,
+    "present": 8
+  },
+  "zeroCand": 0,
+  "withCand": 0,
+  "verified": 18,
+  "unverified": 0,
+  "samples": [
+    {
+      "id": "art12_3_response_timeframe",
+      "event": "compliance.bundle.created"
+    },
+    {
+      "id": "art15_access",
+      "event": "compliance.bundle.created"
+    },
+    {
+      "id": "art16_rectification",
+      "event": "compliance.bundle.created"
+    }
+  ]
+}
+{
+  "file": "an_4114373e-eb0b-43e3-9c52-1a0b2a66d166.compliance.log",
+  "mtime": "2026-09-07T09:20:59.061Z",
+  "size": 1039212,
+  "lines": 176,
+  "eventTypes": {
+    "compliance.bundle.created": 9,
+    "compliance.element.registry": 17,
+    "compliance.verify.input": 9,
+    "compliance.verify.element": 9,
+    "compliance.verify.completeness": 9,
+    "compliance.fallback.outcome": 9,
+    "compliance.fallback.round": 12,
+    "compliance.verify.llm.element": 9,
+    "compliance.verify.llm.completeness": 9,
+    "compliance.verify.compare": 9,
+    "compliance.verify.canonical": 9,
+    "compliance.assess.input": 9,
+    "compliance.assess.result": 9,
+    "compliance.explain.draft": 9,
+    "compliance.lock.attempt": 9,
+    "compliance.lock.accepted": 4,
+    "compliance.lock.rejected": 5,
+    "compliance.lock.summary": 1,
+    "compliance.render.coverage_gap": 1,
+    "compliance.render.row": 4,
+    "compliance.render.supplemental": 2,
+    "compliance.render.bottom_line": 4,
+    "compliance.render.reconciliation": 1,
+    "compliance.run.reconciliation": 1,
+    "compliance.run.timing": 1
+  },
+  "statuses": {
+    "gap": 18,
+    "verification_incomplete": 4,
+    "present": 4
+  },
+  "zeroCand": 0,
+  "withCand": 0,
+  "verified": 18,
+  "unverified": 0,
+  "samples": [
+    {
+      "id": "art12_3_response_timeframe",
+      "event": "compliance.bundle.created"
+    },
+    {
+      "id": "art15_access",
+      "event": "compliance.bundle.created"
+    },
+    {
+      "id": "art16_rectification",
+      "event": "compliance.bundle.created"
+    }
+  ]
+}

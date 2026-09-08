@@ -24,7 +24,7 @@ import {
   resolveRelatedChecks,
 } from "../../skills/runtime/graph/build-act-graph.js";
 import { extractInstructionFocus } from "../../skills/runtime/focus/extract-instruction-focus.js";
-import { requestsRiskAnalysis } from "./intent-heuristics.js";
+import { classifyFollowUpKind, requestsRiskAnalysis } from "./intent-heuristics.js";
 import { applySensibleDefaults, fallbackReportType } from "./intent-sensible-defaults.js";
 import { getSkillById } from "../../skills/runtime/catalog/registry.js";
 import { pacLog } from "../../utils/pac-log.js";
@@ -39,7 +39,8 @@ import {
 import { loadOrgMemory } from "../../memory/org-memory.js";
 import { applyOrgRoutingDefaults } from "../../memory/resolve-org-defaults.js";
 import { resolveDocumentRoles } from "./resolve-document-roles.js";
-import { followUpKindForState, isMaterialTopicShift } from "./follow-up-intent.js";
+import { isMaterialTopicShift } from "./follow-up-intent.js";
+import { complianceSnapshotMatchesSources } from "../../utils/persisted-state.js";
 import { buildOpenPlan } from "./build-open-plan.js";
 import { operationSupportsOpenProposition } from "./generate-propositions.js";
 import type { EvidencePackage } from "../../models/evidence-package.js";
@@ -106,6 +107,8 @@ export function shouldPreferOpenAnalysisLane(input: {
  * 8. audit record
  */
 export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
+  // PLAN will generate a new output, so a prior render's release gate cannot apply.
+  state = { ...state, complianceReportValidation: undefined };
   const rawIntent = state.intent;
   if (!rawIntent) {
     return {
@@ -212,17 +215,32 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
   const docTypeFloor = resolveDocTypeFloor(state);
   pacLog("PLAN doc-type floor", { docType: docTypeFloor });
 
-  const followUpKind = followUpKindForState(state);
+  const priorSnapshot = state.priorAnalysis?.complianceReportSnapshot;
+  // Snapshot presence includes zero accepted rows, outstanding checks, and a completed empty result.
+  const hasPriorResults = Boolean(
+    priorSnapshot ||
+    (state.priorAnalysis?.findings.length ?? 0) > 0 ||
+    (state.priorAnalysis?.requirementAssessments?.length ?? 0) > 0
+  );
+  const hasHistoricalReport = Boolean(state.priorAnalysis?.renderedOutput);
+  const followUpKind = classifyFollowUpKind({
+    instruction: state.request.instruction,
+    hasPriorConversation: Boolean(state.priorAnalysis || state.conversation?.turns.length),
+    hasPriorFindings: hasPriorResults || hasHistoricalReport,
+  });
   const topicShifted =
     Boolean(state.priorAnalysis?.intent && intent) &&
     isMaterialTopicShift(state.priorAnalysis!.intent!, intent);
-  const effectiveFollowUpKind = topicShifted ? "new_analysis" : followUpKind;
+  const sourcesChanged = Boolean(
+    priorSnapshot && !complianceSnapshotMatchesSources(priorSnapshot, state)
+  );
+  const effectiveFollowUpKind = topicShifted || sourcesChanged ? "new_analysis" : followUpKind;
   const canReusePrior =
     (effectiveFollowUpKind === "presentation_change" ||
       effectiveFollowUpKind === "conversational_qa") &&
     Boolean(
-      (state.priorAnalysis?.findings.length ?? 0) > 0 ||
-        (state.priorAnalysis?.requirementAssessments?.length ?? 0) > 0
+      hasPriorResults ||
+        (effectiveFollowUpKind === "presentation_change" && hasHistoricalReport)
     );
 
   if (canReusePrior && state.priorAnalysis) {
@@ -277,11 +295,22 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
       findings: state.priorAnalysis.findings,
       requirementAssessments: state.priorAnalysis.requirementAssessments,
       analysisArtifacts: state.priorAnalysis.analysisArtifacts,
+      complianceReportSnapshot: priorSnapshot,
+      compliancePresentationPlan: state.priorAnalysis.compliancePresentationPlan,
+      complianceReportValidation: undefined,
       activeSkills: skills,
       activeSkillIds: skills.map((s) => s.skillId),
       plan,
       pendingSkillClarification: undefined,
       clarificationRequest: undefined,
+    };
+  }
+
+  if (state.priorAnalysis) {
+    state = {
+      ...state,
+      complianceReportSnapshot: undefined,
+      compliancePresentationPlan: undefined,
     };
   }
 

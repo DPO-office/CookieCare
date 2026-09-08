@@ -470,12 +470,14 @@ export const ANALYZE_STYLES = `
 
 .analyze-report-prose .md-content h3 {
   font-size: 0.975rem;
-  font-weight: 650;
-  color: #1F2937;
+  font-weight: 700;
+  color: #111827;
   letter-spacing: -0.015em;
-  margin-top: 1.5rem;
-  margin-bottom: 0.35rem;
+  margin-top: 1.75rem;
+  margin-bottom: 0.55rem;
   line-height: 1.4;
+  padding-top: 0.85rem;
+  border-top: 1px solid #EEF0F4;
 }
 
 .analyze-report-prose .md-content h4 {
@@ -555,20 +557,38 @@ export const ANALYZE_STYLES = `
   color: #344054;
 }
 
+.analyze-report-prose .md-content table.md-table-compliance tbody td {
+  max-width: none;
+}
+
 .analyze-report-prose .md-content strong {
   color: #111827;
   font-weight: 700;
 }
 
-/* Blockquote — callout style */
+/* Clause quotation — no tinted panel. The source text is shown as a quote. */
 .analyze-report-prose .md-content blockquote {
-  margin: 1rem 0;
-  padding: 0.75rem 1rem;
-  border-left: 3px solid #6366F1;
-  background: #F5F3FF;
-  border-radius: 0 8px 8px 0;
-  color: #4338CA;
+  margin: 0.35rem 0 1rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 0;
+  color: #3F3F46;
   font-size: 14px;
+  font-style: italic;
+  line-height: 1.65;
+}
+
+.analyze-report-prose .md-content blockquote p {
+  margin: 0;
+}
+
+.analyze-report-prose .md-content blockquote p::before {
+  content: "“";
+}
+
+.analyze-report-prose .md-content blockquote p::after {
+  content: "”";
 }
 
 /* Horizontal rule between major sections */
@@ -597,9 +617,9 @@ export const ANALYZE_STYLES = `
 }
 
 .analyze-report-prose .md-analysis-overview blockquote {
-  margin: 0.65rem 0 1rem;
-  border-left-color: #4F5BD9;
-  background: rgba(238, 242, 255, 0.8);
+  margin: 0.45rem 0 1rem;
+  border: none;
+  background: transparent;
 }
 
 .analyze-report-prose .md-analysis-overview .md-table-wrap {
@@ -750,7 +770,7 @@ export const ANALYZE_STYLES = `
   background: #9CA3AF;
 }
 
-.analyze-report-prose .md-content table:not(.md-table-requirements) {
+.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-compliance) {
   font-size: 13px;
   line-height: 1.5;
   /* fixed: honour percentage widths exactly; never let content fight for space */
@@ -792,17 +812,71 @@ export const ANALYZE_STYLES = `
    col 4  Finding                 36%  — AI commentary, primary reading column
    (Skip requirements + other 5+ column tables — they have their own layout.)
    ────────────────────────────────────────────────────────────────────── */
-.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-many-cols) th:nth-child(1),
-.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-many-cols) td:nth-child(1) { width: 20%; }
+.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-compliance):not(.md-table-many-cols) th:nth-child(1),
+.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-compliance):not(.md-table-many-cols) td:nth-child(1) { width: 20%; }
 
-.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-many-cols) th:nth-child(2),
-.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-many-cols) td:nth-child(2) { width: 16%; overflow: hidden; }
+.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-compliance):not(.md-table-many-cols) th:nth-child(2),
+.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-compliance):not(.md-table-many-cols) td:nth-child(2) { width: 16%; overflow: hidden; }
 
-.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-many-cols) th:nth-child(3),
-.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-many-cols) td:nth-child(3) { width: 28%; }
+.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-compliance):not(.md-table-many-cols) th:nth-child(3),
+.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-compliance):not(.md-table-many-cols) td:nth-child(3) { width: 28%; }
 
-.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-many-cols) th:nth-child(4),
-.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-many-cols) td:nth-child(4) { width: 36%; }
+.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-compliance):not(.md-table-many-cols) th:nth-child(4),
+.analyze-report-prose .md-content table:not(.md-table-requirements):not(.md-table-compliance):not(.md-table-many-cols) td:nth-child(4) { width: 36%; }
+
+/* Compliance overview: wide columns, scroll inside the wrapper, ellipsis after more text. */
+.analyze-report-prose .md-content .md-table-compliance-wrap {
+  overflow-x: auto;
+}
+
+.analyze-report-prose .md-content table.md-table-compliance {
+  table-layout: auto;
+  width: max-content;
+  min-width: 1480px;
+}
+
+.analyze-report-prose .md-content table.md-table-compliance th,
+.analyze-report-prose .md-content table.md-table-compliance td {
+  max-width: none;
+  min-width: 0;
+}
+
+.analyze-report-prose .md-content table.md-table-compliance .md-col-requirement {
+  width: 340px;
+  min-width: 340px;
+  font-weight: 650;
+  color: #111827;
+}
+
+.analyze-report-prose .md-content table.md-table-compliance .md-col-status {
+  width: 210px;
+  min-width: 210px;
+  white-space: nowrap;
+}
+
+.analyze-report-prose .md-content table.md-table-compliance .md-col-provision {
+  width: 520px;
+  min-width: 520px;
+}
+
+.analyze-report-prose .md-content table.md-table-compliance .md-col-assessment {
+  width: 410px;
+  min-width: 410px;
+}
+
+.md-status-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 650;
+  color: #1F2937;
+  white-space: nowrap;
+}
+
+.md-clause-text--roomy {
+  -webkit-line-clamp: 5;
+}
 
 /* 5-column+ tables (non-requirements): revert to auto so the browser distributes extra columns */
 .analyze-report-prose .md-content table.md-table-many-cols {
