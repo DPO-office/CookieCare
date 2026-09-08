@@ -36,6 +36,16 @@ md.disable(["replacements"]);
  *
  * Strip those outer wrappers before parsing so they never appear in the output.
  */
+/** Drop uploaded file titles such as "DPA - 1.pdf —" from locators and scope lines. */
+function stripDocumentTitles(raw: string): string {
+  return raw
+    .replace(/(?:^|[\s;])[^\n;|]*?\.(?:pdf|docx?|txt|rtf)\s*[—–-]\s*/gi, (match) =>
+      match.startsWith(" ") || match.startsWith(";") ? match[0] : ""
+    )
+    .replace(/\bReviewed documents?:\s*[^\n.;]*?(?:\.(?:pdf|docx?|txt|rtf))?\.?/gi, "")
+    .replace(/[ \t]{2,}/g, " ");
+}
+
 function stripOuterCodeFences(raw: string): string {
   const trimmed = raw.trim();
   // Match an optional language specifier after the opening fence
@@ -156,13 +166,15 @@ function clampThresholdForColumn(index: number): number {
 function wrapCellWithClamp(
   tdOpen: string,
   inner: string,
-  minChars = 120
+  minChars = 120,
+  extraClass = ""
 ): string {
   const plainLen = stripTags(inner).length;
   if (plainLen <= minChars) return tdOpen + inner.trim() + "</td>";
+  const cls = extraClass ? `md-clause-text ${extraClass}` : "md-clause-text";
   return (
     tdOpen +
-    '<span class="md-clause-text" role="button" tabindex="0" aria-label="Expand row" aria-expanded="false" title="Click to expand row">' +
+    `<span class="${cls}" role="button" tabindex="0" aria-label="Expand row" aria-expanded="false" title="Click to expand row">` +
     inner.trim() +
     "</span>" +
     "</td>"
@@ -177,7 +189,12 @@ function wrapCellWithClamp(
  * Standard 4-col table: Evidence (index 2), Finding (index 3).
  * Requirements table: Evidence (2), Finding (3), Action (4).
  */
-function injectClauseToggles(tableHtml: string, clampIndices: Set<number> = CLAMP_COLUMN_INDICES): string {
+function injectClauseToggles(
+  tableHtml: string,
+  clampIndices: Set<number> = CLAMP_COLUMN_INDICES,
+  minChars?: number,
+  extraClass = ""
+): string {
   return tableHtml.replace(
     /(<tbody\b[^>]*>)([\s\S]*?)(<\/tbody>)/gi,
     (_match, open, body, close) => {
@@ -196,11 +213,107 @@ function injectClauseToggles(tableHtml: string, clampIndices: Set<number> = CLAM
             return wrapCellWithClamp(
               tdOpen,
               inner,
-              clampThresholdForColumn(idx)
+              minChars ?? clampThresholdForColumn(idx),
+              extraClass
             );
           });
 
           return trOpen + rebuilt.join("") + trClose;
+        }
+      );
+      return open + processedBody + close;
+    }
+  );
+}
+
+const COMPLIANCE_STATUS: Array<{ pattern: RegExp; mark: string }> = [
+  { pattern: /^verification incomplete$/i, mark: "🔍" },
+  { pattern: /^cannot determine$/i, mark: "❓" },
+  { pattern: /^not applicable$/i, mark: "○" },
+  { pattern: /^judgment required$/i, mark: "⚖️" },
+  { pattern: /^conflicting$/i, mark: "⚡" },
+  { pattern: /^partial$/i, mark: "⚠️" },
+  { pattern: /^gap$/i, mark: "⚠️" },
+  { pattern: /^present$/i, mark: "✅" },
+];
+
+function statusMarkHtml(plain: string): string | null {
+  const text = plain.replace(/[✅⚠️🔍❓○⚡⚖️—-]/g, "").replace(/\s+/g, " ").trim();
+  const match = COMPLIANCE_STATUS.find((item) => item.pattern.test(text));
+  if (!match) return null;
+  return `<span class="md-status-mark">${match.mark} <strong>${text}</strong></span>`;
+}
+
+/** Compliance overview: Requirement, Status, Contract provision, Assessment. */
+function isComplianceOverviewTable(tableHtml: string): boolean {
+  const headers = [...tableHtml.matchAll(/<th\b[^>]*>([\s\S]*?)<\/th>/gi)].map((m) =>
+    stripTags(m[1]).trim().toLowerCase()
+  );
+  if (headers.length !== 4) return false;
+  const names = new Set(headers);
+  return (
+    names.has("requirement") &&
+    names.has("status") &&
+    names.has("contract provision") &&
+    names.has("assessment")
+  );
+}
+
+function complianceColumnIndexes(tableHtml: string): { status: number; clamp: Set<number> } {
+  const headers = [...tableHtml.matchAll(/<th\b[^>]*>([\s\S]*?)<\/th>/gi)].map((m) =>
+    stripTags(m[1]).trim().toLowerCase()
+  );
+  const status = headers.indexOf("status");
+  const clamp = new Set(headers.map((_, index) => index).filter((index) => index !== status));
+  return { status, clamp };
+}
+
+const COMPLIANCE_COL_CLASS: Record<string, string> = {
+  requirement: "md-col-requirement",
+  status: "md-col-status",
+  "contract provision": "md-col-provision",
+  assessment: "md-col-assessment",
+};
+
+function annotateComplianceColumns(tableHtml: string): string {
+  const headers = [...tableHtml.matchAll(/<th\b[^>]*>([\s\S]*?)<\/th>/gi)].map((m) =>
+    stripTags(m[1]).trim().toLowerCase()
+  );
+  const withClass = (tag: "th" | "td", html: string) => {
+    let index = 0;
+    return html.replace(new RegExp(`<${tag}\\b([^>]*)>`, "gi"), (open, attrs: string) => {
+      const name = headers[index % Math.max(headers.length, 1)] ?? "";
+      index += 1;
+      const col = COMPLIANCE_COL_CLASS[name];
+      if (!col || /class="/i.test(attrs)) return `<${tag}${attrs}>`;
+      return `<${tag}${attrs} class="${col}">`;
+    });
+  };
+  return tableHtml
+    .replace(/<thead\b[^>]*>[\s\S]*?<\/thead>/i, (thead) => withClass("th", thead))
+    .replace(/<tbody\b[^>]*>[\s\S]*?<\/tbody>/i, (tbody) => withClass("td", tbody));
+}
+
+function decorateComplianceStatus(tableHtml: string, statusColumn: number): string {
+  if (statusColumn < 0) return tableHtml;
+  return tableHtml.replace(
+    /(<tbody\b[^>]*>)([\s\S]*?)(<\/tbody>)/gi,
+    (_match, open, body, close) => {
+      const processedBody = body.replace(
+        /(<tr\b[^>]*>)([\s\S]*?)(<\/tr>)/gi,
+        (_rowMatch: string, rowOpen: string, cells: string, rowClose: string) => {
+          const parts = cells.split("</td>");
+          const rebuilt = parts.map((part, index) => {
+            if (index === parts.length - 1 || index !== statusColumn) {
+              return index === parts.length - 1 ? part : part + "</td>";
+            }
+            const cellMatch = part.match(/^(\s*<td\b)([^>]*)>([\s\S]*)$/i);
+            if (!cellMatch) return part + "</td>";
+            const marked = statusMarkHtml(stripTags(cellMatch[3]));
+            if (!marked) return part + "</td>";
+            return `${cellMatch[1]}${cellMatch[2]}>${marked}</td>`;
+          });
+          return rowOpen + rebuilt.join("") + rowClose;
         }
       );
       return open + processedBody + close;
@@ -243,19 +356,28 @@ function wrapTables(html: string): string {
 
     const headerCols = (table.match(/<th\b/gi) || []).length;
     const requirements = isRequirementsTable(table);
+    const compliance = !requirements && isComplianceOverviewTable(table);
     const manyColsClass =
-      !requirements && headerCols >= 5 ? " md-table-many-cols" : "";
+      !requirements && !compliance && headerCols >= 5 ? " md-table-many-cols" : "";
     const requirementsClass = requirements ? " md-table-requirements" : "";
+    const complianceClass = compliance ? " md-table-compliance" : "";
 
-    const tableClass = [requirementsClass.trim(), manyColsClass.trim()]
+    const tableClass = [requirementsClass.trim(), complianceClass.trim(), manyColsClass.trim()]
       .filter(Boolean)
       .join(" ");
 
-    let processed = injectStatusBadges(table);
-    processed = injectClauseToggles(
-      processed,
-      requirements ? new Set([0, 2, 3, 4]) : new Set([2, 3])
-    );
+    let processed = compliance ? table : injectStatusBadges(table);
+    if (compliance) {
+      const columns = complianceColumnIndexes(processed);
+      processed = annotateComplianceColumns(processed);
+      processed = decorateComplianceStatus(processed, columns.status);
+      processed = injectClauseToggles(processed, columns.clamp, 280, "md-clause-text--roomy");
+    } else {
+      processed = injectClauseToggles(
+        processed,
+        requirements ? new Set([0, 2, 3, 4]) : new Set([2, 3])
+      );
+    }
 
     if (tableClass) {
       processed = processed.replace(/<table\b/, `<table class="${tableClass}"`);
@@ -265,6 +387,7 @@ function wrapTables(html: string): string {
       "md-table-wrap",
       indexed ? "md-table-indexed" : "",
       requirements ? "md-table-requirements-wrap" : "",
+      compliance ? "md-table-compliance-wrap" : "",
     ]
       .filter(Boolean)
       .join(" ");
@@ -297,6 +420,59 @@ function wrapCompoundAnalysis(html: string): string {
   ].join("\n");
 }
 
+/** Clause text is already shown with each finding. Drop a trailing Sources dump. */
+function omitSources(html: string): string {
+  return html.replace(/<h2>\s*Sources\s*<\/h2>[\s\S]*$/i, "");
+}
+
+function joinOverviewNames(names: string[]): string {
+  const shown = names.slice(0, 3);
+  const rest = names.length - shown.length;
+  const list = shown.length <= 1 ? shown[0] ?? ""
+    : shown.length === 2 ? `${shown[0]} and ${shown[1]}`
+    : `${shown.slice(0, -1).join(", ")}, and ${shown[shown.length - 1]}`;
+  return rest > 0 ? `${list}, and ${rest} more` : list;
+}
+
+/** Replace a canned Answer block with a short summary taken from the overview table. */
+function summarizeAnswer(html: string): string {
+  if (!/<h2>\s*Answer\s*<\/h2>/i.test(html)) return html;
+  const table = html.match(/<table\b[^>]*class="[^"]*md-table-compliance[^"]*"[\s\S]*?<\/table>/i)?.[0]
+    ?? html.match(/<table\b[\s\S]*?<\/table>/i)?.[0];
+  if (!table) return html;
+  const headers = [...table.matchAll(/<th\b[^>]*>([\s\S]*?)<\/th>/gi)].map((m) => stripTags(m[1]).toLowerCase());
+  const requirementCol = headers.indexOf("requirement");
+  const statusCol = headers.indexOf("status");
+  if (requirementCol < 0 || statusCol < 0) return html;
+  const groups = new Map<string, string[]>();
+  for (const row of table.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)) {
+    const cells = [...row[1].matchAll(/<td\b[^>]*>([\s\S]*?)<\/td>/gi)].map((cell) => stripTags(cell[1]));
+    if (cells.length <= Math.max(requirementCol, statusCol)) continue;
+    const name = cells[requirementCol].replace(/\s*\([^)]*\)\s*$/u, "").trim();
+    const status = cells[statusCol].replace(/[✅⚠️🔍❓○⚡⚖️]/g, "").replace(/\s+/g, " ").trim().toLowerCase();
+    if (!name || !status) continue;
+    groups.set(status, [...(groups.get(status) ?? []), name]);
+  }
+  const total = [...groups.values()].reduce((sum, names) => sum + names.length, 0);
+  if (!total) return html;
+  const line = (status: string, singular: string, plural: string) => {
+    const names = groups.get(status) ?? [];
+    if (!names.length) return "";
+    return `${names.length} ${names.length === 1 ? singular : plural}, including ${joinOverviewNames(names)}.`;
+  };
+  const summary = [
+    `This review checked ${total} requirement${total === 1 ? "" : "s"}.`,
+    line("present", "is present", "are present"),
+    line("partial", "is only partial", "are only partial"),
+    line("gap", "was not found", "were not found"),
+    line("verification incomplete", "could not be fully verified", "could not be fully verified"),
+  ].filter(Boolean).join(" ");
+  return html.replace(
+    /(<h2>\s*Answer\s*<\/h2>)([\s\S]*?)(?=<h2>|$)/i,
+    `$1<p>${summary}</p>`
+  );
+}
+
 const MARKDOWN_CACHE_MAX = 24;
 const markdownHtmlCache = new Map<string, string>();
 
@@ -314,8 +490,8 @@ export function markdownToHtml(markdown: string): string {
   const cached = markdownHtmlCache.get(markdown);
   if (cached !== undefined) return cached;
 
-  const cleaned = stripOuterCodeFences(markdown);
-  const html = wrapCompoundAnalysis(wrapTables(md.render(cleaned)));
+  const cleaned = stripDocumentTitles(stripOuterCodeFences(markdown));
+  const html = summarizeAnswer(omitSources(wrapCompoundAnalysis(wrapTables(md.render(cleaned)))));
 
   if (markdownHtmlCache.size >= MARKDOWN_CACHE_MAX) {
     const oldest = markdownHtmlCache.keys().next().value;

@@ -117,6 +117,8 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
           findings: prior.findings ?? [],
           requirementAssessments: prior.requirementAssessments,
           analysisArtifacts: prior.analysisArtifacts,
+          complianceReportSnapshot: prior.complianceReportSnapshot,
+          compliancePresentationPlan: prior.compliancePresentationPlan,
           renderedOutput: prior.renderedOutput,
           activeSkillIds: prior.activeSkillIds,
         }

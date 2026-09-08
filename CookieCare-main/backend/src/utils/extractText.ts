@@ -31,6 +31,11 @@ export interface ExtractionResult {
   pageBreaks?: number[];
 }
 
+/** pdf-parse-fork validity canary — text is discarded; pdfjs-dist supplies the extract. */
+async function extractPdfWithPdfParse(buffer: Buffer): Promise<void> {
+  await pdf(buffer);
+}
+
 function toPdfTextItem(item: any): PdfTextItem {
   return {
     str: String(item.str ?? ""),

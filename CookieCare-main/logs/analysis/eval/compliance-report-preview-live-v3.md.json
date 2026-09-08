@@ -1,0 +1,756 @@
+{
+  "snapshot": {
+    "version": 1,
+    "instruction": "Check international transfer compliance and show the clauses clearly.",
+    "scope": "Reviewed documents: Bitrix DPA.",
+    "documents": [
+      {
+        "documentId": "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1",
+        "title": "Bitrix DPA",
+        "contentHash": "15388b5fc7bab1107ff754cf13eeb79a901232d917a9d9338badf5cc1463657e",
+        "role": "target"
+      }
+    ],
+    "rows": [
+      {
+        "event": "compliance.render.row",
+        "analysisId": "an_5345b4e5-1aa1-437e-85ec-ea85796c7cf1",
+        "timestamp": "2026-09-07T15:59:45.222Z",
+        "implementationPhase": "live",
+        "requirementId": "art44_general_transfer_principle",
+        "canonicalKey": "gdpr.art44",
+        "lockedAssessmentId": "L-gdpr.art44-d5c685f6f0",
+        "status": "present",
+        "statusLabel": "Present",
+        "recommendedAction": "None — obligation satisfied.",
+        "supportedElementIds": [
+          "E1"
+        ],
+        "missingElementIds": [],
+        "evidenceSpanIds": [
+          "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1::section::28689-29672",
+          "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1::section::27567-28170",
+          "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1::section::24570-26261"
+        ],
+        "evidence": [
+          {
+            "spanId": "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1::section::28689-29672",
+            "quote": "12.3 For data transfers outside the EEA listed in schedules 11.3.4 protected by appropriate  safeguards under article 46 GDPR, specifically by the standard data protection clauses  adopted by the Commission in accordance with the examination procedure from controllers  in the EU to processors established outside the EU",
+            "structuralPath": "document/application-of-this-dpa/para@28772",
+            "charRange": [
+              28772,
+              29092
+            ],
+            "citationId": "E1",
+            "documentId": "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1",
+            "documentTitle": "Bitrix DPA",
+            "pointer": "Clause 12.3"
+          },
+          {
+            "spanId": "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1::section::27567-28170",
+            "quote": "11.4 The security of data and the data subject rights under GDPR for the data  processing activities in Russian Federation are protected by appropriate safeguards under  article 46 GDPR, specifically by the Standard Contractual Clauses adopted by the  European Commission in accordance with the examination procedure.",
+            "structuralPath": "document/application-of-this-dpa/para@27669",
+            "charRange": [
+              27669,
+              27986
+            ],
+            "citationId": "E2",
+            "documentId": "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1",
+            "documentTitle": "Bitrix DPA",
+            "pointer": "Clause 11.4"
+          }
+        ],
+        "whatTheDocumentProvides": "E1: Transfers outside the EEA/EU are conditioned on compliance with appropriate safeguards under Article 46 GDPR (such as Standard Contractual Clauses) or participation in frameworks like the EU-U.S. Data Privacy Framework.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "whyItMatters": "art44_general_transfer_principle: A controller or processor transfers personal data to a third country or international o....",
+        "conclusion": "A controller or processor transfers personal data to a third country or international o... is present — every mandatory element is supported by scope-compatible evidence.",
+        "ruleVersion": "0.1.0",
+        "documentHash": "d79eba0c8f74a0cf",
+        "rowId": "R-gdpr.art44",
+        "title": "Art 44 General Transfer Principle",
+        "legalCitation": ""
+      },
+      {
+        "event": "compliance.render.row",
+        "analysisId": "an_5345b4e5-1aa1-437e-85ec-ea85796c7cf1",
+        "timestamp": "2026-09-07T15:59:45.223Z",
+        "implementationPhase": "live",
+        "requirementId": "art45_1_adequacy",
+        "canonicalKey": "gdpr.art45.1",
+        "lockedAssessmentId": "L-gdpr.art45.1-cc7c663223",
+        "status": "present",
+        "statusLabel": "Present",
+        "recommendedAction": "None — obligation satisfied.",
+        "supportedElementIds": [
+          "E1"
+        ],
+        "missingElementIds": [],
+        "evidenceSpanIds": [
+          "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1::section::24570-26261"
+        ],
+        "evidence": [],
+        "whatTheDocumentProvides": "E1: Transfers from the EU, UK, and Switzerland to the USA rely on adequacy decisions (the EU-U.S. Data Privacy Framework, UK Extension, and Swiss-U.S. DPF) for which Alaio, Inc. is certified.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "whyItMatters": "art45_1_adequacy: A transfer to a third country or international organisation relies on an adequacy decis....",
+        "conclusion": "A transfer to a third country or international organisation relies on an adequacy decis... is present — every mandatory element is supported by scope-compatible evidence.",
+        "ruleVersion": "0.1.0",
+        "documentHash": "d79eba0c8f74a0cf",
+        "rowId": "R-gdpr.art45.1",
+        "title": "Art 45(1) Adequacy",
+        "legalCitation": ""
+      },
+      {
+        "event": "compliance.render.row",
+        "analysisId": "an_5345b4e5-1aa1-437e-85ec-ea85796c7cf1",
+        "timestamp": "2026-09-07T15:59:45.225Z",
+        "implementationPhase": "live",
+        "requirementId": "art46_appropriate_safeguards",
+        "canonicalKey": "gdpr.art46",
+        "lockedAssessmentId": "L-gdpr.art46-0ee8645eba",
+        "status": "present",
+        "statusLabel": "Present",
+        "recommendedAction": "None — obligation satisfied.",
+        "supportedElementIds": [
+          "E1"
+        ],
+        "missingElementIds": [],
+        "evidenceSpanIds": [
+          "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1::section::27567-28170",
+          "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1::section::28689-29672"
+        ],
+        "evidence": [
+          {
+            "spanId": "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1::section::27567-28170",
+            "quote": "11.4 The security of data and the data subject rights under GDPR for the data  processing activities in Russian Federation are protected by appropriate safeguards under  article 46 GDPR, specifically by the Standard Contractual Clauses adopted by the  European Commission in accordance with the examination procedure.",
+            "structuralPath": "document/application-of-this-dpa/para@27669",
+            "charRange": [
+              27669,
+              27986
+            ],
+            "citationId": "E2",
+            "documentId": "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1",
+            "documentTitle": "Bitrix DPA",
+            "pointer": "Clause 11.4"
+          },
+          {
+            "spanId": "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1::section::28689-29672",
+            "quote": "12.3 For data transfers outside the EEA listed in schedules 11.3.4 protected by appropriate  safeguards under article 46 GDPR, specifically by the standard data protection clauses  adopted by the Commission in accordance with the examination procedure",
+            "structuralPath": "document/application-of-this-dpa/para@28772",
+            "charRange": [
+              28772,
+              29023
+            ],
+            "citationId": "E3",
+            "documentId": "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1",
+            "documentTitle": "Bitrix DPA",
+            "pointer": "Clause 12.3"
+          }
+        ],
+        "whatTheDocumentProvides": "E1: Transfers of personal data outside the EEA or to the Russian Federation occur with appropriate safeguards under Article 46 GDPR, specifically utilizing standard data protection / contractual clauses adopted by the European Commission.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "whyItMatters": "art46_appropriate_safeguards: Absent an applicable adequacy decision, transfers occur only with appropriate safeguard....",
+        "conclusion": "Absent an applicable adequacy decision, transfers occur only with appropriate safeguard... is present — every mandatory element is supported by scope-compatible evidence.",
+        "ruleVersion": "0.1.0",
+        "documentHash": "d79eba0c8f74a0cf",
+        "rowId": "R-gdpr.art46",
+        "title": "Absent an applicable adequacy decision, transfers occur only with appropriate safeguard...",
+        "legalCitation": ""
+      },
+      {
+        "event": "compliance.render.row",
+        "analysisId": "an_5345b4e5-1aa1-437e-85ec-ea85796c7cf1",
+        "timestamp": "2026-09-07T15:59:45.227Z",
+        "implementationPhase": "live",
+        "requirementId": "art47_binding_corporate_rules",
+        "canonicalKey": "gdpr.art47",
+        "lockedAssessmentId": "L-gdpr.art47-009015c3d8",
+        "status": "gap",
+        "statusLabel": "Gap",
+        "recommendedAction": "E1: Add or clarify contract language establishing: Binding corporate rules used as an Article 46 safeguard are legally binding on and enforceable against every relevant group member and employee, confer enforceable data-subject rights, and contain the mandatory Article 47(2) programme elements including structure, transfer details, principles, security, onward transfers, subject rights, EU-entity liability, complaints, audits, and authority cooperation.",
+        "supportedElementIds": [],
+        "missingElementIds": [
+          "E1"
+        ],
+        "evidenceSpanIds": [],
+        "evidence": [],
+        "whatTheDocumentProvides": "No mandatory elements are supported by the current evidence bundle.",
+        "whatIsMissingOrUnclear": "E1: Proof guidance not met: Proven only where BCRs are claimed as the Art 46 safeguard AND text/materials show legally binding/enforceable group coverage, data-subject rights, and core Art 47(2) programme elements. Naming 'BCRs' without binding effect or programme content is insufficient. If BCRs are not the claimed mechanism, treat as not applicable. Supervisory-authority approval procedure under Art 47(3) is outside this particular.",
+        "whyItMatters": "art47_binding_corporate_rules: Binding corporate rules used as an Article 46 safeguard are legally binding on and enfo....",
+        "conclusion": "Binding corporate rules used as an Article 46 safeguard are legally binding on and enfo... is a gap — the required elements are not supported after completeness gates.",
+        "ruleVersion": "0.1.0",
+        "documentHash": "d79eba0c8f74a0cf",
+        "rowId": "R-gdpr.art47",
+        "title": "Art 47 Binding Corporate Rules",
+        "legalCitation": ""
+      },
+      {
+        "event": "compliance.render.row",
+        "analysisId": "an_5345b4e5-1aa1-437e-85ec-ea85796c7cf1",
+        "timestamp": "2026-09-07T15:59:45.228Z",
+        "implementationPhase": "live",
+        "requirementId": "art48_foreign_disclosure_orders",
+        "canonicalKey": "gdpr.art48",
+        "lockedAssessmentId": "L-gdpr.art48-1be219ca6e",
+        "status": "gap",
+        "statusLabel": "Gap",
+        "recommendedAction": "E1: Add or clarify contract language establishing: A non-EU court or administrative disclosure order is enforceable as a transfer basis only when grounded in an applicable international agreement, without prejudice to another valid Chapter V transfer ground.",
+        "supportedElementIds": [],
+        "missingElementIds": [
+          "E1"
+        ],
+        "evidenceSpanIds": [],
+        "evidence": [],
+        "whatTheDocumentProvides": "No mandatory elements are supported by the current evidence bundle.",
+        "whatIsMissingOrUnclear": "E1: Proof guidance not met: Proven only by text that refuses to treat a non-EU court/administrative disclosure order as a transfer basis unless an applicable international agreement grounds it — while preserving other valid Chapter V grounds. A clause requiring disclosure to any foreign authority on demand without Chapter V analysis contradicts Art 48. Silence where government-access/foreign-disclosure demands are addressed is a gap; where no such demands are contemplated, treat as not applicable.",
+        "whyItMatters": "art48_foreign_disclosure_orders: A non-EU court or administrative disclosure order is enforceable as a transfer basis on....",
+        "conclusion": "A non-EU court or administrative disclosure order is enforceable as a transfer basis on... is a gap — the required elements are not supported after completeness gates.",
+        "ruleVersion": "0.1.0",
+        "documentHash": "d79eba0c8f74a0cf",
+        "rowId": "R-gdpr.art48",
+        "title": "A non-EU court or administrative disclosure order is enforceable as a transfer basis on...",
+        "legalCitation": ""
+      },
+      {
+        "event": "compliance.render.row",
+        "analysisId": "an_5345b4e5-1aa1-437e-85ec-ea85796c7cf1",
+        "timestamp": "2026-09-07T15:59:45.230Z",
+        "implementationPhase": "live",
+        "requirementId": "art49_transfer_derogations",
+        "canonicalKey": "gdpr.art49",
+        "lockedAssessmentId": "L-gdpr.art49-a458d6b8c9",
+        "status": "gap",
+        "statusLabel": "Gap",
+        "recommendedAction": "E1: Add or clarify contract language establishing: An Article 49 derogation is used only when its exact conditions are met — including explicit informed consent, contract necessity, legal claims, vital interests, or limited public-register access — and the narrow compelling-legitimate-interest route requires a non-repetitive limited transfer, documented circumstances and risk assessment, suitable safeguards, and required data-subject notice.",
+        "supportedElementIds": [],
+        "missingElementIds": [
+          "E1"
+        ],
+        "evidenceSpanIds": [],
+        "evidence": [],
+        "whatTheDocumentProvides": "No mandatory elements are supported by the current evidence bundle.",
+        "whatIsMissingOrUnclear": "E1: Proof guidance not met: Proven only where an Art 49 derogation is claimed AND text matches the exact derogation conditions; the compelling-legitimate-interest route additionally needs non-repetitive limited scope, documented assessment, safeguards, and data-subject notice. A catch-all 'transfers as necessary' without a matching Art 49 limb is insufficient. If transfers rely on adequacy or Art 46 safeguards instead, treat as not applicable. Public-authority notice requirements are outside this particular.",
+        "whyItMatters": "art49_transfer_derogations: An Article 49 derogation is used only when its exact conditions are met — including exp....",
+        "conclusion": "An Article 49 derogation is used only when its exact conditions are met — including exp... is a gap — the required elements are not supported after completeness gates.",
+        "ruleVersion": "0.1.0",
+        "documentHash": "d79eba0c8f74a0cf",
+        "rowId": "R-gdpr.art49",
+        "title": "Art 49 Transfer Derogations",
+        "legalCitation": ""
+      },
+      {
+        "event": "compliance.render.row",
+        "analysisId": "an_5345b4e5-1aa1-437e-85ec-ea85796c7cf1",
+        "timestamp": "2026-09-07T15:59:45.231Z",
+        "implementationPhase": "live",
+        "requirementId": "transfer_mechanism_identification",
+        "canonicalKey": "transfers.mechanism_identification",
+        "lockedAssessmentId": "L-transfers.mechanism_identification-70f6470c3f",
+        "status": "partial",
+        "statusLabel": "Partial",
+        "recommendedAction": "TM2: Complete the SCC module selection, annexes, and docking mechanics for the claimed transfer relationship.",
+        "supportedElementIds": [
+          "TM1"
+        ],
+        "missingElementIds": [
+          "TM2"
+        ],
+        "evidenceSpanIds": [
+          "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1::section::27567-28170",
+          "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1::section::24570-26261"
+        ],
+        "evidence": [
+          {
+            "spanId": "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1::section::27567-28170",
+            "quote": "11.4 The security of data and the data subject rights under GDPR for the data  processing activities in Russian Federation are protected by appropriate safeguards under  article 46 GDPR, specifically by the Standard Contractual Clauses adopted by the  European Commission in accordance with the examination procedure.",
+            "structuralPath": "document/application-of-this-dpa/para@27669",
+            "charRange": [
+              27669,
+              27986
+            ],
+            "citationId": "E2",
+            "documentId": "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1",
+            "documentTitle": "Bitrix DPA",
+            "pointer": "Clause 11.4"
+          }
+        ],
+        "whatTheDocumentProvides": "TM1: The agreement identifies standard contractual clauses (SCCs) under Article 46 GDPR and the EU-U.S. Data Privacy Framework as lawful transfer mechanisms relied upon.",
+        "whatIsMissingOrUnclear": "TM2: While SCCs are cited, the specific module (e.g., C2P Module 2) and completed annexes/docking provisions required under Commission Implementing Decision (EU) 2021/914 are missing or incomplete.",
+        "whyItMatters": "GDPR Chapter V (Arts 44–49); Commission Implementing Decision (EU) 2021/914: Lawful transfer mechanism identified.",
+        "conclusion": "Lawful transfer mechanism identified is partial — 1 of 2 mandatory elements supported; 1 outstanding.",
+        "ruleVersion": "0.1.0",
+        "documentHash": "d79eba0c8f74a0cf",
+        "rowId": "R-transfers.mechanism_identification",
+        "title": "Lawful transfer mechanism identified",
+        "legalCitation": "GDPR Chapter V (Arts 44–49); Commission Implementing Decision (EU) 2021/914"
+      },
+      {
+        "event": "compliance.render.row",
+        "analysisId": "an_5345b4e5-1aa1-437e-85ec-ea85796c7cf1",
+        "timestamp": "2026-09-07T15:59:45.233Z",
+        "implementationPhase": "live",
+        "requirementId": "schrems_supplementary_measures",
+        "canonicalKey": "transfers.schrems_supplementary_measures",
+        "lockedAssessmentId": "L-transfers.schrems_supplementary_measures-682c2db8ae",
+        "status": "gap",
+        "statusLabel": "Gap",
+        "recommendedAction": "SM1: Document a transfer impact assessment of destination-country law and practice before relying on the transfer tool. SM2: Address supplementary measures where the TIA shows destination law prevents SCC compliance.",
+        "supportedElementIds": [],
+        "missingElementIds": [
+          "SM1",
+          "SM2"
+        ],
+        "evidenceSpanIds": [],
+        "evidence": [],
+        "whatTheDocumentProvides": "No mandatory elements are supported by the current evidence bundle.",
+        "whatIsMissingOrUnclear": "SM1: Proof guidance not met: TIA / transfer impact assessment language — documenting assessment of destination law, government access, and whether the tool can be complied with in practice. SM2: Proof guidance not met: Supplementary measures commitment — encryption, access controls, contractual safeguards, or organisational measures adopted where the TIA shows risk. SCCs alone are not self-sufficient where local law undermines them.",
+        "whyItMatters": "EDPB Recommendations 01/2020 and 02/2020 (Schrems II follow-up): Transfer impact assessment and supplementary measures.",
+        "conclusion": "Transfer impact assessment and supplementary measures is a gap — the required elements are not supported after completeness gates.",
+        "ruleVersion": "0.1.0",
+        "documentHash": "d79eba0c8f74a0cf",
+        "rowId": "R-transfers.schrems_supplementary_measures",
+        "title": "Transfer impact assessment and supplementary measures",
+        "legalCitation": "EDPB Recommendations 01/2020 and 02/2020 (Schrems II follow-up)"
+      },
+      {
+        "event": "compliance.render.row",
+        "analysisId": "an_5345b4e5-1aa1-437e-85ec-ea85796c7cf1",
+        "timestamp": "2026-09-07T15:59:45.234Z",
+        "implementationPhase": "live",
+        "requirementId": "international_data_transfer",
+        "canonicalKey": "international_data_transfer",
+        "lockedAssessmentId": "L-international_data_transfer-b2c0f79983",
+        "status": "present",
+        "statusLabel": "Present",
+        "recommendedAction": "None — obligation satisfied.",
+        "supportedElementIds": [
+          "E1"
+        ],
+        "missingElementIds": [],
+        "evidenceSpanIds": [
+          "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1::section::23370-23938",
+          "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1::section::24376-24568"
+        ],
+        "evidence": [
+          {
+            "spanId": "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1::section::23370-23938",
+            "quote": "All Data obtained via Bitrix24.eu, Bitrix24.de, Bitrix.it, Bitrix24.pl, Bitrix24.uk and Bitrix24.fr  domain zones is processed by Alaio Cloud Limited registered on Republic of Cyprus inside  the European Union Economic Area and hosted inside the European Union in Frankfurt,  Germany by Amazon Web Services data centers, which are fully GDPR compliant -",
+            "structuralPath": "document/application-of-this-dpa/para@23639",
+            "charRange": [
+              23639,
+              23992
+            ],
+            "citationId": "E4",
+            "documentId": "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1",
+            "documentTitle": "Bitrix DPA",
+            "pointer": "Heading “APPLICATION OF THIS DPA”"
+          },
+          {
+            "spanId": "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1::section::24376-24568",
+            "quote": "11.3.1 Alaio may process User Personal Data in Russian Federation subject to appropriate  safeguards under article 46 GDPR (see schedule 11.4) and in the USA (see  schedules 11.3.2 and 11.3.3)",
+            "structuralPath": "document/application-of-this-dpa/para@24486",
+            "charRange": [
+              24486,
+              24678
+            ],
+            "citationId": "E5",
+            "documentId": "doc_daa81281-0045-45a4-93a5-2f1f6f8101a1",
+            "documentTitle": "Bitrix DPA",
+            "pointer": "Clause 11.3.1"
+          }
+        ],
+        "whatTheDocumentProvides": "E1: The agreement explicitly identifies international transfer destinations and jurisdictions, including Germany (Frankfurt), Russian Federation, and the USA.",
+        "whatIsMissingOrUnclear": "No unresolved elements.",
+        "whyItMatters": "international_data_transfer: The agreement identifies international transfer destinations, destination jurisdictions....",
+        "conclusion": "The agreement identifies international transfer destinations, destination jurisdictions... is present — every mandatory element is supported by scope-compatible evidence.",
+        "ruleVersion": "0.1.0",
+        "documentHash": "d79eba0c8f74a0cf",
+        "rowId": "R-international_data_transfer",
+        "title": "The agreement identifies international transfer destinations, destination jurisdictions...",
+        "legalCitation": ""
+      }
+    ],
+    "outstandingChecks": [],
+    "limitations": [
+      {
+        "id": "L1",
+        "requirementIds": [
+          "art44_general_transfer_principle"
+        ],
+        "message": "Evidence excluded for Art 44 General Transfer Principle: the quote could not be verified at a unique source location. The original assessment status is retained."
+      },
+      {
+        "id": "L2",
+        "requirementIds": [
+          "art45_1_adequacy"
+        ],
+        "message": "Evidence excluded for Art 45(1) Adequacy: the quote could not be verified at a unique source location. The original assessment status is retained."
+      },
+      {
+        "id": "L3",
+        "requirementIds": [
+          "transfer_mechanism_identification"
+        ],
+        "message": "Evidence excluded for Lawful transfer mechanism identified: the quote could not be verified at a unique source location. The original assessment status is retained."
+      },
+      {
+        "id": "L4",
+        "requirementIds": [
+          "art44_general_transfer_principle",
+          "art45_1_adequacy",
+          "art46_appropriate_safeguards",
+          "art47_binding_corporate_rules",
+          "art48_foreign_disclosure_orders",
+          "art49_transfer_derogations",
+          "transfer_mechanism_identification",
+          "schrems_supplementary_measures",
+          "international_data_transfer"
+        ],
+        "message": "Unresolved dependency: Section 7. The referenced material could not be resolved in the saved run."
+      },
+      {
+        "id": "L5",
+        "requirementIds": [
+          "art44_general_transfer_principle",
+          "art45_1_adequacy",
+          "art46_appropriate_safeguards",
+          "art47_binding_corporate_rules",
+          "art48_foreign_disclosure_orders",
+          "art49_transfer_derogations",
+          "transfer_mechanism_identification",
+          "schrems_supplementary_measures",
+          "international_data_transfer"
+        ],
+        "message": "Unresolved dependency: Appendix 2. The referenced material could not be resolved in the saved run."
+      },
+      {
+        "id": "L6",
+        "requirementIds": [
+          "art44_general_transfer_principle",
+          "art45_1_adequacy",
+          "art46_appropriate_safeguards",
+          "art47_binding_corporate_rules",
+          "art48_foreign_disclosure_orders",
+          "art49_transfer_derogations",
+          "transfer_mechanism_identification",
+          "schrems_supplementary_measures",
+          "international_data_transfer"
+        ],
+        "message": "Unresolved dependency: Section 8. The referenced material could not be resolved in the saved run."
+      },
+      {
+        "id": "L7",
+        "requirementIds": [
+          "art44_general_transfer_principle",
+          "art45_1_adequacy",
+          "art46_appropriate_safeguards",
+          "art47_binding_corporate_rules",
+          "art48_foreign_disclosure_orders",
+          "art49_transfer_derogations",
+          "transfer_mechanism_identification",
+          "schrems_supplementary_measures",
+          "international_data_transfer"
+        ],
+        "message": "Unresolved dependency: Article 28. The referenced material could not be resolved in the saved run."
+      },
+      {
+        "id": "L8",
+        "requirementIds": [
+          "art44_general_transfer_principle",
+          "art45_1_adequacy",
+          "art46_appropriate_safeguards",
+          "art47_binding_corporate_rules",
+          "art48_foreign_disclosure_orders",
+          "art49_transfer_derogations",
+          "transfer_mechanism_identification",
+          "schrems_supplementary_measures",
+          "international_data_transfer"
+        ],
+        "message": "Unresolved dependency: article 46. The referenced material could not be resolved in the saved run."
+      },
+      {
+        "id": "L9",
+        "requirementIds": [
+          "art44_general_transfer_principle",
+          "art45_1_adequacy",
+          "art46_appropriate_safeguards",
+          "art47_binding_corporate_rules",
+          "art48_foreign_disclosure_orders",
+          "art49_transfer_derogations",
+          "transfer_mechanism_identification",
+          "schrems_supplementary_measures",
+          "international_data_transfer"
+        ],
+        "message": "Unresolved dependency: article  46. The referenced material could not be resolved in the saved run."
+      },
+      {
+        "id": "L10",
+        "requirementIds": [
+          "art44_general_transfer_principle",
+          "art45_1_adequacy",
+          "art46_appropriate_safeguards",
+          "art47_binding_corporate_rules",
+          "art48_foreign_disclosure_orders",
+          "art49_transfer_derogations",
+          "transfer_mechanism_identification",
+          "schrems_supplementary_measures",
+          "international_data_transfer"
+        ],
+        "message": "Unresolved dependency: article  56. The referenced material could not be resolved in the saved run."
+      },
+      {
+        "id": "L11",
+        "requirementIds": [
+          "art44_general_transfer_principle",
+          "art45_1_adequacy",
+          "art46_appropriate_safeguards",
+          "art47_binding_corporate_rules",
+          "art48_foreign_disclosure_orders",
+          "art49_transfer_derogations",
+          "transfer_mechanism_identification",
+          "schrems_supplementary_measures",
+          "international_data_transfer"
+        ],
+        "message": "Unresolved dependency: Article 60. The referenced material could not be resolved in the saved run."
+      },
+      {
+        "id": "L12",
+        "requirementIds": [
+          "art44_general_transfer_principle",
+          "art45_1_adequacy",
+          "art46_appropriate_safeguards",
+          "art47_binding_corporate_rules",
+          "art48_foreign_disclosure_orders",
+          "art49_transfer_derogations",
+          "transfer_mechanism_identification",
+          "schrems_supplementary_measures",
+          "international_data_transfer"
+        ],
+        "message": "Unresolved dependency: Appendix \n2. The referenced material could not be resolved in the saved run."
+      },
+      {
+        "id": "L13",
+        "requirementIds": [
+          "art44_general_transfer_principle",
+          "art45_1_adequacy",
+          "art46_appropriate_safeguards",
+          "art47_binding_corporate_rules",
+          "art48_foreign_disclosure_orders",
+          "art49_transfer_derogations",
+          "transfer_mechanism_identification",
+          "schrems_supplementary_measures",
+          "international_data_transfer"
+        ],
+        "message": "Unresolved dependency: schedule 11. The referenced material could not be resolved in the saved run."
+      }
+    ]
+  },
+  "plan": {
+    "version": 1,
+    "mode": "layered",
+    "rationale": "The report structure preserves the default layered plan, retaining all required sections and exact finding ID allocations across overview, details, answer, limitations, and sources. Neutral headings are maintained without legal or severity rankings.",
+    "sections": [
+      {
+        "kind": "answer",
+        "heading": "Answer",
+        "findingIds": [],
+        "columns": [],
+        "detailWords": 80
+      },
+      {
+        "kind": "overview",
+        "heading": "Compliance overview",
+        "findingIds": [
+          "L-gdpr.art44-d5c685f6f0",
+          "L-gdpr.art45.1-cc7c663223",
+          "L-gdpr.art46-0ee8645eba",
+          "L-gdpr.art47-009015c3d8",
+          "L-gdpr.art48-1be219ca6e",
+          "L-gdpr.art49-a458d6b8c9",
+          "L-transfers.mechanism_identification-70f6470c3f",
+          "L-transfers.schrems_supplementary_measures-682c2db8ae",
+          "L-international_data_transfer-b2c0f79983"
+        ],
+        "columns": [
+          "Requirement",
+          "Status",
+          "Contract provision",
+          "Assessment"
+        ],
+        "detailWords": 80
+      },
+      {
+        "kind": "details",
+        "heading": "Findings requiring attention",
+        "findingIds": [
+          "L-gdpr.art47-009015c3d8",
+          "L-gdpr.art48-1be219ca6e",
+          "L-gdpr.art49-a458d6b8c9",
+          "L-transfers.mechanism_identification-70f6470c3f",
+          "L-transfers.schrems_supplementary_measures-682c2db8ae"
+        ],
+        "columns": [],
+        "detailWords": 80
+      },
+      {
+        "kind": "limitations",
+        "heading": "Limitations and outstanding checks",
+        "findingIds": [],
+        "columns": [],
+        "detailWords": 80
+      },
+      {
+        "kind": "sources",
+        "heading": "Sources",
+        "findingIds": [
+          "L-gdpr.art44-d5c685f6f0",
+          "L-gdpr.art46-0ee8645eba",
+          "L-transfers.mechanism_identification-70f6470c3f",
+          "L-international_data_transfer-b2c0f79983"
+        ],
+        "columns": [],
+        "detailWords": 80
+      }
+    ]
+  },
+  "validation": {
+    "passed": true,
+    "source": "validated_writer",
+    "failures": [],
+    "plannerFallback": false,
+    "repairAttempts": 0,
+    "outputHash": "bb9244023123e2589b9813cfcbce3bb1bd855a8656e86c8aa3f781acbd989b46"
+  },
+  "attempts": [
+    {
+      "stage": "outline",
+      "result": {
+        "version": 1,
+        "mode": "layered",
+        "rationale": "The report structure preserves the default layered plan, retaining all required sections and exact finding ID allocations across overview, details, answer, limitations, and sources. Neutral headings are maintained without legal or severity rankings.",
+        "sections": [
+          {
+            "kind": "answer",
+            "heading": "Answer",
+            "findingIds": [],
+            "columns": [],
+            "detailWords": 80
+          },
+          {
+            "kind": "overview",
+            "heading": "Compliance overview",
+            "findingIds": [
+              "L-gdpr.art44-d5c685f6f0",
+              "L-gdpr.art45.1-cc7c663223",
+              "L-gdpr.art46-0ee8645eba",
+              "L-gdpr.art47-009015c3d8",
+              "L-gdpr.art48-1be219ca6e",
+              "L-gdpr.art49-a458d6b8c9",
+              "L-transfers.mechanism_identification-70f6470c3f",
+              "L-transfers.schrems_supplementary_measures-682c2db8ae",
+              "L-international_data_transfer-b2c0f79983"
+            ],
+            "columns": [
+              "Requirement",
+              "Status",
+              "Contract provision",
+              "Assessment"
+            ],
+            "detailWords": 80
+          },
+          {
+            "kind": "details",
+            "heading": "Findings requiring attention",
+            "findingIds": [
+              "L-gdpr.art47-009015c3d8",
+              "L-gdpr.art48-1be219ca6e",
+              "L-gdpr.art49-a458d6b8c9",
+              "L-transfers.mechanism_identification-70f6470c3f",
+              "L-transfers.schrems_supplementary_measures-682c2db8ae"
+            ],
+            "columns": [],
+            "detailWords": 80
+          },
+          {
+            "kind": "limitations",
+            "heading": "Limitations and outstanding checks",
+            "findingIds": [],
+            "columns": [],
+            "detailWords": 80
+          },
+          {
+            "kind": "sources",
+            "heading": "Sources",
+            "findingIds": [
+              "L-gdpr.art44-d5c685f6f0",
+              "L-gdpr.art46-0ee8645eba",
+              "L-transfers.mechanism_identification-70f6470c3f",
+              "L-international_data_transfer-b2c0f79983"
+            ],
+            "columns": [],
+            "detailWords": 80
+          }
+        ]
+      }
+    },
+    {
+      "stage": "write",
+      "result": {
+        "answer": "The reviewed documentation addresses basic international transfer mechanisms, explicit transfer destinations, and reliance on adequacy decisions and standard contractual clauses. However, gaps remain regarding transfer impact assessments, supplementary technical or contractual measures, specific standard contractual clause module details, and conditions for binding corporate rules, foreign disclosure orders, or derogations.",
+        "rows": [
+          {
+            "findingId": "L-gdpr.art44-d5c685f6f0",
+            "assessment": "obligation satisfied",
+            "explanation": "Transfers outside the EEA or EU are conditioned on compliance with appropriate safeguards under standard contractual clauses or frameworks like the EU-U.S. Data Privacy Framework, leaving no unresolved elements."
+          },
+          {
+            "findingId": "L-gdpr.art45.1-cc7c663223",
+            "assessment": "obligation satisfied",
+            "explanation": "Transfers from the EU, UK, and Switzerland to the USA rely on adequacy decisions for which certification is established, leaving no unresolved elements."
+          },
+          {
+            "findingId": "L-gdpr.art46-0ee8645eba",
+            "assessment": "obligation satisfied",
+            "explanation": "Transfers of personal data outside the EEA or to the Russian Federation occur with appropriate safeguards using standard data protection clauses adopted by the European Commission, with no unresolved elements."
+          },
+          {
+            "findingId": "L-gdpr.art47-009015c3d8",
+            "assessment": "gap",
+            "explanation": "No mandatory elements are established because proof guidance for binding corporate rules as enforceable safeguards with required program elements is not met."
+          },
+          {
+            "findingId": "L-gdpr.art48-1be219ca6e",
+            "assessment": "gap",
+            "explanation": "No mandatory elements are established because proof guidance requiring non-EU disclosure orders to be grounded in international agreements is not met."
+          },
+          {
+            "findingId": "L-gdpr.art49-a458d6b8c9",
+            "assessment": "gap",
+            "explanation": "No mandatory elements are established because proof guidance matching specific derogation conditions or compelling legitimate interest requirements is not met."
+          },
+          {
+            "findingId": "L-transfers.mechanism_identification-70f6470c3f",
+            "assessment": "partial",
+            "explanation": "The agreement identifies standard contractual clauses and the EU-U.S. Data Privacy Framework, but specific modules, completed annexes, and docking provisions remain missing or incomplete."
+          },
+          {
+            "findingId": "L-transfers.schrems_supplementary_measures-682c2db8ae",
+            "assessment": "gap",
+            "explanation": "No mandatory elements are established because proof guidance for transfer impact assessments and supplementary security or organizational commitments is not met."
+          },
+          {
+            "findingId": "L-international_data_transfer-b2c0f79983",
+            "assessment": "obligation satisfied",
+            "explanation": "The agreement explicitly identifies international transfer destinations and jurisdictions including Germany, the Russian Federation, and the USA, leaving no unresolved elements."
+          }
+        ]
+      }
+    },
+    {
+      "stage": "check",
+      "result": {
+        "passed": true,
+        "failures": []
+      }
+    }
+  ]
+}

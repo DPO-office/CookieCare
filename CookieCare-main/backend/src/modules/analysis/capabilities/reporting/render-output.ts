@@ -56,6 +56,8 @@ import {
 } from "../../shared/requirement-identity.js";
 import { isConfirmedRiskFinding } from "../../shared/finding-semantics.js";
 import { capabilityContractFor } from "../contracts/analysis-capability-contract.js";
+import { renderComplianceReport } from "./compliance-reporting.js";
+import { usesCanonicalComplianceReport } from "./compliance-release.js";
 
 /** Find the first authored rule whose rendererHooks[hook] is truthy. */
 export function findRuleByRendererHook(
@@ -103,8 +105,15 @@ export async function renderOutput(
   findings: Finding[],
   unit: AnalysisWorkUnit
 ): Promise<AnalysisState> {
-  // Locked Phase 4–7 matrix replaces live VERIFY rows for compliance_check.
-  state = applyLockedComplianceToState(state);
+  // Branch recursion removes plan.branches; retain the mixed workflow's legacy
+  // rendering boundary so session-wide locks cannot replace facet-local results.
+  const legacyBranchRendering = unit.input.__legacyBranchRendering === true ||
+    Boolean(state.plan?.branches?.some(branch => branch.intent.operation !== "compliance_check"));
+  if (legacyBranchRendering) {
+    state = { ...state, metadata: { ...state.metadata, complianceLiveLockRender: false } };
+  }
+  // Locked Phase 4-7 matrix replaces live VERIFY rows for compliance_check.
+  if (!legacyBranchRendering && !usesCanonicalComplianceReport(state)) state = applyLockedComplianceToState(state);
 
   const facetId = unit.facetId ??
     (typeof unit.input.facetId === "string" ? unit.input.facetId : undefined);
@@ -159,7 +168,7 @@ export async function renderOutput(
     };
     const renderedBranch = await renderOutput(branchState, branchFindings, {
       ...unit,
-      input: { ...unit.input, __branchScoped: true },
+      input: { ...unit.input, __branchScoped: true, __legacyBranchRendering: legacyBranchRendering },
     });
     const output = renderedBranch.renderedOutput?.trim();
     const marker = renderedBranch.findings.find(
@@ -197,6 +206,15 @@ export async function renderOutput(
       },
     };
   }
+  if (usesCanonicalComplianceReport(state) && !branchScoped) {
+    const next = await renderComplianceReport(state);
+    return { ...next, findings: replaceRenderMarker(findings, {
+      findingId: `f_render_${unit.workUnitId}`, facetId, kind: "summary_point",
+      category: "other_known_risk", status: "present", evidence: [],
+      claim: "Rendered the canonical compliance report.",
+      taxonomyVersion: RISK_TAXONOMY_VERSION, workUnitId: unit.workUnitId, visibility: "internal",
+    }) };
+  }
   beginRenderStreaming(state);
   const schemaId = String(unit.input.schemaId ?? "checklist");
   const capabilityContract = capabilityContractFor(state.intent?.operation);
@@ -228,7 +246,7 @@ export async function renderOutput(
   };
   state = groundFindings(state);
   // Re-assert locked-only assessments after grounding.
-  state = applyLockedComplianceToState(state);
+  if (!legacyBranchRendering) state = applyLockedComplianceToState(state);
   visible = (state.findings ?? []).filter((f) => f.visibility !== "internal");
   state = attachRightsMatrixTableArtifact(state, visible);
 
@@ -283,7 +301,7 @@ export async function renderOutput(
       state.plan?.reportSpec?.reportType === "qa_answer" ||
       !capabilityContract.allowBluf;
     if (blufReportEnabled() && !usesDynamicOutlineLane) {
-      rendered = await buildBlufReport(state, visible, spec);
+      rendered = await buildBlufReport(state, visible, spec, !legacyBranchRendering);
       usedBluf = true;
     } else {
       rendered = await synthesizeReport(state, visible, spec, { retrySectionIds });
@@ -296,7 +314,7 @@ export async function renderOutput(
       complianceLiveLock: Boolean(state.metadata?.complianceLiveLockRender),
     });
     if (!usedBluf) {
-      const lockedDetail = lockedComplianceDetailMarkdown(state);
+      const lockedDetail = legacyBranchRendering ? "" : lockedComplianceDetailMarkdown(state);
       if (lockedDetail) {
         emitAnalysisToken(state, `\n${lockedDetail}\n`);
         rendered = `${rendered}\n\n${lockedDetail}`;
@@ -2268,7 +2286,8 @@ function dedupeDependencies(
 async function buildBlufReport(
   state: AnalysisState,
   findings: Finding[],
-  _spec: ReportSpec
+  _spec: ReportSpec,
+  includeLockedDetail = true
 ): Promise<string> {
   beginRenderStreaming(state);
   const allAssessments = [...(state.requirementAssessments ?? [])].sort(
@@ -2305,7 +2324,7 @@ async function buildBlufReport(
   }
 
   // 2a. Element-level locked matrix (Phase 4–7) when live overlay is on.
-  const lockedDetail = lockedComplianceDetailMarkdown(state);
+  const lockedDetail = includeLockedDetail ? lockedComplianceDetailMarkdown(state) : "";
   if (lockedDetail) {
     emitAnalysisToken(state, `${lockedDetail}\n`);
     parts.push(lockedDetail, "");

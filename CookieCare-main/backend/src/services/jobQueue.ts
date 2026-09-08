@@ -304,9 +304,18 @@ async function executeFileProcessing(jobId: string, userId: string, payload: any
   await updateJobProgress(jobId, userId, 15, "Extracting text from document...");
 
   const buffer = Buffer.from(fileBufferBase64, "base64");
-  let content = await extractText(buffer, mimeType);
-
-  content = content.replace(/\0/g, "");
+  const extracted = await extractText(buffer, mimeType);
+  // PDF extractText returns { text, pageBreaks }; DOCX still returns a string.
+  const extractedText =
+    typeof extracted === "string"
+      ? extracted
+      : typeof extracted?.text === "string"
+        ? extracted.text
+        : "";
+  if (!extractedText.trim()) {
+    throw new Error("Could not extract readable text from the uploaded file.");
+  }
+  let content = extractedText.replace(/\0/g, "");
   const encryptedContent = encryptData(content);
 
   await updateJobProgress(jobId, userId, 50, isEphemeral ? "Saving document text..." : "Updating database and indexing for search...");

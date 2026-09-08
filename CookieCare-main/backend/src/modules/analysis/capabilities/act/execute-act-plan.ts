@@ -10,6 +10,7 @@ import { checkExpectedClauses } from "./check-expected-clauses.js";
 import { flagRisk } from "./flag-risk.js";
 import { checkAgainstRule } from "./check-against-rule.js";
 import { renderOutput } from "./render-output.js";
+import { usesCanonicalComplianceReport } from "../reporting/compliance-release.js";
 import { evaluateMatrixRow } from "./evaluate-matrix-row.js";
 import { webAssistedReference } from "./web-assisted-reference.js";
 import { extractPlaybookPositions } from "./extract-playbook-positions.js";
@@ -55,7 +56,6 @@ import {
   recordStageDuration,
   recordStructuralNodes,
   getComplianceRenderedReport,
-  complianceSkipLiveVerifyEnabled,
 } from "./compliance-observability.js";
 
 const SILENT_SUCCESS_NOTES: Partial<Record<AnalysisToolName, string>> = {
@@ -71,9 +71,9 @@ const SILENT_SUCCESS_NOTES: Partial<Record<AnalysisToolName, string>> = {
 
 /**
  * Legacy live VERIFY spine — skipped once Phase 4-7 locked rows exist (see
- * `skipLiveVerify` below, gated on `complianceSkipLiveVerifyEnabled()` AND
- * `state.intent?.operation === "compliance_check"` AND at least one accepted
- * lock). Each tool here is confirmed unused by the new pipeline for that
+ * `skipLiveVerify` below, gated on `state.intent?.operation === "compliance_check"`).
+ * An empty locked set is an incomplete report, never a legacy fallback. Each tool
+ * here is unused by the canonical pipeline for that
  * exact case:
  *   - evaluate_package / extract_shared_evidence / inventory_provisions /
  *     evaluate_matrix_row / check_expected_clauses / check_against_rule /
@@ -84,12 +84,11 @@ const SILENT_SUCCESS_NOTES: Partial<Record<AnalysisToolName, string>> = {
  *     top of `renderOutput` whenever locked rows exist (the exact condition
  *     that gates this skip) — running it first is pure waste.
  *
- * `extract_clauses` / `classify_document` are deliberately NOT here: other
- * report schemas reachable from `compliance_check` (e.g. `rights_matrix_memo`
- * via `renderRightsMatrixMemo` → `numericSlaContrastParagraph`) still read
- * `doc.clauses`, and `classify_document` seeds doc metadata used everywhere.
+ * Canonical reporting reads source-checked evidence, not doc.clauses.
+ * `classify_document` remains available for document metadata.
  */
 const LIVE_COMPLIANCE_VERIFY_TOOLS = new Set<AnalysisToolName>([
+  "extract_clauses",
   "evaluate_package",
   "extract_shared_evidence",
   "inventory_provisions",
@@ -171,8 +170,23 @@ function emitActProgress(
  * ACT orchestrator — executes skill-scoped work-unit graph in dependency batches.
  */
 export async function executeActPlan(state: AnalysisState): Promise<AnalysisState> {
-  const plan = state.plan;
+  let plan = state.plan;
   if (!plan) return state;
+
+  // Several compliance questions still produce one canonical report. Preserve
+  // each branch's evaluation units/bindings, but avoid rendering the same locked
+  // results once per branch and then merging duplicate reports.
+  if (plan.branches?.length && plan.branches.every(b => b.intent.operation === "compliance_check")) {
+    const rendering = plan.workUnits.find(u => u.tool === "render_output");
+    if (rendering) {
+      const evaluation = plan.workUnits.filter(u => u.tool !== "render_output" && u.tool !== "merge_branch_outputs");
+      plan = { ...plan, branches: undefined, branchMode: undefined,
+        requirementBindings: plan.branches.flatMap(b => b.requirementBindings ?? []),
+        workUnits: [...evaluation, { ...rendering, facetId: undefined,
+          input: { ...rendering.input, facetId: undefined }, dependsOn: evaluation.map(u => u.workUnitId) }] };
+      state = { ...state, plan };
+    }
+  }
 
   const targeted = state.fixPlan?.targetedOnly === true;
   let units = plan.workUnits.map((u) => ({ ...u }));
@@ -212,6 +226,19 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
   const runnable = targeted
     ? units.filter((u) => u.status === "flagged" || u.status === "pending")
     : units.filter((u) => u.status !== "done" && u.status !== "failed");
+
+  // Reformatting an existing compliance result must not enter Phase 3-7,
+  // rebuild the tracker, re-extract clauses, or call verification again.
+  if (usesCanonicalComplianceReport(state) && runnable.length === 1 &&
+      runnable[0].tool === "render_output" &&
+      (runnable[0].input.followUpKind === "presentation_change" ||
+       runnable[0].input.followUpKind === "conversational_qa" || targeted)) {
+    const unit = runnable[0];
+    const next = await renderOutput(state, state.findings, unit);
+    return { ...next, plan: { ...plan, workUnits: units.map(u => u.workUnitId === unit.workUnitId
+      ? { ...u, status: "done" as const, completionNote: "Rendered the saved compliance results." } : u) },
+      fixPlan: null, repairContext: null };
+  }
 
   state = ensureSegmented(state);
   const lastProgress = { message: "" };
@@ -270,7 +297,7 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
 
   // PHASE 0 observability — start the compliance-run tracker and capture the
   // plan + source markers before any work-unit runs. Behaviour is unchanged.
-  beginComplianceRun(state);
+  beginComplianceRun(state, usesCanonicalComplianceReport(state));
   recordSourceMarkers(state);
   // PHASE 1A ingest telemetry — one `compliance.ingest.table` per detected
   // DOCX table, one `compliance.ingest.table_row` per row, and one
@@ -377,13 +404,13 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
 
   const lockedRowsReady =
     (getComplianceRenderedReport(state)?.rows.length ?? 0) > 0;
-  const skipLiveVerify =
-    complianceSkipLiveVerifyEnabled() &&
-    state.intent?.operation === "compliance_check" &&
-    lockedRowsReady;
+  const skipLiveVerify = usesCanonicalComplianceReport(state);
   if (skipLiveVerify) {
+    units = units.map(u => LIVE_COMPLIANCE_VERIFY_TOOLS.has(u.tool)
+      ? { ...u, status: "skipped" as const, completionNote: "Superseded by canonical compliance verification." }
+      : u);
     pacLog("ACT skip live VERIFY", {
-      reason: "locked_phase4_7_ready",
+      reason: lockedRowsReady ? "locked_phase4_7_ready" : "canonical_compliance_incomplete",
       lockedRows: getComplianceRenderedReport(state)?.rows.length ?? 0,
       skippedTools: [...LIVE_COMPLIANCE_VERIFY_TOOLS],
     });

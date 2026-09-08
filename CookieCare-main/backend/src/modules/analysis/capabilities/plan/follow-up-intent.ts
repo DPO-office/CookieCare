@@ -17,6 +17,7 @@ export function followUpKindForState(state: AnalysisState): FollowUpKind {
     instruction: state.request.instruction,
     hasPriorConversation: Boolean(state.conversation?.turns.length),
     hasPriorFindings: Boolean(
+      Boolean(state.priorAnalysis?.complianceReportSnapshot) ||
       (state.priorAnalysis?.findings.length ?? 0) > 0 ||
         (state.priorAnalysis?.requirementAssessments?.length ?? 0) > 0
     ),
