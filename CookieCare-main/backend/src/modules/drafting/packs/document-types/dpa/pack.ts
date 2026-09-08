@@ -103,7 +103,14 @@ const skeleton: WorkUnit[] = [
 
 export const dpaPack: DocumentTypePack = {
   id: "dpa",
-  aliases: ["dpa", "data processing agreement", "data processing addendum", "gdpr dpa"],
+  aliases: [
+    "dpa",
+    "data processing agreement",
+    "data processing addendum",
+    "gdpr dpa",
+    "dpdpa",
+    "data fiduciary",
+  ],
   skeleton,
   skillPaths: ["document-types/dpa"],
   skillConfig: dpaSkillConfig,

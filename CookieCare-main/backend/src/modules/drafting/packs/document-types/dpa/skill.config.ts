@@ -9,6 +9,16 @@ export const dpaSkillConfig: DraftingSkillConfig = {
   appliesToDocTypes: ["dpa"],
   requiredFacts: [
     {
+      id: "privacyRegime",
+      priority: "critical",
+      blocking: true,
+      question: "Which data protection law should this agreement follow?",
+      reasonRequired:
+        "The clauses to draft depend on the privacy regime. A bare DPA request does not choose GDPR, CCPA, or DPDPA.",
+      options: ["GDPR", "UK GDPR", "CCPA / CPRA", "DPDPA", "Other (specify)"],
+      aliases: ["regime", "privacyLaw", "dataProtectionLaw"],
+    },
+    {
       id: "principalAgreementDate",
       priority: "critical",
       blocking: true,
@@ -48,24 +58,6 @@ export const dpaSkillConfig: DraftingSkillConfig = {
       reasonRequired:
         "Schedule 1 must identify data subject categories; missing this yields bracketed stubs.",
       aliases: ["dataSubjectCategories"],
-    },
-    {
-      id: "transferMechanism",
-      priority: "critical",
-      blocking: true,
-      question:
-        "Will personal data be transferred outside the UK/EEA? If yes, which mechanism applies (EU SCCs Module 2/3, UK IDTA, adequacy decision, none)?",
-      reasonRequired:
-        "International transfer clauses and SCC modules change materially based on this answer.",
-      options: [
-        "No international transfers",
-        "EU SCCs Module 2 (C2P)",
-        "EU SCCs Module 3 (P2P)",
-        "UK IDTA",
-        "Adequacy decision only",
-        "Other (specify)",
-      ],
-      aliases: ["sccModule", "ukIdta", "transferBasis"],
     },
   ],
   safeDefaults: {

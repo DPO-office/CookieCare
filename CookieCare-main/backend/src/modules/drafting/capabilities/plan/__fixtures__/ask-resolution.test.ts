@@ -4,14 +4,15 @@ import type { DraftState } from "../../../models/draft-state.js";
 import type { StructuredFacts } from "../../../models/structured-facts.js";
 import { canonicalizeFieldId } from "../../../models/draft-requirements.js";
 import { resolveRequirements } from "../resolve-requirements.js";
+import { resolveApplicablePacks } from "../../../packs/resolve-applicable-packs.js";
 import { computeGapsAndConflicts } from "../compute-gaps.js";
 import type { MissingFact } from "../../../models/draft-plan.js";
 
-function baseState(facts: StructuredFacts): DraftState {
+function baseState(facts: StructuredFacts, rawInstructions = "test"): DraftState {
   return {
     request: {
       intent: "CREATE",
-      rawInstructions: "test",
+      rawInstructions,
     },
     requirements: {
       contractType: "dpa",
@@ -21,7 +22,7 @@ function baseState(facts: StructuredFacts): DraftState {
       requiredClauses: [],
       optionalClauses: [],
       language: "English",
-      instructions: "test",
+      instructions: rawInstructions,
     },
     retrieval: {
       matchedTemplate: null,
@@ -66,6 +67,7 @@ describe("ASK resolution P0", () => {
         partyA: "HealthTech Analytics Inc.",
         partyB: "CloudScale Servers Ltd.",
         governingLaw: "England and Wales",
+        privacyRegime: "GDPR",
         effectiveDate: "October 1, 2026",
         principalAgreementDate: "August 1, 2026",
         processingPurpose:
@@ -99,17 +101,44 @@ describe("ASK resolution P0", () => {
     assert.ok(!fields.includes("parties"));
     assert.ok(!fields.includes("processingPurpose"));
 
-    // Still need law, dates, categories, subjects, transfers when missing
-    assert.ok(fields.includes("governingLaw"));
-    assert.ok(fields.includes("effectiveDate"));
-    assert.ok(fields.includes("dataCategories"));
-    assert.ok(fields.includes("dataSubjects"));
-    assert.ok(fields.includes("transferMechanism"));
+    // No named privacy regime — ask only that choice, not the rest of the form.
+    assert.deepEqual(fields, ["privacyRegime"]);
+  });
 
-    // principalAgreementDate assumed from effectiveDate only when effectiveDate present;
-    // when effectiveDate missing, principal may or may not appear — either is ok,
-    // but total should stay a short targeted set.
-    assert.ok(fields.length <= 7);
+  it("bare DPA asks privacyRegime and does not load GDPR", () => {
+    const state = baseState({}, "Draft a DPA");
+    const fields = askFields(state);
+    assert.deepEqual(fields, ["privacyRegime"]);
+    const applicable = resolveApplicablePacks(state);
+    assert.ok(!applicable.regimes.some((r) => r.id === "GDPR_ART28"));
+  });
+
+  it("named GDPR with parties skips regime and parties", () => {
+    const fields = askFields(
+      baseState(
+        {
+          parties: ["Acme Controller Inc.", "Beta Processor Ltd."],
+          partyA: "Acme Controller Inc.",
+          partyB: "Beta Processor Ltd.",
+        },
+        "Draft a GDPR DPA. Parties are Acme and Beta."
+      )
+    );
+    assert.ok(!fields.includes("privacyRegime"));
+    assert.ok(!fields.includes("parties"));
+    assert.ok(fields.includes("transferMechanism"));
+    assert.ok(fields.includes("governingLaw"));
+  });
+
+  it("DPDPA-only ask does not include the EU transfer question", () => {
+    const fields = askFields(
+      baseState(
+        { governingLaw: "India" },
+        "Draft a DPDPA processor agreement. We are the Data Fiduciary."
+      )
+    );
+    assert.ok(!fields.includes("privacyRegime"));
+    assert.ok(!fields.includes("transferMechanism"));
   });
 
   it("alias collapse: sccModule + transferMechanism → one ASK id max", () => {

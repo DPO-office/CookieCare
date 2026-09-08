@@ -123,15 +123,15 @@ const UNIVERSAL_CATALOG: RequiredFactCatalogEntry[] = [
     id: "governingLaw",
     priority: "critical",
     blocking: true,
-    question:
-      "Which governing law and venue should apply (e.g. State of Delaware, England & Wales)?",
+    question: "Which law and venue should apply?",
     reasonRequired:
-      "Governing law clauses must name a real jurisdiction; inventing one makes the draft wrong.",
+      "The venue clause must name a real jurisdiction; inventing one makes the draft wrong.",
     options: [
       "State of Delaware",
       "State of California",
       "England and Wales",
       "Ireland",
+      "India",
       "Other (specify)",
     ],
     aliases: ["jurisdiction"],
@@ -321,7 +321,7 @@ export function mergeCoreMissingFacts(
   }
 
   for (const core of catalog) {
-    if (core.coveredByEffectiveDate && isFactSatisfied(facts, "effectiveDate")) {
+    if (core.coveredByEffectiveDate) {
       continue;
     }
     if (isFactSatisfied(facts, core.id)) continue;
@@ -340,6 +340,7 @@ export function mergeCoreMissingFacts(
 
 /** Cap ASK batch size so UX stays usable; keep highest-priority fields first. */
 const ASK_FIELD_PRIORITY = [
+  "privacyRegime",
   "parties",
   "governingLaw",
   "effectiveDate",
@@ -373,7 +374,26 @@ export function prioritizeMissingFacts(
     const ib = ASK_FIELD_PRIORITY.indexOf(b.field);
     return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
   });
-  return [...critical.slice(0, maxCritical), ...optional];
+  const ranked = [...critical.slice(0, maxCritical), ...optional];
+  return collapseToSingleDateAsk(ranked);
+}
+
+const DATE_ASK_FIELDS = new Set(["effectiveDate", "principalAgreementDate"]);
+
+function isDateAsk(fact: MissingFact): boolean {
+  return DATE_ASK_FIELDS.has(fact.field) || /\bdate\b/i.test(fact.question);
+}
+
+/** Never ask the user for more than one date. Prefer the effective date. */
+function collapseToSingleDateAsk(facts: MissingFact[]): MissingFact[] {
+  const dateAsks = facts.filter(isDateAsk);
+  if (dateAsks.length <= 1) return facts;
+  const keep =
+    dateAsks.find((f) => f.field === "effectiveDate") ?? dateAsks[0];
+  const drop = new Set(
+    dateAsks.filter((f) => f.field !== keep.field).map((f) => f.field)
+  );
+  return facts.filter((f) => !drop.has(f.field));
 }
 
 /** Bracketed stubs left in a finished draft — must not ship. */

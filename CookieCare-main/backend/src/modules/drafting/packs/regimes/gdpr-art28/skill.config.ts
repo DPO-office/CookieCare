@@ -7,6 +7,26 @@ export const gdprArt28SkillConfig: DraftingSkillConfig = {
   label: "GDPR Article 28",
   version: "1.0.0",
   appliesToDocTypes: ["dpa"],
+  requiredFacts: [
+    {
+      id: "transferMechanism",
+      priority: "critical",
+      blocking: true,
+      question:
+        "Will personal data be transferred outside the UK/EEA? If yes, which mechanism applies?",
+      reasonRequired:
+        "GDPR transfer clauses and SCC modules change based on this answer.",
+      options: [
+        "No international transfers",
+        "EU SCCs Module 2 (C2P)",
+        "EU SCCs Module 3 (P2P)",
+        "UK IDTA",
+        "Adequacy decision only",
+        "Other (specify)",
+      ],
+      aliases: ["sccModule", "ukIdta", "transferBasis"],
+    },
+  ],
   draftingRules: [
     "Processor must process only on documented instructions including for transfers (Art. 28(3)(a)).",
     "Sub-processors require prior authorisation and equivalent obligations (Art. 28(2)/(4)).",

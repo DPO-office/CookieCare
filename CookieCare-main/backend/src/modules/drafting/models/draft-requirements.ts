@@ -110,6 +110,12 @@ export const REQUIREMENT_ALIASES: Record<string, string> = {
   dateofmsa: "principalAgreementDate",
   "date of msa": "principalAgreementDate",
   principalagreementdate: "principalAgreementDate",
+  privacyregime: "privacyRegime",
+  "privacy regime": "privacyRegime",
+  privacylaw: "privacyRegime",
+  "privacy law": "privacyRegime",
+  dataprotectionlaw: "privacyRegime",
+  "data protection law": "privacyRegime",
   // parties / law
   governinglaw: "governingLaw",
   jurisdiction: "governingLaw",

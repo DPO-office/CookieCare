@@ -3,15 +3,19 @@ import type { DraftState } from "../../models/draft-state.js";
 import type { DraftGap } from "../../models/draft-requirements.js";
 import { canonicalizeFieldId } from "../../models/draft-requirements.js";
 import {
-  getCatalogEntry,
   isFactSatisfied,
   prioritizeMissingFacts,
+  resolveDocTypeKey,
 } from "./core-deal-facts.js";
 import { requirementToMissingFact } from "./resolve-requirements.js";
+import { privacyRegimeKnown } from "../../packs/regimes/dpdpa/signals.js";
 
 /**
- * Compute ASK list from resolved requirement status + optional detect-gaps hints.
- * detect-gaps cannot re-open satisfied/assumed/not_applicable fields.
+ * ASK is the unresolved required facts of the skills that actually apply.
+ * detect-gaps may rephrase those questions. It cannot invent a new field,
+ * and it cannot reopen a satisfied fact.
+ *
+ * When a DPA has no named privacy regime, ask only that choice first.
  */
 export function computeGapsAndConflicts(
   state: DraftState,
@@ -26,6 +30,7 @@ export function computeGapsAndConflicts(
 
   const gaps: DraftGap[] = [];
   const missingByField = new Map<string, MissingFact>();
+  const skillFieldIds = new Set(Object.keys(byId));
 
   for (const req of Object.values(byId)) {
     if (!req.blocking && req.priority === "optional") continue;
@@ -45,7 +50,8 @@ export function computeGapsAndConflicts(
     }
   }
 
-  // Merge detect-gaps hints only when canonical field is still unresolved.
+  // Model may phrase a question for a skill fact that is still missing.
+  // It may not add a field no loaded skill required.
   for (const hint of detectGapsMissing) {
     const id = canonicalizeFieldId(hint.field);
     const resolved = byId[id];
@@ -59,30 +65,28 @@ export function computeGapsAndConflicts(
       continue;
     }
 
-    if (isFactSatisfied(facts, id)) {
-      continue;
-    }
+    if (isFactSatisfied(facts, id)) continue;
+    if (!skillFieldIds.has(id) && !missingByField.has(id)) continue;
 
-    if (missingByField.has(id)) {
-      // Keep catalog question; optionally adopt LLM options if catalog has none.
-      const existing = missingByField.get(id)!;
-      if (!existing.options?.length && hint.options?.length) {
-        missingByField.set(id, { ...existing, options: hint.options });
-      }
-      continue;
-    }
+    const existing = missingByField.get(id);
+    if (!existing) continue;
 
-    const catalog = getCatalogEntry(id, documentType);
     missingByField.set(id, {
-      field: id,
-      question: catalog?.question || hint.question,
-      severity: "critical",
-      reasonRequired: catalog?.reasonRequired || hint.reasonRequired,
-      options: catalog?.options?.length ? catalog.options : hint.options,
+      ...existing,
+      question: hint.question?.trim() || existing.question,
+      reasonRequired: existing.reasonRequired || hint.reasonRequired,
+      options: existing.options?.length ? existing.options : hint.options,
     });
   }
 
-  const result = prioritizeMissingFacts(Array.from(missingByField.values()), 10);
+  let result = prioritizeMissingFacts(Array.from(missingByField.values()), 8);
+
+  const docKey = resolveDocTypeKey(
+    typeof documentType === "string" ? documentType : undefined
+  );
+  if (docKey === "dpa" && !privacyRegimeKnown(facts) && missingByField.has("privacyRegime")) {
+    result = result.filter((f) => f.field === "privacyRegime");
+  }
 
   console.log(
     `[computeGaps] gaps=${result.length} fields=${result.map((f) => f.field).join(",") || "(none)"} draftGapCount=${gaps.length}`

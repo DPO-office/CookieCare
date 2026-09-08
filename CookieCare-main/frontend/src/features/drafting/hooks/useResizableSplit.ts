@@ -44,9 +44,9 @@ export function useResizableSplit(initialPercent = 70) {
 }
 
 const MIN_RAIL = 260;
-const MAX_RAIL = 560;
+const MAX_RAIL = 680;
 
-export function useResizableRail(initialWidth = 320) {
+export function useResizableRail(initialWidth = 480) {
   const [railWidth, setRailWidth] = useState(initialWidth);
   const containerRef = useRef<HTMLDivElement>(null);
   const draggingRef = useRef(false);

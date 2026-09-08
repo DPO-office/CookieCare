@@ -29,6 +29,13 @@ export const DRAFT_STARTER_PROMPTS: DraftPrompt[] = [
     builtin: true,
   },
   {
+    id: "draft-dpdpa",
+    title: "DPDPA processor agreement",
+    prompt:
+      "Draft a DPDPA data processing agreement under the Digital Personal Data Protection Act, 2023. We are the Data Fiduciary and the counterparty is the Data Processor. Include documented instructions and specified purpose, reasonable security safeguards, further-processor flow-down, cross-border transfers except to Central Government restricted countries, Data Principal rights assistance, personal data breach notice to the Fiduciary, and erasure or return of personal data when the purpose ends. Do not use GDPR controller or processor labels, and do not attach EU SCCs.",
+    builtin: true,
+  },
+  {
     id: "draft-msa",
     title: "SaaS master agreement",
     prompt:
