@@ -3,8 +3,15 @@ import { irelandPack } from "./ireland/pack.js";
 import { delawarePack } from "./delaware/pack.js";
 import { englandPack } from "./england/pack.js";
 import { californiaPack } from "./california/pack.js";
+import { indiaPack } from "./india/pack.js";
 
-const packs: JurisdictionPack[] = [irelandPack, delawarePack, englandPack, californiaPack];
+const packs: JurisdictionPack[] = [
+  irelandPack,
+  delawarePack,
+  englandPack,
+  californiaPack,
+  indiaPack,
+];
 
 export const jurisdictionRegistry = {
   all(): JurisdictionPack[] {

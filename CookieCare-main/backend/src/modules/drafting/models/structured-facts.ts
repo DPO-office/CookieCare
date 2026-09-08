@@ -1,6 +1,8 @@
 export interface StructuredFacts {
   documentType?: string;
   governingLaw?: string;
+  /** GDPR, UK GDPR, CCPA / CPRA, or DPDPA — asked when the user did not name one. */
+  privacyRegime?: string;
   parties?: string[];
   partyA?: string;
   partyB?: string;

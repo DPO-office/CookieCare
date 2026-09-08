@@ -50,24 +50,19 @@ export class DraftEntry {
   }
 
   async resumeAfterAsk(state: DraftState): Promise<DraftState> {
-    const criticalLeft =
-      state.plan?.missingFacts?.filter((f) => f.severity === "critical") ?? [];
-
-    // Do NOT re-enter full PLAN/detectGaps after answers — that re-asks the same
-    // fields. Either collect remaining critical questions in one ASK, or ACT.
-    const phase = criticalLeft.length > 0 ? "ASK" : "ACT";
-
+    // Re-enter PLAN so the regime answer loads the right skill before ACT.
+    // Satisfied facts are not asked again.
     const seeded: DraftState = {
       ...state,
       entryMode: "CREATE",
       agent: state.agent
         ? {
             ...state.agent,
-            phase,
+            phase: "PLAN",
             stoppedReason: undefined,
             openQuestions: [],
           }
-        : initAgentRunState("CREATE", { phase }),
+        : initAgentRunState("CREATE", { phase: "PLAN" }),
     };
     return this.pac.run(seeded);
   }

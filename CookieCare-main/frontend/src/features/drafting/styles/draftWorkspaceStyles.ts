@@ -463,7 +463,7 @@ export const DRAFT_WORKSPACE_STYLES = `
 
 /* ── Ask AI dropdown panel ──────────────────────────────────────────────── */
 .draft-selection-panel {
-  width: 340px;
+  width: 480px;
   background: #FFFFFF;
   border: none;
   border-radius: 22px;

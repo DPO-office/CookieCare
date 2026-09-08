@@ -20,6 +20,7 @@ const GOVERNING_LAW_OPTIONS = [
   "State of California",
   "England and Wales",
   "Ireland",
+  "India",
   "Other (specify)",
 ];
 
@@ -148,9 +149,34 @@ function resolveInputType(q: DraftOpenQuestion): QuestionInputType {
  * - Falls back to injected defaults for known semantic types (governing law,
  *   yes/no) so chips are still rendered even when the LLM omitted options.
  */
+function withIndiaOption(options: string[]): string[] {
+  if (options.some((opt) => opt.toLowerCase() === "india")) return options;
+  const otherIdx = options.findIndex((opt) => opt === OTHER_LABEL);
+  if (otherIdx < 0) return [...options, "India"];
+  return [...options.slice(0, otherIdx), "India", ...options.slice(otherIdx)];
+}
+
+function displayQuestion(q: DraftOpenQuestion): string {
+  const isGoverningLaw =
+    GOVERNING_LAW_FIELD_RE.test(q.field) ||
+    GOVERNING_LAW_QUESTION_RE.test(q.question);
+  if (!isGoverningLaw) return q.question;
+  return q.question
+    .replace(/\s*\(e\.g\.[^)]*\)/gi, "")
+    .replace(/\bgoverning\s+law\s+and\s+venue\b/gi, "law and venue")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function resolveOptions(q: DraftOpenQuestion): string[] {
-  // Backend options always win
-  if (q.options && q.options.length > 0) return q.options;
+  const isGoverningLaw =
+    GOVERNING_LAW_FIELD_RE.test(q.field) ||
+    GOVERNING_LAW_QUESTION_RE.test(q.question);
+
+  // Backend options always win, but India stays available for law/venue questions.
+  if (q.options && q.options.length > 0) {
+    return isGoverningLaw ? withIndiaOption(q.options) : q.options;
+  }
 
   const inputType = resolveInputType(q);
   if (inputType !== "chips" && inputType !== "chips-multi") return [];
@@ -296,7 +322,7 @@ function inferPlaceholder(q: DraftOpenQuestion): string {
     GOVERNING_LAW_FIELD_RE.test(q.field) ||
     GOVERNING_LAW_QUESTION_RE.test(q.question)
   ) {
-    return "e.g. England and Wales";
+    return "Select a venue";
   }
 
   // ── Services / scope description ─────────────────────────────────────────
@@ -702,7 +728,7 @@ function AskQuestionCard({
                   htmlFor={q.id}
                   className="block text-[12.5px] font-medium text-[#52525B] leading-snug"
                 >
-                  {q.question}
+                  {displayQuestion(q)}
                   {q.severity === "critical" && (
                     <span className="ml-1 text-[#DC2626]">*</span>
                   )}

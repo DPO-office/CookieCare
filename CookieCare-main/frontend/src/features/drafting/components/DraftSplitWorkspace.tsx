@@ -60,7 +60,7 @@ export interface DraftSplitWorkspaceProps {
 export default function DraftSplitWorkspace(props: DraftSplitWorkspaceProps) {
   const [zoom, setZoom] = useState(100);
   const [editorInstance, setEditorInstance] = useState<Editor | null>(null);
-  const { railWidth, containerRef, onDragStart } = useResizableRail(320);
+  const { railWidth, containerRef, onDragStart } = useResizableRail(480);
   const draftUnavailable = props.draftUnavailable ?? false;
 
   const handleEditorReady = (editor: Editor) => {

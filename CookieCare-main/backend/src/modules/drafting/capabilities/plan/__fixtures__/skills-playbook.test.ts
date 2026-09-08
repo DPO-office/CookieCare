@@ -3,6 +3,8 @@ import { describe, it } from "node:test";
 import type { DraftState } from "../../../models/draft-state.js";
 import type { StructuredFacts } from "../../../models/structured-facts.js";
 import { resolveApplicablePacks } from "../../../packs/resolve-applicable-packs.js";
+import { documentTypeRegistry } from "../../../packs/document-types/registry.js";
+import { jurisdictionRegistry } from "../../../packs/jurisdictions/registry.js";
 import { dpaSkillConfig } from "../../../packs/document-types/dpa/skill.config.js";
 import { assembleDraftingContext, resolveConditionalWorkUnits, collectSkillConfigs } from "../assemble-drafting-context.js";
 import { buildSectionContext } from "../../act/build-section-context.js";
@@ -209,6 +211,85 @@ describe("P2/P3 drafting skills + assets", () => {
     const skills = collectSkillConfigs(applicable);
     const conditional = resolveConditionalWorkUnits(skills, state.structuredFacts!);
     assert.ok(conditional.some((u) => u.id === "exhibit-idta"));
+  });
+
+  it("DPDPA facts activate the DPDPA skill and not GDPR", () => {
+    const state = baseState({
+      request: {
+        intent: "CREATE",
+        rawInstructions:
+          "Draft a DPDPA processor agreement. We are the Data Fiduciary. Do not use GDPR labels and do not attach EU SCCs.",
+      },
+      structuredFacts: {
+        documentType: "dpa",
+        governingLaw: "India",
+        partyA: "Acme Fiduciary Pvt. Ltd.",
+        partyB: "Beta Processor Pvt. Ltd.",
+      },
+    });
+    const applicable = resolveApplicablePacks(state);
+    assert.ok(applicable.regimes.some((r) => r.id === "DPDPA"));
+    assert.ok(
+      applicable.regimes.some((r) => r.skillPaths.includes("regimes/dpdpa")),
+      "expected regimes/dpdpa skill path"
+    );
+    assert.ok(
+      !applicable.regimes.some((r) => r.id === "GDPR_ART28"),
+      `unexpected regimes: ${applicable.regimes.map((r) => r.id).join(",")}`
+    );
+    assert.equal(applicable.jurisdictionId, "india");
+    const skills = collectSkillConfigs(applicable);
+    assert.ok(skills.some((s) => s.skillId === "regimes/dpdpa"));
+  });
+
+  it("user instructions asking for DPDPA activate the skill without extracted facts", () => {
+    const state = baseState({
+      request: {
+        intent: "CREATE",
+        rawInstructions:
+          "Draft a Digital Personal Data Protection Act processor agreement. We are the Data Fiduciary.",
+      },
+      structuredFacts: {
+        documentType: "dpa",
+        governingLaw: "",
+      },
+    });
+    const applicable = resolveApplicablePacks(state);
+    assert.ok(applicable.regimes.some((r) => r.id === "DPDPA"));
+    assert.ok(!applicable.regimes.some((r) => r.id === "GDPR_ART28"));
+    assert.ok(!applicable.regimes.some((r) => r.id === "UK_GDPR_IDTA"));
+    assert.ok(!applicable.regimes.some((r) => r.id === "CPRA_SP"));
+  });
+
+  it("DPDPA plus an explicit GDPR ask keeps both regimes", () => {
+    const state = baseState({
+      request: {
+        intent: "CREATE",
+        rawInstructions: "Draft a DPDPA and GDPR Article 28 processor agreement.",
+      },
+      structuredFacts: {
+        documentType: "dpa",
+        governingLaw: "India",
+      },
+    });
+    const applicable = resolveApplicablePacks(state);
+    assert.ok(applicable.regimes.some((r) => r.id === "DPDPA"));
+    assert.ok(applicable.regimes.some((r) => r.id === "GDPR_ART28"));
+  });
+
+  it("Ireland GDPR DPA does not activate DPDPA", () => {
+    const state = baseState({
+      structuredFacts: {
+        documentType: "dpa",
+        governingLaw: "Ireland",
+      },
+    });
+    const applicable = resolveApplicablePacks(state);
+    assert.ok(applicable.regimes.some((r) => r.id === "GDPR_ART28"));
+    assert.ok(!applicable.regimes.some((r) => r.id === "DPDPA"));
+    assert.equal(documentTypeRegistry.resolveId("dpdpa"), "dpa");
+    assert.equal(documentTypeRegistry.resolveId("data fiduciary agreement"), "dpa");
+    assert.equal(jurisdictionRegistry.resolveId("Republic of India"), "india");
   });
 
   it("non-HIPAA / no-transfer do not add those units", () => {

@@ -36,11 +36,13 @@ You will be given:
      a square-bracket / TBD placeholder into the delivered draft.
    - "optional" / "warning" = stylistic, best-practice, or safely defaultable
      without inventing party-specific data.
-   ALWAYS critical when missing from known facts:
-   party legal names, governing law / venue, effective / MSA dates, and for
-   DPAs also processing purpose, data categories, data subjects, and transfer
-   mechanism. Never invent these. Empty missingFacts when known facts are
-   sparse is a failure — ask before drafting.
+   Ask only for deal facts that are still missing from known facts AND that a
+   loaded skill document actually requires. Skip any fact already present.
+   Do not add a GDPR / UK/EEA transfer-mechanism question unless a loaded skill
+   requires a transfer mechanism. Do not invent a new field id. If the user
+   did not name a privacy regime and no regime skill is loaded, the only
+   missingFact to emit is field "privacyRegime". Empty missingFacts is correct
+   when every skill-required fact is already known.
 
 4. DEDUPE ACROSS PACKS: If two skill documents effectively require the same
    thing (e.g. both a regime pack and the jurisdiction pack require a specific

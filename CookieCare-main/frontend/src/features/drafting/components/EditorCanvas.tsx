@@ -23,7 +23,7 @@ const QUICK_REFINEMENTS = [
 
 const TONES = ["Formal", "Professional", "Casual", "Friendly"] as const;
 
-const AI_PANEL_WIDTH = 340;
+const AI_PANEL_WIDTH = 480;
 /** Roughly the panel's tallest state, used to decide which way it opens. */
 const AI_PANEL_HEIGHT = 330;
 const TOOLBAR_HEIGHT = 44;

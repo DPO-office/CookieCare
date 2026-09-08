@@ -16,6 +16,7 @@ import {
 } from "./core-deal-facts.js";
 import { resolveApplicablePacks } from "../../packs/resolve-applicable-packs.js";
 import { collectSkillConfigs } from "./assemble-drafting-context.js";
+import { inferPrivacyRegime } from "../../packs/regimes/dpdpa/signals.js";
 
 function skillFactsFromState(state: DraftState): RequiredFactCatalogEntry[] {
   try {
@@ -114,6 +115,15 @@ export function resolveRequirements(state: DraftState): DraftState {
   const facts = sanitizeKnownFacts({
     ...(state.structuredFacts ?? {}),
   }) as Record<string, unknown>;
+  const instructions = [
+    state.request?.rawInstructions,
+    state.requirements?.instructions,
+  ]
+    .filter((s): s is string => typeof s === "string" && s.trim().length > 0)
+    .join("\n");
+  if (instructions && !facts.instructionText) facts.instructionText = instructions;
+  const inferredRegime = inferPrivacyRegime(facts as StructuredFacts);
+  if (inferredRegime && !facts.privacyRegime) facts.privacyRegime = inferredRegime;
 
   const catalog = getRequiredFactCatalog(
     documentType || (typeof facts.documentType === "string" ? facts.documentType : undefined),
@@ -147,11 +157,28 @@ export function resolveRequirements(state: DraftState): DraftState {
       continue;
     }
 
-    if (
-      entry.coveredByEffectiveDate &&
-      isFactSatisfied(facts, "effectiveDate") &&
-      !isFactSatisfied(facts, entry.id)
-    ) {
+    if (entry.coveredByEffectiveDate && !isFactSatisfied(facts, entry.id)) {
+      // One date question only. Do not ASK a second date while the effective
+      // date is still open; reuse it once the user answers.
+      if (!isFactSatisfied(facts, "effectiveDate")) {
+        byId[entry.id] = {
+          id: entry.id,
+          value: null,
+          status: "not_applicable",
+          source: "default",
+          priority: entry.priority,
+          evidence: ["Deferred to the single effective-date question"],
+          aliases: entry.aliases ?? [],
+          blocking: false,
+          question: entry.question,
+          options: entry.options,
+          reasonRequired: entry.reasonRequired,
+        };
+        console.log(
+          `[resolveRequirements] SKIP ${entry.id} status=not_applicable (single date ask)`
+        );
+        continue;
+      }
       // Use effectiveDate as stand-in for MSA date when only one date known.
       const eff = facts.effectiveDate;
       byId[entry.id] = {
