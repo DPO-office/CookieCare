@@ -1,0 +1,16 @@
+??? injected env (34) from .env // tip: ??? suppress logs { quiet: true }
+Connecting???
+Connected.
+
+=== other sessions on this DB ===
+count=0
+
+=== waiting (ungranted) locks ===
+count=0
+
+=== blocker ??? blocked ===
+count=0
+
+=== idle-in-transaction count=0 ===
+
+Done.

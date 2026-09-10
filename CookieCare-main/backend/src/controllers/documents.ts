@@ -16,13 +16,74 @@ export const getDocuments = async (req: Request, res: Response) => {
   const userId = req.user!.id;
   const userRole = req.user!.role;
 
+  // Pagination params — default page size 100, max 500.
+  // Callers that still need all documents (e.g. vault folder mapping) can pass
+  // limit=500 explicitly; the UI uses the default page size for display.
+  const limit = Math.min(Math.max(1, Number(req.query.limit) || 100), 500);
+  const offset = Math.max(0, Number(req.query.offset) || 0);
+
+  // Optional type filter — e.g. ?type=upload or ?type=draft
+  // "upload" covers files uploaded via the vault uploader (category=upload).
+  // "draft"  covers AI-generated saved drafts.
+  // When omitted all non-ephemeral types are returned (existing behaviour).
+  const typeFilter = typeof req.query.type === "string" && req.query.type.trim()
+    ? req.query.type.trim()
+    : null;
+
+  // Optional search filter — case-insensitive substring match on title.
+  const searchFilter = typeof req.query.search === "string" && req.query.search.trim()
+    ? `%${req.query.search.trim()}%`
+    : null;
+
   try {
-    const docs = await withTransaction(userId, userRole, async (client) => {
-      const { rows } = await client.query(
-        "SELECT * FROM files WHERE creator_id = current_setting('app.current_user_id', true) OR shared_with::jsonb @> $1::jsonb OR shared_with::jsonb @> $2::jsonb ORDER BY created_at DESC",
-        [JSON.stringify([userEmail]), JSON.stringify([{ email: userEmail }])]
+    const { docs, total } = await withTransaction(userId, userRole, async (client) => {
+      const accessClause = `(
+        creator_id = current_setting('app.current_user_id', true)
+        OR shared_with::jsonb @> $1::jsonb
+        OR shared_with::jsonb @> $2::jsonb
+      )`;
+      const baseWhere = `${accessClause} AND type NOT IN ('ephemeral_upload', 'vault_asset_source')`;
+
+      // Build dynamic extra conditions (type + search).
+      // Params $1/$2 are always the email JSON arrays; extra params start at $3.
+      const extraConditions: string[] = [];
+      const extraParams: any[] = [];
+      let paramIdx = 3;
+
+      if (typeFilter) {
+        extraConditions.push(`type = $${paramIdx++}`);
+        extraParams.push(typeFilter);
+      }
+      if (searchFilter) {
+        extraConditions.push(`LOWER(title) LIKE LOWER($${paramIdx++})`);
+        extraParams.push(searchFilter);
+      }
+
+      const whereClause = extraConditions.length
+        ? `${baseWhere} AND ${extraConditions.join(" AND ")}`
+        : baseWhere;
+
+      const baseQueryParams = [
+        JSON.stringify([userEmail]),
+        JSON.stringify([{ email: userEmail }]),
+        ...extraParams,
+      ];
+
+      // Total count for pagination metadata (no content fetch).
+      const { rows: countRows } = await client.query(
+        `SELECT COUNT(*) AS total FROM files WHERE ${whereClause}`,
+        baseQueryParams
       );
-      return rows;
+      const total = Number(countRows[0].total);
+
+      const { rows } = await client.query(
+        `SELECT * FROM files
+         WHERE ${whereClause}
+         ORDER BY created_at DESC
+         LIMIT $${paramIdx} OFFSET $${paramIdx + 1}`,
+        [...baseQueryParams, limit, offset]
+      );
+      return { docs: rows, total };
     }).catch(e => {
       console.error("Failed to fetch documents from DB:", e);
       throw new Error("DB_FETCH_FAILED");
@@ -37,7 +98,12 @@ export const getDocuments = async (req: Request, res: Response) => {
       sharedWith: r.shared_with || [],
       auditLogs: r.audit_logs || [],
     }));
-    return res.json(formattedDocs);
+
+    // Return paginated envelope so clients know total without a separate query.
+    return res.json({
+      data: formattedDocs,
+      pagination: { total, limit, offset, hasMore: offset + limit < total },
+    });
   } catch (err: any) {
     const message = err.message === "DB_FETCH_FAILED" ? "Security enclave database unreachable." : "Internal error fetching document repository.";
     res.status(500).json({ error: message });
@@ -47,10 +113,21 @@ export const getDocuments = async (req: Request, res: Response) => {
 export const getDocumentById = async (req: Request, res: Response) => {
   const userId = req.user!.id;
   const userRole = req.user!.role;
+  const userEmail = req.user!.email.toLowerCase();
 
   try {
     const doc = await withTransaction(userId, userRole, async (client) => {
-      const { rows } = await client.query("SELECT * FROM files WHERE id = $1", [req.params.id]);
+      // Enforce ownership: only the creator or a shared recipient may fetch the document.
+      const { rows } = await client.query(
+        `SELECT * FROM files
+         WHERE id = $1
+           AND (
+             creator_id = current_setting('app.current_user_id', true)
+             OR shared_with::jsonb @> $2::jsonb
+             OR shared_with::jsonb @> $3::jsonb
+           )`,
+        [req.params.id, JSON.stringify([userEmail]), JSON.stringify([{ email: userEmail }])]
+      );
       if (rows.length === 0) return null;
 
       const { rows: versionRows } = await client.query(
@@ -166,6 +243,11 @@ export const  uploadDocument = async (req: Request, res: Response) => {
   const { title, folder_id, contractType, jurisdiction } = req.body;
   // Vault ingest categories: playbook | templates | clauses | upload (default)
   const systemFileType = req.body.category?.trim().toLowerCase() || "upload";
+  // ephemeral=true means the file is for on-the-go analysis only — skip vault folder assignment
+  const isEphemeral = req.body.ephemeral === "true" || req.body.ephemeral === true;
+  // Ownership scope — 'private' (current user only) or 'org' (organisation-wide).
+  const rawSource = req.body.source?.trim().toLowerCase();
+  const itemSource: "private" | "org" = rawSource === "org" ? "org" : "private";
 
   // Templates are document-type-specific and need contractType.
   // Playbooks are company-wide (no contractType required).
@@ -184,21 +266,39 @@ export const  uploadDocument = async (req: Request, res: Response) => {
   const userId = req.user!.id;
   const userRole = req.user!.role;
   
-  // If no folder_id is supplied, resolve (or create) the "Uploaded Documents" default folder.
-  let resolvedFolderId: string;
-  try {
-    resolvedFolderId = folder_id && folder_id.trim() ? folder_id.trim() : await getOrCreateDefaultFolder(userId, userRole);
-  } catch (folderErr) {
-    console.error("[uploadDocument] Failed to resolve default folder:", folderErr);
-    return res.status(500).json({ error: "Failed to resolve upload destination folder." });
+  // If no folder_id is supplied AND not ephemeral, resolve (or create) the "Uploaded Documents" default folder.
+  // Ephemeral files have no folder — they won't appear in the vault browser.
+  let resolvedFolderId: string | null = null;
+  if (!isEphemeral) {
+    try {
+      resolvedFolderId = folder_id && folder_id.trim() ? folder_id.trim() : await getOrCreateDefaultFolder(userId, userRole);
+    } catch (folderErr) {
+      console.error("[uploadDocument] Failed to resolve default folder:", folderErr);
+      return res.status(500).json({ error: "Failed to resolve upload destination folder." });
+    }
   }
 
   try {
+    // Determine the type stored in the files table.
+    // - Regular uploads:              type = "upload"          → visible in Vault Files
+    // - Playbook / template / clause: type = "vault_asset_source" → NOT shown as regular
+    //   vault files; their user-visible entry is the library_items row instead.
+    //   This prevents source files from leaking into the Negotiate document picker
+    //   (which filters on type='upload' or type='draft') and from cluttering Vault→Files.
+    // - Ephemeral uploads:            type = "ephemeral_upload" → session-only, excluded
+    //   from all Vault lists by the getDocuments baseWhere clause.
+    const isVaultAsset = ["playbook", "templates", "template", "clauses", "clause"].includes(systemFileType);
+    const fileType = isEphemeral
+      ? "ephemeral_upload"
+      : isVaultAsset
+      ? "vault_asset_source"
+      : "upload";
+
     await withTransaction(userId, userRole, async (client) => {
       await client.query(
-        `INSERT INTO files (id, title, type, content, creator_id, creator_email, mime_type, folder_id)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-        [fileId, fileTitle, "upload", "", req.user!.id, req.user!.email, file.mimetype, resolvedFolderId]
+        `INSERT INTO files (id, title, type, content, creator_id, creator_email, mime_type, folder_id, original_file)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        [fileId, fileTitle, fileType, "", req.user!.id, req.user!.email, file.mimetype, resolvedFolderId, file.buffer.toString("base64")]
       );
     }).catch(e => {
       console.error("Database insert failed during upload:", e);
@@ -218,6 +318,7 @@ export const  uploadDocument = async (req: Request, res: Response) => {
       fileBufferBase64: file.buffer.toString("base64"),
       mimeType: file.mimetype,
       userId,
+      isEphemeral,
     };
 
     if (systemFileType === "playbook") {
@@ -226,8 +327,8 @@ export const  uploadDocument = async (req: Request, res: Response) => {
       libraryItemId = "lib_" + crypto.randomUUID();
       await withTransaction(userId, userRole, async (client) => {
         await client.query(
-          `INSERT INTO library_items (id, user_id, type, name, description, tags, details)
-           VALUES ($1, $2, 'rulebook', $3, $4, $5, $6)`,
+          `INSERT INTO library_items (id, user_id, type, name, description, tags, details, source)
+           VALUES ($1, $2, 'rulebook', $3, $4, $5, $6, $7)`,
           [
             libraryItemId,
             userId,
@@ -240,6 +341,7 @@ export const  uploadDocument = async (req: Request, res: Response) => {
               scope: "company",
               stage: "queued",
             }),
+            itemSource,
           ]
         );
       });
@@ -251,8 +353,8 @@ export const  uploadDocument = async (req: Request, res: Response) => {
       const tplType = String(contractType).trim();
       await withTransaction(userId, userRole, async (client) => {
         await client.query(
-          `INSERT INTO library_items (id, user_id, type, name, description, tags, details)
-           VALUES ($1, $2, 'templates', $3, $4, $5, $6)`,
+          `INSERT INTO library_items (id, user_id, type, name, description, tags, details, source)
+           VALUES ($1, $2, 'templates', $3, $4, $5, $6, $7)`,
           [
             libraryItemId,
             userId,
@@ -266,6 +368,7 @@ export const  uploadDocument = async (req: Request, res: Response) => {
               jurisdiction: jurisdiction ? String(jurisdiction).trim() : null,
               stage: "queued",
             }),
+            itemSource,
           ]
         );
       });
@@ -280,8 +383,8 @@ export const  uploadDocument = async (req: Request, res: Response) => {
           : "General";
       await withTransaction(userId, userRole, async (client) => {
         await client.query(
-          `INSERT INTO library_items (id, user_id, type, name, description, tags, details)
-           VALUES ($1, $2, 'clauses', $3, $4, $5, $6)`,
+          `INSERT INTO library_items (id, user_id, type, name, description, tags, details, source)
+           VALUES ($1, $2, 'clauses', $3, $4, $5, $6, $7)`,
           [
             libraryItemId,
             userId,
@@ -296,6 +399,7 @@ export const  uploadDocument = async (req: Request, res: Response) => {
               stage: "queued",
               isPack: true,
             }),
+            itemSource,
           ]
         );
       });
@@ -332,6 +436,59 @@ export const  uploadDocument = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * GET /api/documents/:id/raw
+ * Streams the original uploaded file back to the caller with the correct
+ * Content-Type so the browser can render it natively (PDF, DOCX, etc.).
+ * Only the creator or a shared recipient may access the file.
+ */
+export const getRawDocument = async (req: Request, res: Response) => {
+  const userId   = req.user!.id;
+  const userRole = req.user!.role;
+  const userEmail = req.user!.email.toLowerCase();
+
+  try {
+    const row = await withTransaction(userId, userRole, async (client) => {
+      const { rows } = await client.query(
+        `SELECT id, title, mime_type, original_file
+         FROM files
+         WHERE id = $1
+           AND (
+             creator_id = current_setting('app.current_user_id', true)
+             OR shared_with::jsonb @> $2::jsonb
+             OR shared_with::jsonb @> $3::jsonb
+           )`,
+        [req.params.id, JSON.stringify([userEmail]), JSON.stringify([{ email: userEmail }])]
+      );
+      return rows[0] ?? null;
+    });
+
+    if (!row) {
+      return res.status(404).json({ error: "Document not found." });
+    }
+
+    if (!row.original_file) {
+      return res.status(404).json({ error: "Original file not available for this document." });
+    }
+
+    const buffer   = Buffer.from(row.original_file, "base64");
+    const mimeType = row.mime_type || "application/octet-stream";
+
+    // Send back with inline disposition so the browser opens it directly.
+    res.setHeader("Content-Type", mimeType);
+    res.setHeader("Content-Length", buffer.length);
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="${encodeURIComponent(row.title || "document")}"`
+    );
+    res.setHeader("Cache-Control", "private, max-age=3600");
+    return res.send(buffer);
+  } catch (err: any) {
+    console.error("[getRawDocument] error:", err);
+    return res.status(500).json({ error: "Failed to retrieve original file." });
+  }
+};
+
 export const updateDocument = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { title, content, folder_id } = req.body;
@@ -340,7 +497,11 @@ export const updateDocument = async (req: Request, res: Response) => {
 
   try {
     await withTransaction(userId, userRole, async (client) => {
-      const { rows } = await client.query("SELECT * FROM files WHERE id = $1", [id]);
+      // Only the document creator may update it.
+      const { rows } = await client.query(
+        "SELECT * FROM files WHERE id = $1 AND creator_id = current_setting('app.current_user_id', true)",
+        [id]
+      );
       if (rows.length === 0) throw new Error("Document not found");
       const doc = rows[0];
 
@@ -386,7 +547,11 @@ export const deleteDocument = async (req: Request, res: Response) => {
 
   try {
     await withTransaction(userId, userRole, async (client) => {
-      const { rowCount } = await client.query("DELETE FROM files WHERE id = $1", [id]);
+      // Only the document creator may delete it.
+      const { rowCount } = await client.query(
+        "DELETE FROM files WHERE id = $1 AND creator_id = current_setting('app.current_user_id', true)",
+        [id]
+      );
       if (rowCount === 0) throw new Error("Document not found");
 
       await client.query(`
@@ -411,7 +576,11 @@ export const shareDocument = async (req: Request, res: Response) => {
       const { rows: userRows } = await client.query("SELECT id FROM users WHERE email = $1", [email.toLowerCase()]);
       if (userRows.length === 0) throw new Error("USER_NOT_FOUND");
 
-      const { rows } = await client.query("SELECT shared_with FROM files WHERE id = $1", [id]);
+      // Only the document creator may share it.
+      const { rows } = await client.query(
+        "SELECT shared_with FROM files WHERE id = $1 AND creator_id = current_setting('app.current_user_id', true)",
+        [id]
+      );
       if (rows.length === 0) throw new Error("Document not found");
 
       const sharedWith = rows[0].shared_with || [];
@@ -442,7 +611,11 @@ export const requestSignature = async (req: Request, res: Response) => {
 
   try {
     const signatures = await withTransaction(userId, userRole, async (client) => {
-      const { rows } = await client.query("SELECT signatures FROM files WHERE id = $1", [id]);
+      // Only the document creator may request signatures on it.
+      const { rows } = await client.query(
+        "SELECT signatures FROM files WHERE id = $1 AND creator_id = current_setting('app.current_user_id', true)",
+        [id]
+      );
       if (rows.length === 0) throw new Error("Document not found");
 
       await client.query(`
@@ -462,10 +635,21 @@ export const signDocument = async (req: Request, res: Response) => {
   const signatureData = req.body.signatureData ?? req.body.fullName;
   const userId = req.user!.id;
   const userRole = req.user!.role;
+  const userEmail = req.user!.email.toLowerCase();
 
   try {
     await withTransaction(userId, userRole, async (client) => {
-      const { rows } = await client.query("SELECT signatures, content, is_encrypted FROM files WHERE id = $1", [id]);
+      // A document may be signed by its creator or anyone it has been shared with.
+      const { rows } = await client.query(
+        `SELECT signatures, content, is_encrypted FROM files
+         WHERE id = $1
+           AND (
+             creator_id = current_setting('app.current_user_id', true)
+             OR shared_with::jsonb @> $2::jsonb
+             OR shared_with::jsonb @> $3::jsonb
+           )`,
+        [id, JSON.stringify([userEmail]), JSON.stringify([{ email: userEmail }])]
+      );
       if (rows.length === 0) throw new Error("Document not found");
 
       const signatures = rows[0].signatures || [];
@@ -529,10 +713,21 @@ export const createRedline = async (req: Request, res: Response) => {
   const { originalText, proposedText, comment } = req.body;
   const userId = req.user!.id;
   const userRole = req.user!.role;
+  const userEmail = req.user!.email.toLowerCase();
 
   try {
     const newRedline = await withTransaction(userId, userRole, async (client) => {
-      const { rows } = await client.query("SELECT redlines FROM files WHERE id = $1", [id]);
+      // Redlines may be proposed by the creator or any shared recipient.
+      const { rows } = await client.query(
+        `SELECT redlines FROM files
+         WHERE id = $1
+           AND (
+             creator_id = current_setting('app.current_user_id', true)
+             OR shared_with::jsonb @> $2::jsonb
+             OR shared_with::jsonb @> $3::jsonb
+           )`,
+        [id, JSON.stringify([userEmail]), JSON.stringify([{ email: userEmail }])]
+      );
       if (rows.length === 0) throw new Error("Document not found");
       const redlines = parseRedlines(rows[0].redlines);
       const redline = { id: crypto.randomUUID(), originalText, proposedText, comment, proposedByEmail: req.user!.email, proposedAt: new Date().toISOString(), status: "pending" };
@@ -559,8 +754,11 @@ export const acceptRedline = async (req: Request, res: Response) => {
 
   try {
     await withTransaction(userId, userRole, async (client) => {
-      // Fetch document and redlines in a single transaction
-      const { rows } = await client.query("SELECT * FROM files WHERE id = $1", [id]);
+      // Only the document creator may accept redlines.
+      const { rows } = await client.query(
+        "SELECT * FROM files WHERE id = $1 AND creator_id = current_setting('app.current_user_id', true)",
+        [id]
+      );
       if (rows.length === 0) throw new Error("DOCUMENT_NOT_FOUND");
 
       const doc = rows[0];
@@ -653,7 +851,11 @@ export const rejectRedline = async (req: Request, res: Response) => {
 
   try {
     await withTransaction(userId, userRole, async (client) => {
-      const { rows } = await client.query("SELECT redlines FROM files WHERE id = $1", [id]);
+      // Only the document creator may reject redlines.
+      const { rows } = await client.query(
+        "SELECT redlines FROM files WHERE id = $1 AND creator_id = current_setting('app.current_user_id', true)",
+        [id]
+      );
       if (rows.length === 0) throw new Error("DOCUMENT_NOT_FOUND");
 
       const redlines = parseRedlines(rows[0].redlines);

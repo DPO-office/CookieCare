@@ -1,0 +1,184 @@
+{
+  "checkedAt": "2026-09-05T19:42:17.439Z",
+  "sessions": {
+    "bitrix": "an_ff125c81-71fb-4f3e-bb8f-57011885fbae",
+    "mastercard_newest": "an_91c6b78b-ee53-41bc-a71b-3203c3f56695"
+  },
+  "bitrixDocTruth": {
+    "source": "C:/Users/abhinav.yadav_randst/Downloads/DPA - 1.docx",
+    "chars": 46052,
+    "return_word_count": 0,
+    "has_g2_delete": true,
+    "has_g3_return_obligation": false,
+    "has_g1_chooser": false,
+    "has_g4_proviso": true,
+    "has_f3_dpia": true
+  },
+  "mcDocTruth": {
+    "source": "C:/Users/abhinav.yadav_randst/Downloads/Mastercard_Data_Processing_Agreement.pdf",
+    "chars": 124593,
+    "has_356": true,
+    "has_g1_sole_option": true,
+    "has_g2_delete": true,
+    "has_g3_return": true,
+    "has_g4_proviso": true,
+    "has_f3_dpia": true,
+    "quote_356": "3.5.6 return and deletion of personal data: upon expiry or termination of the agreement and/or relevant sow, or if the agreement or any relevant part of the agreement authorizing supplier to process personal data has been revoked, rescinded, or held void, invalid or unenforceable, or as set forth within the relevant sow, comply with mastercard’s request, and at mastercard’s sole option, securely delete existing copies of the personal data or retu",
+    "quote_355": "3.5.5 cooperation and assistance: cooperate with mastercard to ensure compliance with privacy and data protection law, this data processing agreement, and mastercard’s or mastercard’s customers’ instructions, and to assist mastercard in fulfilling its own obligations under privacy and data protection law and as applicable mastercard’s or mastercard’s customer’s instructions, including complying with individuals’ or d"
+  },
+  "bxBundle": {
+    "g_count": 38,
+    "has_clause_2_5": [
+      {
+        "path": "clause-2.5",
+        "len": 980,
+        "q": "2.5 deletion on term expiry. on expiry of the term, administrator instructs alaio to delete all personal data (including existing copies) from bitrix24 systems in accordance with applicable law. alaio will comply with this instruction as so"
+      }
+    ],
+    "has_g4_proviso": [
+      {
+        "path": "clause-2.5",
+        "len": 980,
+        "q": "2.5 deletion on term expiry. on expiry of the term, administrator instructs alaio to delete all personal data (including existing copies) from bitrix24 systems in accordance with applicable law. alaio will comply with this instruction as so"
+      }
+    ],
+    "has_fabricated_return": [],
+    "f_has_10": [
+      {
+        "path": "clause-10",
+        "len": 639,
+        "q": "10. data protection impact assessment upon administrator´s request, alaio will assist administrator in ensuring compliance with any obligations of administrator in respect of data protection impact assessments and prior consultation, includ"
+      }
+    ],
+    "f_has_6_4": [
+      {
+        "path": "clause-6.4",
+        "len": 541,
+        "q": "6.4 alaio security assistance. administrator agrees that alaio will assist in ensuring compliance with any obligations of administrator in respect of security of personal data and personal data breaches, including (if applicable) administra"
+      }
+    ],
+    "verifyG": [
+      "G1=not_located",
+      "G2=supported",
+      "G3=not_located",
+      "G4=not_located"
+    ],
+    "verifyF": [
+      "F1=supported",
+      "F2=supported",
+      "F3=supported"
+    ],
+    "assessG": {
+      "status": "partial",
+      "reasonCodes": [
+        "CONTROLLER_CHOICE_NOT_LOCATED",
+        "DELETE_PRESENT",
+        "RETURN_NOT_LOCATED",
+        "LEGAL_RETENTION_NOT_LOCATED"
+      ]
+    },
+    "assessF": {
+      "status": "present",
+      "reasonCodes": [
+        "SECURITY_ASSISTANCE_PRESENT",
+        "BREACH_NOTIFICATION_ASSISTANCE_PRESENT",
+        "DPIA_ASSISTANCE_PRESENT"
+      ]
+    }
+  },
+  "mcBundle": {
+    "g_count": 28,
+    "has_356": [
+      {
+        "path": "clause-3.5.6",
+        "len": 920,
+        "q": "3.5.6 return and deletion of personal data: upon expiry or termination of the agreement and/or relevant sow, or if the agreement or any relevant part of the agreement authorizing supplier to process personal data has been revoked, rescinded"
+      }
+    ],
+    "has_chooser_sole_option": [
+      {
+        "path": "clause-3.5.6",
+        "len": 920,
+        "q": "3.5.6 return and deletion of personal data: upon expiry or termination of the agreement and/or relevant sow, or if the agreement or any relevant part of the agreement authorizing supplier to process personal data has been revoked, rescinded"
+      }
+    ],
+    "has_return": [
+      {
+        "path": "clause-3.5.6",
+        "len": 920,
+        "q": "3.5.6 return and deletion of personal data: upon expiry or termination of the agreement and/or relevant sow, or if the agreement or any relevant part of the agreement authorizing supplier to process personal data has been revoked, rescinded"
+      }
+    ],
+    "has_g4_proviso": [
+      {
+        "path": "clause-3.5.6",
+        "len": 920,
+        "q": "3.5.6 return and deletion of personal data: upon expiry or termination of the agreement and/or relevant sow, or if the agreement or any relevant part of the agreement authorizing supplier to process personal data has been revoked, rescinded"
+      },
+      {
+        "path": "clause-4.4.6",
+        "len": 458,
+        "q": "4.4.6. termination. upon termination of the agreement and/or relevant sow, or as set forth within the relevant sow, comply with mastercard’s request, and securely delete existing copies of the personal data unless applicable local law requi"
+      }
+    ],
+    "f_has_355_dpia": [
+      {
+        "path": "clause-3.5.5",
+        "len": 1102,
+        "q": "3.5.5 cooperation and assistance: cooperate with mastercard to ensure compliance with privacy and data protection law, this data processing agreement, and mastercard’s or mastercard’s customers’ instructions, and to assist mastercard in ful"
+      }
+    ],
+    "verifyG": [
+      "G1=not_located",
+      "G2=supported",
+      "G3=supported",
+      "G4=unresolved_dependency"
+    ],
+    "verifyF": [
+      "F1=supported",
+      "F2=supported",
+      "F3=not_located"
+    ],
+    "assessG": {
+      "status": "partial",
+      "reasonCodes": [
+        "CONTROLLER_CHOICE_NOT_LOCATED",
+        "DELETE_PRESENT",
+        "RETURN_PRESENT",
+        "LEGAL_RETENTION_UNRESOLVED_DEPENDENCY"
+      ]
+    },
+    "assessF": {
+      "status": "partial",
+      "reasonCodes": [
+        "SECURITY_ASSISTANCE_PRESENT",
+        "BREACH_NOTIFICATION_ASSISTANCE_PRESENT",
+        "DPIA_ASSISTANCE_NOT_LOCATED"
+      ]
+    }
+  },
+  "responsibility": {
+    "bitrix_bundle_side": {
+      "ok": true,
+      "notes": [
+        "Return/chooser ABSENT in DOCX — G1/G3 not_located is CORRECT",
+        "§2.5 delete + G4 proviso ARE in DOCX and in (g) bundle — bundle OK",
+        "§10 DPIA IS in DOCX and in (f) bundle — bundle OK",
+        "G4 matrix not_located despite bundle proviso = Phase 4B matcher bug"
+      ]
+    },
+    "mastercard_bundle_side": {
+      "ok": true,
+      "notes": [
+        "§3.5.6 with sole option + delete/return + retention IS in (g) bundle",
+        "§3.5.5 DPIA language IS in (f) bundle",
+        "G1/G4/F3 matrix misses = Phase 4B matcher bug, not bundle failure"
+      ]
+    },
+    "clause_quotes_in_bundles": {
+      "bitrix_2_5": "2.5 deletion on term expiry. on expiry of the term, administrator instructs alaio to delete all personal data (including existing copies) from bitrix24 systems in accordance with applicable law. alaio will comply with this instruction as soon as reasonably practicable and within a maximum period of 90 days, unless any applicable law requires storage. 2.5.1 account deletion. paid plans devolve to the free plan according to the process described above. if the bitrix24 customer account is on a free plan (either converted to a free plan or originally on a free plan) and is completely inactive over the course of 30 days, it is 'archived', and it can be retrieved only by an administrator account (yourself or a user in the instance with administrator rights). to retrieve the account, a user without administrative rights simply needs to log in. if no user logs in for another 15 days after the instance has been 'archived', bitrix24 customer account will be deleted.",
+      "mc_3_5_6": "3.5.6 return and deletion of personal data: upon expiry or termination of the agreement and/or relevant sow, or if the agreement or any relevant part of the agreement authorizing supplier to process personal data has been revoked, rescinded, or held void, invalid or unenforceable, or as set forth within the relevant sow, comply with mastercard’s request, and at mastercard’s sole option, securely delete existing copies of the personal data or return the same to mastercard without retention of any hard or soft copies, unless applicable local law requires storage of the personal data, in which case supplier will protect the confidentiality of the personal data, will not actively process the personal data anymore, and will continue to comply with this data processing agreement. supplier will issue a certificate of deletion upon mastercard’s request.",
+      "mc_3_5_5": "3.5.5 cooperation and assistance: cooperate with mastercard to ensure compliance with privacy and data protection law, this data processing agreement, and mastercard’s or mastercard’s customers’ instructions, and to assist mastercard in fulfilling its own obligations under privacy and data protection law and as applicable mastercard’s or mastercard’s customer’s instructions, including complying with individuals’ or data subjects' requests to exercise their data protection rights; verifying the i"
+    }
+  }
+}

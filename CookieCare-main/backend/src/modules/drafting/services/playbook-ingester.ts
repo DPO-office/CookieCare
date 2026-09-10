@@ -1,7 +1,10 @@
 import { pool } from "../../../config/database.js";
-import { LLMTask } from "../config/model-specs.js";
-import { LLMProvider } from "../config/model-specs.js";
-import { executeCompletion, executeJsonCompletion } from "../llm/index.js";
+import {
+  LLMTask,
+  LLMProvider,
+  executeCompletion,
+  executeJsonCompletion,
+} from "../../../llm/index.js";
 import { STAGE_1_STITCH_PROMPT, STAGE_2_EXTRACT_PROMPT } from "../prompts/playbook-ingest-template.js";
 
 export interface ParsedPlaybookRule {

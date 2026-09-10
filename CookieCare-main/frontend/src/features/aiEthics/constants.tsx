@@ -52,6 +52,57 @@ export const FEATURE_CARDS = [
   { icon: Gauge,         title: "Risk Assessment",          description: "Generate an overall AI ethics risk evaluation and governance gap analysis." },
 ];
 
+export const RESULT_DIMENSIONS: import("./types").EthicsResultDimension[] = [
+  {
+    id: "fairness",
+    title: "Fairness & Bias",
+    description: "Detect potential bias and fairness risks across protected attributes and demographic groups.",
+    icon: Scale,
+    scoreKey: "fairness",
+    keywords: ["fair", "bias", "demographic", "protected", "discriminat", "disparate"],
+  },
+  {
+    id: "transparency",
+    title: "Transparency",
+    description: "Review explainability mechanisms, model cards, and documentation quality.",
+    icon: Eye,
+    scoreKey: "transparency",
+    keywords: ["transpar", "explain", "model card", "document", "disclos"],
+  },
+  {
+    id: "accountability",
+    title: "Accountability",
+    description: "Evaluate AI governance ownership, oversight structures and escalation controls.",
+    icon: ClipboardCheck,
+    scoreKey: "accountability",
+    keywords: ["accountab", "governance", "ownership", "escalat", "iso 42001", "nist"],
+  },
+  {
+    id: "privacy",
+    title: "Privacy & Data Governance",
+    description: "Assess responsible handling of personal data in training and inference pipelines.",
+    icon: Database,
+    scoreKey: "privacyProtection",
+    keywords: ["privacy", "personal data", "training data", "inference", "gdpr", "data govern"],
+  },
+  {
+    id: "oversight",
+    title: "Human Oversight",
+    description: "Review human involvement, override mechanisms and monitoring capabilities.",
+    icon: UserCheck,
+    scoreKey: "humanOversight",
+    keywords: ["human", "oversight", "override", "monitor", "in the loop", "operator"],
+  },
+  {
+    id: "risk",
+    title: "Risk Assessment",
+    description: "Generate an overall AI ethics risk evaluation and governance gap analysis.",
+    icon: Gauge,
+    scoreKey: "riskManagement",
+    keywords: ["risk", "gap", "eu ai act", "harm", "impact"],
+  },
+];
+
 // ··· Icon and accent palette for recommendation categories ···················
 // The backend returns categories like "Bias Mitigation", "Governance Improvements", etc.
 // We inject icons and accent styles on the frontend.

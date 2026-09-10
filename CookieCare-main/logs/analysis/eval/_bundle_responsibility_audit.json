@@ -1,0 +1,339 @@
+{
+  "checkedAt": "2026-09-05T19:41:31.011Z",
+  "sessions": {
+    "bitrix": "an_ff125c81-71fb-4f3e-bb8f-57011885fbae",
+    "mastercard": "an_91c6b78b-ee53-41bc-a71b-3203c3f56695"
+  },
+  "bxTruth": {
+    "source": "C:/Users/abhinav.yadav_randst/Downloads/DPA - 1.docx",
+    "chars": 46052,
+    "g2_delete": true,
+    "g3_return_obligation": false,
+    "g1_chooser": false,
+    "g4_proviso": true,
+    "f3_dpia": true,
+    "g4_window": " law. alaio will comply with this instruction as soon as reasonably practicable and within a maximum period of 90 days, unless any applicable law requires storage. 2.5.1 account deletion. paid plans devolve to the free plan according to the process described above. if the bitrix24 ",
+    "f3_window": " promptly notify alaio with information regarding any non-compliance discovered during the course of an inspection. 10. data protection impact assessment upon administrator´s request, alaio will assist administrator in ensuring compliance with any obligations of administrator in respect of data protection impact assessments and prior consultation, including (if applicable) administrator´s obligations pursuant to articles 35 and 36 of the gdpr, to the extent user does n",
+    "return_word_count": 0
+  },
+  "mcTruth": {
+    "source": "reconstructed_from_bundles",
+    "chars": 359989,
+    "foundDocs": [
+      "C:\\Users\\abhinav.yadav_randst\\Downloads\\cisco-master-data-protection-agreement.pdf_draft.docx_draft (1).docx",
+      "C:\\Users\\abhinav.yadav_randst\\Downloads\\cisco-master-data-protection-agreement.pdf_draft.docx_draft.docx",
+      "C:\\Users\\abhinav.yadav_randst\\Downloads\\DPA - 1.docx",
+      "C:\\Users\\abhinav.yadav_randst\\Downloads\\dpa-omnihealth-media-cybershield-cloud-hosting-gdpr-ccpa.docx",
+      "C:\\Users\\abhinav.yadav_randst\\Downloads\\DPA_AI_Prompt_Repository_Playbook.docx.pdf",
+      "C:\\Users\\abhinav.yadav_randst\\Downloads\\Mastercard_Data_Processing_Agreement.pdf",
+      "C:\\Users\\abhinav.yadav_randst\\Downloads\\something DPA.docx"
+    ],
+    "g1_chooser": false,
+    "g2_delete": true,
+    "g3_return": false,
+    "g4_proviso": true,
+    "f3_dpia": false,
+    "c356_window": "the eu sccs are the signatures to the agreement and the date is the date of the agreement; d) the technical and organis 3.5.6 return and deletion of personal data: upon expiry or termination of the agreement and/or relevant sow, or if the agreement or any relevant part of the agreement authorizing supplier to process personal data has been revoked, rescinded, or held void, invalid or unenforceable, or as set forth within the relevant sow, comply with mastercard’s request, and at mastercard’s sole option, securely delete existing copies of the personal data or return the same to mastercard without retention of any hard or soft copies, unless applicable local law requires storage of the personal data, in which case supplier will protect the confidentiality ",
+    "c355_window": "rsonal data that are disclosed to supplier. supplier is prohibited from processing personal data for any other purpose. 3.5.5 cooperation and assistance: cooperate with mastercard to ensure compliance with privacy and data protection law, this data processing agreement, and mastercard’s or mastercard’s customers’ instructions, and to assist mastercard in fulfilling its own obligations under privacy and data protection law and as applicable mastercard’s or mastercard’s customer’s instructions, including complying with individuals’ or data subjects' requests to exercise their data protection rights; verifying the identity of the individual or data subject making a r"
+  },
+  "bxBundleAudit": {
+    "g": {
+      "itemCount": 38,
+      "tokens": 5999,
+      "has_2_5": [
+        {
+          "path": "clause-2.5.2",
+          "len": 572,
+          "quote": "2.5.2 the administrator may initiate deletion of the bitrix24 customer account by first dismissing other administrators, if any, which will entail deletion of all the connected user accounts and all connected user content, subject to the availability of such feature. in this case"
+        },
+        {
+          "path": "clause-2.5",
+          "len": 980,
+          "quote": "2.5 deletion on term expiry. on expiry of the term, administrator instructs alaio to delete all personal data (including existing copies) from bitrix24 systems in accordance with applicable law. alaio will comply with this instruction as soon as reasonably practicable and within "
+        }
+      ],
+      "has_proviso": [
+        {
+          "path": "clause-2.5",
+          "len": 980,
+          "quote": "2.5 deletion on term expiry. on expiry of the term, administrator instructs alaio to delete all personal data (including existing copies) from bitrix24 systems in accordance with applicable law. alaio will comply with this instruction as soon as reasonably practicable and within "
+        }
+      ],
+      "has_false_return": [],
+      "topPaths": [
+        "document/application-of-this-dpa/list@1718",
+        "clause-4.2",
+        "clause-4.1",
+        "clause-2",
+        "clause-2.5.2",
+        "clause-1",
+        "clause-5.2",
+        "clause-11.4",
+        "clause-1.7",
+        "clause-5.1",
+        "clause-1.3",
+        "clause-13.2",
+        "clause-2.3",
+        "clause-2.2",
+        "clause-2.4"
+      ]
+    },
+    "f": {
+      "itemCount": 49,
+      "has_10_dpia": [
+        {
+          "path": "clause-10",
+          "len": 639,
+          "quote": "10. data protection impact assessment upon administrator´s request, alaio will assist administrator in ensuring compliance with any obligations of administrator in respect of data protection impact assessments and prior consultation, including (if applicable) administrator´s obli"
+        }
+      ],
+      "has_6_4": [
+        {
+          "path": "clause-6.4",
+          "len": 541,
+          "quote": "6.4 alaio security assistance. administrator agrees that alaio will assist in ensuring compliance with any obligations of administrator in respect of security of personal data and personal data breaches, including (if applicable) administrator’s obligations pursuant to articles 3"
+        }
+      ]
+    },
+    "verifyG": [
+      {
+        "el": "G1",
+        "state": "not_located",
+        "cites": []
+      },
+      {
+        "el": "G2",
+        "state": "supported",
+        "cites": [
+          "doc_8f887915-6fbb-452a-beb1-2059e5d3265c::section::13539-14388",
+          "doc_8f887915-6fbb-452a-beb1-2059e5d3265c::section::12865-13537",
+          "doc_8f887915-6fbb-452a-beb1-2059e5d3265c::section::12018-12590",
+          "doc_8f887915-6fbb-452a-beb1-2059e5d3265c::section::11037-12017",
+          "doc_8f887915-6fbb-452a-beb1-2059e5d3265c::section::12592-12835"
+        ]
+      },
+      {
+        "el": "G3",
+        "state": "not_located",
+        "cites": []
+      },
+      {
+        "el": "G4",
+        "state": "not_located",
+        "cites": []
+      }
+    ],
+    "verifyF": [
+      {
+        "el": "F1",
+        "state": "supported",
+        "cites": [
+          "doc_8f887915-6fbb-452a-beb1-2059e5d3265c::section::27363-27958",
+          "doc_8f887915-6fbb-452a-beb1-2059e5d3265c::section::16291-16832",
+          "doc_8f887915-6fbb-452a-beb1-2059e5d3265c::section::34584-34735",
+          "doc_8f887915-6fbb-452a-beb1-2059e5d3265c::section::35250-35682",
+          "doc_8f887915-6fbb-452a-beb1-2059e5d3265c::section::14963-15827"
+        ]
+      },
+      {
+        "el": "F2",
+        "state": "supported",
+        "cites": [
+          "doc_8f887915-6fbb-452a-beb1-2059e5d3265c::section::20473-20699",
+          "doc_8f887915-6fbb-452a-beb1-2059e5d3265c::section::16291-16832",
+          "doc_8f887915-6fbb-452a-beb1-2059e5d3265c::section::22548-23187",
+          "doc_8f887915-6fbb-452a-beb1-2059e5d3265c::section::28454-29390",
+          "doc_8f887915-6fbb-452a-beb1-2059e5d3265c::section::18047-19611"
+        ]
+      },
+      {
+        "el": "F3",
+        "state": "supported",
+        "cites": [
+          "doc_8f887915-6fbb-452a-beb1-2059e5d3265c::section::22548-23187"
+        ]
+      }
+    ],
+    "assessG": [
+      {
+        "event": "compliance.assess.result",
+        "status": "partial",
+        "reasonCodes": [
+          "CONTROLLER_CHOICE_NOT_LOCATED",
+          "DELETE_PRESENT",
+          "RETURN_NOT_LOCATED",
+          "LEGAL_RETENTION_NOT_LOCATED"
+        ]
+      }
+    ],
+    "assessF": [
+      {
+        "event": "compliance.assess.result",
+        "status": "present",
+        "reasonCodes": [
+          "SECURITY_ASSISTANCE_PRESENT",
+          "BREACH_NOTIFICATION_ASSISTANCE_PRESENT",
+          "DPIA_ASSISTANCE_PRESENT"
+        ]
+      }
+    ]
+  },
+  "mcBundleAudit": {
+    "g": {
+      "itemCount": 28,
+      "tokens": 5997,
+      "has_3_5_6": [
+        {
+          "path": "clause-3.5.6",
+          "len": 920,
+          "quote": "3.5.6 return and deletion of personal data: upon expiry or termination of the agreement and/or relevant sow, or if the agreement or any relevant part of the agreement authorizing supplier to process personal data has been revoked, rescinded, or held void, invalid or unenforceable"
+        }
+      ],
+      "has_proviso": [
+        {
+          "path": "clause-3.5.6",
+          "len": 920,
+          "quote": "3.5.6 return and deletion of personal data: upon expiry or termination of the agreement and/or relevant sow, or if the agreement or any relevant part of the agreement authorizing supplier to process personal data has been revoked, rescinded, or held void, invalid or unenforceable"
+        }
+      ],
+      "has_return": [],
+      "has_chooser": [],
+      "topPaths": [
+        "clause-3.8.1",
+        "clause-3.8",
+        "clause-3.6",
+        "clause-3.7",
+        "clause-3.17",
+        "clause-3.5.6",
+        "clause-4.4.6",
+        "clause-2.8.2",
+        "clause-3.5.4",
+        "clause-3.6.4",
+        "clause-2.7.2",
+        "clause-5.1.4",
+        "clause-3.7.7",
+        "clause-3.9.1",
+        "clause-7.2"
+      ]
+    },
+    "f": {
+      "itemCount": 31,
+      "has_3_5_5_dpia": [
+        {
+          "path": "clause-3.5.5",
+          "len": 1102,
+          "quote": "3.5.5 cooperation and assistance: cooperate with mastercard to ensure compliance with privacy and data protection law, this data processing agreement, and mastercard’s or mastercard’s customers’ instructions, and to assist mastercard in fulfilling its own obligations under privac"
+        }
+      ]
+    },
+    "verifyG": [
+      {
+        "el": "G1",
+        "state": "not_located",
+        "cites": []
+      },
+      {
+        "el": "G2",
+        "state": "supported",
+        "cites": [
+          "doc_bee4d0a5-3a80-45bd-8fae-172d90607e8d::section::19157-20077",
+          "doc_bee4d0a5-3a80-45bd-8fae-172d90607e8d::section::59988-61414",
+          "doc_bee4d0a5-3a80-45bd-8fae-172d90607e8d::section::84335-84793",
+          "doc_bee4d0a5-3a80-45bd-8fae-172d90607e8d::section::114883-116067",
+          "doc_bee4d0a5-3a80-45bd-8fae-172d90607e8d::section::54889-55420"
+        ]
+      },
+      {
+        "el": "G3",
+        "state": "supported",
+        "cites": [
+          "doc_bee4d0a5-3a80-45bd-8fae-172d90607e8d::section::19157-20077"
+        ]
+      },
+      {
+        "el": "G4",
+        "state": "unresolved_dependency",
+        "cites": []
+      }
+    ],
+    "verifyF": [
+      {
+        "el": "F1",
+        "state": "supported",
+        "cites": [
+          "doc_bee4d0a5-3a80-45bd-8fae-172d90607e8d::section::20204-22662",
+          "doc_bee4d0a5-3a80-45bd-8fae-172d90607e8d::section::49188-50292",
+          "doc_bee4d0a5-3a80-45bd-8fae-172d90607e8d::section::107189-108323",
+          "doc_bee4d0a5-3a80-45bd-8fae-172d90607e8d::section::22665-23163",
+          "doc_bee4d0a5-3a80-45bd-8fae-172d90607e8d::section::20079-20202"
+        ]
+      },
+      {
+        "el": "F2",
+        "state": "supported",
+        "cites": [
+          "doc_bee4d0a5-3a80-45bd-8fae-172d90607e8d::section::7449-11476",
+          "doc_bee4d0a5-3a80-45bd-8fae-172d90607e8d::section::20079-20202",
+          "doc_bee4d0a5-3a80-45bd-8fae-172d90607e8d::section::16924-18049",
+          "doc_bee4d0a5-3a80-45bd-8fae-172d90607e8d::section::34561-36234",
+          "doc_bee4d0a5-3a80-45bd-8fae-172d90607e8d::section::65360-66279"
+        ]
+      },
+      {
+        "el": "F3",
+        "state": "not_located",
+        "cites": []
+      }
+    ],
+    "assessG": [
+      {
+        "event": "compliance.assess.result",
+        "status": "partial",
+        "reasonCodes": [
+          "CONTROLLER_CHOICE_NOT_LOCATED",
+          "DELETE_PRESENT",
+          "RETURN_PRESENT",
+          "LEGAL_RETENTION_UNRESOLVED_DEPENDENCY"
+        ]
+      }
+    ],
+    "assessF": [
+      {
+        "event": "compliance.assess.result",
+        "status": "partial",
+        "reasonCodes": [
+          "SECURITY_ASSISTANCE_PRESENT",
+          "BREACH_NOTIFICATION_ASSISTANCE_PRESENT",
+          "DPIA_ASSISTANCE_NOT_LOCATED"
+        ]
+      }
+    ]
+  },
+  "verdict": {
+    "bitrix": {
+      "doc_return_absent": true,
+      "bundle_has_delete_2_5": true,
+      "bundle_has_g4_proviso": true,
+      "bundle_does_not_fabricate_return": true,
+      "bundle_has_f3": true,
+      "matrix_g3_not_located_correct": true,
+      "matrix_g1_not_located_correct": true,
+      "matrix_g4_should_be_supported_but_is": "not_located",
+      "bundleSideOk": true,
+      "failureLayer": "phase4B_matcher_not_bundle"
+    },
+    "mastercard": {
+      "bundle_has_3_5_6": true,
+      "bundle_has_chooser": false,
+      "bundle_has_return": false,
+      "bundle_has_proviso": true,
+      "bundle_has_f3_dpia": true,
+      "matrix_g1": "not_located",
+      "matrix_g3": "supported",
+      "matrix_g4": "unresolved_dependency",
+      "matrix_f3": "not_located",
+      "bundleSideOk": false,
+      "failureLayer": "bundle_or_doc_gap"
+    }
+  }
+}

@@ -35,6 +35,19 @@ export const register = async (req: Request, res: Response) => {
   }
 
   const normalizedEmail = email.toLowerCase();
+
+  if (config.skipDb) {
+    const demoUser = {
+      id: "demo_user",
+      email: normalizedEmail,
+      name,
+      status: "APPROVED",
+      role: "ADMIN",
+    };
+    const token = issueToken(demoUser.id, demoUser.email);
+    return res.status(201).json({ token, user: userPayload(demoUser) });
+  }
+
   const newUserId = "user_" + crypto.randomUUID();
 
   try {
@@ -69,6 +82,18 @@ export const login = async (req: Request, res: Response) => {
   }
 
   const normalizedEmail = email.toLowerCase();
+
+  if (config.skipDb) {
+    const demoUser = {
+      id: "demo_user",
+      email: normalizedEmail,
+      name: normalizedEmail.split("@")[0] || "Demo user",
+      status: "APPROVED",
+      role: "ADMIN",
+    };
+    const token = issueToken(demoUser.id, demoUser.email);
+    return res.json({ token, user: userPayload(demoUser) });
+  }
 
   try {
     const { rows } = await pool.query(

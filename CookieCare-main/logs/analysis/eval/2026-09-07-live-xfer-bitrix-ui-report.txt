@@ -1,0 +1,52 @@
+## Requirements at a glance
+| Requirement | Status | Evidence | Finding | Action |
+| :--- | :--- | :--- | :--- | :--- |
+| The agreement addresses Schrems II supplementary measures and transfer impact assessments. | **❌ Gap** | No related clauses found | No mandatory elements are supported by the current evidence bundle. E1: Proof guidance not met: The agreement addresses Schrems II supplementary measures and transfer impact assessments. | E1: Add or clarify contract language establishing: The agreement addresses Schrems II supplementary measures and transfer impact assessments. |
+| The agreement identifies the lawful transfer mechanism, including Standard Contractual ... | **✅ Present** | 11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguards under article 46 GDPR, specifically by the Standard Contractual Clauses adopted by the European Commission in accordance with the examination procedure. | E1: No unresolved elements. | None — obligation satisfied. |
+| The agreement identifies international transfer destinations, destination jurisdictions... | **✅ Present** | cl. 11.1 - All Data obtained via Bitrix24.eu, Bitrix24.de, Bitrix.it, Bitrix24.pl, Bitrix24.uk and Bitrix24.fr domain zones is processed by Alaio Cloud Limited registered on Republic of Cyprus inside the European Union Economic Area and hosted inside the European Union in Frankfurt, Germany by Amazon Web Services data centers | E1: The agreement identifies specific international transfer destinations and destination jurisdictions, including the Russian Federation, the USA, and EU/EEA locations (such as Germany and Cyprus). No unresolved elements. | None — obligation satisfied. |
+
+## Element-level compliance (locked)
+_Statuses below come from the Phase 4–7 locked matrix (accepted locks only)._
+
+### The agreement identifies the lawful transfer mechanism, including Standard Contractual ... — **Present**
+
+**What the document provides:** E1: 
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported E1 · outstanding —
+
+- `document/application-of-this-dpa/para@27363`: “11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguards under article 46 G…”
+- `clause-11.3.2`: “11.3.2 Specific for data transfers from EU, UK and Switzerland to the USA, Alaio, Inc complies with the EU-U.S. Data Privacy Framework (EU-U.S. DPF), the UK Extension to the EU-U.S…”
+
+### The agreement addresses Schrems II supplementary measures and transfer impact assessments. — **Gap**
+
+**What the document provides:** No mandatory elements are supported by the current evidence bundle.
+
+**What is missing / unclear:** E1: Proof guidance not met: The agreement addresses Schrems II supplementary measures and transfer impact assessments.
+
+**Elements:** supported — · outstanding E1
+
+**Action:** E1: Add or clarify contract language establishing: The agreement addresses Schrems II supplementary measures and transfer impact assessments.
+
+### The agreement identifies international transfer destinations, destination jurisdictions... — **Present**
+
+**What the document provides:** E1: The agreement identifies specific international transfer destinations and destination jurisdictions, including the Russian Federation, the USA, and EU/EEA locations (such as Germany and Cyprus).
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported E1 · outstanding —
+
+- `clause-11.1`: “All Data obtained via Bitrix24.eu, Bitrix24.de, Bitrix.it, Bitrix24.pl, Bitrix24.uk and Bitrix24.fr domain zones is processed by Alaio Cloud Limited registered on Republic of Cypru…”
+- `document/application-of-this-dpa/para@24207`: “11.3.1 Alaio may process User Personal Data in Russian Federation subject to appropriate safeguards under article 46 GDPR (see schedule 11.4) and in the USA (see schedules 11.3.2 a…”
+
+### Locked bottom line
+
+- 2 obligations present: The agreement identifies the lawful transfer mechanism, including Standard Contractual ...; The agreement identifies international transfer destinations, destination jurisdictions....
+- 1 gap — obligation not present: The agreement addresses Schrems II supplementary measures and transfer impact assessments..
+
+## What needs attention
+- **The agreement addresses Schrems II supplementary measures and transfer impact assessments.** - ❌ Gap: E1: Add or clarify contract language establishing: The agreement addresses Schrems II supplementary measures and transfer impact assessments.
+
+## Bottom line
+The primary issues requiring attention are an unaddressed gap in the transfer mechanisms and insufficient data regarding Schrems II supplementary measures. Counsel should obtain the missing supplementary measures documentation and remediate the transfer mechanism gap prior to taking further action. 1 requirement remains dependent on referenced, truncated, conflicting, or unavailable material. Obtain and review that material before treating the analysis as complete.

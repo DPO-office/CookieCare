@@ -12,6 +12,8 @@ import { executeTemplateDrafting } from "./jobs/handlers/drafting-handler.js";
 import { executePlaybookIngestionJob } from "./jobs/handlers/playbook-handler.js";
 import { executeClauseIngestionJob } from "./jobs/handlers/clause-handler.js";
 import { executeTemplateIngestionJob } from "./jobs/handlers/template-handler.js";
+import { executeAnalysisPac } from "./jobs/handlers/analysis-handler.js";
+import { executeContractComparison } from "./jobs/handlers/compare-handler.js";
 
 export async function updateJobProgress(jobId: string, userId: string, progress: number, message?: string) {
   await withTransaction(userId, 'USER', async (client) => {
@@ -77,6 +79,9 @@ export async function addJobToQueue(userId: string, type: JobType, payload: any)
         case "template_drafting":
           result = await executeTemplateDrafting(jobId, userId, payload);
           break;
+        case "analysis_pac":
+          result = await executeAnalysisPac(jobId, userId, payload);
+          break;
         case "dpa_review":
           result = await executeDPAReview(jobId, userId, payload);
           break;
@@ -94,6 +99,9 @@ export async function addJobToQueue(userId: string, type: JobType, payload: any)
           break;
         case "TEMPLATE_INGEST":
           result = await executeTemplateIngestionJob(jobId, userId, payload);
+          break;
+        case "contract_comparison":
+          result = await executeContractComparison(jobId, userId, payload);
           break;
         default:
           throw new Error(`Unhandled job type: ${type}`);
@@ -134,6 +142,7 @@ export type JobType =
   | "file_processing"
   | "document_analysis"
   | "template_drafting"
+  | "analysis_pac"
   | "privacy_scanning"
   | "vulnerability_scanning"
   | "dpa_review"
@@ -141,7 +150,8 @@ export type JobType =
   | "ai_ethics_review"
   | "PLAYBOOK_INGEST"
   | "CLAUSE_INGEST"
-  | "TEMPLATE_INGEST";
+  | "TEMPLATE_INGEST"
+  | "contract_comparison";
 
 export type JobStatus = "queued" | "processing" | "completed" | "failed";
 
@@ -173,7 +183,28 @@ class BackgroundJobRegistry {
   public scanner = new ScannerService();
 
   public broadcast(userId: string, job: any): void {
-    const payloadStr = JSON.stringify({ event: "job_update", job });
+    let payloadStr: string;
+    try {
+      payloadStr = JSON.stringify({ event: "job_update", job });
+    } catch (serializeErr) {
+      console.error("[JobRegistry] Failed to serialize broadcast payload for job:", job?.id, serializeErr);
+      // Send a stripped-down event so the frontend is never left hanging.
+      // Include id and status so waitForDraftJob can still resolve the Promise.
+      try {
+        payloadStr = JSON.stringify({
+          event: "job_update",
+          job: {
+            id: job?.id,
+            status: job?.status ?? "failed",
+            error: "Result serialization error — check server logs.",
+          },
+        });
+      } catch {
+        // Absolute last resort: the job id itself was non-serializable (shouldn't happen)
+        console.error("[JobRegistry] Could not serialize even the fallback payload. Dropping broadcast.");
+        return;
+      }
+    }
     for (const client of this.clients) {
       if (client.userId === userId) {
         client.send(`data: ${payloadStr}\n\n`);
@@ -268,17 +299,26 @@ class BackgroundJobRegistry {
 export const jobRegistry = new BackgroundJobRegistry();
 
 async function executeFileProcessing(jobId: string, userId: string, payload: any): Promise<any> {
-  const { fileId, fileBufferBase64, mimeType } = payload;
+  const { fileId, fileBufferBase64, mimeType, isEphemeral } = payload;
 
   await updateJobProgress(jobId, userId, 15, "Extracting text from document...");
 
   const buffer = Buffer.from(fileBufferBase64, "base64");
-  let content = await extractText(buffer, mimeType);
-
-  content = content.replace(/\0/g, "");
+  const extracted = await extractText(buffer, mimeType);
+  // PDF extractText returns { text, pageBreaks }; DOCX still returns a string.
+  const extractedText =
+    typeof extracted === "string"
+      ? extracted
+      : typeof extracted?.text === "string"
+        ? extracted.text
+        : "";
+  if (!extractedText.trim()) {
+    throw new Error("Could not extract readable text from the uploaded file.");
+  }
+  let content = extractedText.replace(/\0/g, "");
   const encryptedContent = encryptData(content);
 
-  await updateJobProgress(jobId, userId, 50, "Updating database and indexing for search...");
+  await updateJobProgress(jobId, userId, 50, isEphemeral ? "Saving document text..." : "Updating database and indexing for search...");
 
   const rowCount = await withTransaction(userId, 'USER', async (client) => {
     const result = await client.query(
@@ -297,7 +337,11 @@ async function executeFileProcessing(jobId: string, userId: string, payload: any
 
   if (rowCount === 0) throw new Error(`File record ${fileId} not found.`);
 
-  await chunkAndIndexDocument(fileId, content, userId);
+  // Skip RAG chunking/indexing for ephemeral uploads — they are used directly
+  // by the analysis engine via DB content and do not need vector search.
+  if (!isEphemeral) {
+    await chunkAndIndexDocument(fileId, content, userId);
+  }
 
   return { fileId, content };
 }

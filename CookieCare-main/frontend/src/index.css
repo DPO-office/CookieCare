@@ -1,25 +1,265 @@
+@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Mona+Sans:ital,wght@0,200..900;1,200..900&display=swap");
 @import "tailwindcss";
 
-/* ── RandTrust Brand Color Tokens ────────────────────────────────────────────
-   Central CSS variable definitions for the primary brand color.
-   To retheme the app, update only the values in this block.
-   Components reference var(--brand-primary) etc. via inline styles or Tailwind.
+/* ── LORA Design System Tokens ─────────────────────────────────────────
+   Full token system per DESIGN_SYSTEM.md v1.0 (August 2026).
+   All structural colors, spacing, radius, shadow, and typography values
+   live here. Never use inline hex values for structural/semantic purposes.
    ────────────────────────────────────────────────────────────────────────── */
 @layer base {
   :root {
-    --brand-primary:        #2175D9;   /* Primary brand blue               */
-    --brand-primary-hover:  #1D66C2;   /* Hover state (~10% darker)        */
-    --brand-primary-active: #1956A7;   /* Active/pressed state (~18% darker) */
-    --brand-primary-light:  #EBF2FD;   /* Light tint for backgrounds       */
+    /* ── Typography ── */
+    --font-sans: "Mona Sans", ui-sans-serif, system-ui, sans-serif,
+      "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+    --text-display:   28px;
+    --text-h1:        22px;
+    --text-h2:        18px;
+    --text-h3:        15px;
+    --text-body-lg:   15px;
+    --text-body:      14px;
+    --text-body-sm:   13px;
+    --text-label:     12px;
+    --text-caption:   11px;
+    --text-overline:  11px;
+    --text-mono:      13px;
+
+    /* ── Brand (primary interactive) ── */
+    --brand-primary:        #2175D9;
+    --brand-primary-hover:  #1D66C2;
+    --brand-primary-active: #1956A7;
+    --brand-primary-light:  #EBF2FD;
+    --color-brand:          #2175D9;
+    --color-brand-hover:    #1D66C2;
+    --color-brand-active:   #1956A7;
+    --color-brand-subtle:   #EBF2FD;
+    --color-brand-text:     #1A5BAD;
+
+    /* ── Backgrounds & Surfaces ── */
+    --color-bg-app:         #F7F8FA;
+    --color-bg-page:        #FFFFFF;
+    --color-surface-1:      #FFFFFF;
+    --color-surface-2:      #F9FAFB;
+    --color-surface-3:      #F3F4F6;
+    --color-surface-4:      #E9EAEC;
+
+    /* ── Borders ── */
+    --color-border:         #E4E4E7;
+    --color-border-subtle:  #F0F0F2;
+    --color-border-strong:  #D1D5DB;
+
+    /* ── Text ── */
+    --color-text-primary:   #111827;
+    --color-text-secondary: #374151;
+    --color-text-tertiary:  #6B7280;
+    --color-text-disabled:  #9CA3AF;
+    --color-text-inverse:   #FFFFFF;
+
+    /* ── Semantic: Success ── */
+    --color-success:        #059669;
+    --color-success-subtle: #ECFDF5;
+    --color-success-text:   #065F46;
+
+    /* ── Semantic: Warning ── */
+    --color-warning:        #D97706;
+    --color-warning-subtle: #FFFBEB;
+    --color-warning-text:   #92400E;
+
+    /* ── Semantic: Danger ── */
+    --color-danger:         #DC2626;
+    --color-danger-subtle:  #FEF2F2;
+    --color-danger-text:    #991B1B;
+
+    /* ── Semantic: Neutral ── */
+    --color-neutral:        #6B7280;
+    --color-neutral-subtle: #F9FAFB;
+    --color-neutral-text:   #374151;
+
+    /* ── Dark Mode (LORA AI) ── */
+    --color-dark-bg:        #0B0D10;
+    --color-dark-surface:   #0D0F13;
+    --color-dark-surface-2: #141720;
+    --color-dark-border:    rgba(255,255,255,0.07);
+    --color-dark-text:      rgba(255,255,255,0.82);
+    --color-dark-text-muted:rgba(255,255,255,0.45);
+
+    /* ── Spacing (4px base unit) ── */
+    --space-1:  4px;
+    --space-2:  8px;
+    --space-3:  12px;
+    --space-4:  16px;
+    --space-5:  20px;
+    --space-6:  24px;
+    --space-7:  28px;
+    --space-8:  32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+
+    /* ── Border Radius ── */
+    --radius-sm:   6px;
+    --radius-md:   8px;
+    --radius-lg:   12px;
+    --radius-xl:   16px;
+    --radius-2xl:  20px;
+    --radius-full: 9999px;
+
+    /* ── Shadows ── */
+    --shadow-none: none;
+    --shadow-xs:   0 1px 2px rgba(0,0,0,0.05);
+    --shadow-sm:   0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md:   0 4px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-lg:   0 8px 24px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.06);
+    --shadow-xl:   0 20px 60px rgba(0,0,0,0.12);
+
+    /* ── Motion ── */
+    --duration-fast: 100ms;
+    --duration-base: 150ms;
+    --duration-slow: 250ms;
+    --duration-page: 300ms;
+    --ease-standard: cubic-bezier(0.32, 0.72, 0, 1);
+    --ease-entry:    cubic-bezier(0.16, 1, 0.3, 1);
+
+    /* ── Layout ── */
+    --sidebar-width:           296px;
+    --sidebar-width-icon:      72px;
+    --sidebar-width-collapsed: 72px;
+    --topnav-height:           56px;
+  }
+
+  /* ── Base typography ── */
+  body {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    background: var(--color-bg-app);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ── Global focus-visible ring (keyboard users only) ── */
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
   }
 }
 
-/* ── Tailwind v4: expose brand color as a utility token ─────────────────── */
+/* ── Tailwind v4: expose design tokens as utility values ─────────────────── */
 @theme {
   --color-brand-primary:        var(--brand-primary);
   --color-brand-primary-hover:  var(--brand-primary-hover);
   --color-brand-primary-active: var(--brand-primary-active);
   --color-brand-primary-light:  var(--brand-primary-light);
+
+  /* Semantic aliases (master-detail / inspector surfaces) */
+  --color-background:           var(--color-bg-app);
+  --color-foreground:           var(--color-text-primary);
+  --color-card:                 var(--color-surface-1);
+  --color-card-foreground:      var(--color-text-primary);
+  --color-muted:                var(--color-surface-3);
+  --color-muted-foreground:     var(--color-text-tertiary);
+  --color-accent:               var(--color-brand-subtle);
+  --color-accent-foreground:    var(--color-brand-text);
+  --color-primary:              var(--brand-primary);
+  --color-primary-foreground:   var(--color-text-inverse);
+  --color-border:               #E4E4E7;
+  --color-ring:                 var(--brand-primary);
+
+  --font-sans: "Mona Sans", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-mono: var(--font-mono);
+
+  --color-dark-200: #475467;
+  --color-light-blue-100: #c1d3f81a;
+  --color-light-blue-200: #a7bff14d;
+  --color-badge-green: #d5faf1;
+  --color-badge-red: #f9e3e2;
+  --color-badge-yellow: #fceed8;
+  --color-badge-green-text: #254d4a;
+  --color-badge-red-text: #752522;
+  --color-badge-yellow-text: #73321b;
+}
+
+@utility text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-[#AB8C95] via-[#000000] to-[#8E97C5];
+}
+
+@utility gradient-border {
+  @apply bg-gradient-to-b from-light-blue-100 to-light-blue-200 p-4 rounded-2xl;
+}
+
+@utility primary-gradient {
+  background: linear-gradient(to bottom, #8e98ff, #606beb);
+  box-shadow: 0px 74px 21px 0px #6678ef00;
+}
+
+@utility primary-gradient-hover {
+  background: linear-gradient(to bottom, #717dff, #4957eb);
+}
+
+@utility inset-shadow {
+  box-shadow: inset 0 0 12px 0 rgba(36, 99, 235, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+@utility gradient-hover {
+  @apply bg-gradient-to-b from-light-blue-100 to-light-blue-200;
+}
+
+@utility dpa-results-bg {
+  background-color: #eaf2ff;
+  background-image:
+    linear-gradient(rgba(124, 135, 251, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124, 135, 251, 0.045) 1px, transparent 1px),
+    url("/images/bg-main.svg");
+  background-size: 56px 56px, 56px 56px, 100% auto;
+  background-position: top center, top center, top center;
+  background-repeat: repeat, repeat, no-repeat;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@layer components {
+  .score-badge {
+    @apply flex flex-row items-center justify-center py-1 px-2.5 gap-1.5 rounded-[96px];
+  }
+
+  .segmented-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 4px;
+    border-radius: 9999px;
+    background: rgba(199, 210, 254, 0.38);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: inset 0 0 0 1px rgba(167, 191, 241, 0.4);
+  }
+
+  .segmented-control-btn {
+    cursor: pointer;
+    border-radius: 9999px;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #667085;
+    background: transparent;
+    transition: color 150ms ease, background-color 150ms ease;
+  }
+
+  .segmented-control-btn:hover {
+    color: #1a1a1a;
+  }
+
+  .segmented-control-btn.is-active {
+    font-weight: 600;
+    color: #ffffff;
+    background: #111827;
+  }
 }
 
 /* ── Shared button utilities ─────────────────────────────────────────────────
@@ -30,23 +270,24 @@
   .btn-primary {
     display: inline-flex;
     align-items: center;
-    gap: 0.375rem;
-    background-color: var(--brand-primary);
-    color: #ffffff;
-    font-size: 0.8125rem;   /* 13px */
+    justify-content: center;
+    gap: var(--space-2);
+    background-color: var(--color-brand);
+    color: var(--color-text-inverse);
+    font-size: var(--text-body-sm);
     font-weight: 600;
-    padding: 0.625rem 1.25rem;
-    border-radius: 0.75rem;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-md);
     border: none;
     cursor: pointer;
-    transition: background-color 0.15s ease, opacity 0.15s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    transition: background-color var(--duration-fast) ease, opacity var(--duration-fast) ease;
+    box-shadow: none;
   }
   .btn-primary:hover:not(:disabled) {
-    background-color: var(--brand-primary-hover);
+    background-color: var(--color-brand-hover);
   }
   .btn-primary:active:not(:disabled) {
-    background-color: var(--brand-primary-active);
+    background-color: var(--color-brand-active);
   }
   .btn-primary:disabled {
     opacity: 0.5;
@@ -56,34 +297,119 @@
   .btn-secondary {
     display: inline-flex;
     align-items: center;
-    gap: 0.375rem;
-    background-color: #ffffff;
-    color: #374151;
-    font-size: 0.8125rem;
+    justify-content: center;
+    gap: var(--space-2);
+    background-color: var(--color-surface-1);
+    color: var(--color-text-secondary);
+    font-size: var(--text-body-sm);
     font-weight: 500;
-    padding: 0.5rem 1rem;
-    border-radius: 0.75rem;
-    border: 1px solid #e5e7eb;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
     cursor: pointer;
-    transition: background-color 0.15s ease, border-color 0.15s ease;
+    transition: background-color var(--duration-fast) ease, border-color var(--duration-fast) ease;
+    box-shadow: none;
   }
   .btn-secondary:hover:not(:disabled) {
-    background-color: #f9fafb;
-    border-color: #d1d5db;
+    background-color: var(--color-surface-3);
+    border-color: var(--color-border-strong);
   }
   .btn-secondary:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
+
+  /* Application shell */
+  .app-shell {
+    background-color: #eaf2ff;
+    background-image:
+      linear-gradient(rgba(124, 135, 251, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124, 135, 251, 0.045) 1px, transparent 1px),
+      url("/images/bg-main.svg");
+    background-size: 56px 56px, 56px 56px, 100% auto;
+    background-position: top center, top center, top center;
+    background-repeat: repeat, repeat, no-repeat;
+  }
+
+  .topnav-shell {
+    height: var(--topnav-height);
+    background: var(--color-surface-1);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: var(--shadow-xs);
+  }
+
+  .topnav-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: var(--radius-md);
+    color: var(--color-text-tertiary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background-color var(--duration-fast) ease, color var(--duration-fast) ease;
+  }
+  .topnav-icon-btn:hover {
+    background: var(--color-surface-3);
+    color: var(--color-text-primary);
+  }
+
+  .topnav-dropdown {
+    background: var(--color-surface-1);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+  }
+
+  .topnav-menu-item {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-body-sm);
+    color: var(--color-text-secondary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color var(--duration-fast) ease, color var(--duration-fast) ease;
+  }
+  .topnav-menu-item:hover {
+    background: var(--color-surface-3);
+    color: var(--color-text-primary);
+  }
 }
 
-/* Hide scrollbar while keeping scroll functionality */
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
+/* ── Scrollbar utilities ─────────────────────────────────────────────────── */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Thin scrollbar for secondary panels (sources, KB, popovers) */
+.scrollbar-thin::-webkit-scrollbar { width: 4px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: #E4E4E7; border-radius: 9999px; }
+.scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #D1D5DB; }
+.scrollbar-thin { scrollbar-width: thin; scrollbar-color: #E4E4E7 transparent; }
+
+/* ── AI streaming cursor ─────────────────────────────────────────────────── */
+/* Appended automatically while AI content is streaming */
+.streaming-cursor::after {
+  content: '▋';
+  display: inline-block;
+  width: 0.6em;
+  color: #2175D9;
+  animation: blink-cursor 0.7s step-end infinite;
+  margin-left: 1px;
+  vertical-align: baseline;
+  font-size: 0.85em;
 }
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
 }
 
 /* ── Markdown / rich-text typography ────────────────────────────────────────
@@ -96,7 +422,8 @@
 .draft-streaming-content,
 .ProseMirror {
   color: #1f2937;
-  line-height: 1.7;
+  font-size: 15px;
+  line-height: 1.75;
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
@@ -119,45 +446,46 @@
 .richtext-editor h1,
 .draft-streaming-content h1,
 .ProseMirror h1 {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 700;
   line-height: 1.3;
   color: #111827;
-  margin: 1.75rem 0 0.75rem;
-  letter-spacing: -0.01em;
+  margin: 2rem 0 0.65rem;
+  letter-spacing: -0.02em;
 }
 
 .md-content h2,
 .richtext-editor h2,
 .draft-streaming-content h2,
 .ProseMirror h2 {
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   font-weight: 700;
   line-height: 1.35;
   color: #111827;
-  margin: 1.5rem 0 0.6rem;
+  margin: 1.75rem 0 0.5rem;
+  letter-spacing: -0.015em;
 }
 
 .md-content h3,
 .richtext-editor h3,
 .draft-streaming-content h3,
 .ProseMirror h3 {
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 600;
   line-height: 1.4;
   color: #111827;
-  margin: 1.25rem 0 0.5rem;
+  margin: 1.35rem 0 0.4rem;
 }
 
 .md-content h4,
 .richtext-editor h4,
 .draft-streaming-content h4,
 .ProseMirror h4 {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
   line-height: 1.4;
-  color: #1f2937;
-  margin: 1.1rem 0 0.4rem;
+  color: #374151;
+  margin: 1.1rem 0 0.35rem;
 }
 
 .md-content p,
@@ -176,7 +504,7 @@
 .ProseMirror ul,
 .ProseMirror ol {
   margin: 0 0 0.9rem;
-  padding-left: 1.35rem;
+  padding-left: 1.4rem;
 }
 
 .md-content ul,
@@ -197,8 +525,9 @@
 .richtext-editor li,
 .draft-streaming-content li,
 .ProseMirror li {
-  margin: 0.2rem 0;
+  margin: 0.3rem 0;
   padding-left: 0.15rem;
+  color: #374151;
 }
 
 .md-content li > p,
@@ -238,7 +567,7 @@
 .ProseMirror hr {
   border: 0;
   border-top: 1px solid #e5e7eb;
-  margin: 1.4rem 0;
+  margin: 1.5rem 0;
 }
 
 .md-content blockquote,
@@ -246,7 +575,7 @@
 .draft-streaming-content blockquote,
 .ProseMirror blockquote {
   margin: 0.9rem 0;
-  padding: 0.55rem 0.9rem;
+  padding: 0.6rem 1rem;
   border-left: 3px solid #c7d7f5;
   background: #f8fafc;
   color: #4b5563;
@@ -258,7 +587,7 @@
 .draft-streaming-content code,
 .ProseMirror code {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.9em;
+  font-size: 0.875em;
   background: #f3f4f6;
   border: 1px solid #e5e7eb;
   border-radius: 0.35rem;
@@ -290,55 +619,119 @@
   font-size: inherit;
 }
 
-/* Tables: horizontal scroll + readable cells (critical for analysis reports) */
+/* ── Tables: ChatGPT-style readable layout ────────────────────────────────
+   Design principles:
+   - table-layout: auto — browser sizes columns by content, not equal splits
+   - Table is never narrower than its content; wide tables overflow and scroll
+   - The wrapper div handles horizontal scrolling (not the page)
+   - Clean row separators only (no column grid lines)
+   - Generous padding and sensible min-widths for readability
+   - Status badge pills rendered inline via .md-status-* classes
+   ───────────────────────────────────────────────────────────────────────── */
 .md-content .md-table-wrap,
 .richtext-editor .md-table-wrap,
 .draft-streaming-content .md-table-wrap {
+  /* Shrink to content width but never overflow the parent — scroll instead */
+  display: block;
   width: 100%;
   overflow-x: auto;
-  margin: 1rem 0 1.25rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.75rem;
-  background: #fff;
   -webkit-overflow-scrolling: touch;
+  margin: 1.25rem 0 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #E9EAEC;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  /* Subtle scrollbar — visible when needed, unobtrusive otherwise */
+  scrollbar-width: thin;
+  scrollbar-color: #D1D5DB transparent;
+}
+.md-content .md-table-wrap::-webkit-scrollbar {
+  height: 5px;
+}
+.md-content .md-table-wrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+.md-content .md-table-wrap::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 9999px;
+}
+.md-content .md-table-wrap::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
 }
 
 .md-content table,
 .richtext-editor table,
 .draft-streaming-content table,
 .ProseMirror table {
-  width: max-content;
+  /* auto: browser determines column widths from content — no more equal-split compression */
+  table-layout: auto;
+  /* Fill the container; only overflow (and scroll) when columns genuinely can't fit */
+  width: 100%;
   min-width: 100%;
   border-collapse: collapse;
-  font-size: 0.78rem;
-  line-height: 1.45;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+/* Requirements matrix: fixed column widths, scroll inside .md-table-requirements-wrap */
+.md-content table.md-table-requirements {
+  width: max-content;
+  min-width: 1180px;
+  table-layout: auto;
+}
+
+.md-content table.md-table-requirements thead th,
+.md-content table.md-table-requirements tbody td {
+  max-width: none;
+}
+
+/* Header */
+.md-content thead tr,
+.richtext-editor thead tr,
+.draft-streaming-content thead tr,
+.ProseMirror thead tr {
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .md-content thead th,
 .richtext-editor thead th,
 .draft-streaming-content thead th,
 .ProseMirror thead th {
-  position: sticky;
-  top: 0;
-  background: #f8fafc;
-  color: #374151;
+  background: #F7F8FA;
+  color: #6B7280;
   font-weight: 600;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   text-align: left;
-  white-space: nowrap;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 0.65rem 0.75rem;
+  /* Allow header text to wrap for very long headers, but keep a sensible floor */
+  white-space: normal;
+  min-width: 100px;
+  /* ChatGPT-style cap: headers never balloon past ~48 characters wide */
+  max-width: 48ch;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid #E9EAEC;
+  padding: 10px 16px;
 }
 
+/* Body cells */
 .md-content tbody td,
 .richtext-editor tbody td,
 .draft-streaming-content tbody td,
 .ProseMirror tbody td {
   vertical-align: top;
-  border-bottom: 1px solid #f1f5f9;
-  padding: 0.7rem 0.75rem;
-  color: #4b5563;
-  min-width: 8.5rem;
-  max-width: 18rem;
+  border-bottom: 1px solid #F3F4F6;
+  padding: 13px 16px;
+  color: #374151;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  /* ChatGPT-style cap: prose wraps at ~48 chars, never forces the table to overflow */
+  max-width: 48ch;
+  /* Prevent cells from being crushed below a readable width */
+  min-width: 100px;
 }
 
 .md-content tbody tr:last-child td,
@@ -348,22 +741,105 @@
   border-bottom: 0;
 }
 
-.md-content tbody tr:nth-child(even) td,
-.richtext-editor tbody tr:nth-child(even) td,
-.draft-streaming-content tbody tr:nth-child(even) td,
-.ProseMirror tbody tr:nth-child(even) td {
-  background: #fafbfc;
+/* Subtle hover on rows */
+.md-content tbody tr:hover td,
+.richtext-editor tbody tr:hover td,
+.draft-streaming-content tbody tr:hover td {
+  background: #FAFBFC;
 }
 
+/* First column = label — slightly darker */
 .md-content tbody td:first-child,
 .richtext-editor tbody td:first-child,
 .draft-streaming-content tbody td:first-child,
 .ProseMirror tbody td:first-child {
-  font-weight: 600;
-  color: #6b7280;
+  font-weight: 550;
+  color: #111827;
+}
+
+/* Index column (short counter like "#", "No.") */
+.md-content .md-table-indexed thead th:first-child,
+.richtext-editor .md-table-indexed thead th:first-child,
+.draft-streaming-content .md-table-indexed thead th:first-child {
+  width: 3rem;
   min-width: 2.5rem;
-  max-width: 3.5rem;
+}
+
+.md-content .md-table-indexed tbody td:first-child,
+.richtext-editor .md-table-indexed tbody td:first-child,
+.draft-streaming-content .md-table-indexed tbody td:first-child {
+  color: #6B7280;
+  font-weight: 500;
   white-space: nowrap;
+  width: 3rem;
+  min-width: 2.5rem;
+}
+
+/* ── Status badge pills ────────────────────────────────────────────────────
+   Injected by markdownToHtml.ts when a cell matches a known status pattern.
+   Each .md-status wraps a colored dot + the label text.
+   ───────────────────────────────────────────────────────────────────────── */
+.md-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.md-status::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Green: compliant / strong / present / adequate */
+.md-status-green {
+  color: #065F46;
+}
+.md-status-green::before {
+  background: #10B981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+/* Yellow/amber: conditional / partial / minor gap */
+.md-status-yellow {
+  color: #92400E;
+}
+.md-status-yellow::before {
+  background: #F59E0B;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+}
+
+/* Orange: needs clarification / not fully specified */
+.md-status-orange {
+  color: #9A3412;
+}
+.md-status-orange::before {
+  background: #F97316;
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2);
+}
+
+/* Red: non-compliant / cannot determine / missing */
+.md-status-red {
+  color: #991B1B;
+}
+.md-status-red::before {
+  background: #EF4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+/* Grey: unknown / not assessed */
+.md-status-grey {
+  color: #4B5563;
+}
+.md-status-grey::before {
+  background: #9CA3AF;
+  box-shadow: 0 0 0 2px rgba(156, 163, 175, 0.2);
 }
 
 /* Draft documents: slightly more open legal-document rhythm */
@@ -373,6 +849,12 @@
   font-size: 15px;
   line-height: 1.85;
   color: #1a2234;
+}
+
+.richtext-editor table,
+.draft-streaming-content table,
+.ProseMirror.richtext-editor table {
+  table-layout: auto;
 }
 
 .richtext-editor h1,
@@ -398,4 +880,17 @@
   margin: 0 0 0.9rem;
   text-align: justify;
   text-justify: inter-word;
+}
+
+/* Brand tagline — Fredoka ~450, tracked +60/1000em, slate on light. */
+.lora-tagline {
+  display: block;
+  margin: 0;
+  font-family: "Fredoka", var(--font-sans);
+  font-weight: 450;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  color: #5B6472;
+  text-align: left;
+  white-space: nowrap;
 }

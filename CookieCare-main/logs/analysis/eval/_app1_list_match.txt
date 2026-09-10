@@ -1,0 +1,33 @@
+chars=2527
+lines=31
+{"listMatch":false,"blackBullet":false,"firstCp":"41","text":"Appendix 1"}
+{"listMatch":false,"blackBullet":false,"firstCp":"53","text":"SUBJECT MATTER AND DETAILS OF THE DATA"}
+{"listMatch":false,"blackBullet":false,"firstCp":"50","text":"PROCESSING SUBJECT MATTER"}
+{"listMatch":false,"blackBullet":false,"firstCp":"44","text":"Data Subjects. The personal data transferred concern the following categories of data  subjects."}
+{"listMatch":true,"blackBullet":false,"firstCp":"31","text":"1. Data subjects about whom Alaio collects personal data in its provision of the  Processor Services; and/or"}
+{"listMatch":true,"blackBullet":false,"firstCp":"32","text":"2. Data subjects about whom personal data is transferred to Alaio in connection with  the Processor Services by, at the direction of, or on "}
+{"listMatch":false,"blackBullet":false,"firstCp":"49","text":"Including:"}
+{"listMatch":false,"blackBullet":true,"firstCp":"25cf","text":"● Staff including volunteers, agents, temporary and casual workers"}
+{"listMatch":false,"blackBullet":true,"firstCp":"25cf","text":"● Users and clients (including their staff)"}
+{"listMatch":false,"blackBullet":true,"firstCp":"25cf","text":"● Suppliers (including their staff)"}
+{"listMatch":false,"blackBullet":true,"firstCp":"25cf","text":"● Members or supporters"}
+{"listMatch":false,"blackBullet":true,"firstCp":"25cf","text":"● Complainants, correspondents and enquirers"}
+{"listMatch":false,"blackBullet":true,"firstCp":"25cf","text":"● Advisers, consultants and other professional experts"}
+{"listMatch":false,"blackBullet":false,"firstCp":"43","text":"Categories of data The personal data transferred concern the following categories of data:"}
+{"listMatch":false,"blackBullet":true,"firstCp":"25cf","text":"● Personal details, including any information that identifies the data subject and their  personal characteristics, including: first and las"}
+{"listMatch":false,"blackBullet":true,"firstCp":"25cf","text":"● Communications metadata"}
+{"listMatch":false,"blackBullet":true,"firstCp":"25cf","text":"● Employment data which may include: working time, geolocation (under user’s  consent as part of working time tracking)"}
+{"listMatch":false,"blackBullet":true,"firstCp":"25cf","text":"● Goods or services provided and related information, including details of the goods or  services supplied, licences issued, and contracts"}
+{"listMatch":false,"blackBullet":true,"firstCp":"25cf","text":"● Location country, city, state and region"}
+{"listMatch":false,"blackBullet":true,"firstCp":"25cf","text":"● Online identifiers"}
+{"listMatch":false,"blackBullet":true,"firstCp":"25cf","text":"● Device identifiers"}
+{"listMatch":false,"blackBullet":true,"firstCp":"25cf","text":"● Documents structured data"}
+{"listMatch":false,"blackBullet":true,"firstCp":"25cf","text":"● Personal images, audio and video recordings"}
+{"listMatch":false,"blackBullet":true,"firstCp":"25cf","text":"● Lifestyle and social circumstances"}
+{"listMatch":false,"blackBullet":true,"firstCp":"25cf","text":"● Signatures"}
+{"listMatch":false,"blackBullet":false,"firstCp":"53","text":"Special categories of data (if appropriate):"}
+{"listMatch":false,"blackBullet":false,"firstCp":"4e","text":"N/A"}
+{"listMatch":false,"blackBullet":false,"firstCp":"50","text":"Processing operations The personal data will be subject to the following basic processing  activities (please specify):"}
+{"listMatch":false,"blackBullet":true,"firstCp":"25cf","text":"● IT, digital, technology or telecom services, including provision of technology products  or services, telecoms and network services, digit"}
+{"listMatch":false,"blackBullet":true,"firstCp":"25cf","text":"● Collecting, recording, organizing, structuring, storing, retrieving, using, disclosing,  erasing and destroying) User Personal Data for th"}
+{"listMatch":false,"blackBullet":false,"firstCp":"54","text":"Telephony, Time management, CRM marketing, Workflows, eCommerce, Box  version."}

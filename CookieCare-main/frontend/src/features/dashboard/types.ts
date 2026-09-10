@@ -1,14 +1,35 @@
 import { LegalDocument } from "../../shared/types";
 
-export interface DashboardStats {
-  totalDocs: number;
-  pendingSigs: number;
-  redlinesPending: number;
+export type DashboardJobStatus = "queued" | "processing" | "completed" | "failed";
+
+export interface DashboardJob {
+  id: string;
+  type: string;
+  status: DashboardJobStatus;
+  progress: number;
+  message: string;
+  payload: Record<string, unknown>;
+  result: unknown;
+  error: string;
+  createdAt: string;
+  completedAt?: string;
+  updatedAt?: string;
 }
 
+/** @deprecated DashboardHome now reads from AppContext directly */
 export interface DashboardHomeProps {
   userName: string;
   setActiveTab: (tab: string) => void;
   documents: LegalDocument[];
-  stats: DashboardStats;
+  authToken: string;
+}
+
+export interface DocumentRow {
+  id: string;
+  title: string;
+  type: string;
+  updatedAt: string;
+  updatedLabel: string;
+  analyzed: boolean;
+  findingCount: number | null;
 }

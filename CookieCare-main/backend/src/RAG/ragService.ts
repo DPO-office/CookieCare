@@ -1,5 +1,6 @@
 import { pool } from "../config/database.js";
 import { withTransaction } from "../utils/dbUtils.js";
+import { executeEmbedding } from "../llm/index.js";
 
 // Helper to clean text
 function sanitizeText(text: string) {
@@ -35,14 +36,14 @@ function splitIntoClauseAwareChunks(content: string): string[] {
 }
 
 /**
- * Embedding is not available via OpenRouter (OpenRouter provides chat completions only).
- * This function returns null so the RAG pipeline gracefully falls back to lexical-only
- * (FTS + ILIKE) search, which is already handled throughout searchHybrid().
- * To restore vector search, configure a dedicated embeddings provider (e.g. OpenAI,
- * Cohere, or a self-hosted model) and replace this implementation.
+ * Semantic Retrieval plan (R0) — routed through the Gemini embedding lane
+ * (`executeEmbedding`, its own scheduler, separate from chat/JSON generation).
+ * Returns null on failure so the RAG pipeline gracefully falls back to
+ * lexical-only (FTS + ILIKE) search, already handled throughout searchHybrid().
  */
-export async function embedText(_text: string): Promise<number[] | null> {
-  return null;
+export async function embedText(text: string): Promise<number[] | null> {
+  const [vector] = await executeEmbedding([text]);
+  return vector ?? null;
 }
 
 export async function chunkAndIndexDocument(fileId: string, content: string, userId: string) {

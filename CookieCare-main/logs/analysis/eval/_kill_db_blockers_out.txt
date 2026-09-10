@@ -1,0 +1,3 @@
+??? injected env (34) from .env // tip: ??? encrypted .env [www.dotenvx.com]
+targets=0
+idle_in_transaction_remaining=0

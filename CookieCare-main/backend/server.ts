@@ -47,6 +47,11 @@ initQueryLogger();
 
 // --- 1. API ROUTES ---
 app.use("/api", apiRoutes);
+// Unmatched /api paths must not fall through to Vite (which would proxy
+// them back to this same server and fail with ECONNREFUSED / ENOBUFS).
+app.use("/api", (_req, res) => {
+  res.status(404).json({ error: "Not found" });
+});
 
 // --- 2. ENVIRONMENT-SPECIFIC STATIC/SPA HANDLING ---
 if (config.nodeEnv === "production") {
@@ -110,13 +115,34 @@ async function startServer() {
   if (config.nodeEnv !== "production") {
     // Development: Vite dev server handles SPA + HMR
     // Vite root is the frontend folder
+    process.env.VITE_MIDDLEWARE = "1";
+    const frontendRoot = path.resolve(process.cwd(), "frontend");
     const vite = await createViteServer({
-      root: path.resolve(process.cwd(), "frontend"),
+      configFile: path.resolve(frontendRoot, "vite.config.ts"),
+      root: frontendRoot,
       server: {
         middlewareMode: true,
         hmr: { server: httpServer },
+        proxy: {},
+        // Native fs.watch on Windows throws EBUSY for locked scratch files
+        // (e.g. frontend/scripts/_list.txt). An unhandled watcher 'error'
+        // kills the whole Node process and aborts in-flight compare jobs.
+        watch: {
+          ignored: [
+            "**/scripts/**",
+            "**/*.py",
+            "**/.git/**",
+            "**/node_modules/**",
+          ],
+        },
       },
       appType: "spa",
+    });
+    vite.watcher.on("error", (err: NodeJS.ErrnoException) => {
+      logger.warn(
+        { err: err.message, path: err.path, code: err.code },
+        "[vite] file watcher error ignored"
+      );
     });
     app.use(vite.middlewares);
   }

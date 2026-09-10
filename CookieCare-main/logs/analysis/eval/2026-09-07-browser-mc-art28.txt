@@ -1,0 +1,187 @@
+SESSION: an_57c264ba-a061-46a8-abb9-91ad84df6983
+JOB: d89c776f-2d06-472a-a6de-301e2a377f82
+STATUS: blocked
+
+## Requirements at a glance
+| Requirement | Status | Evidence | Finding | Action |
+| :--- | :--- | :--- | :--- | :--- |
+| Subject matter of the processing | **Verification incomplete** | document/appendix 2/controller to controller specific terms /def european data protection law - . “European Data Protection Law” means the GDPR, the UK GDPR and the e-Privacy Directive 2002/58/EC (as amended by Directive 2009/136/EC, and as amended and replaced from time to time) and their respective national implementing legislations (as amended [excerpt] | SM1: The contract identifies the subject matter of the processing (what is being processed and why the processor is engaged). Supported at document/appendix-2/controller-to-controller-specific-terms-/def-european-data-protection-law, clause-3.14,… | Re-run analysis — technical verification did not return a valid element matrix. |
+| Nature and purpose of the processing | **Verification incomplete** | cl. 2023 - 2023) and its Implementing Regulations; (10) Nigeria Data Protection Act 2023 and its subsidiary regulations and guidelines; (11) Turkey Law on the Protection Of Personal Data (DPL) No. 6698 and its regulations and successors; (12) Canadian federal and provincial laws governing the processing of P | NP1: The contract states the nature of the processing (the operations performed). Supported at clause-2023, heading-security-of-the-data, heading-security-of-the-data. NP2: The contract states the purpose of the processing.… | Re-run analysis — technical verification did not return a valid element matrix. |
+| The contract sets out the controller's obligations and rights. | **Verification incomplete** | cl. 3.9.1 - 3.9.1 Upon request by Mastercard and subject to Mastercard’s reasonable discretion, Supplier allows Mastercard or, as applicable, Mastercard's customers, or an inspection body composed of independent members selected by Mastercard or Mastercard’s customers, to audit and review Supplier’s Inf | E1: The contract sets out the controller's obligations and rights. Supported at clause-3.9.1, clause-3.5.5, clause-3.4.1. No unresolved elements. | Re-run analysis — technical verification did not return a valid element matrix. |
+| Processor acts only on documented instructions | **Verification incomplete** | cl. 3.4.1 - 3.4.1 Mastercard’s instructions are documented in Annex 1 of Addendum A1 of the Agreement and any applicable SOW(s). Mastercard may issue additional instructions to Supplier as it deems necessary to comply with Privacy and Data Protection Law. Supplier must notify Mastercard (1) whe | A1: The processor processes personal data only on documented instructions from the controller. Supported at clause-3.4.1, clause-3.5.4, clause-5.1.4. A2:… | Re-run analysis — technical verification did not return a valid element matrix. |
+| The processor implements appropriate technical and organisational security measures. | **Verification incomplete** | cl. 7.1 - 7.1. it has implemented and maintains a comprehensive written information security program that complies with Privacy and Data Protection Law and Appendix 1 of Controller to Controller terms of this Data Processing Agreement and, to the extent Supplier Processes payment card information, the | E1: The processor implements appropriate technical and organisational security measures. Supported at clause-7.1, heading-security-of-the-data, heading-security-of-the-data. No unresolved elements. | Re-run analysis — technical verification did not return a valid element matrix. |
+| Duration of the processing | **✅ Present** | cl. 3.5.6 - 3.5.6 Return and Deletion of Personal Data: upon expiry or termination of the Agreement and/or relevant SOW, or if the Agreement or any relevant part of the Agreement authorizing Supplier to Process Personal Data has been revoked, rescinded, or held void, invalid or unenforceable, or as set forth within the relevant SOW, comply with [excerpt] | DU1: The Data Processing Agreement ties the duration of processing Personal Data to the term/expiry/termination of the underlying Agreement and/or SOW, as well as upon revocation of the authorization to process data. No unresolved elements. | None — obligation satisfied. |
+| Persons authorised to process personal data are committed to confidentiality. | **✅ Present** | cl. 3.6.3 - Supplier must take steps to ensure that any person (whether an individual, a legal entity or any other organization) acting under its authority, including any Sub-Processor, who has access to Personal Data is only granted access to Personal Data on a need-to-know basis, is subject to a duly enforceable contractual or statutory [excerpt] | E1: The processor is obligated to ensure that any person acting under its authority who has access to personal data is subject to a duly enforceable contractual or statutory confidentiality obligation. No unresolved elements. | None — obligation satisfied. |
+| The processor does not engage another processor without controller authorisation. | **✅ Present** | cl. 3.7.5.3 - for the purposes of clause 9(a) of the EU SCCs, as applicable under modules two and three, option 1 applies with 60 business days as the specified time period for submitting the request for specific authorization. | E1: The processor is required to notify the controller at least 60 business days prior to engaging any new subprocessor, and where the controller objects/does not consent and processing is not possible without that subprocessor, the controller may suspend… | None — obligation satisfied. |
+| The processor assists the controller in responding to data-subject rights requests. | **✅ Present** | cl. 3.5.5 - cooperate with Mastercard to ensure compliance with Privacy and Data Protection Law, this Data Processing Agreement, and Mastercard’s or Mastercard’s customers’ instructions, and to assist Mastercard in fulfilling its own obligations under Privacy and Data Protection Law and as applicable Mastercard’s or Mastercard’s customer’s [excerpt] | E1: The processor is obligated to cooperate with and assist the controller in fulfilling its obligations, including complying with data subjects' requests to exercise their Data Protection Rights. No unresolved elements. | None — obligation satisfied. |
+| Processor assists the controller with obligations under Articles 32 to 36 (security, breach notification, DPIAs, prior consultation) | **✅ Present** | cl. 3.5.5 - 3.5.5 Cooperation and Assistance: cooperate with Mastercard to ensure compliance with Privacy and Data Protection Law, this Data Processing Agreement, and Mastercard’s or Mastercard’s customers’ instructions, and to assist Mastercard in fulfilling its own obligations under Privacy and Data Protection Law | F1: The processor is obligated to assist the controller (Mastercard) in fulfilling its own obligations under Privacy and Data Protection Law and ensure compliance, including cooperating on security and compliance checks. F2:… | None — obligation satisfied. |
+| At the choice of the controller, the processor deletes or returns all personal data at the end of the provision of services | **✅ Present** | cl. 3.5.6 - 3.5.6 Return and Deletion of Personal Data: upon expiry or termination of the Agreement and/or relevant SOW, or if the Agreement or any relevant part of the Agreement authorizing Supplier to Process Personal Data has been revoked, rescinded, or held void, invalid or unenforceable, or as set forth within the relevant SOW, comply with [excerpt] | G1: G2: G3: G4: No unresolved elements. | None — obligation satisfied. |
+| The processor makes available information necessary to demonstrate compliance and allow... | **✅ Present** | cl. 3.9.1 - 3.9.1 Upon request by Mastercard and subject to Mastercard’s reasonable discretion, Supplier allows Mastercard or, as applicable, Mastercard's customers, or an inspection body composed of independent members selected by Mastercard or Mastercard’s customers, to audit and review Supplier’s Information Security Program, data processing [excerpt] | E1: Under the controller-to-processor provisions, the supplier agrees to allow Mastercard or its independent inspectors to audit and review the supplier's security program, data processing facilities, and compliance program, and to make available the results… | None — obligation satisfied. |
+| A subprocessor is bound by the same data-protection obligations as the processor. | **✅ Present** | cl. 3.8.3 - 3.8.3 Prior to any sub-processing, Supplier must carry out adequate due diligence to ensure that the Sub-Processor is capable of (i) Processing Personal Data with at least the same level of protection for the Processing of Personal Data and of (ii) complying with the same security and privacy and data protection obligations as are [excerpt] | E1: The controller-to-processor provisions require the Supplier, prior to any sub-processing, to carry out due diligence to ensure that the Sub-Processor is capable of complying with the same security and privacy and data protection obligations as are imposed… | None — obligation satisfied. |
+
+## Element-level compliance (locked)
+_Statuses below come from the Phase 4–7 locked matrix (accepted locks only)._
+
+### Subject matter of the processing — **Verification incomplete**
+
+**What the document provides:** SM1: The contract identifies the subject matter of the processing (what is being processed and why the processor is engaged). Supported at document/appendix-2/controller-to-controller-specific-terms-/def-european-data-protection-law, clause-3.14, clause-4.4.1.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported SM1 · outstanding —
+
+- `document/appendix-2/controller-to-controller-specific-terms-/def-european-data-protection-law`: “. “European Data Protection Law” means the GDPR, the UK GDPR and the e-Privacy Directive 2002/58/EC (as amended by Directive 2009/136/EC, and as amended and replaced from time to t…”
+- `clause-3.14`: “3.14. “Privacy and Data Protection Law” means any Law, statute, declaration, decree, legislation, enactment, order, ordinance, regulation, guideline, rule, circular (as amended and…”
+
+**Action:** Re-run analysis — technical verification did not return a valid element matrix.
+
+### Duration of the processing — **Present**
+
+**What the document provides:** DU1: The Data Processing Agreement ties the duration of processing Personal Data to the term/expiry/termination of the underlying Agreement and/or SOW, as well as upon revocation of the authorization to process data.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported DU1 · outstanding —
+
+- `clause-3.5.6`: “3.5.6 Return and Deletion of Personal Data: upon expiry or termination of the Agreement and/or relevant SOW, or if the Agreement or any relevant part of the Agreement authorizing S…”
+
+### Nature and purpose of the processing — **Verification incomplete**
+
+**What the document provides:** NP1: The contract states the nature of the processing (the operations performed). Supported at clause-2023, heading-security-of-the-data, heading-security-of-the-data. NP2: The contract states the purpose of the processing. Supported at clause-6.3, clause-4.3, clause-4.4.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported NP1, NP2 · outstanding —
+
+- `clause-2023`: “2023) and its Implementing Regulations; (10) Nigeria Data Protection Act 2023 and its subsidiary regulations and guidelines; (11) Turkey Law on the Protection Of Personal Data (DPL…”
+- `heading-security-of-the-data`: “SECURITY OF THE DATA Description of the technical and organisational measures implemented by the data importer(s) (including any relevant certifications) to ensure an appropriate l…”
+
+**Action:** Re-run analysis — technical verification did not return a valid element matrix.
+
+### The contract sets out the controller's obligations and rights. — **Verification incomplete**
+
+**What the document provides:** E1: The contract sets out the controller's obligations and rights. Supported at clause-3.9.1, clause-3.5.5, clause-3.4.1.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported E1 · outstanding —
+
+- `clause-3.9.1`: “3.9.1 Upon request by Mastercard and subject to Mastercard’s reasonable discretion, Supplier allows Mastercard or, as applicable, Mastercard's customers, or an inspection body comp…”
+- `clause-3.5.5`: “3.5.5 Cooperation and Assistance: cooperate with Mastercard to ensure compliance with Privacy and Data Protection Law, this Data Processing Agreement, and Mastercard’s or Mastercar…”
+
+**Action:** Re-run analysis — technical verification did not return a valid element matrix.
+
+### Processor acts only on documented instructions — **Verification incomplete**
+
+**What the document provides:** A1: The processor processes personal data only on documented instructions from the controller. Supported at clause-3.4.1, clause-3.5.4, clause-5.1.4. A2: Instructions to make an international transfer are also processed only on documented instructions, unless required by law (with a notification obligation). Supported at clause-3.3, clause-5.1.4, clause-3.9.1.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported A1, A2 · outstanding —
+
+- `clause-3.4.1`: “3.4.1 Mastercard’s instructions are documented in Annex 1 of Addendum A1 of the Agreement and any applicable SOW(s). Mastercard may issue additional instructions to Supplier as it …”
+- `clause-3.5.4`: “3.5.4 Notification Obligations: immediately inform Mastercard, in writing, in relation to any Personal Data Processed in the context of the Services of: (i) any requests from indiv…”
+
+**Action:** Re-run analysis — technical verification did not return a valid element matrix.
+
+### Persons authorised to process personal data are committed to confidentiality. — **Present**
+
+**What the document provides:** E1: The processor is obligated to ensure that any person acting under its authority who has access to personal data is subject to a duly enforceable contractual or statutory confidentiality obligation.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported E1 · outstanding —
+
+- `clause-3.6.3`: “Supplier must take steps to ensure that any person (whether an individual, a legal entity or any other organization) acting under its authority, including any Sub-Processor, who ha…”
+
+### The processor implements appropriate technical and organisational security measures. — **Verification incomplete**
+
+**What the document provides:** E1: The processor implements appropriate technical and organisational security measures. Supported at clause-7.1, heading-security-of-the-data, heading-security-of-the-data.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported E1 · outstanding —
+
+- `clause-7.1`: “7.1. it has implemented and maintains a comprehensive written information security program that complies with Privacy and Data Protection Law and Appendix 1 of Controller to Contro…”
+- `heading-security-of-the-data`: “SECURITY OF THE DATA Description of the technical and organisational measures implemented by the data importer(s) (including any relevant certifications) to ensure an appropriate l…”
+
+**Action:** Re-run analysis — technical verification did not return a valid element matrix.
+
+### The processor does not engage another processor without controller authorisation. — **Present**
+
+**What the document provides:** E1: The processor is required to notify the controller at least 60 business days prior to engaging any new subprocessor, and where the controller objects/does not consent and processing is not possible without that subprocessor, the controller may suspend processing, and engagement without prior written consent constitutes a failure/breach.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported E1 · outstanding —
+
+- `clause-3.7.5.3`: “for the purposes of clause 9(a) of the EU SCCs, as applicable under modules two and three, option 1 applies with 60 business days as the specified time period for submitting the re…”
+- `clause-3.8.7`: “Supplier will notify Mastercard in writing to TPRM@mastercard.com , with the subject line “Europe Data Processing Addendum Notification”, about engaging any intended new Sub-Proces…”
+
+### The processor assists the controller in responding to data-subject rights requests. — **Present**
+
+**What the document provides:** E1: The processor is obligated to cooperate with and assist the controller in fulfilling its obligations, including complying with data subjects' requests to exercise their Data Protection Rights.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported E1 · outstanding —
+
+- `clause-3.5.5`: “cooperate with Mastercard to ensure compliance with Privacy and Data Protection Law, this Data Processing Agreement, and Mastercard’s or Mastercard’s customers’ instructions, and t…”
+
+### Processor assists the controller with obligations under Articles 32 to 36 (security, breach notification, DPIAs, prior consultation) — **Present**
+
+**What the document provides:** F1: The processor is obligated to assist the controller (Mastercard) in fulfilling its own obligations under Privacy and Data Protection Law and ensure compliance, including cooperating on security and compliance checks. F2: The processor is obligated to notify the controller without undue delay and no later than 24 hours of any Personal Data Breach to allow the controller to comply with breach notification requirements. F3: The processor is required to assist the controller in conducting data protection impact assessments and consultations with competent Government Bodies or Supervisory Authorities.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported F1, F2, F3 · outstanding —
+
+- `clause-3.5.5`: “3.5.5 Cooperation and Assistance: cooperate with Mastercard to ensure compliance with Privacy and Data Protection Law, this Data Processing Agreement, and Mastercard’s or Mastercar…”
+- `clause-3.6.4`: “3.6.4 Supplier will inform Mastercard of any Personal Data Breach or where there is a reasonable suspicion that a Personal Data Breach has occurred i) in writing to SOC@mastercard.…”
+
+### At the choice of the controller, the processor deletes or returns all personal data at the end of the provision of services — **Present**
+
+**What the document provides:** G1:  G2:  G3:  G4: 
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported G1, G2, G3, G4 · outstanding —
+
+- `clause-3.5.6`: “3.5.6 Return and Deletion of Personal Data: upon expiry or termination of the Agreement and/or relevant SOW, or if the Agreement or any relevant part of the Agreement authorizing S…”
+
+### The processor makes available information necessary to demonstrate compliance and allow... — **Present**
+
+**What the document provides:** E1: Under the controller-to-processor provisions, the supplier agrees to allow Mastercard or its independent inspectors to audit and review the supplier's security program, data processing facilities, and compliance program, and to make available the results of data protection and security audits.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported E1 · outstanding —
+
+- `clause-3.9.1`: “3.9.1 Upon request by Mastercard and subject to Mastercard’s reasonable discretion, Supplier allows Mastercard or, as applicable, Mastercard's customers, or an inspection body comp…”
+- `clause-3.9.2`: “3.9.2 The Parties will mutually agree upon the scope, timing, and duration of the Data Protection and Security Audit. The Data Protection and Security Audit may be conducted by an …”
+
+### A subprocessor is bound by the same data-protection obligations as the processor. — **Present**
+
+**What the document provides:** E1: The controller-to-processor provisions require the Supplier, prior to any sub-processing, to carry out due diligence to ensure that the Sub-Processor is capable of complying with the same security and privacy and data protection obligations as are imposed on Supplier under the Data Processing Agreement and Privacy and Data Protection Law.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported E1 · outstanding —
+
+- `clause-3.8.3`: “3.8.3 Prior to any sub-processing, Supplier must carry out adequate due diligence to ensure that the Sub-Processor is capable of (i) Processing Personal Data with at least the same…”
+
+### Locked bottom line
+
+- 2 required checks could not be completed and are NOT reflected in this assessment: data_categories, data_subject_categories.
+- 8 obligations present: Duration of the processing; Persons authorised to process personal data are committed to confidentiality.; The processor does not engage another processor without controller authorisation.; The processor assists the controller in responding to data-subject rights requests.; Processor assists the controller with obligations under Articles 32 to 36 (security, breach notification, DPIAs, prior consultation); At the choice of the controller, the processor deletes or returns all personal data at the end of the provision of services; The processor makes available information necessary to demonstrate compliance and allow...; A subprocessor is bound by the same data-protection obligations as the processor..
+- 5 obligations could not be verified — re-run required: Subject matter of the processing; Nature and purpose of the processing; The contract sets out the controller's obligations and rights.; Processor acts only on documented instructions; The processor implements appropriate technical and organisational security measures..
+
+## What needs attention
+- **Subject matter of the processing** - Verification incomplete: Re-run analysis — technical verification did not return a valid element matrix.
+- **Nature and purpose of the processing** - Verification incomplete: Re-run analysis — technical verification did not return a valid element matrix.
+- **The contract sets out the controller's obligations and rights.** - Verification incomplete: Re-run analysis — technical verification did not return a valid element matrix.
+- **Processor acts only on documented instructions** - Verification incomplete: Re-run analysis — technical verification did not return a valid element matrix.
+- **The processor implements appropriate technical and organisational security measures.** - Verification incomplete: Re-run analysis — technical verification did not return a valid element matrix.
+
+## Bottom line
+While eight Article 28 requirements are successfully addressed, this compliance review remains qualified because five mandatory items rely on referenced, truncated, or unavailable documentation. The items requiring the most urgent attention are the undetermined provisions governing the core subject matter and nature/purpose of processing, as well as the mandatory Article 28(3)(a) processing instructions and Article 28(3)(c) security measures. Counsel should obtain and review the missing referenced schedules to clear these residual items before proceeding. 5 requirements remain dependent on referenced, truncated, conflicting, or unavailable material. Obtain and review that material before treating the analysis as complete.

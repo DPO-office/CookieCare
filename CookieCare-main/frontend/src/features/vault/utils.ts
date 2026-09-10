@@ -1,10 +1,3 @@
-export function fmtDate(raw: string | undefined): string {
-  if (!raw) return "-";
-  return new Date(raw)
-    .toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" })
-    .replace(/\//g, "-");
-}
-
 /**
  * Vault Tags column: short chips only (contract type, status, short region).
  * Splits comma/semicolon lists, drops giant jurisdiction dumps, caps length.

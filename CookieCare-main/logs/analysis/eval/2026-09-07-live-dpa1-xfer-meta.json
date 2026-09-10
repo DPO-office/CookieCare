@@ -1,0 +1,10 @@
+{
+  "promptId": "xfer",
+  "prompt": "Analyse all international data transfer provisions. Identify: whether Standard Contractual Clauses, Binding Corporate Rules, or adequacy decisions are referenced, whether Schrems II supplementary measures are addressed, transfers to third countries and the legal basis for each, and any gaps in transfer mechanisms.",
+  "document": "C:\\Users\\abhinav.yadav_randst\\Downloads\\DPA Templates-20260907T045915Z-1-001\\DPA Templates\\DPA - 1.pdf",
+  "mode": "lite",
+  "jobId": "a2d68fec-b95a-4258-aa84-b0dc3c1a5116",
+  "sessionId": "an_093ce4f3-44eb-4e80-b258-f5c146774607",
+  "status": "completed",
+  "elapsedMs": 1384
+}

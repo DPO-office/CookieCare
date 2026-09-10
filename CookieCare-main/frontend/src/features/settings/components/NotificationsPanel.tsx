@@ -34,11 +34,11 @@ export default function NotificationsPanel() {
       </SettingCard>
 
       <SettingCard>
-        <CardHeader icon={Webhook} title="Webhook" desc="POST a JSON payload to your endpoint on each randtrust event." />
+        <CardHeader icon={Webhook} title="Webhook" desc="POST a JSON payload to your endpoint on each LORA event." />
         <CardBody className="space-y-4">
           <div>
             <Label>Endpoint URL</Label>
-            <Input type="url" placeholder="https://your-service.com/webhooks/randtrust" value={webhookUrl} onChange={e => setWebhookUrl(e.target.value)} />
+            <Input type="url" placeholder="https://your-service.com/webhooks/LORA" value={webhookUrl} onChange={e => setWebhookUrl(e.target.value)} />
           </div>
           <div className="flex flex-wrap gap-2">
             {["scan.complete", "risk.detected", "document.signed", "redline.added"].map(ev => (

@@ -1,0 +1,106 @@
+{
+  "bitrix": {
+    "g_bundle_n": 38,
+    "proviso_in_g_bundle": [
+      {
+        "path": "clause-2.5",
+        "q": "2.5 Deletion on Term Expiry. On expiry of the Term, Administrator instructs Alaio to delete all Personal Data (including existing copies) from Bitrix24 systems in accordance with applicable law. Alaio will comply with this instruction as so"
+      }
+    ],
+    "verifyG": [
+      {
+        "el": "G1",
+        "state": "not_located",
+        "reason": null
+      },
+      {
+        "el": "G2",
+        "state": "supported",
+        "reason": null
+      },
+      {
+        "el": "G3",
+        "state": "not_located",
+        "reason": null
+      },
+      {
+        "el": "G4",
+        "state": "not_located",
+        "reason": null
+      }
+    ]
+  },
+  "mastercard": {
+    "dpia_hits_in_any_bundle": 7,
+    "dpia_samples": [
+      {
+        "req": "subject_matter",
+        "path": "clause-3.5.5",
+        "q": "3.5.5 Cooperation and Assistance: cooperate with Mastercard to ensure compliance with Privacy and Data Protection Law, this Data Processing Agreement, and Mastercard’s or Mastercard’s customers’ instr"
+      },
+      {
+        "req": "data_subject_categories",
+        "path": "clause-3.5.5",
+        "q": "3.5.5 Cooperation and Assistance: cooperate with Mastercard to ensure compliance with Privacy and Data Protection Law, this Data Processing Agreement, and Mastercard’s or Mastercard’s customers’ instr"
+      },
+      {
+        "req": "controller_obligations_rights",
+        "path": "clause-3.5.5",
+        "q": "3.5.5 Cooperation and Assistance: cooperate with Mastercard to ensure compliance with Privacy and Data Protection Law, this Data Processing Agreement, and Mastercard’s or Mastercard’s customers’ instr"
+      },
+      {
+        "req": "art28_3_a_instructions",
+        "path": "clause-3.5.5",
+        "q": "3.5.5 Cooperation and Assistance: cooperate with Mastercard to ensure compliance with Privacy and Data Protection Law, this Data Processing Agreement, and Mastercard’s or Mastercard’s customers’ instr"
+      },
+      {
+        "req": "art28_3_e_dsr_assistance",
+        "path": "clause-3.5.5",
+        "q": "3.5.5 Cooperation and Assistance: cooperate with Mastercard to ensure compliance with Privacy and Data Protection Law, this Data Processing Agreement, and Mastercard’s or Mastercard’s customers’ instr"
+      },
+      {
+        "req": "art28_3_f_security_assistance",
+        "path": "clause-3.5.5",
+        "q": "3.5.5 Cooperation and Assistance: cooperate with Mastercard to ensure compliance with Privacy and Data Protection Law, this Data Processing Agreement, and Mastercard’s or Mastercard’s customers’ instr"
+      },
+      {
+        "req": "art28_4_subprocessor_flow_down",
+        "path": "clause-3.5.5",
+        "q": "3.5.5 Cooperation and Assistance: cooperate with Mastercard to ensure compliance with Privacy and Data Protection Law, this Data Processing Agreement, and Mastercard’s or Mastercard’s customers’ instr"
+      }
+    ],
+    "verifyG": [
+      {
+        "el": "G1",
+        "state": "not_located"
+      },
+      {
+        "el": "G2",
+        "state": "supported"
+      },
+      {
+        "el": "G3",
+        "state": "supported"
+      },
+      {
+        "el": "G4",
+        "state": "unresolved_dependency"
+      }
+    ],
+    "verifyF": [
+      {
+        "el": "F1",
+        "state": "supported"
+      },
+      {
+        "el": "F2",
+        "state": "supported"
+      },
+      {
+        "el": "F3",
+        "state": "not_located"
+      }
+    ],
+    "clause_356_full": "3.5.6 Return and Deletion of Personal Data: upon expiry or termination of the Agreement and/or relevant SOW, or if the Agreement or any relevant part of the Agreement authorizing Supplier to Process Personal Data has been revoked, rescinded, or held void, invalid or unenforceable, or as set forth within the relevant SOW, comply with Mastercard’s request, and at Mastercard’s sole option, securely delete existing copies of the Personal Data or return the same to Mastercard without retention of any hard or soft copies, unless applicable local law requires storage of the Personal Data, in which case Supplier will protect the confidentiality of the Personal Data, will not actively Process the Personal Data anymore, and will continue to comply with this Data Processing Agreement. Supplier will issue a certificate of deletion upon Mastercard’s request."
+  }
+}

@@ -3,8 +3,8 @@ import { Building2, Users, CreditCard } from "lucide-react";
 import { SettingCard, CardHeader, CardBody, CardFooter, Label, Input, SavedIndicator, useSaved } from "./SettingsPrimitives";
 
 export default function WorkspacePanel() {
-  const [orgName, setOrgName] = useState("randtrust Enterprise");
-  const [orgSlug, setOrgSlug] = useState("randtrust-enterprise");
+  const [orgName, setOrgName] = useState("LORA Enterprise");
+  const [orgSlug, setOrgSlug] = useState("LORA-enterprise");
   const [saved, trigger]      = useSaved();
 
   const members = [
@@ -37,7 +37,7 @@ export default function WorkspacePanel() {
           <div>
             <Label>Workspace slug</Label>
             <div className="flex items-center">
-              <span className="bg-gray-100 border border-r-0 border-gray-200 rounded-l-xl px-3 py-2.5 text-[12px] text-gray-400 shrink-0">randtrust.cloud/</span>
+              <span className="bg-gray-100 border border-r-0 border-gray-200 rounded-l-xl px-3 py-2.5 text-[12px] text-gray-400 shrink-0">LORA.cloud/</span>
               <Input value={orgSlug} onChange={e => setOrgSlug(e.target.value)} className="rounded-l-none" />
             </div>
           </div>

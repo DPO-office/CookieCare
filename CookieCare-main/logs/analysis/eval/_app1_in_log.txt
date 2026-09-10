@@ -1,0 +1,5 @@
+{
+  "appPreview": "Appendix 1 SUBJECT MATTER AND DETAILS OF THE DATA PROCESSING SUBJECT MATTER Data Subjects. The personal data transferred concern the following categories of dat",
+  "paragraphsUnderApp1Path": 0,
+  "hitsForCategoryLines": []
+}

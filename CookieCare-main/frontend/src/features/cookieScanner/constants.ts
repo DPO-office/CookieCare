@@ -5,10 +5,12 @@ export const SCAN_DEPTHS = [
   { value: "Enterprise", label: "Enterprise (50 pages)" },
 ] as const;
 
+export const CARD_SHADOW = "0 1px 2px rgba(16,24,40,0.04), 0 0 0 1px rgba(16,24,40,0.06)";
+
 export const SEVERITY_BADGE_CLASSES: Record<string, string> = {
-  HIGH: "bg-red-50 text-red-700 border-red-200",
-  MEDIUM: "bg-amber-50 text-amber-700 border-amber-200",
-  LOW: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  HIGH: "score-badge bg-badge-red text-badge-red-text",
+  MEDIUM: "score-badge bg-badge-yellow text-badge-yellow-text",
+  LOW: "score-badge bg-badge-green text-badge-green-text",
 };
 
 export const TRACKER_TABLE_HEADERS = ["Name", "Category", "Domain", "Retention", "Severity"];

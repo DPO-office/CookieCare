@@ -23,15 +23,18 @@ export function useDraftGeneratorState() {
   const [s4Open, setS4Open] = useState(false);
 
   // Folder expansion states
-  const [expandedFolder, setExpandedFolder] = useState<string | null>("randtrust Templates");
-  const [expandedClauseCat, setExpandedClauseCat] = useState<string | null>("randtrust Clause Library");
+  const [expandedFolder, setExpandedFolder] = useState<string | null>("LORA Templates");
+  const [expandedClauseCat, setExpandedClauseCat] = useState<string | null>("LORA Clause Library");
 
   // Search filters
   const [searchTemplateQuery, setSearchTemplateQuery] = useState("");
   const [searchClauseQuery, setSearchClauseQuery] = useState("");
 
   // Selections
-  const [selectedTemplateName, setSelectedTemplateName] = useState<string | null>("Mutual Non-Disclosure Agreement");
+  const [selectedTemplateName, setSelectedTemplateName] = useState<string | null>(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+  const [selectedPlaybookId, setSelectedPlaybookId] = useState<string | null>(null);
+  const [selectedClauseIds, setSelectedClauseIds] = useState<string[]>([]);
   const [selectedClauses, setSelectedClauses] = useState<string[]>([]);
   const [referenceInstructions, setReferenceInstructions] = useState("");
   const [aiRulebookPrompt, setAiRulebookPrompt] = useState("");
@@ -87,6 +90,12 @@ export function useDraftGeneratorState() {
     setSearchClauseQuery,
     selectedTemplateName,
     setSelectedTemplateName,
+    selectedTemplateId,
+    setSelectedTemplateId,
+    selectedPlaybookId,
+    setSelectedPlaybookId,
+    selectedClauseIds,
+    setSelectedClauseIds,
     selectedClauses,
     setSelectedClauses,
     referenceInstructions,

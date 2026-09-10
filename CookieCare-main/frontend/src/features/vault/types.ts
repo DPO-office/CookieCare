@@ -9,6 +9,9 @@ export type LibraryTabId =
   | "tags"
   | "saved-drafts";
 
+/** Scope of a library item: belongs only to the current user, or shared org-wide. */
+export type LibraryItemSource = "private" | "org";
+
 export interface LibraryItem {
   id: string;
   type: "files" | "prompts" | "questions" | "rulebook" | "templates" | "clauses" | "websites" | "tags";
@@ -18,6 +21,8 @@ export interface LibraryItem {
   itemsCount: string | number;
   dateModified: string;
   createdBy: string;
+  /** Ownership scope — defaults to 'private' for legacy rows without a value. */
+  source: LibraryItemSource;
   details?: string | Record<string, unknown>;
   fileList?: Array<{ id?: string; name: string; size: string; type: string }>;
 }

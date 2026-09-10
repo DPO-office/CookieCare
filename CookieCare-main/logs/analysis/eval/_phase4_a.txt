@@ -1,0 +1,2 @@
+{"id":"A1","state":"supported","n":8,"q":"2.4 By entering into this Data Processing Agreement, Administrator instructs Alaio to  process Perso","gap":""}
+{"id":"A2","state":"supported","n":16,"q":"2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendi","gap":""}

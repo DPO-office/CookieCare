@@ -2,6 +2,10 @@ import React, { useEffect, useRef } from "react";
 import { Editor, EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
+import TextAlign from "@tiptap/extension-text-align";
+import { TextStyle, FontFamily, FontSize, Color } from "@tiptap/extension-text-style";
+import Link from "@tiptap/extension-link";
+import { Table, TableRow, TableCell, TableHeader } from "@tiptap/extension-table";
 
 export interface RichTextSelectionSnapshot {
   from: number;
@@ -19,19 +23,11 @@ interface RichTextEditorProps {
   className?: string;
 }
 
-/**
- * Normalise any string to HTML suitable for TipTap's setContent.
- * - Already-HTML strings are passed through unchanged.
- * - Plain-text strings are wrapped in <p> tags per paragraph.
- */
 const normalizeHtml = (content: string): string => {
   const trimmed = content.trim();
   if (!trimmed) return "<p></p>";
-
-  // If content already contains HTML tags, return as-is.
   if (/<[a-z][\s\S]*>/i.test(trimmed)) return trimmed;
 
-  // Plain text fallback: escape and wrap paragraphs.
   const escaped = trimmed
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -52,7 +48,6 @@ export default function RichTextEditor({
   readOnly = false,
   className = "",
 }: RichTextEditorProps) {
-  // Stable refs so useEditor callbacks never become stale closures
   const onChangeRef = useRef(onChange);
   const onSelectionChangeRef = useRef(onSelectionChange);
   const onEditorReadyRef = useRef(onEditorReady);
@@ -62,16 +57,35 @@ export default function RichTextEditor({
   useEffect(() => { onEditorReadyRef.current = onEditorReady; });
 
   const editor = useEditor({
-    extensions: [StarterKit, Underline],
+    extensions: [
+      StarterKit.configure({
+        heading: { levels: [1, 2, 3] },
+      }),
+      Underline,
+      TextStyle,
+      FontFamily,
+      FontSize,
+      Color,
+      Link.configure({
+        openOnClick: false,
+        autolink: true,
+        HTMLAttributes: { class: "draft-editor-link" },
+      }),
+      TextAlign.configure({
+        types: ["heading", "paragraph"],
+        alignments: ["left", "center", "right", "justify"],
+      }),
+      Table.configure({ resizable: true }),
+      TableRow,
+      TableHeader,
+      TableCell,
+    ],
     content: normalizeHtml(content),
     editable: !readOnly,
     editorProps: {
       attributes: {
-        // px-0 / py-0 — padding lives on the .draft-editor-body card, not here.
-        // text-[15px] overrides Tailwind's text-sm (14px) to match the CSS variable.
-        // leading-[1.85] gives legal-document-quality line rhythm.
         class:
-          "richtext-editor focus:outline-none min-h-[70vh] text-[15px] leading-[1.85] text-[#1a2234]",
+          "richtext-editor focus:outline-none min-h-[60vh] text-[12pt] leading-[1.65] text-[#111827]",
       },
     },
     onUpdate: ({ editor: e }) => {
@@ -108,19 +122,15 @@ export default function RichTextEditor({
     },
   });
 
-  // Notify parent once the editor instance is available (fires once on mount).
   const editorReadyFiredRef = useRef(false);
   useEffect(() => {
     if (editor && !editorReadyFiredRef.current) {
       editorReadyFiredRef.current = true;
       onEditorReadyRef.current?.(editor);
     }
-    // If editor is destroyed and recreated, reset so the new instance is reported.
     if (!editor) editorReadyFiredRef.current = false;
   }, [editor]);
 
-  // Sync editor when parent `content` prop changes (e.g. doc switch or AI generation).
-  // Uses emitUpdate: false to avoid triggering the onChange · parent re-render loop.
   useEffect(() => {
     if (!editor) return;
     const next = normalizeHtml(content);
@@ -129,7 +139,6 @@ export default function RichTextEditor({
     }
   }, [content, editor]);
 
-  // Keep the editable flag in sync with the readOnly prop.
   useEffect(() => {
     if (!editor) return;
     editor.setEditable(!readOnly, false);

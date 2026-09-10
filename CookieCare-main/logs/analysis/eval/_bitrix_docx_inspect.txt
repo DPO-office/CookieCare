@@ -1,0 +1,14 @@
+file=C:\Users\abhinav.yadav_randst\Downloads\DPA - 1.docx
+size=38769
+w:tbl count=0
+w:tr count=0
+w:tc count=0
+Appendix mentions=12
+--- first cell texts ---
+plain has 'PROCESSING SUBJECT': True
+plain has 'Personal details': True
+plain has 'Staff including': True
+plain has 'Collecting, recording': True
+plain has 'Term means': False
+plain has 'Appendix 1': True
+mammoth skip: No module named 'mammoth'

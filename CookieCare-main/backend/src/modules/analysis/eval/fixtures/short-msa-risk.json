@@ -1,0 +1,7 @@
+{
+  "title": "Short MSA (risk golden)",
+  "instruction": "Flag key commercial risks in this MSA",
+  "expectedOperation": "risk_flag",
+  "expectedAbsentCategories": ["missing_limitation_of_liability"],
+  "document": "MASTER SERVICES AGREEMENT\n\n1. Services. Provider shall perform the services described in each Statement of Work.\n\n2. Fees. Customer shall pay invoices within thirty (30) days.\n\n3. Indemnity. Customer shall indemnify Provider against third-party claims arising from Customer Data.\n\n4. Termination. Either party may terminate for convenience on sixty (60) days' notice.\n\n5. Confidentiality. Each party shall protect the other party's confidential information.\n"
+}

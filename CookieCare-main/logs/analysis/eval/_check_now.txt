@@ -1,0 +1,322 @@
+[
+  {
+    "f": "an_6808411d-d9f2-4925-a3a0-e03c0556874f.compliance.log",
+    "phase": "2B",
+    "events": 1962,
+    "resolved": 15,
+    "conflict": 0,
+    "matchedByAlias": 15,
+    "matchedByCanonical": 0,
+    "fieldsOk": true,
+    "reqResolve": 6,
+    "reqUnresolved": 0,
+    "openResolve": 0,
+    "openUnresolved": 0,
+    "unresolvedReasons": [],
+    "resolutions": {
+      "matched": 4,
+      "split_match": 2,
+      "supplemental": 0,
+      "ambiguous": 0
+    },
+    "shapeOk": true,
+    "appendixHeading": true,
+    "termDef": false,
+    "structure": {
+      "appendix": 7,
+      "list": 23,
+      "table": 0,
+      "definition": 27,
+      "orphanCount": 0
+    },
+    "pools": [
+      {
+        "pkg": "gdpr.art28.particulars",
+        "src": "clause-pool",
+        "before": 98,
+        "after": 98
+      },
+      {
+        "pkg": "gdpr.art28.3.mandatory_clauses",
+        "src": "clause-pool",
+        "before": 98,
+        "after": 98
+      },
+      {
+        "pkg": "gdpr.art28.particulars",
+        "src": "document-sections",
+        "before": 219,
+        "after": 136
+      },
+      {
+        "pkg": "gdpr.art28.3.mandatory_clauses",
+        "src": "document-sections",
+        "before": 219,
+        "after": 136
+      }
+    ],
+    "reqDetail": [
+      {
+        "id": "gdpr.article28.subject_matter",
+        "res": "matched",
+        "n": 1
+      },
+      {
+        "id": "gdpr.article28.duration",
+        "res": "matched",
+        "n": 1
+      },
+      {
+        "id": "gdpr.article28.nature_and_purpose",
+        "res": "matched",
+        "n": 1
+      },
+      {
+        "id": "gdpr.article28.categories_data_and_subjects",
+        "res": "split_match",
+        "n": 2
+      },
+      {
+        "id": "gdpr.article28.controller_obligations_rights",
+        "res": "matched",
+        "n": 1
+      },
+      {
+        "id": "gdpr.article28_3.clause_adequacy",
+        "res": "split_match",
+        "n": 9
+      }
+    ]
+  },
+  {
+    "f": "an_313bf2c5-c208-4ddd-b96f-39a437333e5f.compliance.log",
+    "phase": "2B",
+    "events": 963,
+    "resolved": 15,
+    "conflict": 0,
+    "matchedByAlias": 15,
+    "matchedByCanonical": 0,
+    "fieldsOk": true,
+    "reqResolve": 6,
+    "reqUnresolved": 0,
+    "openResolve": 0,
+    "openUnresolved": 0,
+    "unresolvedReasons": [],
+    "resolutions": {
+      "matched": 4,
+      "split_match": 2,
+      "supplemental": 0,
+      "ambiguous": 0
+    },
+    "shapeOk": true,
+    "appendixHeading": true,
+    "termDef": true,
+    "structure": {
+      "appendix": 2,
+      "list": 11,
+      "table": 0,
+      "definition": 15,
+      "orphanCount": 0
+    },
+    "pools": [
+      {
+        "pkg": "gdpr.art28.particulars",
+        "src": "clause-pool",
+        "before": 70,
+        "after": 70
+      },
+      {
+        "pkg": "gdpr.art28.3.mandatory_clauses",
+        "src": "clause-pool",
+        "before": 70,
+        "after": 70
+      },
+      {
+        "pkg": "gdpr.art28.particulars",
+        "src": "document-sections",
+        "before": 82,
+        "after": 82
+      },
+      {
+        "pkg": "gdpr.art28.3.mandatory_clauses",
+        "src": "document-sections",
+        "before": 82,
+        "after": 82
+      }
+    ],
+    "reqDetail": [
+      {
+        "id": "gdpr.article28.subject_matter",
+        "res": "matched",
+        "n": 1
+      },
+      {
+        "id": "gdpr.article28.duration",
+        "res": "matched",
+        "n": 1
+      },
+      {
+        "id": "gdpr.article28.nature_and_purpose",
+        "res": "matched",
+        "n": 1
+      },
+      {
+        "id": "gdpr.article28.categories_data_and_subjects",
+        "res": "split_match",
+        "n": 2
+      },
+      {
+        "id": "gdpr.article28.controller_obligations_and_rights",
+        "res": "matched",
+        "n": 1
+      },
+      {
+        "id": "gdpr.article28_3.clause_adequacy",
+        "res": "split_match",
+        "n": 9
+      }
+    ]
+  },
+  {
+    "f": "an_fdaf056a-ca56-4447-ba31-c9b41660a342.compliance.log",
+    "phase": "1C",
+    "events": 977,
+    "resolved": 0,
+    "conflict": 0,
+    "matchedByAlias": 0,
+    "matchedByCanonical": 0,
+    "fieldsOk": true,
+    "reqResolve": 0,
+    "reqUnresolved": 0,
+    "openResolve": 0,
+    "openUnresolved": 0,
+    "unresolvedReasons": [],
+    "resolutions": {
+      "matched": 0,
+      "split_match": 0,
+      "supplemental": 0,
+      "ambiguous": 0
+    },
+    "shapeOk": true,
+    "appendixHeading": true,
+    "termDef": true,
+    "structure": {
+      "appendix": 2,
+      "list": 11,
+      "table": 0,
+      "definition": 15,
+      "orphanCount": 0
+    },
+    "pools": [
+      {
+        "pkg": "gdpr.art28.particulars",
+        "src": "clause-pool",
+        "before": 70,
+        "after": 70
+      },
+      {
+        "pkg": "gdpr.art28.3.mandatory_clauses",
+        "src": "clause-pool",
+        "before": 70,
+        "after": 70
+      },
+      {
+        "pkg": "gdpr.art28.particulars",
+        "src": "document-sections",
+        "before": 82,
+        "after": 82
+      },
+      {
+        "pkg": "gdpr.art28.3.mandatory_clauses",
+        "src": "document-sections",
+        "before": 82,
+        "after": 82
+      }
+    ],
+    "recon": {
+      "planned": 15,
+      "terminal": 15,
+      "missing": [
+        "subject_matter",
+        "duration",
+        "nature_purpose",
+        "data_categories",
+        "data_subject_categories",
+        "controller_obligations_rights"
+      ],
+      "dupes": []
+    },
+    "reqDetail": []
+  },
+  {
+    "f": "an_80bfbbe5-6826-4847-8b22-b4d50837fb1a.compliance.log",
+    "phase": "1C",
+    "events": 970,
+    "resolved": 0,
+    "conflict": 0,
+    "matchedByAlias": 0,
+    "matchedByCanonical": 0,
+    "fieldsOk": true,
+    "reqResolve": 0,
+    "reqUnresolved": 0,
+    "openResolve": 0,
+    "openUnresolved": 0,
+    "unresolvedReasons": [],
+    "resolutions": {
+      "matched": 0,
+      "split_match": 0,
+      "supplemental": 0,
+      "ambiguous": 0
+    },
+    "shapeOk": true,
+    "appendixHeading": true,
+    "termDef": true,
+    "structure": {
+      "appendix": 2,
+      "list": 8,
+      "table": 0,
+      "definition": 15,
+      "orphanCount": 0
+    },
+    "pools": [
+      {
+        "pkg": "gdpr.art28.particulars",
+        "src": "clause-pool",
+        "before": 70,
+        "after": 70
+      },
+      {
+        "pkg": "gdpr.art28.3.mandatory_clauses",
+        "src": "clause-pool",
+        "before": 70,
+        "after": 70
+      },
+      {
+        "pkg": "gdpr.art28.particulars",
+        "src": "document-sections",
+        "before": 82,
+        "after": 82
+      },
+      {
+        "pkg": "gdpr.art28.3.mandatory_clauses",
+        "src": "document-sections",
+        "before": 82,
+        "after": 82
+      }
+    ],
+    "recon": {
+      "planned": 15,
+      "terminal": 15,
+      "missing": [
+        "subject_matter",
+        "duration",
+        "nature_purpose",
+        "data_categories",
+        "data_subject_categories",
+        "controller_obligations_rights"
+      ],
+      "dupes": []
+    },
+    "reqDetail": []
+  }
+]

@@ -9,8 +9,11 @@ import AIPanel from "./components/AIPanel";
 import NotificationsPanel from "./components/NotificationsPanel";
 import WorkspacePanel from "./components/WorkspacePanel";
 import AdvancedPanel from "./components/AdvancedPanel";
+import { useAppContext } from "../../contexts/AppContext";
 
-export default function SettingsView({ user }: SettingsProps) {
+export default function SettingsView(_props: Partial<SettingsProps> = {}) {
+  const { currentUser } = useAppContext();
+  const user = currentUser;
   const [active, setActive] = useState<SettingsSection>("general");
   const current = NAV_ITEMS.find(n => n.id === active)!;
 

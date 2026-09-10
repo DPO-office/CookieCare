@@ -1,0 +1,19 @@
+events=8972 phase=3C
+markers=["appendix_heading=true","appendix_body=true","term_definition=false","data_categories=true","data_subjects=true"]
+pools=[]
+plan=undefined
+queries=12 recalls=12
+recall_ids=subject_matter:38, duration:37, nature_purpose:44, data_categories:32, data_subject_categories:32, controller_obligations_rights:27, art28_3_a_instructions:24, art28_3_b_confidentiality:29, art28_3_c_security:30, art28_3_d_subprocessors:20, art28_3_e_dsr_assistance:24, art28_3_f_security_assistance:21
+query_ids=subject_matter, duration, nature_purpose, data_categories, data_subject_categories, controller_obligations_rights, art28_3_a_instructions, art28_3_b_confidentiality, art28_3_c_security, art28_3_d_subprocessors, art28_3_e_dsr_assistance, art28_3_f_security_assistance
+{"req":"subject_matter","kinds":["requirement","element","element","element","element"]}
+{"req":"duration","kinds":["requirement","element","element","element","element","element"]}
+{"req":"nature_purpose","kinds":["requirement","element","element","element","element","element"]}
+duration_scopes=[{"part":"P1","rel":"controller_to_processor","n":16},{"part":"P2","rel":"controller_to_controller","n":4},{"part":"P3","rel":"unspecified","n":5}]
+incompatible_scope_samples=43
+{"req":"subject_matter","reason":"incompatible_scope"}
+{"req":"subject_matter","reason":"incompatible_scope"}
+{"req":"subject_matter","reason":"incompatible_scope"}
+{"req":"subject_matter","reason":"incompatible_scope"}
+{"req":"subject_matter","reason":"incompatible_scope"}
+recon=undefined
+f_recall={"event":"compliance.investigate.recall_summary","analysisId":"an_a5a9bb6f-821b-4f32-bde5-1829d7c43772","timestamp":"2026-09-05T13:48:14.031Z","implementationPhase":"3C","packageId":"gdpr.art28.3.mandatory_clauses","requirementId":"art28_3_f_security_assistance","uniqueCandidateCount":21,"elementsWithCandidates":["E1","E2"],"elementsWithoutCandidates":[],"totalQueries":6}

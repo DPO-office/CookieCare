@@ -1,0 +1,7 @@
+{
+  "sentence": "Alaio will comply with this instruction as soon as reasonably practicable and within a maximum period of 90 days, unless any applicable law requires storage.",
+  "group1_exception": true,
+  "group2_retention": true,
+  "group3_legal": true,
+  "wouldPassG4groups": true
+}

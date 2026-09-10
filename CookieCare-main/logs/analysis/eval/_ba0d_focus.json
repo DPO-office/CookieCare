@@ -1,0 +1,181 @@
+[
+  {
+    "event": "compliance.bundle.created",
+    "requirementId": "art28_3_a_instructions"
+  },
+  {
+    "event": "compliance.verify.input",
+    "requirementId": "art28_3_a_instructions"
+  },
+  {
+    "event": "compliance.verify.element",
+    "requirementId": "art28_3_a_instructions"
+  },
+  {
+    "event": "compliance.verify.element",
+    "requirementId": "art28_3_a_instructions"
+  },
+  {
+    "event": "compliance.verify.completeness",
+    "requirementId": "art28_3_a_instructions",
+    "missingElementIds": []
+  },
+  {
+    "event": "compliance.fallback.outcome",
+    "requirementId": "art28_3_a_instructions",
+    "missingElementIds": []
+  },
+  {
+    "event": "compliance.verify.llm.element",
+    "requirementId": "art28_3_a_instructions"
+  },
+  {
+    "event": "compliance.verify.llm.element",
+    "requirementId": "art28_3_a_instructions"
+  },
+  {
+    "event": "compliance.verify.llm.completeness",
+    "requirementId": "art28_3_a_instructions",
+    "missingElementIds": []
+  },
+  {
+    "event": "compliance.verify.compare",
+    "requirementId": "art28_3_a_instructions"
+  },
+  {
+    "event": "compliance.assess.result",
+    "requirementId": "duration",
+    "status": "present",
+    "elementStates": {
+      "DU1": "supported"
+    }
+  },
+  {
+    "event": "compliance.assess.result",
+    "requirementId": "nature_purpose",
+    "status": "present",
+    "elementStates": {
+      "NP1": "supported",
+      "NP2": "supported"
+    }
+  },
+  {
+    "event": "compliance.assess.input",
+    "requirementId": "art28_3_a_instructions",
+    "elementStates": {
+      "A1": "supported",
+      "A2": "supported"
+    }
+  },
+  {
+    "event": "compliance.assess.result",
+    "requirementId": "art28_3_a_instructions",
+    "status": "present",
+    "elementStates": {
+      "A1": "supported",
+      "A2": "supported"
+    }
+  },
+  {
+    "event": "compliance.explain.draft",
+    "requirementId": "art28_3_a_instructions",
+    "status": "present",
+    "supportedElementIds": [
+      "A1",
+      "A2"
+    ],
+    "missingElementIds": []
+  },
+  {
+    "event": "compliance.assess.result",
+    "requirementId": "art28_3_f_security_assistance",
+    "status": "present",
+    "elementStates": {
+      "F1": "supported",
+      "F2": "supported",
+      "F3": "supported"
+    }
+  },
+  {
+    "event": "compliance.assess.result",
+    "requirementId": "art28_3_g_deletion_return",
+    "status": "partial",
+    "elementStates": {
+      "G1": "not_located",
+      "G2": "supported",
+      "G3": "not_located",
+      "G4": "supported"
+    }
+  },
+  {
+    "event": "compliance.lock.attempt",
+    "requirementId": "art28_3_a_instructions"
+  },
+  {
+    "event": "compliance.lock.accepted",
+    "requirementId": "art28_3_a_instructions",
+    "status": "present"
+  },
+  {
+    "event": "compliance.render.row",
+    "requirementId": "art28_3_a_instructions",
+    "status": "present",
+    "supportedElementIds": [
+      "A1",
+      "A2"
+    ],
+    "missingElementIds": [],
+    "cites": [
+      {
+        "spanId": "doc_15f5a4b6-b3df-400a-8114-2a43f9756b22::section::10374-11035",
+        "quote": "2.4 By entering into this Data Processing Agreement, Administrator instructs Alaio to  process Personal Data only in accordance with applicable law: (a) to provide the Processor  Services and any related technical support; (b) as further specified via Administrator´s use  of the Processor Services (",
+        "structuralPath": "document/application-of-this-dpa/para@10374",
+        "charRange": [
+          10374,
+          11036
+        ],
+        "documentId": "doc_15f5a4b6-b3df-400a-8114-2a43f9756b22"
+      },
+      {
+        "spanId": "doc_15f5a4b6-b3df-400a-8114-2a43f9756b22::section::8534-9870",
+        "quote": "2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subject matter and details of the processing  of Personal Data; \n(b) Alaio is a processor (service provider under the California Privacy Rights Act of 2020  and any ",
+        "structuralPath": "clause-2.1.1",
+        "charRange": [
+          8534,
+          9870
+        ],
+        "documentId": "doc_15f5a4b6-b3df-400a-8114-2a43f9756b22"
+      },
+      {
+        "spanId": "doc_15f5a4b6-b3df-400a-8114-2a43f9756b22::section::17132-18045",
+        "quote": "7.2 Requirements for Sub-processor Engagement. When engaging any Sub-processor,  Alaio will: \n(a) ensure via a written contract that: \n(i) the Sub-processor only accesses and uses Personal Data to the extent required to  perform the obligations subcontracted to it, and does so in accordance with the",
+        "structuralPath": "clause-7.2",
+        "charRange": [
+          17132,
+          18045
+        ],
+        "documentId": "doc_15f5a4b6-b3df-400a-8114-2a43f9756b22"
+      },
+      {
+        "spanId": "doc_15f5a4b6-b3df-400a-8114-2a43f9756b22::section::28454-29390",
+        "quote": "12.3 For data transfers outside the EEA listed in schedules 11.3.4 protected by appropriate  safeguards under article 46 GDPR, specifically by the standard data protection clauses  adopted by the Commission in accordance with the examination procedure from controllers  in the EU to processors establ",
+        "structuralPath": "clause-12.3",
+        "charRange": [
+          28454,
+          29390
+        ],
+        "documentId": "doc_15f5a4b6-b3df-400a-8114-2a43f9756b22"
+      },
+      {
+        "spanId": "doc_15f5a4b6-b3df-400a-8114-2a43f9756b22::section::12865-13537",
+        "quote": "4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to  correct, amend, block or delete Personal Data, as required by Data Protection Legislation,  Alaio will (taking into account the nature of the processing of Personal Data and, if  applicable, Article 11 of ",
+        "structuralPath": "document/application-of-this-dpa/para@12865",
+        "charRange": [
+          12865,
+          13538
+        ],
+        "documentId": "doc_15f5a4b6-b3df-400a-8114-2a43f9756b22"
+      }
+    ]
+  }
+]

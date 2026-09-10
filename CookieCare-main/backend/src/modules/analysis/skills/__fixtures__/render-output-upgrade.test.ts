@@ -1,0 +1,532 @@
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+import type { AnalysisState } from "../../models/analysis-state.js";
+import type { ClauseObject } from "../../models/clause-object.js";
+import type { Finding } from "../../models/finding.js";
+import { getSkillById, getSkillRegistry, resetSkillRegistryForTests } from "../runtime/catalog/registry.js";
+import {
+  beginRenderStreaming,
+  shouldHoldUserFacingOutput,
+} from "../../utils/pac-log.js";
+import { initAgentRunState } from "../../pac/types.js";
+
+process.env.GOOGLE_CLOUD_PROJECT ??= "render-output-test";
+const {
+  buildBriefSummaryDocument,
+  buildRightsMatrixMemoDocument,
+  consolidateFindingsForRender,
+  getEligibleRemedialFindings,
+} = await import("../../capabilities/act/render-output.js");
+const { findSilenceEvidence } = await import(
+  "../../capabilities/act/flag-risk.js"
+);
+const { applyApplicabilityGate } = await import(
+  "../../capabilities/act/evaluate-matrix-row.js"
+);
+
+const locator = {
+  docId: "cisco-dpa",
+  structuralPath: "section-5",
+  charRange: [0, 120] as [number, number],
+};
+
+function finding(overrides: Partial<Finding>): Finding {
+  return {
+    findingId: String(overrides.findingId ?? "finding"),
+    kind: "risk",
+    category: "other_known_risk",
+    status: "absent_expected",
+    claim: "The agreement leaves a material obligation unresolved.",
+    evidence: [
+      {
+        locator,
+        quotedText: "Processor shall assist Controller with data subject requests.",
+        sourceRole: "target",
+      },
+    ],
+    severity: "medium",
+    taxonomyVersion: "test",
+    visibility: "user_facing",
+    ruleSourceTier: "B",
+    ...overrides,
+  };
+}
+
+describe("render-output legal memo upgrade", () => {
+  it("requires a human-readable display label for every configured category", () => {
+    resetSkillRegistryForTests();
+    for (const skill of Object.values(getSkillRegistry())) {
+      assert.ok(
+        skill.riskCategories.every((category) => category.displayLabel.trim().length > 0),
+        `${skill.skillId} contains a category without displayLabel`
+      );
+    }
+  });
+
+  it("renders fixed numbered sections, labels, citations, and one remedy per gap", () => {
+    resetSkillRegistryForTests();
+    const gdpr = getSkillById("regimes/data-protection/gdpr")!;
+    const findings = [
+      finding({
+        findingId: "erasure",
+        category: "erasure_termination_only_gap",
+        kind: "compliance",
+        matrixRowId: "gdpr.right.erasure",
+        matrixAddressing: "generic",
+        gap: "mid-term erasure is not expressly supported",
+        claim: "Deletion is described only at contract termination.",
+      }),
+      finding({
+        findingId: "cost",
+        category: "cost_allocation_silent",
+        claim: "The assistance clause does not allocate assistance costs.",
+      }),
+      finding({
+        findingId: "art22",
+        category: "automated_decision_gap",
+        kind: "compliance",
+        status: "insufficient_evidence",
+        matrixRowId: "gdpr.right.automated_decisions",
+        matrixAddressing: "absent",
+        evidence: [],
+        gap: "Article 22 applies only if qualifying automated decision-making is involved",
+        claim: "No automated-decision language establishes that Article 22 applies.",
+      }),
+    ];
+    const state = {
+      request: {
+        sessionId: "test",
+        instruction: "Review GDPR Articles 15-22.",
+        documentIds: ["cisco-dpa"],
+        documentTexts: {},
+        documentTitles: { "cisco-dpa": "Cisco Data Processing Addendum.pdf" },
+      },
+      workspace: {
+        sessionId: "test",
+        documents: [
+          {
+            docId: "cisco-dpa",
+            title: "Cisco Data Processing Addendum.pdf",
+            role: "target",
+            fullText: "Processor shall assist Controller with data subject requests.",
+            segments: [],
+            clauses: [],
+          },
+        ],
+      },
+      activeSkills: [gdpr],
+      activeSkillIds: [gdpr.skillId],
+      mergedRegimeRules: gdpr.regimeRules,
+      findings,
+      draftTasks: [],
+      metadata: {
+        timestamp: "2026-08-15T00:00:00.000Z",
+        clauseTaxonomyVersion: "test",
+        riskTaxonomyVersion: "test",
+      },
+    } as unknown as AnalysisState;
+
+    const eligible = getEligibleRemedialFindings(findings, state);
+    const output = buildRightsMatrixMemoDocument(
+      state,
+      findings,
+      "The agreement provides broad assistance but leaves several operational points unresolved."
+    );
+
+    for (const heading of [
+      "## 1. Architecture / Obligations Summary",
+      "## 2. Rights Matrix / Mapping",
+      "## 3. Response Timeframes",
+      "## 4. Gaps That Could Result in a Violation",
+      "## 5. Suggested Remedial Points",
+      "## 6. Related, Not Requested",
+      "## 7. Bottom Line",
+      "## 8. References",
+    ]) {
+      assert.match(output, new RegExp(heading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    }
+
+    const remedies = output
+      .split("## 5. Suggested Remedial Points")[1]
+      .split("## 6. Related, Not Requested")[0]
+      .match(/^\d+\. \*\*/gm);
+    assert.equal(remedies?.length ?? 0, eligible.length);
+    assert.match(output, /\[1\] Cisco Data Processing Addendum\.pdf/);
+    assert.match(output, /Erasure limited to contract termination \(Art 17\)/);
+    assert.match(output, /\*\*Medium — Erasure limited to contract termination \(Art 17\)\.\*\*/);
+    assert.match(
+      output,
+      /\| Automated individual decision-making \| 22 \| Insufficient evidence \|/
+    );
+    for (const rawCategory of findings.map((item) => item.category)) {
+      assert.doesNotMatch(output, new RegExp(rawCategory.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    }
+  });
+
+  it("detects silent assistance-cost allocation and hedges unsupported automated-decision rows", () => {
+    resetSkillRegistryForTests();
+    const gdpr = getSkillById("regimes/data-protection/gdpr");
+    assert.ok(gdpr);
+    const silence = gdpr!.riskCategories.find((c) => c.category === "cost_allocation_silent")
+      ?.silencePattern;
+    assert.ok(silence);
+
+    const clauses = [
+      {
+        clauseId: "assistance",
+        clauseType: "processor_assistance_obligation",
+        text: "Processor shall assist Controller with data subject requests.",
+        locator,
+      },
+    ] as ClauseObject[];
+
+    assert.equal(findSilenceEvidence(clauses, silence!)?.clauseId, "assistance");
+    assert.equal(
+      findSilenceEvidence(
+        [
+          {
+            ...clauses[0],
+            text: `${clauses[0].text} Assistance is provided at no additional charge.`,
+          },
+        ],
+        silence!
+      ),
+      null
+    );
+
+    const autoRow = gdpr!.rightsMatrixRows?.find((r) => r.rowId.includes("automated"));
+    assert.ok(autoRow?.applicabilityGate);
+    assert.ok(
+      applyApplicabilityGate(
+        autoRow!.applicabilityGate,
+        "The DPA contains only general DSR assistance."
+      )
+    );
+    assert.equal(
+      applyApplicabilityGate(
+        autoRow!.applicabilityGate,
+        "Solely automated decisions require human review."
+      ),
+      null
+    );
+  });
+
+  it("consolidates one user-facing conclusion per authored rule", () => {
+    const duplicates = Array.from({ length: 8 }, (_, index) =>
+      finding({
+        findingId: `art28-${index}`,
+        kind: "compliance",
+        ruleId: "gdpr.art28.3.e",
+        category: "dsr_assistance_not_operational",
+        status: index === 0 ? "present" : "insufficient_evidence",
+        claim:
+          index === 1
+            ? "Could not verify that the target document satisfies rule gdpr.art28.3.e: no verbatim supporting quote was returned."
+            : `Clause-level result ${index}.`,
+      })
+    );
+    const consolidated = consolidateFindingsForRender(duplicates);
+    assert.equal(consolidated.length, 1);
+    assert.doesNotMatch(consolidated[0].claim, /Could not verify that/);
+  });
+
+  it("collapses repeated flag_risk hits for the same category into one memo gap", () => {
+    const duplicates = Array.from({ length: 12 }, (_, index) =>
+      finding({
+        findingId: `port-${index}`,
+        kind: "risk",
+        category: "portability_format_unaddressed",
+        status: "present",
+        claim: "The clause mentions data subject rights but does not commit to a machine-readable format.",
+      })
+    );
+    const consolidated = consolidateFindingsForRender(duplicates);
+    assert.equal(consolidated.length, 1);
+    assert.equal(consolidated[0].evidence.length, 1);
+    const eligible = getEligibleRemedialFindings(consolidated);
+    assert.equal(eligible.length, 1);
+  });
+
+  it("preserves both present and absent_expected findings for a requirement in consolidation", async () => {
+    const { groundFindings } = await import("../../capabilities/audit/ground-findings.js");
+    const presentFinding = finding({
+      findingId: "f_pkg_part",
+      kind: "compliance",
+      category: "processor_terms",
+      status: "present",
+      requirementId: "gdpr.article28.nature_and_purpose",
+      claim: "Nature and purpose partially present.",
+      evidence: [{ locator, quotedText: "Section 5 processing terms", sourceRole: "target" }],
+    });
+    const gapFinding = finding({
+      findingId: "f_pkg_partgap",
+      kind: "compliance",
+      category: "processor_terms",
+      status: "absent_expected",
+      requirementId: "gdpr.article28.nature_and_purpose",
+      claim: "Nature and purpose relies on SOWs.",
+      gap: "Nature and purpose relies on SOWs.",
+      evidence: [{ locator, quotedText: "Section 5 processing terms", sourceRole: "target" }],
+    });
+    const consolidated = consolidateFindingsForRender([presentFinding, gapFinding]);
+    assert.equal(consolidated.length, 2);
+    assert.ok(consolidated.some((f) => f.status === "present"));
+    assert.ok(consolidated.some((f) => f.status === "absent_expected"));
+
+    const state = {
+      findings: consolidated,
+      workspace: {
+        sessionId: "s1",
+        documents: [
+          {
+            docId: "cisco-dpa",
+            role: "target",
+            fullText: "Section 5 processing terms",
+            segments: [],
+            clauses: [],
+          },
+        ],
+      },
+      intent: {
+        requirements: [
+          {
+            id: "gdpr.article28.nature_and_purpose",
+            description: "",
+            type: "adequacy",
+            priority: "required",
+          },
+        ],
+      },
+    } as unknown as AnalysisState;
+
+    const groundedState = groundFindings(state);
+    const assessment = groundedState.requirementAssessments?.find(
+      (a) => a.requirementId === "gdpr.article28.nature_and_purpose"
+    );
+    assert.ok(assessment);
+    assert.notEqual(assessment?.status, "cannot_determine");
+  });
+
+  it("collapses timeframe risk and Art 12(3) compliance into one remedial point", () => {
+    resetSkillRegistryForTests();
+    const gdpr = getSkillById("regimes/data-protection/gdpr")!;
+    const findings = [
+      finding({
+        findingId: "risk-time",
+        kind: "risk",
+        category: "dsr_no_response_timeframe",
+        status: "present",
+        claim: "No numeric Art 12(3) timeframe.",
+      }),
+      finding({
+        findingId: "rule-time",
+        kind: "compliance",
+        ruleId: "gdpr.art12.3",
+        category: "dsr_no_response_timeframe",
+        status: "absent_expected",
+        severity: "high",
+        claim: "Art 12(3) requires a one-month clock; the agreement only uses vague timing.",
+      }),
+    ];
+    const state = {
+      request: {
+        sessionId: "time",
+        instruction: "Check GDPR Articles 15-22.",
+        documentIds: ["dpa"],
+        documentTexts: {},
+      },
+      workspace: { sessionId: "time", documents: [] },
+      activeSkills: [gdpr],
+      activeSkillIds: [gdpr.skillId],
+      findings,
+      draftTasks: [],
+      metadata: {
+        timestamp: "2026-08-21T00:00:00.000Z",
+        clauseTaxonomyVersion: "test",
+        riskTaxonomyVersion: "test",
+      },
+    } as unknown as AnalysisState;
+
+    const eligible = getEligibleRemedialFindings(findings, state);
+    assert.equal(eligible.length, 1);
+    assert.equal(eligible[0].findingId, "rule-time");
+  });
+
+  it("renders constrained articles in a genuinely brief summary shape", () => {
+    resetSkillRegistryForTests();
+    const gdpr = getSkillById("regimes/data-protection/gdpr")!;
+    const findings = [
+      finding({
+        findingId: "access",
+        kind: "compliance",
+        status: "present",
+        category: "gdpr.art15.access_gap",
+        matrixRowId: "gdpr.right.access",
+        matrixAddressing: "named",
+        claim: "The agreement expressly supports access requests.",
+      }),
+      finding({
+        findingId: "rectification",
+        kind: "compliance",
+        category: "gdpr.art16.rectification_gap",
+        matrixRowId: "gdpr.right.rectification",
+        matrixAddressing: "absent",
+        claim: "Rectification is not expressly addressed.",
+      }),
+      finding({
+        findingId: "erasure",
+        kind: "compliance",
+        category: "gdpr.art17.erasure_gap",
+        matrixRowId: "gdpr.right.erasure",
+        matrixAddressing: "generic",
+        claim: "Erasure is covered only by general request language.",
+      }),
+    ];
+    const state = {
+      request: {
+        sessionId: "brief",
+        instruction:
+          "Give me a brief overview of GDPR articles 15 16 17, nothing more than that.",
+        documentIds: ["cisco-dpa"],
+        documentTexts: {},
+      },
+      workspace: { sessionId: "brief", documents: [] },
+      activeSkills: [gdpr],
+      activeSkillIds: [gdpr.skillId],
+      findings,
+      draftTasks: [],
+      metadata: {
+        timestamp: "2026-08-17T00:00:00.000Z",
+        clauseTaxonomyVersion: "test",
+        riskTaxonomyVersion: "test",
+      },
+    } as unknown as AnalysisState;
+
+    const output = buildBriefSummaryDocument(state, findings);
+    assert.match(output, /## Quick reference/);
+    assert.match(output, /\| Article 15 \| A person can ask what personal data/);
+    assert.match(output, /\*\*Article 16\.\*\*/);
+    assert.match(output, /## Practical bottom line/);
+    assert.doesNotMatch(output, /Let me know if you'd like/i);
+    assert.doesNotMatch(output, /Gaps That Could Result in a Violation/);
+    assert.doesNotMatch(output, /Suggested Remedial Points/);
+  });
+
+  it("joins risk gaps into Named matrix Gap cells and badges Art 12(3)", () => {
+    resetSkillRegistryForTests();
+    const gdpr = getSkillById("regimes/data-protection/gdpr")!;
+    const findings = [
+      finding({
+        findingId: "matrix-erasure",
+        kind: "compliance",
+        category: "erasure_termination_only_gap",
+        status: "present",
+        matrixRowId: "gdpr.right.erasure",
+        matrixAddressing: "named",
+        claim: "Erasure is expressly named.",
+      }),
+      finding({
+        findingId: "matrix-portability",
+        kind: "compliance",
+        category: "portability_format_unaddressed",
+        status: "present",
+        matrixRowId: "gdpr.right.portability",
+        matrixAddressing: "named",
+        claim: "Portability is expressly named.",
+      }),
+      finding({
+        findingId: "risk-erasure",
+        kind: "risk",
+        category: "erasure_termination_only_gap",
+        status: "present",
+        severity: "high",
+        gap: "Erasure limited to contract termination",
+        claim: "Deletion only on termination.",
+      }),
+      finding({
+        findingId: "risk-port",
+        kind: "risk",
+        category: "portability_format_unaddressed",
+        status: "present",
+        severity: "medium",
+        gap: "No machine-readable format commitment",
+        claim: "Portability format unaddressed.",
+      }),
+      finding({
+        findingId: "art12",
+        kind: "compliance",
+        ruleId: "gdpr.art12.3",
+        category: "dsr_no_response_timeframe",
+        status: "absent_expected",
+        severity: "high",
+        gap: "no numeric Art 12(3) timeframe",
+        claim: "Only vague timing.",
+      }),
+    ];
+    const state = {
+      request: {
+        sessionId: "matrix-join",
+        instruction: "Review GDPR Articles 15-22.",
+        documentIds: ["cisco-dpa"],
+        documentTexts: {},
+        documentTitles: { "cisco-dpa": "Cisco Data Processing Addendum.pdf" },
+      },
+      workspace: {
+        sessionId: "matrix-join",
+        documents: [
+          {
+            docId: "cisco-dpa",
+            title: "Cisco Data Processing Addendum.pdf",
+            role: "target",
+            fullText: "Processor shall assist Controller.",
+            segments: [],
+            clauses: [],
+          },
+        ],
+      },
+      activeSkills: [gdpr],
+      activeSkillIds: [gdpr.skillId],
+      mergedRegimeRules: gdpr.regimeRules,
+      findings,
+      draftTasks: [],
+      metadata: {
+        timestamp: "2026-08-21T00:00:00.000Z",
+        clauseTaxonomyVersion: "test",
+        riskTaxonomyVersion: "test",
+      },
+    } as unknown as AnalysisState;
+
+    const output = buildRightsMatrixMemoDocument(
+      state,
+      findings,
+      "Named rights still leave operational gaps."
+    );
+    assert.match(output, /Erasure limited to contract termination/);
+    assert.match(output, /No machine-readable format commitment/);
+    assert.match(output, /Response timeframe/);
+    assert.doesNotMatch(
+      output,
+      /\| Erasure \(right to be forgotten\) \| 17 \| Named \| —/
+    );
+  });
+
+  it("holds user-facing tokens until PAC is DONE", () => {
+    const state = { agent: initAgentRunState("CREATE") } as AnalysisState;
+    assert.equal(shouldHoldUserFacingOutput(state), true);
+    state.agent!.phase = "ACT";
+    assert.equal(shouldHoldUserFacingOutput(state), true);
+    state.agent!.phase = "CRITIQUE";
+    assert.equal(shouldHoldUserFacingOutput(state), true);
+    state.agent!.phase = "DONE";
+    assert.equal(shouldHoldUserFacingOutput(state), false);
+  });
+
+  it("opens the hold when the renderer starts streaming", () => {
+    const state = { agent: initAgentRunState("CREATE") } as AnalysisState;
+    state.agent!.phase = "ACT";
+    beginRenderStreaming(state);
+    assert.equal(shouldHoldUserFacingOutput(state), false);
+    state.agent!.phase = "AUDIT";
+    assert.equal(shouldHoldUserFacingOutput(state), false);
+  });
+});

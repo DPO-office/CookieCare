@@ -1,0 +1,115 @@
+## Requirements at a glance
+| Requirement | Status | Evidence | Finding | Action |
+| :--- | :--- | :--- | :--- | :--- |
+| At the choice of the controller, the processor deletes or returns all personal data at the end of the provision of services | **⚠️ Partial** | 4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, correction, amendment, restriction, deletion or exercising any other rights under the GDPR or other Data Protection Legislation of that person’s Personal Dat | G2: The processor is obligated to delete on request. Supported at document/application-of-this-dpa/para@13539, document/application-of-this-dpa/para@12865, document/application-of-this-dpa/para@12018. G4:… | G1: Reword the post-termination clause to grant the controller a choice. G3: Add a return obligation (format specified where reasonable). |
+| Subject matter of the processing | **✅ Present** | cl. 2.1.1 - 2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subject matter and details of the processing of Personal Data; (b) Alaio is a processor (service provider under the California Privacy Rights Act of 2020 and any | SM1: The contract identifies the subject matter of the processing (what is being processed and why the processor is engaged). Supported at clause-2.1.1, heading-processing-subject-matter, document/application-of-this-dpa/para@14404. No unresolved elements. | None — obligation satisfied. |
+| Duration of the processing | **✅ Present** | cl. 7.4 - 7.4 Objection Right for New Sub-processors. When any new Sub-processor is engaged during the Term, and if the GDPR applies to the processing of Personal Data, Alaio will, at least 10 days before the new Sub-processor processes any Personal Data, inform Administrator of the engagement (including | DU1: The contract specifies the duration of the processing, either by a defined term (e.g., 'Term') or by tying it to the term of the main services agreement. Supported at clause-7.4, heading-data-processing-agreement, clause-13.2. No unresolved elements. | None — obligation satisfied. |
+| Nature and purpose of the processing | **✅ Present** | . “Effective Date” means, as applicable: The date on which User clicked to accept or the parties otherwise agreed to this DPA. “Notification Email Address” means Primary email addresses associated with your account used by the first administrator for portal registration, used also to receive cert | NP1: The contract states the nature of the processing (the operations performed). Supported at document/application-of-this-dpa/def-effective-date, document/application-of-this-dpa/def-personal-data, clause-2. NP2:… | None — obligation satisfied. |
+| Categories of personal data | **✅ Present** | cl. 2 - 2. Data subjects about whom personal data is transferred to Alaio in connection with the Processor Services by, at the direction of, or on behalf of Administrator. Including: ● Staff including volunteers, agents, temporary and casual workers ● Users and clients (including their staff) ● Suppli | CD1: The contract lists the categories of personal data processed. Supported at clause-2, clause-9.2, document/application-of-this-dpa/para@15829. No unresolved elements. | None — obligation satisfied. |
+| Categories of data subjects | **✅ Present** | cl. 2 - 2. Data subjects about whom personal data is transferred to Alaio in connection with the Processor Services by, at the direction of, or on behalf of Administrator. Including: ● Staff including volunteers, agents, temporary and casual workers ● Users and clients (including their staff) ● Suppli | DS1: The contract lists the categories of data subjects whose data is processed. Supported at clause-2, clause-12.3, document/application-of-this-dpa/para@15829. No unresolved elements. | None — obligation satisfied. |
+| Processor acts only on documented instructions | **✅ Present** | 2.4 By entering into this Data Processing Agreement, Administrator instructs Alaio to process Personal Data only in accordance with applicable law: (a) to provide the Processor Services and any related technical support; (b) as further specified via Administrator´s use of the Processor Services ( | A1: The processor processes personal data only on documented instructions from the controller. Supported at document/application-of-this-dpa/para@10374, clause-2.1.1, clause-7.2. A2:… | None — obligation satisfied. |
+| Processor assists the controller with obligations under Articles 32 to 36 (security, breach notification, DPIAs, prior consultation) | **✅ Present** | 11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguards under article 46 GDPR, specifically by the Standard Contractual Clauses adopted by the European Commission in accordance with the exami | F1: The processor assists the controller in ensuring compliance with Article 32 (security of processing). Supported at document/application-of-this-dpa/para@27363, clause-6.4, document/appendix-2/security-measures/para@34584. F2:… | None — obligation satisfied. |
+
+## Element-level compliance (locked)
+_Statuses below come from the Phase 4–7 locked matrix (accepted locks only)._
+
+### Subject matter of the processing — **Present**
+
+**What the document provides:** SM1: The contract identifies the subject matter of the processing (what is being processed and why the processor is engaged). Supported at clause-2.1.1, heading-processing-subject-matter, document/application-of-this-dpa/para@14404.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported SM1 · outstanding —
+
+- `clause-2.1.1`: “2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subject matter and details of the processing …”
+- `heading-processing-subject-matter`: “PROCESSING SUBJECT MATTER Data Subjects. The personal data transferred concern the following categories of data subjects.”
+
+### Duration of the processing — **Present**
+
+**What the document provides:** DU1: The contract specifies the duration of the processing, either by a defined term (e.g., 'Term') or by tying it to the term of the main services agreement. Supported at clause-7.4, heading-data-processing-agreement, clause-13.2.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported DU1 · outstanding —
+
+- `clause-7.4`: “7.4 Objection Right for New Sub-processors. When any new Sub-processor is engaged during the Term, and if the GDPR applies to the processing of Personal Data, Alaio will, at least …”
+- `heading-data-processing-agreement`: “DATA PROCESSING AGREEMENT Last updated 29th November 2024 This Data Processing Agreement (“DPA”, “Agreement”) is an addendum to and forms part of the master agreement between the A…”
+
+### Nature and purpose of the processing — **Present**
+
+**What the document provides:** NP1: The contract states the nature of the processing (the operations performed). Supported at document/application-of-this-dpa/def-effective-date, document/application-of-this-dpa/def-personal-data, clause-2. NP2: The contract states the purpose of the processing. Supported at document/application-of-this-dpa/def-effective-date, document/application-of-this-dpa/def-personal-data, document/application-of-this-dpa/def-processor-services.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported NP1, NP2 · outstanding —
+
+- `document/application-of-this-dpa/def-effective-date`: “. “Effective Date” means, as applicable: The date on which User clicked to accept or the parties otherwise agreed to this DPA. “Notification Email Address” means Primary email addr…”
+- `document/application-of-this-dpa/def-personal-data`: “. “Personal Data” means any information relating to an identified or identifiable natural person ('data subject'); an identifiable person is one who can be identified, directly or …”
+
+### Categories of personal data — **Present**
+
+**What the document provides:** CD1: The contract lists the categories of personal data processed. Supported at clause-2, clause-9.2, document/application-of-this-dpa/para@15829.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported CD1 · outstanding —
+
+- `clause-2`: “2. Data subjects about whom personal data is transferred to Alaio in connection with the Processor Services by, at the direction of, or on behalf of Administrator. Including: ● Sta…”
+- `clause-9.2`: “9.2 Upon Administrator´s request, and subject to the confidentiality obligations set forth in this DPA, Alaio shall make available to User that is not a competitor of Alaio (or Adm…”
+
+### Categories of data subjects — **Present**
+
+**What the document provides:** DS1: The contract lists the categories of data subjects whose data is processed. Supported at clause-2, clause-12.3, document/application-of-this-dpa/para@15829.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported DS1 · outstanding —
+
+- `clause-2`: “2. Data subjects about whom personal data is transferred to Alaio in connection with the Processor Services by, at the direction of, or on behalf of Administrator. Including: ● Sta…”
+- `clause-12.3`: “12.3 For data transfers outside the EEA listed in schedules 11.3.4 protected by appropriate safeguards under article 46 GDPR, specifically by the standard data protection clauses a…”
+
+### Processor acts only on documented instructions — **Present**
+
+**What the document provides:** A1: The processor processes personal data only on documented instructions from the controller. Supported at document/application-of-this-dpa/para@10374, clause-2.1.1, clause-7.2. A2: Instructions to make an international transfer are also processed only on documented instructions, unless required by law (with a notification obligation). Supported at clause-2.1.1, clause-12.3, document/application-of-this-dpa/para@12865.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported A1, A2 · outstanding —
+
+- `document/application-of-this-dpa/para@10374`: “2.4 By entering into this Data Processing Agreement, Administrator instructs Alaio to process Personal Data only in accordance with applicable law: (a) to provide the Processor Ser…”
+- `clause-2.1.1`: “2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subject matter and details of the processing …”
+
+### Processor assists the controller with obligations under Articles 32 to 36 (security, breach notification, DPIAs, prior consultation) — **Present**
+
+**What the document provides:** F1: The processor assists the controller in ensuring compliance with Article 32 (security of processing). Supported at document/application-of-this-dpa/para@27363, clause-6.4, document/appendix-2/security-measures/para@34584. F2: The processor assists with Articles 33-34 (personal-data-breach notification to the supervisory authority and to data subjects). Supported at document/application-of-this-dpa/para@20473, clause-6.4, clause-10. F3: The processor assists with Articles 35-36 (DPIAs and prior consultation). Supported at clause-10.
+
+**What is missing / unclear:** No unresolved elements.
+
+**Elements:** supported F1, F2, F3 · outstanding —
+
+- `document/application-of-this-dpa/para@27363`: “11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguards under article 46 G…”
+- `clause-6.4`: “6.4 Alaio Security Assistance. Administrator agrees that Alaio will assist in ensuring compliance with any obligations of Administrator in respect of security of personal data and …”
+
+### At the choice of the controller, the processor deletes or returns all personal data at the end of the provision of services — **Partial**
+
+**What the document provides:** G2: The processor is obligated to delete on request. Supported at document/application-of-this-dpa/para@13539, document/application-of-this-dpa/para@12865, document/application-of-this-dpa/para@12018. G4: The processor deletes existing copies unless Union or Member State law requires storage. Supported at clause-2.5.
+
+**What is missing / unclear:** G1: No bundle item matched proof guidance for element G1. G3: No bundle item matched proof guidance for element G3.
+
+**Elements:** supported G2, G4 · outstanding G1, G3
+
+- `document/application-of-this-dpa/para@13539`: “4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, correction, amendment, restriction, dele…”
+- `document/application-of-this-dpa/para@12865`: “4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Personal Data, as required by Data Protection Legislat…”
+
+**Action:** G1: Reword the post-termination clause to grant the controller a choice. G3: Add a return obligation (format specified where reasonable).
+
+### Locked bottom line
+
+- 7 obligations present: Subject matter of the processing; Duration of the processing; Nature and purpose of the processing; Categories of personal data; Categories of data subjects; Processor acts only on documented instructions; Processor assists the controller with obligations under Articles 32 to 36 (security, breach notification, DPIAs, prior consultation).
+- 1 obligation partially met — remediation required: At the choice of the controller, the processor deletes or returns all personal data at the end of the provision of services.
+
+## What needs attention
+- **At the choice of the controller, the processor deletes or returns all personal data at the end of the provision of services** - ⚠️ Partial: G1: Reword the post-termination clause to grant the controller a choice. G3: Add a return obligation (format specified where reasonable).
+
+## Bottom line
+The uploaded Data Processing Agreement demonstrates strong alignment with GDPR Article 28 standards, fully satisfying seven core requirements. The primary area requiring attention is a minor drafting gap under Article 28(3)(g) regarding the deletion or return of personal data upon completion of services. Counsel should clarify the deletion and return language to resolve this single partial finding prior to execution.

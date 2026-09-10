@@ -1,0 +1,14 @@
+▶ DSR graded schemas → Partial on one-limb hit
+  ✔ resolves art21_objection to a multi-element authored schema (1.031ms)
+  ✔ marks Art 21 Partial when only the LI objection limb is supported (0.5576ms)
+  ✔ marks Art 17 Partial when mid-term erasure is present but Art 17(2) notice is missing when applicable (0.2309ms)
+  ✔ marks Art 22 not_applicable when both ADM limbs are not_applicable (0.1362ms)
+✔ DSR graded schemas → Partial on one-limb hit (2.7702ms)
+ℹ tests 4
+ℹ suites 1
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 248.9751

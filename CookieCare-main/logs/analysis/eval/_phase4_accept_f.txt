@@ -1,0 +1,26 @@
+f_bundle_items=49
+f_relevant=9
+{"path":"clause-8.4","src":"seed","span":"-427c-894f-b28688ad30f3::section::20473-20699","q":"8.4 Third Party Notifications. Administrator is solely responsible for complying with breach notification laws applicable to Admi"}
+{"path":"clause-1.10","src":"seed","span":"-427c-894f-b28688ad30f3::section::34584-34735","q":"1.10 All breaches of security pertaining to the IT Systems or any data stored thereon are reported and subsequently investigated "}
+{"path":"clause-4.1","src":"seed","span":"-427c-894f-b28688ad30f3::section::12865-13537","q":"4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Per"}
+{"path":"clause-4.2","src":"seed","span":"-427c-894f-b28688ad30f3::section::13539-14388","q":"4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for "}
+{"path":"clause-2.3","src":"seed","span":"-427c-894f-b28688ad30f3::section::35250-35682","q":"2.3 No Alaio employees may install any software of their own, whether that software is supplied on physical media or whether it i"}
+{"path":"clause-10","src":"seed","span":"-427c-894f-b28688ad30f3::section::22548-23187","q":"10. DATA PROTECTION IMPACT ASSESSMENT Upon Administrator´s request, Alaio will assist Administrator in ensuring compliance with "}
+{"path":"clause-6.4","src":"seed","span":"-427c-894f-b28688ad30f3::section::16291-16832","q":"6.4 Alaio Security Assistance. Administrator agrees that Alaio will assist in ensuring compliance with any obligations of Adminis"}
+{"path":"clause-1.1","src":"seed","span":"6c-427c-894f-b28688ad30f3::section::1402-8448","q":"1.1 DEFINITIONS AND INTERPRETATION “Alaio” shall have the meaning according to the Contracting Party section of Alaio (former Bi"}
+{"path":"document/application-of-this-dpa/para@2836","src":"expansion","span":"7c-894f-b28688ad30f3::paragraph::021d46dc2a4d","q":"“Data Incident” means a breach of Bitrix24 security leading to the accidental or unlawful destruction, loss, alteration, unauthor"}
+paths_with_6_4=1
+paths_with_clause10=1
+---SM1 cited detail---
+clause-2 | seed | pointer=false | list=true | q=2. Data subjects about whom personal data is transferred to Alaio in connection with the 
+clause-2.5.2 | seed | pointer=false | list=false | q=2.5.2 The Administrator may initiate deletion of the Bitrix24 Customer Account by first d
+clause-4.1 | seed | pointer=false | list=false | q=4.1 If the Administrator, in its use or receipt of the Services, does not have the ability
+clause-4.2 | seed | pointer=false | list=false | q=4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it rece
+clause-6.2 | seed | pointer=false | list=false | q=6.2 Alaio Security Measures. Alaio will implement and maintain technical, physical and or
+clause-5.1 | seed | pointer=false | list=false | q=5.1 Alaio shall ensure that its personnel engaged in the Processing of Personal Data are 
+clause-11.3.1 | seed | pointer=false | list=false | q=11.3.1 Alaio may process User Personal Data in Russian Federation subject to appropriate 
+clause-1 | seed | pointer=false | list=false | q=1. Data subjects about whom Alaio collects personal data in its provision of the Processo
+clause-12.3 | seed | pointer=false | list=false | q=12.3 For data transfers outside the EEA listed in schedules 11.3.4 protected by appropriat
+clause-2.1.1 | seed | pointer=true | list=false | q=2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (
+clause-1.1 | seed | pointer=false | list=false | q=1.1 DEFINITIONS AND INTERPRETATION “Alaio” shall have the meaning according to the Contra
+heading-processing-subject-matter | seed | pointer=false | list=false | q=PROCESSING SUBJECT MATTER Data Subjects. The personal data transferred concern the follow

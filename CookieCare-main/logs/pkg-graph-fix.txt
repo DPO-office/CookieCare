@@ -1,0 +1,81 @@
+[Analysis PAC] 15:21:34.037 PLAN package resolution packages=[2] requirementToPackageId={"termination.balance":"open_analysis.facet_1","liability.cap":"open_analysis.facet_2","open.facet_1.p1":"open_analysis.facet_1","open.facet_1.p2":"open_analysis.facet_1","open.facet_2.p1":"open_analysis.facet_2"} requirementPaths=[2] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:34.059 PLAN package resolution packages=[2] requirementToPackageId={"international_transfers.sccs":"international_transfer_evaluation","international_transfers.supplementary_measures":"international_transfer_evaluation","international_transfers.destinations":"international_transfer_evaluation","international_data_transfer":"international_transfer_inventory","transfer_inventory":"international_transfer_inventory","transfer_mechanism_identification":"international_transfer_evaluation","schrems_supplementary_measures":"international_transfer_evaluation"} requirementPaths=[3] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:34.063 PLAN package resolution packages=[2] requirementToPackageId={"international_data_transfer":"international_transfer_inventory","transfer_mechanism_identification":"international_transfer_evaluation","transfer_inventory":"international_transfer_inventory","schrems_supplementary_measures":"international_transfer_evaluation"} requirementPaths=[2] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:34.071 PLAN package resolution packages=[2] requirementToPackageId={"international_data_transfer":"international_transfer_inventory","transfer_mechanism_identification":"international_transfer_evaluation","transfer_inventory":"international_transfer_inventory","schrems_supplementary_measures":"international_transfer_evaluation"} requirementPaths=[2] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:34.077 PLAN package resolution packages=[1] requirementToPackageId={"international_data_transfer":"international_transfer_inventory","transfer_inventory":"international_transfer_inventory"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:34.090 PLAN package resolution packages=[1] requirementToPackageId={"scc_reference":"international_transfer_inventory","bcr_reference":"international_transfer_inventory","adequacy":"international_transfer_inventory","schrems_ii":"international_transfer_inventory","third_country_transfers":"international_transfer_inventory","international_data_transfer":"international_transfer_inventory","transfer_inventory":"international_transfer_inventory"} requirementPaths=[5] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:34.093 PLAN package resolution packages=[1] requirementToPackageId={"cross_border_safeguards":"international_transfer_inventory","international_data_transfer":"international_transfer_inventory","transfer_inventory":"international_transfer_inventory"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:34.107 PLAN package resolution packages=[1] requirementToPackageId={"audit_right":"gdpr.dsr.rights_verification","art12_3_response_timeframe":"gdpr.dsr.rights_verification","art15_access":"gdpr.dsr.rights_verification","art16_rectification":"gdpr.dsr.rights_verification","art17_erasure":"gdpr.dsr.rights_verification","art18_restriction":"gdpr.dsr.rights_verification","art19_recipient_notification":"gdpr.dsr.rights_verification","art20_portability":"gdpr.dsr.rights_verification","art21_objection":"gdpr.dsr.rights_verification","art22_automated_decisions":"gdpr.dsr.rights_verification"} requirementPaths=[1] leftoverRuleIds=[1] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:34.112 PLAN package resolution packages=[0] requirementToPackageId={} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:34.113 PLAN package resolution packages=[0] requirementToPackageId={} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:34.120 PLAN package resolution packages=[2] requirementToPackageId={"gdpr.article28.data_categories_and_subjects":"gdpr.art28.particulars","gdpr.article28.processor_obligations":"gdpr.art28.3.mandatory_clauses","subject_matter":"gdpr.art28.particulars","duration":"gdpr.art28.particulars","nature_purpose":"gdpr.art28.particulars","data_categories":"gdpr.art28.particulars","data_subject_categories":"gdpr.art28.particulars","controller_obligations_rights":"gdpr.art28.particulars","art28_3_a_instructions":"gdpr.art28.3.mandatory_clauses","art28_3_b_confidentiality":"gdpr.art28.3.mandatory_clauses","art28_3_c_security":"gdpr.art28.3.mandatory_clauses","art28_3_d_subprocessors":"gdpr.art28.3.mandatory_clauses","art28_3_e_dsr_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_f_security_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_g_deletion_return":"gdpr.art28.3.mandatory_clauses","art28_3_h_audit":"gdpr.art28.3.mandatory_clauses","art28_4_subprocessor_flow_down":"gdpr.art28.3.mandatory_clauses"} requirementPaths=[2] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:34.126 PLAN package resolution packages=[2] requirementToPackageId={"gdpr.dpa_compliance":"gdpr.art28.particulars","subject_matter":"gdpr.art28.particulars","duration":"gdpr.art28.particulars","nature_purpose":"gdpr.art28.particulars","data_categories":"gdpr.art28.particulars","data_subject_categories":"gdpr.art28.particulars","controller_obligations_rights":"gdpr.art28.particulars","art28_3_a_instructions":"gdpr.art28.3.mandatory_clauses","art28_3_b_confidentiality":"gdpr.art28.3.mandatory_clauses","art28_3_c_security":"gdpr.art28.3.mandatory_clauses","art28_3_d_subprocessors":"gdpr.art28.3.mandatory_clauses","art28_3_e_dsr_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_f_security_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_g_deletion_return":"gdpr.art28.3.mandatory_clauses","art28_3_h_audit":"gdpr.art28.3.mandatory_clauses","art28_4_subprocessor_flow_down":"gdpr.art28.3.mandatory_clauses"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:34.136 PLAN package resolution packages=[2] requirementToPackageId={"gdpr.article28.categories_data_and_subjects":"gdpr.dsr.rights_verification","subject_matter":"gdpr.art28.particulars","duration":"gdpr.art28.particulars","nature_purpose":"gdpr.art28.particulars","data_categories":"gdpr.art28.particulars","data_subject_categories":"gdpr.art28.particulars","controller_obligations_rights":"gdpr.art28.particulars","art12_3_response_timeframe":"gdpr.dsr.rights_verification","art15_access":"gdpr.dsr.rights_verification","art16_rectification":"gdpr.dsr.rights_verification","art17_erasure":"gdpr.dsr.rights_verification","art18_restriction":"gdpr.dsr.rights_verification","art19_recipient_notification":"gdpr.dsr.rights_verification","art20_portability":"gdpr.dsr.rights_verification","art21_objection":"gdpr.dsr.rights_verification","art22_automated_decisions":"gdpr.dsr.rights_verification"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:34.138 PLAN package resolution packages=[1] requirementToPackageId={"art28_3_a_instructions":"gdpr.art28.3.mandatory_clauses","art28_3_b_confidentiality":"gdpr.art28.3.mandatory_clauses","art28_3_c_security":"gdpr.art28.3.mandatory_clauses","art28_3_d_subprocessors":"gdpr.art28.3.mandatory_clauses","art28_3_e_dsr_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_f_security_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_g_deletion_return":"gdpr.art28.3.mandatory_clauses","art28_3_h_audit":"gdpr.art28.3.mandatory_clauses","art28_4_subprocessor_flow_down":"gdpr.art28.3.mandatory_clauses"} requirementPaths=[0] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:34.145 PLAN package resolution packages=[2] requirementToPackageId={"subject_matter":"gdpr.art28.particulars","duration":"gdpr.art28.particulars","nature_purpose":"gdpr.art28.particulars","data_categories":"gdpr.art28.particulars","data_subject_categories":"gdpr.art28.particulars","controller_obligations_rights":"gdpr.art28.particulars","art28_3_a_instructions":"gdpr.art28.3.mandatory_clauses","art28_3_b_confidentiality":"gdpr.art28.3.mandatory_clauses","art28_3_c_security":"gdpr.art28.3.mandatory_clauses","art28_3_d_subprocessors":"gdpr.art28.3.mandatory_clauses","art28_3_e_dsr_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_f_security_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_g_deletion_return":"gdpr.art28.3.mandatory_clauses","art28_3_h_audit":"gdpr.art28.3.mandatory_clauses","art28_4_subprocessor_flow_down":"gdpr.art28.3.mandatory_clauses"} requirementPaths=[0] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:34.146 PLAN package resolution packages=[2] requirementToPackageId={"subject_matter":"gdpr.art28.particulars","duration":"gdpr.art28.particulars","nature_purpose":"gdpr.art28.particulars","data_categories":"gdpr.art28.particulars","data_subject_categories":"gdpr.art28.particulars","controller_obligations_rights":"gdpr.art28.particulars","art28_3_a_instructions":"gdpr.art28.3.mandatory_clauses","art28_3_b_confidentiality":"gdpr.art28.3.mandatory_clauses","art28_3_c_security":"gdpr.art28.3.mandatory_clauses","art28_3_d_subprocessors":"gdpr.art28.3.mandatory_clauses","art28_3_e_dsr_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_f_security_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_g_deletion_return":"gdpr.art28.3.mandatory_clauses","art28_3_h_audit":"gdpr.art28.3.mandatory_clauses","art28_4_subprocessor_flow_down":"gdpr.art28.3.mandatory_clauses"} requirementPaths=[0] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:34.148 PLAN package resolution packages=[2] requirementToPackageId={"subject_matter":"gdpr.art28.particulars","duration":"gdpr.art28.particulars","nature_purpose":"gdpr.art28.particulars","data_categories":"gdpr.art28.particulars","data_subject_categories":"gdpr.art28.particulars","controller_obligations_rights":"gdpr.art28.particulars","art28_3_a_instructions":"gdpr.art28.3.mandatory_clauses","art28_3_b_confidentiality":"gdpr.art28.3.mandatory_clauses","art28_3_c_security":"gdpr.art28.3.mandatory_clauses","art28_3_d_subprocessors":"gdpr.art28.3.mandatory_clauses","art28_3_e_dsr_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_f_security_assistance":"gdpr.art28.3.mandatory_clauses","art28_3_g_deletion_return":"gdpr.art28.3.mandatory_clauses","art28_3_h_audit":"gdpr.art28.3.mandatory_clauses","art28_4_subprocessor_flow_down":"gdpr.art28.3.mandatory_clauses"} requirementPaths=[0] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:34.153 PLAN package resolution packages=[0] requirementToPackageId={} requirementPaths=[3] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+▶ compound runtime facet packages
+  ✔ selects each facet by explicit alias and preserves facet bindings (22.3073ms)
+✔ compound runtime facet packages (24.9166ms)
+▶ kinded analysis packages - international transfers
+  ✔ binds the live Q13 SCCs, measures, and destinations requirements one-to-one (11.659ms)
+  ✔ selects inventory + evaluation and does not fan out Chapter V rule checks (14.1756ms)
+  ✔ inventory-only instruction does not schedule Chapter V evaluation (3.1615ms)
+  ✔ auto-pairs the transfers overlay for an international-transfer DPA review (3.8772ms)
+  ✔ privacy library path makes transfers overlay available (1.8041ms)
+  ✔ resolves catalog-style extraction ids to inventory via semanticTopics, not Chapter V rules (6.3077ms)
+  ✔ matches unaliased extraction ids when requirement text hits a package topic (2.8729ms)
+  ✔ does not auto-pair transfers for a DSR-only instruction (4.743ms)
+✔ kinded analysis packages - international transfers (50.893ms)
+▶ kinded analysis packages — named rule vs unsupported extraction
+  ✔ audit-right verification uses the Article 28 evaluation package, not inventory (10.1226ms)
+  ✔ unsupported extraction is explicit not_supported, not silent rule fan-out (4.421ms)
+✔ kinded analysis packages — named rule vs unsupported extraction (15.1432ms)
+▶ kinded analysis packages - existing GDPR grouped eval
+  ✔ prefers explicit requirement-package mappings over a broad doc-type semantic match (6.8687ms)
+  ✔ runs both Article 28 component packages for the live Q3 overall umbrella (4.5249ms)
+  ✔ binds the live Q4 combined data/categories row to exactly its two natives (9.813ms)
+  ✔ still groups Article 28(3) into evaluate_package (1.6748ms)
+  ✔ absorbs leftover Art 28.1/2/10 into package context and does not schedule competing rules or flag_risk (8.2515ms)
+  ✔ does not schedule leftover checks for out-of-scope catalog rules (2.1077ms)
+✔ kinded analysis packages - existing GDPR grouped eval (34.1368ms)
+▶ doc-type DPA — broad analysis without regime packages
+  ✔ selects doc-types/dpa for a DPA doc-type hint and instruction (1.5292ms)
+  ✔ schedules structural checks instead of only aggregate when requirements are unmapped (4.1412ms)
+✔ doc-type DPA — broad analysis without regime packages (6.0983ms)
+[Analysis PAC] 15:21:34.086 PLAN package resolution packages=[0] requirementToPackageId={} requirementPaths=[0] leftoverRuleIds=[1] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:34.102 PLAN package resolution packages=[0] requirementToPackageId={} requirementPaths=[0] leftoverRuleIds=[0] leftoverMatrixRowIds=[0]
+[Analysis PAC] 15:21:34.114 PLAN package resolution packages=[1] requirementToPackageId={"gdpr.article15.access":"gdpr.dsr.rights_verification","art12_3_response_timeframe":"gdpr.dsr.rights_verification","art15_access":"gdpr.dsr.rights_verification","art16_rectification":"gdpr.dsr.rights_verification","art17_erasure":"gdpr.dsr.rights_verification","art18_restriction":"gdpr.dsr.rights_verification","art19_recipient_notification":"gdpr.dsr.rights_verification","art20_portability":"gdpr.dsr.rights_verification","art21_objection":"gdpr.dsr.rights_verification","art22_automated_decisions":"gdpr.dsr.rights_verification"} requirementPaths=[1] leftoverRuleIds=[0] leftoverMatrixRowIds=[1]
+▶ stampRequirementIdsOnNewFindings
+  ✔ stamps single-requirement work unit onto new findings (2.9211ms)
+  ✔ fans one finding out into N findings when unit binds N requirements (0.7263ms)
+  ✔ does not overwrite an already-tagged finding (0.5476ms)
+  ✔ passes through unchanged when unit has no requirementIds (0.4583ms)
+  ✔ never mutates carry-over findings from earlier handlers (0.6886ms)
+✔ stampRequirementIdsOnNewFindings (9.2799ms)
+▶ stampFindingsByCapability
+  ✔ stamps per-finding using the category lookup (1.5872ms)
+  ✔ leaves unmapped findings orphaned (no guessing) (0.5103ms)
+  ✔ passes through when no mappings are supplied (0.4669ms)
+✔ stampFindingsByCapability (3.4164ms)
+▶ requirementIdsForCapability
+  ✔ returns all requirements bound to a capability (2.4616ms)
+✔ requirementIdsForCapability (2.9579ms)
+▶ groupedResultsToFindings preserves requirementId (package regression)
+  ✔ tags every emitted finding with the source requirementId (6.7665ms)
+✔ groupedResultsToFindings preserves requirementId (package regression) (7.2564ms)
+▶ PLAN stamps requirementIds on rule/matrix/risk work units
+  ✔ stamps rule check_against_rule units with their owning requirementIds (18.032ms)
+  ✔ passes requirementMappings on flag_risk units so per-finding stamping works (4.3947ms)
+  ✔ derives matrix-row ownership from matching article numbers when mappings are package-level (13.0383ms)
+✔ PLAN stamps requirementIds on rule/matrix/risk work units (41.4846ms)
+ℹ tests 32
+ℹ suites 10
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2429.9235

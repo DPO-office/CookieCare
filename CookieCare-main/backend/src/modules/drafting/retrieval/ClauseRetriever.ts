@@ -10,6 +10,17 @@ export type ClauseSource =
 export interface ClauseLookupResult {
   clauses: Clause[];
   source: ClauseSource;
+  /** True when generic fallback was requested but blocked by env. */
+  fallbackBlocked?: boolean;
+}
+
+function allowGenericFallback(): boolean {
+  const raw = process.env.DRAFTING_ALLOW_GENERIC_FALLBACK;
+  if (raw === undefined || raw === "") {
+    // Default false in production-like NODE_ENV; true otherwise for local/dev convenience.
+    return process.env.NODE_ENV !== "production";
+  }
+  return raw === "1" || raw.toLowerCase() === "true";
 }
 
 /**
@@ -22,8 +33,22 @@ export class ClauseRetriever {
   async retrieveClauses(
     requirements: RequirementContext,
     playbookTopics: string[],
-    intent: string
+    organizationId?: string | null,
+    clauseIds?: string[] | null
   ): Promise<ClauseLookupResult> {
+    if (clauseIds && clauseIds.length > 0) {
+      const exact = await this.fetchByExactIds(clauseIds, organizationId, requirements);
+      if (exact.length > 0) {
+        console.log(
+          `[ClauseRetriever] exact clauseIds hits=${exact.length} requested=${clauseIds.length}`
+        );
+        return { clauses: exact, source: "library_items" };
+      }
+      console.warn(
+        `[ClauseRetriever] exact clauseIds miss requested=${clauseIds.join(",")}`
+      );
+    }
+
     const requestedTypes = [
       ...(requirements.requiredClauses || []),
       ...(requirements.optionalClauses || []),
@@ -32,7 +57,7 @@ export class ClauseRetriever {
     const topicsToSearch =
       requestedTypes.length > 0
         ? requestedTypes
-        : intent === "REACTIVE"
+        : playbookTopics.length > 0
           ? playbookTopics
           : ["General"];
 
@@ -42,7 +67,8 @@ export class ClauseRetriever {
 
     const fromCatalog = await this.fromClauseCatalog(
       normalizedTypes,
-      requirements
+      requirements,
+      organizationId
     );
     if (fromCatalog.length > 0) {
       console.log(
@@ -62,6 +88,13 @@ export class ClauseRetriever {
       return { clauses: fromLibrary, source: "library_items" };
     }
 
+    if (!allowGenericFallback()) {
+      console.warn(
+        `[ClauseRetriever] generic_fallback BLOCKED (DRAFTING_ALLOW_GENERIC_FALLBACK=false) types=${normalizedTypes.join(",")}`
+      );
+      return { clauses: [], source: "none", fallbackBlocked: true };
+    }
+
     console.log(
       `[ClauseRetriever] hardcoded_fallback types=${normalizedTypes.join(",")}`
     );
@@ -71,21 +104,104 @@ export class ClauseRetriever {
     };
   }
 
-  private async fromClauseCatalog(
-    types: string[],
+  private async fetchByExactIds(
+    clauseIds: string[],
+    organizationId: string | null | undefined,
     requirements: RequirementContext
   ): Promise<Clause[]> {
+    const orgId = organizationId?.trim() || null;
+    const found: Clause[] = [];
+
     try {
+      const { rows } = await this.db.query(
+        `SELECT id, clause_type, jurisdiction, raw_text, status
+         FROM clause_catalog
+         WHERE id = ANY($1::text[])
+           AND status = 'active'
+           AND ($2::text IS NULL OR organization_id = $2 OR organization_id IS NULL)`,
+        [clauseIds, orgId]
+      );
+      for (const row of rows) {
+        found.push({
+          id: String(row.id),
+          clauseType: String(row.clause_type || "General"),
+          jurisdiction: String(
+            row.jurisdiction || requirements.jurisdiction || "Not specified"
+          ),
+          riskLevel: "Medium",
+          isApproved: true,
+          text: String(row.raw_text || ""),
+          source: "clause_catalog",
+        });
+      }
+    } catch {
+      /* table may not exist */
+    }
+
+    const foundIds = new Set(found.map((c) => c.id));
+    const missing = clauseIds.filter((id) => !foundIds.has(id));
+    if (missing.length === 0) return found;
+
+    try {
+      const { rows } = await this.db.query(
+        `SELECT id, name, details, tags
+         FROM library_items
+         WHERE type = 'clauses' AND id = ANY($1::text[])`,
+        [missing]
+      );
+      for (const row of rows) {
+        const detailsRaw =
+          typeof row.details === "string"
+            ? row.details
+            : JSON.stringify(row.details || {});
+        let clauseText = detailsRaw;
+        let clauseType = String(row.name || "General");
+        try {
+          const parsed = JSON.parse(detailsRaw);
+          if (parsed?.rawText) clauseText = String(parsed.rawText);
+          if (parsed?.clauseType) clauseType = String(parsed.clauseType);
+          if (parsed?.content) clauseText = String(parsed.content);
+        } catch {
+          /* plain-text details */
+        }
+        found.push({
+          id: String(row.id),
+          clauseType,
+          jurisdiction: requirements.jurisdiction || "Not specified",
+          riskLevel: "Medium",
+          isApproved: true,
+          text: clauseText,
+          source: "library_items",
+        });
+      }
+    } catch {
+      /* ignore */
+    }
+
+    return found;
+  }
+
+  private async fromClauseCatalog(
+    types: string[],
+    requirements: RequirementContext,
+    organizationId?: string | null
+  ): Promise<Clause[]> {
+    try {
+      const orgId = organizationId?.trim() || null;
       const { rows } = await this.db.query(
         `SELECT id, clause_type, jurisdiction, raw_text, status
          FROM clause_catalog
          WHERE status = 'active'
            AND ($1::text IS NULL OR contract_type = $1 OR contract_type ILIKE $2)
-         ORDER BY created_at DESC
+           AND ($3::text IS NULL OR organization_id = $3 OR organization_id IS NULL)
+         ORDER BY
+           CASE WHEN organization_id = $3 THEN 0 ELSE 1 END,
+           created_at DESC
          LIMIT 50`,
         [
           requirements.contractType || null,
           requirements.contractType ? `%${requirements.contractType}%` : null,
+          orgId,
         ]
       );
 
@@ -101,6 +217,7 @@ export class ClauseRetriever {
           riskLevel: "Medium" as const,
           isApproved: true,
           text: String(row.raw_text || ""),
+          source: "clause_catalog" as const,
           haystack: `${row.clause_type || ""} ${row.raw_text || ""}`.toLowerCase(),
         })),
         types
@@ -152,6 +269,7 @@ export class ClauseRetriever {
             riskLevel: "Medium" as const,
             isApproved: true,
             text: clauseText,
+            source: "library_items" as const,
             haystack: `${row.name || ""} ${clauseType} ${clauseText} ${tagsText}`.toLowerCase(),
           };
         }),
@@ -184,6 +302,8 @@ export class ClauseRetriever {
         riskLevel: candidate.riskLevel,
         isApproved: candidate.isApproved,
         text: candidate.text,
+        source: candidate.source,
+        wasFallback: candidate.wasFallback,
       });
 
       if (ranked.length >= 8) break;
@@ -228,6 +348,8 @@ export class ClauseRetriever {
         riskLevel: index < 2 ? ("Low" as const) : ("Medium" as const),
         isApproved: true,
         text,
+        source: "generic_fallback" as const,
+        wasFallback: true,
       };
     });
   }

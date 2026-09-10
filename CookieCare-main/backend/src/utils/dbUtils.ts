@@ -10,22 +10,39 @@ export async function withTransaction<T>(
   try {
     await client.query("BEGIN");
 
-    // Set RLS variables within the transaction
-    // Sanitize values to prevent SQL injection in session variables
-    const sanitizedId = userId.replace(/'/g, "''");
-    const sanitizedRole = userRole.replace(/'/g, "''");
+    // Validate that userId and userRole are safe before embedding them in SET LOCAL.
+    // UUIDs with optional "usr_"/"doc_" prefixes are the only expected formats for userId.
+    // userRole is an application-controlled enum value.
+    const safeIdPattern = /^[a-zA-Z0-9_\-]{1,128}$/;
+    const safeRolePattern = /^[A-Z_]{1,64}$/;
 
-    await client.query(`SET LOCAL app.current_user_id = '${sanitizedId}'`);
-    await client.query(`SET LOCAL app.current_user_role = '${sanitizedRole}'`);
+    if (!safeIdPattern.test(userId)) {
+      throw new Error(`Invalid userId format for RLS session variable: ${userId}`);
+    }
+    if (!safeRolePattern.test(userRole)) {
+      throw new Error(`Invalid userRole format for RLS session variable: ${userRole}`);
+    }
+
+    // SET LOCAL does not accept parameterized values in PostgreSQL, so we embed
+    // the already-validated strings directly. The regex guards above ensure
+    // these cannot contain SQL-special characters.
+    await client.query(`SET LOCAL app.current_user_id = '${userId}'`);
+    await client.query(`SET LOCAL app.current_user_role = '${userRole}'`);
 
     const result = await fn(client);
 
     await client.query("COMMIT");
+    client.release();
     return result;
   } catch (err) {
-    await client.query("ROLLBACK");
+    try {
+      await client.query("ROLLBACK");
+    } catch {
+      // Connection may already be gone (terminated unexpectedly).
+    }
+    // Passing the error discards the client instead of returning a dead
+    // connection to the pool.
+    client.release(err instanceof Error ? err : new Error(String(err)));
     throw err;
-  } finally {
-    client.release();
   }
 }

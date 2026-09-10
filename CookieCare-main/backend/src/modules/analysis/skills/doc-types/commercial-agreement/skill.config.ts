@@ -1,0 +1,112 @@
+import type { AnalysisSkillConfig } from "../../runtime/catalog/types.js";
+
+export const commercialAgreementSkill: AnalysisSkillConfig = {
+  skillId: "doc-types/commercial-agreement",
+  axis: "doc-type",
+  label: "Commercial Agreements",
+  version: "1.1.0",
+  docTypeClassifiers: [
+    {
+      docTypeId: "shareholder-agreement",
+      priority: 70,
+      patterns: ["\\bshareholder\\b", "\\bshareholders agreement\\b", "\\bstockholder"],
+    },
+    {
+      docTypeId: "commercial-agreement",
+      priority: 10,
+      patterns: ["\\bagreement\\b", "\\bcontract\\b"],
+    },
+  ],
+  appliesToDocTypes: ["commercial-agreement"],
+  triggerPhrases: [
+    "commercial agreement",
+    "commercial contract",
+    "payment terms",
+    "intellectual property",
+    "ip ownership",
+    "auto-renewal",
+    "confidentiality scope",
+  ],
+  promptLibraryIds: ["commercial"],
+  clauseTypes: [
+    "indemnity",
+    "limitation_of_liability",
+    "payment",
+    "intellectual_property",
+    "confidentiality",
+    "termination",
+    "assignment",
+    "warranties",
+  ],
+  clauseTypeDefinitions: {
+    limitation_of_liability: "Cap or exclusion of liability between the parties.",
+    indemnity: "Obligation to indemnify or hold harmless for third-party claims.",
+    confidentiality: "Confidentiality obligations and survival.",
+    payment: "Fees, invoices, and payment timing.",
+    intellectual_property: "Ownership and license of deliverables / work product.",
+  },
+  expectedClauses: [
+    {
+      clauseType: "payment",
+      severityIfMissing: "medium",
+      findingCategory: "other_known_risk",
+      textSynonyms: ["payment", "invoice", "fees", "compensation"],
+    },
+    {
+      clauseType: "intellectual_property",
+      severityIfMissing: "medium",
+      findingCategory: "other_known_risk",
+      textSynonyms: ["intellectual property", "work product", "ownership", "license"],
+    },
+    {
+      clauseType: "limitation_of_liability",
+      severityIfMissing: "high",
+      findingCategory: "missing_limitation_of_liability",
+      textSynonyms: ["limitation of liability"],
+    },
+    {
+      clauseType: "indemnity",
+      severityIfMissing: "high",
+      findingCategory: "missing_indemnity",
+      textSynonyms: ["indemnif"],
+    },
+  ],
+  riskCategories: [
+    { category: "one_sided_indemnity", displayLabel: "One-sided indemnity", guidance: "Indemnity obligations fall disproportionately on one party.", heuristic: [
+      {
+        clauseType: "indemnity",
+        regex: "customer shall indemnify|you shall indemnify",
+        claim: "Indemnity appears one-sided against the customer.",
+        severity: "medium",
+      },
+    ] },
+    { category: "uncapped_liability", displayLabel: "Uncapped liability", guidance: "Liability is unlimited or effectively uncapped.", heuristic: [
+      {
+        clauseType: "limitation_of_liability",
+        regex: "unlimited|without limit",
+        claim: "Limitation of liability appears uncapped or effectively unlimited.",
+        severity: "high",
+      },
+    ] },
+    { category: "auto_renewal_trap", displayLabel: "Auto-renewal notice trap", guidance: "Auto-renewal or notice trap may lock in unfavorable terms." },
+    { category: "broad_indemnity", displayLabel: "Overly broad indemnity", guidance: "Indemnity scope is unusually broad." },
+    { category: "weak_confidentiality", displayLabel: "Weak or one-sided confidentiality", guidance: "Confidentiality obligations are weak or one-sided." },
+    { category: "missing_limitation_of_liability", displayLabel: "Missing limitation of liability", guidance: "No limitation of liability clause identified." },
+    { category: "other_known_risk", displayLabel: "Other material contractual risk", guidance: "Other material contractual risk." },
+  ],
+  regimeRules: [],
+  regimeRuleIds: [],
+  relatedChecks: [
+    {
+      primary: "limitation_of_liability",
+      related: ["one_sided_indemnity", "broad_indemnity", "uncapped_liability"],
+      note: "Liability caps are typically reviewed alongside indemnity carve-outs.",
+    },
+    {
+      primary: "indemnity",
+      related: ["uncapped_liability", "missing_limitation_of_liability"],
+      note: "Indemnity scope is usually checked against the liability cap.",
+    },
+  ],
+  defaultOperation: "risk_flag",
+};

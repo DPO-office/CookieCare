@@ -1,0 +1,32 @@
+session=an_313bf2c5 phase=2B
+total_events=963
+
+=== Phase 2A counts ===
+requirement.resolved=15
+requirement.conflict=0
+resolved_fields_complete=true
+matchedBy breakdown: alias=15 canonical=0
+
+=== sample resolved (first 3) ===
+{"inputId":"subject_matter","canonicalKey":"gdpr.article28.subject_matter","matchedBy":"alias","packageId":"gdpr.art28.particulars","version":"1"}
+{"inputId":"duration","canonicalKey":"gdpr.article28.duration","matchedBy":"alias","packageId":"gdpr.art28.particulars","version":"1"}
+{"inputId":"nature_purpose","canonicalKey":"gdpr.article28.nature_and_purpose","matchedBy":"alias","packageId":"gdpr.art28.particulars","version":"1"}
+
+=== Phase 2B counts ===
+request.resolve=6
+request.unresolved=0
+open.p* resolve=0 unresolved=0
+non-open requestIds=gdpr.article28.subject_matter, gdpr.article28.duration, gdpr.article28.nature_and_purpose, gdpr.article28.categories_data_and_subjects, gdpr.article28.controller_obligations_and_rights, gdpr.article28_3.clause_adequacy
+request.resolve_fields_complete=true
+
+=== each request.resolve ===
+{"requestId":"gdpr.article28.subject_matter","resolution":"matched","nativeLen":1,"canonLen":1,"packageIds":["gdpr.art28.particulars"],"articles":[],"bindingSources":["canonical"],"natives":["subject_matter"]}
+{"requestId":"gdpr.article28.duration","resolution":"matched","nativeLen":1,"canonLen":1,"packageIds":["gdpr.art28.particulars"],"articles":[],"bindingSources":["canonical"],"natives":["duration"]}
+{"requestId":"gdpr.article28.nature_and_purpose","resolution":"matched","nativeLen":1,"canonLen":1,"packageIds":["gdpr.art28.particulars"],"articles":[],"bindingSources":["canonical"],"natives":["nature_purpose"]}
+{"requestId":"gdpr.article28.categories_data_and_subjects","resolution":"split_match","nativeLen":2,"canonLen":2,"packageIds":["gdpr.art28.particulars"],"articles":[],"bindingSources":["subprovision","canonical"],"natives":["data_categories","data_subject_categories"]}
+{"requestId":"gdpr.article28.controller_obligations_and_rights","resolution":"matched","nativeLen":1,"canonLen":1,"packageIds":["gdpr.art28.particulars"],"articles":[],"bindingSources":["canonical"],"natives":["controller_obligations_rights"]}
+{"requestId":"gdpr.article28_3.clause_adequacy","resolution":"split_match","nativeLen":9,"canonLen":9,"packageIds":["gdpr.art28.3.mandatory_clauses"],"articles":[28],"bindingSources":["semantic"],"natives":["art28_3_a_instructions","art28_3_b_confidentiality","art28_3_c_security","art28_3_d_subprocessors","art28_3_e_dsr_assistance","art28_3_f_security_assistance","art28_3_g_deletion_return","art28_3_h_audit","art28_4_subprocessor_flow_down"]}
+
+=== unresolved ===
+
+recon=undefined

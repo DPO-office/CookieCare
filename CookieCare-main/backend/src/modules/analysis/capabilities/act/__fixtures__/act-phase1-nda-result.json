@@ -1,0 +1,530 @@
+{
+  "capturedAt": "2026-08-29T16:09:57.404Z",
+  "ask": "Review this NDA for structural completeness and risk, from the perspective of the receiving party.",
+  "findingsCount": 10,
+  "withRequirementId": 8,
+  "withoutRequirementId": 2,
+  "findings": [
+    {
+      "findingId": "f_extract_wu-extract",
+      "kind": "extraction",
+      "category": "other_known_risk",
+      "status": "present",
+      "claim": "Located 11 evidence spans from document nda (skill-scoped).",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "nda",
+            "structuralPath": "clause-2",
+            "charRange": [
+              4228,
+              5288
+            ]
+          },
+          "quotedText": "2. OBLIGATIONS OF CONFIDENTIALITY\n2.1 The Receiving Party shall:\n2.1.1 hold all Confidential Information in strict confidence and treat it with at least the same degree of care that it uses to protect its own confidential information of similar sensitivity, and in no event less than a reasonable standard of care;\n2.1.2 use the Confidential Information solely and exclusively for the Purpose, and for no other purpose whatsoever;\n2.1.3 not disclose, publish, disseminate, copy, reproduce, reverse-en",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "nda",
+            "structuralPath": "clause-10.3",
+            "charRange": [
+              10856,
+              11317
+            ]
+          },
+          "quotedText": "10.3 Notwithstanding termination or expiry of this Agreement, the confidentiality obligations under this Agreement shall survive and continue to bind the Receiving Party for a period of three (3) years from the date of such termination or expiry; provided that with respect to any Confidential Information constituting a trade secret under applicable law, the obligations of confidentiality shall continue for so long as such information remains a trade secret.",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "nda",
+            "structuralPath": "clause-1.1.2",
+            "charRange": [
+              2640,
+              3714
+            ]
+          },
+          "quotedText": "1.1.2 \"Confidential Information\" means all non-public information, whether disclosed orally, in writing, electronically, visually or in any other form, and whether or not marked or identified as \"confidential\", \"proprietary\" or with any similar legend, that is disclosed by or on behalf of a Party (the \"Disclosing Party\") to the other Party (the \"Receiving Party\") in connection with the Purpose, including without limitation:\n(a) business, financial, commercial, technical, operational, marketing a",
+          "sourceRole": "target"
+        }
+      ],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-extract",
+      "visibility": "internal"
+    },
+    {
+      "kind": "compliance",
+      "category": "nda_definition_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "nda",
+            "structuralPath": "clause-2",
+            "charRange": [
+              4228,
+              5288
+            ]
+          },
+          "quotedText": "2. OBLIGATIONS OF CONFIDENTIALITY\n2.1 The Receiving Party shall:\n2.1.1 hold all Confidential Information in strict confidence and treat it with at least the same degree of care that it uses to protect its own confidential information of similar sensitivity, and in no event less than a reasonable standard of care;\n2.1.2 use the Confidential Information solely and exclusively for the Purpose, and for no other purpose whatsoever;\n2.1.3 not disclose, publish, disseminate, copy, reproduce, reverse-engineer, decompile or exploit any Confidential Information, in whole or in part, except as expressly permitted under this Agreement;\n2.1.4 not use the Confidential Information for any commercial, competitive or personal advantage, or in any manner detrimental to the Disclosing Party; and\n2.1.5 promptly notify the Disclosing Party in writing upon becoming aware of any unauthorised use, disclosure, loss or access to the Confidential Information, and take all reasonable steps, at its own cost, to mitigate the effects of such breach and to prevent recurrence.",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "nda",
+            "structuralPath": "clause-1.1.2",
+            "charRange": [
+              2640,
+              3714
+            ]
+          },
+          "quotedText": "1.1.2 \"Confidential Information\" means all non-public information, whether disclosed orally, in writing, electronically, visually or in any other form, and whether or not marked or identified as \"confidential\", \"proprietary\" or with any similar legend, that is disclosed by or on behalf of a Party (the \"Disclosing Party\") to the other Party (the \"Receiving Party\") in connection with the Purpose, including without limitation:\n(a) business, financial, commercial, technical, operational, marketing and strategic information; (b) trade secrets, know-how, algorithms, source code, object code, software architecture, database structures, models, methodologies and inventions (whether patentable or not); (c) product plans, service offerings, pricing, customer and supplier lists, and employee information; (d) health, clinical, patient, research and analytics data (whether identified, de-identified, anonymised or aggregated); and (e) the existence, contents and status of this Agreement and of any discussions or negotiations between the Parties in relation to the Purpose.",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "nda",
+            "structuralPath": "clause-1.1.3",
+            "charRange": [
+              3715,
+              4021
+            ]
+          },
+          "quotedText": "1.1.3 \"Representatives\" means, in relation to a Party, its directors, officers, employees, Affiliates, and its and their respective professional advisors (including legal, financial, tax and technical advisors) and consultants who have a bona fide need to know the Confidential Information for the Purpose.",
+          "sourceRole": "target"
+        }
+      ],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-pkg-eval-nda.structural_review",
+      "skillId": "_global",
+      "packageId": "nda.structural_review",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "nda.confidentiality_definition",
+      "judgement": {
+        "compliance": "partial",
+        "evidenceState": "direct",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "draftingQuality": "could_be_clearer",
+        "materiality": "medium",
+        "nli": "entailed",
+        "recommendationKind": "clarify"
+      },
+      "findingId": "f_pkg_part_nda.confidentiality_definition_wu-pkg-eval-nda.structural_review_467cb2",
+      "status": "present",
+      "claim": "Clause 1.1.2 defines Confidential Information broadly across formats and scope. However, it lacks standard carve-outs/exceptions (e.g., publicly available information, independently developed information, or rightfully received third-party information), making the scope overly broad for the receiving party."
+    },
+    {
+      "kind": "compliance",
+      "category": "nda_definition_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "nda",
+            "structuralPath": "clause-2",
+            "charRange": [
+              4228,
+              5288
+            ]
+          },
+          "quotedText": "2. OBLIGATIONS OF CONFIDENTIALITY\n2.1 The Receiving Party shall:\n2.1.1 hold all Confidential Information in strict confidence and treat it with at least the same degree of care that it uses to protect its own confidential information of similar sensitivity, and in no event less than a reasonable standard of care;\n2.1.2 use the Confidential Information solely and exclusively for the Purpose, and for no other purpose whatsoever;\n2.1.3 not disclose, publish, disseminate, copy, reproduce, reverse-engineer, decompile or exploit any Confidential Information, in whole or in part, except as expressly permitted under this Agreement;\n2.1.4 not use the Confidential Information for any commercial, competitive or personal advantage, or in any manner detrimental to the Disclosing Party; and\n2.1.5 promptly notify the Disclosing Party in writing upon becoming aware of any unauthorised use, disclosure, loss or access to the Confidential Information, and take all reasonable steps, at its own cost, to mitigate the effects of such breach and to prevent recurrence.",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "nda",
+            "structuralPath": "clause-1.1.2",
+            "charRange": [
+              2640,
+              3714
+            ]
+          },
+          "quotedText": "1.1.2 \"Confidential Information\" means all non-public information, whether disclosed orally, in writing, electronically, visually or in any other form, and whether or not marked or identified as \"confidential\", \"proprietary\" or with any similar legend, that is disclosed by or on behalf of a Party (the \"Disclosing Party\") to the other Party (the \"Receiving Party\") in connection with the Purpose, including without limitation:\n(a) business, financial, commercial, technical, operational, marketing and strategic information; (b) trade secrets, know-how, algorithms, source code, object code, software architecture, database structures, models, methodologies and inventions (whether patentable or not); (c) product plans, service offerings, pricing, customer and supplier lists, and employee information; (d) health, clinical, patient, research and analytics data (whether identified, de-identified, anonymised or aggregated); and (e) the existence, contents and status of this Agreement and of any discussions or negotiations between the Parties in relation to the Purpose.",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "nda",
+            "structuralPath": "clause-1.1.3",
+            "charRange": [
+              3715,
+              4021
+            ]
+          },
+          "quotedText": "1.1.3 \"Representatives\" means, in relation to a Party, its directors, officers, employees, Affiliates, and its and their respective professional advisors (including legal, financial, tax and technical advisors) and consultants who have a bona fide need to know the Confidential Information for the Purpose.",
+          "sourceRole": "target"
+        }
+      ],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-pkg-eval-nda.structural_review",
+      "skillId": "_global",
+      "packageId": "nda.structural_review",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "nda.confidentiality_definition",
+      "judgement": {
+        "compliance": "partial",
+        "evidenceState": "direct",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "draftingQuality": "could_be_clearer",
+        "materiality": "medium",
+        "nli": "entailed",
+        "recommendationKind": "clarify"
+      },
+      "findingId": "f_pkg_partgap_nda.confidentiality_definition_wu-pkg-eval-nda.structural_review_3f94de",
+      "status": "absent_expected",
+      "claim": "Missing standard exclusions from confidential information definition.",
+      "gap": "Missing standard exclusions from confidential information definition."
+    },
+    {
+      "kind": "compliance",
+      "category": "nda_definition_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "nda",
+            "structuralPath": "clause-2",
+            "charRange": [
+              4228,
+              5288
+            ]
+          },
+          "quotedText": "2. OBLIGATIONS OF CONFIDENTIALITY\n2.1 The Receiving Party shall:\n2.1.1 hold all Confidential Information in strict confidence and treat it with at least the same degree of care that it uses to protect its own confidential information of similar sensitivity, and in no event less than a reasonable standard of care;\n2.1.2 use the Confidential Information solely and exclusively for the Purpose, and for no other purpose whatsoever;\n2.1.3 not disclose, publish, disseminate, copy, reproduce, reverse-engineer, decompile or exploit any Confidential Information, in whole or in part, except as expressly permitted under this Agreement;\n2.1.4 not use the Confidential Information for any commercial, competitive or personal advantage, or in any manner detrimental to the Disclosing Party; and\n2.1.5 promptly notify the Disclosing Party in writing upon becoming aware of any unauthorised use, disclosure, loss or access to the Confidential Information, and take all reasonable steps, at its own cost, to mitigate the effects of such breach and to prevent recurrence.",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "nda",
+            "structuralPath": "clause-1",
+            "charRange": [
+              2227,
+              4227
+            ]
+          },
+          "quotedText": "1. DEFINITIONS AND INTERPRETATION\n1.1 In this Agreement, unless the context otherwise requires:\n1.1.1 \"Affiliate\" means, in relation to a Party, any entity that directly or indirectly controls, is controlled by, or is under common control with such Party, where \"control\" means the ownership of more than fifty percent (50%) of the voting equity or the power to direct the management and policies of such entity.\n1.1.2 \"Confidential Information\" means all non-public information, whether disclosed orally, in writing, electronically, visually or in any other form, and whether or not marked or identified as \"confidential\", \"proprietary\" or with any similar legend, that is disclosed by or on behalf of a Party (the \"Disclosing Party\") to the other Party (the \"Receiving Party\") in connection with the Purpose, including without limitation:\n(a) business, financial, commercial, technical, operational, marketing and strategic information; (b) trade secrets, know-how, algorithms, source code, object code, software architecture, database structures, models, methodologies and inventions (whether patentable or not); (c) product plans, service offerings, pricing, customer and supplier lists, and employee information; (d) health, clinical, patient, research and analytics data (whether identified, de-identified, anonymised or aggregated); and (e) the existence, contents and status of this Agreement and of any discussions or negotiations between the Parties in relation to the Purpose.\n1.1.3 \"Representatives\" means, in relation to a Party, its directors, officers, employees, Affiliates, and its and their respective professional advisors (including legal, financial, tax and technical advisors) and consultants who have a bona fide need to know the Confidential Information for the Purpose.\n1.2 Headings are for convenience only and shall not affect interpretation. References to statutes shall include amendments and re-enactments. Words importing the singular include the plural and vice versa.",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "nda",
+            "structuralPath": "clause-1.1.2",
+            "charRange": [
+              2640,
+              3714
+            ]
+          },
+          "quotedText": "1.1.2 \"Confidential Information\" means all non-public information, whether disclosed orally, in writing, electronically, visually or in any other form, and whether or not marked or identified as \"confidential\", \"proprietary\" or with any similar legend, that is disclosed by or on behalf of a Party (the \"Disclosing Party\") to the other Party (the \"Receiving Party\") in connection with the Purpose, including without limitation:\n(a) business, financial, commercial, technical, operational, marketing and strategic information; (b) trade secrets, know-how, algorithms, source code, object code, software architecture, database structures, models, methodologies and inventions (whether patentable or not); (c) product plans, service offerings, pricing, customer and supplier lists, and employee information; (d) health, clinical, patient, research and analytics data (whether identified, de-identified, anonymised or aggregated); and (e) the existence, contents and status of this Agreement and of any discussions or negotiations between the Parties in relation to the Purpose.",
+          "sourceRole": "target"
+        }
+      ],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-pkg-eval-nda.structural_review",
+      "skillId": "_global",
+      "packageId": "nda.structural_review",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "nda.purpose_limitation",
+      "judgement": {
+        "compliance": "present",
+        "evidenceState": "direct",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "draftingQuality": "clean",
+        "materiality": "low",
+        "nli": "entailed",
+        "recommendationKind": "none"
+      },
+      "findingId": "f_pkg_cov_nda.purpose_limitation_wu-pkg-eval-nda.structural_review_269dc3",
+      "status": "present",
+      "claim": "Clause 2.1.2 explicitly mandates that the Receiving Party shall use Confidential Information solely and exclusively for the Purpose and for no other purpose whatsoever, satisfying the purpose limitation requirement."
+    },
+    {
+      "kind": "compliance",
+      "category": "nda_definition_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "nda",
+            "structuralPath": "clause-8.1",
+            "charRange": [
+              8721,
+              9377
+            ]
+          },
+          "quotedText": "8.1 Upon the earlier of (i) the written request of the Disclosing Party at any time, or (ii) the termination or expiry of this Agreement, the Receiving Party shall, at the Disclosing Party's option, promptly and in any event within fifteen (15) business days:\n8.1.1 return to the Disclosing Party all Confidential Information (including all copies, reproductions, summaries, extracts and derivatives thereof) in the possession or control of the Receiving Party or its Representatives; or\n8.1.2 destroy all such Confidential Information, and certify such destruction to the Disclosing Party in writing signed by an authorised officer of the Receiving Party.",
+          "sourceRole": "target"
+        }
+      ],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-pkg-eval-nda.structural_review",
+      "skillId": "_global",
+      "packageId": "nda.structural_review",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "nda.return_or_destruction",
+      "judgement": {
+        "compliance": "present",
+        "evidenceState": "direct",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "draftingQuality": "clean",
+        "materiality": "low",
+        "nli": "entailed",
+        "recommendationKind": "none"
+      },
+      "findingId": "f_pkg_cov_nda.return_or_destruction_wu-pkg-eval-nda.structural_review_577bf1",
+      "status": "present",
+      "claim": "Clause 8.1 requires prompt return or destruction of all Confidential Information within 15 business days upon written request or termination/expiry, accompanied by written certification of destruction."
+    },
+    {
+      "kind": "compliance",
+      "category": "nda_definition_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "nda",
+            "structuralPath": "clause-15",
+            "charRange": [
+              13738,
+              14731
+            ]
+          },
+          "quotedText": "15. GOVERNING LAW AND DISPUTE RESOLUTION\n15.1 This Agreement shall be governed by and construed in accordance with the laws of India.\n15.2 Any dispute, controversy or claim arising out of or in connection with this Agreement, including any question regarding its existence, validity, interpretation, performance, breach or termination, shall be referred to and finally resolved by arbitration under the Arbitration and Conciliation Act, 1996 (as amended from time to time).\n15.3 The arbitration shall be conducted by a sole arbitrator mutually appointed by the Parties. The seat and venue of arbitration shall be Mumbai, India, and the language of arbitration shall be English. The arbitral award shall be final and binding on the Parties.\n15.4 Subject to Clause 15.2, the courts at Mumbai shall have exclusive jurisdiction in respect of any matter arising out of or in connection with this Agreement, including for interim relief under Section 9 of the Arbitration and Conciliation Act, 1996.",
+          "sourceRole": "target"
+        }
+      ],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-pkg-eval-nda.structural_review",
+      "skillId": "_global",
+      "packageId": "nda.structural_review",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "nda.nlra_section_7",
+      "judgement": {
+        "compliance": "gap",
+        "evidenceState": "not_found",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "draftingQuality": "operational_weakness",
+        "materiality": "medium",
+        "nli": "not_mentioned",
+        "recommendationKind": "obtain"
+      },
+      "findingId": "f_pkg_miss_nda.nlra_section_7_wu-pkg-eval-nda.structural_review_4fb9a1",
+      "status": "absent_expected",
+      "claim": "The candidate evidence (E10) covers governing law and dispute resolution, but contains no carve-out or exception for protected concerted activities under NLRA Section 7 or similar employee rights.",
+      "gap": "The agreement lacks an explicit carve-out protecting employee rights to discuss terms and conditions of employment under NLRA Section 7."
+    },
+    {
+      "kind": "compliance",
+      "category": "nda_definition_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "nda",
+            "structuralPath": "clause-8.1",
+            "charRange": [
+              8721,
+              9377
+            ]
+          },
+          "quotedText": "8.1 Upon the earlier of (i) the written request of the Disclosing Party at any time, or (ii) the termination or expiry of this Agreement, the Receiving Party shall, at the Disclosing Party's option, promptly and in any event within fifteen (15) business days:\n8.1.1 return to the Disclosing Party all Confidential Information (including all copies, reproductions, summaries, extracts and derivatives thereof) in the possession or control of the Receiving Party or its Representatives; or\n8.1.2 destroy all such Confidential Information, and certify such destruction to the Disclosing Party in writing signed by an authorised officer of the Receiving Party.",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "nda",
+            "structuralPath": "clause-10",
+            "charRange": [
+              10487,
+              11317
+            ]
+          },
+          "quotedText": "10. TERM AND TERMINATION\n10.1 This Agreement shall commence on the date first written above and shall continue in full force and effect for a period of two (2) years (the \"Term\"), unless earlier terminated in accordance with this Agreement.\n10.2 Either Party may terminate this Agreement at any time by giving thirty (30) days' prior written notice to the other Party.\n10.3 Notwithstanding termination or expiry of this Agreement, the confidentiality obligations under this Agreement shall survive and continue to bind the Receiving Party for a period of three (3) years from the date of such termination or expiry; provided that with respect to any Confidential Information constituting a trade secret under applicable law, the obligations of confidentiality shall continue for so long as such information remains a trade secret.",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "nda",
+            "structuralPath": "clause-15.2",
+            "charRange": [
+              13872,
+              14211
+            ]
+          },
+          "quotedText": "15.2 Any dispute, controversy or claim arising out of or in connection with this Agreement, including any question regarding its existence, validity, interpretation, performance, breach or termination, shall be referred to and finally resolved by arbitration under the Arbitration and Conciliation Act, 1996 (as amended from time to time).",
+          "sourceRole": "target"
+        }
+      ],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-pkg-eval-nda.structural_review",
+      "skillId": "_global",
+      "packageId": "nda.structural_review",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "nda.term_and_survival",
+      "judgement": {
+        "compliance": "present",
+        "evidenceState": "direct",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "draftingQuality": "clean",
+        "materiality": "low",
+        "nli": "entailed",
+        "recommendationKind": "none"
+      },
+      "findingId": "f_pkg_cov_nda.term_and_survival_wu-pkg-eval-nda.structural_review_1633ad",
+      "status": "present",
+      "claim": "Clause 10.1 establishes a term of two years, and Clause 10.3 specifies that confidentiality obligations survive for three years post-termination, with indefinite survival for trade secrets as long as they remain trade secrets."
+    },
+    {
+      "kind": "compliance",
+      "category": "nda_definition_gap",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "nda",
+            "structuralPath": "clause-15",
+            "charRange": [
+              13738,
+              14731
+            ]
+          },
+          "quotedText": "15. GOVERNING LAW AND DISPUTE RESOLUTION\n15.1 This Agreement shall be governed by and construed in accordance with the laws of India.\n15.2 Any dispute, controversy or claim arising out of or in connection with this Agreement, including any question regarding its existence, validity, interpretation, performance, breach or termination, shall be referred to and finally resolved by arbitration under the Arbitration and Conciliation Act, 1996 (as amended from time to time).\n15.3 The arbitration shall be conducted by a sole arbitrator mutually appointed by the Parties. The seat and venue of arbitration shall be Mumbai, India, and the language of arbitration shall be English. The arbitral award shall be final and binding on the Parties.\n15.4 Subject to Clause 15.2, the courts at Mumbai shall have exclusive jurisdiction in respect of any matter arising out of or in connection with this Agreement, including for interim relief under Section 9 of the Arbitration and Conciliation Act, 1996.",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "nda",
+            "structuralPath": "clause-11.1",
+            "charRange": [
+              11331,
+              11847
+            ]
+          },
+          "quotedText": "11.1 The Parties acknowledge that any breach or threatened breach of this Agreement may cause irreparable harm to the Disclosing Party for which monetary damages alone may not be an adequate remedy. Accordingly, the Disclosing Party shall be entitled, in addition to any other rights and remedies available to it in law or in equity, to seek injunctive relief, specific performance and other equitable remedies from a court of competent jurisdiction, without the requirement to post any bond or furnish any security.",
+          "sourceRole": "target"
+        }
+      ],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-pkg-eval-nda.structural_review",
+      "skillId": "_global",
+      "packageId": "nda.structural_review",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "nda.governing_law",
+      "judgement": {
+        "compliance": "present",
+        "evidenceState": "direct",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "draftingQuality": "clean",
+        "materiality": "low",
+        "nli": "entailed",
+        "recommendationKind": "none"
+      },
+      "findingId": "f_pkg_cov_nda.governing_law_wu-pkg-eval-nda.structural_review_801e23",
+      "status": "present",
+      "claim": "Clause 15.1 designates the laws of India as governing law, and Clauses 15.2–15.4 specify arbitration under the Arbitration and Conciliation Act, 1996 with seat/venue in Mumbai and court jurisdiction in Mumbai."
+    },
+    {
+      "findingId": "f_risk_nda_definition_gap_ec55c4",
+      "kind": "risk",
+      "category": "nda_definition_gap",
+      "status": "present",
+      "claim": "Compliance gap creates risk: Undefined confidential information.",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "nda",
+            "structuralPath": "clause-2",
+            "charRange": [
+              4228,
+              5288
+            ]
+          },
+          "quotedText": "2. OBLIGATIONS OF CONFIDENTIALITY\n2.1 The Receiving Party shall:\n2.1.1 hold all Confidential Information in strict confidence and treat it with at least the same degree of care that it uses to protect its own confidential information of similar sensitivity, and in no event less than a reasonable standard of care;\n2.1.2 use the Confidential Information solely and exclusively for the Purpose, and for no other purpose whatsoever;\n2.1.3 not disclose, publish, disseminate, copy, reproduce, reverse-engineer, decompile or exploit any Confidential Information, in whole or in part, except as expressly permitted under this Agreement;\n2.1.4 not use the Confidential Information for any commercial, competitive or personal advantage, or in any manner detrimental to the Disclosing Party; and\n2.1.5 promptly notify the Disclosing Party in writing upon becoming aware of any unauthorised use, disclosure, loss or access to the Confidential Information, and take all reasonable steps, at its own cost, to mitigate the effects of such breach and to prevent recurrence.",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "nda",
+            "structuralPath": "clause-1.1.2",
+            "charRange": [
+              2640,
+              3714
+            ]
+          },
+          "quotedText": "1.1.2 \"Confidential Information\" means all non-public information, whether disclosed orally, in writing, electronically, visually or in any other form, and whether or not marked or identified as \"confidential\", \"proprietary\" or with any similar legend, that is disclosed by or on behalf of a Party (the \"Disclosing Party\") to the other Party (the \"Receiving Party\") in connection with the Purpose, including without limitation:\n(a) business, financial, commercial, technical, operational, marketing and strategic information; (b) trade secrets, know-how, algorithms, source code, object code, software architecture, database structures, models, methodologies and inventions (whether patentable or not); (c) product plans, service offerings, pricing, customer and supplier lists, and employee information; (d) health, clinical, patient, research and analytics data (whether identified, de-identified, anonymised or aggregated); and (e) the existence, contents and status of this Agreement and of any discussions or negotiations between the Parties in relation to the Purpose.",
+          "sourceRole": "target"
+        },
+        {
+          "locator": {
+            "docId": "nda",
+            "structuralPath": "clause-1.1.3",
+            "charRange": [
+              3715,
+              4021
+            ]
+          },
+          "quotedText": "1.1.3 \"Representatives\" means, in relation to a Party, its directors, officers, employees, Affiliates, and its and their respective professional advisors (including legal, financial, tax and technical advisors) and consultants who have a bona fide need to know the Confidential Information for the Purpose.",
+          "sourceRole": "target"
+        }
+      ],
+      "severity": "medium",
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-derive-risk",
+      "skillId": "_global",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "nda.confidentiality_definition",
+      "gap": "Missing standard exclusions from confidential information definition."
+    },
+    {
+      "findingId": "f_render_wu-render",
+      "kind": "summary_point",
+      "category": "other_known_risk",
+      "status": "present",
+      "claim": "Rendered memo for skill(s) _global, doc-types/nda with 9 prior findings.",
+      "evidence": [],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-render",
+      "skillId": "_global",
+      "visibility": "internal"
+    }
+  ],
+  "requirementAssessments": [
+    {
+      "requirementId": "nda.structural_completeness",
+      "supportingFindingIds": [],
+      "status": "cannot_determine",
+      "judgement": {
+        "compliance": "insufficient_evidence",
+        "evidenceState": "not_found",
+        "referenceBinding": "none",
+        "evidenceConfidence": "low",
+        "materiality": "medium",
+        "recommendationKind": "obtain"
+      },
+      "summary": "The available evidence is insufficient to reach a conclusion.",
+      "recommendation": "Obtain or confirm the referenced materials or unread remainder of the clause. Do not amend the agreement from incomplete evidence."
+    },
+    {
+      "requirementId": "nda.risk_identification",
+      "supportingFindingIds": [],
+      "status": "cannot_determine",
+      "judgement": {
+        "compliance": "insufficient_evidence",
+        "evidenceState": "not_found",
+        "referenceBinding": "none",
+        "evidenceConfidence": "low",
+        "materiality": "medium",
+        "recommendationKind": "obtain"
+      },
+      "summary": "The available evidence is insufficient to reach a conclusion.",
+      "recommendation": "Obtain or confirm the referenced materials or unread remainder of the clause. Do not amend the agreement from incomplete evidence."
+    }
+  ]
+}

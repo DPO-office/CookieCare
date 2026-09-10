@@ -1,0 +1,7 @@
+{
+  "path": "clause-2.5",
+  "len": 980,
+  "full": "2.5 Deletion on Term Expiry. On expiry of the Term, Administrator instructs Alaio to delete all Personal Data (including existing copies) from Bitrix24 systems in accordance with applicable law. Alaio will comply with this instruction as soon as reasonably practicable and within a maximum period of 90 days, unless any applicable law requires storage. 2.5.1 Account deletion. Paid plans devolve to the free plan according to the process described above. If the Bitrix24 Customer Account is on a free plan (either converted to a free plan or originally on a free plan) and is completely inactive over the course of 30 days, it is 'archived', and it can be retrieved only by an administrator account (yourself or a user in the instance with administrator rights). To retrieve the account, a User without administrative rights simply needs to log in. If no User logs in for another 15 days after the instance has been 'archived', Bitrix24 Customer Account will be deleted.",
+  "hasProviso": true,
+  "endsWith": "er the instance has been 'archived', Bitrix24 Customer Account will be deleted."
+}

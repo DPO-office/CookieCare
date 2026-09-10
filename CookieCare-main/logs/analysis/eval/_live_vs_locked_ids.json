@@ -1,0 +1,88 @@
+{
+  "log": "an_ba0d8e55-327d-46cd-a1f0-13df14d1eb88.compliance.log",
+  "lockedAccepted": [
+    {
+      "requirementId": "subject_matter",
+      "status": "present",
+      "canonicalKey": "gdpr.article28.subject_matter"
+    },
+    {
+      "requirementId": "duration",
+      "status": "present",
+      "canonicalKey": "gdpr.article28.duration"
+    },
+    {
+      "requirementId": "nature_purpose",
+      "status": "present",
+      "canonicalKey": "gdpr.article28.nature_and_purpose"
+    },
+    {
+      "requirementId": "data_categories",
+      "status": "present",
+      "canonicalKey": "gdpr.article28.categories_of_data"
+    },
+    {
+      "requirementId": "data_subject_categories",
+      "status": "present",
+      "canonicalKey": "gdpr.article28.categories_of_data_subjects"
+    },
+    {
+      "requirementId": "art28_3_a_instructions",
+      "status": "present",
+      "canonicalKey": "gdpr.article28.3a.documented_instructions"
+    },
+    {
+      "requirementId": "art28_3_f_security_assistance",
+      "status": "present",
+      "canonicalKey": "gdpr.article28.3f.controller_assistance"
+    },
+    {
+      "requirementId": "art28_3_g_deletion_return",
+      "status": "partial",
+      "canonicalKey": "gdpr.article28.3g.deletion_or_return"
+    }
+  ],
+  "renderRows": [
+    {
+      "requirementId": "subject_matter",
+      "statusLabel": "Present",
+      "status": "present"
+    },
+    {
+      "requirementId": "duration",
+      "statusLabel": "Present",
+      "status": "present"
+    },
+    {
+      "requirementId": "nature_purpose",
+      "statusLabel": "Present",
+      "status": "present"
+    },
+    {
+      "requirementId": "data_categories",
+      "statusLabel": "Present",
+      "status": "present"
+    },
+    {
+      "requirementId": "data_subject_categories",
+      "statusLabel": "Present",
+      "status": "present"
+    },
+    {
+      "requirementId": "art28_3_a_instructions",
+      "statusLabel": "Present",
+      "status": "present"
+    },
+    {
+      "requirementId": "art28_3_f_security_assistance",
+      "statusLabel": "Present",
+      "status": "present"
+    },
+    {
+      "requirementId": "art28_3_g_deletion_return",
+      "statusLabel": "Partial",
+      "status": "partial"
+    }
+  ],
+  "note": "Glance table uses live requirementAssessments; overlay only replaces matching requirementId strings."
+}

@@ -1,0 +1,215 @@
+import { GenerateContentConfig } from "@google/genai";
+
+/**
+ * 1. UNIFIED HARDWARE TIERS
+ * Explicit catalog of production-approved models.
+ */
+export enum GeminiModel {
+  GEMINI_2_5_FLASH = "gemini-2.5-flash",
+  GEMINI_2_5_PRO = "gemini-2.5-pro",
+  GEMINI_3_6_FLASH = "gemini-3.6-flash",
+  GEMINI_3_1_PRO = "gemini-3.1-pro-preview",
+}
+
+/** Native output dimensionality of GEMINI_EMBEDDING_MODEL — matches legal_document_chunks.embedding vector(768). */
+export const GEMINI_EMBEDDING_DIMENSIONS = 768;
+
+/** Text embedding model — separate quota lane from chat/JSON generation models above. */
+export const GEMINI_EMBEDDING_MODEL = "gemini-embedding-001";
+
+export enum OpenRouterModel {
+  LLAMA_3_3_70B = "meta-llama/llama-3.3-70b-instruct",
+  CLAUDE_3_5_SONNET = "anthropic/claude-3.5-sonnet",
+  GPT_4O_MINI = "openai/gpt-4o-mini",
+}
+
+/**
+ * 2. CORE BUSINESS ARCHITECTURE INTENTS
+ * Semantic task enums requested by backend handlers.
+ */
+export enum LLMTask {
+  FAST_STITCH = "FAST_STITCH",
+  COMPLEX_DRAFT = "COMPLEX_DRAFT",
+  STRUCTURAL_JSON = "STRUCTURAL_JSON",
+  REFINEMENT = "REFINEMENT",
+  STRUCTURAL_JSON_LITE = "STRUCTURAL_JSON_LITE",
+  SECTION_REFINE = "SECTION_REFINE",
+  /** PAC: requirement / fact extraction (fast tier) */
+  EXTRACT_FACTS = "EXTRACT_FACTS",
+  /** PAC: gap detection adjacent to deterministic rules (fast tier) */
+  DETECT_GAPS = "DETECT_GAPS",
+  /** PAC: checklist critique quality gate (strongest reasoning) */
+  CRITIQUE_CHECKLIST = "CRITIQUE_CHECKLIST",
+}
+
+export enum LLMProvider {
+  GEMINI = "GEMINI",
+  OPENROUTER = "OPENROUTER",
+}
+
+export type GeminiThinkingLevel = "minimal" | "low" | "medium" | "high";
+
+/**
+ * 3. RUNTIME PARAMETER MATRIX
+ */
+export interface TaskModelConfig {
+  model: string;
+  temperature: number;
+  maxOutputTokens?: number;
+  responseMimeType?: string;
+  responseSchema?: any;
+  /**
+   * Gemini 2.5 thinking budget (token count). Prefer setting this per task:
+   * - 0  → no thinking (extraction, gaps, section draft)
+   * - >0 → thinking enabled (critique / heavy reasoning)
+   * If omitted, provider falls back to model default (Flash=0, Pro=1024).
+   * Do not combine with thinkingLevel on Gemini 3.x.
+   */
+  thinkingBudget?: number;
+  /**
+   * Gemini 3.x thinking level. Preferred for gemini-3* models.
+   * Fast/JSON tasks → minimal|low; heavy Pro tasks → medium|high.
+   */
+  thinkingLevel?: GeminiThinkingLevel;
+  /** Optional client-side cancellation for a bounded runtime call. */
+  abortSignal?: AbortSignal;
+}
+
+export interface LLMTaskPreset {
+  primaryModel: string;
+  fallbackModel: string;
+  timeoutMs: number;
+  config: Partial<GenerateContentConfig> & Record<string, any>;
+}
+
+/**
+ * 4. SYSTEM TASK CONFIGURATIONS REGISTRY
+ */
+export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskModelConfig>> = {
+  [LLMProvider.GEMINI]: {
+    [LLMTask.FAST_STITCH]: {
+      model: GeminiModel.GEMINI_3_6_FLASH,
+      temperature: 0.1,
+      thinkingLevel: "minimal",
+    },
+    [LLMTask.COMPLEX_DRAFT]: {
+      model: GeminiModel.GEMINI_3_1_PRO,
+      temperature: 0.0,
+      maxOutputTokens: 4096,
+      thinkingLevel: "high",
+    },
+    [LLMTask.STRUCTURAL_JSON]: {
+      model: GeminiModel.GEMINI_3_6_FLASH,
+      temperature: 0.0,
+      responseMimeType: "application/json",
+      thinkingLevel: "minimal",
+    },
+    [LLMTask.STRUCTURAL_JSON_LITE]: {
+      model: GeminiModel.GEMINI_3_6_FLASH,
+      temperature: 0.0,
+      responseMimeType: "application/json",
+      thinkingLevel: "minimal",
+    },
+    [LLMTask.REFINEMENT]: {
+      model: GeminiModel.GEMINI_3_6_FLASH,
+      temperature: 0.2,
+      thinkingLevel: "low",
+    },
+    [LLMTask.SECTION_REFINE]: {
+      // Volume path: one call per section. Flash avoids Pro RPM exhaustion under PAC.
+      model: GeminiModel.GEMINI_3_6_FLASH,
+      temperature: 0.0,
+      maxOutputTokens: 2048,
+      thinkingLevel: "minimal",
+    },
+    [LLMTask.EXTRACT_FACTS]: {
+      model: GeminiModel.GEMINI_3_6_FLASH,
+      temperature: 0.0,
+      responseMimeType: "application/json",
+      thinkingLevel: "minimal",
+    },
+    [LLMTask.DETECT_GAPS]: {
+      model: GeminiModel.GEMINI_3_6_FLASH,
+      temperature: 0.0,
+      responseMimeType: "application/json",
+      thinkingLevel: "minimal",
+    },
+    [LLMTask.CRITIQUE_CHECKLIST]: {
+      model: GeminiModel.GEMINI_3_1_PRO,
+      temperature: 0.0,
+      responseMimeType: "application/json",
+      maxOutputTokens: 4096,
+      thinkingLevel: "high",
+    },
+  },
+  [LLMProvider.OPENROUTER]: {
+    [LLMTask.FAST_STITCH]: {
+      model: OpenRouterModel.LLAMA_3_3_70B,
+      temperature: 0.1,
+    },
+    [LLMTask.COMPLEX_DRAFT]: {
+      model: OpenRouterModel.CLAUDE_3_5_SONNET,
+      temperature: 0.0,
+    },
+    [LLMTask.STRUCTURAL_JSON]: {
+      model: OpenRouterModel.GPT_4O_MINI,
+      temperature: 0.0,
+      responseMimeType: "application/json",
+    },
+    [LLMTask.STRUCTURAL_JSON_LITE]: {
+      model: OpenRouterModel.CLAUDE_3_5_SONNET,
+      temperature: 0.0,
+      responseMimeType: "application/json",
+    },
+    [LLMTask.REFINEMENT]: {
+      model: OpenRouterModel.LLAMA_3_3_70B,
+      temperature: 0.2,
+    },
+    [LLMTask.SECTION_REFINE]: {
+      model: OpenRouterModel.CLAUDE_3_5_SONNET,
+      temperature: 0.0,
+      maxOutputTokens: 2048,
+    },
+    [LLMTask.EXTRACT_FACTS]: {
+      model: OpenRouterModel.GPT_4O_MINI,
+      temperature: 0.0,
+      responseMimeType: "application/json",
+    },
+    [LLMTask.DETECT_GAPS]: {
+      model: OpenRouterModel.GPT_4O_MINI,
+      temperature: 0.0,
+      responseMimeType: "application/json",
+    },
+    [LLMTask.CRITIQUE_CHECKLIST]: {
+      model: OpenRouterModel.CLAUDE_3_5_SONNET,
+      temperature: 0.0,
+      responseMimeType: "application/json",
+      maxOutputTokens: 4096,
+    },
+  },
+};
+
+const DEFAULT_OUTPUT_TOKEN_CEILING = 8192;
+
+const MODEL_OUTPUT_TOKEN_CEILINGS: Record<string, number> = {
+  [GeminiModel.GEMINI_2_5_FLASH]: 65535,
+  [GeminiModel.GEMINI_2_5_PRO]: 65535,
+  [GeminiModel.GEMINI_3_6_FLASH]: 65535,
+  [GeminiModel.GEMINI_3_1_PRO]: 65535,
+  [OpenRouterModel.CLAUDE_3_5_SONNET]: 8192,
+  [OpenRouterModel.LLAMA_3_3_70B]: 8192,
+  [OpenRouterModel.GPT_4O_MINI]: 16384,
+};
+
+export function resolveOutputTokenCeiling(model: string): number {
+  return MODEL_OUTPUT_TOKEN_CEILINGS[model] ?? DEFAULT_OUTPUT_TOKEN_CEILING;
+}
+
+/**
+ * 6. GEMINI API (Google AI) CONFIGURATION ENVELOPE
+ * Uses GOOGLE_GEMINI_EXTERNAL_KEY — not Vertex enterprise project/location.
+ */
+export const GEMINI_ENV_CONFIG = {
+  apiKey: process.env.GOOGLE_GEMINI_EXTERNAL_KEY || "",
+  timeoutMs: 45000,
+};

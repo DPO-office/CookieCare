@@ -1,0 +1,479 @@
+{
+  "particularsFindings": [
+    {
+      "findingId": "f_verify_cov_gdpr.article28.subject_matter_wu-eval-gdpr.art28.particulars",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.chapeau.mandatory_processing_agreement_particulars_gap",
+      "status": "present",
+      "claim": "The words \"Cisco Processes Personal Data as a Processor for You when providing Cisco Offers\" explicitly state the processing activity and service covered by the agreement.",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "root.para-1",
+            "charRange": [
+              0,
+              1778
+            ]
+          },
+          "quotedText": "applies where, and to the extent that, Cisco Processes Personal Data as a Processor for You when providing Cisco Offers",
+          "sourceRole": "target"
+        }
+      ],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-eval-gdpr.art28.particulars",
+      "skillId": "regimes/data-protection/gdpr",
+      "packageId": "gdpr.art28.particulars",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "gdpr.article28.subject_matter",
+      "judgement": {
+        "compliance": "present",
+        "evidenceState": "direct",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "draftingQuality": "clean",
+        "materiality": "low",
+        "nli": "entailed",
+        "recommendationKind": "none"
+      },
+      "verifiedByProposition": true
+    },
+    {
+      "findingId": "f_verify_cov_gdpr.article28.duration_wu-eval-gdpr.art28.particulars",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.chapeau.mandatory_processing_agreement_particulars_gap",
+      "status": "present",
+      "claim": "The words \"terminate automatically upon the termination or expiration of the Agreement\" and \"Upon such termination, Processor shall cease all processing\" explicitly establish the end condition and duration of the processing.",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "root.para-1",
+            "charRange": [
+              0,
+              1778
+            ]
+          },
+          "quotedText": "This DPA will terminate automatically upon the termination or expiration of the Agreement. Upon such termination, Processor shall cease all processing of Personal Data under the Agreement.",
+          "sourceRole": "target"
+        }
+      ],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-eval-gdpr.art28.particulars",
+      "skillId": "regimes/data-protection/gdpr",
+      "packageId": "gdpr.art28.particulars",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "gdpr.article28.duration",
+      "judgement": {
+        "compliance": "present",
+        "evidenceState": "direct",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "draftingQuality": "clean",
+        "materiality": "low",
+        "nli": "entailed",
+        "recommendationKind": "none"
+      },
+      "verifiedByProposition": true
+    },
+    {
+      "findingId": "f_verify_cd_gdpr.article28.nature_and_purpose_wu-eval-gdpr.art28.particulars",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.chapeau.mandatory_processing_agreement_particulars_gap",
+      "status": "insufficient_evidence",
+      "claim": "No candidate passage proved or contradicted this requirement's proof standard.",
+      "evidence": [],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-eval-gdpr.art28.particulars",
+      "skillId": "regimes/data-protection/gdpr",
+      "packageId": "gdpr.art28.particulars",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "gdpr.article28.nature_and_purpose",
+      "judgement": {
+        "compliance": "insufficient_evidence",
+        "evidenceState": "not_found",
+        "referenceBinding": "none",
+        "evidenceConfidence": "low",
+        "materiality": "low",
+        "nli": "not_mentioned",
+        "recommendationKind": "obtain"
+      },
+      "verifiedByProposition": true
+    },
+    {
+      "findingId": "f_verify_cd_gdpr.article28.categories_of_data_wu-eval-gdpr.art28.particulars",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.chapeau.mandatory_processing_agreement_particulars_gap",
+      "status": "insufficient_evidence",
+      "claim": "No candidate passage proved or contradicted this requirement's proof standard.",
+      "evidence": [],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-eval-gdpr.art28.particulars",
+      "skillId": "regimes/data-protection/gdpr",
+      "packageId": "gdpr.art28.particulars",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "gdpr.article28.categories_of_data",
+      "judgement": {
+        "compliance": "insufficient_evidence",
+        "evidenceState": "not_found",
+        "referenceBinding": "none",
+        "evidenceConfidence": "low",
+        "materiality": "low",
+        "nli": "not_mentioned",
+        "recommendationKind": "obtain"
+      },
+      "verifiedByProposition": true
+    },
+    {
+      "findingId": "f_verify_cd_gdpr.article28.categories_of_data_subjects_wu-eval-gdpr.art28.particulars",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.chapeau.mandatory_processing_agreement_particulars_gap",
+      "status": "insufficient_evidence",
+      "claim": "No candidate passage proved or contradicted this requirement's proof standard.",
+      "evidence": [],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-eval-gdpr.art28.particulars",
+      "skillId": "regimes/data-protection/gdpr",
+      "packageId": "gdpr.art28.particulars",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "gdpr.article28.categories_of_data_subjects",
+      "judgement": {
+        "compliance": "insufficient_evidence",
+        "evidenceState": "not_found",
+        "referenceBinding": "none",
+        "evidenceConfidence": "low",
+        "materiality": "low",
+        "nli": "not_mentioned",
+        "recommendationKind": "obtain"
+      },
+      "verifiedByProposition": true
+    },
+    {
+      "findingId": "f_verify_cov_gdpr.article28.controller_obligations_and_rights_wu-eval-gdpr.art28.particulars",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.chapeau.mandatory_processing_agreement_particulars_gap",
+      "status": "present",
+      "claim": "The words \"You will... ensure all instructions given by You... are at all times in accordance with Data Protection Laws\" and \"have all authorizations and/or consents necessary\" explicitly set out the controller's obligations regarding lawful instructions and legal basis.",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-2.3",
+            "charRange": [
+              7590,
+              8827
+            ]
+          },
+          "quotedText": "You will: a. use the Cisco Offers in compliance with Data Protection Laws; b. ensure all instructions given by You to Cisco in respect of the Processing of Personal Data are at all times in accordance with Data Protection Laws; c. ensure all Personal Data provided to Cisco has been collected in accordance with Data Protection Laws and that You have all authorizations and/or consents necessary to provide such Personal Data to Cisco;",
+          "sourceRole": "target"
+        }
+      ],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-eval-gdpr.art28.particulars",
+      "skillId": "regimes/data-protection/gdpr",
+      "packageId": "gdpr.art28.particulars",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "gdpr.article28.controller_obligations_and_rights",
+      "judgement": {
+        "compliance": "present",
+        "evidenceState": "direct",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "draftingQuality": "clean",
+        "materiality": "low",
+        "nli": "entailed",
+        "recommendationKind": "none"
+      },
+      "verifiedByProposition": true
+    }
+  ],
+  "mandatoryFindings": [
+    {
+      "findingId": "f_verify_cov_art28_3_a_instructions_wu-eval-gdpr.art28.3.mandatory_clauses",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+      "status": "present",
+      "claim": "The phrase \"only Process Personal Data in accordance with... Your agreed documented instructions\" explicitly restricts the processor to acting solely on the controller's documented instructions.",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-2.4",
+            "charRange": [
+              8828,
+              10823
+            ]
+          },
+          "quotedText": "only Process Personal Data in accordance with Data Protection Laws, the applicable Offer Disclosure(s), the Information  Security  Exhibit, this DPA,  and  any  other  of  Your agreed documented  instructions.",
+          "sourceRole": "target"
+        }
+      ],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-eval-gdpr.art28.3.mandatory_clauses",
+      "skillId": "regimes/data-protection/gdpr",
+      "packageId": "gdpr.art28.3.mandatory_clauses",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "art28_3_a_instructions",
+      "judgement": {
+        "compliance": "present",
+        "evidenceState": "direct",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "draftingQuality": "clean",
+        "materiality": "low",
+        "nli": "entailed",
+        "recommendationKind": "none"
+      },
+      "verifiedByProposition": true
+    },
+    {
+      "findingId": "f_verify_cov_art28_3_b_confidentiality_wu-eval-gdpr.art28.3.mandatory_clauses",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+      "status": "present",
+      "claim": "The words \"Representatives who may Process Personal Data have written contractual obligations... to keep the Personal Data confidential or are under an appropriate statutory obligation of confidentiality\" directly satisfy the proof standard.",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-2.4",
+            "charRange": [
+              8828,
+              10823
+            ]
+          },
+          "quotedText": "ensure its applicable Representatives who may Process Personal Data have written contractual obligations in place with Cisco to keep the Personal Data confidential or are under an appropriate statutory obligation of confidentiality",
+          "sourceRole": "target"
+        }
+      ],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-eval-gdpr.art28.3.mandatory_clauses",
+      "skillId": "regimes/data-protection/gdpr",
+      "packageId": "gdpr.art28.3.mandatory_clauses",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "art28_3_b_confidentiality",
+      "judgement": {
+        "compliance": "present",
+        "evidenceState": "direct",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "draftingQuality": "clean",
+        "materiality": "low",
+        "nli": "entailed",
+        "recommendationKind": "none"
+      },
+      "verifiedByProposition": true
+    },
+    {
+      "findingId": "f_verify_cd_art28_3_c_security_wu-eval-gdpr.art28.3.mandatory_clauses",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+      "status": "insufficient_evidence",
+      "claim": "No candidate passage proved or contradicted this requirement's proof standard.",
+      "evidence": [],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-eval-gdpr.art28.3.mandatory_clauses",
+      "skillId": "regimes/data-protection/gdpr",
+      "packageId": "gdpr.art28.3.mandatory_clauses",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "art28_3_c_security",
+      "judgement": {
+        "compliance": "insufficient_evidence",
+        "evidenceState": "not_found",
+        "referenceBinding": "none",
+        "evidenceConfidence": "low",
+        "materiality": "low",
+        "nli": "not_mentioned",
+        "recommendationKind": "obtain"
+      },
+      "verifiedByProposition": true
+    },
+    {
+      "findingId": "f_verify_cd_art28_3_d_subprocessors_wu-eval-gdpr.art28.3.mandatory_clauses",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+      "status": "insufficient_evidence",
+      "claim": "No candidate passage proved or contradicted this requirement's proof standard.",
+      "evidence": [],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-eval-gdpr.art28.3.mandatory_clauses",
+      "skillId": "regimes/data-protection/gdpr",
+      "packageId": "gdpr.art28.3.mandatory_clauses",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "art28_3_d_subprocessors",
+      "judgement": {
+        "compliance": "insufficient_evidence",
+        "evidenceState": "not_found",
+        "referenceBinding": "none",
+        "evidenceConfidence": "low",
+        "materiality": "low",
+        "nli": "not_mentioned",
+        "recommendationKind": "obtain"
+      },
+      "verifiedByProposition": true
+    },
+    {
+      "findingId": "f_verify_cov_art28_3_e_dsr_assistance_wu-eval-gdpr.art28.3.mandatory_clauses",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+      "status": "present",
+      "claim": "The phrase \"assist You as reasonably needed to respond to requests from... Data Subjects\" explicitly obligates the processor to assist the controller with data subject requests.",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-2.4",
+            "charRange": [
+              8828,
+              10823
+            ]
+          },
+          "quotedText": "assist You as reasonably needed to respond to requests from supervisory authorities, Data Subjects, customers, or others",
+          "sourceRole": "target"
+        }
+      ],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-eval-gdpr.art28.3.mandatory_clauses",
+      "skillId": "regimes/data-protection/gdpr",
+      "packageId": "gdpr.art28.3.mandatory_clauses",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "art28_3_e_dsr_assistance",
+      "judgement": {
+        "compliance": "present",
+        "evidenceState": "direct",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "draftingQuality": "clean",
+        "materiality": "low",
+        "nli": "entailed",
+        "recommendationKind": "none"
+      },
+      "verifiedByProposition": true
+    },
+    {
+      "findingId": "f_verify_cov_art28_3_f_security_assistance_wu-eval-gdpr.art28.3.mandatory_clauses",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+      "status": "present",
+      "claim": "The words \"cooperation as You may reasonably require for You to fulfil Your Data Breach reporting obligations\" explicitly obligate the processor to assist the controller with its own breach notification duties.",
+      "evidence": [
+        {
+          "locator": {
+            "docId": "dpa",
+            "structuralPath": "clause-8",
+            "charRange": [
+              15796,
+              17794
+            ]
+          },
+          "quotedText": "Cisco will  provide  all  such timely  information  and  cooperation  as  You  may  reasonably require for  You to fulfil  Your  Data Breach reporting obligations under (and in accordance with the timescales required by) Data Protection Law.",
+          "sourceRole": "target"
+        }
+      ],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-eval-gdpr.art28.3.mandatory_clauses",
+      "skillId": "regimes/data-protection/gdpr",
+      "packageId": "gdpr.art28.3.mandatory_clauses",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "art28_3_f_security_assistance",
+      "judgement": {
+        "compliance": "present",
+        "evidenceState": "direct",
+        "referenceBinding": "none",
+        "evidenceConfidence": "high",
+        "draftingQuality": "clean",
+        "materiality": "low",
+        "nli": "entailed",
+        "recommendationKind": "none"
+      },
+      "verifiedByProposition": true
+    },
+    {
+      "findingId": "f_verify_cd_art28_3_g_deletion_return_wu-eval-gdpr.art28.3.mandatory_clauses",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+      "status": "insufficient_evidence",
+      "claim": "No candidate passage proved or contradicted this requirement's proof standard.",
+      "evidence": [],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-eval-gdpr.art28.3.mandatory_clauses",
+      "skillId": "regimes/data-protection/gdpr",
+      "packageId": "gdpr.art28.3.mandatory_clauses",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "art28_3_g_deletion_return",
+      "judgement": {
+        "compliance": "insufficient_evidence",
+        "evidenceState": "not_found",
+        "referenceBinding": "none",
+        "evidenceConfidence": "low",
+        "materiality": "low",
+        "nli": "not_mentioned",
+        "recommendationKind": "obtain"
+      },
+      "verifiedByProposition": true
+    },
+    {
+      "findingId": "f_verify_cd_art28_3_h_audit_wu-eval-gdpr.art28.3.mandatory_clauses",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+      "status": "insufficient_evidence",
+      "claim": "No candidate passage proved or contradicted this requirement's proof standard.",
+      "evidence": [],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-eval-gdpr.art28.3.mandatory_clauses",
+      "skillId": "regimes/data-protection/gdpr",
+      "packageId": "gdpr.art28.3.mandatory_clauses",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "art28_3_h_audit",
+      "judgement": {
+        "compliance": "insufficient_evidence",
+        "evidenceState": "not_found",
+        "referenceBinding": "none",
+        "evidenceConfidence": "low",
+        "materiality": "low",
+        "nli": "not_mentioned",
+        "recommendationKind": "obtain"
+      },
+      "verifiedByProposition": true
+    },
+    {
+      "findingId": "f_verify_cd_art28_4_subprocessor_flow_down_wu-eval-gdpr.art28.3.mandatory_clauses",
+      "kind": "compliance",
+      "category": "gdpr.art28.3.a.documented_instructions_only_processing_gap",
+      "status": "insufficient_evidence",
+      "claim": "No candidate passage proved or contradicted this requirement's proof standard.",
+      "evidence": [],
+      "taxonomyVersion": "1.1.0",
+      "workUnitId": "wu-eval-gdpr.art28.3.mandatory_clauses",
+      "skillId": "regimes/data-protection/gdpr",
+      "packageId": "gdpr.art28.3.mandatory_clauses",
+      "visibility": "user_facing",
+      "ruleSourceTier": "B",
+      "requirementId": "art28_4_subprocessor_flow_down",
+      "judgement": {
+        "compliance": "insufficient_evidence",
+        "evidenceState": "not_found",
+        "referenceBinding": "none",
+        "evidenceConfidence": "low",
+        "materiality": "low",
+        "nli": "not_mentioned",
+        "recommendationKind": "obtain"
+      },
+      "verifiedByProposition": true
+    }
+  ]
+}

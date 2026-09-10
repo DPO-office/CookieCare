@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import { ANALYSIS_STEPS } from "../constants";
 import type { AnalysisStep, AppState, VendorReviewResult } from "../types";
-import { submitVendorReview, createJobSSE } from "../api/vendorReview.api";
+import { submitVendorReview, createJobSSE } from "../api/vendorReviewApi";
 
 interface UseVendorAnalysisOptions {
   authToken: string;

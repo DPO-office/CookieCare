@@ -26,7 +26,9 @@ export interface Source {
 }
 
 export interface AskAILawyerProps {
-  authToken: string;
+  /** @deprecated Read from AppContext */
+  authToken?: string;
+  /** @deprecated Not used */
   documents?: LegalDocument[];
 }
 

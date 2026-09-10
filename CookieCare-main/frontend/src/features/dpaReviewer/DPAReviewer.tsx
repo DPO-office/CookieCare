@@ -3,12 +3,16 @@ import { useDPAAnalysis }    from "./hooks/useDPAAnalysis";
 import { DPAUploadState }    from "./components/DPAUploadState";
 import { DPAAnalyzingState } from "./components/DPAAnalyzingState";
 import { DPAResultsState }   from "./components/DPAResultsState";
+import { useAppContext } from "../../contexts/AppContext";
 
+/** @deprecated authToken is now read from AppContext */
 interface DPAReviewerProps {
-  authToken: string;
+  authToken?: string;
 }
 
-export default function DPAReviewer({ authToken }: DPAReviewerProps) {
+export default function DPAReviewer(_props: DPAReviewerProps = {}) {
+  const { authToken: ctxToken } = useAppContext();
+  const authToken = ctxToken ?? "";
   const {
     appState,
     fileName,

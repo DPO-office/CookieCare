@@ -1,3 +1,15 @@
+import type {
+  Clause,
+  PlaybookRule,
+  ReferenceSnippet,
+  DraftState as ModuleDraftState,
+} from "../modules/drafting/models/draft-state.js";
+
+type Template = string | null;
+type Playbook = PlaybookRule;
+type PreviousContract = ReferenceSnippet;
+type ContractSkeleton = string;
+type DraftRequest = ModuleDraftState["request"];
 
 // Pipeline Step 1: Stuctured Requirements
 export interface RequirementContext {

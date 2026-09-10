@@ -1,0 +1,253 @@
+
+
+##### subject_matter
+[VERIFY] candidate-by-candidate — subject_matter
+----------------------------------------------------------------------------------------
+REQUIREMENT: subject_matter
+HYPOTHESIS:  The contract sets out the subject matter of the processing.
+PROOF STD:   Proven only by text stating what personal-data processing activity or service this agreement covers (e.g. 'processing of Customer Personal Data in connection with the Offerings'). An explicit, named c…
+
+CANDIDATES CHECKED (8) — ranked by the retriever, in this order:
+
+  [1] S42  PROCESSING SUBJECT MATTER (heading-processing-subject-matter)  →  RELATED_NOT_PROOF  quoteVerified=true
+      passage: "PROCESSING SUBJECT MATTER Data Subjects. The personal data transferred concern the following categories of data subjects."
+      quote:   "Data Subjects. The personal data transferred concern the following categories of data subjects."
+      why:     Mentions categories of data subjects, but does not state the subject matter or activity of the processing itself.
+      gap:     Identifies the data subjects heading/topic but does not describe the subject matter of the personal data processing activity.
+
+  [2] S44  Data subjects about whom personal data is transf (clause-2)  →  RELATED_NOT_PROOF  quoteVerified=true → carried as closest
+      passage: "2. PROCESSING OF PERSONAL DATA 2.1 Roles and Regulatory Compliance; Authorization. 2.1.1 Processor and Controller Responsibilities. The parties acknowledge and …"
+      quote:   "Appendix 1 to the Agreement describes the subject matter and details of the processing of Personal Data;"
+      why:     Contains a bare cross-reference to Appendix 1 without providing the actual description of the subject matter or confirming its contents within this passage.
+      gap:     States that Appendix 1 describes the subject matter, making it an unfulfilled external dependency rather than inline proof.
+      needs:   Appendix 1 to the Agreement — To verify the actual stated subject matter and details of the processing of Personal Data.
+
+  [3] S43  Data subjects about whom Alaio collects personal (clause-1)  →  RELATED_NOT_PROOF  quoteVerified=true
+      passage: "1. Data subjects about whom Alaio collects personal data in its provision of the Processor Services; and/or"
+      quote:   "Data subjects about whom Alaio collects personal data in its provision of the Processor Services;"
+      why:     Refers generally to data subjects collected in provision of services, but does not define the substantive subject matter of the processing.
+      gap:     Fragmentary text mentioning collection of personal data without setting out the subject matter of processing.
+
+  [4] S36  11.4 The security of data and the data subject r (clause-11.4)  →  RELATED_NOT_PROOF  quoteVerified=true
+      passage: "11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguard…"
+      quote:   "The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguards und…"
+      why:     Refers to safeguards for data processing activities in the Russian Federation, not the subject matter of processing under the agreement.
+      gap:     Addresses international transfer safeguards for Russian Federation processing rather than establishing the core subject matter of the DPA.
+
+  [5] S2  APPLICATION OF THIS DPA (heading-
+
+##### duration
+[VERIFY] candidate-by-candidate — duration
+----------------------------------------------------------------------------------------
+REQUIREMENT: duration
+HYPOTHESIS:  The contract sets out the duration of the processing.
+PROOF STD:   Proven only by text stating how long the processing continues — an explicit term (e.g. 'for the duration of the Agreement'), a fixed period, or an end condition tied to a specific event. Termination r…
+
+CANDIDATES CHECKED (8) — ranked by the retriever, in this order:
+
+  [1] S12  DURATION OF THIS DPA (clause-3)  →  RELATED_NOT_PROOF  quoteVerified=true
+      passage: "3. DURATION OF THIS DPA This DPA will take effect on the Effective Date and, notwithstanding expiry of the Term, remain in effect until, and automatically expir…"
+      quote:   "This DPA will take effect on the Effective Date and, notwithstanding expiry of the Term, remain in effect until, and automatically expire upon, deletion of all …"
+      why:     States the duration of the DPA itself rather than setting out the explicit active duration or term of the underlying processing.
+      gap:     Specifies when the DPA document expires (upon complete deletion of data), but does not state the active processing duration or reference the underlying contract's term.
+      fix:     Include an express clause defining the active processing term or explicitly linking processing duration to the underlying Terms of Service term.
+
+  [2] S10  2.5 Deletion on Term Expiry. On expiry of the Te (clause-2.5)  →  RELATED_NOT_PROOF  quoteVerified=true ★ PARTIAL
+      coverage: PARTIAL — a material portion is established
+      passage: "2.5 Deletion on Term Expiry. On expiry of the Term, Administrator instructs Alaio to delete all Personal Data (including existing copies) from Bitrix24 systems …"
+      quote:   "On expiry of the Term, Administrator instructs Alaio to delete all Personal Data (including existing copies) from Bitrix24 systems in accordance with applicable…"
+      why:     Establishes a binding post-termination deletion timeline (end boundary) upon expiry of the Term, but does not define the full active processing period.
+      established: Establishes a 90-day post-termination deletion timeline as a binding end boundary for processing following Term expiry.
+      gap:     Defines the post-termination end boundary, but does not explicitly state the active duration of the processing prior to Term expiry.
+      fix:     Add an explicit statement defining the active processing duration (e.g., 'for the duration of the main Agreement') prior to the post-termination deletion phase.
+
+  [3] S22  7.4 Objection Right for New Sub-processors. (clause-7.4)  →  RELATED_NOT_PROOF  quoteVerified=true
+      passage: "7.4 Objection Right for New Sub-processors. When any new Sub-processor is engaged during the Term, and if the GDPR applies to the processing of Personal Data, A…"
+      quote:   "When any new Sub-processor is engaged during the Term, and if the GDPR applies to the processing of Personal Data, Alaio will, at least 10 days before the new S…"
+      why:     Refers incidentally to 'during the Term' in the context of sub-processor objections without establishing the duration of processing.
+      gap:     Mentions the term incidentally in a sub-processor clause without defining processing duration or linking it explicitly to a set processing period.
+      fix:     Provide an explicit clause setting out the duration of personal data processing.
+
+  [4] S34  11.3.
+
+##### nature_purpose
+[VERIFY] candidate-by-candidate — nature_purpose
+----------------------------------------------------------------------------------------
+REQUIREMENT: nature_purpose
+HYPOTHESIS:  The contract sets out the nature and purpose of the processing.
+PROOF STD:   Proven only when the text describes BOTH what activities are performed on the data (nature — e.g. storage, hosting, transmission, analysis) AND why (purpose — e.g. to provide the contracted Offerings …
+
+CANDIDATES CHECKED (8) — ranked by the retriever, in this order:
+
+  [1] S44  Data subjects about whom personal data is transf (clause-2)  →  RELATED_NOT_PROOF  quoteVerified=true ★ PARTIAL
+      coverage: PARTIAL — a material portion is established
+      passage: "2. PROCESSING OF PERSONAL DATA 2.1 Roles and Regulatory Compliance; Authorization. 2.1.1 Processor and Controller Responsibilities. The parties acknowledge and …"
+      quote:   "2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subject matter and detail…"
+      why:     The passage references Appendix 1 for the details/nature of processing and states the purpose in clause 2.4, but does not itself detail the specific processing activities (nature).
+      established: Establishes the processing purpose ('to provide the Processor Services and any related technical support') and notes that processing details are in Appendix 1.
+      gap:     The passage specifies purpose but relies on Appendix 1 to set out the nature and details of processing, which is not provided.
+      note:    The complete subject matter and nature details are incorporated by reference via Appendix 1 rather than set out in full in the body text of the clause.
+      fix:     Provide Appendix 1 detailing the specific data processing activities and operations (nature).
+
+  [2] S43  Data subjects about whom Alaio collects personal (clause-1)  →  RELATED_NOT_PROOF  quoteVerified=true
+      passage: "1. Data subjects about whom Alaio collects personal data in its provision of the Processor Services; and/or"
+      quote:   "1. Data subjects about whom Alaio collects personal data in its provision of the Processor Services; and/or"
+      why:     This fragment mentions data collection in the context of data subject categories, but does not define the nature and purpose of processing.
+      gap:     Refers to collection from data subjects without setting out the overall nature and purpose of processing under the contract.
+      fix:     Provide the complete clause setting out processing operations and purposes.
+
+  [3] S1  DATA PROCESSING AGREEMENT (heading-data-processing-agreement)  →  RELATED_NOT_PROOF  quoteVerified=true
+      passage: "DATA PROCESSING AGREEMENT Last updated 29th November 2024 This Data Processing Agreement (“DPA”, “Agreement”) is an addendum to and forms part of the master agr…"
+      quote:   "reflect the parties’ agreement for the provision of the Processor Services (as amended from time to time) and processing of Bitrix24 Customer Account User’s Per…"
+      why:     This introductory DPA clause broadly mentions processing for Processor Services but does not describe the specific nature (activities performed) or purpose.
+      gap:     Presents a high-level preamble statement rather than describing specific processing activities or detailed purposes.
+      fix:     Include explicit operational descriptions of what processing activities occur and their specific pu
+
+##### data_subject_categories
+[VERIFY] candidate-by-candidate — data_subject_categories
+----------------------------------------------------------------------------------------
+REQUIREMENT: data_subject_categories
+HYPOTHESIS:  The contract sets out the categories of data subjects.
+PROOF STD:   Proven only by text identifying WHO the data subjects are — e.g. Customer's employees, customers, or end users — distinct from what data is processed about them. A clause describing only the types of …
+
+CANDIDATES CHECKED (8) — ranked by the retriever, in this order:
+
+  [1] S42  PROCESSING SUBJECT MATTER (heading-processing-subject-matter)  →  RELATED_NOT_PROOF  quoteVerified=true
+      passage: "PROCESSING SUBJECT MATTER Data Subjects. The personal data transferred concern the following categories of data subjects."
+      quote:   "Data Subjects. The personal data transferred concern the following categories of data subjects."
+      why:     The passage provides a heading/introductory sentence stating that categories of data subjects follow, but does not actually state or list any specific categories of data subjects.
+      gap:     The passage contains only an introductory prompt/heading stating that personal data concerns the following categories of data subjects, but omits the actual list or specification o…
+
+  [2] S44  Data subjects about whom personal data is transf (clause-2)  →  RELATED_NOT_PROOF  quoteVerified=true → carried as closest
+      passage: "2. PROCESSING OF PERSONAL DATA 2.1 Roles and Regulatory Compliance; Authorization. 2.1.1 Processor and Controller Responsibilities. The parties acknowledge and …"
+      quote:   "Appendix 1 to the Agreement describes the subject matter and details of the processing of Personal Data"
+      why:     Refers generically to Appendix 1 for details of processing without specifically pointing to or identifying a supplied document or clause that sets out the data subjects.
+      gap:     Refers to Appendix 1 for processing details generally rather than providing the list of categories of data subjects or an explicit reference showing where data subjects are listed.
+      needs:   Appendix 1 — To verify if Appendix 1 actually sets out the categories of data subjects.
+
+  [3] S43  Data subjects about whom Alaio collects personal (clause-1)  →  RELATED_NOT_PROOF  quoteVerified=true
+      passage: "1. Data subjects about whom Alaio collects personal data in its provision of the Processor Services; and/or"
+      quote:   "Data subjects about whom Alaio collects personal data in its provision of the Processor Services; and/or"
+      why:     The fragment is an incomplete list header/item that refers to data subjects generally without naming or describing any categories of WHO the data subjects actually are.
+      gap:     The text is an incomplete sentence fragment referring to data subjects generally, but fails to identify any specific categories of data subjects (e.g. employees, customers, end use…
+
+  [4] S36  11.4 The security of data and the data subject r (clause-11.4)  →  RELATED_NOT_PROOF  quoteVerified=true
+      passage: "11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguard…"
+      quote:   "the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguards under article 46 GDPR"
+      why:     Refers generally to data subject rights under the GDPR without i
+
+##### art28_3_d_subprocessors
+[VERIFY] candidate-by-candidate — art28_3_d_subprocessors
+----------------------------------------------------------------------------------------
+REQUIREMENT: art28_3_d_subprocessors
+HYPOTHESIS:  The processor does not engage another processor without controller authorisation.
+PROOF STD:   Proven only by text requiring the processor to obtain the controller's prior GENERAL or SPECIFIC written authorization before engaging a subprocessor, AND (for general authorization) giving the contro…
+
+CANDIDATES CHECKED (8) — ranked by the retriever, in this order:
+
+  [1] S22  7.4 Objection Right for New Sub-processors. (clause-7.4)  →  PROVES  quoteVerified=true ★ WINNER
+      coverage: PARTIAL — a material portion is established
+      passage: "7.4 Objection Right for New Sub-processors. When any new Sub-processor is engaged during the Term, and if the GDPR applies to the processing of Personal Data, A…"
+      quote:   "When any new Sub-processor is engaged during the Term, and if the GDPR applies to the processing of Personal Data, Alaio will, at least 10 days before the new S…"
+      why:     requires advance notification of new subprocessors and explicitly grants the administrator the right to object in writing.
+      established: Establishes a general authorization framework with prior notice and an explicit right for the controller/administrator to object to new sub-processors under the GDPR.
+      gap:     Applies specifically when the GDPR applies to the processing of personal data, rather than being an unconditional requirement across all jurisdictions/processing.
+      note:    This clause represents the general authorization mechanism when read in conjunction with the initial authorization in clause 7.1.
+      fix:     Extend the advance notification and objection mechanism to all processing under the DPA regardless of GDPR applicability.
+
+  [2] S21  7.2 Requirements for Sub-processor Engagement. W (clause-7.2)  →  RELATED_NOT_PROOF  quoteVerified=true
+      passage: "7.2 Requirements for Sub-processor Engagement. When engaging any Sub-processor, Alaio will: (a) ensure via a written contract that: (i) the Sub-processor only a…"
+      quote:   "Requirements for Sub-processor Engagement. When engaging any Sub-processor, Alaio will: (a) ensure via a written contract that: (i) the Sub-processor only acces…"
+      why:     sets downstream contractual requirements for sub-processors but does not require controller authorization or establish an objection mechanism.
+      gap:     Specifies contract requirements and liability for sub-processors, but does not address obtaining controller authorization or providing an opportunity to object.
+      fix:     Add an express requirement for prior controller authorization or reference Section 7.4's objection mechanism.
+
+  [3] S82  SUBPROCESSOR SECURITY (clause-9)  →  RELATED_NOT_PROOF  quoteVerified=true
+      passage: "9. SUBPROCESSOR SECURITY Before onboarding Sub-processors, Alaio conducts an audit of the security and privacy practices of Sub-processors to ensure Sub-process…"
+      quote:   "subject always to the requirements set out in Section 7 the Sub-processor is required to enter into appropriate security, confidentiality and privacy contract t…"
+      why:     focuses on sub-processor security audits and contract terms without setting out the authorization or objection standard.
+      gap:     Deals with security auditing and required contract terms for sub-processors; it references Section 7
+
+##### art28_3_f_security_assistance
+[VERIFY] candidate-by-candidate — art28_3_f_security_assistance
+----------------------------------------------------------------------------------------
+REQUIREMENT: art28_3_f_security_assistance
+HYPOTHESIS:  The processor assists the controller with security, personal-data-breach, and DPIA obligations.
+PROOF STD:   Proven only by text obligating the processor to assist the controller with the CONTROLLER's own Article 32-36 obligations — security of processing, breach notification to the supervisory authority/dat…
+
+CANDIDATES CHECKED (8) — ranked by the retriever, in this order:
+
+  [1] S19  6.4 Alaio Security Assistance. Administrator agr (clause-6.4)  →  PROVES  quoteVerified=true ★ WINNER
+      coverage: PARTIAL — a material portion is established
+      passage: "6.4 Alaio Security Assistance. Administrator agrees that Alaio will assist in ensuring compliance with any obligations of Administrator in respect of security o…"
+      quote:   "Alaio will assist in ensuring compliance with any obligations of Administrator in respect of security of personal data and personal data breaches, including (if…"
+      why:     Explicitly commits the processor to assist the controller with its security and breach obligations under Articles 32-34.
+      established: Establishes that the processor assists the controller with security of processing and personal data breach obligations (Articles 32-34).
+      gap:     Does not cover DPIA and prior consultation obligations under Articles 35-36 (which are covered in clause 10 / S30).
+      note:    Security/breach assistance and DPIA assistance are split across separate clauses in the DPA.
+      fix:     Combine with clause 10 to establish assistance across all Articles 32-36.
+
+  [2] S30  DATA PROTECTION IMPACT ASSESSMENT (clause-10)  →  PROVES  quoteVerified=true
+      coverage: PARTIAL — a material portion is established
+      passage: "10. DATA PROTECTION IMPACT ASSESSMENT Upon Administrator´s request, Alaio will assist Administrator in ensuring compliance with any obligations of Administrator…"
+      quote:   "Alaio will assist Administrator in ensuring compliance with any obligations of Administrator in respect of data protection impact assessments and prior consulta…"
+      why:     Explicitly commits the processor to assist the controller with DPIAs and prior consultation under Articles 35 and 36.
+      established: Establishes processor assistance for controller DPIA and prior consultation obligations.
+      gap:     Does not address security and personal data breach obligations under Articles 32-34 (which are in S19).
+      fix:     Combine with S19 to demonstrate comprehensive assistance covering Articles 32-36.
+
+  [3] S82  SUBPROCESSOR SECURITY (clause-9)  →  RELATED_NOT_PROOF  quoteVerified=true
+      passage: "9. SUBPROCESSOR SECURITY Before onboarding Sub-processors, Alaio conducts an audit of the security and privacy practices of Sub-processors to ensure Sub-process…"
+      quote:   "Alaio conducts an audit of the security and privacy practices of Sub-processors to ensure Sub-processors provide a level of security and privacy appropriate to …"
+      why:     Refers to subprocessor security assessments, not assisting the controller with its statutory Article 32-36 obligations.
+      gap:     Addresses internal subprocessor security audits rather than processor assistance to the controller for controller obligations.
+      fix:     Rely on clauses explicitly providing assistance for controlle
+
+##### art28_3_g_deletion_return
+[VERIFY] candidate-by-candidate — art28_3_g_deletion_return
+----------------------------------------------------------------------------------------
+REQUIREMENT: art28_3_g_deletion_return
+HYPOTHESIS:  At the end of the services the controller may choose whether the processor deletes or returns personal data and existing copies.
+PROOF STD:   Proven only by text that, at the end of the provision of services (not merely 'on request' at an unspecified time), gives the CONTROLLER an actual choice between deletion and return of all personal da…
+
+CANDIDATES CHECKED (8) — ranked by the retriever, in this order:
+
+  [1] S10  2.5 Deletion on Term Expiry. On expiry of the Te (clause-2.5)  →  PROVES  quoteVerified=true ★ WINNER
+      coverage: PARTIAL — a material portion is established
+      passage: "2.5 Deletion on Term Expiry. On expiry of the Term, Administrator instructs Alaio to delete all Personal Data (including existing copies) from Bitrix24 systems …"
+      quote:   "On expiry of the Term, Administrator instructs Alaio to delete all Personal Data (including existing copies) from Bitrix24 systems in accordance with applicable…"
+      why:     Clause 2.5 mandates deletion of all Personal Data including existing copies on term expiry unless applicable law requires storage, satisfying the core end-of-service processing man…
+      established: The passage establishes an automatic instruction upon term expiry to delete all Personal Data (including existing copies) subject to legal storage exceptions.
+      gap:     The passage mandates deletion only and does not provide an alternative option for the controller (Administrator) to elect the return of personal data.
+      fix:     Add express terms providing the Administrator with the option to choose between the return or deletion of personal data upon term expiry.
+
+  [2] S11  2.5.2 The Administrator may initiate deletion of (clause-2.5.2)  →  RELATED_NOT_PROOF  quoteVerified=true
+      passage: "2.5.2 The Administrator may initiate deletion of the Bitrix24 Customer Account by first dismissing other Administrators, if any, which will entail deletion of a…"
+      quote:   "The Administrator may initiate deletion of the Bitrix24 Customer Account by first dismissing other Administrators"
+      why:     Describes how an Administrator can initiate account deletion during/via account settings features, rather than establishing an end-of-service deletion/return choice standard.
+      gap:     Describes self-service account dismissal functionality rather than specifying the general end-of-service processor obligation to return or delete personal data.
+      fix:     Include explicit end-of-service provisions detailing processor obligations for data deletion or return.
+
+  [3] S13  4.1 If the Administrator, in its use or receipt  (clause-4.1)  →  RELATED_NOT_PROOF  quoteVerified=true
+      passage: "4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Personal Data, as required by Data…"
+      quote:   "If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Personal Data, as required by Data Pro…"
+      why:     Deals with assistance in responding to data subject rights requests, not end-of-service return or deletion of personal data.
+      gap:     Relates to data subject rights request assistance during the term of services rather than end-of-service return or deleti
+
+##### Appendix lines
+      quote:   "Appendix 1 to the Agreement describes the subject matter and details of the processing of Personal Data;"
+      gap:     States that Appendix 1 describes the subject matter, making it an unfulfilled external dependency rather than inline proof.
+      needs:   Appendix 1 to the Agreement — To verify the actual stated subject matter and details of the processing of Personal Data.
+      gap:     Cross-references Appendix 1 for the subject matter without providing the subject matter text itself.
+      needs:   Appendix 1 to the Agreement — To inspect the text defining the subject matter and details of processing.
+      why:     The passage references Appendix 1 for the details/nature of processing and states the purpose in clause 2.4, but does not itself detail the specific processing activities (nature).
+      fix:     Provide Appendix 1 detailing the specific data processing activities and operations (nature).
+      gap:     Refers to Appendix 1 for the details of processing rather than setting out the nature and purpose within this clause.
+      fix:     Include Appendix 1 to evaluate the full description of nature and purpose.
+      gap:     References Appendix 2 for security measures without detailing or confirming the substantive technical and organisational measures within the passage itself.
+      quote:   "Appendix 1 to the Agreement describes the subject matter and details of the processing of Personal Data"
+      why:     Refers generically to Appendix 1 for details of processing without specifically pointing to or identifying a supplied document or clause that sets out the data subjects.
+      gap:     Refers to Appendix 1 for processing details generally rather than providing the list of categories of data subjects or an explicit reference showing where data subjects are liste
+      needs:   Appendix 1 — To verify if Appendix 1 actually sets out the categories of data subjects.
+
+##### incomplete

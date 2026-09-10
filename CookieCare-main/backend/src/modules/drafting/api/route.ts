@@ -4,7 +4,11 @@ import { authenticateToken } from "../../../middleware/auth.js";
 import {
     draftRouteController,
     refineRouteController,
-    processUploadedTemplateController
+    processUploadedTemplateController,
+    resumeAskController,
+    getConversationController,
+    getDraftHistoryController,
+    deleteDraftHistoryController,
 } from "./controller.js";
 
 const route = express.Router();
@@ -15,6 +19,10 @@ const upload = multer({
 
 route.post("/generate-stream", authenticateToken, draftRouteController);
 route.post("/refine", authenticateToken, refineRouteController);
+route.post("/resume-ask", authenticateToken, resumeAskController);
+route.get("/history", authenticateToken, getDraftHistoryController);
+route.delete("/history/:jobId", authenticateToken, deleteDraftHistoryController);
+route.get("/conversation/:documentId", authenticateToken, getConversationController);
 route.post(
     "/process-uploaded-template",
     authenticateToken,

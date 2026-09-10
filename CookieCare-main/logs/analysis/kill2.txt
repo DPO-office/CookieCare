@@ -1,0 +1,14 @@
+SUCCESS: The process with PID 17992 (child process of PID 23776) has been terminated.
+SUCCESS: The process with PID 23776 (child process of PID 18056) has been terminated.
+SUCCESS: The process with PID 3248 (child process of PID 7380) has been terminated.
+SUCCESS: The process with PID 18056 (child process of PID 7380) has been terminated.
+SUCCESS: The process with PID 7380 (child process of PID 20476) has been terminated.
+
+SUCCESS: The process with PID 9028 (child process of PID 8352) has been terminated.
+SUCCESS: The process with PID 8352 (child process of PID 22148) has been terminated.
+SUCCESS: The process with PID 22148 (child process of PID 28940) has been terminated.
+SUCCESS: The process with PID 7668 (child process of PID 11192) has been terminated.
+SUCCESS: The process with PID 28940 (child process of PID 11192) has been terminated.
+SUCCESS: The process with PID 11192 (child process of PID 20476) has been terminated.
+
+19836 done

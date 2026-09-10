@@ -19,6 +19,8 @@ export interface SavedDraft {
   id: string;
   title: string;
   selected: boolean;
+  /** Surfaced from the backend to guard against selecting in-progress drafts. */
+  draft_status?: string;
 }
 
 export interface Message {
@@ -26,18 +28,27 @@ export interface Message {
   text: string;
   sources?: Array<{ title: string; citation: string }>;
   loading?: boolean;
+  streaming?: boolean;
 }
 
 export interface InteractAnalyzeProps {
-  documents: LegalDocument[];
-  activeDocument: LegalDocument | null;
-  authToken: string;
-  onRefresh: () => Promise<void>;
-  onSelectDocument: (doc: LegalDocument | null) => void;
+  /** @deprecated Read from AppContext */
+  documents?: LegalDocument[];
+  /** @deprecated Read from AppContext */
+  activeDocument?: LegalDocument | null;
+  /** @deprecated Read from AppContext */
+  authToken?: string;
+  /** @deprecated Read from AppContext */
+  onRefresh?: () => Promise<void>;
+  /** @deprecated Read from AppContext */
+  onSelectDocument?: (doc: LegalDocument | null) => void;
 }
 
-export type DocumentMode = "unified" | "individual";
 export type AnswerStyle = "narrative" | "tabular";
+export type AnalysisDepth = "deep" | "lite";
+
+/** Wire name for the API — same values as AnalysisDepth. */
+export type ThinkingMode = AnalysisDepth;
 export type PromptTab = "write" | "library" | "questions";
 export type SidePanelType = "folder" | "upload";
 

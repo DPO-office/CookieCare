@@ -1,0 +1,65 @@
+[
+  {
+    "f": "an_313bf2c5-c208-4ddd-b96f-39a437333e5f.compliance.log",
+    "phase": "2B",
+    "mtime": "2026-09-05T13:21:03.559Z",
+    "resolved": 15,
+    "conflict": 0,
+    "requestResolve": 6,
+    "requestUnresolved": 0
+  },
+  {
+    "f": "an_fdaf056a-ca56-4447-ba31-c9b41660a342.compliance.log",
+    "phase": "1C",
+    "mtime": "2026-09-05T13:12:11.428Z",
+    "resolved": 0,
+    "conflict": 0,
+    "requestResolve": 0,
+    "requestUnresolved": 0
+  },
+  {
+    "f": "an_80bfbbe5-6826-4847-8b22-b4d50837fb1a.compliance.log",
+    "phase": "1C",
+    "mtime": "2026-09-05T12:56:54.879Z",
+    "resolved": 0,
+    "conflict": 0,
+    "requestResolve": 0,
+    "requestUnresolved": 0
+  },
+  {
+    "f": "an_37ce6536-d28f-440c-a12b-8bdad57a3709.compliance.log",
+    "phase": "1A",
+    "mtime": "2026-09-05T12:47:21.888Z",
+    "resolved": 0,
+    "conflict": 0,
+    "requestResolve": 0,
+    "requestUnresolved": 0
+  },
+  {
+    "f": "an_7b04be34-2305-4e67-89ed-1a272dd95aa3.compliance.log",
+    "phase": "1A",
+    "mtime": "2026-09-05T12:38:26.760Z",
+    "resolved": 0,
+    "conflict": 0,
+    "requestResolve": 0,
+    "requestUnresolved": 0
+  },
+  {
+    "f": "an_7a2750ca-398d-4cda-99ab-4e13b6dd414d.compliance.log",
+    "phase": "1A",
+    "mtime": "2026-09-05T12:33:44.256Z",
+    "resolved": 0,
+    "conflict": 0,
+    "requestResolve": 0,
+    "requestUnresolved": 0
+  },
+  {
+    "f": "an_fc227d1e-cd01-47f6-bc87-fcaa60fedb2a.compliance.log",
+    "phase": "0",
+    "mtime": "2026-09-05T12:18:33.968Z",
+    "resolved": 0,
+    "conflict": 0,
+    "requestResolve": 0,
+    "requestUnresolved": 0
+  }
+]

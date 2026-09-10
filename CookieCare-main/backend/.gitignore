@@ -17,3 +17,5 @@ backend/dist/
 backend/server.js
 drafting-module-context.md
 server_test_build.js
+
+/test

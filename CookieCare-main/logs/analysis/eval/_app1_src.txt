@@ -1,0 +1,34 @@
+
+  
+ Appendix 1 
+SUBJECT MATTER AND DETAILS OF THE DATA  
+PROCESSING SUBJECT MATTER 
+Data Subjects. The personal data transferred concern the following categories of data  subjects. 
+1. Data subjects about whom Alaio collects personal data in its provision of the  Processor Services; and/or 
+2. Data subjects about whom personal data is transferred to Alaio in connection with  the Processor Services by, at the direction of, or on behalf of Administrator.  
+Including: 
+● Staff including volunteers, agents, temporary and casual workers 
+● Users and clients (including their staff) 
+● Suppliers (including their staff) 
+● Members or supporters 
+● Complainants, correspondents and enquirers
+● Advisers, consultants and other professional experts 
+Categories of data The personal data transferred concern the following categories of data: 
+● Personal details, including any information that identifies the data subject and their  personal characteristics, including: first and last name, business contact details; 
+● Communications metadata 
+● Employment data which may include: working time, geolocation (under user’s  consent as part of working time tracking) 
+● Goods or services provided and related information, including details of the goods or  services supplied, licences issued, and contracts 
+● Location country, city, state and region 
+● Online identifiers 
+● Device identifiers 
+● Documents structured data 
+● Personal images, audio and video recordings 
+● Lifestyle and social circumstances 
+● Signatures 
+Special categories of data (if appropriate): 
+N/A 
+Processing operations The personal data will be subject to the following basic processing  activities (please specify): 
+● IT, digital, technology or telecom services, including provision of technology products  or services, telecoms and network services, digital services, hosting, cloud and  support services or software licensing. Including, but not limited to:  
+● Collecting, recording, organizing, structuring, storing, retrieving, using, disclosing,  erasing and destroying) User Personal Data for the purpose of providing the  Services and any related technical support to User in accordance with this Data  Processing Agreement. The services include the following: Social Intranet, Project  Management and Tasks, Chat and Video, Document Management and  Bitrix24.Drive, Calendars, Mail, CRM, Sites, Open Channels, Contact center, 
+Telephony, Time management, CRM marketing, Workflows, eCommerce, Box  version.  
+  

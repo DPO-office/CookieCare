@@ -1,0 +1,68 @@
+{
+  "chars": 46052,
+  "summary": [
+    {
+      "label": "RETURNISH",
+      "count": 0,
+      "samples": []
+    },
+    {
+      "label": "DELETE_COUNT",
+      "count": 14,
+      "samples": [
+        "on, use,  disclosure by transmission, dissemination or otherwise making available, alignment or  combination, blocking, erasure or destruction (“Process”, “Processes” and “Processed”  shall have the same meaning). \n\n“Sec",
+        "trator and acknowledged by Bitrix24 as constituting instructions for purposes of this  Data Processing Agreement. \n\n2.5 Deletion on Term Expiry. On expiry of the Term, Administrator instructs Alaio to delete  all Persona",
+        "this  Data Processing Agreement. \n\n2.5 Deletion on Term Expiry. On expiry of the Term, Administrator instructs Alaio to delete  all Personal Data (including existing copies) from Bitrix24 systems in accordance with  appl",
+        "asonably practicable and  within a maximum period of 90 days, unless any applicable law requires storage. 2.5.1 Account deletion. Paid plans devolve to the free plan according to the process  described above. If the Bitr",
+        "in. \n\nIf no User logs in for another 15 days after the instance has been 'archived', Bitrix24  Customer Account will be deleted.\n\n2.5.2 The Administrator may initiate deletion of the Bitrix24 Customer Account by first  d"
+      ]
+    },
+    {
+      "label": "BITRIX_DELETE_CLAUSES",
+      "count": 3,
+      "samples": [
+        "trator and acknowledged by Bitrix24 as constituting instructions for purposes of this  Data Processing Agreement. \n\n2.5 Deletion on Term Expiry. On expiry of the Term, Administrator instructs Alaio to delete  all Persona",
+        "y Bitrix24 as constituting instructions for purposes of this  Data Processing Agreement. \n\n2.5 Deletion on Term Expiry. On expiry of the Term, Administrator instructs Alaio to delete  all Personal Data (including existin",
+        "ns for purposes of this  Data Processing Agreement. \n\n2.5 Deletion on Term Expiry. On expiry of the Term, Administrator instructs Alaio to delete  all Personal Data (including existing copies) from Bitrix24 systems in ac"
+      ]
+    },
+    {
+      "label": "RETENTIONISH",
+      "count": 1,
+      "samples": [
+        "law. Alaio will comply with this instruction as soon as reasonably practicable and  within a maximum period of 90 days, unless any applicable law requires storage. 2.5.1 Account deletion. Paid plans devolve to the free p"
+      ]
+    },
+    {
+      "label": "DPIA",
+      "count": 3,
+      "samples": [
+        "omptly notify Alaio with information regarding any non-compliance discovered during the  course of an inspection. \n\n10. DATA PROTECTION IMPACT ASSESSMENT \n\nUpon Administrator´s request, Alaio will assist Administrator in",
+        "´s request, Alaio will assist Administrator in ensuring compliance with  any obligations of Administrator in respect of data protection impact assessments and prior  consultation, including (if applicable) Administrator´",
+        "ch information is available to Alaio. Alaio shall provide  reasonable assistance to Administrator in the cooperation or prior consultation with the  Supervisory Authority in the performance of its tasks. \n\n11. DATA TRANS"
+      ]
+    },
+    {
+      "label": "F1_SECURITY_ASSIST",
+      "count": 1,
+      "samples": [
+        "  under an appropriate statutory obligation of confidentiality as described in the Appendix 2 to  this DPA. \n\n6.4 Alaio Security Assistance. Administrator agrees that Alaio will assist in ensuring  compliance with any ob"
+      ]
+    },
+    {
+      "label": "CHOOSER",
+      "count": 0,
+      "samples": []
+    },
+    {
+      "label": "APPENDIX",
+      "count": 4,
+      "samples": [
+        "mpliance; Authorization. \n\n2.1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that: (a) Appendix 1 to the Agreement describes the subject matter and details of the processing  of Personal ",
+        "minate the Agreement by giving written  notice to Alaio within 30 days of being informed by Alaio of the change. \n\n  \n\n Appendix 1 \n\nSUBJECT MATTER AND DETAILS OF THE DATA  \n\nPROCESSING SUBJECT MATTER \n\nData Subjects. Th",
+        " within 30 days of being informed by Alaio of the change. \n\n  \n\n Appendix 1 \n\nSUBJECT MATTER AND DETAILS OF THE DATA  \n\nPROCESSING SUBJECT MATTER \n\nData Subjects. The personal data transferred concern the following categ",
+        "r professional experts \n\nCategories of data The personal data transferred concern the following categories of data: \n\n● Personal details, including any information that identifies the data subject and their  personal cha"
+      ]
+    }
+  ]
+}

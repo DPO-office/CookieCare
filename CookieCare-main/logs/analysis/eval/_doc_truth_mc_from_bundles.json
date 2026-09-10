@@ -1,0 +1,102 @@
+{
+  "g_bundle_n": 28,
+  "g_returnish": [
+    {
+      "path": "clause-3.5.6",
+      "q": "3.5.6 Return and Deletion of Personal Data: upon expiry or termination of the Agreement and/or relevant SOW, or if the Agreement or any relevant part of the Agreement authorizing Supplier to Process Personal Data has been revoked, rescinded, or held void, invalid or unenforceable"
+    },
+    {
+      "path": "clause-3.5.4",
+      "q": "3.5.4 Notification Obligations: immediately inform Mastercard, in writing, in relation to any Personal Data Processed in the context of the Services of: (i) any requests from individuals or Data Subjects to exercise their Data Protection Rights; (ii) any request or complaint rece"
+    },
+    {
+      "path": "clause-5.1.4",
+      "q": "5.1.4 If the Processing of Personal Data of Data Subjects is subject to the Argentina Personal Data Protection Act 25.326 (PDPA) (Ley de Protección de los Datos Personales), Supplier shall neither apply nor use the Exported Personal Information , as defined under the Argentina Pe"
+    },
+    {
+      "path": "clause-6.1",
+      "q": "6.1 Unless the Parties can rely on other cross-border transfer mechanisms as permitted under the applicable AMS Law, where Mastercard entity located in Thailand transfers Personal Data (\"Data Exporter\") to the Supplier that is located outside of Thailand or an Adequate Country (\""
+    },
+    {
+      "path": "clause-6.1",
+      "q": "6.1 Unless the Parties can rely on other cross-border transfer mechanisms as permitted under the applicable AMS Law, where Mastercard entity located in Thailand transfers Personal Data (\"Data Exporter\") to the Supplier that is located outside of Thailand or an Adequate Country (\""
+    }
+  ],
+  "g_retentionish": [
+    {
+      "path": "clause-3.6",
+      "q": "3.6. “EU Personal Data” means the processing of personal data to which data protection legislation of the European Union, or of a Member State of the European Union or European Economic Area, was applicable prior to its processing by the Supplier or Mastercard."
+    },
+    {
+      "path": "clause-3.7",
+      "q": "3.7. “European Data Protection Law” means the GDPR, the UK GDPR and the e-Privacy Directive 2002/58/EC (as amended by Directive 2009/136/EC, and as amended and replaced from time to time) and their respective national implementing legislations (as amended and replaced from time t"
+    },
+    {
+      "path": "clause-3.5.6",
+      "q": "3.5.6 Return and Deletion of Personal Data: upon expiry or termination of the Agreement and/or relevant SOW, or if the Agreement or any relevant part of the Agreement authorizing Supplier to Process Personal Data has been revoked, rescinded, or held void, invalid or unenforceable"
+    },
+    {
+      "path": "clause-4.4.6",
+      "q": "4.4.6. Termination. upon termination of the Agreement and/or relevant SOW, or as set forth within the relevant SOW, comply with Mastercard’s request, and securely delete existing copies of the Personal Data unless applicable local Law requires storage of the Personal Data, in whi"
+    },
+    {
+      "path": "clause-5.1.4",
+      "q": "5.1.4 If the Processing of Personal Data of Data Subjects is subject to the Argentina Personal Data Protection Act 25.326 (PDPA) (Ley de Protección de los Datos Personales), Supplier shall neither apply nor use the Exported Personal Information , as defined under the Argentina Pe"
+    },
+    {
+      "path": "clause-6.1",
+      "q": "6.1 Unless the Parties can rely on other cross-border transfer mechanisms as permitted under the applicable AMS Law, where Mastercard entity located in Thailand transfers Personal Data (\"Data Exporter\") to the Supplier that is located outside of Thailand or an Adequate Country (\""
+    },
+    {
+      "path": "clause-6.1",
+      "q": "6.1 Unless the Parties can rely on other cross-border transfer mechanisms as permitted under the applicable AMS Law, where Mastercard entity located in Thailand transfers Personal Data (\"Data Exporter\") to the Supplier that is located outside of Thailand or an Adequate Country (\""
+    },
+    {
+      "path": "clause-2023",
+      "q": "2023) and its Implementing Regulations; (10) Nigeria Data Protection Act 2023 and its subsidiary regulations and guidelines; (11) Turkey Law on the Protection Of Personal Data (DPL) No. 6698 and its regulations and successors; (12) Canadian federal and provincial laws governing t"
+    }
+  ],
+  "g_chooserish": [
+    {
+      "path": "clause-3.5.6",
+      "q": "3.5.6 Return and Deletion of Personal Data: upon expiry or termination of the Agreement and/or relevant SOW, or if the Agreement or any relevant part of the Agreement authorizing Supplier to Process Personal Data has been revoked, rescinded, or held void, invalid or unenforceable"
+    },
+    {
+      "path": "clause-3.6.4",
+      "q": "3.6.4 Supplier will inform Mastercard of any Personal Data Breach or where there is a reasonable suspicion that a Personal Data Breach has occurred i) in writing to SOC@mastercard.com, TPRM@mastercard.com and the account manager or person they are doing business with inside of Ma"
+    },
+    {
+      "path": "clause-3.7.7",
+      "q": "3.7.7 UK Specific Provision: To the extent a Supplier receives any Personal Data subject to the UK GDPR from Mastercard and Processes or transfers such Personal Data in a country that is not subject to a UK government adequacy decision (“UK Transfers”), the Supplier agrees that s"
+    },
+    {
+      "path": "clause-6.2",
+      "q": "6.2. UK Data Transfers To the extent a Party receives any Personal Data subject to the UK GDPR from the other Party and Processes such Personal Data in a country that is not subject to a UK government adequacy decision (“UK Transfers”), the Parties agree that such UK Transfers sh"
+    }
+  ],
+  "f_dpiaish": [
+    {
+      "path": "clause-3.5.5",
+      "q": "3.5.5 Cooperation and Assistance: cooperate with Mastercard to ensure compliance with Privacy and Data Protection Law, this Data Processing Agreement, and Mastercard’s or Mastercard’s customers’ instructions, and to assist Mastercard in fulfilling its own obligations under Privac"
+    },
+    {
+      "path": "clause-7.4",
+      "q": "7.4. Supplier must notify Mastercard of any Personal Data Breach or where there is a reasonable suspicion that such a Personal Data Breach has occurred i) by contacting the Mastercard Security Operations Center at +1-636-722-3600 or 1-800-358-3060 (US toll- free number) and/or; i"
+    },
+    {
+      "path": "clause-4.4.4",
+      "q": "4.4.4. Cooperation and Assistance. cooperate with the other Party in good faith to fulfil their respective data protection compliance obligations under Privacy and Data Protection Law, including complying with individuals’ requests to exercise their Data Protection Rights and rep"
+    },
+    {
+      "path": "clause-9.1.2",
+      "q": "9.1.2. The Parties agree that if Mastercard has paid compensation, damages or fines, has been imposed an obligation to pay, or has otherwise been held liable for payment of any compensation, damages or fines to any Data Subject, competent Government Body or other third party due "
+    }
+  ],
+  "unique_3_5_6_quotes": [
+    {
+      "req": "duration",
+      "path": "clause-3.5.6",
+      "q": "3.5.6 Return and Deletion of Personal Data: upon expiry or termination of the Agreement and/or relevant SOW, or if the Agreement or any relevant part of the Agreement authorizing Supplier to Process Personal Data has been revoked, rescinded, or held void, invalid or unenforceable, or as set forth within the relevant SOW, comply with Mastercard’s request, and at Mastercard’s sole option, securely delete existing copies of the Personal Data or return the same to Mastercard without retention of any hard or soft copies, unless applicable local law requires storage of the Personal Data, in which case Supplier will protect the confidentiality of the Personal Data, will not actively Process the Personal Data anymore, and will continue to comply with this Data Processing Agreement. Supplier will issue a certificate of deletion upon Mastercard’s request."
+    }
+  ]
+}

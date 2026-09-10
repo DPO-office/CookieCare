@@ -1,10 +1,12 @@
 import { pool } from "../src/config/database.js";
+import { config } from "../src/config/index.js";
 import argon2 from "argon2";
 
 async function connectWithRetry(retries = 5, delay = 2000): Promise<any> {
   for (let i = 0; i < retries; i++) {
     try {
       const client = await pool.connect();
+      console.log("Connected to database.");
       return client;
     } catch (err: any) {
       const isLast = i === retries - 1;
@@ -29,14 +31,176 @@ async function connectWithRetry(retries = 5, delay = 2000): Promise<any> {
   throw new Error("Failed to connect to database after retries");
 }
 
-async function setupDb() {
-  const client = await connectWithRetry();
+async function queryWithTimeout(
+  client: any,
+  text: string,
+  params: unknown[] | undefined,
+  ms: number
+): Promise<any> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(
+      () => reject(new Error(`Database query timed out after ${ms}ms: ${text.slice(0, 80)}`)),
+      ms
+    );
+  });
+  try {
+    return await Promise.race([
+      params ? client.query(text, params) : client.query(text),
+      timeout,
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+async function ensureVectorExtension(client: any): Promise<void> {
+  try {
+    const installed = await queryWithTimeout(
+      client,
+      `SELECT 1 FROM pg_extension WHERE extname = 'vector' LIMIT 1`,
+      undefined,
+      8000
+    );
+    if (installed.rowCount) {
+      console.log("pgvector extension already installed.");
+      return;
+    }
+  } catch (err: any) {
+    console.warn(`Could not check pgvector (${err.message || err}). Continuing without it.`);
+    return;
+  }
 
   try {
-    await client.query("BEGIN");
-    console.log("Starting database setup...");
+    console.log("Installing pgvector extension...");
+    // One round-trip so PgBouncer keeps SET + CREATE EXTENSION together.
+    await queryWithTimeout(
+      client,
+      `SET lock_timeout = '8s'; SET statement_timeout = '12s'; CREATE EXTENSION IF NOT EXISTS vector;`,
+      undefined,
+      15000
+    );
+  } catch (err: any) {
+    console.warn(
+      `Skipping pgvector extension (${err.message || err}). Embeddings may be unavailable.`
+    );
+  }
+}
 
-    await client.query("CREATE EXTENSION IF NOT EXISTS vector;");
+// ─── Idempotent column migrations ────────────────────────────────────────────
+//
+// Every ALTER TABLE in this function uses ADD COLUMN IF NOT EXISTS (or an
+// equivalent idempotent guard) so it is safe to run against both a brand-new
+// database and one that has been running in production for months.
+//
+// NEW databases:  setupDb() calls this after completing the full schema setup.
+// EXISTING databases: setupDb() calls this instead of early-returning, so any
+//                     column added after the initial schema creation is picked
+//                     up automatically on the next `npm run dev` / deploy.
+//
+// Rules for adding migrations here:
+//   - Always use IF NOT EXISTS / ON CONFLICT DO NOTHING / idempotent guards.
+//   - Never DROP or TRUNCATE a column or table.
+//   - Always supply a safe DEFAULT for new NOT NULL columns.
+async function runIdempotentMigrations(client: any): Promise<void> {
+  console.log("Running idempotent column migrations...");
+
+  // Embedding column type upgrade (guarded by an information_schema check)
+  try {
+    const embeddingTypeResult = await client.query(`
+      SELECT data_type FROM information_schema.columns
+      WHERE table_name = 'legal_document_chunks' AND column_name = 'embedding'
+    `);
+    if (embeddingTypeResult.rows.length === 0 || embeddingTypeResult.rows[0].data_type !== 'USER-DEFINED') {
+      await client.query("ALTER TABLE legal_document_chunks ALTER COLUMN embedding TYPE vector(768) USING embedding::vector(768);");
+    }
+  } catch (err: any) {
+    // pgvector may not be installed on this deployment — non-fatal.
+    console.warn(`[migrations] Skipping embedding type upgrade: ${err.message}`);
+  }
+
+  // jobs table columns added post-initial-setup
+  await client.query(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS result JSONB DEFAULT NULL;`);
+  await client.query(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS error TEXT DEFAULT NULL;`);
+  await client.query(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;`);
+
+  // Google auth: make password_hash nullable for Google-only users
+  await client.query(`ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL;`);
+  await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_provider VARCHAR(50) NOT NULL DEFAULT 'LOCAL';`);
+  await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS google_sub VARCHAR(255) UNIQUE;`);
+
+  // Vault library rows: UI shows dateModified from updated_at
+  await client.query(`
+    ALTER TABLE library_items
+    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+  `);
+
+  // Vault scope: 'private' = current user only, 'org' = organisation-wide
+  await client.query(`
+    ALTER TABLE library_items
+    ADD COLUMN IF NOT EXISTS source VARCHAR(20) NOT NULL DEFAULT 'private'
+      CHECK (source IN ('private', 'org'));
+  `);
+
+  // Negotiate: original file storage — raw uploaded bytes (base64 text) so the
+  // Vault "Open" button and getRawDocument can serve back the exact original file.
+  // Required by uploadDocument() and getRawDocument() in controllers/documents.ts.
+  await client.query(`
+    ALTER TABLE files ADD COLUMN IF NOT EXISTS original_file TEXT DEFAULT NULL;
+  `);
+
+  console.log("Idempotent column migrations applied.");
+}
+
+async function setupDb() {
+  if (config.skipDb) {
+    console.log("SKIP_DB=true — skipping database setup.");
+    return;
+  }
+
+  const client = await connectWithRetry();
+  let inTransaction = false;
+  let timedOut = false;
+
+  try {
+    // SET LOCAL must live inside a transaction — Neon pooler / PgBouncer
+    // discards session SET between queries.
+    console.log("Checking whether the schema already exists...");
+    await queryWithTimeout(client, "BEGIN", undefined, 8000);
+    inTransaction = true;
+    await client.query("SET LOCAL lock_timeout = '8s'");
+    await client.query("SET LOCAL statement_timeout = '15s'");
+
+    const existing = await queryWithTimeout(
+      client,
+      `SELECT to_regclass('public.users') AS users_table`,
+      undefined,
+      10000
+    );
+    const schemaReady = Boolean(existing.rows[0]?.users_table);
+
+    if (schemaReady) {
+      // Do not ALTER TABLE on every `npm run dev`. ADD COLUMN takes an
+      // AccessExclusiveLock and will fail (or hang) if another session is
+      // idle-in-transaction — which is exactly how the previous setup freeze
+      // left the database.
+      await client.query("COMMIT");
+      inTransaction = false;
+      console.log("Database schema already present — running idempotent column migrations.");
+      await runIdempotentMigrations(client);
+      return;
+    }
+
+    await client.query("COMMIT");
+    inTransaction = false;
+
+    console.log("Starting first-time database setup...");
+    await ensureVectorExtension(client);
+
+    await queryWithTimeout(client, "BEGIN", undefined, 8000);
+    inTransaction = true;
+    await client.query("SET LOCAL lock_timeout = '8s'");
+    await client.query("SET LOCAL statement_timeout = '60s'");
 
     // Tables Creation
     await client.query(`
@@ -108,7 +272,26 @@ async function setupDb() {
         description TEXT,
         tags JSONB DEFAULT '[]'::jsonb,
         details JSONB DEFAULT '{}'::jsonb,
+        source VARCHAR(20) NOT NULL DEFAULT 'private' CHECK (source IN ('private', 'org')),
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS ai_tools (
+        id VARCHAR(255) PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        name VARCHAR(255) NOT NULL,
+        vendor VARCHAR(255) DEFAULT '',
+        category VARCHAR(80) NOT NULL DEFAULT 'other',
+        purpose TEXT DEFAULT '',
+        owner_name VARCHAR(255) DEFAULT '',
+        department VARCHAR(255) DEFAULT '',
+        status VARCHAR(50) NOT NULL DEFAULT 'pilot',
+        eu_risk VARCHAR(50) NOT NULL DEFAULT 'minimal',
+        data_types JSONB DEFAULT '[]'::jsonb,
+        model_name VARCHAR(255) DEFAULT '',
+        last_reviewed_at DATE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
 
       CREATE TABLE IF NOT EXISTS website_scans (
@@ -190,6 +373,7 @@ async function setupDb() {
       -- Playbook PDF ingest (PlaybookIngester) + PlaybookRetriever
       CREATE TABLE IF NOT EXISTS playbook_rules (
         id VARCHAR(255) PRIMARY KEY,
+        organization_id VARCHAR(255),
         contract_type VARCHAR(255),
         topic VARCHAR(255) NOT NULL,
         risk_level VARCHAR(50),
@@ -204,6 +388,9 @@ async function setupDb() {
       CREATE INDEX IF NOT EXISTS idx_playbook_rules_contract_type
         ON playbook_rules (contract_type);
 
+      -- Tenant scoping for playbooks (idempotent for existing DBs)
+      ALTER TABLE playbook_rules ADD COLUMN IF NOT EXISTS organization_id VARCHAR(255);
+
       -- Draft workflow save / refine (saveStep, drafting-handler, negotiate)
       CREATE TABLE IF NOT EXISTS draft_state_ledger (
         document_id VARCHAR(255) NOT NULL REFERENCES files(id) ON DELETE CASCADE,
@@ -214,6 +401,52 @@ async function setupDb() {
         PRIMARY KEY (document_id, version)
       );
 
+      -- Analysis PAC session ledger (resume ASK + audit reproducibility)
+      CREATE TABLE IF NOT EXISTS analysis_state_ledger (
+        session_id VARCHAR(255) NOT NULL,
+        version INTEGER NOT NULL,
+        state_snapshot_json JSONB NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (session_id, version)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_analysis_state_ledger_session
+        ON analysis_state_ledger (session_id);
+
+      CREATE TABLE IF NOT EXISTS analysis_org_memory (
+        org_id VARCHAR(255) PRIMARY KEY,
+        profile_json JSONB NOT NULL,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- Append-only backlog of Tier C (web-assisted) lookups — no dashboard yet
+      CREATE TABLE IF NOT EXISTS analysis_tier_c_log (
+        id BIGSERIAL PRIMARY KEY,
+        org_id VARCHAR(255),
+        query TEXT NOT NULL,
+        resolved BOOLEAN NOT NULL DEFAULT FALSE,
+        source_url TEXT,
+        session_id VARCHAR(255),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_analysis_tier_c_log_org
+        ON analysis_tier_c_log (org_id, created_at DESC);
+
+      -- Append-only authoring backlog for not_authored coverage gaps
+      CREATE TABLE IF NOT EXISTS analysis_authoring_backlog_log (
+        id BIGSERIAL PRIMARY KEY,
+        org_id VARCHAR(255),
+        session_id VARCHAR(255),
+        target TEXT NOT NULL,
+        reason TEXT NOT NULL DEFAULT 'not_authored',
+        work_unit_id VARCHAR(255),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_analysis_authoring_backlog_org
+        ON analysis_authoring_backlog_log (org_id, created_at DESC);
+
       CREATE TABLE IF NOT EXISTS template_clause_mappings (
         template_id VARCHAR(255) NOT NULL REFERENCES contract_templates(id) ON DELETE CASCADE,
         clause_id VARCHAR(255) NOT NULL REFERENCES clause_catalog(id) ON DELETE CASCADE,
@@ -223,30 +456,10 @@ async function setupDb() {
 
     `);
 
-    // Embedding column update (idempotent check)
-    const embeddingTypeResult = await client.query(`
-      SELECT data_type FROM information_schema.columns
-      WHERE table_name = 'legal_document_chunks' AND column_name = 'embedding'
-    `);
-    if (embeddingTypeResult.rows.length === 0 || embeddingTypeResult.rows[0].data_type !== 'USER-DEFINED') {
-      await client.query("ALTER TABLE legal_document_chunks ALTER COLUMN embedding TYPE vector(768) USING embedding::vector(768);");
-    }
-
-    // Idempotent migrations for jobs table columns added post-initial-setup
-    await client.query(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS result JSONB DEFAULT NULL;`);
-    await client.query(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS error TEXT DEFAULT NULL;`);
-    await client.query(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;`);
-
-    // Google auth: make password_hash nullable for Google-only users
-    await client.query(`ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL;`);
-    await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_provider VARCHAR(50) NOT NULL DEFAULT 'LOCAL';`);
-    await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS google_sub VARCHAR(255) UNIQUE;`);
-
-    // Vault library rows: UI shows dateModified from updated_at
-    await client.query(`
-      ALTER TABLE library_items
-      ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
-    `);
+    // Idempotent column migrations — shared with the existing-database path.
+    // These are all ADD COLUMN IF NOT EXISTS / idempotent guards so running
+    // them on a brand-new schema is safe and produces the same final state.
+    await runIdempotentMigrations(client);
 
     // Seed Admin
     const hashedSeedPassword = await argon2.hash("MamuSecure2026!");
@@ -260,7 +473,7 @@ async function setupDb() {
     const rlsTables = [
       'files', 'folders', 'library_items', 'legal_document_chunks',
       'website_scans', 'jobs', 'agent_execution_logs', 'compliance_audit_logs',
-      'document_versions'
+      'document_versions', 'ai_tools'
     ];
     for (const table of rlsTables) {
       await client.query(`ALTER TABLE ${table} ENABLE ROW LEVEL SECURITY;`);
@@ -293,7 +506,8 @@ async function setupDb() {
     }
 
     await client.query("COMMIT");
-    console.log("Database setup successful.");
+    inTransaction = false;
+    console.log("Database schema created.");
 
     // ── Seed Prompt & Question Library items (idempotent) ─────────────────
     // These are scoped to the admin user so they appear in the Vault Repository.
@@ -345,14 +559,39 @@ async function setupDb() {
     }
 
     console.log("Prompt and Question library seeds applied.");
+    console.log("Database setup successful.");
 
-  } catch (err) {
-    await client.query("ROLLBACK");
-    console.error("Database setup failed, transaction rolled back:", err);
+  } catch (err: any) {
+    timedOut = /timed out/i.test(err?.message || "");
+    if (inTransaction) {
+      try {
+        await client.query("ROLLBACK");
+      } catch {
+        // Connection may already be dead after a timeout.
+      }
+      inTransaction = false;
+    }
+    console.error("Database setup failed:", err?.message || err);
+    if (timedOut) {
+      console.error(
+        "A previous Node process is likely holding a database lock. Stop the frozen `npm run dev` with Ctrl+C, then retry."
+      );
+    }
     throw err;
   } finally {
-    client.release();
-    pool.end();
+    try {
+      client.release(true);
+    } catch {
+      // ignore
+    }
+    try {
+      await Promise.race([
+        pool.end(),
+        new Promise((resolve) => setTimeout(resolve, 2000)),
+      ]);
+    } catch {
+      // ignore
+    }
   }
 }
 

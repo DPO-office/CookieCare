@@ -1,0 +1,107 @@
+[
+  {
+    "n": "an_d780c453-6d3f-4bfe-ab99-22582fb4ea5c.compliance.log",
+    "p": "logs\\analysis\\an_d780c453-6d3f-4bfe-ab99-22582fb4ea5c.compliance.log",
+    "mtime": 1788644986118.2402,
+    "iso": "2026-09-05T21:49:46.118Z",
+    "size": 1532449
+  },
+  {
+    "n": "an_91c6b78b-ee53-41bc-a71b-3203c3f56695.compliance.log",
+    "p": "logs\\analysis\\an_91c6b78b-ee53-41bc-a71b-3203c3f56695.compliance.log",
+    "mtime": 1788637059781.3914,
+    "iso": "2026-09-05T19:37:39.781Z",
+    "size": 2384518
+  },
+  {
+    "n": "an_ff125c81-71fb-4f3e-bb8f-57011885fbae.compliance.log",
+    "p": "logs\\analysis\\an_ff125c81-71fb-4f3e-bb8f-57011885fbae.compliance.log",
+    "mtime": 1788636908116.4219,
+    "iso": "2026-09-05T19:35:08.116Z",
+    "size": 1499928
+  },
+  {
+    "n": "an_5c929289-33e1-4303-abac-47779f4d5e91.compliance.log",
+    "p": "logs\\analysis\\an_5c929289-33e1-4303-abac-47779f4d5e91.compliance.log",
+    "mtime": 1788625458149.3079,
+    "iso": "2026-09-05T16:24:18.149Z",
+    "size": 1431939
+  },
+  {
+    "n": "an_7d107bb4-4d03-4e4d-93d5-343457f3f598.compliance.log",
+    "p": "logs\\analysis\\an_7d107bb4-4d03-4e4d-93d5-343457f3f598.compliance.log",
+    "mtime": 1788625333337.9456,
+    "iso": "2026-09-05T16:22:13.338Z",
+    "size": 2268547
+  },
+  {
+    "n": "an_70e8df41-a682-4ea2-b108-5ff52f0407a0.compliance.log",
+    "p": "logs\\analysis\\an_70e8df41-a682-4ea2-b108-5ff52f0407a0.compliance.log",
+    "mtime": 1788625220472.6582,
+    "iso": "2026-09-05T16:20:20.473Z",
+    "size": 1431939
+  },
+  {
+    "n": "an_8d46b63d-1d3e-4074-9935-73f757f359c2.compliance.log",
+    "p": "logs\\analysis\\an_8d46b63d-1d3e-4074-9935-73f757f359c2.compliance.log",
+    "mtime": 1788624700787.928,
+    "iso": "2026-09-05T16:11:40.788Z",
+    "size": 2270216
+  },
+  {
+    "n": "an_cd827214-4d71-4834-9e22-10d69d829b9e.compliance.log",
+    "p": "logs\\analysis\\an_cd827214-4d71-4834-9e22-10d69d829b9e.compliance.log",
+    "mtime": 1788624472652.6904,
+    "iso": "2026-09-05T16:07:52.653Z",
+    "size": 1433112
+  },
+  {
+    "n": "an_77df02b9-4012-4e79-a474-862f8aab9e55.compliance.log",
+    "p": "logs\\analysis\\an_77df02b9-4012-4e79-a474-862f8aab9e55.compliance.log",
+    "mtime": 1788624208791.0369,
+    "iso": "2026-09-05T16:03:28.791Z",
+    "size": 2246426
+  },
+  {
+    "n": "an_d0984515-2cc0-4812-a691-bc3fd1e82e31.compliance.log",
+    "p": "logs\\analysis\\an_d0984515-2cc0-4812-a691-bc3fd1e82e31.compliance.log",
+    "mtime": 1788623493956.11,
+    "iso": "2026-09-05T15:51:33.956Z",
+    "size": 1407694
+  },
+  {
+    "n": "an_46c8c8c6-bc51-4d3b-8fd5-c10b1fffacbc.compliance.log",
+    "p": "logs\\analysis\\an_46c8c8c6-bc51-4d3b-8fd5-c10b1fffacbc.compliance.log",
+    "mtime": 1788623331330.966,
+    "iso": "2026-09-05T15:48:51.331Z",
+    "size": 2249944
+  },
+  {
+    "n": "an_7bfbe8cd-cff3-4c06-aac0-315d5a146f21.compliance.log",
+    "p": "logs\\analysis\\an_7bfbe8cd-cff3-4c06-aac0-315d5a146f21.compliance.log",
+    "mtime": 1788623231745.6538,
+    "iso": "2026-09-05T15:47:11.746Z",
+    "size": 1410852
+  },
+  {
+    "n": "an_db93a7eb-e41d-4796-8888-2407e0c839eb.compliance.log",
+    "p": "logs\\analysis\\an_db93a7eb-e41d-4796-8888-2407e0c839eb.compliance.log",
+    "mtime": 1788622909081.2488,
+    "iso": "2026-09-05T15:41:49.081Z",
+    "size": 1410852
+  },
+  {
+    "n": "an_e76559f4-3126-45df-9de8-ca7529a3da3f.compliance.log",
+    "p": "logs\\analysis\\an_e76559f4-3126-45df-9de8-ca7529a3da3f.compliance.log",
+    "mtime": 1788621371388.3152,
+    "iso": "2026-09-05T15:16:11.388Z",
+    "size": 1374990
+  },
+  {
+    "n": "an_d78ffdf0-563a-4118-8486-52a6a0fcf094.compliance.log",
+    "p": "logs\\analysis\\an_d78ffdf0-563a-4118-8486-52a6a0fcf094.compliance.log",
+    "mtime": 1788620177399.6921,
+    "iso": "2026-09-05T14:56:17.400Z",
+    "size": 1326854
+  }
+]

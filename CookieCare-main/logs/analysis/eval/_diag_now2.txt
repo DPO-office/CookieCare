@@ -1,0 +1,19 @@
+??? injected env (34) from .env // tip: ??? suppress logs { quiet: true }
+Connecting???
+Connected.
+
+=== other sessions on this DB ===
+count=3
+{"pid":494468,"state":"idle","wait":"Client/ClientRead","xact_age":null,"query_age":{"seconds":10,"milliseconds":440.968},"query":"COMMIT"}
+{"pid":494411,"state":"idle","wait":"Client/ClientRead","xact_age":null,"query_age":{"seconds":12,"milliseconds":425.206},"query":"COMMIT"}
+{"pid":494469,"state":"idle","wait":"Client/ClientRead","xact_age":null,"query_age":{"seconds":10,"milliseconds":366.175},"query":"COMMIT"}
+
+=== waiting (ungranted) locks ===
+count=0
+
+=== blocker ??? blocked ===
+count=0
+
+=== idle-in-transaction count=0 ===
+
+Done.

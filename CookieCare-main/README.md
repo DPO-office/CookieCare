@@ -65,7 +65,7 @@ The Settings UI is largely a client-side mock and is not backed by persisted ser
 | **Frontend** | React 19, TypeScript, Vite, TailwindCSS, TipTap (rich text) |
 | **Backend** | Node.js, Express, background jobs with live progress streaming |
 | **Database** | PostgreSQL with multi-tenant isolation (Row-Level Security) and document search support |
-| **AI** | Google Gemini (Vertex AI) as the primary LLM |
+| **AI** | Google Gemini API (api key) as the primary LLM |
 | **Security** | JWT auth, password hashing, AES-256 document encryption |
 | **Hosting** | Docker; deployable on Render / Cloud SQL / Neon |
 
@@ -351,9 +351,9 @@ Evaluates responsible AI practices from uploaded governance documents and/or a c
 
 ## 6. Setup & Local Development
 
-**Prerequisites:** Node.js 20+, PostgreSQL, Google Cloud / Gemini credentials (and optional OpenRouter key).
+**Prerequisites:** Node.js 20+, PostgreSQL, `GOOGLE_GEMINI_EXTERNAL_KEY` (Gemini API) plus `GOOGLE_CLOUD_PROJECT` for Identity/Firebase (and optional OpenRouter key).
 
-**Core environment variables:** `DATABASE_URL`, `ENCRYPTION_KEY`, `GOOGLE_CLOUD_PROJECT`, `JWT_SECRET` (plus optional SMTP, Sentry, and frontend API URL for local use).
+**Core environment variables:** `DATABASE_URL`, `ENCRYPTION_KEY`, `GOOGLE_CLOUD_PROJECT`, `GOOGLE_GEMINI_EXTERNAL_KEY` (Gemini API key for LLM calls), `JWT_SECRET` (plus optional SMTP, Sentry, and frontend API URL for local use).
 
 **Commands**
 

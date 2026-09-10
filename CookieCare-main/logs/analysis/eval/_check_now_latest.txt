@@ -1,0 +1,262 @@
+[
+  {
+    "f": "an_206e0591-627e-4613-ab98-09a592f940e2.compliance.log",
+    "mtime": "2026-09-05T14:03:43.833Z",
+    "phase": "3C",
+    "doc": "Mastercard",
+    "events": 14842,
+    "structure": {
+      "appendix": 7,
+      "list": 23,
+      "definition": 27,
+      "orphan": 0
+    },
+    "termMarker": false,
+    "poolSec": 219,
+    "queries": 15,
+    "kinds": [
+      "requirement",
+      "element",
+      "exact_anchor",
+      "clause_type",
+      "definition",
+      "cross_reference"
+    ],
+    "all6": "5/15",
+    "hits": 1320,
+    "denseNull": true,
+    "recalls": 15,
+    "planned": 15,
+    "missingRecall": [],
+    "zeroRecall": [],
+    "expandMax": 20,
+    "expandReasons": {
+      "parent": 15,
+      "heading": 14,
+      "child": 271
+    },
+    "fHits": 84,
+    "fInternal": 0,
+    "durationPartitions": [
+      "controller_to_processor",
+      "controller_to_controller",
+      "unspecified"
+    ],
+    "exclReasons": {
+      "budget": 638,
+      "incompatible_scope": 57
+    },
+    "incompatible_scope": 57
+  },
+  {
+    "f": "an_75bdc670-6047-489f-bce4-bc493264bda9.compliance.log",
+    "mtime": "2026-09-05T13:59:39.905Z",
+    "phase": "3C",
+    "doc": "Bitrix",
+    "events": 7705,
+    "structure": {
+      "appendix": 2,
+      "list": 11,
+      "definition": 15,
+      "orphan": 0
+    },
+    "termMarker": true,
+    "poolSec": 82,
+    "queries": 15,
+    "kinds": [
+      "requirement",
+      "element",
+      "exact_anchor",
+      "clause_type",
+      "definition",
+      "cross_reference"
+    ],
+    "all6": "5/15",
+    "hits": 1184,
+    "denseNull": true,
+    "recalls": 15,
+    "planned": 15,
+    "missingRecall": [],
+    "zeroRecall": [],
+    "expandMax": 20,
+    "expandReasons": {
+      "parent": 19,
+      "heading": 16,
+      "child": 245,
+      "definition": 18,
+      "internal_reference": 2
+    },
+    "fHits": 84,
+    "fInternal": 0,
+    "durationPartitions": [
+      "unspecified",
+      "controller_to_processor"
+    ],
+    "exclReasons": {
+      "budget": 336
+    },
+    "incompatible_scope": 0
+  },
+  {
+    "f": "an_a5a9bb6f-821b-4f32-bde5-1829d7c43772.compliance.log",
+    "mtime": "2026-09-05T13:48:30.942Z",
+    "phase": "3C",
+    "doc": "Mastercard",
+    "events": 11128,
+    "structure": {
+      "appendix": 7,
+      "list": 23,
+      "definition": 27,
+      "orphan": 0
+    },
+    "termMarker": false,
+    "poolSec": 219,
+    "queries": 15,
+    "kinds": [
+      "requirement",
+      "element",
+      "cross_reference"
+    ],
+    "all6": "0/15",
+    "hits": 837,
+    "denseNull": true,
+    "recalls": 15,
+    "planned": 15,
+    "missingRecall": [],
+    "zeroRecall": [],
+    "expandMax": 20,
+    "expandReasons": {
+      "parent": 15,
+      "heading": 9,
+      "child": 276
+    },
+    "fHits": 51,
+    "fInternal": 0,
+    "durationPartitions": [
+      "controller_to_processor",
+      "controller_to_controller",
+      "unspecified"
+    ],
+    "exclReasons": {
+      "budget": 426,
+      "incompatible_scope": 50
+    },
+    "incompatible_scope": 50
+  },
+  {
+    "f": "an_965ab7ee-ca25-427c-8230-e22c5c75e45a.compliance.log",
+    "mtime": "2026-09-05T13:43:06.392Z",
+    "phase": "3C",
+    "doc": "Bitrix",
+    "events": 6554,
+    "structure": {
+      "appendix": 2,
+      "list": 11,
+      "definition": 15,
+      "orphan": 0
+    },
+    "termMarker": true,
+    "poolSec": 82,
+    "queries": 15,
+    "kinds": [
+      "requirement",
+      "element",
+      "cross_reference"
+    ],
+    "all6": "0/15",
+    "hits": 817,
+    "denseNull": true,
+    "recalls": 15,
+    "planned": 15,
+    "missingRecall": [],
+    "zeroRecall": [],
+    "expandMax": 20,
+    "expandReasons": {
+      "parent": 15,
+      "heading": 17,
+      "child": 257,
+      "definition": 11
+    },
+    "fHits": 51,
+    "fInternal": 0,
+    "durationPartitions": [
+      "unspecified",
+      "controller_to_processor"
+    ],
+    "exclReasons": {
+      "budget": 247
+    },
+    "incompatible_scope": 0,
+    "recon": {
+      "planned": 15,
+      "terminal": 15,
+      "missing": [
+        "subject_matter",
+        "duration",
+        "nature_purpose",
+        "data_categories",
+        "data_subject_categories",
+        "controller_obligations_rights"
+      ]
+    }
+  },
+  {
+    "f": "an_6808411d-d9f2-4925-a3a0-e03c0556874f.compliance.log",
+    "mtime": "2026-09-05T13:25:07.568Z",
+    "phase": "2B",
+    "doc": "Mastercard",
+    "events": 1998,
+    "structure": {
+      "appendix": 7,
+      "list": 23,
+      "definition": 27,
+      "orphan": 0
+    },
+    "termMarker": false,
+    "poolSec": 219,
+    "queries": 0,
+    "kinds": [],
+    "all6": "0/0",
+    "hits": 0,
+    "denseNull": null,
+    "recalls": 0,
+    "planned": 15,
+    "missingRecall": [
+      "subject_matter",
+      "duration",
+      "nature_purpose",
+      "data_categories",
+      "data_subject_categories",
+      "controller_obligations_rights",
+      "art28_3_a_instructions",
+      "art28_3_b_confidentiality",
+      "art28_3_c_security",
+      "art28_3_d_subprocessors",
+      "art28_3_e_dsr_assistance",
+      "art28_3_f_security_assistance",
+      "art28_3_g_deletion_return",
+      "art28_3_h_audit",
+      "art28_4_subprocessor_flow_down"
+    ],
+    "zeroRecall": [],
+    "expandMax": 0,
+    "expandReasons": {},
+    "fHits": 0,
+    "fInternal": 0,
+    "durationPartitions": [],
+    "exclReasons": {},
+    "incompatible_scope": 0,
+    "recon": {
+      "planned": 15,
+      "terminal": 15,
+      "missing": [
+        "subject_matter",
+        "duration",
+        "nature_purpose",
+        "data_categories",
+        "data_subject_categories",
+        "controller_obligations_rights"
+      ]
+    }
+  }
+]

@@ -1,0 +1,138 @@
+[
+  {
+    "f": "an_a5a9bb6f-821b-4f32-bde5-1829d7c43772.compliance.log",
+    "phase": "3C",
+    "docGuess": "unknown",
+    "events": 3546,
+    "structure": {
+      "appendix": 7,
+      "list": 23,
+      "definition": 27,
+      "orphan": 0
+    },
+    "termMarker": false,
+    "termDefNode": false,
+    "queries": 3,
+    "queryKindsSeen": [
+      "requirement",
+      "element"
+    ],
+    "queriesAll6": "0/3",
+    "hits": 170,
+    "denseRankNull": "170/170",
+    "recalls": 3,
+    "planned": 0,
+    "missingRecall": [],
+    "zeroRecall": [],
+    "catAppendixHits": 0,
+    "durAppendixHits": 3,
+    "defQuery": false,
+    "defSelected": false,
+    "expands": 60,
+    "expandPerMax": 20,
+    "over20": [],
+    "expandReasons": {
+      "parent": 3,
+      "heading": 2,
+      "child": 55
+    },
+    "fHits": 0,
+    "fOverlap64": 0,
+    "fOverlap10": 0,
+    "fInternalRefExpands": 0,
+    "expansionLimits": 3,
+    "limitTypeNode": 3,
+    "bundles": 3,
+    "scopes": 9,
+    "durationPartitions": [
+      "controller_to_processor",
+      "controller_to_controller",
+      "unspecified"
+    ],
+    "excluded": 125,
+    "exclReasons": {
+      "budget": 111,
+      "incompatible_scope": 14
+    },
+    "incompatible_scope": 14,
+    "depStates": {
+      "resolved_internal": 623,
+      "unresolved_external": 302,
+      "ambiguous": 288
+    }
+  },
+  {
+    "f": "an_965ab7ee-ca25-427c-8230-e22c5c75e45a.compliance.log",
+    "phase": "3C",
+    "docGuess": "Bitrix-like",
+    "events": 6554,
+    "pools_sections": 82,
+    "structure": {
+      "appendix": 2,
+      "list": 11,
+      "definition": 15,
+      "orphan": 0
+    },
+    "termMarker": true,
+    "termDefNode": true,
+    "queries": 15,
+    "queryKindsSeen": [
+      "requirement",
+      "element",
+      "cross_reference"
+    ],
+    "queriesAll6": "0/15",
+    "hits": 817,
+    "denseRankNull": "817/817",
+    "recalls": 15,
+    "planned": 15,
+    "missingRecall": [],
+    "zeroRecall": [],
+    "catAppendixHits": 5,
+    "durAppendixHits": 2,
+    "defQuery": false,
+    "defSelected": false,
+    "expands": 300,
+    "expandPerMax": 20,
+    "over20": [],
+    "expandReasons": {
+      "parent": 15,
+      "heading": 17,
+      "child": 257,
+      "definition": 11
+    },
+    "fHits": 51,
+    "fOverlap64": 0,
+    "fOverlap10": 5,
+    "fInternalRefExpands": 0,
+    "expansionLimits": 15,
+    "limitTypeNode": 15,
+    "bundles": 15,
+    "scopes": 30,
+    "durationPartitions": [
+      "unspecified",
+      "controller_to_processor"
+    ],
+    "excluded": 247,
+    "exclReasons": {
+      "budget": 247
+    },
+    "incompatible_scope": 0,
+    "depStates": {
+      "resolved_internal": 3947,
+      "unresolved_external": 150
+    },
+    "recon": {
+      "planned": 15,
+      "terminal": 15,
+      "missing": [
+        "subject_matter",
+        "duration",
+        "nature_purpose",
+        "data_categories",
+        "data_subject_categories",
+        "controller_obligations_rights"
+      ]
+    }
+  }
+]

@@ -1,0 +1,31 @@
+??? injected env (34) from .env // tip: ??? custom filepath { path: '/custom/path/.env' }
+Connecting???
+Connected.
+
+=== other sessions on this DB ===
+count=6
+{"pid":494240,"state":"active","wait":"Client/ClientWrite","xact_age":{"minutes":3,"seconds":1,"milliseconds":62.968},"query_age":{"minutes":3,"milliseconds":911.52},"query":"SELECT * FROM jobs WHERE user_id = current_setting('app.current_user_id', true) ORDER BY created_at DESC"}
+{"pid":494248,"state":"active","wait":"Client/ClientWrite","xact_age":{"minutes":2,"seconds":41,"milliseconds":63.181},"query_age":{"minutes":2,"seconds":40,"milliseconds":783.629},"query":"SELECT * FROM jobs WHERE user_id = current_setting('app.current_user_id', true) ORDER BY created_at DESC"}
+{"pid":494322,"state":"active","wait":"Lock/relation","xact_age":{"minutes":1,"seconds":4,"milliseconds":799.639},"query_age":{"minutes":1,"seconds":4,"milliseconds":799.639},"query":"ALTER TABLE jobs ADD COLUMN IF NOT EXISTS result JSONB DEFAULT NULL;"}
+{"pid":493935,"state":"active","wait":"Lock/relation","xact_age":{"minutes":1,"seconds":1,"milliseconds":193.029},"query_age":{"minutes":1,"seconds":1,"milliseconds":41.998},"query":"UPDATE jobs SET progress = $1, message = $2 WHERE id = $3"}
+{"pid":494342,"state":"active","wait":"Lock/relation","xact_age":{"seconds":38,"milliseconds":381.917},"query_age":{"seconds":38,"milliseconds":381.917},"query":"ALTER TABLE jobs ADD COLUMN IF NOT EXISTS result JSONB DEFAULT NULL;"}
+{"pid":493841,"state":"idle","wait":"Client/ClientRead","xact_age":null,"query_age":{"seconds":16,"milliseconds":218.175},"query":"COMMIT"}
+
+=== waiting (ungranted) locks ===
+count=3
+{"pid":493935,"state":"active","mode":"RowExclusiveLock","granted":false,"rel":"jobs","query":"UPDATE jobs SET progress = $1, message = $2 WHERE id = $3"}
+{"pid":494322,"state":"active","mode":"AccessExclusiveLock","granted":false,"rel":"jobs","query":"ALTER TABLE jobs ADD COLUMN IF NOT EXISTS result JSONB DEFAULT NULL;"}
+{"pid":494342,"state":"active","mode":"AccessExclusiveLock","granted":false,"rel":"jobs","query":"ALTER TABLE jobs ADD COLUMN IF NOT EXISTS result JSONB DEFAULT NULL;"}
+
+=== blocker ??? blocked ===
+count=6
+{"blocked_pid":493935,"blocking_pid":494240,"blocked_state":"active","blocking_state":"active","blocked_query":"UPDATE jobs SET progress = $1, message = $2 WHERE id = $3","blocking_query":"SELECT * FROM jobs WHERE user_id = current_setting('app.current_user_id', true) ORDER BY created_at ","blocker_xact_age":{"minutes":3,"seconds":1,"milliseconds":234.366}}
+{"blocked_pid":494322,"blocking_pid":494240,"blocked_state":"active","blocking_state":"active","blocked_query":"ALTER TABLE jobs ADD COLUMN IF NOT EXISTS result JSONB DEFAULT NULL;","blocking_query":"SELECT * FROM jobs WHERE user_id = current_setting('app.current_user_id', true) ORDER BY created_at ","blocker_xact_age":{"minutes":3,"seconds":1,"milliseconds":234.366}}
+{"blocked_pid":494342,"blocking_pid":494240,"blocked_state":"active","blocking_state":"active","blocked_query":"ALTER TABLE jobs ADD COLUMN IF NOT EXISTS result JSONB DEFAULT NULL;","blocking_query":"SELECT * FROM jobs WHERE user_id = current_setting('app.current_user_id', true) ORDER BY created_at ","blocker_xact_age":{"minutes":3,"seconds":1,"milliseconds":234.366}}
+{"blocked_pid":493935,"blocking_pid":494248,"blocked_state":"active","blocking_state":"active","blocked_query":"UPDATE jobs SET progress = $1, message = $2 WHERE id = $3","blocking_query":"SELECT * FROM jobs WHERE user_id = current_setting('app.current_user_id', true) ORDER BY created_at ","blocker_xact_age":{"minutes":2,"seconds":41,"milliseconds":234.579}}
+{"blocked_pid":494322,"blocking_pid":494248,"blocked_state":"active","blocking_state":"active","blocked_query":"ALTER TABLE jobs ADD COLUMN IF NOT EXISTS result JSONB DEFAULT NULL;","blocking_query":"SELECT * FROM jobs WHERE user_id = current_setting('app.current_user_id', true) ORDER BY created_at ","blocker_xact_age":{"minutes":2,"seconds":41,"milliseconds":234.579}}
+{"blocked_pid":494342,"blocking_pid":494248,"blocked_state":"active","blocking_state":"active","blocked_query":"ALTER TABLE jobs ADD COLUMN IF NOT EXISTS result JSONB DEFAULT NULL;","blocking_query":"SELECT * FROM jobs WHERE user_id = current_setting('app.current_user_id', true) ORDER BY created_at ","blocker_xact_age":{"minutes":2,"seconds":41,"milliseconds":234.579}}
+
+=== idle-in-transaction count=0 ===
+
+Done.

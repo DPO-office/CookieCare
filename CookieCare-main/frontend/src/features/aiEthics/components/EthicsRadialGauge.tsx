@@ -1,69 +1,36 @@
-import React from "react";
-
 interface EthicsRadialGaugeProps {
   score: number;
-  size?: number;
 }
 
-export function EthicsRadialGauge({ score, size = 96 }: EthicsRadialGaugeProps) {
-  const r = size * 0.375;
+export function EthicsRadialGauge({ score }: EthicsRadialGaugeProps) {
+  const r = 42;
   const circ = 2 * Math.PI * r;
-  const arcLength = circ * 0.75;
-  const offset = arcLength - (score / 100) * arcLength;
-  const color =
-    score >= 70 ? "#059669" : score >= 50 ? "#D97706" : "#DC2626";
-  const trackColor =
-    score >= 70 ? "#D1FAE5" : score >= 50 ? "#FEF3C7" : "#FEE2E2";
-  const cx = size / 2;
+  const offset = circ - (score / 100) * circ;
+  const ring =
+    score >= 70 ? "#3D9B8F" :
+    score >= 50 ? "#C9843A" : "#B54A45";
 
   return (
-    <div
-      className="relative flex items-center justify-center"
-      style={{ width: size, height: size }}
-    >
-      <svg
-        width={size}
-        height={size}
-        viewBox={`0 0 ${size} ${size}`}
-        className="-rotate-[135deg]"
-      >
+    <div className="relative flex h-[118px] w-[118px] shrink-0 items-center justify-center">
+      <svg width="118" height="118" viewBox="0 0 118 118" className="-rotate-90">
+        <circle cx="59" cy="59" r={r} fill="none" stroke="#EEF2FF" strokeWidth="10" />
         <circle
-          cx={cx}
-          cy={cx}
+          cx="59"
+          cy="59"
           r={r}
           fill="none"
-          stroke={trackColor}
-          strokeWidth="7"
-          strokeDasharray={`${arcLength} ${circ}`}
+          stroke={ring}
+          strokeWidth="10"
+          strokeDasharray={circ}
+          strokeDashoffset={offset}
           strokeLinecap="round"
-        />
-        <circle
-          cx={cx}
-          cy={cx}
-          r={r}
-          fill="none"
-          stroke={color}
-          strokeWidth="7"
-          strokeDasharray={`${arcLength - offset} ${circ}`}
-          strokeLinecap="round"
-          style={{
-            transition:
-              "stroke-dasharray 1.2s cubic-bezier(0.34,1.56,0.64,1)",
-          }}
+          style={{ transition: "stroke-dashoffset 1.2s cubic-bezier(0.34,1.56,0.64,1)" }}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span
-          className="font-bold tabular-nums leading-none"
-          style={{ fontSize: size * 0.22, color }}
-        >
+        <span className="text-[22px] font-semibold leading-none tabular-nums tracking-tight text-[#1a1a1a]">
           {score}
-        </span>
-        <span
-          className="font-bold uppercase tracking-wide"
-          style={{ fontSize: size * 0.09, color: color + "99", marginTop: 2 }}
-        >
-          /100
+          <span className="text-[12px] font-medium text-[#98A2B3]">/100</span>
         </span>
       </div>
     </div>

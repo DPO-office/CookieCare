@@ -1,0 +1,270 @@
+DPA OmniHealth Media CyberShield Cloud Hosting GDPR CCPA
+
+DATA PROCESSING ADDENDUM
+
+This Data Processing Addendum (this "DPA") is entered into and made effective as of 01/12/2026 (the "Effective Date")
+
+BY AND BETWEEN:
+
+OMNIHEALTH MEDIA GROUP INC., a corporation duly incorporated and existing under the laws of the State of Delaware, United States of America, having its principal place of business at 100 Park Avenue, New York, NY 10017, United States of America (hereinafter referred to as the "Controller");
+
+AND
+
+CYBERSHIELD DATA INFRASTRUCTURE GmbH, a Gesellschaft mit beschränkter Haftung duly incorporated and existing under the laws of the Federal Republic of Germany, having its registered office at Taunusanlage 8, 60329 Frankfurt am Main, Germany (hereinafter referred to as the "Processor").
+
+The Controller and the Processor are hereinafter referred to individually as a "Party" and collectively as the "Parties".
+
+
+
+RECITALS
+
+WHEREAS, the Controller and the Processor have entered into a services agreement pursuant to which the Processor shall provide cloud hosting, infrastructure, storage and related managed services to the Controller (the "Principal Agreement");
+
+WHEREAS, in connection with the performance of the Principal Agreement, the Processor shall Process Personal Data, Protected Health Information and User Telemetry Data on behalf of the Controller;
+
+WHEREAS, the Parties wish to establish, in a legally binding instrument, the terms and conditions governing such Processing in accordance with the requirements of Regulation (EU) 2016/679 (the "EU GDPR"), the United Kingdom General Data Protection Regulation as incorporated into the law of the United Kingdom by virtue of the Data Protection Act 2018 (the "UK GDPR"), and the California Consumer Privacy Act of 2018, as amended by the California Privacy Rights Act (collectively, "CCPA/CPRA"), and all other applicable data protection laws;
+
+WHEREAS, Article 28 of the EU GDPR and the corresponding provisions of the UK GDPR require that the Processing of Personal Data by a processor on behalf of a controller be governed by a binding written contract containing certain mandatory provisions, and the Parties intend that this DPA shall constitute such contract;
+
+NOW, THEREFORE, in consideration of the mutual covenants and undertakings hereinafter contained, and for other good and valuable consideration the receipt and sufficiency of which are hereby acknowledged, the Parties hereby covenant and agree as follows:
+
+
+
+1. DEFINITIONS AND INTERPRETATION
+
+1.1. In this DPA, unless the context otherwise requires, capitalised terms shall have the meanings ascribed to them below:
+
+1.1.1. "Applicable Data Protection Laws" means, collectively, the EU GDPR, the UK GDPR, CCPA/CPRA, and any other statute, regulation, regulatory guidance, or binding decision of a competent supervisory or regulatory authority, in each case as amended, replaced or supplemented from time to time, and applicable to the Processing of Personal Data under this DPA.
+
+1.1.2. "Business", "Business Purpose", "Consumer", "Sale", "Share", and "Service Provider" shall have the meanings ascribed to such terms under CCPA/CPRA.
+
+1.1.3. "Controller", "Processor", "Data Subject", "Personal Data", "Personal Data Breach", "Processing" (and its cognates), "Special Categories of Personal Data", and "Supervisory Authority" shall have the meanings ascribed to such terms under the EU GDPR and, where applicable, the UK GDPR.
+
+1.1.4. "EEA" means the European Economic Area.
+
+1.1.5. "EU SCCs" means the Standard Contractual Clauses for the transfer of personal data to third countries pursuant to Regulation (EU) 2016/679, adopted by the European Commission by Commission Implementing Decision (EU) 2021/914 of 04/06/2021, specifically Module Two (Controller to Processor).
+
+1.1.6. "PHI" or "Protected Health Information" means any information relating to the past, present or future physical or mental health or condition of an identified or identifiable natural person, the provision of healthcare to such person, or the past, present or future payment for the provision of healthcare to such person, constituting Personal Data.
+
+1.1.7. "Restricted Transfer" means any transfer of Personal Data from the Controller to the Processor (or from the Processor to a Sub-processor) which is subject to restrictions on international transfers under Applicable Data Protection Laws.
+
+1.1.8. "Sub-processor" means any third party engaged by the Processor (or by any Sub-processor of the Processor) to Process Personal Data on behalf of the Controller in connection with the Principal Agreement.
+
+1.1.9. "UK Addendum" means the International Data Transfer Addendum to the EU Commission Standard Contractual Clauses issued by the United Kingdom Information Commissioner and laid before Parliament on 02/02/2022, as revised or replaced from time to time.
+
+1.1.10. "User Telemetry Data" means diagnostic, operational, performance, usage and event data relating to identified or identifiable natural persons that is generated by or collected from end-users' devices, applications or systems in connection with the services provided under the Principal Agreement.
+
+1.2. In this DPA: (a) references to statutes, regulations and other legislative instruments shall be construed as references to such instruments as amended, re-enacted or replaced from time to time; (b) headings are for convenience only and shall not affect interpretation; and (c) the words "including", "includes" and "in particular" shall be deemed to be followed by the words "without limitation".
+
+1.3. In the event of any conflict or inconsistency between the provisions of this DPA and the provisions of the Principal Agreement, the provisions of this DPA shall prevail with respect to the subject matter hereof. In the event of any conflict between this DPA and the EU SCCs (where incorporated), the EU SCCs shall prevail.
+
+
+
+2. SUBJECT MATTER AND SCOPE OF PROCESSING
+
+2.1. Subject Matter. The subject matter of the Processing under this DPA is the provision by the Processor to the Controller of cloud hosting, data infrastructure, storage, computing, backup, disaster recovery and related managed services as more particularly described in the Principal Agreement (the "Services").
+
+2.2. Duration. The Processing shall commence on the Effective Date and shall continue for the duration of the Principal Agreement, subject to the survival provisions set out herein.
+
+2.3. Nature and Purpose. The nature and purpose of the Processing is the hosting, storage, transmission, backup, replication, retrieval, organisation, structuring and disposal of Personal Data as necessary to provide the Services and to comply with the Controller's documented instructions.
+
+2.4. Categories of Data Subjects. The categories of Data Subjects whose Personal Data may be Processed include, without limitation, the Controller's employees, contractors, customers, patients, subscribers, website visitors, application end-users and other individuals whose Personal Data is submitted to the Services.
+
+2.5. Categories of Personal Data. The categories of Personal Data Processed under this DPA include: (i) identification and contact data; (ii) account credentials and authentication data; (iii) Protected Health Information; (iv) User Telemetry Data; (v) device, network and technical identifiers; (vi) content data submitted to the Services; and (vii) any other Personal Data determined by the Controller.
+
+2.6. Special Categories. The Parties acknowledge that the Processing may involve Special Categories of Personal Data, including data concerning health, and appropriate safeguards under Article 9 of the EU GDPR shall apply.
+
+
+
+3. PROCESSING STRICTLY LIMITED TO CONTROLLER'S DOCUMENTED INSTRUCTIONS
+
+3.1. The Processor shall Process Personal Data only on the documented instructions of the Controller, including with regard to Restricted Transfers, unless required to do so by Union, Member State, United Kingdom or other law to which the Processor is subject. In such a case, the Processor shall inform the Controller of that legal requirement before Processing, unless that law prohibits such information on important grounds of public interest.
+
+3.2. The Principal Agreement, this DPA (including its Annexes) and any subsequent written instructions issued by the Controller in accordance with the change-management procedures set out in the Principal Agreement shall together constitute the Controller's complete and documented instructions to the Processor concerning the Processing.
+
+3.3. The Processor shall immediately inform the Controller in writing if, in its opinion, an instruction issued by the Controller infringes Applicable Data Protection Laws. In such event, the Processor shall be entitled to suspend performance of the instruction (without liability) until the Controller confirms or modifies it in writing.
+
+3.4. The Processor shall not: (a) Sell or Share Personal Data within the meaning of CCPA/CPRA; (b) retain, use or disclose Personal Data for any purpose other than the Business Purpose specified in this DPA and the Principal Agreement, or as otherwise permitted by CCPA/CPRA; (c) retain, use or disclose Personal Data outside the direct business relationship between the Parties; or (d) combine Personal Data received from or on behalf of the Controller with Personal Data received from or on behalf of any other person, save as expressly permitted by CCPA/CPRA. The Processor hereby certifies that it understands and shall comply with the restrictions set out in this Clause 3.4.
+
+
+
+4. CONFIDENTIALITY
+
+4.1. The Processor shall ensure that any person authorised to Process Personal Data on its behalf: (a) has committed themselves to confidentiality by way of a written and legally enforceable confidentiality undertaking, or is under an appropriate statutory obligation of confidentiality; (b) has received appropriate training on their responsibilities under Applicable Data Protection Laws; and (c) Processes Personal Data strictly on a need-to-know basis and solely for the purposes of performing the Services.
+
+
+
+5. SECURITY OF PROCESSING
+
+5.1. Taking into account the state of the art, the costs of implementation and the nature, scope, context and purposes of Processing, as well as the risks of varying likelihood and severity for the rights and freedoms of natural persons, the Processor shall implement and maintain appropriate technical and organisational measures ("TOMs") to ensure a level of security appropriate to the risk, in accordance with Article 32 of the EU GDPR.
+
+5.2. The TOMs shall include, at a minimum: (a) pseudonymisation and encryption of Personal Data in transit and at rest; (b) measures to ensure the ongoing confidentiality, integrity, availability and resilience of Processing systems and services; (c) the ability to restore the availability of and access to Personal Data in a timely manner in the event of a physical or technical incident; and (d) a process for regularly testing, assessing and evaluating the effectiveness of the TOMs.
+
+5.3. The Processor shall maintain certification to, or compliance with, recognised information-security standards, including without limitation ISO/IEC 27001, ISO/IEC 27017, ISO/IEC 27018 and SOC 2 Type II, and shall provide evidence thereof to the Controller upon reasonable request.
+
+
+
+6. SUB-PROCESSING
+
+6.1. General Authorisation. The Controller hereby grants the Processor general written authorisation to engage Sub-processors for the performance of the Services, subject strictly to the conditions set out in this Clause 6.
+
+6.2. Prior Written Authorisation for Changes. The Processor shall not engage any new Sub-processor, nor make any change (including replacement or addition) to its list of authorised Sub-processors, without the prior specific written authorisation of the Controller.
+
+6.3. Notification and Objection Window. The Processor shall provide the Controller with written notice of any intended change concerning the addition or replacement of Sub-processors not less than thirty (30) calendar days in advance of the proposed effective date of such change (the "Sub-processor Notice"). The Sub-processor Notice shall specify: (a) the identity and contact details of the proposed Sub-processor; (b) the location(s) from which Processing shall be undertaken; (c) the nature, scope and purpose of the Processing to be performed; (d) the categories of Personal Data concerned; and (e) the safeguards to be implemented, including any Restricted Transfer mechanism.
+
+6.4. Within the said thirty (30) calendar day period, the Controller shall be entitled to object in writing to the proposed engagement on reasonable grounds relating to the protection of Personal Data (an "Objection Notice"). Where the Controller issues an Objection Notice, the Parties shall confer in good faith to resolve the objection. If no resolution is reached within fifteen (15) calendar days of the Objection Notice, the Controller shall be entitled, as its sole and exclusive remedy, to terminate the affected portion of the Services and/or the Principal Agreement without penalty upon written notice, and the Processor shall not engage the proposed Sub-processor in respect of the Controller's Personal Data.
+
+6.5. Flow-Down Obligations. Where the Processor engages a Sub-processor, it shall do so by way of a written contract that imposes upon the Sub-processor data-protection obligations that are no less protective than those set out in this DPA, in particular providing sufficient guarantees to implement appropriate technical and organisational measures such that the Processing shall meet the requirements of Applicable Data Protection Laws.
+
+6.6. Liability for Sub-processors. The Processor shall remain fully liable to the Controller for the performance of each Sub-processor's obligations and for any acts or omissions of any Sub-processor that cause the Processor to breach any of its obligations under this DPA.
+
+
+
+7. PERSONAL DATA BREACH NOTIFICATION
+
+7.1. The Processor shall notify the Controller in writing without undue delay, and in any event within twenty-four (24) hours, of becoming aware of any confirmed Personal Data Breach or of any incident that the Processor reasonably suspects constitutes a Personal Data Breach (a "Breach Notification").
+
+7.2. The Breach Notification shall, to the extent then known and shall be supplemented as further information becomes available, contain: (a) a description of the nature of the Personal Data Breach, including the categories and approximate number of Data Subjects and Personal Data records concerned; (b) the name and contact details of the Processor's data protection officer or other point of contact from whom further information can be obtained; (c) a description of the likely consequences of the Personal Data Breach; (d) a description of the measures taken or proposed to be taken by the Processor to address the Personal Data Breach, including measures to mitigate its possible adverse effects; and (e) the date, time and duration of the Personal Data Breach and the date and time of the Processor's discovery thereof.
+
+7.3. The Processor shall promptly take, at its own cost, all such measures and actions as are appropriate to remedy or mitigate the effects of the Personal Data Breach, and shall keep the Controller informed on a continuous basis of all developments in connection therewith.
+
+7.4. The Processor shall cooperate fully with the Controller and shall provide all such information, assistance and support as may be required to enable the Controller to comply with its own obligations to notify Supervisory Authorities and affected Data Subjects under Articles 33 and 34 of the EU GDPR, the corresponding provisions of the UK GDPR, and CCPA/CPRA.
+
+7.5. The Processor shall not make any public statement or notification concerning a Personal Data Breach without the prior written consent of the Controller, save where required by law.
+
+
+
+8. ASSISTANCE WITH DATA SUBJECT RIGHTS, DPIAs AND AUDITS
+
+8.1. Data Subject Requests. Taking into account the nature of the Processing, the Processor shall assist the Controller by appropriate technical and organisational measures, insofar as this is possible, in the fulfilment of the Controller's obligations to respond to requests by Data Subjects for the exercise of their rights under Chapter III of the EU GDPR, the corresponding provisions of the UK GDPR, and any analogous rights of Consumers under CCPA/CPRA (each a "DSR"). The Processor shall notify the Controller of any DSR received directly by it without undue delay and in any event within seventy-two (72) hours of receipt, and shall not respond to such DSR save on the documented instructions of the Controller or as required by law.
+
+8.2. DPIAs and Prior Consultation. The Processor shall provide reasonable assistance to the Controller in ensuring compliance with the Controller's obligations under Articles 32 to 36 of the EU GDPR and the corresponding provisions of the UK GDPR, including in relation to data protection impact assessments ("DPIAs") and prior consultation with Supervisory Authorities, taking into account the nature of the Processing and the information available to the Processor.
+
+8.3. Audits and Inspections. The Processor shall make available to the Controller all information necessary to demonstrate compliance with the obligations laid down in Article 28 of the EU GDPR and the corresponding provisions of the UK GDPR, and shall allow for and contribute to audits, including inspections, conducted by the Controller or an independent auditor mandated by the Controller.
+
+8.4. Audit Notice and Procedure. The Controller may exercise its audit rights not more than once in any twelve (12) month period (save where an audit is prompted by a Personal Data Breach or by the reasonable direction of a Supervisory Authority, in which case there shall be no such limitation), upon not less than fourteen (14) days' prior written notice to the Processor. Audits shall be conducted during regular business hours, in a manner that does not unreasonably interfere with the Processor's business operations, and subject to reasonable confidentiality undertakings.
+
+8.5. Audit Costs. Each Party shall bear its own costs in connection with any audit conducted under this Clause 8, save that where an audit reveals a material breach by the Processor of its obligations under this DPA, the Processor shall reimburse the Controller for the reasonable costs of the audit and shall promptly remediate such breach at its own cost.
+
+
+
+9. INTERNATIONAL DATA TRANSFERS
+
+9.1. The Processor shall not carry out or permit any Restricted Transfer of Personal Data outside the EEA, the United Kingdom or any other jurisdiction imposing restrictions on international transfers, save to a jurisdiction that is the subject of an adequacy decision by the European Commission or the United Kingdom Secretary of State, or subject to appropriate safeguards duly implemented in accordance with Applicable Data Protection Laws.
+
+9.2. Incorporation of EU SCCs. Where the Processing under this DPA involves a Restricted Transfer of Personal Data from the Controller (as data exporter) to the Processor (as data importer) outside the EEA, the Parties hereby enter into, and shall be bound by, the EU SCCs (Module Two: Controller to Processor) adopted by Commission Implementing Decision (EU) 2021/914 of 04/06/2021, which are hereby incorporated by reference and shall form an integral part of this DPA, on the following terms:
+
+9.2.1. Clause 7 (Docking Clause) shall not apply;
+
+9.2.2. In Clause 9 (Use of sub-processors), Option 2 (General written authorisation) shall apply, and the time period for prior notice of sub-processor changes shall be thirty (30) calendar days, as further set out in Clause 6 of this DPA;
+
+9.2.3. In Clause 11 (Redress), the optional independent-dispute-resolution language shall not apply;
+
+9.2.4. In Clause 17 (Governing law), the EU SCCs shall be governed by the laws of Ireland;
+
+9.2.5. In Clause 18 (Choice of forum and jurisdiction), disputes arising out of the EU SCCs shall be resolved by the courts of Dublin, Ireland;
+
+9.2.6. Annex I(A) (List of Parties): the data exporter is the Controller and the data importer is the Processor, with the contact details set out in the preamble to this DPA;
+
+9.2.7. Annex I(B) (Description of transfer): as set out in Clause 2 of this DPA;
+
+9.2.8. Annex I(C) (Competent supervisory authority): the Irish Data Protection Commission;
+
+9.2.9. Annex II (Technical and organisational measures): as set out in Clause 5 of this DPA and further documented in the Processor's security policies made available to the Controller; and
+
+9.2.10. Annex III (List of sub-processors): the list maintained and updated in accordance with Clause 6 of this DPA.
+
+9.3. UK Restricted Transfers. In respect of any Restricted Transfer subject to the UK GDPR, the EU SCCs as incorporated pursuant to Clause 9.2 shall be modified and supplemented by the UK Addendum, which is hereby deemed to be executed by the Parties, with Table 4 completed such that neither Party may end the UK Addendum as set out in Section 19 thereof.
+
+9.4. Transfer Impact Assessment. The Processor shall provide the Controller with all information reasonably required to enable the Controller to conduct a transfer impact assessment, and shall promptly notify the Controller of any change in law, regulation or practice affecting the Processor's ability to comply with the EU SCCs or the UK Addendum.
+
+
+
+10. RETURN OR DELETION OF PERSONAL DATA
+
+10.1. Upon expiry or termination of the Principal Agreement for any reason, or upon the earlier written direction of the Controller, the Processor shall, at the option of the Controller, either return to the Controller all Personal Data Processed on the Controller's behalf, or securely delete such Personal Data (including all existing copies), in each case within thirty (30) calendar days of the effective date of such termination or direction.
+
+10.2. Where the Controller elects return, the Personal Data shall be returned in a structured, commonly used and machine-readable format, together with all relevant metadata necessary for the Controller's continued use thereof.
+
+10.3. Where the Controller elects deletion, the Processor shall securely erase the Personal Data using industry-standard secure-deletion methods, and shall procure that its Sub-processors do the same.
+
+10.4. Upon completion of the return or deletion, and in any event within thirty (30) calendar days of the effective date of termination or direction, the Processor shall provide to the Controller a written certification, signed by a duly authorised officer of the Processor, confirming that all Personal Data has been returned or deleted (as the case may be) from all systems, media and repositories in the Processor's or its Sub-processors' possession or control.
+
+10.5. The Processor may retain Personal Data only to the extent, and for so long as, required by Union, Member State, United Kingdom or other law to which it is subject, provided that the Processor shall: (a) inform the Controller in writing of any such retention requirement; (b) ensure the confidentiality and security of such retained Personal Data; and (c) Process such retained Personal Data solely to the extent, and for such purpose(s), as required by such law.
+
+
+
+11. LIABILITY AND INDEMNITY
+
+11.1. Each Party's liability arising out of or in connection with this DPA shall be subject to the limitations and exclusions of liability set out in the Principal Agreement, save that nothing in this DPA or the Principal Agreement shall limit or exclude either Party's liability where such limitation or exclusion is prohibited by Applicable Data Protection Laws.
+
+11.2. The Processor shall indemnify and hold harmless the Controller against all fines, penalties, claims, damages, losses, costs and expenses (including reasonable legal fees) incurred by the Controller arising out of or in connection with any breach by the Processor (or any Sub-processor) of its obligations under this DPA or Applicable Data Protection Laws.
+
+
+
+12. TERM AND TERMINATION
+
+12.1. This DPA shall take effect on the Effective Date and shall continue in force for so long as the Processor Processes Personal Data on behalf of the Controller under the Principal Agreement.
+
+12.2. The provisions of Clauses 1, 3.4, 7, 9, 10, 11, 13 and 14, and any other provisions which by their nature are intended to survive termination, shall survive expiry or termination of this DPA.
+
+
+
+13. GOVERNING LAW AND JURISDICTION
+
+13.1. This DPA and any dispute or claim (including non-contractual disputes or claims) arising out of or in connection with it or its subject matter or formation shall be governed by and construed in accordance with the laws of Ireland.
+
+13.2. The Parties hereby irrevocably agree that the courts of Dublin, Ireland shall have exclusive jurisdiction to settle any dispute or claim (including non-contractual disputes or claims) arising out of or in connection with this DPA or its subject matter or formation.
+
+13.3. The choice of governing law and jurisdiction set out in this Clause 13 is without prejudice to the rights of Data Subjects under Article 79 of the EU GDPR and the corresponding provisions of the UK GDPR.
+
+
+
+14. MISCELLANEOUS
+
+14.1. Entire Agreement. This DPA, together with the Principal Agreement and the EU SCCs (as incorporated), constitutes the entire agreement between the Parties in relation to the subject matter hereof and supersedes all prior agreements, understandings and representations.
+
+14.2. Amendments. No amendment or variation of this DPA shall be effective unless made in writing and signed by a duly authorised representative of each Party. Notwithstanding the foregoing, the Processor shall be entitled to propose reasonable amendments where necessary to comply with Applicable Data Protection Laws or the requirements of a Supervisory Authority.
+
+14.3. Severability. If any provision of this DPA is held to be invalid, illegal or unenforceable, the remaining provisions shall continue in full force and effect, and the Parties shall negotiate in good faith to replace the invalid provision with a valid provision that most closely reflects the original intent.
+
+14.4. Notices. All notices under this DPA shall be given in writing to the addresses set out in the preamble hereto (or such other address as either Party may notify to the other in writing) and shall be deemed served upon receipt.
+
+14.5. Assignment. Neither Party may assign, transfer or otherwise dispose of its rights or obligations under this DPA without the prior written consent of the other Party, save that the Controller may assign this DPA to any successor in interest to its business or assets.
+
+14.6. Counterparts. This DPA may be executed in any number of counterparts (including by electronic signature), each of which when executed shall be deemed an original, and all of which together shall constitute one and the same instrument.
+
+
+
+EXECUTION
+
+IN WITNESS WHEREOF, the Parties hereto have caused this Data Processing Addendum to be executed by their duly authorised representatives as of the Effective Date first above written.
+
+
+
+For and on behalf of OMNIHEALTH MEDIA GROUP INC.
+
+Signature: ______
+
+Name: ________
+
+Title: _______
+
+Date: _______
+
+Place: ________
+
+
+
+For and on behalf of CYBERSHIELD DATA INFRASTRUCTURE GmbH
+
+Signature: ______
+
+Name: ________
+
+Title: _______
+
+Date: _______
+
+Place: ________
+

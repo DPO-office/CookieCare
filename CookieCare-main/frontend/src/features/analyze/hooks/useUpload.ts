@@ -63,7 +63,7 @@ async function readAllEntries(entry: FileSystemEntry): Promise<File[]> {
 export function useUpload(
   authToken: string,
   folders: CustomFolder[],
-  fetchFoldersAndDocs: () => Promise<void>,
+  fetchFoldersAndDocs: (options?: { selectFileIds?: string[] }) => Promise<void>,
   onRefresh: () => Promise<void>
 ) {
   const [uploadSelectedFolder, setUploadSelectedFolder] = useState("");
@@ -209,7 +209,8 @@ export function useUpload(
 
   const uploadSingleFile = async (
     item: PendingUpload,
-    folderId: string | undefined
+    folderId: string | undefined,
+    ephemeral = false
   ): Promise<{ jobId?: string; fileId?: string; error?: string }> => {
     updateFileStatus(item.id, { status: "uploading" });
 
@@ -218,6 +219,7 @@ export function useUpload(
       formData.append("file", item.file);
       formData.append("title", item.file.name);
       if (folderId) formData.append("folder_id", folderId);
+      if (ephemeral) formData.append("ephemeral", "true");
 
       const res = await fetch(apiUrl("/api/documents/upload"), {
         method: "POST",
@@ -246,7 +248,77 @@ export function useUpload(
     }
   };
 
-  const executeUploadSubmission = async (_e: React.FormEvent, onClose: () => void) => {
+  const runUploadBatch = async (
+    toUpload: PendingUpload[],
+    folderId: string | undefined,
+    ephemeral = false
+  ): Promise<{ failedCount: number; fileIds: string[]; fileTitles: Record<string, string> }> => {
+    let failedCount = 0;
+    const fileIds: string[] = [];
+    const fileTitles: Record<string, string> = {};
+    const queue = [...toUpload];
+
+    const runNext = async (): Promise<void> => {
+      while (queue.length > 0 && !abortRef.current) {
+        const item = queue.shift()!;
+        const result = await uploadSingleFile(item, folderId, ephemeral);
+
+        if (result.error) {
+          failedCount++;
+        } else if (result.jobId) {
+          try {
+            // Ephemeral uploads skip RAG indexing so they complete faster —
+            // use a tighter poll interval to surface results sooner.
+            await waitForJob(authToken, result.jobId, {
+              pollIntervalMs: ephemeral ? 400 : 1200,
+            });
+            updateFileStatus(item.id, { status: "done" });
+            if (result.fileId) {
+              fileIds.push(result.fileId);
+              fileTitles[result.fileId] = item.file.name;
+            }
+          } catch (err: any) {
+            failedCount++;
+            updateFileStatus(item.id, {
+              status: "error",
+              error: err.message || "Processing failed",
+            });
+          }
+        } else {
+          updateFileStatus(item.id, { status: "done" });
+          if (result.fileId) {
+            fileIds.push(result.fileId);
+            fileTitles[result.fileId] = item.file.name;
+          }
+        }
+
+        setUploadProgress((p) => ({ ...p, done: p.done + 1 }));
+      }
+    };
+
+    const workers = Array.from(
+      { length: Math.min(UPLOAD_CONCURRENCY, toUpload.length) },
+      () => runNext()
+    );
+    await Promise.all(workers);
+    return { failedCount, fileIds, fileTitles };
+  };
+
+  const resolveUploadFolderId = async (): Promise<string | undefined> => {
+    // A local folder upload always becomes a root-level Vault folder.
+    if (suggestedFolderName) {
+      return resolveOrCreateFolder(suggestedFolderName);
+    }
+    const targetFolder = folders.find((f) => f.name === uploadSelectedFolder);
+    if (targetFolder) return targetFolder.id;
+    // Empty selection → backend default "Uploaded Documents"
+    return undefined;
+  };
+
+  const executeUploadSubmission = async (
+    _e: React.FormEvent,
+    onClose: (uploadedFileIds?: string[]) => void
+  ) => {
     _e.preventDefault();
     const toUpload = pendingFiles.filter((p) => p.status === "pending" || p.status === "error");
     if (toUpload.length === 0) return;
@@ -257,49 +329,10 @@ export function useUpload(
     abortRef.current = false;
     setUploadProgress({ done: 0, total: toUpload.length });
 
-    let folderId: string | undefined;
-    // A local folder upload always becomes a root-level Vault folder.
-    // Never place it inside a target selected before folder mode was detected.
-    if (suggestedFolderName) {
-      folderId = await resolveOrCreateFolder(suggestedFolderName);
-    } else {
-      const targetFolder = folders.find((f) => f.name === uploadSelectedFolder);
-      if (targetFolder) folderId = targetFolder.id;
-    }
+    const folderId = await resolveUploadFolderId();
+    const { failedCount, fileIds } = await runUploadBatch(toUpload, folderId);
 
-    let failedCount = 0;
-
-    const queue = [...toUpload];
-    const runNext = async (): Promise<void> => {
-      while (queue.length > 0 && !abortRef.current) {
-        const item = queue.shift()!;
-        const result = await uploadSingleFile(item, folderId);
-
-        if (result.error) {
-          failedCount++;
-        } else if (result.jobId) {
-          try {
-            await waitForJob(authToken, result.jobId);
-            updateFileStatus(item.id, { status: "done" });
-          } catch (err: any) {
-            failedCount++;
-            updateFileStatus(item.id, {
-              status: "error",
-              error: err.message || "Processing failed",
-            });
-          }
-        } else {
-          updateFileStatus(item.id, { status: "done" });
-        }
-
-        setUploadProgress((p) => ({ ...p, done: p.done + 1 }));
-      }
-    };
-
-    const workers = Array.from({ length: Math.min(UPLOAD_CONCURRENCY, toUpload.length) }, () => runNext());
-    await Promise.all(workers);
-
-    await fetchFoldersAndDocs();
+    await fetchFoldersAndDocs({ selectFileIds: fileIds });
     await onRefresh();
     setIsUploading(false);
 
@@ -316,8 +349,95 @@ export function useUpload(
     );
     setTimeout(() => {
       clearFiles();
-      onClose();
+      onClose(fileIds);
     }, 1500);
+  };
+
+  /**
+   * Composer-first upload: upload immediately and return file IDs for analysis
+   * selection. Files are ephemeral — they are stored in the DB for the analysis
+   * engine to read but are never assigned to a vault folder and never appear in
+   * the vault browser. No vault refresh is performed.
+   */
+  const quickUploadFiles = async (
+    incoming: FileList | File[]
+  ): Promise<{ fileIds: string[]; fileTitles: Record<string, string>; error?: string }> => {
+    const arr = Array.from(incoming);
+    const accepted = arr.filter(isAllowedFile);
+    if (accepted.length === 0) {
+      return { fileIds: [], fileTitles: {}, error: "No supported files to upload." };
+    }
+
+    const items: PendingUpload[] = accepted.slice(0, MAX_UPLOAD_FILES).map((f) => ({
+      id: Math.random().toString(36).slice(2),
+      file: f,
+      relativePath: (f as any).webkitRelativePath || undefined,
+      status: "pending" as const,
+    }));
+
+    setPendingFiles(items);
+    setIsUploading(true);
+    setBatchError("");
+    setSuccessMessage("");
+    abortRef.current = false;
+    setUploadProgress({ done: 0, total: items.length });
+
+    // ephemeral=true — no folder_id, skips RAG indexing, never appears in vault
+    const { failedCount, fileIds, fileTitles } = await runUploadBatch(items, undefined, true);
+
+    setIsUploading(false);
+
+    if (failedCount > 0 && fileIds.length === 0) {
+      const msg = `${failedCount} file${failedCount === 1 ? "" : "s"} failed to upload.`;
+      setBatchError(msg);
+      return { fileIds: [], fileTitles: {}, error: msg };
+    }
+
+    clearFiles();
+    if (failedCount > 0) {
+      return {
+        fileIds,
+        fileTitles,
+        error: `${failedCount} file${failedCount === 1 ? "" : "s"} failed; the rest were attached.`,
+      };
+    }
+    return { fileIds, fileTitles };
+  };
+
+  /** Collect dropped files (including folders) using the same logic as handleDrop, then quick-upload. */
+  const quickUploadFromDrop = async (
+    e: React.DragEvent
+  ): Promise<{ fileIds: string[]; fileTitles: Record<string, string>; error?: string }> => {
+    e.preventDefault();
+    setIsDraggingFile(false);
+
+    const items = e.dataTransfer.items;
+    if (items && items.length > 0) {
+      const allFiles: File[] = [];
+      const entries: FileSystemEntry[] = [];
+
+      for (let i = 0; i < items.length; i++) {
+        const entry = items[i].webkitGetAsEntry?.();
+        if (entry) entries.push(entry);
+      }
+
+      if (entries.length > 0) {
+        // Do NOT set suggestedFolderName — ephemeral uploads don't create vault folders
+        for (const entry of entries) {
+          const files = await readAllEntries(entry);
+          allFiles.push(...files);
+        }
+        if (allFiles.length > 0) {
+          return quickUploadFiles(allFiles);
+        }
+      }
+    }
+
+    if (e.dataTransfer.files.length) {
+      return quickUploadFiles(e.dataTransfer.files);
+    }
+
+    return { fileIds: [], fileTitles: {}, error: "No files detected in drop." };
   };
 
   return {
@@ -339,5 +459,7 @@ export function useUpload(
     removeFile,
     clearFiles,
     executeUploadSubmission,
+    quickUploadFiles,
+    quickUploadFromDrop,
   };
 }

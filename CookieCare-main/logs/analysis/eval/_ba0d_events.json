@@ -1,0 +1,1572 @@
+[
+  {
+    "event": "compliance.element.registry",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementUid",
+      "canonicalKey",
+      "aliases",
+      "legalCitation",
+      "title",
+      "aggregationRule",
+      "version",
+      "reviewStatus"
+    ]
+  },
+  {
+    "event": "compliance.element.registry",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementUid",
+      "canonicalKey",
+      "aliases",
+      "legalCitation",
+      "title",
+      "aggregationRule",
+      "version",
+      "reviewStatus"
+    ]
+  },
+  {
+    "event": "compliance.element.registry",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementUid",
+      "canonicalKey",
+      "aliases",
+      "legalCitation",
+      "title",
+      "aggregationRule",
+      "version",
+      "reviewStatus"
+    ]
+  },
+  {
+    "event": "compliance.element.registry",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementUid",
+      "canonicalKey",
+      "aliases",
+      "legalCitation",
+      "title",
+      "aggregationRule",
+      "version",
+      "reviewStatus"
+    ]
+  },
+  {
+    "event": "compliance.element.registry",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementUid",
+      "canonicalKey",
+      "aliases",
+      "legalCitation",
+      "title",
+      "aggregationRule",
+      "version",
+      "reviewStatus"
+    ]
+  },
+  {
+    "event": "compliance.element.registry",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementUid",
+      "canonicalKey",
+      "aliases",
+      "legalCitation",
+      "title",
+      "aggregationRule",
+      "version",
+      "reviewStatus"
+    ]
+  },
+  {
+    "event": "compliance.element.registry",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementUid",
+      "canonicalKey",
+      "aliases",
+      "legalCitation",
+      "title",
+      "aggregationRule",
+      "version",
+      "reviewStatus"
+    ]
+  },
+  {
+    "event": "compliance.element.registry",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementUid",
+      "canonicalKey",
+      "aliases",
+      "legalCitation",
+      "title",
+      "aggregationRule",
+      "version",
+      "reviewStatus"
+    ]
+  },
+  {
+    "event": "compliance.verify.input",
+    "req": "subject_matter",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "canonicalKey",
+      "schemaCanonicalKey",
+      "matchedVia",
+      "bundleId",
+      "schemaVersion",
+      "reviewStatus",
+      "elementIds"
+    ]
+  },
+  {
+    "event": "compliance.verify.element",
+    "req": "subject_matter",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.completeness",
+    "req": "subject_matter",
+    "elements": [],
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "schemaVersion",
+      "expectedElementIds",
+      "returnedElementIds",
+      "missingElementIds"
+    ]
+  },
+  {
+    "event": "compliance.verify.input",
+    "req": "duration",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "canonicalKey",
+      "schemaCanonicalKey",
+      "matchedVia",
+      "bundleId",
+      "schemaVersion",
+      "reviewStatus",
+      "elementIds"
+    ]
+  },
+  {
+    "event": "compliance.verify.element",
+    "req": "duration",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.completeness",
+    "req": "duration",
+    "elements": [],
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "schemaVersion",
+      "expectedElementIds",
+      "returnedElementIds",
+      "missingElementIds"
+    ]
+  },
+  {
+    "event": "compliance.verify.input",
+    "req": "nature_purpose",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "canonicalKey",
+      "schemaCanonicalKey",
+      "matchedVia",
+      "bundleId",
+      "schemaVersion",
+      "reviewStatus",
+      "elementIds"
+    ]
+  },
+  {
+    "event": "compliance.verify.element",
+    "req": "nature_purpose",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.element",
+    "req": "nature_purpose",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.completeness",
+    "req": "nature_purpose",
+    "elements": [],
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "schemaVersion",
+      "expectedElementIds",
+      "returnedElementIds",
+      "missingElementIds"
+    ]
+  },
+  {
+    "event": "compliance.verify.input",
+    "req": "data_categories",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "canonicalKey",
+      "schemaCanonicalKey",
+      "matchedVia",
+      "bundleId",
+      "schemaVersion",
+      "reviewStatus",
+      "elementIds"
+    ]
+  },
+  {
+    "event": "compliance.verify.element",
+    "req": "data_categories",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.completeness",
+    "req": "data_categories",
+    "elements": [],
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "schemaVersion",
+      "expectedElementIds",
+      "returnedElementIds",
+      "missingElementIds"
+    ]
+  },
+  {
+    "event": "compliance.verify.input",
+    "req": "data_subject_categories",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "canonicalKey",
+      "schemaCanonicalKey",
+      "matchedVia",
+      "bundleId",
+      "schemaVersion",
+      "reviewStatus",
+      "elementIds"
+    ]
+  },
+  {
+    "event": "compliance.verify.element",
+    "req": "data_subject_categories",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.completeness",
+    "req": "data_subject_categories",
+    "elements": [],
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "schemaVersion",
+      "expectedElementIds",
+      "returnedElementIds",
+      "missingElementIds"
+    ]
+  },
+  {
+    "event": "compliance.verify.input",
+    "req": "art28_3_a_instructions",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "canonicalKey",
+      "schemaCanonicalKey",
+      "matchedVia",
+      "bundleId",
+      "schemaVersion",
+      "reviewStatus",
+      "elementIds"
+    ]
+  },
+  {
+    "event": "compliance.verify.element",
+    "req": "art28_3_a_instructions",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.element",
+    "req": "art28_3_a_instructions",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.completeness",
+    "req": "art28_3_a_instructions",
+    "elements": [],
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "schemaVersion",
+      "expectedElementIds",
+      "returnedElementIds",
+      "missingElementIds"
+    ]
+  },
+  {
+    "event": "compliance.verify.input",
+    "req": "art28_3_f_security_assistance",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "canonicalKey",
+      "schemaCanonicalKey",
+      "matchedVia",
+      "bundleId",
+      "schemaVersion",
+      "reviewStatus",
+      "elementIds"
+    ]
+  },
+  {
+    "event": "compliance.verify.element",
+    "req": "art28_3_f_security_assistance",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.element",
+    "req": "art28_3_f_security_assistance",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.element",
+    "req": "art28_3_f_security_assistance",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.completeness",
+    "req": "art28_3_f_security_assistance",
+    "elements": [],
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "schemaVersion",
+      "expectedElementIds",
+      "returnedElementIds",
+      "missingElementIds"
+    ]
+  },
+  {
+    "event": "compliance.verify.input",
+    "req": "art28_3_g_deletion_return",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "canonicalKey",
+      "schemaCanonicalKey",
+      "matchedVia",
+      "bundleId",
+      "schemaVersion",
+      "reviewStatus",
+      "elementIds"
+    ]
+  },
+  {
+    "event": "compliance.verify.element",
+    "req": "art28_3_g_deletion_return",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.element",
+    "req": "art28_3_g_deletion_return",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.element",
+    "req": "art28_3_g_deletion_return",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.element",
+    "req": "art28_3_g_deletion_return",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.completeness",
+    "req": "art28_3_g_deletion_return",
+    "elements": [],
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "schemaVersion",
+      "expectedElementIds",
+      "returnedElementIds",
+      "missingElementIds"
+    ]
+  },
+  {
+    "event": "compliance.verify.llm.element",
+    "req": "subject_matter",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.llm.completeness",
+    "req": "subject_matter",
+    "elements": [],
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "schemaVersion",
+      "expectedElementIds",
+      "returnedElementIds",
+      "missingElementIds",
+      "llmCallOk",
+      "repairAttempted"
+    ]
+  },
+  {
+    "event": "compliance.verify.compare",
+    "req": "subject_matter",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "deterministic",
+      "llm",
+      "diffs",
+      "agreementCount"
+    ]
+  },
+  {
+    "event": "compliance.verify.llm.element",
+    "req": "duration",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.llm.completeness",
+    "req": "duration",
+    "elements": [],
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "schemaVersion",
+      "expectedElementIds",
+      "returnedElementIds",
+      "missingElementIds",
+      "llmCallOk",
+      "repairAttempted"
+    ]
+  },
+  {
+    "event": "compliance.verify.compare",
+    "req": "duration",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "deterministic",
+      "llm",
+      "diffs",
+      "agreementCount"
+    ]
+  },
+  {
+    "event": "compliance.verify.llm.element",
+    "req": "nature_purpose",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.llm.element",
+    "req": "nature_purpose",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.llm.completeness",
+    "req": "nature_purpose",
+    "elements": [],
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "schemaVersion",
+      "expectedElementIds",
+      "returnedElementIds",
+      "missingElementIds",
+      "llmCallOk",
+      "repairAttempted"
+    ]
+  },
+  {
+    "event": "compliance.verify.compare",
+    "req": "nature_purpose",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "deterministic",
+      "llm",
+      "diffs",
+      "agreementCount"
+    ]
+  },
+  {
+    "event": "compliance.verify.llm.element",
+    "req": "data_categories",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.llm.completeness",
+    "req": "data_categories",
+    "elements": [],
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "schemaVersion",
+      "expectedElementIds",
+      "returnedElementIds",
+      "missingElementIds",
+      "llmCallOk",
+      "repairAttempted"
+    ]
+  },
+  {
+    "event": "compliance.verify.compare",
+    "req": "data_categories",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "deterministic",
+      "llm",
+      "diffs",
+      "agreementCount"
+    ]
+  },
+  {
+    "event": "compliance.verify.llm.element",
+    "req": "data_subject_categories",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.llm.completeness",
+    "req": "data_subject_categories",
+    "elements": [],
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "schemaVersion",
+      "expectedElementIds",
+      "returnedElementIds",
+      "missingElementIds",
+      "llmCallOk",
+      "repairAttempted"
+    ]
+  },
+  {
+    "event": "compliance.verify.compare",
+    "req": "data_subject_categories",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "deterministic",
+      "llm",
+      "diffs",
+      "agreementCount"
+    ]
+  },
+  {
+    "event": "compliance.verify.llm.element",
+    "req": "art28_3_a_instructions",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.llm.element",
+    "req": "art28_3_a_instructions",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.llm.completeness",
+    "req": "art28_3_a_instructions",
+    "elements": [],
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "schemaVersion",
+      "expectedElementIds",
+      "returnedElementIds",
+      "missingElementIds",
+      "llmCallOk",
+      "repairAttempted"
+    ]
+  },
+  {
+    "event": "compliance.verify.compare",
+    "req": "art28_3_a_instructions",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "deterministic",
+      "llm",
+      "diffs",
+      "agreementCount"
+    ]
+  },
+  {
+    "event": "compliance.verify.llm.element",
+    "req": "art28_3_f_security_assistance",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.llm.element",
+    "req": "art28_3_f_security_assistance",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.llm.element",
+    "req": "art28_3_f_security_assistance",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.llm.completeness",
+    "req": "art28_3_f_security_assistance",
+    "elements": [],
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "schemaVersion",
+      "expectedElementIds",
+      "returnedElementIds",
+      "missingElementIds",
+      "llmCallOk",
+      "repairAttempted"
+    ]
+  },
+  {
+    "event": "compliance.verify.compare",
+    "req": "art28_3_f_security_assistance",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "deterministic",
+      "llm",
+      "diffs",
+      "agreementCount"
+    ]
+  },
+  {
+    "event": "compliance.verify.llm.element",
+    "req": "art28_3_g_deletion_return",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.llm.element",
+    "req": "art28_3_g_deletion_return",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.llm.element",
+    "req": "art28_3_g_deletion_return",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.llm.element",
+    "req": "art28_3_g_deletion_return",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "elementId",
+      "state",
+      "evidenceSpanIds",
+      "quotes",
+      "quoteVerified",
+      "scope"
+    ]
+  },
+  {
+    "event": "compliance.verify.llm.completeness",
+    "req": "art28_3_g_deletion_return",
+    "elements": [],
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "schemaVersion",
+      "expectedElementIds",
+      "returnedElementIds",
+      "missingElementIds",
+      "llmCallOk",
+      "repairAttempted"
+    ]
+  },
+  {
+    "event": "compliance.verify.compare",
+    "req": "art28_3_g_deletion_return",
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "bundleId",
+      "deterministic",
+      "llm",
+      "diffs",
+      "agreementCount"
+    ]
+  },
+  {
+    "event": "compliance.assess.input",
+    "req": "subject_matter",
+    "elements": {
+      "SM1": "supported"
+    },
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "canonicalKey",
+      "schemaVersion",
+      "aggregationRule",
+      "elementStates",
+      "completeness"
+    ]
+  },
+  {
+    "event": "compliance.assess.result",
+    "req": "subject_matter",
+    "status": "present",
+    "elements": {
+      "SM1": "supported"
+    },
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "canonicalKey",
+      "status",
+      "reasonCodes",
+      "ruleVersion",
+      "elementStates",
+      "completeness"
+    ]
+  },
+  {
+    "event": "compliance.assess.input",
+    "req": "duration",
+    "elements": {
+      "DU1": "supported"
+    },
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "canonicalKey",
+      "schemaVersion",
+      "aggregationRule",
+      "elementStates",
+      "completeness"
+    ]
+  },
+  {
+    "event": "compliance.assess.result",
+    "req": "duration",
+    "status": "present",
+    "elements": {
+      "DU1": "supported"
+    },
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "canonicalKey",
+      "status",
+      "reasonCodes",
+      "ruleVersion",
+      "elementStates",
+      "completeness"
+    ]
+  },
+  {
+    "event": "compliance.assess.input",
+    "req": "nature_purpose",
+    "elements": {
+      "NP1": "supported",
+      "NP2": "supported"
+    },
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "canonicalKey",
+      "schemaVersion",
+      "aggregationRule",
+      "elementStates",
+      "completeness"
+    ]
+  },
+  {
+    "event": "compliance.assess.result",
+    "req": "nature_purpose",
+    "status": "present",
+    "elements": {
+      "NP1": "supported",
+      "NP2": "supported"
+    },
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "canonicalKey",
+      "status",
+      "reasonCodes",
+      "ruleVersion",
+      "elementStates",
+      "completeness"
+    ]
+  },
+  {
+    "event": "compliance.assess.input",
+    "req": "data_categories",
+    "elements": {
+      "CD1": "supported"
+    },
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "canonicalKey",
+      "schemaVersion",
+      "aggregationRule",
+      "elementStates",
+      "completeness"
+    ]
+  },
+  {
+    "event": "compliance.assess.result",
+    "req": "data_categories",
+    "status": "present",
+    "elements": {
+      "CD1": "supported"
+    },
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "canonicalKey",
+      "status",
+      "reasonCodes",
+      "ruleVersion",
+      "elementStates",
+      "completeness"
+    ]
+  },
+  {
+    "event": "compliance.assess.input",
+    "req": "data_subject_categories",
+    "elements": {
+      "DS1": "supported"
+    },
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "canonicalKey",
+      "schemaVersion",
+      "aggregationRule",
+      "elementStates",
+      "completeness"
+    ]
+  },
+  {
+    "event": "compliance.assess.result",
+    "req": "data_subject_categories",
+    "status": "present",
+    "elements": {
+      "DS1": "supported"
+    },
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "canonicalKey",
+      "status",
+      "reasonCodes",
+      "ruleVersion",
+      "elementStates",
+      "completeness"
+    ]
+  },
+  {
+    "event": "compliance.assess.input",
+    "req": "art28_3_a_instructions",
+    "elements": {
+      "A1": "supported",
+      "A2": "supported"
+    },
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "canonicalKey",
+      "schemaVersion",
+      "aggregationRule",
+      "elementStates",
+      "completeness"
+    ]
+  },
+  {
+    "event": "compliance.assess.result",
+    "req": "art28_3_a_instructions",
+    "status": "present",
+    "elements": {
+      "A1": "supported",
+      "A2": "supported"
+    },
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "canonicalKey",
+      "status",
+      "reasonCodes",
+      "ruleVersion",
+      "elementStates",
+      "completeness"
+    ]
+  },
+  {
+    "event": "compliance.assess.input",
+    "req": "art28_3_f_security_assistance",
+    "elements": {
+      "F1": "supported",
+      "F2": "supported",
+      "F3": "supported"
+    },
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "canonicalKey",
+      "schemaVersion",
+      "aggregationRule",
+      "elementStates",
+      "completeness"
+    ]
+  },
+  {
+    "event": "compliance.assess.result",
+    "req": "art28_3_f_security_assistance",
+    "status": "present",
+    "elements": {
+      "F1": "supported",
+      "F2": "supported",
+      "F3": "supported"
+    },
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "canonicalKey",
+      "status",
+      "reasonCodes",
+      "ruleVersion",
+      "elementStates",
+      "completeness"
+    ]
+  },
+  {
+    "event": "compliance.assess.input",
+    "req": "art28_3_g_deletion_return",
+    "elements": {
+      "G1": "not_located",
+      "G2": "supported",
+      "G3": "not_located",
+      "G4": "supported"
+    },
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "canonicalKey",
+      "schemaVersion",
+      "aggregationRule",
+      "elementStates",
+      "completeness"
+    ]
+  },
+  {
+    "event": "compliance.assess.result",
+    "req": "art28_3_g_deletion_return",
+    "status": "partial",
+    "elements": {
+      "G1": "not_located",
+      "G2": "supported",
+      "G3": "not_located",
+      "G4": "supported"
+    },
+    "keys": [
+      "event",
+      "analysisId",
+      "timestamp",
+      "implementationPhase",
+      "requirementId",
+      "canonicalKey",
+      "status",
+      "reasonCodes",
+      "ruleVersion",
+      "elementStates",
+      "completeness"
+    ]
+  }
+]

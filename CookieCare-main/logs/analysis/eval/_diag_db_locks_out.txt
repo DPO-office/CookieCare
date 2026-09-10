@@ -1,0 +1,44 @@
+﻿Γùç injected env (34) from .env // tip: Γîÿ suppress logs { quiet: true }
+ConnectingΓÇª
+Connected.
+
+=== other sessions on this DB ===
+count=11
+{"pid":493446,"state":"idle in transaction","wait":"Client/ClientRead","xact_age":{"minutes":3,"seconds":54,"milliseconds":751.692},"query_age":{"seconds":2,"milliseconds":73.117},"query":"INSERT INTO jobs (id, user_id, type, status, progress, payload)\n       VALUES ($1, $2, $3, 'queued', 0, $4)"}
+{"pid":493566,"state":"active","wait":"Lock/relation","xact_age":{"minutes":3,"seconds":31,"milliseconds":343.743},"query_age":{"minutes":3,"seconds":31,"milliseconds":343.743},"query":"ALTER TABLE jobs ADD COLUMN IF NOT EXISTS result JSONB DEFAULT NULL;"}
+{"pid":493445,"state":"active","wait":"Lock/relation","xact_age":{"minutes":3,"seconds":19,"milliseconds":410.204},"query_age":{"minutes":3,"seconds":19,"milliseconds":258.037},"query":"SELECT * FROM jobs WHERE user_id = current_setting('app.current_user_id', true) ORDER BY created_at DESC"}
+{"pid":493587,"state":"active","wait":"Lock/relation","xact_age":{"minutes":3,"seconds":5,"milliseconds":519.279},"query_age":{"minutes":3,"seconds":5,"milliseconds":366.686},"query":"SELECT * FROM jobs WHERE user_id = current_setting('app.current_user_id', true) ORDER BY created_at DESC"}
+{"pid":493467,"state":"active","wait":"Lock/relation","xact_age":{"minutes":3,"seconds":3,"milliseconds":132.479},"query_age":{"minutes":3,"seconds":3,"milliseconds":132.479},"query":"ALTER TABLE jobs ADD COLUMN IF NOT EXISTS error TEXT DEFAULT NULL;"}
+{"pid":493447,"state":"active","wait":"Lock/relation","xact_age":{"minutes":2,"seconds":49,"milliseconds":862.884},"query_age":{"minutes":2,"seconds":49,"milliseconds":694.581},"query":"INSERT INTO jobs (id, user_id, type, status, progress, payload)\n       VALUES ($1, $2, $3, 'queued', 0, $4)"}
+{"pid":493605,"state":"active","wait":"Lock/relation","xact_age":{"minutes":2,"seconds":45,"milliseconds":538.715},"query_age":{"minutes":2,"seconds":45,"milliseconds":375.956},"query":"SELECT * FROM jobs WHERE user_id = current_setting('app.current_user_id', true) ORDER BY created_at DESC"}
+{"pid":493631,"state":"active","wait":"Lock/relation","xact_age":{"minutes":2,"seconds":1,"milliseconds":866.418},"query_age":{"minutes":2,"seconds":1,"milliseconds":866.418},"query":"ALTER TABLE jobs ADD COLUMN IF NOT EXISTS result JSONB DEFAULT NULL;"}
+{"pid":493540,"state":"active","wait":"Lock/relation","xact_age":{"seconds":2,"milliseconds":405.269},"query_age":{"seconds":2,"milliseconds":405.269},"query":"ALTER TABLE jobs ADD COLUMN IF NOT EXISTS error TEXT DEFAULT NULL;"}
+{"pid":493488,"state":"idle","wait":"Client/ClientRead","xact_age":null,"query_age":{"seconds":25,"milliseconds":436.187},"query":"COMMIT"}
+{"pid":493471,"state":"idle","wait":"Client/ClientRead","xact_age":null,"query_age":{"seconds":2,"milliseconds":482.619},"query":"COMMIT"}
+
+=== waiting (ungranted) locks ===
+count=8
+{"pid":493445,"state":"active","mode":"AccessShareLock","granted":false,"rel":"jobs","query":"SELECT * FROM jobs WHERE user_id = current_setting('app.current_user_id', true) ORDER BY created_at DESC"}
+{"pid":493447,"state":"active","mode":"RowExclusiveLock","granted":false,"rel":"jobs","query":"INSERT INTO jobs (id, user_id, type, status, progress, payload)\n       VALUES ($1, $2, $3, 'queued', 0, $4)"}
+{"pid":493467,"state":"active","mode":"AccessExclusiveLock","granted":false,"rel":"jobs","query":"ALTER TABLE jobs ADD COLUMN IF NOT EXISTS error TEXT DEFAULT NULL;"}
+{"pid":493540,"state":"active","mode":"AccessExclusiveLock","granted":false,"rel":"jobs","query":"ALTER TABLE jobs ADD COLUMN IF NOT EXISTS error TEXT DEFAULT NULL;"}
+{"pid":493566,"state":"active","mode":"AccessExclusiveLock","granted":false,"rel":"jobs","query":"ALTER TABLE jobs ADD COLUMN IF NOT EXISTS result JSONB DEFAULT NULL;"}
+{"pid":493587,"state":"active","mode":"AccessShareLock","granted":false,"rel":"jobs","query":"SELECT * FROM jobs WHERE user_id = current_setting('app.current_user_id', true) ORDER BY created_at DESC"}
+{"pid":493605,"state":"active","mode":"AccessShareLock","granted":false,"rel":"jobs","query":"SELECT * FROM jobs WHERE user_id = current_setting('app.current_user_id', true) ORDER BY created_at DESC"}
+{"pid":493631,"state":"active","mode":"AccessExclusiveLock","granted":false,"rel":"jobs","query":"ALTER TABLE jobs ADD COLUMN IF NOT EXISTS result JSONB DEFAULT NULL;"}
+
+=== blocker ΓåÆ blocked ===
+count=8
+{"blocked_pid":493540,"blocking_pid":493446,"blocked_state":"active","blocking_state":"idle in transaction","blocked_query":"ALTER TABLE jobs ADD COLUMN IF NOT EXISTS error TEXT DEFAULT NULL;","blocking_query":"INSERT INTO jobs (id, user_id, type, status, progress, payload)\n       VALUES ($1, $2, $3, 'queued',","blocker_xact_age":{"minutes":3,"seconds":54,"milliseconds":922.595}}
+{"blocked_pid":493566,"blocking_pid":493446,"blocked_state":"active","blocking_state":"idle in transaction","blocked_query":"ALTER TABLE jobs ADD COLUMN IF NOT EXISTS result JSONB DEFAULT NULL;","blocking_query":"INSERT INTO jobs (id, user_id, type, status, progress, payload)\n       VALUES ($1, $2, $3, 'queued',","blocker_xact_age":{"minutes":3,"seconds":54,"milliseconds":922.595}}
+{"blocked_pid":493587,"blocking_pid":493446,"blocked_state":"active","blocking_state":"idle in transaction","blocked_query":"SELECT * FROM jobs WHERE user_id = current_setting('app.current_user_id', true) ORDER BY created_at ","blocking_query":"INSERT INTO jobs (id, user_id, type, status, progress, payload)\n       VALUES ($1, $2, $3, 'queued',","blocker_xact_age":{"minutes":3,"seconds":54,"milliseconds":922.595}}
+{"blocked_pid":493631,"blocking_pid":493446,"blocked_state":"active","blocking_state":"idle in transaction","blocked_query":"ALTER TABLE jobs ADD COLUMN IF NOT EXISTS result JSONB DEFAULT NULL;","blocking_query":"INSERT INTO jobs (id, user_id, type, status, progress, payload)\n       VALUES ($1, $2, $3, 'queued',","blocker_xact_age":{"minutes":3,"seconds":54,"milliseconds":922.595}}
+{"blocked_pid":493467,"blocking_pid":493446,"blocked_state":"active","blocking_state":"idle in transaction","blocked_query":"ALTER TABLE jobs ADD COLUMN IF NOT EXISTS error TEXT DEFAULT NULL;","blocking_query":"INSERT INTO jobs (id, user_id, type, status, progress, payload)\n       VALUES ($1, $2, $3, 'queued',","blocker_xact_age":{"minutes":3,"seconds":54,"milliseconds":922.595}}
+{"blocked_pid":493445,"blocking_pid":493446,"blocked_state":"active","blocking_state":"idle in transaction","blocked_query":"SELECT * FROM jobs WHERE user_id = current_setting('app.current_user_id', true) ORDER BY created_at ","blocking_query":"INSERT INTO jobs (id, user_id, type, status, progress, payload)\n       VALUES ($1, $2, $3, 'queued',","blocker_xact_age":{"minutes":3,"seconds":54,"milliseconds":922.595}}
+{"blocked_pid":493605,"blocking_pid":493446,"blocked_state":"active","blocking_state":"idle in transaction","blocked_query":"SELECT * FROM jobs WHERE user_id = current_setting('app.current_user_id', true) ORDER BY created_at ","blocking_query":"INSERT INTO jobs (id, user_id, type, status, progress, payload)\n       VALUES ($1, $2, $3, 'queued',","blocker_xact_age":{"minutes":3,"seconds":54,"milliseconds":922.595}}
+{"blocked_pid":493447,"blocking_pid":493446,"blocked_state":"active","blocking_state":"idle in transaction","blocked_query":"INSERT INTO jobs (id, user_id, type, status, progress, payload)\n       VALUES ($1, $2, $3, 'queued',","blocking_query":"INSERT INTO jobs (id, user_id, type, status, progress, payload)\n       VALUES ($1, $2, $3, 'queued',","blocker_xact_age":{"minutes":3,"seconds":54,"milliseconds":922.595}}
+
+=== idle-in-transaction count=1 ===
+{"pid":493446,"xact_age":{"minutes":3,"seconds":54,"milliseconds":751.692},"query":"INSERT INTO jobs (id, user_id, type, status, progress, payload)\n       VALUES ($1, $2, $3, 'queued', 0, $4)"}
+
+Done.
