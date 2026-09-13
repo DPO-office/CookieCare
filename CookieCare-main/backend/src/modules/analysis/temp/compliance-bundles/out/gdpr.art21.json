@@ -1,7 +1,7 @@
 {
-  "sessionId": "an_7ac91344-af07-4d98-95e2-6f1f41bf0d5c",
+  "sessionId": "an_84229db6-5d6f-4b49-9a9c-924a1e990d5a",
   "stage": "investigation_complete",
-  "dumpedAt": "2026-09-13T19:14:01.746Z",
+  "dumpedAt": "2026-09-13T19:26:37.474Z",
   "requirementId": "gdpr.art21",
   "packageId": "rule:regimes/data-protection/gdpr",
   "recall": {
@@ -23,8 +23,8 @@
       "clear_separate_notice"
     ],
     "acceptedCandidateCount": 1,
-    "semanticRejectedCandidateCount": 11,
-    "budgetOmittedCandidateCount": 4,
+    "semanticRejectedCandidateCount": 12,
+    "budgetOmittedCandidateCount": 3,
     "unclassifiedCandidateCount": 0
   },
   "queries": [
@@ -50,8 +50,8 @@
   "hits": [
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_1430eff3dd13d7608aff0cf5",
-      "ref": "dsn_1430eff3dd13d7608aff0cf5",
+      "spanId": "dsn_2f041fb516e953b52f7d4221",
+      "ref": "dsn_2f041fb516e953b52f7d4221",
       "denseRank": 4,
       "lexicalRank": 24,
       "selectedBy": [
@@ -59,19 +59,17 @@
         "dense"
       ],
       "score": 0.21752976190476192,
-      "reviewDisposition": "semantic_rejection",
-      "evidenceRole": "supporting",
-      "contributesToElementIds": [
-        "general_objection_right"
-      ],
-      "reviewConfidence": 0.5,
-      "reviewReason": "Generic reference to assisting controller with data subject exercising rights under GDPR, but provides no substantive mechanisms for objection to legitimate interest or direct marketing.",
-      "exclusionReason": "rejected:supporting:0.5"
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.85,
+      "reviewReason": "General cooperation provision for data subject rights, without operative detail on the right to object or direct marketing overrides.",
+      "exclusionReason": "role_budget:context"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_87610896f208778ed618914a",
-      "ref": "dsn_87610896f208778ed618914a",
+      "spanId": "dsn_579a493f5909415fc39d46cf",
+      "ref": "dsn_579a493f5909415fc39d46cf",
       "denseRank": 21,
       "lexicalRank": 13,
       "selectedBy": [
@@ -83,13 +81,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to processor appointment authorization.",
+      "reviewReason": "Third-party controller authorization warranty.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_d110a9e2a460c527c94868fc",
-      "ref": "dsn_d110a9e2a460c527c94868fc",
+      "spanId": "dsn_e5b0309b428481f261faa5ae",
+      "ref": "dsn_e5b0309b428481f261faa5ae",
       "denseRank": 5,
       "lexicalRank": null,
       "selectedBy": [
@@ -100,13 +98,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to subprocessor data use limits.",
+      "reviewReason": "Subprocessor processing limits.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_a8296cc97880396a3c09b65a",
-      "ref": "dsn_a8296cc97880396a3c09b65a",
+      "spanId": "dsn_f17e3523d7a21aaec8bbe820",
+      "ref": "dsn_f17e3523d7a21aaec8bbe820",
       "denseRank": 9,
       "lexicalRank": 4,
       "selectedBy": [
@@ -118,13 +116,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Describes categories of personal data collected.",
+      "reviewReason": "Lists categories of personal data processed (name, business contact details).",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_a8296cc97880396a3c09b65a",
-      "ref": "dsn_a8296cc97880396a3c09b65a",
+      "spanId": "dsn_f17e3523d7a21aaec8bbe820",
+      "ref": "dsn_f17e3523d7a21aaec8bbe820",
       "denseRank": 9,
       "lexicalRank": 4,
       "selectedBy": [
@@ -136,32 +134,30 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Describes categories of personal data collected.",
+      "reviewReason": "Lists categories of personal data processed (name, business contact details).",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_f894793c875b7b2c74037e13",
-      "ref": "dsn_f894793c875b7b2c74037e13",
+      "spanId": "dsn_af15119e9597b2ed0fef9752",
+      "ref": "dsn_af15119e9597b2ed0fef9752",
       "denseRank": 2,
       "lexicalRank": null,
       "selectedBy": [
         "dense"
       ],
       "score": 0.08612903225806452,
-      "reviewDisposition": "semantic_rejection",
-      "evidenceRole": "supporting",
-      "contributesToElementIds": [
-        "general_objection_right"
-      ],
-      "reviewConfidence": 0.5,
-      "reviewReason": "Generic reference to processor assisting controller in fulfilling Chapter III GDPR rights, without specific operative terms for Art 21.",
-      "exclusionReason": "rejected:supporting:0.5"
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.85,
+      "reviewReason": "Generic obligation for processor to assist controller with Chapter III rights, without providing operative mechanics for Article 21 rights.",
+      "exclusionReason": "role_budget:context"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_9e8327daa10029983df8bb36",
-      "ref": "dsn_9e8327daa10029983df8bb36",
+      "spanId": "dsn_1fc4890bb8d8fc1dbd142e73",
+      "ref": "dsn_1fc4890bb8d8fc1dbd142e73",
       "denseRank": 6,
       "lexicalRank": null,
       "selectedBy": [
@@ -171,14 +167,14 @@
       "reviewDisposition": "role_budget",
       "evidenceRole": "context",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.85,
-      "reviewReason": "General compliance clause.",
+      "reviewConfidence": 0.8,
+      "reviewReason": "Generic data protection compliance commitment.",
       "exclusionReason": "role_budget:context"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_3b8e226256eb52c075589879",
-      "ref": "dsn_3b8e226256eb52c075589879",
+      "spanId": "dsn_e589d0475938e81ecfe9ad0d",
+      "ref": "dsn_e589d0475938e81ecfe9ad0d",
       "denseRank": 11,
       "lexicalRank": null,
       "selectedBy": [
@@ -189,12 +185,12 @@
       "evidenceRole": "context",
       "contributesToElementIds": [],
       "reviewConfidence": 0.9,
-      "reviewReason": "States controller/processor roles."
+      "reviewReason": "Identifies party status under Data Protection Legislation."
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_8d97532a308944ce679df961",
-      "ref": "dsn_8d97532a308944ce679df961",
+      "spanId": "dsn_fd3e2ac6f393832872b1aa5c",
+      "ref": "dsn_fd3e2ac6f393832872b1aa5c",
       "denseRank": 12,
       "lexicalRank": null,
       "selectedBy": [
@@ -205,64 +201,64 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to Article 28 subprocessor obligations.",
+      "reviewReason": "Article 28(3) subprocessor obligations.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_7dcd8333fa542ffbd2e5bc8b",
-      "ref": "dsn_7dcd8333fa542ffbd2e5bc8b",
+      "spanId": "dsn_2608af36e0503ecff709c9f3",
+      "ref": "dsn_2608af36e0503ecff709c9f3",
       "denseRank": 13,
       "lexicalRank": null,
       "selectedBy": [
         "dense"
       ],
       "score": 0.08369863013698631,
-      "reviewDisposition": "role_budget",
-      "evidenceRole": "context",
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.9,
+      "reviewConfidence": 0.95,
       "reviewReason": "Section heading for roles and regulatory compliance.",
-      "exclusionReason": "role_budget:context"
+      "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_e7446528db11cdfcd590169b",
-      "ref": "dsn_e7446528db11cdfcd590169b",
+      "spanId": "dsn_1b5e4f270bc3015302f01d2c",
+      "ref": "dsn_1b5e4f270bc3015302f01d2c",
       "denseRank": 19,
       "lexicalRank": null,
       "selectedBy": [
         "dense"
       ],
       "score": 0.08265822784810127,
-      "reviewDisposition": "role_budget",
-      "evidenceRole": "context",
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.9,
-      "reviewReason": "References Appendix 1 for processing details.",
-      "exclusionReason": "role_budget:context"
+      "reviewConfidence": 0.95,
+      "reviewReason": "Reference to Appendix 1 subject matter description.",
+      "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_e913a7275158c113ddece6f9",
-      "ref": "dsn_e913a7275158c113ddece6f9",
+      "spanId": "dsn_9d2224b3e6111257bdc48f72",
+      "ref": "dsn_9d2224b3e6111257bdc48f72",
       "denseRank": 22,
       "lexicalRank": null,
       "selectedBy": [
         "dense"
       ],
       "score": 0.08219512195121952,
-      "reviewDisposition": "role_budget",
-      "evidenceRole": "context",
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.9,
-      "reviewReason": "Subclause heading for responsibilities.",
-      "exclusionReason": "role_budget:context"
+      "reviewConfidence": 0.95,
+      "reviewReason": "Introductory heading.",
+      "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_1c8eb7199641e657a04abf29",
-      "ref": "dsn_1c8eb7199641e657a04abf29",
+      "spanId": "dsn_f28c665faa07a690d9773ac2",
+      "ref": "dsn_f28c665faa07a690d9773ac2",
       "denseRank": 1,
       "lexicalRank": null,
       "selectedBy": [
@@ -272,14 +268,14 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.95,
-      "reviewReason": "Relates to legal compliance exceptions for disclosure/processing under court order or regulation.",
-      "exclusionReason": "rejected:irrelevant:0.95"
+      "reviewConfidence": 0.9,
+      "reviewReason": "Relates to disclosure required by applicable law/court order, not Article 21 legal claims exceptions.",
+      "exclusionReason": "rejected:irrelevant:0.9"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_d1ec10558c5880f7cd37da69",
-      "ref": "dsn_d1ec10558c5880f7cd37da69",
+      "spanId": "dsn_36bb2067bed88a157e5ab651",
+      "ref": "dsn_36bb2067bed88a157e5ab651",
       "denseRank": null,
       "lexicalRank": 6,
       "selectedBy": [
@@ -290,13 +286,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to processing instructions.",
+      "reviewReason": "Processing instructions from controller to processor.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_a5e1ef7ee724e3d2543d6266",
-      "ref": "dsn_a5e1ef7ee724e3d2543d6266",
+      "spanId": "dsn_7c3e9e54eb9e5393514d06f4",
+      "ref": "dsn_7c3e9e54eb9e5393514d06f4",
       "denseRank": null,
       "lexicalRank": 10,
       "selectedBy": [
@@ -307,13 +303,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to data deletion on term expiry.",
+      "reviewReason": "Deletion instruction upon term expiry.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_009b36df8e35a8a4fb93e7e1",
-      "ref": "dsn_009b36df8e35a8a4fb93e7e1",
+      "spanId": "dsn_7c994770002d18add4f74075",
+      "ref": "dsn_7c994770002d18add4f74075",
       "denseRank": 15,
       "lexicalRank": null,
       "selectedBy": [
@@ -323,14 +319,14 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.95,
-      "reviewReason": "Relates to customer/administrator objecting to subprocessor changes, not data subject objection rights under Article 21.",
-      "exclusionReason": "rejected:irrelevant:0.95"
+      "reviewConfidence": 0.9,
+      "reviewReason": "Describes the controller's commercial right to object to new subprocessors engaged by the processor, not a data subject's Article 21 right to object to processing.",
+      "exclusionReason": "rejected:irrelevant:0.9"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_666964eaadcc089e9cf4df90",
-      "ref": "dsn_666964eaadcc089e9cf4df90",
+      "spanId": "dsn_3f994efdc74b37596a5c8225",
+      "ref": "dsn_3f994efdc74b37596a5c8225",
       "denseRank": null,
       "lexicalRank": 17,
       "selectedBy": [
@@ -341,19 +337,19 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to binding arbitration under Data Privacy Framework.",
+      "reviewReason": "Relates to binding arbitration under the Data Privacy Framework.",
       "exclusionReason": "rejected:irrelevant:0.95"
     }
   ],
   "expansions": [],
   "expansionLimits": [],
   "bundle": {
-    "bundleId": "INV-gdpr.art21-doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+    "bundleId": "INV-gdpr.art21-doc_55b11721-46b1-4d95-a000-93e5f5986fcc",
     "requirementId": "gdpr.art21",
     "items": [
       {
-        "spanId": "dsn_3b8e226256eb52c075589879",
-        "ref": "dsn_3b8e226256eb52c075589879",
+        "spanId": "dsn_e589d0475938e81ecfe9ad0d",
+        "ref": "dsn_e589d0475938e81ecfe9ad0d",
         "quotedText": "(c)  Administrator is a controller or processor, as applicable, of Personal Data under the Data Protection Legislation; and",
         "structuralPath": "document.list_item_(c)",
         "charRange": [
@@ -361,7 +357,7 @@
           8971
         ],
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "documentId": "doc_55b11721-46b1-4d95-a000-93e5f5986fcc",
           "structuralPath": "document.list_item_(c)",
           "relationship": "unspecified"
         },
@@ -369,7 +365,7 @@
         "evidenceRole": "context",
         "contributesToElementIds": [],
         "investigationConfidence": 0.9,
-        "investigationReason": "States controller/processor roles.",
+        "investigationReason": "Identifies party status under Data Protection Legislation.",
         "retrievalChannels": [
           "dense"
         ],
@@ -382,86 +378,86 @@
       {
         "partitionId": "P1",
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5"
+          "documentId": "doc_55b11721-46b1-4d95-a000-93e5f5986fcc"
         },
         "itemSpanIds": [
-          "dsn_3b8e226256eb52c075589879"
+          "dsn_e589d0475938e81ecfe9ad0d"
         ]
       }
     ],
     "exclusions": [
       {
-        "spanId": "dsn_1430eff3dd13d7608aff0cf5",
-        "reason": "semantic_rejection",
-        "detail": "rejected:supporting:0.5"
-      },
-      {
-        "spanId": "dsn_f894793c875b7b2c74037e13",
-        "reason": "semantic_rejection",
-        "detail": "rejected:supporting:0.5"
-      },
-      {
-        "spanId": "dsn_009b36df8e35a8a4fb93e7e1",
+        "spanId": "dsn_579a493f5909415fc39d46cf",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_87610896f208778ed618914a",
+        "spanId": "dsn_e5b0309b428481f261faa5ae",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_d110a9e2a460c527c94868fc",
+        "spanId": "dsn_f17e3523d7a21aaec8bbe820",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_a8296cc97880396a3c09b65a",
+        "spanId": "dsn_fd3e2ac6f393832872b1aa5c",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_8d97532a308944ce679df961",
+        "spanId": "dsn_2608af36e0503ecff709c9f3",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_1c8eb7199641e657a04abf29",
+        "spanId": "dsn_1b5e4f270bc3015302f01d2c",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_d1ec10558c5880f7cd37da69",
+        "spanId": "dsn_9d2224b3e6111257bdc48f72",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_a5e1ef7ee724e3d2543d6266",
+        "spanId": "dsn_f28c665faa07a690d9773ac2",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.9"
+      },
+      {
+        "spanId": "dsn_36bb2067bed88a157e5ab651",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_666964eaadcc089e9cf4df90",
+        "spanId": "dsn_7c3e9e54eb9e5393514d06f4",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_7dcd8333fa542ffbd2e5bc8b",
+        "spanId": "dsn_7c994770002d18add4f74075",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.9"
+      },
+      {
+        "spanId": "dsn_3f994efdc74b37596a5c8225",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_2f041fb516e953b52f7d4221",
         "reason": "role_budget",
         "detail": "role_budget:context"
       },
       {
-        "spanId": "dsn_e7446528db11cdfcd590169b",
+        "spanId": "dsn_af15119e9597b2ed0fef9752",
         "reason": "role_budget",
         "detail": "role_budget:context"
       },
       {
-        "spanId": "dsn_e913a7275158c113ddece6f9",
-        "reason": "role_budget",
-        "detail": "role_budget:context"
-      },
-      {
-        "spanId": "dsn_9e8327daa10029983df8bb36",
+        "spanId": "dsn_1fc4890bb8d8fc1dbd142e73",
         "reason": "role_budget",
         "detail": "role_budget:context"
       }

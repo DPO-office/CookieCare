@@ -1,7 +1,7 @@
 {
-  "sessionId": "an_7ac91344-af07-4d98-95e2-6f1f41bf0d5c",
+  "sessionId": "an_84229db6-5d6f-4b49-9a9c-924a1e990d5a",
   "stage": "investigation_complete",
-  "dumpedAt": "2026-09-13T19:14:01.746Z",
+  "dumpedAt": "2026-09-13T19:26:37.474Z",
   "requirementId": "gdpr.art22",
   "packageId": "rule:regimes/data-protection/gdpr",
   "recall": {
@@ -50,8 +50,8 @@
   "hits": [
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_d110a9e2a460c527c94868fc",
-      "ref": "dsn_d110a9e2a460c527c94868fc",
+      "spanId": "dsn_e5b0309b428481f261faa5ae",
+      "ref": "dsn_e5b0309b428481f261faa5ae",
       "denseRank": 2,
       "lexicalRank": 6,
       "selectedBy": [
@@ -63,13 +63,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to subprocessor scope of processing.",
+      "reviewReason": "Subprocessor access limits.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_1430eff3dd13d7608aff0cf5",
-      "ref": "dsn_1430eff3dd13d7608aff0cf5",
+      "spanId": "dsn_2f041fb516e953b52f7d4221",
+      "ref": "dsn_2f041fb516e953b52f7d4221",
       "denseRank": 9,
       "lexicalRank": 2,
       "selectedBy": [
@@ -77,19 +77,17 @@
         "dense"
       ],
       "score": 0.22062178588125292,
-      "reviewDisposition": "semantic_rejection",
-      "evidenceRole": "supporting",
-      "contributesToElementIds": [
-        "human_review_safeguards"
-      ],
-      "reviewConfidence": 0.4,
-      "reviewReason": "Refers generically to assisting controller with data subject rights under GDPR, but does not state or address automated decision-making, human intervention, or profiling.",
-      "exclusionReason": "rejected:supporting:0.4"
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.85,
+      "reviewReason": "Generic data subject rights request notification and assistance clause; does not address automated decision-making or human review safeguards.",
+      "exclusionReason": "role_budget:context"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_87610896f208778ed618914a",
-      "ref": "dsn_87610896f208778ed618914a",
+      "spanId": "dsn_579a493f5909415fc39d46cf",
+      "ref": "dsn_579a493f5909415fc39d46cf",
       "denseRank": 11,
       "lexicalRank": 11,
       "selectedBy": [
@@ -101,13 +99,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to controller authorization.",
+      "reviewReason": "Third-party controller warranty.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_f894793c875b7b2c74037e13",
-      "ref": "dsn_f894793c875b7b2c74037e13",
+      "spanId": "dsn_af15119e9597b2ed0fef9752",
+      "ref": "dsn_af15119e9597b2ed0fef9752",
       "denseRank": 7,
       "lexicalRank": 14,
       "selectedBy": [
@@ -115,19 +113,17 @@
         "dense"
       ],
       "score": 0.17843888664784188,
-      "reviewDisposition": "semantic_rejection",
-      "evidenceRole": "supporting",
-      "contributesToElementIds": [
-        "human_review_safeguards"
-      ],
-      "reviewConfidence": 0.4,
-      "reviewReason": "Refers generically to Chapter III GDPR rights assistance, but contains no specific terms regarding automated decision-making safeguards under Article 22.",
-      "exclusionReason": "rejected:supporting:0.4"
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.85,
+      "reviewReason": "Generic clause obligating processor to assist controller with Chapter III rights; does not mention automated decision-making safeguards or exceptions.",
+      "exclusionReason": "role_budget:context"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_e913a7275158c113ddece6f9",
-      "ref": "dsn_e913a7275158c113ddece6f9",
+      "spanId": "dsn_9d2224b3e6111257bdc48f72",
+      "ref": "dsn_9d2224b3e6111257bdc48f72",
       "denseRank": 8,
       "lexicalRank": 16,
       "selectedBy": [
@@ -135,16 +131,17 @@
         "dense"
       ],
       "score": 0.17786377708978326,
-      "reviewDisposition": "accepted",
-      "evidenceRole": "context",
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.9,
-      "reviewReason": "Heading clause acknowledging processor and controller responsibilities."
+      "reviewConfidence": 0.95,
+      "reviewReason": "Section heading.",
+      "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_8d97532a308944ce679df961",
-      "ref": "dsn_8d97532a308944ce679df961",
+      "spanId": "dsn_fd3e2ac6f393832872b1aa5c",
+      "ref": "dsn_fd3e2ac6f393832872b1aa5c",
       "denseRank": 20,
       "lexicalRank": 8,
       "selectedBy": [
@@ -156,13 +153,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to Article 28(3) subprocessor obligations.",
+      "reviewReason": "Article 28(3) flow-down to subprocessors.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_fc80efe281db41ee1800dab4",
-      "ref": "dsn_fc80efe281db41ee1800dab4",
+      "spanId": "dsn_c1a983ef8b82c05c27349c3e",
+      "ref": "dsn_c1a983ef8b82c05c27349c3e",
       "denseRank": 14,
       "lexicalRank": 25,
       "selectedBy": [
@@ -174,13 +171,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Fragment requiring written contract for subprocessors.",
+      "reviewReason": "Requires written contract with subprocessors.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_fc80efe281db41ee1800dab4",
-      "ref": "dsn_fc80efe281db41ee1800dab4",
+      "spanId": "dsn_c1a983ef8b82c05c27349c3e",
+      "ref": "dsn_c1a983ef8b82c05c27349c3e",
       "denseRank": 14,
       "lexicalRank": 25,
       "selectedBy": [
@@ -192,13 +189,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Fragment requiring written contract for subprocessors.",
+      "reviewReason": "Requires written contract with subprocessors.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_82db02475ee62dadfb94a2ab",
-      "ref": "dsn_82db02475ee62dadfb94a2ab",
+      "spanId": "dsn_dece2416f0d54e0cadebc79a",
+      "ref": "dsn_dece2416f0d54e0cadebc79a",
       "denseRank": 17,
       "lexicalRank": 24,
       "selectedBy": [
@@ -210,47 +207,46 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to employee access privilege controls based on job roles.",
+      "reviewReason": "IT system access privileges based on job role.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_3b8e226256eb52c075589879",
-      "ref": "dsn_3b8e226256eb52c075589879",
+      "spanId": "dsn_e589d0475938e81ecfe9ad0d",
+      "ref": "dsn_e589d0475938e81ecfe9ad0d",
       "denseRank": 5,
       "lexicalRank": null,
       "selectedBy": [
         "dense"
       ],
       "score": 0.08538461538461539,
-      "reviewDisposition": "role_budget",
+      "reviewDisposition": "accepted",
       "evidenceRole": "context",
       "contributesToElementIds": [],
       "reviewConfidence": 0.9,
-      "reviewReason": "Defines controller/processor roles.",
-      "exclusionReason": "role_budget:context"
+      "reviewReason": "Party role identification clause."
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_7dcd8333fa542ffbd2e5bc8b",
-      "ref": "dsn_7dcd8333fa542ffbd2e5bc8b",
+      "spanId": "dsn_2608af36e0503ecff709c9f3",
+      "ref": "dsn_2608af36e0503ecff709c9f3",
       "denseRank": 6,
       "lexicalRank": null,
       "selectedBy": [
         "dense"
       ],
       "score": 0.08515151515151516,
-      "reviewDisposition": "role_budget",
-      "evidenceRole": "context",
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.9,
-      "reviewReason": "Section heading for roles and regulatory compliance.",
-      "exclusionReason": "role_budget:context"
+      "reviewConfidence": 0.95,
+      "reviewReason": "Section title.",
+      "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_4d792c53fef61d96e85792e9",
-      "ref": "dsn_4d792c53fef61d96e85792e9",
+      "spanId": "dsn_e164cc9c2f304928e471f018",
+      "ref": "dsn_e164cc9c2f304928e471f018",
       "denseRank": 10,
       "lexicalRank": null,
       "selectedBy": [
@@ -261,13 +257,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Fragment regarding permitted processing under DPA.",
+      "reviewReason": "Clause fragment regarding permission under DPA.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_9e8327daa10029983df8bb36",
-      "ref": "dsn_9e8327daa10029983df8bb36",
+      "spanId": "dsn_1fc4890bb8d8fc1dbd142e73",
+      "ref": "dsn_1fc4890bb8d8fc1dbd142e73",
       "denseRank": 21,
       "lexicalRank": null,
       "selectedBy": [
@@ -277,14 +273,14 @@
       "reviewDisposition": "role_budget",
       "evidenceRole": "context",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.85,
-      "reviewReason": "General clause stating parties will comply with Data Protection Legislation.",
+      "reviewConfidence": 0.8,
+      "reviewReason": "Generic compliance clause.",
       "exclusionReason": "role_budget:context"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_15887cd108208cc38846377e",
-      "ref": "dsn_15887cd108208cc38846377e",
+      "spanId": "dsn_7b69fcaa2dece4b5ae3d6510",
+      "ref": "dsn_7b69fcaa2dece4b5ae3d6510",
       "denseRank": 22,
       "lexicalRank": null,
       "selectedBy": [
@@ -295,13 +291,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Subheading regarding objection right for new subprocessors.",
+      "reviewReason": "Heading for objection right for new subprocessors.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_382e23870d17b2038158a626",
-      "ref": "dsn_382e23870d17b2038158a626",
+      "spanId": "dsn_873bc451f6b543e26748b798",
+      "ref": "dsn_873bc451f6b543e26748b798",
       "denseRank": 24,
       "lexicalRank": null,
       "selectedBy": [
@@ -312,13 +308,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to legal entity name/form change.",
+      "reviewReason": "Pertains to changes in the legal entity name or form.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_009b36df8e35a8a4fb93e7e1",
-      "ref": "dsn_009b36df8e35a8a4fb93e7e1",
+      "spanId": "dsn_7c994770002d18add4f74075",
+      "ref": "dsn_7c994770002d18add4f74075",
       "denseRank": null,
       "lexicalRank": 4,
       "selectedBy": [
@@ -329,13 +325,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to subprocessor notification and customer objection.",
+      "reviewReason": "Subprocessor objection mechanism.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_a5e1ef7ee724e3d2543d6266",
-      "ref": "dsn_a5e1ef7ee724e3d2543d6266",
+      "spanId": "dsn_7c3e9e54eb9e5393514d06f4",
+      "ref": "dsn_7c3e9e54eb9e5393514d06f4",
       "denseRank": null,
       "lexicalRank": 5,
       "selectedBy": [
@@ -346,37 +342,36 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to deletion upon term expiry.",
+      "reviewReason": "Data deletion upon term expiry.",
       "exclusionReason": "rejected:irrelevant:0.95"
     }
   ],
   "expansions": [],
   "expansionLimits": [],
   "bundle": {
-    "bundleId": "INV-gdpr.art22-doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+    "bundleId": "INV-gdpr.art22-doc_55b11721-46b1-4d95-a000-93e5f5986fcc",
     "requirementId": "gdpr.art22",
     "items": [
       {
-        "spanId": "dsn_e913a7275158c113ddece6f9",
-        "ref": "dsn_e913a7275158c113ddece6f9",
-        "quotedText": "1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that:",
-        "structuralPath": "document.clause_2.item_1",
+        "spanId": "dsn_e589d0475938e81ecfe9ad0d",
+        "ref": "dsn_e589d0475938e81ecfe9ad0d",
+        "quotedText": "(c)  Administrator is a controller or processor, as applicable, of Personal Data under the Data Protection Legislation; and",
+        "structuralPath": "document.list_item_(c)",
         "charRange": [
-          8425,
-          8511
+          8848,
+          8971
         ],
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
-          "structuralPath": "document.clause_2.item_1",
+          "documentId": "doc_55b11721-46b1-4d95-a000-93e5f5986fcc",
+          "structuralPath": "document.list_item_(c)",
           "relationship": "unspecified"
         },
         "source": "expansion",
         "evidenceRole": "context",
         "contributesToElementIds": [],
         "investigationConfidence": 0.9,
-        "investigationReason": "Heading clause acknowledging processor and controller responsibilities.",
+        "investigationReason": "Party role identification clause.",
         "retrievalChannels": [
-          "sparse",
           "dense"
         ],
         "matchedQueries": [
@@ -388,92 +383,92 @@
       {
         "partitionId": "P1",
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5"
+          "documentId": "doc_55b11721-46b1-4d95-a000-93e5f5986fcc"
         },
         "itemSpanIds": [
-          "dsn_e913a7275158c113ddece6f9"
+          "dsn_e589d0475938e81ecfe9ad0d"
         ]
       }
     ],
     "exclusions": [
       {
-        "spanId": "dsn_1430eff3dd13d7608aff0cf5",
-        "reason": "semantic_rejection",
-        "detail": "rejected:supporting:0.4"
-      },
-      {
-        "spanId": "dsn_f894793c875b7b2c74037e13",
-        "reason": "semantic_rejection",
-        "detail": "rejected:supporting:0.4"
-      },
-      {
-        "spanId": "dsn_15887cd108208cc38846377e",
+        "spanId": "dsn_e5b0309b428481f261faa5ae",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_382e23870d17b2038158a626",
+        "spanId": "dsn_579a493f5909415fc39d46cf",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_d110a9e2a460c527c94868fc",
+        "spanId": "dsn_9d2224b3e6111257bdc48f72",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_87610896f208778ed618914a",
+        "spanId": "dsn_fd3e2ac6f393832872b1aa5c",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_8d97532a308944ce679df961",
+        "spanId": "dsn_c1a983ef8b82c05c27349c3e",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_fc80efe281db41ee1800dab4",
+        "spanId": "dsn_dece2416f0d54e0cadebc79a",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_82db02475ee62dadfb94a2ab",
+        "spanId": "dsn_2608af36e0503ecff709c9f3",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_4d792c53fef61d96e85792e9",
+        "spanId": "dsn_e164cc9c2f304928e471f018",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_009b36df8e35a8a4fb93e7e1",
+        "spanId": "dsn_7b69fcaa2dece4b5ae3d6510",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_a5e1ef7ee724e3d2543d6266",
+        "spanId": "dsn_873bc451f6b543e26748b798",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_3b8e226256eb52c075589879",
+        "spanId": "dsn_7c994770002d18add4f74075",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_7c3e9e54eb9e5393514d06f4",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_2f041fb516e953b52f7d4221",
         "reason": "role_budget",
         "detail": "role_budget:context"
       },
       {
-        "spanId": "dsn_7dcd8333fa542ffbd2e5bc8b",
+        "spanId": "dsn_af15119e9597b2ed0fef9752",
         "reason": "role_budget",
         "detail": "role_budget:context"
       },
       {
-        "spanId": "dsn_9e8327daa10029983df8bb36",
+        "spanId": "dsn_1fc4890bb8d8fc1dbd142e73",
         "reason": "role_budget",
         "detail": "role_budget:context"
       }
     ],
     "dependencies": [],
-    "estimatedTokens": 22,
+    "estimatedTokens": 31,
     "investigationComplete": false,
     "incompleteReasons": [
       "primary_evidence_missing",

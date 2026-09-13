@@ -1,16 +1,15 @@
 {
-  "sessionId": "an_7ac91344-af07-4d98-95e2-6f1f41bf0d5c",
+  "sessionId": "an_84229db6-5d6f-4b49-9a9c-924a1e990d5a",
   "stage": "investigation_complete",
-  "dumpedAt": "2026-09-13T19:14:01.746Z",
+  "dumpedAt": "2026-09-13T19:26:37.474Z",
   "requirementId": "gdpr.art19",
   "packageId": "rule:regimes/data-protection/gdpr",
   "recall": {
     "requirementId": "gdpr.art19",
     "uniqueCandidateCount": 16,
-    "elementsWithCandidates": [
-      "recipient_notification"
-    ],
+    "elementsWithCandidates": [],
     "elementsWithoutCandidates": [
+      "recipient_notification",
       "exception_limit",
       "recipient_identity_on_request"
     ],
@@ -21,9 +20,9 @@
       "exception_limit",
       "recipient_identity_on_request"
     ],
-    "acceptedCandidateCount": 3,
-    "semanticRejectedCandidateCount": 11,
-    "budgetOmittedCandidateCount": 2,
+    "acceptedCandidateCount": 1,
+    "semanticRejectedCandidateCount": 12,
+    "budgetOmittedCandidateCount": 3,
     "unclassifiedCandidateCount": 0
   },
   "queries": [
@@ -37,8 +36,8 @@
   "hits": [
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_1430eff3dd13d7608aff0cf5",
-      "ref": "dsn_1430eff3dd13d7608aff0cf5",
+      "spanId": "dsn_2f041fb516e953b52f7d4221",
+      "ref": "dsn_2f041fb516e953b52f7d4221",
       "denseRank": 1,
       "lexicalRank": 1,
       "selectedBy": [
@@ -46,18 +45,17 @@
         "dense"
       ],
       "score": 0.22278688524590162,
-      "reviewDisposition": "accepted",
-      "evidenceRole": "supporting",
-      "contributesToElementIds": [
-        "recipient_notification"
-      ],
-      "reviewConfidence": 0.65,
-      "reviewReason": "This clause obligates the processor (Alaio) to assist and notify the controller regarding data subject requests for access, correction, amendment, restriction, or deletion, but does not explicitly obligate notification to downstream recipients post-rectification/erasure nor direct identity disclosure on request."
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.85,
+      "reviewReason": "This clause deals with processor assistance and notification to the controller regarding data subject requests, but does not obligate the controller to notify downstream recipients when data is rectified, erased, or restricted.",
+      "exclusionReason": "role_budget:context"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_87610896f208778ed618914a",
-      "ref": "dsn_87610896f208778ed618914a",
+      "spanId": "dsn_579a493f5909415fc39d46cf",
+      "ref": "dsn_579a493f5909415fc39d46cf",
       "denseRank": 20,
       "lexicalRank": 7,
       "selectedBy": [
@@ -69,13 +67,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to third-party controller authorization for processor appointment.",
+      "reviewReason": "Addresses third-party controller authorization for appointing processors, which is unrelated to Article 19 notification obligations.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_a5e1ef7ee724e3d2543d6266",
-      "ref": "dsn_a5e1ef7ee724e3d2543d6266",
+      "spanId": "dsn_7c3e9e54eb9e5393514d06f4",
+      "ref": "dsn_7c3e9e54eb9e5393514d06f4",
       "denseRank": 12,
       "lexicalRank": 14,
       "selectedBy": [
@@ -86,14 +84,14 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.95,
-      "reviewReason": "Pertains to deletion of personal data upon contract/term expiry.",
-      "exclusionReason": "rejected:irrelevant:0.95"
+      "reviewConfidence": 0.9,
+      "reviewReason": "Concerns data deletion upon contract expiry, not recipient notification upon data subject rights exercise under Article 19.",
+      "exclusionReason": "rejected:irrelevant:0.9"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_e913a7275158c113ddece6f9",
-      "ref": "dsn_e913a7275158c113ddece6f9",
+      "spanId": "dsn_9d2224b3e6111257bdc48f72",
+      "ref": "dsn_9d2224b3e6111257bdc48f72",
       "denseRank": 6,
       "lexicalRank": 11,
       "selectedBy": [
@@ -101,16 +99,17 @@
         "dense"
       ],
       "score": 0.1792360221937687,
-      "reviewDisposition": "accepted",
-      "evidenceRole": "context",
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.9,
-      "reviewReason": "Heading clause acknowledging processor and controller responsibilities."
+      "reviewConfidence": 0.95,
+      "reviewReason": "Introductory statement acknowledging processor and controller responsibilities.",
+      "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_3b8e226256eb52c075589879",
-      "ref": "dsn_3b8e226256eb52c075589879",
+      "spanId": "dsn_e589d0475938e81ecfe9ad0d",
+      "ref": "dsn_e589d0475938e81ecfe9ad0d",
       "denseRank": 16,
       "lexicalRank": 9,
       "selectedBy": [
@@ -118,17 +117,16 @@
         "dense"
       ],
       "score": 0.1776506483600305,
-      "reviewDisposition": "role_budget",
+      "reviewDisposition": "accepted",
       "evidenceRole": "context",
       "contributesToElementIds": [],
       "reviewConfidence": 0.9,
-      "reviewReason": "Defines controller/processor roles under Data Protection Legislation.",
-      "exclusionReason": "role_budget:context"
+      "reviewReason": "States the role of the Administrator under Data Protection Legislation."
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_7f43008b758f2aee95efbc2d",
-      "ref": "dsn_7f43008b758f2aee95efbc2d",
+      "spanId": "dsn_2125074ad1bb07e3c1757cb8",
+      "ref": "dsn_2125074ad1bb07e3c1757cb8",
       "denseRank": 14,
       "lexicalRank": 5,
       "selectedBy": [
@@ -140,13 +138,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to audit and inspection rights of the controller.",
+      "reviewReason": "Concerns audit rights and on-site inspection rules.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_d110a9e2a460c527c94868fc",
-      "ref": "dsn_d110a9e2a460c527c94868fc",
+      "spanId": "dsn_e5b0309b428481f261faa5ae",
+      "ref": "dsn_e5b0309b428481f261faa5ae",
       "denseRank": 3,
       "lexicalRank": null,
       "selectedBy": [
@@ -157,13 +155,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to subprocessor scope of access and use under Article 28.",
+      "reviewReason": "Pertains to subprocessor compliance with main agreement obligations (Article 28(4) flow-down), not Article 19 notifications.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_c05fa018fa644f06d2b63eec",
-      "ref": "dsn_c05fa018fa644f06d2b63eec",
+      "spanId": "dsn_0757cc4533d6b52deb55b909",
+      "ref": "dsn_0757cc4533d6b52deb55b909",
       "denseRank": 22,
       "lexicalRank": 20,
       "selectedBy": [
@@ -175,13 +173,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to providing information regarding technical/security measures.",
+      "reviewReason": "Concerns providing security measure information to demonstrate compliance.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_2a8f78794d79eaa0baaef29f",
-      "ref": "dsn_2a8f78794d79eaa0baaef29f",
+      "spanId": "dsn_34902673770ce99d82a1a2ee",
+      "ref": "dsn_34902673770ce99d82a1a2ee",
       "denseRank": 18,
       "lexicalRank": null,
       "selectedBy": [
@@ -192,13 +190,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to engaging subprocessors general requirement.",
+      "reviewReason": "General reference to subprocessor engagement rules.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_d2f6b4e33fbc69602bf89474",
-      "ref": "dsn_d2f6b4e33fbc69602bf89474",
+      "spanId": "dsn_3d52ae5e2013776af5575a56",
+      "ref": "dsn_3d52ae5e2013776af5575a56",
       "denseRank": 24,
       "lexicalRank": null,
       "selectedBy": [
@@ -209,31 +207,30 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to email confidentiality marking technical measures.",
+      "reviewReason": "Security measure regarding marking emails as confidential.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_f894793c875b7b2c74037e13",
-      "ref": "dsn_f894793c875b7b2c74037e13",
+      "spanId": "dsn_af15119e9597b2ed0fef9752",
+      "ref": "dsn_af15119e9597b2ed0fef9752",
       "denseRank": 2,
       "lexicalRank": null,
       "selectedBy": [
         "dense"
       ],
       "score": 0.08612903225806452,
-      "reviewDisposition": "accepted",
-      "evidenceRole": "supporting",
-      "contributesToElementIds": [
-        "recipient_notification"
-      ],
-      "reviewConfidence": 0.65,
-      "reviewReason": "Addresses assisting the controller in responding to Chapter III GDPR rights requests by providing processor functionality, but does not explicitly satisfy Article 19 downstream recipient notification requirements."
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.85,
+      "reviewReason": "Obligates processor to assist controller in responding to Chapter III requests, but does not state the controller's obligation to notify downstream recipients of rectification/erasure/restriction.",
+      "exclusionReason": "role_budget:context"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_8d97532a308944ce679df961",
-      "ref": "dsn_8d97532a308944ce679df961",
+      "spanId": "dsn_fd3e2ac6f393832872b1aa5c",
+      "ref": "dsn_fd3e2ac6f393832872b1aa5c",
       "denseRank": 17,
       "lexicalRank": null,
       "selectedBy": [
@@ -244,13 +241,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to Article 28(3) subprocessor flow-down requirements, not Article 19 notifications.",
+      "reviewReason": "General flow-down of Article 28(3) requirements onto sub-processors.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_9e8327daa10029983df8bb36",
-      "ref": "dsn_9e8327daa10029983df8bb36",
+      "spanId": "dsn_1fc4890bb8d8fc1dbd142e73",
+      "ref": "dsn_1fc4890bb8d8fc1dbd142e73",
       "denseRank": 25,
       "lexicalRank": null,
       "selectedBy": [
@@ -260,14 +257,14 @@
       "reviewDisposition": "role_budget",
       "evidenceRole": "context",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.85,
-      "reviewReason": "General compliance clause with applicable Data Protection Legislation.",
+      "reviewConfidence": 0.8,
+      "reviewReason": "Generic statement that each party will comply with Data Protection Legislation.",
       "exclusionReason": "role_budget:context"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_009b36df8e35a8a4fb93e7e1",
-      "ref": "dsn_009b36df8e35a8a4fb93e7e1",
+      "spanId": "dsn_7c994770002d18add4f74075",
+      "ref": "dsn_7c994770002d18add4f74075",
       "denseRank": 11,
       "lexicalRank": null,
       "selectedBy": [
@@ -278,13 +275,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to notice and objection procedure for adding new subprocessors.",
+      "reviewReason": "Covers notification and objection procedures for engaging new subprocessors, not recipient notification following individual rights exercises.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_2648693b756013970a22c779",
-      "ref": "dsn_2648693b756013970a22c779",
+      "spanId": "dsn_0ca557fd3eea677ce66af876",
+      "ref": "dsn_0ca557fd3eea677ce66af876",
       "denseRank": null,
       "lexicalRank": 15,
       "selectedBy": [
@@ -295,13 +292,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to FTC jurisdiction over Data Privacy Framework.",
+      "reviewReason": "Concerns FTC jurisdiction over Data Privacy Framework compliance.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_23fe2ce90aa11efd1eb92fe4",
-      "ref": "dsn_23fe2ce90aa11efd1eb92fe4",
+      "spanId": "dsn_d093700fff208bf28665259b",
+      "ref": "dsn_d093700fff208bf28665259b",
       "denseRank": 23,
       "lexicalRank": null,
       "selectedBy": [
@@ -312,92 +309,35 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to audit reimbursement rates and non-compliance notification.",
+      "reviewReason": "Concerns reimbursement for audit expenses.",
       "exclusionReason": "rejected:irrelevant:0.95"
     }
   ],
   "expansions": [],
   "expansionLimits": [],
   "bundle": {
-    "bundleId": "INV-gdpr.art19-doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+    "bundleId": "INV-gdpr.art19-doc_55b11721-46b1-4d95-a000-93e5f5986fcc",
     "requirementId": "gdpr.art19",
     "items": [
       {
-        "spanId": "dsn_1430eff3dd13d7608aff0cf5",
-        "ref": "dsn_1430eff3dd13d7608aff0cf5",
-        "quotedText": "4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, correction, amendment, restriction, deletion or exercising any other rights under the GDPR or other Data Protection Legislation of that person's Personal Data. Alaio shall not respond to any such Data Subject request without Administrator´s  prior written consent except to confirm that the request relates to User. Alaio shall provide Administrator with cooperation and assistance in relation to handling of a Data Sub ject's request for access to that person's Personal Data or exercising any other rights under the GDPR or other Data Protection Legislation, to the extent legally permitted and to the extent User does not have access to such Personal Data through its use or receipt of the Services.",
-        "structuralPath": "document.clause_4.subclause_4.2",
+        "spanId": "dsn_e589d0475938e81ecfe9ad0d",
+        "ref": "dsn_e589d0475938e81ecfe9ad0d",
+        "quotedText": "(c)  Administrator is a controller or processor, as applicable, of Personal Data under the Data Protection Legislation; and",
+        "structuralPath": "document.list_item_(c)",
         "charRange": [
-          13363,
-          14205
+          8848,
+          8971
         ],
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
-          "structuralPath": "document.clause_4.subclause_4.2",
-          "relationship": "unspecified"
-        },
-        "source": "seed",
-        "evidenceRole": "supporting",
-        "contributesToElementIds": [
-          "recipient_notification"
-        ],
-        "investigationConfidence": 0.65,
-        "investigationReason": "This clause obligates the processor (Alaio) to assist and notify the controller regarding data subject requests for access, correction, amendment, restriction, or deletion, but does not explicitly obligate notification to downstream recipients post-rectification/erasure nor direct identity disclosure on request.",
-        "retrievalChannels": [
-          "sparse",
-          "dense"
-        ],
-        "matchedQueries": [
-          "The controller communicates any rectification, erasure, or restriction of personal data to every recipient to whom the data has been disclosed, unless this proves impossible or involves disproportionate effort, and informs the data subject of those recipients on request."
-        ]
-      },
-      {
-        "spanId": "dsn_f894793c875b7b2c74037e13",
-        "ref": "dsn_f894793c875b7b2c74037e13",
-        "quotedText": "4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Personal Data, as required by Data Protection Legislation, Alaio will (taking into account the nature of the processing of Personal Data and, if applicable, Article 11 of the GDPR) assist Administrator in fulfilling any obligation of Administrator to respond to requests by data subjects, including (if applicable) Administrator´s  obligation to respond to requests for exercising the data sub ject's rights laid down in Chapter III of the GDPR and other Data Protection Legislation, by providing the functionality of the Processor Services;",
-        "structuralPath": "document.clause_4.subclause_4.1",
-        "charRange": [
-          12695,
-          13362
-        ],
-        "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
-          "structuralPath": "document.clause_4.subclause_4.1",
-          "relationship": "unspecified"
-        },
-        "source": "seed",
-        "evidenceRole": "supporting",
-        "contributesToElementIds": [
-          "recipient_notification"
-        ],
-        "investigationConfidence": 0.65,
-        "investigationReason": "Addresses assisting the controller in responding to Chapter III GDPR rights requests by providing processor functionality, but does not explicitly satisfy Article 19 downstream recipient notification requirements.",
-        "retrievalChannels": [
-          "dense"
-        ],
-        "matchedQueries": [
-          "The controller communicates any rectification, erasure, or restriction of personal data to every recipient to whom the data has been disclosed, unless this proves impossible or involves disproportionate effort, and informs the data subject of those recipients on request."
-        ]
-      },
-      {
-        "spanId": "dsn_e913a7275158c113ddece6f9",
-        "ref": "dsn_e913a7275158c113ddece6f9",
-        "quotedText": "1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that:",
-        "structuralPath": "document.clause_2.item_1",
-        "charRange": [
-          8425,
-          8511
-        ],
-        "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
-          "structuralPath": "document.clause_2.item_1",
+          "documentId": "doc_55b11721-46b1-4d95-a000-93e5f5986fcc",
+          "structuralPath": "document.list_item_(c)",
           "relationship": "unspecified"
         },
         "source": "expansion",
         "evidenceRole": "context",
         "contributesToElementIds": [],
         "investigationConfidence": 0.9,
-        "investigationReason": "Heading clause acknowledging processor and controller responsibilities.",
+        "investigationReason": "States the role of the Administrator under Data Protection Legislation.",
         "retrievalChannels": [
           "sparse",
           "dense"
@@ -411,100 +351,92 @@
       {
         "partitionId": "P1",
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5"
+          "documentId": "doc_55b11721-46b1-4d95-a000-93e5f5986fcc"
         },
         "itemSpanIds": [
-          "dsn_1430eff3dd13d7608aff0cf5",
-          "dsn_f894793c875b7b2c74037e13",
-          "dsn_e913a7275158c113ddece6f9"
+          "dsn_e589d0475938e81ecfe9ad0d"
         ]
       }
     ],
     "exclusions": [
       {
-        "spanId": "dsn_87610896f208778ed618914a",
+        "spanId": "dsn_579a493f5909415fc39d46cf",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_a5e1ef7ee724e3d2543d6266",
+        "spanId": "dsn_7c3e9e54eb9e5393514d06f4",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.9"
+      },
+      {
+        "spanId": "dsn_9d2224b3e6111257bdc48f72",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_7f43008b758f2aee95efbc2d",
+        "spanId": "dsn_2125074ad1bb07e3c1757cb8",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_d110a9e2a460c527c94868fc",
+        "spanId": "dsn_e5b0309b428481f261faa5ae",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_c05fa018fa644f06d2b63eec",
+        "spanId": "dsn_0757cc4533d6b52deb55b909",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_2a8f78794d79eaa0baaef29f",
+        "spanId": "dsn_34902673770ce99d82a1a2ee",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_d2f6b4e33fbc69602bf89474",
+        "spanId": "dsn_3d52ae5e2013776af5575a56",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_8d97532a308944ce679df961",
+        "spanId": "dsn_fd3e2ac6f393832872b1aa5c",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_009b36df8e35a8a4fb93e7e1",
+        "spanId": "dsn_7c994770002d18add4f74075",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_2648693b756013970a22c779",
+        "spanId": "dsn_0ca557fd3eea677ce66af876",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_23fe2ce90aa11efd1eb92fe4",
+        "spanId": "dsn_d093700fff208bf28665259b",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_3b8e226256eb52c075589879",
+        "spanId": "dsn_2f041fb516e953b52f7d4221",
         "reason": "role_budget",
         "detail": "role_budget:context"
       },
       {
-        "spanId": "dsn_9e8327daa10029983df8bb36",
+        "spanId": "dsn_af15119e9597b2ed0fef9752",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_1fc4890bb8d8fc1dbd142e73",
         "reason": "role_budget",
         "detail": "role_budget:context"
       }
     ],
-    "dependencies": [
-      {
-        "reference": "dsn_f894793c875b7b2c74037e13:requires",
-        "state": "ambiguous",
-        "targetSpanIds": []
-      },
-      {
-        "reference": "dsn_f894793c875b7b2c74037e13:requires",
-        "state": "unresolved_external",
-        "targetSpanIds": []
-      },
-      {
-        "reference": "dsn_1430eff3dd13d7608aff0cf5:external_reference",
-        "state": "unresolved_external",
-        "targetSpanIds": []
-      }
-    ],
-    "estimatedTokens": 399,
+    "dependencies": [],
+    "estimatedTokens": 31,
     "investigationComplete": false,
     "incompleteReasons": [
       "primary_evidence_missing",

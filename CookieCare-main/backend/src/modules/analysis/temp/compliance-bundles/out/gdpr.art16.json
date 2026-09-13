@@ -1,12 +1,12 @@
 {
-  "sessionId": "an_7ac91344-af07-4d98-95e2-6f1f41bf0d5c",
+  "sessionId": "an_84229db6-5d6f-4b49-9a9c-924a1e990d5a",
   "stage": "investigation_complete",
-  "dumpedAt": "2026-09-13T19:14:01.746Z",
+  "dumpedAt": "2026-09-13T19:26:37.474Z",
   "requirementId": "gdpr.art16",
   "packageId": "rule:regimes/data-protection/gdpr",
   "recall": {
     "requirementId": "gdpr.art16",
-    "uniqueCandidateCount": 17,
+    "uniqueCandidateCount": 16,
     "elementsWithCandidates": [
       "correct_inaccurate_data"
     ],
@@ -14,16 +14,16 @@
       "complete_incomplete_data",
       "without_undue_delay"
     ],
-    "totalQueries": 3,
+    "totalQueries": 2,
     "proofElementsCovered": [],
     "proofElementsUnresolved": [
       "correct_inaccurate_data",
       "complete_incomplete_data",
       "without_undue_delay"
     ],
-    "acceptedCandidateCount": 3,
-    "semanticRejectedCandidateCount": 8,
-    "budgetOmittedCandidateCount": 6,
+    "acceptedCandidateCount": 1,
+    "semanticRejectedCandidateCount": 15,
+    "budgetOmittedCandidateCount": 0,
     "unclassifiedCandidateCount": 0
   },
   "queries": [
@@ -38,19 +38,13 @@
       "requirementId": "gdpr.art16",
       "kind": "requirement",
       "text": "The contract commits to correcting inaccurate personal data without undue delay and to allowing a data subject to complete incomplete personal data, including by means of a supplementary statement."
-    },
-    {
-      "queryId": "GNQ-3",
-      "requirementId": "gdpr.art16",
-      "kind": "requirement",
-      "text": "structural:parent_context"
     }
   ],
   "hits": [
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_144305d331f96bd2e853c93c",
-      "ref": "dsn_144305d331f96bd2e853c93c",
+      "spanId": "dsn_1ebfea52bb8df0c6223358b1",
+      "ref": "dsn_1ebfea52bb8df0c6223358b1",
       "denseRank": 17,
       "lexicalRank": 1,
       "selectedBy": [
@@ -62,14 +56,14 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.95,
-      "reviewReason": "Pertains to security incident notifications, not rectification of inaccurate data.",
-      "exclusionReason": "rejected:irrelevant:0.95"
+      "reviewConfidence": 0.85,
+      "reviewReason": "Applies the 'without undue delay' phrase specifically to Data Incident notifications, not personal data rectification.",
+      "exclusionReason": "rejected:irrelevant:0.85"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_144305d331f96bd2e853c93c",
-      "ref": "dsn_144305d331f96bd2e853c93c",
+      "spanId": "dsn_1ebfea52bb8df0c6223358b1",
+      "ref": "dsn_1ebfea52bb8df0c6223358b1",
       "denseRank": 17,
       "lexicalRank": 1,
       "selectedBy": [
@@ -81,14 +75,14 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.95,
-      "reviewReason": "Pertains to security incident notifications, not rectification of inaccurate data.",
-      "exclusionReason": "rejected:irrelevant:0.95"
+      "reviewConfidence": 0.85,
+      "reviewReason": "Applies the 'without undue delay' phrase specifically to Data Incident notifications, not personal data rectification.",
+      "exclusionReason": "rejected:irrelevant:0.85"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_1430eff3dd13d7608aff0cf5",
-      "ref": "dsn_1430eff3dd13d7608aff0cf5",
+      "spanId": "dsn_2f041fb516e953b52f7d4221",
+      "ref": "dsn_2f041fb516e953b52f7d4221",
       "denseRank": 5,
       "lexicalRank": 5,
       "selectedBy": [
@@ -96,18 +90,19 @@
         "dense"
       ],
       "score": 0.22076923076923077,
-      "reviewDisposition": "accepted",
+      "reviewDisposition": "semantic_rejection",
       "evidenceRole": "supporting",
       "contributesToElementIds": [
         "correct_inaccurate_data"
       ],
-      "reviewConfidence": 0.7,
-      "reviewReason": "Mentions handling requests for correction and amendment, but does not commit to completing incomplete data or acting without undue delay."
+      "reviewConfidence": 0.6,
+      "reviewReason": "Refers to Data Subject requests for correction and amendment, supporting operational handling, but lacks explicit commitments on completion or undue delay.",
+      "exclusionReason": "rejected:supporting:0.6"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_d110a9e2a460c527c94868fc",
-      "ref": "dsn_d110a9e2a460c527c94868fc",
+      "spanId": "dsn_e5b0309b428481f261faa5ae",
+      "ref": "dsn_e5b0309b428481f261faa5ae",
       "denseRank": 2,
       "lexicalRank": 23,
       "selectedBy": [
@@ -118,14 +113,14 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.95,
-      "reviewReason": "Relates to sub-processor authorization scope.",
-      "exclusionReason": "rejected:irrelevant:0.95"
+      "reviewConfidence": 0.9,
+      "reviewReason": "Pertains to sub-processor scope of use.",
+      "exclusionReason": "rejected:irrelevant:0.9"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_009b36df8e35a8a4fb93e7e1",
-      "ref": "dsn_009b36df8e35a8a4fb93e7e1",
+      "spanId": "dsn_7c994770002d18add4f74075",
+      "ref": "dsn_7c994770002d18add4f74075",
       "denseRank": 22,
       "lexicalRank": 16,
       "selectedBy": [
@@ -136,14 +131,14 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.95,
-      "reviewReason": "Relates to sub-processor objection mechanisms.",
-      "exclusionReason": "rejected:irrelevant:0.95"
+      "reviewConfidence": 0.9,
+      "reviewReason": "Pertains to sub-processor change objections.",
+      "exclusionReason": "rejected:irrelevant:0.9"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_e7446528db11cdfcd590169b",
-      "ref": "dsn_e7446528db11cdfcd590169b",
+      "spanId": "dsn_1b5e4f270bc3015302f01d2c",
+      "ref": "dsn_1b5e4f270bc3015302f01d2c",
       "denseRank": 4,
       "lexicalRank": 8,
       "selectedBy": [
@@ -151,17 +146,17 @@
         "dense"
       ],
       "score": 0.18033088235294117,
-      "reviewDisposition": "role_budget",
+      "reviewDisposition": "semantic_rejection",
       "evidenceRole": "context",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.85,
-      "reviewReason": "Cross-references Appendix 1 for processing details.",
-      "exclusionReason": "role_budget:context"
+      "reviewConfidence": 0.5,
+      "reviewReason": "References Appendix 1 for processing details.",
+      "exclusionReason": "rejected:context:0.5"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_fc80efe281db41ee1800dab4",
-      "ref": "dsn_fc80efe281db41ee1800dab4",
+      "spanId": "dsn_c1a983ef8b82c05c27349c3e",
+      "ref": "dsn_c1a983ef8b82c05c27349c3e",
       "denseRank": 15,
       "lexicalRank": 4,
       "selectedBy": [
@@ -169,17 +164,17 @@
         "dense"
       ],
       "score": 0.17895833333333333,
-      "reviewDisposition": "role_budget",
+      "reviewDisposition": "semantic_rejection",
       "evidenceRole": "context",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.85,
-      "reviewReason": "Introductory fragment for written sub-processor agreement requirements.",
-      "exclusionReason": "role_budget:context"
+      "reviewConfidence": 0.5,
+      "reviewReason": "Introductory fragment for written sub-processor contract requirements.",
+      "exclusionReason": "rejected:context:0.5"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_39d884048966d0cb0742d15b",
-      "ref": "dsn_39d884048966d0cb0742d15b",
+      "spanId": "dsn_b45daddbd96acba02a8fda8e",
+      "ref": "dsn_b45daddbd96acba02a8fda8e",
       "denseRank": 14,
       "lexicalRank": 10,
       "selectedBy": [
@@ -187,17 +182,17 @@
         "dense"
       ],
       "score": 0.15779922779922778,
-      "reviewDisposition": "role_budget",
+      "reviewDisposition": "semantic_rejection",
       "evidenceRole": "context",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.7,
-      "reviewReason": "Header fragment regarding categories of data subjects.",
-      "exclusionReason": "role_budget:context"
+      "reviewConfidence": 0.5,
+      "reviewReason": "Heading clause for data subjects.",
+      "exclusionReason": "rejected:context:0.5"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_7f43008b758f2aee95efbc2d",
-      "ref": "dsn_7f43008b758f2aee95efbc2d",
+      "spanId": "dsn_2125074ad1bb07e3c1757cb8",
+      "ref": "dsn_2125074ad1bb07e3c1757cb8",
       "denseRank": 21,
       "lexicalRank": null,
       "selectedBy": [
@@ -207,14 +202,14 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.95,
-      "reviewReason": "Relates to audit rights and costs.",
-      "exclusionReason": "rejected:irrelevant:0.95"
+      "reviewConfidence": 0.85,
+      "reviewReason": "Pertains to audit/inspection rights.",
+      "exclusionReason": "rejected:irrelevant:0.85"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_a8296cc97880396a3c09b65a",
-      "ref": "dsn_a8296cc97880396a3c09b65a",
+      "spanId": "dsn_f17e3523d7a21aaec8bbe820",
+      "ref": "dsn_f17e3523d7a21aaec8bbe820",
       "denseRank": 6,
       "lexicalRank": 3,
       "selectedBy": [
@@ -223,16 +218,16 @@
       ],
       "score": 0.11102453102453103,
       "reviewDisposition": "semantic_rejection",
-      "evidenceRole": "irrelevant",
+      "evidenceRole": "context",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.9,
-      "reviewReason": "Lists categories of personal data.",
-      "exclusionReason": "rejected:irrelevant:0.9"
+      "reviewConfidence": 0.5,
+      "reviewReason": "Describes categories of personal details.",
+      "exclusionReason": "rejected:context:0.5"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_de8dda043d64f90ea976f64f",
-      "ref": "dsn_de8dda043d64f90ea976f64f",
+      "spanId": "dsn_9e019594338d91b2912fb177",
+      "ref": "dsn_9e019594338d91b2912fb177",
       "denseRank": 3,
       "lexicalRank": 22,
       "selectedBy": [
@@ -240,17 +235,17 @@
         "dense"
       ],
       "score": 0.10806813782423538,
-      "reviewDisposition": "role_budget",
+      "reviewDisposition": "semantic_rejection",
       "evidenceRole": "context",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.7,
-      "reviewReason": "Header fragment for basic processing activities.",
-      "exclusionReason": "role_budget:context"
+      "reviewConfidence": 0.5,
+      "reviewReason": "Heading for processing operations.",
+      "exclusionReason": "rejected:context:0.5"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_f894793c875b7b2c74037e13",
-      "ref": "dsn_f894793c875b7b2c74037e13",
+      "spanId": "dsn_af15119e9597b2ed0fef9752",
+      "ref": "dsn_af15119e9597b2ed0fef9752",
       "denseRank": 1,
       "lexicalRank": null,
       "selectedBy": [
@@ -262,13 +257,13 @@
       "contributesToElementIds": [
         "correct_inaccurate_data"
       ],
-      "reviewConfidence": 0.75,
-      "reviewReason": "Obligates assistance with data subject requests to correct or amend data under Chapter III GDPR, but does not explicitly address completion of incomplete data or specify 'without undue delay'."
+      "reviewConfidence": 0.65,
+      "reviewReason": "Mentions assisting Administrator in correcting and amending Personal Data as required by Data Protection Legislation, but does not commit to completing incomplete data or doing so without undue delay."
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_15887cd108208cc38846377e",
-      "ref": "dsn_15887cd108208cc38846377e",
+      "spanId": "dsn_7b69fcaa2dece4b5ae3d6510",
+      "ref": "dsn_7b69fcaa2dece4b5ae3d6510",
       "denseRank": 7,
       "lexicalRank": null,
       "selectedBy": [
@@ -278,14 +273,14 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.95,
-      "reviewReason": "Heading regarding sub-processor objection rights.",
-      "exclusionReason": "rejected:irrelevant:0.95"
+      "reviewConfidence": 0.9,
+      "reviewReason": "Heading for sub-processor objection rights.",
+      "exclusionReason": "rejected:irrelevant:0.9"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_c05fa018fa644f06d2b63eec",
-      "ref": "dsn_c05fa018fa644f06d2b63eec",
+      "spanId": "dsn_0757cc4533d6b52deb55b909",
+      "ref": "dsn_0757cc4533d6b52deb55b909",
       "denseRank": 9,
       "lexicalRank": null,
       "selectedBy": [
@@ -295,31 +290,31 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.95,
-      "reviewReason": "Relates to demonstrating security compliance.",
-      "exclusionReason": "rejected:irrelevant:0.95"
+      "reviewConfidence": 0.85,
+      "reviewReason": "Pertains to demonstrating compliance and providing security info.",
+      "exclusionReason": "rejected:irrelevant:0.85"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_bf39176fdff0518a847ee9a1",
-      "ref": "dsn_bf39176fdff0518a847ee9a1",
+      "spanId": "dsn_5d040a8e3ba6c0f0e247e55b",
+      "ref": "dsn_5d040a8e3ba6c0f0e247e55b",
       "denseRank": 10,
       "lexicalRank": null,
       "selectedBy": [
         "dense"
       ],
       "score": 0.0842857142857143,
-      "reviewDisposition": "role_budget",
+      "reviewDisposition": "semantic_rejection",
       "evidenceRole": "context",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.85,
-      "reviewReason": "Heading for compliance inspections.",
-      "exclusionReason": "role_budget:context"
+      "reviewConfidence": 0.5,
+      "reviewReason": "Heading for inspections of compliance.",
+      "exclusionReason": "rejected:context:0.5"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_f757df4df94344b796557923",
-      "ref": "dsn_f757df4df94344b796557923",
+      "spanId": "dsn_191ea53292dd281923ae7e6a",
+      "ref": "dsn_191ea53292dd281923ae7e6a",
       "denseRank": 11,
       "lexicalRank": null,
       "selectedBy": [
@@ -329,58 +324,37 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.95,
-      "reviewReason": "Relates to data incident notification details.",
-      "exclusionReason": "rejected:irrelevant:0.95"
+      "reviewConfidence": 0.85,
+      "reviewReason": "Pertains to security incident notifications.",
+      "exclusionReason": "rejected:irrelevant:0.85"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_e913a7275158c113ddece6f9",
-      "ref": "dsn_e913a7275158c113ddece6f9",
+      "spanId": "dsn_9d2224b3e6111257bdc48f72",
+      "ref": "dsn_9d2224b3e6111257bdc48f72",
       "denseRank": 12,
       "lexicalRank": null,
       "selectedBy": [
         "dense"
       ],
       "score": 0.08388888888888889,
-      "reviewDisposition": "role_budget",
+      "reviewDisposition": "semantic_rejection",
       "evidenceRole": "context",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.85,
-      "reviewReason": "Heading for controller and processor responsibilities.",
-      "exclusionReason": "role_budget:context"
-    },
-    {
-      "queryId": "GNQ-3",
-      "spanId": "dsn_3a27733aa4a2782d0094adb9",
-      "ref": "dsn_3a27733aa4a2782d0094adb9",
-      "denseRank": null,
-      "lexicalRank": null,
-      "selectedBy": [],
-      "score": 0,
-      "reviewDisposition": "accepted",
-      "evidenceRole": "context",
-      "contributesToElementIds": [],
-      "reviewConfidence": 0.95,
-      "reviewReason": "This node is a section heading ('4. RIGHTS OF DATA SUBJECTS') that provides structural context but does not contain substantive commitments regarding data rectification."
+      "reviewConfidence": 0.5,
+      "reviewReason": "Heading clause for processor/controller responsibilities.",
+      "exclusionReason": "rejected:context:0.5"
     }
   ],
-  "expansions": [
-    {
-      "requirementId": "gdpr.art16",
-      "seedSpanId": "dsn_f894793c875b7b2c74037e13",
-      "addedSpanId": "dsn_3a27733aa4a2782d0094adb9",
-      "reason": "parent"
-    }
-  ],
+  "expansions": [],
   "expansionLimits": [],
   "bundle": {
-    "bundleId": "INV-gdpr.art16-doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+    "bundleId": "INV-gdpr.art16-doc_55b11721-46b1-4d95-a000-93e5f5986fcc",
     "requirementId": "gdpr.art16",
     "items": [
       {
-        "spanId": "dsn_f894793c875b7b2c74037e13",
-        "ref": "dsn_f894793c875b7b2c74037e13",
+        "spanId": "dsn_af15119e9597b2ed0fef9752",
+        "ref": "dsn_af15119e9597b2ed0fef9752",
         "quotedText": "4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Personal Data, as required by Data Protection Legislation, Alaio will (taking into account the nature of the processing of Personal Data and, if applicable, Article 11 of the GDPR) assist Administrator in fulfilling any obligation of Administrator to respond to requests by data subjects, including (if applicable) Administrator´s  obligation to respond to requests for exercising the data sub ject's rights laid down in Chapter III of the GDPR and other Data Protection Legislation, by providing the functionality of the Processor Services;",
         "structuralPath": "document.clause_4.subclause_4.1",
         "charRange": [
@@ -388,7 +362,7 @@
           13362
         ],
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "documentId": "doc_55b11721-46b1-4d95-a000-93e5f5986fcc",
           "structuralPath": "document.clause_4.subclause_4.1",
           "relationship": "unspecified"
         },
@@ -397,66 +371,13 @@
         "contributesToElementIds": [
           "correct_inaccurate_data"
         ],
-        "investigationConfidence": 0.75,
-        "investigationReason": "Obligates assistance with data subject requests to correct or amend data under Chapter III GDPR, but does not explicitly address completion of incomplete data or specify 'without undue delay'.",
+        "investigationConfidence": 0.65,
+        "investigationReason": "Mentions assisting Administrator in correcting and amending Personal Data as required by Data Protection Legislation, but does not commit to completing incomplete data or doing so without undue delay.",
         "retrievalChannels": [
           "dense"
         ],
         "matchedQueries": [
           "The contract commits to correcting inaccurate personal data without undue delay and to allowing a data subject to complete incomplete personal data, including by means of a supplementary statement."
-        ]
-      },
-      {
-        "spanId": "dsn_1430eff3dd13d7608aff0cf5",
-        "ref": "dsn_1430eff3dd13d7608aff0cf5",
-        "quotedText": "4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, correction, amendment, restriction, deletion or exercising any other rights under the GDPR or other Data Protection Legislation of that person's Personal Data. Alaio shall not respond to any such Data Subject request without Administrator´s  prior written consent except to confirm that the request relates to User. Alaio shall provide Administrator with cooperation and assistance in relation to handling of a Data Sub ject's request for access to that person's Personal Data or exercising any other rights under the GDPR or other Data Protection Legislation, to the extent legally permitted and to the extent User does not have access to such Personal Data through its use or receipt of the Services.",
-        "structuralPath": "document.clause_4.subclause_4.2",
-        "charRange": [
-          13363,
-          14205
-        ],
-        "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
-          "structuralPath": "document.clause_4.subclause_4.2",
-          "relationship": "unspecified"
-        },
-        "source": "seed",
-        "evidenceRole": "supporting",
-        "contributesToElementIds": [
-          "correct_inaccurate_data"
-        ],
-        "investigationConfidence": 0.7,
-        "investigationReason": "Mentions handling requests for correction and amendment, but does not commit to completing incomplete data or acting without undue delay.",
-        "retrievalChannels": [
-          "sparse",
-          "dense"
-        ],
-        "matchedQueries": [
-          "The contract commits to correcting inaccurate personal data without undue delay and to allowing a data subject to complete incomplete personal data, including by means of a supplementary statement."
-        ]
-      },
-      {
-        "spanId": "dsn_3a27733aa4a2782d0094adb9",
-        "ref": "dsn_3a27733aa4a2782d0094adb9",
-        "quotedText": "4. RIGHTS OF DATA SUBJECTS",
-        "structuralPath": "document.clause_4",
-        "charRange": [
-          12668,
-          12694
-        ],
-        "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
-          "structuralPath": "document.clause_4",
-          "relationship": "unspecified"
-        },
-        "source": "expansion",
-        "evidenceRole": "context",
-        "contributesToElementIds": [],
-        "investigationConfidence": 0.95,
-        "investigationReason": "This node is a section heading ('4. RIGHTS OF DATA SUBJECTS') that provides structural context but does not contain substantive commitments regarding data rectification.",
-        "retrievalChannels": [],
-        "matchedQueries": [
-          "structural:parent_context"
         ]
       }
     ],
@@ -464,105 +385,103 @@
       {
         "partitionId": "P1",
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5"
+          "documentId": "doc_55b11721-46b1-4d95-a000-93e5f5986fcc"
         },
         "itemSpanIds": [
-          "dsn_f894793c875b7b2c74037e13",
-          "dsn_1430eff3dd13d7608aff0cf5",
-          "dsn_3a27733aa4a2782d0094adb9"
+          "dsn_af15119e9597b2ed0fef9752"
         ]
       }
     ],
     "exclusions": [
       {
-        "spanId": "dsn_144305d331f96bd2e853c93c",
+        "spanId": "dsn_2f041fb516e953b52f7d4221",
         "reason": "semantic_rejection",
-        "detail": "rejected:irrelevant:0.95"
+        "detail": "rejected:supporting:0.6"
       },
       {
-        "spanId": "dsn_d110a9e2a460c527c94868fc",
+        "spanId": "dsn_1ebfea52bb8df0c6223358b1",
         "reason": "semantic_rejection",
-        "detail": "rejected:irrelevant:0.95"
+        "detail": "rejected:irrelevant:0.85"
       },
       {
-        "spanId": "dsn_009b36df8e35a8a4fb93e7e1",
-        "reason": "semantic_rejection",
-        "detail": "rejected:irrelevant:0.95"
-      },
-      {
-        "spanId": "dsn_7f43008b758f2aee95efbc2d",
-        "reason": "semantic_rejection",
-        "detail": "rejected:irrelevant:0.95"
-      },
-      {
-        "spanId": "dsn_a8296cc97880396a3c09b65a",
+        "spanId": "dsn_e5b0309b428481f261faa5ae",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.9"
       },
       {
-        "spanId": "dsn_15887cd108208cc38846377e",
+        "spanId": "dsn_7c994770002d18add4f74075",
         "reason": "semantic_rejection",
-        "detail": "rejected:irrelevant:0.95"
+        "detail": "rejected:irrelevant:0.9"
       },
       {
-        "spanId": "dsn_c05fa018fa644f06d2b63eec",
+        "spanId": "dsn_1b5e4f270bc3015302f01d2c",
         "reason": "semantic_rejection",
-        "detail": "rejected:irrelevant:0.95"
+        "detail": "rejected:context:0.5"
       },
       {
-        "spanId": "dsn_f757df4df94344b796557923",
+        "spanId": "dsn_c1a983ef8b82c05c27349c3e",
         "reason": "semantic_rejection",
-        "detail": "rejected:irrelevant:0.95"
+        "detail": "rejected:context:0.5"
       },
       {
-        "spanId": "dsn_e7446528db11cdfcd590169b",
-        "reason": "role_budget",
-        "detail": "role_budget:context"
+        "spanId": "dsn_b45daddbd96acba02a8fda8e",
+        "reason": "semantic_rejection",
+        "detail": "rejected:context:0.5"
       },
       {
-        "spanId": "dsn_fc80efe281db41ee1800dab4",
-        "reason": "role_budget",
-        "detail": "role_budget:context"
+        "spanId": "dsn_2125074ad1bb07e3c1757cb8",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.85"
       },
       {
-        "spanId": "dsn_bf39176fdff0518a847ee9a1",
-        "reason": "role_budget",
-        "detail": "role_budget:context"
+        "spanId": "dsn_f17e3523d7a21aaec8bbe820",
+        "reason": "semantic_rejection",
+        "detail": "rejected:context:0.5"
       },
       {
-        "spanId": "dsn_e913a7275158c113ddece6f9",
-        "reason": "role_budget",
-        "detail": "role_budget:context"
+        "spanId": "dsn_9e019594338d91b2912fb177",
+        "reason": "semantic_rejection",
+        "detail": "rejected:context:0.5"
       },
       {
-        "spanId": "dsn_39d884048966d0cb0742d15b",
-        "reason": "role_budget",
-        "detail": "role_budget:context"
+        "spanId": "dsn_7b69fcaa2dece4b5ae3d6510",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.9"
       },
       {
-        "spanId": "dsn_de8dda043d64f90ea976f64f",
-        "reason": "role_budget",
-        "detail": "role_budget:context"
+        "spanId": "dsn_0757cc4533d6b52deb55b909",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.85"
+      },
+      {
+        "spanId": "dsn_5d040a8e3ba6c0f0e247e55b",
+        "reason": "semantic_rejection",
+        "detail": "rejected:context:0.5"
+      },
+      {
+        "spanId": "dsn_191ea53292dd281923ae7e6a",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.85"
+      },
+      {
+        "spanId": "dsn_9d2224b3e6111257bdc48f72",
+        "reason": "semantic_rejection",
+        "detail": "rejected:context:0.5"
       }
     ],
     "dependencies": [
       {
-        "reference": "dsn_f894793c875b7b2c74037e13:requires",
+        "reference": "dsn_af15119e9597b2ed0fef9752:requires",
         "state": "ambiguous",
         "targetSpanIds": []
       },
       {
-        "reference": "dsn_f894793c875b7b2c74037e13:requires",
-        "state": "unresolved_external",
-        "targetSpanIds": []
-      },
-      {
-        "reference": "dsn_1430eff3dd13d7608aff0cf5:external_reference",
+        "reference": "dsn_af15119e9597b2ed0fef9752:requires",
         "state": "unresolved_external",
         "targetSpanIds": []
       }
     ],
-    "estimatedTokens": 384,
+    "estimatedTokens": 167,
     "investigationComplete": false,
     "incompleteReasons": [
       "primary_evidence_missing",

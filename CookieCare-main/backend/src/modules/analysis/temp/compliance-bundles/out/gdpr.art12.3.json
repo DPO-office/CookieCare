@@ -1,7 +1,7 @@
 {
-  "sessionId": "an_7ac91344-af07-4d98-95e2-6f1f41bf0d5c",
+  "sessionId": "an_84229db6-5d6f-4b49-9a9c-924a1e990d5a",
   "stage": "investigation_complete",
-  "dumpedAt": "2026-09-13T19:14:01.746Z",
+  "dumpedAt": "2026-09-13T19:26:37.474Z",
   "requirementId": "gdpr.art12.3",
   "packageId": "rule:regimes/data-protection/gdpr",
   "recall": {
@@ -48,8 +48,8 @@
   "hits": [
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_1430eff3dd13d7608aff0cf5",
-      "ref": "dsn_1430eff3dd13d7608aff0cf5",
+      "spanId": "dsn_2f041fb516e953b52f7d4221",
+      "ref": "dsn_2f041fb516e953b52f7d4221",
       "denseRank": 2,
       "lexicalRank": 6,
       "selectedBy": [
@@ -62,12 +62,12 @@
       "evidenceRole": "context",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "This clause deals with processor notification and assistance regarding data subject requests, but contains no specific numeric response deadline, extension rules, or data subject notice timing required by Article 12(3)."
+      "reviewReason": "This clause deals with notification of data subject requests to the Administrator and general assistance, but lacks any specific numeric response deadlines or rules regarding extensions."
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_1430eff3dd13d7608aff0cf5",
-      "ref": "dsn_1430eff3dd13d7608aff0cf5",
+      "spanId": "dsn_2f041fb516e953b52f7d4221",
+      "ref": "dsn_2f041fb516e953b52f7d4221",
       "denseRank": 2,
       "lexicalRank": 6,
       "selectedBy": [
@@ -80,12 +80,12 @@
       "evidenceRole": "context",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "This clause deals with processor notification and assistance regarding data subject requests, but contains no specific numeric response deadline, extension rules, or data subject notice timing required by Article 12(3)."
+      "reviewReason": "This clause deals with notification of data subject requests to the Administrator and general assistance, but lacks any specific numeric response deadlines or rules regarding extensions."
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_50fb817ad52c9c7410c8ea64",
-      "ref": "dsn_50fb817ad52c9c7410c8ea64",
+      "spanId": "dsn_23042867e78d0782408cfd1f",
+      "ref": "dsn_23042867e78d0782408cfd1f",
       "denseRank": null,
       "lexicalRank": 12,
       "selectedBy": [
@@ -97,13 +97,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.99,
-      "reviewReason": "Relates to account deletion after 15 days of inactivity; completely unrelated to data subject request response timing.",
+      "reviewReason": "Relates to account deletion after non-login period, irrelevant to data subject request response timing.",
       "exclusionReason": "rejected:irrelevant:0.99"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_f2dafe5d7683ce0c2367607c",
-      "ref": "dsn_f2dafe5d7683ce0c2367607c",
+      "spanId": "dsn_1e1c134d4b3478ef673bcfbc",
+      "ref": "dsn_1e1c134d4b3478ef673bcfbc",
       "denseRank": null,
       "lexicalRank": 10,
       "selectedBy": [
@@ -115,13 +115,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.99,
-      "reviewReason": "Relates to DPA change notifications and a 30-day agreement termination right; irrelevant to data subject request deadlines.",
+      "reviewReason": "Relates to DPA update notifications and termination rights, irrelevant to data subject request response timing.",
       "exclusionReason": "rejected:irrelevant:0.99"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_f2dafe5d7683ce0c2367607c",
-      "ref": "dsn_f2dafe5d7683ce0c2367607c",
+      "spanId": "dsn_1e1c134d4b3478ef673bcfbc",
+      "ref": "dsn_1e1c134d4b3478ef673bcfbc",
       "denseRank": null,
       "lexicalRank": 10,
       "selectedBy": [
@@ -133,13 +133,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.99,
-      "reviewReason": "Relates to DPA change notifications and a 30-day agreement termination right; irrelevant to data subject request deadlines.",
+      "reviewReason": "Relates to DPA update notifications and termination rights, irrelevant to data subject request response timing.",
       "exclusionReason": "rejected:irrelevant:0.99"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_009b36df8e35a8a4fb93e7e1",
-      "ref": "dsn_009b36df8e35a8a4fb93e7e1",
+      "spanId": "dsn_7c994770002d18add4f74075",
+      "ref": "dsn_7c994770002d18add4f74075",
       "denseRank": 16,
       "lexicalRank": 3,
       "selectedBy": [
@@ -151,13 +151,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.99,
-      "reviewReason": "Relates to sub-processor engagement, objection windows, and contract termination periods, not data subject request deadlines.",
+      "reviewReason": "Relates to Sub-processor engagement and objection timelines, irrelevant to data subject request response timing.",
       "exclusionReason": "rejected:irrelevant:0.99"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_f894793c875b7b2c74037e13",
-      "ref": "dsn_f894793c875b7b2c74037e13",
+      "spanId": "dsn_af15119e9597b2ed0fef9752",
+      "ref": "dsn_af15119e9597b2ed0fef9752",
       "denseRank": 1,
       "lexicalRank": 4,
       "selectedBy": [
@@ -169,13 +169,13 @@
       "evidenceRole": "context",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to processor assistance for Chapter III GDPR rights, but lacks any numeric one-month time limit or extension provisions.",
+      "reviewReason": "Mentions assisting the Administrator to respond to Chapter III GDPR rights, but lacks any numeric timelines or extension rules.",
       "exclusionReason": "role_budget:context"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_144305d331f96bd2e853c93c",
-      "ref": "dsn_144305d331f96bd2e853c93c",
+      "spanId": "dsn_1ebfea52bb8df0c6223358b1",
+      "ref": "dsn_1ebfea52bb8df0c6223358b1",
       "denseRank": 9,
       "lexicalRank": 1,
       "selectedBy": [
@@ -187,13 +187,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.99,
-      "reviewReason": "Relates to security incident notification timing, not data subject request deadlines.",
+      "reviewReason": "Relates to incident notification timelines, not data subject request responses.",
       "exclusionReason": "rejected:irrelevant:0.99"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_c0beac56f3ff660f0a24ac59",
-      "ref": "dsn_c0beac56f3ff660f0a24ac59",
+      "spanId": "dsn_25fb103d7f3979b3db5b4e93",
+      "ref": "dsn_25fb103d7f3979b3db5b4e93",
       "denseRank": 24,
       "lexicalRank": 13,
       "selectedBy": [
@@ -205,13 +205,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.99,
-      "reviewReason": "Defines categories of data subjects; does not address request response timelines.",
+      "reviewReason": "Describes categories of data subjects, irrelevant to response timing.",
       "exclusionReason": "rejected:irrelevant:0.99"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_d110a9e2a460c527c94868fc",
-      "ref": "dsn_d110a9e2a460c527c94868fc",
+      "spanId": "dsn_e5b0309b428481f261faa5ae",
+      "ref": "dsn_e5b0309b428481f261faa5ae",
       "denseRank": 3,
       "lexicalRank": null,
       "selectedBy": [
@@ -222,13 +222,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.99,
-      "reviewReason": "Relates to sub-processor obligations.",
+      "reviewReason": "Sub-processor obligations clause, irrelevant to response timing.",
       "exclusionReason": "rejected:irrelevant:0.99"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_7f43008b758f2aee95efbc2d",
-      "ref": "dsn_7f43008b758f2aee95efbc2d",
+      "spanId": "dsn_2125074ad1bb07e3c1757cb8",
+      "ref": "dsn_2125074ad1bb07e3c1757cb8",
       "denseRank": 22,
       "lexicalRank": null,
       "selectedBy": [
@@ -239,13 +239,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.99,
-      "reviewReason": "Relates to compliance information and on-site audit rights.",
+      "reviewReason": "Audit and inspection clause, irrelevant to data subject request response timing.",
       "exclusionReason": "rejected:irrelevant:0.99"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_a8296cc97880396a3c09b65a",
-      "ref": "dsn_a8296cc97880396a3c09b65a",
+      "spanId": "dsn_f17e3523d7a21aaec8bbe820",
+      "ref": "dsn_f17e3523d7a21aaec8bbe820",
       "denseRank": 6,
       "lexicalRank": 7,
       "selectedBy": [
@@ -257,13 +257,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.99,
-      "reviewReason": "Describes categories of personal data.",
+      "reviewReason": "Describes categories of personal data, irrelevant to response timing.",
       "exclusionReason": "rejected:irrelevant:0.99"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_f757df4df94344b796557923",
-      "ref": "dsn_f757df4df94344b796557923",
+      "spanId": "dsn_191ea53292dd281923ae7e6a",
+      "ref": "dsn_191ea53292dd281923ae7e6a",
       "denseRank": 5,
       "lexicalRank": null,
       "selectedBy": [
@@ -274,13 +274,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.99,
-      "reviewReason": "Relates to details included in data incident notifications.",
+      "reviewReason": "Data Incident notification details, irrelevant to data subject request response timing.",
       "exclusionReason": "rejected:irrelevant:0.99"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_15887cd108208cc38846377e",
-      "ref": "dsn_15887cd108208cc38846377e",
+      "spanId": "dsn_7b69fcaa2dece4b5ae3d6510",
+      "ref": "dsn_7b69fcaa2dece4b5ae3d6510",
       "denseRank": 8,
       "lexicalRank": null,
       "selectedBy": [
@@ -291,13 +291,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.99,
-      "reviewReason": "Heading fragment regarding sub-processor objection rights.",
+      "reviewReason": "Sub-processor objection heading, irrelevant.",
       "exclusionReason": "rejected:irrelevant:0.99"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_bcb3ec58187df1e6dbdd39d9",
-      "ref": "dsn_bcb3ec58187df1e6dbdd39d9",
+      "spanId": "dsn_148d7720cbd90e1a299360eb",
+      "ref": "dsn_148d7720cbd90e1a299360eb",
       "denseRank": 10,
       "lexicalRank": null,
       "selectedBy": [
@@ -308,13 +308,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.99,
-      "reviewReason": "Relates to delivery methods for data incident notifications.",
+      "reviewReason": "Data Incident notification delivery, irrelevant.",
       "exclusionReason": "rejected:irrelevant:0.99"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_c05fa018fa644f06d2b63eec",
-      "ref": "dsn_c05fa018fa644f06d2b63eec",
+      "spanId": "dsn_0757cc4533d6b52deb55b909",
+      "ref": "dsn_0757cc4533d6b52deb55b909",
       "denseRank": 11,
       "lexicalRank": null,
       "selectedBy": [
@@ -325,13 +325,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.99,
-      "reviewReason": "Relates to demonstrating compliance regarding security measures.",
+      "reviewReason": "Demonstration of security compliance, irrelevant.",
       "exclusionReason": "rejected:irrelevant:0.99"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_ca31b13eae9aecb68d627007",
-      "ref": "dsn_ca31b13eae9aecb68d627007",
+      "spanId": "dsn_24eb57801bdc5ca4425df8c7",
+      "ref": "dsn_24eb57801bdc5ca4425df8c7",
       "denseRank": 12,
       "lexicalRank": null,
       "selectedBy": [
@@ -342,13 +342,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.99,
-      "reviewReason": "Relates to third-party breach notification responsibilities.",
+      "reviewReason": "Breach notification responsibilities to third parties, irrelevant.",
       "exclusionReason": "rejected:irrelevant:0.99"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_e7446528db11cdfcd590169b",
-      "ref": "dsn_e7446528db11cdfcd590169b",
+      "spanId": "dsn_1b5e4f270bc3015302f01d2c",
+      "ref": "dsn_1b5e4f270bc3015302f01d2c",
       "denseRank": 13,
       "lexicalRank": null,
       "selectedBy": [
@@ -359,19 +359,19 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.99,
-      "reviewReason": "Describes Appendix 1 scope.",
+      "reviewReason": "Describes subject matter of processing in Appendix 1, irrelevant.",
       "exclusionReason": "rejected:irrelevant:0.99"
     }
   ],
   "expansions": [],
   "expansionLimits": [],
   "bundle": {
-    "bundleId": "INV-gdpr.art12.3-doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+    "bundleId": "INV-gdpr.art12.3-doc_55b11721-46b1-4d95-a000-93e5f5986fcc",
     "requirementId": "gdpr.art12.3",
     "items": [
       {
-        "spanId": "dsn_1430eff3dd13d7608aff0cf5",
-        "ref": "dsn_1430eff3dd13d7608aff0cf5",
+        "spanId": "dsn_2f041fb516e953b52f7d4221",
+        "ref": "dsn_2f041fb516e953b52f7d4221",
         "quotedText": "4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, correction, amendment, restriction, deletion or exercising any other rights under the GDPR or other Data Protection Legislation of that person's Personal Data. Alaio shall not respond to any such Data Subject request without Administrator´s  prior written consent except to confirm that the request relates to User. Alaio shall provide Administrator with cooperation and assistance in relation to handling of a Data Sub ject's request for access to that person's Personal Data or exercising any other rights under the GDPR or other Data Protection Legislation, to the extent legally permitted and to the extent User does not have access to such Personal Data through its use or receipt of the Services.",
         "structuralPath": "document.clause_4.subclause_4.2",
         "charRange": [
@@ -379,7 +379,7 @@
           14205
         ],
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "documentId": "doc_55b11721-46b1-4d95-a000-93e5f5986fcc",
           "structuralPath": "document.clause_4.subclause_4.2",
           "relationship": "unspecified"
         },
@@ -387,7 +387,7 @@
         "evidenceRole": "context",
         "contributesToElementIds": [],
         "investigationConfidence": 0.95,
-        "investigationReason": "This clause deals with processor notification and assistance regarding data subject requests, but contains no specific numeric response deadline, extension rules, or data subject notice timing required by Article 12(3).",
+        "investigationReason": "This clause deals with notification of data subject requests to the Administrator and general assistance, but lacks any specific numeric response deadlines or rules regarding extensions.",
         "retrievalChannels": [
           "exact",
           "sparse",
@@ -403,93 +403,93 @@
       {
         "partitionId": "P1",
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5"
+          "documentId": "doc_55b11721-46b1-4d95-a000-93e5f5986fcc"
         },
         "itemSpanIds": [
-          "dsn_1430eff3dd13d7608aff0cf5"
+          "dsn_2f041fb516e953b52f7d4221"
         ]
       }
     ],
     "exclusions": [
       {
-        "spanId": "dsn_50fb817ad52c9c7410c8ea64",
+        "spanId": "dsn_23042867e78d0782408cfd1f",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.99"
       },
       {
-        "spanId": "dsn_f2dafe5d7683ce0c2367607c",
+        "spanId": "dsn_1e1c134d4b3478ef673bcfbc",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.99"
       },
       {
-        "spanId": "dsn_009b36df8e35a8a4fb93e7e1",
+        "spanId": "dsn_7c994770002d18add4f74075",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.99"
       },
       {
-        "spanId": "dsn_144305d331f96bd2e853c93c",
+        "spanId": "dsn_1ebfea52bb8df0c6223358b1",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.99"
       },
       {
-        "spanId": "dsn_c0beac56f3ff660f0a24ac59",
+        "spanId": "dsn_25fb103d7f3979b3db5b4e93",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.99"
       },
       {
-        "spanId": "dsn_d110a9e2a460c527c94868fc",
+        "spanId": "dsn_e5b0309b428481f261faa5ae",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.99"
       },
       {
-        "spanId": "dsn_7f43008b758f2aee95efbc2d",
+        "spanId": "dsn_2125074ad1bb07e3c1757cb8",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.99"
       },
       {
-        "spanId": "dsn_a8296cc97880396a3c09b65a",
+        "spanId": "dsn_f17e3523d7a21aaec8bbe820",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.99"
       },
       {
-        "spanId": "dsn_f757df4df94344b796557923",
+        "spanId": "dsn_191ea53292dd281923ae7e6a",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.99"
       },
       {
-        "spanId": "dsn_15887cd108208cc38846377e",
+        "spanId": "dsn_7b69fcaa2dece4b5ae3d6510",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.99"
       },
       {
-        "spanId": "dsn_bcb3ec58187df1e6dbdd39d9",
+        "spanId": "dsn_148d7720cbd90e1a299360eb",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.99"
       },
       {
-        "spanId": "dsn_c05fa018fa644f06d2b63eec",
+        "spanId": "dsn_0757cc4533d6b52deb55b909",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.99"
       },
       {
-        "spanId": "dsn_ca31b13eae9aecb68d627007",
+        "spanId": "dsn_24eb57801bdc5ca4425df8c7",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.99"
       },
       {
-        "spanId": "dsn_e7446528db11cdfcd590169b",
+        "spanId": "dsn_1b5e4f270bc3015302f01d2c",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.99"
       },
       {
-        "spanId": "dsn_f894793c875b7b2c74037e13",
+        "spanId": "dsn_af15119e9597b2ed0fef9752",
         "reason": "role_budget",
         "detail": "role_budget:context"
       }
     ],
     "dependencies": [
       {
-        "reference": "dsn_1430eff3dd13d7608aff0cf5:external_reference",
+        "reference": "dsn_2f041fb516e953b52f7d4221:external_reference",
         "state": "unresolved_external",
         "targetSpanIds": []
       }
