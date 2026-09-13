@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { groupAssessmentsForReport } from "../group-assessments.js";
-import { deriveRequirementStatus } from "../requirement-status-policy.js";
+import { groupAssessmentsForReport } from "../../../shared/group-assessments.js";
+import { deriveRequirementStatus } from "../shared/requirement-status-policy.js";
 import {
   SYNTHESIS_SYSTEM_PROMPT,
   buildSectionSynthesisUserPrompt,

@@ -1,0 +1,1666 @@
+{
+  "sessionId": "an_0b0a52f3-fe9e-4448-96aa-a77e86c92359",
+  "stage": "investigation_complete",
+  "dumpedAt": "2026-09-12T11:18:56.617Z",
+  "requirementCount": 10,
+  "meta": {
+    "investigationPath": "graph_native",
+    "graphNativeMode": "canonical",
+    "swappedIntoVerify": true,
+    "note": "Graph-native bundles are canonical for verify; latest.json matches verify input."
+  },
+  "results": [
+    {
+      "requirementId": "gdpr.art44",
+      "packageId": "rule:regimes/data-protection/gdpr",
+      "recall": {
+        "requirementId": "gdpr.art44",
+        "uniqueCandidateCount": 16,
+        "elementsWithCandidates": [
+          "primary"
+        ],
+        "elementsWithoutCandidates": [],
+        "totalQueries": 28
+      },
+      "queries": [],
+      "hits": [],
+      "expansions": [],
+      "expansionLimits": [],
+      "bundle": {
+        "bundleId": "INV-gdpr.art44-doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80",
+        "requirementId": "gdpr.art44",
+        "items": [
+          {
+            "spanId": "dsn_24ae81e8983ae5911a4d288f",
+            "ref": "dsn_24ae81e8983ae5911a4d288f",
+            "quotedText": "11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguards under article 46 GDPR, specifically by the Standard Contractual Clauses adopted by the European Commission in accordance with the examination procedure. European Commission decided that standard contractual clauses offer sufficient safeguards on data protection for the data to be transferred internationally. You have a right to request information on those contractual safeguards (Please contact our Data Protection Officer).",
+            "structuralPath": "document.subclause_11.4",
+            "charRange": [
+              26971,
+              27560
+            ],
+            "scope": {
+              "documentId": "doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80",
+              "structuralPath": "document.subclause_11.4"
+            },
+            "source": "seed",
+            "evidenceRole": "supporting",
+            "contributesToElementIds": [
+              "primary"
+            ],
+            "investigationConfidence": 0.85
+          },
+          {
+            "spanId": "dsn_2e545ef0a9e9188feb6217c8",
+            "ref": "dsn_2e545ef0a9e9188feb6217c8",
+            "quotedText": "The terms 'Data controller' , 'Data sub ject' , 'Personal data' , 'Processing' , 'Data processor' and 'Supervisory authority' as used in this DPA have the meanings given in the Data Protection Legislation.",
+            "structuralPath": "document.clause_1.subclause_1.1.paragraph_33",
+            "charRange": [
+              8138,
+              8343
+            ],
+            "scope": {
+              "documentId": "doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80",
+              "structuralPath": "document.clause_1.subclause_1.1.paragraph_33"
+            },
+            "source": "expansion",
+            "evidenceRole": "definition",
+            "contributesToElementIds": [],
+            "investigationConfidence": 0.95
+          },
+          {
+            "spanId": "dsn_5ceb53a79d6dd6c001bfc5e7",
+            "ref": "dsn_5ceb53a79d6dd6c001bfc5e7",
+            "quotedText": "The supervisory authority of the single establishment of Alaio within the EEA competent to act  as  lead  supervisory  authority  for  the  cross-border  processing  carried  out  by  that processor in accordance with the procedure provided in Article 60 of GDPR is the supervisory authority of Cyprus.",
+            "structuralPath": "document.clause_12.subclause_12.3.paragraph_107",
+            "charRange": [
+              28716,
+              29018
+            ],
+            "scope": {
+              "documentId": "doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80",
+              "structuralPath": "document.clause_12.subclause_12.3.paragraph_107"
+            },
+            "source": "expansion",
+            "evidenceRole": "context",
+            "contributesToElementIds": [],
+            "investigationConfidence": 0.9
+          }
+        ],
+        "partitions": [
+          {
+            "partitionId": "P1",
+            "scope": {
+              "documentId": "doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80"
+            },
+            "itemSpanIds": [
+              "dsn_24ae81e8983ae5911a4d288f",
+              "dsn_2e545ef0a9e9188feb6217c8",
+              "dsn_5ceb53a79d6dd6c001bfc5e7"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "spanId": "dsn_5c07f83ff2dea33adaf4e2d3",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_619d247fb3ebbb2799880042",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_6c2a2930f03343a5e85c1c01",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_dc073aaa0893991614a5fdca",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_0c24af872092cbe88fb069b5",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_ef759c6680c458f957d27d90",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_86bddcb3dd877fb9fac6356f",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_96a8db7bdfc19bdc0b7aeab3",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_288af536174fd8d916822c2a",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_856751fd4ef90cc8952fbd04",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_74913ffbcb13fd6f551bab3f",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_fc69f03f6dc4d358123b7c42",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_f8134ba92ca0aa1140810914",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          }
+        ],
+        "dependencies": [
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:external_reference",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_5ceb53a79d6dd6c001bfc5e7:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_5ceb53a79d6dd6c001bfc5e7:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          }
+        ],
+        "estimatedTokens": 274,
+        "investigationComplete": false,
+        "incompleteReasons": [
+          "primary_evidence_missing"
+        ]
+      }
+    },
+    {
+      "requirementId": "gdpr.art45.1",
+      "packageId": "rule:regimes/data-protection/gdpr",
+      "recall": {
+        "requirementId": "gdpr.art45.1",
+        "uniqueCandidateCount": 16,
+        "elementsWithCandidates": [],
+        "elementsWithoutCandidates": [
+          "primary"
+        ],
+        "totalQueries": 25
+      },
+      "queries": [],
+      "hits": [],
+      "expansions": [],
+      "expansionLimits": [],
+      "bundle": {
+        "bundleId": "INV-gdpr.art45.1-doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80",
+        "requirementId": "gdpr.art45.1",
+        "items": [
+          {
+            "spanId": "dsn_24ae81e8983ae5911a4d288f",
+            "ref": "dsn_24ae81e8983ae5911a4d288f",
+            "quotedText": "11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguards under article 46 GDPR, specifically by the Standard Contractual Clauses adopted by the European Commission in accordance with the examination procedure. European Commission decided that standard contractual clauses offer sufficient safeguards on data protection for the data to be transferred internationally. You have a right to request information on those contractual safeguards (Please contact our Data Protection Officer).",
+            "structuralPath": "document.subclause_11.4",
+            "charRange": [
+              26971,
+              27560
+            ],
+            "scope": {
+              "documentId": "doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80",
+              "structuralPath": "document.subclause_11.4"
+            },
+            "source": "expansion",
+            "evidenceRole": "context",
+            "contributesToElementIds": [],
+            "investigationConfidence": 0.9
+          }
+        ],
+        "partitions": [
+          {
+            "partitionId": "P1",
+            "scope": {
+              "documentId": "doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80"
+            },
+            "itemSpanIds": [
+              "dsn_24ae81e8983ae5911a4d288f"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "spanId": "dsn_5ceb53a79d6dd6c001bfc5e7",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_86bddcb3dd877fb9fac6356f",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_1448eb17bd38f803940e4ebd",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_ef759c6680c458f957d27d90",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_288af536174fd8d916822c2a",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_74913ffbcb13fd6f551bab3f",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_51edafea18a602ad3365caba",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_ac9cd643d3257e85cc85c0f4",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_0c24af872092cbe88fb069b5",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_619d247fb3ebbb2799880042",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_dc073aaa0893991614a5fdca",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_4e296e02cb0615aa06241481",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_e922d143e2bbea18b763c5fd",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_fc69f03f6dc4d358123b7c42",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_f8134ba92ca0aa1140810914",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          }
+        ],
+        "dependencies": [
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:external_reference",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          }
+        ],
+        "estimatedTokens": 148,
+        "investigationComplete": false,
+        "incompleteReasons": [
+          "primary_evidence_missing",
+          "element_unresolved:primary"
+        ]
+      }
+    },
+    {
+      "requirementId": "gdpr.art46",
+      "packageId": "rule:regimes/data-protection/gdpr",
+      "recall": {
+        "requirementId": "gdpr.art46",
+        "uniqueCandidateCount": 16,
+        "elementsWithCandidates": [
+          "primary"
+        ],
+        "elementsWithoutCandidates": [],
+        "totalQueries": 27
+      },
+      "queries": [],
+      "hits": [],
+      "expansions": [],
+      "expansionLimits": [],
+      "bundle": {
+        "bundleId": "INV-gdpr.art46-doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80",
+        "requirementId": "gdpr.art46",
+        "items": [
+          {
+            "spanId": "dsn_24ae81e8983ae5911a4d288f",
+            "ref": "dsn_24ae81e8983ae5911a4d288f",
+            "quotedText": "11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguards under article 46 GDPR, specifically by the Standard Contractual Clauses adopted by the European Commission in accordance with the examination procedure. European Commission decided that standard contractual clauses offer sufficient safeguards on data protection for the data to be transferred internationally. You have a right to request information on those contractual safeguards (Please contact our Data Protection Officer).",
+            "structuralPath": "document.subclause_11.4",
+            "charRange": [
+              26971,
+              27560
+            ],
+            "scope": {
+              "documentId": "doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80",
+              "structuralPath": "document.subclause_11.4"
+            },
+            "source": "seed",
+            "evidenceRole": "primary",
+            "contributesToElementIds": [
+              "primary"
+            ],
+            "investigationConfidence": 0.95
+          },
+          {
+            "spanId": "dsn_e922d143e2bbea18b763c5fd",
+            "ref": "dsn_e922d143e2bbea18b763c5fd",
+            "quotedText": "3.1 Alaio may process User Personal Data in Russian Federation subject to appropriate safeguards under article 46 GDPR (see schedule 11.4) and in the USA (see schedules 11.3.2 and 11.3.3)",
+            "structuralPath": "document.subclause_3.1",
+            "charRange": [
+              23859,
+              24046
+            ],
+            "scope": {
+              "documentId": "doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80",
+              "structuralPath": "document.subclause_3.1"
+            },
+            "source": "expansion",
+            "evidenceRole": "dependency",
+            "contributesToElementIds": [
+              "primary"
+            ],
+            "investigationConfidence": 0.9
+          },
+          {
+            "spanId": "dsn_602beabb97ed51c21c2032db",
+            "ref": "dsn_602beabb97ed51c21c2032db",
+            "quotedText": "4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Personal Data, as required by Data Protection Legislation, Alaio will (taking into account the nature of the processing of Personal Data and, if applicable, Article 11 of the GDPR) assist Administrator in fulfilling any obligation of Administrator to respond to requests by data subjects, including (if applicable) Administrator´s  obligation to respond to requests for exercising the data sub ject's rights laid down in Chapter III of the GDPR and other Data Protection Legislation, by providing the functionality of the Processor Services;",
+            "structuralPath": "document.clause_4.subclause_4.1",
+            "charRange": [
+              12695,
+              13362
+            ],
+            "scope": {
+              "documentId": "doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80",
+              "structuralPath": "document.clause_4.subclause_4.1"
+            },
+            "source": "expansion",
+            "evidenceRole": "context",
+            "contributesToElementIds": [],
+            "investigationConfidence": 0.85
+          }
+        ],
+        "partitions": [
+          {
+            "partitionId": "P1",
+            "scope": {
+              "documentId": "doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80"
+            },
+            "itemSpanIds": [
+              "dsn_24ae81e8983ae5911a4d288f",
+              "dsn_e922d143e2bbea18b763c5fd",
+              "dsn_602beabb97ed51c21c2032db"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "spanId": "dsn_5ceb53a79d6dd6c001bfc5e7",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_5c07f83ff2dea33adaf4e2d3",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_85ef68483103477e798eb82d",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_ac9cd643d3257e85cc85c0f4",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_86bddcb3dd877fb9fac6356f",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_534f7ed900d1b6106b2893a8",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_41f1854cecbc6fbd203f20c6",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_856751fd4ef90cc8952fbd04",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_288af536174fd8d916822c2a",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_b0316301870c1ead06ea25c5",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_b6e6af746dc37d04e1ca0ef0",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_f8134ba92ca0aa1140810914",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_fc69f03f6dc4d358123b7c42",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          }
+        ],
+        "dependencies": [
+          {
+            "reference": "dsn_602beabb97ed51c21c2032db:requires",
+            "state": "ambiguous",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_602beabb97ed51c21c2032db:requires",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_e922d143e2bbea18b763c5fd:subject_to",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_e922d143e2bbea18b763c5fd:subject_to",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_e922d143e2bbea18b763c5fd:refers_to",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_e922d143e2bbea18b763c5fd:subject_to",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:external_reference",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          }
+        ],
+        "estimatedTokens": 361,
+        "investigationComplete": false,
+        "incompleteReasons": [
+          "unresolved_required_dependency:dre_a8f4c521ba5f654d384330a7",
+          "unresolved_required_dependency:dre_72c3237cc3cb640b425fe34f",
+          "unresolved_required_dependency:dre_ad739ec0fe50b01aac8792be"
+        ]
+      }
+    },
+    {
+      "requirementId": "gdpr.art47",
+      "packageId": "rule:regimes/data-protection/gdpr",
+      "recall": {
+        "requirementId": "gdpr.art47",
+        "uniqueCandidateCount": 16,
+        "elementsWithCandidates": [],
+        "elementsWithoutCandidates": [
+          "primary"
+        ],
+        "totalQueries": 23
+      },
+      "queries": [],
+      "hits": [],
+      "expansions": [],
+      "expansionLimits": [],
+      "bundle": {
+        "bundleId": "INV-gdpr.art47-doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80",
+        "requirementId": "gdpr.art47",
+        "items": [
+          {
+            "spanId": "dsn_24ae81e8983ae5911a4d288f",
+            "ref": "dsn_24ae81e8983ae5911a4d288f",
+            "quotedText": "11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguards under article 46 GDPR, specifically by the Standard Contractual Clauses adopted by the European Commission in accordance with the examination procedure. European Commission decided that standard contractual clauses offer sufficient safeguards on data protection for the data to be transferred internationally. You have a right to request information on those contractual safeguards (Please contact our Data Protection Officer).",
+            "structuralPath": "document.subclause_11.4",
+            "charRange": [
+              26971,
+              27560
+            ],
+            "scope": {
+              "documentId": "doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80",
+              "structuralPath": "document.subclause_11.4"
+            },
+            "source": "expansion",
+            "evidenceRole": "context",
+            "contributesToElementIds": [],
+            "investigationConfidence": 0.9
+          }
+        ],
+        "partitions": [
+          {
+            "partitionId": "P1",
+            "scope": {
+              "documentId": "doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80"
+            },
+            "itemSpanIds": [
+              "dsn_24ae81e8983ae5911a4d288f"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "spanId": "dsn_5ceb53a79d6dd6c001bfc5e7",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_3ba3d753e28f37aa3506e3be",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_71ab04d6d1e00a915d846a7a",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_4e296e02cb0615aa06241481",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_f8134ba92ca0aa1140810914",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_ac9cd643d3257e85cc85c0f4",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_fc69f03f6dc4d358123b7c42",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_3836d9644b9d2b83be5c2f5d",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_b6e6af746dc37d04e1ca0ef0",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_602beabb97ed51c21c2032db",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_c7630ae469e1ef27b57bc5a6",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_856751fd4ef90cc8952fbd04",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_288af536174fd8d916822c2a",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_2a88c3a532e1801fc49be22e",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_f1518d11e45aeda464bffdbd",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          }
+        ],
+        "dependencies": [
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:external_reference",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          }
+        ],
+        "estimatedTokens": 148,
+        "investigationComplete": false,
+        "incompleteReasons": [
+          "primary_evidence_missing",
+          "element_unresolved:primary"
+        ]
+      }
+    },
+    {
+      "requirementId": "gdpr.art48",
+      "packageId": "rule:regimes/data-protection/gdpr",
+      "recall": {
+        "requirementId": "gdpr.art48",
+        "uniqueCandidateCount": 16,
+        "elementsWithCandidates": [],
+        "elementsWithoutCandidates": [
+          "primary"
+        ],
+        "totalQueries": 23
+      },
+      "queries": [],
+      "hits": [],
+      "expansions": [],
+      "expansionLimits": [],
+      "bundle": {
+        "bundleId": "INV-gdpr.art48-doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80",
+        "requirementId": "gdpr.art48",
+        "items": [
+          {
+            "spanId": "dsn_5ceb53a79d6dd6c001bfc5e7",
+            "ref": "dsn_5ceb53a79d6dd6c001bfc5e7",
+            "quotedText": "The supervisory authority of the single establishment of Alaio within the EEA competent to act  as  lead  supervisory  authority  for  the  cross-border  processing  carried  out  by  that processor in accordance with the procedure provided in Article 60 of GDPR is the supervisory authority of Cyprus.",
+            "structuralPath": "document.clause_12.subclause_12.3.paragraph_107",
+            "charRange": [
+              28716,
+              29018
+            ],
+            "scope": {
+              "documentId": "doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80",
+              "structuralPath": "document.clause_12.subclause_12.3.paragraph_107"
+            },
+            "source": "expansion",
+            "evidenceRole": "context",
+            "contributesToElementIds": [],
+            "investigationConfidence": 0.8
+          }
+        ],
+        "partitions": [
+          {
+            "partitionId": "P1",
+            "scope": {
+              "documentId": "doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80"
+            },
+            "itemSpanIds": [
+              "dsn_5ceb53a79d6dd6c001bfc5e7"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "spanId": "dsn_f8134ba92ca0aa1140810914",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_fc69f03f6dc4d358123b7c42",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_dc073aaa0893991614a5fdca",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_90b0c5b142cf25e7ad7f1fe2",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_b75702c30f067846cfca8e26",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_534f7ed900d1b6106b2893a8",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_3bae683de5283951eb7aab42",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_86bddcb3dd877fb9fac6356f",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_619d247fb3ebbb2799880042",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_42db5945fc5e7c1d71199539",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_ad8443287cc71167731b2e72",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_ef759c6680c458f957d27d90",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_24ae81e8983ae5911a4d288f",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_ac9cd643d3257e85cc85c0f4",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_b0316301870c1ead06ea25c5",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          }
+        ],
+        "dependencies": [
+          {
+            "reference": "dsn_5ceb53a79d6dd6c001bfc5e7:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_5ceb53a79d6dd6c001bfc5e7:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          }
+        ],
+        "estimatedTokens": 76,
+        "investigationComplete": false,
+        "incompleteReasons": [
+          "primary_evidence_missing",
+          "element_unresolved:primary"
+        ]
+      }
+    },
+    {
+      "requirementId": "gdpr.art49",
+      "packageId": "rule:regimes/data-protection/gdpr",
+      "recall": {
+        "requirementId": "gdpr.art49",
+        "uniqueCandidateCount": 16,
+        "elementsWithCandidates": [],
+        "elementsWithoutCandidates": [
+          "primary"
+        ],
+        "totalQueries": 19
+      },
+      "queries": [],
+      "hits": [],
+      "expansions": [],
+      "expansionLimits": [],
+      "bundle": {
+        "bundleId": "INV-gdpr.art49-doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80",
+        "requirementId": "gdpr.art49",
+        "items": [
+          {
+            "spanId": "dsn_24ae81e8983ae5911a4d288f",
+            "ref": "dsn_24ae81e8983ae5911a4d288f",
+            "quotedText": "11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguards under article 46 GDPR, specifically by the Standard Contractual Clauses adopted by the European Commission in accordance with the examination procedure. European Commission decided that standard contractual clauses offer sufficient safeguards on data protection for the data to be transferred internationally. You have a right to request information on those contractual safeguards (Please contact our Data Protection Officer).",
+            "structuralPath": "document.subclause_11.4",
+            "charRange": [
+              26971,
+              27560
+            ],
+            "scope": {
+              "documentId": "doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80",
+              "structuralPath": "document.subclause_11.4"
+            },
+            "source": "expansion",
+            "evidenceRole": "context",
+            "contributesToElementIds": [],
+            "investigationConfidence": 0.85
+          }
+        ],
+        "partitions": [
+          {
+            "partitionId": "P1",
+            "scope": {
+              "documentId": "doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80"
+            },
+            "itemSpanIds": [
+              "dsn_24ae81e8983ae5911a4d288f"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "spanId": "dsn_86bddcb3dd877fb9fac6356f",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_5ceb53a79d6dd6c001bfc5e7",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_ac9cd643d3257e85cc85c0f4",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_3772012cfa6664e3cf985faa",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_6b03d230318310d31bfc3db4",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_ef759c6680c458f957d27d90",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_42fde3311fe832ea40b00e3f",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_b6e6af746dc37d04e1ca0ef0",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_41f1854cecbc6fbd203f20c6",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_3836d9644b9d2b83be5c2f5d",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_86ea0663787335ddda4d2471",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_1251efaac7fddc3ac5645155",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_a8fe10b6ac981c1218e4544d",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_f8134ba92ca0aa1140810914",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_fc69f03f6dc4d358123b7c42",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          }
+        ],
+        "dependencies": [
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:external_reference",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          }
+        ],
+        "estimatedTokens": 148,
+        "investigationComplete": false,
+        "incompleteReasons": [
+          "primary_evidence_missing",
+          "element_unresolved:primary"
+        ]
+      }
+    },
+    {
+      "requirementId": "transfers.scc_module_selection",
+      "packageId": "rule:regimes/data-protection/international-transfers",
+      "recall": {
+        "requirementId": "transfers.scc_module_selection",
+        "uniqueCandidateCount": 16,
+        "elementsWithCandidates": [],
+        "elementsWithoutCandidates": [
+          "primary"
+        ],
+        "totalQueries": 27
+      },
+      "queries": [],
+      "hits": [],
+      "expansions": [],
+      "expansionLimits": [],
+      "bundle": {
+        "bundleId": "INV-transfers.scc_module_selection-doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80",
+        "requirementId": "transfers.scc_module_selection",
+        "items": [
+          {
+            "spanId": "dsn_24ae81e8983ae5911a4d288f",
+            "ref": "dsn_24ae81e8983ae5911a4d288f",
+            "quotedText": "11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguards under article 46 GDPR, specifically by the Standard Contractual Clauses adopted by the European Commission in accordance with the examination procedure. European Commission decided that standard contractual clauses offer sufficient safeguards on data protection for the data to be transferred internationally. You have a right to request information on those contractual safeguards (Please contact our Data Protection Officer).",
+            "structuralPath": "document.subclause_11.4",
+            "charRange": [
+              26971,
+              27560
+            ],
+            "scope": {
+              "documentId": "doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80",
+              "structuralPath": "document.subclause_11.4"
+            },
+            "source": "expansion",
+            "evidenceRole": "context",
+            "contributesToElementIds": [],
+            "investigationConfidence": 0.85
+          }
+        ],
+        "partitions": [
+          {
+            "partitionId": "P1",
+            "scope": {
+              "documentId": "doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80"
+            },
+            "itemSpanIds": [
+              "dsn_24ae81e8983ae5911a4d288f"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "spanId": "dsn_86bddcb3dd877fb9fac6356f",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_c81e6131af938e77945791b7",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_2cfb070349cca7221208877f",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_85ef68483103477e798eb82d",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_5ceb53a79d6dd6c001bfc5e7",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_3ba3d753e28f37aa3506e3be",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_856751fd4ef90cc8952fbd04",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_39cf6ee0ff503a93e6e01fc3",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_8631091d68ca7c983090b5ba",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_3bae683de5283951eb7aab42",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_42db5945fc5e7c1d71199539",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_5c07f83ff2dea33adaf4e2d3",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_4e296e02cb0615aa06241481",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_fc69f03f6dc4d358123b7c42",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_f8134ba92ca0aa1140810914",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          }
+        ],
+        "dependencies": [
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:external_reference",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          }
+        ],
+        "estimatedTokens": 148,
+        "investigationComplete": false,
+        "incompleteReasons": [
+          "primary_evidence_missing",
+          "element_unresolved:primary"
+        ]
+      }
+    },
+    {
+      "requirementId": "transfers.scc_docking",
+      "packageId": "rule:regimes/data-protection/international-transfers",
+      "recall": {
+        "requirementId": "transfers.scc_docking",
+        "uniqueCandidateCount": 16,
+        "elementsWithCandidates": [],
+        "elementsWithoutCandidates": [
+          "primary"
+        ],
+        "totalQueries": 27
+      },
+      "queries": [],
+      "hits": [],
+      "expansions": [],
+      "expansionLimits": [],
+      "bundle": {
+        "bundleId": "INV-transfers.scc_docking-doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80",
+        "requirementId": "transfers.scc_docking",
+        "items": [
+          {
+            "spanId": "dsn_24ae81e8983ae5911a4d288f",
+            "ref": "dsn_24ae81e8983ae5911a4d288f",
+            "quotedText": "11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguards under article 46 GDPR, specifically by the Standard Contractual Clauses adopted by the European Commission in accordance with the examination procedure. European Commission decided that standard contractual clauses offer sufficient safeguards on data protection for the data to be transferred internationally. You have a right to request information on those contractual safeguards (Please contact our Data Protection Officer).",
+            "structuralPath": "document.subclause_11.4",
+            "charRange": [
+              26971,
+              27560
+            ],
+            "scope": {
+              "documentId": "doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80",
+              "structuralPath": "document.subclause_11.4"
+            },
+            "source": "expansion",
+            "evidenceRole": "context",
+            "contributesToElementIds": [],
+            "investigationConfidence": 0.8
+          }
+        ],
+        "partitions": [
+          {
+            "partitionId": "P1",
+            "scope": {
+              "documentId": "doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80"
+            },
+            "itemSpanIds": [
+              "dsn_24ae81e8983ae5911a4d288f"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "spanId": "dsn_86bddcb3dd877fb9fac6356f",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_c81e6131af938e77945791b7",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_2cfb070349cca7221208877f",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_85ef68483103477e798eb82d",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_5ceb53a79d6dd6c001bfc5e7",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_3ba3d753e28f37aa3506e3be",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_856751fd4ef90cc8952fbd04",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_39cf6ee0ff503a93e6e01fc3",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_fc69f03f6dc4d358123b7c42",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_f8134ba92ca0aa1140810914",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_8631091d68ca7c983090b5ba",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_3bae683de5283951eb7aab42",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_42db5945fc5e7c1d71199539",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_5c07f83ff2dea33adaf4e2d3",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_4e296e02cb0615aa06241481",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          }
+        ],
+        "dependencies": [
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:external_reference",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          }
+        ],
+        "estimatedTokens": 148,
+        "investigationComplete": false,
+        "incompleteReasons": [
+          "primary_evidence_missing",
+          "element_unresolved:primary"
+        ]
+      }
+    },
+    {
+      "requirementId": "transfers.tia_documented",
+      "packageId": "rule:regimes/data-protection/international-transfers",
+      "recall": {
+        "requirementId": "transfers.tia_documented",
+        "uniqueCandidateCount": 16,
+        "elementsWithCandidates": [],
+        "elementsWithoutCandidates": [
+          "primary"
+        ],
+        "totalQueries": 25
+      },
+      "queries": [],
+      "hits": [],
+      "expansions": [],
+      "expansionLimits": [],
+      "bundle": {
+        "bundleId": "INV-transfers.tia_documented-doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80",
+        "requirementId": "transfers.tia_documented",
+        "items": [
+          {
+            "spanId": "dsn_42fde3311fe832ea40b00e3f",
+            "ref": "dsn_42fde3311fe832ea40b00e3f",
+            "quotedText": "Upon Administrator´s  request, Alaio will assist Administrator in ensuring compliance with any obligations of Administrator in respect of data protection impact assessments and prior consultation, including (if applicable) Administrator´s  obligations pursuant to Articles 35 and 36 of the GDPR, to the extent User does not otherwise have access to the relevant information, and to the extent such information is available to Alaio. Alaio shall provide reasonable assistance to Administrator in the cooperation or prior consultation with the Supervisory Authority in the performance of its tasks.",
+            "structuralPath": "document.clause_10.paragraph_87",
+            "charRange": [
+              22258,
+              22854
+            ],
+            "scope": {
+              "documentId": "doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80",
+              "structuralPath": "document.clause_10.paragraph_87"
+            },
+            "source": "expansion",
+            "evidenceRole": "context",
+            "contributesToElementIds": [],
+            "investigationConfidence": 0.85
+          }
+        ],
+        "partitions": [
+          {
+            "partitionId": "P1",
+            "scope": {
+              "documentId": "doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80"
+            },
+            "itemSpanIds": [
+              "dsn_42fde3311fe832ea40b00e3f"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "spanId": "dsn_86bddcb3dd877fb9fac6356f",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_2cfb070349cca7221208877f",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_4e296e02cb0615aa06241481",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_c81e6131af938e77945791b7",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_85ef68483103477e798eb82d",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_856751fd4ef90cc8952fbd04",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_288af536174fd8d916822c2a",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_39cf6ee0ff503a93e6e01fc3",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_4bae7c8e3bc255c1cd170cb9",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_aa980e9c30a42f32b52c7382",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_3bae683de5283951eb7aab42",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_2a88c3a532e1801fc49be22e",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_b3e98c7222256f853eb649ef",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_61b7941fb54e12a95b2a9c62",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_24ae81e8983ae5911a4d288f",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          }
+        ],
+        "dependencies": [
+          {
+            "reference": "dsn_42fde3311fe832ea40b00e3f:refers_to",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_42fde3311fe832ea40b00e3f:external_reference",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          }
+        ],
+        "estimatedTokens": 149,
+        "investigationComplete": false,
+        "incompleteReasons": [
+          "primary_evidence_missing",
+          "element_unresolved:primary"
+        ]
+      }
+    },
+    {
+      "requirementId": "transfers.supplementary_measures",
+      "packageId": "rule:regimes/data-protection/international-transfers",
+      "recall": {
+        "requirementId": "transfers.supplementary_measures",
+        "uniqueCandidateCount": 16,
+        "elementsWithCandidates": [],
+        "elementsWithoutCandidates": [
+          "primary"
+        ],
+        "totalQueries": 25
+      },
+      "queries": [],
+      "hits": [],
+      "expansions": [],
+      "expansionLimits": [],
+      "bundle": {
+        "bundleId": "INV-transfers.supplementary_measures-doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80",
+        "requirementId": "transfers.supplementary_measures",
+        "items": [
+          {
+            "spanId": "dsn_24ae81e8983ae5911a4d288f",
+            "ref": "dsn_24ae81e8983ae5911a4d288f",
+            "quotedText": "11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguards under article 46 GDPR, specifically by the Standard Contractual Clauses adopted by the European Commission in accordance with the examination procedure. European Commission decided that standard contractual clauses offer sufficient safeguards on data protection for the data to be transferred internationally. You have a right to request information on those contractual safeguards (Please contact our Data Protection Officer).",
+            "structuralPath": "document.subclause_11.4",
+            "charRange": [
+              26971,
+              27560
+            ],
+            "scope": {
+              "documentId": "doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80",
+              "structuralPath": "document.subclause_11.4"
+            },
+            "source": "expansion",
+            "evidenceRole": "context",
+            "contributesToElementIds": [],
+            "investigationConfidence": 0.85
+          }
+        ],
+        "partitions": [
+          {
+            "partitionId": "P1",
+            "scope": {
+              "documentId": "doc_0fd85dad-823c-40a4-9e1f-f34e0aa66f80"
+            },
+            "itemSpanIds": [
+              "dsn_24ae81e8983ae5911a4d288f"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "spanId": "dsn_42fde3311fe832ea40b00e3f",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_86bddcb3dd877fb9fac6356f",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_2cfb070349cca7221208877f",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_4e296e02cb0615aa06241481",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_c81e6131af938e77945791b7",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_85ef68483103477e798eb82d",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_856751fd4ef90cc8952fbd04",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_288af536174fd8d916822c2a",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_39cf6ee0ff503a93e6e01fc3",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_4bae7c8e3bc255c1cd170cb9",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_aa980e9c30a42f32b52c7382",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_3bae683de5283951eb7aab42",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_2a88c3a532e1801fc49be22e",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_b3e98c7222256f853eb649ef",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_61b7941fb54e12a95b2a9c62",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          }
+        ],
+        "dependencies": [
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:procedure_provided_by",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_24ae81e8983ae5911a4d288f:external_reference",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          }
+        ],
+        "estimatedTokens": 148,
+        "investigationComplete": false,
+        "incompleteReasons": [
+          "primary_evidence_missing",
+          "element_unresolved:primary"
+        ]
+      }
+    }
+  ]
+}

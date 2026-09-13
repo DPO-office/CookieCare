@@ -7,6 +7,7 @@ import type { AnalysisSkillConfig } from "../skills/runtime/catalog/types.js";
 import type { AnalysisCapabilityContract } from "../capabilities/contracts/analysis-capability-contract.js";
 
 export type AnalysisToolName =
+  | "run_compliance_pipeline"
   | "classify_document"
   | "extract_clauses"
   | "check_expected_clauses"
@@ -24,6 +25,7 @@ export type AnalysisToolName =
   | "merge_branch_outputs";
 
 export type AnalysisOutputSchema =
+  | "ComplianceReportSnapshot"
   | "ClauseObject[]"
   | "Finding[]"
   | "DiffResult"
@@ -116,6 +118,47 @@ export interface RequirementBinding {
   source: RequirementBindingSource;
   /** Which compound facet this binding belongs to (Phase 7); undefined = single-intent. */
   facetId?: string;
+}
+
+/**
+ * Rule-first compliance requirement resolution — kept parallel to
+ * `RequirementBinding` rather than replacing it, since non-compliance
+ * package operations and unmigrated regimes still rely on the package-owned
+ * binding shape above. Populated only for `compliance_check` when at least
+ * one active skill has rule-first (`investigation`-populated) regimeRules.
+ */
+export interface ComplianceRequestFacet {
+  facetId: string;
+  sourceText: string;
+  legalReferences: string[];
+  actors: string[];
+  actions: string[];
+  objects: string[];
+}
+
+export type ComplianceRequirementSelectionSource =
+  | "exact_citation"
+  | "article_range"
+  | "composition"
+  | "lexical"
+  | "semantic"
+  | "dependency";
+
+export interface ComplianceRequirementSelection {
+  facetId: string;
+  skillId: string;
+  ruleId: string;
+  source: ComplianceRequirementSelectionSource;
+  confidence: number;
+  required: boolean;
+  reason: string;
+}
+
+export interface ComplianceRequirementResolution {
+  facets: ComplianceRequestFacet[];
+  selections: ComplianceRequirementSelection[];
+  unresolved: Array<{ facetId: string; sourceText: string; reason: string }>;
+  complete: boolean;
 }
 
 /** Semantic requirement extracted from the user's instruction (not just keywords). */
@@ -310,6 +353,8 @@ export interface AnalysisPlan {
   requirementExecutionPaths?: RequirementExecutionPath[];
   /** Cached Phase 2 request-to-package-native joins; never re-derived in ACT/LOCK. */
   requirementBindings?: RequirementBinding[];
+  /** Rule-first compliance resolution (diagnostics + canonical-mode requirementIds source). */
+  complianceRequirementResolution?: ComplianceRequirementResolution;
   /** Surfaced target/reference decision (§5.1) — see DocumentRoleResolution. */
   documentRoleResolution?: DocumentRoleResolution;
   /** Pack / taxonomy versions pinned for audit reproducibility. */

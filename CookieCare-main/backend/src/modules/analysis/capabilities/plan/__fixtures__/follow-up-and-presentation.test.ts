@@ -16,6 +16,7 @@ import {
 import { replicateGraphForTargets } from "../../../skills/runtime/graph/replicate-graph-for-targets.js";
 import type { AnalysisWorkUnit } from "../../../models/analysis-plan.js";
 import type { PackageResolution } from "../../../skills/runtime/graph/resolve-packages.js";
+import { mixedOperationClarification } from "../build-plan.js";
 
 const PRIOR: IntentClassification = {
   scope: "whole_document",
@@ -55,6 +56,18 @@ describe("presentation heuristics", () => {
 });
 
 describe("follow-up kind", () => {
+  it("requires mixed operations to be submitted as separate requests", () => {
+    const clarification = mixedOperationClarification({
+      ...PRIOR,
+      compound: true,
+      subIntents: [
+        { operation: "compliance_check", standard: PRIOR.standard, outputForm: "memo" },
+        { operation: "risk_flag", standard: "none", outputForm: "memo" },
+      ],
+    });
+    assert.equal(clarification?.field, "operation");
+    assert.match(clarification?.question ?? "", /one analysis operation at a time/i);
+  });
   it("treats format-only follow-ups as presentation changes", () => {
     assert.equal(
       classifyFollowUpKind({

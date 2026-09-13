@@ -137,15 +137,19 @@ describe("compliance execution and publication boundary", () => {
     delete input.plan!.workUnits[0].input.followUpKind;
     assert.equal(usesCanonicalComplianceReport(input), false);
   });
-  it("skips legacy verification even when the canonical pipeline produces no rows", async () => {
-    const input = state(); input.complianceReportSnapshot = undefined;
+  it("executes only the canonical compliance unit and renderer", async () => {
+    const input = state();
+    input.complianceReportSnapshot = undefined;
     input.plan!.workUnits = [
-      { workUnitId: "legacy", tool: "evaluate_package", input: {}, dependsOn: [], outputSchema: "Finding[]", status: "pending" },
-      { workUnitId: "wu-render", tool: "render_output", input: {}, dependsOn: ["legacy"], outputSchema: "string", status: "pending" },
+      { workUnitId: "wu-compliance", tool: "run_compliance_pipeline", input: {}, dependsOn: [],
+        outputSchema: "ComplianceReportSnapshot", status: "pending" },
+      { workUnitId: "wu-render", tool: "render_output", input: {}, dependsOn: ["wu-compliance"],
+        outputSchema: "string", status: "pending" },
     ];
     const result = await executeActPlan(input);
-    assert.equal(result.plan!.workUnits[0].status, "skipped");
-    assert.equal(result.plan!.workUnits[1].status, "done");
+    assert.deepEqual(result.plan!.workUnits.map(unit => [unit.tool, unit.status]), [
+      ["run_compliance_pipeline", "done"], ["render_output", "done"],
+    ]);
     assert.deepEqual(result.complianceReportSnapshot?.rows, []);
     assert.match(result.renderedOutput!, /No completed requirement assessments/);
   });

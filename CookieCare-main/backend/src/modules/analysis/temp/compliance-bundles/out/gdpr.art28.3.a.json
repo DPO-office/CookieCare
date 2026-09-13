@@ -1,0 +1,670 @@
+{
+  "sessionId": "an_75767683-12ab-4d40-9de5-db3bdf321e14",
+  "stage": "investigation_complete",
+  "dumpedAt": "2026-09-13T19:06:20.027Z",
+  "requirementId": "gdpr.art28.3.a",
+  "packageId": "rule:regimes/data-protection/gdpr",
+  "recall": {
+    "requirementId": "gdpr.art28.3.a",
+    "uniqueCandidateCount": 17,
+    "elementsWithCandidates": [
+      "A1"
+    ],
+    "elementsWithoutCandidates": [
+      "A2"
+    ],
+    "totalQueries": 2,
+    "proofElementsCovered": [
+      "A1"
+    ],
+    "proofElementsUnresolved": [
+      "A2"
+    ],
+    "acceptedCandidateCount": 8,
+    "semanticRejectedCandidateCount": 1,
+    "budgetOmittedCandidateCount": 8,
+    "unclassifiedCandidateCount": 0
+  },
+  "queries": [
+    {
+      "queryId": "GNQ-1",
+      "requirementId": "gdpr.art28.3.a",
+      "kind": "requirement",
+      "text": "The processor processes personal data only on documented instructions from the controller."
+    },
+    {
+      "queryId": "GNQ-2",
+      "requirementId": "gdpr.art28.3.a",
+      "kind": "requirement",
+      "text": "structural:parent_context"
+    }
+  ],
+  "hits": [
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_d1ec10558c5880f7cd37da69",
+      "ref": "dsn_d1ec10558c5880f7cd37da69",
+      "denseRank": 4,
+      "lexicalRank": 1,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.22201844262295084,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "A1"
+      ],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Explicitly states that Administrator instructs Alaio to process Personal Data only in accordance with documented instructions set forth in the DPA and further written instructions."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_87610896f208778ed618914a",
+      "ref": "dsn_87610896f208778ed618914a",
+      "denseRank": 6,
+      "lexicalRank": 2,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.22128054740957967,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "A1"
+      ],
+      "reviewConfidence": 0.75,
+      "reviewReason": "Warrants that instructions given to Alaio are authorized by the controller."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_d110a9e2a460c527c94868fc",
+      "ref": "dsn_d110a9e2a460c527c94868fc",
+      "denseRank": 2,
+      "lexicalRank": 6,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.22128054740957967,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "A1"
+      ],
+      "reviewConfidence": 0.75,
+      "reviewReason": "Requires sub-processors to process data only in accordance with the Agreement and DPA."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_2a8f78794d79eaa0baaef29f",
+      "ref": "dsn_2a8f78794d79eaa0baaef29f",
+      "denseRank": 10,
+      "lexicalRank": 14,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.21779922779922778,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Relates to engagement of sub-processors.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_a5e1ef7ee724e3d2543d6266",
+      "ref": "dsn_a5e1ef7ee724e3d2543d6266",
+      "denseRank": 25,
+      "lexicalRank": 9,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.21625745950554137,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "A1"
+      ],
+      "reviewConfidence": 0.8,
+      "reviewReason": "Contains a specific documented instruction regarding data deletion on term expiry."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_e913a7275158c113ddece6f9",
+      "ref": "dsn_e913a7275158c113ddece6f9",
+      "denseRank": 1,
+      "lexicalRank": 4,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.18201844262295083,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Clause heading."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_3b8e226256eb52c075589879",
+      "ref": "dsn_3b8e226256eb52c075589879",
+      "denseRank": 3,
+      "lexicalRank": 3,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.18174603174603174,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "States controller/processor status.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_8d97532a308944ce679df961",
+      "ref": "dsn_8d97532a308944ce679df961",
+      "denseRank": 8,
+      "lexicalRank": 17,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.17769289533995417,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.7,
+      "reviewReason": "Refers to Art 28(3) obligations generally for sub-processors."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_0d27794115168eac76531131",
+      "ref": "dsn_0d27794115168eac76531131",
+      "denseRank": 16,
+      "lexicalRank": 10,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1674436090225564,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "definition",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Defines the term 'Processing of personal data'."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_3b6cb2834c139b8111881b5f",
+      "ref": "dsn_3b6cb2834c139b8111881b5f",
+      "denseRank": 21,
+      "lexicalRank": 5,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.12773029439696107,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "definition",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Defines general data protection terms."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_9e8327daa10029983df8bb36",
+      "ref": "dsn_9e8327daa10029983df8bb36",
+      "denseRank": 5,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08538461538461539,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.7,
+      "reviewReason": "General compliance clause, non-proof trap for documented instructions.",
+      "exclusionReason": "role_budget:supporting"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_e7446528db11cdfcd590169b",
+      "ref": "dsn_e7446528db11cdfcd590169b",
+      "denseRank": 7,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08492537313432837,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.85,
+      "reviewReason": "Refers to Appendix 1 details.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_bf39176fdff0518a847ee9a1",
+      "ref": "dsn_bf39176fdff0518a847ee9a1",
+      "denseRank": 12,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08388888888888889,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Section heading.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_7dcd8333fa542ffbd2e5bc8b",
+      "ref": "dsn_7dcd8333fa542ffbd2e5bc8b",
+      "denseRank": 13,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08369863013698631,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Section heading.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_c05fa018fa644f06d2b63eec",
+      "ref": "dsn_c05fa018fa644f06d2b63eec",
+      "denseRank": 17,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.082987012987013,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Relates to providing information to demonstrate security compliance upon request.",
+      "exclusionReason": "rejected:irrelevant:0.9"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_15887cd108208cc38846377e",
+      "ref": "dsn_15887cd108208cc38846377e",
+      "denseRank": 20,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.0825,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Section heading.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_82439bbd233b4d21201e7ef2",
+      "ref": "dsn_82439bbd233b4d21201e7ef2",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "A1"
+      ],
+      "reviewConfidence": 0.75,
+      "reviewReason": "Refers to Administrator's instructions for processing and processor's obligation to warn if instructions violate GDPR, but lacks express wording constraining processor to act 'only' on documented instructions.",
+      "exclusionReason": "role_budget:context"
+    }
+  ],
+  "expansions": [],
+  "expansionLimits": [],
+  "bundle": {
+    "bundleId": "INV-gdpr.art28.3.a-doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+    "requirementId": "gdpr.art28.3.a",
+    "items": [
+      {
+        "spanId": "dsn_d1ec10558c5880f7cd37da69",
+        "ref": "dsn_d1ec10558c5880f7cd37da69",
+        "quotedText": "4 By entering into this Data Processing Agreement, Administrator instructs Alaio to process Personal Data only in accordance with applicable law: (a) to provide the Processor Services and any related technical support; (b) as further specified via Administrator´s use of the Processor Services (including in the settings and other functionality of the Processor Services) and any related technical support; (c) as documented in this Data Processing Agreement; and (d) as further documented in any other written instructions given by Administrator and acknowledged by Bitrix24 as constituting instructions for purposes of this Data Processing Agreement.",
+        "structuralPath": "document.list_item_(e).list_item_44",
+        "charRange": [
+          10239,
+          10891
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.list_item_(e).list_item_44",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "primary",
+        "contributesToElementIds": [
+          "A1"
+        ],
+        "investigationConfidence": 0.95,
+        "investigationReason": "Explicitly states that Administrator instructs Alaio to process Personal Data only in accordance with documented instructions set forth in the DPA and further written instructions.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "The processor processes personal data only on documented instructions from the controller."
+        ]
+      },
+      {
+        "spanId": "dsn_a5e1ef7ee724e3d2543d6266",
+        "ref": "dsn_a5e1ef7ee724e3d2543d6266",
+        "quotedText": "5 Deletion on Term Expiry. On expiry of the Term, Administrator instructs Alaio to delete all Personal Data (including existing copies) from Bitrix24 systems in accordance with applicable law. Alaio will comply with this instruction as soon as reasonably practicable and within a maximum period of 90 days, unless any applicable law requires storage.",
+        "structuralPath": "document.list_item_(e).list_item_45",
+        "charRange": [
+          10892,
+          11242
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.list_item_(e).list_item_45",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "supporting",
+        "contributesToElementIds": [
+          "A1"
+        ],
+        "investigationConfidence": 0.8,
+        "investigationReason": "Contains a specific documented instruction regarding data deletion on term expiry.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "The processor processes personal data only on documented instructions from the controller."
+        ]
+      },
+      {
+        "spanId": "dsn_87610896f208778ed618914a",
+        "ref": "dsn_87610896f208778ed618914a",
+        "quotedText": "2 Authorization by Third Party Controller. If Administrator is a processor, Administrator warrants to Alaio that it´s instructions and actions with respect to Personal Data, including its appointment of Alaioas another processor, have been authorized by the relevant controller.",
+        "structuralPath": "document.list_item_(e).list_item_42",
+        "charRange": [
+          9748,
+          10026
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.list_item_(e).list_item_42",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "supporting",
+        "contributesToElementIds": [
+          "A1"
+        ],
+        "investigationConfidence": 0.75,
+        "investigationReason": "Warrants that instructions given to Alaio are authorized by the controller.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "The processor processes personal data only on documented instructions from the controller."
+        ]
+      },
+      {
+        "spanId": "dsn_d110a9e2a460c527c94868fc",
+        "ref": "dsn_d110a9e2a460c527c94868fc",
+        "quotedText": "(i) the Sub-processor only accesses and uses Personal Data to the extent required to perform the obligations subcontracted to it, and does so in accordance with the Agreement (including this DPA); and",
+        "structuralPath": "document.list_item_(i)",
+        "charRange": [
+          17027,
+          17227
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.list_item_(i)",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "supporting",
+        "contributesToElementIds": [
+          "A1"
+        ],
+        "investigationConfidence": 0.75,
+        "investigationReason": "Requires sub-processors to process data only in accordance with the Agreement and DPA.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "The processor processes personal data only on documented instructions from the controller."
+        ]
+      },
+      {
+        "spanId": "dsn_8d97532a308944ce679df961",
+        "ref": "dsn_8d97532a308944ce679df961",
+        "quotedText": "(ii) if the GDPR applies to the processing of Personal Data, the data protection obligations set out in Article 28(3) of the GDPR are imposed on the Sub-processor;",
+        "structuralPath": "document.list_item_(ii)",
+        "charRange": [
+          17228,
+          17391
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.list_item_(ii)",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "supporting",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.7,
+        "investigationReason": "Refers to Art 28(3) obligations generally for sub-processors.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "The processor processes personal data only on documented instructions from the controller."
+        ]
+      },
+      {
+        "spanId": "dsn_0d27794115168eac76531131",
+        "ref": "dsn_0d27794115168eac76531131",
+        "quotedText": "'Processing of personal data' means any operation or set of operations which is performed upon Personal Data, whether or not by automatic means, such as collection, recording, organization, storage, adaptation or alteration, retrieval, consultation, use, disclosure by transmission, dissemination or otherwise making available, alignment or combination, blocking, erasure or destruction ('Process', 'Processes' and 'Processed' shall have the same meaning).",
+        "structuralPath": "document.clause_1.subclause_1.1.list_item_26",
+        "charRange": [
+          6232,
+          6688
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.clause_1.subclause_1.1.list_item_26",
+          "relationship": "unspecified"
+        },
+        "source": "expansion",
+        "evidenceRole": "definition",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.95,
+        "investigationReason": "Defines the term 'Processing of personal data'.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "The processor processes personal data only on documented instructions from the controller."
+        ]
+      },
+      {
+        "spanId": "dsn_3b6cb2834c139b8111881b5f",
+        "ref": "dsn_3b6cb2834c139b8111881b5f",
+        "quotedText": "The terms 'Data controller' , 'Data sub ject' , 'Personal data' , 'Processing' , 'Data processor' and 'Supervisory authority' as used in this DPA have the meanings given in the Data Protection Legislation.",
+        "structuralPath": "document.clause_1.subclause_1.1.paragraph_33",
+        "charRange": [
+          8138,
+          8343
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.clause_1.subclause_1.1.paragraph_33",
+          "relationship": "unspecified"
+        },
+        "source": "expansion",
+        "evidenceRole": "definition",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.95,
+        "investigationReason": "Defines general data protection terms.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "The processor processes personal data only on documented instructions from the controller."
+        ]
+      },
+      {
+        "spanId": "dsn_e913a7275158c113ddece6f9",
+        "ref": "dsn_e913a7275158c113ddece6f9",
+        "quotedText": "1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that:",
+        "structuralPath": "document.clause_2.item_1",
+        "charRange": [
+          8425,
+          8511
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.clause_2.item_1",
+          "relationship": "unspecified"
+        },
+        "source": "expansion",
+        "evidenceRole": "context",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.95,
+        "investigationReason": "Clause heading.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "The processor processes personal data only on documented instructions from the controller."
+        ]
+      }
+    ],
+    "partitions": [
+      {
+        "partitionId": "P1",
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5"
+        },
+        "itemSpanIds": [
+          "dsn_d1ec10558c5880f7cd37da69",
+          "dsn_a5e1ef7ee724e3d2543d6266",
+          "dsn_87610896f208778ed618914a",
+          "dsn_d110a9e2a460c527c94868fc",
+          "dsn_8d97532a308944ce679df961",
+          "dsn_0d27794115168eac76531131",
+          "dsn_3b6cb2834c139b8111881b5f",
+          "dsn_e913a7275158c113ddece6f9"
+        ]
+      }
+    ],
+    "exclusions": [
+      {
+        "spanId": "dsn_c05fa018fa644f06d2b63eec",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.9"
+      },
+      {
+        "spanId": "dsn_9e8327daa10029983df8bb36",
+        "reason": "role_budget",
+        "detail": "role_budget:supporting"
+      },
+      {
+        "spanId": "dsn_bf39176fdff0518a847ee9a1",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_7dcd8333fa542ffbd2e5bc8b",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_15887cd108208cc38846377e",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_2a8f78794d79eaa0baaef29f",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_3b8e226256eb52c075589879",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_e7446528db11cdfcd590169b",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_82439bbd233b4d21201e7ef2",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      }
+    ],
+    "dependencies": [
+      {
+        "reference": "dsn_d110a9e2a460c527c94868fc:requires",
+        "state": "resolved_internal",
+        "targetSpanIds": [
+          "dsn_6335589872a4c2b206df632c"
+        ]
+      },
+      {
+        "reference": "dsn_8d97532a308944ce679df961:details_provided_by",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      },
+      {
+        "reference": "dsn_8d97532a308944ce679df961:details_provided_by",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      }
+    ],
+    "estimatedTokens": 598,
+    "investigationComplete": false,
+    "incompleteReasons": [
+      "element_unresolved:A2"
+    ]
+  },
+  "provenance": {
+    "queries": "graph_native",
+    "hits": "graph_native",
+    "expansions": "graph_native",
+    "bundle": "graph_native"
+  }
+}

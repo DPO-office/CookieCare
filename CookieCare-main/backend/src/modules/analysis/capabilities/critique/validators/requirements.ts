@@ -6,7 +6,7 @@ import type {
   FixItem,
 } from "../../../models/critique-report.js";
 import type { Finding } from "../../../models/finding.js";
-import { deriveRequirementStatus } from "../../act/requirement-status-policy.js";
+import { deriveRequirementStatus } from "../../act/shared/requirement-status-policy.js";
 import {
   canonicalRequirementStatus,
   isConditionalLike,

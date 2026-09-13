@@ -1,0 +1,492 @@
+{
+  "sessionId": "an_7ac91344-af07-4d98-95e2-6f1f41bf0d5c",
+  "stage": "investigation_complete",
+  "dumpedAt": "2026-09-13T19:14:01.746Z",
+  "requirementId": "gdpr.art22",
+  "packageId": "rule:regimes/data-protection/gdpr",
+  "recall": {
+    "requirementId": "gdpr.art22",
+    "uniqueCandidateCount": 16,
+    "elementsWithCandidates": [],
+    "elementsWithoutCandidates": [
+      "solely_automated_significant_decision",
+      "lawful_exception",
+      "human_review_safeguards",
+      "special_category_limit"
+    ],
+    "totalQueries": 3,
+    "proofElementsCovered": [],
+    "proofElementsUnresolved": [
+      "solely_automated_significant_decision",
+      "lawful_exception",
+      "human_review_safeguards",
+      "special_category_limit"
+    ],
+    "acceptedCandidateCount": 1,
+    "semanticRejectedCandidateCount": 12,
+    "budgetOmittedCandidateCount": 3,
+    "unclassifiedCandidateCount": 0
+  },
+  "queries": [
+    {
+      "queryId": "GNQ-1",
+      "requirementId": "gdpr.art22",
+      "kind": "requirement",
+      "text": "The controller does not subject a data subject to a decision based solely on automated processing (including profiling) that produces legal effects or similarly significantly affects them, unless an Article 22(2) exception applies (contract necessity, law with safeguards, or explicit consent), in which case it provides at least a right to human intervention, to express a view, and to contest the decision, and processes any special-category data underlying the decision only with explicit consent or substantial-public-interest law and suitable safeguards."
+    },
+    {
+      "queryId": "GNQ-2",
+      "requirementId": "gdpr.art22",
+      "kind": "requirement",
+      "text": "explicit consent"
+    },
+    {
+      "queryId": "GNQ-3",
+      "requirementId": "gdpr.art22",
+      "kind": "requirement",
+      "text": "legal effects"
+    }
+  ],
+  "hits": [
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_d110a9e2a460c527c94868fc",
+      "ref": "dsn_d110a9e2a460c527c94868fc",
+      "denseRank": 2,
+      "lexicalRank": 6,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.22128054740957967,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to subprocessor scope of processing.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_1430eff3dd13d7608aff0cf5",
+      "ref": "dsn_1430eff3dd13d7608aff0cf5",
+      "denseRank": 9,
+      "lexicalRank": 2,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.22062178588125292,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "human_review_safeguards"
+      ],
+      "reviewConfidence": 0.4,
+      "reviewReason": "Refers generically to assisting controller with data subject rights under GDPR, but does not state or address automated decision-making, human intervention, or profiling.",
+      "exclusionReason": "rejected:supporting:0.4"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_87610896f208778ed618914a",
+      "ref": "dsn_87610896f208778ed618914a",
+      "denseRank": 11,
+      "lexicalRank": 11,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.21816901408450706,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to controller authorization.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_f894793c875b7b2c74037e13",
+      "ref": "dsn_f894793c875b7b2c74037e13",
+      "denseRank": 7,
+      "lexicalRank": 14,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.17843888664784188,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "human_review_safeguards"
+      ],
+      "reviewConfidence": 0.4,
+      "reviewReason": "Refers generically to Chapter III GDPR rights assistance, but contains no specific terms regarding automated decision-making safeguards under Article 22.",
+      "exclusionReason": "rejected:supporting:0.4"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_e913a7275158c113ddece6f9",
+      "ref": "dsn_e913a7275158c113ddece6f9",
+      "denseRank": 8,
+      "lexicalRank": 16,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.17786377708978326,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Heading clause acknowledging processor and controller responsibilities."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_8d97532a308944ce679df961",
+      "ref": "dsn_8d97532a308944ce679df961",
+      "denseRank": 20,
+      "lexicalRank": 8,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.17720588235294119,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to Article 28(3) subprocessor obligations.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_fc80efe281db41ee1800dab4",
+      "ref": "dsn_fc80efe281db41ee1800dab4",
+      "denseRank": 14,
+      "lexicalRank": 25,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.17527821939586644,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Fragment requiring written contract for subprocessors.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_fc80efe281db41ee1800dab4",
+      "ref": "dsn_fc80efe281db41ee1800dab4",
+      "denseRank": 14,
+      "lexicalRank": 25,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.17527821939586644,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Fragment requiring written contract for subprocessors.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_82db02475ee62dadfb94a2ab",
+      "ref": "dsn_82db02475ee62dadfb94a2ab",
+      "denseRank": 17,
+      "lexicalRank": 24,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1548917748917749,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to employee access privilege controls based on job roles.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_3b8e226256eb52c075589879",
+      "ref": "dsn_3b8e226256eb52c075589879",
+      "denseRank": 5,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08538461538461539,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Defines controller/processor roles.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_7dcd8333fa542ffbd2e5bc8b",
+      "ref": "dsn_7dcd8333fa542ffbd2e5bc8b",
+      "denseRank": 6,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08515151515151516,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Section heading for roles and regulatory compliance.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_4d792c53fef61d96e85792e9",
+      "ref": "dsn_4d792c53fef61d96e85792e9",
+      "denseRank": 10,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.0842857142857143,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Fragment regarding permitted processing under DPA.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_9e8327daa10029983df8bb36",
+      "ref": "dsn_9e8327daa10029983df8bb36",
+      "denseRank": 21,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08234567901234568,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.85,
+      "reviewReason": "General clause stating parties will comply with Data Protection Legislation.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_15887cd108208cc38846377e",
+      "ref": "dsn_15887cd108208cc38846377e",
+      "denseRank": 22,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08219512195121952,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Subheading regarding objection right for new subprocessors.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-3",
+      "spanId": "dsn_382e23870d17b2038158a626",
+      "ref": "dsn_382e23870d17b2038158a626",
+      "denseRank": 24,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08190476190476191,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to legal entity name/form change.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_009b36df8e35a8a4fb93e7e1",
+      "ref": "dsn_009b36df8e35a8a4fb93e7e1",
+      "denseRank": null,
+      "lexicalRank": 4,
+      "selectedBy": [
+        "sparse"
+      ],
+      "score": 0.075625,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to subprocessor notification and customer objection.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_a5e1ef7ee724e3d2543d6266",
+      "ref": "dsn_a5e1ef7ee724e3d2543d6266",
+      "denseRank": null,
+      "lexicalRank": 5,
+      "selectedBy": [
+        "sparse"
+      ],
+      "score": 0.07538461538461538,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to deletion upon term expiry.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    }
+  ],
+  "expansions": [],
+  "expansionLimits": [],
+  "bundle": {
+    "bundleId": "INV-gdpr.art22-doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+    "requirementId": "gdpr.art22",
+    "items": [
+      {
+        "spanId": "dsn_e913a7275158c113ddece6f9",
+        "ref": "dsn_e913a7275158c113ddece6f9",
+        "quotedText": "1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that:",
+        "structuralPath": "document.clause_2.item_1",
+        "charRange": [
+          8425,
+          8511
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.clause_2.item_1",
+          "relationship": "unspecified"
+        },
+        "source": "expansion",
+        "evidenceRole": "context",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.9,
+        "investigationReason": "Heading clause acknowledging processor and controller responsibilities.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "The controller does not subject a data subject to a decision based solely on automated processing (including profiling) that produces legal effects or similarly significantly affects them, unless an Article 22(2) exception applies (contract necessity, law with safeguards, or explicit consent), in which case it provides at least a right to human intervention, to express a view, and to contest the decision, and processes any special-category data underlying the decision only with explicit consent or substantial-public-interest law and suitable safeguards."
+        ]
+      }
+    ],
+    "partitions": [
+      {
+        "partitionId": "P1",
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5"
+        },
+        "itemSpanIds": [
+          "dsn_e913a7275158c113ddece6f9"
+        ]
+      }
+    ],
+    "exclusions": [
+      {
+        "spanId": "dsn_1430eff3dd13d7608aff0cf5",
+        "reason": "semantic_rejection",
+        "detail": "rejected:supporting:0.4"
+      },
+      {
+        "spanId": "dsn_f894793c875b7b2c74037e13",
+        "reason": "semantic_rejection",
+        "detail": "rejected:supporting:0.4"
+      },
+      {
+        "spanId": "dsn_15887cd108208cc38846377e",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_382e23870d17b2038158a626",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_d110a9e2a460c527c94868fc",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_87610896f208778ed618914a",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_8d97532a308944ce679df961",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_fc80efe281db41ee1800dab4",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_82db02475ee62dadfb94a2ab",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_4d792c53fef61d96e85792e9",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_009b36df8e35a8a4fb93e7e1",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_a5e1ef7ee724e3d2543d6266",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_3b8e226256eb52c075589879",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_7dcd8333fa542ffbd2e5bc8b",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_9e8327daa10029983df8bb36",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      }
+    ],
+    "dependencies": [],
+    "estimatedTokens": 22,
+    "investigationComplete": false,
+    "incompleteReasons": [
+      "primary_evidence_missing",
+      "element_unresolved:solely_automated_significant_decision",
+      "element_unresolved:lawful_exception",
+      "element_unresolved:human_review_safeguards",
+      "element_unresolved:special_category_limit"
+    ]
+  },
+  "provenance": {
+    "queries": "graph_native",
+    "hits": "graph_native",
+    "expansions": "graph_native",
+    "bundle": "graph_native"
+  }
+}

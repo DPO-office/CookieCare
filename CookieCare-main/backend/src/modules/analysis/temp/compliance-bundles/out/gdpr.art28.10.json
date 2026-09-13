@@ -1,0 +1,614 @@
+{
+  "sessionId": "an_75767683-12ab-4d40-9de5-db3bdf321e14",
+  "stage": "investigation_complete",
+  "dumpedAt": "2026-09-13T19:06:20.027Z",
+  "requirementId": "gdpr.art28.10",
+  "packageId": "rule:regimes/data-protection/gdpr",
+  "recall": {
+    "requirementId": "gdpr.art28.10",
+    "uniqueCandidateCount": 17,
+    "elementsWithCandidates": [
+      "role_boundary"
+    ],
+    "elementsWithoutCandidates": [
+      "controller_consequence"
+    ],
+    "totalQueries": 3,
+    "proofElementsCovered": [
+      "role_boundary"
+    ],
+    "proofElementsUnresolved": [
+      "controller_consequence"
+    ],
+    "acceptedCandidateCount": 5,
+    "semanticRejectedCandidateCount": 5,
+    "budgetOmittedCandidateCount": 7,
+    "unclassifiedCandidateCount": 0
+  },
+  "queries": [
+    {
+      "queryId": "GNQ-1",
+      "requirementId": "gdpr.art28.10",
+      "kind": "requirement",
+      "text": "A processor that determines the purposes and means of processing contrary to the controller's lawful allocation is treated as a controller for that processing rather than using the processor label to avoid controller duties."
+    },
+    {
+      "queryId": "GNQ-2",
+      "requirementId": "gdpr.art28.10",
+      "kind": "requirement",
+      "text": "shall be considered to be a controller"
+    },
+    {
+      "queryId": "GNQ-3",
+      "requirementId": "gdpr.art28.10",
+      "kind": "requirement",
+      "text": "structural:parent_context"
+    }
+  ],
+  "hits": [
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_87610896f208778ed618914a",
+      "ref": "dsn_87610896f208778ed618914a",
+      "denseRank": 5,
+      "lexicalRank": 3,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.22125763125763126,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.75,
+      "reviewReason": "Addresses third-party controller authorization warranties when the administrator is a processor.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_d1ec10558c5880f7cd37da69",
+      "ref": "dsn_d1ec10558c5880f7cd37da69",
+      "denseRank": 6,
+      "lexicalRank": 4,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.22077651515151514,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "role_boundary"
+      ],
+      "reviewConfidence": 0.85,
+      "reviewReason": "Directly restricts processor to processing only in accordance with documented instructions and applicable law."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_2a8f78794d79eaa0baaef29f",
+      "ref": "dsn_2a8f78794d79eaa0baaef29f",
+      "denseRank": 9,
+      "lexicalRank": 19,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.2171509814712897,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.7,
+      "reviewReason": "Concerns sub-processor engagement rules.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_009b36df8e35a8a4fb93e7e1",
+      "ref": "dsn_009b36df8e35a8a4fb93e7e1",
+      "denseRank": 16,
+      "lexicalRank": 14,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.21667140825035563,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.7,
+      "reviewReason": "Concerns sub-processor objection procedure.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_23fe2ce90aa11efd1eb92fe4",
+      "ref": "dsn_23fe2ce90aa11efd1eb92fe4",
+      "denseRank": 19,
+      "lexicalRank": 17,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.21564524083511427,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.85,
+      "reviewReason": "Incomplete sentence fragment regarding inspection fee reimbursements.",
+      "exclusionReason": "rejected:irrelevant:0.85"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_23fe2ce90aa11efd1eb92fe4",
+      "ref": "dsn_23fe2ce90aa11efd1eb92fe4",
+      "denseRank": 19,
+      "lexicalRank": 17,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.21564524083511427,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.85,
+      "reviewReason": "Incomplete sentence fragment regarding inspection fee reimbursements.",
+      "exclusionReason": "rejected:irrelevant:0.85"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_a5e1ef7ee724e3d2543d6266",
+      "ref": "dsn_a5e1ef7ee724e3d2543d6266",
+      "denseRank": 24,
+      "lexicalRank": 16,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.215062656641604,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.7,
+      "reviewReason": "Concerns deletion obligations upon contract expiry.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_e913a7275158c113ddece6f9",
+      "ref": "dsn_e913a7275158c113ddece6f9",
+      "denseRank": 1,
+      "lexicalRank": 1,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.18278688524590161,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.6,
+      "reviewReason": "Subclause header fragment.",
+      "exclusionReason": "rejected:context:0.6"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_3b8e226256eb52c075589879",
+      "ref": "dsn_3b8e226256eb52c075589879",
+      "denseRank": 2,
+      "lexicalRank": 2,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.18225806451612903,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "role_boundary"
+      ],
+      "reviewConfidence": 0.75,
+      "reviewReason": "Specifies role allocation that Administrator is controller/processor of Personal Data under legislation."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_3b6cb2834c139b8111881b5f",
+      "ref": "dsn_3b6cb2834c139b8111881b5f",
+      "denseRank": 10,
+      "lexicalRank": 7,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.12921108742004264,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "definition",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.85,
+      "reviewReason": "Defines statutory terms by reference to Data Protection Legislation."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_d110a9e2a460c527c94868fc",
+      "ref": "dsn_d110a9e2a460c527c94868fc",
+      "denseRank": 3,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.12587301587301586,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.7,
+      "reviewReason": "Sub-processor limitation clause.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_180f0627e5cc335ba4201f12",
+      "ref": "dsn_180f0627e5cc335ba4201f12",
+      "denseRank": 23,
+      "lexicalRank": 18,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.12486870559159717,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "definition",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.8,
+      "reviewReason": "Defines 'Processor Services' as services where processing occurs on behalf of the Administrator."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_3f92dc056653ebc538843161",
+      "ref": "dsn_3f92dc056653ebc538843161",
+      "denseRank": 22,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.12219512195121952,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Concerns liability disclaimers for incident notifications.",
+      "exclusionReason": "rejected:irrelevant:0.9"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_15887cd108208cc38846377e",
+      "ref": "dsn_15887cd108208cc38846377e",
+      "denseRank": 4,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.085625,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Heading fragment for sub-processor objections.",
+      "exclusionReason": "rejected:irrelevant:0.9"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_8d97532a308944ce679df961",
+      "ref": "dsn_8d97532a308944ce679df961",
+      "denseRank": 7,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08492537313432837,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.7,
+      "reviewReason": "Article 28(3) mention for sub-processors.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_bf39176fdff0518a847ee9a1",
+      "ref": "dsn_bf39176fdff0518a847ee9a1",
+      "denseRank": 8,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08470588235294119,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Section title for inspections.",
+      "exclusionReason": "rejected:irrelevant:0.9"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_c05fa018fa644f06d2b63eec",
+      "ref": "dsn_c05fa018fa644f06d2b63eec",
+      "denseRank": 11,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08408450704225352,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.7,
+      "reviewReason": "Demonstration of compliance via security information.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-3",
+      "spanId": "dsn_82439bbd233b4d21201e7ef2",
+      "ref": "dsn_82439bbd233b4d21201e7ef2",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "role_boundary"
+      ],
+      "reviewConfidence": 0.85,
+      "reviewReason": "This text addresses the Administrator's instructions for processing and boundaries regarding lawful instructions, directly proving the role_boundary element. However, it does not state that determining purposes and means triggers controller responsibility."
+    }
+  ],
+  "expansions": [
+    {
+      "requirementId": "gdpr.art28.10",
+      "seedSpanId": "dsn_d1ec10558c5880f7cd37da69",
+      "addedSpanId": "dsn_82439bbd233b4d21201e7ef2",
+      "reason": "parent"
+    }
+  ],
+  "expansionLimits": [],
+  "bundle": {
+    "bundleId": "INV-gdpr.art28.10-doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+    "requirementId": "gdpr.art28.10",
+    "items": [
+      {
+        "spanId": "dsn_d1ec10558c5880f7cd37da69",
+        "ref": "dsn_d1ec10558c5880f7cd37da69",
+        "quotedText": "4 By entering into this Data Processing Agreement, Administrator instructs Alaio to process Personal Data only in accordance with applicable law: (a) to provide the Processor Services and any related technical support; (b) as further specified via Administrator´s use of the Processor Services (including in the settings and other functionality of the Processor Services) and any related technical support; (c) as documented in this Data Processing Agreement; and (d) as further documented in any other written instructions given by Administrator and acknowledged by Bitrix24 as constituting instructions for purposes of this Data Processing Agreement.",
+        "structuralPath": "document.list_item_(e).list_item_44",
+        "charRange": [
+          10239,
+          10891
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.list_item_(e).list_item_44",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "primary",
+        "contributesToElementIds": [
+          "role_boundary"
+        ],
+        "investigationConfidence": 0.85,
+        "investigationReason": "Directly restricts processor to processing only in accordance with documented instructions and applicable law.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "A processor that determines the purposes and means of processing contrary to the controller's lawful allocation is treated as a controller for that processing rather than using the processor label to avoid controller duties."
+        ]
+      },
+      {
+        "spanId": "dsn_3b8e226256eb52c075589879",
+        "ref": "dsn_3b8e226256eb52c075589879",
+        "quotedText": "(c)  Administrator is a controller or processor, as applicable, of Personal Data under the Data Protection Legislation; and",
+        "structuralPath": "document.list_item_(c)",
+        "charRange": [
+          8848,
+          8971
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.list_item_(c)",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "supporting",
+        "contributesToElementIds": [
+          "role_boundary"
+        ],
+        "investigationConfidence": 0.75,
+        "investigationReason": "Specifies role allocation that Administrator is controller/processor of Personal Data under legislation.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "A processor that determines the purposes and means of processing contrary to the controller's lawful allocation is treated as a controller for that processing rather than using the processor label to avoid controller duties."
+        ]
+      },
+      {
+        "spanId": "dsn_3b6cb2834c139b8111881b5f",
+        "ref": "dsn_3b6cb2834c139b8111881b5f",
+        "quotedText": "The terms 'Data controller' , 'Data sub ject' , 'Personal data' , 'Processing' , 'Data processor' and 'Supervisory authority' as used in this DPA have the meanings given in the Data Protection Legislation.",
+        "structuralPath": "document.clause_1.subclause_1.1.paragraph_33",
+        "charRange": [
+          8138,
+          8343
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.clause_1.subclause_1.1.paragraph_33",
+          "relationship": "unspecified"
+        },
+        "source": "expansion",
+        "evidenceRole": "definition",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.85,
+        "investigationReason": "Defines statutory terms by reference to Data Protection Legislation.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "A processor that determines the purposes and means of processing contrary to the controller's lawful allocation is treated as a controller for that processing rather than using the processor label to avoid controller duties."
+        ]
+      },
+      {
+        "spanId": "dsn_180f0627e5cc335ba4201f12",
+        "ref": "dsn_180f0627e5cc335ba4201f12",
+        "quotedText": "'Processor Services' means the provision of maintenance and support services, consultancy or professional services and the provision of software as a service or any other services provided under the Agreement where Bitrix24 Processes Personal Data on behalf of the Administrator.",
+        "structuralPath": "document.clause_1.subclause_1.1.list_item_28",
+        "charRange": [
+          7120,
+          7399
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.clause_1.subclause_1.1.list_item_28",
+          "relationship": "controller_to_processor"
+        },
+        "source": "expansion",
+        "evidenceRole": "definition",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.8,
+        "investigationReason": "Defines 'Processor Services' as services where processing occurs on behalf of the Administrator.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "A processor that determines the purposes and means of processing contrary to the controller's lawful allocation is treated as a controller for that processing rather than using the processor label to avoid controller duties."
+        ]
+      },
+      {
+        "spanId": "dsn_82439bbd233b4d21201e7ef2",
+        "ref": "dsn_82439bbd233b4d21201e7ef2",
+        "quotedText": "(e) Administrator shall, in its use or receipt of the Services, Process Personal Data in accordance with the requirements of Data Protection Legislation and will ensure that its instructions for the Processing of Personal Data shall comply with Data Protection Legislation. Administrator shall have sole responsibility for the accuracy, quality, and legality of Personal Data and the means by which Administrator acquired Personal Data. Alaio will inform the Administrator immediately if it believes that a data processing instruction violates the GDPR or other data protection provisions of the Union or the Member States.",
+        "structuralPath": "document.list_item_(e)",
+        "charRange": [
+          9124,
+          9747
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.list_item_(e)",
+          "relationship": "unspecified"
+        },
+        "source": "expansion",
+        "evidenceRole": "context",
+        "contributesToElementIds": [
+          "role_boundary"
+        ],
+        "investigationConfidence": 0.85,
+        "investigationReason": "This text addresses the Administrator's instructions for processing and boundaries regarding lawful instructions, directly proving the role_boundary element. However, it does not state that determining purposes and means triggers controller responsibility.",
+        "retrievalChannels": [],
+        "matchedQueries": [
+          "structural:parent_context"
+        ]
+      }
+    ],
+    "partitions": [
+      {
+        "partitionId": "P1",
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5"
+        },
+        "itemSpanIds": [
+          "dsn_d1ec10558c5880f7cd37da69",
+          "dsn_3b8e226256eb52c075589879",
+          "dsn_3b6cb2834c139b8111881b5f",
+          "dsn_180f0627e5cc335ba4201f12",
+          "dsn_82439bbd233b4d21201e7ef2"
+        ]
+      }
+    ],
+    "exclusions": [
+      {
+        "spanId": "dsn_23fe2ce90aa11efd1eb92fe4",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.85"
+      },
+      {
+        "spanId": "dsn_e913a7275158c113ddece6f9",
+        "reason": "semantic_rejection",
+        "detail": "rejected:context:0.6"
+      },
+      {
+        "spanId": "dsn_3f92dc056653ebc538843161",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.9"
+      },
+      {
+        "spanId": "dsn_15887cd108208cc38846377e",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.9"
+      },
+      {
+        "spanId": "dsn_bf39176fdff0518a847ee9a1",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.9"
+      },
+      {
+        "spanId": "dsn_87610896f208778ed618914a",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_2a8f78794d79eaa0baaef29f",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_009b36df8e35a8a4fb93e7e1",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_a5e1ef7ee724e3d2543d6266",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_d110a9e2a460c527c94868fc",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_8d97532a308944ce679df961",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_c05fa018fa644f06d2b63eec",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      }
+    ],
+    "dependencies": [
+      {
+        "reference": "dsn_82439bbd233b4d21201e7ef2:external_reference",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      }
+    ],
+    "estimatedTokens": 471,
+    "investigationComplete": false,
+    "incompleteReasons": [
+      "element_unresolved:controller_consequence"
+    ]
+  },
+  "provenance": {
+    "queries": "graph_native",
+    "hits": "graph_native",
+    "expansions": "graph_native",
+    "bundle": "graph_native"
+  }
+}

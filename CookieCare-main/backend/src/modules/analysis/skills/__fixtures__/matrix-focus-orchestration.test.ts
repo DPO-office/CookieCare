@@ -22,7 +22,7 @@ import {
 } from "../../capabilities/reporting/render-output.js";
 import { finalizeReportSpec } from "../../capabilities/reporting/finalize-report-spec.js";
 import { buildFinalReportSpec } from "../../capabilities/plan/resolve-report-spec.js";
-import { MATRIX_ROW_MAX_OUTPUT_TOKENS } from "../../capabilities/act/evaluate-matrix-row.js";
+import { MATRIX_ROW_MAX_OUTPUT_TOKENS } from "../../capabilities/act/operations/evaluate-comparison-row.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
 
 function rule(
@@ -346,7 +346,7 @@ describe("authored meta-requirement bindings", () => {
 });
 
 describe("matrix-focus ACT graph", () => {
-  it("schedules one evaluate_matrix_row per focused row, no duplicate matrix-linked rules, memo renderer", () => {
+  it("routes focused compliance rows through the canonical pipeline", () => {
     const skill = fixtureSkill();
     const graph = buildActGraphDetailed({
       docId: "doc-1",
@@ -363,24 +363,7 @@ describe("matrix-focus ACT graph", () => {
       }),
     });
     assert.equal(graph.rendererSchemaId, "memo");
-    const shared = graph.workUnits.filter((unit) => unit.tool === "extract_shared_evidence");
-    assert.equal(shared.length, 1);
-    assert.equal(shared[0]?.input.packageId, "_matrix_shared");
-    const matrixRows = graph.workUnits.filter((unit) => unit.tool === "evaluate_matrix_row");
-    assert.equal(matrixRows.length, 2);
-    assert.ok(
-      matrixRows.every((unit) => unit.dependsOn.includes(shared[0]!.workUnitId))
-    );
-    const leftoverRules = graph.workUnits
-      .filter((unit) => unit.tool === "check_against_rule")
-      .map((unit) => String(unit.input.ruleId));
-    assert.equal(leftoverRules.includes("fixture.rule.access"), false);
-    assert.equal(leftoverRules.includes("fixture.rule.erasure"), false);
-    assert.ok(leftoverRules.includes("fixture.rule.timeframe"));
-    assert.equal(
-      graph.workUnits.filter((unit) => unit.tool === "evaluate_package").length,
-      0
-    );
+    assert.deepEqual(graph.workUnits.map((unit) => unit.tool), ["run_compliance_pipeline", "render_output"]);
   });
 });
 

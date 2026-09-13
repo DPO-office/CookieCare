@@ -1,0 +1,514 @@
+{
+  "sessionId": "an_5de65ccd-cac3-4dc5-8ae7-220f733e7750",
+  "stage": "investigation_complete",
+  "dumpedAt": "2026-09-12T13:54:04.494Z",
+  "requirementId": "gdpr.art33.1",
+  "packageId": "rule:regimes/data-protection/gdpr",
+  "recall": {
+    "requirementId": "gdpr.art33.1",
+    "uniqueCandidateCount": 19,
+    "elementsWithCandidates": [],
+    "elementsWithoutCandidates": [
+      "authority_notification",
+      "deadline_and_delay"
+    ],
+    "totalQueries": 6
+  },
+  "queries": [
+    {
+      "queryId": "GNQ-1",
+      "requirementId": "gdpr.art33.1",
+      "kind": "requirement",
+      "text": "After becoming aware of a personal-data breach, the controller notifies the competent supervisory authority without undue delay and, where feasible, within 72 hours; a later notification explains the reasons for delay."
+    },
+    {
+      "queryId": "GNQ-2",
+      "requirementId": "gdpr.art33.1",
+      "kind": "requirement",
+      "text": "competent supervisory authority"
+    },
+    {
+      "queryId": "GNQ-3",
+      "requirementId": "gdpr.art33.1",
+      "kind": "requirement",
+      "text": "notify the supervisory authority"
+    },
+    {
+      "queryId": "GNQ-4",
+      "requirementId": "gdpr.art33.1",
+      "kind": "requirement",
+      "text": "becoming aware of a personal data breach"
+    },
+    {
+      "queryId": "GNQ-5",
+      "requirementId": "gdpr.art33.1",
+      "kind": "requirement",
+      "text": "relation:refers_to"
+    },
+    {
+      "queryId": "GNQ-6",
+      "requirementId": "gdpr.art33.1",
+      "kind": "requirement",
+      "text": "structural:parent_context"
+    }
+  ],
+  "hits": [
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_e4efcece010046205ca8da78",
+      "ref": "dsn_e4efcece010046205ca8da78",
+      "denseRank": 18,
+      "lexicalRank": 12,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.21670940170940173
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_0b5eec17646744e5097f37ca",
+      "ref": "dsn_0b5eec17646744e5097f37ca",
+      "denseRank": 10,
+      "lexicalRank": 23,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.2163339070567986
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_88a2714c1f05ef6ff4da0e1c",
+      "ref": "dsn_88a2714c1f05ef6ff4da0e1c",
+      "denseRank": 5,
+      "lexicalRank": 2,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.18151364764267988
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_88a2714c1f05ef6ff4da0e1c",
+      "ref": "dsn_88a2714c1f05ef6ff4da0e1c",
+      "denseRank": 5,
+      "lexicalRank": 2,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.18151364764267988
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_caf5039701617f48bd41ad20",
+      "ref": "dsn_caf5039701617f48bd41ad20",
+      "denseRank": 25,
+      "lexicalRank": 7,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1766900790166813
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_f407179aed5d6ee14aeec783",
+      "ref": "dsn_f407179aed5d6ee14aeec783",
+      "denseRank": 20,
+      "lexicalRank": 13,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1761986301369863
+    },
+    {
+      "queryId": "GNQ-3",
+      "spanId": "dsn_f407179aed5d6ee14aeec783",
+      "ref": "dsn_f407179aed5d6ee14aeec783",
+      "denseRank": 20,
+      "lexicalRank": 13,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1761986301369863
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_327b94881b4e374a46ab72f4",
+      "ref": "dsn_327b94881b4e374a46ab72f4",
+      "denseRank": 19,
+      "lexicalRank": 5,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.16804284323271665
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_1d28a3bd5bc7f471cd9bcac1",
+      "ref": "dsn_1d28a3bd5bc7f471cd9bcac1",
+      "denseRank": 11,
+      "lexicalRank": 16,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.16724240177909563
+    },
+    {
+      "queryId": "GNQ-4",
+      "spanId": "dsn_1d28a3bd5bc7f471cd9bcac1",
+      "ref": "dsn_1d28a3bd5bc7f471cd9bcac1",
+      "denseRank": 11,
+      "lexicalRank": 16,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.16724240177909563
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_7368c59386145b8609e47989",
+      "ref": "dsn_7368c59386145b8609e47989",
+      "denseRank": 7,
+      "lexicalRank": 1,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.13131881575727916
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_5d85f0aff5caccc6e125afea",
+      "ref": "dsn_5d85f0aff5caccc6e125afea",
+      "denseRank": 6,
+      "lexicalRank": 6,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1303030303030303
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_371318afd6229bfb45da39ac",
+      "ref": "dsn_371318afd6229bfb45da39ac",
+      "denseRank": 8,
+      "lexicalRank": 14,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1282193958664547
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_6843c76a9a62273540943e36",
+      "ref": "dsn_6843c76a9a62273540943e36",
+      "denseRank": 24,
+      "lexicalRank": 3,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.12777777777777777
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_8f0b5215dbbb77bf91a2fa7d",
+      "ref": "dsn_8f0b5215dbbb77bf91a2fa7d",
+      "denseRank": 1,
+      "lexicalRank": 18,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.10921395544346364
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_64660d17772d0007f83dc9ad",
+      "ref": "dsn_64660d17772d0007f83dc9ad",
+      "denseRank": 9,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08449275362318841
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_bde6b0bfcbef339c188b5824",
+      "ref": "dsn_bde6b0bfcbef339c188b5824",
+      "denseRank": 12,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08388888888888889
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_e5282b6a584b68ded18b8037",
+      "ref": "dsn_e5282b6a584b68ded18b8037",
+      "denseRank": 13,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08369863013698631
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_1288233194c39e7a0bb1d514",
+      "ref": "dsn_1288233194c39e7a0bb1d514",
+      "denseRank": 15,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08333333333333334
+    },
+    {
+      "queryId": "GNQ-5",
+      "spanId": "dsn_1560e22109f0f9dd535c11d1",
+      "ref": "dsn_1560e22109f0f9dd535c11d1",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0
+    },
+    {
+      "queryId": "GNQ-5",
+      "spanId": "dsn_c80bb417fc8fe926795b0e6f",
+      "ref": "dsn_c80bb417fc8fe926795b0e6f",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0
+    },
+    {
+      "queryId": "GNQ-6",
+      "spanId": "dsn_4e422d376fd8bafaaca4177a",
+      "ref": "dsn_4e422d376fd8bafaaca4177a",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0
+    }
+  ],
+  "expansions": [],
+  "expansionLimits": [],
+  "bundle": {
+    "bundleId": "INV-gdpr.art33.1-doc_f78d0984-9ab5-4d73-b963-d2e56017da49",
+    "requirementId": "gdpr.art33.1",
+    "items": [
+      {
+        "spanId": "dsn_64660d17772d0007f83dc9ad",
+        "ref": "dsn_64660d17772d0007f83dc9ad",
+        "quotedText": "4 Alaio Security Assistance. Administrator agrees that Alaio will assist in ensuring compliance with any obligations of Administrator in respect of security of personal data and personal data breaches, including (if applicable) Administrator's obligations pursuant to Articles 32 to 34 (inclusive) of the GDPR, by:",
+        "structuralPath": "document.list_item_(b)~2.list_item_62",
+        "charRange": [
+          16073,
+          16387
+        ],
+        "scope": {
+          "documentId": "doc_f78d0984-9ab5-4d73-b963-d2e56017da49",
+          "structuralPath": "document.list_item_(b)~2.list_item_62"
+        },
+        "source": "seed",
+        "evidenceRole": "supporting",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.8
+      },
+      {
+        "spanId": "dsn_5d85f0aff5caccc6e125afea",
+        "ref": "dsn_5d85f0aff5caccc6e125afea",
+        "quotedText": "4 Third Party Notifications. Administrator is solely responsible for complying with breach notification laws applicable to Administrator and fulfilling any third party notification obligations related to any Data Incident.",
+        "structuralPath": "document.list_item_(c)~3.list_item_80",
+        "charRange": [
+          20181,
+          20403
+        ],
+        "scope": {
+          "documentId": "doc_f78d0984-9ab5-4d73-b963-d2e56017da49",
+          "structuralPath": "document.list_item_(c)~3.list_item_80"
+        },
+        "source": "expansion",
+        "evidenceRole": "limitation",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.85
+      },
+      {
+        "spanId": "dsn_1d28a3bd5bc7f471cd9bcac1",
+        "ref": "dsn_1d28a3bd5bc7f471cd9bcac1",
+        "quotedText": "'Data Incident' means a breach of Bitrix24 security leading to the accidental or unlawful destruction, loss, alteration, unauthorised disclosure of, or access to, User Personal Data on systems managed by or otherwise controlled by Alaio . 'Data Incidents' will not include unsuccessful attempts or activities that do not compromise the security of User Personal Data, including unsuccessful log-in attempts, pings, port scans, denial of service attacks, and other network attacks on firewalls or networked systems.",
+        "structuralPath": "document.clause_1.subclause_1.1.paragraph_20",
+        "charRange": [
+          2793,
+          3307
+        ],
+        "scope": {
+          "documentId": "doc_f78d0984-9ab5-4d73-b963-d2e56017da49",
+          "structuralPath": "document.clause_1.subclause_1.1.paragraph_20"
+        },
+        "source": "expansion",
+        "evidenceRole": "definition",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.9
+      },
+      {
+        "spanId": "dsn_6843c76a9a62273540943e36",
+        "ref": "dsn_6843c76a9a62273540943e36",
+        "quotedText": "The terms 'Data controller' , 'Data sub ject' , 'Personal data' , 'Processing' , 'Data processor' and 'Supervisory authority' as used in this DPA have the meanings given in the Data Protection Legislation.",
+        "structuralPath": "document.clause_1.subclause_1.1.paragraph_33",
+        "charRange": [
+          8138,
+          8343
+        ],
+        "scope": {
+          "documentId": "doc_f78d0984-9ab5-4d73-b963-d2e56017da49",
+          "structuralPath": "document.clause_1.subclause_1.1.paragraph_33"
+        },
+        "source": "expansion",
+        "evidenceRole": "definition",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.9
+      },
+      {
+        "spanId": "dsn_caf5039701617f48bd41ad20",
+        "ref": "dsn_caf5039701617f48bd41ad20",
+        "quotedText": "(c)  Administrator is a controller or processor, as applicable, of Personal Data under the Data Protection Legislation; and",
+        "structuralPath": "document.list_item_(c)",
+        "charRange": [
+          8848,
+          8971
+        ],
+        "scope": {
+          "documentId": "doc_f78d0984-9ab5-4d73-b963-d2e56017da49",
+          "structuralPath": "document.list_item_(c)"
+        },
+        "source": "expansion",
+        "evidenceRole": "context",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.9
+      }
+    ],
+    "partitions": [
+      {
+        "partitionId": "P1",
+        "scope": {
+          "documentId": "doc_f78d0984-9ab5-4d73-b963-d2e56017da49"
+        },
+        "itemSpanIds": [
+          "dsn_64660d17772d0007f83dc9ad",
+          "dsn_5d85f0aff5caccc6e125afea",
+          "dsn_1d28a3bd5bc7f471cd9bcac1",
+          "dsn_6843c76a9a62273540943e36",
+          "dsn_caf5039701617f48bd41ad20"
+        ]
+      }
+    ],
+    "exclusions": [
+      {
+        "spanId": "dsn_e4efcece010046205ca8da78",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_0b5eec17646744e5097f37ca",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_f407179aed5d6ee14aeec783",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_327b94881b4e374a46ab72f4",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_7368c59386145b8609e47989",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.9"
+      },
+      {
+        "spanId": "dsn_371318afd6229bfb45da39ac",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.9"
+      },
+      {
+        "spanId": "dsn_bde6b0bfcbef339c188b5824",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_e5282b6a584b68ded18b8037",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_1288233194c39e7a0bb1d514",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_1560e22109f0f9dd535c11d1",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_c80bb417fc8fe926795b0e6f",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_4e422d376fd8bafaaca4177a",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.9"
+      },
+      {
+        "spanId": "dsn_88a2714c1f05ef6ff4da0e1c",
+        "reason": "budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_8f0b5215dbbb77bf91a2fa7d",
+        "reason": "budget",
+        "detail": "role_budget:context"
+      }
+    ],
+    "dependencies": [
+      {
+        "reference": "dsn_64660d17772d0007f83dc9ad:refers_to",
+        "state": "resolved_internal",
+        "targetSpanIds": [
+          "dsn_13c96b86a8a716b975c407bb"
+        ]
+      },
+      {
+        "reference": "dsn_64660d17772d0007f83dc9ad:external_reference",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      }
+    ],
+    "estimatedTokens": 345,
+    "investigationComplete": false,
+    "incompleteReasons": [
+      "primary_evidence_missing",
+      "element_unresolved:authority_notification",
+      "element_unresolved:deadline_and_delay"
+    ]
+  }
+}

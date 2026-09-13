@@ -1,0 +1,793 @@
+{
+  "sessionId": "an_75767683-12ab-4d40-9de5-db3bdf321e14",
+  "stage": "investigation_complete",
+  "dumpedAt": "2026-09-13T19:06:20.027Z",
+  "requirementId": "gdpr.art28.9",
+  "packageId": "rule:regimes/data-protection/gdpr",
+  "recall": {
+    "requirementId": "gdpr.art28.9",
+    "uniqueCandidateCount": 19,
+    "elementsWithCandidates": [
+      "written_form"
+    ],
+    "elementsWithoutCandidates": [],
+    "totalQueries": 5,
+    "proofElementsCovered": [
+      "written_form"
+    ],
+    "proofElementsUnresolved": [],
+    "acceptedCandidateCount": 6,
+    "semanticRejectedCandidateCount": 4,
+    "budgetOmittedCandidateCount": 9,
+    "unclassifiedCandidateCount": 0
+  },
+  "queries": [
+    {
+      "queryId": "GNQ-1",
+      "requirementId": "gdpr.art28.9",
+      "kind": "requirement",
+      "text": "written agreement"
+    },
+    {
+      "queryId": "GNQ-2",
+      "requirementId": "gdpr.art28.9",
+      "kind": "requirement",
+      "text": "The Article 28(3) and 28(4) processing terms are recorded in writing, including electronic form."
+    },
+    {
+      "queryId": "GNQ-3",
+      "requirementId": "gdpr.art28.9",
+      "kind": "requirement",
+      "text": "forms part of the agreement"
+    },
+    {
+      "queryId": "GNQ-4",
+      "requirementId": "gdpr.art28.9",
+      "kind": "requirement",
+      "text": "data processing addendum"
+    },
+    {
+      "queryId": "GNQ-5",
+      "requirementId": "gdpr.art28.9",
+      "kind": "requirement",
+      "text": "structural:parent_context"
+    }
+  ],
+  "hits": [
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_26fcd5bd74e289a4a5086240",
+      "ref": "dsn_26fcd5bd74e289a4a5086240",
+      "denseRank": 4,
+      "lexicalRank": 6,
+      "selectedBy": [
+        "exact",
+        "sparse",
+        "dense"
+      ],
+      "score": 0.267169957774466,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.85,
+      "reviewReason": "Refers to a written agreement entered into with sub-processors rather than proving that this DPA itself between controller and processor is recorded in writing.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_26fcd5bd74e289a4a5086240",
+      "ref": "dsn_26fcd5bd74e289a4a5086240",
+      "denseRank": 4,
+      "lexicalRank": 6,
+      "selectedBy": [
+        "exact",
+        "sparse",
+        "dense"
+      ],
+      "score": 0.267169957774466,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.85,
+      "reviewReason": "Refers to a written agreement entered into with sub-processors rather than proving that this DPA itself between controller and processor is recorded in writing.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_d1ec10558c5880f7cd37da69",
+      "ref": "dsn_d1ec10558c5880f7cd37da69",
+      "denseRank": 10,
+      "lexicalRank": 20,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.2167857142857143,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "written_form"
+      ],
+      "reviewConfidence": 0.8,
+      "reviewReason": "Confirms the entry into 'this Data Processing Agreement' and references documented instructions within it, supporting written form."
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_d1ec10558c5880f7cd37da69",
+      "ref": "dsn_d1ec10558c5880f7cd37da69",
+      "denseRank": 10,
+      "lexicalRank": 20,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.2167857142857143,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "written_form"
+      ],
+      "reviewConfidence": 0.8,
+      "reviewReason": "Confirms the entry into 'this Data Processing Agreement' and references documented instructions within it, supporting written form."
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_8d97532a308944ce679df961",
+      "ref": "dsn_8d97532a308944ce679df961",
+      "denseRank": 1,
+      "lexicalRank": 1,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.18278688524590161,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.75,
+      "reviewReason": "Refers to statutory Article 28(3) obligations imposed on sub-processors.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-3",
+      "spanId": "dsn_d2b8160acfdd67fe2dfd2245",
+      "ref": "dsn_d2b8160acfdd67fe2dfd2245",
+      "denseRank": 20,
+      "lexicalRank": 2,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1786290322580645,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "written_form"
+      ],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Operative clause establishing that this Data Processing Agreement is an addendum forming part of the master agreement in written/electronic form."
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_d2b8160acfdd67fe2dfd2245",
+      "ref": "dsn_d2b8160acfdd67fe2dfd2245",
+      "denseRank": 20,
+      "lexicalRank": 2,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1786290322580645,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "written_form"
+      ],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Operative clause establishing that this Data Processing Agreement is an addendum forming part of the master agreement in written/electronic form."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_cc25dcb626d1e123dfd178ca",
+      "ref": "dsn_cc25dcb626d1e123dfd178ca",
+      "denseRank": 5,
+      "lexicalRank": 23,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1774328081556997,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "written_form"
+      ],
+      "reviewConfidence": 0.7,
+      "reviewReason": "States the effectiveness of the DPA, supporting its existence as an active agreement."
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_cc25dcb626d1e123dfd178ca",
+      "ref": "dsn_cc25dcb626d1e123dfd178ca",
+      "denseRank": 5,
+      "lexicalRank": 23,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1774328081556997,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "written_form"
+      ],
+      "reviewConfidence": 0.7,
+      "reviewReason": "States the effectiveness of the DPA, supporting its existence as an active agreement."
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_ce61ee53ec7675da71ead961",
+      "ref": "dsn_ce61ee53ec7675da71ead961",
+      "denseRank": 18,
+      "lexicalRank": 9,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.17731326644370124,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "written_form"
+      ],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Expressly demonstrates execution of the agreement in electronic form ('I ACCEPT' click-through button)."
+    },
+    {
+      "queryId": "GNQ-4",
+      "spanId": "dsn_ce61ee53ec7675da71ead961",
+      "ref": "dsn_ce61ee53ec7675da71ead961",
+      "denseRank": 18,
+      "lexicalRank": 9,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.17731326644370124,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "written_form"
+      ],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Expressly demonstrates execution of the agreement in electronic form ('I ACCEPT' click-through button)."
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_633e965fdb33bd9fe0afcacf",
+      "ref": "dsn_633e965fdb33bd9fe0afcacf",
+      "denseRank": 22,
+      "lexicalRank": 12,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1760840108401084,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Concerns international transfers under Article 46 GDPR to the Russian Federation.",
+      "exclusionReason": "rejected:irrelevant:0.9"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_fc80efe281db41ee1800dab4",
+      "ref": "dsn_fc80efe281db41ee1800dab4",
+      "denseRank": 3,
+      "lexicalRank": 14,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1293865293865294,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.7,
+      "reviewReason": "Fragment referencing ensuring compliance via a written contract with sub-processors.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_052ec7ca1d6d8bc00530a3b9",
+      "ref": "dsn_052ec7ca1d6d8bc00530a3b9",
+      "denseRank": 23,
+      "lexicalRank": 15,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.12538152610441766,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "written_form"
+      ],
+      "reviewConfidence": 0.8,
+      "reviewReason": "States that the DPA reflects the parties' agreement governing processing terms."
+    },
+    {
+      "queryId": "GNQ-4",
+      "spanId": "dsn_052ec7ca1d6d8bc00530a3b9",
+      "ref": "dsn_052ec7ca1d6d8bc00530a3b9",
+      "denseRank": 23,
+      "lexicalRank": 15,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.12538152610441766,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "written_form"
+      ],
+      "reviewConfidence": 0.8,
+      "reviewReason": "States that the DPA reflects the parties' agreement governing processing terms."
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_d110a9e2a460c527c94868fc",
+      "ref": "dsn_d110a9e2a460c527c94868fc",
+      "denseRank": 11,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.12408450704225353,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.75,
+      "reviewReason": "Relates to sub-processor access limits under the agreement.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_2a8f78794d79eaa0baaef29f",
+      "ref": "dsn_2a8f78794d79eaa0baaef29f",
+      "denseRank": 15,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.12333333333333334,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.7,
+      "reviewReason": "Relates to engaging sub-processors.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-4",
+      "spanId": "dsn_edb945a2baaac9a7669c885c",
+      "ref": "dsn_edb945a2baaac9a7669c885c",
+      "denseRank": 2,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08612903225806452,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.6,
+      "reviewReason": "Timestamp indicating document version.",
+      "exclusionReason": "rejected:context:0.6"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_e7446528db11cdfcd590169b",
+      "ref": "dsn_e7446528db11cdfcd590169b",
+      "denseRank": 7,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08492537313432837,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.7,
+      "reviewReason": "Describes Appendix 1 details.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_e913a7275158c113ddece6f9",
+      "ref": "dsn_e913a7275158c113ddece6f9",
+      "denseRank": 8,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08470588235294119,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.6,
+      "reviewReason": "Heading fragment regarding responsibilities.",
+      "exclusionReason": "rejected:context:0.6"
+    },
+    {
+      "queryId": "GNQ-4",
+      "spanId": "dsn_9e8327daa10029983df8bb36",
+      "ref": "dsn_9e8327daa10029983df8bb36",
+      "denseRank": 9,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08449275362318841,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.65,
+      "reviewReason": "Generic compliance clause.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_dab7a47f1076c4ee8330bd95",
+      "ref": "dsn_dab7a47f1076c4ee8330bd95",
+      "denseRank": 21,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08234567901234568,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Cross-reference to Section 8 (Data Incidents).",
+      "exclusionReason": "rejected:irrelevant:0.9"
+    },
+    {
+      "queryId": "GNQ-5",
+      "spanId": "dsn_82439bbd233b4d21201e7ef2",
+      "ref": "dsn_82439bbd233b4d21201e7ef2",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.85,
+      "reviewReason": "This text specifies compliance duties and notification obligations regarding processing instructions, but does not establish or prove the written form requirement of the contract.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-5",
+      "spanId": "dsn_f9130b26e97c0d99cc684c16",
+      "ref": "dsn_f9130b26e97c0d99cc684c16",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "written_form"
+      ],
+      "reviewConfidence": 0.75,
+      "reviewReason": "The title 'DATA PROCESSING AGREEMENT' demonstrates that the processing terms are embodied in a written document.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-5",
+      "spanId": "dsn_8bbe22b2cff5e03ab8f5e270",
+      "ref": "dsn_8bbe22b2cff5e03ab8f5e270",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "This heading text is structural context and does not provide evidence regarding the written form requirement of processor terms."
+    }
+  ],
+  "expansions": [
+    {
+      "requirementId": "gdpr.art28.9",
+      "seedSpanId": "dsn_052ec7ca1d6d8bc00530a3b9",
+      "addedSpanId": "dsn_8bbe22b2cff5e03ab8f5e270",
+      "reason": "parent"
+    }
+  ],
+  "expansionLimits": [],
+  "bundle": {
+    "bundleId": "INV-gdpr.art28.9-doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+    "requirementId": "gdpr.art28.9",
+    "items": [
+      {
+        "spanId": "dsn_d2b8160acfdd67fe2dfd2245",
+        "ref": "dsn_d2b8160acfdd67fe2dfd2245",
+        "quotedText": "This Data Processing Agreement ('DPA', 'Agreement') is an addendum to and forms part of the master agreement between the Administrator of Bitrix24 Customer Account and Alaio (https://www.bitrix24.com/terms/) to reflect the parties' agreement for the provision of the Processor Services (as amended from time to time) and processing of Bitrix24 Customer Account User's Personal Data in accordance with the requirements of the Data Protection Legislation.",
+        "structuralPath": "document.section_data_processing_agreement.paragraph_3",
+        "charRange": [
+          60,
+          513
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.section_data_processing_agreement.paragraph_3",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "primary",
+        "contributesToElementIds": [
+          "written_form"
+        ],
+        "investigationConfidence": 0.95,
+        "investigationReason": "Operative clause establishing that this Data Processing Agreement is an addendum forming part of the master agreement in written/electronic form.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "forms part of the agreement",
+          "The Article 28(3) and 28(4) processing terms are recorded in writing, including electronic form."
+        ]
+      },
+      {
+        "spanId": "dsn_ce61ee53ec7675da71ead961",
+        "ref": "dsn_ce61ee53ec7675da71ead961",
+        "quotedText": "BY CLICKING THE \"I ACCEPT\" BUTTON BELOW, YOU (A) ACKNOWLEDGE THAT YOU HAVE READ AND UNDERSTAND THIS AGREEMENT; (B) REPRESENT AND WARRANT THAT YOU HAVE THE RIGHT, POWER, AND AUTHORITY TO ENTER INTO THIS AGREEMENT; AND (C) ACCEPT THIS AGREEMENT AND AGREE THAT YOU ARE LEGALLY BOUND BY ITS TERMS.",
+        "structuralPath": "document.section_data_processing_agreement.paragraph_5",
+        "charRange": [
+          588,
+          881
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.section_data_processing_agreement.paragraph_5",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "primary",
+        "contributesToElementIds": [
+          "written_form"
+        ],
+        "investigationConfidence": 0.95,
+        "investigationReason": "Expressly demonstrates execution of the agreement in electronic form ('I ACCEPT' click-through button).",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "The Article 28(3) and 28(4) processing terms are recorded in writing, including electronic form.",
+          "data processing addendum"
+        ]
+      },
+      {
+        "spanId": "dsn_d1ec10558c5880f7cd37da69",
+        "ref": "dsn_d1ec10558c5880f7cd37da69",
+        "quotedText": "4 By entering into this Data Processing Agreement, Administrator instructs Alaio to process Personal Data only in accordance with applicable law: (a) to provide the Processor Services and any related technical support; (b) as further specified via Administrator´s use of the Processor Services (including in the settings and other functionality of the Processor Services) and any related technical support; (c) as documented in this Data Processing Agreement; and (d) as further documented in any other written instructions given by Administrator and acknowledged by Bitrix24 as constituting instructions for purposes of this Data Processing Agreement.",
+        "structuralPath": "document.list_item_(e).list_item_44",
+        "charRange": [
+          10239,
+          10891
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.list_item_(e).list_item_44",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "supporting",
+        "contributesToElementIds": [
+          "written_form"
+        ],
+        "investigationConfidence": 0.8,
+        "investigationReason": "Confirms the entry into 'this Data Processing Agreement' and references documented instructions within it, supporting written form.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "written agreement",
+          "The Article 28(3) and 28(4) processing terms are recorded in writing, including electronic form."
+        ]
+      },
+      {
+        "spanId": "dsn_052ec7ca1d6d8bc00530a3b9",
+        "ref": "dsn_052ec7ca1d6d8bc00530a3b9",
+        "quotedText": "This DPA reflect the parties' agreement on the terms governing the processing and security of User Personal Data in connection with the Data Protection Legislation.",
+        "structuralPath": "document.clause_1.paragraph_10",
+        "charRange": [
+          1214,
+          1378
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.clause_1.paragraph_10",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "supporting",
+        "contributesToElementIds": [
+          "written_form"
+        ],
+        "investigationConfidence": 0.8,
+        "investigationReason": "States that the DPA reflects the parties' agreement governing processing terms.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "The Article 28(3) and 28(4) processing terms are recorded in writing, including electronic form.",
+          "data processing addendum"
+        ]
+      },
+      {
+        "spanId": "dsn_cc25dcb626d1e123dfd178ca",
+        "ref": "dsn_cc25dcb626d1e123dfd178ca",
+        "quotedText": "This Data Processing Agreement will be effective from the Effective Date.",
+        "structuralPath": "document.section_data_processing_agreement.paragraph_4",
+        "charRange": [
+          514,
+          587
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.section_data_processing_agreement.paragraph_4",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "supporting",
+        "contributesToElementIds": [
+          "written_form"
+        ],
+        "investigationConfidence": 0.7,
+        "investigationReason": "States the effectiveness of the DPA, supporting its existence as an active agreement.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "written agreement",
+          "The Article 28(3) and 28(4) processing terms are recorded in writing, including electronic form."
+        ]
+      },
+      {
+        "spanId": "dsn_8bbe22b2cff5e03ab8f5e270",
+        "ref": "dsn_8bbe22b2cff5e03ab8f5e270",
+        "quotedText": "1.  INTRODUCTION",
+        "structuralPath": "document.clause_1",
+        "charRange": [
+          1197,
+          1213
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.clause_1",
+          "relationship": "unspecified"
+        },
+        "source": "expansion",
+        "evidenceRole": "context",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.9,
+        "investigationReason": "This heading text is structural context and does not provide evidence regarding the written form requirement of processor terms.",
+        "retrievalChannels": [],
+        "matchedQueries": [
+          "structural:parent_context"
+        ]
+      }
+    ],
+    "partitions": [
+      {
+        "partitionId": "P1",
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5"
+        },
+        "itemSpanIds": [
+          "dsn_d2b8160acfdd67fe2dfd2245",
+          "dsn_ce61ee53ec7675da71ead961",
+          "dsn_d1ec10558c5880f7cd37da69",
+          "dsn_052ec7ca1d6d8bc00530a3b9",
+          "dsn_cc25dcb626d1e123dfd178ca",
+          "dsn_8bbe22b2cff5e03ab8f5e270"
+        ]
+      }
+    ],
+    "exclusions": [
+      {
+        "spanId": "dsn_633e965fdb33bd9fe0afcacf",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.9"
+      },
+      {
+        "spanId": "dsn_edb945a2baaac9a7669c885c",
+        "reason": "semantic_rejection",
+        "detail": "rejected:context:0.6"
+      },
+      {
+        "spanId": "dsn_e913a7275158c113ddece6f9",
+        "reason": "semantic_rejection",
+        "detail": "rejected:context:0.6"
+      },
+      {
+        "spanId": "dsn_dab7a47f1076c4ee8330bd95",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.9"
+      },
+      {
+        "spanId": "dsn_26fcd5bd74e289a4a5086240",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_82439bbd233b4d21201e7ef2",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_8d97532a308944ce679df961",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_d110a9e2a460c527c94868fc",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_f9130b26e97c0d99cc684c16",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_fc80efe281db41ee1800dab4",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_2a8f78794d79eaa0baaef29f",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_e7446528db11cdfcd590169b",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_9e8327daa10029983df8bb36",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      }
+    ],
+    "dependencies": [
+      {
+        "reference": "dsn_d2b8160acfdd67fe2dfd2245:forms_part_of",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      }
+    ],
+    "estimatedTokens": 413,
+    "investigationComplete": true,
+    "incompleteReasons": []
+  },
+  "provenance": {
+    "queries": "graph_native",
+    "hits": "graph_native",
+    "expansions": "graph_native",
+    "bundle": "graph_native"
+  }
+}

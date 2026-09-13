@@ -1,0 +1,39 @@
+{
+  "sessionId": "an_7176406d-d16d-4181-a46d-d3db44b66788",
+  "stage": "investigation_complete",
+  "dumpedAt": "2026-09-12T13:06:12.691Z",
+  "requirementId": "unresolved:gdpr.article33.notification_timeframe",
+  "packageId": "unresolved",
+  "recall": {
+    "requirementId": "unresolved:gdpr.article33.notification_timeframe",
+    "uniqueCandidateCount": 0,
+    "elementsWithCandidates": [],
+    "elementsWithoutCandidates": [
+      "E1"
+    ],
+    "totalQueries": 0
+  },
+  "queries": [],
+  "hits": [],
+  "expansions": [],
+  "expansionLimits": [],
+  "bundle": {
+    "bundleId": "INV-INCOMPLETE-unresolved:gdpr.article33.notification_timeframe-doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+    "requirementId": "unresolved:gdpr.article33.notification_timeframe",
+    "items": [],
+    "partitions": [],
+    "exclusions": [
+      {
+        "spanId": "__investigation__",
+        "reason": "budget",
+        "detail": "facet_unresolved:Extract notification timeframes, specifically looking for compliance with the 72-hour requirement: No authored atomic rule could be safely selected for this requested compliance facet."
+      }
+    ],
+    "dependencies": [],
+    "estimatedTokens": 0,
+    "investigationComplete": false,
+    "incompleteReasons": [
+      "facet_unresolved"
+    ]
+  }
+}

@@ -1,0 +1,57 @@
+import type { RequirementStatus, VerificationRequest, VerificationResult } from "../contracts/index.js";
+import { aggregateElements } from "./aggregate-elements.js";
+export function assessRequirement(request: VerificationRequest, result: VerificationResult): RequirementStatus {
+  return assessRequirementWithReason(request, result).status;
+}
+export interface AssessmentDecision {
+  status: RequirementStatus;
+  gate: string;
+  details: Record<string, unknown>;
+}
+/** Same policy and branch order as Assess; exposes the actual stopping gate for replay. */
+export function assessRequirementWithReason(request: VerificationRequest, result: VerificationResult): AssessmentDecision {
+  const decide = (status: RequirementStatus, gate: string, details: Record<string, unknown> = {}): AssessmentDecision => ({ status, gate, details });
+  if (!request.check.rule || result.kind !== "verified")
+    return decide("verification_incomplete", !request.check.rule ? "baseline_unavailable" : "verification_not_validated", { baselineError: request.check.baselineError, result });
+  const d = result.decision;
+  if (d.reviewRequired.length)
+    return decide(d.reviewRequired.includes("semantic_disagreement") || d.reviewRequired.includes("cross_rule_conflict") ? "judgment_required" : "cannot_determine", "review_unresolved", { reviewRequired: d.reviewRequired });
+  if (d.applicability.state === "unknown")
+    return decide("cannot_determine", "applicability_unknown", { applicability: d.applicability });
+  if (d.applicability.state === "not_applicable" && d.elements.some(e=>[...e.limitations,...e.conflicts].some(c=>c.materiality!=="immaterial")))
+    return decide("cannot_determine", "not_applicable_with_material_concerns", { elements: d.elements });
+  if (d.applicability.state === "not_applicable")
+    return decide("not_applicable", "grounded_exclusion", { applicability: d.applicability });
+  const relevant = new Set<string>();
+  const collect = (node: typeof request.check.rule.aggregation): void => {
+    if ("elementId" in node)
+      relevant.add(node.elementId);
+    else
+      node.children.forEach(collect);
+  };
+  collect(request.check.rule.aggregation);
+  const elements=d.elements.filter(e=>relevant.has(e.elementId) && e.applicability.state!=="not_applicable");
+  if (elements.some(e=>e.limitations.some(l=>l.materiality!=="immaterial") || e.conflicts.some(c=>c.materiality==="unknown"))) return decide("cannot_determine", "material_or_unknown_concern", { elements });
+  if (request.check.rule.relationshipScopes.length && elements.some(e=>(e.state==="supported" || e.state==="contradicted" || e.conflicts.some(c=>c.materiality==="material")) && !request.check.rule!.relationshipScopes.includes(e.actorScope.relationshipScope))) return decide("cannot_determine", "actor_scope_unresolved", { allowed: request.check.rule.relationshipScopes, elements });
+  if (elements.some(e=>e.conflicts.some(c=>c.materiality==="material"))) return decide("conflicting", "material_conflict", { elements });
+  const material = d.dependencies.some(dep => dep.materiality !== "immaterial" && (!dep.elementIds.length || dep.elementIds.some(id => relevant.has(id))) && request.bundle.dependencies.find(x => x.id === dep.id)?.state !== "resolved_internal");
+  if (material)
+    return decide("cannot_determine", "unresolved_material_dependency", { decisions: d.dependencies, dependencies: request.bundle.dependencies, relevantElementIds: [...relevant] });
+  if (d.elements.some(e => relevant.has(e.elementId) && e.state === "contradicted"))
+    return decide("conflicting", "contradicted_element", { elements });
+  if (request.bundle.executionStatus !== "complete")
+    return decide("cannot_determine", "investigation_execution_not_complete", { executionStatus: request.bundle.executionStatus, coverageReasons: request.bundle.coverageReasons, unestablishedElementIds: request.bundle.unestablishedElementIds });
+  const coverageIssues = request.bundle.coverageIssues;
+  if (coverageIssues?.some(issue => issue.materiality !== "immaterial" && (!issue.elementIds.length || issue.elementIds.some(id => relevant.has(id)))))
+    return decide("cannot_determine", "material_coverage_omission", { coverageIssues });
+  // An old string-only exclusion has no reliable materiality. Do not silently
+  // infer that historical coverage was adequate.
+  if (!coverageIssues && request.bundle.coverageReasons.length)
+    return decide("cannot_determine", "coverage_materiality_unknown", { coverageReasons: request.bundle.coverageReasons });
+  const aggregation = aggregateElements(request.check.rule.aggregation, d.elements);
+  if (aggregation.state === "unknown" || aggregation.state === "excluded")
+    return decide("cannot_determine", "aggregation_unresolved", { aggregation });
+  if (aggregation.state === "satisfied")
+    return decide("present", "aggregation_satisfied", { aggregation });
+  return decide(aggregation.supported ? "partial" : "gap", "aggregation_shortfall", { aggregation });
+}

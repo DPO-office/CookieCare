@@ -7,7 +7,7 @@ import {
   type RequirementStatus,
 } from "../../models/requirement-assessment.js";
 import { getSpanFromState } from "../act/execute-act-plan.js";
-import { aggregateRequirements } from "../act/aggregate-requirements.js";
+import { aggregateRequirements } from "../act/operations/aggregate-requirement-results.js";
 import { normalizeWhitespaceLower } from "../../shared/text-normalize.js";
 import { subprovisionKeyFromId } from "../../shared/article-linkage.js";
 
@@ -161,13 +161,6 @@ export function groundFindings(state: AnalysisState): AnalysisState {
     findings
   );
   const assessments = (aggregated.state.requirementAssessments ?? []).map((assessment) => {
-    // Locked Phase 4–7 projections intentionally have empty supportingFindingIds.
-    if (
-      aggregated.state.metadata?.complianceLiveLockRender ||
-      assessment.structuralNote?.startsWith("Locked ")
-    ) {
-      return assessment;
-    }
     const support = findings.filter(
       (f) =>
         assessment.supportingFindingIds.includes(f.findingId) && f.status === "present"

@@ -23,7 +23,7 @@ const {
   resolveWorkUnits,
 } = await import("../../capabilities/critique/resolve-work-unit.js");
 const { buildRightsMatrixMemoDocument } = await import(
-  "../../capabilities/act/render-output.js"
+  "../../capabilities/reporting/render-output.js"
 );
 
 function baseState(overrides: Partial<AnalysisState> = {}): AnalysisState {

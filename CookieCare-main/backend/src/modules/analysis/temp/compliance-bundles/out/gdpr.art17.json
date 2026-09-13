@@ -1,0 +1,615 @@
+{
+  "sessionId": "an_7ac91344-af07-4d98-95e2-6f1f41bf0d5c",
+  "stage": "investigation_complete",
+  "dumpedAt": "2026-09-13T19:14:01.746Z",
+  "requirementId": "gdpr.art17",
+  "packageId": "rule:regimes/data-protection/gdpr",
+  "recall": {
+    "requirementId": "gdpr.art17",
+    "uniqueCandidateCount": 17,
+    "elementsWithCandidates": [
+      "erasure_right"
+    ],
+    "elementsWithoutCandidates": [
+      "recognized_grounds",
+      "without_undue_delay",
+      "public_data_propagation",
+      "bounded_exceptions"
+    ],
+    "totalQueries": 4,
+    "proofElementsCovered": [],
+    "proofElementsUnresolved": [
+      "erasure_right",
+      "recognized_grounds",
+      "without_undue_delay",
+      "public_data_propagation",
+      "bounded_exceptions"
+    ],
+    "acceptedCandidateCount": 4,
+    "semanticRejectedCandidateCount": 10,
+    "budgetOmittedCandidateCount": 3,
+    "unclassifiedCandidateCount": 0
+  },
+  "queries": [
+    {
+      "queryId": "GNQ-1",
+      "requirementId": "gdpr.art17",
+      "kind": "requirement",
+      "text": "delete personal data"
+    },
+    {
+      "queryId": "GNQ-2",
+      "requirementId": "gdpr.art17",
+      "kind": "requirement",
+      "text": "The contract commits to erasing personal data without undue delay when an Article 17(1) ground applies (data no longer necessary, withdrawn consent with no other lawful basis, successful objection, unlawful processing, a legal erasure obligation, or child-service data collection), subject only to the Article 17(3) exceptions, and takes reasonable steps to inform other controllers where the data was made public."
+    },
+    {
+      "queryId": "GNQ-3",
+      "requirementId": "gdpr.art17",
+      "kind": "requirement",
+      "text": "upon request"
+    },
+    {
+      "queryId": "GNQ-4",
+      "requirementId": "gdpr.art17",
+      "kind": "requirement",
+      "text": "structural:parent_context"
+    }
+  ],
+  "hits": [
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_f894793c875b7b2c74037e13",
+      "ref": "dsn_f894793c875b7b2c74037e13",
+      "denseRank": 5,
+      "lexicalRank": 5,
+      "selectedBy": [
+        "exact",
+        "sparse",
+        "dense"
+      ],
+      "score": 0.3171626733921816,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "erasure_right"
+      ],
+      "reviewConfidence": 0.75,
+      "reviewReason": "Commits to assisting the Administrator to fulfill data subject requests to delete personal data under Chapter III, but does not detail all Article 17(1) grounds or timing."
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_f894793c875b7b2c74037e13",
+      "ref": "dsn_f894793c875b7b2c74037e13",
+      "denseRank": 5,
+      "lexicalRank": 5,
+      "selectedBy": [
+        "exact",
+        "sparse",
+        "dense"
+      ],
+      "score": 0.3171626733921816,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "erasure_right"
+      ],
+      "reviewConfidence": 0.75,
+      "reviewReason": "Commits to assisting the Administrator to fulfill data subject requests to delete personal data under Chapter III, but does not detail all Article 17(1) grounds or timing."
+    },
+    {
+      "queryId": "GNQ-3",
+      "spanId": "dsn_7f43008b758f2aee95efbc2d",
+      "ref": "dsn_7f43008b758f2aee95efbc2d",
+      "denseRank": null,
+      "lexicalRank": 2,
+      "selectedBy": [
+        "exact"
+      ],
+      "score": 0.24612903225806448,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Concerns audit rights and fees.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_009b36df8e35a8a4fb93e7e1",
+      "ref": "dsn_009b36df8e35a8a4fb93e7e1",
+      "denseRank": 12,
+      "lexicalRank": 3,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.21976190476190477,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Concerns sub-processor engagement and objection procedures.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_1430eff3dd13d7608aff0cf5",
+      "ref": "dsn_1430eff3dd13d7608aff0cf5",
+      "denseRank": 11,
+      "lexicalRank": 9,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.21857726066544192,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "erasure_right"
+      ],
+      "reviewConfidence": 0.75,
+      "reviewReason": "Requires processor to assist administrator upon receiving deletion requests from data subjects."
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_2a8f78794d79eaa0baaef29f",
+      "ref": "dsn_2a8f78794d79eaa0baaef29f",
+      "denseRank": 21,
+      "lexicalRank": 22,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.2145408009635652,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to general sub-processor engagement requirements.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_144305d331f96bd2e853c93c",
+      "ref": "dsn_144305d331f96bd2e853c93c",
+      "denseRank": 14,
+      "lexicalRank": 1,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.17990695613646432,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to data incident notifications.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_8d97532a308944ce679df961",
+      "ref": "dsn_8d97532a308944ce679df961",
+      "denseRank": 23,
+      "lexicalRank": 2,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.17817722502914884,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to Art 28(3) obligations for sub-processors.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_e7446528db11cdfcd590169b",
+      "ref": "dsn_e7446528db11cdfcd590169b",
+      "denseRank": 22,
+      "lexicalRank": 23,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.17424331472230384,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.85,
+      "reviewReason": "Refers to Appendix 1 details.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_a5e1ef7ee724e3d2543d6266",
+      "ref": "dsn_a5e1ef7ee724e3d2543d6266",
+      "denseRank": 1,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.12639344262295082,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "limitation",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.8,
+      "reviewReason": "Addresses deletion strictly upon term expiry (contract termination), which per proof standard provides only partial coverage and does not fulfill mid-term Article 17 erasure obligations."
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_d110a9e2a460c527c94868fc",
+      "ref": "dsn_d110a9e2a460c527c94868fc",
+      "denseRank": 2,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.12612903225806452,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to sub-processor use limitations.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_15887cd108208cc38846377e",
+      "ref": "dsn_15887cd108208cc38846377e",
+      "denseRank": 4,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.085625,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Heading for sub-processor objection rights.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_9e8327daa10029983df8bb36",
+      "ref": "dsn_9e8327daa10029983df8bb36",
+      "denseRank": 7,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08492537313432837,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.7,
+      "reviewReason": "General compliance statement regarding data protection legislation.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_ca31b13eae9aecb68d627007",
+      "ref": "dsn_ca31b13eae9aecb68d627007",
+      "denseRank": 9,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08449275362318841,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Pertains to third-party breach notification obligations.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_a9d952773e50157847877a2d",
+      "ref": "dsn_a9d952773e50157847877a2d",
+      "denseRank": 10,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.0842857142857143,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to staff security compliance and confidentiality.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_e913a7275158c113ddece6f9",
+      "ref": "dsn_e913a7275158c113ddece6f9",
+      "denseRank": 15,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08333333333333334,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.85,
+      "reviewReason": "Heading for controller and processor roles.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_f757df4df94344b796557923",
+      "ref": "dsn_f757df4df94344b796557923",
+      "denseRank": 16,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08315789473684211,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to data incident details.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-4",
+      "spanId": "dsn_3a27733aa4a2782d0094adb9",
+      "ref": "dsn_3a27733aa4a2782d0094adb9",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "This node is a section heading ('4. RIGHTS OF DATA SUBJECTS') that provides structural context but does not establish any data erasure obligations or procedures."
+    }
+  ],
+  "expansions": [
+    {
+      "requirementId": "gdpr.art17",
+      "seedSpanId": "dsn_f894793c875b7b2c74037e13",
+      "addedSpanId": "dsn_3a27733aa4a2782d0094adb9",
+      "reason": "parent"
+    }
+  ],
+  "expansionLimits": [],
+  "bundle": {
+    "bundleId": "INV-gdpr.art17-doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+    "requirementId": "gdpr.art17",
+    "items": [
+      {
+        "spanId": "dsn_f894793c875b7b2c74037e13",
+        "ref": "dsn_f894793c875b7b2c74037e13",
+        "quotedText": "4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Personal Data, as required by Data Protection Legislation, Alaio will (taking into account the nature of the processing of Personal Data and, if applicable, Article 11 of the GDPR) assist Administrator in fulfilling any obligation of Administrator to respond to requests by data subjects, including (if applicable) Administrator´s  obligation to respond to requests for exercising the data sub ject's rights laid down in Chapter III of the GDPR and other Data Protection Legislation, by providing the functionality of the Processor Services;",
+        "structuralPath": "document.clause_4.subclause_4.1",
+        "charRange": [
+          12695,
+          13362
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.clause_4.subclause_4.1",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "supporting",
+        "contributesToElementIds": [
+          "erasure_right"
+        ],
+        "investigationConfidence": 0.75,
+        "investigationReason": "Commits to assisting the Administrator to fulfill data subject requests to delete personal data under Chapter III, but does not detail all Article 17(1) grounds or timing.",
+        "retrievalChannels": [
+          "exact",
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "delete personal data",
+          "The contract commits to erasing personal data without undue delay when an Article 17(1) ground applies (data no longer necessary, withdrawn consent with no other lawful basis, successful objection, unlawful processing, a legal erasure obligation, or child-service data collection), subject only to the Article 17(3) exceptions, and takes reasonable steps to inform other controllers where the data was made public."
+        ]
+      },
+      {
+        "spanId": "dsn_1430eff3dd13d7608aff0cf5",
+        "ref": "dsn_1430eff3dd13d7608aff0cf5",
+        "quotedText": "4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, correction, amendment, restriction, deletion or exercising any other rights under the GDPR or other Data Protection Legislation of that person's Personal Data. Alaio shall not respond to any such Data Subject request without Administrator´s  prior written consent except to confirm that the request relates to User. Alaio shall provide Administrator with cooperation and assistance in relation to handling of a Data Sub ject's request for access to that person's Personal Data or exercising any other rights under the GDPR or other Data Protection Legislation, to the extent legally permitted and to the extent User does not have access to such Personal Data through its use or receipt of the Services.",
+        "structuralPath": "document.clause_4.subclause_4.2",
+        "charRange": [
+          13363,
+          14205
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.clause_4.subclause_4.2",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "supporting",
+        "contributesToElementIds": [
+          "erasure_right"
+        ],
+        "investigationConfidence": 0.75,
+        "investigationReason": "Requires processor to assist administrator upon receiving deletion requests from data subjects.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "The contract commits to erasing personal data without undue delay when an Article 17(1) ground applies (data no longer necessary, withdrawn consent with no other lawful basis, successful objection, unlawful processing, a legal erasure obligation, or child-service data collection), subject only to the Article 17(3) exceptions, and takes reasonable steps to inform other controllers where the data was made public."
+        ]
+      },
+      {
+        "spanId": "dsn_a5e1ef7ee724e3d2543d6266",
+        "ref": "dsn_a5e1ef7ee724e3d2543d6266",
+        "quotedText": "5 Deletion on Term Expiry. On expiry of the Term, Administrator instructs Alaio to delete all Personal Data (including existing copies) from Bitrix24 systems in accordance with applicable law. Alaio will comply with this instruction as soon as reasonably practicable and within a maximum period of 90 days, unless any applicable law requires storage.",
+        "structuralPath": "document.list_item_(e).list_item_45",
+        "charRange": [
+          10892,
+          11242
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.list_item_(e).list_item_45",
+          "relationship": "unspecified"
+        },
+        "source": "expansion",
+        "evidenceRole": "limitation",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.8,
+        "investigationReason": "Addresses deletion strictly upon term expiry (contract termination), which per proof standard provides only partial coverage and does not fulfill mid-term Article 17 erasure obligations.",
+        "retrievalChannels": [
+          "dense"
+        ],
+        "matchedQueries": [
+          "The contract commits to erasing personal data without undue delay when an Article 17(1) ground applies (data no longer necessary, withdrawn consent with no other lawful basis, successful objection, unlawful processing, a legal erasure obligation, or child-service data collection), subject only to the Article 17(3) exceptions, and takes reasonable steps to inform other controllers where the data was made public."
+        ]
+      },
+      {
+        "spanId": "dsn_3a27733aa4a2782d0094adb9",
+        "ref": "dsn_3a27733aa4a2782d0094adb9",
+        "quotedText": "4. RIGHTS OF DATA SUBJECTS",
+        "structuralPath": "document.clause_4",
+        "charRange": [
+          12668,
+          12694
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.clause_4",
+          "relationship": "unspecified"
+        },
+        "source": "expansion",
+        "evidenceRole": "context",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.95,
+        "investigationReason": "This node is a section heading ('4. RIGHTS OF DATA SUBJECTS') that provides structural context but does not establish any data erasure obligations or procedures.",
+        "retrievalChannels": [],
+        "matchedQueries": [
+          "structural:parent_context"
+        ]
+      }
+    ],
+    "partitions": [
+      {
+        "partitionId": "P1",
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5"
+        },
+        "itemSpanIds": [
+          "dsn_f894793c875b7b2c74037e13",
+          "dsn_1430eff3dd13d7608aff0cf5",
+          "dsn_a5e1ef7ee724e3d2543d6266",
+          "dsn_3a27733aa4a2782d0094adb9"
+        ]
+      }
+    ],
+    "exclusions": [
+      {
+        "spanId": "dsn_7f43008b758f2aee95efbc2d",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_009b36df8e35a8a4fb93e7e1",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_2a8f78794d79eaa0baaef29f",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_144305d331f96bd2e853c93c",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_8d97532a308944ce679df961",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_d110a9e2a460c527c94868fc",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_15887cd108208cc38846377e",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_ca31b13eae9aecb68d627007",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_a9d952773e50157847877a2d",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_f757df4df94344b796557923",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_e7446528db11cdfcd590169b",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_e913a7275158c113ddece6f9",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_9e8327daa10029983df8bb36",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      }
+    ],
+    "dependencies": [
+      {
+        "reference": "dsn_f894793c875b7b2c74037e13:requires",
+        "state": "ambiguous",
+        "targetSpanIds": []
+      },
+      {
+        "reference": "dsn_f894793c875b7b2c74037e13:requires",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      },
+      {
+        "reference": "dsn_1430eff3dd13d7608aff0cf5:external_reference",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      }
+    ],
+    "estimatedTokens": 472,
+    "investigationComplete": false,
+    "incompleteReasons": [
+      "primary_evidence_missing",
+      "element_unresolved:erasure_right",
+      "element_unresolved:recognized_grounds",
+      "element_unresolved:without_undue_delay",
+      "element_unresolved:public_data_propagation",
+      "element_unresolved:bounded_exceptions"
+    ]
+  },
+  "provenance": {
+    "queries": "graph_native",
+    "hits": "graph_native",
+    "expansions": "graph_native",
+    "bundle": "graph_native"
+  }
+}

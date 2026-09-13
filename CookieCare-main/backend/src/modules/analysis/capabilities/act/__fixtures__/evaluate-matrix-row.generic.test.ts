@@ -17,7 +17,7 @@ const {
   selectRelevantClauses,
   MATRIX_ROW_MAX_OUTPUT_TOKENS,
   MATRIX_ROW_SYSTEM_INSTRUCTION,
-} = await import("../evaluate-matrix-row.js");
+} = await import("../operations/evaluate-comparison-row.js");
 
 function unit(overrides: Record<string, unknown> = {}): AnalysisWorkUnit {
   return {
@@ -242,7 +242,7 @@ describe("generic matrix row metadata", () => {
     const {
       MATRIX_ROW_MAX_CLAUSES,
       MATRIX_ROW_CLAUSE_CHAR_CAP,
-    } = await import("../evaluate-matrix-row.js");
+    } = await import("../operations/evaluate-comparison-row.js");
     const many: ClauseObject[] = Array.from({ length: 40 }, (_, index) => ({
       clauseId: `c${index}`,
       clauseType: "other",
@@ -269,7 +269,7 @@ describe("generic matrix row metadata", () => {
 
   it("times out a hung completion without waiting for it", async () => {
     const { withMatrixRowTimeout, isMatrixRowTimeout } = await import(
-      "../evaluate-matrix-row.js"
+      "../operations/evaluate-comparison-row.js"
     );
     const hung = new Promise<string>(() => undefined);
     await assert.rejects(

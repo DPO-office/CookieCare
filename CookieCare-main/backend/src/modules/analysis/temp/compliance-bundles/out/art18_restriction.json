@@ -1,0 +1,1856 @@
+{
+  "sessionId": "an_a885c63d-915d-4ee2-b4dd-6630af0dc915",
+  "stage": "investigation_complete",
+  "dumpedAt": "2026-09-12T10:35:15.428Z",
+  "requirementId": "art18_restriction",
+  "packageId": "gdpr.dsr.rights_verification",
+  "recall": {
+    "requirementId": "art18_restriction",
+    "uniqueCandidateCount": 26,
+    "elementsWithCandidates": [
+      "E1",
+      "E2",
+      "E3"
+    ],
+    "elementsWithoutCandidates": [],
+    "totalQueries": 9
+  },
+  "queries": [
+    {
+      "queryId": "Q1",
+      "requirementId": "art18_restriction",
+      "kind": "requirement",
+      "text": "Proven only by text that provides a RESTRICTION remedy distinct from both erasure and continued normal processing — data is marked/stored but excluded from further processing except with consent, for legal claims, to protect another's rights, or for important public interest — tied to at least one Article 18(1) ground (contested accuracy, unlawful processing with erasure opposed, controller no longer needs it but data subject does for legal claims, or a pending objection). A contract offering only 'delete or keep processing,' with no separate restriction option, does not satisfy this. Silence on restriction entirely is not proof."
+    },
+    {
+      "queryId": "Q2",
+      "requirementId": "art18_restriction",
+      "kind": "element",
+      "text": "Proven only by text that provides a RESTRICTION remedy distinct from both erasure and continued normal processing — data is marked/stored but excluded from further processing except with consent, for legal claims, to protect another's rights, or for important public interest — tied to at least one Article 18(1) ground (contested accuracy, unlawful processing with erasure opposed, controller no longer needs it but data subject does for legal claims, or a pending objection).",
+      "elementIds": [
+        "E1"
+      ]
+    },
+    {
+      "queryId": "Q3",
+      "requirementId": "art18_restriction",
+      "kind": "element",
+      "text": "A contract offering only 'delete or keep processing,' with no separate restriction option, does not satisfy this.",
+      "elementIds": [
+        "E2"
+      ]
+    },
+    {
+      "queryId": "Q4",
+      "requirementId": "art18_restriction",
+      "kind": "element",
+      "text": "Silence on restriction entirely is not proof.",
+      "elementIds": [
+        "E3"
+      ]
+    },
+    {
+      "queryId": "Q5",
+      "requirementId": "art18_restriction",
+      "kind": "exact_anchor",
+      "text": "art18 restriction",
+      "anchor": "art18 restriction"
+    },
+    {
+      "queryId": "Q6",
+      "requirementId": "art18_restriction",
+      "kind": "clause_type",
+      "text": "data subject request handling",
+      "anchor": "data_subject_request_handling"
+    },
+    {
+      "queryId": "Q7",
+      "requirementId": "art18_restriction",
+      "kind": "clause_type",
+      "text": "data subject rights",
+      "anchor": "data_subject_rights"
+    },
+    {
+      "queryId": "Q8",
+      "requirementId": "art18_restriction",
+      "kind": "clause_type",
+      "text": "automated decision disclosure",
+      "anchor": "automated_decision_disclosure"
+    },
+    {
+      "queryId": "Q9",
+      "requirementId": "art18_restriction",
+      "kind": "clause_type",
+      "text": "retention and deletion",
+      "anchor": "retention_and_deletion"
+    }
+  ],
+  "hits": [
+    {
+      "queryId": "Q1",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::13363-14205",
+      "ref": "S35",
+      "denseRank": null,
+      "lexicalRank": 1,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 81
+    },
+    {
+      "queryId": "Q1",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::29328-29637",
+      "ref": "S73",
+      "denseRank": null,
+      "lexicalRank": 2,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 44
+    },
+    {
+      "queryId": "Q1",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::12695-13362",
+      "ref": "S34",
+      "denseRank": null,
+      "lexicalRank": 3,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 41
+    },
+    {
+      "queryId": "Q1",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::28069-29018",
+      "ref": "S69",
+      "denseRank": null,
+      "lexicalRank": 4,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 39
+    },
+    {
+      "queryId": "Q1",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::26971-27560",
+      "ref": "S66",
+      "denseRank": null,
+      "lexicalRank": 5,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 27
+    },
+    {
+      "queryId": "Q1",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::9124-9747",
+      "ref": "S26",
+      "denseRank": null,
+      "lexicalRank": 6,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 25
+    },
+    {
+      "queryId": "Q1",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::11243-11859",
+      "ref": "S31",
+      "denseRank": null,
+      "lexicalRank": 7,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 24
+    },
+    {
+      "queryId": "Q1",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::22220-22854",
+      "ref": "S59",
+      "denseRank": null,
+      "lexicalRank": 8,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 22
+    },
+    {
+      "queryId": "Q1",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::2640-5596",
+      "ref": "S10",
+      "denseRank": null,
+      "lexicalRank": 9,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 21
+    },
+    {
+      "queryId": "Q1",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::11860-12426",
+      "ref": "S32",
+      "denseRank": null,
+      "lexicalRank": 10,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 20
+    },
+    {
+      "queryId": "Q2",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::13363-14205",
+      "ref": "S35",
+      "denseRank": null,
+      "lexicalRank": 1,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 57
+    },
+    {
+      "queryId": "Q2",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::12695-13362",
+      "ref": "S34",
+      "denseRank": null,
+      "lexicalRank": 2,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 31
+    },
+    {
+      "queryId": "Q2",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::28069-29018",
+      "ref": "S69",
+      "denseRank": null,
+      "lexicalRank": 3,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 31
+    },
+    {
+      "queryId": "Q2",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::26971-27560",
+      "ref": "S66",
+      "denseRank": null,
+      "lexicalRank": 4,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 27
+    },
+    {
+      "queryId": "Q2",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::9124-9747",
+      "ref": "S26",
+      "denseRank": null,
+      "lexicalRank": 5,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 25
+    },
+    {
+      "queryId": "Q2",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::2640-5596",
+      "ref": "S10",
+      "denseRank": null,
+      "lexicalRank": 6,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 21
+    },
+    {
+      "queryId": "Q2",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::20856-22219",
+      "ref": "S58",
+      "denseRank": null,
+      "lexicalRank": 7,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 20
+    },
+    {
+      "queryId": "Q2",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::29328-29637",
+      "ref": "S73",
+      "denseRank": null,
+      "lexicalRank": 8,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 20
+    },
+    {
+      "queryId": "Q2",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::35504-35615",
+      "ref": "S105",
+      "denseRank": null,
+      "lexicalRank": 9,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 19
+    },
+    {
+      "queryId": "Q2",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::11243-11859",
+      "ref": "S31",
+      "denseRank": null,
+      "lexicalRank": 10,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 18
+    },
+    {
+      "queryId": "Q3",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::13363-14205",
+      "ref": "S35",
+      "denseRank": null,
+      "lexicalRank": 1,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 14
+    },
+    {
+      "queryId": "Q3",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::29328-29637",
+      "ref": "S73",
+      "denseRank": null,
+      "lexicalRank": 2,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 14
+    },
+    {
+      "queryId": "Q3",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::12695-13362",
+      "ref": "S34",
+      "denseRank": null,
+      "lexicalRank": 3,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 10
+    },
+    {
+      "queryId": "Q3",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::28069-29018",
+      "ref": "S69",
+      "denseRank": null,
+      "lexicalRank": 4,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 8
+    },
+    {
+      "queryId": "Q3",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::10892-11242",
+      "ref": "S30",
+      "denseRank": null,
+      "lexicalRank": 5,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 6
+    },
+    {
+      "queryId": "Q3",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::11243-11859",
+      "ref": "S31",
+      "denseRank": null,
+      "lexicalRank": 6,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 6
+    },
+    {
+      "queryId": "Q3",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::11860-12426",
+      "ref": "S32",
+      "denseRank": null,
+      "lexicalRank": 7,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 6
+    },
+    {
+      "queryId": "Q3",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::17027-17227",
+      "ref": "S47",
+      "denseRank": null,
+      "lexicalRank": 8,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 4
+    },
+    {
+      "queryId": "Q3",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::22220-22854",
+      "ref": "S59",
+      "denseRank": null,
+      "lexicalRank": 9,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 4
+    },
+    {
+      "queryId": "Q4",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::13363-14205",
+      "ref": "S35",
+      "denseRank": null,
+      "lexicalRank": 1,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 10
+    },
+    {
+      "queryId": "Q4",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::29328-29637",
+      "ref": "S73",
+      "denseRank": null,
+      "lexicalRank": 2,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 10
+    },
+    {
+      "queryId": "Q5",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::13363-14205",
+      "ref": "S35",
+      "denseRank": null,
+      "lexicalRank": 1,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 10
+    },
+    {
+      "queryId": "Q5",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::29328-29637",
+      "ref": "S73",
+      "denseRank": null,
+      "lexicalRank": 2,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 10
+    },
+    {
+      "queryId": "Q6",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::13363-14205",
+      "ref": "S35",
+      "denseRank": null,
+      "lexicalRank": 1,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 22
+    },
+    {
+      "queryId": "Q6",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::39047-39250",
+      "ref": "S123",
+      "denseRank": null,
+      "lexicalRank": 2,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 15
+    },
+    {
+      "queryId": "Q6",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::12695-13362",
+      "ref": "S34",
+      "denseRank": null,
+      "lexicalRank": 3,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 14
+    },
+    {
+      "queryId": "Q6",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::20856-22219",
+      "ref": "S58",
+      "denseRank": null,
+      "lexicalRank": 4,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 14
+    },
+    {
+      "queryId": "Q6",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::26971-27560",
+      "ref": "S66",
+      "denseRank": null,
+      "lexicalRank": 5,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 14
+    },
+    {
+      "queryId": "Q6",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::25711-26251",
+      "ref": "S64",
+      "denseRank": null,
+      "lexicalRank": 6,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 8
+    },
+    {
+      "queryId": "Q6",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::26252-26970",
+      "ref": "S65",
+      "denseRank": null,
+      "lexicalRank": 7,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 8
+    },
+    {
+      "queryId": "Q6",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::882-1150",
+      "ref": "S2",
+      "denseRank": null,
+      "lexicalRank": 8,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 7
+    },
+    {
+      "queryId": "Q6",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::5874-6231",
+      "ref": "S12",
+      "denseRank": null,
+      "lexicalRank": 9,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 7
+    },
+    {
+      "queryId": "Q6",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::8512-8620",
+      "ref": "S22",
+      "denseRank": null,
+      "lexicalRank": 10,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 7
+    },
+    {
+      "queryId": "Q7",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::12695-13362",
+      "ref": "S34",
+      "denseRank": null,
+      "lexicalRank": 1,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 13
+    },
+    {
+      "queryId": "Q7",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::13363-14205",
+      "ref": "S35",
+      "denseRank": null,
+      "lexicalRank": 2,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 13
+    },
+    {
+      "queryId": "Q7",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::26971-27560",
+      "ref": "S66",
+      "denseRank": null,
+      "lexicalRank": 3,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 13
+    },
+    {
+      "queryId": "Q7",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::882-1150",
+      "ref": "S2",
+      "denseRank": null,
+      "lexicalRank": 4,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 7
+    },
+    {
+      "queryId": "Q7",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::5874-6231",
+      "ref": "S12",
+      "denseRank": null,
+      "lexicalRank": 5,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 7
+    },
+    {
+      "queryId": "Q7",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::8512-8620",
+      "ref": "S22",
+      "denseRank": null,
+      "lexicalRank": 6,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 7
+    },
+    {
+      "queryId": "Q7",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::11860-12426",
+      "ref": "S32",
+      "denseRank": null,
+      "lexicalRank": 7,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 7
+    },
+    {
+      "queryId": "Q7",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::14219-14602",
+      "ref": "S36",
+      "denseRank": null,
+      "lexicalRank": 8,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 7
+    },
+    {
+      "queryId": "Q7",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::20856-22219",
+      "ref": "S58",
+      "denseRank": null,
+      "lexicalRank": 9,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 7
+    },
+    {
+      "queryId": "Q7",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::23859-24046",
+      "ref": "S62",
+      "denseRank": null,
+      "lexicalRank": 10,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 7
+    },
+    {
+      "queryId": "Q8",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::2640-5596",
+      "ref": "S10",
+      "denseRank": null,
+      "lexicalRank": 1,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 10
+    },
+    {
+      "queryId": "Q8",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::6232-6688",
+      "ref": "S13",
+      "denseRank": null,
+      "lexicalRank": 2,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 10
+    },
+    {
+      "queryId": "Q8",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::6689-7119",
+      "ref": "S14",
+      "denseRank": null,
+      "lexicalRank": 3,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 10
+    },
+    {
+      "queryId": "Q8",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::14764-15301",
+      "ref": "S38",
+      "denseRank": null,
+      "lexicalRank": 4,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 10
+    },
+    {
+      "queryId": "Q9",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::10892-11242",
+      "ref": "S30",
+      "denseRank": null,
+      "lexicalRank": 1,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 8
+    },
+    {
+      "queryId": "Q9",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::11243-11859",
+      "ref": "S31",
+      "denseRank": null,
+      "lexicalRank": 2,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 8
+    },
+    {
+      "queryId": "Q9",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::11860-12426",
+      "ref": "S32",
+      "denseRank": null,
+      "lexicalRank": 3,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 8
+    },
+    {
+      "queryId": "Q9",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::12427-12667",
+      "ref": "S33",
+      "denseRank": null,
+      "lexicalRank": 4,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 8
+    },
+    {
+      "queryId": "Q9",
+      "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::13363-14205",
+      "ref": "S35",
+      "denseRank": null,
+      "lexicalRank": 5,
+      "selectedBy": [
+        "lexical"
+      ],
+      "score": 8
+    }
+  ],
+  "expansions": [
+    {
+      "requirementId": "art18_restriction",
+      "seedSpanId": "dsn_4ff1f7711f87557aa1e47fa1",
+      "addedSpanId": "dsn_6f7b469156a873c4174925e9",
+      "reason": "parent"
+    },
+    {
+      "requirementId": "art18_restriction",
+      "seedSpanId": "dsn_b374bdf27d7dd0be97169021",
+      "addedSpanId": "dsn_1ed223be384746720f3826d6",
+      "reason": "parent"
+    },
+    {
+      "requirementId": "art18_restriction",
+      "seedSpanId": "dsn_b374bdf27d7dd0be97169021",
+      "addedSpanId": "dsn_63d2053bb9de1655cd3cf7bf",
+      "reason": "child"
+    },
+    {
+      "requirementId": "art18_restriction",
+      "seedSpanId": "dsn_7ececb176db0f40861825acc",
+      "addedSpanId": "dsn_0cabcccb45a0b6ca33815d4f",
+      "reason": "child"
+    },
+    {
+      "requirementId": "art18_restriction",
+      "seedSpanId": "dsn_7ececb176db0f40861825acc",
+      "addedSpanId": "dsn_902c0afca9348fe4e7f666aa",
+      "reason": "child"
+    },
+    {
+      "requirementId": "art18_restriction",
+      "seedSpanId": "dsn_7ececb176db0f40861825acc",
+      "addedSpanId": "dsn_0e1c6daf72adbc31d9fed211",
+      "reason": "child"
+    },
+    {
+      "requirementId": "art18_restriction",
+      "seedSpanId": "dsn_7ececb176db0f40861825acc",
+      "addedSpanId": "dsn_90fbc9db5e5e2cb1bb8f1d4d",
+      "reason": "child"
+    },
+    {
+      "requirementId": "art18_restriction",
+      "seedSpanId": "dsn_da6ebee0ab9c47f4e4576c13",
+      "addedSpanId": "dsn_3faccb8e4c4a927360a0913c",
+      "reason": "parent"
+    },
+    {
+      "requirementId": "art18_restriction",
+      "seedSpanId": "dsn_9738c4b4184153e6aca30f4d",
+      "addedSpanId": "dsn_068fd9c8acf7ba193455ce58",
+      "reason": "parent"
+    },
+    {
+      "requirementId": "art18_restriction",
+      "seedSpanId": "dsn_9738c4b4184153e6aca30f4d",
+      "addedSpanId": "dsn_6bc6faad755ed7bca2f5dc01",
+      "reason": "child"
+    },
+    {
+      "requirementId": "art18_restriction",
+      "seedSpanId": "dsn_9738c4b4184153e6aca30f4d",
+      "addedSpanId": "dsn_a3272e43ff13bad2826ed1b8",
+      "reason": "child"
+    },
+    {
+      "requirementId": "art18_restriction",
+      "seedSpanId": "dsn_9738c4b4184153e6aca30f4d",
+      "addedSpanId": "dsn_9b29f688b9bb698965bf64cb",
+      "reason": "child"
+    },
+    {
+      "requirementId": "art18_restriction",
+      "seedSpanId": "dsn_9738c4b4184153e6aca30f4d",
+      "addedSpanId": "dsn_477cbdbb851c4e094f4beaa0",
+      "reason": "child"
+    },
+    {
+      "requirementId": "art18_restriction",
+      "seedSpanId": "dsn_9738c4b4184153e6aca30f4d",
+      "addedSpanId": "dsn_e5d046676974807a4ff42d4c",
+      "reason": "child"
+    },
+    {
+      "requirementId": "art18_restriction",
+      "seedSpanId": "dsn_9738c4b4184153e6aca30f4d",
+      "addedSpanId": "dsn_55345c92adf0af946999fcfc",
+      "reason": "child"
+    },
+    {
+      "requirementId": "art18_restriction",
+      "seedSpanId": "dsn_65fc00d6be188fff0e394435",
+      "addedSpanId": "dsn_7ec46e8de7a4554388cf97f7",
+      "reason": "parent"
+    },
+    {
+      "requirementId": "art18_restriction",
+      "seedSpanId": "dsn_dd795bbc5e2e625d3428270d",
+      "addedSpanId": "dsn_677376201d1a5c3abd6a1793",
+      "reason": "internal_reference"
+    },
+    {
+      "requirementId": "art18_restriction",
+      "seedSpanId": "dsn_380b6a9f4305bed403fda502",
+      "addedSpanId": "dsn_86ecd2ab454aecff10f0375f",
+      "reason": "parent"
+    },
+    {
+      "requirementId": "art18_restriction",
+      "seedSpanId": "dsn_380b6a9f4305bed403fda502",
+      "addedSpanId": "dsn_0fa7b7063410928869ca7381",
+      "reason": "internal_reference"
+    },
+    {
+      "requirementId": "art18_restriction",
+      "seedSpanId": "dsn_291ca55afd0b0004897daaae",
+      "addedSpanId": "dsn_1668fc578515df0a839266b8",
+      "reason": "parent"
+    }
+  ],
+  "expansionLimits": [],
+  "bundle": {
+    "bundleId": "B-art18_restriction-doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+    "requirementId": "art18_restriction",
+    "items": [
+      {
+        "spanId": "dsn_63d2053bb9de1655cd3cf7bf",
+        "ref": "X-cd3cf7bf",
+        "quotedText": "2 Notification of Changes. If Alaio makes any updates to this DPA, Alaio will inform Administrator by either: (a) sending an email to the Notification Email Address; or (b) alerting Administrator via the user interface for the Processor Services. If Administrator objects to any such change, Administrator may terminate the Agreement by giving written notice to Alaio within 30 days of being informed by Alaio of the change.",
+        "structuralPath": "document.list_item_(d)~2.list_item_114",
+        "charRange": [
+          29638,
+          30062
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.list_item_(d)~2.list_item_114",
+          "relationship": "unspecified",
+          "exception": "main_rule",
+          "condition": "conditional"
+        },
+        "source": "expansion",
+        "addedReason": "internal_reference"
+      },
+      {
+        "spanId": "dsn_0cabcccb45a0b6ca33815d4f",
+        "ref": "X-33815d4f",
+        "quotedText": "2 Authorization by Third Party Controller. If Administrator is a processor, Administrator warrants to Alaio that it´s instructions and actions with respect to Personal Data, including its appointment of Alaioas another processor, have been authorized by the relevant controller.",
+        "structuralPath": "document.list_item_(e).list_item_42",
+        "charRange": [
+          9748,
+          10026
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.list_item_(e).list_item_42",
+          "relationship": "unspecified",
+          "exception": "main_rule",
+          "condition": "conditional"
+        },
+        "source": "expansion",
+        "addedReason": "internal_reference"
+      },
+      {
+        "spanId": "dsn_902c0afca9348fe4e7f666aa",
+        "ref": "X-e7f666aa",
+        "quotedText": "3 The parties agree that with regard to the Processing of Personal Data, Alaio or members of the Alaio Group will engage Sub-processors pursuant to the requirements set forth in Section 7 ' Subprocessors' below.",
+        "structuralPath": "document.list_item_(e).list_item_43",
+        "charRange": [
+          10027,
+          10238
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.list_item_(e).list_item_43",
+          "relationship": "unspecified",
+          "exception": "main_rule"
+        },
+        "source": "expansion",
+        "addedReason": "internal_reference"
+      },
+      {
+        "spanId": "dsn_0e1c6daf72adbc31d9fed211",
+        "ref": "X-d9fed211",
+        "quotedText": "4 By entering into this Data Processing Agreement, Administrator instructs Alaio to process Personal Data only in accordance with applicable law: (a) to provide the Processor Services and any related technical support; (b) as further specified via Administrator´s use of the Processor Services (including in the settings and other functionality of the Processor Services) and any related technical support; (c) as documented in this Data Processing Agreement; and (d) as further documented in any other written instructions given by Administrator and acknowledged by Bitrix24 as constituting instructions for purposes of this Data Processing Agreement.",
+        "structuralPath": "document.list_item_(e).list_item_44",
+        "charRange": [
+          10239,
+          10891
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.list_item_(e).list_item_44",
+          "relationship": "unspecified",
+          "exception": "main_rule"
+        },
+        "source": "expansion",
+        "addedReason": "internal_reference"
+      },
+      {
+        "spanId": "dsn_90fbc9db5e5e2cb1bb8f1d4d",
+        "ref": "X-bb8f1d4d",
+        "quotedText": "5 Deletion on Term Expiry. On expiry of the Term, Administrator instructs Alaio to delete all Personal Data (including existing copies) from Bitrix24 systems in accordance with applicable law. Alaio will comply with this instruction as soon as reasonably practicable and within a maximum period of 90 days, unless any applicable law requires storage.",
+        "structuralPath": "document.list_item_(e).list_item_45",
+        "charRange": [
+          10892,
+          11242
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.list_item_(e).list_item_45",
+          "relationship": "unspecified",
+          "exception": "exception"
+        },
+        "source": "expansion",
+        "addedReason": "internal_reference"
+      },
+      {
+        "spanId": "dsn_6bc6faad755ed7bca2f5dc01",
+        "ref": "X-a2f5dc01",
+        "quotedText": "a) All emails containing confidential or sensitive personal data are encrypted using TLS SSL protocol;",
+        "structuralPath": "document.appendix_1.appendix_2.clause_7.subclause_7.2.list_item_190",
+        "charRange": [
+          39251,
+          39353
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.appendix_1.appendix_2.clause_7.subclause_7.2.list_item_190",
+          "relationship": "unspecified",
+          "exception": "main_rule"
+        },
+        "source": "expansion",
+        "addedReason": "internal_reference"
+      },
+      {
+        "spanId": "dsn_a3272e43ff13bad2826ed1b8",
+        "ref": "X-826ed1b8",
+        "quotedText": "b) All emails containing confidential or sensitive personal data are marked 'confidential';",
+        "structuralPath": "document.appendix_1.appendix_2.clause_7.subclause_7.2.list_item_191",
+        "charRange": [
+          39354,
+          39445
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.appendix_1.appendix_2.clause_7.subclause_7.2.list_item_191",
+          "relationship": "unspecified",
+          "exception": "main_rule"
+        },
+        "source": "expansion",
+        "addedReason": "internal_reference"
+      },
+      {
+        "spanId": "dsn_9b29f688b9bb698965bf64cb",
+        "ref": "X-65bf64cb",
+        "quotedText": "c) Confidential and sensitive personal data may be transmitted over secure networks only; transmission over unsecured networks is not permitted under any circumstances;",
+        "structuralPath": "document.appendix_1.appendix_2.clause_7.subclause_7.2.list_item_192",
+        "charRange": [
+          39446,
+          39614
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.appendix_1.appendix_2.clause_7.subclause_7.2.list_item_192",
+          "relationship": "unspecified",
+          "exception": "main_rule"
+        },
+        "source": "expansion",
+        "addedReason": "internal_reference"
+      },
+      {
+        "spanId": "dsn_477cbdbb851c4e094f4beaa0",
+        "ref": "X-4f4beaa0",
+        "quotedText": "d) All confidential and sensitive personal data to be transferred physically, including that on removable electronic media, is transferred in a suitable container marked 'confidential'.",
+        "structuralPath": "document.appendix_1.appendix_2.clause_7.subclause_7.2.list_item_193",
+        "charRange": [
+          39615,
+          39800
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.appendix_1.appendix_2.clause_7.subclause_7.2.list_item_193",
+          "relationship": "unspecified",
+          "exception": "main_rule"
+        },
+        "source": "expansion",
+        "addedReason": "internal_reference"
+      },
+      {
+        "spanId": "dsn_e5d046676974807a4ff42d4c",
+        "ref": "X-4ff42d4c",
+        "quotedText": "e) Where any confidential or sensitive personal data is being viewed on a computer screen and the computer in question is to be left unattended for any period of time, the employee must lock the computer and screen before leaving it.",
+        "structuralPath": "document.appendix_1.appendix_2.clause_7.subclause_7.2.list_item_194",
+        "charRange": [
+          39801,
+          40034
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.appendix_1.appendix_2.clause_7.subclause_7.2.list_item_194",
+          "relationship": "unspecified",
+          "exception": "main_rule"
+        },
+        "source": "expansion",
+        "addedReason": "internal_reference"
+      },
+      {
+        "spanId": "dsn_55345c92adf0af946999fcfc",
+        "ref": "X-6999fcfc",
+        "quotedText": "3 Any questions relating to data protection should be referred to the  Data Protection Officer Elena Riazanova (info@quick-gdpr.co.uk).",
+        "structuralPath": "document.appendix_1.appendix_2.clause_7.subclause_7.2.list_item_195",
+        "charRange": [
+          40035,
+          40170
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.appendix_1.appendix_2.clause_7.subclause_7.2.list_item_195",
+          "relationship": "unspecified",
+          "exception": "main_rule"
+        },
+        "source": "expansion",
+        "addedReason": "internal_reference"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::13363-14205",
+        "ref": "S35",
+        "quotedText": "4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, correction, amendment, restriction, deletion or exercising any other rights under the GDPR or other Data Protection Legislation of that person's Personal Data. Alaio shall not respond to any such Data Subject request without Administrator´s  prior written consent except to confirm that the request relates to User. Alaio shall provide Administrator with cooperation and assistance in relation to handling of a Data Sub ject's request for access to that person's Personal Data or exercising any other rights under the GDPR or other Data Protection Legislation, to the extent legally permitted and to the extent User does not have access to such Personal Data through its use or receipt of the Services.",
+        "structuralPath": "document.clause_4.subclause_4.2",
+        "charRange": [
+          13363,
+          14205
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.clause_4.subclause_4.2",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::29328-29637",
+        "ref": "S73",
+        "quotedText": "(d) does not: (i) result in a degradation of the overall security of the Processor Services; (ii) expand the scope of, or remove any restrictions on, Bitrix24 processing of Personal Data; and (iii) otherwise have a material adverse impact on User's rights under this DPA, as reasonably determined by Bitrix24.",
+        "structuralPath": "document.list_item_(d)~2",
+        "charRange": [
+          29328,
+          29637
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.list_item_(d)~2",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::12695-13362",
+        "ref": "S34",
+        "quotedText": "4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Personal Data, as required by Data Protection Legislation, Alaio will (taking into account the nature of the processing of Personal Data and, if applicable, Article 11 of the GDPR) assist Administrator in fulfilling any obligation of Administrator to respond to requests by data subjects, including (if applicable) Administrator´s  obligation to respond to requests for exercising the data sub ject's rights laid down in Chapter III of the GDPR and other Data Protection Legislation, by providing the functionality of the Processor Services;",
+        "structuralPath": "document.clause_4.subclause_4.1",
+        "charRange": [
+          12695,
+          13362
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.clause_4.subclause_4.1",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::28069-29018",
+        "ref": "S69",
+        "quotedText": "12.3 For data transfers outside the EEA listed in schedules 11.3.4 protected by appropriate safeguards  under  article  46  GDPR,  specifically  by  the  standard  data  protection  clauses adopted by the Commission in accordance with the examination procedure from controllers in the EU to processors established outside the EU and Users when the processing is in the context of the activities of an establishment of EEA countries other than Republic of Cyprus and/or Users offering services to data  subjects who are in the EEA countries other than Republic of Cyprus the lead supervisory authority is  Republic of Cyprus under article 56\nGDPR.\nThe supervisory authority of the single establishment of Alaio within the EEA competent to act  as  lead  supervisory  authority  for  the  cross-border  processing  carried  out  by  that processor in accordance with the procedure provided in Article 60 of GDPR is the supervisory authority of Cyprus.",
+        "structuralPath": "document.clause_12.subclause_12.3",
+        "charRange": [
+          28069,
+          29018
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.clause_12.subclause_12.3",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::26971-27560",
+        "ref": "S66",
+        "quotedText": "11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguards under article 46 GDPR, specifically by the Standard Contractual Clauses adopted by the European Commission in accordance with the examination procedure. European Commission decided that standard contractual clauses offer sufficient safeguards on data protection for the data to be transferred internationally. You have a right to request information on those contractual safeguards (Please contact our Data Protection Officer).",
+        "structuralPath": "document.subclause_11.4",
+        "charRange": [
+          26971,
+          27560
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.subclause_11.4",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::9124-9747",
+        "ref": "S26",
+        "quotedText": "(e) Administrator shall, in its use or receipt of the Services, Process Personal Data in accordance with the requirements of Data Protection Legislation and will ensure that its instructions for the Processing of Personal Data shall comply with Data Protection Legislation. Administrator shall have sole responsibility for the accuracy, quality, and legality of Personal Data and the means by which Administrator acquired Personal Data. Alaio will inform the Administrator immediately if it believes that a data processing instruction violates the GDPR or other data protection provisions of the Union or the Member States.",
+        "structuralPath": "document.list_item_(e)",
+        "charRange": [
+          9124,
+          9747
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.list_item_(e)",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::11243-11859",
+        "ref": "S31",
+        "quotedText": "5.1 Account deletion. Paid plans devolve to the free plan according to the process described above. If the Bitrix24 Customer Account is on a free plan (either converted to a free plan or originally on a free plan) and is completely inactive over the course of 30 days, it is 'archived', and it can be retrieved only by an administrator account (yourself or a user in the instance with administrator rights). To retrieve the account, a User without administrative rights simply needs to log in.\nI\nf no User logs in for another 15 days after the instance has been 'archived', Bitrix24 Customer Account will be deleted.",
+        "structuralPath": "document.subclause_5.1",
+        "charRange": [
+          11243,
+          11859
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.subclause_5.1",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::22220-22854",
+        "ref": "S59",
+        "quotedText": "10. DATA PROTECTION IMPACT ASSESSMENT\nUpon Administrator´s  request, Alaio will assist Administrator in ensuring compliance with any obligations of Administrator in respect of data protection impact assessments and prior consultation, including (if applicable) Administrator´s  obligations pursuant to Articles 35 and 36 of the GDPR, to the extent User does not otherwise have access to the relevant information, and to the extent such information is available to Alaio. Alaio shall provide reasonable assistance to Administrator in the cooperation or prior consultation with the Supervisory Authority in the performance of its tasks.",
+        "structuralPath": "document.clause_10",
+        "charRange": [
+          22220,
+          22854
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.clause_10",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::2640-5596",
+        "ref": "S10",
+        "quotedText": "'User Personal Data' means personal data that is processed by Alaio on behalf of the Administrator as part of Alaio provision of the Processor Services.\n'Data Incident' means a breach of Bitrix24 security leading to the accidental or unlawful destruction, loss, alteration, unauthorised disclosure of, or access to, User Personal Data on systems managed by or otherwise controlled by Alaio . 'Data Incidents' will not include unsuccessful attempts or activities that do not compromise the security of User Personal Data, including unsuccessful log-in attempts, pings, port scans, denial of service attacks, and other network attacks on firewalls or networked systems.\n'Data Protection Legislation' means all legislation and regulatory requirements in force from time to time relating to the use of personal data and the privacy of electronic communicationsincluding, but not limited to: EU 2016/679 General Data Protection Regulation (GDPR);California Privacy Rights Act of 2020 and any other USA applicable federal and state privacy legislation; General Data Protection Law (Law No. 13.709/2018 of Brazil, (Lei Geral de Proteção de Dados); Law No. 30 of 2018 on the Protection of Personal Data of Bahrein; the federal Privacy Act 1988 of Australia; Personal Information Protection and Electronic Documents Act of Canada; The Personal Information Protection Law of China; Personal Data (Privacy) Ordinance (Cap. 486) of Hong Kong; Information Technology Act 2000 as amended by the Information Technol",
+        "structuralPath": "document.clause_1.subclause_1.1.list_item_19",
+        "charRange": [
+          2640,
+          5596
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.clause_1.subclause_1.1.list_item_19",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::11860-12426",
+        "ref": "S32",
+        "quotedText": "2.5.2 The Administrator may initiate deletion of the Bitrix24 Customer Account by first dismissing other Administrators, if any, which will entail deletion of all the connected User Accounts and all connected User Content, subject to the availability of such feature. In this case, Bitrix24 Customer Account will be made inactive immediately and completely deleted over the course of 90 (ninety) calendar days. However, this operation will not delete completely User´s Bitrix24 network accounts which will remain active for use in another Bitrix24 Customer Accounts.",
+        "structuralPath": "document.subclause_2.5.2",
+        "charRange": [
+          11860,
+          12426
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.subclause_2.5.2",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::20856-22219",
+        "ref": "S58",
+        "quotedText": "2 Upon Administrator´s request, and subject to the confidentiality obligations set forth in this DPA, Alaio shall make available to User that is not a competitor of Alaio (or Administrator´s  independent, third-party auditor that is not a competitor of Bitrix24) information regarding Alaio compliance with the obligations set forth in this DPA and the security measures as described in the Appendix 2 to this DPA. Administrator may contact Alaio to request an on-site inspection of the architecture, systems and procedures relevant to the protection of Personal Data at locations where Personal Data is stored. Administrator shall reimburse Alaio for any time expended by Alaio or its third-party Sub-processors for any such on-site inspection at the Alaio then-current professional services rates, which shall be made available to Administrator upon request. Before the commencement of any such on-site audit, Administrator and Alaio shall mutually agree upon the scope, timing, and duration of the inspection in addition to the reimbursement rate for which Administrator\nshall be responsible. All reimbursement rates shall be reasonable, taking into account the resources expended by Alaio, or its third-party Sub-processors. Administrator shall promptly notify Alaio with information regarding any non-compliance discovered during the course of an inspection.",
+        "structuralPath": "document.list_item_(c)~3.list_item_84",
+        "charRange": [
+          20856,
+          22219
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.list_item_(c)~3.list_item_84",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::35504-35615",
+        "ref": "S105",
+        "quotedText": "2 All Alaio IT Systems protected by anti-virus software are subject to a full system scan at least once a week.",
+        "structuralPath": "document.appendix_1.appendix_2.clause_3.list_item_164",
+        "charRange": [
+          35504,
+          35615
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.appendix_1.appendix_2.clause_3.list_item_164",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::10892-11242",
+        "ref": "S30",
+        "quotedText": "5 Deletion on Term Expiry. On expiry of the Term, Administrator instructs Alaio to delete all Personal Data (including existing copies) from Bitrix24 systems in accordance with applicable law. Alaio will comply with this instruction as soon as reasonably practicable and within a maximum period of 90 days, unless any applicable law requires storage.",
+        "structuralPath": "document.list_item_(e).list_item_45",
+        "charRange": [
+          10892,
+          11242
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.list_item_(e).list_item_45",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::17027-17227",
+        "ref": "S47",
+        "quotedText": "(i) the Sub-processor only accesses and uses Personal Data to the extent required to perform the obligations subcontracted to it, and does so in accordance with the Agreement (including this DPA); and",
+        "structuralPath": "document.list_item_(i)",
+        "charRange": [
+          17027,
+          17227
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.list_item_(i)",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::39047-39250",
+        "ref": "S123",
+        "quotedText": "7.2 All Users handling data for and on behalf of Alaio are subject to, and must comply with, the provisions of the Company's Data Protection Policy at all times. In particular, the following shall apply:",
+        "structuralPath": "document.appendix_1.appendix_2.clause_7.subclause_7.2",
+        "charRange": [
+          39047,
+          39250
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.appendix_1.appendix_2.clause_7.subclause_7.2",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::25711-26251",
+        "ref": "S64",
+        "quotedText": "11.3.3 Disputes resolution\nAlaio, Inc Internal Complaints MechanismIn compliance with the EU-U.S. DPF, the UK Extension to the EU-U.S. DPF and the Swiss-U.S. DPF, Alaio, Inc commits to resolve DPF Principles-related complaints about our collection and use of your personal information. EU, UK and Swiss individuals with inquiries or complaints regarding our handling of personal data received in reliance on the EU-U.S. DPF, the UK Extension to the EU-U.S. DPF and the Swiss-U.S. DPF should first contact Alaio, Inc at: privacy@bitrix24.com",
+        "structuralPath": "document.subclause_11.3.3",
+        "charRange": [
+          25711,
+          26251
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.subclause_11.3.3",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::26252-26970",
+        "ref": "S65",
+        "quotedText": "Alternative Dispute Resolution Body\nIn compliance with the EU-U.S. DPF, the UK Extension to the EU-U.S. DPF and the SwissU.S. DPF, Alaio, Inc commits to refer unresolved complaints concerning our handling of personal data received in reliance on the EU-U.S. DPF, the UK Extension to the EU-U.S. DPF and the Swiss-U.S. DPF to JAMS, an alternative dispute resolution provider based in the United States. If you do not receive timely acknowledgment of your DPF Principlesrelated complaint from us, or if we have not addressed your DPF Principles-related complaint to your satisfaction, please visit https://www.jamsadr.com/for more information or to file a complaint.  The services of JAMS are provided at no cost to you.",
+        "structuralPath": "document.section_alternative_dispute_resolution_body",
+        "charRange": [
+          26252,
+          26970
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.section_alternative_dispute_resolution_body",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::882-1150",
+        "ref": "S2",
+        "quotedText": "APPLICATION OF THIS DPA\nIf there is any conflict or inconsistency between the terms of this DPA and the Terms of Service (https://www.bitrix24.eu/terms/), the DPA will govern. Subject to the amendments in this DPA, the Terms of Service remain in full force and effect.",
+        "structuralPath": "document.section_application_of_this_dpa",
+        "charRange": [
+          882,
+          1150
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.section_application_of_this_dpa",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::5874-6231",
+        "ref": "S12",
+        "quotedText": "'Personal Data' means any information relating to an identified or identifiable natural person ('data subject'); an identifiable person is one who can be identified, directly or indirectly, in particular by reference to an identification number or to one or more factors specific to his physical, physiological, mental, economic cultural or social identity;",
+        "structuralPath": "document.clause_1.subclause_1.1.list_item_25",
+        "charRange": [
+          5874,
+          6231
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.clause_1.subclause_1.1.list_item_25",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::8512-8620",
+        "ref": "S22",
+        "quotedText": "(a) Appendix 1 to the Agreement describes the subject matter and details of the processing of Personal Data;",
+        "structuralPath": "document.list_item_(a)",
+        "charRange": [
+          8512,
+          8620
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.list_item_(a)",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::14219-14602",
+        "ref": "S36",
+        "quotedText": "1 Alaio shall ensure that its personnel engaged in the Processing of Personal Data are informed of the confidential nature of the Personal Data, have received appropriate training on their responsibilities and are subject to obligations of confidentiality as described in the Appendix 2 to this DPA and such obligations survive the termination of that persons' engagement with Alaio.",
+        "structuralPath": "document.clause_5.list_item_56",
+        "charRange": [
+          14219,
+          14602
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.clause_5.list_item_56",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::23859-24046",
+        "ref": "S62",
+        "quotedText": "3.1 Alaio may process User Personal Data in Russian Federation subject to appropriate safeguards under article 46 GDPR (see schedule 11.4) and in the USA (see schedules 11.3.2 and 11.3.3)",
+        "structuralPath": "document.subclause_3.1",
+        "charRange": [
+          23859,
+          24046
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.subclause_3.1",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::6232-6688",
+        "ref": "S13",
+        "quotedText": "'Processing of personal data' means any operation or set of operations which is performed upon Personal Data, whether or not by automatic means, such as collection, recording, organization, storage, adaptation or alteration, retrieval, consultation, use, disclosure by transmission, dissemination or otherwise making available, alignment or combination, blocking, erasure or destruction ('Process', 'Processes' and 'Processed' shall have the same meaning).",
+        "structuralPath": "document.clause_1.subclause_1.1.list_item_26",
+        "charRange": [
+          6232,
+          6688
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.clause_1.subclause_1.1.list_item_26",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::6689-7119",
+        "ref": "S14",
+        "quotedText": "'Security measures' means measures to protect personal data against accidental or unlawful destruction or accidental loss, alternation, unauthorised disclosure or access and against all other unlawful forms of processing as described in the document (or the applicable part dependent on what Services Administrator purchases from Bitrix24), as updated from time to time, and accessible via the link in the Appendix 2  to this DPA.",
+        "structuralPath": "document.clause_1.subclause_1.1.list_item_27",
+        "charRange": [
+          6689,
+          7119
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.clause_1.subclause_1.1.list_item_27",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::14764-15301",
+        "ref": "S38",
+        "quotedText": "2 Alaio Security Measures. Alaio will implement and maintain technical, physical and organisational measures to protect confidentiality and integrity of Personal Data against accidental or unlawful destruction, loss, alteration, unauthorised disclosure or access as described in the Appendix 2 to this DPA (the 'Security Measures'). As described in the Appendix 2 to this DPA, the Security Measures include measures: (a) to help ensure the ongoing confidentiality, integrity, availability and resilience of Bitrix24 systems and services;",
+        "structuralPath": "document.clause_6.list_item_59",
+        "charRange": [
+          14764,
+          15301
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.clause_6.list_item_59",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::12427-12667",
+        "ref": "S33",
+        "quotedText": "3. DURATION OF THIS DPA\nThis DPA will take effect on the Effective Date and, notwithstanding expiry of the Term, remain in effect until, and automatically expire upon, deletion of all User Personal Data by Bitrix24 as described in this DPA.",
+        "structuralPath": "document.clause_3",
+        "charRange": [
+          12427,
+          12667
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.clause_3",
+          "relationship": "unspecified"
+        },
+        "source": "seed"
+      },
+      {
+        "spanId": "dsn_6f7b469156a873c4174925e9",
+        "ref": "X-174925e9",
+        "quotedText": "4. RIGHTS OF DATA SUBJECTS",
+        "structuralPath": "document.clause_4",
+        "charRange": [
+          12668,
+          12694
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.clause_4",
+          "relationship": "unspecified",
+          "exception": "main_rule"
+        },
+        "source": "expansion"
+      },
+      {
+        "spanId": "dsn_1ed223be384746720f3826d6",
+        "ref": "X-0f3826d6",
+        "quotedText": "",
+        "structuralPath": "document",
+        "charRange": [
+          0,
+          45272
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document",
+          "relationship": "unspecified",
+          "exception": "main_rule"
+        },
+        "source": "expansion"
+      },
+      {
+        "spanId": "dsn_3faccb8e4c4a927360a0913c",
+        "ref": "X-60a0913c",
+        "quotedText": "3. ANTI-VIRUS SECURITY MEASURES",
+        "structuralPath": "document.appendix_1.appendix_2.clause_3",
+        "charRange": [
+          35200,
+          35231
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.appendix_1.appendix_2.clause_3",
+          "relationship": "unspecified",
+          "exception": "main_rule"
+        },
+        "source": "expansion"
+      },
+      {
+        "spanId": "dsn_068fd9c8acf7ba193455ce58",
+        "ref": "X-3455ce58",
+        "quotedText": "7. DATA PROTECTION",
+        "structuralPath": "document.appendix_1.appendix_2.clause_7",
+        "charRange": [
+          38782,
+          38800
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.appendix_1.appendix_2.clause_7",
+          "relationship": "unspecified",
+          "exception": "main_rule"
+        },
+        "source": "expansion"
+      },
+      {
+        "spanId": "dsn_7ec46e8de7a4554388cf97f7",
+        "ref": "X-88cf97f7",
+        "quotedText": "1.1 DEFINITIONS AND INTERPRETATION",
+        "structuralPath": "document.clause_1.subclause_1.1",
+        "charRange": [
+          1379,
+          1413
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.clause_1.subclause_1.1",
+          "relationship": "unspecified",
+          "exception": "main_rule"
+        },
+        "source": "expansion"
+      },
+      {
+        "spanId": "dsn_677376201d1a5c3abd6a1793",
+        "ref": "X-bd6a1793",
+        "quotedText": "Appendix 1 SUBJECT MATTER AND DETAILS OF THE DATA PROCESSING SUBJECT MATTER",
+        "structuralPath": "document.appendix_1",
+        "charRange": [
+          30063,
+          30138
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.appendix_1",
+          "relationship": "unspecified",
+          "exception": "main_rule"
+        },
+        "source": "expansion"
+      },
+      {
+        "spanId": "dsn_86ecd2ab454aecff10f0375f",
+        "ref": "X-10f0375f",
+        "quotedText": "5. PERSONNEL",
+        "structuralPath": "document.clause_5",
+        "charRange": [
+          14206,
+          14218
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.clause_5",
+          "relationship": "unspecified",
+          "exception": "main_rule"
+        },
+        "source": "expansion"
+      },
+      {
+        "spanId": "dsn_0fa7b7063410928869ca7381",
+        "ref": "X-69ca7381",
+        "quotedText": "Appendix 2 SECURITY MEASURES",
+        "structuralPath": "document.appendix_1.appendix_2",
+        "charRange": [
+          32495,
+          32523
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.appendix_1.appendix_2",
+          "relationship": "unspecified",
+          "exception": "main_rule"
+        },
+        "source": "expansion"
+      },
+      {
+        "spanId": "dsn_1668fc578515df0a839266b8",
+        "ref": "X-839266b8",
+        "quotedText": "6. DATA SECURITY",
+        "structuralPath": "document.clause_6",
+        "charRange": [
+          14747,
+          14763
+        ],
+        "scope": {
+          "documentId": "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7",
+          "structuralPath": "document.clause_6",
+          "relationship": "unspecified",
+          "exception": "main_rule"
+        },
+        "source": "expansion"
+      }
+    ],
+    "partitions": [
+      {
+        "partitionId": "P1",
+        "scope": {
+          "relationship": "unspecified",
+          "exception": "main_rule"
+        },
+        "itemSpanIds": [
+          "dsn_63d2053bb9de1655cd3cf7bf",
+          "dsn_0cabcccb45a0b6ca33815d4f",
+          "dsn_902c0afca9348fe4e7f666aa",
+          "dsn_0e1c6daf72adbc31d9fed211",
+          "dsn_6bc6faad755ed7bca2f5dc01",
+          "dsn_a3272e43ff13bad2826ed1b8",
+          "dsn_9b29f688b9bb698965bf64cb",
+          "dsn_477cbdbb851c4e094f4beaa0",
+          "dsn_e5d046676974807a4ff42d4c",
+          "dsn_55345c92adf0af946999fcfc",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::13363-14205",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::29328-29637",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::12695-13362",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::28069-29018",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::26971-27560",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::9124-9747",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::11243-11859",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::22220-22854",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::2640-5596",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::11860-12426",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::20856-22219",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::35504-35615",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::10892-11242",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::17027-17227",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::39047-39250",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::25711-26251",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::26252-26970",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::882-1150",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::5874-6231",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::8512-8620",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::14219-14602",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::23859-24046",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::6232-6688",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::6689-7119",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::14764-15301",
+          "doc_9d949b3c-5499-4dd3-9ae8-aed56ab781f7::section::12427-12667",
+          "dsn_6f7b469156a873c4174925e9",
+          "dsn_1ed223be384746720f3826d6",
+          "dsn_3faccb8e4c4a927360a0913c",
+          "dsn_068fd9c8acf7ba193455ce58",
+          "dsn_7ec46e8de7a4554388cf97f7",
+          "dsn_677376201d1a5c3abd6a1793",
+          "dsn_86ecd2ab454aecff10f0375f",
+          "dsn_0fa7b7063410928869ca7381",
+          "dsn_1668fc578515df0a839266b8"
+        ]
+      },
+      {
+        "partitionId": "P2",
+        "scope": {
+          "relationship": "unspecified",
+          "exception": "exception"
+        },
+        "itemSpanIds": [
+          "dsn_90fbc9db5e5e2cb1bb8f1d4d"
+        ]
+      }
+    ],
+    "exclusions": [],
+    "dependencies": [
+      {
+        "reference": "this DPA",
+        "state": "resolved_internal",
+        "targetSpanIds": [
+          "dsn_1ed223be384746720f3826d6"
+        ]
+      },
+      {
+        "reference": "Appendix 2",
+        "state": "resolved_internal",
+        "targetSpanIds": [
+          "dsn_0fa7b7063410928869ca7381"
+        ]
+      },
+      {
+        "reference": "Appendix 1",
+        "state": "resolved_internal",
+        "targetSpanIds": [
+          "dsn_677376201d1a5c3abd6a1793"
+        ]
+      },
+      {
+        "reference": "GDPR",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      },
+      {
+        "reference": "Article 11",
+        "state": "ambiguous",
+        "targetSpanIds": []
+      },
+      {
+        "reference": "GDPR",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      },
+      {
+        "reference": "GDPR",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      },
+      {
+        "reference": "this DPA",
+        "state": "resolved_internal",
+        "targetSpanIds": [
+          "dsn_1ed223be384746720f3826d6"
+        ]
+      },
+      {
+        "reference": "Appendix 2",
+        "state": "resolved_internal",
+        "targetSpanIds": [
+          "dsn_0fa7b7063410928869ca7381"
+        ]
+      },
+      {
+        "reference": "this DPA",
+        "state": "resolved_internal",
+        "targetSpanIds": [
+          "dsn_1ed223be384746720f3826d6"
+        ]
+      },
+      {
+        "reference": "Appendix 2",
+        "state": "resolved_internal",
+        "targetSpanIds": [
+          "dsn_0fa7b7063410928869ca7381"
+        ]
+      },
+      {
+        "reference": "this DPA",
+        "state": "resolved_internal",
+        "targetSpanIds": [
+          "dsn_1ed223be384746720f3826d6"
+        ]
+      },
+      {
+        "reference": "article 46",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      },
+      {
+        "reference": "schedule 11.4",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      },
+      {
+        "reference": "schedules 11.3.2",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      },
+      {
+        "reference": "GDPR",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      },
+      {
+        "reference": "article 46",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      },
+      {
+        "reference": "GDPR",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      },
+      {
+        "reference": "Standard Contractual Clauses",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      },
+      {
+        "reference": "standard contractual clauses",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      }
+    ],
+    "estimatedTokens": 4204
+  }
+}

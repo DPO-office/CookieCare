@@ -5,7 +5,7 @@ import type { AnalysisBranchPlan, AnalysisWorkUnit } from "../../../models/analy
 import type { EvidencePackage } from "../../../models/evidence-package.js";
 import type { Finding } from "../../../models/finding.js";
 import type { IntentClassification, IntentRequirement, IntentSubIntent } from "../../../models/intent.js";
-import { aggregateRequirements } from "../../act/aggregate-requirements.js";
+import { aggregateRequirements } from "../../act/operations/aggregate-requirement-results.js";
 import {
   mergeBranchOutputs,
   validateBranchOutput,
@@ -202,13 +202,9 @@ test("real authored compliance package stays in its branch beside open compare a
     extraPackages: [runtimePackage("facet_2", compare), runtimePackage("facet_3", risk)],
   });
   const complianceUnits = result.workUnits.filter(
-    (unit) => unit.facetId === "facet_1" && unit.tool === "evaluate_package"
+    (unit) => unit.facetId === "facet_1" && unit.tool === "run_compliance_pipeline"
   );
-  assert.ok(
-    complianceUnits.some((unit) =>
-      String(unit.input.packageId).startsWith("gdpr.art28")
-    )
-  );
+  assert.equal(complianceUnits.length, 1);
   assert.ok(
     result.workUnits
       .filter((unit) => unit.facetId === "facet_2")

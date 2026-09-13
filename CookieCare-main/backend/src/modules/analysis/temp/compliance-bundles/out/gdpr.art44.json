@@ -1,0 +1,196 @@
+{
+  "sessionId": "an_14faad42-a8ab-49ab-a819-da8dad8fa124",
+  "stage": "investigation_complete",
+  "dumpedAt": "2026-09-12T12:59:59.957Z",
+  "requirementId": "gdpr.art44",
+  "packageId": "rule:regimes/data-protection/gdpr",
+  "recall": {
+    "requirementId": "gdpr.art44",
+    "uniqueCandidateCount": 16,
+    "elementsWithCandidates": [
+      "primary"
+    ],
+    "elementsWithoutCandidates": [],
+    "totalQueries": 28
+  },
+  "queries": [],
+  "hits": [],
+  "expansions": [],
+  "expansionLimits": [],
+  "bundle": {
+    "bundleId": "INV-gdpr.art44-doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+    "requirementId": "gdpr.art44",
+    "items": [
+      {
+        "spanId": "dsn_1766abf86c7f242a3c5f13ed",
+        "ref": "dsn_1766abf86c7f242a3c5f13ed",
+        "quotedText": "11.4 The security of data and the data subject rights under GDPR for the data processing activities in Russian Federation are protected by appropriate safeguards under article 46 GDPR, specifically by the Standard Contractual Clauses adopted by the European Commission in accordance with the examination procedure. European Commission decided that standard contractual clauses offer sufficient safeguards on data protection for the data to be transferred internationally. You have a right to request information on those contractual safeguards (Please contact our Data Protection Officer).",
+        "structuralPath": "document.subclause_11.4",
+        "charRange": [
+          26971,
+          27560
+        ],
+        "scope": {
+          "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+          "structuralPath": "document.subclause_11.4"
+        },
+        "source": "seed",
+        "evidenceRole": "supporting",
+        "contributesToElementIds": [
+          "primary"
+        ],
+        "investigationConfidence": 0.85
+      },
+      {
+        "spanId": "dsn_399055d3d09aaae19e450b82",
+        "ref": "dsn_399055d3d09aaae19e450b82",
+        "quotedText": "The terms 'Data controller' , 'Data sub ject' , 'Personal data' , 'Processing' , 'Data processor' and 'Supervisory authority' as used in this DPA have the meanings given in the Data Protection Legislation.",
+        "structuralPath": "document.clause_1.subclause_1.1.paragraph_33",
+        "charRange": [
+          8138,
+          8343
+        ],
+        "scope": {
+          "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+          "structuralPath": "document.clause_1.subclause_1.1.paragraph_33"
+        },
+        "source": "expansion",
+        "evidenceRole": "definition",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.95
+      },
+      {
+        "spanId": "dsn_50ce3a2594bf7a6abb078151",
+        "ref": "dsn_50ce3a2594bf7a6abb078151",
+        "quotedText": "(i) the Sub-processor only accesses and uses Personal Data to the extent required to perform the obligations subcontracted to it, and does so in accordance with the Agreement (including this DPA); and",
+        "structuralPath": "document.list_item_(i)",
+        "charRange": [
+          17027,
+          17227
+        ],
+        "scope": {
+          "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+          "structuralPath": "document.list_item_(i)"
+        },
+        "source": "expansion",
+        "evidenceRole": "context",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.85
+      }
+    ],
+    "partitions": [
+      {
+        "partitionId": "P1",
+        "scope": {
+          "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146"
+        },
+        "itemSpanIds": [
+          "dsn_1766abf86c7f242a3c5f13ed",
+          "dsn_399055d3d09aaae19e450b82",
+          "dsn_50ce3a2594bf7a6abb078151"
+        ]
+      }
+    ],
+    "exclusions": [
+      {
+        "spanId": "dsn_560ea65ede6256960f3ebf09",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_9134f19d6ca8b79f81ebd2be",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_c685d83c1d226e8f43192051",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_8afbee5c64c574e2b369405c",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_e74377ab24469700e9a529ec",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_87dd126f1fbcd59e85a69962",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_340d19426e2ef8d115b47b15",
+        "reason": "budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_f1b8a9a26e87ab04533bdab1",
+        "reason": "budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_21cfa7cc6c63818ef01e4117",
+        "reason": "budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_b99bc329321db1d87f62e4f0",
+        "reason": "budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_f51e74015231cb340f43c339",
+        "reason": "budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_702df667b3bbff3019ebb738",
+        "reason": "budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_1cfe565d7b164dfc4b205342",
+        "reason": "budget",
+        "detail": "role_budget:context"
+      }
+    ],
+    "dependencies": [
+      {
+        "reference": "dsn_50ce3a2594bf7a6abb078151:requires",
+        "state": "resolved_internal",
+        "targetSpanIds": [
+          "dsn_1ef3ae0212b274b6b7771dc7"
+        ]
+      },
+      {
+        "reference": "dsn_1766abf86c7f242a3c5f13ed:procedure_provided_by",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      },
+      {
+        "reference": "dsn_1766abf86c7f242a3c5f13ed:procedure_provided_by",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      },
+      {
+        "reference": "dsn_1766abf86c7f242a3c5f13ed:procedure_provided_by",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      },
+      {
+        "reference": "dsn_1766abf86c7f242a3c5f13ed:external_reference",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      }
+    ],
+    "estimatedTokens": 249,
+    "investigationComplete": false,
+    "incompleteReasons": [
+      "primary_evidence_missing"
+    ]
+  }
+}

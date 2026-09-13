@@ -17,6 +17,11 @@ import {
   resolveThinkingMode,
 } from "../../../modules/analysis/pac/analysis-profile.js";
 import { sanitizeFindingsForApi, sanitizeRenderedAnalysisOutput } from "../../../modules/analysis/utils/response-safety.js";
+import {
+  ensureDocumentGraph,
+  graphToWorkspaceDocument,
+  type CanonicalDocumentGraph,
+} from "../../../modules/analysis/capabilities/ingest/document-structure/index.js";
 
 /**
  * Async job handler for Analysis PAC (coexists with legacy document_analysis).
@@ -62,6 +67,8 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
 
   const documentTexts: Record<string, string> = {};
   const documentTitles: Record<string, string> = {};
+  const documentGraphs: Record<string, CanonicalDocumentGraph> = {};
+  const structuralLimitations: string[] = [];
 
   for (const docId of documentIds) {
     const { rows } = await pool.query(
@@ -73,7 +80,18 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
     }
     const row = rows[0];
     documentTitles[docId] = row.title || docId;
-    documentTexts[docId] = row.is_encrypted ? decryptData(row.content) : row.content;
+    const graph = await ensureDocumentGraph(userId, docId);
+    if (graph.quality.analysisMode === "blocked") {
+      throw new Error(
+        `Document structure failed integrity checks and cannot be analysed safely: ${docId} (${graph.quality.criticalIssues.join(", ") || graph.quality.status}).`
+      );
+    }
+    if (graph.quality.analysisMode === "degraded") {
+      console.warn(`[Analysis PAC] continuing with verified structure only doc=${docId} limitations=${graph.quality.analysisLimitations.join(" | ")}`);
+      structuralLimitations.push(...graph.quality.analysisLimitations.map((message) => `${documentTitles[docId]}: ${message}`));
+    }
+    documentGraphs[docId] = graph;
+    documentTexts[docId] = graph.canonicalText;
   }
 
   await updateJobProgress(jobId, userId, 30, "Thinking…");
@@ -83,6 +101,7 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
   };
 
   const initial: AnalysisState = {
+    actorUserId: userId,
     onProgress: async (percent, message) => {
       await updateJobProgress(jobId, userId, percent, message);
     },
@@ -127,8 +146,7 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
     history: prior?.history,
     workspace: {
       sessionId,
-      documents: documentIds.map((docId) => ({
-        docId,
+      documents: documentIds.map((docId) => graphToWorkspaceDocument(documentGraphs[docId], {
         title: documentTitles[docId],
         role:
           documentRoles?.[docId] === "reference"
@@ -136,9 +154,6 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
             : documentRoles?.[docId] === "target"
               ? ("target" as const)
               : ("unknown" as const),
-        fullText: documentTexts[docId] ?? "",
-        segments: [],
-        clauses: [],
       })),
     },
     findings: [],
@@ -162,6 +177,15 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
   };
 
   const result = await analysisEntry.run(initial);
+  const limitationsAlreadyRendered = result.complianceReportSnapshot?.limitations.some((limitation) =>
+    limitation.message.startsWith("Structural limitation in "));
+  if (structuralLimitations.length && result.renderedOutput && !limitationsAlreadyRendered) {
+    result.renderedOutput = [
+      result.renderedOutput.trim(),
+      "## Structural limitations",
+      ...structuralLimitations.map((message) => `- ${message}`),
+    ].join("\n\n");
+  }
   console.log(
     `[Analysis PAC] job done jobId=${jobId} reason=${result.agent?.stoppedReason ?? "completed"} findings=${result.findings.length} phase=${result.agent?.phase}`
   );
@@ -214,6 +238,7 @@ async function handleResumeAsk(jobId: string, userId: string, payload: any): Pro
   }
 
   let state = rows[0].state_snapshot_json as AnalysisState;
+  state.actorUserId = userId;
   // Re-hydrate document texts if dropped from ledger
   if (!state.request.documentTexts || !Object.keys(state.request.documentTexts).length) {
     const texts: Record<string, string> = {};

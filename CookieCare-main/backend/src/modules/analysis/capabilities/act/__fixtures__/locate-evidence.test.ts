@@ -20,8 +20,8 @@ import {
   MAX_EVIDENCE_CHARS,
   MAX_EXPANDED_EVIDENCE_CHARS,
   truncateAtWordBoundary,
-} from "../locate-evidence.js";
-import { groupedResultsToFindings } from "../grouped-results-to-findings.js";
+} from "../shared/evidence-locator.js";
+import { groupedResultsToFindings } from "../shared/convert-results-to-findings.js";
 import { getSkillById, resetSkillRegistryForTests } from "../../../skills/runtime/catalog/registry.js";
 import { buildActGraphDetailed } from "../../../skills/runtime/graph/build-act-graph.js";
 import { EXPLICIT_DEEP_DEPTH_RE } from "../../plan/intent-heuristics.js";

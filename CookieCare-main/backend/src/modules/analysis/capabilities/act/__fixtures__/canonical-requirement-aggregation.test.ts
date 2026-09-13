@@ -13,7 +13,7 @@ import {
   type RequirementJudgement,
 } from "../../../models/requirement-assessment.js";
 import { findingsLinkedToRequirement } from "../../../shared/article-linkage.js";
-import { aggregateRequirements } from "../aggregate-requirements.js";
+import { aggregateRequirements } from "../operations/aggregate-requirement-results.js";
 
 function presentJudgement(
   overrides: Partial<RequirementJudgement> = {}

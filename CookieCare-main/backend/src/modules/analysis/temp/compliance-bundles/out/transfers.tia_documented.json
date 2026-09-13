@@ -1,0 +1,150 @@
+{
+  "sessionId": "an_14faad42-a8ab-49ab-a819-da8dad8fa124",
+  "stage": "investigation_complete",
+  "dumpedAt": "2026-09-12T12:59:59.957Z",
+  "requirementId": "transfers.tia_documented",
+  "packageId": "rule:regimes/data-protection/international-transfers",
+  "recall": {
+    "requirementId": "transfers.tia_documented",
+    "uniqueCandidateCount": 16,
+    "elementsWithCandidates": [],
+    "elementsWithoutCandidates": [
+      "primary"
+    ],
+    "totalQueries": 25
+  },
+  "queries": [],
+  "hits": [],
+  "expansions": [],
+  "expansionLimits": [],
+  "bundle": {
+    "bundleId": "INV-transfers.tia_documented-doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+    "requirementId": "transfers.tia_documented",
+    "items": [
+      {
+        "spanId": "dsn_e0080d8d11d1c1b05df856f2",
+        "ref": "dsn_e0080d8d11d1c1b05df856f2",
+        "quotedText": "Upon Administrator´s  request, Alaio will assist Administrator in ensuring compliance with any obligations of Administrator in respect of data protection impact assessments and prior consultation, including (if applicable) Administrator´s  obligations pursuant to Articles 35 and 36 of the GDPR, to the extent User does not otherwise have access to the relevant information, and to the extent such information is available to Alaio. Alaio shall provide reasonable assistance to Administrator in the cooperation or prior consultation with the Supervisory Authority in the performance of its tasks.",
+        "structuralPath": "document.clause_10.paragraph_87",
+        "charRange": [
+          22258,
+          22854
+        ],
+        "scope": {
+          "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+          "structuralPath": "document.clause_10.paragraph_87"
+        },
+        "source": "expansion",
+        "evidenceRole": "context",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.85
+      }
+    ],
+    "partitions": [
+      {
+        "partitionId": "P1",
+        "scope": {
+          "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146"
+        },
+        "itemSpanIds": [
+          "dsn_e0080d8d11d1c1b05df856f2"
+        ]
+      }
+    ],
+    "exclusions": [
+      {
+        "spanId": "dsn_50ce3a2594bf7a6abb078151",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_aa20bace91dfe059380b457b",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_1e1aa437cd0bb14859daef49",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_ba4a4e6e146efabc87ea2da2",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.99"
+      },
+      {
+        "spanId": "dsn_132adc40e5e3faf97e07f9a0",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.99"
+      },
+      {
+        "spanId": "dsn_21cfa7cc6c63818ef01e4117",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_f1b8a9a26e87ab04533bdab1",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_6e60ecbb2c4ee6bf5e95a3c3",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_a68e20ba3056251aee194fcb",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_5e75e648bdc4d1c3e6a30110",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_07f4065cb549a32ad359e035",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.99"
+      },
+      {
+        "spanId": "dsn_5a7a34da1dccbc3e995e61d9",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_afe4037264eb299c86767536",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.98"
+      },
+      {
+        "spanId": "dsn_5c3766f332934579cc4aef34",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.98"
+      },
+      {
+        "spanId": "dsn_1766abf86c7f242a3c5f13ed",
+        "reason": "budget",
+        "detail": "role_budget:context"
+      }
+    ],
+    "dependencies": [
+      {
+        "reference": "dsn_e0080d8d11d1c1b05df856f2:refers_to",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      },
+      {
+        "reference": "dsn_e0080d8d11d1c1b05df856f2:external_reference",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      }
+    ],
+    "estimatedTokens": 149,
+    "investigationComplete": false,
+    "incompleteReasons": [
+      "primary_evidence_missing",
+      "element_unresolved:primary"
+    ]
+  }
+}

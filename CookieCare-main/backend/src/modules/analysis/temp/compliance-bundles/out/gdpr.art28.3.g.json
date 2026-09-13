@@ -1,0 +1,591 @@
+{
+  "sessionId": "an_75767683-12ab-4d40-9de5-db3bdf321e14",
+  "stage": "investigation_complete",
+  "dumpedAt": "2026-09-13T19:06:20.027Z",
+  "requirementId": "gdpr.art28.3.g",
+  "packageId": "rule:regimes/data-protection/gdpr",
+  "recall": {
+    "requirementId": "gdpr.art28.3.g",
+    "uniqueCandidateCount": 17,
+    "elementsWithCandidates": [
+      "G2",
+      "G4"
+    ],
+    "elementsWithoutCandidates": [
+      "G1",
+      "G3"
+    ],
+    "totalQueries": 3,
+    "proofElementsCovered": [
+      "G2",
+      "G4"
+    ],
+    "proofElementsUnresolved": [
+      "G1",
+      "G3"
+    ],
+    "acceptedCandidateCount": 4,
+    "semanticRejectedCandidateCount": 7,
+    "budgetOmittedCandidateCount": 6,
+    "unclassifiedCandidateCount": 0
+  },
+  "queries": [
+    {
+      "queryId": "GNQ-1",
+      "requirementId": "gdpr.art28.3.g",
+      "kind": "requirement",
+      "text": "existing copies"
+    },
+    {
+      "queryId": "GNQ-2",
+      "requirementId": "gdpr.art28.3.g",
+      "kind": "requirement",
+      "text": "At the end of the services the controller may choose whether the processor deletes or returns personal data and existing copies."
+    },
+    {
+      "queryId": "GNQ-3",
+      "requirementId": "gdpr.art28.3.g",
+      "kind": "requirement",
+      "text": "structural:parent_context"
+    }
+  ],
+  "hits": [
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_a5e1ef7ee724e3d2543d6266",
+      "ref": "dsn_a5e1ef7ee724e3d2543d6266",
+      "denseRank": 2,
+      "lexicalRank": 3,
+      "selectedBy": [
+        "exact",
+        "sparse",
+        "dense"
+      ],
+      "score": 0.3583954907540312,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "G2",
+        "G4"
+      ],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Obligates processor to delete all personal data (including existing copies) on term expiry unless applicable law requires storage. It does not provide a choice to return data, leaving G1 unproven."
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_a5e1ef7ee724e3d2543d6266",
+      "ref": "dsn_a5e1ef7ee724e3d2543d6266",
+      "denseRank": 2,
+      "lexicalRank": 3,
+      "selectedBy": [
+        "exact",
+        "sparse",
+        "dense"
+      ],
+      "score": 0.3583954907540312,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "G2",
+        "G4"
+      ],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Obligates processor to delete all personal data (including existing copies) on term expiry unless applicable law requires storage. It does not provide a choice to return data, leaving G1 unproven."
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_009b36df8e35a8a4fb93e7e1",
+      "ref": "dsn_009b36df8e35a8a4fb93e7e1",
+      "denseRank": 9,
+      "lexicalRank": 8,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.2191986359761296,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Pertains to sub-processor engagement and termination due to objection.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_87610896f208778ed618914a",
+      "ref": "dsn_87610896f208778ed618914a",
+      "denseRank": 18,
+      "lexicalRank": 5,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.21820512820512822,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to third-party controller authorization.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_d1ec10558c5880f7cd37da69",
+      "ref": "dsn_d1ec10558c5880f7cd37da69",
+      "denseRank": 14,
+      "lexicalRank": 17,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.2165005265005265,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "General instructions regarding processing parameters."
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_7f43008b758f2aee95efbc2d",
+      "ref": "dsn_7f43008b758f2aee95efbc2d",
+      "denseRank": 20,
+      "lexicalRank": 15,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.21583333333333332,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Pertains to audits and compliance information.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_e913a7275158c113ddece6f9",
+      "ref": "dsn_e913a7275158c113ddece6f9",
+      "denseRank": 1,
+      "lexicalRank": 2,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.18252247488101533,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "General clause acknowledging roles.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_3b8e226256eb52c075589879",
+      "ref": "dsn_3b8e226256eb52c075589879",
+      "denseRank": 3,
+      "lexicalRank": 1,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1822664584959667,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Definition/statement of party roles.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_b01ded68033aade6775089c5",
+      "ref": "dsn_b01ded68033aade6775089c5",
+      "denseRank": 12,
+      "lexicalRank": 10,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.17817460317460318,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Pertains to security assistance obligations.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_f894793c875b7b2c74037e13",
+      "ref": "dsn_f894793c875b7b2c74037e13",
+      "denseRank": 13,
+      "lexicalRank": 23,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.17574682290807062,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Pertains to data subject rights response assistance.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_0d27794115168eac76531131",
+      "ref": "dsn_0d27794115168eac76531131",
+      "denseRank": 10,
+      "lexicalRank": 24,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1661904761904762,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "definition",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Defines the term 'Processing of personal data'."
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_3b6cb2834c139b8111881b5f",
+      "ref": "dsn_3b6cb2834c139b8111881b5f",
+      "denseRank": 6,
+      "lexicalRank": 7,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.13007688828584352,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "definition",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Defines statutory data protection terms."
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_180f0627e5cc335ba4201f12",
+      "ref": "dsn_180f0627e5cc335ba4201f12",
+      "denseRank": 22,
+      "lexicalRank": 13,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1258937520882058,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "definition",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Defines the term 'Processor Services'.",
+      "exclusionReason": "role_budget:definition"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_d110a9e2a460c527c94868fc",
+      "ref": "dsn_d110a9e2a460c527c94868fc",
+      "denseRank": 5,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.12538461538461537,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Sub-processor access conditions.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_15887cd108208cc38846377e",
+      "ref": "dsn_15887cd108208cc38846377e",
+      "denseRank": 4,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.085625,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Sub-processor objection right heading.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_bf39176fdff0518a847ee9a1",
+      "ref": "dsn_bf39176fdff0518a847ee9a1",
+      "denseRank": 8,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08470588235294119,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Inspections heading.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_9e8327daa10029983df8bb36",
+      "ref": "dsn_9e8327daa10029983df8bb36",
+      "denseRank": 11,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08408450704225352,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "General compliance clause.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-3",
+      "spanId": "dsn_82439bbd233b4d21201e7ef2",
+      "ref": "dsn_82439bbd233b4d21201e7ef2",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "G4"
+      ],
+      "reviewConfidence": 0.8,
+      "reviewReason": "Includes an obligation for the processor to inform the administrator if an instruction violates Union or Member State law, but does not provide end-of-service deletion/return rights or explicit closing retention provisos.",
+      "exclusionReason": "role_budget:context"
+    }
+  ],
+  "expansions": [],
+  "expansionLimits": [],
+  "bundle": {
+    "bundleId": "INV-gdpr.art28.3.g-doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+    "requirementId": "gdpr.art28.3.g",
+    "items": [
+      {
+        "spanId": "dsn_a5e1ef7ee724e3d2543d6266",
+        "ref": "dsn_a5e1ef7ee724e3d2543d6266",
+        "quotedText": "5 Deletion on Term Expiry. On expiry of the Term, Administrator instructs Alaio to delete all Personal Data (including existing copies) from Bitrix24 systems in accordance with applicable law. Alaio will comply with this instruction as soon as reasonably practicable and within a maximum period of 90 days, unless any applicable law requires storage.",
+        "structuralPath": "document.list_item_(e).list_item_45",
+        "charRange": [
+          10892,
+          11242
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.list_item_(e).list_item_45",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "primary",
+        "contributesToElementIds": [
+          "G2",
+          "G4"
+        ],
+        "investigationConfidence": 0.95,
+        "investigationReason": "Obligates processor to delete all personal data (including existing copies) on term expiry unless applicable law requires storage. It does not provide a choice to return data, leaving G1 unproven.",
+        "retrievalChannels": [
+          "exact",
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "existing copies",
+          "At the end of the services the controller may choose whether the processor deletes or returns personal data and existing copies."
+        ]
+      },
+      {
+        "spanId": "dsn_0d27794115168eac76531131",
+        "ref": "dsn_0d27794115168eac76531131",
+        "quotedText": "'Processing of personal data' means any operation or set of operations which is performed upon Personal Data, whether or not by automatic means, such as collection, recording, organization, storage, adaptation or alteration, retrieval, consultation, use, disclosure by transmission, dissemination or otherwise making available, alignment or combination, blocking, erasure or destruction ('Process', 'Processes' and 'Processed' shall have the same meaning).",
+        "structuralPath": "document.clause_1.subclause_1.1.list_item_26",
+        "charRange": [
+          6232,
+          6688
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.clause_1.subclause_1.1.list_item_26",
+          "relationship": "unspecified"
+        },
+        "source": "expansion",
+        "evidenceRole": "definition",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.95,
+        "investigationReason": "Defines the term 'Processing of personal data'.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "At the end of the services the controller may choose whether the processor deletes or returns personal data and existing copies."
+        ]
+      },
+      {
+        "spanId": "dsn_3b6cb2834c139b8111881b5f",
+        "ref": "dsn_3b6cb2834c139b8111881b5f",
+        "quotedText": "The terms 'Data controller' , 'Data sub ject' , 'Personal data' , 'Processing' , 'Data processor' and 'Supervisory authority' as used in this DPA have the meanings given in the Data Protection Legislation.",
+        "structuralPath": "document.clause_1.subclause_1.1.paragraph_33",
+        "charRange": [
+          8138,
+          8343
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.clause_1.subclause_1.1.paragraph_33",
+          "relationship": "unspecified"
+        },
+        "source": "expansion",
+        "evidenceRole": "definition",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.95,
+        "investigationReason": "Defines statutory data protection terms.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "At the end of the services the controller may choose whether the processor deletes or returns personal data and existing copies."
+        ]
+      },
+      {
+        "spanId": "dsn_d1ec10558c5880f7cd37da69",
+        "ref": "dsn_d1ec10558c5880f7cd37da69",
+        "quotedText": "4 By entering into this Data Processing Agreement, Administrator instructs Alaio to process Personal Data only in accordance with applicable law: (a) to provide the Processor Services and any related technical support; (b) as further specified via Administrator´s use of the Processor Services (including in the settings and other functionality of the Processor Services) and any related technical support; (c) as documented in this Data Processing Agreement; and (d) as further documented in any other written instructions given by Administrator and acknowledged by Bitrix24 as constituting instructions for purposes of this Data Processing Agreement.",
+        "structuralPath": "document.list_item_(e).list_item_44",
+        "charRange": [
+          10239,
+          10891
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.list_item_(e).list_item_44",
+          "relationship": "unspecified"
+        },
+        "source": "expansion",
+        "evidenceRole": "context",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.9,
+        "investigationReason": "General instructions regarding processing parameters.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "At the end of the services the controller may choose whether the processor deletes or returns personal data and existing copies."
+        ]
+      }
+    ],
+    "partitions": [
+      {
+        "partitionId": "P1",
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5"
+        },
+        "itemSpanIds": [
+          "dsn_a5e1ef7ee724e3d2543d6266",
+          "dsn_0d27794115168eac76531131",
+          "dsn_3b6cb2834c139b8111881b5f",
+          "dsn_d1ec10558c5880f7cd37da69"
+        ]
+      }
+    ],
+    "exclusions": [
+      {
+        "spanId": "dsn_009b36df8e35a8a4fb93e7e1",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_87610896f208778ed618914a",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_b01ded68033aade6775089c5",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_f894793c875b7b2c74037e13",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_d110a9e2a460c527c94868fc",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_15887cd108208cc38846377e",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_bf39176fdff0518a847ee9a1",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_180f0627e5cc335ba4201f12",
+        "reason": "role_budget",
+        "detail": "role_budget:definition"
+      },
+      {
+        "spanId": "dsn_7f43008b758f2aee95efbc2d",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_e913a7275158c113ddece6f9",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_3b8e226256eb52c075589879",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_9e8327daa10029983df8bb36",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_82439bbd233b4d21201e7ef2",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      }
+    ],
+    "dependencies": [],
+    "estimatedTokens": 416,
+    "investigationComplete": false,
+    "incompleteReasons": [
+      "element_unresolved:G1",
+      "element_unresolved:G3"
+    ]
+  },
+  "provenance": {
+    "queries": "graph_native",
+    "hits": "graph_native",
+    "expansions": "graph_native",
+    "bundle": "graph_native"
+  }
+}

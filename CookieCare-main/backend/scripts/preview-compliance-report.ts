@@ -14,7 +14,7 @@ import { renderComplianceReport, createComplianceCompletion } from "../src/modul
 import { buildStructuralNodes } from "../src/modules/analysis/segmentation/structural-nodes.js";
 import { humanizeRequirementId } from "../src/modules/analysis/shared/group-assessments.js";
 import type { AnalysisState } from "../src/modules/analysis/models/analysis-state.js";
-import type { RenderedReport, RenderedRow } from "../src/modules/analysis/capabilities/act/phase7-render.js";
+import type { RenderedReport, RenderedRow } from "../src/modules/analysis/capabilities/act/compliance/project-locked-compliance-report.js";
 
 const argv = process.argv.slice(2);
 function option(name: string, required = true): string {

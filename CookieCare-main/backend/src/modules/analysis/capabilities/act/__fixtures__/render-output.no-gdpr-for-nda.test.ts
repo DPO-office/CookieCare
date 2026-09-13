@@ -21,7 +21,7 @@ describe("render output NDA safety", () => {
   });
 
   it("sanitizeRenderedOutput strips internal routing diagnostics", async () => {
-    const { sanitizeRenderedOutput } = await import("../render-output.js");
+    const { sanitizeRenderedOutput } = await import("../../reporting/render-output.js");
     const cleaned = sanitizeRenderedOutput(
       "Analysis failed: packageId=nda.structural_review workUnitId=wu-pkg-eval not_supported"
     );
@@ -31,7 +31,7 @@ describe("render output NDA safety", () => {
   });
 
   it("sanitizeRenderedOutput moves conclusion last for any memo", async () => {
-    const { sanitizeRenderedOutput } = await import("../render-output.js");
+    const { sanitizeRenderedOutput } = await import("../../reporting/render-output.js");
     const cleaned = sanitizeRenderedOutput(
       [
         "# NDA review",

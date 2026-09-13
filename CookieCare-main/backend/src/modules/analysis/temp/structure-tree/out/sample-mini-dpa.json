@@ -1,0 +1,794 @@
+{
+  "documentId": "sample-mini-dpa",
+  "sourceFile": "sample-mini-dpa.txt",
+  "charCount": 776,
+  "lineCount": 26,
+  "countsByKind": {
+    "document": 1,
+    "section": 1,
+    "heading": 3,
+    "appendix": 1,
+    "schedule": 1,
+    "clause": 3,
+    "paragraph": 8,
+    "list": 1,
+    "list_item": 3,
+    "table": 1,
+    "table_row": 3,
+    "table_cell": 6,
+    "definition": 2
+  },
+  "orphanCount": 0,
+  "legacySegmentCount": 9,
+  "nodes": [
+    {
+      "spanId": "sample-mini-dpa::document::5a375b2abae2",
+      "documentId": "sample-mini-dpa",
+      "kind": "document",
+      "structuralPath": "document",
+      "parentSpanId": null,
+      "order": 0,
+      "rawText": "DATA PROCESSING AGREEMENT\n\n1. Definitions\n\"Personal Data\" means any information relating to an identified or identifiable natural person.\n\"Processor\" means the entity processing Personal Data on behalf of the Controller.\n\n2. Processing of Personal Data\n2.1 The Processor shall process Personal Data only on documented instructions from the Controller.\n2.2 The Processor shall not engage another processor without prior written authorisation.\n\n3. Security\n3.1 The Processor shall implement appropriate technical and organisational measures.\n- Access control\n- Encryption in transit\n- Encryption at rest\n\nAppendix 1 Categories of Data Subjects\nEmployees\nCustomers\nSuppliers\n\nSchedule A Technical Measures\nMeasure\tDescription\nAccess control\tRole-based access\nEncryption\tTLS 1.2+\n",
+      "normalizedText": "DATA PROCESSING AGREEMENT 1. Definitions \"Personal Data\" means any information relating to an identified or identifiable natural person. \"Processor\" means the entity processing Personal Data on behalf of the Controller. 2. Processing of Personal Data 2.1 The Processor shall process Personal Data only on documented instructions from the Controller. 2.2 The Processor shall not engage another processor without prior written authorisation. 3. Security 3.1 The Processor shall implement appropriate technical and organisational measures. - Access control - Encryption in transit - Encryption at rest Appendix 1 Categories of Data Subjects Employees Customers Suppliers Schedule A Technical Measures Measure Description Access control Role-based access Encryption TLS 1.2+",
+      "sourceOffsets": [
+        0,
+        776
+      ],
+      "contentHash": "5a375b2abae2"
+    },
+    {
+      "spanId": "sample-mini-dpa::section::f81175eca580",
+      "documentId": "sample-mini-dpa",
+      "kind": "section",
+      "structuralPath": "document/data-processing-agreement",
+      "parentSpanId": "sample-mini-dpa::document::5a375b2abae2",
+      "order": 1,
+      "rawText": "DATA PROCESSING AGREEMENT\n\n1. Definitions\n\"Personal Data\" means any information relating to an identified or identifiable natural person.\n\"Processor\" means the entity processing Personal Data on behalf of the Controller.\n\n2. Processing of Personal Data\n2.1 The Processor shall process Personal Data only on documented instructions from the Controller.\n2.2 The Processor shall not engage another processor without prior written authorisation.\n\n3. Security\n3.1 The Processor shall implement appropriate technical and organisational measures.\n- Access control\n- Encryption in transit\n- Encryption at rest\n\n",
+      "normalizedText": "DATA PROCESSING AGREEMENT 1. Definitions \"Personal Data\" means any information relating to an identified or identifiable natural person. \"Processor\" means the entity processing Personal Data on behalf of the Controller. 2. Processing of Personal Data 2.1 The Processor shall process Personal Data only on documented instructions from the Controller. 2.2 The Processor shall not engage another process",
+      "sourceOffsets": [
+        0,
+        603
+      ],
+      "contentHash": "c3c9bbbca095"
+    },
+    {
+      "spanId": "sample-mini-dpa::heading::3373db409376",
+      "documentId": "sample-mini-dpa",
+      "kind": "heading",
+      "structuralPath": "document/data-processing-agreement/heading",
+      "parentSpanId": "sample-mini-dpa::section::f81175eca580",
+      "order": 2,
+      "rawText": "DATA PROCESSING AGREEMENT",
+      "normalizedText": "DATA PROCESSING AGREEMENT",
+      "sourceOffsets": [
+        0,
+        25
+      ],
+      "contentHash": "a7565e407eeb"
+    },
+    {
+      "spanId": "sample-mini-dpa::appendix::c6f56d334b21",
+      "documentId": "sample-mini-dpa",
+      "kind": "appendix",
+      "structuralPath": "document/appendix-1",
+      "parentSpanId": "sample-mini-dpa::document::5a375b2abae2",
+      "order": 3,
+      "rawText": "Appendix 1 Categories of Data Subjects\nEmployees\nCustomers\nSuppliers\n\n",
+      "normalizedText": "Appendix 1 Categories of Data Subjects Employees Customers Suppliers",
+      "sourceOffsets": [
+        603,
+        673
+      ],
+      "contentHash": "7a5ebe4f5ba9"
+    },
+    {
+      "spanId": "sample-mini-dpa::heading::d7278866cfeb",
+      "documentId": "sample-mini-dpa",
+      "kind": "heading",
+      "structuralPath": "document/appendix-1/heading",
+      "parentSpanId": "sample-mini-dpa::appendix::c6f56d334b21",
+      "order": 4,
+      "rawText": "Appendix 1 Categories of Data Subjects",
+      "normalizedText": "Appendix 1 Categories of Data Subjects",
+      "sourceOffsets": [
+        603,
+        641
+      ],
+      "contentHash": "04bdca078316"
+    },
+    {
+      "spanId": "sample-mini-dpa::schedule::e49b130785fa",
+      "documentId": "sample-mini-dpa",
+      "kind": "schedule",
+      "structuralPath": "document/schedule-a",
+      "parentSpanId": "sample-mini-dpa::document::5a375b2abae2",
+      "order": 5,
+      "rawText": "Schedule A Technical Measures\nMeasure\tDescription\nAccess control\tRole-based access\nEncryption\tTLS 1.2+\n",
+      "normalizedText": "Schedule A Technical Measures Measure Description Access control Role-based access Encryption TLS 1.2+",
+      "sourceOffsets": [
+        673,
+        776
+      ],
+      "contentHash": "abd319e610f3"
+    },
+    {
+      "spanId": "sample-mini-dpa::heading::5381a87820c6",
+      "documentId": "sample-mini-dpa",
+      "kind": "heading",
+      "structuralPath": "document/schedule-a/heading",
+      "parentSpanId": "sample-mini-dpa::schedule::e49b130785fa",
+      "order": 6,
+      "rawText": "Schedule A Technical Measures",
+      "normalizedText": "Schedule A Technical Measures",
+      "sourceOffsets": [
+        673,
+        702
+      ],
+      "contentHash": "0e32214d3c14"
+    },
+    {
+      "spanId": "sample-mini-dpa::clause::134f547bf02e",
+      "documentId": "sample-mini-dpa",
+      "kind": "clause",
+      "structuralPath": "document/data-processing-agreement/clause-1",
+      "parentSpanId": "sample-mini-dpa::section::f81175eca580",
+      "order": 7,
+      "rawText": "1. Definitions",
+      "normalizedText": "1. Definitions",
+      "sourceOffsets": [
+        27,
+        41
+      ],
+      "contentHash": "6e63edbc4c9b"
+    },
+    {
+      "spanId": "sample-mini-dpa::paragraph::fd4c4bc20a7b",
+      "documentId": "sample-mini-dpa",
+      "kind": "paragraph",
+      "structuralPath": "document/data-processing-agreement/para@42",
+      "parentSpanId": "sample-mini-dpa::section::f81175eca580",
+      "order": 8,
+      "rawText": "\"Personal Data\" means any information relating to an identified or identifiable natural person.",
+      "normalizedText": "\"Personal Data\" means any information relating to an identified or identifiable natural person.",
+      "sourceOffsets": [
+        42,
+        137
+      ],
+      "contentHash": "2c598300bb40"
+    },
+    {
+      "spanId": "sample-mini-dpa::paragraph::b65ff2123e46",
+      "documentId": "sample-mini-dpa",
+      "kind": "paragraph",
+      "structuralPath": "document/data-processing-agreement/para@138",
+      "parentSpanId": "sample-mini-dpa::section::f81175eca580",
+      "order": 9,
+      "rawText": "\"Processor\" means the entity processing Personal Data on behalf of the Controller.",
+      "normalizedText": "\"Processor\" means the entity processing Personal Data on behalf of the Controller.",
+      "sourceOffsets": [
+        138,
+        220
+      ],
+      "contentHash": "7c58928d933c"
+    },
+    {
+      "spanId": "sample-mini-dpa::clause::d2ed83a4d00c",
+      "documentId": "sample-mini-dpa",
+      "kind": "clause",
+      "structuralPath": "document/data-processing-agreement/clause-2",
+      "parentSpanId": "sample-mini-dpa::section::f81175eca580",
+      "order": 10,
+      "rawText": "2. Processing of Personal Data",
+      "normalizedText": "2. Processing of Personal Data",
+      "sourceOffsets": [
+        222,
+        252
+      ],
+      "contentHash": "6f6156fd6c62"
+    },
+    {
+      "spanId": "sample-mini-dpa::paragraph::0f1bee97f6a8",
+      "documentId": "sample-mini-dpa",
+      "kind": "paragraph",
+      "structuralPath": "document/data-processing-agreement/para@253",
+      "parentSpanId": "sample-mini-dpa::section::f81175eca580",
+      "order": 11,
+      "rawText": "2.1 The Processor shall process Personal Data only on documented instructions from the Controller.",
+      "normalizedText": "2.1 The Processor shall process Personal Data only on documented instructions from the Controller.",
+      "sourceOffsets": [
+        253,
+        351
+      ],
+      "contentHash": "3f6a1f4635ed"
+    },
+    {
+      "spanId": "sample-mini-dpa::paragraph::29e64ba89a64",
+      "documentId": "sample-mini-dpa",
+      "kind": "paragraph",
+      "structuralPath": "document/data-processing-agreement/para@352",
+      "parentSpanId": "sample-mini-dpa::section::f81175eca580",
+      "order": 12,
+      "rawText": "2.2 The Processor shall not engage another processor without prior written authorisation.",
+      "normalizedText": "2.2 The Processor shall not engage another processor without prior written authorisation.",
+      "sourceOffsets": [
+        352,
+        441
+      ],
+      "contentHash": "06183000b1ed"
+    },
+    {
+      "spanId": "sample-mini-dpa::clause::932e268b9638",
+      "documentId": "sample-mini-dpa",
+      "kind": "clause",
+      "structuralPath": "document/data-processing-agreement/clause-3",
+      "parentSpanId": "sample-mini-dpa::section::f81175eca580",
+      "order": 13,
+      "rawText": "3. Security",
+      "normalizedText": "3. Security",
+      "sourceOffsets": [
+        443,
+        454
+      ],
+      "contentHash": "15ee17132dde"
+    },
+    {
+      "spanId": "sample-mini-dpa::paragraph::cb244da9f933",
+      "documentId": "sample-mini-dpa",
+      "kind": "paragraph",
+      "structuralPath": "document/data-processing-agreement/para@455",
+      "parentSpanId": "sample-mini-dpa::section::f81175eca580",
+      "order": 14,
+      "rawText": "3.1 The Processor shall implement appropriate technical and organisational measures.",
+      "normalizedText": "3.1 The Processor shall implement appropriate technical and organisational measures.",
+      "sourceOffsets": [
+        455,
+        539
+      ],
+      "contentHash": "5dec9a4363cd"
+    },
+    {
+      "spanId": "sample-mini-dpa::list::731ad57d7a86",
+      "documentId": "sample-mini-dpa",
+      "kind": "list",
+      "structuralPath": "document/data-processing-agreement/list@540",
+      "parentSpanId": "sample-mini-dpa::section::f81175eca580",
+      "order": 15,
+      "rawText": "- Access control\n- Encryption in transit\n- Encryption at rest\n\n",
+      "normalizedText": "- Access control - Encryption in transit - Encryption at rest",
+      "sourceOffsets": [
+        540,
+        603
+      ],
+      "contentHash": "e37212c65fa5"
+    },
+    {
+      "spanId": "sample-mini-dpa::list_item::272665249330",
+      "documentId": "sample-mini-dpa",
+      "kind": "list_item",
+      "structuralPath": "document/data-processing-agreement/list@540/item@540",
+      "parentSpanId": "sample-mini-dpa::list::731ad57d7a86",
+      "order": 16,
+      "rawText": "- Access control",
+      "normalizedText": "- Access control",
+      "sourceOffsets": [
+        540,
+        556
+      ],
+      "contentHash": "eaca52402bbc"
+    },
+    {
+      "spanId": "sample-mini-dpa::list_item::bdc5db292670",
+      "documentId": "sample-mini-dpa",
+      "kind": "list_item",
+      "structuralPath": "document/data-processing-agreement/list@540/item@557",
+      "parentSpanId": "sample-mini-dpa::list::731ad57d7a86",
+      "order": 17,
+      "rawText": "- Encryption in transit",
+      "normalizedText": "- Encryption in transit",
+      "sourceOffsets": [
+        557,
+        580
+      ],
+      "contentHash": "04f99e8936d8"
+    },
+    {
+      "spanId": "sample-mini-dpa::list_item::bcf4bfd86d4d",
+      "documentId": "sample-mini-dpa",
+      "kind": "list_item",
+      "structuralPath": "document/data-processing-agreement/list@540/item@581",
+      "parentSpanId": "sample-mini-dpa::list::731ad57d7a86",
+      "order": 18,
+      "rawText": "- Encryption at rest",
+      "normalizedText": "- Encryption at rest",
+      "sourceOffsets": [
+        581,
+        601
+      ],
+      "contentHash": "8eca0c9371ff"
+    },
+    {
+      "spanId": "sample-mini-dpa::paragraph::2ec3d04c5182",
+      "documentId": "sample-mini-dpa",
+      "kind": "paragraph",
+      "structuralPath": "document/appendix-1/para@642",
+      "parentSpanId": "sample-mini-dpa::appendix::c6f56d334b21",
+      "order": 19,
+      "rawText": "Employees",
+      "normalizedText": "Employees",
+      "sourceOffsets": [
+        642,
+        651
+      ],
+      "contentHash": "8c5b6be28fbd"
+    },
+    {
+      "spanId": "sample-mini-dpa::paragraph::84d007c85da6",
+      "documentId": "sample-mini-dpa",
+      "kind": "paragraph",
+      "structuralPath": "document/appendix-1/para@652",
+      "parentSpanId": "sample-mini-dpa::appendix::c6f56d334b21",
+      "order": 20,
+      "rawText": "Customers",
+      "normalizedText": "Customers",
+      "sourceOffsets": [
+        652,
+        661
+      ],
+      "contentHash": "035eae60290f"
+    },
+    {
+      "spanId": "sample-mini-dpa::paragraph::bd811435ec70",
+      "documentId": "sample-mini-dpa",
+      "kind": "paragraph",
+      "structuralPath": "document/appendix-1/para@662",
+      "parentSpanId": "sample-mini-dpa::appendix::c6f56d334b21",
+      "order": 21,
+      "rawText": "Suppliers",
+      "normalizedText": "Suppliers",
+      "sourceOffsets": [
+        662,
+        671
+      ],
+      "contentHash": "6f76bb2b1215"
+    },
+    {
+      "spanId": "sample-mini-dpa::table::200b67dba8ca",
+      "documentId": "sample-mini-dpa",
+      "kind": "table",
+      "structuralPath": "document/schedule-a/table@703",
+      "parentSpanId": "sample-mini-dpa::schedule::e49b130785fa",
+      "order": 22,
+      "rawText": "Measure\tDescription\nAccess control\tRole-based access\nEncryption\tTLS 1.2+",
+      "normalizedText": "Measure Description Access control Role-based access Encryption TLS 1.2+",
+      "sourceOffsets": [
+        703,
+        775
+      ],
+      "contentHash": "e86cb2750d45"
+    },
+    {
+      "spanId": "sample-mini-dpa::table_row::c4797d43c5aa",
+      "documentId": "sample-mini-dpa",
+      "kind": "table_row",
+      "structuralPath": "document/schedule-a/table@703/row-1",
+      "parentSpanId": "sample-mini-dpa::table::200b67dba8ca",
+      "order": 23,
+      "rawText": "Measure\tDescription",
+      "normalizedText": "Measure Description",
+      "sourceOffsets": [
+        703,
+        722
+      ],
+      "contentHash": "8e5929d3e662"
+    },
+    {
+      "spanId": "sample-mini-dpa::table_cell::f45166a77cc7",
+      "documentId": "sample-mini-dpa",
+      "kind": "table_cell",
+      "structuralPath": "document/schedule-a/table@703/row-1/cell-1",
+      "parentSpanId": "sample-mini-dpa::table_row::c4797d43c5aa",
+      "order": 24,
+      "rawText": "Measure",
+      "normalizedText": "Measure",
+      "sourceOffsets": [
+        703,
+        710
+      ],
+      "contentHash": "d4fd0a232ee5"
+    },
+    {
+      "spanId": "sample-mini-dpa::table_cell::3a2ece12e2fe",
+      "documentId": "sample-mini-dpa",
+      "kind": "table_cell",
+      "structuralPath": "document/schedule-a/table@703/row-1/cell-2",
+      "parentSpanId": "sample-mini-dpa::table_row::c4797d43c5aa",
+      "order": 25,
+      "rawText": "Description",
+      "normalizedText": "Description",
+      "sourceOffsets": [
+        711,
+        722
+      ],
+      "contentHash": "55f8ebc805e6"
+    },
+    {
+      "spanId": "sample-mini-dpa::table_row::c44f747b36f9",
+      "documentId": "sample-mini-dpa",
+      "kind": "table_row",
+      "structuralPath": "document/schedule-a/table@703/row-2",
+      "parentSpanId": "sample-mini-dpa::table::200b67dba8ca",
+      "order": 26,
+      "rawText": "Access control\tRole-based access",
+      "normalizedText": "Access control Role-based access",
+      "sourceOffsets": [
+        723,
+        755
+      ],
+      "contentHash": "b8dc90c32811"
+    },
+    {
+      "spanId": "sample-mini-dpa::table_cell::0a53e608e83f",
+      "documentId": "sample-mini-dpa",
+      "kind": "table_cell",
+      "structuralPath": "document/schedule-a/table@703/row-2/cell-1",
+      "parentSpanId": "sample-mini-dpa::table_row::c44f747b36f9",
+      "order": 27,
+      "rawText": "Access control",
+      "normalizedText": "Access control",
+      "sourceOffsets": [
+        723,
+        737
+      ],
+      "contentHash": "b3e3bbc9103b"
+    },
+    {
+      "spanId": "sample-mini-dpa::table_cell::b9956799b939",
+      "documentId": "sample-mini-dpa",
+      "kind": "table_cell",
+      "structuralPath": "document/schedule-a/table@703/row-2/cell-2",
+      "parentSpanId": "sample-mini-dpa::table_row::c44f747b36f9",
+      "order": 28,
+      "rawText": "Role-based access",
+      "normalizedText": "Role-based access",
+      "sourceOffsets": [
+        738,
+        755
+      ],
+      "contentHash": "0527ccb57bed"
+    },
+    {
+      "spanId": "sample-mini-dpa::table_row::ca5ff5f06bfa",
+      "documentId": "sample-mini-dpa",
+      "kind": "table_row",
+      "structuralPath": "document/schedule-a/table@703/row-3",
+      "parentSpanId": "sample-mini-dpa::table::200b67dba8ca",
+      "order": 29,
+      "rawText": "Encryption\tTLS 1.2+",
+      "normalizedText": "Encryption TLS 1.2+",
+      "sourceOffsets": [
+        756,
+        775
+      ],
+      "contentHash": "b54869d26b8a"
+    },
+    {
+      "spanId": "sample-mini-dpa::table_cell::df2b72649d1e",
+      "documentId": "sample-mini-dpa",
+      "kind": "table_cell",
+      "structuralPath": "document/schedule-a/table@703/row-3/cell-1",
+      "parentSpanId": "sample-mini-dpa::table_row::ca5ff5f06bfa",
+      "order": 30,
+      "rawText": "Encryption",
+      "normalizedText": "Encryption",
+      "sourceOffsets": [
+        756,
+        766
+      ],
+      "contentHash": "0af149c2ed16"
+    },
+    {
+      "spanId": "sample-mini-dpa::table_cell::47ab2f9c9d49",
+      "documentId": "sample-mini-dpa",
+      "kind": "table_cell",
+      "structuralPath": "document/schedule-a/table@703/row-3/cell-2",
+      "parentSpanId": "sample-mini-dpa::table_row::ca5ff5f06bfa",
+      "order": 31,
+      "rawText": "TLS 1.2+",
+      "normalizedText": "TLS 1.2+",
+      "sourceOffsets": [
+        767,
+        775
+      ],
+      "contentHash": "73f229556bb6"
+    },
+    {
+      "spanId": "sample-mini-dpa::definition::34a37a78eb15",
+      "documentId": "sample-mini-dpa",
+      "kind": "definition",
+      "structuralPath": "document/data-processing-agreement/def-personal-data",
+      "parentSpanId": "sample-mini-dpa::section::f81175eca580",
+      "order": 32,
+      "rawText": "\n\"Personal Data\" means any information relating to an identified or identifiable natural person.\n\"Processor\" means the entity processing Personal Data on behalf of the Controller.\n",
+      "normalizedText": "\"Personal Data\" means any information relating to an identified or identifiable natural person. \"Processor\" means the entity processing Personal Data on behalf of the Controller.",
+      "sourceOffsets": [
+        41,
+        221
+      ],
+      "contentHash": "c718e070af59",
+      "definedTerm": "Personal Data"
+    },
+    {
+      "spanId": "sample-mini-dpa::definition::81313c5b0d82",
+      "documentId": "sample-mini-dpa",
+      "kind": "definition",
+      "structuralPath": "document/data-processing-agreement/def-processor",
+      "parentSpanId": "sample-mini-dpa::section::f81175eca580",
+      "order": 33,
+      "rawText": ".\n\"Processor\" means the entity processing Personal Data on behalf of the Controller.\n",
+      "normalizedText": ". \"Processor\" means the entity processing Personal Data on behalf of the Controller.",
+      "sourceOffsets": [
+        136,
+        221
+      ],
+      "contentHash": "3a834fa4c022",
+      "definedTerm": "Processor"
+    }
+  ],
+  "definitions": [
+    {
+      "term": "Personal Data",
+      "definitionSpanId": "sample-mini-dpa::definition::34a37a78eb15",
+      "documentId": "sample-mini-dpa"
+    },
+    {
+      "term": "Processor",
+      "definitionSpanId": "sample-mini-dpa::definition::81313c5b0d82",
+      "documentId": "sample-mini-dpa"
+    }
+  ],
+  "references": [
+    {
+      "sourceSpanId": "sample-mini-dpa::section::f81175eca580",
+      "documentId": "sample-mini-dpa",
+      "referenceText": "Personal Data",
+      "referenceKind": "defined_term",
+      "targetSpanIds": [
+        "sample-mini-dpa::definition::34a37a78eb15"
+      ],
+      "state": "resolved_internal",
+      "sampleText": "DATA PROCESSING AGREEMENT 1. Definitions \"Personal Data\" means any information relating to an identified or identifiable natural person. \"Processor\" means the e"
+    },
+    {
+      "sourceSpanId": "sample-mini-dpa::section::f81175eca580",
+      "documentId": "sample-mini-dpa",
+      "referenceText": "Personal Data",
+      "referenceKind": "defined_term",
+      "targetSpanIds": [
+        "sample-mini-dpa::definition::34a37a78eb15"
+      ],
+      "state": "resolved_internal",
+      "sampleText": "DATA PROCESSING AGREEMENT 1. Definitions \"Personal Data\" means any information relating to an identified or identifiable natural person. \"Processor\" means the e"
+    },
+    {
+      "sourceSpanId": "sample-mini-dpa::section::f81175eca580",
+      "documentId": "sample-mini-dpa",
+      "referenceText": "Personal Data",
+      "referenceKind": "defined_term",
+      "targetSpanIds": [
+        "sample-mini-dpa::definition::34a37a78eb15"
+      ],
+      "state": "resolved_internal",
+      "sampleText": "DATA PROCESSING AGREEMENT 1. Definitions \"Personal Data\" means any information relating to an identified or identifiable natural person. \"Processor\" means the e"
+    },
+    {
+      "sourceSpanId": "sample-mini-dpa::section::f81175eca580",
+      "documentId": "sample-mini-dpa",
+      "referenceText": "Personal Data",
+      "referenceKind": "defined_term",
+      "targetSpanIds": [
+        "sample-mini-dpa::definition::34a37a78eb15"
+      ],
+      "state": "resolved_internal",
+      "sampleText": "DATA PROCESSING AGREEMENT 1. Definitions \"Personal Data\" means any information relating to an identified or identifiable natural person. \"Processor\" means the e"
+    },
+    {
+      "sourceSpanId": "sample-mini-dpa::section::f81175eca580",
+      "documentId": "sample-mini-dpa",
+      "referenceText": "Processor",
+      "referenceKind": "defined_term",
+      "targetSpanIds": [
+        "sample-mini-dpa::definition::81313c5b0d82"
+      ],
+      "state": "resolved_internal",
+      "sampleText": "DATA PROCESSING AGREEMENT 1. Definitions \"Personal Data\" means any information relating to an identified or identifiable natural person. \"Processor\" means the e"
+    },
+    {
+      "sourceSpanId": "sample-mini-dpa::section::f81175eca580",
+      "documentId": "sample-mini-dpa",
+      "referenceText": "Processor",
+      "referenceKind": "defined_term",
+      "targetSpanIds": [
+        "sample-mini-dpa::definition::81313c5b0d82"
+      ],
+      "state": "resolved_internal",
+      "sampleText": "DATA PROCESSING AGREEMENT 1. Definitions \"Personal Data\" means any information relating to an identified or identifiable natural person. \"Processor\" means the e"
+    },
+    {
+      "sourceSpanId": "sample-mini-dpa::section::f81175eca580",
+      "documentId": "sample-mini-dpa",
+      "referenceText": "Processor",
+      "referenceKind": "defined_term",
+      "targetSpanIds": [
+        "sample-mini-dpa::definition::81313c5b0d82"
+      ],
+      "state": "resolved_internal",
+      "sampleText": "DATA PROCESSING AGREEMENT 1. Definitions \"Personal Data\" means any information relating to an identified or identifiable natural person. \"Processor\" means the e"
+    },
+    {
+      "sourceSpanId": "sample-mini-dpa::section::f81175eca580",
+      "documentId": "sample-mini-dpa",
+      "referenceText": "Processor",
+      "referenceKind": "defined_term",
+      "targetSpanIds": [
+        "sample-mini-dpa::definition::81313c5b0d82"
+      ],
+      "state": "resolved_internal",
+      "sampleText": "DATA PROCESSING AGREEMENT 1. Definitions \"Personal Data\" means any information relating to an identified or identifiable natural person. \"Processor\" means the e"
+    },
+    {
+      "sourceSpanId": "sample-mini-dpa::appendix::c6f56d334b21",
+      "documentId": "sample-mini-dpa",
+      "referenceText": "Appendix 1",
+      "referenceKind": "appendix",
+      "targetSpanIds": [
+        "sample-mini-dpa::appendix::c6f56d334b21"
+      ],
+      "state": "resolved_internal",
+      "sampleText": "Appendix 1 Categories of Data Subjects Employees Customers Suppliers"
+    },
+    {
+      "sourceSpanId": "sample-mini-dpa::heading::d7278866cfeb",
+      "documentId": "sample-mini-dpa",
+      "referenceText": "Appendix 1",
+      "referenceKind": "appendix",
+      "targetSpanIds": [
+        "sample-mini-dpa::appendix::c6f56d334b21"
+      ],
+      "state": "resolved_internal",
+      "sampleText": "Appendix 1 Categories of Data Subjects"
+    },
+    {
+      "sourceSpanId": "sample-mini-dpa::schedule::e49b130785fa",
+      "documentId": "sample-mini-dpa",
+      "referenceText": "Schedule A",
+      "referenceKind": "schedule",
+      "targetSpanIds": [
+        "sample-mini-dpa::schedule::e49b130785fa"
+      ],
+      "state": "resolved_internal",
+      "sampleText": "Schedule A Technical Measures Measure Description Access control Role-based access Encryption TLS 1.2+"
+    },
+    {
+      "sourceSpanId": "sample-mini-dpa::heading::5381a87820c6",
+      "documentId": "sample-mini-dpa",
+      "referenceText": "Schedule A",
+      "referenceKind": "schedule",
+      "targetSpanIds": [
+        "sample-mini-dpa::schedule::e49b130785fa"
+      ],
+      "state": "resolved_internal",
+      "sampleText": "Schedule A Technical Measures"
+    },
+    {
+      "sourceSpanId": "sample-mini-dpa::paragraph::fd4c4bc20a7b",
+      "documentId": "sample-mini-dpa",
+      "referenceText": "Personal Data",
+      "referenceKind": "defined_term",
+      "targetSpanIds": [
+        "sample-mini-dpa::definition::34a37a78eb15"
+      ],
+      "state": "resolved_internal",
+      "sampleText": "\"Personal Data\" means any information relating to an identified or identifiable natural person."
+    },
+    {
+      "sourceSpanId": "sample-mini-dpa::paragraph::b65ff2123e46",
+      "documentId": "sample-mini-dpa",
+      "referenceText": "Personal Data",
+      "referenceKind": "defined_term",
+      "targetSpanIds": [
+        "sample-mini-dpa::definition::34a37a78eb15"
+      ],
+      "state": "resolved_internal",
+      "sampleText": "\"Processor\" means the entity processing Personal Data on behalf of the Controller."
+    },
+    {
+      "sourceSpanId": "sample-mini-dpa::paragraph::b65ff2123e46",
+      "documentId": "sample-mini-dpa",
+      "referenceText": "Processor",
+      "referenceKind": "defined_term",
+      "targetSpanIds": [
+        "sample-mini-dpa::definition::81313c5b0d82"
+      ],
+      "state": "resolved_internal",
+      "sampleText": "\"Processor\" means the entity processing Personal Data on behalf of the Controller."
+    },
+    {
+      "sourceSpanId": "sample-mini-dpa::clause::d2ed83a4d00c",
+      "documentId": "sample-mini-dpa",
+      "referenceText": "Personal Data",
+      "referenceKind": "defined_term",
+      "targetSpanIds": [
+        "sample-mini-dpa::definition::34a37a78eb15"
+      ],
+      "state": "resolved_internal",
+      "sampleText": "2. Processing of Personal Data"
+    },
+    {
+      "sourceSpanId": "sample-mini-dpa::paragraph::0f1bee97f6a8",
+      "documentId": "sample-mini-dpa",
+      "referenceText": "Personal Data",
+      "referenceKind": "defined_term",
+      "targetSpanIds": [
+        "sample-mini-dpa::definition::34a37a78eb15"
+      ],
+      "state": "resolved_internal",
+      "sampleText": "2.1 The Processor shall process Personal Data only on documented instructions from the Controller."
+    },
+    {
+      "sourceSpanId": "sample-mini-dpa::paragraph::0f1bee97f6a8",
+      "documentId": "sample-mini-dpa",
+      "referenceText": "Processor",
+      "referenceKind": "defined_term",
+      "targetSpanIds": [
+        "sample-mini-dpa::definition::81313c5b0d82"
+      ],
+      "state": "resolved_internal",
+      "sampleText": "2.1 The Processor shall process Personal Data only on documented instructions from the Controller."
+    },
+    {
+      "sourceSpanId": "sample-mini-dpa::paragraph::29e64ba89a64",
+      "documentId": "sample-mini-dpa",
+      "referenceText": "Processor",
+      "referenceKind": "defined_term",
+      "targetSpanIds": [
+        "sample-mini-dpa::definition::81313c5b0d82"
+      ],
+      "state": "resolved_internal",
+      "sampleText": "2.2 The Processor shall not engage another processor without prior written authorisation."
+    },
+    {
+      "sourceSpanId": "sample-mini-dpa::paragraph::cb244da9f933",
+      "documentId": "sample-mini-dpa",
+      "referenceText": "Processor",
+      "referenceKind": "defined_term",
+      "targetSpanIds": [
+        "sample-mini-dpa::definition::81313c5b0d82"
+      ],
+      "state": "resolved_internal",
+      "sampleText": "3.1 The Processor shall implement appropriate technical and organisational measures."
+    },
+    {
+      "sourceSpanId": "sample-mini-dpa::definition::34a37a78eb15",
+      "documentId": "sample-mini-dpa",
+      "referenceText": "Processor",
+      "referenceKind": "defined_term",
+      "targetSpanIds": [
+        "sample-mini-dpa::definition::81313c5b0d82"
+      ],
+      "state": "resolved_internal",
+      "sampleText": "\"Personal Data\" means any information relating to an identified or identifiable natural person. \"Processor\" means the entity processing Personal Data on behalf "
+    },
+    {
+      "sourceSpanId": "sample-mini-dpa::definition::81313c5b0d82",
+      "documentId": "sample-mini-dpa",
+      "referenceText": "Personal Data",
+      "referenceKind": "defined_term",
+      "targetSpanIds": [
+        "sample-mini-dpa::definition::34a37a78eb15"
+      ],
+      "state": "resolved_internal",
+      "sampleText": ". \"Processor\" means the entity processing Personal Data on behalf of the Controller."
+    }
+  ],
+  "fullText": "DATA PROCESSING AGREEMENT\n\n1. Definitions\n\"Personal Data\" means any information relating to an identified or identifiable natural person.\n\"Processor\" means the entity processing Personal Data on behalf of the Controller.\n\n2. Processing of Personal Data\n2.1 The Processor shall process Personal Data only on documented instructions from the Controller.\n2.2 The Processor shall not engage another processor without prior written authorisation.\n\n3. Security\n3.1 The Processor shall implement appropriate technical and organisational measures.\n- Access control\n- Encryption in transit\n- Encryption at rest\n\nAppendix 1 Categories of Data Subjects\nEmployees\nCustomers\nSuppliers\n\nSchedule A Technical Measures\nMeasure\tDescription\nAccess control\tRole-based access\nEncryption\tTLS 1.2+\n"
+}

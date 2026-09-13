@@ -2,6 +2,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { authoredCapabilityIds, getSkillRegistry } from "../catalog/registry.js";
 import { parseSkillMdContent, skillMarkdownPath } from "../catalog/load-skill-md.js";
 import { skillManifest } from "../catalog/manifest.js";
+import { compileComplianceRule } from "../catalog/compile-compliance-rule.js";
 
 function requiresReportSections(packageId: string): boolean {
   if (packageId.endsWith(".structural_review")) return true;
@@ -20,6 +21,8 @@ export interface SkillParityViolation {
     | "missing_finding_category"
     | "missing_display_label"
     | "missing_rule_scope"
+    | "incomplete_rule_contract"
+    | "invalid_composition"
     | "unresolved_package_capability"
     | "missing_inventory_artifact_shape"
     | "missing_report_sections"
@@ -53,6 +56,7 @@ export function lintSkillParity(): SkillParityViolation[] {
 
     const expected = new Set<string>();
     for (const rule of skill.regimeRules) {
+      const investigation = rule.investigation;
       expected.add(`rule:${rule.ruleId}`);
       if (!rule.findingCategory?.trim()) {
         violations.push({
@@ -66,6 +70,44 @@ export function lintSkillParity(): SkillParityViolation[] {
           skillId: skill.skillId,
           kind: "missing_rule_scope",
           detail: `regime rule ${rule.ruleId} has no valid ruleScope`,
+        });
+      }
+      if (
+        skill.axis === "regime" &&
+        (!rule.authority?.citation?.trim() ||
+          !rule.authority.instrument?.trim() ||
+          !rule.authority.provisionPath.length ||
+          !(rule.selection?.aliases.length || rule.selection?.concepts.length) ||
+          !investigation?.hypothesis.trim() ||
+          !investigation?.proofStandard.trim() ||
+          !investigation?.evidenceHints.length ||
+          !investigation?.proofElements.some((element) => element.kind ? element.kind !== "optional" : element.required))
+      ) {
+        violations.push({
+          skillId: skill.skillId,
+          kind: "incomplete_rule_contract",
+          detail: `regime rule ${rule.ruleId} lacks authority, selection, evidence hints, proof standard, or a required proof element`,
+        });
+      }
+      if (skill.axis === "regime") {
+        try { compileComplianceRule(Object.values(registry), skill.skillId, rule.ruleId); }
+        catch (error) { violations.push({ skillId: skill.skillId, kind: "incomplete_rule_contract", detail: String(error) }); }
+      }
+    }
+    const knownRuleIds = new Set(skill.regimeRules.map((rule) => rule.ruleId));
+    const compositionIds = new Set<string>();
+    for (const composition of skill.compositions ?? []) {
+      const invalid =
+        compositionIds.has(composition.id) ||
+        !composition.aliases.length ||
+        !composition.ruleIds.length ||
+        composition.ruleIds.some((ruleId) => !knownRuleIds.has(ruleId));
+      compositionIds.add(composition.id);
+      if (invalid) {
+        violations.push({
+          skillId: skill.skillId,
+          kind: "invalid_composition",
+          detail: `composition ${composition.id} is duplicate, empty, or references an unknown atomic rule`,
         });
       }
     }

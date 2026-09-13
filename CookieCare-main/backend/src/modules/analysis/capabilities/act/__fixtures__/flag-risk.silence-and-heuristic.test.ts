@@ -8,7 +8,7 @@ import type { SkillRiskCategory } from "../../../skills/runtime/catalog/types.js
 import { getSkillById, resetSkillRegistryForTests } from "../../../skills/runtime/catalog/registry.js";
 
 const { evaluateSilencePatterns, findSilenceEvidence, heuristicRisks, collapseRisksByCategory } = await import(
-  "../flag-risk.js"
+  "../risk-review/evaluate-risk-findings.js"
 );
 
 const locator = {

@@ -1,6 +1,7 @@
 import type { Locator } from "./locator.js";
 import type { ClauseObject } from "./clause-object.js";
 import type { PlaybookPosition } from "./rule-source.js";
+import type { CanonicalDocumentGraph } from "../capabilities/ingest/document-structure/types.js";
 
 export type DocumentRole =
   | "primary"
@@ -14,6 +15,8 @@ export interface DocumentSegment {
   locator: Locator;
   text: string;
   kind: "heading" | "clause" | "paragraph" | "schedule";
+  /** Stable source node in the upload-time canonical document graph. */
+  structuralNodeId?: string;
 }
 
 export interface SegmentedDocument {
@@ -24,6 +27,8 @@ export interface SegmentedDocument {
   fullText: string;
   segments: DocumentSegment[];
   clauses: ClauseObject[];
+  /** Versioned upload-time structure; PLAN/ACT consume projections from this artifact. */
+  structureGraph?: CanonicalDocumentGraph;
   /** Cached playbook positions when role is reference. */
   playbookPositions?: PlaybookPosition[];
 }

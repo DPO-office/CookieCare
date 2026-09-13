@@ -7,10 +7,10 @@ import { describe, it } from "node:test";
 import { getSkillById, resetSkillRegistryForTests } from "../../../skills/runtime/catalog/registry.js";
 
 const { buildInventoryArtifact, inventoryClaim, parseArtifactShape } = await import(
-  "../inventory-provisions.js"
+  "../operations/build-provision-inventory.js"
 );
 
-const HANDLER = fileURLToPath(new URL("../inventory-provisions.ts", import.meta.url));
+const HANDLER = fileURLToPath(new URL("../operations/build-provision-inventory.ts", import.meta.url));
 
 describe("inventory artifactShape", () => {
   it("materializes TransferRecord inventories from typed_records fieldSpec config", () => {

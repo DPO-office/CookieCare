@@ -1,0 +1,418 @@
+{
+  "sessionId": "an_5de65ccd-cac3-4dc5-8ae7-220f733e7750",
+  "stage": "investigation_complete",
+  "dumpedAt": "2026-09-12T13:54:04.494Z",
+  "requirementId": "gdpr.art33.5",
+  "packageId": "rule:regimes/data-protection/gdpr",
+  "recall": {
+    "requirementId": "gdpr.art33.5",
+    "uniqueCandidateCount": 17,
+    "elementsWithCandidates": [],
+    "elementsWithoutCandidates": [
+      "breach_facts",
+      "breach_effects",
+      "remedial_action"
+    ],
+    "totalQueries": 3
+  },
+  "queries": [
+    {
+      "queryId": "GNQ-1",
+      "requirementId": "gdpr.art33.5",
+      "kind": "requirement",
+      "text": "Every personal-data breach is documented with the facts relating to the breach, its effects, and the remedial action taken, in a form sufficient to verify compliance with Articles 33 and 34."
+    },
+    {
+      "queryId": "GNQ-2",
+      "requirementId": "gdpr.art33.5",
+      "kind": "requirement",
+      "text": "documentation"
+    },
+    {
+      "queryId": "GNQ-3",
+      "requirementId": "gdpr.art33.5",
+      "kind": "requirement",
+      "text": "structural:parent_context"
+    }
+  ],
+  "hits": [
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_64660d17772d0007f83dc9ad",
+      "ref": "dsn_64660d17772d0007f83dc9ad",
+      "denseRank": 3,
+      "lexicalRank": 1,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1822664584959667
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_bde6b0bfcbef339c188b5824",
+      "ref": "dsn_bde6b0bfcbef339c188b5824",
+      "denseRank": 5,
+      "lexicalRank": 10,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.17967032967032967
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_e5282b6a584b68ded18b8037",
+      "ref": "dsn_e5282b6a584b68ded18b8037",
+      "denseRank": 12,
+      "lexicalRank": 13,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1775875190258752
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_16bd378474a011aac2987762",
+      "ref": "dsn_16bd378474a011aac2987762",
+      "denseRank": 13,
+      "lexicalRank": 3,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.12957164601000218
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_16bd378474a011aac2987762",
+      "ref": "dsn_16bd378474a011aac2987762",
+      "denseRank": 13,
+      "lexicalRank": 3,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.12957164601000218
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_7a3dfa4878f4a8153a76c41a",
+      "ref": "dsn_7a3dfa4878f4a8153a76c41a",
+      "denseRank": 10,
+      "lexicalRank": 12,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.12817460317460316
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_5d85f0aff5caccc6e125afea",
+      "ref": "dsn_5d85f0aff5caccc6e125afea",
+      "denseRank": 11,
+      "lexicalRank": 14,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.12759802055576702
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_e242d110e459f2df5dd3126e",
+      "ref": "dsn_e242d110e459f2df5dd3126e",
+      "denseRank": 7,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.12492537313432837
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_a571a1d0c82f65a8afda9c16",
+      "ref": "dsn_a571a1d0c82f65a8afda9c16",
+      "denseRank": 20,
+      "lexicalRank": 22,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.12469512195121953
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_8f0b5215dbbb77bf91a2fa7d",
+      "ref": "dsn_8f0b5215dbbb77bf91a2fa7d",
+      "denseRank": 4,
+      "lexicalRank": 21,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.10797067901234568
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_83cdb008ce5ba4655556db10",
+      "ref": "dsn_83cdb008ce5ba4655556db10",
+      "denseRank": 18,
+      "lexicalRank": 20,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.10532051282051283
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_90c50c5074750483f0ac70b1",
+      "ref": "dsn_90c50c5074750483f0ac70b1",
+      "denseRank": 8,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08470588235294119
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_1288233194c39e7a0bb1d514",
+      "ref": "dsn_1288233194c39e7a0bb1d514",
+      "denseRank": 9,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08449275362318841
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_c25d15b80f181f83bd6a4211",
+      "ref": "dsn_c25d15b80f181f83bd6a4211",
+      "denseRank": null,
+      "lexicalRank": 5,
+      "selectedBy": [
+        "sparse"
+      ],
+      "score": 0.07538461538461538
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_e4efcece010046205ca8da78",
+      "ref": "dsn_e4efcece010046205ca8da78",
+      "denseRank": null,
+      "lexicalRank": 11,
+      "selectedBy": [
+        "sparse"
+      ],
+      "score": 0.07408450704225353
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_6de2ddc635283c4ad0d89977",
+      "ref": "dsn_6de2ddc635283c4ad0d89977",
+      "denseRank": null,
+      "lexicalRank": 24,
+      "selectedBy": [
+        "sparse"
+      ],
+      "score": 0.0719047619047619
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_402d697fd67814e22a863d5f",
+      "ref": "dsn_402d697fd67814e22a863d5f",
+      "denseRank": 17,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.052987012987012985
+    },
+    {
+      "queryId": "GNQ-3",
+      "spanId": "dsn_79c330c7600dd2a8f06f8578",
+      "ref": "dsn_79c330c7600dd2a8f06f8578",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0
+    }
+  ],
+  "expansions": [],
+  "expansionLimits": [],
+  "bundle": {
+    "bundleId": "INV-gdpr.art33.5-doc_f78d0984-9ab5-4d73-b963-d2e56017da49",
+    "requirementId": "gdpr.art33.5",
+    "items": [
+      {
+        "spanId": "dsn_7a3dfa4878f4a8153a76c41a",
+        "ref": "dsn_7a3dfa4878f4a8153a76c41a",
+        "quotedText": "2 Details of Data Incident. Notifications will describe, to the extent possible, details of the Data Incident, including steps taken to mitigate the potential risks and steps Alaio recommends Administrator take to address the Data Incident.",
+        "structuralPath": "document.list_item_(c)~3.list_item_78",
+        "charRange": [
+          19602,
+          19842
+        ],
+        "scope": {
+          "documentId": "doc_f78d0984-9ab5-4d73-b963-d2e56017da49",
+          "structuralPath": "document.list_item_(c)~3.list_item_78"
+        },
+        "source": "seed",
+        "evidenceRole": "supporting",
+        "contributesToElementIds": [
+          "breach_facts",
+          "remedial_action"
+        ],
+        "investigationConfidence": 0.8
+      },
+      {
+        "spanId": "dsn_5d85f0aff5caccc6e125afea",
+        "ref": "dsn_5d85f0aff5caccc6e125afea",
+        "quotedText": "4 Third Party Notifications. Administrator is solely responsible for complying with breach notification laws applicable to Administrator and fulfilling any third party notification obligations related to any Data Incident.",
+        "structuralPath": "document.list_item_(c)~3.list_item_80",
+        "charRange": [
+          20181,
+          20403
+        ],
+        "scope": {
+          "documentId": "doc_f78d0984-9ab5-4d73-b963-d2e56017da49",
+          "structuralPath": "document.list_item_(c)~3.list_item_80"
+        },
+        "source": "expansion",
+        "evidenceRole": "limitation",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.85
+      },
+      {
+        "spanId": "dsn_64660d17772d0007f83dc9ad",
+        "ref": "dsn_64660d17772d0007f83dc9ad",
+        "quotedText": "4 Alaio Security Assistance. Administrator agrees that Alaio will assist in ensuring compliance with any obligations of Administrator in respect of security of personal data and personal data breaches, including (if applicable) Administrator's obligations pursuant to Articles 32 to 34 (inclusive) of the GDPR, by:",
+        "structuralPath": "document.list_item_(b)~2.list_item_62",
+        "charRange": [
+          16073,
+          16387
+        ],
+        "scope": {
+          "documentId": "doc_f78d0984-9ab5-4d73-b963-d2e56017da49",
+          "structuralPath": "document.list_item_(b)~2.list_item_62"
+        },
+        "source": "expansion",
+        "evidenceRole": "context",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.75
+      }
+    ],
+    "partitions": [
+      {
+        "partitionId": "P1",
+        "scope": {
+          "documentId": "doc_f78d0984-9ab5-4d73-b963-d2e56017da49"
+        },
+        "itemSpanIds": [
+          "dsn_7a3dfa4878f4a8153a76c41a",
+          "dsn_5d85f0aff5caccc6e125afea",
+          "dsn_64660d17772d0007f83dc9ad"
+        ]
+      }
+    ],
+    "exclusions": [
+      {
+        "spanId": "dsn_bde6b0bfcbef339c188b5824",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_e5282b6a584b68ded18b8037",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_16bd378474a011aac2987762",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.9"
+      },
+      {
+        "spanId": "dsn_e242d110e459f2df5dd3126e",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_a571a1d0c82f65a8afda9c16",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.9"
+      },
+      {
+        "spanId": "dsn_83cdb008ce5ba4655556db10",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_1288233194c39e7a0bb1d514",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_c25d15b80f181f83bd6a4211",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_e4efcece010046205ca8da78",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_6de2ddc635283c4ad0d89977",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_402d697fd67814e22a863d5f",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_79c330c7600dd2a8f06f8578",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_8f0b5215dbbb77bf91a2fa7d",
+        "reason": "budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_90c50c5074750483f0ac70b1",
+        "reason": "budget",
+        "detail": "role_budget:context"
+      }
+    ],
+    "dependencies": [
+      {
+        "reference": "dsn_64660d17772d0007f83dc9ad:refers_to",
+        "state": "resolved_internal",
+        "targetSpanIds": [
+          "dsn_13c96b86a8a716b975c407bb"
+        ]
+      },
+      {
+        "reference": "dsn_64660d17772d0007f83dc9ad:external_reference",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      }
+    ],
+    "estimatedTokens": 194,
+    "investigationComplete": false,
+    "incompleteReasons": [
+      "primary_evidence_missing",
+      "element_unresolved:breach_facts",
+      "element_unresolved:breach_effects",
+      "element_unresolved:remedial_action"
+    ]
+  }
+}

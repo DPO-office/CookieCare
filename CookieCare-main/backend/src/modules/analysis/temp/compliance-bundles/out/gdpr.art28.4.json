@@ -1,0 +1,792 @@
+{
+  "sessionId": "an_75767683-12ab-4d40-9de5-db3bdf321e14",
+  "stage": "investigation_complete",
+  "dumpedAt": "2026-09-13T19:06:20.027Z",
+  "requirementId": "gdpr.art28.4",
+  "packageId": "rule:regimes/data-protection/gdpr",
+  "recall": {
+    "requirementId": "gdpr.art28.4",
+    "uniqueCandidateCount": 24,
+    "elementsWithCandidates": [
+      "F1",
+      "F2"
+    ],
+    "elementsWithoutCandidates": [],
+    "totalQueries": 3,
+    "proofElementsCovered": [
+      "F1",
+      "F2"
+    ],
+    "proofElementsUnresolved": [],
+    "acceptedCandidateCount": 6,
+    "semanticRejectedCandidateCount": 11,
+    "budgetOmittedCandidateCount": 7,
+    "unclassifiedCandidateCount": 0
+  },
+  "queries": [
+    {
+      "queryId": "GNQ-1",
+      "requirementId": "gdpr.art28.4",
+      "kind": "requirement",
+      "text": "A subprocessor is bound by the same data-protection obligations as the processor."
+    },
+    {
+      "queryId": "GNQ-2",
+      "requirementId": "gdpr.art28.4",
+      "kind": "requirement",
+      "text": "relation:details_provided_by"
+    },
+    {
+      "queryId": "GNQ-3",
+      "requirementId": "gdpr.art28.4",
+      "kind": "requirement",
+      "text": "structural:parent_context"
+    }
+  ],
+  "hits": [
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_d110a9e2a460c527c94868fc",
+      "ref": "dsn_d110a9e2a460c527c94868fc",
+      "denseRank": 2,
+      "lexicalRank": 17,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.2191160452450775,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "F1"
+      ],
+      "reviewConfidence": 0.8,
+      "reviewReason": "Requires sub-processor to access/use data in accordance with the DPA."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_7f43008b758f2aee95efbc2d",
+      "ref": "dsn_7f43008b758f2aee95efbc2d",
+      "denseRank": 14,
+      "lexicalRank": 7,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.2184388866478419,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.85,
+      "reviewReason": "Pertains to controller audits and inspections.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_3f92dc056653ebc538843161",
+      "ref": "dsn_3f92dc056653ebc538843161",
+      "denseRank": 17,
+      "lexicalRank": 11,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.2170715200292665,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Pertains to non-acknowledgements of fault for data incidents.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_4410036cd22c9199b2746e05",
+      "ref": "dsn_4410036cd22c9199b2746e05",
+      "denseRank": 13,
+      "lexicalRank": 5,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1990832455216017,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "F2"
+      ],
+      "reviewConfidence": 0.85,
+      "reviewReason": "States sub-processors are required to enter into appropriate security, confidentiality, and privacy contract terms after risk assessment."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_8d97532a308944ce679df961",
+      "ref": "dsn_8d97532a308944ce679df961",
+      "denseRank": 1,
+      "lexicalRank": 2,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.18252247488101533,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "F1",
+        "F2"
+      ],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Explicitly requires that if GDPR applies, data protection obligations set out in Article 28(3) of the GDPR are imposed on the Sub-processor."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_26fcd5bd74e289a4a5086240",
+      "ref": "dsn_26fcd5bd74e289a4a5086240",
+      "denseRank": 7,
+      "lexicalRank": 3,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1807983890073442,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "F1",
+        "F2"
+      ],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Obligates processor to enter into a written agreement with each sub-processor containing data protection obligations not less protective than those in the DPA."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_ca31b13eae9aecb68d627007",
+      "ref": "dsn_ca31b13eae9aecb68d627007",
+      "denseRank": 6,
+      "lexicalRank": 8,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1798573975044563,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Pertains to third-party breach notification responsibilities.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_9e8327daa10029983df8bb36",
+      "ref": "dsn_9e8327daa10029983df8bb36",
+      "denseRank": 10,
+      "lexicalRank": 10,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.17857142857142858,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "General compliance clause.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_3b8e226256eb52c075589879",
+      "ref": "dsn_3b8e226256eb52c075589879",
+      "denseRank": 23,
+      "lexicalRank": 1,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.17844163539403515,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Statement of party roles.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_bf39176fdff0518a847ee9a1",
+      "ref": "dsn_bf39176fdff0518a847ee9a1",
+      "denseRank": 4,
+      "lexicalRank": 25,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.17738970588235295,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Inspections heading.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_bcb3ec58187df1e6dbdd39d9",
+      "ref": "dsn_bcb3ec58187df1e6dbdd39d9",
+      "denseRank": 16,
+      "lexicalRank": 20,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1756578947368421,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Pertains to delivery methods of incident notification.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_3b6cb2834c139b8111881b5f",
+      "ref": "dsn_3b6cb2834c139b8111881b5f",
+      "denseRank": 25,
+      "lexicalRank": 12,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.12565359477124183,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "definition",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Defines statutory terms."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_009b36df8e35a8a4fb93e7e1",
+      "ref": "dsn_009b36df8e35a8a4fb93e7e1",
+      "denseRank": 12,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.1238888888888889,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Pertains to notification and objection rights for new sub-processors.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_23fe2ce90aa11efd1eb92fe4",
+      "ref": "dsn_23fe2ce90aa11efd1eb92fe4",
+      "denseRank": 15,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.12333333333333334,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.85,
+      "reviewReason": "Pertains to inspection cost reimbursement.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_2a8f78794d79eaa0baaef29f",
+      "ref": "dsn_2a8f78794d79eaa0baaef29f",
+      "denseRank": 19,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.12265822784810128,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Cross-references section on engaging sub-processors."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_15887cd108208cc38846377e",
+      "ref": "dsn_15887cd108208cc38846377e",
+      "denseRank": 3,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08587301587301588,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Heading for objection rights.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_ebc4343384efbd8497da7bb6",
+      "ref": "dsn_ebc4343384efbd8497da7bb6",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.7,
+      "reviewReason": "General compliance policy statement, not a contractual flow-down clause for subprocessors.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_e3275bbd3e094ccea6794ed7",
+      "ref": "dsn_e3275bbd3e094ccea6794ed7",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Email encryption measure.",
+      "exclusionReason": "rejected:irrelevant:0.9"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_d2f6b4e33fbc69602bf89474",
+      "ref": "dsn_d2f6b4e33fbc69602bf89474",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Email confidentiality marking measure.",
+      "exclusionReason": "rejected:irrelevant:0.9"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_3555aa936787f1962296bca4",
+      "ref": "dsn_3555aa936787f1962296bca4",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Network security measure.",
+      "exclusionReason": "rejected:irrelevant:0.9"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_b0fe78cf689bef5b90d08d7d",
+      "ref": "dsn_b0fe78cf689bef5b90d08d7d",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Physical media transport measure.",
+      "exclusionReason": "rejected:irrelevant:0.9"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_0330736f67086acf7f11e35b",
+      "ref": "dsn_0330736f67086acf7f11e35b",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Workstation security measure.",
+      "exclusionReason": "rejected:irrelevant:0.9"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_47129320b23727a3574f81b4",
+      "ref": "dsn_47129320b23727a3574f81b4",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "DPO contact details.",
+      "exclusionReason": "rejected:irrelevant:0.9"
+    },
+    {
+      "queryId": "GNQ-3",
+      "spanId": "dsn_815161f01739e93a597ebc4c",
+      "ref": "dsn_815161f01739e93a597ebc4c",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.6,
+      "reviewReason": "Section heading for subprocessor security without operative flow-down language.",
+      "exclusionReason": "rejected:context:0.6"
+    }
+  ],
+  "expansions": [],
+  "expansionLimits": [],
+  "bundle": {
+    "bundleId": "INV-gdpr.art28.4-doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+    "requirementId": "gdpr.art28.4",
+    "items": [
+      {
+        "spanId": "dsn_8d97532a308944ce679df961",
+        "ref": "dsn_8d97532a308944ce679df961",
+        "quotedText": "(ii) if the GDPR applies to the processing of Personal Data, the data protection obligations set out in Article 28(3) of the GDPR are imposed on the Sub-processor;",
+        "structuralPath": "document.list_item_(ii)",
+        "charRange": [
+          17228,
+          17391
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.list_item_(ii)",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "primary",
+        "contributesToElementIds": [
+          "F1",
+          "F2"
+        ],
+        "investigationConfidence": 0.95,
+        "investigationReason": "Explicitly requires that if GDPR applies, data protection obligations set out in Article 28(3) of the GDPR are imposed on the Sub-processor.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "A subprocessor is bound by the same data-protection obligations as the processor."
+        ]
+      },
+      {
+        "spanId": "dsn_26fcd5bd74e289a4a5086240",
+        "ref": "dsn_26fcd5bd74e289a4a5086240",
+        "quotedText": "(b) Alaio have entered into a written agreement with each Sub-processor containing data protection obligations not less protective than those in this DPA with respect to the protection of Personal Data to the extent applicable to the nature of the Services provided by such Sub-processor; and",
+        "structuralPath": "document.list_item_(b)~4",
+        "charRange": [
+          17392,
+          17684
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.list_item_(b)~4",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "primary",
+        "contributesToElementIds": [
+          "F1",
+          "F2"
+        ],
+        "investigationConfidence": 0.95,
+        "investigationReason": "Obligates processor to enter into a written agreement with each sub-processor containing data protection obligations not less protective than those in the DPA.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "A subprocessor is bound by the same data-protection obligations as the processor."
+        ]
+      },
+      {
+        "spanId": "dsn_4410036cd22c9199b2746e05",
+        "ref": "dsn_4410036cd22c9199b2746e05",
+        "quotedText": "Before onboarding Sub-processors, Alaio conducts an audit of the security and privacy practices of Sub-processors to ensure Sub-processors provide a level of security and privacy appropriate to their access to data and the scope of the services they are engaged to provide. Once Alaio has assessed the risks presented by the Sub-processor then, subject always to the requirements set out in Section 7 the Sub-processor is required to enter into appropriate security, confidentiality and privacy contract terms.",
+        "structuralPath": "document.appendix_1.appendix_2.clause_9.paragraph_217",
+        "charRange": [
+          44762,
+          45272
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.appendix_1.appendix_2.clause_9.paragraph_217",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "supporting",
+        "contributesToElementIds": [
+          "F2"
+        ],
+        "investigationConfidence": 0.85,
+        "investigationReason": "States sub-processors are required to enter into appropriate security, confidentiality, and privacy contract terms after risk assessment.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "A subprocessor is bound by the same data-protection obligations as the processor."
+        ]
+      },
+      {
+        "spanId": "dsn_d110a9e2a460c527c94868fc",
+        "ref": "dsn_d110a9e2a460c527c94868fc",
+        "quotedText": "(i) the Sub-processor only accesses and uses Personal Data to the extent required to perform the obligations subcontracted to it, and does so in accordance with the Agreement (including this DPA); and",
+        "structuralPath": "document.list_item_(i)",
+        "charRange": [
+          17027,
+          17227
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.list_item_(i)",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "supporting",
+        "contributesToElementIds": [
+          "F1"
+        ],
+        "investigationConfidence": 0.8,
+        "investigationReason": "Requires sub-processor to access/use data in accordance with the DPA.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "A subprocessor is bound by the same data-protection obligations as the processor."
+        ]
+      },
+      {
+        "spanId": "dsn_3b6cb2834c139b8111881b5f",
+        "ref": "dsn_3b6cb2834c139b8111881b5f",
+        "quotedText": "The terms 'Data controller' , 'Data sub ject' , 'Personal data' , 'Processing' , 'Data processor' and 'Supervisory authority' as used in this DPA have the meanings given in the Data Protection Legislation.",
+        "structuralPath": "document.clause_1.subclause_1.1.paragraph_33",
+        "charRange": [
+          8138,
+          8343
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.clause_1.subclause_1.1.paragraph_33",
+          "relationship": "unspecified"
+        },
+        "source": "expansion",
+        "evidenceRole": "definition",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.95,
+        "investigationReason": "Defines statutory terms.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "A subprocessor is bound by the same data-protection obligations as the processor."
+        ]
+      },
+      {
+        "spanId": "dsn_2a8f78794d79eaa0baaef29f",
+        "ref": "dsn_2a8f78794d79eaa0baaef29f",
+        "quotedText": "3 The parties agree that with regard to the Processing of Personal Data, Alaio or members of the Alaio Group will engage Sub-processors pursuant to the requirements set forth in Section 7 ' Subprocessors' below.",
+        "structuralPath": "document.list_item_(e).list_item_43",
+        "charRange": [
+          10027,
+          10238
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.list_item_(e).list_item_43",
+          "relationship": "unspecified"
+        },
+        "source": "expansion",
+        "evidenceRole": "context",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.9,
+        "investigationReason": "Cross-references section on engaging sub-processors.",
+        "retrievalChannels": [
+          "dense"
+        ],
+        "matchedQueries": [
+          "A subprocessor is bound by the same data-protection obligations as the processor."
+        ]
+      }
+    ],
+    "partitions": [
+      {
+        "partitionId": "P1",
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5"
+        },
+        "itemSpanIds": [
+          "dsn_8d97532a308944ce679df961",
+          "dsn_26fcd5bd74e289a4a5086240",
+          "dsn_4410036cd22c9199b2746e05",
+          "dsn_d110a9e2a460c527c94868fc",
+          "dsn_3b6cb2834c139b8111881b5f",
+          "dsn_2a8f78794d79eaa0baaef29f"
+        ]
+      }
+    ],
+    "exclusions": [
+      {
+        "spanId": "dsn_3f92dc056653ebc538843161",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_ca31b13eae9aecb68d627007",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_bf39176fdff0518a847ee9a1",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_bcb3ec58187df1e6dbdd39d9",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_e3275bbd3e094ccea6794ed7",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.9"
+      },
+      {
+        "spanId": "dsn_d2f6b4e33fbc69602bf89474",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.9"
+      },
+      {
+        "spanId": "dsn_3555aa936787f1962296bca4",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.9"
+      },
+      {
+        "spanId": "dsn_b0fe78cf689bef5b90d08d7d",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.9"
+      },
+      {
+        "spanId": "dsn_0330736f67086acf7f11e35b",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.9"
+      },
+      {
+        "spanId": "dsn_47129320b23727a3574f81b4",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.9"
+      },
+      {
+        "spanId": "dsn_815161f01739e93a597ebc4c",
+        "reason": "semantic_rejection",
+        "detail": "rejected:context:0.6"
+      },
+      {
+        "spanId": "dsn_9e8327daa10029983df8bb36",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_3b8e226256eb52c075589879",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_009b36df8e35a8a4fb93e7e1",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_15887cd108208cc38846377e",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_7f43008b758f2aee95efbc2d",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_23fe2ce90aa11efd1eb92fe4",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_ebc4343384efbd8497da7bb6",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      }
+    ],
+    "dependencies": [
+      {
+        "reference": "dsn_2a8f78794d79eaa0baaef29f:details_provided_by",
+        "state": "resolved_internal",
+        "targetSpanIds": [
+          "dsn_d50c7c46c74f1b47bf73f3d9"
+        ]
+      },
+      {
+        "reference": "dsn_d110a9e2a460c527c94868fc:requires",
+        "state": "resolved_internal",
+        "targetSpanIds": [
+          "dsn_6335589872a4c2b206df632c"
+        ]
+      },
+      {
+        "reference": "dsn_8d97532a308944ce679df961:details_provided_by",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      },
+      {
+        "reference": "dsn_8d97532a308944ce679df961:details_provided_by",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      },
+      {
+        "reference": "dsn_26fcd5bd74e289a4a5086240:applies_to",
+        "state": "resolved_internal",
+        "targetSpanIds": [
+          "dsn_6335589872a4c2b206df632c"
+        ]
+      },
+      {
+        "reference": "dsn_4410036cd22c9199b2746e05:details_provided_by",
+        "state": "resolved_internal",
+        "targetSpanIds": [
+          "dsn_945564845a1ad5fd521cb4db"
+        ]
+      }
+    ],
+    "estimatedTokens": 396,
+    "investigationComplete": true,
+    "incompleteReasons": []
+  },
+  "provenance": {
+    "queries": "graph_native",
+    "hits": "graph_native",
+    "expansions": "graph_native",
+    "bundle": "graph_native"
+  }
+}

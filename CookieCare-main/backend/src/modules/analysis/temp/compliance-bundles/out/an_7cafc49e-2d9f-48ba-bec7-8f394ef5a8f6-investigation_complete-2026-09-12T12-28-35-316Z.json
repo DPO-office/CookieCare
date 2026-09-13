@@ -1,0 +1,1672 @@
+{
+  "sessionId": "an_7cafc49e-2d9f-48ba-bec7-8f394ef5a8f6",
+  "stage": "investigation_complete",
+  "dumpedAt": "2026-09-12T12:28:35.316Z",
+  "requirementCount": 10,
+  "meta": {
+    "investigationPath": "graph_native",
+    "graphNativeMode": "canonical",
+    "swappedIntoVerify": true,
+    "note": "Graph-native bundles are canonical for verify; latest.json matches verify input."
+  },
+  "results": [
+    {
+      "requirementId": "gdpr.art15",
+      "packageId": "rule:regimes/data-protection/gdpr",
+      "recall": {
+        "requirementId": "gdpr.art15",
+        "uniqueCandidateCount": 17,
+        "elementsWithCandidates": [
+          "primary"
+        ],
+        "elementsWithoutCandidates": [],
+        "totalQueries": 26
+      },
+      "queries": [],
+      "hits": [],
+      "expansions": [],
+      "expansionLimits": [],
+      "bundle": {
+        "bundleId": "INV-gdpr.art15-doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+        "requirementId": "gdpr.art15",
+        "items": [
+          {
+            "spanId": "dsn_d5ff0f1d7a8cb182cf16e85c",
+            "ref": "dsn_d5ff0f1d7a8cb182cf16e85c",
+            "quotedText": "4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, correction, amendment, restriction, deletion or exercising any other rights under the GDPR or other Data Protection Legislation of that person's Personal Data. Alaio shall not respond to any such Data Subject request without Administrator´s  prior written consent except to confirm that the request relates to User. Alaio shall provide Administrator with cooperation and assistance in relation to handling of a Data Sub ject's request for access to that person's Personal Data or exercising any other rights under the GDPR or other Data Protection Legislation, to the extent legally permitted and to the extent User does not have access to such Personal Data through its use or receipt of the Services.",
+            "structuralPath": "document.clause_4.subclause_4.2",
+            "charRange": [
+              13363,
+              14205
+            ],
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+              "structuralPath": "document.clause_4.subclause_4.2"
+            },
+            "source": "seed",
+            "evidenceRole": "supporting",
+            "contributesToElementIds": [
+              "primary"
+            ],
+            "investigationConfidence": 0.75
+          },
+          {
+            "spanId": "dsn_922c9e69d3a2abad2a48a40f",
+            "ref": "dsn_922c9e69d3a2abad2a48a40f",
+            "quotedText": "4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Personal Data, as required by Data Protection Legislation, Alaio will (taking into account the nature of the processing of Personal Data and, if applicable, Article 11 of the GDPR) assist Administrator in fulfilling any obligation of Administrator to respond to requests by data subjects, including (if applicable) Administrator´s  obligation to respond to requests for exercising the data sub ject's rights laid down in Chapter III of the GDPR and other Data Protection Legislation, by providing the functionality of the Processor Services;",
+            "structuralPath": "document.clause_4.subclause_4.1",
+            "charRange": [
+              12695,
+              13362
+            ],
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+              "structuralPath": "document.clause_4.subclause_4.1"
+            },
+            "source": "seed",
+            "evidenceRole": "supporting",
+            "contributesToElementIds": [
+              "primary"
+            ],
+            "investigationConfidence": 0.75
+          },
+          {
+            "spanId": "dsn_783076c7128d97b1dbb4a6b8",
+            "ref": "dsn_783076c7128d97b1dbb4a6b8",
+            "quotedText": "'Processing of personal data' means any operation or set of operations which is performed upon Personal Data, whether or not by automatic means, such as collection, recording, organization, storage, adaptation or alteration, retrieval, consultation, use, disclosure by transmission, dissemination or otherwise making available, alignment or combination, blocking, erasure or destruction ('Process', 'Processes' and 'Processed' shall have the same meaning).",
+            "structuralPath": "document.clause_1.subclause_1.1.list_item_26",
+            "charRange": [
+              6232,
+              6688
+            ],
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+              "structuralPath": "document.clause_1.subclause_1.1.list_item_26"
+            },
+            "source": "expansion",
+            "evidenceRole": "definition",
+            "contributesToElementIds": [],
+            "investigationConfidence": 0.8
+          },
+          {
+            "spanId": "dsn_c81cde8238a524f209d3b760",
+            "ref": "dsn_c81cde8238a524f209d3b760",
+            "quotedText": "'Personal Data' means any information relating to an identified or identifiable natural person ('data subject'); an identifiable person is one who can be identified, directly or indirectly, in particular by reference to an identification number or to one or more factors specific to his physical, physiological, mental, economic cultural or social identity;",
+            "structuralPath": "document.clause_1.subclause_1.1.list_item_25",
+            "charRange": [
+              5874,
+              6231
+            ],
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+              "structuralPath": "document.clause_1.subclause_1.1.list_item_25"
+            },
+            "source": "expansion",
+            "evidenceRole": "definition",
+            "contributesToElementIds": [],
+            "investigationConfidence": 0.8
+          },
+          {
+            "spanId": "dsn_64ff8df45c7abe429c42195e",
+            "ref": "dsn_64ff8df45c7abe429c42195e",
+            "quotedText": "4. RIGHTS OF DATA SUBJECTS",
+            "structuralPath": "document.clause_4",
+            "charRange": [
+              12668,
+              12694
+            ],
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+              "structuralPath": "document.clause_4"
+            },
+            "source": "expansion",
+            "evidenceRole": "context",
+            "contributesToElementIds": [],
+            "investigationConfidence": 0.95
+          }
+        ],
+        "partitions": [
+          {
+            "partitionId": "P1",
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146"
+            },
+            "itemSpanIds": [
+              "dsn_d5ff0f1d7a8cb182cf16e85c",
+              "dsn_922c9e69d3a2abad2a48a40f",
+              "dsn_783076c7128d97b1dbb4a6b8",
+              "dsn_c81cde8238a524f209d3b760",
+              "dsn_64ff8df45c7abe429c42195e"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "spanId": "dsn_de09005036c807508ac06f63",
+            "reason": "budget",
+            "detail": "rejected:context:0.6"
+          },
+          {
+            "spanId": "dsn_5a7a34da1dccbc3e995e61d9",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_a0de099acfba9afda8387633",
+            "reason": "budget",
+            "detail": "rejected:context:0.5"
+          },
+          {
+            "spanId": "dsn_1a5dcca7cb6f19e582d82330",
+            "reason": "budget",
+            "detail": "rejected:context:0.5"
+          },
+          {
+            "spanId": "dsn_2dabb5bbe9c4e141d6335e80",
+            "reason": "budget",
+            "detail": "rejected:context:0.5"
+          },
+          {
+            "spanId": "dsn_50ce3a2594bf7a6abb078151",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.85"
+          },
+          {
+            "spanId": "dsn_1abb21f1d7a1656a057a6752",
+            "reason": "budget",
+            "detail": "rejected:context:0.5"
+          },
+          {
+            "spanId": "dsn_8afbee5c64c574e2b369405c",
+            "reason": "budget",
+            "detail": "rejected:context:0.5"
+          },
+          {
+            "spanId": "dsn_12cb149a407b620e10e1e60f",
+            "reason": "budget",
+            "detail": "rejected:context:0.5"
+          },
+          {
+            "spanId": "dsn_aa20bace91dfe059380b457b",
+            "reason": "budget",
+            "detail": "rejected:context:0.5"
+          },
+          {
+            "spanId": "dsn_e74377ab24469700e9a529ec",
+            "reason": "budget",
+            "detail": "rejected:context:0.5"
+          },
+          {
+            "spanId": "dsn_8c99c15595155a8550fc0bf8",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.85"
+          }
+        ],
+        "dependencies": [
+          {
+            "reference": "dsn_922c9e69d3a2abad2a48a40f:requires",
+            "state": "ambiguous",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_922c9e69d3a2abad2a48a40f:requires",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_d5ff0f1d7a8cb182cf16e85c:external_reference",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          }
+        ],
+        "estimatedTokens": 587,
+        "investigationComplete": false,
+        "incompleteReasons": [
+          "primary_evidence_missing"
+        ]
+      }
+    },
+    {
+      "requirementId": "gdpr.art16",
+      "packageId": "rule:regimes/data-protection/gdpr",
+      "recall": {
+        "requirementId": "gdpr.art16",
+        "uniqueCandidateCount": 16,
+        "elementsWithCandidates": [
+          "primary"
+        ],
+        "elementsWithoutCandidates": [],
+        "totalQueries": 26
+      },
+      "queries": [],
+      "hits": [],
+      "expansions": [],
+      "expansionLimits": [],
+      "bundle": {
+        "bundleId": "INV-gdpr.art16-doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+        "requirementId": "gdpr.art16",
+        "items": [
+          {
+            "spanId": "dsn_d5ff0f1d7a8cb182cf16e85c",
+            "ref": "dsn_d5ff0f1d7a8cb182cf16e85c",
+            "quotedText": "4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, correction, amendment, restriction, deletion or exercising any other rights under the GDPR or other Data Protection Legislation of that person's Personal Data. Alaio shall not respond to any such Data Subject request without Administrator´s  prior written consent except to confirm that the request relates to User. Alaio shall provide Administrator with cooperation and assistance in relation to handling of a Data Sub ject's request for access to that person's Personal Data or exercising any other rights under the GDPR or other Data Protection Legislation, to the extent legally permitted and to the extent User does not have access to such Personal Data through its use or receipt of the Services.",
+            "structuralPath": "document.clause_4.subclause_4.2",
+            "charRange": [
+              13363,
+              14205
+            ],
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+              "structuralPath": "document.clause_4.subclause_4.2"
+            },
+            "source": "seed",
+            "evidenceRole": "supporting",
+            "contributesToElementIds": [
+              "primary"
+            ],
+            "investigationConfidence": 0.7
+          },
+          {
+            "spanId": "dsn_922c9e69d3a2abad2a48a40f",
+            "ref": "dsn_922c9e69d3a2abad2a48a40f",
+            "quotedText": "4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Personal Data, as required by Data Protection Legislation, Alaio will (taking into account the nature of the processing of Personal Data and, if applicable, Article 11 of the GDPR) assist Administrator in fulfilling any obligation of Administrator to respond to requests by data subjects, including (if applicable) Administrator´s  obligation to respond to requests for exercising the data sub ject's rights laid down in Chapter III of the GDPR and other Data Protection Legislation, by providing the functionality of the Processor Services;",
+            "structuralPath": "document.clause_4.subclause_4.1",
+            "charRange": [
+              12695,
+              13362
+            ],
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+              "structuralPath": "document.clause_4.subclause_4.1"
+            },
+            "source": "seed",
+            "evidenceRole": "supporting",
+            "contributesToElementIds": [
+              "primary"
+            ],
+            "investigationConfidence": 0.7
+          }
+        ],
+        "partitions": [
+          {
+            "partitionId": "P1",
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146"
+            },
+            "itemSpanIds": [
+              "dsn_d5ff0f1d7a8cb182cf16e85c",
+              "dsn_922c9e69d3a2abad2a48a40f"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "spanId": "dsn_037e2754c850305b11ff9027",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_50ce3a2594bf7a6abb078151",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.85"
+          },
+          {
+            "spanId": "dsn_340d19426e2ef8d115b47b15",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_aa20bace91dfe059380b457b",
+            "reason": "budget",
+            "detail": "rejected:context:0.5"
+          },
+          {
+            "spanId": "dsn_356bc99cf59498c0f6f147da",
+            "reason": "budget",
+            "detail": "rejected:context:0.5"
+          },
+          {
+            "spanId": "dsn_a0de099acfba9afda8387633",
+            "reason": "budget",
+            "detail": "rejected:context:0.5"
+          },
+          {
+            "spanId": "dsn_5a7a34da1dccbc3e995e61d9",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_1abb21f1d7a1656a057a6752",
+            "reason": "budget",
+            "detail": "rejected:context:0.5"
+          },
+          {
+            "spanId": "dsn_2c211a406eee101431f396fb",
+            "reason": "budget",
+            "detail": "rejected:context:0.5"
+          },
+          {
+            "spanId": "dsn_5c68022d6ed180ecf9de0e86",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.85"
+          },
+          {
+            "spanId": "dsn_cf9879f7adc4f01c9d79965d",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.85"
+          },
+          {
+            "spanId": "dsn_8aaabdb96531b869fd790669",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.85"
+          },
+          {
+            "spanId": "dsn_0a26275ca3cbe69fb686e664",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.85"
+          },
+          {
+            "spanId": "dsn_8afbee5c64c574e2b369405c",
+            "reason": "budget",
+            "detail": "rejected:context:0.5"
+          }
+        ],
+        "dependencies": [
+          {
+            "reference": "dsn_922c9e69d3a2abad2a48a40f:requires",
+            "state": "ambiguous",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_922c9e69d3a2abad2a48a40f:requires",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_d5ff0f1d7a8cb182cf16e85c:external_reference",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          }
+        ],
+        "estimatedTokens": 378,
+        "investigationComplete": false,
+        "incompleteReasons": [
+          "primary_evidence_missing"
+        ]
+      }
+    },
+    {
+      "requirementId": "gdpr.art17",
+      "packageId": "rule:regimes/data-protection/gdpr",
+      "recall": {
+        "requirementId": "gdpr.art17",
+        "uniqueCandidateCount": 17,
+        "elementsWithCandidates": [
+          "primary"
+        ],
+        "elementsWithoutCandidates": [],
+        "totalQueries": 24
+      },
+      "queries": [],
+      "hits": [],
+      "expansions": [],
+      "expansionLimits": [],
+      "bundle": {
+        "bundleId": "INV-gdpr.art17-doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+        "requirementId": "gdpr.art17",
+        "items": [
+          {
+            "spanId": "dsn_922c9e69d3a2abad2a48a40f",
+            "ref": "dsn_922c9e69d3a2abad2a48a40f",
+            "quotedText": "4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Personal Data, as required by Data Protection Legislation, Alaio will (taking into account the nature of the processing of Personal Data and, if applicable, Article 11 of the GDPR) assist Administrator in fulfilling any obligation of Administrator to respond to requests by data subjects, including (if applicable) Administrator´s  obligation to respond to requests for exercising the data sub ject's rights laid down in Chapter III of the GDPR and other Data Protection Legislation, by providing the functionality of the Processor Services;",
+            "structuralPath": "document.clause_4.subclause_4.1",
+            "charRange": [
+              12695,
+              13362
+            ],
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+              "structuralPath": "document.clause_4.subclause_4.1"
+            },
+            "source": "seed",
+            "evidenceRole": "supporting",
+            "contributesToElementIds": [
+              "primary"
+            ],
+            "investigationConfidence": 0.75
+          },
+          {
+            "spanId": "dsn_d5ff0f1d7a8cb182cf16e85c",
+            "ref": "dsn_d5ff0f1d7a8cb182cf16e85c",
+            "quotedText": "4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, correction, amendment, restriction, deletion or exercising any other rights under the GDPR or other Data Protection Legislation of that person's Personal Data. Alaio shall not respond to any such Data Subject request without Administrator´s  prior written consent except to confirm that the request relates to User. Alaio shall provide Administrator with cooperation and assistance in relation to handling of a Data Sub ject's request for access to that person's Personal Data or exercising any other rights under the GDPR or other Data Protection Legislation, to the extent legally permitted and to the extent User does not have access to such Personal Data through its use or receipt of the Services.",
+            "structuralPath": "document.clause_4.subclause_4.2",
+            "charRange": [
+              13363,
+              14205
+            ],
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+              "structuralPath": "document.clause_4.subclause_4.2"
+            },
+            "source": "seed",
+            "evidenceRole": "supporting",
+            "contributesToElementIds": [
+              "primary"
+            ],
+            "investigationConfidence": 0.75
+          },
+          {
+            "spanId": "dsn_64ff8df45c7abe429c42195e",
+            "ref": "dsn_64ff8df45c7abe429c42195e",
+            "quotedText": "4. RIGHTS OF DATA SUBJECTS",
+            "structuralPath": "document.clause_4",
+            "charRange": [
+              12668,
+              12694
+            ],
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+              "structuralPath": "document.clause_4"
+            },
+            "source": "expansion",
+            "evidenceRole": "context",
+            "contributesToElementIds": [],
+            "investigationConfidence": 0.95
+          }
+        ],
+        "partitions": [
+          {
+            "partitionId": "P1",
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146"
+            },
+            "itemSpanIds": [
+              "dsn_922c9e69d3a2abad2a48a40f",
+              "dsn_d5ff0f1d7a8cb182cf16e85c",
+              "dsn_64ff8df45c7abe429c42195e"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "spanId": "dsn_1558c05592acf2616b4fa2fe",
+            "reason": "budget",
+            "detail": "rejected:supporting:0.6"
+          },
+          {
+            "spanId": "dsn_5a7a34da1dccbc3e995e61d9",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_340d19426e2ef8d115b47b15",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_b99bc329321db1d87f62e4f0",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.85"
+          },
+          {
+            "spanId": "dsn_037e2754c850305b11ff9027",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_f1b8a9a26e87ab04533bdab1",
+            "reason": "budget",
+            "detail": "rejected:context:0.6"
+          },
+          {
+            "spanId": "dsn_aa20bace91dfe059380b457b",
+            "reason": "budget",
+            "detail": "rejected:context:0.5"
+          },
+          {
+            "spanId": "dsn_50ce3a2594bf7a6abb078151",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.85"
+          },
+          {
+            "spanId": "dsn_5c68022d6ed180ecf9de0e86",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.85"
+          },
+          {
+            "spanId": "dsn_9641dd8381f5b12fd866f315",
+            "reason": "budget",
+            "detail": "rejected:context:0.5"
+          },
+          {
+            "spanId": "dsn_b96eb41e9aedbdf3a6ecc2b6",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.85"
+          },
+          {
+            "spanId": "dsn_5e75e648bdc4d1c3e6a30110",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.85"
+          },
+          {
+            "spanId": "dsn_8afbee5c64c574e2b369405c",
+            "reason": "budget",
+            "detail": "rejected:context:0.5"
+          },
+          {
+            "spanId": "dsn_0a26275ca3cbe69fb686e664",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.85"
+          }
+        ],
+        "dependencies": [
+          {
+            "reference": "dsn_922c9e69d3a2abad2a48a40f:requires",
+            "state": "ambiguous",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_922c9e69d3a2abad2a48a40f:requires",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_d5ff0f1d7a8cb182cf16e85c:external_reference",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          }
+        ],
+        "estimatedTokens": 384,
+        "investigationComplete": false,
+        "incompleteReasons": [
+          "primary_evidence_missing"
+        ]
+      }
+    },
+    {
+      "requirementId": "gdpr.art18",
+      "packageId": "rule:regimes/data-protection/gdpr",
+      "recall": {
+        "requirementId": "gdpr.art18",
+        "uniqueCandidateCount": 16,
+        "elementsWithCandidates": [
+          "primary"
+        ],
+        "elementsWithoutCandidates": [],
+        "totalQueries": 22
+      },
+      "queries": [],
+      "hits": [],
+      "expansions": [],
+      "expansionLimits": [],
+      "bundle": {
+        "bundleId": "INV-gdpr.art18-doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+        "requirementId": "gdpr.art18",
+        "items": [
+          {
+            "spanId": "dsn_d5ff0f1d7a8cb182cf16e85c",
+            "ref": "dsn_d5ff0f1d7a8cb182cf16e85c",
+            "quotedText": "4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, correction, amendment, restriction, deletion or exercising any other rights under the GDPR or other Data Protection Legislation of that person's Personal Data. Alaio shall not respond to any such Data Subject request without Administrator´s  prior written consent except to confirm that the request relates to User. Alaio shall provide Administrator with cooperation and assistance in relation to handling of a Data Sub ject's request for access to that person's Personal Data or exercising any other rights under the GDPR or other Data Protection Legislation, to the extent legally permitted and to the extent User does not have access to such Personal Data through its use or receipt of the Services.",
+            "structuralPath": "document.clause_4.subclause_4.2",
+            "charRange": [
+              13363,
+              14205
+            ],
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+              "structuralPath": "document.clause_4.subclause_4.2"
+            },
+            "source": "seed",
+            "evidenceRole": "supporting",
+            "contributesToElementIds": [
+              "primary"
+            ],
+            "investigationConfidence": 0.7
+          },
+          {
+            "spanId": "dsn_922c9e69d3a2abad2a48a40f",
+            "ref": "dsn_922c9e69d3a2abad2a48a40f",
+            "quotedText": "4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Personal Data, as required by Data Protection Legislation, Alaio will (taking into account the nature of the processing of Personal Data and, if applicable, Article 11 of the GDPR) assist Administrator in fulfilling any obligation of Administrator to respond to requests by data subjects, including (if applicable) Administrator´s  obligation to respond to requests for exercising the data sub ject's rights laid down in Chapter III of the GDPR and other Data Protection Legislation, by providing the functionality of the Processor Services;",
+            "structuralPath": "document.clause_4.subclause_4.1",
+            "charRange": [
+              12695,
+              13362
+            ],
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+              "structuralPath": "document.clause_4.subclause_4.1"
+            },
+            "source": "seed",
+            "evidenceRole": "supporting",
+            "contributesToElementIds": [
+              "primary"
+            ],
+            "investigationConfidence": 0.7
+          },
+          {
+            "spanId": "dsn_783076c7128d97b1dbb4a6b8",
+            "ref": "dsn_783076c7128d97b1dbb4a6b8",
+            "quotedText": "'Processing of personal data' means any operation or set of operations which is performed upon Personal Data, whether or not by automatic means, such as collection, recording, organization, storage, adaptation or alteration, retrieval, consultation, use, disclosure by transmission, dissemination or otherwise making available, alignment or combination, blocking, erasure or destruction ('Process', 'Processes' and 'Processed' shall have the same meaning).",
+            "structuralPath": "document.clause_1.subclause_1.1.list_item_26",
+            "charRange": [
+              6232,
+              6688
+            ],
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+              "structuralPath": "document.clause_1.subclause_1.1.list_item_26"
+            },
+            "source": "expansion",
+            "evidenceRole": "definition",
+            "contributesToElementIds": [],
+            "investigationConfidence": 0.7
+          }
+        ],
+        "partitions": [
+          {
+            "partitionId": "P1",
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146"
+            },
+            "itemSpanIds": [
+              "dsn_d5ff0f1d7a8cb182cf16e85c",
+              "dsn_922c9e69d3a2abad2a48a40f",
+              "dsn_783076c7128d97b1dbb4a6b8"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "spanId": "dsn_c685d83c1d226e8f43192051",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.85"
+          },
+          {
+            "spanId": "dsn_340d19426e2ef8d115b47b15",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_8afbee5c64c574e2b369405c",
+            "reason": "budget",
+            "detail": "rejected:context:0.5"
+          },
+          {
+            "spanId": "dsn_e74377ab24469700e9a529ec",
+            "reason": "budget",
+            "detail": "rejected:context:0.5"
+          },
+          {
+            "spanId": "dsn_50ce3a2594bf7a6abb078151",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.85"
+          },
+          {
+            "spanId": "dsn_1558c05592acf2616b4fa2fe",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.85"
+          },
+          {
+            "spanId": "dsn_551e711a3235c3b710f741f1",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.85"
+          },
+          {
+            "spanId": "dsn_5c68022d6ed180ecf9de0e86",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.85"
+          },
+          {
+            "spanId": "dsn_12cb149a407b620e10e1e60f",
+            "reason": "budget",
+            "detail": "rejected:context:0.5"
+          },
+          {
+            "spanId": "dsn_5c3766f332934579cc4aef34",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.85"
+          },
+          {
+            "spanId": "dsn_0a26275ca3cbe69fb686e664",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.85"
+          },
+          {
+            "spanId": "dsn_9641dd8381f5b12fd866f315",
+            "reason": "budget",
+            "detail": "rejected:context:0.5"
+          },
+          {
+            "spanId": "dsn_8c99c15595155a8550fc0bf8",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.85"
+          }
+        ],
+        "dependencies": [
+          {
+            "reference": "dsn_922c9e69d3a2abad2a48a40f:requires",
+            "state": "ambiguous",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_922c9e69d3a2abad2a48a40f:requires",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_d5ff0f1d7a8cb182cf16e85c:external_reference",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          }
+        ],
+        "estimatedTokens": 492,
+        "investigationComplete": false,
+        "incompleteReasons": [
+          "primary_evidence_missing"
+        ]
+      }
+    },
+    {
+      "requirementId": "gdpr.art19",
+      "packageId": "rule:regimes/data-protection/gdpr",
+      "recall": {
+        "requirementId": "gdpr.art19",
+        "uniqueCandidateCount": 16,
+        "elementsWithCandidates": [],
+        "elementsWithoutCandidates": [
+          "primary"
+        ],
+        "totalQueries": 23
+      },
+      "queries": [],
+      "hits": [],
+      "expansions": [],
+      "expansionLimits": [],
+      "bundle": {
+        "bundleId": "INV-gdpr.art19-doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+        "requirementId": "gdpr.art19",
+        "items": [
+          {
+            "spanId": "dsn_8afbee5c64c574e2b369405c",
+            "ref": "dsn_8afbee5c64c574e2b369405c",
+            "quotedText": "1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that:",
+            "structuralPath": "document.clause_2.item_1",
+            "charRange": [
+              8425,
+              8511
+            ],
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+              "structuralPath": "document.clause_2.item_1"
+            },
+            "source": "expansion",
+            "evidenceRole": "context",
+            "contributesToElementIds": [],
+            "investigationConfidence": 0.95
+          }
+        ],
+        "partitions": [
+          {
+            "partitionId": "P1",
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146"
+            },
+            "itemSpanIds": [
+              "dsn_8afbee5c64c574e2b369405c"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "spanId": "dsn_c685d83c1d226e8f43192051",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_1558c05592acf2616b4fa2fe",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_5a7a34da1dccbc3e995e61d9",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_cf9879f7adc4f01c9d79965d",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_b99bc329321db1d87f62e4f0",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_72a099414eb8da99dbd98586",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_340d19426e2ef8d115b47b15",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_f51e74015231cb340f43c339",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_b7f7ec51713b4f3bd90f2f35",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_e74377ab24469700e9a529ec",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_f1b8a9a26e87ab04533bdab1",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_9641dd8381f5b12fd866f315",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_d5ff0f1d7a8cb182cf16e85c",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_50ce3a2594bf7a6abb078151",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_922c9e69d3a2abad2a48a40f",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          }
+        ],
+        "dependencies": [],
+        "estimatedTokens": 22,
+        "investigationComplete": false,
+        "incompleteReasons": [
+          "primary_evidence_missing",
+          "element_unresolved:primary"
+        ]
+      }
+    },
+    {
+      "requirementId": "gdpr.art20",
+      "packageId": "rule:regimes/data-protection/gdpr",
+      "recall": {
+        "requirementId": "gdpr.art20",
+        "uniqueCandidateCount": 16,
+        "elementsWithCandidates": [],
+        "elementsWithoutCandidates": [
+          "primary"
+        ],
+        "totalQueries": 24
+      },
+      "queries": [],
+      "hits": [],
+      "expansions": [],
+      "expansionLimits": [],
+      "bundle": {
+        "bundleId": "INV-gdpr.art20-doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+        "requirementId": "gdpr.art20",
+        "items": [
+          {
+            "spanId": "dsn_783076c7128d97b1dbb4a6b8",
+            "ref": "dsn_783076c7128d97b1dbb4a6b8",
+            "quotedText": "'Processing of personal data' means any operation or set of operations which is performed upon Personal Data, whether or not by automatic means, such as collection, recording, organization, storage, adaptation or alteration, retrieval, consultation, use, disclosure by transmission, dissemination or otherwise making available, alignment or combination, blocking, erasure or destruction ('Process', 'Processes' and 'Processed' shall have the same meaning).",
+            "structuralPath": "document.clause_1.subclause_1.1.list_item_26",
+            "charRange": [
+              6232,
+              6688
+            ],
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+              "structuralPath": "document.clause_1.subclause_1.1.list_item_26"
+            },
+            "source": "expansion",
+            "evidenceRole": "definition",
+            "contributesToElementIds": [],
+            "investigationConfidence": 0.9
+          },
+          {
+            "spanId": "dsn_399055d3d09aaae19e450b82",
+            "ref": "dsn_399055d3d09aaae19e450b82",
+            "quotedText": "The terms 'Data controller' , 'Data sub ject' , 'Personal data' , 'Processing' , 'Data processor' and 'Supervisory authority' as used in this DPA have the meanings given in the Data Protection Legislation.",
+            "structuralPath": "document.clause_1.subclause_1.1.paragraph_33",
+            "charRange": [
+              8138,
+              8343
+            ],
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+              "structuralPath": "document.clause_1.subclause_1.1.paragraph_33"
+            },
+            "source": "expansion",
+            "evidenceRole": "definition",
+            "contributesToElementIds": [],
+            "investigationConfidence": 0.9
+          },
+          {
+            "spanId": "dsn_e74377ab24469700e9a529ec",
+            "ref": "dsn_e74377ab24469700e9a529ec",
+            "quotedText": "(c)  Administrator is a controller or processor, as applicable, of Personal Data under the Data Protection Legislation; and",
+            "structuralPath": "document.list_item_(c)",
+            "charRange": [
+              8848,
+              8971
+            ],
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+              "structuralPath": "document.list_item_(c)"
+            },
+            "source": "expansion",
+            "evidenceRole": "context",
+            "contributesToElementIds": [],
+            "investigationConfidence": 0.95
+          }
+        ],
+        "partitions": [
+          {
+            "partitionId": "P1",
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146"
+            },
+            "itemSpanIds": [
+              "dsn_783076c7128d97b1dbb4a6b8",
+              "dsn_399055d3d09aaae19e450b82",
+              "dsn_e74377ab24469700e9a529ec"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "spanId": "dsn_cf943ae5c30c886a4ffe879e",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_50ce3a2594bf7a6abb078151",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_e0082e9f34c8dd9ba8f5aa99",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_1766abf86c7f242a3c5f13ed",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_c685d83c1d226e8f43192051",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_de09005036c807508ac06f63",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_1558c05592acf2616b4fa2fe",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_c81cde8238a524f209d3b760",
+            "reason": "budget",
+            "detail": "role_budget:definition"
+          },
+          {
+            "spanId": "dsn_8afbee5c64c574e2b369405c",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_f1b8a9a26e87ab04533bdab1",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_9641dd8381f5b12fd866f315",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_d5ff0f1d7a8cb182cf16e85c",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_922c9e69d3a2abad2a48a40f",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          }
+        ],
+        "dependencies": [],
+        "estimatedTokens": 196,
+        "investigationComplete": false,
+        "incompleteReasons": [
+          "primary_evidence_missing",
+          "element_unresolved:primary"
+        ]
+      }
+    },
+    {
+      "requirementId": "gdpr.art21",
+      "packageId": "rule:regimes/data-protection/gdpr",
+      "recall": {
+        "requirementId": "gdpr.art21",
+        "uniqueCandidateCount": 16,
+        "elementsWithCandidates": [],
+        "elementsWithoutCandidates": [
+          "primary"
+        ],
+        "totalQueries": 19
+      },
+      "queries": [],
+      "hits": [],
+      "expansions": [],
+      "expansionLimits": [],
+      "bundle": {
+        "bundleId": "INV-gdpr.art21-doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+        "requirementId": "gdpr.art21",
+        "items": [
+          {
+            "spanId": "dsn_e74377ab24469700e9a529ec",
+            "ref": "dsn_e74377ab24469700e9a529ec",
+            "quotedText": "(c)  Administrator is a controller or processor, as applicable, of Personal Data under the Data Protection Legislation; and",
+            "structuralPath": "document.list_item_(c)",
+            "charRange": [
+              8848,
+              8971
+            ],
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+              "structuralPath": "document.list_item_(c)"
+            },
+            "source": "expansion",
+            "evidenceRole": "context",
+            "contributesToElementIds": [],
+            "investigationConfidence": 0.95
+          }
+        ],
+        "partitions": [
+          {
+            "partitionId": "P1",
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146"
+            },
+            "itemSpanIds": [
+              "dsn_e74377ab24469700e9a529ec"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "spanId": "dsn_c685d83c1d226e8f43192051",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_50ce3a2594bf7a6abb078151",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_1abb21f1d7a1656a057a6752",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_aa20bace91dfe059380b457b",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_98c6f1615bfa70a8f12c5ed9",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_de09005036c807508ac06f63",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_1558c05592acf2616b4fa2fe",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_340d19426e2ef8d115b47b15",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.85"
+          },
+          {
+            "spanId": "dsn_702df667b3bbff3019ebb738",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_12cb149a407b620e10e1e60f",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_8afbee5c64c574e2b369405c",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_9641dd8381f5b12fd866f315",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_f1b8a9a26e87ab04533bdab1",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_d5ff0f1d7a8cb182cf16e85c",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_922c9e69d3a2abad2a48a40f",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          }
+        ],
+        "dependencies": [],
+        "estimatedTokens": 31,
+        "investigationComplete": false,
+        "incompleteReasons": [
+          "primary_evidence_missing",
+          "element_unresolved:primary"
+        ]
+      }
+    },
+    {
+      "requirementId": "gdpr.art22",
+      "packageId": "rule:regimes/data-protection/gdpr",
+      "recall": {
+        "requirementId": "gdpr.art22",
+        "uniqueCandidateCount": 16,
+        "elementsWithCandidates": [],
+        "elementsWithoutCandidates": [
+          "primary"
+        ],
+        "totalQueries": 24
+      },
+      "queries": [],
+      "hits": [],
+      "expansions": [],
+      "expansionLimits": [],
+      "bundle": {
+        "bundleId": "INV-gdpr.art22-doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+        "requirementId": "gdpr.art22",
+        "items": [
+          {
+            "spanId": "dsn_8afbee5c64c574e2b369405c",
+            "ref": "dsn_8afbee5c64c574e2b369405c",
+            "quotedText": "1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that:",
+            "structuralPath": "document.clause_2.item_1",
+            "charRange": [
+              8425,
+              8511
+            ],
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+              "structuralPath": "document.clause_2.item_1"
+            },
+            "source": "expansion",
+            "evidenceRole": "context",
+            "contributesToElementIds": [],
+            "investigationConfidence": 0.95
+          }
+        ],
+        "partitions": [
+          {
+            "partitionId": "P1",
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146"
+            },
+            "itemSpanIds": [
+              "dsn_8afbee5c64c574e2b369405c"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "spanId": "dsn_50ce3a2594bf7a6abb078151",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_c685d83c1d226e8f43192051",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_356bc99cf59498c0f6f147da",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_ff8504e7d7dbdd778a717ba8",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_b3e4c7940d6586c5aee09416",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_5c68022d6ed180ecf9de0e86",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_2b93e2d58f72bb0126edcd79",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_340d19426e2ef8d115b47b15",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_1558c05592acf2616b4fa2fe",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_e74377ab24469700e9a529ec",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_12cb149a407b620e10e1e60f",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_f1b8a9a26e87ab04533bdab1",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_9641dd8381f5b12fd866f315",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_d5ff0f1d7a8cb182cf16e85c",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_922c9e69d3a2abad2a48a40f",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          }
+        ],
+        "dependencies": [],
+        "estimatedTokens": 22,
+        "investigationComplete": false,
+        "incompleteReasons": [
+          "primary_evidence_missing",
+          "element_unresolved:primary"
+        ]
+      }
+    },
+    {
+      "requirementId": "gdpr.art12.3",
+      "packageId": "rule:regimes/data-protection/gdpr",
+      "recall": {
+        "requirementId": "gdpr.art12.3",
+        "uniqueCandidateCount": 16,
+        "elementsWithCandidates": [],
+        "elementsWithoutCandidates": [
+          "primary"
+        ],
+        "totalQueries": 25
+      },
+      "queries": [],
+      "hits": [],
+      "expansions": [],
+      "expansionLimits": [],
+      "bundle": {
+        "bundleId": "INV-gdpr.art12.3-doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+        "requirementId": "gdpr.art12.3",
+        "items": [
+          {
+            "spanId": "dsn_d5ff0f1d7a8cb182cf16e85c",
+            "ref": "dsn_d5ff0f1d7a8cb182cf16e85c",
+            "quotedText": "4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, correction, amendment, restriction, deletion or exercising any other rights under the GDPR or other Data Protection Legislation of that person's Personal Data. Alaio shall not respond to any such Data Subject request without Administrator´s  prior written consent except to confirm that the request relates to User. Alaio shall provide Administrator with cooperation and assistance in relation to handling of a Data Sub ject's request for access to that person's Personal Data or exercising any other rights under the GDPR or other Data Protection Legislation, to the extent legally permitted and to the extent User does not have access to such Personal Data through its use or receipt of the Services.",
+            "structuralPath": "document.clause_4.subclause_4.2",
+            "charRange": [
+              13363,
+              14205
+            ],
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+              "structuralPath": "document.clause_4.subclause_4.2"
+            },
+            "source": "expansion",
+            "evidenceRole": "context",
+            "contributesToElementIds": [],
+            "investigationConfidence": 0.85
+          }
+        ],
+        "partitions": [
+          {
+            "partitionId": "P1",
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146"
+            },
+            "itemSpanIds": [
+              "dsn_d5ff0f1d7a8cb182cf16e85c"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "spanId": "dsn_8c99c15595155a8550fc0bf8",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_5c3766f332934579cc4aef34",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_340d19426e2ef8d115b47b15",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_037e2754c850305b11ff9027",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_1a5dcca7cb6f19e582d82330",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_50ce3a2594bf7a6abb078151",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_5a7a34da1dccbc3e995e61d9",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_1abb21f1d7a1656a057a6752",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_0a26275ca3cbe69fb686e664",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_5c68022d6ed180ecf9de0e86",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_b1c84b4b26e55567032f44e3",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_cf9879f7adc4f01c9d79965d",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_b96eb41e9aedbdf3a6ecc2b6",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_aa20bace91dfe059380b457b",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_922c9e69d3a2abad2a48a40f",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          }
+        ],
+        "dependencies": [
+          {
+            "reference": "dsn_d5ff0f1d7a8cb182cf16e85c:external_reference",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          }
+        ],
+        "estimatedTokens": 211,
+        "investigationComplete": false,
+        "incompleteReasons": [
+          "primary_evidence_missing",
+          "element_unresolved:primary"
+        ]
+      }
+    },
+    {
+      "requirementId": "gdpr.art28.3.e",
+      "packageId": "rule:regimes/data-protection/gdpr",
+      "recall": {
+        "requirementId": "gdpr.art28.3.e",
+        "uniqueCandidateCount": 17,
+        "elementsWithCandidates": [
+          "primary"
+        ],
+        "elementsWithoutCandidates": [],
+        "totalQueries": 34
+      },
+      "queries": [],
+      "hits": [],
+      "expansions": [],
+      "expansionLimits": [],
+      "bundle": {
+        "bundleId": "INV-gdpr.art28.3.e-doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+        "requirementId": "gdpr.art28.3.e",
+        "items": [
+          {
+            "spanId": "dsn_922c9e69d3a2abad2a48a40f",
+            "ref": "dsn_922c9e69d3a2abad2a48a40f",
+            "quotedText": "4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Personal Data, as required by Data Protection Legislation, Alaio will (taking into account the nature of the processing of Personal Data and, if applicable, Article 11 of the GDPR) assist Administrator in fulfilling any obligation of Administrator to respond to requests by data subjects, including (if applicable) Administrator´s  obligation to respond to requests for exercising the data sub ject's rights laid down in Chapter III of the GDPR and other Data Protection Legislation, by providing the functionality of the Processor Services;",
+            "structuralPath": "document.clause_4.subclause_4.1",
+            "charRange": [
+              12695,
+              13362
+            ],
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+              "structuralPath": "document.clause_4.subclause_4.1"
+            },
+            "source": "seed",
+            "evidenceRole": "supporting",
+            "contributesToElementIds": [
+              "primary"
+            ],
+            "investigationConfidence": 0.95
+          },
+          {
+            "spanId": "dsn_d5ff0f1d7a8cb182cf16e85c",
+            "ref": "dsn_d5ff0f1d7a8cb182cf16e85c",
+            "quotedText": "4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, correction, amendment, restriction, deletion or exercising any other rights under the GDPR or other Data Protection Legislation of that person's Personal Data. Alaio shall not respond to any such Data Subject request without Administrator´s  prior written consent except to confirm that the request relates to User. Alaio shall provide Administrator with cooperation and assistance in relation to handling of a Data Sub ject's request for access to that person's Personal Data or exercising any other rights under the GDPR or other Data Protection Legislation, to the extent legally permitted and to the extent User does not have access to such Personal Data through its use or receipt of the Services.",
+            "structuralPath": "document.clause_4.subclause_4.2",
+            "charRange": [
+              13363,
+              14205
+            ],
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+              "structuralPath": "document.clause_4.subclause_4.2"
+            },
+            "source": "seed",
+            "evidenceRole": "supporting",
+            "contributesToElementIds": [
+              "primary"
+            ],
+            "investigationConfidence": 0.9
+          },
+          {
+            "spanId": "dsn_64ff8df45c7abe429c42195e",
+            "ref": "dsn_64ff8df45c7abe429c42195e",
+            "quotedText": "4. RIGHTS OF DATA SUBJECTS",
+            "structuralPath": "document.clause_4",
+            "charRange": [
+              12668,
+              12694
+            ],
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+              "structuralPath": "document.clause_4"
+            },
+            "source": "expansion",
+            "evidenceRole": "context",
+            "contributesToElementIds": [],
+            "investigationConfidence": 0.95
+          }
+        ],
+        "partitions": [
+          {
+            "partitionId": "P1",
+            "scope": {
+              "documentId": "doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146"
+            },
+            "itemSpanIds": [
+              "dsn_922c9e69d3a2abad2a48a40f",
+              "dsn_d5ff0f1d7a8cb182cf16e85c",
+              "dsn_64ff8df45c7abe429c42195e"
+            ]
+          }
+        ],
+        "exclusions": [
+          {
+            "spanId": "dsn_560ea65ede6256960f3ebf09",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_a0de099acfba9afda8387633",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_2dabb5bbe9c4e141d6335e80",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_5a7a34da1dccbc3e995e61d9",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_9134f19d6ca8b79f81ebd2be",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_a68e20ba3056251aee194fcb",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_cf9879f7adc4f01c9d79965d",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_c685d83c1d226e8f43192051",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_e0080d8d11d1c1b05df856f2",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.9"
+          },
+          {
+            "spanId": "dsn_1a5dcca7cb6f19e582d82330",
+            "reason": "budget",
+            "detail": "rejected:irrelevant:0.95"
+          },
+          {
+            "spanId": "dsn_1766abf86c7f242a3c5f13ed",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_8afbee5c64c574e2b369405c",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_e74377ab24469700e9a529ec",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          },
+          {
+            "spanId": "dsn_f1b8a9a26e87ab04533bdab1",
+            "reason": "budget",
+            "detail": "role_budget:context"
+          }
+        ],
+        "dependencies": [
+          {
+            "reference": "dsn_922c9e69d3a2abad2a48a40f:requires",
+            "state": "ambiguous",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_922c9e69d3a2abad2a48a40f:requires",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          },
+          {
+            "reference": "dsn_d5ff0f1d7a8cb182cf16e85c:external_reference",
+            "state": "unresolved_external",
+            "targetSpanIds": []
+          }
+        ],
+        "estimatedTokens": 384,
+        "investigationComplete": false,
+        "incompleteReasons": [
+          "primary_evidence_missing"
+        ]
+      }
+    }
+  ]
+}

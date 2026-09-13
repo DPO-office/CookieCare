@@ -1,0 +1,965 @@
+{
+  "sessionId": "an_75767683-12ab-4d40-9de5-db3bdf321e14",
+  "stage": "investigation_complete",
+  "dumpedAt": "2026-09-13T19:06:20.027Z",
+  "requirementId": "gdpr.art28.3.c",
+  "packageId": "rule:regimes/data-protection/gdpr",
+  "recall": {
+    "requirementId": "gdpr.art28.3.c",
+    "uniqueCandidateCount": 28,
+    "elementsWithCandidates": [
+      "C1",
+      "C2"
+    ],
+    "elementsWithoutCandidates": [],
+    "totalQueries": 2,
+    "proofElementsCovered": [
+      "C1",
+      "C2"
+    ],
+    "proofElementsUnresolved": [],
+    "acceptedCandidateCount": 8,
+    "semanticRejectedCandidateCount": 5,
+    "budgetOmittedCandidateCount": 15,
+    "unclassifiedCandidateCount": 0
+  },
+  "queries": [
+    {
+      "queryId": "GNQ-1",
+      "requirementId": "gdpr.art28.3.c",
+      "kind": "requirement",
+      "text": "The processor implements appropriate technical and organisational security measures."
+    },
+    {
+      "queryId": "GNQ-2",
+      "requirementId": "gdpr.art28.3.c",
+      "kind": "requirement",
+      "text": "relation:details_provided_by"
+    }
+  ],
+  "hits": [
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_4410036cd22c9199b2746e05",
+      "ref": "dsn_4410036cd22c9199b2746e05",
+      "denseRank": 7,
+      "lexicalRank": 3,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.20079838900734423,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "C1"
+      ],
+      "reviewConfidence": 0.75,
+      "reviewReason": "Describes subprocessor security audits and security contract requirements."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_7e535d7c17690638e47e27cd",
+      "ref": "dsn_7e535d7c17690638e47e27cd",
+      "denseRank": 4,
+      "lexicalRank": 1,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.18201844262295083,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "C1",
+        "C2"
+      ],
+      "reviewConfidence": 0.98,
+      "reviewReason": "Directly obligates the processor to implement and maintain technical and organisational measures and specifies key security objectives (confidentiality, integrity, availability, resilience)."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_a9d952773e50157847877a2d",
+      "ref": "dsn_a9d952773e50157847877a2d",
+      "denseRank": 3,
+      "lexicalRank": 2,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.18200204813108037,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "C1"
+      ],
+      "reviewConfidence": 0.75,
+      "reviewReason": "Requires processor to take steps to ensure staff/subprocessor compliance with security measures."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_230a61c9ba368fd67d35ae09",
+      "ref": "dsn_230a61c9ba368fd67d35ae09",
+      "denseRank": 1,
+      "lexicalRank": 6,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.18154495777446597,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "C1"
+      ],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Contains operative requirement obligating the processor to implement and maintain Security Measures as set out in Appendix 2.",
+      "exclusionReason": "role_budget:primary"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_b01ded68033aade6775089c5",
+      "ref": "dsn_b01ded68033aade6775089c5",
+      "denseRank": 6,
+      "lexicalRank": 9,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.17964426877470355,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.8,
+      "reviewReason": "Relates to processor assistance to controller for security compliance, not processor's direct security obligation."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_c05fa018fa644f06d2b63eec",
+      "ref": "dsn_c05fa018fa644f06d2b63eec",
+      "denseRank": 11,
+      "lexicalRank": 7,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.17900988017658187,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.8,
+      "reviewReason": "Relates to providing information to demonstrate security compliance upon request.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_8a1ea962ef120d21fbb3cdaf",
+      "ref": "dsn_8a1ea962ef120d21fbb3cdaf",
+      "denseRank": 2,
+      "lexicalRank": 4,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1617540322580645,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "C1"
+      ],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Establishes operative covenant to implement and maintain security measures without non-degradation.",
+      "exclusionReason": "role_budget:primary"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_5b7988d9434424735e6aca6e",
+      "ref": "dsn_5b7988d9434424735e6aca6e",
+      "denseRank": 24,
+      "lexicalRank": 13,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.15560339204174822,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "C2"
+      ],
+      "reviewConfidence": 0.8,
+      "reviewReason": "Provides specific password length control supporting the security measures requirement."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_4d81f2d1a7b2524e03b3bb78",
+      "ref": "dsn_4d81f2d1a7b2524e03b3bb78",
+      "denseRank": 18,
+      "lexicalRank": 19,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1554787406686141,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "C2"
+      ],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Substantiates technical measures by detailing anti-virus, firewall, and updates on IT systems."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_67a6160c989c54d66e69192f",
+      "ref": "dsn_67a6160c989c54d66e69192f",
+      "denseRank": 8,
+      "lexicalRank": 23,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1267540751240255,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "definition",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Defines 'Security measures'."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_d110a9e2a460c527c94868fc",
+      "ref": "dsn_d110a9e2a460c527c94868fc",
+      "denseRank": 10,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.12428571428571429,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Relates to subprocessor data usage bounds.",
+      "exclusionReason": "rejected:irrelevant:0.9"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_ae60f9e2cb63687e7365c9b9",
+      "ref": "dsn_ae60f9e2cb63687e7365c9b9",
+      "denseRank": 13,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.1036986301369863,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "C2"
+      ],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Substantiates physical/organisational security measures regarding server rooms and access control."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_e913a7275158c113ddece6f9",
+      "ref": "dsn_e913a7275158c113ddece6f9",
+      "denseRank": 15,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08333333333333334,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Subclause heading.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_8d97532a308944ce679df961",
+      "ref": "dsn_8d97532a308944ce679df961",
+      "denseRank": 19,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08265822784810127,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.85,
+      "reviewReason": "Subprocessor Article 28(3) imposition clause.",
+      "exclusionReason": "rejected:irrelevant:0.85"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_bf39176fdff0518a847ee9a1",
+      "ref": "dsn_bf39176fdff0518a847ee9a1",
+      "denseRank": 22,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08219512195121952,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Section title for inspections.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_3b8e226256eb52c075589879",
+      "ref": "dsn_3b8e226256eb52c075589879",
+      "denseRank": 23,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08204819277108434,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Statement of controller/processor roles.",
+      "exclusionReason": "rejected:irrelevant:0.9"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_254fbd9e74c4130f3ddc1a4f",
+      "ref": "dsn_254fbd9e74c4130f3ddc1a4f",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "C2"
+      ],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Details specific security controls, media disposal testing, electronic access control, and auditing measures, supporting C2.",
+      "exclusionReason": "role_budget:primary"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_6df6a014e4736f950ffd0dc6",
+      "ref": "dsn_6df6a014e4736f950ffd0dc6",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "C2"
+      ],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Specifies physical security measures (securely locked rooms, smart card access control).",
+      "exclusionReason": "role_budget:primary"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_a79f458088e6e858b3fdff57",
+      "ref": "dsn_a79f458088e6e858b3fdff57",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "C2"
+      ],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Specifies access protection measures (secure passwords/passcodes on devices).",
+      "exclusionReason": "role_budget:primary"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_0969578741bb1e5b9af7fe32",
+      "ref": "dsn_0969578741bb1e5b9af7fe32",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "C2"
+      ],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Details software maintenance and patch management controls.",
+      "exclusionReason": "role_budget:primary"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_e17b490812e70742cb257c97",
+      "ref": "dsn_e17b490812e70742cb257c97",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "C2"
+      ],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Details vulnerability management and security flaw remediation controls.",
+      "exclusionReason": "role_budget:primary"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_26d1c3581a0eddca5ad67481",
+      "ref": "dsn_26d1c3581a0eddca5ad67481",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "C2"
+      ],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Details organizational control restricting unauthorized software installation.",
+      "exclusionReason": "role_budget:primary"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_34a00a6487d3a7485f9fa9db",
+      "ref": "dsn_34a00a6487d3a7485f9fa9db",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "C2"
+      ],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Details technical measure regarding anti-virus protection and weekly system scanning.",
+      "exclusionReason": "role_budget:primary"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_a82f85a87742f0bb145448d6",
+      "ref": "dsn_a82f85a87742f0bb145448d6",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "C2"
+      ],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Details technical/organizational measure for scanning removable physical media.",
+      "exclusionReason": "role_budget:primary"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_9bdf14e33e2e4dc5751adc15",
+      "ref": "dsn_9bdf14e33e2e4dc5751adc15",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "C2"
+      ],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Details technical/organizational control over cloud storage usage and file virus scanning.",
+      "exclusionReason": "role_budget:primary"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_285d277c504237d533a4a354",
+      "ref": "dsn_285d277c504237d533a4a354",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "C2"
+      ],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Details technical security controls for scanning outbound file transfers.",
+      "exclusionReason": "role_budget:primary"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_8669ed55c403767c586ed3f4",
+      "ref": "dsn_8669ed55c403767c586ed3f4",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "C2"
+      ],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Details physical/organizational security controls for mobile device transport and handling.",
+      "exclusionReason": "role_budget:primary"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_82db02475ee62dadfb94a2ab",
+      "ref": "dsn_82db02475ee62dadfb94a2ab",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "C2"
+      ],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Details logical access control principles based on role authority and least privilege.",
+      "exclusionReason": "role_budget:primary"
+    }
+  ],
+  "expansions": [],
+  "expansionLimits": [],
+  "bundle": {
+    "bundleId": "INV-gdpr.art28.3.c-doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+    "requirementId": "gdpr.art28.3.c",
+    "items": [
+      {
+        "spanId": "dsn_7e535d7c17690638e47e27cd",
+        "ref": "dsn_7e535d7c17690638e47e27cd",
+        "quotedText": "2 Alaio Security Measures. Alaio will implement and maintain technical, physical and organisational measures to protect confidentiality and integrity of Personal Data against accidental or unlawful destruction, loss, alteration, unauthorised disclosure or access as described in the Appendix 2 to this DPA (the 'Security Measures'). As described in the Appendix 2 to this DPA, the Security Measures include measures: (a) to help ensure the ongoing confidentiality, integrity, availability and resilience of Bitrix24 systems and services;",
+        "structuralPath": "document.clause_6.list_item_59",
+        "charRange": [
+          14764,
+          15301
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.clause_6.list_item_59",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "primary",
+        "contributesToElementIds": [
+          "C1",
+          "C2"
+        ],
+        "investigationConfidence": 0.98,
+        "investigationReason": "Directly obligates the processor to implement and maintain technical and organisational measures and specifies key security objectives (confidentiality, integrity, availability, resilience).",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "The processor implements appropriate technical and organisational security measures."
+        ]
+      },
+      {
+        "spanId": "dsn_4d81f2d1a7b2524e03b3bb78",
+        "ref": "dsn_4d81f2d1a7b2524e03b3bb78",
+        "quotedText": "1 Alaio  IT  Systems  (including  all  computers  and  servers)  are  protected  with suitable  anti-virus,  firewall,  and  other  suitable  internet  security  software.  All such  software  is    kept  up-to-date  with  the  latest  software  updates  and definitions.",
+        "structuralPath": "document.appendix_1.appendix_2.clause_3.list_item_163",
+        "charRange": [
+          35232,
+          35503
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.appendix_1.appendix_2.clause_3.list_item_163",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "primary",
+        "contributesToElementIds": [
+          "C2"
+        ],
+        "investigationConfidence": 0.95,
+        "investigationReason": "Substantiates technical measures by detailing anti-virus, firewall, and updates on IT systems.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "The processor implements appropriate technical and organisational security measures."
+        ]
+      },
+      {
+        "spanId": "dsn_ae60f9e2cb63687e7365c9b9",
+        "ref": "dsn_ae60f9e2cb63687e7365c9b9",
+        "quotedText": "4.2 All IT Systems not intended for normal use by Users (including, but not limited to, servers, networking equipment, and network infrastructure) are located  in secured, climate-controlled rooms in locked cabinets which may be accessed only by designated members of the IT Department.",
+        "structuralPath": "document.appendix_1.appendix_2.clause_4.subclause_4.2",
+        "charRange": [
+          36468,
+          36754
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.appendix_1.appendix_2.clause_4.subclause_4.2",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "primary",
+        "contributesToElementIds": [
+          "C2"
+        ],
+        "investigationConfidence": 0.95,
+        "investigationReason": "Substantiates physical/organisational security measures regarding server rooms and access control.",
+        "retrievalChannels": [
+          "dense"
+        ],
+        "matchedQueries": [
+          "The processor implements appropriate technical and organisational security measures."
+        ]
+      },
+      {
+        "spanId": "dsn_5b7988d9434424735e6aca6e",
+        "ref": "dsn_5b7988d9434424735e6aca6e",
+        "quotedText": "a) Are at least 8 characters long;",
+        "structuralPath": "document.appendix_1.appendix_2.clause_5.subclause_5.3.list_item_176",
+        "charRange": [
+          37632,
+          37666
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.appendix_1.appendix_2.clause_5.subclause_5.3.list_item_176",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "supporting",
+        "contributesToElementIds": [
+          "C2"
+        ],
+        "investigationConfidence": 0.8,
+        "investigationReason": "Provides specific password length control supporting the security measures requirement.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "The processor implements appropriate technical and organisational security measures."
+        ]
+      },
+      {
+        "spanId": "dsn_4410036cd22c9199b2746e05",
+        "ref": "dsn_4410036cd22c9199b2746e05",
+        "quotedText": "Before onboarding Sub-processors, Alaio conducts an audit of the security and privacy practices of Sub-processors to ensure Sub-processors provide a level of security and privacy appropriate to their access to data and the scope of the services they are engaged to provide. Once Alaio has assessed the risks presented by the Sub-processor then, subject always to the requirements set out in Section 7 the Sub-processor is required to enter into appropriate security, confidentiality and privacy contract terms.",
+        "structuralPath": "document.appendix_1.appendix_2.clause_9.paragraph_217",
+        "charRange": [
+          44762,
+          45272
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.appendix_1.appendix_2.clause_9.paragraph_217",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "supporting",
+        "contributesToElementIds": [
+          "C1"
+        ],
+        "investigationConfidence": 0.75,
+        "investigationReason": "Describes subprocessor security audits and security contract requirements.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "The processor implements appropriate technical and organisational security measures."
+        ]
+      },
+      {
+        "spanId": "dsn_a9d952773e50157847877a2d",
+        "ref": "dsn_a9d952773e50157847877a2d",
+        "quotedText": "3 Security Compliance by Alaio Staff. Alaio will take appropriate steps to ensure compliance with the Security Measures by its employees, contractors and Sub-processors to the extent applicable to their scope of performance, including ensuring that all persons authorised to process Personal Data have committed themselves to confidentiality or are under an appropriate statutory obligation of confidentiality as described in the Appendix 2 to this DPA.",
+        "structuralPath": "document.list_item_(b)~2.list_item_61",
+        "charRange": [
+          15619,
+          16072
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.list_item_(b)~2.list_item_61",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "supporting",
+        "contributesToElementIds": [
+          "C1"
+        ],
+        "investigationConfidence": 0.75,
+        "investigationReason": "Requires processor to take steps to ensure staff/subprocessor compliance with security measures.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "The processor implements appropriate technical and organisational security measures."
+        ]
+      },
+      {
+        "spanId": "dsn_67a6160c989c54d66e69192f",
+        "ref": "dsn_67a6160c989c54d66e69192f",
+        "quotedText": "'Security measures' means measures to protect personal data against accidental or unlawful destruction or accidental loss, alternation, unauthorised disclosure or access and against all other unlawful forms of processing as described in the document (or the applicable part dependent on what Services Administrator purchases from Bitrix24), as updated from time to time, and accessible via the link in the Appendix 2  to this DPA.",
+        "structuralPath": "document.clause_1.subclause_1.1.list_item_27",
+        "charRange": [
+          6689,
+          7119
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.clause_1.subclause_1.1.list_item_27",
+          "relationship": "unspecified"
+        },
+        "source": "expansion",
+        "evidenceRole": "definition",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.95,
+        "investigationReason": "Defines 'Security measures'.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "The processor implements appropriate technical and organisational security measures."
+        ]
+      },
+      {
+        "spanId": "dsn_b01ded68033aade6775089c5",
+        "ref": "dsn_b01ded68033aade6775089c5",
+        "quotedText": "4 Alaio Security Assistance. Administrator agrees that Alaio will assist in ensuring compliance with any obligations of Administrator in respect of security of personal data and personal data breaches, including (if applicable) Administrator's obligations pursuant to Articles 32 to 34 (inclusive) of the GDPR, by:",
+        "structuralPath": "document.list_item_(b)~2.list_item_62",
+        "charRange": [
+          16073,
+          16387
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.list_item_(b)~2.list_item_62",
+          "relationship": "unspecified"
+        },
+        "source": "expansion",
+        "evidenceRole": "context",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.8,
+        "investigationReason": "Relates to processor assistance to controller for security compliance, not processor's direct security obligation.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "The processor implements appropriate technical and organisational security measures."
+        ]
+      }
+    ],
+    "partitions": [
+      {
+        "partitionId": "P1",
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5"
+        },
+        "itemSpanIds": [
+          "dsn_7e535d7c17690638e47e27cd",
+          "dsn_4d81f2d1a7b2524e03b3bb78",
+          "dsn_ae60f9e2cb63687e7365c9b9",
+          "dsn_5b7988d9434424735e6aca6e",
+          "dsn_4410036cd22c9199b2746e05",
+          "dsn_a9d952773e50157847877a2d",
+          "dsn_67a6160c989c54d66e69192f",
+          "dsn_b01ded68033aade6775089c5"
+        ]
+      }
+    ],
+    "exclusions": [
+      {
+        "spanId": "dsn_d110a9e2a460c527c94868fc",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.9"
+      },
+      {
+        "spanId": "dsn_e913a7275158c113ddece6f9",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_8d97532a308944ce679df961",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.85"
+      },
+      {
+        "spanId": "dsn_bf39176fdff0518a847ee9a1",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_3b8e226256eb52c075589879",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.9"
+      },
+      {
+        "spanId": "dsn_230a61c9ba368fd67d35ae09",
+        "reason": "role_budget",
+        "detail": "role_budget:primary"
+      },
+      {
+        "spanId": "dsn_8a1ea962ef120d21fbb3cdaf",
+        "reason": "role_budget",
+        "detail": "role_budget:primary"
+      },
+      {
+        "spanId": "dsn_254fbd9e74c4130f3ddc1a4f",
+        "reason": "role_budget",
+        "detail": "role_budget:primary"
+      },
+      {
+        "spanId": "dsn_6df6a014e4736f950ffd0dc6",
+        "reason": "role_budget",
+        "detail": "role_budget:primary"
+      },
+      {
+        "spanId": "dsn_a79f458088e6e858b3fdff57",
+        "reason": "role_budget",
+        "detail": "role_budget:primary"
+      },
+      {
+        "spanId": "dsn_0969578741bb1e5b9af7fe32",
+        "reason": "role_budget",
+        "detail": "role_budget:primary"
+      },
+      {
+        "spanId": "dsn_e17b490812e70742cb257c97",
+        "reason": "role_budget",
+        "detail": "role_budget:primary"
+      },
+      {
+        "spanId": "dsn_26d1c3581a0eddca5ad67481",
+        "reason": "role_budget",
+        "detail": "role_budget:primary"
+      },
+      {
+        "spanId": "dsn_34a00a6487d3a7485f9fa9db",
+        "reason": "role_budget",
+        "detail": "role_budget:primary"
+      },
+      {
+        "spanId": "dsn_a82f85a87742f0bb145448d6",
+        "reason": "role_budget",
+        "detail": "role_budget:primary"
+      },
+      {
+        "spanId": "dsn_9bdf14e33e2e4dc5751adc15",
+        "reason": "role_budget",
+        "detail": "role_budget:primary"
+      },
+      {
+        "spanId": "dsn_285d277c504237d533a4a354",
+        "reason": "role_budget",
+        "detail": "role_budget:primary"
+      },
+      {
+        "spanId": "dsn_8669ed55c403767c586ed3f4",
+        "reason": "role_budget",
+        "detail": "role_budget:primary"
+      },
+      {
+        "spanId": "dsn_82db02475ee62dadfb94a2ab",
+        "reason": "role_budget",
+        "detail": "role_budget:primary"
+      },
+      {
+        "spanId": "dsn_c05fa018fa644f06d2b63eec",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      }
+    ],
+    "dependencies": [
+      {
+        "reference": "dsn_67a6160c989c54d66e69192f:details_provided_by",
+        "state": "resolved_internal",
+        "targetSpanIds": [
+          "dsn_6335589872a4c2b206df632c"
+        ]
+      },
+      {
+        "reference": "dsn_67a6160c989c54d66e69192f:details_provided_by",
+        "state": "resolved_internal",
+        "targetSpanIds": [
+          "dsn_b46aad6e625e2cc61327c358"
+        ]
+      },
+      {
+        "reference": "dsn_7e535d7c17690638e47e27cd:details_provided_by",
+        "state": "resolved_internal",
+        "targetSpanIds": [
+          "dsn_6335589872a4c2b206df632c"
+        ]
+      },
+      {
+        "reference": "dsn_7e535d7c17690638e47e27cd:details_provided_by",
+        "state": "resolved_internal",
+        "targetSpanIds": [
+          "dsn_b46aad6e625e2cc61327c358"
+        ]
+      },
+      {
+        "reference": "dsn_a9d952773e50157847877a2d:procedure_provided_by",
+        "state": "resolved_internal",
+        "targetSpanIds": [
+          "dsn_6335589872a4c2b206df632c"
+        ]
+      },
+      {
+        "reference": "dsn_a9d952773e50157847877a2d:procedure_provided_by",
+        "state": "resolved_internal",
+        "targetSpanIds": [
+          "dsn_b46aad6e625e2cc61327c358"
+        ]
+      },
+      {
+        "reference": "dsn_b01ded68033aade6775089c5:refers_to",
+        "state": "resolved_internal",
+        "targetSpanIds": [
+          "dsn_c6f34ef8cbc5846e7e8c3a9a"
+        ]
+      },
+      {
+        "reference": "dsn_b01ded68033aade6775089c5:external_reference",
+        "state": "unresolved_external",
+        "targetSpanIds": []
+      },
+      {
+        "reference": "dsn_4410036cd22c9199b2746e05:details_provided_by",
+        "state": "resolved_internal",
+        "targetSpanIds": [
+          "dsn_945564845a1ad5fd521cb4db"
+        ]
+      }
+    ],
+    "estimatedTokens": 709,
+    "investigationComplete": true,
+    "incompleteReasons": []
+  },
+  "provenance": {
+    "queries": "graph_native",
+    "hits": "graph_native",
+    "expansions": "graph_native",
+    "bundle": "graph_native"
+  }
+}

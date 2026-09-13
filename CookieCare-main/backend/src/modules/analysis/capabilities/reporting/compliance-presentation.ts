@@ -1,3 +1,4 @@
+import { reportOutcomeId } from "../act/compliance/adapters/index.js";
 import type { AnalysisState } from "../../models/analysis-state.js";
 import type {
   CompliancePresentationMode, CompliancePresentationPlan, ComplianceReportDraft,
@@ -29,7 +30,7 @@ const needsLimitations = (s: ComplianceReportSnapshot) =>
 const requiredDetails = (s: ComplianceReportSnapshot, mode: CompliancePresentationMode) =>
   mode === "short" || mode === "table_only" ? [] : s.rows
     .filter(r => mode !== "layered" || (r.status !== "present" && r.status !== "not_applicable"))
-    .map(r => r.lockedAssessmentId);
+    .map(r => reportOutcomeId(r));
 
 export function resolveCompliancePresentationMode(state: AnalysisState): CompliancePresentationMode {
   const instruction = state.request.instruction.toLowerCase();
@@ -50,7 +51,7 @@ export function defaultCompliancePresentationPlan(
     kind, heading, findingIds, columns: kind === "overview" ? [...COLUMNS] : [], detailWords: DETAIL_CAPS[mode],
   });
   if (mode !== "table_only") add("answer", "Answer");
-  if (mode !== "narrative") add("overview", "Compliance overview", snapshot.rows.map(r => r.lockedAssessmentId));
+  if (mode !== "narrative") add("overview", "Compliance overview", snapshot.rows.map(r => reportOutcomeId(r)));
   const details = requiredDetails(snapshot, mode);
   if (details.length) add("details", mode === "layered" ? "Findings requiring attention" : "Requirement details", details);
   if (mode === "table_only" || needsLimitations(snapshot)) add("limitations", mode === "table_only" ? "Scope and limitations" : "Limitations and outstanding checks");
@@ -65,7 +66,7 @@ function exactKeys(value: Record<string, unknown>, keys: string[], path: string,
 function technicalIds(s: ComplianceReportSnapshot): string[] {
   return [...new Set([
     ...s.documents.flatMap(d => [d.documentId, d.contentHash]),
-    ...s.rows.flatMap(r => [r.rowId, r.requirementId, r.canonicalKey, r.lockedAssessmentId,
+    ...s.rows.flatMap(r => [r.rowId, r.requirementId, r.canonicalKey, reportOutcomeId(r),
       r.ruleVersion, r.documentHash, ...r.supportedElementIds, ...r.missingElementIds,
       ...r.evidence.flatMap(e => [e.spanId, e.documentId])]),
     ...s.outstandingChecks.map(c => c.requirementId), ...s.limitations.flatMap(l => [l.id, ...l.requirementIds]),
@@ -90,7 +91,7 @@ export function validateCompliancePresentationPlan(
   if (!MODES.includes(mode) || raw.mode !== mode) errors.push("plan.mode must match requested mode");
   if (typeof raw.rationale !== "string" || !raw.rationale.trim() || raw.rationale.length > 1000) errors.push("plan.rationale must be bounded text");
   if (!Array.isArray(raw.sections)) return [...errors, "plan.sections must be an array"];
-  const known = new Set(snapshot.rows.map(r => r.lockedAssessmentId));
+  const known = new Set(snapshot.rows.map(r => reportOutcomeId(r)));
   const byKind = new Map<string, Set<string>>();
   const counts = new Map<string, number>();
   Array.from(raw.sections).forEach((section, i) => {
@@ -157,7 +158,7 @@ function isCanned(text: string): boolean {
 
 function verifiedFields(row: ComplianceReportRow): string[] {
   return [row.title, row.legalCitation, row.whatTheDocumentProvides, row.whatIsMissingOrUnclear,
-    row.whyItMatters, row.conclusion, row.recommendedAction, ...row.evidence.map(e => e.quote)];
+    row.whyItMatters, row.conclusion, row.recommendedAction, ...(row.answers ?? []).map(a=>a.answer), ...row.evidence.map(e => e.quote)];
 }
 function detailLimit(plan: CompliancePresentationPlan, id: string) {
   return Math.min(plan.sections.find(s => s.kind === "details" && s.findingIds.includes(id))?.detailWords ?? DETAIL_CAPS[plan.mode], DETAIL_CAPS[plan.mode]);
@@ -228,9 +229,9 @@ export function deterministicComplianceDraft(snapshot: ComplianceReportSnapshot,
         if (errors.some(error => error.includes("references, quotations") || error.includes("source quotation"))) return [];
         return text.split(/(?<=[.!?])\s+(?=[\p{Lu}\d])/u);
       };
-      const limit = detailLimit(plan, row.lockedAssessmentId);
+      const limit = detailLimit(plan, reportOutcomeId(row));
       const parts: string[] = [];
-      for (const value of [row.whatTheDocumentProvides, row.whatIsMissingOrUnclear, row.whyItMatters]) {
+      for (const value of [...(row.answers ?? []).map(a=>a.answer), row.whatTheDocumentProvides, row.whatIsMissingOrUnclear, row.whyItMatters]) {
         const candidates = candidatesFor(value, limit);
         for (const candidate of candidates) {
           if (!candidate || parts.some(part => part.includes(candidate))) continue;
@@ -238,11 +239,11 @@ export function deterministicComplianceDraft(snapshot: ComplianceReportSnapshot,
           if (!proseErrors(joined, "fallback", limit, verifiedFields(row), snapshot, row).length) parts.push(candidate);
         }
       }
-      const assessmentCandidates = [row.whatTheDocumentProvides,
+      const assessmentCandidates = [...(row.answers ?? []).map(a=>a.answer), row.whatTheDocumentProvides,
         ...(row.status !== "present" && row.status !== "not_applicable" ? [row.whatIsMissingOrUnclear] : []),
         ...(/\.{3}|\u2026|mandatory elements?|completeness gates|evidence bundle|scope[ -]compatible/i.test(row.conclusion) ? [] : [row.conclusion])]
         .flatMap(value => candidatesFor(value, 40));
-      return { findingId: row.lockedAssessmentId,
+      return { findingId: reportOutcomeId(row),
         assessment: assessmentCandidates.find(text => descriptiveAssessment(text) && !proseErrors(text, "fallback", 40, verifiedFields(row), snapshot, row).length) || FALLBACK[row.status],
         explanation: parts.join(" ") || FALLBACK[row.status],
       };
@@ -258,7 +259,7 @@ export function validateComplianceDraft(raw: unknown, snapshot: ComplianceReport
     if (raw.answer !== "") errors.push("table_only answer must be empty");
   } else errors.push(...proseErrors(raw.answer, "answer", 120, snapshot.rows.flatMap(verifiedFields), snapshot));
   if (!Array.isArray(raw.rows)) return [...errors, "draft.rows must be an array"];
-  const known = new Map(snapshot.rows.map(r => [r.lockedAssessmentId, r]));
+  const known = new Map(snapshot.rows.map(r => [reportOutcomeId(r), r]));
   const seen = new Set<string>();
   Array.from(raw.rows).forEach((value, i) => {
     const path = `rows[${i}]`;
@@ -266,14 +267,14 @@ export function validateComplianceDraft(raw: unknown, snapshot: ComplianceReport
     exactKeys(value, ["findingId", "assessment", "explanation"], path, errors);
     const row = typeof value.findingId === "string" ? known.get(value.findingId) : undefined;
     if (!row) { errors.push(`${path}: unknown finding ID`); return; }
-    if (seen.has(row.lockedAssessmentId)) errors.push(`${path}: duplicate finding ID`);
-    seen.add(row.lockedAssessmentId);
+    if (seen.has(reportOutcomeId(row))) errors.push(`${path}: duplicate finding ID`);
+    seen.add(reportOutcomeId(row));
     if (typeof value.assessment === "string" && !descriptiveAssessment(value.assessment))
       errors.push(`${path}.assessment: use at least 4 words describing the contract position, not a status-only label`);
     errors.push(...proseErrors(value.assessment, `${path}.assessment`, 60, verifiedFields(row), snapshot, row));
-    errors.push(...proseErrors(value.explanation, `${path}.explanation`, detailLimit(plan, row.lockedAssessmentId), verifiedFields(row), snapshot, row));
+    errors.push(...proseErrors(value.explanation, `${path}.explanation`, detailLimit(plan, reportOutcomeId(row)), verifiedFields(row), snapshot, row));
   });
-  if (snapshot.rows.some(r => !seen.has(r.lockedAssessmentId))) errors.push("draft.rows: missing required finding coverage");
+  if (snapshot.rows.some(r => !seen.has(reportOutcomeId(r)))) errors.push("draft.rows: missing required finding coverage");
   return errors;
 }
 
@@ -286,7 +287,7 @@ function humanText(text: string, s: ComplianceReportSnapshot): string {
   const names = new Map<string, string>();
   for (const d of s.documents) { names.set(d.documentId, d.title || "reviewed document"); names.set(d.contentHash, "reviewed document"); }
   for (const r of s.rows) {
-    for (const id of [r.rowId, r.requirementId, r.canonicalKey, r.lockedAssessmentId]) names.set(id, r.title || "reviewed requirement");
+    for (const id of [r.rowId, r.requirementId, r.canonicalKey, reportOutcomeId(r)]) names.set(id, r.title || "reviewed requirement");
     for (const id of [...r.supportedElementIds, ...r.missingElementIds]) names.set(id, humanize(id));
     names.set(r.ruleVersion, "review criterion"); names.set(r.documentHash, "reviewed document");
     for (const e of r.evidence) { names.set(e.spanId, "cited provision"); names.set(e.documentId, e.documentTitle || "reviewed document"); }
@@ -383,7 +384,7 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
   const draftErrors = validateComplianceDraft(draft, snapshot, plan);
   if (draftErrors.length) throw new Error(`Invalid compliance draft: ${draftErrors.join("; ")}`);
   const clean = (s: string) => publicText(s, snapshot);
-  const rows = new Map(snapshot.rows.map(r => [r.lockedAssessmentId, r]));
+  const rows = new Map(snapshot.rows.map(r => [reportOutcomeId(r), r]));
   const prose = new Map(draft.rows.map(r => [r.findingId, r]));
   const allEvidence = snapshot.rows.flatMap(r => r.evidence);
   // Preserve canonical E references where supplied; otherwise allocate stable display-only references.
@@ -405,7 +406,8 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
   const requirement = (r: ComplianceReportRow) => `**${clean(r.title)}**${r.legalCitation ? ` (${clean(r.legalCitation)})` : ""}`;
   const provisionItem = (e: typeof allEvidence[number]) => {
     const excerpt = tableExcerpt(e.quote);
-    return excerpt ? `${locator(e)} — ${excerpt}` : locator(e);
+    const role = e.use === "related" ? "Related evidence: " : e.use === "conflict" ? "Conflicting evidence: " : "";
+    return excerpt ? `${role}${locator(e)} - ${excerpt}` : locator(e);
   };
   const noProvision = (r: ComplianceReportRow) => r.status === "gap"
     ? "No matching provision found in reviewed scope" : "Evidence unavailable for this assessment";
@@ -415,12 +417,13 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
   const evidence = (r: ComplianceReportRow) => r.evidence.length ? r.evidence.map((e, index) => {
     const end = [...e.quote.matchAll(/\S+/g)][59]?.index;
     const excerpt = end === undefined ? e.quote : e.quote.slice(0, end).trimEnd();
-    return `**${index + 1}.** ${locator(e)}\n\n${quoteBlock(excerpt)}`;
+    const contribution = e.use === "related" ? "Related evidence; not established as sufficient proof." : e.contribution ?? "";
+    return `**${index + 1}.** ${locator(e)}\n\n${quoteBlock(excerpt)}${contribution ? "\n\n" + clean(contribution) : ""}`;
   }).join("\n\n") : noProvision(r);
   const needsAction = (r: ComplianceReportRow) => r.status !== "present" && r.status !== "not_applicable" && !!r.recommendedAction.trim();
   const action = (r: ComplianceReportRow) => clean(stripElementLabels(r.recommendedAction, r));
   const shownAssessment = (r: ComplianceReportRow) => {
-    const text = prose.get(r.lockedAssessmentId)!.assessment;
+    const text = prose.get(reportOutcomeId(r))!.assessment;
     return isCanned(text) ? "—" : clean(text);
   };
   const assessment = (r: ComplianceReportRow) => {
@@ -429,7 +432,7 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
     return shown === "—" ? `Recommended action: **${action(r)}**` : `${shown} Recommended action: **${action(r)}**`;
   };
   const shownExplanation = (r: ComplianceReportRow) => {
-    const text = prose.get(r.lockedAssessmentId)!.explanation;
+    const text = prose.get(reportOutcomeId(r))!.explanation;
     return isCanned(text) ? "" : clean(text);
   };
   const table = (headers: string[], cells: string[][]) => [

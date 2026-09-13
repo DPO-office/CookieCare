@@ -5,7 +5,7 @@ import type {
   ReportSectionRole,
 } from "../../models/intent.js";
 import type { PackageOutlineExtra } from "../../models/evidence-package.js";
-import { groupAssessmentsForReport } from "../act/group-assessments.js";
+import { groupAssessmentsForReport } from "../../shared/group-assessments.js";
 import type { RequirementAssessment } from "../../models/requirement-assessment.js";
 import {
   isAnalysisOutlineRole,

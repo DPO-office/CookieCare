@@ -1,0 +1,506 @@
+{
+  "sessionId": "an_7ac91344-af07-4d98-95e2-6f1f41bf0d5c",
+  "stage": "investigation_complete",
+  "dumpedAt": "2026-09-13T19:14:01.746Z",
+  "requirementId": "gdpr.art20",
+  "packageId": "rule:regimes/data-protection/gdpr",
+  "recall": {
+    "requirementId": "gdpr.art20",
+    "uniqueCandidateCount": 16,
+    "elementsWithCandidates": [],
+    "elementsWithoutCandidates": [
+      "portability_scope",
+      "structured_machine_readable_format",
+      "controller_transmission",
+      "direct_transmission"
+    ],
+    "totalQueries": 1,
+    "proofElementsCovered": [],
+    "proofElementsUnresolved": [
+      "portability_scope",
+      "structured_machine_readable_format",
+      "controller_transmission",
+      "direct_transmission"
+    ],
+    "acceptedCandidateCount": 3,
+    "semanticRejectedCandidateCount": 10,
+    "budgetOmittedCandidateCount": 3,
+    "unclassifiedCandidateCount": 0
+  },
+  "queries": [
+    {
+      "queryId": "GNQ-1",
+      "requirementId": "gdpr.art20",
+      "kind": "requirement",
+      "text": "Where processing is carried out by automated means on the basis of consent or contract, the data subject can receive the personal data they provided in a structured, commonly used, machine-readable format and have it transmitted to another controller, including direct transmission where technically feasible."
+    }
+  ],
+  "hits": [
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_1430eff3dd13d7608aff0cf5",
+      "ref": "dsn_1430eff3dd13d7608aff0cf5",
+      "denseRank": 8,
+      "lexicalRank": 14,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.2182193958664547,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "portability_scope"
+      ],
+      "reviewConfidence": 0.5,
+      "reviewReason": "Mentions assisting controller with data subject exercising rights under GDPR generally, but lacks any commitment or specifications for structured machine-readable export or controller-to-controller transmission.",
+      "exclusionReason": "rejected:supporting:0.5"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_3555aa936787f1962296bca4",
+      "ref": "dsn_3555aa936787f1962296bca4",
+      "denseRank": 19,
+      "lexicalRank": 5,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.19804284323271668,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to network security safeguards for data transmission, not data portability mechanisms.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_3b8e226256eb52c075589879",
+      "ref": "dsn_3b8e226256eb52c075589879",
+      "denseRank": 14,
+      "lexicalRank": 12,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.17740240240240238,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "States party roles under Data Protection Legislation."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_e913a7275158c113ddece6f9",
+      "ref": "dsn_e913a7275158c113ddece6f9",
+      "denseRank": 16,
+      "lexicalRank": 13,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.17685652487382839,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Heading clause acknowledging processor and controller responsibilities.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_8d97532a308944ce679df961",
+      "ref": "dsn_8d97532a308944ce679df961",
+      "denseRank": 24,
+      "lexicalRank": 18,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.17472527472527472,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to Article 28(3) subprocessor terms.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_0d27794115168eac76531131",
+      "ref": "dsn_0d27794115168eac76531131",
+      "denseRank": 9,
+      "lexicalRank": 6,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.16964426877470357,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "definition",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Defines the term 'Processing of personal data'."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_3b6cb2834c139b8111881b5f",
+      "ref": "dsn_3b6cb2834c139b8111881b5f",
+      "denseRank": 7,
+      "lexicalRank": 2,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.13105440539239288,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "definition",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Defines statutory terms by reference to Data Protection Legislation."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_07af1af89d686044559af867",
+      "ref": "dsn_07af1af89d686044559af867",
+      "denseRank": 21,
+      "lexicalRank": 10,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.12663139329805995,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "definition",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Defines 'Personal Data'.",
+      "exclusionReason": "role_budget:definition"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_d110a9e2a460c527c94868fc",
+      "ref": "dsn_d110a9e2a460c527c94868fc",
+      "denseRank": 2,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.12612903225806452,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to subprocessor restrictions.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_b0fe78cf689bef5b90d08d7d",
+      "ref": "dsn_b0fe78cf689bef5b90d08d7d",
+      "denseRank": 15,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.10333333333333333,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to physical transfer security packaging.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_f894793c875b7b2c74037e13",
+      "ref": "dsn_f894793c875b7b2c74037e13",
+      "denseRank": 4,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.085625,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "portability_scope"
+      ],
+      "reviewConfidence": 0.5,
+      "reviewReason": "Mentions assisting controller in responding to requests for exercising rights under Chapter III GDPR via processor functionality, but fails to commit to format or transmission standards required by Art 20.",
+      "exclusionReason": "rejected:supporting:0.5"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_9e8327daa10029983df8bb36",
+      "ref": "dsn_9e8327daa10029983df8bb36",
+      "denseRank": 13,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08369863013698631,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.85,
+      "reviewReason": "General compliance statement.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_633e965fdb33bd9fe0afcacf",
+      "ref": "dsn_633e965fdb33bd9fe0afcacf",
+      "denseRank": 17,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.082987012987013,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to Article 46 international data transfers to Russian Federation.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_87610896f208778ed618914a",
+      "ref": "dsn_87610896f208778ed618914a",
+      "denseRank": null,
+      "lexicalRank": 1,
+      "selectedBy": [
+        "sparse"
+      ],
+      "score": 0.07639344262295082,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to authorization by third party controller.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_d1ec10558c5880f7cd37da69",
+      "ref": "dsn_d1ec10558c5880f7cd37da69",
+      "denseRank": null,
+      "lexicalRank": 20,
+      "selectedBy": [
+        "sparse"
+      ],
+      "score": 0.0725,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to documented processing instructions.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_a5e1ef7ee724e3d2543d6266",
+      "ref": "dsn_a5e1ef7ee724e3d2543d6266",
+      "denseRank": null,
+      "lexicalRank": 21,
+      "selectedBy": [
+        "sparse"
+      ],
+      "score": 0.07234567901234568,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to deletion upon term expiry.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    }
+  ],
+  "expansions": [],
+  "expansionLimits": [],
+  "bundle": {
+    "bundleId": "INV-gdpr.art20-doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+    "requirementId": "gdpr.art20",
+    "items": [
+      {
+        "spanId": "dsn_0d27794115168eac76531131",
+        "ref": "dsn_0d27794115168eac76531131",
+        "quotedText": "'Processing of personal data' means any operation or set of operations which is performed upon Personal Data, whether or not by automatic means, such as collection, recording, organization, storage, adaptation or alteration, retrieval, consultation, use, disclosure by transmission, dissemination or otherwise making available, alignment or combination, blocking, erasure or destruction ('Process', 'Processes' and 'Processed' shall have the same meaning).",
+        "structuralPath": "document.clause_1.subclause_1.1.list_item_26",
+        "charRange": [
+          6232,
+          6688
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.clause_1.subclause_1.1.list_item_26",
+          "relationship": "unspecified"
+        },
+        "source": "expansion",
+        "evidenceRole": "definition",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.95,
+        "investigationReason": "Defines the term 'Processing of personal data'.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "Where processing is carried out by automated means on the basis of consent or contract, the data subject can receive the personal data they provided in a structured, commonly used, machine-readable format and have it transmitted to another controller, including direct transmission where technically feasible."
+        ]
+      },
+      {
+        "spanId": "dsn_3b6cb2834c139b8111881b5f",
+        "ref": "dsn_3b6cb2834c139b8111881b5f",
+        "quotedText": "The terms 'Data controller' , 'Data sub ject' , 'Personal data' , 'Processing' , 'Data processor' and 'Supervisory authority' as used in this DPA have the meanings given in the Data Protection Legislation.",
+        "structuralPath": "document.clause_1.subclause_1.1.paragraph_33",
+        "charRange": [
+          8138,
+          8343
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.clause_1.subclause_1.1.paragraph_33",
+          "relationship": "unspecified"
+        },
+        "source": "expansion",
+        "evidenceRole": "definition",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.95,
+        "investigationReason": "Defines statutory terms by reference to Data Protection Legislation.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "Where processing is carried out by automated means on the basis of consent or contract, the data subject can receive the personal data they provided in a structured, commonly used, machine-readable format and have it transmitted to another controller, including direct transmission where technically feasible."
+        ]
+      },
+      {
+        "spanId": "dsn_3b8e226256eb52c075589879",
+        "ref": "dsn_3b8e226256eb52c075589879",
+        "quotedText": "(c)  Administrator is a controller or processor, as applicable, of Personal Data under the Data Protection Legislation; and",
+        "structuralPath": "document.list_item_(c)",
+        "charRange": [
+          8848,
+          8971
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.list_item_(c)",
+          "relationship": "unspecified"
+        },
+        "source": "expansion",
+        "evidenceRole": "context",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.9,
+        "investigationReason": "States party roles under Data Protection Legislation.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "Where processing is carried out by automated means on the basis of consent or contract, the data subject can receive the personal data they provided in a structured, commonly used, machine-readable format and have it transmitted to another controller, including direct transmission where technically feasible."
+        ]
+      }
+    ],
+    "partitions": [
+      {
+        "partitionId": "P1",
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5"
+        },
+        "itemSpanIds": [
+          "dsn_0d27794115168eac76531131",
+          "dsn_3b6cb2834c139b8111881b5f",
+          "dsn_3b8e226256eb52c075589879"
+        ]
+      }
+    ],
+    "exclusions": [
+      {
+        "spanId": "dsn_1430eff3dd13d7608aff0cf5",
+        "reason": "semantic_rejection",
+        "detail": "rejected:supporting:0.5"
+      },
+      {
+        "spanId": "dsn_f894793c875b7b2c74037e13",
+        "reason": "semantic_rejection",
+        "detail": "rejected:supporting:0.5"
+      },
+      {
+        "spanId": "dsn_3555aa936787f1962296bca4",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_8d97532a308944ce679df961",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_d110a9e2a460c527c94868fc",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_b0fe78cf689bef5b90d08d7d",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_633e965fdb33bd9fe0afcacf",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_87610896f208778ed618914a",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_d1ec10558c5880f7cd37da69",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_a5e1ef7ee724e3d2543d6266",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_07af1af89d686044559af867",
+        "reason": "role_budget",
+        "detail": "role_budget:definition"
+      },
+      {
+        "spanId": "dsn_e913a7275158c113ddece6f9",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_9e8327daa10029983df8bb36",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      }
+    ],
+    "dependencies": [],
+    "estimatedTokens": 196,
+    "investigationComplete": false,
+    "incompleteReasons": [
+      "primary_evidence_missing",
+      "element_unresolved:portability_scope",
+      "element_unresolved:structured_machine_readable_format",
+      "element_unresolved:controller_transmission",
+      "element_unresolved:direct_transmission"
+    ]
+  },
+  "provenance": {
+    "queries": "graph_native",
+    "hits": "graph_native",
+    "expansions": "graph_native",
+    "bundle": "graph_native"
+  }
+}

@@ -4,7 +4,7 @@ import type { Proposition } from "../../models/proposition.js";
 import type { PropositionPolarity } from "../../models/proposition.js";
 import type { InventoryItem } from "./build-inventory.js";
 import { executeJsonCompletion, LLMProvider, LLMTask } from "../../../../llm/index.js";
-import { extractPlaybookPositions } from "../act/extract-playbook-positions.js";
+import { extractPlaybookPositions } from "../act/operations/extract-playbook-positions.js";
 import { ensureSegmented } from "./build-inventory.js";
 import { capabilityContractFor } from "../contracts/analysis-capability-contract.js";
 

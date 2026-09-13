@@ -10,8 +10,10 @@
     "compliance:qualify": "tsx scripts/compliance-qualification-report.ts",
     "lint": "tsc --noEmit",
     "lint:skills": "node --import ./node_modules/tsx/dist/loader.mjs src/modules/analysis/skills/runtime/lint/run-lint-skill-parity.ts",
+    "audit:skills:investigation": "node --import ./node_modules/tsx/dist/loader.mjs src/modules/analysis/skills/runtime/lint/run-audit-investigation-profiles.ts",
     "test": "npm run lint:skills && node --import ./node_modules/tsx/dist/loader.mjs --test test/**/*.test.ts src/modules/analysis/skills/__fixtures__/**/*.test.ts src/modules/analysis/capabilities/**/__fixtures__/**/*.test.ts src/modules/drafting/capabilities/**/__fixtures__/**/*.test.ts src/modules/compare/__fixtures__/**/*.test.ts",
-    "test:compare": "node --import ./node_modules/tsx/dist/loader.mjs --test src/modules/compare/__fixtures__/**/*.test.ts src/utils/__fixtures__/extractText.test.ts"
+    "test:compare": "node --import ./node_modules/tsx/dist/loader.mjs --test src/modules/compare/__fixtures__/**/*.test.ts src/utils/__fixtures__/extractText.test.ts",
+    "test:compliance": "node --import ./node_modules/tsx/dist/loader.mjs --test src/modules/analysis/capabilities/act/compliance/**/__fixtures__/*.test.ts"
   },
   "dependencies": {
     "@google/genai": "^2.11.0",
@@ -22,6 +24,7 @@
     "@vitejs/plugin-react": "^5.0.4",
     "argon2": "^0.44.0",
     "cors": "^2.8.6",
+    "docling.rs": "1.41.0",
     "docx": "^9.7.1",
     "dotenv": "^17.2.3",
     "express": "^4.21.2",

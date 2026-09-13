@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { extractSharedEvidence } from "../extract-shared-evidence.js";
+import { extractSharedEvidence } from "../shared/extract-shared-evidence.js";
 import type { AnalysisState } from "../../../models/analysis-state.js";
 import type { AnalysisWorkUnit } from "../../../models/analysis-plan.js";
 import type { ClauseObject } from "../../../models/clause-object.js";

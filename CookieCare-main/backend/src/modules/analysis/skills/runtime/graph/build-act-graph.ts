@@ -29,7 +29,7 @@ import {
   type ResolvedPackage,
 } from "./resolve-packages.js";
 import { orderByDependency } from "../../../utils/topo-batches.js";
-import { MATRIX_SHARED_EVIDENCE_PACKAGE_ID } from "../../../capabilities/act/extract-shared-evidence.js";
+import { MATRIX_SHARED_EVIDENCE_PACKAGE_ID } from "../../../capabilities/act/shared/extract-shared-evidence.js";
 import type { RuleSource } from "../../../models/rule-source.js";
 import { articleNumberFromRequirementId } from "../../../shared/article-linkage.js";
 import { capabilityContractFor } from "../../../capabilities/contracts/analysis-capability-contract.js";
@@ -257,6 +257,33 @@ export function buildActGraphDetailed(input: BuildActGraphInput): BuildActGraphR
 
   const packageResolution = resolvePackages(skills, focus, intent.requirements, input.extraPackages);
   validatePlannedWork(packageResolution);
+  if (intent.operation === "compliance_check") {
+    const complianceUnit: AnalysisWorkUnit = {
+      workUnitId: "wu-compliance",
+      tool: "run_compliance_pipeline",
+      input: { docId, instruction, skillIds },
+      dependsOn: [],
+      outputSchema: "ComplianceReportSnapshot",
+      status: "pending",
+      requirementIds: packageResolution.requirementBindings.map(binding => binding.nativeRequirementId),
+    };
+    const renderUnit: AnalysisWorkUnit = {
+      workUnitId: "wu-render",
+      tool: "render_output",
+      input: {
+        schemaId, skillIds, instruction,
+        capabilityOperation: capabilityContract.operation,
+        capabilityGraph: "canonical_compliance",
+        evidenceCardinality: capabilityContract.evidenceCardinality,
+        outlineDesigner: capabilityContract.outlineDesigner,
+        allowBluf: capabilityContract.allowBluf,
+      },
+      dependsOn: [complianceUnit.workUnitId],
+      outputSchema: "string",
+      status: "pending",
+    };
+    return { workUnits: [complianceUnit, renderUnit], schemaId, rendererSchemaId: schemaId, packageResolution };
+  }
   const usePackages = packageResolution.packages.length > 0;
   const verifiedQaPath =
     capabilityContract.leanVerifiedGraph &&

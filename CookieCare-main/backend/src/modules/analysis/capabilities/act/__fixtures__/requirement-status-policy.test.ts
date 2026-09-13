@@ -3,7 +3,7 @@
  */
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { deriveRequirementStatus } from "../requirement-status-policy.js";
+import { deriveRequirementStatus } from "../shared/requirement-status-policy.js";
 import { displayRequirementStatus } from "../../../models/requirement-assessment.js";
 import type { Finding, FindingStatus } from "../../../models/finding.js";
 

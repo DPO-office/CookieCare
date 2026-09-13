@@ -1,0 +1,115 @@
+{
+  "sessionId": "an_14faad42-a8ab-49ab-a819-da8dad8fa124",
+  "stage": "investigation_complete",
+  "dumpedAt": "2026-09-12T12:59:59.957Z",
+  "requirementId": "gdpr.art47",
+  "packageId": "rule:regimes/data-protection/gdpr",
+  "recall": {
+    "requirementId": "gdpr.art47",
+    "uniqueCandidateCount": 16,
+    "elementsWithCandidates": [],
+    "elementsWithoutCandidates": [
+      "primary"
+    ],
+    "totalQueries": 23
+  },
+  "queries": [],
+  "hits": [],
+  "expansions": [],
+  "expansionLimits": [],
+  "bundle": {
+    "bundleId": "INV-gdpr.art47-doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+    "requirementId": "gdpr.art47",
+    "items": [],
+    "partitions": [],
+    "exclusions": [
+      {
+        "spanId": "dsn_d5ff0f1d7a8cb182cf16e85c",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_560ea65ede6256960f3ebf09",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_1766abf86c7f242a3c5f13ed",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_922c9e69d3a2abad2a48a40f",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_891f0a2428f2eb1d543b1270",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_c7b0371e353f51e70e6321fc",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_1abb21f1d7a1656a057a6752",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_1e1aa437cd0bb14859daef49",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_21cfa7cc6c63818ef01e4117",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_f1b8a9a26e87ab04533bdab1",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_702df667b3bbff3019ebb738",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_98c6f1615bfa70a8f12c5ed9",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_f51e74015231cb340f43c339",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_5a7a34da1dccbc3e995e61d9",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_0f6f7fdb4ac7d3fac4f1826b",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_a0de099acfba9afda8387633",
+        "reason": "budget",
+        "detail": "rejected:irrelevant:0.95"
+      }
+    ],
+    "dependencies": [],
+    "estimatedTokens": 0,
+    "investigationComplete": false,
+    "incompleteReasons": [
+      "primary_evidence_missing",
+      "element_unresolved:primary"
+    ]
+  }
+}

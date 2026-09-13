@@ -22,4 +22,8 @@ backend/server.js
 drafting-module-context.md
 /generated/prisma
 
+# Local Docling PDF/OCR dependencies (downloaded during Docker/local setup)
+/.models/
+/.pdfium/
+
 /test

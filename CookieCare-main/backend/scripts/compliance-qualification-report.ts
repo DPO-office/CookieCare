@@ -32,6 +32,7 @@
 
 import fs from "fs";
 import path from "path";
+import { qualifyOutcomeEvents } from "../src/modules/analysis/capabilities/act/compliance/diagnostics/index.js";
 
 interface Event {
   event: string;
@@ -46,6 +47,11 @@ interface RequirementRow {
   canonicalKey: string;
   retrievedEvidenceCount: number;
   bundleEvidenceCount: number;
+  hybridCandidateCount?: number;
+  hybridBundleCount?: number;
+  hybridRoleCounts?: Record<string, number>;
+  investigationComplete?: boolean;
+  investigationIncompleteReasons?: string[];
   verifiedElementStates: Record<string, string>;
   calculatedStatus?: string;
   lockDecision?: "accepted" | "rejected";
@@ -100,15 +106,40 @@ function qualifyRun(logFile: string): RunQualification {
     events.find((e) => e.analysisId)?.analysisId ??
     path.basename(logFile).replace(/\.compliance\.log$/, "");
 
+  if (events.some(e => e.event === "compliance.checks.expected")) {
+    const qualification = qualifyOutcomeEvents(events);
+    return { sessionId, logFile, rows: qualification.rows.map(row => ({
+      requirementId: row.checkId, canonicalKey: row.checkId,
+      retrievedEvidenceCount: 0,
+      bundleEvidenceCount: Number(events.find(e=>e.event==="compliance.outcome.rendered" && e.checkId===row.checkId)?.evidenceCount ?? 0),
+      verifiedElementStates: {},
+      calculatedStatus: row.status, renderedStatus: row.status,
+      lockDecision: row.kind === "assessment" ? "accepted" : "rejected",
+      lockReasonCodes: row.kind === "incomplete" ? ["explicit_incomplete_outcome"] : [],
+      passFail: row.errors.length ? "FAIL" : "PASS", failReasons: row.errors,
+    })), activationGate: {
+      allPlannedTerminal: !qualification.missing.length,
+      noExactQuoteFailures: qualification.rows.every(r=>!r.errors.length),
+      noDuplicateCanonicalRows: !qualification.duplicates.length && !qualification.unexpected.length,
+      noOrphanStructureNodes: true, failureStatesExplicit: qualification.rows.every(r=>!r.errors.length),
+      missingRequirementIds: qualification.missing, duplicateCanonicalKeys: qualification.duplicates,
+      orphanCount: 0, quoteFailureCount: 0, outOfElementSchemaScope: [], pass: qualification.pass,
+    } };
+  }
+
   const plannedRequirementIds = new Set<string>(
     (events.find((e) => e.event === "compliance.plan.requirements")
       ?.requirementIds as string[] | undefined) ?? []
   );
 
   const bundlesByReq = new Map<string, Event>();
+  const investigationByReq = new Map<string, Event>();
   for (const e of events) {
     if (e.event === "compliance.bundle.created" && e.requirementId) {
       bundlesByReq.set(e.requirementId, e);
+    }
+    if (e.event === "compliance.investigation.compare" && e.requirementId) {
+      investigationByReq.set(e.requirementId, e);
     }
   }
 
@@ -197,6 +228,7 @@ function qualifyRun(logFile: string): RunQualification {
   const requirementIds = new Set<string>([
     ...plannedRequirementIds,
     ...bundlesByReq.keys(),
+    ...investigationByReq.keys(),
     ...lockByReq.keys(),
   ]);
 
@@ -207,6 +239,7 @@ function qualifyRun(logFile: string): RunQualification {
       ? (bundle!.evidenceSpanIds as unknown[]).length
       : 0;
     const retrievedEvidenceCount = retrievedByReq.get(requirementId) ?? 0;
+    const investigation = investigationByReq.get(requirementId);
     const verifiedElementStates = matrixByReq.get(requirementId) ?? {};
     const calculatedStatus = assessByReq.get(requirementId);
     const lock = lockByReq.get(requirementId);
@@ -216,10 +249,9 @@ function qualifyRun(logFile: string): RunQualification {
     const failReasons: string[] = [];
     let passFail: RequirementRow["passFail"];
     if (!lock) {
-      // No `compliance.lock.attempt` for this requirement means Phase 4A has
-      // no authored element schema for it (yet) — out of the current legal-
-      // review scope, not a pipeline defect. Not counted as PASS or FAIL.
-      passFail = "N/A";
+      // Baseline absence and unfinished execution require visible outcomes too.
+      failReasons.push("missing_visible_terminal_outcome");
+      passFail = "FAIL";
     } else if (lock.decision === "accepted") {
       if (quoteFailures > 0) failReasons.push(`quote_not_verified(${quoteFailures})`);
       if (Object.values(verifiedElementStates).length === 0) {
@@ -231,11 +263,11 @@ function qualifyRun(logFile: string): RunQualification {
       if (!renderedStatus) failReasons.push("no_rendered_row_for_accepted_lock");
       passFail = failReasons.length === 0 ? "PASS" : "FAIL";
     } else {
-      // Rejected: still a terminal, explicit state — pass unless it's
-      // missing reason codes (would mean an unexplained rejection).
+      // Rejection is not enough: the report must preserve the incomplete check.
       if (!lock.reasonCodes || lock.reasonCodes.length === 0) {
         failReasons.push("rejected_without_reason_codes");
       }
+      if (!renderedStatus) failReasons.push("rejected_without_visible_outcome");
       passFail = failReasons.length === 0 ? "PASS" : "FAIL";
     }
 
@@ -244,6 +276,11 @@ function qualifyRun(logFile: string): RunQualification {
       canonicalKey: lock?.canonicalKey ?? requirementId,
       retrievedEvidenceCount,
       bundleEvidenceCount,
+      hybridCandidateCount: investigation?.candidateCount as number | undefined,
+      hybridBundleCount: investigation?.newItemCount as number | undefined,
+      hybridRoleCounts: investigation?.evidenceRoleCounts as Record<string, number> | undefined,
+      investigationComplete: investigation?.investigationComplete as boolean | undefined,
+      investigationIncompleteReasons: investigation?.incompleteReasons as string[] | undefined,
       verifiedElementStates,
       calculatedStatus,
       lockDecision: lock?.decision,
@@ -270,7 +307,7 @@ function qualifyRun(logFile: string): RunQualification {
     noDuplicateCanonicalRows: duplicateCanonicalKeys.length === 0,
     noOrphanStructureNodes: orphanCount === 0,
     failureStatesExplicit: inScopeRows.every(
-      (r) => r.lockDecision === "accepted" || (r.lockReasonCodes && r.lockReasonCodes.length > 0)
+      (r) => Boolean(r.renderedStatus) && (r.lockDecision === "accepted" || Boolean(r.lockReasonCodes && r.lockReasonCodes.length > 0))
     ),
     missingRequirementIds,
     duplicateCanonicalKeys,
@@ -280,6 +317,7 @@ function qualifyRun(logFile: string): RunQualification {
     pass: false,
   };
   activationGate.pass =
+    rows.every(r => r.passFail === "PASS") &&
     activationGate.allPlannedTerminal &&
     activationGate.noExactQuoteFailures &&
     activationGate.noDuplicateCanonicalRows &&
@@ -310,10 +348,10 @@ function renderMarkdown(runs: RunQualification[]): string {
     lines.push(`Total duration: ${run.totalMs ?? "n/a"} ms`);
     lines.push("");
     lines.push(
-      "| Requirement | Expected evidence | Retrieved evidence | Bundle evidence | Verified element states | Calculated status | Locked status | Rendered status | Pass/fail |"
+      "| Requirement | Expected evidence | Legacy retrieved/bundle | Hybrid candidates/bundle | Hybrid roles | Investigation | Verified element states | Calculated status | Locked status | Rendered status | Pass/fail |"
     );
     lines.push(
-      "|---|---|---|---|---|---|---|---|---|"
+      "|---|---|---|---|---|---|---|---|---|---|---|"
     );
     for (const row of run.rows) {
       const states = Object.entries(row.verifiedElementStates)
@@ -331,8 +369,16 @@ function renderMarkdown(runs: RunQualification[]): string {
           : row.passFail === "N/A"
             ? "N/A (no element schema)"
             : `FAIL (${row.failReasons.join(", ")})`;
+      const roles = row.hybridRoleCounts
+        ? Object.entries(row.hybridRoleCounts).map(([role, count]) => `${role}=${count}`).join(", ") || "(none)"
+        : "(not run)";
+      const investigation = row.investigationComplete === undefined
+        ? "(not run)"
+        : row.investigationComplete
+          ? "complete"
+          : `incomplete (${(row.investigationIncompleteReasons ?? []).join(", ")})`;
       lines.push(
-        `| ${row.requirementId} | _(human review)_ | ${row.retrievedEvidenceCount} | ${row.bundleEvidenceCount} | ${states} | ${row.calculatedStatus ?? "(none)"} | ${locked} | ${row.renderedStatus ?? "(not rendered)"} | ${passFail} |`
+        `| ${row.requirementId} | _(human review)_ | ${row.retrievedEvidenceCount}/${row.bundleEvidenceCount} | ${row.hybridCandidateCount ?? "-"}/${row.hybridBundleCount ?? "-"} | ${roles} | ${investigation} | ${states} | ${row.calculatedStatus ?? "(none)"} | ${locked} | ${row.renderedStatus ?? "(not rendered)"} | ${passFail} |`
       );
     }
     lines.push("");
@@ -348,7 +394,7 @@ function renderMarkdown(runs: RunQualification[]): string {
     if (g.outOfElementSchemaScope.length > 0) {
       lines.push("");
       lines.push(
-        `_Not evaluated by Phase 4B/5/6/7 (no authored element schema yet — plan §4A scope boundary, not a defect): ${g.outOfElementSchemaScope.join(", ")}_`
+        `_Historical checks without a baseline: ${g.outOfElementSchemaScope.join(", ")}. Missing baselines require visible incomplete outcomes; they are not coverage exemptions._`
       );
     }
     lines.push("");
@@ -391,6 +437,7 @@ function main(): void {
   } else {
     console.log(markdown);
   }
+  if (runs.some(run => !run.activationGate.pass)) process.exitCode = 1;
 }
 
 main();

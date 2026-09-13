@@ -4,7 +4,7 @@ import { describe, it } from "node:test";
 import type { AnalysisState } from "../../../models/analysis-state.js";
 import type { ComplianceOutstandingCheck } from "../../../models/compliance-report.js";
 import { buildStructuralNodes, type StructuralNode } from "../../../segmentation/structural-nodes.js";
-import type { RenderedEvidence, RenderedReport, RenderedRow } from "../../act/phase7-render.js";
+import type { RenderedEvidence, RenderedReport, RenderedRow } from "../../act/compliance/project-locked-compliance-report.js";
 import { buildComplianceSnapshot } from "../compliance-snapshot.js";
 
 function setup(texts: Record<string, string>, titles: Record<string, string> = {}) {

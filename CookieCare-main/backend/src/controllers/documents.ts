@@ -10,6 +10,7 @@ import { chunkAndIndexDocument } from "../RAG/ragService.js";
 import { getOrCreateDefaultFolder } from "./folders.js";
 import crypto from "crypto";
 import { fileTypeFromBuffer } from "file-type";
+import { buildDocumentGraph, persistDocumentGraph } from "../modules/analysis/capabilities/ingest/document-structure/index.js";
 
 export const getDocuments = async (req: Request, res: Response) => {
   const userEmail = req.user!.email.toLowerCase();
@@ -77,7 +78,12 @@ export const getDocuments = async (req: Request, res: Response) => {
       const total = Number(countRows[0].total);
 
       const { rows } = await client.query(
-        `SELECT * FROM files
+        `SELECT files.*,
+           (SELECT a.status FROM document_structure_artifacts a
+            WHERE a.file_id = files.id
+              AND a.version_id = (SELECT id FROM document_versions v WHERE v.file_id = files.id ORDER BY v.created_at DESC, v.id DESC LIMIT 1)
+            ORDER BY a.updated_at DESC LIMIT 1) AS structure_status
+         FROM files
          WHERE ${whereClause}
          ORDER BY created_at DESC
          LIMIT $${paramIdx} OFFSET $${paramIdx + 1}`,
@@ -119,7 +125,12 @@ export const getDocumentById = async (req: Request, res: Response) => {
     const doc = await withTransaction(userId, userRole, async (client) => {
       // Enforce ownership: only the creator or a shared recipient may fetch the document.
       const { rows } = await client.query(
-        `SELECT * FROM files
+        `SELECT files.*,
+           (SELECT a.status FROM document_structure_artifacts a
+            WHERE a.file_id = files.id
+              AND a.version_id = (SELECT id FROM document_versions v WHERE v.file_id = files.id ORDER BY v.created_at DESC, v.id DESC LIMIT 1)
+            ORDER BY a.updated_at DESC LIMIT 1) AS structure_status
+         FROM files
          WHERE id = $1
            AND (
              creator_id = current_setting('app.current_user_id', true)
@@ -245,6 +256,9 @@ export const  uploadDocument = async (req: Request, res: Response) => {
   const systemFileType = req.body.category?.trim().toLowerCase() || "upload";
   // ephemeral=true means the file is for on-the-go analysis only — skip vault folder assignment
   const isEphemeral = req.body.ephemeral === "true" || req.body.ephemeral === true;
+  const expectedIdentity = typeof req.body.expected_identity === "string" && req.body.expected_identity.trim()
+    ? req.body.expected_identity.trim()
+    : undefined;
   // Ownership scope — 'private' (current user only) or 'org' (organisation-wide).
   const rawSource = req.body.source?.trim().toLowerCase();
   const itemSource: "private" | "org" = rawSource === "org" ? "org" : "private";
@@ -319,6 +333,7 @@ export const  uploadDocument = async (req: Request, res: Response) => {
       mimeType: file.mimetype,
       userId,
       isEphemeral,
+      expectedIdentity,
     };
 
     if (systemFileType === "playbook") {
@@ -414,7 +429,9 @@ export const  uploadDocument = async (req: Request, res: Response) => {
       fileBufferBase64: file.buffer.toString("base64"),
       mimeType: file.mimetype,
       folder_id: resolvedFolderId,
-      creatorEmail: req.user!.email
+      creatorEmail: req.user!.email,
+      isEphemeral,
+      expectedIdentity,
     });
 
     // Prefer returning the ingest job id when present so Vault SSE tracks structuring.
@@ -494,6 +511,9 @@ export const updateDocument = async (req: Request, res: Response) => {
   const { title, content, folder_id } = req.body;
   const userId = req.user!.id;
   const userRole = req.user!.role;
+  let createdVersionId = "";
+  let versionPlaintext = "";
+  let documentTitle = title || id;
 
   try {
     await withTransaction(userId, userRole, async (client) => {
@@ -504,6 +524,8 @@ export const updateDocument = async (req: Request, res: Response) => {
       );
       if (rows.length === 0) throw new Error("Document not found");
       const doc = rows[0];
+      documentTitle = title || doc.title || id;
+      versionPlaintext = content ? String(content) : (doc.is_encrypted ? decrypt(doc.content) : String(doc.content ?? ""));
 
       const encryptedContent = content ? encrypt(content) : doc.content;
 
@@ -513,6 +535,7 @@ export const updateDocument = async (req: Request, res: Response) => {
       );
 
       const versionId = "ver_" + crypto.randomUUID();
+      createdVersionId = versionId;
       await client.query(
         `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
         [versionId, id, encryptedContent]
@@ -524,6 +547,16 @@ export const updateDocument = async (req: Request, res: Response) => {
       `, [userId, 'document_update', JSON.stringify({ documentId: id, title })]);
     });
 
+    const graph = await buildDocumentGraph({
+      artifactId: "dsa_" + crypto.randomUUID(),
+      fileId: id,
+      documentVersionId: createdVersionId,
+      fileName: `${documentTitle}.txt`,
+      mimeType: "text/plain",
+      buffer: Buffer.from(versionPlaintext, "utf8"),
+    });
+    await persistDocumentGraph(userId, graph);
+
     // Re-index updated content for RAG retrieval (fire-and-forget, non-blocking)
     if (content && content.trim().length > 0) {
       // Delete old chunks then re-insert via chunkAndIndexDocument
@@ -534,7 +567,7 @@ export const updateDocument = async (req: Request, res: Response) => {
         .catch((err) => console.warn(`[updateDocument] Re-indexing failed for ${id}:`, err));
     }
 
-    res.json({ success: true });
+    res.json({ success: true, structureStatus: graph.quality.status, structureArtifactId: graph.artifactId });
   } catch (err: any) {
     res.status(err.message === "Document not found" ? 404 : 500).json({ error: err.message });
   }

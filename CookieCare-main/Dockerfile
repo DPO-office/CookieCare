@@ -14,6 +14,10 @@ COPY package.json package-lock.json ./
 
 RUN npm ci --no-audit --no-fund
 
+# PDF layout/OCR/table assets are not bundled in the native addon. Keep this
+# alongside the pinned docling.rs dependency and bake assets at image build.
+RUN curl -fsSL https://raw.githubusercontent.com/docling-project/docling.rs/master/scripts/install/download_dependencies.sh | sh -s -- --no-asr --no-chunk
+
 COPY . .
 
 # Frontend Identity Platform config comes from frontend/.env.production
@@ -34,9 +38,13 @@ ENV NODE_ENV=production
 ENV PORT=8080
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 ENV PUPPETEER_SKIP_DOWNLOAD=1
+ENV DOCLING_RS_HOME=/app
+ENV DOCUMENT_GRAPH_LLM_RELATIONS=0
 
 COPY --from=build /app/package.json /app/package-lock.json ./
 COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/.models ./.models
+COPY --from=build /app/.pdfium ./.pdfium
 COPY --from=build /app/frontend/dist ./frontend/dist
 COPY --from=build /app/backend/dist ./backend/dist
 

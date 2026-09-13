@@ -1,14 +1,14 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type { Finding } from "../../../models/finding.js";
-import type { VerifyPropositionResult } from "../verify-proposition.js";
+import type { VerifyPropositionResult } from "../shared/proposition-verifier.js";
 import {
   firstDistinctScopePair,
   completeEvidenceQuote,
   verifyOutcomesHaveDistinctScopes,
-} from "../evaluate-package.js";
-import { deriveRequirementJudgement } from "../requirement-status-policy.js";
-import { buildSectionCandidates } from "../select-candidates.js";
+} from "../operations/evaluate-requirement-package.js";
+import { deriveRequirementJudgement } from "../shared/requirement-status-policy.js";
+import { buildSectionCandidates } from "../shared/candidate-selection.js";
 import { segmentDocument } from "../../../segmentation/segment-document.js";
 import { operationSupportsOpenProposition } from "../../plan/generate-propositions.js";
 import { shouldPreferOpenAnalysisLane } from "../../plan/build-plan.js";

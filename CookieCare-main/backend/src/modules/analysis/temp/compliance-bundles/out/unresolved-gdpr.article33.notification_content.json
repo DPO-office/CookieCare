@@ -1,0 +1,39 @@
+{
+  "sessionId": "an_f5fc1fdf-906a-4842-b7f9-f409c56344c6",
+  "stage": "investigation_complete",
+  "dumpedAt": "2026-09-12T12:54:50.658Z",
+  "requirementId": "unresolved:gdpr.article33.notification_content",
+  "packageId": "unresolved",
+  "recall": {
+    "requirementId": "unresolved:gdpr.article33.notification_content",
+    "uniqueCandidateCount": 0,
+    "elementsWithCandidates": [],
+    "elementsWithoutCandidates": [
+      "E1"
+    ],
+    "totalQueries": 0
+  },
+  "queries": [],
+  "hits": [],
+  "expansions": [],
+  "expansionLimits": [],
+  "bundle": {
+    "bundleId": "INV-INCOMPLETE-unresolved:gdpr.article33.notification_content-doc_c27e4284-af3a-45dc-9f3a-0d2401f8a146",
+    "requirementId": "unresolved:gdpr.article33.notification_content",
+    "items": [],
+    "partitions": [],
+    "exclusions": [
+      {
+        "spanId": "__investigation__",
+        "reason": "budget",
+        "detail": "facet_unresolved:Extract minimum notification content requirements for data incidents.: No authored atomic rule could be safely selected for this requested compliance facet."
+      }
+    ],
+    "dependencies": [],
+    "estimatedTokens": 0,
+    "investigationComplete": false,
+    "incompleteReasons": [
+      "facet_unresolved"
+    ]
+  }
+}

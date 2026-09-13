@@ -7,8 +7,8 @@ import { describe, it } from "node:test";
 import { getSkillById, resetSkillRegistryForTests } from "../../../skills/runtime/catalog/registry.js";
 import { resolvePackages } from "../../../skills/runtime/graph/resolve-packages.js";
 import { buildActGraphDetailed } from "../../../skills/runtime/graph/build-act-graph.js";
-import { groupedResultsToFindings } from "../grouped-results-to-findings.js";
-import { aggregateRequirements } from "../aggregate-requirements.js";
+import { groupedResultsToFindings } from "../shared/convert-results-to-findings.js";
+import { aggregateRequirements } from "../operations/aggregate-requirement-results.js";
 import { injectAuthoredRequirements } from "../../plan/inject-authored-requirements.js";
 import type { InstructionFocus } from "../../../models/analysis-plan.js";
 import type { IntentClassification } from "../../../models/intent.js";
@@ -66,7 +66,7 @@ describe("structural-review package selection", () => {
 });
 
 describe("structural-review ACT graph", () => {
-  it("emits the package evaluation path for a broad NDA review, not rule fan-out", () => {
+  it("emits the canonical compliance path for a broad NDA review", () => {
     const nda = skill("doc-types/nda");
     const intent = injectAuthoredRequirements(broadIntent(), [nda], emptyFocus());
     const { workUnits } = buildActGraphDetailed({
@@ -77,15 +77,7 @@ describe("structural-review ACT graph", () => {
       focus: emptyFocus(),
     });
     const tools = workUnits.map((u) => u.tool);
-    assert.deepEqual(tools, [
-      "classify_document",
-      "extract_clauses",
-      "extract_shared_evidence",
-      "evaluate_package",
-      "aggregate_requirements",
-      "derive_risk",
-      "render_output",
-    ]);
+    assert.deepEqual(tools, ["run_compliance_pipeline", "render_output"]);
     assert.equal(
       workUnits.filter((u) => u.tool === "check_expected_clauses").length,
       0
@@ -94,8 +86,6 @@ describe("structural-review ACT graph", () => {
       workUnits.filter((u) => u.tool === "check_against_rule").length,
       0
     );
-    const evalUnit = workUnits.find((u) => u.tool === "evaluate_package");
-    assert.equal(evalUnit?.input.packageId, "nda.structural_review");
   });
 
   it("resolves every NDA structural_review capabilityId to an authored regime rule", () => {

@@ -3,13 +3,13 @@ import { describe, it } from "node:test";
 import type { AnalysisState } from "../../../models/analysis-state.js";
 import type { Finding } from "../../../models/finding.js";
 import type { RequirementAssessment } from "../../../models/requirement-assessment.js";
-import { aggregateRequirements } from "../aggregate-requirements.js";
-import { deriveRequirementJudgement } from "../requirement-status-policy.js";
-import { complianceRetrievalQuery } from "../evaluate-package.js";
+import { aggregateRequirements } from "../operations/aggregate-requirement-results.js";
+import { deriveRequirementJudgement } from "../shared/requirement-status-policy.js";
+import { complianceRetrievalQuery } from "../operations/evaluate-requirement-package.js";
 import {
   filterCandidatesByEvidenceScope,
   inferEvidenceRelationshipScope,
-} from "../select-candidates.js";
+} from "../shared/candidate-selection.js";
 import { assessmentTableMarkdown } from "../../reporting/render-output.js";
 import { deterministicFactRollup } from "../../../prompts/analytical-synthesis.js";
 import { gdprSkill } from "../../../__test-helpers__/package-graph-fixtures.js";

@@ -2,63 +2,45 @@ import type { AnalysisState } from "../../models/analysis-state.js";
 import type { AnalysisWorkUnit, AnalysisToolName } from "../../models/analysis-plan.js";
 import type { Finding } from "../../models/finding.js";
 import { normalizeFindingSemantics } from "../../shared/finding-semantics.js";
-import { segmentDocument, resolveSpan } from "../../segmentation/segment-document.js";
+import { resolveSpan } from "../../segmentation/segment-document.js";
+import { graphToSegments } from "../ingest/document-structure/projection.js";
 import { topologicalBatches } from "../../utils/topo-batches.js";
-import { classifyDocument } from "./classify-document.js";
-import { extractClauses } from "./extract-clauses.js";
-import { checkExpectedClauses } from "./check-expected-clauses.js";
-import { flagRisk } from "./flag-risk.js";
-import { checkAgainstRule } from "./check-against-rule.js";
-import { renderOutput } from "./render-output.js";
+import { classifyDocument } from "./operations/classify-document.js";
+import { extractClauses } from "./operations/extract-clauses.js";
+import { checkExpectedClauses } from "./operations/check-clause-coverage.js";
+import { flagRisk } from "./risk-review/evaluate-risk-findings.js";
+import { checkAgainstRule } from "./operations/evaluate-rule-compliance.js";
+import { renderOutput } from "../reporting/render-output.js";
 import { usesCanonicalComplianceReport } from "../reporting/compliance-release.js";
-import { evaluateMatrixRow } from "./evaluate-matrix-row.js";
-import { webAssistedReference } from "./web-assisted-reference.js";
-import { extractPlaybookPositions } from "./extract-playbook-positions.js";
-import { extractSharedEvidence } from "./extract-shared-evidence.js";
-import { evaluatePackage } from "./evaluate-package.js";
-import { inventoryProvisions } from "./inventory-provisions.js";
-import { deriveRisk } from "./derive-risk.js";
-import { aggregateRequirements } from "./aggregate-requirements.js";
+import { runCompliancePipeline } from "./compliance/run-compliance-check.js";
+import { evaluateMatrixRow } from "./operations/evaluate-comparison-row.js";
+import { webAssistedReference } from "./operations/research-legal-reference.js";
+import { extractPlaybookPositions } from "./operations/extract-playbook-positions.js";
+import { extractSharedEvidence } from "./shared/extract-shared-evidence.js";
+import { evaluatePackage } from "./operations/evaluate-requirement-package.js";
+import { inventoryProvisions } from "./operations/build-provision-inventory.js";
+import { deriveRisk } from "./risk-review/derive-risk-summary.js";
+import { aggregateRequirements } from "./operations/aggregate-requirement-results.js";
 import { mergeBranchOutputs } from "../reporting/merge-branch-outputs.js";
-import { insufficient } from "./act-utils.js";
+import { insufficient } from "./shared/work-unit-utils.js";
 import { pacLog, pacWarn } from "../../utils/pac-log.js";
 import {
   logActGraphInspect,
   logActInspect,
   logActSegmentationInspect,
   logActStepInspect,
-} from "./act-inspect-log.js";
-import { actStageForTool, type ActStage } from "./act-stage.js";
+} from "./shared/execution-inspection-log.js";
+import { actStageForTool, type ActStage } from "./shared/execution-stage.js";
 import {
-  beginComplianceRun,
-  finalizeComplianceRun,
   markAssessed,
   markRendered,
   markRetrieved,
   markVerified,
-  recordElementRegistry,
-  recordIngestMarkers,
-  recordIngestTables,
-  recordPhase3Investigation,
-  recordLlmAssistedInvestigation,
-  recordLlmBundleVerification,
-  recordLlmVerifyCanonicalSwap,
-  recordLockValidation,
-  recordPhase7Render,
-  recordPhase4Verification,
-  recordPhase5Assessment,
-  recordRetrievalFallback,
-  recordPlannedRequirements,
-  recordReferenceIndex,
-  recordRequestResolutions,
-  recordRequirementRegistry,
-  recordSourceMarkers,
   recordStageDuration,
-  recordStructuralNodes,
-  getComplianceRenderedReport,
-} from "./compliance-observability.js";
+} from "./compliance/diagnostics/index.js";
 
 const SILENT_SUCCESS_NOTES: Partial<Record<AnalysisToolName, string>> = {
+  run_compliance_pipeline: "canonical compliance snapshot created",
   classify_document: "classification only, no finding by design",
   check_expected_clauses: "expected clause present, no gap to report",
   extract_playbook_positions: "no playbook positions extracted",
@@ -68,38 +50,6 @@ const SILENT_SUCCESS_NOTES: Partial<Record<AnalysisToolName, string>> = {
   derive_risk: "no mechanically-implied risk to derive",
   merge_branch_outputs: "branch reports merged deterministically",
 };
-
-/**
- * Legacy live VERIFY spine — skipped once Phase 4-7 locked rows exist (see
- * `skipLiveVerify` below, gated on `state.intent?.operation === "compliance_check"`).
- * An empty locked set is an incomplete report, never a legacy fallback. Each tool
- * here is unused by the canonical pipeline for that
- * exact case:
- *   - evaluate_package / extract_shared_evidence / inventory_provisions /
- *     evaluate_matrix_row / check_expected_clauses / check_against_rule /
- *     flag_risk / derive_risk / web_assisted_reference: superseded by
- *     Phase 3-7's own retrieval + verification + lock.
- *   - aggregate_requirements: its only output (`requirementAssessments`) is
- *     unconditionally overwritten by `applyLockedComplianceToState` at the
- *     top of `renderOutput` whenever locked rows exist (the exact condition
- *     that gates this skip) — running it first is pure waste.
- *
- * Canonical reporting reads source-checked evidence, not doc.clauses.
- * `classify_document` remains available for document metadata.
- */
-const LIVE_COMPLIANCE_VERIFY_TOOLS = new Set<AnalysisToolName>([
-  "extract_clauses",
-  "evaluate_package",
-  "extract_shared_evidence",
-  "inventory_provisions",
-  "evaluate_matrix_row",
-  "check_expected_clauses",
-  "check_against_rule",
-  "flag_risk",
-  "derive_risk",
-  "web_assisted_reference",
-  "aggregate_requirements",
-]);
 
 /**
  * Tools that only emit findings and never mutate shared workspace state, so
@@ -139,6 +89,7 @@ async function runConcurrent<T, R>(
 }
 
 const TOOL_PROGRESS_LABELS: Partial<Record<AnalysisToolName, string>> = {
+  run_compliance_pipeline: "Verifying compliance.",
   classify_document: "Reading…",
   extract_clauses: "Extracting clauses…",
   check_expected_clauses: "Checking coverage…",
@@ -173,19 +124,32 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
   let plan = state.plan;
   if (!plan) return state;
 
-  // Several compliance questions still produce one canonical report. Preserve
-  // each branch's evaluation units/bindings, but avoid rendering the same locked
-  // results once per branch and then merging duplicate reports.
-  if (plan.branches?.length && plan.branches.every(b => b.intent.operation === "compliance_check")) {
-    const rendering = plan.workUnits.find(u => u.tool === "render_output");
-    if (rendering) {
-      const evaluation = plan.workUnits.filter(u => u.tool !== "render_output" && u.tool !== "merge_branch_outputs");
-      plan = { ...plan, branches: undefined, branchMode: undefined,
-        requirementBindings: plan.branches.flatMap(b => b.requirementBindings ?? []),
-        workUnits: [...evaluation, { ...rendering, facetId: undefined,
-          input: { ...rendering.input, facetId: undefined }, dependsOn: evaluation.map(u => u.workUnitId) }] };
-      state = { ...state, plan };
-    }
+  // Normalize any persisted pre-refactor compliance plan before execution so
+  // the removed legacy graph can never be revived by an older queued job.
+  const renderOnly = plan.workUnits.length === 1 && plan.workUnits[0]?.tool === "render_output";
+  if (state.intent?.operation === "compliance_check" && !renderOnly &&
+      !plan.workUnits.some(unit => unit.tool === "run_compliance_pipeline")) {
+    const oldBranches = plan.branches;
+    const canonicalBindings = oldBranches?.length
+      ? oldBranches.flatMap(branch => branch.requirementBindings ?? [])
+      : (plan.requirementBindings ?? []);
+    const render = plan.workUnits.find(unit => unit.tool === "render_output");
+    const canonical: AnalysisWorkUnit = {
+      workUnitId: "wu-compliance", tool: "run_compliance_pipeline",
+      input: { instruction: state.request.instruction }, dependsOn: [],
+      outputSchema: "ComplianceReportSnapshot", status: "pending",
+      requirementIds: [...new Set(canonicalBindings.map(binding => binding.nativeRequirementId))],
+    };
+    plan = { ...plan, branches: undefined, branchMode: undefined,
+      requirementBindings: canonicalBindings,
+      workUnits: [canonical, {
+        ...(render ?? { workUnitId: "wu-render", tool: "render_output", input: {},
+          outputSchema: "string", status: "pending" }),
+        facetId: undefined, dependsOn: [canonical.workUnitId],
+        input: { ...(render?.input ?? {}), facetId: undefined },
+      }],
+    };
+    state = { ...state, plan };
   }
 
   const targeted = state.fixPlan?.targetedOnly === true;
@@ -295,139 +259,14 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
   logActSegmentationInspect(state);
   logActGraphInspect(state, runnable);
 
-  // PHASE 0 observability — start the compliance-run tracker and capture the
-  // plan + source markers before any work-unit runs. Behaviour is unchanged.
-  beginComplianceRun(state, usesCanonicalComplianceReport(state));
-  recordSourceMarkers(state);
-  // PHASE 1A ingest telemetry — one `compliance.ingest.table` per detected
-  // DOCX table, one `compliance.ingest.table_row` per row, and one
-  // `compliance.ingest.marker` per Phase 1A marker (rawPresent vs
-  // normalizedPresent). Detection reads the persisted plaintext only.
-  recordIngestTables(state);
-  recordIngestMarkers(state);
-  // PHASE 8 — every side-channel stage below is timed and folded into
-  // `compliance.run.timing.stages` (plan §Phase 8: "Every run records
-  // stage-level and end-to-end latency"), so a reviewer can see where the
-  // side-channel's own cost lands without instrumenting each stage by hand.
-  const complianceStage = <T>(stage: string, fn: () => T): T => {
-    const t0 = Date.now();
-    try {
-      return fn();
-    } finally {
-      recordStageDuration(state, `compliance.${stage}`, Date.now() - t0);
-    }
-  };
-  const complianceStageAsync = async <T>(
-    stage: string,
-    fn: () => Promise<T>
-  ): Promise<T> => {
-    const t0 = Date.now();
-    try {
-      return await fn();
-    } finally {
-      recordStageDuration(state, `compliance.${stage}`, Date.now() - t0);
-    }
-  };
-
-  // PHASE 1B — build the canonical structural-node graph and emit summary /
-  // node / orphan events. Side-channel only; segmentation still drives ACT.
-  // PHASE 8 — content-addressed cache inside recordStructuralNodes means a
-  // repeat run on the same document version is near-free here.
-  complianceStage("structure", () => recordStructuralNodes(state));
-  // PHASE 1C — definition + internal-reference indexes over those nodes.
-  complianceStage("reference_index", () => recordReferenceIndex(state));
-  // PHASE 2A/2B — requirement-registry resolution + request/proposition
-  // resolution over the request↔native bindings the planner already computed.
-  complianceStage("requirement_registry", () => recordRequirementRegistry(state));
-  complianceStage("request_resolution", () => recordRequestResolutions(state));
-  // PHASE 3A/3B/3C — batched multi-query retrieval, deterministic structural
-  // expansion, and evidence bundle with scope partitions. Pure side-channel:
-  // nothing here feeds VERIFY yet (Phase 4 will consume the bundles).
-  complianceStage("investigate", () => recordPhase3Investigation(state));
-  // GENERIC LLM-ASSISTED INVESTIGATION — feature-flagged
-  // (LLM_ASSISTED_INVESTIGATION=1), regime-agnostic replacement for the
-  // deterministic Phase 3A-C retrieval above. No-ops unless the flag is set.
-  // Only swaps into the bundle Phase 4 consumes when
-  // LLM_ASSISTED_INVESTIGATION_CANONICAL=1 is ALSO set — otherwise it runs
-  // purely for `compliance.investigation.compare` side-by-side logging.
-  await complianceStageAsync("llm_investigation", () => recordLlmAssistedInvestigation(state));
-  // PHASE 4A — publish the versioned element-schema registry once per run.
-  complianceStage("element_registry", () => recordElementRegistry(state));
-  // PHASE 4B — deterministic side-channel matrix over Phase 3C bundles.
-  // Live VERIFY prompt remains unchanged (§Phase 4A stop gate: legal review
-  // must sign off on element schemas before touching verify prompts).
-  complianceStage("verify", () => recordPhase4Verification(state));
-  // Bounded LLM-assisted retrieval fallback — up to two rounds per requirement
-  // when the initial matrix has not_located/ambiguous/unresolved-dep elements
-  // or would coarsely read Partial/Gap. Additive side-channel: fills gaps in
-  // the requirement-specific bundle with candidates from the full document.
-  // Live retrieval / VERIFY / rendering untouched. PHASE 8 — bounded
-  // concurrency + a wall-clock stage budget live inside recordRetrievalFallback
-  // (ANALYSIS_COMPLIANCE_SIDE_CHANNEL_CONCURRENCY / _BUDGET_MS); requirements
-  // that don't fit the budget are skipped explicitly, never truncated.
-  await complianceStageAsync("fallback", () => recordRetrievalFallback(state));
-  // LLM-backed bundle verifier — one JSON call per requirement, judges
-  // whether the bundle items support each authored element. Deterministic
-  // post-validation still enforces element completeness, cite existence,
-  // exact-quote substrings, and scope compatibility. Additive to the
-  // deterministic matrix; nothing consumes it yet — Phase 5 keeps its
-  // current input until a reviewer nominates the LLM matrix as canonical.
-  // Same PHASE 8 bounded-concurrency + budget guard as the fallback stage.
-  await complianceStageAsync("llm_verify", () => recordLlmBundleVerification(state));
-  // Canonical swap — when LLM_VERIFY_CANONICAL=1, replaces each requirement's
-  // deterministic keyword-gated matrix with the validated LLM verdict in
-  // place; otherwise the deterministic matrix stands untouched. When the AI
-  // path didn't validate for a requirement, the ENTIRE requirement (not just
-  // its supported/contradicted elements) is marked incomplete rather than
-  // trusting any deterministic state — see recordLlmVerifyCanonicalSwap for
-  // why a bare per-state guard is insufficient.
-  complianceStage("verify_canonical", () => recordLlmVerifyCanonicalSwap(state));
-  // PHASE 5A + 5B — status calculation + factual explanation over the matrix.
-  // Side-channel; live rendering / assessment unchanged (§Phase 5 stop gate).
-  complianceStage("assess", () => recordPhase5Assessment(state));
-  // PHASE 6 — lock validation. Gates each assessment against 12 correctness
-  // rules; a rejected assessment is NOT promoted to a legal status. Emits
-  // per-attempt / accepted / rejected / summary events. Nothing consumes the
-  // locked set yet (Phase 7 will).
-  complianceStage("lock", () => recordLockValidation(state));
-  // Planned-requirement capture must happen BEFORE render so the render stage
-  // can compare "what was planned and schema-resolved" against "what actually
-  // reached a locked row" and flag any coverage gap in the rendered report
-  // itself, not only in a log line.
-  const plannedRequirementIds = collectPlannedRequirementIds(runnable);
-  recordPlannedRequirements(state, plannedRequirementIds);
-  // PHASE 7 — locked-only rendering. Projects accepted LockedAssessments into
-  // matrix rows + bottom-line synthesis. When ANALYSIS_COMPLIANCE_LIVE_RENDER
-  // is enabled (default), renderOutput replaces live VERIFY assessments with
-  // these locked rows (chat is locked-only).
-  complianceStage("render", () => recordPhase7Render(state));
-
-  const lockedRowsReady =
-    (getComplianceRenderedReport(state)?.rows.length ?? 0) > 0;
-  const skipLiveVerify = usesCanonicalComplianceReport(state);
-  if (skipLiveVerify) {
-    units = units.map(u => LIVE_COMPLIANCE_VERIFY_TOOLS.has(u.tool)
-      ? { ...u, status: "skipped" as const, completionNote: "Superseded by canonical compliance verification." }
-      : u);
-    pacLog("ACT skip live VERIFY", {
-      reason: lockedRowsReady ? "locked_phase4_7_ready" : "canonical_compliance_incomplete",
-      lockedRows: getComplianceRenderedReport(state)?.rows.length ?? 0,
-      skippedTools: [...LIVE_COMPLIANCE_VERIFY_TOOLS],
-    });
-  }
-
   let stepCounter = 0;
 
   for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
-    const batch = batches[batchIndex].filter(
-      (u) => !(skipLiveVerify && LIVE_COMPLIANCE_VERIFY_TOOLS.has(u.tool))
-    );
+    const batch = batches[batchIndex];
     if (batch.length === 0) {
       finishedUnits += batches[batchIndex].length;
       continue;
     }
-    const skippedInBatch = batches[batchIndex].length - batch.length;
-    if (skippedInBatch > 0) finishedUnits += skippedInBatch;
     const batchStart = Date.now();
     const parallel = batch.filter((u) => PARALLEL_SAFE_TOOLS.has(u.tool));
     const serial = batch.filter((u) => !PARALLEL_SAFE_TOOLS.has(u.tool));
@@ -693,29 +532,7 @@ export async function executeActPlan(state: AnalysisState): Promise<AnalysisStat
   };
   logActInspect(finalState);
 
-  // PHASE 0 observability — reconcile planned vs terminal (assessed/rendered)
-  // requirements and emit stage-total timing. Behaviour is unchanged.
-  const terminalRequirementIds = collectTerminalRequirementIds(finalState);
-  const duplicateRequirementIds = collectDuplicateRequirementIds(finalState);
-  finalizeComplianceRun(finalState, {
-    terminalRequirementIds,
-    duplicateRequirementIds,
-    totalMs: Date.now() - actStarted,
-  });
-
   return finalState;
-}
-
-function collectPlannedRequirementIds(units: AnalysisWorkUnit[]): string[] {
-  const ids = new Set<string>();
-  for (const unit of units) {
-    for (const id of unit.requirementIds ?? []) ids.add(id);
-    const inputIds = unit.input?.requirementIds;
-    if (Array.isArray(inputIds)) {
-      for (const id of inputIds) if (typeof id === "string") ids.add(id);
-    }
-  }
-  return [...ids];
 }
 
 function requirementIdsForUnit(
@@ -741,6 +558,8 @@ function recordUnitLifecycle(
   emitted: Finding[],
   elapsedMs: number
 ): void {
+  // The canonical compliance unit records and finalizes its own Phase 3-7 lifecycle.
+  if (unit.tool === "run_compliance_pipeline") return;
   const stage: ActStage = actStageForTool(unit.tool);
   recordStageDuration(state, stageKey(stage), elapsedMs);
   const ids = requirementIdsForUnit(unit, emitted);
@@ -786,19 +605,6 @@ function allKnownRequirementIds(state: AnalysisState): string[] {
   return [...ids];
 }
 
-function collectTerminalRequirementIds(state: AnalysisState): string[] {
-  const ids = new Set<string>();
-  for (const a of state.requirementAssessments ?? []) ids.add(a.requirementId);
-  return [...ids];
-}
-
-function collectDuplicateRequirementIds(state: AnalysisState): string[] {
-  const seen = new Map<string, number>();
-  for (const a of state.requirementAssessments ?? []) {
-    seen.set(a.requirementId, (seen.get(a.requirementId) ?? 0) + 1);
-  }
-  return [...seen.entries()].filter(([, n]) => n > 1).map(([id]) => id);
-}
 
 function ensureSegmented(state: AnalysisState): AnalysisState {
   const roles = state.request.documentRoles ?? {};
@@ -814,10 +620,14 @@ function ensureSegmented(state: AnalysisState): AnalysisState {
       }
       return existing;
     }
-    const text = state.request.documentTexts[docId] ?? existing?.fullText ?? "";
+    if (!existing?.structureGraph) {
+      throw new Error(`Canonical document graph missing for ${docId}; ACT cannot rebuild structure.`);
+    }
     const roleHint = roles[docId];
-    return segmentDocument(docId, text, {
-      title: state.request.documentTitles?.[docId],
+    return {
+      ...existing,
+      fullText: existing.structureGraph.canonicalText,
+      segments: graphToSegments(existing.structureGraph),
       role:
         roleHint === "reference"
           ? "reference"
@@ -826,7 +636,7 @@ function ensureSegmented(state: AnalysisState): AnalysisState {
             : existing?.role && existing.role !== "unknown"
               ? existing.role
               : "primary",
-    });
+    };
   });
   return {
     ...state,
@@ -841,6 +651,8 @@ async function runTool(
   findings: Finding[]
 ): Promise<{ state: AnalysisState; findings: Finding[] }> {
   switch (unit.tool) {
+    case "run_compliance_pipeline":
+      return { state: await runCompliancePipeline(state), findings };
     case "classify_document":
       return { state: await classifyDocument(state, unit), findings };
     case "extract_clauses":

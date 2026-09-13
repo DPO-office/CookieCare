@@ -1,0 +1,486 @@
+{
+  "sessionId": "an_7ac91344-af07-4d98-95e2-6f1f41bf0d5c",
+  "stage": "investigation_complete",
+  "dumpedAt": "2026-09-13T19:14:01.746Z",
+  "requirementId": "gdpr.art21",
+  "packageId": "rule:regimes/data-protection/gdpr",
+  "recall": {
+    "requirementId": "gdpr.art21",
+    "uniqueCandidateCount": 16,
+    "elementsWithCandidates": [],
+    "elementsWithoutCandidates": [
+      "general_objection_right",
+      "compelling_grounds_limit",
+      "marketing_objection",
+      "clear_separate_notice"
+    ],
+    "totalQueries": 3,
+    "proofElementsCovered": [],
+    "proofElementsUnresolved": [
+      "general_objection_right",
+      "compelling_grounds_limit",
+      "marketing_objection",
+      "clear_separate_notice"
+    ],
+    "acceptedCandidateCount": 1,
+    "semanticRejectedCandidateCount": 11,
+    "budgetOmittedCandidateCount": 4,
+    "unclassifiedCandidateCount": 0
+  },
+  "queries": [
+    {
+      "queryId": "GNQ-1",
+      "requirementId": "gdpr.art21",
+      "kind": "requirement",
+      "text": "The data subject can object to processing carried out on the legitimate-interest or public-task basis, causing the controller to stop unless it demonstrates compelling legitimate grounds or the need to establish, exercise, or defend legal claims; the data subject can additionally object to direct-marketing processing (including related profiling) at any time with no override, and this right is presented clearly and separately from other information no later than the first communication."
+    },
+    {
+      "queryId": "GNQ-2",
+      "requirementId": "gdpr.art21",
+      "kind": "requirement",
+      "text": "legitimate interests"
+    },
+    {
+      "queryId": "GNQ-3",
+      "requirementId": "gdpr.art21",
+      "kind": "requirement",
+      "text": "compelling legitimate grounds"
+    }
+  ],
+  "hits": [
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_1430eff3dd13d7608aff0cf5",
+      "ref": "dsn_1430eff3dd13d7608aff0cf5",
+      "denseRank": 4,
+      "lexicalRank": 24,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.21752976190476192,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "general_objection_right"
+      ],
+      "reviewConfidence": 0.5,
+      "reviewReason": "Generic reference to assisting controller with data subject exercising rights under GDPR, but provides no substantive mechanisms for objection to legitimate interest or direct marketing.",
+      "exclusionReason": "rejected:supporting:0.5"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_87610896f208778ed618914a",
+      "ref": "dsn_87610896f208778ed618914a",
+      "denseRank": 21,
+      "lexicalRank": 13,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.21604430914933198,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to processor appointment authorization.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_d110a9e2a460c527c94868fc",
+      "ref": "dsn_d110a9e2a460c527c94868fc",
+      "denseRank": 5,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.12538461538461537,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to subprocessor data use limits.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_a8296cc97880396a3c09b65a",
+      "ref": "dsn_a8296cc97880396a3c09b65a",
+      "denseRank": 9,
+      "lexicalRank": 4,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1101177536231884,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Describes categories of personal data collected.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-2",
+      "spanId": "dsn_a8296cc97880396a3c09b65a",
+      "ref": "dsn_a8296cc97880396a3c09b65a",
+      "denseRank": 9,
+      "lexicalRank": 4,
+      "selectedBy": [
+        "sparse",
+        "dense"
+      ],
+      "score": 0.1101177536231884,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Describes categories of personal data collected.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_f894793c875b7b2c74037e13",
+      "ref": "dsn_f894793c875b7b2c74037e13",
+      "denseRank": 2,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08612903225806452,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "general_objection_right"
+      ],
+      "reviewConfidence": 0.5,
+      "reviewReason": "Generic reference to processor assisting controller in fulfilling Chapter III GDPR rights, without specific operative terms for Art 21.",
+      "exclusionReason": "rejected:supporting:0.5"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_9e8327daa10029983df8bb36",
+      "ref": "dsn_9e8327daa10029983df8bb36",
+      "denseRank": 6,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08515151515151516,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.85,
+      "reviewReason": "General compliance clause.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_3b8e226256eb52c075589879",
+      "ref": "dsn_3b8e226256eb52c075589879",
+      "denseRank": 11,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08408450704225352,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "States controller/processor roles."
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_8d97532a308944ce679df961",
+      "ref": "dsn_8d97532a308944ce679df961",
+      "denseRank": 12,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08388888888888889,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to Article 28 subprocessor obligations.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-3",
+      "spanId": "dsn_7dcd8333fa542ffbd2e5bc8b",
+      "ref": "dsn_7dcd8333fa542ffbd2e5bc8b",
+      "denseRank": 13,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08369863013698631,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Section heading for roles and regulatory compliance.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_e7446528db11cdfcd590169b",
+      "ref": "dsn_e7446528db11cdfcd590169b",
+      "denseRank": 19,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08265822784810127,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "References Appendix 1 for processing details.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_e913a7275158c113ddece6f9",
+      "ref": "dsn_e913a7275158c113ddece6f9",
+      "denseRank": 22,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.08219512195121952,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.9,
+      "reviewReason": "Subclause heading for responsibilities.",
+      "exclusionReason": "role_budget:context"
+    },
+    {
+      "queryId": "GNQ-3",
+      "spanId": "dsn_1c8eb7199641e657a04abf29",
+      "ref": "dsn_1c8eb7199641e657a04abf29",
+      "denseRank": 1,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.07639344262295082,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to legal compliance exceptions for disclosure/processing under court order or regulation.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_d1ec10558c5880f7cd37da69",
+      "ref": "dsn_d1ec10558c5880f7cd37da69",
+      "denseRank": null,
+      "lexicalRank": 6,
+      "selectedBy": [
+        "sparse"
+      ],
+      "score": 0.07515151515151515,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to processing instructions.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_a5e1ef7ee724e3d2543d6266",
+      "ref": "dsn_a5e1ef7ee724e3d2543d6266",
+      "denseRank": null,
+      "lexicalRank": 10,
+      "selectedBy": [
+        "sparse"
+      ],
+      "score": 0.07428571428571429,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to data deletion on term expiry.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_009b36df8e35a8a4fb93e7e1",
+      "ref": "dsn_009b36df8e35a8a4fb93e7e1",
+      "denseRank": 15,
+      "lexicalRank": null,
+      "selectedBy": [
+        "dense"
+      ],
+      "score": 0.07333333333333333,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to customer/administrator objecting to subprocessor changes, not data subject objection rights under Article 21.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    },
+    {
+      "queryId": "GNQ-1",
+      "spanId": "dsn_666964eaadcc089e9cf4df90",
+      "ref": "dsn_666964eaadcc089e9cf4df90",
+      "denseRank": null,
+      "lexicalRank": 17,
+      "selectedBy": [
+        "sparse"
+      ],
+      "score": 0.07298701298701299,
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
+      "contributesToElementIds": [],
+      "reviewConfidence": 0.95,
+      "reviewReason": "Relates to binding arbitration under Data Privacy Framework.",
+      "exclusionReason": "rejected:irrelevant:0.95"
+    }
+  ],
+  "expansions": [],
+  "expansionLimits": [],
+  "bundle": {
+    "bundleId": "INV-gdpr.art21-doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+    "requirementId": "gdpr.art21",
+    "items": [
+      {
+        "spanId": "dsn_3b8e226256eb52c075589879",
+        "ref": "dsn_3b8e226256eb52c075589879",
+        "quotedText": "(c)  Administrator is a controller or processor, as applicable, of Personal Data under the Data Protection Legislation; and",
+        "structuralPath": "document.list_item_(c)",
+        "charRange": [
+          8848,
+          8971
+        ],
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "structuralPath": "document.list_item_(c)",
+          "relationship": "unspecified"
+        },
+        "source": "expansion",
+        "evidenceRole": "context",
+        "contributesToElementIds": [],
+        "investigationConfidence": 0.9,
+        "investigationReason": "States controller/processor roles.",
+        "retrievalChannels": [
+          "dense"
+        ],
+        "matchedQueries": [
+          "The data subject can object to processing carried out on the legitimate-interest or public-task basis, causing the controller to stop unless it demonstrates compelling legitimate grounds or the need to establish, exercise, or defend legal claims; the data subject can additionally object to direct-marketing processing (including related profiling) at any time with no override, and this right is presented clearly and separately from other information no later than the first communication."
+        ]
+      }
+    ],
+    "partitions": [
+      {
+        "partitionId": "P1",
+        "scope": {
+          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5"
+        },
+        "itemSpanIds": [
+          "dsn_3b8e226256eb52c075589879"
+        ]
+      }
+    ],
+    "exclusions": [
+      {
+        "spanId": "dsn_1430eff3dd13d7608aff0cf5",
+        "reason": "semantic_rejection",
+        "detail": "rejected:supporting:0.5"
+      },
+      {
+        "spanId": "dsn_f894793c875b7b2c74037e13",
+        "reason": "semantic_rejection",
+        "detail": "rejected:supporting:0.5"
+      },
+      {
+        "spanId": "dsn_009b36df8e35a8a4fb93e7e1",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_87610896f208778ed618914a",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_d110a9e2a460c527c94868fc",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_a8296cc97880396a3c09b65a",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_8d97532a308944ce679df961",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_1c8eb7199641e657a04abf29",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_d1ec10558c5880f7cd37da69",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_a5e1ef7ee724e3d2543d6266",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_666964eaadcc089e9cf4df90",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_7dcd8333fa542ffbd2e5bc8b",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_e7446528db11cdfcd590169b",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_e913a7275158c113ddece6f9",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_9e8327daa10029983df8bb36",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      }
+    ],
+    "dependencies": [],
+    "estimatedTokens": 31,
+    "investigationComplete": false,
+    "incompleteReasons": [
+      "primary_evidence_missing",
+      "element_unresolved:general_objection_right",
+      "element_unresolved:compelling_grounds_limit",
+      "element_unresolved:marketing_objection",
+      "element_unresolved:clear_separate_notice"
+    ]
+  },
+  "provenance": {
+    "queries": "graph_native",
+    "hits": "graph_native",
+    "expansions": "graph_native",
+    "bundle": "graph_native"
+  }
+}
