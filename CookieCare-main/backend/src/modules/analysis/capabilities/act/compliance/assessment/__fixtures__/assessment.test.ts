@@ -73,10 +73,16 @@ test("recommended actions reflect the cause, not one generic phrase",()=>{
   result.decision.dependencies=[{id:"dep",elementIds:["instructions"],materiality:"material",reason:"annex"}];
   assert.match(buildExplanation(r,result,"partial").recommendedAction,/Obtain and review the referenced material/);
 });
-test("an explained evidence-role reassessment needs judgment, not cannot_determine",()=>{
+test("a role reassessment only forces judgment when it is the element's sole support",()=>{
   const {r,result}=setup();
+  const el=result.decision.elements[0]; // "instructions", proven by a primary citation
+  // Independent primary proof present → the reassessment cannot change the verdict → stays present (no flip).
   result.decision.reviewRequired=["role_reassessment:instructions"];
+  assert.equal(assessRequirement(r,result),"present");
+  // Now the only proof is a reassessed (supporting) passage → load-bearing → judgment_required.
+  el.citations.forEach(c=>{ if(c.use==="proof") c.originalRole="supporting"; });
   assert.equal(assessRequirement(r,result),"judgment_required");
+  // A review that could not run at all remains cannot_determine.
   result.decision.reviewRequired=["review_unavailable"];
   assert.equal(assessRequirement(r,result),"cannot_determine");
 });

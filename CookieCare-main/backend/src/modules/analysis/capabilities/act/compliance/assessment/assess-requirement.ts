@@ -14,16 +14,28 @@ export function assessRequirementWithReason(request: VerificationRequest, result
   if (!request.check.rule || result.kind !== "verified")
     return decide("verification_incomplete", !request.check.rule ? "baseline_unavailable" : "verification_not_validated", { baselineError: request.check.baselineError, result });
   const d = result.decision;
-  if (d.reviewRequired.length) {
+  // An evidence-role reassessment (the model used a supporting passage as proof)
+  // is only load-bearing when it is the element's SOLE support. If the element
+  // already has independent primary proof, the reassessment cannot change the
+  // outcome, so it must not flip a stable verdict to judgment_required — this is
+  // the main source of same-document run-to-run instability. Drop such flags and
+  // let aggregation decide.
+  const loadBearing = (reason: string): boolean => {
+    if (!reason.startsWith("role_reassessment:")) return true;
+    const elementId = reason.slice("role_reassessment:".length);
+    const element = d.elements.find(e => e.elementId === elementId);
+    return !element?.citations.some(c => c.use === "proof" && c.originalRole === "primary");
+  };
+  const reviewRequired = d.reviewRequired.filter(loadBearing);
+  if (reviewRequired.length) {
     // A flagged review means a human should look, not that the evidence is
-    // insufficient. Disagreement, cross-rule conflict, and an explained
-    // evidence-role reassessment (a supporting passage used as proof, already
-    // validated for scope/quote) are all "judgment_required". Only a review that
-    // could not run at all leaves us unable to determine.
-    const humanReview = d.reviewRequired.includes("semantic_disagreement")
-      || d.reviewRequired.includes("cross_rule_conflict")
-      || d.reviewRequired.every(reason => reason.startsWith("role_reassessment:"));
-    return decide(humanReview ? "judgment_required" : "cannot_determine", "review_unresolved", { reviewRequired: d.reviewRequired });
+    // insufficient. Disagreement, cross-rule conflict, and a load-bearing
+    // reassessment are "judgment_required"; only a review that could not run at
+    // all leaves us unable to determine.
+    const humanReview = reviewRequired.includes("semantic_disagreement")
+      || reviewRequired.includes("cross_rule_conflict")
+      || reviewRequired.every(reason => reason.startsWith("role_reassessment:"));
+    return decide(humanReview ? "judgment_required" : "cannot_determine", "review_unresolved", { reviewRequired });
   }
   if (d.applicability.state === "unknown")
     return decide("cannot_determine", "applicability_unknown", { applicability: d.applicability });
