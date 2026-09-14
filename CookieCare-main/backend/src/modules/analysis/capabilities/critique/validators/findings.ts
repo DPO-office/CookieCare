@@ -3,7 +3,7 @@ import type { AnalysisWorkUnit } from "../../../models/analysis-plan.js";
 import type { CritiqueIssue, FixItem } from "../../../models/critique-report.js";
 import type { Finding, FindingStatus } from "../../../models/finding.js";
 import { isKnownRiskCategory } from "../../../skills/runtime/catalog/registry.js";
-import { resolveRule } from "../../act/check-against-rule.js";
+import { resolveRule } from "../../act/operations/evaluate-rule-compliance.js";
 import { getSpanFromState } from "../../act/execute-act-plan.js";
 import { addFindingFix, isTerminal, normalize } from "./shared.js";
 

@@ -389,10 +389,25 @@ Require role-appropriate written or electronic records with all Article 30 parti
 
 This skill excludes the duty to provide records to a supervisory authority. Citation: EU GDPR Art 30(1)-(3) and (5).
 
+## rule:gdpr.art33.1
+After becoming aware of a personal-data breach, the controller must notify the competent supervisory authority without undue delay and, where feasible, within 72 hours. A late notification must explain the delay.
+
+Distinguish this controller-to-authority duty from a processor's upward notice to the controller. Citation: EU GDPR Art 33(1).
+
 ## rule:gdpr.art33.2
 After becoming aware of a personal-data breach, the processor must notify the controller without undue delay.
 
-In a DPA, look for a specific processor-to-controller escalation duty and timing, not only a generic security clause. Citation: EU GDPR Art 33(2). Art 33(1) authority notification is excluded.
+In a DPA, look for a specific processor-to-controller escalation duty and timing, not only a generic security clause. Citation: EU GDPR Art 33(2).
+
+## rule:gdpr.art33.3
+The supervisory-authority notification must state the breach nature and affected categories or approximate numbers, contact-point details, likely consequences, and measures taken or proposed including mitigation.
+
+Assess each content particular independently; incident details or mitigation language alone is partial. Citation: EU GDPR Art 33(3).
+
+## rule:gdpr.art33.4
+Where all Article 33(3) information is not available at the same time, it may be supplied in phases without undue further delay.
+
+An open-ended ability to supplement later without an urgency standard is insufficient. Citation: EU GDPR Art 33(4).
 
 ## rule:gdpr.art33.5
 The controller must document every breach with facts, effects, and remedial action in a form sufficient to verify Articles 33 and 34 compliance.
@@ -652,7 +667,7 @@ Included actionable private-entity obligations or data-subject rights:
 Excluded after review:
 - Articles 1-4: subject matter, scope, and definitions rather than standalone checks.
 - Article 23: Union or Member State legislative restrictions.
-- Articles 31, 33.1, and 33.3-4: supervisory-authority cooperation, notification, and minimum notification content.
+- Article 31: supervisory-authority cooperation as a public-authority-facing obligation.
 - Articles 36(2) and 36(4)-(5): supervisory-authority procedure and Member-State exemptions.
 - Articles 40-43 except 40(3) and 42(2): code, monitoring-body, and certification machinery.
 - Articles 45(2)-(9) and 47(3): Commission adequacy administration and BCR approval procedure.

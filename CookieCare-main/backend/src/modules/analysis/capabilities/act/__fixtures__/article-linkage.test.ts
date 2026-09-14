@@ -8,7 +8,7 @@ import {
   subprovisionKeyFromId,
 } from "../../../shared/article-linkage.js";
 import { humanizeRequirementId } from "../../../shared/group-assessments.js";
-import { aggregateRequirements } from "../aggregate-requirements.js";
+import { aggregateRequirements } from "../operations/aggregate-requirement-results.js";
 import type { AnalysisState } from "../../../models/analysis-state.js";
 
 function finding(overrides: Partial<Finding>): Finding {

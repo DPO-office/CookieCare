@@ -68,7 +68,7 @@ import { pacLog } from "../../utils/pac-log.js";
 import { profileThinkingLevel } from "../../utils/profile-thinking.js";
 import { logIntentInspect } from "./plan-inspect-log.js";
 
-import { classifyDocumentFromText } from "../act/classify-document.js";
+import { classifyDocumentFromText } from "../act/operations/classify-document.js";
 
 import {
   normalizeStandard,

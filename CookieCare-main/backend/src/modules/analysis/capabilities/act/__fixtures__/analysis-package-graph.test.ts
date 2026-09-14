@@ -262,8 +262,7 @@ describe("kinded analysis packages - international transfers", () => {
       }),
     });
     const tools = workUnits.map((u) => u.tool);
-    assert.ok(tools.includes("inventory_provisions"));
-    assert.ok(tools.includes("evaluate_package"));
+    assert.deepEqual(tools, ["run_compliance_pipeline", "render_output"]);
     const chapterVChecks = workUnits.filter(
       (u) =>
         u.tool === "check_against_rule" &&
@@ -284,7 +283,7 @@ describe("kinded analysis packages - international transfers", () => {
       docId: "dpa",
       instruction: "List every international transfer mechanism mentioned in this DPA.",
       skills,
-      intent: intent([extraction]),
+      intent: { ...intent([extraction]), operation: "extract" },
       focus: focus({
         instructionText: "List every international transfer mechanism mentioned in this DPA.",
         requirements: [
@@ -449,8 +448,7 @@ describe("kinded analysis packages — named rule vs unsupported extraction", ()
       }),
     });
     const tools = workUnits.map((u) => u.tool);
-    assert.ok(tools.includes("evaluate_package") || tools.includes("check_against_rule"));
-    assert.ok(!tools.includes("inventory_provisions"));
+    assert.deepEqual(tools, ["run_compliance_pipeline", "render_output"]);
   });
 
   it("unsupported extraction is explicit not_supported, not silent rule fan-out", () => {
@@ -488,7 +486,7 @@ describe("kinded analysis packages — named rule vs unsupported extraction", ()
       docId: "dpa",
       instruction: extraction.description,
       skills: [skill],
-      intent: intent([extraction]),
+      intent: { ...intent([extraction]), operation: "extract" },
       focus: focus({
         instructionText: extraction.description,
         ruleIds: ["gdpr.art28.2"],
@@ -651,7 +649,7 @@ describe("kinded analysis packages - existing GDPR grouped eval", () => {
     assert.deepEqual(bound, ["data_categories", "data_subject_categories"]);
   });
 
-  it("still groups Article 28(3) into evaluate_package", () => {
+  it("still resolves the Article 28(3) canonical package", () => {
     const skill = gdpr();
     const resolution = resolvePackages([skill], focus({ ruleIds: ["gdpr.art28.3.a"] }));
     assert.ok(
@@ -712,11 +710,8 @@ describe("kinded analysis packages - existing GDPR grouped eval", () => {
         ["gdpr.art28.1", "gdpr.art28.2", "gdpr.art28.10"].includes(String(u.input.ruleId))
     );
     assert.equal(leftoverRules.length, 0);
-    assert.ok(workUnits.some((u) => u.tool === "evaluate_package"));
-    assert.ok(workUnits.some((u) => u.tool === "aggregate_requirements"));
-    assert.ok(workUnits.some((u) => u.tool === "derive_risk"));
-    const derive = workUnits.find((u) => u.tool === "derive_risk");
-    assert.deepEqual(derive?.dependsOn, ["wu-aggregate"]);
+    assert.deepEqual(workUnits.map((u) => u.tool), ["run_compliance_pipeline", "render_output"]);
+    assert.deepEqual(workUnits[1]?.dependsOn, ["wu-compliance"]);
   });
 
   it("does not schedule leftover checks for out-of-scope catalog rules", () => {
@@ -808,14 +803,6 @@ describe("doc-type DPA — broad analysis without regime packages", () => {
       },
     });
 
-    const tools = new Set(workUnits.map((unit) => unit.tool));
-    assert.ok(tools.has("check_expected_clauses"), "expected DPA structural clause checks");
-    assert.ok(tools.has("flag_risk"), "expected DPA structural risk pass");
-    assert.ok(tools.has("extract_clauses"));
-    assert.ok(tools.has("aggregate_requirements"));
-    assert.equal(
-      workUnits.filter((unit) => unit.tool === "check_against_rule").length,
-      0
-    );
+    assert.deepEqual(workUnits.map((unit) => unit.tool), ["run_compliance_pipeline", "render_output"]);
   });
 });

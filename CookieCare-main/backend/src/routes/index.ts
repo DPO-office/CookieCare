@@ -23,6 +23,7 @@ import vendorReviewRoutes from "./vendorReview.js";
 import aiEthicsRoutes from "./aiEthics.js";
 import aiToolsRoutes from "./aiTools.js";
 import { authenticateToken } from "../middleware/auth.js";
+import { getDocumentParserReadiness } from "../modules/analysis/capabilities/ingest/document-structure/index.js";
 
 const router = Router();
 
@@ -31,6 +32,7 @@ router.get("/health", async (req: Request, res: Response) => {
     return res.json({
       status: "UP",
       database: "SKIPPED",
+      documentParser: getDocumentParserReadiness(),
       timestamp: new Date().toISOString(),
     });
   }
@@ -43,12 +45,14 @@ router.get("/health", async (req: Request, res: Response) => {
       status: "UP",
       database: "CONNECTED",
       latency: `${latency}ms`,
+      documentParser: getDocumentParserReadiness(),
       timestamp: new Date().toISOString()
     });
   } catch (err) {
     res.status(503).json({
       status: "DOWN",
       database: "DISCONNECTED",
+      documentParser: getDocumentParserReadiness(),
       timestamp: new Date().toISOString()
     });
   }

@@ -11,12 +11,14 @@
     "build": "npm run build:frontend && npm run build:backend",
     "start": "node backend/dist/server.js",
     "setup-db": "tsx backend/scripts/setupDb.ts",
+    "setup:docling:windows": "scripts\\install\\download_dependencies.bat --no-asr --no-int8",
+    "audit:document-structure": "tsx backend/scripts/audit-document-structure.ts",
     "dev": "tsx backend/scripts/setupDb.ts && esbuild backend/server.ts --bundle --platform=node --format=esm --packages=external --outfile=backend/server.js && node backend/server.js",
     "lint": "tsc --noEmit --project frontend/tsconfig.json && tsc --noEmit --project backend/tsconfig.json",
     "test": "node --import tsx --test backend/test/**/*.test.ts",
     "clean": "if exist frontend\\dist rmdir /s /q frontend\\dist & if exist backend\\dist rmdir /s /q backend\\dist & if exist backend\\server.js del /f backend\\server.js"
   },
- "dependencies": {
+  "dependencies": {
     "@google/genai": "^2.11.0",
     "@google/generative-ai": "^0.24.1",
     "@prisma/adapter-pg": "^7.8.0",
@@ -39,6 +41,7 @@
     "argon2": "^0.44.0",
     "cors": "^2.8.6",
     "diff": "^9.0.0",
+    "docling.rs": "1.41.0",
     "docx": "^9.7.1",
     "dotenv": "^17.4.2",
     "express": "^4.21.2",

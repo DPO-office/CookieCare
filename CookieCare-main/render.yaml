@@ -14,6 +14,7 @@ services:
     plan: free
     buildCommand: |
       npm install
+      curl -fsSL https://raw.githubusercontent.com/docling-project/docling.rs/master/scripts/install/download_dependencies.sh | sh -s -- --no-asr --no-chunk
       npm run build
     startCommand: npm run start
     healthCheckPath: /
@@ -27,6 +28,8 @@ services:
         generateValue: true
       - key: NODE_ENV
         value: production
+      - key: DOCUMENT_GRAPH_LLM_RELATIONS
+        value: "0"
       - key: SENTRY_DSN
         sync: false
       - key: OPENROUTER_API_KEY

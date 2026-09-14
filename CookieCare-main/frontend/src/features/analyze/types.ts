@@ -56,7 +56,7 @@ export interface PendingUpload {
   id: string;
   file: File;
   relativePath?: string;
-  status: "pending" | "uploading" | "processing" | "done" | "error";
+  status: "pending" | "uploading" | "processing" | "done" | "needs_review" | "error";
   error?: string;
   jobId?: string;
   fileId?: string;

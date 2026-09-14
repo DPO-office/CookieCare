@@ -86,6 +86,11 @@ const validation: ComplianceReportValidation = {
   failures: [],
   plannerFallback: false,
   repairAttempts: 1,
+  guidanceVersions: {
+    shared: "reporting.shared-core@1.0.0",
+    compliance: "reporting.compliance@1.0.0",
+    examples: ["coverage-matrix@1.0.0"],
+  },
   outputHash: hash("Historical report"),
 };
 

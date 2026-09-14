@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { groupedResultsToFindings } from "../../capabilities/act/grouped-results-to-findings.js";
-import { deriveRequirementJudgement } from "../../capabilities/act/requirement-status-policy.js";
-import { aggregateRequirements } from "../../capabilities/act/aggregate-requirements.js";
+import { groupedResultsToFindings } from "../../capabilities/act/shared/convert-results-to-findings.js";
+import { deriveRequirementJudgement } from "../../capabilities/act/shared/requirement-status-policy.js";
+import { aggregateRequirements } from "../../capabilities/act/operations/aggregate-requirement-results.js";
 import { displayRequirementStatus } from "../../models/requirement-assessment.js";
 import {
   guardUnsupportedInference,

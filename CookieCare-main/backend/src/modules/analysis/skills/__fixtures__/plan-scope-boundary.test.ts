@@ -186,8 +186,9 @@ describe("plan scope boundary", () => {
         focus: planFocus,
       });
 
-      const mandatory = evalPackageInputs(graph.workUnits).find(
-        (entry) => entry.packageId === "gdpr.art28.3.mandatory_clauses"
+      assert.deepEqual(graph.workUnits.map((unit) => unit.tool), ["run_compliance_pipeline", "render_output"]);
+      const mandatory = graph.packageResolution.packages.find(
+        (entry) => entry.pkg.id === "gdpr.art28.3.mandatory_clauses"
       );
       assert.ok(mandatory);
       assert.ok(mandatory!.capabilityIds.includes("gdpr.art28.3.a"));

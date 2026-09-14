@@ -6,7 +6,7 @@ import type {
   ComplianceReportSnapshot,
 } from "../../models/compliance-report.js";
 import type { StructuralNode } from "../../segmentation/structural-nodes.js";
-import type { RenderedEvidence, RenderedReport } from "../act/phase7-render.js";
+import type { RenderedEvidence, RenderedReport } from "../act/compliance/project-locked-compliance-report.js";
 
 type Range = [number, number];
 interface SourceDocument {
@@ -310,6 +310,17 @@ export function buildComplianceSnapshot(
   for (const dependency of dependencies) {
     addLimitation(dependency.requirementId,
       `Unresolved dependency: ${dependency.reference}. ${dependency.reason}`);
+  }
+  const allRequirementIds = report.rows.map((row) => row.requirementId);
+  for (const doc of state.workspace.documents) {
+    if (doc.structureGraph?.quality.analysisMode !== "degraded") continue;
+    for (const message of doc.structureGraph.quality.analysisLimitations) {
+      limitations.push({
+        id: `L${limitations.length + 1}`,
+        requirementIds: [...allRequirementIds],
+        message: `Structural limitation in ${doc.title || doc.docId}: ${message}`,
+      });
+    }
   }
   const standard = state.intent?.standardConcept?.trim() || state.intent?.standard;
   const scope = `${standard && standard !== "none" ? `${standard}; ` : ""}Reviewed documents: ${documents.map((doc) => doc.title).join("; ") || "none"}.`;

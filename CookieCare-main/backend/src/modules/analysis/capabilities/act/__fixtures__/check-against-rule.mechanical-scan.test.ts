@@ -7,7 +7,7 @@ import type { ClauseObject } from "../../../models/clause-object.js";
 import type { SkillRegimeRule } from "../../../skills/runtime/catalog/types.js";
 import { getSkillById, resetSkillRegistryForTests } from "../../../skills/runtime/catalog/registry.js";
 
-const { runMechanicalScan } = await import("../check-against-rule.js");
+const { runMechanicalScan } = await import("../operations/evaluate-rule-compliance.js");
 
 const locator = {
   docId: "doc1",

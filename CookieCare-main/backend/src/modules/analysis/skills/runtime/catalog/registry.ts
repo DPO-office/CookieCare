@@ -169,6 +169,7 @@ function validateRegistry(skills: AnalysisSkillConfig[]): void {
   >();
 
   for (const skill of skills) {
+    const localRuleIds = new Set<string>();
     if (skill.extendsDocType) {
       if (skill.axis !== "doc-type") {
         throw new Error(
@@ -232,6 +233,10 @@ function validateRegistry(skills: AnalysisSkillConfig[]): void {
     }
 
     for (const rule of skill.regimeRules) {
+      if (localRuleIds.has(rule.ruleId)) {
+        throw new Error(`Skill "${skill.skillId}" declares duplicate ruleId "${rule.ruleId}"`);
+      }
+      localRuleIds.add(rule.ruleId);
       if (!rule.findingCategory?.trim()) {
         throw new Error(
           `Skill "${skill.skillId}" rule "${rule.ruleId}" has no findingCategory`
@@ -241,6 +246,56 @@ function validateRegistry(skills: AnalysisSkillConfig[]): void {
         throw new Error(
           `Skill "${skill.skillId}" rule "${rule.ruleId}" has invalid ruleScope`
         );
+      }
+      if (skill.axis === "regime") {
+        const investigation = rule.investigation;
+        if (!rule.authority?.instrument?.trim() || !rule.authority.citation?.trim() || !rule.authority.provisionPath.length) {
+          throw new Error(`Skill "${skill.skillId}" rule "${rule.ruleId}" has incomplete authority metadata`);
+        }
+        if (!(rule.selection?.aliases.length || rule.selection?.concepts.length)) {
+          throw new Error(`Skill "${skill.skillId}" rule "${rule.ruleId}" has no selection vocabulary`);
+        }
+        if (
+          !investigation?.hypothesis.trim() ||
+          !investigation?.proofStandard.trim() ||
+          !investigation?.evidenceHints.length ||
+          !investigation?.proofElements.some((element) => element.required)
+        ) {
+          throw new Error(`Skill "${skill.skillId}" rule "${rule.ruleId}" has an incomplete investigation profile`);
+        }
+      }
+    }
+
+    for (const rule of skill.regimeRules) {
+      const proofElementIds = rule.investigation?.proofElements.map((element) => element.id) ?? [];
+      if (new Set(proofElementIds).size !== proofElementIds.length) {
+        throw new Error(`Skill "${skill.skillId}" rule "${rule.ruleId}" has duplicate proof element ids`);
+      }
+      const relatedRuleIds = [
+        ...(rule.relationships?.requires ?? []),
+        ...(rule.relationships?.supports ?? []),
+        ...(rule.relationships?.relatedTo ?? []),
+      ];
+      for (const relatedRuleId of relatedRuleIds) {
+        if (!localRuleIds.has(relatedRuleId)) {
+          throw new Error(`Skill "${skill.skillId}" rule "${rule.ruleId}" references unknown rule "${relatedRuleId}"`);
+        }
+      }
+    }
+
+    const compositionIds = new Set<string>();
+    for (const composition of skill.compositions ?? []) {
+      if (compositionIds.has(composition.id)) {
+        throw new Error(`Skill "${skill.skillId}" declares duplicate composition "${composition.id}"`);
+      }
+      compositionIds.add(composition.id);
+      if (!composition.aliases.length || !composition.ruleIds.length) {
+        throw new Error(`Skill "${skill.skillId}" composition "${composition.id}" is empty`);
+      }
+      for (const ruleId of composition.ruleIds) {
+        if (!localRuleIds.has(ruleId)) {
+          throw new Error(`Skill "${skill.skillId}" composition "${composition.id}" references unknown rule "${ruleId}"`);
+        }
       }
     }
   }

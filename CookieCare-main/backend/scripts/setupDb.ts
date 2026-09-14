@@ -149,6 +149,76 @@ async function runIdempotentMigrations(client: any): Promise<void> {
     ALTER TABLE files ADD COLUMN IF NOT EXISTS original_file TEXT DEFAULT NULL;
   `);
 
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS document_structure_artifacts (
+      id VARCHAR(255) PRIMARY KEY,
+      file_id VARCHAR(255) NOT NULL REFERENCES files(id) ON DELETE CASCADE,
+      version_id VARCHAR(255) NOT NULL REFERENCES document_versions(id) ON DELETE CASCADE,
+      user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      source_sha256 VARCHAR(64) NOT NULL,
+      schema_version VARCHAR(32) NOT NULL,
+      parser_name VARCHAR(64) NOT NULL,
+      parser_version VARCHAR(64) NOT NULL,
+      parser_options JSONB NOT NULL DEFAULT '{}'::jsonb,
+      status VARCHAR(32) NOT NULL CHECK (status IN ('queued','processing','ready','needs_review','failed')),
+      quality_summary JSONB NOT NULL DEFAULT '{}'::jsonb,
+      identity_status VARCHAR(32) NOT NULL DEFAULT 'unverified',
+      identity_summary JSONB NOT NULL DEFAULT '{}'::jsonb,
+      encrypted_payload TEXT,
+      warnings JSONB NOT NULL DEFAULT '[]'::jsonb,
+      error TEXT,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(version_id, schema_version, parser_version)
+    );
+  `);
+  await client.query(`ALTER TABLE document_structure_artifacts ADD COLUMN IF NOT EXISTS identity_status VARCHAR(32) NOT NULL DEFAULT 'unverified';`);
+  await client.query(`ALTER TABLE document_structure_artifacts ADD COLUMN IF NOT EXISTS identity_summary JSONB NOT NULL DEFAULT '{}'::jsonb;`);
+  await client.query(`ALTER TABLE document_structure_artifacts ENABLE ROW LEVEL SECURITY;`);
+  await client.query(`DROP POLICY IF EXISTS document_structure_artifacts_tenant_isolation ON document_structure_artifacts;`);
+  await client.query(`
+    CREATE POLICY document_structure_artifacts_tenant_isolation ON document_structure_artifacts
+    USING (
+      user_id = current_setting('app.current_user_id', true) OR
+      current_setting('app.current_user_role', true) = 'ADMIN'
+    );
+  `);
+
+  try {
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS document_evidence_embeddings (
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        file_id VARCHAR(255) NOT NULL REFERENCES files(id) ON DELETE CASCADE,
+        version_id VARCHAR(255) NOT NULL REFERENCES document_versions(id) ON DELETE CASCADE,
+        graph_schema_version VARCHAR(32) NOT NULL,
+        embedding_model VARCHAR(128) NOT NULL,
+        node_id VARCHAR(512) NOT NULL,
+        content_hash VARCHAR(64) NOT NULL,
+        embedding vector(768) NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (user_id, version_id, graph_schema_version, embedding_model, node_id)
+      );
+      CREATE INDEX IF NOT EXISTS idx_document_evidence_embeddings_lookup
+        ON document_evidence_embeddings
+        (user_id, file_id, version_id, graph_schema_version, embedding_model);
+
+      CREATE UNIQUE INDEX IF NOT EXISTS uq_document_evidence_embeddings_cache_key
+        ON document_evidence_embeddings
+        (user_id, file_id, version_id, graph_schema_version, embedding_model, node_id);
+      ALTER TABLE document_evidence_embeddings ENABLE ROW LEVEL SECURITY;
+      DROP POLICY IF EXISTS document_evidence_embeddings_tenant_isolation ON document_evidence_embeddings;
+      CREATE POLICY document_evidence_embeddings_tenant_isolation ON document_evidence_embeddings
+      USING (
+        user_id = current_setting('app.current_user_id', true) OR
+        current_setting('app.current_user_role', true) = 'ADMIN'
+      );
+    `);
+  } catch (err: any) {
+    // Keep compliance available in sparse-only mode when pgvector is absent.
+    console.warn(`[migrations] Skipping document evidence embedding cache: ${err.message}`);
+  }
+
   console.log("Idempotent column migrations applied.");
 }
 
@@ -254,6 +324,28 @@ async function setupDb() {
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
 
+      CREATE TABLE IF NOT EXISTS document_structure_artifacts (
+        id VARCHAR(255) PRIMARY KEY,
+        file_id VARCHAR(255) NOT NULL REFERENCES files(id) ON DELETE CASCADE,
+        version_id VARCHAR(255) NOT NULL REFERENCES document_versions(id) ON DELETE CASCADE,
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        source_sha256 VARCHAR(64) NOT NULL,
+        schema_version VARCHAR(32) NOT NULL,
+        parser_name VARCHAR(64) NOT NULL,
+        parser_version VARCHAR(64) NOT NULL,
+        parser_options JSONB NOT NULL DEFAULT '{}'::jsonb,
+        status VARCHAR(32) NOT NULL CHECK (status IN ('queued','processing','ready','needs_review','failed')),
+        quality_summary JSONB NOT NULL DEFAULT '{}'::jsonb,
+        identity_status VARCHAR(32) NOT NULL DEFAULT 'unverified',
+        identity_summary JSONB NOT NULL DEFAULT '{}'::jsonb,
+        encrypted_payload TEXT,
+        warnings JSONB NOT NULL DEFAULT '[]'::jsonb,
+        error TEXT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(version_id, schema_version, parser_version)
+      );
+
       CREATE TABLE IF NOT EXISTS legal_document_chunks (
         id SERIAL PRIMARY KEY,
         file_id VARCHAR(255) NOT NULL REFERENCES files(id) ON DELETE CASCADE,
@@ -263,6 +355,27 @@ async function setupDb() {
         embedding vector(768),
         metadata JSONB DEFAULT '{}'::jsonb
       );
+
+      -- Lazy, versioned dense index for canonical document-graph evidence units.
+      -- Text remains in the encrypted graph artifact; only identity, hash and
+      -- embedding are cached here.
+      CREATE TABLE IF NOT EXISTS document_evidence_embeddings (
+        user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        file_id VARCHAR(255) NOT NULL REFERENCES files(id) ON DELETE CASCADE,
+        version_id VARCHAR(255) NOT NULL REFERENCES document_versions(id) ON DELETE CASCADE,
+        graph_schema_version VARCHAR(32) NOT NULL,
+        embedding_model VARCHAR(128) NOT NULL,
+        node_id VARCHAR(512) NOT NULL,
+        content_hash VARCHAR(64) NOT NULL,
+        embedding vector(768) NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (user_id, version_id, graph_schema_version, embedding_model, node_id)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_document_evidence_embeddings_lookup
+        ON document_evidence_embeddings
+        (user_id, file_id, version_id, graph_schema_version, embedding_model);
 
       CREATE TABLE IF NOT EXISTS library_items (
         id VARCHAR(255) PRIMARY KEY,
@@ -471,9 +584,9 @@ async function setupDb() {
 
     // RLS Policy Setup
     const rlsTables = [
-      'files', 'folders', 'library_items', 'legal_document_chunks',
+      'files', 'folders', 'library_items', 'legal_document_chunks', 'document_evidence_embeddings',
       'website_scans', 'jobs', 'agent_execution_logs', 'compliance_audit_logs',
-      'document_versions', 'ai_tools'
+      'document_versions', 'document_structure_artifacts', 'ai_tools'
     ];
     for (const table of rlsTables) {
       await client.query(`ALTER TABLE ${table} ENABLE ROW LEVEL SECURITY;`);
@@ -492,6 +605,8 @@ async function setupDb() {
           );
         `);
         continue;
+      } else if (table === 'document_structure_artifacts') {
+        ownerColumn = 'user_id';
       } else {
         ownerColumn = 'user_id';
       }

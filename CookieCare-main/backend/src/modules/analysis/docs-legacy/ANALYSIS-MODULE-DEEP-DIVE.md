@@ -249,7 +249,7 @@ Prompt rules that matter (`prompts/evaluate-package.ts`):
 
 ### 7.1 Entry
 
-`capabilities/act/render-output.ts` re-exports `capabilities/reporting/render-output.ts`.
+Report rendering is implemented directly in `capabilities/reporting/render-output.ts`.
 
 ### 7.2 Order inside render
 

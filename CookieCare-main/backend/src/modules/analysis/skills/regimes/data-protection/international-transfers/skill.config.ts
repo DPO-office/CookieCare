@@ -1,63 +1,468 @@
 import type { AnalysisSkillConfig, SkillRegimeRule } from "../../../runtime/catalog/types.js";
 import { DEFAULT_TRANSFER_MECHANISM_ALIASES } from "../../../../models/transfer-inventory.js";
+import { finalizeRegimeRuleContracts } from "../../../runtime/catalog/rule-contract-helpers.js";
 
-function rule(
-  ruleId: string,
-  label: string,
-  ruleText: string,
-  findingCategory: string,
-  appliesToClauseTypes: string[],
-  legalHook: string
-): SkillRegimeRule {
-  return {
-    ruleId,
-    label,
-    ruleText,
-    checkType: "judgment",
-    findingCategory,
-    ruleScope: "per_document",
-    appliesToClauseTypes,
-    legalHook,
-  };
-}
 
 const RULES: SkillRegimeRule[] = [
-  rule(
-    "transfers.scc_module_selection",
-    "Select the correct 2021 SCC module",
-    "EU Standard Contractual Clauses (Decision (EU) 2021/914) must identify the applicable module (1 controller-to-controller, 2 controller-to-processor, 3 processor-to-processor, or 4 processor-to-controller). Do not treat an unsigned or unmoduled SCC annex as a completed transfer tool. This overlay does not re-state GDPR Articles 44–49.",
-    "scc_module_gap",
-    ["international_transfer_mechanism"],
-    "Commission Implementing Decision (EU) 2021/914 — Modules One to Four."
-  ),
-  
-  rule(
-    "transfers.scc_docking",
-    "Docking / accession mechanics for additional parties",
-    "Where additional exporters or importers may join, the SCCs' docking clause should be usable without rewriting the clauses except to select modules or complete annexes.",
-    "scc_docking_gap",
-    ["international_transfer_mechanism"],
-    "Decision (EU) 2021/914 — docking / Clause 7 mechanics."
-  ),
-  rule(
-    "transfers.tia_documented",
-    "Transfer impact assessment before relying on SCCs",
-    "Before relying on SCCs for a restricted transfer, the exporter should document a transfer impact assessment of the destination country's law and practice, including whether the clauses can be complied with in practice.",
-    "tia_missing",
-    ["international_transfer_mechanism"],
-    "EDPB Recommendations 01/2020 on measures that supplement transfer tools after Schrems II."
-  ),
-  rule(
-    "transfers.supplementary_measures",
-    "Supplementary measures where local law undermines SCCs",
-    "If the TIA shows that destination-country law or practice prevents the importer from complying with the SCCs, the parties must adopt supplementary technical, contractual, or organisational measures, or not transfer. Do not treat SCCs as self-sufficient in that case.",
-    "supplementary_measures_gap",
-    ["international_transfer_mechanism"],
-    "EDPB Recommendations 01/2020 and 02/2020 (Schrems II follow-up)."
-  ),
+  {
+    "ruleId": "transfers.scc_module_selection",
+    "label": "Select the correct 2021 SCC module",
+    "ruleText": "EU Standard Contractual Clauses (Decision (EU) 2021/914) must identify the applicable module (1 controller-to-controller, 2 controller-to-processor, 3 processor-to-processor, or 4 processor-to-controller). Do not treat an unsigned or unmoduled SCC annex as a completed transfer tool. This overlay does not re-state GDPR Articles 44–49.",
+    "checkType": "judgment",
+    "findingCategory": "scc_module_gap",
+    "ruleScope": "per_document",
+    "appliesToClauseTypes": [
+      "international_transfer_mechanism"
+    ],
+    "legalHook": "Commission Implementing Decision (EU) 2021/914 — Modules One to Four.",
+    "authority": {
+      "instrument": "EU SCCs (Decision 2021/914) / EDPB Schrems II guidance",
+      "citation": "Commission Implementing Decision (EU) 2021/914 — Modules One to Four.",
+      "provisionPath": [
+        "transfers.scc_module_selection"
+      ],
+      "citationAliases": [
+        "transfers.scc_module_selection",
+        "Commission Implementing Decision (EU) 2021/914 — Modules One to Four."
+      ]
+    },
+    "selection": {
+      "aliases": [
+        "select the correct 2021 scc module",
+        "scc",
+        "standard contractual clauses",
+        "adequacy",
+        "bcr"
+      ],
+      "concepts": [
+        "select",
+        "correct",
+        "2021",
+        "module",
+        "standard",
+        "contractual",
+        "clauses",
+        "decision",
+        "identify",
+        "applicable",
+        "controller-to-controller",
+        "controller-to-processor",
+        "processor-to-processor",
+        "processor-to-controller",
+        "treat",
+        "unsigned",
+        "unmoduled",
+        "annex",
+        "completed",
+        "transfer",
+        "tool",
+        "overlay",
+        "re-state",
+        "gdpr",
+        "adequacy"
+      ],
+      "actors": [
+        "processor",
+        "controller"
+      ],
+      "actions": [
+        "transfer"
+      ],
+      "objects": []
+    },
+    "applicability": {
+      "documentTypes": []
+    },
+    "investigation": {
+      "hypothesis": "The agreement identifies the lawful transfer mechanism, including Standard Contractual Clauses (SCCs), adequacy, or Binding Corporate Rules.",
+      "evidenceHints": [
+        "SCC",
+        "standard contractual clauses",
+        "adequacy",
+        "BCR"
+      ],
+      "proofStandard": "Proven only by text that substantively addresses: EU Standard Contractual Clauses (Decision (EU) 2021/914) must identify the applicable module (1 controller-to-controller, 2 controller-to-processor, 3 processor-to-processor, or 4 processor-to-controller). Do not treat an unsigned or unmoduled SCC annex as a completed transfer tool. This overlay does not re-state GDPR Articles 44–49.",
+      "proofElements": [
+        {
+          "id": "scc_2021_914",
+          "description": "The 2021 EU SCCs are the incorporated transfer tool",
+          "required": true,
+          "kind": "mandatory"
+        },
+        {
+          "id": "correct_module",
+          "description": "The module matches the parties' controller/processor roles",
+          "required": true,
+          "kind": "mandatory"
+        },
+        {
+          "id": "completed_instrument",
+          "description": "The selected SCCs and annexes are completed and operative",
+          "required": true,
+          "kind": "mandatory"
+        }
+      ],
+      "clauseTypeHints": [
+        "international_transfer_mechanism"
+      ],
+      "extractionTargets": [
+        "transfer_mechanism",
+        "adequacy",
+        "scc",
+        "bcr",
+        "tia",
+        "supplementary_measures"
+      ]
+    },
+    "verification": {
+      "version": "1.1.0",
+      "reviewStatus": "authored",
+      "guidance": [
+        "Non-proof distinction (not an additional obligation): A generic cross-border transfer permission with no named mechanism. A destination-country list with no lawful transfer tool identified. An unsigned or blank SCC annex presented as the completed mechanism.",
+        "Non-proof distinction (not an additional obligation): Referencing 'EU SCCs' with no module identified. An SCC annex template with blank module/annex fields. SCCs attached but party roles or annex particulars incomplete."
+      ]
+    },
+    "legacyRequirementId": "transfer_mechanism_identification"
+  },
+  {
+    "ruleId": "transfers.scc_docking",
+    "label": "Docking / accession mechanics for additional parties",
+    "ruleText": "Where additional exporters or importers may join, the SCCs' docking clause should be usable without rewriting the clauses except to select modules or complete annexes.",
+    "checkType": "judgment",
+    "findingCategory": "scc_docking_gap",
+    "ruleScope": "per_document",
+    "appliesToClauseTypes": [
+      "international_transfer_mechanism"
+    ],
+    "legalHook": "Decision (EU) 2021/914 — docking / Clause 7 mechanics.",
+    "authority": {
+      "instrument": "EU SCCs (Decision 2021/914) / EDPB Schrems II guidance",
+      "citation": "Decision (EU) 2021/914 — docking / Clause 7 mechanics.",
+      "provisionPath": [
+        "transfers.scc_docking"
+      ],
+      "citationAliases": [
+        "transfers.scc_docking",
+        "Decision (EU) 2021/914 — docking / Clause 7 mechanics."
+      ]
+    },
+    "selection": {
+      "aliases": [
+        "docking / accession mechanics for additional parties",
+        "scc",
+        "standard contractual clauses",
+        "adequacy",
+        "bcr"
+      ],
+      "concepts": [
+        "docking",
+        "accession",
+        "mechanics",
+        "additional",
+        "parties",
+        "exporters",
+        "importers",
+        "join",
+        "sccs",
+        "clause",
+        "should",
+        "usable",
+        "rewriting",
+        "clauses",
+        "except",
+        "select",
+        "modules",
+        "complete",
+        "annexes",
+        "standard",
+        "contractual",
+        "adequacy"
+      ],
+      "actors": [
+        "importer"
+      ],
+      "actions": [],
+      "objects": []
+    },
+    "applicability": {
+      "documentTypes": []
+    },
+    "investigation": {
+      "hypothesis": "The agreement identifies the lawful transfer mechanism, including Standard Contractual Clauses (SCCs), adequacy, or Binding Corporate Rules.",
+      "evidenceHints": [
+        "SCC",
+        "standard contractual clauses",
+        "adequacy",
+        "BCR"
+      ],
+      "proofStandard": "Proven only by text that substantively addresses: Where additional exporters or importers may join, the SCCs' docking clause should be usable without rewriting the clauses except to select modules or complete annexes.",
+      "proofElements": [
+        {
+          "id": "accession_mechanism",
+          "description": "Additional exporters or importers can accede through the docking mechanism",
+          "required": true,
+          "kind": "mandatory"
+        },
+        {
+          "id": "clauses_preserved",
+          "description": "Accession does not rewrite the SCCs beyond permitted module and annex completion",
+          "required": true,
+          "kind": "mandatory"
+        }
+      ],
+      "clauseTypeHints": [
+        "international_transfer_mechanism"
+      ],
+      "extractionTargets": [
+        "transfer_mechanism",
+        "adequacy",
+        "scc",
+        "bcr",
+        "tia",
+        "supplementary_measures"
+      ]
+    },
+    "verification": {
+      "version": "1.1.0",
+      "reviewStatus": "authored",
+      "guidance": [
+        "Non-proof distinction (not an additional obligation): A generic cross-border transfer permission with no named mechanism. A destination-country list with no lawful transfer tool identified. An unsigned or blank SCC annex presented as the completed mechanism.",
+        "Non-proof distinction (not an additional obligation): Referencing 'EU SCCs' with no module identified. An SCC annex template with blank module/annex fields. SCCs attached but party roles or annex particulars incomplete."
+      ]
+    },
+    "legacyRequirementId": "transfer_mechanism_identification"
+  },
+  {
+    "ruleId": "transfers.tia_documented",
+    "label": "Transfer impact assessment before relying on SCCs",
+    "ruleText": "Before relying on SCCs for a restricted transfer, the exporter should document a transfer impact assessment of the destination country's law and practice, including whether the clauses can be complied with in practice.",
+    "checkType": "judgment",
+    "findingCategory": "tia_missing",
+    "ruleScope": "per_document",
+    "appliesToClauseTypes": [
+      "international_transfer_mechanism"
+    ],
+    "legalHook": "EDPB Recommendations 01/2020 on measures that supplement transfer tools after Schrems II.",
+    "authority": {
+      "instrument": "EU SCCs (Decision 2021/914) / EDPB Schrems II guidance",
+      "citation": "EDPB Recommendations 01/2020 on measures that supplement transfer tools after Schrems II.",
+      "provisionPath": [
+        "transfers.tia_documented"
+      ],
+      "citationAliases": [
+        "transfers.tia_documented",
+        "EDPB Recommendations 01/2020 on measures that supplement transfer tools after Schrems II."
+      ]
+    },
+    "selection": {
+      "aliases": [
+        "transfer impact assessment before relying on sccs",
+        "supplementary measures",
+        "schrems",
+        "transfer impact assessment",
+        "tia"
+      ],
+      "concepts": [
+        "transfer",
+        "impact",
+        "assessment",
+        "relying",
+        "sccs",
+        "restricted",
+        "exporter",
+        "should",
+        "document",
+        "destination",
+        "country",
+        "practice",
+        "whether",
+        "clauses",
+        "complied",
+        "supplementary",
+        "measures",
+        "schrems"
+      ],
+      "actors": [],
+      "actions": [
+        "transfer",
+        "restrict"
+      ],
+      "objects": []
+    },
+    "applicability": {
+      "documentTypes": []
+    },
+    "investigation": {
+      "hypothesis": "The agreement addresses Schrems II supplementary measures and transfer impact assessments.",
+      "evidenceHints": [
+        "supplementary measures",
+        "Schrems",
+        "transfer impact assessment",
+        "TIA"
+      ],
+      "proofStandard": "Proven only by text that substantively addresses: Before relying on SCCs for a restricted transfer, the exporter should document a transfer impact assessment of the destination country's law and practice, including whether the clauses can be complied with in practice.",
+      "proofElements": [
+        {
+          "id": "pre_transfer_assessment",
+          "description": "A transfer impact assessment is documented before reliance on the SCCs",
+          "required": true,
+          "kind": "mandatory"
+        },
+        {
+          "id": "law_and_practice",
+          "description": "The assessment examines destination-country law and practice",
+          "required": true,
+          "kind": "mandatory"
+        },
+        {
+          "id": "practical_compliance",
+          "description": "The assessment determines whether the SCCs can be complied with in practice",
+          "required": true,
+          "kind": "mandatory"
+        }
+      ],
+      "clauseTypeHints": [
+        "international_transfer_mechanism"
+      ],
+      "extractionTargets": [
+        "transfer_mechanism",
+        "adequacy",
+        "scc",
+        "bcr",
+        "tia",
+        "supplementary_measures"
+      ]
+    },
+    "verification": {
+      "version": "1.1.0",
+      "reviewStatus": "authored",
+      "guidance": [
+        "Non-proof distinction (not an additional obligation): SCCs incorporated with no TIA or transfer-impact assessment mentioned. A generic Schrems reference with no documented assessment obligation.",
+        "Non-proof distinction (not an additional obligation): SCCs treated as self-sufficient with no supplementary-measures language. A TIA reference with no commitment to adopt measures where needed."
+      ]
+    },
+    "legacyRequirementId": "schrems_supplementary_measures"
+  },
+  {
+    "ruleId": "transfers.supplementary_measures",
+    "label": "Supplementary measures where local law undermines SCCs",
+    "ruleText": "If the TIA shows that destination-country law or practice prevents the importer from complying with the SCCs, the parties must adopt supplementary technical, contractual, or organisational measures, or not transfer. Do not treat SCCs as self-sufficient in that case.",
+    "checkType": "judgment",
+    "findingCategory": "supplementary_measures_gap",
+    "ruleScope": "per_document",
+    "appliesToClauseTypes": [
+      "international_transfer_mechanism"
+    ],
+    "legalHook": "EDPB Recommendations 01/2020 and 02/2020 (Schrems II follow-up).",
+    "authority": {
+      "instrument": "EU SCCs (Decision 2021/914) / EDPB Schrems II guidance",
+      "citation": "EDPB Recommendations 01/2020 and 02/2020 (Schrems II follow-up).",
+      "provisionPath": [
+        "transfers.supplementary_measures"
+      ],
+      "citationAliases": [
+        "transfers.supplementary_measures",
+        "EDPB Recommendations 01/2020 and 02/2020 (Schrems II follow-up)."
+      ]
+    },
+    "selection": {
+      "aliases": [
+        "supplementary measures where local law undermines sccs",
+        "supplementary measures",
+        "schrems",
+        "transfer impact assessment",
+        "tia"
+      ],
+      "concepts": [
+        "supplementary",
+        "measures",
+        "local",
+        "undermines",
+        "sccs",
+        "shows",
+        "destination-country",
+        "practice",
+        "prevents",
+        "importer",
+        "complying",
+        "parties",
+        "adopt",
+        "technical",
+        "contractual",
+        "organisational",
+        "transfer",
+        "treat",
+        "self-sufficient",
+        "case",
+        "schrems",
+        "impact",
+        "assessment"
+      ],
+      "actors": [
+        "importer"
+      ],
+      "actions": [
+        "transfer"
+      ],
+      "objects": []
+    },
+    "applicability": {
+      "documentTypes": []
+    },
+    "investigation": {
+      "hypothesis": "The agreement addresses Schrems II supplementary measures and transfer impact assessments.",
+      "evidenceHints": [
+        "supplementary measures",
+        "Schrems",
+        "transfer impact assessment",
+        "TIA"
+      ],
+      "proofStandard": "Proven only by text that substantively addresses: If the TIA shows that destination-country law or practice prevents the importer from complying with the SCCs, the parties must adopt supplementary technical, contractual, or organisational measures, or not transfer. Do not treat SCCs as self-sufficient in that case.",
+      "proofElements": [
+        {
+          "id": "adverse_tia_trigger",
+          "description": "Supplementary action is triggered when the TIA identifies an SCC compliance impediment",
+          "required": true,
+          "kind": "mandatory"
+        },
+        {
+          "id": "effective_measures",
+          "description": "Technical, contractual, or organisational supplementary measures address the impediment",
+          "required": true,
+          "kind": "mandatory"
+        },
+        {
+          "id": "no_transfer_fallback",
+          "description": "The transfer does not proceed where effective supplementary measures are unavailable",
+          "required": true,
+          "kind": "mandatory"
+        }
+      ],
+      "clauseTypeHints": [
+        "international_transfer_mechanism"
+      ],
+      "extractionTargets": [
+        "transfer_mechanism",
+        "adequacy",
+        "scc",
+        "bcr",
+        "tia",
+        "supplementary_measures"
+      ]
+    },
+    "verification": {
+      "version": "1.1.0",
+      "reviewStatus": "authored",
+      "guidance": [
+        "Non-proof distinction (not an additional obligation): SCCs incorporated with no TIA or transfer-impact assessment mentioned. A generic Schrems reference with no documented assessment obligation.",
+        "Non-proof distinction (not an additional obligation): SCCs treated as self-sufficient with no supplementary-measures language. A TIA reference with no commitment to adopt measures where needed."
+      ]
+    },
+    "legacyRequirementId": "schrems_supplementary_measures"
+  }
 ];
 
-export const internationalTransfersSkill: AnalysisSkillConfig = {
+const internationalTransfersSkillConfig: AnalysisSkillConfig = {
   skillId: "regimes/data-protection/international-transfers",
   axis: "regime",
   family: "data-protection",
@@ -324,25 +729,7 @@ export const internationalTransfersSkill: AnalysisSkillConfig = {
         ],
         international_data_transfer: ["international_transfer_inventory"],
       },
-      requirementEvidence: {
-        transfer_mechanism_identification: {
-          hypothesis:
-            "The agreement identifies the lawful transfer mechanism, including Standard Contractual Clauses (SCCs), adequacy, or Binding Corporate Rules.",
-          evidenceHints: ["SCC", "standard contractual clauses", "adequacy", "BCR"],
-        },
-        schrems_supplementary_measures: {
-          hypothesis:
-            "The agreement addresses Schrems II supplementary measures and transfer impact assessments.",
-          evidenceHints: ["supplementary measures", "Schrems", "transfer impact assessment", "TIA"],
-        },
-        international_data_transfer: {
-          hypothesis:
-            "The agreement identifies international transfer destinations, destination jurisdictions, or third countries.",
-          evidenceHints: ["destination", "jurisdiction", "third country"],
-          proofStandard:
-            "Establish both the operative destination restriction and whether the reviewed materials identify the actual permitted destination jurisdictions. If the restriction is binding but the destination list exists only in a referenced annex, schedule, SOW, or equivalent material that was not supplied, classify the contractual obligation as present with evidenceState=incorporated and referenceBinding=binding, explicitly identify the missing particulars, and do not describe the destinations or the review as fully documented.",
-        },
-      },
+      requirementEvidence: {},
       requirementKinds: ["verification", "adequacy"],
       semanticTopics: [
         "international_data_transfer",
@@ -390,3 +777,10 @@ export const internationalTransfersSkill: AnalysisSkillConfig = {
   ],
   defaultOperation: "compliance_check",
 };
+
+export const internationalTransfersSkill = finalizeRegimeRuleContracts(
+  internationalTransfersSkillConfig,
+  {
+    instrument: "EU SCCs (Decision 2021/914) / EDPB Schrems II guidance",
+  }
+);

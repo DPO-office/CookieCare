@@ -1,26 +1,22 @@
 import type { AnalysisState } from "../../models/analysis-state.js";
 import type { AnalysisWorkUnit } from "../../models/analysis-plan.js";
-import { classifyDocument } from "../act/classify-document.js";
-import { extractClauses } from "../act/extract-clauses.js";
+import { classifyDocument } from "../act/operations/classify-document.js";
+import { extractClauses } from "../act/operations/extract-clauses.js";
 import { resolveSkills } from "../../skills/runtime/selection/resolve-skills.js";
-import { segmentDocument } from "../../segmentation/segment-document.js";
+import { graphToSegments } from "../ingest/document-structure/projection.js";
 
 /**
- * classify-intent seeds workspace.documents with `segments: []` — real
- * segmentation only happens once ACT starts (execute-act-plan.ts's private
- * `ensureSegmented`). Since the inventory pass runs during PLAN, before ACT,
- * it needs its own copy of that same one step: segment any document that
- * hasn't been segmented yet before extract_clauses can find anything.
+ * Upload/version ingestion owns segmentation. PLAN may project a persisted
+ * graph, but must never reconstruct structure from flattened text.
  */
 export function ensureSegmented(state: AnalysisState, docId: string): AnalysisState {
   const doc = state.workspace.documents.find((d) => d.docId === docId);
   if (doc?.segments.length) return state;
 
-  const text = state.request.documentTexts[docId] ?? doc?.fullText ?? "";
-  const segmented = segmentDocument(docId, text, {
-    title: state.request.documentTitles?.[docId],
-    role: doc?.role && doc.role !== "unknown" ? doc.role : "primary",
-  });
+  if (!doc?.structureGraph) {
+    throw new Error(`Canonical document graph missing for ${docId}; PLAN cannot rebuild structure.`);
+  }
+  const segmented = { ...doc, fullText: doc.structureGraph.canonicalText, segments: graphToSegments(doc.structureGraph) };
 
   const documents = doc
     ? state.workspace.documents.map((d) => (d.docId === docId ? { ...segmented, docType: doc.docType } : d))

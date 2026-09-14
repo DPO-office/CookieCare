@@ -9,7 +9,7 @@ import {
   buildActGraphDetailed,
   clauseTypesForPackageEvidence,
 } from "../../../skills/runtime/graph/build-act-graph.js";
-import { aggregateRequirements } from "../aggregate-requirements.js";
+import { aggregateRequirements } from "../operations/aggregate-requirement-results.js";
 import type { Finding, FindingStatus } from "../../../models/finding.js";
 import type { AnalysisState } from "../../../models/analysis-state.js";
 import type { EvidencePackage } from "../../../models/evidence-package.js";
@@ -116,7 +116,7 @@ describe("package graph shape", () => {
     assert.equal(render?.input.evidenceCardinality, "structured_rows");
   });
 
-  it("emits shared-evidence, grouped eval, derive-risk and aggregate units", () => {
+  it("emits only the canonical pipeline and renderer for compliance", () => {
     const { workUnits } = buildActGraphDetailed({
       docId: "doc1",
       instruction: "Review the DPA for GDPR Article 28 compliance.",
@@ -124,29 +124,12 @@ describe("package graph shape", () => {
       intent: intent(),
       focus: focus({ ruleIds: ["gdpr.art28.3.a", "gdpr.art28.3.e"] }),
     });
-    const tools = new Set(workUnits.map((u) => u.tool));
-    assert.ok(tools.has("extract_shared_evidence"));
-    assert.ok(tools.has("evaluate_package"));
-    assert.ok(tools.has("derive_risk"));
-    assert.ok(tools.has("aggregate_requirements"));
-    assert.ok(tools.has("render_output"));
-
-    // render must run last (depends on derive_risk after aggregate).
+    assert.deepEqual(workUnits.map((u) => u.tool), ["run_compliance_pipeline", "render_output"]);
     const render = workUnits.find((u) => u.tool === "render_output");
-    assert.deepEqual(render?.dependsOn, ["wu-derive-risk"]);
+    assert.deepEqual(render?.dependsOn, ["wu-compliance"]);
     assert.equal(render?.input.capabilityOperation, "compliance_check");
-    assert.equal(render?.input.capabilityGraph, "full");
+    assert.equal(render?.input.capabilityGraph, "canonical_compliance");
     assert.equal(render?.input.evidenceCardinality, "requirement_isolated");
-    const packageEval = workUnits.find(
-      (unit) =>
-        unit.tool === "evaluate_package" &&
-        unit.input.packageId === "gdpr.art28.3.mandatory_clauses"
-    );
-    assert.deepEqual(packageEval?.input.evidenceScope, {
-      relationshipScopes: ["controller_to_processor"],
-    });
-    const derive = workUnits.find((u) => u.tool === "derive_risk");
-    assert.deepEqual(derive?.dependsOn, ["wu-aggregate"]);
   });
 
   it("unions rule appliesToClauseTypes onto mandatory shared-evidence clauseTypes", () => {
@@ -158,12 +141,9 @@ describe("package graph shape", () => {
       intent: intent(),
       focus: focus({ ruleIds: ["gdpr.art28.3.a", "gdpr.art28.3.b", "gdpr.art28.3.g"] }),
     });
-    const extract = workUnits.find(
-      (unit) =>
-        unit.tool === "extract_shared_evidence" &&
-        unit.input.packageId === "gdpr.art28.3.mandatory_clauses"
-    );
-    const types = (extract?.input.clauseTypes as string[]) ?? [];
+    assert.deepEqual(workUnits.map((unit) => unit.tool), ["run_compliance_pipeline", "render_output"]);
+    const pkg = skill.evidencePackages?.find(item => item.id === "gdpr.art28.3.mandatory_clauses")!;
+    const types = clauseTypesForPackageEvidence(pkg, pkg.capabilityIds, [skill]);
     assert.ok(types.includes("confidentiality"), `got ${types.join(", ")}`);
     assert.ok(types.includes("deletion_on_termination"), `got ${types.join(", ")}`);
     assert.ok(types.includes("data_subject_request_handling"));

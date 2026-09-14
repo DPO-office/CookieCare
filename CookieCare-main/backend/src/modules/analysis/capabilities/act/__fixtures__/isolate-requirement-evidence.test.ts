@@ -7,7 +7,7 @@ import {
   resolveEvidence,
   resolveEvidenceRefsForRequirement,
   validateEvidenceRefs,
-} from "../isolate-requirement-evidence.js";
+} from "../shared/requirement-evidence.js";
 
 function item(ref: string, clauseType: string, quotedText: string): SharedEvidenceItem {
   return {

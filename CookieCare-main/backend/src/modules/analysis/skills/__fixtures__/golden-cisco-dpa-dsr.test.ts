@@ -75,7 +75,7 @@ describe("golden cisco-dpa-dsr skills baseline", () => {
     assert.ok(focus!.matrixRowIds.includes("gdpr.right.automated_decisions"));
   });
 
-  it("builds memo graph with shared extract + matrix rows", async () => {
+  it("builds the canonical DSR compliance graph", async () => {
     const selection = selectSkills({
       instruction: DSR_INSTRUCTION,
       docType: "dpa",
@@ -92,27 +92,10 @@ describe("golden cisco-dpa-dsr skills baseline", () => {
 
     assert.equal(graph.rendererSchemaId, "memo");
     const tools = graph.workUnits.map((u) => u.tool);
-    assert.equal(tools.filter((t) => t === "extract_clauses").length, 1, "single shared extract");
-    assert.ok(tools.includes("evaluate_matrix_row"));
-    assert.ok(tools.includes("render_output"));
-
-    const ruleIds = graph.workUnits
-      .filter((u) => u.tool === "check_against_rule")
-      .map((u) => String(u.input.ruleId));
-    assert.equal(ruleIds.includes("gdpr.art15"), false);
-    assert.equal(ruleIds.includes("gdpr.art28.3.e"), false);
-    assert.ok(ruleIds.includes("gdpr.art12.3"));
-
-    const matrixRows = graph.workUnits.filter((u) => u.tool === "evaluate_matrix_row");
-    assert.equal(matrixRows.length, 8);
-    assert.equal(
-      graph.workUnits.filter((unit) => unit.tool === "evaluate_package").length,
-      0,
-      "matrix focus must not schedule a structural or matrix-owner package eval"
-    );
+    assert.deepEqual(tools, ["run_compliance_pipeline", "render_output"]);
   });
 
-  it("keeps evaluate_matrix_row when the rights-matrix package is also selected", async () => {
+  it("keeps the canonical path when the rights-matrix package is selected", async () => {
     const selection = selectSkills({
       instruction: DSR_INSTRUCTION,
       docType: "dpa",
@@ -130,13 +113,7 @@ describe("golden cisco-dpa-dsr skills baseline", () => {
       },
     });
 
-    const matrixRows = graph.workUnits.filter((u) => u.tool === "evaluate_matrix_row");
-    assert.equal(matrixRows.length, 8);
-    assert.equal(
-      graph.workUnits.filter((unit) => unit.tool === "evaluate_package").length,
-      0,
-      "matrix-owned package must defer to evaluate_matrix_row"
-    );
+    assert.deepEqual(graph.workUnits.map((unit) => unit.tool), ["run_compliance_pipeline", "render_output"]);
   });
 
   it("saas-agreement inherits commercial-agreement expectedClauses", () => {
@@ -167,7 +144,7 @@ describe("golden cisco-dpa-dsr skills baseline", () => {
       referenceDocId: "playbook",
       instruction: "Compare agreement to playbook",
       skills: selection.skills,
-      intent: BASELINE_INTENT,
+      intent: { ...BASELINE_INTENT, operation: "compare", standard: "none" },
     });
     assert.equal(graph.rendererSchemaId, "playbook_comparison_memo");
     assert.ok(graph.workUnits.some((u) => u.tool === "extract_playbook_positions"));

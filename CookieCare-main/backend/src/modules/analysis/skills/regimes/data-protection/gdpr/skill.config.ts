@@ -1,9 +1,137 @@
 import type {
   AnalysisSkillConfig,
+  ComplianceComposition,
   RegimeCheckType,
   SkillRegimeRule,
+  SkillRegimeRuleAuthority,
 } from "../../../runtime/catalog/types.js";
 import { buildDataProtectionRightsMatrix } from "../_family-template.js";
+import {
+  deriveRequirementEvidence,
+  deriveSelectionFromText,
+} from "../../../runtime/catalog/rule-contract-helpers.js";
+import { GDPR_RULE_INVESTIGATION } from "./rule-investigation.js";
+
+interface ParsedGdprRuleId {
+  article: number;
+  paragraph?: string;
+  letter?: string;
+}
+
+const GDPR_RULE_ID_PATTERN =
+  /^gdpr\.art(\d+)(?:\.([0-9]+(?:-[0-9]+)?))?(?:\.([a-z]+(?:-[a-z]+)?))?$/;
+const GDPR_LETTER_ORDINAL: Record<string, number> = Object.fromEntries(
+  "abcdefghijklmnopqrstuvwxyz".split("").map((letter, index) => [letter, index + 1])
+);
+
+function parseGdprRuleId(ruleId: string): ParsedGdprRuleId | undefined {
+  const match = GDPR_RULE_ID_PATTERN.exec(ruleId);
+  if (!match) return undefined;
+  return { article: Number(match[1]), paragraph: match[2], letter: match[3] };
+}
+
+function formatGdprCitationSegment(segment: string): string {
+  if (!segment.includes("-")) return `(${segment})`;
+  const [start, end] = segment.split("-");
+  return `(${start})-(${end})`;
+}
+
+function deriveGdprAuthority(ruleId: string): SkillRegimeRuleAuthority | undefined {
+  const parsed = parseGdprRuleId(ruleId);
+  if (!parsed) return undefined;
+  const paragraphStart = parsed.paragraph ? Number(parsed.paragraph.split("-")[0]) : 0;
+  const letterStart = parsed.letter
+    ? (GDPR_LETTER_ORDINAL[parsed.letter.split("-")[0]] ?? 0)
+    : 0;
+  const citation = `Article ${parsed.article}` +
+    (parsed.paragraph && parsed.paragraph !== "chapeau" ? formatGdprCitationSegment(parsed.paragraph) : "") +
+    (parsed.letter && parsed.letter !== "chapeau" ? formatGdprCitationSegment(parsed.letter) : "");
+  return {
+    instrument: "GDPR",
+    citation,
+    provisionPath: [
+      String(parsed.article),
+      ...(parsed.paragraph ? [parsed.paragraph] : []),
+      ...(parsed.letter ? [parsed.letter] : []),
+    ],
+    order: parsed.article * 10000 + paragraphStart * 100 + letterStart,
+    citationAliases: [citation.replace("Article", "Art"), citation.replace("Article", "Art.")],
+  };
+}
+
+/** Named shortcuts only; atomic rules below remain the source of legal truth. */
+const GDPR_COMPOSITIONS: ComplianceComposition[] = [
+  {
+    id: "gdpr.art28.mandatory_particulars",
+    label: "Article 28(3) mandatory processing-agreement particulars",
+    aliases: ["mandatory processing agreement particulars", "article 28(3) chapeau", "processing agreement particulars", "written processor terms"],
+    description: "The Article 28(3) chapeau particulars plus the Article 28(9) writing requirement.",
+    ruleIds: ["gdpr.art28.3.chapeau", "gdpr.art28.9"],
+  },
+  {
+    id: "gdpr.art28.mandatory_clauses",
+    label: "Article 28(3) mandatory processor clauses",
+    aliases: ["mandatory article 28 clauses", "mandatory_article28_clauses", "mandatory_article_28_3_clauses", "processor obligations"],
+    description: "The Article 28(3)(a)-(h) processor obligations plus Article 28(4) flow-down.",
+    ruleIds: ["gdpr.art28.3.a", "gdpr.art28.3.b", "gdpr.art28.3.c", "gdpr.art28.3.d", "gdpr.art28.3.e", "gdpr.art28.3.f", "gdpr.art28.3.g", "gdpr.art28.3.h", "gdpr.art28.4"],
+  },
+  {
+    id: "gdpr.dsr.rights",
+    label: "Data subject rights (Art 12(3), 15-22)",
+    aliases: ["data subject rights", "dsr rights", "articles 15-22", "article 15-22", "access erasure rectification portability", "rights requests"],
+    description: "The response-timeframe rule plus the substantive data-subject rights in Articles 15-22.",
+    ruleIds: ["gdpr.art12.3", "gdpr.art15", "gdpr.art16", "gdpr.art17", "gdpr.art18", "gdpr.art19", "gdpr.art20", "gdpr.art21", "gdpr.art22"],
+  },
+  {
+    id: "gdpr.processor_dsr_assistance",
+    label: "Processor assistance with data-subject rights requests",
+    aliases: ["assist the controller", "assistance to the controller", "processor assistance with data subject requests", "processor assistance with data-subject requests", "data subject request assistance", "dsr assistance"],
+    description: "Article 28(3)(e) processor assistance with requests under Chapter III.",
+    ruleIds: ["gdpr.art28.3.e"],
+  },
+  {
+    id: "gdpr.security_breach_accountability",
+    label: "Security, breach, and accountability (Art 32-36)",
+    aliases: ["security and breach", "breach notification", "dpia", "security of processing"],
+    description: "Security, breach, DPIA, and prior-consultation obligations.",
+    ruleIds: ["gdpr.art32", "gdpr.art33.1", "gdpr.art33.2", "gdpr.art33.3", "gdpr.art33.4", "gdpr.art33.5", "gdpr.art34", "gdpr.art35", "gdpr.art36"],
+  },
+  {
+    id: "gdpr.principles_consent_accountability",
+    label: "Principles, consent, and accountability (Art 5-7, 24-27, 30)",
+    aliases: ["processing principles", "consent conditions", "controller accountability", "records of processing"],
+    description: "Processing principles, lawful basis, consent, governance, and records of processing.",
+    ruleIds: ["gdpr.art5.1", "gdpr.art5.2", "gdpr.art6.1", "gdpr.art7.1", "gdpr.art7.2", "gdpr.art7.3", "gdpr.art7.4", "gdpr.art24", "gdpr.art25", "gdpr.art26", "gdpr.art27", "gdpr.art30"],
+  },
+  {
+    id: "gdpr.transparency_special_categories_notices",
+    label: "Transparency, special categories, and notices (Art 6(4), 8-14)",
+    aliases: ["privacy notice", "special category data", "children's consent", "article 13", "article 14"],
+    description: "Purpose compatibility, child consent, special categories, and Article 12-14 notices.",
+    ruleIds: ["gdpr.art6.4", "gdpr.art8.1-2", "gdpr.art9.1-3", "gdpr.art10", "gdpr.art11.1", "gdpr.art11.2", "gdpr.art12.1-2", "gdpr.art12.4", "gdpr.art12.7", "gdpr.art12.5-6", "gdpr.art13.1-2", "gdpr.art13.3-4", "gdpr.art14.1-2", "gdpr.art14.3-5"],
+  },
+  {
+    id: "gdpr.governance_dpo_codes_processor_extras",
+    label: "DPO, codes/certification, and processor extras (Art 29, 37-39, 40(3), 42(2))",
+    aliases: ["data protection officer", "dpo", "code of conduct", "certification"],
+    description: "Processing under authority, DPO duties, codes, and certification.",
+    ruleIds: ["gdpr.art29", "gdpr.art37", "gdpr.art38", "gdpr.art39.1.a-c", "gdpr.art40.3", "gdpr.art42.2"],
+  },
+  {
+    id: "gdpr.chapter5_transfers",
+    label: "International transfers (Art 44-49)",
+    aliases: ["international transfers", "chapter v", "chapter 5", "adequacy decision", "standard contractual clauses", "sccs", "binding corporate rules"],
+    description: "Chapter V transfer mechanisms, safeguards, orders, and derogations.",
+    ruleIds: ["gdpr.art44", "gdpr.art45.1", "gdpr.art46", "gdpr.art47", "gdpr.art48", "gdpr.art49"],
+  },
+  {
+    id: "gdpr.remedies_and_safeguards",
+    label: "Remedies and research safeguards (Art 77, 79-80, 82, 89)",
+    aliases: ["right to complain", "judicial remedy", "compensation", "research safeguards"],
+    description: "Complaint, judicial remedy, representation, compensation, and research safeguards.",
+    ruleIds: ["gdpr.art77.1", "gdpr.art79", "gdpr.art80.1", "gdpr.art82", "gdpr.art89.1"],
+  },
+];
 
 const GDPR_RIGHTS_MATRIX = buildDataProtectionRightsMatrix("gdpr", [
   {
@@ -91,7 +219,495 @@ const PROCESSOR_RULE_IDS = [
   "gdpr.art28.9",
   "gdpr.art28.10",
   "gdpr.art29",
+  "gdpr.art33.2",
 ];
+
+const LEGACY_REQUIREMENT_ID_BY_RULE: Record<string, string> = {
+  "gdpr.art28.3.a": "art28_3_a_instructions",
+  "gdpr.art28.3.b": "art28_3_b_confidentiality",
+  "gdpr.art28.3.c": "art28_3_c_security",
+  "gdpr.art28.3.d": "art28_3_d_subprocessors",
+  "gdpr.art28.3.e": "art28_3_e_dsr_assistance",
+  "gdpr.art28.3.f": "art28_3_f_security_assistance",
+  "gdpr.art28.3.g": "art28_3_g_deletion_return",
+  "gdpr.art28.3.h": "art28_3_h_audit",
+  "gdpr.art28.4": "art28_4_subprocessor_flow_down",
+};
+
+const GDPR_RULE_VERIFICATION: Record<string, NonNullable<SkillRegimeRule["verification"]>> = {
+  "gdpr.art5.1": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art5.2": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art6.1": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art6.4": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art7.1": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art7.2": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art7.3": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art7.4": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art8.1-2": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art9.1-3": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art10": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art11.1": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art11.2": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art12.1-2": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art12.3": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": [
+      "Within the selected rule only, regarding The contract states a specific numeric response deadline for data-subject requests functionally equivalent to without undue delay and within one month of receipt. Proof: Look for 'within one month', 'within 30 days', or an equivalent hard clock tied to data-subject / Chapter III requests. Vague diligence language alone is not enough. Non-proof: 'Promptly', 'reasonably', 'as soon as reasonably practicable', or 'without undue delay' with no numeric backstop. A general cooperation clause with no response deadline. Remediation: State a one-month (or 30-day) numeric response deadline for data-subject requests.",
+      "Within the selected rule only, regarding Any complexity/volume extension is capped at two further months and conditioned on notice to the data subject within the first month stating the reasons for delay. Proof: Extension must be capped (≤ two further months) AND require notice within the original month stating reasons. An open-ended or unconditional extension is not full proof. Non-proof: An open-ended right to extend 'as needed' or 'where reasonably required' with no two-month cap. An extension with no duty to notify the data subject of the delay and reasons within the first month. Remediation: Cap any extension at two further months and require reasoned notice within the first month."
+    ]
+  },
+  "gdpr.art12.4": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art12.7": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art12.5-6": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art13.1-2": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art13.3-4": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art14.1-2": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art14.3-5": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art15": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": [
+      "Within the selected rule only, regarding A data subject can obtain confirmation that their personal data is being processed and a copy of that data. Proof: Operative right of access / confirmation-and-copy language, not a bare 'rights will be honored' list item. Non-proof: A generic 'data subject rights will be respected' statement with no confirmation or copy commitment. Access limited to a privacy notice URL with no copy of the subject's own data. Remediation: Grant confirmation of processing and a copy of the personal data on request.",
+      "Within the selected rule only, regarding The response supplies substantially the Article 15(1) particulars (purposes, categories of data, recipients, retention period or criteria, other applicable rights, complaint route, source where not collected from the subject, and — where applicable — meaningful information about automated decision-making). Proof: Look for a commitment to provide Art 15(1)-style particulars, or an enumerated disclosure list covering those heads. Naming 'access' alone without particulars is incomplete. Non-proof: Naming 'right of access' in a rights list with no particulars commitment. A privacy-policy cross-reference that does not undertake to supply the Art 15(1) information on request. Remediation: Commit to providing the Article 15(1) information categories with the access response.",
+      "Within the selected rule only, regarding Further copies may be charged only a reasonable administrative fee (first copy free / charge limited to manifestly unfounded or excessive requests). Proof: Fee language must preserve a free first copy or limit charges to reasonable administrative cost / manifestly unfounded or excessive requests. Non-proof: A right to charge for every copy with no free-first-copy or manifestly-unfounded framing. Remediation: Limit fees to reasonable administrative cost for further copies; keep the first copy free except for manifestly unfounded or excessive requests."
+    ]
+  },
+  "gdpr.art16": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": [
+      "Within the selected rule only, regarding Inaccurate personal data must be rectified without undue delay upon request. Proof: An obligation on the controller/processor to correct inaccurate data, not merely a channel to 'submit a correction request'. Non-proof: A clause allowing the data subject only to submit a request, with no duty to act on it. Remediation: Obligate rectification of inaccurate personal data without undue delay.",
+      "Within the selected rule only, regarding Incomplete personal data may be completed, including by means of a supplementary statement. Proof: Separate completion limb — supplementary statement or equivalent completion mechanism. Non-proof: Correction of inaccurate data alone, with no completion / supplementary-statement language. Remediation: Add a completion right, including by supplementary statement."
+    ]
+  },
+  "gdpr.art17": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": [
+      "Within the selected rule only, regarding Personal data must be erased without undue delay on a data-subject erasure request or when an Article 17(1) ground applies — not only upon contract termination. Proof: Mid-term erasure-on-request (or Art 17(1) grounds) mechanism. Narrow Art 17(3) retention exceptions are consistent and do not defeat this. Non-proof: Deletion only 'upon termination of the Agreement' / 'at the end of the Term' with no mid-term erasure-request path. A generic 'we honor erasure rights' list item with no operative erase-on-request duty. Remediation: Add a mid-term erasure-on-request obligation tied to Article 17(1) grounds, independent of contract end.",
+      "Within the selected rule only, regarding Where personal data has been made public, reasonable steps are taken to inform other controllers processing the data that the data subject has requested erasure of links, copies, or replications. Proof: Article 17(2) take-down / notify-other-controllers assistance when data was made public. Non-proof: A general subprocessor flow-down with no publication / other-controller notification on erasure. Remediation: Add Article 17(2) reasonable-steps notice to other controllers where data was made public."
+    ]
+  },
+  "gdpr.art18": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": [
+      "Within the selected rule only, regarding A distinct restriction remedy exists — data is marked/stored but not otherwise actively processed — separate from erasure and from continued normal processing. Proof: Restriction / marking language with limited permitted further processing (consent, legal claims, third-party rights, important public interest). Non-proof: Only 'delete or keep processing' with no separate restriction option. Silence on restriction. Remediation: Add a restriction-of-processing remedy distinct from erasure.",
+      "Within the selected rule only, regarding Restriction is available for at least one Article 18(1) ground (contested accuracy, unlawful processing with erasure opposed, controller no longer needs the data but the data subject needs it for legal claims, or a pending objection). Proof: Tie the restriction right to one or more Art 18(1) triggers, not an undefined 'restriction' label alone. Non-proof: Using the word 'restriction' without any ground or operative effect on processing. Remediation: State the Article 18(1) grounds that trigger restriction.",
+      "Within the selected rule only, regarding The data subject is informed before a restriction is lifted. Proof: Article 18(3) — inform before lifting the restriction. Non-proof: A restriction clause that is silent on notice before lifting. Remediation: Require notice to the data subject before lifting any restriction."
+    ]
+  },
+  "gdpr.art19": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": [
+      "Within the selected rule only, regarding Recipients to whom personal data has been disclosed are notified of any rectification, erasure, or restriction, unless impossible or involving disproportionate effort. Proof: Notice duty specifically triggered by rectification / erasure / restriction — not a generic Art 28(4) subprocessor flow-down of confidentiality or security. Non-proof: Subprocessor flow-down of confidentiality/security with no rights-exercise recipient notice. Silence on notifying downstream recipients of rectification, erasure, or restriction. Remediation: Require notification to recipients when data is rectified, erased, or restricted.",
+      "Within the selected rule only, regarding On request, the data subject is informed about those recipients. Proof: Article 19 second sentence — tell the data subject who the recipients were, on request. Non-proof: A general recipient-categories disclosure in a privacy notice with no on-request Article 19 duty. Remediation: Commit to informing the data subject of recipients on request after rectification, erasure, or restriction notices."
+    ]
+  },
+  "gdpr.art20": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": [
+      "Within the selected rule only, regarding The data subject can receive the personal data they provided in a structured, commonly used, machine-readable format. Proof: Format commitment (structured / commonly used / machine-readable), not mere 'we will provide your data'. Non-proof: Generic 'provide your data upon request' with no format commitment. PDF-only or unstructured dump presented as portability. Remediation: Commit to a structured, commonly used, machine-readable export format.",
+      "Within the selected rule only, regarding The data can be transmitted to another controller, including direct transmission where technically feasible. Proof: Transmission / direct-transfer limb — not only a self-service download. Non-proof: Export-to-self only, with no transmission-to-another-controller path. Remediation: Support transmission to another controller, including direct transmission where technically feasible."
+    ]
+  },
+  "gdpr.art21": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": [
+      "Within the selected rule only, regarding The data subject can object to processing based on legitimate interests or public task; processing stops unless compelling legitimate grounds or legal-claims defense are demonstrated. Proof: Objection right distinct from erasure/restriction, tied to Art 6(1)(e)/(f)-style bases, with a limited continued-processing exception. Non-proof: A generic 'objection' list item with no operative effect on processing. Marketing opt-out alone presented as the entire Article 21 right. Remediation: Add an Article 21(1) objection right with the compelling-grounds / legal-claims override only.",
+      "Within the selected rule only, regarding The data subject can object to direct-marketing processing (including related profiling) at any time, with no override. Proof: Separate, unconditional marketing objection / opt-out — no compelling-grounds override for marketing. Non-proof: Only a general legitimate-interest objection with no distinct marketing limb. A marketing preference centre that still allows the controller to continue marketing after objection. Remediation: Add an unconditional direct-marketing objection right, including related profiling."
+    ]
+  },
+  "gdpr.art22": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": [
+      "Within the selected rule only, regarding Where solely automated decision-making producing legal or similarly significant effects is described, an Article 22(2) exception is identified (contract necessity, authorised by law with safeguards, or explicit consent). Proof: Name which Art 22(2) exception applies. A generic 'we comply with data protection law' statement is not enough. Non-proof: Describing scoring, screening, or eligibility automation with no Art 22(2) exception. A blanket compliance recital with no operative ADM safeguards. Remediation: Identify the Article 22(2) exception that authorises the automated decision-making.",
+      "Within the selected rule only, regarding Where such automated decision-making applies, the data subject has at least the rights to human intervention, to express their point of view, and to contest the decision. Proof: Operative human-intervention / express-view / contest rights for in-scope ADM. Non-proof: ADM described with no human-review or contest mechanism. Remediation: Provide human intervention, a right to express a view, and a right to contest the decision."
+    ]
+  },
+  "gdpr.art24": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art25": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art26": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art27": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art28.1": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art28.2": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art28.3.chapeau": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": [
+      "Within the selected rule only, regarding The contract identifies the subject matter of the processing (what is being processed and why the processor is engaged). Proof: Look for a scoping clause naming the services or an appendix/schedule labelled 'subject matter' or 'services'. Definition of the engagement, description of services, or an SOW reference counts. Non-proof: A generic 'the parties have entered into this agreement' recital. The title of the document alone. A pointer to Appendix X where Appendix X is missing from the upload. Remediation: Add a subject-matter clause naming the processing scope or attach the referenced Appendix/Schedule.",
+      "Within the selected rule only, regarding The contract specifies the duration of the processing, either by a defined term (e.g., 'Term') or by tying it to the term of the main services agreement. Proof: A 'Term' definition + a clause aligning processing duration with the Term; or a fixed date range; or an 'in force during the Services' formulation. Non-proof: A definition of 'Term' that is never referenced by an operative processing clause. A termination-notice clause that presupposes duration but does not state it. Remediation: Add a duration clause or bind the processing duration to the main agreement's Term.",
+      "Within the selected rule only, regarding The contract states the nature of the processing (the operations performed). Proof: Look for a list of processing operations (collection, storage, disclosure, deletion, hosting, analytics, etc.) — usually in an Appendix/Schedule table. Non-proof: A bare reference like 'as necessary for the Services' with no enumerated operations. Remediation: Enumerate the processing operations in the DPA or its schedule.",
+      "Within the selected rule only, regarding The contract states the purpose of the processing. Proof: A stated purpose (delivering the Services, administering payroll, providing hosting, etc.). Non-proof: Purpose implied only from the counterparty's industry. Remediation: State the purpose of the processing in the contract.",
+      "Within the selected rule only, regarding The contract lists the categories of personal data processed. Proof: An Appendix/Schedule table row labelled 'Categories of personal data' or an enumerated list (contact details, financial data, identifiers, etc.). Non-proof: A generic 'personal data' reference without categorisation. A pointer to an Appendix that the upload does not contain. Remediation: Add or attach the categories-of-personal-data list, aligned with the actual processing.",
+      "Within the selected rule only, regarding The contract lists the categories of data subjects whose data is processed. Proof: An Appendix/Schedule row 'Categories of data subjects' (employees, customers, prospects, end users, etc.) or an equivalent enumeration. Non-proof: 'Individuals whose personal data is processed' — circular. An unreferenced Appendix. Remediation: Add or attach a categories-of-data-subjects list.",
+      "Within the selected rule only, regarding The contract states what the controller must do in connection with the processing — e.g. give lawful documented instructions, ensure a legal basis, comply with data protection laws, or minimise personal data. Proof: Controller-side duties — not processor obligations dressed as controller language. Look for 'the Controller shall', 'Controller warrants', or equivalent controller obligations. Non-proof: A clause describing only the processor's duties (the common Art 28(3)(a)-(h) content) with no controller obligation. A generic mutual compliance recital that does not name a controller-specific duty. Remediation: Add controller obligations (lawful instructions, legal basis, compliance with data protection laws, or data minimisation).",
+      "Within the selected rule only, regarding The contract states what the controller is entitled to do — e.g. give instructions, audit or inspect the processor's compliance, or exercise other controller rights over the processing. Proof: Controller-side rights or entitlements — audit/inspection powers, instruction rights, or similar controller prerogatives distinct from processor covenants. Non-proof: Processor audit obligations framed only as what the processor must permit, with no controller right to exercise them. A processor-only compliance clause with no controller entitlement named. Remediation: Add controller rights (instructions, audit/inspection, or other controller entitlements over the processing)."
+    ]
+  },
+  "gdpr.art28.3.a": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": [
+      "Within the selected rule only, regarding The processor processes personal data only on documented instructions from the controller. Proof: A clause using 'only on documented instructions' / 'in accordance with the Controller's written instructions'. May sit in an operational-obligations section, a jurisdiction addendum, or the international-transfers section. Non-proof: 'As reasonably necessary to provide the Services' without an instruction-anchor. A general confidentiality clause. Remediation: Add the documented-instructions clause with the standard 28(3)(a) formulation.",
+      "Within the selected rule only, regarding Instructions to make an international transfer are also processed only on documented instructions, unless required by law (with a notification obligation). Proof: The Article 28(3)(a) proviso: unless required by Union or Member State law, in which case the processor notifies the controller before processing (unless the law prohibits notification for important public-interest reasons). Non-proof: A separate international-transfer clause that names the mechanism (SCCs) but not the instruction-based control. Remediation: Add the proviso allowing law-mandated processing with a controller-notification obligation."
+    ]
+  },
+  "gdpr.art28.3.b": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art28.3.c": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": [
+      "Within the selected rule only, regarding The processor is obligated to implement appropriate technical and organisational measures to protect personal data (a TOMs/security covenant, not a bare compliance aspiration). Proof: An operative obligation on the processor to implement technical and organisational measures appropriate to the risk — may reference Article 32 or 'appropriate security measures'. Non-proof: A generic 'comply with Data Protection Laws' statement with no security-measures obligation. A confidentiality clause with no technical/organisational security commitment. Remediation: Add an Article 28(3)(c) / Article 32 security-measures obligation on the processor.",
+      "Within the selected rule only, regarding The security commitment is substantiated — by named measures (encryption, access controls, resilience, testing) or by an incorporated security exhibit/schedule whose content is confirmed in the reviewed materials. Proof: Substantive security content — enumerated controls, risk-appropriate measures, or a confirmed security exhibit/schedule. A bare pointer to 'the Information Security Exhibit' counts only if that exhibit is supplied and contains measures. Non-proof: A bare cross-reference to an Information Security Exhibit or security schedule that is not supplied or confirmed to contain measures. A one-line 'industry-standard security' promise with no measures, exhibit, or schedule. Remediation: Substantiate the security obligation with named measures or attach/incorporate a security exhibit with actual controls."
+    ]
+  },
+  "gdpr.art28.3.d": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": [
+      "Within the selected rule only, regarding The processor must obtain the controller's prior general or specific written authorisation before engaging a subprocessor. Proof: Prior written authorisation — specific (per subprocessor) or general (list + changes). 'May engage subprocessors' or notice-only language is not enough. Non-proof: A clause that merely says the processor 'will notify' or 'may engage subprocessors' without prior authorisation. A published subprocessor list with no authorisation mechanism. Remediation: Require prior general or specific written authorisation before engaging any subprocessor.",
+      "Within the selected rule only, regarding Where general authorisation applies, the controller receives advance notice of subprocessor changes and a meaningful opportunity to object. Proof: Change-notice + objection window — typically 30 days' notice and a right to object before the new subprocessor processes data. Required when general (not specific-only) authorisation is used. Non-proof: Notice of subprocessor changes with no objection right. A post-hoc notification after the subprocessor is already engaged. Remediation: Add advance notice and a meaningful objection opportunity for subprocessor changes under general authorisation.",
+      "Within the selected rule only, regarding Each subprocessor is engaged under a written agreement imposing data-protection obligations on the subprocessor (equivalent engagement), not merely announced or listed. Proof: Written subprocessor agreement / DPA requirement — the processor must impose contractual data-protection terms on subprocessors, not merely disclose their names. Non-proof: A subprocessor list or registry with no written-agreement requirement. Processor liability for subprocessor acts without a written engagement obligation. Remediation: Require each subprocessor to be engaged under a written data-processing agreement."
+    ]
+  },
+  "gdpr.art28.3.e": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": [
+      "Within the selected rule only, regarding The processor is obligated to assist the controller in responding to data-subject rights requests (access, rectification, erasure, portability, objection, etc.) made to the controller. Proof: An assistance covenant tied to Chapter III / data-subject rights — 'assist the Controller in responding to data subject requests', not a bare rights list. Non-proof: A generic 'data subject rights will be respected' statement with no processor assistance duty. A clause obligating the processor only to forward or redirect requests to the controller. Remediation: Add a processor assistance covenant for controller-facing data-subject rights requests.",
+      "Within the selected rule only, regarding The assistance commitment includes operational mechanics — appropriate technical and organisational measures, information, or technical support the controller needs to fulfil requests — not merely notice or redirection. Proof: Substantive operational assistance — providing data, tools, or support needed to respond. Mere forwarding/redirection is partial, not full proof. Non-proof: Generic Chapter III assistance language without operational mechanics — e.g. 'assist with data subject rights' with no commitment to provide means, information, or technical support. A redirect-to-controller clause with no substantive assistance beyond notice. Listing Articles 15–22 without any operational assistance commitment. Remediation: Add operational DSR assistance mechanics (technical measures, information provision, or support tools) beyond mere redirection."
+    ]
+  },
+  "gdpr.art28.3.f": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": [
+      "Within the selected rule only, regarding The processor assists the controller in ensuring compliance with Article 32 (security of processing). Proof: An explicit assistance-with-security clause, or an operational security clause (e.g. Section 6.4) referenced by the assistance provision. Non-proof: A generic 'commercially reasonable security measures' clause with no controller-assistance obligation. Remediation: Add an Article 32 assistance clause; cross-reference existing security controls.",
+      "Within the selected rule only, regarding The processor assists with Articles 33-34 (personal-data-breach notification to the supervisory authority and to data subjects). Proof: A breach-notification clause naming assistance with controller's Article 33/34 duties, usually with a time window. Non-proof: A processor-only breach-notification clause without controller assistance framing. Remediation: Add breach-notification assistance with a defined time window.",
+      "Within the selected rule only, regarding The processor assists with Articles 35-36 (DPIAs and prior consultation). Proof: A DPIA / prior-consultation assistance clause (often bundled with 33-34 assistance). Non-proof: A blanket 'assists with data protection obligations' clause with no DPIA scope. Remediation: Add DPIA / prior-consultation assistance, taking into account the nature of processing and information available."
+    ]
+  },
+  "gdpr.art28.3.g": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": [
+      "Within the selected rule only, regarding The controller has a right to choose between deletion and return. Proof: A clause explicitly giving the controller the choice (e.g. 'at the Controller's option, delete or return'). Non-proof: A deletion-only clause with no return branch. A return-only clause with no deletion branch. Remediation: Reword the post-termination clause to grant the controller a choice.",
+      "Within the selected rule only, regarding The processor is obligated to delete on request. Proof: A deletion obligation triggered at the end of services or on request. Non-proof: A permission to delete rather than an obligation. A discretion to retain 'for legitimate business purposes' with no boundary. Remediation: Convert the retention discretion into a deletion obligation.",
+      "Within the selected rule only, regarding The processor is obligated to return on request. Proof: A return / export obligation triggered at the end of services or on request. Non-proof: A migration-services offer priced separately, without an obligation. Remediation: Add a return obligation (format specified where reasonable).",
+      "Within the selected rule only, regarding The processor deletes existing copies unless Union or Member State law requires storage. Proof: The 28(3)(g) closing proviso — retention only where required by law, with the residual data still subject to processor obligations. Non-proof: Retention for 'business continuity' or 'audit' without a legal basis. Remediation: Add the closing proviso limiting retention to legally required cases."
+    ],
+    "aggregation": {
+      "operator": "all",
+      "children": [
+        {
+          "elementId": "G1"
+        },
+        {
+          "operator": "any",
+          "children": [
+            {
+              "elementId": "G2"
+            },
+            {
+              "elementId": "G3"
+            }
+          ]
+        },
+        {
+          "elementId": "G4"
+        }
+      ]
+    }
+  },
+  "gdpr.art28.3.h": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": [
+      "Within the selected rule only, regarding The processor must make available information necessary to demonstrate compliance AND allow for and contribute to audits and inspections by the controller or its mandated auditor. Proof: Both limbs required — compliance information AND an actual audit/inspection right. Third-party certifications on request alone is partial. Non-proof: Third-party certifications/reports (SOC2, ISO 27001) on request with no independent audit/inspection right. An information-provision clause with no audit or inspection right. An audit right limited to reviewing a summary report that cannot demonstrate compliance. Remediation: Add both compliance-information access and a controller (or auditor) audit/inspection right with processor contribution.",
+      "Within the selected rule only, regarding The processor must immediately inform the controller if, in its opinion, an instruction infringes GDPR or other data-protection provisions. Proof: Article 28(3) closing sentence — immediate warning of unlawful instructions. Distinct from the documented-instructions clause in 28(3)(a). Non-proof: A documented-instructions clause with no unlawful-instruction warning. A general compliance cooperation clause with no immediate-inform duty. Remediation: Add the immediate unlawful-instruction notification duty."
+    ]
+  },
+  "gdpr.art28.4": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": [
+      "Within the selected rule only, regarding The processor must impose on each subprocessor the same data-protection obligations imposed on the processor by the DPA — specifically by reference to the processor's Article 28(3) obligations. Proof: Same-obligations covenant — 'impose the same data protection obligations', 'equivalent to those in this DPA', or reference to Article 28(3) obligations flowing down. Non-proof: A general statement that subprocessors must comply with data protection law. Processor liability for subprocessor acts without a same-obligations flow-down covenant. Remediation: Require subprocessors to be bound by the same Article 28(3) obligations as the processor.",
+      "Within the selected rule only, regarding Flow-down is evidenced as an actual contractual imposition on subprocessors (by contract, DPA, or equivalent written instrument), not merely asserted via processor liability. Proof: Evidence that obligations are contractually imposed on subprocessors — written agreement, DPA, or explicit 'by contract' language. Liability alone does not prove flow-down. Non-proof: Processor remains liable for subprocessor conduct with no contractual flow-down language. A subprocessor list with no 'by written agreement' or 'by contract' imposition. Remediation: Evidence contractual flow-down — require subprocessors to enter written agreements imposing the same obligations."
+    ]
+  },
+  "gdpr.art28.9": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art28.10": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art29": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art30": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art33.1": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art33.2": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": [
+      "Within the selected rule only, regarding After becoming aware of a personal-data breach, the processor notifies the controller without undue delay. Proof: Operative processor-to-controller breach notification with a without-undue-delay standard or equivalent hard clock. Non-proof: A generic 'security incident' notice with no personal-data breach trigger. Vague 'promptly' or 'as soon as practicable' with no without-undue-delay framing for personal-data breaches. Remediation: Require the processor to notify the controller of personal-data breaches without undue delay.",
+      "Within the selected rule only, regarding The processor assists the controller with the controller's breach-related obligations under Articles 33 and 34 (and related documentation under Article 33(5)). Proof: Assistance limb distinct from upward notification — help the controller meet supervisory notification, individual communication, and breach-documentation duties. Non-proof: Processor breach notification upward only, with no assistance for controller breach obligations. A generic cooperation clause unrelated to breach response assistance. Remediation: Obligate the processor to assist the controller with Articles 33-34 breach obligations."
+    ]
+  },
+  "gdpr.art33.3": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art33.4": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art33.5": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art32": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": [
+      "Within the selected rule only, regarding Technical and organisational measures address ongoing confidentiality, integrity, availability, and resilience of processing systems and services. Proof: Article 32(1)(b) CIA/resilience limb — encryption, access controls, resilience, or equivalent measures, not a bare 'reasonable security' recital. Non-proof: A generic 'appropriate security' statement naming no confidentiality, integrity, availability, or resilience measures. Confidentiality-only language with no integrity, availability, or resilience commitment. Remediation: Implement measures ensuring confidentiality, integrity, availability, and resilience of processing systems.",
+      "Within the selected rule only, regarding Security measures are appropriate to the risk — considering state of the art, implementation cost, processing nature/scope/context/purposes, and likely impact on individuals. Proof: Risk-appropriate TOMs limb — measures tied to risk context, not one-size-fits-all boilerplate. Non-proof: A fixed checklist of controls with no risk-appropriateness framing. Referencing an external standard with no obligation to implement risk-appropriate measures. Remediation: Tie security measures to processing risk, context, and likely individual impact."
+    ]
+  },
+  "gdpr.art34": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art36": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art35": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": [
+      "Within the selected rule only, regarding Where processing is likely to result in a high risk, a data protection impact assessment is performed before that processing begins. Proof: When-required limb — DPIA before likely-high-risk processing (systematic monitoring, special-category data at scale, automated decision-making with legal effects, etc.). Non-proof: A generic 'DPIA may be conducted' option with no before-processing trigger for high-risk processing. Silence on DPIA where high-risk processing is described. Remediation: Commit to performing a DPIA before likely-high-risk processing begins.",
+      "Within the selected rule only, regarding The DPIA documents processing operations and purposes, necessity/proportionality assessment, risk assessment, and measures to address risks — including safeguards, security measures, and mechanisms demonstrating compliance. Proof: Documented content limb — not merely a promise to 'carry out a DPIA' with no documented assessment elements. Non-proof: A bare 'we will conduct a DPIA' commitment with no documented assessment content. Risk assessment language with no safeguards or compliance-evidence element. Remediation: Document DPIA content covering operations, necessity, risks, and mitigating measures."
+    ]
+  },
+  "gdpr.art37": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art38": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art39.1.a-c": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art40.3": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art42.2": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art44": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art45.1": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art46": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art47": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art48": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art49": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art77.1": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art79": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art80.1": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art82": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  },
+  "gdpr.art89.1": {
+    "version": "1.1.0",
+    "reviewStatus": "authored",
+    "guidance": []
+  }
+};
 
 function gdprRule(
   ruleId: string,
@@ -102,6 +718,11 @@ function gdprRule(
   legalHook?: string,
   extras?: Partial<SkillRegimeRule>
 ): SkillRegimeRule {
+  const investigation = GDPR_RULE_INVESTIGATION[ruleId];
+  if (!investigation) {
+    throw new Error(`GDPR rule ${ruleId} has no authored investigation profile`);
+  }
+  const baseSelection = deriveSelectionFromText(label, ruleText);
   return {
     ruleId,
     label,
@@ -111,6 +732,30 @@ function gdprRule(
     ruleScope: documentLevelRuleIds.has(ruleId) ? "per_document" : "per_clause",
     appliesToClauseTypes,
     ...(legalHook ? { legalHook } : {}),
+    authority: deriveGdprAuthority(ruleId),
+    selection: {
+      ...baseSelection,
+      aliases: [
+        ...new Set([
+          ...baseSelection.aliases,
+          ...investigation.evidenceHints.map((hint) => hint.toLowerCase()),
+        ]),
+      ],
+      concepts: [
+        ...new Set([
+          ...baseSelection.concepts,
+          ...investigation.evidenceHints.flatMap((hint) =>
+            deriveSelectionFromText(hint, hint).concepts
+          ),
+        ]),
+      ].slice(0, 40),
+    },
+    applicability: PROCESSOR_RULE_IDS.includes(ruleId)
+      ? { relationshipScopes: ["controller_to_processor"] }
+      : {},
+    investigation,
+    verification: GDPR_RULE_VERIFICATION[ruleId],
+    legacyRequirementId: LEGACY_REQUIREMENT_ID_BY_RULE[ruleId],
     ...extras,
   };
 }
@@ -141,6 +786,12 @@ const explicitFindingCategories: Record<string, string> = {
   "gdpr.art21": "gdpr.art21.objection_gap",
   "gdpr.art22": "automated_decision_gap",
   "gdpr.art28.3.e": "dsr_assistance_not_operational",
+  "gdpr.art33.1": "supervisory_authority_breach_notice_gap",
+  "gdpr.art33.2": "processor_breach_escalation_gap",
+  "gdpr.art33.3": "breach_notification_content_gap",
+  "gdpr.art33.4": "phased_breach_notification_gap",
+  "gdpr.art33.5": "breach_recordkeeping_gap",
+  "gdpr.art34": "high_risk_breach_notice_gap",
 };
 
 function findingCategoryForRule(ruleId: string, label: string): string {
@@ -590,12 +1241,36 @@ const GDPR_RULES: SkillRegimeRule[] = [
     "EU GDPR Art 30(1)-(3) and (5). Obligations to provide records to a supervisory authority are outside this skill's requested scope."
   ),
   gdprRule(
+    "gdpr.art33.1",
+    "Supervisory-authority breach notification and 72-hour deadline",
+    "After becoming aware of a personal-data breach, the controller must notify the competent supervisory authority without undue delay and, where feasible, within 72 hours; a late notification must explain the reasons for delay.",
+    ["information_security", "security_dpia_assistance", "controller_accountability"],
+    "pattern_then_llm_judgment",
+    "EU GDPR Art 33(1)."
+  ),
+  gdprRule(
     "gdpr.art33.2",
     "Processor breach notification to controller",
     "After becoming aware of a personal-data breach, the processor must notify the controller without undue delay.",
     ["processor_assistance_obligation", "security_dpia_assistance", "processor_terms"],
     "pattern_then_llm_judgment",
-    "EU GDPR Art 33(2). Supervisory-authority notification under Art 33(1) is excluded from this skill."
+    "EU GDPR Art 33(2)."
+  ),
+  gdprRule(
+    "gdpr.art33.3",
+    "Minimum supervisory-authority notification content",
+    "The breach notification must describe the breach nature and affected categories/numbers, provide DPO or contact details, describe likely consequences, and describe measures taken or proposed including mitigation.",
+    ["information_security", "security_dpia_assistance", "controller_accountability"],
+    "judgment",
+    "EU GDPR Art 33(3)."
+  ),
+  gdprRule(
+    "gdpr.art33.4",
+    "Phased breach-notification information",
+    "Where all required information cannot be provided at once, it may be supplied in phases without undue further delay.",
+    ["information_security", "security_dpia_assistance", "controller_accountability"],
+    "judgment",
+    "EU GDPR Art 33(4)."
   ),
   gdprRule(
     "gdpr.art33.5",
@@ -603,7 +1278,7 @@ const GDPR_RULES: SkillRegimeRule[] = [
     "The controller must document every personal-data breach with the facts, effects, and remedial action taken, in a form sufficient to verify compliance with Articles 33 and 34.",
     ["controller_accountability", "information_security", "security_dpia_assistance"],
     "judgment",
-    "EU GDPR Art 33(5). Supervisory-authority notification content under Art 33(3)-(4) is excluded."
+    "EU GDPR Art 33(5)."
   ),
   gdprRule(
     "gdpr.art32",
@@ -1371,6 +2046,7 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
   ],
   regimeRules: linkChapterIiiRulesToMatrix(GDPR_RULES),
   regimeRuleIds: GDPR_RULES.map((rule) => rule.ruleId),
+  compositions: GDPR_COMPOSITIONS,
   rightsMatrixRows: GDPR_RIGHTS_MATRIX,
   metaRequirementBindings: [
     {
@@ -1480,7 +2156,10 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
       focus: {
         ruleIds: [
           "gdpr.art32",
+          "gdpr.art33.1",
           "gdpr.art33.2",
+          "gdpr.art33.3",
+          "gdpr.art33.4",
           "gdpr.art33.5",
           "gdpr.art34",
           "gdpr.art35",
@@ -1766,179 +2445,17 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
       evidenceScope: {
         relationshipScopes: ["controller_to_processor"],
       },
-      requirementEvidence: {
-        art28_3_a_instructions: {
-          hypothesis:
-            "The processor processes personal data only on documented instructions from the controller.",
-          evidenceHints: ["documented instructions", "instructions"],
-          proofStandard:
-            "Proven only by text that requires the processor to act ONLY on the " +
-            "controller's documented/written instructions — not merely to comply " +
-            "with data protection law generally, and not merely a description of " +
-            "the processing already agreed in the contract. A general statement " +
-            "that the processor 'will process personal data in accordance with " +
-            "Data Protection Laws' is a compliance obligation, not an " +
-            "instructions-only constraint, and does not by itself satisfy this. " +
-            "The clause must specifically tie processing to controller " +
-            "instructions (a carve-out for legally required processing, paired " +
-            "with a duty to notify the controller first, is consistent with " +
-            "this particular and does not defeat it). The separate duty to " +
-            "immediately warn the controller that an instruction is unlawful is " +
-            "Article 28(3)'s closing sentence, already scoped to " +
-            "art28_3_h_audit / gdpr.art28.3.h — do not treat its absence as a " +
-            "defect of this particular.",
-        },
-        art28_3_b_confidentiality: {
-          hypothesis:
-            "Persons authorised to process personal data are committed to confidentiality.",
-          evidenceHints: ["confidential", "secrecy", "authorised persons", "authorized persons"],
-          proofStandard:
-            "Proven only by text imposing a confidentiality duty specifically on " +
-            "the PERSONS who process the data (employees, staff, " +
-            "representatives) — via written contractual confidentiality " +
-            "obligations or a statutory duty of confidentiality binding those " +
-            "persons. A general corporate confidentiality clause covering the " +
-            "parties' business information, without specifically extending to " +
-            "persons handling personal data, does not satisfy this. Do not " +
-            "confuse with the technical/security-measures particular — this one " +
-            "is about people being bound to secrecy, not about systems being " +
-            "secured.",
-        },
-        art28_3_c_security: {
-          hypothesis:
-            "The processor implements appropriate technical and organisational security measures.",
-          evidenceHints: ["security", "technical and organisational", "tom"],
-          proofStandard:
-            "Proven only by text obligating the processor to implement technical " +
-            "and organisational measures appropriate to the risk (e.g. " +
-            "referencing encryption, access controls, resilience, testing, or " +
-            "an incorporated security exhibit/schedule). A bare cross-reference " +
-            "to 'the Information Security Exhibit' or similar counts only if " +
-            "that referenced document is confirmed to actually contain security " +
-            "measures — an unconfirmed pointer is a dependency on an unsupplied " +
-            "document, not proof.",
-        },
-        art28_3_d_subprocessors: {
-          hypothesis:
-            "The processor does not engage another processor without controller authorisation.",
-          evidenceHints: [
-            "sub-processor",
-            "subprocessor",
-            "authorisation",
-            "authorization",
-            "notice",
-            "object",
-            "written agreement",
-            "thirty days",
-            "30 days",
-          ],
-          proofStandard:
-            "Proven only by text requiring the processor to obtain the " +
-            "controller's prior GENERAL or SPECIFIC written authorization " +
-            "before engaging a subprocessor, AND (for general authorization) " +
-            "giving the controller an opportunity to object to changes. A " +
-            "clause that merely says the processor 'will notify' or 'may " +
-            "engage subprocessors' without any authorization/objection " +
-            "mechanism does not satisfy this — notice alone is not " +
-            "authorization.",
-        },
-        art28_3_e_dsr_assistance: {
-          hypothesis:
-            "The processor assists the controller in responding to data-subject rights requests.",
-          evidenceHints: [
-            "data subject",
-            "assist",
-            "rights request",
-            "supervisory",
-          ],
-          proofStandard:
-            "Proven only by text obligating the processor to assist the " +
-            "controller (by appropriate technical and organisational measures) " +
-            "in responding to data subject rights requests (access, " +
-            "rectification, erasure, portability, objection, etc.) made to the " +
-            "controller. A clause obligating the processor merely to forward or " +
-            "redirect a data subject's own request to the controller is a " +
-            "weaker, narrower obligation than 'assist responding to requests' — " +
-            "treat it as partial/gap unless it also commits to some " +
-            "substantive assistance (providing the means, information, or " +
-            "technical support the controller needs to fulfill the request), " +
-            "not merely notice/redirection.",
-        },
-        art28_3_f_security_assistance: {
-          hypothesis:
-            "The processor assists the controller with security, personal-data-breach, and DPIA obligations.",
-          evidenceHints: [
-            "assist",
-            "breach",
-            "dpia",
-            "security of processing",
-            "prior consultation",
-            "supervisory",
-          ],
-          proofStandard:
-            "Proven only by text obligating the processor to assist the " +
-            "controller with the CONTROLLER's own Article 32-36 obligations — " +
-            "security of processing, breach notification to the supervisory " +
-            "authority/data subjects, data protection impact assessments, or " +
-            "prior consultation with a supervisory authority. A clause stating " +
-            "only that the processor will notify the controller of a breach " +
-            "affecting the processor's own systems is the processor's OWN " +
-            "breach-notification duty (a different, narrower obligation) — " +
-            "this particular requires the processor to help the controller " +
-            "satisfy the controller's own downstream obligations, not just " +
-            "report upward.",
-        },
-        art28_3_g_deletion_return: {
-          hypothesis:
-            "At the end of the services the controller may choose whether the processor deletes or returns personal data and existing copies.",
-          evidenceHints: ["delete", "deletion", "return", "erasure", "copies"],
-          proofStandard:
-            "Proven only by text that, at the end of the provision of services " +
-            "(not merely 'on request' at an unspecified time), gives the " +
-            "CONTROLLER an actual choice between deletion and return of all " +
-            "personal data, and requires deletion of existing copies, unless " +
-            "EU/Member State law requires continued storage. It is not enough " +
-            "that the processor performs one of those outcomes unilaterally. A " +
-            "clause obligating deletion only, with no return option the " +
-            "controller can elect, does not fully satisfy this — flag " +
-            "partialCoverage. A clause giving the controller only a vague " +
-            "'right to request deletion' without the processor being " +
-            "independently obligated to delete or return at end-of-service " +
-            "does not satisfy this.",
-        },
-        art28_3_h_audit: {
-          hypothesis:
-            "The processor makes available information necessary to demonstrate compliance and allows audits and inspections.",
-          evidenceHints: ["audit", "inspection", "demonstrate compliance"],
-          proofStandard:
-            "Proven only by text obligating the processor to make available " +
-            "information necessary to demonstrate compliance AND to allow for " +
-            "and contribute to audits, including inspections, conducted by the " +
-            "controller or an auditor mandated by the controller. Providing " +
-            "only third-party certifications/reports (e.g. SOC2, ISO 27001) on " +
-            "request, with no independent right for the controller (or its " +
-            "auditor) to conduct or contribute to an actual audit/inspection, " +
-            "is a weaker, narrower obligation — treat it as partial/gap, not " +
-            "full satisfaction, since this particular requires both the " +
-            "information AND the audit/inspection right.",
-        },
-        art28_4_subprocessor_flow_down: {
-          hypothesis:
-            "A subprocessor is bound by the same data-protection obligations as the processor.",
-          evidenceHints: ["flow-down", "same obligations", "subprocessor"],
-          proofStandard:
-            "Proven only by text requiring the SAME data protection obligations " +
-            "imposed on the processor by this DPA to be imposed on any " +
-            "subprocessor by contract, specifically by reference to the " +
-            "processor's own Article 28(3) obligations — not merely a general " +
-            "statement that subprocessors must comply with data protection law, " +
-            "and not merely that the processor remains liable for the " +
-            "subprocessor's acts. Liability for a subprocessor's conduct is a " +
-            "different, narrower guarantee that does NOT by itself establish " +
-            "that the same contractual obligations were actually imposed on " +
-            "the subprocessor.",
-        },
-      },
+      requirementEvidence: deriveRequirementEvidence(GDPR_RULE_INVESTIGATION, {
+        art28_3_a_instructions: "gdpr.art28.3.a",
+        art28_3_b_confidentiality: "gdpr.art28.3.b",
+        art28_3_c_security: "gdpr.art28.3.c",
+        art28_3_d_subprocessors: "gdpr.art28.3.d",
+        art28_3_e_dsr_assistance: "gdpr.art28.3.e",
+        art28_3_f_security_assistance: "gdpr.art28.3.f",
+        art28_3_g_deletion_return: "gdpr.art28.3.g",
+        art28_3_h_audit: "gdpr.art28.3.h",
+        art28_4_subprocessor_flow_down: "gdpr.art28.4",
+      }),
       sourceMode: "authored",
       packageVersion: "1.0.0",
       report: {
@@ -2016,224 +2533,17 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
         "objection",
         "automated_decisions",
       ],
-      requirementEvidence: {
-        art12_3_response_timeframe: {
-          hypothesis:
-            "The contract commits to responding to data-subject requests without undue delay and within one month of receipt, with any complexity/volume extension capped at two further months and conditioned on notice to the data subject within the first month stating the reasons for delay.",
-          evidenceHints: [
-            "one month",
-            "30 days",
-            "within one month",
-            "extend by two",
-            "further two months",
-            "response timeframe",
-            "data subject request",
-          ],
-          proofStandard:
-            "Proven only by text that states a specific NUMERIC response deadline for " +
-            "data-subject requests functionally equivalent to 'without undue delay and " +
-            "in any event within one month of receipt.' A purely vague timing standard " +
-            "(e.g. 'promptly,' 'reasonably,' 'as soon as reasonably practicable,' " +
-            "'without undue delay' with no numeric backstop) does NOT satisfy this — " +
-            "Article 12(3) sets a hard one-month clock, not merely a diligence " +
-            "standard, and vague language alone is a gap, not proof. If the text " +
-            "grants an extension, full proof additionally requires the extension to " +
-            "be capped at two further months AND conditioned on notice to the data " +
-            "subject, within the original one-month period, stating the reasons for " +
-            "the delay — an open-ended or unconditional extension right is a partial " +
-            "gap, not full satisfaction. Silence on response timing entirely is not " +
-            "proof.",
-        },
-        art15_access: {
-          hypothesis:
-            "A data subject may obtain confirmation that their personal data is being processed and a copy of that data, together with the Article 15(1) particulars (purposes, categories of data, recipients, retention period or criteria, other applicable rights, complaint route, source of the data, and — where applicable — meaningful information about automated decision-making logic, significance, and consequences), and further copies may be charged only a reasonable administrative fee.",
-          evidenceHints: [
-            "right of access",
-            "confirmation of processing",
-            "copy of your personal data",
-            "purposes of processing",
-            "categories of recipients",
-            "retention period",
-            "reasonable fee",
-          ],
-          proofStandard:
-            "Proven only by text that (a) confirms a data subject can obtain " +
-            "confirmation that their data is being processed and a copy of it, AND " +
-            "(b) commits to supplying substantially the Article 15(1) particulars — " +
-            "purposes, categories of data, recipients or categories of recipients, " +
-            "retention period or criteria, existence of the rectification/erasure/" +
-            "restriction/objection rights, the right to complain to a supervisory " +
-            "authority, the source of the data where not collected from the subject, " +
-            "and (where applicable) meaningful information about any solely automated " +
-            "decision-making, its significance, and its consequences. A bare 'data " +
-            "subject rights will be honored' statement naming none of these " +
-            "particulars is insufficient — Article 15 is a specific disclosure " +
-            "obligation, not a generic access promise. A right to charge for EVERY " +
-            "copy, with no free-first-copy / manifestly-unfounded-or-excessive " +
-            "framing, is a partial gap on the fee element, not a full defeat of the " +
-            "access right itself.",
-        },
-        art16_rectification: {
-          hypothesis:
-            "The contract commits to correcting inaccurate personal data without undue delay and to allowing a data subject to complete incomplete personal data, including by means of a supplementary statement.",
-          evidenceHints: [
-            "rectification",
-            "correct inaccurate",
-            "complete incomplete data",
-            "supplementary statement",
-            "without undue delay",
-          ],
-          proofStandard:
-            "Proven only by text that (a) obligates rectification of inaccurate " +
-            "personal data without undue delay upon request, AND (b) separately " +
-            "addresses completion of incomplete data (e.g. by permitting a " +
-            "supplementary statement or additional data). A clause allowing a data " +
-            "subject merely to 'submit a correction request,' with no corresponding " +
-            "obligation on the controller/processor to act on it, does not satisfy " +
-            "this. Coverage of correction of inaccurate data alone, with no mention " +
-            "of completing incomplete data, is partial, not full proof.",
-        },
-        art17_erasure: {
-          hypothesis:
-            "The contract commits to erasing personal data without undue delay when an Article 17(1) ground applies (data no longer necessary, withdrawn consent with no other lawful basis, successful objection, unlawful processing, a legal erasure obligation, or child-service data collection), subject only to the Article 17(3) exceptions, and takes reasonable steps to inform other controllers where the data was made public.",
-          evidenceHints: [
-            "erasure",
-            "right to be forgotten",
-            "delete personal data",
-            "withdrawal of consent",
-            "object to processing",
-            "upon request",
-            "legal obligation to retain",
-          ],
-          proofStandard:
-            "Proven only by text committing to erase personal data on a data-subject " +
-            "erasure request or when a recognized Article 17(1) ground applies — NOT " +
-            "merely a deletion duty triggered solely 'upon termination of the " +
-            "Agreement.' A termination-triggered deletion clause proves only the " +
-            "termination-linked subset of Article 17; the mid-term right arises " +
-            "independent of contract end (e.g. on withdrawn consent or successful " +
-            "objection), so a clause that erases only 'at the end of the Term,' with " +
-            "no mid-term erasure-request mechanism, is PARTIAL coverage, not full " +
-            "proof — do not treat termination-only deletion as satisfying this " +
-            "element. Legal-retention, legal-claims, or public-interest-archiving " +
-            "exceptions are consistent with this requirement and do not defeat it " +
-            "when narrowly stated.",
-        },
-        art18_restriction: {
-          hypothesis:
-            "The contract provides a distinct 'restriction' remedy — data is marked/stored but not otherwise actively processed — when accuracy is contested, processing is unlawful but erasure is opposed, the controller no longer needs the data but the data subject needs it for legal claims, or an objection is pending verification, and notifies the data subject before lifting any restriction.",
-          evidenceHints: [
-            "restriction of processing",
-            "restrict processing",
-            "mark the data",
-            "contested accuracy",
-            "pending verification",
-          ],
-          proofStandard:
-            "Proven only by text that provides a RESTRICTION remedy distinct from " +
-            "both erasure and continued normal processing — data is marked/stored " +
-            "but excluded from further processing except with consent, for legal " +
-            "claims, to protect another's rights, or for important public interest — " +
-            "tied to at least one Article 18(1) ground (contested accuracy, unlawful " +
-            "processing with erasure opposed, controller no longer needs it but data " +
-            "subject does for legal claims, or a pending objection). A contract " +
-            "offering only 'delete or keep processing,' with no separate restriction " +
-            "option, does not satisfy this. Silence on restriction entirely is not " +
-            "proof.",
-        },
-        art19_recipient_notification: {
-          hypothesis:
-            "The controller communicates any rectification, erasure, or restriction of personal data to every recipient to whom the data has been disclosed, unless this proves impossible or involves disproportionate effort, and informs the data subject of those recipients on request.",
-          evidenceHints: [
-            "notify recipients",
-            "communicate rectification",
-            "communicate erasure",
-            "communicate restriction",
-            "recipients to whom",
-            "disproportionate effort",
-          ],
-          proofStandard:
-            "Proven only by text obligating notice to downstream recipients " +
-            "(including subprocessors/third parties who received the data) " +
-            "specifically WHEN data is rectified, erased, or restricted — a general " +
-            "subprocessor flow-down of confidentiality or security obligations does " +
-            "NOT satisfy this, because that is a different obligation (Article 28(4)) " +
-            "not tied to rights-exercise notice. An 'impossible or disproportionate " +
-            "effort' carve-out is consistent with the requirement and does not " +
-            "defeat it.",
-        },
-        art20_portability: {
-          hypothesis:
-            "Where processing is carried out by automated means on the basis of consent or contract, the data subject can receive the personal data they provided in a structured, commonly used, machine-readable format and have it transmitted to another controller, including direct transmission where technically feasible.",
-          evidenceHints: [
-            "data portability",
-            "structured format",
-            "machine-readable",
-            "commonly used format",
-            "transmit to another controller",
-            "export your data",
-          ],
-          proofStandard:
-            "Proven only by text that (a) names or commits to a structured, commonly " +
-            "used, machine-readable export format for data the subject supplied, AND " +
-            "(b) supports transmission to another controller, including direct " +
-            "transmission where technically feasible. A generic 'we will provide your " +
-            "data upon request' statement with no format commitment does not satisfy " +
-            "Article 20's specific technical requirement — format and transmissibility " +
-            "are the operative elements, not mere data provision. If no format or " +
-            "transmission mechanism is named at all, this is a gap, not partial " +
-            "proof.",
-        },
-        art21_objection: {
-          hypothesis:
-            "The data subject can object to processing carried out on the legitimate-interest or public-task basis, causing the controller to stop unless it demonstrates compelling legitimate grounds or the need to establish, exercise, or defend legal claims; the data subject can additionally object to direct-marketing processing (including related profiling) at any time with no override, and this right is presented clearly and separately from other information no later than the first communication.",
-          evidenceHints: [
-            "right to object",
-            "legitimate interests",
-            "direct marketing",
-            "opt out of marketing",
-            "compelling legitimate grounds",
-            "profiling",
-          ],
-          proofStandard:
-            "Proven only by text that provides BOTH halves: (a) an objection right " +
-            "distinct from erasure/restriction, tied to legitimate-interest or " +
-            "public-task processing, where the controller's continued-processing " +
-            "exception is limited to compelling grounds or legal-claims defense; AND " +
-            "(b) a SEPARATE, unconditional direct-marketing objection right (no " +
-            "override permitted for marketing, unlike the general Article 21(1) " +
-            "right). A contract addressing only a general 'opt out of marketing' " +
-            "mechanism, with no broader legitimate-interest objection right, is " +
-            "PARTIAL — both halves are required for full proof. A generic 'data " +
-            "subject rights' list that names 'objection' among several rights with no " +
-            "operative detail on its effect on processing does not satisfy this.",
-        },
-        art22_automated_decisions: {
-          hypothesis:
-            "The controller does not subject a data subject to a decision based solely on automated processing (including profiling) that produces legal effects or similarly significantly affects them, unless an Article 22(2) exception applies (contract necessity, law with safeguards, or explicit consent), in which case it provides at least a right to human intervention, to express a view, and to contest the decision, and processes any special-category data underlying the decision only with explicit consent or substantial-public-interest law and suitable safeguards.",
-          evidenceHints: [
-            "automated decision-making",
-            "solely automated",
-            "profiling",
-            "human intervention",
-            "contest the decision",
-            "legal effects",
-            "explicit consent",
-          ],
-          proofStandard:
-            "Proven only by text that either (a) contains no description of any " +
-            "solely-automated decision-making producing legal or similarly " +
-            "significant effects (in which case this proposition is NOT RAISED by " +
-            "the text — treat as not applicable, neither proved nor contradicted), OR " +
-            "(b) where such automated decision-making IS described, names which " +
-            "Article 22(2) exception applies AND commits to human intervention, a " +
-            "right to express a view, and a right to contest the decision. A contract " +
-            "describing an automated scoring, screening, or eligibility tool with no " +
-            "mention of human-intervention or contest rights is a GAP — do not treat " +
-            "a generic 'we comply with applicable data protection law' statement as " +
-            "satisfying this; Article 22 requires specific, operative safeguards.",
-        },
-      },
+      requirementEvidence: deriveRequirementEvidence(GDPR_RULE_INVESTIGATION, {
+        art12_3_response_timeframe: "gdpr.art12.3",
+        art15_access: "gdpr.art15",
+        art16_rectification: "gdpr.art16",
+        art17_erasure: "gdpr.art17",
+        art18_restriction: "gdpr.art18",
+        art19_recipient_notification: "gdpr.art19",
+        art20_portability: "gdpr.art20",
+        art21_objection: "gdpr.art21",
+        art22_automated_decisions: "gdpr.art22",
+      }),
       sourceMode: "authored",
       packageVersion: "1.0.0",
       requirementKinds: ["adequacy", "verification"],
@@ -2309,7 +2619,10 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
       id: "gdpr.security.breach_and_accountability",
       requirementIds: [
         "art32_security",
+        "art33_1_authority_notice",
         "art33_2_processor_breach_notice",
+        "art33_3_notification_content",
+        "art33_4_phased_notification",
         "art33_5_breach_documentation",
         "art34_individual_notice",
         "art35_dpia",
@@ -2317,7 +2630,10 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
       ],
       capabilityIds: [
         "gdpr.art32",
+        "gdpr.art33.1",
         "gdpr.art33.2",
+        "gdpr.art33.3",
+        "gdpr.art33.4",
         "gdpr.art33.5",
         "gdpr.art34",
         "gdpr.art35",
@@ -2333,162 +2649,26 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
       ],
       extractionTargets: [
         "security_measures",
+        "authority_breach_notification",
         "processor_breach_notification",
+        "breach_notification_content",
+        "phased_breach_notification",
         "breach_documentation",
         "individual_breach_notice",
         "dpia",
         "prior_consultation",
       ],
-      requirementEvidence: {
-        art32_security: {
-          hypothesis:
-            "The controller and processor implement technical and organisational measures ensuring a level of security appropriate to the risk — including ongoing confidentiality, integrity, availability, and resilience of processing systems and services, with measures such as pseudonymisation/encryption, timely restoration, regular testing, and controls ensuring authorised persons process only on instructions.",
-          evidenceHints: [
-            "technical and organisational measures",
-            "confidentiality",
-            "integrity",
-            "availability",
-            "resilience",
-            "encryption",
-            "pseudonymisation",
-            "risk-based security",
-          ],
-          proofStandard:
-            "Proven only by text obligating risk-appropriate technical and " +
-            "organisational security measures that address BOTH (a) ongoing " +
-            "confidentiality, integrity, availability, and resilience of " +
-            "processing systems/services and (b) measures appropriate to the " +
-            "risk (state of the art, cost, nature/scope/context/purposes, and " +
-            "likely impact). A generic 'industry-standard security' or " +
-            "'reasonable security' recital naming none of these elements is " +
-            "insufficient — Article 32 requires operative TOMs, not a bare " +
-            "compliance aspiration. A bare cross-reference to an external " +
-            "security exhibit counts only if that exhibit is confirmed to " +
-            "contain risk-appropriate measures; an unconfirmed pointer is a " +
-            "dependency, not proof. Confidentiality-only language without " +
-            "integrity/availability/resilience or risk-appropriateness is " +
-            "partial, not full proof.",
-        },
-        art33_2_processor_breach_notice: {
-          hypothesis:
-            "After becoming aware of a personal-data breach, the processor notifies the controller without undue delay and assists the controller with the controller's applicable Articles 33-34 breach obligations.",
-          evidenceHints: [
-            "personal data breach",
-            "without undue delay",
-            "notify the controller",
-            "becoming aware",
-            "assist",
-            "breach notification",
-          ],
-          proofStandard:
-            "Proven only by text that (a) obligates the processor, after " +
-            "becoming aware of a personal-data breach, to notify the controller " +
-            "without undue delay AND (b) separately commits the processor to " +
-            "assist the controller with the controller's breach-related " +
-            "obligations (supervisory-authority notification content, " +
-            "high-risk individual communication, and/or breach documentation). " +
-            "A processor's own upward breach notice alone — with no assistance " +
-            "for the controller's downstream Articles 33-34 duties — is " +
-            "partial on the assistance limb. Vague 'promptly' or 'as soon as " +
-            "practicable' without a without-undue-delay framing for personal-" +
-            "data breaches is a partial gap on timing. A generic security-" +
-            "incident notice unrelated to personal data is not proof.",
-        },
-        art33_5_breach_documentation: {
-          hypothesis:
-            "Every personal-data breach is documented with the facts relating to the breach, its effects, and the remedial action taken, in a form sufficient to verify compliance with Articles 33 and 34.",
-          evidenceHints: [
-            "document",
-            "documentation",
-            "breach record",
-            "facts of the breach",
-            "effects",
-            "remedial action",
-            "remediation",
-          ],
-          proofStandard:
-            "Proven only by text committing to document each personal-data " +
-            "breach with facts, effects, and remedial action in a form " +
-            "sufficient to verify Articles 33-34 compliance — not merely a " +
-            "duty to notify. A breach-notification clause alone does not " +
-            "establish recordkeeping unless it also requires documenting facts, " +
-            "effects, and remedial measures. Silence on breach documentation " +
-            "entirely is a gap. Supervisory-authority notification form " +
-            "content under Article 33(3)-(4) is outside this particular.",
-        },
-        art34_individual_notice: {
-          hypothesis:
-            "When a personal-data breach is likely to result in a high risk to individuals, the controller communicates the breach to affected data subjects without undue delay in clear plain language, describing its nature, DPO/contact details, likely consequences, and measures taken or proposed to address it — subject only to the Article 34(3) exceptions.",
-          evidenceHints: [
-            "communicate to data subjects",
-            "high risk",
-            "without undue delay",
-            "plain language",
-            "likely consequences",
-            "mitigation",
-            "encryption",
-          ],
-          proofStandard:
-            "Proven only by text that commits to individual communication " +
-            "when a breach is likely to create high risk — including nature, " +
-            "contact point, likely consequences, and mitigation — in clear " +
-            "plain language without undue delay. A processor-to-controller " +
-            "breach notice alone does NOT satisfy this controller-side " +
-            "Article 34 duty. Narrow Article 34(3) exceptions (effective " +
-            "technical protection, subsequent elimination of high risk, or " +
-            "disproportionate effort with equally effective public " +
-            "communication) are consistent and do not defeat the commitment " +
-            "when stated. Silence on high-risk individual communication is a " +
-            "gap where breach response is in scope.",
-        },
-        art35_dpia: {
-          hypothesis:
-            "Before likely-high-risk processing, the controller performs a data protection impact assessment documenting processing operations and purposes, necessity/proportionality, risk assessment, and safeguards — seeking DPO advice where designated and reviewing when risk changes.",
-          evidenceHints: [
-            "data protection impact assessment",
-            "dpia",
-            "high risk",
-            "necessity",
-            "proportionality",
-            "safeguards",
-            "prior to processing",
-          ],
-          proofStandard:
-            "Proven only by text that (a) commits to performing a DPIA before " +
-            "processing likely to result in high risk AND (b) addresses " +
-            "documented assessment content — operations/purposes, " +
-            "necessity/proportionality, risks, and mitigating measures. A " +
-            "bare optional 'DPIA may be conducted' statement, or a generic " +
-            "'we comply with GDPR' recital, does not satisfy Article 35's " +
-            "before-processing and documentation requirements. Where high-risk " +
-            "processing is described in the agreement with no DPIA commitment, " +
-            "this is a gap. Supervisory-authority list/public-law exceptions " +
-            "under Article 35(5)-(6) are outside this particular.",
-        },
-        art36_prior_consultation: {
-          hypothesis:
-            "Where a DPIA indicates processing would result in high risk in the absence of controller measures to mitigate the risk, the controller consults the supervisory authority before processing and provides information to support that consultation.",
-          evidenceHints: [
-            "prior consultation",
-            "supervisory authority",
-            "consultation before processing",
-            "high risk",
-            "mitigate the risk",
-            "dpia",
-          ],
-          proofStandard:
-            "Proven only by text committing to prior consultation with the " +
-            "supervisory authority before processing when a DPIA shows high " +
-            "risk remains after mitigation measures — not merely a general " +
-            "cooperation-with-authorities clause. This particular evaluates " +
-            "the private commitment to consult before processing; " +
-            "supervisory-authority procedure under Article 36(2) and " +
-            "Member-State exemptions under Article 36(4)-(5) are excluded. " +
-            "Silence on prior consultation where DPIA/high-risk processing is " +
-            "addressed is a gap; where no DPIA or high-risk processing is " +
-            "described, treat as not applicable rather than contradicted.",
-        },
-      },
+      requirementEvidence: deriveRequirementEvidence(GDPR_RULE_INVESTIGATION, {
+        art32_security: "gdpr.art32",
+        art33_1_authority_notice: "gdpr.art33.1",
+        art33_2_processor_breach_notice: "gdpr.art33.2",
+        art33_3_notification_content: "gdpr.art33.3",
+        art33_4_phased_notification: "gdpr.art33.4",
+        art33_5_breach_documentation: "gdpr.art33.5",
+        art34_individual_notice: "gdpr.art34",
+        art35_dpia: "gdpr.art35",
+        art36_prior_consultation: "gdpr.art36",
+      }),
       sourceMode: "authored",
       packageVersion: "1.0.0",
       requirementKinds: ["adequacy", "verification"],
@@ -2567,188 +2747,20 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
         "eu_representative",
         "records_of_processing",
       ],
-      requirementEvidence: {
-        art5_1_principles: {
-          hypothesis:
-            "Personal data is processed lawfully, fairly, and transparently; collected for specified, explicit, legitimate purposes; limited to what is necessary; kept accurate and no longer than necessary; and secured against unauthorised or unlawful processing and accidental loss, destruction, or damage.",
-          evidenceHints: [
-            "lawfully",
-            "fairly",
-            "transparently",
-            "specified purpose",
-            "data minimisation",
-            "accuracy",
-            "retention",
-            "security",
-            "principles",
-          ],
-          proofStandard:
-            "Proven only by text that operationalises Article 5(1) principles " +
-            "in the contract context — not a bare 'parties will comply with " +
-            "GDPR' recital. At minimum, look for commitments tied to lawful/" +
-            "fair/transparent processing, purpose limitation, minimisation, " +
-            "accuracy, limited retention, and security. A privacy-policy " +
-            "cross-reference alone does not prove contractual principle " +
-            "commitments unless the agreement itself undertakes to honour " +
-            "those principles in performing the services.",
-        },
-        art5_2_accountability: {
-          hypothesis:
-            "The controller is responsible for compliance with Article 5(1) principles and can demonstrate that compliance.",
-          evidenceHints: [
-            "accountability",
-            "demonstrate compliance",
-            "responsible for compliance",
-            "records",
-            "policies",
-          ],
-          proofStandard:
-            "Proven only by text reflecting controller accountability — " +
-            "responsibility for principle compliance and ability to demonstrate " +
-            "it (policies, records, audit/cooperation mechanics). A generic " +
-            "compliance-with-law clause without demonstrate/accountability " +
-            "language is insufficient. Processor-side clauses alone do not " +
-            "satisfy controller accountability unless they expressly allocate " +
-            "demonstration duties to the controller.",
-        },
-        art6_1_lawful_basis: {
-          hypothesis:
-            "For each processing purpose, the controller identifies and satisfies at least one Article 6(1) lawful basis — consent, contract necessity, legal obligation, vital interests, public task, or legitimate interests (with necessity and balancing, especially for children).",
-          evidenceHints: [
-            "lawful basis",
-            "legal basis",
-            "consent",
-            "contract",
-            "legitimate interests",
-            "legal obligation",
-            "public task",
-          ],
-          proofStandard:
-            "Proven only by text identifying at least one Article 6(1) lawful " +
-            "basis for the processing described — not merely stating that " +
-            "processing will be lawful. A bare 'we have a legal basis' " +
-            "statement without naming which basis applies to which purpose is " +
-            "partial at best. Legitimate-interests processing should reflect " +
-            "necessity and balancing; silence on lawful basis where processing " +
-            "purposes are described is a gap.",
-        },
-        art7_consent_conditions: {
-          hypothesis:
-            "Where processing relies on consent, the controller can demonstrate consent; consent requests are clear, distinguishable, and in plain language; withdrawal is as easy as giving consent and is disclosed before consenting; and consent is not made conditional on unnecessary processing.",
-          evidenceHints: [
-            "demonstrate consent",
-            "freely given",
-            "withdraw consent",
-            "plain language",
-            "distinguishable",
-            "conditionality",
-          ],
-          proofStandard:
-            "Proven only where consent is identified as a lawful basis AND text " +
-            "addresses Article 7 conditions: demonstrability, clear/distinguishable " +
-            "requests, pre-consent withdrawal disclosure with withdrawal as easy " +
-            "as consent, and no bundling of unnecessary processing as a condition " +
-            "of service. If consent is not the stated basis, treat as not " +
-            "applicable rather than contradicted. A generic 'consent will be " +
-            "obtained lawfully' statement without operative Art 7 mechanics is " +
-            "partial, not full proof.",
-        },
-        art24_controller_responsibility: {
-          hypothesis:
-            "The controller implements and periodically updates proportionate technical and organisational measures reflecting processing nature, scope, context, purposes, and risks, and uses appropriate data-protection policies where proportionate, to demonstrate GDPR compliance.",
-          evidenceHints: [
-            "controller responsibility",
-            "technical and organisational measures",
-            "data protection policies",
-            "proportionate",
-            "demonstrate compliance",
-          ],
-          proofStandard:
-            "Proven only by text reflecting Article 24 controller " +
-            "responsibility — proportionate measures and policies to demonstrate " +
-            "compliance. Generic processor security clauses do not by themselves " +
-            "establish the controller's Article 24 responsibility unless the " +
-            "agreement allocates or describes controller-side governance. Silence " +
-            "on controller responsibility where the controller's obligations are " +
-            "in scope is a gap.",
-        },
-        art25_dp_by_design: {
-          hypothesis:
-            "At design time and during processing, state-of-the-art, cost- and risk-appropriate measures embed data-protection principles and rights by design and by default — processing only data necessary for each purpose and limiting accessibility by default.",
-          evidenceHints: [
-            "privacy by design",
-            "by default",
-            "data minimisation",
-            "state of the art",
-            "necessary for each purpose",
-          ],
-          proofStandard:
-            "Proven only by text committing to privacy-by-design and by-default " +
-            "measures — embedding principles/rights and default minimisation/" +
-            "access limits. A bare reference to 'privacy by design' with no " +
-            "operative minimisation or default-limitation content is partial. " +
-            "Security measures alone without design/default framing do not " +
-            "fully satisfy Article 25.",
-        },
-        art26_joint_controllers: {
-          hypothesis:
-            "Joint controllers transparently allocate GDPR responsibilities — especially rights handling and Articles 13-14 notices — reflect actual roles, make the arrangement's essence available to individuals, and preserve rights against each controller.",
-          evidenceHints: [
-            "joint controllers",
-            "joint controllership",
-            "allocation of responsibilities",
-            "essence of the arrangement",
-            "transparent",
-          ],
-          proofStandard:
-            "Proven only where joint controllership is described AND text " +
-            "allocates responsibilities, makes the essence available to " +
-            "individuals, and preserves exercise of rights against each " +
-            "controller. If the arrangement is clearly controller/processor " +
-            "only, treat as not applicable. A bare 'joint controllers' label " +
-            "without allocation or essence disclosure is a gap.",
-        },
-        art27_eu_representative: {
-          hypothesis:
-            "A non-EU controller or processor within Article 3(2) designates a written EU representative established where relevant individuals are located, mandated as the GDPR contact, without displacing controller or processor liability — unless the narrow occasional low-risk exception applies.",
-          evidenceHints: [
-            "eu representative",
-            "representative in the union",
-            "article 27",
-            "article 3(2)",
-            "mandated",
-          ],
-          proofStandard:
-            "Proven only where a party is clearly a non-EU controller/processor " +
-            "targeting or monitoring individuals in the EU AND text designates " +
-            "an EU representative with written mandate. If all parties are " +
-            "EU-established or the Article 3(2) targeting/monitoring scope is " +
-            "not present, treat as not applicable. Silence on representative " +
-            "designation where a non-EU Article 3(2) controller/processor is " +
-            "identified is a gap.",
-        },
-        // Art 28(1)/(2) intentionally omitted — when Art 28 packages are in
-        // scope they are absorbed as contextCapabilityIds (not separate
-        // evaluate_package requirements). See analysis-package-graph tests.
-        art30_ropa: {
-          hypothesis:
-            "Controllers and processors maintain written records of processing activities containing the Article 30 particulars applicable to their role, subject to the under-250-person exemption limits.",
-          evidenceHints: [
-            "records of processing",
-            "record of processing activities",
-            "ropa",
-            "article 30",
-            "processing activities",
-          ],
-          proofStandard:
-            "Proven only by text committing to maintain written (including " +
-            "electronic) records of processing activities with role-appropriate " +
-            "Article 30 particulars — not merely a privacy notice. Obligations " +
-            "to provide records to a supervisory authority are outside this " +
-            "particular. Silence on records where processing scope is described " +
-            "is a gap unless the under-250 exemption clearly applies on its face.",
-        },
-      },
+      // Art 28(1)/(2) intentionally omitted — when Art 28 packages are in
+      // scope they are absorbed as contextCapabilityIds (not separate
+      // evaluate_package requirements). See analysis-package-graph tests.
+      requirementEvidence: deriveRequirementEvidence(GDPR_RULE_INVESTIGATION, {
+        art5_1_principles: "gdpr.art5.1",
+        art5_2_accountability: "gdpr.art5.2",
+        art6_1_lawful_basis: "gdpr.art6.1",
+        art7_consent_conditions: "gdpr.art7.1",
+        art24_controller_responsibility: "gdpr.art24",
+        art25_dp_by_design: "gdpr.art25",
+        art26_joint_controllers: "gdpr.art26",
+        art27_eu_representative: "gdpr.art27",
+        art30_ropa: "gdpr.art30",
+      }),
       sourceMode: "authored",
       packageVersion: "1.0.0",
       requirementKinds: ["adequacy", "verification"],
@@ -2844,302 +2856,22 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
         "indirect_collection_notice",
         "notice_timing",
       ],
-      requirementEvidence: {
-        art6_4_purpose_compatibility: {
-          hypothesis:
-            "Before further processing for a new purpose not based on consent or law, the controller assesses compatibility by considering the link between purposes, collection context and relationship, data nature, possible consequences, and safeguards such as encryption or pseudonymisation.",
-          evidenceHints: [
-            "compatible further processing",
-            "compatibility assessment",
-            "new purpose",
-            "link between purposes",
-            "collection context",
-            "pseudonymisation",
-            "encryption",
-            "safeguards",
-          ],
-          proofStandard:
-            "Proven only by text committing to a purpose-compatibility " +
-            "assessment before further processing for a new purpose not based " +
-            "on consent or Union/Member State law — addressing the Art 6(4) " +
-            "factors (link between purposes, collection context/relationship, " +
-            "data nature, consequences, and safeguards). A bare 'processing " +
-            "will be lawful' or 'compatible purposes' recital without operative " +
-            "assessment mechanics is insufficient. If further processing for " +
-            "new purposes is not in scope, treat as not applicable rather than " +
-            "contradicted.",
-        },
-        art8_child_consent: {
-          hypothesis:
-            "For an information-society service offered directly to a child and relying on consent, the applicable national age threshold is observed; below that threshold, consent is obtained or authorised through the holder of parental responsibility, with reasonable efforts using available technology to verify that authorisation.",
-          evidenceHints: [
-            "child",
-            "children",
-            "parental consent",
-            "parental responsibility",
-            "age of consent",
-            "information society service",
-            "verify",
-            "authorisation",
-          ],
-          proofStandard:
-            "Proven only where consent-based information-society services " +
-            "offered to children are in scope AND text addresses national age " +
-            "threshold, parental-responsibility authorisation below that " +
-            "threshold, and reasonable verification efforts. Do not assume a " +
-            "single age (13-16) without jurisdiction. A generic 'we comply " +
-            "with children's privacy laws' statement without parental-consent " +
-            "and verification mechanics is partial. If child-directed services " +
-            "or consent-based ISS are not described, treat as not applicable.",
-        },
-        art9_special_categories: {
-          hypothesis:
-            "Processing revealing racial or ethnic origin, political opinions, religion or beliefs, trade-union membership, genetic or biometric identification data, health data, or sex-life or sexual-orientation data is prohibited unless a specific Article 9(2) condition applies; health processing under Article 9(2)(h) also requires professional secrecy or an equivalent duty.",
-          evidenceHints: [
-            "special category",
-            "special categories",
-            "health data",
-            "biometric",
-            "genetic",
-            "sensitive personal data",
-            "article 9",
-            "explicit consent",
-            "professional secrecy",
-          ],
-          proofStandard:
-            "Proven only where special-category data is processed or " +
-            "contemplated AND text identifies a specific Article 9(2) condition " +
-            "(not merely Article 6) plus any required secrecy duty for " +
-            "9(2)(h) health processing. A bare 'sensitive data will be " +
-            "processed lawfully' or GDPR recital without naming an Art 9(2) " +
-            "condition is insufficient. If no special-category processing is " +
-            "described, treat as not applicable rather than contradicted.",
-        },
-        art10_criminal_data: {
-          hypothesis:
-            "Criminal-conviction, offence, and related security-measure data is processed on an Article 6 basis only under official control or where Union or Member State law authorises processing with appropriate safeguards; a comprehensive register is kept only under official control.",
-          evidenceHints: [
-            "criminal conviction",
-            "criminal offence",
-            "offence data",
-            "security measures",
-            "official control",
-            "article 10",
-            "safeguards",
-          ],
-          proofStandard:
-            "Proven only where criminal-conviction/offence data is in scope " +
-            "AND text reflects Art 10 limits — official control or " +
-            "Union/Member State law authorisation with appropriate safeguards, " +
-            "and no comprehensive register outside official control. A generic " +
-            "background-check or 'lawful processing' clause without Art 10 " +
-            "authorisation/safeguards language is insufficient. If criminal-" +
-            "offence data is not described, treat as not applicable.",
-        },
-        art11_1_non_identification: {
-          hypothesis:
-            "The controller need not maintain or acquire identifying information solely to comply with GDPR where processing purposes do not require identification of a data subject.",
-          evidenceHints: [
-            "identification",
-            "not required to identify",
-            "anonymous",
-            "pseudonymous",
-            "do not maintain identifying",
-            "article 11",
-          ],
-          proofStandard:
-            "Proven only by text recognising that identifying information need " +
-            "not be maintained or acquired solely for GDPR compliance where " +
-            "purposes do not require identification — not a bare " +
-            "pseudonymisation recital. Silence is not a gap unless the " +
-            "agreement invents an obligation to identify solely for compliance. " +
-            "Where processing clearly requires identification, treat as not " +
-            "applicable rather than contradicted.",
-        },
-        art11_2_rights_without_identification: {
-          hypothesis:
-            "If the controller can demonstrate it cannot identify the data subject, it informs the individual where possible; Articles 15-20 do not apply unless the individual supplies additional information enabling identification, and Article 11 is not used to reject a request once adequate identifying information is provided.",
-          evidenceHints: [
-            "cannot identify",
-            "additional information",
-            "enable identification",
-            "inform the data subject",
-            "articles 15-20",
-            "article 11",
-          ],
-          proofStandard:
-            "Proven only by text that (a) allows informing the individual when " +
-            "identification is demonstrably impossible AND (b) does not use " +
-            "non-identification as a permanent bar once adequate identifying " +
-            "information is supplied. A clause that permanently refuses " +
-            "Articles 15-20 rights without a path to provide identifying " +
-            "information contradicts Art 11(2). Silence where " +
-            "non-identification is not claimed is not a gap.",
-        },
-        art12_1_2_transparent_info: {
-          hypothesis:
-            "Articles 13-14 information and Articles 15-22 and 34 communications are provided concisely, transparently, intelligibly, accessibly, and in clear plain language — especially for children — and rights requests are facilitated without refusal solely because identity cannot be established unless that inability is demonstrated.",
-          evidenceHints: [
-            "transparent",
-            "intelligible",
-            "plain language",
-            "accessible",
-            "concise",
-            "facilitate",
-            "clear language",
-            "children",
-          ],
-          proofStandard:
-            "Proven only by text committing to clear, plain, accessible " +
-            "communications for privacy information and rights/breach notices, " +
-            "plus facilitation of rights requests. A bare 'transparent " +
-            "processing' or GDPR recital without operative plain-language/" +
-            "facilitation commitments is insufficient. Refusal of rights solely " +
-            "for unverified identity doubts without demonstrated inability is a " +
-            "gap relative to Art 12(2).",
-        },
-        art12_4_reasoned_refusal: {
-          hypothesis:
-            "If the controller does not act on a rights request, it informs the data subject without delay and within one month of the reasons and of the right to complain and seek a judicial remedy.",
-          evidenceHints: [
-            "refusal",
-            "does not take action",
-            "reasons",
-            "one month",
-            "right to lodge a complaint",
-            "judicial remedy",
-            "without delay",
-          ],
-          proofStandard:
-            "Proven only by text requiring reasoned notice within one month " +
-            "when a rights request is not acted on, including complaint and " +
-            "judicial-remedy information. A silent refusal or 'we may decline " +
-            "requests' without reasons and one-month timing is a gap. " +
-            "Supervisory-authority procedure is outside this particular.",
-        },
-        art12_7_privacy_icons: {
-          hypothesis:
-            "Where standardised icons are used in an electronic privacy notice, they are presented in an easily visible, intelligible, and legibly coloured form and remain machine-readable electronically.",
-          evidenceHints: [
-            "privacy icons",
-            "standardised icons",
-            "machine-readable",
-            "electronic notice",
-            "legibly coloured",
-            "icons",
-          ],
-          proofStandard:
-            "Proven only where standardised privacy icons are used AND text/" +
-            "materials show visible, intelligible, legibly coloured, " +
-            "machine-readable presentation. If icons are not used, treat as " +
-            "not applicable — Art 12(7) does not require icons. A vague " +
-            "'may use icons' statement without presentation standards is " +
-            "partial when icons are actually deployed.",
-        },
-        art12_5_6_free_requests: {
-          hypothesis:
-            "Rights information and action are ordinarily free; a reasonable administrative-cost fee or refusal is allowed only when the controller proves a request is manifestly unfounded or excessive, particularly because it is repetitive; additional identity information may be requested only where reasonable doubts exist.",
-          evidenceHints: [
-            "free of charge",
-            "manifestly unfounded",
-            "excessive",
-            "repetitive",
-            "administrative fee",
-            "reasonable doubts",
-            "identity verification",
-          ],
-          proofStandard:
-            "Proven only by text that treats ordinary rights requests as free " +
-            "and limits fees/refusal to proven manifestly unfounded or " +
-            "excessive requests, with identity checks only on reasonable " +
-            "doubts. A blanket fee for all DSRs, or identity demands without " +
-            "doubt threshold, contradicts Art 12(5)-(6). Silence on fees where " +
-            "DSR handling is otherwise addressed is a partial gap.",
-        },
-        art13_1_2_direct_collection_notice: {
-          hypothesis:
-            "At collection from the data subject, the controller provides controller and DPO contact details; purposes and lawful basis; legitimate interests where used; recipients; intended third-country transfers and safeguards; retention period or criteria; applicable rights; consent withdrawal; complaint route; whether provision is required and consequences; and meaningful automated-decision information including logic, significance, and envisaged consequences.",
-          evidenceHints: [
-            "privacy notice",
-            "at the time of collection",
-            "purposes",
-            "lawful basis",
-            "recipients",
-            "retention",
-            "data subject rights",
-            "transfers",
-            "automated decision",
-            "DPO",
-          ],
-          proofStandard:
-            "Proven only by text/notice content covering the Art 13(1)-(2) " +
-            "particulars applicable to the processing described — not a bare " +
-            "'privacy notice will be provided' recital. Missing core " +
-            "particulars (purposes/basis, rights, retention, transfers where " +
-            "relevant) is a gap. A cross-reference to an external policy " +
-            "counts only if that policy's Art 13 content is confirmed; an " +
-            "unconfirmed pointer is a dependency, not full proof.",
-        },
-        art13_3_4_new_purpose_notice: {
-          hypothesis:
-            "Before using directly collected data for a new purpose, the controller tells the data subject that purpose and all relevant further information, unless the individual already has the information.",
-          evidenceHints: [
-            "further processing",
-            "new purpose",
-            "prior to further processing",
-            "already has the information",
-            "additional information",
-          ],
-          proofStandard:
-            "Proven only by text committing to pre-processing notice of a new " +
-            "purpose and relevant further Art 13 information, subject to the " +
-            "'already has the information' exception. A one-time initial notice " +
-            "with no new-purpose update mechanism is partial where further " +
-            "purposes are contemplated. If no further/new purposes are in " +
-            "scope, treat as not applicable.",
-        },
-        art14_1_2_indirect_collection_notice: {
-          hypothesis:
-            "For personal data obtained elsewhere, the controller provides the Article 14 notice: controller and DPO details; purposes and basis; data categories; recipients; transfer details; retention; legitimate interests; rights; complaint route; data source and whether public; and meaningful automated-decision logic, significance, and consequences.",
-          evidenceHints: [
-            "obtained from",
-            "indirect collection",
-            "source of the personal data",
-            "categories of personal data",
-            "privacy notice",
-            "article 14",
-            "third party source",
-          ],
-          proofStandard:
-            "Proven only where indirectly obtained data is in scope AND notice " +
-            "content covers applicable Art 14(1)-(2) particulars, including " +
-            "source and data categories. A direct-collection-only notice does " +
-            "not satisfy Art 14. A bare 'we may obtain data from third " +
-            "parties' statement without the notice particulars is " +
-            "insufficient. If only direct collection is described, treat as " +
-            "not applicable.",
-        },
-        art14_3_5_timing_and_exceptions: {
-          hypothesis:
-            "The Article 14 notice is given within a reasonable period and no later than one month, at first communication, or before first disclosure, whichever applies; new-purpose notice is given before further processing; an exception applies only where its exact conditions are met, and where notice is impossible or disproportionate under Article 14(5)(b), appropriate protective measures include making the information publicly available.",
-          evidenceHints: [
-            "within one month",
-            "first communication",
-            "before disclosure",
-            "reasonable period",
-            "disproportionate effort",
-            "publicly available",
-            "article 14(5)",
-          ],
-          proofStandard:
-            "Proven only by text addressing Art 14 timing (one month / first " +
-            "communication / before disclosure) and limiting exceptions to " +
-            "exact Art 14(5) conditions with protective measures where " +
-            "14(5)(b) is claimed. Silence on timing where indirect collection " +
-            "is described is a gap. A blanket 'notice may be omitted' without " +
-            "matching an Art 14(5) condition contradicts the rule.",
-        },
-      },
+      requirementEvidence: deriveRequirementEvidence(GDPR_RULE_INVESTIGATION, {
+        art6_4_purpose_compatibility: "gdpr.art6.4",
+        art8_child_consent: "gdpr.art8.1-2",
+        art9_special_categories: "gdpr.art9.1-3",
+        art10_criminal_data: "gdpr.art10",
+        art11_1_non_identification: "gdpr.art11.1",
+        art11_2_rights_without_identification: "gdpr.art11.2",
+        art12_1_2_transparent_info: "gdpr.art12.1-2",
+        art12_4_reasoned_refusal: "gdpr.art12.4",
+        art12_7_privacy_icons: "gdpr.art12.7",
+        art12_5_6_free_requests: "gdpr.art12.5-6",
+        art13_1_2_direct_collection_notice: "gdpr.art13.1-2",
+        art13_3_4_new_purpose_notice: "gdpr.art13.3-4",
+        art14_1_2_indirect_collection_notice: "gdpr.art14.1-2",
+        art14_3_5_timing_and_exceptions: "gdpr.art14.3-5",
+      }),
       sourceMode: "authored",
       packageVersion: "1.0.0",
       requirementKinds: ["adequacy", "verification"],
@@ -3214,133 +2946,16 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
         "code_of_conduct_commitments",
         "certification_commitments",
       ],
-      requirementEvidence: {
-        // Art 28(10) intentionally omitted — absorbed as Art 28 package
-        // context when Art 28 packages are selected (see package-graph tests).
-        art29_processing_under_authority: {
-          hypothesis:
-            "A processor and any person acting under controller or processor authority who has access to personal data may process it only on controller instructions unless applicable law requires otherwise.",
-          evidenceHints: [
-            "only on instructions",
-            "under the authority",
-            "authorised persons",
-            "controller instructions",
-            "article 29",
-            "unless required by law",
-          ],
-          proofStandard:
-            "Proven only by text obligating the processor and persons under " +
-            "its authority to process solely on controller instructions " +
-            "(unless law requires otherwise). Confidentiality alone without " +
-            "instructions-only processing is partial. A free right for " +
-            "personnel to process for their own purposes contradicts Art 29.",
-        },
-        art37_dpo_designation: {
-          hypothesis:
-            "A DPO is designated where private-sector core activities require regular and systematic large-scale monitoring or large-scale Article 9/10 processing; a group may share an accessible DPO; appointment may be staff or service contract reflecting professional expertise, and contact details are published.",
-          evidenceHints: [
-            "data protection officer",
-            "DPO",
-            "designate",
-            "large-scale",
-            "systematic monitoring",
-            "professional qualities",
-            "contact details",
-          ],
-          proofStandard:
-            "Proven only where an Art 37(1)(b)-(c) trigger is present AND text " +
-            "designates a DPO with expertise and published contact details " +
-            "(staff or service contract; group-shared DPO allowed if " +
-            "accessible). A bare optional 'may appoint a DPO' where " +
-            "large-scale monitoring or Art 9/10 processing is described is a " +
-            "gap. If no designation trigger is described, treat as not " +
-            "applicable. Public-authority triggers and SA notification are " +
-            "outside this particular.",
-        },
-        art38_dpo_position: {
-          hypothesis:
-            "The DPO is involved properly and in a timely manner; provided resources, access, and continuing expertise; protected from instructions and retaliation for DPO work; reachable by data subjects; bound by secrecy; and free from conflicts arising from other duties.",
-          evidenceHints: [
-            "involve the DPO",
-            "independence",
-            "no instructions",
-            "dismissal",
-            "resources",
-            "conflict of interest",
-            "secrecy",
-            "directly accessible",
-          ],
-          proofStandard:
-            "Proven only where a DPO is designated AND text addresses Art 38 " +
-            "position protections — involvement, resources/access, " +
-            "non-instruction/non-retaliation, data-subject contact, secrecy, " +
-            "and conflict avoidance. Naming a DPO without independence/" +
-            "resources language is partial. If no DPO is required or " +
-            "designated, treat as not applicable.",
-        },
-        art39_1_dpo_tasks: {
-          hypothesis:
-            "The DPO at minimum informs and advises the organisation and staff, monitors GDPR and policy compliance including assignments, awareness, training and audits, and advises on and monitors DPIAs, performing tasks with regard to processing risk.",
-          evidenceHints: [
-            "inform and advise",
-            "monitor compliance",
-            "training",
-            "awareness",
-            "DPIA",
-            "data protection impact assessment",
-            "DPO tasks",
-          ],
-          proofStandard:
-            "Proven only where a DPO is designated AND text reflects Art " +
-            "39(1)(a)-(c) internal tasks — advise, monitor compliance/" +
-            "training/audits, and DPIA advice/monitoring — with regard to " +
-            "risk. A DPO title without task description is partial. " +
-            "Supervisory-authority cooperation/contact tasks under Art " +
-            "39(1)(d)-(e) are outside this particular. If no DPO is in " +
-            "scope, treat as not applicable.",
-        },
-        art40_3_code_transfer_commitments: {
-          hypothesis:
-            "A controller or processor not otherwise subject to GDPR that relies on an approved code of conduct to provide Article 46 transfer safeguards makes binding, enforceable commitments to apply the code and protect data-subject rights.",
-          evidenceHints: [
-            "code of conduct",
-            "approved code",
-            "binding and enforceable commitments",
-            "article 40(3)",
-            "article 46",
-            "transfer safeguards",
-          ],
-          proofStandard:
-            "Proven only where an approved code is claimed as an Art 46 " +
-            "transfer safeguard for a party not otherwise subject to GDPR AND " +
-            "text creates binding, enforceable commitments to apply the code " +
-            "and protect data-subject rights. Naming a code without binding " +
-            "commitments is insufficient. If no code-based transfer safeguard " +
-            "is claimed, treat as not applicable. Code-authoring and " +
-            "monitoring-body machinery are outside this particular.",
-        },
-        art42_2_certification_transfer_commitments: {
-          hypothesis:
-            "A controller or processor not otherwise subject to GDPR that relies on certification to provide Article 46 transfer safeguards undertakes binding, enforceable commitments to apply the certification and protect data-subject rights.",
-          evidenceHints: [
-            "certification",
-            "certified",
-            "binding and enforceable commitments",
-            "article 42(2)",
-            "article 46",
-            "transfer safeguards",
-          ],
-          proofStandard:
-            "Proven only where certification is claimed as an Art 46 transfer " +
-            "safeguard for a party not otherwise subject to GDPR AND text " +
-            "creates binding, enforceable commitments to apply the " +
-            "certification and protect data-subject rights. A certificate " +
-            "logo or marketing claim without enforceable commitments is " +
-            "insufficient. If no certification-based transfer safeguard is " +
-            "claimed, treat as not applicable. Certification registry " +
-            "machinery is outside this particular.",
-        },
-      },
+      // Art 28(10) intentionally omitted — absorbed as Art 28 package
+      // context when Art 28 packages are selected (see package-graph tests).
+      requirementEvidence: deriveRequirementEvidence(GDPR_RULE_INVESTIGATION, {
+        art29_processing_under_authority: "gdpr.art29",
+        art37_dpo_designation: "gdpr.art37",
+        art38_dpo_position: "gdpr.art38",
+        art39_1_dpo_tasks: "gdpr.art39.1.a-c",
+        art40_3_code_transfer_commitments: "gdpr.art40.3",
+        art42_2_certification_transfer_commitments: "gdpr.art42.2",
+      }),
       sourceMode: "authored",
       packageVersion: "1.0.0",
       requirementKinds: ["adequacy", "verification"],
@@ -3406,134 +3021,14 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
         "transfer_derogations",
         "onward_transfers",
       ],
-      requirementEvidence: {
-        art44_general_transfer_principle: {
-          hypothesis:
-            "A controller or processor transfers personal data to a third country or international organisation, including onward transfers, only where Chapter V conditions are met and the GDPR level of protection is not undermined.",
-          evidenceHints: [
-            "transfer",
-            "third country",
-            "international organisation",
-            "onward transfer",
-            "chapter V",
-            "level of protection",
-            "outside the EEA",
-          ],
-          proofStandard:
-            "Proven only by text that conditions third-country/international-" +
-            "organisation transfers (including onward transfers) on Chapter V " +
-            "compliance and non-undermining of GDPR protection — not a bare " +
-            "'may transfer globally' licence. Unrestricted worldwide " +
-            "disclosure without a Chapter V mechanism is a gap. If no " +
-            "cross-border transfers are described, treat as not applicable.",
-        },
-        art45_1_adequacy: {
-          hypothesis:
-            "A transfer to a third country or international organisation relies on an adequacy decision only where the destination is covered by a valid Commission adequacy decision for the transfer in question.",
-          evidenceHints: [
-            "adequacy decision",
-            "adequate level of protection",
-            "commission decision",
-            "adequate country",
-            "article 45",
-          ],
-          proofStandard:
-            "Proven only where adequacy is claimed as the transfer ground AND " +
-            "text identifies a destination covered by a valid Commission " +
-            "adequacy decision for that transfer. A vague 'adequate " +
-            "jurisdictions' list without tying to an Art 45 decision is " +
-            "partial. If adequacy is not the claimed ground, treat as not " +
-            "applicable. Commission assessment/monitoring under Art 45(2)-(9) " +
-            "are outside this particular.",
-        },
-        art46_appropriate_safeguards: {
-          hypothesis:
-            "Absent an applicable adequacy decision, transfers occur only with appropriate safeguards, enforceable data-subject rights, and effective legal remedies — via a verified Article 46 mechanism such as a binding public instrument, binding corporate rules, standard clauses, approved code with binding commitments, certification with binding commitments, or an authorised contractual/administrative arrangement.",
-          evidenceHints: [
-            "appropriate safeguards",
-            "standard contractual clauses",
-            "SCCs",
-            "binding corporate rules",
-            "article 46",
-            "enforceable rights",
-            "effective legal remedies",
-          ],
-          proofStandard:
-            "Proven only where transfers without adequacy are in scope AND " +
-            "text identifies a concrete Art 46 mechanism with enforceable " +
-            "rights and remedies — not a bare 'appropriate safeguards will " +
-            "be used' aspiration. An unconfirmed SCC exhibit pointer is a " +
-            "dependency until the clauses are confirmed. If transfers rely " +
-            "solely on adequacy or Art 49, treat Art 46 as not applicable " +
-            "rather than contradicted. SA approval procedure is outside this " +
-            "particular.",
-        },
-        art47_binding_corporate_rules: {
-          hypothesis:
-            "Binding corporate rules used as an Article 46 safeguard are legally binding on and enforceable against every relevant group member and employee, confer enforceable data-subject rights, and contain the mandatory Article 47(2) programme elements including structure, transfer details, principles, security, onward transfers, subject rights, EU-entity liability, complaints, audits, and authority cooperation.",
-          evidenceHints: [
-            "binding corporate rules",
-            "BCRs",
-            "group of undertakings",
-            "legally binding",
-            "article 47",
-            "enforceable rights",
-          ],
-          proofStandard:
-            "Proven only where BCRs are claimed as the Art 46 safeguard AND " +
-            "text/materials show legally binding/enforceable group coverage, " +
-            "data-subject rights, and core Art 47(2) programme elements. " +
-            "Naming 'BCRs' without binding effect or programme content is " +
-            "insufficient. If BCRs are not the claimed mechanism, treat as " +
-            "not applicable. Supervisory-authority approval procedure under " +
-            "Art 47(3) is outside this particular.",
-        },
-        art48_foreign_disclosure_orders: {
-          hypothesis:
-            "A non-EU court or administrative disclosure order is enforceable as a transfer basis only when grounded in an applicable international agreement, without prejudice to another valid Chapter V transfer ground.",
-          evidenceHints: [
-            "foreign court",
-            "administrative authority",
-            "disclosure order",
-            "international agreement",
-            "mutual legal assistance",
-            "article 48",
-            "government access",
-          ],
-          proofStandard:
-            "Proven only by text that refuses to treat a non-EU court/" +
-            "administrative disclosure order as a transfer basis unless an " +
-            "applicable international agreement grounds it — while preserving " +
-            "other valid Chapter V grounds. A clause requiring disclosure to " +
-            "any foreign authority on demand without Chapter V analysis " +
-            "contradicts Art 48. Silence where government-access/foreign-" +
-            "disclosure demands are addressed is a gap; where no such " +
-            "demands are contemplated, treat as not applicable.",
-        },
-        art49_transfer_derogations: {
-          hypothesis:
-            "An Article 49 derogation is used only when its exact conditions are met — including explicit informed consent, contract necessity, legal claims, vital interests, or limited public-register access — and the narrow compelling-legitimate-interest route requires a non-repetitive limited transfer, documented circumstances and risk assessment, suitable safeguards, and required data-subject notice.",
-          evidenceHints: [
-            "derogation",
-            "explicit consent",
-            "necessary for the performance of a contract",
-            "legal claims",
-            "vital interests",
-            "compelling legitimate interests",
-            "article 49",
-            "occasional",
-          ],
-          proofStandard:
-            "Proven only where an Art 49 derogation is claimed AND text matches " +
-            "the exact derogation conditions; the compelling-legitimate-" +
-            "interest route additionally needs non-repetitive limited scope, " +
-            "documented assessment, safeguards, and data-subject notice. A " +
-            "catch-all 'transfers as necessary' without a matching Art 49 " +
-            "limb is insufficient. If transfers rely on adequacy or Art 46 " +
-            "safeguards instead, treat as not applicable. Public-authority " +
-            "notice requirements are outside this particular.",
-        },
-      },
+      requirementEvidence: deriveRequirementEvidence(GDPR_RULE_INVESTIGATION, {
+        art44_general_transfer_principle: "gdpr.art44",
+        art45_1_adequacy: "gdpr.art45.1",
+        art46_appropriate_safeguards: "gdpr.art46",
+        art47_binding_corporate_rules: "gdpr.art47",
+        art48_foreign_disclosure_orders: "gdpr.art48",
+        art49_transfer_derogations: "gdpr.art49",
+      }),
       sourceMode: "authored",
       packageVersion: "1.0.0",
       requirementKinds: ["adequacy", "verification"],
@@ -3594,114 +3089,13 @@ export const gdprRegimeSkill: AnalysisSkillConfig = {
         "research_safeguards",
         "pseudonymisation",
       ],
-      requirementEvidence: {
-        art77_1_complaint_right: {
-          hypothesis:
-            "A data subject has the right to lodge a complaint with a supervisory authority, in particular in the Member State of habitual residence, place of work, or place of the alleged infringement.",
-          evidenceHints: [
-            "lodge a complaint",
-            "supervisory authority",
-            "right to complain",
-            "data protection authority",
-            "article 77",
-          ],
-          proofStandard:
-            "Proven only by text that preserves or discloses the right to " +
-            "lodge a complaint with a supervisory authority — typically in " +
-            "notices or rights clauses. A contract that waives or blocks " +
-            "complaint rights contradicts Art 77(1). Silence in a pure " +
-            "processor DPA without data-subject-facing notices is often not " +
-            "applicable; where privacy notices/rights disclosures are in " +
-            "scope, omission of the complaint route is a gap. SA handling " +
-            "duties under Art 77(2)/78 are outside this particular.",
-        },
-        art79_judicial_remedy: {
-          hypothesis:
-            "A data subject has a right to an effective judicial remedy where they consider that controller or processor processing infringes GDPR, without prejudice to other remedies.",
-          evidenceHints: [
-            "judicial remedy",
-            "court",
-            "effective remedy",
-            "article 79",
-            "bring proceedings",
-          ],
-          proofStandard:
-            "Proven only by text that preserves the right to an effective " +
-            "judicial remedy against controller/processor GDPR infringements " +
-            "— or at least does not contractually extinguish it. A clause " +
-            "waiving all court remedies for data-protection claims " +
-            "contradicts Art 79. Court-forum machinery is not used as the " +
-            "compliance check; look for preservation (or non-waiver) of the " +
-            "remedy. Silence without a waiver is often not a gap.",
-        },
-        art80_1_mandated_representative: {
-          hypothesis:
-            "A data subject may mandate a qualifying not-for-profit body active in data protection to exercise applicable GDPR remedies and compensation rights on the individual's behalf, subject to Member State law for compensation representation.",
-          evidenceHints: [
-            "not-for-profit",
-            "mandate",
-            "represent",
-            "on behalf of",
-            "article 80",
-            "representative body",
-          ],
-          proofStandard:
-            "Proven only by text that does not block a data subject from " +
-            "mandating a qualifying not-for-profit body to exercise GDPR " +
-            "remedies/compensation on their behalf. An express ban on " +
-            "third-party representation for GDPR claims contradicts Art " +
-            "80(1). Affirmative disclosure is stronger but not always " +
-            "required in private contracts. SA complaint procedure and Art " +
-            "80(2) Member State options are outside this particular.",
-        },
-        art82_compensation_liability: {
-          hypothesis:
-            "A person suffering material or non-material damage from a GDPR infringement has a right to compensation; controllers are liable for infringing processing; processors are liable where they breach processor-specific duties or lawful controller instructions; exemption requires proof of no responsibility; and multiple responsible parties are jointly and severally liable subject to contribution rights.",
-          evidenceHints: [
-            "compensation",
-            "liable",
-            "liability",
-            "material or non-material damage",
-            "joint and several",
-            "article 82",
-            "indemnity",
-          ],
-          proofStandard:
-            "Proven only by text that preserves compensation rights for " +
-            "GDPR-infringing damage and reflects controller/processor " +
-            "liability allocation consistent with Art 82 — not a total " +
-            "waiver of data-protection damages. A clause extinguishing all " +
-            "GDPR compensation liability contradicts Art 82. Inter-party " +
-            "indemnities may evidence contribution mechanics but do not by " +
-            "themselves prove data-subject compensation rights. Silence " +
-            "without a waiver is often not a full gap in a DPA focused on " +
-            "inter-party risk allocation.",
-        },
-        art89_1_research_safeguards: {
-          hypothesis:
-            "Public-interest archiving, scientific or historical research, and statistical processing use safeguards protecting data-subject rights, including data minimisation and pseudonymisation where purposes can still be fulfilled, and prefer non-identifying data where the purposes can be fulfilled that way.",
-          evidenceHints: [
-            "research",
-            "statistics",
-            "archiving",
-            "scientific",
-            "historical",
-            "pseudonymisation",
-            "data minimisation",
-            "article 89",
-            "safeguards",
-          ],
-          proofStandard:
-            "Proven only where archiving/research/statistical processing is " +
-            "in scope AND text commits to Art 89(1) safeguards — " +
-            "minimisation, pseudonymisation where purposes allow, and " +
-            "preferring non-identifying data when feasible. A bare 'research " +
-            "use permitted' licence without safeguards is a gap. If no " +
-            "research/archiving/statistics processing is described, treat as " +
-            "not applicable. National derogations in Art 89(2)-(4) are " +
-            "outside this particular.",
-        },
-      },
+      requirementEvidence: deriveRequirementEvidence(GDPR_RULE_INVESTIGATION, {
+        art77_1_complaint_right: "gdpr.art77.1",
+        art79_judicial_remedy: "gdpr.art79",
+        art80_1_mandated_representative: "gdpr.art80.1",
+        art82_compensation_liability: "gdpr.art82",
+        art89_1_research_safeguards: "gdpr.art89.1",
+      }),
       sourceMode: "authored",
       packageVersion: "1.0.0",
       requirementKinds: ["adequacy", "verification"],

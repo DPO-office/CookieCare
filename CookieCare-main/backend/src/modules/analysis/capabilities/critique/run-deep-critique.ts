@@ -12,7 +12,7 @@ import type {
 } from "../../models/critique-report.js";
 import type { Finding } from "../../models/finding.js";
 import { dedupeFixes } from "../../shared/dedupe.js";
-import { resolveRule } from "../act/check-against-rule.js";
+import { resolveRule } from "../act/operations/evaluate-rule-compliance.js";
 import { profileThinkingLevel } from "../../utils/profile-thinking.js";
 
 export interface DeepCritiqueRun {

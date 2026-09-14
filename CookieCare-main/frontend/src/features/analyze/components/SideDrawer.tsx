@@ -15,6 +15,8 @@ const statusIcon = (status: PendingUpload["status"]) => {
       return <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />;
     case "error":
       return <XCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />;
+    case "needs_review":
+      return <AlertCircle className="w-3.5 h-3.5 text-amber-500 shrink-0" />;
     case "uploading":
     case "processing":
       return <Loader2 className="w-3.5 h-3.5 text-blue-500 animate-spin shrink-0" />;
@@ -245,6 +247,8 @@ export default function SideDrawer({
                           className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-[12px] ${
                             p.status === "error"
                               ? "border-red-200 bg-red-50"
+                              : p.status === "needs_review"
+                              ? "border-amber-200 bg-amber-50"
                               : p.status === "done"
                               ? "border-emerald-200 bg-emerald-50"
                               : p.status === "uploading" || p.status === "processing"
@@ -264,8 +268,8 @@ export default function SideDrawer({
                               <XCircle className="w-3.5 h-3.5" />
                             </button>
                           )}
-                          {p.status === "error" && p.error && (
-                            <span className="text-[10px] text-red-500 shrink-0 max-w-[100px] truncate" title={p.error}>
+                          {(p.status === "error" || p.status === "needs_review") && p.error && (
+                            <span className={`text-[10px] shrink-0 max-w-[100px] truncate ${p.status === "error" ? "text-red-500" : "text-amber-700"}`} title={p.error}>
                               {p.error}
                             </span>
                           )}

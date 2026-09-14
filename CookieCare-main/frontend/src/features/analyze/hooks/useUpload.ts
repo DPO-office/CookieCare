@@ -252,8 +252,10 @@ export function useUpload(
     toUpload: PendingUpload[],
     folderId: string | undefined,
     ephemeral = false
-  ): Promise<{ failedCount: number; fileIds: string[]; fileTitles: Record<string, string> }> => {
+  ): Promise<{ failedCount: number; reviewCount: number; blockedReviewCount: number; fileIds: string[]; fileTitles: Record<string, string> }> => {
     let failedCount = 0;
+    let reviewCount = 0;
+    let blockedReviewCount = 0;
     const fileIds: string[] = [];
     const fileTitles: Record<string, string> = {};
     const queue = [...toUpload];
@@ -269,13 +271,32 @@ export function useUpload(
           try {
             // Ephemeral uploads skip RAG indexing so they complete faster —
             // use a tighter poll interval to surface results sooner.
-            await waitForJob(authToken, result.jobId, {
+            const processingResult = await waitForJob(authToken, result.jobId, {
               pollIntervalMs: ephemeral ? 400 : 1200,
             });
-            updateFileStatus(item.id, { status: "done" });
-            if (result.fileId) {
-              fileIds.push(result.fileId);
-              fileTitles[result.fileId] = item.file.name;
+            if (processingResult?.structureStatus && processingResult.structureStatus !== "ready") {
+              const issues = Array.isArray(processingResult?.structureQuality?.criticalIssues)
+                ? processingResult.structureQuality.criticalIssues.join(", ")
+                : "structural validation failed";
+              const analysisMode = processingResult?.structureQuality?.analysisMode ?? "blocked";
+              if (analysisMode === "blocked") blockedReviewCount++;
+              else reviewCount++;
+              updateFileStatus(item.id, {
+                status: "needs_review",
+                error: analysisMode === "blocked"
+                  ? `Uploaded, but automated analysis is blocked by structural integrity issues: ${issues}.`
+                  : "Uploaded with structural limitations. Analysis will use verified content and disclose the limitations.",
+              });
+              if (analysisMode !== "blocked" && result.fileId) {
+                fileIds.push(result.fileId);
+                fileTitles[result.fileId] = item.file.name;
+              }
+            } else {
+              updateFileStatus(item.id, { status: "done" });
+              if (result.fileId) {
+                fileIds.push(result.fileId);
+                fileTitles[result.fileId] = item.file.name;
+              }
             }
           } catch (err: any) {
             failedCount++;
@@ -301,7 +322,7 @@ export function useUpload(
       () => runNext()
     );
     await Promise.all(workers);
-    return { failedCount, fileIds, fileTitles };
+    return { failedCount, reviewCount, blockedReviewCount, fileIds, fileTitles };
   };
 
   const resolveUploadFolderId = async (): Promise<string | undefined> => {
@@ -330,7 +351,7 @@ export function useUpload(
     setUploadProgress({ done: 0, total: toUpload.length });
 
     const folderId = await resolveUploadFolderId();
-    const { failedCount, fileIds } = await runUploadBatch(toUpload, folderId);
+    const { failedCount, reviewCount, blockedReviewCount, fileIds } = await runUploadBatch(toUpload, folderId);
 
     await fetchFoldersAndDocs({ selectFileIds: fileIds });
     await onRefresh();
@@ -342,10 +363,18 @@ export function useUpload(
       );
       return;
     }
+    if (blockedReviewCount > 0) {
+      setBatchError(
+        `${blockedReviewCount} file${blockedReviewCount === 1 ? " was" : "s were"} uploaded, but failed structural integrity checks and cannot be analysed automatically.`
+      );
+      return;
+    }
 
     const uploadedCount = toUpload.length;
     setSuccessMessage(
-      `${uploadedCount} file${uploadedCount === 1 ? "" : "s"} uploaded and indexed successfully.`
+      reviewCount > 0
+        ? `${uploadedCount} file${uploadedCount === 1 ? "" : "s"} uploaded. ${reviewCount} will be analysed in verified-content-only mode with limitations disclosed.`
+        : `${uploadedCount} file${uploadedCount === 1 ? "" : "s"} uploaded and indexed successfully.`
     );
     setTimeout(() => {
       clearFiles();
@@ -383,12 +412,17 @@ export function useUpload(
     setUploadProgress({ done: 0, total: items.length });
 
     // ephemeral=true — no folder_id, skips RAG indexing, never appears in vault
-    const { failedCount, fileIds, fileTitles } = await runUploadBatch(items, undefined, true);
+    const { failedCount, reviewCount, blockedReviewCount, fileIds, fileTitles } = await runUploadBatch(items, undefined, true);
 
     setIsUploading(false);
 
     if (failedCount > 0 && fileIds.length === 0) {
       const msg = `${failedCount} file${failedCount === 1 ? "" : "s"} failed to upload.`;
+      setBatchError(msg);
+      return { fileIds: [], fileTitles: {}, error: msg };
+    }
+    if (blockedReviewCount > 0 && fileIds.length === 0) {
+      const msg = `${blockedReviewCount} file${blockedReviewCount === 1 ? " was" : "s were"} uploaded, but failed structural integrity checks.`;
       setBatchError(msg);
       return { fileIds: [], fileTitles: {}, error: msg };
     }
@@ -400,6 +434,16 @@ export function useUpload(
         fileTitles,
         error: `${failedCount} file${failedCount === 1 ? "" : "s"} failed; the rest were attached.`,
       };
+    }
+    if (blockedReviewCount > 0) {
+      return {
+        fileIds,
+        fileTitles,
+        error: `${blockedReviewCount} uploaded file${blockedReviewCount === 1 ? " failed" : "s failed"} structural integrity checks; safe files were attached.`,
+      };
+    }
+    if (reviewCount > 0) {
+      return { fileIds, fileTitles, error: `${reviewCount} uploaded file${reviewCount === 1 ? " was" : "s were"} attached in verified-content-only mode; limitations will be disclosed.` };
     }
     return { fileIds, fileTitles };
   };

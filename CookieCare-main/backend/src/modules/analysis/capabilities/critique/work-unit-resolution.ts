@@ -11,7 +11,7 @@ import type {
 import type { AnalysisSkillConfig } from "../../skills/runtime/catalog/types.js";
 import { hasRegimeRule } from "../../skills/runtime/catalog/registry.js";
 import { RISK_TAXONOMY_VERSION } from "../../taxonomies/index.js";
-import { webAssistedReference } from "../act/web-assisted-reference.js";
+import { webAssistedReference } from "../act/operations/research-legal-reference.js";
 
 // --- has-authored-content ---
 

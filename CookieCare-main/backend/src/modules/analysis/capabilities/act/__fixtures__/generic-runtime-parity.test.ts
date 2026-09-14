@@ -2,14 +2,14 @@ process.env.GOOGLE_CLOUD_PROJECT ??= "generic-runtime-parity-test";
 
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { classifyDocumentFromText } from "../classify-document.js";
+import { classifyDocumentFromText } from "../operations/classify-document.js";
 import {
   getSkillById,
   mergeClauseHeuristics,
   resetSkillRegistryForTests,
 } from "../../../skills/runtime/catalog/registry.js";
-import { buildInventoryArtifact, inventoryClaim, parseArtifactShape } from "../inventory-provisions.js";
-import { findRuleByRendererHook } from "../render-output.js";
+import { buildInventoryArtifact, inventoryClaim, parseArtifactShape } from "../operations/build-provision-inventory.js";
+import { findRuleByRendererHook } from "../../reporting/render-output.js";
 
 describe("generic ACT runtime parity", () => {
   it("classifies DPA samples via authored docTypeClassifiers", () => {

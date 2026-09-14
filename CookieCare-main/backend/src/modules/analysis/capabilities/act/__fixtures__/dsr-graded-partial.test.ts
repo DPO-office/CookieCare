@@ -7,9 +7,9 @@
  */
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { elementSchemaFor } from "../element-schemas.js";
-import { assessRequirement } from "../phase5-assess.js";
-import type { ElementVerdict, RequirementMatrix } from "../phase4-verify.js";
+import { elementSchemaFor } from "../compliance/compliance-schema-registry.js";
+import { assessRequirement } from "../compliance/assess-compliance-requirements.js";
+import type { ElementVerdict, RequirementMatrix } from "../compliance/verify-evidence-deterministically.js";
 
 function verdict(
   elementId: string,

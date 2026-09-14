@@ -1,5 +1,5 @@
 import type { AnalysisState } from "../../../models/analysis-state.js";
-import { classifyDocumentFromText } from "./classify-document.js";
+import { classifyDocumentFromText } from "../../../capabilities/act/operations/classify-document.js";
 import {
   buildSkillAmbiguityClarification,
   selectSkills,

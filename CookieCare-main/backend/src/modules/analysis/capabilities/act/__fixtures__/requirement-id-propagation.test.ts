@@ -15,8 +15,8 @@ import {
   stampFindingsByCapability,
   stampRequirementIdsOnNewFindings,
   requirementIdsForCapability,
-} from "../act-utils.js";
-import { groupedResultsToFindings } from "../grouped-results-to-findings.js";
+} from "../shared/work-unit-utils.js";
+import { groupedResultsToFindings } from "../shared/convert-results-to-findings.js";
 import { buildActGraphDetailed } from "../../../skills/runtime/graph/build-act-graph.js";
 import { getSkillById, resetSkillRegistryForTests } from "../../../skills/runtime/catalog/registry.js";
 import type { InstructionFocus, AnalysisWorkUnit } from "../../../models/analysis-plan.js";
@@ -210,7 +210,7 @@ describe("PLAN stamps requirementIds on rule/matrix/risk work units", () => {
   function baseIntent(): IntentClassification {
     return {
       scope: "whole_document",
-      operation: "compliance_check",
+      operation: "risk_flag",
       standard: "regime_pack:gdpr",
       outputForm: "memo",
       compound: false,

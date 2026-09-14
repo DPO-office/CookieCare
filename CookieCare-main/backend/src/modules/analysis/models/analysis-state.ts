@@ -123,6 +123,8 @@ export interface AnalysisState {
     }
   >;
   organizationId?: string;
+  /** Transient tenant identity for scoped runtime caches; not persisted to the analysis ledger. */
+  actorUserId?: string;
 
   request: {
     sessionId: string;

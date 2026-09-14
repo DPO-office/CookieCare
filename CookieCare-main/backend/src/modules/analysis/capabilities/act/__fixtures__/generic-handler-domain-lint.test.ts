@@ -8,15 +8,15 @@ import { describe, it } from "node:test";
 
 const ACT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const HANDLERS = [
-  "check-against-rule.ts",
-  "flag-risk.ts",
-  "evaluate-matrix-row.ts",
-  "inventory-provisions.ts",
-  "check-expected-clauses.ts",
-  "evaluate-package.ts",
-  "classify-document.ts",
-  "extract-clauses.ts",
-  "web-assisted-reference.ts",
+  "operations/evaluate-rule-compliance.ts",
+  "risk-review/evaluate-risk-findings.ts",
+  "operations/evaluate-comparison-row.ts",
+  "operations/build-provision-inventory.ts",
+  "operations/check-clause-coverage.ts",
+  "operations/evaluate-requirement-package.ts",
+  "operations/classify-document.ts",
+  "operations/extract-clauses.ts",
+  "operations/research-legal-reference.ts",
   "execute-act-plan.ts",
 ];
 

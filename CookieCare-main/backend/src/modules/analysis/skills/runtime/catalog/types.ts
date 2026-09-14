@@ -1,6 +1,6 @@
 /** Structured analysis skill contract — deterministic; never LLM-invented at runtime. */
 
-import type { EvidencePackage } from "../../../models/evidence-package.js";
+import type { EvidencePackage, EvidenceScopeConstraint } from "../../../models/evidence-package.js";
 import type { IntentRequirement, IntentRequirementType } from "../../../models/intent.js";
 
 export type SkillAxis = "global" | "doc-type" | "regime" | "jurisdiction" | "topic";
@@ -94,6 +94,87 @@ export interface RendererHooks {
   architectureFallback?: string;
 }
 
+/** Structured legal citation — the authoritative source of a rule's identity. */
+export interface SkillRegimeRuleAuthority {
+  instrument: string;
+  citation: string;
+  provisionPath: string[];
+  /** Position within the instrument's provision ordering — enables article-range expansion. */
+  order?: number;
+  citationAliases?: string[];
+}
+
+/** Selection vocabulary used by the rule-first resolver's exact/BM25/dense matching. */
+export interface SkillRegimeRuleSelection {
+  aliases: string[];
+  concepts: string[];
+  actors?: string[];
+  beneficiaries?: string[];
+  actions?: string[];
+  objects?: string[];
+}
+
+/** Applicability boundary — when a rule is a candidate at all. */
+export interface SkillRegimeRuleApplicability {
+  documentTypes?: string[];
+  jurisdictions?: string[];
+  relationshipScopes?: string[];
+  partyPerspectives?: string[];
+}
+
+export interface SkillRegimeRuleProofElement {
+  id: string;
+  description: string;
+  kind?: "mandatory" | "conditional" | "alternative" | "optional";
+  applicabilityGuidance?: string;
+  proofGuidance?: string;
+  nonProofTraps?: string[];
+  remediationGuidance?: string;
+  /** @deprecated Compatibility projection; kind is authoritative. */
+  required?: boolean;
+}
+
+export type ComplianceAggregation = { elementId: string } | {
+  operator: "all" | "any";
+  children: ComplianceAggregation[];
+};
+
+export interface SkillRuleVerification {
+  version: string;
+  reviewStatus: "authored" | "legal_reviewed";
+  aggregation?: ComplianceAggregation;
+  applicabilityGuidance?: string;
+  /** Preserved legal interpretation, never a separately executed checklist. */
+  guidance?: string[];
+}
+
+/**
+ * Atomic investigation profile — the rule-first replacement for
+ * `EvidencePackage.requirementEvidence[ruleId]`. A rule is only selectable by
+ * the rule-first resolver when this is populated; otherwise it is routed
+ * through the legacy package-first path unchanged.
+ */
+export interface SkillRegimeRuleInvestigation {
+  hypothesis: string;
+  evidenceHints: string[];
+  proofStandard: string;
+  proofElements: SkillRegimeRuleProofElement[];
+  evidenceScope?: EvidenceScopeConstraint;
+  /**
+   * Extension beyond the base rule-first spec: `InvestigationRequirement`
+   * needs clause/extraction targeting to drive retrieval. Defaults to the
+   * owning skill's full `clauseTypes`/no extraction narrowing when omitted.
+   */
+  clauseTypeHints?: string[];
+  extractionTargets?: string[];
+}
+
+export interface SkillRegimeRuleRelationships {
+  requires?: string[];
+  supports?: string[];
+  relatedTo?: string[];
+}
+
 export interface SkillRegimeRule {
   ruleId: string;
   ruleText: string;
@@ -116,6 +197,28 @@ export interface SkillRegimeRule {
   rendererHooks?: RendererHooks;
   /** Matrix rows this rule is linked to (for related-check resolution). */
   matrixLinkage?: { matrixRowIds: string[] };
+  /** Rule-first contract (Phase: rule-first compliance requirement resolution). */
+  authority?: SkillRegimeRuleAuthority;
+  selection?: SkillRegimeRuleSelection;
+  applicability?: SkillRegimeRuleApplicability;
+  investigation?: SkillRegimeRuleInvestigation;
+  verification?: SkillRuleVerification;
+  relationships?: SkillRegimeRuleRelationships;
+  /**
+   * Compatibility identity used only by the unchanged Phase 4 verifier when
+   * an atomic rule id differs from an existing authored schema/package-native
+   * id. Investigation continues to use `ruleId` and never reads the schema.
+   */
+  legacyRequirementId?: string;
+}
+
+/** Named shortcut to a set of rule ids — never owns hypotheses/evidence/applicability. */
+export interface ComplianceComposition {
+  id: string;
+  label: string;
+  aliases: string[];
+  description: string;
+  ruleIds: string[];
 }
 
 /** Regex → clauseType fallback when LLM extraction misses a type. */
@@ -247,6 +350,14 @@ export interface AnalysisSkillConfig {
    * some registered skill (enforced by parity lint).
    */
   evidencePackages?: EvidencePackage[];
+  /**
+   * Named shortcuts to atomic `regimeRules[].ruleId` sets, used only by the
+   * rule-first compliance resolver. A composition never owns hypotheses,
+   * proof standards, evidence hints, applicability, or execution behaviour —
+   * it is purely an alias for a group of rule ids, and PLAN may combine rules
+   * across compositions freely.
+   */
+  compositions?: ComplianceComposition[];
   /**
    * Maps classifier/PLAN requirement ids or types onto authored capabilities
    * (matrix rows, rules, or risk categories) without hardcoding regime tables

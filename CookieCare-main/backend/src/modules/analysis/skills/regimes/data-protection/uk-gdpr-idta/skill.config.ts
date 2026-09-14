@@ -4,62 +4,437 @@ import type {
   SkillRegimeRule,
 } from "../../../runtime/catalog/types.js";
 import { buildDataProtectionRightsMatrix } from "../_family-template.js";
+import { finalizeRegimeRuleContracts } from "../../../runtime/catalog/rule-contract-helpers.js";
 
-function rule(
-  ruleId: string,
-  label: string,
-  ruleText: string,
-  findingCategory: string,
-  appliesToClauseTypes: string[],
-  legalHook: string,
-  ruleScope: "per_clause" | "per_document" = "per_document",
-  checkType: RegimeCheckType = "judgment"
-): SkillRegimeRule {
-  return {
-    ruleId,
-    label,
-    ruleText,
-    checkType,
-    findingCategory,
-    ruleScope,
-    appliesToClauseTypes,
-    legalHook,
-  };
-}
 
 const RULES: SkillRegimeRule[] = [
-  rule(
-    "ukgdpr.idta_or_addendum",
-    "UK restricted transfers need IDTA or UK Addendum",
-    "Where UK GDPR restricted transfers apply, the contract must address the UK International Data Transfer Agreement or the UK Addendum to the EU SCCs. Do not treat EU SCCs alone as a completed UK transfer tool.",
-    "uk_idta_missing",
-    ["international_transfer_mechanism"],
-    "UK GDPR Chapter V as retained; ICO IDTA / UK Addendum. Drafting pack: UK IDTA/Addendum must be addressed when UK transfers apply."
-  ),
-  rule(
-    "ukgdpr.art27_uk_representative",
-    "UK representative for non-UK controllers/processors",
-    "A controller or processor not established in the UK that falls within UK GDPR extra-territorial processing should designate a UK representative in writing, distinct from any EU Article 27 representative.",
-    "uk_representative_gap",
-    ["data_protection"],
-    "UK GDPR Article 27 (representative in the United Kingdom)."
-  ),
-  rule(
-    "ukgdpr.ico_as_authority",
-    "ICO is the UK supervisory authority path",
-    "UK GDPR documents should point complaints, DPO contacts, and breach notification to the Information Commissioner, not only to an EU lead supervisory authority or the EDPB.",
-    "uk_ico_authority_gap",
-    ["data_protection"],
-    "Data Protection Act 2018; UK GDPR references to the Commissioner."
-  ),
-  rule(
-    "ukgdpr.art46_uk_mechanism",
-    "UK Article 46 transfer tool must be a UK-recognised safeguard",
-    "Appropriate safeguards for UK restricted transfers are the UK-recognised tools (IDTA, UK Addendum, UK-approved BCRs, or another UK Chapter V mechanism). An unmodified EU SCC pack without the UK Addendum is incomplete for UK transfers.",
-    "uk_transfer_safeguard_gap",
-    ["international_transfer_mechanism"],
-    "UK GDPR Articles 44–46; ICO transfer tools."
-  ),
+  {
+    "ruleId": "ukgdpr.idta_or_addendum",
+    "label": "UK restricted transfers need IDTA or UK Addendum",
+    "ruleText": "Where UK GDPR restricted transfers apply, the contract must address the UK International Data Transfer Agreement or the UK Addendum to the EU SCCs. Do not treat EU SCCs alone as a completed UK transfer tool.",
+    "checkType": "judgment",
+    "findingCategory": "uk_idta_missing",
+    "ruleScope": "per_document",
+    "appliesToClauseTypes": [
+      "international_transfer_mechanism"
+    ],
+    "legalHook": "UK GDPR Chapter V as retained; ICO IDTA / UK Addendum. Drafting pack: UK IDTA/Addendum must be addressed when UK transfers apply.",
+    "authority": {
+      "instrument": "UK GDPR / Data Protection Act 2018 / ICO transfer framework",
+      "citation": "UK GDPR Chapter V as retained; ICO IDTA / UK Addendum. Drafting pack: UK IDTA/Addendum must be addressed when UK transfers apply.",
+      "provisionPath": [
+        "ukgdpr.idta_or_addendum"
+      ],
+      "citationAliases": [
+        "ukgdpr.idta_or_addendum",
+        "UK GDPR Chapter V as retained; ICO IDTA / UK Addendum. Drafting pack: UK IDTA/Addendum must be addressed when UK transfers apply."
+      ]
+    },
+    "selection": {
+      "aliases": [
+        "uk restricted transfers need idta or uk addendum",
+        "international data transfer agreement",
+        "idta",
+        "uk addendum",
+        "ico transfer tool"
+      ],
+      "concepts": [
+        "restricted",
+        "transfers",
+        "need",
+        "idta",
+        "addendum",
+        "gdpr",
+        "apply",
+        "contract",
+        "address",
+        "international",
+        "data",
+        "transfer",
+        "agreement",
+        "sccs",
+        "treat",
+        "alone",
+        "completed",
+        "tool"
+      ],
+      "actors": [],
+      "actions": [
+        "transfer",
+        "restrict"
+      ],
+      "objects": []
+    },
+    "applicability": {
+      "documentTypes": [],
+      "jurisdictions": [
+        "england-wales"
+      ]
+    },
+    "investigation": {
+      "hypothesis": "Where UK GDPR restricted transfers apply, the contract addresses the UK International Data Transfer Agreement (IDTA) or the UK Addendum to the EU SCCs as the transfer tool, rather than relying on the EU SCCs alone.",
+      "evidenceHints": [
+        "international data transfer agreement",
+        "idta",
+        "uk addendum",
+        "ico transfer tool"
+      ],
+      "proofStandard": "Proven only by text that names the IDTA or the UK Addendum to the EU SCCs as the mechanism for UK restricted transfers. Text that attaches or references only the unmodified EU Standard Contractual Clauses, with no UK Addendum and no IDTA, does NOT satisfy this for a UK restricted transfer — the EU SCCs alone are not a completed UK transfer tool. If the contract involves no UK restricted transfer (no personal data leaving the UK's protected framework), this proposition is not raised — treat as not applicable.",
+      "proofElements": [
+        {
+          "id": "restricted_transfer_scope",
+          "description": "The processing involves a UK restricted transfer",
+          "required": true,
+          "kind": "mandatory"
+        },
+        {
+          "id": "uk_transfer_tool",
+          "description": "An executed IDTA or UK Addendum is incorporated",
+          "required": true,
+          "kind": "mandatory"
+        }
+      ],
+      "clauseTypeHints": [
+        "data_protection",
+        "international_transfer_mechanism"
+      ],
+      "extractionTargets": [
+        "uk_transfer_tool",
+        "uk_representative",
+        "supervisory_authority_reference",
+        "uk_transfer_safeguard"
+      ]
+    },
+    "verification": {
+      "version": "1.1.0",
+      "reviewStatus": "authored",
+      "guidance": []
+    },
+    "legacyRequirementId": "ukgdpr.idta_or_addendum"
+  },
+  {
+    "ruleId": "ukgdpr.art27_uk_representative",
+    "label": "UK representative for non-UK controllers/processors",
+    "ruleText": "A controller or processor not established in the UK that falls within UK GDPR extra-territorial processing should designate a UK representative in writing, distinct from any EU Article 27 representative.",
+    "checkType": "judgment",
+    "findingCategory": "uk_representative_gap",
+    "ruleScope": "per_document",
+    "appliesToClauseTypes": [
+      "data_protection"
+    ],
+    "legalHook": "UK GDPR Article 27 (representative in the United Kingdom).",
+    "authority": {
+      "instrument": "UK GDPR / Data Protection Act 2018 / ICO transfer framework",
+      "citation": "UK GDPR Article 27 (representative in the United Kingdom).",
+      "provisionPath": [
+        "ukgdpr.art27_uk_representative"
+      ],
+      "citationAliases": [
+        "ukgdpr.art27_uk_representative",
+        "UK GDPR Article 27 (representative in the United Kingdom)."
+      ]
+    },
+    "selection": {
+      "aliases": [
+        "uk representative for non-uk controllers/processors",
+        "uk representative",
+        "article 27",
+        "representative in the united kingdom"
+      ],
+      "concepts": [
+        "representative",
+        "non-uk",
+        "controllers",
+        "processors",
+        "controller",
+        "processor",
+        "established",
+        "falls",
+        "gdpr",
+        "extra-territorial",
+        "processing",
+        "should",
+        "designate",
+        "writing",
+        "distinct",
+        "article",
+        "united",
+        "kingdom"
+      ],
+      "actors": [
+        "processor",
+        "controller"
+      ],
+      "actions": [],
+      "objects": [
+        "timeframe"
+      ]
+    },
+    "applicability": {
+      "documentTypes": [],
+      "jurisdictions": [
+        "england-wales"
+      ]
+    },
+    "investigation": {
+      "hypothesis": "Where a controller or processor not established in the UK falls within UK GDPR's extra-territorial scope, the contract designates a UK representative in writing, distinct from any EU Article 27 representative.",
+      "evidenceHints": [
+        "uk representative",
+        "article 27",
+        "representative in the united kingdom"
+      ],
+      "proofStandard": "Proven only by text naming a UK representative specifically (not merely an EU representative under the parallel EU GDPR Article 27 duty, which is a distinct appointment). A clause naming only an 'EU representative' with no UK-specific designation, where the entity is subject to UK extra-territorial scope, does not satisfy this. If neither party is a non-UK-established controller/processor within UK GDPR's extra-territorial scope, this proposition is not raised.",
+      "proofElements": [
+        {
+          "id": "extraterritorial_scope",
+          "description": "A non-UK party is subject to UK GDPR extraterritorially",
+          "required": true,
+          "kind": "mandatory"
+        },
+        {
+          "id": "written_uk_designation",
+          "description": "A UK representative is designated in writing",
+          "required": true,
+          "kind": "mandatory"
+        },
+        {
+          "id": "uk_contact_role",
+          "description": "The representative is established in the UK and acts as the UK GDPR contact",
+          "required": true,
+          "kind": "mandatory"
+        }
+      ],
+      "clauseTypeHints": [
+        "data_protection",
+        "international_transfer_mechanism"
+      ],
+      "extractionTargets": [
+        "uk_transfer_tool",
+        "uk_representative",
+        "supervisory_authority_reference",
+        "uk_transfer_safeguard"
+      ]
+    },
+    "verification": {
+      "version": "1.1.0",
+      "reviewStatus": "authored",
+      "guidance": []
+    },
+    "legacyRequirementId": "ukgdpr.art27_uk_representative"
+  },
+  {
+    "ruleId": "ukgdpr.ico_as_authority",
+    "label": "ICO is the UK supervisory authority path",
+    "ruleText": "UK GDPR documents should point complaints, DPO contacts, and breach notification to the Information Commissioner, not only to an EU lead supervisory authority or the EDPB.",
+    "checkType": "judgment",
+    "findingCategory": "uk_ico_authority_gap",
+    "ruleScope": "per_document",
+    "appliesToClauseTypes": [
+      "data_protection"
+    ],
+    "legalHook": "Data Protection Act 2018; UK GDPR references to the Commissioner.",
+    "authority": {
+      "instrument": "UK GDPR / Data Protection Act 2018 / ICO transfer framework",
+      "citation": "Data Protection Act 2018; UK GDPR references to the Commissioner.",
+      "provisionPath": [
+        "ukgdpr.ico_as_authority"
+      ],
+      "citationAliases": [
+        "ukgdpr.ico_as_authority",
+        "Data Protection Act 2018; UK GDPR references to the Commissioner."
+      ]
+    },
+    "selection": {
+      "aliases": [
+        "ico is the uk supervisory authority path",
+        "information commissioner",
+        "ico",
+        "supervisory authority",
+        "complaint to"
+      ],
+      "concepts": [
+        "supervisory",
+        "authority",
+        "path",
+        "gdpr",
+        "documents",
+        "should",
+        "point",
+        "complaints",
+        "contacts",
+        "breach",
+        "notification",
+        "information",
+        "commissioner",
+        "lead",
+        "edpb",
+        "complaint"
+      ],
+      "actors": [],
+      "actions": [
+        "notify"
+      ],
+      "objects": []
+    },
+    "applicability": {
+      "documentTypes": [],
+      "jurisdictions": [
+        "england-wales"
+      ]
+    },
+    "investigation": {
+      "hypothesis": "The document points complaints, DPO contact, and breach notification to the UK Information Commissioner (ICO), not only to an EU lead supervisory authority or the EDPB.",
+      "evidenceHints": [
+        "information commissioner",
+        "ico",
+        "supervisory authority",
+        "complaint to"
+      ],
+      "proofStandard": "Proven only by text naming the Information Commissioner (ICO) as (or among) the supervisory authority for complaints, DPO contact, or breach notification. Text naming only an EU lead supervisory authority or the EDPB, with no ICO reference, is a gap for a document that is subject to UK GDPR. If the document addresses only EU GDPR compliance with no UK nexus, this proposition is not raised.",
+      "proofElements": [
+        {
+          "id": "ico_complaint_route",
+          "description": "Complaints and regulatory contact identify the ICO",
+          "required": true,
+          "kind": "mandatory"
+        },
+        {
+          "id": "ico_breach_route",
+          "description": "UK breach notification identifies the ICO rather than only an EU authority",
+          "required": true,
+          "kind": "mandatory"
+        }
+      ],
+      "clauseTypeHints": [
+        "data_protection",
+        "international_transfer_mechanism"
+      ],
+      "extractionTargets": [
+        "uk_transfer_tool",
+        "uk_representative",
+        "supervisory_authority_reference",
+        "uk_transfer_safeguard"
+      ]
+    },
+    "verification": {
+      "version": "1.1.0",
+      "reviewStatus": "authored",
+      "guidance": []
+    },
+    "legacyRequirementId": "ukgdpr.ico_as_authority"
+  },
+  {
+    "ruleId": "ukgdpr.art46_uk_mechanism",
+    "label": "UK Article 46 transfer tool must be a UK-recognised safeguard",
+    "ruleText": "Appropriate safeguards for UK restricted transfers are the UK-recognised tools (IDTA, UK Addendum, UK-approved BCRs, or another UK Chapter V mechanism). An unmodified EU SCC pack without the UK Addendum is incomplete for UK transfers.",
+    "checkType": "judgment",
+    "findingCategory": "uk_transfer_safeguard_gap",
+    "ruleScope": "per_document",
+    "appliesToClauseTypes": [
+      "international_transfer_mechanism"
+    ],
+    "legalHook": "UK GDPR Articles 44–46; ICO transfer tools.",
+    "authority": {
+      "instrument": "UK GDPR / Data Protection Act 2018 / ICO transfer framework",
+      "citation": "UK GDPR Articles 44–46; ICO transfer tools.",
+      "provisionPath": [
+        "ukgdpr.art46_uk_mechanism"
+      ],
+      "citationAliases": [
+        "ukgdpr.art46_uk_mechanism",
+        "UK GDPR Articles 44–46; ICO transfer tools."
+      ]
+    },
+    "selection": {
+      "aliases": [
+        "uk article 46 transfer tool must be a uk-recognised safeguard",
+        "uk-recognised",
+        "idta",
+        "uk addendum",
+        "uk approved binding corporate rules"
+      ],
+      "concepts": [
+        "article",
+        "transfer",
+        "tool",
+        "uk-recognised",
+        "safeguard",
+        "appropriate",
+        "safeguards",
+        "restricted",
+        "transfers",
+        "tools",
+        "idta",
+        "addendum",
+        "uk-approved",
+        "bcrs",
+        "another",
+        "chapter",
+        "mechanism",
+        "unmodified",
+        "pack",
+        "incomplete",
+        "approved",
+        "binding",
+        "corporate",
+        "rules"
+      ],
+      "actors": [],
+      "actions": [
+        "transfer",
+        "restrict"
+      ],
+      "objects": [
+        "security_measures"
+      ]
+    },
+    "applicability": {
+      "documentTypes": [],
+      "jurisdictions": [
+        "england-wales"
+      ]
+    },
+    "investigation": {
+      "hypothesis": "Appropriate safeguards for UK restricted transfers use a UK-recognised transfer tool — the IDTA, UK Addendum, UK-approved BCRs, or another UK Chapter V mechanism — not an unmodified EU SCC pack alone.",
+      "evidenceHints": [
+        "uk-recognised",
+        "idta",
+        "uk addendum",
+        "uk approved binding corporate rules"
+      ],
+      "proofStandard": "Proven only by text naming a UK-recognised Chapter V safeguard (IDTA, UK Addendum, UK-approved BCRs, or an ICO-recognised mechanism) for the UK restricted transfer. An unmodified EU SCC pack with no UK Addendum or IDTA reference does NOT satisfy this. If no UK restricted transfer is involved, this proposition is not raised.",
+      "proofElements": [
+        {
+          "id": "restricted_transfer_scope",
+          "description": "A UK restricted transfer requiring safeguards is identified",
+          "required": true,
+          "kind": "mandatory"
+        },
+        {
+          "id": "recognized_uk_safeguard",
+          "description": "The transfer uses an IDTA, UK Addendum, UK-approved BCRs, or another UK-recognised safeguard",
+          "required": true,
+          "kind": "mandatory"
+        }
+      ],
+      "clauseTypeHints": [
+        "data_protection",
+        "international_transfer_mechanism"
+      ],
+      "extractionTargets": [
+        "uk_transfer_tool",
+        "uk_representative",
+        "supervisory_authority_reference",
+        "uk_transfer_safeguard"
+      ]
+    },
+    "verification": {
+      "version": "1.1.0",
+      "reviewStatus": "authored",
+      "guidance": []
+    },
+    "legacyRequirementId": "ukgdpr.art46_uk_mechanism"
+  }
 ];
 
 const RIGHTS_MATRIX = buildDataProtectionRightsMatrix("uk-gdpr", [
@@ -83,7 +458,7 @@ const RIGHTS_MATRIX = buildDataProtectionRightsMatrix("uk-gdpr", [
   { rowId: "ukgdpr.right.object", localArticleOrSection: "21", label: "Objection (UK GDPR)" },
 ]);
 
-export const ukGdprIdtaSkill: AnalysisSkillConfig = {
+const ukGdprIdtaSkillConfig: AnalysisSkillConfig = {
   skillId: "regimes/data-protection/uk-gdpr-idta",
   axis: "regime",
   family: "data-protection",
@@ -151,58 +526,7 @@ export const ukGdprIdtaSkill: AnalysisSkillConfig = {
       capabilityIds: RULES.map((r) => r.ruleId),
       clauseTypes: ["data_protection", "international_transfer_mechanism"],
       extractionTargets: ["uk_transfer_tool", "uk_representative", "supervisory_authority_reference", "uk_transfer_safeguard"],
-      requirementEvidence: {
-        "ukgdpr.idta_or_addendum": {
-          hypothesis:
-            "Where UK GDPR restricted transfers apply, the contract addresses the UK International Data Transfer Agreement (IDTA) or the UK Addendum to the EU SCCs as the transfer tool, rather than relying on the EU SCCs alone.",
-          evidenceHints: ["international data transfer agreement", "idta", "uk addendum", "ico transfer tool"],
-          proofStandard:
-            "Proven only by text that names the IDTA or the UK Addendum to the EU " +
-            "SCCs as the mechanism for UK restricted transfers. Text that attaches " +
-            "or references only the unmodified EU Standard Contractual Clauses, with " +
-            "no UK Addendum and no IDTA, does NOT satisfy this for a UK restricted " +
-            "transfer — the EU SCCs alone are not a completed UK transfer tool. If " +
-            "the contract involves no UK restricted transfer (no personal data " +
-            "leaving the UK's protected framework), this proposition is not raised — " +
-            "treat as not applicable.",
-        },
-        "ukgdpr.art27_uk_representative": {
-          hypothesis:
-            "Where a controller or processor not established in the UK falls within UK GDPR's extra-territorial scope, the contract designates a UK representative in writing, distinct from any EU Article 27 representative.",
-          evidenceHints: ["uk representative", "article 27", "representative in the united kingdom"],
-          proofStandard:
-            "Proven only by text naming a UK representative specifically (not merely " +
-            "an EU representative under the parallel EU GDPR Article 27 duty, which " +
-            "is a distinct appointment). A clause naming only an 'EU representative' " +
-            "with no UK-specific designation, where the entity is subject to UK " +
-            "extra-territorial scope, does not satisfy this. If neither party is a " +
-            "non-UK-established controller/processor within UK GDPR's " +
-            "extra-territorial scope, this proposition is not raised.",
-        },
-        "ukgdpr.ico_as_authority": {
-          hypothesis:
-            "The document points complaints, DPO contact, and breach notification to the UK Information Commissioner (ICO), not only to an EU lead supervisory authority or the EDPB.",
-          evidenceHints: ["information commissioner", "ico", "supervisory authority", "complaint to"],
-          proofStandard:
-            "Proven only by text naming the Information Commissioner (ICO) as (or " +
-            "among) the supervisory authority for complaints, DPO contact, or breach " +
-            "notification. Text naming only an EU lead supervisory authority or the " +
-            "EDPB, with no ICO reference, is a gap for a document that is subject to " +
-            "UK GDPR. If the document addresses only EU GDPR compliance with no UK " +
-            "nexus, this proposition is not raised.",
-        },
-        "ukgdpr.art46_uk_mechanism": {
-          hypothesis:
-            "Appropriate safeguards for UK restricted transfers use a UK-recognised transfer tool — the IDTA, UK Addendum, UK-approved BCRs, or another UK Chapter V mechanism — not an unmodified EU SCC pack alone.",
-          evidenceHints: ["uk-recognised", "idta", "uk addendum", "uk approved binding corporate rules"],
-          proofStandard:
-            "Proven only by text naming a UK-recognised Chapter V safeguard (IDTA, " +
-            "UK Addendum, UK-approved BCRs, or an ICO-recognised mechanism) for the " +
-            "UK restricted transfer. An unmodified EU SCC pack with no UK Addendum " +
-            "or IDTA reference does NOT satisfy this. If no UK restricted transfer " +
-            "is involved, this proposition is not raised.",
-        },
-      },
+      requirementEvidence: {},
       sourceMode: "authored",
       packageVersion: "1.0.0",
       requirementKinds: ["adequacy", "verification"],
@@ -241,3 +565,7 @@ export const ukGdprIdtaSkill: AnalysisSkillConfig = {
   ],
   defaultOperation: "compliance_check",
 };
+
+export const ukGdprIdtaSkill = finalizeRegimeRuleContracts(ukGdprIdtaSkillConfig, {
+  instrument: "UK GDPR / Data Protection Act 2018 / ICO transfer framework",
+});

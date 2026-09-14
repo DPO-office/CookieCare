@@ -52,6 +52,11 @@ import {
   buildCompoundBranchGraph,
   decomposeCompoundSubIntents,
 } from "./build-branch-orchestration.js";
+import {
+  applyComplianceRequirementRouting,
+  complianceRequirementRoutingMode,
+} from "./compliance-routing-mode.js";
+import { resolveComplianceRequirements } from "./resolve-compliance-requirements.js";
 
 const SKILL_DRIVEN_OPERATIONS = new Set([
   "risk_flag",
@@ -93,6 +98,20 @@ export function shouldPreferOpenAnalysisLane(input: {
     !isRegimeCompliance &&
     input.standard === "none"
   );
+}
+
+export function mixedOperationClarification(
+  intent: IntentClassification
+): MissingClarification | undefined {
+  if (!intent.compound || new Set(intent.subIntents.map(item => item.operation)).size <= 1) {
+    return undefined;
+  }
+  return {
+    field: "operation",
+    question: "This prototype handles one analysis operation at a time. Please run the compliance check, risk review, or comparison as separate requests.",
+    severity: "critical",
+    options: ["compliance_check", "risk_flag", "compare"],
+  };
 }
 
 /**
@@ -137,6 +156,8 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
   state = { ...state, intent };
 
   const missing: MissingClarification[] = [];
+  const mixedOperation = mixedOperationClarification(intent);
+  if (mixedOperation) missing.push(mixedOperation);
   if (state.clarificationRequest?.questions.length) {
     for (const q of state.clarificationRequest.questions) {
       missing.push({
@@ -392,6 +413,39 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     state = { ...state, intent };
   }
 
+  // Compliance baseline selection belongs to PLAN. ACT consumes this frozen
+  // resolution and must never reinterpret the user's request or consult
+  // package-owned requirement schemas to discover additional rules.
+  const complianceRoutingMode = complianceRequirementRoutingMode();
+  const complianceIntentRequirements =
+    intent.operation === "compliance_check"
+      ? intent.requirements ?? []
+      : intent.subIntents
+          .filter((subIntent) => subIntent.operation === "compliance_check")
+          .flatMap((subIntent) => subIntent.requirements ?? []);
+  const hasComplianceIntent =
+    intent.operation === "compliance_check" || complianceIntentRequirements.length > 0;
+  const complianceRequirementResolution =
+    hasComplianceIntent && complianceRoutingMode !== "off"
+      ? await resolveComplianceRequirements({
+          instruction: state.request.instruction,
+          intentRequirements: complianceIntentRequirements,
+          activeSkills: skills,
+          documentContext: {
+            documentTypes: docTypeFloor === "unknown" ? undefined : [docTypeFloor],
+          },
+        })
+      : undefined;
+  if (complianceRequirementResolution) {
+    pacLog("PLAN compliance requirement resolution", {
+      mode: complianceRoutingMode,
+      facets: complianceRequirementResolution.facets.length,
+      selected: complianceRequirementResolution.selections.length,
+      unresolved: complianceRequirementResolution.unresolved.length,
+      complete: complianceRequirementResolution.complete,
+    });
+  }
+
   // Target+playbook is a compliance check, not a peer comparison — the
   // playbook's positions are rules to satisfy, not a second document to
   // compare against on equal footing. The "compare" operation's
@@ -417,7 +471,8 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
   const effectiveReferenceDocId = openLaneHandledReference ? undefined : referenceDocId;
 
   const graphStarted = Date.now();
-  const graphs = targetDocIds.map((docId) =>
+  const graphDocumentIds = intent.operation === "compliance_check" ? [primaryDocId] : targetDocIds;
+  const graphs = graphDocumentIds.map((docId) =>
     buildActGraphDetailed({
       docId,
       instruction: state.request.instruction,
@@ -486,6 +541,7 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
   const branchGraph =
     intent.compound &&
     intent.subIntents.length > 1 &&
+    new Set(intent.subIntents.map(item => item.operation)).size > 1 &&
     configuredBranchMode !== "off"
       ? buildCompoundBranchGraph({
           parentIntent: intent,
@@ -540,10 +596,16 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
     droppedOutOfScope,
   });
 
-  const workUnits: AnalysisWorkUnit[] = orderByDependency(
+  let workUnits: AnalysisWorkUnit[] = orderByDependency(
     configuredBranchMode === "compound" && branchGraph
       ? branchGraph.workUnits
       : graph.workUnits
+  );
+
+  workUnits = applyComplianceRequirementRouting(
+    workUnits,
+    complianceRequirementResolution,
+    complianceRoutingMode
   );
 
   if (state.agent) {
@@ -582,6 +644,7 @@ export async function buildPlan(state: AnalysisState): Promise<AnalysisState> {
       configuredBranchMode === "compound" && branchGraph
         ? branchGraph.requirementBindings
         : graph.packageResolution.requirementBindings,
+    complianceRequirementResolution,
     pinnedVersions: {
       clauseTaxonomyVersion:
         state.metadata.clauseTaxonomyVersion ?? CLAUSE_TAXONOMY_VERSION,

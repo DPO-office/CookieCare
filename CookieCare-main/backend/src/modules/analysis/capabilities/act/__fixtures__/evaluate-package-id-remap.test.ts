@@ -2,7 +2,7 @@ process.env.GOOGLE_CLOUD_PROJECT ??= "evaluate-package-id-remap-test";
 
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { resolveAllowedRequirementId } from "../evaluate-package.js";
+import { resolveAllowedRequirementId } from "../operations/evaluate-requirement-package.js";
 
 describe("resolveAllowedRequirementId", () => {
   const allowed = [

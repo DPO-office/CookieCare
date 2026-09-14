@@ -16,12 +16,12 @@ const {
   buildRightsMatrixMemoDocument,
   consolidateFindingsForRender,
   getEligibleRemedialFindings,
-} = await import("../../capabilities/act/render-output.js");
+} = await import("../../capabilities/reporting/render-output.js");
 const { findSilenceEvidence } = await import(
-  "../../capabilities/act/flag-risk.js"
+  "../../capabilities/act/risk-review/evaluate-risk-findings.js"
 );
 const { applyApplicabilityGate } = await import(
-  "../../capabilities/act/evaluate-matrix-row.js"
+  "../../capabilities/act/operations/evaluate-comparison-row.js"
 );
 
 const locator = {

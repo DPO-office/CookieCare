@@ -7,7 +7,10 @@ import { encryptData, decryptData } from "../utils/crypto.js";
 import { withRetry } from "../utils/retry.js";
 import { withTransaction } from "../utils/dbUtils.js";
 import crypto from "crypto";
-import { extractText } from "../utils/extractText.js";
+import {
+  buildDocumentGraph,
+  persistDocumentGraph,
+} from "../modules/analysis/capabilities/ingest/document-structure/index.js";
 import { executeTemplateDrafting } from "./jobs/handlers/drafting-handler.js";
 import { executePlaybookIngestionJob } from "./jobs/handlers/playbook-handler.js";
 import { executeClauseIngestionJob } from "./jobs/handlers/clause-handler.js";
@@ -299,26 +302,28 @@ class BackgroundJobRegistry {
 export const jobRegistry = new BackgroundJobRegistry();
 
 async function executeFileProcessing(jobId: string, userId: string, payload: any): Promise<any> {
-  const { fileId, fileBufferBase64, mimeType, isEphemeral } = payload;
+  const { fileId, fileTitle, fileBufferBase64, mimeType, isEphemeral, expectedIdentity } = payload;
 
-  await updateJobProgress(jobId, userId, 15, "Extracting text from document...");
+  await updateJobProgress(jobId, userId, 15, "Extracting document structure...");
 
   const buffer = Buffer.from(fileBufferBase64, "base64");
-  const extracted = await extractText(buffer, mimeType);
-  // PDF extractText returns { text, pageBreaks }; DOCX still returns a string.
-  const extractedText =
-    typeof extracted === "string"
-      ? extracted
-      : typeof extracted?.text === "string"
-        ? extracted.text
-        : "";
-  if (!extractedText.trim()) {
+  const versionId = "ver_" + crypto.randomUUID();
+  const graph = await buildDocumentGraph({
+    artifactId: "dsa_" + crypto.randomUUID(),
+    fileId,
+    documentVersionId: versionId,
+    fileName: String(fileTitle || fileId),
+    mimeType: String(mimeType || "application/octet-stream"),
+    buffer,
+    expectedIdentity: typeof expectedIdentity === "string" ? expectedIdentity : undefined,
+  });
+  if (!graph.canonicalText.trim()) {
     throw new Error("Could not extract readable text from the uploaded file.");
   }
-  let content = extractedText.replace(/\0/g, "");
+  const content = graph.canonicalText.replace(/\0/g, "");
   const encryptedContent = encryptData(content);
 
-  await updateJobProgress(jobId, userId, 50, isEphemeral ? "Saving document text..." : "Updating database and indexing for search...");
+  await updateJobProgress(jobId, userId, 65, "Validating and saving document graph...");
 
   const rowCount = await withTransaction(userId, 'USER', async (client) => {
     const result = await client.query(
@@ -326,7 +331,6 @@ async function executeFileProcessing(jobId: string, userId: string, payload: any
       [encryptedContent, true, fileId]
     );
 
-    const versionId = "ver_" + crypto.randomUUID();
     await client.query(
       `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
       [versionId, fileId, encryptedContent]
@@ -336,14 +340,22 @@ async function executeFileProcessing(jobId: string, userId: string, payload: any
   });
 
   if (rowCount === 0) throw new Error(`File record ${fileId} not found.`);
+  await persistDocumentGraph(userId, graph);
 
-  // Skip RAG chunking/indexing for ephemeral uploads — they are used directly
+  // Skip RAG chunking/indexing for ephemeral uploads - they are used directly
   // by the analysis engine via DB content and do not need vector search.
   if (!isEphemeral) {
+    await updateJobProgress(jobId, userId, 85, "Indexing document for non-Analysis search...");
     await chunkAndIndexDocument(fileId, content, userId);
   }
 
-  return { fileId, content };
+  return {
+    fileId,
+    content,
+    structureArtifactId: graph.artifactId,
+    structureStatus: graph.quality.status,
+    structureQuality: graph.quality,
+  };
 }
 
 async function executeDocumentAnalysis(jobId: string, userId: string, payload: any): Promise<any> {
