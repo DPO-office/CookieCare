@@ -11,7 +11,10 @@ export function executionBudget(env: Record<string, string | undefined> = proces
   };
   const disableDeadline = ["true", "1"].includes((env.COMPLIANCE_VERIFICATION_DISABLE_TIME_BUDGET ?? "").trim().toLowerCase());
   return {
-    concurrency: value("ANALYSIS_COMPLIANCE_SIDE_CHANNEL_CONCURRENCY", 4, 1, 16),
+    // Six workers is the production default, including when Cloud Run has no
+    // analysis-specific environment configuration. The variable is only an
+    // optional operational override.
+    concurrency: value("ANALYSIS_COMPLIANCE_SIDE_CHANNEL_CONCURRENCY", 6, 1, 16),
     stageMs: disableDeadline || !env.ANALYSIS_COMPLIANCE_SIDE_CHANNEL_STAGE_BUDGET_MS ? null : value("ANALYSIS_COMPLIANCE_SIDE_CHANNEL_STAGE_BUDGET_MS", 45000, 100, 300000),
   };
 }

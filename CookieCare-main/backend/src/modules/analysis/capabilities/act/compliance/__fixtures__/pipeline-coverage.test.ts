@@ -34,9 +34,9 @@ test("stage deadline preserves unfinished and skipped checks",async()=>{
   assert.equal(run.ledger.outcomes.size,10);assert.ok([...run.ledger.outcomes.values()].every(o=>o.kind==="incomplete"));
 });
 test("shared deadline is explicit opt-in and preserves concurrency",()=>{
-  assert.deepEqual(executionBudget({}),{concurrency:4,stageMs:null});
-  assert.deepEqual(executionBudget({COMPLIANCE_VERIFICATION_DISABLE_TIME_BUDGET:"true",ANALYSIS_COMPLIANCE_SIDE_CHANNEL_STAGE_BUDGET_MS:"100"}),{concurrency:4,stageMs:null});
-  assert.deepEqual(executionBudget({COMPLIANCE_VERIFICATION_DISABLE_TIME_BUDGET:"false",ANALYSIS_COMPLIANCE_SIDE_CHANNEL_STAGE_BUDGET_MS:"100"}),{concurrency:4,stageMs:100});
+  assert.deepEqual(executionBudget({}),{concurrency:6,stageMs:null});
+  assert.deepEqual(executionBudget({COMPLIANCE_VERIFICATION_DISABLE_TIME_BUDGET:"true",ANALYSIS_COMPLIANCE_SIDE_CHANNEL_STAGE_BUDGET_MS:"100"}),{concurrency:6,stageMs:null});
+  assert.deepEqual(executionBudget({COMPLIANCE_VERIFICATION_DISABLE_TIME_BUDGET:"false",ANALYSIS_COMPLIANCE_SIDE_CHANNEL_STAGE_BUDGET_MS:"100"}),{concurrency:6,stageMs:100});
 });
 test("disabled deadline lets all fourteen checks finish after simulated 45 seconds",async()=>{
   const requests=Array.from({length:14},(_,i)=>requestFixture("unlimited."+i));

@@ -32,7 +32,7 @@ router.get("/health", async (req: Request, res: Response) => {
     return res.json({
       status: "UP",
       database: "SKIPPED",
-      documentParser: getDocumentParserReadiness(),
+      documentParser: await getDocumentParserReadiness(),
       timestamp: new Date().toISOString(),
     });
   }
@@ -45,14 +45,14 @@ router.get("/health", async (req: Request, res: Response) => {
       status: "UP",
       database: "CONNECTED",
       latency: `${latency}ms`,
-      documentParser: getDocumentParserReadiness(),
+      documentParser: await getDocumentParserReadiness(),
       timestamp: new Date().toISOString()
     });
   } catch (err) {
     res.status(503).json({
       status: "DOWN",
       database: "DISCONNECTED",
-      documentParser: getDocumentParserReadiness(),
+      documentParser: await getDocumentParserReadiness(),
       timestamp: new Date().toISOString()
     });
   }
