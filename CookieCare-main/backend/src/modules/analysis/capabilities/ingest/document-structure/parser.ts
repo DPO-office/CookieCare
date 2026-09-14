@@ -1,8 +1,11 @@
+import fs from "node:fs";
 import path from "node:path";
+import { createRequire } from "node:module";
 import { extractText } from "../../../../../utils/extractText.js";
 import type { CanonicalTable, ParsedBlock, ParsedDocument, SourceBox, SourceProvenance, StructureWarning } from "./types.js";
 
 const DOCLING_VERSION = "1.41.0";
+const require = createRequire(path.join(process.cwd(), "package.json"));
 
 type DoclingAddon = typeof import("docling.rs");
 type DocumentConverter = InstanceType<DoclingAddon["DocumentConverter"]>;
@@ -21,13 +24,59 @@ function allowLegacyFallback(): boolean {
   return process.env.NODE_ENV !== "production";
 }
 
+function wireDoclingEnv(home = process.env.DOCLING_RS_HOME || process.cwd()) {
+  const resolved = path.resolve(home);
+  const models = fs.existsSync(path.join(resolved, ".models"))
+    ? path.join(resolved, ".models")
+    : path.join(resolved, "models");
+  const pdfiumLibDir = process.env.PDFIUM_DYNAMIC_LIB_PATH || path.join(resolved, ".pdfium", "lib");
+  process.env.DOCLING_RS_HOME = resolved;
+  process.env.PDFIUM_DYNAMIC_LIB_PATH = pdfiumLibDir;
+  const layout = path.join(models, "layout_heron.onnx");
+  const ocrRec = path.join(models, "ocr_rec.onnx");
+  const ocrDict = path.join(models, "ppocr_keys_v1.txt");
+  if (fs.existsSync(layout)) process.env.DOCLING_LAYOUT_ONNX = layout;
+  if (fs.existsSync(ocrRec)) process.env.DOCLING_OCR_REC_ONNX = ocrRec;
+  if (fs.existsSync(ocrDict)) process.env.DOCLING_OCR_DICT = ocrDict;
+  const nativeDirs = [
+    pdfiumLibDir,
+    path.join(resolved, "node_modules", "docling.rs"),
+    path.join(resolved, "node_modules", "docling.rs-linux-x64-gnu"),
+  ].filter((dir) => fs.existsSync(dir));
+  const current = process.env.LD_LIBRARY_PATH || "";
+  const merged = [...nativeDirs, ...current.split(path.delimiter).filter(Boolean)];
+  process.env.LD_LIBRARY_PATH = [...new Set(merged)].join(path.delimiter);
+}
+
+function unwrapDocling(mod: Record<string, unknown>): DoclingAddon {
+  const candidate = (mod.Pipeline ? mod : mod.default) as DoclingAddon | undefined;
+  if (!candidate?.Pipeline || !candidate.checkDependencies) {
+    throw new Error(`docling.rs export shape invalid: ${Object.keys(mod).join(",") || "(empty)"}`);
+  }
+  return candidate;
+}
+
 async function loadDocling(): Promise<DoclingAddon> {
-  doclingLoad ??= import("docling.rs").catch((err) => {
-    doclingLoad = undefined;
-    const wrapped = err instanceof Error ? err : new Error(String(err));
-    console.error("[docling] native addon failed to load:", wrapped);
-    throw wrapped;
-  });
+  if (!doclingLoad) {
+    wireDoclingEnv();
+    doclingLoad = (async () => {
+      try {
+        return unwrapDocling(require("docling.rs") as Record<string, unknown>);
+      } catch (cjsErr) {
+        console.error("[docling] CJS load failed:", cjsErr);
+        try {
+          return unwrapDocling(await import("docling.rs") as Record<string, unknown>);
+        } catch (esmErr) {
+          const wrapped = esmErr instanceof Error ? esmErr : new Error(String(esmErr));
+          console.error("[docling] ESM load failed:", wrapped);
+          throw wrapped;
+        }
+      }
+    })().catch((err) => {
+      doclingLoad = undefined;
+      throw err;
+    });
+  }
   return doclingLoad;
 }
 
