@@ -92,6 +92,32 @@ test("a permanently invalid check yields a preserved incomplete row, not a drop"
   assert.equal(bad.status, "verification_incomplete");
 });
 
+test("a borderline verdict is resampled and the majority wins", async () => {
+  const r = requestFixture("rule.borderline");
+  r.check.rule!.elements = ["a", "b"].map(id => ({ id, description: "Only documented instructions.", kind: "mandatory" as const, required: true }));
+  r.check.rule!.aggregation = { operator: "all", children: [{ elementId: "a" }, { elementId: "b" }] };
+  const h = harness([r]);
+  const { run, services } = h.make((req, nth) => {
+    const raw = responseFixture(req); // both elements supported → present
+    if (nth <= 2) { // first two samples: element "b" absent → partial (borderline)
+      const b = raw.elements.find(e => e.elementId === "b")!;
+      b.state = "not_located"; b.citations = [];
+    }
+    return raw;
+  });
+  await executeChecksOnce(run, services);
+  assert.equal(h.totalCalls(), 3, "three self-consistency samples for the borderline check");
+  assert.equal([...run.ledger.outcomes.values()][0].status, "partial", "majority (2 of 3) wins");
+});
+
+test("a confident verdict is not resampled (stays one call)", async () => {
+  const rs = requests(4);
+  const h = harness(rs);
+  const { run, services } = h.make(req => responseFixture(req)); // all present
+  await executeChecksOnce(run, services);
+  assert.equal(h.totalCalls(), 4, "present is confident — no resampling");
+});
+
 test("the one-call executor never runs additional investigation, reverify or second-review", async () => {
   const rs = requests(4);
   const h = harness(rs);

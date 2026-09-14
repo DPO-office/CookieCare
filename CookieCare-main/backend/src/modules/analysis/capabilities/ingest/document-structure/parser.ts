@@ -4,9 +4,17 @@ import { extractText } from "../../../../../utils/extractText.js";
 import type { CanonicalTable, ParsedBlock, ParsedDocument, SourceBox, SourceProvenance, StructureWarning } from "./types.js";
 
 const DOCLING_VERSION = "1.41.0";
-const converter = new DocumentConverter({ strict: true, fetchImages: false });
-const recoveryConverter = new DocumentConverter({ strict: false, fetchImages: false });
+let converter: DocumentConverter | undefined;
+let recoveryConverter: DocumentConverter | undefined;
 let pdfPipeline: Pipeline | undefined;
+
+function getConverter() {
+  return (converter ??= new DocumentConverter({ strict: true, fetchImages: false }));
+}
+
+function getRecoveryConverter() {
+  return (recoveryConverter ??= new DocumentConverter({ strict: false, fetchImages: false }));
+}
 
 function resolveDoclingHome(): string {
   if (process.env.DOCLING_RS_HOME) return process.env.DOCLING_RS_HOME;
@@ -197,7 +205,7 @@ export async function parseDocument(buffer: Buffer, mimeType: string, fileName: 
         { to: "json", imageMode: "placeholder" }
       );
     } else {
-      result = await converter.convertAsync(
+      result = await getConverter().convertAsync(
         { name: fileNameForFormat(fileName, format), data: buffer, format },
         { to: "json", imageMode: "placeholder" }
       );
@@ -210,7 +218,7 @@ export async function parseDocument(buffer: Buffer, mimeType: string, fileName: 
   } catch (error) {
     if (format === "pdf" && getDocumentParserReadiness().ready) {
       try {
-        const recovered = await recoveryConverter.convertAsync(
+        const recovered = await getRecoveryConverter().convertAsync(
           { name: fileNameForFormat(fileName, format), data: buffer, format },
           { to: "json", imageMode: "placeholder" }
         );
