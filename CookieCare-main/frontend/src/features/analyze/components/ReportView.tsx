@@ -350,8 +350,8 @@ const ReportMessageList = memo(function ReportMessageList({
   const hasComplianceTable = chatMessages.some(
     (m) =>
       m.sender === "gemini" &&
-      /\|\s*Requirement\s*\|\s*Status\s*\|\s*Contract provision\s*\|\s*Assessment\s*\|/i.test(
-        m.text || ""
+      (m.text || "").split("\n").some((line) =>
+        line.startsWith("|") && /\|\s*Requirement\s*\|/i.test(line) && /\|\s*Status\s*\|/i.test(line)
       )
   );
   const hasWideTable = hasRequirementsTable || hasComplianceTable;
@@ -638,8 +638,8 @@ export default function ReportView({
           (/\|\s*Requirement\s*\|\s*Status\s*\|\s*Evidence\s*\|\s*Finding\s*\|\s*Action\s*\|/i.test(
             m.text || ""
           ) ||
-            /\|\s*Requirement\s*\|\s*Status\s*\|\s*Contract provision\s*\|\s*Assessment\s*\|/i.test(
-              m.text || ""
+            (m.text || "").split("\n").some((line) =>
+              line.startsWith("|") && /\|\s*Requirement\s*\|/i.test(line) && /\|\s*Status\s*\|/i.test(line)
             ))
       ),
     [chatMessages]

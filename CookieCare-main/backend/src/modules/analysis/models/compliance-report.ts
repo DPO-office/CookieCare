@@ -92,6 +92,8 @@ export type ComplianceTableColumn =
 export interface CompliancePresentationPlan {
   version: 1 | 2;
   mode: CompliancePresentationMode;
+  /** 0 normally; 3 when the user explicitly asks for a three-paragraph answer. Required in version 2. */
+  paragraphLimit?: 0 | 3;
   rationale: string;
   sections: Array<{
     /** Stable report-local identity and request coverage mappings; required in version 2 plans. */
@@ -127,21 +129,31 @@ export interface ComplianceReportValidation {
   /** Safe generation diagnostics. Source prose and document contents are never stored here. */
   generation?: {
     schemaVersion: "1.0";
+    reportId: string;
+    assessmentSnapshotId: string;
+    pipeline: "compliance";
     rendererVersion: string;
     provider: string;
     model: string;
     task: string;
+    settings: {
+      temperature: number;
+      thinkingLevel?: string;
+      maxOutputTokens: { compose: number; check: number; repair: number };
+    };
     startedAt: string;
     completedAt: string;
     elapsedMs: number;
     deadlineMs: number;
+    totalRunBudgetMs: number;
     inputChars: number;
+    outputChars: number;
     maxInputChars: number;
     evidenceCount: number;
     uniqueEvidenceCount: number;
     modelCalls: number;
     tokenDelta: number;
-    fallbackReason?: "adaptive_disabled" | "context_limit" | "token_budget" | "composition_failed" | "validation_failed";
+    fallbackReason?: "adaptive_disabled" | "context_limit" | "token_budget" | "deadline" | "composition_failed" | "validation_failed";
   };
   coverage?: Array<{
     itemId: string;

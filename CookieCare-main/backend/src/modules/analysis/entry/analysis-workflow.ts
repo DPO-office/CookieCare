@@ -45,6 +45,7 @@ export class AnalysisEntry {
       metadata: {
         ...state.metadata,
         timestamp: state.metadata?.timestamp ?? new Date().toISOString(),
+        runStartedAt: new Date().toISOString(),
         clauseTaxonomyVersion: CLAUSE_TAXONOMY_VERSION,
         riskTaxonomyVersion: RISK_TAXONOMY_VERSION,
         thinkingMode: profile.thinkingMode,
@@ -83,6 +84,7 @@ export class AnalysisEntry {
             maxTurns: profile.maxTurns,
           }
         : initAgentRunState("RESUME", { maxTurns: profile.maxTurns }),
+      metadata: { ...state.metadata, runStartedAt: new Date().toISOString() },
     };
     return this.pac.run(seeded);
   }

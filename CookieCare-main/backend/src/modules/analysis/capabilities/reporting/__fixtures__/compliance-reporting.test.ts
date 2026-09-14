@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { describe, it } from "node:test";
 import type { AnalysisState } from "../../../models/analysis-state.js";
 import type { CompliancePresentationPlan, ComplianceReportSnapshot } from "../../../models/compliance-report.js";
-import { renderComplianceReport, type ComplianceCompletion } from "../compliance-reporting.js";
+import { complianceReportingInput, renderComplianceReport, type ComplianceCompletion } from "../compliance-reporting.js";
 import { defaultCompliancePresentationPlan, deterministicComplianceDraft } from "../compliance-presentation.js";
 import { hasValidatedComplianceReport, runComplianceReportGate, usesCanonicalComplianceReport } from "../compliance-release.js";
 import { executeActPlan } from "../../act/execute-act-plan.js";
@@ -36,7 +36,9 @@ function state(snapshot: ComplianceReportSnapshot | undefined = fixture()): Anal
     intent: { operation: "compliance_check", standard: "none", scope: "whole_document", outputForm: "memo", compound: false,
       subIntents: [], requirements: [], confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 } },
     workspace: { sessionId: "report-test", documents: [{ docId: "doc-1", title: "DPA", role: "target",
-      fullText: "4.1.1 The processor shall assist with requests.", segments: [], clauses: [] }] },
+      fullText: "4.1.1 The processor shall assist with requests.",
+      segments: [{ locator: { docId: "doc-1", structuralPath: "clause-4.1.1", charRange: [0, 47] },
+        text: "4.1.1 The processor shall assist with requests.", kind: "clause" }], clauses: [] }] },
     findings: [], metadata: {}, activeSkills: [], complianceReportSnapshot: snapshot,
     plan: { workUnits: [{ workUnitId: "wu-render", tool: "render_output", input: {}, dependsOn: [], outputSchema: "string", status: "done" }] },
   } as unknown as AnalysisState;
@@ -71,6 +73,12 @@ describe("bounded compliance report generation", () => {
     assert.deepEqual(calls, ["compose", "check"]);
     assert.deepEqual(tokens, []);
     assert.equal(result.complianceReportValidation?.source, "validated_writer");
+    assert.equal(result.compliancePresentationPlan?.version, 2);
+    assert.deepEqual(result.compliancePresentationPlan?.sections.map(section => section.id), ["S1", "S2", "S3", "S4"]);
+    assert.deepEqual(result.complianceReportValidation?.coverage?.map(item => item.itemId), ["request:primary"]);
+    assert.equal(result.complianceReportValidation?.generation?.modelCalls, 2);
+    assert.equal(result.complianceReportValidation?.generation?.schemaVersion, "1.0");
+    assert.equal(result.complianceReportValidation?.generation?.uniqueEvidenceCount, 1);
     assert.match(result.complianceReportValidation?.guidanceVersions?.shared ?? "", /^reporting\.shared-core@/);
     assert.match(result.complianceReportValidation?.guidanceVersions?.compliance ?? "", /^reporting\.compliance@/);
     assert.ok(hasValidatedComplianceReport(result));
@@ -138,6 +146,54 @@ describe("bounded compliance report generation", () => {
     const result = await renderComplianceReport(input, async () => { assert.fail("No LLM call expected"); });
     assert.equal(result.complianceReportValidation?.source, "snapshot_unavailable");
     assert.match(result.renderedOutput!, /fresh compliance check/);
+  });
+  it("deduplicates repeated evidence in the composition context without dropping row links", () => {
+    const snapshot = fixture();
+    snapshot.rows[0].evidence.push({ ...snapshot.rows[0].evidence[0], citationId: "E2", use: "related" });
+    const input = complianceReportingInput(snapshot);
+    assert.equal(input.evidenceRegistry.length, 1);
+    assert.deepEqual(input.rows[0].evidenceRefs.map(reference => reference.sourceId), ["S1", "S1"]);
+  });
+  it("supports a reversible deterministic rollout switch", async () => {
+    const previous = process.env.COMPLIANCE_REPORTING_ADAPTIVE;
+    process.env.COMPLIANCE_REPORTING_ADAPTIVE = "0";
+    try {
+      const result = await renderComplianceReport(state(), async () => { assert.fail("No LLM call expected"); });
+      assert.equal(result.complianceReportValidation?.generation?.fallbackReason, "adaptive_disabled");
+      assert.equal(result.complianceReportValidation?.generation?.modelCalls, 0);
+      assert.match(result.renderedOutput!, /Report status/);
+    } finally {
+      if (previous === undefined) delete process.env.COMPLIANCE_REPORTING_ADAPTIVE;
+      else process.env.COMPLIANCE_REPORTING_ADAPTIVE = previous;
+    }
+  });
+  it("does not silently slice a context that exceeds the configured composition limit", async () => {
+    const previous = process.env.ANALYSIS_REPORTING_MAX_INPUT_CHARS;
+    process.env.ANALYSIS_REPORTING_MAX_INPUT_CHARS = "1";
+    try {
+      const result = await renderComplianceReport(state(), async () => { assert.fail("No LLM call expected"); });
+      assert.equal(result.complianceReportValidation?.generation?.fallbackReason, "context_limit");
+      assert.match(result.renderedOutput!, /complete deterministic verified-finding presentation/);
+    } finally {
+      if (previous === undefined) delete process.env.ANALYSIS_REPORTING_MAX_INPUT_CHARS;
+      else process.env.ANALYSIS_REPORTING_MAX_INPUT_CHARS = previous;
+    }
+  });
+  it("uses the remaining end-to-end run deadline instead of allocating a fresh two minutes", async () => {
+    const input = state();
+    input.metadata.timestamp = new Date(Date.now() - 121_000).toISOString();
+    const result = await renderComplianceReport(input, async () => { assert.fail("No LLM call expected"); });
+    assert.equal(result.complianceReportValidation?.generation?.fallbackReason, "deadline");
+    assert.equal(result.complianceReportValidation?.generation?.deadlineMs, 0);
+    assert.match(result.renderedOutput!, /remaining end-to-end run budget/);
+  });
+  it("reserves enough analysis tokens for both composition and semantic validation", async () => {
+    const input = state();
+    input.agent = initAgentRunState("CREATE", { tokenBudget: 100, tokensUsed: 50 });
+    const result = await renderComplianceReport(input, async () => { assert.fail("No LLM call expected"); });
+    assert.equal(result.complianceReportValidation?.generation?.fallbackReason, "token_budget");
+    assert.equal(result.complianceReportValidation?.generation?.modelCalls, 0);
+    assert.match(result.renderedOutput!, /token budget was insufficient/);
   });
 });
 

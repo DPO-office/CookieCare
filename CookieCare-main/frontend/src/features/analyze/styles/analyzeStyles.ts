@@ -832,6 +832,10 @@ export const ANALYZE_STYLES = `
 .analyze-report-prose .md-content table.md-table-compliance {
   table-layout: auto;
   width: max-content;
+  min-width: max(100%, 1080px);
+}
+
+.analyze-report-prose .md-content table.md-table-compliance-wide {
   min-width: 1480px;
 }
 
@@ -862,6 +866,11 @@ export const ANALYZE_STYLES = `
 .analyze-report-prose .md-content table.md-table-compliance .md-col-assessment {
   width: 410px;
   min-width: 410px;
+}
+
+.analyze-report-prose .md-content table.md-table-compliance .md-col-specialized {
+  width: 280px;
+  min-width: 280px;
 }
 
 .md-status-mark {
