@@ -54,6 +54,7 @@ describe("compliance presentation modes and default plans", () => {
     assert.equal(resolveCompliancePresentationMode(state("Review")), "layered");
     assert.equal(resolveCompliancePresentationMode(state("Table only please", "narrative", "deep")), "table_only");
     assert.equal(resolveCompliancePresentationMode(state("Use no tables", "tabular")), "narrative");
+    assert.equal(resolveCompliancePresentationMode(state("Give me exactly three paragraphs")), "narrative");
     assert.equal(resolveCompliancePresentationMode(state("A brief review", "tabular", "deep")), "short");
     assert.equal(resolveCompliancePresentationMode(state("A detailed review")), "detailed");
     assert.equal(resolveCompliancePresentationMode(state("Review", "narrative")), "layered");
@@ -108,6 +109,17 @@ describe("compliance presentation modes and default plans", () => {
       else if (selected[0] === "not_applicable") assert.ok(text.includes("does not establish compliance"));
       else assert.ok(text.includes("All applicable reviewed requirements are supported"));
     }
+  });
+  it("honours an explicit three-paragraph request without adding a matrix or headings", () => {
+    const s = fixture(["partial", "gap"]);
+    s.instruction = "Answer in exactly three paragraphs.";
+    const p = defaultCompliancePresentationPlan(s, "narrative");
+    assert.equal(p.paragraphLimit, 3);
+    assert.deepEqual(validateCompliancePresentationPlan(p, s, "narrative"), []);
+    const markdown = renderComplianceMarkdown(s, p, deterministicComplianceDraft(s, p));
+    assert.equal(markdown.split(/\n\n/u).length, 3);
+    assert.doesNotMatch(markdown, /^(?:#|\|)/m);
+    for (const row of s.rows) assert.match(markdown, new RegExp(row.title));
   });
 });
 
@@ -391,6 +403,17 @@ describe("code-owned Markdown assembly", () => {
     const p = defaultCompliancePresentationPlan(s, "short"), output = renderComplianceMarkdown(s, p, deterministicComplianceDraft(s, p));
     assert.ok(!output.includes("technical_citation"));
     assert.ok(!output.includes("## Sources"));
+  });
+  it("renumbers display citations from report order while retaining stable evidence identity", () => {
+    const s = fixture(["present", "partial"]);
+    const p = defaultCompliancePresentationPlan(s, "short");
+    overview(p).findingIds.reverse();
+    const output = renderComplianceMarkdown(s, p, deterministicComplianceDraft(s, p));
+    const rows = output.split("\n").filter(line => line.startsWith("| **Requirement"));
+    assert.match(rows[0], /Requirement 2/);
+    assert.match(rows[0], /\[E1\]/);
+    assert.match(rows[1], /Requirement 1/);
+    assert.match(rows[1], /\[E2\]/);
   });
   it("places the answer first, displays only nonzero counts and keeps provision cells to pointers", () => {
     const s = fixture(["gap"]), p = defaultCompliancePresentationPlan(s, "layered"), d = deterministicComplianceDraft(s, p);

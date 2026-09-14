@@ -244,19 +244,18 @@ function statusMarkHtml(plain: string): string | null {
   return `<span class="md-status-mark">${match.mark} <strong>${text}</strong></span>`;
 }
 
-/** Compliance overview: Requirement, Status, Contract provision, Assessment. */
+/** Request-adaptive compliance overview: 3-6 approved columns including Requirement and Status. */
 function isComplianceOverviewTable(tableHtml: string): boolean {
   const headers = [...tableHtml.matchAll(/<th\b[^>]*>([\s\S]*?)<\/th>/gi)].map((m) =>
     stripTags(m[1]).trim().toLowerCase()
   );
-  if (headers.length !== 4) return false;
+  if (headers.length < 3 || headers.length > 6 || new Set(headers).size !== headers.length) return false;
   const names = new Set(headers);
-  return (
-    names.has("requirement") &&
-    names.has("status") &&
-    names.has("contract provision") &&
-    names.has("assessment")
-  );
+  const allowed = new Set([
+    "requirement", "status", "contract provision", "assessment", "gap or qualification",
+    "recommended action", "parties and roles", "transfer mechanism", "destination", "legal basis", "timing",
+  ]);
+  return names.has("requirement") && names.has("status") && headers.every(header => allowed.has(header));
 }
 
 function complianceColumnIndexes(tableHtml: string): { status: number; clamp: Set<number> } {
@@ -273,6 +272,13 @@ const COMPLIANCE_COL_CLASS: Record<string, string> = {
   status: "md-col-status",
   "contract provision": "md-col-provision",
   assessment: "md-col-assessment",
+  "gap or qualification": "md-col-assessment",
+  "recommended action": "md-col-assessment",
+  "parties and roles": "md-col-specialized",
+  "transfer mechanism": "md-col-specialized",
+  destination: "md-col-specialized",
+  "legal basis": "md-col-specialized",
+  timing: "md-col-specialized",
 };
 
 function annotateComplianceColumns(tableHtml: string): string {
@@ -360,7 +366,7 @@ function wrapTables(html: string): string {
     const manyColsClass =
       !requirements && !compliance && headerCols >= 5 ? " md-table-many-cols" : "";
     const requirementsClass = requirements ? " md-table-requirements" : "";
-    const complianceClass = compliance ? " md-table-compliance" : "";
+    const complianceClass = compliance ? ` md-table-compliance${headerCols >= 5 ? " md-table-compliance-wide" : ""}` : "";
 
     const tableClass = [requirementsClass.trim(), complianceClass.trim(), manyColsClass.trim()]
       .filter(Boolean)

@@ -46,7 +46,7 @@ const requiredDetails = (s: ComplianceReportSnapshot, mode: CompliancePresentati
 export function resolveCompliancePresentationMode(state: AnalysisState): CompliancePresentationMode {
   const instruction = state.request.instruction.toLowerCase();
   if (/\b(?:table[ _-]only|only (?:a )?table|tabular only|just (?:a |the )?table)\b/.test(instruction)) return "table_only";
-  if (/\b(?:no tables?|without (?:a )?tables?|narrative(?: only| format)?|prose only)\b/.test(instruction)) return "narrative";
+  if (/\b(?:three|3) paragraphs?\b/.test(instruction) || /\b(?:no tables?|without (?:a )?tables?|narrative(?: only| format)?|prose only)\b/.test(instruction)) return "narrative";
   if (/\b(?:short|brief|concise|summary only)\b/.test(instruction)) return "short";
   if (/\b(?:detailed|in[ -]depth|comprehensive)\b/.test(instruction)) return "detailed";
   // The API supplies narrative as a default, so answerStyle does not establish user intent.
@@ -77,7 +77,8 @@ export function defaultCompliancePresentationPlan(
     .map(r => reportOutcomeId(r));
   if (actionable.length && mode !== "short" && mode !== "table_only") add("actions", "Recommended actions", actionable);
   if (mode === "table_only" || needsLimitations(snapshot)) add("limitations", mode === "table_only" ? "Scope and limitations" : "Limitations and outstanding checks");
-  return { version: 2, mode, rationale: "Complete reviewed coverage with code-owned tables, statuses, actions, pointers and quotations.", sections };
+  const paragraphLimit = /\b(?:three|3) paragraphs?\b/i.test(snapshot.instruction) ? 3 : 0;
+  return { version: 2, mode, paragraphLimit, rationale: "Complete reviewed coverage with code-owned tables, statuses, actions, pointers and quotations.", sections };
 }
 
 function exactKeys(value: Record<string, unknown>, keys: string[], path: string, errors: string[]) {
@@ -122,9 +123,11 @@ export function validateCompliancePresentationPlan(
 ): string[] {
   const errors: string[] = [];
   if (!isObject(raw)) return ["plan must be an object"];
-  exactKeys(raw, ["version", "mode", "rationale", "sections"], "plan", errors);
-  if (raw.version !== 1 && raw.version !== 2) errors.push("plan.version must be 1 or 2");
   const mappedPlan = raw.version === 2;
+  exactKeys(raw, mappedPlan ? ["version", "mode", "paragraphLimit", "rationale", "sections"] : ["version", "mode", "rationale", "sections"], "plan", errors);
+  if (raw.version !== 1 && raw.version !== 2) errors.push("plan.version must be 1 or 2");
+  const expectedParagraphLimit = /\b(?:three|3) paragraphs?\b/i.test(snapshot.instruction) ? 3 : 0;
+  if (mappedPlan && raw.paragraphLimit !== expectedParagraphLimit) errors.push(`plan.paragraphLimit must be ${expectedParagraphLimit}`);
   if (!MODES.includes(mode) || raw.mode !== mode) errors.push("plan.mode must match requested mode");
   if (typeof raw.rationale !== "string" || !raw.rationale.trim() || raw.rationale.length > 1000) errors.push("plan.rationale must be bounded text");
   if (!Array.isArray(raw.sections)) return [...errors, "plan.sections must be an array"];
@@ -203,6 +206,7 @@ export function validateCompliancePresentationPlan(
   if (mode !== "short" && mode !== "table_only" && actionable.length) {
     if (counts.get("actions") !== 1) errors.push("Exactly one actions section is required for consolidated remediation");
     cover("actions", actionable);
+    if ((byKind.get("actions")?.size ?? 0) !== actionable.length) errors.push("actions: include only actionable findings");
   } else if (counts.get("actions")) errors.push(`${mode} must not contain a separate actions section`);
   if ((mode === "table_only" || needsLimitations(snapshot)) && counts.get("limitations") !== 1) errors.push("A limitations section is required to retain scope and qualifications");
   if (mappedPlan) {
@@ -464,18 +468,17 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
   const clean = (s: string) => publicText(s, snapshot);
   const rows = new Map(snapshot.rows.map(r => [reportOutcomeId(r), r]));
   const prose = new Map(draft.rows.map(r => [r.findingId, r]));
-  const allEvidence = snapshot.rows.flatMap(r => r.evidence);
-  // Preserve canonical E references where supplied; otherwise allocate stable display-only references.
+  const orderedIds = [...new Set(plan.sections.flatMap(section => section.findingIds))];
+  const orderedRows = [...orderedIds.map(id => rows.get(id)).filter((row): row is ComplianceReportRow => !!row),
+    ...snapshot.rows.filter(row => !orderedIds.includes(reportOutcomeId(row)))];
+  const allEvidence = orderedRows.flatMap(r => r.evidence);
+  // Source identity remains stable; display references are allocated from final report order.
   const evidenceKey = (e: typeof allEvidence[number]) => JSON.stringify([e.documentId, e.pointer, e.quote, e.charRange]);
   const refs = new Map<string, string>();
-  const reserved = new Set(allEvidence.map(e => e.citationId).filter(id => /^E[1-9]\d*$/.test(id)));
-  const used = new Set<string>();
   for (const e of allEvidence) {
     const key = evidenceKey(e);
     if (refs.has(key)) continue;
-    let ref = /^E[1-9]\d*$/.test(e.citationId) && !used.has(e.citationId) ? e.citationId : "";
-    if (!ref) { let n = 1; while (used.has(`E${n}`) || reserved.has(`E${n}`)) n++; ref = `E${n}`; }
-    refs.set(key, ref); used.add(ref);
+    refs.set(key, `E${refs.size + 1}`);
   }
   const locator = (e: typeof allEvidence[number]) => {
     const heading = withoutDocumentTitle(clean(e.pointer || e.structuralPath || "Location unavailable"));
@@ -560,6 +563,27 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
   const table = (headers: string[], cells: string[][]) => [
     `| ${headers.join(" | ")} |`, `| ${headers.map(() => "---").join(" | ")} |`, ...cells.map(c => `| ${c.join(" | ")} |`),
   ].join("\n");
+  if (plan.paragraphLimit === 3) {
+    const first = [answerOverview(snapshot), clean(draft.answer),
+      ...(needsLimitations(snapshot) ? ["This answer remains qualified by the unresolved items described below."] : []),
+    ].filter((value, index, values) => value && values.indexOf(value) === index).join(" ");
+    const second = snapshot.rows.map(row => {
+      const summary = shownAssessment(row);
+      return `${requirement(row)} - ${statusMark(row.status)}. ${summary === "-" ? FALLBACK[row.status] : summary} ${provision(row)}.`;
+    }).join(" ") || "No completed requirement assessments are available.";
+    const grouped = new Map<string, string[]>();
+    for (const row of snapshot.rows.filter(needsAction)) {
+      const shown = action(row);
+      const names = grouped.get(shown) ?? [];
+      names.push(clean(shortName(row.title)));
+      grouped.set(shown, names);
+    }
+    const actions = [...grouped].map(([shown, names]) => `Recommended action: **${shown}** Affects: ${names.join("; ")}.`).join(" ");
+    const limits = [...snapshot.limitations.map(item => clean(item.message)),
+      ...snapshot.outstandingChecks.map(item => `${clean(item.title)}: ${clean(item.reason)}`)].join(" ");
+    const third = [actions, limits, `Conclusions are limited to ${clean(snapshot.scope || "the reviewed scope")}.`].filter(Boolean).join(" ");
+    return [first, second, third].join("\n\n");
+  }
   const blocks: string[] = [];
   for (const section of plan.sections) {
     const selected = section.findingIds.map(id => rows.get(id)!);

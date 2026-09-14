@@ -32,6 +32,7 @@ const PLAN_SCHEMA = {
   type: "object", properties: {
     version: { type: "integer" },
     mode: { type: "string", enum: ["layered", "short", "detailed", "narrative", "table_only"] },
+    paragraphLimit: { type: "integer", enum: [0, 3] },
     rationale: { type: "string" },
     sections: { type: "array", items: { type: "object", properties: {
       id: { type: "string" },
@@ -45,7 +46,7 @@ const PLAN_SCHEMA = {
       ] } },
       detailWords: { type: "integer" },
     }, required: ["id", "requestItemIds", "questionIds", "kind", "heading", "findingIds", "columns", "detailWords"] } },
-  }, required: ["version", "mode", "rationale", "sections"],
+  }, required: ["version", "mode", "paragraphLimit", "rationale", "sections"],
 };
 const DRAFT_SCHEMA = {
   type: "object", properties: {
@@ -66,7 +67,8 @@ function constrainedPlanSchema(ids: string[], questionIds: string[]) {
     sections: { ...PLAN_SCHEMA.properties.sections, items: { ...PLAN_SCHEMA.properties.sections.items,
       properties: { ...PLAN_SCHEMA.properties.sections.items.properties,
         findingIds: { type: "array", items: { type: "string", enum: ids } },
-        questionIds: { type: "array", items: { type: "string", enum: questionIds } },
+        questionIds: { type: "array", items: questionIds.length
+          ? { type: "string", enum: questionIds } : { type: "string" } },
       },
     } },
   } };
@@ -156,6 +158,7 @@ function fallbackStatus(reason: NonNullable<NonNullable<ComplianceReportValidati
   if (reason === "adaptive_disabled") return "Adaptive composition is disabled, so this report uses the deterministic verified-finding presentation.";
   if (reason === "context_limit") return "The verified reporting context exceeded the configured composition limit, so this report uses the complete deterministic verified-finding presentation.";
   if (reason === "token_budget") return "The remaining analysis token budget was insufficient for checked composition, so this report uses the deterministic verified-finding presentation.";
+  if (reason === "deadline") return "The remaining end-to-end run budget was insufficient for checked composition, so this report uses the deterministic verified-finding presentation.";
   return "The polished composition could not be fully validated, so this report uses the deterministic verified-finding presentation. No finding was re-evaluated.";
 }
 
@@ -197,9 +200,14 @@ export async function renderComplianceReport(
 ): Promise<AnalysisState> {
   const startedMs = Date.now();
   const startedAt = new Date(startedMs).toISOString();
-  const deadlineMs = positiveEnvironmentInteger("ANALYSIS_REPORTING_DEADLINE_MS", 120_000);
+  const reportingBudgetMs = positiveEnvironmentInteger("ANALYSIS_REPORTING_DEADLINE_MS", 60_000);
+  const totalRunBudgetMs = positiveEnvironmentInteger("ANALYSIS_TOTAL_DEADLINE_MS", 120_000);
   const maxInputChars = positiveEnvironmentInteger("ANALYSIS_REPORTING_MAX_INPUT_CHARS", 1_000_000);
-  const deadlineAt = startedMs + deadlineMs;
+  const recordedRunStart = Date.parse(String(state.metadata?.runStartedAt ?? state.metadata?.timestamp ?? ""));
+  const runDeadlineAt = Number.isFinite(recordedRunStart) && recordedRunStart <= startedMs
+    ? recordedRunStart + totalRunBudgetMs : Number.POSITIVE_INFINITY;
+  const deadlineAt = Math.min(startedMs + reportingBudgetMs, runDeadlineAt);
+  const deadlineMs = Math.max(0, deadlineAt - startedMs);
   const tokenStart = state.agent?.tokensUsed ?? 0;
   let modelCalls = 0;
   state = { ...state, streamRenderOutput: false, complianceReportValidation: undefined };
@@ -218,16 +226,31 @@ export async function renderComplianceReport(
   const inputChars = JSON.stringify(lockedData).length;
   const evidenceCount = snapshot.rows.reduce((sum, row) => sum + row.evidence.length, 0);
   const uniqueEvidenceCount = lockedData.evidenceRegistry.length;
+  const assessmentSnapshotId = complianceOutputHash(JSON.stringify({ version: snapshot.version,
+    documents: snapshot.documents.map(document => [document.documentId, document.contentHash, document.role]),
+    outcomes: snapshot.rows.map(row => [reportOutcomeId(row), row.status, row.ruleVersion, row.documentHash]),
+    outstanding: snapshot.outstandingChecks.map(check => [check.requirementId, check.kind]),
+  }));
+  const reportId = `${state.request.sessionId}:compliance:${assessmentSnapshotId.slice(0, 12)}`;
+  let outputChars = 0;
   const task = LLMTask.STRUCTURAL_JSON_LITE;
-  const model = PROVIDER_TASK_PRESETS[LLMProvider.GEMINI][task].model;
+  const preset = PROVIDER_TASK_PRESETS[LLMProvider.GEMINI][task];
+  const model = preset.model;
   type FallbackReason = NonNullable<NonNullable<ComplianceReportValidation["generation"]>["fallbackReason"]>;
   const generation = (fallbackReason?: FallbackReason) => ({
-    schemaVersion: "1.0" as const, rendererVersion: REPORT_RENDERER_VERSION, provider: LLMProvider.GEMINI,
-    model, task, startedAt, completedAt: new Date().toISOString(), elapsedMs: Date.now() - startedMs,
-    deadlineMs, inputChars, maxInputChars, evidenceCount, uniqueEvidenceCount, modelCalls,
+    schemaVersion: "1.0" as const, reportId, assessmentSnapshotId, pipeline: "compliance" as const,
+    rendererVersion: REPORT_RENDERER_VERSION, provider: LLMProvider.GEMINI,
+    model, task, settings: { temperature: preset.temperature, thinkingLevel: profileThinkingLevel(state, task),
+      maxOutputTokens: { compose: 16000, check: 1600, repair: 12000 } },
+    startedAt, completedAt: new Date().toISOString(), elapsedMs: Date.now() - startedMs,
+    deadlineMs, totalRunBudgetMs, inputChars, outputChars, maxInputChars, evidenceCount, uniqueEvidenceCount, modelCalls,
     tokenDelta: Math.max(0, (state.agent?.tokensUsed ?? tokenStart) - tokenStart),
     ...(fallbackReason ? { fallbackReason } : {}),
   });
+  pacLog("COMPLIANCE report context built", { rows: snapshot.rows.length, inputChars, evidenceCount,
+    uniqueEvidenceCount, dynamicAnswers: lockedData.rows.reduce((sum, row) => sum + row.answers.length, 0),
+    outstanding: snapshot.outstandingChecks.length, limitations: snapshot.limitations.length });
+  pacLog("COMPLIANCE report guidance loaded", guidance.versions);
 
   await state.onProgress?.(86, "Organizing the verified compliance findings.");
   const mode = resolveCompliancePresentationMode(state);
@@ -244,6 +267,9 @@ export async function renderComplianceReport(
   if (!adaptiveEnabled) {
     fallbackReason = "adaptive_disabled";
     failures.push("Adaptive report composition is disabled by configuration.");
+  } else if (deadlineMs < 5_000) {
+    fallbackReason = "deadline";
+    failures.push("Less than five seconds remained in the end-to-end run budget for checked composition.");
   } else if (inputChars > maxInputChars) {
     fallbackReason = "context_limit";
     failures.push(`Reporting context exceeds the configured ${maxInputChars}-character limit.`);
@@ -266,6 +292,9 @@ export async function renderComplianceReport(
         if (!planErrors.length) { plan = composed.plan as CompliancePresentationPlan; plannerFallback = false; }
         else failures.push(...planErrors);
         rawDraft = composed.draft;
+        pacLog("COMPLIANCE report draft completed", { planAccepted: !planErrors.length,
+          sections: !planErrors.length ? plan.sections.length : fallbackPlan.sections.length,
+          outputChars: JSON.stringify(composed.draft).length });
       }
     } catch {
       failures.push("Report composition failed; used the deterministic presentation.");
@@ -284,6 +313,7 @@ export async function renderComplianceReport(
       if (!errors.length) {
         modelCalls++;
         errors = await withinDeadline(deadlineAt, signal => semanticCheck(complete, plan, lockedData, raw, signal));
+        pacLog("COMPLIANCE report validation completed", { passed: !errors.length, failures: errors.length });
       }
       if (errors.length) {
         failures.push(...errors);
@@ -298,6 +328,7 @@ export async function renderComplianceReport(
           modelCalls++;
           errors = await withinDeadline(deadlineAt, signal => semanticCheck(complete, plan, lockedData, raw, signal));
         }
+        pacLog("COMPLIANCE report repair completed", { passed: !errors.length, failures: errors.length });
       }
       if (!errors.length) { draft = raw as ComplianceReportDraft; source = "validated_writer"; }
       else { failures.push(...errors); fallbackReason = "validation_failed"; }
@@ -311,9 +342,11 @@ export async function renderComplianceReport(
     plan = fallbackPlan;
     draft = deterministicComplianceDraft(snapshot, plan);
   }
+  if (fallbackReason) pacLog("COMPLIANCE report fallback used", { reason: fallbackReason, failures: failures.length });
   let renderedOutput = renderComplianceMarkdown(snapshot, plan, draft);
   if (source === "deterministic" && snapshot.rows.length && fallbackReason)
     renderedOutput = `## Report status\n\n${fallbackStatus(fallbackReason)}\n\n${renderedOutput}`;
+  outputChars = renderedOutput.length;
   pacLog("COMPLIANCE report validated", {
     rows: snapshot.rows.length, outstanding: snapshot.outstandingChecks.length, mode, source, plannerFallback,
     repairAttempts, failures: failures.length, guidance: guidance.versions,

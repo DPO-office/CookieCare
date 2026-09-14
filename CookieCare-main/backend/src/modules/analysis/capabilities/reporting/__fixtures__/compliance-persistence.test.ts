@@ -91,6 +91,17 @@ const validation: ComplianceReportValidation = {
     compliance: "reporting.compliance@1.0.0",
     examples: ["coverage-matrix@1.0.0"],
   },
+  generation: {
+    schemaVersion: "1.0", reportId: "session-1:compliance:abc123", assessmentSnapshotId: "abc123",
+    pipeline: "compliance", rendererVersion: "compliance-markdown@2.1.0", provider: "GEMINI",
+    model: "gemini-3.6-flash", task: "STRUCTURAL_JSON_LITE",
+    settings: { temperature: 0, thinkingLevel: "minimal", maxOutputTokens: { compose: 16000, check: 1600, repair: 12000 } },
+    startedAt: "2026-09-07T00:00:00.000Z", completedAt: "2026-09-07T00:00:01.000Z",
+    elapsedMs: 1000, deadlineMs: 60000, totalRunBudgetMs: 120000,
+    inputChars: 4000, outputChars: 2000, maxInputChars: 1000000,
+    evidenceCount: 4, uniqueEvidenceCount: 3, modelCalls: 4, tokenDelta: 500,
+  },
+  coverage: [{ itemId: "request:primary", sectionIds: ["S1"], disposition: "answered_with_limitation" }],
   outputHash: hash("Historical report"),
 };
 

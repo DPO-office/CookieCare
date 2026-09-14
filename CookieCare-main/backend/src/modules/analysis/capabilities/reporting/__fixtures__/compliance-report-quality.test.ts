@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
 import { describe, it } from "node:test";
+import { fileURLToPath } from "node:url";
 import type { CompliancePresentationPlan, ComplianceReportSnapshot } from "../../../models/compliance-report.js";
-import { deterministicComplianceDraft, renderComplianceMarkdown, validateCompliancePresentationPlan } from "../compliance-presentation.js";
+import { defaultCompliancePresentationPlan, deterministicComplianceDraft, renderComplianceMarkdown, validateCompliancePresentationPlan } from "../compliance-presentation.js";
 import { COMPLIANCE_REPORT_QUALITY_FIXTURES } from "./compliance-report-quality-fixtures.js";
 
 interface EditorialReview {
@@ -67,4 +69,18 @@ describe("saved compliance snapshot editorial regression", () => {
       for (const row of fixture.snapshot.rows) assert.ok(after.includes(row.title));
     });
   }
+
+  const savedSnapshotPath = fileURLToPath(new URL("../../../temp/compliance-pre-report/out/latest.json", import.meta.url));
+  it("replays the captured real Article 28 verification handoff without rerunning analysis", {
+    skip: !existsSync(savedSnapshotPath),
+  }, () => {
+    const captured = JSON.parse(readFileSync(savedSnapshotPath, "utf8")) as { handedToReporting: ComplianceReportSnapshot };
+    const snapshot = captured.handedToReporting;
+    const plan = defaultCompliancePresentationPlan(snapshot, "layered");
+    assert.deepEqual(validateCompliancePresentationPlan(plan, snapshot, "layered"), []);
+    const markdown = renderComplianceMarkdown(snapshot, plan, deterministicComplianceDraft(snapshot, plan));
+    assert.equal(snapshot.rows.length, 14);
+    for (const row of snapshot.rows) assert.ok(markdown.includes(row.title), row.title);
+    assert.doesNotMatch(markdown, /\b(?:lockedAssessmentId|findingId|spanId|documentHash)\b/);
+  });
 });
