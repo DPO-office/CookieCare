@@ -68,6 +68,8 @@ describe("bounded compliance report generation", () => {
     assert.deepEqual(calls, ["outline", "write", "check"]);
     assert.deepEqual(tokens, []);
     assert.equal(result.complianceReportValidation?.source, "validated_writer");
+    assert.match(result.complianceReportValidation?.guidanceVersions?.shared ?? "", /^reporting\.shared-core@/);
+    assert.match(result.complianceReportValidation?.guidanceVersions?.compliance ?? "", /^reporting\.compliance@/);
     assert.ok(hasValidatedComplianceReport(result));
     assert.deepEqual(snapshot, before);
     assert.match(result.renderedOutput!, /4(?:\.|&#46;)1(?:\.|&#46;)1/);

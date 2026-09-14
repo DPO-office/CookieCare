@@ -7,6 +7,9 @@ lexify_migration_clean.sql
 lexify_migration.sql
 .DS_Store
 *.log
+# Local diagnostic dumps used to check the system
+logs/
+backend/src/modules/analysis/temp/**/out/
 .env*
 !.env.example
 .env

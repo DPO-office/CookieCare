@@ -17,7 +17,18 @@ const STATUS_MARK: Record<ComplianceReportRow["status"], string> = {
   not_applicable: "○", conflicting: "⚡", judgment_required: "⚖️",
   verification_incomplete: "🔍",
 };
-const COLUMNS: ComplianceTableColumn[] = ["Requirement", "Status", "Contract provision", "Assessment"];
+const DEFAULT_COLUMNS: ComplianceTableColumn[] = ["Requirement", "Status", "Contract provision", "Assessment"];
+const COLUMNS: ComplianceTableColumn[] = [
+  ...DEFAULT_COLUMNS, "Gap or qualification", "Recommended action", "Parties and roles",
+  "Transfer mechanism", "Destination", "Legal basis", "Timing",
+];
+const SPECIAL_COLUMN_SIGNAL: Partial<Record<ComplianceTableColumn, RegExp>> = {
+  "Parties and roles": /\b(?:data )?(?:exporter|importer|controller|processor|subprocessor|recipient|sender|party|parties|role|roles)\b/i,
+  "Transfer mechanism": /\b(?:transfer mechanisms?|SCCs?|standard contractual clauses?|BCRs?|binding corporate rules?|adequacy decision|derogation)\b/i,
+  Destination: /\b(?:destinations?|third countr(?:y|ies)|recipient countr(?:y|ies)|country of import|transfer countr(?:y|ies))\b/i,
+  "Legal basis": /\b(?:legal (?:basis|bases)|transfer (?:basis|bases)|adequacy decision|derogation|Article 4[569])\b/i,
+  Timing: /\b(?:timeframe|deadline|timing|period|within \d+|without undue delay|prompt(?:ly)?|notice|notification|notify)\b/i,
+};
 const MODES: CompliancePresentationMode[] = ["layered", "short", "detailed", "narrative", "table_only"];
 const DETAIL_CAPS: Record<CompliancePresentationMode, number> = { layered: 80, short: 20, detailed: 120, narrative: 80, table_only: 40 };
 const KINDS = ["answer", "overview", "details", "limitations", "sources"] as const;
@@ -48,7 +59,7 @@ export function defaultCompliancePresentationPlan(
 ): CompliancePresentationPlan {
   const sections: Section[] = [];
   const add = (kind: Section["kind"], heading: string, findingIds: string[] = []) => sections.push({
-    kind, heading, findingIds, columns: kind === "overview" ? [...COLUMNS] : [], detailWords: DETAIL_CAPS[mode],
+    kind, heading, findingIds, columns: kind === "overview" ? [...DEFAULT_COLUMNS] : [], detailWords: DETAIL_CAPS[mode],
   });
   if (mode !== "table_only") add("answer", "Answer");
   if (mode !== "narrative") add("overview", "Compliance overview", snapshot.rows.map(r => reportOutcomeId(r)));
@@ -81,6 +92,20 @@ function leaksId(text: string, s: ComplianceReportSnapshot) {
     /\b(?:lockedAssessmentId|findingId|spanId|canonicalKey|requirementId|documentHash)\b|\b[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}\b/i.test(text);
 }
 
+function rowSemanticIdentity(row: ComplianceReportRow): string {
+  return [row.title, row.canonicalKey, row.requirementId, ...row.supportedElementIds, ...row.missingElementIds].join(" ");
+}
+
+function supportsSpecialColumn(column: ComplianceTableColumn, snapshot: ComplianceReportSnapshot): boolean {
+  const signal = SPECIAL_COLUMN_SIGNAL[column];
+  if (!signal) return true;
+  return signal.test(snapshot.instruction) || snapshot.rows.some(row =>
+    signal.test(rowSemanticIdentity(row)) || (row.answers ?? []).some(answer =>
+      answer.questionId !== "user_request" && signal.test(answer.question ?? "")
+    )
+  );
+}
+
 export function validateCompliancePresentationPlan(
   raw: unknown, snapshot: ComplianceReportSnapshot, mode: CompliancePresentationMode,
 ): string[] {
@@ -108,9 +133,13 @@ export function validateCompliancePresentationPlan(
       errors.push(`${path}: detailWords must be an integer from 20 to ${DETAIL_CAPS[mode]}`);
     if (!Array.isArray(section.columns) || Array.from(section.columns).some(c => typeof c !== "string")) errors.push(`${path}: columns must be a string array`);
     else if (kind === "overview") {
-      const columns = section.columns;
-      if (columns.length !== 4 || new Set(columns).size !== 4 || COLUMNS.some(c => !columns.includes(c)))
-        errors.push(`${path}: overview requires exactly Requirement, Status, Contract provision, Assessment`);
+      const columns = section.columns as string[];
+      if (columns.length < 3 || columns.length > 6 || new Set(columns).size !== columns.length ||
+        !columns.includes("Requirement") || !columns.includes("Status") || columns.some(c => !COLUMNS.includes(c as ComplianceTableColumn)))
+        errors.push(`${path}: overview requires 3-6 unique allowed columns including Requirement and Status`);
+      for (const column of columns)
+        if (COLUMNS.includes(column as ComplianceTableColumn) && !supportsSpecialColumn(column as ComplianceTableColumn, snapshot))
+          errors.push(`${path}: ${column} is not separately established by the request or locked finding topics`);
     } else if (section.columns.length) errors.push(`${path}: columns are only permitted on overview`);
     if (!Array.isArray(section.findingIds)) { errors.push(`${path}: findingIds must be an array`); return; }
     const seen = byKind.get(kind) ?? new Set<string>();
@@ -122,13 +151,14 @@ export function validateCompliancePresentationPlan(
     }
     if ((kind === "answer" || kind === "limitations") && section.findingIds.length) errors.push(`${path}: ${kind} must not select findings`);
   });
-  for (const kind of KINDS) if (kind !== "details" && (counts.get(kind) ?? 0) > 1) errors.push(`Only one ${kind} section is permitted`);
+  for (const kind of KINDS) if (kind !== "details" && kind !== "overview" && (counts.get(kind) ?? 0) > 1) errors.push(`Only one ${kind} section is permitted`);
+  if ((counts.get("overview") ?? 0) > 4) errors.push("At most four overview sections are permitted");
   if (mode === "table_only") {
     if ((counts.get("answer") ?? 0) || (counts.get("details") ?? 0)) errors.push("table_only permits only overview, limitations and sources");
   } else if (counts.get("answer") !== 1 || !isObject(raw.sections[0]) || raw.sections[0].kind !== "answer") errors.push("Exactly one answer must be first");
   if (mode === "narrative") {
     if (counts.get("overview")) errors.push("narrative must not contain an overview table");
-  } else if (counts.get("overview") !== 1) errors.push("Exactly one overview is required");
+  } else if (!(counts.get("overview") ?? 0)) errors.push("At least one overview is required");
   if (mode === "short" && counts.get("details")) errors.push("short must omit details");
   const cover = (kind: string, ids: string[]) => {
     if (ids.some(id => !byKind.get(kind)?.has(id))) errors.push(`${kind}: missing required finding coverage`);
@@ -150,7 +180,12 @@ const FALLBACK: Record<ComplianceReportRow["status"], string> = {
   verification_incomplete: "Verification did not complete for this requirement and a further check is needed.",
 };
 const CANNED = new Set([...Object.values(FALLBACK), "obligation satisfied", "partial", "gap",
-  "The obligation is satisfied.", "The requirement is present."].map(text => text.replace(/[.!]+$/u, "").toLowerCase()));
+  "The obligation is satisfied.", "The requirement is present.",
+  // Content-free defaults emitted by the assessment layer: suppress when a writer echoes them.
+  "No outstanding required proof.", "The required applicable provisions are established within the reviewed scope.",
+  "Related contract provisions were located; their sufficiency has not been established.",
+  "No relevant passage is available in the current evidence bundle.",
+  "Material evidence or applicability remains unresolved."].map(text => text.replace(/[.!]+$/u, "").toLowerCase()));
 function isCanned(text: string): boolean {
   const normalized = text.replace(/\s+/g, " ").trim().replace(/[.!]+$/u, "").toLowerCase();
   return !normalized || CANNED.has(normalized);
@@ -409,19 +444,62 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
     const role = e.use === "related" ? "Related evidence: " : e.use === "conflict" ? "Conflicting evidence: " : "";
     return excerpt ? `${role}${locator(e)} - ${excerpt}` : locator(e);
   };
+  // One display entry per distinct source span. Operative proof (and any
+  // conflict) leads; merely related passages are deduped and demoted so a
+  // requirement is not buried under repeated or contextual citations.
+  const spanKey = (e: typeof allEvidence[number]) => JSON.stringify([e.documentId, e.spanId, e.charRange]);
+  const selectEvidence = (r: ComplianceReportRow) => {
+    const seen = new Set<string>();
+    const take = (into: typeof r.evidence, e: typeof allEvidence[number]) => {
+      const key = spanKey(e); if (seen.has(key)) return; seen.add(key); into.push(e);
+    };
+    const proof: typeof r.evidence = [], related: typeof r.evidence = [];
+    for (const e of r.evidence) if (e.use !== "related") take(proof, e);
+    for (const e of r.evidence) if (e.use === "related") take(related, e);
+    // When nothing is operative, the related passages are the best available.
+    return proof.length ? { primary: proof, secondary: related } : { primary: related, secondary: [] as typeof r.evidence };
+  };
   const noProvision = (r: ComplianceReportRow) => r.status === "gap"
     ? "No matching provision found in reviewed scope" : "Evidence unavailable for this assessment";
-  const provision = (r: ComplianceReportRow) => r.evidence.length
-    ? [...new Set(r.evidence.map(provisionItem))].join(" · ")
-    : noProvision(r);
-  const evidence = (r: ComplianceReportRow) => r.evidence.length ? r.evidence.map((e, index) => {
-    const end = [...e.quote.matchAll(/\S+/g)][59]?.index;
-    const excerpt = end === undefined ? e.quote : e.quote.slice(0, end).trimEnd();
-    const contribution = e.use === "related" ? "Related evidence; not established as sufficient proof." : e.contribution ?? "";
-    return `**${index + 1}.** ${locator(e)}\n\n${quoteBlock(excerpt)}${contribution ? "\n\n" + clean(contribution) : ""}`;
-  }).join("\n\n") : noProvision(r);
+  const PROVISION_ITEMS = 3;
+  const provision = (r: ComplianceReportRow) => {
+    const { primary, secondary } = selectEvidence(r);
+    if (!primary.length) return noProvision(r);
+    const shown = primary.slice(0, PROVISION_ITEMS);
+    const hidden = primary.length - shown.length + secondary.length;
+    return shown.map(provisionItem).join(" · ") + (hidden > 0 ? ` · +${hidden} more (see details)` : "");
+  };
+  const evidence = (r: ComplianceReportRow) => {
+    const { primary, secondary } = selectEvidence(r);
+    if (!primary.length) return noProvision(r);
+    const blocks = primary.map((e, index) => {
+      const end = [...e.quote.matchAll(/\S+/g)][59]?.index;
+      const excerpt = end === undefined ? e.quote : e.quote.slice(0, end).trimEnd();
+      const contribution = e.use === "related" ? "" : e.contribution ?? "";
+      return `**${index + 1}.** ${locator(e)}\n\n${quoteBlock(excerpt)}${contribution ? "\n\n" + clean(contribution) : ""}`;
+    });
+    if (secondary.length) blocks.push(`*Related context, not relied on as proof: ${secondary.map(locator).join(" · ")}*`);
+    return blocks.join("\n\n");
+  };
   const needsAction = (r: ComplianceReportRow) => r.status !== "present" && r.status !== "not_applicable" && !!r.recommendedAction.trim();
   const action = (r: ComplianceReportRow) => clean(stripElementLabels(r.recommendedAction, r));
+  const tableText = (value: string) => clean(value).replace(/\r?\n/g, " ").replace(/\|/g, "&#124;").trim();
+  const gapOrQualification = (r: ComplianceReportRow) =>
+    isCanned(r.whatIsMissingOrUnclear) ? "-" : tableText(stripElementLabels(r.whatIsMissingOrUnclear, r));
+  const shownAction = (r: ComplianceReportRow) => needsAction(r) ? tableText(action(r)) : "-";
+  const semanticValue = (r: ComplianceReportRow, column: ComplianceTableColumn) => {
+    const signal = SPECIAL_COLUMN_SIGNAL[column];
+    if (!signal) return "-";
+    const identityMatches = signal.test(rowSemanticIdentity(r));
+    const answers = (r.answers ?? []).filter(answer => {
+      const questionMatches = signal.test(answer.question ?? "");
+      return questionMatches && (answer.questionId !== "user_request" || identityMatches);
+    }).map(answer => tableText(answer.answer)).filter(Boolean);
+    const distinctAnswers = [...new Set(answers)];
+    if (distinctAnswers.length) return distinctAnswers.join(" — ");
+    if (identityMatches && !isCanned(r.whatTheDocumentProvides)) return tableText(stripElementLabels(r.whatTheDocumentProvides, r));
+    return r.status === "gap" ? "Not found in reviewed scope" : "Not separately established in this finding";
+  };
   const shownAssessment = (r: ComplianceReportRow) => {
     const text = prose.get(reportOutcomeId(r))!.assessment;
     return isCanned(text) ? "—" : clean(text);
@@ -456,6 +534,11 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
       case "overview": body = table(section.columns, selected.map(r => {
         const cells: Record<ComplianceTableColumn, string> = {
           Requirement: requirement(r), Status: statusMark(r.status), "Contract provision": provision(r), Assessment: assessment(r),
+          "Gap or qualification": gapOrQualification(r), "Recommended action": shownAction(r),
+          "Parties and roles": semanticValue(r, "Parties and roles"),
+          "Transfer mechanism": semanticValue(r, "Transfer mechanism"),
+          Destination: semanticValue(r, "Destination"), "Legal basis": semanticValue(r, "Legal basis"),
+          Timing: semanticValue(r, "Timing"),
         };
         return section.columns.map(c => cells[c]);
       })); break;

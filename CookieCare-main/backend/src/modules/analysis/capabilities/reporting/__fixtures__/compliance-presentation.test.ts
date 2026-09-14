@@ -146,7 +146,7 @@ describe("planner structural validation", () => {
       p => { overview(p).findingIds[0] = s.rows[0].rowId; },
       p => { details(p).findingIds.pop(); },
       p => { p.sections.push(clone(details(p))); },
-      p => { overview(p).columns.pop(); },
+      p => { overview(p).columns = ["Requirement", "Status"]; },
       p => { overview(p).columns[0] = "Severity" as never; },
       p => { overview(p).columns[0] = "Status"; },
       p => { p.sections[0].heading = "Critical risks"; },
@@ -160,6 +160,31 @@ describe("planner structural validation", () => {
       p => { p.sections = p.sections.filter(sec => sec.kind !== "limitations"); },
     ];
     for (const edit of edits) { const p = clone(good); edit(p); assert.ok(validateCompliancePresentationPlan(p, s, "layered").length, edit.toString()); }
+  });
+  it("accepts request-shaped columns and disjoint overview groups", () => {
+    const s = fixture(["present", "partial"]);
+    s.instruction = "Analyse transfer mechanisms, destinations and the legal basis for each transfer.";
+    s.rows[0].title = "Standard Contractual Clauses transfer mechanism";
+    s.rows[1].title = "Third-country destination and transfer basis";
+    const p = defaultCompliancePresentationPlan(s, "layered");
+    const first = overview(p);
+    first.heading = "Transfer mechanisms";
+    first.findingIds = [first.findingIds[0]];
+    first.columns = ["Requirement", "Status", "Transfer mechanism", "Contract provision"];
+    p.sections.splice(2, 0, {
+      ...clone(first), heading: "Destinations and bases", findingIds: [overview(p).findingIds[1] ?? s.rows[1].lockedAssessmentId!],
+      columns: ["Requirement", "Status", "Destination", "Legal basis", "Gap or qualification"],
+    });
+    // The first group's second ID was removed before constructing the second group.
+    p.sections[2].findingIds = [s.rows[1].lockedAssessmentId!];
+    assert.deepEqual(validateCompliancePresentationPlan(p, s, "layered"), []);
+  });
+  it("rejects specialized columns that are not separately requested or represented by a locked finding topic", () => {
+    const s = fixture(["present"]), p = defaultCompliancePresentationPlan(s, "short");
+    overview(p).columns = ["Requirement", "Status", "Destination"];
+    assert.ok(validateCompliancePresentationPlan(p, s, "short").some(error => error.includes("Destination is not separately established")));
+    s.instruction = "Identify transfer destinations.";
+    assert.deepEqual(validateCompliancePresentationPlan(p, s, "short"), []);
   });
   it("requires limitations for each uncertain status, outstanding check or explicit limitation", () => {
     for (const status of ["cannot_determine", "conflicting", "judgment_required", "verification_incomplete"] as const) {
@@ -406,6 +431,25 @@ describe("code-owned Markdown assembly", () => {
       assert.ok(!html.includes('<a href="https://example.test"'));
     }
   });
+  it("deduplicates repeated spans and demotes related evidence to a single line", () => {
+    const s = fixture(["partial"]); const r = s.rows[0];
+    const proof = { citationId: "E1", documentId: "doc_internal", documentTitle: "Agreement", pointer: "Clause 2",
+      spanId: "span_proof", structuralPath: "Clause 2", charRange: [0, 40] as [number, number],
+      quote: "The processor shall implement security measures.", use: "proof" as const };
+    const related = (n: number) => ({ citationId: `E${n}`, documentId: "doc_internal", documentTitle: "Agreement",
+      pointer: `Clause ${n}`, spanId: `span_rel_${n}`, structuralPath: `Clause ${n}`, charRange: [n, n + 10] as [number, number],
+      quote: `Related passage ${n} providing background context only.`, use: "related" as const });
+    // Same operative span cited three times, plus two distinct related passages.
+    r.evidence = [proof, { ...proof }, { ...proof }, related(3), related(4)] as typeof r.evidence;
+    const p = defaultCompliancePresentationPlan(s, "detailed");
+    const output = renderComplianceMarkdown(s, p, deterministicComplianceDraft(s, p));
+    // The operative quote is shown once, not three times.
+    assert.equal(output.split("The&#32;processor&#32;shall&#32;implement").length - 1, 1);
+    // Related passages are collapsed into one demoted line, not repeated boilerplate blockquotes.
+    assert.equal(output.match(/Related context, not relied on as proof:/g)?.length, 1);
+    assert.ok(!output.includes("Related evidence; not established as sufficient proof."));
+    assert.ok(!parsedQuotes(output).some(q => q.includes("Related passage 3")));
+  });
   it("maps known identifiers to human names outside quotations", () => {
     const s = fixture(["gap"]), r = s.rows[0];
     r.supportedElementIds = ["documented_instructions"];
@@ -428,6 +472,26 @@ describe("code-owned Markdown assembly", () => {
     const html = markdownParser.render(output);
     assert.ok(html.includes("Article 45(1) - GDPR"));
     assert.ok(!output.includes("## Sources"));
+  });
+  it("renders specialized cells only from separately relevant verified topics and answers", () => {
+    const s = fixture(["present", "partial"]);
+    s.instruction = "Compare transfer mechanisms, destinations and legal bases.";
+    const mechanism = s.rows[0], destination = s.rows[1];
+    mechanism.title = "Standard Contractual Clauses transfer mechanism";
+    mechanism.whatTheDocumentProvides = "The agreement incorporates the controller-to-processor standard clauses.";
+    mechanism.answers = [{ questionId: "user_request", question: s.instruction, answer: "Standard clauses are referenced.", elementIds: [], evidenceIds: [] }];
+    destination.title = "Third-country destination";
+    destination.whatTheDocumentProvides = "The destination country is not identified in the reviewed terms.";
+    destination.answers = [{ questionId: "facet:destination", question: "Which destination country is identified?", answer: "No destination country is identified.", elementIds: [], evidenceIds: [] }];
+    const p = defaultCompliancePresentationPlan(s, "short");
+    overview(p).columns = ["Requirement", "Status", "Transfer mechanism", "Destination", "Legal basis"];
+    const output = renderComplianceMarkdown(s, p, deterministicComplianceDraft(s, p));
+    const mechanismLine = output.split("\n").find(line => line.startsWith("|") && line.includes(mechanism.title))!;
+    const destinationLine = output.split("\n").find(line => line.startsWith("|") && line.includes(destination.title))!;
+    assert.ok(mechanismLine.includes("Standard clauses are referenced."));
+    assert.ok(mechanismLine.includes("Not separately established in this finding"));
+    assert.ok(destinationLine.includes("No destination country is identified."));
+    assert.ok(!destinationLine.includes("Standard clauses are referenced."));
   });
   it("always includes reviewed scope in table-only output, including an empty or all-present review", () => {
     for (const selected of [[], ["present"], ["not_applicable"]] as const) {

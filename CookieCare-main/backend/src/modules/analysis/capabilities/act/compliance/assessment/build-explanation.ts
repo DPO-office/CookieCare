@@ -24,9 +24,16 @@ export function buildExplanation(r: VerificationRequest, result: VerificationRes
     whatIsMissingOrUnclear: gaps.join(" ") || (status === "present" ? "No outstanding required proof." : status === "not_applicable" ? d!.applicability.basis : result.kind === "incomplete" ? result.reason : [...r.bundle.coverageReasons, ...(d?.reviewRequired ?? [])].join("; ") || "Material evidence or applicability remains unresolved."),
     whyItMatters: r.check.rule ? r.check.rule.citation + ": " + title : title,
     conclusion: conclusions[status],
-    recommendedAction: status === "present" || status === "not_applicable" ? "No action indicated within the reviewed scope."
-      : status === "gap" || status === "partial" ? "Address the identified contractual shortfall."
-        : status === "verification_incomplete" ? "Complete or retry this check before relying on a conclusion."
-          : "Resolve the identified evidence, scope, or interpretation limitations before concluding.",
+    // Tie the action to the actual cause so the report does not repeat one
+    // generic recommendation on every unsatisfied requirement.
+    recommendedAction:
+      status === "present" || status === "not_applicable" ? "No action indicated within the reviewed scope."
+      : status === "verification_incomplete" ? "Complete or retry this check before relying on a conclusion."
+      : status === "conflicting" || d?.elements.some(e => e.state === "contradicted") ? "Reconcile the conflicting provisions or obtain written clarification."
+      : status === "judgment_required" ? "Obtain legal review of the unresolved interpretation."
+      : d?.dependencies.some(dep => dep.materiality !== "immaterial") ? "Obtain and review the referenced material, then complete the assessment."
+      : status === "cannot_determine" ? "Resolve the identified evidence or scope limitations before concluding."
+      : status === "gap" ? "Add a provision satisfying the requirement, or confirm equivalent terms elsewhere in the agreement."
+      : "Amend the reviewed provisions to close the identified shortfall.",
   };
 }

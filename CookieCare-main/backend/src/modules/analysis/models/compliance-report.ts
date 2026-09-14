@@ -36,7 +36,14 @@ export interface ComplianceReportRow {
   outcomeKind?: "assessment" | "incomplete";
   checkId?: string;
   lockedAssessmentId?: string;
-  answers?: Array<{ questionId: string; answer: string; elementIds: string[]; evidenceIds: string[] }>;
+  answers?: Array<{
+    questionId: string;
+    /** Original request/facet wording retained at the reporting handoff. */
+    question?: string;
+    answer: string;
+    elementIds: string[];
+    evidenceIds: string[];
+  }>;
   evidence: ComplianceEvidence[];
   /** Documents actually investigated for this row, including absence findings. */
   reviewedDocumentIds?: string[];
@@ -69,7 +76,18 @@ export interface ComplianceReportSnapshot {
 
 export type CompliancePresentationMode = "layered" | "short" | "detailed" | "narrative" | "table_only";
 export type ComplianceSectionKind = "answer" | "overview" | "details" | "limitations" | "sources";
-export type ComplianceTableColumn = "Requirement" | "Status" | "Contract provision" | "Assessment";
+export type ComplianceTableColumn =
+  | "Requirement"
+  | "Status"
+  | "Contract provision"
+  | "Assessment"
+  | "Gap or qualification"
+  | "Recommended action"
+  | "Parties and roles"
+  | "Transfer mechanism"
+  | "Destination"
+  | "Legal basis"
+  | "Timing";
 
 export interface CompliancePresentationPlan {
   version: 1;
@@ -96,6 +114,12 @@ export interface ComplianceReportValidation {
   failures: string[];
   plannerFallback: boolean;
   repairAttempts: number;
+  /** Exact instruction packages used for this composition, retained for replay and diagnostics. */
+  guidanceVersions?: {
+    shared: string;
+    compliance: string;
+    examples: string[];
+  };
   /** Binds the release gate to exactly the validated Markdown. */
   outputHash: string;
 }

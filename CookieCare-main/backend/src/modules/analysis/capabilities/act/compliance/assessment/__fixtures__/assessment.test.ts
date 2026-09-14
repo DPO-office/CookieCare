@@ -3,6 +3,7 @@ import test from "node:test";
 import { requestFixture, responseFixture } from "../../__fixtures__/verification-fixture.js";
 import { validateVerification } from "../../verification/index.js";
 import { assessRequirement, lockOutcome, aggregateElements } from "../index.js";
+import { buildExplanation } from "../build-explanation.js";
 import type { VerificationResult } from "../../contracts/index.js";
 function setup() { const r = requestFixture(); const result: VerificationResult = { kind: "verified", attempts: 1, decision: validateVerification(responseFixture(r), r).decision! }; return { r, result }; }
 test("Assess and Lock use exactly the same aggregation", () => {
@@ -59,6 +60,18 @@ test("optional elements outside aggregation do not create gaps",()=>{
   r.check.rule!.elements.push({id:"optional",description:"Optional confirmation.",kind:"optional"});
   result.decision.elements.push({...e,elementId:"optional",state:"not_located",citations:[]});
   assert.equal(assessRequirement(r,result),"present");
+});
+test("recommended actions reflect the cause, not one generic phrase",()=>{
+  const {r,result}=setup();
+  const gap=buildExplanation(r,result,"gap").recommendedAction;
+  const partial=buildExplanation(r,result,"partial").recommendedAction;
+  const incomplete=buildExplanation(r,result,"verification_incomplete").recommendedAction;
+  assert.notEqual(gap,partial);
+  assert.notEqual(gap,incomplete);
+  assert.ok(!/Address the identified contractual shortfall/.test(`${gap} ${partial}`));
+  // A material unresolved dependency drives an "obtain the material" action.
+  result.decision.dependencies=[{id:"dep",elementIds:["instructions"],materiality:"material",reason:"annex"}];
+  assert.match(buildExplanation(r,result,"partial").recommendedAction,/Obtain and review the referenced material/);
 });
 test("an explained evidence-role reassessment needs judgment, not cannot_determine",()=>{
   const {r,result}=setup();
