@@ -1,22 +1,45 @@
-import { DocumentConverter, Pipeline, checkDependencies } from "docling.rs";
+import { createRequire } from "node:module";
 import path from "node:path";
 import { extractText } from "../../../../../utils/extractText.js";
 import type { CanonicalTable, ParsedBlock, ParsedDocument, SourceBox, SourceProvenance, StructureWarning } from "./types.js";
 
 const DOCLING_VERSION = "1.41.0";
+const require = createRequire(import.meta.url);
+
+type DoclingAddon = typeof import("docling.rs");
+type DocumentConverter = InstanceType<DoclingAddon["DocumentConverter"]>;
+type Pipeline = InstanceType<DoclingAddon["Pipeline"]>;
+
+let doclingAddon: DoclingAddon | undefined;
+let doclingLoadError: Error | undefined;
 let converter: DocumentConverter | undefined;
 let recoveryConverter: DocumentConverter | undefined;
 let pdfPipeline: Pipeline | undefined;
 
+function loadDocling(): DoclingAddon {
+  if (doclingAddon) return doclingAddon;
+  if (doclingLoadError) throw doclingLoadError;
+  try {
+    doclingAddon = require("docling.rs") as DoclingAddon;
+    return doclingAddon;
+  } catch (err) {
+    doclingLoadError = err instanceof Error ? err : new Error(String(err));
+    console.error("[docling] native addon failed to load:", doclingLoadError);
+    throw doclingLoadError;
+  }
+}
+
 function getConverter() {
+  const { DocumentConverter } = loadDocling();
   return (converter ??= new DocumentConverter({ strict: true, fetchImages: false }));
 }
 
 function getRecoveryConverter() {
+  const { DocumentConverter } = loadDocling();
   return (recoveryConverter ??= new DocumentConverter({ strict: false, fetchImages: false }));
 }
 
-function resolveDoclingHome(): string {
+function resolveDoclingHome(checkDependencies: DoclingAddon["checkDependencies"]): string {
   if (process.env.DOCLING_RS_HOME) return process.env.DOCLING_RS_HOME;
 
   // Root scripts install assets beside the repository package.json. Most app
@@ -27,20 +50,34 @@ function resolveDoclingHome(): string {
 }
 
 export function getDocumentParserReadiness() {
-  const home = resolveDoclingHome();
-  const status = checkDependencies({ dir: home });
-  // docling.rs resolves the native model paths from this variable when the
-  // warm Pipeline is constructed and when its guarded conversion runs.
-  if (status.ready && !process.env.DOCLING_RS_HOME) process.env.DOCLING_RS_HOME = home;
-  return {
-    ready: status.ready,
-    pdfReady: status.ready,
-    pdfium: status.pdfium,
-    layout: status.layout,
-    ocr: status.ocr,
-    tableformer: status.tableformer,
-    missing: status.missing,
-  };
+  try {
+    const { checkDependencies } = loadDocling();
+    const home = resolveDoclingHome(checkDependencies);
+    const status = checkDependencies({ dir: home });
+    // docling.rs resolves the native model paths from this variable when the
+    // warm Pipeline is constructed and when its guarded conversion runs.
+    if (status.ready && !process.env.DOCLING_RS_HOME) process.env.DOCLING_RS_HOME = home;
+    return {
+      ready: status.ready,
+      pdfReady: status.ready,
+      pdfium: status.pdfium,
+      layout: status.layout,
+      ocr: status.ocr,
+      tableformer: status.tableformer,
+      missing: status.missing,
+    };
+  } catch (err) {
+    return {
+      ready: false,
+      pdfReady: false,
+      pdfium: false,
+      layout: false,
+      ocr: false,
+      tableformer: false,
+      missing: ["docling.rs native addon"],
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
 }
 
 function formatForMime(mimeType: string, fileName: string): string {
@@ -199,6 +236,7 @@ export async function parseDocument(buffer: Buffer, mimeType: string, fileName: 
     if (format === "pdf") {
       const dependencies = getDocumentParserReadiness();
       if (!dependencies.ready) throw new Error(`Docling PDF dependencies missing: ${dependencies.missing.join(", ")}`);
+      const { Pipeline } = loadDocling();
       pdfPipeline ??= new Pipeline({ strict: true, fetchImages: false, headingHierarchy: true, ocrLang: "en" });
       result = await pdfPipeline.convertAsync(
         { name: fileNameForFormat(fileName, format), data: buffer, format },

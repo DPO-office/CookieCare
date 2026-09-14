@@ -51,16 +51,20 @@ function groupedPlan(
   const plan = defaultCompliancePresentationPlan(value, "layered");
   const overviewIndex = plan.sections.findIndex(section => section.kind === "overview");
   plan.sections.splice(overviewIndex, 1, ...groups.map(group => ({
+    id: "S1", requestItemIds: [], questionIds: [],
     kind: "overview" as const, heading: group.heading,
     findingIds: group.indexes.map(index => value.rows[index].lockedAssessmentId!),
     columns: group.columns, detailWords: 80,
   })));
+  plan.sections.forEach((section, index) => { section.id = `S${index + 1}`; });
   plan.rationale = "Saved request-specific quality fixture.";
   return plan;
 }
 
 export interface ComplianceReportQualityFixture {
   id: string;
+  synthetic: true;
+  heldOut: boolean;
   snapshot: ComplianceReportSnapshot;
   baselinePlan: CompliancePresentationPlan;
   adaptivePlan: CompliancePresentationPlan;
@@ -101,12 +105,12 @@ function buildFixtures(): ComplianceReportQualityFixture[] {
       { heading: "Operational duties", indexes: [2, 3], columns: ["Requirement", "Status", "Contract provision", "Gap or qualification"] },
     ]],
     ["transfers", transfers, [{ heading: "Transfer mechanisms, destinations and bases", indexes: [0, 1, 2, 3], columns: ["Requirement", "Status", "Transfer mechanism", "Destination", "Legal basis", "Contract provision"] }]],
-    ["missing-dependency", dependency, [{ heading: "Security dependency", indexes: [0], columns: ["Requirement", "Status", "Gap or qualification", "Recommended action"] }]],
+    ["missing-dependency", dependency, [{ heading: "Security dependency", indexes: [0], columns: ["Requirement", "Status", "Gap or qualification", "Contract provision"] }]],
   ];
   return fixtures.map(([id, value, groups]) => ({
-    id, snapshot: value, baselinePlan: defaultCompliancePresentationPlan(value, "layered"), adaptivePlan: groupedPlan(value, groups),
+    id, synthetic: true as const, heldOut: id === "missing-dependency",
+    snapshot: value, baselinePlan: defaultCompliancePresentationPlan(value, "layered"), adaptivePlan: groupedPlan(value, groups),
   }));
 }
 
 export const COMPLIANCE_REPORT_QUALITY_FIXTURES = buildFixtures();
-

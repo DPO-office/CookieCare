@@ -116,7 +116,7 @@ describe("planner structural validation", () => {
     const s = fixture(), p = defaultCompliancePresentationPlan(s, "detailed");
     overview(p).columns.reverse();
     const group = details(p);
-    p.sections.splice(3, 0, { ...group, heading: "Additional requirement details", findingIds: group.findingIds.splice(4) });
+    p.sections.splice(3, 0, { ...group, id: `S${p.sections.length + 1}`, heading: "Additional requirement details", findingIds: group.findingIds.splice(4) });
     assert.deepEqual(validateCompliancePresentationPlan(p, s, "detailed"), []);
   });
   it("enforces the mode detail cap on every section", () => {
@@ -172,7 +172,7 @@ describe("planner structural validation", () => {
     first.findingIds = [first.findingIds[0]];
     first.columns = ["Requirement", "Status", "Transfer mechanism", "Contract provision"];
     p.sections.splice(2, 0, {
-      ...clone(first), heading: "Destinations and bases", findingIds: [overview(p).findingIds[1] ?? s.rows[1].lockedAssessmentId!],
+      ...clone(first), id: `S${p.sections.length + 1}`, heading: "Destinations and bases", findingIds: [overview(p).findingIds[1] ?? s.rows[1].lockedAssessmentId!],
       columns: ["Requirement", "Status", "Destination", "Legal basis", "Gap or qualification"],
     });
     // The first group's second ID was removed before constructing the second group.

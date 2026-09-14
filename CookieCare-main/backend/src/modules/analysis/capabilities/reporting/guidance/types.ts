@@ -1,4 +1,4 @@
-export type ReportingGuidanceStage = "outline" | "write" | "check" | "repair";
+export type ReportingGuidanceStage = "compose" | "check" | "repair";
 
 export interface ReportingGuidancePackage {
   id: string;

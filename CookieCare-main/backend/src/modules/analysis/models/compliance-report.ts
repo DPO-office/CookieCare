@@ -75,7 +75,7 @@ export interface ComplianceReportSnapshot {
 }
 
 export type CompliancePresentationMode = "layered" | "short" | "detailed" | "narrative" | "table_only";
-export type ComplianceSectionKind = "answer" | "overview" | "details" | "limitations" | "sources";
+export type ComplianceSectionKind = "answer" | "overview" | "details" | "actions" | "limitations" | "sources";
 export type ComplianceTableColumn =
   | "Requirement"
   | "Status"
@@ -90,10 +90,14 @@ export type ComplianceTableColumn =
   | "Timing";
 
 export interface CompliancePresentationPlan {
-  version: 1;
+  version: 1 | 2;
   mode: CompliancePresentationMode;
   rationale: string;
   sections: Array<{
+    /** Stable report-local identity and request coverage mappings; required in version 2 plans. */
+    id?: string;
+    requestItemIds?: string[];
+    questionIds?: string[];
     kind: ComplianceSectionKind;
     heading: string;
     findingIds: string[];
@@ -120,6 +124,30 @@ export interface ComplianceReportValidation {
     compliance: string;
     examples: string[];
   };
+  /** Safe generation diagnostics. Source prose and document contents are never stored here. */
+  generation?: {
+    schemaVersion: "1.0";
+    rendererVersion: string;
+    provider: string;
+    model: string;
+    task: string;
+    startedAt: string;
+    completedAt: string;
+    elapsedMs: number;
+    deadlineMs: number;
+    inputChars: number;
+    maxInputChars: number;
+    evidenceCount: number;
+    uniqueEvidenceCount: number;
+    modelCalls: number;
+    tokenDelta: number;
+    fallbackReason?: "adaptive_disabled" | "context_limit" | "token_budget" | "composition_failed" | "validation_failed";
+  };
+  coverage?: Array<{
+    itemId: string;
+    sectionIds: string[];
+    disposition: "answered" | "answered_with_limitation" | "unresolved";
+  }>;
   /** Binds the release gate to exactly the validated Markdown. */
   outputHash: string;
 }
