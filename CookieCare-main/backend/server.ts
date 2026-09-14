@@ -3,7 +3,6 @@ import http from "http";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
-import { createServer as createViteServer } from "vite";
 import { config } from "./src/config/index.js";
 import { validateEnv } from "./src/config/validate.js";
 import { initSentry, initSentryErrorHandler } from "./src/config/sentry.js";
@@ -12,6 +11,10 @@ import { corsMiddleware } from "./src/middleware/cors.js";
 import { errorHandler } from "./src/middleware/error.js";
 import { initQueryLogger } from "./src/middleware/queryLogger.js";
 import { logger } from "./src/utils/logger.js";
+
+console.log(
+  `[server] application modules evaluated NODE_ENV=${config.nodeEnv} PORT=${config.port}`
+);
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -44,6 +47,10 @@ app.use(corsMiddleware);
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 initQueryLogger();
+
+app.get("/api/healthz", (_req, res) => {
+  res.status(200).json({ status: "ok" });
+});
 
 // --- 1. API ROUTES ---
 app.use("/api", apiRoutes);
@@ -109,12 +116,13 @@ if (config.nodeEnv === "production") {
 initSentryErrorHandler(app);
 app.use(errorHandler);
 
-async function startServer() {
+async function configureRuntime() {
   validateEnv();
 
   if (config.nodeEnv !== "production") {
-    // Development: Vite dev server handles SPA + HMR
-    // Vite root is the frontend folder
+    // Development: Vite dev server handles SPA + HMR.
+    // Keep this import dynamic so production never loads the Vite package.
+    const { createServer: createViteServer } = await import("vite");
     process.env.VITE_MIDDLEWARE = "1";
     const frontendRoot = path.resolve(process.cwd(), "frontend");
     const vite = await createViteServer({
@@ -146,16 +154,32 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   }
+}
 
+async function startServer() {
+  await configureRuntime();
   const port = config.port;
-  httpServer.listen(port, "0.0.0.0", () => {
-    logger.info(`Server running on http://localhost:${port} [${config.nodeEnv}]`);
+  await new Promise<void>((resolve, reject) => {
+    httpServer.once("error", reject);
+    httpServer.listen(port, "0.0.0.0", () => {
+      httpServer.removeListener("error", reject);
+      logger.info(`Server running on http://localhost:${port} [${config.nodeEnv}]`);
+      resolve();
+    });
   });
 }
 
-// Prevent double-start in test environments
-if (process.env.NODE_ENV !== "test") {
-  startServer();
+/** Used by backend/boot.mjs after it has already bound PORT. */
+export async function attachToServer() {
+  await configureRuntime();
+  logger.info(`Application attached [${config.nodeEnv}]`);
+}
+
+if (process.env.NODE_ENV !== "test" && process.env.COOKIECARE_BOOTSTRAP !== "1") {
+  startServer().catch((err) => {
+    console.error("[server] fatal startup error:", err);
+    process.exit(1);
+  });
 }
 
 export default app;

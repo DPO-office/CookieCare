@@ -47,7 +47,9 @@ COPY --from=build /app/.models ./.models
 COPY --from=build /app/.pdfium ./.pdfium
 COPY --from=build /app/frontend/dist ./frontend/dist
 COPY --from=build /app/backend/dist ./backend/dist
+COPY --from=build /app/backend/boot.mjs ./backend/boot.mjs
 
 EXPOSE 8080 
 
-CMD ["node", "backend/dist/server.js"]
+# Bind PORT before loading the bundled app (Playwright/Docling/analysis graph).
+CMD ["node", "backend/boot.mjs"]
