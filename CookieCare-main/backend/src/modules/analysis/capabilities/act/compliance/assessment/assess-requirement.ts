@@ -14,8 +14,17 @@ export function assessRequirementWithReason(request: VerificationRequest, result
   if (!request.check.rule || result.kind !== "verified")
     return decide("verification_incomplete", !request.check.rule ? "baseline_unavailable" : "verification_not_validated", { baselineError: request.check.baselineError, result });
   const d = result.decision;
-  if (d.reviewRequired.length)
-    return decide(d.reviewRequired.includes("semantic_disagreement") || d.reviewRequired.includes("cross_rule_conflict") ? "judgment_required" : "cannot_determine", "review_unresolved", { reviewRequired: d.reviewRequired });
+  if (d.reviewRequired.length) {
+    // A flagged review means a human should look, not that the evidence is
+    // insufficient. Disagreement, cross-rule conflict, and an explained
+    // evidence-role reassessment (a supporting passage used as proof, already
+    // validated for scope/quote) are all "judgment_required". Only a review that
+    // could not run at all leaves us unable to determine.
+    const humanReview = d.reviewRequired.includes("semantic_disagreement")
+      || d.reviewRequired.includes("cross_rule_conflict")
+      || d.reviewRequired.every(reason => reason.startsWith("role_reassessment:"));
+    return decide(humanReview ? "judgment_required" : "cannot_determine", "review_unresolved", { reviewRequired: d.reviewRequired });
+  }
   if (d.applicability.state === "unknown")
     return decide("cannot_determine", "applicability_unknown", { applicability: d.applicability });
   if (d.applicability.state === "not_applicable" && d.elements.some(e=>[...e.limitations,...e.conflicts].some(c=>c.materiality!=="immaterial")))

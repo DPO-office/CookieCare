@@ -1,7 +1,7 @@
 {
-  "sessionId": "an_75767683-12ab-4d40-9de5-db3bdf321e14",
+  "sessionId": "an_3195d3a1-1f7b-42a0-b43c-7a6433dda0cb",
   "stage": "investigation_complete",
-  "dumpedAt": "2026-09-13T19:06:20.027Z",
+  "dumpedAt": "2026-09-14T04:32:28.729Z",
   "requirementId": "gdpr.art28.1",
   "packageId": "rule:regimes/data-protection/gdpr",
   "recall": {
@@ -21,8 +21,8 @@
       "controller_selection"
     ],
     "acceptedCandidateCount": 9,
-    "semanticRejectedCandidateCount": 0,
-    "budgetOmittedCandidateCount": 19,
+    "semanticRejectedCandidateCount": 1,
+    "budgetOmittedCandidateCount": 18,
     "unclassifiedCandidateCount": 0
   },
   "queries": [
@@ -60,8 +60,8 @@
   "hits": [
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_1430eff3dd13d7608aff0cf5",
-      "ref": "dsn_1430eff3dd13d7608aff0cf5",
+      "spanId": "dsn_20aa5cfbd3a7fbe806fc7e6d",
+      "ref": "dsn_20aa5cfbd3a7fbe806fc7e6d",
       "denseRank": 2,
       "lexicalRank": 4,
       "selectedBy": [
@@ -75,12 +75,12 @@
         "sufficient_guarantees"
       ],
       "reviewConfidence": 0.85,
-      "reviewReason": "Provides processor assistance and notification obligations regarding data subject rights, supporting the requirement for sufficient guarantees."
+      "reviewReason": "Outlines processor assistance with data subject rights requests, strengthening guarantees regarding data subject rights protection."
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_1430eff3dd13d7608aff0cf5",
-      "ref": "dsn_1430eff3dd13d7608aff0cf5",
+      "spanId": "dsn_20aa5cfbd3a7fbe806fc7e6d",
+      "ref": "dsn_20aa5cfbd3a7fbe806fc7e6d",
       "denseRank": 2,
       "lexicalRank": 4,
       "selectedBy": [
@@ -94,12 +94,12 @@
         "sufficient_guarantees"
       ],
       "reviewConfidence": 0.85,
-      "reviewReason": "Provides processor assistance and notification obligations regarding data subject rights, supporting the requirement for sufficient guarantees."
+      "reviewReason": "Outlines processor assistance with data subject rights requests, strengthening guarantees regarding data subject rights protection."
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_2a8f78794d79eaa0baaef29f",
-      "ref": "dsn_2a8f78794d79eaa0baaef29f",
+      "spanId": "dsn_ccd4f27568f4758015888aea",
+      "ref": "dsn_ccd4f27568f4758015888aea",
       "denseRank": 21,
       "lexicalRank": 15,
       "selectedBy": [
@@ -110,14 +110,14 @@
       "reviewDisposition": "role_budget",
       "evidenceRole": "context",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.9,
-      "reviewReason": "References engagement of sub-processors generally without stating guarantees or selection commitments.",
+      "reviewConfidence": 0.8,
+      "reviewReason": "Refers generally to engaging subprocessors under Section 7.",
       "exclusionReason": "role_budget:context"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_e913a7275158c113ddece6f9",
-      "ref": "dsn_e913a7275158c113ddece6f9",
+      "spanId": "dsn_809d3b3f8ef181cbc4a084a5",
+      "ref": "dsn_809d3b3f8ef181cbc4a084a5",
       "denseRank": 5,
       "lexicalRank": 7,
       "selectedBy": [
@@ -125,16 +125,17 @@
         "dense"
       ],
       "score": 0.18030998851894373,
-      "reviewDisposition": "accepted",
+      "reviewDisposition": "role_budget",
       "evidenceRole": "context",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.95,
-      "reviewReason": "Introductory clause heading on processor and controller responsibilities."
+      "reviewConfidence": 0.9,
+      "reviewReason": "Introductory clause acknowledging processor and controller responsibilities.",
+      "exclusionReason": "role_budget:context"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_633e965fdb33bd9fe0afcacf",
-      "ref": "dsn_633e965fdb33bd9fe0afcacf",
+      "spanId": "dsn_b94ce0b39249fc366fb836bb",
+      "ref": "dsn_b94ce0b39249fc366fb836bb",
       "denseRank": 15,
       "lexicalRank": 1,
       "selectedBy": [
@@ -143,18 +144,16 @@
       ],
       "score": 0.17972677595628414,
       "reviewDisposition": "role_budget",
-      "evidenceRole": "supporting",
-      "contributesToElementIds": [
-        "sufficient_guarantees"
-      ],
+      "evidenceRole": "context",
+      "contributesToElementIds": [],
       "reviewConfidence": 0.8,
-      "reviewReason": "Refers to standard contractual clauses providing sufficient safeguards for transfers to Russia.",
-      "exclusionReason": "role_budget:supporting"
+      "reviewReason": "Pertains specifically to international transfers to Russian Federation under Standard Contractual Clauses.",
+      "exclusionReason": "role_budget:context"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_f894793c875b7b2c74037e13",
-      "ref": "dsn_f894793c875b7b2c74037e13",
+      "spanId": "dsn_2d6ea87a036ebc56eb775d2f",
+      "ref": "dsn_2d6ea87a036ebc56eb775d2f",
       "denseRank": 1,
       "lexicalRank": 16,
       "selectedBy": [
@@ -168,12 +167,12 @@
         "sufficient_guarantees"
       ],
       "reviewConfidence": 0.85,
-      "reviewReason": "Promises assistance to controller for data subject rights under Chapter III GDPR."
+      "reviewReason": "Requires processor to assist controller in fulfilling obligations to respond to data subject rights requests under Chapter III GDPR."
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_f894793c875b7b2c74037e13",
-      "ref": "dsn_f894793c875b7b2c74037e13",
+      "spanId": "dsn_2d6ea87a036ebc56eb775d2f",
+      "ref": "dsn_2d6ea87a036ebc56eb775d2f",
       "denseRank": 1,
       "lexicalRank": 16,
       "selectedBy": [
@@ -187,12 +186,12 @@
         "sufficient_guarantees"
       ],
       "reviewConfidence": 0.85,
-      "reviewReason": "Promises assistance to controller for data subject rights under Chapter III GDPR."
+      "reviewReason": "Requires processor to assist controller in fulfilling obligations to respond to data subject rights requests under Chapter III GDPR."
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_a9d952773e50157847877a2d",
-      "ref": "dsn_a9d952773e50157847877a2d",
+      "spanId": "dsn_1fa09407e4b1a03f64a2d3b8",
+      "ref": "dsn_1fa09407e4b1a03f64a2d3b8",
       "denseRank": 13,
       "lexicalRank": 11,
       "selectedBy": [
@@ -206,12 +205,12 @@
         "sufficient_guarantees"
       ],
       "reviewConfidence": 0.85,
-      "reviewReason": "Requires processor staff compliance with security measures and confidentiality."
+      "reviewReason": "Provides commitments regarding staff, contractor, and subprocessor compliance with security measures and confidentiality."
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_a9d952773e50157847877a2d",
-      "ref": "dsn_a9d952773e50157847877a2d",
+      "spanId": "dsn_1fa09407e4b1a03f64a2d3b8",
+      "ref": "dsn_1fa09407e4b1a03f64a2d3b8",
       "denseRank": 13,
       "lexicalRank": 11,
       "selectedBy": [
@@ -225,12 +224,12 @@
         "sufficient_guarantees"
       ],
       "reviewConfidence": 0.85,
-      "reviewReason": "Requires processor staff compliance with security measures and confidentiality."
+      "reviewReason": "Provides commitments regarding staff, contractor, and subprocessor compliance with security measures and confidentiality."
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_8d97532a308944ce679df961",
-      "ref": "dsn_8d97532a308944ce679df961",
+      "spanId": "dsn_c67a2f2416fe9ee2f880fb22",
+      "ref": "dsn_c67a2f2416fe9ee2f880fb22",
       "denseRank": 8,
       "lexicalRank": 20,
       "selectedBy": [
@@ -244,13 +243,13 @@
         "sufficient_guarantees"
       ],
       "reviewConfidence": 0.8,
-      "reviewReason": "States that Article 28(3) obligations are imposed on sub-processors.",
+      "reviewReason": "Requires imposing Article 28(3) obligations on subprocessors.",
       "exclusionReason": "role_budget:supporting"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_3b8e226256eb52c075589879",
-      "ref": "dsn_3b8e226256eb52c075589879",
+      "spanId": "dsn_5bcfc751e34bd5a9c2da92d9",
+      "ref": "dsn_5bcfc751e34bd5a9c2da92d9",
       "denseRank": 9,
       "lexicalRank": 21,
       "selectedBy": [
@@ -262,13 +261,13 @@
       "evidenceRole": "context",
       "contributesToElementIds": [],
       "reviewConfidence": 0.9,
-      "reviewReason": "Statement of party role (Administrator as controller/processor).",
+      "reviewReason": "States parties' status as controller or processor.",
       "exclusionReason": "role_budget:context"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_d110a9e2a460c527c94868fc",
-      "ref": "dsn_d110a9e2a460c527c94868fc",
+      "spanId": "dsn_9e185b210059eb27b5b556b3",
+      "ref": "dsn_9e185b210059eb27b5b556b3",
       "denseRank": 4,
       "lexicalRank": 2,
       "selectedBy": [
@@ -281,14 +280,14 @@
       "contributesToElementIds": [
         "sufficient_guarantees"
       ],
-      "reviewConfidence": 0.75,
-      "reviewReason": "Restricts sub-processor access and use to performance of subcontracted obligations under the DPA.",
+      "reviewConfidence": 0.8,
+      "reviewReason": "Restricts subprocessor access and use of personal data.",
       "exclusionReason": "role_budget:supporting"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_8a1ea962ef120d21fbb3cdaf",
-      "ref": "dsn_8a1ea962ef120d21fbb3cdaf",
+      "spanId": "dsn_71f1ea7b00c15106883e7d0d",
+      "ref": "dsn_71f1ea7b00c15106883e7d0d",
       "denseRank": 7,
       "lexicalRank": 12,
       "selectedBy": [
@@ -302,12 +301,12 @@
         "sufficient_guarantees"
       ],
       "reviewConfidence": 0.85,
-      "reviewReason": "Processor commits to implement and maintain Security Measures without non-degradation."
+      "reviewReason": "Processor guarantees to implement, maintain, and not degrade overall security measures."
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_8a1ea962ef120d21fbb3cdaf",
-      "ref": "dsn_8a1ea962ef120d21fbb3cdaf",
+      "spanId": "dsn_71f1ea7b00c15106883e7d0d",
+      "ref": "dsn_71f1ea7b00c15106883e7d0d",
       "denseRank": 7,
       "lexicalRank": 12,
       "selectedBy": [
@@ -321,12 +320,12 @@
         "sufficient_guarantees"
       ],
       "reviewConfidence": 0.85,
-      "reviewReason": "Processor commits to implement and maintain Security Measures without non-degradation."
+      "reviewReason": "Processor guarantees to implement, maintain, and not degrade overall security measures."
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_39d884048966d0cb0742d15b",
-      "ref": "dsn_39d884048966d0cb0742d15b",
+      "spanId": "dsn_c00005f87258a72325967085",
+      "ref": "dsn_c00005f87258a72325967085",
       "denseRank": 12,
       "lexicalRank": 23,
       "selectedBy": [
@@ -337,14 +336,14 @@
       "reviewDisposition": "role_budget",
       "evidenceRole": "context",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.95,
-      "reviewReason": "Heading/introductory text regarding data subjects in Appendix 1.",
+      "reviewConfidence": 0.9,
+      "reviewReason": "Header introducing data subject categories.",
       "exclusionReason": "role_budget:context"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_4410036cd22c9199b2746e05",
-      "ref": "dsn_4410036cd22c9199b2746e05",
+      "spanId": "dsn_958d0335a2f665ad63b20a9a",
+      "ref": "dsn_958d0335a2f665ad63b20a9a",
       "denseRank": 6,
       "lexicalRank": 5,
       "selectedBy": [
@@ -352,18 +351,19 @@
         "dense"
       ],
       "score": 0.15053613053613055,
-      "reviewDisposition": "accepted",
+      "reviewDisposition": "role_budget",
       "evidenceRole": "primary",
       "contributesToElementIds": [
         "sufficient_guarantees"
       ],
       "reviewConfidence": 0.9,
-      "reviewReason": "Establishes processor due-diligence audit and contractual safeguards for sub-processors to ensure appropriate security/privacy guarantees."
+      "reviewReason": "Processor guarantees pre-onboarding audits of subprocessors to ensure appropriate security/privacy practices and contractual safeguards.",
+      "exclusionReason": "role_budget:primary"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_7e535d7c17690638e47e27cd",
-      "ref": "dsn_7e535d7c17690638e47e27cd",
+      "spanId": "dsn_7798314f4b534bcb6159bb53",
+      "ref": "dsn_7798314f4b534bcb6159bb53",
       "denseRank": 11,
       "lexicalRank": 3,
       "selectedBy": [
@@ -376,13 +376,13 @@
       "contributesToElementIds": [
         "sufficient_guarantees"
       ],
-      "reviewConfidence": 0.9,
-      "reviewReason": "Processor guarantees implementation and maintenance of technical, physical, and organisational measures to ensure ongoing security and resilience."
+      "reviewConfidence": 0.95,
+      "reviewReason": "Processor explicitly guarantees implementation and maintenance of technical and organizational security measures meeting security objectives."
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_7e535d7c17690638e47e27cd",
-      "ref": "dsn_7e535d7c17690638e47e27cd",
+      "spanId": "dsn_7798314f4b534bcb6159bb53",
+      "ref": "dsn_7798314f4b534bcb6159bb53",
       "denseRank": 11,
       "lexicalRank": 3,
       "selectedBy": [
@@ -395,13 +395,13 @@
       "contributesToElementIds": [
         "sufficient_guarantees"
       ],
-      "reviewConfidence": 0.9,
-      "reviewReason": "Processor guarantees implementation and maintenance of technical, physical, and organisational measures to ensure ongoing security and resilience."
+      "reviewConfidence": 0.95,
+      "reviewReason": "Processor explicitly guarantees implementation and maintenance of technical and organizational security measures meeting security objectives."
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_3b6cb2834c139b8111881b5f",
-      "ref": "dsn_3b6cb2834c139b8111881b5f",
+      "spanId": "dsn_f0c352ef7bf1c28e94a675b5",
+      "ref": "dsn_f0c352ef7bf1c28e94a675b5",
       "denseRank": 19,
       "lexicalRank": 19,
       "selectedBy": [
@@ -417,8 +417,8 @@
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_230a61c9ba368fd67d35ae09",
-      "ref": "dsn_230a61c9ba368fd67d35ae09",
+      "spanId": "dsn_b4064a0cb1bcb7ab5a6ecdb8",
+      "ref": "dsn_b4064a0cb1bcb7ab5a6ecdb8",
       "denseRank": 3,
       "lexicalRank": null,
       "selectedBy": [
@@ -430,14 +430,14 @@
       "contributesToElementIds": [
         "sufficient_guarantees"
       ],
-      "reviewConfidence": 0.8,
-      "reviewReason": "Mentions implementing security measures in Appendix 2.",
+      "reviewConfidence": 0.85,
+      "reviewReason": "Specifies maintaining security measures in Appendix 2.",
       "exclusionReason": "role_budget:supporting"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_79c449fe446f0a68f11f9ee2",
-      "ref": "dsn_79c449fe446f0a68f11f9ee2",
+      "spanId": "dsn_ab327764ae8f977ff8424def",
+      "ref": "dsn_ab327764ae8f977ff8424def",
       "denseRank": 14,
       "lexicalRank": null,
       "selectedBy": [
@@ -448,43 +448,42 @@
       "evidenceRole": "context",
       "contributesToElementIds": [],
       "reviewConfidence": 0.9,
-      "reviewReason": "Heading for sub-processor engagement requirements.",
+      "reviewReason": "Heading for requirements for sub-processor engagement.",
       "exclusionReason": "role_budget:context"
     },
     {
       "queryId": "GNQ-4",
-      "spanId": "dsn_3a27733aa4a2782d0094adb9",
-      "ref": "dsn_3a27733aa4a2782d0094adb9",
+      "spanId": "dsn_f9774485a2b02de7b66a73f8",
+      "ref": "dsn_f9774485a2b02de7b66a73f8",
       "denseRank": null,
       "lexicalRank": null,
       "selectedBy": [],
       "score": 0,
-      "reviewDisposition": "role_budget",
+      "reviewDisposition": "accepted",
       "evidenceRole": "context",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Section heading for data subject rights; contains no operative commitments or processor guarantees.",
-      "exclusionReason": "role_budget:context"
+      "reviewReason": "Header text for rights of data subjects section, provides context but contains no operative guarantees or controller commitments."
     },
     {
       "queryId": "GNQ-5",
-      "spanId": "dsn_47129320b23727a3574f81b4",
-      "ref": "dsn_47129320b23727a3574f81b4",
+      "spanId": "dsn_1335b0ce198ace64023fb839",
+      "ref": "dsn_1335b0ce198ace64023fb839",
       "denseRank": null,
       "lexicalRank": null,
       "selectedBy": [],
       "score": 0,
-      "reviewDisposition": "role_budget",
-      "evidenceRole": "context",
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.9,
-      "reviewReason": "Provides contact details for data protection inquiries, which is contextual and does not prove processor selection or guarantees.",
-      "exclusionReason": "role_budget:context"
+      "reviewConfidence": 0.95,
+      "reviewReason": "Contact details for the Data Protection Officer; contains no evidentiary value regarding processor guarantees or selection requirements.",
+      "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-5",
-      "spanId": "dsn_edb177fccea379a5b7b04e35",
-      "ref": "dsn_edb177fccea379a5b7b04e35",
+      "spanId": "dsn_521793e4912a92f7227601cd",
+      "ref": "dsn_521793e4912a92f7227601cd",
       "denseRank": null,
       "lexicalRank": null,
       "selectedBy": [],
@@ -494,14 +493,14 @@
       "contributesToElementIds": [
         "sufficient_guarantees"
       ],
-      "reviewConfidence": 0.75,
-      "reviewReason": "Requires sub-processors and employees to adhere to IT policies, partially supporting technical and organizational measures.",
+      "reviewConfidence": 0.85,
+      "reviewReason": "Mandates that employees and third parties (including sub-processors) adhere to security policies, supporting the processor's technical and organizational guarantees.",
       "exclusionReason": "role_budget:supporting"
     },
     {
       "queryId": "GNQ-5",
-      "spanId": "dsn_a6609638807487598a4034ee",
-      "ref": "dsn_a6609638807487598a4034ee",
+      "spanId": "dsn_7d1df22cb834026d08439793",
+      "ref": "dsn_7d1df22cb834026d08439793",
       "denseRank": null,
       "lexicalRank": null,
       "selectedBy": [],
@@ -511,14 +510,14 @@
       "contributesToElementIds": [
         "sufficient_guarantees"
       ],
-      "reviewConfidence": 0.75,
-      "reviewReason": "Mandates line managers ensure sub-processor compliance with policies, supporting security governance.",
+      "reviewConfidence": 0.85,
+      "reviewReason": "Requires line managers to ensure compliance of sub-processors and employees with internal policies, strengthening organizational measures.",
       "exclusionReason": "role_budget:supporting"
     },
     {
       "queryId": "GNQ-5",
-      "spanId": "dsn_a24b75a0add5831b78d2048f",
-      "ref": "dsn_a24b75a0add5831b78d2048f",
+      "spanId": "dsn_120e02d910ab40fe8a456e1d",
+      "ref": "dsn_120e02d910ab40fe8a456e1d",
       "denseRank": null,
       "lexicalRank": null,
       "selectedBy": [],
@@ -528,45 +527,13 @@
       "contributesToElementIds": [
         "sufficient_guarantees"
       ],
-      "reviewConfidence": 0.85,
-      "reviewReason": "Establishes that all stored data on IT systems is managed securely in compliance with the GDPR."
+      "reviewConfidence": 0.95,
+      "reviewReason": "Operative commitment that all stored data is managed securely in compliance with GDPR and relevant data protection laws."
     },
     {
       "queryId": "GNQ-5",
-      "spanId": "dsn_26d1c3581a0eddca5ad67481",
-      "ref": "dsn_26d1c3581a0eddca5ad67481",
-      "denseRank": null,
-      "lexicalRank": null,
-      "selectedBy": [],
-      "score": 0,
-      "reviewDisposition": "role_budget",
-      "evidenceRole": "context",
-      "contributesToElementIds": [],
-      "reviewConfidence": 0.9,
-      "reviewReason": "Internal operational rule regarding software installation approval.",
-      "exclusionReason": "role_budget:context"
-    },
-    {
-      "queryId": "GNQ-5",
-      "spanId": "dsn_34a00a6487d3a7485f9fa9db",
-      "ref": "dsn_34a00a6487d3a7485f9fa9db",
-      "denseRank": null,
-      "lexicalRank": null,
-      "selectedBy": [],
-      "score": 0,
-      "reviewDisposition": "role_budget",
-      "evidenceRole": "supporting",
-      "contributesToElementIds": [
-        "sufficient_guarantees"
-      ],
-      "reviewConfidence": 0.7,
-      "reviewReason": "Describes a specific technical measure (anti-virus system scans).",
-      "exclusionReason": "role_budget:supporting"
-    },
-    {
-      "queryId": "GNQ-5",
-      "spanId": "dsn_8308463a3f18d12e4b4b67e4",
-      "ref": "dsn_8308463a3f18d12e4b4b67e4",
+      "spanId": "dsn_39fdc37ba2084eb30028ce09",
+      "ref": "dsn_39fdc37ba2084eb30028ce09",
       "denseRank": null,
       "lexicalRank": null,
       "selectedBy": [],
@@ -577,47 +544,63 @@
         "sufficient_guarantees"
       ],
       "reviewConfidence": 0.8,
-      "reviewReason": "Restricts personal data transfers to personal devices unless the worker agrees to comply fully with the GDPR.",
+      "reviewReason": "Specifies internal software approval controls, strengthening technical and organizational security measures.",
       "exclusionReason": "role_budget:supporting"
     },
     {
       "queryId": "GNQ-5",
-      "spanId": "dsn_ebc4343384efbd8497da7bb6",
-      "ref": "dsn_ebc4343384efbd8497da7bb6",
+      "spanId": "dsn_e6679d42b22858281b6ea5e3",
+      "ref": "dsn_e6679d42b22858281b6ea5e3",
       "denseRank": null,
       "lexicalRank": null,
       "selectedBy": [],
       "score": 0,
       "reviewDisposition": "role_budget",
-      "evidenceRole": "primary",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "sufficient_guarantees"
+      ],
+      "reviewConfidence": 0.8,
+      "reviewReason": "Mandates weekly anti-virus scans, serving as a supporting technical security measure.",
+      "exclusionReason": "role_budget:supporting"
+    },
+    {
+      "queryId": "GNQ-5",
+      "spanId": "dsn_0e6fd520674be46342995c43",
+      "ref": "dsn_0e6fd520674be46342995c43",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "supporting",
       "contributesToElementIds": [
         "sufficient_guarantees"
       ],
       "reviewConfidence": 0.85,
-      "reviewReason": "Directly promises that personal data processing strictly accords with GDPR principles and provisions.",
-      "exclusionReason": "role_budget:primary"
-    },
-    {
-      "queryId": "GNQ-5",
-      "spanId": "dsn_e3275bbd3e094ccea6794ed7",
-      "ref": "dsn_e3275bbd3e094ccea6794ed7",
-      "denseRank": null,
-      "lexicalRank": null,
-      "selectedBy": [],
-      "score": 0,
-      "reviewDisposition": "role_budget",
-      "evidenceRole": "supporting",
-      "contributesToElementIds": [
-        "sufficient_guarantees"
-      ],
-      "reviewConfidence": 0.7,
-      "reviewReason": "Specifies technical measure of TLS/SSL email encryption.",
+      "reviewReason": "Restricts personal device transfers to sub-processors who agree to comply fully with the Data Protection Policy and GDPR.",
       "exclusionReason": "role_budget:supporting"
     },
     {
       "queryId": "GNQ-5",
-      "spanId": "dsn_d2f6b4e33fbc69602bf89474",
-      "ref": "dsn_d2f6b4e33fbc69602bf89474",
+      "spanId": "dsn_7d326d0be36ff64cae02c12a",
+      "ref": "dsn_7d326d0be36ff64cae02c12a",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "accepted",
+      "evidenceRole": "primary",
+      "contributesToElementIds": [
+        "sufficient_guarantees"
+      ],
+      "reviewConfidence": 0.95,
+      "reviewReason": "General operative commitment that all personal data is collected, held, and processed strictly in accordance with GDPR principles and provisions."
+    },
+    {
+      "queryId": "GNQ-5",
+      "spanId": "dsn_e804367749f940e5870c4d84",
+      "ref": "dsn_e804367749f940e5870c4d84",
       "denseRank": null,
       "lexicalRank": null,
       "selectedBy": [],
@@ -627,14 +610,14 @@
       "contributesToElementIds": [
         "sufficient_guarantees"
       ],
-      "reviewConfidence": 0.7,
-      "reviewReason": "Specifies organizational measure of marking emails confidential.",
+      "reviewConfidence": 0.75,
+      "reviewReason": "Technical measure requiring TLS/SSL encryption for email containing personal data.",
       "exclusionReason": "role_budget:supporting"
     },
     {
       "queryId": "GNQ-5",
-      "spanId": "dsn_3555aa936787f1962296bca4",
-      "ref": "dsn_3555aa936787f1962296bca4",
+      "spanId": "dsn_886e6e7b2bd403227780d6d0",
+      "ref": "dsn_886e6e7b2bd403227780d6d0",
       "denseRank": null,
       "lexicalRank": null,
       "selectedBy": [],
@@ -645,55 +628,55 @@
         "sufficient_guarantees"
       ],
       "reviewConfidence": 0.7,
-      "reviewReason": "Specifies security measure limiting transmission to secure networks.",
+      "reviewReason": "Organizational measure requiring confidential marking on emails containing personal data.",
+      "exclusionReason": "role_budget:supporting"
+    },
+    {
+      "queryId": "GNQ-5",
+      "spanId": "dsn_73d11f6530f69bfb5a247315",
+      "ref": "dsn_73d11f6530f69bfb5a247315",
+      "denseRank": null,
+      "lexicalRank": null,
+      "selectedBy": [],
+      "score": 0,
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "sufficient_guarantees"
+      ],
+      "reviewConfidence": 0.8,
+      "reviewReason": "Technical measure restricting transmission of sensitive data to secure networks only.",
       "exclusionReason": "role_budget:supporting"
     }
   ],
   "expansions": [
     {
       "requirementId": "gdpr.art28.1",
-      "seedSpanId": "dsn_a9d952773e50157847877a2d",
-      "addedSpanId": "dsn_a24b75a0add5831b78d2048f",
+      "seedSpanId": "dsn_20aa5cfbd3a7fbe806fc7e6d",
+      "addedSpanId": "dsn_f9774485a2b02de7b66a73f8",
+      "reason": "parent"
+    },
+    {
+      "requirementId": "gdpr.art28.1",
+      "seedSpanId": "dsn_1fa09407e4b1a03f64a2d3b8",
+      "addedSpanId": "dsn_120e02d910ab40fe8a456e1d",
+      "reason": "internal_reference"
+    },
+    {
+      "requirementId": "gdpr.art28.1",
+      "seedSpanId": "dsn_1fa09407e4b1a03f64a2d3b8",
+      "addedSpanId": "dsn_7d326d0be36ff64cae02c12a",
       "reason": "internal_reference"
     }
   ],
   "expansionLimits": [],
   "bundle": {
-    "bundleId": "INV-gdpr.art28.1-doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+    "bundleId": "INV-gdpr.art28.1-doc_8e5683dc-3283-4204-978c-effeec6850f1",
     "requirementId": "gdpr.art28.1",
     "items": [
       {
-        "spanId": "dsn_4410036cd22c9199b2746e05",
-        "ref": "dsn_4410036cd22c9199b2746e05",
-        "quotedText": "Before onboarding Sub-processors, Alaio conducts an audit of the security and privacy practices of Sub-processors to ensure Sub-processors provide a level of security and privacy appropriate to their access to data and the scope of the services they are engaged to provide. Once Alaio has assessed the risks presented by the Sub-processor then, subject always to the requirements set out in Section 7 the Sub-processor is required to enter into appropriate security, confidentiality and privacy contract terms.",
-        "structuralPath": "document.appendix_1.appendix_2.clause_9.paragraph_217",
-        "charRange": [
-          44762,
-          45272
-        ],
-        "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
-          "structuralPath": "document.appendix_1.appendix_2.clause_9.paragraph_217",
-          "relationship": "unspecified"
-        },
-        "source": "seed",
-        "evidenceRole": "primary",
-        "contributesToElementIds": [
-          "sufficient_guarantees"
-        ],
-        "investigationConfidence": 0.9,
-        "investigationReason": "Establishes processor due-diligence audit and contractual safeguards for sub-processors to ensure appropriate security/privacy guarantees.",
-        "retrievalChannels": [
-          "sparse",
-          "dense"
-        ],
-        "matchedQueries": [
-          "The controller uses only processors that provide sufficient guarantees to implement appropriate technical and organisational measures so processing meets GDPR and protects data-subject rights."
-        ]
-      },
-      {
-        "spanId": "dsn_7e535d7c17690638e47e27cd",
-        "ref": "dsn_7e535d7c17690638e47e27cd",
+        "spanId": "dsn_7798314f4b534bcb6159bb53",
+        "ref": "dsn_7798314f4b534bcb6159bb53",
         "quotedText": "2 Alaio Security Measures. Alaio will implement and maintain technical, physical and organisational measures to protect confidentiality and integrity of Personal Data against accidental or unlawful destruction, loss, alteration, unauthorised disclosure or access as described in the Appendix 2 to this DPA (the 'Security Measures'). As described in the Appendix 2 to this DPA, the Security Measures include measures: (a) to help ensure the ongoing confidentiality, integrity, availability and resilience of Bitrix24 systems and services;",
         "structuralPath": "document.clause_6.list_item_59",
         "charRange": [
@@ -701,7 +684,7 @@
           15301
         ],
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "documentId": "doc_8e5683dc-3283-4204-978c-effeec6850f1",
           "structuralPath": "document.clause_6.list_item_59",
           "relationship": "unspecified"
         },
@@ -710,8 +693,8 @@
         "contributesToElementIds": [
           "sufficient_guarantees"
         ],
-        "investigationConfidence": 0.9,
-        "investigationReason": "Processor guarantees implementation and maintenance of technical, physical, and organisational measures to ensure ongoing security and resilience.",
+        "investigationConfidence": 0.95,
+        "investigationReason": "Processor explicitly guarantees implementation and maintenance of technical and organizational security measures meeting security objectives.",
         "retrievalChannels": [
           "sparse",
           "dense"
@@ -722,8 +705,8 @@
         ]
       },
       {
-        "spanId": "dsn_a24b75a0add5831b78d2048f",
-        "ref": "dsn_a24b75a0add5831b78d2048f",
+        "spanId": "dsn_120e02d910ab40fe8a456e1d",
+        "ref": "dsn_120e02d910ab40fe8a456e1d",
         "quotedText": "5 All  data  stored  on  IT  Systems are managed securely in compliance with all relevant parts of EU Regulation 2016/679 General Data Protection Regulation ('GDPR') and all other laws governing data protection whether now or in the future in force.",
         "structuralPath": "document.appendix_1.appendix_2.clause_1.list_item_152",
         "charRange": [
@@ -731,7 +714,7 @@
           33690
         ],
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "documentId": "doc_8e5683dc-3283-4204-978c-effeec6850f1",
           "structuralPath": "document.appendix_1.appendix_2.clause_1.list_item_152",
           "relationship": "unspecified"
         },
@@ -740,16 +723,42 @@
         "contributesToElementIds": [
           "sufficient_guarantees"
         ],
-        "investigationConfidence": 0.85,
-        "investigationReason": "Establishes that all stored data on IT systems is managed securely in compliance with the GDPR.",
+        "investigationConfidence": 0.95,
+        "investigationReason": "Operative commitment that all stored data is managed securely in compliance with GDPR and relevant data protection laws.",
         "retrievalChannels": [],
         "matchedQueries": [
           "relation:procedure_provided_by"
         ]
       },
       {
-        "spanId": "dsn_1430eff3dd13d7608aff0cf5",
-        "ref": "dsn_1430eff3dd13d7608aff0cf5",
+        "spanId": "dsn_7d326d0be36ff64cae02c12a",
+        "ref": "dsn_7d326d0be36ff64cae02c12a",
+        "quotedText": "7.1 All personal data (as defined in the GDPR) collected, held, and processed by Alaio is collected, held, and processed strictly in accordance with the principles of the GDPR, the provisions of the GDPR and the Company's Data Protection Policy.",
+        "structuralPath": "document.appendix_1.appendix_2.clause_7.subclause_7.1",
+        "charRange": [
+          38801,
+          39046
+        ],
+        "scope": {
+          "documentId": "doc_8e5683dc-3283-4204-978c-effeec6850f1",
+          "structuralPath": "document.appendix_1.appendix_2.clause_7.subclause_7.1",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "primary",
+        "contributesToElementIds": [
+          "sufficient_guarantees"
+        ],
+        "investigationConfidence": 0.95,
+        "investigationReason": "General operative commitment that all personal data is collected, held, and processed strictly in accordance with GDPR principles and provisions.",
+        "retrievalChannels": [],
+        "matchedQueries": [
+          "relation:procedure_provided_by"
+        ]
+      },
+      {
+        "spanId": "dsn_20aa5cfbd3a7fbe806fc7e6d",
+        "ref": "dsn_20aa5cfbd3a7fbe806fc7e6d",
         "quotedText": "4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, correction, amendment, restriction, deletion or exercising any other rights under the GDPR or other Data Protection Legislation of that person's Personal Data. Alaio shall not respond to any such Data Subject request without Administrator´s  prior written consent except to confirm that the request relates to User. Alaio shall provide Administrator with cooperation and assistance in relation to handling of a Data Sub ject's request for access to that person's Personal Data or exercising any other rights under the GDPR or other Data Protection Legislation, to the extent legally permitted and to the extent User does not have access to such Personal Data through its use or receipt of the Services.",
         "structuralPath": "document.clause_4.subclause_4.2",
         "charRange": [
@@ -757,7 +766,7 @@
           14205
         ],
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "documentId": "doc_8e5683dc-3283-4204-978c-effeec6850f1",
           "structuralPath": "document.clause_4.subclause_4.2",
           "relationship": "unspecified"
         },
@@ -767,7 +776,7 @@
           "sufficient_guarantees"
         ],
         "investigationConfidence": 0.85,
-        "investigationReason": "Provides processor assistance and notification obligations regarding data subject rights, supporting the requirement for sufficient guarantees.",
+        "investigationReason": "Outlines processor assistance with data subject rights requests, strengthening guarantees regarding data subject rights protection.",
         "retrievalChannels": [
           "sparse",
           "dense"
@@ -778,8 +787,8 @@
         ]
       },
       {
-        "spanId": "dsn_f894793c875b7b2c74037e13",
-        "ref": "dsn_f894793c875b7b2c74037e13",
+        "spanId": "dsn_2d6ea87a036ebc56eb775d2f",
+        "ref": "dsn_2d6ea87a036ebc56eb775d2f",
         "quotedText": "4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Personal Data, as required by Data Protection Legislation, Alaio will (taking into account the nature of the processing of Personal Data and, if applicable, Article 11 of the GDPR) assist Administrator in fulfilling any obligation of Administrator to respond to requests by data subjects, including (if applicable) Administrator´s  obligation to respond to requests for exercising the data sub ject's rights laid down in Chapter III of the GDPR and other Data Protection Legislation, by providing the functionality of the Processor Services;",
         "structuralPath": "document.clause_4.subclause_4.1",
         "charRange": [
@@ -787,7 +796,7 @@
           13362
         ],
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "documentId": "doc_8e5683dc-3283-4204-978c-effeec6850f1",
           "structuralPath": "document.clause_4.subclause_4.1",
           "relationship": "unspecified"
         },
@@ -797,7 +806,7 @@
           "sufficient_guarantees"
         ],
         "investigationConfidence": 0.85,
-        "investigationReason": "Promises assistance to controller for data subject rights under Chapter III GDPR.",
+        "investigationReason": "Requires processor to assist controller in fulfilling obligations to respond to data subject rights requests under Chapter III GDPR.",
         "retrievalChannels": [
           "sparse",
           "dense"
@@ -808,8 +817,8 @@
         ]
       },
       {
-        "spanId": "dsn_a9d952773e50157847877a2d",
-        "ref": "dsn_a9d952773e50157847877a2d",
+        "spanId": "dsn_1fa09407e4b1a03f64a2d3b8",
+        "ref": "dsn_1fa09407e4b1a03f64a2d3b8",
         "quotedText": "3 Security Compliance by Alaio Staff. Alaio will take appropriate steps to ensure compliance with the Security Measures by its employees, contractors and Sub-processors to the extent applicable to their scope of performance, including ensuring that all persons authorised to process Personal Data have committed themselves to confidentiality or are under an appropriate statutory obligation of confidentiality as described in the Appendix 2 to this DPA.",
         "structuralPath": "document.list_item_(b)~2.list_item_61",
         "charRange": [
@@ -817,7 +826,7 @@
           16072
         ],
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "documentId": "doc_8e5683dc-3283-4204-978c-effeec6850f1",
           "structuralPath": "document.list_item_(b)~2.list_item_61",
           "relationship": "unspecified"
         },
@@ -827,7 +836,7 @@
           "sufficient_guarantees"
         ],
         "investigationConfidence": 0.85,
-        "investigationReason": "Requires processor staff compliance with security measures and confidentiality.",
+        "investigationReason": "Provides commitments regarding staff, contractor, and subprocessor compliance with security measures and confidentiality.",
         "retrievalChannels": [
           "sparse",
           "dense"
@@ -838,8 +847,8 @@
         ]
       },
       {
-        "spanId": "dsn_8a1ea962ef120d21fbb3cdaf",
-        "ref": "dsn_8a1ea962ef120d21fbb3cdaf",
+        "spanId": "dsn_71f1ea7b00c15106883e7d0d",
+        "ref": "dsn_71f1ea7b00c15106883e7d0d",
         "quotedText": "Alaio will implement and maintain the Security Measures set out in this Appendix 2. Alaio may update or modify such Security Measures from time to time, provided that such updates and modifications do not result in the degradation of the overall security of the Processor Services.",
         "structuralPath": "document.appendix_1.appendix_2.paragraph_146",
         "charRange": [
@@ -847,7 +856,7 @@
           32805
         ],
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "documentId": "doc_8e5683dc-3283-4204-978c-effeec6850f1",
           "structuralPath": "document.appendix_1.appendix_2.paragraph_146",
           "relationship": "unspecified"
         },
@@ -857,7 +866,7 @@
           "sufficient_guarantees"
         ],
         "investigationConfidence": 0.85,
-        "investigationReason": "Processor commits to implement and maintain Security Measures without non-degradation.",
+        "investigationReason": "Processor guarantees to implement, maintain, and not degrade overall security measures.",
         "retrievalChannels": [
           "sparse",
           "dense"
@@ -868,8 +877,8 @@
         ]
       },
       {
-        "spanId": "dsn_3b6cb2834c139b8111881b5f",
-        "ref": "dsn_3b6cb2834c139b8111881b5f",
+        "spanId": "dsn_f0c352ef7bf1c28e94a675b5",
+        "ref": "dsn_f0c352ef7bf1c28e94a675b5",
         "quotedText": "The terms 'Data controller' , 'Data sub ject' , 'Personal data' , 'Processing' , 'Data processor' and 'Supervisory authority' as used in this DPA have the meanings given in the Data Protection Legislation.",
         "structuralPath": "document.clause_1.subclause_1.1.paragraph_33",
         "charRange": [
@@ -877,7 +886,7 @@
           8343
         ],
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "documentId": "doc_8e5683dc-3283-4204-978c-effeec6850f1",
           "structuralPath": "document.clause_1.subclause_1.1.paragraph_33",
           "relationship": "unspecified"
         },
@@ -895,30 +904,27 @@
         ]
       },
       {
-        "spanId": "dsn_e913a7275158c113ddece6f9",
-        "ref": "dsn_e913a7275158c113ddece6f9",
-        "quotedText": "1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that:",
-        "structuralPath": "document.clause_2.item_1",
+        "spanId": "dsn_f9774485a2b02de7b66a73f8",
+        "ref": "dsn_f9774485a2b02de7b66a73f8",
+        "quotedText": "4. RIGHTS OF DATA SUBJECTS",
+        "structuralPath": "document.clause_4",
         "charRange": [
-          8425,
-          8511
+          12668,
+          12694
         ],
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
-          "structuralPath": "document.clause_2.item_1",
+          "documentId": "doc_8e5683dc-3283-4204-978c-effeec6850f1",
+          "structuralPath": "document.clause_4",
           "relationship": "unspecified"
         },
         "source": "expansion",
         "evidenceRole": "context",
         "contributesToElementIds": [],
         "investigationConfidence": 0.95,
-        "investigationReason": "Introductory clause heading on processor and controller responsibilities.",
-        "retrievalChannels": [
-          "sparse",
-          "dense"
-        ],
+        "investigationReason": "Header text for rights of data subjects section, provides context but contains no operative guarantees or controller commitments.",
+        "retrievalChannels": [],
         "matchedQueries": [
-          "The controller uses only processors that provide sufficient guarantees to implement appropriate technical and organisational measures so processing meets GDPR and protects data-subject rights."
+          "structural:parent_context"
         ]
       }
     ],
@@ -926,183 +932,181 @@
       {
         "partitionId": "P1",
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5"
+          "documentId": "doc_8e5683dc-3283-4204-978c-effeec6850f1"
         },
         "itemSpanIds": [
-          "dsn_4410036cd22c9199b2746e05",
-          "dsn_7e535d7c17690638e47e27cd",
-          "dsn_a24b75a0add5831b78d2048f",
-          "dsn_1430eff3dd13d7608aff0cf5",
-          "dsn_f894793c875b7b2c74037e13",
-          "dsn_a9d952773e50157847877a2d",
-          "dsn_8a1ea962ef120d21fbb3cdaf",
-          "dsn_3b6cb2834c139b8111881b5f",
-          "dsn_e913a7275158c113ddece6f9"
+          "dsn_7798314f4b534bcb6159bb53",
+          "dsn_120e02d910ab40fe8a456e1d",
+          "dsn_7d326d0be36ff64cae02c12a",
+          "dsn_20aa5cfbd3a7fbe806fc7e6d",
+          "dsn_2d6ea87a036ebc56eb775d2f",
+          "dsn_1fa09407e4b1a03f64a2d3b8",
+          "dsn_71f1ea7b00c15106883e7d0d",
+          "dsn_f0c352ef7bf1c28e94a675b5",
+          "dsn_f9774485a2b02de7b66a73f8"
         ]
       }
     ],
     "exclusions": [
       {
-        "spanId": "dsn_ebc4343384efbd8497da7bb6",
+        "spanId": "dsn_1335b0ce198ace64023fb839",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_958d0335a2f665ad63b20a9a",
         "reason": "role_budget",
         "detail": "role_budget:primary"
       },
       {
-        "spanId": "dsn_633e965fdb33bd9fe0afcacf",
+        "spanId": "dsn_b4064a0cb1bcb7ab5a6ecdb8",
         "reason": "role_budget",
         "detail": "role_budget:supporting"
       },
       {
-        "spanId": "dsn_8d97532a308944ce679df961",
+        "spanId": "dsn_521793e4912a92f7227601cd",
         "reason": "role_budget",
         "detail": "role_budget:supporting"
       },
       {
-        "spanId": "dsn_230a61c9ba368fd67d35ae09",
+        "spanId": "dsn_7d1df22cb834026d08439793",
         "reason": "role_budget",
         "detail": "role_budget:supporting"
       },
       {
-        "spanId": "dsn_8308463a3f18d12e4b4b67e4",
+        "spanId": "dsn_0e6fd520674be46342995c43",
         "reason": "role_budget",
         "detail": "role_budget:supporting"
       },
       {
-        "spanId": "dsn_d110a9e2a460c527c94868fc",
+        "spanId": "dsn_c67a2f2416fe9ee2f880fb22",
         "reason": "role_budget",
         "detail": "role_budget:supporting"
       },
       {
-        "spanId": "dsn_edb177fccea379a5b7b04e35",
+        "spanId": "dsn_9e185b210059eb27b5b556b3",
         "reason": "role_budget",
         "detail": "role_budget:supporting"
       },
       {
-        "spanId": "dsn_a6609638807487598a4034ee",
+        "spanId": "dsn_39fdc37ba2084eb30028ce09",
         "reason": "role_budget",
         "detail": "role_budget:supporting"
       },
       {
-        "spanId": "dsn_34a00a6487d3a7485f9fa9db",
+        "spanId": "dsn_e6679d42b22858281b6ea5e3",
         "reason": "role_budget",
         "detail": "role_budget:supporting"
       },
       {
-        "spanId": "dsn_e3275bbd3e094ccea6794ed7",
+        "spanId": "dsn_73d11f6530f69bfb5a247315",
         "reason": "role_budget",
         "detail": "role_budget:supporting"
       },
       {
-        "spanId": "dsn_d2f6b4e33fbc69602bf89474",
+        "spanId": "dsn_e804367749f940e5870c4d84",
         "reason": "role_budget",
         "detail": "role_budget:supporting"
       },
       {
-        "spanId": "dsn_3555aa936787f1962296bca4",
+        "spanId": "dsn_886e6e7b2bd403227780d6d0",
         "reason": "role_budget",
         "detail": "role_budget:supporting"
       },
       {
-        "spanId": "dsn_39d884048966d0cb0742d15b",
+        "spanId": "dsn_809d3b3f8ef181cbc4a084a5",
         "reason": "role_budget",
         "detail": "role_budget:context"
       },
       {
-        "spanId": "dsn_3a27733aa4a2782d0094adb9",
+        "spanId": "dsn_5bcfc751e34bd5a9c2da92d9",
         "reason": "role_budget",
         "detail": "role_budget:context"
       },
       {
-        "spanId": "dsn_2a8f78794d79eaa0baaef29f",
+        "spanId": "dsn_c00005f87258a72325967085",
         "reason": "role_budget",
         "detail": "role_budget:context"
       },
       {
-        "spanId": "dsn_3b8e226256eb52c075589879",
+        "spanId": "dsn_ab327764ae8f977ff8424def",
         "reason": "role_budget",
         "detail": "role_budget:context"
       },
       {
-        "spanId": "dsn_79c449fe446f0a68f11f9ee2",
+        "spanId": "dsn_ccd4f27568f4758015888aea",
         "reason": "role_budget",
         "detail": "role_budget:context"
       },
       {
-        "spanId": "dsn_47129320b23727a3574f81b4",
-        "reason": "role_budget",
-        "detail": "role_budget:context"
-      },
-      {
-        "spanId": "dsn_26d1c3581a0eddca5ad67481",
+        "spanId": "dsn_b94ce0b39249fc366fb836bb",
         "reason": "role_budget",
         "detail": "role_budget:context"
       }
     ],
     "dependencies": [
       {
-        "reference": "dsn_f894793c875b7b2c74037e13:requires",
+        "reference": "dsn_2d6ea87a036ebc56eb775d2f:requires",
         "state": "ambiguous",
         "targetSpanIds": []
       },
       {
-        "reference": "dsn_f894793c875b7b2c74037e13:requires",
+        "reference": "dsn_2d6ea87a036ebc56eb775d2f:requires",
         "state": "unresolved_external",
         "targetSpanIds": []
       },
       {
-        "reference": "dsn_1430eff3dd13d7608aff0cf5:external_reference",
+        "reference": "dsn_20aa5cfbd3a7fbe806fc7e6d:external_reference",
         "state": "unresolved_external",
         "targetSpanIds": []
       },
       {
-        "reference": "dsn_7e535d7c17690638e47e27cd:details_provided_by",
+        "reference": "dsn_7798314f4b534bcb6159bb53:details_provided_by",
         "state": "resolved_internal",
         "targetSpanIds": [
-          "dsn_6335589872a4c2b206df632c"
+          "dsn_69a969a32a0b540a6232dba6"
         ]
       },
       {
-        "reference": "dsn_7e535d7c17690638e47e27cd:details_provided_by",
+        "reference": "dsn_7798314f4b534bcb6159bb53:details_provided_by",
         "state": "resolved_internal",
         "targetSpanIds": [
-          "dsn_b46aad6e625e2cc61327c358"
+          "dsn_e08d2f78e47de740f0befd6c"
         ]
       },
       {
-        "reference": "dsn_a9d952773e50157847877a2d:procedure_provided_by",
+        "reference": "dsn_1fa09407e4b1a03f64a2d3b8:procedure_provided_by",
         "state": "resolved_internal",
         "targetSpanIds": [
-          "dsn_6335589872a4c2b206df632c"
+          "dsn_69a969a32a0b540a6232dba6"
         ]
       },
       {
-        "reference": "dsn_a9d952773e50157847877a2d:procedure_provided_by",
+        "reference": "dsn_1fa09407e4b1a03f64a2d3b8:procedure_provided_by",
         "state": "resolved_internal",
         "targetSpanIds": [
-          "dsn_b46aad6e625e2cc61327c358"
+          "dsn_e08d2f78e47de740f0befd6c"
         ]
       },
       {
-        "reference": "dsn_8a1ea962ef120d21fbb3cdaf:details_provided_by",
+        "reference": "dsn_71f1ea7b00c15106883e7d0d:details_provided_by",
         "state": "resolved_internal",
         "targetSpanIds": [
-          "dsn_b46aad6e625e2cc61327c358"
+          "dsn_e08d2f78e47de740f0befd6c"
         ]
       },
       {
-        "reference": "dsn_a24b75a0add5831b78d2048f:external_reference",
+        "reference": "dsn_120e02d910ab40fe8a456e1d:external_reference",
         "state": "unresolved_external",
         "targetSpanIds": []
       },
       {
-        "reference": "dsn_4410036cd22c9199b2746e05:details_provided_by",
-        "state": "resolved_internal",
-        "targetSpanIds": [
-          "dsn_945564845a1ad5fd521cb4db"
-        ]
+        "reference": "dsn_7d326d0be36ff64cae02c12a:defined_by",
+        "state": "unresolved_external",
+        "targetSpanIds": []
       }
     ],
-    "estimatedTokens": 958,
+    "estimatedTokens": 877,
     "investigationComplete": false,
     "incompleteReasons": [
       "element_unresolved:controller_selection"

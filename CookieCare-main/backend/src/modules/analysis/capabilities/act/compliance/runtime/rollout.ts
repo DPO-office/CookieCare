@@ -5,7 +5,9 @@ import type { ComplianceRun } from "./create-run.js";
 import type { CheckExecutionServices } from "./check-execution-services.js";
 export type VerificationMode = "legacy" | "shadow" | "canonical";
 export function verificationMode(env: Record<string, string | undefined> = process.env): VerificationMode {
-  const value = env.COMPLIANCE_VERIFICATION_MODE ?? "legacy";
+  // Canonical (one grounded LLM call per check, no keyword fallback, no dropped
+  // rows) is the default. `legacy` remains selectable for rollback/replay only.
+  const value = env.COMPLIANCE_VERIFICATION_MODE ?? "canonical";
   if (!["legacy", "shadow", "canonical"].includes(value))
     throw new Error("Invalid COMPLIANCE_VERIFICATION_MODE");
   return value as VerificationMode;

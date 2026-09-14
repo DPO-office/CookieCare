@@ -21,8 +21,8 @@ function stateFixture():AnalysisState {
  selections:ids.map(ruleId=>({skillId:skill.skillId,ruleId,facetId:"rights",reason:"Explicit scope",source:"exact_citation",confidence:1,required:true})),unresolved:[],complete:true}}} as unknown as AnalysisState;
 }
 const emptyInvestigation:InvestigationRunResult={bundlesByRequirement:new Map(),resolutionIssues:[],timings:{indexMs:0,retrievalMs:0,reviewMs:0,expansionMs:0,totalMs:0}};
-test("previous verification is default; archived modes require explicit selection", () => {
- assert.equal(verificationMode({}), "legacy");
+test("canonical one-call verification is default; other modes require explicit selection", () => {
+ assert.equal(verificationMode({}), "canonical");
  for (const mode of ["legacy", "shadow", "canonical"] as const)
    assert.equal(verificationMode({ COMPLIANCE_VERIFICATION_MODE: mode }), mode);
  assert.throws(() => verificationMode({ COMPLIANCE_VERIFICATION_MODE: "invalid" }));
@@ -77,7 +77,7 @@ test("default previous path never runs multi-pass verification or additional inv
  }));
  const investigation = {...emptyInvestigation, bundlesByRequirement: new Map(bundles.map(b => [b.requirementId, b]))};
  const out = await executeCompliancePipeline(state, {
-   mode: verificationMode({}),
+   mode: "legacy",
    investigate: async () => { investigations++; return investigation; },
    legacy: async (_state, supplied) => { previousCalls++; assert.equal(supplied, investigation); return undefined; },
    complete: async () => { multiPassCalls++; throw new Error("Archived verifier must not run"); },

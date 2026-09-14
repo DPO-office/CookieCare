@@ -545,6 +545,27 @@ describe("graph-native compliance investigation", () => {
     assert.ok(adapted.exclusions.every((item) => item.reason !== "budget"));
   });
 
+  it("budget-omitted redundant evidence is an immaterial coverage issue, not an unknown one", () => {
+    const graph = graphWithClauses();
+    const requirement = resolveInvestigationRequirements(stateFor(["art28_3_a_instructions"], graph)).requirements[0];
+    const base = buildEvidenceUnits(graph).find((item) => item.nodeId === "instructions")!;
+    // Six supporting candidates for the same element: the retention pass keeps
+    // ROLE_LIMITS.supporting (4) and sheds the rest as redundant role_budget omissions.
+    const candidates = Array.from({ length: 6 }, (_, i) => ({
+      unit: { ...base, unitId: "supporting-" + i },
+      fusedScore: 0.5, rerankScore: 0.5 - i * 0.01, channelRanks: { sparse: i + 1 }, channelScores: { sparse: 0.5 }, matchedQueries: ["instructions"], signals: [],
+    }));
+    const bundle = buildRequirementEvidenceBundle({
+      requirement, candidates,
+      decisions: candidates.map(c => ({ nodeId: c.unit.unitId, role: "supporting" as const, contributesToElementIds: [requirement.elementIds[0] ?? "E1"], confidence: 0.9, reason: "Supporting instruction context" })),
+      unresolvedElementIds: [],
+    });
+    const budgetIssues = bundle.coverageIssues!.filter(issue => issue.reason.startsWith("role_budget:"));
+    assert.ok(budgetIssues.length > 0, "expected some redundant supporting evidence to be budget-omitted");
+    assert.ok(budgetIssues.every(issue => issue.materiality === "immaterial"),
+      "role_budget omissions must be immaterial so a fully-proven requirement is not downgraded to cannot_determine");
+  });
+
   it("emits an explicit incomplete bundle when the canonical graph is unavailable", async () => {
     const state = stateFor(["art28_3_a_instructions"]);
     state.workspace.documents[0].structureGraph = undefined;

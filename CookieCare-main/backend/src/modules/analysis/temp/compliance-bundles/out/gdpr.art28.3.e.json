@@ -1,7 +1,7 @@
 {
-  "sessionId": "an_84229db6-5d6f-4b49-9a9c-924a1e990d5a",
+  "sessionId": "an_3195d3a1-1f7b-42a0-b43c-7a6433dda0cb",
   "stage": "investigation_complete",
-  "dumpedAt": "2026-09-13T19:26:37.474Z",
+  "dumpedAt": "2026-09-14T04:32:28.729Z",
   "requirementId": "gdpr.art28.3.e",
   "packageId": "rule:regimes/data-protection/gdpr",
   "recall": {
@@ -21,8 +21,8 @@
     ],
     "proofElementsUnresolved": [],
     "acceptedCandidateCount": 3,
-    "semanticRejectedCandidateCount": 11,
-    "budgetOmittedCandidateCount": 3,
+    "semanticRejectedCandidateCount": 9,
+    "budgetOmittedCandidateCount": 5,
     "unclassifiedCandidateCount": 0
   },
   "queries": [
@@ -66,8 +66,8 @@
   "hits": [
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_2f041fb516e953b52f7d4221",
-      "ref": "dsn_2f041fb516e953b52f7d4221",
+      "spanId": "dsn_20aa5cfbd3a7fbe806fc7e6d",
+      "ref": "dsn_20aa5cfbd3a7fbe806fc7e6d",
       "denseRank": 2,
       "lexicalRank": 4,
       "selectedBy": [
@@ -83,12 +83,12 @@
         "rights_request_scope"
       ],
       "reviewConfidence": 0.95,
-      "reviewReason": "Obligates Alaio to provide Administrator with cooperation and assistance in relation to handling of a Data Subject's request for access or exercising any other rights under GDPR."
+      "reviewReason": "Directly commits to providing cooperation and assistance in handling Data Subject requests across Chapter III / GDPR rights."
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_2f041fb516e953b52f7d4221",
-      "ref": "dsn_2f041fb516e953b52f7d4221",
+      "spanId": "dsn_20aa5cfbd3a7fbe806fc7e6d",
+      "ref": "dsn_20aa5cfbd3a7fbe806fc7e6d",
       "denseRank": 2,
       "lexicalRank": 4,
       "selectedBy": [
@@ -104,12 +104,12 @@
         "rights_request_scope"
       ],
       "reviewConfidence": 0.95,
-      "reviewReason": "Obligates Alaio to provide Administrator with cooperation and assistance in relation to handling of a Data Subject's request for access or exercising any other rights under GDPR."
+      "reviewReason": "Directly commits to providing cooperation and assistance in handling Data Subject requests across Chapter III / GDPR rights."
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_2f041fb516e953b52f7d4221",
-      "ref": "dsn_2f041fb516e953b52f7d4221",
+      "spanId": "dsn_20aa5cfbd3a7fbe806fc7e6d",
+      "ref": "dsn_20aa5cfbd3a7fbe806fc7e6d",
       "denseRank": 2,
       "lexicalRank": 4,
       "selectedBy": [
@@ -125,12 +125,12 @@
         "rights_request_scope"
       ],
       "reviewConfidence": 0.95,
-      "reviewReason": "Obligates Alaio to provide Administrator with cooperation and assistance in relation to handling of a Data Subject's request for access or exercising any other rights under GDPR."
+      "reviewReason": "Directly commits to providing cooperation and assistance in handling Data Subject requests across Chapter III / GDPR rights."
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_af15119e9597b2ed0fef9752",
-      "ref": "dsn_af15119e9597b2ed0fef9752",
+      "spanId": "dsn_2d6ea87a036ebc56eb775d2f",
+      "ref": "dsn_2d6ea87a036ebc56eb775d2f",
       "denseRank": 1,
       "lexicalRank": 1,
       "selectedBy": [
@@ -147,12 +147,12 @@
         "rights_request_scope"
       ],
       "reviewConfidence": 0.98,
-      "reviewReason": "Explicitly commits the processor to assist the Administrator in fulfilling obligations to respond to data subject rights under Chapter III GDPR by providing the functionality of the Processor Services (technical measures)."
+      "reviewReason": "Directly obligates processor to assist controller in fulfilling Chapter III rights requests by providing functionality of the Processor Services."
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_af15119e9597b2ed0fef9752",
-      "ref": "dsn_af15119e9597b2ed0fef9752",
+      "spanId": "dsn_2d6ea87a036ebc56eb775d2f",
+      "ref": "dsn_2d6ea87a036ebc56eb775d2f",
       "denseRank": 1,
       "lexicalRank": 1,
       "selectedBy": [
@@ -169,12 +169,12 @@
         "rights_request_scope"
       ],
       "reviewConfidence": 0.98,
-      "reviewReason": "Explicitly commits the processor to assist the Administrator in fulfilling obligations to respond to data subject rights under Chapter III GDPR by providing the functionality of the Processor Services (technical measures)."
+      "reviewReason": "Directly obligates processor to assist controller in fulfilling Chapter III rights requests by providing functionality of the Processor Services."
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_cc57125bb8c8d29ecc1a9657",
-      "ref": "dsn_cc57125bb8c8d29ecc1a9657",
+      "spanId": "dsn_b94ce0b39249fc366fb836bb",
+      "ref": "dsn_b94ce0b39249fc366fb836bb",
       "denseRank": null,
       "lexicalRank": 8,
       "selectedBy": [
@@ -185,14 +185,14 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.95,
-      "reviewReason": "Pertains to international transfers to Russian Federation and SCCs, not processor assistance for data subject requests.",
-      "exclusionReason": "rejected:irrelevant:0.95"
+      "reviewConfidence": 0.85,
+      "reviewReason": "Relates to international transfer safeguards under Article 46.",
+      "exclusionReason": "rejected:irrelevant:0.85"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_cc57125bb8c8d29ecc1a9657",
-      "ref": "dsn_cc57125bb8c8d29ecc1a9657",
+      "spanId": "dsn_b94ce0b39249fc366fb836bb",
+      "ref": "dsn_b94ce0b39249fc366fb836bb",
       "denseRank": null,
       "lexicalRank": 8,
       "selectedBy": [
@@ -203,14 +203,14 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.95,
-      "reviewReason": "Pertains to international transfers to Russian Federation and SCCs, not processor assistance for data subject requests.",
-      "exclusionReason": "rejected:irrelevant:0.95"
+      "reviewConfidence": 0.85,
+      "reviewReason": "Relates to international transfer safeguards under Article 46.",
+      "exclusionReason": "rejected:irrelevant:0.85"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_57672fc525787aa00ef5780e",
-      "ref": "dsn_57672fc525787aa00ef5780e",
+      "spanId": "dsn_00b50d8f60e14c00705d7d58",
+      "ref": "dsn_00b50d8f60e14c00705d7d58",
       "denseRank": null,
       "lexicalRank": 11,
       "selectedBy": [
@@ -221,14 +221,14 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.99,
-      "reviewReason": "Identifies lead supervisory authority, irrelevant to processor assistance for rights requests.",
-      "exclusionReason": "rejected:irrelevant:0.99"
+      "reviewConfidence": 0.9,
+      "reviewReason": "Relates to competent supervisory authority designation.",
+      "exclusionReason": "rejected:irrelevant:0.9"
     },
     {
       "queryId": "GNQ-4",
-      "spanId": "dsn_57672fc525787aa00ef5780e",
-      "ref": "dsn_57672fc525787aa00ef5780e",
+      "spanId": "dsn_00b50d8f60e14c00705d7d58",
+      "ref": "dsn_00b50d8f60e14c00705d7d58",
       "denseRank": null,
       "lexicalRank": 11,
       "selectedBy": [
@@ -239,14 +239,14 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.99,
-      "reviewReason": "Identifies lead supervisory authority, irrelevant to processor assistance for rights requests.",
-      "exclusionReason": "rejected:irrelevant:0.99"
+      "reviewConfidence": 0.9,
+      "reviewReason": "Relates to competent supervisory authority designation.",
+      "exclusionReason": "rejected:irrelevant:0.9"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_b45daddbd96acba02a8fda8e",
-      "ref": "dsn_b45daddbd96acba02a8fda8e",
+      "spanId": "dsn_c00005f87258a72325967085",
+      "ref": "dsn_c00005f87258a72325967085",
       "denseRank": 6,
       "lexicalRank": 13,
       "selectedBy": [
@@ -255,17 +255,17 @@
         "dense"
       ],
       "score": 0.2937755184228298,
-      "reviewDisposition": "semantic_rejection",
-      "evidenceRole": "irrelevant",
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.99,
-      "reviewReason": "Heading/introductory text for categories of data subjects, irrelevant.",
-      "exclusionReason": "rejected:irrelevant:0.99"
+      "reviewConfidence": 0.9,
+      "reviewReason": "Introductory sentence for category of data subjects.",
+      "exclusionReason": "role_budget:context"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_b45daddbd96acba02a8fda8e",
-      "ref": "dsn_b45daddbd96acba02a8fda8e",
+      "spanId": "dsn_c00005f87258a72325967085",
+      "ref": "dsn_c00005f87258a72325967085",
       "denseRank": 6,
       "lexicalRank": 13,
       "selectedBy": [
@@ -274,17 +274,17 @@
         "dense"
       ],
       "score": 0.2937755184228298,
-      "reviewDisposition": "semantic_rejection",
-      "evidenceRole": "irrelevant",
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.99,
-      "reviewReason": "Heading/introductory text for categories of data subjects, irrelevant.",
-      "exclusionReason": "rejected:irrelevant:0.99"
+      "reviewConfidence": 0.9,
+      "reviewReason": "Introductory sentence for category of data subjects.",
+      "exclusionReason": "role_budget:context"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_fb505af97d02c3a04db447f3",
-      "ref": "dsn_fb505af97d02c3a04db447f3",
+      "spanId": "dsn_2353043b9ca3ed751896f241",
+      "ref": "dsn_2353043b9ca3ed751896f241",
       "denseRank": null,
       "lexicalRank": 9,
       "selectedBy": [
@@ -292,17 +292,17 @@
         "sparse"
       ],
       "score": 0.2791986359761296,
-      "reviewDisposition": "semantic_rejection",
-      "evidenceRole": "irrelevant",
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.99,
-      "reviewReason": "Description of data subject categories, irrelevant.",
-      "exclusionReason": "rejected:irrelevant:0.99"
+      "reviewConfidence": 0.9,
+      "reviewReason": "Description of data subject categories.",
+      "exclusionReason": "role_budget:context"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_fb505af97d02c3a04db447f3",
-      "ref": "dsn_fb505af97d02c3a04db447f3",
+      "spanId": "dsn_2353043b9ca3ed751896f241",
+      "ref": "dsn_2353043b9ca3ed751896f241",
       "denseRank": null,
       "lexicalRank": 9,
       "selectedBy": [
@@ -310,17 +310,17 @@
         "sparse"
       ],
       "score": 0.2791986359761296,
-      "reviewDisposition": "semantic_rejection",
-      "evidenceRole": "irrelevant",
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.99,
-      "reviewReason": "Description of data subject categories, irrelevant.",
-      "exclusionReason": "rejected:irrelevant:0.99"
+      "reviewConfidence": 0.9,
+      "reviewReason": "Description of data subject categories.",
+      "exclusionReason": "role_budget:context"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_2125074ad1bb07e3c1757cb8",
-      "ref": "dsn_2125074ad1bb07e3c1757cb8",
+      "spanId": "dsn_6eb0c5b1c7919ff79862099d",
+      "ref": "dsn_6eb0c5b1c7919ff79862099d",
       "denseRank": 23,
       "lexicalRank": 16,
       "selectedBy": [
@@ -331,14 +331,14 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.99,
-      "reviewReason": "Relates to audits and security information compliance, not data subject requests.",
-      "exclusionReason": "rejected:irrelevant:0.99"
+      "reviewConfidence": 0.85,
+      "reviewReason": "Relates to audit compliance and on-site inspections.",
+      "exclusionReason": "rejected:irrelevant:0.85"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_2125074ad1bb07e3c1757cb8",
-      "ref": "dsn_2125074ad1bb07e3c1757cb8",
+      "spanId": "dsn_6eb0c5b1c7919ff79862099d",
+      "ref": "dsn_6eb0c5b1c7919ff79862099d",
       "denseRank": 23,
       "lexicalRank": 16,
       "selectedBy": [
@@ -349,14 +349,14 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.99,
-      "reviewReason": "Relates to audits and security information compliance, not data subject requests.",
-      "exclusionReason": "rejected:irrelevant:0.99"
+      "reviewConfidence": 0.85,
+      "reviewReason": "Relates to audit compliance and on-site inspections.",
+      "exclusionReason": "rejected:irrelevant:0.85"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_08755c898e2620e094e953bd",
-      "ref": "dsn_08755c898e2620e094e953bd",
+      "spanId": "dsn_fe5291834e1e180ecabf77e1",
+      "ref": "dsn_fe5291834e1e180ecabf77e1",
       "denseRank": null,
       "lexicalRank": 6,
       "selectedBy": [
@@ -366,14 +366,14 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.99,
-      "reviewReason": "Relates to DPA changes, irrelevant.",
-      "exclusionReason": "rejected:irrelevant:0.99"
+      "reviewConfidence": 0.9,
+      "reviewReason": "Relates to unilateral terms modification conditions.",
+      "exclusionReason": "rejected:irrelevant:0.9"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_9d2224b3e6111257bdc48f72",
-      "ref": "dsn_9d2224b3e6111257bdc48f72",
+      "spanId": "dsn_809d3b3f8ef181cbc4a084a5",
+      "ref": "dsn_809d3b3f8ef181cbc4a084a5",
       "denseRank": 3,
       "lexicalRank": 2,
       "selectedBy": [
@@ -381,17 +381,16 @@
         "dense"
       ],
       "score": 0.18200204813108037,
-      "reviewDisposition": "role_budget",
+      "reviewDisposition": "accepted",
       "evidenceRole": "context",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.9,
-      "reviewReason": "Heading defining processor and controller responsibilities.",
-      "exclusionReason": "role_budget:context"
+      "reviewConfidence": 0.95,
+      "reviewReason": "Introductory clause heading text."
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_e589d0475938e81ecfe9ad0d",
-      "ref": "dsn_e589d0475938e81ecfe9ad0d",
+      "spanId": "dsn_5bcfc751e34bd5a9c2da92d9",
+      "ref": "dsn_5bcfc751e34bd5a9c2da92d9",
       "denseRank": 4,
       "lexicalRank": 3,
       "selectedBy": [
@@ -402,14 +401,14 @@
       "reviewDisposition": "role_budget",
       "evidenceRole": "context",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.9,
-      "reviewReason": "Establishes controller status of Administrator, context for rights requests.",
+      "reviewConfidence": 0.95,
+      "reviewReason": "Statement of role status.",
       "exclusionReason": "role_budget:context"
     },
     {
       "queryId": "GNQ-5",
-      "spanId": "dsn_304a836d60b2df766110cc25",
-      "ref": "dsn_304a836d60b2df766110cc25",
+      "spanId": "dsn_92947deb524bde0b0cda73c9",
+      "ref": "dsn_92947deb524bde0b0cda73c9",
       "denseRank": 10,
       "lexicalRank": 22,
       "selectedBy": [
@@ -420,14 +419,14 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.95,
-      "reviewReason": "Pertains to assistance with security and personal data breaches (Articles 32-34), not data subject rights requests.",
-      "exclusionReason": "rejected:irrelevant:0.95"
+      "reviewConfidence": 0.85,
+      "reviewReason": "Relates to security and breach assistance under Articles 32-34, not rights requests.",
+      "exclusionReason": "rejected:irrelevant:0.85"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_304a836d60b2df766110cc25",
-      "ref": "dsn_304a836d60b2df766110cc25",
+      "spanId": "dsn_92947deb524bde0b0cda73c9",
+      "ref": "dsn_92947deb524bde0b0cda73c9",
       "denseRank": 10,
       "lexicalRank": 22,
       "selectedBy": [
@@ -438,14 +437,14 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.95,
-      "reviewReason": "Pertains to assistance with security and personal data breaches (Articles 32-34), not data subject rights requests.",
-      "exclusionReason": "rejected:irrelevant:0.95"
+      "reviewConfidence": 0.85,
+      "reviewReason": "Relates to security and breach assistance under Articles 32-34, not rights requests.",
+      "exclusionReason": "rejected:irrelevant:0.85"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_fd3e2ac6f393832872b1aa5c",
-      "ref": "dsn_fd3e2ac6f393832872b1aa5c",
+      "spanId": "dsn_c67a2f2416fe9ee2f880fb22",
+      "ref": "dsn_c67a2f2416fe9ee2f880fb22",
       "denseRank": 13,
       "lexicalRank": 24,
       "selectedBy": [
@@ -453,17 +452,19 @@
         "dense"
       ],
       "score": 0.1756033920417482,
-      "reviewDisposition": "role_budget",
-      "evidenceRole": "context",
-      "contributesToElementIds": [],
-      "reviewConfidence": 0.85,
-      "reviewReason": "General reference imposing Article 28(3) obligations on Sub-processors.",
-      "exclusionReason": "role_budget:context"
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "processor_assistance"
+      ],
+      "reviewConfidence": 0.6,
+      "reviewReason": "Generic reference to imposing Art 28(3) obligations on sub-processors.",
+      "exclusionReason": "rejected:supporting:0.6"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_0757cc4533d6b52deb55b909",
-      "ref": "dsn_0757cc4533d6b52deb55b909",
+      "spanId": "dsn_9c8d8813fa2509129989676c",
+      "ref": "dsn_9c8d8813fa2509129989676c",
       "denseRank": 21,
       "lexicalRank": 17,
       "selectedBy": [
@@ -474,14 +475,14 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.99,
-      "reviewReason": "Relates to security measures demonstration, irrelevant.",
-      "exclusionReason": "rejected:irrelevant:0.99"
+      "reviewConfidence": 0.9,
+      "reviewReason": "Relates to providing information on security measures.",
+      "exclusionReason": "rejected:irrelevant:0.9"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_0757cc4533d6b52deb55b909",
-      "ref": "dsn_0757cc4533d6b52deb55b909",
+      "spanId": "dsn_9c8d8813fa2509129989676c",
+      "ref": "dsn_9c8d8813fa2509129989676c",
       "denseRank": 21,
       "lexicalRank": 17,
       "selectedBy": [
@@ -492,14 +493,14 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.99,
-      "reviewReason": "Relates to security measures demonstration, irrelevant.",
-      "exclusionReason": "rejected:irrelevant:0.99"
+      "reviewConfidence": 0.9,
+      "reviewReason": "Relates to providing information on security measures.",
+      "exclusionReason": "rejected:irrelevant:0.9"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_579a493f5909415fc39d46cf",
-      "ref": "dsn_579a493f5909415fc39d46cf",
+      "spanId": "dsn_2cdabb8927123a14dead1837",
+      "ref": "dsn_2cdabb8927123a14dead1837",
       "denseRank": 11,
       "lexicalRank": 7,
       "selectedBy": [
@@ -510,14 +511,14 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.95,
-      "reviewReason": "Relates to authorization by third party controller when Administrator is a processor.",
-      "exclusionReason": "rejected:irrelevant:0.95"
+      "reviewConfidence": 0.9,
+      "reviewReason": "Relates to authorization by third party controllers.",
+      "exclusionReason": "rejected:irrelevant:0.9"
     },
     {
       "queryId": "GNQ-5",
-      "spanId": "dsn_40e9ffa9844b0ebe2fec786d",
-      "ref": "dsn_40e9ffa9844b0ebe2fec786d",
+      "spanId": "dsn_9701259c4e62c9d6ddcf84ad",
+      "ref": "dsn_9701259c4e62c9d6ddcf84ad",
       "denseRank": 24,
       "lexicalRank": 21,
       "selectedBy": [
@@ -528,14 +529,14 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.95,
-      "reviewReason": "Relates to DPIA and prior consultation assistance (Articles 35-36), not data subject rights requests.",
-      "exclusionReason": "rejected:irrelevant:0.95"
+      "reviewConfidence": 0.85,
+      "reviewReason": "Relates to DPIA and prior consultation assistance under Art 35-36.",
+      "exclusionReason": "rejected:irrelevant:0.85"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_40e9ffa9844b0ebe2fec786d",
-      "ref": "dsn_40e9ffa9844b0ebe2fec786d",
+      "spanId": "dsn_9701259c4e62c9d6ddcf84ad",
+      "ref": "dsn_9701259c4e62c9d6ddcf84ad",
       "denseRank": 24,
       "lexicalRank": 21,
       "selectedBy": [
@@ -546,14 +547,14 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.95,
-      "reviewReason": "Relates to DPIA and prior consultation assistance (Articles 35-36), not data subject rights requests.",
-      "exclusionReason": "rejected:irrelevant:0.95"
+      "reviewConfidence": 0.85,
+      "reviewReason": "Relates to DPIA and prior consultation assistance under Art 35-36.",
+      "exclusionReason": "rejected:irrelevant:0.85"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_25fb103d7f3979b3db5b4e93",
-      "ref": "dsn_25fb103d7f3979b3db5b4e93",
+      "spanId": "dsn_4569c96664ba2b5d21d6a11b",
+      "ref": "dsn_4569c96664ba2b5d21d6a11b",
       "denseRank": 8,
       "lexicalRank": 10,
       "selectedBy": [
@@ -561,44 +562,38 @@
         "dense"
       ],
       "score": 0.15899159663865547,
-      "reviewDisposition": "semantic_rejection",
-      "evidenceRole": "irrelevant",
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.99,
-      "reviewReason": "Describes categories of data subjects, irrelevant.",
-      "exclusionReason": "rejected:irrelevant:0.99"
+      "reviewConfidence": 0.9,
+      "reviewReason": "Description of data subject categories.",
+      "exclusionReason": "role_budget:context"
     },
     {
       "queryId": "GNQ-6",
-      "spanId": "dsn_5a84e50579c29729517fce62",
-      "ref": "dsn_5a84e50579c29729517fce62",
+      "spanId": "dsn_f9774485a2b02de7b66a73f8",
+      "ref": "dsn_f9774485a2b02de7b66a73f8",
       "denseRank": null,
       "lexicalRank": null,
       "selectedBy": [],
       "score": 0,
-      "reviewDisposition": "accepted",
+      "reviewDisposition": "role_budget",
       "evidenceRole": "context",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "This is a section heading ('4. RIGHTS OF DATA SUBJECTS') which provides structural context for the surrounding clauses but contains no operative text establishing an obligation to assist."
+      "reviewReason": "Heading 'RIGHTS OF DATA SUBJECTS' without operative text.",
+      "exclusionReason": "role_budget:context"
     }
   ],
-  "expansions": [
-    {
-      "requirementId": "gdpr.art28.3.e",
-      "seedSpanId": "dsn_2f041fb516e953b52f7d4221",
-      "addedSpanId": "dsn_5a84e50579c29729517fce62",
-      "reason": "parent"
-    }
-  ],
+  "expansions": [],
   "expansionLimits": [],
   "bundle": {
-    "bundleId": "INV-gdpr.art28.3.e-doc_55b11721-46b1-4d95-a000-93e5f5986fcc",
+    "bundleId": "INV-gdpr.art28.3.e-doc_8e5683dc-3283-4204-978c-effeec6850f1",
     "requirementId": "gdpr.art28.3.e",
     "items": [
       {
-        "spanId": "dsn_af15119e9597b2ed0fef9752",
-        "ref": "dsn_af15119e9597b2ed0fef9752",
+        "spanId": "dsn_2d6ea87a036ebc56eb775d2f",
+        "ref": "dsn_2d6ea87a036ebc56eb775d2f",
         "quotedText": "4.1 If the Administrator, in its use or receipt of the Services, does not have the ability to correct, amend, block or delete Personal Data, as required by Data Protection Legislation, Alaio will (taking into account the nature of the processing of Personal Data and, if applicable, Article 11 of the GDPR) assist Administrator in fulfilling any obligation of Administrator to respond to requests by data subjects, including (if applicable) Administrator´s  obligation to respond to requests for exercising the data sub ject's rights laid down in Chapter III of the GDPR and other Data Protection Legislation, by providing the functionality of the Processor Services;",
         "structuralPath": "document.clause_4.subclause_4.1",
         "charRange": [
@@ -606,7 +601,7 @@
           13362
         ],
         "scope": {
-          "documentId": "doc_55b11721-46b1-4d95-a000-93e5f5986fcc",
+          "documentId": "doc_8e5683dc-3283-4204-978c-effeec6850f1",
           "structuralPath": "document.clause_4.subclause_4.1",
           "relationship": "unspecified"
         },
@@ -618,7 +613,7 @@
           "rights_request_scope"
         ],
         "investigationConfidence": 0.98,
-        "investigationReason": "Explicitly commits the processor to assist the Administrator in fulfilling obligations to respond to data subject rights under Chapter III GDPR by providing the functionality of the Processor Services (technical measures).",
+        "investigationReason": "Directly obligates processor to assist controller in fulfilling Chapter III rights requests by providing functionality of the Processor Services.",
         "retrievalChannels": [
           "exact",
           "sparse",
@@ -630,8 +625,8 @@
         ]
       },
       {
-        "spanId": "dsn_2f041fb516e953b52f7d4221",
-        "ref": "dsn_2f041fb516e953b52f7d4221",
+        "spanId": "dsn_20aa5cfbd3a7fbe806fc7e6d",
+        "ref": "dsn_20aa5cfbd3a7fbe806fc7e6d",
         "quotedText": "4.2 Alaio shall, to the extent legally permitted, promptly notify Administrator if it receives a request from a Data Subject for access to, correction, amendment, restriction, deletion or exercising any other rights under the GDPR or other Data Protection Legislation of that person's Personal Data. Alaio shall not respond to any such Data Subject request without Administrator´s  prior written consent except to confirm that the request relates to User. Alaio shall provide Administrator with cooperation and assistance in relation to handling of a Data Sub ject's request for access to that person's Personal Data or exercising any other rights under the GDPR or other Data Protection Legislation, to the extent legally permitted and to the extent User does not have access to such Personal Data through its use or receipt of the Services.",
         "structuralPath": "document.clause_4.subclause_4.2",
         "charRange": [
@@ -639,7 +634,7 @@
           14205
         ],
         "scope": {
-          "documentId": "doc_55b11721-46b1-4d95-a000-93e5f5986fcc",
+          "documentId": "doc_8e5683dc-3283-4204-978c-effeec6850f1",
           "structuralPath": "document.clause_4.subclause_4.2",
           "relationship": "unspecified"
         },
@@ -650,7 +645,7 @@
           "rights_request_scope"
         ],
         "investigationConfidence": 0.95,
-        "investigationReason": "Obligates Alaio to provide Administrator with cooperation and assistance in relation to handling of a Data Subject's request for access or exercising any other rights under GDPR.",
+        "investigationReason": "Directly commits to providing cooperation and assistance in handling Data Subject requests across Chapter III / GDPR rights.",
         "retrievalChannels": [
           "exact",
           "sparse",
@@ -663,27 +658,30 @@
         ]
       },
       {
-        "spanId": "dsn_5a84e50579c29729517fce62",
-        "ref": "dsn_5a84e50579c29729517fce62",
-        "quotedText": "4. RIGHTS OF DATA SUBJECTS",
-        "structuralPath": "document.clause_4",
+        "spanId": "dsn_809d3b3f8ef181cbc4a084a5",
+        "ref": "dsn_809d3b3f8ef181cbc4a084a5",
+        "quotedText": "1.1 Processor and Controller Responsibilities. The parties acknowledge and agree that:",
+        "structuralPath": "document.clause_2.item_1",
         "charRange": [
-          12668,
-          12694
+          8425,
+          8511
         ],
         "scope": {
-          "documentId": "doc_55b11721-46b1-4d95-a000-93e5f5986fcc",
-          "structuralPath": "document.clause_4",
+          "documentId": "doc_8e5683dc-3283-4204-978c-effeec6850f1",
+          "structuralPath": "document.clause_2.item_1",
           "relationship": "unspecified"
         },
         "source": "expansion",
         "evidenceRole": "context",
         "contributesToElementIds": [],
         "investigationConfidence": 0.95,
-        "investigationReason": "This is a section heading ('4. RIGHTS OF DATA SUBJECTS') which provides structural context for the surrounding clauses but contains no operative text establishing an obligation to assist.",
-        "retrievalChannels": [],
+        "investigationReason": "Introductory clause heading text.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
         "matchedQueries": [
-          "structural:parent_context"
+          "The processor assists the controller in responding to data-subject rights requests."
         ]
       }
     ],
@@ -691,105 +689,105 @@
       {
         "partitionId": "P1",
         "scope": {
-          "documentId": "doc_55b11721-46b1-4d95-a000-93e5f5986fcc"
+          "documentId": "doc_8e5683dc-3283-4204-978c-effeec6850f1"
         },
         "itemSpanIds": [
-          "dsn_af15119e9597b2ed0fef9752",
-          "dsn_2f041fb516e953b52f7d4221",
-          "dsn_5a84e50579c29729517fce62"
+          "dsn_2d6ea87a036ebc56eb775d2f",
+          "dsn_20aa5cfbd3a7fbe806fc7e6d",
+          "dsn_809d3b3f8ef181cbc4a084a5"
         ]
       }
     ],
     "exclusions": [
       {
-        "spanId": "dsn_cc57125bb8c8d29ecc1a9657",
+        "spanId": "dsn_b94ce0b39249fc366fb836bb",
         "reason": "semantic_rejection",
-        "detail": "rejected:irrelevant:0.95"
+        "detail": "rejected:irrelevant:0.85"
       },
       {
-        "spanId": "dsn_57672fc525787aa00ef5780e",
+        "spanId": "dsn_00b50d8f60e14c00705d7d58",
         "reason": "semantic_rejection",
-        "detail": "rejected:irrelevant:0.99"
+        "detail": "rejected:irrelevant:0.9"
       },
       {
-        "spanId": "dsn_b45daddbd96acba02a8fda8e",
+        "spanId": "dsn_6eb0c5b1c7919ff79862099d",
         "reason": "semantic_rejection",
-        "detail": "rejected:irrelevant:0.99"
+        "detail": "rejected:irrelevant:0.85"
       },
       {
-        "spanId": "dsn_fb505af97d02c3a04db447f3",
+        "spanId": "dsn_fe5291834e1e180ecabf77e1",
         "reason": "semantic_rejection",
-        "detail": "rejected:irrelevant:0.99"
+        "detail": "rejected:irrelevant:0.9"
       },
       {
-        "spanId": "dsn_2125074ad1bb07e3c1757cb8",
+        "spanId": "dsn_92947deb524bde0b0cda73c9",
         "reason": "semantic_rejection",
-        "detail": "rejected:irrelevant:0.99"
+        "detail": "rejected:irrelevant:0.85"
       },
       {
-        "spanId": "dsn_08755c898e2620e094e953bd",
+        "spanId": "dsn_c67a2f2416fe9ee2f880fb22",
         "reason": "semantic_rejection",
-        "detail": "rejected:irrelevant:0.99"
+        "detail": "rejected:supporting:0.6"
       },
       {
-        "spanId": "dsn_304a836d60b2df766110cc25",
+        "spanId": "dsn_9c8d8813fa2509129989676c",
         "reason": "semantic_rejection",
-        "detail": "rejected:irrelevant:0.95"
+        "detail": "rejected:irrelevant:0.9"
       },
       {
-        "spanId": "dsn_0757cc4533d6b52deb55b909",
+        "spanId": "dsn_2cdabb8927123a14dead1837",
         "reason": "semantic_rejection",
-        "detail": "rejected:irrelevant:0.99"
+        "detail": "rejected:irrelevant:0.9"
       },
       {
-        "spanId": "dsn_579a493f5909415fc39d46cf",
+        "spanId": "dsn_9701259c4e62c9d6ddcf84ad",
         "reason": "semantic_rejection",
-        "detail": "rejected:irrelevant:0.95"
+        "detail": "rejected:irrelevant:0.85"
       },
       {
-        "spanId": "dsn_40e9ffa9844b0ebe2fec786d",
-        "reason": "semantic_rejection",
-        "detail": "rejected:irrelevant:0.95"
-      },
-      {
-        "spanId": "dsn_25fb103d7f3979b3db5b4e93",
-        "reason": "semantic_rejection",
-        "detail": "rejected:irrelevant:0.99"
-      },
-      {
-        "spanId": "dsn_9d2224b3e6111257bdc48f72",
+        "spanId": "dsn_5bcfc751e34bd5a9c2da92d9",
         "reason": "role_budget",
         "detail": "role_budget:context"
       },
       {
-        "spanId": "dsn_e589d0475938e81ecfe9ad0d",
+        "spanId": "dsn_f9774485a2b02de7b66a73f8",
         "reason": "role_budget",
         "detail": "role_budget:context"
       },
       {
-        "spanId": "dsn_fd3e2ac6f393832872b1aa5c",
+        "spanId": "dsn_c00005f87258a72325967085",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_2353043b9ca3ed751896f241",
+        "reason": "role_budget",
+        "detail": "role_budget:context"
+      },
+      {
+        "spanId": "dsn_4569c96664ba2b5d21d6a11b",
         "reason": "role_budget",
         "detail": "role_budget:context"
       }
     ],
     "dependencies": [
       {
-        "reference": "dsn_af15119e9597b2ed0fef9752:requires",
+        "reference": "dsn_2d6ea87a036ebc56eb775d2f:requires",
         "state": "ambiguous",
         "targetSpanIds": []
       },
       {
-        "reference": "dsn_af15119e9597b2ed0fef9752:requires",
+        "reference": "dsn_2d6ea87a036ebc56eb775d2f:requires",
         "state": "unresolved_external",
         "targetSpanIds": []
       },
       {
-        "reference": "dsn_2f041fb516e953b52f7d4221:external_reference",
+        "reference": "dsn_20aa5cfbd3a7fbe806fc7e6d:external_reference",
         "state": "unresolved_external",
         "targetSpanIds": []
       }
     ],
-    "estimatedTokens": 384,
+    "estimatedTokens": 399,
     "investigationComplete": true,
     "incompleteReasons": []
   },

@@ -1,7 +1,7 @@
 {
-  "sessionId": "an_75767683-12ab-4d40-9de5-db3bdf321e14",
+  "sessionId": "an_3195d3a1-1f7b-42a0-b43c-7a6433dda0cb",
   "stage": "investigation_complete",
-  "dumpedAt": "2026-09-13T19:06:20.027Z",
+  "dumpedAt": "2026-09-14T04:32:28.729Z",
   "requirementId": "gdpr.art28.3.b",
   "packageId": "rule:regimes/data-protection/gdpr",
   "recall": {
@@ -16,8 +16,8 @@
       "primary"
     ],
     "proofElementsUnresolved": [],
-    "acceptedCandidateCount": 6,
-    "semanticRejectedCandidateCount": 20,
+    "acceptedCandidateCount": 7,
+    "semanticRejectedCandidateCount": 19,
     "budgetOmittedCandidateCount": 2,
     "unclassifiedCandidateCount": 0
   },
@@ -44,8 +44,8 @@
   "hits": [
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_8d97532a308944ce679df961",
-      "ref": "dsn_8d97532a308944ce679df961",
+      "spanId": "dsn_c67a2f2416fe9ee2f880fb22",
+      "ref": "dsn_c67a2f2416fe9ee2f880fb22",
       "denseRank": 17,
       "lexicalRank": 17,
       "selectedBy": [
@@ -53,17 +53,18 @@
         "dense"
       ],
       "score": 0.17597402597402598,
-      "reviewDisposition": "role_budget",
-      "evidenceRole": "context",
-      "contributesToElementIds": [],
-      "reviewConfidence": 0.8,
-      "reviewReason": "General reference to Article 28(3) obligations for subprocessors without specific wording on personnel confidentiality.",
-      "exclusionReason": "role_budget:context"
+      "reviewDisposition": "accepted",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "primary"
+      ],
+      "reviewConfidence": 0.65,
+      "reviewReason": "References imposing Article 28(3) obligations on Sub-processors, which implicitly includes confidentiality commitments, but does not directly articulate the personnel obligation."
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_b979be97f6a967c6a7e9b1e6",
-      "ref": "dsn_b979be97f6a967c6a7e9b1e6",
+      "spanId": "dsn_ffc884d0f6f5e551af98bd0c",
+      "ref": "dsn_ffc884d0f6f5e551af98bd0c",
       "denseRank": 2,
       "lexicalRank": 2,
       "selectedBy": [
@@ -77,12 +78,12 @@
         "primary"
       ],
       "reviewConfidence": 0.98,
-      "reviewReason": "Directly imposes confidentiality obligations on Alaio personnel engaged in the processing of personal data, meeting the strict standard for Art 28(3)(b)."
+      "reviewReason": "Directly proves that personnel engaged in processing personal data are subject to confidentiality obligations."
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_0d27794115168eac76531131",
-      "ref": "dsn_0d27794115168eac76531131",
+      "spanId": "dsn_8ea5d9a09546d40d9ca5a985",
+      "ref": "dsn_8ea5d9a09546d40d9ca5a985",
       "denseRank": 23,
       "lexicalRank": 15,
       "selectedBy": [
@@ -98,8 +99,8 @@
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_d2f6b4e33fbc69602bf89474",
-      "ref": "dsn_d2f6b4e33fbc69602bf89474",
+      "spanId": "dsn_886e6e7b2bd403227780d6d0",
+      "ref": "dsn_886e6e7b2bd403227780d6d0",
       "denseRank": 5,
       "lexicalRank": 10,
       "selectedBy": [
@@ -111,13 +112,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.9,
-      "reviewReason": "Relates to technical email marking standards rather than binding persons to confidentiality.",
+      "reviewReason": "Relates to technical email labelling instructions, not personnel confidentiality commitments.",
       "exclusionReason": "rejected:irrelevant:0.9"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_d2f6b4e33fbc69602bf89474",
-      "ref": "dsn_d2f6b4e33fbc69602bf89474",
+      "spanId": "dsn_886e6e7b2bd403227780d6d0",
+      "ref": "dsn_886e6e7b2bd403227780d6d0",
       "denseRank": 5,
       "lexicalRank": 10,
       "selectedBy": [
@@ -129,13 +130,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.9,
-      "reviewReason": "Relates to technical email marking standards rather than binding persons to confidentiality.",
+      "reviewReason": "Relates to technical email labelling instructions, not personnel confidentiality commitments.",
       "exclusionReason": "rejected:irrelevant:0.9"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_edb177fccea379a5b7b04e35",
-      "ref": "dsn_edb177fccea379a5b7b04e35",
+      "spanId": "dsn_521793e4912a92f7227601cd",
+      "ref": "dsn_521793e4912a92f7227601cd",
       "denseRank": 21,
       "lexicalRank": 5,
       "selectedBy": [
@@ -148,13 +149,13 @@
       "contributesToElementIds": [
         "primary"
       ],
-      "reviewConfidence": 0.75,
-      "reviewReason": "Requires employees to comply with IT policies, supporting internal governance surrounding data handling."
+      "reviewConfidence": 0.7,
+      "reviewReason": "Requires employees and third parties to comply with IT policies, supporting operational compliance."
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_b0fe78cf689bef5b90d08d7d",
-      "ref": "dsn_b0fe78cf689bef5b90d08d7d",
+      "spanId": "dsn_2ffe70b182fda7467ebd5180",
+      "ref": "dsn_2ffe70b182fda7467ebd5180",
       "denseRank": 13,
       "lexicalRank": 14,
       "selectedBy": [
@@ -166,13 +167,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.9,
-      "reviewReason": "Relates to physical transfer packaging standards.",
+      "reviewReason": "Relates to physical transport container labelling.",
       "exclusionReason": "rejected:irrelevant:0.9"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_b0fe78cf689bef5b90d08d7d",
-      "ref": "dsn_b0fe78cf689bef5b90d08d7d",
+      "spanId": "dsn_2ffe70b182fda7467ebd5180",
+      "ref": "dsn_2ffe70b182fda7467ebd5180",
       "denseRank": 13,
       "lexicalRank": 14,
       "selectedBy": [
@@ -184,13 +185,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.9,
-      "reviewReason": "Relates to physical transfer packaging standards.",
+      "reviewReason": "Relates to physical transport container labelling.",
       "exclusionReason": "rejected:irrelevant:0.9"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_3555aa936787f1962296bca4",
-      "ref": "dsn_3555aa936787f1962296bca4",
+      "spanId": "dsn_73d11f6530f69bfb5a247315",
+      "ref": "dsn_73d11f6530f69bfb5a247315",
       "denseRank": 10,
       "lexicalRank": 24,
       "selectedBy": [
@@ -202,13 +203,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.9,
-      "reviewReason": "Relates to network transmission security rules.",
+      "reviewReason": "Relates to technical network transmission security.",
       "exclusionReason": "rejected:irrelevant:0.9"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_3555aa936787f1962296bca4",
-      "ref": "dsn_3555aa936787f1962296bca4",
+      "spanId": "dsn_73d11f6530f69bfb5a247315",
+      "ref": "dsn_73d11f6530f69bfb5a247315",
       "denseRank": 10,
       "lexicalRank": 24,
       "selectedBy": [
@@ -220,13 +221,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.9,
-      "reviewReason": "Relates to network transmission security rules.",
+      "reviewReason": "Relates to technical network transmission security.",
       "exclusionReason": "rejected:irrelevant:0.9"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_e3275bbd3e094ccea6794ed7",
-      "ref": "dsn_e3275bbd3e094ccea6794ed7",
+      "spanId": "dsn_e804367749f940e5870c4d84",
+      "ref": "dsn_e804367749f940e5870c4d84",
       "denseRank": 12,
       "lexicalRank": 22,
       "selectedBy": [
@@ -238,13 +239,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.9,
-      "reviewReason": "Relates to TLS/SSL email encryption rules.",
+      "reviewReason": "Relates to email TLS/SSL encryption specifications.",
       "exclusionReason": "rejected:irrelevant:0.9"
     },
     {
       "queryId": "GNQ-2",
-      "spanId": "dsn_0330736f67086acf7f11e35b",
-      "ref": "dsn_0330736f67086acf7f11e35b",
+      "spanId": "dsn_5e36966c21d3504135872a1b",
+      "ref": "dsn_5e36966c21d3504135872a1b",
       "denseRank": 25,
       "lexicalRank": 25,
       "selectedBy": [
@@ -257,13 +258,13 @@
       "contributesToElementIds": [
         "primary"
       ],
-      "reviewConfidence": 0.7,
-      "reviewReason": "Imposes operational screen-locking requirements on employees viewing confidential data."
+      "reviewConfidence": 0.75,
+      "reviewReason": "Imposes an employee security practice regarding screen locking when unattended."
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_0330736f67086acf7f11e35b",
-      "ref": "dsn_0330736f67086acf7f11e35b",
+      "spanId": "dsn_5e36966c21d3504135872a1b",
+      "ref": "dsn_5e36966c21d3504135872a1b",
       "denseRank": 25,
       "lexicalRank": 25,
       "selectedBy": [
@@ -276,13 +277,13 @@
       "contributesToElementIds": [
         "primary"
       ],
-      "reviewConfidence": 0.7,
-      "reviewReason": "Imposes operational screen-locking requirements on employees viewing confidential data."
+      "reviewConfidence": 0.75,
+      "reviewReason": "Imposes an employee security practice regarding screen locking when unattended."
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_d110a9e2a460c527c94868fc",
-      "ref": "dsn_d110a9e2a460c527c94868fc",
+      "spanId": "dsn_9e185b210059eb27b5b556b3",
+      "ref": "dsn_9e185b210059eb27b5b556b3",
       "denseRank": 7,
       "lexicalRank": null,
       "selectedBy": [
@@ -292,48 +293,47 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.9,
-      "reviewReason": "Relates to subprocessor scope of access.",
-      "exclusionReason": "rejected:irrelevant:0.9"
+      "reviewConfidence": 0.85,
+      "reviewReason": "Restricts Sub-processor access scope under subcontracting terms.",
+      "exclusionReason": "rejected:irrelevant:0.85"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_7dcd8333fa542ffbd2e5bc8b",
-      "ref": "dsn_7dcd8333fa542ffbd2e5bc8b",
+      "spanId": "dsn_c1063908ddefcf1126687600",
+      "ref": "dsn_c1063908ddefcf1126687600",
       "denseRank": 1,
       "lexicalRank": null,
       "selectedBy": [
         "dense"
       ],
       "score": 0.08639344262295083,
-      "reviewDisposition": "semantic_rejection",
-      "evidenceRole": "irrelevant",
+      "reviewDisposition": "accepted",
+      "evidenceRole": "context",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Section heading text with no operative substance.",
-      "exclusionReason": "rejected:irrelevant:0.95"
+      "reviewReason": "Section heading for roles and regulatory compliance."
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_e913a7275158c113ddece6f9",
-      "ref": "dsn_e913a7275158c113ddece6f9",
+      "spanId": "dsn_809d3b3f8ef181cbc4a084a5",
+      "ref": "dsn_809d3b3f8ef181cbc4a084a5",
       "denseRank": 3,
       "lexicalRank": null,
       "selectedBy": [
         "dense"
       ],
       "score": 0.08587301587301588,
-      "reviewDisposition": "semantic_rejection",
-      "evidenceRole": "irrelevant",
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Introductory clause heading text.",
-      "exclusionReason": "rejected:irrelevant:0.95"
+      "reviewReason": "Introductory clause text for roles and responsibilities.",
+      "exclusionReason": "role_budget:context"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_9e8327daa10029983df8bb36",
-      "ref": "dsn_9e8327daa10029983df8bb36",
+      "spanId": "dsn_320c6227d02334770d4c38a0",
+      "ref": "dsn_320c6227d02334770d4c38a0",
       "denseRank": 6,
       "lexicalRank": null,
       "selectedBy": [
@@ -341,50 +341,53 @@
       ],
       "score": 0.08515151515151516,
       "reviewDisposition": "semantic_rejection",
-      "evidenceRole": "irrelevant",
-      "contributesToElementIds": [],
-      "reviewConfidence": 0.85,
-      "reviewReason": "General law compliance statement.",
-      "exclusionReason": "rejected:irrelevant:0.85"
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "primary"
+      ],
+      "reviewConfidence": 0.6,
+      "reviewReason": "General requirement to comply with Data Protection Legislation.",
+      "exclusionReason": "rejected:supporting:0.6"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_3b8e226256eb52c075589879",
-      "ref": "dsn_3b8e226256eb52c075589879",
+      "spanId": "dsn_5bcfc751e34bd5a9c2da92d9",
+      "ref": "dsn_5bcfc751e34bd5a9c2da92d9",
       "denseRank": 11,
       "lexicalRank": null,
       "selectedBy": [
         "dense"
       ],
       "score": 0.08408450704225352,
-      "reviewDisposition": "semantic_rejection",
-      "evidenceRole": "irrelevant",
+      "reviewDisposition": "role_budget",
+      "evidenceRole": "context",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.85,
-      "reviewReason": "Statement identifying controller/processor status.",
-      "exclusionReason": "rejected:irrelevant:0.85"
+      "reviewConfidence": 0.95,
+      "reviewReason": "Statement of role status (controller/processor).",
+      "exclusionReason": "role_budget:context"
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_87bd8fe306c44309b1136ca3",
-      "ref": "dsn_87bd8fe306c44309b1136ca3",
+      "spanId": "dsn_6eec40b4b66be701c7fd5149",
+      "ref": "dsn_6eec40b4b66be701c7fd5149",
       "denseRank": 4,
       "lexicalRank": null,
       "selectedBy": [
         "dense"
       ],
       "score": 0.075625,
-      "reviewDisposition": "role_budget",
-      "evidenceRole": "context",
-      "contributesToElementIds": [],
+      "reviewDisposition": "accepted",
+      "evidenceRole": "supporting",
+      "contributesToElementIds": [
+        "primary"
+      ],
       "reviewConfidence": 0.8,
-      "reviewReason": "Addresses access limitation (need-to-know basis) rather than personnel confidentiality commitments.",
-      "exclusionReason": "role_budget:context"
+      "reviewReason": "Limits access to personal data to personnel who require it, supporting authorization control."
     },
     {
       "queryId": "GNQ-1",
-      "spanId": "dsn_d1ec10558c5880f7cd37da69",
-      "ref": "dsn_d1ec10558c5880f7cd37da69",
+      "spanId": "dsn_a90ae72bea48ce174a5e812d",
+      "ref": "dsn_a90ae72bea48ce174a5e812d",
       "denseRank": null,
       "lexicalRank": 12,
       "selectedBy": [
@@ -394,14 +397,14 @@
       "reviewDisposition": "semantic_rejection",
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.85,
-      "reviewReason": "General processing instructions clause.",
-      "exclusionReason": "rejected:irrelevant:0.85"
+      "reviewConfidence": 0.9,
+      "reviewReason": "Pertains to controller instructions for processing personal data.",
+      "exclusionReason": "rejected:irrelevant:0.9"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_9bdf14e33e2e4dc5751adc15",
-      "ref": "dsn_9bdf14e33e2e4dc5751adc15",
+      "spanId": "dsn_19191acfb805e9c1bd0c3a19",
+      "ref": "dsn_19191acfb805e9c1bd0c3a19",
       "denseRank": null,
       "lexicalRank": null,
       "selectedBy": [],
@@ -410,13 +413,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Text deals with file transfers and virus scanning procedures, not confidentiality commitments of authorised persons.",
+      "reviewReason": "Relates to internal IT file transfer procedures and virus scanning, not confidentiality obligations of authorized personnel.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_285d277c504237d533a4a354",
-      "ref": "dsn_285d277c504237d533a4a354",
+      "spanId": "dsn_2cea2d743a6036f12efd5dd3",
+      "ref": "dsn_2cea2d743a6036f12efd5dd3",
       "denseRank": null,
       "lexicalRank": null,
       "selectedBy": [],
@@ -425,13 +428,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Text relates to virus scanning outbound files and does not address confidentiality obligations of individuals.",
+      "reviewReason": "Relates to virus scanning for outgoing third-party files, not confidentiality commitments of persons authorized to process personal data.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_6df6a014e4736f950ffd0dc6",
-      "ref": "dsn_6df6a014e4736f950ffd0dc6",
+      "spanId": "dsn_8a5fb40da4f16f94e19a6026",
+      "ref": "dsn_8a5fb40da4f16f94e19a6026",
       "denseRank": null,
       "lexicalRank": null,
       "selectedBy": [],
@@ -440,13 +443,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Describes physical security access control (smart card locked rooms), not confidentiality commitments.",
+      "reviewReason": "Relates to physical access controls (locked rooms and smart cards), which is a technical/physical security measure rather than a confidentiality duty.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_d05a21b7d724d4c1b10cdaf6",
-      "ref": "dsn_d05a21b7d724d4c1b10cdaf6",
+      "spanId": "dsn_ff683645c6fec8cd9e30c448",
+      "ref": "dsn_ff683645c6fec8cd9e30c448",
       "denseRank": null,
       "lexicalRank": null,
       "selectedBy": [],
@@ -455,13 +458,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Describes AWS Business Continuity Plan, not confidentiality duties of authorised personal data processors.",
+      "reviewReason": "Relates to business continuity planning and environmental disruptions, irrelevant to confidentiality commitments.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_905dec78970072e3a5d38516",
-      "ref": "dsn_905dec78970072e3a5d38516",
+      "spanId": "dsn_a62842ff1bc9478085f0a3b5",
+      "ref": "dsn_a62842ff1bc9478085f0a3b5",
       "denseRank": null,
       "lexicalRank": null,
       "selectedBy": [],
@@ -470,13 +473,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Concerns equipment maintenance procedures, unrelated to personal data confidentiality obligations.",
+      "reviewReason": "Relates to equipment maintenance procedures by qualified persons, not confidentiality undertakings.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_ac48d9e8b9683ed07b662ff0",
-      "ref": "dsn_ac48d9e8b9683ed07b662ff0",
+      "spanId": "dsn_05d75029c579a0f633ff32b4",
+      "ref": "dsn_05d75029c579a0f633ff32b4",
       "denseRank": null,
       "lexicalRank": null,
       "selectedBy": [],
@@ -485,13 +488,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Describes data center risk management, which does not address confidentiality obligations of personnel.",
+      "reviewReason": "Relates to data center risk management and vulnerability assessments.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_bb6ffe9cf08f780424046d12",
-      "ref": "dsn_bb6ffe9cf08f780424046d12",
+      "spanId": "dsn_12cf7959e8a53336e1444ad8",
+      "ref": "dsn_12cf7959e8a53336e1444ad8",
       "denseRank": null,
       "lexicalRank": null,
       "selectedBy": [],
@@ -500,27 +503,28 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Relates to data transmission and network firewall security, not staff confidentiality duties.",
+      "reviewReason": "Relates to technical network security and firewall protection during data transmission.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_4410036cd22c9199b2746e05",
-      "ref": "dsn_4410036cd22c9199b2746e05",
+      "spanId": "dsn_958d0335a2f665ad63b20a9a",
+      "ref": "dsn_958d0335a2f665ad63b20a9a",
       "denseRank": null,
       "lexicalRank": null,
       "selectedBy": [],
       "score": 0,
-      "reviewDisposition": "accepted",
-      "evidenceRole": "context",
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.9,
-      "reviewReason": "Addresses contractual confidentiality terms for sub-processors, not confidentiality commitments binding authorised natural persons processing personal data under the processor."
+      "reviewReason": "Relates to sub-processor vetting and requiring sub-processors to enter into contract terms, rather than imposing a confidentiality obligation on persons authorized by the processor.",
+      "exclusionReason": "rejected:irrelevant:0.9"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_8a1ea962ef120d21fbb3cdaf",
-      "ref": "dsn_8a1ea962ef120d21fbb3cdaf",
+      "spanId": "dsn_71f1ea7b00c15106883e7d0d",
+      "ref": "dsn_71f1ea7b00c15106883e7d0d",
       "denseRank": null,
       "lexicalRank": null,
       "selectedBy": [],
@@ -529,13 +533,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "General commitment to maintain security measures, not a confidentiality commitment for authorised persons.",
+      "reviewReason": "Relates to general obligation to implement security measures in Appendix 2.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_90c097ee358680572e1bbbd3",
-      "ref": "dsn_90c097ee358680572e1bbbd3",
+      "spanId": "dsn_d575b79d2e02862594fc90e8",
+      "ref": "dsn_d575b79d2e02862594fc90e8",
       "denseRank": null,
       "lexicalRank": null,
       "selectedBy": [],
@@ -544,13 +548,13 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "Concerns access protection of IT systems, not confidentiality duties of staff.",
+      "reviewReason": "Relates to technical protection of IT systems against unauthorized access.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_2cf7582b8044f38df233d14e",
-      "ref": "dsn_2cf7582b8044f38df233d14e",
+      "spanId": "dsn_7bb315717e7b4cdcb62c114e",
+      "ref": "dsn_7bb315717e7b4cdcb62c114e",
       "denseRank": null,
       "lexicalRank": null,
       "selectedBy": [],
@@ -559,46 +563,34 @@
       "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
       "reviewConfidence": 0.95,
-      "reviewReason": "General requirement to comply with company policies regarding IT systems usage.",
+      "reviewReason": "Relates to IT system use compliance with company policies.",
       "exclusionReason": "rejected:irrelevant:0.95"
     },
     {
       "queryId": "GNQ-3",
-      "spanId": "dsn_a6609638807487598a4034ee",
-      "ref": "dsn_a6609638807487598a4034ee",
+      "spanId": "dsn_7d1df22cb834026d08439793",
+      "ref": "dsn_7d1df22cb834026d08439793",
       "denseRank": null,
       "lexicalRank": null,
       "selectedBy": [],
       "score": 0,
-      "reviewDisposition": "accepted",
-      "evidenceRole": "supporting",
+      "reviewDisposition": "semantic_rejection",
+      "evidenceRole": "irrelevant",
       "contributesToElementIds": [],
-      "reviewConfidence": 0.75,
-      "reviewReason": "Requires employees to adhere to company policies, but does not explicitly mention a contractual or statutory confidentiality commitment as required by the proof standard."
+      "reviewConfidence": 0.9,
+      "reviewReason": "Relates to managerial oversight of policy compliance, but does not explicitly create a contractual or statutory confidentiality commitment binding authorised persons.",
+      "exclusionReason": "rejected:irrelevant:0.9"
     }
   ],
-  "expansions": [
-    {
-      "requirementId": "gdpr.art28.3.b",
-      "seedSpanId": "dsn_b979be97f6a967c6a7e9b1e6",
-      "addedSpanId": "dsn_4410036cd22c9199b2746e05",
-      "reason": "internal_reference"
-    },
-    {
-      "requirementId": "gdpr.art28.3.b",
-      "seedSpanId": "dsn_b979be97f6a967c6a7e9b1e6",
-      "addedSpanId": "dsn_a6609638807487598a4034ee",
-      "reason": "internal_reference"
-    }
-  ],
+  "expansions": [],
   "expansionLimits": [],
   "bundle": {
-    "bundleId": "INV-gdpr.art28.3.b-doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+    "bundleId": "INV-gdpr.art28.3.b-doc_8e5683dc-3283-4204-978c-effeec6850f1",
     "requirementId": "gdpr.art28.3.b",
     "items": [
       {
-        "spanId": "dsn_b979be97f6a967c6a7e9b1e6",
-        "ref": "dsn_b979be97f6a967c6a7e9b1e6",
+        "spanId": "dsn_ffc884d0f6f5e551af98bd0c",
+        "ref": "dsn_ffc884d0f6f5e551af98bd0c",
         "quotedText": "1 Alaio shall ensure that its personnel engaged in the Processing of Personal Data are informed of the confidential nature of the Personal Data, have received appropriate training on their responsibilities and are subject to obligations of confidentiality as described in the Appendix 2 to this DPA and such obligations survive the termination of that persons' engagement with Alaio.",
         "structuralPath": "document.clause_5.list_item_56",
         "charRange": [
@@ -606,7 +598,7 @@
           14602
         ],
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "documentId": "doc_8e5683dc-3283-4204-978c-effeec6850f1",
           "structuralPath": "document.clause_5.list_item_56",
           "relationship": "unspecified"
         },
@@ -616,7 +608,7 @@
           "primary"
         ],
         "investigationConfidence": 0.98,
-        "investigationReason": "Directly imposes confidentiality obligations on Alaio personnel engaged in the processing of personal data, meeting the strict standard for Art 28(3)(b).",
+        "investigationReason": "Directly proves that personnel engaged in processing personal data are subject to confidentiality obligations.",
         "retrievalChannels": [
           "sparse",
           "dense"
@@ -626,17 +618,17 @@
         ]
       },
       {
-        "spanId": "dsn_edb177fccea379a5b7b04e35",
-        "ref": "dsn_edb177fccea379a5b7b04e35",
-        "quotedText": "3 All  Alaio  employees  and any third  parties authorised  to use  the IT  Systems including, but not limited to sub-processors, must ensure that they are familiar with this Policies and must adhere to and comply with it at all times.",
-        "structuralPath": "document.appendix_1.appendix_2.clause_1.list_item_150",
+        "spanId": "dsn_6eec40b4b66be701c7fd5149",
+        "ref": "dsn_6eec40b4b66be701c7fd5149",
+        "quotedText": "2 Alaio shall ensure that Alaio Group's access to Personal Data is limited to those personnel who require such access to perform the Agreement.",
+        "structuralPath": "document.clause_5.list_item_57",
         "charRange": [
-          33020,
-          33255
+          14603,
+          14746
         ],
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
-          "structuralPath": "document.appendix_1.appendix_2.clause_1.list_item_150",
+          "documentId": "doc_8e5683dc-3283-4204-978c-effeec6850f1",
+          "structuralPath": "document.clause_5.list_item_57",
           "relationship": "unspecified"
         },
         "source": "seed",
@@ -644,10 +636,9 @@
         "contributesToElementIds": [
           "primary"
         ],
-        "investigationConfidence": 0.75,
-        "investigationReason": "Requires employees to comply with IT policies, supporting internal governance surrounding data handling.",
+        "investigationConfidence": 0.8,
+        "investigationReason": "Limits access to personal data to personnel who require it, supporting authorization control.",
         "retrievalChannels": [
-          "sparse",
           "dense"
         ],
         "matchedQueries": [
@@ -655,32 +646,8 @@
         ]
       },
       {
-        "spanId": "dsn_a6609638807487598a4034ee",
-        "ref": "dsn_a6609638807487598a4034ee",
-        "quotedText": "4 All line managers ensure that all employees and sub-processors under their control and direction adhere to and comply with this Policies at all times as required under paragraph 2.3.",
-        "structuralPath": "document.appendix_1.appendix_2.clause_1.list_item_151",
-        "charRange": [
-          33256,
-          33440
-        ],
-        "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
-          "structuralPath": "document.appendix_1.appendix_2.clause_1.list_item_151",
-          "relationship": "unspecified"
-        },
-        "source": "seed",
-        "evidenceRole": "supporting",
-        "contributesToElementIds": [],
-        "investigationConfidence": 0.75,
-        "investigationReason": "Requires employees to adhere to company policies, but does not explicitly mention a contractual or statutory confidentiality commitment as required by the proof standard.",
-        "retrievalChannels": [],
-        "matchedQueries": [
-          "relation:subject_to"
-        ]
-      },
-      {
-        "spanId": "dsn_0330736f67086acf7f11e35b",
-        "ref": "dsn_0330736f67086acf7f11e35b",
+        "spanId": "dsn_5e36966c21d3504135872a1b",
+        "ref": "dsn_5e36966c21d3504135872a1b",
         "quotedText": "e) Where any confidential or sensitive personal data is being viewed on a computer screen and the computer in question is to be left unattended for any period of time, the employee must lock the computer and screen before leaving it.",
         "structuralPath": "document.appendix_1.appendix_2.clause_7.subclause_7.2.list_item_194",
         "charRange": [
@@ -688,7 +655,7 @@
           40034
         ],
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "documentId": "doc_8e5683dc-3283-4204-978c-effeec6850f1",
           "structuralPath": "document.appendix_1.appendix_2.clause_7.subclause_7.2.list_item_194",
           "relationship": "unspecified"
         },
@@ -697,8 +664,8 @@
         "contributesToElementIds": [
           "primary"
         ],
-        "investigationConfidence": 0.7,
-        "investigationReason": "Imposes operational screen-locking requirements on employees viewing confidential data.",
+        "investigationConfidence": 0.75,
+        "investigationReason": "Imposes an employee security practice regarding screen locking when unattended.",
         "retrievalChannels": [
           "sparse",
           "dense"
@@ -709,8 +676,66 @@
         ]
       },
       {
-        "spanId": "dsn_0d27794115168eac76531131",
-        "ref": "dsn_0d27794115168eac76531131",
+        "spanId": "dsn_521793e4912a92f7227601cd",
+        "ref": "dsn_521793e4912a92f7227601cd",
+        "quotedText": "3 All  Alaio  employees  and any third  parties authorised  to use  the IT  Systems including, but not limited to sub-processors, must ensure that they are familiar with this Policies and must adhere to and comply with it at all times.",
+        "structuralPath": "document.appendix_1.appendix_2.clause_1.list_item_150",
+        "charRange": [
+          33020,
+          33255
+        ],
+        "scope": {
+          "documentId": "doc_8e5683dc-3283-4204-978c-effeec6850f1",
+          "structuralPath": "document.appendix_1.appendix_2.clause_1.list_item_150",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "supporting",
+        "contributesToElementIds": [
+          "primary"
+        ],
+        "investigationConfidence": 0.7,
+        "investigationReason": "Requires employees and third parties to comply with IT policies, supporting operational compliance.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "Persons authorised to process personal data are committed to confidentiality."
+        ]
+      },
+      {
+        "spanId": "dsn_c67a2f2416fe9ee2f880fb22",
+        "ref": "dsn_c67a2f2416fe9ee2f880fb22",
+        "quotedText": "(ii) if the GDPR applies to the processing of Personal Data, the data protection obligations set out in Article 28(3) of the GDPR are imposed on the Sub-processor;",
+        "structuralPath": "document.list_item_(ii)",
+        "charRange": [
+          17228,
+          17391
+        ],
+        "scope": {
+          "documentId": "doc_8e5683dc-3283-4204-978c-effeec6850f1",
+          "structuralPath": "document.list_item_(ii)",
+          "relationship": "unspecified"
+        },
+        "source": "seed",
+        "evidenceRole": "supporting",
+        "contributesToElementIds": [
+          "primary"
+        ],
+        "investigationConfidence": 0.65,
+        "investigationReason": "References imposing Article 28(3) obligations on Sub-processors, which implicitly includes confidentiality commitments, but does not directly articulate the personnel obligation.",
+        "retrievalChannels": [
+          "sparse",
+          "dense"
+        ],
+        "matchedQueries": [
+          "Persons authorised to process personal data are committed to confidentiality."
+        ]
+      },
+      {
+        "spanId": "dsn_8ea5d9a09546d40d9ca5a985",
+        "ref": "dsn_8ea5d9a09546d40d9ca5a985",
         "quotedText": "'Processing of personal data' means any operation or set of operations which is performed upon Personal Data, whether or not by automatic means, such as collection, recording, organization, storage, adaptation or alteration, retrieval, consultation, use, disclosure by transmission, dissemination or otherwise making available, alignment or combination, blocking, erasure or destruction ('Process', 'Processes' and 'Processed' shall have the same meaning).",
         "structuralPath": "document.clause_1.subclause_1.1.list_item_26",
         "charRange": [
@@ -718,7 +743,7 @@
           6688
         ],
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
+          "documentId": "doc_8e5683dc-3283-4204-978c-effeec6850f1",
           "structuralPath": "document.clause_1.subclause_1.1.list_item_26",
           "relationship": "unspecified"
         },
@@ -736,27 +761,29 @@
         ]
       },
       {
-        "spanId": "dsn_4410036cd22c9199b2746e05",
-        "ref": "dsn_4410036cd22c9199b2746e05",
-        "quotedText": "Before onboarding Sub-processors, Alaio conducts an audit of the security and privacy practices of Sub-processors to ensure Sub-processors provide a level of security and privacy appropriate to their access to data and the scope of the services they are engaged to provide. Once Alaio has assessed the risks presented by the Sub-processor then, subject always to the requirements set out in Section 7 the Sub-processor is required to enter into appropriate security, confidentiality and privacy contract terms.",
-        "structuralPath": "document.appendix_1.appendix_2.clause_9.paragraph_217",
+        "spanId": "dsn_c1063908ddefcf1126687600",
+        "ref": "dsn_c1063908ddefcf1126687600",
+        "quotedText": "1 Roles and Regulatory Compliance; Authorization.",
+        "structuralPath": "document.clause_2.list_item_35",
         "charRange": [
-          44762,
-          45272
+          8375,
+          8424
         ],
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5",
-          "structuralPath": "document.appendix_1.appendix_2.clause_9.paragraph_217",
+          "documentId": "doc_8e5683dc-3283-4204-978c-effeec6850f1",
+          "structuralPath": "document.clause_2.list_item_35",
           "relationship": "unspecified"
         },
         "source": "expansion",
         "evidenceRole": "context",
         "contributesToElementIds": [],
-        "investigationConfidence": 0.9,
-        "investigationReason": "Addresses contractual confidentiality terms for sub-processors, not confidentiality commitments binding authorised natural persons processing personal data under the processor.",
-        "retrievalChannels": [],
+        "investigationConfidence": 0.95,
+        "investigationReason": "Section heading for roles and regulatory compliance.",
+        "retrievalChannels": [
+          "dense"
+        ],
         "matchedQueries": [
-          "relation:subject_to"
+          "Persons authorised to process personal data are committed to confidentiality."
         ]
       }
     ],
@@ -764,159 +791,153 @@
       {
         "partitionId": "P1",
         "scope": {
-          "documentId": "doc_9a4dc938-72ba-40a4-bc2e-9d2e521586c5"
+          "documentId": "doc_8e5683dc-3283-4204-978c-effeec6850f1"
         },
         "itemSpanIds": [
-          "dsn_b979be97f6a967c6a7e9b1e6",
-          "dsn_edb177fccea379a5b7b04e35",
-          "dsn_a6609638807487598a4034ee",
-          "dsn_0330736f67086acf7f11e35b",
-          "dsn_0d27794115168eac76531131",
-          "dsn_4410036cd22c9199b2746e05"
+          "dsn_ffc884d0f6f5e551af98bd0c",
+          "dsn_6eec40b4b66be701c7fd5149",
+          "dsn_5e36966c21d3504135872a1b",
+          "dsn_521793e4912a92f7227601cd",
+          "dsn_c67a2f2416fe9ee2f880fb22",
+          "dsn_8ea5d9a09546d40d9ca5a985",
+          "dsn_c1063908ddefcf1126687600"
         ]
       }
     ],
     "exclusions": [
       {
-        "spanId": "dsn_d2f6b4e33fbc69602bf89474",
+        "spanId": "dsn_886e6e7b2bd403227780d6d0",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.9"
       },
       {
-        "spanId": "dsn_b0fe78cf689bef5b90d08d7d",
+        "spanId": "dsn_2ffe70b182fda7467ebd5180",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.9"
       },
       {
-        "spanId": "dsn_3555aa936787f1962296bca4",
+        "spanId": "dsn_73d11f6530f69bfb5a247315",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.9"
       },
       {
-        "spanId": "dsn_e3275bbd3e094ccea6794ed7",
+        "spanId": "dsn_e804367749f940e5870c4d84",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.9"
       },
       {
-        "spanId": "dsn_d110a9e2a460c527c94868fc",
-        "reason": "semantic_rejection",
-        "detail": "rejected:irrelevant:0.9"
-      },
-      {
-        "spanId": "dsn_7dcd8333fa542ffbd2e5bc8b",
-        "reason": "semantic_rejection",
-        "detail": "rejected:irrelevant:0.95"
-      },
-      {
-        "spanId": "dsn_e913a7275158c113ddece6f9",
-        "reason": "semantic_rejection",
-        "detail": "rejected:irrelevant:0.95"
-      },
-      {
-        "spanId": "dsn_9e8327daa10029983df8bb36",
+        "spanId": "dsn_9e185b210059eb27b5b556b3",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.85"
       },
       {
-        "spanId": "dsn_3b8e226256eb52c075589879",
+        "spanId": "dsn_320c6227d02334770d4c38a0",
         "reason": "semantic_rejection",
-        "detail": "rejected:irrelevant:0.85"
+        "detail": "rejected:supporting:0.6"
       },
       {
-        "spanId": "dsn_d1ec10558c5880f7cd37da69",
+        "spanId": "dsn_a90ae72bea48ce174a5e812d",
         "reason": "semantic_rejection",
-        "detail": "rejected:irrelevant:0.85"
+        "detail": "rejected:irrelevant:0.9"
       },
       {
-        "spanId": "dsn_9bdf14e33e2e4dc5751adc15",
-        "reason": "semantic_rejection",
-        "detail": "rejected:irrelevant:0.95"
-      },
-      {
-        "spanId": "dsn_285d277c504237d533a4a354",
+        "spanId": "dsn_19191acfb805e9c1bd0c3a19",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_6df6a014e4736f950ffd0dc6",
+        "spanId": "dsn_2cea2d743a6036f12efd5dd3",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_d05a21b7d724d4c1b10cdaf6",
+        "spanId": "dsn_8a5fb40da4f16f94e19a6026",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_905dec78970072e3a5d38516",
+        "spanId": "dsn_ff683645c6fec8cd9e30c448",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_ac48d9e8b9683ed07b662ff0",
+        "spanId": "dsn_a62842ff1bc9478085f0a3b5",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_bb6ffe9cf08f780424046d12",
+        "spanId": "dsn_05d75029c579a0f633ff32b4",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_8a1ea962ef120d21fbb3cdaf",
+        "spanId": "dsn_12cf7959e8a53336e1444ad8",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_90c097ee358680572e1bbbd3",
+        "spanId": "dsn_958d0335a2f665ad63b20a9a",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.9"
+      },
+      {
+        "spanId": "dsn_71f1ea7b00c15106883e7d0d",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_2cf7582b8044f38df233d14e",
+        "spanId": "dsn_d575b79d2e02862594fc90e8",
         "reason": "semantic_rejection",
         "detail": "rejected:irrelevant:0.95"
       },
       {
-        "spanId": "dsn_8d97532a308944ce679df961",
+        "spanId": "dsn_7bb315717e7b4cdcb62c114e",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.95"
+      },
+      {
+        "spanId": "dsn_7d1df22cb834026d08439793",
+        "reason": "semantic_rejection",
+        "detail": "rejected:irrelevant:0.9"
+      },
+      {
+        "spanId": "dsn_809d3b3f8ef181cbc4a084a5",
         "reason": "role_budget",
         "detail": "role_budget:context"
       },
       {
-        "spanId": "dsn_87bd8fe306c44309b1136ca3",
+        "spanId": "dsn_5bcfc751e34bd5a9c2da92d9",
         "reason": "role_budget",
         "detail": "role_budget:context"
       }
     ],
     "dependencies": [
       {
-        "reference": "dsn_b979be97f6a967c6a7e9b1e6:subject_to",
+        "reference": "dsn_ffc884d0f6f5e551af98bd0c:subject_to",
         "state": "resolved_internal",
         "targetSpanIds": [
-          "dsn_6335589872a4c2b206df632c"
+          "dsn_69a969a32a0b540a6232dba6"
         ]
       },
       {
-        "reference": "dsn_b979be97f6a967c6a7e9b1e6:subject_to",
+        "reference": "dsn_ffc884d0f6f5e551af98bd0c:subject_to",
         "state": "resolved_internal",
         "targetSpanIds": [
-          "dsn_b46aad6e625e2cc61327c358"
+          "dsn_e08d2f78e47de740f0befd6c"
         ]
       },
       {
-        "reference": "dsn_a6609638807487598a4034ee:requires",
+        "reference": "dsn_c67a2f2416fe9ee2f880fb22:details_provided_by",
         "state": "unresolved_external",
         "targetSpanIds": []
       },
       {
-        "reference": "dsn_4410036cd22c9199b2746e05:details_provided_by",
-        "state": "resolved_internal",
-        "targetSpanIds": [
-          "dsn_945564845a1ad5fd521cb4db"
-        ]
+        "reference": "dsn_c67a2f2416fe9ee2f880fb22:details_provided_by",
+        "state": "unresolved_external",
+        "targetSpanIds": []
       }
     ],
-    "estimatedTokens": 501,
+    "estimatedTokens": 416,
     "investigationComplete": true,
     "incompleteReasons": []
   },

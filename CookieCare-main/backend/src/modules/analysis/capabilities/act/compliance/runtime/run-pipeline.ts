@@ -8,7 +8,7 @@ import { createVerificationClient } from "../verification/index.js";
 import { createComplianceLogSink } from "../diagnostics/index.js";
 import type { ComplianceEventSink } from "../diagnostics/index.js";
 import { createRun } from "./create-run.js";
-import { executeChecks } from "./execute-checks.js";
+import { executeChecksOnce } from "./execute-checks-once.js";
 import { verificationMode, runLegacyVerification, type VerificationMode } from "./rollout.js";
 import { dumpCompliancePreReport } from "../../../../temp/compliance-pre-report/dump-compliance-pre-report.js";
 import { createVerificationDiagnosticRun, type VerificationDiagnosticRun } from "../../../../temp/compliance-verification/index.js";
@@ -102,19 +102,7 @@ export async function executeCompliancePipeline(state: AnalysisState, deps: Comp
   let outcomes: ComplianceCheckOutcome[] = [];
   if (mode !== "legacy") {
     try {
-    await executeChecks(run, {
-      bundle, investigate: async (check, request, signal) => {
-        signal.throwIfAborted();
-        const selected = requirements.filter(r => r.requirementId === check.ruleId && r.documentId === check.reviewScopeId && r.packageId === `rule:${check.skillId}`);
-        if (!selected.length)
-          return bundle(check);
-        const result = await investigate(state, { userId: state.actorUserId, requirements: selected, additionalQueries: request.queries,
-          targetNodeIds: request.targetNodeIds, signal, reviewConcurrency: 1, logger: log,
-          scheduleCall: (work, callSignal) => run.scheduleCall(work, callSignal, { stage: "additional_investigation", checkId: check.checkId, requirementId: check.ruleId }) });
-        signal.throwIfAborted();
-        return bundleForCheck(state, check, [...result.bundlesByRequirement.values()].find(b => b.requirementId === check.ruleId && b.documentId === check.reviewScopeId && b.packageId === `rule:${check.skillId}`));
-      }
-    });
+    await executeChecksOnce(run, { bundle });
     } catch (error) {
       log("compliance.verification.stage_failed", { error: String(error) });
       for (const check of checks) if (!run.ledger.outcomes.has(check.checkId)) {

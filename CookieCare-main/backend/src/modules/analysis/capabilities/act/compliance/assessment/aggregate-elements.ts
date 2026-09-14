@@ -18,7 +18,11 @@ export function aggregateElements(expression: ComplianceAggregation, elements: E
   if (!children.length)
     return { state: "excluded", supported };
   const state = expression.operator === "all"
-    ? children.some(c => c.state === "unknown") ? "unknown" : children.every(c => c.state === "satisfied") ? "satisfied" : "missing"
+    // A definite shortfall (an element searched and not established) outranks an
+    // "unknown" (e.g. an untriggered conditional): the requirement is a gap, not
+    // indeterminate. "unknown" only survives when nothing is missing outright —
+    // so a fully-satisfied core plus one unknown still yields cannot_determine.
+    ? children.every(c => c.state === "satisfied") ? "satisfied" : children.some(c => c.state === "missing") ? "missing" : "unknown"
     : children.some(c => c.state === "satisfied") ? "satisfied" : children.some(c => c.state === "unknown") ? "unknown" : "missing";
   return { state, supported };
 }

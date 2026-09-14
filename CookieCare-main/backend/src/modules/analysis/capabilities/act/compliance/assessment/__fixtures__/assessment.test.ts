@@ -60,10 +60,27 @@ test("optional elements outside aggregation do not create gaps",()=>{
   result.decision.elements.push({...e,elementId:"optional",state:"not_located",citations:[]});
   assert.equal(assessRequirement(r,result),"present");
 });
+test("an explained evidence-role reassessment needs judgment, not cannot_determine",()=>{
+  const {r,result}=setup();
+  result.decision.reviewRequired=["role_reassessment:instructions"];
+  assert.equal(assessRequirement(r,result),"judgment_required");
+  result.decision.reviewRequired=["review_unavailable"];
+  assert.equal(assessRequirement(r,result),"cannot_determine");
+});
 test("unknown required conditional applicability cannot produce Present",()=>{
   const {r,result}=setup(),e=result.decision.elements[0];
   r.check.rule!.elements.push({id:"conditional",description:"Notify if required disclosure occurs.",kind:"conditional",applicabilityGuidance:"Only where the disclosure condition is established."});
   r.check.rule!.aggregation={operator:"all",children:[{elementId:"instructions"},{elementId:"conditional"}]};
   result.decision.elements.push({...e,elementId:"conditional",state:"ambiguous",citations:[],applicability:{...e.applicability,state:"unknown"}});
   assert.equal(assessRequirement(r,result),"cannot_determine");
+});
+test("a mandatory shortfall is a gap even beside an untriggered conditional element",()=>{
+  const {r,result}=setup(),e=result.decision.elements[0];
+  // The mandatory element is searched and not established; the conditional
+  // element's trigger is unknown. The definite shortfall is the gap.
+  result.decision.elements[0].state="not_located";result.decision.elements[0].citations=[];
+  r.check.rule!.elements.push({id:"conditional",description:"Notify if automated decisions occur.",kind:"conditional",applicabilityGuidance:"Only where automated decision-making is established."});
+  r.check.rule!.aggregation={operator:"all",children:[{elementId:"instructions"},{elementId:"conditional"}]};
+  result.decision.elements.push({...e,elementId:"conditional",state:"not_located",citations:[],applicability:{...e.applicability,state:"unknown"}});
+  assert.equal(assessRequirement(r,result),"gap");
 });

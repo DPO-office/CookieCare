@@ -189,10 +189,13 @@ export function buildRequirementEvidenceBundle(args: {
   ])];
   const coverageIssues = exclusions.filter(e => !e.reason.startsWith("rejected:")).map(exclusion => {
     const decision = exclusion.nodeId ? decisionById.get(exclusion.nodeId) : undefined;
-    // Only pure orientation pruning is known immaterial. A definition, proof,
-    // unknown candidate or restriction may affect a conclusion.
-    const orientationOnly = exclusion.reason === "role_budget:context"
-      && !(decision?.contributesToElementIds.length);
+    // Budget pruning is immaterial by construction: the retention pass above
+    // never drops an element's only primary proof, nor any dependency,
+    // limitation or contradiction — it only sheds evidence that is redundant
+    // with what was kept. So a role_budget omission cannot change a verdict.
+    // Every other omission (a definition, proof, unknown candidate or
+    // restriction the reviewer could not classify) may, and stays unknown.
+    const orientationOnly = exclusion.reason.startsWith("role_budget:");
     return { reason: exclusion.reason, evidenceIds: exclusion.nodeId ? [exclusion.nodeId] : [],
       elementIds: decision?.contributesToElementIds ?? [],
       materiality: orientationOnly ? "immaterial" as const : "unknown" as const };
