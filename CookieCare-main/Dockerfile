@@ -1,6 +1,8 @@
 # syntax=docker/dockerfile:1
 
-FROM mcr.microsoft.com/playwright:v1.60.0-jammy AS build
+# docling.rs 1.41's linux-x64-gnu napi binary needs GCC 13 libstdc++
+# (_M_replace_cold). Jammy (22.04) only has GCC 11/12, so dlopen fails at upload.
+FROM mcr.microsoft.com/playwright:v1.60.0-noble AS build
 
 WORKDIR /app
 
@@ -32,12 +34,12 @@ RUN npm prune --omit=dev
 RUN npm install --omit=dev --no-save --no-audit --no-fund docling.rs-linux-x64-gnu@1.41.0
 
 
-FROM mcr.microsoft.com/playwright:v1.60.0-jammy AS runner
+FROM mcr.microsoft.com/playwright:v1.60.0-noble AS runner
 
 WORKDIR /app
 
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends libgomp1 \
+  && apt-get install -y --no-install-recommends libgomp1 libstdc++6 \
   && rm -rf /var/lib/apt/lists/*
 
 ENV NODE_ENV=production
