@@ -6,7 +6,7 @@ import { COMPLIANCE_REPORT_QUALITY_FIXTURES } from "./compliance-report-quality-
 
 interface EditorialReview {
   total: number;
-  scores: Record<"requestAlignment" | "tableUsefulness" | "evidencePlacement" | "actionUsefulness" | "concision", number>;
+  scores: Record<"requestAlignment" | "tableUsefulness" | "evidencePlacement" | "actionUsefulness" | "concision" | "coherence" | "visualReadability", number>;
   notes: string[];
 }
 
@@ -29,13 +29,24 @@ function review(snapshot: ComplianceReportSnapshot, plan: CompliancePresentation
   const overviewIds = overview.flatMap(section => section.findingIds);
   const concise = new Set(overviewIds).size === overviewIds.length && !/No outstanding required proof\./i.test(markdown);
   const concision = concise ? 2 : 0;
-  const scores = { requestAlignment, tableUsefulness, evidencePlacement, actionUsefulness, concision };
+  const headings = plan.sections.map(section => section.heading.trim().toLowerCase());
+  const coherent = new Set(headings).size === headings.length &&
+    (plan.mode === "table_only" || plan.sections[0]?.kind === "answer") &&
+    !plan.sections.some(section => section.kind === "actions" && section.findingIds.length === 0);
+  const coherence = coherent ? 2 : 0;
+  const tableLines = markdown.split("\n").filter(line => line.startsWith("|"));
+  const readableTables = overview.every(section => section.columns.length >= 3 && section.columns.length <= 6) &&
+    tableLines.every(line => (line.match(/\|/g) ?? []).length <= 7);
+  const visualReadability = readableTables ? 2 : 0;
+  const scores = { requestAlignment, tableUsefulness, evidencePlacement, actionUsefulness, concision, coherence, visualReadability };
   const notes = [
     `request alignment ${requestAlignment}/2: ${requestedSpecial.length ? `requested comparison columns ${requestedSpecial.join(", ")}` : "topical grouping assessed"}`,
     `table usefulness ${tableUsefulness}/2: ${overview.length} overview group(s), ${columns.size} distinct column(s)`,
     `evidence placement ${evidencePlacement}/2: source provisions remain with findings or in details`,
     `action usefulness ${actionUsefulness}/2: ${actionable.length} actionable finding(s) remain visible`,
     `concision ${concision}/2: overview coverage is non-duplicative and boilerplate is absent`,
+    `coherence ${coherence}/2: section order and headings provide a non-empty, non-duplicative reading path`,
+    `visual readability ${visualReadability}/2: comparison tables remain within the six-column display budget`,
   ];
   return { total: Object.values(scores).reduce((sum, score) => sum + score, 0), scores, notes };
 }
@@ -50,10 +61,10 @@ describe("saved compliance snapshot editorial regression", () => {
       const beforeReview = review(fixture.snapshot, fixture.baselinePlan, before);
       const afterReview = review(fixture.snapshot, fixture.adaptivePlan, after);
       assert.ok(afterReview.total >= beforeReview.total, `${fixture.id}: ${afterReview.notes.join("; ")}`);
-      assert.ok(afterReview.total >= 8, `${fixture.id}: ${afterReview.notes.join("; ")}`);
+      assert.equal(fixture.synthetic, true);
+      assert.ok(afterReview.total >= 12, `${fixture.id}: ${afterReview.notes.join("; ")}`);
       assert.notEqual(after, before);
       for (const row of fixture.snapshot.rows) assert.ok(after.includes(row.title));
     });
   }
 });
-

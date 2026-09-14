@@ -15,9 +15,9 @@ export function loadComplianceReportingGuidance(
   snapshot?: ComplianceReportSnapshot,
 ): LoadedComplianceReportingGuidance {
   const examples = selectComplianceReportingExamples(instruction, snapshot);
-  const stages: ReportingGuidanceStage[] = ["outline", "write", "check", "repair"];
+  const stages: ReportingGuidanceStage[] = ["compose", "check", "repair"];
   const system = Object.fromEntries(stages.map(stage => {
-    const exampleText = stage === "outline" || stage === "write"
+    const exampleText = stage === "compose"
       ? examples.map(example => example.annotation).join("\n\n")
       : "";
     const prompt = [

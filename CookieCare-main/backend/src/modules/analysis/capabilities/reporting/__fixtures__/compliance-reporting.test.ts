@@ -49,14 +49,17 @@ function completion(snapshot: ComplianceReportSnapshot, calls: string[], overrid
       const replacement = await override(stage, payload);
       if (replacement !== undefined) return replacement;
     }
-    if (stage === "outline") { plan = (payload as { defaultPlan: CompliancePresentationPlan }).defaultPlan; return plan; }
+    if (stage === "compose") {
+      plan = (payload as { defaultPlan: CompliancePresentationPlan }).defaultPlan;
+      return { plan, draft: deterministicComplianceDraft(snapshot, plan) };
+    }
     if (stage === "check") return { passed: true, failures: [] };
     return deterministicComplianceDraft(snapshot, plan);
   };
 }
 
 describe("bounded compliance report generation", () => {
-  it("plans, writes, and checks once without exposing raw documents or draft tokens", async () => {
+  it("plans and writes in one call, then checks once without exposing raw documents or draft tokens", async () => {
     const snapshot = fixture(); const input = state(snapshot); const calls: string[] = []; const tokens: string[] = [];
     input.onToken = delta => tokens.push(delta);
     const before = structuredClone(snapshot);
@@ -65,7 +68,7 @@ describe("bounded compliance report generation", () => {
       assert.doesNotMatch(json, /documentTexts|fullText|unverifiedFindings/);
       return undefined;
     }));
-    assert.deepEqual(calls, ["outline", "write", "check"]);
+    assert.deepEqual(calls, ["compose", "check"]);
     assert.deepEqual(tokens, []);
     assert.equal(result.complianceReportValidation?.source, "validated_writer");
     assert.match(result.complianceReportValidation?.guidanceVersions?.shared ?? "", /^reporting\.shared-core@/);
@@ -76,9 +79,12 @@ describe("bounded compliance report generation", () => {
   });
   it("uses the default outline after one invalid planner response", async () => {
     const snapshot = fixture(); const calls: string[] = [];
-    const result = await renderComplianceReport(state(snapshot), completion(snapshot, calls, async stage =>
-      stage === "outline" ? { sections: [{ findingIds: ["invented"] }] } : undefined));
-    assert.equal(calls.filter(c => c === "outline").length, 1);
+    const result = await renderComplianceReport(state(snapshot), completion(snapshot, calls, async (stage, payload) =>
+      stage === "compose" ? {
+        plan: { sections: [{ findingIds: ["invented"] }] },
+        draft: deterministicComplianceDraft(snapshot, (payload as { defaultPlan: CompliancePresentationPlan }).defaultPlan),
+      } : undefined));
+    assert.equal(calls.filter(c => c === "compose").length, 1);
     assert.equal(result.complianceReportValidation?.plannerFallback, true);
     assert.equal(result.complianceReportValidation?.source, "validated_writer");
   });
@@ -86,15 +92,19 @@ describe("bounded compliance report generation", () => {
     const snapshot = fixture(); const calls: string[] = []; let checks = 0;
     const result = await renderComplianceReport(state(snapshot), completion(snapshot, calls, async stage =>
       stage === "check" && checks++ === 0 ? { passed: false, failures: ["answer: unsupported conclusion"] } : undefined));
-    assert.deepEqual(calls, ["outline", "write", "check", "repair", "check"]);
+    assert.deepEqual(calls, ["compose", "check", "repair", "check"]);
     assert.equal(result.complianceReportValidation?.repairAttempts, 1);
     assert.equal(result.complianceReportValidation?.source, "validated_writer");
   });
   it("falls back after the single repair fails and never leaks rejected prose", async () => {
     const snapshot = fixture(); const calls: string[] = [];
-    const result = await renderComplianceReport(state(snapshot), completion(snapshot, calls, async stage =>
-      stage === "write" || stage === "repair" ? { answer: "FABRICATED SECRET CONCLUSION", rows: [] } : undefined));
-    assert.deepEqual(calls, ["outline", "write", "repair"]);
+    const result = await renderComplianceReport(state(snapshot), completion(snapshot, calls, async (stage, payload) => {
+      const bad = { answer: "FABRICATED SECRET CONCLUSION", rows: [] };
+      return stage === "compose"
+        ? { plan: (payload as { defaultPlan: CompliancePresentationPlan }).defaultPlan, draft: bad }
+        : stage === "repair" ? bad : undefined;
+    }));
+    assert.deepEqual(calls, ["compose", "repair"]);
     assert.equal(result.complianceReportValidation?.source, "deterministic");
     assert.doesNotMatch(result.renderedOutput!, /FABRICATED/);
     assert.ok(hasValidatedComplianceReport(result));
@@ -109,8 +119,10 @@ describe("bounded compliance report generation", () => {
   it("handles all provider failures with a deterministic report", async () => {
     const calls: string[] = [];
     const result = await renderComplianceReport(state(), async stage => { calls.push(stage); throw new Error("offline"); });
-    assert.deepEqual(calls, ["outline", "write"]);
+    assert.deepEqual(calls, ["compose"]);
     assert.equal(result.complianceReportValidation?.source, "deterministic");
+    assert.equal(result.complianceReportValidation?.generation?.fallbackReason, "composition_failed");
+    assert.match(result.renderedOutput!, /Report status/);
     assert.ok(result.renderedOutput);
   });
   it("makes no LLM calls for an empty accepted set and accounts for missing checks", async () => {

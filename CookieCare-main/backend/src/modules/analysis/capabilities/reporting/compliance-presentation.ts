@@ -31,7 +31,7 @@ const SPECIAL_COLUMN_SIGNAL: Partial<Record<ComplianceTableColumn, RegExp>> = {
 };
 const MODES: CompliancePresentationMode[] = ["layered", "short", "detailed", "narrative", "table_only"];
 const DETAIL_CAPS: Record<CompliancePresentationMode, number> = { layered: 80, short: 20, detailed: 120, narrative: 80, table_only: 40 };
-const KINDS = ["answer", "overview", "details", "limitations", "sources"] as const;
+const KINDS = ["answer", "overview", "details", "actions", "limitations", "sources"] as const;
 const UNCERTAIN = new Set(["cannot_determine", "conflicting", "judgment_required", "verification_incomplete"]);
 type Section = CompliancePresentationPlan["sections"][number];
 const isObject = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
@@ -58,15 +58,26 @@ export function defaultCompliancePresentationPlan(
   snapshot: ComplianceReportSnapshot, mode: CompliancePresentationMode,
 ): CompliancePresentationPlan {
   const sections: Section[] = [];
+  const allQuestionIds = [...new Set(snapshot.rows.flatMap(row => (row.answers ?? [])
+    .filter(answer => answer.questionId !== "user_request").map(answer => answer.questionId)))];
+  const questionsFor = (findingIds: string[]) => [...new Set(snapshot.rows
+    .filter(row => findingIds.includes(reportOutcomeId(row))).flatMap(row => (row.answers ?? [])
+      .filter(answer => answer.questionId !== "user_request").map(answer => answer.questionId)))];
   const add = (kind: Section["kind"], heading: string, findingIds: string[] = []) => sections.push({
+    id: `S${sections.length + 1}`,
+    requestItemIds: kind === "answer" || (mode === "table_only" && kind === "overview") ? ["request:primary"] : [],
+    questionIds: kind === "answer" ? allQuestionIds : questionsFor(findingIds),
     kind, heading, findingIds, columns: kind === "overview" ? [...DEFAULT_COLUMNS] : [], detailWords: DETAIL_CAPS[mode],
   });
   if (mode !== "table_only") add("answer", "Answer");
   if (mode !== "narrative") add("overview", "Compliance overview", snapshot.rows.map(r => reportOutcomeId(r)));
   const details = requiredDetails(snapshot, mode);
   if (details.length) add("details", mode === "layered" ? "Findings requiring attention" : "Requirement details", details);
+  const actionable = snapshot.rows.filter(r => r.status !== "present" && r.status !== "not_applicable" && r.recommendedAction.trim())
+    .map(r => reportOutcomeId(r));
+  if (actionable.length && mode !== "short" && mode !== "table_only") add("actions", "Recommended actions", actionable);
   if (mode === "table_only" || needsLimitations(snapshot)) add("limitations", mode === "table_only" ? "Scope and limitations" : "Limitations and outstanding checks");
-  return { version: 1, mode, rationale: "Complete reviewed coverage with code-owned tables, statuses, actions, pointers and quotations.", sections };
+  return { version: 2, mode, rationale: "Complete reviewed coverage with code-owned tables, statuses, actions, pointers and quotations.", sections };
 }
 
 function exactKeys(value: Record<string, unknown>, keys: string[], path: string, errors: string[]) {
@@ -112,17 +123,36 @@ export function validateCompliancePresentationPlan(
   const errors: string[] = [];
   if (!isObject(raw)) return ["plan must be an object"];
   exactKeys(raw, ["version", "mode", "rationale", "sections"], "plan", errors);
-  if (raw.version !== 1) errors.push("plan.version must be 1");
+  if (raw.version !== 1 && raw.version !== 2) errors.push("plan.version must be 1 or 2");
+  const mappedPlan = raw.version === 2;
   if (!MODES.includes(mode) || raw.mode !== mode) errors.push("plan.mode must match requested mode");
   if (typeof raw.rationale !== "string" || !raw.rationale.trim() || raw.rationale.length > 1000) errors.push("plan.rationale must be bounded text");
   if (!Array.isArray(raw.sections)) return [...errors, "plan.sections must be an array"];
   const known = new Set(snapshot.rows.map(r => reportOutcomeId(r)));
   const byKind = new Map<string, Set<string>>();
   const counts = new Map<string, number>();
+  const sectionIds = new Set<string>();
+  const coveredRequestItems = new Set<string>();
+  const knownQuestionIds = new Set(snapshot.rows.flatMap(row => (row.answers ?? [])
+    .filter(answer => answer.questionId !== "user_request").map(answer => answer.questionId)));
+  const coveredQuestionIds = new Set<string>();
   Array.from(raw.sections).forEach((section, i) => {
     const path = `sections[${i}]`;
     if (!isObject(section)) { errors.push(`${path} must be an object`); return; }
-    exactKeys(section, ["kind", "heading", "findingIds", "columns", "detailWords"], path, errors);
+    exactKeys(section, mappedPlan
+      ? ["id", "requestItemIds", "questionIds", "kind", "heading", "findingIds", "columns", "detailWords"]
+      : ["kind", "heading", "findingIds", "columns", "detailWords"], path, errors);
+    if (mappedPlan) {
+      if (typeof section.id !== "string" || !/^S[1-9]\d*$/.test(section.id) || sectionIds.has(section.id))
+        errors.push(`${path}: id must be a unique stable report-local S-number`);
+      else sectionIds.add(section.id);
+      if (!Array.isArray(section.requestItemIds) || section.requestItemIds.some(id => id !== "request:primary"))
+        errors.push(`${path}: requestItemIds may contain only request:primary`);
+      else section.requestItemIds.forEach(id => coveredRequestItems.add(id));
+      if (!Array.isArray(section.questionIds) || section.questionIds.some(id => typeof id !== "string" || !knownQuestionIds.has(id)))
+        errors.push(`${path}: questionIds must reference supplied dynamic answers`);
+      else section.questionIds.forEach(id => coveredQuestionIds.add(id));
+    }
     const kind = typeof section.kind === "string" ? section.kind : "";
     if (!(KINDS as readonly string[]).includes(kind)) errors.push(`${path}: unknown section kind`);
     counts.set(kind, (counts.get(kind) ?? 0) + 1);
@@ -152,6 +182,9 @@ export function validateCompliancePresentationPlan(
     if ((kind === "answer" || kind === "limitations") && section.findingIds.length) errors.push(`${path}: ${kind} must not select findings`);
   });
   for (const kind of KINDS) if (kind !== "details" && kind !== "overview" && (counts.get(kind) ?? 0) > 1) errors.push(`Only one ${kind} section is permitted`);
+  if ((counts.get("actions") ?? 0) && raw.sections.some(section => isObject(section) && section.kind === "overview" &&
+    Array.isArray(section.columns) && section.columns.includes("Recommended action")))
+    errors.push("Consolidate actions in the actions section instead of repeating them in a table");
   if ((counts.get("overview") ?? 0) > 4) errors.push("At most four overview sections are permitted");
   if (mode === "table_only") {
     if ((counts.get("answer") ?? 0) || (counts.get("details") ?? 0)) errors.push("table_only permits only overview, limitations and sources");
@@ -165,7 +198,17 @@ export function validateCompliancePresentationPlan(
   };
   if (mode !== "narrative") cover("overview", [...known]);
   cover("details", requiredDetails(snapshot, mode));
+  const actionable = snapshot.rows.filter(r => r.status !== "present" && r.status !== "not_applicable" && r.recommendedAction.trim())
+    .map(r => reportOutcomeId(r));
+  if (mode !== "short" && mode !== "table_only" && actionable.length) {
+    if (counts.get("actions") !== 1) errors.push("Exactly one actions section is required for consolidated remediation");
+    cover("actions", actionable);
+  } else if (counts.get("actions")) errors.push(`${mode} must not contain a separate actions section`);
   if ((mode === "table_only" || needsLimitations(snapshot)) && counts.get("limitations") !== 1) errors.push("A limitations section is required to retain scope and qualifications");
+  if (mappedPlan) {
+    if (!coveredRequestItems.has("request:primary")) errors.push("request coverage: primary request is not mapped to a section");
+    if ([...knownQuestionIds].some(id => !coveredQuestionIds.has(id))) errors.push("request coverage: one or more dynamic questions are not mapped to a section");
+  }
   return errors;
 }
 
@@ -483,6 +526,7 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
   };
   const needsAction = (r: ComplianceReportRow) => r.status !== "present" && r.status !== "not_applicable" && !!r.recommendedAction.trim();
   const action = (r: ComplianceReportRow) => clean(stripElementLabels(r.recommendedAction, r));
+  const hasActionSection = plan.sections.some(section => section.kind === "actions");
   const tableText = (value: string) => clean(value).replace(/\r?\n/g, " ").replace(/\|/g, "&#124;").trim();
   const gapOrQualification = (r: ComplianceReportRow) =>
     isCanned(r.whatIsMissingOrUnclear) ? "-" : tableText(stripElementLabels(r.whatIsMissingOrUnclear, r));
@@ -550,9 +594,24 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
           `**Contract provision**`,
           evidence(r),
           ...(explanation ? [`**Assessment:** ${explanation}`] : []),
-          ...(needsAction(r) ? [`Recommended action: **${action(r)}**`] : []),
+          ...(needsAction(r) && !hasActionSection ? [`Recommended action: **${action(r)}**`] : []),
         ].join("\n\n");
       }).join("\n\n"); break;
+      case "actions": {
+        const grouped = new Map<string, { action: string; rows: ComplianceReportRow[] }>();
+        for (const row of selected.filter(needsAction)) {
+          const shown = action(row);
+          const key = shown.replace(/\s+/g, " ").trim().replace(/[.!]+$/u, "").toLowerCase();
+          const current = grouped.get(key);
+          if (current) current.rows.push(row);
+          else grouped.set(key, { action: shown, rows: [row] });
+        }
+        body = [...grouped.values()].map(item => {
+          const affected = item.rows.map(row => clean(shortName(row.title)));
+          return `- Recommended action: **${item.action}** Affects: ${affected.join("; ")}.`;
+        }).join("\n");
+        break;
+      }
       case "limitations": {
         const limitations = snapshot.limitations.map(l => ["Review limitation", clean(l.message)]);
         for (const r of snapshot.rows.filter(r => UNCERTAIN.has(r.status))) limitations.push([

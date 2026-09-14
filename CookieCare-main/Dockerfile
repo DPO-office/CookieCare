@@ -39,6 +39,8 @@ ENV PORT=8080
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 ENV PUPPETEER_SKIP_DOWNLOAD=1
 ENV DOCLING_RS_HOME=/app
+ENV PDFIUM_DYNAMIC_LIB_PATH=/app/.pdfium/lib
+ENV LD_LIBRARY_PATH=/app/.pdfium/lib:/app/node_modules/docling.rs
 ENV DOCUMENT_GRAPH_LLM_RELATIONS=0
 
 COPY --from=build /app/package.json /app/package-lock.json ./
