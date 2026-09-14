@@ -11,6 +11,7 @@ import { corsMiddleware } from "./src/middleware/cors.js";
 import { errorHandler } from "./src/middleware/error.js";
 import { initQueryLogger } from "./src/middleware/queryLogger.js";
 import { logger } from "./src/utils/logger.js";
+import { getDocumentParserReadiness } from "./src/modules/analysis/capabilities/ingest/document-structure/index.js";
 
 console.log(
   `[server] application modules evaluated NODE_ENV=${config.nodeEnv} PORT=${config.port}`
@@ -172,7 +173,14 @@ async function startServer() {
 /** Used by backend/boot.mjs after it has already bound PORT. */
 export async function attachToServer() {
   await configureRuntime();
-  logger.info(`Application attached [${config.nodeEnv}]`);
+  const parser = await getDocumentParserReadiness();
+  logger.info({ parser }, "Application attached");
+  if (!parser.ready) {
+    logger.error(
+      { parser },
+      "Docling is not ready. PDF/DOCX uploads will fail until the native addon and .pdfium/.models assets load."
+    );
+  }
 }
 
 if (process.env.NODE_ENV !== "test" && process.env.COOKIECARE_BOOTSTRAP !== "1") {

@@ -110,6 +110,32 @@ test("a borderline verdict is resampled and the majority wins", async () => {
   assert.equal([...run.ledger.outcomes.values()][0].status, "partial", "majority (2 of 3) wins");
 });
 
+test("additional self-consistency samples run concurrently", async () => {
+  const r = requestFixture("rule.parallel-borderline");
+  r.check.rule!.elements = ["a", "b"].map(id => ({ id, description: "Only documented instructions.", kind: "mandatory" as const, required: true }));
+  r.check.rule!.aggregation = { operator: "all", children: [{ elementId: "a" }, { elementId: "b" }] };
+  const h = harness([r]);
+  let active = 0, peak = 0, release!: () => void;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  const safety = setTimeout(release, 250);
+  const { run, services } = h.make(async (req, nth) => {
+    const raw = responseFixture(req);
+    const b = raw.elements.find(e => e.elementId === "b")!;
+    b.state = "not_located"; b.citations = [];
+    if (nth > 1) {
+      active++; peak = Math.max(peak, active);
+      if (active === 2) release();
+      await gate;
+      active--;
+    }
+    return raw;
+  });
+  try { await executeChecksOnce(run, services); }
+  finally { clearTimeout(safety); }
+  assert.equal(h.totalCalls(), 3);
+  assert.equal(peak, 2, "the two independent resamples should overlap");
+});
+
 test("a confident verdict is not resampled (stays one call)", async () => {
   const rs = requests(4);
   const h = harness(rs);

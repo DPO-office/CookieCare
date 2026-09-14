@@ -64,9 +64,11 @@ export async function executeChecksOnce(run: ComplianceRun, services: Pick<Check
     // ones stop flipping run-to-run.
     const samples = selfConsistencySamples();
     if (samples > 1 && result.kind === "verified" && UNSTABLE_STATUS.has(assessRequirement(request, result))) {
-      const results: VerificationResult[] = [result];
-      for (let i = 1; i < samples && !signal.aborted; i += 1)
-        results.push(await verifyRequirement(request, completeFor(check), signal, 120000, traceFor(check)));
+      const additionalSamples = signal.aborted ? [] : await Promise.all(
+        Array.from({ length: samples - 1 }, () =>
+          verifyRequirement(request, completeFor(check), signal, 120000, traceFor(check))),
+      );
+      const results: VerificationResult[] = [result, ...additionalSamples];
       result = consensusResult(request, results);
       record("compliance.verification.self_consistency", check, { samples: results.length, statuses: results.map(r => assessRequirement(request, r)), chosen: assessRequirement(request, result) });
     }

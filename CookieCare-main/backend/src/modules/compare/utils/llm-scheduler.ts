@@ -61,10 +61,12 @@ export interface SchedulerConfig {
 }
 
 const DEFAULT_CONFIG: SchedulerConfig = {
-  requestsPerWindow: Number(process.env.GEMINI_REQUESTS_PER_WINDOW || 8),
+  // These defaults are used by local development and Cloud Run alike. The
+  // environment variables remain optional emergency quota overrides.
+  requestsPerWindow: Number(process.env.GEMINI_REQUESTS_PER_WINDOW || 10),
   windowMs: Number(process.env.GEMINI_WINDOW_MS || 12_000),
   minInterRequestMs: Number(process.env.GEMINI_MIN_GAP_MS || 400),
-  maxInFlight: Math.max(1, Number(process.env.GEMINI_MAX_IN_FLIGHT || 4)),
+  maxInFlight: Math.max(1, Number(process.env.GEMINI_MAX_IN_FLIGHT || 6)),
 };
 
 /** Embedding lane — separate, generous budget (embedding quota » Pro generation quota). */

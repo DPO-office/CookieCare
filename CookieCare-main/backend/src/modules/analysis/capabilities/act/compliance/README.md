@@ -75,7 +75,7 @@ Shadow runs both verifiers against the same original graph bundle, displays cove
 Archived multi-pass settings remain available for replay (not promises about the
 previous verifier's own provider controls):
 
-- `ANALYSIS_COMPLIANCE_SIDE_CHANNEL_CONCURRENCY`: default 4 concurrent model calls, shared across verification and investigation for the run. Independent initial investigation batches run concurrently. Checks do not hold model permits while retrieving evidence. Token accounting uses per-call deltas.
+- `ANALYSIS_COMPLIANCE_SIDE_CHANNEL_CONCURRENCY`: optional override; the code defaults to 6 concurrent model calls when it is absent, shared across verification and investigation for the run. Independent initial investigation batches and self-consistency samples run concurrently. Checks do not hold model permits while retrieving evidence. Token accounting uses per-call deltas.
 - `ANALYSIS_COMPLIANCE_SIDE_CHANNEL_STAGE_BUDGET_MS`: optional emergency deadline; no shared 45-second deadline by default. Explicitly configuring this value can produce unfinished-check outcomes.
 - `COMPLIANCE_VERIFICATION_DISABLE_TIME_BUDGET=true`: overrides the optional shared deadline. Provider/infrastructure failures, cancellation, input limits and retry limits still apply. The two-to-three-minute latency target is not an automatic cutoff.
 - Complete verifier input is bounded to 120000 characters; it is never silently clipped.

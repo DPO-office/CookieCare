@@ -80,7 +80,10 @@ async function handleCreate(jobId: string, userId: string, payload: any): Promis
     }
     const row = rows[0];
     documentTitles[docId] = row.title || docId;
-    const graph = await ensureDocumentGraph(userId, docId);
+    const graph = await ensureDocumentGraph(userId, docId, { requireDocling: true });
+    console.log(
+      `[Analysis PAC] parser=${graph.parser.name} format=${graph.parser.format} status=${graph.parser.status} doc=${docId}`
+    );
     if (graph.quality.analysisMode === "blocked") {
       throw new Error(
         `Document structure failed integrity checks and cannot be analysed safely: ${docId} (${graph.quality.criticalIssues.join(", ") || graph.quality.status}).`

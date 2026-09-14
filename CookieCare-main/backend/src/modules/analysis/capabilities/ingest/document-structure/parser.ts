@@ -1,41 +1,43 @@
-import { createRequire } from "node:module";
 import path from "node:path";
 import { extractText } from "../../../../../utils/extractText.js";
 import type { CanonicalTable, ParsedBlock, ParsedDocument, SourceBox, SourceProvenance, StructureWarning } from "./types.js";
 
 const DOCLING_VERSION = "1.41.0";
-const require = createRequire(import.meta.url);
 
 type DoclingAddon = typeof import("docling.rs");
 type DocumentConverter = InstanceType<DoclingAddon["DocumentConverter"]>;
 type Pipeline = InstanceType<DoclingAddon["Pipeline"]>;
 
-let doclingAddon: DoclingAddon | undefined;
-let doclingLoadError: Error | undefined;
+let doclingLoad: Promise<DoclingAddon> | undefined;
 let converter: DocumentConverter | undefined;
 let recoveryConverter: DocumentConverter | undefined;
 let pdfPipeline: Pipeline | undefined;
 
-function loadDocling(): DoclingAddon {
-  if (doclingAddon) return doclingAddon;
-  if (doclingLoadError) throw doclingLoadError;
-  try {
-    doclingAddon = require("docling.rs") as DoclingAddon;
-    return doclingAddon;
-  } catch (err) {
-    doclingLoadError = err instanceof Error ? err : new Error(String(err));
-    console.error("[docling] native addon failed to load:", doclingLoadError);
-    throw doclingLoadError;
-  }
+function allowLegacyFallback(): boolean {
+  const flag = (process.env.DOCUMENT_PARSER_FALLBACK || "").trim();
+  if (flag === "1" || flag.toLowerCase() === "true") return true;
+  if (flag === "0" || flag.toLowerCase() === "false") return false;
+  // Production must use Docling. Local/test can fall back if the native addon is missing.
+  return process.env.NODE_ENV !== "production";
 }
 
-function getConverter() {
-  const { DocumentConverter } = loadDocling();
+async function loadDocling(): Promise<DoclingAddon> {
+  doclingLoad ??= import("docling.rs").catch((err) => {
+    doclingLoad = undefined;
+    const wrapped = err instanceof Error ? err : new Error(String(err));
+    console.error("[docling] native addon failed to load:", wrapped);
+    throw wrapped;
+  });
+  return doclingLoad;
+}
+
+async function getConverter() {
+  const { DocumentConverter } = await loadDocling();
   return (converter ??= new DocumentConverter({ strict: true, fetchImages: false }));
 }
 
-function getRecoveryConverter() {
-  const { DocumentConverter } = loadDocling();
+async function getRecoveryConverter() {
+  const { DocumentConverter } = await loadDocling();
   return (recoveryConverter ??= new DocumentConverter({ strict: false, fetchImages: false }));
 }
 
@@ -49,9 +51,9 @@ function resolveDoclingHome(checkDependencies: DoclingAddon["checkDependencies"]
   return candidates.find((candidate) => checkDependencies({ dir: candidate }).ready) ?? process.cwd();
 }
 
-export function getDocumentParserReadiness() {
+export async function getDocumentParserReadiness() {
   try {
-    const { checkDependencies } = loadDocling();
+    const { checkDependencies } = await loadDocling();
     const home = resolveDoclingHome(checkDependencies);
     const status = checkDependencies({ dir: home });
     // docling.rs resolves the native model paths from this variable when the
@@ -65,6 +67,7 @@ export function getDocumentParserReadiness() {
       ocr: status.ocr,
       tableformer: status.tableformer,
       missing: status.missing,
+      error: undefined as string | undefined,
     };
   } catch (err) {
     return {
@@ -234,16 +237,16 @@ export async function parseDocument(buffer: Buffer, mimeType: string, fileName: 
   try {
     let result;
     if (format === "pdf") {
-      const dependencies = getDocumentParserReadiness();
-      if (!dependencies.ready) throw new Error(`Docling PDF dependencies missing: ${dependencies.missing.join(", ")}`);
-      const { Pipeline } = loadDocling();
+      const dependencies = await getDocumentParserReadiness();
+      if (!dependencies.ready) throw new Error(`Docling PDF dependencies missing: ${dependencies.missing.join(", ")}${dependencies.error ? ` (${dependencies.error})` : ""}`);
+      const { Pipeline } = await loadDocling();
       pdfPipeline ??= new Pipeline({ strict: true, fetchImages: false, headingHierarchy: true, ocrLang: "en" });
       result = await pdfPipeline.convertAsync(
         { name: fileNameForFormat(fileName, format), data: buffer, format },
         { to: "json", imageMode: "placeholder" }
       );
     } else {
-      result = await getConverter().convertAsync(
+      result = await (await getConverter()).convertAsync(
         { name: fileNameForFormat(fileName, format), data: buffer, format },
         { to: "json", imageMode: "placeholder" }
       );
@@ -252,15 +255,17 @@ export async function parseDocument(buffer: Buffer, mimeType: string, fileName: 
     const warnings: StructureWarning[] = result.status === "success" ? [] : [{
       code: "docling_partial_success", severity: "warning", message: `Docling completed with status ${result.status}.`,
     }];
+    console.log(`[docling] parsed ${format} with docling.rs@${DOCLING_VERSION} status=${result.status}`);
     return { parser: { name: "docling.rs", version: DOCLING_VERSION, format, status: result.status }, ...parsed, warnings };
   } catch (error) {
-    if (format === "pdf" && getDocumentParserReadiness().ready) {
+    if (format === "pdf" && (await getDocumentParserReadiness()).ready) {
       try {
-        const recovered = await getRecoveryConverter().convertAsync(
+        const recovered = await (await getRecoveryConverter()).convertAsync(
           { name: fileNameForFormat(fileName, format), data: buffer, format },
           { to: "json", imageMode: "placeholder" }
         );
         const parsed = blocksFromDocling(JSON.parse(recovered.content));
+        console.log(`[docling] recovered ${format} with tolerant docling.rs pass status=${recovered.status}`);
         return {
           parser: { name: "docling.rs", version: DOCLING_VERSION, format, status: recovered.status },
           ...parsed,
@@ -271,10 +276,24 @@ export async function parseDocument(buffer: Buffer, mimeType: string, fileName: 
           }],
         };
       } catch (recoveryError) {
-        return legacyFallback(buffer, mimeType, format,
-          `strict pass: ${error instanceof Error ? error.message : String(error)}; recovery pass: ${recoveryError instanceof Error ? recoveryError.message : String(recoveryError)}`);
+        if (allowLegacyFallback()) {
+          return legacyFallback(buffer, mimeType, format,
+            `strict pass: ${error instanceof Error ? error.message : String(error)}; recovery pass: ${recoveryError instanceof Error ? recoveryError.message : String(recoveryError)}`);
+        }
+        throw new Error(
+          `Docling failed to parse this ${format} document: ` +
+          `${error instanceof Error ? error.message : String(error)}; recovery: ` +
+          `${recoveryError instanceof Error ? recoveryError.message : String(recoveryError)}`
+        );
       }
     }
-    return legacyFallback(buffer, mimeType, format, error);
+    if (allowLegacyFallback()) {
+      return legacyFallback(buffer, mimeType, format, error);
+    }
+    throw new Error(
+      `Docling is required for ${format} parsing in production. ` +
+      `${error instanceof Error ? error.message : String(error)}. ` +
+      `Set DOCUMENT_PARSER_FALLBACK=1 only as an emergency override.`
+    );
   }
 }

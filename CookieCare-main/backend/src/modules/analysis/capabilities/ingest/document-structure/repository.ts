@@ -46,16 +46,22 @@ export async function loadLatestDocumentGraph(userId: string, fileId: string): P
   });
 }
 
+function isLayoutDocument(mimeType: string, fileName = ""): boolean {
+  const mime = mimeType.toLowerCase();
+  const name = fileName.toLowerCase();
+  return mime.includes("pdf") || mime.includes("wordprocessingml") || mime.includes("msword")
+    || name.endsWith(".pdf") || name.endsWith(".docx") || name.endsWith(".doc");
+}
+
+function isDoclingGraph(graph: CanonicalDocumentGraph): boolean {
+  return graph.parser.name === "docling.rs";
+}
+
 export async function ensureDocumentGraph(
   userId: string,
   fileId: string,
-  options: { forceRebuild?: boolean } = {}
+  options: { forceRebuild?: boolean; requireDocling?: boolean } = {}
 ): Promise<CanonicalDocumentGraph> {
-  if (!options.forceRebuild) {
-    const existing = await loadLatestDocumentGraph(userId, fileId);
-    if (existing) return existing;
-  }
-
   const source = await withTransaction(userId, "USER", async (client) => {
     const { rows } = await client.query(
       `SELECT f.id, f.title, f.mime_type, f.original_file, f.content, f.is_encrypted,
@@ -66,14 +72,38 @@ export async function ensureDocumentGraph(
     return rows[0];
   });
   if (!source) throw new Error(`Document not found: ${fileId}`);
+
+  const fileName = String(source.title || fileId);
+  const storedMime = String(source.mime_type || "application/octet-stream");
+  const layoutDocument = isLayoutDocument(storedMime, fileName);
+  const edited = Number(source.version_count ?? 0) > 1;
+  const originalBytes = source.original_file ? Buffer.from(source.original_file, "base64") : null;
+
+  if (!options.forceRebuild) {
+    const existing = await loadLatestDocumentGraph(userId, fileId);
+    if (existing) {
+      const reuse = !layoutDocument || edited || isDoclingGraph(existing) || !originalBytes;
+      if (reuse) {
+        if (options.requireDocling && layoutDocument && !edited && !isDoclingGraph(existing)) {
+          throw new Error(
+            `Analysis requires Docling structure for ${fileName}, but the stored graph was built with ${existing.parser.name}. Re-upload the original PDF/DOCX.`
+          );
+        }
+        return existing;
+      }
+    }
+  }
+
   let versionId = source.version_id as string | undefined;
   const decrypted = source.is_encrypted ? decryptData(source.content) : String(source.content ?? "");
-  // original_file is immutable while files.content represents the latest
-  // version. Preserve the rich source only for an untouched initial upload;
-  // edited documents must be graphed from their current canonical text.
-  const canUseOriginal = Boolean(source.original_file) && Number(source.version_count ?? 0) <= 1;
-  const buffer = canUseOriginal ? Buffer.from(source.original_file, "base64") : Buffer.from(decrypted, "utf8");
-  const mimeType = canUseOriginal ? String(source.mime_type || "application/octet-stream") : "text/plain";
+  // Untouched PDF/DOCX uploads must be graphed from original bytes so Docling
+  // runs. Edited documents are plaintext and stay on the text-native path.
+  if (layoutDocument && !edited && !originalBytes && options.requireDocling) {
+    throw new Error(`Analysis requires the original ${fileName} bytes for Docling. Re-upload the document.`);
+  }
+  const canUseOriginal = Boolean(originalBytes) && !edited;
+  const buffer = canUseOriginal ? originalBytes! : Buffer.from(decrypted, "utf8");
+  const mimeType = canUseOriginal ? storedMime : "text/plain";
   if (!versionId) {
     versionId = `ver_${crypto.randomUUID()}`;
     const encryptedContent = source.is_encrypted ? source.content : encryptData(decrypted);
@@ -82,7 +112,12 @@ export async function ensureDocumentGraph(
     });
   }
   const graph = await buildDocumentGraph({ artifactId: `dsa_${crypto.randomUUID()}`, fileId,
-    documentVersionId: versionId, fileName: String(source.title || fileId), mimeType, buffer });
+    documentVersionId: versionId, fileName, mimeType, buffer });
+  if (options.requireDocling && layoutDocument && !edited && !isDoclingGraph(graph)) {
+    throw new Error(
+      `Analysis requires Docling for ${fileName}, but the parser returned ${graph.parser.name}. Check Docling native assets on this instance.`
+    );
+  }
   await persistDocumentGraph(userId, graph);
   // An idempotent rebuild can update an existing (version, schema, parser)
   // row whose artifact id predates this attempt. Return the persisted record.
