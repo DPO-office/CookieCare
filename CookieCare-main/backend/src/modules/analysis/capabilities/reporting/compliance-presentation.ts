@@ -24,6 +24,7 @@ const COLUMNS: ComplianceTableColumn[] = [
   "Transfer mechanism", "Destination", "Legal basis", "Timing",
 ];
 const SPECIAL_COLUMN_SIGNAL: Partial<Record<ComplianceTableColumn, RegExp>> = {
+  "Gap or qualification": /\b(?:gaps?|qualifications?|missing|unresolved|shortfall|exception|exceptions)\b/i,
   "Parties and roles": /\b(?:data )?(?:exporter|importer|controller|processor|subprocessor|recipient|sender|party|parties|role|roles)\b/i,
   "Transfer mechanism": /\b(?:transfer mechanisms?|SCCs?|standard contractual clauses?|BCRs?|binding corporate rules?|adequacy decision|derogation)\b/i,
   Destination: /\b(?:destinations?|third countr(?:y|ies)|recipient countr(?:y|ies)|country of import|transfer countr(?:y|ies))\b/i,
@@ -67,11 +68,26 @@ export function defaultCompliancePresentationPlan(
   const questionsFor = (findingIds: string[]) => [...new Set(snapshot.rows
     .filter(row => findingIds.includes(reportOutcomeId(row))).flatMap(row => (row.answers ?? [])
       .filter(answer => answer.questionId !== "user_request").map(answer => answer.questionId)))];
+
+  const overviewColumns: ComplianceTableColumn[] = [...DEFAULT_COLUMNS];
+  const specialCandidates: ComplianceTableColumn[] = [
+    "Parties and roles", "Transfer mechanism", "Destination", "Legal basis", "Timing", "Gap or qualification"
+  ];
+  for (const candidate of specialCandidates) {
+    const signal = SPECIAL_COLUMN_SIGNAL[candidate];
+    if (signal && overviewColumns.length < 6) {
+      if (signal.test(snapshot.instruction) || snapshot.rows.some(row => (row.answers ?? []).some(a => a.questionId !== "user_request" && signal.test(a.question ?? "")))) {
+        overviewColumns.push(candidate);
+        break;
+      }
+    }
+  }
+
   const add = (kind: Section["kind"], heading: string, findingIds: string[] = []) => sections.push({
     id: `S${sections.length + 1}`,
     requestItemIds: kind === "answer" || (mode === "table_only" && kind === "overview") ? ["request:primary"] : [],
     questionIds: kind === "answer" ? allQuestionIds : questionsFor(findingIds),
-    kind, heading, findingIds, columns: kind === "overview" ? [...DEFAULT_COLUMNS] : [], detailWords: detailCapFor(snapshot, mode),
+    kind, heading, findingIds, columns: kind === "overview" ? [...overviewColumns] : [], detailWords: detailCapFor(snapshot, mode),
   });
   if (mode !== "table_only") add("answer", "Executive summary");
   if (mode !== "narrative") add("overview", "Compliance overview", snapshot.rows.map(r => reportOutcomeId(r)));
@@ -540,6 +556,10 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
     return shown.map(provisionItem).join(" · ") + (hidden > 0 ? ` · +${hidden} more (see details)` : "");
   };
   let excerptsShortened = false;
+  const additionalItem = (e: typeof allEvidence[number]) => {
+    const excerpt = tableExcerpt(e.quote);
+    return excerpt ? `${locator(e)}, which says: “${excerpt}”` : locator(e);
+  };
   const evidence = (r: ComplianceReportRow) => {
     const { primary, secondary } = selectEvidence(r);
     if (!primary.length) return noProvision(r);
@@ -552,7 +572,18 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
       return `**${index + 1}.** See ${locator(e)}\n\n${quoteBlock(excerpt)}`;
     });
     const additional = [...primary.slice(visible.length), ...secondary];
-    if (additional.length) blocks.push(`*Additional supporting references: ${additional.map(locator).join("; ")}.*`);
+    const uniqueAdditional: typeof allEvidence = [];
+    const seenAdditional = new Set<string>();
+    for (const e of additional) {
+      const loc = locator(e);
+      if (!seenAdditional.has(loc)) {
+        seenAdditional.add(loc);
+        uniqueAdditional.push(e);
+      }
+    }
+    if (uniqueAdditional.length) {
+      blocks.push(`*Additional supporting references: ${uniqueAdditional.map(additionalItem).join("; ")}.*`);
+    }
     return blocks.join("\n\n");
   };
   const draftedAction = (r: ComplianceReportRow) => prose.get(reportOutcomeId(r))?.recommendedAction ?? "";

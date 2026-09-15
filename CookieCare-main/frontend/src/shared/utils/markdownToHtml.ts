@@ -10,7 +10,7 @@
 import MarkdownIt from "markdown-it";
 
 const md = new MarkdownIt({
-  html: false,       // Do not pass raw HTML through — keep it safe
+  html: true,        // Allow citation badges and styled markup
   linkify: true,     // Auto-convert URLs to links
   typographer: true, // Smart quotes, dashes, etc.
   breaks: false,     // Respect blank lines for paragraphs (GFM-style single \n · <br> is off)
@@ -479,6 +479,135 @@ function summarizeAnswer(html: string): string {
   );
 }
 
+function escapeAttr(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/'/g, "&#39;");
+}
+
+/**
+ * Selectively bolds key metrics, notice periods, deadlines, legal citations,
+ * and core legal terms in prose paragraphs so executive readers can easily scan.
+ * Uses replaceTextInHtml to guarantee HTML tags & attributes are never mutated.
+ */
+function autoBoldKeyTerms(html: string): string {
+  return replaceTextInHtml(html, (text, tag) => {
+    // Skip bolding inside headings, table headers, superscript badges, and existing strong tags
+    if (
+      tag.startsWith("h") ||
+      tag === "th" ||
+      tag === "sup" ||
+      tag === "strong"
+    ) {
+      return text;
+    }
+
+    let bolded = text;
+
+    // 1. Timeframes, deadlines, notice periods (e.g. "10 days", "5 business days", "90 days")
+    bolded = bolded.replace(
+      /\b(\d+\s+(?:calendar\s+|business\s+)?(?:days?|weeks?|months?|years?|hours?))\b(?![^<]*<\/strong>)/gi,
+      "<strong>$1</strong>"
+    );
+
+    // 2. Articles and GDPR citations (e.g. "Article 28(1)", "Article 28(3)(a)")
+    bolded = bolded.replace(
+      /\b(Article\s+\d+(?:\(\d+\))?(?:\([a-z0-9]+\))?)\b(?![^<]*<\/strong>)/gi,
+      "<strong>$1</strong>"
+    );
+
+    // 3. Core legal terms & obligations
+    bolded = bolded.replace(
+      /\b(prior written authorization|written authorization|advance notice|written agreement|documented instructions|technical and organizational measures|confidentiality obligations|data protection impact assessment|sub-processor engagement|data subject rights)\b(?![^<]*<\/strong>)/gi,
+      "<strong>$1</strong>"
+    );
+
+    return bolded;
+  });
+}
+
+/**
+ * Safely performs regex text replacements on HTML, operating strictly on text
+ * content outside HTML tags and attributes to prevent attribute corruption.
+ */
+function replaceTextInHtml(
+  html: string,
+  replacer: (textToken: string, currentTag: string, currentClass: string) => string
+): string {
+  const parts = html.split(/(<[^>]+>)/g);
+  let currentTag = "";
+  let currentClass = "";
+  for (let i = 0; i < parts.length; i++) {
+    if (i % 2 === 1) {
+      const tagMatch = parts[i].match(/<(\/?[\w-]+)([^>]*)>/);
+      if (tagMatch) {
+        currentTag = tagMatch[1].toLowerCase();
+        const classMatch = tagMatch[2].match(/class=["']([^"']*)["']/i);
+        currentClass = classMatch ? classMatch[1].toLowerCase() : "";
+      }
+    } else {
+      if (parts[i]) {
+        parts[i] = replacer(parts[i], currentTag, currentClass);
+      }
+    }
+  }
+  return parts.join("");
+}
+
+/**
+ * Transforms clause pointers into interactive citation badges with popover tooltips.
+ * Embeds full quoted text in the popover data-quote attribute so hovering over
+ * badge [1], [2], etc. shows the exact clause excerpt without bloating inline text.
+ * BADGES ARE CREATED ONLY WHERE ACTUAL QUOTES EXIST (table cells & supporting clause items).
+ */
+function injectCitationBadges(html: string): string {
+  let badgeId = 1;
+
+  // Pass 1: Supporting Clauses where `<p>...See Clause X...</p>`
+  // MUST be a SINGLE <p> tag containing `See `, immediately followed by `<blockquote>“Quote...”</blockquote>`.
+  // Use `(?:(?!<\/p>)[\s\S])*?` to ensure match NEVER crosses <p> paragraph boundaries!
+  let processed = html.replace(
+    /(<p\b[^>]*>(?:(?!<\/p>)[\s\S])*?\bSee\s+([A-Za-z0-9\s._\-()§#;·]+)\s*<\/p>)\s*<blockquote\b[^>]*>([\s\S]*?)<\/blockquote>/gi,
+    (fullMatch, pTag, pointer, blockquoteContent) => {
+      const p = pointer.trim();
+      let q = blockquoteContent
+        ? blockquoteContent
+            .replace(/<[^>]+>/g, " ")
+            .replace(/^["“]|["”]$/g, "")
+            .replace(/\s+/g, " ")
+            .trim()
+        : "";
+      if (!q) {
+        return fullMatch;
+      }
+      const num = badgeId++;
+      const badge = `<sup class="md-citation-badge" data-doc="Reviewed Document" data-pointer="${escapeAttr(p)}" data-quote="${escapeAttr(q)}">${num}</sup>`;
+      // Safely append badge right before </p> tag end of THIS single <p> tag. Blockquote is removed!
+      return pTag.replace(/<\/p>$/i, ` ${badge}</p>`);
+    }
+  );
+
+  // Pass 2: Inline table & references quotes like `See Clause 1.1, which says: “Quote...”` or `Clause 9, which says: “Quote...”`
+  // Cleanly replace `, which says: “Quote...”` with the citation badge. The quote text is stored in data-quote for hover popovers.
+  processed = replaceTextInHtml(processed, (text) => {
+    return text.replace(
+      /(See\s+)?([A-Za-z0-9\s._\-()§#;·]+?),\s*which says:\s*(?:“|"|&ldquo;|&#8220;)([\s\S]*?)(?:”|"|&rdquo;|&#8221;)(?=[;,.*<]|\s*[\n$])/g,
+      (_, seePrefix, pointer, quote) => {
+        const p = pointer.trim();
+        const q = quote.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+        const num = badgeId++;
+        const prefix = seePrefix || "";
+        return `${prefix}${p} <sup class="md-citation-badge" data-doc="Reviewed Document" data-pointer="${escapeAttr(p)}" data-quote="${escapeAttr(q)}">${num}</sup>`;
+      }
+    );
+  });
+
+  return processed;
+}
+
 const MARKDOWN_CACHE_MAX = 24;
 const markdownHtmlCache = new Map<string, string>();
 
@@ -499,7 +628,7 @@ export function markdownToHtml(markdown: string): string {
   const cleaned = stripDocumentTitles(stripOuterCodeFences(markdown));
   // Compliance prose has already passed the locked-finding report validator.
   // Keep its reader-facing executive summary instead of replacing it with table counts.
-  const html = omitSources(wrapCompoundAnalysis(wrapTables(md.render(cleaned))));
+  const html = autoBoldKeyTerms(injectCitationBadges(omitSources(wrapCompoundAnalysis(wrapTables(md.render(cleaned))))));
 
   if (markdownHtmlCache.size >= MARKDOWN_CACHE_MAX) {
     const oldest = markdownHtmlCache.keys().next().value;
