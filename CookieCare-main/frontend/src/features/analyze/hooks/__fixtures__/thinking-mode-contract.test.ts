@@ -13,6 +13,8 @@ function buildInstruction(
   const extras: string[] = [];
   if (answerStyle === "tabular") {
     extras.push("Present findings as a table.");
+  } else {
+    extras.push("Present the response in narrative form without tables.");
   }
   return [prompt.trim(), ...extras].join("\n\n");
 }
@@ -21,8 +23,8 @@ describe("thinkingMode FE/BE instruction contract", () => {
   it("does not inject lite/deep prose into the instruction", () => {
     const lite = buildInstruction("Analyse this NDA.", "narrative");
     const deep = buildInstruction("Analyse this NDA.", "narrative");
-    assert.equal(lite, "Analyse this NDA.");
-    assert.equal(deep, "Analyse this NDA.");
+    assert.equal(lite, "Analyse this NDA.\n\nPresent the response in narrative form without tables.");
+    assert.equal(deep, "Analyse this NDA.\n\nPresent the response in narrative form without tables.");
     assert.doesNotMatch(lite, /concise|thorough|in-depth/i);
   });
 

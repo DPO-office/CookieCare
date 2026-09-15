@@ -273,7 +273,7 @@ const COMPLIANCE_COL_CLASS: Record<string, string> = {
   "contract provision": "md-col-provision",
   assessment: "md-col-assessment",
   "gap or qualification": "md-col-assessment",
-  "recommended action": "md-col-assessment",
+  "recommended action": "md-col-action",
   "parties and roles": "md-col-specialized",
   "transfer mechanism": "md-col-specialized",
   destination: "md-col-specialized",
@@ -442,7 +442,7 @@ function joinOverviewNames(names: string[]): string {
 
 /** Replace a canned Answer block with a short summary taken from the overview table. */
 function summarizeAnswer(html: string): string {
-  if (!/<h2>\s*Answer\s*<\/h2>/i.test(html)) return html;
+  if (!/<h2>\s*(?:Answer|Executive summary)\s*<\/h2>/i.test(html)) return html;
   const table = html.match(/<table\b[^>]*class="[^"]*md-table-compliance[^"]*"[\s\S]*?<\/table>/i)?.[0]
     ?? html.match(/<table\b[\s\S]*?<\/table>/i)?.[0];
   if (!table) return html;
@@ -474,7 +474,7 @@ function summarizeAnswer(html: string): string {
     line("verification incomplete", "could not be fully verified", "could not be fully verified"),
   ].filter(Boolean).join(" ");
   return html.replace(
-    /(<h2>\s*Answer\s*<\/h2>)([\s\S]*?)(?=<h2>|$)/i,
+    /(<h2>\s*(?:Answer|Executive summary)\s*<\/h2>)([\s\S]*?)(?=<h2>|$)/i,
     `$1<p>${summary}</p>`
   );
 }
@@ -497,7 +497,9 @@ export function markdownToHtml(markdown: string): string {
   if (cached !== undefined) return cached;
 
   const cleaned = stripDocumentTitles(stripOuterCodeFences(markdown));
-  const html = summarizeAnswer(omitSources(wrapCompoundAnalysis(wrapTables(md.render(cleaned)))));
+  // Compliance prose has already passed the locked-finding report validator.
+  // Keep its reader-facing executive summary instead of replacing it with table counts.
+  const html = omitSources(wrapCompoundAnalysis(wrapTables(md.render(cleaned))));
 
   if (markdownHtmlCache.size >= MARKDOWN_CACHE_MAX) {
     const oldest = markdownHtmlCache.keys().next().value;

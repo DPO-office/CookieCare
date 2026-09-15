@@ -866,6 +866,12 @@ export const ANALYZE_STYLES = `
 .analyze-report-prose .md-content table.md-table-compliance .md-col-assessment {
   width: 410px;
   min-width: 410px;
+  white-space: pre-line;
+}
+
+.analyze-report-prose .md-content table.md-table-compliance .md-col-action {
+  width: 380px;
+  min-width: 380px;
 }
 
 .analyze-report-prose .md-content table.md-table-compliance .md-col-specialized {
@@ -881,10 +887,6 @@ export const ANALYZE_STYLES = `
   font-weight: 650;
   color: #1F2937;
   white-space: nowrap;
-}
-
-.md-clause-text--roomy {
-  -webkit-line-clamp: 5;
 }
 
 /* 5-column+ tables (non-requirements): revert to auto so the browser distributes extra columns */
@@ -1050,6 +1052,10 @@ export const ANALYZE_STYLES = `
   margin: 0;
   padding: 0;
   cursor: zoom-in;
+}
+
+.md-clause-text.md-clause-text--roomy {
+  -webkit-line-clamp: 5;
 }
 
 .md-clause-text.md-clause-expanded {

@@ -21,6 +21,8 @@ export interface ComplianceReportRow {
   canonicalKey: string;
   legalCitation: string;
   title: string;
+  /** Authored rule proposition used to explain the expected standard to the reader. */
+  requirementStandard?: string;
   status: RequirementStatus;
   statusLabel: "Present" | "Partial" | "Gap" | "Cannot determine" | "Not applicable" | "Conflicting" | "Judgment required" | "Verification incomplete";
   recommendedAction: string;
@@ -67,6 +69,8 @@ export interface ComplianceReportSnapshot {
   /** Versioned canonical decisions retained for replay; absent for historical/legacy snapshots. */
   outcomes?: ComplianceCheckOutcome[];
   instruction: string;
+  /** Presentation density selected for this run. It never changes the locked findings. */
+  presentationDepth?: "lite" | "deep";
   scope: string;
   documents: Array<{ documentId: string; title: string; contentHash: string; role?: string }>;
   rows: ComplianceReportRow[];
@@ -75,7 +79,7 @@ export interface ComplianceReportSnapshot {
 }
 
 export type CompliancePresentationMode = "layered" | "short" | "detailed" | "narrative" | "table_only";
-export type ComplianceSectionKind = "answer" | "overview" | "details" | "actions" | "limitations" | "sources";
+export type ComplianceSectionKind = "answer" | "overview" | "risks" | "details" | "actions" | "conclusion" | "limitations" | "sources";
 export type ComplianceTableColumn =
   | "Requirement"
   | "Status"
@@ -108,10 +112,10 @@ export interface CompliancePresentationPlan {
   }>;
 }
 
-/** Only these prose fields may be rewritten; statuses, citations and actions are code-owned. */
+/** Only these prose fields may be rewritten; statuses and citations remain code-owned. */
 export interface ComplianceReportDraft {
   answer: string;
-  rows: Array<{ findingId: string; assessment: string; explanation: string }>;
+  rows: Array<{ findingId: string; assessment: string; explanation: string; recommendedAction: string }>;
 }
 
 export interface ComplianceReportValidation {

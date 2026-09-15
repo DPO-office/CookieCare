@@ -74,7 +74,7 @@ describe("bounded compliance report generation", () => {
     assert.deepEqual(tokens, []);
     assert.equal(result.complianceReportValidation?.source, "validated_writer");
     assert.equal(result.compliancePresentationPlan?.version, 2);
-    assert.deepEqual(result.compliancePresentationPlan?.sections.map(section => section.id), ["S1", "S2", "S3", "S4"]);
+    assert.deepEqual(result.compliancePresentationPlan?.sections.map(section => section.id), ["S1", "S2", "S3", "S4", "S5"]);
     assert.deepEqual(result.complianceReportValidation?.coverage?.map(item => item.itemId), ["request:primary"]);
     assert.equal(result.complianceReportValidation?.generation?.modelCalls, 2);
     assert.equal(result.complianceReportValidation?.generation?.schemaVersion, "1.0");
@@ -130,7 +130,7 @@ describe("bounded compliance report generation", () => {
     assert.deepEqual(calls, ["compose"]);
     assert.equal(result.complianceReportValidation?.source, "deterministic");
     assert.equal(result.complianceReportValidation?.generation?.fallbackReason, "composition_failed");
-    assert.match(result.renderedOutput!, /Report status/);
+    assert.doesNotMatch(result.renderedOutput!, /Report status|polished composition|deterministic verified-finding/);
     assert.ok(result.renderedOutput);
   });
   it("makes no LLM calls for an empty accepted set and accounts for missing checks", async () => {
@@ -161,7 +161,7 @@ describe("bounded compliance report generation", () => {
       const result = await renderComplianceReport(state(), async () => { assert.fail("No LLM call expected"); });
       assert.equal(result.complianceReportValidation?.generation?.fallbackReason, "adaptive_disabled");
       assert.equal(result.complianceReportValidation?.generation?.modelCalls, 0);
-      assert.match(result.renderedOutput!, /Report status/);
+      assert.doesNotMatch(result.renderedOutput!, /Report status|Adaptive composition/);
     } finally {
       if (previous === undefined) delete process.env.COMPLIANCE_REPORTING_ADAPTIVE;
       else process.env.COMPLIANCE_REPORTING_ADAPTIVE = previous;
@@ -173,19 +173,18 @@ describe("bounded compliance report generation", () => {
     try {
       const result = await renderComplianceReport(state(), async () => { assert.fail("No LLM call expected"); });
       assert.equal(result.complianceReportValidation?.generation?.fallbackReason, "context_limit");
-      assert.match(result.renderedOutput!, /complete deterministic verified-finding presentation/);
+      assert.doesNotMatch(result.renderedOutput!, /Report status|deterministic verified-finding/);
     } finally {
       if (previous === undefined) delete process.env.ANALYSIS_REPORTING_MAX_INPUT_CHARS;
       else process.env.ANALYSIS_REPORTING_MAX_INPUT_CHARS = previous;
     }
   });
-  it("uses the remaining end-to-end run deadline instead of allocating a fresh two minutes", async () => {
+  it("still gives reporting its own dedicated window even after the overall run budget is exhausted", async () => {
     const input = state();
     input.metadata.timestamp = new Date(Date.now() - 121_000).toISOString();
-    const result = await renderComplianceReport(input, async () => { assert.fail("No LLM call expected"); });
-    assert.equal(result.complianceReportValidation?.generation?.fallbackReason, "deadline");
-    assert.equal(result.complianceReportValidation?.generation?.deadlineMs, 0);
-    assert.match(result.renderedOutput!, /remaining end-to-end run budget/);
+    const result = await renderComplianceReport(input, async () => ({ plan: undefined, draft: undefined }));
+    assert.notEqual(result.complianceReportValidation?.generation?.fallbackReason, "deadline");
+    assert.ok((result.complianceReportValidation?.generation?.deadlineMs ?? 0) >= 55_000);
   });
   it("reserves enough analysis tokens for both composition and semantic validation", async () => {
     const input = state();
@@ -193,7 +192,7 @@ describe("bounded compliance report generation", () => {
     const result = await renderComplianceReport(input, async () => { assert.fail("No LLM call expected"); });
     assert.equal(result.complianceReportValidation?.generation?.fallbackReason, "token_budget");
     assert.equal(result.complianceReportValidation?.generation?.modelCalls, 0);
-    assert.match(result.renderedOutput!, /token budget was insufficient/);
+    assert.doesNotMatch(result.renderedOutput!, /token budget was insufficient|Report status/);
   });
 });
 

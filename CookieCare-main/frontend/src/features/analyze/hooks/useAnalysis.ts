@@ -26,6 +26,8 @@ function buildInstruction(
   const extras: string[] = [];
   if (answerStyle === "tabular") {
     extras.push("Present findings as a table.");
+  } else {
+    extras.push("Present the response in narrative form without tables.");
   }
   return [prompt.trim(), ...extras].join("\n\n");
 }
