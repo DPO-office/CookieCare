@@ -889,6 +889,53 @@ export const ANALYZE_STYLES = `
   white-space: nowrap;
 }
 
+/* ── Citation Badge & Hover Popover ───────────────────────────────────── */
+.md-citation-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 4px;
+  margin: 0 2px;
+  font-size: 9.5px;
+  font-weight: 700;
+  line-height: 1;
+  color: #4F5BD9;
+  background: #EEF2FF;
+  border: 1px solid #C7D2FE;
+  border-radius: 4px;
+  cursor: pointer;
+  vertical-align: 1px;
+  user-select: none;
+  touch-action: manipulation;
+  transition: all 120ms ease;
+}
+
+.md-citation-badge:hover,
+.md-citation-badge:active {
+  background: #4F5BD9;
+  color: #FFFFFF;
+  border-color: #4F5BD9;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(79, 91, 217, 0.25);
+}
+
+.analyze-citation-popover {
+  animation: popoverFadeIn 140ms ease-out forwards;
+}
+
+@keyframes popoverFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 /* 5-column+ tables (non-requirements): revert to auto so the browser distributes extra columns */
 .analyze-report-prose .md-content table.md-table-many-cols {
   table-layout: auto;

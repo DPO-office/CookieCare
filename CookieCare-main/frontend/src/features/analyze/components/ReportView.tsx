@@ -559,6 +559,13 @@ export default function ReportView({
   const reportBodyRef = useRef<HTMLDivElement>(null);
   const [questionModalOpen, setQuestionModalOpen] = useState(false);
   const [chatInput, setChatInput] = useState("");
+  const [activePopover, setActivePopover] = useState<{
+    docTitle: string;
+    pointer: string;
+    quote: string;
+    x: number;
+    y: number;
+  } | null>(null);
 
   useEffect(() => {
     ensureAnalyzeStyles();
@@ -618,9 +625,40 @@ export default function ReportView({
 
     container.addEventListener("click", handleToggleClick);
     container.addEventListener("keydown", handleToggleKeyDown);
+
+    function handleCitationHover(e: MouseEvent) {
+      const target = (e.target as HTMLElement).closest<HTMLElement>(".md-citation-badge");
+      if (!target) return;
+
+      const doc = target.getAttribute("data-doc") || "Document";
+      const pointer = target.getAttribute("data-pointer") || "Clause";
+      const quote = target.getAttribute("data-quote") || "";
+
+      if (!quote) return;
+
+      const rect = target.getBoundingClientRect();
+      const popoverWidth = 420;
+      const popoverHeight = 320;
+      const x = Math.min(rect.left, window.innerWidth - popoverWidth - 20);
+      const y = Math.min(rect.bottom + 8, window.innerHeight - popoverHeight - 20);
+
+      setActivePopover({
+        docTitle: doc,
+        pointer,
+        quote,
+        x: Math.max(16, x),
+        y: Math.max(16, y),
+      });
+    }
+
+    container.addEventListener("mouseover", handleCitationHover);
+    container.addEventListener("click", handleCitationHover);
+
     return () => {
       container.removeEventListener("click", handleToggleClick);
       container.removeEventListener("keydown", handleToggleKeyDown);
+      container.removeEventListener("mouseover", handleCitationHover);
+      container.removeEventListener("click", handleCitationHover);
     };
   }, []);
 
@@ -726,6 +764,44 @@ export default function ReportView({
             }}
             onClose={() => setQuestionModalOpen(false)}
           />
+        )}
+
+        {/* Floating Citation Clause Popover Card */}
+        {activePopover && (
+          <div
+            className="analyze-citation-popover fixed z-50 rounded-xl border border-[#E4E4E7] bg-white p-4 shadow-2xl"
+            style={{
+              top: `${activePopover.y}px`,
+              left: `${activePopover.x}px`,
+              width: "420px",
+              maxWidth: "calc(100vw - 32px)",
+            }}
+            onMouseLeave={() => setActivePopover(null)}
+          >
+            <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-[#F4F4F5]">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="shrink-0 rounded bg-[#EEF2FF] px-1.5 py-0.5 text-[10px] font-bold text-[#4F5BD9]">
+                  PDF
+                </span>
+                <span className="text-[12px] font-semibold text-[#18181B] truncate" title={activePopover.docTitle}>
+                  {activePopover.docTitle}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActivePopover(null)}
+                className="shrink-0 rounded-md p-1 text-[#A1A1AA] hover:bg-[#F4F4F5] hover:text-[#18181B] border-none bg-transparent cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+            <p className="mt-2.5 mb-1 text-[11px] font-bold uppercase tracking-wider text-[#4F5BD9]">
+              {activePopover.pointer}
+            </p>
+            <div className="mt-1 max-h-[220px] overflow-y-auto pr-1 text-[12.5px] leading-relaxed text-[#3F3F46] whitespace-pre-wrap font-serif bg-[#FAFAFA] p-3 rounded-lg border border-[#F4F4F5]">
+              “{activePopover.quote}”
+            </div>
+          </div>
         )}
 
         {/* Copy toast */}

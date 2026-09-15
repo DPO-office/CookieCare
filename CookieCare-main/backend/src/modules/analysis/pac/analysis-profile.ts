@@ -47,7 +47,7 @@ const LITE_PROFILE: AnalysisProfile = {
   maxTier2Attempts: 0,
   maxReplans: 0,
   thinkingByTask: {
-    [LLMTask.STRUCTURAL_JSON_LITE]: "minimal",
+    [LLMTask.STRUCTURAL_JSON_LITE]: "low",
     [LLMTask.STRUCTURAL_JSON]: "low",
     [LLMTask.REFINEMENT]: "low",
     // Deliberately no CRITIQUE_CHECKLIST override here: research doc §10 is

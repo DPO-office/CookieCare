@@ -105,47 +105,55 @@ async function ensureVectorExtension(client: any): Promise<void> {
 async function runIdempotentMigrations(client: any): Promise<void> {
   console.log("Running idempotent column migrations...");
 
-  // Embedding column type upgrade (guarded by an information_schema check)
+  const safeQuery = async (sql: string) => {
+    try {
+      await queryWithTimeout(client, sql, undefined, 5000);
+    } catch (err: any) {
+      console.warn(`[migrations] Non-fatal migration statement skipped (${err.message}).`);
+    }
+  };
+
+  // Lock timeout so migration statements do not hang if another session holds a lock
+  await safeQuery("SET lock_timeout = '3s';");
+
+  // Embedding column type upgrade
   try {
-    const embeddingTypeResult = await client.query(`
+    const embeddingTypeResult = await queryWithTimeout(client, `
       SELECT data_type FROM information_schema.columns
       WHERE table_name = 'legal_document_chunks' AND column_name = 'embedding'
-    `);
+    `, undefined, 5000);
     if (embeddingTypeResult.rows.length === 0 || embeddingTypeResult.rows[0].data_type !== 'USER-DEFINED') {
-      await client.query("ALTER TABLE legal_document_chunks ALTER COLUMN embedding TYPE vector(768) USING embedding::vector(768);");
+      await safeQuery("ALTER TABLE legal_document_chunks ALTER COLUMN embedding TYPE vector(768) USING embedding::vector(768);");
     }
   } catch (err: any) {
-    // pgvector may not be installed on this deployment — non-fatal.
     console.warn(`[migrations] Skipping embedding type upgrade: ${err.message}`);
   }
 
   // jobs table columns added post-initial-setup
-  await client.query(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS result JSONB DEFAULT NULL;`);
-  await client.query(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS error TEXT DEFAULT NULL;`);
-  await client.query(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;`);
+  await safeQuery(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS result JSONB DEFAULT NULL;`);
+  await safeQuery(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS error TEXT DEFAULT NULL;`);
+  await safeQuery(`ALTER TABLE jobs ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;`);
 
   // Google auth: make password_hash nullable for Google-only users
-  await client.query(`ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL;`);
-  await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_provider VARCHAR(50) NOT NULL DEFAULT 'LOCAL';`);
-  await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS google_sub VARCHAR(255) UNIQUE;`);
+  await safeQuery(`ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL;`);
+  await safeQuery(`ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_provider VARCHAR(50) NOT NULL DEFAULT 'LOCAL';`);
+  await safeQuery(`ALTER TABLE users ADD COLUMN IF NOT EXISTS google_sub VARCHAR(255) UNIQUE;`);
 
   // Vault library rows: UI shows dateModified from updated_at
-  await client.query(`
+  await safeQuery(`
     ALTER TABLE library_items
     ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
   `);
 
   // Vault scope: 'private' = current user only, 'org' = organisation-wide
-  await client.query(`
+  await safeQuery(`
     ALTER TABLE library_items
     ADD COLUMN IF NOT EXISTS source VARCHAR(20) NOT NULL DEFAULT 'private'
       CHECK (source IN ('private', 'org'));
   `);
 
-  // Negotiate: original file storage — raw uploaded bytes (base64 text) so the
-  // Vault "Open" button and getRawDocument can serve back the exact original file.
-  // Required by uploadDocument() and getRawDocument() in controllers/documents.ts.
-  await client.query(`
+  // Negotiate: original file storage
+  await safeQuery(`
     ALTER TABLE files ADD COLUMN IF NOT EXISTS original_file TEXT DEFAULT NULL;
   `);
 
