@@ -39,7 +39,10 @@ export function compileComplianceRule(skills: AnalysisSkillConfig[], skillId: st
     if (!kind || !["mandatory", "conditional", "alternative", "optional"].includes(kind) || (kind === "conditional" && !e.applicabilityGuidance?.trim())) {
       throw new Error(`baseline_unavailable: element ${e.id} needs explicit applicability/kind`);
     }
-    return { ...e, kind, required: kind === "mandatory" || kind === "conditional" };
+    const weight = typeof e.weight === "number" && e.weight >= 0
+      ? e.weight
+      : kind === "mandatory" ? 1.0 : kind === "conditional" ? 0.8 : kind === "alternative" ? 0.5 : 0.2;
+    return { ...e, kind, weight, required: kind === "mandatory" || kind === "conditional" };
   });
   const aggregation: ComplianceAggregation = rule.verification?.aggregation ?? {
     operator: "all", children: elements.filter(e => e.required).map(e => ({ elementId: e.id })),

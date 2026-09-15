@@ -594,7 +594,7 @@ function injectCitationBadges(html: string): string {
   // Cleanly replace `, which says: “Quote...”` with the citation badge. The quote text is stored in data-quote for hover popovers.
   processed = replaceTextInHtml(processed, (text) => {
     return text.replace(
-      /(See\s+)?([A-Za-z0-9\s._\-()§#;·]+?),\s*which says:\s*(?:“|"|&ldquo;|&#8220;)([\s\S]*?)(?:”|"|&rdquo;|&#8221;)(?=[;,.*<]|\s*[\n$])/g,
+      /(See\s+)?([A-Za-z0-9\s._\-()§#;·]+?),\s*which says:\s*(?:“|"|&ldquo;|&#8220;|&quot;|&#34;)([\s\S]*?)(?:”|"|&rdquo;|&#8221;|&quot;|&#34;)/g,
       (_, seePrefix, pointer, quote) => {
         const p = pointer.trim();
         const q = quote.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
