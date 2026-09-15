@@ -9,6 +9,12 @@ export function buildExplanation(r: VerificationRequest, result: VerificationRes
   }
   gaps.push(...(d?.elements.flatMap(e=>[...e.limitations,...e.conflicts].filter(c=>c.materiality!=="immaterial").map(c=>c.description)) ?? []));
   const title = r.check.rule?.title ?? r.check.ruleId;
+  const remediationByElement = new Map((r.check.rule?.elements ?? []).map(element => [element.id,
+    element.remediationGuidance?.trim() || `Address this missing requirement: ${element.description.trim()}`]));
+  const specificRemedies = [...new Set((d?.elements ?? [])
+    .filter(element => !["supported", "not_applicable"].includes(element.state) && element.applicability.state !== "not_applicable")
+    .map(element => remediationByElement.get(element.elementId)).filter((value): value is string => !!value))];
+  const specificRemedy = specificRemedies.slice(0, 4).join(" ");
   const conclusions: Record<RequirementStatus, string> = {
     present: "The required applicable provisions are established within the reviewed scope.",
     partial: "The reviewed provisions establish part of the requirement; the identified shortfall remains.",
@@ -33,7 +39,7 @@ export function buildExplanation(r: VerificationRequest, result: VerificationRes
       : status === "judgment_required" ? "Obtain legal review of the unresolved interpretation."
       : d?.dependencies.some(dep => dep.materiality !== "immaterial") ? "Obtain and review the referenced material, then complete the assessment."
       : status === "cannot_determine" ? "Resolve the identified evidence or scope limitations before concluding."
-      : status === "gap" ? "Add a provision satisfying the requirement, or confirm equivalent terms elsewhere in the agreement."
-      : "Amend the reviewed provisions to close the identified shortfall.",
+      : status === "gap" ? specificRemedy || `Add an express provision addressing ${title.toLowerCase()}.`
+      : specificRemedy || `Clarify the provision so it fully addresses ${title.toLowerCase()}.`,
   };
 }

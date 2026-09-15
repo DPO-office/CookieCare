@@ -73,6 +73,15 @@ test("recommended actions reflect the cause, not one generic phrase",()=>{
   result.decision.dependencies=[{id:"dep",elementIds:["instructions"],materiality:"material",reason:"annex"}];
   assert.match(buildExplanation(r,result,"partial").recommendedAction,/Obtain and review the referenced material/);
 });
+test("recommended actions use the remediation authored for each failed verification element",()=>{
+  const {r,result}=setup();
+  r.check.rule!.elements[0].remediationGuidance="Give the controller an express choice between return and deletion of personal data.";
+  result.decision.elements[0].state="not_located";
+  result.decision.elements[0].citations=[];
+  const action=buildExplanation(r,result,"gap").recommendedAction;
+  assert.equal(action,"Give the controller an express choice between return and deletion of personal data.");
+  assert.doesNotMatch(action,/amend the reviewed provisions|identified shortfall/i);
+});
 test("a role reassessment only forces judgment when it is the element's sole support",()=>{
   const {r,result}=setup();
   const el=result.decision.elements[0]; // "instructions", proven by a primary citation

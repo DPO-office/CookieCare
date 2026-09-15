@@ -5,7 +5,8 @@ import type {
   ComplianceReportRow, ComplianceReportSnapshot, ComplianceTableColumn,
 } from "../../models/compliance-report.js";
 
-// All tables, status labels, recommendations, pointers and quotations are code-owned.
+// Tables, status labels, recommendation placement, pointers and quotations are code-owned.
+// Recommendation wording may be synthesized from locked verification fields and is validated here.
 // The planner controls layout only; the writer controls answer/assessment/explanation only.
 const LABELS: Record<ComplianceReportRow["status"], string> = {
   present: "Present", partial: "Partial", gap: "Gap", cannot_determine: "Cannot determine",
@@ -17,9 +18,9 @@ const STATUS_MARK: Record<ComplianceReportRow["status"], string> = {
   not_applicable: "○", conflicting: "⚡", judgment_required: "⚖️",
   verification_incomplete: "🔍",
 };
-const DEFAULT_COLUMNS: ComplianceTableColumn[] = ["Requirement", "Status", "Contract provision", "Assessment"];
+const DEFAULT_COLUMNS: ComplianceTableColumn[] = ["Requirement", "Status", "Assessment", "Contract provision", "Recommended action"];
 const COLUMNS: ComplianceTableColumn[] = [
-  ...DEFAULT_COLUMNS, "Gap or qualification", "Recommended action", "Parties and roles",
+  ...DEFAULT_COLUMNS, "Gap or qualification", "Parties and roles",
   "Transfer mechanism", "Destination", "Legal basis", "Timing",
 ];
 const SPECIAL_COLUMN_SIGNAL: Partial<Record<ComplianceTableColumn, RegExp>> = {
@@ -30,8 +31,10 @@ const SPECIAL_COLUMN_SIGNAL: Partial<Record<ComplianceTableColumn, RegExp>> = {
   Timing: /\b(?:timeframe|deadline|timing|period|within \d+|without undue delay|prompt(?:ly)?|notice|notification|notify)\b/i,
 };
 const MODES: CompliancePresentationMode[] = ["layered", "short", "detailed", "narrative", "table_only"];
-const DETAIL_CAPS: Record<CompliancePresentationMode, number> = { layered: 80, short: 20, detailed: 120, narrative: 80, table_only: 40 };
-const KINDS = ["answer", "overview", "details", "actions", "limitations", "sources"] as const;
+const BASE_DETAIL_CAPS: Record<CompliancePresentationMode, number> = { layered: 60, short: 20, detailed: 120, narrative: 60, table_only: 40 };
+const detailCapFor = (snapshot: ComplianceReportSnapshot, mode: CompliancePresentationMode) =>
+  snapshot.presentationDepth === "deep" ? Math.max(BASE_DETAIL_CAPS[mode], mode === "narrative" ? 120 : mode === "layered" ? 100 : BASE_DETAIL_CAPS[mode]) : BASE_DETAIL_CAPS[mode];
+const KINDS = ["answer", "overview", "risks", "details", "actions", "conclusion", "limitations", "sources"] as const;
 const UNCERTAIN = new Set(["cannot_determine", "conflicting", "judgment_required", "verification_incomplete"]);
 type Section = CompliancePresentationPlan["sections"][number];
 const isObject = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
@@ -49,8 +52,9 @@ export function resolveCompliancePresentationMode(state: AnalysisState): Complia
   if (/\b(?:three|3) paragraphs?\b/.test(instruction) || /\b(?:no tables?|without (?:a )?tables?|narrative(?: only| format)?|prose only)\b/.test(instruction)) return "narrative";
   if (/\b(?:short|brief|concise|summary only)\b/.test(instruction)) return "short";
   if (/\b(?:detailed|in[ -]depth|comprehensive)\b/.test(instruction)) return "detailed";
-  // The API supplies narrative as a default, so answerStyle does not establish user intent.
+  if (state.request.answerStyle === "narrative") return "narrative";
   const depth = state.plan?.reportSpec?.depth ?? state.intent?.depth;
+  if (state.request.answerStyle === "tabular") return depth === "deep" ? "detailed" : "layered";
   return depth === "deep" ? "detailed" : depth === "narrow" ? "short" : "layered";
 }
 
@@ -67,18 +71,17 @@ export function defaultCompliancePresentationPlan(
     id: `S${sections.length + 1}`,
     requestItemIds: kind === "answer" || (mode === "table_only" && kind === "overview") ? ["request:primary"] : [],
     questionIds: kind === "answer" ? allQuestionIds : questionsFor(findingIds),
-    kind, heading, findingIds, columns: kind === "overview" ? [...DEFAULT_COLUMNS] : [], detailWords: DETAIL_CAPS[mode],
+    kind, heading, findingIds, columns: kind === "overview" ? [...DEFAULT_COLUMNS] : [], detailWords: detailCapFor(snapshot, mode),
   });
-  if (mode !== "table_only") add("answer", "Answer");
+  if (mode !== "table_only") add("answer", "Executive summary");
   if (mode !== "narrative") add("overview", "Compliance overview", snapshot.rows.map(r => reportOutcomeId(r)));
+  const attention = snapshot.rows.filter(r => r.status !== "present" && r.status !== "not_applicable").map(r => reportOutcomeId(r));
+  if (attention.length && mode !== "short" && mode !== "table_only") add("risks", "Key risks and priorities", attention);
   const details = requiredDetails(snapshot, mode);
   if (details.length) add("details", mode === "layered" ? "Findings requiring attention" : "Requirement details", details);
-  const actionable = snapshot.rows.filter(r => r.status !== "present" && r.status !== "not_applicable" && r.recommendedAction.trim())
-    .map(r => reportOutcomeId(r));
-  if (actionable.length && mode !== "short" && mode !== "table_only") add("actions", "Recommended actions", actionable);
-  if (mode === "table_only" || needsLimitations(snapshot)) add("limitations", mode === "table_only" ? "Scope and limitations" : "Limitations and outstanding checks");
+  if (mode !== "table_only") add("conclusion", "Conclusion");
   const paragraphLimit = /\b(?:three|3) paragraphs?\b/i.test(snapshot.instruction) ? 3 : 0;
-  return { version: 2, mode, paragraphLimit, rationale: "Complete reviewed coverage with code-owned tables, statuses, actions, pointers and quotations.", sections };
+  return { version: 2, mode, paragraphLimit, rationale: "User-centred presentation of locked findings with assessment-first detail, precise evidence and validated actions.", sections };
 }
 
 function exactKeys(value: Record<string, unknown>, keys: string[], path: string, errors: string[]) {
@@ -93,7 +96,9 @@ function technicalIds(s: ComplianceReportSnapshot): string[] {
       r.ruleVersion, r.documentHash, ...r.supportedElementIds, ...r.missingElementIds,
       ...r.evidence.flatMap(e => [e.spanId, e.documentId])]),
     ...s.outstandingChecks.map(c => c.requirementId), ...s.limitations.flatMap(l => [l.id, ...l.requirementIds]),
-  ].filter(Boolean))];
+  // A single ordinary word such as "duration" may be both an element id and
+  // necessary reader-facing prose. Treat only identifier-shaped values as leaks.
+  ].filter((id): id is string => !!id && (/[_.:/-]|\d/.test(id) || /^[0-9a-f]{12,}$/i.test(id))))];
 }
 const regexEscape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 function idPattern(id: string): RegExp {
@@ -160,16 +165,18 @@ export function validateCompliancePresentationPlan(
     if (!(KINDS as readonly string[]).includes(kind)) errors.push(`${path}: unknown section kind`);
     counts.set(kind, (counts.get(kind) ?? 0) + 1);
     if (typeof section.heading !== "string" || !/^[\p{L}\p{N}][\p{L}\p{N} ,:()/'’–—-]{0,99}$/u.test(section.heading) ||
-      /\b(?:critical|severe|severity|high|medium|low|urgent|risk|compliant|noncompliant|lawful|unlawful|legal|illegal|valid|invalid|enforceable|unenforceable|breach|breaches|violates|violation|satisfies|satisfied|meets|met|guarantees|safe|unsafe|fully|always|never|must|shall)\b/i.test(section.heading) ||
+      /\b(?:critical|severe|severity|high|medium|low|urgent|compliant|noncompliant|lawful|unlawful|legal|illegal|valid|invalid|enforceable|unenforceable|breach|breaches|violates|violation|satisfies|satisfied|meets|met|guarantees|safe|unsafe|fully|always|never|must|shall)\b/i.test(section.heading) ||
       leaksId(section.heading, snapshot)) errors.push(`${path}: heading must be plain and must not invent severity or a verdict`);
-    if (!Number.isInteger(section.detailWords) || Number(section.detailWords) < 20 || Number(section.detailWords) > DETAIL_CAPS[mode])
-      errors.push(`${path}: detailWords must be an integer from 20 to ${DETAIL_CAPS[mode]}`);
+    const detailCap = detailCapFor(snapshot, mode);
+    if (!Number.isInteger(section.detailWords) || Number(section.detailWords) < 20 || Number(section.detailWords) > detailCap)
+      errors.push(`${path}: detailWords must be an integer from 20 to ${detailCap}`);
     if (!Array.isArray(section.columns) || Array.from(section.columns).some(c => typeof c !== "string")) errors.push(`${path}: columns must be a string array`);
     else if (kind === "overview") {
       const columns = section.columns as string[];
       if (columns.length < 3 || columns.length > 6 || new Set(columns).size !== columns.length ||
-        !columns.includes("Requirement") || !columns.includes("Status") || columns.some(c => !COLUMNS.includes(c as ComplianceTableColumn)))
-        errors.push(`${path}: overview requires 3-6 unique allowed columns including Requirement and Status`);
+        !columns.includes("Requirement") || !columns.includes("Status") || !columns.includes("Assessment") || !columns.includes("Contract provision") ||
+        !columns.includes("Recommended action") || columns.some(c => !COLUMNS.includes(c as ComplianceTableColumn)))
+        errors.push(`${path}: overview requires 5-6 unique allowed columns including Requirement, Status, Assessment, Contract provision and Recommended action`);
       for (const column of columns)
         if (COLUMNS.includes(column as ComplianceTableColumn) && !supportsSpecialColumn(column as ComplianceTableColumn, snapshot))
           errors.push(`${path}: ${column} is not separately established by the request or locked finding topics`);
@@ -182,15 +189,13 @@ export function validateCompliancePresentationPlan(
       if (seen.has(id)) errors.push(`${path}: duplicate finding ID within ${kind}`);
       seen.add(id);
     }
-    if ((kind === "answer" || kind === "limitations") && section.findingIds.length) errors.push(`${path}: ${kind} must not select findings`);
+    if ((kind === "answer" || kind === "conclusion" || kind === "limitations") && section.findingIds.length) errors.push(`${path}: ${kind} must not select findings`);
   });
   for (const kind of KINDS) if (kind !== "details" && kind !== "overview" && (counts.get(kind) ?? 0) > 1) errors.push(`Only one ${kind} section is permitted`);
-  if ((counts.get("actions") ?? 0) && raw.sections.some(section => isObject(section) && section.kind === "overview" &&
-    Array.isArray(section.columns) && section.columns.includes("Recommended action")))
-    errors.push("Consolidate actions in the actions section instead of repeating them in a table");
+  if (counts.get("actions")) errors.push("Recommendations must stay with each finding instead of being separated from their assessment");
   if ((counts.get("overview") ?? 0) > 4) errors.push("At most four overview sections are permitted");
   if (mode === "table_only") {
-    if ((counts.get("answer") ?? 0) || (counts.get("details") ?? 0)) errors.push("table_only permits only overview, limitations and sources");
+    if ((counts.get("answer") ?? 0) || (counts.get("details") ?? 0) || (counts.get("conclusion") ?? 0)) errors.push("table_only permits only overview and sources");
   } else if (counts.get("answer") !== 1 || !isObject(raw.sections[0]) || raw.sections[0].kind !== "answer") errors.push("Exactly one answer must be first");
   if (mode === "narrative") {
     if (counts.get("overview")) errors.push("narrative must not contain an overview table");
@@ -201,14 +206,13 @@ export function validateCompliancePresentationPlan(
   };
   if (mode !== "narrative") cover("overview", [...known]);
   cover("details", requiredDetails(snapshot, mode));
-  const actionable = snapshot.rows.filter(r => r.status !== "present" && r.status !== "not_applicable" && r.recommendedAction.trim())
-    .map(r => reportOutcomeId(r));
-  if (mode !== "short" && mode !== "table_only" && actionable.length) {
-    if (counts.get("actions") !== 1) errors.push("Exactly one actions section is required for consolidated remediation");
-    cover("actions", actionable);
-    if ((byKind.get("actions")?.size ?? 0) !== actionable.length) errors.push("actions: include only actionable findings");
-  } else if (counts.get("actions")) errors.push(`${mode} must not contain a separate actions section`);
-  if ((mode === "table_only" || needsLimitations(snapshot)) && counts.get("limitations") !== 1) errors.push("A limitations section is required to retain scope and qualifications");
+  const attention = snapshot.rows.filter(r => r.status !== "present" && r.status !== "not_applicable").map(r => reportOutcomeId(r));
+  if (attention.length && mode !== "short" && mode !== "table_only") {
+    if (counts.get("risks") !== 1) errors.push("Exactly one risks section is required for findings needing attention");
+    cover("risks", attention);
+  } else if (counts.get("risks")) errors.push(`${mode} must not contain a risks section`);
+  if (counts.get("limitations")) errors.push("Qualifications must be integrated into the relevant assessment and conclusion, not shown as a standalone limitations section");
+  if (mode !== "table_only" && counts.get("conclusion") !== 1) errors.push("Exactly one conclusion section is required");
   if (mappedPlan) {
     if (!coveredRequestItems.has("request:primary")) errors.push("request coverage: primary request is not mapped to a section");
     if ([...knownQuestionIds].some(id => !coveredQuestionIds.has(id))) errors.push("request coverage: one or more dynamic questions are not mapped to a section");
@@ -239,11 +243,12 @@ function isCanned(text: string): boolean {
 }
 
 function verifiedFields(row: ComplianceReportRow): string[] {
-  return [row.title, row.legalCitation, row.whatTheDocumentProvides, row.whatIsMissingOrUnclear,
+  return [row.title, row.legalCitation, row.requirementStandard ?? "", row.whatTheDocumentProvides, row.whatIsMissingOrUnclear,
     row.whyItMatters, row.conclusion, row.recommendedAction, ...(row.answers ?? []).map(a=>a.answer), ...row.evidence.map(e => e.quote)];
 }
-function detailLimit(plan: CompliancePresentationPlan, id: string) {
-  return Math.min(plan.sections.find(s => s.kind === "details" && s.findingIds.includes(id))?.detailWords ?? DETAIL_CAPS[plan.mode], DETAIL_CAPS[plan.mode]);
+function detailLimit(plan: CompliancePresentationPlan, id: string, snapshot?: ComplianceReportSnapshot) {
+  const cap = snapshot ? detailCapFor(snapshot, plan.mode) : BASE_DETAIL_CAPS[plan.mode];
+  return Math.min(plan.sections.find(s => s.kind === "details" && s.findingIds.includes(id))?.detailWords ?? cap, cap);
 }
 const numerals = (s: string) => s.match(/\d+(?:[.,]\d+)*/g) ?? [];
 function descriptiveAssessment(text: string): boolean {
@@ -284,6 +289,20 @@ function proseErrors(text: unknown, path: string, limit: number, verified: strin
   return errors;
 }
 
+/** Recommendations may retain a legal reference already present in locked analysis. */
+function recommendationErrors(text: unknown, path: string, limit: number, verified: string[], s: ComplianceReportSnapshot,
+  row: ComplianceReportRow): string[] {
+  if (typeof text !== "string") return proseErrors(text, path, limit, verified, s, row);
+  const legalReference = /\b(?:article|arts?\.?|section|clause|paragraph|schedule|annex|appendix|chapter|page)\s+(?:\d+(?:[.,]\d+)*(?:\([a-z0-9]+\))*|[IVX]+\b)/gi;
+  const masked = text.replace(legalReference, token => verified.some(value => value.toLowerCase().includes(token.toLowerCase()))
+    ? "the verified requirement"
+    : token);
+  const errors = proseErrors(masked, path, limit, verified, s, row);
+  if (/^(?:amend the reviewed provisions to close the identified shortfall|add a provision satisfying the requirement|review and resolve the specific shortfall described in this finding)[.!]?$/i.test(text.trim()))
+    errors.push(`${path}: recommendation is generic and does not identify the required change`);
+  return errors;
+}
+
 /** Strip only verified element labels at the start of an explanation/action item. */
 function stripElementLabels(value: string, row: ComplianceReportRow): string {
   const ids = [...new Set([...row.supportedElementIds, ...row.missingElementIds])]
@@ -311,7 +330,7 @@ export function deterministicComplianceDraft(snapshot: ComplianceReportSnapshot,
         if (errors.some(error => error.includes("references, quotations") || error.includes("source quotation"))) return [];
         return text.split(/(?<=[.!?])\s+(?=[\p{Lu}\d])/u);
       };
-      const limit = detailLimit(plan, reportOutcomeId(row));
+      const limit = detailLimit(plan, reportOutcomeId(row), snapshot);
       const parts: string[] = [];
       for (const value of [...(row.answers ?? []).map(a=>a.answer), row.whatTheDocumentProvides, row.whatIsMissingOrUnclear, row.whyItMatters]) {
         const candidates = candidatesFor(value, limit);
@@ -325,9 +344,20 @@ export function deterministicComplianceDraft(snapshot: ComplianceReportSnapshot,
         ...(row.status !== "present" && row.status !== "not_applicable" ? [row.whatIsMissingOrUnclear] : []),
         ...(/\.{3}|\u2026|mandatory elements?|completeness gates|evidence bundle|scope[ -]compatible/i.test(row.conclusion) ? [] : [row.conclusion])]
         .flatMap(value => candidatesFor(value, 40));
+      const authoredAction = readable(row.recommendedAction, row);
+      const missing = readable(row.whatIsMissingOrUnclear, row);
+      const genericAction = /^(?:Amend the reviewed provisions to close the identified shortfall|Add a provision satisfying the requirement|Clarify the provision so it fully addresses)\b/i.test(authoredAction);
+      const actionCandidates = genericAction && !isCanned(missing)
+        ? [`Revise the provision to address this specific shortfall: ${missing}`, authoredAction]
+        : [authoredAction];
+      const recommendedAction = row.status === "present" || row.status === "not_applicable" ? ""
+        : actionCandidates.find(text => text && !recommendationErrors(text, "fallback action", 90, verifiedFields(row), snapshot, row).length)
+          || (!isCanned(missing) ? `Revise the provision to address this specific shortfall: ${missing}`
+            : "Obtain the missing material or clarification identified by this finding, then complete the requirement-specific review.");
       return { findingId: reportOutcomeId(row),
         assessment: assessmentCandidates.find(text => descriptiveAssessment(text) && !proseErrors(text, "fallback", 40, verifiedFields(row), snapshot, row).length) || FALLBACK[row.status],
         explanation: parts.join(" ") || FALLBACK[row.status],
+        recommendedAction,
       };
     }),
   };
@@ -346,7 +376,7 @@ export function validateComplianceDraft(raw: unknown, snapshot: ComplianceReport
   Array.from(raw.rows).forEach((value, i) => {
     const path = `rows[${i}]`;
     if (!isObject(value)) { errors.push(`${path}: must be an object`); return; }
-    exactKeys(value, ["findingId", "assessment", "explanation"], path, errors);
+    exactKeys(value, ["findingId", "assessment", "explanation", "recommendedAction"], path, errors);
     const row = typeof value.findingId === "string" ? known.get(value.findingId) : undefined;
     if (!row) { errors.push(`${path}: unknown finding ID`); return; }
     if (seen.has(reportOutcomeId(row))) errors.push(`${path}: duplicate finding ID`);
@@ -354,7 +384,10 @@ export function validateComplianceDraft(raw: unknown, snapshot: ComplianceReport
     if (typeof value.assessment === "string" && !descriptiveAssessment(value.assessment))
       errors.push(`${path}.assessment: use at least 4 words describing the contract position, not a status-only label`);
     errors.push(...proseErrors(value.assessment, `${path}.assessment`, 60, verifiedFields(row), snapshot, row));
-    errors.push(...proseErrors(value.explanation, `${path}.explanation`, detailLimit(plan, reportOutcomeId(row)), verifiedFields(row), snapshot, row));
+    errors.push(...proseErrors(value.explanation, `${path}.explanation`, detailLimit(plan, reportOutcomeId(row), snapshot), verifiedFields(row), snapshot, row));
+    if (row.status === "present" || row.status === "not_applicable") {
+      if (value.recommendedAction !== "") errors.push(`${path}.recommendedAction: must be empty when no remediation is indicated`);
+    } else errors.push(...recommendationErrors(value.recommendedAction, `${path}.recommendedAction`, 90, verifiedFields(row), snapshot, row));
   });
   if (snapshot.rows.some(r => !seen.has(reportOutcomeId(r)))) errors.push("draft.rows: missing required finding coverage");
   return errors;
@@ -395,13 +428,9 @@ function escapeInline(text: string): string {
     .replace(/&/g, "&amp;").replace(/[<>\\`*_\[\]#|~]/g, c => `&#${c.charCodeAt(0)};`)
     .replace(/^(\s*\d+)([.)])(?=\s)/, (_, digits: string, punctuation: string) => `${digits}&#${punctuation.charCodeAt(0)};`);
 }
-const TABLE_EXCERPT_CHARS = 220;
 function tableExcerpt(quote: string): string {
   const flat = quote.replace(/\s+/g, " ").trim();
-  if (!flat) return "";
-  if (flat.length <= TABLE_EXCERPT_CHARS) return escapeInline(flat);
-  const cut = flat.slice(0, TABLE_EXCERPT_CHARS).replace(/\s+\S*$/, "").trimEnd();
-  return `${escapeInline(cut || flat.slice(0, TABLE_EXCERPT_CHARS).trimEnd())}…`;
+  return flat ? escapeInline(flat) : "";
 }
 function statusMark(status: ComplianceReportRow["status"]): string {
   return `${STATUS_MARK[status]} **${LABELS[status]}**`;
@@ -467,28 +496,23 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
   if (draftErrors.length) throw new Error(`Invalid compliance draft: ${draftErrors.join("; ")}`);
   const clean = (s: string) => publicText(s, snapshot);
   const rows = new Map(snapshot.rows.map(r => [reportOutcomeId(r), r]));
+  const standards = new Map((snapshot.outcomes ?? []).map(outcome => [outcome.outcomeId, outcome.check.rule?.proposition ?? ""]));
   const prose = new Map(draft.rows.map(r => [r.findingId, r]));
   const orderedIds = [...new Set(plan.sections.flatMap(section => section.findingIds))];
   const orderedRows = [...orderedIds.map(id => rows.get(id)).filter((row): row is ComplianceReportRow => !!row),
     ...snapshot.rows.filter(row => !orderedIds.includes(reportOutcomeId(row)))];
   const allEvidence = orderedRows.flatMap(r => r.evidence);
-  // Source identity remains stable; display references are allocated from final report order.
-  const evidenceKey = (e: typeof allEvidence[number]) => JSON.stringify([e.documentId, e.pointer, e.quote, e.charRange]);
-  const refs = new Map<string, string>();
-  for (const e of allEvidence) {
-    const key = evidenceKey(e);
-    if (refs.has(key)) continue;
-    refs.set(key, `E${refs.size + 1}`);
-  }
   const locator = (e: typeof allEvidence[number]) => {
     const heading = withoutDocumentTitle(clean(e.pointer || e.structuralPath || "Location unavailable"));
-    return `**${heading || "Location unavailable"}** [${refs.get(evidenceKey(e))}]`;
+    // The precise source pointer is useful on its own. Internal-style E-number
+    // labels add noise because this report intentionally has no Sources list.
+    return heading || "Location unavailable";
   };
   const requirement = (r: ComplianceReportRow) => `**${clean(r.title)}**${r.legalCitation ? ` (${clean(r.legalCitation)})` : ""}`;
   const provisionItem = (e: typeof allEvidence[number]) => {
     const excerpt = tableExcerpt(e.quote);
     const role = e.use === "related" ? "Related evidence: " : e.use === "conflict" ? "Conflicting evidence: " : "";
-    return excerpt ? `${role}${locator(e)} - ${excerpt}` : locator(e);
+    return excerpt ? `${role}See ${locator(e)}, which says: “${excerpt}”` : `See ${locator(e)}`;
   };
   // One display entry per distinct source span. Operative proof (and any
   // conflict) leads; merely related passages are deduped and demoted so a
@@ -507,7 +531,7 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
   };
   const noProvision = (r: ComplianceReportRow) => r.status === "gap"
     ? "No matching provision found in reviewed scope" : "Evidence unavailable for this assessment";
-  const PROVISION_ITEMS = 3;
+  const PROVISION_ITEMS = snapshot.presentationDepth === "deep" ? 3 : 2;
   const provision = (r: ComplianceReportRow) => {
     const { primary, secondary } = selectEvidence(r);
     if (!primary.length) return noProvision(r);
@@ -515,22 +539,33 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
     const hidden = primary.length - shown.length + secondary.length;
     return shown.map(provisionItem).join(" · ") + (hidden > 0 ? ` · +${hidden} more (see details)` : "");
   };
+  let excerptsShortened = false;
   const evidence = (r: ComplianceReportRow) => {
     const { primary, secondary } = selectEvidence(r);
     if (!primary.length) return noProvision(r);
-    const blocks = primary.map((e, index) => {
-      const end = [...e.quote.matchAll(/\S+/g)][59]?.index;
+    const visible = primary.slice(0, snapshot.presentationDepth === "deep" ? 3 : 2);
+    const blocks = visible.map((e, index) => {
+      const maxWords = snapshot.presentationDepth === "deep" ? 65 : 35;
+      const end = [...e.quote.matchAll(/\S+/g)][maxWords - 1]?.index;
       const excerpt = end === undefined ? e.quote : e.quote.slice(0, end).trimEnd();
-      const contribution = e.use === "related" ? "" : e.contribution ?? "";
-      return `**${index + 1}.** ${locator(e)}\n\n${quoteBlock(excerpt)}${contribution ? "\n\n" + clean(contribution) : ""}`;
+      if (end !== undefined) excerptsShortened = true;
+      return `**${index + 1}.** See ${locator(e)}\n\n${quoteBlock(excerpt)}`;
     });
-    if (secondary.length) blocks.push(`*Related context, not relied on as proof: ${secondary.map(locator).join(" · ")}*`);
+    const additional = [...primary.slice(visible.length), ...secondary];
+    if (additional.length) blocks.push(`*Additional supporting references: ${additional.map(locator).join("; ")}.*`);
     return blocks.join("\n\n");
   };
-  const needsAction = (r: ComplianceReportRow) => r.status !== "present" && r.status !== "not_applicable" && !!r.recommendedAction.trim();
-  const action = (r: ComplianceReportRow) => clean(stripElementLabels(r.recommendedAction, r));
-  const hasActionSection = plan.sections.some(section => section.kind === "actions");
+  const draftedAction = (r: ComplianceReportRow) => prose.get(reportOutcomeId(r))?.recommendedAction ?? "";
+  const needsAction = (r: ComplianceReportRow) => r.status !== "present" && r.status !== "not_applicable" && !!draftedAction(r).trim();
+  const action = (r: ComplianceReportRow) => clean(stripElementLabels(draftedAction(r), r));
   const tableText = (value: string) => clean(value).replace(/\r?\n/g, " ").replace(/\|/g, "&#124;").trim();
+  const expectedStandard = (r: ComplianceReportRow) => clean(r.requirementStandard || standards.get(reportOutcomeId(r)) || r.title);
+  const emphasizeLead = (value: string) => {
+    const match = /^(.+?[.!?])(?:\s+|$)([\s\S]*)$/u.exec(value.trim());
+    const lead = match?.[1] ?? value.trim();
+    const rest = match?.[2]?.trim() ?? "";
+    return words(lead) <= 40 ? `**${lead}**${rest ? ` ${rest}` : ""}` : value;
+  };
   const gapOrQualification = (r: ComplianceReportRow) =>
     isCanned(r.whatIsMissingOrUnclear) ? "-" : tableText(stripElementLabels(r.whatIsMissingOrUnclear, r));
   const shownAction = (r: ComplianceReportRow) => needsAction(r) ? tableText(action(r)) : "-";
@@ -553,8 +588,13 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
   };
   const assessment = (r: ComplianceReportRow) => {
     const shown = shownAssessment(r);
-    if (!((plan.mode === "short" || plan.mode === "table_only") && needsAction(r))) return shown;
-    return shown === "—" ? `Recommended action: **${action(r)}**` : `${shown} Recommended action: **${action(r)}**`;
+    const documentPosition = shown === "-" ? clean(r.whatTheDocumentProvides || FALLBACK[r.status]) : shown;
+    const gap = gapOrQualification(r);
+    return [
+      `**Expected:** ${expectedStandard(r)}`,
+      `**Document:** ${documentPosition}`,
+      ...(gap === "-" ? [] : [`**Gap:** ${emphasizeLead(gap)}`]),
+    ].join(" &#10; ");
   };
   const shownExplanation = (r: ComplianceReportRow) => {
     const text = prose.get(reportOutcomeId(r))!.explanation;
@@ -595,8 +635,8 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
         const writer = clean(draft.answer);
         const canned = writer === conclusion(snapshot) || isCanned(draft.answer);
         body = [answerOverview(snapshot), ...(!canned && writer ? [writer] : []),
-          ...(needsLimitations(snapshot) ? ["This conclusion is qualified by the limitations and any outstanding checks below."] : []),
-          ...(counts ? [counts] : []), "Conclusions are limited to this scope."].join("\n\n");
+          ...(needsLimitations(snapshot) ? ["Some points remain unresolved; they are identified with the relevant findings below."] : []),
+          ...(counts ? [counts] : [])].join("\n\n");
         break;
       }
       case "overview": body = table(section.columns, selected.map(r => {
@@ -610,15 +650,29 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
         };
         return section.columns.map(c => cells[c]);
       })); break;
+      case "risks": body = selected.map(r => {
+        const documentPosition = clean(r.whatTheDocumentProvides || FALLBACK[r.status]);
+        const expected = expectedStandard(r);
+        const shortfall = isCanned(r.whatIsMissingOrUnclear)
+          ? shownExplanation(r) || FALLBACK[r.status]
+          : clean(stripElementLabels(r.whatIsMissingOrUnclear, r));
+        return [
+          `### ${requirement(r)}`,
+          `**Status:** ${statusMark(r.status)}`,
+          `**Expected standard**\n\n${expected}`,
+          `**What the document provides**\n\n${documentPosition}`,
+          `**Key gap**\n\n${emphasizeLead(shortfall)}`,
+        ].join("\n\n");
+      }).join("\n\n"); break;
       case "details": body = selected.map(r => {
         const explanation = shownExplanation(r);
         return [
           `### ${requirement(r)}`,
           `**Status:** ${statusMark(r.status)}`,
-          `**Contract provision**`,
+          ...(explanation ? [`**Assessment**\n\n${explanation}`] : []),
+          ...(needsAction(r) && plan.mode === "narrative" ? [`**Recommended action**\n\n${action(r)}`] : []),
+          `**Supporting clauses**`,
           evidence(r),
-          ...(explanation ? [`**Assessment:** ${explanation}`] : []),
-          ...(needsAction(r) && !hasActionSection ? [`Recommended action: **${action(r)}**`] : []),
         ].join("\n\n");
       }).join("\n\n"); break;
       case "actions": {
@@ -652,11 +706,24 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
         ].join("\n");
         break;
       }
+      case "conclusion": {
+        const qualifications = [
+          ...snapshot.limitations.map(item => clean(item.message)),
+          ...snapshot.outstandingChecks.map(item => `${clean(item.title)}: ${clean(item.reason)}`),
+        ];
+        const scope = clean(snapshot.scope || "the reviewed material").replace(/^Reviewed scope:\s*/i, "").replace(/^The\b/, "the");
+        body = [conclusion(snapshot), clean(draft.answer),
+          ...(qualifications.length ? [`Before relying on the report, resolve: ${qualifications.join("; ")}.`] : []),
+          `This conclusion is limited to ${scope}.`,
+        ].filter((value, index, values) => value && values.indexOf(value) === index).join(" ");
+        break;
+      }
       case "sources":
         // Clause text is already shown with each finding. Do not append a second Sources list.
         continue;
     }
     blocks.push(`## ${clean(section.heading)}\n\n${body}`);
   }
+  if (excerptsShortened) blocks.push("*Note: Some supporting-clause excerpts were shortened for readability.*");
   return blocks.join("\n\n");
 }

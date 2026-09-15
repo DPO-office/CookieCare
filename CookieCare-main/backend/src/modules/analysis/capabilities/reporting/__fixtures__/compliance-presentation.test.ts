@@ -57,7 +57,7 @@ describe("compliance presentation modes and default plans", () => {
     assert.equal(resolveCompliancePresentationMode(state("Give me exactly three paragraphs")), "narrative");
     assert.equal(resolveCompliancePresentationMode(state("A brief review", "tabular", "deep")), "short");
     assert.equal(resolveCompliancePresentationMode(state("A detailed review")), "detailed");
-    assert.equal(resolveCompliancePresentationMode(state("Review", "narrative")), "layered");
+    assert.equal(resolveCompliancePresentationMode(state("Review", "narrative")), "narrative");
     assert.equal(resolveCompliancePresentationMode(state("Provide short table", "narrative")), "short");
     assert.equal(resolveCompliancePresentationMode(state("Provide detailed table", "narrative")), "detailed");
     assert.equal(resolveCompliancePresentationMode(state("Review", "tabular")), "layered");
@@ -76,7 +76,7 @@ describe("compliance presentation modes and default plans", () => {
     for (const label of labels) assert.ok(markdown.includes(label), label);
     for (const row of s.rows) {
       assert.ok(markdown.includes(row.title));
-      assert.ok(markdown.includes("Recommended action: **Obtain the verified missing material.**"));
+      if (row.status !== "present" && row.status !== "not_applicable") assert.ok(markdown.includes("Obtain the verified missing material."));
       assert.ok(!markdown.includes(row.lockedAssessmentId));
       assert.ok(!markdown.includes(row.requirementId));
     }
@@ -95,9 +95,9 @@ describe("compliance presentation modes and default plans", () => {
       assert.ok(!markdown.includes("## Answer"));
       assert.ok(!markdown.split("## Sources")[0].split("\n").some(line => line && !line.startsWith("#") && !line.startsWith("|")));
     } else {
-      assert.ok(markdown.startsWith("## Answer"));
+      assert.ok(markdown.startsWith("## Executive summary"));
       for (const label of labels) assert.ok(markdown.includes(`${label}: 1`));
-      assert.ok(markdown.includes("Conclusions are limited to this scope"));
+      assert.ok(markdown.includes("## Conclusion"));
     }
   });
   it("does not call all-not-applicable or empty snapshots fully compliant", () => {
@@ -132,13 +132,23 @@ describe("planner structural validation", () => {
     assert.deepEqual(validateCompliancePresentationPlan(p, s, "detailed"), []);
   });
   it("enforces the mode detail cap on every section", () => {
-    const caps = { layered: 80, short: 20, detailed: 120, narrative: 80, table_only: 40 };
+    const caps = { layered: 60, short: 20, detailed: 120, narrative: 60, table_only: 40 };
     for (const mode of modes) {
       const s = fixture(), p = defaultCompliancePresentationPlan(s, mode);
       assert.ok(p.sections.every(section => section.detailWords === caps[mode]));
       p.sections[0].detailWords = caps[mode] + 1;
       assert.ok(validateCompliancePresentationPlan(p, s, mode).some(e => e.includes("detailWords")));
     }
+  });
+  it("uses deeper prose budgets without changing narrative or tabular format", () => {
+    const narrative = fixture(["partial"]); narrative.presentationDepth = "deep";
+    const narrativePlan = defaultCompliancePresentationPlan(narrative, "narrative");
+    assert.equal(details(narrativePlan).detailWords, 120);
+    const table = fixture(["partial"]); table.presentationDepth = "deep";
+    const tablePlan = defaultCompliancePresentationPlan(table, "layered");
+    assert.equal(details(tablePlan).detailWords, 100);
+    assert.ok(!narrativePlan.sections.some(section => section.kind === "overview"));
+    assert.ok(tablePlan.sections.some(section => section.kind === "overview"));
   });
   it("rejects malformed containers, extra fields and missing metadata without throwing", () => {
     const s = fixture(), good = defaultCompliancePresentationPlan(s, "layered");
@@ -169,7 +179,7 @@ describe("planner structural validation", () => {
       p => { p.sections[0].detailWords = 19; }, p => { p.sections[0].detailWords = 121; },
       p => { p.sections[0].detailWords = 80.5; },
       p => { p.sections.reverse(); }, p => { p.sections.push(clone(p.sections[0])); },
-      p => { p.sections = p.sections.filter(sec => sec.kind !== "limitations"); },
+      p => { p.sections = p.sections.filter(sec => sec.kind !== "conclusion"); },
     ];
     for (const edit of edits) { const p = clone(good); edit(p); assert.ok(validateCompliancePresentationPlan(p, s, "layered").length, edit.toString()); }
   });
@@ -182,10 +192,10 @@ describe("planner structural validation", () => {
     const first = overview(p);
     first.heading = "Transfer mechanisms";
     first.findingIds = [first.findingIds[0]];
-    first.columns = ["Requirement", "Status", "Transfer mechanism", "Contract provision"];
+    first.columns = ["Requirement", "Status", "Assessment", "Contract provision", "Recommended action", "Transfer mechanism"];
     p.sections.splice(2, 0, {
       ...clone(first), id: `S${p.sections.length + 1}`, heading: "Destinations and bases", findingIds: [overview(p).findingIds[1] ?? s.rows[1].lockedAssessmentId!],
-      columns: ["Requirement", "Status", "Destination", "Legal basis", "Gap or qualification"],
+      columns: ["Requirement", "Status", "Assessment", "Contract provision", "Recommended action", "Destination"],
     });
     // The first group's second ID was removed before constructing the second group.
     p.sections[2].findingIds = [s.rows[1].lockedAssessmentId!];
@@ -193,28 +203,26 @@ describe("planner structural validation", () => {
   });
   it("rejects specialized columns that are not separately requested or represented by a locked finding topic", () => {
     const s = fixture(["present"]), p = defaultCompliancePresentationPlan(s, "short");
-    overview(p).columns = ["Requirement", "Status", "Destination"];
+    overview(p).columns = ["Requirement", "Status", "Assessment", "Contract provision", "Recommended action", "Destination"];
     assert.ok(validateCompliancePresentationPlan(p, s, "short").some(error => error.includes("Destination is not separately established")));
     s.instruction = "Identify transfer destinations.";
     assert.deepEqual(validateCompliancePresentationPlan(p, s, "short"), []);
   });
-  it("requires limitations for each uncertain status, outstanding check or explicit limitation", () => {
+  it("integrates qualifications without a standalone limitations section", () => {
     for (const status of ["cannot_determine", "conflicting", "judgment_required", "verification_incomplete"] as const) {
       const s = fixture([status]), p = defaultCompliancePresentationPlan(s, "short");
-      p.sections = p.sections.filter(sec => sec.kind !== "limitations");
-      assert.ok(validateCompliancePresentationPlan(p, s, "short").some(e => e.includes("limitations")));
+      assert.ok(!p.sections.some(sec => sec.kind === "limitations"));
+      assert.deepEqual(validateCompliancePresentationPlan(p, s, "short"), []);
     }
     for (const kind of ["outstanding", "limitation"]) {
       const s = fixture(["present"]);
       if (kind === "outstanding") s.outstandingChecks.push({ requirementId: "unmatched_internal", title: "Transfer review", reason: "No completed check", kind: "unmatched" });
       else s.limitations.push({ id: "lim_internal", requirementIds: [], message: "The annex was unavailable" });
       const p = defaultCompliancePresentationPlan(s, "layered");
-      assert.ok(p.sections.some(sec => sec.kind === "limitations"));
+      assert.ok(!p.sections.some(sec => sec.kind === "limitations"));
       const output = renderComplianceMarkdown(s, p, deterministicComplianceDraft(s, p));
-      if (kind === "outstanding") {
-        assert.ok(output.includes("### Outstanding checks"));
-        assert.ok(!output.split("\n").filter(l => l.startsWith("|")).join("\n").includes("Transfer review"));
-      }
+      assert.ok(output.includes("## Conclusion"));
+      if (kind === "outstanding") assert.ok(output.includes("Transfer review"));
     }
   });
   it("enforces mode-specific section restrictions", () => {
@@ -234,7 +242,7 @@ describe("draft validation and deterministic fallback", () => {
       { ...d, rows: d.rows.slice(1) }, { ...d, rows: [...d.rows, d.rows[0]] },
       { ...d, rows: [{ ...d.rows[0], findingId: s.rows[0].rowId }, ...d.rows.slice(1)] },
       { ...d, rows: [{ ...d.rows[0], status: "gap" }, ...d.rows.slice(1)] },
-      { ...d, rows: [{ ...d.rows[0], recommendedAction: "Invented action" }, ...d.rows.slice(1)] }];
+      { ...d, rows: [{ ...d.rows[0], legalConclusion: "Invented conclusion" }, ...d.rows.slice(1)] }];
     for (const value of bad) assert.ok(validateComplianceDraft(value, s, p).length);
     const sparse = clone(d); sparse.rows.length++;
     assert.ok(validateComplianceDraft(sparse, s, p).length);
@@ -355,24 +363,60 @@ describe("draft validation and deterministic fallback", () => {
 });
 
 describe("code-owned Markdown assembly", () => {
+  it("explains each risk as the expected standard, document position, and exact remaining gap", () => {
+    const s = fixture(["partial"]), r = s.rows[0];
+    r.title = "Return or deletion after services";
+    r.legalCitation = "GDPR Article 28(3)(g)";
+    r.requirementStandard = "The controller must be able to choose return or deletion after the services end, with copies deleted unless law requires storage.";
+    r.whatTheDocumentProvides = "The processor must delete personal data within 90 days after the term ends.";
+    r.whatIsMissingOrUnclear = "The controller is not given a return option or an express choice between return and deletion.";
+    r.recommendedAction = "Amend the reviewed provisions to close the identified shortfall.";
+    const p = defaultCompliancePresentationPlan(s, "layered");
+    const output = renderComplianceMarkdown(s, p, deterministicComplianceDraft(s, p));
+    assert.match(output, /\*\*Expected standard\*\*\n\nThe controller must be able to choose return or deletion/);
+    assert.match(output, /\*\*What the document provides\*\*\n\nThe processor must delete personal data within 90 days/);
+    assert.match(output, /\*\*Key gap\*\*\n\n\*\*The controller is not given a return option/);
+    assert.ok(output.includes("**Expected:** The controller must be able to choose return or deletion"));
+    assert.ok(output.includes("&#10; **Document:** The processor must delete personal data within 90 days"));
+    assert.ok(output.includes("&#10; **Gap:** **The controller is not given a return option"));
+    assert.ok(output.includes("Revise the provision to address this specific shortfall: The controller is not given a return option or an express choice between return and deletion."));
+    assert.doesNotMatch(output, /Amend the reviewed provisions to close the identified shortfall/);
+  });
+  it("puts assessment and remedy before a compact supporting-clause view", () => {
+    const s = fixture(["gap"]), r = s.rows[0];
+    r.evidence = [1, 2, 3].map(index => ({ ...clone(r.evidence[0]), citationId: `E${index}`,
+      spanId: `span-${index}`, pointer: `Clause 7.1(${String.fromCharCode(96 + index)})`, charRange: [index, index + 10] as [number, number],
+      quote: `Exact supporting provision ${index} contains the complete contractual wording that remains available when the table row is expanded.` }));
+    const p = defaultCompliancePresentationPlan(s, "layered");
+    const output = renderComplianceMarkdown(s, p, deterministicComplianceDraft(s, p));
+    const detail = output.split("## Findings requiring attention")[1];
+    assert.ok(detail.indexOf("**Assessment**") < detail.indexOf("**Supporting clauses**"));
+    assert.ok(detail.includes("Additional supporting references"));
+    assert.equal(parsedQuotes(detail).length, 2);
+    const tableRow = output.split("\n").find(line => line.startsWith("| **Requirement 1"))!;
+    assert.ok(tableRow.includes(r.evidence[0].quote));
+    assert.ok(tableRow.includes("See Clause 7.1(a)"));
+  });
   it("renders each actionable recommendation once and omits actions on satisfied or inapplicable rows", () => {
     const s = fixture();
     for (const [i, r] of s.rows.entries()) r.recommendedAction = `Canonical action ${i + 1}`;
     for (const mode of modes) {
       const p = defaultCompliancePresentationPlan(s, mode), output = renderComplianceMarkdown(s, p, deterministicComplianceDraft(s, p));
       for (const r of s.rows) assert.equal(output.split(r.recommendedAction).length - 1, r.status === "present" || r.status === "not_applicable" ? 0 : 1);
-      if (mode === "layered" || mode === "detailed") assert.ok(!output.split("\n").filter(line => line.startsWith("|")).join("\n").includes("Recommended action"));
+      if (mode !== "narrative") assert.ok(output.split("\n").filter(line => line.startsWith("|")).join("\n").includes("Recommended action"));
     }
   });
-  it("uses canonical status enums, full quotes, inline pointers, legal citations and actions", () => {
+  it("uses canonical statuses, full quotes, plain clause pointers, legal citations and actions", () => {
     const s = fixture(["gap"]), p = defaultCompliancePresentationPlan(s, "short");
     const output = renderComplianceMarkdown(s, p, deterministicComplianceDraft(s, p));
     const row = output.split("\n").find(line => line.startsWith("| **Requirement 1"))!;
     assert.ok(row.includes("⚠️ **Gap**"));
     assert.ok(row.includes("GDPR Article 28"));
-    assert.ok(row.includes("**Clause 1, paragraph 2** [E1]"));
+    assert.ok(row.includes("Clause 1, paragraph 2"));
+    assert.ok(!row.includes("[E1]"));
+    assert.ok(!row.includes("**Clause 1, paragraph 2**"));
     assert.ok(row.includes("The processor shall retain the records for 1 days"));
-    assert.ok(row.includes("Recommended action"));
+    assert.ok(row.includes("Obtain the verified missing material."));
     assert.ok(!output.includes("## Sources"));
   });
   it("escapes hostile source Markdown, HTML, separators and multiline quotes", () => {
@@ -392,7 +436,7 @@ describe("code-owned Markdown assembly", () => {
       assert.ok(!output.includes("<br>"));
       if (mode === "narrative") assert.ok(parsedQuotes(output).includes(r.evidence[0].quote));
       assert.ok(!output.includes("## Sources"));
-      for (const line of output.split("\n").filter(l => l.startsWith("| **Requirement &#124;"))) assert.equal(line.split("|").length, 6);
+      for (const line of output.split("\n").filter(l => l.startsWith("| **Requirement &#124;"))) assert.equal(line.split("|").length, 7);
     }
   });
   it("deduplicates shared sources and allocates stable references for malformed or colliding citation IDs", () => {
@@ -404,42 +448,53 @@ describe("code-owned Markdown assembly", () => {
     assert.ok(!output.includes("technical_citation"));
     assert.ok(!output.includes("## Sources"));
   });
-  it("renumbers display citations from report order while retaining stable evidence identity", () => {
+  it("does not expose internal evidence numbers when report order changes", () => {
     const s = fixture(["present", "partial"]);
     const p = defaultCompliancePresentationPlan(s, "short");
     overview(p).findingIds.reverse();
     const output = renderComplianceMarkdown(s, p, deterministicComplianceDraft(s, p));
     const rows = output.split("\n").filter(line => line.startsWith("| **Requirement"));
     assert.match(rows[0], /Requirement 2/);
-    assert.match(rows[0], /\[E1\]/);
     assert.match(rows[1], /Requirement 1/);
-    assert.match(rows[1], /\[E2\]/);
+    assert.doesNotMatch(rows.join("\n"), /\[E\d+\]/);
   });
   it("places the answer first, displays only nonzero counts and keeps provision cells to pointers", () => {
     const s = fixture(["gap"]), p = defaultCompliancePresentationPlan(s, "layered"), d = deterministicComplianceDraft(s, p);
     d.answer = "The reviewed obligation needs further work. The available material does not support the required protection.";
     const output = renderComplianceMarkdown(s, p, d);
-    assert.ok(output.startsWith("## Answer\n\nThis review checked 1 requirement."));
+    assert.ok(output.startsWith("## Executive summary\n\nThis review checked 1 requirement."));
     assert.ok(output.includes("The reviewed obligation needs further work"));
     assert.ok(output.includes("Gap: 1"));
     assert.ok(!output.includes("Present: 0"));
     const row = output.split("\n").find(line => line.startsWith("| **Requirement 1"))!;
-    assert.ok(!row.split("|")[3].includes(s.rows[0].whatTheDocumentProvides));
-    assert.ok(row.split("|")[3].includes("**Clause 1, paragraph 2** [E1]"));
-    assert.ok(row.split("|")[3].includes("The processor shall retain the records for 1 days"));
+    assert.ok(!row.split("|")[4].includes(s.rows[0].whatTheDocumentProvides));
+    assert.ok(row.split("|")[4].includes("Clause 1, paragraph 2"));
+    assert.ok(!row.split("|")[4].includes("[E1]"));
+    assert.ok(row.split("|")[4].includes("The processor shall retain the records for 1 days"));
     const detail = output.split("## Findings requiring attention")[1];
-    assert.ok(detail.includes("**Contract provision**"));
+    assert.ok(detail.includes("**Supporting clauses**"));
     assert.ok(detail.includes("**Status:** ⚠️ **Gap**"));
-    assert.equal(detail.match(/Assessment:/g)?.length, 1);
-    assert.ok(detail.includes(`**Assessment:** ${d.rows[0].explanation}`));
+    assert.equal(detail.match(/\*\*Assessment\*\*/g)?.length, 1);
+    assert.ok(detail.includes(`**Assessment**\n\n${d.rows[0].explanation}`));
   });
   it("uses honest no-evidence wording and qualifies unresolved conclusions", () => {
     const s = fixture(["gap", "cannot_determine"]); s.rows.forEach(r => { r.evidence = []; });
     const p = defaultCompliancePresentationPlan(s, "short"), output = renderComplianceMarkdown(s, p, deterministicComplianceDraft(s, p));
     assert.ok(output.includes("No matching provision found in reviewed scope"));
     assert.ok(output.includes("Evidence unavailable for this assessment"));
-    assert.ok(output.includes("qualified by the limitations"));
+    assert.ok(output.includes("Some points remain unresolved"));
+    assert.ok(!output.includes("## Limitations"));
     assert.ok(!output.includes("## Sources"));
+  });
+  it("shows one excerpt-shortening note at the end instead of repeating it after clauses", () => {
+    const s = fixture(["gap"]), r = s.rows[0];
+    r.evidence = [1, 2].map(index => ({ ...clone(r.evidence[0]), citationId: `E${index}`, spanId: `span-${index}`,
+      pointer: `Clause ${index}`, quote: Array.from({ length: 60 }, (_, word) => `evidence${word + 1}`).join(" ") }));
+    const p = defaultCompliancePresentationPlan(s, "layered");
+    const output = renderComplianceMarkdown(s, p, deterministicComplianceDraft(s, p));
+    assert.equal(output.match(/excerpts were shortened for readability/gi)?.length, 1);
+    assert.ok(output.endsWith("*Note: Some supporting-clause excerpts were shortened for readability.*"));
+    assert.doesNotMatch(output, /Excerpt shortened for readability/);
   });
   it("preserves exact decoded canonical quotations, including source IDs, whitespace and hostile syntax", () => {
     const s = fixture(["gap"]), r = s.rows[0];
@@ -469,7 +524,7 @@ describe("code-owned Markdown assembly", () => {
     // The operative quote is shown once, not three times.
     assert.equal(output.split("The&#32;processor&#32;shall&#32;implement").length - 1, 1);
     // Related passages are collapsed into one demoted line, not repeated boilerplate blockquotes.
-    assert.equal(output.match(/Related context, not relied on as proof:/g)?.length, 1);
+    assert.equal(output.match(/Additional supporting references:/g)?.length, 1);
     assert.ok(!output.includes("Related evidence; not established as sufficient proof."));
     assert.ok(!parsedQuotes(output).some(q => q.includes("Related passage 3")));
   });
@@ -507,38 +562,35 @@ describe("code-owned Markdown assembly", () => {
     destination.whatTheDocumentProvides = "The destination country is not identified in the reviewed terms.";
     destination.answers = [{ questionId: "facet:destination", question: "Which destination country is identified?", answer: "No destination country is identified.", elementIds: [], evidenceIds: [] }];
     const p = defaultCompliancePresentationPlan(s, "short");
-    overview(p).columns = ["Requirement", "Status", "Transfer mechanism", "Destination", "Legal basis"];
+    overview(p).columns = ["Requirement", "Status", "Assessment", "Contract provision", "Recommended action", "Destination"];
     const output = renderComplianceMarkdown(s, p, deterministicComplianceDraft(s, p));
     const mechanismLine = output.split("\n").find(line => line.startsWith("|") && line.includes(mechanism.title))!;
     const destinationLine = output.split("\n").find(line => line.startsWith("|") && line.includes(destination.title))!;
-    assert.ok(mechanismLine.includes("Standard clauses are referenced."));
     assert.ok(mechanismLine.includes("Not separately established in this finding"));
     assert.ok(destinationLine.includes("No destination country is identified."));
     assert.ok(!destinationLine.includes("Standard clauses are referenced."));
   });
-  it("always includes reviewed scope in table-only output, including an empty or all-present review", () => {
+  it("keeps explicit table-only output to the requested table without a limitations section", () => {
     for (const selected of [[], ["present"], ["not_applicable"]] as const) {
       const s = fixture(selected), p = defaultCompliancePresentationPlan(s, "table_only");
       assert.deepEqual(validateCompliancePresentationPlan(p, s, "table_only"), []);
       const output = renderComplianceMarkdown(s, p, deterministicComplianceDraft(s, p));
-      assert.ok(output.includes(`| Reviewed scope | ${s.scope}; conclusions are limited to this scope. |`));
       assert.ok(!output.includes("## Answer"));
       assert.equal(overview(p).findingIds.length, s.rows.length);
-      p.sections = p.sections.filter(section => section.kind !== "limitations");
-      assert.ok(validateCompliancePresentationPlan(p, s, "table_only").some(error => error.includes("scope")));
+      assert.ok(!p.sections.some(section => section.kind === "limitations"));
     }
   });
-  it("strips only associated recommendation label prefixes and preserves legal and unknown labels", () => {
+  it("strips associated recommendation label prefixes while preserving verified legal wording", () => {
     const s = fixture(["gap"]), r = s.rows[0];
     r.supportedElementIds = ["E1", "TM2"];
     r.missingElementIds = ["SM1", "SM2", "custom-control"];
-    r.recommendedAction = "E1: Establish the protection. TM2: Complete the annexes; SM1: Review the destination.\nSM2: Document the measures. custom-control: Assign an owner. XX9: Retain unknown label. Clause E1: Retain the clause reference. Article 28: Retain the legal reference.";
+    r.recommendedAction = "E1: Establish the protection. TM2: Complete the annexes; SM1: Review the destination.\nSM2: Document the measures. custom-control: Assign an owner. Article 28: Retain the verified legal reference.";
     r.evidence[0].quote = r.recommendedAction;
     for (const mode of modes) {
       const p = defaultCompliancePresentationPlan(s, mode), output = renderComplianceMarkdown(s, p, deterministicComplianceDraft(s, p));
       const publicPart = output.split("## Sources")[0].split("\n").filter(line => !line.startsWith(">")).join("\n");
-      assert.ok(publicPart.includes("Recommended action: **Establish the protection. Complete the annexes; Review the destination."));
-      assert.ok(publicPart.includes("Assign an owner. XX9: Retain unknown label. Clause E1: Retain the clause reference. Article 28: Retain the legal reference."));
+      assert.ok(publicPart.includes("Establish the protection. Complete the annexes; Review the destination."));
+      assert.ok(publicPart.includes("Assign an owner. Article 28: Retain the verified legal reference."));
       assert.ok(!output.includes("## Sources"));
     }
   });

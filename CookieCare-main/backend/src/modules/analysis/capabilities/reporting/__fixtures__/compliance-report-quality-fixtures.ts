@@ -54,7 +54,7 @@ function groupedPlan(
     id: "S1", requestItemIds: [], questionIds: [],
     kind: "overview" as const, heading: group.heading,
     findingIds: group.indexes.map(index => value.rows[index].lockedAssessmentId!),
-    columns: group.columns, detailWords: 80,
+    columns: group.columns, detailWords: 60,
   })));
   plan.sections.forEach((section, index) => { section.id = `S${index + 1}`; });
   plan.rationale = "Saved request-specific quality fixture.";
@@ -99,13 +99,18 @@ function buildFixtures(): ComplianceReportQualityFixture[] {
   ]);
 
   const fixtures: Array<[string, ComplianceReportSnapshot, Array<{ heading: string; indexes: number[]; columns: ComplianceTableColumn[] }>]> = [
-    ["rights", rights, [{ heading: "Rights assistance and timing", indexes: [0, 1], columns: ["Requirement", "Status", "Timing", "Contract provision", "Gap or qualification"] }]],
+    ["rights", rights, [{ heading: "Rights assistance and timing", indexes: [0, 1], columns: ["Requirement", "Status", "Assessment", "Contract provision", "Recommended action", "Timing"] }]],
     ["article28", article28, [
-      { heading: "Processing description", indexes: [0, 1], columns: ["Requirement", "Status", "Contract provision", "Assessment"] },
-      { heading: "Operational duties", indexes: [2, 3], columns: ["Requirement", "Status", "Contract provision", "Gap or qualification"] },
+      { heading: "Processing description", indexes: [0, 1], columns: ["Requirement", "Status", "Assessment", "Contract provision", "Recommended action"] },
+      { heading: "Operational duties", indexes: [2, 3], columns: ["Requirement", "Status", "Assessment", "Contract provision", "Recommended action"] },
     ]],
-    ["transfers", transfers, [{ heading: "Transfer mechanisms, destinations and bases", indexes: [0, 1, 2, 3], columns: ["Requirement", "Status", "Transfer mechanism", "Destination", "Legal basis", "Contract provision"] }]],
-    ["missing-dependency", dependency, [{ heading: "Security dependency", indexes: [0], columns: ["Requirement", "Status", "Gap or qualification", "Contract provision"] }]],
+    ["transfers", transfers, [
+      { heading: "Transfer mechanism", indexes: [0], columns: ["Requirement", "Status", "Assessment", "Contract provision", "Recommended action", "Transfer mechanism"] },
+      { heading: "Transfer destination", indexes: [1], columns: ["Requirement", "Status", "Assessment", "Contract provision", "Recommended action", "Destination"] },
+      { heading: "Transfer basis", indexes: [2], columns: ["Requirement", "Status", "Assessment", "Contract provision", "Recommended action", "Legal basis"] },
+      { heading: "Supplementary measures", indexes: [3], columns: ["Requirement", "Status", "Assessment", "Contract provision", "Recommended action"] },
+    ]],
+    ["missing-dependency", dependency, [{ heading: "Security dependency", indexes: [0], columns: ["Requirement", "Status", "Assessment", "Contract provision", "Recommended action"] }]],
   ];
   return fixtures.map(([id, value, groups]) => ({
     id, synthetic: true as const, heldOut: id === "missing-dependency",

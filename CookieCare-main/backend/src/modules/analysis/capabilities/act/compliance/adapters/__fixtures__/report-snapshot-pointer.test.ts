@@ -3,9 +3,12 @@ import test from "node:test";
 import { outcomesToSnapshot } from "../report-snapshot.js";
 import type { AnalysisState } from "../../../../../models/analysis-state.js";
 import type { ComplianceCheckOutcome } from "../../contracts/index.js";
+import type { StructuralNode } from "../../../../../capabilities/ingest/document-structure/types.js";
 
-function node(nodeId: string, kind: string, text: string, parentId?: string) {
-  return { nodeId, kind, text, parentId, childIds: [], displayLabel: undefined, title: undefined };
+function node(nodeId: string, kind: StructuralNode["kind"], text: string, parentId?: string): StructuralNode {
+  return { nodeId, kind, text, parentId, childIds: [], displayLabel: undefined, title: undefined,
+    order: 0, namespace: "main", ordinalPath: nodeId, sourceRange: [0, text.length], sourceItemRefs: [],
+    provenance: [], confidence: 1, signals: [] };
 }
 
 function stateWithGraph(): AnalysisState {
@@ -59,6 +62,23 @@ test("an unknown node falls back to a structural-path label, still not an offset
   assert.equal(snapshot.rows[0].evidence[0].pointer, "Clause 5");
 });
 
+test("nested subparts and appendix clauses keep their precise structural locator", () => {
+  const state = stateWithGraph();
+  const graph = state.workspace.documents[0].structureGraph!;
+  graph.nodes.push(
+    node("n-parent", "subclause", "7.1 Sub-processor changes", "doc"),
+    node("n-subpart", "list_item", "(c) The controller may object within five business days.", "n-parent"),
+    node("n-app-clause", "subclause", "1.1 Categories of data subjects", "n-appendix"),
+    node("n-app-item", "paragraph", "Customer employees and contractors.", "n-app-clause"),
+  );
+  const snapshot = outcomesToSnapshot(state, [outcome([
+    { nodeId: "n-subpart", path: "document.subclause_7.1.list_item_c", quote: "(c) The controller may object within five business days." },
+    { nodeId: "n-app-item", path: "document.appendix_1.subclause_1.1.paragraph_1", quote: "Customer employees and contractors." },
+  ])]);
+  assert.equal(snapshot.rows[0].evidence[0].pointer, "Clause 7.1(c)");
+  assert.equal(snapshot.rows[0].evidence[1].pointer, "Appendix 1 · Clause 1.1");
+});
+
 test("reporting handoff retains the original wording for verified dynamic answers", () => {
   const state = stateWithGraph();
   state.plan = { complianceRequirementResolution: { facets: [{ facetId: "timing", sourceText: "What response timeframe applies?" }] } } as AnalysisState["plan"];
@@ -70,4 +90,13 @@ test("reporting handoff retains the original wording for verified dynamic answer
   const answers = outcomesToSnapshot(state, [locked]).rows[0].answers!;
   assert.equal(answers[0].question, state.request.instruction);
   assert.equal(answers[1].question, "What response timeframe applies?");
+});
+
+test("reporting handoff carries presentation depth without changing locked outcomes", () => {
+  const state = stateWithGraph();
+  state.request.thinkingMode = "deep";
+  const locked = outcome([]);
+  const snapshot = outcomesToSnapshot(state, [locked]);
+  assert.equal(snapshot.presentationDepth, "deep");
+  assert.equal(snapshot.outcomes?.[0], locked);
 });

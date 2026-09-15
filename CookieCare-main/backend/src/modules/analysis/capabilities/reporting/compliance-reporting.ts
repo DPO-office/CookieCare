@@ -21,7 +21,7 @@ export type ComplianceCompletion = (
   options?: { abortSignal?: AbortSignal },
 ) => Promise<unknown>;
 
-const REPORT_RENDERER_VERSION = "compliance-markdown@2.1.0";
+const REPORT_RENDERER_VERSION = "compliance-markdown@2.4.0";
 
 function positiveEnvironmentInteger(name: string, fallback: number): number {
   const parsed = Number(process.env[name]);
@@ -38,7 +38,7 @@ const PLAN_SCHEMA = {
       id: { type: "string" },
       requestItemIds: { type: "array", items: { type: "string", enum: ["request:primary"] } },
       questionIds: { type: "array", items: { type: "string" } },
-      kind: { type: "string", enum: ["answer", "overview", "details", "actions", "limitations", "sources"] },
+      kind: { type: "string", enum: ["answer", "overview", "risks", "details", "actions", "conclusion", "limitations", "sources"] },
       heading: { type: "string" }, findingIds: { type: "array", items: { type: "string" } },
       columns: { type: "array", items: { type: "string", enum: [
         "Requirement", "Status", "Contract provision", "Assessment", "Gap or qualification", "Recommended action",
@@ -52,8 +52,8 @@ const DRAFT_SCHEMA = {
   type: "object", properties: {
     answer: { type: "string" },
     rows: { type: "array", items: { type: "object", properties: {
-      findingId: { type: "string" }, assessment: { type: "string" }, explanation: { type: "string" },
-    }, required: ["findingId", "assessment", "explanation"] } },
+      findingId: { type: "string" }, assessment: { type: "string" }, explanation: { type: "string" }, recommendedAction: { type: "string" },
+    }, required: ["findingId", "assessment", "explanation", "recommendedAction"] } },
   }, required: ["answer", "rows"],
 };
 const CHECK_SCHEMA = {
@@ -111,6 +111,7 @@ export function createComplianceCompletion(state: AnalysisState): ComplianceComp
 /** Compact locked input: each distinct quotation is sent once and rows reference it. */
 export function complianceReportingInput(snapshot: ComplianceReportSnapshot) {
   const sourceIds = new Map<string, string>();
+  const standards = new Map((snapshot.outcomes ?? []).map(outcome => [outcome.outcomeId, outcome.check.rule?.proposition ?? ""]));
   const evidenceRegistry: Array<{ sourceId: string; citationId: string; document: string; pointer: string; quote: string }> = [];
   const source = (evidence: ComplianceReportSnapshot["rows"][number]["evidence"][number]) => {
     const key = JSON.stringify([evidence.documentId, evidence.pointer, evidence.quote, evidence.charRange]);
@@ -127,7 +128,8 @@ export function complianceReportingInput(snapshot: ComplianceReportSnapshot) {
     scope: snapshot.scope,
     rows: snapshot.rows.map(row => ({
       findingId: reportOutcomeId(row), title: row.title, status: row.status,
-      legalCitation: row.legalCitation, whatTheDocumentProvides: row.whatTheDocumentProvides,
+      legalCitation: row.legalCitation, requirementStandard: row.requirementStandard ?? standards.get(reportOutcomeId(row)),
+      whatTheDocumentProvides: row.whatTheDocumentProvides,
       whatIsMissingOrUnclear: row.whatIsMissingOrUnclear, conclusion: row.conclusion,
       whyItMatters: row.whyItMatters, recommendedAction: row.recommendedAction,
       answers: (row.answers ?? []).map(answer => ({
@@ -152,14 +154,6 @@ async function semanticCheck(
   if (check.passed === true && Array.isArray(check.failures) && check.failures.length === 0) return [];
   return Array.isArray(check.failures) && check.failures.length && check.failures.every(f => typeof f === "string")
     ? check.failures as string[] : ["Semantic conformance was not confirmed."];
-}
-
-function fallbackStatus(reason: NonNullable<NonNullable<ComplianceReportValidation["generation"]>["fallbackReason"]>): string {
-  if (reason === "adaptive_disabled") return "Adaptive composition is disabled, so this report uses the deterministic verified-finding presentation.";
-  if (reason === "context_limit") return "The verified reporting context exceeded the configured composition limit, so this report uses the complete deterministic verified-finding presentation.";
-  if (reason === "token_budget") return "The remaining analysis token budget was insufficient for checked composition, so this report uses the deterministic verified-finding presentation.";
-  if (reason === "deadline") return "The remaining end-to-end run budget was insufficient for checked composition, so this report uses the deterministic verified-finding presentation.";
-  return "The polished composition could not be fully validated, so this report uses the deterministic verified-finding presentation. No finding was re-evaluated.";
 }
 
 async function withinDeadline<T>(deadlineAt: number, work: (signal: AbortSignal) => Promise<T>): Promise<T> {
@@ -206,8 +200,16 @@ export async function renderComplianceReport(
   const recordedRunStart = Date.parse(String(state.metadata?.runStartedAt ?? state.metadata?.timestamp ?? ""));
   const runDeadlineAt = Number.isFinite(recordedRunStart) && recordedRunStart <= startedMs
     ? recordedRunStart + totalRunBudgetMs : Number.POSITIVE_INFINITY;
-  const deadlineAt = Math.min(startedMs + reportingBudgetMs, runDeadlineAt);
+  // Reporting gets its own dedicated window: earlier analysis stages running long must not eat into
+  // it and force the deterministic fallback before the checked-composition path even gets a chance.
+  const reportingDeadlineAt = startedMs + reportingBudgetMs;
+  const deadlineAt = Number.isFinite(runDeadlineAt) ? Math.max(reportingDeadlineAt, runDeadlineAt) : reportingDeadlineAt;
   const deadlineMs = Math.max(0, deadlineAt - startedMs);
+  pacLog("COMPLIANCE report deadline computed", {
+    startedAt, reportingBudgetMs, totalRunBudgetMs, deadlineMs,
+    runAlreadyElapsedMs: Number.isFinite(recordedRunStart) ? startedMs - recordedRunStart : null,
+    runBudgetOverrun: runDeadlineAt < reportingDeadlineAt,
+  });
   const tokenStart = state.agent?.tokensUsed ?? 0;
   let modelCalls = 0;
   state = { ...state, streamRenderOutput: false, complianceReportValidation: undefined };
@@ -279,6 +281,7 @@ export async function renderComplianceReport(
   } else if (snapshot.rows.length) {
     try {
       modelCalls++;
+      pacLog("COMPLIANCE report compose starting", { deadlineMs, remainingMs: deadlineAt - Date.now(), inputChars });
       const raw = await withinDeadline(deadlineAt, signal => complete("compose", {
         userIntent: state.request.instruction, perspective: state.intent?.partyPerspective,
         mode, defaultPlan: fallbackPlan, lockedData,
@@ -296,9 +299,12 @@ export async function renderComplianceReport(
           sections: !planErrors.length ? plan.sections.length : fallbackPlan.sections.length,
           outputChars: JSON.stringify(composed.draft).length });
       }
-    } catch {
+    } catch (error) {
       failures.push("Report composition failed; used the deterministic presentation.");
       fallbackReason = "composition_failed";
+      pacLog("COMPLIANCE report compose failed", {
+        remainingMs: deadlineAt - Date.now(), error: error instanceof Error ? error.message : String(error),
+      });
     }
   }
 
@@ -332,9 +338,12 @@ export async function renderComplianceReport(
       }
       if (!errors.length) { draft = raw as ComplianceReportDraft; source = "validated_writer"; }
       else { failures.push(...errors); fallbackReason = "validation_failed"; }
-    } catch {
+    } catch (error) {
       failures.push("Report writing could not be validated; used verified source wording.");
       fallbackReason = "validation_failed";
+      pacLog("COMPLIANCE report validation/repair failed", {
+        remainingMs: deadlineAt - Date.now(), error: error instanceof Error ? error.message : String(error),
+      });
     }
   }
 
@@ -343,9 +352,7 @@ export async function renderComplianceReport(
     draft = deterministicComplianceDraft(snapshot, plan);
   }
   if (fallbackReason) pacLog("COMPLIANCE report fallback used", { reason: fallbackReason, failures: failures.length });
-  let renderedOutput = renderComplianceMarkdown(snapshot, plan, draft);
-  if (source === "deterministic" && snapshot.rows.length && fallbackReason)
-    renderedOutput = `## Report status\n\n${fallbackStatus(fallbackReason)}\n\n${renderedOutput}`;
+  const renderedOutput = renderComplianceMarkdown(snapshot, plan, draft);
   outputChars = renderedOutput.length;
   pacLog("COMPLIANCE report validated", {
     rows: snapshot.rows.length, outstanding: snapshot.outstandingChecks.length, mode, source, plannerFallback,

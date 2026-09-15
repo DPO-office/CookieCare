@@ -41,8 +41,10 @@ function evidencePointer(state: AnalysisState, documentId: string, nodeId: strin
   const graph = state.workspace.documents.find(d => d.docId === documentId)?.structureGraph;
   const byId = graph ? new Map(graph.nodes.map(n => [n.nodeId, n])) : undefined;
   const node = byId?.get(nodeId);
-  let clause = node?.displayLabel?.trim() || node?.title?.trim() || labelFromNodeText(node?.text, node?.kind);
+  const ownLabel = node?.displayLabel?.trim() || labelFromNodeText(node?.text, node?.kind);
+  let clause = ownLabel || node?.title?.trim();
   let container: string | undefined;
+  let numberedAncestor: string | undefined;
   const seen = new Set<string>([nodeId]);
   let cur = node && byId ? byId.get(node.parentId ?? "") : undefined;
   while (cur && byId && !seen.has(cur.nodeId)) {
@@ -50,11 +52,16 @@ function evidencePointer(state: AnalysisState, documentId: string, nodeId: strin
     const label = cur.displayLabel?.trim() || cur.title?.trim() || labelFromNodeText(cur.text, cur.kind);
     if (label) {
       if (!clause && CLAUSE_KINDS.has(cur.kind)) clause = label;
+      if (!numberedAncestor && CLAUSE_KINDS.has(cur.kind) && /\d/.test(label)) numberedAncestor = label;
       if (!container && CONTAINER_KINDS.has(cur.kind) && NAMED_LABEL.test(label)) container = label;
     }
     cur = byId.get(cur.parentId ?? "");
   }
-  return [container, clause].filter(Boolean).join(" · ") || labelFromStructuralPath(structuralPath) || "Cited provision";
+  if (clause && /^\d+(?:\.\d+)*(?:\([a-z0-9ivx]+\))*$/i.test(clause)) clause = `Clause ${clause}`;
+  else if (clause && /^\([a-z0-9ivx]+\)$/i.test(clause) && numberedAncestor) {
+    clause = `Clause ${numberedAncestor.replace(/^(?:Clause|Section|Article|Paragraph)\s+/i, "")}${clause}`;
+  }
+  return [container, clause].filter((value, index, values) => value && values.indexOf(value) === index).join(" · ") || labelFromStructuralPath(structuralPath) || "Cited provision";
 }
 export function outcomesToSnapshot(state: AnalysisState, outcomes: ComplianceCheckOutcome[]): ComplianceReportSnapshot {
   const questions = new Map<string, string>([
@@ -65,6 +72,7 @@ export function outcomesToSnapshot(state: AnalysisState, outcomes: ComplianceChe
     outcomeId: o.outcomeId, outcomeKind: o.kind, checkId: o.check.checkId,
     rowId: o.outcomeId, requirementId: o.check.ruleId, canonicalKey: o.check.ruleId, lockedAssessmentId: o.lockedAssessmentId,
     legalCitation: o.check.rule?.citation ?? "", title: o.check.rule?.title ?? o.check.ruleId,
+    requirementStandard: o.check.rule?.proposition,
     status: o.status, statusLabel: labels[o.status], ...o.explanation,
     supportedElementIds: (o.verification?.elements ?? (o.kind === "incomplete" ? o.validatedElements : undefined))?.filter(e => e.state === "supported").map(e => e.elementId) ?? [],
     missingElementIds: (o.verification?.elements ?? (o.kind === "incomplete" ? o.validatedElements : undefined))?.filter(e => !["supported", "not_applicable"].includes(e.state)).map(e => e.elementId) ?? [],
@@ -81,7 +89,9 @@ export function outcomesToSnapshot(state: AnalysisState, outcomes: ComplianceChe
     })),
   }));
   return {
-    version: 2, outcomes, instruction: state.request.instruction, scope: "Reviewed scope: " + state.workspace.documents.filter(d => outcomes.some(o => o.check.documents.some(x => x.documentId === d.docId))).map(d => d.title ?? d.docId).join("; "),
+    version: 2, outcomes, instruction: state.request.instruction,
+    presentationDepth: (state.analysisProfile?.thinkingMode ?? state.request.thinkingMode) === "deep" ? "deep" : "lite",
+    scope: "Reviewed scope: " + state.workspace.documents.filter(d => outcomes.some(o => o.check.documents.some(x => x.documentId === d.docId))).map(d => d.title ?? d.docId).join("; "),
     documents: state.workspace.documents.map(d => ({ documentId: d.docId, title: d.title ?? d.docId, contentHash: outcomes.flatMap(o => o.check.documents).find(x => x.documentId === d.docId)?.hash ?? "", role: d.role })),
     rows, outstandingChecks: (state.plan?.complianceRequirementResolution?.unresolved ?? []).map(f => ({ requirementId: f.facetId, title: f.sourceText, reason: f.reason, kind: "unmatched" as const })),
     limitations: outcomes.filter(o => o.kind === "incomplete" || ["cannot_determine", "judgment_required"].includes(o.status)).map((o, i) => ({ id: "L" + i, requirementIds: [o.check.ruleId], message: o.explanation.whatIsMissingOrUnclear }))
