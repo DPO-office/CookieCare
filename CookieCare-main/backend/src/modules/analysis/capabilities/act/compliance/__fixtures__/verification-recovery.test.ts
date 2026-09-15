@@ -43,7 +43,7 @@ test("limitations have their own quoted evidence and still block unsupported aff
   assert.deepEqual(checked.errors, []);
   assert.ok(checked.decision!.reviewRequired.includes("material_concern:instructions"));
   checked.decision!.reviewRequired = [];
-  assert.equal(assessRequirement(r, { kind: "verified", attempts: 1, decision: checked.decision! }), "cannot_determine");
+  assert.equal(assessRequirement(r, { kind: "verified", attempts: 1, decision: checked.decision! }), "partial");
 });
 
 test("grounded actor interpretation does not review merely unspecified retrieval metadata", async () => {

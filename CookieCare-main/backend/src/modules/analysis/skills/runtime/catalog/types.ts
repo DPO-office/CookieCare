@@ -126,6 +126,7 @@ export interface SkillRegimeRuleProofElement {
   id: string;
   description: string;
   kind?: "mandatory" | "conditional" | "alternative" | "optional";
+  weight?: number;
   applicabilityGuidance?: string;
   proofGuidance?: string;
   nonProofTraps?: string[];

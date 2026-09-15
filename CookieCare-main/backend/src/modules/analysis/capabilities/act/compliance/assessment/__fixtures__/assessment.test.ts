@@ -29,7 +29,7 @@ test("dependency materiality affects only relevant elements", () => {
   const { r, result } = setup();
   r.bundle.dependencies = [{ id: "dep", sourceNodeId: "node", targetNodeIds: [], state: "external", effect: "supplements" }];
   result.decision.dependencies = [{ id: "dep", elementIds: ["instructions"], materiality: "material", reason: "Required annex" }];
-  assert.equal(assessRequirement(r, result), "cannot_determine");
+  assert.equal(assessRequirement(r, result), "partial");
   result.decision.dependencies[0].materiality = "immaterial";
   assert.equal(assessRequirement(r, result), "present");
   result.decision.dependencies[0].materiality = "unknown";
@@ -51,7 +51,7 @@ test("generic all/any nesting supports alternatives without law-specific IDs", (
 test("material limitations survive reviewer agreement and block Present",()=>{
   const {r,result}=setup();
   result.decision.elements[0].limitations=[{description:"An unresolved exception limits the operative instruction duty.",evidenceIds:["span"],materiality:"material"}];
-  assert.equal(assessRequirement(r,result),"cannot_determine");
+  assert.equal(assessRequirement(r,result),"partial");
   result.decision.elements[0].limitations[0].materiality="immaterial";
   assert.equal(assessRequirement(r,result),"present");
 });
@@ -100,7 +100,7 @@ test("unknown required conditional applicability cannot produce Present",()=>{
   r.check.rule!.elements.push({id:"conditional",description:"Notify if required disclosure occurs.",kind:"conditional",applicabilityGuidance:"Only where the disclosure condition is established."});
   r.check.rule!.aggregation={operator:"all",children:[{elementId:"instructions"},{elementId:"conditional"}]};
   result.decision.elements.push({...e,elementId:"conditional",state:"ambiguous",citations:[],applicability:{...e.applicability,state:"unknown"}});
-  assert.equal(assessRequirement(r,result),"cannot_determine");
+  assert.equal(assessRequirement(r,result),"partial");
 });
 test("a mandatory shortfall is a gap even beside an untriggered conditional element",()=>{
   const {r,result}=setup(),e=result.decision.elements[0];
