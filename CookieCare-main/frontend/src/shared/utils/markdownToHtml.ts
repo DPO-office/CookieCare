@@ -590,8 +590,8 @@ function injectCitationBadges(html: string): string {
     }
   );
 
-  // Pass 2: Inline table quotes like `See Clause 1.1, which says: “Quote...”`
-  // Display the normal evidence quote summary first, followed by the clause locator and badge at the end!
+  // Pass 2: Inline table quotes like `See Clause 1.1, which says: “Quote...”` or `Clause 9, which says: “Quote...”`
+  // Cleanly replace `, which says: “Quote...”` with the citation badge. The quote text lives in data-quote.
   processed = replaceTextInHtml(processed, (text) => {
     return text.replace(
       /(See\s+)?([A-Za-z0-9\s._\-()§#;·]+?),\s*which says:\s*“([^”]+)”/g,
@@ -599,7 +599,8 @@ function injectCitationBadges(html: string): string {
         const p = pointer.trim();
         const q = quote.trim();
         const num = badgeId++;
-        return `“${q}” See ${p} <sup class="md-citation-badge" data-doc="Reviewed Document" data-pointer="${escapeAttr(p)}" data-quote="${escapeAttr(q)}">${num}</sup>`;
+        const prefix = seePrefix || "";
+        return `${prefix}${p} <sup class="md-citation-badge" data-doc="Reviewed Document" data-pointer="${escapeAttr(p)}" data-quote="${escapeAttr(q)}">${num}</sup>`;
       }
     );
   });
