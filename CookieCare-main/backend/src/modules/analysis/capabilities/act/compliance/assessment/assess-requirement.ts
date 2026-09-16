@@ -46,6 +46,9 @@ export function assessRequirementWithReason(request: VerificationRequest, result
 
   const elements = d.elements.filter(e => relevant.has(e.elementId) && e.applicability.state !== "not_applicable");
 
+  if (relevant.size > 0 && elements.length === 0)
+    return decide("cannot_determine", "empty_applicable_group", { elements: d.elements });
+
   if (elements.some(e => e.conflicts.some(c => c.materiality === "material")) || d.elements.some(e => relevant.has(e.elementId) && e.state === "contradicted"))
     return decide("conflicting", "material_conflict", { elements });
 
