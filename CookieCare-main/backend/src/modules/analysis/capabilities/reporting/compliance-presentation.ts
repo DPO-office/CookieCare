@@ -9,12 +9,12 @@ import type {
 // Recommendation wording may be synthesized from locked verification fields and is validated here.
 // The planner controls layout only; the writer controls answer/assessment/explanation only.
 const LABELS: Record<ComplianceReportRow["status"], string> = {
-  present: "Present", partial: "Partial", gap: "Gap", cannot_determine: "Cannot determine",
+  present: "Present", partial: "Partial", gap: "Gap", cannot_determine: "Unresolved reference",
   not_applicable: "Not applicable", conflicting: "Conflicting", judgment_required: "Judgment required",
   verification_incomplete: "Verification incomplete",
 };
 const STATUS_MARK: Record<ComplianceReportRow["status"], string> = {
-  present: "✅", partial: "⚠️", gap: "⚠️", cannot_determine: "❓",
+  present: "✅", partial: "⚠️", gap: "⚠️", cannot_determine: "📑",
   not_applicable: "○", conflicting: "⚡", judgment_required: "⚖️",
   verification_incomplete: "🔍",
 };
@@ -360,16 +360,39 @@ export function deterministicComplianceDraft(snapshot: ComplianceReportSnapshot,
         ...(row.status !== "present" && row.status !== "not_applicable" ? [row.whatIsMissingOrUnclear] : []),
         ...(/\.{3}|\u2026|mandatory elements?|completeness gates|evidence bundle|scope[ -]compatible/i.test(row.conclusion) ? [] : [row.conclusion])]
         .flatMap(value => candidatesFor(value, 40));
+      const sanitizeActionCandidate = (rawText: string) => {
+        if (!rawText || !rawText.trim()) return "";
+        let text = readable(rawText, row);
+        const statusTerms = /\b(?:verification incomplete|cannot determine|not applicable|judgment required|not present|fully compliant|non[ -]?compliant|compliant|partially met|partially compliant|present|partial|gap|conflicting)\b/gi;
+        text = text.replace(statusTerms, match => {
+          const term = match.toLowerCase();
+          const own = (term === LABELS[row.status].toLowerCase() ||
+            (row.status === "gap" && term === "not present") || (row.status === "partial" && term === "partially met"));
+          if (own) return match;
+          if (term.includes("compliant")) return "conforming";
+          if (term === "not present") return "absent";
+          if (term === "present") return "included";
+          return "unresolved";
+        });
+        const w = text.split(/\s+/);
+        if (w.length > 80) {
+          text = w.slice(0, 80).join(" ").replace(/[,;:\s]+$/, "") + ".";
+        }
+        return text.trim();
+      };
+
       const authoredAction = readable(row.recommendedAction, row);
       const missing = readable(row.whatIsMissingOrUnclear, row);
       const genericAction = /^(?:Amend the reviewed provisions to close the identified shortfall|Add a provision satisfying the requirement|Clarify the provision so it fully addresses)\b/i.test(authoredAction);
       const actionCandidates = genericAction && !isCanned(missing)
         ? [`Revise the provision to address this specific shortfall: ${missing}`, authoredAction]
-        : [authoredAction];
+        : [authoredAction, `Revise the provision to address this specific shortfall: ${missing}`];
+
+      const sanitizedCandidates = actionCandidates.map(sanitizeActionCandidate).filter(Boolean);
+
       const recommendedAction = row.status === "present" || row.status === "not_applicable" ? ""
-        : actionCandidates.find(text => text && !recommendationErrors(text, "fallback action", 90, verifiedFields(row), snapshot, row).length)
-          || (!isCanned(missing) ? `Revise the provision to address this specific shortfall: ${missing}`
-            : "Obtain the missing material or clarification identified by this finding, then complete the requirement-specific review.");
+        : sanitizedCandidates.find(text => text && !recommendationErrors(text, "fallback action", 90, verifiedFields(row), snapshot, row).length)
+          || "Obtain the missing material or clarification identified by this finding, then complete the requirement-specific review.";
       return { findingId: reportOutcomeId(row),
         assessment: assessmentCandidates.find(text => descriptiveAssessment(text) && !proseErrors(text, "fallback", 40, verifiedFields(row), snapshot, row).length) || FALLBACK[row.status],
         explanation: parts.join(" ") || FALLBACK[row.status],

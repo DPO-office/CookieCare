@@ -2,7 +2,7 @@ import type { OutcomeExplanation, RequirementStatus, VerificationDecision, Verif
 
 function getCannotDetermineDetails(r: VerificationRequest, d?: VerificationDecision): { reason: string; action: string; conclusion: string } {
   const unresolvedDeps = d?.dependencies.filter(dep =>
-    dep.materiality !== "immaterial" &&
+    dep.materiality === "material" &&
     r.bundle.dependencies.find(x => x.id === dep.id)?.state !== "resolved_internal"
   );
   if (unresolvedDeps?.length) {
@@ -52,7 +52,7 @@ function getCannotDetermineDetails(r: VerificationRequest, d?: VerificationDecis
   }
 
   const materialConcerns = d?.elements.flatMap(e =>
-    [...e.limitations, ...e.conflicts].filter(c => c.materiality !== "immaterial").map(c => c.description)
+    [...e.limitations, ...e.conflicts].filter(c => c.materiality === "material").map(c => c.description)
   );
   if (materialConcerns?.length) {
     const concernStr = materialConcerns.join("; ");
@@ -87,7 +87,7 @@ export function buildExplanation(r: VerificationRequest, result: VerificationRes
     const unverified = r.check.rule?.elements.filter(e => !result.validatedElements?.some(v => v.elementId === e.id)).map(e => e.id) ?? [];
     gaps.push("Verification did not finish for: " + (unverified.join(", ") || "the complete check") + ". This is not proof that those provisions are absent.");
   }
-  gaps.push(...(d?.elements.flatMap(e=>[...e.limitations,...e.conflicts].filter(c=>c.materiality!=="immaterial").map(c=>c.description)) ?? []));
+  gaps.push(...(d?.elements.flatMap(e=>[...e.limitations,...e.conflicts].filter(c=>c.materiality==="material").map(c=>c.description)) ?? []));
   const title = r.check.rule?.title ?? r.check.ruleId;
   const remediationByElement = new Map((r.check.rule?.elements ?? []).map(element => [element.id,
     element.remediationGuidance?.trim() || `Address this missing requirement: ${element.description.trim()}`]));
@@ -119,7 +119,7 @@ export function buildExplanation(r: VerificationRequest, result: VerificationRes
       : status === "conflicting" || d?.elements.some(e => e.state === "contradicted") ? "Reconcile the conflicting provisions or obtain written clarification."
       : status === "judgment_required" ? "Obtain legal review of the unresolved interpretation."
       : status === "cannot_determine" ? cannotDetails!.action
-      : d?.dependencies.some(dep => dep.materiality !== "immaterial") ? "Obtain and review the referenced material, then complete the assessment."
+      : d?.dependencies.some(dep => dep.materiality === "material") ? "Obtain and review the referenced material, then complete the assessment."
       : status === "gap" ? specificRemedy || `Add an express provision addressing ${title.toLowerCase()}.`
       : specificRemedy || `Clarify the provision so it fully addresses ${title.toLowerCase()}.`,
   };

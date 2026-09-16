@@ -50,6 +50,10 @@ function numberFromEnv(value: string | undefined, fallback: number): number {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+function booleanFromEnv(value: string | undefined): boolean {
+  return value === "1" || value?.toLowerCase() === "true";
+}
+
 export const config = {
   port: Number(process.env.PORT) || 3000,
   nodeEnv: process.env.NODE_ENV || "development",
@@ -69,6 +73,8 @@ export const config = {
   draftingTokenBudget: numberFromEnv(process.env.DRAFTING_TOKEN_BUDGET, 500_000),
   /** Local UI testing without Postgres (Zscaler / Neon quota). Never use in production. */
   skipDb: process.env.SKIP_DB === "true" || process.env.SKIP_DB === "1",
+  /** Stakeholder demo evidence registry. Unknown documents still use the normal pipeline. */
+  demoMode: booleanFromEnv(process.env.DEMO ?? process.env.DEMO_MODE),
 };
 
 export const isProduction = config.nodeEnv === "production";

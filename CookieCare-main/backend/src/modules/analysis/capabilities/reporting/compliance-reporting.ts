@@ -194,8 +194,8 @@ export async function renderComplianceReport(
 ): Promise<AnalysisState> {
   const startedMs = Date.now();
   const startedAt = new Date(startedMs).toISOString();
-  const reportingBudgetMs = positiveEnvironmentInteger("ANALYSIS_REPORTING_DEADLINE_MS", 60_000);
-  const totalRunBudgetMs = positiveEnvironmentInteger("ANALYSIS_TOTAL_DEADLINE_MS", 120_000);
+  const reportingBudgetMs = positiveEnvironmentInteger("ANALYSIS_REPORTING_DEADLINE_MS", 300_000);
+  const totalRunBudgetMs = positiveEnvironmentInteger("ANALYSIS_TOTAL_DEADLINE_MS", 600_000);
   const maxInputChars = positiveEnvironmentInteger("ANALYSIS_REPORTING_MAX_INPUT_CHARS", 1_000_000);
   const recordedRunStart = Date.parse(String(state.metadata?.runStartedAt ?? state.metadata?.timestamp ?? ""));
   const runDeadlineAt = Number.isFinite(recordedRunStart) && recordedRunStart <= startedMs

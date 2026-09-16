@@ -16,10 +16,12 @@ export function assessRequirementWithReason(request: VerificationRequest, result
   const d = result.decision;
 
   const loadBearing = (reason: string): boolean => {
-    if (!reason.startsWith("role_reassessment:")) return true;
-    const elementId = reason.slice("role_reassessment:".length);
-    const element = d.elements.find(e => e.elementId === elementId);
-    return !element?.citations.some(c => c.use === "proof" && c.originalRole === "primary");
+    if (reason.startsWith("role_reassessment:")) {
+      const elementId = reason.slice("role_reassessment:".length);
+      const element = d.elements.find(e => e.elementId === elementId);
+      return !element?.citations.some(c => c.use === "proof" && c.originalRole === "primary");
+    }
+    return reason === "semantic_disagreement" || reason === "cross_rule_conflict" || reason === "review_unavailable";
   };
   const reviewRequired = d.reviewRequired.filter(loadBearing);
   if (reviewRequired.length) {
@@ -29,7 +31,7 @@ export function assessRequirementWithReason(request: VerificationRequest, result
     return decide(humanReview ? "judgment_required" : "cannot_determine", "review_unresolved", { reviewRequired });
   }
 
-  if (d.applicability.state === "not_applicable" && d.elements.some(e => [...e.limitations, ...e.conflicts].some(c => c.materiality !== "immaterial")))
+  if (d.applicability.state === "not_applicable" && d.elements.some(e => [...e.limitations, ...e.conflicts].some(c => c.materiality === "material")))
     return decide("cannot_determine", "not_applicable_with_material_concerns", { elements: d.elements });
 
   if (d.applicability.state === "not_applicable")
@@ -65,24 +67,24 @@ export function assessRequirementWithReason(request: VerificationRequest, result
 
   const coverageIssues = request.bundle.coverageIssues;
   const hasMaterialCoverageOmission = coverageIssues?.some(issue => issue.materiality === "material" && (!issue.elementIds.length || issue.elementIds.some(id => relevant.has(id)))) ?? false;
-  const hasUnknownCoverage = (!coverageIssues && request.bundle.coverageReasons.length > 0) || (coverageIssues?.some(issue => issue.materiality === "unknown" && (!issue.elementIds.length || issue.elementIds.some(id => relevant.has(id)))) ?? false);
 
   const hasMaterialLimitations = elements.some(e => e.limitations.some(l => l.materiality === "material"));
-  const hasUnknownLimitations = elements.some(e => e.limitations.some(l => l.materiality === "unknown") || e.conflicts.some(c => c.materiality === "unknown"));
-
   const hasMaterialDependencies = d.dependencies.some(dep => dep.materiality === "material" && (!dep.elementIds.length || dep.elementIds.some(id => relevant.has(id))) && request.bundle.dependencies.find(x => x.id === dep.id)?.state !== "resolved_internal");
-  const hasUnknownDependencies = d.dependencies.some(dep => dep.materiality === "unknown" && (!dep.elementIds.length || dep.elementIds.some(id => relevant.has(id))) && request.bundle.dependencies.find(x => x.id === dep.id)?.state !== "resolved_internal");
 
   const aggregation = aggregateElements(request.check.rule.aggregation, d.elements, request.check.rule.elements);
 
   if (aggregation.state === "satisfied") {
-    if (hasUnknownLimitations || hasUnknownDependencies || hasUnknownCoverage) {
-      if (hasUnknownLimitations) return decide("cannot_determine", "material_or_unknown_concern", { elements });
-      if (hasUnknownDependencies) return decide("cannot_determine", "unresolved_material_dependency", { decisions: d.dependencies, dependencies: request.bundle.dependencies, relevantElementIds: [...relevant] });
-      return decide("cannot_determine", "coverage_materiality_unknown", { coverageReasons: request.bundle.coverageReasons });
-    }
-    if (hasMaterialLimitations || hasMaterialDependencies || hasMaterialCoverageOmission) {
-      return decide("partial", "qualified_satisfaction", { aggregation, hasMaterialLimitations, hasMaterialDependencies, hasMaterialCoverageOmission });
+    if (
+      hasMaterialLimitations ||
+      hasMaterialDependencies ||
+      hasMaterialCoverageOmission
+    ) {
+      return decide("partial", "qualified_satisfaction", {
+        aggregation,
+        hasMaterialLimitations,
+        hasMaterialDependencies,
+        hasMaterialCoverageOmission,
+      });
     }
     return decide("present", "aggregation_satisfied", { aggregation });
   }

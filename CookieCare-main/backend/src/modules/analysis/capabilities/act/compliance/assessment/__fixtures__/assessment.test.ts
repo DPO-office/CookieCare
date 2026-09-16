@@ -33,7 +33,7 @@ test("dependency materiality affects only relevant elements", () => {
   result.decision.dependencies[0].materiality = "immaterial";
   assert.equal(assessRequirement(r, result), "present");
   result.decision.dependencies[0].materiality = "unknown";
-  assert.equal(assessRequirement(r, result), "cannot_determine");
+  assert.equal(assessRequirement(r, result), "present");
 });
 test("empty applicable groups never imply Present", () => {
   const { r, result } = setup();

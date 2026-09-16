@@ -39,8 +39,8 @@ export async function verifyRequirement(r: VerificationRequest, complete: Comple
       record("attempt.validation", { attempt, accepted: Boolean(validation.decision), errors, warnings: validation.warnings, decision: validation.decision });
       if (validation.decision) {
         const missing = validation.decision.elements.filter(e => ["not_located", "unresolved_dependency", "ambiguous"].includes(e.state));
-        const dependencies = validation.decision.dependencies.filter(d => d.materiality !== "immaterial" && r.bundle.dependencies.find(b => b.id === d.id)?.state !== "resolved_internal");
-        const omissions = r.bundle.coverageIssues?.filter(i => i.materiality !== "immaterial") ?? [];
+        const dependencies = validation.decision.dependencies.filter(d => d.materiality === "material" && r.bundle.dependencies.find(b => b.id === d.id)?.state !== "resolved_internal");
+        const omissions = r.bundle.coverageIssues?.filter(i => i.materiality === "material") ?? [];
         const needsEvidence = dependencies.length || omissions.length || (missing.length && r.bundle.executionStatus !== "complete");
         const elementIds = [...new Set([...missing.map(e => e.elementId), ...dependencies.flatMap(d => d.elementIds), ...omissions.flatMap(i => i.elementIds)])];
         const references = r.bundle.dependencies.filter(d => dependencies.some(x => x.id === d.id));

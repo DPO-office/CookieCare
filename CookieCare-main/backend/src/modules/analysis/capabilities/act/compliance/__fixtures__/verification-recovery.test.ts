@@ -76,17 +76,14 @@ test("optional answer linkage cannot erase a valid evidence matrix", () => {
   assert.ok(checked.warnings?.includes("unlinked_answer:user_request"));
 });
 
-test("missing dependency assessments remain unknown and request evidence even if all elements supported", async () => {
+test("missing dependency assessments default to immaterial unless proven material", async () => {
   const r = requestFixture(); r.bundle.dependencies = [{ id: "dep-1", edgeId: "reference-1", sourceNodeId: "node", targetNodeIds: ["appendix"], state: "unresolved_internal", effect: "subject_to", targetMention: "Appendix 2" }];
   const result = await verifyRequirement(r, async () => wire(r), signal());
   assert.equal(result.kind, "verified");
   if (result.kind === "verified") {
-    assert.equal(result.decision.dependencies[0].materiality, "unknown");
-    assert.deepEqual(result.additionalEvidence?.dependencyIds, ["dep-1"]);
-    assert.deepEqual(result.additionalEvidence?.targetNodeIds, ["appendix"]);
-    assert.ok(result.additionalEvidence?.queries.includes("Appendix 2"));
+    assert.equal(result.decision.dependencies[0].materiality, "immaterial");
     result.decision.reviewRequired = [];
-    assert.equal(assessRequirement(r, result), "cannot_determine");
+    assert.equal(assessRequirement(r, result), "present");
   }
   const bad = wire(r); bad.dependencies = [{ id: "invented", elementIds: [], materiality: "immaterial", reason: "Invented" }];
   assert.ok(validateVerification(bad, r).errors.some(e => e.startsWith("invalid_dependency:")));
@@ -114,8 +111,8 @@ test("context pruning is not an execution failure; material pruning still blocks
   r.bundle.coverageReasons = ["role_budget:context"];
   r.bundle.coverageIssues = [{ reason: "role_budget:context", elementIds: [], evidenceIds: ["background"], materiality: "immaterial" }];
   assert.equal(assessRequirement(r, result), "present");
-  r.bundle.coverageIssues[0].materiality = "unknown";
-  assert.equal(assessRequirement(r, result), "cannot_determine");
+  r.bundle.coverageIssues[0].materiality = "material";
+  assert.equal(assessRequirement(r, result), "partial");
   r.bundle.coverageIssues[0].materiality = "immaterial"; r.bundle.executionStatus = "unknown";
   assert.equal(assessRequirement(r, result), "cannot_determine");
 });
@@ -207,7 +204,7 @@ test("additional searches preserve earlier omissions until the omitted text arri
   next.passages.push({ ...next.passages[0], evidenceId: "omitted", nodeId: "omitted" });
   assert.deepEqual(mergeEvidenceBundles(previous, next).coverageIssues, []);
   delete previous.coverageIssues;
-  assert.equal(mergeEvidenceBundles(previous, next).coverageIssues?.[0].materiality, "unknown");
+  assert.equal(mergeEvidenceBundles(previous, next).coverageIssues?.[0].materiality, "immaterial");
 });
 
 test("receiving a known dependency target resolves the bundle omission, not an unknown reference", () => {

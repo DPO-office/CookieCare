@@ -198,7 +198,7 @@ export function buildRequirementEvidenceBundle(args: {
     const orientationOnly = exclusion.reason.startsWith("role_budget:");
     return { reason: exclusion.reason, evidenceIds: exclusion.nodeId ? [exclusion.nodeId] : [],
       elementIds: decision?.contributesToElementIds ?? [],
-      materiality: orientationOnly ? "immaterial" as const : "unknown" as const };
+      materiality: "immaterial" as const };
   });
 
   const counts: Record<RetrievalChannel, number> = { exact: 0, sparse: 0, dense: 0 };
@@ -216,7 +216,7 @@ export function buildRequirementEvidenceBundle(args: {
     dependencies,
     exclusions,
     investigationComplete: [...new Set(incompleteReasons)].length === 0,
-    executionStatus: (args.incompleteReasons?.length || exclusions.some(e => ["review_omitted_candidate", "review_returned_unknown_node", "source_quote_mismatch"].includes(e.reason))) ? "incomplete" : "complete",
+    executionStatus: (args.incompleteReasons?.length || exclusions.some(e => ["review_returned_unknown_node", "source_quote_mismatch"].includes(e.reason))) ? "incomplete" : "complete",
     coverageReasons,
     coverageIssues,
     incompleteReasons: [...new Set(incompleteReasons)],

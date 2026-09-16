@@ -1,6 +1,8 @@
 import type { AnalysisState } from "../../../../models/analysis-state.js";
+import { config } from "../../../../../../config/index.js";
 import { buildRequirementSearchPlan } from "./build-queries.js";
 import { buildRequirementEvidenceBundle } from "./build-bundle.js";
+import { buildDpa5GdprDemoBundles } from "./demo-evidence-bundles.js";
 import { resolveEvidenceEmbeddings } from "./embedding-cache-repository.js";
 import { buildEvidenceUnits } from "./evidence-index.js";
 import { expandSelectedEvidence } from "./expand-evidence.js";
@@ -49,8 +51,24 @@ export async function runGraphNativeInvestigation(
     byDocument.set(requirement.documentId, list);
   }
 
-  for (const [documentId, requirements] of byDocument) {
-    const graph = state.workspace.documents.find((document) => document.docId === documentId)?.structureGraph;
+  for (const [documentId, documentRequirements] of byDocument) {
+    const document = state.workspace.documents.find((candidate) => candidate.docId === documentId);
+    let requirements = documentRequirements;
+    if (config.demoMode && document) {
+      const demo = buildDpa5GdprDemoBundles(document, requirements);
+      if (demo) {
+        for (const [key, bundle] of demo.bundlesByRequirement) bundlesByRequirement.set(key, bundle);
+        requirements = requirements.filter((requirement) => !demo.handledRequirementIds.has(requirement.requirementId));
+        options.logger?.("compliance.investigation.demo_bundle.loaded", {
+          documentId,
+          documentKey: demo.documentKey,
+          requirementIds: [...demo.handledRequirementIds],
+          bundleCount: demo.bundlesByRequirement.size,
+        });
+        if (requirements.length === 0) continue;
+      }
+    }
+    const graph = document?.structureGraph;
     if (!graph) {
       for (const requirement of requirements) {
         resolution.issues.push({

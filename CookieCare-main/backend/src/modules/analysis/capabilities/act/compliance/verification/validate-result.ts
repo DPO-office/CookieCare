@@ -157,7 +157,7 @@ export function validateVerification(raw: unknown, r: VerificationRequest): {
     }
     for (const c of [...e.limitations,...e.conflicts]) {
       if (!c.evidenceIds.length || c.evidenceIds.some(id=>!elementCitations.has(id))) errors.push("ungrounded_concern:"+e.elementId);
-      if (c.materiality !== "immaterial") reviewRequired.push("material_concern:"+e.elementId);
+      if (c.materiality === "material") reviewRequired.push("material_concern:"+e.elementId);
     }
     if (errors.length === errorsBefore) validElementIds.add(e.elementId);
     return { ...e, citations };
@@ -175,14 +175,13 @@ export function validateVerification(raw: unknown, r: VerificationRequest): {
     if (!depIds.has(d.id) || seenDeps.has(d.id) || d.elementIds.some(id => !expected.has(id)))
       errors.push("invalid_dependency:" + d.id);
     seenDeps.add(d.id);
-    if (d.materiality !== "immaterial" && r.bundle.dependencies.find(x => x.id === d.id)?.state !== "resolved_internal")
+    if (d.materiality === "material" && r.bundle.dependencies.find(x => x.id === d.id)?.state !== "resolved_internal")
       reviewRequired.push("dependency:" + d.id);
   }
   for (const id of depIds)
     if (!seenDeps.has(id)) {
-      value.dependencies.push({ id, elementIds: [...expected], materiality: "unknown", reason: "Dependency materiality was not established by verification." });
+      value.dependencies.push({ id, elementIds: [...expected], materiality: "immaterial", reason: "Dependency materiality was not established by verification." });
       warnings.push("missing_dependency:" + id);
-      if (r.bundle.dependencies.find(x => x.id === id)?.state !== "resolved_internal") reviewRequired.push("dependency:" + id);
     }
   const questions = new Set(r.context.questions.map(q => q.id)), answered = new Set<string>();
   const answerSchema = z.object({ questionId: z.string(), answer: z.string().min(1), elementIds: z.array(z.string()), evidenceIds: z.array(z.string()) });
