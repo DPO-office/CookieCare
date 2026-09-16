@@ -107,6 +107,15 @@ export const skillManifest: SkillManifestEntry[] = [
       "CPRA service-provider contract overlay from the 20 March 2025 source. The small CCPA PDF in the skills folder is a 2018 law-review article, not the Act.",
   },
   {
+    skillId: "regimes/data-protection/dpdp-india",
+    axis: "regime",
+    status: "draft",
+    version: "0.1.0",
+    owner: "analysis",
+    coverageNote:
+      "Digital Personal Data Protection Act, 2023 (No. 22 of 2023) and the Digital Personal Data Protection Rules, 2025 (G.S.R. 846(E)). Data Fiduciary / Data Processor contractual duties authored; Board adjudication/appeal procedure and Consent Manager registration mechanics excluded.",
+  },
+  {
     skillId: "regimes/data-protection/international-transfers",
     axis: "regime",
     status: "draft",

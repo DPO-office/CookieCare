@@ -19,6 +19,7 @@ import { commercialAgreementSkill } from "../../doc-types/commercial-agreement/s
 import { gdprRegimeSkill } from "../../regimes/data-protection/gdpr/skill.config.js";
 import { ukGdprIdtaSkill } from "../../regimes/data-protection/uk-gdpr-idta/skill.config.js";
 import { ccpaCpraSkill } from "../../regimes/data-protection/ccpa-cpra/skill.config.js";
+import { dpdpIndiaSkill } from "../../regimes/data-protection/dpdp-india/skill.config.js";
 import { internationalTransfersSkill } from "../../regimes/data-protection/international-transfers/skill.config.js";
 import { euAiActSkill } from "../../regimes/ai-governance/eu-ai-act/skill.config.js";
 import { hipaaBaaSkill } from "../../regimes/healthcare/hipaa-baa/skill.config.js";
@@ -49,6 +50,10 @@ const SKILL_ID_ALIASES: Record<string, string> = {
   idta: "regimes/data-protection/uk-gdpr-idta",
   ccpa: "regimes/data-protection/ccpa-cpra",
   cpra: "regimes/data-protection/ccpa-cpra",
+  dpdpa: "regimes/data-protection/dpdp-india",
+  dpdp: "regimes/data-protection/dpdp-india",
+  "dpdp-india": "regimes/data-protection/dpdp-india",
+  "india-dpdpa": "regimes/data-protection/dpdp-india",
   sccs: "regimes/data-protection/international-transfers",
   hipaa: "regimes/healthcare/hipaa-baa",
   "ai-act": "regimes/ai-governance/eu-ai-act",
@@ -70,6 +75,7 @@ const ALL_SKILLS: AnalysisSkillConfig[] = [
   gdprRegimeSkill,
   ukGdprIdtaSkill,
   ccpaCpraSkill,
+  dpdpIndiaSkill,
   internationalTransfersSkill,
   euAiActSkill,
   hipaaBaaSkill,
