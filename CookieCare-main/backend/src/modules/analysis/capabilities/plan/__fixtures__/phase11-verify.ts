@@ -27,7 +27,7 @@ const DOCX_MIME =
 const DOWNLOADS = "C:/Users/abhinav.yadav_randst/Downloads";
 
 async function loadDocxText(absPath: string): Promise<string> {
-  return extractText(readFileSync(absPath), DOCX_MIME);
+  return (await extractText(readFileSync(absPath), DOCX_MIME)).text;
 }
 
 function baseState(overrides: Partial<AnalysisState> = {}): AnalysisState {

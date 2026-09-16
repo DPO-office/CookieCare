@@ -373,7 +373,8 @@ export async function extractText(
     mimeType === "application/msword"
   ) {
     const { value: html } = await mammoth.convertToHtml({ buffer });
-    return htmlToStructuredText(html).text;
+    const { text } = htmlToStructuredText(html);
+    return { text };
   }
 
   if (mimeType.startsWith("text/") || mimeType === "application/json") {
@@ -411,6 +412,6 @@ export async function extractTextWithStructure(
     const { text, tables } = htmlToStructuredText(html);
     return { text, rawText, tables };
   }
-  const text = await extractText(buffer, mimeType);
-  return { text, rawText: text, tables: [] };
+  const result = await extractText(buffer, mimeType);
+  return { text: result.text, rawText: result.text, tables: [] };
 }

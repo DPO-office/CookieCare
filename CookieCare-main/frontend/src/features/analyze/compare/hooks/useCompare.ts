@@ -148,14 +148,22 @@ export function useCompare({
             return;
           }
 
-          // Build the structured CompareResult — include the jobId as the session key
-          // and retain the original File objects for PDF rendering in the active session.
+          // Build the structured CompareResult — include the jobId as the session key.
+          // Only pass pdfFiles for native PDF uploads — for DOCX files the browser holds
+          // the original .docx bytes which pdfjs cannot render. Omitting pdfFiles causes
+          // usePdfSource to fall through to the fetch path (GET /api/compare/:jobId/pdf)
+          // which serves the Playwright-converted PDF from the backend session store.
+          const isPdf = (f: File) => f.type === "application/pdf";
+          const pdfFiles = {
+            ...(isPdf(original) ? { original } : {}),
+            ...(isPdf(revised) ? { revised } : {}),
+          };
           const compareResult = buildCompareResult(
             raw,
             original.name,
             revised.name,
             jobId,
-            { original, revised }
+            Object.keys(pdfFiles).length > 0 ? pdfFiles : undefined
           );
           const markdown = formatExecutiveSummaryMarkdown(compareResult);
 

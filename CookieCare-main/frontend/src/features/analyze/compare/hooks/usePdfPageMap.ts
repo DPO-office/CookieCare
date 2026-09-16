@@ -201,37 +201,153 @@ function itemBelongsToClause(
 }
 
 /**
+ * Parse the clause-identifying marker out of clause.title.
+ *
+ * Titles produced by structure-extract.ts look like "2.3. Sub-processors",
+ * "5. Personal Data Breach", "Section 7 – Governing Law" or "(a) Definitions".
+ * We only need the leading identifier — the string that appears verbatim as a
+ * heading item in the rendered PDF — so we return just the numeric or
+ * lettered label, without trailing dots or body text.
+ *
+ * Returns null when the clause has no recognisable marker (preamble segments,
+ * paragraph-fallback chunks). Callers must handle that path without an anchor.
+ */
+function extractClauseMarker(title: string | undefined | null): string | null {
+  if (!title) return null;
+  const trimmed = title.trim();
+  const numeric = trimmed.match(/^(\d+(?:\.\d+)*)/);
+  if (numeric) return numeric[1];
+  const keyword = trimmed.match(
+    /^(?:Section|Clause|Article|Paragraph|Schedule|Annex|Art)\.?\s+(\d+(?:\.\d+)*)/i
+  );
+  if (keyword) return keyword[1];
+  const letter = trimmed.match(/^\(([A-Za-z])\)/);
+  if (letter) return `(${letter[1]})`;
+  return null;
+}
+
+/**
+ * Locate the pdfjs text item on a page whose string is the clause's heading
+ * marker (e.g. "2.3", "2.3.", or an item that begins with "2.3 Sub-processors"
+ * / "2.3.Sub-processors"). Used as a spatial anchor for highlight clipping.
+ *
+ * The match is deliberately strict so that a body reference like
+ * "…see clause 2.3…" or a deeper marker "2.3.1" never wins over the real
+ * heading. First-in-reading-order match wins.
+ */
+function findMarkerAnchor(
+  pageItems: PdfTextItem[],
+  marker: string
+): PdfTextItem | null {
+  const dotMarker = `${marker}.`;
+  for (const item of pageItems) {
+    const s = item.str.trim();
+    if (!s) continue;
+    if (s === marker || s === dotMarker) return item;
+    if (s.startsWith(marker + " ") || s.startsWith(dotMarker + " ")) return item;
+    // pdfjs sometimes concatenates the marker with the heading word into a
+    // single item: "2.3.Sub-processors" — accept, but reject a deeper marker
+    // like "2.3.1" (the char after "2.3." is a digit).
+    if (
+      s.startsWith(dotMarker) &&
+      !/^\d/.test(s.charAt(dotMarker.length))
+    ) {
+      return item;
+    }
+  }
+  return null;
+}
+
+/**
+ * Does a pdfjs item's trimmed string look like a standalone clause-heading
+ * marker? Used to detect the *next* clause boundary below the anchor when
+ * clipping highlight items to the current clause's y-range.
+ *
+ * We accept "2", "2.", "2.3", "2.3.", "5.1.2", "5.1.2." — anything that is
+ * only digits and dots. This intentionally treats sub-clause markers as
+ * boundaries too, because backend segmentation emits each numeric label as
+ * its own clause (2.3 does not include 2.3.1's body).
+ */
+function looksLikeClauseMarker(str: string): boolean {
+  const s = str.trim();
+  return /^\d+(?:\.\d+)*\.?$/.test(s);
+}
+
+/**
+ * Split items into vertically contiguous groups. Consecutive items whose y
+ * difference exceeds `gapMultiplier * medianLineHeight` start a new cluster.
+ * Preserves reading order within each cluster.
+ *
+ * Used by the spatial-coherence step to detect when the content filter has
+ * picked up items from more than one visual block on the same page (e.g.
+ * items from clause 2.2 above and clause 2.3 below, split by a paragraph
+ * gap that exceeds a typical line-height).
+ */
+function clusterByYGaps(
+  items: PdfTextItem[],
+  gapMultiplier: number
+): PdfTextItem[][] {
+  if (items.length === 0) return [];
+  const sorted = [...items].sort((a, b) => a.y - b.y);
+  const heights = sorted.map((it) => it.height).sort((a, b) => a - b);
+  const medianH = heights[Math.floor(heights.length / 2)] || 12;
+  const threshold = medianH * gapMultiplier;
+  const clusters: PdfTextItem[][] = [[sorted[0]]];
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i].y - sorted[i - 1].y > threshold) {
+      clusters.push([sorted[i]]);
+    } else {
+      clusters[clusters.length - 1].push(sorted[i]);
+    }
+  }
+  return clusters;
+}
+
+/**
  * Given a clause and a PdfPageMap, return the text items that visually
  * represent the clause text on the page.  These are used to compute the
  * highlight overlay bounding boxes in PdfDocumentPane.
  *
- * ── Why the old charOffset approach failed ──────────────────────────────────
- * The backend assembles page text via assemblePageTwoPass() (which merges
- * marker + body items into joined strings and uses "\n" between visual lines)
- * while the frontend counts each raw pdfjs item individually with "+1 for
- * space". Additionally, stitchCrossPageMarkers() moves content between pages,
- * shifting all subsequent backend offsets. By page 5 the accumulated drift can
- * exceed 100+ chars, so the ±tolerance window was widened to compensate — but
- * a wider window also includes text items from the preceding and following
- * clauses, producing the visible "sentence above and below gets highlighted"
- * artefact.
+ * ── Why the previous strategy still bled into neighbouring clauses ──────────
+ * Content-based filtering (an item's string is a substring of clause.text) is
+ * drift-immune, but two consecutive clauses on the same page routinely share
+ * common tokens ("processor", "controller", "agreement", "termination"), and
+ * the fixed medianH * 8 spatial-coherence window is wide enough to accept
+ * everything above and below the median. The text-search fallback then used
+ * fullText.indexOf(needle) with no starting offset, so if the same needle
+ * appeared earlier in the document it snapped one clause — or one whole page —
+ * too early. Result: selecting 2.3 could visibly highlight 2.2.
  *
- * ── New strategy: content-based item selection ───────────────────────────────
- *   1. Resolve the clause's page via resolveClausePage() — this is unchanged
- *      and reliable because clause.pageNumber comes from the backend's own
- *      resolvePageNumber() over the same pdfjs-extracted text.
+ * ── Strategy now ────────────────────────────────────────────────────────────
+ *   1. Resolve the clause's page via resolveClausePage(). This trusts the
+ *      backend-provided clause.pageNumber first (already the case) and only
+ *      falls back to the char-offset binary search when pageNumber is missing.
  *
- *   2. Filter all text items on that page by checking whether their string
- *      actually appears inside clause.text (case/whitespace normalised).
- *      This is drift-immune: it does not depend on charOffset at all.
+ *   2. Anchor by clause title marker. If clause.title yields a numeric marker
+ *      like "2.3", locate that marker as an item on the resolved page and
+ *      keep only content-matched items whose y sits at or below the anchor
+ *      and strictly above the NEXT numeric-marker item on the same page. This
+ *      is what prevents 2.2's items from ever entering 2.3's highlight, and
+ *      vice-versa — even when both clauses share vocabulary.
  *
- *   3. If content matching returns fewer than 2 items (possible for very short
- *      clauses or clauses where pdfjs splits text differently), fall back to a
- *      charOffset window anchored on the text-search corrected offset with
- *      zero outward tolerance — tight enough to avoid bleed.
+ *   3. Cluster-gap spatial coherence. Split the remaining items into y-
+ *      clusters separated by paragraph-sized gaps (2.5 × median line height).
+ *      When more than one cluster survives, keep the one closest to the
+ *      anchor (or the largest, if there is no anchor). This is stricter than
+ *      the previous fixed-window filter for short clauses and safer than it
+ *      was for long multi-paragraph clauses (which now form one legitimate
+ *      cluster instead of being pruned to a random subset).
  *
- *   4. If the primary page still yields nothing, try page+1 (clause may start
- *      at the very bottom of a page and most of its text is on the next page).
+ *   4. If the primary page yields nothing, try page+1 (clause may start at
+ *      the very bottom of a page and continue onto the next).
+ *
+ *   5. If everything above returns < 2 items, fall back to a text-search
+ *      anchored at the resolved page's offset (never the beginning of the
+ *      document), then include only items whose charOffset lies strictly
+ *      within [correctedStart, correctedEnd). Restricting the search
+ *      starting position to the resolved page is what prevents an earlier
+ *      occurrence of the same needle on a different page from becoming a
+ *      wrong-clause highlight.
  *
  * All other behaviour — page navigation, coordinate calculation, highlight
  * colors, active/passive distinction — is unchanged.
@@ -259,6 +375,60 @@ export function resolveClauseTextItems(
     ? contentFilter(primaryPage.textItems)
     : [];
 
+  // ── Step 1b: anchor by clause marker (title-based y-range clipping) ──────
+  // The strongest safeguard against a neighbouring clause on the same page
+  // leaking into the highlight. When the clause has a recognisable heading
+  // marker ("2.3", "Section 5", "(a)") and we can locate it on the resolved
+  // page, clip content-matched items to the strip between that marker and
+  // the next clause-heading marker on the same page.
+  const marker = extractClauseMarker(clause.title);
+  const anchor =
+    primaryPage && marker ? findMarkerAnchor(primaryPage.textItems, marker) : null;
+
+  if (anchor && primaryPage && items.length > 0) {
+    // Lower bound: reject items above the anchor — those belong to a preceding
+    // clause on the same page. Upper bound is decided by a vertical-gap walk
+    // over ALL content-matched items on the page (below), not by trying to
+    // guess where the next clause-marker item lives. String-based marker
+    // detection is inherently fragile: a body-text version number ("TLS 1.3")
+    // and a genuine clause marker ("1.3") are string-identical, so any
+    // heuristic that promotes strings to boundaries can wrongly cut clause
+    // content in half. A y-gap boundary depends only on visual layout and
+    // cannot be spoofed by body-text digits.
+    const yEps = Math.max(anchor.height * 0.5, 2);
+    const below = items
+      .filter((it) => it.y >= anchor.y - yEps)
+      .sort((a, b) => a.y - b.y);
+
+    if (below.length <= 1) {
+      items = below;
+    } else {
+      // Median line-height across body items (exclude the heading, which has
+      // a larger font, from the median so intra-body line spacing isn't
+      // inflated).
+      const bodyHeights = below
+        .slice(1)
+        .map((it) => it.height)
+        .sort((a, b) => a - b);
+      const medianH =
+        bodyHeights.length > 0
+          ? bodyHeights[Math.floor(bodyHeights.length / 2)] || 12
+          : below[0].height || 12;
+      // A paragraph break between two clauses is typically ≥ 2× body line-
+      // height. Intra-clause line spacing sits below that. Use 2× so tight
+      // paragraph structure inside a single clause survives.
+      const gapCutoff = medianH * 2;
+      let end = below.length;
+      for (let i = 1; i < below.length; i++) {
+        if (below[i].y - below[i - 1].y > gapCutoff) {
+          end = i;
+          break;
+        }
+      }
+      items = below.slice(0, end);
+    }
+  }
+
   // ── Step 2: try page+1 if primary returned nothing ────────────────────────
   // Clause starts at page bottom; body is mostly on the next page.
   if (items.length === 0 && pageNum < map.numPages) {
@@ -266,53 +436,50 @@ export function resolveClauseTextItems(
     if (nextPage) items = contentFilter(nextPage.textItems);
   }
 
-  // ── Step 2b: spatial coherence — remove isolated outlier items ────────────
-  // Content matching is immune to charOffset drift but can pick up items from
-  // a different clause on the same page that happen to share words (e.g.
-  // "agreement", "termination") with the target clause. These outliers are
-  // visually far from the main cluster of matching items. We remove any item
-  // whose y-coordinate lies more than N line-heights away from the cluster's
-  // median y, unless fewer than 4 items were found (short clause — keep
-  // everything to avoid dropping legitimate content).
-  if (items.length >= 4) {
-    const ys = items.map((it) => it.y).sort((a, b) => a - b);
-    const midIdx = Math.floor(ys.length / 2);
-    const medianY = ys[midIdx];
-    // Typical line height for the majority of items in the cluster
-    const heights = items.map((it) => it.height);
-    heights.sort((a, b) => a - b);
-    const medianH = heights[Math.floor(heights.length / 2)] || 12;
-    // Spread scales with how many items actually matched: a fixed 8-line
-    // window is generous for a short clause but silently prunes most (or
-    // all) of a genuinely long, multi-paragraph clause — e.g. Sub-processors
-    // or Personal Data Breach, which legitimately span 20+ lines — down to a
-    // near-empty set. Keep the original tight 8-line floor for short clauses
-    // (where a stray same-page word match is the real risk) and widen it
-    // proportionally to the matched item count for longer ones.
-    const spread = medianH * Math.max(8, Math.ceil(items.length / 2));
-    items = items.filter(
-      (it) => Math.abs(it.y - medianY) <= spread
-    );
+  // ── Step 2b: cluster-gap spatial coherence — ONLY when no anchor ─────────
+  // When we have a marker anchor, Step 1b's y-range clip is already precise:
+  // the surviving items are all strictly between this clause's marker and the
+  // next clause's marker. Applying cluster-gap on top of that can wrongly
+  // split heading from body (heading font is often larger, so the gap between
+  // the heading line and the first body line can exceed 2.5 × body line-
+  // height) and drop the body. So we only run cluster-gap in the no-anchor
+  // path — preamble segments, paragraph-fallback chunks — where the y-range
+  // hasn't been constrained yet. Keep the largest cluster in that case.
+  if (!anchor && items.length >= 3) {
+    const clusters = clusterByYGaps(items, 2.5);
+    if (clusters.length > 1) {
+      let best = clusters[0];
+      for (const c of clusters) {
+        if (c.length > best.length) best = c;
+      }
+      items = best;
+    }
   }
 
-  // ── Step 3: tight charOffset fallback ────────────────────────────────────
-  // Content matching found nothing (e.g. very short clause, or pdfjs returned
-  // a single ligature item that doesn't substring-match). Use text-search to
-  // find the corrected start offset and filter with zero outward tolerance so
-  // we never bleed into a neighbouring clause.
+  // ── Step 3: tight charOffset fallback, anchored to the resolved page ─────
+  // Content matching returned nothing usable (very short clause, or pdfjs
+  // returned a single ligature item that doesn't substring-match). Search
+  // clause.text into map.fullText, but STARTING FROM the resolved page's
+  // offset — never from position 0 — so an earlier occurrence of the same
+  // opening phrase on an earlier page cannot become a wrong-clause highlight.
+  // A small back-off (200 chars) tolerates minor whitespace/reconstruction
+  // drift between backend text and pdfjs fullText at the page boundary.
   //
   // charOffset is a cumulative, document-global offset (see cumOffset in the
-  // usePdfPageMap hook below) — it is NOT page-relative. Restricting this
-  // filter to primaryPage.textItems silently produces zero items whenever the
-  // corrected offset actually falls on a different page than the one
-  // resolveClausePage picked (e.g. a long clause whose changed tail — the
-  // part that actually needs a highlight — spills onto the next page). Search
-  // every page's items so the fallback can find the clause wherever it
-  // actually is, instead of silently showing no highlight.
+  // usePdfPageMap hook below). Once correctedStart is known we still search
+  // every page's items so a long clause whose changed tail spills onto the
+  // next page can still be found.
   if (items.length < 2) {
     const needle = clause.text.slice(0, 80).trim();
     if (needle.length >= 10) {
-      const correctedStart = map.fullText.toLowerCase().indexOf(needle.toLowerCase());
+      const pageStart =
+        pageNum >= 1 && pageNum <= map.pageStarts.length
+          ? map.pageStarts[pageNum - 1]
+          : 0;
+      const searchFrom = Math.max(0, pageStart - 200);
+      const correctedStart = map.fullText
+        .toLowerCase()
+        .indexOf(needle.toLowerCase(), searchFrom);
       if (correctedStart !== -1) {
         const correctedEnd = correctedStart + clause.text.length;
         // Zero outward bleed — only items strictly within the clause range.

@@ -427,6 +427,7 @@ export default function DocumentPicker({ authToken, onConfirm }: DocumentPickerP
         search: debouncedSearch.trim() || undefined,
         limit:  PAGE_SIZE,
         offset: page * PAGE_SIZE,
+        dedupe: true,             // hide test artifacts/empty docs + collapse duplicate titles
       });
 
       // Strip placeholder/ephemeral records (belt-and-suspenders, backend already

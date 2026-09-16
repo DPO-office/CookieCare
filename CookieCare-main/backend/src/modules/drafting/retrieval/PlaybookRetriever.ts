@@ -19,14 +19,24 @@ export interface PlaybookLookupResult {
 export class PlaybookRetriever {
   constructor(private readonly db: Pool) {}
 
+  /**
+   * @param userId - When provided, scopes the `library_items` exact-id lookup to
+   *   rows owned by this user (or org-shared, source='org') — the same
+   *   ownership rule used everywhere else library_items is read
+   *   (see controllers/libraryItems.ts getLibraryItems). Callers that omit it
+   *   (the drafting PAC pipeline, which has no per-request userId on DraftState
+   *   today) keep the pre-existing unscoped lookup behaviour — this is a
+   *   deliberate scope boundary, not an oversight; see Negotiate Phase 1 report.
+   */
   async retrieveRules(
     requirements: RequirementContext,
-    state: DraftState
+    state: DraftState,
+    userId?: string
   ): Promise<PlaybookLookupResult> {
     const playbookId = state.request.playbookId?.trim() || null;
 
     if (playbookId) {
-      const exact = await this.fetchByPlaybookId(playbookId, state.organizationId);
+      const exact = await this.fetchByPlaybookId(playbookId, state.organizationId, userId);
       if (exact.rules.length > 0) {
         console.log(
           `[PlaybookRetriever] exact playbookId=${playbookId} rules=${exact.rules.length}`
@@ -64,20 +74,35 @@ export class PlaybookRetriever {
    */
   private async fetchByPlaybookId(
     playbookId: string,
-    organizationId?: string | null
+    organizationId?: string | null,
+    userId?: string
   ): Promise<{ rules: PlaybookRule[]; reason: string }> {
     try {
+      // Ownership check: a library_items rulebook is only visible to its owner
+      // or when explicitly shared org-wide (source='org') — same rule as
+      // controllers/libraryItems.ts getLibraryItems. When userId is not
+      // supplied (non-Negotiate callers), preserve the previous unscoped
+      // lookup rather than changing behaviour for callers outside this fix.
       const { rows } = await this.db.query(
-        `SELECT id, name, details, type
-         FROM library_items
-         WHERE id = $1
-           AND (type = 'rulebook' OR type = 'playbook')
-         LIMIT 1`,
-        [playbookId]
+        userId
+          ? `SELECT id, name, details, type
+             FROM library_items
+             WHERE id = $1
+               AND (type = 'rulebook' OR type = 'playbook')
+               AND (user_id = $2 OR source = 'org')
+             LIMIT 1`
+          : `SELECT id, name, details, type
+             FROM library_items
+             WHERE id = $1
+               AND (type = 'rulebook' OR type = 'playbook')
+             LIMIT 1`,
+        userId ? [playbookId, userId] : [playbookId]
       );
 
       if (rows.length > 0) {
         const row = rows[0];
+        // Some rulebooks embed their rules directly in library_items.details
+        // (prose / manually-created). Prefer those when present.
         const fromDetails = parseRulesFromLibraryDetails(
           row.details,
           String(row.name || "Playbook")
@@ -85,6 +110,29 @@ export class PlaybookRetriever {
         if (fromDetails.length > 0) {
           return { rules: fromDetails, reason: "ok" };
         }
+
+        // PDF-ingested rulebooks store their extracted rules in playbook_rules,
+        // linked back by library_item_id. This is the primary path for an
+        // uploaded rulebook the user selected — without it the selection was
+        // silently ignored and negotiation fell back to generic rules.
+        try {
+          const { rows: ruleRows } = await this.db.query(
+            `SELECT id, topic, standard_position, fallback_positions, walk_away_condition
+             FROM playbook_rules
+             WHERE library_item_id = $1
+             ORDER BY created_at ASC
+             LIMIT 200`,
+            [playbookId]
+          );
+          if (ruleRows.length > 0) {
+            return { rules: ruleRows.map(mapRuleRow), reason: "ok" };
+          }
+        } catch (err) {
+          console.warn(
+            `[PlaybookRetriever] playbook_rules library_item lookup failed: ${(err as Error).message}`
+          );
+        }
+
         return {
           rules: [],
           reason: "library_item_found_but_no_parsable_rules",
@@ -96,14 +144,17 @@ export class PlaybookRetriever {
       );
     }
 
+    // Legacy fallbacks for callers that pass a raw playbook_rules id/library id:
+    // first try the provenance link, then the (pre-namespacing) direct id.
     try {
       const orgId = organizationId?.trim() || null;
       const { rows } = await this.db.query(
         `SELECT id, topic, standard_position, fallback_positions, walk_away_condition
          FROM playbook_rules
-         WHERE id = $1
+         WHERE (library_item_id = $1 OR id = $1)
            AND ($2::text IS NULL OR organization_id = $2 OR organization_id IS NULL)
-         LIMIT 1`,
+         ORDER BY created_at ASC
+         LIMIT 200`,
         [playbookId, orgId]
       );
       if (rows.length > 0) {

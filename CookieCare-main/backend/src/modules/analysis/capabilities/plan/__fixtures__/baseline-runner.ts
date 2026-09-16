@@ -30,7 +30,7 @@ const DOWNLOADS = "C:/Users/abhinav.yadav_randst/Downloads";
 
 async function loadDocxText(absPath: string): Promise<string> {
   const buf = readFileSync(absPath);
-  return extractText(buf, DOCX_MIME);
+  return (await extractText(buf, DOCX_MIME)).text;
 }
 
 // No real negotiation playbook doc was found on disk (the only "playbook"

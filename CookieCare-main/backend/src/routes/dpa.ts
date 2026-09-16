@@ -71,7 +71,7 @@ router.post(
     // ── Text extraction ─────────────────────────────────────────────────────
     let documentText: string;
     try {
-      documentText = await extractText(file.buffer, file.mimetype);
+      ({ text: documentText } = await extractText(file.buffer, file.mimetype));
     } catch (extractErr: any) {
       console.error("[dpa/review] Text extraction failed:", extractErr.message);
       return res.status(422).json({

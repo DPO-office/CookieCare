@@ -100,4 +100,59 @@ export interface AgentMarkup {
    * Populated by the backend evaluate endpoint (Phase 1).
    */
   clauseType?: string;
+  /**
+   * Topic of the playbook rule that grounded this finding, or null when the
+   * finding came from generic legal-risk analysis only. Present on the wire
+   * since Phase 1 but not previously typed here.
+   */
+  matchedPlaybookTopic?: string | null;
+}
+
+// ─── Phase 2: Negotiation session persistence ────────────────────────────────
+
+export type FindingStatus = "pending" | "accepted" | "rejected";
+
+/** A finding as returned by the backend session model — a superset of
+ *  AgentMarkup that also carries durable status and cached per-clause
+ *  context/strategy/draft state. */
+export interface NegotiationFindingDTO {
+  id: string;
+  sessionId: string;
+  clauseId: string;
+  orderIndex: number;
+  original: string;
+  replacement: string;
+  reasoning: string;
+  riskLevel: "RED" | "YELLOW" | "GREEN";
+  clauseType: string;
+  charOffset: number | null;
+  matchedPlaybookTopic: string | null;
+  status: FindingStatus;
+  contextJson: NegotiationContext | null;
+  strategyJson: NegotiationStrategy | null;
+  selectedTier: "preferred" | "balanced" | "fallback" | null;
+  draftResultJson: StrategyDraftResult | null;
+  resolvedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface NegotiationSessionDTO {
+  id: string;
+  userId: string;
+  documentId: string;
+  documentVersionId: string | null;
+  documentVersionCount: number;
+  playbookId: string | null;
+  status: "active" | "superseded";
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SessionResolveResponse {
+  session: NegotiationSessionDTO;
+  findings: NegotiationFindingDTO[];
+  resumed: boolean;
+  stale?: boolean;
+  racedExisting?: boolean;
 }

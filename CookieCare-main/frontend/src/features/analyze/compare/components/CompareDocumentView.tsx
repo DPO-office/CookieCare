@@ -402,104 +402,9 @@ function FindingsRail({
   return (
     <div className="flex h-full flex-col bg-white">
 
-      {/* ── Summary header ── */}
-      <div className="shrink-0 border-b border-[#E4E4E7] px-3 pt-3 pb-2.5 space-y-2.5">
-
-        {/* Material Changes — count is unique pairs, not FindingViewModel count */}
-        <div>
-          <div className="flex items-baseline justify-between">
-            <p className="text-[11.5px] font-semibold text-[#111827]">Material Changes</p>
-            <span className="text-[11px] font-bold tabular-nums text-[#111827]">
-              {materialPairs}
-            </span>
-          </div>
-          <div className="mt-1.5 flex flex-wrap gap-1">
-            {(
-              [
-                ["REMOVED", "Removed"],
-                ["ADDED", "Added"],
-                ["MODIFIED_BROADER", "Broader"],
-                ["MODIFIED_NARROWER", "Narrower"],
-              ] as const
-            ).map(([key, label]) => {
-              const n = materialByType[key];
-              if (!n) return null;
-              const style = CHANGE_TYPE_STYLE[key];
-              return (
-                <span key={key} className={`rounded px-1.5 py-0.5 text-[9.5px] font-semibold ${style.badge}`}>
-                  {n} {label}
-                </span>
-              );
-            })}
-            {materialPairs === 0 && (
-              <span className="text-[10px] text-[#9CA3AF]">None detected</span>
-            )}
-          </div>
-        </div>
-
-        <div className="border-t border-[#F3F4F6]" />
-
-        {/* Risks — actual risk finding count */}
-        <div>
-          <div className="flex items-baseline justify-between">
-            <p className="text-[11.5px] font-semibold text-[#111827]">Risks</p>
-            <span className="text-[11px] font-bold tabular-nums text-[#111827]">
-              {riskFindings}
-            </span>
-          </div>
-          <div className="mt-1.5 flex flex-wrap items-center gap-1">
-            {high > 0 && (
-              <span className={`rounded px-1.5 py-0.5 text-[9.5px] font-bold ${COMPARE_RISK_BADGE.HIGH.badge}`}>
-                {high} HIGH
-              </span>
-            )}
-            {medium > 0 && (
-              <span className={`rounded px-1.5 py-0.5 text-[9.5px] font-bold ${COMPARE_RISK_BADGE.MEDIUM.badge}`}>
-                {medium} MEDIUM
-              </span>
-            )}
-            {low > 0 && (
-              <span className={`rounded px-1.5 py-0.5 text-[9.5px] font-bold ${COMPARE_RISK_BADGE.LOW.badge}`}>
-                {low} LOW
-              </span>
-            )}
-            {riskFindings === 0 && (
-              <span className="text-[10px] text-[#9CA3AF]">None scored</span>
-            )}
-          </div>
-        </div>
-
-        {/* FIX 4/5: Comparison context — MERGED / UNCERTAIN, plain language,
-            visually secondary to Material Changes / Risks above. Uses the
-            backend's relationshipType-derived counts directly (see
-            normalizeFindings.ts) — never re-derived from heuristics here. */}
-        {hasStructuralContext && (
-          <>
-            <div className="border-t border-[#F3F4F6]" />
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9CA3AF]">
-                Comparison context
-              </p>
-              <p className="mt-1 text-[10.5px] leading-snug text-[#6B7280]">
-                {merged > 0 && (
-                  <>
-                    <span className="font-semibold text-[#6D28D9]">{merged}</span> clause{merged === 1 ? "" : "s"} consolidated
-                  </>
-                )}
-                {merged > 0 && uncertain > 0 && " · "}
-                {uncertain > 0 && (
-                  <>
-                    <span className="font-semibold text-[#6B7280]">{uncertain}</span> clause{uncertain === 1 ? "" : "s"} could not be confidently matched
-                  </>
-                )}
-              </p>
-              <p className="mt-1 text-[9.5px] text-[#C4C9D4] leading-snug">
-                Shown for context only — not counted in Material Changes or Risks above.
-              </p>
-            </div>
-          </>
-        )}
-      </div>
+      {/* Summary block (Material Changes / Risks / Structural context) is
+          intentionally omitted — counts are surfaced directly on the filter
+          chips below, and the top bar carries the overall Match %.  */}
 
       {/* ── Search ── */}
       <div className="shrink-0 border-b border-[#F0F0F2] px-3 py-2">
@@ -525,18 +430,26 @@ function FindingsRail({
         </div>
       </div>
 
-      {/* ── Filter chips ── */}
+      {/* ── Filter chips ──
+          Counts (Removed 3, Broader 7, …) live INSIDE the chips so users see
+          the breakdown without a separate summary block. Severity / risk
+          filtering has been removed — the compare workspace no longer
+          surfaces risk anywhere in the UI. */}
       <div className="shrink-0 border-b border-[#F0F0F2] px-3 py-1.5 space-y-1.5">
         <div className="flex flex-wrap gap-1">
           {CHANGE_TYPE_OPTS.map((o) => {
             const isActive = filters.changeType === o.value;
             const style = o.value !== "all" ? CHANGE_TYPE_STYLE[o.value] : null;
+            const count =
+              o.value === "all"
+                ? materialPairs
+                : materialByType[o.value] ?? 0;
             return (
               <button
                 key={o.value}
                 type="button"
                 onClick={() => setFilter("changeType", o.value)}
-                className={`rounded-md px-2 py-0.5 text-[10.5px] font-medium transition-colors ${
+                className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10.5px] font-medium transition-colors ${
                   isActive
                     ? style
                       ? style.badge + " ring-1 ring-inset ring-current/30"
@@ -544,45 +457,19 @@ function FindingsRail({
                     : "bg-[#F3F4F6] text-[#6B7280] hover:bg-[#E5E7EB]"
                 }`}
               >
-                {o.label}
+                <span>{o.label}</span>
+                <span
+                  className={`rounded px-1 text-[9.5px] font-bold tabular-nums ${
+                    isActive
+                      ? "bg-white/40"
+                      : "bg-white/70 text-[#374151]"
+                  }`}
+                >
+                  {count}
+                </span>
               </button>
             );
           })}
-        </div>
-        <div className="flex items-center justify-between gap-1">
-          <div className="flex flex-wrap gap-1">
-            {SEVERITY_OPTS.map((o) => (
-              <button
-                key={o.value}
-                type="button"
-                onClick={() => setFilter("severity", o.value)}
-                className={`rounded-md px-2 py-0.5 text-[10.5px] font-medium transition-colors ${
-                  filters.severity === o.value
-                    ? "bg-[#111827] text-white"
-                    : "bg-[#F3F4F6] text-[#6B7280] hover:bg-[#E5E7EB]"
-                }`}
-              >
-                {o.label}
-              </button>
-            ))}
-          </div>
-          <div className="flex shrink-0 items-center gap-1">
-            <span className="text-[9.5px] text-[#C4C9D4] font-medium">Sort</span>
-            {SORT_OPTS.map((o) => (
-              <button
-                key={o.value}
-                type="button"
-                onClick={() => setFilter("sort", o.value)}
-                className={`rounded-md px-1.5 py-0.5 text-[10px] font-medium transition-colors ${
-                  filters.sort === o.value
-                    ? "bg-[#F0F5FF] text-[#2175D9]"
-                    : "text-[#9CA3AF] hover:text-[#374151]"
-                }`}
-              >
-                {o.label}
-              </button>
-            ))}
-          </div>
         </div>
         {hasFilters && (
           <button
@@ -1075,6 +962,51 @@ export function CompareDocumentView({
     () => normalizedData.findings
   );
 
+  // ── Resizable findings sidebar ───────────────────────────────────────────
+  // The findings rail is drag-resizable via a handle on its left edge.
+  // Persisted in localStorage per-user so the choice survives reloads. Bounds
+  // keep it usable: at least SIDEBAR_MIN so the search/filter bar stays legible,
+  // and at most 60% of viewport width so the PDF panes never disappear.
+  const SIDEBAR_MIN = 260;
+  const SIDEBAR_MAX_FRACTION = 0.6;
+  const SIDEBAR_DEFAULT = 320;
+  const SIDEBAR_STORAGE_KEY = "compare.sidebarWidth";
+  const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
+    try {
+      const raw = window.localStorage.getItem(SIDEBAR_STORAGE_KEY);
+      const n = raw ? parseInt(raw, 10) : NaN;
+      if (Number.isFinite(n) && n >= SIDEBAR_MIN) return n;
+    } catch { /* localStorage may be unavailable in a sandboxed context */ }
+    return SIDEBAR_DEFAULT;
+  });
+  const draggingRef = useRef(false);
+  useEffect(() => {
+    try { window.localStorage.setItem(SIDEBAR_STORAGE_KEY, String(sidebarWidth)); }
+    catch { /* ignore */ }
+  }, [sidebarWidth]);
+  const handleSidebarDragStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    draggingRef.current = true;
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    const onMove = (ev: MouseEvent) => {
+      if (!draggingRef.current) return;
+      // Sidebar sits on the right; width grows as the cursor moves LEFT.
+      const proposed = window.innerWidth - ev.clientX;
+      const maxW = window.innerWidth * SIDEBAR_MAX_FRACTION;
+      setSidebarWidth(Math.max(SIDEBAR_MIN, Math.min(proposed, maxW)));
+    };
+    const onUp = () => {
+      draggingRef.current = false;
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  }, []);
+
   const selectedFinding = useMemo(() => {
     if (!selectedId) return null;
     return (
@@ -1266,9 +1198,22 @@ export function CompareDocumentView({
         )}
 
         <aside
-          className="flex w-[280px] shrink-0 flex-col overflow-hidden border-l border-[#E4E4E7] xl:w-[300px]"
+          className="relative flex shrink-0 flex-col overflow-hidden border-l border-[#E4E4E7]"
+          style={{ width: sidebarWidth }}
           aria-label="Findings"
         >
+          {/* Drag handle — sits on the left edge of the sidebar. Slightly
+              extends outside the border so it's easy to grab without covering
+              the finding rows. */}
+          <div
+            onMouseDown={handleSidebarDragStart}
+            onDoubleClick={() => setSidebarWidth(SIDEBAR_DEFAULT)}
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize findings sidebar (double-click to reset)"
+            title="Drag to resize · double-click to reset"
+            className="absolute left-0 top-0 z-20 h-full w-1.5 -translate-x-1/2 cursor-col-resize bg-transparent transition-colors hover:bg-[#2175D9]/40 active:bg-[#2175D9]/60"
+          />
           <FindingsRail
             data={normalizedData}
             selectedId={selectedId}

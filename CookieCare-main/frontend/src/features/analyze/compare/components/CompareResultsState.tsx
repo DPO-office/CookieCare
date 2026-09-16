@@ -205,13 +205,29 @@ function DocumentsView({
 }) {
   const [navState, setNavState] = useState<CompareNavState | null>(null);
 
-  const riskTone = COMPARE_RISK_BADGE[result.executiveSummary.overallRisk] ?? COMPARE_RISK_BADGE.MEDIUM;
   const diffs = result.differences ?? [];
-  const risks = result.risks ?? [];
-  const materialCount = diffs.filter(
-    (d) => d.classification !== "UNCHANGED" && d.classification !== "NEUTRAL_REPHRASE",
+
+  // ── Match % — how much of the two documents lines up ──────────────────────
+  // A diff whose classification is UNCHANGED (byte-identical clauses) or
+  // NEUTRAL_REPHRASE (same substance, different wording) means the obligation
+  // is preserved between Original and Modified — that clause "matches".
+  // ADDED / REMOVED / MODIFIED_BROADER / MODIFIED_NARROWER change what the
+  // clause obligates and count as non-matching. The denominator is every
+  // aligned diff the pipeline emitted, so 100% == identical documents.
+  const matchingCount = diffs.filter(
+    (d) => d.classification === "UNCHANGED" || d.classification === "NEUTRAL_REPHRASE",
   ).length;
-  const riskCount = risks.length;
+  const totalDiffs = diffs.length;
+  const matchPct =
+    totalDiffs > 0 ? Math.round((matchingCount / totalDiffs) * 100) : 100;
+  const matchTone =
+    matchPct >= 90
+      ? "bg-[#E7F5EE] text-[#166534] border border-[#BBE5C9]"
+      : matchPct >= 70
+      ? "bg-[#FFF7E6] text-[#8A5A0B] border border-[#FBE2A6]"
+      : matchPct >= 40
+      ? "bg-[#FFEEE7] text-[#9A3412] border border-[#FBC5AC]"
+      : "bg-[#FDECEC] text-[#991B1B] border border-[#F5B4B4]";
 
   return (
     <div
@@ -221,19 +237,16 @@ function DocumentsView({
       {/* ── Header row ── */}
       <div className="flex shrink-0 items-center gap-2 border-b border-[#E4E4E7] bg-white px-4 py-2 sm:px-5">
 
-        {/* Risk badge + counts */}
-        <div className="flex items-center gap-2">
-          <span className={`score-badge text-[10.5px] font-semibold ${riskTone.badge}`}>
-            {riskTone.label} overall
+        {/* Match % — replaces the previous risk badge + counts */}
+        <span
+          className={`inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-semibold ${matchTone}`}
+          title={`${matchingCount} of ${totalDiffs} clauses match (identical or drafting-only rephrasing)`}
+        >
+          <span className="text-[14px] font-bold tabular-nums leading-none">
+            {matchPct}%
           </span>
-          <span className="hidden text-[11px] text-[#6B7280] sm:inline">
-            {materialCount} material changes
-          </span>
-          <span className="hidden text-[#D1D5DB] sm:inline">·</span>
-          <span className="hidden text-[11px] text-[#6B7280] sm:inline">
-            {riskCount} risks
-          </span>
-        </div>
+          <span className="uppercase tracking-wide">match</span>
+        </span>
 
         {/* Spacer */}
         <div className="flex-1" />

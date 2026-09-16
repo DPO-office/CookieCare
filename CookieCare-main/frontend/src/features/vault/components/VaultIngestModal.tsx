@@ -47,7 +47,7 @@ function getProcessingMessage(tab: LibraryTabId): string {
 }
 
 function getRowHint(tab: LibraryTabId): string {
-  if (tab === "rulebook") return "You can close this — the row stays visible while AI works.";
+  if (tab === "rulebook") return "Please keep this window open until processing completes.";
   return "Row appears in the tab while processing continues.";
 }
 
@@ -93,14 +93,16 @@ export function VaultIngestModal({
         />
 
         <div style={{ padding: "24px 24px 24px" }}>
-          {/* Close */}
-          <button
-            onClick={onClose}
-            className="vlt-icon-btn"
-            style={{ position: "absolute", right: 16, top: 16 }}
-          >
-            <X style={{ width: 14, height: 14 }} />
-          </button>
+          {/* Close — hidden while uploading so the user cannot dismiss mid-ingest */}
+          {uploadStatus !== "uploading" && (
+            <button
+              onClick={onClose}
+              className="vlt-icon-btn"
+              style={{ position: "absolute", right: 16, top: 16 }}
+            >
+              <X style={{ width: 14, height: 14 }} />
+            </button>
+          )}
 
           {/* Header */}
           <div
@@ -445,15 +447,29 @@ export function VaultIngestModal({
           <div
             style={{
               display: "flex",
-              justifyContent: "flex-end",
+              justifyContent: uploadStatus === "uploading" ? "center" : "flex-end",
+              alignItems: "center",
               paddingTop: 20,
               marginTop: 20,
               borderTop: "1px solid var(--border-light)",
             }}
           >
-            <button type="button" onClick={onClose} className="vlt-btn-ghost">
-              {uploadStatus === "uploading" ? "Close (keeps processing)" : "Close"}
-            </button>
+            {uploadStatus === "uploading" ? (
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: 12,
+                  color: "var(--text-muted)",
+                  textAlign: "center",
+                }}
+              >
+                Please keep this window open until processing finishes.
+              </p>
+            ) : (
+              <button type="button" onClick={onClose} className="vlt-btn-ghost">
+                Close
+              </button>
+            )}
           </div>
         </div>
       </div>

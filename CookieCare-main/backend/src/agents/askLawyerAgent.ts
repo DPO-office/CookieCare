@@ -5,6 +5,7 @@ export type OutputFormat = "Brief Summary" | "Full IRAC" | "CREAC";
 export interface AskLawyerOptions {
   prompt: string;
   context: string;
+  historyText?: string;
   jurisdictions?: string[];
   outputFormat?: OutputFormat;
   sources?: Array<{ title: string; file_id: string; content: string }>;
@@ -25,46 +26,22 @@ export class AskLawyerAgent {
     const {
       prompt,
       context,
-      jurisdictions = [],
-      outputFormat = "Full IRAC",
+      historyText,
       sources = []
     } = options;
 
-    // Build jurisdiction scope clause
-    const jurisdictionClause = jurisdictions.length > 0
-      ? `\n\n**JURISDICTIONAL SCOPE:** Your analysis must prioritize and reference legal principles, statutes, and case law from the following jurisdictions: ${jurisdictions.join(", ")}. Where the retrieved documents or general principles do not clearly cover these jurisdictions, state that assumption explicitly and recommend jurisdiction-specific counsel.`
+    const systemPrompt = `You are a helpful AI legal assistant. Answer the user's questions in a clear, friendly, and conversational way. You have broad knowledge of law, contracts, compliance, and legal concepts. Respond naturally — like a knowledgeable friend who happens to be a lawyer. Keep answers concise unless the user asks for detail. Use plain language unless legal terminology is specifically needed.`;
+
+    // Build the full user prompt — include history and document context when available
+    const historySection = historyText
+      ? `[CONVERSATION HISTORY]\n${historyText}\n\n`
       : "";
 
-    // Build output format instructions
-    const formatInstructions = this.getFormatInstructions(outputFormat);
+    const contextSection = context
+      ? `[DOCUMENT CONTEXT]\n${context}\n\n`
+      : "";
 
-    const systemPrompt = `You are a Senior Legal Counsel specializing in commercial contract law, regulatory compliance, and risk assessment.
-
-Your task is to provide **document-grounded, jurisdiction-aware, structured legal analysis** based on the retrieved document context provided below.${jurisdictionClause}
-
-${formatInstructions}
-
-**CRITICAL RULES:**
-1. **Do not use open-web knowledge, general internet search, or made-up case law.** Base your answer only on the supplied document text and the selected jurisdictions.
-2. **Ground your analysis in the retrieved document context wherever possible.** Quote or paraphrase relevant clauses. If the context does not support a point, clearly state: "The retrieved documents do not address this issue — the following is based on general legal principles."
-3. **Clearly separate:**
-   - Conclusions grounded in the provided documents
-   - General legal principles applied when context is insufficient
-4. **Provide practical, actionable legal analysis** — not vague generic advice.
-5. **Identify risks, ambiguities, and assumptions** where the documents are unclear or incomplete.
-6. **Include practical recommendations / next steps** at the end.
-7. **Return clean, well-structured Markdown** with headers, bullet points, and bold text for readability.
-8. **Do not include any preamble, apology, or explanation of policy.** Return the answer directly in the required structure.
-
-If the retrieved document context is weak or empty, you must still provide a structured answer using general legal principles, but clearly label it as such and recommend that the user consult jurisdiction-specific counsel or provide more specific documents.`;
-
-    const userPrompt = `[RETRIEVED DOCUMENT CONTEXT]
-${context || "⚠️ No document chunks were retrieved. You must rely on general legal principles and clearly state where assumptions are made."}
-
-[USER QUERY]
-${prompt}
-
-Provide your analysis using the required ${outputFormat} structure.`;
+    const userPrompt = `${historySection}${contextSection}[USER]\n${prompt}`;
 
     try {
       const rawText = await executeCompletion(

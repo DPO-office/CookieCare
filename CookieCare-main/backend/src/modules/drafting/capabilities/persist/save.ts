@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import type { Pool, PoolClient } from "pg";
 import { pool } from "../../../../config/database.js";
 import { DraftState } from "../../models/draft-state.js";
 import { toPersistedState } from "../../utils/persisted-state.js";
@@ -6,6 +7,14 @@ import { toPersistedState } from "../../utils/persisted-state.js";
 export type SaveStepOptions = {
   /** When true, allow persisting PLAN/ASK pause without a finished draft body. */
   allowEmptyDraft?: boolean;
+  /**
+   * Run the ledger insert against this client instead of a fresh pool
+   * connection, so it participates in the caller's transaction (BEGIN/COMMIT/
+   * ROLLBACK) instead of committing independently. Used by
+   * POST /negotiate/save-step to make the ledger + files + document_versions
+   * writes atomic. Defaults to the shared pool (previous behaviour) when omitted.
+   */
+  client?: Pool | PoolClient;
 };
 
 /**
@@ -35,8 +44,9 @@ export const saveStep = async (
     const currentVersion =
       isPausedAsk || !state.draft ? 0 : state.draft.version ?? 1;
     const formattedText = state.draft?.formattedDocument ?? "";
+    const db = options.client ?? pool;
 
-    await pool.query(
+    await db.query(
       `INSERT INTO draft_state_ledger (
         document_id,
         version,
