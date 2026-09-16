@@ -8,7 +8,7 @@ describe("rule-first contract parity for every regime skill", () => {
   const regimes = getRegistryApi().getByAxis("regime");
 
   it("keeps one complete atomic investigation contract per rule", () => {
-    assert.equal(regimes.length, 6);
+    assert.equal(regimes.length, 7);
     for (const skill of regimes) {
       assert.ok(skill.regimeRules.length > 0, `${skill.skillId} has no atomic rules`);
       for (const rule of skill.regimeRules) {

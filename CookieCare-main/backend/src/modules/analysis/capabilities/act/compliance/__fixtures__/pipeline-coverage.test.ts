@@ -10,8 +10,8 @@ import { getRegistryApi } from "../../../../skills/runtime/catalog/registry.js";
 import { finalizeRegimeRuleContracts } from "../../../../skills/runtime/catalog/rule-contract-helpers.js";
 import { checksFromState, bundleForCheck } from "../adapters/analysis-state.js";
 import type { AnalysisState } from "../../../../models/analysis-state.js";
-test("all six regime baselines compile using their own proof element identities",()=>{
-  const skills=getRegistryApi().getByAxis("regime");assert.equal(skills.length,6);
+test("all seven regime baselines compile using their own proof element identities",()=>{
+  const skills=getRegistryApi().getByAxis("regime");assert.equal(skills.length,7);
   for(const skill of skills)for(const r of skill.regimeRules){
     const compiled=compileComplianceRule(skills,skill.skillId,r.ruleId);
     assert.deepEqual(compiled.elements.map(e=>e.id),r.investigation!.proofElements.map(e=>e.id));
