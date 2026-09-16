@@ -1,5 +1,5 @@
 import { apiUrl } from "../../../config";
-import { AgentMarkup, NegotiationContext, NegotiationStrategy, StrategyDraftResult, StrategyPosition } from "../types";
+import { AgentMarkup, NegotiationContext, NegotiationStrategy, StrategyDraftResult, StrategyPosition, SessionResolveResponse } from "../types";
 
 export async function evaluateDocument(
   authToken: string,
@@ -34,6 +34,52 @@ export async function evaluateDocument(
     markups: parsed.data?.markups || [],
     ...(parsed.info ? { info: parsed.info } : {}),
   };
+}
+
+// ─── Phase 2: Negotiation session persistence ────────────────────────────────
+
+/**
+ * The single initialization call for opening a negotiation. Resumes an
+ * existing active session (no LLM call) when one exists, or creates one via
+ * a fresh evaluation when it doesn't (or when forceNew is set — used by the
+ * "Re-run evaluation" action).
+ */
+export async function resolveNegotiationSession(
+  authToken: string,
+  params: { documentId: string; playbookId?: string | null; forceNew?: boolean }
+): Promise<SessionResolveResponse> {
+  const res = await fetch(apiUrl("/api/negotiate/session/resolve"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
+    body: JSON.stringify({
+      documentId: params.documentId,
+      ...(params.playbookId ? { playbookId: params.playbookId } : {}),
+      ...(params.forceNew ? { forceNew: true } : {}),
+    }),
+  });
+  const parsed = await res.json();
+  if (!res.ok) throw new Error(parsed.error || "Failed to resolve negotiation session.");
+  return parsed as SessionResolveResponse;
+}
+
+/** Durably rejects a finding (previously: purely client-side array filtering). */
+export async function rejectFinding(
+  authToken: string,
+  documentId: string,
+  clauseId: string
+): Promise<{ success: boolean; alreadyRejected?: boolean }> {
+  const res = await fetch(apiUrl(`/api/negotiate/finding/${encodeURIComponent(clauseId)}/reject`), {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
+    body: JSON.stringify({ documentId }),
+  });
+  const parsed = await res.json();
+  if (!res.ok) {
+    const err: any = new Error(parsed.error || "Failed to reject finding.");
+    err.status = res.status;
+    throw err;
+  }
+  return parsed;
 }
 
 export async function submitRedline(
@@ -93,7 +139,9 @@ export async function generateCompromise(
     analysisFinding?: NegotiationContext["analysisFinding"];
     compareFinding?: NegotiationContext["compareFinding"];
     playbookRule?: NegotiationContext["playbookRule"];
-  }
+  },
+  /** Phase 2 (optional): when both are supplied, the server caches the draft on the finding. */
+  persistTo?: { documentId: string; clauseId: string }
 ): Promise<StrategyDraftResult>;
 export async function generateCompromise(
   authToken: string,
@@ -106,7 +154,8 @@ export async function generateCompromise(
     analysisFinding?: NegotiationContext["analysisFinding"];
     compareFinding?: NegotiationContext["compareFinding"];
     playbookRule?: NegotiationContext["playbookRule"];
-  }
+  },
+  persistTo?: { documentId: string; clauseId: string }
 ): Promise<string | StrategyDraftResult> {
   const body: Record<string, unknown> = {
     originalText,
@@ -120,6 +169,10 @@ export async function generateCompromise(
     if (strategyOptions.analysisFinding) body.analysisFinding = strategyOptions.analysisFinding;
     if (strategyOptions.compareFinding)  body.compareFinding  = strategyOptions.compareFinding;
     if (strategyOptions.playbookRule)    body.playbookRule    = strategyOptions.playbookRule;
+  }
+  if (persistTo) {
+    body.documentId = persistTo.documentId;
+    body.clauseId = persistTo.clauseId;
   }
 
   const res = await fetch(apiUrl("/api/negotiate/compromise"), {
@@ -165,12 +218,13 @@ export async function fetchNegotiationContext(
 
 export async function fetchNegotiationStrategy(
   authToken: string,
-  context: NegotiationContext
+  context: NegotiationContext,
+  documentId?: string
 ): Promise<NegotiationStrategy> {
   const res = await fetch(apiUrl("/api/negotiate/strategy"), {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
-    body: JSON.stringify({ context }),
+    body: JSON.stringify({ context, ...(documentId ? { documentId } : {}) }),
   });
   const parsed = await res.json();
   if (!res.ok) throw new Error(parsed.error || "Failed to generate negotiation strategy");
@@ -189,7 +243,10 @@ export async function saveNegotiationStep(
   authToken: string,
   documentId: string,
   content: string,
-  version: number
+  version: number,
+  baseVersion?: number,
+  /** Phase 2 (optional): when this save is Accepting a specific finding, its clauseId. */
+  clauseId?: string
 ): Promise<any> {
   const res = await fetch(apiUrl("/api/negotiate/save-step"), {
     method: "POST",
@@ -197,10 +254,19 @@ export async function saveNegotiationStep(
       "Content-Type": "application/json",
       Authorization: `Bearer ${authToken}`,
     },
-    body: JSON.stringify({ documentId, content, version }),
+    body: JSON.stringify({ documentId, content, version, baseVersion, ...(clauseId ? { clauseId } : {}) }),
   });
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "Failed to save negotiation step.");
+  if (!res.ok) {
+    if (res.status === 409) {
+      const err: any = new Error(
+        data.error || "This document changed since you last loaded it. Reload and retry."
+      );
+      err.status = 409;
+      throw err;
+    }
+    throw new Error(data.error || "Failed to save negotiation step.");
+  }
   return data;
 }
 

@@ -21,8 +21,8 @@
  */
 import React, { useState, useCallback } from "react";
 import {
-  Gavel, Folder, ArrowUp, RefreshCw, Paperclip,
-  FileText, X, Globe, CornerDownLeft,
+  ArrowUp, RefreshCw, Paperclip,
+  X, CornerDownLeft,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { OutputFormat, PopoverType } from "../types";
@@ -202,18 +202,8 @@ export default function ComposerBar(props: ComposerBarProps) {
     }
   }, [setActiveFolderForUpload, fileUploadRef]);
 
-  // Build active context chips
+  // Build active context chips — only KB docs shown now
   const chips: React.ReactNode[] = [];
-  if (selectedJurisdictions.length > 0) {
-    chips.push(
-      <ContextChip
-        key="j"
-        label={selectedJurisdictions.length === 1 ? selectedJurisdictions[0] : `${selectedJurisdictions.length} Jurisdictions`}
-        icon={Gavel}
-        onRemove={() => setSelectedJurisdictions([])}
-      />
-    );
-  }
   if (selectedKBCount > 0) {
     chips.push(
       <ContextChip
@@ -223,26 +213,6 @@ export default function ComposerBar(props: ComposerBarProps) {
         onRemove={() => {
           folders.filter((f) => f.isSelected).forEach((f) => toggleFolderSelection(f.id));
         }}
-      />
-    );
-  }
-  if (selectedFormat !== "Brief Summary") {
-    chips.push(
-      <ContextChip
-        key="fmt"
-        label={selectedFormat}
-        icon={FileText}
-        onRemove={() => setSelectedFormat("Brief Summary")}
-      />
-    );
-  }
-  if (webDiscoveryUrls.length > 0) {
-    chips.push(
-      <ContextChip
-        key="web"
-        label={`${webDiscoveryUrls.length} Web source${webDiscoveryUrls.length > 1 ? "s" : ""}`}
-        icon={Globe}
-        onRemove={() => togglePopover("web")}
       />
     );
   }
@@ -311,26 +281,6 @@ export default function ComposerBar(props: ComposerBarProps) {
               aria-label="Attach document"
             >
               <Paperclip className="h-[15px] w-[15px]" strokeWidth={1.75} />
-            </button>
-            <button
-              type="button"
-              onClick={() => togglePopover("jurisdictions")}
-              className={`pcl-attach-btn flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF] ${
-                jurisdictionsActive ? "text-[#4F5BD9]" : "text-[#667085]"
-              }`}
-              aria-label="Select jurisdictions"
-            >
-              <Gavel className="h-[15px] w-[15px]" strokeWidth={1.75} />
-            </button>
-            <button
-              type="button"
-              onClick={() => togglePopover("kb")}
-              className={`pcl-attach-btn flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF] ${
-                kbActive ? "text-[#4F5BD9]" : "text-[#667085]"
-              }`}
-              aria-label="Knowledge base"
-            >
-              <Folder className="h-[15px] w-[15px]" strokeWidth={1.75} />
             </button>
             <div className="flex-1" />
             <button
@@ -420,18 +370,6 @@ export default function ComposerBar(props: ComposerBarProps) {
               icon={Paperclip}
               label="Attach document (PDF, DOCX, TXT)"
               onClick={() => { setActiveFolderForUpload(""); fileUploadRef.current?.click(); }}
-            />
-            <ActionBtn
-              icon={Gavel}
-              label={selectedJurisdictions.length > 0 ? `${selectedJurisdictions.length} jurisdiction${selectedJurisdictions.length > 1 ? "s" : ""} selected` : "Select jurisdictions"}
-              active={jurisdictionsActive}
-              onClick={() => togglePopover("jurisdictions")}
-            />
-            <ActionBtn
-              icon={Folder}
-              label={selectedKBCount > 0 ? `${selectedKBCount} docs in knowledge base` : "Knowledge base"}
-              active={kbActive}
-              onClick={() => togglePopover("kb")}
             />
           </div>
 

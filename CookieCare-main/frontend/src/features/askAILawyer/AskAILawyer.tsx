@@ -1,5 +1,5 @@
 import React from "react";
-import { BookOpen, Scale, RotateCcw } from "lucide-react";
+import { BookOpen, Scale, RotateCcw, Paperclip, X, Loader2, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { markdownToHtml } from "../../shared/utils/markdownToHtml";
 import AiProgressOverlay from "../../shared/components/AiProgressOverlay";
@@ -13,6 +13,38 @@ import { QUICK_PROMPTS } from "./constants";
 import { AIResponseBlock } from "../../shared/components/chat";
 import { PREMIUM_CHAT_LANDING_STYLES } from "../../shared/styles/premiumChatLandingStyles";
 import { ASK_LAWYER_STYLES } from "./styles/askLawyerStyles";
+
+/** Pill shown below the composer for each uploaded file */
+function FilePill({
+  name,
+  indexing,
+  onRemove,
+}: {
+  name: string;
+  indexing?: boolean;
+  onRemove: () => void;
+}) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E4E7EC] bg-white py-1 pl-2.5 pr-1 text-[11px] font-medium text-[#344054] shadow-sm">
+      {indexing ? (
+        <Loader2 className="h-3 w-3 animate-spin text-[#4F5BD9] shrink-0" />
+      ) : (
+        <Paperclip className="h-3 w-3 text-[#4F5BD9] shrink-0" />
+      )}
+      <span className="max-w-[180px] truncate">{name}</span>
+      {!indexing && (
+        <button
+          type="button"
+          onClick={onRemove}
+          aria-label={`Remove ${name}`}
+          className="ml-0.5 flex h-4 w-4 cursor-pointer items-center justify-center rounded-full border-none bg-transparent text-[#98A2B3] transition-colors hover:bg-[#FEE2E2] hover:text-[#DC2626]"
+        >
+          <X className="h-2.5 w-2.5" strokeWidth={2.5} />
+        </button>
+      )}
+    </span>
+  );
+}
 
 function QuickChip({ label, icon: Icon, onClick }: {
   label: string;
@@ -42,8 +74,11 @@ export default function AskAILawyer(_props: Partial<AskAILawyerProps> = {}) {
     newFolderName, setNewFolderName,
     activeFolderForUpload, setActiveFolderForUpload,
     streamedResult,
+    messages,
     matchedSources,
     isStreaming,
+    stepperPhase,
+    stepperMessage,
     activeCitationModal, setActiveCitationModal,
     lawyerProgress,
     lawyerError, setLawyerError,
@@ -69,6 +104,8 @@ export default function AskAILawyer(_props: Partial<AskAILawyerProps> = {}) {
     togglePopover,
     selectedKBCount,
     selectedFolderCount,
+    uploadedFiles,
+    removeUploadedFile,
   } = useAskAILawyer(authToken);
 
   const composerProps = {
@@ -84,10 +121,6 @@ export default function AskAILawyer(_props: Partial<AskAILawyerProps> = {}) {
     webDiscoveryUrlInput, setWebDiscoveryUrlInput, handleAddWebUrl, removeWebUrl,
   };
 
-  const jurisdictionSubLabel =
-    selectedJurisdictions.length > 0
-      ? `${selectedJurisdictions.slice(0, 2).join(", ")}${selectedJurisdictions.length > 2 ? ` +${selectedJurisdictions.length - 2}` : ""}`
-      : undefined;
 
   const handleReset = () => {
     resetConversation();
@@ -139,6 +172,20 @@ export default function AskAILawyer(_props: Partial<AskAILawyerProps> = {}) {
 
                 <div className="pcl-rise-2 w-full mt-8" style={{ maxWidth: 720 }}>
                   <ComposerBar {...composerProps} variant="landing" />
+                  {(stepperPhase === "extracting" || uploadedFiles.length > 0) && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {stepperPhase === "extracting" && stepperMessage && (
+                        <FilePill
+                          name={stepperMessage.replace("Indexing ", "").replace("…", "")}
+                          indexing
+                          onRemove={() => {}}
+                        />
+                      )}
+                      {uploadedFiles.map((f) => (
+                        <FilePill key={f.id} name={f.name} onRemove={() => removeUploadedFile(f.id)} />
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div
@@ -185,13 +232,6 @@ export default function AskAILawyer(_props: Partial<AskAILawyerProps> = {}) {
                       <p className="m-0 truncate text-[13px] font-semibold tracking-[-0.02em] text-[#1a1a1a]">
                         AI Lawyer
                       </p>
-                      {selectedJurisdictions.length > 0 && (
-                        <span className="hidden max-w-[180px] truncate text-[11px] text-[#98A2B3] sm:inline">
-                          {selectedJurisdictions.length === 1
-                            ? selectedJurisdictions[0]
-                            : `${selectedJurisdictions.length} jurisdictions`}
-                        </span>
-                      )}
                       {matchedSources.length > 0 && (
                         <button
                           type="button"
@@ -223,23 +263,42 @@ export default function AskAILawyer(_props: Partial<AskAILawyerProps> = {}) {
 
                 <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-4 pt-6">
                   <div className="mx-auto space-y-7" style={{ maxWidth: 768 }}>
-                    {submittedQuery && (
-                      <div className="flex justify-end">
-                        <div className="ask-lawyer-user-bubble max-w-[min(80%,36rem)] whitespace-pre-wrap px-4 py-2.5">
-                          {submittedQuery}
+
+                    {/* Render full conversation history */}
+                    {messages.map((msg, idx) =>
+                      msg.role === "user" ? (
+                        <div key={idx} className="flex justify-end">
+                          <div className="ask-lawyer-user-bubble max-w-[min(80%,36rem)] whitespace-pre-wrap px-4 py-2.5">
+                            {msg.text}
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        <AIResponseBlock
+                          key={idx}
+                          htmlContent={markdownToHtml(msg.text)}
+                          isStreaming={false}
+                          statusMessage=""
+                          label="AI Lawyer"
+                          subLabel={undefined}
+                          isCopied={false}
+                          onCopy={() => navigator.clipboard.writeText(msg.text)}
+                        />
+                      )
                     )}
 
-                    <AIResponseBlock
-                      htmlContent={markdownToHtml(streamedResult)}
-                      isStreaming={isStreaming}
-                      statusMessage={lawyerProgress || "Researching across jurisdictions…"}
-                      label="AI Lawyer"
-                      subLabel={jurisdictionSubLabel}
-                      isCopied={isCopied}
-                      onCopy={handleCopyMarkdown}
-                    />
+                    {/* Current in-flight turn — only show the assistant loading state,
+                        the user bubble is already in the messages array */}
+                    {isStreaming && (
+                      <AIResponseBlock
+                        htmlContent=""
+                        isStreaming={true}
+                        statusMessage={lawyerProgress || "Thinking…"}
+                        label="AI Lawyer"
+                        subLabel={undefined}
+                        isCopied={false}
+                        onCopy={() => {}}
+                      />
+                    )}
 
                     <div ref={chatBottomRef} aria-hidden="true" />
                   </div>
@@ -247,6 +306,20 @@ export default function AskAILawyer(_props: Partial<AskAILawyerProps> = {}) {
 
                 <div className="ask-lawyer-composer-fade shrink-0 px-6 pb-5 pt-8">
                   <div className="mx-auto" style={{ maxWidth: 768 }}>
+                    {(stepperPhase === "extracting" || uploadedFiles.length > 0) && (
+                      <div className="mb-2 flex flex-wrap gap-1.5">
+                        {stepperPhase === "extracting" && stepperMessage && (
+                          <FilePill
+                            name={stepperMessage.replace("Indexing ", "").replace("…", "")}
+                            indexing
+                            onRemove={() => {}}
+                          />
+                        )}
+                        {uploadedFiles.map((f) => (
+                          <FilePill key={f.id} name={f.name} onRemove={() => removeUploadedFile(f.id)} />
+                        ))}
+                      </div>
+                    )}
                     <ComposerBar {...composerProps} variant="chat" />
                   </div>
                 </div>

@@ -1,5 +1,4 @@
 import { apiUrl } from "../../../config";
-import { KBFolder, OutputFormat } from "../types";
 
 export async function fetchSettings(authToken: string) {
   const [jRes, wRes] = await Promise.all([
@@ -61,32 +60,20 @@ export async function uploadDocument(authToken: string, file: File, folderId?: s
 export async function askLawyer(
   authToken: string,
   query: string,
-  jurisdictions: string[],
-  format: OutputFormat,
-  folders: KBFolder[]
+  fileIds: string[] = [],
+  history: Array<{ role: "user" | "assistant"; text: string }> = []
 ) {
-  // Send only document IDs — the backend retrieves content server-side via RAG / DB lookup.
-  const activeDocumentIds = folders
-    .filter((f) => f.isSelected)
-    .flatMap((f) => f.files.map((fi) => fi.id))
-    .filter(Boolean);
-
   const response = await fetch(apiUrl("/api/lawyer/ask"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${authToken}`,
     },
-    body: JSON.stringify({
-      prompt: query,
-      jurisdiction: jurisdictions,
-      outputFormat: format,
-      documentIds: activeDocumentIds,
-    }),
+    body: JSON.stringify({ prompt: query, fileIds, history }),
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || "Advisory failed.");
-  return { status: response.status, data };
+  return { status: 200, data };
 }
 
 export function createJobSSE(authToken: string) {

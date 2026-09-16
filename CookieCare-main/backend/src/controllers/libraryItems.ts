@@ -97,14 +97,63 @@ export const createLibraryItem = async (req: Request, res: Response) => {
 export const deleteLibraryItem = async (req: Request, res: Response) => {
   const userId = req.user!.id;
   const userRole = req.user!.role;
+  const isAdmin = userRole === "ADMIN";
   try {
     await withTransaction(userId, userRole, async (client) => {
-      // Only the item owner may delete it.
+      // Deletable by the item's owner, OR by an admin when the item is
+      // org-scoped (shared). The vault lists org items to every teammate
+      // (getLibraryItems returns source='org' rows from any owner), so without
+      // the org+admin path a shared AI Rulebook uploaded by one user could
+      // never be deleted by anyone else — the DELETE matched 0 rows and the UI
+      // silently failed. Private items remain owner-only.
       const result = await client.query(
-        "DELETE FROM library_items WHERE id = $1 AND user_id = current_setting('app.current_user_id', true)",
-        [req.params.id]
+        `DELETE FROM library_items
+          WHERE id = $1
+            AND (
+              user_id = current_setting('app.current_user_id', true)
+              OR ($2 = true AND source = 'org')
+            )`,
+        [req.params.id, isAdmin]
       );
       if (result.rowCount === 0) throw new Error("Item not found.");
+
+      // Purge any playbook_rules that were extracted from this rulebook.
+      // playbook_rules has no RLS, so this plain DELETE runs regardless of the
+      // SET LOCAL session variables applied by withTransaction. Without this,
+      // deleting the library_items row leaves orphaned rules behind — they
+      // become permanently unreachable (no library_item row to pass the
+      // ownership check in PlaybookRetriever) yet still occupy storage and
+      // could theoretically surface via the contract-type fallback query.
+      //
+      // SAVEPOINT is required for true soft-fail behaviour inside a pg transaction.
+      // A plain try/catch around client.query() catches the JS exception but does
+      // NOT reset the PostgreSQL connection's aborted-transaction state — every
+      // subsequent query on the same client then also fails with "current
+      // transaction is aborted", which causes withTransaction to ROLLBACK the
+      // entire delete. SAVEPOINT / ROLLBACK TO SAVEPOINT isolates the purge so
+      // that a failure (e.g. library_item_id column not yet deployed, lock
+      // timeout) only undoes the purge and leaves the parent transaction intact.
+      try {
+        await client.query(`SAVEPOINT before_purge`);
+        const purged = await client.query(
+          `DELETE FROM playbook_rules WHERE library_item_id = $1`,
+          [req.params.id]
+        );
+        await client.query(`RELEASE SAVEPOINT before_purge`);
+        if ((purged.rowCount ?? 0) > 0) {
+          console.log(
+            `[deleteLibraryItem] Purged ${purged.rowCount} playbook_rule(s) for library item ${req.params.id}`
+          );
+        }
+      } catch (purgeErr: any) {
+        // Roll back only the failed purge — the library_items DELETE above stays
+        // intact. The .catch(() => {}) guard handles the edge case where the
+        // connection is so broken that even the ROLLBACK TO fails (extremely rare).
+        await client.query(`ROLLBACK TO SAVEPOINT before_purge`).catch(() => {});
+        console.warn(
+          `[deleteLibraryItem] Could not purge playbook_rules for ${req.params.id}: ${purgeErr.message}`
+        );
+      }
 
       await client.query(`
         INSERT INTO compliance_audit_logs (user_id, action_type, metadata)

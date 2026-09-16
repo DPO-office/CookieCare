@@ -239,6 +239,15 @@ export default function LibraryManager(_props: LibraryProps = {}) {
   };
 
   const closeVaultIngestModal = () => {
+    // Mirror the same guard used by closeFileUpload: do not allow the modal to
+    // be dismissed mid-upload. The backend job keeps running regardless (no
+    // cancellation mechanism exists), but closing prematurely resets
+    // uploadStatus to 'idle' while handleVaultAssetUpload is still awaiting
+    // pendingJob — subsequent state writes land on reset/stale state and the
+    // auto-close on success fires against an already-closed modal.
+    // The button label already reads "Close (keeps processing)" while uploading,
+    // so this guard is consistent with the user-visible intent.
+    if (uploadStatus === "uploading") return;
     setIsVaultIngestOpen(false);
     setUploadStatus("idle");
     resetUploadProgress();

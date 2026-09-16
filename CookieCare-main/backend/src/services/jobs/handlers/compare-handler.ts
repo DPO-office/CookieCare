@@ -51,24 +51,32 @@ export async function executeContractComparison(
 
   let pdfBufferA: Buffer;
   let mimeTypeA: string;
+  let pdfConvertedA = false; // true only when docxToPdf actually succeeded
+
   let pdfBufferB: Buffer;
   let mimeTypeB: string;
+  let pdfConvertedB = false;
 
   if (requiresPdfConversion(original.mimeType)) {
     await updateJobProgress(jobId, userId, 7, "Converting original document to PDF...");
     try {
       pdfBufferA = await docxToPdf(originalBuffer, original.fileName);
       mimeTypeA = "application/pdf";
+      pdfConvertedA = true;
       console.log(`[compare-handler] Converted original DOCX "${original.fileName}" → PDF`);
     } catch (err: any) {
       console.error("[compare-handler] DOCX→PDF conversion failed for original:", err.message);
-      // Fall back to DOCX buffer — text extraction still works, no page numbers
+      // Fall back to raw DOCX for text extraction (pipeline still works),
+      // but mark pdfConvertedA=false so the session stores null for pdfA —
+      // the /pdf endpoint will return 404 and the frontend falls back to
+      // the text view instead of serving un-renderable DOCX bytes to pdfjs.
       pdfBufferA = originalBuffer;
       mimeTypeA = original.mimeType;
     }
   } else {
     pdfBufferA = originalBuffer;
     mimeTypeA = original.mimeType;
+    pdfConvertedA = mimeTypeA === "application/pdf"; // native PDF → renderable
   }
 
   if (requiresPdfConversion(revised.mimeType)) {
@@ -76,6 +84,7 @@ export async function executeContractComparison(
     try {
       pdfBufferB = await docxToPdf(revisedBuffer, revised.fileName);
       mimeTypeB = "application/pdf";
+      pdfConvertedB = true;
       console.log(`[compare-handler] Converted revised DOCX "${revised.fileName}" → PDF`);
     } catch (err: any) {
       console.error("[compare-handler] DOCX→PDF conversion failed for revised:", err.message);
@@ -85,6 +94,7 @@ export async function executeContractComparison(
   } else {
     pdfBufferB = revisedBuffer;
     mimeTypeB = revised.mimeType;
+    pdfConvertedB = mimeTypeB === "application/pdf";
   }
 
   // ── Build initial CompareState ────────────────────────────────────────────
@@ -189,9 +199,11 @@ export async function executeContractComparison(
     differences: serializableState.differences ?? null,
     risks: serializableState.risks ?? null,
     executiveSummary: serializableState.executiveSummary ?? null,
-    // Renderable PDFs — original bytes for PDFs, converted bytes for DOCX.
-    pdfA: pdfBufferA,
-    pdfB: pdfBufferB,
+    // Only store renderable PDF bytes — null when conversion failed so the
+    // /pdf endpoint returns 404 and the frontend shows the text fallback view
+    // instead of handing un-renderable DOCX bytes to pdfjs.
+    pdfA: pdfConvertedA ? pdfBufferA : null,
+    pdfB: pdfConvertedB ? pdfBufferB : null,
   });
 
   return resultPayload;

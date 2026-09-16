@@ -36,6 +36,17 @@ export const getDocuments = async (req: Request, res: Response) => {
     ? `%${req.query.search.trim()}%`
     : null;
 
+  // Optional dedupe/clean mode — OPT-IN, used by the Negotiate document picker.
+  // When enabled the list is cleaned so the user only sees real, distinct
+  // documents worth negotiating:
+  //   1. Automated-test artifacts (e.g. "Test Doc", "Session Test Doc", "Doc A")
+  //      that harnesses write to the DB are hidden.
+  //   2. Rows with no extractable content are hidden (nothing to negotiate).
+  //   3. Duplicate titles (the same file uploaded many times) collapse to the
+  //      single most-recent row.
+  // The Vault Files tab does NOT pass this flag, so its view is unchanged.
+  const dedupe = req.query.dedupe === "1" || req.query.dedupe === "true";
+
   try {
     const { docs, total } = await withTransaction(userId, userRole, async (client) => {
       const accessClause = `(
@@ -43,7 +54,14 @@ export const getDocuments = async (req: Request, res: Response) => {
         OR shared_with::jsonb @> $1::jsonb
         OR shared_with::jsonb @> $2::jsonb
       )`;
-      const baseWhere = `${accessClause} AND type NOT IN ('ephemeral_upload', 'vault_asset_source')`;
+      let baseWhere = `${accessClause} AND type NOT IN ('ephemeral_upload', 'vault_asset_source')`;
+
+      if (dedupe) {
+        // Hide known automated-test artifact titles and empty-content rows.
+        baseWhere += `
+          AND content IS NOT NULL AND length(trim(content)) > 0
+          AND title !~* '^(test doc|session test doc|doc [ab]|sample doc|dummy doc)( |$|[0-9])'`;
+      }
 
       // Build dynamic extra conditions (type + search).
       // Params $1/$2 are always the email JSON arrays; extra params start at $3.
@@ -70,25 +88,63 @@ export const getDocuments = async (req: Request, res: Response) => {
         ...extraParams,
       ];
 
-      // Total count for pagination metadata (no content fetch).
-      const { rows: countRows } = await client.query(
-        `SELECT COUNT(*) AS total FROM files WHERE ${whereClause}`,
-        baseQueryParams
-      );
-      const total = Number(countRows[0].total);
-
-      const { rows } = await client.query(
-        `SELECT files.*,
+      // Explicit column list — DELIBERATELY EXCLUDE `original_file` (the raw
+      // uploaded file, frequently multiple MB per row). Returning it for a list
+      // of up to 500 documents produced enormous payloads that timed out the
+      // document picker ("Failed to load documents"). The raw file is served on
+      // demand by the dedicated GET /api/documents/:id/raw endpoint.
+      const columns = `id, title, name, type, content, creator_id, creator_email,
+                is_encrypted, is_template, mime_type, folder_id, created_at, updated_at,
+                versions, signatures, redlines, shared_with, audit_logs, analysis,
            (SELECT a.status FROM document_structure_artifacts a
             WHERE a.file_id = files.id
               AND a.version_id = (SELECT id FROM document_versions v WHERE v.file_id = files.id ORDER BY v.created_at DESC, v.id DESC LIMIT 1)
-            ORDER BY a.updated_at DESC LIMIT 1) AS structure_status
-         FROM files
-         WHERE ${whereClause}
-         ORDER BY created_at DESC
-         LIMIT $${paramIdx} OFFSET $${paramIdx + 1}`,
-        [...baseQueryParams, limit, offset]
-      );
+            ORDER BY a.updated_at DESC LIMIT 1) AS structure_status`;
+
+      let total: number;
+      let rows: any[];
+
+      if (dedupe) {
+        // Collapse duplicate titles to the single most-recent row. Count of
+        // distinct normalized titles keeps pagination metadata correct.
+        const { rows: countRows } = await client.query(
+          `SELECT COUNT(DISTINCT LOWER(TRIM(title))) AS total FROM files WHERE ${whereClause}`,
+          baseQueryParams
+        );
+        total = Number(countRows[0].total);
+
+        const result = await client.query(
+          `SELECT ${columns} FROM (
+             SELECT *, ROW_NUMBER() OVER (
+               PARTITION BY LOWER(TRIM(title)) ORDER BY created_at DESC, id DESC
+             ) AS _rn
+             FROM files
+             WHERE ${whereClause}
+           ) files
+           WHERE _rn = 1
+           ORDER BY created_at DESC
+           LIMIT $${paramIdx} OFFSET $${paramIdx + 1}`,
+          [...baseQueryParams, limit, offset]
+        );
+        rows = result.rows;
+      } else {
+        // Total count for pagination metadata (no content fetch).
+        const { rows: countRows } = await client.query(
+          `SELECT COUNT(*) AS total FROM files WHERE ${whereClause}`,
+          baseQueryParams
+        );
+        total = Number(countRows[0].total);
+
+        const result = await client.query(
+          `SELECT ${columns}
+           FROM files
+           WHERE ${whereClause}
+           ORDER BY created_at DESC
+           LIMIT $${paramIdx} OFFSET $${paramIdx + 1}`,
+          [...baseQueryParams, limit, offset]
+        );
+        rows = result.rows;
+      }
       return { docs: rows, total };
     }).catch(e => {
       console.error("Failed to fetch documents from DB:", e);
@@ -124,8 +180,17 @@ export const getDocumentById = async (req: Request, res: Response) => {
   try {
     const doc = await withTransaction(userId, userRole, async (client) => {
       // Enforce ownership: only the creator or a shared recipient may fetch the document.
+      // IMPORTANT: select explicit columns and DELIBERATELY EXCLUDE `original_file`.
+      // `original_file` holds the raw uploaded file (base64), frequently multiple
+      // megabytes for PDFs. The document viewer only needs the extracted `content`;
+      // the raw file is served separately by the dedicated download endpoint
+      // (getDocumentFile) and by Compare's own /api/compare/:id/pdf stream. Shipping
+      // it here on every fetch bloated the JSON to multi-MB, causing slow loads and
+      // timeouts ("Failed to load document") for documents with large originals.
       const { rows } = await client.query(
-        `SELECT files.*,
+        `SELECT id, title, name, type, content, creator_id, creator_email,
+                is_encrypted, is_template, mime_type, folder_id, created_at, updated_at,
+                versions, signatures, redlines, shared_with, audit_logs, analysis,
            (SELECT a.status FROM document_structure_artifacts a
             WHERE a.file_id = files.id
               AND a.version_id = (SELECT id FROM document_versions v WHERE v.file_id = files.id ORDER BY v.created_at DESC, v.id DESC LIMIT 1)
@@ -142,7 +207,7 @@ export const getDocumentById = async (req: Request, res: Response) => {
       if (rows.length === 0) return null;
 
       const { rows: versionRows } = await client.query(
-        "SELECT * FROM document_versions WHERE file_id = $1 ORDER BY created_at DESC",
+        "SELECT id, content, created_at FROM document_versions WHERE file_id = $1 ORDER BY created_at DESC",
         [req.params.id]
       );
 
@@ -150,11 +215,14 @@ export const getDocumentById = async (req: Request, res: Response) => {
       return {
         ...r,
         content: r.is_encrypted ? decrypt(r.content) : r.content,
-        versions: versionRows.map((v: any) => ({
-          id: v.id,
-          content: decrypt(v.content),
-          createdAt: v.created_at
-        })),
+        // Decrypt each version defensively — a single malformed/legacy version
+        // row must never fail the whole document load. On failure the version is
+        // returned with empty content rather than throwing a 500.
+        versions: versionRows.map((v: any) => {
+          let content = "";
+          try { content = decrypt(v.content); } catch { content = ""; }
+          return { id: v.id, content, createdAt: v.created_at };
+        }),
         signatures: r.signatures || [],
         redlines: r.redlines || [],
         sharedWith: r.shared_with || [],
@@ -167,7 +235,10 @@ export const getDocumentById = async (req: Request, res: Response) => {
     }
     res.status(404).json({ error: "Document not found." });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    // Log the real cause so document-load failures are visible in the server logs
+    // (previously this returned a bare 500 with no log line).
+    console.error(`[getDocumentById] failed for id=${req.params.id} user=${userId}:`, err?.message ?? err);
+    res.status(500).json({ error: "Failed to load document." });
   }
 };
 

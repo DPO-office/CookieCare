@@ -13,7 +13,9 @@ import { pool } from "../../../config/database.js";
 import type { DraftState } from "../models/draft-state.js";
 
 async function extractTextFromFileBuffer(buffer: Buffer, mimeType: string): Promise<string> {
-    return extractText(buffer, mimeType);
+    // extractText returns { text, pageBreaks? }; this helper yields the plaintext.
+    const { text } = await extractText(buffer, mimeType);
+    return text;
 }
 
 export const draftRouteController = async (req: Request, res: Response): Promise<void> => {

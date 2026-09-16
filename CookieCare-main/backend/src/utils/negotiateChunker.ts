@@ -14,6 +14,9 @@
  *    when regex matching on rendered HTML fails.
  *  - Deduplication: if two chunks both flag the same clause text, the higher-
  *    risk finding wins and only one markup is emitted.
+ *  - Cross-location dedup: if the same specific negotiation issue appears at
+ *    multiple document locations (body + appendix), the highest-severity
+ *    instance is kept and the others are suppressed.
  */
 
 import crypto from "crypto";
@@ -22,6 +25,7 @@ import {
   LLMProvider,
   LLMTask,
 } from "../llm/index.js";
+import { looksLikeCiphertext } from "./crypto.js";
 
 // ─── Public types ─────────────────────────────────────────────────────────────
 
@@ -34,13 +38,19 @@ export interface PlaybookRuleInput {
 }
 
 export interface RawMarkupCandidate {
-  /** LLM-assigned label — used only for deduplication, replaced before return. */
+  /** LLM-assigned label — used only for logging, replaced before return. */
   llmLabel: string;
   original: string;
   replacement: string;
   reasoning: string;
   riskLevel: "RED" | "YELLOW" | "GREEN";
   clauseType: string;
+  /**
+   * Specific negotiation issue identity — closed enum, used solely for
+   * cross-location deduplication inside evaluateFullDocument. Never written
+   * to NegotiateMarkup, the DB, or any route response.
+   */
+  issueTag: IssueTag;
   /**
    * Populated only when the LLM matched a playbook rule to this clause.
    * Value is the rule's topic string exactly as it appeared in the prompt.
@@ -110,6 +120,48 @@ const CLAUSE_TAXONOMY = [
 
 export type ClauseType = (typeof CLAUSE_TAXONOMY)[number];
 
+// ─── Issue tag taxonomy ───────────────────────────────────────────────────────
+//
+// A closed 22-value enum identifying the SPECIFIC negotiation issue being
+// raised, independently of clause location in the document. Used exclusively
+// for cross-location deduplication inside evaluateFullDocument — it is
+// internal to RawMarkupCandidate and is never written to NegotiateMarkup,
+// the DB, or any route response.
+//
+// Design intent: two values that are commonly found in adjacent sub-clauses
+// (e.g. governing_law_non_domestic + dispute_resolution_mechanism) are kept
+// SEPARATE so that proximity alone never causes an incorrect merge. A merge
+// only fires when both issueTag AND clauseType match, meaning the model
+// independently identified the same specific legal problem at two different
+// document locations.
+
+const ISSUE_TAG_TAXONOMY = [
+  "breach_notification_deadline",    // timing / fixed deadline for incident notification
+  "breach_notification_scope",       // what triggers notification (definition of breach)
+  "data_retention_deletion",         // retention limits, deletion obligations, data return
+  "subprocessor_approval_objection", // right to approve / object to new sub-processors
+  "subprocessor_flow_down",          // obligations must flow down to sub-processors
+  "international_transfer_mechanism",// adequacy decision, SCCs, BCRs for intl transfers
+  "liability_cap",                   // presence and amount of aggregate liability cap
+  "liability_dp_breach_carveout",    // DP breaches carved out of master-agreement cap
+  "indemnity_scope",                 // scope and one-sidedness of indemnity obligation
+  "termination_for_convenience",     // unilateral termination without cause
+  "governing_law_non_domestic",      // governing law outside a favourable jurisdiction
+  "dispute_resolution_mechanism",    // arbitration vs. litigation choice, venue
+  "audit_rights_scope",              // whether audit / inspection rights exist
+  "audit_rights_practical",          // whether audit rights are practically usable
+  "confidentiality_scope",           // breadth of confidentiality obligation
+  "ip_assignment_breadth",           // breadth of IP assignment or work-for-hire clause
+  "force_majeure_scope",             // scope of force majeure exclusions
+  "payment_terms_imbalance",         // asymmetric payment / late payment terms
+  "assignment_restriction",          // ability to assign without counterparty consent
+  "compliance_obligation_scope",     // scope of imposed regulatory compliance obligations
+  "warranty_scope",                  // scope and one-sidedness of warranties
+  "other",                           // catch-all; excluded from cross-location merge
+] as const;
+
+export type IssueTag = (typeof ISSUE_TAG_TAXONOMY)[number];
+
 // ─── JSON schema for a single chunk evaluation call ───────────────────────────
 
 const CHUNK_MARKUP_SCHEMA = {
@@ -124,6 +176,7 @@ const CHUNK_MARKUP_SCHEMA = {
         additionalProperties: false,
         required: [
           "llmLabel",
+          "issueTag",
           "original",
           "replacement",
           "reasoning",
@@ -134,6 +187,14 @@ const CHUNK_MARKUP_SCHEMA = {
           llmLabel: {
             type: "string",
             description: "Short identifier the model used for this clause within the chunk.",
+          },
+          issueTag: {
+            type: "string",
+            enum: ISSUE_TAG_TAXONOMY as unknown as string[],
+            description:
+              "The single most specific negotiation issue this finding raises. " +
+              "Choose the most precise matching value from the enum. " +
+              "Use \"other\" only when no specific value applies.",
           },
           original: {
             type: "string",
@@ -189,18 +250,63 @@ const GENERIC_SCOPE = `SCOPE — flag any clause that falls into at least one of
   • Compliance obligations (regulatory, statutory)
   Be thorough — if a clause is one-sided or creates commercial exposure, flag it.`;
 
-const RISK_GRADING = `RISK GRADING:
+// RISK_GRADING now includes:
+//  1. A CALIBRATION block that distinguishes standard variants from genuinely
+//     problematic ones — prevents suppression of legitimate issues by giving
+//     the model a discrimination signal rather than a broad block-list.
+//  2. The three severity tiers (RED / YELLOW / GREEN), unchanged.
+//  3. A severity-consistency instruction for same-issue multi-location documents.
+const RISK_GRADING = `CALIBRATION — before grading, distinguish the standard variant from a genuinely problematic one:
+  • Breach-scope carve-outs: excluding failed logins, automated scanning traffic, or
+    denial-of-service attempts from the definition of a personal-data breach is standard
+    and market-expected — do NOT flag. Flag only if the carve-out is so broadly drafted
+    that it could exclude a genuine data breach (e.g. "any attack by a third party is
+    excluded regardless of outcome").
+  • Acceptance / formation clauses: click-wrap acceptance language, browse-wrap notices,
+    and "by using the service you agree" formation clauses are standard SaaS mechanics —
+    do NOT flag. Flag only if the acceptance clause itself waives a material right
+    (e.g. waives the right to object to sub-processors or to receive breach notifications).
+  • No-admission clauses: "nothing in this agreement constitutes an admission of liability"
+    is standard boilerplate — do NOT flag.
+  • Data deletion on plan expiry: a provider's contractual right to delete data after a
+    free-plan, trial-plan, or lapsed subscription expires is a standard SaaS commercial
+    term. Grade YELLOW at most (the timing and notice period may be negotiable), not RED,
+    unless the deletion is stated to be immediate, with no export window, or explicitly
+    irreversible.
+  • Definitions sections: clauses that only define terms without creating operative
+    obligations produce no negotiation value — skip them entirely.
+
+RISK GRADING:
   RED    — Uncapped or broad liability exposure, unilateral rights, broad IP assignment,
             non-domestic governing law, unreasonably punitive terms.
   YELLOW — Imbalanced but negotiable: long notice periods, broad audit rights, no
             mutual termination, vague payment timelines, overly broad confidentiality.
   GREEN  — Fair and market-standard. Flag only if a minor improvement is clearly
-            available; skip entirely if the clause needs no change.`;
+            available; skip entirely if the clause needs no change.
+
+SEVERITY CONSISTENCY: When the same specific contractual obligation appears at multiple
+  locations in the document (for example, a breach-notification deadline stated in both
+  a main clause and an appendix), assign the same severity to every instance — do not
+  rate an identical obligation differently based solely on where it appears in the document.`;
 
 const EXTRACTION_RULE = `EXTRACTION RULE — CRITICAL:
   The "original" field MUST be copied character-for-character from the [CONTRACT CHUNK]
   below. Do not truncate, paraphrase, merge, or alter any character. If a clause spans
   multiple sentences, include the full relevant span.`;
+
+const ISSUE_TAG_INSTRUCTION = `issueTag field:
+  Choose the single most specific value from this closed list that describes the
+  negotiation issue this finding raises:
+    breach_notification_deadline | breach_notification_scope |
+    data_retention_deletion | subprocessor_approval_objection | subprocessor_flow_down |
+    international_transfer_mechanism | liability_cap | liability_dp_breach_carveout |
+    indemnity_scope | termination_for_convenience | governing_law_non_domestic |
+    dispute_resolution_mechanism | audit_rights_scope | audit_rights_practical |
+    confidentiality_scope | ip_assignment_breadth | force_majeure_scope |
+    payment_terms_imbalance | assignment_restriction | compliance_obligation_scope |
+    warranty_scope | other
+  Use "other" only when none of the specific values apply. Note: governing_law_non_domestic
+  and dispute_resolution_mechanism are distinct issues — do not conflate them.`;
 
 /**
  * Builds the system prompt for a chunk evaluation call.
@@ -265,6 +371,8 @@ ${RISK_GRADING}
 
 ${EXTRACTION_RULE}
 
+${ISSUE_TAG_INSTRUCTION}
+
 matchedPlaybookTopic field:
 ${matchedTopicInstruction}
 
@@ -319,51 +427,236 @@ function normalise(text: string): string {
 }
 
 /**
- * Locates the first occurrence of `original` inside `documentText` using:
- *   1. Exact match (indexOf).
- *   2. Normalised-whitespace case-insensitive match as fallback.
- * Returns the character offset, or -1 if not found.
+ * Applies typographic normalization on top of whitespace normalization.
+ * Folds common LLM-emitted typographic variants (curly quotes, en/em dashes,
+ * non-breaking spaces) to their ASCII equivalents so that a candidate whose
+ * original field was silently mutated by the model can still be located.
+ *
+ * Applied only in the third locateInDocument pass — does NOT affect the
+ * primary exact-match or secondary whitespace-normalized passes.
+ */
+function typoNorm(text: string): string {
+  return text
+    // Curly / typographic single quotes → straight apostrophe
+    .replace(/[\u2018\u2019\u201A\u201B\u2032\u2035]/g, "'")
+    // Curly / typographic double quotes → straight double quote
+    .replace(/[\u201C\u201D\u201E\u201F\u2033\u2036]/g, '"')
+    // En-dash, em-dash, horizontal bar, soft hyphen → ASCII hyphen
+    .replace(/[\u2013\u2014\u2015\u00AD]/g, "-")
+    // Non-breaking space, narrow no-break space, thin space, zero-width space → space
+    .replace(/[\u00A0\u202F\u2009\u200B]/g, " ")
+    // Collapse all whitespace runs and lowercase — same as normalise()
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+/**
+ * Locates the first occurrence of `original` inside `documentText` using
+ * three passes of increasing tolerance:
+ *
+ *   1. Exact byte match (indexOf).
+ *   2. Whitespace-normalised case-insensitive match — handles line-break
+ *      variants that the LLM may introduce when producing multi-line spans.
+ *   3. Typographic-normalised match — additionally folds curly quotes,
+ *      en/em dashes, and non-breaking spaces to their ASCII equivalents,
+ *      covering the most common LLM tokenizer mutations.
+ *
+ * Each pass builds a character-offset map so the returned offset always
+ * points into the ORIGINAL (un-normalised) documentText.
+ *
+ * Returns the character offset, or -1 if not found by any pass.
  */
 function locateInDocument(original: string, documentText: string): number {
-  // Exact match first
+  // ── Pass 1: exact match ───────────────────────────────────────────────────
   const exact = documentText.indexOf(original);
   if (exact !== -1) return exact;
 
-  // Normalised fallback — build a collapsed version of the document and
-  // map normalised positions back to original positions.
-  const normTarget = normalise(original);
-  if (!normTarget) return -1;
+  // ── Shared helper: build normalised stream + offset map ───────────────────
+  // Used by both pass 2 (whitespace only) and pass 3 (typoNorm).
+  function buildNormStream(
+    source: string,
+    normChar: (ch: string) => string | null  // returns null to skip char, or replacement
+  ): { normStr: string; normToOrig: number[] } {
+    const normChars: string[] = [];
+    const normToOrig: number[] = [];
+    let prevWasSpace = false;
 
-  // Walk document chars, building a parallel normalised stream + offset map
-  const normChars: string[] = [];
-  const normToOrig: number[] = [];
-  let prevWasSpace = false;
-
-  for (let i = 0; i < documentText.length; i++) {
-    const ch = documentText[i];
-    if (/\s/.test(ch)) {
-      if (!prevWasSpace) {
-        normChars.push(" ");
+    for (let i = 0; i < source.length; i++) {
+      const ch = source[i];
+      const mapped = normChar(ch);
+      if (mapped === null) continue; // skip (e.g. zero-width space)
+      if (mapped === " ") {
+        if (!prevWasSpace) {
+          normChars.push(" ");
+          normToOrig.push(i);
+          prevWasSpace = true;
+        }
+      } else {
+        normChars.push(mapped);
         normToOrig.push(i);
-        prevWasSpace = true;
+        prevWasSpace = false;
       }
-    } else {
-      normChars.push(ch.toLowerCase());
-      normToOrig.push(i);
-      prevWasSpace = false;
     }
+    return { normStr: normChars.join(""), normToOrig };
   }
 
-  const normDoc = normChars.join("");
-  const idx = normDoc.indexOf(normTarget);
-  if (idx === -1) return -1;
+  // ── Pass 2: whitespace-normalised, lowercased ─────────────────────────────
+  const normTarget2 = normalise(original);
+  if (normTarget2) {
+    const { normStr: normDoc2, normToOrig: map2 } = buildNormStream(
+      documentText,
+      (ch) => (/\s/.test(ch) ? " " : ch.toLowerCase())
+    );
+    const idx2 = normDoc2.indexOf(normTarget2);
+    if (idx2 !== -1) return map2[idx2];
+  }
 
-  return normToOrig[idx];
+  // ── Pass 3: typographic-normalised ───────────────────────────────────────
+  // Maps each source character through the same substitutions as typoNorm()
+  // before whitespace collapsing so the offset map stays aligned.
+  const typoSubstitute = (ch: string): string | null => {
+    // Zero-width space — skip entirely (null = omit from stream)
+    if (ch === "\u200B") return null;
+    // Non-breaking / narrow / thin space variants → plain space (collapse handled below)
+    if (ch === "\u00A0" || ch === "\u202F" || ch === "\u2009") return " ";
+    // Curly single quotes → straight apostrophe
+    if ("\u2018\u2019\u201A\u201B\u2032\u2035".includes(ch)) return "'";
+    // Curly double quotes → straight double quote
+    if ("\u201C\u201D\u201E\u201F\u2033\u2036".includes(ch)) return '"';
+    // En-dash, em-dash, horizontal bar, soft hyphen → ASCII hyphen
+    if ("\u2013\u2014\u2015\u00AD".includes(ch)) return "-";
+    // Whitespace (including ASCII) → space token (collapse handled by buildNormStream)
+    if (/\s/.test(ch)) return " ";
+    return ch.toLowerCase();
+  };
+
+  const normTarget3 = typoNorm(original);
+  if (normTarget3) {
+    const { normStr: normDoc3, normToOrig: map3 } = buildNormStream(documentText, typoSubstitute);
+    const idx3 = normDoc3.indexOf(normTarget3);
+    if (idx3 !== -1) return map3[idx3];
+  }
+
+  return -1;
 }
 
 // ─── Risk level ordering (for dedup winner selection) ────────────────────────
 
 const RISK_ORDER: Record<string, number> = { RED: 2, YELLOW: 1, GREEN: 0 };
+
+// ─── Cross-location issue-identity deduplication ─────────────────────────────
+
+/**
+ * Merges candidates that represent the SAME specific negotiation issue at
+ * different document locations (e.g. a breach-notification deadline stated
+ * in both a main clause and an appendix).
+ *
+ * Merge criterion — ALL three conditions must hold:
+ *   1. Same issueTag (closed enum — both candidates identify the same specific
+ *      legal problem, not just the same broad clause category).
+ *   2. Same clauseType (ensures "other" catch-all and unrelated issues of the
+ *      same type are not incorrectly collapsed).
+ *   3. Neither candidate's original text is a substring of the other after
+ *      normalisation — guards against the overlap-region case where two
+ *      chunks flagged slightly different spans of the same clause (the text-
+ *      key dedup step above handles that; this step must not re-process it).
+ *
+ * Exclusions:
+ *   - issueTag === "other": excluded from issue-identity merge to prevent
+ *     the catch-all from absorbing unrelated findings.
+ *
+ * Winner selection when merging a pair:
+ *   - Higher RISK_ORDER wins.
+ *   - On tie: prefer the candidate whose original text can be located in the
+ *     document (locateInDocument probe), to avoid discarding a groundable
+ *     candidate in favour of one that will later be dropped by the grounding
+ *     loop. On a probe tie, keep the first-encountered.
+ *
+ * Severity normalization: the surviving winner's riskLevel is set to the
+ * maximum of the pair — scoped exclusively to confirmed duplicate clusters,
+ * never applied globally across clauseType.
+ *
+ * Returns the deduplicated candidate array (length ≤ input length).
+ */
+function mergeByIssueIdentity(
+  candidates: RawMarkupCandidate[],
+  documentText: string
+): RawMarkupCandidate[] {
+  if (candidates.length <= 1) return candidates;
+
+  // Build a mutable working set indexed by position.
+  const active = new Set<number>(candidates.map((_, i) => i));
+
+  for (let i = 0; i < candidates.length; i++) {
+    if (!active.has(i)) continue;
+    const a = candidates[i];
+
+    // "other" is excluded from cross-location merge.
+    if (a.issueTag === "other") continue;
+
+    for (let j = i + 1; j < candidates.length; j++) {
+      if (!active.has(j)) continue;
+      const b = candidates[j];
+
+      // Condition 1: same specific issue tag (and neither is "other")
+      if (a.issueTag !== b.issueTag || b.issueTag === "other") continue;
+
+      // Condition 2: same broad clause type
+      if (a.clauseType !== b.clauseType) continue;
+
+      // Condition 3: not an overlap-region variant (neither is a substring of
+      // the other). If one contains the other, the text-key dedup step should
+      // have collapsed them already; if it did not (edge case), leave both as-is
+      // rather than risking incorrect merge.
+      const na = normalise(a.original);
+      const nb = normalise(b.original);
+      if (na.includes(nb) || nb.includes(na)) continue;
+
+      // All three conditions passed — this is a genuine cross-location duplicate.
+      // Determine winner: higher severity first; on tie probe groundability.
+      const aRisk = RISK_ORDER[a.riskLevel] ?? 0;
+      const bRisk = RISK_ORDER[b.riskLevel] ?? 0;
+
+      let keepIdx: number;
+      let dropIdx: number;
+
+      if (aRisk > bRisk) {
+        keepIdx = i; dropIdx = j;
+      } else if (bRisk > aRisk) {
+        keepIdx = j; dropIdx = i;
+      } else {
+        // Equal severity — prefer the one whose original text is groundable.
+        const aLocatable = locateInDocument(a.original, documentText) !== -1;
+        const bLocatable = locateInDocument(b.original, documentText) !== -1;
+        if (!aLocatable && bLocatable) {
+          keepIdx = j; dropIdx = i;
+        } else {
+          // a is groundable or both are equally un-groundable — keep a (first-encountered).
+          keepIdx = i; dropIdx = j;
+        }
+      }
+
+      // Apply severity normalization: winner inherits max(a.riskLevel, b.riskLevel).
+      // Since we already selected winner as the higher-severity candidate, this is
+      // a no-op in the aRisk ≠ bRisk case. For ties it keeps the level unchanged.
+      const maxRisk = aRisk >= bRisk ? a.riskLevel : b.riskLevel;
+      if (candidates[keepIdx].riskLevel !== maxRisk) {
+        // Clone to avoid mutating the original array element in place
+        candidates[keepIdx] = { ...candidates[keepIdx], riskLevel: maxRisk };
+      }
+
+      active.delete(dropIdx);
+      console.log(
+        `[negotiateChunker] Cross-location dedup: merged issueTag="${a.issueTag}" ` +
+          `clauseType="${a.clauseType}" — kept "${candidates[keepIdx].original.slice(0, 60)}..." ` +
+          `(${maxRisk}), discarded "${candidates[dropIdx].original.slice(0, 60)}..."`
+      );
+    }
+  }
+
+  return candidates.filter((_, i) => active.has(i));
+}
 
 // ─── Main export ──────────────────────────────────────────────────────────────
 
@@ -374,8 +667,10 @@ const RISK_ORDER: Record<string, number> = { RED: 2, YELLOW: 1, GREEN: 0 };
  * 2. Runs one `executeJsonCompletion` call per chunk IN PARALLEL — the
  *    existing `geminiScheduler` inside the LLM layer handles rate-limiting.
  * 3. Deduplicates by normalised original text, keeping the highest-risk finding.
- * 4. Resolves each finding's `charOffset` against the original plaintext.
- * 5. Assigns stable, hash-derived `clauseId` values.
+ * 4. Deduplicates cross-location by issueTag + clauseType identity, keeping
+ *    the highest-severity grounded instance per specific negotiation issue.
+ * 5. Resolves each finding's `charOffset` against the original plaintext.
+ * 6. Assigns stable, hash-derived `clauseId` values.
  *
  * @param documentText  Full plain-text content of the contract.
  * @param documentTitle Human-readable title for logging.
@@ -391,6 +686,17 @@ export async function evaluateFullDocument(
   documentType: string,
   playbookRules: PlaybookRuleInput[] = []
 ): Promise<NegotiateMarkup[]> {
+  // Defensive boundary: every caller (POST /evaluate, POST /session/resolve)
+  // funnels through here. If a caller reads files.content without checking
+  // is_encrypted, or a decryption call fails, that must never reach the LLM
+  // as if it were contract text — fail loudly instead of silently generating
+  // a "finding" out of ciphertext bytes.
+  if (looksLikeCiphertext(documentText)) {
+    throw new Error(
+      `Document "${documentTitle}" content is encrypted or corrupted, not decrypted plaintext — refusing to evaluate.`
+    );
+  }
+
   const chunks = splitIntoChunks(documentText);
 
   console.log(
@@ -428,9 +734,11 @@ export async function evaluateFullDocument(
     return [];
   }
 
-  // ── Deduplicate by normalised original text ───────────────────────────────
-  // When two chunks overlap and both flag the same clause, keep the one with
-  // the higher risk level. On a tie, keep the first encountered.
+  // ── Step 1: Deduplicate by normalised original text ───────────────────────
+  // When two chunks overlap and both flag the same clause TEXT, keep the one
+  // with the higher risk level. On a tie, keep the first encountered.
+  // This handles the same-chunk-boundary artifact only — it does not address
+  // the same negotiation issue appearing at different document locations.
   const seen = new Map<string, RawMarkupCandidate>();
 
   for (const candidate of allCandidates) {
@@ -443,15 +751,33 @@ export async function evaluateFullDocument(
     }
   }
 
+  // ── Step 2: Cross-location issue-identity dedup ───────────────────────────
+  // Merge candidates that represent the same SPECIFIC negotiation issue at
+  // different document locations. Operates on the already text-deduped set
+  // (smaller input, no overlap-region artifacts). documentText is passed so
+  // the merge can probe groundability when selecting between equal-severity
+  // candidates (prevents discarding a groundable candidate in favour of one
+  // that will be dropped by the grounding loop below).
+  const dedupedCandidates = mergeByIssueIdentity([...seen.values()], documentText);
+
+  const crossLocationDropped = seen.size - dedupedCandidates.length;
+  if (crossLocationDropped > 0) {
+    console.log(
+      `[negotiateChunker] Cross-location dedup removed ${crossLocationDropped} duplicate(s) ` +
+        `from ${seen.size} text-deduped candidates`
+    );
+  }
+
   // ── Build final NegotiateMarkup list ─────────────────────────────────────
   const markups: NegotiateMarkup[] = [];
 
-  for (const candidate of seen.values()) {
+  for (const candidate of dedupedCandidates) {
     const charOffset = locateInDocument(candidate.original, documentText);
 
     if (charOffset === -1) {
-      // The LLM returned text that doesn't exist verbatim in the document.
-      // This is a hallucination/paraphrase — discard the candidate.
+      // The LLM returned text that doesn't exist verbatim in the document
+      // (even after whitespace and typographic normalization). This is a
+      // hallucination/paraphrase — discard the candidate.
       console.warn(
         `[negotiateChunker] Discarding candidate — original text not found in document. ` +
           `Preview: "${candidate.original.slice(0, 80)}..."`
@@ -470,6 +796,8 @@ export async function evaluateFullDocument(
         ? rawTopic.trim()
         : null;
 
+    // issueTag is intentionally NOT forwarded to NegotiateMarkup —
+    // it is an internal dedup signal only and must not reach the DB or API.
     markups.push({
       clauseId: stableClauseId(candidate.original),
       original: candidate.original,
@@ -520,11 +848,13 @@ ${chunk}`;
     LLMProvider.GEMINI
   );
 
-  const markups = Array.isArray(parsed?.markups) ? parsed.markups : [];
+  const rawMarkups = Array.isArray(parsed?.markups) ? parsed.markups : [];
 
-  // Filter out any candidates where the LLM produced an empty or suspiciously
-  // short original (less than 15 chars is almost certainly a mis-extraction).
-  return markups.filter(
+  // ── Post-filter 1: structural validity ───────────────────────────────────
+  // Removes candidates where the LLM produced an empty or suspiciously short
+  // original (< 15 chars is almost certainly a mis-extraction), a missing
+  // replacement, or an invalid riskLevel enum value.
+  const valid = rawMarkups.filter(
     (m) =>
       m &&
       typeof m.original === "string" &&
@@ -534,4 +864,23 @@ ${chunk}`;
       typeof m.reasoning === "string" &&
       ["RED", "YELLOW", "GREEN"].includes(m.riskLevel)
   );
+
+  // ── Post-filter 2: data_retention_deletion RED → YELLOW clamp ────────────
+  // A provider's right to delete data on free-plan / trial-plan expiry is a
+  // standard SaaS commercial term. The prompt calibration guides the model to
+  // rate these YELLOW, but as a belt-and-suspenders guard we clamp any RED
+  // finding with issueTag=data_retention_deletion to YELLOW unless the
+  // reasoning contains an explicit aggravating signal (immediate/irreversible
+  // deletion with no export window). This guard is scoped precisely to the
+  // issueTag — it cannot affect other termination or data-protection findings.
+  return valid.map((m) => {
+    if (
+      m.issueTag === "data_retention_deletion" &&
+      m.riskLevel === "RED" &&
+      !/immedi|no.{0,10}export|no.{0,10}retriev|irrecov|permanently.{0,10}delet/i.test(m.reasoning)
+    ) {
+      return { ...m, riskLevel: "YELLOW" as const };
+    }
+    return m;
+  });
 }

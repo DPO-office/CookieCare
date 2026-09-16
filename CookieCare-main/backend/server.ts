@@ -12,6 +12,7 @@ import { errorHandler } from "./src/middleware/error.js";
 import { initQueryLogger } from "./src/middleware/queryLogger.js";
 import { logger } from "./src/utils/logger.js";
 import { getDocumentParserReadiness } from "./src/modules/analysis/capabilities/ingest/document-structure/index.js";
+import { startStaleJobSweep } from "./src/services/jobs/staleJobSweep.js";
 
 console.log(
   `[server] application modules evaluated NODE_ENV=${config.nodeEnv} PORT=${config.port}`
@@ -119,6 +120,11 @@ app.use(errorHandler);
 
 async function configureRuntime() {
   validateEnv();
+
+  // Recover jobs stranded in queued/processing by a prior restart/crash (in-
+  // process jobs have no worker to resume them) so the UI stops showing them
+  // as perpetually "uploading"/"processing".
+  startStaleJobSweep();
 
   if (config.nodeEnv !== "production") {
     // Development: Vite dev server handles SPA + HMR.

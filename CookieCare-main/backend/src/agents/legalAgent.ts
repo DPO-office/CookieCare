@@ -138,16 +138,29 @@ export class AgentOrchestrator {
     userId: string,
     documentIds?: string[],
     jurisdictions?: string[],
-    outputFormat?: string
+    outputFormat?: string,
+    history?: Array<{ role: "user" | "assistant"; text: string }>
   ) {
-    const context = await searchHybrid(prompt, userId, documentIds);
+    // Retrieve document context via RAG only when file IDs are provided
+    const context = documentIds && documentIds.length > 0
+      ? await searchHybrid(prompt, userId, documentIds)
+      : [];
+
     const contextText = context
       .map((c) => `[Source: ${c.title}]\n${c.content}`)
       .join("\n\n");
 
+    // Build conversation history string so the LLM has prior turns as context
+    const historyText = history && history.length > 0
+      ? history
+          .map((m) => `${m.role === "user" ? "User" : "Assistant"}: ${m.text}`)
+          .join("\n\n")
+      : "";
+
     const result = await this.askLawyerAgent.getAdvice({
       prompt,
       context: contextText,
+      historyText,
       jurisdictions,
       outputFormat: outputFormat as any,
       sources: context.map(c => ({ title: c.title, file_id: c.file_id, content: c.content }))

@@ -36,6 +36,12 @@ export function useAskAILawyer(authToken: string) {
   const [lawyerError, setLawyerError] = useState("");
   const [isCopied, setIsCopied] = useState(false);
 
+  // Chat history — each turn is { role, text }
+  const [messages, setMessages] = useState<Array<{ role: "user" | "assistant"; text: string }>>([]);
+
+  // Uploaded files — { id, name } — added only after indexing completes
+  const [uploadedFiles, setUploadedFiles] = useState<Array<{ id: string; name: string }>>([]);
+  const uploadedFileIds = uploadedFiles.map((f) => f.id);
   /* ·· UI state ················································· */
   const [openPopover, setOpenPopover] = useState<PopoverType>(null);
   const [showSources, setShowSources] = useState(false);
@@ -143,35 +149,65 @@ export function useAskAILawyer(authToken: string) {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    // Reset input so the same file can be re-selected
+    e.target.value = "";
     try {
       const { status, payload } = await uploadDocument(
         authToken,
         file,
         activeFolderForUpload || undefined
       );
-      if (status === 202 && payload.job_id) {
+      if (status === 202 && payload.file_id) {
         setStepperPhase("extracting");
-        setStepperMessage(`Processing ${file.name}…`);
-        const es = createJobSSE(authToken);
-        sseRef.current = es;
-        es.onmessage = (event) => {
-          const data = JSON.parse(event.data);
-          if (
-            data.event === "job_update" &&
-            data.job.id === payload.job_id
-          ) {
-            if (data.job.status === "completed") {
-              es.close();
-              loadKnowledgeBase();
-              setStepperPhase("completed");
-              setStepperMessage(`${file.name} indexed.`);
-            } else if (data.job.status === "failed") {
-              es.close();
-              setStepperPhase("idle");
-              alert("Indexing failed: " + data.job.error);
+        setStepperMessage(`Indexing ${file.name}…`);
+
+        if (payload.job_id) {
+          // Wait for the file_processing job to complete before making the
+          // file_id available for RAG — chunks aren't indexed until then.
+          const es = createJobSSE(authToken);
+          sseRef.current = es;
+          es.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.event === "job_update" && data.job.id === payload.job_id) {
+              if (data.job.status === "completed") {
+                es.close();
+                loadKnowledgeBase();
+                setStepperPhase("completed");
+                setStepperMessage(`${file.name} ready.`);
+                // Only add the file once indexing is confirmed complete
+                setUploadedFiles((prev) =>
+                  prev.some((f) => f.id === payload.file_id)
+                    ? prev
+                    : [...prev, { id: payload.file_id, name: file.name }]
+                );
+              } else if (data.job.status === "failed") {
+                es.close();
+                setStepperPhase("idle");
+                setStepperMessage("");
+                alert("File indexing failed: " + (data.job.error || "Unknown error"));
+              }
             }
-          }
-        };
+          };
+          es.onerror = () => {
+            es.close();
+            // On SSE error, still add the file optimistically
+            setUploadedFiles((prev) =>
+              prev.some((f) => f.id === payload.file_id)
+                ? prev
+                : [...prev, { id: payload.file_id, name: file.name }]
+            );
+            setStepperPhase("idle");
+          };
+        } else {
+          // No job_id — add immediately
+          setUploadedFiles((prev) =>
+            prev.some((f) => f.id === payload.file_id)
+              ? prev
+              : [...prev, { id: payload.file_id, name: file.name }]
+          );
+          setStepperPhase("completed");
+          setStepperMessage(`${file.name} ready.`);
+        }
       } else {
         loadKnowledgeBase();
       }
@@ -200,66 +236,43 @@ export function useAskAILawyer(authToken: string) {
 
     const query = searchQuery.trim();
     setSubmittedQuery(query);
+    setSearchQuery("");
+    // Reset textarea height after clearing
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+    }
     setIsStreaming(true);
     setStreamedResult("");
     setMatchedSources([]);
-    setLawyerProgress("Preparing request…");
+    setLawyerProgress("Thinking…");
     setLawyerError("");
     setStepperPhase("division");
     setHasResult(false);
     setOpenPopover(null);
     closeSse();
 
+    // Append user message to history immediately
+    setMessages((prev) => [...prev, { role: "user", text: query }]);
+
     try {
-      const { status, data } = await askLawyer(
-        authToken,
-        query,
-        selectedJurisdictions,
-        selectedFormat,
-        folders
-      );
-      if (status === 202 && data.job_id) {
-        setLawyerProgress("Analyzing…");
-        const es = createJobSSE(authToken);
-        sseRef.current = es;
-        es.onmessage = (event) => {
-          const payload = JSON.parse(event.data);
-          if (
-            payload.event === "job_update" &&
-            payload.job.id === data.job_id
-          ) {
-            const job = payload.job;
-            if (job.message) {
-              setLawyerProgress(job.message);
-              setStepperMessage(job.message);
-            }
-            if (job.status === "completed") {
-              setStreamedResult(job.result.text || job.result || "");
-              if (Array.isArray(job.result.sources) && job.result.sources.length > 0) {
-                setMatchedSources(job.result.sources);
-              }
-              setStepperPhase("completed");
-              setLawyerProgress("");
-              setIsStreaming(false);
-              setHasResult(true);
-              es.close();
-            } else if (job.status === "failed") {
-              es.close();
-              setLawyerError(job.error || "Advisory failed.");
-              setIsStreaming(false);
-            }
-          }
-        };
-        es.onerror = () => {
-          es.close();
-          setLawyerError("Connection interrupted. Please retry.");
-          setIsStreaming(false);
-        };
+      const { data } = await askLawyer(authToken, query, uploadedFileIds, messages);
+      const replyText = data.text || "";
+      setStreamedResult(replyText);
+      // Append assistant reply to history
+      setMessages((prev) => [...prev, { role: "assistant", text: replyText }]);
+      if (Array.isArray(data.sources) && data.sources.length > 0) {
+        setMatchedSources(data.sources);
       }
+      setStepperPhase("completed");
+      setLawyerProgress("");
+      setIsStreaming(false);
+      setHasResult(true);
     } catch (err: any) {
       setStepperPhase("idle");
       setLawyerError(err.message || "Unexpected error.");
       setIsStreaming(false);
+      // Remove the user message from history if the call failed
+      setMessages((prev) => prev.slice(0, -1));
     }
   };
 
@@ -294,6 +307,8 @@ export function useAskAILawyer(authToken: string) {
     setSearchQuery("");
     setStreamedResult("");
     setMatchedSources([]);
+    setMessages([]);
+    setUploadedFiles([]);
     setIsStreaming(false);
     setHasResult(false);
     setSubmittedQuery("");
@@ -307,6 +322,9 @@ export function useAskAILawyer(authToken: string) {
     setStepperMessage("");
     if (textareaRef.current) textareaRef.current.style.height = "auto";
   }, [closeSse]);
+
+  const removeUploadedFile = (id: string) =>
+    setUploadedFiles((prev) => prev.filter((f) => f.id !== id));
 
   const togglePopover = (p: PopoverType) =>
     setOpenPopover((prev) => (prev === p ? null : p));
@@ -331,6 +349,7 @@ export function useAskAILawyer(authToken: string) {
     stepperPhase,
     stepperMessage,
     streamedResult,
+    messages,
     matchedSources,
     isStreaming,
     activeCitationModal, setActiveCitationModal,
@@ -358,8 +377,10 @@ export function useAskAILawyer(authToken: string) {
     applyQuickPrompt,
     togglePopover,
     resetConversation,
+    removeUploadedFile,
     /* derived */
     selectedKBCount,
     selectedFolderCount,
+    uploadedFiles,
   };
 }

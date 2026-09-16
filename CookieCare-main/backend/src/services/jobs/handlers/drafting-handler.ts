@@ -21,7 +21,9 @@ async function extractTextFromStorageUrl(fileUrl: string): Promise<string> {
     // Detect content type from URL extension; default to PDF for backward compatibility
     const isPdf = fileUrl.toLowerCase().includes(".pdf") || !fileUrl.includes(".");
     const mimeType = isPdf ? "application/pdf" : "application/octet-stream";
-    return extractText(buffer, mimeType);
+    // extractText returns { text, pageBreaks? }; this helper yields the plaintext.
+    const { text } = await extractText(buffer, mimeType);
+    return text;
   }
 
 

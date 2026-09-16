@@ -88,3 +88,25 @@ export function decryptData(text: string): string {
 // Aliases for requirement
 export const encrypt = encryptData;
 export const decrypt = decryptData;
+
+const DECRYPTION_FAILURE_MARKERS = [
+  "[DECRYPTION_FAILURE]",
+  "[DECRYPTION_FORMAT_ERROR]",
+  "[LEGACY_DECRYPTION_ERROR]",
+];
+
+/**
+ * True when `text` is (or contains) raw ciphertext-at-rest payload or a
+ * failed-decryption sentinel, rather than actual document content. Used as a
+ * defensive boundary at call sites that must never hand encrypted bytes to
+ * an LLM or render them as document text — e.g. a caller that forgot to
+ * check `is_encrypted` before reading `files.content`. Scans the whole
+ * string (not just the prefix) because a caller that decrypts a wrapper but
+ * embeds an undecrypted sub-payload would otherwise slip through.
+ */
+export function looksLikeCiphertext(text: string): boolean {
+  if (!text) return false;
+  if (text.startsWith("LEXGCM_") || text.startsWith("LEXENC_")) return true;
+  if (DECRYPTION_FAILURE_MARKERS.some((m) => text.startsWith(m))) return true;
+  return text.includes("LEXGCM_") || text.includes("LEXENC_");
+}

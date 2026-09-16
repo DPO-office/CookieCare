@@ -122,7 +122,7 @@ async function main() {
   }
 
   const title = path.basename(options.document);
-  const text = await extractText(
+  const { text } = await extractText(
     fs.readFileSync(options.document),
     mimeTypeFor(options.document)
   );

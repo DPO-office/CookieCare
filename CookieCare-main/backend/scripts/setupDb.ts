@@ -227,6 +227,44 @@ async function runIdempotentMigrations(client: any): Promise<void> {
     console.warn(`[migrations] Skipping document evidence embedding cache: ${err.message}`);
   }
 
+  // playbook_rules: provenance columns added after initial schema creation.
+  //
+  // The ALTER TABLE statements for library_item_id, user_id, and rule_ref
+  // were originally placed only inside the new-database CREATE TABLE block
+  // (setupDb.ts ~line 542), which is skipped for any existing database where
+  // the schema is already present (schemaReady = true). As a result, every
+  // production database created before these columns were introduced is
+  // missing them, causing every PlaybookIngester INSERT to fail with
+  // "column rule_ref does not exist". Adding them here ensures they are
+  // applied on first `npm run dev` / deploy against any existing DB.
+  // All three use ADD COLUMN IF NOT EXISTS so they are fully idempotent.
+  await safeQuery(`ALTER TABLE playbook_rules ADD COLUMN IF NOT EXISTS library_item_id VARCHAR(255);`);
+  await safeQuery(`ALTER TABLE playbook_rules ADD COLUMN IF NOT EXISTS user_id VARCHAR(255);`);
+  await safeQuery(`ALTER TABLE playbook_rules ADD COLUMN IF NOT EXISTS rule_ref VARCHAR(255);`);
+  await safeQuery(`CREATE INDEX IF NOT EXISTS idx_playbook_rules_library_item_id ON playbook_rules (library_item_id);`);
+
+  // playbook_rules → library_items FK (safety-net cascade delete).
+  //
+  // The primary cleanup path is the explicit DELETE in deleteLibraryItem
+  // (controllers/libraryItems.ts) — that runs regardless of whether this FK
+  // exists. This constraint is a second line of defence so that any direct
+  // SQL deletes on library_items (e.g. maintenance scripts, future cascade
+  // from users ON DELETE CASCADE) also sweep the child rows automatically.
+  //
+  // Wrapped in safeQuery so it is silently skipped when:
+  //   a) the constraint already exists (idempotent re-run),
+  //   b) orphaned rows currently violate referential integrity on an existing
+  //      database — the app-layer cleanup in deleteLibraryItem still runs,
+  //      and the constraint can be added manually after stale rows are purged
+  //      (see migration notes in README / report).
+  await safeQuery(`
+    ALTER TABLE playbook_rules
+      ADD CONSTRAINT fk_playbook_rules_library_item
+      FOREIGN KEY (library_item_id)
+      REFERENCES library_items(id)
+      ON DELETE CASCADE;
+  `);
+
   console.log("Idempotent column migrations applied.");
 }
 
@@ -511,6 +549,18 @@ async function setupDb() {
 
       -- Tenant scoping for playbooks (idempotent for existing DBs)
       ALTER TABLE playbook_rules ADD COLUMN IF NOT EXISTS organization_id VARCHAR(255);
+
+      -- Provenance link back to the source rulebook (library_items row) and its
+      -- owner. Without this, rules extracted from an uploaded playbook could not
+      -- be scoped to the rulebook the user selects in Negotiate, and rule ids
+      -- (e.g. R-IP-001) collided across different playbooks. New rows store a
+      -- namespaced id ("<library_item_id>::<rule_ref>") and carry the link here.
+      ALTER TABLE playbook_rules ADD COLUMN IF NOT EXISTS library_item_id VARCHAR(255);
+      ALTER TABLE playbook_rules ADD COLUMN IF NOT EXISTS user_id VARCHAR(255);
+      ALTER TABLE playbook_rules ADD COLUMN IF NOT EXISTS rule_ref VARCHAR(255);
+
+      CREATE INDEX IF NOT EXISTS idx_playbook_rules_library_item_id
+        ON playbook_rules (library_item_id);
 
       -- Draft workflow save / refine (saveStep, drafting-handler, negotiate)
       CREATE TABLE IF NOT EXISTS draft_state_ledger (
