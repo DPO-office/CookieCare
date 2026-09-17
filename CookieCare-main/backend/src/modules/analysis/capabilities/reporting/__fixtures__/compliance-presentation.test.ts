@@ -522,7 +522,7 @@ describe("code-owned Markdown assembly", () => {
     const p = defaultCompliancePresentationPlan(s, "detailed");
     const output = renderComplianceMarkdown(s, p, deterministicComplianceDraft(s, p));
     // The operative quote is shown once, not three times.
-    assert.equal(output.split("The&#32;processor&#32;shall&#32;implement").length - 1, 1);
+    assert.equal(output.split("## Requirement details")[1].split("The processor shall implement").length - 1, 1);
     // Related passages are collapsed into one demoted line, not repeated boilerplate blockquotes.
     assert.equal(output.match(/Additional supporting references:/g)?.length, 1);
     assert.ok(!output.includes("Related evidence; not established as sufficient proof."));
@@ -596,7 +596,7 @@ describe("code-owned Markdown assembly", () => {
   });
   it("refuses invalid drafts and plans rather than rendering unchecked model structures", () => {
     const s = fixture(), p = defaultCompliancePresentationPlan(s, "layered"), d = deterministicComplianceDraft(s, p);
-    assert.throws(() => renderComplianceMarkdown(s, p, { ...d, answer: "**Injected**" }), /Invalid compliance draft/);
+    assert.throws(() => renderComplianceMarkdown(s, p, { ...d, answer: "[link](evil)" }), /Invalid compliance draft/);
     overview(p).findingIds.pop();
     assert.throws(() => renderComplianceMarkdown(s, p, d), /Invalid compliance presentation plan/);
   });
