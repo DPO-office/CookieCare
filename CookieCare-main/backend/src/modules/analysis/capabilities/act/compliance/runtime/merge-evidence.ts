@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import type { CoverageIssue, VerificationBundle } from "../contracts/index.js";
 
 const issuesFor = (bundle: VerificationBundle): CoverageIssue[] => bundle.coverageIssues
-  ?? bundle.coverageReasons.map(reason => ({ reason, elementIds: [], evidenceIds: [], materiality: "immaterial" }));
+  ?? bundle.coverageReasons.map(reason => ({ reason, elementIds: [], evidenceIds: [], materiality: "unknown" }));
 
 /** Additional searches add evidence; they cannot silently discard previously located clauses. */
 export function mergeEvidenceBundles(previous: VerificationBundle, next: VerificationBundle): VerificationBundle {

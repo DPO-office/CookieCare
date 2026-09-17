@@ -125,7 +125,7 @@ describe("displayRequirementStatus", () => {
     assert.equal(displayRequirementStatus("conditional"), "Minor drafting gap");
     assert.equal(displayRequirementStatus("partial"), "Minor drafting gap");
     assert.equal(displayRequirementStatus("gap"), "Gap");
-    assert.equal(displayRequirementStatus("cannot_determine"), "Unresolved reference");
+    assert.equal(displayRequirementStatus("cannot_determine"), "Cannot determine");
     assert.equal(
       displayRequirementStatus({
         status: "cannot_determine",

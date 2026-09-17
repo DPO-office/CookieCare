@@ -101,9 +101,9 @@ export function displayFromStatus(status: RequirementStatus): string {
     case "not_applicable":
       return "Not applicable";
     case "cannot_determine":
-      return "Unresolved reference";
+      return "Cannot determine";
     default:
-      return "Unresolved reference";
+      return "Cannot determine";
   }
 }
 
@@ -112,7 +112,15 @@ export function displayFromJudgement(judgement: RequirementJudgement): string {
   // No related clause in the reviewed text — not a legal gap, just nothing to score.
   if (judgement.evidenceState === "not_found") return "Insufficient data";
   if (judgement.evidenceState === "truncated") return "Unresolved reference";
-  if (judgement.compliance === "insufficient_evidence") return "Unresolved reference";
+  if (judgement.compliance === "insufficient_evidence") {
+    const evidentiary =
+      judgement.evidenceState === "incorporated" ||
+      judgement.evidenceState === "unavailable";
+    if (evidentiary && judgement.referenceBinding !== "binding") {
+      return "Unresolved reference";
+    }
+    return "Cannot determine";
+  }
 
   if (judgement.compliance === "present") {
     if (
@@ -150,7 +158,7 @@ export function displayFromJudgement(judgement: RequirementJudgement): string {
   }
 
   if (judgement.compliance === "gap") return "Gap";
-  return "Unresolved reference";
+  return "Cannot determine";
 }
 
 /**

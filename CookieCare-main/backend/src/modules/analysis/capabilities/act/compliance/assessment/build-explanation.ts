@@ -2,11 +2,12 @@ import type { OutcomeExplanation, RequirementStatus, VerificationDecision, Verif
 
 function getCannotDetermineDetails(r: VerificationRequest, d?: VerificationDecision): { reason: string; action: string; conclusion: string } {
   const unresolvedDeps = d?.dependencies.filter(dep =>
-    dep.materiality === "material" &&
+    dep.materiality !== "immaterial" &&
     r.bundle.dependencies.find(x => x.id === dep.id)?.state !== "resolved_internal"
   );
-  if (unresolvedDeps?.length) {
-    const depNames = unresolvedDeps.map(dep => dep.id).join(", ");
+  const unresolvedDepElements = d?.elements.filter(e => e.state === "unresolved_dependency");
+  if (unresolvedDeps?.length || unresolvedDepElements?.length) {
+    const depNames = [...new Set([...(unresolvedDeps?.map(dep => dep.id) ?? []), ...(unresolvedDepElements?.map(e => e.elementId) ?? [])])].join(", ");
     return {
       reason: `The requirement references external or secondary material (${depNames}) whose content remains unsupplied or unresolved in the reviewed bundle.`,
       conclusion: `Cannot determine compliance: dependent schedule or external exhibit (${depNames}) is unresolved.`,
@@ -14,8 +15,22 @@ function getCannotDetermineDetails(r: VerificationRequest, d?: VerificationDecis
     };
   }
 
-  if (r.bundle.executionStatus !== "complete") {
-    const coverageStr = r.bundle.coverageReasons.length ? r.bundle.coverageReasons.join("; ") : "unresolved section coverage";
+  const fatalExecutionReasons = [
+    "role_budget:context",
+    "graph_missing",
+    "review_returned_unknown_node",
+    "source_quote_mismatch",
+    "semantic_review_unavailable",
+    "dependency_review_unavailable",
+    "source_identity_mismatch",
+    "unreadable_source",
+    "review_scope_unavailable",
+  ];
+  const fatalCoverage = r.bundle.coverageReasons.filter(reason =>
+    fatalExecutionReasons.some(fatal => reason === fatal || reason.startsWith(fatal + ":"))
+  );
+  if (r.bundle.executionStatus !== "complete" && (fatalCoverage.length > 0 || !r.bundle.passages.length)) {
+    const coverageStr = fatalCoverage.length ? fatalCoverage.join("; ") : (r.bundle.coverageReasons.length ? r.bundle.coverageReasons.join("; ") : "unresolved section coverage");
     return {
       reason: `Evidence retrieval across the document scope did not complete (${coverageStr}).`,
       conclusion: `Cannot determine compliance: document retrieval coverage was incomplete.`,
@@ -52,7 +67,7 @@ function getCannotDetermineDetails(r: VerificationRequest, d?: VerificationDecis
   }
 
   const materialConcerns = d?.elements.flatMap(e =>
-    [...e.limitations, ...e.conflicts].filter(c => c.materiality === "material").map(c => c.description)
+    [...e.limitations, ...e.conflicts].filter(c => c.materiality !== "immaterial").map(c => c.description)
   );
   if (materialConcerns?.length) {
     const concernStr = materialConcerns.join("; ");
@@ -87,7 +102,7 @@ export function buildExplanation(r: VerificationRequest, result: VerificationRes
     const unverified = r.check.rule?.elements.filter(e => !result.validatedElements?.some(v => v.elementId === e.id)).map(e => e.id) ?? [];
     gaps.push("Verification did not finish for: " + (unverified.join(", ") || "the complete check") + ". This is not proof that those provisions are absent.");
   }
-  gaps.push(...(d?.elements.flatMap(e=>[...e.limitations,...e.conflicts].filter(c=>c.materiality==="material").map(c=>c.description)) ?? []));
+  gaps.push(...(d?.elements.flatMap(e=>[...e.limitations,...e.conflicts].filter(c=>c.materiality!=="immaterial").map(c=>c.description)) ?? []));
   const title = r.check.rule?.title ?? r.check.ruleId;
   const remediationByElement = new Map((r.check.rule?.elements ?? []).map(element => [element.id,
     element.remediationGuidance?.trim() || `Address this missing requirement: ${element.description.trim()}`]));
@@ -119,7 +134,7 @@ export function buildExplanation(r: VerificationRequest, result: VerificationRes
       : status === "conflicting" || d?.elements.some(e => e.state === "contradicted") ? "Reconcile the conflicting provisions or obtain written clarification."
       : status === "judgment_required" ? "Obtain legal review of the unresolved interpretation."
       : status === "cannot_determine" ? cannotDetails!.action
-      : d?.dependencies.some(dep => dep.materiality === "material") ? "Obtain and review the referenced material, then complete the assessment."
+      : d?.dependencies.some(dep => dep.materiality !== "immaterial") ? "Obtain and review the referenced material, then complete the assessment."
       : status === "gap" ? specificRemedy || `Add an express provision addressing ${title.toLowerCase()}.`
       : specificRemedy || `Clarify the provision so it fully addresses ${title.toLowerCase()}.`,
   };

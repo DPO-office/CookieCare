@@ -1,7 +1,7 @@
 import type { AnalysisState } from "../../../../models/analysis-state.js";
 import type { ComplianceCheckOutcome } from "../contracts/index.js";
 import type { ComplianceReportSnapshot, ComplianceReportRow } from "../../../../models/compliance-report.js";
-const labels = { present: "Present", partial: "Partial", gap: "Gap", cannot_determine: "Unresolved reference", not_applicable: "Not applicable", conflicting: "Conflicting", judgment_required: "Judgment required", verification_incomplete: "Verification incomplete" } as const;
+const labels = { present: "Present", partial: "Partial", gap: "Gap", cannot_determine: "Cannot determine", not_applicable: "Not applicable", conflicting: "Conflicting", judgment_required: "Judgment required", verification_incomplete: "Verification incomplete" } as const;
 const NAMED_LABEL = /^\s*(Section|Clause|Article|Paragraph|Schedule|Appendix|Annex(?:ure)?|Exhibit)\s+([A-Za-z0-9]+(?:[.\-][A-Za-z0-9]+)*(?:\([a-z0-9ivx]+\))*)/i;
 const LEADING_NUMBER = /^\s*(\d+(?:\.\d+)*(?:\([a-z0-9ivx]+\))*)(?:[.)])?(?=\s|$)/;
 const LEADING_SUBPART = /^\s*(\([a-z0-9ivx]+\))(?=\s|$)/i;

@@ -198,7 +198,7 @@ export function buildRequirementEvidenceBundle(args: {
     const orientationOnly = exclusion.reason.startsWith("role_budget:");
     return { reason: exclusion.reason, evidenceIds: exclusion.nodeId ? [exclusion.nodeId] : [],
       elementIds: decision?.contributesToElementIds ?? [],
-      materiality: "immaterial" as const };
+      materiality: orientationOnly ? "immaterial" as const : "unknown" as const };
   });
 
   const counts: Record<RetrievalChannel, number> = { exact: 0, sparse: 0, dense: 0 };

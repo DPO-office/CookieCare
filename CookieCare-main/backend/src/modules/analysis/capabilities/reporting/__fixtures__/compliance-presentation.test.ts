@@ -9,7 +9,7 @@ import {
 } from "../compliance-presentation.js";
 
 const statuses = ["present", "partial", "gap", "cannot_determine", "not_applicable", "conflicting", "judgment_required", "verification_incomplete"] as const;
-const labels = ["Present", "Partial", "Gap", "Unresolved reference", "Not applicable", "Conflicting", "Judgment required", "Verification incomplete"];
+const labels = ["Present", "Partial", "Gap", "Cannot determine", "Not applicable", "Conflicting", "Judgment required", "Verification incomplete"];
 const modes: CompliancePresentationMode[] = ["layered", "short", "detailed", "narrative", "table_only"];
 function fixture(selected: readonly ComplianceReportRow["status"][] = statuses): ComplianceReportSnapshot {
   return {

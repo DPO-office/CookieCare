@@ -76,14 +76,17 @@ test("optional answer linkage cannot erase a valid evidence matrix", () => {
   assert.ok(checked.warnings?.includes("unlinked_answer:user_request"));
 });
 
-test("missing dependency assessments default to immaterial unless proven material", async () => {
+test("missing dependency assessments remain unknown and request evidence even if all elements supported", async () => {
   const r = requestFixture(); r.bundle.dependencies = [{ id: "dep-1", edgeId: "reference-1", sourceNodeId: "node", targetNodeIds: ["appendix"], state: "unresolved_internal", effect: "subject_to", targetMention: "Appendix 2" }];
   const result = await verifyRequirement(r, async () => wire(r), signal());
   assert.equal(result.kind, "verified");
   if (result.kind === "verified") {
-    assert.equal(result.decision.dependencies[0].materiality, "immaterial");
+    assert.equal(result.decision.dependencies[0].materiality, "unknown");
+    assert.deepEqual(result.additionalEvidence?.dependencyIds, ["dep-1"]);
+    assert.deepEqual(result.additionalEvidence?.targetNodeIds, ["appendix"]);
+    assert.ok(result.additionalEvidence?.queries.includes("Appendix 2"));
     result.decision.reviewRequired = [];
-    assert.equal(assessRequirement(r, result), "present");
+    assert.equal(assessRequirement(r, result), "partial");
   }
   const bad = wire(r); bad.dependencies = [{ id: "invented", elementIds: [], materiality: "immaterial", reason: "Invented" }];
   assert.ok(validateVerification(bad, r).errors.some(e => e.startsWith("invalid_dependency:")));
@@ -204,7 +207,7 @@ test("additional searches preserve earlier omissions until the omitted text arri
   next.passages.push({ ...next.passages[0], evidenceId: "omitted", nodeId: "omitted" });
   assert.deepEqual(mergeEvidenceBundles(previous, next).coverageIssues, []);
   delete previous.coverageIssues;
-  assert.equal(mergeEvidenceBundles(previous, next).coverageIssues?.[0].materiality, "immaterial");
+  assert.equal(mergeEvidenceBundles(previous, next).coverageIssues?.[0].materiality, "unknown");
 });
 
 test("receiving a known dependency target resolves the bundle omission, not an unknown reference", () => {

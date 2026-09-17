@@ -9,7 +9,7 @@ import type {
 // Recommendation wording may be synthesized from locked verification fields and is validated here.
 // The planner controls layout only; the writer controls answer/assessment/explanation only.
 const LABELS: Record<ComplianceReportRow["status"], string> = {
-  present: "Present", partial: "Partial", gap: "Gap", cannot_determine: "Unresolved reference",
+  present: "Present", partial: "Partial", gap: "Gap", cannot_determine: "Cannot determine",
   not_applicable: "Not applicable", conflicting: "Conflicting", judgment_required: "Judgment required",
   verification_incomplete: "Verification incomplete",
 };

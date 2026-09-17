@@ -16,10 +16,10 @@ export async function reviewDecision(r: VerificationRequest, first: Verification
     applicability: v.decision.applicability.state,
     elements: [...v.decision.elements].sort((a, b) => a.elementId.localeCompare(b.elementId)).map(e => [
       e.elementId, e.state, e.applicability.state, e.actorScope.relationshipScope,
-      e.limitations.filter(c=>c.materiality==="material").map(c=>[c.materiality,[...c.evidenceIds].sort()]).sort(),
-      e.conflicts.filter(c=>c.materiality==="material").map(c=>[c.materiality,[...c.evidenceIds].sort()]).sort(),
+      e.limitations.filter(c=>c.materiality!=="immaterial").map(c=>[c.materiality,[...c.evidenceIds].sort()]).sort(),
+      e.conflicts.filter(c=>c.materiality!=="immaterial").map(c=>[c.materiality,[...c.evidenceIds].sort()]).sort(),
     ]),
-    dependencies: [...v.decision.dependencies].filter(d=>d.materiality==="material")
+    dependencies: [...v.decision.dependencies].filter(d=>d.materiality!=="immaterial")
       .sort((a, b) => a.id.localeCompare(b.id)).map(d => [d.id, d.materiality, [...d.elementIds].sort()])
   });
   const firstSignature = signature(first), secondSignature = signature(second);
