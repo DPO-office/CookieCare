@@ -26,6 +26,12 @@ export const COMPLIANCE_REPORTING_EXAMPLES: ReportingExample[] = [
     signals: [/\bannex|appendix|schedule|incorporat|referenced material|missing document\b/i],
     annotation: `Composition example — missing dependency: state what the reviewed agreement says, identify the incorporated material that was unavailable, and qualify the affected conclusion nearby. Do not convert unavailable material into a contract gap, and consolidate the supported next step instead of repeating it in unrelated prose.`,
   },
+  {
+    id: "partial-element-breakdown",
+    version: "1.0.0",
+    signals: [/\bpartial|missing element|supported element|processor assist\b/i, /\bArt(?:icle)?\.?\s*28\b/i],
+    annotation: `Composition example — partial element breakdown: when a finding is partial, the assessment cell must name the elements the document establishes first, then name the specific absent element(s). Do not write "partially satisfies" or "partially met" without listing which elements are present and which are missing. The explanation must open by describing the supported obligation(s), then state which specific element(s) are absent by their plain-English label. The recommendedAction must name each missing element and state exactly what clause or proviso addition would cure the gap — not a generic "amend the provisions" instruction.`,
+  },
 ];
 
 function reportingSignals(instruction: string, snapshot?: ComplianceReportSnapshot): string {

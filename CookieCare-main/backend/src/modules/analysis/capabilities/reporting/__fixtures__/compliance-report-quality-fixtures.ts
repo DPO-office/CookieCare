@@ -7,7 +7,7 @@ import type {
 import { defaultCompliancePresentationPlan } from "../compliance-presentation.js";
 
 const STATUS_LABELS: Record<ComplianceReportRow["status"], ComplianceReportRow["statusLabel"]> = {
-  present: "Present", partial: "Partial", gap: "Gap", cannot_determine: "Cannot determine",
+  present: "Present", partial: "Partial", gap: "Gap", cannot_determine: "Unresolved reference",
   not_applicable: "Not applicable", conflicting: "Conflicting", judgment_required: "Judgment required",
   verification_incomplete: "Verification incomplete",
 };

@@ -111,8 +111,16 @@ export function displayFromJudgement(judgement: RequirementJudgement): string {
   if (judgement.compliance === "not_applicable") return "Not applicable";
   // No related clause in the reviewed text — not a legal gap, just nothing to score.
   if (judgement.evidenceState === "not_found") return "Insufficient data";
-  if (judgement.evidenceState === "truncated") return "Cannot determine";
-  if (judgement.compliance === "insufficient_evidence") return "Cannot determine";
+  if (judgement.evidenceState === "truncated") return "Unresolved reference";
+  if (judgement.compliance === "insufficient_evidence") {
+    const evidentiary =
+      judgement.evidenceState === "incorporated" ||
+      judgement.evidenceState === "unavailable";
+    if (evidentiary && judgement.referenceBinding !== "binding") {
+      return "Unresolved reference";
+    }
+    return "Cannot determine";
+  }
 
   if (judgement.compliance === "present") {
     if (
@@ -144,7 +152,7 @@ export function displayFromJudgement(judgement: RequirementJudgement): string {
       return "Present, particulars in schedule";
     }
     if (evidentiary && judgement.referenceBinding !== "binding") {
-      return "Cannot determine";
+      return "Unresolved reference";
     }
     return "Minor drafting gap";
   }

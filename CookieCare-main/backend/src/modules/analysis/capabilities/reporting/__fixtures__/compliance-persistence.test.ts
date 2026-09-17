@@ -18,7 +18,7 @@ const statuses: Array<[ComplianceReportRow["status"], ComplianceReportRow["statu
   ["present", "Present"],
   ["partial", "Partial"],
   ["gap", "Gap"],
-  ["cannot_determine", "Cannot determine"],
+  ["cannot_determine", "Unresolved reference"],
   ["not_applicable", "Not applicable"],
   ["conflicting", "Conflicting"],
   ["judgment_required", "Judgment required"],

@@ -16,10 +16,12 @@ export function assessRequirementWithReason(request: VerificationRequest, result
   const d = result.decision;
 
   const loadBearing = (reason: string): boolean => {
-    if (!reason.startsWith("role_reassessment:")) return true;
-    const elementId = reason.slice("role_reassessment:".length);
-    const element = d.elements.find(e => e.elementId === elementId);
-    return !element?.citations.some(c => c.use === "proof" && c.originalRole === "primary");
+    if (reason.startsWith("role_reassessment:")) {
+      const elementId = reason.slice("role_reassessment:".length);
+      const element = d.elements.find(e => e.elementId === elementId);
+      return !element?.citations.some(c => c.use === "proof" && c.originalRole === "primary");
+    }
+    return reason === "semantic_disagreement" || reason === "cross_rule_conflict" || reason === "review_unavailable";
   };
   const reviewRequired = d.reviewRequired.filter(loadBearing);
   if (reviewRequired.length) {
@@ -46,10 +48,28 @@ export function assessRequirementWithReason(request: VerificationRequest, result
 
   const elements = d.elements.filter(e => relevant.has(e.elementId) && e.applicability.state !== "not_applicable");
 
+  if (relevant.size > 0 && elements.length === 0)
+    return decide("cannot_determine", "empty_applicable_group", { elements: d.elements });
+
   if (elements.some(e => e.conflicts.some(c => c.materiality === "material")) || d.elements.some(e => relevant.has(e.elementId) && e.state === "contradicted"))
     return decide("conflicting", "material_conflict", { elements });
 
-  if (request.bundle.executionStatus !== "complete")
+  const fatalExecutionReasons = [
+    "role_budget:context",
+    "graph_missing",
+    "review_returned_unknown_node",
+    "source_quote_mismatch",
+    "semantic_review_unavailable",
+    "dependency_review_unavailable",
+    "source_identity_mismatch",
+    "unreadable_source",
+    "review_scope_unavailable",
+  ];
+  const hasFatalCoverage = request.bundle.coverageReasons?.some(reason =>
+    fatalExecutionReasons.some(fatal => reason === fatal || reason.startsWith(fatal + ":"))
+  ) ?? false;
+
+  if (request.bundle.executionStatus === "unknown" || (request.bundle.executionStatus === "incomplete" && (hasFatalCoverage || !request.bundle.passages.length)))
     return decide("cannot_determine", "investigation_execution_not_complete", { executionStatus: request.bundle.executionStatus, coverageReasons: request.bundle.coverageReasons, unestablishedElementIds: request.bundle.unestablishedElementIds });
 
   if (request.check.rule.relationshipScopes.length && elements.some(e =>
@@ -73,13 +93,23 @@ export function assessRequirementWithReason(request: VerificationRequest, result
   const aggregation = aggregateElements(request.check.rule.aggregation, d.elements, request.check.rule.elements);
 
   if (aggregation.state === "satisfied") {
-    if (hasUnknownLimitations || hasUnknownDependencies || hasUnknownCoverage) {
-      if (hasUnknownLimitations) return decide("cannot_determine", "material_or_unknown_concern", { elements });
-      if (hasUnknownDependencies) return decide("cannot_determine", "unresolved_material_dependency", { decisions: d.dependencies, dependencies: request.bundle.dependencies, relevantElementIds: [...relevant] });
-      return decide("cannot_determine", "coverage_materiality_unknown", { coverageReasons: request.bundle.coverageReasons });
-    }
-    if (hasMaterialLimitations || hasMaterialDependencies || hasMaterialCoverageOmission) {
-      return decide("partial", "qualified_satisfaction", { aggregation, hasMaterialLimitations, hasMaterialDependencies, hasMaterialCoverageOmission });
+    if (
+      hasUnknownLimitations ||
+      hasUnknownDependencies ||
+      hasUnknownCoverage ||
+      hasMaterialLimitations ||
+      hasMaterialDependencies ||
+      hasMaterialCoverageOmission
+    ) {
+      return decide("partial", "qualified_satisfaction", {
+        aggregation,
+        hasMaterialLimitations,
+        hasMaterialDependencies,
+        hasMaterialCoverageOmission,
+        hasUnknownLimitations,
+        hasUnknownDependencies,
+        hasUnknownCoverage,
+      });
     }
     return decide("present", "aggregation_satisfied", { aggregation });
   }
@@ -88,8 +118,8 @@ export function assessRequirementWithReason(request: VerificationRequest, result
     return decide("partial", "aggregation_partial", { aggregation });
   }
 
-  if (d.applicability.state === "unknown") {
-    return decide("cannot_determine", "applicability_unknown", { applicability: d.applicability });
+  if (d.applicability.state === "unknown" || aggregation.state === "unknown") {
+    return decide("cannot_determine", d.applicability.state === "unknown" ? "applicability_unknown" : "indeterminate_aggregation", { applicability: d.applicability, aggregation });
   }
 
   return decide("gap", "aggregation_shortfall", { aggregation });

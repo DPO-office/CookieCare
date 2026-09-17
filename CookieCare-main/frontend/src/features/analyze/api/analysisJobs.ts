@@ -184,7 +184,7 @@ export function waitForAnalysisJob(
         finish({
           kind: "success",
           sessionId: sessionId || undefined,
-          report: report || "Analysis complete.",
+          report: report || (result.status === "blocked" ? "Analysis completed, but report validation was blocked. Please check document coverage and retry." : "Analysis completed with no report generated."),
           findings: result.findings ?? [],
           result,
         });

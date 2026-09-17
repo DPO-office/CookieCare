@@ -40,6 +40,8 @@ export enum LLMTask {
   DETECT_GAPS = "DETECT_GAPS",
   /** PAC: checklist critique quality gate (strongest reasoning) */
   CRITIQUE_CHECKLIST = "CRITIQUE_CHECKLIST",
+  /** Compliance verification judge (deliberate reasoning, fast tier) */
+  VERIFY_COMPLIANCE = "VERIFY_COMPLIANCE",
 }
 
 export enum LLMProvider {
@@ -141,6 +143,12 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
       maxOutputTokens: 4096,
       thinkingLevel: "high",
     },
+    [LLMTask.VERIFY_COMPLIANCE]: {
+      model: GeminiModel.GEMINI_3_6_FLASH,
+      temperature: 0.0,
+      responseMimeType: "application/json",
+      thinkingLevel: "low",
+    },
   },
   [LLMProvider.OPENROUTER]: {
     [LLMTask.FAST_STITCH]: {
@@ -185,6 +193,11 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
       temperature: 0.0,
       responseMimeType: "application/json",
       maxOutputTokens: 4096,
+    },
+    [LLMTask.VERIFY_COMPLIANCE]: {
+      model: OpenRouterModel.CLAUDE_3_5_SONNET,
+      temperature: 0.0,
+      responseMimeType: "application/json",
     },
   },
 };
