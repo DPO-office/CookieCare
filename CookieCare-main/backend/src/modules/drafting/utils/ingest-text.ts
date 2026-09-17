@@ -39,9 +39,13 @@ export async function extractIngestText(payload: {
     throw new Error("Ingest extraction requires fileUrl or fileBufferBase64.");
   }
 
-  const text = await extractText(buffer, mimeType);
+  // extractText returns an ExtractionResult ({ text, pageBreaks? }), NOT a bare
+  // string. Destructure it — treating the object as a string previously threw
+  // "text.replace is not a function" and left ingest jobs stuck/failed.
+  const { text } = await extractText(buffer, mimeType);
+  const rawText = typeof text === "string" ? text : String(text ?? "");
 
-  const cleaned = text.replace(/\0/g, "").trim();
+  const cleaned = rawText.replace(/\0/g, "").trim();
   if (!cleaned) {
     throw new Error("Could not extract readable text from the uploaded file.");
   }

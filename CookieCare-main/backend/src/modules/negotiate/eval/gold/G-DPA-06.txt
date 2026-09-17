@@ -1,0 +1,23 @@
+DATA PROCESSING AGREEMENT (CONTROLLED DEDUP FIXTURE)
+
+1. Definitions. "Processor" means Vendor; "Controller" means Customer. "Personal Data" has the meaning given under applicable data protection law.
+
+2. Processing. Processor shall process Personal Data only to provide the Services.
+
+3. Sub-processors. Processor may appoint new sub-processors at any time without prior notice to, or prior consent from, Controller. Controller shall have no right to object to any sub-processor appointed by Processor.
+
+4. Security Incidents. In the event of a security breach affecting Personal Data, Processor shall notify Controller without undue delay. No fixed time period for such notification is specified in this Agreement.
+
+5. Deletion. Upon termination, Processor shall delete Personal Data within a commercially reasonable period.
+
+6. Liability. Processor's liability under this Agreement is unlimited, and Processor shall indemnify Controller for any and all losses without cap or limitation of any kind.
+
+7. Audit. Controller may audit Processor once per year at Controller's own expense.
+
+8. Governing Law. This Agreement shall be governed by the laws of the Cayman Islands, and the courts of the Cayman Islands shall have exclusive jurisdiction.
+
+ANNEX A - SUB-PROCESSING TERMS
+A.1 For the avoidance of doubt, Processor may engage sub-processors at any time without prior notice to, or prior consent from, Controller, and Controller waives any right to object to such sub-processors.
+
+ANNEX B - SECURITY MEASURES
+B.1 Breach notification: Processor will inform Controller of any Personal Data breach without undue delay; the parties acknowledge that no specific deadline (such as 72 hours) applies under this Agreement.

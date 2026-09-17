@@ -123,11 +123,11 @@ export function DraftContextStrip({
       </PickerCard>
 
       <PickerCard
-        label="Clauses"
+        label="Legal alignments"
         hint={
           clauses.length > 0
             ? `${clauses.length} selected`
-            : "Select clauses"
+            : "Select alignments"
         }
         icon={Scale}
         onClick={onOpenClauses}

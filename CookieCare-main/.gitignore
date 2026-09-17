@@ -30,3 +30,21 @@ drafting-module-context.md
 /.pdfium/
 
 /test
+# Diagnostic / debug scripts output
+backend/scripts/diag-*.ts
+backend/scripts/diagnose-*.ts
+backend/scripts/trace-*.ts
+backend/scripts/dump-*.ts
+backend/scripts/replay-*.ts
+backend/scripts/evaluate-*.ts
+backend/scripts/validate-*.ts
+backend/scripts/affected.json
+backend/scripts/live-job-eval.json
+backend/scripts/mastercard-replay-summary.json
+backend/scripts/_*.txt
+frontend/tsc_errors.txt
+tsc-errors.txt
+.claude/
+.vscode/
+# Generated negotiation evaluation outputs
+backend/src/modules/negotiate/eval/_out/

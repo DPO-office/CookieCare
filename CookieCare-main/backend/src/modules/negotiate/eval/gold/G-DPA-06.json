@@ -1,0 +1,58 @@
+{
+  "docFixtureId": "G-DPA-06",
+  "goldVersion": "0.1.0",
+  "synthetic": true,
+  "inlineTextFile": "G-DPA-06.txt",
+  "notes": "Controlled dedup fixture: two obligations each stated in TWO places (body + annex). A correct evaluator must collapse each pair into ONE finding. Content and labels are consistent by construction. This is the authoritative dedup benchmark; do NOT rely on G-DPA-01 dedup numbers.",
+  "findings": [
+    {
+      "id": "d6-subproc-body", "docId": "G-DPA-06", "kind": "issue",
+      "anchor": { "headingPath": "§3 Sub-processors", "quote": "Processor may appoint new sub-processors at any time without prior notice to, or prior consent from, Controller" },
+      "issueTag": "subprocessor_no_notice_no_consent", "ruleId": "dpa.subprocessor_flowdown_present",
+      "expectedSeverityBand": "RED", "importance": "must_catch", "dupGroup": "DUP6-subproc",
+      "matchKeywords": ["without prior notice", "no right to object"], "keywordMinHits": 1,
+      "notes": "Location 1 of the sub-processor no-notice/no-consent issue."
+    },
+    {
+      "id": "d6-subproc-annex", "docId": "G-DPA-06", "kind": "issue",
+      "anchor": { "headingPath": "Annex A.1 Sub-processing Terms", "quote": "Processor may engage sub-processors at any time without prior notice to, or prior consent from, Controller, and Controller waives any right to object" },
+      "issueTag": "subprocessor_no_notice_no_consent", "ruleId": "dpa.subprocessor_flowdown_present",
+      "expectedSeverityBand": "RED", "importance": "should_catch", "dupGroup": "DUP6-subproc",
+      "matchKeywords": ["without prior notice", "waives any right to object"], "keywordMinHits": 1,
+      "notes": "Location 2 of the SAME sub-processor issue — must collapse with d6-subproc-body into ONE finding."
+    },
+    {
+      "id": "d6-breach-body", "docId": "G-DPA-06", "kind": "issue",
+      "anchor": { "headingPath": "§4 Security Incidents", "quote": "Processor shall notify Controller without undue delay. No fixed time period for such notification is specified" },
+      "issueTag": "breach_notice_no_deadline",
+      "expectedSeverityBand": "YELLOW", "importance": "must_catch", "dupGroup": "DUP6-breach",
+      "matchKeywords": ["without undue delay", "no fixed time period"], "keywordMinHits": 1,
+      "notes": "Location 1 of the breach-notification-no-deadline issue."
+    },
+    {
+      "id": "d6-breach-annex", "docId": "G-DPA-06", "kind": "issue",
+      "anchor": { "headingPath": "Annex B.1 Security Measures", "quote": "Processor will inform Controller of any Personal Data breach without undue delay; the parties acknowledge that no specific deadline" },
+      "issueTag": "breach_notice_no_deadline",
+      "expectedSeverityBand": "YELLOW", "importance": "should_catch", "dupGroup": "DUP6-breach",
+      "matchKeywords": ["without undue delay", "no specific deadline"], "keywordMinHits": 1,
+      "notes": "Location 2 of the SAME breach issue — must collapse with d6-breach-body into ONE finding."
+    },
+
+    {
+      "id": "d6-liability", "docId": "G-DPA-06", "kind": "issue",
+      "anchor": { "headingPath": "§6 Liability", "quote": "Processor's liability under this Agreement is unlimited" },
+      "issueTag": "unlimited_liability_uncapped_indemnity",
+      "expectedSeverityBand": "RED", "importance": "must_catch",
+      "matchKeywords": ["unlimited", "without cap"], "keywordMinHits": 1,
+      "notes": "Distinct (non-dup) control issue — should be a single finding, not merged with anything."
+    },
+    {
+      "id": "d6-govlaw", "docId": "G-DPA-06", "kind": "issue",
+      "anchor": { "headingPath": "§8 Governing Law", "quote": "governed by the laws of the Cayman Islands" },
+      "issueTag": "foreign_governing_law",
+      "expectedSeverityBand": "YELLOW", "importance": "should_catch",
+      "matchKeywords": ["cayman islands"], "keywordMinHits": 1,
+      "notes": "Distinct (non-dup) control issue."
+    }
+  ]
+}

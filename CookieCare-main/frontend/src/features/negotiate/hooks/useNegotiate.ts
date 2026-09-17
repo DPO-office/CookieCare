@@ -1,13 +1,29 @@
 import { useState, useEffect, useRef } from "react";
 import type { MouseEvent } from "react";
 import { LegalDocument } from "../../../shared/types";
-import { AgentMarkup, NegotiationContext, NegotiationStrategy, StrategyDraftResult } from "../types";
+import { AgentMarkup, NegotiationContext, NegotiationStrategy, StrategyDraftResult, NegotiationFindingDTO } from "../types";
 import {
-  evaluateDocument, acceptRedline,
+  acceptRedline,
   rejectRedline, generateCompromise, fetchDocumentDetails,
   saveNegotiationStep, exportDocument, fetchNegotiationContext,
-  fetchNegotiationStrategy,
+  fetchNegotiationStrategy, resolveNegotiationSession, rejectFinding,
 } from "../api/negotiateApi";
+
+/** Maps a persisted finding row back to the AgentMarkup shape the existing
+ *  rendering/highlighting/accept code already works with — no new UI surface
+ *  needed for Phase 2. */
+function findingToMarkup(f: NegotiationFindingDTO): AgentMarkup {
+  return {
+    clauseId: f.clauseId,
+    original: f.original,
+    replacement: f.replacement,
+    reasoning: f.reasoning,
+    riskLevel: f.riskLevel,
+    clauseType: f.clauseType,
+    charOffset: f.charOffset ?? undefined,
+    matchedPlaybookTopic: f.matchedPlaybookTopic,
+  };
+}
 
 // ─── Clause-location helper ───────────────────────────────────────────────────
 //
@@ -54,20 +70,67 @@ function locateClauseForSplice(
 
   // ── Strategy 1: charOffset anchor ─────────────────────────────────────────
   // The backend resolves charOffset against the same plain-text used for
-  // evaluation, so it is the most reliable anchor when available.
+  // evaluation, so it is the most reliable start anchor when available.
+  //
+  // P1-2 FIX: The old code computed end = off + original.length, which is
+  // wrong when the stored document uses \r\n line endings (2 bytes per break)
+  // but the LLM extracted original with \n (1 byte per break). The mismatch
+  // leaves trailing characters in the document after the splice.
+  //
+  // Fix: once we confirm the start via normalised comparison, find the end
+  // by walking the normalised shadow (Strategy 3's posMap) anchored at the
+  // verified start, so the end maps precisely back to the raw document
+  // regardless of line-ending variants. This is the same approach used by
+  // Strategy 3 and the manual-selection tightening loop.
+  //
+  // If the normalised walk cannot establish a confident end (normNeedle too
+  // short or not found in the anchored region), we fall through to Strategy 2
+  // rather than making a speculative splice with a wrong end offset.
   if (typeof markup.charOffset === "number" && markup.charOffset >= 0) {
     const off = markup.charOffset;
-    // Verify the region at charOffset actually matches the original text using
-    // normalised comparison (the content may have been edited since evaluation).
-    const candidate = content.slice(off, off + original.length + 200);
     const normOrig = normaliseForMatch(original);
-    const normCand = normaliseForMatch(candidate.slice(0, original.length + 50));
-    // Accept if the leading portion of the candidate matches the original well.
-    if (normCand.startsWith(normOrig.slice(0, Math.min(normOrig.length, 60)))) {
-      // Find the exact end by scanning forward from charOffset.
-      // Use raw length first; fall back to normalised-length estimate.
-      const rawEnd = off + original.length;
-      return { start: off, end: Math.min(rawEnd, content.length) };
+    // Verify the region at charOffset starts with the original (normalised).
+    // Use a generous window to absorb minor offset drift.
+    const verifyWindow = content.slice(off, off + original.length + 200);
+    const normVerify = normaliseForMatch(verifyWindow.slice(0, original.length + 50));
+    if (normOrig.length >= 10 && normVerify.startsWith(normOrig.slice(0, Math.min(normOrig.length, 60)))) {
+      // Start is verified. Now find the precise end using the normalised shadow
+      // anchored from `off` so \r\n vs \n differences don't affect the end.
+      // Build a normalised shadow only of the region we care about (a window
+      // large enough to contain the original even with \r\n expansion).
+      const searchRegion = content.slice(off, off + original.length + 400);
+      const regionNormChars: string[] = [];
+      const regionPosMap: number[] = [];
+      let rPrevSpace = false;
+      for (let i = 0; i < searchRegion.length; i++) {
+        const ch = normalisePunctuation(searchRegion[i]);
+        if (/[\s\r\n\t\u00A0]/.test(ch)) {
+          if (!rPrevSpace) {
+            regionNormChars.push(" ");
+            regionPosMap.push(i);
+            rPrevSpace = true;
+          }
+        } else {
+          regionNormChars.push(ch.toLowerCase());
+          regionPosMap.push(i);
+          rPrevSpace = false;
+        }
+      }
+      const regionNormStr = regionNormChars.join("");
+      // The normalised original must appear at the start of this region
+      // (offset 0 in the shadow, since we sliced starting from off).
+      const normIdx = regionNormStr.indexOf(normOrig);
+      if (normIdx === 0 || (normIdx > 0 && normIdx <= 5)) {
+        // normIdx should be 0; small positive tolerance for leading whitespace.
+        const normEndInRegion = normIdx + normOrig.length - 1;
+        if (normEndInRegion < regionPosMap.length) {
+          // Map back to raw document: off + the region-relative raw position + 1
+          const rawEnd = off + regionPosMap[normEndInRegion] + 1;
+          return { start: off, end: Math.min(rawEnd, content.length) };
+        }
+      }
+      // Normalised walk couldn't establish the end confidently — fall through
+      // to Strategy 2/3 which build their own posMap from scratch.
     }
   }
 
@@ -356,9 +419,15 @@ export function useNegotiate({
     try {
       const fullDoc = await fetchDocumentDetails(authToken, docId);
       setActiveDoc(fullDoc);
-      runMultiAgentEvaluation(docId, fullDoc.content, { title: fullDoc.title, type: fullDoc.type });
-    } catch (err) {
+      initializeNegotiation(docId);
+    } catch (err: any) {
       console.error("Error fetching document details:", err);
+      // Surface the failure instead of leaving a blank viewer, and RESET the
+      // load guard so re-selecting the same document retries. Without this, a
+      // single failed load (e.g. a transient timeout) permanently blocked that
+      // document from loading and left no visible error.
+      loadedDocIdRef.current = null;
+      setEvaluationError(err?.message ?? "Failed to load document. Please try again.");
     }
   };
 
@@ -370,22 +439,52 @@ export function useNegotiate({
     loadActiveDocumentDetails(docId);
   }, [activeDocument?.id]);
 
-  const runMultiAgentEvaluation = async (
-    docId: string, docContent: string, metadata: { title: string; type: string }
-  ) => {
-    if (!docContent) return;
-    if (evaluatingDocId === docId) return;
+  /**
+   * Phase 2: the single initialization path. Resolves (resumes or creates)
+   * the negotiation session for this document — replaces the previous
+   * unconditional /evaluate call. Resuming performs NO LLM call.
+   *
+   * forceNew=true is used by "Re-run evaluation" (rerunEvaluation below):
+   * the current active session is marked superseded server-side (history
+   * preserved) and a fresh one is created from a new evaluation.
+   */
+  const initializeNegotiation = async (docId: string, forceNew = false) => {
+    if (!docId) return;
+    if (evaluatingDocId === docId && !forceNew) return;
     const requestId = ++evalRequestIdRef.current;
     setEvaluatingDocId(docId);
     setEvaluating(true);
     setEvaluationError("");
     setNegotiationContext(null);
     setNegotiationStrategy(null);
+    setStrategyDraftResult(null);
     try {
-      const { markups } = await evaluateDocument(authToken, docContent, metadata.title, metadata.type, selectedPlaybook?.id);
+      const { findings, resumed, stale } = await resolveNegotiationSession(authToken, {
+        documentId: docId,
+        playbookId: selectedPlaybook?.id,
+        forceNew,
+      });
       if (requestId !== evalRequestIdRef.current) return;
+
+      const pending = findings.filter((f) => f.status === "pending");
+      const markups = pending.map(findingToMarkup);
       setAgentMarkups(markups);
-      setSelectedMarkup(markups.length > 0 ? markups[0] : null);
+
+      const firstPending = pending.length > 0 ? pending[0] : null;
+      setSelectedMarkup(firstPending ? findingToMarkup(firstPending) : null);
+      // Restore cached per-clause context/strategy/draft for whichever
+      // finding becomes selected, so reopening doesn't force a re-fetch.
+      if (firstPending) {
+        if (firstPending.contextJson) setNegotiationContext(firstPending.contextJson);
+        if (firstPending.strategyJson) setNegotiationStrategy(firstPending.strategyJson);
+        if (firstPending.draftResultJson) setStrategyDraftResult(firstPending.draftResultJson);
+      }
+
+      if (resumed && stale) {
+        showNegotiateError(
+          "This document changed outside this negotiation session — some findings may no longer align exactly. Consider Re-run evaluation."
+        );
+      }
     } catch (err: any) {
       if (requestId === evalRequestIdRef.current) setEvaluationError(err.message);
     } finally {
@@ -503,18 +602,75 @@ export function useNegotiate({
       const updatedContent =
         content.slice(0, splice.start) + markup.replacement + content.slice(splice.end);
 
-      const nextVersion = (activeDoc.versions?.length || 1) + 1;
+      const baseVersion = activeDoc.versions?.length || 0;
+      const nextVersion = baseVersion + 1;
       const minAnimation = new Promise((resolve) => setTimeout(resolve, 950));
 
-      await Promise.all([
-        saveNegotiationStep(authToken, activeDoc.id, updatedContent, nextVersion),
+      const [saveResult] = await Promise.all([
+        // Phase 2: passing clauseId folds "mark this finding accepted" into
+        // the SAME atomic transaction as the content/version/ledger save —
+        // see /save-step. Synthetic "manual-*" clauseIds (not a persisted
+        // finding) are silently ignored server-side; content-only save
+        // proceeds unchanged.
+        saveNegotiationStep(authToken, activeDoc.id, updatedContent, nextVersion, baseVersion, markup.clauseId),
         minAnimation,
       ]);
 
-      setActiveDoc((prev) => (prev ? { ...prev, content: updatedContent } : prev));
+      // ── F-1 FIX: keep the client's version count in sync after an Accept ────
+      // A successful Accept creates exactly ONE new document version on the
+      // server. `baseVersion` for the NEXT Accept is derived from
+      // `activeDoc.versions.length`, so if we update `content` without also
+      // recording the new version, the next Accept sends a stale baseVersion and
+      // the server's optimistic-concurrency check returns 409 ("modified since
+      // you last loaded it"). Appending one local version entry keeps the count
+      // aligned so 3+ sequential Accepts work without a reload. The authoritative
+      // versions (with server ids) reload on the next document open.
+      //
+      // Exception: the idempotent `alreadyAccepted` response (double-accept of
+      // the same finding) does NOT create a server version — do not append then,
+      // or the client would over-count and 409 in the other direction.
+      const createdVersion = !(saveResult && (saveResult as any).alreadyAccepted);
+      setActiveDoc((prev) => {
+        if (!prev) return prev;
+        if (!createdVersion) return { ...prev, content: updatedContent };
+        const newVersion = {
+          version: nextVersion,
+          content: updatedContent,
+          createdAt: new Date().toISOString(),
+          author: "",
+          comment: "Accepted finding",
+        };
+        return { ...prev, content: updatedContent, versions: [...(prev.versions ?? []), newVersion] };
+      });
       const remaining = agentMarkups.filter((m) => m.clauseId !== markup.clauseId);
-      setAgentMarkups(remaining);
-      setSelectedMarkup(remaining[0] ?? null);
+
+      // ── P1-1 FIX: adjust charOffset of remaining AI findings ──────────────
+      // Accepting this finding changed the document length. Every AI finding
+      // whose charOffset points past the splice start must be shifted by the
+      // delta so subsequent Strategy 1 anchors remain valid.
+      //
+      // delta > 0: replacement is longer than original (text shifted right).
+      // delta < 0: replacement is shorter (text shifted left).
+      // delta = 0: no adjustment needed.
+      //
+      // Only AI findings (charOffset is a number) are adjusted. Synthetic
+      // manual-* findings use rawContentOffset from manualSelectionRef and
+      // are always re-located fresh, so they don't need adjustment.
+      const delta = markup.replacement.length - (splice.end - splice.start);
+      const adjustedRemaining = delta === 0 ? remaining : remaining.map((m) => {
+        if (
+          typeof m.charOffset === "number" &&
+          m.charOffset >= 0 &&
+          m.charOffset > splice.start &&
+          !m.clauseId.startsWith("manual-")
+        ) {
+          return { ...m, charOffset: m.charOffset + delta };
+        }
+        return m;
+      });
+
+      setAgentMarkups(adjustedRemaining);
+      setSelectedMarkup(adjustedRemaining[0] ?? null);
       setEditingReplacement(false);
       // Record the exact splice position in the updated content so the green
       // flash renderer can target the correct occurrence rather than using a
@@ -532,7 +688,25 @@ export function useNegotiate({
     }
   };
 
-  const handleDismissMarkup = (clauseId: string) => {
+  /**
+   * Phase 2: Reject is now durable. Previously this only filtered the local
+   * agentMarkups array — reloading the page resurrected the finding as
+   * pending. The backend call happens first; local state only updates on
+   * confirmed success, so a crash right after clicking Reject leaves the
+   * finding correctly "pending" on reopen rather than silently "gone".
+   * Synthetic "manual-*" clauseIds were never persisted as findings — reject
+   * for those stays purely local, matching their pre-Phase-2 behavior.
+   */
+  const handleDismissMarkup = async (clauseId: string) => {
+    const isSynthetic = clauseId.startsWith("manual-");
+    if (!isSynthetic && activeDoc) {
+      try {
+        await rejectFinding(authToken, activeDoc.id, clauseId);
+      } catch (err: any) {
+        showNegotiateError(err.message || "Failed to reject finding.");
+        return; // leave it in the list — the reject did not durably apply
+      }
+    }
     const remaining = agentMarkups.filter((m) => m.clauseId !== clauseId);
     setAgentMarkups(remaining);
     setSelectedMarkup(remaining[0] ?? null);
@@ -540,7 +714,7 @@ export function useNegotiate({
     // Only clear the manual selection when the dismissed markup IS the manual
     // draft for that selection. Rejecting an independent AI finding must not
     // disturb a pending manual selection the user has made separately.
-    if (clauseId.startsWith("manual-")) {
+    if (isSynthetic) {
       clearManualSelection();
     }
   };
@@ -550,7 +724,8 @@ export function useNegotiate({
     setSaving(true);
     try {
       const currentVersion = activeDoc.versions?.length || 1;
-      await saveNegotiationStep(authToken, activeDoc.id, activeDoc.content, currentVersion);
+      const baseVersion = activeDoc.versions?.length || 0;
+      await saveNegotiationStep(authToken, activeDoc.id, activeDoc.content, currentVersion, baseVersion);
       setShowSavedToast(true);
       setTimeout(() => setShowSavedToast(false), 3000);
       onRefresh();
@@ -641,7 +816,9 @@ export function useNegotiate({
   const rerunEvaluation = () => {
     if (!activeDoc) return;
     setEvaluatingDocId(null);
-    runMultiAgentEvaluation(activeDoc.id, activeDoc.content, { title: activeDoc.title, type: activeDoc.type });
+    // forceNew: supersedes the current active session (history preserved,
+    // not deleted) and creates a fresh one from a new evaluation.
+    initializeNegotiation(activeDoc.id, true);
   };
 
   /**
@@ -776,7 +953,7 @@ export function useNegotiate({
       let strategy: NegotiationStrategy | null = negotiationStrategy;
       if (!strategy && ctx) {
         try {
-          strategy = await fetchNegotiationStrategy(authToken, ctx);
+          strategy = await fetchNegotiationStrategy(authToken, ctx, activeDoc.id);
           setNegotiationStrategy(strategy);
         } catch (stratErr) {
           console.warn("[negotiate] strategy fetch failed, continuing without strategy:", stratErr);
@@ -806,7 +983,8 @@ export function useNegotiate({
             analysisFinding: ctx?.analysisFinding,
             compareFinding:  ctx?.compareFinding,
             playbookRule:    ctx?.playbookRule,
-          }
+          },
+          { documentId: activeDoc.id, clauseId: selectedMarkup.clauseId }
         ) as StrategyDraftResult;
       } else {
         const result = await generateCompromise(

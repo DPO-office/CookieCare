@@ -75,6 +75,13 @@ export const config = {
   skipDb: process.env.SKIP_DB === "true" || process.env.SKIP_DB === "1",
   /** Stakeholder demo evidence registry. Unknown documents still use the normal pipeline. */
   demoMode: booleanFromEnv(process.env.DEMO ?? process.env.DEMO_MODE),
+  /**
+   * Negotiate V2 SHADOW mode (default OFF). When on, V2 runs in parallel with
+   * V1 on /session/resolve and its result is logged/stored separately; V1
+   * remains the only user-visible evaluator and V2 failures never affect V1.
+   * Kill-switch: unset this flag.
+   */
+  negotiateV2Shadow: process.env.NEGOTIATE_V2_SHADOW === "true" || process.env.NEGOTIATE_V2_SHADOW === "1",
 };
 
 export const isProduction = config.nodeEnv === "production";

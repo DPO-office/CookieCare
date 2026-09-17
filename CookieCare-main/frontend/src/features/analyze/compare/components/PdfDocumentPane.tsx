@@ -18,7 +18,7 @@
 import {
   useEffect, useRef, useCallback, useState, useMemo,
 } from "react";
-import { FileText, Loader2, AlertCircle, FileX } from "lucide-react";
+import { FileText, Loader2, AlertCircle, FileX, ZoomIn, ZoomOut } from "lucide-react";
 import type { PDFDocumentProxy, PDFPageProxy } from "pdfjs-dist";
 import type { CompareClauseRecord } from "../../../randtrustAI/types";
 import type { PdfPageMap, PdfTextItem } from "../hooks/usePdfPageMap";
@@ -38,6 +38,12 @@ const PDF_SCALE_MAX = 2.0;
 const PDF_SCALE_FALLBACK = 1.2; // used before the container has been measured
 const PDF_HORIZONTAL_PADDING = 32; // px — matches px-4 (16px each side) on the scroll div
 const RENDER_BUFFER = 1;
+
+// User-driven zoom multiplier applied on top of the auto-fit scale.
+// Range and step for the +/− zoom controls in the pane header.
+const ZOOM_MIN = 0.5;
+const ZOOM_MAX = 3.0;
+const ZOOM_STEP = 0.1;
 
 // ─── pdfjs loader ─────────────────────────────────────────────────────────────
 // Worker imported as a URL from the installed package — API and worker are
@@ -185,9 +191,29 @@ function computeWordHighlightBoxes(
     return wholeClauseFallback();
   }
 
+  // pdfjs sometimes returns a whole visual line as a single item (headings,
+  // full-line body text) — its `str` then contains multiple words joined by
+  // spaces. A single-token lookup against `changedWords` misses those items
+  // because the joined string is not a member of the per-word set. Split each
+  // item's string into whitespace-separated sub-tokens and mark the item as
+  // "changed" when ANY of those sub-tokens is in the diff set, so multi-word
+  // items receive the strong fill instead of the near-invisible context tint.
+  const itemHasChangedWord = (str: string): boolean => {
+    // Fast path: single-token item.
+    const asToken = normalizeToken(str);
+    if (asToken && changedWords.has(asToken)) return true;
+    if (!/\s/.test(str)) return false;
+    // Multi-word path: any sub-token in the changed set is enough.
+    for (const raw of str.split(/\s+/)) {
+      const norm = normalizeToken(raw);
+      if (norm && changedWords.has(norm)) return true;
+    }
+    return false;
+  };
+
   let matchedAny = false;
   const wordBoxes: HighlightBox[] = items.map((item) => {
-    const isChanged = changedWords.has(normalizeToken(item.str));
+    const isChanged = itemHasChangedWord(item.str);
     if (isChanged) matchedAny = true;
     return {
       x: item.x * scale,
@@ -237,20 +263,48 @@ function PageRenderer({
 
   const viewport = useMemo(() => pdfPage.getViewport({ scale }), [pdfPage, scale]);
 
+  // Re-render whenever the viewport (scale) changes. Setting canvas.width /
+  // canvas.height wipes the bitmap, so a scale-only update without a re-paint
+  // leaves an empty canvas — that was the "content vanishes on zoom" bug.
+  // We deliberately do NOT gate on `rendered` here: the first render sets it
+  // true, and any subsequent scale change must repaint on top of the now-
+  // resized canvas. `rendered` is kept only to drive the placeholder overlay
+  // during the very first paint.
+  //
+  // Hi-DPI: the canvas BITMAP is sized at viewport × devicePixelRatio, while
+  // its CSS size stays at viewport (set via `style.width/height` below). Skip
+  // this and text softens on retina / 2x-scaled Windows displays because 1
+  // bitmap pixel gets stretched over 2 device pixels.
   useEffect(() => {
-    if (!isVisible || rendered) return;
+    if (!isVisible) return;
     let cancelled = false;
 
     (async () => {
       try {
         const canvas = canvasRef.current;
         if (!canvas) return;
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
+        const outputScale =
+          typeof window !== "undefined" && window.devicePixelRatio
+            ? window.devicePixelRatio
+            : 1;
+        canvas.width = Math.floor(viewport.width * outputScale);
+        canvas.height = Math.floor(viewport.height * outputScale);
+        canvas.style.width = `${Math.floor(viewport.width)}px`;
+        canvas.style.height = `${Math.floor(viewport.height)}px`;
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
         if (renderTaskRef.current) renderTaskRef.current.cancel();
-        renderTaskRef.current = pdfPage.render({ canvasContext: ctx, viewport });
+        const transform =
+          outputScale !== 1
+            ? ([outputScale, 0, 0, outputScale, 0, 0] as [
+                number, number, number, number, number, number,
+              ])
+            : null;
+        renderTaskRef.current = pdfPage.render({
+          canvasContext: ctx,
+          viewport,
+          transform,
+        } as any);
         await renderTaskRef.current.promise;
         if (!cancelled) setRendered(true);
       } catch (err: any) {
@@ -264,12 +318,13 @@ function PageRenderer({
       cancelled = true;
       renderTaskRef.current?.cancel();
     };
-  }, [isVisible, pdfPage, pageNumber, viewport, rendered]);
+  }, [isVisible, pdfPage, pageNumber, viewport]);
 
   // canvas dimensions in physical pixels — set directly on the element so
-  // pdfjs renders at the correct resolution.  The *CSS* size is kept at
-  // width:100% so the canvas stretches to fill whatever the container gives
-  // it, which is already constrained to the pane width by the scroll div.
+  // pdfjs renders at the correct resolution. The CSS size of the surrounding
+  // container is ALSO set to viewport.width so the visible page size actually
+  // changes with zoom (the previous `width:100%` container made zoom only
+  // affect render resolution / sharpness, not the displayed page size).
   const canvasW = Math.round(viewport.width);
   const canvasH = Math.round(viewport.height);
 
@@ -280,7 +335,13 @@ function PageRenderer({
   return (
     <div
       className="relative mx-auto mb-3 overflow-hidden rounded-sm shadow-sm"
-      style={{ width: "100%" }}
+      // Container width is the viewport width in CSS pixels, so zoom actually
+      // changes the on-screen page size. At zoom=1 the auto-fit scale already
+      // makes viewport.width == pane inner width, so no horizontal scroll.
+      // At zoom>1 the page overflows the pane and the parent scroller (which
+      // is now `overflow-auto`) exposes a horizontal scrollbar. At zoom<1 the
+      // page is narrower than the pane and stays centered by `mx-auto`.
+      style={{ width: canvasW }}
     >
       {/* Placeholder while rendering — sized via aspect-ratio padding */}
       {!rendered && isVisible && (
@@ -293,16 +354,17 @@ function PageRenderer({
       )}
 
       {/*
-       * canvas has explicit pixel width/height attributes (required by pdfjs)
-       * but CSS width:100% lets it scale down to the container.
-       * height:auto preserves the aspect ratio so nothing is squashed.
+       * The canvas bitmap size and CSS size are BOTH set by the render effect
+       * (bitmap = viewport × devicePixelRatio, CSS = viewport) so the page
+       * renders crisply on Hi-DPI displays. React should NOT set width/height
+       * attributes or a competing style.width/height here — that would
+       * overwrite the effect's Hi-DPI sizing on every render and reintroduce
+       * the blurriness. Visibility is toggled via `display` only.
        */}
       <canvas
         ref={canvasRef}
-        width={canvasW}
-        height={canvasH}
         className="block"
-        style={{ width: "100%", height: "auto", display: rendered ? "block" : "none" }}
+        style={{ display: rendered ? "block" : "none" }}
       />
 
       {/* Passive highlights — positioned as % of canvas so they scale with CSS width:100% */}
@@ -442,6 +504,19 @@ export function PdfDocumentPane({
   const pageRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const [visiblePages, setVisiblePages] = useState<Set<number>>(new Set([1, 2]));
 
+  // User-driven zoom multiplier on top of the auto-fit scale (per-pane, so
+  // each PDF can be zoomed independently — the request was explicit).
+  const [zoom, setZoom] = useState<number>(1);
+  const zoomIn = useCallback(
+    () => setZoom((z) => Math.min(ZOOM_MAX, +(z + ZOOM_STEP).toFixed(2))),
+    []
+  );
+  const zoomOut = useCallback(
+    () => setZoom((z) => Math.max(ZOOM_MIN, +(z - ZOOM_STEP).toFixed(2))),
+    []
+  );
+  const zoomReset = useCallback(() => setZoom(1), []);
+
   // ── Load PDF document once ───────────────────────────────────────────────
   const { status: docStatus, pages: pdfPages, error: docError } = usePdfDoc(file);
 
@@ -472,15 +547,18 @@ export function PdfDocumentPane({
   }, [pdfPages]);
 
   /**
-   * Scale that fits the page exactly inside the pane minus horizontal padding.
-   * Capped at PDF_SCALE_MAX so we never over-zoom on very wide screens.
+   * Scale that fits the page exactly inside the pane minus horizontal padding,
+   * multiplied by the user's zoom setting. The auto-fit is capped at
+   * PDF_SCALE_MAX so we never over-zoom on very wide screens; the user can
+   * still push beyond that cap deliberately via the zoom-in button.
    * Falls back to PDF_SCALE_FALLBACK until the container has been measured.
    */
   const pdfScale = useMemo(() => {
-    if (!naturalPageWidth || paneWidth <= 0) return PDF_SCALE_FALLBACK;
+    if (!naturalPageWidth || paneWidth <= 0) return PDF_SCALE_FALLBACK * zoom;
     const available = paneWidth - PDF_HORIZONTAL_PADDING;
-    return Math.min(available / naturalPageWidth, PDF_SCALE_MAX);
-  }, [naturalPageWidth, paneWidth]);
+    const autoFit = Math.min(available / naturalPageWidth, PDF_SCALE_MAX);
+    return autoFit * zoom;
+  }, [naturalPageWidth, paneWidth, zoom]);
 
   // ── Navigation: scroll to active clause page ─────────────────────────────
   //
@@ -699,10 +777,15 @@ export function PdfDocumentPane({
 
   // ── Render pages ──────────────────────────────────────────────────────────
   return (
-    <PaneShell label={label} filename={filename} labelCls={labelCls}>
+    <PaneShell
+      label={label}
+      filename={filename}
+      labelCls={labelCls}
+      zoom={{ value: zoom, onIn: zoomIn, onOut: zoomOut, onReset: zoomReset }}
+    >
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin bg-[#F3F4F6] px-4 py-4"
+        className="flex-1 overflow-auto scrollbar-thin bg-[#F3F4F6] px-4 py-4"
       >
         {pdfPages.map((pdfPage, idx) => {
           if (!pdfPage) return null;
@@ -728,23 +811,67 @@ export function PdfDocumentPane({
 
 // ─── Shell wrapper ────────────────────────────────────────────────────────────
 
-function PaneShell({
-  label, filename, labelCls, children,
-}: {
+interface PaneShellProps {
   label: string;
   filename: string;
   labelCls: string;
   children: React.ReactNode;
-}) {
+  /** When present, the pane header renders per-pane zoom controls. */
+  zoom?: {
+    value: number;
+    onIn: () => void;
+    onOut: () => void;
+    onReset: () => void;
+  };
+}
+
+function PaneShell({ label, filename, labelCls, children, zoom }: PaneShellProps) {
   const short = (n: string, max = 28) => n.length > max ? `${n.slice(0, max - 1)}…` : n;
+  const zoomPct = zoom ? Math.round(zoom.value * 100) : 100;
+  const atMin = zoom ? zoom.value <= ZOOM_MIN + 1e-6 : true;
+  const atMax = zoom ? zoom.value >= ZOOM_MAX - 1e-6 : true;
   return (
     <div className="flex min-w-0 flex-1 flex-col overflow-hidden border-r border-[#E4E4E7] last:border-r-0">
-      <div className="flex shrink-0 items-center gap-2.5 border-b border-[#E4E4E7] bg-white px-4 py-3">
+      <div className="flex shrink-0 items-center gap-2 border-b border-[#E4E4E7] bg-white px-4 py-2.5">
         <FileText className="h-3.5 w-3.5 shrink-0 text-[#9CA3AF]" />
-        <span className="truncate text-[13px] font-semibold text-[#111827]">
+        <span className="min-w-0 truncate text-[13px] font-semibold text-[#111827]">
           {short(filename)}
         </span>
-        <span className={`ml-auto shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${labelCls}`}>
+        {zoom && (
+          <div
+            className="ml-auto flex shrink-0 items-center gap-0.5 rounded-md border border-[#E4E4E7] bg-white"
+            role="group"
+            aria-label={`${label} PDF zoom`}
+          >
+            <button
+              type="button"
+              onClick={zoom.onOut}
+              disabled={atMin}
+              aria-label="Zoom out"
+              className="rounded-l-md p-1 text-[#374151] transition-colors hover:bg-[#F3F4F6] disabled:cursor-not-allowed disabled:text-[#D1D5DB] disabled:hover:bg-white"
+            >
+              <ZoomOut className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={zoom.onReset}
+              aria-label="Reset zoom to fit"
+              className="min-w-[38px] px-1 py-0.5 text-[10.5px] font-semibold tabular-nums text-[#374151] transition-colors hover:bg-[#F3F4F6]"
+            >
+              {zoomPct}%
+            </button>
+            <button
+              type="button"
+              onClick={zoom.onIn}
+              disabled={atMax}
+              aria-label="Zoom in"
+              className="rounded-r-md p-1 text-[#374151] transition-colors hover:bg-[#F3F4F6] disabled:cursor-not-allowed disabled:text-[#D1D5DB] disabled:hover:bg-white"
+            >
+              <ZoomIn className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
+        <span className={`shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${labelCls} ${zoom ? "" : "ml-auto"}`}>
           {label}
         </span>
       </div>

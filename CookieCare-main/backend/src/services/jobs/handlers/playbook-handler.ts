@@ -91,7 +91,19 @@ export async function executePlaybookIngestionJob(
     );
 
     const ingester = new PlaybookIngester();
-    const ingestionResult = await ingester.ingestPlaybookText(extractedTextString);
+    const ingestionResult = await ingester.ingestPlaybookText(extractedTextString, {
+      libraryItemId,
+      userId,
+    });
+
+    // Surface an empty extraction as a failure instead of silently reporting
+    // "0 rules structured" — otherwise the rulebook looks ready but drives
+    // nothing during negotiation.
+    if (ingestionResult.processedRulesCount === 0) {
+      throw new Error(
+        "No rules could be extracted from this playbook. The document may be scanned/image-only or not structured as a playbook."
+      );
+    }
 
     await updateJobProgress(jobId, userId, 90, "Saving structured rules to the vault…");
 

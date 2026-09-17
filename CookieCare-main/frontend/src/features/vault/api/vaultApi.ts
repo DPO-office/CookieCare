@@ -98,6 +98,9 @@ export async function fetchDocumentsPaginated(
     search?: string;
     limit?: number;
     offset?: number;
+    /** Opt-in cleanup: hide test artifacts + empty docs and collapse duplicate
+     *  titles. Used by the Negotiate document picker. */
+    dedupe?: boolean;
   } = {}
 ): Promise<DocumentPage> {
   const qs = new URLSearchParams();
@@ -105,6 +108,7 @@ export async function fetchDocumentsPaginated(
   qs.set("offset", String(params.offset ?? 0));
   if (params.type)   qs.set("type",   params.type);
   if (params.search) qs.set("search", params.search);
+  if (params.dedupe) qs.set("dedupe", "1");
 
   const res = await fetch(apiUrl(`/api/documents?${qs.toString()}`), {
     headers: { Authorization: `Bearer ${authToken}` },

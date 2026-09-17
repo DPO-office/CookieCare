@@ -85,8 +85,8 @@ router.post(
     if (hasFiles) {
       for (const file of files!) {
         try {
-          const text    = await extractText(file.buffer, file.mimetype);
-          const cleaned = text.replace(/\s+/g, " ").trim();
+          const { text } = await extractText(file.buffer, file.mimetype);
+          const cleaned  = text.replace(/\s+/g, " ").trim();
           if (cleaned.length > 50) {
             extractedTexts.push(`[DOCUMENT: ${file.originalname}]\n${cleaned}`);
             console.log(

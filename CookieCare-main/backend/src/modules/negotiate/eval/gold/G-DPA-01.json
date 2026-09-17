@@ -1,0 +1,170 @@
+{
+  "docFixtureId": "G-DPA-01",
+  "goldVersion": "0.1.0",
+  "dbDocId": "doc_0c678eca-bbba-4cd8-8fb7-17d1bee6bb94",
+  "findings": [
+    {
+      "id": "g1", "docId": "G-DPA-01", "kind": "issue",
+      "anchor": { "headingPath": "§11.3.1 International transfers", "quote": "Alaio may process User Personal Data in Russian Federation" },
+      "issueTag": "intl_transfer_non_adequate", "ruleId": "dpa.international_transfer_mechanism_present",
+      "expectedSeverityBand": "RED", "importance": "must_catch",
+      "matchKeywords": ["russian federation"],
+      "notes": "Processing personal data in Russia under alleged Art 46 safeguards — the single most serious issue."
+    },
+    {
+      "id": "g2a", "docId": "G-DPA-01", "kind": "issue",
+      "anchor": { "headingPath": "§8.1 Incident Notification", "quote": "notify Administrator of the Data Incident promptly and without undue delay" },
+      "issueTag": "breach_notice_no_deadline",
+      "expectedSeverityBand": "YELLOW", "importance": "must_catch", "dupGroup": "DUP-breach",
+      "matchKeywords": ["undue delay", "incident"], "keywordMinHits": 1,
+      "notes": "No fixed breach-notification deadline (cf GDPR Art 33)."
+    },
+    {
+      "id": "g2b", "docId": "G-DPA-01", "kind": "issue",
+      "anchor": { "headingPath": "Appendix 2 / Data Breach Response", "quote": "Alaio monitors a variety of communication channels for security breaches" },
+      "issueTag": "breach_notice_no_deadline",
+      "expectedSeverityBand": "YELLOW", "importance": "should_catch", "dupGroup": "DUP-breach",
+      "matchKeywords": ["security breaches", "communication channels"], "keywordMinHits": 1,
+      "notes": "Second location of the same breach-notification-timing issue — must collapse with g2a into ONE finding."
+    },
+    {
+      "id": "g3", "docId": "G-DPA-01", "kind": "issue",
+      "anchor": { "headingPath": "§7.4 Objection Right for New Sub-processors", "quote": "Administrator may object to any new Sub-processor by notifying Alaio promptly in writing within five (5) business days" },
+      "issueTag": "subprocessor_objection_weak", "ruleId": "dpa.subprocessor_flowdown_present",
+      "expectedSeverityBand": "YELLOW", "importance": "must_catch", "mergeGroup": "MERGE-subproc-objection",
+      "matchKeywords": ["five (5) business days", "object"], "keywordMinHits": 1,
+      "notes": "5-business-day objection window is commercially unreasonable. mergeGroup with a2: one correctly-merged §7.4 finding may satisfy both."
+    },
+    {
+      "id": "g4", "docId": "G-DPA-01", "kind": "issue",
+      "anchor": { "headingPath": "§2.5 Deletion on Term Expiry", "quote": "delete all Personal Data (including existing copies) from Bitrix24 systems" },
+      "issueTag": "deletion_no_return_90d", "ruleId": "dpa.deletion_on_termination_present",
+      "expectedSeverityBand": "YELLOW", "importance": "must_catch",
+      "matchKeywords": ["90 days", "delete all personal data"], "keywordMinHits": 1,
+      "notes": "90-day deletion window; no return-of-data option (cf Art 28(3)(g))."
+    },
+    {
+      "id": "g5", "docId": "G-DPA-01", "kind": "issue",
+      "anchor": { "headingPath": "§9.2 Inspections of Compliance", "quote": "Administrator shall reimburse Alaio for any time expended by Alaio or its third-party Sub-processors for any such on-site inspection" },
+      "issueTag": "audit_cost_barrier",
+      "expectedSeverityBand": "YELLOW", "importance": "should_catch",
+      "matchKeywords": ["reimburse", "inspection"], "keywordMinHits": 1,
+      "notes": "Audit reimbursement at professional rates is a financial barrier to oversight."
+    },
+    {
+      "id": "g6", "docId": "G-DPA-01", "kind": "issue",
+      "anchor": { "headingPath": "§2.1(e) Processor and Controller Responsibilities", "quote": "Alaio will inform the Administrator immediately if it believes that a data processing instruction violates the GDPR" },
+      "issueTag": "inform_duty_scope_narrow", "ruleId": "dpa.subject_matter_defined",
+      "expectedSeverityBand": "YELLOW", "importance": "should_catch",
+      "matchKeywords": ["violates the gdpr", "inform the administrator"], "keywordMinHits": 1,
+      "notes": "Inform-duty limited to GDPR/EU while the DPA's own definition lists ~30 global laws (Art 28(3)(h) gap)."
+    },
+    {
+      "id": "g7", "docId": "G-DPA-01", "kind": "issue",
+      "anchor": { "headingPath": "Changes to this DPA", "quote": "Alaio may change this DPA if the change" },
+      "issueTag": "unilateral_dpa_change",
+      "expectedSeverityBand": "YELLOW", "importance": "should_catch",
+      "matchKeywords": ["change this dpa", "material adverse"], "keywordMinHits": 1,
+      "notes": "Vendor unilaterally judges whether a change is materially adverse."
+    },
+    {
+      "id": "g8a", "docId": "G-DPA-01", "kind": "issue",
+      "anchor": { "headingPath": "§12.1 Governing Law", "quote": "shall be governed by, and construed in accordance with, the laws of Republic of Cyprus" },
+      "issueTag": "governing_law_jurisdiction_foreign",
+      "expectedSeverityBand": "YELLOW", "importance": "should_catch", "dupGroup": "DUP-govlaw",
+      "matchKeywords": ["republic of cyprus", "governed"], "keywordMinHits": 1,
+      "notes": "Foreign governing law."
+    },
+    {
+      "id": "g8b", "docId": "G-DPA-01", "kind": "issue",
+      "anchor": { "headingPath": "§12.2 Jurisdiction", "quote": "shall fall within the jurisdiction of the courts of Republic of Cyprus" },
+      "issueTag": "governing_law_jurisdiction_foreign",
+      "expectedSeverityBand": "YELLOW", "importance": "nice", "dupGroup": "DUP-govlaw",
+      "matchKeywords": ["jurisdiction", "republic of cyprus"], "keywordMinHits": 1,
+      "notes": "Foreign forum — same theme as g8a; should collapse into one finding."
+    },
+    {
+      "id": "g9", "docId": "G-DPA-01", "kind": "issue",
+      "anchor": { "headingPath": "Notification of Changes", "quote": "Administrator may terminate the Agreement by giving written notice to Alaio within 30 days" },
+      "issueTag": "notification_of_changes_terms",
+      "expectedSeverityBand": "YELLOW", "importance": "nice",
+      "matchKeywords": ["notification of changes", "terminate the agreement"], "keywordMinHits": 1,
+      "notes": "Change-notice / termination mechanics — legitimate but low-importance."
+    },
+    {
+      "id": "g10", "docId": "G-DPA-01", "kind": "issue",
+      "anchor": { "headingPath": "§9 Subprocessor Security (Appendix 2)", "quote": "Before onboarding Sub-processors, Alaio conducts an audit of the security and privacy practices" },
+      "issueTag": "subprocessor_no_advance_notice",
+      "expectedSeverityBand": "YELLOW", "importance": "should_catch",
+      "matchKeywords": ["onboarding sub-processors", "sub-processor"], "keywordMinHits": 1,
+      "notes": "No advance notice / objection right when appointing sub-processors (Art 28(2))."
+    },
+
+    {
+      "id": "a1", "docId": "G-DPA-01", "kind": "absence",
+      "anchor": { "headingPath": "document-level" },
+      "issueTag": "missing_liability_cap", "ruleId": "missing_limitation_of_liability",
+      "expectedSeverityBand": "RED", "importance": "must_catch",
+      "matchKeywords": ["limitation of liability", "liability cap", "aggregate liability", "limit of liability"], "keywordMinHits": 1,
+      "notes": "The DPA has no liability provision / no GDPR-breach carve-out from the master-agreement cap. Absence — v1 cannot detect it."
+    },
+    {
+      "id": "a2", "docId": "G-DPA-01", "kind": "absence",
+      "anchor": { "headingPath": "§7.4 Objection Right for New Sub-processors", "quote": "Alaio will use reasonable efforts to make available to Administrator a change in the Services" },
+      "issueTag": "subprocessor_objection_no_teeth", "ruleId": "dpa.subprocessor_flowdown_present",
+      "expectedSeverityBand": "YELLOW", "importance": "must_catch", "mergeGroup": "MERGE-subproc-objection",
+      "matchKeywords": ["reasonable efforts", "only recourse", "cannot block", "no right to prevent"], "keywordMinHits": 1,
+      "notes": "Objection remedy is illusory — only 'reasonable efforts' + terminate-the-service; no right to actually block the sub-processor. Anchor quote gates the match to §7.4."
+    },
+    {
+      "id": "a3", "docId": "G-DPA-01", "kind": "absence",
+      "anchor": { "headingPath": "Appendix 2 Security Measures", "quote": "Alaio may update or modify such Security Measures from time to time" },
+      "issueTag": "security_measures_unilateral_change", "ruleId": "dpa.security_and_dpia_assistance_present",
+      "expectedSeverityBand": "YELLOW", "importance": "should_catch",
+      "matchKeywords": ["update or modify"], "keywordMinHits": 1,
+      "notes": "Vendor may unilaterally modify the Security Measures with only a soft 'no degradation' limit. Anchor quote gates the match to Appendix 2 (avoids colliding with the DPA-changes clause, which reuses the phrase 'degradation of the overall security')."
+    },
+
+    {
+      "id": "t1", "docId": "G-DPA-01", "kind": "trap",
+      "anchor": { "headingPath": "Definitions / Data Incident", "quote": "unsuccessful log-in attempts, pings, port scans, denial of service attacks" },
+      "issueTag": "dos_unsuccessful_attempt_exclusion",
+      "expectedSeverityBand": "NONE", "importance": "must_not_flag",
+      "matchKeywords": ["denial of service", "unsuccessful", "port scans"], "keywordMinHits": 1,
+      "notes": "Excluding unsuccessful attempts / DoS that don't compromise data is MARKET-STANDARD (Google/AWS DPAs). Should NOT be a primary finding."
+    },
+    {
+      "id": "t2", "docId": "G-DPA-01", "kind": "trap",
+      "anchor": { "headingPath": "Preamble / Acceptance", "quote": "BY CLICKING THE \"I ACCEPT\" BUTTON BELOW" },
+      "issueTag": "clickwrap_acceptance",
+      "expectedSeverityBand": "NONE", "importance": "must_not_flag",
+      "matchKeywords": ["i accept", "clicking"], "keywordMinHits": 1,
+      "notes": "Standard click-wrap acceptance for a self-serve product — contract-formation, out of scope for DPA negotiation."
+    },
+    {
+      "id": "t3", "docId": "G-DPA-01", "kind": "trap",
+      "anchor": { "headingPath": "§8.5 No Acknowledgement of Fault", "quote": "will not be construed as an acknowledgement by Alaio of any fault or liability" },
+      "issueTag": "no_admission_of_fault",
+      "expectedSeverityBand": "NONE", "importance": "should_not_flag",
+      "matchKeywords": ["acknowledgement", "fault"], "keywordMinHits": 1,
+      "notes": "Standard no-admission-of-fault language. Soft trap."
+    },
+    {
+      "id": "t4", "docId": "G-DPA-01", "kind": "trap",
+      "anchor": { "headingPath": "Authorization by Third Party Controller", "quote": "Authorization by Third Party Controller" },
+      "issueTag": "third_party_authorization_greenredline",
+      "expectedSeverityBand": "NONE", "importance": "should_not_flag",
+      "matchKeywords": ["authorization by third party controller", "relevant controller"], "keywordMinHits": 1,
+      "notes": "Standard authorization warranty; v1 flags it GREEN with a cosmetic redline — low-value noise. Soft trap."
+    },
+
+    {
+      "id": "s1", "docId": "G-DPA-01", "kind": "issue",
+      "anchor": { "headingPath": "§2.5.1 Account deletion", "quote": "If the Bitrix24 Customer Account is on a free plan" },
+      "issueTag": "free_plan_autodelete_overclassified",
+      "expectedSeverityBand": "YELLOW", "importance": "severity_check",
+      "matchKeywords": ["free plan", "archived"], "keywordMinHits": 1,
+      "notes": "Real issue but a product/service term — expected YELLOW. v1 over-classifies it RED (same level as the Russia transfer)."
+    }
+  ]
+}

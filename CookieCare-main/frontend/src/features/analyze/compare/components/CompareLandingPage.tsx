@@ -68,7 +68,7 @@ export function CompareLandingPage({
           </div>
 
           <div className="mt-5 flex flex-wrap items-center gap-2">
-            {["PDF", "DOC", "DOCX", "TXT"].map((fmt) => (
+            {["PDF", "DOCX"].map((fmt) => (
               <span
                 key={fmt}
                 className="score-badge bg-[#F7F8FB] text-[11px] font-medium text-[#667085]"
