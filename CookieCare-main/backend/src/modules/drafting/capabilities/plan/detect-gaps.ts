@@ -57,6 +57,9 @@ export function sanitizeDetectGapsRaw(raw: unknown): unknown {
 export function buildDetectGapsUserMessage(input: {
   facts: Record<string, unknown>;
   draftInstructions: string;
+  templateContent?: string | null;
+  playbookRules?: { topic: string; rule: string; position?: string; fallbackPosition?: string }[];
+  playbookGuidelines?: string;
   skillDocs: { packId: string; packType: "documentType" | "regime" | "jurisdiction"; content: string }[];
 }): string {
   const skillBlock = input.skillDocs
@@ -66,17 +69,46 @@ export function buildDetectGapsUserMessage(input: {
     )
     .join("\n\n");
 
+  const templateBlock = input.templateContent?.trim()
+    ? `\n\n## Selected / Matched Contract Template (for gap comparison)\n${
+        input.templateContent.length > 12_000
+          ? `${input.templateContent.slice(0, 12_000)}…`
+          : input.templateContent
+      }`
+    : "";
+
+  const playbookBlock =
+    (input.playbookRules && input.playbookRules.length > 0) || input.playbookGuidelines?.trim()
+      ? `\n\n## Applicable Playbook Rules & Policy Guidelines (for policy gap comparison)\n${
+          input.playbookGuidelines?.trim() ? `Guidelines:\n${input.playbookGuidelines.trim()}\n\n` : ""
+        }${
+          input.playbookRules?.length
+            ? `Playbook Rules:\n${input.playbookRules
+                .map(
+                  (r) =>
+                    `- [${r.topic}] Rule: ${r.rule}${
+                      r.position ? ` | Preferred: ${r.position}` : ""
+                    }${r.fallbackPosition ? ` | Fallback: ${r.fallbackPosition}` : ""}`
+                )
+                .join("\n")}`
+            : ""
+        }`
+      : "";
+
   return `
 ## Known facts (already extracted — do not re-derive)
 ${JSON.stringify(input.facts, null, 2)}
 
 ## User's drafting instructions (context only)
 ${input.draftInstructions}
+${templateBlock}
+${playbookBlock}
 
-## Applicable skill documents (your only source of requirements)
+## Applicable skill documents (your primary source of legal compliance rules)
 ${skillBlock}
 
-Produce missingFacts and checklist per your instructions and the schema.
+Perform a comprehensive gap analysis across ALL available inputs above (User Instructions, Contract Template, Playbook Rules, and Skill Documents).
+Identify all missing facts, parameters, variables, bracketed placeholders ([●], [PARTY], [ADDRESS], [GOVERNING LAW], [SLA]), unfilled options, or required policy/compliance parameters that are NOT present in the known facts or user prompt. Emit a critical MissingFact for each missing detail so it can be asked of the user.
 `.trim();
 }
 
@@ -215,6 +247,11 @@ export async function detectGaps(
     `[detectGaps] skillDocs=${skillDocs.length} knownFactKeys=${Object.keys(facts).join(",") || "(none)"}`
   );
 
+  const templateContent = state.retrieval?.matchedTemplate || null;
+  const playbookRules = state.retrieval?.applicablePlaybookRules || [];
+  const playbookGuidelines =
+    state.request.aiRulebookPrompt || state.request.playbookGuidelines || "";
+
   const result = await structuredDetectGapsCall(
     DETECT_GAPS_SYSTEM_PROMPT,
     buildDetectGapsUserMessage({
@@ -223,6 +260,9 @@ export async function detectGaps(
         state.request.rawInstructions ||
         state.requirements?.instructions ||
         "",
+      templateContent,
+      playbookRules,
+      playbookGuidelines,
       skillDocs,
     }),
     llmCall

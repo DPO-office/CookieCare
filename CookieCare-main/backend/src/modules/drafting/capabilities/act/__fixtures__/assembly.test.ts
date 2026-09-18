@@ -202,7 +202,7 @@ describe("document assembly", () => {
     assert.equal(preambles.length, 1);
     assert.match(doc, /## 1\. Parties and Background/);
     assert.match(doc, /## 2\. Definitions/);
-    assert.match(doc, /## Table of Contents/);
+    assert.ok(!doc.includes("Table of Contents"));
     assert.match(doc, /Schedule A — Details of Processing/);
     assert.match(doc, /By: _{3,}/);
     assert.ok(!doc.includes("[[SEC:"));

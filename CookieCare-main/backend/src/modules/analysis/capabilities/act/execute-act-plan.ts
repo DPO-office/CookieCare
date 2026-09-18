@@ -89,21 +89,21 @@ async function runConcurrent<T, R>(
 }
 
 const TOOL_PROGRESS_LABELS: Partial<Record<AnalysisToolName, string>> = {
-  run_compliance_pipeline: "Verifying compliance.",
-  classify_document: "Reading…",
-  extract_clauses: "Extracting clauses…",
-  check_expected_clauses: "Checking coverage…",
-  flag_risk: "Assessing risk…",
-  check_against_rule: "Checking the playbook…",
-  evaluate_matrix_row: "Evaluating…",
-  extract_playbook_positions: "Reading the playbook…",
-  web_assisted_reference: "Searching the web…",
-  extract_shared_evidence: "Gathering evidence…",
-  inventory_provisions: "Inventorying provisions…",
-  evaluate_package: "Evaluating…",
-  derive_risk: "Assessing risk…",
-  aggregate_requirements: "Summarizing…",
-  render_output: "Writing the report…",
+  run_compliance_pipeline: "Verifying compliance obligations against document graph…",
+  classify_document: "Reading & classifying document structure…",
+  extract_clauses: "Extracting key contract clauses…",
+  check_expected_clauses: "Checking requirement coverage…",
+  flag_risk: "Assessing risk & liability exposure…",
+  check_against_rule: "Checking against playbook rules…",
+  evaluate_matrix_row: "Evaluating matrix provisions…",
+  extract_playbook_positions: "Reading playbook position rules…",
+  web_assisted_reference: "Searching web-assisted legal references…",
+  extract_shared_evidence: "Gathering verified evidence nodes…",
+  inventory_provisions: "Inventorying contractual provisions…",
+  evaluate_package: "Evaluating compliance package…",
+  derive_risk: "Assessing overall risk score…",
+  aggregate_requirements: "Summarizing compliance findings…",
+  render_output: "Writing & formatting compliance report…",
 };
 
 function emitActProgress(

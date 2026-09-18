@@ -327,6 +327,8 @@ export const  uploadDocument = async (req: Request, res: Response) => {
   const systemFileType = req.body.category?.trim().toLowerCase() || "upload";
   // ephemeral=true means the file is for on-the-go analysis only — skip vault folder assignment
   const isEphemeral = req.body.ephemeral === "true" || req.body.ephemeral === true;
+  // for_analysis=true means the upload is explicitly designated for the Analysis module
+  const forAnalysis = req.body.for_analysis === "true" || req.body.forAnalysis === "true" || req.body.for_analysis === true || req.body.forAnalysis === true;
   const expectedIdentity = typeof req.body.expected_identity === "string" && req.body.expected_identity.trim()
     ? req.body.expected_identity.trim()
     : undefined;
@@ -502,6 +504,7 @@ export const  uploadDocument = async (req: Request, res: Response) => {
       folder_id: resolvedFolderId,
       creatorEmail: req.user!.email,
       isEphemeral,
+      forAnalysis,
       expectedIdentity,
     });
 

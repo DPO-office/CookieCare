@@ -1,6 +1,6 @@
 ﻿import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Upload } from "lucide-react";
+import { Plus, Upload, Check, AlertCircle, X } from "lucide-react";
 import { LegalDocument } from "../../shared/types";
 import { isPlaceholderVaultDocument } from "../analyze/utils/vaultDocumentFilters";
 import { fetchRawDocument } from "./api/vaultApi";
@@ -221,43 +221,38 @@ export default function LibraryManager(_props: LibraryProps = {}) {
   };
 
   const closeFileUpload = () => {
-    if (uploadStatus === "uploading") return;
     setIsAddFileOpen(false);
-    setUploadStatus("idle");
-    clearVaultFiles();
+    if (uploadStatus !== "uploading") {
+      setUploadStatus("idle");
+      clearVaultFiles();
+    }
   };
 
-  const submitVaultFiles = async () => {
+  const submitVaultFiles = async (forAnalysis: boolean = true) => {
     let targetFolderId = formFolderTarget;
     if (suggestedVaultFolderName) {
       targetFolderId = (await handleCreateUploadFolder(suggestedVaultFolderName)) || "";
       if (!targetFolderId) return;
       setFormFolderTarget(targetFolderId);
     }
-    const ok = await handleTriggerUpload(targetFolderId);
+    const ok = await handleTriggerUpload(targetFolderId, forAnalysis);
     if (ok) setTimeout(closeFileUpload, 1200);
   };
 
   const closeVaultIngestModal = () => {
-    // Mirror the same guard used by closeFileUpload: do not allow the modal to
-    // be dismissed mid-upload. The backend job keeps running regardless (no
-    // cancellation mechanism exists), but closing prematurely resets
-    // uploadStatus to 'idle' while handleVaultAssetUpload is still awaiting
-    // pendingJob — subsequent state writes land on reset/stale state and the
-    // auto-close on success fires against an already-closed modal.
-    // The button label already reads "Close (keeps processing)" while uploading,
-    // so this guard is consistent with the user-visible intent.
-    if (uploadStatus === "uploading") return;
     setIsVaultIngestOpen(false);
-    setUploadStatus("idle");
-    resetUploadProgress();
+    if (uploadStatus !== "uploading") {
+      setUploadStatus("idle");
+      resetUploadProgress();
+    }
   };
 
-  // The modal passes the chosen scope as a second argument when a file is selected.
-  const handleVaultFileSelect = async (file: File, source: LibraryItemSource) => {
+  // The modal passes the chosen scope and optional custom title when a file is selected.
+  const handleVaultFileSelect = async (file: File, source: LibraryItemSource, title?: string) => {
     const ok = await handleVaultAssetUpload({
       tab: activeTab as "rulebook" | "templates" | "clauses",
       file,
+      title,
       contractType: activeTab === "rulebook" ? undefined : vaultContractType || undefined,
       jurisdiction: activeTab === "rulebook" ? undefined : vaultJurisdiction || undefined,
       source,
@@ -515,6 +510,82 @@ export default function LibraryManager(_props: LibraryProps = {}) {
             onFileSelect={handleVaultFileSelect}
             onClose={closeVaultIngestModal}
           />
+        )}
+
+        {/* Floating background upload status widget when modal is closed during processing */}
+        {!isAddFileOpen && !isVaultIngestOpen && uploadStatus === "uploading" && (
+          <div
+            className="fixed bottom-6 right-6 z-40 flex w-[350px] flex-col gap-2.5 rounded-2xl border border-[#E4E4E7] bg-white p-4 shadow-2xl font-sans"
+            style={{ backdropFilter: "blur(8px)" }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-[13px] font-semibold text-[#111827]">
+                <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#4F5BD9] border-t-transparent" />
+                <span>Background ingest processing</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (activeTab === "files") setIsAddFileOpen(true);
+                  else setIsVaultIngestOpen(true);
+                }}
+                className="text-[11px] font-semibold text-[#4F5BD9] hover:underline cursor-pointer border-0 bg-transparent"
+              >
+                View modal
+              </button>
+            </div>
+            <p className="text-[12px] text-[#667085] truncate m-0">
+              {uploadProgressMessage || "Processing documents..."}
+            </p>
+            <div className="vlt-progress-track">
+              <div
+                className="vlt-progress-fill"
+                style={{ width: `${Math.max(8, uploadProgressPercent)}%` }}
+              />
+            </div>
+            <div className="flex justify-between text-[11px] text-[#98A2B3]">
+              <span>Runs in background</span>
+              <span className="font-mono font-semibold text-[#4F5BD9]">{Math.round(uploadProgressPercent)}%</span>
+            </div>
+          </div>
+        )}
+
+        {!isAddFileOpen && !isVaultIngestOpen && uploadStatus === "success" && (
+          <div className="fixed bottom-6 right-6 z-40 flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 shadow-xl font-sans">
+            <Check className="h-4 w-4 text-emerald-600 shrink-0" />
+            <span className="text-[13px] font-medium text-emerald-900">
+              {uploadResultMessage || "Background ingest completed."}
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setUploadStatus("idle");
+                resetUploadProgress();
+              }}
+              className="ml-2 text-emerald-700 hover:text-emerald-950 cursor-pointer border-0 bg-transparent"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
+
+        {!isAddFileOpen && !isVaultIngestOpen && uploadStatus === "error" && (
+          <div className="fixed bottom-6 right-6 z-40 flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 shadow-xl font-sans">
+            <AlertCircle className="h-4 w-4 text-red-600 shrink-0" />
+            <span className="text-[13px] font-medium text-red-900">
+              {uploadError || "Background upload failed."}
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setUploadStatus("idle");
+                resetUploadProgress();
+              }}
+              className="ml-2 text-red-700 hover:text-red-950 cursor-pointer border-0 bg-transparent"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
         )}
       </div>
     </>

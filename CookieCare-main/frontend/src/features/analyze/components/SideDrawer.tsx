@@ -87,8 +87,7 @@ export default function SideDrawer({
     <div className="fixed inset-0 z-50 overflow-hidden">
       <div
         className="absolute inset-0 bg-black/20 backdrop-blur-[1px]"
-        onClick={isUploading ? undefined : onClose}
-        style={isUploading ? { cursor: "not-allowed" } : undefined}
+        onClick={onClose}
       />
       <div className="absolute inset-y-0 right-0 max-w-full flex">
         <div className="w-[400px] bg-white shadow-xl flex flex-col h-full rounded-l-2xl overflow-hidden border-l border-gray-200">
@@ -104,11 +103,11 @@ export default function SideDrawer({
               </p>
             </div>
             <button
-              onClick={isUploading ? undefined : onClose}
-              disabled={isUploading}
-              className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all text-lg leading-none shrink-0 disabled:opacity-30"
+              onClick={onClose}
+              className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all text-lg leading-none shrink-0"
+              title="Close (upload will continue in background)"
             >
-              ·
+              &times;
             </button>
           </div>
 

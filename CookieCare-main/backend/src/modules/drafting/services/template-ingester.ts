@@ -87,8 +87,8 @@ export class TemplateIngester {
         ? parsed.content.trim()
         : rawText;
     const name =
+      options.fileTitle?.trim() ||
       (typeof parsed.name === "string" && parsed.name.trim()) ||
-      options.fileTitle ||
       `${options.contractType} Template`;
     const jurisdiction =
       (typeof parsed.jurisdiction === "string" && parsed.jurisdiction.trim()) ||

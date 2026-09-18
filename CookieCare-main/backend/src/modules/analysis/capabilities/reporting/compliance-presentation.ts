@@ -637,6 +637,13 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
     const hidden = primary.length - shown.length + secondary.length;
     return shown.map(provisionItem).join(" · ") + (hidden > 0 ? ` · +${hidden} more (see details)` : "");
   };
+  const clauseBadges = (r: ComplianceReportRow) => {
+    const { primary, secondary } = selectEvidence(r);
+    const all = [...primary, ...secondary];
+    if (!all.length) return "";
+    const locators = [...new Set(all.map(e => locator(e)))];
+    return `*Clause references: ${locators.map(loc => `See ${loc}`).join(" · ")}*`;
+  };
   let excerptsShortened = false;
   const additionalItem = (e: typeof allEvidence[number]) => {
     const excerpt = tableExcerpt(e.quote);
@@ -791,13 +798,17 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
       }).join("\n\n"); break;
       case "details": body = selected.map(r => {
         const explanation = shownExplanation(r);
+        const badges = clauseBadges(r);
+        const assessmentBlock = explanation
+          ? `**Assessment**\n\n${explanation}${badges ? `\n\n${badges}` : ""}`
+          : badges
+          ? `**Assessment**\n\n${badges}`
+          : "";
         return [
           `### ${requirement(r)}`,
           `**Status:** ${statusMark(r.status)}`,
-          ...(explanation ? [`**Assessment**\n\n${explanation}`] : []),
+          ...(assessmentBlock ? [assessmentBlock] : []),
           ...(needsAction(r) && plan.mode === "narrative" ? [`**Recommended action**\n\n${action(r)}`] : []),
-          `**Supporting clauses**`,
-          evidence(r),
         ].join("\n\n");
       }).join("\n\n"); break;
       case "actions": {

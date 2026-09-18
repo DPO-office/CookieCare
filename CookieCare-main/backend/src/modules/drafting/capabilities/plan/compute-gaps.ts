@@ -50,8 +50,7 @@ export function computeGapsAndConflicts(
     }
   }
 
-  // Model may phrase a question for a skill fact that is still missing.
-  // It may not add a field no loaded skill required.
+  // Model may phrase or detect questions from template comparison & skill analysis for facts that are still missing.
   for (const hint of detectGapsMissing) {
     const id = canonicalizeFieldId(hint.field);
     const resolved = byId[id];
@@ -66,17 +65,26 @@ export function computeGapsAndConflicts(
     }
 
     if (isFactSatisfied(facts, id)) continue;
-    if (!skillFieldIds.has(id) && !missingByField.has(id)) continue;
 
     const existing = missingByField.get(id);
-    if (!existing) continue;
-
-    missingByField.set(id, {
-      ...existing,
-      question: hint.question?.trim() || existing.question,
-      reasonRequired: existing.reasonRequired || hint.reasonRequired,
-      options: existing.options?.length ? existing.options : hint.options,
-    });
+    if (existing) {
+      missingByField.set(id, {
+        ...existing,
+        question: hint.question?.trim() || existing.question,
+        reasonRequired: existing.reasonRequired || hint.reasonRequired,
+        options: existing.options?.length ? existing.options : hint.options,
+      });
+    } else {
+      missingByField.set(id, {
+        field: id,
+        question: hint.question?.trim() || `Please specify ${id}`,
+        severity: hint.severity === "critical" ? "critical" : "optional",
+        reasonRequired:
+          hint.reasonRequired ||
+          "Required by document template or compliance rules.",
+        options: hint.options,
+      });
+    }
   }
 
   let result = prioritizeMissingFacts(Array.from(missingByField.values()), 8);

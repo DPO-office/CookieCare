@@ -14,11 +14,11 @@ interface VaultIngestModalProps {
   onChangeContractType: (v: string) => void;
   onChangeJurisdiction: (v: string) => void;
   /**
-   * Called when a file is selected with the chosen source value.
+   * Called when a file is selected with the chosen source value and optional custom title.
    * The modal owns the scope state internally; the parent only receives the
    * final value at upload time.
    */
-  onFileSelect: (file: File, source: LibraryItemSource) => void;
+  onFileSelect: (file: File, source: LibraryItemSource, title?: string) => void;
   onClose: () => void;
 }
 
@@ -75,6 +75,7 @@ export function VaultIngestModal({
   // Defaults to 'private' every time the modal opens (reset happens via key prop
   // or when parent closes/reopens the modal).
   const [scope, setScope] = useState<LibraryItemSource>("private");
+  const [customTitle, setCustomTitle] = useState("");
 
   const title = getIngestTitle(activeTab);
   const hint = getIngestHint(activeTab);
@@ -93,16 +94,15 @@ export function VaultIngestModal({
         />
 
         <div style={{ padding: "24px 24px 24px" }}>
-          {/* Close — hidden while uploading so the user cannot dismiss mid-ingest */}
-          {uploadStatus !== "uploading" && (
-            <button
-              onClick={onClose}
-              className="vlt-icon-btn"
-              style={{ position: "absolute", right: 16, top: 16 }}
-            >
-              <X style={{ width: 14, height: 14 }} />
-            </button>
-          )}
+          {/* Close */}
+          <button
+            onClick={onClose}
+            className="vlt-icon-btn"
+            style={{ position: "absolute", right: 16, top: 16 }}
+            title="Close (ingest will continue in background)"
+          >
+            <X style={{ width: 14, height: 14 }} />
+          </button>
 
           {/* Header */}
           <div
@@ -214,6 +214,40 @@ export function VaultIngestModal({
               </div>
             )}
 
+            {/* Custom Template / Document Name */}
+            <div>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: 10.5,
+                  fontWeight: 600,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  color: "var(--text-muted)",
+                  marginBottom: 7,
+                }}
+              >
+                Document / Template Name{" "}
+                <span
+                  style={{
+                    color: "var(--text-faint)",
+                    textTransform: "none",
+                    fontWeight: 400,
+                    letterSpacing: 0,
+                  }}
+                >
+                  (optional)
+                </span>
+              </label>
+              <input
+                type="text"
+                value={customTitle}
+                onChange={(e) => setCustomTitle(e.target.value)}
+                placeholder={isTemplates ? "e.g. Standard Mutual DPA 2026" : "e.g. Corporate Playbook v1"}
+                className="vlt-input"
+              />
+            </div>
+
             {/* Contract type */}
             {!isRulebook && (
               <div>
@@ -305,7 +339,7 @@ export function VaultIngestModal({
                 }
                 onChange={(e) => {
                   const file = e.target.files?.[0];
-                  if (file) onFileSelect(file, scope);
+                  if (file) onFileSelect(file, scope, customTitle.trim() || undefined);
                 }}
               />
               <div
@@ -447,7 +481,7 @@ export function VaultIngestModal({
           <div
             style={{
               display: "flex",
-              justifyContent: uploadStatus === "uploading" ? "center" : "flex-end",
+              justifyContent: uploadStatus === "uploading" ? "space-between" : "flex-end",
               alignItems: "center",
               paddingTop: 20,
               marginTop: 20,
@@ -455,16 +489,19 @@ export function VaultIngestModal({
             }}
           >
             {uploadStatus === "uploading" ? (
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 12,
-                  color: "var(--text-muted)",
-                  textAlign: "center",
-                }}
-              >
-                Please keep this window open until processing finishes.
-              </p>
+              <>
+                <span
+                  style={{
+                    fontSize: 12,
+                    color: "var(--text-muted)",
+                  }}
+                >
+                  Upload continues in background if closed.
+                </span>
+                <button type="button" onClick={onClose} className="vlt-btn-ghost">
+                  Run in background
+                </button>
+              </>
             ) : (
               <button type="button" onClick={onClose} className="vlt-btn-ghost">
                 Close

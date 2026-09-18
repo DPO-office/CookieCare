@@ -1,4 +1,4 @@
-import { openRouterComplete } from "../services/openRouterClient.js";
+import { executeCompletion, LLMProvider, LLMTask } from "../llm/index.js";
 
 export class DraftingAgent {
   async generateDraft(prompt: string): Promise<string> {
@@ -8,7 +8,12 @@ export class DraftingAgent {
     const userPrompt = prompt;
 
     try {
-      return await openRouterComplete(systemPrompt, userPrompt);
+      return await executeCompletion(
+        userPrompt,
+        systemPrompt,
+        LLMTask.COMPLEX_DRAFT,
+        LLMProvider.GEMINI
+      );
     } catch (err) {
       console.error("DraftingAgent error:", err);
       throw err;

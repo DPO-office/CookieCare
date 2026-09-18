@@ -60,4 +60,6 @@ export interface PendingUpload {
   error?: string;
   jobId?: string;
   fileId?: string;
+  progress?: number;
+  statusMessage?: string;
 }
