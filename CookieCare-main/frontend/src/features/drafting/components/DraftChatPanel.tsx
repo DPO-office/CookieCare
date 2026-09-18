@@ -16,10 +16,7 @@ const OTHER_LABEL = "Other (specify)";
  * governing-law / jurisdiction question.
  */
 const GOVERNING_LAW_OPTIONS = [
-  "State of Delaware",
-  "State of California",
-  "England and Wales",
-  "Ireland",
+  "European Union",
   "India",
   "Other (specify)",
 ];

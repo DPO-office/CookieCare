@@ -15,6 +15,7 @@ import {
 /** Fields EXTRACT_FACTS may return (value + optional evidence). */
 const FACT_FIELD_KEYS = [
   "documentType",
+  "privacyRegime",
   "governingLaw",
   "parties",
   "partyA",

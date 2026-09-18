@@ -66,20 +66,6 @@ function buildPreamble(state: DraftState): string {
   return `This Agreement is entered into as of ${date} (the "Effective Date") between ${identity.partyA} (the "${identity.roleA}") and ${identity.partyB} (the "${identity.roleB}").`;
 }
 
-function buildToc(
-  sections: Array<{ number: string; title: string }>,
-  exhibits: ExhibitSpec[]
-): string {
-  const lines = ["## Table of Contents", ""];
-  for (const s of sections) {
-    lines.push(`${s.number}. ${s.title}`);
-  }
-  for (const e of exhibits) {
-    if (e.letter) lines.push(`Schedule ${e.letter}. ${e.title}`);
-  }
-  return lines.join("\n");
-}
-
 function buildSignatureBlock(state: DraftState): string {
   const identity = buildDealIdentity(
     state.structuredFacts ?? state.plan?.structuredFacts,
@@ -195,20 +181,12 @@ export async function assembleDocument(state: DraftState): Promise<DraftState> {
 
   const title = buildTitle(state);
   const preamble = buildPreamble(state);
-  const toc =
-    finalSections.length >= 6
-      ? buildToc(
-          numberedMeta.map((m) => ({ number: m.number, title: m.title })),
-          exhibitSpecs
-        )
-      : "";
   const signature = buildSignatureBlock(state);
 
   const formattedDocument = [
     `# ${title}`,
     "",
     preamble,
-    toc ? `\n${toc}` : "",
     "",
     ...finalSections.map((s) => s.body),
     ...exhibitBlocks,

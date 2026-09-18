@@ -118,11 +118,11 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
       thinkingLevel: "low",
     },
     [LLMTask.SECTION_REFINE]: {
-      // Volume path: one call per section. Flash avoids Pro RPM exhaustion under PAC.
-      model: GeminiModel.GEMINI_3_6_FLASH,
+      // Surgical single-section regeneration: Gemini 3.1 Pro for high-tier legal prose quality.
+      model: GeminiModel.GEMINI_3_1_PRO,
       temperature: 0.0,
       maxOutputTokens: 2048,
-      thinkingLevel: "minimal",
+      thinkingLevel: "medium",
     },
     [LLMTask.EXTRACT_FACTS]: {
       model: GeminiModel.GEMINI_3_6_FLASH,

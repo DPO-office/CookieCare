@@ -302,9 +302,12 @@ class BackgroundJobRegistry {
 export const jobRegistry = new BackgroundJobRegistry();
 
 async function executeFileProcessing(jobId: string, userId: string, payload: any): Promise<any> {
-  const { fileId, fileTitle, fileBufferBase64, mimeType, isEphemeral, expectedIdentity } = payload;
+  const { fileId, fileTitle, fileBufferBase64, mimeType, isEphemeral, forAnalysis, expectedIdentity } = payload;
 
-  await updateJobProgress(jobId, userId, 15, "Extracting document structure...");
+  const initialMsg = forAnalysis
+    ? "Extracting document structure graph & relations..."
+    : "Extracting document structure...";
+  await updateJobProgress(jobId, userId, 15, initialMsg);
 
   const buffer = Buffer.from(fileBufferBase64, "base64");
   const versionId = "ver_" + crypto.randomUUID();
@@ -323,7 +326,7 @@ async function executeFileProcessing(jobId: string, userId: string, payload: any
   const content = graph.canonicalText.replace(/\0/g, "");
   const encryptedContent = encryptData(content);
 
-  await updateJobProgress(jobId, userId, 65, "Validating and saving document graph...");
+  await updateJobProgress(jobId, userId, 65, "Validating & storing structural nodes in Vault...");
 
   const rowCount = await withTransaction(userId, 'USER', async (client) => {
     const result = await client.query(
@@ -345,7 +348,7 @@ async function executeFileProcessing(jobId: string, userId: string, payload: any
   // Skip RAG chunking/indexing for ephemeral uploads - they are used directly
   // by the analysis engine via DB content and do not need vector search.
   if (!isEphemeral) {
-    await updateJobProgress(jobId, userId, 85, "Indexing document for non-Analysis search...");
+    await updateJobProgress(jobId, userId, 85, "Indexing document chunks and vector embeddings...");
     await chunkAndIndexDocument(fileId, content, userId);
   }
 

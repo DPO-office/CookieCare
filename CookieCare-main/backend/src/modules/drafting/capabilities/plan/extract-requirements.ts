@@ -329,16 +329,6 @@ export async function requirementExtractionStep(
   });
 
   try {
-    if (!config.openRouterApiKey || !config.openRouterApiKey.trim()) {
-      return appendValidationWarning(
-        {
-          ...state,
-          requirements: buildFallbackRequirements([]),
-        },
-        "Requirement extraction skipped: OPENROUTER_API_KEY is not configured."
-      );
-    }
-
     const schemaToUse = isSourceRevision 
       ? REACTIVE_REQUIREMENT_EXTRACTION_JSON_SCHEMA 
       : REQUIREMENT_EXTRACTION_JSON_SCHEMA;

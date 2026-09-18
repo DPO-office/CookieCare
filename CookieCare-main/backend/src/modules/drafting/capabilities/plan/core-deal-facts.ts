@@ -127,10 +127,7 @@ const UNIVERSAL_CATALOG: RequiredFactCatalogEntry[] = [
     reasonRequired:
       "The venue clause must name a real jurisdiction; inventing one makes the draft wrong.",
     options: [
-      "State of Delaware",
-      "State of California",
-      "England and Wales",
-      "Ireland",
+      "European Union",
       "India",
       "Other (specify)",
     ],

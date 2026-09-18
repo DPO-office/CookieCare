@@ -65,6 +65,7 @@ export async function executeCompliancePipeline(state: AnalysisState, deps: Comp
   log("compliance.verification.execution_policy", verificationExecution);
   let investigation: InvestigationRunResult;
   const requirements=investigationRequirementsForChecks(state,checks);
+  void state.onProgress?.(35, "Cross-referencing document graph with compliance requirements…");
   try {
     investigation = await investigate(state, { userId: state.actorUserId, requirements, logger: log, reviewConcurrency: run.budget.concurrency,
       scheduleCall: (work, signal) => run.scheduleCall(work, signal, { stage: "investigation" }) });
@@ -73,6 +74,7 @@ export async function executeCompliancePipeline(state: AnalysisState, deps: Comp
     log("compliance.investigation.failed", { error: String(error) });
     investigation = { bundlesByRequirement: new Map(), resolutionIssues: [], timings: { indexMs: 0, retrievalMs: 0, reviewMs: 0, expansionMs: 0, totalMs: 0 } };
   }
+  void state.onProgress?.(65, "Evaluating compliance rules against document evidence…");
   const investigated = [...investigation.bundlesByRequirement.values()];
   const matches = new Map(checks.map(check=>[check.checkId,investigated.filter(b=>
     b.documentId===check.reviewScopeId && b.requirementId===check.ruleId && b.packageId===`rule:${check.skillId}`)]));
