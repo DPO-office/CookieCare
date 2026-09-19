@@ -28,6 +28,45 @@ function normaliseWhitespace(text: string): string {
 }
 
 /**
+ * Findings are grounded against stored document text, which may still contain
+ * Markdown emphasis (e.g. `**6. Unilateral Modifications** …`). The viewer
+ * renders that Markdown to HTML (`<strong>` / headings), so highlight matching
+ * must also try a decorator-stripped variant against visible text.
+ */
+function stripMarkdownDecorators(text: string): string {
+  return text
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/__([^_]+)__/g, "$1")
+    .replace(/(^|[^\w*])\*([^*\n]+)\*(?!\*)/g, "$1$2")
+    .replace(/^#{1,6}\s+/gm, "")
+    .trim();
+}
+
+function highlightMatchCandidates(original: string): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const candidate of [original, stripMarkdownDecorators(original)]) {
+    const key = normaliseWhitespace(candidate).toLowerCase();
+    if (key.length < 10 || seen.has(key)) continue;
+    seen.add(key);
+    out.push(candidate);
+  }
+  return out;
+}
+
+function tryInjectHighlight(
+  html: string,
+  original: string,
+  spanHtml: string
+): string | null {
+  return (
+    tryExactMatch(html, original, spanHtml) ??
+    tryNormalisedMatch(html, original, spanHtml) ??
+    tryPositionMapMatch(html, original, spanHtml)
+  );
+}
+
+/**
  * Returns true if the position `idx` in `html` is inside an existing
  * negotiate-clause-highlight span.
  *
@@ -392,38 +431,35 @@ export function buildRenderedDocumentHtml(
   for (const m of sorted) {
     const riskColor = RISK_CONFIG[m.riskLevel].clauseHighlight;
     const isActive = m.clauseId === selectedMarkupId;
-    const spanHtml = buildHighlightSpan(m.clauseId, riskColor, isActive, m.original);
+    const candidates = highlightMatchCandidates(m.original);
+    let injected = false;
 
-    // Strategy 1: exact match
-    const after1 = tryExactMatch(html, m.original, spanHtml);
-    if (after1 !== null) {
-      html = after1;
-      continue;
+    // Strategies 1–3 against the raw original, then a Markdown-stripped
+    // variant so headings like `**5. Sole and Exclusive Remedy** …` can match
+    // the rendered `<strong>` / heading HTML.
+    for (const candidate of candidates) {
+      const spanHtml = buildHighlightSpan(m.clauseId, riskColor, isActive, candidate);
+      const after = tryInjectHighlight(html, candidate, spanHtml);
+      if (after !== null) {
+        html = after;
+        injected = true;
+        break;
+      }
     }
-
-    // Strategy 2: normalised-whitespace match (handles smart quotes, entities)
-    const after2 = tryNormalisedMatch(html, m.original, spanHtml);
-    if (after2 !== null) {
-      html = after2;
-      continue;
-    }
-
-    // Strategy 3: position-map match (handles cross-paragraph spans where
-    // </p><p> boundaries cause Strategy 2's on-the-fly counter to misalign)
-    const after3 = tryPositionMapMatch(html, m.original, spanHtml);
-    if (after3 !== null) {
-      html = after3;
-      continue;
-    }
+    if (injected) continue;
 
     // Strategy 4: overlap/subset registration — when the text is already inside
     // a larger highlighted span, register this clauseId as a secondary attribute
     // so the document viewer can still scroll to it when navigating to this finding
-    const after4 = tryRegisterOnExistingSpan(html, m.original, m.clauseId);
-    if (after4 !== null) {
-      html = after4;
-      continue;
+    for (const candidate of candidates) {
+      const after4 = tryRegisterOnExistingSpan(html, candidate, m.clauseId);
+      if (after4 !== null) {
+        html = after4;
+        injected = true;
+        break;
+      }
     }
+    if (injected) continue;
 
     console.warn(
       `[negotiate/highlight] Could not locate clause "${m.clauseId}" in rendered HTML. ` +
