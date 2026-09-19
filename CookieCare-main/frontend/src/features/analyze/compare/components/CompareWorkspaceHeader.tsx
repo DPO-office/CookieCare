@@ -2,22 +2,20 @@
  * CompareWorkspaceHeader
  *
  * Top section of the Compare Results workspace.
- * Shows: breadcrumb, doc A → doc B, action buttons, severity summary,
+ * Shows: breadcrumb, doc A → doc B, action buttons,
  * clause counts, and negotiation priorities CTA.
  */
 
 import { useState } from "react";
-import { FileText, ArrowRight, Download, ChevronDown, ChevronUp } from "lucide-react";
+import { FileText, ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
 import { CompareChatToolbar } from "./CompareChatToolbar";
 import type { CompareHistoryEntry } from "../utils/compareHistory";
 import type { NormalizedCompareData } from "../utils/normalizeFindings";
-import { RISK_BADGE } from "../constants";
 
 interface CompareWorkspaceHeaderProps {
   fileA: string;
   fileB: string;
   normalizedData: NormalizedCompareData;
-  overallRisk: "LOW" | "MEDIUM" | "HIGH";
   overallAssessment: string;
   recommendation: string;
   negotiationPriorities: string[];
@@ -39,7 +37,6 @@ export function CompareWorkspaceHeader({
   fileA,
   fileB,
   normalizedData,
-  overallRisk,
   overallAssessment,
   recommendation,
   negotiationPriorities,
@@ -54,15 +51,10 @@ export function CompareWorkspaceHeader({
 }: CompareWorkspaceHeaderProps) {
   const [prioritiesOpen, setPrioritiesOpen] = useState(false);
   const { counts } = normalizedData;
-  const riskTone = RISK_BADGE[overallRisk] ?? RISK_BADGE.MEDIUM;
 
-  const totalFindings = counts.total.length;
   const totalChanges = counts.affectedClauses;
   const totalClauses = counts.totalClauses;
   const unchangedCount = counts.unchanged;
-
-  // Severity bar widths — proportional to counts
-  const barTotal = counts.high + counts.medium + counts.low + counts.noRisk;
 
   return (
     <div className="bg-white border-b border-[#E4E4E7]">
@@ -147,28 +139,6 @@ export function CompareWorkspaceHeader({
       {/* ── Summary bar ── */}
       <div className="border-t border-[#F0F0F2] px-5 py-3.5 sm:px-6">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-          {/* Overall risk badge */}
-          <span className={`score-badge text-[11px] font-semibold ${riskTone.badge}`}>
-            Overall {riskTone.label} risk
-          </span>
-
-          {/* Severity counts */}
-          <div className="flex items-center gap-3 text-[13px]">
-            <SeverityCount level="HIGH" count={counts.high} />
-            <span className="text-[#D1D5DB]">·</span>
-            <SeverityCount level="MEDIUM" count={counts.medium} />
-            <span className="text-[#D1D5DB]">·</span>
-            <SeverityCount level="LOW" count={counts.low} />
-            {counts.noRisk > 0 && (
-              <>
-                <span className="text-[#D1D5DB]">·</span>
-                <span className="text-[13px] font-medium text-[#6B7280]">
-                  {counts.noRisk} unscored
-                </span>
-              </>
-            )}
-          </div>
-
           {/* Clause counts */}
           <div className="flex items-center gap-1.5 text-[12px] text-[#6B7280]">
             <span className="font-semibold text-[#374151]">{totalChanges}</span>
@@ -180,40 +150,6 @@ export function CompareWorkspaceHeader({
             )}
           </div>
         </div>
-
-        {/* Severity breakdown bar */}
-        {barTotal > 0 && (
-          <div className="mt-3 flex h-1.5 w-full max-w-[360px] overflow-hidden rounded-full bg-[#F3F4F6]">
-            {counts.high > 0 && (
-              <div
-                className="h-full bg-[#B54A45]"
-                style={{ width: `${(counts.high / barTotal) * 100}%` }}
-                title={`${counts.high} HIGH`}
-              />
-            )}
-            {counts.medium > 0 && (
-              <div
-                className="h-full bg-[#C9843A]"
-                style={{ width: `${(counts.medium / barTotal) * 100}%` }}
-                title={`${counts.medium} MEDIUM`}
-              />
-            )}
-            {counts.low > 0 && (
-              <div
-                className="h-full bg-[#3D9B8F]"
-                style={{ width: `${(counts.low / barTotal) * 100}%` }}
-                title={`${counts.low} LOW`}
-              />
-            )}
-            {counts.noRisk > 0 && (
-              <div
-                className="h-full bg-[#D1D5DB]"
-                style={{ width: `${(counts.noRisk / barTotal) * 100}%` }}
-                title={`${counts.noRisk} unscored`}
-              />
-            )}
-          </div>
-        )}
       </div>
 
       {/* ── Assessment + recommendation (collapsed by default for space) ── */}
@@ -247,22 +183,5 @@ function DocChip({ label, filename, side }: { label: string; filename: string; s
         </span>
       </div>
     </div>
-  );
-}
-
-function SeverityCount({ level, count }: { level: "HIGH" | "MEDIUM" | "LOW"; count: number }) {
-  const tone = RISK_BADGE[level];
-  return (
-    <span className="flex items-center gap-1.5">
-      <span
-        className="inline-block h-2 w-2 rounded-full"
-        style={{ background: tone.bar }}
-        aria-hidden
-      />
-      <span className={`font-semibold ${count > 0 ? "text-[#111827]" : "text-[#9CA3AF]"}`}>
-        {count}
-      </span>
-      <span className="text-[#6B7280]">{tone.label}</span>
-    </span>
   );
 }

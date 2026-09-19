@@ -9,6 +9,17 @@ export function normalizeUrl(url: string): string {
   return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
 }
 
+/** SCAN_ERROR results must not be shown as a successful zero-cookie audit. */
+export function cookieScanHardErrorMessage(result: {
+  scanSummary?: { riskLevel?: string; error?: string };
+  complianceGaps?: Array<{ regulation?: string; issue?: string }>;
+} | null | undefined): string | null {
+  if (!result || result.scanSummary?.riskLevel !== "ERROR") return null;
+  const gap = result.complianceGaps?.find((g) => g.regulation === "SCAN_ERROR");
+  if (!gap) return null;
+  return result.scanSummary.error || gap.issue || "Scan failed";
+}
+
 export function buildReportContentString(result: {
   scanSummary: { url: string; overallScore: number };
   cookiesDetected: unknown[];

@@ -104,13 +104,22 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
       model: GeminiModel.GEMINI_3_6_FLASH,
       temperature: 0.0,
       responseMimeType: "application/json",
+      // "minimal" is the lowest thinkingLevel available for Gemini 3.x models.
+      // There is no "none" option — the model always performs some internal
+      // chain-of-thought at this level. Google does not guarantee bit-for-bit
+      // identical outputs at temperature=0 when thinking is active, meaning
+      // successive evaluations of the same document may produce slightly
+      // different issueTag assignments or original-text spans. Determinism is
+      // handled defensively in evaluateFullDocument (text-key dedup + substring
+      // collapse + cross-location mergeByIssueIdentity) rather than relying on
+      // the model being perfectly reproducible here.
       thinkingLevel: "minimal",
     },
     [LLMTask.STRUCTURAL_JSON_LITE]: {
       model: GeminiModel.GEMINI_3_6_FLASH,
       temperature: 0.0,
       responseMimeType: "application/json",
-      thinkingLevel: "minimal",
+      thinkingLevel: "minimal", // same constraint as STRUCTURAL_JSON above
     },
     [LLMTask.REFINEMENT]: {
       model: GeminiModel.GEMINI_3_6_FLASH,

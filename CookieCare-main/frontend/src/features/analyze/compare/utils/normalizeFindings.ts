@@ -215,7 +215,7 @@ export const DEFAULT_FILTERS: FindingFilters = {
   severity: "all",
   category: "all",
   detection: "all",
-  sort: "severity",
+  sort: "position",
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -427,15 +427,8 @@ export function normalizeCompareData(result: CompareResult): NormalizedCompareDa
     }
   }
 
-  // Default sort: severity HIGH → MEDIUM → LOW → no-risk
-  findings.sort((a, b) => {
-    const aLevel = a.risk?.level ?? "NONE";
-    const bLevel = b.risk?.level ?? "NONE";
-    const aOrd = SEVERITY_ORDER[aLevel] ?? 3;
-    const bOrd = SEVERITY_ORDER[bLevel] ?? 3;
-    if (aOrd !== bOrd) return aOrd - bOrd;
-    return a.docPosition - b.docPosition;
-  });
+  // Default sort: document order
+  findings.sort((a, b) => a.docPosition - b.docPosition);
 
   // ── Counts ────────────────────────────────────────────────────────────────
   //

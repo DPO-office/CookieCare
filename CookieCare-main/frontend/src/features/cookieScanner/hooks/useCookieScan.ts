@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import type { FormEvent } from "react";
 import { CookieScanResult } from "../../../shared/types";
 import { ScanDepth } from "../types";
-import { normalizeUrl, buildDownloadFilename } from "../utils";
+import { normalizeUrl, buildDownloadFilename, cookieScanHardErrorMessage } from "../utils";
 import { startCookieScan, pollJobStatus, shareReportByEmail, downloadCookiePdfReport, type ShareReportPayload } from "../api/cookieScannerApi";
 import { apiUrl } from "../../../config";
 
@@ -59,6 +59,12 @@ export function useCookieScan(authToken: string) {
 
         const finish = (r: any) => {
           if (resolvedRef.current) return;
+          const hardError = cookieScanHardErrorMessage(r);
+          if (hardError) {
+            resolvedRef.current = true;
+            setError(hardError); setScanProgress(""); setScanning(false); cleanupListeners();
+            return;
+          }
           resolvedRef.current = true;
           setResult(r); setScanProgress(""); setScanning(false); cleanupListeners();
         };
@@ -92,6 +98,8 @@ export function useCookieScan(authToken: string) {
           } catch {}
         }, 4000);
       } else {
+        const hardError = cookieScanHardErrorMessage(data);
+        if (hardError) throw new Error(hardError);
         setResult(data);
       }
     } catch (err: any) {

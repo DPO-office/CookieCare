@@ -196,6 +196,7 @@ function NegotiateWorkspace({
         <div className="flex min-h-0 flex-1 flex-nowrap gap-3 overflow-hidden">
           <DocumentViewer
             activeDoc={activeDoc}
+            authToken={authToken}
             agentMarkups={agentMarkups}
             selectedMarkupId={selectedMarkup?.clauseId ?? null}
             acceptingMarkupId={acceptingMarkupId}

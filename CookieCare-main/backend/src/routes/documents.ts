@@ -8,6 +8,7 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 
 
 router.get("/", authenticateToken, docController.getDocuments);
 router.get("/:id/raw", authenticateToken, docController.getRawDocument);
+router.get("/:id/render-html", authenticateToken, docController.renderDocumentHtml);
 router.get("/:id", authenticateToken, docController.getDocumentById);
 router.post("/", authenticateToken, docController.createDocument);
 router.put("/:id", authenticateToken, docController.updateDocument);

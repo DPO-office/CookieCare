@@ -294,3 +294,31 @@ export async function exportDocument(
   if (!res.ok) throw new Error("Failed to export document");
   return res.blob();
 }
+
+/**
+ * Fetch the rich HTML rendering of a document for the negotiate viewer.
+ *
+ * For DOCX files the backend runs mammoth.convertToHtml() on the original
+ * uploaded bytes and returns the result. This preserves headings, bold, lists,
+ * tables and numbered sections that are lost when extracting plain text.
+ *
+ * Returns null when:
+ *   - the document is not a DOCX (PDF, plain text, draft, etc.)
+ *   - the original file bytes were not stored (pre-migration uploads)
+ *   - any server error (treated as non-fatal — caller falls back to plain text)
+ */
+export async function fetchDocumentRenderHtml(
+  authToken: string,
+  documentId: string
+): Promise<string | null> {
+  try {
+    const res = await fetch(apiUrl(`/api/documents/${documentId}/render-html`), {
+      headers: { Authorization: `Bearer ${authToken}` },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return typeof data.html === "string" && data.html.trim() ? data.html : null;
+  } catch {
+    return null;
+  }
+}

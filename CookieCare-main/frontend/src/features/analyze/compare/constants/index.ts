@@ -47,8 +47,7 @@ export const DIFF_LABELS: Record<string, { label: string; badge: string }> = {
 
 /**
  * Compare workspace change-type language.
- * Distinct from risk. Used by the three-pane UI (rail badges + PDF highlights).
- * Do not reuse these colors for HIGH/MEDIUM/LOW risk.
+ * Distinct from other compare chrome. Used by the three-pane UI (rail badges + PDF highlights).
  *
  * `stroke` — used as the CSS outline color on the per-word PDF highlight boxes
  * for the active (selected) finding. Intentionally derived from the change-type
@@ -107,13 +106,6 @@ export const CHANGE_TYPE_STYLE: Record<
   },
 };
 
-/** Compact risk badges that do not reuse change-type colors. */
-export const COMPARE_RISK_BADGE: Record<string, { label: string; badge: string }> = {
-  HIGH: { label: "HIGH", badge: "bg-[#111827] text-white" },
-  MEDIUM: { label: "MEDIUM", badge: "border border-[#4B5563] bg-white text-[#374151]" },
-  LOW: { label: "LOW", badge: "bg-[#F3F4F6] text-[#4B5563]" },
-};
-
 export const SELECTED_FINDING_OUTLINE = "#2175D9";
 
 export const ALIGN_LABELS: Record<string, { label: string; badge: string }> = {
@@ -121,10 +113,4 @@ export const ALIGN_LABELS: Record<string, { label: string; badge: string }> = {
   added: { label: "Only in revised", badge: "bg-light-blue-100 text-[#4F5BD9]" },
   removed: { label: "Only in original", badge: "bg-badge-red text-badge-red-text" },
   restructured: { label: "Restructured", badge: "bg-badge-yellow text-badge-yellow-text" },
-};
-
-export const RISK_BADGE: Record<string, { label: string; badge: string; bar: string }> = {
-  HIGH: { label: "High", badge: "bg-badge-red text-badge-red-text", bar: "#B54A45" },
-  MEDIUM: { label: "Medium", badge: "bg-badge-yellow text-badge-yellow-text", bar: "#C9843A" },
-  LOW: { label: "Low", badge: "bg-badge-green text-badge-green-text", bar: "#3D9B8F" },
 };

@@ -324,7 +324,7 @@ export function useNegotiate({
   const [evaluating, setEvaluating] = useState(false);
   const [evaluationError, setEvaluationError] = useState("");
   const [acceptingMarkupId, setAcceptingMarkupId] = useState<string | null>(null);
-  const [appliedClause, setAppliedClause] = useState<{ id: string; text: string; spliceStart: number } | null>(null);
+  const [appliedClause, setAppliedClause] = useState<{ id: string; text: string; original: string; spliceStart: number } | null>(null);
   const [evaluatingDocId, setEvaluatingDocId] = useState<string | null>(null);
   const [editingReplacement, setEditingReplacement] = useState(false);
   const [redlinesOpen, setRedlinesOpen] = useState(false);
@@ -384,6 +384,13 @@ export function useNegotiate({
   const [hasManualSelection, setHasManualSelection] = useState(false);
   /** Selected text string exposed to UI for preview — kept in sync with the ref. */
   const [manualSelectionText, setManualSelectionText] = useState<string>("");
+  /**
+   * Tracks the clauseId of the most recently created synthetic manual markup.
+   * Stored in a ref (not state) so draftFromStrategy always reads the latest
+   * value synchronously — avoids the stale-closure issue where selectedMarkup
+   * state hasn't updated yet on a fast double-Draft click.
+   */
+  const lastSyntheticIdRef = useRef<string | null>(null);
 
   /**
    * Called by DocumentViewer's onTextSelection callback.
@@ -401,6 +408,7 @@ export function useNegotiate({
   /** Clears a stored manual selection (called after Accept or Reject). */
   const clearManualSelection = () => {
     manualSelectionRef.current = null;
+    lastSyntheticIdRef.current = null;
     setHasManualSelection(false);
     setManualSelectionText("");
   };
@@ -522,54 +530,63 @@ export function useNegotiate({
         const rawOffset = manual.rawContentOffset;
 
         if (rawOffset >= 0 && rawOffset < content.length) {
-          // Verify the region at rawOffset matches the selected text using
-          // normalised comparison (handles minor whitespace/punctuation drift
-          // AND Markdown decoration chars like ** __ that precede the text).
-          //
-          // Strip Markdown decoration chars from both sides before comparing
-          // so "**indemnifying party**" correctly matches "indemnifying party".
-          const stripMarkdownDecor = (s: string) =>
-            s.replace(/[*_~`#>[\]()]/g, "").replace(/\s+/g, " ").trim().toLowerCase();
+          // Verify the region at rawOffset roughly matches the selected text.
+          // We use a simple word-anchor check: take the first 6 non-trivial
+          // words of manual.text and confirm they all appear within a window
+          // starting at rawOffset. This is much more robust than a strict
+          // prefix comparison after stripping markdown chars, because:
+          //   - **bold** markers between words shift the comparison
+          //   - legal text with (parens) gets its parens stripped by the
+          //     old stripMarkdownDecor, causing false mismatches
+          const anchorWords = manual.text
+            .replace(/\s+/g, " ").trim()
+            .split(" ")
+            .filter((w) => w.replace(/[^a-z0-9]/gi, "").length > 2)
+            .slice(0, 6)
+            .map((w) => w.replace(/[^a-z0-9]/gi, "").toLowerCase());
 
-          const window = content.slice(rawOffset, rawOffset + manual.text.length + 100);
-          const normSelected = stripMarkdownDecor(manual.text);
-          const normWindow = stripMarkdownDecor(window);
+          const windowStr = content
+            .slice(rawOffset, rawOffset + manual.text.length + 200)
+            .toLowerCase();
 
-          if (normSelected.length >= 5 &&
-              normWindow.startsWith(normSelected.slice(0, Math.min(normSelected.length, 40)))) {
-            // Raw offset is valid — find the precise end by scanning forward.
-            // The raw content may have formatting chars interspersed, so the
-            // actual end may be slightly beyond rawOffset + text.length.
-            // Use the text length as an upper bound and scan for the real end.
-            splice = {
-              start: rawOffset,
-              end: Math.min(rawOffset + manual.text.length + 20, content.length),
-            };
+          // Two-part verification:
+          // 1. All anchor words appear in the window (guards against wildly wrong offset)
+          // 2. The window starts with the first 40 normalised chars of manual.text
+          //    (guards against repetitive boilerplate where common words like "shall"
+          //    or "party" appear in ANY 200-char window, making word-anchor trivially true)
+          const normFirst40 = manual.text
+            .replace(/[*_~`#>[\]()]/g, "")
+            .replace(/\s+/g, " ")
+            .trim()
+            .toLowerCase()
+            .slice(0, 40);
+          const normWindow40 = windowStr
+            .replace(/[*_~`#>[\]()]/g, "")
+            .replace(/\s+/g, " ")
+            .trim()
+            .slice(0, 60); // a bit more than 40 to absorb leading decoration chars
 
-            // Tighten the end: walk forward from rawOffset to find where
-            // the raw content's normalised text stops matching manual.text.
-            // This handles Markdown chars like **/ that sit inside the span.
-            let end = rawOffset;
-            let matchedChars = 0;
-            // Count only the non-decoration, non-whitespace chars in the selected text
-            const normLen = manual.text.replace(/[*_~`#>[\]()]/g, "").replace(/\s+/g, "").length;
-            while (end < content.length && matchedChars < normLen) {
-              const ch = content[end].toLowerCase();
-              // Skip Markdown decoration chars that are invisible in DOM
-              if (ch === "*" || ch === "_" || ch === "~" || ch === "`" ||
-                  ch === "#" || ch === ">" || ch === "[" || ch === "]" ||
-                  ch === "(" || ch === ")") {
-                end++;
-                continue;
-              }
-              if (!/\s/.test(ch)) matchedChars++;
-              else if (matchedChars > 0) matchedChars++; // count a space in the middle
-              end++;
-            }
-            // Only use the tightened end if it's within a reasonable bound
-            if (end > rawOffset && end <= rawOffset + manual.text.length + 50) {
-              splice = { start: rawOffset, end };
-            }
+          const anchorMatches =
+            anchorWords.length >= 2 &&
+            anchorWords.every((w) => windowStr.includes(w)) &&
+            (normFirst40.length < 10 || normWindow40.startsWith(normFirst40.slice(0, Math.min(normFirst40.length, 40))));
+
+          if (anchorMatches) {
+            // The rawOffset anchor is valid. Use locateClauseForSplice with
+            // markup.original (= rawSelectedText, the verbatim raw content
+            // slice) starting the search from rawOffset. Strategy 2 (exact
+            // indexOf) finds it immediately since rawSelectedText was extracted
+            // directly from activeDoc.content — no character-counting needed.
+            //
+            // We pass a synthetic markup shape with charOffset = rawOffset so
+            // Strategy 1 is tried first, giving a precise start+end via the
+            // normalised posMap walk that already handles \r\n vs \n and
+            // inline markdown decoration correctly.
+            splice = locateClauseForSplice(content, {
+              ...markup,
+              original:    markup.original,   // rawSelectedText set at draft time
+              charOffset:  rawOffset,
+            });
           }
         }
 
@@ -582,6 +599,72 @@ export function useNegotiate({
         if (!splice) {
           // Last resort: try AI-finding locator with a synthetic markup shape
           splice = locateClauseForSplice(content, markup);
+        }
+
+        // ── Extra fallback: markdown-stripping shadow search ─────────────
+        // Handles the case where rawContentOffset came back as -1 (the DOM
+        // offset computation failed) AND the three strategies above also
+        // failed because manual.text is DOM plain text (e.g. "Neither party
+        // shall…") but the raw content has Markdown decorators interspersed
+        // (e.g. "**Neither** party shall…"). We build a char-by-char shadow
+        // of the raw content that skips all Markdown decoration sequences,
+        // keeping a posMap[] so every shadow character can be mapped back to
+        // its raw-content index. Then we search for the plain-text selection
+        // in the shadow and use posMap to get precise raw start/end.
+        if (!splice && manual.text.trim().length >= 5) {
+          const plainTarget = manual.text.replace(/\s+/g, " ").trim().toLowerCase();
+
+          // Build a Markdown-stripped shadow of the raw content
+          const mdShadowChars: string[] = [];
+          const mdPosMap: number[] = []; // mdPosMap[i] = index in content for shadow char i
+          let ci = 0;
+          while (ci < content.length) {
+            // Skip multi-char Markdown decoration sequences
+            if (
+              (content[ci] === "*" || content[ci] === "_") &&
+              (content[ci + 1] === "*" || content[ci + 1] === "_")
+            ) {
+              ci += 2; // skip **  or __
+              continue;
+            }
+            if (
+              content[ci] === "*" || content[ci] === "_" ||
+              content[ci] === "~" || content[ci] === "`" ||
+              content[ci] === "#" || content[ci] === ">"
+            ) {
+              ci++;
+              continue;
+            }
+            // Normalise whitespace
+            const ch = content[ci];
+            if (/[\r\n\t ]/.test(ch)) {
+              if (mdShadowChars.length > 0 && mdShadowChars[mdShadowChars.length - 1] !== " ") {
+                mdShadowChars.push(" ");
+                mdPosMap.push(ci);
+              }
+            } else {
+              mdShadowChars.push(ch.toLowerCase());
+              mdPosMap.push(ci);
+            }
+            ci++;
+          }
+
+          const mdShadowStr = mdShadowChars.join("");
+
+          // Try to find the plain target in the shadow
+          const hitIdx = mdShadowStr.indexOf(plainTarget);
+          if (hitIdx !== -1) {
+            const rawStart = mdPosMap[hitIdx];
+            const rawEndShadowIdx = hitIdx + plainTarget.length - 1;
+            const rawEnd =
+              rawEndShadowIdx < mdPosMap.length
+                ? mdPosMap[rawEndShadowIdx] + 1
+                : rawStart + manual.text.length;
+            splice = {
+              start: rawStart,
+              end: Math.min(rawEnd, content.length),
+            };
+          }
         }
       } else {
         splice = locateClauseForSplice(content, markup);
@@ -670,12 +753,22 @@ export function useNegotiate({
       });
 
       setAgentMarkups(adjustedRemaining);
-      setSelectedMarkup(adjustedRemaining[0] ?? null);
+      // Select the finding that comes AFTER the accepted one in the original
+      // order. If we were on the last finding, fall back to the new last item.
+      // Previously this always jumped to [0], resetting position to the start
+      // regardless of where the user was — making navigation feel broken after
+      // accepting anything other than the first finding.
+      const acceptedIdx = agentMarkups.findIndex((m) => m.clauseId === markup.clauseId);
+      const nextSelection =
+        adjustedRemaining[acceptedIdx] ??      // next in sequence (same index, list shrunk)
+        adjustedRemaining[acceptedIdx - 1] ??  // was last — go to new last
+        null;
+      setSelectedMarkup(nextSelection);
       setEditingReplacement(false);
       // Record the exact splice position in the updated content so the green
       // flash renderer can target the correct occurrence rather than using a
       // first-match regex search.
-      setAppliedClause({ id: markup.clauseId, text: markup.replacement, spliceStart: splice.start });
+      setAppliedClause({ id: markup.clauseId, text: markup.replacement, original: markup.original, spliceStart: splice.start });
       clearManualSelection(); // ← always clear after accept
       onRefresh();
       window.setTimeout(() => {
@@ -707,9 +800,16 @@ export function useNegotiate({
         return; // leave it in the list — the reject did not durably apply
       }
     }
+    const rejectedIdx = agentMarkups.findIndex((m) => m.clauseId === clauseId);
     const remaining = agentMarkups.filter((m) => m.clauseId !== clauseId);
     setAgentMarkups(remaining);
-    setSelectedMarkup(remaining[0] ?? null);
+    // Same positional logic as accept: advance to the finding that was next,
+    // fall back to the new last if we were at the end.
+    const nextSelection =
+      remaining[rejectedIdx] ??
+      remaining[rejectedIdx - 1] ??
+      null;
+    setSelectedMarkup(nextSelection);
     setEditingReplacement(false);
     // Only clear the manual selection when the dismissed markup IS the manual
     // draft for that selection. Rejecting an independent AI finding must not
@@ -803,7 +903,13 @@ export function useNegotiate({
     if (!highlight) return;
     const clauseId = highlight.dataset.clauseId;
     const markup = agentMarkups.find((m) => m.clauseId === clauseId);
-    if (markup) { setSelectedMarkup(markup); setEditingReplacement(false); }
+    if (markup) { setSelectedMarkup(markup); setEditingReplacement(false); return; }
+    // Fallback: check secondary clause IDs (overlap/subset registrations)
+    const secondaryIds = (highlight.dataset.secondaryClauseIds ?? "").split(" ").filter(Boolean);
+    for (const sid of secondaryIds) {
+      const m = agentMarkups.find((m) => m.clauseId === sid);
+      if (m) { setSelectedMarkup(m); setEditingReplacement(false); return; }
+    }
   };
 
   const updateMarkupReplacement = (val: string) => {
@@ -880,12 +986,95 @@ export function useNegotiate({
         // Draft directly using the legacy compromise path — for manually
         // selected text we do not need a Preferred/Balanced/Fallback strategy
         // ladder; the user's explicit instruction is the primary directive.
-        const riskExplanation =
-          `User-selected clause for revision.\nUser instruction: ${effectiveInstruction}`;
+        //
+        // Iterative re-draft: if there is already a draft showing for this
+        // manual selection (same clauseId prefix "manual-"), use that draft
+        // text as the base so subsequent instructions refine the draft rather
+        // than restarting from the original selected text each time.
+        // Use lastSyntheticIdRef (a ref, not state) so this is always current
+        // even on a fast double-Draft click before React re-renders.
+        const existingDraft =
+          strategyDraftResult?.result &&
+          lastSyntheticIdRef.current !== null &&
+          lastSyntheticIdRef.current.startsWith("manual-")
+            ? strategyDraftResult.result
+            : null;
+
+        // Prefer the raw content slice (with Markdown formatting intact) over
+        // the DOM plain text. This ensures the AI can see and preserve **bold**,
+        // _italic_, etc. when it edits the text. We extract it using the same
+        // markdown-stripping shadow logic used in the Accept path: build a
+        // stripped shadow, find the plain selection in it, then map back to
+        // get the raw slice from activeDoc.content.
+        let rawSelectedText = manual.text; // fallback: DOM plain text
+        if (manual.rawContentOffset >= 0) {
+          // rawContentOffset is valid — slice directly from raw content.
+          // Estimate the end by scanning forward through markdown chars
+          // until we've consumed all non-decoration chars of manual.text.
+          const rc = activeDoc.content;
+          const normLen = manual.text.replace(/[*_~`#>[\]()]/g, "").replace(/\s+/g, "").length;
+          let end = manual.rawContentOffset;
+          let matched = 0;
+          while (end < rc.length && matched < normLen) {
+            const ch = rc[end];
+            if (ch === "*" || ch === "_" || ch === "~" || ch === "`" ||
+                ch === "#" || ch === ">" || ch === "[" || ch === "]" ||
+                ch === "(" || ch === ")") {
+              end++;
+              continue;
+            }
+            if (!/\s/.test(ch)) matched++;
+            // spaces are NOT counted — normLen excludes spaces, loop must too
+            end++;
+          }
+          const slice = rc.slice(manual.rawContentOffset, Math.min(end, rc.length));
+          if (slice.trim().length >= 5) rawSelectedText = slice;
+        } else {
+          // rawContentOffset unavailable — try the markdown-stripping shadow
+          // to find the plain text in raw content and extract the raw slice.
+          const rc = activeDoc.content;
+          const plainTarget = manual.text.replace(/\s+/g, " ").trim().toLowerCase();
+          const shadowChars: string[] = [];
+          const shadowPosMap: number[] = [];
+          let si = 0;
+          while (si < rc.length) {
+            if (
+              (rc[si] === "*" || rc[si] === "_") &&
+              (rc[si + 1] === "*" || rc[si + 1] === "_")
+            ) { si += 2; continue; }
+            if (rc[si] === "*" || rc[si] === "_" || rc[si] === "~" ||
+                rc[si] === "`" || rc[si] === "#" || rc[si] === ">") {
+              si++; continue;
+            }
+            const ch = rc[si];
+            if (/[\r\n\t ]/.test(ch)) {
+              if (shadowChars.length > 0 && shadowChars[shadowChars.length - 1] !== " ") {
+                shadowChars.push(" "); shadowPosMap.push(si);
+              }
+            } else {
+              shadowChars.push(ch.toLowerCase()); shadowPosMap.push(si);
+            }
+            si++;
+          }
+          const shadowStr = shadowChars.join("");
+          const hitIdx = shadowStr.indexOf(plainTarget);
+          if (hitIdx !== -1) {
+            const rawStart = shadowPosMap[hitIdx];
+            const rawEndShadow = hitIdx + plainTarget.length - 1;
+            const rawEnd = rawEndShadow < shadowPosMap.length
+              ? shadowPosMap[rawEndShadow] + 1
+              : rawStart + manual.text.length;
+            const slice = rc.slice(rawStart, Math.min(rawEnd, rc.length));
+            if (slice.trim().length >= 5) rawSelectedText = slice;
+          }
+        }
+
+        const baseText = existingDraft ?? rawSelectedText;
+        const riskExplanation = `User-selected clause for revision.\nUser instruction: ${effectiveInstruction}`;
 
         const result = await generateCompromise(
           authToken,
-          manual.text,
+          baseText,
           riskExplanation,
           false,
           effectiveInstruction,
@@ -907,15 +1096,26 @@ export function useNegotiate({
         // charOffset carries the raw-content offset computed at selection time
         // (BLOCKER-1 fix). The Accept path reads manualSelectionRef.rawContentOffset
         // directly, but charOffset is set here for consistency/future use.
+        //
+        // IMPORTANT: use rawSelectedText (the raw content slice with Markdown
+        // formatting intact) as `original`, not manual.text (DOM plain text).
+        // This means locateClauseForSplice fallbacks and richHtml patching all
+        // work with text that actually exists verbatim in the raw document,
+        // so exact-match (Strategy 2) succeeds without needing the shadow walk.
         const syntheticMarkup: AgentMarkup = {
           clauseId:    syntheticId,
-          original:    manual.text,
+          original:    rawSelectedText,
           replacement: result,
           reasoning:   effectiveInstruction,
           riskLevel:   "YELLOW",
           clauseType:  "other",
           charOffset:  manual.rawContentOffset >= 0 ? manual.rawContentOffset : undefined,
         };
+
+        // Record the new synthetic id in the ref BEFORE any state updates so
+        // a fast second Draft call (before React re-renders) reads the correct
+        // id and correctly picks up the existing draft as the base text.
+        lastSyntheticIdRef.current = syntheticId;
 
         // Add to the markups list (or update if already present from a
         // previous manual draft of the same selection).

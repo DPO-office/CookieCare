@@ -6,8 +6,6 @@
  *
  * Visual rules:
  *  - Change type  → color-coded badge  (CHANGE_TYPE_STYLE)
- *  - Risk severity → neutral badge     (COMPARE_RISK_BADGE)
- *  - These two systems never share colors
  *  - Drafting changes collapsed by default
  */
 
@@ -16,7 +14,7 @@ import {
   Search, ChevronDown, ChevronUp, X,
 } from "lucide-react";
 import {
-  COMPARE_RISK_BADGE, CHANGE_TYPE_STYLE, CATEGORY_LABELS,
+  CHANGE_TYPE_STYLE, CATEGORY_LABELS,
 } from "../constants";
 import {
   filterFindings,
@@ -27,10 +25,6 @@ import {
   type NormalizedCompareData,
   type FindingFilters,
   type ChangeTypeFilter,
-  type SeverityFilter,
-  type CategoryFilter,
-  type DetectionFilter,
-  type SortOrder,
 } from "../utils/normalizeFindings";
 
 interface CompareFindingsRailProps {
@@ -49,20 +43,6 @@ const CHANGE_TYPE_FILTER_OPTIONS: { value: ChangeTypeFilter; label: string }[] =
   { value: "MODIFIED_BROADER", label: "Broader" },
   { value: "MODIFIED_NARROWER", label: "Narrower" },
   { value: "NEUTRAL_REPHRASE", label: "Rephrased" },
-];
-
-const SEVERITY_FILTER_OPTIONS: { value: SeverityFilter; label: string }[] = [
-  { value: "all", label: "All severity" },
-  { value: "HIGH", label: "High" },
-  { value: "MEDIUM", label: "Medium" },
-  { value: "LOW", label: "Low" },
-  { value: "none", label: "No risk" },
-];
-
-const SORT_OPTIONS: { value: SortOrder; label: string }[] = [
-  { value: "severity", label: "Severity" },
-  { value: "position", label: "Document order" },
-  { value: "category", label: "Category" },
 ];
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -95,27 +75,12 @@ export function CompareFindingsRail({
 
   const hasActiveFilters =
     filters.search !== "" ||
-    filters.changeType !== "all" ||
-    filters.severity !== "all" ||
-    filters.category !== "all" ||
-    filters.detection !== "all" ||
-    filters.sort !== "severity";
-
-  const categoryOptions = Array.from(
-    new Set(data.findings.filter((f) => f.kind === "risk").map((f) => (f as any).risk.category))
-  ) as string[];
-
-  // ── Summary counts from live data ────────────────────────────────────────
-  const { high, medium, low } = data.counts;
-  const riskTotal = high + medium + low;
+    filters.changeType !== "all";
 
   // ── FIX 3: counts use correct terminology ────────────────────────────────
   //
   // materialPairs = unique clause pairs with material diffs (not VM count).
-  // riskFindings  = total risk findings (may be > materialPairs).
-  const { materialPairs, riskFindings, merged, uncertain } = data.counts;
-  const { high, medium, low } = data.counts;
-  const riskTotal = high + medium + low;
+  const { materialPairs, merged, uncertain } = data.counts;
   const hasStructuralContext = merged > 0 || uncertain > 0;
 
   const materialByType = useMemo(() => {
@@ -136,7 +101,7 @@ export function CompareFindingsRail({
   return (
     <div className="flex h-full flex-col bg-white">
 
-      {/* ── Summary header: Material Changes + Risks ── */}
+      {/* ── Summary header: Material Changes ── */}
       <div className="shrink-0 border-b border-[#E4E4E7] px-3 pt-3 pb-2.5 space-y-2.5">
 
         {/* Material changes — unique pair count */}
@@ -167,36 +132,6 @@ export function CompareFindingsRail({
             })}
             {materialPairs === 0 && (
               <span className="text-[10px] text-[#9CA3AF]">None detected</span>
-            )}
-          </div>
-        </div>
-
-        <div className="border-t border-[#F3F4F6]" />
-
-        {/* Risks — actual risk finding count */}
-        <div>
-          <div className="flex items-baseline justify-between">
-            <p className="text-[11.5px] font-semibold text-[#111827]">Risks</p>
-            <span className="text-[11px] font-bold tabular-nums text-[#111827]">{riskFindings}</span>
-          </div>
-          <div className="mt-1.5 flex flex-wrap items-center gap-1">
-            {high > 0 && (
-              <span className={`rounded px-1.5 py-0.5 text-[9.5px] font-bold ${COMPARE_RISK_BADGE.HIGH.badge}`}>
-                {high} HIGH
-              </span>
-            )}
-            {medium > 0 && (
-              <span className={`rounded px-1.5 py-0.5 text-[9.5px] font-bold ${COMPARE_RISK_BADGE.MEDIUM.badge}`}>
-                {medium} MEDIUM
-              </span>
-            )}
-            {low > 0 && (
-              <span className={`rounded px-1.5 py-0.5 text-[9.5px] font-bold ${COMPARE_RISK_BADGE.LOW.badge}`}>
-                {low} LOW
-              </span>
-            )}
-            {riskFindings === 0 && (
-              <span className="text-[10px] text-[#9CA3AF]">None scored</span>
             )}
           </div>
         </div>
@@ -271,41 +206,8 @@ export function CompareFindingsRail({
                 : undefined
             }
           />
-          <SelectChip
-            value={filters.severity}
-            options={SEVERITY_FILTER_OPTIONS}
-            onChange={(v) => setFilter("severity", v as SeverityFilter)}
-            activeLabel={
-              filters.severity !== "all"
-                ? SEVERITY_FILTER_OPTIONS.find((o) => o.value === filters.severity)?.label
-                : undefined
-            }
-          />
-          {categoryOptions.length > 0 && (
-            <SelectChip
-              value={filters.category}
-              options={[
-                { value: "all", label: "All categories" },
-                ...categoryOptions.map((c) => ({ value: c, label: CATEGORY_LABELS[c] ?? c })),
-              ]}
-              onChange={(v) => setFilter("category", v as CategoryFilter)}
-              activeLabel={
-                filters.category !== "all"
-                  ? (CATEGORY_LABELS[filters.category] ?? filters.category)
-                  : undefined
-              }
-            />
-          )}
 
           <div className="ml-auto flex items-center gap-1.5">
-            <SelectChip
-              value={filters.sort}
-              options={SORT_OPTIONS}
-              onChange={(v) => setFilter("sort", v as SortOrder)}
-              prefix="Sort:"
-              activeLabel={SORT_OPTIONS.find((o) => o.value === filters.sort)?.label}
-              small
-            />
             {hasActiveFilters && (
               <button
                 type="button"
@@ -387,8 +289,7 @@ export function CompareFindingsRail({
 // ─── Finding row ──────────────────────────────────────────────────────────────
 
 /**
- * Hierarchy: section → change type badge (color) → risk badge (neutral) → title → snippet
- * Change type and risk are visually distinct systems.
+ * Hierarchy: section → change type badge → title → snippet
  */
 function FindingRow({
   finding,
@@ -404,8 +305,6 @@ function FindingRow({
   const risk = finding.kind === "risk" ? finding.risk : null;
   const diff = finding.diff;
 
-  // Risk → neutral badge (HIGH=dark, MEDIUM=outlined, LOW=muted)
-  const riskMeta = risk ? (COMPARE_RISK_BADGE[risk.level] ?? COMPARE_RISK_BADGE.MEDIUM) : null;
   // Change type → color badge
   const changeMeta =
     diff && diff.classification !== "UNCHANGED"
@@ -443,26 +342,6 @@ function FindingRow({
       }`}
     >
       <div className="flex min-w-0 items-start gap-2">
-        {/* Severity indicator dot */}
-        <div className="mt-[5px] shrink-0">
-          {riskMeta ? (
-            <span
-              className="block h-2 w-2 rounded-full"
-              style={{
-                background:
-                  risk?.level === "HIGH"
-                    ? "#111827"
-                    : risk?.level === "MEDIUM"
-                    ? "#6B7280"
-                    : "#D1D5DB",
-              }}
-              aria-label={`${risk!.level} severity`}
-            />
-          ) : (
-            <span className="block h-2 w-2 rounded-full bg-[#E5E7EB]" aria-label="No risk" />
-          )}
-        </div>
-
         {/* Main content */}
         <div className="min-w-0 flex-1">
           {/* Section label */}
@@ -477,7 +356,7 @@ function FindingRow({
             {title.length > 72 ? `${title.slice(0, 72)}…` : title}
           </p>
 
-          {/* Badges row — change type (color) then risk (neutral), clearly separated */}
+          {/* Badges row — change type */}
           <div className="mt-1 flex flex-wrap items-center gap-1">
             {changeMeta && diff?.classification !== "NEUTRAL_REPHRASE" && (
               <span className={`rounded px-1.5 py-0.5 text-[9.5px] font-semibold ${changeMeta.badge}`}>
@@ -488,19 +367,6 @@ function FindingRow({
             {finding.isMoved && (
               <span className="rounded border border-[#E5E7EB] bg-white px-1.5 py-0.5 text-[9px] font-medium text-[#6B7280]">
                 Moved
-              </span>
-            )}
-            {changeMeta && riskMeta && diff?.classification !== "NEUTRAL_REPHRASE" && (
-              <span className="text-[#D1D5DB]" aria-hidden>·</span>
-            )}
-            {riskMeta && (
-              <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold ${riskMeta.badge}`}>
-                {riskMeta.label}
-              </span>
-            )}
-            {finding.kind === "no-risk" && !riskMeta && (
-              <span className="rounded bg-[#F3F4F6] px-1.5 py-0.5 text-[9px] font-medium text-[#9CA3AF]">
-                No risk scored
               </span>
             )}
           </div>
