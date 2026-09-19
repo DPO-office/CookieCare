@@ -352,7 +352,9 @@ export const buildPdfBuffer = async (
       const label = (contentType ?? "DOCUMENT").toUpperCase().replace(/_/g, " ");
       const bodyHtml = isHtmlContent(content)
         ? content  // already HTML — use as-is
-        : md.render(content);
+        : contentType === "legal_document"
+          ? legalPlaintextToHtml(content)
+          : md.render(content);
 
       const safeTitle = htmlEscape(title);
       const safeLabel = htmlEscape(label);
@@ -462,8 +464,11 @@ ${bodyHtml}
 
     // ── Body ────────────────────────────────────────────────────────────────
     doc.fontSize(11).font("Helvetica").fillColor(COLOR_BLACK);
-    const tokens = contentToTokens(content);
-    renderTokensToPdf(doc, tokens);
+    if (contentType === "legal_document") {
+      renderLegalPlaintextToPdf(doc, content);
+    } else {
+      renderTokensToPdf(doc, contentToTokens(content));
+    }
 
     // ── Footer on every page ────────────────────────────────────────────────
     const pages = doc.bufferedPageRange();
@@ -769,14 +774,152 @@ export function splitLegalPlaintextParagraphs(content: string): string[] {
   return lines;
 }
 
-function legalPlaintextToDocxChildren(content: string): Paragraph[] {
-  return splitLegalPlaintextParagraphs(content).map(
-    (line) =>
-      new Paragraph({
-        children: [new TextRun({ text: line })],
-        spacing: { before: 80, after: 120 },
+const LEGAL_HEADING_LEVEL: Record<number, typeof HeadingLevel[keyof typeof HeadingLevel]> = {
+  1: HeadingLevel.HEADING_1,
+  2: HeadingLevel.HEADING_2,
+  3: HeadingLevel.HEADING_3,
+  4: HeadingLevel.HEADING_4,
+  5: HeadingLevel.HEADING_5,
+  6: HeadingLevel.HEADING_6,
+};
+
+interface LegalInlineSeg {
+  text: string;
+  bold: boolean;
+  italic: boolean;
+}
+
+/**
+ * Convert inline `**bold**` / `__bold__` / `*italic*` markers to styled runs.
+ * Does not parse lists or other block Markdown — numbered clauses like
+ * `1. Definitions` must stay ordinary paragraphs.
+ */
+function parseLegalInlineSegments(text: string): LegalInlineSeg[] {
+  const segs: LegalInlineSeg[] = [];
+  let i = 0;
+  let bold = false;
+  let italic = false;
+  let buf = "";
+
+  const flush = () => {
+    if (!buf) return;
+    segs.push({ text: buf, bold, italic });
+    buf = "";
+  };
+
+  while (i < text.length) {
+    const two = text.slice(i, i + 2);
+    if (two === "**" || two === "__") {
+      flush();
+      bold = !bold;
+      i += 2;
+      continue;
+    }
+    if (text[i] === "*" && text[i + 1] !== "*") {
+      flush();
+      italic = !italic;
+      i += 1;
+      continue;
+    }
+    buf += text[i];
+    i++;
+  }
+  flush();
+  return segs;
+}
+
+function parseLegalInlineRuns(text: string): TextRun[] {
+  const segs = parseLegalInlineSegments(text);
+  if (segs.length === 0) return [new TextRun({ text: "" })];
+  return segs.map(
+    (s) =>
+      new TextRun({
+        text: s.text,
+        bold: s.bold || undefined,
+        italics: s.italic || undefined,
       })
   );
+}
+
+function legalInlineToHtml(text: string): string {
+  return parseLegalInlineSegments(text)
+    .map((s) => {
+      let html = htmlEscape(s.text);
+      if (s.italic) html = `<em>${html}</em>`;
+      if (s.bold) html = `<strong>${html}</strong>`;
+      return html;
+    })
+    .join("");
+}
+
+/** One HTML block per source line — same structure as the Negotiate DOCX export. */
+function legalPlaintextToHtml(content: string): string {
+  return splitLegalPlaintextParagraphs(content)
+    .map((line) => {
+      const heading = /^(#{1,6})\s+(.*)$/.exec(line);
+      if (heading) {
+        // Template already uses <h1> for the document title, so ATX # → h2.
+        const level = Math.min(heading[1].length + 1, 6);
+        return `<h${level}>${legalInlineToHtml(heading[2])}</h${level}>`;
+      }
+      if (!line) return "<p></p>";
+      return `<p>${legalInlineToHtml(line)}</p>`;
+    })
+    .join("\n");
+}
+
+function legalFont(bold: boolean, italic: boolean): string {
+  if (bold && italic) return "Helvetica-BoldOblique";
+  if (bold) return "Helvetica-Bold";
+  if (italic) return "Helvetica-Oblique";
+  return "Helvetica";
+}
+
+const LEGAL_PDF_HEADING_SIZE = [16, 13, 12, 11, 11, 11];
+
+function renderLegalPlaintextToPdf(
+  doc: typeof PDFDocument.prototype,
+  content: string
+): void {
+  for (const line of splitLegalPlaintextParagraphs(content)) {
+    const heading = /^(#{1,6})\s+(.*)$/.exec(line);
+    const body = heading ? heading[2] : line;
+    const segs = parseLegalInlineSegments(body);
+    if (segs.length === 0) {
+      doc.moveDown(0.35);
+      continue;
+    }
+    const size = heading ? LEGAL_PDF_HEADING_SIZE[heading[1].length - 1] ?? 11 : 11;
+    segs.forEach((s, i) => {
+      doc.font(legalFont(s.bold, s.italic)).fontSize(size).fillColor(COLOR_BLACK);
+      doc.text(s.text, {
+        continued: i < segs.length - 1,
+        align: heading ? "left" : "justify",
+        width: CONTENT_WIDTH,
+      });
+    });
+    doc.moveDown(heading ? 0.3 : 0.45);
+  }
+}
+
+function legalPlaintextToDocxChildren(content: string): Paragraph[] {
+  return splitLegalPlaintextParagraphs(content).map((line) => {
+    const heading = /^(#{1,6})\s+(.*)$/.exec(line);
+    const body = heading ? heading[2] : line;
+    const children = parseLegalInlineRuns(body);
+    if (heading) {
+      const level = heading[1].length;
+      return new Paragraph({
+        heading: LEGAL_HEADING_LEVEL[level] ?? HeadingLevel.HEADING_1,
+        children,
+        spacing: { before: 240, after: 120 },
+      });
+    }
+    return new Paragraph({
+      children,
+      spacing: { before: 80, after: 120 },
+    });
+  });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -787,7 +930,9 @@ export const buildDocxBuffer = async (
   contentType: string,
   content: string
 ): Promise<Buffer> => {
-  // Negotiate (`legal_document`) is legal plaintext, not Markdown.
+  // Negotiate (`legal_document`) keeps one Word paragraph per source line so
+  // `1. Definitions` is not eaten as a Markdown ordered list. Inline **bold**
+  // and ATX `#` headings are still applied as Word styles.
   const bodyChildren =
     contentType === "legal_document"
       ? legalPlaintextToDocxChildren(content)
