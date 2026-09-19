@@ -1,0 +1,142 @@
+import type { DraftingSkillConfig } from "../../skill-contract.js";
+
+export const employmentSkillConfig: DraftingSkillConfig = {
+  skillId: "document-types/employment",
+  axis: "documentType",
+  label: "Employment Agreement",
+  version: "1.0.0",
+  appliesToDocTypes: ["employment"],
+  requiredFacts: [
+    {
+      id: "jobTitle",
+      priority: "critical",
+      blocking: true,
+      question: "What is the employee's job title and role?",
+      reasonRequired: "An employment agreement must state the specific job position.",
+      aliases: ["role", "position"],
+    },
+    {
+      id: "salaryCompensation",
+      priority: "critical",
+      blocking: true,
+      question: "What is the employee's compensation / base salary?",
+      reasonRequired: "Compensation terms are mandatory in employment contracts.",
+      aliases: ["salary", "remuneration", "basePay"],
+    },
+    {
+      id: "startDate",
+      priority: "critical",
+      blocking: true,
+      question: "What is the employment start date?",
+      reasonRequired: "Start date determines when employment covenants and payroll commence.",
+      aliases: ["employmentStartDate"],
+    },
+    {
+      id: "noticePeriod",
+      priority: "critical",
+      blocking: true,
+      question: "What is the notice period for termination of employment?",
+      reasonRequired: "Termination notice rules govern lawful discharge or resignation.",
+      options: ["1 month", "2 months", "3 months", "Statutory minimum"],
+      aliases: ["terminationNotice"],
+    },
+  ],
+  safeDefaults: {
+    probationPeriod: "3 months",
+    workLocation: "Employer's primary registered office or remote",
+  },
+  sectionBriefs: [
+    {
+      workUnitId: "sec-parties",
+      title: "Parties and Employment Offer",
+      purpose: "Identify Employer and Employee and state the offer of employment.",
+      requiredContent: ["Employer company legal name", "Employee full legal name", "Start date"],
+    },
+    {
+      workUnitId: "sec-position",
+      title: "Position, Role, and Duties",
+      purpose: "Specify job title, reporting lines, and primary duties.",
+      requiredContent: ["Job title", "Reporting manager title", "Core duties"],
+    },
+    {
+      workUnitId: "sec-compensation",
+      title: "Compensation and Benefits",
+      purpose: "Detail base salary, payment frequency, bonuses, and benefits.",
+      requiredContent: ["Base salary amount and frequency", "Bonus eligibility", "Benefits overview"],
+    },
+    {
+      workUnitId: "sec-confidentiality",
+      title: "Confidentiality and IP Assignment",
+      purpose: "Protect company trade secrets, require return of all physical/digital repositories upon exit, and assign all employee inventions with statutory labor code carveout and Exhibit A prior inventions disclosure.",
+      requiredContent: [
+        "Trade secrets and confidential information non-disclosure covenant",
+        "Full assignment of all right, title, and interest in inventions and work product to Employer",
+        "Statutory labor code carveout notice (inventions created on employee's own time without company equipment/trade secrets and unrelated to company business)",
+        "Exhibit A prior inventions disclosure reservation",
+        "Immediate return of all notebooks, files, and computer repositories upon termination with no copies kept",
+      ],
+      requiredLegalElements: ["trade-secret-protection", "inventions-assignment", "statutory-carveout-notice"],
+    },
+    {
+      workUnitId: "sec-restrictive-covenants",
+      title: "Restrictive Covenants",
+      purpose: "Set reasonable post-employment non-compete and non-solicitation restrictions protecting customers and personnel.",
+      requiredContent: [
+        "Non-solicitation of clients and customers",
+        "Non-solicitation of company employees and contractors",
+        "Non-compete duration and geographic scope where enforceable",
+      ],
+      requiredLegalElements: ["employee-non-solicit", "customer-non-solicit"],
+    },
+    {
+      workUnitId: "sec-termination",
+      title: "Termination of Employment and At-Will Relationship",
+      purpose: "Define at-will employment relationship, notice period requirements, and immediate summary dismissal for cause.",
+      requiredContent: [
+        "At-will employment confirmation: relationship terminable with or without cause",
+        "Notice period requirements for resignation or termination without cause",
+        "Immediate termination for gross misconduct or cause",
+        "Severance and accrued salary/PTO payout terms",
+      ],
+      requiredLegalElements: ["at-will-affirmation", "termination-notice", "cause-definitions"],
+    },
+    {
+      workUnitId: "sec-misc",
+      title: "Miscellaneous and Governing Law",
+      purpose: "Standard employment boilerplate, prevailing party attorney's fees, severability, and governing law.",
+      requiredContent: [
+        "Governing law and jurisdiction",
+        "Prevailing party attorney's fees in dispute enforcement",
+        "Severability and judicial reformation",
+        "Entire agreement superseding all prior confidentiality and employment discussions",
+      ],
+      requiredLegalElements: ["governing-law", "attorney-fees", "entire-agreement"],
+    },
+  ],
+  validationRules: [
+    {
+      id: "employment-parties-present",
+      requirement: "Agreement must identify Employer and Employee legal parties.",
+      severity: "critical",
+      checkKind: "section_present",
+    },
+    {
+      id: "employment-position-salary",
+      requirement: "Agreement must specify job title, duties, and compensation.",
+      severity: "critical",
+      checkKind: "section_present",
+    },
+    {
+      id: "employment-ip-assignment",
+      requirement: "Agreement must include inventions assignment and trade secret confidentiality.",
+      severity: "critical",
+      checkKind: "section_present",
+    },
+    {
+      id: "employment-termination-present",
+      requirement: "Agreement must govern termination mechanics and notice rules.",
+      severity: "critical",
+      checkKind: "section_present",
+    },
+  ],
+};

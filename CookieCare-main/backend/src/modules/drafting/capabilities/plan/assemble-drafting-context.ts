@@ -167,6 +167,46 @@ export function assembleDraftingContext(
     }
   }
 
+  // Fuzzy brief fallback for template-derived skeletons.
+  // When a user template overrides the skeleton, work unit IDs are generated as
+  // "sec-1-parties", "sec-2-definitions", etc. — they never exactly match the
+  // static brief IDs ("sec-parties", "sec-definitions") authored in skill configs.
+  // This pass attaches the closest authored brief to any unmatched work unit using
+  // heading substring matching, so the LLM still gets structured guidance.
+  const authoredBriefs = Object.values(sectionBriefs);
+  for (const unit of workUnits) {
+    if (sectionBriefs[unit.id]) continue; // already matched
+    if (unit.kind === "exhibit") continue; // exhibits handled separately
+    const headingNorm = unit.heading.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    let bestBrief: SectionBrief | undefined;
+    let bestScore = 0;
+    for (const brief of authoredBriefs) {
+      const briefNorm = brief.title.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+      const briefId = brief.workUnitId.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+      let score = 0;
+      // Full heading contains brief title or vice versa
+      if (headingNorm.includes(briefNorm) || briefNorm.includes(headingNorm)) score += 4;
+      // Partial word overlap
+      const headingWords = headingNorm.split(" ").filter((w) => w.length > 3);
+      const briefWords = briefNorm.split(" ").filter((w) => w.length > 3);
+      for (const w of headingWords) {
+        if (briefWords.some((bw) => bw.includes(w) || w.includes(bw))) score += 2;
+      }
+      // ID slug overlap
+      if (headingNorm.split(" ").some((w) => w.length > 3 && briefId.includes(w))) score += 1;
+      if (score > bestScore) {
+        bestScore = score;
+        bestBrief = brief;
+      }
+    }
+    if (bestBrief && bestScore >= 3) {
+      sectionBriefs[unit.id] = bestBrief;
+      console.log(
+        `[assembleDraftingContext] fuzzy brief fallback: ${unit.id} (${unit.heading}) → ${bestBrief.workUnitId} (score=${bestScore})`
+      );
+    }
+  }
+
   // Derive ExhibitSpec from exhibit briefs when skill didn't declare exhibitSpecs.
   for (const [id, brief] of Object.entries(exhibitBriefs)) {
     if (seenExhibitIds.has(id)) continue;

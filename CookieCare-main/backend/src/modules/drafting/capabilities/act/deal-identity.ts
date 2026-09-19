@@ -1,4 +1,5 @@
 import type { StructuredFacts } from "../../models/structured-facts.js";
+import { isPlaceholderString } from "../plan/core-deal-facts.js";
 
 export interface DealIdentity {
   partyA: string;
@@ -14,31 +15,101 @@ export interface DealIdentity {
 function asString(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
   const t = value.trim();
-  return t || undefined;
+  if (!t || isPlaceholderString(t)) return undefined;
+  return t;
 }
 
 function resolvePartyPair(facts: StructuredFacts | Record<string, unknown>): {
   partyA?: string;
   partyB?: string;
 } {
-  const partyA = asString(facts.partyA);
-  const partyB = asString(facts.partyB);
+  const f = facts as Record<string, unknown>;
+
+  // Check specific privacy / contract role fields first
+  const fiduciary =
+    asString(f.dataFiduciaryLegalName) ||
+    asString(f.dataFiduciary) ||
+    asString(f.fiduciaryLegalName) ||
+    asString(f.fiduciary) ||
+    asString(f.legalNameOfTheDataFiduciary);
+  const processor =
+    asString(f.dataProcessorLegalName) ||
+    asString(f.dataProcessor) ||
+    asString(f.processorLegalName) ||
+    asString(f.processor) ||
+    asString(f.legalNameOfTheDataProcessor);
+  if (fiduciary && processor) {
+    return { partyA: fiduciary, partyB: processor };
+  }
+
+  const disclosing = asString(f.disclosingParty);
+  const receiving = asString(f.receivingParty);
+  if (disclosing && receiving) {
+    return { partyA: disclosing, partyB: receiving };
+  }
+
+  const partyA = asString(f.partyA);
+  const partyB = asString(f.partyB);
   if (partyA && partyB) return { partyA, partyB };
 
-  const parties = Array.isArray(facts.parties)
-    ? facts.parties.filter((p): p is string => typeof p === "string" && p.trim().length > 0)
+  const parties = Array.isArray(f.parties)
+    ? f.parties
+        .filter((p): p is string => typeof p === "string" && !isPlaceholderString(p))
+        .map((p) => p.trim())
+        .filter(Boolean)
     : [];
   if (parties.length >= 2) {
-    return { partyA: parties[0].trim(), partyB: parties[1].trim() };
+    return { partyA: parties[0], partyB: parties[1] };
   }
-  if (partyA && parties[0]) return { partyA, partyB: parties[0].trim() };
-  if (partyB && parties[0]) return { partyA: parties[0].trim(), partyB };
+  if (partyA && parties[0] && partyA.toLowerCase() !== parties[0].toLowerCase()) {
+    return { partyA, partyB: parties[0] };
+  }
+  if (partyB && parties[0] && partyB.toLowerCase() !== parties[0].toLowerCase()) {
+    return { partyA: parties[0], partyB };
+  }
+  if (fiduciary && (partyB || parties[0])) {
+    return { partyA: fiduciary, partyB: partyB || parties[0] };
+  }
+  if (processor && (partyA || parties[0])) {
+    return { partyA: partyA || parties[0], partyB: processor };
+  }
+
   return { partyA, partyB };
 }
 
-function rolesForDocType(documentType: string | undefined): { roleA: string; roleB: string } {
+function rolesForDocType(
+  documentType: string | undefined,
+  facts?: StructuredFacts | Record<string, unknown>
+): { roleA: string; roleB: string } {
+  const f = (facts ?? {}) as Record<string, unknown>;
+  const explicitA = asString(f.roleA);
+  const explicitB = asString(f.roleB);
+  if (explicitA && explicitB) {
+    return { roleA: explicitA, roleB: explicitB };
+  }
+
   const raw = (documentType || "").toLowerCase();
+  const regime = String(f.privacyRegime || "").toLowerCase();
+  const law = String(f.governingLaw || "").toLowerCase();
+  const instructions = String(f.instructionText || "").toLowerCase();
+  const isDpdpa =
+    regime.includes("dpdpa") ||
+    regime.includes("dpdp") ||
+    law.includes("india") ||
+    instructions.includes("dpdpa") ||
+    instructions.includes("digital personal data protection") ||
+    instructions.includes("data fiduciary") ||
+    Boolean(
+      f.dataFiduciaryLegalName ||
+        f.dataProcessorLegalName ||
+        f.dataFiduciary ||
+        f.dataProcessor
+    );
+
   if (raw.includes("dpa") || raw.includes("data processing") || raw.includes("addendum")) {
+    if (isDpdpa) {
+      return { roleA: "Data Fiduciary", roleB: "Data Processor" };
+    }
     return { roleA: "Controller", roleB: "Processor" };
   }
   if (raw.includes("nda") || raw.includes("non-disclosure") || raw.includes("confidential")) {
@@ -60,7 +131,8 @@ export function buildDealIdentity(
   if (!partyA || !partyB) return null;
 
   const { roleA, roleB } = rolesForDocType(
-    documentType || asString(f.documentType)
+    documentType || asString(f.documentType),
+    f
   );
   const effectiveDate =
     asString(f.effectiveDate) || asString(f.principalAgreementDate);
@@ -75,16 +147,23 @@ export function buildDealIdentity(
     "Party B": partyB,
   };
 
-  // Force role aliases used across DPA/NDA sections
-  if (roleA === "Controller" || roleB === "Controller") {
-    glossary.Controller = roleA === "Controller" ? partyA : partyB;
+  if (roleA === "Data Fiduciary" || roleB === "Data Processor") {
+    glossary["Data Fiduciary"] = roleA === "Data Fiduciary" ? partyA : partyB;
+    glossary["Data Processor"] = roleB === "Data Processor" ? partyB : partyA;
+    glossary.DataFiduciary = glossary["Data Fiduciary"];
+    glossary.DataProcessor = glossary["Data Processor"];
   } else {
-    glossary.Controller = partyA;
-  }
-  if (roleA === "Processor" || roleB === "Processor") {
-    glossary.Processor = roleB === "Processor" ? partyB : partyA;
-  } else {
-    glossary.Processor = partyB;
+    // Force role aliases used across DPA/NDA sections
+    if (roleA === "Controller" || roleB === "Controller") {
+      glossary.Controller = roleA === "Controller" ? partyA : partyB;
+    } else {
+      glossary.Controller = partyA;
+    }
+    if (roleA === "Processor" || roleB === "Processor") {
+      glossary.Processor = roleB === "Processor" ? partyB : partyA;
+    } else {
+      glossary.Processor = partyB;
+    }
   }
   if (roleA === "Disclosing Party") glossary["Disclosing Party"] = partyA;
   if (roleB === "Receiving Party") glossary["Receiving Party"] = partyB;
@@ -128,6 +207,24 @@ export function applyDealIdentityToPlanGlossary(
 
 /** Prompt block injected into every section/exhibit draft. */
 export function formatDealIdentityLock(identity: DealIdentity): string {
+  const isDpdpa =
+    identity.roleA === "Data Fiduciary" ||
+    identity.roleB === "Data Processor" ||
+    identity.roleA.toLowerCase().includes("fiduciary") ||
+    identity.roleB.toLowerCase().includes("processor");
+
+  const rules = [
+    "RULES:",
+    `1. Use ONLY these two party names. Never invent, rename, or substitute other companies (no alternate Inc./GmbH/Ltd names).`,
+    isDpdpa
+      ? `2. Under the DPDP Act 2023, the statutory roles are "${identity.roleA}" and "${identity.roleB}". Do NOT use GDPR labels "Controller", "Processor", or "Data Subject".`
+      : `2. When you write "${identity.roleA}" or "Controller"/"Disclosing Party", it MUST mean ${identity.partyA}.`,
+    isDpdpa
+      ? `3. When you write "${identity.roleA}", it MUST mean ${identity.partyA}. When you write "${identity.roleB}", it MUST mean ${identity.partyB}.`
+      : `3. When you write "${identity.roleB}" or "Processor"/"Receiving Party", it MUST mean ${identity.partyB}.`,
+    "4. Do not introduce a third commercial party as a contracting party.",
+  ];
+
   return [
     "DEAL IDENTITY LOCK (mandatory — identical in every section):",
     `- ${identity.roleA} / Party A legal name: ${identity.partyA}`,
@@ -137,11 +234,7 @@ export function formatDealIdentityLock(identity: DealIdentity): string {
       ? `- Principal / MSA Date: ${identity.principalAgreementDate}`
       : "",
     identity.governingLaw ? `- Governing Law: ${identity.governingLaw}` : "",
-    "RULES:",
-    `1. Use ONLY these two party names. Never invent, rename, or substitute other companies (no alternate Inc./GmbH/Ltd names).`,
-    `2. When you write "${identity.roleA}" or "Controller"/"Disclosing Party", it MUST mean ${identity.partyA}.`,
-    `3. When you write "${identity.roleB}" or "Processor"/"Receiving Party", it MUST mean ${identity.partyB}.`,
-    "4. Do not introduce a third commercial party as a contracting party.",
+    ...rules,
   ]
     .filter(Boolean)
     .join("\n");

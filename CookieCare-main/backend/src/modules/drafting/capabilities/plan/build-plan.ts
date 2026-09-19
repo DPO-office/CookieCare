@@ -10,6 +10,7 @@ import {
   applyDealIdentityToPlanGlossary,
   buildDealIdentity,
 } from "../act/deal-identity.js";
+import { deriveSkeletonFromTemplate } from "./template-skeleton.js";
 import {
   assembleDraftingContext,
   collectSkillConfigs,
@@ -51,11 +52,20 @@ export async function buildPlan(state: DraftState): Promise<DraftState> {
     working.structuredFacts ?? {}
   );
 
+  const templateSkeleton = working.retrieval?.matchedTemplate
+    ? deriveSkeletonFromTemplate(working.retrieval.matchedTemplate)
+    : null;
+
+  const baseSkeleton =
+    templateSkeleton && templateSkeleton.length >= 2
+      ? templateSkeleton
+      : applicable.typePack.skeleton.map((u) => ({
+          ...u,
+          status: "pending" as const,
+        }));
+
   const workUnits: WorkUnit[] = orderByDependency([
-    ...applicable.typePack.skeleton.map((u) => ({
-      ...u,
-      status: "pending" as const,
-    })),
+    ...baseSkeleton,
     ...applicable.regimes.flatMap((r) =>
       r.additionalWorkUnits.map((u) => ({ ...u, status: "pending" as const }))
     ),

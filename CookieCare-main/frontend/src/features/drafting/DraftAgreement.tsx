@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../../contexts/AppContext";
 import AiProgressOverlay from "../../shared/components/AiProgressOverlay";
@@ -378,7 +378,7 @@ export default function DraftAgreement({
         : `Draft using ${selectedTemplate?.name || selectedPlaybook?.name || "selected vault items"}`);
     setSessionTitle(prompt.length > 48 ? `${prompt.slice(0, 48)}…` : prompt);
     draftChat.addUserMessage(prompt);
-    draftChat.updateProgressMessage("Starting draft generation…");
+    draftChat.updateProgressMessage("Preparing draft…");
     setIsWorkspaceOpen(true);
     editorState.setIsGeneratorActive(false);
     setDraftUnavailable(false);
@@ -559,7 +559,7 @@ export default function DraftAgreement({
             visible={overlayVisible}
             message={generatorState.isStreaming ? generatorState.streamingProgress : generatorState.refinementProgress}
             error={generatorState.refinementError}
-            label={generatorState.isStreaming ? "Generating draft..." : "Refining selection..."}
+            label={generatorState.isStreaming ? "Drafting agreement…" : "Refining selection…"}
             onRetry={generatorState.refinementError ? () => { generatorState.setRefinementError(""); handleExecuteDraftStream(); } : undefined}
             onDismiss={generatorState.refinementError ? () => generatorState.setRefinementError("") : undefined}
           />
@@ -596,7 +596,8 @@ export default function DraftAgreement({
           onFileSelect={(file) => generatorActions.processFile(file)}
           onRemoveFile={handleRemoveAttachedFile}
           attachedFileName={generatorState.uploadFileName || undefined}
-          isStreaming={generatorState.isStreaming}
+          isStreaming={generatorState.isStreaming || !!generatorState.refinementProgress}
+          progressMessage={generatorState.streamingProgress || generatorState.refinementProgress}
           isParsing={generatorState.isParsingTemplate}
           isDragging={generatorState.isDragging}
           onDragOver={handleDragOver}

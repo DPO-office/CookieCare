@@ -1,5 +1,6 @@
 import type { DocumentTypePack } from "../types.js";
 import type { WorkUnit } from "../../../models/draft-plan.js";
+import { serviceAgreementSkillConfig } from "./skill.config.js";
 
 const skeleton: WorkUnit[] = [
   { id: "sec-parties", kind: "section", heading: "Parties", dependsOn: [], clauseTypes: ["parties"], status: "pending" },
@@ -12,9 +13,10 @@ const skeleton: WorkUnit[] = [
 
 export const serviceAgreementPack: DocumentTypePack = {
   id: "service-agreement",
-  aliases: ["service agreement", "services agreement", "sow"],
+  aliases: ["service-agreement", "service agreement", "services agreement", "sow", "statement of work"],
   skeleton,
   skillPaths: ["document-types/service-agreement"],
+  skillConfig: serviceAgreementSkillConfig,
   prompts: {
     plan: (ctx) => `Plan service agreement from ${JSON.stringify(ctx.facts)}`,
     actSection: (ctx) => `Draft section ${ctx.unit.heading}`,

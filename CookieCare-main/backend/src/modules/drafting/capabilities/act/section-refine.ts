@@ -84,25 +84,144 @@ export function resolveValidationSurgicalPlan(state: DraftState): SectionPlan[] 
 }
 
 /**
- * Build a plan for human-driven refine. Only surgical when the user highlighted text
- * that maps to a single section; otherwise null (=> full-doc refine handles whole-doc
- * instructions like "make the whole thing stricter").
+ * Classify whether an unhighlighted user instruction targets specific section(s)
+ * based on section numbers, clause references, or topic keywords in the section heading.
+ */
+export function classifyTargetSections(
+  sections: DraftSection[],
+  instruction: string
+): DraftSection[] | null {
+  const lowerText = instruction.toLowerCase().trim();
+  if (!lowerText) return null;
+
+  // Check for global / cross-cutting directives
+  const isGlobal =
+    /\b(?:entire|whole|all|every|complete|full)\s+(?:agreement|document|contract|draft|sections|clauses)\b/i.test(
+      lowerText
+    ) ||
+    /\b(?:everywhere|throughout|globally|all occurrences|across the (?:document|agreement|draft))\b/i.test(
+      lowerText
+    ) ||
+    /(?:data\s+fiduciary|data\s+processor|party\s*[ab]|controller|processor)\s*[:=]/i.test(
+      lowerText
+    ) ||
+    /\b(?:swap|change|replace)\s+(?:the\s+)?(?:parties|party names|counterparty)\b/i.test(
+      lowerText
+    );
+  if (isGlobal) return null;
+
+  // 1. Check for explicit section/clause/schedule number references
+  const secNumMatch = lowerText.match(/\b(?:section|clause|article|part|schedule|exhibit)\s*([a-z0-9.]+)\b/i);
+  if (secNumMatch) {
+    const targetRef = secNumMatch[1].toLowerCase();
+    const matchedByNum = sections.filter((s) => {
+      const heading = (s.heading || "").toLowerCase();
+      const id = s.id.toLowerCase();
+      return (
+        heading.includes(`section ${targetRef}`) ||
+        heading.includes(`clause ${targetRef}`) ||
+        heading.includes(`article ${targetRef}`) ||
+        heading.startsWith(`${targetRef}.`) ||
+        heading.startsWith(`${targetRef} `) ||
+        id.includes(targetRef)
+      );
+    });
+    if (matchedByNum.length > 0 && matchedByNum.length <= 3) {
+      return matchedByNum;
+    }
+  }
+
+  // 2. Topic keyword matching against section headings
+  const topicScores = sections.map((sec) => {
+    const heading = (sec.heading || "").toLowerCase();
+    let score = 0;
+
+    const keywords = [
+      "definition",
+      "parties",
+      "service",
+      "fee",
+      "payment",
+      "price",
+      "compensation",
+      "ip",
+      "intellectual property",
+      "data",
+      "security",
+      "privacy",
+      "confidential",
+      "liability",
+      "indemn",
+      "warranty",
+      "term",
+      "termination",
+      "notice",
+      "governing law",
+      "jurisdiction",
+      "dispute",
+      "sla",
+      "support",
+      "audit",
+      "breach",
+      "subprocessor",
+    ];
+
+    for (const kw of keywords) {
+      if (lowerText.includes(kw) && heading.includes(kw)) {
+        score += 2;
+      }
+    }
+
+    return { section: sec, score };
+  });
+
+  const scored = topicScores.filter((t) => t.score > 0).sort((a, b) => b.score - a.score);
+
+  if (scored.length > 0) {
+    const topScore = scored[0].score;
+    const bestMatches = scored.filter((s) => s.score >= Math.max(2, topScore - 1)).map((s) => s.section);
+    if (bestMatches.length > 0 && bestMatches.length <= 3) {
+      return bestMatches;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Build a plan for human-driven refine.
+ * First checks highlighted text; then uses instruction classification to target specific sections;
+ * falls back to null (=> full-doc refine) when instructions are global or cross-cutting.
  */
 export function planHumanRefine(state: DraftState): SectionPlan[] | null {
   const sections = state.draft?.sections ?? [];
   if (sections.length === 0) return null;
 
+  const raw = state.request.rawInstructions || "";
   const highlighted = state.request.highlightedText;
-  if (!highlighted || !highlighted.trim()) return null;
 
-  const section = findSectionContaining(sections, highlighted);
-  if (!section) return null;
+  if (highlighted && highlighted.trim()) {
+    const section = findSectionContaining(sections, highlighted);
+    if (section) {
+      const corrections = [
+        `USER EDITING INSTRUCTION: ${raw}`,
+        `FOCUS STRICTLY ON THIS HIGHLIGHTED TEXT WITHIN THE SECTION: "${highlighted}"`,
+      ];
+      return [{ section, corrections }];
+    }
+  }
 
-  const corrections = [
-    `USER EDITING INSTRUCTION: ${state.request.rawInstructions}`,
-    `FOCUS STRICTLY ON THIS HIGHLIGHTED TEXT WITHIN THE SECTION: "${highlighted}"`,
-  ];
-  return [{ section, corrections }];
+  if (!raw.trim()) return null;
+
+  const targetSections = classifyTargetSections(sections, raw);
+  if (targetSections && targetSections.length > 0) {
+    return targetSections.map((sec) => ({
+      section: sec,
+      corrections: [`USER EDITING INSTRUCTION: ${raw}`],
+    }));
+  }
+
+  return null;
 }
 
 function buildSectionRefinePrompt(state: DraftState, section: DraftSection, corrections: string[]): string {

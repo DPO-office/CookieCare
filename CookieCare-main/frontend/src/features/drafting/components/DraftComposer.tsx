@@ -51,7 +51,7 @@ export function DraftComposer({
 }: DraftComposerProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isChat = variant === "chat";
-  const minH = isChat ? 36 : 72;
+  const minH = isChat ? 24 : 72;
   const maxH = isChat ? 96 : 168;
   const { ref: taRef, adjust } = useAutoResize(minH, maxH);
   const busy = isLoading || isParsing;
@@ -133,17 +133,17 @@ export function DraftComposer({
           </div>
         )}
 
-        <div className={isChat ? "flex items-end gap-2 px-3 py-2.5" : "flex items-start gap-3 px-5 pt-4 pb-1"}>
+        <div className={isChat ? "flex items-center gap-2 px-2.5 py-1.5" : "flex items-start gap-3 px-5 pt-4 pb-1"}>
           {isChat && (
             <>
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={busy}
-                className="draft-icon-btn mb-0.5"
+                className="draft-icon-btn shrink-0"
                 aria-label="Attach file"
               >
-                <Paperclip className="h-[15px] w-[15px]" strokeWidth={1.75} />
+                <Paperclip className="h-4 w-4" strokeWidth={1.75} />
               </button>
               <input
                 ref={fileInputRef}
@@ -169,8 +169,10 @@ export function DraftComposer({
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             disabled={busy}
-            className="draft-input flex-1 bg-transparent text-[14px] outline-none"
-            style={{ minHeight: minH, maxHeight: maxH }}
+            className={`draft-input flex-1 bg-transparent text-[13.5px] outline-none ${
+              isChat ? "py-0 px-2.5 leading-[24px]" : ""
+            }`}
+            style={{ minHeight: isChat ? 24 : minH, maxHeight: maxH }}
             aria-label="Message input"
           />
           {isChat && (
@@ -178,7 +180,7 @@ export function DraftComposer({
               type="button"
               disabled={!canSubmit}
               onClick={onSubmit}
-              className="draft-enter-btn mb-0.5 primary-gradient"
+              className="draft-enter-btn primary-gradient shrink-0"
               aria-label="Submit"
             >
               {busy ? (

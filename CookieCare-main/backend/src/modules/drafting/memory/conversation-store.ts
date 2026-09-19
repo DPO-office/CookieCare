@@ -94,6 +94,18 @@ export function applyUserAnswers(
     },
   ]);
 
+  const fid = factsPatch.dataFiduciaryLegalName || factsPatch.dataFiduciary;
+  const proc = factsPatch.dataProcessorLegalName || factsPatch.dataProcessor;
+  if (fid && proc) {
+    factsPatch.partyA = fid;
+    factsPatch.partyB = proc;
+    factsPatch.parties = `${fid}, ${proc}`;
+  } else if (fid && !factsPatch.partyA) {
+    factsPatch.partyA = fid;
+  } else if (proc && !factsPatch.partyB) {
+    factsPatch.partyB = proc;
+  }
+
   next = {
     ...next,
     structuredFacts: {

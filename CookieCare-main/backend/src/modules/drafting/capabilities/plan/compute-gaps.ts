@@ -87,7 +87,11 @@ export function computeGapsAndConflicts(
     }
   }
 
-  let result = prioritizeMissingFacts(Array.from(missingByField.values()), 8);
+  let result = prioritizeMissingFacts(
+    Array.from(missingByField.values()),
+    8,
+    typeof documentType === "string" ? documentType : undefined
+  );
 
   const docKey = resolveDocTypeKey(
     typeof documentType === "string" ? documentType : undefined

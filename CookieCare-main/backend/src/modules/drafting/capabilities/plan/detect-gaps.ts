@@ -248,9 +248,19 @@ export async function detectGaps(
   );
 
   const templateContent = state.retrieval?.matchedTemplate || null;
-  const playbookRules = state.retrieval?.applicablePlaybookRules || [];
+  const playbookRules = (state.retrieval?.applicablePlaybookRules || []).map((r) => ({
+    topic: r.topic,
+    rule: r.standardPosition,
+    position: r.standardPosition,
+    fallbackPosition: r.fallbackPositions?.join("; "),
+  }));
+  const reqAny = state.request as Record<string, unknown>;
   const playbookGuidelines =
-    state.request.aiRulebookPrompt || state.request.playbookGuidelines || "";
+    typeof reqAny.aiRulebookPrompt === "string"
+      ? reqAny.aiRulebookPrompt
+      : typeof reqAny.playbookGuidelines === "string"
+        ? reqAny.playbookGuidelines
+        : "";
 
   const result = await structuredDetectGapsCall(
     DETECT_GAPS_SYSTEM_PROMPT,
