@@ -5,13 +5,17 @@ import { AgentMarkup } from "../types";
 import { LegalDocument, RedlineProposal } from "../../../shared/types";
 import { buildRenderedDocumentHtml } from "../utils";
 import { NEGOTIATE_WORKSPACE_STYLES } from "../styles/negotiateWorkspaceStyles";
+import { fetchDocumentRenderHtml } from "../api/negotiateApi";
+import { patchRichHtmlOnAccept } from "./htmlPatch";
 
 interface DocumentViewerProps {
   activeDoc: LegalDocument;
+  /** Auth token — used to fetch the rich render HTML for DOCX documents. */
+  authToken: string;
   agentMarkups: AgentMarkup[];
   selectedMarkupId: string | null;
   acceptingMarkupId: string | null;
-  appliedClause: { id: string; text: string; spliceStart: number } | null;
+  appliedClause: { id: string; text: string; original: string; spliceStart: number } | null;
   evaluating: boolean;
   evaluationError: string;
   isLocked: boolean;
@@ -71,6 +75,7 @@ function toRelativeRects(
 
 export default function DocumentViewer({
   activeDoc,
+  authToken,
   agentMarkups,
   selectedMarkupId,
   acceptingMarkupId,
@@ -89,12 +94,47 @@ export default function DocumentViewer({
   onAcceptDbRedline,
   onRejectDbRedline,
 }: DocumentViewerProps) {
+  // Fetch rich mammoth HTML for DOCX documents on initial load. Falls back to
+  // null on any error so the plain-text rendering path still works for all other types.
+  const [richHtml, setRichHtml] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setRichHtml(null);
+    fetchDocumentRenderHtml(authToken, activeDoc.id).then((html) => {
+      if (!cancelled) setRichHtml(html);
+    });
+    return () => { cancelled = true; };
+  }, [authToken, activeDoc.id]);
+
+  // When an Accept happens, appliedClause now carries both the replacement text
+  // AND the original text (captured before the markup is filtered from state).
+  // Patch richHtml directly so formatting is preserved throughout the session.
+  const prevAppliedId = useRef<string | null>(null);
+  useEffect(() => {
+    if (!appliedClause?.text || !appliedClause?.original || !richHtml) return;
+    if (prevAppliedId.current === appliedClause.id) return;
+    prevAppliedId.current = appliedClause.id;
+
+    const original = appliedClause.original.trim();
+    const replacement = appliedClause.text;
+    if (original.length < 10) return;
+
+    // Tags-as-collapsed-space posMap — heading+<p> selections must not drift
+    // into the next paragraph. Plain-text content is spliced separately.
+    setRichHtml(patchRichHtmlOnAccept(richHtml, original, replacement));
+  }, [appliedClause?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Use mammoth HTML as the base content for display when available.
+  // After accepts the richHtml is patched in-place so formatting is preserved.
+  const displayContent = richHtml ?? activeDoc.content;
+
   const renderedHtml = useMemo(
     () =>
-      buildRenderedDocumentHtml(activeDoc.content, agentMarkups, selectedMarkupId, {
+      buildRenderedDocumentHtml(displayContent, agentMarkups, selectedMarkupId, {
         appliedClause,
       }),
-    [activeDoc.content, agentMarkups, selectedMarkupId, appliedClause],
+    [displayContent, agentMarkups, selectedMarkupId, appliedClause],
   );
 
   // Refs for coordinate calculation
@@ -358,7 +398,7 @@ export default function DocumentViewer({
           searchFrom = idx + normText.length;
         }
 
-        if (bestRawOffset !== -1 && bestDist <= domPlainStartOffset + TOLERANCE) {
+        if (bestRawOffset !== -1) {
           rawContentOffset = bestRawOffset;
         }
       } else if (isHtmlDoc && domPlainStartOffset >= 0) {
@@ -419,13 +459,21 @@ export default function DocumentViewer({
 
   useEffect(() => {
     if (!selectedMarkupId) return;
-    const el = document.querySelector(
+    // Primary: find by data-clause-id
+    let el = document.querySelector(
       `[data-clause-id="${CSS.escape(selectedMarkupId)}"]`,
     ) as HTMLElement | null;
+    // Fallback: find by secondary registration (overlap/subset case — the finding
+    // was registered on an existing span via data-secondary-clause-ids)
+    if (!el) {
+      el = document.querySelector(
+        `[data-secondary-clause-ids~="${CSS.escape(selectedMarkupId)}"]`,
+      ) as HTMLElement | null;
+    }
     if (!el) return;
     el.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
     el.classList.add("negotiate-clause-focused");
-    const timer = setTimeout(() => el.classList.remove("negotiate-clause-focused"), 1400);
+    const timer = setTimeout(() => el!.classList.remove("negotiate-clause-focused"), 1400);
     return () => clearTimeout(timer);
   }, [selectedMarkupId]);
 

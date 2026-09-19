@@ -309,10 +309,25 @@ export async function createSession(
   for (const m of markups) {
     const findingId = "negfinding_" + crypto.randomUUID();
     const { rows } = await client.query(
+      // ON CONFLICT (session_id, clause_id) upserts rather than erroring when
+      // two markups produce the same clauseId (hash collision in stableClauseId).
+      // stableClauseId now hashes the full clause text so genuine collisions are
+      // near-impossible, but the upsert keeps the insert safe if one ever slips
+      // through — the last writer wins and the session create never crashes.
       `INSERT INTO negotiation_findings
          (id, session_id, clause_id, order_index, original, replacement, reasoning,
           risk_level, clause_type, char_offset, matched_playbook_topic, status)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'pending')
+       ON CONFLICT (session_id, clause_id) DO UPDATE SET
+         original            = EXCLUDED.original,
+         replacement         = EXCLUDED.replacement,
+         reasoning           = EXCLUDED.reasoning,
+         order_index         = EXCLUDED.order_index,
+         risk_level          = EXCLUDED.risk_level,
+         clause_type         = EXCLUDED.clause_type,
+         char_offset         = EXCLUDED.char_offset,
+         matched_playbook_topic = EXCLUDED.matched_playbook_topic,
+         updated_at          = NOW()
        RETURNING *`,
       [
         findingId, sessionId, m.clauseId, orderIndex++,

@@ -32,7 +32,7 @@ export function CompareAnalyzingState({
             Comparing agreements
           </h1>
           <p className="mx-auto mt-2 max-w-md text-center text-[14px] leading-relaxed text-dark-200">
-            Aligning clauses, scoring risk, and preparing a structured redline report.
+            Aligning clauses and preparing a structured redline report.
           </p>
 
           <div className="mx-auto mt-6 max-w-md space-y-2">

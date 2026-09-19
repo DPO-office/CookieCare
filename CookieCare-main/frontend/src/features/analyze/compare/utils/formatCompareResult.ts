@@ -4,30 +4,19 @@
 
 import type { CompareResult } from "../../../randtrustAI/types";
 
-const RISK_EMOJI: Record<string, string> = {
-  HIGH: "🔴",
-  MEDIUM: "🟡",
-  LOW: "🟢",
-};
-
 /**
  * Formats the executive summary as the main assistant message markdown.
- * The interactive structured data (risks, differences, clauses) is rendered
+ * The interactive structured data (differences, clauses) is rendered
  * separately via CompareResultCards — this is only the readable narrative part.
  */
 export function formatExecutiveSummaryMarkdown(result: CompareResult): string {
   const { executiveSummary: s, originalFileName, revisedFileName } = result;
-  const riskEmoji = RISK_EMOJI[s.overallRisk] ?? "🟡";
 
   const lines: string[] = [];
 
   // Header
   lines.push(`## Agreement Comparison`);
   lines.push(`**${originalFileName}** vs **${revisedFileName}**`);
-  lines.push("");
-
-  // Overall risk badge
-  lines.push(`**Overall Risk:** ${riskEmoji} ${s.overallRisk}`);
   lines.push("");
 
   // Assessment
@@ -77,16 +66,14 @@ export function formatExecutiveSummaryMarkdown(result: CompareResult): string {
   lines.push("");
 
   // Teaser for structured tabs
-  const riskCount = result.risks.length;
   const diffCount = result.differences.filter(
     (d) => d.classification !== "UNCHANGED"
   ).length;
 
-  if (riskCount > 0 || diffCount > 0) {
+  if (diffCount > 0) {
     lines.push(
       `---`,
-      `*Found **${riskCount} risk finding${riskCount !== 1 ? "s" : ""}** and ` +
-        `**${diffCount} clause change${diffCount !== 1 ? "s" : ""}**. ` +
+      `*Found **${diffCount} clause change${diffCount !== 1 ? "s" : ""}**. ` +
         `Explore the detailed breakdown below.*`
     );
   }

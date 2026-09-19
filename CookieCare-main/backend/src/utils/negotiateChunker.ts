@@ -26,6 +26,22 @@ import {
   LLMTask,
 } from "../llm/index.js";
 import { looksLikeCiphertext } from "./crypto.js";
+import {
+  currentEvalDiag,
+  diagId,
+  diagRetag,
+  diagTag,
+  evalDiagEnvEnabled,
+  recordChunking,
+  recordDocumentIdentity,
+  recordDrop,
+  recordFinal,
+  recordRawChunk,
+  recordStage,
+  runWithEvalDiag,
+  snapCandidate,
+  previewText,
+} from "./negotiateEvalDiag.js";
 
 // ─── Public types ─────────────────────────────────────────────────────────────
 
@@ -404,15 +420,36 @@ function splitIntoChunks(text: string): string[] {
   return chunks;
 }
 
+/** Diagnostic-only reconstruction of the same bounds splitIntoChunks uses. Not used for evaluation. */
+function chunkBoundsForDiag(textLength: number): { start: number; end: number }[] {
+  if (textLength <= CHUNK_SIZE) return [{ start: 0, end: textLength }];
+  const bounds: { start: number; end: number }[] = [];
+  let start = 0;
+  while (start < textLength) {
+    const end = Math.min(start + CHUNK_SIZE, textLength);
+    bounds.push({ start, end });
+    if (end === textLength) break;
+    start = end - CHUNK_OVERLAP;
+  }
+  return bounds;
+}
+
 /**
  * Returns a short deterministic 8-character hex identifier for a clause,
  * derived from the first 256 chars of its verbatim text.
  * Identical text always produces the same ID across calls.
  */
 function stableClauseId(original: string): string {
+  // Hash the FULL clause text, not just the first 256 chars.
+  // Truncating to 256 chars caused collisions when two clauses shared the same
+  // opening text (e.g. both start with "The Company shall…" and diverge only
+  // after the 256-char window). 8 hex chars = 32 bits of entropy; collisions
+  // across 10–20 clauses per document were rare but not impossible once the
+  // hash input was artificially shortened. Using the full text eliminates the
+  // truncation-induced false collisions while keeping the 8-char output short.
   const fingerprint = crypto
     .createHash("sha256")
-    .update(original.slice(0, 256).trim())
+    .update(original.trim())
     .digest("hex")
     .slice(0, 8);
   return `clause-${fingerprint}`;
@@ -559,8 +596,11 @@ const RISK_ORDER: Record<string, number> = { RED: 2, YELLOW: 1, GREEN: 0 };
  *      same type are not incorrectly collapsed).
  *   3. Neither candidate's original text is a substring of the other after
  *      normalisation — guards against the overlap-region case where two
- *      chunks flagged slightly different spans of the same clause (the text-
- *      key dedup step above handles that; this step must not re-process it).
+ *      chunks flagged slightly different spans of the same clause. Stage B
+ *      of the text-key dedup step handles substring-overlap artifacts before
+ *      this function runs; any pair that still has a substring relationship
+ *      here is left as-is (safer to show a duplicate than to drop a
+ *      genuinely distinct same-type finding).
  *
  * Exclusions:
  *   - issueTag === "other": excluded from issue-identity merge to prevent
@@ -606,9 +646,14 @@ function mergeByIssueIdentity(
       if (a.clauseType !== b.clauseType) continue;
 
       // Condition 3: not an overlap-region variant (neither is a substring of
-      // the other). If one contains the other, the text-key dedup step should
-      // have collapsed them already; if it did not (edge case), leave both as-is
-      // rather than risking incorrect merge.
+      // the other after normalisation). If one contains the other, Stage B of
+      // the text-key dedup step should have collapsed them already. If it did
+      // not (e.g. different clauseType escaped Stage B), leave both as-is —
+      // it is safer to show a duplicate than to silently drop a distinct
+      // finding that happens to share the same issueTag and clauseType.
+      // Genuine cross-location duplicates have non-overlapping text (same issue
+      // stated independently at two document locations — body clause vs appendix
+      // clause — so neither contains the other).
       const na = normalise(a.original);
       const nb = normalise(b.original);
       if (na.includes(nb) || nb.includes(na)) continue;
@@ -643,8 +688,24 @@ function mergeByIssueIdentity(
       const maxRisk = aRisk >= bRisk ? a.riskLevel : b.riskLevel;
       if (candidates[keepIdx].riskLevel !== maxRisk) {
         // Clone to avoid mutating the original array element in place
-        candidates[keepIdx] = { ...candidates[keepIdx], riskLevel: maxRisk };
+        const prev = candidates[keepIdx];
+        candidates[keepIdx] = { ...prev, riskLevel: maxRisk };
+        diagRetag(prev, candidates[keepIdx]);
       }
+
+      const mergeReason =
+        aRisk !== bRisk
+          ? "issue_identity_higher_risk"
+          : keepIdx !== i
+            ? "issue_identity_tie_prefer_groundable"
+            : "issue_identity_tie_keep_first";
+      recordDrop(
+        "issueIdentity",
+        mergeReason,
+        candidates[dropIdx],
+        candidates[keepIdx],
+        { issueTag: a.issueTag, clauseType: a.clauseType }
+      );
 
       active.delete(dropIdx);
       console.log(
@@ -686,6 +747,18 @@ export async function evaluateFullDocument(
   documentType: string,
   playbookRules: PlaybookRuleInput[] = []
 ): Promise<NegotiateMarkup[]> {
+  // Temporary diagnostic wrap: when NEGOTIATE_EVAL_DIAG=1 and no trace is
+  // already active, record this run and persist it. Recurses once into the
+  // same function under AsyncLocalStorage — evaluation logic is unchanged.
+  if (!currentEvalDiag() && evalDiagEnvEnabled()) {
+    const { result } = await runWithEvalDiag(
+      { documentTitle, documentType },
+      () => evaluateFullDocument(documentText, documentTitle, documentType, playbookRules),
+      { persist: true }
+    );
+    return result;
+  }
+
   // Defensive boundary: every caller (POST /evaluate, POST /session/resolve)
   // funnels through here. If a caller reads files.content without checking
   // is_encrypted, or a decryption call fails, that must never reach the LLM
@@ -708,6 +781,19 @@ export async function evaluateFullDocument(
   // Build the system prompt once — shared across all chunks for this call.
   const systemPrompt = buildSystemPrompt(playbookRules);
 
+  recordDocumentIdentity({
+    documentText,
+    documentTitle,
+    documentType,
+    playbookRules,
+    systemPrompt,
+  });
+  recordChunking({
+    chunks,
+    bounds: chunkBoundsForDiag(documentText.length),
+    documentText,
+  });
+
   // ── Fire all chunk evaluations in parallel ────────────────────────────────
   const chunkResults = await Promise.allSettled(
     chunks.map((chunk, idx) =>
@@ -721,16 +807,39 @@ export async function evaluateFullDocument(
   for (let i = 0; i < chunkResults.length; i++) {
     const result = chunkResults[i];
     if (result.status === "fulfilled") {
+      result.value.forEach((c, j) => diagTag(c, `c${i}.${j}`));
       allCandidates.push(...result.value);
     } else {
+      recordRawChunk({
+        chunkIndex: i,
+        chunkId: `chunk-${i}`,
+        status: "rejected",
+        rejectReason: String(result.reason?.message ?? result.reason ?? "unknown"),
+        llmReturnedCount: 0,
+        invalidDroppedCount: 0,
+        invalidPreviews: [],
+        clampedToYellowCount: 0,
+        candidateCount: 0,
+        candidates: [],
+      });
       console.warn(
         `[negotiateChunker] Chunk ${i + 1}/${chunks.length} failed: ${result.reason?.message ?? result.reason}`
       );
     }
   }
 
+  {
+    const t = currentEvalDiag();
+    if (t) t.rawLlm.chunks.sort((a, b) => a.chunkIndex - b.chunkIndex);
+  }
+
   if (allCandidates.length === 0) {
     console.log(`[negotiateChunker] No markup candidates returned for "${documentTitle}"`);
+    recordStage("stageA_prefix", { inputCount: 0, outputCount: 0, candidates: [], drops: [] });
+    recordStage("stageB_substring", { inputCount: 0, outputCount: 0, candidates: [], drops: [] });
+    recordStage("issueIdentity", { inputCount: 0, outputCount: 0, candidates: [], drops: [] });
+    recordStage("grounding", { inputCount: 0, outputCount: 0, candidates: [], drops: [] });
+    recordFinal([]);
     return [];
   }
 
@@ -739,6 +848,29 @@ export async function evaluateFullDocument(
   // with the higher risk level. On a tie, keep the first encountered.
   // This handles the same-chunk-boundary artifact only — it does not address
   // the same negotiation issue appearing at different document locations.
+  //
+  // Two-stage approach:
+  //
+  // Stage A: 300-char prefix key dedup.
+  //   Groups candidates whose normalised text STARTS the same way. Covers the
+  //   common case where two overlap-chunks flag the same clause with identical
+  //   or near-identical text (same opening sentence, minor tail difference).
+  //   300 chars is kept deliberately — using the full string would miss cases
+  //   where the LLM truncated a long clause differently in each chunk.
+  //
+  // Stage B: substring collapse.
+  //   After Stage A, scan all surviving candidates for pairs where one
+  //   normalised original is a strict substring of the other. These are
+  //   overlap-region artifacts where chunk A flagged "sentence 1 sentence 2"
+  //   and chunk B flagged just "sentence 1" (or vice versa). The longer span
+  //   always wins — it carries more context for the LLM's suggested replacement
+  //   and a more precise charOffset. On a risk-level tie the longer span wins;
+  //   if the shorter span has a strictly higher risk level it wins instead.
+  //   This stage deliberately does NOT apply across different clauseTypes —
+  //   a short liability clause that appears verbatim inside a longer indemnity
+  //   clause is a genuinely distinct finding and must NOT be suppressed.
+
+  // Stage A: 300-char prefix key
   const seen = new Map<string, RawMarkupCandidate>();
 
   for (const candidate of allCandidates) {
@@ -747,9 +879,108 @@ export async function evaluateFullDocument(
     if (!existing) {
       seen.set(key, candidate);
     } else if (RISK_ORDER[candidate.riskLevel] > RISK_ORDER[existing.riskLevel]) {
+      recordDrop("stageA_prefix", "stageA_higher_risk", existing, candidate, { prefixKey: key.slice(0, 80) });
       seen.set(key, candidate);
+    } else {
+      recordDrop(
+        "stageA_prefix",
+        "stageA_keep_first_equal_or_higher_risk",
+        candidate,
+        existing,
+        { prefixKey: key.slice(0, 80) }
+      );
     }
   }
+
+  // Stage B: substring collapse (same clauseType only)
+  const stageAList = [...seen.values()];
+  recordStage("stageA_prefix", {
+    inputCount: allCandidates.length,
+    outputCount: stageAList.length,
+    candidates: stageAList.map((c) => snapCandidate(c, diagId(c))),
+    drops: [],
+  });
+  const substrDropped = new Set<number>();
+
+  for (let i = 0; i < stageAList.length; i++) {
+    if (substrDropped.has(i)) continue;
+    const a = stageAList[i];
+    const na = normalise(a.original);
+
+    for (let j = i + 1; j < stageAList.length; j++) {
+      if (substrDropped.has(j)) continue;
+      const b = stageAList[j];
+
+      // Only collapse within the same clause category — different clauseTypes
+      // are assumed to be genuinely distinct findings even if text overlaps.
+      if (a.clauseType !== b.clauseType) continue;
+
+      const nb = normalise(b.original);
+
+      // Check strict substring containment (not equality — equality was
+      // already handled by Stage A's prefix key).
+      const aContainsB = na.includes(nb) && na.length > nb.length;
+      const bContainsA = nb.includes(na) && nb.length > na.length;
+
+      if (!aContainsB && !bContainsA) continue;
+
+      // Determine winner: higher risk wins; on tie the LONGER span wins
+      // (more context for replacement drafting and charOffset precision).
+      const aRisk = RISK_ORDER[a.riskLevel] ?? 0;
+      const bRisk = RISK_ORDER[b.riskLevel] ?? 0;
+
+      let dropIdx: number;
+      if (aRisk > bRisk) {
+        dropIdx = j;
+      } else if (bRisk > aRisk) {
+        dropIdx = i;
+      } else {
+        // Equal risk — longer span wins
+        dropIdx = aContainsB ? j : i;
+      }
+
+      // Apply risk normalization: surviving candidate gets max(a, b) risk
+      const keepIdx = dropIdx === i ? j : i;
+      const maxRiskLevel = aRisk >= bRisk ? a.riskLevel : b.riskLevel;
+      if (stageAList[keepIdx].riskLevel !== maxRiskLevel) {
+        const prev = stageAList[keepIdx];
+        stageAList[keepIdx] = { ...prev, riskLevel: maxRiskLevel };
+        diagRetag(prev, stageAList[keepIdx]);
+      }
+
+      const substrReason =
+        aRisk !== bRisk
+          ? "stageB_higher_risk"
+          : aContainsB
+            ? "stageB_longer_span"
+            : "stageB_longer_span";
+      recordDrop(
+        "stageB_substring",
+        substrReason,
+        stageAList[dropIdx],
+        stageAList[keepIdx],
+        { clauseType: a.clauseType }
+      );
+
+      substrDropped.add(dropIdx);
+      console.log(
+        `[negotiateChunker] Substring dedup: collapsed span overlap ` +
+          `clauseType="${a.clauseType}" — kept "${stageAList[keepIdx].original.slice(0, 60)}..." ` +
+          `(${maxRiskLevel}), dropped "${stageAList[dropIdx].original.slice(0, 60)}..."`
+      );
+
+      // If i was dropped, no point comparing it further
+      if (dropIdx === i) break;
+    }
+  }
+
+  const textDedupedCandidates = stageAList.filter((_, i) => !substrDropped.has(i));
+  recordStage("stageB_substring", {
+    inputCount: stageAList.length,
+    outputCount: textDedupedCandidates.length,
+    candidates: textDedupedCandidates.map((c) => snapCandidate(c, diagId(c))),
+    drops: [],
+  });
 
   // ── Step 2: Cross-location issue-identity dedup ───────────────────────────
   // Merge candidates that represent the same SPECIFIC negotiation issue at
@@ -758,9 +989,15 @@ export async function evaluateFullDocument(
   // the merge can probe groundability when selecting between equal-severity
   // candidates (prevents discarding a groundable candidate in favour of one
   // that will be dropped by the grounding loop below).
-  const dedupedCandidates = mergeByIssueIdentity([...seen.values()], documentText);
+  const dedupedCandidates = mergeByIssueIdentity(textDedupedCandidates, documentText);
+  recordStage("issueIdentity", {
+    inputCount: textDedupedCandidates.length,
+    outputCount: dedupedCandidates.length,
+    candidates: dedupedCandidates.map((c) => snapCandidate(c, diagId(c))),
+    drops: [],
+  });
 
-  const crossLocationDropped = seen.size - dedupedCandidates.length;
+  const crossLocationDropped = textDedupedCandidates.length - dedupedCandidates.length;
   if (crossLocationDropped > 0) {
     console.log(
       `[negotiateChunker] Cross-location dedup removed ${crossLocationDropped} duplicate(s) ` +
@@ -770,6 +1007,17 @@ export async function evaluateFullDocument(
 
   // ── Build final NegotiateMarkup list ─────────────────────────────────────
   const markups: NegotiateMarkup[] = [];
+  const groundedSnaps: ReturnType<typeof snapCandidate>[] = [];
+  const finalDiag: {
+    clauseId: string;
+    issueTag: string;
+    clauseType: string;
+    riskLevel: string;
+    originalHash: string;
+    originalPreview: string;
+    charOffset: number;
+    matchedPlaybookTopic: string | null;
+  }[] = [];
 
   for (const candidate of dedupedCandidates) {
     const charOffset = locateInDocument(candidate.original, documentText);
@@ -778,12 +1026,15 @@ export async function evaluateFullDocument(
       // The LLM returned text that doesn't exist verbatim in the document
       // (even after whitespace and typographic normalization). This is a
       // hallucination/paraphrase — discard the candidate.
+      recordDrop("grounding", "original_not_found_in_document", candidate);
       console.warn(
         `[negotiateChunker] Discarding candidate — original text not found in document. ` +
           `Preview: "${candidate.original.slice(0, 80)}..."`
       );
       continue;
     }
+
+    groundedSnaps.push(snapCandidate(candidate, diagId(candidate)));
 
     // Sanitise matchedPlaybookTopic: only accept truthy strings that are not
     // literally "null" or "undefined" (LLM may return the string form).
@@ -798,8 +1049,9 @@ export async function evaluateFullDocument(
 
     // issueTag is intentionally NOT forwarded to NegotiateMarkup —
     // it is an internal dedup signal only and must not reach the DB or API.
+    const clauseId = stableClauseId(candidate.original);
     markups.push({
-      clauseId: stableClauseId(candidate.original),
+      clauseId,
       original: candidate.original,
       replacement: candidate.replacement,
       reasoning: candidate.reasoning,
@@ -808,10 +1060,29 @@ export async function evaluateFullDocument(
       charOffset,
       matchedPlaybookTopic,
     });
+    finalDiag.push({
+      clauseId,
+      issueTag: candidate.issueTag,
+      clauseType: candidate.clauseType,
+      riskLevel: candidate.riskLevel,
+      originalHash: snapCandidate(candidate).originalHash,
+      originalPreview: previewText(candidate.original),
+      charOffset,
+      matchedPlaybookTopic,
+    });
   }
+
+  recordStage("grounding", {
+    inputCount: dedupedCandidates.length,
+    outputCount: groundedSnaps.length,
+    candidates: groundedSnaps,
+    drops: [],
+  });
 
   // Sort by document position so the panel lists clauses in reading order
   markups.sort((a, b) => a.charOffset - b.charOffset);
+  finalDiag.sort((a, b) => a.charOffset - b.charOffset);
+  recordFinal(finalDiag);
 
   const playbookGrounded = markups.filter((m) => m.matchedPlaybookTopic !== null).length;
   console.log(
@@ -865,6 +1136,11 @@ ${chunk}`;
       ["RED", "YELLOW", "GREEN"].includes(m.riskLevel)
   );
 
+  const validSet = new Set(valid);
+  const invalidPreviews = rawMarkups
+    .filter((m) => !validSet.has(m))
+    .map((m) => previewText(typeof m?.original === "string" ? m.original : String(m ?? ""), 80));
+
   // ── Post-filter 2: data_retention_deletion RED → YELLOW clamp ────────────
   // A provider's right to delete data on free-plan / trial-plan expiry is a
   // standard SaaS commercial term. The prompt calibration guides the model to
@@ -873,14 +1149,30 @@ ${chunk}`;
   // reasoning contains an explicit aggravating signal (immediate/irreversible
   // deletion with no export window). This guard is scoped precisely to the
   // issueTag — it cannot affect other termination or data-protection findings.
-  return valid.map((m) => {
+  let clampedToYellowCount = 0;
+  const out = valid.map((m) => {
     if (
       m.issueTag === "data_retention_deletion" &&
       m.riskLevel === "RED" &&
       !/immedi|no.{0,10}export|no.{0,10}retriev|irrecov|permanently.{0,10}delet/i.test(m.reasoning)
     ) {
+      clampedToYellowCount += 1;
       return { ...m, riskLevel: "YELLOW" as const };
     }
     return m;
   });
+
+  recordRawChunk({
+    chunkIndex,
+    chunkId: `chunk-${chunkIndex}`,
+    status: "fulfilled",
+    llmReturnedCount: rawMarkups.length,
+    invalidDroppedCount: invalidPreviews.length,
+    invalidPreviews,
+    clampedToYellowCount,
+    candidateCount: out.length,
+    candidates: out.map((c, j) => snapCandidate(c, `c${chunkIndex}.${j}`)),
+  });
+
+  return out;
 }

@@ -3,18 +3,17 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { ChatMessage, CompareResult } from "../../../randtrustAI/types";
 import type { ComposerProps } from "../../../randtrustAI/components/Composer";
 import type { CompareHistoryEntry } from "../utils/compareHistory";
-import { RISK_BADGE, COMPARE_RISK_BADGE } from "../constants";
 import { CompareChatToolbar } from "./CompareChatToolbar";
 import { CompareAnalyzingState } from "./CompareAnalyzingState";
 import { CompareAskPanel, type CompareNote } from "./CompareAskPanel";
 import { CompareFindingInspector, type CompareInspectTarget } from "./CompareFindingInspector";
-import { CompareAlignRow, CompareDiffRow, CompareRiskRow } from "./CompareFindingRow";
+import { CompareAlignRow, CompareDiffRow } from "./CompareFindingRow";
 import { CompareDocumentView, type CompareNavState } from "./CompareDocumentView";
 
 const CARD_SHADOW = "0 1px 2px rgba(16,24,40,0.04), 0 0 0 1px rgba(16,24,40,0.06)";
 
 // Top-level view selector — kept for the Report fallback path type only
-type ResultsView = "summary" | "risks" | "changes";
+type ResultsView = "summary" | "changes";
 
 interface CompareResultsStateProps {
   messages: ChatMessage[];
@@ -352,10 +351,6 @@ function CompareReport({
   onDeleteHistory: (id: string) => void;
 }) {
   const summary = result.executiveSummary;
-  const riskTone = RISK_BADGE[summary.overallRisk] ?? RISK_BADGE.MEDIUM;
-  const highRisks = result.risks.filter((r) => r.level === "HIGH").length;
-  const medRisks = result.risks.filter((r) => r.level === "MEDIUM").length;
-  const lowRisks = result.risks.filter((r) => r.level === "LOW").length;
   const diffs = result.differences.filter((d) => d.classification !== "UNCHANGED");
   const added = diffs.filter((d) => d.classification === "ADDED").length;
   const removed = diffs.filter((d) => d.classification === "REMOVED").length;
@@ -365,9 +360,9 @@ function CompareReport({
   const onlyB = result.alignment.filter((a) => a.status === "added").length;
 
   const heroMetrics = [
-    { label: "High findings", value: String(highRisks), valueCls: highRisks > 0 ? "text-badge-red-text" : "text-[#1a1a1a]" },
     { label: "Material changes", value: String(diffs.length), valueCls: "text-[#1a1a1a]" },
     { label: "Aligned clauses", value: String(matched), valueCls: "text-[#1a1a1a]" },
+    { label: "Added / removed", value: `${added} / ${removed}`, valueCls: "text-[#1a1a1a]" },
     { label: "Priorities", value: String(summary.negotiationPriorities.length), valueCls: "text-[#1a1a1a]" },
   ];
 
@@ -418,7 +413,7 @@ function CompareReport({
             Comparison report
           </h1>
           <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-dark-200">
-            Clause-level redline across risk, material changes, and alignment — structured for counsel review.
+            Clause-level redline across material changes and alignment — structured for counsel review.
           </p>
 
           <div className="mt-5 flex flex-wrap gap-2">
@@ -432,9 +427,6 @@ function CompareReport({
 
           <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(260px,0.9fr)_minmax(0,1.1fr)] lg:items-start">
             <div>
-              <span className={`score-badge text-[12px] font-medium ${riskTone.badge}`}>
-                Overall {riskTone.label.toLowerCase()} risk
-              </span>
               <p className="mt-3 text-[13px] leading-relaxed text-dark-200">
                 {summary.overallAssessment}
               </p>
@@ -455,7 +447,6 @@ function CompareReport({
         <div className="segmented-control mb-6">
           {([
             ["summary", "Summary"],
-            ["risks", "Risks"],
             ["changes", "Changes"],
           ] as const).map(([id, label]) => (
             <button
@@ -509,42 +500,6 @@ function CompareReport({
                 {summary.recommendation}
               </p>
             </div>
-          </div>
-        )}
-
-        {activeView === "risks" && (
-          <div ref={detailRef}>
-            <Workspace
-              title="Risk register"
-              subtitle="Select a finding to inspect rationale, severity, and linked clause pair."
-              counts={[
-                { label: "High", value: highRisks, cls: "bg-badge-red text-badge-red-text" },
-                { label: "Medium", value: medRisks, cls: "bg-badge-yellow text-badge-yellow-text" },
-                { label: "Low", value: lowRisks, cls: "bg-badge-green text-badge-green-text" },
-              ]}
-              empty={result.risks.length === 0}
-              emptyMessage="No risk findings identified."
-              inspector={
-                <CompareFindingInspector
-                  target={inspect?.kind === "risk" ? inspect : null}
-                  emptyHint="Choose a finding to open the analysis panel."
-                />
-              }
-            >
-              {[...result.risks]
-                .sort((a, b) => {
-                  const order = { HIGH: 0, MEDIUM: 1, LOW: 2 } as const;
-                  return order[a.level] - order[b.level];
-                })
-                .map((risk) => (
-                  <CompareRiskRow
-                    key={risk.id}
-                    risk={risk}
-                    selected={inspect?.kind === "risk" && inspect.item.id === risk.id}
-                    onSelect={() => openWorkspace("risks", { kind: "risk", item: risk })}
-                  />
-                ))}
-            </Workspace>
           </div>
         )}
 

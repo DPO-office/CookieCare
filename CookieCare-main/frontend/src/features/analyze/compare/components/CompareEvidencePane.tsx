@@ -4,9 +4,8 @@
  * Right panel of the Compare workspace.
  * For a selected FindingViewModel, shows:
  *   - Section + clause title
- *   - Severity / change type badges
+ *   - Change type badges
  *   - What Changed (semanticSummary)
- *   - Why It Matters (risk.rationale)
  *   - Source Evidence: Document A vs Document B clause text with inline diff
  *   - Detection lineage
  *   - Confidence
@@ -19,7 +18,7 @@ import {
   Shield, Sparkles, Equal, AlertTriangle, ChevronLeft, ChevronRight,
   Loader2, AlertCircle, Info,
 } from "lucide-react";
-import { RISK_BADGE, CHANGE_TYPE_STYLE, CATEGORY_LABELS } from "../constants";
+import { CHANGE_TYPE_STYLE, CATEGORY_LABELS } from "../constants";
 import type { FindingViewModel } from "../utils/normalizeFindings";
 import type { ClauseRecord } from "../utils/normalizeFindings";
 import { computeInlineDiff } from "../utils/diffHighlight";
@@ -214,8 +213,7 @@ export function CompareEvidencePane({
     return <EvidenceEmpty />;
   }
 
-  const isRisk = finding.kind === "risk";
-  const risk = isRisk ? finding.risk : null;
+  const risk = finding.kind === "risk" ? finding.risk : null;
   const diff = finding.diff;
   const pair = finding.pair;
 
@@ -239,7 +237,6 @@ export function CompareEvidencePane({
     return computeInlineDiff(clauseA.text, clauseB.text);
   }, [clauseA?.text, clauseB?.text]);
 
-  const tone = risk ? (RISK_BADGE[risk.level] ?? RISK_BADGE.MEDIUM) : null;
   const diffMeta = diff
     ? (CHANGE_TYPE_STYLE[diff.classification] ?? CHANGE_TYPE_STYLE.NEUTRAL_REPHRASE)
     : null;
@@ -308,19 +305,9 @@ export function CompareEvidencePane({
         </h2>
 
         <div className="mt-2 flex flex-wrap items-center gap-2">
-          {tone && (
-            <span className={`score-badge text-[10px] font-semibold ${tone.badge}`}>
-              {tone.label}
-            </span>
-          )}
           {diffMeta && diff?.classification !== "UNCHANGED" && diff?.classification !== "NEUTRAL_REPHRASE" && (
             <span className={`score-badge text-[10px] font-medium ${diffMeta.badge}`}>
               {directionSymbol ?? diffMeta.label}
-            </span>
-          )}
-          {risk && (
-            <span className="score-badge text-[10px] font-medium bg-[#F3F4F6] text-[#374151]">
-              {CATEGORY_LABELS[risk.category] ?? risk.category}
             </span>
           )}
         </div>
@@ -342,42 +329,18 @@ export function CompareEvidencePane({
       {/* ── Body ── */}
       <div className="flex-1 space-y-0 divide-y divide-[#F0F0F2]">
         {/* What Changed */}
-        {(diff?.semanticSummary || diff?.classification === "ADDED" || diff?.classification === "REMOVED") && (
+        {(diff?.semanticSummary || risk?.rationale || diff?.classification === "ADDED" || diff?.classification === "REMOVED") && (
           <section className="px-4 py-4" aria-labelledby="what-changed">
             <p id="what-changed" className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#9CA3AF]">
               What changed
             </p>
             <p className="text-[13px] leading-relaxed text-[#374151]">
-              {diff.semanticSummary ||
-                (diff.classification === "ADDED" ? "This clause was added in the compared document — it does not exist in the baseline." :
-                 diff.classification === "REMOVED" ? "This clause was present in the baseline but was removed in the compared document." :
+              {diff?.semanticSummary ||
+                risk?.rationale ||
+                (diff?.classification === "ADDED" ? "This clause was added in the compared document — it does not exist in the baseline." :
+                 diff?.classification === "REMOVED" ? "This clause was present in the baseline but was removed in the compared document." :
                  "")}
             </p>
-          </section>
-        )}
-
-        {/* Why It Matters */}
-        {risk?.rationale && (
-          <section className="px-4 py-4" aria-labelledby="why-matters">
-            <p id="why-matters" className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#9CA3AF]">
-              Why it matters
-            </p>
-            <div className={`rounded-xl p-3.5 text-[13px] leading-relaxed ${tone?.badge ?? "bg-[#F3F4F6] text-[#374151]"}`}>
-              {risk.rationale}
-            </div>
-          </section>
-        )}
-
-        {/* No-risk note */}
-        {finding.kind === "no-risk" && (
-          <section className="px-4 py-4">
-            <div className="flex items-start gap-2 rounded-xl bg-[#F9FAFB] border border-[#E4E4E7] px-3 py-3">
-              <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#9CA3AF]" />
-              <p className="text-[12.5px] text-[#6B7280]">
-                A change was detected here but the risk engine did not flag a specific risk.
-                Review the source evidence below to assess significance.
-              </p>
-            </div>
           </section>
         )}
 
