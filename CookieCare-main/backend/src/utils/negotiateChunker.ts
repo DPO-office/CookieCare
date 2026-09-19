@@ -26,22 +26,6 @@ import {
   LLMTask,
 } from "../llm/index.js";
 import { looksLikeCiphertext } from "./crypto.js";
-import {
-  currentEvalDiag,
-  diagId,
-  diagRetag,
-  diagTag,
-  evalDiagEnvEnabled,
-  recordChunking,
-  recordDocumentIdentity,
-  recordDrop,
-  recordFinal,
-  recordRawChunk,
-  recordStage,
-  runWithEvalDiag,
-  snapCandidate,
-  previewText,
-} from "./negotiateEvalDiag.js";
 
 // ─── Public types ─────────────────────────────────────────────────────────────
 
@@ -420,20 +404,6 @@ function splitIntoChunks(text: string): string[] {
   return chunks;
 }
 
-/** Diagnostic-only reconstruction of the same bounds splitIntoChunks uses. Not used for evaluation. */
-function chunkBoundsForDiag(textLength: number): { start: number; end: number }[] {
-  if (textLength <= CHUNK_SIZE) return [{ start: 0, end: textLength }];
-  const bounds: { start: number; end: number }[] = [];
-  let start = 0;
-  while (start < textLength) {
-    const end = Math.min(start + CHUNK_SIZE, textLength);
-    bounds.push({ start, end });
-    if (end === textLength) break;
-    start = end - CHUNK_OVERLAP;
-  }
-  return bounds;
-}
-
 /**
  * Returns a short deterministic 8-character hex identifier for a clause,
  * derived from the first 256 chars of its verbatim text.
@@ -688,24 +658,8 @@ function mergeByIssueIdentity(
       const maxRisk = aRisk >= bRisk ? a.riskLevel : b.riskLevel;
       if (candidates[keepIdx].riskLevel !== maxRisk) {
         // Clone to avoid mutating the original array element in place
-        const prev = candidates[keepIdx];
-        candidates[keepIdx] = { ...prev, riskLevel: maxRisk };
-        diagRetag(prev, candidates[keepIdx]);
+        candidates[keepIdx] = { ...candidates[keepIdx], riskLevel: maxRisk };
       }
-
-      const mergeReason =
-        aRisk !== bRisk
-          ? "issue_identity_higher_risk"
-          : keepIdx !== i
-            ? "issue_identity_tie_prefer_groundable"
-            : "issue_identity_tie_keep_first";
-      recordDrop(
-        "issueIdentity",
-        mergeReason,
-        candidates[dropIdx],
-        candidates[keepIdx],
-        { issueTag: a.issueTag, clauseType: a.clauseType }
-      );
 
       active.delete(dropIdx);
       console.log(
@@ -747,18 +701,6 @@ export async function evaluateFullDocument(
   documentType: string,
   playbookRules: PlaybookRuleInput[] = []
 ): Promise<NegotiateMarkup[]> {
-  // Temporary diagnostic wrap: when NEGOTIATE_EVAL_DIAG=1 and no trace is
-  // already active, record this run and persist it. Recurses once into the
-  // same function under AsyncLocalStorage — evaluation logic is unchanged.
-  if (!currentEvalDiag() && evalDiagEnvEnabled()) {
-    const { result } = await runWithEvalDiag(
-      { documentTitle, documentType },
-      () => evaluateFullDocument(documentText, documentTitle, documentType, playbookRules),
-      { persist: true }
-    );
-    return result;
-  }
-
   // Defensive boundary: every caller (POST /evaluate, POST /session/resolve)
   // funnels through here. If a caller reads files.content without checking
   // is_encrypted, or a decryption call fails, that must never reach the LLM
@@ -781,19 +723,6 @@ export async function evaluateFullDocument(
   // Build the system prompt once — shared across all chunks for this call.
   const systemPrompt = buildSystemPrompt(playbookRules);
 
-  recordDocumentIdentity({
-    documentText,
-    documentTitle,
-    documentType,
-    playbookRules,
-    systemPrompt,
-  });
-  recordChunking({
-    chunks,
-    bounds: chunkBoundsForDiag(documentText.length),
-    documentText,
-  });
-
   // ── Fire all chunk evaluations in parallel ────────────────────────────────
   const chunkResults = await Promise.allSettled(
     chunks.map((chunk, idx) =>
@@ -807,39 +736,16 @@ export async function evaluateFullDocument(
   for (let i = 0; i < chunkResults.length; i++) {
     const result = chunkResults[i];
     if (result.status === "fulfilled") {
-      result.value.forEach((c, j) => diagTag(c, `c${i}.${j}`));
       allCandidates.push(...result.value);
     } else {
-      recordRawChunk({
-        chunkIndex: i,
-        chunkId: `chunk-${i}`,
-        status: "rejected",
-        rejectReason: String(result.reason?.message ?? result.reason ?? "unknown"),
-        llmReturnedCount: 0,
-        invalidDroppedCount: 0,
-        invalidPreviews: [],
-        clampedToYellowCount: 0,
-        candidateCount: 0,
-        candidates: [],
-      });
       console.warn(
         `[negotiateChunker] Chunk ${i + 1}/${chunks.length} failed: ${result.reason?.message ?? result.reason}`
       );
     }
   }
 
-  {
-    const t = currentEvalDiag();
-    if (t) t.rawLlm.chunks.sort((a, b) => a.chunkIndex - b.chunkIndex);
-  }
-
   if (allCandidates.length === 0) {
     console.log(`[negotiateChunker] No markup candidates returned for "${documentTitle}"`);
-    recordStage("stageA_prefix", { inputCount: 0, outputCount: 0, candidates: [], drops: [] });
-    recordStage("stageB_substring", { inputCount: 0, outputCount: 0, candidates: [], drops: [] });
-    recordStage("issueIdentity", { inputCount: 0, outputCount: 0, candidates: [], drops: [] });
-    recordStage("grounding", { inputCount: 0, outputCount: 0, candidates: [], drops: [] });
-    recordFinal([]);
     return [];
   }
 
@@ -879,27 +785,12 @@ export async function evaluateFullDocument(
     if (!existing) {
       seen.set(key, candidate);
     } else if (RISK_ORDER[candidate.riskLevel] > RISK_ORDER[existing.riskLevel]) {
-      recordDrop("stageA_prefix", "stageA_higher_risk", existing, candidate, { prefixKey: key.slice(0, 80) });
       seen.set(key, candidate);
-    } else {
-      recordDrop(
-        "stageA_prefix",
-        "stageA_keep_first_equal_or_higher_risk",
-        candidate,
-        existing,
-        { prefixKey: key.slice(0, 80) }
-      );
     }
   }
 
   // Stage B: substring collapse (same clauseType only)
   const stageAList = [...seen.values()];
-  recordStage("stageA_prefix", {
-    inputCount: allCandidates.length,
-    outputCount: stageAList.length,
-    candidates: stageAList.map((c) => snapCandidate(c, diagId(c))),
-    drops: [],
-  });
   const substrDropped = new Set<number>();
 
   for (let i = 0; i < stageAList.length; i++) {
@@ -943,24 +834,8 @@ export async function evaluateFullDocument(
       const keepIdx = dropIdx === i ? j : i;
       const maxRiskLevel = aRisk >= bRisk ? a.riskLevel : b.riskLevel;
       if (stageAList[keepIdx].riskLevel !== maxRiskLevel) {
-        const prev = stageAList[keepIdx];
-        stageAList[keepIdx] = { ...prev, riskLevel: maxRiskLevel };
-        diagRetag(prev, stageAList[keepIdx]);
+        stageAList[keepIdx] = { ...stageAList[keepIdx], riskLevel: maxRiskLevel };
       }
-
-      const substrReason =
-        aRisk !== bRisk
-          ? "stageB_higher_risk"
-          : aContainsB
-            ? "stageB_longer_span"
-            : "stageB_longer_span";
-      recordDrop(
-        "stageB_substring",
-        substrReason,
-        stageAList[dropIdx],
-        stageAList[keepIdx],
-        { clauseType: a.clauseType }
-      );
 
       substrDropped.add(dropIdx);
       console.log(
@@ -975,12 +850,6 @@ export async function evaluateFullDocument(
   }
 
   const textDedupedCandidates = stageAList.filter((_, i) => !substrDropped.has(i));
-  recordStage("stageB_substring", {
-    inputCount: stageAList.length,
-    outputCount: textDedupedCandidates.length,
-    candidates: textDedupedCandidates.map((c) => snapCandidate(c, diagId(c))),
-    drops: [],
-  });
 
   // ── Step 2: Cross-location issue-identity dedup ───────────────────────────
   // Merge candidates that represent the same SPECIFIC negotiation issue at
@@ -990,12 +859,6 @@ export async function evaluateFullDocument(
   // candidates (prevents discarding a groundable candidate in favour of one
   // that will be dropped by the grounding loop below).
   const dedupedCandidates = mergeByIssueIdentity(textDedupedCandidates, documentText);
-  recordStage("issueIdentity", {
-    inputCount: textDedupedCandidates.length,
-    outputCount: dedupedCandidates.length,
-    candidates: dedupedCandidates.map((c) => snapCandidate(c, diagId(c))),
-    drops: [],
-  });
 
   const crossLocationDropped = textDedupedCandidates.length - dedupedCandidates.length;
   if (crossLocationDropped > 0) {
@@ -1007,17 +870,6 @@ export async function evaluateFullDocument(
 
   // ── Build final NegotiateMarkup list ─────────────────────────────────────
   const markups: NegotiateMarkup[] = [];
-  const groundedSnaps: ReturnType<typeof snapCandidate>[] = [];
-  const finalDiag: {
-    clauseId: string;
-    issueTag: string;
-    clauseType: string;
-    riskLevel: string;
-    originalHash: string;
-    originalPreview: string;
-    charOffset: number;
-    matchedPlaybookTopic: string | null;
-  }[] = [];
 
   for (const candidate of dedupedCandidates) {
     const charOffset = locateInDocument(candidate.original, documentText);
@@ -1026,15 +878,12 @@ export async function evaluateFullDocument(
       // The LLM returned text that doesn't exist verbatim in the document
       // (even after whitespace and typographic normalization). This is a
       // hallucination/paraphrase — discard the candidate.
-      recordDrop("grounding", "original_not_found_in_document", candidate);
       console.warn(
         `[negotiateChunker] Discarding candidate — original text not found in document. ` +
           `Preview: "${candidate.original.slice(0, 80)}..."`
       );
       continue;
     }
-
-    groundedSnaps.push(snapCandidate(candidate, diagId(candidate)));
 
     // Sanitise matchedPlaybookTopic: only accept truthy strings that are not
     // literally "null" or "undefined" (LLM may return the string form).
@@ -1060,29 +909,10 @@ export async function evaluateFullDocument(
       charOffset,
       matchedPlaybookTopic,
     });
-    finalDiag.push({
-      clauseId,
-      issueTag: candidate.issueTag,
-      clauseType: candidate.clauseType,
-      riskLevel: candidate.riskLevel,
-      originalHash: snapCandidate(candidate).originalHash,
-      originalPreview: previewText(candidate.original),
-      charOffset,
-      matchedPlaybookTopic,
-    });
   }
-
-  recordStage("grounding", {
-    inputCount: dedupedCandidates.length,
-    outputCount: groundedSnaps.length,
-    candidates: groundedSnaps,
-    drops: [],
-  });
 
   // Sort by document position so the panel lists clauses in reading order
   markups.sort((a, b) => a.charOffset - b.charOffset);
-  finalDiag.sort((a, b) => a.charOffset - b.charOffset);
-  recordFinal(finalDiag);
 
   const playbookGrounded = markups.filter((m) => m.matchedPlaybookTopic !== null).length;
   console.log(
@@ -1136,11 +966,6 @@ ${chunk}`;
       ["RED", "YELLOW", "GREEN"].includes(m.riskLevel)
   );
 
-  const validSet = new Set(valid);
-  const invalidPreviews = rawMarkups
-    .filter((m) => !validSet.has(m))
-    .map((m) => previewText(typeof m?.original === "string" ? m.original : String(m ?? ""), 80));
-
   // ── Post-filter 2: data_retention_deletion RED → YELLOW clamp ────────────
   // A provider's right to delete data on free-plan / trial-plan expiry is a
   // standard SaaS commercial term. The prompt calibration guides the model to
@@ -1149,30 +974,14 @@ ${chunk}`;
   // reasoning contains an explicit aggravating signal (immediate/irreversible
   // deletion with no export window). This guard is scoped precisely to the
   // issueTag — it cannot affect other termination or data-protection findings.
-  let clampedToYellowCount = 0;
-  const out = valid.map((m) => {
+  return valid.map((m) => {
     if (
       m.issueTag === "data_retention_deletion" &&
       m.riskLevel === "RED" &&
       !/immedi|no.{0,10}export|no.{0,10}retriev|irrecov|permanently.{0,10}delet/i.test(m.reasoning)
     ) {
-      clampedToYellowCount += 1;
       return { ...m, riskLevel: "YELLOW" as const };
     }
     return m;
   });
-
-  recordRawChunk({
-    chunkIndex,
-    chunkId: `chunk-${chunkIndex}`,
-    status: "fulfilled",
-    llmReturnedCount: rawMarkups.length,
-    invalidDroppedCount: invalidPreviews.length,
-    invalidPreviews,
-    clampedToYellowCount,
-    candidateCount: out.length,
-    candidates: out.map((c, j) => snapCandidate(c, `c${chunkIndex}.${j}`)),
-  });
-
-  return out;
 }
