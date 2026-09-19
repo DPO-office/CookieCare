@@ -1,5 +1,6 @@
 import type { DocumentTypePack } from "../types.js";
 import type { WorkUnit } from "../../../models/draft-plan.js";
+import { slaSkillConfig } from "./skill.config.js";
 
 const skeleton: WorkUnit[] = [
   { id: "sec-parties", kind: "section", heading: "Parties", dependsOn: [], clauseTypes: ["parties"], status: "pending" },
@@ -12,9 +13,10 @@ const skeleton: WorkUnit[] = [
 
 export const slaPack: DocumentTypePack = {
   id: "sla",
-  aliases: ["sla", "service level agreement"],
+  aliases: ["sla", "service level agreement", "service-level agreement", "service level addendum"],
   skeleton,
   skillPaths: ["document-types/sla"],
+  skillConfig: slaSkillConfig,
   prompts: {
     plan: (ctx) => `Plan SLA from ${JSON.stringify(ctx.facts)}`,
     actSection: (ctx) => `Draft SLA section ${ctx.unit.heading}`,

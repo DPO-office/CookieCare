@@ -167,7 +167,8 @@ export function useLibraryUpload(
   // ── Batch upload ─────────────────────────────────────────────────────────
 
   const handleTriggerUpload = async (
-    targetFolderId: string
+    targetFolderId: string,
+    forAnalysis: boolean = true
   ): Promise<boolean> => {
     const files = pendingVaultFiles.filter(
       (item) => item.status === "pending" || item.status === "error"
@@ -206,11 +207,26 @@ export function useLibraryUpload(
             (id) => {
               jobId = id;
               updateItem(item.id, { status: "processing" });
-            }
+            },
+            forAnalysis
           );
           if (!response.sync) {
             if (!jobId) throw new Error("Upload did not return a job id.");
-            await waitForJob(authToken, jobId);
+            await waitForJob(authToken, jobId, {
+              onProgress: (progress, message) => {
+                const basePercent = (completed / files.length) * 100;
+                const fileContribution = (1 / files.length) * Math.max(5, Math.min(99, progress || 0));
+                const overallPercent = Math.min(99, Math.round(basePercent + fileContribution));
+                setUploadProgressPercent(overallPercent);
+                if (message) {
+                  setUploadProgressMessage(
+                    files.length > 1
+                      ? `[File ${completed + 1}/${files.length}] ${message}`
+                      : message
+                  );
+                }
+              },
+            });
           }
           updateItem(item.id, { status: "done" });
         } catch (error: any) {
@@ -264,6 +280,7 @@ export function useLibraryUpload(
   const handleVaultAssetUpload = async (params: {
     tab: "rulebook" | "templates" | "clauses";
     file: File;
+    title?: string;
     contractType?: string;
     jurisdiction?: string;
     source?: "private" | "org";
@@ -299,6 +316,7 @@ export function useLibraryUpload(
         authToken,
         {
           file: params.file,
+          title: params.title?.trim() || undefined,
           category: categoryMap[params.tab],
           contractType: params.contractType?.trim() || undefined,
           jurisdiction: params.jurisdiction?.trim() || undefined,

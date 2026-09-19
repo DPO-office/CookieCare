@@ -200,12 +200,16 @@ export async function uploadFileToFolder(
   authToken: string,
   folderId: string,
   file: File,
-  onJobId: (jobId: string) => void
+  onJobId: (jobId: string) => void,
+  forAnalysis: boolean = true
 ): Promise<{ sync: boolean }> {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("folder_id", folderId);
   formData.append("isTemplate", "false");
+  if (forAnalysis) {
+    formData.append("for_analysis", "true");
+  }
   const res = await fetch(apiUrl("/api/documents/upload"), {
     method: "POST",
     headers: { Authorization: `Bearer ${authToken}` },
@@ -296,6 +300,7 @@ export async function uploadVaultAsset(
   authToken: string,
   params: {
     file: File;
+    title?: string;
     category: VaultIngestCategory;
     contractType?: string;
     jurisdiction?: string;
@@ -307,6 +312,7 @@ export async function uploadVaultAsset(
   const formData = new FormData();
   formData.append("file", params.file);
   formData.append("category", params.category);
+  if (params.title) formData.append("title", params.title);
   if (params.contractType) formData.append("contractType", params.contractType);
   if (params.jurisdiction) formData.append("jurisdiction", params.jurisdiction);
   if (params.folderId) formData.append("folder_id", params.folderId);

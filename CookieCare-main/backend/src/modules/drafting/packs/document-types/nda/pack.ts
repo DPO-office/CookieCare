@@ -1,5 +1,6 @@
 import type { DocumentTypePack } from "../types.js";
 import type { WorkUnit } from "../../../models/draft-plan.js";
+import { ndaSkillConfig } from "./skill.config.js";
 
 const skeleton: WorkUnit[] = [
   { id: "sec-parties", kind: "section", heading: "Parties", dependsOn: [], clauseTypes: ["parties"], status: "pending" },
@@ -12,9 +13,10 @@ const skeleton: WorkUnit[] = [
 
 export const ndaPack: DocumentTypePack = {
   id: "nda",
-  aliases: ["nda", "non-disclosure", "confidentiality agreement"],
+  aliases: ["nda", "non-disclosure", "confidentiality agreement", "mutual nda", "one-way nda"],
   skeleton,
   skillPaths: ["document-types/nda"],
+  skillConfig: ndaSkillConfig,
   prompts: {
     plan: (ctx) => `Plan NDA from ${JSON.stringify(ctx.facts)}`,
     actSection: (ctx) => `Draft NDA section ${ctx.unit.heading}`,

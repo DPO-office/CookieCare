@@ -136,6 +136,7 @@ export const VAULT_STYLES = `
   background: rgba(255, 255, 255, 0.78);
   backdrop-filter: blur(8px);
   display: flex; align-items: center; justify-content: center; padding: 16px;
+  overflow-y: auto;
 }
 
 .vlt-modal {
@@ -144,8 +145,11 @@ export const VAULT_STYLES = `
   border-radius: 24px;
   box-shadow: var(--card-shadow), 0 24px 48px rgba(16,24,40,0.10);
   width: 100%;
-  overflow: hidden;
+  max-height: calc(100vh - 32px);
+  display: flex; flex-direction: column;
+  overflow-y: auto;
   position: relative;
+  margin: auto;
 }
 
 .vlt-dropzone {
@@ -154,7 +158,7 @@ export const VAULT_STYLES = `
   background: #F7F8FB;
   box-shadow: inset 0 0 0 1px rgba(16,24,40,0.06);
   text-align: center;
-  padding: 36px 24px;
+  padding: 22px 16px;
   transition: background 180ms ease, box-shadow 180ms ease;
   cursor: pointer;
 }

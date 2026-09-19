@@ -64,29 +64,30 @@ export class TemplateRetriever {
   }
   private async resolveById(id: string): Promise<string | null> {
     try {
-      // Prefer structured templates table.
-      const isUuidLike = id.length === 36 || id.includes("-");
-      const templateSql = isUuidLike
-        ? `SELECT content FROM contract_templates WHERE id = $1 AND status = 'active' LIMIT 1`
-        : `SELECT content FROM contract_templates WHERE (id = $1 OR name ILIKE $2) AND status = 'active' LIMIT 1`;
-      const templateParams = isUuidLike ? [id] : [id, `%${id}%`];
-      const templateRes = await this.db.query(templateSql, templateParams);
+      const trimmedId = id.trim();
+
+      // 1. Direct hit in contract_templates table
+      const templateRes = await this.db.query(
+        `SELECT content FROM contract_templates WHERE (id = $1 OR name ILIKE $2) AND status = 'active' LIMIT 1`,
+        [trimmedId, `%${trimmedId}%`]
+      );
       if (templateRes.rows[0]?.content) {
         return String(templateRes.rows[0].content);
       }
 
-      // library_items (templates tab) may store body in details.
+      // 2. Lookup in library_items (templates tab or vault asset)
       const libRes = await this.db.query(
         `SELECT details, id FROM library_items
-         WHERE (id = $1 OR details::text ILIKE $2)
-           AND type = 'templates'
+         WHERE (id = $1 OR details::text ILIKE $2 OR details::text ILIKE $3)
          LIMIT 1`,
-        [id, `%"templateId":"${id}"%`]
+        [trimmedId, `%"templateId":"${trimmedId}"%`, `%"sourceFileId":"${trimmedId}"%`]
       );
-      if (libRes.rows[0]) {
+
+      let targetSourceFileId: string | undefined;
+
+      if (libRes.rows[0]?.details) {
         const details = libRes.rows[0].details;
         if (typeof details === "string" && details.trim()) {
-          // details may be plain text or JSON with content/templateId
           try {
             const parsed = JSON.parse(details);
             if (parsed?.content) return String(parsed.content);
@@ -97,22 +98,66 @@ export class TemplateRetriever {
               );
               if (nested.rows[0]?.content) return String(nested.rows[0].content);
             }
+            if (parsed?.sourceFileId) {
+              targetSourceFileId = String(parsed.sourceFileId);
+            }
           } catch {
-            return details;
+            if (details.length > 50) return details;
+          }
+        } else if (typeof details === "object" && details !== null) {
+          const parsed = details as any;
+          if (parsed.content) return String(parsed.content);
+          if (parsed.templateId) {
+            const nested = await this.db.query(
+              `SELECT content FROM contract_templates WHERE id = $1 AND status = 'active' LIMIT 1`,
+              [parsed.templateId]
+            );
+            if (nested.rows[0]?.content) return String(nested.rows[0].content);
+          }
+          if (parsed.sourceFileId) {
+            targetSourceFileId = String(parsed.sourceFileId);
           }
         }
       }
 
-      // Raw vault file content.
-      const fileRes = await this.db.query(
-        `SELECT content, is_encrypted FROM files WHERE id = $1 LIMIT 1`,
-        [id]
+      const lookupFileId = targetSourceFileId || trimmedId;
+
+      // 3. Lookup in document_structure_artifacts (Docling structural graph)
+      const artifactRes = await this.db.query(
+        `SELECT encrypted_payload FROM document_structure_artifacts WHERE file_id = $1 ORDER BY updated_at DESC LIMIT 1`,
+        [lookupFileId]
       );
-      if (fileRes.rows[0]?.content) {
+      if (artifactRes.rows[0]?.encrypted_payload) {
+        try {
+          const decrypted = decryptData(artifactRes.rows[0].encrypted_payload);
+          const graph = JSON.parse(decrypted);
+          if (graph?.canonicalText?.trim()) {
+            return graph.canonicalText.trim();
+          }
+        } catch (err) {
+          console.warn(`[TemplateRetriever] artifact decrypt failed for ${lookupFileId}: ${(err as Error).message}`);
+        }
+      }
+
+      // 4. Fallback lookup in files table
+      const fileRes = await this.db.query(
+        `SELECT content, is_encrypted, original_file, mime_type FROM files WHERE id = $1 LIMIT 1`,
+        [lookupFileId]
+      );
+      if (fileRes.rows[0]) {
         const row = fileRes.rows[0];
-        return row.is_encrypted
-          ? decryptData(row.content)
-          : String(row.content);
+        const rawContent = row.is_encrypted ? decryptData(row.content) : String(row.content ?? "");
+        if (rawContent.trim()) {
+          return rawContent.trim();
+        }
+        if (row.original_file && row.mime_type) {
+          const { extractText } = await import("../../../utils/extractText.js");
+          const buffer = Buffer.from(row.original_file, "base64");
+          const extracted = await extractText(buffer, row.mime_type);
+          if (extracted.text?.trim()) {
+            return extracted.text.trim();
+          }
+        }
       }
 
       return null;

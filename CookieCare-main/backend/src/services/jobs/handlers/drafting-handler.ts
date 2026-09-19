@@ -95,7 +95,7 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
       }
     }
 
-    await updateJobProgress(jobId, userId, 25, "Structuring tracking context state blocks...");
+    await updateJobProgress(jobId, userId, 25, "Analyzing requirements & structure…");
 
     const initialStateContainer: DraftState = {
       onProgress: async (percent, message) => {
@@ -152,7 +152,7 @@ async function handleInitialDraftingJob(jobId: string, userId: string, payload: 
       },
     };
   
-    await updateJobProgress(jobId, userId, 50, "Invoking AI model core engine and validation checkpoints...");
+    await updateJobProgress(jobId, userId, 50, "Drafting agreement clauses…");
 
     // 3. Pre-create the files row BEFORE launching the pipeline.
     //    draft_state_ledger has a FK → files(id), and saveStep (the last pipeline
@@ -248,7 +248,7 @@ async function handleRefinementJob(jobId: string, userId: string, payload: any):
         currentVersion
     } = payload;
 
-    await updateJobProgress(jobId, userId, 15, "Reconstituting pipeline memory context logs...");
+    await updateJobProgress(jobId, userId, 15, "Reviewing document context…");
 
     if (!documentId) {
         throw new Error("Refinement requires a documentId to restore draft state memory.");
@@ -403,7 +403,7 @@ async function handleRefinementJob(jobId: string, userId: string, payload: any):
             }
         };
   
-    await updateJobProgress(jobId, userId, 45, "Executing adjustments and evaluating risk variables...");
+    await updateJobProgress(jobId, userId, 45, "Applying revisions & standardizing terms…");
 
     const refineState: DraftState = {
       ...inputStateContainer,
@@ -471,7 +471,7 @@ async function handleResumeAskJob(jobId: string, userId: string, payload: any): 
   if (!documentId) throw new Error("RESUME_ASK requires documentId");
   if (!answers || typeof answers !== "object") throw new Error("RESUME_ASK requires answers map");
 
-  await updateJobProgress(jobId, userId, 10, "Resuming drafting with your answers...");
+  await updateJobProgress(jobId, userId, 10, "Applying answers & continuing draft…");
 
   const snapshotLookup = await pool.query(
     `SELECT state_snapshot_json, version

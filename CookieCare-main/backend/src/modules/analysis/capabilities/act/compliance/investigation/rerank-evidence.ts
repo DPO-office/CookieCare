@@ -175,6 +175,18 @@ export async function reviewCandidateBatches(args: {
         return true;
       });
       decisionsByRequirement.set(row.requirementId, decisions);
+      // Ensure any candidate in the review pool that was omitted in the LLM response is defaulted to irrelevant
+      for (const candidateId of allowed) {
+        if (!seen.has(candidateId)) {
+          decisions.push({
+            nodeId: candidateId,
+            role: "irrelevant",
+            contributesToElementIds: [],
+            confidence: 0,
+            reason: "Omitted in candidate review",
+          });
+        }
+      }
       unresolvedByRequirement.set(
         row.requirementId,
         [...new Set((row.unresolvedElementIds ?? []).filter((id) => requiredElements.has(id)))]

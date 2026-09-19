@@ -50,11 +50,42 @@ function buildTitle(state: DraftState): string {
   return "AGREEMENT";
 }
 
+function formatPartyPreambleDetails(
+  name: string,
+  role: string,
+  facts: Record<string, unknown>,
+  side: "A" | "B"
+): string {
+  const isFiduciary = role.toLowerCase().includes("fiduciary");
+  const isProcessor = role.toLowerCase().includes("processor");
+
+  const cin =
+    side === "A"
+      ? (isFiduciary ? facts.dataFiduciaryCin : facts.dataProcessorCin) || facts.cinA || facts.cin
+      : (isProcessor ? facts.dataProcessorCin : facts.dataFiduciaryCin) || facts.cinB;
+
+  const address =
+    side === "A"
+      ? (isFiduciary ? facts.dataFiduciaryAddress : facts.dataProcessorAddress) || facts.addressA || facts.registeredAddress
+      : (isProcessor ? facts.dataProcessorAddress : facts.dataFiduciaryAddress) || facts.addressB;
+
+  const details: string[] = [name];
+  if (address) {
+    details.push(`having its registered office at ${address}`);
+  }
+  if (cin) {
+    details.push(`(Registration/CIN: ${cin})`);
+  }
+  details.push(`(the "${role}")`);
+  return details.join(", ");
+}
+
 function buildPreamble(state: DraftState): string {
   const identity = buildDealIdentity(
     state.structuredFacts ?? state.plan?.structuredFacts,
     state.plan?.documentType
   );
+  const facts = (state.structuredFacts ?? state.plan?.structuredFacts ?? {}) as Record<string, unknown>;
   const date =
     identity?.effectiveDate ||
     (typeof state.structuredFacts?.effectiveDate === "string"
@@ -63,21 +94,20 @@ function buildPreamble(state: DraftState): string {
   if (!identity) {
     return `This Agreement is entered into as of ${date} (the "Effective Date") between the parties identified herein.`;
   }
-  return `This Agreement is entered into as of ${date} (the "Effective Date") between ${identity.partyA} (the "${identity.roleA}") and ${identity.partyB} (the "${identity.roleB}").`;
-}
 
-function buildToc(
-  sections: Array<{ number: string; title: string }>,
-  exhibits: ExhibitSpec[]
-): string {
-  const lines = ["## Table of Contents", ""];
-  for (const s of sections) {
-    lines.push(`${s.number}. ${s.title}`);
+  const partyADetails = formatPartyPreambleDetails(identity.partyA, identity.roleA, facts, "A");
+  const partyBDetails = formatPartyPreambleDetails(identity.partyB, identity.roleB, facts, "B");
+
+  if (
+    partyADetails.includes("registered office") ||
+    partyBDetails.includes("registered office") ||
+    partyADetails.includes("Registration/CIN") ||
+    partyBDetails.includes("Registration/CIN")
+  ) {
+    return `This Agreement is entered into as of ${date} (the "Effective Date"), by and between:\n\n1. ${partyADetails}; and\n\n2. ${partyBDetails}.`;
   }
-  for (const e of exhibits) {
-    if (e.letter) lines.push(`Schedule ${e.letter}. ${e.title}`);
-  }
-  return lines.join("\n");
+
+  return `This Agreement is entered into as of ${date} (the "Effective Date") between ${identity.partyA} (the "${identity.roleA}") and ${identity.partyB} (the "${identity.roleB}").`;
 }
 
 function buildSignatureBlock(state: DraftState): string {
@@ -87,19 +117,22 @@ function buildSignatureBlock(state: DraftState): string {
   );
   const a = identity?.partyA || "Party A";
   const b = identity?.partyB || "Party B";
+  const roleA = identity?.roleA ? ` (${identity.roleA})` : "";
+  const roleB = identity?.roleB ? ` (${identity.roleB})` : "";
+
   return [
     "## Signature Block",
     "",
     `IN WITNESS WHEREOF, the parties have executed this Agreement as of the Effective Date.`,
     "",
-    `**${a}**`,
+    `**${a}${roleA}**`,
     "",
     "By: _______________________________",
     "Name: _____________________________",
     "Title: ____________________________",
     "Date: _____________________________",
     "",
-    `**${b}**`,
+    `**${b}${roleB}**`,
     "",
     "By: _______________________________",
     "Name: _____________________________",
@@ -195,20 +228,12 @@ export async function assembleDocument(state: DraftState): Promise<DraftState> {
 
   const title = buildTitle(state);
   const preamble = buildPreamble(state);
-  const toc =
-    finalSections.length >= 6
-      ? buildToc(
-          numberedMeta.map((m) => ({ number: m.number, title: m.title })),
-          exhibitSpecs
-        )
-      : "";
   const signature = buildSignatureBlock(state);
 
   const formattedDocument = [
     `# ${title}`,
     "",
     preamble,
-    toc ? `\n${toc}` : "",
     "",
     ...finalSections.map((s) => s.body),
     ...exhibitBlocks,

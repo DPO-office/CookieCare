@@ -273,6 +273,12 @@ export function useUpload(
             // use a tighter poll interval to surface results sooner.
             const processingResult = await waitForJob(authToken, result.jobId, {
               pollIntervalMs: ephemeral ? 400 : 1200,
+              onProgress: (progress, message) => {
+                updateFileStatus(item.id, {
+                  progress,
+                  statusMessage: message,
+                });
+              },
             });
             if (processingResult?.structureStatus && processingResult.structureStatus !== "ready") {
               const issues = Array.isArray(processingResult?.structureQuality?.criticalIssues)
@@ -282,10 +288,10 @@ export function useUpload(
               if (analysisMode === "blocked") blockedReviewCount++;
               else reviewCount++;
               updateFileStatus(item.id, {
-                status: "needs_review",
+                status: "done",
                 error: analysisMode === "blocked"
                   ? `Uploaded, but automated analysis is blocked by structural integrity issues: ${issues}.`
-                  : "Uploaded with structural limitations. Analysis will use verified content and disclose the limitations.",
+                  : undefined,
               });
               if (analysisMode !== "blocked" && result.fileId) {
                 fileIds.push(result.fileId);
@@ -371,11 +377,7 @@ export function useUpload(
     }
 
     const uploadedCount = toUpload.length;
-    setSuccessMessage(
-      reviewCount > 0
-        ? `${uploadedCount} file${uploadedCount === 1 ? "" : "s"} uploaded. ${reviewCount} will be analysed in verified-content-only mode with limitations disclosed.`
-        : `${uploadedCount} file${uploadedCount === 1 ? "" : "s"} uploaded and indexed successfully.`
-    );
+    setSuccessMessage(`${uploadedCount} file${uploadedCount === 1 ? "" : "s"} uploaded successfully.`);
     setTimeout(() => {
       clearFiles();
       onClose(fileIds);
@@ -442,9 +444,7 @@ export function useUpload(
         error: `${blockedReviewCount} uploaded file${blockedReviewCount === 1 ? " failed" : "s failed"} structural integrity checks; safe files were attached.`,
       };
     }
-    if (reviewCount > 0) {
-      return { fileIds, fileTitles, error: `${reviewCount} uploaded file${reviewCount === 1 ? " was" : "s were"} attached in verified-content-only mode; limitations will be disclosed.` };
-    }
+    return { fileIds, fileTitles };
     return { fileIds, fileTitles };
   };
 

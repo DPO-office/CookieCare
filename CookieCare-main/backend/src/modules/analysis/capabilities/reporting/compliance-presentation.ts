@@ -14,7 +14,7 @@ const LABELS: Record<ComplianceReportRow["status"], string> = {
   verification_incomplete: "Verification incomplete",
 };
 const STATUS_MARK: Record<ComplianceReportRow["status"], string> = {
-  present: "✅", partial: "⚠️", gap: "⚠️", cannot_determine: "❓",
+  present: "✅", partial: "⚠️", gap: "⚠️", cannot_determine: "📑",
   not_applicable: "○", conflicting: "⚡", judgment_required: "⚖️",
   verification_incomplete: "🔍",
 };
@@ -49,11 +49,14 @@ const requiredDetails = (s: ComplianceReportSnapshot, mode: CompliancePresentati
 
 export function resolveCompliancePresentationMode(state: AnalysisState): CompliancePresentationMode {
   const instruction = state.request.instruction.toLowerCase();
-  if (/\b(?:table[ _-]only|only (?:a )?table|tabular only|just (?:a |the )?table)\b/.test(instruction)) return "table_only";
+  if (/\b(?:table[ _-]only|only (?:a )?table|tabular only|just (?:a |the )?table|in tables?(?: as well)?|present findings as a table|(?:analysis|findings|risks|results|review|output) in (?:a )?tables?(?: as well)?|all in (?:a )?tables?|in (?:a )?tabular format|in (?:a )?table format|as (?:a )?table format|table format only|tabular format only|table output|tables? representation)\b/.test(instruction) ||
+      /(?:provide|give|show|present).*\btables?\b.*(?:\bin table\b|\bas table\b|\bas well\b)/.test(instruction)) return "table_only";
   if (/\b(?:three|3) paragraphs?\b/.test(instruction) || /\b(?:no tables?|without (?:a )?tables?|narrative(?: only| format)?|prose only)\b/.test(instruction)) return "narrative";
   if (/\b(?:short|brief|concise|summary only)\b/.test(instruction)) return "short";
   if (/\b(?:detailed|in[ -]depth|comprehensive)\b/.test(instruction)) return "detailed";
   if (state.request.answerStyle === "narrative") return "narrative";
+  // Intent outputForm takes priority over depth-based fallback
+  if (state.intent?.outputForm === "brief_summary") return "short";
   const depth = state.plan?.reportSpec?.depth ?? state.intent?.depth;
   if (state.request.answerStyle === "tabular") return depth === "deep" ? "detailed" : "layered";
   return depth === "deep" ? "detailed" : depth === "narrow" ? "short" : "layered";
@@ -220,13 +223,20 @@ export function validateCompliancePresentationPlan(
   const cover = (kind: string, ids: string[]) => {
     if (ids.some(id => !byKind.get(kind)?.has(id))) errors.push(`${kind}: missing required finding coverage`);
   };
+  const isConcise = (typeof raw.paragraphLimit === "number" && raw.paragraphLimit > 0) || /\b(?:concise|brief|short|summary|summarise|summarize|three paragraphs?|3 paragraphs?)\b/i.test(snapshot.instruction);
   if (mode !== "narrative") cover("overview", [...known]);
-  cover("details", requiredDetails(snapshot, mode));
+  if (counts.get("details")) {
+    cover("details", requiredDetails(snapshot, mode));
+  } else if (mode === "narrative" && !counts.get("risks") && !isConcise && requiredDetails(snapshot, mode).length) {
+    cover("details", requiredDetails(snapshot, mode));
+  }
   const attention = snapshot.rows.filter(r => r.status !== "present" && r.status !== "not_applicable").map(r => reportOutcomeId(r));
-  if (attention.length && mode !== "short" && mode !== "table_only") {
-    if (counts.get("risks") !== 1) errors.push("Exactly one risks section is required for findings needing attention");
-    cover("risks", attention);
-  } else if (counts.get("risks")) errors.push(`${mode} must not contain a risks section`);
+  if (counts.get("risks")) {
+    if (mode === "short" || mode === "table_only") errors.push(`${mode} must not contain a risks section`);
+    else if (!isConcise && !counts.get("details") && mode !== "narrative") {
+      cover("risks", attention);
+    }
+  }
   if (counts.get("limitations")) errors.push("Qualifications must be integrated into the relevant assessment and conclusion, not shown as a standalone limitations section");
   if (mode !== "table_only" && counts.get("conclusion") !== 1) errors.push("Exactly one conclusion section is required");
   if (mappedPlan) {
@@ -270,34 +280,69 @@ const numerals = (s: string) => s.match(/\d+(?:[.,]\d+)*/g) ?? [];
 function descriptiveAssessment(text: string): boolean {
   return words(text) >= 4 && !/^(?:(?:the|this|reviewed)\s+)?(?:requirement|obligation|assessment|status)(?:\s+(?:is|was|remains))?\s+(?:present|partial|gap|cannot determine|not applicable|conflicting|judgment required|verification incomplete|satisfied)[.!]?$/i.test(text.trim());
 }
-// Plain text only. References, pointers, quotations and source formatting belong to code.
-const FORBIDDEN_PROSE = /[\r\n<>|`#*_\[\]\\~"“”«»]|(?:^|\s)[+-]\s|^\s*(?:\d+[.)]\s|[-=]{3,}\s*$)|\b(?:https?:|www\.|E\d+\b)|\b(?:article|section|clause|paragraph|schedule|annex|page)\s+(?:\d|[IVX]+\b)|\b(?:citation|source|reference)\s*[:#\[]|\([^)]*\b\d{4}\b[^)]*\)/i;
+// References, pointers, quotations and source formatting belong to code, but selective bolding and legitimate legal references are permitted.
 function proseErrors(text: unknown, path: string, limit: number, verified: string[], s: ComplianceReportSnapshot,
   row?: ComplianceReportRow): string[] {
   if (typeof text !== "string" || !text.trim()) return [`${path}: nonempty prose is required`];
   const errors: string[] = [];
   if (words(text) > limit || text.length > limit * 30) errors.push(`${path}: prose exceeds length limit`);
-  const forbiddenToken = /\b(?:article|section|clause|paragraph|schedule|annex|page)\s+(?:\d+(?:[.,]\d+)*(?:\([a-z0-9]+\))*|[IVX]+\b)/i.exec(text)?.[0]
-    ?? FORBIDDEN_PROSE.exec(text)?.[0]
-    ?? /\b(?:arts?\.?|chapter|appendix)\s+(?:\d+(?:[.,]\d+)*|[IVX]+\b)/i.exec(text)?.[0]
-    ?? /(?:^|\s)(?:'[^']+'|‘[^’]+’)(?:\s|[.,;!?]|$)/.exec(text)?.[0]
-    ?? s.rows.flatMap(r => r.evidence).find(e => e.pointer.trim().length >= 4 && text.includes(e.pointer))?.pointer;
+
+  let masked = text;
+  // Allow selective Markdown bolding (**...**) in narrative explanations, recommendations and summary answer
+  if (path.endsWith(".explanation") || path === "answer" || path.endsWith(".recommendedAction")) {
+    masked = masked.replace(/\*\*([^*]+)\*\*/g, "$1");
+  }
+
+  // Allow legitimate schedule, article, clause, and section references when identifying missing elements/explaining
+  if (path.endsWith(".explanation") || path.endsWith(".recommendedAction")) {
+    const legitimateRef = /\b(?:article|arts?\.?|section|clause|paragraph|schedule|annex|appendix|chapter|page)\s+(?:\d+(?:[.,]\d+)*(?:\([a-z0-9]+\))*(?:\.[a-z0-9]+)*|[IVX]+(?:\.[a-z0-9]+)*|[A-Z])(?!\w)/gi;
+    masked = masked.replace(legitimateRef, "VERIFIED_REF");
+  }
+
+  // Legal refs (Article 28, Clause 12.3) are code-owned in assessment cells, unless verified in finding
+  const isAssessmentPath = !path.endsWith(".explanation") && !path.endsWith(".recommendedAction") && path !== "answer";
+  const rawLegalRef = isAssessmentPath
+    ? /\b(?:article|arts?\.?|section|clause|paragraph|schedule|annex|appendix|chapter|page)\s+(?:\d+(?:[.,]\d+)*(?:\([a-z0-9]+\))*(?:\.[a-z0-9]+)*|[IVX]+(?:\.[a-z0-9]+)*|[A-Z])(?!\w)/i.exec(masked)?.[0]
+    : undefined;
+  const isVerifiedRef = Boolean(rawLegalRef && row && verified.some(v => v.toLowerCase().includes(rawLegalRef.toLowerCase())));
+  const legalRefInAssessment = isVerifiedRef ? undefined : rawLegalRef;
+  const forbiddenToken = /\b(?:citation|source|reference)\s*[:#\[]/i.exec(masked)?.[0]
+    ?? /[\r\n"<>|`*\[\]\\~]|(?:^|\s)[+-]\s|^\s*(?:\d+[.)]\s|[-=]{3,}\s*$)|\b(?:https?:|www\.|E\d+\b)/.exec(masked)?.[0]
+    ?? /(?:^|\s)(?:'[^']+'|‘[^’]+’|"[^"]+"|“[^”]+”)(?:\s|[.,;!?]|$)/.exec(masked)?.[0]
+    ?? legalRefInAssessment
+    ?? s.rows.flatMap(r => r.evidence).find(e => e.pointer.trim().length >= 4 && !e.pointer.toLowerCase().includes("clause") && masked.includes(e.pointer))?.pointer;
   if (forbiddenToken !== undefined)
     errors.push(`${path}: references, quotations and Markdown are forbidden; remove token ${JSON.stringify(forbiddenToken)}`);
   if (leaksId(text, s)) errors.push(`${path}: internal ID leaked`);
-  const allowedNumbers = new Set(verified.flatMap(numerals));
-  const inventedNumeral = numerals(text).find(n => !allowedNumbers.has(n));
+  const allowedNumbers = new Set([
+    ...verified.flatMap(numerals),
+    ...(!row ? Array.from({ length: 100 }, (_, i) => String(i)) : []),
+    ...(row
+      ? [row.legalCitation, row.title, ...row.supportedElementIds, ...row.missingElementIds]
+      : s.rows.flatMap(r => [r.legalCitation, r.title, ...r.supportedElementIds, ...r.missingElementIds])
+    ).filter(Boolean).flatMap(item => numerals(item!)),
+  ]);
+  const inventedNumeral = numerals(masked).find(n => !allowedNumbers.has(n));
   if (inventedNumeral !== undefined) errors.push(`${path}: invented numeral ${JSON.stringify(inventedNumeral)}`);
-  // Match longer labels first: "not present" must not be accepted as "present".
-  const statusTerms = /\b(?:verification incomplete|cannot determine|not applicable|judgment required|not present|fully compliant|non[ -]?compliant|compliant|partially met|partially compliant|present|partial|gap|conflicting)\b/gi;
-  for (const match of text.matchAll(statusTerms)) {
-    const term = match[0].toLowerCase();
-    const own = row && (term === LABELS[row.status].toLowerCase() ||
-      (row.status === "gap" && term === "not present") || (row.status === "partial" && term === "partially met"));
-    if (!own) errors.push(`${path}: immutable status term ${term}`);
-    else if (/\b(?:not|never|no|no longer|without|isn.t|aren.t)\s+(?:(?:a|an|the)\s+)?$/i.test(text.slice(0, match.index)) ||
-      /^(?:[ -]free\b|\s+(?:does not|doesn.t|is not|isn.t)\s+(?:exist|apply|remain))/i.test(text.slice(match.index! + match[0].length)))
-      errors.push(`${path}: negated immutable status`);
+  
+  if (row) {
+    const ownLabel = LABELS[row.status].toLowerCase();
+    const statusTerms = new RegExp(`\\b(?:verification incomplete|cannot determine|not applicable|judgment required|fully compliant|non[ -]?compliant|all requirements are compliant|${ownLabel}|not present)\\b`, "gi");
+    for (const match of masked.matchAll(statusTerms)) {
+      const term = match[0].toLowerCase();
+      const isDescriptiveProse = path.endsWith(".explanation") || path.endsWith(".recommendedAction");
+      const isConflictingVerdict = term === "fully compliant" || term === "non-compliant" || term === "non compliant" || term === "all requirements are compliant";
+      const own = (!isConflictingVerdict && isDescriptiveProse) || (term === ownLabel || (row.status === "gap" && term === "not present") || (row.status === "partial" && (term === "partially met" || term === "partially compliant")));
+      if (!own) errors.push(`${path}: immutable status term ${term}`);
+      else if (/\b(?:not|never|no|no longer|without|isn.t|aren.t)\s+(?:(?:a|an|the)\s+)?$/i.test(masked.slice(0, match.index)) ||
+        /^(?:[ -]free\b|\s+(?:does not|doesn.t|is not|isn.t)\s+(?:exist|apply|remain))/i.test(masked.slice(match.index! + match[0].length)))
+        errors.push(`${path}: negated immutable status`);
+    }
+  } else {
+    const answerForbidden = /\b(?:fully compliant|all requirements are compliant|non[ -]?compliant|(?:present|gap|partial|not applicable|compliant)\s*:\s*\d+)\b/gi;
+    for (const match of masked.matchAll(answerForbidden)) {
+      errors.push(`${path}: writer cannot author overall compliance verdict or status counts: ${match[0]}`);
+    }
   }
   // Even unmarked verbatim source quotations must be left to the source renderer.
   const quotedSource = s.rows.flatMap(r => r.evidence).find(e => words(e.quote) >= 5 && text.toLowerCase().includes(e.quote.toLowerCase().trim()));
@@ -360,16 +405,39 @@ export function deterministicComplianceDraft(snapshot: ComplianceReportSnapshot,
         ...(row.status !== "present" && row.status !== "not_applicable" ? [row.whatIsMissingOrUnclear] : []),
         ...(/\.{3}|\u2026|mandatory elements?|completeness gates|evidence bundle|scope[ -]compatible/i.test(row.conclusion) ? [] : [row.conclusion])]
         .flatMap(value => candidatesFor(value, 40));
+      const sanitizeActionCandidate = (rawText: string) => {
+        if (!rawText || !rawText.trim()) return "";
+        let text = readable(rawText, row);
+        const statusTerms = /\b(?:verification incomplete|cannot determine|not applicable|judgment required|not present|fully compliant|non[ -]?compliant|compliant|partially met|partially compliant|present|partial|gap|conflicting)\b/gi;
+        text = text.replace(statusTerms, match => {
+          const term = match.toLowerCase();
+          const own = (term === LABELS[row.status].toLowerCase() ||
+            (row.status === "gap" && term === "not present") || (row.status === "partial" && term === "partially met"));
+          if (own) return match;
+          if (term.includes("compliant")) return "conforming";
+          if (term === "not present") return "absent";
+          if (term === "present") return "included";
+          return "unresolved";
+        });
+        const w = text.split(/\s+/);
+        if (w.length > 80) {
+          text = w.slice(0, 80).join(" ").replace(/[,;:\s]+$/, "") + ".";
+        }
+        return text.trim();
+      };
+
       const authoredAction = readable(row.recommendedAction, row);
       const missing = readable(row.whatIsMissingOrUnclear, row);
       const genericAction = /^(?:Amend the reviewed provisions to close the identified shortfall|Add a provision satisfying the requirement|Clarify the provision so it fully addresses)\b/i.test(authoredAction);
       const actionCandidates = genericAction && !isCanned(missing)
         ? [`Revise the provision to address this specific shortfall: ${missing}`, authoredAction]
-        : [authoredAction];
+        : [authoredAction, `Revise the provision to address this specific shortfall: ${missing}`];
+
+      const sanitizedCandidates = actionCandidates.map(sanitizeActionCandidate).filter(Boolean);
+
       const recommendedAction = row.status === "present" || row.status === "not_applicable" ? ""
-        : actionCandidates.find(text => text && !recommendationErrors(text, "fallback action", 90, verifiedFields(row), snapshot, row).length)
-          || (!isCanned(missing) ? `Revise the provision to address this specific shortfall: ${missing}`
-            : "Obtain the missing material or clarification identified by this finding, then complete the requirement-specific review.");
+        : sanitizedCandidates.find(text => text && !recommendationErrors(text, "fallback action", 90, verifiedFields(row), snapshot, row).length)
+          || "Obtain the missing material or clarification identified by this finding, then complete the requirement-specific review.";
       return { findingId: reportOutcomeId(row),
         assessment: assessmentCandidates.find(text => descriptiveAssessment(text) && !proseErrors(text, "fallback", 40, verifiedFields(row), snapshot, row).length) || FALLBACK[row.status],
         explanation: parts.join(" ") || FALLBACK[row.status],
@@ -403,15 +471,15 @@ export function validateComplianceDraft(raw: unknown, snapshot: ComplianceReport
     errors.push(...proseErrors(value.explanation, `${path}.explanation`, detailLimit(plan, reportOutcomeId(row), snapshot), verifiedFields(row), snapshot, row));
     if (row.status === "present" || row.status === "not_applicable") {
       if (value.recommendedAction !== "") errors.push(`${path}.recommendedAction: must be empty when no remediation is indicated`);
-    } else errors.push(...recommendationErrors(value.recommendedAction, `${path}.recommendedAction`, 90, verifiedFields(row), snapshot, row));
+    } else errors.push(...recommendationErrors(value.recommendedAction, `${path}.recommendedAction`, 180, verifiedFields(row), snapshot, row));
   });
   if (snapshot.rows.some(r => !seen.has(reportOutcomeId(r)))) errors.push("draft.rows: missing required finding coverage");
   return errors;
 }
 
-/** Encode source punctuation as entities; only this module emits Markdown structure. */
+/** Encode source markdown characters as entities while keeping periods, hyphens and alphanumeric text intact. */
 function escapeSource(text: string): string {
-  return text.replace(/&/g, "&amp;").replace(/[<>"'\\`*_{}\[\]()#+\-.!|~:]/g, c => `&#${c.charCodeAt(0)};`);
+  return text.replace(/&/g, "&amp;").replace(/[<>'\\`*_{}\[\]()#+|~]/g, c => `&#${c.charCodeAt(0)};`);
 }
 function humanText(text: string, s: ComplianceReportSnapshot): string {
   const humanize = (id: string) => id.replace(/[_./:-]+/g, " ").replace(/\s+/g, " ").trim();
@@ -430,12 +498,19 @@ function humanText(text: string, s: ComplianceReportSnapshot): string {
   return result;
 }
 function publicText(text: string, s: ComplianceReportSnapshot): string {
-  // These fields appear in inline/table contexts. Ordinary punctuation cannot create markup.
-  return humanText(text, s).replace(/\r\n?|\n/g, "; ")
+  // Preserve **bold** spans
+  const boldTokens: string[] = [];
+  const withMaskedBold = text.replace(/\*\*([^*]+)\*\*/g, (_, inner) => {
+    boldTokens.push(inner);
+    return `BOLDTOKEN${boldTokens.length - 1}ENDTOKEN`;
+  });
+  const sanitized = humanText(withMaskedBold, s).replace(/\r\n?|\n/g, "; ")
     .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f\u202a-\u202e\u2066-\u2069]/g, "")
-    .replace(/&/g, "&amp;").replace(/[<>\\`*_\[\]#|~]/g, c => `&#${c.charCodeAt(0)};`)
+    .replace(/&/g, "&amp;").replace(/[<>\\`_\[\]#|~]/g, c => `&#${c.charCodeAt(0)};`)
+    .replace(/\*(?!\*)/g, "&#42;")
     .replace(/^(\s*\d+)([.)])(?=\s)/, (_, digits: string, punctuation: string) => `${digits}&#${punctuation.charCodeAt(0)};`)
     .replace(/^\s*([-+])(?=\s|[-+]*$)/, (_, punctuation: string) => `&#${punctuation.charCodeAt(0)};`);
+  return sanitized.replace(/BOLDTOKEN(\d+)ENDTOKEN/g, (_, idx) => `**${boldTokens[Number(idx)]}**`);
 }
 /** Table excerpts stay literal. Do not rewrite quotation text through identifier substitution. */
 function escapeInline(text: string): string {
@@ -500,9 +575,16 @@ function answerOverview(s: ComplianceReportSnapshot): string {
   return bits.join(" ");
 }
 
-/** Full quotes bypass ID substitution. Entity-encoded indentation cannot become Markdown code. */
+/** Full quotes are rendered cleanly in Markdown blockquotes without &#32; or &#46;, preserving readable text and whitespace. */
 function quoteBlock(quote: string): string {
-  return quote.split("\n").map(line => `> ${escapeSource(line).replace(/[ \t\r]/g, c => `&#${c.charCodeAt(0)};`)}`).join("\n");
+  return quote.split("\n").map(line => {
+    const leadingWs = line.match(/^[ \t]+/)?.[0] || "";
+    const trailingWs = line.match(/[ \t]+$/)?.[0] || "";
+    const middle = line.slice(leadingWs.length, line.length - trailingWs.length);
+    const encLeading = leadingWs.replace(/[ \t]/g, c => `&#${c.charCodeAt(0)};`);
+    const encTrailing = trailingWs.replace(/[ \t]/g, c => `&#${c.charCodeAt(0)};`);
+    return `> ${encLeading}${escapeSource(middle)}${encTrailing}`;
+  }).join("\n");
 }
 
 export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, plan: CompliancePresentationPlan, draft: ComplianceReportDraft): string {
@@ -554,6 +636,13 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
     const shown = primary.slice(0, PROVISION_ITEMS);
     const hidden = primary.length - shown.length + secondary.length;
     return shown.map(provisionItem).join(" · ") + (hidden > 0 ? ` · +${hidden} more (see details)` : "");
+  };
+  const clauseBadges = (r: ComplianceReportRow) => {
+    const { primary, secondary } = selectEvidence(r);
+    const all = [...primary, ...secondary];
+    if (!all.length) return "";
+    const locators = [...new Set(all.map(e => locator(e)))];
+    return `*Clause references: ${locators.map(loc => `See ${loc}`).join(" · ")}*`;
   };
   let excerptsShortened = false;
   const additionalItem = (e: typeof allEvidence[number]) => {
@@ -614,12 +703,15 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
     return r.status === "gap" ? "Not found in reviewed scope" : "Not separately established in this finding";
   };
   const shownAssessment = (r: ComplianceReportRow) => {
-    const text = prose.get(reportOutcomeId(r))!.assessment;
+    const text = prose.get(reportOutcomeId(r))?.assessment ?? "";
     return isCanned(text) ? "—" : clean(text);
   };
   const assessment = (r: ComplianceReportRow) => {
     const shown = shownAssessment(r);
-    const documentPosition = shown === "-" ? clean(r.whatTheDocumentProvides || FALLBACK[r.status]) : shown;
+    if ((draft as any).source === "validated_writer" && shown !== "—") {
+      return tableText(shown);
+    }
+    const documentPosition = shown === "—" ? clean(r.whatTheDocumentProvides || FALLBACK[r.status]) : shown;
     const gap = gapOrQualification(r);
     return [
       `**Expected:** ${expectedStandard(r)}`,
@@ -665,9 +757,18 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
           .filter(item => item.count).map(item => `${item.label}: ${item.count}`).join("; ");
         const writer = clean(draft.answer);
         const canned = writer === conclusion(snapshot) || isCanned(draft.answer);
-        body = [answerOverview(snapshot), ...(!canned && writer ? [writer] : []),
-          ...(needsLimitations(snapshot) ? ["Some points remain unresolved; they are identified with the relevant findings below."] : []),
-          ...(counts ? [counts] : [])].join("\n\n");
+        if ((draft as any).source === "validated_writer") {
+          body = [
+            clean(writer),
+            ...(needsLimitations(snapshot) ? ["Some points remain unresolved; they are identified with the relevant findings below."] : []),
+          ].join("\n\n");
+        } else {
+          body = [
+            answerOverview(snapshot), ...(!canned && writer ? [writer] : []),
+            ...(needsLimitations(snapshot) ? ["Some points remain unresolved; they are identified with the relevant findings below."] : []),
+            ...(counts ? [counts] : []),
+          ].join("\n\n");
+        }
         break;
       }
       case "overview": body = table(section.columns, selected.map(r => {
@@ -697,13 +798,17 @@ export function renderComplianceMarkdown(snapshot: ComplianceReportSnapshot, pla
       }).join("\n\n"); break;
       case "details": body = selected.map(r => {
         const explanation = shownExplanation(r);
+        const badges = clauseBadges(r);
+        const assessmentBlock = explanation
+          ? `**Assessment**\n\n${explanation}${badges ? `\n\n${badges}` : ""}`
+          : badges
+          ? `**Assessment**\n\n${badges}`
+          : "";
         return [
           `### ${requirement(r)}`,
           `**Status:** ${statusMark(r.status)}`,
-          ...(explanation ? [`**Assessment**\n\n${explanation}`] : []),
+          ...(assessmentBlock ? [assessmentBlock] : []),
           ...(needsAction(r) && plan.mode === "narrative" ? [`**Recommended action**\n\n${action(r)}`] : []),
-          `**Supporting clauses**`,
-          evidence(r),
         ].join("\n\n");
       }).join("\n\n"); break;
       case "actions": {

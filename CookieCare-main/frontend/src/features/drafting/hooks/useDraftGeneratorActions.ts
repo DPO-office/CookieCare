@@ -6,6 +6,7 @@ import {
   waitForDraftJob,
   type DraftOpenQuestion,
 } from "../api/draftingJobs";
+import { createSmoothDraftStreamer } from "../utils/smoothDraftStreamer";
 
 // --- Backend-aligned payload types (mirror the unified DraftRequestSchema) ---
 
@@ -337,7 +338,7 @@ export function useDraftGeneratorActions({
     clauseIds?: string[];
   }) => {
     setIsStreaming(true);
-    reportProgress("Initiating drafting pipeline...");
+    reportProgress("Preparing draft…");
     setDraftError("");
     pushUndoSnapshot(editorContent);
     setEditorContent("");
@@ -376,6 +377,7 @@ export function useDraftGeneratorActions({
       return;
     }
 
+    let streamer: ReturnType<typeof createSmoothDraftStreamer> | null = null;
     try {
       const jobId = await enqueueDraftingJob(
         authToken,
@@ -383,20 +385,31 @@ export function useDraftGeneratorActions({
         payload
       );
 
-      let streamBuffer = "";
+      streamer = createSmoothDraftStreamer({
+        onUpdate: (html) => {
+          setEditorContent(html);
+        },
+      });
+
       const outcome = await waitForDraftJob({
         authToken,
         jobId,
         onProgress: reportProgress,
         onToken: (delta) => {
-          streamBuffer += delta;
-          reportProgress("Drafting your document...");
-          setEditorContent(markdownToHtml(normalizeDraftMarkdownInput(streamBuffer)));
+          reportProgress("Drafting agreement…");
+          streamer?.pushDelta(delta);
         },
       });
 
+      if (outcome.kind === "success") {
+        await streamer.finish(outcome.content);
+      } else {
+        streamer.abort();
+      }
+
       await settleJobOutcome(outcome, documentTitle);
     } catch (err: any) {
+      streamer?.abort();
       console.error(err);
       setDraftError(err.message || "Drafting failed. Please try again.");
     } finally {
@@ -415,29 +428,41 @@ export function useDraftGeneratorActions({
     }
 
     setIsStreaming(true);
-    reportProgress("Applying your answers and continuing…");
+    reportProgress("Applying answers & continuing…");
     setDraftError("");
 
+    let streamer: ReturnType<typeof createSmoothDraftStreamer> | null = null;
     try {
       const jobId = await enqueueDraftingJob(authToken, "/api/drafting/resume-ask", {
         documentId,
         answers,
       });
 
-      let streamBuffer = "";
+      streamer = createSmoothDraftStreamer({
+        onUpdate: (html) => {
+          setEditorContent(html);
+        },
+      });
+
       const outcome = await waitForDraftJob({
         authToken,
         jobId,
         onProgress: reportProgress,
         onToken: (delta) => {
-          streamBuffer += delta;
-          reportProgress("Drafting your document...");
-          setEditorContent(markdownToHtml(normalizeDraftMarkdownInput(streamBuffer)));
+          reportProgress("Drafting agreement…");
+          streamer?.pushDelta(delta);
         },
       });
 
+      if (outcome.kind === "success") {
+        await streamer.finish(outcome.content);
+      } else {
+        streamer.abort();
+      }
+
       await settleJobOutcome(outcome, "Draft Agreement");
     } catch (err: any) {
+      streamer?.abort();
       console.error(err);
       setDraftError(err.message || "Failed to resume drafting.");
     } finally {
@@ -458,8 +483,8 @@ export function useDraftGeneratorActions({
     if (!trimmed) return;
 
     setRefinementError("");
-    setRefinementProgress("Preparing your refinement request...");
-    onProgress?.("Refining your draft…");
+    setRefinementProgress("Refining document…");
+    onProgress?.("Refining document…");
     pushUndoSnapshot(editorContent);
     setIsStreaming(true);
 
@@ -509,12 +534,12 @@ export function useDraftGeneratorActions({
 
   const analyzeUploadedTemplate = async (file: File) => {
     setIsParsingTemplate(true);
-    setStreamingProgress("Uploading counterparty document to reactive gateway...");
+    setStreamingProgress("Processing uploaded document…");
 
     try {
       const sourceId = await uploadReactiveSourceTemplate(file);
       setUploadFileName(file.name);
-      setStreamingProgress(`Source document registered: ${sourceId}`);
+      setStreamingProgress("Document attached");
 
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -534,7 +559,7 @@ export function useDraftGeneratorActions({
   const processFile = async (file: File) => {
     setUploadFileName(file.name);
     setIsParsingTemplate(true);
-    setStreamingProgress("Uploading template file to reactive ingestion gateway...");
+    setStreamingProgress("Processing template…");
 
     try {
       await analyzeUploadedTemplate(file);
@@ -563,7 +588,7 @@ export function useDraftGeneratorActions({
       return;
     }
     setRefinementError("");
-    setRefinementProgress("Preparing your refinement request...");
+    setRefinementProgress("Refining selected text…");
     setActiveDropdown(null);
     setShowFloatingMenu(false);
     setSelectedTextRange(null);

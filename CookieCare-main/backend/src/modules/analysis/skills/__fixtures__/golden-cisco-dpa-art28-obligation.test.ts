@@ -68,7 +68,7 @@ describe("Art 28 obligation golden (deterministic)", () => {
     const judgement = deriveRequirementJudgement(findings);
     assert.equal(judgement.compliance, "insufficient_evidence");
     assert.notEqual(judgement.recommendationKind, "amend");
-    assert.equal(displayRequirementStatus({ status: "cannot_determine", judgement }), "Cannot determine");
+    assert.equal(displayRequirementStatus({ status: "cannot_determine", judgement }), "Unresolved reference");
   });
 
   it("keeps confidentiality present when its own extract supports the hypothesis", () => {
@@ -475,7 +475,7 @@ describe("Art 28 Cisco-like extracts (locked rows)", () => {
       bundle
     );
     assert.equal(row.judgement.compliance, "insufficient_evidence");
-    assert.equal(row.label, "Cannot determine");
+    assert.equal(row.label, "Unresolved reference");
     assert.notEqual(row.judgement.recommendationKind, "amend");
   });
 

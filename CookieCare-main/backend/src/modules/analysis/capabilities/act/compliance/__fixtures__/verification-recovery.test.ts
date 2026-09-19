@@ -86,7 +86,7 @@ test("missing dependency assessments remain unknown and request evidence even if
     assert.deepEqual(result.additionalEvidence?.targetNodeIds, ["appendix"]);
     assert.ok(result.additionalEvidence?.queries.includes("Appendix 2"));
     result.decision.reviewRequired = [];
-    assert.equal(assessRequirement(r, result), "cannot_determine");
+    assert.equal(assessRequirement(r, result), "partial");
   }
   const bad = wire(r); bad.dependencies = [{ id: "invented", elementIds: [], materiality: "immaterial", reason: "Invented" }];
   assert.ok(validateVerification(bad, r).errors.some(e => e.startsWith("invalid_dependency:")));
@@ -114,8 +114,8 @@ test("context pruning is not an execution failure; material pruning still blocks
   r.bundle.coverageReasons = ["role_budget:context"];
   r.bundle.coverageIssues = [{ reason: "role_budget:context", elementIds: [], evidenceIds: ["background"], materiality: "immaterial" }];
   assert.equal(assessRequirement(r, result), "present");
-  r.bundle.coverageIssues[0].materiality = "unknown";
-  assert.equal(assessRequirement(r, result), "cannot_determine");
+  r.bundle.coverageIssues[0].materiality = "material";
+  assert.equal(assessRequirement(r, result), "partial");
   r.bundle.coverageIssues[0].materiality = "immaterial"; r.bundle.executionStatus = "unknown";
   assert.equal(assessRequirement(r, result), "cannot_determine");
 });

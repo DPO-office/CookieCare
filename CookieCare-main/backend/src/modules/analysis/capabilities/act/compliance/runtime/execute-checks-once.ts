@@ -14,7 +14,7 @@ const CAUTION_ORDER: RequirementStatus[] = ["judgment_required", "conflicting", 
 
 function selfConsistencySamples(env: Record<string, string | undefined> = process.env): number {
   const n = Number(env.ANALYSIS_COMPLIANCE_SELF_CONSISTENCY);
-  return Number.isFinite(n) && n >= 1 ? Math.min(5, Math.floor(n)) : 3;
+  return Number.isFinite(n) && n >= 1 ? Math.min(5, Math.floor(n)) : 1;
 }
 
 /** Pick the majority verdict across samples; on a true split, keep the most

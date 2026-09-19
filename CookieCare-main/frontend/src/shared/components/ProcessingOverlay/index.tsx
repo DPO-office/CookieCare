@@ -248,6 +248,19 @@ export function ProcessingOverlay({
     return () => clearInterval(id);
   }, [visible, error]);
 
+  const [elapsedSec, setElapsedSec] = useState(0);
+  useEffect(() => {
+    if (!visible || error) {
+      setElapsedSec(0);
+      return;
+    }
+    setElapsedSec(0);
+    const interval = setInterval(() => {
+      setElapsedSec((s) => s + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [visible, statusMessage, error]);
+
   const derivedPct: number | undefined =
     steps && steps.length > 0
       ? Math.round((steps.filter((s) => s.status === "done").length / steps.length) * 100)
@@ -264,6 +277,17 @@ export function ProcessingOverlay({
     : activeStep?.label
     ? activeStep.label
     : AUTO_MESSAGES[msgIdx];
+
+  let dynamicSubNote: string | undefined = undefined;
+  if (!error && liveMessage) {
+    if (elapsedSec >= 24) {
+      dynamicSubNote = "Taking a bit longer for complex documents… please hold on.";
+    } else if (elapsedSec >= 16) {
+      dynamicSubNote = "Synthesizing contractual graph nodes & compliance evidence…";
+    } else if (elapsedSec >= 8) {
+      dynamicSubNote = "Cross-referencing provisions & rule requirements…";
+    }
+  }
 
   const card = (
     <div
@@ -336,13 +360,23 @@ export function ProcessingOverlay({
           )}
 
           {!error && liveMessage && (
-            <p
-              className="text-[13px] leading-relaxed m-0"
-              style={{ color: INK_MUTED }}
-              key={liveMessage}
-            >
-              {liveMessage}
-            </p>
+            <div className="space-y-1">
+              <p
+                className="text-[13px] leading-relaxed m-0 font-medium"
+                style={{ color: INK_MUTED }}
+                key={liveMessage}
+              >
+                {liveMessage}
+              </p>
+              {dynamicSubNote && (
+                <p
+                  className="text-[12px] leading-relaxed m-0 font-medium animate-pulse"
+                  style={{ color: ACCENT }}
+                >
+                  {dynamicSubNote}
+                </p>
+              )}
+            </div>
           )}
 
           {error && (

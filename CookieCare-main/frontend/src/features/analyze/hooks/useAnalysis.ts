@@ -139,7 +139,7 @@ export function useAnalysis(authToken: string) {
         ? outcome.declineMessage
         : outcome.kind === "success" && outcome.report.trim()
           ? outcome.report
-          : streamBufferRef.current || "Analysis complete.";
+          : streamBufferRef.current || "Analysis completed with no report generated.";
     streamBufferRef.current = "";
     streamingStoreRef.current.setText("");
     cancelProgressFlush();

@@ -347,6 +347,23 @@ export async function extractText(
   mimeType: string
 ): Promise<ExtractionResult> {
   if (mimeType === "application/pdf") {
+    // Try Docling first for exact layout, indentation, and structure-preserving text extraction
+    try {
+      const { parseDocument } = await import(
+        "../modules/analysis/capabilities/ingest/document-structure/parser.js"
+      );
+      const parsed = await parseDocument(buffer, mimeType, "document.pdf");
+      if (parsed.parser.name === "docling.rs" && parsed.canonicalText?.trim()) {
+        console.log("[extractText] PDF text extracted via docling.rs");
+        return { text: parsed.canonicalText.trim() };
+      }
+    } catch (doclingErr: any) {
+      console.warn(
+        "[extractText] docling.rs extraction failed (continuing with pdfjs-dist):",
+        doclingErr?.message ?? doclingErr
+      );
+    }
+
     // Canary run — validates the PDF is parseable, text is discarded
     try {
       await extractPdfWithPdfParse(buffer);
@@ -357,7 +374,7 @@ export async function extractText(
       );
     }
 
-    // Always use pdfjs-dist for the actual text
+    // Fallback to pdfjs-dist
     try {
       return await extractPdfWithPdfJs(buffer);
     } catch (pdfJsErr: any) {

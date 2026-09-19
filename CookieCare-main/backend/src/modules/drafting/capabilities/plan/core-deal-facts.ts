@@ -4,14 +4,18 @@ import type {
 } from "../../models/draft-requirements.js";
 import { canonicalizeFieldId } from "../../models/draft-requirements.js";
 
-const PLACEHOLDER_RE =
-  /^(not\s+specified|unspecified|unknown|n\/?a|none|tbd|\[?●\]?|party\s*[ab12]?|disclosing\s+party|receiving\s+party|the\s+company|our\s+company|counterparty|client|vendor|user)$/i;
+export const PLACEHOLDER_RE =
+  /^(not\s+specified|unspecified|unknown|n\/?a|none|tbd|\[?●\]?|party\s*[ab12]?|disclosing\s+party|receiving\s+party|the\s+company|our\s+company|counterparty|client|vendor|user|(?:the\s+)?data\s+fiduciary|(?:the\s+)?data\s+processor|(?:the\s+)?data\s+controller|(?:the\s+)?controller|(?:the\s+)?processor|(?:the\s+)?fiduciary|(?:the\s+)?data\s+principal|(?:the\s+)?data\s+subject)$/i;
 
-function isPlaceholderString(value: string): boolean {
+export function isPlaceholderString(value: string): boolean {
   const trimmed = value.trim();
   if (!trimmed) return true;
   if (trimmed.toLowerCase() === "general") return true;
   return PLACEHOLDER_RE.test(trimmed);
+}
+
+function asValidName(val: unknown): string {
+  return typeof val === "string" && !isPlaceholderString(val) ? val.trim() : "";
 }
 
 /** True when a structured fact has a real, usable value (not empty / placeholder). */
@@ -47,14 +51,24 @@ export function isFactSatisfied(facts: Record<string, unknown>, field: string): 
 }
 
 function arePartiesSatisfied(facts: Record<string, unknown>): boolean {
-  const partyA =
-    typeof facts.partyA === "string" && !isPlaceholderString(facts.partyA)
-      ? facts.partyA.trim()
-      : "";
-  const partyB =
-    typeof facts.partyB === "string" && !isPlaceholderString(facts.partyB)
-      ? facts.partyB.trim()
-      : "";
+  const fiduciary = asValidName(
+    facts.dataFiduciaryLegalName ||
+      facts.dataFiduciary ||
+      facts.fiduciaryLegalName ||
+      facts.fiduciary ||
+      facts.legalNameOfTheDataFiduciary
+  );
+  const processor = asValidName(
+    facts.dataProcessorLegalName ||
+      facts.dataProcessor ||
+      facts.processorLegalName ||
+      facts.processor ||
+      facts.legalNameOfTheDataProcessor
+  );
+  if (fiduciary && processor) return true;
+
+  const partyA = asValidName(facts.partyA);
+  const partyB = asValidName(facts.partyB);
   if (partyA && partyB) return true;
 
   const parties = facts.parties;
@@ -127,10 +141,7 @@ const UNIVERSAL_CATALOG: RequiredFactCatalogEntry[] = [
     reasonRequired:
       "The venue clause must name a real jurisdiction; inventing one makes the draft wrong.",
     options: [
-      "State of Delaware",
-      "State of California",
-      "England and Wales",
-      "Ireland",
+      "European Union",
       "India",
       "Other (specify)",
     ],
@@ -235,9 +246,99 @@ const DOC_TYPE_CATALOG: Record<string, RequiredFactCatalogEntry[]> = {
       id: "servicesDescription",
       priority: "critical",
       blocking: true,
-      question: "Briefly describe the services to be provided under the MSA.",
+      question:
+        "What services will be provided and what is the delivery method (e.g. software development/testing using remote systems)?",
       reasonRequired:
         "Services scope drives SOW references and obligations; missing it produces bracketed stubs.",
+    },
+    {
+      id: "paymentTerms",
+      priority: "critical",
+      blocking: true,
+      question: "What are the remuneration and payment terms (e.g. Net 30 days)?",
+      reasonRequired: "Invoicing and payment terms govern all SOWs under the master agreement.",
+      options: ["Net 15 days", "Net 30 days", "Net 60 days"],
+    },
+    {
+      id: "liabilityCap",
+      priority: "critical",
+      blocking: true,
+      question: "What is the limitation of liability cap (e.g. 1x fees paid in preceding 12 months)?",
+      reasonRequired: "Risk allocation and monetary caps are mandatory risk management terms.",
+    },
+    {
+      id: "terminationNotice",
+      priority: "critical",
+      blocking: true,
+      question: "What written notice period is required for termination (e.g. 30 days)?",
+      reasonRequired: "Termination procedures must specify the advance written notice window.",
+      options: ["30 days written notice", "60 days written notice"],
+    },
+  ],
+  sla: [
+    {
+      id: "uptimeCommitment",
+      priority: "critical",
+      blocking: true,
+      question: "What is the target uptime percentage (e.g. 99.9%)?",
+      reasonRequired: "SLA requires an explicit uptime target.",
+      options: ["99.5%", "99.9%", "99.95%", "99.99%"],
+    },
+  ],
+  saas: [
+    {
+      id: "servicesDescription",
+      priority: "critical",
+      blocking: true,
+      question: "What is the name and description of the SaaS application / service?",
+      reasonRequired: "SaaS agreement must specify the application service being subscribed to.",
+    },
+    {
+      id: "subscriptionTerm",
+      priority: "critical",
+      blocking: true,
+      question: "What is the initial subscription term (e.g. 1 year)?",
+      reasonRequired: "Subscription term dictates payment schedules and renewal terms.",
+      options: ["1 year", "2 years", "3 years", "Monthly auto-renew"],
+    },
+    {
+      id: "feesPayment",
+      priority: "critical",
+      blocking: true,
+      question: "What are the subscription fees and payment terms (e.g. annual in advance, Net 30 days)?",
+      reasonRequired: "Fee structure defines invoicing frequency, payment windows, and late interest.",
+    },
+    {
+      id: "uptimeCommitment",
+      priority: "critical",
+      blocking: true,
+      question: "What is the target monthly uptime percentage (e.g. 99.9%)?",
+      reasonRequired: "SaaS agreements require an explicit service availability target and SLA credit formula.",
+      options: ["99.5%", "99.9%", "99.95%", "99.99%"],
+    },
+    {
+      id: "dataProtectionLaw",
+      priority: "critical",
+      blocking: true,
+      question: "Which data protection regime applies to customer personal data (e.g. UK GDPR, EU GDPR, DPDPA)?",
+      reasonRequired: "Personal data handling, sub-processor notification, and security measures depend on the governing privacy law.",
+      options: ["UK GDPR / Data Protection Act 2018", "EU GDPR", "DPDPA (India)", "CCPA / CPRA", "Standard Commercial Privacy"],
+    },
+  ],
+  employment: [
+    {
+      id: "jobTitle",
+      priority: "critical",
+      blocking: true,
+      question: "What is the employee's job title?",
+      reasonRequired: "Job title is required in employment contracts.",
+    },
+    {
+      id: "salaryCompensation",
+      priority: "critical",
+      blocking: true,
+      question: "What is the base salary or compensation?",
+      reasonRequired: "Compensation details are mandatory in employment contracts.",
     },
   ],
   "service-agreement": [
@@ -261,7 +362,13 @@ export function resolveDocTypeKey(documentType: string | undefined): string {
   if (raw.includes("nda") || raw.includes("non-disclosure") || raw.includes("confidential")) {
     return "nda";
   }
+  if (raw.includes("saas") || raw.includes("subscription")) return "saas";
+  if (raw.includes("employment") || raw.includes("offer letter") || raw.includes("job contract")) return "employment";
+  if (raw.includes("license")) return "license";
+  if (raw.includes("reseller") || raw.includes("distribution")) return "reseller";
+  if (raw.includes("partnership")) return "partnership";
   if (raw.includes("msa") || raw.includes("master service")) return "msa";
+  if (raw.includes("sla") || raw.includes("service level")) return "sla";
   if (raw.includes("service")) return "service-agreement";
   return raw;
 }
@@ -338,25 +445,44 @@ export function mergeCoreMissingFacts(
   return Array.from(byField.values());
 }
 
-/** Cap ASK batch size so UX stays usable; keep highest-priority fields first. */
-const ASK_FIELD_PRIORITY = [
-  "privacyRegime",
-  "parties",
-  "governingLaw",
-  "effectiveDate",
-  "principalAgreementDate",
-  "businessPurpose",
-  "processingPurpose",
-  "dataCategories",
-  "dataSubjects",
-  "transferMechanism",
-  "confidentialityTermYears",
-  "servicesDescription",
-];
+/** Universal fields always shown first regardless of document type. */
+const UNIVERSAL_PRIORITY = ["parties", "governingLaw", "effectiveDate"];
+
+/** Doc-type-specific leading fields — shown right after the universal ones. */
+const DOC_TYPE_LEADING_FIELDS: Record<string, string[]> = {
+  dpa: ["privacyRegime", "principalAgreementDate", "processingPurpose", "dataCategories", "dataSubjects", "transferMechanism"],
+  nda: ["businessPurpose", "confidentialityTermYears"],
+  msa: ["servicesDescription", "paymentTerms", "liabilityCap"],
+  sla: ["uptimeCommitment", "creditStructure"],
+  saas: ["servicesDescription", "subscriptionTerm", "feesPayment", "uptimeCommitment", "dataProtectionLaw"],
+  employment: ["jobTitle", "salaryCompensation", "startDate", "noticePeriod"],
+  "service-agreement": ["servicesDescription"],
+  license: ["licensedMaterial", "licenseScope", "licenseFees"],
+  reseller: ["territory", "productsCovered"],
+  partnership: ["partnershipPurpose", "revenueSplit"],
+};
+
+/** Build a doc-type-aware priority list. Falls back to a generic ordering for unknown types. */
+function buildPriorityList(documentType?: string): string[] {
+  const docKey = resolveDocTypeKey(documentType);
+  const leading = DOC_TYPE_LEADING_FIELDS[docKey] ?? [];
+  // Remaining known fields as a trailing safety net
+  const remaining = [
+    "privacyRegime", "principalAgreementDate", "processingPurpose", "dataCategories",
+    "dataSubjects", "transferMechanism", "businessPurpose", "confidentialityTermYears",
+    "servicesDescription", "subscriptionTerm", "feesPayment", "paymentTerms",
+    "liabilityCap", "uptimeCommitment", "creditStructure", "jobTitle",
+    "salaryCompensation", "startDate", "noticePeriod", "licensedMaterial",
+    "licenseScope", "licenseFees", "territory", "productsCovered",
+    "partnershipPurpose", "revenueSplit",
+  ].filter((f) => !UNIVERSAL_PRIORITY.includes(f) && !leading.includes(f));
+  return [...UNIVERSAL_PRIORITY, ...leading, ...remaining];
+}
 
 export function prioritizeMissingFacts(
   missingFacts: MissingFact[],
-  maxCritical = 10
+  maxCritical = 10,
+  documentType?: string
 ): MissingFact[] {
   const seen = new Set<string>();
   const deduped: MissingFact[] = [];
@@ -367,11 +493,12 @@ export function prioritizeMissingFacts(
     deduped.push({ ...fact, field: id });
   }
 
+  const priorityList = buildPriorityList(documentType);
   const critical = deduped.filter((f) => f.severity === "critical");
   const optional = deduped.filter((f) => f.severity !== "critical");
   critical.sort((a, b) => {
-    const ia = ASK_FIELD_PRIORITY.indexOf(a.field);
-    const ib = ASK_FIELD_PRIORITY.indexOf(b.field);
+    const ia = priorityList.indexOf(a.field);
+    const ib = priorityList.indexOf(b.field);
     return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
   });
   const ranked = [...critical.slice(0, maxCritical), ...optional];

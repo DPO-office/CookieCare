@@ -59,7 +59,7 @@ export async function executeTemplateIngestionJob(
     }
 
     const tplType = String(contractType).trim();
-    await updateJobProgress(jobId, userId, 10, "Extracting template document text…");
+    await updateJobProgress(jobId, userId, 10, "Extracting template text…");
     await updateLibraryStage(
       libraryItemId,
       `${tplType} template — extracting text…`,

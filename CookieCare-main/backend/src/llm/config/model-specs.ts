@@ -40,6 +40,8 @@ export enum LLMTask {
   DETECT_GAPS = "DETECT_GAPS",
   /** PAC: checklist critique quality gate (strongest reasoning) */
   CRITIQUE_CHECKLIST = "CRITIQUE_CHECKLIST",
+  /** Compliance verification judge (deliberate reasoning, fast tier) */
+  VERIFY_COMPLIANCE = "VERIFY_COMPLIANCE",
 }
 
 export enum LLMProvider {
@@ -125,11 +127,11 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
       thinkingLevel: "low",
     },
     [LLMTask.SECTION_REFINE]: {
-      // Volume path: one call per section. Flash avoids Pro RPM exhaustion under PAC.
-      model: GeminiModel.GEMINI_3_6_FLASH,
+      // Surgical single-section regeneration: Gemini 3.1 Pro for high-tier legal prose quality.
+      model: GeminiModel.GEMINI_3_1_PRO,
       temperature: 0.0,
       maxOutputTokens: 2048,
-      thinkingLevel: "minimal",
+      thinkingLevel: "medium",
     },
     [LLMTask.EXTRACT_FACTS]: {
       model: GeminiModel.GEMINI_3_6_FLASH,
@@ -149,6 +151,12 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
       responseMimeType: "application/json",
       maxOutputTokens: 4096,
       thinkingLevel: "high",
+    },
+    [LLMTask.VERIFY_COMPLIANCE]: {
+      model: GeminiModel.GEMINI_3_6_FLASH,
+      temperature: 0.0,
+      responseMimeType: "application/json",
+      thinkingLevel: "low",
     },
   },
   [LLMProvider.OPENROUTER]: {
@@ -194,6 +202,11 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
       temperature: 0.0,
       responseMimeType: "application/json",
       maxOutputTokens: 4096,
+    },
+    [LLMTask.VERIFY_COMPLIANCE]: {
+      model: OpenRouterModel.CLAUDE_3_5_SONNET,
+      temperature: 0.0,
+      responseMimeType: "application/json",
     },
   },
 };

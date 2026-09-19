@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { FileText, Save, Upload, Minus, Plus, Loader2, Clock, ArrowLeft, AlertCircle } from "lucide-react";
 import type { Editor } from "@tiptap/react";
 import type { RichTextSelectionSnapshot } from "../../../shared/components/RichTextEditor";
@@ -20,6 +20,7 @@ export interface DraftSplitWorkspaceProps {
   onRemoveFile: () => void;
   attachedFileName?: string;
   isStreaming: boolean;
+  progressMessage?: string;
   isParsing: boolean;
   isDragging: boolean;
   onDragOver: (e: React.DragEvent) => void;
@@ -62,6 +63,17 @@ export default function DraftSplitWorkspace(props: DraftSplitWorkspaceProps) {
   const [editorInstance, setEditorInstance] = useState<Editor | null>(null);
   const { railWidth, containerRef, onDragStart } = useResizableRail(480);
   const draftUnavailable = props.draftUnavailable ?? false;
+  const editorScrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!props.isStreaming) return;
+    const el = editorScrollRef.current;
+    if (!el) return;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    if (distanceFromBottom < 300) {
+      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    }
+  }, [props.editorContent, props.isStreaming]);
 
   const handleEditorReady = (editor: Editor) => {
     setEditorInstance(editor);
@@ -184,7 +196,7 @@ export default function DraftSplitWorkspace(props: DraftSplitWorkspaceProps) {
                 </div>
               </div>
             ) : (
-            <div className="scrollbar-hide h-full overflow-y-auto px-8 py-6 sm:px-12">
+            <div ref={editorScrollRef} className="scrollbar-hide h-full overflow-y-auto px-8 py-6 sm:px-12">
               <div className="draft-editor-paper mx-auto" style={{ zoom: zoom / 100 }}>
                 {props.isStreaming && (
                   <div className="draft-streaming-badge mb-4">
@@ -251,7 +263,7 @@ export default function DraftSplitWorkspace(props: DraftSplitWorkspaceProps) {
           />
 
           <div
-            className="draft-card draft-followup-rail min-h-0 h-full overflow-hidden"
+            className="draft-followup-rail min-h-0 h-full overflow-hidden"
             style={{ width: railWidth, flex: `0 0 ${railWidth}px` }}
           >
             <DraftChatPanel
@@ -264,6 +276,7 @@ export default function DraftSplitWorkspace(props: DraftSplitWorkspaceProps) {
               onRemoveFile={props.onRemoveFile}
               attachedFileName={props.attachedFileName}
               isLoading={props.isStreaming}
+              progressMessage={props.progressMessage}
               isParsing={props.isParsing}
               isDragging={props.isDragging}
               onDragOver={props.onDragOver}

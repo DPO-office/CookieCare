@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { X, Upload, FileText, FolderOpen, Check, XCircle, AlertCircle, ChevronDown, Folder } from "lucide-react";
+import { X, Upload, FileText, FolderOpen, Check, XCircle, AlertCircle, ChevronDown, Folder, Sparkles } from "lucide-react";
 import { LibraryItem, VaultPendingUpload } from "../types";
 import { VAULT_UPLOAD_ACCEPT } from "../constants";
 
@@ -18,7 +18,7 @@ interface FileUploadModalProps {
   onAddFiles: (files: FileList) => void;
   onRemoveFile: (id: string) => void;
   onClearFiles: () => void;
-  onSubmit: () => void;
+  onSubmit: (forAnalysis: boolean) => void;
   onClose: () => void;
 }
 
@@ -271,6 +271,8 @@ export function FileUploadModal({
   onSubmit,
   onClose,
 }: FileUploadModalProps) {
+  const [forAnalysis, setForAnalysis] = useState(true);
+
   const pendingCount = pendingVaultFiles.filter(
     (f) => f.status === "pending" || f.status === "error"
   ).length;
@@ -282,10 +284,10 @@ export function FileUploadModal({
 
         <div style={{ padding: "24px" }}>
           <button
-            disabled={uploadStatus === "uploading"}
             onClick={onClose}
             className="vlt-icon-btn"
             style={{ position: "absolute", right: 16, top: 16 }}
+            title="Close (upload will continue in background)"
           >
             <X style={{ width: 14, height: 14 }} />
           </button>
@@ -333,6 +335,41 @@ export function FileUploadModal({
                 />
               </div>
             )}
+
+            {/* Analysis Module ingest pipeline option */}
+            <div
+              onClick={() => uploadStatus !== "uploading" && setForAnalysis(!forAnalysis)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "10px 14px",
+                borderRadius: 12,
+                border: `1px solid ${forAnalysis ? "rgba(79, 91, 217, 0.4)" : "var(--border)"}`,
+                background: forAnalysis ? "#EEF2FF" : "var(--surface)",
+                cursor: uploadStatus === "uploading" ? "default" : "pointer",
+                transition: "all 0.15s ease",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <Sparkles style={{ width: 16, height: 16, color: forAnalysis ? "#4F5BD9" : "var(--text-muted)", flexShrink: 0 }} />
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: forAnalysis ? "#1a1a1a" : "var(--text-primary)", margin: 0 }}>
+                    Ingest & optimize for Analysis Module
+                  </p>
+                  <p style={{ fontSize: 11.5, color: "var(--text-muted)", margin: "2px 0 0 0", lineHeight: 1.4 }}>
+                    Runs full structural graph extraction & RAG vector indexing for instant selection in Analysis.
+                  </p>
+                </div>
+              </div>
+              <input
+                type="checkbox"
+                checked={forAnalysis}
+                disabled={uploadStatus === "uploading"}
+                onChange={(e) => setForAnalysis(e.target.checked)}
+                style={{ accentColor: "#4F5BD9", width: 16, height: 16, cursor: "pointer", flexShrink: 0 }}
+              />
+            </div>
 
             {/* Drop zone */}
             <div
@@ -465,16 +502,31 @@ export function FileUploadModal({
           </div>
 
           {/* Footer */}
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, paddingTop: 20, marginTop: 20, borderTop: "1px solid var(--border-light)" }}>
-            <button type="button" disabled={uploadStatus === "uploading"} onClick={onClose} className="vlt-btn-ghost">Cancel</button>
-            <button
-              type="button"
-              disabled={uploadStatus === "uploading" || pendingCount === 0 || (!formFolderTarget && !suggestedVaultFolderName)}
-              onClick={onSubmit}
-              className="vlt-btn-primary"
-            >
-              {uploadStatus === "uploading" ? "Uploading…" : `Upload ${pendingCount} file${pendingCount === 1 ? "" : "s"}`}
-            </button>
+          <div style={{ display: "flex", justifyContent: uploadStatus === "uploading" ? "space-between" : "flex-end", alignItems: "center", gap: 8, paddingTop: 20, marginTop: 20, borderTop: "1px solid var(--border-light)" }}>
+            {uploadStatus === "uploading" ? (
+              <>
+                <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                  Upload continues in background if closed.
+                </span>
+                <button type="button" onClick={onClose} className="vlt-btn-ghost">
+                  Run in background
+                </button>
+              </>
+            ) : (
+              <>
+                <button type="button" onClick={onClose} className="vlt-btn-ghost">
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={pendingCount === 0 || (!formFolderTarget && !suggestedVaultFolderName)}
+                  onClick={() => onSubmit(forAnalysis)}
+                  className="vlt-btn-primary"
+                >
+                  Upload {pendingCount} file{pendingCount === 1 ? "" : "s"}
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>

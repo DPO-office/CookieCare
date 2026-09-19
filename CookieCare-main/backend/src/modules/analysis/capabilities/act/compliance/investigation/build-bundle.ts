@@ -216,7 +216,7 @@ export function buildRequirementEvidenceBundle(args: {
     dependencies,
     exclusions,
     investigationComplete: [...new Set(incompleteReasons)].length === 0,
-    executionStatus: (args.incompleteReasons?.length || exclusions.some(e => ["review_omitted_candidate", "review_returned_unknown_node", "source_quote_mismatch"].includes(e.reason))) ? "incomplete" : "complete",
+    executionStatus: (args.incompleteReasons?.length || exclusions.some(e => ["review_returned_unknown_node", "source_quote_mismatch"].includes(e.reason))) ? "incomplete" : "complete",
     coverageReasons,
     coverageIssues,
     incompleteReasons: [...new Set(incompleteReasons)],

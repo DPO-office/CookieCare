@@ -33,7 +33,7 @@ test("dependency materiality affects only relevant elements", () => {
   result.decision.dependencies[0].materiality = "immaterial";
   assert.equal(assessRequirement(r, result), "present");
   result.decision.dependencies[0].materiality = "unknown";
-  assert.equal(assessRequirement(r, result), "cannot_determine");
+  assert.equal(assessRequirement(r, result), "partial");
 });
 test("empty applicable groups never imply Present", () => {
   const { r, result } = setup();
@@ -112,3 +112,109 @@ test("a mandatory shortfall is a gap even beside an untriggered conditional elem
   result.decision.elements.push({...e,elementId:"conditional",state:"not_located",citations:[],applicability:{...e.applicability,state:"unknown"}});
   assert.equal(assessRequirement(r,result),"gap");
 });
+
+test("Article 28(3)(f) multi-element partial assessment: missing 1 of 3 mandatory elements produces partial with actionable explanation", () => {
+  const { r, result } = setup();
+  const e = result.decision.elements[0];
+  r.check.ruleId = "gdpr.art28.3.f";
+  r.check.rule = {
+    ruleId: "gdpr.art28.3.f",
+    title: "Processor assistance with security, breach, DPIA, and consultation duties",
+    citation: "Article 28(3)(f)",
+    version: "1.1.0",
+    hash: "hash-art28-3-f",
+    relationshipScopes: [],
+    elements: [
+      { id: "security_assistance", description: "Assistance with Article 32 security", kind: "mandatory", remediationGuidance: "Add an Article 32 assistance clause." },
+      { id: "breach_assistance", description: "Assistance with Articles 33-34 breach notification", kind: "mandatory", remediationGuidance: "Add breach notification assistance." },
+      { id: "dpia_assistance", description: "Assistance with Articles 35-36 DPIAs", kind: "mandatory", remediationGuidance: "Add DPIA assistance." },
+    ],
+    aggregation: {
+      operator: "all",
+      children: [
+        { elementId: "security_assistance" },
+        { elementId: "breach_assistance" },
+        { elementId: "dpia_assistance" },
+      ],
+    },
+  };
+  result.decision.ruleHash = "hash-art28-3-f";
+  result.decision.elements = [
+    {
+      ...e,
+      elementId: "security_assistance",
+      state: "not_located",
+      citations: [],
+      establishedFact: "",
+      missingProof: "Controller-side Article 32 security assistance is not established.",
+    },
+    {
+      ...e,
+      elementId: "breach_assistance",
+      state: "supported",
+      establishedFact: "Breach notification assistance is established within 12 hours.",
+      missingProof: "",
+    },
+    {
+      ...e,
+      elementId: "dpia_assistance",
+      state: "supported",
+      establishedFact: "DPIA and prior consultation assistance is established.",
+      missingProof: "",
+    },
+  ];
+
+  // Incomplete demo anchor search should NOT abort to cannot_determine when substantive review succeeded
+  r.bundle.executionStatus = "incomplete";
+  r.bundle.coverageReasons = ["demo_anchor_not_found:security:1"];
+
+  const status = assessRequirement(r, result);
+  assert.equal(status, "partial");
+
+  const locked = lockOutcome(r, result);
+  assert.equal(locked.status, "partial");
+  assert.equal(locked.kind, "assessment");
+  assert.match(locked.explanation.whatTheDocumentProvides, /Breach notification assistance/);
+  assert.match(locked.explanation.whatIsMissingOrUnclear, /Article 32 security assistance is not established/);
+  assert.equal(locked.explanation.recommendedAction, "Add an Article 32 assistance clause.");
+});
+
+test("unresolved dependency causes cannot_determine with Cannot determine label and explicit dependency in explanation", () => {
+  const { r, result } = setup();
+  const e = result.decision.elements[0];
+  r.check.rule = {
+    ruleId: "dep_rule",
+    title: "Security Measures in Schedule",
+    citation: "Article 28(3)(c)",
+    version: "1.0.0",
+    hash: "hash-dep",
+    relationshipScopes: [],
+    elements: [
+      { id: "sec_measures", description: "Security measures", kind: "mandatory" },
+    ],
+    aggregation: { elementId: "sec_measures" },
+  };
+  result.decision.ruleHash = "hash-dep";
+  result.decision.elements = [
+    {
+      ...e,
+      elementId: "sec_measures",
+      state: "unresolved_dependency",
+      citations: [],
+      establishedFact: "",
+      missingProof: "Security measures point to missing Schedule 4.",
+    },
+  ];
+  result.decision.dependencies = [
+    { id: "Schedule_4", elementIds: ["sec_measures"], materiality: "material", reason: "Schedule 4 is not supplied in the document bundle." },
+  ];
+
+  const status = assessRequirement(r, result);
+  assert.equal(status, "cannot_determine");
+
+  const locked = lockOutcome(r, result);
+  assert.equal(locked.status, "cannot_determine");
+  assert.match(locked.explanation.conclusion, /Schedule_4/);
+  assert.match(locked.explanation.recommendedAction, /Obtain and review the referenced material/);
+});
+

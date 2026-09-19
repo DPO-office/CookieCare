@@ -46,7 +46,7 @@ function relevantFactsForUnit(
       out[key] = facts[key];
     }
   }
-  // Always include transfer / PHI when present for conditional sections.
+  // Always include transfer / PHI / entity details when present for sections.
   for (const extra of [
     "transferMechanism",
     "sccModule",
@@ -57,6 +57,14 @@ function relevantFactsForUnit(
     "dataSubjects",
     "breachNotification",
     "deletionReturn",
+    "dataFiduciaryLegalName",
+    "dataProcessorLegalName",
+    "dataFiduciaryCin",
+    "dataProcessorCin",
+    "dataFiduciaryAddress",
+    "dataProcessorAddress",
+    "cin",
+    "signatories",
   ]) {
     if (facts[extra] !== undefined && facts[extra] !== null) {
       out[extra] = facts[extra];

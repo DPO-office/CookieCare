@@ -26,7 +26,7 @@ function classifyDocumentType(state: DraftState): string {
     state.structuredFacts?.documentType ||
     state.intakeOverlay?.documentType ||
     state.requirements?.contractType ||
-    "DPA";
+    "";
   return documentTypeRegistry.resolveId(String(hint));
 }
 
@@ -56,6 +56,15 @@ export function resolveApplicablePacks(state: DraftState): ApplicablePacks {
   let regimes = regimeRegistry.all().filter((r) => r.triggerCondition(matchFacts));
   if (dpdpaRequested(matchFacts) && !gdprFamilyRequested(matchFacts)) {
     regimes = regimes.filter((r) => !dropEuFamilyForDpdpaOnly(r.id));
+    const blob = JSON.stringify(matchFacts).toLowerCase();
+    const explicitHipaa =
+      matchFacts.phiInvolved === true ||
+      blob.includes("hipaa") ||
+      blob.includes("baa") ||
+      blob.includes("business associate");
+    if (!explicitHipaa) {
+      regimes = regimes.filter((r) => r.id !== "HIPAA_BA");
+    }
   }
   const jurisdictionId =
     typeof facts.governingLaw === "string"

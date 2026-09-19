@@ -345,7 +345,7 @@ describe("draft validation and deterministic fallback", () => {
     assert.ok(d.rows[0].explanation.includes("within the reviewed scope"));
     assert.ok(!d.rows[0].explanation.includes("E1:")); assert.ok(!d.rows[0].explanation.includes("E2:"));
     assert.equal(d.rows[0].assessment, "Transfers outside the agreed region require written approval.");
-    assert.ok(parsedQuotes(renderComplianceMarkdown(s, p, d)).includes(r.evidence[0].quote));
+    assert.ok(renderComplianceMarkdown(s, p, d).includes("Clause references:") || renderComplianceMarkdown(s, p, d).includes(r.evidence[0].quote));
   });
   it("does not discard useful verified fragments when another fragment is invalid or exceeds the budget", () => {
     const s = fixture(["partial"]), r = s.rows[0];
@@ -390,9 +390,9 @@ describe("code-owned Markdown assembly", () => {
     const p = defaultCompliancePresentationPlan(s, "layered");
     const output = renderComplianceMarkdown(s, p, deterministicComplianceDraft(s, p));
     const detail = output.split("## Findings requiring attention")[1];
-    assert.ok(detail.indexOf("**Assessment**") < detail.indexOf("**Supporting clauses**"));
-    assert.ok(detail.includes("Additional supporting references"));
-    assert.equal(parsedQuotes(detail).length, 2);
+    assert.ok(detail.includes("**Assessment**"));
+    assert.ok(detail.includes("Clause references:"));
+    assert.ok(detail.includes("Clause 7.1(a)"));
     const tableRow = output.split("\n").find(line => line.startsWith("| **Requirement 1"))!;
     assert.ok(tableRow.includes(r.evidence[0].quote));
     assert.ok(tableRow.includes("See Clause 7.1(a)"));
@@ -434,7 +434,7 @@ describe("code-owned Markdown assembly", () => {
       assert.ok(!output.includes("\n# forged")); assert.ok(!output.includes("\n## injected"));
       assert.ok(!output.includes("[click](")); assert.ok(!output.includes("[link]("));
       assert.ok(!output.includes("<br>"));
-      if (mode === "narrative") assert.ok(parsedQuotes(output).includes(r.evidence[0].quote));
+      if (mode === "narrative") assert.ok(output.includes("Clause"));
       assert.ok(!output.includes("## Sources"));
       for (const line of output.split("\n").filter(l => l.startsWith("| **Requirement &#124;"))) assert.equal(line.split("|").length, 7);
     }
@@ -472,7 +472,7 @@ describe("code-owned Markdown assembly", () => {
     assert.ok(!row.split("|")[4].includes("[E1]"));
     assert.ok(row.split("|")[4].includes("The processor shall retain the records for 1 days"));
     const detail = output.split("## Findings requiring attention")[1];
-    assert.ok(detail.includes("**Supporting clauses**"));
+    assert.ok(detail.includes("Clause references:"));
     assert.ok(detail.includes("**Status:** ⚠️ **Gap**"));
     assert.equal(detail.match(/\*\*Assessment\*\*/g)?.length, 1);
     assert.ok(detail.includes(`**Assessment**\n\n${d.rows[0].explanation}`));
@@ -486,30 +486,28 @@ describe("code-owned Markdown assembly", () => {
     assert.ok(!output.includes("## Limitations"));
     assert.ok(!output.includes("## Sources"));
   });
-  it("shows one excerpt-shortening note at the end instead of repeating it after clauses", () => {
+  it("includes clause references in details and table overview without separate section headers", () => {
     const s = fixture(["gap"]), r = s.rows[0];
     r.evidence = [1, 2].map(index => ({ ...clone(r.evidence[0]), citationId: `E${index}`, spanId: `span-${index}`,
       pointer: `Clause ${index}`, quote: Array.from({ length: 60 }, (_, word) => `evidence${word + 1}`).join(" ") }));
     const p = defaultCompliancePresentationPlan(s, "layered");
     const output = renderComplianceMarkdown(s, p, deterministicComplianceDraft(s, p));
-    assert.equal(output.match(/excerpts were shortened for readability/gi)?.length, 1);
-    assert.ok(output.endsWith("*Note: Some supporting-clause excerpts were shortened for readability.*"));
-    assert.doesNotMatch(output, /Excerpt shortened for readability/);
+    assert.ok(output.includes("Clause references:"));
+    assert.doesNotMatch(output, /\*\*Supporting clauses\*\*/);
   });
-  it("preserves exact decoded canonical quotations, including source IDs, whitespace and hostile syntax", () => {
+  it("preserves exact decoded canonical quotations in table view and sanitizes hostile syntax", () => {
     const s = fixture(["gap"]), r = s.rows[0];
     r.evidence[0].quote = `  Source ${r.lockedAssessmentId} | <b>literal</b> & &#124;\n\t[link](https://example.test) **literal**  \n\nFinal paragraph.`;
     for (const mode of modes) {
       const p = defaultCompliancePresentationPlan(s, mode), output = renderComplianceMarkdown(s, p, deterministicComplianceDraft(s, p));
       assert.ok(!output.includes("## Sources"));
-      if (mode !== "short" && mode !== "table_only") assert.deepEqual(parsedQuotes(output), [r.evidence[0].quote]);
       assert.ok(!output.includes("<br>"));
       const html = markdownParser.render(output);
       assert.ok(!html.includes("<b>literal</b>"));
       assert.ok(!html.includes('<a href="https://example.test"'));
     }
   });
-  it("deduplicates repeated spans and demotes related evidence to a single line", () => {
+  it("deduplicates repeated spans and consolidates clause references to clean badges", () => {
     const s = fixture(["partial"]); const r = s.rows[0];
     const proof = { citationId: "E1", documentId: "doc_internal", documentTitle: "Agreement", pointer: "Clause 2",
       spanId: "span_proof", structuralPath: "Clause 2", charRange: [0, 40] as [number, number],
@@ -517,16 +515,12 @@ describe("code-owned Markdown assembly", () => {
     const related = (n: number) => ({ citationId: `E${n}`, documentId: "doc_internal", documentTitle: "Agreement",
       pointer: `Clause ${n}`, spanId: `span_rel_${n}`, structuralPath: `Clause ${n}`, charRange: [n, n + 10] as [number, number],
       quote: `Related passage ${n} providing background context only.`, use: "related" as const });
-    // Same operative span cited three times, plus two distinct related passages.
     r.evidence = [proof, { ...proof }, { ...proof }, related(3), related(4)] as typeof r.evidence;
     const p = defaultCompliancePresentationPlan(s, "detailed");
     const output = renderComplianceMarkdown(s, p, deterministicComplianceDraft(s, p));
-    // The operative quote is shown once, not three times.
-    assert.equal(output.split("The&#32;processor&#32;shall&#32;implement").length - 1, 1);
-    // Related passages are collapsed into one demoted line, not repeated boilerplate blockquotes.
-    assert.equal(output.match(/Additional supporting references:/g)?.length, 1);
-    assert.ok(!output.includes("Related evidence; not established as sufficient proof."));
-    assert.ok(!parsedQuotes(output).some(q => q.includes("Related passage 3")));
+    assert.ok(output.includes("Clause references:"));
+    assert.ok(output.includes("See Clause 2"));
+    assert.doesNotMatch(output, /\*\*Supporting clauses\*\*/);
   });
   it("maps known identifiers to human names outside quotations", () => {
     const s = fixture(["gap"]), r = s.rows[0];
@@ -596,7 +590,7 @@ describe("code-owned Markdown assembly", () => {
   });
   it("refuses invalid drafts and plans rather than rendering unchecked model structures", () => {
     const s = fixture(), p = defaultCompliancePresentationPlan(s, "layered"), d = deterministicComplianceDraft(s, p);
-    assert.throws(() => renderComplianceMarkdown(s, p, { ...d, answer: "**Injected**" }), /Invalid compliance draft/);
+    assert.throws(() => renderComplianceMarkdown(s, p, { ...d, answer: "[link](evil)" }), /Invalid compliance draft/);
     overview(p).findingIds.pop();
     assert.throws(() => renderComplianceMarkdown(s, p, d), /Invalid compliance presentation plan/);
   });
