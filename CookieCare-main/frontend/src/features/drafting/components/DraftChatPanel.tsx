@@ -1,9 +1,65 @@
 import { useRef, useEffect, useState, ReactNode } from "react";
-import { Sparkles } from "lucide-react";
+import { Sparkles, HelpCircle, CheckCircle2, ArrowRight } from "lucide-react";
 import { DraftComposer } from "./DraftComposer";
 import { DatePicker } from "./DatePicker";
 import type { DraftChatMessage } from "../hooks/useDraftChat";
 import type { DraftOpenQuestion, QuestionInputType } from "../api/draftingJobs";
+
+const LORA_MARK = "/images/logo/favicon.png";
+
+export function LoraAvatar({
+  isLoading = false,
+  size = 26,
+  className = "",
+}: {
+  isLoading?: boolean;
+  size?: number;
+  className?: string;
+}) {
+  const boxSize = size + 10;
+  const center = boxSize / 2;
+  const radius = boxSize / 2 - 1.5;
+
+  return (
+    <div
+      className={`relative shrink-0 flex items-center justify-center ${className}`}
+      style={{ width: boxSize, height: boxSize }}
+    >
+      {isLoading && (
+        <svg
+          className="absolute inset-0 w-full h-full animate-spin text-[#4F5BD9]"
+          viewBox={`0 0 ${boxSize} ${boxSize}`}
+          fill="none"
+        >
+          <circle
+            cx={center}
+            cy={center}
+            r={radius}
+            stroke="currentColor"
+            strokeOpacity="0.16"
+            strokeWidth="2"
+          />
+          <path
+            d={`M ${center} ${center - radius} A ${radius} ${radius} 0 0 1 ${center + radius} ${center}`}
+            stroke="currentColor"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+          />
+        </svg>
+      )}
+      <img
+        src={LORA_MARK}
+        alt="LORA"
+        width={size}
+        height={size}
+        className={`relative rounded-[7px] object-cover shadow-sm transition-transform duration-200 ${
+          isLoading ? "scale-[0.88]" : ""
+        }`}
+        style={{ width: size, height: size }}
+      />
+    </div>
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -366,10 +422,11 @@ function inferPlaceholder(q: DraftOpenQuestion): string {
 // Shared input class tokens
 // ---------------------------------------------------------------------------
 
-/** Original input style shared by TextInput, NumericInput, and TextareaInput. */
+/** Premium input style shared by TextInput, NumericInput, and TextareaInput. */
 const INPUT_BASE =
-  "w-full rounded-md border border-[#E4E4E7] bg-[#FAFAFA] px-2.5 py-1.5 text-[13px] text-[#3F3F46] " +
-  "outline-none focus:border-[#A1A1AA] disabled:opacity-60 placeholder:text-[#C4C4C8]";
+  "w-full rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] px-3.5 py-2 text-[13px] font-medium text-[#0F172A] " +
+  "outline-none transition-all duration-150 focus:border-[#4F5BD9] focus:bg-white focus:ring-2 focus:ring-[#4F5BD9]/15 " +
+  "disabled:opacity-60 placeholder:text-[#94A3B8] placeholder:font-normal";
 
 // ---------------------------------------------------------------------------
 // Sub-renderers
@@ -582,10 +639,10 @@ function ChipsInput({
               type="button"
               disabled={disabled}
               onClick={() => toggleChip(opt)}
-              className={`px-2.5 py-1 rounded-md text-[12px] border transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-[12px] font-medium border transition-all ${
                 isSel
-                  ? "border-[#3F3F46] bg-[#3F3F46] text-white"
-                  : "border-[#E4E4E7] bg-[#FAFAFA] text-[#52525B] hover:border-[#A1A1AA]"
+                  ? "border-[#4F5BD9] bg-[#4F5BD9] text-white shadow-sm"
+                  : "border-slate-200/80 bg-slate-50/80 text-slate-600 hover:border-slate-300 hover:bg-slate-100/70"
               } disabled:opacity-60`}
             >
               {opt}
@@ -711,120 +768,175 @@ function AskQuestionCard({
   }
 
   return (
-    <div className="flex items-start gap-2.5 max-w-[95%]">
-      <div className="w-full rounded-xl border border-[#E4E4E7] bg-white px-4 py-3.5 shadow-sm">
-        <p className="text-[13.5px] text-[#3F3F46] leading-[1.65] mb-3">{content}</p>
-        <div className="space-y-3.5">
-          {questions.map((q) => {
-            const inputType = resolveInputType(q);
-            const options   = resolveOptions(q);
-            const placeholder = inferPlaceholder(q);
-            return (
-              <div key={q.id} className="space-y-1.5">
-                <label
-                  htmlFor={q.id}
-                  className="block text-[12.5px] font-medium text-[#52525B] leading-snug"
-                >
-                  {displayQuestion(q)}
-                  {q.severity === "critical" && (
-                    <span className="ml-1 text-[#DC2626]">*</span>
-                  )}
-                </label>
-
-                {/* ── Date picker ── */}
-                {inputType === "date" && (
-                  <DateInput
-                    id={q.id}
-                    value={answers[q.id] || ""}
-                    disabled={!!(resolved || disabled)}
-                    onChange={(v) => setAnswer(q.id, v)}
-                    placeholder={placeholder}
-                  />
-                )}
-
-                {/* ── Single-select chips ── */}
-                {inputType === "chips" && (
-                  <ChipsInput
-                    id={q.id}
-                    options={options}
-                    multi={false}
-                    value={answers[q.id] || ""}
-                    disabled={!!(resolved || disabled)}
-                    onChange={(v) => setAnswer(q.id, v)}
-                  />
-                )}
-
-                {/* ── Multi-select chips ── */}
-                {inputType === "chips-multi" && (
-                  <ChipsInput
-                    id={q.id}
-                    options={options}
-                    multi={true}
-                    value={answers[q.id] || ""}
-                    disabled={!!(resolved || disabled)}
-                    onChange={(v) => setAnswer(q.id, v)}
-                  />
-                )}
-
-                {/* ── Textarea (long free-form) ── */}
-                {inputType === "textarea" && (
-                  <TextareaInput
-                    id={q.id}
-                    value={answers[q.id] || ""}
-                    disabled={!!(resolved || disabled)}
-                    onChange={(v) => setAnswer(q.id, v)}
-                    placeholder={placeholder}
-                  />
-                )}
-
-                {/* ── Numeric (duration / quantity) ── */}
-                {inputType === "number" && (
-                  <NumericInput
-                    id={q.id}
-                    value={answers[q.id] || ""}
-                    disabled={!!(resolved || disabled)}
-                    onChange={(v) => setAnswer(q.id, v)}
-                    placeholder={placeholder}
-                  />
-                )}
-
-                {/* ── Text (short free-form, default) ── */}
-                {inputType === "text" && (
-                  <TextInput
-                    id={q.id}
-                    value={answers[q.id] || ""}
-                    disabled={!!(resolved || disabled)}
-                    onChange={(v) => setAnswer(q.id, v)}
-                    placeholder={placeholder}
-                  />
-                )}
-
-                {/* Read-only submitted display */}
-                {resolved && (
-                  <p className="text-[12px] text-[#71717A]">
-                    {formatSubmittedAnswer(q, answers[q.id] || "")}
-                  </p>
-                )}
-              </div>
-            );
-          })}
+    <article className="draft-followup-card is-ai">
+      <div className="mb-3 flex items-start gap-2.5">
+        <LoraAvatar isLoading={false} size={28} />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-2">
+            <p className="m-0 text-[13px] font-semibold tracking-[-0.01em] text-[#0F172A]">
+              LORA
+            </p>
+            {resolved ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+                <CheckCircle2 className="h-3 w-3" />
+                Details provided
+              </span>
+            ) : (
+              <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-[10.5px] font-semibold text-[#4F5BD9]">
+                {questions.length} {questions.length === 1 ? "detail required" : "details required"}
+              </span>
+            )}
+          </div>
+          <p className="m-0 mt-1 text-[12.5px] text-[#475467] leading-relaxed">
+            {content || "Please provide the following details to complete your draft:"}
+          </p>
         </div>
+      </div>
 
-        {!resolved && (
-          <button
-            type="button"
-            disabled={disabled || !allFilled}
-            onClick={() => onSubmit?.(messageId, buildFinalAnswers())}
-            className="mt-3.5 w-full rounded-lg bg-[#18181B] text-white text-[13px] font-medium py-2 disabled:opacity-40 hover:bg-[#27272A] transition-colors"
-          >
-            Continue drafting
-          </button>
-        )}
-        {resolved && (
-          <p className="mt-3 text-[12px] text-[#71717A] italic">Answers submitted.</p>
+      <div className="pl-[36px] space-y-3.5">
+        {resolved ? (
+          <div className="space-y-2">
+            {questions.map((q) => {
+              const ans = formatSubmittedAnswer(q, answers[q.id] || "");
+              return (
+                <div
+                  key={q.id}
+                  className="rounded-xl border border-slate-200/70 bg-white/90 p-2.5 shadow-sm"
+                >
+                  <p className="m-0 text-[11px] font-medium text-[#64748B]">
+                    {displayQuestion(q)}
+                  </p>
+                  <p className="m-0 mt-1 text-[13px] font-semibold text-[#0F172A]">
+                    {ans || <span className="text-slate-400 italic font-normal">Not specified</span>}
+                  </p>
+                </div>
+              );
+            })}
+            <div className="flex items-center gap-1.5 pt-1 text-[11.5px] font-medium text-emerald-700">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              <span>Answers incorporated into draft</span>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="space-y-3">
+              {questions.map((q) => {
+                const inputType = resolveInputType(q);
+                const options = resolveOptions(q);
+                const placeholder = inferPlaceholder(q);
+                return (
+                  <div
+                    key={q.id}
+                    className="space-y-1.5 rounded-xl border border-slate-200/70 bg-white/90 p-3 shadow-sm transition-all focus-within:border-[#4F5BD9]/50 focus-within:shadow-[0_2px_8px_rgba(79,91,217,0.08)]"
+                  >
+                    <div className="flex items-baseline justify-between gap-2">
+                      <label
+                        htmlFor={q.id}
+                        className="block text-[13px] font-semibold text-[#1E293B] leading-snug"
+                      >
+                        {displayQuestion(q)}
+                        {q.severity === "critical" && (
+                          <span className="ml-1 text-[#EF4444] font-bold" title="Required">*</span>
+                        )}
+                      </label>
+                      {q.severity === "critical" && (
+                        <span className="shrink-0 rounded bg-rose-50 border border-rose-200/60 px-1.5 py-0.5 text-[10px] font-medium text-rose-600">
+                          Required
+                        </span>
+                      )}
+                    </div>
+
+                    {q.reasonRequired && (
+                      <p className="m-0 text-[11.5px] text-[#64748B] leading-relaxed">
+                        {q.reasonRequired}
+                      </p>
+                    )}
+
+                    {/* ── Date picker ── */}
+                    {inputType === "date" && (
+                      <DateInput
+                        id={q.id}
+                        value={answers[q.id] || ""}
+                        disabled={!!(resolved || disabled)}
+                        onChange={(v) => setAnswer(q.id, v)}
+                        placeholder={placeholder}
+                      />
+                    )}
+
+                    {/* ── Single-select chips ── */}
+                    {inputType === "chips" && (
+                      <ChipsInput
+                        id={q.id}
+                        options={options}
+                        multi={false}
+                        value={answers[q.id] || ""}
+                        disabled={!!(resolved || disabled)}
+                        onChange={(v) => setAnswer(q.id, v)}
+                      />
+                    )}
+
+                    {/* ── Multi-select chips ── */}
+                    {inputType === "chips-multi" && (
+                      <ChipsInput
+                        id={q.id}
+                        options={options}
+                        multi={true}
+                        value={answers[q.id] || ""}
+                        disabled={!!(resolved || disabled)}
+                        onChange={(v) => setAnswer(q.id, v)}
+                      />
+                    )}
+
+                    {/* ── Textarea (long free-form) ── */}
+                    {inputType === "textarea" && (
+                      <TextareaInput
+                        id={q.id}
+                        value={answers[q.id] || ""}
+                        disabled={!!(resolved || disabled)}
+                        onChange={(v) => setAnswer(q.id, v)}
+                        placeholder={placeholder}
+                      />
+                    )}
+
+                    {/* ── Numeric (duration / quantity) ── */}
+                    {inputType === "number" && (
+                      <NumericInput
+                        id={q.id}
+                        value={answers[q.id] || ""}
+                        disabled={!!(resolved || disabled)}
+                        onChange={(v) => setAnswer(q.id, v)}
+                        placeholder={placeholder}
+                      />
+                    )}
+
+                    {/* ── Text (short free-form, default) ── */}
+                    {inputType === "text" && (
+                      <TextInput
+                        id={q.id}
+                        value={answers[q.id] || ""}
+                        disabled={!!(resolved || disabled)}
+                        onChange={(v) => setAnswer(q.id, v)}
+                        placeholder={placeholder}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            <button
+              type="button"
+              disabled={disabled || !allFilled}
+              onClick={() => onSubmit?.(messageId, buildFinalAnswers())}
+              className="mt-3.5 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#4F5BD9] to-[#3B46B8] py-2.5 text-[13px] font-semibold text-white shadow-[0_2px_8px_rgba(79,91,217,0.24)] transition-all hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <span>Submit & Resume Drafting</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          </>
         )}
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -842,6 +954,7 @@ interface DraftChatPanelProps {
   onRemoveFile: () => void;
   attachedFileName?: string;
   isLoading?: boolean;
+  progressMessage?: string;
   isParsing?: boolean;
   isDragging: boolean;
   composerPlaceholder?: string;
@@ -863,31 +976,53 @@ function FollowUpCard({
   isProgress?: boolean;
   children: ReactNode;
 }) {
+  const isLora = isAi || author === "LORA";
+
   return (
-    <article className={`draft-followup-card${isAi ? " is-ai" : ""}`}>
+    <article className={`draft-followup-card${isAi ? " is-ai" : ""}${isProgress ? " is-progress" : ""}`}>
       <div className="mb-2.5 flex items-center gap-2.5">
-        <span
-          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold ${
-            isAi ? "bg-[#EEF2FF] text-[#4F5BD9]" : "bg-[#0F172A] text-white"
-          }`}
-        >
-          {isAi ? <Sparkles className="h-3.5 w-3.5" strokeWidth={1.75} /> : author.slice(0, 1)}
-        </span>
+        {isLora ? (
+          <LoraAvatar isLoading={isProgress} size={28} />
+        ) : (
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#0F172A] text-[11px] font-semibold text-white">
+            {author.slice(0, 1)}
+          </span>
+        )}
         <div className="min-w-0 flex-1">
-          <p className="m-0 truncate text-[13px] font-semibold tracking-[-0.01em] text-[#1a1a1a]">
-            {author}
-          </p>
-          {isProgress && (
-            <p className="m-0 mt-0.5 text-[11px] text-[#98A2B3]">Working…</p>
+          <div className="flex items-center gap-2">
+            <p className="m-0 truncate text-[13px] font-semibold tracking-[-0.01em] text-[#1a1a1a]">
+              {author}
+            </p>
+            {isProgress && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2 py-0.5 text-[10.5px] font-medium text-[#4F5BD9]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#4F5BD9] animate-pulse" />
+                Live
+              </span>
+            )}
+          </div>
+          {isProgress ? (
+            <p className="m-0 mt-0.5 text-[11px]">
+              <span className="draft-status-shimmer">Working…</span>
+            </p>
+          ) : (
+            <p className="m-0 mt-0.5 text-[11px] text-[#98A2B3]">
+              {isLora ? "AI Legal Assistant" : "You"}
+            </p>
           )}
         </div>
       </div>
       <div
         className={`text-[13px] leading-[1.65] whitespace-pre-wrap ${
-          isProgress ? "text-[#667085]" : "text-[#1a1a1a]"
+          isProgress ? "text-[#475467] font-medium" : "text-[#1a1a1a]"
         }`}
       >
-        {children}
+        {isProgress ? (
+          <div className="draft-status-shimmer text-[13.5px]">
+            {children}
+          </div>
+        ) : (
+          children
+        )}
       </div>
     </article>
   );
@@ -903,6 +1038,7 @@ export default function DraftChatPanel({
   onRemoveFile,
   attachedFileName,
   isLoading = false,
+  progressMessage,
   isParsing = false,
   isDragging,
   composerPlaceholder = "Ask a follow-up…",
@@ -915,9 +1051,10 @@ export default function DraftChatPanel({
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, isLoading]);
 
   const visibleCount = messages.filter((m) => m.kind !== "progress").length;
+  const hasActiveProgressMsg = messages.some((m) => m.kind === "progress");
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden font-sans">
@@ -930,9 +1067,11 @@ export default function DraftChatPanel({
             {title || "Follow-ups"}
           </p>
         </div>
-        <span className="score-badge shrink-0 bg-[#EEF2FF] text-[11px] font-medium text-[#4F5BD9]">
-          {visibleCount}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="score-badge shrink-0 bg-[#EEF2FF] text-[11px] font-medium text-[#4F5BD9]">
+            {visibleCount}
+          </span>
+        </div>
       </header>
 
       <div className="draft-chat-stage relative min-h-0 flex-1">
@@ -941,16 +1080,33 @@ export default function DraftChatPanel({
           behind the floating composer bar.
         */}
         <div className="scrollbar-hide h-full space-y-3.5 overflow-y-auto px-4 pb-28 pt-4">
-          {messages.length === 0 && (
+          {messages.length === 0 && !isLoading && (
             <div className="flex h-full flex-col items-center justify-center px-4 text-center">
-              <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#4F5BD9] shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
-                <Sparkles className="h-4 w-4" strokeWidth={1.75} />
-              </span>
+              <img
+                src={LORA_MARK}
+                alt="LORA"
+                width={36}
+                height={36}
+                className="mb-3 h-9 w-9 shrink-0 rounded-[10px] object-cover shadow-[0_1px_3px_rgba(16,24,40,0.08)]"
+              />
               <p className="m-0 max-w-[220px] text-[13px] leading-relaxed text-[#667085]">
                 Ask a follow-up about this draft — tighten a clause, change tone, or add a section.
               </p>
             </div>
           )}
+
+          {messages.length === 0 && isLoading && (
+            <div className="flex h-full flex-col items-center justify-center px-4 text-center">
+              <LoraAvatar isLoading={true} size={40} className="mb-3.5" />
+              <p className="m-0 text-[14px] font-semibold text-[#1a1a1a] mb-1">
+                <span className="draft-status-shimmer">{progressMessage || "Drafting agreement…"}</span>
+              </p>
+              <p className="m-0 max-w-[240px] text-[12.5px] leading-relaxed text-[#667085]">
+                Synthesizing clauses, enforcing compliance rules, and assembling your draft.
+              </p>
+            </div>
+          )}
+
           {messages.map((msg) => {
             if (msg.role === "user") {
               return (
@@ -993,10 +1149,19 @@ export default function DraftChatPanel({
               </FollowUpCard>
             );
           })}
+
+          {isLoading && !hasActiveProgressMsg && messages.length > 0 && (
+            <FollowUpCard author="LORA" isAi isProgress>
+              <span className="draft-status-shimmer">
+                {progressMessage || "Thinking…"}
+              </span>
+            </FollowUpCard>
+          )}
+
           <div ref={bottomRef} />
         </div>
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#FAFBFD] via-[#FAFBFD]/90 to-transparent px-4 pb-4 pt-8">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#FAFBFD] via-[#FAFBFD]/90 to-transparent px-3.5 pb-3.5 pt-6">
           <div className="pointer-events-auto">
             <DraftComposer
               variant="chat"

@@ -47,6 +47,7 @@ export class ClauseIngester {
     options: {
       contractType: string;
       userId: string;
+      organizationId?: string;
       sourceFileId?: string;
       jurisdiction?: string;
     }
@@ -110,11 +111,12 @@ export class ClauseIngester {
 
       try {
         await pool.query(
-          `INSERT INTO library_items (id, user_id, type, name, description, tags, details)
-           VALUES ($1, $2, 'clauses', $3, $4, $5, $6)`,
+          `INSERT INTO library_items (id, user_id, organization_id, type, name, description, tags, details)
+           VALUES ($1, $2, $3, 'clauses', $4, $5, $6, $7)`,
           [
             id,
             options.userId,
+            options.organizationId ?? null,
             clause.clauseType.trim(),
             `${options.contractType} — ${clause.clauseType.trim()}`,
             tags,
@@ -164,10 +166,11 @@ export class ClauseIngester {
           row.rawText,
         ]
       );
-    } catch {
-      console.log(
-        "[ClauseIngester] DB doesn't found"
-      )
+    } catch (err) {
+      // clause_catalog table is optional — warn only, never throw.
+      console.warn(
+        `[ClauseIngester] clause_catalog mirror skipped (table may not exist): ${(err as Error).message}`
+      );
     }
   }
 }

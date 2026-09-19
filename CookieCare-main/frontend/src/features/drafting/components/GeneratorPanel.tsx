@@ -1,4 +1,4 @@
-﻿import React, { useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   FileText,
   HelpCircle,
@@ -184,8 +184,8 @@ export default function GeneratorPanel(props: GeneratorPanelProps) {
           <div className="w-full mb-5 bg-amber-50 border border-amber-200 p-4 rounded-[18px] flex items-center gap-3 text-[13px] text-amber-800 z-10 shadow-xs">
             <Clock className="w-4 h-4 text-amber-500 animate-spin shrink-0" />
             <div>
-              <p className="font-semibold">AI generator running...</p>
-              <p className="text-[12px] text-amber-600 mt-0.5">{props.streamingProgress || "Preparing draft pipeline…"}</p>
+              <p className="font-semibold">Drafting agreement…</p>
+              <p className="text-[12px] text-amber-600 mt-0.5">{props.streamingProgress || "Analyzing requirements & structure…"}</p>
             </div>
           </div>
         )}

@@ -122,24 +122,70 @@ export const DRAFT_WORKSPACE_STYLES = `
 /* ── Chat panel ─────────────────────────────────────────────────────────── */
 .draft-followup-rail {
   min-width: 260px;
+  border-radius: 16px;
   overflow: hidden;
   background: #ffffff;
-  border: 1px solid rgb(226 232 240 / 0.6);
+  border: 1px solid rgb(226 232 240 / 0.8);
   box-shadow:
-    0 1px 2px rgba(16, 24, 40, 0.04),
-    0 12px 32px rgba(15, 23, 42, 0.08);
+    0 1px 3px rgba(16, 24, 40, 0.04),
+    0 12px 28px rgba(15, 23, 42, 0.06);
 }
 
 .draft-followup-card {
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: 16px;
   border: 1px solid rgb(226 232 240 / 0.7);
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
   padding: 14px 16px;
   margin: 0 0 4px;
+  transition: all 0.2s ease;
 }
 .draft-followup-card.is-ai {
   background: #F8FAFC;
+}
+.draft-followup-card.is-progress {
+  background: #FFFFFF;
+  border-color: rgba(79, 91, 217, 0.28);
+  box-shadow:
+    0 2px 12px rgba(79, 91, 217, 0.08),
+    0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+@keyframes draft-status-shimmer {
+  0% { background-position: 140% 0; }
+  100% { background-position: -40% 0; }
+}
+
+.draft-status-shimmer {
+  display: inline-block;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  background: linear-gradient(
+    90deg,
+    #98A2B3 0%,
+    #667085 32%,
+    #111827 47%,
+    #4F5BD9 51%,
+    #111827 55%,
+    #667085 70%,
+    #98A2B3 100%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: draft-status-shimmer 1.55s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .draft-status-shimmer {
+    animation: none;
+    background: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+    color: #111827;
+  }
 }
 
 .draft-chat-stage {

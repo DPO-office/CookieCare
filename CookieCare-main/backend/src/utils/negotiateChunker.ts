@@ -600,7 +600,7 @@ function mergeByIssueIdentity(
       const b = candidates[j];
 
       // Condition 1: same specific issue tag (and neither is "other")
-      if (a.issueTag !== b.issueTag || b.issueTag === "other") continue;
+      if (a.issueTag !== b.issueTag || (b.issueTag as string) === "other") continue;
 
       // Condition 2: same broad clause type
       if (a.clauseType !== b.clauseType) continue;

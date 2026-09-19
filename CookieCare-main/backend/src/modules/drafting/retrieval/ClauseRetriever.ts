@@ -79,7 +79,8 @@ export class ClauseRetriever {
 
     const fromLibrary = await this.fromLibraryItems(
       normalizedTypes,
-      requirements
+      requirements,
+      organizationId
     );
     if (fromLibrary.length > 0) {
       console.log(
@@ -230,15 +231,19 @@ export class ClauseRetriever {
 
   private async fromLibraryItems(
     types: string[],
-    requirements: RequirementContext
+    requirements: RequirementContext,
+    organizationId?: string | null
   ): Promise<Clause[]> {
     try {
+      const orgId = organizationId?.trim() || null;
       const { rows } = await this.db.query(
         `SELECT id, name, details, tags
          FROM library_items
          WHERE type = 'clauses'
+           AND ($1::text IS NULL OR user_id = $1 OR details::text ILIKE $2)
          ORDER BY created_at DESC
-         LIMIT 50`
+         LIMIT 50`,
+        [orgId, orgId ? `%${orgId}%` : null]
       );
 
       if (!rows.length) return [];
