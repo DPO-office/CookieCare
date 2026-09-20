@@ -1053,6 +1053,24 @@ export function CompareDocumentView({
     return words.size > 0 ? words : null;
   }, [activeClauseB, textDiffSpansMap]);
 
+  // Backend atomic snippets for the selected finding only — used by the PDF
+  // pane as a second highlight pass when diffWords tokens miss pdf.js items.
+  const activeSnippetsA = useMemo(() => {
+    if (!activeClauseA) return null;
+    const snippets = (selectedFinding?.diff?.changes ?? [])
+      .map((c) => c.originalSnippet)
+      .filter((s): s is string => typeof s === "string" && s.trim().length > 0);
+    return snippets.length > 0 ? snippets : null;
+  }, [activeClauseA, selectedFinding]);
+
+  const activeSnippetsB = useMemo(() => {
+    if (!activeClauseB) return null;
+    const snippets = (selectedFinding?.diff?.changes ?? [])
+      .map((c) => c.modifiedSnippet)
+      .filter((s): s is string => typeof s === "string" && s.trim().length > 0);
+    return snippets.length > 0 ? snippets : null;
+  }, [activeClauseB, selectedFinding]);
+
   const { file: pdfFileA, status: statusA } = usePdfSource(result, "original");
   const { file: pdfFileB, status: statusB } = usePdfSource(result, "revised");
   const isPdf = statusA !== "unavailable" || statusB !== "unavailable";
@@ -1101,6 +1119,7 @@ export function CompareDocumentView({
             activeClause={activeClauseA}
             activeClassification={selectedFinding?.diff?.classification ?? null}
             changedWords={activeChangedWordsA}
+            atomicSnippets={activeSnippetsA}
             allChangedClauseIds={changedClauseIds}
             clauseClassifications={clauseClassifications}
             allClauses={(result.clausesA ?? []) as CompareClauseRecord[]}
@@ -1130,6 +1149,7 @@ export function CompareDocumentView({
             activeClause={activeClauseB}
             activeClassification={selectedFinding?.diff?.classification ?? null}
             changedWords={activeChangedWordsB}
+            atomicSnippets={activeSnippetsB}
             allChangedClauseIds={changedClauseIds}
             clauseClassifications={clauseClassifications}
             allClauses={(result.clausesB ?? []) as CompareClauseRecord[]}
