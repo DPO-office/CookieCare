@@ -38,6 +38,8 @@ const PDF_SCALE_MAX = 2.0;
 const PDF_SCALE_FALLBACK = 1.2; // used before the container has been measured
 const PDF_HORIZONTAL_PADDING = 32; // px — matches px-4 (16px each side) on the scroll div
 const RENDER_BUFFER = 1;
+/** Keep the clause heading a little below the pane top after a jump. */
+const CLAUSE_SCROLL_PAD = 20;
 
 // User-driven zoom multiplier applied on top of the auto-fit scale.
 // Range and step for the +/− zoom controls in the pane header.
@@ -81,6 +83,12 @@ export interface PdfDocumentPaneProps {
    * highlight (used for ADDED/REMOVED and single-sided MOVED findings).
    */
   changedWords?: Set<string> | null;
+  /**
+   * Backend atomic-change snippets for THIS side (originalSnippet on A,
+   * modifiedSnippet on B). Used only when changedWords cannot be mapped onto
+   * pdf.js text items — never replaces the diff engine, never used if empty.
+   */
+  atomicSnippets?: string[] | null;
   allChangedClauseIds: Set<string>;
   /** clauseId → change classification, used so highlights encode change type not document side. */
   clauseClassifications?: Map<string, string>;
@@ -151,9 +159,9 @@ function computeHighlightBoxes(items: PdfTextItem[], scale: number): HighlightBo
  * multi-word runs). Exact-token equality between the two can legitimately
  * match zero items even though real changed words exist. Silently rendering
  * only "context" tint with no strong emphasis at all is indistinguishable
- * from no highlight — so when word-level resolution finds nothing, fall back
- * to the same whole-clause highlight used when changedWords is empty, rather
- * than leaving a selected, valid finding with no visual emphasis.
+ * from no highlight — so when word-level resolution finds nothing, try the
+ * backend atomic snippets (originalSnippet / modifiedSnippet) against the
+ * same pdf.js items, and only then fall back to the whole-clause highlight.
  *
  * @param wordOutline   CSS outline applied to each *changed* word box.
  *                      Must be derived from the change-type stroke color so
@@ -165,6 +173,72 @@ function computeHighlightBoxes(items: PdfTextItem[], scale: number): HighlightBo
  *                      blue selection ring — it frames the entire clause block
  *                      rather than individual words, so the context is clear.
  */
+/**
+ * Find pdf.js items whose concatenated text contains a known atomic snippet
+ * (e.g. "48 hours"). Reuses the already-resolved clause items — no new index.
+ *
+ * Handles the two common DOCX→PDF tokenisations:
+ *   - snippet split across items: ["48", "hours"]
+ *   - snippet glued inside one item: "48hours" / "within 48 hours of"
+ */
+function findSnippetItems(items: PdfTextItem[], snippet: string): PdfTextItem[] {
+  const needle = snippet.toLowerCase().replace(/\s+/g, " ").trim();
+  if (needle.length < 2) return [];
+
+  const ordered = [...items].sort(
+    (a, b) => a.pageNumber - b.pageNumber || a.y - b.y || a.x - b.x
+  );
+
+  let joined = "";
+  const spans: { start: number; end: number; item: PdfTextItem }[] = [];
+  for (const item of ordered) {
+    const piece = item.str.toLowerCase().replace(/\s+/g, " ").trim();
+    if (!piece) continue;
+    if (joined.length) joined += " ";
+    const start = joined.length;
+    joined += piece;
+    spans.push({ start, end: joined.length, item });
+  }
+
+  const idx = joined.indexOf(needle);
+  if (idx !== -1) {
+    const end = idx + needle.length;
+    return spans.filter((s) => s.start < end && s.end > idx).map((s) => s.item);
+  }
+
+  // Compact path: pdf.js dropped the space ("48hours" vs "48 hours").
+  const compactNeedle = needle.replace(/ /g, "");
+  if (compactNeedle.length < 2) return [];
+  return ordered.filter((item) => {
+    const compact = item.str.toLowerCase().replace(/\s+/g, "");
+    return compact.length >= 2 && compact.includes(compactNeedle);
+  });
+}
+
+function paintWordBoxes(
+  items: PdfTextItem[],
+  scale: number,
+  isChanged: (item: PdfTextItem) => boolean,
+  strongFill: string,
+  contextFill: string,
+  wordOutline: string,
+): { boxes: HighlightBox[]; matchedAny: boolean } {
+  let matchedAny = false;
+  const boxes = items.map((item) => {
+    const changed = isChanged(item);
+    if (changed) matchedAny = true;
+    return {
+      x: item.x * scale,
+      y: item.y * scale,
+      width: item.width * scale,
+      height: item.height * scale + 2,
+      fill: changed ? strongFill : contextFill,
+      outline: changed ? wordOutline : undefined,
+    };
+  });
+  return { boxes, matchedAny };
+}
+
 function computeWordHighlightBoxes(
   items: PdfTextItem[],
   scale: number,
@@ -173,6 +247,7 @@ function computeWordHighlightBoxes(
   contextFill: string,
   wordOutline: string,
   clauseOutline: string,
+  atomicSnippets: string[] | null = null,
 ): HighlightBox[] {
   if (!items.length) return [];
 
@@ -185,12 +260,6 @@ function computeWordHighlightBoxes(
       outline: clauseOutline,
     }));
 
-  if (!changedWords || changedWords.size === 0) {
-    // No word-level evidence (ADDED/REMOVED, or MOVED with no text on one
-    // side) — fall back to the original whole-clause highlight, unchanged.
-    return wholeClauseFallback();
-  }
-
   // pdfjs sometimes returns a whole visual line as a single item (headings,
   // full-line body text) — its `str` then contains multiple words joined by
   // spaces. A single-token lookup against `changedWords` misses those items
@@ -199,6 +268,7 @@ function computeWordHighlightBoxes(
   // "changed" when ANY of those sub-tokens is in the diff set, so multi-word
   // items receive the strong fill instead of the near-invisible context tint.
   const itemHasChangedWord = (str: string): boolean => {
+    if (!changedWords || changedWords.size === 0) return false;
     // Fast path: single-token item.
     const asToken = normalizeToken(str);
     if (asToken && changedWords.has(asToken)) return true;
@@ -211,30 +281,41 @@ function computeWordHighlightBoxes(
     return false;
   };
 
-  let matchedAny = false;
-  const wordBoxes: HighlightBox[] = items.map((item) => {
-    const isChanged = itemHasChangedWord(item.str);
-    if (isChanged) matchedAny = true;
-    return {
-      x: item.x * scale,
-      y: item.y * scale,
-      width: item.width * scale,
-      height: item.height * scale + 2,
-      fill: isChanged ? strongFill : contextFill,
-      // Only the actually-changed words get an outline — use the change-type
-      // stroke color (wordOutline) so the outline always matches the fill hue.
-      // The surrounding equal-context words are shown as a light tint only.
-      outline: isChanged ? wordOutline : undefined,
-    };
-  });
-
-  // Word-level tokenisation mismatch — see the doc comment above. Never leave
-  // a selected, valid finding with zero visual emphasis.
-  if (!matchedAny) {
-    return wholeClauseFallback();
+  // 1. Existing precise word/token mapping from the frontend diff engine.
+  if (changedWords && changedWords.size > 0) {
+    const { boxes, matchedAny } = paintWordBoxes(
+      items,
+      scale,
+      (item) => itemHasChangedWord(item.str),
+      strongFill,
+      contextFill,
+      wordOutline,
+    );
+    if (matchedAny) return boxes;
   }
 
-  return wordBoxes;
+  // 2. Known atomic snippets from the backend (e.g. "48 hours" / "72 hours")
+  //    when diffWords tokens could not be mapped onto pdf.js items.
+  if (atomicSnippets && atomicSnippets.length > 0) {
+    const snippetItems = new Set<PdfTextItem>();
+    for (const snippet of atomicSnippets) {
+      for (const item of findSnippetItems(items, snippet)) snippetItems.add(item);
+    }
+    if (snippetItems.size > 0) {
+      const { boxes, matchedAny } = paintWordBoxes(
+        items,
+        scale,
+        (item) => snippetItems.has(item),
+        strongFill,
+        contextFill,
+        wordOutline,
+      );
+      if (matchedAny) return boxes;
+    }
+  }
+
+  // 3. Existing whole-clause fallback — unchanged.
+  return wholeClauseFallback();
 }
 
 // ─── Single page renderer ─────────────────────────────────────────────────────
@@ -247,6 +328,37 @@ interface PageRendererProps {
   isVisible: boolean;
   highlights: HighlightBox[];
   passiveHighlights: HighlightBox[];
+}
+
+/**
+ * Scroll the pane so `pageEl` + in-page Y sits near the top.
+ * Uses the scroller's scrollTop (not Element.scrollIntoView): lazy pages
+ * used to have ~0 height, so scrollIntoView aimed at a collapsed page and
+ * the smooth animation stopped on the wrong clause.
+ */
+function scrollPaneToClause(
+  scroller: HTMLDivElement | null,
+  pageEl: HTMLDivElement | null,
+  yOnPage: number
+): boolean {
+  if (!scroller || !pageEl) return false;
+  const nextTop =
+    pageEl.getBoundingClientRect().top -
+    scroller.getBoundingClientRect().top +
+    scroller.scrollTop +
+    yOnPage -
+    CLAUSE_SCROLL_PAD;
+  scroller.scrollTo({ top: Math.max(0, nextTop), behavior: "auto" });
+  return true;
+}
+
+function clauseYOnPage(items: PdfTextItem[], pageNum: number, scale: number): number {
+  let minY = Infinity;
+  for (const it of items) {
+    if (it.pageNumber !== pageNum) continue;
+    if (it.y < minY) minY = it.y;
+  }
+  return Number.isFinite(minY) ? minY * scale : 0;
 }
 
 function PageRenderer({
@@ -328,10 +440,6 @@ function PageRenderer({
   const canvasW = Math.round(viewport.width);
   const canvasH = Math.round(viewport.height);
 
-  // Aspect-ratio padding trick: preserves the correct height as the container
-  // width changes, eliminating layout shift before the canvas is painted.
-  const aspectPadding = `${(canvasH / canvasW) * 100}%`;
-
   return (
     <div
       className="relative mx-auto mb-3 overflow-hidden rounded-sm shadow-sm"
@@ -341,15 +449,13 @@ function PageRenderer({
       // At zoom>1 the page overflows the pane and the parent scroller (which
       // is now `overflow-auto`) exposes a horizontal scrollbar. At zoom<1 the
       // page is narrower than the pane and stays centered by `mx-auto`.
-      style={{ width: canvasW }}
+      style={{ width: canvasW, height: canvasH }}
     >
-      {/* Placeholder while rendering — sized via aspect-ratio padding */}
+      {/* Placeholder while rendering. Parent height is always canvasH so
+          off-screen pages still occupy a full page in the scroller. */}
       {!rendered && isVisible && (
-        <div
-          className="flex items-center justify-center bg-[#F3F4F6]"
-          style={{ paddingTop: aspectPadding }}
-        >
-          <Loader2 className="absolute inset-0 m-auto h-5 w-5 animate-spin text-[#9CA3AF]" />
+        <div className="absolute inset-0 flex items-center justify-center bg-[#F3F4F6]">
+          <Loader2 className="h-5 w-5 animate-spin text-[#9CA3AF]" />
         </div>
       )}
 
@@ -495,6 +601,7 @@ export function PdfDocumentPane({
   activeClause,
   activeClassification = null,
   changedWords = null,
+  atomicSnippets = null,
   allChangedClauseIds,
   clauseClassifications,
   allClauses,
@@ -578,47 +685,79 @@ export function PdfDocumentPane({
   //   - Original and Modified panes are independent (each has its own
   //     scrollRef, pageRefs, visiblePages, and pdfMap)
 
-  const pendingScrollPageRef = useRef<number | null>(null);
-  const numPagesRef = useRef<number>(0);
-  // Keep numPagesRef in sync so phase-1 can clamp neighbor pages
-  numPagesRef.current = pdfPages.length;
+  const pendingScrollRef = useRef<{ page: number; yOnPage: number } | null>(
+    null
+  );
+
+  const jumpToPending = useCallback(() => {
+    const pending = pendingScrollRef.current;
+    if (!pending) return;
+    const ok = scrollPaneToClause(
+      scrollRef.current,
+      pageRefs.current.get(pending.page) ?? null,
+      pending.yOnPage
+    );
+    if (ok) pendingScrollRef.current = null;
+  }, []);
 
   // Phase 1: react to every activeClause change (not just activePage number changes)
   useEffect(() => {
-    if (!activeClause) return;
+    if (!activeClause) {
+      pendingScrollRef.current = null;
+      return;
+    }
 
-    const target = resolveClausePage(activeClause, pdfMap);
-    pendingScrollPageRef.current = target;
+    // Prefer the page of the already-resolved highlight items so navigation
+    // tracks the clause the viewer actually painted (DOCX converted PDFs
+    // often have no backend pageNumber, and mammoth offsets ≠ pdf.js pageStarts).
+    const items = resolveClauseTextItems(activeClause, pdfMap);
+    let target: number;
+    if (items.length > 0) {
+      const counts = new Map<number, number>();
+      for (const it of items) {
+        counts.set(it.pageNumber, (counts.get(it.pageNumber) ?? 0) + 1);
+      }
+      target = items[0].pageNumber;
+      let bestN = 0;
+      for (const [pg, n] of counts) {
+        if (n > bestN) {
+          target = pg;
+          bestN = n;
+        }
+      }
+    } else {
+      target = resolveClausePage(activeClause, pdfMap);
+    }
+    pendingScrollRef.current = {
+      page: target,
+      yOnPage: clauseYOnPage(items, target, pdfScale),
+    };
 
-    const numPages = numPagesRef.current;
-    if (numPages === 0) return; // PDF not loaded yet — phase 2 will fire once it is
+    const numPages = pdfPages.length;
+    if (numPages === 0) return; // PDF not loaded yet — re-run when pdfPages.length changes
 
     // Ensure the target page and its neighbours are in the render set.
-    // This is the fix for Bug 1: page may not be in pageRefs yet.
     setVisiblePages((prev) => {
       const next = new Set(prev);
       for (let d = -RENDER_BUFFER; d <= RENDER_BUFFER; d++) {
         const p = target + d;
         if (p >= 1 && p <= numPages) next.add(p);
       }
-      // No change needed if target already present — but we still want Phase 2
-      // to fire, so return a new Set reference to trigger the effect below.
       return next;
     });
+
+    // Instant jump after layout. Reserved page heights keep offsetTop stable,
+    // so we land on the clause instead of a collapsed later page.
+    requestAnimationFrame(() => requestAnimationFrame(jumpToPending));
   // activeClause is an object ref — it changes on every finding selection even
   // when the resolved page number stays the same (fixes Bug 2).
-  }, [activeClause, pdfMap]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeClause, pdfMap, pdfPages.length, pdfScale, jumpToPending]);
 
-  // Phase 2: after visiblePages update causes the page div to mount, scroll to it.
+  // Phase 2: after visiblePages update causes the page canvas to paint, retry.
   useEffect(() => {
-    const target = pendingScrollPageRef.current;
-    if (!target) return;
-    const el = pageRefs.current.get(target);
-    if (!el) return; // div not mounted yet — will fire again on next visiblePages change
-    // Consume the pending request so we don't scroll again on unrelated rerenders
-    pendingScrollPageRef.current = null;
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, [visiblePages]); // re-check every time visiblePages expands
+    if (!pendingScrollRef.current) return;
+    requestAnimationFrame(() => requestAnimationFrame(jumpToPending));
+  }, [visiblePages, pdfPages.length, jumpToPending]);
 
   // ── IntersectionObserver — lazy rendering ─────────────────────────────────
   const setPageRef = useCallback(
@@ -696,11 +835,12 @@ export function PdfDocumentPane({
           contextFill,
           wordOutline,
           clauseOutline,
+          atomicSnippets,
         ),
       );
     }
     return byPage;
-  }, [activeItems, pdfScale, activeClassification, changedWords]);
+  }, [activeItems, pdfScale, activeClassification, changedWords, atomicSnippets]);
 
   const passiveBoxesByPage = useMemo(() => {
     const byPage = new Map<number, HighlightBox[]>();

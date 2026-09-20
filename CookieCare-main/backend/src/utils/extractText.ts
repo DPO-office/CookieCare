@@ -347,22 +347,14 @@ export async function extractText(
   mimeType: string
 ): Promise<ExtractionResult> {
   if (mimeType === "application/pdf") {
-    // Try Docling first for exact layout, indentation, and structure-preserving text extraction
-    try {
-      const { parseDocument } = await import(
-        "../modules/analysis/capabilities/ingest/document-structure/parser.js"
-      );
-      const parsed = await parseDocument(buffer, mimeType, "document.pdf");
-      if (parsed.parser.name === "docling.rs" && parsed.canonicalText?.trim()) {
-        console.log("[extractText] PDF text extracted via docling.rs");
-        return { text: parsed.canonicalText.trim() };
-      }
-    } catch (doclingErr: any) {
-      console.warn(
-        "[extractText] docling.rs extraction failed (continuing with pdfjs-dist):",
-        doclingErr?.message ?? doclingErr
-      );
-    }
+    // Do NOT route through parseDocument()/docling.rs here.
+    // parseDocument statically imports extractText for its legacy fallback, so a
+    // Docling miss becomes extractText → parseDocument → extractText recursion.
+    // On Windows the native convert can also block the Node event loop, which
+    // freezes Compare (SSE, job progress, and even other HTTP) until it returns.
+    // Compare and the rest of extractText callers need pdf.js text + pageBreaks
+    // so clause.pageNumber matches the viewer. Analysis ingest still calls
+    // parseDocument directly.
 
     // Canary run — validates the PDF is parseable, text is discarded
     try {
