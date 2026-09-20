@@ -87,25 +87,62 @@ export default function DraftAgreement({
       if (entry.documentId) {
         const doc = documents.find((d: any) => d.id === entry.documentId);
         if (doc) {
-          // Raise the suppress flag so the selectedDoc sync effect does NOT
-          // overwrite what we just set.
-          // Edge-case: if `doc` is the *exact same reference* already in
-          // selectedDoc, React will bail out of setSelectedDoc and the effect
-          // will never fire — meaning suppressDocSyncRef would stay `true`
-          // forever and block the next legitimate document switch.
-          // Guard: if the reference is identical, skip setSelectedDoc entirely
-          // (content is already set above) and ensure the flag stays false.
           if (doc === editorState.selectedDoc) {
-            // Same ref — effect won't run; flag must stay clear.
             editorState.suppressDocSyncRef.current = false;
           } else {
             editorState.suppressDocSyncRef.current = true;
             editorState.setSelectedDoc(doc);
           }
           onSelectDocument(doc);
+        } else {
+          // Document exists in backend storage but isn't in current list snapshot
+          const shellDoc: any = {
+            id: entry.documentId,
+            title: entry.title || "Draft Document",
+            content: normalized,
+            type: "draft",
+            versions: [],
+            signatures: [],
+            sharedWith: [],
+            redlines: [],
+            auditLogs: [],
+            creatorId: "",
+            creatorEmail: "",
+            isEncrypted: false,
+            createdAt: entry.createdAt || new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+          editorState.suppressDocSyncRef.current = true;
+          editorState.setSelectedDoc(shellDoc);
+          onSelectDocument(shellDoc);
         }
-        // If doc not in local list, content is still set above — nothing more needed.
+      } else {
+        // Old history item without explicit documentId — assign one so follow-up chat can refine it
+        const fallbackId = `doc_${entry.jobId}`;
+        const shellDoc: any = {
+          id: fallbackId,
+          title: entry.title || "Draft Document",
+          content: normalized,
+          type: "draft",
+          versions: [],
+          signatures: [],
+          sharedWith: [],
+          redlines: [],
+          auditLogs: [],
+          creatorId: "",
+          creatorEmail: "",
+          isEncrypted: false,
+          createdAt: entry.createdAt || new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        editorState.suppressDocSyncRef.current = true;
+        editorState.setSelectedDoc(shellDoc);
+        onSelectDocument(shellDoc);
       }
+      draftChat.reset();
+      draftChat.addAssistantMessage(
+        `Loaded "${entry.title || "Draft"}". You can edit it directly in the editor or type instructions here to refine it.`
+      );
     } else if (entry.status === "failed") {
       // Failed job — there is genuinely no content to show.
       showUnavailable();
