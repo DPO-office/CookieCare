@@ -36,7 +36,7 @@ export function TopNavItem({
   setActiveTab,
   isDark = false,
 }: TopNavItemProps) {
-  const { state } = useSidebar();
+  const { state, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const active = activeTab === entry.id;
   const isAI = entry.id === "LORA-ai";
@@ -62,7 +62,10 @@ export function TopNavItem({
             <button
               data-sidebar="menu-button"
               data-active={active}
-              onClick={() => setActiveTab(entry.id)}
+              onClick={() => {
+                if (isMobile) setOpenMobile(false);
+                setActiveTab(entry.id);
+              }}
               title={collapsed ? entry.label : undefined}
               className={[
                 "group/btn peer/menu-button flex w-full items-center gap-2.5 overflow-hidden rounded-lg px-3 font-medium outline-none ring-0 transition-all duration-150 h-9 text-[13px]",
@@ -122,7 +125,10 @@ export function TopNavItem({
           ) : (
             <SidebarMenuButton
               isActive={active}
-              onClick={() => setActiveTab(entry.id)}
+              onClick={() => {
+                if (isMobile) setOpenMobile(false);
+                setActiveTab(entry.id);
+              }}
               tooltip={entry.label}
               className={collapsed ? "justify-center px-0 h-9" : "h-9"}
               isDark={isDark}
@@ -162,7 +168,7 @@ export function SectionGroup({
   setActiveTab,
   isDark = false,
 }: SectionGroupProps) {
-  const { state, setOpen: setSidebarOpen } = useSidebar();
+  const { state, setOpen: setSidebarOpen, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const sectionHasActive = group.children.some((c) => c.id === activeTab);
   const [open, setOpen] = useState(true);
@@ -273,7 +279,10 @@ export function SectionGroup({
                   <SidebarMenuButton
                     isActive={active}
                     isDark={isDark}
-                    onClick={() => setActiveTab(child.id)}
+                    onClick={() => {
+                      if (isMobile) setOpenMobile(false);
+                      setActiveTab(child.id);
+                    }}
                     tooltip={child.label}
                   >
                     <ChildIcon

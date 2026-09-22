@@ -59,12 +59,30 @@ export const dpaSkillConfig: DraftingSkillConfig = {
         "Schedule 1 must identify data subject categories; missing this yields bracketed stubs.",
       aliases: ["dataSubjectCategories"],
     },
+    {
+      id: "liabilityCap",
+      priority: "normal",
+      blocking: false,
+      question:
+        "What is the limitation of liability cap or breach liability structure (e.g. 12 months fees, or uncapped for breach)?",
+      reasonRequired:
+        "Liability and indemnity allocation is standard in commercial processor agreements.",
+      options: [
+        "12 months fees paid",
+        "2x annual contract value",
+        "Uncapped for data breach",
+        "As stated in Principal Agreement",
+      ],
+      aliases: ["capOnLiability", "limitationOfLiability"],
+    },
   ],
   safeDefaults: {
     breachNotification: "48 hours of becoming aware",
     subprocessorNotice: "30 days prior written notice",
     auditNotice: "annual audit or SOC 2 / ISO 27001 report",
     deletionReturn: "within 30 days of termination",
+    liabilityCap:
+      "As set forth in the Principal Agreement / uncapped for breach of confidentiality and data security",
   },
   sectionBriefs: [
     {
@@ -177,6 +195,18 @@ export const dpaSkillConfig: DraftingSkillConfig = {
       requiredLegalElements: ["deletion or return"],
     },
     {
+      workUnitId: "sec-liability",
+      title: "Damages and Limitation of Liability",
+      purpose: "Define indemnification, breach damages allocation, direct vs indirect loss, and liability caps.",
+      requiredContent: [
+        "Processor indemnity in favor of Controller for data protection breach or negligence",
+        "Allocation of damages resulting from third-party or Data Subject claims as direct loss",
+        "Exclusion of indirect damages and limitation of liability cap aligned with agreed terms or principal agreement",
+      ],
+      requiredFacts: ["liabilityCap"],
+      requiredLegalElements: ["indemnification", "liability allocation"],
+    },
+    {
       workUnitId: "sec-misc",
       title: "Miscellaneous",
       purpose: "Governing law, liability interaction, and general boilerplate.",
@@ -269,6 +299,13 @@ export const dpaSkillConfig: DraftingSkillConfig = {
       severity: "critical",
       checkKind: "section_present",
       sectionTarget: "sec-return",
+    },
+    {
+      id: "dpa-sec-liability-present",
+      requirement: "Damages and Limitation of Liability section must be present",
+      severity: "critical",
+      checkKind: "section_present",
+      sectionTarget: "sec-liability",
     },
     {
       id: "dpa-exhibit-processing",

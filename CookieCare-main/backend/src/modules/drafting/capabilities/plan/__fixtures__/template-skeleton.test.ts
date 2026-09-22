@@ -298,3 +298,120 @@ All exclusive intellectual property rights to the Software created hereunder bel
   assert.ok(actContext.templateBlock.includes("BASELINE TEMPLATE SLICE (vault_tpl_msa_101)"));
   assert.ok(actContext.templateBlock.includes("remote computer systems"));
 });
+
+test("user DPA template with Damages and liability towards third parties derives skeleton and slices liability", () => {
+  const userDpaTemplate = `
+Data Processing Agreement
+This processor agreement (the “Agreement”) is entered into on the last date of signature below, between:
+
+[The processor] organisation registration number [… ] (“Processor”) and
+The controller, organisation registration number  (“Controller”)
+
+hereafter referred to separately as “the Party” and together as “the Parties”.
+
+Background 
+The Controller and the Processor have entered into a separate agreement or equivalent regarding the Processor’s provision of services to the Controller (“the Service Agreement”) which is appended to this Agreement.
+
+Definitions
+The terms used in this Agreement are to be interpreted in accordance with the Regulation. 
+
+Processing of personal data 
+3.1 The Processor is to process Personal Data only in accordance with the Service Agreement and its appendices.
+
+Sub-Processors 
+4.1 The Processor may engage or replace a third party or several third parties...
+
+Limitations to the right to transfer Personal Data to a Third Country or International Organisation
+5.1 The Processor does not have the right to transfer Personal Data...
+
+Security measures, review and supervision 
+6.1 The Processor is to take appropriate technical and organisational measures...
+
+Disclosure of information
+7.1 If the Data Subject requests information...
+
+Confidentiality
+8.1 The Processor undertakes not to disclose...
+
+Compensation
+Unless expressly stated in the Service Agreement, the Processor has no right to request compensation...
+
+Damages and liability towards third parties
+10.1 The Processor undertakes to indemnify the Controller in case the Controller is liable to pay damages to the Data Subject or another third party if the Processing of Personal Data that is subject to the damages has been carried out by the Processor in breach of this Agreement or the Controller’s instructions.
+
+10.2 A Party is not to be liable to pay compensation under this Agreement for indirect damage or loss such as loss of profit. For the avoidance of doubt, such damage as is stated in section 10.1 is considered to constitute direct damage for the Controller.
+
+Amendments
+In order to be valid, amendments and additions to this Agreement are to be made in writing...
+
+Term of Agreement
+12.1 This Agreement is in force between the Parties from the date of signature...
+
+Applicable law and resolving disputes 
+This Agreement is to be interpreted in accordance with GDPR,DPDPA...
+`;
+
+  // 1. Verify skeleton derivation detects Damages and liability towards third parties
+  const units = deriveSkeletonFromTemplate(userDpaTemplate);
+  assert.ok(units);
+  assert.ok(units.length >= 10);
+  const liabilityUnit = units.find((u) => /damages|liab/i.test(u.heading));
+  assert.ok(liabilityUnit, "Must derive a Damages / Liability work unit from the template");
+  assert.equal(liabilityUnit.clauseTypes.includes("liability"), true);
+
+  // 2. Verify DPA pack includes sec-liability in standard skeleton
+  const dpa = documentTypeRegistry.get("dpa");
+  const dpaSecLiability = dpa.skeleton.find((u) => u.id === "sec-liability");
+  assert.ok(dpaSecLiability, "DPA pack must contain sec-liability in its standard skeleton");
+  assert.equal(dpaSecLiability.clauseTypes.includes("liability"), true);
+
+  // 3. Verify assembleDraftingContext slices the Damages and liability clause
+  const state: any = {
+    request: { intent: "CREATE", rawInstructions: "Draft DPA", templateId: "user_dpa_tpl" },
+    plan: { documentType: "dpa", packId: "dpa" },
+    structuredFacts: {
+      partyA: "Google",
+      partyB: "Randstad",
+      effectiveDate: "2026-09-21",
+      liabilityCap: "12 months fees paid",
+    },
+    retrieval: {
+      templateId: "user_dpa_tpl",
+      matchedTemplate: userDpaTemplate,
+      applicablePlaybookRules: [],
+      fallbackClauses: [],
+      historicalReferences: [],
+    },
+  };
+
+  const applicable = resolveApplicablePacks(state);
+  const draftingContext = assembleDraftingContext(state, applicable, dpa.skeleton);
+  const slices = draftingContext.template?.sectionSlices ?? {};
+
+  // sec-liability must have matched Clause 10 from the template
+  const liabilitySlice = slices["sec-liability"];
+  assert.ok(liabilitySlice, "sec-liability must slice Clause 10 from template");
+  assert.match(liabilitySlice, /The Processor undertakes to indemnify the Controller/);
+  assert.match(liabilitySlice, /10\.1/);
+  assert.match(liabilitySlice, /10\.2/);
+
+  // 4. Verify ACT context passes liabilityCap in relevantFacts and the slice
+  const stateWithContext = { ...state, draftingContext };
+  const actContext = buildSectionContext(stateWithContext, dpaSecLiability);
+  assert.equal(actContext.relevantFacts.liabilityCap, "12 months fees paid");
+  assert.ok(actContext.templateBlock.includes("indemnify the Controller"));
+
+  // 5. Test Template-First Mode: when templateSkeleton drives workUnits directly
+  const templateDraftingContext = assembleDraftingContext(state, applicable, units);
+  const tplSlices = templateDraftingContext.template?.sectionSlices ?? {};
+
+  // Custom section "Compensation" (not in pack.ts at all) must get its slice and template-driven brief
+  const compUnit = units.find((u) => /compensation/i.test(u.heading));
+  assert.ok(compUnit, "Template must have a Compensation work unit");
+  assert.ok(tplSlices[compUnit.id], "Compensation work unit must get its template slice");
+  assert.match(tplSlices[compUnit.id], /Unless expressly stated in the Service Agreement/);
+
+  const compActContext = buildSectionContext({ ...state, draftingContext: templateDraftingContext }, compUnit);
+  assert.ok(compActContext.sectionBriefBlock.includes("template-driven section"));
+  assert.ok(compActContext.templateBlock.includes("Unless expressly stated in the Service Agreement"));
+});

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ChevronDown, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { ChevronDown, LogOut, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
 import { BrandLogo } from "../../components/BrandLogo";
 import { buildNav, isNavGroup } from "./navConfig";
 import { useSidebar } from "./hooks/useSidebar";
@@ -65,12 +65,16 @@ function NavButton({
 }) {
   const [tip, setTip] = useState(false);
   const navigate = useNavigate();
+  const { isMobile, setOpenMobile } = useSidebar();
 
   return (
     <div className={`relative ${collapsed ? "flex justify-center" : ""}`}>
       <button
         type="button"
-        onClick={() => navigate(path)}
+        onClick={() => {
+          if (isMobile) setOpenMobile(false);
+          navigate(path);
+        }}
         title={collapsed ? label : undefined}
         className="flex cursor-pointer items-center outline-none select-none"
         style={{
@@ -134,12 +138,16 @@ function ChildNavButton({
   const Icon = child.icon;
   const [tip, setTip] = useState(false);
   const navigate = useNavigate();
+  const { isMobile, setOpenMobile } = useSidebar();
 
   return (
     <div className={`relative ${collapsed ? "flex justify-center" : ""}`}>
       <button
         type="button"
-        onClick={() => navigate(child.path)}
+        onClick={() => {
+          if (isMobile) setOpenMobile(false);
+          navigate(child.path);
+        }}
         title={collapsed ? child.label : undefined}
         className="flex cursor-pointer items-center outline-none select-none rounded-lg"
         style={{
@@ -323,6 +331,8 @@ function SectionGroup({
 }
 
 function WorkspaceHeader({ collapsed }: { collapsed: boolean }) {
+  const { isMobile, setOpenMobile } = useSidebar();
+
   return (
     <div
       className={
@@ -342,7 +352,18 @@ function WorkspaceHeader({ collapsed }: { collapsed: boolean }) {
       </div>
       {!collapsed && (
         <div className="mt-0.5 shrink-0">
-          <SidebarToggleBtn />
+          {isMobile ? (
+            <button
+              type="button"
+              onClick={() => setOpenMobile(false)}
+              className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg outline-none text-[#98A2B3] hover:bg-[#F3F4F6] hover:text-[#111827] transition-colors"
+              aria-label="Close sidebar"
+            >
+              <X style={{ width: 16, height: 16 }} strokeWidth={1.8} />
+            </button>
+          ) : (
+            <SidebarToggleBtn />
+          )}
         </div>
       )}
     </div>

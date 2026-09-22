@@ -1,4 +1,4 @@
-﻿import React, { useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Upload, Check, AlertCircle, X } from "lucide-react";
 import { LegalDocument } from "../../shared/types";
@@ -264,7 +264,7 @@ export default function LibraryManager(_props: LibraryProps = {}) {
     <>
       <style>{VAULT_STYLES}</style>
       <div className="vlt dpa-results-bg flex h-full min-h-0 flex-1 flex-col overflow-hidden font-sans">
-        <div className="scrollbar-hide flex min-h-0 flex-1 flex-col overflow-y-auto px-6 py-8 sm:px-10">
+        <div className="scrollbar-hide flex min-h-0 flex-1 flex-col overflow-y-auto px-4 py-6 sm:px-10 sm:py-8">
           <div className="mx-auto w-full max-w-5xl">
 
             <header className="vlt-rise-1 mb-8">
@@ -279,7 +279,7 @@ export default function LibraryManager(_props: LibraryProps = {}) {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2.5 shrink-0">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 shrink-0">
                   {activeTab === "files" && (
                     <button type="button" onClick={() => openFileUpload()} className="vlt-btn-ghost">
                       <Upload style={{ width: 14, height: 14 }} />

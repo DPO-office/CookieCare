@@ -258,7 +258,7 @@ async function runModelComparison(finalState: CompareState) {
 
   // Temporarily override COMPARE_SUMMARY to Pro for this comparison call
   const proConfig = {
-    model: GeminiModel.GEMINI_3_1_PRO,
+    model: GeminiModel.GEMINI_2_5_PRO,
     temperature: 0.2,
     responseMimeType: "application/json",
     maxOutputTokens: 2048,

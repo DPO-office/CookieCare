@@ -450,7 +450,7 @@ const UNIVERSAL_PRIORITY = ["parties", "governingLaw", "effectiveDate"];
 
 /** Doc-type-specific leading fields — shown right after the universal ones. */
 const DOC_TYPE_LEADING_FIELDS: Record<string, string[]> = {
-  dpa: ["privacyRegime", "principalAgreementDate", "processingPurpose", "dataCategories", "dataSubjects", "transferMechanism"],
+  dpa: ["privacyRegime", "principalAgreementDate", "processingPurpose", "dataCategories", "dataSubjects", "transferMechanism", "liabilityCap"],
   nda: ["businessPurpose", "confidentialityTermYears"],
   msa: ["servicesDescription", "paymentTerms", "liabilityCap"],
   sla: ["uptimeCommitment", "creditStructure"],

@@ -1135,76 +1135,123 @@ export function CompareDocumentView({
     });
   }, [selectedIndex, filteredList.length, handlePrev, handleNext, onNavStateChange]);
 
+  const [mobileCompareTab, setMobileCompareTab] = useState<"findings" | "sideA" | "sideB">("findings");
+
   return (
     <div className="flex h-full flex-col overflow-hidden bg-[#F7F8FB]">
+      {/* Mobile / Tablet Segmented Pane Switcher */}
+      <div className="xl:hidden flex items-center bg-white border-b border-[#E4E4E7] px-3 py-2 gap-1.5 shrink-0 shadow-2xs">
+        <button
+          type="button"
+          onClick={() => setMobileCompareTab("findings")}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-[12px] font-semibold transition-all ${
+            mobileCompareTab === "findings"
+              ? "bg-[#EEF2FF] text-[#4F5BD9]"
+              : "text-[#667085] hover:text-[#1a1a1a]"
+          }`}
+        >
+          <Search className="w-3.5 h-3.5" />
+          <span>Findings ({filteredList.length})</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileCompareTab("sideA")}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-[12px] font-semibold transition-all ${
+            mobileCompareTab === "sideA"
+              ? "bg-[#EEF2FF] text-[#4F5BD9]"
+              : "text-[#667085] hover:text-[#1a1a1a]"
+          }`}
+        >
+          <FileText className="w-3.5 h-3.5" />
+          <span className="truncate">Original</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileCompareTab("sideB")}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-[12px] font-semibold transition-all ${
+            mobileCompareTab === "sideB"
+              ? "bg-[#EEF2FF] text-[#4F5BD9]"
+              : "text-[#667085] hover:text-[#1a1a1a]"
+          }`}
+        >
+          <FileText className="w-3.5 h-3.5" />
+          <span className="truncate">Modified</span>
+        </button>
+      </div>
+
       <div className="flex min-h-0 flex-1 overflow-hidden">
 
-        {isPdf ? (
-          <PdfDocumentPane
-            file={pdfFileA}
-            label="Original"
-            filename={fileA}
-            side="A"
-            activeClause={activeClauseA}
-            activeClassification={selectedFinding?.diff?.classification ?? null}
-            changedWords={activeChangedWordsA}
-            allChangedClauseIds={changedClauseIds}
-            clauseClassifications={clauseClassifications}
-            allClauses={(result.clausesA ?? []) as CompareClauseRecord[]}
-            pdfMap={mapA}
-            mapStatus={mapStatusA}
-            mapError={mapErrorA}
-          />
-        ) : (
-          <DocPane
-            label="Original"
-            filename={fileA}
-            side="A"
-            clauses={normalizedData.clausesA}
-            changedClauseIds={changedClauseIds}
-            clauseClassifications={clauseClassifications}
-            diffSpansMap={textDiffSpansMap}
-            scrollToClauseId={activeClauseA?.id ?? null}
-          />
-        )}
+        {/* Side A: Original */}
+        <div className={`min-h-0 flex-1 overflow-hidden ${mobileCompareTab === "sideA" ? "flex flex-col w-full" : "hidden xl:flex xl:flex-col"}`}>
+          {isPdf ? (
+            <PdfDocumentPane
+              file={pdfFileA}
+              label="Original"
+              filename={fileA}
+              side="A"
+              activeClause={activeClauseA}
+              activeClassification={selectedFinding?.diff?.classification ?? null}
+              changedWords={activeChangedWordsA}
+              allChangedClauseIds={changedClauseIds}
+              clauseClassifications={clauseClassifications}
+              allClauses={(result.clausesA ?? []) as CompareClauseRecord[]}
+              pdfMap={mapA}
+              mapStatus={mapStatusA}
+              mapError={mapErrorA}
+            />
+          ) : (
+            <DocPane
+              label="Original"
+              filename={fileA}
+              side="A"
+              clauses={normalizedData.clausesA}
+              changedClauseIds={changedClauseIds}
+              clauseClassifications={clauseClassifications}
+              diffSpansMap={textDiffSpansMap}
+              scrollToClauseId={activeClauseA?.id ?? null}
+            />
+          )}
+        </div>
 
-        {isPdf ? (
-          <PdfDocumentPane
-            file={pdfFileB}
-            label="Modified"
-            filename={fileB}
-            side="B"
-            activeClause={activeClauseB}
-            activeClassification={selectedFinding?.diff?.classification ?? null}
-            changedWords={activeChangedWordsB}
-            allChangedClauseIds={changedClauseIds}
-            clauseClassifications={clauseClassifications}
-            allClauses={(result.clausesB ?? []) as CompareClauseRecord[]}
-            pdfMap={mapB}
-            mapStatus={mapStatusB}
-            mapError={mapErrorB}
-          />
-        ) : (
-          <DocPane
-            label="Modified"
-            filename={fileB}
-            side="B"
-            clauses={normalizedData.clausesB}
-            changedClauseIds={changedClauseIds}
-            clauseClassifications={clauseClassifications}
-            diffSpansMap={textDiffSpansMap}
-            scrollToClauseId={activeClauseB?.id ?? null}
-          />
-        )}
+        {/* Side B: Modified */}
+        <div className={`min-h-0 flex-1 overflow-hidden ${mobileCompareTab === "sideB" ? "flex flex-col w-full" : "hidden xl:flex xl:flex-col"}`}>
+          {isPdf ? (
+            <PdfDocumentPane
+              file={pdfFileB}
+              label="Modified"
+              filename={fileB}
+              side="B"
+              activeClause={activeClauseB}
+              activeClassification={selectedFinding?.diff?.classification ?? null}
+              changedWords={activeChangedWordsB}
+              allChangedClauseIds={changedClauseIds}
+              clauseClassifications={clauseClassifications}
+              allClauses={(result.clausesB ?? []) as CompareClauseRecord[]}
+              pdfMap={mapB}
+              mapStatus={mapStatusB}
+              mapError={mapErrorB}
+            />
+          ) : (
+            <DocPane
+              label="Modified"
+              filename={fileB}
+              side="B"
+              clauses={normalizedData.clausesB}
+              changedClauseIds={changedClauseIds}
+              clauseClassifications={clauseClassifications}
+              diffSpansMap={textDiffSpansMap}
+              scrollToClauseId={activeClauseB?.id ?? null}
+            />
+          )}
+        </div>
 
+        {/* Findings Rail */}
         <aside
-          className="relative flex shrink-0 flex-col overflow-hidden border-l border-[#E4E4E7]"
-          style={{ width: sidebarWidth }}
+          className={`relative shrink-0 flex-col overflow-hidden border-l border-[#E4E4E7] ${mobileCompareTab === "findings" ? "flex flex-1 w-full" : "hidden xl:flex"}`}
+          style={typeof window !== "undefined" && window.innerWidth < 1280 ? undefined : { width: sidebarWidth }}
           aria-label="Findings"
         >
-          {/* Drag handle — sits on the left edge of the sidebar. Slightly
-              extends outside the border so it's easy to grab without covering
-              the finding rows. */}
+          {/* Drag handle — sits on the left edge of the sidebar on desktop */}
           <div
             onMouseDown={handleSidebarDragStart}
             onDoubleClick={() => setSidebarWidth(SIDEBAR_DEFAULT)}
@@ -1212,7 +1259,7 @@ export function CompareDocumentView({
             aria-orientation="vertical"
             aria-label="Resize findings sidebar (double-click to reset)"
             title="Drag to resize · double-click to reset"
-            className="absolute left-0 top-0 z-20 h-full w-1.5 -translate-x-1/2 cursor-col-resize bg-transparent transition-colors hover:bg-[#2175D9]/40 active:bg-[#2175D9]/60"
+            className="hidden xl:block absolute left-0 top-0 z-20 h-full w-1.5 -translate-x-1/2 cursor-col-resize bg-transparent transition-colors hover:bg-[#2175D9]/40 active:bg-[#2175D9]/60"
           />
           <FindingsRail
             data={normalizedData}

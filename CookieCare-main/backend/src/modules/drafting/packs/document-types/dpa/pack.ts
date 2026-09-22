@@ -76,6 +76,14 @@ const skeleton: WorkUnit[] = [
     status: "pending",
   },
   {
+    id: "sec-liability",
+    kind: "section",
+    heading: "Damages and Limitation of Liability",
+    dependsOn: ["sec-definitions"],
+    clauseTypes: ["liability", "indemnity"],
+    status: "pending",
+  },
+  {
     id: "sec-misc",
     kind: "section",
     heading: "Miscellaneous",
@@ -120,7 +128,7 @@ export const dpaPack: DocumentTypePack = {
     critique: (ctx) => `Critique DPA against ${ctx.checklist.length} checklist items`,
   },
   retrievalHints: {
-    clauseTags: ["dpa", "gdpr", "processing", "security", "subprocessor"],
-    playbookTopics: ["data-processing", "security", "transfers"],
+    clauseTags: ["dpa", "gdpr", "processing", "security", "subprocessor", "liability"],
+    playbookTopics: ["data-processing", "security", "transfers", "liability"],
   },
 };

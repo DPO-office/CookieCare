@@ -1,4 +1,5 @@
 import { apiUrl } from "../../../config";
+import type { KBFolder } from "../types";
 
 export async function fetchSettings(authToken: string) {
   const [jRes, wRes] = await Promise.all([

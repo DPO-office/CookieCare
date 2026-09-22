@@ -15,8 +15,13 @@ import {
   extractFactOverrides,
   applyPartyNameToSections,
   applyFixPlan,
+  syncBreachHoursInExhibits,
 } from "../../act/apply-fix-plan.js";
-import type { DraftState } from "../../../models/draft-state.js";
+import {
+  classifyTargetSections,
+  planHumanRefine,
+} from "../../act/section-refine.js";
+import type { DraftState, DraftSection } from "../../../models/draft-state.js";
 
 describe("DPDPA identity resolution and refinement fixes", () => {
   it("treats Data Fiduciary and Data Processor as placeholders, not real corporate legal names", () => {
@@ -477,5 +482,86 @@ describe("DPDPA identity resolution and refinement fixes", () => {
     // 7. Signature block check
     assert.match(doc, /\*\*Randstad Digital LTD \(Data Fiduciary\)\*\*/);
     assert.match(doc, /\*\*Google LTD \(Data Processor\)\*\*/);
+  });
+
+  it("accurately targets breach and indemnity sections for breach window & indemnity prompt", () => {
+    const sections: DraftSection[] = [
+      { id: "sec-parties", heading: "Parties and Background", body: "This Agreement is entered into by..." },
+      { id: "sec-definitions", heading: "Definitions", body: "Personal Data means any data about an individual..." },
+      { id: "sec-processing", heading: "Processing of Personal Data", body: "The Data Processor shall process Personal Data..." },
+      { id: "sec-security", heading: "Security Measures", body: "Technical and organisational measures..." },
+      { id: "sec-subprocessors", heading: "Sub-processors", body: "The Data Processor may engage sub-processors..." },
+      { id: "sec-transfers", heading: "Cross-Border Transfers", body: "Transfers outside India..." },
+      { id: "sec-assistance", heading: "Data Principal Rights and Assistance", body: "Assistance with rights..." },
+      { id: "sec-breach", heading: "Personal Data Breach Notification", body: "The Data Processor shall notify within 48 hours..." },
+      { id: "sec-return", heading: "Return or Deletion of Personal Data", body: "Upon termination, erase or return..." },
+      { id: "sec-misc", heading: "Miscellaneous", body: "1. Governing Law\n2. Liability and Indemnification: The Data Processor shall..." },
+    ];
+
+    const prompt =
+      "Shorten the personal data breach notification window to 24 hours (instead of 48 or 72 hours), and add a strict indemnity clause in favor of the Data Fiduciary for processor negligence.";
+
+    const targets = classifyTargetSections(sections, prompt);
+    assert.ok(targets);
+    assert.ok(targets.length >= 2);
+
+    const targetIds = targets.map((t) => t.id);
+    // Must target Breach (Section 8) and Miscellaneous (Section 10 where indemnity lives)
+    assert.ok(targetIds.includes("sec-breach"), "Must include sec-breach");
+    assert.ok(targetIds.includes("sec-misc"), "Must include sec-misc");
+
+    // Must NOT falsely match Definitions or Processing due to "clause in"
+    assert.equal(targetIds.includes("sec-definitions"), false, "Must not falsely match definitions");
+    assert.equal(targetIds.includes("sec-processing"), false, "Must not falsely match processing");
+  });
+
+  it("syncBreachHoursInExhibits synchronizes Schedule B SLA hours from 48 to 24 hours", () => {
+    const state: DraftState = {
+      request: {
+        intent: "REFINEMENT",
+        rawInstructions: "Shorten the personal data breach notification window to 24 hours (instead of 48 or 72 hours)",
+      },
+      exhibits: [
+        {
+          workUnitId: "exhibit-processing",
+          title: "Details of Processing",
+          body: "Categories of personal data and processing purposes.",
+        },
+        {
+          workUnitId: "exhibit-security",
+          title: "Technical and Organisational Measures and Breach SLA",
+          body: "The Data Processor shall notify the Data Fiduciary in writing within 48 hours of becoming aware of any Personal Data Breach.",
+        },
+      ],
+      draft: {
+        rawOutput: "",
+        formattedDocument: "",
+        sections: [],
+        version: 1,
+      },
+      structuredFacts: {},
+      requirements: null,
+      retrieval: {
+        matchedTemplate: null,
+        applicablePlaybookRules: [],
+        fallbackClauses: [],
+        historicalReferences: [],
+      },
+      context: null,
+      validation: null,
+      riskReview: null,
+      metadata: {
+        generationParameters: {},
+        playbookVersion: "1.0.0",
+        timestamp: new Date().toISOString(),
+      },
+    };
+
+    const synced = syncBreachHoursInExhibits(state, state.request.rawInstructions);
+    assert.ok(synced.exhibits);
+    const secExhibit = synced.exhibits.find((e) => e.workUnitId === "exhibit-security");
+    assert.ok(secExhibit);
+    assert.match(secExhibit.body, /within 24 hours/);
+    assert.doesNotMatch(secExhibit.body, /within 48 hours/);
   });
 });

@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { tabIdToPath } from "../../router/routeMap";
 import { useAppContext } from "../../contexts/AppContext";
 import {
   buildSummary,
@@ -54,7 +55,7 @@ export default function DashboardHome() {
     <>
       <style>{DASHBOARD_STYLES}</style>
       <div className="dpa-results-bg flex-1 overflow-y-auto min-h-0 font-sans">
-        <div className="mx-auto w-full max-w-7xl px-6 py-8 sm:px-10">
+        <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-10 sm:py-8">
           <div className="dashboard-root flex flex-col gap-5">
             <WelcomeBand
               greeting={getGreeting()}
@@ -79,16 +80,16 @@ export default function DashboardHome() {
             />
 
             <div className="flex flex-col gap-5 min-w-0">
-              <JobsRunning jobs={liveJobs} loading={jobsLoading} onOpen={(path) => navigate(path)} />
+              <JobsRunning jobs={liveJobs} loading={jobsLoading} onOpen={(tab) => navigate(tabIdToPath(tab))} />
               <ContinueWorking
                 items={docRows}
-                onOpen={(path) => navigate(path)}
+                onOpen={(tab) => navigate(tabIdToPath(tab))}
                 onViewVault={() => navigate("/vault")}
               />
               <RecentActivity
                 jobs={activityJobs}
                 onStartDraft={() => navigate("/drafting")}
-                onOpen={(path) => navigate(path)}
+                onOpen={(tab) => navigate(tabIdToPath(tab))}
               />
             </div>
           </div>

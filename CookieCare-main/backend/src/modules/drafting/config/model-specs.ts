@@ -9,8 +9,6 @@ import { GenerateContentConfig } from "@google/genai";
 export enum GeminiModel {
   GEMINI_2_5_FLASH = "gemini-2.5-flash",
   GEMINI_2_5_PRO = "gemini-2.5-pro",
-  GEMINI_3_6_FLASH = "gemini-3.6-flash",
-  GEMINI_3_1_PRO = "gemini-3.1-pro-preview",
 }
 
 export enum OpenRouterModel {
@@ -74,82 +72,82 @@ export interface LLMTaskPreset {
 export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskModelConfig>> = {
   [LLMProvider.GEMINI]: {
     [LLMTask.FAST_STITCH]: {
-      model: GeminiModel.GEMINI_3_6_FLASH,
+      model: GeminiModel.GEMINI_2_5_FLASH,
       temperature: 0.1,
-      thinkingLevel: "minimal",
+      thinkingBudget: 0,
     },
     [LLMTask.COMPLEX_DRAFT]: {
       // Kept on Pro to protect legal prose quality.
-      model: GeminiModel.GEMINI_3_1_PRO,
+      model: GeminiModel.GEMINI_2_5_PRO,
       temperature: 0.0,
       // LATENCY: output length is the #1 latency driver, so this stays low. It is the
       // FLOOR only: generation.ts sizes the real budget per request from the document
       // skeleton / required clauses / source document and overrides this value, then
       // continues the draft if the model still reports MAX_TOKENS.
       maxOutputTokens: 4096,
-      thinkingLevel: "high",
+      thinkingBudget: 1024,
     },
     [LLMTask.STRUCTURAL_JSON]: {
-      model: GeminiModel.GEMINI_3_6_FLASH,
+      model: GeminiModel.GEMINI_2_5_FLASH,
       temperature: 0.0,
       responseMimeType: "application/json",
-      thinkingLevel: "minimal",
+      thinkingBudget: 0,
     },
     [LLMTask.STRUCTURAL_JSON_LITE]: {
-      model: GeminiModel.GEMINI_3_6_FLASH,
+      model: GeminiModel.GEMINI_2_5_FLASH,
       temperature: 0.0,
       responseMimeType: "application/json",
-      thinkingLevel: "minimal",
+      thinkingBudget: 0,
     },
     [LLMTask.REFINEMENT]: {
-      model: GeminiModel.GEMINI_3_6_FLASH,
+      model: GeminiModel.GEMINI_2_5_FLASH,
       temperature: 0.2,
-      thinkingLevel: "low",
+      thinkingBudget: 0,
     },
     [LLMTask.SECTION_REFINE]: {
       // Surgical single-section regeneration: keep Pro for legal-prose quality, but a
       // small output cap since we only emit one section (fast + cheap vs full-doc regen).
-      model: GeminiModel.GEMINI_3_1_PRO,
+      model: GeminiModel.GEMINI_2_5_PRO,
       temperature: 0.0,
       maxOutputTokens: 2048,
-      thinkingLevel: "medium",
+      thinkingBudget: 512,
     },
     // ── Compare module ──────────────────────────────────────────────────────
     [LLMTask.COMPARE_ALIGN]: {
       // Flash is deliberately chosen: alignment is a classification task (JSON),
       // not legal prose generation. Speed and cost matter at scale; Flash handles
       // structured JSON output reliably at temperature 0.
-      model: GeminiModel.GEMINI_3_6_FLASH,
+      model: GeminiModel.GEMINI_2_5_FLASH,
       temperature: 0.0,
       responseMimeType: "application/json",
-      thinkingLevel: "minimal",
+      thinkingBudget: 0,
     },
     [LLMTask.COMPARE_DIFF]: {
       // Flash at temperature 0: diff classification is a structured labelling
       // task, not legal prose. Speed and cost efficiency are the priority.
-      model: GeminiModel.GEMINI_3_6_FLASH,
+      model: GeminiModel.GEMINI_2_5_FLASH,
       temperature: 0.0,
       responseMimeType: "application/json",
-      thinkingLevel: "minimal",
+      thinkingBudget: 0,
     },
     [LLMTask.COMPARE_RISK]: {
       // Flash at temperature 0: risk evaluation is a structured classification
       // task. Legal reasoning depth is provided by the AI Skill prompt, not
       // by choosing a heavier model here.
-      model: GeminiModel.GEMINI_3_6_FLASH,
+      model: GeminiModel.GEMINI_2_5_FLASH,
       temperature: 0.0,
       responseMimeType: "application/json",
-      thinkingLevel: "low",
+      thinkingBudget: 0,
     },
     [LLMTask.COMPARE_SUMMARY]: {
       // Flash at temperature 0.2: the prompt is now compact (Top-10 findings,
       // condensed stats block) so Flash produces equivalent quality to Pro at
       // a fraction of the cost and latency. Pro is no longer warranted here.
-      model: GeminiModel.GEMINI_3_6_FLASH,
+      model: GeminiModel.GEMINI_2_5_FLASH,
       temperature: 0.2,
       responseMimeType: "application/json",
       maxOutputTokens: 2048,
-      thinkingLevel: "low",
+      thinkingBudget: 0,
     },
   },
   [LLMProvider.OPENROUTER]: {
@@ -218,8 +216,6 @@ const DEFAULT_OUTPUT_TOKEN_CEILING = 8192;
 const MODEL_OUTPUT_TOKEN_CEILINGS: Record<string, number> = {
   [GeminiModel.GEMINI_2_5_FLASH]: 65535,
   [GeminiModel.GEMINI_2_5_PRO]: 65535,
-  [GeminiModel.GEMINI_3_6_FLASH]: 65535,
-  [GeminiModel.GEMINI_3_1_PRO]: 65535,
   [OpenRouterModel.CLAUDE_3_5_SONNET]: 8192,
   [OpenRouterModel.LLAMA_3_3_70B]: 8192,
   [OpenRouterModel.GPT_4O_MINI]: 16384,
@@ -229,11 +225,43 @@ export function resolveOutputTokenCeiling(model: string): number {
   return MODEL_OUTPUT_TOKEN_CEILINGS[model] ?? DEFAULT_OUTPUT_TOKEN_CEILING;
 }
 
+export function parseGeminiLocations(
+  rawList: string | undefined,
+  primary: string
+): string[] {
+  const defaults = [
+    primary,
+    "us-central1",
+    "us-east4",
+    "us-west1",
+    "europe-west1",
+  ];
+  const fromEnv = (rawList || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const merged = fromEnv.length > 0 ? fromEnv : defaults;
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const loc of [primary, ...merged]) {
+    const key = loc.trim();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(key);
+  }
+  return out;
+}
+
 /**
- * 6. GEMINI API (Google AI) CONFIGURATION ENVELOPE
- * Uses GOOGLE_GEMINI_EXTERNAL_KEY — not Vertex enterprise project/location.
+ * 6. GCP VERTEX AI INFRASTRUCTURE CONFIGURATION ENVELOPE
  */
 export const GEMINI_ENV_CONFIG = {
+  projectId: process.env.GOOGLE_CLOUD_PROJECT || "",
+  location: process.env.GOOGLE_CLOUD_LOCATION || "us-central1",
+  locations: parseGeminiLocations(
+    process.env.GOOGLE_CLOUD_LOCATIONS,
+    process.env.GOOGLE_CLOUD_LOCATION || "us-central1"
+  ),
   apiKey: process.env.GOOGLE_GEMINI_EXTERNAL_KEY || "",
   timeoutMs: 45000,
 };

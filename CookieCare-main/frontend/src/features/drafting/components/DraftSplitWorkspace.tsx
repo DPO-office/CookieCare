@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { FileText, Save, Upload, Minus, Plus, Loader2, Clock, ArrowLeft, AlertCircle } from "lucide-react";
+import { FileText, Save, Upload, Minus, Plus, Loader2, Clock, ArrowLeft, AlertCircle, MessageSquare } from "lucide-react";
 import type { Editor } from "@tiptap/react";
 import type { RichTextSelectionSnapshot } from "../../../shared/components/RichTextEditor";
 import EditorToolbar from "./EditorToolbar";
@@ -60,6 +60,7 @@ export interface DraftSplitWorkspaceProps {
 
 export default function DraftSplitWorkspace(props: DraftSplitWorkspaceProps) {
   const [zoom, setZoom] = useState(100);
+  const [mobileTab, setMobileTab] = useState<"editor" | "chat">("editor");
   const [editorInstance, setEditorInstance] = useState<Editor | null>(null);
   const { railWidth, containerRef, onDragStart } = useResizableRail(480);
   const draftUnavailable = props.draftUnavailable ?? false;
@@ -157,19 +158,52 @@ export default function DraftSplitWorkspace(props: DraftSplitWorkspaceProps) {
         </header>
 
         <div className="relative z-30 overflow-visible px-2">
-          <EditorToolbar
-            editor={editorInstance ?? props.tiptapEditorRef.current}
-            editorContent={props.editorContent}
-            onSetEditorContent={props.onSetEditorContent}
-            onInsertHtml={props.onInsertHtml}
-            onToolbarFormat={props.onToolbarFormat}
-            onPushUndoSnapshot={props.onPushUndoSnapshot}
-          />
+          <div className="overflow-x-auto">
+            <EditorToolbar
+              editor={editorInstance ?? props.tiptapEditorRef.current}
+              editorContent={props.editorContent}
+              onSetEditorContent={props.onSetEditorContent}
+              onInsertHtml={props.onInsertHtml}
+              onToolbarFormat={props.onToolbarFormat}
+              onPushUndoSnapshot={props.onPushUndoSnapshot}
+            />
+          </div>
         </div>
         </div>
 
+        {/* Mobile Segmented View Switcher */}
+        <div className="lg:hidden flex items-center bg-white border border-[#E4E4E7] p-1 rounded-xl mb-2.5 shrink-0 shadow-2xs">
+          <button
+            type="button"
+            onClick={() => setMobileTab("editor")}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg text-[12px] font-semibold transition-all ${
+              mobileTab === "editor"
+                ? "bg-[#EEF2FF] text-[#4F5BD9]"
+                : "text-[#667085] hover:text-[#1a1a1a]"
+            }`}
+          >
+            <FileText className="w-3.5 h-3.5" />
+            <span>Document</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileTab("chat")}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg text-[12px] font-semibold transition-all ${
+              mobileTab === "chat"
+                ? "bg-[#EEF2FF] text-[#4F5BD9]"
+                : "text-[#667085] hover:text-[#1a1a1a]"
+            }`}
+          >
+            <MessageSquare className="w-3.5 h-3.5" />
+            <span>Chat Assistant</span>
+            {props.isStreaming && (
+              <span className="w-2 h-2 rounded-full bg-[#4F5BD9] animate-pulse ml-0.5" />
+            )}
+          </button>
+        </div>
+
         <div ref={containerRef} className="flex min-h-0 flex-1 overflow-hidden">
-          <div className="draft-editor-canvas relative min-h-0 min-w-0 flex-1 overflow-hidden">
+          <div className={`draft-editor-canvas relative min-h-0 min-w-0 flex-1 overflow-hidden ${mobileTab === "editor" ? "flex flex-col" : "hidden lg:flex lg:flex-col"}`}>
             {draftUnavailable ? (
               <div className="flex h-full items-center justify-center px-8 py-12">
                 <div className="flex max-w-sm flex-col items-center gap-4 text-center">
@@ -255,7 +289,7 @@ export default function DraftSplitWorkspace(props: DraftSplitWorkspaceProps) {
           </div>
 
           <div
-            className="draft-resize-handle h-full"
+            className="draft-resize-handle h-full hidden lg:block"
             onMouseDown={onDragStart}
             role="separator"
             aria-orientation="vertical"
@@ -263,9 +297,10 @@ export default function DraftSplitWorkspace(props: DraftSplitWorkspaceProps) {
           />
 
           <div
-            className="draft-followup-rail min-h-0 h-full overflow-hidden"
-            style={{ width: railWidth, flex: `0 0 ${railWidth}px` }}
+            className={`draft-followup-rail min-h-0 h-full overflow-hidden ${mobileTab === "chat" ? "flex-1 w-full" : "hidden lg:block"}`}
+            style={{ width: undefined }}
           >
+            <div className="h-full w-full lg:w-[var(--rail-w)]" style={{ ["--rail-w" as any]: `${railWidth}px` }}>
             <DraftChatPanel
               title={props.sessionTitle}
               messages={props.messages}
@@ -285,6 +320,7 @@ export default function DraftSplitWorkspace(props: DraftSplitWorkspaceProps) {
               composerPlaceholder="Ask a follow-up…"
               onAskSubmit={props.onAskSubmit}
             />
+            </div>
           </div>
         </div>
       </div>

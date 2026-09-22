@@ -105,10 +105,6 @@ export function CompareFindingsRail({
     new Set(data.findings.filter((f) => f.kind === "risk").map((f) => (f as any).risk.category))
   ) as string[];
 
-  // ── Summary counts from live data ────────────────────────────────────────
-  const { high, medium, low } = data.counts;
-  const riskTotal = high + medium + low;
-
   // ── FIX 3: counts use correct terminology ────────────────────────────────
   //
   // materialPairs = unique clause pairs with material diffs (not VM count).
@@ -359,7 +355,7 @@ export function CompareFindingsRail({
                 key={f.id}
                 finding={f}
                 selected={f.id === selectedId}
-                onSelect={() => onSelect(f)}
+                onSelect={() => onSelect({ ...f, risk: null })}
               />
             ))}
           </CollapsibleGroup>
