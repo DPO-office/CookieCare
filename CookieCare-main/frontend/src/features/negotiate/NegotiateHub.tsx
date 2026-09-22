@@ -234,6 +234,7 @@ function NegotiateWorkspace({
           <div className={`min-h-0 flex-1 overflow-hidden ${mobileTab === "document" ? "flex flex-col w-full" : "hidden lg:flex lg:flex-col"}`}>
             <DocumentViewer
               activeDoc={activeDoc}
+              authToken={authToken}
               agentMarkups={agentMarkups}
               selectedMarkupId={selectedMarkup?.clauseId ?? null}
               acceptingMarkupId={acceptingMarkupId}
@@ -253,27 +254,6 @@ function NegotiateWorkspace({
               onRejectDbRedline={handleRejectDbRedline}
             />
           </div>
-          <DocumentViewer
-            activeDoc={activeDoc}
-            authToken={authToken}
-            agentMarkups={agentMarkups}
-            selectedMarkupId={selectedMarkup?.clauseId ?? null}
-            acceptingMarkupId={acceptingMarkupId}
-            appliedClause={appliedClause}
-            evaluating={evaluating}
-            evaluationError={evaluationError}
-            isLocked={!!isLocked}
-            redlinesOpen={redlinesOpen}
-            pendingDbRedlines={pendingDbRedlines}
-            onDocumentPaneClick={handleDocumentPaneClick}
-            onTextSelection={handleTextSelection}
-            hasManualSelection={hasManualSelection}
-            onRetryEvaluation={rerunEvaluation}
-            onDismissError={() => setEvaluationError("")}
-            onToggleRedlines={() => setRedlinesOpen(!redlinesOpen)}
-            onAcceptDbRedline={handleAcceptDbRedline}
-            onRejectDbRedline={handleRejectDbRedline}
-          />
 
           {/* Drag handle — sits between document and panel */}
           <div
