@@ -79,7 +79,7 @@ export async function adjudicateRelationsWithLlm(graph: CanonicalDocumentGraph):
     ADJUDICATION_SCHEMA,
     LLMTask.STRUCTURAL_JSON_LITE,
     LLMProvider.GEMINI,
-    { maxOutputTokens: 4096, thinkingLevel: "minimal" }
+    { maxOutputTokens: 4096, thinkingLevel: "low" }
   );
   return Array.isArray(result.decisions) ? result.decisions : [];
 }

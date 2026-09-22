@@ -30,7 +30,7 @@ describe("analysis profile / thinkingMode", () => {
     assert.equal(profile.maxReplans, 0);
     assert.equal(profile.thinkingByTask[LLMTask.STRUCTURAL_JSON], "low");
     assert.equal(profile.thinkingByTask[LLMTask.REFINEMENT], "low");
-    assert.equal(profile.thinkingByTask[LLMTask.STRUCTURAL_JSON_LITE], "minimal");
+    assert.equal(profile.thinkingByTask[LLMTask.STRUCTURAL_JSON_LITE], "low");
     assert.equal(profile.critiqueUsesProChecklist, false);
     assert.equal(profile.evidenceCharBudget, 2000);
     assert.equal(profile.selectedVerifyCandidateCap, 2);
