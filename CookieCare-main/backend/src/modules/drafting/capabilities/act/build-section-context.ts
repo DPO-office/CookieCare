@@ -57,6 +57,8 @@ function relevantFactsForUnit(
     "dataSubjects",
     "breachNotification",
     "deletionReturn",
+    "liabilityCap",
+    "indemnity",
     "dataFiduciaryLegalName",
     "dataProcessorLegalName",
     "dataFiduciaryCin",
@@ -148,7 +150,7 @@ export function buildSectionContext(
   } else if (sectionBrief) {
     sectionBriefBlock = formatSectionBrief(sectionBrief);
   } else {
-    sectionBriefBlock = `# SECTION BRIEF — ${unit.heading}\nNo authored brief; follow document-type skeleton and deal facts.`;
+    sectionBriefBlock = `# SECTION BRIEF — ${unit.heading}\nThis is a template-driven section. Draft this section adhering strictly to the BASELINE TEMPLATE SLICE below, adopting the parties from the DEAL IDENTITY LOCK and incorporating any relevant deal facts. Preserve all substantive obligations, protections, and clause structure from the template.`;
   }
 
   const playbookRules = filterPlaybookRules(state, unit);

@@ -20,6 +20,7 @@ export type DraftOpenQuestion = {
    * Falls back to "chips" when options[] is present, "text" otherwise.
    */
   inputType?: QuestionInputType;
+  reasonRequired?: string;
 };
 
 export type DraftJobResult = {

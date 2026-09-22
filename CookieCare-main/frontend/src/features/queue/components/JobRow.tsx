@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { FileText, Activity, FileEdit, Globe, ShieldAlert, Terminal } from "lucide-react";
 import { Job } from "../types";
 import { JOB_STATUS_CONFIG } from "../constants";
@@ -25,8 +25,8 @@ export default function JobRow({ job }: JobRowProps) {
   };
 
   return (
-    <div className="px-6 py-4 grid grid-cols-1 md:grid-cols-12 gap-4 items-center hover:bg-gray-50/50 transition-colors">
-      <div className="col-span-4 flex items-center gap-3 min-w-0">
+    <div className="px-4 sm:px-6 py-4 grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-center hover:bg-gray-50/50 transition-colors">
+      <div className="md:col-span-4 flex items-center gap-3 min-w-0">
         <div className="w-8 h-8 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
           <Icon className={`w-4 h-4 ${iconColorMap[iconName] ?? "text-gray-400"}`} />
         </div>
@@ -36,13 +36,13 @@ export default function JobRow({ job }: JobRowProps) {
         </div>
       </div>
 
-      <div className="col-span-2">
+      <div className="md:col-span-2">
         <span className="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-gray-100 text-gray-600">
           {job.type.replace(/_/g, " ")}
         </span>
       </div>
 
-      <div className="col-span-4">
+      <div className="md:col-span-4">
         <div className="flex items-center justify-between text-[12px] mb-1.5">
           <span className="text-gray-500 truncate max-w-[200px]">{job.message || "Processing…"}</span>
           <span className="font-bold text-gray-900 ml-2 shrink-0 tabular-nums">{job.progress}%</span>
@@ -52,7 +52,7 @@ export default function JobRow({ job }: JobRowProps) {
         </div>
       </div>
 
-      <div className="col-span-2 flex justify-end">
+      <div className="md:col-span-2 flex justify-start md:justify-end">
         <span className={`inline-block px-2.5 py-1 rounded-lg text-[11px] font-semibold border ${cfg.cls} ${job.status === "processing" ? "animate-pulse" : ""}`}>
           {cfg.label}
         </span>

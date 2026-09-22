@@ -226,10 +226,10 @@ export default function InteractAnalyze() {
     <>
       <style>{PREMIUM_CHAT_LANDING_STYLES}</style>
 
-      <div className="dpa-results-bg analyze-landing flex-1 flex flex-col min-h-0 overflow-hidden relative font-sans">
+      <div className="dpa-results-bg analyze-landing flex-1 flex flex-col min-h-0 overflow-y-auto relative font-sans">
 
         {/* History button — top-right of the landing page */}
-        <div className="no-print absolute top-4 right-5 z-10">
+        <div className="no-print absolute top-3 right-4 sm:top-4 sm:right-5 z-10">
           <button
             type="button"
             onClick={handleOpenHistory}
@@ -262,7 +262,7 @@ export default function InteractAnalyze() {
           />
         )}
 
-        <div className="flex-1 flex flex-col items-center justify-center min-h-0 px-6">
+        <div className="flex-1 flex flex-col items-center justify-center min-h-0 px-4 sm:px-6 py-8 my-auto">
           <p className="pcl-rise-1 mb-3 text-[10px] font-medium uppercase tracking-[0.14em] text-[#98A2B3]">
             Legal Space · Analyze
           </p>

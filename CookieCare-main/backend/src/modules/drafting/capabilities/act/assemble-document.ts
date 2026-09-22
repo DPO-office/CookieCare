@@ -149,10 +149,11 @@ export async function assembleDocument(state: DraftState): Promise<DraftState> {
   const orderedUnits =
     state.plan?.workUnits.filter((u) => u.kind === "section") ?? [];
 
-  const ordered: DraftSection[] =
-    orderedUnits
-      .map((u) => sections.find((s) => s.workUnitId === u.id || s.id === u.id))
-      .filter((s): s is DraftSection => Boolean(s)) ?? sections;
+  const mapped = orderedUnits
+    .map((u) => sections.find((s) => s.workUnitId === u.id || s.id === u.id))
+    .filter((s): s is DraftSection => Boolean(s));
+
+  const ordered: DraftSection[] = mapped.length > 0 ? mapped : sections;
 
   const idToNumber = new Map<string, string>();
   const numberedMeta: Array<{ number: string; title: string; workUnitId: string }> = [];

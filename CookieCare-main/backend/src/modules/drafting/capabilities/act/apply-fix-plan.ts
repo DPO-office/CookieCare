@@ -77,6 +77,34 @@ export function extractFactOverrides(instruction: string): Record<string, string
   return patch;
 }
 
+/** Synchronize breach notification SLA in exhibits (Schedule B) when breach timeline is updated. */
+export function syncBreachHoursInExhibits(state: DraftState, instruction?: string): DraftState {
+  if (!instruction || !state.exhibits || state.exhibits.length === 0) return state;
+  const lower = instruction.toLowerCase();
+  if (!lower.includes("breach")) return state;
+
+  const hourMatch =
+    lower.match(/(?:to|within)\s*([0-9]{1,3})\s*(?:hours?|hrs?)/i) ||
+    lower.match(/([0-9]{1,3})\s*(?:hours?|hrs?)\s*(?:notification|notice|window|sla)/i) ||
+    lower.match(/([0-9]{1,3})\s*(?:hours?|hrs?)/i);
+
+  if (!hourMatch) return state;
+  const newHours = hourMatch[1];
+
+  const updatedExhibits = state.exhibits.map((ex) => {
+    let b = ex.body;
+    // Replace "within 48 hours", "within 72 hours", etc. in breach SLAs
+    b = b.replace(/within\s*(?:[0-9]{1,3})\s*hours/gi, `within ${newHours} hours`);
+    b = b.replace(/(?:[0-9]{1,3})\s*hours\s*of\s*becoming\s*aware/gi, `${newHours} hours of becoming aware`);
+    return { ...ex, body: b };
+  });
+
+  return {
+    ...state,
+    exhibits: updatedExhibits,
+  };
+}
+
 /** In-place update of party names in existing draft sections and exhibits. */
 export function applyPartyNameToSections(
   state: DraftState,
@@ -388,7 +416,9 @@ export async function applyFixPlan(state: DraftState): Promise<DraftState> {
 
   const surgical = planHumanRefine(workingState);
   if (surgical) {
-    const refined = await regenerateSections(workingState, surgical, "user");
+    let refined = await regenerateSections(workingState, surgical, "user");
+    refined = syncBreachHoursInExhibits(refined, workingState.request.rawInstructions);
+    refined = await assembleDocument(refined);
     return {
       ...refined,
       metadata: {

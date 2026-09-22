@@ -14,10 +14,6 @@ export function validateEnv() {
     { key: "DATABASE_URL", value: config.databaseUrl },
     { key: "ENCRYPTION_KEY", value: process.env.ENCRYPTION_KEY },
     { key: "GOOGLE_CLOUD_PROJECT", value: process.env.GOOGLE_CLOUD_PROJECT },
-    {
-      key: "GOOGLE_GEMINI_EXTERNAL_KEY",
-      value: config.googleGeminiExternalKey || process.env.GOOGLE_GEMINI_EXTERNAL_KEY,
-    },
   ];
   const missing = required.filter((item) => !item.value || item.value.trim() === "");
 

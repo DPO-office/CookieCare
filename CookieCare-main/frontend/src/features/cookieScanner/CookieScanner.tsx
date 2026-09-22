@@ -23,7 +23,7 @@ export default function CookieScanner(_props: CookieScannerProps = {}) {
   } = useCookieScan(authToken);
 
   return (
-    <div className="dpa-results-bg relative min-h-0 flex-1 overflow-y-auto px-6 py-8 font-sans sm:px-10">
+    <div className="dpa-results-bg relative min-h-0 flex-1 overflow-y-auto px-4 py-6 font-sans sm:px-10 sm:py-8">
       {(scanning || !!error) && (
         <AiProgressOverlay
           visible={scanning || !!error}

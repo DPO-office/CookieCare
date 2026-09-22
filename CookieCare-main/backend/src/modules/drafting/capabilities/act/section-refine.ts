@@ -110,8 +110,11 @@ export function classifyTargetSections(
     );
   if (isGlobal) return null;
 
-  // 1. Check for explicit section/clause/schedule number references
-  const secNumMatch = lowerText.match(/\b(?:section|clause|article|part|schedule|exhibit)\s*([a-z0-9.]+)\b/i);
+  // 1. Check for explicit section/clause/schedule number or letter references (e.g. Section 8, Clause 3.2, Schedule B, Exhibit A)
+  // Prevent matching prepositions like "in", "of", "to", "for", "under", etc.
+  const secNumMatch = lowerText.match(
+    /\b(?:section|clause|article|part|schedule|exhibit)\s*([0-9]+(?:\.[0-9]+)*|[a-d]\b|[ivxlcdm]+\b)/i
+  );
   if (secNumMatch) {
     const targetRef = secNumMatch[1].toLowerCase();
     const matchedByNum = sections.filter((s) => {
@@ -121,9 +124,13 @@ export function classifyTargetSections(
         heading.includes(`section ${targetRef}`) ||
         heading.includes(`clause ${targetRef}`) ||
         heading.includes(`article ${targetRef}`) ||
+        heading.includes(`schedule ${targetRef}`) ||
+        heading.includes(`exhibit ${targetRef}`) ||
         heading.startsWith(`${targetRef}.`) ||
         heading.startsWith(`${targetRef} `) ||
-        id.includes(targetRef)
+        new RegExp(`^##?\\s*${targetRef}[.\\s]`, "i").test(s.body) ||
+        id === `sec-${targetRef}` ||
+        id.endsWith(`-${targetRef}`)
       );
     });
     if (matchedByNum.length > 0 && matchedByNum.length <= 3) {
@@ -131,14 +138,198 @@ export function classifyTargetSections(
     }
   }
 
-  // 2. Topic keyword matching against section headings
+  // 2. Semantic topic rules mapping legal subjects to specific sections
+  interface TopicRule {
+    id: string;
+    keywords: string[];
+    preferredSectionIds: string[];
+    bodyIndicators?: string[];
+  }
+
+  const TOPIC_RULES: TopicRule[] = [
+    {
+      id: "breach",
+      keywords: [
+        "breach",
+        "personal data breach",
+        "security incident",
+        "notification window",
+        "notice window",
+        "hours",
+        "incident",
+      ],
+      preferredSectionIds: ["sec-breach", "sec-security"],
+      bodyIndicators: ["breach", "incident", "security breach", "notification to"],
+    },
+    {
+      id: "indemnity_liability",
+      keywords: [
+        "indemn",
+        "indemnity",
+        "indemnification",
+        "liability",
+        "negligence",
+        "damages",
+        "hold harmless",
+        "limitation of liability",
+        "cap on liability",
+      ],
+      preferredSectionIds: ["sec-misc", "sec-liability", "sec-indemnification"],
+      bodyIndicators: ["indemn", "liability", "damages", "negligence", "hold harmless"],
+    },
+    {
+      id: "audit",
+      keywords: [
+        "audit",
+        "inspection",
+        "inspect",
+        "soc 2",
+        "iso 27001",
+        "auditor",
+        "records of processing",
+      ],
+      preferredSectionIds: ["sec-misc", "sec-audit"],
+      bodyIndicators: ["audit", "inspection", "records"],
+    },
+    {
+      id: "subprocessor",
+      keywords: [
+        "subprocessor",
+        "sub-processor",
+        "subcontractor",
+        "further processor",
+        "flow-down",
+      ],
+      preferredSectionIds: ["sec-subprocessors", "sec-processing"],
+      bodyIndicators: ["sub-processor", "subprocessor"],
+    },
+    {
+      id: "transfers",
+      keywords: [
+        "cross-border",
+        "transfer",
+        "outside india",
+        "restricted countr",
+        "third country",
+      ],
+      preferredSectionIds: ["sec-transfers"],
+      bodyIndicators: ["cross-border", "transfer", "outside india", "central government"],
+    },
+    {
+      id: "return_deletion",
+      keywords: [
+        "erasure",
+        "return",
+        "deletion",
+        "destroy",
+        "destruction",
+        "end of processing",
+      ],
+      preferredSectionIds: ["sec-return"],
+      bodyIndicators: ["erasure", "deletion", "return of personal data"],
+    },
+    {
+      id: "rights_assistance",
+      keywords: [
+        "data principal rights",
+        "data subject rights",
+        "grievance",
+        "assistance",
+        "right to access",
+        "right to correction",
+      ],
+      preferredSectionIds: ["sec-assistance"],
+      bodyIndicators: ["data principal", "grievance", "data subject rights"],
+    },
+    {
+      id: "governing_law_dispute",
+      keywords: [
+        "governing law",
+        "jurisdiction",
+        "court",
+        "arbitration",
+        "dispute resolution",
+        "seat of arbitration",
+      ],
+      preferredSectionIds: ["sec-misc", "sec-jurisdiction"],
+      bodyIndicators: ["governing law", "jurisdiction", "arbitration", "courts"],
+    },
+    {
+      id: "security",
+      keywords: [
+        "technical and organisational",
+        "safeguards",
+        "encryption",
+        "access control",
+        "mfa",
+      ],
+      preferredSectionIds: ["sec-security"],
+      bodyIndicators: ["safeguards", "encryption", "technical and organizational"],
+    },
+    {
+      id: "definitions",
+      keywords: [
+        "defined term",
+        "definition of",
+        "define the term",
+      ],
+      preferredSectionIds: ["sec-definitions"],
+      bodyIndicators: ["means", "shall have the meaning"],
+    },
+  ];
+
+  const matchedSections: DraftSection[] = [];
+  const addedIds = new Set<string>();
+
+  for (const rule of TOPIC_RULES) {
+    const topicHit = rule.keywords.some((kw) => lowerText.includes(kw));
+    if (!topicHit) continue;
+
+    let candidate: DraftSection | undefined;
+
+    // A. Check preferred section IDs
+    for (const prefId of rule.preferredSectionIds) {
+      const found = sections.find((s) => s.id === prefId || s.workUnitId === prefId);
+      if (found) {
+        candidate = found;
+        break;
+      }
+    }
+
+    // B. Check headings
+    if (!candidate) {
+      candidate = sections.find((s) => {
+        const h = (s.heading || "").toLowerCase();
+        return rule.keywords.some((kw) => h.includes(kw));
+      });
+    }
+
+    // C. Check section body indicators
+    if (!candidate && rule.bodyIndicators) {
+      candidate = sections.find((s) => {
+        const b = (s.body || "").toLowerCase();
+        return rule.bodyIndicators!.some((ind) => b.includes(ind));
+      });
+    }
+
+    if (candidate && !addedIds.has(candidate.id)) {
+      matchedSections.push(candidate);
+      addedIds.add(candidate.id);
+    }
+  }
+
+  if (matchedSections.length > 0 && matchedSections.length <= 4) {
+    return matchedSections;
+  }
+
+  // 3. Fallback topic keyword scoring against headings and bodies
   const topicScores = sections.map((sec) => {
     const heading = (sec.heading || "").toLowerCase();
+    const body = (sec.body || "").toLowerCase();
     let score = 0;
 
     const keywords = [
       "definition",
-      "parties",
       "service",
       "fee",
       "payment",
@@ -167,8 +358,9 @@ export function classifyTargetSections(
     ];
 
     for (const kw of keywords) {
-      if (lowerText.includes(kw) && heading.includes(kw)) {
-        score += 2;
+      if (lowerText.includes(kw)) {
+        if (heading.includes(kw)) score += 3;
+        else if (body.includes(kw)) score += 1;
       }
     }
 

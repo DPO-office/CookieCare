@@ -261,7 +261,7 @@ export function CompareFindingsRail({
                 key={f.id}
                 finding={f}
                 selected={f.id === selectedId}
-                onSelect={() => onSelect(f)}
+                onSelect={() => onSelect({ ...f, risk: null })}
               />
             ))}
           </CollapsibleGroup>

@@ -17,19 +17,46 @@ interface SourcesPanelProps {
 }
 
 export default function SourcesPanel({ visible, sources, onClose, onSourceClick }: SourcesPanelProps) {
+  const [isMobile, setIsMobile] = React.useState(
+    () => typeof window !== "undefined" && window.innerWidth < 768
+  );
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <AnimatePresence>
       {visible && (
-        <motion.aside
-          key="sources-panel"
-          role="complementary"
-          aria-label="Verified citations"
-          initial={{ width: 0, opacity: 0 }}
-          animate={{ width: 300, opacity: 1 }}
-          exit={{ width: 0, opacity: 0 }}
-          transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-          className="ask-lawyer-sources my-3 mr-3 flex min-w-0 shrink-0 flex-col overflow-hidden font-sans"
-        >
+        <>
+          {isMobile && (
+            <motion.div
+              key="sources-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              onClick={onClose}
+              className="fixed inset-0 z-40 bg-black/25 backdrop-blur-[1px]"
+              aria-hidden="true"
+            />
+          )}
+          <motion.aside
+            key="sources-panel"
+            role="complementary"
+            aria-label="Verified citations"
+            initial={isMobile ? { x: "100%", opacity: 0 } : { width: 0, opacity: 0 }}
+            animate={isMobile ? { x: 0, opacity: 1 } : { width: 300, opacity: 1 }}
+            exit={isMobile ? { x: "100%", opacity: 0 } : { width: 0, opacity: 0 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            className={
+              isMobile
+                ? "ask-lawyer-sources fixed inset-y-0 right-0 z-50 flex w-[85vw] max-w-[340px] min-w-0 flex-col overflow-hidden rounded-l-2xl rounded-r-none bg-white shadow-2xl font-sans"
+                : "ask-lawyer-sources my-3 mr-3 flex min-w-0 shrink-0 flex-col overflow-hidden font-sans"
+            }
+          >
           <div className="flex shrink-0 items-center justify-between gap-2 px-4 py-4">
             <div className="flex min-w-0 items-center gap-2.5">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF] text-[#4F5BD9]">
@@ -119,6 +146,7 @@ export default function SourcesPanel({ visible, sources, onClose, onSourceClick 
             )}
           </div>
         </motion.aside>
+        </>
       )}
     </AnimatePresence>
   );

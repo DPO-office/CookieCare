@@ -9,6 +9,7 @@ import {
   ExternalLink,
   Link2,
   History,
+  X,
 } from "lucide-react";
 import { Message } from "../types";
 import { renderContentText, StreamingPlainText } from "../utils";
@@ -70,7 +71,7 @@ function ReferencesPanel({ refs }: { refs: RefEntry[] }) {
   if (refs.length === 0) return null;
 
   return (
-    <aside className="analyze-refs-panel no-print">
+    <aside className="analyze-refs-panel hidden lg:flex no-print">
       <div className="flex shrink-0 items-center gap-2 px-5 pt-5 pb-3">
         <Link2 className="h-3.5 w-3.5 shrink-0 text-[#4F5BD9]" strokeWidth={1.75} />
         <p className="m-0 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#98A2B3]">
@@ -558,6 +559,7 @@ export default function ReportView({
 }: ReportViewProps) {
   const reportBodyRef = useRef<HTMLDivElement>(null);
   const [questionModalOpen, setQuestionModalOpen] = useState(false);
+  const [mobileRefsOpen, setMobileRefsOpen] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [activePopover, setActivePopover] = useState<{
     docTitle: string;
@@ -637,10 +639,10 @@ export default function ReportView({
       if (!quote) return;
 
       const rect = target.getBoundingClientRect();
-      const popoverWidth = 420;
+      const popoverWidth = Math.min(420, window.innerWidth - 32);
       const popoverHeight = 320;
-      const x = Math.min(rect.left, window.innerWidth - popoverWidth - 20);
-      const y = Math.min(rect.bottom + 8, window.innerHeight - popoverHeight - 20);
+      const x = Math.min(rect.left, window.innerWidth - popoverWidth - 16);
+      const y = Math.min(rect.bottom + 8, window.innerHeight - popoverHeight - 16);
 
       setActivePopover({
         docTitle: doc,
@@ -704,17 +706,30 @@ export default function ReportView({
               </div>
             </button>
 
-            {onOpenHistory && (
-              <button
-                type="button"
-                onClick={onOpenHistory}
-                className="no-print analyze-history-btn"
-                aria-label="Analysis history"
-              >
-                <History className="h-[13px] w-[13px]" strokeWidth={1.75} />
-                <span>History</span>
-              </button>
-            )}
+            <div className="flex items-center gap-2 shrink-0">
+              {hasRefs && (
+                <button
+                  type="button"
+                  onClick={() => setMobileRefsOpen(true)}
+                  className="lg:hidden no-print inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[12px] font-semibold bg-[#EEF2FF] text-[#4F5BD9] hover:bg-[#e0e7ff] transition-colors"
+                >
+                  <Link2 className="h-3.5 w-3.5" />
+                  <span>Refs ({allRefs.length})</span>
+                </button>
+              )}
+
+              {onOpenHistory && (
+                <button
+                  type="button"
+                  onClick={onOpenHistory}
+                  className="no-print analyze-history-btn"
+                  aria-label="Analysis history"
+                >
+                  <History className="h-[13px] w-[13px]" strokeWidth={1.75} />
+                  <span>History</span>
+                </button>
+              )}
+            </div>
           </div>
         </header>
 
@@ -764,6 +779,53 @@ export default function ReportView({
             }}
             onClose={() => setQuestionModalOpen(false)}
           />
+        )}
+
+        {/* Mobile References Sheet */}
+        {mobileRefsOpen && (
+          <div className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end bg-black/40 backdrop-blur-xs">
+            <div className="bg-white rounded-t-2xl max-h-[75vh] flex flex-col overflow-hidden shadow-2xl">
+              <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#E4E4E7]">
+                <div className="flex items-center gap-2">
+                  <Link2 className="h-4 w-4 text-[#4F5BD9]" />
+                  <span className="text-sm font-semibold text-[#111827]">
+                    References ({allRefs.length})
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setMobileRefsOpen(false)}
+                  className="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                  aria-label="Close references"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="overflow-y-auto px-4 py-3 space-y-1">
+                {allRefs.map((ref) => (
+                  <a
+                    key={ref.index}
+                    href={ref.url}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="analyze-refs-item group"
+                  >
+                    <span className="analyze-refs-citation shrink-0">{ref.index}</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="analyze-refs-title m-0 line-clamp-2">{ref.title}</p>
+                      <p className="m-0 mt-0.5 truncate text-[11px] text-[#98A2B3]">
+                        {ref.citation}
+                      </p>
+                    </div>
+                    <ExternalLink
+                      className="h-3 w-3 shrink-0 text-[#98A2B3] mt-0.5"
+                      strokeWidth={1.75}
+                    />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Floating Citation Clause Popover Card */}

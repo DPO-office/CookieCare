@@ -18,11 +18,10 @@ export function LandingState({ composerProps, onQuickAction }: LandingStateProps
 
   return (
     <div
-      className="flex-1 flex flex-col items-center justify-center min-h-0 px-6 select-none"
-      style={{ paddingBottom: "10vh" }}
+      className="flex-1 flex flex-col items-center justify-center min-h-0 px-4 sm:px-6 py-6 sm:py-10 my-auto overflow-y-auto w-full select-none"
     >
       {/* Hero heading */}
-      <div className="text-center mb-10">
+      <div className="text-center mb-6 sm:mb-10">
         <h1
           className="rt-rise-2 rt-hero-heading"
           style={{

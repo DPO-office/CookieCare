@@ -157,9 +157,9 @@ export default function AskAILawyer(_props: Partial<AskAILawyerProps> = {}) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.2 }}
-              className="flex-1 flex flex-col min-h-0 overflow-hidden"
+              className="flex-1 flex flex-col min-h-0 overflow-y-auto"
             >
-              <div className="flex-1 flex flex-col items-center justify-center min-h-0 px-6">
+              <div className="flex-1 flex flex-col items-center justify-center min-h-0 px-4 sm:px-6 py-6 sm:py-8 my-auto">
                 <p className="pcl-rise-1 mb-3 text-[10px] font-medium uppercase tracking-[0.14em] text-[#98A2B3]">
                   Legal Space · Research
                 </p>
@@ -223,7 +223,7 @@ export default function AskAILawyer(_props: Partial<AskAILawyerProps> = {}) {
             >
               <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
 
-                <header className="flex shrink-0 items-center justify-center px-6 pt-4 pb-2">
+                <header className="flex shrink-0 items-center justify-center px-3 sm:px-6 pt-3 sm:pt-4 pb-2">
                   <div className="ask-lawyer-session flex h-11 w-full max-w-[768px] items-center justify-between gap-3 px-2 pl-3 pr-2">
                     <div className="flex min-w-0 items-center gap-2.5">
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF] text-[#4F5BD9]">
@@ -261,7 +261,7 @@ export default function AskAILawyer(_props: Partial<AskAILawyerProps> = {}) {
                   </div>
                 </header>
 
-                <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-4 pt-6">
+                <div className="min-h-0 flex-1 overflow-y-auto px-3 sm:px-6 pb-4 pt-4 sm:pt-6">
                   <div className="mx-auto space-y-7" style={{ maxWidth: 768 }}>
 
                     {/* Render full conversation history */}
@@ -304,7 +304,7 @@ export default function AskAILawyer(_props: Partial<AskAILawyerProps> = {}) {
                   </div>
                 </div>
 
-                <div className="ask-lawyer-composer-fade shrink-0 px-6 pb-5 pt-8">
+                <div className="ask-lawyer-composer-fade shrink-0 px-3 sm:px-6 pb-4 sm:pb-5 pt-4 sm:pt-8">
                   <div className="mx-auto" style={{ maxWidth: 768 }}>
                     {(stepperPhase === "extracting" || uploadedFiles.length > 0) && (
                       <div className="mb-2 flex flex-wrap gap-1.5">
