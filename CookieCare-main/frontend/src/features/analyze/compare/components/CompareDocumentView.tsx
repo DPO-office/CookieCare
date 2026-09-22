@@ -1163,6 +1163,7 @@ export function CompareDocumentView({
               activeClause={activeClauseA}
               activeClassification={selectedFinding?.diff?.classification ?? null}
               changedWords={activeChangedWordsA}
+              atomicSnippets={activeSnippetsA}
               allChangedClauseIds={changedClauseIds}
               clauseClassifications={clauseClassifications}
               allClauses={(result.clausesA ?? []) as CompareClauseRecord[]}
@@ -1195,6 +1196,7 @@ export function CompareDocumentView({
               activeClause={activeClauseB}
               activeClassification={selectedFinding?.diff?.classification ?? null}
               changedWords={activeChangedWordsB}
+              atomicSnippets={activeSnippetsB}
               allChangedClauseIds={changedClauseIds}
               clauseClassifications={clauseClassifications}
               allClauses={(result.clausesB ?? []) as CompareClauseRecord[]}
@@ -1215,65 +1217,6 @@ export function CompareDocumentView({
             />
           )}
         </div>
-        {isPdf ? (
-          <PdfDocumentPane
-            file={pdfFileA}
-            label="Original"
-            filename={fileA}
-            side="A"
-            activeClause={activeClauseA}
-            activeClassification={selectedFinding?.diff?.classification ?? null}
-            changedWords={activeChangedWordsA}
-            atomicSnippets={activeSnippetsA}
-            allChangedClauseIds={changedClauseIds}
-            clauseClassifications={clauseClassifications}
-            allClauses={(result.clausesA ?? []) as CompareClauseRecord[]}
-            pdfMap={mapA}
-            mapStatus={mapStatusA}
-            mapError={mapErrorA}
-          />
-        ) : (
-          <DocPane
-            label="Original"
-            filename={fileA}
-            side="A"
-            clauses={normalizedData.clausesA}
-            changedClauseIds={changedClauseIds}
-            clauseClassifications={clauseClassifications}
-            diffSpansMap={textDiffSpansMap}
-            scrollToClauseId={activeClauseA?.id ?? null}
-          />
-        )}
-
-        {isPdf ? (
-          <PdfDocumentPane
-            file={pdfFileB}
-            label="Modified"
-            filename={fileB}
-            side="B"
-            activeClause={activeClauseB}
-            activeClassification={selectedFinding?.diff?.classification ?? null}
-            changedWords={activeChangedWordsB}
-            atomicSnippets={activeSnippetsB}
-            allChangedClauseIds={changedClauseIds}
-            clauseClassifications={clauseClassifications}
-            allClauses={(result.clausesB ?? []) as CompareClauseRecord[]}
-            pdfMap={mapB}
-            mapStatus={mapStatusB}
-            mapError={mapErrorB}
-          />
-        ) : (
-          <DocPane
-            label="Modified"
-            filename={fileB}
-            side="B"
-            clauses={normalizedData.clausesB}
-            changedClauseIds={changedClauseIds}
-            clauseClassifications={clauseClassifications}
-            diffSpansMap={textDiffSpansMap}
-            scrollToClauseId={activeClauseB?.id ?? null}
-          />
-        )}
 
         {/* Findings Rail */}
         <aside
