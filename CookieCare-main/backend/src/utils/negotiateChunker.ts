@@ -410,9 +410,16 @@ function splitIntoChunks(text: string): string[] {
  * Identical text always produces the same ID across calls.
  */
 function stableClauseId(original: string): string {
+  // Hash the FULL clause text, not just the first 256 chars.
+  // Truncating to 256 chars caused collisions when two clauses shared the same
+  // opening text (e.g. both start with "The Company shall…" and diverge only
+  // after the 256-char window). 8 hex chars = 32 bits of entropy; collisions
+  // across 10–20 clauses per document were rare but not impossible once the
+  // hash input was artificially shortened. Using the full text eliminates the
+  // truncation-induced false collisions while keeping the 8-char output short.
   const fingerprint = crypto
     .createHash("sha256")
-    .update(original.slice(0, 256).trim())
+    .update(original.trim())
     .digest("hex")
     .slice(0, 8);
   return `clause-${fingerprint}`;
@@ -559,8 +566,11 @@ const RISK_ORDER: Record<string, number> = { RED: 2, YELLOW: 1, GREEN: 0 };
  *      same type are not incorrectly collapsed).
  *   3. Neither candidate's original text is a substring of the other after
  *      normalisation — guards against the overlap-region case where two
- *      chunks flagged slightly different spans of the same clause (the text-
- *      key dedup step above handles that; this step must not re-process it).
+ *      chunks flagged slightly different spans of the same clause. Stage B
+ *      of the text-key dedup step handles substring-overlap artifacts before
+ *      this function runs; any pair that still has a substring relationship
+ *      here is left as-is (safer to show a duplicate than to drop a
+ *      genuinely distinct same-type finding).
  *
  * Exclusions:
  *   - issueTag === "other": excluded from issue-identity merge to prevent
@@ -606,9 +616,14 @@ function mergeByIssueIdentity(
       if (a.clauseType !== b.clauseType) continue;
 
       // Condition 3: not an overlap-region variant (neither is a substring of
-      // the other). If one contains the other, the text-key dedup step should
-      // have collapsed them already; if it did not (edge case), leave both as-is
-      // rather than risking incorrect merge.
+      // the other after normalisation). If one contains the other, Stage B of
+      // the text-key dedup step should have collapsed them already. If it did
+      // not (e.g. different clauseType escaped Stage B), leave both as-is —
+      // it is safer to show a duplicate than to silently drop a distinct
+      // finding that happens to share the same issueTag and clauseType.
+      // Genuine cross-location duplicates have non-overlapping text (same issue
+      // stated independently at two document locations — body clause vs appendix
+      // clause — so neither contains the other).
       const na = normalise(a.original);
       const nb = normalise(b.original);
       if (na.includes(nb) || nb.includes(na)) continue;
@@ -739,6 +754,29 @@ export async function evaluateFullDocument(
   // with the higher risk level. On a tie, keep the first encountered.
   // This handles the same-chunk-boundary artifact only — it does not address
   // the same negotiation issue appearing at different document locations.
+  //
+  // Two-stage approach:
+  //
+  // Stage A: 300-char prefix key dedup.
+  //   Groups candidates whose normalised text STARTS the same way. Covers the
+  //   common case where two overlap-chunks flag the same clause with identical
+  //   or near-identical text (same opening sentence, minor tail difference).
+  //   300 chars is kept deliberately — using the full string would miss cases
+  //   where the LLM truncated a long clause differently in each chunk.
+  //
+  // Stage B: substring collapse.
+  //   After Stage A, scan all surviving candidates for pairs where one
+  //   normalised original is a strict substring of the other. These are
+  //   overlap-region artifacts where chunk A flagged "sentence 1 sentence 2"
+  //   and chunk B flagged just "sentence 1" (or vice versa). The longer span
+  //   always wins — it carries more context for the LLM's suggested replacement
+  //   and a more precise charOffset. On a risk-level tie the longer span wins;
+  //   if the shorter span has a strictly higher risk level it wins instead.
+  //   This stage deliberately does NOT apply across different clauseTypes —
+  //   a short liability clause that appears verbatim inside a longer indemnity
+  //   clause is a genuinely distinct finding and must NOT be suppressed.
+
+  // Stage A: 300-char prefix key
   const seen = new Map<string, RawMarkupCandidate>();
 
   for (const candidate of allCandidates) {
@@ -751,6 +789,68 @@ export async function evaluateFullDocument(
     }
   }
 
+  // Stage B: substring collapse (same clauseType only)
+  const stageAList = [...seen.values()];
+  const substrDropped = new Set<number>();
+
+  for (let i = 0; i < stageAList.length; i++) {
+    if (substrDropped.has(i)) continue;
+    const a = stageAList[i];
+    const na = normalise(a.original);
+
+    for (let j = i + 1; j < stageAList.length; j++) {
+      if (substrDropped.has(j)) continue;
+      const b = stageAList[j];
+
+      // Only collapse within the same clause category — different clauseTypes
+      // are assumed to be genuinely distinct findings even if text overlaps.
+      if (a.clauseType !== b.clauseType) continue;
+
+      const nb = normalise(b.original);
+
+      // Check strict substring containment (not equality — equality was
+      // already handled by Stage A's prefix key).
+      const aContainsB = na.includes(nb) && na.length > nb.length;
+      const bContainsA = nb.includes(na) && nb.length > na.length;
+
+      if (!aContainsB && !bContainsA) continue;
+
+      // Determine winner: higher risk wins; on tie the LONGER span wins
+      // (more context for replacement drafting and charOffset precision).
+      const aRisk = RISK_ORDER[a.riskLevel] ?? 0;
+      const bRisk = RISK_ORDER[b.riskLevel] ?? 0;
+
+      let dropIdx: number;
+      if (aRisk > bRisk) {
+        dropIdx = j;
+      } else if (bRisk > aRisk) {
+        dropIdx = i;
+      } else {
+        // Equal risk — longer span wins
+        dropIdx = aContainsB ? j : i;
+      }
+
+      // Apply risk normalization: surviving candidate gets max(a, b) risk
+      const keepIdx = dropIdx === i ? j : i;
+      const maxRiskLevel = aRisk >= bRisk ? a.riskLevel : b.riskLevel;
+      if (stageAList[keepIdx].riskLevel !== maxRiskLevel) {
+        stageAList[keepIdx] = { ...stageAList[keepIdx], riskLevel: maxRiskLevel };
+      }
+
+      substrDropped.add(dropIdx);
+      console.log(
+        `[negotiateChunker] Substring dedup: collapsed span overlap ` +
+          `clauseType="${a.clauseType}" — kept "${stageAList[keepIdx].original.slice(0, 60)}..." ` +
+          `(${maxRiskLevel}), dropped "${stageAList[dropIdx].original.slice(0, 60)}..."`
+      );
+
+      // If i was dropped, no point comparing it further
+      if (dropIdx === i) break;
+    }
+  }
+
+  const textDedupedCandidates = stageAList.filter((_, i) => !substrDropped.has(i));
+
   // ── Step 2: Cross-location issue-identity dedup ───────────────────────────
   // Merge candidates that represent the same SPECIFIC negotiation issue at
   // different document locations. Operates on the already text-deduped set
@@ -758,9 +858,9 @@ export async function evaluateFullDocument(
   // the merge can probe groundability when selecting between equal-severity
   // candidates (prevents discarding a groundable candidate in favour of one
   // that will be dropped by the grounding loop below).
-  const dedupedCandidates = mergeByIssueIdentity([...seen.values()], documentText);
+  const dedupedCandidates = mergeByIssueIdentity(textDedupedCandidates, documentText);
 
-  const crossLocationDropped = seen.size - dedupedCandidates.length;
+  const crossLocationDropped = textDedupedCandidates.length - dedupedCandidates.length;
   if (crossLocationDropped > 0) {
     console.log(
       `[negotiateChunker] Cross-location dedup removed ${crossLocationDropped} duplicate(s) ` +
@@ -798,8 +898,9 @@ export async function evaluateFullDocument(
 
     // issueTag is intentionally NOT forwarded to NegotiateMarkup —
     // it is an internal dedup signal only and must not reach the DB or API.
+    const clauseId = stableClauseId(candidate.original);
     markups.push({
-      clauseId: stableClauseId(candidate.original),
+      clauseId,
       original: candidate.original,
       replacement: candidate.replacement,
       reasoning: candidate.reasoning,

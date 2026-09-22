@@ -847,6 +847,32 @@ CRITICAL: Return ONLY a valid JSON object — no markdown fences, no commentary 
 
       await emit(10, "Launching browser");
 
+      const browserAvailable = await browserManager.isAvailable().catch(() => false);
+      if (!browserAvailable) {
+        const message =
+          "Browser automation is unavailable. Cookie scanning requires a Playwright browser matching the installed Playwright version.";
+        console.warn("[Scanner]", message);
+        return {
+          scanSummary: {
+            url: targetUrl,
+            level: scanDepth,
+            overallScore: 0,
+            riskLevel: "ERROR",
+            error: message,
+            scannedAt: new Date().toISOString(),
+          },
+          cookiesDetected: [],
+          complianceGaps: [
+            {
+              regulation: "SCAN_ERROR",
+              severity: "RED",
+              issue: message,
+              remediation: "Check destination endpoint.",
+            },
+          ],
+        };
+      }
+
       // Run URL discovery, compliance page probing, and homepage metadata
       // extraction in parallel. Compliance discovery is a set of lightweight
       // HTTP HEAD probes against well-known paths — not a crawl — so it adds

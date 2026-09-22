@@ -3,50 +3,18 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { AlertTriangle, ArrowLeftRight, Link2, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeftRight, Link2, ChevronDown, ChevronUp } from "lucide-react";
 import type {
   CompareResult,
-  CompareRiskFinding,
   CompareClauseDifference,
   CompareAlignedPair,
-  RiskLevel,
 } from "../../../randtrustAI/types";
 
 interface CompareResultCardsProps {
   result: CompareResult;
 }
 
-type TabId = "risks" | "differences" | "clauses";
-
-const RISK_COLORS: Record<
-  RiskLevel,
-  { bg: string; border: string; label: string; body: string; dot: string; badge: string }
-> = {
-  HIGH: {
-    bg: "#FEF2F2",
-    border: "#FECACA",
-    label: "#B91C1C",
-    body: "#3F3F46",
-    dot: "#EF4444",
-    badge: "#FEE2E2",
-  },
-  MEDIUM: {
-    bg: "#FFFBEB",
-    border: "#FDE68A",
-    label: "#B45309",
-    body: "#3F3F46",
-    dot: "#EAB308",
-    badge: "#FEF3C7",
-  },
-  LOW: {
-    bg: "#F0FDF4",
-    border: "#BBF7D0",
-    label: "#15803D",
-    body: "#3F3F46",
-    dot: "#22C55E",
-    badge: "#DCFCE7",
-  },
-};
+type TabId = "differences" | "clauses";
 
 const DIFF_LABELS: Record<string, { label: string; color: string; bg: string }> = {
   ADDED: { label: "Added", color: "#15803D", bg: "#DCFCE7" },
@@ -57,34 +25,13 @@ const DIFF_LABELS: Record<string, { label: string; color: string; bg: string }> 
   UNCHANGED: { label: "Unchanged", color: "#A1A1AA", bg: "#F4F4F5" },
 };
 
-const CATEGORY_LABELS: Record<string, string> = {
-  liability: "Liability",
-  indemnity: "Indemnity",
-  ip: "IP",
-  termination: "Termination",
-  data_protection: "Data Protection",
-  payment: "Payment",
-  confidentiality: "Confidentiality",
-  governing_law: "Governing Law",
-  audit_rights: "Audit Rights",
-  other: "Other",
-};
-
 export function CompareResultCards({ result }: CompareResultCardsProps) {
-  const [activeTab, setActiveTab] = useState<TabId>("risks");
+  const [activeTab, setActiveTab] = useState<TabId>("differences");
 
-  const highRisks = result.risks.filter((r) => r.level === "HIGH").length;
-  const medRisks = result.risks.filter((r) => r.level === "MEDIUM").length;
   const diffCount = result.differences.filter((d) => d.classification !== "UNCHANGED").length;
   const matchCount = result.alignment.filter((a) => a.status === "matched").length;
 
   const tabs: { id: TabId; label: string; icon: React.ElementType; badge?: string }[] = [
-    {
-      id: "risks",
-      label: "Risks",
-      icon: AlertTriangle,
-      badge: result.risks.length > 0 ? String(result.risks.length) : undefined,
-    },
     {
       id: "differences",
       label: "Differences",
@@ -134,15 +81,6 @@ export function CompareResultCards({ result }: CompareResultCardsProps) {
             </button>
           );
         })}
-
-        {activeTab === "risks" && highRisks > 0 && (
-          <div className="ml-auto flex items-center gap-2 pr-2 pb-2 shrink-0">
-            <StatPill label="High" count={highRisks} color="#DC2626" bg="#FEE2E2" />
-            {medRisks > 0 && (
-              <StatPill label="Medium" count={medRisks} color="#B45309" bg="#FEF3C7" />
-            )}
-          </div>
-        )}
       </div>
 
       <div className="p-4 bg-[#FAFAFA]" role="tabpanel">
@@ -154,105 +92,12 @@ export function CompareResultCards({ result }: CompareResultCardsProps) {
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.18 }}
           >
-            {activeTab === "risks" && <RisksTab risks={result.risks} />}
             {activeTab === "differences" && <DifferencesTab differences={result.differences} />}
             {activeTab === "clauses" && <ClausesTab alignment={result.alignment} />}
           </motion.div>
         </AnimatePresence>
       </div>
     </div>
-  );
-}
-
-function RisksTab({ risks }: { risks: CompareRiskFinding[] }) {
-  if (risks.length === 0) {
-    return <EmptyState message="No risk findings identified." />;
-  }
-
-  const sorted = [...risks].sort((a, b) => {
-    const order: Record<RiskLevel, number> = { HIGH: 0, MEDIUM: 1, LOW: 2 };
-    return order[a.level] - order[b.level];
-  });
-
-  return (
-    <div className="space-y-2.5">
-      {sorted.map((risk) => (
-        <RiskCard key={risk.id} risk={risk} />
-      ))}
-    </div>
-  );
-}
-
-function RiskCard({ risk }: { risk: CompareRiskFinding }) {
-  const [expanded, setExpanded] = useState(false);
-  const colors = RISK_COLORS[risk.level];
-
-  return (
-    <motion.div
-      layout
-      className="rounded-xl overflow-hidden border"
-      style={{ background: colors.bg, borderColor: colors.border }}
-    >
-      <button
-        className="w-full flex items-start gap-3 px-4 py-3.5 text-left"
-        onClick={() => setExpanded((v) => !v)}
-        aria-expanded={expanded}
-      >
-        <div className="flex-shrink-0 mt-1">
-          <div
-            className="w-2 h-2 rounded-full"
-            style={{ background: colors.dot }}
-          />
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap mb-1.5">
-            <span className="text-[11px] font-bold tracking-wide" style={{ color: colors.label }}>
-              {risk.level}
-            </span>
-            <span
-              className="text-[10.5px] px-2 py-0.5 rounded-full font-medium"
-              style={{ background: colors.badge, color: colors.label }}
-            >
-              {CATEGORY_LABELS[risk.category] ?? risk.category}
-            </span>
-          </div>
-          <p
-            className={`text-[13px] leading-[1.65] ${expanded ? "" : "line-clamp-3"}`}
-            style={{ color: colors.body }}
-          >
-            {risk.rationale}
-          </p>
-        </div>
-
-        <div className="flex-shrink-0 mt-0.5 text-[#A1A1AA]">
-          {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-        </div>
-      </button>
-
-      <AnimatePresence>
-        {expanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.22 }}
-            className="overflow-hidden"
-          >
-            <div className="px-4 pb-4 pt-0 border-t border-black/5">
-              <div className="flex items-center gap-4 mt-3">
-                <span className="text-[11px] text-[#A1A1AA]">
-                  Confidence: {Math.round(risk.confidence * 100)}%
-                </span>
-                <span className="text-[11px] text-[#A1A1AA] capitalize">
-                  Source: {risk.source}
-                </span>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
   );
 }
 
@@ -372,26 +217,5 @@ function ClausesTab({ alignment }: { alignment: CompareAlignedPair[] }) {
 function EmptyState({ message }: { message: string }) {
   return (
     <p className="text-[13px] text-center py-8 text-[#A1A1AA]">{message}</p>
-  );
-}
-
-function StatPill({
-  label,
-  count,
-  color,
-  bg,
-}: {
-  label: string;
-  count: number;
-  color: string;
-  bg: string;
-}) {
-  return (
-    <span
-      className="text-[10.5px] font-semibold px-2 py-0.5 rounded-full"
-      style={{ color, background: bg }}
-    >
-      {count} {label}
-    </span>
   );
 }

@@ -5,24 +5,20 @@
  *
  *   ┌────────────────────────┬────────────────────────┬──────────────────┐
  *   │  ORIGINAL PDF          │  MODIFIED PDF          │  FINDINGS RAIL   │
- *   │  (rendered pages)      │  (rendered pages)      │  Summary header  │
- *   │  Change-type highlights│  Change-type highlights│  Material / Risk │
- *   │  Selected = blue ring  │  Selected = blue ring  │  Finding cards   │
+ *   │  (rendered pages)      │  (rendered pages)      │  Change-type     │
+ *   │  Change-type highlights│  Change-type highlights│  Finding cards   │
+ *   │  Selected = blue ring  │  Selected = blue ring  │                  │
  *   └────────────────────────┴────────────────────────┴──────────────────┘
  *
  * Visual design principles:
  *   - Change type  → color  (Removed=red, Added=blue, Broader=amber,
  *                            Narrower=purple, Neutral=gray)
- *   - Risk severity → badge (HIGH=dark, MEDIUM=outlined, LOW=muted)
- *   - These two color systems NEVER overlap
  *   - Document panes are visually neutral — labeled Original / Modified only
  *   - Selected finding → blue outline ring (does not destroy change-type color)
  *   - Evidence is inline in the selected card; no disconnected bottom strip
  *
  * Count terminology:
- *   - "Material Changes" = unique clause pairs with a material diff (not
- *     FindingViewModel count, which inflates when one pair has multiple risks)
- *   - "Risks" = total number of risk findings
+ *   - "Material Changes" = unique clause pairs with a material diff
  */
 
 import {
@@ -32,7 +28,6 @@ import {
   FileText, Search, X, ChevronDown, ChevronUp, ArrowRight,
 } from "lucide-react";
 import {
-  COMPARE_RISK_BADGE,
   CHANGE_TYPE_STYLE,
   CATEGORY_LABELS,
   SELECTED_FINDING_OUTLINE,
@@ -46,8 +41,6 @@ import {
   type ClauseRecord,
   type FindingFilters,
   type ChangeTypeFilter,
-  type SeverityFilter,
-  type SortOrder,
   type DraftingFinding,
 } from "../utils/normalizeFindings";
 import { computeInlineDiff, extractChangedWords, type DiffSpan } from "../utils/diffHighlight";
@@ -323,19 +316,6 @@ const CHANGE_TYPE_OPTS: { value: ChangeTypeFilter; label: string }[] = [
   { value: "MODIFIED_NARROWER", label: "Narrower" },
 ];
 
-const SEVERITY_OPTS: { value: SeverityFilter; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "HIGH", label: "High" },
-  { value: "MEDIUM", label: "Medium" },
-  { value: "LOW", label: "Low" },
-  { value: "none", label: "No risk" },
-];
-
-const SORT_OPTS: { value: SortOrder; label: string }[] = [
-  { value: "severity", label: "Severity" },
-  { value: "position", label: "Order" },
-];
-
 function FindingsRail({
   data,
   selectedId,
@@ -362,17 +342,11 @@ function FindingsRail({
 
   const hasFilters =
     filters.search !== "" ||
-    filters.changeType !== "all" ||
-    filters.severity !== "all" ||
-    filters.sort !== "severity";
+    filters.changeType !== "all";
 
-  // ── FIX 3: counts from normalizeCompareData use correct terminology ───────
-  //
   // materialPairs = unique pair IDs among material findings (not VM count).
-  // riskFindings  = total risk finding count (may be > materialPairs when one
-  //                 pair has multiple risks).
   // byType breakdown de-dupes by pairId so it always equals materialPairs total.
-  const { high, medium, low, materialPairs, riskFindings, merged, uncertain } = data.counts;
+  const { materialPairs } = data.counts;
 
   const materialByType = useMemo(() => {
     const seen = new Set<string>();
@@ -396,15 +370,12 @@ function FindingsRail({
     el?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [selectedId]);
 
-  // Whether structural context (MERGED/UNCERTAIN) is worth surfacing
-  const hasStructuralContext = merged > 0 || uncertain > 0;
-
   return (
     <div className="flex h-full flex-col bg-white">
 
-      {/* Summary block (Material Changes / Risks / Structural context) is
-          intentionally omitted — counts are surfaced directly on the filter
-          chips below, and the top bar carries the overall Match %.  */}
+      {/* Summary block is intentionally omitted — counts are surfaced
+          directly on the filter chips below, and the top bar carries
+          the overall Match %. */}
 
       {/* ── Search ── */}
       <div className="shrink-0 border-b border-[#F0F0F2] px-3 py-2">
@@ -432,9 +403,7 @@ function FindingsRail({
 
       {/* ── Filter chips ──
           Counts (Removed 3, Broader 7, …) live INSIDE the chips so users see
-          the breakdown without a separate summary block. Severity / risk
-          filtering has been removed — the compare workspace no longer
-          surfaces risk anywhere in the UI. */}
+          the breakdown without a separate summary block. */}
       <div className="shrink-0 border-b border-[#F0F0F2] px-3 py-1.5 space-y-1.5">
         <div className="flex flex-wrap gap-1">
           {CHANGE_TYPE_OPTS.map((o) => {
@@ -666,7 +635,7 @@ function FindingEvidence({
 // ─── Finding card ─────────────────────────────────────────────────────────────
 
 /**
- * Hierarchy: section/module → change type badge → [MOVED] → risk badge →
+ * Hierarchy: section/module → change type badge → [MOVED] →
  * title → summary / evidence (expanded on select).
  *
  * FIX 4: For ADDED/REMOVED findings the explanation falls back to a clear
@@ -691,7 +660,6 @@ function FindingCard({
 }) {
   const risk = finding.risk;
   const diff = finding.diff;
-  const riskMeta = risk ? (COMPARE_RISK_BADGE[risk.level] ?? COMPARE_RISK_BADGE.MEDIUM) : null;
   const changeMeta = diff ? changeTypeStyle(diff.classification) : null;
 
   // Section / module label
@@ -706,8 +674,8 @@ function FindingCard({
     `Change ${index + 1}`;
 
   // FIX 4: Build a meaningful explanation for ADDED/REMOVED when semanticSummary is "".
-  // The backend deliberately leaves it empty for these — use the risk rationale if
-  // available, otherwise generate a clear structural description from available data.
+  // The backend deliberately leaves it empty for these — use the linked finding
+  // rationale if available, otherwise generate a structural description.
   const isAdded = diff?.classification === "ADDED";
   const isRemoved = diff?.classification === "REMOVED";
   const hasSummary = diff?.semanticSummary && diff.semanticSummary.trim().length > 0;
@@ -785,7 +753,7 @@ function FindingCard({
           {title.length > 80 ? `${title.slice(0, 80)}…` : title}
         </p>
 
-        {/* Row 3: change type → [MOVED] → risk (two distinct visual systems) */}
+        {/* Row 3: change type → [MOVED] */}
         <div className="mt-1.5 flex flex-wrap items-center gap-1">
           {/* Change type — color-coded */}
           {changeMeta && diff?.classification !== "UNCHANGED" && (
@@ -797,21 +765,6 @@ function FindingCard({
           {finding.isMoved && (
             <span className="rounded border border-[#E5E7EB] bg-white px-1.5 py-0.5 text-[9px] font-medium text-[#6B7280]">
               Moved
-            </span>
-          )}
-          {/* Separator dot */}
-          {changeMeta && riskMeta && diff?.classification !== "UNCHANGED" && (
-            <span className="text-[#D1D5DB]" aria-hidden>·</span>
-          )}
-          {/* Risk severity — monochrome, distinct from change type */}
-          {riskMeta && (
-            <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold ${riskMeta.badge}`}>
-              {riskMeta.label}
-            </span>
-          )}
-          {finding.kind === "no-risk" && !riskMeta && (
-            <span className="rounded bg-[#F3F4F6] px-1.5 py-0.5 text-[9px] font-medium text-[#9CA3AF]">
-              No risk scored
             </span>
           )}
         </div>
@@ -1100,6 +1053,24 @@ export function CompareDocumentView({
     return words.size > 0 ? words : null;
   }, [activeClauseB, textDiffSpansMap]);
 
+  // Backend atomic snippets for the selected finding only — used by the PDF
+  // pane as a second highlight pass when diffWords tokens miss pdf.js items.
+  const activeSnippetsA = useMemo(() => {
+    if (!activeClauseA) return null;
+    const snippets = (selectedFinding?.diff?.changes ?? [])
+      .map((c) => c.originalSnippet)
+      .filter((s): s is string => typeof s === "string" && s.trim().length > 0);
+    return snippets.length > 0 ? snippets : null;
+  }, [activeClauseA, selectedFinding]);
+
+  const activeSnippetsB = useMemo(() => {
+    if (!activeClauseB) return null;
+    const snippets = (selectedFinding?.diff?.changes ?? [])
+      .map((c) => c.modifiedSnippet)
+      .filter((s): s is string => typeof s === "string" && s.trim().length > 0);
+    return snippets.length > 0 ? snippets : null;
+  }, [activeClauseB, selectedFinding]);
+
   const { file: pdfFileA, status: statusA } = usePdfSource(result, "original");
   const { file: pdfFileB, status: statusB } = usePdfSource(result, "revised");
   const isPdf = statusA !== "unavailable" || statusB !== "unavailable";
@@ -1244,6 +1215,65 @@ export function CompareDocumentView({
             />
           )}
         </div>
+        {isPdf ? (
+          <PdfDocumentPane
+            file={pdfFileA}
+            label="Original"
+            filename={fileA}
+            side="A"
+            activeClause={activeClauseA}
+            activeClassification={selectedFinding?.diff?.classification ?? null}
+            changedWords={activeChangedWordsA}
+            atomicSnippets={activeSnippetsA}
+            allChangedClauseIds={changedClauseIds}
+            clauseClassifications={clauseClassifications}
+            allClauses={(result.clausesA ?? []) as CompareClauseRecord[]}
+            pdfMap={mapA}
+            mapStatus={mapStatusA}
+            mapError={mapErrorA}
+          />
+        ) : (
+          <DocPane
+            label="Original"
+            filename={fileA}
+            side="A"
+            clauses={normalizedData.clausesA}
+            changedClauseIds={changedClauseIds}
+            clauseClassifications={clauseClassifications}
+            diffSpansMap={textDiffSpansMap}
+            scrollToClauseId={activeClauseA?.id ?? null}
+          />
+        )}
+
+        {isPdf ? (
+          <PdfDocumentPane
+            file={pdfFileB}
+            label="Modified"
+            filename={fileB}
+            side="B"
+            activeClause={activeClauseB}
+            activeClassification={selectedFinding?.diff?.classification ?? null}
+            changedWords={activeChangedWordsB}
+            atomicSnippets={activeSnippetsB}
+            allChangedClauseIds={changedClauseIds}
+            clauseClassifications={clauseClassifications}
+            allClauses={(result.clausesB ?? []) as CompareClauseRecord[]}
+            pdfMap={mapB}
+            mapStatus={mapStatusB}
+            mapError={mapErrorB}
+          />
+        ) : (
+          <DocPane
+            label="Modified"
+            filename={fileB}
+            side="B"
+            clauses={normalizedData.clausesB}
+            changedClauseIds={changedClauseIds}
+            clauseClassifications={clauseClassifications}
+            diffSpansMap={textDiffSpansMap}
+            scrollToClauseId={activeClauseB?.id ?? null}
+          />
+        )}
 
         {/* Findings Rail */}
         <aside

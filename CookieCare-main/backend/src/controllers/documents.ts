@@ -1122,3 +1122,84 @@ export const exportDocument = async (req: Request, res: Response) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+/**
+ * GET /api/documents/:id/render-html
+ *
+ * Returns the document converted to rich HTML for the negotiate viewer.
+ *
+ * For DOCX/DOC files: runs mammoth.convertToHtml() on the stored original_file
+ * bytes, which preserves headings, bold, lists, tables, and numbered sections.
+ * This is the same mammoth call used by docxToPdf.ts.
+ *
+ * For all other mime types: returns { html: null } so the caller can fall back
+ * to rendering activeDoc.content as plain text (the current behaviour).
+ *
+ * The result is NOT stored — it is generated on demand. Cached by the browser
+ * for 5 minutes (Cache-Control: private, max-age=300).
+ *
+ * Authorization: same ownership check as getRawDocument.
+ */
+export const renderDocumentHtml = async (req: Request, res: Response) => {
+  const userId    = req.user!.id;
+  const userRole  = req.user!.role;
+  const userEmail = req.user!.email.toLowerCase();
+
+  try {
+    const row = await withTransaction(userId, userRole, async (client) => {
+      const { rows } = await client.query(
+        `SELECT id, title, mime_type, original_file
+         FROM files
+         WHERE id = $1
+           AND (
+             creator_id = current_setting('app.current_user_id', true)
+             OR shared_with::jsonb @> $2::jsonb
+             OR shared_with::jsonb @> $3::jsonb
+           )`,
+        [req.params.id, JSON.stringify([userEmail]), JSON.stringify([{ email: userEmail }])]
+      );
+      return rows[0] ?? null;
+    });
+
+    if (!row) {
+      return res.status(404).json({ error: "Document not found." });
+    }
+
+    const mime: string = (row.mime_type ?? "").toLowerCase();
+    const isDocx =
+      mime === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+      mime === "application/msword" ||
+      mime.includes("docx") ||
+      mime.includes("msword");
+
+    if (!isDocx || !row.original_file) {
+      // Not a DOCX or original bytes not stored — caller falls back to plain text.
+      return res.json({ html: null });
+    }
+
+    const buffer = Buffer.from(row.original_file, "base64");
+
+    // Dynamically import mammoth so this path does not add startup cost for
+    // requests that never hit this endpoint.
+    const mammoth = (await import("mammoth")).default;
+    const { value: rawHtml, messages } = await mammoth.convertToHtml({ buffer });
+
+    if (messages.length > 0) {
+      const warnings = messages.filter((m: any) => m.type === "warning").map((m: any) => m.message);
+      if (warnings.length > 0) {
+        console.warn(`[renderDocumentHtml] mammoth warnings for ${req.params.id}:`, warnings.slice(0, 3));
+      }
+    }
+
+    if (!rawHtml.trim()) {
+      return res.json({ html: null });
+    }
+
+    res.setHeader("Cache-Control", "private, max-age=300");
+    return res.json({ html: rawHtml });
+  } catch (err: any) {
+    console.error("[renderDocumentHtml] error:", err.message);
+    // Non-fatal — return null so the viewer falls back gracefully.
+    return res.json({ html: null });
+  }
+};

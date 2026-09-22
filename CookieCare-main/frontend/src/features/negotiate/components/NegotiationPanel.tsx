@@ -1,6 +1,5 @@
 ﻿import React, { useState, useEffect } from "react";
 import {
-  Sparkles,
   Scale,
   RefreshCw,
   Edit3,
@@ -17,6 +16,7 @@ import {
   ArrowUp,
   AlertCircle,
 } from "lucide-react";
+import { BrandLogo } from "../../../shared/components/BrandLogo";
 import { AgentMarkup, NegotiationStrategy, StrategyDraftResult } from "../types";
 import { RISK_CONFIG } from "../constants";
 
@@ -196,12 +196,16 @@ export default function NegotiationPanel({
   // Reset tier when switching findings
   useEffect(() => { setSelectedTier("preferred"); }, [selectedMarkup?.clauseId]);
 
-  // Findings nav
+  // Findings nav — exclude synthetic manual-* entries from count and navigation.
+  // Manual markups are injected into agentMarkups while a user selection is
+  // active, but they are not AI findings and must not inflate the 1/N counter
+  // or shift the indices used by goTo.
+  const aiMarkups = agentMarkups.filter((m) => !m.clauseId.startsWith("manual-"));
   const currentIdx = selectedMarkup
-    ? agentMarkups.findIndex((m) => m.clauseId === selectedMarkup.clauseId)
+    ? aiMarkups.findIndex((m) => m.clauseId === selectedMarkup.clauseId)
     : -1;
   const goTo = (idx: number) => {
-    const m = agentMarkups[idx];
+    const m = aiMarkups[idx];
     if (m) onSelectMarkup(m);
   };
 
@@ -239,9 +243,7 @@ export default function NegotiationPanel({
       <div className="shrink-0 px-5 pt-4 pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#EEF2FF] text-[#4F5BD9]">
-              <Sparkles className="h-4 w-4" strokeWidth={1.75} />
-            </div>
+            <BrandLogo size="sm" iconOnly />
             <div className="min-w-0">
               <span className="text-[14px] font-semibold tracking-[-0.01em] text-[#1a1a1a]">
                 Negotiate
@@ -254,12 +256,12 @@ export default function NegotiationPanel({
               )}
             </div>
           </div>
-          <StatusPill evaluating={evaluating} count={agentMarkups.length} />
+          <StatusPill evaluating={evaluating} count={aiMarkups.length} />
         </div>
 
         {/* Compact findings nav — hide the nav counter for manual drafts since
             they are synthetic entries not part of the AI findings list */}
-        {agentMarkups.length > 0 && selectedMarkup && !isManualDraft && (
+        {aiMarkups.length > 0 && selectedMarkup && !isManualDraft && (
           <div className="mt-3 flex items-center justify-between rounded-[12px] bg-[#F7F8FB] px-3 py-1.5">
             <button
               type="button"
@@ -283,13 +285,13 @@ export default function NegotiationPanel({
                 );
               })()}
               <span className="text-[11px] text-[#98A2B3]">
-                {currentIdx + 1} <span className="text-[#C0C9D4]">/</span> {agentMarkups.length}
+                {currentIdx + 1} <span className="text-[#C0C9D4]">/</span> {aiMarkups.length}
               </span>
             </div>
             <button
               type="button"
               onClick={() => goTo(currentIdx + 1)}
-              disabled={currentIdx >= agentMarkups.length - 1}
+              disabled={currentIdx >= aiMarkups.length - 1}
               className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border-none bg-transparent text-[#667085] transition hover:bg-[#EEF2FF] hover:text-[#4F5BD9] disabled:cursor-not-allowed disabled:opacity-30"
             >
               <ChevronRight className="w-3.5 h-3.5" />
@@ -647,27 +649,20 @@ export default function NegotiationPanel({
         ) : (
           /* Empty state */
           <div className="flex flex-col items-center justify-center py-14 text-center px-4">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#EEF2FF] text-[#4F5BD9]">
-              <Scale className="h-5 w-5" strokeWidth={1.75} />
+            <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-full ${aiMarkups.length === 0 && !evaluating ? "bg-[#D1FAE5] text-[#059669]" : "bg-[#EEF2FF] text-[#4F5BD9]"}`}>
+              {aiMarkups.length === 0 && !evaluating
+                ? <span className="text-2xl">✓</span>
+                : <Scale className="h-5 w-5" strokeWidth={1.75} />
+              }
             </div>
             <p className="m-0 text-[13px] font-semibold text-[#1a1a1a]">
-              {agentMarkups.length === 0 && !evaluating ? "No clauses flagged" : "No clause selected"}
+              {aiMarkups.length === 0 && !evaluating ? "Document looks clean" : "No clause selected"}
             </p>
             <p className="m-0 mt-1.5 max-w-[220px] text-[12px] leading-relaxed text-[#667085]">
-              {agentMarkups.length === 0 && !evaluating
-                ? "The AI found no risk clauses, or evaluation has not run yet."
+              {aiMarkups.length === 0 && !evaluating
+                ? "No risky clauses were found. You can download the document."
                 : "Select a highlighted clause in the document to begin."}
             </p>
-            {agentMarkups.length === 0 && !evaluating && (
-              <button
-                type="button"
-                onClick={onRerun}
-                className="mt-5 inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border-none bg-[#EEF2FF] px-4 text-[12px] font-medium text-[#4F5BD9] transition hover:bg-[#e4e9ff]"
-              >
-                <RefreshCw className="w-3.5 h-3.5" />
-                Re-run evaluation
-              </button>
-            )}
           </div>
         )}
       </div>

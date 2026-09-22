@@ -85,13 +85,152 @@ export interface UsePdfPageMapResult {
 // ─── Clause → page resolution ────────────────────────────────────────────────
 
 /**
+ * Collapse whitespace for PDF-page content matching. Viewer text comes from
+ * pdf.js items; clause text comes from extraction — spacing rarely matches
+ * exactly, so we only ever compare collapsed lowercase strings.
+ */
+function normalizeHaystack(s: string): string {
+  return s.toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+/**
+ * Title minus the leading numbering/keyword, e.g. "8. Personal Data Breach"
+ * → "personal data breach". Used to find the clause heading in the already
+ * built PdfPageMap without a new index.
+ */
+function headingPhraseFromTitle(title: string | undefined | null): string | null {
+  if (!title) return null;
+  const withoutKeyword = title.trim().replace(
+    /^(?:Section|Clause|Article|Paragraph|Schedule|Annex|Art)\.?\s+/i,
+    ""
+  );
+  const withoutNumber = withoutKeyword.replace(/^\d+(?:\.\d+)*\.?\s*/, "");
+  const phrase = normalizeHaystack(withoutNumber);
+  return phrase.length >= 6 ? phrase : null;
+}
+
+/**
+ * Locate a clause's page inside the already-rendered PdfPageMap by matching
+ * heading / body text against each page's pdf.js items.
+ *
+ * Needed for DOCX comparisons: backend pageNumber is PDF-only, and
+ * clause.position is a mammoth char offset that does not line up with the
+ * Playwright-converted PDF's pageStarts. Searching the existing map is the
+ * smallest way to recover the visual page without a new indexer.
+ *
+ * Scoring accumulates heading, distinctive body-phrase, and body-token
+ * evidence instead of treating a heading hit as exclusive. A TOC /
+ * definition / earlier-mention page that only repeats the title therefore
+ * loses to the page that contains the clause body. Returns null when
+ * nothing distinctive matches (caller keeps prior fallbacks).
+ */
+function locateClausePageInMap(
+  clause: CompareClauseRecord,
+  map: PdfPageMap
+): number | null {
+  const heading = headingPhraseFromTitle(clause.title);
+  const { tokens: clauseTokens } = clause.text
+    ? buildClauseTokens(clause.text)
+    : { tokens: new Set<string>() };
+  const bodyNeedle = clause.text
+    ? normalizeHaystack(clause.text).slice(0, 48)
+    : "";
+  const compactNeedle =
+    bodyNeedle.length >= 16 ? bodyNeedle.replace(/ /g, "") : "";
+
+  let bestPage: number | null = null;
+  let bestScore = 0;
+  let bestBody = false;
+  let bestCompact = false;
+  let bestHits = 0;
+
+  for (const page of map.pages) {
+    const text = normalizeHaystack(page.textItems.map((i) => i.str).join(" "));
+    if (!text) continue;
+    const compactText = text.replace(/ /g, "");
+
+    const headingHit = Boolean(heading && text.includes(heading));
+    const bodyHit = bodyNeedle.length >= 16 && text.includes(bodyNeedle);
+    const compactHit =
+      !bodyHit && Boolean(compactNeedle) && compactText.includes(compactNeedle);
+
+    // Scattered shared tokens (processor, agreement, …) are not enough to
+    // nominate a page — need a heading or a distinctive body phrase.
+    if (!headingHit && !bodyHit && !compactHit) continue;
+
+    let hits = 0;
+    for (const t of clauseTokens) {
+      if (t.length >= 5 && text.includes(t)) hits++;
+    }
+
+    // Heading is a weak locator (TOC, cross-ref, earlier mention of the
+    // same phrase). A near-exact body prefix and additional body tokens
+    // outrank it; token count is not capped so more of the clause body
+    // is stronger evidence than the title alone.
+    let score = 0;
+    if (headingHit) score += 10;
+    if (bodyHit) score += 20;
+    else if (compactHit) score += 16;
+    score += hits;
+
+    const better =
+      score > bestScore ||
+      (score === bestScore && bodyHit && !bestBody) ||
+      (score === bestScore && bodyHit === bestBody && compactHit && !bestCompact) ||
+      (score === bestScore &&
+        bodyHit === bestBody &&
+        compactHit === bestCompact &&
+        hits > bestHits);
+    if (better) {
+      bestScore = score;
+      bestPage = page.pageNumber;
+      bestBody = bodyHit;
+      bestCompact = compactHit;
+      bestHits = hits;
+    }
+  }
+
+  return bestPage;
+}
+
+/**
+ * True when the given PDF page actually contains the start of the clause body.
+ * A table-of-contents line that repeats the heading is not enough — that is
+ * why backend pageNumber can be 1 for "8. Personal Data Breach" while the
+ * clause (and its 48/72 highlight) lives several pages later.
+ */
+function pageHasClauseBody(
+  clause: CompareClauseRecord,
+  map: PdfPageMap,
+  pageNum: number
+): boolean {
+  const page = map.pages[pageNum - 1];
+  if (!page) return false;
+  const text = normalizeHaystack(page.textItems.map((i) => i.str).join(" "));
+  if (!text) return false;
+  const bodyNeedle = clause.text
+    ? normalizeHaystack(clause.text).slice(0, 48)
+    : "";
+  if (bodyNeedle.length < 16) return false;
+  if (text.includes(bodyNeedle)) return true;
+  const compactNeedle = bodyNeedle.replace(/ /g, "");
+  const compactText = text.replace(/ /g, "");
+  return compactNeedle.length >= 16 && compactText.includes(compactNeedle);
+}
+
+/**
  * Given a clause record and a PdfPageMap, return the best page number to
  * navigate to.
  *
  * Resolution order:
- *  1. Backend-provided clause.pageNumber (most reliable — set by Phase 2b)
- *  2. Client-side: binary-search pageStarts using clause.position char offset
- *  3. Fallback: page 1
+ *  1. Backend-provided clause.pageNumber, but only if that page actually
+ *     contains the clause body in the already-built PdfPageMap. A TOC hit
+ *     on page 1 is valid metadata numerically and must not win.
+ *  2. Content match against the existing PdfPageMap (same locator already
+ *     used when pageNumber is missing — distinctive body phrase outranks
+ *     a heading-only / first-occurrence hit).
+ *  3. Client-side: binary-search pageStarts using clause.position char offset
+ *  4. Fallback: page 1 (or the unused backend pageNumber if we have one)
  */
 export function resolveClausePage(
   clause: CompareClauseRecord | undefined | null,
@@ -99,9 +238,24 @@ export function resolveClausePage(
 ): number {
   if (!clause) return 1;
 
-  // Phase 2b: backend already resolved the page
-  if (typeof clause.pageNumber === "number" && clause.pageNumber >= 1) {
-    return clause.pageNumber;
+  const backendPage =
+    typeof clause.pageNumber === "number" && clause.pageNumber >= 1
+      ? clause.pageNumber
+      : null;
+
+  // When the viewer map exists, a pageNumber that does not contain the
+  // clause body (missing, or TOC/first-occurrence) is not usable. Reuse the
+  // existing map locator; do not bypass this gate.
+  if (map) {
+    const metadataUsable =
+      backendPage !== null && pageHasClauseBody(clause, map, backendPage);
+    if (!metadataUsable) {
+      const located = locateClausePageInMap(clause, map);
+      if (located) return located;
+    }
+    if (backendPage) return backendPage;
+  } else if (backendPage) {
+    return backendPage;
   }
 
   // Client-side fallback: use char position
@@ -319,9 +473,9 @@ function clusterByYGaps(
  * too early. Result: selecting 2.3 could visibly highlight 2.2.
  *
  * ── Strategy now ────────────────────────────────────────────────────────────
- *   1. Resolve the clause's page via resolveClausePage(). This trusts the
- *      backend-provided clause.pageNumber first (already the case) and only
- *      falls back to the char-offset binary search when pageNumber is missing.
+ *   1. Resolve the clause's page via resolveClausePage(). That function
+ *      keeps a backend pageNumber only when the PdfPageMap page actually
+ *      contains the clause body; otherwise it uses the existing map locator.
  *
  *   2. Anchor by clause title marker. If clause.title yields a numeric marker
  *      like "2.3", locate that marker as an item on the resolved page and

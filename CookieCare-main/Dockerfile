@@ -2,7 +2,9 @@
 
 # docling.rs 1.41's linux-x64-gnu napi binary needs GCC 13 libstdc++
 # (_M_replace_cold). Jammy (22.04) only has GCC 11/12, so dlopen fails at upload.
-FROM mcr.microsoft.com/playwright:v1.60.0-noble AS build
+# Tag must match the Playwright npm version in package-lock.json (currently 1.62.1).
+# PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 is correct: this image already ships matching Chromium.
+FROM mcr.microsoft.com/playwright:v1.62.1-noble AS build
 
 WORKDIR /app
 
@@ -34,7 +36,7 @@ RUN npm prune --omit=dev
 RUN npm install --omit=dev --no-save --no-audit --no-fund docling.rs-linux-x64-gnu@1.41.0
 
 
-FROM mcr.microsoft.com/playwright:v1.60.0-noble AS runner
+FROM mcr.microsoft.com/playwright:v1.62.1-noble AS runner
 
 WORKDIR /app
 

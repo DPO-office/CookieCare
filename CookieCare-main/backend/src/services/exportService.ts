@@ -79,6 +79,16 @@ function stripTags(html: string): string {
   return html.replace(/<[^>]+>/g, "").trim();
 }
 
+/** Escape user-supplied strings before injecting into an HTML template. */
+function htmlEscape(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // PDF — pure Node.js via PDFKit (no browser required)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -330,6 +340,103 @@ export const buildPdfBuffer = async (
   contentType: string,
   content: string
 ): Promise<Buffer> => {
+  // ── Preferred path: browser-based PDF (Playwright/Puppeteer) ─────────────
+  // Converts Markdown → HTML using markdown-it (same library as the viewer),
+  // injects it into a clean A4 HTML template, and prints to PDF via the
+  // browser's native print engine. This produces properly paginated output
+  // with correct fonts, spacing, and table layout — far superior to the
+  // manual PDFKit renderer below.
+  try {
+    const { browserManager } = await import("../utils/browserManager.js");
+    if (await browserManager.isAvailable()) {
+      const label = (contentType ?? "DOCUMENT").toUpperCase().replace(/_/g, " ");
+      const bodyHtml = isHtmlContent(content)
+        ? content  // already HTML — use as-is
+        : contentType === "legal_document"
+          ? legalPlaintextToHtml(content)
+          : md.render(content);
+
+      const safeTitle = htmlEscape(title);
+      const safeLabel = htmlEscape(label);
+
+      const fullHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  @page { size: A4; margin: 20mm 18mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.6;
+    color: #111827;
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 8pt;
+    color: #6B7280;
+    border-bottom: 1px solid #E5E7EB;
+    padding-bottom: 6px;
+    margin-bottom: 14px;
+  }
+  h1 { font-size: 18pt; margin: 0 0 8px 0; text-transform: uppercase; border-bottom: 2px solid #111827; padding-bottom: 4px; }
+  h2 { font-size: 14pt; margin: 18px 0 6px 0; }
+  h3 { font-size: 12pt; margin: 14px 0 4px 0; }
+  h4, h5, h6 { font-size: 11pt; font-weight: bold; margin: 12px 0 4px 0; }
+  p  { margin: 0 0 10px 0; text-align: justify; }
+  ul, ol { margin: 0 0 10px 20px; }
+  li { margin-bottom: 4px; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 10pt; }
+  th, td { border: 1px solid #D1D5DB; padding: 5px 8px; text-align: left; }
+  th { background: #F3F4F6; font-weight: bold; }
+  code { font-family: monospace; background: #F3F4F6; padding: 1px 4px; border-radius: 3px; font-size: 9.5pt; }
+  pre  { background: #F3F4F6; padding: 10px; border-radius: 4px; font-size: 9pt; white-space: pre-wrap; }
+  hr   { border: none; border-top: 1px solid #E5E7EB; margin: 14px 0; }
+  strong { font-weight: bold; }
+  em     { font-style: italic; }
+  footer {
+    position: fixed;
+    bottom: 0;
+    left: 0; right: 0;
+    font-size: 8pt;
+    color: #9CA3AF;
+    text-align: center;
+    border-top: 1px solid #E5E7EB;
+    padding-top: 4px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <span>LORA Digital Asset Vault &nbsp;•&nbsp; ${safeLabel}</span>
+  <span>${new Date().toLocaleString()}</span>
+</header>
+<h1>${safeTitle}</h1>
+${bodyHtml}
+<footer>Confidential Document &nbsp;•&nbsp; Powered by LORA Multi-Agent Legal Engine</footer>
+</body>
+</html>`;
+
+      const page = await browserManager.newPage();
+      try {
+        await page.setContent(fullHtml);
+        const pdfBuffer = await page.pdf({
+          format: "A4",
+          printBackground: true,
+          margin: { top: "20mm", right: "18mm", bottom: "20mm", left: "18mm" },
+        });
+        return pdfBuffer as Buffer;
+      } finally {
+        await page.close();
+      }
+    }
+  } catch (browserErr: any) {
+    console.warn("[exportService] Browser PDF failed, falling back to PDFKit:", browserErr.message);
+  }
+
+  // ── Fallback path: PDFKit (no browser available) ──────────────────────────
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: "A4", margin: MARGIN, bufferPages: true });
     const chunks: Buffer[] = [];
@@ -357,8 +464,11 @@ export const buildPdfBuffer = async (
 
     // ── Body ────────────────────────────────────────────────────────────────
     doc.fontSize(11).font("Helvetica").fillColor(COLOR_BLACK);
-    const tokens = contentToTokens(content);
-    renderTokensToPdf(doc, tokens);
+    if (contentType === "legal_document") {
+      renderLegalPlaintextToPdf(doc, content);
+    } else {
+      renderTokensToPdf(doc, contentToTokens(content));
+    }
 
     // ── Footer on every page ────────────────────────────────────────────────
     const pages = doc.bufferedPageRange();
@@ -651,19 +761,182 @@ function tokensToDocxChildren(tokens: any[]): (Paragraph | Table)[] {
   return children;
 }
 
+/**
+ * Negotiate stores extracted legal text with single newlines between
+ * headings/paragraphs. markdown-it treats `1. Definitions` as an ordered
+ * list and glues the following line into the same item. Split on newlines
+ * instead so numbering and paragraph breaks survive as ordinary text.
+ */
+export function splitLegalPlaintextParagraphs(content: string): string[] {
+  const normalized = content.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  const lines = normalized.split("\n");
+  if (lines.length > 0 && lines[lines.length - 1] === "") lines.pop();
+  return lines;
+}
+
+const LEGAL_HEADING_LEVEL: Record<number, typeof HeadingLevel[keyof typeof HeadingLevel]> = {
+  1: HeadingLevel.HEADING_1,
+  2: HeadingLevel.HEADING_2,
+  3: HeadingLevel.HEADING_3,
+  4: HeadingLevel.HEADING_4,
+  5: HeadingLevel.HEADING_5,
+  6: HeadingLevel.HEADING_6,
+};
+
+interface LegalInlineSeg {
+  text: string;
+  bold: boolean;
+  italic: boolean;
+}
+
+/**
+ * Convert inline `**bold**` / `__bold__` / `*italic*` markers to styled runs.
+ * Does not parse lists or other block Markdown — numbered clauses like
+ * `1. Definitions` must stay ordinary paragraphs.
+ */
+function parseLegalInlineSegments(text: string): LegalInlineSeg[] {
+  const segs: LegalInlineSeg[] = [];
+  let i = 0;
+  let bold = false;
+  let italic = false;
+  let buf = "";
+
+  const flush = () => {
+    if (!buf) return;
+    segs.push({ text: buf, bold, italic });
+    buf = "";
+  };
+
+  while (i < text.length) {
+    const two = text.slice(i, i + 2);
+    if (two === "**" || two === "__") {
+      flush();
+      bold = !bold;
+      i += 2;
+      continue;
+    }
+    if (text[i] === "*" && text[i + 1] !== "*") {
+      flush();
+      italic = !italic;
+      i += 1;
+      continue;
+    }
+    buf += text[i];
+    i++;
+  }
+  flush();
+  return segs;
+}
+
+function parseLegalInlineRuns(text: string): TextRun[] {
+  const segs = parseLegalInlineSegments(text);
+  if (segs.length === 0) return [new TextRun({ text: "" })];
+  return segs.map(
+    (s) =>
+      new TextRun({
+        text: s.text,
+        bold: s.bold || undefined,
+        italics: s.italic || undefined,
+      })
+  );
+}
+
+function legalInlineToHtml(text: string): string {
+  return parseLegalInlineSegments(text)
+    .map((s) => {
+      let html = htmlEscape(s.text);
+      if (s.italic) html = `<em>${html}</em>`;
+      if (s.bold) html = `<strong>${html}</strong>`;
+      return html;
+    })
+    .join("");
+}
+
+/** One HTML block per source line — same structure as the Negotiate DOCX export. */
+function legalPlaintextToHtml(content: string): string {
+  return splitLegalPlaintextParagraphs(content)
+    .map((line) => {
+      const heading = /^(#{1,6})\s+(.*)$/.exec(line);
+      if (heading) {
+        // Template already uses <h1> for the document title, so ATX # → h2.
+        const level = Math.min(heading[1].length + 1, 6);
+        return `<h${level}>${legalInlineToHtml(heading[2])}</h${level}>`;
+      }
+      if (!line) return "<p></p>";
+      return `<p>${legalInlineToHtml(line)}</p>`;
+    })
+    .join("\n");
+}
+
+function legalFont(bold: boolean, italic: boolean): string {
+  if (bold && italic) return "Helvetica-BoldOblique";
+  if (bold) return "Helvetica-Bold";
+  if (italic) return "Helvetica-Oblique";
+  return "Helvetica";
+}
+
+const LEGAL_PDF_HEADING_SIZE = [16, 13, 12, 11, 11, 11];
+
+function renderLegalPlaintextToPdf(
+  doc: typeof PDFDocument.prototype,
+  content: string
+): void {
+  for (const line of splitLegalPlaintextParagraphs(content)) {
+    const heading = /^(#{1,6})\s+(.*)$/.exec(line);
+    const body = heading ? heading[2] : line;
+    const segs = parseLegalInlineSegments(body);
+    if (segs.length === 0) {
+      doc.moveDown(0.35);
+      continue;
+    }
+    const size = heading ? LEGAL_PDF_HEADING_SIZE[heading[1].length - 1] ?? 11 : 11;
+    segs.forEach((s, i) => {
+      doc.font(legalFont(s.bold, s.italic)).fontSize(size).fillColor(COLOR_BLACK);
+      doc.text(s.text, {
+        continued: i < segs.length - 1,
+        align: heading ? "left" : "justify",
+        width: CONTENT_WIDTH,
+      });
+    });
+    doc.moveDown(heading ? 0.3 : 0.45);
+  }
+}
+
+function legalPlaintextToDocxChildren(content: string): Paragraph[] {
+  return splitLegalPlaintextParagraphs(content).map((line) => {
+    const heading = /^(#{1,6})\s+(.*)$/.exec(line);
+    const body = heading ? heading[2] : line;
+    const children = parseLegalInlineRuns(body);
+    if (heading) {
+      const level = heading[1].length;
+      return new Paragraph({
+        heading: LEGAL_HEADING_LEVEL[level] ?? HeadingLevel.HEADING_1,
+        children,
+        spacing: { before: 240, after: 120 },
+      });
+    }
+    return new Paragraph({
+      children,
+      spacing: { before: 80, after: 120 },
+    });
+  });
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // DOCX export — proper markdown parsing, preserving all formatting
 // ─────────────────────────────────────────────────────────────────────────────
 export const buildDocxBuffer = async (
   title: string,
-  _contentType: string,
+  contentType: string,
   content: string
 ): Promise<Buffer> => {
-  // Parse content (Markdown or HTML) to a markdown-it token stream
-  const tokens = contentToTokens(content);
-
-  // Build docx children from tokens
-  const bodyChildren = tokensToDocxChildren(tokens);
+  // Negotiate (`legal_document`) keeps one Word paragraph per source line so
+  // `1. Definitions` is not eaten as a Markdown ordered list. Inline **bold**
+  // and ATX `#` headings are still applied as Word styles.
+  const bodyChildren =
+    contentType === "legal_document"
+      ? legalPlaintextToDocxChildren(content)
+      : tokensToDocxChildren(contentToTokens(content));
 
   const doc = new Document({
     styles: {

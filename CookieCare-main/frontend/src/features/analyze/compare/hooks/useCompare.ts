@@ -31,7 +31,7 @@ export const COMPARE_PROGRESS_STAGES = [
   "Extracting clause structure…",
   "Aligning clauses between agreements…",
   "Detecting semantic differences…",
-  "Analysing legal and commercial risk…",
+  "Reviewing clause changes…",
   "Generating executive summary…",
 ] as const;
 
@@ -208,7 +208,7 @@ function progressToStage(progress: number): string {
   if (progress < 45) return COMPARE_PROGRESS_STAGES[1]; // Structure
   if (progress < 68) return COMPARE_PROGRESS_STAGES[2]; // Alignment
   if (progress < 83) return COMPARE_PROGRESS_STAGES[3]; // Differences
-  if (progress < 95) return COMPARE_PROGRESS_STAGES[4]; // Risk
+  if (progress < 95) return COMPARE_PROGRESS_STAGES[4]; // Reviewing
   return COMPARE_PROGRESS_STAGES[5];                     // Summary
 }
 

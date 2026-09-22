@@ -842,12 +842,7 @@ router.post("/compromise", authenticateToken, async (req, res) => {
       ? `\nRELEVANT CONTEXT:\n${contextLines.join("\n")}`
       : "";
 
-    systemPrompt = `You are Lumi, a brilliant legal negotiation agent. Your objective is to draft a precise legal revision of a contract clause that implements a specific negotiation position.
-
-NEGOTIATION POSITION TO IMPLEMENT:
-Tier: ${tier.toUpperCase()} (${isPlaybookBacked ? "company playbook-backed" : "AI-suggested"})
-Position: ${position}
-Rationale: ${rationale}
+    systemPrompt = `You are Lumi, a brilliant legal negotiation agent. Your objective is to draft a precise legal revision of a contract clause that implements a specific negotiation position provided below.
 
 DRAFTING RULES:
 1. Implement EXACTLY the stated negotiation position — no more, no less.
@@ -860,16 +855,54 @@ STRICT OUTPUT RULE:
 - Return ONLY the final raw contractual text of the revised clause.
 - Do NOT use markdown code blocks, quotation marks, preambles, or postscript notes. Begin immediately with the clause text.`;
 
-    userPrompt = `Original clause:
+    userPrompt = `NEGOTIATION POSITION TO IMPLEMENT:
+Tier: ${tier.toUpperCase()} (${isPlaybookBacked ? "company playbook-backed" : "AI-suggested"})
+Position: ${position}
+Rationale: ${rationale}
+
+Original clause:
 "${originalText}"
 ${contextBlock}
 ${customPrompt ? `\nUser instruction: ${customPrompt}` : ""}
 
-Draft the revised clause implementing the ${tier} position:`;
+Draft the revised clause implementing the above position:`;
 
   } else {
-    // ── Legacy path: unchanged behaviour ─────────────────────────────────
-    systemPrompt = `You are Lumi, a brilliant legal negotiation agent. Your objective is to draft a protective, commercially viable replacement for a risky contract clause.
+    // ── Legacy path: manual text selection with user instruction ──────────
+    //
+    // When the user manually selects text and provides an instruction (e.g.
+    // "make it short and more precise"), the goal is to EDIT the selected
+    // text per that instruction — NOT to replace a risky clause with a
+    // protective one. The system prompt is therefore instruction-driven.
+    //
+    // If customPrompt is present we use the instruction-following prompt.
+    // If it is absent (no instruction given), fall back to the original
+    // protective-replacement prompt so legacy callers are unaffected.
+    if (customPrompt) {
+      systemPrompt = `You are Lumi, a precise legal text editor. Your ONLY objective is to edit the provided text exactly as the user instructs — nothing more, nothing less.
+
+EDITING RULES:
+1. Follow the user's instruction PRECISELY and LITERALLY. If they say "make it shorter", reduce the word count significantly. If they say "make it more formal", adjust the tone. If they say "make it mutual", rewrite obligations symmetrically.
+2. Preserve the legal meaning and core obligations of the original text unless the instruction explicitly asks you to change them.
+3. Do NOT add new legal protections, risk mitigations, or playbook positions that the user did not ask for.
+4. Do NOT expand or pad the text — match the scope and length implied by the instruction.
+5. Keep legal terminology consistent with the original.
+6. PRESERVE inline Markdown formatting: if the original contains **bold**, _italic_, or other Markdown syntax, carry that formatting through to the edited version on the same words (or equivalent words if rephrased). Do NOT strip or add Markdown decoration unless the instruction asks you to.
+
+STRICT OUTPUT RULE:
+- Return ONLY the final edited text.
+- Do NOT wrap your output in markdown code blocks, quotation marks, preambles, or postscript notes. Begin immediately with the text.`;
+
+      userPrompt = `Original text:
+"${originalText}"
+
+User instruction: ${customPrompt}
+
+Apply the instruction and return the edited text:`;
+    } else {
+      // No instruction — original protective-replacement behaviour (fallback,
+      // keeps backward compatibility for any caller that omits customPrompt).
+      systemPrompt = `You are Lumi, a brilliant legal negotiation agent. Your objective is to draft a protective, commercially viable replacement for a risky contract clause.
 
 DRAFTING STRATEGY:
 ${
@@ -882,13 +915,13 @@ STRICT OUTPUT RULE:
 - Return ONLY the final raw contractual text of the replacement clause.
 - Do NOT wrap your output in markdown code blocks (e.g. no \`\`\`), quotation marks, introduction/explanatory preambles, or postscript notes. Begin immediately with the clause text.`;
 
-    userPrompt = `Original risky clause:
+      userPrompt = `Original risky clause:
 "${originalText}"
 
 Risk Analysis: ${riskExplanation || "General legal risk detected."}
-${customPrompt ? `Additional Instruction: ${customPrompt}` : ""}
 
 Draft the replacement clause below:`;
+    }
   }
 
   try {
