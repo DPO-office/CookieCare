@@ -88,7 +88,7 @@ export async function discoverRelationsWithLlm(graph: CanonicalDocumentGraph): P
       DISCOVERY_SCHEMA,
       LLMTask.STRUCTURAL_JSON_LITE,
       LLMProvider.GEMINI,
-      { maxOutputTokens: 4096, thinkingLevel: "minimal" }
+      { maxOutputTokens: 4096, thinkingLevel: "low" }
     );
   });
   return results.flatMap((result) => Array.isArray(result.relations) ? result.relations : []);
