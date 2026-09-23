@@ -13,6 +13,7 @@ export const ndaSkillConfig: DraftingSkillConfig = {
       blocking: true,
       question: "What is the business purpose or engagement for sharing confidential information (e.g. employment, independent contractor services, commercial evaluation)?",
       reasonRequired: "Confidentiality and non-use covenants must specify the permitted business purpose or engagement scope.",
+      placeholder: "e.g. Evaluating commercial partnership and sharing confidential technical documentation",
       aliases: ["purpose", "engagementType"],
     },
     {
@@ -22,6 +23,7 @@ export const ndaSkillConfig: DraftingSkillConfig = {
       question: "How long should confidentiality obligations last (e.g. 2 years, 3 years, 5 years, or perpetual for trade secrets)?",
       reasonRequired: "Term and survival provisions require a specific duration for confidentiality.",
       options: ["2 years", "3 years", "5 years", "Perpetual (trade secrets)", "Other (specify)"],
+      placeholder: "e.g. 3 years",
       aliases: ["ndaTerm", "duration"],
     },
     {
@@ -31,6 +33,7 @@ export const ndaSkillConfig: DraftingSkillConfig = {
       question: "What type of NDA is this (e.g. Mutual Commercial, Employee PIIA, or Independent Contractor)?",
       reasonRequired: "Worker status, invention assignment, and moral rights waivers differ between commercial, employee, and contractor NDAs.",
       options: ["Mutual Commercial NDA", "One-Way Commercial NDA", "Employee NDA / PIIA", "Independent Contractor NDA"],
+      placeholder: "Select an NDA type",
       aliases: ["agreementType", "relationshipType"],
     },
   ],

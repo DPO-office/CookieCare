@@ -13,6 +13,7 @@ export const partnershipSkillConfig: DraftingSkillConfig = {
       blocking: true,
       question: "What is the strategic purpose or joint project of the partnership?",
       reasonRequired: "A partnership agreement must define its core enterprise purpose.",
+      placeholder: "e.g. Joint development and commercial distribution of health-tech software",
     },
     {
       id: "revenueSplit",
@@ -20,6 +21,7 @@ export const partnershipSkillConfig: DraftingSkillConfig = {
       blocking: true,
       question: "How are profits, revenues, or costs shared between partners?",
       reasonRequired: "Financial sharing rules are mandatory in partnership contracts.",
+      placeholder: "e.g. 50/50 profit split after operational costs",
     },
   ],
   sectionBriefs: [

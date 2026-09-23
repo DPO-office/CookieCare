@@ -31,11 +31,23 @@ You will be given:
      HIPAA, etc.) and jurisdiction skill documents to spot missing mandatory statutory requirements.
    - USER INSTRUCTION GAPS: Spot any unhandled options, ambiguities, or gaps mentioned in the user instructions.
 
-3. EMIT CRITICAL MISSING FACTS FOR UNRESOLVED GAPS:
+3. EMIT CRITICAL MISSING FACTS FOR UNRESOLVED GAPS WITH REALISTIC EXAMPLES:
    - Emit a MissingFact with severity "critical" for every missing detail, parameter, or variable required by
      the template, playbook, or skill documents that is absent from the user's prompt or known facts.
-   - Each MissingFact must have a clear, user-facing question and a one-sentence "reasonRequired" explaining
-     why this fact is necessary to draft a complete, placeholder-free agreement.
+   - Each MissingFact must have:
+     * a clear, user-facing "question"
+     * a one-sentence "reasonRequired" explaining why this fact is necessary
+     * a realistic, context-appropriate "placeholder" string starting with "e.g. " that shows the user exactly how to format their answer.
+       - Single company legal name & address: "e.g. Acme Corp, 100 Innovation Way, Suite 400, Wilmington, DE 19801"
+       - Single company name: "e.g. Acme Technologies Inc."
+       - Dual parties (only when asking both together): "e.g. Acme Ltd and DataCo International"
+       - Date: "e.g. 1 Dec 2026"
+       - Term/Duration: "e.g. 3 years"
+       - SLA/Uptime: "e.g. 99.9%"
+       - Notice window: "e.g. 30 days"
+       - Liability cap: "e.g. 12 months' fees (or $1,000,000)"
+       - Business / processing purpose: "e.g. Cloud software hosting, analytics, and technical support"
+       NEVER output a dual-company placeholder like "Acme Ltd and DataCo" when asking for a single entity's name or address.
    - Do NOT ask questions for facts or parameters that the user ALREADY provided in their prompt or known facts, or that were already asked previously.
    - Do NOT ask the same question or topic under different phrasing.
    - Do NOT ask purely stylistic preference questions.
@@ -53,7 +65,9 @@ You will be given:
 
 7. sectionTarget: only set this if the requirement clearly belongs to one predictable section of a standard document.
 
-8. Output ONLY the structured JSON matching the provided schema. No prose, no preamble, no explanation outside schema fields.
+8. GOVERNING LAW DISCIPLINE: Never output more than one question for governing law, jurisdiction, venue, or choice of law. If governing law is already known or satisfied, do NOT ask for it. When missing, use the canonical field id "governingLaw" with question "Which governing law should apply?" and standard options: ["GDPR (EU)", "CCPA (US)", "DPDPA (India)", "UK GDPR / English Law", "Other (specify)"] and placeholder "Select a governing law".
+
+9. Output ONLY the structured JSON matching the provided schema. No prose, no preamble, no explanation outside schema fields.
 
 
 
@@ -68,7 +82,8 @@ And facts showing dataTransfer = "EEA_to_nonEEA" but no sccModule field set:
     field: "sccModule",
     question: "Which SCC module applies to this transfer — Module 2 (controller-to-processor) or Module 3 (processor-to-processor)?",
     severity: "critical",
-    reasonRequired: "The transfer mechanism clause cites a specific SCC module; drafting the wrong one misstates the parties' actual data-transfer relationship."
+    reasonRequired: "The transfer mechanism clause cites a specific SCC module; drafting the wrong one misstates the parties' actual data-transfer relationship.",
+    placeholder: "e.g. Module 2 (controller-to-processor)"
   }]
 → checklist: [{
     id: "gdpr-transfer-mechanism-specified",

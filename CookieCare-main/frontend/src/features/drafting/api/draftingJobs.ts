@@ -21,6 +21,8 @@ export type DraftOpenQuestion = {
    */
   inputType?: QuestionInputType;
   reasonRequired?: string;
+  placeholder?: string;
+  example?: string;
 };
 
 export type DraftJobResult = {

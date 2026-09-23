@@ -128,6 +128,16 @@ export function applyUserAnswers(
     factsPatch.governingLaw = factsPatch.jurisdiction;
   }
 
+  if (factsPatch.privacyRegime) {
+    if (!factsPatch.governingLaw) factsPatch.governingLaw = factsPatch.privacyRegime;
+    if (!factsPatch.jurisdiction) factsPatch.jurisdiction = factsPatch.privacyRegime;
+  } else if (factsPatch.governingLaw) {
+    const gl = String(factsPatch.governingLaw).toLowerCase();
+    if (gl.includes("gdpr") || gl.includes("ccpa") || gl.includes("dpdpa") || gl.includes("cpra")) {
+      if (!factsPatch.privacyRegime) factsPatch.privacyRegime = factsPatch.governingLaw;
+    }
+  }
+
   // Address and details extraction
   for (const [k, v] of Object.entries(factsPatch)) {
     const keyLower = k.toLowerCase();

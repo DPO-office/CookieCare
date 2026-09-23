@@ -16,6 +16,7 @@ export const dpaSkillConfig: DraftingSkillConfig = {
       reasonRequired:
         "The clauses to draft depend on the privacy regime. A bare DPA request does not choose GDPR, CCPA, or DPDPA.",
       options: ["GDPR", "UK GDPR", "CCPA / CPRA", "DPDPA", "Other (specify)"],
+      placeholder: "Select a data protection law",
       aliases: ["regime", "privacyLaw", "dataProtectionLaw"],
     },
     {
@@ -26,6 +27,7 @@ export const dpaSkillConfig: DraftingSkillConfig = {
         "What is the date of the principal / master services agreement this DPA supplements? (or say 'date of last signature')",
       reasonRequired:
         "DPA recitals cite the MSA date; without it the draft emits [● DATE OF MSA].",
+      placeholder: "e.g. 1 Dec 2026",
       coveredByEffectiveDate: true,
       aliases: ["msaDate", "dateOfMsa"],
     },
@@ -37,6 +39,7 @@ export const dpaSkillConfig: DraftingSkillConfig = {
         "What is the purpose of processing personal data under this DPA (e.g. cloud hosting, analytics, support)?",
       reasonRequired:
         "Art. 28 schedules require a stated processing purpose; otherwise Schedule 1 is filled with brackets.",
+      placeholder: "e.g. Cloud software hosting, analytics, and technical support",
       aliases: ["purposeOfProcessing"],
     },
     {
@@ -47,6 +50,7 @@ export const dpaSkillConfig: DraftingSkillConfig = {
         "Which categories of personal data will be processed (e.g. contact data, account IDs, health data)?",
       reasonRequired:
         "Details of Processing must list data categories; inventing them is unsafe and creates placeholders.",
+      placeholder: "e.g. User IDs, contact details, device logs",
       aliases: ["phiCategories", "personalDataCategories"],
     },
     {
@@ -57,6 +61,7 @@ export const dpaSkillConfig: DraftingSkillConfig = {
         "Whose personal data is processed (e.g. customers, employees, patients, end users)?",
       reasonRequired:
         "Schedule 1 must identify data subject categories; missing this yields bracketed stubs.",
+      placeholder: "e.g. Customers, employees, and platform end users",
       aliases: ["dataSubjectCategories"],
     },
     {
@@ -73,6 +78,7 @@ export const dpaSkillConfig: DraftingSkillConfig = {
         "Uncapped for data breach",
         "As stated in Principal Agreement",
       ],
+      placeholder: "e.g. 12 months' fees (or As stated in Principal Agreement)",
       aliases: ["capOnLiability", "limitationOfLiability"],
     },
   ],

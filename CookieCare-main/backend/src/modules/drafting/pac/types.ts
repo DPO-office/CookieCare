@@ -35,6 +35,9 @@ export interface UserQuestion {
    * Defaults to "chips" when options are present, "text" otherwise.
    */
   inputType?: QuestionInputType;
+  placeholder?: string;
+  example?: string;
+  reasonRequired?: string;
 }
 
 export interface AgentRunState {

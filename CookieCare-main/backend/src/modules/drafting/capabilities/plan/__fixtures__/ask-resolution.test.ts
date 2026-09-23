@@ -9,6 +9,7 @@ import { computeGapsAndConflicts } from "../compute-gaps.js";
 import type { MissingFact } from "../../../models/draft-plan.js";
 import { mustAskUser } from "../../../pac/policy.js";
 import { initAgentRunState } from "../../../pac/types.js";
+import { collapseToSingleGoverningLawAsk } from "../core-deal-facts.js";
 
 function baseState(facts: StructuredFacts, rawInstructions = "test"): DraftState {
   return {
@@ -273,6 +274,67 @@ describe("ASK resolution P0", () => {
     const governingLawQuestions = missing.filter((m) => m.field === "governingLaw");
     assert.equal(governingLawQuestions.length, 1);
     assert.equal(missing.filter((m) => m.field === "governing_jurisdiction").length, 0);
+    assert.deepEqual(governingLawQuestions[0].options, [
+      "GDPR (EU)",
+      "CCPA (US)",
+      "DPDPA (India)",
+      "UK GDPR / English Law",
+      "Other (specify)",
+    ]);
+  });
+
+  it("deduplicates LLM stateLaw/venue question against governingLaw so only 1 law question is asked", () => {
+    const state = baseState(
+      {
+        parties: ["A Corp", "B Corp"],
+        privacyRegime: "GDPR",
+      },
+      "Draft mutual commercial NDA"
+    );
+    const resolved = resolveRequirements(state);
+    // Simulate detectGaps returning "stateLaw" with typical prompt wording
+    const missing = computeGapsAndConflicts(resolved, [
+      {
+        field: "stateLaw",
+        question: "Which state's law will govern the agreement (and serve as the legal venue)?",
+        severity: "critical",
+        reasonRequired: "Need choice of law",
+      },
+    ]);
+
+    const lawQuestions = missing.filter(
+      (m) =>
+        m.field === "governingLaw" ||
+        m.field === "stateLaw" ||
+        /law|venue|jurisdiction/i.test(m.question)
+    );
+    assert.equal(lawQuestions.length, 1);
+    assert.equal(lawQuestions[0].field, "governingLaw");
+  });
+
+  it("collapseToSingleGoverningLawAsk drops duplicate law and venue questions", () => {
+    const input: MissingFact[] = [
+      {
+        field: "governingLaw",
+        question: "Which governing law should apply?",
+        severity: "critical",
+      },
+      {
+        field: "legalVenue",
+        question: "Which state's law will govern the agreement (and serve as the legal venue)?",
+        severity: "critical",
+      },
+      {
+        field: "effectiveDate",
+        question: "What is the effective date?",
+        severity: "critical",
+      },
+    ];
+
+    const collapsed = collapseToSingleGoverningLawAsk(input);
+    assert.equal(collapsed.length, 2);
+    assert.equal(collapsed[0].field, "governingLaw");
+    assert.equal(collapsed[1].field, "effectiveDate");
   });
 
   it("single-ask guarantee: previously asked fields in agent.askedFieldIds are never re-asked", () => {
@@ -323,11 +385,42 @@ describe("ASK resolution P0", () => {
           question: "What is the breach SLA?",
           severity: "critical",
           reasonRequired: "Needed",
+          placeholder: "e.g. 48 hours",
         },
       ],
     } as any;
 
     // Even though a critical fact exists, 2 rounds were exhausted -> must not ask again!
     assert.equal(mustAskUser(state), false);
+  });
+
+  it("propagates AI-generated and catalog placeholders through computeGapsAndConflicts", () => {
+    const state = baseState(
+      {
+        privacyRegime: "GDPR",
+      },
+      "Draft DPA"
+    );
+    const resolved = resolveRequirements(state);
+    const missing = computeGapsAndConflicts(resolved, [
+      {
+        field: "clientDetails",
+        question: "What is the full legal name and address of the Client?",
+        severity: "critical",
+        reasonRequired: "Needed for preamble",
+        placeholder: "e.g. Acme Corp, 100 Innovation Way, Suite 400, Wilmington, DE 19801",
+      },
+    ]);
+
+    const clientAsk = missing.find((m) => m.field === "clientDetails");
+    assert.ok(clientAsk, "clientDetails should be in missing facts");
+    assert.equal(
+      clientAsk.placeholder,
+      "e.g. Acme Corp, 100 Innovation Way, Suite 400, Wilmington, DE 19801"
+    );
+
+    const partiesAsk = missing.find((m) => m.field === "parties");
+    assert.ok(partiesAsk, "parties should be in missing facts");
+    assert.equal(partiesAsk.placeholder, "e.g. Acme Ltd and DataCo International");
   });
 });

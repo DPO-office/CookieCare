@@ -420,6 +420,8 @@ export interface RequiredFactCatalogEntry {
   question: string;
   reasonRequired: string;
   options?: string[];
+  placeholder?: string;
+  example?: string;
   aliases?: string[];
   /** When set, apply this value as assumed if missing. */
   safeDefault?: unknown;
@@ -439,23 +441,24 @@ const UNIVERSAL_CATALOG: RequiredFactCatalogEntry[] = [
       "Who are the parties to this agreement? Please provide the full legal names of both parties.",
     reasonRequired:
       "Party names appear throughout the agreement; drafting without them forces [PARTY] placeholders.",
+    placeholder: "e.g. Acme Ltd and DataCo International",
     aliases: ["partyA", "partyB"],
   },
   {
     id: "governingLaw",
     priority: "critical",
     blocking: true,
-    question: "Which law and venue should apply?",
+    question: "Which governing law should apply?",
     reasonRequired:
-      "The venue clause must name a real jurisdiction; inventing one makes the draft wrong.",
+      "Governing law determines the applicable statutory regime and enforcement venue.",
     options: [
-      "Republic of Ireland (EU)",
-      "Germany (EU)",
-      "Delaware (US)",
-      "England & Wales",
-      "India",
+      "GDPR (EU)",
+      "CCPA (US)",
+      "DPDPA (India)",
+      "UK GDPR / English Law",
       "Other (specify)",
     ],
+    placeholder: "Select a governing law",
     aliases: ["jurisdiction"],
   },
   {
@@ -466,6 +469,7 @@ const UNIVERSAL_CATALOG: RequiredFactCatalogEntry[] = [
       "What is the effective date of this agreement (or should it be the date of last signature)?",
     reasonRequired:
       "Without an effective date the draft leaves [● DATE] placeholders in the preamble and term clauses.",
+    placeholder: "e.g. 1 Dec 2026",
   },
 ];
 
@@ -479,6 +483,7 @@ const DOC_TYPE_CATALOG: Record<string, RequiredFactCatalogEntry[]> = {
         "What is the date of the principal / master services agreement this DPA supplements? (or say 'date of last signature')",
       reasonRequired:
         "DPA recitals cite the MSA date; without it the draft emits [● DATE OF MSA].",
+      placeholder: "e.g. 1 Dec 2026",
       coveredByEffectiveDate: true,
       aliases: ["msaDate", "dateOfMsa"],
     },
@@ -490,6 +495,7 @@ const DOC_TYPE_CATALOG: Record<string, RequiredFactCatalogEntry[]> = {
         "What is the purpose of processing personal data under this DPA (e.g. cloud hosting, analytics, support)?",
       reasonRequired:
         "Art. 28 schedules require a stated processing purpose; otherwise Schedule 1 is filled with brackets.",
+      placeholder: "e.g. Cloud software hosting, analytics, and technical support",
       aliases: ["purposeOfProcessing"],
     },
     {
@@ -500,6 +506,7 @@ const DOC_TYPE_CATALOG: Record<string, RequiredFactCatalogEntry[]> = {
         "Which categories of personal data will be processed (e.g. contact data, account IDs, health data)?",
       reasonRequired:
         "Details of Processing must list data categories; inventing them is unsafe and creates placeholders.",
+      placeholder: "e.g. Contact details, usage logs, user IDs",
       aliases: ["phiCategories", "personalDataCategories"],
     },
     {
@@ -510,6 +517,7 @@ const DOC_TYPE_CATALOG: Record<string, RequiredFactCatalogEntry[]> = {
         "Whose personal data is processed (e.g. customers, employees, patients, end users)?",
       reasonRequired:
         "Schedule 1 must identify data subject categories; missing this yields bracketed stubs.",
+      placeholder: "e.g. Customers, employees, and platform end users",
       aliases: ["dataSubjectCategories"],
     },
     {
@@ -540,6 +548,7 @@ const DOC_TYPE_CATALOG: Record<string, RequiredFactCatalogEntry[]> = {
         "What is the business purpose for sharing confidential information (one sentence)?",
       reasonRequired:
         "Purpose/permitted-use clauses must state a real purpose; otherwise [PURPOSE] placeholders remain.",
+      placeholder: "e.g. Evaluating commercial partnership and sharing confidential technical documentation",
     },
     {
       id: "confidentialityTermYears",
@@ -561,6 +570,7 @@ const DOC_TYPE_CATALOG: Record<string, RequiredFactCatalogEntry[]> = {
         "What services will be provided and what is the delivery method (e.g. software development/testing using remote systems)?",
       reasonRequired:
         "Services scope drives SOW references and obligations; missing it produces bracketed stubs.",
+      placeholder: "e.g. Software development, hosting, and technical support services",
     },
     {
       id: "paymentTerms",
@@ -569,6 +579,7 @@ const DOC_TYPE_CATALOG: Record<string, RequiredFactCatalogEntry[]> = {
       question: "What are the remuneration and payment terms (e.g. Net 30 days)?",
       reasonRequired: "Invoicing and payment terms govern all SOWs under the master agreement.",
       options: ["Net 15 days", "Net 30 days", "Net 60 days"],
+      placeholder: "e.g. Net 30 days",
     },
     {
       id: "liabilityCap",
@@ -576,6 +587,7 @@ const DOC_TYPE_CATALOG: Record<string, RequiredFactCatalogEntry[]> = {
       blocking: true,
       question: "What is the limitation of liability cap (e.g. 1x fees paid in preceding 12 months)?",
       reasonRequired: "Risk allocation and monetary caps are mandatory risk management terms.",
+      placeholder: "e.g. 12 months' fees (or $1,000,000)",
     },
     {
       id: "terminationNotice",
@@ -584,6 +596,7 @@ const DOC_TYPE_CATALOG: Record<string, RequiredFactCatalogEntry[]> = {
       question: "What written notice period is required for termination (e.g. 30 days)?",
       reasonRequired: "Termination procedures must specify the advance written notice window.",
       options: ["30 days written notice", "60 days written notice"],
+      placeholder: "e.g. 30 days written notice",
     },
   ],
   sla: [
@@ -594,6 +607,7 @@ const DOC_TYPE_CATALOG: Record<string, RequiredFactCatalogEntry[]> = {
       question: "What is the target uptime percentage (e.g. 99.9%)?",
       reasonRequired: "SLA requires an explicit uptime target.",
       options: ["99.5%", "99.9%", "99.95%", "99.99%"],
+      placeholder: "e.g. 99.9%",
     },
   ],
   saas: [
@@ -603,6 +617,7 @@ const DOC_TYPE_CATALOG: Record<string, RequiredFactCatalogEntry[]> = {
       blocking: true,
       question: "What is the name and description of the SaaS application / service?",
       reasonRequired: "SaaS agreement must specify the application service being subscribed to.",
+      placeholder: "e.g. Cloud CRM platform and associated API hosting services",
     },
     {
       id: "subscriptionTerm",
@@ -611,6 +626,7 @@ const DOC_TYPE_CATALOG: Record<string, RequiredFactCatalogEntry[]> = {
       question: "What is the initial subscription term (e.g. 1 year)?",
       reasonRequired: "Subscription term dictates payment schedules and renewal terms.",
       options: ["1 year", "2 years", "3 years", "Monthly auto-renew"],
+      placeholder: "e.g. 1 year",
     },
     {
       id: "feesPayment",
@@ -618,6 +634,7 @@ const DOC_TYPE_CATALOG: Record<string, RequiredFactCatalogEntry[]> = {
       blocking: true,
       question: "What are the subscription fees and payment terms (e.g. annual in advance, Net 30 days)?",
       reasonRequired: "Fee structure defines invoicing frequency, payment windows, and late interest.",
+      placeholder: "e.g. $10,000 billed annually in advance, Net 30 days",
     },
     {
       id: "uptimeCommitment",
@@ -626,6 +643,7 @@ const DOC_TYPE_CATALOG: Record<string, RequiredFactCatalogEntry[]> = {
       question: "What is the target monthly uptime percentage (e.g. 99.9%)?",
       reasonRequired: "SaaS agreements require an explicit service availability target and SLA credit formula.",
       options: ["99.5%", "99.9%", "99.95%", "99.99%"],
+      placeholder: "e.g. 99.9%",
     },
     {
       id: "dataProtectionLaw",
@@ -634,6 +652,7 @@ const DOC_TYPE_CATALOG: Record<string, RequiredFactCatalogEntry[]> = {
       question: "Which data protection regime applies to customer personal data (e.g. UK GDPR, EU GDPR, DPDPA)?",
       reasonRequired: "Personal data handling, sub-processor notification, and security measures depend on the governing privacy law.",
       options: ["UK GDPR / Data Protection Act 2018", "EU GDPR", "DPDPA (India)", "CCPA / CPRA", "Standard Commercial Privacy"],
+      placeholder: "Select a data protection law",
     },
   ],
   employment: [
@@ -643,6 +662,7 @@ const DOC_TYPE_CATALOG: Record<string, RequiredFactCatalogEntry[]> = {
       blocking: true,
       question: "What is the employee's job title?",
       reasonRequired: "Job title is required in employment contracts.",
+      placeholder: "e.g. Senior Software Engineer",
     },
     {
       id: "salaryCompensation",
@@ -650,6 +670,7 @@ const DOC_TYPE_CATALOG: Record<string, RequiredFactCatalogEntry[]> = {
       blocking: true,
       question: "What is the base salary or compensation?",
       reasonRequired: "Compensation details are mandatory in employment contracts.",
+      placeholder: "e.g. $120,000 per annum, paid monthly",
     },
   ],
   "service-agreement": [
@@ -660,6 +681,7 @@ const DOC_TYPE_CATALOG: Record<string, RequiredFactCatalogEntry[]> = {
       question: "Briefly describe the services to be provided.",
       reasonRequired:
         "Service description is required to draft scope without placeholders.",
+      placeholder: "e.g. IT consulting, database migration, and cloud maintenance",
     },
   ],
 };
@@ -813,7 +835,8 @@ export function prioritizeMissingFacts(
     return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
   });
   const ranked = [...critical.slice(0, maxCritical), ...optional];
-  return collapseToSingleDateAsk(ranked);
+  const withSingleDate = collapseToSingleDateAsk(ranked);
+  return collapseToSingleGoverningLawAsk(withSingleDate);
 }
 
 const DATE_ASK_FIELDS = new Set(["effectiveDate", "principalAgreementDate"]);
@@ -830,6 +853,50 @@ function collapseToSingleDateAsk(facts: MissingFact[]): MissingFact[] {
     dateAsks.find((f) => f.field === "effectiveDate") ?? dateAsks[0];
   const drop = new Set(
     dateAsks.filter((f) => f.field !== keep.field).map((f) => f.field)
+  );
+  return facts.filter((f) => !drop.has(f.field));
+}
+
+const GOVERNING_LAW_ASK_FIELDS = new Set([
+  "governingLaw",
+  "privacyRegime",
+  "jurisdiction",
+  "venue",
+  "choiceOfLaw",
+  "applicableLaw",
+  "stateLaw",
+  "whichStatesLaw",
+  "governingState",
+  "legalVenue",
+  "disputeLaw",
+  "disputeVenue",
+]);
+
+export function isGoverningLawAsk(fact: MissingFact): boolean {
+  const canonical = canonicalizeFieldId(fact.field);
+  if (
+    GOVERNING_LAW_ASK_FIELDS.has(canonical) ||
+    canonical === "governingLaw" ||
+    canonical === "privacyRegime"
+  ) {
+    return true;
+  }
+  return /\b(?:governing\s+law|which\s+(?:jurisdiction|law|state|country)|applicable\s+law|law\s+(?:that\s+)?(?:should\s+)?govern|jurisdiction(?:'s)?\s+laws?|choice\s+of\s+law|legal\s+venue|venue\s+for\s+disputes?|data\s+protection\s+law)\b/i.test(
+    fact.question
+  );
+}
+
+/** Never ask the user for more than one governing law / jurisdiction question. */
+export function collapseToSingleGoverningLawAsk(facts: MissingFact[]): MissingFact[] {
+  const lawAsks = facts.filter(isGoverningLawAsk);
+  if (lawAsks.length <= 1) return facts;
+  // If there's a privacyRegime ask (e.g. for a DPA), prefer it; otherwise prefer governingLaw
+  const keep =
+    lawAsks.find((f) => f.field === "privacyRegime") ??
+    lawAsks.find((f) => f.field === "governingLaw") ??
+    lawAsks[0];
+  const drop = new Set(
+    lawAsks.filter((f) => f !== keep).map((f) => f.field)
   );
   return facts.filter((f) => !drop.has(f.field));
 }
@@ -853,6 +920,7 @@ export function missingFactsFromPlaceholders(placeholders: string[]): MissingFac
         "The draft still has date placeholders. What effective / MSA date should we use?",
       severity: "critical",
       reasonRequired: "Leftover [● DATE] placeholders make the document unusable.",
+      placeholder: "e.g. 1 Dec 2026",
     });
   }
   if (/PARTY|NAME/.test(joined)) {
@@ -862,6 +930,7 @@ export function missingFactsFromPlaceholders(placeholders: string[]): MissingFac
         "The draft still has party-name placeholders. Confirm the full legal names of both parties.",
       severity: "critical",
       reasonRequired: "Leftover [PARTY] placeholders make the document unusable.",
+      placeholder: "e.g. Acme Ltd and DataCo International",
     });
   }
   if (/PURPOSE/.test(joined)) {
@@ -870,6 +939,7 @@ export function missingFactsFromPlaceholders(placeholders: string[]): MissingFac
       question: "The draft still has a purpose placeholder. What is the business / processing purpose?",
       severity: "critical",
       reasonRequired: "Purpose must be stated without brackets.",
+      placeholder: "e.g. Evaluating commercial partnership and sharing confidential technical documentation",
     });
   }
   if (facts.length === 0 && placeholders.length > 0) {
@@ -878,6 +948,7 @@ export function missingFactsFromPlaceholders(placeholders: string[]): MissingFac
       question: `The draft still contains placeholders (${placeholders.slice(0, 5).join(", ")}). Please provide the missing values so we can replace them.`,
       severity: "critical",
       reasonRequired: "Bracketed stubs must be resolved before delivery.",
+      placeholder: "e.g. Provide the replacement details here",
     });
   }
   return facts;

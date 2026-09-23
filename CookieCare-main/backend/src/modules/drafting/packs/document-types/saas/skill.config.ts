@@ -13,6 +13,7 @@ export const saasSkillConfig: DraftingSkillConfig = {
       blocking: true,
       question: "What is the name and description of the SaaS application / service?",
       reasonRequired: "SaaS agreement must clearly state the subscription service and software being accessed.",
+      placeholder: "e.g. Cloud CRM platform and associated API hosting services",
       aliases: ["serviceDescription", "saasService", "applicationName"],
     },
     {
@@ -22,6 +23,7 @@ export const saasSkillConfig: DraftingSkillConfig = {
       question: "What is the initial subscription term (e.g. 1 year, 12 months, auto-renewing)?",
       reasonRequired: "Subscription term dictates payment schedules and renewal windows.",
       options: ["1 year", "2 years", "3 years", "Monthly auto-renew", "Other (specify)"],
+      placeholder: "e.g. 1 year",
       aliases: ["initialTerm", "termLength"],
     },
     {
@@ -30,6 +32,7 @@ export const saasSkillConfig: DraftingSkillConfig = {
       blocking: true,
       question: "What are the subscription fees and payment terms (e.g. annual in advance, Net 30 days)?",
       reasonRequired: "Fee structure defines invoicing frequency, payment windows, and late interest.",
+      placeholder: "e.g. $10,000 billed annually in advance, Net 30 days",
       aliases: ["fees", "paymentTerms"],
     },
     {
@@ -39,6 +42,7 @@ export const saasSkillConfig: DraftingSkillConfig = {
       question: "What is the target monthly uptime percentage (e.g. 99.9%, 99.95%)?",
       reasonRequired: "SaaS agreements require an explicit service availability target and SLA credit formula.",
       options: ["99.5%", "99.9%", "99.95%", "99.99%"],
+      placeholder: "e.g. 99.9%",
       aliases: ["uptimeTarget", "availabilityTarget"],
     },
     {
@@ -48,6 +52,7 @@ export const saasSkillConfig: DraftingSkillConfig = {
       question: "Which data protection regime applies to customer personal data (e.g. UK GDPR, EU GDPR, DPDPA, CCPA)?",
       reasonRequired: "Personal data handling, sub-processor notification, and security measures depend on the governing privacy law.",
       options: ["UK GDPR / Data Protection Act 2018", "EU GDPR", "DPDPA (India)", "CCPA / CPRA", "Standard Commercial Privacy"],
+      placeholder: "Select a data protection law",
       aliases: ["privacyRegime", "dataSecurity"],
     },
   ],

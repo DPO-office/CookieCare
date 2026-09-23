@@ -15,9 +15,13 @@ export function composeDraftContext(params: {
   }
 
   if (params.template) {
-    const body = params.template.details || params.template.description;
+    const rawDesc = params.template.description;
+    const cleanDesc =
+      rawDesc && !rawDesc.trim().startsWith("{") ? rawDesc.trim() : "";
     parts.push(
-      `Use this structural template: ${params.template.name}${body ? `\n${body}` : ""}`
+      `Use structural template: ${params.template.name}${
+        cleanDesc ? `\n${cleanDesc}` : ""
+      }`
     );
   }
 

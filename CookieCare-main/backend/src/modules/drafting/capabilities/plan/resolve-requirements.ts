@@ -296,6 +296,8 @@ export function resolveRequirements(state: DraftState): DraftState {
       blocking: entry.blocking,
       question: entry.question,
       options: entry.options,
+      placeholder: entry.placeholder,
+      example: entry.example,
       reasonRequired: entry.reasonRequired,
     };
     console.log(
@@ -386,6 +388,8 @@ export function requirementToMissingFact(req: CanonicalRequirement): {
   severity: "critical" | "optional";
   reasonRequired?: string;
   options?: string[];
+  placeholder?: string;
+  example?: string;
 } {
   return {
     field: req.id,
@@ -395,5 +399,7 @@ export function requirementToMissingFact(req: CanonicalRequirement): {
     severity: req.blocking || req.priority === "critical" ? "critical" : "optional",
     reasonRequired: req.reasonRequired,
     options: req.options,
+    placeholder: req.placeholder,
+    example: req.example,
   };
 }

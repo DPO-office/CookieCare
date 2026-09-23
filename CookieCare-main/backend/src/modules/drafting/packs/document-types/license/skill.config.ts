@@ -13,6 +13,7 @@ export const licenseSkillConfig: DraftingSkillConfig = {
       blocking: true,
       question: "What software, product, or intellectual property is being licensed?",
       reasonRequired: "A license agreement must clearly specify the licensed IP or software product.",
+      placeholder: "e.g. DataSync Enterprise Server Software v3.0",
       aliases: ["licensedSoftware", "licensedProduct"],
     },
     {
@@ -22,6 +23,7 @@ export const licenseSkillConfig: DraftingSkillConfig = {
       question: "What is the scope of the license (e.g. non-exclusive, worldwide, restricted seats/servers)?",
       reasonRequired: "The grant clause dictates the permitted territory, exclusivity, and use limitations.",
       options: ["Non-exclusive, worldwide", "Exclusive", "Territory-restricted"],
+      placeholder: "Select license scope",
     },
     {
       id: "licenseFees",
@@ -29,6 +31,7 @@ export const licenseSkillConfig: DraftingSkillConfig = {
       blocking: true,
       question: "What are the license fees / royalties and payment terms?",
       reasonRequired: "Financial consideration is required to enforce the license terms.",
+      placeholder: "e.g. $25,000 annual subscription license fee",
     },
   ],
   sectionBriefs: [

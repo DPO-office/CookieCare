@@ -242,6 +242,7 @@ function buildExtractionPrompt(
     "Other field rules:",
     "- Produce concrete strings (no nulls).",
     "- If a value is not specified by the user, output 'Not specified' and do NOT invent jurisdictions, dates, parties, or amounts.",
+    "- CRITICAL: Do NOT infer or extract jurisdiction, governing law, or party names from template names, template references (e.g. 'Use structural template: ...'), or template metadata. If the user did not explicitly state a jurisdiction or governing law in their own instruction, output 'Not specified'.",
     "- `parties` must be an array of party names (strings); use [] if none are specified.",
     "- `optionalClauses` must be clause/topic names that are nice-to-have but not mandatory.",
     "- `instructions` should be a cleaned, consolidated instruction string.",

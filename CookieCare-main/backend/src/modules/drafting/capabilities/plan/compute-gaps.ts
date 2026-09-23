@@ -4,6 +4,7 @@ import type { DraftGap } from "../../models/draft-requirements.js";
 import { canonicalizeFieldId } from "../../models/draft-requirements.js";
 import {
   isFactSatisfied,
+  isGoverningLawAsk,
   prioritizeMissingFacts,
   resolveDocTypeKey,
 } from "./core-deal-facts.js";
@@ -68,6 +69,19 @@ export function computeGapsAndConflicts(
       continue;
     }
 
+    if (isGoverningLawAsk(hint)) {
+      if (
+        isFactSatisfied(facts, "governingLaw") ||
+        isFactSatisfied(facts, id) ||
+        isFactSatisfied(facts, hint.field)
+      ) {
+        continue;
+      }
+      if (missingByField.has("governingLaw")) {
+        continue;
+      }
+    }
+
     const resolved = byId[id];
 
     if (
@@ -88,6 +102,8 @@ export function computeGapsAndConflicts(
         question: hint.question?.trim() || existing.question,
         reasonRequired: existing.reasonRequired || hint.reasonRequired,
         options: existing.options?.length ? existing.options : hint.options,
+        placeholder: hint.placeholder || hint.example || existing.placeholder,
+        example: hint.example || hint.placeholder || existing.example,
       });
     } else {
       missingByField.set(id, {
@@ -98,6 +114,8 @@ export function computeGapsAndConflicts(
           hint.reasonRequired ||
           "Required by document template or compliance rules.",
         options: hint.options,
+        placeholder: hint.placeholder || hint.example,
+        example: hint.example || hint.placeholder,
       });
     }
   }

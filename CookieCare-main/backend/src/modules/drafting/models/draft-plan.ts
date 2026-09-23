@@ -14,6 +14,8 @@ export interface MissingFact {
   /** Why this fact changes what must be drafted (from LLM detect-gaps). */
   reasonRequired?: string;
   options?: string[];
+  placeholder?: string;
+  example?: string;
 }
 
 export interface ChecklistItem {
