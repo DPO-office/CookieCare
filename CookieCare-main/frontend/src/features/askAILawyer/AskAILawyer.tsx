@@ -188,18 +188,25 @@ export default function AskAILawyer(_props: Partial<AskAILawyerProps> = {}) {
                   )}
                 </div>
 
-                <div
-                  className="pcl-rise-2 flex flex-wrap items-center justify-center gap-2 mt-6"
-                  style={{ maxWidth: 640 }}
-                >
-                  {QUICK_PROMPTS.map((qp) => (
-                    <QuickChip
-                      key={qp.label}
-                      label={qp.label}
-                      icon={qp.icon}
-                      onClick={() => applyQuickPrompt(qp.prompt)}
-                    />
-                  ))}
+                <div className="pcl-rise-2 ask-lawyer-chips mt-6">
+                  {QUICK_PROMPTS.map((qp, index) =>
+                    index === QUICK_PROMPTS.length - 1 ? (
+                      <div key={qp.label} className="ask-lawyer-chip-anchor">
+                        <QuickChip
+                          label={qp.label}
+                          icon={qp.icon}
+                          onClick={() => applyQuickPrompt(qp.prompt)}
+                        />
+                      </div>
+                    ) : (
+                      <QuickChip
+                        key={qp.label}
+                        label={qp.label}
+                        icon={qp.icon}
+                        onClick={() => applyQuickPrompt(qp.prompt)}
+                      />
+                    )
+                  )}
                 </div>
               </div>
 

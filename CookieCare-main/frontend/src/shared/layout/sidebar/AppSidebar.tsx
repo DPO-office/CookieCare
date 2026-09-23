@@ -494,10 +494,16 @@ export default function AppSidebar({
   isAdmin = false,
   onLogout,
 }: Omit<AppSidebarProps, "activeTab" | "setActiveTab"> & { activeTab?: string; setActiveTab?: (t: string) => void }) {
-  const { state } = useSidebar();
+  const { state, isMobile, setOpenMobile } = useSidebar();
   const location = useLocation();
-  const collapsed = state === "collapsed";
+  // Drawer labels stay expanded on small screens. Desktop collapse is unchanged
+  // and is never written from the mobile branch.
+  const collapsed = !isMobile && state === "collapsed";
   const nav = buildNav(isAdmin);
+
+  useEffect(() => {
+    if (isMobile) setOpenMobile(false);
+  }, [location.pathname, isMobile, setOpenMobile]);
 
   return (
     <SidebarPrimitive collapsible="icon" className="no-print">

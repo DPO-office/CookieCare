@@ -1218,30 +1218,38 @@ export function CompareDocumentView({
           )}
         </div>
 
-        {/* Findings Rail */}
+        {/* Findings Rail.
+            On small screens the rail is a full-width tab (`flex-1` + `w-full`).
+            From `xl` up it must be `flex-none`: `flex-1` sets flex-basis to 0
+            and grows into the row, which ignores the dragged pixel width. */}
         <aside
-          className={`relative shrink-0 flex-col overflow-hidden border-l border-[#E4E4E7] ${mobileCompareTab === "findings" ? "flex flex-1 w-full" : "hidden xl:flex"}`}
-          style={typeof window !== "undefined" && window.innerWidth < 1280 ? undefined : { width: sidebarWidth }}
+          className={`relative shrink-0 flex-col border-l border-[#E4E4E7] max-xl:!w-full xl:flex-none ${mobileCompareTab === "findings" ? "flex w-full flex-1 xl:w-auto" : "hidden xl:flex"}`}
+          style={{ width: sidebarWidth }}
           aria-label="Findings"
         >
-          {/* Drag handle — sits on the left edge of the sidebar on desktop */}
+          {/* Drag handle — straddles the left edge. Kept outside the clipped
+              rail so overflow doesn't swallow the hit target. */}
           <div
             onMouseDown={handleSidebarDragStart}
             onDoubleClick={() => setSidebarWidth(SIDEBAR_DEFAULT)}
             role="separator"
             aria-orientation="vertical"
             aria-label="Resize findings sidebar (double-click to reset)"
+            aria-valuenow={sidebarWidth}
+            aria-valuemin={SIDEBAR_MIN}
             title="Drag to resize · double-click to reset"
-            className="hidden xl:block absolute left-0 top-0 z-20 h-full w-1.5 -translate-x-1/2 cursor-col-resize bg-transparent transition-colors hover:bg-[#2175D9]/40 active:bg-[#2175D9]/60"
+            className="absolute left-0 top-0 z-30 hidden h-full w-3 -translate-x-1/2 cursor-col-resize bg-transparent transition-colors hover:bg-[#2175D9]/40 active:bg-[#2175D9]/60 xl:block"
           />
-          <FindingsRail
-            data={normalizedData}
-            selectedId={selectedId}
-            onSelect={handleSelect}
-            onFilteredListChange={handleFilteredListChange}
-            clauseMapA={clauseMapA}
-            clauseMapB={clauseMapB}
-          />
+          <div className="flex h-full min-h-0 flex-col overflow-hidden">
+            <FindingsRail
+              data={normalizedData}
+              selectedId={selectedId}
+              onSelect={handleSelect}
+              onFilteredListChange={handleFilteredListChange}
+              clauseMapA={clauseMapA}
+              clauseMapB={clauseMapB}
+            />
+          </div>
         </aside>
       </div>
     </div>
