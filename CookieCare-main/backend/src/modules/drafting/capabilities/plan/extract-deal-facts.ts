@@ -5,7 +5,10 @@ import type {
   DraftRequirementsMap,
 } from "../../models/draft-requirements.js";
 import { canonicalizeFieldId } from "../../models/draft-requirements.js";
-import { sanitizeKnownFacts } from "./core-deal-facts.js";
+import {
+  parseConfidentialityTermFromText,
+  sanitizeKnownFacts,
+} from "./core-deal-facts.js";
 import {
   executeJsonCompletion,
   LLMProvider,
@@ -197,6 +200,14 @@ export async function extractDealFacts(state: DraftState): Promise<DraftState> {
   const transfer = coalesceTransferValue({ ...state.structuredFacts, ...patch });
   if (transfer) {
     patch.transferMechanism = transfer;
+  }
+
+  if (!patch.confidentialityTermYears) {
+    const extractedTerm = parseConfidentialityTermFromText(instructions);
+    if (extractedTerm) {
+      patch.confidentialityTermYears = extractedTerm;
+      evidenceById.confidentialityTermYears = [`Prompt instruction: ${extractedTerm}`];
+    }
   }
 
   const mergedFacts = sanitizeKnownFacts({

@@ -75,6 +75,146 @@ export function parsePartyPairFromText(raw: string): { partyA?: string; partyB?:
   return null;
 }
 
+export interface SignerRecord {
+  name?: string;
+  title?: string;
+  place?: string;
+  date?: string;
+}
+
+export interface ParsedSignatories {
+  partyA?: SignerRecord;
+  partyB?: SignerRecord;
+}
+
+export function parseAddressFromText(raw: string): { name?: string; address?: string } {
+  if (!raw || typeof raw !== "string") return {};
+  const t = raw.trim();
+  if (!t || isPlaceholderString(t)) return {};
+
+  let name: string | undefined;
+  let address: string | undefined;
+
+  // Extract Legal Name: ...
+  const nameMatch = /(?:legal\s+name|entity\s+name|company\s+name)\s*[:\-–]\s*([^;,\n]+?)(?=(?:\s*(?:address|principal\s+address|having\s+its\s+office):)|$)/i.exec(t);
+  if (nameMatch) {
+    const candidateName = nameMatch[1].trim();
+    if (candidateName && !isPlaceholderString(candidateName)) {
+      name = candidateName;
+    }
+  }
+
+  // Extract Address: ...
+  const addrMatch = /(?:address|principal\s+address|registered\s+address|office\s+address|located\s+at)\s*[:\-–]\s*(.+)$/i.exec(t);
+  if (addrMatch) {
+    const candidateAddr = addrMatch[1].trim().replace(/^[:\-–\s]+/, "").trim();
+    if (candidateAddr && !isPlaceholderString(candidateAddr)) {
+      address = candidateAddr;
+    }
+  } else if (!name && /\d+.*(?:street|st|avenue|ave|way|road|rd|drive|dr|lane|ln|boulevard|blvd|suite|floor|fl|ste|box|wilmington|austin|dublin|london|delaware|texas)/i.test(t)) {
+    address = t;
+  }
+
+  return { name, address };
+}
+
+export function parseConfidentialityTermFromText(raw: string): string | undefined {
+  if (!raw || typeof raw !== "string") return undefined;
+  const t = raw.trim();
+  if (!t || isPlaceholderString(t)) return undefined;
+
+  // Patterns like "post termination is 5 year instead of 3", "post-termination confidentiality of 5 years", "survival period is 5 years"
+  const m = /(?:post[\s-]termination(?:\s+confidentiality)?|survival(?:\s+period)?|confidentiality\s+(?:term|period|duration|obligations?))\s*(?:is|shall\s+be|should\s+be|of|for|lasts?)?\s*(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\s*(?:years?|yrs?|months?|mo)\b/i.exec(t);
+  if (m) {
+    const numStr = m[1].toLowerCase();
+    const wordMap: Record<string, string> = {
+      one: "1", two: "2", three: "3", four: "4", five: "5",
+      six: "6", seven: "7", eight: "8", nine: "9", ten: "10"
+    };
+    const num = wordMap[numStr] || numStr;
+    const isMonths = /months?|mo/i.test(m[0]);
+    const unit = isMonths ? (num === "1" ? "1 month" : `${num} months`) : (num === "1" ? "1 year" : `${num} years`);
+    return `${unit} post-termination`;
+  }
+
+  const m2 = /(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\s*(?:years?|yrs?)\s*(?:post[\s-]termination|survival)/i.exec(t);
+  if (m2) {
+    const numStr = m2[1].toLowerCase();
+    const wordMap: Record<string, string> = {
+      one: "1", two: "2", three: "3", four: "4", five: "5",
+      six: "6", seven: "7", eight: "8", nine: "9", ten: "10"
+    };
+    const num = wordMap[numStr] || numStr;
+    return `${num} years post-termination`;
+  }
+
+  return undefined;
+}
+
+export function parseSignatoriesFromText(raw: string): ParsedSignatories {
+  if (!raw || typeof raw !== "string") return {};
+  const t = raw.trim();
+  if (!t || isPlaceholderString(t)) return {};
+
+  const nameMatches = Array.from(
+    t.matchAll(/(?:authorized\s+signatory\s+)?name\s*[:\-–]\s*([^;\n]+?)(?=(?:\s*(?:title|position|designation|place(?:\s+of\s+signature)?|location|date(?:\s+of\s+signature)?):)|$)/gi)
+  ).map((m) => m[1].trim()).filter((n) => n && !isPlaceholderString(n));
+
+  const titleMatches = Array.from(
+    t.matchAll(/(?:title|position|designation)\s*[:\-–]\s*([^;\n]+?)(?=(?:\s*(?:name|place(?:\s+of\s+signature)?|location|date(?:\s+of\s+signature)?):)|$)/gi)
+  ).map((m) => m[1].trim()).filter((tit) => tit && !isPlaceholderString(tit));
+
+  const placeMatches = Array.from(
+    t.matchAll(/(?:place(?:\s+of\s+signature)?|location)\s*[:\-–]\s*([^;\n]+?)(?=(?:\s*(?:name|title|position|designation|date(?:\s+of\s+signature)?):)|$)/gi)
+  ).map((m) => {
+    let pl = m[1].trim();
+    pl = pl.replace(/\s+(?=[A-Z][a-z]+[\w\s]*(?:Inc|LLC|Ltd|Corp|Corporation|GmbH|Co\.)\.?[:\s]*).*/, "").trim();
+    pl = pl.replace(/\s+(?:Party\s*[12ab]:?|Second\s*Party:?|Contractor:?|Receiving\s*Party:?).*$/i, "").trim();
+    return pl;
+  }).filter((pl) => pl && !isPlaceholderString(pl));
+
+  const dateMatches = Array.from(
+    t.matchAll(/(?:date(?:\s+of\s+signature)?)\s*[:\-–]\s*([^;\n]+?)(?=(?:\s*(?:name|title|position|designation|place(?:\s+of\s+signature)?|location):)|$)/gi)
+  ).map((m) => m[1].trim()).filter((dt) => dt && !isPlaceholderString(dt));
+
+  const partyA: SignerRecord = {};
+  const partyB: SignerRecord = {};
+
+  if (nameMatches.length >= 1) partyA.name = nameMatches[0];
+  if (nameMatches.length >= 2) partyB.name = nameMatches[1];
+
+  if (titleMatches.length >= 1) partyA.title = titleMatches[0];
+  if (titleMatches.length >= 2) partyB.title = titleMatches[1];
+
+  if (placeMatches.length >= 1) partyA.place = placeMatches[0];
+  if (placeMatches.length >= 2) partyB.place = placeMatches[1];
+
+  if (dateMatches.length >= 1) partyA.date = dateMatches[0];
+  if (dateMatches.length >= 2) partyB.date = dateMatches[1];
+
+  // Fallback for simple "Jane Doe, CEO; John Smith, VP" format
+  if (!partyA.name && (t.includes(";") || t.includes("\n"))) {
+    const parts = (t.includes("\n") ? t.split("\n") : t.split(";")).map(p => p.trim()).filter(Boolean);
+    if (parts.length >= 2) {
+      const p1 = parts[0].split(",").map(x => x.trim());
+      const p2 = parts[1].split(",").map(x => x.trim());
+      if (p1.length >= 2) {
+        partyA.name = p1[0].replace(/^(?:party\s*[1a]|apex)[^:]*:\s*/i, "").trim();
+        partyA.title = p1[1].trim();
+      }
+      if (p2.length >= 2) {
+        partyB.name = p2[0].replace(/^(?:party\s*[2b]|summit)[^:]*:\s*/i, "").trim();
+        partyB.title = p2[1].trim();
+      }
+    }
+  }
+
+  return {
+    partyA: Object.keys(partyA).length > 0 ? partyA : undefined,
+    partyB: Object.keys(partyB).length > 0 ? partyB : undefined,
+  };
+}
+
 /** True when a structured fact has a real, usable value (not empty / placeholder). */
 export function isFactSatisfied(facts: Record<string, unknown>, field: string): boolean {
   const canonical = canonicalizeFieldId(field);
@@ -135,7 +275,10 @@ export function isFactSatisfied(facts: Record<string, unknown>, field: string): 
       "firstCompanyAddress",
       "disclosingPartyAddress",
       "party1Address",
-      "registeredAddress"
+      "registeredAddress",
+      "clientPartyDetails",
+      "partyADetails",
+      "disclosingPartyDetails"
     );
   }
   if (canonical === "partyBAddress") {
@@ -145,7 +288,25 @@ export function isFactSatisfied(facts: Record<string, unknown>, field: string): 
       "contractorAddress",
       "secondCompanyAddress",
       "receivingPartyAddress",
-      "party2Address"
+      "party2Address",
+      "contractorPartyDetails",
+      "partyBDetails",
+      "receivingPartyDetails"
+    );
+  }
+  if (canonical === "confidentialityTermYears") {
+    candidates.push(
+      "confidentialityPeriod",
+      "confidentialityTerm",
+      "confidentialityDuration",
+      "postTermination",
+      "postTerminationPeriod",
+      "postTerminationDuration",
+      "postTerminationConfidentiality",
+      "survival",
+      "survivalPeriod",
+      "confidentialitySurvival",
+      "ndaTerm"
     );
   }
 
@@ -153,7 +314,14 @@ export function isFactSatisfied(facts: Record<string, unknown>, field: string): 
     const value = facts[key];
     if (value === undefined || value === null) continue;
     if (typeof value === "string") {
-      if (!isPlaceholderString(value)) return true;
+      if (!isPlaceholderString(value)) {
+        if (key.toLowerCase().includes("details")) {
+          const parsed = parseAddressFromText(value);
+          if (parsed.address) return true;
+        } else {
+          return true;
+        }
+      }
       continue;
     }
     if (Array.isArray(value)) {

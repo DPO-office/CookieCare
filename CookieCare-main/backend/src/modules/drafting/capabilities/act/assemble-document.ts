@@ -2,6 +2,10 @@ import type { DraftState, DraftSection } from "../../models/draft-state.js";
 import type { ExhibitSpec } from "../../models/draft-exhibits.js";
 import { buildDealIdentity } from "./deal-identity.js";
 import { runAssemblyCheck } from "./assembly-check.js";
+import {
+  parseSignatoriesFromText,
+  type SignerRecord,
+} from "../plan/core-deal-facts.js";
 
 
 function stripMarkdownHeading(body: string): { heading: string | null; rest: string } {
@@ -43,7 +47,7 @@ function stripLeadingPreamble(text: string): string {
   // so we can emit a single canonical preamble.
   let t = text;
   t = t.replace(
-    /^This (?:Data Processing )?(?:Agreement|Addendum) is entered into[^\n]*(?:\n(?!#)[^\n]*)*/i,
+    /^(?:\*\*THE PARTIES\.\*\*\s*)?This (?:[\w\s-]+)?(?:Agreement|Addendum|NDA)[,\s\w]+entered into[^\n]*(?:\n(?!#)[^\n]*)*/i,
     ""
   );
   t = t.replace(/^(?:WHEREAS[^\n]*\n?)+/i, "");
@@ -63,13 +67,52 @@ function dedupeWhereas(text: string): string {
 }
 
 function buildTitle(state: DraftState): string {
-  const docType = (state.plan?.documentType || state.draftingContext?.documentType || "agreement")
-    .toLowerCase();
-  if (docType.includes("dpa") || docType.includes("data processing")) {
-    return "DATA PROCESSING AGREEMENT";
+  const facts = (state.structuredFacts ?? state.plan?.structuredFacts ?? {}) as Record<string, unknown>;
+  const docType = (
+    (typeof facts.documentType === "string" ? facts.documentType : "") ||
+    state.plan?.documentType ||
+    state.draftingContext?.documentType ||
+    state.requirements?.contractType ||
+    "agreement"
+  ).toLowerCase();
+  const ndaType = typeof facts.ndaType === "string" ? facts.ndaType.toLowerCase() : "";
+  const contractType = typeof state.requirements?.contractType === "string" ? state.requirements.contractType.toLowerCase() : "";
+  const identity = buildDealIdentity(
+    state.structuredFacts ?? state.plan?.structuredFacts,
+    state.plan?.documentType,
+    state.request?.rawInstructions
+  );
+
+  if (docType.includes("nda") || ndaType || (contractType.includes("nda") && !docType.includes("dpa"))) {
+    if (ndaType.includes("contractor") || contractType.includes("contractor")) {
+      return "INDEPENDENT CONTRACTOR NON-DISCLOSURE AGREEMENT";
+    }
+    if (ndaType.includes("employee") || ndaType.includes("piia") || contractType.includes("employee")) {
+      return "EMPLOYEE NON-DISCLOSURE AGREEMENT";
+    }
+    if (ndaType.includes("one-way") || ndaType.includes("unilateral")) {
+      return "NON-DISCLOSURE AGREEMENT";
+    }
+    if (identity?.isMutual || ndaType.includes("mutual")) {
+      return "MUTUAL NON-DISCLOSURE AGREEMENT";
+    }
+    return "NON-DISCLOSURE AGREEMENT";
   }
-  if (docType.includes("nda")) return "MUTUAL NON-DISCLOSURE AGREEMENT";
-  if (docType.includes("msa")) return "MASTER SERVICES AGREEMENT";
+
+  if (docType.includes("dpa") || docType.includes("data processing") || contractType.includes("dpa")) {
+    const isDpdpa = Boolean(
+      facts.privacyRegime === "DPDPA" ||
+      (typeof facts.governingLaw === "string" && facts.governingLaw.toLowerCase().includes("india"))
+    );
+    return isDpdpa ? "DATA PROTECTION AGREEMENT (DPDPA)" : "DATA PROCESSING AGREEMENT";
+  }
+
+  if (docType.includes("msa") || contractType.includes("msa")) return "MASTER SERVICES AGREEMENT";
+  if (docType.includes("saas") || contractType.includes("saas")) return "SAAS SUBSCRIPTION AGREEMENT";
+  if (docType.includes("sla") || contractType.includes("sla")) return "SERVICE LEVEL ADDENDUM";
+  if (docType.includes("consultant") || docType.includes("consulting") || contractType.includes("consulting")) {
+    return "CONSULTING SERVICES AGREEMENT";
+  }
   return "AGREEMENT";
 }
 
@@ -195,6 +238,44 @@ function buildSignatureBlock(state: DraftState): string {
   const roleA = identity?.roleA && !isGenericOrForbiddenRole(identity.roleA) ? ` (${identity.roleA})` : "";
   const roleB = identity?.roleB && !isGenericOrForbiddenRole(identity.roleB) ? ` (${identity.roleB})` : "";
 
+  const facts = (state.structuredFacts ?? state.plan?.structuredFacts ?? {}) as Record<string, unknown>;
+  let signerA: SignerRecord = {};
+  let signerB: SignerRecord = {};
+
+  if (facts.signatories || facts.signers || facts.authorizedsignatories) {
+    const rawSigners = String(facts.signatories || facts.signers || facts.authorizedsignatories);
+    const parsed = parseSignatoriesFromText(rawSigners);
+    if (parsed.partyA) signerA = { ...parsed.partyA };
+    if (parsed.partyB) signerB = { ...parsed.partyB };
+  }
+
+  // Individual fields override/supplement
+  if (facts.partyASignerName) signerA.name = String(facts.partyASignerName);
+  if (facts.partyASignerTitle) signerA.title = String(facts.partyASignerTitle);
+  if (facts.partyAPlace) signerA.place = String(facts.partyAPlace);
+  if (facts.partyADate) signerA.date = String(facts.partyADate);
+
+  if (facts.partyBSignerName) signerB.name = String(facts.partyBSignerName);
+  if (facts.partyBSignerTitle) signerB.title = String(facts.partyBSignerTitle);
+  if (facts.partyBPlace) signerB.place = String(facts.partyBPlace);
+  if (facts.partyBDate) signerB.date = String(facts.partyBDate);
+
+  if (facts.dataFiduciarySignerName && !signerA.name) signerA.name = String(facts.dataFiduciarySignerName);
+  if (facts.dataProcessorSignerName && !signerB.name) signerB.name = String(facts.dataProcessorSignerName);
+
+  const renderSignerLines = (signer: SignerRecord) => {
+    const lines = [
+      "By: _______________________________",
+      `Name: ${signer.name || "____________________________"}`,
+      `Title: ${signer.title || "____________________________"}`,
+    ];
+    if (signer.place) {
+      lines.push(`Place: ${signer.place}`);
+    }
+    lines.push(`Date: ${signer.date || "____________________________"}`);
+    return lines;
+  };
+
   return [
     "## Signature Block",
     "",
@@ -202,17 +283,11 @@ function buildSignatureBlock(state: DraftState): string {
     "",
     `**${a}${roleA}**`,
     "",
-    "By: _______________________________",
-    "Name: _____________________________",
-    "Title: ____________________________",
-    "Date: _____________________________",
+    ...renderSignerLines(signerA),
     "",
     `**${b}${roleB}**`,
     "",
-    "By: _______________________________",
-    "Name: _____________________________",
-    "Title: ____________________________",
-    "Date: _____________________________",
+    ...renderSignerLines(signerB),
   ].join("\n");
 }
 

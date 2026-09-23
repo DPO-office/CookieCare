@@ -23,8 +23,8 @@ export function runAssemblyCheck(state: DraftState): AssemblyCheckResult {
   }
 
   const preambleMatches = doc.match(
-    /This (?:Data Processing )?(?:Agreement|Addendum) is entered into/gi
-  );
+    /This (?:[\w\s-]+)?(?:Agreement|Addendum|NDA)[,\s\w]+entered into/gi
+  ) || (doc.match(/entered into (?:as of|on) [^.,\n]+/gi));
   if (!preambleMatches || preambleMatches.length === 0) {
     issues.push("missing preamble");
   } else if (preambleMatches.length > 1) {

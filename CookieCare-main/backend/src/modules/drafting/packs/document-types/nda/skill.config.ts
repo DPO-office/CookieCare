@@ -90,8 +90,9 @@ export const ndaSkillConfig: DraftingSkillConfig = {
         "Restriction on use strictly to the authorized business purpose or commercial evaluation",
         "Standard of care (no less than reasonable care / degree of care used for own confidential materials)",
         "Return or destruction of confidential materials upon request or termination",
-        "Survival of obligations during and following termination of engagement",
+        "Survival of obligations during and following termination of engagement matching facts.confidentialityTermYears (e.g. 5 years post-termination if specified, default 3 years)",
       ],
+      requiredFacts: ["businessPurpose", "confidentialityTermYears"],
       requiredLegalElements: ["non-disclosure-covenant", "non-use-covenant", "return-of-materials"],
       prohibitedContent: [
         "Do not include standard exceptions or exclusions (public domain, prior knowledge, independent development, compelled disclosure) in this section — they belong exclusively in the dedicated Exclusions section.",
@@ -127,10 +128,12 @@ export const ndaSkillConfig: DraftingSkillConfig = {
       title: "Non-Solicitation and Restrictive Covenants",
       purpose: "Prevent solicitation or hiring away of Client/Employer employees and diversion of customers during engagement and post-termination.",
       requiredContent: [
-        "Non-solicitation of employees and personnel",
+        "Non-solicitation of employees, contractors, and personnel",
         "Non-solicitation of clients and customers",
-        "Reasonable duration and geographic scope",
+        "Specific post-termination duration as defined in runtime facts (e.g. facts.nonSolicitationDuration, default 12 months if unspecified)",
+        "Reasonable geographic scope and standard carveout for open public advertisements",
       ],
+      requiredFacts: ["nonSolicitationDuration"],
       requiredLegalElements: ["employee-non-solicitation", "customer-non-solicitation"],
     },
     {
@@ -140,8 +143,9 @@ export const ndaSkillConfig: DraftingSkillConfig = {
       requiredContent: [
         "Agreement active term commencing on Effective Date",
         "Perpetual survival of confidentiality for trade secrets and proprietary data",
-        "Specific survival term for standard confidential business information",
+        "Specific survival term for standard confidential business information matching facts.confidentialityTermYears (e.g. 5 years post-termination if specified, default 3 years)",
       ],
+      requiredFacts: ["effectiveDate", "confidentialityTermYears"],
       requiredLegalElements: ["effective-date", "trade-secret-survival"],
     },
     {
@@ -213,6 +217,55 @@ export const ndaSkillConfig: DraftingSkillConfig = {
       requirement: "Agreement must designate governing law and jurisdiction.",
       severity: "critical",
       checkKind: "section_present",
+    },
+  ],
+  conditionalWorkUnits: [
+    {
+      id: "unit-restrictive-covenants",
+      workUnit: {
+        id: "sec-restrictive-covenants",
+        kind: "section",
+        heading: "Non-Solicitation and Restrictive Covenants",
+        dependsOn: ["sec-definitions"],
+        clauseTypes: ["restrictive-covenants", "non-solicit"],
+        status: "pending",
+      },
+      when: (facts) => {
+        const ndaType = typeof facts.ndaType === "string" ? facts.ndaType.toLowerCase() : "";
+        const contractType = typeof facts.contractType === "string" ? facts.contractType.toLowerCase() : "";
+        return Boolean(
+          facts.nonSolicitationDuration ||
+          facts.nonSolicit ||
+          facts.nonSolicitationScope ||
+          ndaType.includes("contractor") ||
+          ndaType.includes("employee") ||
+          contractType.includes("contractor") ||
+          contractType.includes("employee")
+        );
+      },
+    },
+    {
+      id: "unit-inventions",
+      workUnit: {
+        id: "sec-inventions",
+        kind: "section",
+        heading: "Inventions and Intellectual Property Assignment",
+        dependsOn: ["sec-definitions"],
+        clauseTypes: ["inventions", "ip-assignment"],
+        status: "pending",
+      },
+      when: (facts) => {
+        const ndaType = typeof facts.ndaType === "string" ? facts.ndaType.toLowerCase() : "";
+        const contractType = typeof facts.contractType === "string" ? facts.contractType.toLowerCase() : "";
+        return Boolean(
+          facts.moralRightsWaiver ||
+          facts.ipAssignment ||
+          ndaType.includes("contractor") ||
+          ndaType.includes("employee") ||
+          contractType.includes("contractor") ||
+          contractType.includes("employee")
+        );
+      },
     },
   ],
 };
