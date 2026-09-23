@@ -13,6 +13,7 @@ export const msaSkillConfig: DraftingSkillConfig = {
       blocking: true,
       question: "What services will be provided and what is the delivery method (e.g. software development/testing/consulting using remote systems)?",
       reasonRequired: "An MSA must define the scope of services and delivery mechanism under the agreement.",
+      placeholder: "e.g. Software development, infrastructure management, and technical support",
       aliases: ["msaServices", "scopeOfServices", "serviceScope"],
     },
     {
@@ -22,6 +23,7 @@ export const msaSkillConfig: DraftingSkillConfig = {
       question: "What are the remuneration and payment terms (e.g. fixed fee, monthly invoicing, Net 30 days)?",
       reasonRequired: "Invoicing procedures and remuneration terms govern services and deliverables.",
       options: ["Net 15 days", "Net 30 days", "Net 60 days"],
+      placeholder: "e.g. Net 30 days",
       aliases: ["invoicingTerms", "remunerationPrice"],
     },
     {
@@ -30,6 +32,7 @@ export const msaSkillConfig: DraftingSkillConfig = {
       blocking: true,
       question: "What is the limitation of liability cap (e.g. 1x fees paid in preceding 12 months)?",
       reasonRequired: "Risk allocation and monetary liability caps are mandatory risk management terms.",
+      placeholder: "e.g. 12 months' fees (or $1,000,000)",
       aliases: ["capOnLiability"],
     },
     {
@@ -39,6 +42,7 @@ export const msaSkillConfig: DraftingSkillConfig = {
       question: "What written notice period is required for termination (e.g. 30 days, 60 days)?",
       reasonRequired: "Termination procedures must specify the advance written notice window.",
       options: ["30 days written notice", "60 days written notice", "90 days written notice"],
+      placeholder: "e.g. 30 days written notice",
       aliases: ["noticePeriod", "terminationPeriod"],
     },
   ],

@@ -263,7 +263,13 @@ function AskQuestionCard({
                 onChange={(e) =>
                   setAnswers((prev) => ({ ...prev, [q.id]: e.target.value }))
                 }
-                placeholder="Your answer"
+                placeholder={
+                  q.placeholder
+                    ? (q.placeholder.startsWith("e.g.") ? q.placeholder : `e.g. ${q.placeholder}`)
+                    : q.example
+                    ? (q.example.startsWith("e.g.") ? q.example : `e.g. ${q.example}`)
+                    : "e.g. Your answer"
+                }
                 className="w-full rounded-md border border-[#E4E4E7] bg-[#FAFAFA] px-2.5 py-1.5 text-[13px] text-[#3F3F46] outline-none focus:border-[#A1A1AA] disabled:opacity-60"
               />
             )}

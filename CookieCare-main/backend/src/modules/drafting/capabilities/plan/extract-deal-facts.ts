@@ -83,6 +83,7 @@ const SYSTEM = `
 You extract deal facts for a legal drafting system from the user's drafting request.
 Return ONLY JSON matching the schema. Do not invent parties, dates, jurisdictions,
 processing details, transfer mechanisms, or SLAs that are not in the text.
+CRITICAL: Do NOT extract governingLaw, jurisdiction, privacyRegime, or party names from referenced structural templates, template names, or template instructions (such as "Use structural template: ..."). The template only provides layout structure; governing law, privacy regime, and parties must be explicitly stated by the user. If absent from the user's own request, omit them.
 If a field is absent, omit it or set value to null.
 For parties: prefer partyA/partyB when roles are clear; also fill parties as an array of legal names.
 For transferMechanism: capture SCC module, UK IDTA, adequacy, or "no international transfers" when stated.

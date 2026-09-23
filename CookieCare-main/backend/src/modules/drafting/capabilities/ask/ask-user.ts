@@ -21,6 +21,9 @@ export async function askUser(state: DraftState): Promise<DraftState> {
     question: m.question,
     severity: m.severity,
     options: m.options,
+    placeholder: m.placeholder || m.example,
+    example: m.example || m.placeholder,
+    reasonRequired: m.reasonRequired,
   }));
 
   if (state.agent) {

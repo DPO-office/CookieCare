@@ -19,6 +19,8 @@ export interface UserQuestion {
   question: string;
   severity: "critical" | "optional";
   options?: string[];
+  placeholder?: string;
+  example?: string;
   perDocumentRoles?: Array<{ docId: string; title: string }>;
 }
 

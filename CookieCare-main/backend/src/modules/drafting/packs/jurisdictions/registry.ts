@@ -21,10 +21,18 @@ export const jurisdictionRegistry = {
     return packs.find((p) => p.id === id);
   },
   resolveId(hint: string): string | undefined {
+    if (!hint || typeof hint !== "string") return undefined;
     const lower = hint.toLowerCase().trim();
     for (const p of packs) {
-      if (p.id === lower || p.aliases.some((a) => lower.includes(a))) {
-        return p.id;
+      if (p.id === lower) return p.id;
+      for (const a of p.aliases) {
+        if (a === lower) return p.id;
+        if (a.length <= 3) {
+          const re = new RegExp(`\\b${a}\\b`, "i");
+          if (re.test(lower)) return p.id;
+        } else if (lower.includes(a)) {
+          return p.id;
+        }
       }
     }
     return undefined;

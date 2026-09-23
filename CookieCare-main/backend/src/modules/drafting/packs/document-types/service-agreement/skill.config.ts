@@ -13,6 +13,7 @@ export const serviceAgreementSkillConfig: DraftingSkillConfig = {
       blocking: true,
       question: "Briefly describe the specific services to be performed.",
       reasonRequired: "Service agreement must define scope of services.",
+      placeholder: "e.g. IT consulting, database migration, and cloud maintenance",
       aliases: ["serviceScope"],
     },
     {
@@ -21,6 +22,7 @@ export const serviceAgreementSkillConfig: DraftingSkillConfig = {
       blocking: true,
       question: "What is the fee or compensation structure (e.g. fixed fee, hourly rate, milestones)?",
       reasonRequired: "Payment terms and fee schedules are required.",
+      placeholder: "e.g. $150 per hour, invoiced bi-weekly",
     },
   ],
   sectionBriefs: [

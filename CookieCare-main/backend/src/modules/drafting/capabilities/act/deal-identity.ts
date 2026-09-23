@@ -189,14 +189,38 @@ export function buildDealIdentity(
     asString(f.principalAgreementDate) || asString(f.effectiveDate);
 
   let governingLaw = asString(f.governingLaw);
-  if (
-    governingLaw &&
-    (governingLaw.trim().toLowerCase() === "european union" ||
-      governingLaw.trim().toLowerCase() === "eu" ||
-      governingLaw.trim().toLowerCase() === "europe")
-  ) {
-    governingLaw =
-      "Republic of Ireland (EU), with exclusive jurisdiction of the courts of Dublin, Ireland";
+  if (governingLaw) {
+    const glLower = governingLaw.trim().toLowerCase();
+    if (
+      glLower === "gdpr (eu)" ||
+      glLower === "gdpr" ||
+      glLower === "european union" ||
+      glLower === "eu" ||
+      glLower === "europe"
+    ) {
+      governingLaw =
+        "Republic of Ireland (EU), with exclusive jurisdiction of the courts of Dublin, Ireland";
+    } else if (
+      glLower === "ccpa (us)" ||
+      glLower === "ccpa" ||
+      glLower === "cpra"
+    ) {
+      governingLaw =
+        "the State of California, United States, with exclusive jurisdiction of the state and federal courts located in California";
+    } else if (
+      glLower === "dpdpa (india)" ||
+      glLower === "dpdpa"
+    ) {
+      governingLaw =
+        "the laws of India, with exclusive jurisdiction of the competent courts of New Delhi, India";
+    } else if (
+      glLower === "uk gdpr / english law" ||
+      glLower === "uk gdpr" ||
+      glLower === "english law"
+    ) {
+      governingLaw =
+        "England and Wales, with exclusive jurisdiction of the courts of England and Wales";
+    }
   }
 
   const isMutual =

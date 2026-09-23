@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, ReactNode } from "react";
+import { useRef, useEffect, useState, useMemo, ReactNode } from "react";
 import { Sparkles, HelpCircle, CheckCircle2, ArrowRight } from "lucide-react";
 import { DraftComposer } from "./DraftComposer";
 import { DatePicker } from "./DatePicker";
@@ -72,11 +72,10 @@ const OTHER_LABEL = "Other (specify)";
  * governing-law / jurisdiction question.
  */
 const GOVERNING_LAW_OPTIONS = [
-  "Republic of Ireland (EU)",
-  "Germany (EU)",
-  "Delaware (US)",
-  "England & Wales",
-  "India",
+  "GDPR (EU)",
+  "CCPA (US)",
+  "DPDPA (India)",
+  "UK GDPR / English Law",
   "Other (specify)",
 ];
 
@@ -206,10 +205,18 @@ function resolveInputType(q: DraftOpenQuestion): QuestionInputType {
  *   yes/no) so chips are still rendered even when the LLM omitted options.
  */
 function withIndiaOption(options: string[]): string[] {
-  if (options.some((opt) => opt.toLowerCase() === "india")) return options;
+  if (
+    options.some(
+      (opt) =>
+        opt.toLowerCase().includes("india") ||
+        opt.toLowerCase().includes("dpdpa")
+    )
+  ) {
+    return options;
+  }
   const otherIdx = options.findIndex((opt) => opt === OTHER_LABEL);
-  if (otherIdx < 0) return [...options, "India"];
-  return [...options.slice(0, otherIdx), "India", ...options.slice(otherIdx)];
+  if (otherIdx < 0) return [...options, "DPDPA (India)"];
+  return [...options.slice(0, otherIdx), "DPDPA (India)", ...options.slice(otherIdx)];
 }
 
 function displayQuestion(q: DraftOpenQuestion): string {
@@ -217,11 +224,7 @@ function displayQuestion(q: DraftOpenQuestion): string {
     GOVERNING_LAW_FIELD_RE.test(q.field) ||
     GOVERNING_LAW_QUESTION_RE.test(q.question);
   if (!isGoverningLaw) return q.question;
-  return q.question
-    .replace(/\s*\(e\.g\.[^)]*\)/gi, "")
-    .replace(/\bgoverning\s+law\s+and\s+venue\b/gi, "law and venue")
-    .replace(/\s+/g, " ")
-    .trim();
+  return "Which governing law should apply?";
 }
 
 function resolveOptions(q: DraftOpenQuestion): string[] {
@@ -264,26 +267,79 @@ function resolveOptions(q: DraftOpenQuestion): string[] {
  * question's semantic type.
  */
 function inferPlaceholder(q: DraftOpenQuestion): string {
+  // ── 0. AI or Backend provided explicit example / placeholder ───────────────
+  const explicit = (q.placeholder || q.example || "").trim();
+  if (explicit) {
+    if (
+      explicit.toLowerCase().startsWith("select") ||
+      explicit.toLowerCase().startsWith("choose")
+    ) {
+      return explicit;
+    }
+    return explicit.startsWith("e.g.") ? explicit : `e.g. ${explicit}`;
+  }
+
   const field = q.field.toLowerCase().replace(/[-_\s]/g, "");
   const text  = q.question.toLowerCase();
 
-  // ── NDA / agreement parties ───────────────────────────────────────────────
+  // ── 1. Name AND Address (e.g. legal name & address of client / counterparty) ───
   if (
-    /(?:receivingparty|disclosingparty|recipient|disclosor)/.test(field) ||
-    /\b(?:receiving\s+party|disclosing\s+party|recipient|disclosor)\b/.test(text)
+    (/\b(?:address|street|city|state|zip|location|office)\b/.test(text) || /address/.test(field)) &&
+    (/\b(?:name|company|entity|party|client|counterparty|vendor|supplier|contractor)\b/.test(text) ||
+     /(?:name|company|entity|party|client|counterparty|vendor)/.test(field))
   ) {
-    return "e.g. Acme Corporation";
+    return "e.g. Acme Corp, 100 Innovation Way, Suite 400, Wilmington, DE 19801";
   }
 
-  // ── General party / entity names ─────────────────────────────────────────
+  // ── 2. Address only ────────────────────────────────────────────────────────
   if (
-    /(?:party|parties|controller|processor|vendor|supplier|client|customer|company|organisation|organization|counterparty)/.test(field) ||
-    /\b(?:full\s+(?:legal\s+)?name|name\s+of\s+the\s+(?:parties?|controller|processor|company|organisation)|legal\s+name|party\s+name)\b/.test(text)
+    /address/.test(field) ||
+    /\b(?:registered\s+office|principal\s+address|street\s+address|official\s+address)\b/.test(text) ||
+    /\b(?:address)\b/.test(text)
+  ) {
+    return "e.g. 100 Innovation Way, Suite 400, Wilmington, DE 19801";
+  }
+
+  // ── 3. Authorized Signatories / Signers ─────────────────────────────────────
+  if (
+    /(?:signator|signer|authorizedsign)/.test(field) ||
+    /\b(?:signator(?:y|ies)|signers?|authorized\s+to\s+sign|signing\s+officers?)\b/.test(text)
+  ) {
+    return "e.g. Jane Doe (CEO) & John Smith (VP)";
+  }
+
+  // ── 4. Single entity signals check (prevents dual-party placeholder when single party is asked) ──
+  const isSinglePartyAsk =
+    /\b(?:first|second|party\s*[12ab]|disclosing|receiving|client|vendor|supplier|customer|employer|employee|contractor|fiduciary|processor)\b/i.test(text) ||
+    /(?:first|second|partya|partyb|party1|party2|disclosing|receiving|client|vendor|customer|employer|employee)/.test(field);
+
+  // ── 5. Both parties together (only when explicitly asking for both) ───────────
+  if (
+    !isSinglePartyAsk &&
+    (field === "parties" ||
+      /\b(?:both\s+parties|parties\s+to\s+this|names\s+of\s+both|contracting\s+parties)\b/.test(text))
   ) {
     return "e.g. Acme Ltd and DataCo International";
   }
 
-  // ── Effective / commencement / start date ─────────────────────────────────
+  // ── 6. Single party / entity name (Client, Counterparty, Party A, Party B, etc.) ──
+  if (
+    isSinglePartyAsk ||
+    /(?:firstcompany|secondcompany|partya|partyb|party1|party2|disclosingparty|receivingparty|recipient|disclosor|client|customer|vendor|supplier|controller|processor|employer|employee|contractor|fiduciary)/.test(field) ||
+    /\b(?:first\s+company|second\s+company|counterparty|client|vendor|supplier|data\s+controller|data\s+processor|data\s+fiduciary|employee|employer|contractor|receiving\s+party|disclosing\s+party)\b/.test(text)
+  ) {
+    return "e.g. Acme Technologies Inc.";
+  }
+
+  // ── 7. General party / entity names fallback ───────────────────────────────
+  if (
+    /(?:party|parties|controller|processor|vendor|supplier|client|customer|company|organisation|organization|counterparty)/.test(field) ||
+    /\b(?:full\s+(?:legal\s+)?name|name\s+of\s+the\s+(?:parties?|controller|processor|company|organisation)|legal\s+name|party\s+name)\b/.test(text)
+  ) {
+    return "e.g. Acme Technologies Inc.";
+  }
+
+  // ── 7. Effective / commencement / start date ─────────────────────────────────
   if (
     /(?:effectivedate|commencedate|startdate)/.test(field) ||
     /effective\s+date|commencement\s+date|start\s+date/.test(text)
@@ -291,7 +347,7 @@ function inferPlaceholder(q: DraftOpenQuestion): string {
     return "e.g. 1 Dec 2026";
   }
 
-  // ── MSA / master/principal agreement date ────────────────────────────────
+  // ── 8. MSA / master/principal agreement date ────────────────────────────────
   if (
     /(?:msadate|principaldate|masterdate)/.test(field) ||
     /(?:principal|master)\s+(?:services\s+)?agreement|msa\s+date/.test(text)
@@ -299,7 +355,7 @@ function inferPlaceholder(q: DraftOpenQuestion): string {
     return "e.g. 1 Dec 2026";
   }
 
-  // ── Termination / expiry / end date ──────────────────────────────────────
+  // ── 9. Termination / expiry / end date ──────────────────────────────────────
   if (
     /(?:terminationdate|expirydate|expirationdate|enddate)/.test(field) ||
     /termination\s+date|expiry\s+date|expiration\s+date|end\s+date/.test(text)
@@ -307,7 +363,7 @@ function inferPlaceholder(q: DraftOpenQuestion): string {
     return "e.g. 1 Dec 2027";
   }
 
-  // ── Signature / execution date ───────────────────────────────────────────
+  // ── 10. Signature / execution date ───────────────────────────────────────────
   if (
     /(?:signdate|executiondate|signingdate)/.test(field) ||
     /signature\s+date|signing\s+date|execution\s+date|date\s+of\s+(?:last\s+)?signature/.test(text)
@@ -315,12 +371,12 @@ function inferPlaceholder(q: DraftOpenQuestion): string {
     return "e.g. 1 Dec 2026";
   }
 
-  // ── Any other date ────────────────────────────────────────────────────────
+  // ── 11. Any other date ────────────────────────────────────────────────────────
   if (/date/.test(field) || /\bdate\b/.test(text)) {
     return "e.g. 1 Dec 2026";
   }
 
-  // ── Confidentiality / NDA duration ───────────────────────────────────────
+  // ── 12. Confidentiality / NDA duration ───────────────────────────────────────
   if (
     /(?:confidentialityperiod|ndaterm|confidentialityterm|survivaltermconfidentiality)/.test(field) ||
     /confidential(?:ity)?\s+(?:obligation|period|term|surviv|last)|how\s+long.*(?:confidential|nda|obligation)|(?:nda|obligation|confidential(?:ity)?)\s+(?:last|remain|survive|period|term)/.test(text)
@@ -328,7 +384,7 @@ function inferPlaceholder(q: DraftOpenQuestion): string {
     return "e.g. 3 years";
   }
 
-  // ── General retention / data period ──────────────────────────────────────
+  // ── 13. General retention / data period ──────────────────────────────────────
   if (
     /(?:retention|retain|storagperiod|dataretention)/.test(field) ||
     /retention\s+period|how\s+long.*(?:data|retain|keep|store)/.test(text)
@@ -336,76 +392,87 @@ function inferPlaceholder(q: DraftOpenQuestion): string {
     return "e.g. 3 years after contract end";
   }
 
-  // ── General duration / number / period ───────────────────────────────────
+  // ── 14. Liability cap ───────────────────────────────────────────────────────
+  if (
+    /(?:liability|liabilitycap|caponliability)/.test(field) ||
+    /\b(?:liability\s+cap|limit\s+of\s+liability|limitation\s+of\s+liability|cap\s+on\s+liability)\b/.test(text)
+  ) {
+    return "e.g. 12 months' fees (or $1,000,000)";
+  }
+
+  // ── 15. Breach notification SLA ─────────────────────────────────────────────
+  if (
+    /(?:breach|breachnotification|breachnotice|breachsla)/.test(field) ||
+    /\b(?:breach\s+(?:notification|notice|window|hours?|sla)|security\s+incident)\b/.test(text)
+  ) {
+    return "e.g. 48 hours (or 72 hours)";
+  }
+
+  // ── 16. Sub-processor / Audit notice period ─────────────────────────────────
+  if (
+    /(?:subprocessor|auditnotice|subprocessornotice)/.test(field) ||
+    /\b(?:sub[\s-]?processor\s+(?:notice|objection)|audit\s+notice)\b/.test(text)
+  ) {
+    return "e.g. 30 days";
+  }
+
+  // ── 17. Payment terms / fees ────────────────────────────────────────────────
+  if (
+    /(?:payment|paymentterms|fee|fees|pricing)/.test(field) ||
+    /\b(?:payment\s+terms?|fees?|invoic|billing)\b/.test(text)
+  ) {
+    return "e.g. Net 30 days";
+  }
+
+  // ── 18. General duration / number / period ───────────────────────────────────
   if (
     DURATION_FIELD_RE.test(q.field) ||
     DURATION_QUESTION_RE.test(q.question)
   ) {
-    // Try to pick up the unit from the question text
     if (/month/i.test(text)) return "e.g. 12 months";
     if (/day/i.test(text))   return "e.g. 30 days";
     if (/week/i.test(text))  return "e.g. 4 weeks";
     return "e.g. 3 years";
   }
 
-  // ── Business purpose / data processing purpose ───────────────────────────
+  // ── 19. Business purpose / data processing purpose ───────────────────────────
   if (
     /(?:purpose|businesspurpose|processingpurpose)/.test(field) ||
     /\b(?:purpose\s+of\s+(?:the\s+)?(?:processing|data|agreement|sharing|disclosure)|business\s+purpose|why\s+(?:is\s+)?(?:the\s+)?(?:data|information)|specific\s+(?:business\s+)?purpose)\b/.test(text)
   ) {
-    return "e.g. Cloud hosting and analytics";
+    return "e.g. Evaluating commercial partnership and sharing confidential information";
   }
 
-  // ── Data categories ───────────────────────────────────────────────────────
+  // ── 20. Data categories ───────────────────────────────────────────────────────
   if (
     /(?:datacategor|datatype|personaldata|categories)/.test(field) ||
     /categor(?:ies|y)\s+of\s+(?:personal\s+)?data|type[s]?\s+of\s+(?:personal\s+)?data/.test(text)
   ) {
-    return "e.g. Contact details, usage logs";
+    return "e.g. Contact details, usage logs, user IDs";
   }
 
-  // ── Data subjects ─────────────────────────────────────────────────────────
+  // ── 21. Data subjects ─────────────────────────────────────────────────────────
   if (
     /(?:datasubject|subject)/.test(field) ||
     /\bdata\s+subject|whose\s+data\b/.test(text)
   ) {
-    return "e.g. Employees, end users";
+    return "e.g. Employees, end users, customers";
   }
 
-  // ── Governing law / jurisdiction ─────────────────────────────────────────
-  // (chips: placeholder won't be displayed, but included for completeness)
-  if (
-    GOVERNING_LAW_FIELD_RE.test(q.field) ||
-    GOVERNING_LAW_QUESTION_RE.test(q.question)
-  ) {
-    return "Select a venue";
-  }
-
-  // ── Services / scope description ─────────────────────────────────────────
+  // ── 22. Services / scope description ─────────────────────────────────────────
   if (
     /(?:service|scope|description)/.test(field) ||
     /description\s+of\s+(?:the\s+)?services?|scope\s+of/.test(text)
   ) {
-    return "e.g. Software development and support services";
+    return "e.g. Software development, hosting, and technical support";
   }
 
-  // ── Notice period ─────────────────────────────────────────────────────────
-  if (
-    /notice/.test(field) ||
-    /notice\s+period/.test(text)
-  ) {
+  // ── 23. Notice period ─────────────────────────────────────────────────────────
+  if (/notice/.test(field) || /notice\s+period/.test(text)) {
     return "e.g. 30 days";
   }
 
-  // ── Sub-processors ────────────────────────────────────────────────────────
-  if (
-    /(?:subprocessor|sub.?processor)/.test(field) ||
-    /sub[\s-]?processor/.test(text)
-  ) {
-    return "e.g. AWS (hosting), Stripe (payments)";
-  }
-
-  // ── Contact / DPO ─────────────────────────────────────────────────────────
+  // ── 24. Contact / DPO ─────────────────────────────────────────────────────────
   if (
     /(?:contact|dpo|officer)/.test(field) ||
     /data\s+protection\s+officer|contact\s+(?:person|detail)/.test(text)
@@ -413,7 +480,7 @@ function inferPlaceholder(q: DraftOpenQuestion): string {
     return "e.g. privacy@example.com";
   }
 
-  // ── Long-form fallback ────────────────────────────────────────────────────
+  // ── 25. Long-form fallback ────────────────────────────────────────────────────
   if (resolveInputType(q) === "textarea") {
     return "e.g. Describe your answer here";
   }
@@ -459,6 +526,44 @@ function DateInput({
   );
 }
 
+/**
+ * Strips 'e.g. ', 'example: ', outer quotes and ignores generic directive text
+ * so pressing Tab fills a clean, production-ready value.
+ */
+export function cleanPlaceholderValue(placeholder?: string): string {
+  if (!placeholder) return "";
+  let clean = placeholder.trim();
+  clean = clean.replace(/^(?:e\.?g\.?|example|ex\.?)\s*[:\-–]?\s*/i, "");
+  clean = clean.replace(/^["'“](.*)["'”]$/, "$1").trim();
+  if (/^(?:select|choose|specify|enter|describe|provide|your\s+answer)\b/i.test(clean)) {
+    return "";
+  }
+  return clean;
+}
+
+function TabBadge({
+  onClick,
+  className = "",
+}: {
+  onClick: () => void;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      tabIndex={-1}
+      onMouseDown={(e) => {
+        e.preventDefault();
+        onClick();
+      }}
+      className={`flex items-center gap-1 rounded bg-slate-200/90 hover:bg-[#4F5BD9] hover:text-white px-2 py-0.5 text-[10.5px] font-semibold text-slate-600 transition-all shadow-xs cursor-pointer border border-slate-300/70 select-none animate-in fade-in duration-150 ${className}`}
+      title="Press Tab to fill example"
+    >
+      <span>Tab ⇥</span>
+    </button>
+  );
+}
+
 function TextInput({
   id,
   value,
@@ -472,16 +577,39 @@ function TextInput({
   onChange: (v: string) => void;
   placeholder: string;
 }) {
+  const candidate = cleanPlaceholderValue(placeholder);
+  const [isFocused, setIsFocused] = useState(false);
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Tab" && !e.shiftKey) {
+      if (!value.trim() && candidate) {
+        e.preventDefault();
+        onChange(candidate);
+      }
+    }
+  }
+
   return (
-    <input
-      id={id}
-      type="text"
-      value={value}
-      disabled={disabled}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      className={INPUT_BASE}
-    />
+    <div className="relative w-full">
+      <input
+        id={id}
+        type="text"
+        value={value}
+        disabled={disabled}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        onKeyDown={handleKeyDown}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className={`${INPUT_BASE} ${candidate ? "pr-18" : ""}`}
+      />
+      {isFocused && !value.trim() && candidate && (
+        <TabBadge
+          onClick={() => onChange(candidate)}
+          className="absolute right-2.5 top-1/2 -translate-y-1/2"
+        />
+      )}
+    </div>
   );
 }
 
@@ -503,24 +631,46 @@ function NumericInput({
   onChange: (v: string) => void;
   placeholder: string;
 }) {
+  const candidate = cleanPlaceholderValue(placeholder);
+  const [isFocused, setIsFocused] = useState(false);
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Tab" && !e.shiftKey) {
+      if (!value.trim() && candidate) {
+        e.preventDefault();
+        onChange(candidate);
+      }
+    }
+  }
+
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     // Allow digits, spaces, and common unit words (e.g. "3 years", "30 days")
     const raw = e.target.value;
-    // Only strip characters that are clearly not part of a valid answer
     onChange(raw);
   }
 
   return (
-    <input
-      id={id}
-      type="text"
-      inputMode="numeric"
-      value={value}
-      disabled={disabled}
-      onChange={handleChange}
-      placeholder={placeholder}
-      className={INPUT_BASE}
-    />
+    <div className="relative w-full">
+      <input
+        id={id}
+        type="text"
+        inputMode="numeric"
+        value={value}
+        disabled={disabled}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        onKeyDown={handleKeyDown}
+        onChange={handleChange}
+        placeholder={placeholder}
+        className={`${INPUT_BASE} ${candidate ? "pr-18" : ""}`}
+      />
+      {isFocused && !value.trim() && candidate && (
+        <TabBadge
+          onClick={() => onChange(candidate)}
+          className="absolute right-2.5 top-1/2 -translate-y-1/2"
+        />
+      )}
+    </div>
   );
 }
 
@@ -537,16 +687,39 @@ function TextareaInput({
   onChange: (v: string) => void;
   placeholder: string;
 }) {
+  const candidate = cleanPlaceholderValue(placeholder);
+  const [isFocused, setIsFocused] = useState(false);
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === "Tab" && !e.shiftKey) {
+      if (!value.trim() && candidate) {
+        e.preventDefault();
+        onChange(candidate);
+      }
+    }
+  }
+
   return (
-    <textarea
-      id={id}
-      value={value}
-      disabled={disabled}
-      rows={3}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      className={`${INPUT_BASE} resize-none`}
-    />
+    <div className="relative w-full">
+      <textarea
+        id={id}
+        value={value}
+        disabled={disabled}
+        rows={3}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        onKeyDown={handleKeyDown}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className={`${INPUT_BASE} resize-none ${candidate ? "pb-8" : ""}`}
+      />
+      {isFocused && !value.trim() && candidate && (
+        <TabBadge
+          onClick={() => onChange(candidate)}
+          className="absolute right-2.5 bottom-2.5"
+        />
+      )}
+    </div>
   );
 }
 
@@ -561,94 +734,162 @@ function ChipsInput({
   value,
   disabled,
   onChange,
+  placeholder,
 }: {
   id: string;
   options: string[];
   multi: boolean;
-  /** Pipe-separated for multi; plain string for single. */
   value: string;
   disabled: boolean;
   onChange: (v: string) => void;
+  placeholder?: string;
 }) {
-  // Derive selected set from pipe-separated value
-  const selected = new Set(value ? value.split("|").filter(Boolean) : []);
-
-  // "Other (specify)" text lives in separate state but is
-  // serialised back into the value on every change.
-  const otherInitial = (() => {
-    for (const v of selected) {
-      if (!options.includes(v)) return v;
-    }
-    return "";
-  })();
-  const [otherText, setOtherText] = useState(otherInitial);
-
   const hasOtherOption = options.includes(OTHER_LABEL);
-  const otherSelected  = selected.has(OTHER_LABEL) || (!!otherText && selected.has(otherText));
+  const candidate = cleanPlaceholderValue(placeholder);
 
-  function buildValue(nextSelected: Set<string>, nextOther: string): string {
-    const parts: string[] = [];
-    for (const s of nextSelected) {
-      if (s === OTHER_LABEL) continue; // replace sentinel with actual text
-      parts.push(s);
+  const matchedOpt = useMemo(() => {
+    if (!candidate || !options.length) return undefined;
+    const lower = candidate.toLowerCase();
+    return options.find(
+      (opt) =>
+        opt !== OTHER_LABEL &&
+        (opt.toLowerCase() === lower ||
+          opt.toLowerCase().includes(lower) ||
+          lower.includes(opt.toLowerCase()))
+    );
+  }, [candidate, options]);
+
+  // Track standard options that are selected
+  const selectedStandard = useMemo(() => {
+    if (!value) return new Set<string>();
+    const items = value.split("|").filter(Boolean);
+    return new Set(items.filter((item) => options.includes(item) && item !== OTHER_LABEL));
+  }, [value, options]);
+
+  // Extract initial custom other text (if any item is not a standard option)
+  const initialOtherText = useMemo(() => {
+    if (!value) return "";
+    const items = value.split("|").filter(Boolean);
+    const custom = items.find((item) => !options.includes(item) && item !== OTHER_LABEL);
+    return custom ?? "";
+  }, [value, options]);
+
+  const [otherText, setOtherText] = useState(initialOtherText);
+
+  // Determine if "Other (specify)" is currently active
+  const isOtherActive = useMemo(() => {
+    if (!hasOtherOption) return false;
+    if (!value) return false;
+    const items = value.split("|").filter(Boolean);
+    return (
+      items.includes(OTHER_LABEL) ||
+      items.some((item) => !options.includes(item))
+    );
+  }, [hasOtherOption, value, options]);
+
+  // Sync internal otherText state when value changes externally
+  useEffect(() => {
+    if (initialOtherText && initialOtherText !== otherText) {
+      setOtherText(initialOtherText);
     }
-    if ((nextSelected.has(OTHER_LABEL) || otherSelected) && nextOther.trim()) {
-      parts.push(nextOther.trim());
-    } else if (nextSelected.has(OTHER_LABEL) && !nextOther.trim()) {
-      // Keep sentinel so chip stays highlighted until user types
-      parts.push(OTHER_LABEL);
-    }
-    return parts.join("|");
-  }
+  }, [initialOtherText]);
 
   function toggleChip(opt: string) {
     if (disabled) return;
-    const next = new Set(selected);
+
+    if (opt === OTHER_LABEL) {
+      if (multi) {
+        if (isOtherActive) {
+          // Deselect Other
+          const nextParts = Array.from(selectedStandard);
+          onChange(nextParts.join("|"));
+        } else {
+          // Select Other
+          const customVal = otherText.trim() || OTHER_LABEL;
+          const nextParts = [...Array.from(selectedStandard), customVal];
+          onChange(nextParts.join("|"));
+        }
+      } else {
+        // Single select radio
+        if (isOtherActive) {
+          onChange("");
+        } else {
+          const customVal = otherText.trim() || OTHER_LABEL;
+          onChange(customVal);
+        }
+      }
+      return;
+    }
+
+    // Standard option clicked
     if (multi) {
+      const next = new Set(selectedStandard);
       if (next.has(opt)) next.delete(opt);
       else next.add(opt);
+
+      const parts = Array.from(next);
+      if (isOtherActive) {
+        parts.push(otherText.trim() || OTHER_LABEL);
+      }
+      onChange(parts.join("|"));
     } else {
-      // Radio behaviour
-      if (next.has(opt)) {
-        next.clear(); // deselect
+      // Single select radio: deselect if already selected, otherwise select opt and deactivate Other
+      if (selectedStandard.has(opt) && !isOtherActive) {
+        onChange("");
       } else {
-        next.clear();
-        next.add(opt);
+        onChange(opt);
       }
     }
-    onChange(buildValue(next, otherText));
   }
 
   function handleOtherTextChange(text: string) {
     setOtherText(text);
-    const next = new Set(selected);
-    if (!next.has(OTHER_LABEL)) next.add(OTHER_LABEL);
-    onChange(buildValue(next, text));
+    const customVal = text.trim() ? text : OTHER_LABEL;
+
+    if (multi) {
+      const parts = Array.from(selectedStandard);
+      parts.push(customVal);
+      onChange(parts.join("|"));
+    } else {
+      onChange(customVal);
+    }
   }
 
-  const showOtherInput = hasOtherOption && (selected.has(OTHER_LABEL) || otherSelected);
+  const showOtherInput = hasOtherOption && isOtherActive;
 
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap gap-1.5">
         {options.map((opt) => {
           const isSel =
-            opt === OTHER_LABEL
-              ? otherSelected || selected.has(OTHER_LABEL)
-              : selected.has(opt);
+            opt === OTHER_LABEL ? isOtherActive : selectedStandard.has(opt);
+          const isRecommended = !value && opt === matchedOpt;
           return (
             <button
               key={opt}
               type="button"
               disabled={disabled}
               onClick={() => toggleChip(opt)}
-              className={`px-3 py-1.5 rounded-lg text-[12px] font-medium border transition-all ${
+              onKeyDown={(e) => {
+                if (e.key === "Tab" && !e.shiftKey && !value && matchedOpt) {
+                  e.preventDefault();
+                  toggleChip(matchedOpt);
+                }
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium border transition-all ${
                 isSel
                   ? "border-[#4F5BD9] bg-[#4F5BD9] text-white shadow-sm"
+                  : isRecommended
+                  ? "border-[#4F5BD9]/50 bg-indigo-50/70 text-[#4F5BD9] hover:bg-indigo-100/60"
                   : "border-slate-200/80 bg-slate-50/80 text-slate-600 hover:border-slate-300 hover:bg-slate-100/70"
               } disabled:opacity-60`}
             >
-              {opt}
+              <span>{opt}</span>
+              {isRecommended && (
+                <span className="rounded bg-[#4F5BD9]/15 text-[#4F5BD9] px-1 py-0.2 text-[9.5px] font-semibold">
+                  Tab ⇥
+                </span>
+              )}
             </button>
           );
         })}
@@ -675,11 +916,15 @@ function formatSubmittedAnswer(q: DraftOpenQuestion, raw: string): string {
   if (!raw) return "—";
   const inputType = resolveInputType(q);
   if (inputType === "chips" || inputType === "chips-multi") {
-    return raw
-      .split("|")
-      .filter(Boolean)
-      .filter((v) => v !== OTHER_LABEL)
-      .join(", ");
+    const unique = Array.from(
+      new Set(
+        raw
+          .split("|")
+          .filter(Boolean)
+          .filter((v) => v !== OTHER_LABEL)
+      )
+    );
+    return unique.join(", ");
   }
   if (inputType === "date") {
     try {
@@ -702,6 +947,40 @@ function formatSubmittedAnswer(q: DraftOpenQuestion, raw: string): string {
 // AskQuestionCard
 // ---------------------------------------------------------------------------
 
+function deduplicateQuestions(raw: DraftOpenQuestion[]): DraftOpenQuestion[] {
+  const result: DraftOpenQuestion[] = [];
+  let seenLaw = false;
+  let seenDate = false;
+  const seenFields = new Set<string>();
+
+  for (const q of raw) {
+    const isLaw =
+      GOVERNING_LAW_FIELD_RE.test(q.field) ||
+      GOVERNING_LAW_QUESTION_RE.test(q.question);
+    if (isLaw) {
+      if (seenLaw) continue;
+      seenLaw = true;
+    }
+
+    const isDate =
+      DATE_FIELD_RE.test(q.field) || DATE_QUESTION_RE.test(q.question);
+    if (isDate) {
+      if (seenDate) continue;
+      seenDate = true;
+    }
+
+    const fieldKey = (q.field || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+    if (fieldKey && seenFields.has(fieldKey)) {
+      continue;
+    }
+    if (fieldKey) seenFields.add(fieldKey);
+
+    result.push(q);
+  }
+
+  return result;
+}
+
 function AskQuestionCard({
   messageId,
   content,
@@ -717,6 +996,11 @@ function AskQuestionCard({
   disabled?: boolean;
   onSubmit?: (messageId: string, answers: Record<string, string>) => void;
 }) {
+  const filteredQuestions = useMemo(
+    () => deduplicateQuestions(questions),
+    [questions]
+  );
+
   const [answers, setAnswers] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {};
     for (const q of questions) initial[q.id] = "";
@@ -745,28 +1029,53 @@ function AskQuestionCard({
     return true;
   }
 
-  const allFilled = questions.every(isFilled);
+  const allFilled = filteredQuestions.every(isFilled);
 
   /**
    * Normalise answers before submission:
    * - Strip "Other (specify)" sentinel (already replaced by actual text)
    * - Collapse pipe-separated chip values to comma-separated string
+   * - Forward governing law answer to any duplicate law fields that were hidden
    */
   function buildFinalAnswers(): Record<string, string> {
     const out: Record<string, string> = {};
-    for (const q of questions) {
+    for (const q of filteredQuestions) {
       const raw = answers[q.id] || "";
       const inputType = resolveInputType(q);
       if (inputType === "chips" || inputType === "chips-multi") {
-        out[q.id] = raw
-          .split("|")
-          .filter(Boolean)
-          .filter((v) => v !== OTHER_LABEL)
-          .join(", ");
+        const unique = Array.from(
+          new Set(
+            raw
+              .split("|")
+              .filter(Boolean)
+              .filter((v) => v !== OTHER_LABEL)
+          )
+        );
+        out[q.id] = unique.join(", ");
       } else {
         out[q.id] = raw.trim();
       }
     }
+
+    // Forward answers to any duplicate fields that were hidden from UI
+    for (const q of questions) {
+      if (!out[q.id]) {
+        const isLaw =
+          GOVERNING_LAW_FIELD_RE.test(q.field) ||
+          GOVERNING_LAW_QUESTION_RE.test(q.question);
+        if (isLaw) {
+          const lawQ = filteredQuestions.find(
+            (k) =>
+              GOVERNING_LAW_FIELD_RE.test(k.field) ||
+              GOVERNING_LAW_QUESTION_RE.test(k.question)
+          );
+          if (lawQ && out[lawQ.id]) {
+            out[q.id] = out[lawQ.id];
+          }
+        }
+      }
+    }
+
     return out;
   }
 
@@ -786,7 +1095,10 @@ function AskQuestionCard({
               </span>
             ) : (
               <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-[10.5px] font-semibold text-[#4F5BD9]">
-                {questions.length} {questions.length === 1 ? "detail required" : "details required"}
+                {filteredQuestions.length}{" "}
+                {filteredQuestions.length === 1
+                  ? "detail required"
+                  : "details required"}
               </span>
             )}
           </div>
@@ -799,7 +1111,7 @@ function AskQuestionCard({
       <div className="pl-[36px] space-y-3.5">
         {resolved ? (
           <div className="space-y-2">
-            {questions.map((q) => {
+            {filteredQuestions.map((q) => {
               const ans = formatSubmittedAnswer(q, answers[q.id] || "");
               return (
                 <div
@@ -823,7 +1135,7 @@ function AskQuestionCard({
         ) : (
           <>
             <div className="space-y-3">
-              {questions.map((q) => {
+              {filteredQuestions.map((q) => {
                 const inputType = resolveInputType(q);
                 const options = resolveOptions(q);
                 const placeholder = inferPlaceholder(q);
@@ -875,6 +1187,7 @@ function AskQuestionCard({
                         value={answers[q.id] || ""}
                         disabled={!!(resolved || disabled)}
                         onChange={(v) => setAnswer(q.id, v)}
+                        placeholder={placeholder}
                       />
                     )}
 
@@ -887,6 +1200,7 @@ function AskQuestionCard({
                         value={answers[q.id] || ""}
                         disabled={!!(resolved || disabled)}
                         onChange={(v) => setAnswer(q.id, v)}
+                        placeholder={placeholder}
                       />
                     )}
 

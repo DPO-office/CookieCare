@@ -10,6 +10,14 @@ export const MissingFactSchema = z.object({
   severity: z.enum(["critical", "optional"]),
   reasonRequired: z.string().describe("one sentence: why this fact changes what must be drafted"),
   options: z.array(z.string()).optional(),
+  placeholder: z
+    .string()
+    .optional()
+    .describe("realistic example placeholder for the input box, e.g. 'e.g. Acme Corp, 100 Innovation Way, Suite 400, Wilmington, DE 19801'"),
+  example: z
+    .string()
+    .optional()
+    .describe("realistic example placeholder for the input box, e.g. 'e.g. Acme Corp, 100 Innovation Way, Suite 400, Wilmington, DE 19801'"),
 });
 
 export const ChecklistItemSchema = z.object({
@@ -115,7 +123,7 @@ ${previouslyAskedBlock}
 ${skillBlock}
 
 Perform a comprehensive gap analysis across ALL available inputs above (User Instructions, Contract Template, Playbook Rules, and Skill Documents).
-Identify all missing facts, parameters, variables, bracketed placeholders ([●], [PARTY], [ADDRESS], [GOVERNING LAW], [SLA]), unfilled options, or required policy/compliance parameters that are NOT present in the known facts or user prompt. Emit a critical MissingFact for each missing detail so it can be asked of the user.
+Identify all missing facts, parameters, variables, bracketed placeholders ([●], [PARTY], [ADDRESS], [GOVERNING LAW], [SLA]), unfilled options, or required policy/compliance parameters that are NOT present in the known facts or user prompt. Emit a critical MissingFact for each missing detail so it can be asked of the user. Include a realistic, context-specific placeholder starting with "e.g. " for every fact.
 Do NOT re-ask or emit MissingFacts for any previously asked or known facts.
 `.trim();
 }
@@ -134,8 +142,16 @@ export const DETECT_GAPS_JSON_SCHEMA = {
           severity: { type: "string", enum: ["critical", "optional"] },
           reasonRequired: { type: "string" },
           options: { type: "array", items: { type: "string" } },
+          placeholder: {
+            type: "string",
+            description: "A realistic example starting with 'e.g. ' showing the user the exact expected format",
+          },
+          example: {
+            type: "string",
+            description: "A realistic example starting with 'e.g. '",
+          },
         },
-        required: ["field", "question", "severity", "reasonRequired"],
+        required: ["field", "question", "severity", "reasonRequired", "placeholder"],
       },
     },
     checklist: {

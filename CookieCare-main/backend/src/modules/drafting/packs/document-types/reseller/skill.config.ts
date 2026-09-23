@@ -13,6 +13,7 @@ export const resellerSkillConfig: DraftingSkillConfig = {
       blocking: true,
       question: "What is the designated geographic territory for reselling?",
       reasonRequired: "Distribution contracts require an explicit territorial scope.",
+      placeholder: "e.g. United Kingdom and European Union",
     },
     {
       id: "productsCovered",
@@ -20,6 +21,7 @@ export const resellerSkillConfig: DraftingSkillConfig = {
       blocking: true,
       question: "Which products or services is the reseller authorized to distribute?",
       reasonRequired: "Authorized product line must be explicitly specified.",
+      placeholder: "e.g. CloudSuite Pro and CloudSuite Enterprise",
     },
   ],
   sectionBriefs: [

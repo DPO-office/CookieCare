@@ -13,6 +13,8 @@ export interface DraftingRequiredFact {
   question: string;
   reasonRequired: string;
   options?: string[];
+  placeholder?: string;
+  example?: string;
   aliases?: string[];
   safeDefault?: unknown;
   coveredByEffectiveDate?: boolean;

@@ -3,7 +3,22 @@ import type { StructuredFacts } from "../../../models/structured-facts.js";
 const EU_FAMILY_IDS = new Set(["GDPR_ART28", "UK_GDPR_IDTA", "CPRA_SP"]);
 
 function blob(facts: StructuredFacts, extra = ""): string {
-  const text = `${JSON.stringify(facts)} ${extra}`.toLowerCase();
+  let userText = "";
+  if (typeof facts.instructionText === "string") {
+    userText = facts.instructionText
+      .replace(/Use\s+(?:this\s+)?structural\s+template:[^\n]+/gi, " ")
+      .replace(/\b(?:DPA|NDA|MSA|SaaS|SLA)\s+Template\b[^\n]*/gi, " ")
+      .replace(/\{[^{}]*\}/g, " ");
+  }
+  const law = String(facts.governingLaw || "").toLowerCase();
+  const cleanLaw =
+    law === "not specified" || law === "general" || law === "unknown"
+      ? ""
+      : law;
+  const regime = String(facts.privacyRegime || "").toLowerCase();
+  const cleanRegime = PLACEHOLDER_REGIME.test(regime) ? "" : regime;
+
+  const text = `${userText} ${cleanLaw} ${cleanRegime} ${extra}`.toLowerCase();
   // "do not attach EU SCCs" must not count as a request for the EU regime.
   return text.replace(/\b(?:do not|don't|never|without|not)\b[^.]{0,100}/gi, " ");
 }
@@ -20,7 +35,11 @@ export function inferPrivacyRegime(facts: StructuredFacts, extra = ""): string |
   const explicit = String(facts.privacyRegime || "").trim();
   if (explicit && !PLACEHOLDER_REGIME.test(explicit)) return explicit;
 
-  const law = String(facts.governingLaw || "").toLowerCase();
+  const rawLaw = String(facts.governingLaw || "").toLowerCase();
+  const law =
+    rawLaw === "not specified" || rawLaw === "general" || rawLaw === "unknown"
+      ? ""
+      : rawLaw;
   const text = regimeText(facts, extra);
 
   if (
@@ -36,7 +55,10 @@ export function inferPrivacyRegime(facts: StructuredFacts, extra = ""): string |
   if (
     /\buk\s*gdpr\b/.test(text) ||
     text.includes("idta") ||
-    text.includes("uk addendum")
+    text.includes("uk addendum") ||
+    law.includes("england") ||
+    /\buk\b/.test(law) ||
+    law.includes("united kingdom")
   ) {
     return "UK GDPR";
   }

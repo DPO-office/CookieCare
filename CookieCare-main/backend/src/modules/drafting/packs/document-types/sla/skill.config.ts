@@ -14,6 +14,7 @@ export const slaSkillConfig: DraftingSkillConfig = {
       question: "What is the target uptime / availability percentage (e.g. 99.9%)?",
       reasonRequired: "SLA must state explicit service availability commitment targets.",
       options: ["99.5%", "99.9%", "99.95%", "99.99%"],
+      placeholder: "e.g. 99.9%",
       aliases: ["availabilityTarget", "uptimeTarget"],
     },
     {
@@ -22,6 +23,7 @@ export const slaSkillConfig: DraftingSkillConfig = {
       blocking: true,
       question: "What service credit percentages apply if SLA targets are breached?",
       reasonRequired: "SLA remedies specify credit percentage tiers based on monthly downtime.",
+      placeholder: "e.g. 10% credit for <99.9%, 25% credit for <99.0%",
       aliases: ["serviceCredits"],
     },
   ],

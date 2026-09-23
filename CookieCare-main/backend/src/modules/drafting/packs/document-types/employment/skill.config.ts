@@ -13,6 +13,7 @@ export const employmentSkillConfig: DraftingSkillConfig = {
       blocking: true,
       question: "What is the employee's job title and role?",
       reasonRequired: "An employment agreement must state the specific job position.",
+      placeholder: "e.g. Senior Software Engineer",
       aliases: ["role", "position"],
     },
     {
@@ -21,6 +22,7 @@ export const employmentSkillConfig: DraftingSkillConfig = {
       blocking: true,
       question: "What is the employee's compensation / base salary?",
       reasonRequired: "Compensation terms are mandatory in employment contracts.",
+      placeholder: "e.g. $120,000 per annum, paid monthly",
       aliases: ["salary", "remuneration", "basePay"],
     },
     {
@@ -29,6 +31,7 @@ export const employmentSkillConfig: DraftingSkillConfig = {
       blocking: true,
       question: "What is the employment start date?",
       reasonRequired: "Start date determines when employment covenants and payroll commence.",
+      placeholder: "e.g. 1 Dec 2026",
       aliases: ["employmentStartDate"],
     },
     {
@@ -38,6 +41,7 @@ export const employmentSkillConfig: DraftingSkillConfig = {
       question: "What is the notice period for termination of employment?",
       reasonRequired: "Termination notice rules govern lawful discharge or resignation.",
       options: ["1 month", "2 months", "3 months", "Statutory minimum"],
+      placeholder: "e.g. 1 month",
       aliases: ["terminationNotice"],
     },
   ],

@@ -32,6 +32,8 @@ export interface CanonicalRequirement<T = unknown> {
   /** Human question used when status is missing/conflict. */
   question?: string;
   options?: string[];
+  placeholder?: string;
+  example?: string;
   reasonRequired?: string;
   /** Why this was assumed (safe default). */
   assumption?: boolean;
@@ -153,11 +155,27 @@ export const REQUIREMENT_ALIASES: Record<string, string> = {
   lawandvenue: "governingLaw",
   governinglawandvenue: "governingLaw",
   "governing law and venue": "governingLaw",
+  governinglawandjurisdiction: "governingLaw",
+  "governing law and jurisdiction": "governingLaw",
   jurisdictionandgoverninglaw: "governingLaw",
+  "jurisdiction and governing law": "governingLaw",
   governingcountry: "governingLaw",
   governingstate: "governingLaw",
+  "governing state": "governingLaw",
+  governingstateorjurisdiction: "governingLaw",
+  governingstateorcountry: "governingLaw",
+  statelaw: "governingLaw",
+  "state law": "governingLaw",
+  statelawandvenue: "governingLaw",
+  whichstateslaw: "governingLaw",
   contractlaw: "governingLaw",
   jurisdiction: "governingLaw",
+  legalvenue: "governingLaw",
+  disputelaw: "governingLaw",
+  disputevenue: "governingLaw",
+  applicablejurisdiction: "governingLaw",
+  law: "governingLaw",
+  laws: "governingLaw",
   parties: "parties",
   contractingparties: "parties",
   partyname: "parties",
@@ -299,6 +317,14 @@ export function canonicalizeFieldId(field: string): string {
   );
   if (stripped && stripped !== compact && REQUIREMENT_ALIASES[stripped]) {
     return REQUIREMENT_ALIASES[stripped];
+  }
+
+  if (
+    /^(?:governing.*(?:law|jurisdiction|venue|state|country)|(?:law|jurisdiction|venue|state).*governing|choice.*of.*law|applicable.*(?:law|jurisdiction)|legal.*venue|statelaw|whichstateslaw)/.test(
+      compact
+    )
+  ) {
+    return "governingLaw";
   }
 
   return trimmed;
