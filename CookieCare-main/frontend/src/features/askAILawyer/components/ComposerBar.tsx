@@ -22,7 +22,7 @@
 import React, { useState, useCallback } from "react";
 import {
   ArrowUp, RefreshCw, Paperclip,
-  X, CornerDownLeft,
+  X, CornerDownLeft, Folder,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { OutputFormat, PopoverType } from "../types";

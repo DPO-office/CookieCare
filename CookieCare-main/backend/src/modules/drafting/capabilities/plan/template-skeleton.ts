@@ -10,8 +10,8 @@ export function deriveSkeletonFromTemplate(templateText: string): WorkUnit[] | n
   const lines = templateText.split(/\r?\n/);
   const rawHeadings: { heading: string; rawLine: string }[] = [];
 
-  for (const line of lines) {
-    const trimmed = line.trim();
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i].trim();
     if (!trimmed) continue;
 
     // Check markdown headings: # Title, ## Section
@@ -44,6 +44,30 @@ export function deriveSkeletonFromTemplate(templateText: string): WorkUnit[] | n
     if (exhibitMatch) {
       rawHeadings.push({ heading: trimmed, rawLine: trimmed });
       continue;
+    }
+
+    // Check standalone heading followed by subclause or known title (e.g. "Damages and liability towards third parties" followed by "10.1 ...")
+    if (/^[A-Z][A-Za-z0-9\s,&;:'–\-\(\)/]{2,90}$/.test(trimmed) && !/[.,;:]$/.test(trimmed)) {
+      let followedBySubclause = false;
+      for (let j = i + 1; j < Math.min(lines.length, i + 4); j++) {
+        const nextTrim = lines[j].trim();
+        if (!nextTrim) continue;
+        if (/^\d+\.\d+\s+/.test(nextTrim)) {
+          followedBySubclause = true;
+          break;
+        }
+        break;
+      }
+
+      const isKnownLegalHeading =
+        /^(?:Background|Definitions|Processing|Sub-?Processors|Limitations|Security|Disclosure|Confidentiality|Compensation|Damages|Liability|Indemn|Amendments|Term|Applicable law|Governing law|Dispute)/i.test(
+          trimmed
+        );
+
+      if (followedBySubclause || isKnownLegalHeading) {
+        rawHeadings.push({ heading: trimmed, rawLine: trimmed });
+        continue;
+      }
     }
   }
 
@@ -83,9 +107,9 @@ export function deriveSkeletonFromTemplate(templateText: string): WorkUnit[] | n
     if (lower.includes("ip") || lower.includes("intellectual") || lower.includes("prop")) clauseTypes.push("ip");
     if (lower.includes("sla") || lower.includes("support")) clauseTypes.push("sla");
     if (lower.includes("confident")) clauseTypes.push("confidentiality");
-    if (lower.includes("liab") || lower.includes("indemn")) clauseTypes.push("liability");
+    if (lower.includes("liab") || lower.includes("indemn") || lower.includes("damage")) clauseTypes.push("liability");
     if (lower.includes("term")) clauseTypes.push("term");
-    if (lower.includes("misc") || lower.includes("govern") || lower.includes("general")) clauseTypes.push("misc");
+    if (lower.includes("misc") || lower.includes("govern") || lower.includes("general") || lower.includes("dispute") || lower.includes("amend")) clauseTypes.push("misc");
     if (clauseTypes.length === 0) clauseTypes.push("general");
 
     const dependsOn: string[] = [];

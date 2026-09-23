@@ -283,19 +283,19 @@ export function LibraryItemsTable({
                 {/* Actions */}
                 <td style={{ padding: "13px 20px", textAlign: "center" }}>
                   <div
-                    className="vlt-fade"
-                    style={{
-                      display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
-                      opacity: 0,
-                    }}
+                    className="flex items-center justify-center gap-1 transition-opacity opacity-100 sm:opacity-0"
                     onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
-                    onMouseLeave={(e) => (e.currentTarget.style.opacity = "0")}
+                    onMouseLeave={(e) => {
+                      if (window.innerWidth >= 640) e.currentTarget.style.opacity = "0";
+                    }}
                     ref={(el) => {
                       if (!el) return;
                       const row = el.closest("tr");
                       if (!row) return;
                       row.addEventListener("mouseenter", () => { el.style.opacity = "1"; });
-                      row.addEventListener("mouseleave", () => { el.style.opacity = "0"; });
+                      row.addEventListener("mouseleave", () => {
+                        if (window.innerWidth >= 640) el.style.opacity = "0";
+                      });
                     }}
                   >
                     {showOpenBtn && (

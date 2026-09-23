@@ -521,6 +521,7 @@ export function useDraftGeneratorActions({
       }
 
       applyDocumentToEditor(outcome.content);
+      bindDocumentShell(outcome.documentId || docId, "Draft Agreement", outcome.content);
       onRefineComplete?.();
     } catch (err: any) {
       console.error("Workspace refine failed", err);
@@ -631,6 +632,7 @@ export function useDraftGeneratorActions({
 
       setRefinementProgress("Applying the refined text...");
       applyDocumentToEditor(outcome.content);
+      bindDocumentShell(outcome.documentId || currentDocumentId, "Draft Agreement", outcome.content);
       onRefineComplete?.();
     } catch (err: any) {
       console.error("Refinement failed", err);

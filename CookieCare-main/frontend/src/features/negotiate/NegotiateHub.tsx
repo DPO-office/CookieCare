@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import {
   FileDown,
   Printer,
@@ -6,6 +6,8 @@ import {
   CheckCircle2,
   Loader2,
   ArrowLeft,
+  FileText,
+  SlidersHorizontal,
 } from "lucide-react";
 import { LegalDocument } from "../../shared/types";
 import { useNegotiate } from "./hooks/useNegotiate";
@@ -93,6 +95,8 @@ function NegotiateWorkspace({
     activeDoc?.signatures &&
     activeDoc.signatures.length > 0 &&
     activeDoc.signatures.every((s) => s.status === "signed");
+
+  const [mobileTab, setMobileTab] = useState<"document" | "redlines">("document");
 
   // ── Resizable sidebar ──────────────────────────────────────────────────────
   const MIN_WIDTH = 300;
@@ -192,34 +196,69 @@ function NegotiateWorkspace({
         </div>
       </header>
 
+      {/* Mobile Segmented View Switcher */}
+      <div className="lg:hidden flex items-center bg-white border border-[#E4E4E7] p-1 rounded-xl mb-3 shrink-0 shadow-2xs">
+        <button
+          type="button"
+          onClick={() => setMobileTab("document")}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg text-[12px] font-semibold transition-all ${
+            mobileTab === "document"
+              ? "bg-[#EEF2FF] text-[#4F5BD9]"
+              : "text-[#667085] hover:text-[#1a1a1a]"
+          }`}
+        >
+          <FileText className="w-3.5 h-3.5" />
+          <span>Agreement</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileTab("redlines")}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg text-[12px] font-semibold transition-all ${
+            mobileTab === "redlines"
+              ? "bg-[#EEF2FF] text-[#4F5BD9]"
+              : "text-[#667085] hover:text-[#1a1a1a]"
+          }`}
+        >
+          <SlidersHorizontal className="w-3.5 h-3.5" />
+          <span>Redlines & Strategy</span>
+          {agentMarkups.length + pendingDbRedlines.length > 0 && (
+            <span className="rounded-full bg-[#EEF2FF] text-[#4F5BD9] px-1.5 py-0.5 text-[10px] font-bold">
+              {agentMarkups.length + pendingDbRedlines.length}
+            </span>
+          )}
+        </button>
+      </div>
+
       {activeDoc ? (
         <div className="flex min-h-0 flex-1 flex-nowrap gap-3 overflow-hidden">
-          <DocumentViewer
-            activeDoc={activeDoc}
-            authToken={authToken}
-            agentMarkups={agentMarkups}
-            selectedMarkupId={selectedMarkup?.clauseId ?? null}
-            acceptingMarkupId={acceptingMarkupId}
-            appliedClause={appliedClause}
-            evaluating={evaluating}
-            evaluationError={evaluationError}
-            isLocked={!!isLocked}
-            redlinesOpen={redlinesOpen}
-            pendingDbRedlines={pendingDbRedlines}
-            onDocumentPaneClick={handleDocumentPaneClick}
-            onTextSelection={handleTextSelection}
-            hasManualSelection={hasManualSelection}
-            onRetryEvaluation={rerunEvaluation}
-            onDismissError={() => setEvaluationError("")}
-            onToggleRedlines={() => setRedlinesOpen(!redlinesOpen)}
-            onAcceptDbRedline={handleAcceptDbRedline}
-            onRejectDbRedline={handleRejectDbRedline}
-          />
+          <div className={`min-h-0 flex-1 overflow-hidden ${mobileTab === "document" ? "flex flex-col w-full" : "hidden lg:flex lg:flex-col"}`}>
+            <DocumentViewer
+              activeDoc={activeDoc}
+              authToken={authToken}
+              agentMarkups={agentMarkups}
+              selectedMarkupId={selectedMarkup?.clauseId ?? null}
+              acceptingMarkupId={acceptingMarkupId}
+              appliedClause={appliedClause}
+              evaluating={evaluating}
+              evaluationError={evaluationError}
+              isLocked={!!isLocked}
+              redlinesOpen={redlinesOpen}
+              pendingDbRedlines={pendingDbRedlines}
+              onDocumentPaneClick={handleDocumentPaneClick}
+              onTextSelection={handleTextSelection}
+              hasManualSelection={hasManualSelection}
+              onRetryEvaluation={rerunEvaluation}
+              onDismissError={() => setEvaluationError("")}
+              onToggleRedlines={() => setRedlinesOpen(!redlinesOpen)}
+              onAcceptDbRedline={handleAcceptDbRedline}
+              onRejectDbRedline={handleRejectDbRedline}
+            />
+          </div>
 
           {/* Drag handle — sits between document and panel */}
           <div
             onMouseDown={onMouseDown}
-            className="group relative flex shrink-0 cursor-col-resize items-center justify-center"
+            className="group relative hidden lg:flex shrink-0 cursor-col-resize items-center justify-center"
             style={{ width: "10px", marginLeft: "-6px", marginRight: "-6px", zIndex: 10 }}
             title="Drag to resize panel"
           >
@@ -233,7 +272,14 @@ function NegotiateWorkspace({
           </div>
 
           {/* Resizable panel wrapper */}
-          <div style={{ width: panelWidth, minWidth: panelWidth, maxWidth: panelWidth }} className="shrink-0 h-full">
+          <div
+            className={`shrink-0 h-full ${mobileTab === "redlines" ? "flex-1 w-full min-w-0" : "hidden lg:block"}`}
+            style={{ width: undefined }}
+          >
+            <div
+              className="h-full w-full lg:w-[var(--panel-w)]"
+              style={{ ["--panel-w" as any]: `${panelWidth}px` }}
+            >
             <NegotiationPanel
               agentMarkups={agentMarkups}
               selectedMarkup={selectedMarkup}
@@ -265,6 +311,7 @@ function NegotiateWorkspace({
               negotiateError={negotiateError}
               onClearNegotiateError={clearNegotiateError}
             />
+            </div>
           </div>
         </div>
       ) : (

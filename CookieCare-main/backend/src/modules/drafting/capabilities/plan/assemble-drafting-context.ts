@@ -51,6 +51,51 @@ export function resolveConditionalWorkUnits(
   return units;
 }
 
+function scoreHeadingMatch(headingNorm: string, lineNorm: string, lineIndex: number): number {
+  if (!headingNorm || !lineNorm) return 0;
+  // Skip document title candidates at line 0-2 if they look like agreement titles
+  if (lineIndex <= 2 && /^(?:data\s+processing\s+(?:agreement|addendum)|mutual\s+nda|master\s+services\s+agreement)$/i.test(lineNorm)) {
+    return 0;
+  }
+
+  // Exact match
+  if (lineNorm === headingNorm) return 100;
+  if (lineNorm.replace(/^\d+[\.:\s]+/, "") === headingNorm) return 90;
+
+  // Substring match
+  if (lineNorm.includes(headingNorm)) return 80;
+  if (headingNorm.includes(lineNorm.replace(/^\d+[\.:\s]+/, ""))) return 70;
+
+  // Topic keyword intersections
+  const topicKeywords = [
+    ["liability", "damages", "indemn"],
+    ["parties", "background", "recital"],
+    ["definition"],
+    ["processing", "instructions"],
+    ["subprocessor", "sub-processor", "subcontractor"],
+    ["transfer", "third country", "cross-border"],
+    ["security", "technical and organisational"],
+    ["assistance", "data subject rights", "data principal"],
+    ["breach", "incident"],
+    ["deletion", "return", "erasure"],
+    ["audit", "inspection"],
+    ["governing law", "jurisdiction", "dispute", "applicable law"],
+    ["confidential"],
+    ["term", "termination"],
+  ];
+
+  for (const group of topicKeywords) {
+    const headingHas = group.some((k) => headingNorm.includes(k));
+    const lineHas = group.some((k) => lineNorm.includes(k));
+    if (headingHas && lineHas) {
+      const matches = group.filter((k) => lineNorm.includes(k) && headingNorm.includes(k)).length;
+      return 50 + matches * 10;
+    }
+  }
+
+  return 0;
+}
+
 function sliceTemplateByHeading(
   content: string,
   heading: string
@@ -58,27 +103,67 @@ function sliceTemplateByHeading(
   if (!content.trim() || !heading.trim()) return undefined;
   const lines = content.split(/\r?\n/);
   const headingNorm = heading.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-  let start = -1;
+
+  let bestStart = -1;
+  let bestScore = 0;
+
   for (let i = 0; i < lines.length; i++) {
     const lineNorm = lines[i].toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-    if (
-      lineNorm.includes(headingNorm) ||
-      headingNorm.includes(lineNorm.replace(/^\d+\s*/, ""))
-    ) {
-      if (lineNorm.length >= 4) {
-        start = i;
+    if (lineNorm.length >= 3) {
+      const score = scoreHeadingMatch(headingNorm, lineNorm, i);
+      if (score > bestScore) {
+        bestScore = score;
+        bestStart = i;
+      }
+    }
+  }
+
+  if (bestStart < 0 || bestScore < 40) return undefined;
+  const start = bestStart;
+  let end = lines.length;
+
+  for (let i = start + 1; i < lines.length; i++) {
+    const trimmed = lines[i].trim();
+    if (!trimmed) continue;
+
+    // Check markdown header
+    if (/^#{1,3}\s+\S/.test(trimmed)) {
+      end = i;
+      break;
+    }
+    // Check numbered clause header: 1. Clause, 11. Amendments
+    if (/^(?:(?:SECTION|CLAUSE|ARTICLE)\s+)?\d+[\.:]\s+[A-Z]/i.test(trimmed)) {
+      end = i;
+      break;
+    }
+    // Check Exhibit/Schedule
+    if (/^(?:SCHEDULE|EXHIBIT|APPENDIX|ANNEX)\b/i.test(trimmed)) {
+      end = i;
+      break;
+    }
+    // Check standalone heading followed by subclause or known title
+    if (/^[A-Z][A-Za-z0-9\s,&;:'–\-\(\)/]{2,90}$/.test(trimmed) && !/[.,;:]$/.test(trimmed)) {
+      let isNextHeading = false;
+      for (let j = i + 1; j < Math.min(lines.length, i + 4); j++) {
+        const nextTrim = lines[j].trim();
+        if (!nextTrim) continue;
+        if (/^\d+\.\d+\s+/.test(nextTrim)) {
+          isNextHeading = true;
+          break;
+        }
+        break;
+      }
+      const isKnownLegalHeading =
+        /^(?:Background|Definitions|Processing|Sub-?Processors|Limitations|Security|Disclosure|Confidentiality|Compensation|Damages|Liability|Indemn|Amendments|Term|Applicable law|Governing law|Dispute)/i.test(
+          trimmed
+        );
+      if (isNextHeading || isKnownLegalHeading) {
+        end = i;
         break;
       }
     }
   }
-  if (start < 0) return undefined;
-  let end = lines.length;
-  for (let i = start + 1; i < lines.length; i++) {
-    if (/^#{1,3}\s+\S/.test(lines[i]) || /^\d+\.\s+[A-Z]/.test(lines[i])) {
-      end = i;
-      break;
-    }
-  }
+
   return lines.slice(start, end).join("\n").trim();
 }
 

@@ -7,7 +7,7 @@ import { GenerateContentConfig } from "@google/genai";
 export enum GeminiModel {
   GEMINI_2_5_FLASH = "gemini-2.5-flash",
   GEMINI_2_5_PRO = "gemini-2.5-pro",
-  GEMINI_3_6_FLASH = "gemini-3.6-flash",
+  GEMINI_3_6_FLASH = "gemini-3.8-flash",
   GEMINI_3_1_PRO = "gemini-3.1-pro-preview",
 }
 
@@ -92,7 +92,7 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
     [LLMTask.FAST_STITCH]: {
       model: GeminiModel.GEMINI_3_6_FLASH,
       temperature: 0.1,
-      thinkingLevel: "minimal",
+      thinkingLevel: "low",
     },
     [LLMTask.COMPLEX_DRAFT]: {
       model: GeminiModel.GEMINI_3_1_PRO,
@@ -104,22 +104,13 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
       model: GeminiModel.GEMINI_3_6_FLASH,
       temperature: 0.0,
       responseMimeType: "application/json",
-      // "minimal" is the lowest thinkingLevel available for Gemini 3.x models.
-      // There is no "none" option — the model always performs some internal
-      // chain-of-thought at this level. Google does not guarantee bit-for-bit
-      // identical outputs at temperature=0 when thinking is active, meaning
-      // successive evaluations of the same document may produce slightly
-      // different issueTag assignments or original-text spans. Determinism is
-      // handled defensively in evaluateFullDocument (text-key dedup + substring
-      // collapse + cross-location mergeByIssueIdentity) rather than relying on
-      // the model being perfectly reproducible here.
-      thinkingLevel: "minimal",
+      thinkingLevel: "low",
     },
     [LLMTask.STRUCTURAL_JSON_LITE]: {
       model: GeminiModel.GEMINI_3_6_FLASH,
       temperature: 0.0,
       responseMimeType: "application/json",
-      thinkingLevel: "minimal", // same constraint as STRUCTURAL_JSON above
+      thinkingLevel: "low",
     },
     [LLMTask.REFINEMENT]: {
       model: GeminiModel.GEMINI_3_6_FLASH,
@@ -137,13 +128,13 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
       model: GeminiModel.GEMINI_3_6_FLASH,
       temperature: 0.0,
       responseMimeType: "application/json",
-      thinkingLevel: "minimal",
+      thinkingLevel: "low",
     },
     [LLMTask.DETECT_GAPS]: {
       model: GeminiModel.GEMINI_3_6_FLASH,
       temperature: 0.0,
       responseMimeType: "application/json",
-      thinkingLevel: "minimal",
+      thinkingLevel: "low",
     },
     [LLMTask.CRITIQUE_CHECKLIST]: {
       model: GeminiModel.GEMINI_3_1_PRO,

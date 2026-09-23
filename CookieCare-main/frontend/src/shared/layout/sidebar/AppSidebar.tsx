@@ -64,13 +64,17 @@ function NavButton({
   path: string;
 }) {
   const [tip, setTip] = useState(false);
-  const go = useNavigateAndClose();
+  const navigate = useNavigate();
+  const { isMobile, setOpenMobile } = useSidebar();
 
   return (
     <div className={`relative ${collapsed ? "flex justify-center" : ""}`}>
       <button
         type="button"
-        onClick={() => go(path)}
+        onClick={() => {
+          if (isMobile) setOpenMobile(false);
+          navigate(path);
+        }}
         title={collapsed ? label : undefined}
         className="flex cursor-pointer items-center outline-none select-none"
         style={{
@@ -133,13 +137,17 @@ function ChildNavButton({
 }) {
   const Icon = child.icon;
   const [tip, setTip] = useState(false);
-  const go = useNavigateAndClose();
+  const navigate = useNavigate();
+  const { isMobile, setOpenMobile } = useSidebar();
 
   return (
     <div className={`relative ${collapsed ? "flex justify-center" : ""}`}>
       <button
         type="button"
-        onClick={() => go(child.path)}
+        onClick={() => {
+          if (isMobile) setOpenMobile(false);
+          navigate(child.path);
+        }}
         title={collapsed ? child.label : undefined}
         className="flex cursor-pointer items-center outline-none select-none rounded-lg"
         style={{
@@ -322,41 +330,9 @@ function SectionGroup({
   );
 }
 
-function useNavigateAndClose() {
-  const navigate = useNavigate();
-  const { isMobile, setOpenMobile } = useSidebar();
-  return (path: string) => {
-    if (isMobile) setOpenMobile(false);
-    navigate(path);
-  };
-}
-
-function MobileDrawerClose() {
-  const { isMobile, setOpenMobile } = useSidebar();
-  if (!isMobile) return null;
-
-  return (
-    <button
-      type="button"
-      onClick={() => setOpenMobile(false)}
-      className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-lg bg-transparent"
-      style={{ color: THEME.textMuted }}
-      aria-label="Close menu"
-      onMouseEnter={(e) => {
-        e.currentTarget.style.background = THEME.itemHover;
-        e.currentTarget.style.color = THEME.itemIdle;
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.background = "transparent";
-        e.currentTarget.style.color = THEME.textMuted;
-      }}
-    >
-      <X style={{ width: 16, height: 16 }} strokeWidth={1.7} aria-hidden="true" />
-    </button>
-  );
-}
-
 function WorkspaceHeader({ collapsed }: { collapsed: boolean }) {
+  const { isMobile, setOpenMobile } = useSidebar();
+
   return (
     <div
       className={
@@ -376,8 +352,18 @@ function WorkspaceHeader({ collapsed }: { collapsed: boolean }) {
       </div>
       {!collapsed && (
         <div className="mt-0.5 shrink-0">
-          <MobileDrawerClose />
-          <SidebarToggleBtn />
+          {isMobile ? (
+            <button
+              type="button"
+              onClick={() => setOpenMobile(false)}
+              className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg outline-none text-[#98A2B3] hover:bg-[#F3F4F6] hover:text-[#111827] transition-colors"
+              aria-label="Close sidebar"
+            >
+              <X style={{ width: 16, height: 16 }} strokeWidth={1.8} />
+            </button>
+          ) : (
+            <SidebarToggleBtn />
+          )}
         </div>
       )}
     </div>

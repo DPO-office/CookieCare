@@ -121,7 +121,7 @@ function ActionGroup({
 
   return (
     <div
-      style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4, opacity: visible ? 1 : 0, transition: "opacity 130ms ease" }}
+      className={`flex items-center justify-center gap-1 transition-opacity ${visible ? "opacity-100" : "opacity-100 sm:opacity-0"}`}
       ref={(el) => {
         if (!el) return;
         const row = el.closest("tr");

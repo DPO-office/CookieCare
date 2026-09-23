@@ -7,9 +7,9 @@ export default function QueueManager() {
   const { jobs, loading, errorStatus, loadJobs } = useJobQueue();
 
   return (
-    <div className="flex-1 overflow-y-auto px-10 py-8 bg-[#FAFAFB] min-h-screen">
+    <div className="flex-1 overflow-y-auto px-4 sm:px-10 py-5 sm:py-8 bg-[#FAFAFB] min-h-screen">
 
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-[26px] font-bold tracking-tight" style={{ color: "#2175D9" }}>Active queue</h1>
           <p className="text-[13px] text-gray-500 mt-1">Real-time monitor of background processing tasks.</p>

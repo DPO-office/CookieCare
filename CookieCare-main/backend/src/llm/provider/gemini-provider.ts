@@ -34,12 +34,18 @@ function resolveThinkingBudget(runtimeConfig: TaskModelConfig): number {
 }
 
 function resolveThinkingLevel(runtimeConfig: TaskModelConfig): GeminiThinkingLevel {
-  if (runtimeConfig.thinkingLevel) {
-    return runtimeConfig.thinkingLevel;
+  let level = runtimeConfig.thinkingLevel;
+  // Google Generative Language API rejects "minimal" on gemini-3.x models ("Thinking level MINIMAL is not supported for this model").
+  // Normalize "minimal" to "low" for API compatibility.
+  if (level === "minimal") {
+    level = "low";
+  }
+  if (level) {
+    return level;
   }
   const normalized = runtimeConfig.model.toLowerCase();
   if (normalized.includes("flash")) {
-    return "minimal";
+    return "low";
   }
   return "high";
 }
