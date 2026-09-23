@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ChevronDown, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { ChevronDown, LogOut, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
 import { BrandLogo } from "../../components/BrandLogo";
 import { buildNav, isNavGroup } from "./navConfig";
 import { useSidebar } from "./hooks/useSidebar";
@@ -64,13 +64,13 @@ function NavButton({
   path: string;
 }) {
   const [tip, setTip] = useState(false);
-  const navigate = useNavigate();
+  const go = useNavigateAndClose();
 
   return (
     <div className={`relative ${collapsed ? "flex justify-center" : ""}`}>
       <button
         type="button"
-        onClick={() => navigate(path)}
+        onClick={() => go(path)}
         title={collapsed ? label : undefined}
         className="flex cursor-pointer items-center outline-none select-none"
         style={{
@@ -133,13 +133,13 @@ function ChildNavButton({
 }) {
   const Icon = child.icon;
   const [tip, setTip] = useState(false);
-  const navigate = useNavigate();
+  const go = useNavigateAndClose();
 
   return (
     <div className={`relative ${collapsed ? "flex justify-center" : ""}`}>
       <button
         type="button"
-        onClick={() => navigate(child.path)}
+        onClick={() => go(child.path)}
         title={collapsed ? child.label : undefined}
         className="flex cursor-pointer items-center outline-none select-none rounded-lg"
         style={{
@@ -322,6 +322,40 @@ function SectionGroup({
   );
 }
 
+function useNavigateAndClose() {
+  const navigate = useNavigate();
+  const { isMobile, setOpenMobile } = useSidebar();
+  return (path: string) => {
+    if (isMobile) setOpenMobile(false);
+    navigate(path);
+  };
+}
+
+function MobileDrawerClose() {
+  const { isMobile, setOpenMobile } = useSidebar();
+  if (!isMobile) return null;
+
+  return (
+    <button
+      type="button"
+      onClick={() => setOpenMobile(false)}
+      className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-lg bg-transparent"
+      style={{ color: THEME.textMuted }}
+      aria-label="Close menu"
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = THEME.itemHover;
+        e.currentTarget.style.color = THEME.itemIdle;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "transparent";
+        e.currentTarget.style.color = THEME.textMuted;
+      }}
+    >
+      <X style={{ width: 16, height: 16 }} strokeWidth={1.7} aria-hidden="true" />
+    </button>
+  );
+}
+
 function WorkspaceHeader({ collapsed }: { collapsed: boolean }) {
   return (
     <div
@@ -342,6 +376,7 @@ function WorkspaceHeader({ collapsed }: { collapsed: boolean }) {
       </div>
       {!collapsed && (
         <div className="mt-0.5 shrink-0">
+          <MobileDrawerClose />
           <SidebarToggleBtn />
         </div>
       )}
@@ -473,10 +508,16 @@ export default function AppSidebar({
   isAdmin = false,
   onLogout,
 }: Omit<AppSidebarProps, "activeTab" | "setActiveTab"> & { activeTab?: string; setActiveTab?: (t: string) => void }) {
-  const { state } = useSidebar();
+  const { state, isMobile, setOpenMobile } = useSidebar();
   const location = useLocation();
-  const collapsed = state === "collapsed";
+  // Drawer labels stay expanded on small screens. Desktop collapse is unchanged
+  // and is never written from the mobile branch.
+  const collapsed = !isMobile && state === "collapsed";
   const nav = buildNav(isAdmin);
+
+  useEffect(() => {
+    if (isMobile) setOpenMobile(false);
+  }, [location.pathname, isMobile, setOpenMobile]);
 
   return (
     <SidebarPrimitive collapsible="icon" className="no-print">
