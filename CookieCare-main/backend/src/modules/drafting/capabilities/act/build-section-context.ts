@@ -38,6 +38,21 @@ function relevantFactsForUnit(
     "principalAgreementDate",
     "governingLaw",
     "documentType",
+    "businessPurpose",
+    "purpose",
+    "engagementType",
+    "ndaType",
+    "confidentialityTermYears",
+    "partyAAddress",
+    "partyBAddress",
+    "addressA",
+    "addressB",
+    "clientAddress",
+    "contractorAddress",
+    "firstCompanyAddress",
+    "secondCompanyAddress",
+    "address",
+    "registeredAddress",
     ...(brief?.requiredFacts ?? []),
   ]);
   const out: Record<string, unknown> = {};
@@ -46,7 +61,7 @@ function relevantFactsForUnit(
       out[key] = facts[key];
     }
   }
-  // Always include transfer / PHI / entity details when present for sections.
+  // Always include transfer / PHI / entity details / addresses when present for sections.
   for (const extra of [
     "transferMechanism",
     "sccModule",
@@ -65,6 +80,16 @@ function relevantFactsForUnit(
     "dataProcessorCin",
     "dataFiduciaryAddress",
     "dataProcessorAddress",
+    "partyAAddress",
+    "partyBAddress",
+    "addressA",
+    "addressB",
+    "clientAddress",
+    "contractorAddress",
+    "firstCompanyAddress",
+    "secondCompanyAddress",
+    "address",
+    "registeredAddress",
     "cin",
     "signatories",
   ]) {

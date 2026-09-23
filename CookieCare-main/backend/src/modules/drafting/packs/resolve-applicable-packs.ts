@@ -52,8 +52,25 @@ function factsForRegimeMatch(state: DraftState): StructuredFacts {
 export function resolveApplicablePacks(state: DraftState): ApplicablePacks {
   const facts = state.structuredFacts ?? {};
   const matchFacts = factsForRegimeMatch(state);
-  const typePack = documentTypeRegistry.get(classifyDocumentType(state));
-  let regimes = regimeRegistry.all().filter((r) => r.triggerCondition(matchFacts));
+  const docTypeId = classifyDocumentType(state);
+  const typePack = documentTypeRegistry.get(docTypeId);
+  let regimes = regimeRegistry.all().filter((r) => {
+    // If the regime specifies which document types it applies to, enforce it
+    const appliesTo = r.skillConfig?.appliesToDocTypes;
+    if (appliesTo && appliesTo.length > 0) {
+      const docTypeMatches = appliesTo.includes(typePack.id) || appliesTo.includes(docTypeId);
+      const instructionStr = typeof matchFacts.instructionText === "string" ? matchFacts.instructionText.toLowerCase() : "";
+      const explicitInInstructions =
+        instructionStr.length > 0 &&
+        (instructionStr.includes("dpa") ||
+          instructionStr.includes("data processing") ||
+          instructionStr.includes("data protection addendum"));
+      if (!docTypeMatches && !explicitInInstructions) {
+        return false;
+      }
+    }
+    return r.triggerCondition(matchFacts);
+  });
   if (dpdpaRequested(matchFacts) && !gdprFamilyRequested(matchFacts)) {
     regimes = regimes.filter((r) => !dropEuFamilyForDpdpaOnly(r.id));
     const blob = JSON.stringify(matchFacts).toLowerCase();

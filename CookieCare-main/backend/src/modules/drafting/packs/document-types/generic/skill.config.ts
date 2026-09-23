@@ -21,7 +21,14 @@ export const genericSkillConfig: DraftingSkillConfig = {
       blocking: true,
       question: "Which law and jurisdiction govern this agreement?",
       reasonRequired: "Governing law determines the legal framework and enforcement venue.",
-      options: ["European Union", "India", "Other (specify)"],
+      options: [
+        "Republic of Ireland (EU)",
+        "Germany (EU)",
+        "Delaware (US)",
+        "England & Wales",
+        "India",
+        "Other (specify)",
+      ],
       aliases: ["jurisdiction"],
     },
     {

@@ -52,6 +52,18 @@ export async function draftSection(state: DraftState, unit: WorkUnit): Promise<D
     sectionCtx.fixInstructions.map((f) => `Fix instruction: ${f}`).join("\n") || "",
     "HARD RULE — NO PLACEHOLDERS: Do not emit [● DATE], [PARTY NAME], [PURPOSE], TBD, TODO, or similar brackets. If a fact is missing, omit that optional detail or phrase it as 'the date of this Agreement' / 'the parties' without brackets.",
     "HARD RULE — PARTY CONSISTENCY: Never introduce alternate company names. Use only the DEAL IDENTITY LOCK parties above.",
+    unit.id === "sec-parties" || unit.clauseTypes.includes("parties")
+      ? "PARTIES & ADDRESSES RULE: You MUST include registered street addresses for both parties if present in the Canonical facts above. Format the parties clause identifying each party by its exact legal name and registered address."
+      : "",
+    identity?.isMutual
+      ? "MUTUAL AGREEMENT RULE: This is a MUTUAL agreement between commercial entities. Do NOT use one-sided or employment/contractor roles such as 'Client', 'Independent Contractor', 'Employer', or 'Employee'. Refer to the entities strictly by their defined corporate names or as Party A and Party B."
+      : "",
+    unit.id === "sec-confidentiality"
+      ? "CONFIDENTIALITY COVENANT RULE: Focus strictly on non-disclosure, standard of care, permitted use for the agreed purpose, and return/destruction of materials. Do NOT include exceptions/exclusions (public domain, prior knowledge, independent development, court orders) in this section because they belong exclusively in the Exclusions section."
+      : "",
+    unit.id === "sec-exclusions"
+      ? "EXCLUSIONS RULE: Embody standard exceptions to confidential information (publicly known without breach, received from third party, already known prior to disclosure, independently developed, compelled disclosure under law). Do not repeat the core confidentiality covenant."
+      : "",
     "Cross-references: write them in prose (e.g. 'as defined in the Definitions section') — never leave [[SEC:...]] tokens in the output.",
     "Return markdown for this section only, starting with a ## heading.",
   ]
