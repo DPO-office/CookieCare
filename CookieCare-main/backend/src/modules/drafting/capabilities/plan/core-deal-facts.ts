@@ -18,6 +18,19 @@ function asValidName(val: unknown): string {
   return typeof val === "string" && !isPlaceholderString(val) ? val.trim() : "";
 }
 
+function stripPartyPrefix(s: string): string {
+  return s
+    .replace(
+      /^(?:party\s*[1a]|company\s*[1a]|first\s*party|employer|client|disclosing(?:\s*party)?|vendor|customer|1\.)\s*[:\-–]?\s*/i,
+      ""
+    )
+    .replace(
+      /^(?:party\s*[2b]|company\s*[2b]|second\s*party|employee|empolyee|contractor|receiving(?:\s*party)?|2\.)\s*[:\-–]?\s*/i,
+      ""
+    )
+    .trim();
+}
+
 export function parsePartyPairFromText(raw: string): { partyA?: string; partyB?: string } | null {
   if (!raw || typeof raw !== "string") return null;
   const t = raw.trim();
@@ -25,14 +38,14 @@ export function parsePartyPairFromText(raw: string): { partyA?: string; partyB?:
 
   // 1. Structured labels: Party 1 (...) : Name Party 2 (...) : Name
   const labeled =
-    /(?:party\s*1|party\s*a|company\s*a|first\s*party)[^:]*:\s*(.+?)(?=(?:party\s*2|party\s*b|company\s*b|second\s*party)[^:]*:|$)/i.exec(
+    /(?:party\s*1|party\s*a|company\s*a|first\s*party|employer|controller|data\s*controller|disclosing\s*party|client|data\s*fiduciary)[^:]*:\s*(.+?)(?=(?:party\s*2|party\s*b|company\s*b|second\s*party|employee|empolyee|processor|data\s*processor|receiving\s*party|contractor)[^:]*:|$)/i.exec(
       t
     );
   const labeled2 =
-    /(?:party\s*2|party\s*b|company\s*b|second\s*party)[^:]*:\s*(.+)$/i.exec(t);
+    /(?:party\s*2|party\s*b|company\s*b|second\s*party|employee|empolyee|processor|data\s*processor|receiving\s*party|contractor)[^:]*:\s*(.+)$/i.exec(t);
   if (labeled && labeled2) {
-    const a = labeled[1].trim().replace(/[,;]+$/, "").trim();
-    const b = labeled2[1].trim().replace(/[,;]+$/, "").trim();
+    const a = stripPartyPrefix(labeled[1].trim().replace(/[,;\|]+$/, "").trim());
+    const b = stripPartyPrefix(labeled2[1].trim().replace(/[,;\|]+$/, "").trim());
     if (a && b && !isPlaceholderString(a) && !isPlaceholderString(b)) {
       return { partyA: a, partyB: b };
     }
@@ -41,21 +54,21 @@ export function parsePartyPairFromText(raw: string): { partyA?: string; partyB?:
   // 2. Line breaks: Name 1 \n Name 2
   const lines = t.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   if (lines.length === 2) {
-    const cleanA = lines[0].replace(/^(?:party\s*[1a]|company\s*[1a]|1\.)\s*[:\-–]?\s*/i, "").trim();
-    const cleanB = lines[1].replace(/^(?:party\s*[2b]|company\s*[2b]|2\.)\s*[:\-–]?\s*/i, "").trim();
+    const cleanA = stripPartyPrefix(lines[0]);
+    const cleanB = stripPartyPrefix(lines[1]);
     if (cleanA && cleanB && !isPlaceholderString(cleanA) && !isPlaceholderString(cleanB)) {
       return { partyA: cleanA, partyB: cleanB };
     }
   }
 
-  // 3. Semicolon or comma separated
-  if (t.includes(";") || t.includes(",")) {
-    const parts = (t.includes(";") ? t.split(";") : t.split(","))
+  // 3. Pipe, semicolon or comma separated
+  if (t.includes("|") || t.includes(";") || t.includes(",")) {
+    const parts = (t.includes("|") ? t.split("|") : t.includes(";") ? t.split(";") : t.split(","))
       .map((p) => p.trim())
       .filter((p) => p && !isPlaceholderString(p));
     if (parts.length === 2) {
-      const cleanA = parts[0].replace(/^(?:party\s*[1a]|company\s*[1a]|1\.)\s*[:\-–]?\s*/i, "").trim();
-      const cleanB = parts[1].replace(/^(?:party\s*[2b]|company\s*[2b]|2\.)\s*[:\-–]?\s*/i, "").trim();
+      const cleanA = stripPartyPrefix(parts[0]);
+      const cleanB = stripPartyPrefix(parts[1]);
       if (cleanA && cleanB && !isPlaceholderString(cleanA) && !isPlaceholderString(cleanB)) {
         return { partyA: cleanA, partyB: cleanB };
       }
@@ -65,8 +78,8 @@ export function parsePartyPairFromText(raw: string): { partyA?: string; partyB?:
   // 4. " and " or " / " or " vs "
   const andMatch = /^(.+?)\s+(?:and|\/|vs\.?)\s+(.+)$/i.exec(t);
   if (andMatch) {
-    const cleanA = andMatch[1].replace(/^(?:party\s*[1a]|company\s*[1a]|1\.)\s*[:\-–]?\s*/i, "").trim();
-    const cleanB = andMatch[2].replace(/^(?:party\s*[2b]|company\s*[2b]|2\.)\s*[:\-–]?\s*/i, "").trim();
+    const cleanA = stripPartyPrefix(andMatch[1]);
+    const cleanB = stripPartyPrefix(andMatch[2]);
     if (cleanA && cleanB && !isPlaceholderString(cleanA) && !isPlaceholderString(cleanB)) {
       return { partyA: cleanA, partyB: cleanB };
     }

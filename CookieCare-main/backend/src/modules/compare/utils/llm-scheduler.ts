@@ -125,9 +125,30 @@ function isTransientNetworkError(err: unknown): boolean {
   );
 }
 
+function isServiceUnavailableError(err: unknown): boolean {
+  const msg = (err instanceof Error ? err.message : String(err)).toLowerCase();
+  return (
+    msg.includes("503") ||
+    msg.includes("502") ||
+    msg.includes("504") ||
+    msg.includes("unavailable") ||
+    msg.includes("high demand") ||
+    msg.includes("spikes in demand") ||
+    msg.includes("overloaded") ||
+    msg.includes("temporarily unavailable") ||
+    msg.includes("service unavailable") ||
+    msg.includes("bad gateway") ||
+    msg.includes("gateway timeout")
+  );
+}
+
 function isRetryableError(err: unknown): boolean {
   if (isRegionsExhausted(err)) return false;
-  return isRateLimitError(err) || isTransientNetworkError(err);
+  return (
+    isRateLimitError(err) ||
+    isTransientNetworkError(err) ||
+    isServiceUnavailableError(err)
+  );
 }
 
 function isRegionsExhausted(err: unknown): boolean {
@@ -297,8 +318,14 @@ export class GeminiScheduler {
         const jitter = Math.random() * JITTER_MS;
         const delay = hintMs !== null ? hintMs : expBackoff + jitter;
 
+        const reason = isRateLimitError(err)
+          ? "429/rate-limit"
+          : isServiceUnavailableError(err)
+          ? "503/high-demand"
+          : "transient";
+
         console.warn(
-          `[GeminiScheduler] ${isRateLimitError(err) ? "429" : "transient"} on ${label} — ` +
+          `[GeminiScheduler] ${reason} on ${label} — ` +
             `attempt ${attempt}/${MAX_RETRIES}, ` +
             `waiting ${Math.round(delay)}ms ` +
             `(${hintMs !== null ? "provider hint" : "exponential backoff + jitter"})`

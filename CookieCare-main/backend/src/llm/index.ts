@@ -50,16 +50,23 @@ async function executeWithRetry<T>(fn: () => Promise<T>, retries = 3, delayMs = 
     } catch (error) {
       attempt++;
       const errMsg = error instanceof Error ? error.message : String(error);
-      const isRateLimit =
+      const isRetryable =
         errMsg.includes("429") ||
+        errMsg.includes("503") ||
+        errMsg.includes("502") ||
+        errMsg.includes("504") ||
+        errMsg.toLowerCase().includes("unavailable") ||
+        errMsg.toLowerCase().includes("high demand") ||
+        errMsg.toLowerCase().includes("spikes in demand") ||
         errMsg.toLowerCase().includes("resource_exhausted") ||
         errMsg.toLowerCase().includes("resource exhausted") ||
-        errMsg.toLowerCase().includes("rate limit");
+        errMsg.toLowerCase().includes("rate limit") ||
+        errMsg.toLowerCase().includes("fetch failed");
 
-      if (isRateLimit && attempt <= retries) {
+      if (isRetryable && attempt <= retries) {
         console.warn(
-          `[LLM Rate Limit] Detected rate limit error (429/RESOURCE_EXHAUSTED). Retrying attempt ${attempt}/${retries} in ${delayMs / 1000}s... Error:`,
-          errMsg
+          `[LLM Retry] Detected transient error (429/503/high-demand). Retrying attempt ${attempt}/${retries} in ${delayMs / 1000}s... Error:`,
+          errMsg.slice(0, 200)
         );
         await new Promise((resolve) => setTimeout(resolve, delayMs));
         continue;

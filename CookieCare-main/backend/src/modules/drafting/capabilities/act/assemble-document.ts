@@ -44,13 +44,13 @@ function stripMarkdownHeading(body: string): { heading: string | null; rest: str
 
 function stripLeadingPreamble(text: string): string {
   // Drop "This Agreement is entered into..." / WHEREAS blocks from section bodies
-  // so we can emit a single canonical preamble.
+  // so we can emit a single canonical preamble without wiping out subsequent paragraphs.
   let t = text;
   t = t.replace(
-    /^(?:\*\*THE PARTIES\.\*\*\s*)?This (?:[\w\s-]+)?(?:Agreement|Addendum|NDA)[,\s\w]+entered into[^\n]*(?:\n(?!#)[^\n]*)*/i,
+    /^(?:\*\*THE PARTIES\.\*\*\s*)?This (?:[\w\s-]+)?(?:Agreement|Addendum|NDA)[^.\n]*?entered into[\s\S]*?(?=\n\s*\n|WHEREAS|\bBackground\b|\bRecitals\b|##|$)/i,
     ""
   );
-  t = t.replace(/^(?:WHEREAS[^\n]*\n?)+/i, "");
+  t = t.replace(/^(?:\s*WHEREAS[^\n]*\n?)+/i, "");
   return t.trim();
 }
 
@@ -327,7 +327,8 @@ export async function assembleDocument(state: DraftState): Promise<DraftState> {
     seenHeadings.add(headingKey);
     numberedMeta.push({ number: num, title, workUnitId: s.workUnitId ?? s.id });
 
-    let body = stripLeadingPreamble(rest || s.body);
+    let stripped = stripLeadingPreamble(rest || s.body);
+    let body = stripped.trim() ? stripped : (rest || s.body);
     body = dedupeWhereas(body);
     body = body.replace(/\n+\*\*\d+\.?\s*$/g, "").trim();
     const numberedHeading = `## ${num}. ${title}`;
@@ -357,25 +358,37 @@ export async function assembleDocument(state: DraftState): Promise<DraftState> {
     body: resolveAnchors(s.body),
   }));
 
-  const exhibitSpecs =
-    state.draftingContext?.exhibitSpecs ??
-    (state.exhibits ?? []).map((e, i) => ({
+  const initialSpecs = state.draftingContext?.exhibitSpecs ?? [];
+  const knownSpecIds = new Set(initialSpecs.map((s) => s.id));
+  const additionalFromExhibits = (state.exhibits ?? [])
+    .filter((e) => !knownSpecIds.has(e.workUnitId))
+    .map((e, idx) => ({
       id: e.workUnitId,
-      letter: String.fromCharCode(65 + i),
+      letter: String.fromCharCode(65 + initialSpecs.length + idx),
       title: e.title,
       kind: "schedule" as const,
       requiresFullText: false,
       parentSectionId: "sec-misc",
     }));
+  const exhibitSpecs = [...initialSpecs, ...additionalFromExhibits];
 
   const exhibitBlocks = exhibitSpecs.map((spec) => {
     const drafted = (state.exhibits ?? []).find((e) => e.workUnitId === spec.id);
     const letter = spec.letter || "A";
     const title = spec.title || drafted?.title || spec.id;
-    const body = resolveAnchors(drafted?.body ?? "");
+    let body = resolveAnchors(drafted?.body ?? "");
+    // Clean out developer placeholder notes if any exist
+    body = body
+      .replace(/^>\s*This is a drafting annex body for CookieCare[^\n]*\n?/gim, "")
+      .replace(/^>\s*It is a structural placeholder[^\n]*\n?/gim, "")
+      .replace(/^>\s*Replace with your counsel-approved[^\n]*\n?/gim, "")
+      .trim();
     // Avoid double title if body already starts with #
     const { rest } = stripMarkdownHeading(body);
-    return `## Schedule ${letter} — ${title}\n\n${rest || body}`.trim();
+    const headingPrefix = /^(?:Schedule|Annex|Appendix)\s+/i.test(title)
+      ? `## ${title}`
+      : `## Schedule ${letter} — ${title}`;
+    return `${headingPrefix}\n\n${rest || body}`.trim();
   });
 
   const title = buildTitle(state);
@@ -394,7 +407,7 @@ export async function assembleDocument(state: DraftState): Promise<DraftState> {
   ]
     .filter((p, i, arr) => !(p === "" && arr[i - 1] === ""))
     .join("\n\n")
-    .replace(/\n{3,}/g, "\n\n")
+    .replace(/\n(?:\s*\n){2,}/g, "\n\n")
     .trim();
 
   let next: DraftState = {
