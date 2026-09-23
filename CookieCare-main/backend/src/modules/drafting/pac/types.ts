@@ -47,6 +47,7 @@ export interface AgentRunState {
   askRounds: number;
   maxAskRounds: number;
   openQuestions: UserQuestion[];
+  askedFieldIds?: string[];
   stoppedReason?: StoppedReason;
 }
 
@@ -65,6 +66,7 @@ export function initAgentRunState(entryMode: EntryMode, overrides?: Partial<Agen
     askRounds: 0,
     maxAskRounds: DEFAULT_MAX_ASK_ROUNDS,
     openQuestions: [],
+    askedFieldIds: [],
     ...overrides,
   };
 }

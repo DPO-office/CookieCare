@@ -72,7 +72,10 @@ const OTHER_LABEL = "Other (specify)";
  * governing-law / jurisdiction question.
  */
 const GOVERNING_LAW_OPTIONS = [
-  "European Union",
+  "Republic of Ireland (EU)",
+  "Germany (EU)",
+  "Delaware (US)",
+  "England & Wales",
   "India",
   "Other (specify)",
 ];
@@ -993,12 +996,6 @@ function FollowUpCard({
             <p className="m-0 truncate text-[13px] font-semibold tracking-[-0.01em] text-[#1a1a1a]">
               {author}
             </p>
-            {isProgress && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2 py-0.5 text-[10.5px] font-medium text-[#4F5BD9]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#4F5BD9] animate-pulse" />
-                Live
-              </span>
-            )}
           </div>
           {isProgress ? (
             <p className="m-0 mt-0.5 text-[11px]">

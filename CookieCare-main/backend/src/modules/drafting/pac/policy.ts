@@ -3,11 +3,23 @@ import type { CritiqueReport } from "../models/critique-report.js";
 import type { WorkUnit } from "../models/draft-plan.js";
 import type { FixItem } from "../models/critique-report.js";
 
+import { canonicalizeFieldId } from "../models/draft-requirements.js";
+import { DEFAULT_MAX_ASK_ROUNDS } from "./types.js";
+
 /** Pure policy helpers — no LLM. */
 
 export function mustAskUser(state: DraftState): boolean {
+  const agent = state.agent;
+  const maxRounds = agent?.maxAskRounds ?? DEFAULT_MAX_ASK_ROUNDS;
+  if (agent && agent.askRounds >= maxRounds) {
+    return false;
+  }
+
+  const asked = new Set(agent?.askedFieldIds ?? []);
   const missing = state.plan?.missingFacts ?? [];
-  return missing.some((f) => f.severity === "critical");
+  return missing.some(
+    (f) => f.severity === "critical" && !asked.has(canonicalizeFieldId(f.field))
+  );
 }
 
 export function criticalFactSurfaced(critique: CritiqueReport): boolean {

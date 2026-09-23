@@ -37,7 +37,12 @@ export function nextPhaseAfterCritique(state: DraftState, critique: CritiqueRepo
   if (critique.iteration >= maxIter) return "DONE";
   // A newly surfaced critical fact is user input, not a drafting repair. It
   // must be handled before the empty-fix-plan terminal guard.
-  if (criticalFactSurfaced(critique)) return "ASK";
+  if (criticalFactSurfaced(critique)) {
+    const maxRounds = state.agent?.maxAskRounds ?? 2;
+    if (!state.agent || state.agent.askRounds < maxRounds) {
+      return "ASK";
+    }
+  }
   if (critique.fixPlan.length === 0 && !critique.skeletonMismatch) return "DONE";
   if (critique.skeletonMismatch) return "PLAN";
   return "ACT";

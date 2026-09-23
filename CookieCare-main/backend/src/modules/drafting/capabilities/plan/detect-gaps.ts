@@ -61,6 +61,7 @@ export function buildDetectGapsUserMessage(input: {
   playbookRules?: { topic: string; rule: string; position?: string; fallbackPosition?: string }[];
   playbookGuidelines?: string;
   skillDocs: { packId: string; packType: "documentType" | "regime" | "jurisdiction"; content: string }[];
+  previouslyAskedFields?: string[];
 }): string {
   const skillBlock = input.skillDocs
     .map(
@@ -95,6 +96,11 @@ export function buildDetectGapsUserMessage(input: {
         }`
       : "";
 
+  const previouslyAskedBlock =
+    input.previouslyAskedFields && input.previouslyAskedFields.length > 0
+      ? `\n\n## Previously Asked / Addressed Fields (DO NOT RE-ASK)\nThe following fields have ALREADY been asked or answered in a previous round: ${input.previouslyAskedFields.join(", ")}.\nDo NOT emit any MissingFact or question for these topics again, regardless of phrasing.`
+      : "";
+
   return `
 ## Known facts (already extracted — do not re-derive)
 ${JSON.stringify(input.facts, null, 2)}
@@ -103,12 +109,14 @@ ${JSON.stringify(input.facts, null, 2)}
 ${input.draftInstructions}
 ${templateBlock}
 ${playbookBlock}
+${previouslyAskedBlock}
 
 ## Applicable skill documents (your primary source of legal compliance rules)
 ${skillBlock}
 
 Perform a comprehensive gap analysis across ALL available inputs above (User Instructions, Contract Template, Playbook Rules, and Skill Documents).
 Identify all missing facts, parameters, variables, bracketed placeholders ([●], [PARTY], [ADDRESS], [GOVERNING LAW], [SLA]), unfilled options, or required policy/compliance parameters that are NOT present in the known facts or user prompt. Emit a critical MissingFact for each missing detail so it can be asked of the user.
+Do NOT re-ask or emit MissingFacts for any previously asked or known facts.
 `.trim();
 }
 
@@ -262,6 +270,8 @@ export async function detectGaps(
         ? reqAny.playbookGuidelines
         : "";
 
+  const previouslyAskedFields = state.agent?.askedFieldIds ?? [];
+
   const result = await structuredDetectGapsCall(
     DETECT_GAPS_SYSTEM_PROMPT,
     buildDetectGapsUserMessage({
@@ -274,6 +284,7 @@ export async function detectGaps(
       playbookRules,
       playbookGuidelines,
       skillDocs,
+      previouslyAskedFields,
     }),
     llmCall
   );

@@ -3,11 +3,15 @@ export interface StructuredFacts {
   governingLaw?: string;
   /** GDPR, UK GDPR, CCPA / CPRA, or DPDPA — asked when the user did not name one. */
   privacyRegime?: string;
-  parties?: string[];
+  parties?: string[] | string;
   partyA?: string;
   partyB?: string;
   roleA?: string;
   roleB?: string;
+  partyAAddress?: string;
+  partyBAddress?: string;
+  addressA?: string;
+  addressB?: string;
   industry?: string;
   language?: string;
   effectiveDate?: string;
