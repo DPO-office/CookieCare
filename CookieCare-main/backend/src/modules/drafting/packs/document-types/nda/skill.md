@@ -21,7 +21,7 @@ Use when confidential, proprietary, or trade secret information is shared betwee
 - MUST include broad coverage for technical, financial, and operational data without strict oral marking traps[cite: 4].
 - MUST include standard carve-outs for public domain, prior knowledge, independent development, and third-party receipt[cite: 4].
 - MUST permit legally compelled disclosures subject to prompt advance written notice where legally permissible[cite: 4].
-- MUST cap general confidentiality obligations at 2 to 3 years maximum[cite: 4].
+- MUST cap general confidentiality obligations at 2 to 3 years maximum unless the user explicitly specifies a different duration (e.g. 5 years)[cite: 4].
 - MUST require perpetual or indefinite confidentiality protection for Trade Secrets for as long as protected under applicable law[cite: 4].
 - MUST require return or certified destruction of confidential information within 30 days of written request[cite: 4].
 - MUST include explicit exceptions allowing retention of a single legal archival copy and standard automated system backups[cite: 4].

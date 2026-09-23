@@ -4,8 +4,16 @@ import type { DraftState } from "../../../models/draft-state.js";
 import { assembleDocument } from "../assemble-document.js";
 import { runAssemblyCheck } from "../assembly-check.js";
 import { buildDealIdentity } from "../deal-identity.js";
-import { parsePartyPairFromText } from "../../plan/core-deal-facts.js";
+import {
+  parsePartyPairFromText,
+  parseAddressFromText,
+  parseSignatoriesFromText,
+  parseConfidentialityTermFromText,
+  isFactSatisfied,
+} from "../../plan/core-deal-facts.js";
 import { resolveApplicablePacks } from "../../../packs/resolve-applicable-packs.js";
+import { ndaSkillConfig } from "../../../packs/document-types/nda/skill.config.js";
+import { resolveConditionalWorkUnits } from "../../plan/assemble-drafting-context.js";
 
 function stateWithSections(): DraftState {
   return {
@@ -378,4 +386,138 @@ describe("document assembly", () => {
     assert.ok(!doc.includes("\n**4"));
     assert.match(doc, /## 2\. Exclusions\n\n(?:4\.\s+)?Exclusions\n\nStandard exclusions apply\./);
   });
+
+  it("parseSignatoriesFromText parses multi-party signatory details", () => {
+    const raw =
+      "Apex Technologies LLC: Authorized Signatory Name: Jane Doe Title: Chief Executive Officer (CEO) Place of Signature: Wilmington, Delaware, USA Summit Data Solutions Inc.: Authorized Signatory Name: John Smith Title: Vice President of Business Development Place of Signature: Austin, Texas, USA";
+    const parsed = parseSignatoriesFromText(raw);
+    assert.ok(parsed.partyA);
+    assert.equal(parsed.partyA?.name, "Jane Doe");
+    assert.equal(parsed.partyA?.title, "Chief Executive Officer (CEO)");
+    assert.match(parsed.partyA?.place ?? "", /Wilmington, Delaware, USA/);
+
+    assert.ok(parsed.partyB);
+    assert.equal(parsed.partyB?.name, "John Smith");
+    assert.equal(parsed.partyB?.title, "Vice President of Business Development");
+    assert.match(parsed.partyB?.place ?? "", /Austin, Texas, USA/);
+  });
+
+  it("parseAddressFromText extracts company name and street address", () => {
+    const raw = "Legal Name: Apex Technologies LLC  Address: 100 Innovation Way, Suite 400, Wilmington, DE 19801, United States";
+    const parsed = parseAddressFromText(raw);
+    assert.equal(parsed.name, "Apex Technologies LLC");
+    assert.equal(parsed.address, "100 Innovation Way, Suite 400, Wilmington, DE 19801, United States");
+  });
+
+  it("assembleDocument populates real signer names, titles, and places into signature block", async () => {
+    const base = stateWithSections();
+    const stateWithSigners: DraftState = {
+      ...base,
+      structuredFacts: {
+        documentType: "nda",
+        ndaType: "Independent Contractor NDA",
+        partyA: "Apex Technologies LLC",
+        partyB: "Summit Data Solutions Inc.",
+        signatories:
+          "Apex Technologies LLC: Authorized Signatory Name: Jane Doe Title: Chief Executive Officer (CEO) Place of Signature: Wilmington, Delaware, USA Summit Data Solutions Inc.: Authorized Signatory Name: John Smith Title: Vice President of Business Development Place of Signature: Austin, Texas, USA",
+      },
+      plan: {
+        ...base.plan!,
+        documentType: "nda",
+        packId: "nda",
+        title: "Independent Contractor NDA",
+      },
+      draft: {
+        ...base.draft!,
+        sections: [
+          {
+            id: "sec-confidentiality",
+            workUnitId: "sec-confidentiality",
+            heading: "Confidentiality Obligations",
+            body: "## Confidentiality Obligations\n\nParties shall maintain strict confidentiality.",
+          },
+        ],
+      },
+    };
+
+    const assembled = await assembleDocument(stateWithSigners);
+    const doc = assembled.draft?.formattedDocument ?? "";
+
+    // Checks dynamic title
+    assert.match(doc, /^# INDEPENDENT CONTRACTOR NON-DISCLOSURE AGREEMENT/m);
+
+    // Checks populated signature block
+    assert.match(doc, /Name: Jane Doe/);
+    assert.match(doc, /Title: Chief Executive Officer \(CEO\)/);
+    assert.match(doc, /Place: Wilmington, Delaware, USA/);
+
+    assert.match(doc, /Name: John Smith/);
+    assert.match(doc, /Title: Vice President of Business Development/);
+    assert.match(doc, /Place: Austin, Texas, USA/);
+  });
+
+  it("resolveConditionalWorkUnits activates sec-restrictive-covenants for contractor NDA or non-solicitation duration", () => {
+    const units1 = resolveConditionalWorkUnits([ndaSkillConfig], {
+      ndaType: "Independent Contractor NDA",
+    });
+    assert.ok(units1.some((u) => u.id === "sec-restrictive-covenants"));
+    assert.ok(units1.some((u) => u.id === "sec-inventions"));
+
+    const units2 = resolveConditionalWorkUnits([ndaSkillConfig], {
+      nonSolicitationDuration: "12 month",
+    });
+    assert.ok(units2.some((u) => u.id === "sec-restrictive-covenants"));
+
+    const units3 = resolveConditionalWorkUnits([ndaSkillConfig], {
+      ndaType: "Mutual Commercial NDA",
+    });
+    assert.equal(units3.some((u) => u.id === "sec-restrictive-covenants"), false);
+  });
+
+  it("parseConfidentialityTermFromText extracts post-termination duration from user prompt variations", () => {
+    assert.equal(
+      parseConfidentialityTermFromText("the post termination is 5 year intead of 3"),
+      "5 years post-termination"
+    );
+    assert.equal(
+      parseConfidentialityTermFromText("The post termination confidentiality should be 5 years"),
+      "5 years post-termination"
+    );
+    assert.equal(
+      parseConfidentialityTermFromText("survival period is 5 years post-termination"),
+      "5 years post-termination"
+    );
+    assert.equal(
+      parseConfidentialityTermFromText("confidentiality duration of 3 years"),
+      "3 years post-termination"
+    );
+    assert.equal(
+      parseConfidentialityTermFromText("random prompt with no survival"),
+      undefined
+    );
+  });
+
+  it("isFactSatisfied recognizes confidentialityTermYears across various aliases", () => {
+    assert.equal(
+      isFactSatisfied({ confidentialityTermYears: "5 years" }, "confidentialityTermYears"),
+      true
+    );
+    assert.equal(
+      isFactSatisfied({ postTermination: "5 years post-termination" }, "confidentialityTermYears"),
+      true
+    );
+    assert.equal(
+      isFactSatisfied({ survivalPeriod: "5 years" }, "confidentialityTermYears"),
+      true
+    );
+    assert.equal(
+      isFactSatisfied({ confidentialityDuration: "5 years" }, "confidentialityTermYears"),
+      true
+    );
+    assert.equal(
+      isFactSatisfied({}, "confidentialityTermYears"),
+      false
+    );
+  });
 });
+
