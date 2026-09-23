@@ -71,6 +71,29 @@ export const ASK_LAWYER_STYLES = `
   flex-shrink: 0;
 }
 
+/* Three chips on the first row; the fourth shares the middle chip's axis. */
+.ask-lawyer-chips {
+  display: grid;
+  grid-template-columns: max-content max-content max-content;
+  justify-items: center;
+  column-gap: 0.5rem;
+  row-gap: 0.5rem;
+}
+.ask-lawyer-chip-anchor {
+  grid-column: 2;
+}
+@media (max-width: 520px) {
+  .ask-lawyer-chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 640px;
+  }
+  .ask-lawyer-chip-anchor {
+    display: contents;
+  }
+}
+
 .ask-lawyer-session {
   background: rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(16px);
