@@ -7,6 +7,8 @@ import { resolveRequirements } from "../resolve-requirements.js";
 import { resolveApplicablePacks } from "../../../packs/resolve-applicable-packs.js";
 import { computeGapsAndConflicts } from "../compute-gaps.js";
 import type { MissingFact } from "../../../models/draft-plan.js";
+import { mustAskUser } from "../../../pac/policy.js";
+import { initAgentRunState } from "../../../pac/types.js";
 
 function baseState(facts: StructuredFacts, rawInstructions = "test"): DraftState {
   return {
@@ -236,5 +238,96 @@ describe("ASK resolution P0", () => {
     assert.equal(principal!.status, "assumed");
     const fields = computeGapsAndConflicts(resolved, []).map((m) => m.field);
     assert.ok(!fields.includes("principalAgreementDate"));
+  });
+
+  it("canonicalizeFieldId collapses governing law, party and SLA variations", () => {
+    assert.equal(canonicalizeFieldId("governing_jurisdiction"), "governingLaw");
+    assert.equal(canonicalizeFieldId("applicable_law"), "governingLaw");
+    assert.equal(canonicalizeFieldId("choiceOfLaw"), "governingLaw");
+    assert.equal(canonicalizeFieldId("the_governing_law"), "governingLaw");
+    assert.equal(canonicalizeFieldId("venue"), "governingLaw");
+    assert.equal(canonicalizeFieldId("disclosingParty"), "partyA");
+    assert.equal(canonicalizeFieldId("receivingParty"), "partyB");
+    assert.equal(canonicalizeFieldId("breach_notification_period"), "breachNotification");
+  });
+
+  it("deduplicates LLM-emitted governing_jurisdiction with catalog governingLaw into 1 question", () => {
+    const state = baseState(
+      {
+        parties: ["A Corp", "B Corp"],
+        privacyRegime: "GDPR",
+      },
+      "Draft GDPR DPA"
+    );
+    const resolved = resolveRequirements(state);
+    // Catalog has governingLaw missing. LLM emits governing_jurisdiction.
+    const missing = computeGapsAndConflicts(resolved, [
+      {
+        field: "governing_jurisdiction",
+        question: "What is the governing jurisdiction for this contract?",
+        severity: "critical",
+        reasonRequired: "Required to establish dispute forum",
+      },
+    ]);
+
+    const governingLawQuestions = missing.filter((m) => m.field === "governingLaw");
+    assert.equal(governingLawQuestions.length, 1);
+    assert.equal(missing.filter((m) => m.field === "governing_jurisdiction").length, 0);
+  });
+
+  it("single-ask guarantee: previously asked fields in agent.askedFieldIds are never re-asked", () => {
+    const state = baseState(
+      {
+        parties: ["A Corp", "B Corp"],
+        privacyRegime: "GDPR",
+      },
+      "Draft GDPR DPA"
+    );
+    // Simulate Round 1 having already asked governingLaw
+    state.agent = initAgentRunState("CREATE", {
+      askRounds: 1,
+      askedFieldIds: ["governingLaw"],
+    });
+
+    const resolved = resolveRequirements(state);
+    const missing = computeGapsAndConflicts(resolved, [
+      {
+        field: "governing_jurisdiction",
+        question: "What is the governing law?",
+        severity: "critical",
+        reasonRequired: "Required",
+      },
+    ]);
+
+    // governingLaw was already asked in Round 1 -> must NOT be asked again in Round 2
+    assert.ok(!missing.some((m) => m.field === "governingLaw"));
+    assert.ok(!missing.some((m) => m.field === "governing_jurisdiction"));
+  });
+
+  it("max 2-round cap: mustAskUser returns false when askRounds >= 2", () => {
+    const state = baseState(
+      {
+        parties: ["A Corp", "B Corp"],
+      },
+      "Draft DPA"
+    );
+    state.agent = initAgentRunState("CREATE", {
+      askRounds: 2,
+      maxAskRounds: 2,
+      askedFieldIds: ["privacyRegime", "governingLaw"],
+    });
+    state.plan = {
+      missingFacts: [
+        {
+          field: "breachNotification",
+          question: "What is the breach SLA?",
+          severity: "critical",
+          reasonRequired: "Needed",
+        },
+      ],
+    } as any;
+
+    // Even though a critical fact exists, 2 rounds were exhausted -> must not ask again!
+    assert.equal(mustAskUser(state), false);
   });
 });

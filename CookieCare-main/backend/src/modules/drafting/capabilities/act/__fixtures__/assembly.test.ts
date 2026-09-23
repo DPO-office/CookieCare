@@ -3,6 +3,9 @@ import { describe, it } from "node:test";
 import type { DraftState } from "../../../models/draft-state.js";
 import { assembleDocument } from "../assemble-document.js";
 import { runAssemblyCheck } from "../assembly-check.js";
+import { buildDealIdentity } from "../deal-identity.js";
+import { parsePartyPairFromText } from "../../plan/core-deal-facts.js";
+import { resolveApplicablePacks } from "../../../packs/resolve-applicable-packs.js";
 
 function stateWithSections(): DraftState {
   return {
@@ -219,5 +222,160 @@ describe("document assembly", () => {
     const assembled = await assembleDocument(stateWithSections());
     const doc = assembled.draft?.formattedDocument ?? "";
     assert.match(doc, /Section 2 \(Definitions\)/);
+  });
+
+  it("parsePartyPairFromText extracts party names from user input strings", () => {
+    const r1 = parsePartyPairFromText(
+      "Party 1 (Client / Company A): Apex Technologies LLC Party 2 (Counterparty / Company B): Summit Data Solutions Inc."
+    );
+    assert.equal(r1?.partyA, "Apex Technologies LLC");
+    assert.equal(r1?.partyB, "Summit Data Solutions Inc.");
+
+    const r2 = parsePartyPairFromText("Apex Technologies LLC and Summit Data Solutions Inc.");
+    assert.equal(r2?.partyA, "Apex Technologies LLC");
+    assert.equal(r2?.partyB, "Summit Data Solutions Inc.");
+
+    const r3 = parsePartyPairFromText("Apex Technologies LLC, Summit Data Solutions Inc.");
+    assert.equal(r3?.partyA, "Apex Technologies LLC");
+    assert.equal(r3?.partyB, "Summit Data Solutions Inc.");
+  });
+
+  it("buildDealIdentity anchors generic European Union governing law to Ireland", () => {
+    const identity = buildDealIdentity(
+      {
+        partyA: "Apex Technologies LLC",
+        partyB: "Summit Data Solutions Inc.",
+        governingLaw: "European Union",
+        instructionText: "Draft a mutual non-disclosure agreement",
+      },
+      "nda"
+    );
+    assert.ok(identity);
+    assert.equal(identity.isMutual, true);
+    assert.match(identity.governingLaw ?? "", /Republic of Ireland \(EU\)/);
+  });
+
+  it("assembleDocument produces clean mutual NDA preamble with addresses and balanced signature block", async () => {
+    const base = stateWithSections();
+    const mutualState: DraftState = {
+      ...base,
+      request: {
+        intent: "CREATE",
+        rawInstructions: "Draft a mutual non-disclosure agreement for commercial partnership",
+      },
+      structuredFacts: {
+        documentType: "nda",
+        parties:
+          "Party 1 (Client / Company A): Apex Technologies LLC Party 2 (Counterparty / Company B): Summit Data Solutions Inc.",
+        partyAAddress: "100 Innovation Way, Dublin, Ireland",
+        partyBAddress: "500 Data Parkway, San Francisco, CA",
+        effectiveDate: "15 Sept 2026",
+        governingLaw: "European Union",
+      },
+      plan: {
+        ...base.plan!,
+        documentType: "nda",
+        packId: "nda",
+        title: "Mutual NDA",
+        structuredFacts: {
+          documentType: "nda",
+          partyA: "Apex Technologies LLC",
+          partyB: "Summit Data Solutions Inc.",
+          effectiveDate: "15 Sept 2026",
+          partyAAddress: "100 Innovation Way, Dublin, Ireland",
+          partyBAddress: "500 Data Parkway, San Francisco, CA",
+        },
+      },
+      draft: {
+        ...base.draft!,
+        sections: [
+          {
+            id: "sec-parties",
+            workUnitId: "sec-parties",
+            heading: "Parties",
+            body: "## Parties\n\nThe parties are Apex Technologies LLC and Summit Data Solutions Inc.",
+          },
+          {
+            id: "sec-definitions",
+            workUnitId: "sec-definitions",
+            heading: "Definitions",
+            body: "## Definitions\n\nConfidential Information means proprietary technical and business data.",
+          },
+        ],
+      },
+    };
+
+    const assembled = await assembleDocument(mutualState);
+    const doc = assembled.draft?.formattedDocument ?? "";
+
+    assert.match(doc, /^# MUTUAL NON-DISCLOSURE AGREEMENT/m);
+    // Preamble contains registered addresses and mutual wording
+    assert.match(doc, /having its registered office at 100 Innovation Way, Dublin, Ireland/);
+    assert.match(doc, /having its registered office at 500 Data Parkway, San Francisco, CA/);
+    assert.match(doc, /\(each a "Party" and collectively the "Parties"\)/);
+
+    // Signature block contains legal names without (Client) or (Independent Contractor)
+    assert.match(doc, /\*\*Apex Technologies LLC\*\*/);
+    assert.match(doc, /\*\*Summit Data Solutions Inc\.\*\*/);
+    assert.ok(!doc.includes("(Client)"));
+    assert.ok(!doc.includes("(Independent Contractor)"));
+  });
+
+  it("resolveApplicablePacks does not attach GDPR_ART28 or SCC exhibits to a Mutual NDA under EU governing law", () => {
+    const ndaState: DraftState = {
+      ...stateWithSections(),
+      request: {
+        intent: "CREATE",
+        rawInstructions: "Draft a mutual non-disclosure agreement for commercial partnership",
+      },
+      requirements: {
+        ...stateWithSections().requirements!,
+        contractType: "nda",
+        jurisdiction: "Germany (EU)",
+        instructions: "Draft a mutual non-disclosure agreement for commercial partnership",
+      },
+      structuredFacts: {
+        documentType: "nda",
+        governingLaw: "Germany (EU)",
+        partyA: "Apex Technologies LLC",
+        partyB: "Summit Data Solutions Inc.",
+      },
+    };
+
+    const packs = resolveApplicablePacks(ndaState);
+    assert.equal(packs.typePack.id, "nda");
+    // GDPR Art 28 DPA regime must NOT be attached to an NDA
+    assert.equal(packs.regimes.some((r) => r.id === "GDPR_ART28"), false);
+    assert.equal(packs.regimes.some((r) => r.id === "UK_GDPR_IDTA"), false);
+  });
+
+  it("assembleDocument strips dangling bold section numbers like **4", async () => {
+    const base = stateWithSections();
+    const stateWithDanglingMarker: DraftState = {
+      ...base,
+      draft: {
+        ...base.draft!,
+        sections: [
+          {
+            id: "sec-confidentiality",
+            workUnitId: "sec-confidentiality",
+            heading: "Confidentiality Obligations",
+            body: "## Confidentiality Obligations\n\nParties shall maintain strict confidentiality.\n\n**4",
+          },
+          {
+            id: "sec-exclusions",
+            workUnitId: "sec-exclusions",
+            heading: "Exclusions",
+            body: "**4\n\n4. Exclusions\n\nStandard exclusions apply.",
+          },
+        ],
+      },
+    };
+
+    const assembled = await assembleDocument(stateWithDanglingMarker);
+    const doc = assembled.draft?.formattedDocument ?? "";
+    assert.ok(!doc.includes("**4\n"));
+    assert.ok(!doc.includes("\n**4"));
+    assert.match(doc, /## 2\. Exclusions\n\n(?:4\.\s+)?Exclusions\n\nStandard exclusions apply\./);
   });
 });

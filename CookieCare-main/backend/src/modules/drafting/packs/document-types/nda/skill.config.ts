@@ -44,16 +44,20 @@ export const ndaSkillConfig: DraftingSkillConfig = {
     {
       workUnitId: "sec-parties",
       title: "Parties and Recitals",
-      purpose: "Identify the Disclosing Party / Employer / Client and Receiving Party / Employee / Independent Contractor, stating addresses, effective date, and engagement context.",
+      purpose: "Identify the contracting parties (or Disclosing and Receiving Parties), stating registered addresses, effective date, and engagement context.",
       requiredContent: [
-        "Full legal name and address of Disclosing Party / Employer / Client",
-        "Full legal name and address of Receiving Party / Employee / Contractor",
+        "Full legal name and registered office address of Party A / Disclosing Party",
+        "Full legal name and registered office address of Party B / Receiving Party",
         "Effective date of agreement",
-        "Recitals stating the context of engagement and necessity of protecting confidential proprietary information",
+        "Recitals stating the context of engagement/commercial evaluation and necessity of protecting confidential proprietary information",
       ],
-      requiredFacts: ["parties", "effectiveDate", "governingLaw"],
+      requiredFacts: ["parties", "effectiveDate", "governingLaw", "partyAAddress", "partyBAddress"],
       requiredLegalElements: ["party-identification", "effective-date", "recitals"],
-      prohibitedContent: ["Square-bracket placeholders", "Invented third parties"],
+      prohibitedContent: [
+        "Square-bracket placeholders",
+        "Invented third parties",
+        "Labeling commercial partners as Client/Contractor or Employer/Employee unless explicitly requested",
+      ],
     },
     {
       workUnitId: "sec-status",
@@ -80,14 +84,18 @@ export const ndaSkillConfig: DraftingSkillConfig = {
     {
       workUnitId: "sec-confidentiality",
       title: "Confidentiality and Non-Use Obligations",
-      purpose: "Set strict non-disclosure and non-use covenants, limiting use strictly to the authorized engagement and requiring return of all physical/electronic repositories upon termination.",
+      purpose: "Set strict non-disclosure and non-use covenants, limiting use strictly to the authorized engagement or agreed business purpose and requiring return of all physical/electronic repositories upon termination.",
       requiredContent: [
         "Duty to maintain strict confidentiality and not disclose to third parties without prior written consent",
-        "Restriction on use strictly to authorized performance for Client / Employer",
-        "Exclusive ownership of physical/electronic records (notes, disks, repositories) and immediate return upon termination with no copies kept",
+        "Restriction on use strictly to the authorized business purpose or commercial evaluation",
+        "Standard of care (no less than reasonable care / degree of care used for own confidential materials)",
+        "Return or destruction of confidential materials upon request or termination",
         "Survival of obligations during and following termination of engagement",
       ],
       requiredLegalElements: ["non-disclosure-covenant", "non-use-covenant", "return-of-materials"],
+      prohibitedContent: [
+        "Do not include standard exceptions or exclusions (public domain, prior knowledge, independent development, compelled disclosure) in this section — they belong exclusively in the dedicated Exclusions section.",
+      ],
     },
     {
       workUnitId: "sec-inventions",

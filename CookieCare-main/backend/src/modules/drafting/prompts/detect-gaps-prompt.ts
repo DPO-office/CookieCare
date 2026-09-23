@@ -36,7 +36,8 @@ You will be given:
      the template, playbook, or skill documents that is absent from the user's prompt or known facts.
    - Each MissingFact must have a clear, user-facing question and a one-sentence "reasonRequired" explaining
      why this fact is necessary to draft a complete, placeholder-free agreement.
-   - Do NOT ask questions for facts or parameters that the user ALREADY provided in their prompt or known facts.
+   - Do NOT ask questions for facts or parameters that the user ALREADY provided in their prompt or known facts, or that were already asked previously.
+   - Do NOT ask the same question or topic under different phrasing.
    - Do NOT ask purely stylistic preference questions.
 
 4. SEVERITY DISCIPLINE:

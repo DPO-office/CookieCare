@@ -30,12 +30,23 @@ export function computeGapsAndConflicts(
 
   const gaps: DraftGap[] = [];
   const missingByField = new Map<string, MissingFact>();
-  const skillFieldIds = new Set(Object.keys(byId));
+  const previouslyAsked = new Set(
+    (state.agent?.askedFieldIds ?? []).map((f) => canonicalizeFieldId(f))
+  );
 
   for (const req of Object.values(byId)) {
     if (!req.blocking && req.priority === "optional") continue;
 
     if (req.status === "satisfied" || req.status === "assumed" || req.status === "not_applicable") {
+      continue;
+    }
+
+    const id = canonicalizeFieldId(req.id);
+    if (previouslyAsked.has(id)) {
+      continue;
+    }
+
+    if (isFactSatisfied(facts, id) || isFactSatisfied(facts, req.id)) {
       continue;
     }
 
@@ -46,13 +57,17 @@ export function computeGapsAndConflicts(
         blocking: req.blocking,
         suggestedQuestionContext: req.question,
       });
-      missingByField.set(req.id, requirementToMissingFact(req));
+      missingByField.set(id, requirementToMissingFact({ ...req, id }));
     }
   }
 
   // Model may phrase or detect questions from template comparison & skill analysis for facts that are still missing.
   for (const hint of detectGapsMissing) {
     const id = canonicalizeFieldId(hint.field);
+    if (previouslyAsked.has(id)) {
+      continue;
+    }
+
     const resolved = byId[id];
 
     if (
@@ -64,7 +79,7 @@ export function computeGapsAndConflicts(
       continue;
     }
 
-    if (isFactSatisfied(facts, id)) continue;
+    if (isFactSatisfied(facts, id) || isFactSatisfied(facts, hint.field)) continue;
 
     const existing = missingByField.get(id);
     if (existing) {

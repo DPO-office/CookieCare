@@ -61,7 +61,7 @@ export const dpaSkillConfig: DraftingSkillConfig = {
     },
     {
       id: "liabilityCap",
-      priority: "normal",
+      priority: "required",
       blocking: false,
       question:
         "What is the limitation of liability cap or breach liability structure (e.g. 12 months fees, or uncapped for breach)?",

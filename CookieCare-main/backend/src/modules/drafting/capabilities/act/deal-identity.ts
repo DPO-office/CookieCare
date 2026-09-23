@@ -1,5 +1,5 @@
 import type { StructuredFacts } from "../../models/structured-facts.js";
-import { isPlaceholderString } from "../plan/core-deal-facts.js";
+import { isPlaceholderString, parsePartyPairFromText } from "../plan/core-deal-facts.js";
 
 export interface DealIdentity {
   partyA: string;
@@ -10,6 +10,7 @@ export interface DealIdentity {
   principalAgreementDate?: string;
   governingLaw?: string;
   glossary: Record<string, string>;
+  isMutual?: boolean;
 }
 
 function asString(value: unknown): string | undefined {
@@ -52,6 +53,13 @@ function resolvePartyPair(facts: StructuredFacts | Record<string, unknown>): {
   const partyB = asString(f.partyB);
   if (partyA && partyB) return { partyA, partyB };
 
+  if (typeof f.parties === "string") {
+    const parsed = parsePartyPairFromText(f.parties);
+    if (parsed?.partyA && parsed?.partyB) {
+      return { partyA: parsed.partyA, partyB: parsed.partyB };
+    }
+  }
+
   const parties = Array.isArray(f.parties)
     ? f.parties
         .filter((p): p is string => typeof p === "string" && !isPlaceholderString(p))
@@ -60,6 +68,12 @@ function resolvePartyPair(facts: StructuredFacts | Record<string, unknown>): {
     : [];
   if (parties.length >= 2) {
     return { partyA: parties[0], partyB: parties[1] };
+  }
+  if (parties.length === 1) {
+    const parsed = parsePartyPairFromText(parties[0]);
+    if (parsed?.partyA && parsed?.partyB) {
+      return { partyA: parsed.partyA, partyB: parsed.partyB };
+    }
   }
   if (partyA && parties[0] && partyA.toLowerCase() !== parties[0].toLowerCase()) {
     return { partyA, partyB: parties[0] };
@@ -79,7 +93,8 @@ function resolvePartyPair(facts: StructuredFacts | Record<string, unknown>): {
 
 function rolesForDocType(
   documentType: string | undefined,
-  facts?: StructuredFacts | Record<string, unknown>
+  facts?: StructuredFacts | Record<string, unknown>,
+  instructionsText?: string
 ): { roleA: string; roleB: string } {
   const f = (facts ?? {}) as Record<string, unknown>;
   const explicitA = asString(f.roleA);
@@ -91,7 +106,14 @@ function rolesForDocType(
   const raw = (documentType || "").toLowerCase();
   const regime = String(f.privacyRegime || "").toLowerCase();
   const law = String(f.governingLaw || "").toLowerCase();
-  const instructions = String(f.instructionText || "").toLowerCase();
+  const instructions = (
+    instructionsText ||
+    String(f.instructionText || "") +
+      " " +
+      String(f.rawInstructions || "") +
+      " " +
+      String(f.instructions || "")
+  ).toLowerCase();
   const isDpdpa =
     regime.includes("dpdpa") ||
     regime.includes("dpdp") ||
@@ -106,6 +128,12 @@ function rolesForDocType(
         f.dataProcessor
     );
 
+  const isMutual =
+    instructions.includes("mutual") ||
+    raw.includes("mutual") ||
+    String(f.ndaType || "").toLowerCase().includes("mutual") ||
+    String(f.agreementType || "").toLowerCase().includes("mutual");
+
   if (raw.includes("dpa") || raw.includes("data processing") || raw.includes("addendum")) {
     if (isDpdpa) {
       return { roleA: "Data Fiduciary", roleB: "Data Processor" };
@@ -113,6 +141,9 @@ function rolesForDocType(
     return { roleA: "Controller", roleB: "Processor" };
   }
   if (raw.includes("nda") || raw.includes("non-disclosure") || raw.includes("confidential")) {
+    if (isMutual) {
+      return { roleA: "Party A", roleB: "Party B" };
+    }
     return { roleA: "Disclosing Party", roleB: "Receiving Party" };
   }
   return { roleA: "Party A", roleB: "Party B" };
@@ -124,21 +155,50 @@ function rolesForDocType(
  */
 export function buildDealIdentity(
   facts: StructuredFacts | Record<string, unknown> | undefined,
-  documentType?: string
+  documentType?: string,
+  rawInstructions?: string
 ): DealIdentity | null {
   const f = (facts ?? {}) as Record<string, unknown>;
   const { partyA, partyB } = resolvePartyPair(f);
   if (!partyA || !partyB) return null;
 
+  const combinedInstructions = (
+    String(rawInstructions || "") +
+    " " +
+    String(f.instructionText || "") +
+    " " +
+    String(f.rawInstructions || "") +
+    " " +
+    String(f.instructions || "")
+  ).trim();
+
   const { roleA, roleB } = rolesForDocType(
     documentType || asString(f.documentType),
-    f
+    f,
+    combinedInstructions
   );
   const effectiveDate =
     asString(f.effectiveDate) || asString(f.principalAgreementDate);
   const principalAgreementDate =
     asString(f.principalAgreementDate) || asString(f.effectiveDate);
-  const governingLaw = asString(f.governingLaw);
+
+  let governingLaw = asString(f.governingLaw);
+  if (
+    governingLaw &&
+    (governingLaw.trim().toLowerCase() === "european union" ||
+      governingLaw.trim().toLowerCase() === "eu" ||
+      governingLaw.trim().toLowerCase() === "europe")
+  ) {
+    governingLaw =
+      "Republic of Ireland (EU), with exclusive jurisdiction of the courts of Dublin, Ireland";
+  }
+
+  const isMutual =
+    combinedInstructions.toLowerCase().includes("mutual") ||
+    String(f.ndaType || "").toLowerCase().includes("mutual") ||
+    String(f.agreementType || "").toLowerCase().includes("mutual") ||
+    (documentType || "").toLowerCase().includes("mutual") ||
+    (roleA === "Party A" && roleB === "Party B");
 
   const glossary: Record<string, string> = {
     [roleA]: partyA,
@@ -189,6 +249,7 @@ export function buildDealIdentity(
     principalAgreementDate,
     governingLaw,
     glossary,
+    isMutual,
   };
 }
 
@@ -224,6 +285,12 @@ export function formatDealIdentityLock(identity: DealIdentity): string {
       : `3. When you write "${identity.roleB}" or "Processor"/"Receiving Party", it MUST mean ${identity.partyB}.`,
     "4. Do not introduce a third commercial party as a contracting party.",
   ];
+
+  if (identity.isMutual) {
+    rules.push(
+      "5. MUTUAL AGREEMENT RULE: This is a bilateral mutual agreement between commercial partners. You are strictly forbidden from labeling either party as 'Client', 'Independent Contractor', 'Employer', or 'Employee'. Refer to the parties as 'Party A' and 'Party B' or by their corporate short names."
+    );
+  }
 
   return [
     "DEAL IDENTITY LOCK (mandatory — identical in every section):",

@@ -82,14 +82,21 @@ export const REQUIREMENT_ALIASES: Record<string, string> = {
   "transfer basis": "transferMechanism",
   internationaltransfermechanism: "transferMechanism",
   "international transfer mechanism": "transferMechanism",
+  datatransfermechanism: "transferMechanism",
+  "data transfer mechanism": "transferMechanism",
   transfermechanism: "transferMechanism",
+  "transfer mechanism": "transferMechanism",
   ukidta: "transferMechanism",
+  uk_idta: "transferMechanism",
   "uk idta": "transferMechanism",
   // categories
   categoriesofpersonaldata: "dataCategories",
   "categories of personal data": "dataCategories",
   personaldatacategories: "dataCategories",
   "personal data categories": "dataCategories",
+  categoriesofdata: "dataCategories",
+  typesofdata: "dataCategories",
+  typesofpersonaldata: "dataCategories",
   phicategories: "dataCategories",
   "phi categories": "dataCategories",
   processeddatatypes: "dataCategories",
@@ -98,30 +105,83 @@ export const REQUIREMENT_ALIASES: Record<string, string> = {
   // subjects
   datasubjectcategories: "dataSubjects",
   "data subject categories": "dataSubjects",
+  categoriesofdatasubjects: "dataSubjects",
+  "categories of data subjects": "dataSubjects",
   datasubjects: "dataSubjects",
+  "data subjects": "dataSubjects",
   // purpose
   purposeofprocessing: "processingPurpose",
   "purpose of processing": "processingPurpose",
   processingpurpose: "processingPurpose",
+  "processing purpose": "processingPurpose",
+  natureandpurposeofprocessing: "processingPurpose",
+  scopeofprocessing: "processingPurpose",
   // dates
   effectivedate: "effectiveDate",
+  "effective date": "effectiveDate",
+  startdate: "effectiveDate",
+  commencementdate: "effectiveDate",
+  agreementdate: "effectiveDate",
+  contractdate: "effectiveDate",
+  signingdate: "effectiveDate",
+  executiondate: "effectiveDate",
+  dateofagreement: "effectiveDate",
   msadate: "principalAgreementDate",
   "msa date": "principalAgreementDate",
   dateofmsa: "principalAgreementDate",
   "date of msa": "principalAgreementDate",
   principalagreementdate: "principalAgreementDate",
+  "principal agreement date": "principalAgreementDate",
   privacyregime: "privacyRegime",
   "privacy regime": "privacyRegime",
   privacylaw: "privacyRegime",
   "privacy law": "privacyRegime",
   dataprotectionlaw: "privacyRegime",
   "data protection law": "privacyRegime",
+  applicableprivacylaw: "privacyRegime",
+  complianceframework: "privacyRegime",
   // parties / law
   governinglaw: "governingLaw",
+  "governing law": "governingLaw",
+  governingjurisdiction: "governingLaw",
+  "governing jurisdiction": "governingLaw",
+  applicablelaw: "governingLaw",
+  "applicable law": "governingLaw",
+  choiceoflaw: "governingLaw",
+  "choice of law": "governingLaw",
+  venue: "governingLaw",
+  lawandvenue: "governingLaw",
+  governinglawandvenue: "governingLaw",
+  "governing law and venue": "governingLaw",
+  jurisdictionandgoverninglaw: "governingLaw",
+  governingcountry: "governingLaw",
+  governingstate: "governingLaw",
+  contractlaw: "governingLaw",
   jurisdiction: "governingLaw",
   parties: "parties",
+  contractingparties: "parties",
+  partyname: "parties",
+  partynames: "parties",
   partya: "partyA",
+  party1: "partyA",
+  partyone: "partyA",
+  firstparty: "partyA",
+  disclosingparty: "partyA",
+  disclosingpartyname: "partyA",
   partyb: "partyB",
+  party2: "partyB",
+  partytwo: "partyB",
+  secondparty: "partyB",
+  receivingparty: "partyB",
+  receivingpartyname: "partyB",
+  customer: "partyB",
+  customername: "partyB",
+  client: "partyB",
+  clientname: "partyB",
+  vendor: "partyB",
+  vendorname: "partyB",
+  serviceprovider: "partyB",
+  serviceprovidername: "partyB",
   datafiduciarylegalname: "dataFiduciaryLegalName",
   "data fiduciary legal name": "dataFiduciaryLegalName",
   legalnameofthedatafiduciary: "dataFiduciaryLegalName",
@@ -134,6 +194,7 @@ export const REQUIREMENT_ALIASES: Record<string, string> = {
   "legal name of the data processor": "dataProcessorLegalName",
   dataprocessor: "dataProcessorLegalName",
   "data processor": "dataProcessorLegalName",
+  datacontroller: "dataFiduciaryLegalName",
   // CIN / registration numbers
   cin: "cin",
   organisationregistrationnumberorcinofthdataprocessor: "dataProcessorCin",
@@ -145,19 +206,51 @@ export const REQUIREMENT_ALIASES: Record<string, string> = {
   officialregisteredaddressofthedataprocessor: "dataProcessorAddress",
   datafiduciaryaddress: "dataFiduciaryAddress",
   dataprocessoraddress: "dataProcessorAddress",
+  partyaaddress: "partyAAddress",
+  partybaddress: "partyBAddress",
+  partyaofficeaddress: "partyAAddress",
+  partybofficeaddress: "partyBAddress",
+  registeredaddressofpartya: "partyAAddress",
+  registeredaddressofpartyb: "partyBAddress",
+  party1address: "partyAAddress",
+  party2address: "partyBAddress",
+  clientaddress: "partyAAddress",
+  contractoraddress: "partyBAddress",
+  addressa: "partyAAddress",
+  addressb: "partyBAddress",
+  companyaaddress: "partyAAddress",
+  companybaddress: "partyBAddress",
+  disclosingpartyaddress: "partyAAddress",
+  receivingpartyaddress: "partyBAddress",
   // signatories
   signatories: "signatories",
   authorizedsignatories: "signatories",
   // nda / msa
   businesspurpose: "businessPurpose",
+  "business purpose": "businessPurpose",
   confidentialitytermyears: "confidentialityTermYears",
+  confidentialityperiod: "confidentialityTermYears",
+  confidentialityterm: "confidentialityTermYears",
+  ndaterm: "confidentialityTermYears",
   servicesdescription: "servicesDescription",
   // SLAs (optional catalog / extract)
   breachnotification: "breachNotification",
+  breachnotificationperiod: "breachNotification",
+  breachnotificationsla: "breachNotification",
+  breachnoticehours: "breachNotification",
+  breachwindow: "breachNotification",
+  "breach notification": "breachNotification",
   subprocessornotice: "subprocessorNotice",
+  subprocessornoticeperiod: "subprocessorNotice",
   "subprocessor notice": "subprocessorNotice",
   auditnotice: "auditNotice",
+  auditnoticeperiod: "auditNotice",
+  "audit notice": "auditNotice",
   deletionreturn: "deletionReturn",
+  deletionorreturn: "deletionReturn",
+  "deletion return": "deletionReturn",
+  liabilitycap: "liabilityCap",
+  limitationofliability: "liabilityCap",
 };
 
 /** Normalize a free-form field name to a canonical requirement id. */
@@ -166,10 +259,21 @@ export function canonicalizeFieldId(field: string): string {
   if (!trimmed) return trimmed;
   const compact = trimmed.toLowerCase().replace(/[^a-z0-9]+/g, "");
   const spaced = trimmed.toLowerCase().replace(/\s+/g, " ").trim();
-  return (
+
+  const directHit =
     REQUIREMENT_ALIASES[compact] ||
     REQUIREMENT_ALIASES[spaced] ||
-    REQUIREMENT_ALIASES[trimmed.toLowerCase()] ||
-    trimmed
+    REQUIREMENT_ALIASES[trimmed.toLowerCase()];
+  if (directHit) return directHit;
+
+  // Try stripping common prefixes like "the", "applicable", "chosen", "selected", "nameof", "legalnameof"
+  const stripped = compact.replace(
+    /^(the|applicable|chosen|selected|target|intended|primary|required|proposed|legalnameofth|nameofth|legalnameof|nameof)/,
+    ""
   );
+  if (stripped && stripped !== compact && REQUIREMENT_ALIASES[stripped]) {
+    return REQUIREMENT_ALIASES[stripped];
+  }
+
+  return trimmed;
 }

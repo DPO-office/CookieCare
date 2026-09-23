@@ -8,6 +8,7 @@ import {
 } from "../models/conversation.js";
 import { canonicalizeFieldId } from "../models/draft-requirements.js";
 import { markRequirementsAnswered } from "../capabilities/plan/resolve-requirements.js";
+import { parsePartyPairFromText } from "../capabilities/plan/core-deal-facts.js";
 
 export function ensureConversation(state: DraftState): DraftState {
   if (state.conversation) return state;
@@ -106,6 +107,32 @@ export function applyUserAnswers(
     factsPatch.partyB = proc;
   }
 
+  if (factsPatch.parties && (!factsPatch.partyA || !factsPatch.partyB)) {
+    const parsed = parsePartyPairFromText(String(factsPatch.parties));
+    if (parsed?.partyA && !factsPatch.partyA) factsPatch.partyA = parsed.partyA;
+    if (parsed?.partyB && !factsPatch.partyB) factsPatch.partyB = parsed.partyB;
+  }
+
+  if (factsPatch.partyA && factsPatch.partyB && !factsPatch.parties) {
+    factsPatch.parties = `${factsPatch.partyA}, ${factsPatch.partyB}`;
+  }
+
+  if (factsPatch.governingLaw && !factsPatch.jurisdiction) {
+    factsPatch.jurisdiction = factsPatch.governingLaw;
+  } else if (factsPatch.jurisdiction && !factsPatch.governingLaw) {
+    factsPatch.governingLaw = factsPatch.jurisdiction;
+  }
+
+  const parsedPartyList =
+    factsPatch.partyA && factsPatch.partyB
+      ? [factsPatch.partyA, factsPatch.partyB]
+      : factsPatch.parties
+      ? String(factsPatch.parties)
+          .split(",")
+          .map((p) => p.trim())
+          .filter(Boolean)
+      : undefined;
+
   next = {
     ...next,
     structuredFacts: {
@@ -121,14 +148,7 @@ export function applyUserAnswers(
           ...(factsPatch.documentType
             ? { contractType: factsPatch.documentType }
             : {}),
-          ...(factsPatch.parties
-            ? {
-                parties: String(factsPatch.parties)
-                  .split(",")
-                  .map((p) => p.trim())
-                  .filter(Boolean),
-              }
-            : {}),
+          ...(parsedPartyList ? { parties: parsedPartyList } : {}),
         }
       : next.requirements,
     // Keep missingFacts cleared for answered fields so PLAN→ASK does not re-block.
@@ -150,6 +170,12 @@ export function applyUserAnswers(
           openQuestions: [],
           stoppedReason: undefined,
           phase: "PLAN",
+          askedFieldIds: [
+            ...new Set([
+              ...(next.agent.askedFieldIds ?? []),
+              ...answeredFields,
+            ]),
+          ],
         }
       : next.agent,
   };

@@ -18,6 +18,63 @@ function asValidName(val: unknown): string {
   return typeof val === "string" && !isPlaceholderString(val) ? val.trim() : "";
 }
 
+export function parsePartyPairFromText(raw: string): { partyA?: string; partyB?: string } | null {
+  if (!raw || typeof raw !== "string") return null;
+  const t = raw.trim();
+  if (!t || isPlaceholderString(t)) return null;
+
+  // 1. Structured labels: Party 1 (...) : Name Party 2 (...) : Name
+  const labeled =
+    /(?:party\s*1|party\s*a|company\s*a|first\s*party)[^:]*:\s*(.+?)(?=(?:party\s*2|party\s*b|company\s*b|second\s*party)[^:]*:|$)/i.exec(
+      t
+    );
+  const labeled2 =
+    /(?:party\s*2|party\s*b|company\s*b|second\s*party)[^:]*:\s*(.+)$/i.exec(t);
+  if (labeled && labeled2) {
+    const a = labeled[1].trim().replace(/[,;]+$/, "").trim();
+    const b = labeled2[1].trim().replace(/[,;]+$/, "").trim();
+    if (a && b && !isPlaceholderString(a) && !isPlaceholderString(b)) {
+      return { partyA: a, partyB: b };
+    }
+  }
+
+  // 2. Line breaks: Name 1 \n Name 2
+  const lines = t.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  if (lines.length === 2) {
+    const cleanA = lines[0].replace(/^(?:party\s*[1a]|company\s*[1a]|1\.)\s*[:\-–]?\s*/i, "").trim();
+    const cleanB = lines[1].replace(/^(?:party\s*[2b]|company\s*[2b]|2\.)\s*[:\-–]?\s*/i, "").trim();
+    if (cleanA && cleanB && !isPlaceholderString(cleanA) && !isPlaceholderString(cleanB)) {
+      return { partyA: cleanA, partyB: cleanB };
+    }
+  }
+
+  // 3. Semicolon or comma separated
+  if (t.includes(";") || t.includes(",")) {
+    const parts = (t.includes(";") ? t.split(";") : t.split(","))
+      .map((p) => p.trim())
+      .filter((p) => p && !isPlaceholderString(p));
+    if (parts.length === 2) {
+      const cleanA = parts[0].replace(/^(?:party\s*[1a]|company\s*[1a]|1\.)\s*[:\-–]?\s*/i, "").trim();
+      const cleanB = parts[1].replace(/^(?:party\s*[2b]|company\s*[2b]|2\.)\s*[:\-–]?\s*/i, "").trim();
+      if (cleanA && cleanB && !isPlaceholderString(cleanA) && !isPlaceholderString(cleanB)) {
+        return { partyA: cleanA, partyB: cleanB };
+      }
+    }
+  }
+
+  // 4. " and " or " / " or " vs "
+  const andMatch = /^(.+?)\s+(?:and|\/|vs\.?)\s+(.+)$/i.exec(t);
+  if (andMatch) {
+    const cleanA = andMatch[1].replace(/^(?:party\s*[1a]|company\s*[1a]|1\.)\s*[:\-–]?\s*/i, "").trim();
+    const cleanB = andMatch[2].replace(/^(?:party\s*[2b]|company\s*[2b]|2\.)\s*[:\-–]?\s*/i, "").trim();
+    if (cleanA && cleanB && !isPlaceholderString(cleanA) && !isPlaceholderString(cleanB)) {
+      return { partyA: cleanA, partyB: cleanB };
+    }
+  }
+
+  return null;
+}
+
 /** True when a structured fact has a real, usable value (not empty / placeholder). */
 export function isFactSatisfied(facts: Record<string, unknown>, field: string): boolean {
   const canonical = canonicalizeFieldId(field);
@@ -27,8 +84,69 @@ export function isFactSatisfied(facts: Record<string, unknown>, field: string): 
 
   // Prefer canonical key, then original field, then known aliases on facts bag.
   const candidates = [canonical, field];
+  if (canonical === "governingLaw") {
+    candidates.push(
+      "jurisdiction",
+      "governing_jurisdiction",
+      "applicableLaw",
+      "governingJurisdiction",
+      "choiceOfLaw",
+      "venue"
+    );
+  }
   if (canonical === "transferMechanism") {
     candidates.push("sccModule", "ukIdta", "dataTransfer");
+  }
+  if (canonical === "partyA") {
+    candidates.push(
+      "dataFiduciaryLegalName",
+      "dataFiduciary",
+      "disclosingParty",
+      "party1",
+      "firstParty"
+    );
+    if (Array.isArray(facts.parties) && facts.parties.length >= 1) return true;
+    if (typeof facts.parties === "string") {
+      const parsed = parsePartyPairFromText(facts.parties);
+      if (parsed?.partyA) return true;
+    }
+  }
+  if (canonical === "partyB") {
+    candidates.push(
+      "dataProcessorLegalName",
+      "dataProcessor",
+      "receivingParty",
+      "party2",
+      "secondParty",
+      "vendor",
+      "customer"
+    );
+    if (Array.isArray(facts.parties) && facts.parties.length >= 2) return true;
+    if (typeof facts.parties === "string") {
+      const parsed = parsePartyPairFromText(facts.parties);
+      if (parsed?.partyB) return true;
+    }
+  }
+  if (canonical === "partyAAddress") {
+    candidates.push(
+      "dataFiduciaryAddress",
+      "addressA",
+      "clientAddress",
+      "firstCompanyAddress",
+      "disclosingPartyAddress",
+      "party1Address",
+      "registeredAddress"
+    );
+  }
+  if (canonical === "partyBAddress") {
+    candidates.push(
+      "dataProcessorAddress",
+      "addressB",
+      "contractorAddress",
+      "secondCompanyAddress",
+      "receivingPartyAddress",
+      "party2Address"
+    );
   }
 
   for (const key of candidates) {
@@ -71,8 +189,17 @@ function arePartiesSatisfied(facts: Record<string, unknown>): boolean {
   const partyB = asValidName(facts.partyB);
   if (partyA && partyB) return true;
 
+  if (typeof facts.parties === "string") {
+    const parsed = parsePartyPairFromText(facts.parties);
+    if (parsed?.partyA && parsed?.partyB) return true;
+  }
+
   const parties = facts.parties;
   if (!Array.isArray(parties)) return false;
+  if (parties.length === 1 && typeof parties[0] === "string") {
+    const parsed = parsePartyPairFromText(parties[0]);
+    if (parsed?.partyA && parsed?.partyB) return true;
+  }
   const named = parties
     .filter((p): p is string => typeof p === "string")
     .map((p) => p.trim())
@@ -141,7 +268,10 @@ const UNIVERSAL_CATALOG: RequiredFactCatalogEntry[] = [
     reasonRequired:
       "The venue clause must name a real jurisdiction; inventing one makes the draft wrong.",
     options: [
-      "European Union",
+      "Republic of Ireland (EU)",
+      "Germany (EU)",
+      "Delaware (US)",
+      "England & Wales",
       "India",
       "Other (specify)",
     ],

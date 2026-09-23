@@ -44,6 +44,11 @@ export class PacController {
 
         case "ASK": {
           state = await this.capabilities.askUser(state);
+          if (!state.agent?.openQuestions || state.agent.openQuestions.length === 0) {
+            state.agent!.phase = "ACT";
+            state.agent!.stoppedReason = undefined;
+            break;
+          }
           state.agent!.stoppedReason = "awaiting_user";
           state = this.audit(state, "ASK — awaiting user");
           // Persist paused snapshot so resume-ask can reload from draft_state_ledger.
