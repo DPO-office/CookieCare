@@ -246,6 +246,10 @@ describe("document assembly", () => {
     const r3 = parsePartyPairFromText("Apex Technologies LLC, Summit Data Solutions Inc.");
     assert.equal(r3?.partyA, "Apex Technologies LLC");
     assert.equal(r3?.partyB, "Summit Data Solutions Inc.");
+
+    const r4 = parsePartyPairFromText("employer - Randstad digital, empolyee - Abhinav Yadav");
+    assert.equal(r4?.partyA, "Randstad digital");
+    assert.equal(r4?.partyB, "Abhinav Yadav");
   });
 
   it("buildDealIdentity anchors generic European Union governing law to Ireland", () => {

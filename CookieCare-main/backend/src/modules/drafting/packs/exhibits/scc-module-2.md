@@ -1,7 +1,5 @@
 # EU Standard Contractual Clauses — Module 2 (Controller to Processor)
 
-> This is a drafting annex body for CookieCare. It is a structural placeholder aligned to Commission Implementing Decision (EU) 2021/914 Module Two. Replace with your counsel-approved SCC text for production use.
-
 ## SECTION I
 
 ### Clause 1 — Purpose and scope

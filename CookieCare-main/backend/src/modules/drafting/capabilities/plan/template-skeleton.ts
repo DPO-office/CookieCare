@@ -47,7 +47,12 @@ export function deriveSkeletonFromTemplate(templateText: string): WorkUnit[] | n
     }
 
     // Check standalone heading followed by subclause or known title (e.g. "Damages and liability towards third parties" followed by "10.1 ...")
-    if (/^[A-Z][A-Za-z0-9\s,&;:'–\-\(\)/]{2,90}$/.test(trimmed) && !/[.,;:]$/.test(trimmed)) {
+    const isFalseHeading =
+      /\b(?:is\s+not\s+used|is\s+deleted|intentionally\s+(?:left\s+)?blank|place\s+and\s+date|signature\s+page|in\s+witness\s+whereof)\b/i.test(trimmed) ||
+      /^(?:\d+\.)?\s*\[?(?:processor|controller)\]?\s*$/i.test(trimmed);
+    if (isFalseHeading) continue;
+
+    if (/^[A-Z][A-Za-z0-9\s,&;:'–\-\(\)/]{2,120}$/.test(trimmed) && !/[.,;:]$/.test(trimmed)) {
       let followedBySubclause = false;
       for (let j = i + 1; j < Math.min(lines.length, i + 4); j++) {
         const nextTrim = lines[j].trim();

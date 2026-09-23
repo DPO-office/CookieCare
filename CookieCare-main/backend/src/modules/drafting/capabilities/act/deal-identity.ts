@@ -33,14 +33,20 @@ function resolvePartyPair(facts: StructuredFacts | Record<string, unknown>): {
     asString(f.fiduciaryLegalName) ||
     asString(f.fiduciary) ||
     asString(f.legalNameOfTheDataFiduciary);
+  const controller =
+    asString(f.dataControllerLegalName) ||
+    asString(f.dataController) ||
+    asString(f.controllerLegalName) ||
+    asString(f.controller) ||
+    asString(f.legalNameOfTheDataController);
   const processor =
     asString(f.dataProcessorLegalName) ||
     asString(f.dataProcessor) ||
     asString(f.processorLegalName) ||
     asString(f.processor) ||
     asString(f.legalNameOfTheDataProcessor);
-  if (fiduciary && processor) {
-    return { partyA: fiduciary, partyB: processor };
+  if ((fiduciary || controller) && processor) {
+    return { partyA: fiduciary || controller, partyB: processor };
   }
 
   const disclosing = asString(f.disclosingParty);
@@ -81,8 +87,8 @@ function resolvePartyPair(facts: StructuredFacts | Record<string, unknown>): {
   if (partyB && parties[0] && partyB.toLowerCase() !== parties[0].toLowerCase()) {
     return { partyA: parties[0], partyB };
   }
-  if (fiduciary && (partyB || parties[0])) {
-    return { partyA: fiduciary, partyB: partyB || parties[0] };
+  if ((fiduciary || controller) && (partyB || parties[0])) {
+    return { partyA: fiduciary || controller, partyB: partyB || parties[0] };
   }
   if (processor && (partyA || parties[0])) {
     return { partyA: partyA || parties[0], partyB: processor };

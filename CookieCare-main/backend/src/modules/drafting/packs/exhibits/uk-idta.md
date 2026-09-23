@@ -1,7 +1,5 @@
 # UK International Data Transfer Agreement / Addendum
 
-> This is a drafting annex body for CookieCare. It is a structural placeholder aligned to the ICO International Data Transfer Agreement / UK Addendum. Replace with your counsel-approved IDTA text for production use.
-
 ## Part 1 — Tables
 
 ### Table 1: Parties and signatures
