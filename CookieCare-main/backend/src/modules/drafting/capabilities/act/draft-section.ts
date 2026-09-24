@@ -52,6 +52,7 @@ export async function draftSection(state: DraftState, unit: WorkUnit): Promise<D
     sectionCtx.fixInstructions.map((f) => `Fix instruction: ${f}`).join("\n") || "",
     "HARD RULE — NO PLACEHOLDERS: Do not emit [● DATE], [PARTY NAME], [PURPOSE], TBD, TODO, or similar brackets. If a fact is missing, omit that optional detail or phrase it as 'the date of this Agreement' / 'the parties' without brackets.",
     "HARD RULE — PARTY CONSISTENCY: Never introduce alternate company names. Use only the DEAL IDENTITY LOCK parties above.",
+    "GOVERNING LAW & JURISDICTION RULE: If governing law is European Union (EU) or GDPR without naming a specific country, govern strictly under the laws and competent courts of the European Union (EU). Under NO circumstances should you default to or mention the Republic of Ireland or Dublin courts unless the user explicitly requested Ireland. If a specific country or state was designated, use that exact jurisdiction and designated courts.",
     unit.id === "sec-parties" || unit.clauseTypes.includes("parties")
       ? "PARTIES & ADDRESSES RULE: You MUST include registered street addresses for both parties if present in the Canonical facts above. Format the parties clause identifying each party by its exact legal name and registered address."
       : "",

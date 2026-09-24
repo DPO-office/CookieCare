@@ -69,13 +69,25 @@ const OTHER_LABEL = "Other (specify)";
 
 /**
  * Fallback chip options injected when the backend omits options[] for a
- * governing-law / jurisdiction question.
+ * governing-law / country jurisdiction question.
  */
 const GOVERNING_LAW_OPTIONS = [
-  "GDPR (EU)",
-  "CCPA (US)",
+  "Republic of Ireland",
+  "Germany",
+  "England and Wales (UK)",
+  "United States (Delaware)",
+  "India",
+  "Other (specify)",
+];
+
+/**
+ * Fallback chip options injected when asking for a statutory privacy regime.
+ */
+const PRIVACY_REGIME_OPTIONS = [
+  "GDPR (European Union)",
+  "UK GDPR (England & Wales)",
+  "CCPA / CPRA (United States)",
   "DPDPA (India)",
-  "UK GDPR / English Law",
   "Other (specify)",
 ];
 
@@ -116,20 +128,43 @@ const DURATION_QUESTION_RE =
   /\b(?:how\s+(?:many|long|much)|number\s+of\s+(?:years?|months?|days?|weeks?)|for\s+how\s+long|(?:how\s+long|length|duration|period|term|survive|survival|last|remain\s+in\s+(?:force|effect)|in\s+force)\b)/i;
 
 /**
- * Matches field names clearly related to governing law / jurisdiction.
+ * Matches field names clearly related to privacy / data protection regimes.
  */
-const GOVERNING_LAW_FIELD_RE =
-  /(?:governing|jurisdiction|law|venue|forum|choice_of_law|applicable_law)/i;
+const PRIVACY_REGIME_FIELD_RE =
+  /(?:privacy_?regime|regime|privacy_?law|data_?protection_?law)/i;
 
 /**
- * Matches question text asking for governing law / jurisdiction.
- * Examples:
- *   "Which jurisdiction's laws should govern this agreement?"
- *   "What is the governing law for this contract?"
- *   "Under which law should disputes be resolved?"
+ * Matches question text asking for a data protection / privacy regime.
+ */
+const PRIVACY_REGIME_QUESTION_RE =
+  /\b(?:data\s+protection\s+law|privacy\s+regime|gdpr|dpdpa|ccpa|cpra)\b/i;
+
+export function isPrivacyRegimeQuestion(q: DraftOpenQuestion): boolean {
+  return (
+    PRIVACY_REGIME_FIELD_RE.test(q.field) ||
+    PRIVACY_REGIME_QUESTION_RE.test(q.question)
+  );
+}
+
+/**
+ * Matches field names clearly related to governing law / jurisdiction / country.
+ */
+const GOVERNING_LAW_FIELD_RE =
+  /(?:governing_?law|jurisdiction|venue|forum|choice_of_law|applicable_law|country)/i;
+
+/**
+ * Matches question text asking for governing law / jurisdiction / country.
  */
 const GOVERNING_LAW_QUESTION_RE =
-  /\b(?:governing\s+law|which\s+(?:jurisdiction|law|state|country)|applicable\s+law|law\s+(?:that\s+)?(?:should\s+)?govern|jurisdiction(?:'s)?\s+laws?|choice\s+of\s+law|disputes?\s+(?:be\s+)?(?:resolved|settled)\s+under|under\s+(?:which|what)\s+(?:law|jurisdiction)|venue\s+for\s+disputes?)\b/i;
+  /\b(?:governing\s+law|which\s+(?:jurisdiction|country|state)|applicable\s+law|law\s+(?:that\s+)?(?:should\s+)?govern|jurisdiction(?:'s)?\s+laws?|choice\s+of\s+law|legal\s+venue|venue\s+for\s+disputes?)\b/i;
+
+export function isGoverningLawQuestion(q: DraftOpenQuestion): boolean {
+  if (isPrivacyRegimeQuestion(q)) return false;
+  return (
+    GOVERNING_LAW_FIELD_RE.test(q.field) ||
+    GOVERNING_LAW_QUESTION_RE.test(q.question)
+  );
+}
 
 /**
  * Matches yes/no questions.
@@ -173,11 +208,8 @@ function resolveInputType(q: DraftOpenQuestion): QuestionInputType {
     return "number";
   }
 
-  // 4. Governing law / jurisdiction → chips (options will be injected)
-  if (
-    GOVERNING_LAW_FIELD_RE.test(q.field) ||
-    GOVERNING_LAW_QUESTION_RE.test(q.question)
-  ) {
+  // 4. Privacy regime or governing law → chips (options will be injected)
+  if (isPrivacyRegimeQuestion(q) || isGoverningLawQuestion(q)) {
     return "chips";
   }
 
@@ -220,33 +252,45 @@ function withIndiaOption(options: string[]): string[] {
 }
 
 function displayQuestion(q: DraftOpenQuestion): string {
-  const isGoverningLaw =
-    GOVERNING_LAW_FIELD_RE.test(q.field) ||
-    GOVERNING_LAW_QUESTION_RE.test(q.question);
-  if (!isGoverningLaw) return q.question;
-  return "Which governing law should apply?";
+  if (isPrivacyRegimeQuestion(q)) {
+    return "Which data protection law should this agreement follow?";
+  }
+  if (isGoverningLawQuestion(q)) {
+    return "Which country's governing law should apply?";
+  }
+  if (q.question && q.question.trim().length > 0) {
+    return q.question.trim();
+  }
+  return q.field || "Please provide details";
+}
+
+function displayReason(q: DraftOpenQuestion): string {
+  if (isPrivacyRegimeQuestion(q)) {
+    return "The clauses to draft depend on the statutory privacy regime (e.g. GDPR, UK GDPR, CCPA, DPDPA).";
+  }
+  if (isGoverningLawQuestion(q)) {
+    return "Governing law determines the court jurisdiction and dispute forum governing this agreement.";
+  }
+  return q.reasonRequired || "";
 }
 
 function resolveOptions(q: DraftOpenQuestion): string[] {
-  const isGoverningLaw =
-    GOVERNING_LAW_FIELD_RE.test(q.field) ||
-    GOVERNING_LAW_QUESTION_RE.test(q.question);
+  const isLaw = isGoverningLawQuestion(q);
+  const isPrivacy = isPrivacyRegimeQuestion(q);
 
-  // Backend options always win, but India stays available for law/venue questions.
-  if (q.options && q.options.length > 0) {
-    return isGoverningLaw ? withIndiaOption(q.options) : q.options;
+  if (isLaw) {
+    const rawOpts = q.options && q.options.length > 0 ? q.options : GOVERNING_LAW_OPTIONS;
+    const cleanOpts = rawOpts.filter((opt) => !/\b(eu|european union)\b/i.test(opt));
+    return withIndiaOption(cleanOpts.length >= 3 ? cleanOpts : GOVERNING_LAW_OPTIONS);
+  }
+
+  if (isPrivacy) {
+    const rawOpts = q.options && q.options.length > 0 ? q.options : PRIVACY_REGIME_OPTIONS;
+    return withIndiaOption(rawOpts);
   }
 
   const inputType = resolveInputType(q);
   if (inputType !== "chips" && inputType !== "chips-multi") return [];
-
-  // Governing law / jurisdiction default
-  if (
-    GOVERNING_LAW_FIELD_RE.test(q.field) ||
-    GOVERNING_LAW_QUESTION_RE.test(q.question)
-  ) {
-    return GOVERNING_LAW_OPTIONS;
-  }
 
   // Yes/No default
   if (YES_NO_QUESTION_RE.test(q.question)) {
@@ -949,15 +993,16 @@ function formatSubmittedAnswer(q: DraftOpenQuestion, raw: string): string {
 
 function deduplicateQuestions(raw: DraftOpenQuestion[]): DraftOpenQuestion[] {
   const result: DraftOpenQuestion[] = [];
+  let seenPrivacy = false;
   let seenLaw = false;
   let seenDate = false;
   const seenFields = new Set<string>();
 
   for (const q of raw) {
-    const isLaw =
-      GOVERNING_LAW_FIELD_RE.test(q.field) ||
-      GOVERNING_LAW_QUESTION_RE.test(q.question);
-    if (isLaw) {
+    if (isPrivacyRegimeQuestion(q)) {
+      if (seenPrivacy) continue;
+      seenPrivacy = true;
+    } else if (isGoverningLawQuestion(q)) {
       if (seenLaw) continue;
       seenLaw = true;
     }
@@ -1060,15 +1105,13 @@ function AskQuestionCard({
     // Forward answers to any duplicate fields that were hidden from UI
     for (const q of questions) {
       if (!out[q.id]) {
-        const isLaw =
-          GOVERNING_LAW_FIELD_RE.test(q.field) ||
-          GOVERNING_LAW_QUESTION_RE.test(q.question);
-        if (isLaw) {
-          const lawQ = filteredQuestions.find(
-            (k) =>
-              GOVERNING_LAW_FIELD_RE.test(k.field) ||
-              GOVERNING_LAW_QUESTION_RE.test(k.question)
-          );
+        if (isPrivacyRegimeQuestion(q)) {
+          const privQ = filteredQuestions.find(isPrivacyRegimeQuestion);
+          if (privQ && out[privQ.id]) {
+            out[q.id] = out[privQ.id];
+          }
+        } else if (isGoverningLawQuestion(q)) {
+          const lawQ = filteredQuestions.find(isGoverningLawQuestion);
           if (lawQ && out[lawQ.id]) {
             out[q.id] = out[lawQ.id];
           }
@@ -1161,9 +1204,9 @@ function AskQuestionCard({
                       )}
                     </div>
 
-                    {q.reasonRequired && (
+                    {displayReason(q) && (
                       <p className="m-0 text-[11.5px] text-[#64748B] leading-relaxed">
-                        {q.reasonRequired}
+                        {displayReason(q)}
                       </p>
                     )}
 

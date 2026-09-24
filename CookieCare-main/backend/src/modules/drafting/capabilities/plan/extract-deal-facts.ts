@@ -6,6 +6,8 @@ import type {
 } from "../../models/draft-requirements.js";
 import { canonicalizeFieldId } from "../../models/draft-requirements.js";
 import {
+  isInvalidCountryGoverningLaw,
+  isLawGroundedInUserInstructions,
   parseConfidentialityTermFromText,
   sanitizeKnownFacts,
 } from "./core-deal-facts.js";
@@ -83,7 +85,8 @@ const SYSTEM = `
 You extract deal facts for a legal drafting system from the user's drafting request.
 Return ONLY JSON matching the schema. Do not invent parties, dates, jurisdictions,
 processing details, transfer mechanisms, or SLAs that are not in the text.
-CRITICAL: Do NOT extract governingLaw, jurisdiction, privacyRegime, or party names from referenced structural templates, template names, or template instructions (such as "Use structural template: ..."). The template only provides layout structure; governing law, privacy regime, and parties must be explicitly stated by the user. If absent from the user's own request, omit them.
+CRITICAL: Do NOT infer or assume governingLaw, jurisdiction, or privacyRegime from the document type (e.g. 'DPA' or 'Data Processing Agreement' does NOT imply GDPR, EU, Ireland, or any country; 'NDA' or 'MSA' does NOT imply Delaware, US, or UK). Do NOT extract governingLaw, jurisdiction, privacyRegime, or party names from referenced structural templates, template names, or template instructions (such as "Use structural template: ..."). The template only provides layout structure; governing law, privacy regime, and parties must be explicitly stated by the user. If absent from the user's own request, omit them completely or set to null.
+CRITICAL: 'GDPR', 'CCPA', 'DPDPA', 'HIPAA' are privacy regimes (privacyRegime), NOT governingLaw. 'European Union' or 'EU' is NOT a country governing law. Governing law (governingLaw) must be a specific country or state (such as Republic of Ireland, Germany, England and Wales, Delaware, India). Never extract GDPR, CCPA, DPDPA, or European Union as governingLaw. If the user only mentions GDPR, extract privacyRegime = 'GDPR' and omit governingLaw completely unless a specific country is named.
 If a field is absent, omit it or set value to null.
 For parties: prefer partyA/partyB when roles are clear; also fill parties as an array of legal names.
 For transferMechanism: capture SCC module, UK IDTA, adequacy, or "no international transfers" when stated.
@@ -209,6 +212,22 @@ export async function extractDealFacts(state: DraftState): Promise<DraftState> {
       patch.confidentialityTermYears = extractedTerm;
       evidenceById.confidentialityTermYears = [`Prompt instruction: ${extractedTerm}`];
     }
+  }
+
+  if (patch.governingLaw && typeof patch.governingLaw === "string") {
+    if (isInvalidCountryGoverningLaw(patch.governingLaw)) {
+      if (!patch.privacyRegime) {
+        patch.privacyRegime = patch.governingLaw;
+      }
+      delete patch.governingLaw;
+    }
+  }
+
+  if (patch.governingLaw && !isLawGroundedInUserInstructions(patch.governingLaw, instructions)) {
+    delete patch.governingLaw;
+  }
+  if (patch.privacyRegime && !isLawGroundedInUserInstructions(patch.privacyRegime, instructions)) {
+    delete patch.privacyRegime;
   }
 
   const mergedFacts = sanitizeKnownFacts({

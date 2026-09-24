@@ -1,4 +1,4 @@
-import type { MissingFact } from "../../models/draft-plan.js";
+ import type { MissingFact } from "../../models/draft-plan.js";
 import type {
   RequirementPriority,
 } from "../../models/draft-requirements.js";
@@ -21,13 +21,22 @@ function asValidName(val: unknown): string {
 function stripPartyPrefix(s: string): string {
   return s
     .replace(
-      /^(?:party\s*[1a]|company\s*[1a]|first\s*party|employer|client|disclosing(?:\s*party)?|vendor|customer|1\.)\s*[:\-–]?\s*/i,
+      /^(?:party\s*[1a]|company\s*[1a]|first\s*party|employer|client|disclosing(?:\s*party)?|vendor|customer|controller|data\s*controller|1\.)\s*[:\-–]?\s*/i,
       ""
     )
     .replace(
-      /^(?:party\s*[2b]|company\s*[2b]|second\s*party|employee|empolyee|contractor|receiving(?:\s*party)?|2\.)\s*[:\-–]?\s*/i,
+      /^(?:party\s*[2b]|company\s*[2b]|second\s*party|employee|empolyee|contractor|receiving(?:\s*party)?|processor|data\s*processor|2\.)\s*[:\-–]?\s*/i,
       ""
     )
+    .replace(
+      /\s*\((?:controller|processor|data\s*controller|data\s*processor|disclosing(?:\s*party)?|receiving(?:\s*party)?|party\s*[12ab])\)\s*$/i,
+      ""
+    )
+    .replace(
+      /\s+(?:as|is)\s+(?:the\s+)?(?:controller|processor|data\s*controller|data\s*processor)\s*$/i,
+      ""
+    )
+    .replace(/\s+(?:and|&)\s*$/i, "")
     .trim();
 }
 
@@ -228,6 +237,28 @@ export function parseSignatoriesFromText(raw: string): ParsedSignatories {
   };
 }
 
+export function isInvalidCountryGoverningLaw(val: unknown): boolean {
+  if (typeof val !== "string") return false;
+  const norm = val.trim().toLowerCase();
+  return (
+    norm === "gdpr" ||
+    norm === "gdpr (eu)" ||
+    norm === "gdpr (european union)" ||
+    norm === "uk gdpr" ||
+    norm === "ccpa" ||
+    norm === "ccpa / cpra" ||
+    norm === "cpra" ||
+    norm === "dpdpa" ||
+    norm === "dpdpa (india)" ||
+    norm === "hipaa" ||
+    norm === "eu" ||
+    norm === "european union" ||
+    norm === "european union (eu)" ||
+    norm === "europe" ||
+    norm === "eea"
+  );
+}
+
 /** True when a structured fact has a real, usable value (not empty / placeholder). */
 export function isFactSatisfied(facts: Record<string, unknown>, field: string): boolean {
   const canonical = canonicalizeFieldId(field);
@@ -252,6 +283,9 @@ export function isFactSatisfied(facts: Record<string, unknown>, field: string): 
   }
   if (canonical === "partyA") {
     candidates.push(
+      "controller",
+      "dataController",
+      "controllerLegalName",
       "dataFiduciaryLegalName",
       "dataFiduciary",
       "disclosingParty",
@@ -266,8 +300,10 @@ export function isFactSatisfied(facts: Record<string, unknown>, field: string): 
   }
   if (canonical === "partyB") {
     candidates.push(
-      "dataProcessorLegalName",
+      "processor",
       "dataProcessor",
+      "processorLegalName",
+      "dataProcessorLegalName",
       "receivingParty",
       "party2",
       "secondParty",
@@ -327,6 +363,9 @@ export function isFactSatisfied(facts: Record<string, unknown>, field: string): 
     const value = facts[key];
     if (value === undefined || value === null) continue;
     if (typeof value === "string") {
+      if (canonical === "governingLaw" && isInvalidCountryGoverningLaw(value)) {
+        continue;
+      }
       if (!isPlaceholderString(value)) {
         if (key.toLowerCase().includes("details")) {
           const parsed = parseAddressFromText(value);
@@ -355,7 +394,11 @@ function arePartiesSatisfied(facts: Record<string, unknown>): boolean {
       facts.dataFiduciary ||
       facts.fiduciaryLegalName ||
       facts.fiduciary ||
-      facts.legalNameOfTheDataFiduciary
+      facts.legalNameOfTheDataFiduciary ||
+      facts.controllerLegalName ||
+      facts.controller ||
+      facts.dataControllerLegalName ||
+      facts.dataController
   );
   const processor = asValidName(
     facts.dataProcessorLegalName ||
@@ -432,6 +475,47 @@ export interface RequiredFactCatalogEntry {
   coveredByEffectiveDate?: boolean;
 }
 
+export function isLawGroundedInUserInstructions(
+  candidate: unknown,
+  instructions?: string
+): boolean {
+  if (typeof candidate !== "string") return false;
+  const cand = candidate.trim().toLowerCase();
+  if (
+    !cand ||
+    cand === "not specified" ||
+    cand === "unspecified" ||
+    cand === "unknown" ||
+    cand === "general" ||
+    cand === "standard" ||
+    cand === "none"
+  ) {
+    return false;
+  }
+  if (!instructions || !instructions.trim()) return false;
+  const inst = instructions.toLowerCase();
+
+  // Clean template directives and structural headers from instructions so they don't count as user text
+  const cleanedInst = inst
+    .replace(/use\s+(?:this\s+)?structural\s+template:[^\n]+/gi, " ")
+    .replace(/playbook\s*—[^\n]+/gi, " ")
+    .replace(/include\s+these\s+clauses:[^\n]+/gi, " ")
+    .replace(/\b(?:dpa|nda|msa|saas|sla)\s+template\b[^\n]*/gi, " ")
+    .replace(/\{[^{}]*\}/g, " ");
+
+  // Direct substring check
+  if (cleanedInst.includes(cand)) return true;
+
+  // Key tokens check: "california", "delaware", "england", "uk", "india", "ireland", "germany", "france", "gdpr", "eu", "dpdpa", "ccpa", "cpra"
+  const tokens = cand.split(/[\s\/\(\),]+/).filter((t) => t.length >= 2);
+  return tokens.some((t) => {
+    if (t === "eu" || t === "uk" || t === "us") {
+      return new RegExp(`\\b${t}\\b`, "i").test(cleanedInst);
+    }
+    return t.length >= 3 && cleanedInst.includes(t);
+  });
+}
+
 const UNIVERSAL_CATALOG: RequiredFactCatalogEntry[] = [
   {
     id: "parties",
@@ -448,18 +532,19 @@ const UNIVERSAL_CATALOG: RequiredFactCatalogEntry[] = [
     id: "governingLaw",
     priority: "critical",
     blocking: true,
-    question: "Which governing law should apply?",
+    question: "Which country's governing law should apply?",
     reasonRequired:
       "Governing law determines the applicable statutory regime and enforcement venue.",
     options: [
-      "GDPR (EU)",
-      "CCPA (US)",
-      "DPDPA (India)",
-      "UK GDPR / English Law",
+      "Republic of Ireland",
+      "Germany",
+      "England and Wales (UK)",
+      "United States (Delaware)",
+      "India",
       "Other (specify)",
     ],
-    placeholder: "Select a governing law",
-    aliases: ["jurisdiction"],
+    placeholder: "Select a country",
+    aliases: ["jurisdiction", "country"],
   },
   {
     id: "effectiveDate",
@@ -475,6 +560,52 @@ const UNIVERSAL_CATALOG: RequiredFactCatalogEntry[] = [
 
 const DOC_TYPE_CATALOG: Record<string, RequiredFactCatalogEntry[]> = {
   dpa: [
+    {
+      id: "parties",
+      priority: "critical",
+      blocking: true,
+      question:
+        "Who are the Controller and Processor for this agreement? Please provide the full legal names of both entities.",
+      reasonRequired:
+        "Controller and Processor names appear throughout the DPA and schedules; drafting without them forces [PARTY] placeholders.",
+      placeholder: "e.g. Controller: Acme Ltd, Processor: DataCo International",
+      aliases: ["partyA", "partyB", "controller", "processor", "dataController", "dataProcessor"],
+    },
+    {
+      id: "privacyRegime",
+      priority: "critical",
+      blocking: true,
+      question: "Which data protection law should this agreement follow?",
+      reasonRequired:
+        "The clauses to draft depend on the statutory privacy regime (e.g. GDPR, UK GDPR, CCPA, DPDPA).",
+      options: [
+        "GDPR (European Union)",
+        "UK GDPR (England & Wales)",
+        "CCPA / CPRA (United States)",
+        "DPDPA (India)",
+        "Other (specify)",
+      ],
+      placeholder: "Select a data protection law",
+      aliases: ["regime", "privacyLaw", "dataProtectionLaw"],
+    },
+    {
+      id: "governingLaw",
+      priority: "critical",
+      blocking: true,
+      question: "Which country's governing law should apply?",
+      reasonRequired:
+        "Governing law determines the court jurisdiction and dispute forum governing this agreement.",
+      options: [
+        "Republic of Ireland",
+        "Germany",
+        "England and Wales (UK)",
+        "United States (Delaware)",
+        "India",
+        "Other (specify)",
+      ],
+      placeholder: "Select a country",
+      aliases: ["jurisdiction", "country"],
+    },
     {
       id: "principalAgreementDate",
       priority: "critical",
@@ -836,7 +967,7 @@ export function prioritizeMissingFacts(
   });
   const ranked = [...critical.slice(0, maxCritical), ...optional];
   const withSingleDate = collapseToSingleDateAsk(ranked);
-  return collapseToSingleGoverningLawAsk(withSingleDate);
+  return collapseToSingleGoverningLawAsk(withSingleDate, documentType);
 }
 
 const DATE_ASK_FIELDS = new Set(["effectiveDate", "principalAgreementDate"]);
@@ -859,7 +990,6 @@ function collapseToSingleDateAsk(facts: MissingFact[]): MissingFact[] {
 
 const GOVERNING_LAW_ASK_FIELDS = new Set([
   "governingLaw",
-  "privacyRegime",
   "jurisdiction",
   "venue",
   "choiceOfLaw",
@@ -872,33 +1002,101 @@ const GOVERNING_LAW_ASK_FIELDS = new Set([
   "disputeVenue",
 ]);
 
+export const STANDARD_GOVERNING_LAW_OPTIONS = [
+  "Republic of Ireland",
+  "Germany",
+  "England and Wales (UK)",
+  "United States (Delaware)",
+  "India",
+  "Other (specify)",
+];
+
+export function normalizeGoverningLawAsk(f: MissingFact): MissingFact {
+  const cleanOptions = (f.options ?? STANDARD_GOVERNING_LAW_OPTIONS).filter(
+    (opt) => !/\b(eu|european union)\b/i.test(opt)
+  );
+  return {
+    ...f,
+    field: "governingLaw",
+    question: "Which country's governing law should apply?",
+    reasonRequired:
+      "Governing law determines the court jurisdiction and dispute forum governing this agreement.",
+    options: cleanOptions.length >= 3 ? cleanOptions : STANDARD_GOVERNING_LAW_OPTIONS,
+    placeholder: "Select a country",
+  };
+}
+
+export const STANDARD_PRIVACY_REGIME_OPTIONS = [
+  "GDPR (European Union)",
+  "UK GDPR (England & Wales)",
+  "CCPA / CPRA (United States)",
+  "DPDPA (India)",
+  "Other (specify)",
+];
+
+export function normalizePrivacyRegimeAsk(f: MissingFact): MissingFact {
+  return {
+    ...f,
+    field: "privacyRegime",
+    question: "Which data protection law should this agreement follow?",
+    reasonRequired:
+      "The clauses to draft depend on the statutory privacy regime (e.g. GDPR, UK GDPR, CCPA, DPDPA).",
+    options: f.options?.length ? f.options : STANDARD_PRIVACY_REGIME_OPTIONS,
+    placeholder: "Select a data protection law",
+  };
+}
+
 export function isGoverningLawAsk(fact: MissingFact): boolean {
   const canonical = canonicalizeFieldId(fact.field);
   if (
+    canonical === "privacyRegime" ||
+    fact.field === "privacyRegime" ||
+    /\b(?:data\s+protection|privacy\s+regime|gdpr|dpdpa|ccpa|cpra)\b/i.test(fact.question) ||
+    /\b(?:data\s+protection|privacy\s+regime|gdpr|dpdpa|ccpa|cpra)\b/i.test(fact.field)
+  ) {
+    return false;
+  }
+  if (
     GOVERNING_LAW_ASK_FIELDS.has(canonical) ||
-    canonical === "governingLaw" ||
-    canonical === "privacyRegime"
+    canonical === "governingLaw"
   ) {
     return true;
   }
-  return /\b(?:governing\s+law|which\s+(?:jurisdiction|law|state|country)|applicable\s+law|law\s+(?:that\s+)?(?:should\s+)?govern|jurisdiction(?:'s)?\s+laws?|choice\s+of\s+law|legal\s+venue|venue\s+for\s+disputes?|data\s+protection\s+law)\b/i.test(
+  return /\b(?:governing\s+law|which\s+(?:jurisdiction|state|country)|applicable\s+law|law\s+(?:that\s+)?(?:should\s+)?govern|jurisdiction(?:'s)?\s+laws?|choice\s+of\s+law|legal\s+venue|venue\s+for\s+disputes?)\b/i.test(
     fact.question
   );
 }
 
 /** Never ask the user for more than one governing law / jurisdiction question. */
-export function collapseToSingleGoverningLawAsk(facts: MissingFact[]): MissingFact[] {
+export function collapseToSingleGoverningLawAsk(
+  facts: MissingFact[],
+  documentType?: string
+): MissingFact[] {
   const lawAsks = facts.filter(isGoverningLawAsk);
-  if (lawAsks.length <= 1) return facts;
-  // If there's a privacyRegime ask (e.g. for a DPA), prefer it; otherwise prefer governingLaw
+  if (lawAsks.length <= 1) {
+    return facts.map((f) =>
+      isGoverningLawAsk(f)
+        ? normalizeGoverningLawAsk(f)
+        : f.field === "privacyRegime"
+        ? normalizePrivacyRegimeAsk(f)
+        : f
+    );
+  }
   const keep =
-    lawAsks.find((f) => f.field === "privacyRegime") ??
     lawAsks.find((f) => f.field === "governingLaw") ??
     lawAsks[0];
   const drop = new Set(
     lawAsks.filter((f) => f !== keep).map((f) => f.field)
   );
-  return facts.filter((f) => !drop.has(f.field));
+  return facts
+    .filter((f) => !drop.has(f.field))
+    .map((f) =>
+      f.field === keep.field
+        ? normalizeGoverningLawAsk(f)
+        : f.field === "privacyRegime"
+        ? normalizePrivacyRegimeAsk(f)
+        : f
+    );
 }
 
 /** Bracketed stubs left in a finished draft — must not ship. */

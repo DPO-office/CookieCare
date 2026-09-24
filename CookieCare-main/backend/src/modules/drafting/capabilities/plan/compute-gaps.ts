@@ -130,7 +130,12 @@ export function computeGapsAndConflicts(
     typeof documentType === "string" ? documentType : undefined
   );
   if (docKey === "dpa" && !privacyRegimeKnown(facts) && missingByField.has("privacyRegime")) {
-    result = result.filter((f) => f.field === "privacyRegime");
+    result = result.filter(
+      (f) =>
+        f.field === "parties" ||
+        f.field === "privacyRegime" ||
+        f.field === "governingLaw"
+    );
   }
 
   console.log(

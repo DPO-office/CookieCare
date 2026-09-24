@@ -193,13 +193,24 @@ export function buildDealIdentity(
     const glLower = governingLaw.trim().toLowerCase();
     if (
       glLower === "gdpr (eu)" ||
+      glLower === "gdpr (european union)" ||
       glLower === "gdpr" ||
+      glLower === "european union (eu)" ||
       glLower === "european union" ||
       glLower === "eu" ||
-      glLower === "europe"
+      glLower === "europe" ||
+      glLower === "eea"
     ) {
       governingLaw =
-        "Republic of Ireland (EU), with exclusive jurisdiction of the courts of Dublin, Ireland";
+        "the European Union (EU), with jurisdiction of the competent courts of the European Union";
+    } else if (
+      glLower === "ireland" ||
+      glLower === "republic of ireland" ||
+      glLower === "irish" ||
+      glLower === "republic of ireland (eu)"
+    ) {
+      governingLaw =
+        "the Republic of Ireland, with exclusive jurisdiction of the courts of Dublin, Ireland";
     } else if (
       glLower === "ccpa (us)" ||
       glLower === "ccpa" ||
@@ -215,6 +226,7 @@ export function buildDealIdentity(
         "the laws of India, with exclusive jurisdiction of the competent courts of New Delhi, India";
     } else if (
       glLower === "uk gdpr / english law" ||
+      glLower === "uk gdpr (england & wales)" ||
       glLower === "uk gdpr" ||
       glLower === "english law"
     ) {
