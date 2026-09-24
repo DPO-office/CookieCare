@@ -104,16 +104,44 @@ describe("ASK resolution P0", () => {
     assert.ok(!fields.includes("parties"));
     assert.ok(!fields.includes("processingPurpose"));
 
-    // No named privacy regime — ask only that choice, not the rest of the form.
-    assert.deepEqual(fields, ["privacyRegime"]);
+    // No named privacy regime or governing law
+    assert.deepEqual(fields, ["governingLaw", "privacyRegime"]);
   });
 
-  it("bare DPA asks privacyRegime and does not load GDPR", () => {
+  it("bare DPA asks parties (Controller/Processor), country governing law, and privacyRegime, and does not load GDPR", () => {
     const state = baseState({}, "Draft a DPA");
     const fields = askFields(state);
-    assert.deepEqual(fields, ["privacyRegime"]);
+    assert.deepEqual(fields, ["parties", "governingLaw", "privacyRegime"]);
     const applicable = resolveApplicablePacks(state);
     assert.ok(!applicable.regimes.some((r) => r.id === "GDPR_ART28"));
+  });
+
+  it("DPA asks for Controller and Processor rather than generic parties", () => {
+    const state = baseState({}, "Draft a DPA");
+    const resolved = resolveRequirements(state);
+    const missing = computeGapsAndConflicts(resolved, []);
+    const partiesGap = missing.find((m) => m.field === "parties");
+    assert.ok(partiesGap);
+    assert.equal(
+      partiesGap.question,
+      "Who are the Controller and Processor for this agreement? Please provide the full legal names of both entities."
+    );
+    assert.equal(
+      partiesGap.placeholder,
+      "e.g. Controller: Acme Ltd, Processor: DataCo International"
+    );
+  });
+
+  it("DPA asks for both specific country governing law and statutory privacy regime when neither is provided", () => {
+    const state = baseState({}, "Draft a DPA");
+    const resolved = resolveRequirements(state);
+    const missing = computeGapsAndConflicts(resolved, []);
+    const lawAsk = missing.find((m) => m.field === "governingLaw");
+    const regimeAsk = missing.find((m) => m.field === "privacyRegime");
+    assert.ok(lawAsk, "governingLaw must be asked for DPA");
+    assert.ok(regimeAsk, "privacyRegime must be asked for DPA");
+    assert.ok(lawAsk.options?.includes("Republic of Ireland"));
+    assert.ok(lawAsk.options?.includes("Germany"));
   });
 
   it("named GDPR with parties skips regime and parties", () => {
@@ -275,10 +303,11 @@ describe("ASK resolution P0", () => {
     assert.equal(governingLawQuestions.length, 1);
     assert.equal(missing.filter((m) => m.field === "governing_jurisdiction").length, 0);
     assert.deepEqual(governingLawQuestions[0].options, [
-      "GDPR (EU)",
-      "CCPA (US)",
-      "DPDPA (India)",
-      "UK GDPR / English Law",
+      "Republic of Ireland",
+      "Germany",
+      "England and Wales (UK)",
+      "United States (Delaware)",
+      "India",
       "Other (specify)",
     ]);
   });
@@ -421,6 +450,18 @@ describe("ASK resolution P0", () => {
 
     const partiesAsk = missing.find((m) => m.field === "parties");
     assert.ok(partiesAsk, "parties should be in missing facts");
-    assert.equal(partiesAsk.placeholder, "e.g. Acme Ltd and DataCo International");
+    assert.equal(partiesAsk.placeholder, "e.g. Controller: Acme Ltd, Processor: DataCo International");
+
+    // Non-DPA documents retain universal parties placeholder
+    const ndaState: DraftState = {
+      ...state,
+      requirements: { ...state.requirements!, contractType: "nda" },
+      structuredFacts: { documentType: "nda" },
+    };
+    const ndaResolved = resolveRequirements(ndaState);
+    const ndaMissing = computeGapsAndConflicts(ndaResolved, []);
+    const ndaPartiesAsk = ndaMissing.find((m) => m.field === "parties");
+    assert.ok(ndaPartiesAsk);
+    assert.equal(ndaPartiesAsk.placeholder, "e.g. Acme Ltd and DataCo International");
   });
 });

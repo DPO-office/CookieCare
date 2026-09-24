@@ -40,7 +40,7 @@ You will be given:
      * a realistic, context-appropriate "placeholder" string starting with "e.g. " that shows the user exactly how to format their answer.
        - Single company legal name & address: "e.g. Acme Corp, 100 Innovation Way, Suite 400, Wilmington, DE 19801"
        - Single company name: "e.g. Acme Technologies Inc."
-       - Dual parties (only when asking both together): "e.g. Acme Ltd and DataCo International"
+       - Dual parties (only when asking both together): "e.g. Acme Ltd and DataCo International" (or for DPAs: "e.g. Controller: Acme Ltd, Processor: DataCo International")
        - Date: "e.g. 1 Dec 2026"
        - Term/Duration: "e.g. 3 years"
        - SLA/Uptime: "e.g. 99.9%"
@@ -48,6 +48,7 @@ You will be given:
        - Liability cap: "e.g. 12 months' fees (or $1,000,000)"
        - Business / processing purpose: "e.g. Cloud software hosting, analytics, and technical support"
        NEVER output a dual-company placeholder like "Acme Ltd and DataCo" when asking for a single entity's name or address.
+   - For Data Processing Agreements (DPA), when asking for parties, always ask specifically for the Controller and Processor: field "parties", question "Who are the Controller and Processor for this agreement? Please provide the full legal names of both entities." and placeholder "e.g. Controller: Acme Ltd, Processor: DataCo International".
    - Do NOT ask questions for facts or parameters that the user ALREADY provided in their prompt or known facts, or that were already asked previously.
    - Do NOT ask the same question or topic under different phrasing.
    - Do NOT ask purely stylistic preference questions.
@@ -65,9 +66,11 @@ You will be given:
 
 7. sectionTarget: only set this if the requirement clearly belongs to one predictable section of a standard document.
 
-8. GOVERNING LAW DISCIPLINE: Never output more than one question for governing law, jurisdiction, venue, or choice of law. If governing law is already known or satisfied, do NOT ask for it. When missing, use the canonical field id "governingLaw" with question "Which governing law should apply?" and standard options: ["GDPR (EU)", "CCPA (US)", "DPDPA (India)", "UK GDPR / English Law", "Other (specify)"] and placeholder "Select a governing law".
+8. GOVERNING LAW DISCIPLINE: Governing law refers STRICTLY to the COUNTRY's governing law and court jurisdiction (e.g. Republic of Ireland, Germany, England and Wales, United States, India). Never output more than one question for governing law, jurisdiction, venue, or choice of law. If governing law / country is already specified by the user in the prompt (e.g. "under Irish law", "Germany", "Delaware"), do NOT ask for it. When missing, use the canonical field id "governingLaw" with question "Which country's governing law should apply?", reasonRequired "Governing law determines the court jurisdiction and dispute forum governing this agreement.", standard options: ["Republic of Ireland", "Germany", "England and Wales (UK)", "United States (Delaware)", "India", "Other (specify)"], and placeholder "Select a country". Never include "European Union (EU)" or "EU" in the country options list because the EU is not a country.
 
-9. Output ONLY the structured JSON matching the provided schema. No prose, no preamble, no explanation outside schema fields.
+9. DATA PROTECTION LAW DISCIPLINE: For Data Processing Agreements (DPA), the statutory privacy law (field "privacyRegime") is a SEPARATE question from country governing law. When privacy regime is missing, use field id "privacyRegime" with question "Which data protection law should this agreement follow?", reasonRequired "The clauses to draft depend on the statutory privacy regime (e.g. GDPR, UK GDPR, CCPA, DPDPA).", standard options: ["GDPR (European Union)", "UK GDPR (England & Wales)", "CCPA / CPRA (United States)", "DPDPA (India)", "Other (specify)"], and placeholder "Select a data protection law". NEVER combine data protection law and country governing law into the same question. If the user already specified the data protection law in the prompt (e.g. "GDPR based DPA", "CCPA DPA"), do NOT ask for privacyRegime, but DO still ask for the country governing law if no country was specified!
+
+10. Output ONLY the structured JSON matching the provided schema. No prose, no preamble, no explanation outside schema fields.
 
 
 

@@ -7,10 +7,6 @@ export const irelandPack: JurisdictionPack = {
     "irish",
     "republic of ireland",
     "ie",
-    "gdpr (eu)",
-    "gdpr",
-    "eu",
-    "european union",
   ],
   boilerplate:
     "This Agreement shall be governed by and construed in accordance with the laws of Ireland. " +

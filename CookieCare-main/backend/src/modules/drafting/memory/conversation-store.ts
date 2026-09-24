@@ -100,8 +100,17 @@ export function applyUserAnswers(
     },
   ]);
 
-  const fid = factsPatch.dataFiduciaryLegalName || factsPatch.dataFiduciary;
-  const proc = factsPatch.dataProcessorLegalName || factsPatch.dataProcessor;
+  const fid =
+    factsPatch.dataFiduciaryLegalName ||
+    factsPatch.dataFiduciary ||
+    factsPatch.controller ||
+    factsPatch.dataController ||
+    factsPatch.controllerLegalName;
+  const proc =
+    factsPatch.dataProcessorLegalName ||
+    factsPatch.dataProcessor ||
+    factsPatch.processor ||
+    factsPatch.processorLegalName;
   if (fid && proc) {
     factsPatch.partyA = fid;
     factsPatch.partyB = proc;

@@ -7,6 +7,8 @@ function blob(facts: StructuredFacts, extra = ""): string {
   if (typeof facts.instructionText === "string") {
     userText = facts.instructionText
       .replace(/Use\s+(?:this\s+)?structural\s+template:[^\n]+/gi, " ")
+      .replace(/Playbook\s*—[^\n]+/gi, " ")
+      .replace(/Include\s+these\s+clauses:[^\n]+/gi, " ")
       .replace(/\b(?:DPA|NDA|MSA|SaaS|SLA)\s+Template\b[^\n]*/gi, " ")
       .replace(/\{[^{}]*\}/g, " ");
   }

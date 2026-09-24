@@ -9,15 +9,50 @@ export const dpaSkillConfig: DraftingSkillConfig = {
   appliesToDocTypes: ["dpa"],
   requiredFacts: [
     {
+      id: "parties",
+      priority: "critical",
+      blocking: true,
+      question:
+        "Who are the Controller and Processor for this agreement? Please provide the full legal names of both entities.",
+      reasonRequired:
+        "Controller and Processor names appear throughout the DPA and schedules; drafting without them forces [PARTY] placeholders.",
+      placeholder: "e.g. Controller: Acme Ltd, Processor: DataCo International",
+      aliases: ["partyA", "partyB", "controller", "processor", "dataController", "dataProcessor"],
+    },
+    {
       id: "privacyRegime",
       priority: "critical",
       blocking: true,
       question: "Which data protection law should this agreement follow?",
       reasonRequired:
-        "The clauses to draft depend on the privacy regime. A bare DPA request does not choose GDPR, CCPA, or DPDPA.",
-      options: ["GDPR", "UK GDPR", "CCPA / CPRA", "DPDPA", "Other (specify)"],
+        "The clauses to draft depend on the statutory privacy regime (e.g. GDPR, UK GDPR, CCPA, DPDPA).",
+      options: [
+        "GDPR (European Union)",
+        "UK GDPR (England & Wales)",
+        "CCPA / CPRA (United States)",
+        "DPDPA (India)",
+        "Other (specify)",
+      ],
       placeholder: "Select a data protection law",
       aliases: ["regime", "privacyLaw", "dataProtectionLaw"],
+    },
+    {
+      id: "governingLaw",
+      priority: "critical",
+      blocking: true,
+      question: "Which country's governing law should apply?",
+      reasonRequired:
+        "Governing law determines the court jurisdiction and dispute forum governing this agreement.",
+      options: [
+        "Republic of Ireland",
+        "Germany",
+        "England and Wales (UK)",
+        "United States (Delaware)",
+        "India",
+        "Other (specify)",
+      ],
+      placeholder: "Select a country",
+      aliases: ["jurisdiction", "country"],
     },
     {
       id: "principalAgreementDate",

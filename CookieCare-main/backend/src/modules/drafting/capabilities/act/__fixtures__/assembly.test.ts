@@ -250,9 +250,17 @@ describe("document assembly", () => {
     const r4 = parsePartyPairFromText("employer - Randstad digital, empolyee - Abhinav Yadav");
     assert.equal(r4?.partyA, "Randstad digital");
     assert.equal(r4?.partyB, "Abhinav Yadav");
+
+    const r5 = parsePartyPairFromText("Controller: Acme Ltd, Processor: DataCo International");
+    assert.equal(r5?.partyA, "Acme Ltd");
+    assert.equal(r5?.partyB, "DataCo International");
+
+    const r6 = parsePartyPairFromText("Acme Ltd (Controller) and DataCo International (Processor)");
+    assert.equal(r6?.partyA, "Acme Ltd");
+    assert.equal(r6?.partyB, "DataCo International");
   });
 
-  it("buildDealIdentity anchors generic European Union governing law to Ireland", () => {
+  it("buildDealIdentity anchors generic European Union governing law to European Union (EU)", () => {
     const identity = buildDealIdentity(
       {
         partyA: "Apex Technologies LLC",
@@ -264,7 +272,20 @@ describe("document assembly", () => {
     );
     assert.ok(identity);
     assert.equal(identity.isMutual, true);
-    assert.match(identity.governingLaw ?? "", /Republic of Ireland \(EU\)/);
+    assert.match(identity.governingLaw ?? "", /European Union \(EU\)/);
+    assert.doesNotMatch(identity.governingLaw ?? "", /Ireland/);
+
+    const irelandIdentity = buildDealIdentity(
+      {
+        partyA: "Apex Technologies LLC",
+        partyB: "Summit Data Solutions Inc.",
+        governingLaw: "Republic of Ireland",
+        instructionText: "Draft a mutual non-disclosure agreement",
+      },
+      "nda"
+    );
+    assert.ok(irelandIdentity);
+    assert.match(irelandIdentity.governingLaw ?? "", /Republic of Ireland/);
   });
 
   it("assembleDocument produces clean mutual NDA preamble with addresses and balanced signature block", async () => {
