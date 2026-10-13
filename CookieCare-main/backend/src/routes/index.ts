@@ -22,6 +22,7 @@ import dpaRoutes from "./dpa.js";
 import vendorReviewRoutes from "./vendorReview.js";
 import aiEthicsRoutes from "./aiEthics.js";
 import aiToolsRoutes from "./aiTools.js";
+import knowledgeBaseRoutes from "./knowledgeBase.js";
 import { authenticateToken } from "../middleware/auth.js";
 import { getDocumentParserReadiness } from "../modules/analysis/capabilities/ingest/document-structure/index.js";
 
@@ -82,5 +83,6 @@ router.use("/dpa", dpaRoutes);
 router.use("/vendor-review", vendorReviewRoutes);
 router.use("/ai-ethics", aiEthicsRoutes);
 router.use("/ai-tools", aiToolsRoutes);
+router.use("/knowledge-base", knowledgeBaseRoutes);
 
 export default router;

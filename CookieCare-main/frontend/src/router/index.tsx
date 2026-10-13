@@ -49,6 +49,7 @@ import AIToolsInventory from "../features/aiToolsInventory";
 import LORAAI from "../features/randtrustAI";
 import SettingsView from "../features/settings";
 import AdminPanel from "../features/admin";
+import ReviewPage from "../features/knowledgeBase/ReviewPage";
 
 export const router = createBrowserRouter([
   // ── Public ────────────────────────────────────────────────────────────────
@@ -83,6 +84,7 @@ export const router = createBrowserRouter([
           { path: "ai-ethics",              element: <AIEthicsScore /> },
           { path: "ai-tools-inventory",     element: <AIToolsInventory /> },
           { path: "settings",               element: <SettingsView /> },
+          { path: "knowledge-base/review/:sourceId/:versionId", element: <ReviewPage /> },
 
           // Admin — second role guard, nested so AppLayout still renders
           {

@@ -22,6 +22,9 @@ backend/src/modules/analysis/temp/**/out/
 frontend/dist/
 backend/dist/
 backend/server.js
+mastra/.mastra/
+mastra/dist/
+mastra/node_modules/
 drafting-module-context.md
 /generated/prisma
 
