@@ -1,0 +1,33 @@
+name: lora-docling
+
+services:
+  docling:
+    build:
+      context: ./services/docling
+      dockerfile: Dockerfile
+    image: lora-docling:local
+    env_file: .env.docling
+    environment:
+      NODE_ENV: production
+      PORT: "8090"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8090/healthz',{headers:{Authorization:'Bearer '+process.env.DOCLING_SERVICE_TOKEN}}).then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 120s
+
+  proxy:
+    image: caddy:2
+    environment:
+      DOCLING_DOMAIN: ${DOCLING_DOMAIN:?Set the Docling private DNS name}
+    restart: unless-stopped
+    ports:
+      - "${DOCLING_PRIVATE_IP:?Set the Docling Droplet private IP}:443:443"
+    volumes:
+      - ./Caddyfile.docling:/etc/caddy/Caddyfile:ro
+      - ./certs/docling:/etc/caddy/certs:ro
+    depends_on:
+      docling:
+        condition: service_healthy

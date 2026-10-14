@@ -12,6 +12,7 @@ import { errorHandler } from "./src/middleware/error.js";
 import { initQueryLogger } from "./src/middleware/queryLogger.js";
 import { logger } from "./src/utils/logger.js";
 import { getDocumentParserReadiness } from "./src/modules/analysis/capabilities/ingest/document-structure/index.js";
+import { pool } from "./src/config/database.js";
 import { startStaleJobSweep } from "./src/services/jobs/staleJobSweep.js";
 
 console.log(
@@ -50,8 +51,16 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 initQueryLogger();
 
-app.get("/api/healthz", (_req, res) => {
-  res.status(200).json({ status: "ok" });
+app.get("/api/healthz", async (_req, res) => {
+  try {
+    if (!config.skipDb) await pool.query("SELECT 1");
+    if (config.nodeEnv === "production" && !(await getDocumentParserReadiness()).ready) {
+      throw new Error("Docling service is unavailable");
+    }
+    res.status(200).json({ status: "ok" });
+  } catch {
+    res.status(503).json({ status: "unavailable" });
+  }
 });
 
 // --- 1. API ROUTES ---
@@ -184,7 +193,7 @@ export async function attachToServer() {
   if (!parser.ready) {
     logger.error(
       { parser },
-      "Docling is not ready. PDF/DOCX uploads will fail until the native addon and .pdfium/.models assets load."
+      "Docling is not ready. PDF/DOCX processing will fail until the configured parser becomes available."
     );
   }
 }

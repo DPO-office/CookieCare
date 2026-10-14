@@ -342,6 +342,7 @@ function tracker(state: AnalysisState): ComplianceRunTracker {
 }
 
 function appendComplianceFile(state: AnalysisState, jsonLine: string): void {
+  if (process.env.NODE_ENV === "production") return;
   const sessionId = state.request?.sessionId;
   if (!sessionId) return;
   if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR, { recursive: true });

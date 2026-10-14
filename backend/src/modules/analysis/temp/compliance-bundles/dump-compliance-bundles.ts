@@ -23,6 +23,7 @@ export interface ComplianceBundleDumpArgs {
 }
 
 function enabled(): boolean {
+  if (process.env.NODE_ENV === "production" || process.env.NODE_TEST_CONTEXT) return false;
   const flag = process.env.ANALYSIS_DUMP_COMPLIANCE_BUNDLES;
   if (flag === "0" || flag === "false") return false;
   return true;

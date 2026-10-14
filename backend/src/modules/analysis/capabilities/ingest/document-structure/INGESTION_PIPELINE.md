@@ -252,6 +252,8 @@ export interface RelationEdge {
 | Variable | Default | Purpose |
 | :--- | :--- | :--- |
 | `DOCLING_RS_HOME` | `process.cwd()` | Directory containing `.models` and `.pdfium` assets for PDF parsing. |
+| `DOCLING_SERVICE_URL` | unset locally | Authenticated HTTPS Docling service URL; required in production. |
+| `DOCLING_SERVICE_TOKEN` | unset locally | Shared bearer token for the Docling service; required in production. |
 | `DOCUMENT_GRAPH_LLM_RELATIONS` | `0` (off) | Set to `1` to enable LLM semantic relation discovery for non-regex references. |
 | `DOCUMENT_GRAPH_RELATION_BATCH_CHARS` | `18000` | Max character batch size sent during semantic discovery. |
 | `DOCUMENT_GRAPH_RELATION_CONCURRENCY` | `2` | Maximum concurrent semantic discovery calls (capped at 2). |

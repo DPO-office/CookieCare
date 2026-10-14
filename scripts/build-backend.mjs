@@ -45,6 +45,15 @@ await build({
   sourcemap: true,
   outfile: path.join(distRoot, "db-setup.js"),
 });
+await build({
+  entryPoints: [path.join(backendRoot, "src/mastra/knowledge-base/ingestion/storage/migrate-cli.ts")],
+  bundle: true,
+  platform: "node",
+  format: "esm",
+  packages: "external",
+  sourcemap: true,
+  outfile: path.join(distRoot, "kb-migrate.js"),
+});
 await cp(
   path.join(backendRoot, "src/mastra/knowledge-base/ingestion/storage/migrations"),
   path.join(distRoot, "migrations"),

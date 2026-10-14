@@ -56,34 +56,14 @@ async function queryWithTimeout(
 
 async function ensureVectorExtension(client: any): Promise<void> {
   try {
-    const installed = await queryWithTimeout(
-      client,
-      `SELECT 1 FROM pg_extension WHERE extname = 'vector' LIMIT 1`,
-      undefined,
-      8000
-    );
-    if (installed.rowCount) {
-      console.log("pgvector extension already installed.");
-      return;
+    const installed = await queryWithTimeout(client,
+      "SELECT 1 FROM pg_extension WHERE extname = 'vector' LIMIT 1", undefined, 8000);
+    if (!installed.rowCount) {
+      await queryWithTimeout(client, "CREATE EXTENSION IF NOT EXISTS vector", undefined, 15000);
     }
+    console.log("pgvector extension is available.");
   } catch (err: any) {
-    console.warn(`Could not check pgvector (${err.message || err}). Continuing without it.`);
-    return;
-  }
-
-  try {
-    console.log("Installing pgvector extension...");
-    // One round-trip so PgBouncer keeps SET + CREATE EXTENSION together.
-    await queryWithTimeout(
-      client,
-      `SET lock_timeout = '8s'; SET statement_timeout = '12s'; CREATE EXTENSION IF NOT EXISTS vector;`,
-      undefined,
-      15000
-    );
-  } catch (err: any) {
-    console.warn(
-      `Skipping pgvector extension (${err.message || err}). Embeddings may be unavailable.`
-    );
+    throw new Error(`pgvector extension is required: ${err.message || err}`);
   }
 }
 
@@ -279,6 +259,7 @@ async function setupDb() {
   let timedOut = false;
 
   try {
+    await ensureVectorExtension(client);
     // SET LOCAL must live inside a transaction — Neon pooler / PgBouncer
     // discards session SET between queries.
     console.log("Checking whether the schema already exists...");
@@ -304,8 +285,7 @@ async function setupDb() {
       inTransaction = false;
       console.log("Database schema already present — running idempotent column migrations.");
       await runIdempotentMigrations(client);
-      return;
-    }
+    } else {
 
     await client.query("COMMIT");
     inTransaction = false;
@@ -317,8 +297,6 @@ async function setupDb() {
     }
 
     console.log("Starting first-time database setup...");
-    await ensureVectorExtension(client);
-
     await queryWithTimeout(client, "BEGIN", undefined, 8000);
     inTransaction = true;
     await client.query("SET LOCAL lock_timeout = '8s'");
@@ -687,11 +665,17 @@ async function setupDb() {
     await client.query("COMMIT");
     inTransaction = false;
     console.log("Database schema created.");
+    }
 
     // ── Seed Prompt & Question Library items (idempotent) ─────────────────
     // These are scoped to the admin user so they appear in the Vault Repository.
     // ON CONFLICT DO NOTHING means re-running setup never duplicates them.
     const adminId = "supreme_admin_id";
+    const admin = await client.query("SELECT 1 FROM users WHERE id = $1", [adminId]);
+    if (!admin.rowCount) {
+      console.log("Seed admin is absent; skipping optional prompt and question library seeds.");
+      return;
+    }
 
     const prompts = [
       ["lib_prompt_01", "Review Confidentiality Obligations",        "prompts", "Confidentiality", "Analyse all confidentiality and non-disclosure obligations in the agreement. Identify the scope, duration, permitted disclosures, and whether the obligations are mutual or one-sided. Flag any clause that is overly broad, missing a survival period, or lacks adequate remedies for breach."],
@@ -724,7 +708,7 @@ async function setupDb() {
         `INSERT INTO library_items (id, user_id, type, name, description, tags, details)
          VALUES ($1, $2, $3, $4, $5, $6, $7)
          ON CONFLICT (id) DO NOTHING`,
-        [id, adminId, type, name, name, tags, details]
+        [id, adminId, type, name, name, JSON.stringify([tags]), JSON.stringify(details)]
       );
     }
 
@@ -733,7 +717,7 @@ async function setupDb() {
         `INSERT INTO library_items (id, user_id, type, name, description, tags, details)
          VALUES ($1, $2, $3, $4, $5, $6, $7)
          ON CONFLICT (id) DO NOTHING`,
-        [id, adminId, type, name, name, tags, details]
+        [id, adminId, type, name, name, JSON.stringify([tags]), JSON.stringify(details)]
       );
     }
 
