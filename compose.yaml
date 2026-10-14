@@ -11,7 +11,7 @@ x-lora-app: &lora-app
 
 services:
   db:
-    image: pgvector/pgvector:0.8.7-pg17-bookworm
+    image: pgvector/pgvector:0.8.7-pg16-bookworm
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB in .env}
