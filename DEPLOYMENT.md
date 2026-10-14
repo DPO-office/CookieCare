@@ -1,6 +1,6 @@
 # LORA production deployment on DigitalOcean
 
-The main Droplet runs Caddy, the API, the KB worker, and PostgreSQL 17 with pgvector 0.8.7. A second Droplet runs the authenticated Docling service. The main image has no Docling model assets. AWS S3 remains the storage default; DigitalOcean Spaces is only a configurable staging option until the checklist below passes.
+The main Droplet runs Caddy, the API, the KB worker, and PostgreSQL 17 with pgvector 0.8.7. A second Droplet runs the authenticated Docling service. The main image has no Docling model assets. Knowledge Base object storage uses a private DigitalOcean Space.
 
 These instructions require a maintenance window and a current, tested database backup for upgrades. They do not provision Droplets, DNS, certificates, buckets, or firewalls.
 
@@ -31,9 +31,9 @@ The named `postgres_data` volume contains the database. Caddy's `caddy_data` and
 
 Monitor free disk space, database and container health, API errors, KB failed jobs, Docling 503/504 rates, certificate expiry, and backup age. Use `docker compose logs` with restricted access; the production Compose config disables verbose analysis traces and document-content dumps. Do not log document bytes, signed URLs, or tokens. Local diagnostic outputs are ephemeral and are not part of the production backup plan. Keep inbound main-Droplet firewall rules to TCP 80/443 (and UDP 443 if HTTP/3 is used), plus restricted SSH. `LORA_HTTP_PORT` exposes the API on loopback only for diagnostics.
 
-## S3 and Spaces staging gate
+## DigitalOcean Spaces staging gate
 
-By default the KB adapters use AWS S3 with `AWS_REGION`, `KB_S3_BUCKET`, and the AWS credential chain. Buckets must be private. Set `KB_S3_ENDPOINT` only in staging to test a compatible provider; for Spaces use its region endpoint and explicit `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. `KB_S3_FORCE_PATH_STYLE=true` chooses path-style addressing; `false` chooses virtual-hosted style. Production custom endpoints must use HTTPS. Keep the bucket and endpoint outside source code.
+Create a private Space and a bucket-scoped Spaces key. Set `DO_SPACES_REGION`, `DO_SPACES_BUCKET`, `DO_SPACES_KEY`, and `DO_SPACES_SECRET` in the main Droplet's `.env`. The application derives the HTTPS regional endpoint and uses virtual-hosted addressing. Both API and worker receive the same configuration. The Spaces API is S3 compatible, so the application still uses the S3 SDK and request headers; it does not use an AWS account or credential chain.
 
 Before using Spaces in production, run the full intake and preparation flow against a real **private staging bucket** and verify:
 
@@ -42,6 +42,6 @@ Before using Spaces in production, run the full intake and preparation flow agai
 - Presigned read URLs work only until expiry, private objects cannot be fetched without authorization, and the application verifies the returned size and checksum.
 - Immutable `If-None-Match: *` PDF and JSON artifact writes reject overwrites; artifact retrieval preserves content type, size, and SHA-256.
 - Delete behavior for abandoned staging uploads works, without deleting committed immutable artifacts.
-- Both path-style and virtual-hosted addressing are tested with the actual bucket name and TLS certificate; record the mode that works.
+- Virtual-hosted addressing works with the actual Space name and TLS certificate.
 
-Record provider response headers, SDK errors, and test results before changing production `KB_S3_ENDPOINT`. No bucket or cloud setting is created by this repository change. See the KB [ingestion deployment guide](backend/src/mastra/knowledge-base/ingestion/DEPLOYMENT.md) for authorization and CORS details.
+Record Spaces response headers, SDK errors, and test results before using production storage. No Space or cloud setting is created by this repository change. See the KB [ingestion deployment guide](backend/src/mastra/knowledge-base/ingestion/DEPLOYMENT.md) for authorization and CORS details.

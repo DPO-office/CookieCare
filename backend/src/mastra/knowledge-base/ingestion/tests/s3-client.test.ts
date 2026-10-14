@@ -7,21 +7,17 @@ import { kbS3Settings, createKbS3Client } from "../storage/s3-client.js";
 import { S3ObjectStore } from "../storage/object-store.js";
 import { S3ArtifactObjectStore } from "../storage/artifact-store.js";
 
-test("AWS remains the default and custom endpoint settings are explicit", async () => {
-  const aws = kbS3Settings({ AWS_REGION: "ap-south-1", KB_S3_BUCKET: "private" });
-  assert.equal(aws.endpoint, undefined);
-  assert.equal(aws.forcePathStyle, undefined);
-  const spaces = kbS3Settings({ AWS_REGION: "blr1", KB_S3_BUCKET: "private",
-    KB_S3_ENDPOINT: "https://blr1.digitaloceanspaces.com", KB_S3_FORCE_PATH_STYLE: "false",
-    AWS_ACCESS_KEY_ID: "fixture", AWS_SECRET_ACCESS_KEY: "fixture", NODE_ENV: "production" });
+test("Spaces settings require explicit credentials and use the regional endpoint", async () => {
+  const spaces = kbS3Settings({ DO_SPACES_REGION: "blr1", DO_SPACES_BUCKET: "private",
+    DO_SPACES_KEY: "fixture", DO_SPACES_SECRET: "fixture" });
   const client = createKbS3Client(spaces);
   try {
     assert.equal(client.config.forcePathStyle, false);
     assert.equal((await client.config.endpoint!()).hostname, "blr1.digitaloceanspaces.com");
   } finally { client.destroy(); }
-  assert.throws(() => kbS3Settings({ AWS_REGION: "blr1", KB_S3_BUCKET: "private",
-    KB_S3_ENDPOINT: "http://localhost:9000", AWS_ACCESS_KEY_ID: "a", AWS_SECRET_ACCESS_KEY: "b",
-    NODE_ENV: "production" }), /HTTPS/);
+  assert.throws(() => kbS3Settings({ DO_SPACES_REGION: "blr1", DO_SPACES_BUCKET: "private" }), /DO_SPACES_KEY/);
+  assert.throws(() => kbS3Settings({ DO_SPACES_REGION: "invalid.example", DO_SPACES_BUCKET: "private",
+    DO_SPACES_KEY: "a", DO_SPACES_SECRET: "b" }), /invalid/);
 });
 
 test("object adapters preserve immutable writes, checksums, reads and deletes", async () => {
