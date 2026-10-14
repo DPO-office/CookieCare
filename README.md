@@ -364,13 +364,10 @@ Evaluates responsible AI practices from uploaded governance documents and/or a c
 | `npm run dev` | Run locally (http://localhost:3000) |
 | `npm run build` | Production build |
 | `npm run start` | Run production server |
-| `npm run kb:worker` | Run the knowledge base worker from the backend build, as a separate process on the same server |
-| `npm run kb:worker:dev` | Run the knowledge base worker from TypeScript for local development |
-| `npm run kb:migrate` | Apply knowledge base migrations after the backend database setup |
 | `npm run test:kb` / `npm run lint:kb` | Knowledge base tests and typecheck |
 | `npm run lint` / `npm run test` | Type-check and tests |
 
-For a single DigitalOcean Droplet running the API and worker, see [DEPLOYMENT.md](DEPLOYMENT.md).
+Knowledge Base ingestion is disabled until `KB_INGESTION_ENABLED=true` and Spaces is configured. For DigitalOcean deployment, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ---
 

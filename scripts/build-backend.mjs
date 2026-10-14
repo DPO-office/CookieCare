@@ -1,5 +1,5 @@
 import { build } from "esbuild";
-import { cp, mkdir, readdir } from "node:fs/promises";
+import { cp, mkdir, readdir, rm } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -27,15 +27,10 @@ async function copyMarkdown(source, target) {
 }
 
 await mkdir(distRoot, { recursive: true });
-await build({
-  entryPoints: [path.join(backendRoot, "src/mastra/knowledge-base/ingestion/worker-cli.ts")],
-  bundle: true,
-  platform: "node",
-  format: "esm",
-  packages: "external",
-  sourcemap: true,
-  outfile: path.join(distRoot, "kb-worker.js"),
-});
+await rm(path.join(distRoot, "kb-worker.js"), { force: true });
+await rm(path.join(distRoot, "kb-worker.js.map"), { force: true });
+await rm(path.join(distRoot, "kb-migrate.js"), { force: true });
+await rm(path.join(distRoot, "kb-migrate.js.map"), { force: true });
 await build({
   entryPoints: [path.join(backendRoot, "scripts/setupDb.ts")],
   bundle: true,
@@ -44,15 +39,6 @@ await build({
   packages: "external",
   sourcemap: true,
   outfile: path.join(distRoot, "db-setup.js"),
-});
-await build({
-  entryPoints: [path.join(backendRoot, "src/mastra/knowledge-base/ingestion/storage/migrate-cli.ts")],
-  bundle: true,
-  platform: "node",
-  format: "esm",
-  packages: "external",
-  sourcemap: true,
-  outfile: path.join(distRoot, "kb-migrate.js"),
 });
 await cp(
   path.join(backendRoot, "src/mastra/knowledge-base/ingestion/storage/migrations"),

@@ -72,19 +72,6 @@ services:
       retries: 5
       start_period: 120s
 
-  kb-worker:
-    <<: *lora-app
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      NODE_ENV: production
-      SKIP_DB: "false"
-      DATABASE_URL: ${DATABASE_URL:?Set the internal db connection URL in .env}
-      DOCLING_SERVICE_URL: ${DOCLING_SERVICE_URL:?Set the authenticated HTTPS Docling service URL}
-      DOCLING_SERVICE_TOKEN: ${DOCLING_SERVICE_TOKEN:?Set DOCLING_SERVICE_TOKEN}
-    command: ["node", "backend/dist/kb-worker.js"]
-
   db-setup:
     <<: *lora-app
     profiles: ["setup"]
@@ -97,19 +84,6 @@ services:
       SKIP_DB: "false"
       DATABASE_URL: ${DATABASE_URL:?Set the internal db connection URL in .env}
     command: ["node", "backend/dist/db-setup.js"]
-
-  kb-migrate:
-    <<: *lora-app
-    profiles: ["setup"]
-    restart: "no"
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      NODE_ENV: production
-      SKIP_DB: "false"
-      DATABASE_URL: ${DATABASE_URL:?Set the internal db connection URL in .env}
-    command: ["node", "backend/dist/kb-migrate.js"]
 
 volumes:
   postgres_data:

@@ -15,6 +15,13 @@ import { resolveStructureProviderConfig } from "../mastra/knowledge-base/ingesti
 import { hashRevision } from "../mastra/knowledge-base/ingestion/schemas/common.js";
 
 const router = Router();
+router.use((_req, res, next) => {
+  if (process.env.KB_INGESTION_ENABLED?.trim().toLowerCase() !== "true") {
+    res.status(503).json({ error: "Knowledge Base ingestion is not enabled" });
+    return;
+  }
+  next();
+});
 let uploads: KbUploadService | undefined;
 const jobs = new KbJobStore(pool);
 const reviews = new KbReviewService(pool);

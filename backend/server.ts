@@ -130,6 +130,15 @@ app.use(errorHandler);
 async function configureRuntime() {
   validateEnv();
 
+  const kbEnabled = process.env.KB_INGESTION_ENABLED?.trim().toLowerCase();
+  if (kbEnabled && kbEnabled !== "true" && kbEnabled !== "false") {
+    throw new Error("KB_INGESTION_ENABLED must be true or false");
+  }
+  if (!config.skipDb && config.nodeEnv !== "test" && kbEnabled === "true") {
+    const { startKnowledgeBaseWorker } = await import("./src/mastra/knowledge-base/ingestion/runtime.js");
+    await startKnowledgeBaseWorker(pool);
+  }
+
   // Recover jobs stranded in queued/processing by a prior restart/crash (in-
   // process jobs have no worker to resume them) so the UI stops showing them
   // as perpetually "uploading"/"processing".

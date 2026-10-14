@@ -11,7 +11,7 @@ export interface PdfExtractor {
   extract(bytes: Uint8Array, fileName: string): Promise<unknown>;
 }
 
-/** Loads the pinned local Docling pipeline once per worker process. */
+/** Loads the pinned local Docling pipeline once per application process in development. */
 export class DoclingPdfExtractor implements PdfExtractor {
   private pipelinePromise?: Promise<import("docling.rs").Pipeline>;
 
