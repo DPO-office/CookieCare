@@ -1,0 +1,255 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { describe, it } from "node:test";
+import type { AnalysisState } from "../../../models/analysis-state.js";
+import type { CompliancePresentationPlan, ComplianceReportSnapshot } from "../../../models/compliance-report.js";
+import { complianceReportingInput, renderComplianceReport, type ComplianceCompletion } from "../compliance-reporting.js";
+import { defaultCompliancePresentationPlan, deterministicComplianceDraft } from "../compliance-presentation.js";
+import { hasValidatedComplianceReport, runComplianceReportGate, usesCanonicalComplianceReport } from "../compliance-release.js";
+import { executeActPlan } from "../../act/execute-act-plan.js";
+import { runAudit } from "../../audit/run-audit.js";
+import { persistAnalysis } from "../../persist/persist-analysis.js";
+import { initAgentRunState } from "../../../pac/types.js";
+
+function fixture(status: ComplianceReportSnapshot["rows"][number]["status"] = "partial"): ComplianceReportSnapshot {
+  const text = "4.1.1 The processor shall assist with requests.";
+  return {
+    version: 1, instruction: "Check compliance", scope: "The supplied DPA and requested processor obligations",
+    documents: [{ documentId: "doc-1", title: "DPA", contentHash: createHash("sha256").update(text).digest("hex") }],
+    rows: [{
+      rowId: "row-1", requirementId: "req-assistance", canonicalKey: "requirement.assistance", lockedAssessmentId: "lock-1",
+      title: "Assistance with requests", legalCitation: "GDPR Article 28", status, statusLabel: "Partial",
+      recommendedAction: "Clarify the scope of the assistance obligation.", supportedElementIds: [], missingElementIds: [],
+      evidence: [{ spanId: "span-1", citationId: "E1", documentId: "doc-1", documentTitle: "DPA", pointer: "Section 4.1.1",
+        quote: "The processor shall assist with requests.", structuralPath: "source-clause", charRange: [6, text.length] }],
+      whatTheDocumentProvides: "The processor commits to assist with requests.",
+      whatIsMissingOrUnclear: "The scope of assistance is not fully defined.",
+      whyItMatters: "The extent of the assistance obligation remains unclear.",
+      conclusion: "Assistance is addressed but its scope is not fully defined.", documentHash: "source-hash", ruleVersion: "v1",
+    }], outstandingChecks: [], limitations: [],
+  };
+}
+function state(snapshot: ComplianceReportSnapshot | undefined = fixture()): AnalysisState {
+  return {
+    request: { sessionId: `report-test-${Math.random()}`, instruction: "Check compliance", documentIds: ["doc-1"],
+      documentTexts: { "doc-1": "4.1.1 The processor shall assist with requests." } },
+    intent: { operation: "compliance_check", standard: "none", scope: "whole_document", outputForm: "memo", compound: false,
+      subIntents: [], requirements: [], confidence: { scope: 1, operation: 1, standard: 1, outputForm: 1 } },
+    workspace: { sessionId: "report-test", documents: [{ docId: "doc-1", title: "DPA", role: "target",
+      fullText: "4.1.1 The processor shall assist with requests.",
+      segments: [{ locator: { docId: "doc-1", structuralPath: "clause-4.1.1", charRange: [0, 47] },
+        text: "4.1.1 The processor shall assist with requests.", kind: "clause" }], clauses: [] }] },
+    findings: [], metadata: {}, activeSkills: [], complianceReportSnapshot: snapshot,
+    plan: { workUnits: [{ workUnitId: "wu-render", tool: "render_output", input: {}, dependsOn: [], outputSchema: "string", status: "done" }] },
+  } as unknown as AnalysisState;
+}
+function completion(snapshot: ComplianceReportSnapshot, calls: string[], override?: ComplianceCompletion): ComplianceCompletion {
+  let plan = defaultCompliancePresentationPlan(snapshot, "layered");
+  return async (stage, payload) => {
+    calls.push(stage);
+    if (override) {
+      const replacement = await override(stage, payload);
+      if (replacement !== undefined) return replacement;
+    }
+    if (stage === "compose") {
+      plan = (payload as { defaultPlan: CompliancePresentationPlan }).defaultPlan;
+      return { plan, draft: deterministicComplianceDraft(snapshot, plan) };
+    }
+    if (stage === "check") return { passed: true, failures: [] };
+    return deterministicComplianceDraft(snapshot, plan);
+  };
+}
+
+describe("bounded compliance report generation", () => {
+  it("plans and writes in one call, then checks once without exposing raw documents or draft tokens", async () => {
+    const snapshot = fixture(); const input = state(snapshot); const calls: string[] = []; const tokens: string[] = [];
+    input.onToken = delta => tokens.push(delta);
+    const before = structuredClone(snapshot);
+    const result = await renderComplianceReport(input, completion(snapshot, calls, async (_stage, payload) => {
+      const json = JSON.stringify(payload);
+      assert.doesNotMatch(json, /documentTexts|fullText|unverifiedFindings/);
+      return undefined;
+    }));
+    assert.deepEqual(calls, ["compose", "check"]);
+    assert.deepEqual(tokens, []);
+    assert.equal(result.complianceReportValidation?.source, "validated_writer");
+    assert.equal(result.compliancePresentationPlan?.version, 2);
+    assert.deepEqual(result.compliancePresentationPlan?.sections.map(section => section.id), ["S1", "S2", "S3", "S4", "S5"]);
+    assert.deepEqual(result.complianceReportValidation?.coverage?.map(item => item.itemId), ["request:primary"]);
+    assert.equal(result.complianceReportValidation?.generation?.modelCalls, 2);
+    assert.equal(result.complianceReportValidation?.generation?.schemaVersion, "1.0");
+    assert.equal(result.complianceReportValidation?.generation?.uniqueEvidenceCount, 1);
+    assert.match(result.complianceReportValidation?.guidanceVersions?.shared ?? "", /^reporting\.shared-core@/);
+    assert.match(result.complianceReportValidation?.guidanceVersions?.compliance ?? "", /^reporting\.compliance@/);
+    assert.ok(hasValidatedComplianceReport(result));
+    assert.deepEqual(snapshot, before);
+    assert.match(result.renderedOutput!, /4(?:\.|&#46;)1(?:\.|&#46;)1/);
+  });
+  it("uses the default outline after one invalid planner response", async () => {
+    const snapshot = fixture(); const calls: string[] = [];
+    const result = await renderComplianceReport(state(snapshot), completion(snapshot, calls, async (stage, payload) =>
+      stage === "compose" ? {
+        plan: { sections: [{ findingIds: ["invented"] }] },
+        draft: deterministicComplianceDraft(snapshot, (payload as { defaultPlan: CompliancePresentationPlan }).defaultPlan),
+      } : undefined));
+    assert.equal(calls.filter(c => c === "compose").length, 1);
+    assert.equal(result.complianceReportValidation?.plannerFallback, true);
+    assert.equal(result.complianceReportValidation?.source, "validated_writer");
+  });
+  it("repairs one semantic failure and rechecks without calling analysis", async () => {
+    const snapshot = fixture(); const calls: string[] = []; let checks = 0;
+    const result = await renderComplianceReport(state(snapshot), completion(snapshot, calls, async stage =>
+      stage === "check" && checks++ === 0 ? { passed: false, failures: ["answer: unsupported conclusion"] } : undefined));
+    assert.deepEqual(calls, ["compose", "check", "repair", "check"]);
+    assert.equal(result.complianceReportValidation?.repairAttempts, 1);
+    assert.equal(result.complianceReportValidation?.source, "validated_writer");
+  });
+  it("falls back after the single repair fails and never leaks rejected prose", async () => {
+    const snapshot = fixture(); const calls: string[] = [];
+    const result = await renderComplianceReport(state(snapshot), completion(snapshot, calls, async (stage, payload) => {
+      const bad = { answer: "FABRICATED SECRET CONCLUSION", rows: [] };
+      return stage === "compose"
+        ? { plan: (payload as { defaultPlan: CompliancePresentationPlan }).defaultPlan, draft: bad }
+        : stage === "repair" ? bad : undefined;
+    }));
+    assert.deepEqual(calls, ["compose", "repair"]);
+    assert.equal(result.complianceReportValidation?.source, "deterministic");
+    assert.doesNotMatch(result.renderedOutput!, /FABRICATED/);
+    assert.ok(hasValidatedComplianceReport(result));
+  });
+  it("never accepts a malformed or unavailable semantic check", async () => {
+    const snapshot = fixture(); const calls: string[] = [];
+    const result = await renderComplianceReport(state(snapshot), completion(snapshot, calls, async stage =>
+      stage === "check" ? { passed: true } : undefined));
+    assert.equal(result.complianceReportValidation?.source, "deterministic");
+    assert.equal(calls.filter(c => c === "check").length, 2);
+  });
+  it("handles all provider failures with a deterministic report", async () => {
+    const calls: string[] = [];
+    const result = await renderComplianceReport(state(), async stage => { calls.push(stage); throw new Error("offline"); });
+    assert.deepEqual(calls, ["compose"]);
+    assert.equal(result.complianceReportValidation?.source, "deterministic");
+    assert.equal(result.complianceReportValidation?.generation?.fallbackReason, "composition_failed");
+    assert.doesNotMatch(result.renderedOutput!, /Report status|polished composition|deterministic verified-finding/);
+    assert.ok(result.renderedOutput);
+  });
+  it("makes no LLM calls for an empty accepted set and accounts for missing checks", async () => {
+    const snapshot = fixture(); snapshot.rows = [];
+    snapshot.outstandingChecks = [{ requirementId: "req-missing", title: "Assistance", kind: "rejected", reason: "Verification did not complete." }];
+    const result = await renderComplianceReport(state(snapshot), async () => { assert.fail("No LLM call expected"); });
+    assert.match(result.renderedOutput!, /No completed requirement assessments/);
+    assert.match(result.renderedOutput!, /Assistance/);
+    assert.equal(runComplianceReportGate(result).critique?.release?.verdict, "release_with_limitations");
+  });
+  it("does not reconstruct old findings without a saved canonical snapshot", async () => {
+    const input = state(); input.complianceReportSnapshot = undefined;
+    const result = await renderComplianceReport(input, async () => { assert.fail("No LLM call expected"); });
+    assert.equal(result.complianceReportValidation?.source, "snapshot_unavailable");
+    assert.match(result.renderedOutput!, /fresh compliance check/);
+  });
+  it("deduplicates repeated evidence in the composition context without dropping row links", () => {
+    const snapshot = fixture();
+    snapshot.rows[0].evidence.push({ ...snapshot.rows[0].evidence[0], citationId: "E2", use: "related" });
+    const input = complianceReportingInput(snapshot);
+    assert.equal(input.evidenceRegistry.length, 1);
+    assert.deepEqual(input.rows[0].evidenceRefs.map(reference => reference.sourceId), ["S1", "S1"]);
+  });
+  it("supports a reversible deterministic rollout switch", async () => {
+    const previous = process.env.COMPLIANCE_REPORTING_ADAPTIVE;
+    process.env.COMPLIANCE_REPORTING_ADAPTIVE = "0";
+    try {
+      const result = await renderComplianceReport(state(), async () => { assert.fail("No LLM call expected"); });
+      assert.equal(result.complianceReportValidation?.generation?.fallbackReason, "adaptive_disabled");
+      assert.equal(result.complianceReportValidation?.generation?.modelCalls, 0);
+      assert.doesNotMatch(result.renderedOutput!, /Report status|Adaptive composition/);
+    } finally {
+      if (previous === undefined) delete process.env.COMPLIANCE_REPORTING_ADAPTIVE;
+      else process.env.COMPLIANCE_REPORTING_ADAPTIVE = previous;
+    }
+  });
+  it("does not silently slice a context that exceeds the configured composition limit", async () => {
+    const previous = process.env.ANALYSIS_REPORTING_MAX_INPUT_CHARS;
+    process.env.ANALYSIS_REPORTING_MAX_INPUT_CHARS = "1";
+    try {
+      const result = await renderComplianceReport(state(), async () => { assert.fail("No LLM call expected"); });
+      assert.equal(result.complianceReportValidation?.generation?.fallbackReason, "context_limit");
+      assert.doesNotMatch(result.renderedOutput!, /Report status|deterministic verified-finding/);
+    } finally {
+      if (previous === undefined) delete process.env.ANALYSIS_REPORTING_MAX_INPUT_CHARS;
+      else process.env.ANALYSIS_REPORTING_MAX_INPUT_CHARS = previous;
+    }
+  });
+  it("still gives reporting its own dedicated window even after the overall run budget is exhausted", async () => {
+    const input = state();
+    input.metadata.timestamp = new Date(Date.now() - 121_000).toISOString();
+    const result = await renderComplianceReport(input, async () => ({ plan: undefined, draft: undefined }));
+    assert.notEqual(result.complianceReportValidation?.generation?.fallbackReason, "deadline");
+    assert.ok((result.complianceReportValidation?.generation?.deadlineMs ?? 0) >= 55_000);
+  });
+  it("reserves enough analysis tokens for both composition and semantic validation", async () => {
+    const input = state();
+    input.agent = initAgentRunState("CREATE", { tokenBudget: 100, tokensUsed: 50 });
+    const result = await renderComplianceReport(input, async () => { assert.fail("No LLM call expected"); });
+    assert.equal(result.complianceReportValidation?.generation?.fallbackReason, "token_budget");
+    assert.equal(result.complianceReportValidation?.generation?.modelCalls, 0);
+    assert.doesNotMatch(result.renderedOutput!, /token budget was insufficient|Report status/);
+  });
+});
+
+describe("compliance execution and publication boundary", () => {
+  it("retains canonical provenance across repeated Q&A follow-ups, not new analysis", () => {
+    const input = state();
+    input.intent!.operation = "explain_qa";
+    input.priorAnalysis = { intent: input.intent, complianceReportSnapshot: fixture() } as AnalysisState["priorAnalysis"];
+    input.plan!.workUnits[0].input.followUpKind = "conversational_qa";
+    assert.equal(usesCanonicalComplianceReport(input), true);
+    delete input.plan!.workUnits[0].input.followUpKind;
+    assert.equal(usesCanonicalComplianceReport(input), false);
+  });
+  it("executes only the canonical compliance unit and renderer", async () => {
+    const input = state();
+    input.complianceReportSnapshot = undefined;
+    input.plan!.workUnits = [
+      { workUnitId: "wu-compliance", tool: "run_compliance_pipeline", input: {}, dependsOn: [],
+        outputSchema: "ComplianceReportSnapshot", status: "pending" },
+      { workUnitId: "wu-render", tool: "render_output", input: {}, dependsOn: ["wu-compliance"],
+        outputSchema: "string", status: "pending" },
+    ];
+    const result = await executeActPlan(input);
+    assert.deepEqual(result.plan!.workUnits.map(unit => [unit.tool, unit.status]), [
+      ["run_compliance_pipeline", "done"], ["render_output", "done"],
+    ]);
+    assert.deepEqual(result.complianceReportSnapshot?.rows, []);
+    assert.match(result.renderedOutput!, /No completed requirement assessments/);
+  });
+  it("takes the render-only path for an old presentation follow-up without starting verification", async () => {
+    const input = state(); input.complianceReportSnapshot = undefined;
+    input.plan!.workUnits[0].status = "pending";
+    input.plan!.workUnits[0].input.followUpKind = "presentation_change";
+    const result = await executeActPlan(input);
+    assert.equal(result.complianceReportSnapshot, undefined);
+    assert.equal(result.complianceReportValidation?.source, "snapshot_unavailable");
+    assert.equal(result.plan!.workUnits[0].status, "done");
+  });
+  it("does not append general audit prose, and withholds a changed report", async () => {
+    const snapshot = fixture();
+    const result = await renderComplianceReport(state(snapshot), completion(snapshot, []));
+    const audited = await runAudit(result);
+    assert.equal(audited.renderedOutput, result.renderedOutput);
+    const modified = runComplianceReportGate({ ...audited, renderedOutput: `${audited.renderedOutput}\nUnsupported claim.` });
+    assert.equal(modified.critique?.release?.verdict, "withhold");
+    assert.doesNotMatch(modified.renderedOutput!, /Unsupported claim/);
+  });
+  it("publishes exactly the validated final report once during persistence", async () => {
+    const snapshot = fixture(); const input = state(snapshot); const emitted: string[] = [];
+    input.agent = { ...initAgentRunState("CREATE"), phase: "ACT" };
+    input.onToken = delta => emitted.push(delta);
+    const result = runComplianceReportGate(await renderComplianceReport(input, completion(snapshot, [])));
+    assert.deepEqual(emitted, []);
+    result.agent!.phase = "DONE";
+    const saved = await persistAnalysis(result);
+    assert.deepEqual(emitted, [result.renderedOutput]);
+    await persistAnalysis(saved);
+    assert.equal(emitted.length, 1);
+  });
+});

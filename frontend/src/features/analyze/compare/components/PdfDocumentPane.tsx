@@ -1,0 +1,1023 @@
+/**
+ * PdfDocumentPane
+ *
+ * Renders a PDF File as scrollable pages with highlight overlays for
+ * changed clauses.  Pages are rendered lazily via IntersectionObserver —
+ * only visible pages (plus a 1-page buffer) are drawn to canvas.
+ *
+ * Architecture:
+ *   PdfDocumentPane loads the PDF document ONCE using pdfjs-dist and caches
+ *   the PDFDocumentProxy.  Individual PageRenderer components receive a
+ *   pre-loaded PDFPageProxy — they never call getDocument() themselves.
+ *
+ *   This avoids the "Invalid PDF structure" error caused by:
+ *     1. Multiple getDocument() calls transferring/neutering the same ArrayBuffer
+ *     2. Race conditions between concurrent document load attempts
+ */
+
+import {
+  useEffect, useRef, useCallback, useState, useMemo,
+} from "react";
+import { FileText, Loader2, AlertCircle, FileX, ZoomIn, ZoomOut } from "lucide-react";
+import type { PDFDocumentProxy, PDFPageProxy } from "pdfjs-dist";
+import type { CompareClauseRecord } from "../../../loraAI/types";
+import type { PdfPageMap, PdfTextItem } from "../hooks/usePdfPageMap";
+import { resolveClausePage, resolveClauseTextItems } from "../hooks/usePdfPageMap";
+import { CHANGE_TYPE_STYLE, SELECTED_FINDING_OUTLINE } from "../constants";
+import { normalizeToken } from "../utils/diffHighlight";
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+/**
+ * PDF_SCALE is no longer a fixed constant — scale is computed dynamically from
+ * the scroll-container width so pages always fit without horizontal clipping.
+ * This value is kept only as a maximum cap (prevents over-zooming on very wide
+ * screens where a larger render would waste memory with no visible benefit).
+ */
+const PDF_SCALE_MAX = 2.0;
+const PDF_SCALE_FALLBACK = 1.2; // used before the container has been measured
+const PDF_HORIZONTAL_PADDING = 32; // px — matches px-4 (16px each side) on the scroll div
+const RENDER_BUFFER = 1;
+/** Keep the clause heading a little below the pane top after a jump. */
+const CLAUSE_SCROLL_PAD = 20;
+
+// User-driven zoom multiplier applied on top of the auto-fit scale.
+// Range and step for the +/− zoom controls in the pane header.
+const ZOOM_MIN = 0.5;
+const ZOOM_MAX = 3.0;
+const ZOOM_STEP = 0.1;
+
+// ─── pdfjs loader ─────────────────────────────────────────────────────────────
+// Worker imported as a URL from the installed package — API and worker are
+// guaranteed to be the same version (no CDN drift).
+
+import pdfjsWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+
+let pdfjsInstance: typeof import("pdfjs-dist") | null = null;
+
+async function getPdfJs() {
+  if (pdfjsInstance) return pdfjsInstance;
+  const pdfjs = await import("pdfjs-dist");
+  if (!pdfjs.GlobalWorkerOptions.workerSrc) {
+    pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
+  }
+  pdfjsInstance = pdfjs;
+  return pdfjs;
+}
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export interface PdfDocumentPaneProps {
+  file: File | null | undefined;
+  label: "Original" | "Modified";
+  filename: string;
+  side: "A" | "B";
+  activeClause: CompareClauseRecord | null;
+  /** Change classification for the selected finding (drives active highlight color). */
+  activeClassification?: string | null;
+  /**
+   * Normalised word tokens that fall inside the active finding's diff spans
+   * for THIS side (removed words for Original, added words for Modified).
+   * When present, only these words get the strong highlight — the rest of
+   * the clause gets a light context tint. Null/empty → old whole-clause
+   * highlight (used for ADDED/REMOVED and single-sided MOVED findings).
+   */
+  changedWords?: Set<string> | null;
+  /**
+   * Backend atomic-change snippets for THIS side (originalSnippet on A,
+   * modifiedSnippet on B). Used only when changedWords cannot be mapped onto
+   * pdf.js text items — never replaces the diff engine, never used if empty.
+   */
+  atomicSnippets?: string[] | null;
+  allChangedClauseIds: Set<string>;
+  /** clauseId → change classification, used so highlights encode change type not document side. */
+  clauseClassifications?: Map<string, string>;
+  allClauses: CompareClauseRecord[];
+  pdfMap: PdfPageMap | null;
+  mapStatus: "idle" | "loading" | "ready" | "error";
+  mapError: string | null;
+}
+
+/**
+ * Label pill: neutral — Original / Modified identity is communicated through
+ * the text label only.  No red/green background tinting on the pane.
+ */
+const NEUTRAL_PANE_LABEL =
+  "bg-[#F3F4F6] text-[#6B7280] border border-[#E5E7EB]";
+
+function changeTypeFill(classification: string | null | undefined, active: boolean): string {
+  const style = CHANGE_TYPE_STYLE[classification ?? ""] ?? CHANGE_TYPE_STYLE.NEUTRAL_REPHRASE;
+  return active ? style.fill : style.passive;
+}
+
+// ─── Highlight helpers ────────────────────────────────────────────────────────
+
+interface HighlightBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  fill: string;
+  outline?: string;
+}
+
+function computeHighlightBoxes(items: PdfTextItem[], scale: number): HighlightBox[] {
+  if (!items.length) return [];
+  const lines = new Map<number, PdfTextItem[]>();
+  for (const item of items) {
+    const lineY = Math.round(item.y / 4) * 4;
+    const arr = lines.get(lineY) ?? [];
+    arr.push(item);
+    lines.set(lineY, arr);
+  }
+  return Array.from(lines.values()).map((lineItems) => {
+    const sorted = [...lineItems].sort((a, b) => a.x - b.x);
+    const x = sorted[0].x * scale;
+    const y = sorted[0].y * scale;
+    const right = (sorted[sorted.length - 1].x + sorted[sorted.length - 1].width) * scale;
+    const height = Math.max(...sorted.map((i) => i.height)) * scale + 4;
+    return { x, y, width: right - x, height, fill: "transparent" };
+  });
+}
+
+/**
+ * Word-level variant of computeHighlightBoxes for the ACTIVE (selected)
+ * clause only — navigation/page-resolution is untouched (still driven by
+ * resolveClauseTextItems), this only changes how the resolved items are
+ * painted. Each item gets its own box so a word actually inside a diff span
+ * (changedWords) can be painted with the strong "changed" fill while the
+ * rest of the clause gets the much lighter "context" fill — instead of one
+ * uniform strong-colored block across the whole clause.
+ *
+ * Falls back to the previous line-merged, uniformly-colored behaviour when
+ * changedWords is empty (ADDED/REMOVED and any case where word-level
+ * evidence isn't available) so those finding types are unaffected — AND when
+ * changedWords is non-empty but matches NONE of the resolved items. The diff
+ * engine's changed-word set is built from the backend's plain clause text,
+ * while `items` come from pdf.js's own tokenisation of the rendered PDF
+ * (which frequently splits/joins words differently — hyphenation, ligatures,
+ * multi-word runs). Exact-token equality between the two can legitimately
+ * match zero items even though real changed words exist. Silently rendering
+ * only "context" tint with no strong emphasis at all is indistinguishable
+ * from no highlight — so when word-level resolution finds nothing, try the
+ * backend atomic snippets (originalSnippet / modifiedSnippet) against the
+ * same pdf.js items, and only then fall back to the whole-clause highlight.
+ *
+ * @param wordOutline   CSS outline applied to each *changed* word box.
+ *                      Must be derived from the change-type stroke color so
+ *                      REMOVED → red outline, ADDED → blue (ADDED hue), etc.
+ *                      Never use SELECTED_FINDING_OUTLINE here.
+ * @param clauseOutline CSS outline applied to the whole-clause merged boxes
+ *                      in the word-level fallback path (ADDED/REMOVED single-
+ *                      sided, or when changedWords is empty).  This IS the
+ *                      blue selection ring — it frames the entire clause block
+ *                      rather than individual words, so the context is clear.
+ */
+/**
+ * Find pdf.js items whose concatenated text contains a known atomic snippet
+ * (e.g. "48 hours"). Reuses the already-resolved clause items — no new index.
+ *
+ * Handles the two common DOCX→PDF tokenisations:
+ *   - snippet split across items: ["48", "hours"]
+ *   - snippet glued inside one item: "48hours" / "within 48 hours of"
+ */
+function findSnippetItems(items: PdfTextItem[], snippet: string): PdfTextItem[] {
+  const needle = snippet.toLowerCase().replace(/\s+/g, " ").trim();
+  if (needle.length < 2) return [];
+
+  const ordered = [...items].sort(
+    (a, b) => a.pageNumber - b.pageNumber || a.y - b.y || a.x - b.x
+  );
+
+  let joined = "";
+  const spans: { start: number; end: number; item: PdfTextItem }[] = [];
+  for (const item of ordered) {
+    const piece = item.str.toLowerCase().replace(/\s+/g, " ").trim();
+    if (!piece) continue;
+    if (joined.length) joined += " ";
+    const start = joined.length;
+    joined += piece;
+    spans.push({ start, end: joined.length, item });
+  }
+
+  const idx = joined.indexOf(needle);
+  if (idx !== -1) {
+    const end = idx + needle.length;
+    return spans.filter((s) => s.start < end && s.end > idx).map((s) => s.item);
+  }
+
+  // Compact path: pdf.js dropped the space ("48hours" vs "48 hours").
+  const compactNeedle = needle.replace(/ /g, "");
+  if (compactNeedle.length < 2) return [];
+  return ordered.filter((item) => {
+    const compact = item.str.toLowerCase().replace(/\s+/g, "");
+    return compact.length >= 2 && compact.includes(compactNeedle);
+  });
+}
+
+function paintWordBoxes(
+  items: PdfTextItem[],
+  scale: number,
+  isChanged: (item: PdfTextItem) => boolean,
+  strongFill: string,
+  contextFill: string,
+  wordOutline: string,
+): { boxes: HighlightBox[]; matchedAny: boolean } {
+  let matchedAny = false;
+  const boxes = items.map((item) => {
+    const changed = isChanged(item);
+    if (changed) matchedAny = true;
+    return {
+      x: item.x * scale,
+      y: item.y * scale,
+      width: item.width * scale,
+      height: item.height * scale + 2,
+      fill: changed ? strongFill : contextFill,
+      outline: changed ? wordOutline : undefined,
+    };
+  });
+  return { boxes, matchedAny };
+}
+
+function computeWordHighlightBoxes(
+  items: PdfTextItem[],
+  scale: number,
+  changedWords: Set<string> | null,
+  strongFill: string,
+  contextFill: string,
+  wordOutline: string,
+  clauseOutline: string,
+  atomicSnippets: string[] | null = null,
+): HighlightBox[] {
+  if (!items.length) return [];
+
+  const wholeClauseFallback = (): HighlightBox[] =>
+    // Apply the blue clause-level ring here: it frames the whole block and
+    // does NOT fight with a per-word change-type fill.
+    computeHighlightBoxes(items, scale).map((box) => ({
+      ...box,
+      fill: strongFill,
+      outline: clauseOutline,
+    }));
+
+  // pdfjs sometimes returns a whole visual line as a single item (headings,
+  // full-line body text) — its `str` then contains multiple words joined by
+  // spaces. A single-token lookup against `changedWords` misses those items
+  // because the joined string is not a member of the per-word set. Split each
+  // item's string into whitespace-separated sub-tokens and mark the item as
+  // "changed" when ANY of those sub-tokens is in the diff set, so multi-word
+  // items receive the strong fill instead of the near-invisible context tint.
+  const itemHasChangedWord = (str: string): boolean => {
+    if (!changedWords || changedWords.size === 0) return false;
+    // Fast path: single-token item.
+    const asToken = normalizeToken(str);
+    if (asToken && changedWords.has(asToken)) return true;
+    if (!/\s/.test(str)) return false;
+    // Multi-word path: any sub-token in the changed set is enough.
+    for (const raw of str.split(/\s+/)) {
+      const norm = normalizeToken(raw);
+      if (norm && changedWords.has(norm)) return true;
+    }
+    return false;
+  };
+
+  // 1. Existing precise word/token mapping from the frontend diff engine.
+  if (changedWords && changedWords.size > 0) {
+    const { boxes, matchedAny } = paintWordBoxes(
+      items,
+      scale,
+      (item) => itemHasChangedWord(item.str),
+      strongFill,
+      contextFill,
+      wordOutline,
+    );
+    if (matchedAny) return boxes;
+  }
+
+  // 2. Known atomic snippets from the backend (e.g. "48 hours" / "72 hours")
+  //    when diffWords tokens could not be mapped onto pdf.js items.
+  if (atomicSnippets && atomicSnippets.length > 0) {
+    const snippetItems = new Set<PdfTextItem>();
+    for (const snippet of atomicSnippets) {
+      for (const item of findSnippetItems(items, snippet)) snippetItems.add(item);
+    }
+    if (snippetItems.size > 0) {
+      const { boxes, matchedAny } = paintWordBoxes(
+        items,
+        scale,
+        (item) => snippetItems.has(item),
+        strongFill,
+        contextFill,
+        wordOutline,
+      );
+      if (matchedAny) return boxes;
+    }
+  }
+
+  // 3. Existing whole-clause fallback — unchanged.
+  return wholeClauseFallback();
+}
+
+// ─── Single page renderer ─────────────────────────────────────────────────────
+// Receives an already-loaded PDFPageProxy — never calls getDocument() itself.
+
+interface PageRendererProps {
+  pdfPage: PDFPageProxy;
+  pageNumber: number;
+  scale: number;
+  isVisible: boolean;
+  highlights: HighlightBox[];
+  passiveHighlights: HighlightBox[];
+}
+
+/**
+ * Scroll the pane so `pageEl` + in-page Y sits near the top.
+ * Uses the scroller's scrollTop (not Element.scrollIntoView): lazy pages
+ * used to have ~0 height, so scrollIntoView aimed at a collapsed page and
+ * the smooth animation stopped on the wrong clause.
+ */
+function scrollPaneToClause(
+  scroller: HTMLDivElement | null,
+  pageEl: HTMLDivElement | null,
+  yOnPage: number
+): boolean {
+  if (!scroller || !pageEl) return false;
+  const nextTop =
+    pageEl.getBoundingClientRect().top -
+    scroller.getBoundingClientRect().top +
+    scroller.scrollTop +
+    yOnPage -
+    CLAUSE_SCROLL_PAD;
+  scroller.scrollTo({ top: Math.max(0, nextTop), behavior: "auto" });
+  return true;
+}
+
+function clauseYOnPage(items: PdfTextItem[], pageNum: number, scale: number): number {
+  let minY = Infinity;
+  for (const it of items) {
+    if (it.pageNumber !== pageNum) continue;
+    if (it.y < minY) minY = it.y;
+  }
+  return Number.isFinite(minY) ? minY * scale : 0;
+}
+
+function PageRenderer({
+  pdfPage,
+  pageNumber,
+  scale,
+  isVisible,
+  highlights,
+  passiveHighlights,
+}: PageRendererProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const renderTaskRef = useRef<any>(null);
+  const [rendered, setRendered] = useState(false);
+
+  const viewport = useMemo(() => pdfPage.getViewport({ scale }), [pdfPage, scale]);
+
+  // Re-render whenever the viewport (scale) changes. Setting canvas.width /
+  // canvas.height wipes the bitmap, so a scale-only update without a re-paint
+  // leaves an empty canvas — that was the "content vanishes on zoom" bug.
+  // We deliberately do NOT gate on `rendered` here: the first render sets it
+  // true, and any subsequent scale change must repaint on top of the now-
+  // resized canvas. `rendered` is kept only to drive the placeholder overlay
+  // during the very first paint.
+  //
+  // Hi-DPI: the canvas BITMAP is sized at viewport × devicePixelRatio, while
+  // its CSS size stays at viewport (set via `style.width/height` below). Skip
+  // this and text softens on retina / 2x-scaled Windows displays because 1
+  // bitmap pixel gets stretched over 2 device pixels.
+  useEffect(() => {
+    if (!isVisible) return;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const outputScale =
+          typeof window !== "undefined" && window.devicePixelRatio
+            ? window.devicePixelRatio
+            : 1;
+        canvas.width = Math.floor(viewport.width * outputScale);
+        canvas.height = Math.floor(viewport.height * outputScale);
+        canvas.style.width = `${Math.floor(viewport.width)}px`;
+        canvas.style.height = `${Math.floor(viewport.height)}px`;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        if (renderTaskRef.current) renderTaskRef.current.cancel();
+        const transform =
+          outputScale !== 1
+            ? ([outputScale, 0, 0, outputScale, 0, 0] as [
+                number, number, number, number, number, number,
+              ])
+            : null;
+        renderTaskRef.current = pdfPage.render({
+          canvasContext: ctx,
+          viewport,
+          transform,
+        } as any);
+        await renderTaskRef.current.promise;
+        if (!cancelled) setRendered(true);
+      } catch (err: any) {
+        if (err?.name !== "RenderingCancelledException" && !cancelled) {
+          console.error(`[PdfDocumentPane] Page ${pageNumber} render error:`, err);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      renderTaskRef.current?.cancel();
+    };
+  }, [isVisible, pdfPage, pageNumber, viewport]);
+
+  // canvas dimensions in physical pixels — set directly on the element so
+  // pdfjs renders at the correct resolution. The CSS size of the surrounding
+  // container is ALSO set to viewport.width so the visible page size actually
+  // changes with zoom (the previous `width:100%` container made zoom only
+  // affect render resolution / sharpness, not the displayed page size).
+  const canvasW = Math.round(viewport.width);
+  const canvasH = Math.round(viewport.height);
+
+  return (
+    <div
+      className="relative mx-auto mb-3 overflow-hidden rounded-sm shadow-sm"
+      // Container width is the viewport width in CSS pixels, so zoom actually
+      // changes the on-screen page size. At zoom=1 the auto-fit scale already
+      // makes viewport.width == pane inner width, so no horizontal scroll.
+      // At zoom>1 the page overflows the pane and the parent scroller (which
+      // is now `overflow-auto`) exposes a horizontal scrollbar. At zoom<1 the
+      // page is narrower than the pane and stays centered by `mx-auto`.
+      style={{ width: canvasW, height: canvasH }}
+    >
+      {/* Placeholder while rendering. Parent height is always canvasH so
+          off-screen pages still occupy a full page in the scroller. */}
+      {!rendered && isVisible && (
+        <div className="absolute inset-0 flex items-center justify-center bg-[#F3F4F6]">
+          <Loader2 className="h-5 w-5 animate-spin text-[#9CA3AF]" />
+        </div>
+      )}
+
+      {/*
+       * The canvas bitmap size and CSS size are BOTH set by the render effect
+       * (bitmap = viewport × devicePixelRatio, CSS = viewport) so the page
+       * renders crisply on Hi-DPI displays. React should NOT set width/height
+       * attributes or a competing style.width/height here — that would
+       * overwrite the effect's Hi-DPI sizing on every render and reintroduce
+       * the blurriness. Visibility is toggled via `display` only.
+       */}
+      <canvas
+        ref={canvasRef}
+        className="block"
+        style={{ display: rendered ? "block" : "none" }}
+      />
+
+      {/* Passive highlights — positioned as % of canvas so they scale with CSS width:100% */}
+      {passiveHighlights.map((box, i) => (
+        <div
+          key={`p-${i}`}
+          className="pointer-events-none absolute rounded-[2px]"
+          style={{
+            left: `${(box.x / canvasW) * 100}%`,
+            top: `${(box.y / canvasH) * 100}%`,
+            width: `${(box.width / canvasW) * 100}%`,
+            height: `${(box.height / canvasH) * 100}%`,
+            background: box.fill,
+          }}
+        />
+      ))}
+
+      {/* Active highlights — word-level: only the actually-changed words
+          (see computeWordHighlightBoxes) carry the selection outline, so the
+          eye lands on "annually → quarterly", not the whole clause block. */}
+      {highlights.map((box, i) => (
+        <div
+          key={`a-${i}`}
+          className="pointer-events-none absolute rounded-[2px]"
+          style={{
+            left: `${(box.x / canvasW) * 100}%`,
+            top: `${(box.y / canvasH) * 100}%`,
+            width: `${(box.width / canvasW) * 100}%`,
+            height: `${(box.height / canvasH) * 100}%`,
+            background: box.fill,
+            outline: box.outline,
+          }}
+        />
+      ))}
+
+      {/* Page badge */}
+      <div className="absolute bottom-1.5 right-2 rounded bg-black/30 px-1.5 py-0.5 text-[9px] font-semibold text-white">
+        {pageNumber}
+      </div>
+    </div>
+  );
+}
+
+// ─── Document loader hook ─────────────────────────────────────────────────────
+// Loads the PDF once and caches PDFDocumentProxy + all PDFPageProxy objects.
+
+interface PdfDocState {
+  status: "idle" | "loading" | "ready" | "error";
+  doc: PDFDocumentProxy | null;
+  pages: (PDFPageProxy | null)[];
+  error: string | null;
+}
+
+function usePdfDoc(file: File | null | undefined): PdfDocState {
+  const [state, setState] = useState<PdfDocState>({
+    status: "idle", doc: null, pages: [], error: null,
+  });
+
+  const cacheKey = file
+    ? `${file.name}::${file.size}::${file.lastModified}`
+    : null;
+
+  // Cache loaded documents to avoid re-loading on re-renders
+  const docCache = useRef<Map<string, { doc: PDFDocumentProxy; pages: (PDFPageProxy | null)[] }>>(new Map());
+
+  useEffect(() => {
+    if (!file || !cacheKey) {
+      setState({ status: "idle", doc: null, pages: [], error: null });
+      return;
+    }
+
+    // Return cached result immediately
+    const cached = docCache.current.get(cacheKey);
+    if (cached) {
+      setState({ status: "ready", doc: cached.doc, pages: cached.pages, error: null });
+      return;
+    }
+
+    let cancelled = false;
+    setState({ status: "loading", doc: null, pages: [], error: null });
+
+    (async () => {
+      try {
+        const pdfjs = await getPdfJs();
+        // Read the file once as a Uint8Array.
+        // We use Uint8Array (not ArrayBuffer) because pdfjs-dist takes ownership
+        // of the buffer on first load; subsequent calls to arrayBuffer() on the
+        // same File would return a detached buffer causing "Invalid PDF structure".
+        const ab = await file.arrayBuffer();
+        const data = new Uint8Array(ab);
+        if (cancelled) return;
+
+        const doc = await pdfjs.getDocument({ data }).promise;
+        if (cancelled) return;
+
+        // Pre-load all page proxies (lightweight metadata objects, not rendered)
+        const pages: PDFPageProxy[] = [];
+        for (let i = 1; i <= doc.numPages; i++) {
+          pages.push(await doc.getPage(i));
+          if (cancelled) return;
+        }
+
+        docCache.current.set(cacheKey, { doc, pages });
+        setState({ status: "ready", doc, pages, error: null });
+      } catch (err: any) {
+        if (!cancelled) {
+          console.error("[PdfDocumentPane] Failed to load PDF document:", err);
+          setState({
+            status: "error", doc: null, pages: [],
+            error: err?.message ?? "Failed to load PDF.",
+          });
+        }
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [cacheKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return state;
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
+
+export function PdfDocumentPane({
+  file,
+  label,
+  filename,
+  activeClause,
+  activeClassification = null,
+  changedWords = null,
+  atomicSnippets = null,
+  allChangedClauseIds,
+  clauseClassifications,
+  allClauses,
+  pdfMap,
+}: PdfDocumentPaneProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const pageRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  const [visiblePages, setVisiblePages] = useState<Set<number>>(new Set([1, 2]));
+
+  // User-driven zoom multiplier on top of the auto-fit scale (per-pane, so
+  // each PDF can be zoomed independently — the request was explicit).
+  const [zoom, setZoom] = useState<number>(1);
+  const zoomIn = useCallback(
+    () => setZoom((z) => Math.min(ZOOM_MAX, +(z + ZOOM_STEP).toFixed(2))),
+    []
+  );
+  const zoomOut = useCallback(
+    () => setZoom((z) => Math.max(ZOOM_MIN, +(z - ZOOM_STEP).toFixed(2))),
+    []
+  );
+  const zoomReset = useCallback(() => setZoom(1), []);
+
+  // ── Load PDF document once ───────────────────────────────────────────────
+  const { status: docStatus, pages: pdfPages, error: docError } = usePdfDoc(file);
+
+  // ── Dynamic scale — derived from the scroll container's measured width ───
+  // We observe the scroll container with ResizeObserver. On each resize we
+  // re-compute the scale so that the page fills the available width exactly.
+  // PDF viewport at scale=1 for A4 is 595 px wide; we use the first loaded
+  // page's natural width as the reference so it works for any page size.
+  const [paneWidth, setPaneWidth] = useState<number>(0);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      const w = entries[0]?.contentRect.width ?? el.clientWidth;
+      setPaneWidth(w);
+    });
+    ro.observe(el);
+    // Seed immediately — ResizeObserver fires asynchronously on first attach
+    setPaneWidth(el.clientWidth);
+    return () => ro.disconnect();
+  }, []);
+
+  // Natural (scale=1) page width of the first page — used as the scale reference.
+  const naturalPageWidth = useMemo(() => {
+    if (!pdfPages[0]) return null;
+    return pdfPages[0].getViewport({ scale: 1 }).width;
+  }, [pdfPages]);
+
+  /**
+   * Scale that fits the page exactly inside the pane minus horizontal padding,
+   * multiplied by the user's zoom setting. The auto-fit is capped at
+   * PDF_SCALE_MAX so we never over-zoom on very wide screens; the user can
+   * still push beyond that cap deliberately via the zoom-in button.
+   * Falls back to PDF_SCALE_FALLBACK until the container has been measured.
+   */
+  const pdfScale = useMemo(() => {
+    if (!naturalPageWidth || paneWidth <= 0) return PDF_SCALE_FALLBACK * zoom;
+    const available = paneWidth - PDF_HORIZONTAL_PADDING;
+    const autoFit = Math.min(available / naturalPageWidth, PDF_SCALE_MAX);
+    return autoFit * zoom;
+  }, [naturalPageWidth, paneWidth, zoom]);
+
+  // ── Navigation: scroll to active clause page ─────────────────────────────
+  //
+  // Two-phase approach:
+  //   Phase 1 (activeClause changes): compute the target page, ensure it is
+  //   in visiblePages so the page div is rendered into the DOM, and store the
+  //   target in a ref so Phase 2 knows what to scroll to.
+  //
+  //   Phase 2 (visiblePages changes): once the state update has caused the
+  //   target page div to be mounted (pageRefs now contains it), scroll to it.
+  //
+  // This correctly handles:
+  //   - Lazy pages that haven't been rendered yet (phase 1 forces them in)
+  //   - Two consecutive findings on the same page (activeClause object ref
+  //     changes even when resolveClausePage returns the same number, so the
+  //     effect always fires and re-queues the scroll)
+  //   - Original and Modified panes are independent (each has its own
+  //     scrollRef, pageRefs, visiblePages, and pdfMap)
+
+  const pendingScrollRef = useRef<{ page: number; yOnPage: number } | null>(
+    null
+  );
+
+  const jumpToPending = useCallback(() => {
+    const pending = pendingScrollRef.current;
+    if (!pending) return;
+    const ok = scrollPaneToClause(
+      scrollRef.current,
+      pageRefs.current.get(pending.page) ?? null,
+      pending.yOnPage
+    );
+    if (ok) pendingScrollRef.current = null;
+  }, []);
+
+  // Phase 1: react to every activeClause change (not just activePage number changes)
+  useEffect(() => {
+    if (!activeClause) {
+      pendingScrollRef.current = null;
+      return;
+    }
+
+    // Prefer the page of the already-resolved highlight items so navigation
+    // tracks the clause the viewer actually painted (DOCX converted PDFs
+    // often have no backend pageNumber, and mammoth offsets ≠ pdf.js pageStarts).
+    const items = resolveClauseTextItems(activeClause, pdfMap);
+    let target: number;
+    if (items.length > 0) {
+      const counts = new Map<number, number>();
+      for (const it of items) {
+        counts.set(it.pageNumber, (counts.get(it.pageNumber) ?? 0) + 1);
+      }
+      target = items[0].pageNumber;
+      let bestN = 0;
+      for (const [pg, n] of counts) {
+        if (n > bestN) {
+          target = pg;
+          bestN = n;
+        }
+      }
+    } else {
+      target = resolveClausePage(activeClause, pdfMap);
+    }
+    pendingScrollRef.current = {
+      page: target,
+      yOnPage: clauseYOnPage(items, target, pdfScale),
+    };
+
+    const numPages = pdfPages.length;
+    if (numPages === 0) return; // PDF not loaded yet — re-run when pdfPages.length changes
+
+    // Ensure the target page and its neighbours are in the render set.
+    setVisiblePages((prev) => {
+      const next = new Set(prev);
+      for (let d = -RENDER_BUFFER; d <= RENDER_BUFFER; d++) {
+        const p = target + d;
+        if (p >= 1 && p <= numPages) next.add(p);
+      }
+      return next;
+    });
+
+    // Instant jump after layout. Reserved page heights keep offsetTop stable,
+    // so we land on the clause instead of a collapsed later page.
+    requestAnimationFrame(() => requestAnimationFrame(jumpToPending));
+  // activeClause is an object ref — it changes on every finding selection even
+  // when the resolved page number stays the same (fixes Bug 2).
+  }, [activeClause, pdfMap, pdfPages.length, pdfScale, jumpToPending]);
+
+  // Phase 2: after visiblePages update causes the page canvas to paint, retry.
+  useEffect(() => {
+    if (!pendingScrollRef.current) return;
+    requestAnimationFrame(() => requestAnimationFrame(jumpToPending));
+  }, [visiblePages, pdfPages.length, jumpToPending]);
+
+  // ── IntersectionObserver — lazy rendering ─────────────────────────────────
+  const setPageRef = useCallback(
+    (pageNum: number) => (el: HTMLDivElement | null) => {
+      if (el) pageRefs.current.set(pageNum, el);
+      else pageRefs.current.delete(pageNum);
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (docStatus !== "ready" || pdfPages.length === 0) return;
+    const numPages = pdfPages.length;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        setVisiblePages((prev) => {
+          const next = new Set(prev);
+          for (const entry of entries) {
+            const pageNum = Number((entry.target as HTMLElement).dataset.page);
+            if (!pageNum) continue;
+            if (entry.isIntersecting) {
+              for (let d = -RENDER_BUFFER; d <= RENDER_BUFFER; d++) {
+                const p = pageNum + d;
+                if (p >= 1 && p <= numPages) next.add(p);
+              }
+            }
+          }
+          return next;
+        });
+      },
+      { root: scrollRef.current, rootMargin: "300px 0px", threshold: 0 }
+    );
+    for (const [, el] of pageRefs.current) observer.observe(el);
+    return () => observer.disconnect();
+  }, [docStatus, pdfPages.length]);
+
+  // ── Highlight boxes ───────────────────────────────────────────────────────
+  const activeItems = useMemo(
+    () => resolveClauseTextItems(activeClause, pdfMap),
+    [activeClause, pdfMap]
+  );
+
+  const activeBoxesByPage = useMemo(() => {
+    const byPage = new Map<number, HighlightBox[]>();
+    const grouped = new Map<number, PdfTextItem[]>();
+    for (const item of activeItems) {
+      const arr = grouped.get(item.pageNumber) ?? [];
+      arr.push(item);
+      grouped.set(item.pageNumber, arr);
+    }
+    const strongFill = changeTypeFill(activeClassification, true);
+    const contextFill = changeTypeFill(activeClassification, false);
+
+    // Per-word outline: use the change-type stroke color, NOT the blue
+    // selection ring.  SELECTED_FINDING_OUTLINE (#2175D9) is reserved for the
+    // finding-card inset box-shadow — it must never appear on individual word
+    // boxes, otherwise a REMOVED finding's red fill gets dominated by blue.
+    const style = CHANGE_TYPE_STYLE[activeClassification ?? ""] ?? CHANGE_TYPE_STYLE.NEUTRAL_REPHRASE;
+    const wordOutline = `1.5px solid ${style.stroke}`;
+
+    // Clause-level selection ring (blue) — only applied on the whole-clause
+    // fallback path (ADDED/REMOVED single-side, or when changedWords is empty).
+    // Rendered as a slightly transparent blue outline so it frames the clause
+    // without painting over the change-type fill.
+    const clauseOutline = `2px solid ${SELECTED_FINDING_OUTLINE}`;
+
+    for (const [pg, items] of grouped) {
+      byPage.set(
+        pg,
+        computeWordHighlightBoxes(
+          items,
+          pdfScale,
+          changedWords,
+          strongFill,
+          contextFill,
+          wordOutline,
+          clauseOutline,
+          atomicSnippets,
+        ),
+      );
+    }
+    return byPage;
+  }, [activeItems, pdfScale, activeClassification, changedWords, atomicSnippets]);
+
+  const passiveBoxesByPage = useMemo(() => {
+    const byPage = new Map<number, HighlightBox[]>();
+    if (!pdfMap) return byPage;
+    const activeId = activeClause?.id;
+    for (const clause of allClauses) {
+      if (!allChangedClauseIds.has(clause.id)) continue;
+      if (activeId && clause.id === activeId) continue;
+      const items = resolveClauseTextItems(clause, pdfMap);
+      if (!items.length) continue;
+      const classification = clauseClassifications?.get(clause.id) ?? null;
+      const fill = changeTypeFill(classification, false);
+      const grouped = new Map<number, PdfTextItem[]>();
+      for (const item of items) {
+        const arr = grouped.get(item.pageNumber) ?? [];
+        arr.push(item);
+        grouped.set(item.pageNumber, arr);
+      }
+      for (const [pg, pgItems] of grouped) {
+        const existing = byPage.get(pg) ?? [];
+        existing.push(
+          ...computeHighlightBoxes(pgItems, pdfScale).map((box) => ({ ...box, fill })),
+        );
+        byPage.set(pg, existing);
+      }
+    }
+    return byPage;
+  }, [pdfMap, allClauses, allChangedClauseIds, pdfScale, clauseClassifications, activeClause?.id]);
+
+  const labelCls = NEUTRAL_PANE_LABEL;
+
+  // ── Fallback: no file ─────────────────────────────────────────────────────
+  if (!file) {
+    return (
+      <PaneShell label={label} filename={filename} labelCls={labelCls}>
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 py-16 text-center">
+          <FileX className="h-8 w-8 text-[#D1D5DB]" />
+          <p className="text-[13px] font-medium text-[#6B7280]">PDF not available</p>
+          <p className="max-w-[200px] text-[11px] text-[#9CA3AF]">
+            Original file is only retained for the active session.
+            Switch to Report view for historical comparisons.
+          </p>
+        </div>
+      </PaneShell>
+    );
+  }
+
+  // ── Loading ───────────────────────────────────────────────────────────────
+  if (docStatus === "loading" || docStatus === "idle") {
+    return (
+      <PaneShell label={label} filename={filename} labelCls={labelCls}>
+        <div className="flex flex-1 items-center justify-center gap-2 py-16">
+          <Loader2 className="h-5 w-5 animate-spin text-[#9CA3AF]" />
+          <span className="text-[13px] text-[#9CA3AF]">Loading PDF…</span>
+        </div>
+      </PaneShell>
+    );
+  }
+
+  // ── Error ─────────────────────────────────────────────────────────────────
+  if (docStatus === "error" || pdfPages.length === 0) {
+    return (
+      <PaneShell label={label} filename={filename} labelCls={labelCls}>
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 py-16 text-center">
+          <AlertCircle className="h-6 w-6 text-[#DC2626]" />
+          <p className="text-[13px] font-medium text-[#991B1B]">Could not render PDF</p>
+          <p className="max-w-[220px] text-[11px] text-[#9CA3AF]">
+            {docError ?? "An error occurred while loading this document."}
+          </p>
+        </div>
+      </PaneShell>
+    );
+  }
+
+  // ── Render pages ──────────────────────────────────────────────────────────
+  return (
+    <PaneShell
+      label={label}
+      filename={filename}
+      labelCls={labelCls}
+      zoom={{ value: zoom, onIn: zoomIn, onOut: zoomOut, onReset: zoomReset }}
+    >
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-auto scrollbar-thin bg-[#F3F4F6] px-4 py-4"
+      >
+        {pdfPages.map((pdfPage, idx) => {
+          if (!pdfPage) return null;
+          const pageNum = idx + 1;
+          const isVisible = visiblePages.has(pageNum);
+          return (
+            <div key={pageNum} ref={setPageRef(pageNum)} data-page={pageNum}>
+              <PageRenderer
+                pdfPage={pdfPage}
+                pageNumber={pageNum}
+                scale={pdfScale}
+                isVisible={isVisible}
+                highlights={activeBoxesByPage.get(pageNum) ?? []}
+                passiveHighlights={passiveBoxesByPage.get(pageNum) ?? []}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </PaneShell>
+  );
+}
+
+// ─── Shell wrapper ────────────────────────────────────────────────────────────
+
+interface PaneShellProps {
+  label: string;
+  filename: string;
+  labelCls: string;
+  children: React.ReactNode;
+  /** When present, the pane header renders per-pane zoom controls. */
+  zoom?: {
+    value: number;
+    onIn: () => void;
+    onOut: () => void;
+    onReset: () => void;
+  };
+}
+
+function PaneShell({ label, filename, labelCls, children, zoom }: PaneShellProps) {
+  const short = (n: string, max = 28) => n.length > max ? `${n.slice(0, max - 1)}…` : n;
+  const zoomPct = zoom ? Math.round(zoom.value * 100) : 100;
+  const atMin = zoom ? zoom.value <= ZOOM_MIN + 1e-6 : true;
+  const atMax = zoom ? zoom.value >= ZOOM_MAX - 1e-6 : true;
+  return (
+    <div className="flex min-w-0 flex-1 flex-col overflow-hidden border-r border-[#E4E4E7] last:border-r-0">
+      <div className="flex shrink-0 items-center gap-2 border-b border-[#E4E4E7] bg-white px-4 py-2.5">
+        <FileText className="h-3.5 w-3.5 shrink-0 text-[#9CA3AF]" />
+        <span className="min-w-0 truncate text-[13px] font-semibold text-[#111827]">
+          {short(filename)}
+        </span>
+        {zoom && (
+          <div
+            className="ml-auto flex shrink-0 items-center gap-0.5 rounded-md border border-[#E4E4E7] bg-white"
+            role="group"
+            aria-label={`${label} PDF zoom`}
+          >
+            <button
+              type="button"
+              onClick={zoom.onOut}
+              disabled={atMin}
+              aria-label="Zoom out"
+              className="rounded-l-md p-1 text-[#374151] transition-colors hover:bg-[#F3F4F6] disabled:cursor-not-allowed disabled:text-[#D1D5DB] disabled:hover:bg-white"
+            >
+              <ZoomOut className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={zoom.onReset}
+              aria-label="Reset zoom to fit"
+              className="min-w-[38px] px-1 py-0.5 text-[10.5px] font-semibold tabular-nums text-[#374151] transition-colors hover:bg-[#F3F4F6]"
+            >
+              {zoomPct}%
+            </button>
+            <button
+              type="button"
+              onClick={zoom.onIn}
+              disabled={atMax}
+              aria-label="Zoom in"
+              className="rounded-r-md p-1 text-[#374151] transition-colors hover:bg-[#F3F4F6] disabled:cursor-not-allowed disabled:text-[#D1D5DB] disabled:hover:bg-white"
+            >
+              <ZoomIn className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
+        <span className={`shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${labelCls} ${zoom ? "" : "ml-auto"}`}>
+          {label}
+        </span>
+      </div>
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        {children}
+      </div>
+    </div>
+  );
+}

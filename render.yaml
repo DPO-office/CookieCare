@@ -1,0 +1,40 @@
+services:
+  - type: pserv
+    name: postgres
+    env: postgres
+    postgres:
+      version: 15
+    disk:
+      name: postgres-data
+      mountPath: /var/lib/postgresql/data
+      sizeGB: 1
+  - type: web
+    name: privlex-ai
+    env: node
+    plan: free
+    buildCommand: |
+      npm install
+      curl -fsSL https://raw.githubusercontent.com/docling-project/docling.rs/master/scripts/install/download_dependencies.sh | sh -s -- --no-asr --no-chunk
+      npm run build
+    startCommand: npm run start
+    healthCheckPath: /
+    envVars:
+      - key: DATABASE_URL
+        fromService:
+          type: pserv
+          name: postgres
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: NODE_ENV
+        value: production
+      - key: DOCUMENT_GRAPH_LLM_RELATIONS
+        value: "0"
+      - key: SENTRY_DSN
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: ENCRYPTION_KEY
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false

@@ -1,0 +1,1205 @@
+
+
+import { Request, Response } from "express";
+import { pool } from "../config/database.js";
+import { addJobToQueue } from "../services/jobQueue.js";
+import { withTransaction } from "../utils/dbUtils.js";
+import { buildPdfBuffer, buildDocxBuffer } from "../services/exportService.js";
+import { encrypt, decrypt } from "../utils/crypto.js";
+import { chunkAndIndexDocument } from "../RAG/ragService.js";
+import { getOrCreateDefaultFolder } from "./folders.js";
+import crypto from "crypto";
+import { fileTypeFromBuffer } from "file-type";
+import { buildDocumentGraph, persistDocumentGraph } from "../modules/analysis/capabilities/ingest/document-structure/index.js";
+
+export const getDocuments = async (req: Request, res: Response) => {
+  const userEmail = req.user!.email.toLowerCase();
+  const userId = req.user!.id;
+  const userRole = req.user!.role;
+
+  // Pagination params — default page size 100, max 500.
+  // Callers that still need all documents (e.g. vault folder mapping) can pass
+  // limit=500 explicitly; the UI uses the default page size for display.
+  const limit = Math.min(Math.max(1, Number(req.query.limit) || 100), 500);
+  const offset = Math.max(0, Number(req.query.offset) || 0);
+
+  // Optional type filter — e.g. ?type=upload or ?type=draft
+  // "upload" covers files uploaded via the vault uploader (category=upload).
+  // "draft"  covers AI-generated saved drafts.
+  // When omitted all non-ephemeral types are returned (existing behaviour).
+  const typeFilter = typeof req.query.type === "string" && req.query.type.trim()
+    ? req.query.type.trim()
+    : null;
+
+  // Optional search filter — case-insensitive substring match on title.
+  const searchFilter = typeof req.query.search === "string" && req.query.search.trim()
+    ? `%${req.query.search.trim()}%`
+    : null;
+
+  // Optional dedupe/clean mode — OPT-IN, used by the Negotiate document picker.
+  // When enabled the list is cleaned so the user only sees real, distinct
+  // documents worth negotiating:
+  //   1. Automated-test artifacts (e.g. "Test Doc", "Session Test Doc", "Doc A")
+  //      that harnesses write to the DB are hidden.
+  //   2. Rows with no extractable content are hidden (nothing to negotiate).
+  //   3. Duplicate titles (the same file uploaded many times) collapse to the
+  //      single most-recent row.
+  // The Vault Files tab does NOT pass this flag, so its view is unchanged.
+  const dedupe = req.query.dedupe === "1" || req.query.dedupe === "true";
+
+  try {
+    const { docs, total } = await withTransaction(userId, userRole, async (client) => {
+      const accessClause = `(
+        creator_id = current_setting('app.current_user_id', true)
+        OR shared_with::jsonb @> $1::jsonb
+        OR shared_with::jsonb @> $2::jsonb
+      )`;
+      let baseWhere = `${accessClause} AND type NOT IN ('ephemeral_upload', 'vault_asset_source')`;
+
+      if (dedupe) {
+        // Hide known automated-test artifact titles and empty-content rows.
+        baseWhere += `
+          AND content IS NOT NULL AND length(trim(content)) > 0
+          AND title !~* '^(test doc|session test doc|doc [ab]|sample doc|dummy doc)( |$|[0-9])'`;
+      }
+
+      // Build dynamic extra conditions (type + search).
+      // Params $1/$2 are always the email JSON arrays; extra params start at $3.
+      const extraConditions: string[] = [];
+      const extraParams: any[] = [];
+      let paramIdx = 3;
+
+      if (typeFilter) {
+        extraConditions.push(`type = $${paramIdx++}`);
+        extraParams.push(typeFilter);
+      }
+      if (searchFilter) {
+        extraConditions.push(`LOWER(title) LIKE LOWER($${paramIdx++})`);
+        extraParams.push(searchFilter);
+      }
+
+      const whereClause = extraConditions.length
+        ? `${baseWhere} AND ${extraConditions.join(" AND ")}`
+        : baseWhere;
+
+      const baseQueryParams = [
+        JSON.stringify([userEmail]),
+        JSON.stringify([{ email: userEmail }]),
+        ...extraParams,
+      ];
+
+      // Explicit column list — DELIBERATELY EXCLUDE `original_file` (the raw
+      // uploaded file, frequently multiple MB per row). Returning it for a list
+      // of up to 500 documents produced enormous payloads that timed out the
+      // document picker ("Failed to load documents"). The raw file is served on
+      // demand by the dedicated GET /api/documents/:id/raw endpoint.
+      const columns = `id, title, name, type, content, creator_id, creator_email,
+                is_encrypted, is_template, mime_type, folder_id, created_at, updated_at,
+                versions, signatures, redlines, shared_with, audit_logs, analysis,
+           (SELECT a.status FROM document_structure_artifacts a
+            WHERE a.file_id = files.id
+              AND a.version_id = (SELECT id FROM document_versions v WHERE v.file_id = files.id ORDER BY v.created_at DESC, v.id DESC LIMIT 1)
+            ORDER BY a.updated_at DESC LIMIT 1) AS structure_status`;
+
+      let total: number;
+      let rows: any[];
+
+      if (dedupe) {
+        // Collapse duplicate titles to the single most-recent row. Count of
+        // distinct normalized titles keeps pagination metadata correct.
+        const { rows: countRows } = await client.query(
+          `SELECT COUNT(DISTINCT LOWER(TRIM(title))) AS total FROM files WHERE ${whereClause}`,
+          baseQueryParams
+        );
+        total = Number(countRows[0].total);
+
+        const result = await client.query(
+          `SELECT ${columns} FROM (
+             SELECT *, ROW_NUMBER() OVER (
+               PARTITION BY LOWER(TRIM(title)) ORDER BY created_at DESC, id DESC
+             ) AS _rn
+             FROM files
+             WHERE ${whereClause}
+           ) files
+           WHERE _rn = 1
+           ORDER BY created_at DESC
+           LIMIT $${paramIdx} OFFSET $${paramIdx + 1}`,
+          [...baseQueryParams, limit, offset]
+        );
+        rows = result.rows;
+      } else {
+        // Total count for pagination metadata (no content fetch).
+        const { rows: countRows } = await client.query(
+          `SELECT COUNT(*) AS total FROM files WHERE ${whereClause}`,
+          baseQueryParams
+        );
+        total = Number(countRows[0].total);
+
+        const result = await client.query(
+          `SELECT ${columns}
+           FROM files
+           WHERE ${whereClause}
+           ORDER BY created_at DESC
+           LIMIT $${paramIdx} OFFSET $${paramIdx + 1}`,
+          [...baseQueryParams, limit, offset]
+        );
+        rows = result.rows;
+      }
+      return { docs: rows, total };
+    }).catch(e => {
+      console.error("Failed to fetch documents from DB:", e);
+      throw new Error("DB_FETCH_FAILED");
+    });
+
+    const formattedDocs = docs.map((r: any) => ({
+      ...r,
+      content: r.is_encrypted ? decrypt(r.content) : r.content,
+      isEncrypted: r.is_encrypted,
+      signatures: r.signatures || [],
+      redlines: r.redlines || [],
+      sharedWith: r.shared_with || [],
+      auditLogs: r.audit_logs || [],
+    }));
+
+    // Return paginated envelope so clients know total without a separate query.
+    return res.json({
+      data: formattedDocs,
+      pagination: { total, limit, offset, hasMore: offset + limit < total },
+    });
+  } catch (err: any) {
+    const message = err.message === "DB_FETCH_FAILED" ? "Security enclave database unreachable." : "Internal error fetching document repository.";
+    res.status(500).json({ error: message });
+  }
+};
+
+export const getDocumentById = async (req: Request, res: Response) => {
+  const userId = req.user!.id;
+  const userRole = req.user!.role;
+  const userEmail = req.user!.email.toLowerCase();
+
+  try {
+    const doc = await withTransaction(userId, userRole, async (client) => {
+      // Enforce ownership: only the creator or a shared recipient may fetch the document.
+      // IMPORTANT: select explicit columns and DELIBERATELY EXCLUDE `original_file`.
+      // `original_file` holds the raw uploaded file (base64), frequently multiple
+      // megabytes for PDFs. The document viewer only needs the extracted `content`;
+      // the raw file is served separately by the dedicated download endpoint
+      // (getDocumentFile) and by Compare's own /api/compare/:id/pdf stream. Shipping
+      // it here on every fetch bloated the JSON to multi-MB, causing slow loads and
+      // timeouts ("Failed to load document") for documents with large originals.
+      const { rows } = await client.query(
+        `SELECT id, title, name, type, content, creator_id, creator_email,
+                is_encrypted, is_template, mime_type, folder_id, created_at, updated_at,
+                versions, signatures, redlines, shared_with, audit_logs, analysis,
+           (SELECT a.status FROM document_structure_artifacts a
+            WHERE a.file_id = files.id
+              AND a.version_id = (SELECT id FROM document_versions v WHERE v.file_id = files.id ORDER BY v.created_at DESC, v.id DESC LIMIT 1)
+            ORDER BY a.updated_at DESC LIMIT 1) AS structure_status
+         FROM files
+         WHERE id = $1
+           AND (
+             creator_id = current_setting('app.current_user_id', true)
+             OR shared_with::jsonb @> $2::jsonb
+             OR shared_with::jsonb @> $3::jsonb
+           )`,
+        [req.params.id, JSON.stringify([userEmail]), JSON.stringify([{ email: userEmail }])]
+      );
+      if (rows.length === 0) return null;
+
+      const { rows: versionRows } = await client.query(
+        "SELECT id, content, created_at FROM document_versions WHERE file_id = $1 ORDER BY created_at DESC",
+        [req.params.id]
+      );
+
+      const r = rows[0];
+      return {
+        ...r,
+        content: r.is_encrypted ? decrypt(r.content) : r.content,
+        // Decrypt each version defensively — a single malformed/legacy version
+        // row must never fail the whole document load. On failure the version is
+        // returned with empty content rather than throwing a 500.
+        versions: versionRows.map((v: any) => {
+          let content = "";
+          try { content = decrypt(v.content); } catch { content = ""; }
+          return { id: v.id, content, createdAt: v.created_at };
+        }),
+        signatures: r.signatures || [],
+        redlines: r.redlines || [],
+        sharedWith: r.shared_with || [],
+        auditLogs: r.audit_logs || [],
+      };
+    });
+
+    if (doc) {
+      return res.json(doc);
+    }
+    res.status(404).json({ error: "Document not found." });
+  } catch (err: any) {
+    // Log the real cause so document-load failures are visible in the server logs
+    // (previously this returned a bare 500 with no log line).
+    console.error(`[getDocumentById] failed for id=${req.params.id} user=${userId}:`, err?.message ?? err);
+    res.status(500).json({ error: "Failed to load document." });
+  }
+};
+
+export const createDocument = async (req: Request, res: Response) => {
+  const { title, type, content } = req.body;
+  const userId = req.user!.id;
+  const userRole = req.user!.role;
+  const email = req.user!.email;
+
+  const id = "doc_" + crypto.randomUUID();
+  const encryptedContent = encrypt(content || "");
+
+  try {
+    await withTransaction(userId, userRole, async (client) => {
+      await client.query(
+        `INSERT INTO files (id, title, type, content, creator_id, creator_email, is_encrypted, shared_with, audit_logs)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        [id, title, type, encryptedContent, userId, email, true, JSON.stringify([]), JSON.stringify([])]
+      );
+
+      const versionId = "ver_" + crypto.randomUUID();
+      await client.query(
+        `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
+        [versionId, id, encryptedContent]
+      );
+    });
+
+    // Index the document content for RAG retrieval (fire-and-forget, non-blocking)
+    if (content && content.trim().length > 0) {
+      chunkAndIndexDocument(id, content, userId).catch((err) =>
+        console.warn(`[createDocument] Chunk indexing failed for ${id}:`, err)
+      );
+    }
+
+    res.status(201).json({ id, title, type });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+};  
+
+
+// General file upload and playbook uploading job creation init here
+export const  uploadDocument = async (req: Request, res: Response) => {
+  const file = req.file;
+  if (!file) return res.status(400).json({ error: "No file uploaded. Verify multipart/form-data boundary." });
+
+  const allowedMimeTypes = [
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'text/plain',
+    'text/markdown',
+    'application/msword',
+    'application/octet-stream',
+    'text/csv',
+    'application/json'
+  ];
+
+  if (!allowedMimeTypes.includes(file.mimetype)) {
+    return res.status(400).json({ error: "Unsupported file type. Only PDF, DOCX, TXT, CSV, JSON, and Markdown are permitted for legal indexing." });
+  }
+
+  if (file.size > 25 * 1024 * 1024) { // 25MB limit
+    return res.status(400).json({ error: "File size exceeds 25MB security threshold." });
+  }
+
+  const type = await fileTypeFromBuffer(file.buffer);
+  const detectedMime = type?.mime || file.mimetype;
+
+  // 3. Strict structural enforcement: The actual file signature MUST be a valid legal layout
+  const strictAllowedMimeTypes = [
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'text/plain',
+    'text/markdown',
+    'application/msword',
+    'text/csv',
+    'application/json'
+  ];
+
+  if (!strictAllowedMimeTypes.includes(detectedMime)) {
+    return res.status(400).json({ error: "File signature mismatch. Extension does not match content magic bytes." });
+  }
+
+  const { title, folder_id, contractType, jurisdiction } = req.body;
+  // Vault ingest categories: playbook | templates | clauses | upload (default)
+  const systemFileType = req.body.category?.trim().toLowerCase() || "upload";
+  // ephemeral=true means the file is for on-the-go analysis only — skip vault folder assignment
+  const isEphemeral = req.body.ephemeral === "true" || req.body.ephemeral === true;
+  // for_analysis=true means the upload is explicitly designated for the Analysis module
+  const forAnalysis = req.body.for_analysis === "true" || req.body.forAnalysis === "true" || req.body.for_analysis === true || req.body.forAnalysis === true;
+  const expectedIdentity = typeof req.body.expected_identity === "string" && req.body.expected_identity.trim()
+    ? req.body.expected_identity.trim()
+    : undefined;
+  // Ownership scope — 'private' (current user only) or 'org' (organisation-wide).
+  const rawSource = req.body.source?.trim().toLowerCase();
+  const itemSource: "private" | "org" = rawSource === "org" ? "org" : "private";
+
+  // Templates are document-type-specific and need contractType.
+  // Playbooks are company-wide (no contractType required).
+  // Clauses: contractType is optional (defaults to General).
+  if (
+    (systemFileType === "templates" || systemFileType === "template") &&
+    (!contractType || !String(contractType).trim())
+  ) {
+    return res.status(400).json({
+      error: "Template ingestion requires an explicit 'contractType' parameter.",
+    });
+  }
+
+  const fileId = "doc_" + crypto.randomUUID();
+  const fileTitle = title || file.originalname;
+  const userId = req.user!.id;
+  const userRole = req.user!.role;
+  
+  // If no folder_id is supplied AND not ephemeral, resolve (or create) the "Uploaded Documents" default folder.
+  // Ephemeral files have no folder — they won't appear in the vault browser.
+  let resolvedFolderId: string | null = null;
+  if (!isEphemeral) {
+    try {
+      resolvedFolderId = folder_id && folder_id.trim() ? folder_id.trim() : await getOrCreateDefaultFolder(userId, userRole);
+    } catch (folderErr) {
+      console.error("[uploadDocument] Failed to resolve default folder:", folderErr);
+      return res.status(500).json({ error: "Failed to resolve upload destination folder." });
+    }
+  }
+
+  try {
+    // Determine the type stored in the files table.
+    // - Regular uploads:              type = "upload"          → visible in Vault Files
+    // - Playbook / template / clause: type = "vault_asset_source" → NOT shown as regular
+    //   vault files; their user-visible entry is the library_items row instead.
+    //   This prevents source files from leaking into the Negotiate document picker
+    //   (which filters on type='upload' or type='draft') and from cluttering Vault→Files.
+    // - Ephemeral uploads:            type = "ephemeral_upload" → session-only, excluded
+    //   from all Vault lists by the getDocuments baseWhere clause.
+    const isVaultAsset = ["playbook", "templates", "template", "clauses", "clause"].includes(systemFileType);
+    const fileType = isEphemeral
+      ? "ephemeral_upload"
+      : isVaultAsset
+      ? "vault_asset_source"
+      : "upload";
+
+    await withTransaction(userId, userRole, async (client) => {
+      await client.query(
+        `INSERT INTO files (id, title, type, content, creator_id, creator_email, mime_type, folder_id, original_file)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        [fileId, fileTitle, fileType, "", req.user!.id, req.user!.email, file.mimetype, resolvedFolderId, file.buffer.toString("base64")]
+      );
+    }).catch(e => {
+      console.error("Database insert failed during upload:", e);
+      throw new Error("DB_UPLOAD_FAILED");
+    });
+    
+    let job;
+    let libraryItemId: string | null = null;
+
+    const fileDataUrl = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
+    const ingestBasePayload: Record<string, unknown> = {
+      fileId,
+      contractType: contractType ? String(contractType).trim() : undefined,
+      jurisdiction: jurisdiction ? String(jurisdiction).trim() : undefined,
+      fileTitle,
+      fileUrl: fileDataUrl,
+      fileBufferBase64: file.buffer.toString("base64"),
+      mimeType: file.mimetype,
+      userId,
+      isEphemeral,
+      expectedIdentity,
+    };
+
+    if (systemFileType === "playbook") {
+      // Create a Vault "AI Rulebook" row immediately so the tab shows the upload
+      // while LLM structuring runs (often ~1 min).
+      libraryItemId = "lib_" + crypto.randomUUID();
+      await withTransaction(userId, userRole, async (client) => {
+        await client.query(
+          `INSERT INTO library_items (id, user_id, type, name, description, tags, details, source)
+           VALUES ($1, $2, 'rulebook', $3, $4, $5, $6, $7)`,
+          [
+            libraryItemId,
+            userId,
+            fileTitle,
+            "Company playbook — extracting text…",
+            "playbook, processing",
+            JSON.stringify({
+              status: "processing",
+              sourceFileId: fileId,
+              scope: "company",
+              stage: "queued",
+            }),
+            itemSource,
+          ]
+        );
+      });
+      ingestBasePayload.libraryItemId = libraryItemId;
+      job = await addJobToQueue(req.user!.id, "PLAYBOOK_INGEST", ingestBasePayload);
+    } else if (systemFileType === "templates" || systemFileType === "template") {
+      // Immediate Templates-tab row while AI normalize runs.
+      libraryItemId = "lib_" + crypto.randomUUID();
+      const tplType = String(contractType).trim();
+      await withTransaction(userId, userRole, async (client) => {
+        await client.query(
+          `INSERT INTO library_items (id, user_id, type, name, description, tags, details, source)
+           VALUES ($1, $2, 'templates', $3, $4, $5, $6, $7)`,
+          [
+            libraryItemId,
+            userId,
+            fileTitle,
+            `${tplType} template — normalizing…`,
+            `${tplType}, processing`,
+            JSON.stringify({
+              status: "processing",
+              sourceFileId: fileId,
+              contractType: tplType,
+              jurisdiction: jurisdiction ? String(jurisdiction).trim() : null,
+              stage: "queued",
+            }),
+            itemSource,
+          ]
+        );
+      });
+      ingestBasePayload.libraryItemId = libraryItemId;
+      job = await addJobToQueue(req.user!.id, "TEMPLATE_INGEST", ingestBasePayload);
+    } else if (systemFileType === "clauses" || systemFileType === "clause") {
+      // Immediate Clauses-tab row while AI structuring runs.
+      libraryItemId = "lib_" + crypto.randomUUID();
+      const clauseType =
+        contractType && String(contractType).trim()
+          ? String(contractType).trim()
+          : "General";
+      await withTransaction(userId, userRole, async (client) => {
+        await client.query(
+          `INSERT INTO library_items (id, user_id, type, name, description, tags, details, source)
+           VALUES ($1, $2, 'clauses', $3, $4, $5, $6, $7)`,
+          [
+            libraryItemId,
+            userId,
+            fileTitle,
+            `${clauseType} clause pack — structuring…`,
+            `${clauseType}, processing`,
+            JSON.stringify({
+              status: "processing",
+              sourceFileId: fileId,
+              contractType: clauseType,
+              jurisdiction: jurisdiction ? String(jurisdiction).trim() : null,
+              stage: "queued",
+              isPack: true,
+            }),
+            itemSource,
+          ]
+        );
+      });
+      ingestBasePayload.libraryItemId = libraryItemId;
+      job = await addJobToQueue(req.user!.id, "CLAUSE_INGEST", ingestBasePayload);
+    }
+
+    // Always index/store file content for vault browsing.
+    const fileJob = await addJobToQueue(req.user!.id, "file_processing", {
+      fileId,
+      fileTitle,
+      fileBufferBase64: file.buffer.toString("base64"),
+      mimeType: file.mimetype,
+      folder_id: resolvedFolderId,
+      creatorEmail: req.user!.email,
+      isEphemeral,
+      forAnalysis,
+      expectedIdentity,
+    });
+
+    // Prefer returning the ingest job id when present so Vault SSE tracks structuring.
+    const primaryJob = job || fileJob;
+
+    res.status(202).json({
+      success: true,
+      job_id: primaryJob.id,
+      file_id: fileId,
+      library_item_id: libraryItemId,
+      ingest_job_id: job?.id ?? null,
+      file_job_id: fileJob.id,
+      category: systemFileType,
+    });
+  } catch (err: any) {
+    console.error("Document upload route crash:", err);
+    const message = err.message === "DB_UPLOAD_FAILED" ? "Failed to register upload in security log." : "Internal error during background job queueing.";
+    res.status(500).json({ error: message });
+  }
+};
+
+/**
+ * GET /api/documents/:id/raw
+ * Streams the original uploaded file back to the caller with the correct
+ * Content-Type so the browser can render it natively (PDF, DOCX, etc.).
+ * Only the creator or a shared recipient may access the file.
+ */
+export const getRawDocument = async (req: Request, res: Response) => {
+  const userId   = req.user!.id;
+  const userRole = req.user!.role;
+  const userEmail = req.user!.email.toLowerCase();
+
+  try {
+    const row = await withTransaction(userId, userRole, async (client) => {
+      const { rows } = await client.query(
+        `SELECT id, title, mime_type, original_file
+         FROM files
+         WHERE id = $1
+           AND (
+             creator_id = current_setting('app.current_user_id', true)
+             OR shared_with::jsonb @> $2::jsonb
+             OR shared_with::jsonb @> $3::jsonb
+           )`,
+        [req.params.id, JSON.stringify([userEmail]), JSON.stringify([{ email: userEmail }])]
+      );
+      return rows[0] ?? null;
+    });
+
+    if (!row) {
+      return res.status(404).json({ error: "Document not found." });
+    }
+
+    if (!row.original_file) {
+      return res.status(404).json({ error: "Original file not available for this document." });
+    }
+
+    const buffer   = Buffer.from(row.original_file, "base64");
+    const mimeType = row.mime_type || "application/octet-stream";
+
+    // Send back with inline disposition so the browser opens it directly.
+    res.setHeader("Content-Type", mimeType);
+    res.setHeader("Content-Length", buffer.length);
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="${encodeURIComponent(row.title || "document")}"`
+    );
+    res.setHeader("Cache-Control", "private, max-age=3600");
+    return res.send(buffer);
+  } catch (err: any) {
+    console.error("[getRawDocument] error:", err);
+    return res.status(500).json({ error: "Failed to retrieve original file." });
+  }
+};
+
+export const updateDocument = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { title, content, folder_id } = req.body;
+  const userId = req.user!.id;
+  const userRole = req.user!.role;
+  let createdVersionId = "";
+  let versionPlaintext = "";
+  let documentTitle = title || id;
+
+  try {
+    await withTransaction(userId, userRole, async (client) => {
+      // Only the document creator may update it.
+      const { rows } = await client.query(
+        "SELECT * FROM files WHERE id = $1 AND creator_id = current_setting('app.current_user_id', true)",
+        [id]
+      );
+      if (rows.length === 0) throw new Error("Document not found");
+      const doc = rows[0];
+      documentTitle = title || doc.title || id;
+      versionPlaintext = content ? String(content) : (doc.is_encrypted ? decrypt(doc.content) : String(doc.content ?? ""));
+
+      const encryptedContent = content ? encrypt(content) : doc.content;
+
+      await client.query(
+        `UPDATE files SET title = COALESCE($1, title), content = $2, folder_id = COALESCE($3, folder_id), updated_at = CURRENT_TIMESTAMP WHERE id = $4`,
+        [title || null, encryptedContent, folder_id || null, id]
+      );
+
+      const versionId = "ver_" + crypto.randomUUID();
+      createdVersionId = versionId;
+      await client.query(
+        `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
+        [versionId, id, encryptedContent]
+      );
+
+      await client.query(`
+        INSERT INTO compliance_audit_logs (user_id, action_type, metadata)
+        VALUES ($1, $2, $3)
+      `, [userId, 'document_update', JSON.stringify({ documentId: id, title })]);
+    });
+
+    const graph = await buildDocumentGraph({
+      artifactId: "dsa_" + crypto.randomUUID(),
+      fileId: id,
+      documentVersionId: createdVersionId,
+      fileName: `${documentTitle}.txt`,
+      mimeType: "text/plain",
+      buffer: Buffer.from(versionPlaintext, "utf8"),
+    });
+    await persistDocumentGraph(userId, graph);
+
+    // Re-index updated content for RAG retrieval (fire-and-forget, non-blocking)
+    if (content && content.trim().length > 0) {
+      // Delete old chunks then re-insert via chunkAndIndexDocument
+      pool.query(
+        "DELETE FROM legal_document_chunks WHERE file_id = $1 AND user_id = $2",
+        [id, userId]
+      ).then(() => chunkAndIndexDocument(id, content, userId))
+        .catch((err) => console.warn(`[updateDocument] Re-indexing failed for ${id}:`, err));
+    }
+
+    res.json({ success: true, structureStatus: graph.quality.status, structureArtifactId: graph.artifactId });
+  } catch (err: any) {
+    res.status(err.message === "Document not found" ? 404 : 500).json({ error: err.message });
+  }
+};
+
+export const deleteDocument = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const userId = req.user!.id;
+  const userRole = req.user!.role;
+
+  try {
+    await withTransaction(userId, userRole, async (client) => {
+      // Only the document creator may delete it.
+      const { rowCount } = await client.query(
+        "DELETE FROM files WHERE id = $1 AND creator_id = current_setting('app.current_user_id', true)",
+        [id]
+      );
+      if (rowCount === 0) throw new Error("Document not found");
+
+      await client.query(`
+        INSERT INTO compliance_audit_logs (user_id, action_type, metadata)
+        VALUES ($1, $2, $3)
+      `, [userId, 'document_delete', JSON.stringify({ documentId: id })]);
+    });
+    res.json({ success: true });
+  } catch (err: any) {
+    res.status(err.message === "Document not found" ? 404 : 500).json({ error: err.message });
+  }
+};
+
+export const shareDocument = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { email } = req.body;
+  const userId = req.user!.id;
+  const userRole = req.user!.role;
+
+  try {
+    const sharedWith = await withTransaction(userId, userRole, async (client) => {
+      const { rows: userRows } = await client.query("SELECT id FROM users WHERE email = $1", [email.toLowerCase()]);
+      if (userRows.length === 0) throw new Error("USER_NOT_FOUND");
+
+      // Only the document creator may share it.
+      const { rows } = await client.query(
+        "SELECT shared_with FROM files WHERE id = $1 AND creator_id = current_setting('app.current_user_id', true)",
+        [id]
+      );
+      if (rows.length === 0) throw new Error("Document not found");
+
+      const sharedWith = rows[0].shared_with || [];
+      if (!sharedWith.includes(email.toLowerCase())) {
+        sharedWith.push(email.toLowerCase());
+      }
+
+      await client.query("UPDATE files SET shared_with = $1 WHERE id = $2", [JSON.stringify(sharedWith), id]);
+
+      await client.query(`
+        INSERT INTO compliance_audit_logs (user_id, action_type, metadata)
+        VALUES ($1, $2, $3)
+      `, [userId, 'document_share', JSON.stringify({ documentId: id, sharedWith: email })]);
+      return sharedWith;
+    });
+    res.json({ success: true, sharedWith });
+  } catch (err: any) {
+    if (err.message === "USER_NOT_FOUND") return res.status(404).json({ error: "User with this email not found." });
+    res.status(err.message === "Document not found" ? 404 : 500).json({ error: err.message });
+  }
+};
+
+export const requestSignature = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { email } = req.body;
+  const userId = req.user!.id;
+  const userRole = req.user!.role;
+
+  try {
+    const signatures = await withTransaction(userId, userRole, async (client) => {
+      // Only the document creator may request signatures on it.
+      const { rows } = await client.query(
+        "SELECT signatures FROM files WHERE id = $1 AND creator_id = current_setting('app.current_user_id', true)",
+        [id]
+      );
+      if (rows.length === 0) throw new Error("Document not found");
+
+      await client.query(`
+        INSERT INTO compliance_audit_logs (user_id, action_type, metadata)
+        VALUES ($1, $2, $3)
+      `, [userId, 'signature_request', JSON.stringify({ documentId: id, requestedFrom: email })]);
+      return rows[0].signatures || [];
+    });
+    res.json({ success: true, signatures });
+  } catch (err: any) {
+    res.status(err.message === "Document not found" ? 404 : 500).json({ error: err.message });
+  }
+};
+
+export const signDocument = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const signatureData = req.body.signatureData ?? req.body.fullName;
+  const userId = req.user!.id;
+  const userRole = req.user!.role;
+  const userEmail = req.user!.email.toLowerCase();
+
+  try {
+    await withTransaction(userId, userRole, async (client) => {
+      // A document may be signed by its creator or anyone it has been shared with.
+      const { rows } = await client.query(
+        `SELECT signatures, content, is_encrypted FROM files
+         WHERE id = $1
+           AND (
+             creator_id = current_setting('app.current_user_id', true)
+             OR shared_with::jsonb @> $2::jsonb
+             OR shared_with::jsonb @> $3::jsonb
+           )`,
+        [id, JSON.stringify([userEmail]), JSON.stringify([{ email: userEmail }])]
+      );
+      if (rows.length === 0) throw new Error("Document not found");
+
+      const signatures = rows[0].signatures || [];
+      const plaintext = rows[0].is_encrypted ? decrypt(rows[0].content) : rows[0].content;
+      const contentHash = crypto.createHash('sha256').update(plaintext, 'utf8').digest('hex');
+
+      const newSignature = {
+        id: crypto.randomUUID(),
+        userId,
+        userEmail: req.user!.email,
+        signedAt: new Date().toISOString(),
+        contentHash,
+        signatureData
+      };
+
+      signatures.push(newSignature);
+      await client.query("UPDATE files SET signatures = $1 WHERE id = $2", [JSON.stringify(signatures), id]);
+
+      await client.query(`
+        INSERT INTO compliance_audit_logs (user_id, action_type, metadata)
+        VALUES ($1, $2, $3)
+      `, [userId, 'document_sign', JSON.stringify({ documentId: id, signatureId: newSignature.id })]);
+    });
+
+    res.json({ success: true });
+  } catch (err: any) {
+    res.status(err.message === "Document not found" ? 404 : 500).json({ error: err.message });
+  }
+};
+
+/**
+ * Safely parses the redlines field from the database.
+ * 
+ * Handles various states:
+ * - Already-parsed array (from JSONB column)
+ * - Stringified JSON array
+ * - null / undefined
+ * - Malformed data
+ * 
+ * Returns an empty array if parsing fails or data is invalid.
+ */
+function parseRedlines(raw: unknown): any[] {
+  if (Array.isArray(raw)) {
+    return raw;
+  }
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return parsed;
+      }
+    } catch {
+      // Fall through to return []
+    }
+  }
+  return [];
+}
+
+export const createRedline = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { originalText, proposedText, comment } = req.body;
+  const userId = req.user!.id;
+  const userRole = req.user!.role;
+  const userEmail = req.user!.email.toLowerCase();
+
+  try {
+    const newRedline = await withTransaction(userId, userRole, async (client) => {
+      // Redlines may be proposed by the creator or any shared recipient.
+      const { rows } = await client.query(
+        `SELECT redlines FROM files
+         WHERE id = $1
+           AND (
+             creator_id = current_setting('app.current_user_id', true)
+             OR shared_with::jsonb @> $2::jsonb
+             OR shared_with::jsonb @> $3::jsonb
+           )`,
+        [id, JSON.stringify([userEmail]), JSON.stringify([{ email: userEmail }])]
+      );
+      if (rows.length === 0) throw new Error("Document not found");
+      const redlines = parseRedlines(rows[0].redlines);
+      const redline = { id: crypto.randomUUID(), originalText, proposedText, comment, proposedByEmail: req.user!.email, proposedAt: new Date().toISOString(), status: "pending" };
+      redlines.push(redline);
+      await client.query("UPDATE files SET redlines = $1 WHERE id = $2", [JSON.stringify(redlines), id]);
+      console.log("[createRedline] persisted redline", {
+        documentId: id,
+        createdRedlineId: redline.id,
+        redlineIdsAfterSave: redlines.map((r: any) => r.id),
+        rawType: typeof rows[0].redlines,
+      });
+      return redline;
+    });
+    res.status(201).json(newRedline);
+  } catch (err: any) {
+    res.status(err.message === "Document not found" ? 404 : 500).json({ error: err.message });
+  }
+};
+
+export const acceptRedline = async (req: Request, res: Response) => {
+  const { id, redlineId } = req.params;
+  const userId = req.user!.id;
+  const userRole = req.user!.role;
+
+  try {
+    await withTransaction(userId, userRole, async (client) => {
+      // Only the document creator may accept redlines.
+      const { rows } = await client.query(
+        "SELECT * FROM files WHERE id = $1 AND creator_id = current_setting('app.current_user_id', true)",
+        [id]
+      );
+      if (rows.length === 0) throw new Error("DOCUMENT_NOT_FOUND");
+
+      const doc = rows[0];
+      const redlines = parseRedlines(doc.redlines);
+
+      console.log("[acceptRedline] lookup", {
+        documentId: id,
+        requestedRedlineId: redlineId,
+        storedRedlineIds: redlines.map((r: any) => r.id),
+        redlineCount: redlines.length,
+      });
+
+      const index = redlines.findIndex((r: any) => r.id === redlineId);
+      if (index === -1) throw new Error("REDLINE_NOT_FOUND");
+
+      const proposal = redlines[index];
+      if (proposal.status === "accepted") {
+        throw new Error("ALREADY_ACCEPTED");
+      }
+
+      // Decrypt current content
+      const currentContent = doc.is_encrypted ? decrypt(doc.content) : doc.content;
+
+      // Apply the clause replacement safely
+      const finalContent = applyClauseReplacement(
+        currentContent,
+        proposal.originalText,
+        proposal.proposedText
+      );
+
+      // Mark redline as accepted
+      redlines[index].status = "accepted";
+      redlines[index].acceptedAt = new Date().toISOString();
+      redlines[index].acceptedBy = req.user!.email;
+
+      // Encrypt updated content
+      const encryptedFinal = encrypt(finalContent);
+
+      // Update document with new content and redline status
+      await client.query(
+        "UPDATE files SET content = $1, redlines = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3",
+        [encryptedFinal, JSON.stringify(redlines), id]
+      );
+
+      // Create new version
+      const versionId = "ver_" + crypto.randomUUID();
+      await client.query(
+        `INSERT INTO document_versions (id, file_id, content) VALUES ($1, $2, $3)`,
+        [versionId, id, encryptedFinal]
+      );
+
+      // Insert audit log
+      await client.query(
+        `INSERT INTO compliance_audit_logs (user_id, action_type, metadata)
+         VALUES ($1, $2, $3)`,
+        [userId, 'redline_accept', JSON.stringify({ 
+          documentId: id, 
+          redlineId,
+          originalText: proposal.originalText.substring(0, 100),
+          proposedText: proposal.proposedText.substring(0, 100)
+        })]
+      );
+    });
+
+    res.json({ success: true });
+  } catch (err: any) {
+    console.error("Failed to accept redline:", err);
+    
+    if (err.message === "DOCUMENT_NOT_FOUND") {
+      return res.status(404).json({ error: "Document not found" });
+    }
+    if (err.message === "REDLINE_NOT_FOUND") {
+      return res.status(404).json({ error: "Redline not found" });
+    }
+    if (err.message === "ALREADY_ACCEPTED") {
+      return res.status(400).json({ error: "This redline has already been accepted" });
+    }
+    if (err.message && err.message.startsWith("CLAUSE_")) {
+      return res.status(400).json({ error: err.message.replace("CLAUSE_", "").replace(/_/g, " ").toLowerCase().replace(/^\w/, (c:string) => c.toUpperCase()) });
+    }
+    
+    res.status(500).json({ error: "Internal error processing redline acceptance" });
+  }
+};
+
+export const rejectRedline = async (req: Request, res: Response) => {
+  const { id, redlineId } = req.params;
+  const userId = req.user!.id;
+  const userRole = req.user!.role;
+
+  try {
+    await withTransaction(userId, userRole, async (client) => {
+      // Only the document creator may reject redlines.
+      const { rows } = await client.query(
+        "SELECT redlines FROM files WHERE id = $1 AND creator_id = current_setting('app.current_user_id', true)",
+        [id]
+      );
+      if (rows.length === 0) throw new Error("DOCUMENT_NOT_FOUND");
+
+      const redlines = parseRedlines(rows[0].redlines);
+      const index = redlines.findIndex((r: any) => r.id === redlineId);
+      if (index === -1) throw new Error("REDLINE_NOT_FOUND");
+
+      redlines[index].status = "rejected";
+      redlines[index].rejectedAt = new Date().toISOString();
+      redlines[index].rejectedBy = req.user!.email;
+
+      await client.query("UPDATE files SET redlines = $1 WHERE id = $2", [JSON.stringify(redlines), id]);
+
+      await client.query(`
+        INSERT INTO compliance_audit_logs (user_id, action_type, metadata)
+        VALUES ($1, $2, $3)
+      `, [userId, 'redline_reject', JSON.stringify({ documentId: id, redlineId })]);
+    });
+
+    res.json({ success: true });
+  } catch (err: any) {
+    console.error("Failed to reject redline:", err);
+
+    if (err.message === "DOCUMENT_NOT_FOUND") {
+      return res.status(404).json({ error: "Document not found" });
+    }
+    if (err.message === "REDLINE_NOT_FOUND") {
+      return res.status(404).json({ error: "Redline not found" });
+    }
+
+    res.status(500).json({ error: "Internal error processing redline rejection" });
+  }
+};
+
+/**
+ * Safely applies a clause replacement to document content.
+ *
+ * Strategy:
+ *   1. Exact match — if originalText appears exactly once, replace it.
+ *   2. Normalized whitespace match — collapse runs of whitespace for comparison,
+ *      find the one matching span in the original document, replace that span.
+ *   3. Fail-safe — throw a typed error if the clause is not found or matches
+ *      multiple locations, so the caller can return a clean 400.
+ *
+ * Throws with a "CLAUSE_*" prefix so acceptRedline() can detect and surface
+ * these as 400 errors rather than 500s.
+ */
+function applyClauseReplacement(
+  documentContent: string,
+  originalText: string,
+  proposedText: string
+): string {
+  // ── Step 1: Exact match ──────────────────────────────────────────────────
+  const firstExact = documentContent.indexOf(originalText);
+  if (firstExact !== -1) {
+    const secondExact = documentContent.indexOf(originalText, firstExact + 1);
+    if (secondExact !== -1) {
+      throw new Error(
+        "CLAUSE_Clause matched multiple locations in the current document. Redline cannot be safely applied."
+      );
+    }
+    return (
+      documentContent.substring(0, firstExact) +
+      proposedText +
+      documentContent.substring(firstExact + originalText.length)
+    );
+  }
+
+  // ── Step 2: Normalized whitespace match ──────────────────────────────────
+  // Collapse runs of whitespace in the document while building a char-offset
+  // map back to the original, then search in the collapsed space.
+  const normalizedTarget = originalText.replace(/\s+/g, " ").trim();
+  if (normalizedTarget.length === 0) {
+    throw new Error("CLAUSE_Could not locate the original clause in the current document state.");
+  }
+
+  const normChars: string[] = [];   // normalized document chars
+  const normToOrig: number[] = [];  // normChars[i] → documentContent[normToOrig[i]]
+
+  let prevWasSpace = false;
+  for (let i = 0; i < documentContent.length; i++) {
+    const ch = documentContent[i];
+    if (/\s/.test(ch)) {
+      if (!prevWasSpace) {
+        normChars.push(" ");
+        normToOrig.push(i);
+        prevWasSpace = true;
+      }
+    } else {
+      normChars.push(ch);
+      normToOrig.push(i);
+      prevWasSpace = false;
+    }
+  }
+
+  const normalizedDoc = normChars.join("");
+  const lowerDoc = normalizedDoc.toLowerCase();
+  const lowerTarget = normalizedTarget.toLowerCase();
+
+  const firstNorm = lowerDoc.indexOf(lowerTarget);
+  if (firstNorm === -1) {
+    throw new Error(
+      "CLAUSE_Could not locate the original clause in the current document state."
+    );
+  }
+
+  const secondNorm = lowerDoc.indexOf(lowerTarget, firstNorm + 1);
+  if (secondNorm !== -1) {
+    throw new Error(
+      "CLAUSE_Clause matched multiple locations in the current document. Redline cannot be safely applied."
+    );
+  }
+
+  // Map normalized match positions directly through normToOrig — no offset adjustment needed
+  const origStart = normToOrig[firstNorm];
+  const origEnd   = normToOrig[firstNorm + normalizedTarget.length - 1] + 1; // exclusive
+
+  return (
+    documentContent.substring(0, origStart) +
+    proposedText +
+    documentContent.substring(origEnd)
+  );
+}
+
+export const exportDocument = async (req: Request, res: Response) => {
+  const { title, format, contentType, content, documentId } = req.body;
+  const userId = req.user!.id;
+  const userRole = req.user!.role;
+
+  try {
+    if (documentId) {
+      await withTransaction(userId, userRole, async (client) => {
+        await client.query(`
+          INSERT INTO compliance_audit_logs (user_id, action_type, metadata)
+          VALUES ($1, $2, $3)
+        `, [userId, 'document_export', JSON.stringify({ documentId, format, title })]);
+      });
+    }
+
+    let buffer: Buffer;
+    let mimeType: string;
+    let filename: string;
+
+    if (format === "pdf") {
+      buffer = await buildPdfBuffer(title, contentType, content);
+      mimeType = "application/pdf";
+      filename = `${title}.pdf`;
+    } else {
+      buffer = await buildDocxBuffer(title, contentType, content);
+      mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+      filename = `${title}.docx`;
+    }
+
+    res.setHeader("Content-Type", mimeType);
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.send(buffer);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+/**
+ * GET /api/documents/:id/render-html
+ *
+ * Returns the document converted to rich HTML for the negotiate viewer.
+ *
+ * For DOCX/DOC files: runs mammoth.convertToHtml() on the stored original_file
+ * bytes, which preserves headings, bold, lists, tables, and numbered sections.
+ * This is the same mammoth call used by docxToPdf.ts.
+ *
+ * For all other mime types: returns { html: null } so the caller can fall back
+ * to rendering activeDoc.content as plain text (the current behaviour).
+ *
+ * The result is NOT stored — it is generated on demand. Cached by the browser
+ * for 5 minutes (Cache-Control: private, max-age=300).
+ *
+ * Authorization: same ownership check as getRawDocument.
+ */
+export const renderDocumentHtml = async (req: Request, res: Response) => {
+  const userId    = req.user!.id;
+  const userRole  = req.user!.role;
+  const userEmail = req.user!.email.toLowerCase();
+
+  try {
+    const row = await withTransaction(userId, userRole, async (client) => {
+      const { rows } = await client.query(
+        `SELECT id, title, mime_type, original_file
+         FROM files
+         WHERE id = $1
+           AND (
+             creator_id = current_setting('app.current_user_id', true)
+             OR shared_with::jsonb @> $2::jsonb
+             OR shared_with::jsonb @> $3::jsonb
+           )`,
+        [req.params.id, JSON.stringify([userEmail]), JSON.stringify([{ email: userEmail }])]
+      );
+      return rows[0] ?? null;
+    });
+
+    if (!row) {
+      return res.status(404).json({ error: "Document not found." });
+    }
+
+    const mime: string = (row.mime_type ?? "").toLowerCase();
+    const isDocx =
+      mime === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+      mime === "application/msword" ||
+      mime.includes("docx") ||
+      mime.includes("msword");
+
+    if (!isDocx || !row.original_file) {
+      // Not a DOCX or original bytes not stored — caller falls back to plain text.
+      return res.json({ html: null });
+    }
+
+    const buffer = Buffer.from(row.original_file, "base64");
+
+    // Dynamically import mammoth so this path does not add startup cost for
+    // requests that never hit this endpoint.
+    const mammoth = (await import("mammoth")).default;
+    const { value: rawHtml, messages } = await mammoth.convertToHtml({ buffer });
+
+    if (messages.length > 0) {
+      const warnings = messages.filter((m: any) => m.type === "warning").map((m: any) => m.message);
+      if (warnings.length > 0) {
+        console.warn(`[renderDocumentHtml] mammoth warnings for ${req.params.id}:`, warnings.slice(0, 3));
+      }
+    }
+
+    if (!rawHtml.trim()) {
+      return res.json({ html: null });
+    }
+
+    res.setHeader("Cache-Control", "private, max-age=300");
+    return res.json({ html: rawHtml });
+  } catch (err: any) {
+    console.error("[renderDocumentHtml] error:", err.message);
+    // Non-fatal — return null so the viewer falls back gracefully.
+    return res.json({ html: null });
+  }
+};

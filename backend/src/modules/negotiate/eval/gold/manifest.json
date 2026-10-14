@@ -1,0 +1,83 @@
+{
+  "goldVersion": "0.1.0",
+  "createdUtc": "2026-09-14T00:00:00Z",
+  "baselineRuns": 3,
+  "ciGatesEnabled": false,
+  "provisionalTargets": {
+    "_comment": "PROVISIONAL ONLY — NOT enforced in CI. Do not wire as gates until the gold set has enough documents (see Stage 0 decisions).",
+    "recallMustCatch": 0.90,
+    "fpTrapRateHard": 0.15,
+    "stabilityJaccard": 0.80,
+    "dedupCorrect": 0.90,
+    "severityWithinOneBand": 0.85
+  },
+  "documents": [
+    {
+      "docFixtureId": "G-DPA-01",
+      "title": "Bitrix24 / Alaio Data Processing Agreement (45k)",
+      "status": "available",
+      "dbDocId": "doc_0c678eca-bbba-4cd8-8fb7-17d1bee6bb94",
+      "dbDocIdEnv": "EVAL_G_DPA_01_DOC_ID",
+      "purpose": "Full worked gold: intl-transfer, breach-timing duplicate, structural absences, market-standard traps, severity check.",
+      "goldFile": "G-DPA-01.json"
+    },
+    {
+      "docFixtureId": "G-DPA-02",
+      "title": "Balanced / market-standard SaaS DPA",
+      "status": "pending",
+      "dbDocId": null,
+      "purpose": "Mostly clean → measures false-positive rate (few/no primaries expected).",
+      "goldFile": null
+    },
+    {
+      "docFixtureId": "G-DPA-03",
+      "title": "Processor-hostile DPA (broad exclusions, no cap, weak sub-processor terms)",
+      "status": "pending",
+      "dbDocId": null,
+      "purpose": "High must-catch density incl. absences.",
+      "goldFile": null
+    },
+    {
+      "docFixtureId": "G-DPA-04",
+      "title": "Mastercard DPA",
+      "status": "pending",
+      "dbDocId": null,
+      "purpose": "Second heavy real doc; transfer + audit + liability. (Exists only inside contract_comparison job payloads today — not in files table.)",
+      "goldFile": null
+    },
+    {
+      "docFixtureId": "G-DPA-05",
+      "title": "Short DPA with genuine structural gaps (no deletion / no duration)",
+      "status": "pending",
+      "dbDocId": null,
+      "purpose": "Pure absence-recall test.",
+      "goldFile": null
+    },
+    {
+      "docFixtureId": "G-DPA-06",
+      "title": "Controlled dedup fixture (duplicated obligations across body + annex)",
+      "status": "available",
+      "synthetic": true,
+      "dbDocId": null,
+      "inlineTextFile": "G-DPA-06.txt",
+      "purpose": "Authoritative dedup benchmark — same issue in 2 places. Do NOT rely on G-DPA-01 dedup numbers.",
+      "goldFile": "G-DPA-06.json"
+    },
+    {
+      "docFixtureId": "G-DPA-07",
+      "title": "DPA packed with market-standard language",
+      "status": "pending",
+      "dbDocId": null,
+      "purpose": "Trap test (clickwrap, DoS exclusion, no-admission-of-fault, standard SCC recital) — none should be primary.",
+      "goldFile": null
+    },
+    {
+      "docFixtureId": "G-DPA-08",
+      "title": "LORA-drafted DPA exported from the drafting module",
+      "status": "pending",
+      "dbDocId": null,
+      "purpose": "Document-source parity (draft vs upload).",
+      "goldFile": null
+    }
+  ]
+}

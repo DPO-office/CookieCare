@@ -1,0 +1,1244 @@
+import { useState, useEffect, useRef } from "react";
+import type { MouseEvent } from "react";
+import { LegalDocument } from "../../../shared/types";
+import { AgentMarkup, NegotiationContext, NegotiationStrategy, StrategyDraftResult, NegotiationFindingDTO } from "../types";
+import {
+  acceptRedline,
+  rejectRedline, generateCompromise, fetchDocumentDetails,
+  saveNegotiationStep, exportDocument, fetchNegotiationContext,
+  fetchNegotiationStrategy, resolveNegotiationSession, rejectFinding,
+} from "../api/negotiateApi";
+
+/** Maps a persisted finding row back to the AgentMarkup shape the existing
+ *  rendering/highlighting/accept code already works with — no new UI surface
+ *  needed for Phase 2. */
+function findingToMarkup(f: NegotiationFindingDTO): AgentMarkup {
+  return {
+    clauseId: f.clauseId,
+    original: f.original,
+    replacement: f.replacement,
+    reasoning: f.reasoning,
+    riskLevel: f.riskLevel,
+    clauseType: f.clauseType,
+    charOffset: f.charOffset ?? undefined,
+    matchedPlaybookTopic: f.matchedPlaybookTopic,
+  };
+}
+
+// ─── Clause-location helper ───────────────────────────────────────────────────
+//
+// PDF text extraction frequently produces whitespace, line-break, punctuation,
+// and Unicode variants that differ from the text the LLM extracted during
+// evaluation.  We use a four-strategy cascade to locate the clause for splicing.
+//
+// Strategy 1 – Exact match via charOffset (fastest, most reliable when offset
+//              was resolved during evaluation against the same plain-text).
+// Strategy 2 – Exact indexOf on raw content (works when content is unchanged).
+// Strategy 3 – Normalised-whitespace match: collapse all whitespace runs and
+//              scan the document for the resulting needle.
+// Strategy 4 – Leading-words anchor: take the first 10 significant words of the
+//              clause, find their location in the document, then verify the
+//              region covers enough of the original clause text before splicing.
+//
+// Returns { start, end } offsets for slicing, or null if no confident match.
+
+interface SpliceRange { start: number; end: number; }
+
+function collapseWhitespace(s: string): string {
+  return s.replace(/[\r\n\t\u00A0\u2003]+/g, " ").replace(/ {2,}/g, " ").trim();
+}
+
+/** Replace smart quotes, em/en dashes, ellipsis chars with plain ASCII. */
+function normalisePunctuation(s: string): string {
+  return s
+    .replace(/[\u2018\u2019\u201A\u201B\u2032]/g, "'")
+    .replace(/[\u201C\u201D\u201E\u201F\u2033]/g, '"')
+    .replace(/[\u2013\u2014\u2015]/g, "-")
+    .replace(/\u2026/g, "...");
+}
+
+function normaliseForMatch(s: string): string {
+  return collapseWhitespace(normalisePunctuation(s)).toLowerCase();
+}
+
+function locateClauseForSplice(
+  content: string,
+  markup: AgentMarkup
+): SpliceRange | null {
+  const original = markup.original;
+  if (!original || original.trim().length < 10) return null;
+
+  // ── Strategy 1: charOffset anchor ─────────────────────────────────────────
+  // The backend resolves charOffset against the same plain-text used for
+  // evaluation, so it is the most reliable start anchor when available.
+  //
+  // P1-2 FIX: The old code computed end = off + original.length, which is
+  // wrong when the stored document uses \r\n line endings (2 bytes per break)
+  // but the LLM extracted original with \n (1 byte per break). The mismatch
+  // leaves trailing characters in the document after the splice.
+  //
+  // Fix: once we confirm the start via normalised comparison, find the end
+  // by walking the normalised shadow (Strategy 3's posMap) anchored at the
+  // verified start, so the end maps precisely back to the raw document
+  // regardless of line-ending variants. This is the same approach used by
+  // Strategy 3 and the manual-selection tightening loop.
+  //
+  // If the normalised walk cannot establish a confident end (normNeedle too
+  // short or not found in the anchored region), we fall through to Strategy 2
+  // rather than making a speculative splice with a wrong end offset.
+  if (typeof markup.charOffset === "number" && markup.charOffset >= 0) {
+    const off = markup.charOffset;
+    const normOrig = normaliseForMatch(original);
+    // Verify the region at charOffset starts with the original (normalised).
+    // Use a generous window to absorb minor offset drift.
+    const verifyWindow = content.slice(off, off + original.length + 200);
+    const normVerify = normaliseForMatch(verifyWindow.slice(0, original.length + 50));
+    if (normOrig.length >= 10 && normVerify.startsWith(normOrig.slice(0, Math.min(normOrig.length, 60)))) {
+      // Start is verified. Now find the precise end using the normalised shadow
+      // anchored from `off` so \r\n vs \n differences don't affect the end.
+      // Build a normalised shadow only of the region we care about (a window
+      // large enough to contain the original even with \r\n expansion).
+      const searchRegion = content.slice(off, off + original.length + 400);
+      const regionNormChars: string[] = [];
+      const regionPosMap: number[] = [];
+      let rPrevSpace = false;
+      for (let i = 0; i < searchRegion.length; i++) {
+        const ch = normalisePunctuation(searchRegion[i]);
+        if (/[\s\r\n\t\u00A0]/.test(ch)) {
+          if (!rPrevSpace) {
+            regionNormChars.push(" ");
+            regionPosMap.push(i);
+            rPrevSpace = true;
+          }
+        } else {
+          regionNormChars.push(ch.toLowerCase());
+          regionPosMap.push(i);
+          rPrevSpace = false;
+        }
+      }
+      const regionNormStr = regionNormChars.join("");
+      // The normalised original must appear at the start of this region
+      // (offset 0 in the shadow, since we sliced starting from off).
+      const normIdx = regionNormStr.indexOf(normOrig);
+      if (normIdx === 0 || (normIdx > 0 && normIdx <= 5)) {
+        // normIdx should be 0; small positive tolerance for leading whitespace.
+        const normEndInRegion = normIdx + normOrig.length - 1;
+        if (normEndInRegion < regionPosMap.length) {
+          // Map back to raw document: off + the region-relative raw position + 1
+          const rawEnd = off + regionPosMap[normEndInRegion] + 1;
+          return { start: off, end: Math.min(rawEnd, content.length) };
+        }
+      }
+      // Normalised walk couldn't establish the end confidently — fall through
+      // to Strategy 2/3 which build their own posMap from scratch.
+    }
+  }
+
+  // ── Strategy 2: raw exact match ───────────────────────────────────────────
+  const exactIdx = content.indexOf(original);
+  if (exactIdx !== -1) {
+    return { start: exactIdx, end: exactIdx + original.length };
+  }
+
+  // ── Strategy 3: normalised-whitespace + punctuation match ─────────────────
+  // Build a normalised shadow of the document, mapping shadow positions back
+  // to original positions.
+  const normNeedle = normaliseForMatch(original);
+  if (normNeedle.length >= 20) {
+    const normDoc: string[] = [];
+    const posMap: number[]  = [];  // normDoc[i] came from content[posMap[i]]
+    let prevSpace = false;
+
+    for (let i = 0; i < content.length; i++) {
+      const ch = normalisePunctuation(content[i]);
+      if (/[\s\r\n\t\u00A0]/.test(ch)) {
+        if (!prevSpace) {
+          normDoc.push(" ");
+          posMap.push(i);
+          prevSpace = true;
+        }
+      } else {
+        normDoc.push(ch.toLowerCase());
+        posMap.push(i);
+        prevSpace = false;
+      }
+    }
+
+    const normDocStr = normDoc.join("");
+    const normIdx = normDocStr.indexOf(normNeedle);
+    if (normIdx !== -1) {
+      const start = posMap[normIdx];
+      // End: map the normalised end position back to the original.
+      const normEnd = normIdx + normNeedle.length - 1;
+      const end = normEnd < posMap.length ? posMap[normEnd] + 1 : start + original.length;
+      return { start, end: Math.min(end, content.length) };
+    }
+  }
+
+  // ── Strategy 4: leading-words anchor ─────────────────────────────────────
+  // Extract the first 8 significant words of the original clause and find them
+  // in the document.  If found, verify the region has adequate overlap with the
+  // original text before accepting.
+  const words = original
+    .replace(/[\r\n]+/g, " ")
+    .split(/\s+/)
+    .filter((w) => w.length > 2);
+  if (words.length >= 4) {
+    const anchor = words.slice(0, 8).join(" ");
+    const normAnchor = normaliseForMatch(anchor);
+    const normContentFlat = normaliseForMatch(content);
+    const anchorIdx = normContentFlat.indexOf(normAnchor);
+
+    if (anchorIdx !== -1) {
+      // Map normalised index back to raw content index via Strategy 3's posMap,
+      // but we don't have posMap here — use a rough char-ratio approximation.
+      const ratio = content.length / normContentFlat.length;
+      const approxStart = Math.max(0, Math.round(anchorIdx * ratio));
+
+      // Scan backward slightly to absorb ratio error.
+      const scanStart = Math.max(0, approxStart - 20);
+      const region = content.slice(scanStart, scanStart + original.length + 200);
+      const normRegion = normaliseForMatch(region);
+
+      // Require that ≥70% of the original's normalised text appears in this region.
+      const overlapTarget = normNeedle.slice(0, Math.floor(normNeedle.length * 0.7));
+      if (normRegion.includes(overlapTarget)) {
+        // Find precise start inside the region.
+        const regionNormIdx = normRegion.indexOf(normNeedle.slice(0, 40));
+        const preciseStart = regionNormIdx >= 0
+          ? scanStart + Math.round(regionNormIdx * ratio)
+          : scanStart;
+        return {
+          start: preciseStart,
+          end: Math.min(preciseStart + original.length, content.length),
+        };
+      }
+    }
+  }
+
+  return null;
+}
+
+// ─── Nth-occurrence locator (for manual-selection Accept) ─────────────────────
+//
+// The manual selection records WHICH rendered occurrence of the selected text
+// the user chose (occurrenceIndex, 0-based). This function finds the same
+// occurrence in the raw document content using the same normalised matching
+// logic as locateClauseForSplice Strategy 3, ensuring Markdown→HTML whitespace
+// and smart-quote differences are handled.
+//
+// Algorithm:
+//   1. Build a normalised shadow of the raw content (Strategy 3 position map).
+//   2. Scan forward through all occurrences of the normalised target.
+//   3. Return the (occurrenceIndex)-th match's raw content start/end.
+//
+// Returns null if fewer than occurrenceIndex+1 occurrences exist.
+
+function locateNthOccurrenceInContent(
+  content: string,
+  targetText: string,
+  occurrenceIndex: number
+): SpliceRange | null {
+  if (!targetText || targetText.trim().length < 5) return null;
+  if (occurrenceIndex < 0) return null;
+
+  // ── Exact text: try simple scanning first (fast path) ───────────────────
+  // Works for HTML documents where rendered text exists verbatim in content.
+  const exactTarget = targetText;
+  let exactSearchFrom = 0;
+  let exactCount = 0;
+  while (true) {
+    const idx = content.indexOf(exactTarget, exactSearchFrom);
+    if (idx === -1) break;
+    if (exactCount === occurrenceIndex) {
+      return { start: idx, end: idx + exactTarget.length };
+    }
+    exactCount++;
+    exactSearchFrom = idx + exactTarget.length;
+  }
+
+  // ── Normalised path: handles Markdown whitespace / smart-quote differences ──
+  const normTarget = normaliseForMatch(targetText);
+  if (normTarget.length < 5) return null;
+
+  // Build normalised shadow of content with position map (identical to
+  // Strategy 3 in locateClauseForSplice).
+  const normChars: string[] = [];
+  const posMap: number[] = [];
+  let prevSpace = false;
+
+  for (let i = 0; i < content.length; i++) {
+    const ch = normalisePunctuation(content[i]);
+    if (/[\s\r\n\t\u00A0]/.test(ch)) {
+      if (!prevSpace) {
+        normChars.push(" ");
+        posMap.push(i);
+        prevSpace = true;
+      }
+    } else {
+      normChars.push(ch.toLowerCase());
+      posMap.push(i);
+      prevSpace = false;
+    }
+  }
+
+  const normDoc = normChars.join("");
+  let normSearchFrom = 0;
+  let normCount = 0;
+
+  while (true) {
+    const normIdx = normDoc.indexOf(normTarget, normSearchFrom);
+    if (normIdx === -1) break;
+    if (normCount === occurrenceIndex) {
+      // Map normalised positions back to raw content positions.
+      const start = posMap[normIdx];
+      const normEnd = normIdx + normTarget.length - 1;
+      const end = normEnd < posMap.length ? posMap[normEnd] + 1 : start + targetText.length;
+      return { start, end: Math.min(end, content.length) };
+    }
+    normCount++;
+    normSearchFrom = normIdx + normTarget.length;
+  }
+
+  return null;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface UseNegotiateOptions {
+  activeDocument: LegalDocument | null;
+  authToken: string;
+  onRefresh: () => void;
+  /** Playbook selected on the entry screen. Null means no playbook. */
+  initialPlaybookId?: string | null;
+  initialPlaybookName?: string | null;
+}
+
+export function useNegotiate({
+  activeDocument, authToken, onRefresh,
+  initialPlaybookId = null, initialPlaybookName = null,
+}: UseNegotiateOptions) {
+  const [activeDoc, setActiveDoc] = useState<LegalDocument | null>(null);
+  const [agentMarkups, setAgentMarkups] = useState<AgentMarkup[]>([]);
+  const [selectedMarkup, setSelectedMarkup] = useState<AgentMarkup | null>(null);
+  const [evaluating, setEvaluating] = useState(false);
+  const [evaluationError, setEvaluationError] = useState("");
+  const [acceptingMarkupId, setAcceptingMarkupId] = useState<string | null>(null);
+  const [appliedClause, setAppliedClause] = useState<{ id: string; text: string; original: string; spliceStart: number } | null>(null);
+  const [evaluatingDocId, setEvaluatingDocId] = useState<string | null>(null);
+  const [editingReplacement, setEditingReplacement] = useState(false);
+  const [redlinesOpen, setRedlinesOpen] = useState(false);
+  const [draftingCompromise, setDraftingCompromise] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [showSavedToast, setShowSavedToast] = useState(false);
+  /** Inline error message replacing blocking alert() dialogs.
+   *  Set on accept/save/draft failures; auto-clears after 6 s. */
+  const [negotiateError, setNegotiateError] = useState<string | null>(null);
+  const negotiateErrorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  /** Show an inline error and auto-dismiss it after 6 seconds. */
+  const showNegotiateError = (msg: string) => {
+    if (negotiateErrorTimerRef.current) clearTimeout(negotiateErrorTimerRef.current);
+    setNegotiateError(msg);
+    negotiateErrorTimerRef.current = setTimeout(() => setNegotiateError(null), 6000);
+  };
+
+  const clearNegotiateError = () => {
+    if (negotiateErrorTimerRef.current) clearTimeout(negotiateErrorTimerRef.current);
+    setNegotiateError(null);
+  };
+  const [userInstruction, setUserInstruction] = useState("");
+  // Seeded from the entry screen selection. User can still change it mid-session
+  // via the playbook pill in the instruction bar footer.
+  const [selectedPlaybook, setSelectedPlaybook] = useState<{ id: string; name: string } | null>(
+    initialPlaybookId && initialPlaybookName
+      ? { id: initialPlaybookId, name: initialPlaybookName }
+      : null
+  );
+  const [negotiationContext, setNegotiationContext] = useState<NegotiationContext | null>(null);
+  const [negotiationStrategy, setNegotiationStrategy] = useState<NegotiationStrategy | null>(null);
+  const [strategyDraftResult, setStrategyDraftResult] = useState<StrategyDraftResult | null>(null);
+  const evalRequestIdRef = useRef(0);
+  const loadedDocIdRef = useRef<string | null>(null);
+
+  /**
+   * Stores a user's manual text selection in the document viewer.
+   * Using a ref (not state) prevents focus changes — e.g. clicking the
+   * instruction textarea — from triggering a re-render that would lose the
+   * selection before draftFromStrategy reads it.
+   *
+   * BLOCKER-1 FIX: `rawContentOffset` is the char offset of the selected text
+   * within the RAW document content (not the rendered DOM plain text). It is
+   * computed by DocumentViewer.handleMouseUp by stripping Markdown decoration
+   * from the raw content and aligning with the DOM selection position.
+   *
+   * Using a raw-content offset instead of a DOM-occurrence index eliminates
+   * the Markdown formatting mismatch: **bold** in raw content is "bold" in
+   * DOM, so occurrence counts diverge. A direct raw-content offset does not.
+   *
+   * -1 means the offset could not be determined; Accept falls back to the
+   * existing locateNthOccurrenceInContent path as a safe fallback.
+   */
+  const manualSelectionRef = useRef<{ text: string; rawContentOffset: number } | null>(null);
+  /** Reactive mirror of manualSelectionRef — triggers re-renders in consumers. */
+  const [hasManualSelection, setHasManualSelection] = useState(false);
+  /** Selected text string exposed to UI for preview — kept in sync with the ref. */
+  const [manualSelectionText, setManualSelectionText] = useState<string>("");
+  /**
+   * Tracks the clauseId of the most recently created synthetic manual markup.
+   * Stored in a ref (not state) so draftFromStrategy always reads the latest
+   * value synchronously — avoids the stale-closure issue where selectedMarkup
+   * state hasn't updated yet on a fast double-Draft click.
+   */
+  const lastSyntheticIdRef = useRef<string | null>(null);
+
+  /**
+   * Called by DocumentViewer's onTextSelection callback.
+   * `rawContentOffset` (passed as the `start` parameter from DocumentViewer)
+   * is the char offset of the selected text within the raw document content,
+   * computed by stripping Markdown decoration and aligning with the DOM
+   * selection position. See DocumentViewer.handleMouseUp for full details.
+   */
+  const handleTextSelection = (text: string, rawContentOffset: number, _end: number) => {
+    manualSelectionRef.current = { text, rawContentOffset };
+    setHasManualSelection(true);
+    setManualSelectionText(text);
+  };
+
+  /** Clears a stored manual selection (called after Accept or Reject). */
+  const clearManualSelection = () => {
+    manualSelectionRef.current = null;
+    lastSyntheticIdRef.current = null;
+    setHasManualSelection(false);
+    setManualSelectionText("");
+  };
+
+  // ── Reset per-clause state when the selected markup changes ───────────────
+  // Without this, cached context/strategy from clause A bleeds into clause B.
+  useEffect(() => {
+    setNegotiationContext(null);
+    setNegotiationStrategy(null);
+    setStrategyDraftResult(null);
+    // Do NOT reset selectedPlaybook — user may want the same playbook across clauses
+  }, [selectedMarkup?.clauseId]);
+
+  const loadActiveDocumentDetails = async (docId: string) => {
+    if (!docId) return;
+    try {
+      const fullDoc = await fetchDocumentDetails(authToken, docId);
+      setActiveDoc(fullDoc);
+      initializeNegotiation(docId);
+    } catch (err: any) {
+      console.error("Error fetching document details:", err);
+      // Surface the failure instead of leaving a blank viewer, and RESET the
+      // load guard so re-selecting the same document retries. Without this, a
+      // single failed load (e.g. a transient timeout) permanently blocked that
+      // document from loading and left no visible error.
+      loadedDocIdRef.current = null;
+      setEvaluationError(err?.message ?? "Failed to load document. Please try again.");
+    }
+  };
+
+  useEffect(() => {
+    const docId = activeDocument?.id ?? "";
+    if (!docId) return;
+    if (docId === loadedDocIdRef.current) return;
+    loadedDocIdRef.current = docId;
+    loadActiveDocumentDetails(docId);
+  }, [activeDocument?.id]);
+
+  /**
+   * Phase 2: the single initialization path. Resolves (resumes or creates)
+   * the negotiation session for this document — replaces the previous
+   * unconditional /evaluate call. Resuming performs NO LLM call.
+   *
+   * forceNew=true is used by "Re-run evaluation" (rerunEvaluation below):
+   * the current active session is marked superseded server-side (history
+   * preserved) and a fresh one is created from a new evaluation.
+   */
+  const initializeNegotiation = async (docId: string, forceNew = false) => {
+    if (!docId) return;
+    if (evaluatingDocId === docId && !forceNew) return;
+    const requestId = ++evalRequestIdRef.current;
+    setEvaluatingDocId(docId);
+    setEvaluating(true);
+    setEvaluationError("");
+    setNegotiationContext(null);
+    setNegotiationStrategy(null);
+    setStrategyDraftResult(null);
+    try {
+      const { findings, resumed, stale } = await resolveNegotiationSession(authToken, {
+        documentId: docId,
+        playbookId: selectedPlaybook?.id,
+        forceNew,
+      });
+      if (requestId !== evalRequestIdRef.current) return;
+
+      const pending = findings.filter((f) => f.status === "pending");
+      const markups = pending.map(findingToMarkup);
+      setAgentMarkups(markups);
+
+      const firstPending = pending.length > 0 ? pending[0] : null;
+      setSelectedMarkup(firstPending ? findingToMarkup(firstPending) : null);
+      // Restore cached per-clause context/strategy/draft for whichever
+      // finding becomes selected, so reopening doesn't force a re-fetch.
+      if (firstPending) {
+        if (firstPending.contextJson) setNegotiationContext(firstPending.contextJson);
+        if (firstPending.strategyJson) setNegotiationStrategy(firstPending.strategyJson);
+        if (firstPending.draftResultJson) setStrategyDraftResult(firstPending.draftResultJson);
+      }
+
+      if (resumed && stale) {
+        showNegotiateError(
+          "This document changed outside this negotiation session — some findings may no longer align exactly. Consider Re-run evaluation."
+        );
+      }
+    } catch (err: any) {
+      if (requestId === evalRequestIdRef.current) setEvaluationError(err.message);
+    } finally {
+      if (requestId === evalRequestIdRef.current) { setEvaluating(false); setEvaluatingDocId(null); }
+    }
+  };
+
+  const handleAcceptAgentMarkup = async (markup: AgentMarkup) => {
+    if (!activeDoc || acceptingMarkupId === markup.clauseId) return;
+    setAcceptingMarkupId(markup.clauseId);
+    setAppliedClause(null);
+    try {
+      const content = activeDoc.content;
+
+      // ── Locate the target clause ──────────────────────────────────────────
+      const manual = manualSelectionRef.current;
+      const isManualAccept =
+        manual !== null && markup.clauseId.startsWith("manual-");
+
+      let splice: { start: number; end: number } | null = null;
+
+      if (isManualAccept && manual) {
+        // ── BLOCKER-1 FIX: raw-content offset anchor ─────────────────────
+        //
+        // DocumentViewer.handleMouseUp now computes a raw-content char offset
+        // by stripping Markdown decoration from the raw content and aligning
+        // with the DOM selection position. We use that offset as a direct
+        // splice anchor — no occurrence index counting needed.
+        //
+        // Verification: confirm that `manual.text` (normalised) actually
+        // exists at `manual.rawContentOffset` in the content. This guards
+        // against cases where the offset could not be computed (rawContentOffset
+        // = -1) or the document was edited since the selection was made.
+
+        const rawOffset = manual.rawContentOffset;
+
+        if (rawOffset >= 0 && rawOffset < content.length) {
+          // Verify the region at rawOffset roughly matches the selected text.
+          // We use a simple word-anchor check: take the first 6 non-trivial
+          // words of manual.text and confirm they all appear within a window
+          // starting at rawOffset. This is much more robust than a strict
+          // prefix comparison after stripping markdown chars, because:
+          //   - **bold** markers between words shift the comparison
+          //   - legal text with (parens) gets its parens stripped by the
+          //     old stripMarkdownDecor, causing false mismatches
+          const anchorWords = manual.text
+            .replace(/\s+/g, " ").trim()
+            .split(" ")
+            .filter((w) => w.replace(/[^a-z0-9]/gi, "").length > 2)
+            .slice(0, 6)
+            .map((w) => w.replace(/[^a-z0-9]/gi, "").toLowerCase());
+
+          const windowStr = content
+            .slice(rawOffset, rawOffset + manual.text.length + 200)
+            .toLowerCase();
+
+          // Two-part verification:
+          // 1. All anchor words appear in the window (guards against wildly wrong offset)
+          // 2. The window starts with the first 40 normalised chars of manual.text
+          //    (guards against repetitive boilerplate where common words like "shall"
+          //    or "party" appear in ANY 200-char window, making word-anchor trivially true)
+          const normFirst40 = manual.text
+            .replace(/[*_~`#>[\]()]/g, "")
+            .replace(/\s+/g, " ")
+            .trim()
+            .toLowerCase()
+            .slice(0, 40);
+          const normWindow40 = windowStr
+            .replace(/[*_~`#>[\]()]/g, "")
+            .replace(/\s+/g, " ")
+            .trim()
+            .slice(0, 60); // a bit more than 40 to absorb leading decoration chars
+
+          const anchorMatches =
+            anchorWords.length >= 2 &&
+            anchorWords.every((w) => windowStr.includes(w)) &&
+            (normFirst40.length < 10 || normWindow40.startsWith(normFirst40.slice(0, Math.min(normFirst40.length, 40))));
+
+          if (anchorMatches) {
+            // The rawOffset anchor is valid. Use locateClauseForSplice with
+            // markup.original (= rawSelectedText, the verbatim raw content
+            // slice) starting the search from rawOffset. Strategy 2 (exact
+            // indexOf) finds it immediately since rawSelectedText was extracted
+            // directly from activeDoc.content — no character-counting needed.
+            //
+            // We pass a synthetic markup shape with charOffset = rawOffset so
+            // Strategy 1 is tried first, giving a precise start+end via the
+            // normalised posMap walk that already handles \r\n vs \n and
+            // inline markdown decoration correctly.
+            splice = locateClauseForSplice(content, {
+              ...markup,
+              original:    markup.original,   // rawSelectedText set at draft time
+              charOffset:  rawOffset,
+            });
+          }
+        }
+
+        // Fallback: if offset is -1 or verification failed, use the normalised
+        // occurrence-based search (legacy path) as a safe fallback.
+        if (!splice) {
+          splice = locateNthOccurrenceInContent(content, manual.text, 0);
+        }
+
+        if (!splice) {
+          // Last resort: try AI-finding locator with a synthetic markup shape
+          splice = locateClauseForSplice(content, markup);
+        }
+
+        // ── Extra fallback: markdown-stripping shadow search ─────────────
+        // Handles the case where rawContentOffset came back as -1 (the DOM
+        // offset computation failed) AND the three strategies above also
+        // failed because manual.text is DOM plain text (e.g. "Neither party
+        // shall…") but the raw content has Markdown decorators interspersed
+        // (e.g. "**Neither** party shall…"). We build a char-by-char shadow
+        // of the raw content that skips all Markdown decoration sequences,
+        // keeping a posMap[] so every shadow character can be mapped back to
+        // its raw-content index. Then we search for the plain-text selection
+        // in the shadow and use posMap to get precise raw start/end.
+        if (!splice && manual.text.trim().length >= 5) {
+          const plainTarget = manual.text.replace(/\s+/g, " ").trim().toLowerCase();
+
+          // Build a Markdown-stripped shadow of the raw content
+          const mdShadowChars: string[] = [];
+          const mdPosMap: number[] = []; // mdPosMap[i] = index in content for shadow char i
+          let ci = 0;
+          while (ci < content.length) {
+            // Skip multi-char Markdown decoration sequences
+            if (
+              (content[ci] === "*" || content[ci] === "_") &&
+              (content[ci + 1] === "*" || content[ci + 1] === "_")
+            ) {
+              ci += 2; // skip **  or __
+              continue;
+            }
+            if (
+              content[ci] === "*" || content[ci] === "_" ||
+              content[ci] === "~" || content[ci] === "`" ||
+              content[ci] === "#" || content[ci] === ">"
+            ) {
+              ci++;
+              continue;
+            }
+            // Normalise whitespace
+            const ch = content[ci];
+            if (/[\r\n\t ]/.test(ch)) {
+              if (mdShadowChars.length > 0 && mdShadowChars[mdShadowChars.length - 1] !== " ") {
+                mdShadowChars.push(" ");
+                mdPosMap.push(ci);
+              }
+            } else {
+              mdShadowChars.push(ch.toLowerCase());
+              mdPosMap.push(ci);
+            }
+            ci++;
+          }
+
+          const mdShadowStr = mdShadowChars.join("");
+
+          // Try to find the plain target in the shadow
+          const hitIdx = mdShadowStr.indexOf(plainTarget);
+          if (hitIdx !== -1) {
+            const rawStart = mdPosMap[hitIdx];
+            const rawEndShadowIdx = hitIdx + plainTarget.length - 1;
+            const rawEnd =
+              rawEndShadowIdx < mdPosMap.length
+                ? mdPosMap[rawEndShadowIdx] + 1
+                : rawStart + manual.text.length;
+            splice = {
+              start: rawStart,
+              end: Math.min(rawEnd, content.length),
+            };
+          }
+        }
+      } else {
+        splice = locateClauseForSplice(content, markup);
+      }
+
+      if (!splice) {
+        const preview = markup.original.slice(0, 80).replace(/\n/g, "↵");
+        throw new Error(
+          `Could not locate clause in document for replacement.\n` +
+          `clauseId: ${markup.clauseId}\n` +
+          `charOffset: ${markup.charOffset ?? "none"}\n` +
+          `Preview: "${preview}…"\n` +
+          `Document length: ${content.length} chars.\n` +
+          `Try re-running evaluation or check that the document has not changed since loading.`
+        );
+      }
+
+      const updatedContent =
+        content.slice(0, splice.start) + markup.replacement + content.slice(splice.end);
+
+      const baseVersion = activeDoc.versions?.length || 0;
+      const nextVersion = baseVersion + 1;
+      const minAnimation = new Promise((resolve) => setTimeout(resolve, 950));
+
+      const [saveResult] = await Promise.all([
+        // Phase 2: passing clauseId folds "mark this finding accepted" into
+        // the SAME atomic transaction as the content/version/ledger save —
+        // see /save-step. Synthetic "manual-*" clauseIds (not a persisted
+        // finding) are silently ignored server-side; content-only save
+        // proceeds unchanged.
+        saveNegotiationStep(authToken, activeDoc.id, updatedContent, nextVersion, baseVersion, markup.clauseId),
+        minAnimation,
+      ]);
+
+      // ── F-1 FIX: keep the client's version count in sync after an Accept ────
+      // A successful Accept creates exactly ONE new document version on the
+      // server. `baseVersion` for the NEXT Accept is derived from
+      // `activeDoc.versions.length`, so if we update `content` without also
+      // recording the new version, the next Accept sends a stale baseVersion and
+      // the server's optimistic-concurrency check returns 409 ("modified since
+      // you last loaded it"). Appending one local version entry keeps the count
+      // aligned so 3+ sequential Accepts work without a reload. The authoritative
+      // versions (with server ids) reload on the next document open.
+      //
+      // Exception: the idempotent `alreadyAccepted` response (double-accept of
+      // the same finding) does NOT create a server version — do not append then,
+      // or the client would over-count and 409 in the other direction.
+      const createdVersion = !(saveResult && (saveResult as any).alreadyAccepted);
+      setActiveDoc((prev) => {
+        if (!prev) return prev;
+        if (!createdVersion) return { ...prev, content: updatedContent };
+        const newVersion = {
+          version: nextVersion,
+          content: updatedContent,
+          createdAt: new Date().toISOString(),
+          author: "",
+          comment: "Accepted finding",
+        };
+        return { ...prev, content: updatedContent, versions: [...(prev.versions ?? []), newVersion] };
+      });
+      const remaining = agentMarkups.filter((m) => m.clauseId !== markup.clauseId);
+
+      // ── P1-1 FIX: adjust charOffset of remaining AI findings ──────────────
+      // Accepting this finding changed the document length. Every AI finding
+      // whose charOffset points past the splice start must be shifted by the
+      // delta so subsequent Strategy 1 anchors remain valid.
+      //
+      // delta > 0: replacement is longer than original (text shifted right).
+      // delta < 0: replacement is shorter (text shifted left).
+      // delta = 0: no adjustment needed.
+      //
+      // Only AI findings (charOffset is a number) are adjusted. Synthetic
+      // manual-* findings use rawContentOffset from manualSelectionRef and
+      // are always re-located fresh, so they don't need adjustment.
+      const delta = markup.replacement.length - (splice.end - splice.start);
+      const adjustedRemaining = delta === 0 ? remaining : remaining.map((m) => {
+        if (
+          typeof m.charOffset === "number" &&
+          m.charOffset >= 0 &&
+          m.charOffset > splice.start &&
+          !m.clauseId.startsWith("manual-")
+        ) {
+          return { ...m, charOffset: m.charOffset + delta };
+        }
+        return m;
+      });
+
+      setAgentMarkups(adjustedRemaining);
+      // Select the finding that comes AFTER the accepted one in the original
+      // order. If we were on the last finding, fall back to the new last item.
+      // Previously this always jumped to [0], resetting position to the start
+      // regardless of where the user was — making navigation feel broken after
+      // accepting anything other than the first finding.
+      const acceptedIdx = agentMarkups.findIndex((m) => m.clauseId === markup.clauseId);
+      const nextSelection =
+        adjustedRemaining[acceptedIdx] ??      // next in sequence (same index, list shrunk)
+        adjustedRemaining[acceptedIdx - 1] ??  // was last — go to new last
+        null;
+      setSelectedMarkup(nextSelection);
+      setEditingReplacement(false);
+      // Record the exact splice position in the updated content so the green
+      // flash renderer can target the correct occurrence rather than using a
+      // first-match regex search.
+      setAppliedClause({ id: markup.clauseId, text: markup.replacement, original: markup.original, spliceStart: splice.start });
+      clearManualSelection(); // ← always clear after accept
+      onRefresh();
+      window.setTimeout(() => {
+        setAppliedClause((current) => (current?.id === markup.clauseId ? null : current));
+      }, 2200);
+    } catch (err: any) {
+      showNegotiateError(err.message || "Failed to apply change.");
+    } finally {
+      setAcceptingMarkupId(null);
+    }
+  };
+
+  /**
+   * Phase 2: Reject is now durable. Previously this only filtered the local
+   * agentMarkups array — reloading the page resurrected the finding as
+   * pending. The backend call happens first; local state only updates on
+   * confirmed success, so a crash right after clicking Reject leaves the
+   * finding correctly "pending" on reopen rather than silently "gone".
+   * Synthetic "manual-*" clauseIds were never persisted as findings — reject
+   * for those stays purely local, matching their pre-Phase-2 behavior.
+   */
+  const handleDismissMarkup = async (clauseId: string) => {
+    const isSynthetic = clauseId.startsWith("manual-");
+    if (!isSynthetic && activeDoc) {
+      try {
+        await rejectFinding(authToken, activeDoc.id, clauseId);
+      } catch (err: any) {
+        showNegotiateError(err.message || "Failed to reject finding.");
+        return; // leave it in the list — the reject did not durably apply
+      }
+    }
+    const rejectedIdx = agentMarkups.findIndex((m) => m.clauseId === clauseId);
+    const remaining = agentMarkups.filter((m) => m.clauseId !== clauseId);
+    setAgentMarkups(remaining);
+    // Same positional logic as accept: advance to the finding that was next,
+    // fall back to the new last if we were at the end.
+    const nextSelection =
+      remaining[rejectedIdx] ??
+      remaining[rejectedIdx - 1] ??
+      null;
+    setSelectedMarkup(nextSelection);
+    setEditingReplacement(false);
+    // Only clear the manual selection when the dismissed markup IS the manual
+    // draft for that selection. Rejecting an independent AI finding must not
+    // disturb a pending manual selection the user has made separately.
+    if (isSynthetic) {
+      clearManualSelection();
+    }
+  };
+
+  const handleSaveDraft = async () => {
+    if (!activeDoc || saving) return;
+    setSaving(true);
+    try {
+      const currentVersion = activeDoc.versions?.length || 1;
+      const baseVersion = activeDoc.versions?.length || 0;
+      await saveNegotiationStep(authToken, activeDoc.id, activeDoc.content, currentVersion, baseVersion);
+      setShowSavedToast(true);
+      setTimeout(() => setShowSavedToast(false), 3000);
+      onRefresh();
+      // Refresh the document record (versions, redlines, signatures) WITHOUT
+      // triggering a full LLM re-evaluation. The document content has not changed
+      // from the user's perspective — Accept already updated it in-memory.
+      // Calling loadActiveDocumentDetails here would re-run evaluation and waste
+      // LLM credits on a document whose findings are still current.
+      try {
+        const refreshed = await fetchDocumentDetails(authToken, activeDoc.id);
+        setActiveDoc(refreshed);
+      } catch {
+        // Non-fatal — the in-memory copy is still valid if the refresh fails.
+      }
+    } catch (err: any) {
+      showNegotiateError("Failed to save draft: " + err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleExportDocument = async (format: "pdf" | "docx") => {
+    if (!activeDoc) return;
+    try {
+      const blob = await exportDocument(authToken, activeDoc.id, activeDoc.title, activeDoc.content, format);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${activeDoc.title.toLowerCase().replace(/\s+/g, "_")}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      showNegotiateError("Export failed: " + err.message);
+    }
+  };
+
+  const handleAcceptDbRedline = async (rId: string) => {
+    if (!activeDoc) return;
+    try {
+      await acceptRedline(authToken, activeDoc.id, rId);
+      onRefresh();
+      // BLOCKER-2 FIX: refresh document data WITHOUT triggering LLM re-evaluation.
+      // Previously called loadActiveDocumentDetails() which unconditionally calls
+      // runMultiAgentEvaluation() — consuming LLM credits and resetting review state.
+      // Follow the same pattern as handleSaveDraft: fetch the doc record directly.
+      try {
+        const refreshed = await fetchDocumentDetails(authToken, activeDoc.id);
+        setActiveDoc(refreshed);
+      } catch {
+        // Non-fatal — the in-memory copy is still valid if the refresh fails.
+      }
+    } catch (err: any) { showNegotiateError(err.message); }
+  };
+
+  const handleRejectDbRedline = async (rId: string) => {
+    if (!activeDoc) return;
+    try {
+      await rejectRedline(authToken, activeDoc.id, rId);
+      onRefresh();
+      // BLOCKER-2 FIX: same as handleAcceptDbRedline above.
+      try {
+        const refreshed = await fetchDocumentDetails(authToken, activeDoc.id);
+        setActiveDoc(refreshed);
+      } catch {
+        // Non-fatal.
+      }
+    } catch (err: any) { showNegotiateError(err.message); }
+  };
+
+  const handleDocumentPaneClick = (e: MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    const highlight = target.closest("[data-clause-id]") as HTMLElement | null;
+    if (!highlight) return;
+    const clauseId = highlight.dataset.clauseId;
+    const markup = agentMarkups.find((m) => m.clauseId === clauseId);
+    if (markup) { setSelectedMarkup(markup); setEditingReplacement(false); return; }
+    // Fallback: check secondary clause IDs (overlap/subset registrations)
+    const secondaryIds = (highlight.dataset.secondaryClauseIds ?? "").split(" ").filter(Boolean);
+    for (const sid of secondaryIds) {
+      const m = agentMarkups.find((m) => m.clauseId === sid);
+      if (m) { setSelectedMarkup(m); setEditingReplacement(false); return; }
+    }
+  };
+
+  const updateMarkupReplacement = (val: string) => {
+    setSelectedMarkup((prev) => prev ? { ...prev, replacement: val } : null);
+    setAgentMarkups((prev) =>
+      prev.map((m) => m.clauseId === selectedMarkup?.clauseId ? { ...m, replacement: val } : m)
+    );
+  };
+
+  const rerunEvaluation = () => {
+    if (!activeDoc) return;
+    setEvaluatingDocId(null);
+    // forceNew: supersedes the current active session (history preserved,
+    // not deleted) and creates a fresh one from a new evaluation.
+    initializeNegotiation(activeDoc.id, true);
+  };
+
+  /**
+   * Phase 3+4: Fetch context → generate strategy (if needed) → draft the
+   * selected tier in a single click.
+   *
+   * When a manual text selection is stored in manualSelectionRef, it takes
+   * priority over the currently active AI finding. The selected text becomes
+   * the negotiation target and a synthetic AgentMarkup is injected so the
+   * existing Accept/Reject flow works without any additional changes.
+   *
+   * The strategy is generated once and cached in state. Subsequent tier
+   * switches re-use the cached strategy and only call /compromise again.
+   */
+  const draftFromStrategy = async (tier: "preferred" | "balanced" | "fallback") => {
+    if (!activeDoc) return;
+    if (draftingCompromise) return;
+
+    // ── Check for a pending manual selection ─────────────────────────────────
+    const manual = manualSelectionRef.current;
+    const hasManualSelection = manual !== null && manual.text.trim().length >= 5;
+
+    // For manual selections we need at least a non-empty instruction so the AI
+    // knows what the user wants changed.
+    if (hasManualSelection && !userInstruction.trim()) return;
+
+    // When there is no manual selection fall back to the AI-finding path which
+    // requires selectedMarkup.
+    if (!hasManualSelection && !selectedMarkup) return;
+
+    setDraftingCompromise(true);
+    setStrategyDraftResult(null);
+
+    try {
+      const effectiveInstruction = userInstruction.trim();
+
+      // ── Manual-selection path ─────────────────────────────────────────────
+      if (hasManualSelection && manual) {
+        // Build a synthetic clauseId. The rawContentOffset is stored in
+        // charOffset on the synthetic markup so handleAcceptAgentMarkup can
+        // use it directly as a splice anchor (BLOCKER-1 fix).
+        const syntheticId = `manual-${Date.now()}`;
+
+        // Fetch context for the selected text (enrichment fields will mostly
+        // be undefined since this isn't an AI finding — that's fine).
+        let ctx: NegotiationContext | null = null;
+        try {
+          ctx = await fetchNegotiationContext(authToken, {
+            documentId: activeDoc.id,
+            original: manual.text,
+            clauseId: syntheticId,
+            userInstruction: effectiveInstruction,
+            playbookId: selectedPlaybook?.id,
+          });
+        } catch {
+          // Non-fatal: proceed without enriched context.
+        }
+
+        // Draft directly using the legacy compromise path — for manually
+        // selected text we do not need a Preferred/Balanced/Fallback strategy
+        // ladder; the user's explicit instruction is the primary directive.
+        //
+        // Iterative re-draft: if there is already a draft showing for this
+        // manual selection (same clauseId prefix "manual-"), use that draft
+        // text as the base so subsequent instructions refine the draft rather
+        // than restarting from the original selected text each time.
+        // Use lastSyntheticIdRef (a ref, not state) so this is always current
+        // even on a fast double-Draft click before React re-renders.
+        const existingDraft =
+          strategyDraftResult?.result &&
+          lastSyntheticIdRef.current !== null &&
+          lastSyntheticIdRef.current.startsWith("manual-")
+            ? strategyDraftResult.result
+            : null;
+
+        // Prefer the raw content slice (with Markdown formatting intact) over
+        // the DOM plain text. This ensures the AI can see and preserve **bold**,
+        // _italic_, etc. when it edits the text. We extract it using the same
+        // markdown-stripping shadow logic used in the Accept path: build a
+        // stripped shadow, find the plain selection in it, then map back to
+        // get the raw slice from activeDoc.content.
+        let rawSelectedText = manual.text; // fallback: DOM plain text
+        if (manual.rawContentOffset >= 0) {
+          // rawContentOffset is valid — slice directly from raw content.
+          // Estimate the end by scanning forward through markdown chars
+          // until we've consumed all non-decoration chars of manual.text.
+          const rc = activeDoc.content;
+          const normLen = manual.text.replace(/[*_~`#>[\]()]/g, "").replace(/\s+/g, "").length;
+          let end = manual.rawContentOffset;
+          let matched = 0;
+          while (end < rc.length && matched < normLen) {
+            const ch = rc[end];
+            if (ch === "*" || ch === "_" || ch === "~" || ch === "`" ||
+                ch === "#" || ch === ">" || ch === "[" || ch === "]" ||
+                ch === "(" || ch === ")") {
+              end++;
+              continue;
+            }
+            if (!/\s/.test(ch)) matched++;
+            // spaces are NOT counted — normLen excludes spaces, loop must too
+            end++;
+          }
+          const slice = rc.slice(manual.rawContentOffset, Math.min(end, rc.length));
+          if (slice.trim().length >= 5) rawSelectedText = slice;
+        } else {
+          // rawContentOffset unavailable — try the markdown-stripping shadow
+          // to find the plain text in raw content and extract the raw slice.
+          const rc = activeDoc.content;
+          const plainTarget = manual.text.replace(/\s+/g, " ").trim().toLowerCase();
+          const shadowChars: string[] = [];
+          const shadowPosMap: number[] = [];
+          let si = 0;
+          while (si < rc.length) {
+            if (
+              (rc[si] === "*" || rc[si] === "_") &&
+              (rc[si + 1] === "*" || rc[si + 1] === "_")
+            ) { si += 2; continue; }
+            if (rc[si] === "*" || rc[si] === "_" || rc[si] === "~" ||
+                rc[si] === "`" || rc[si] === "#" || rc[si] === ">") {
+              si++; continue;
+            }
+            const ch = rc[si];
+            if (/[\r\n\t ]/.test(ch)) {
+              if (shadowChars.length > 0 && shadowChars[shadowChars.length - 1] !== " ") {
+                shadowChars.push(" "); shadowPosMap.push(si);
+              }
+            } else {
+              shadowChars.push(ch.toLowerCase()); shadowPosMap.push(si);
+            }
+            si++;
+          }
+          const shadowStr = shadowChars.join("");
+          const hitIdx = shadowStr.indexOf(plainTarget);
+          if (hitIdx !== -1) {
+            const rawStart = shadowPosMap[hitIdx];
+            const rawEndShadow = hitIdx + plainTarget.length - 1;
+            const rawEnd = rawEndShadow < shadowPosMap.length
+              ? shadowPosMap[rawEndShadow] + 1
+              : rawStart + manual.text.length;
+            const slice = rc.slice(rawStart, Math.min(rawEnd, rc.length));
+            if (slice.trim().length >= 5) rawSelectedText = slice;
+          }
+        }
+
+        const baseText = existingDraft ?? rawSelectedText;
+        const riskExplanation = `User-selected clause for revision.\nUser instruction: ${effectiveInstruction}`;
+
+        const result = await generateCompromise(
+          authToken,
+          baseText,
+          riskExplanation,
+          false,
+          effectiveInstruction,
+        ) as string;
+
+        const draft: StrategyDraftResult = {
+          result,
+          draftMeta: {
+            tier,
+            position: effectiveInstruction,
+            source: "ai",
+            rationale: "Manually selected clause — user-directed revision.",
+          },
+        };
+
+        setStrategyDraftResult(draft);
+
+        // Inject a synthetic markup so Accept/Reject/highlight all work.
+        // charOffset carries the raw-content offset computed at selection time
+        // (BLOCKER-1 fix). The Accept path reads manualSelectionRef.rawContentOffset
+        // directly, but charOffset is set here for consistency/future use.
+        //
+        // IMPORTANT: use rawSelectedText (the raw content slice with Markdown
+        // formatting intact) as `original`, not manual.text (DOM plain text).
+        // This means locateClauseForSplice fallbacks and richHtml patching all
+        // work with text that actually exists verbatim in the raw document,
+        // so exact-match (Strategy 2) succeeds without needing the shadow walk.
+        const syntheticMarkup: AgentMarkup = {
+          clauseId:    syntheticId,
+          original:    rawSelectedText,
+          replacement: result,
+          reasoning:   effectiveInstruction,
+          riskLevel:   "YELLOW",
+          clauseType:  "other",
+          charOffset:  manual.rawContentOffset >= 0 ? manual.rawContentOffset : undefined,
+        };
+
+        // Record the new synthetic id in the ref BEFORE any state updates so
+        // a fast second Draft call (before React re-renders) reads the correct
+        // id and correctly picks up the existing draft as the base text.
+        lastSyntheticIdRef.current = syntheticId;
+
+        // Add to the markups list (or update if already present from a
+        // previous manual draft of the same selection).
+        setAgentMarkups((prev) => {
+          const withoutStale = prev.filter((m) => !m.clauseId.startsWith("manual-"));
+          return [...withoutStale, syntheticMarkup];
+        });
+        setSelectedMarkup(syntheticMarkup);
+        setNegotiationContext(ctx);
+        setNegotiationStrategy(null);
+        return;
+      }
+
+      // ── AI-finding path (unchanged) ───────────────────────────────────────
+      if (!selectedMarkup) return;
+
+      let ctx: NegotiationContext | null = negotiationContext;
+      if (!ctx) {
+        try {
+          ctx = await fetchNegotiationContext(authToken, {
+            documentId: activeDoc.id,
+            original: selectedMarkup.original,
+            clauseId: selectedMarkup.clauseId,
+            clauseType: selectedMarkup.clauseType,
+            charOffset: selectedMarkup.charOffset,
+            userInstruction: effectiveInstruction,
+            playbookId: selectedPlaybook?.id,
+          });
+          setNegotiationContext(ctx);
+        } catch (ctxErr) {
+          console.warn("[negotiate] context fetch failed, continuing without enriched context:", ctxErr);
+        }
+      }
+
+      let strategy: NegotiationStrategy | null = negotiationStrategy;
+      if (!strategy && ctx) {
+        try {
+          strategy = await fetchNegotiationStrategy(authToken, ctx, activeDoc.id);
+          setNegotiationStrategy(strategy);
+        } catch (stratErr) {
+          console.warn("[negotiate] strategy fetch failed, continuing without strategy:", stratErr);
+        }
+      }
+
+      const riskExplanation = ctx?.analysisFinding?.issue
+        ? `${selectedMarkup.reasoning}\n\nAnalysis: ${ctx.analysisFinding.issue}`
+        : selectedMarkup.reasoning;
+
+      let draft: StrategyDraftResult;
+
+      if (strategy) {
+        const position = strategy[tier];
+        draft = await generateCompromise(
+          authToken,
+          selectedMarkup.original,
+          riskExplanation,
+          false,
+          effectiveInstruction || undefined,
+          {
+            strategyPosition: {
+              ...position,
+              tier,
+              confidence: strategy.confidence,
+            },
+            analysisFinding: ctx?.analysisFinding,
+            compareFinding:  ctx?.compareFinding,
+            playbookRule:    ctx?.playbookRule,
+          },
+          { documentId: activeDoc.id, clauseId: selectedMarkup.clauseId }
+        ) as StrategyDraftResult;
+      } else {
+        const result = await generateCompromise(
+          authToken,
+          selectedMarkup.original,
+          riskExplanation,
+          tier === "preferred",
+          effectiveInstruction || undefined,
+        ) as string;
+        draft = {
+          result,
+          draftMeta: {
+            tier,
+            position: tier,
+            source: "ai",
+            rationale: "Drafted without strategy context.",
+          },
+        };
+      }
+
+      setStrategyDraftResult(draft);
+      setSelectedMarkup((prev) => prev ? { ...prev, replacement: draft.result } : null);
+      setAgentMarkups((prev) =>
+        prev.map((m) =>
+          m.clauseId === selectedMarkup.clauseId ? { ...m, replacement: draft.result } : m
+        )
+      );
+    } catch (err: any) {
+      showNegotiateError("Error drafting proposal: " + err.message);
+    } finally {
+      setDraftingCompromise(false);
+    }
+  };
+
+  return {
+    activeDoc, agentMarkups, selectedMarkup, setSelectedMarkup,
+    evaluating, evaluationError, setEvaluationError, acceptingMarkupId, appliedClause,
+    editingReplacement, setEditingReplacement, redlinesOpen, setRedlinesOpen,
+    draftingCompromise, handleAcceptAgentMarkup,
+    handleDismissMarkup, handleAcceptDbRedline, handleRejectDbRedline,
+    handleDocumentPaneClick, updateMarkupReplacement,
+    rerunEvaluation, loadActiveDocumentDetails, saving, showSavedToast,
+    handleSaveDraft, handleExportDocument,
+    userInstruction, setUserInstruction,
+    selectedPlaybook, setSelectedPlaybook,
+    negotiationContext,
+    negotiationStrategy,
+    strategyDraftResult,
+    draftFromStrategy,
+    handleTextSelection,
+    hasManualSelection,
+    manualSelectionText,
+    clearManualSelection,
+    negotiateError,
+    clearNegotiateError,
+  };
+}

@@ -1,0 +1,25 @@
+DATA PROCESSING AGREEMENT
+
+1. Definitions
+"Personal Data" means any information relating to an identified or identifiable natural person.
+"Processor" means the entity processing Personal Data on behalf of the Controller.
+
+2. Processing of Personal Data
+2.1 The Processor shall process Personal Data only on documented instructions from the Controller.
+2.2 The Processor shall not engage another processor without prior written authorisation.
+
+3. Security
+3.1 The Processor shall implement appropriate technical and organisational measures.
+- Access control
+- Encryption in transit
+- Encryption at rest
+
+Appendix 1 Categories of Data Subjects
+Employees
+Customers
+Suppliers
+
+Schedule A Technical Measures
+Measure	Description
+Access control	Role-based access
+Encryption	TLS 1.2+

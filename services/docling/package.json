@@ -1,0 +1,8 @@
+{
+  "name": "lora-docling-service",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": { "start": "node server.mjs", "test": "node --test server.test.mjs" },
+  "dependencies": { "docling.rs": "1.41.0" }
+}

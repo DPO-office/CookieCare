@@ -1,1 +1,0 @@
-ok 200 {"message":"analysis PAC api ok"}
