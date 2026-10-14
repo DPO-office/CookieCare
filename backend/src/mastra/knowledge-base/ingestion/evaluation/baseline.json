@@ -1,0 +1,276 @@
+{
+  "mode": "reference_self_check",
+  "note": "Checks the evaluation foundation only; no PDF parser or model was run.",
+  "authoredComparison": {
+    "count": 14,
+    "requiresLegalReview": true,
+    "rules": [
+      {
+        "ruleId": "gdpr.art28.1",
+        "kind": "imported",
+        "sourcePath": "backend/src/modules/analysis/skills/regimes/data-protection/gdpr/skill.config.ts",
+        "skillVersion": "2.0.1",
+        "profileVersion": "1.1.0",
+        "declaredReviewStatus": "authored",
+        "contentHash": "5a4fbf909931ddb8c4d74d1a763446e9cb165e0598c5cb601fdadd99aabca523"
+      },
+      {
+        "ruleId": "gdpr.art28.2",
+        "kind": "imported",
+        "sourcePath": "backend/src/modules/analysis/skills/regimes/data-protection/gdpr/skill.config.ts",
+        "skillVersion": "2.0.1",
+        "profileVersion": "1.1.0",
+        "declaredReviewStatus": "authored",
+        "contentHash": "fe8abb2a9bb1c3bf13fb1950b00c729f3f975c07dcc8b79d328eed0405d0191f"
+      },
+      {
+        "ruleId": "gdpr.art28.3.chapeau",
+        "kind": "imported",
+        "sourcePath": "backend/src/modules/analysis/skills/regimes/data-protection/gdpr/skill.config.ts",
+        "skillVersion": "2.0.1",
+        "profileVersion": "1.1.0",
+        "declaredReviewStatus": "authored",
+        "contentHash": "abe99ca31d31ce24b8ca250b8104bf4bbf5a36a21fa1e477d82685ee1b8efe68"
+      },
+      {
+        "ruleId": "gdpr.art28.3.a",
+        "kind": "imported",
+        "sourcePath": "backend/src/modules/analysis/skills/regimes/data-protection/gdpr/skill.config.ts",
+        "skillVersion": "2.0.1",
+        "profileVersion": "1.1.0",
+        "declaredReviewStatus": "authored",
+        "contentHash": "8608d3ff7f0fb8e640d0e590eeaa813d6f4f2fe4fb8e8e961b5bf3c196eff064"
+      },
+      {
+        "ruleId": "gdpr.art28.3.b",
+        "kind": "imported",
+        "sourcePath": "backend/src/modules/analysis/skills/regimes/data-protection/gdpr/skill.config.ts",
+        "skillVersion": "2.0.1",
+        "profileVersion": "1.1.0",
+        "declaredReviewStatus": "authored",
+        "contentHash": "1f5fdcae734e9315b5d5a6b747219d196eb1b03ebd77e990535fe36925e43425"
+      },
+      {
+        "ruleId": "gdpr.art28.3.c",
+        "kind": "imported",
+        "sourcePath": "backend/src/modules/analysis/skills/regimes/data-protection/gdpr/skill.config.ts",
+        "skillVersion": "2.0.1",
+        "profileVersion": "1.1.0",
+        "declaredReviewStatus": "authored",
+        "contentHash": "daa878a0e35af3002b6aced06b443c2902d8327550dc95204eaee7b56f908857"
+      },
+      {
+        "ruleId": "gdpr.art28.3.d",
+        "kind": "imported",
+        "sourcePath": "backend/src/modules/analysis/skills/regimes/data-protection/gdpr/skill.config.ts",
+        "skillVersion": "2.0.1",
+        "profileVersion": "1.1.0",
+        "declaredReviewStatus": "authored",
+        "contentHash": "94d4251a6cec53ba999ca279195083bdaf912a960cdf88f96e5349096752f265"
+      },
+      {
+        "ruleId": "gdpr.art28.3.e",
+        "kind": "imported",
+        "sourcePath": "backend/src/modules/analysis/skills/regimes/data-protection/gdpr/skill.config.ts",
+        "skillVersion": "2.0.1",
+        "profileVersion": "1.1.0",
+        "declaredReviewStatus": "authored",
+        "contentHash": "b370947f0c3a9d70aa82621c46c80dea9195c16d822ad16747403d4e23aa57af"
+      },
+      {
+        "ruleId": "gdpr.art28.3.f",
+        "kind": "imported",
+        "sourcePath": "backend/src/modules/analysis/skills/regimes/data-protection/gdpr/skill.config.ts",
+        "skillVersion": "2.0.1",
+        "profileVersion": "1.1.0",
+        "declaredReviewStatus": "authored",
+        "contentHash": "dfae0e8ba0b08afb3eee8785a234b8e2b5365970290000c527e392dfd4be9afa"
+      },
+      {
+        "ruleId": "gdpr.art28.3.g",
+        "kind": "imported",
+        "sourcePath": "backend/src/modules/analysis/skills/regimes/data-protection/gdpr/skill.config.ts",
+        "skillVersion": "2.0.1",
+        "profileVersion": "1.1.0",
+        "declaredReviewStatus": "authored",
+        "contentHash": "09ba6007b4bbd00ceeee81421973b9126e52602711a146cf43e9ea3477ec9fde"
+      },
+      {
+        "ruleId": "gdpr.art28.3.h",
+        "kind": "imported",
+        "sourcePath": "backend/src/modules/analysis/skills/regimes/data-protection/gdpr/skill.config.ts",
+        "skillVersion": "2.0.1",
+        "profileVersion": "1.1.0",
+        "declaredReviewStatus": "authored",
+        "contentHash": "34c88dfcefae3d374f302d85240ebb01f6d9f17e4c719e48c2f1b0971999f7a6"
+      },
+      {
+        "ruleId": "gdpr.art28.4",
+        "kind": "imported",
+        "sourcePath": "backend/src/modules/analysis/skills/regimes/data-protection/gdpr/skill.config.ts",
+        "skillVersion": "2.0.1",
+        "profileVersion": "1.1.0",
+        "declaredReviewStatus": "authored",
+        "contentHash": "c6b5090067d5d7bd877e03fbefd896cb2b277ce824471564a1b64cc67fb93f08"
+      },
+      {
+        "ruleId": "gdpr.art28.9",
+        "kind": "imported",
+        "sourcePath": "backend/src/modules/analysis/skills/regimes/data-protection/gdpr/skill.config.ts",
+        "skillVersion": "2.0.1",
+        "profileVersion": "1.1.0",
+        "declaredReviewStatus": "authored",
+        "contentHash": "aad5ca1d15ad0d9934c9c1cc9a762ca7da489f1c288bb4aa7cb953040d2808f1"
+      },
+      {
+        "ruleId": "gdpr.art28.10",
+        "kind": "imported",
+        "sourcePath": "backend/src/modules/analysis/skills/regimes/data-protection/gdpr/skill.config.ts",
+        "skillVersion": "2.0.1",
+        "profileVersion": "1.1.0",
+        "declaredReviewStatus": "authored",
+        "contentHash": "346fa9c4275c4b54ba851eccbe440edbbda6d84804cb35e70d1d536cb2e369d6"
+      }
+    ]
+  },
+  "evaluation": {
+    "pipelineVersion": "reference-self-check-v1",
+    "corpusVersion": "1.0.0",
+    "artifactChecksPassed": true,
+    "releaseQualified": false,
+    "criticalErrorCount": 0,
+    "corpus": {
+      "caseCount": 12,
+      "sourceFamilyCount": 11,
+      "humanCheckedCases": 0,
+      "splitCounts": {
+        "development": 12,
+        "calibration": 0,
+        "held_out": 0
+      }
+    },
+    "categories": [
+      {
+        "category": "gdpr_article28",
+        "caseCount": 2,
+        "criticalErrors": 0,
+        "initialCriticalErrorBudget": 0,
+        "thresholdStatus": "provisional_unvalidated"
+      },
+      {
+        "category": "layout",
+        "caseCount": 7,
+        "criticalErrors": 0,
+        "initialCriticalErrorBudget": 0,
+        "thresholdStatus": "provisional_unvalidated"
+      },
+      {
+        "category": "damaged",
+        "caseCount": 2,
+        "criticalErrors": 0,
+        "initialCriticalErrorBudget": 0,
+        "thresholdStatus": "provisional_unvalidated"
+      },
+      {
+        "category": "unsupported",
+        "caseCount": 1,
+        "criticalErrors": 0,
+        "initialCriticalErrorBudget": 0,
+        "thresholdStatus": "provisional_unvalidated"
+      }
+    ],
+    "blockers": [
+      "Expected answers still need human review",
+      "No independent calibration documents",
+      "No independent held-out documents",
+      "Original pilot PDF and verified page locations are missing",
+      "End-to-end parser, extraction, retrieval and release qualification have not run"
+    ],
+    "cases": [
+      {
+        "caseId": "gdpr-28-3-a-d",
+        "category": "gdpr_article28",
+        "checks": 108,
+        "passedChecks": 108,
+        "criticalErrors": []
+      },
+      {
+        "caseId": "gdpr-28-5-continuation",
+        "category": "gdpr_article28",
+        "checks": 35,
+        "passedChecks": 35,
+        "criticalErrors": []
+      },
+      {
+        "caseId": "headers-footers",
+        "category": "layout",
+        "checks": 20,
+        "passedChecks": 20,
+        "criticalErrors": []
+      },
+      {
+        "caseId": "page-top-paragraph",
+        "category": "layout",
+        "checks": 34,
+        "passedChecks": 34,
+        "criticalErrors": []
+      },
+      {
+        "caseId": "line-end-hyphen",
+        "category": "layout",
+        "checks": 20,
+        "passedChecks": 20,
+        "criticalErrors": []
+      },
+      {
+        "caseId": "two-column-order",
+        "category": "layout",
+        "checks": 36,
+        "passedChecks": 36,
+        "criticalErrors": []
+      },
+      {
+        "caseId": "table-reading-order",
+        "category": "layout",
+        "checks": 20,
+        "passedChecks": 20,
+        "criticalErrors": []
+      },
+      {
+        "caseId": "numbering-restart",
+        "category": "layout",
+        "checks": 34,
+        "passedChecks": 34,
+        "criticalErrors": []
+      },
+      {
+        "caseId": "missing-extraction-block",
+        "category": "damaged",
+        "checks": 20,
+        "passedChecks": 20,
+        "criticalErrors": []
+      },
+      {
+        "caseId": "exceptions-and-alternatives",
+        "category": "layout",
+        "checks": 21,
+        "passedChecks": 21,
+        "criticalErrors": []
+      },
+      {
+        "caseId": "unsupported-input",
+        "category": "unsupported",
+        "checks": 6,
+        "passedChecks": 6,
+        "criticalErrors": []
+      },
+      {
+        "caseId": "unreadable-input",
+        "category": "damaged",
+        "checks": 6,
+        "passedChecks": 6,
+        "criticalErrors": []
+      }
+    ]
+  }
+}

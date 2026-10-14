@@ -1,0 +1,81 @@
+Data Processing Agreement
+This processor agreement (the “Agreement”) is entered into on the last date of signature below, between:
+[The processor] organisation registration number [… ] (“Processor”) and
+The controller, organisation registration number (“Controller”)
+hereafter referred to separately as “the Party” and together as “the Parties”.
+
+Background 
+The Controller and the Processor have entered into a separate agreement or equivalent regarding the Processor’s provision of services to the Controller (“the Service Agreement”) which is appended to this Agreement. Regulation (EU) 2016/679 of the European Parliament and of the Council (General Data Protection Regulation), hereinafter referred to as the Regulation, states that a written processor agreement must be in place when a party is to process Personal Data on behalf of another party.   
+
+Definitions
+The terms used in this Agreement are to be interpreted in accordance with the Regulation. 
+
+Processing of personal data 
+3.1 The Processor is to process Personal Data only in accordance with the Service Agreement and its appendices.
+3.2 The Processor is to comply with the Regulation and to keep informed of the Regulation and associated legislation of relevance to the processing covered by the Service Agreement.  
+3.3 The Processor and the person/s working for the Processor may only process Personal Data in accordance with instructions included in this Agreement or communicated by the Controller from time to time. If the Processor lacks instructions deemed necessary for providing the service requested by the Controller, the Processor is promptly to inform the Controller and await the instructions deemed necessary by the Controller. The instructions received are to be documented. 
+3.4 The Processor is only to process Personal Data with equipment physically located within the EEA, including the use of cloud services. The Processor may only move the equipment or process Personal Data with other equipment with the consent of the Controller.
+
+Sub-Processors 
+4.1 The Processor may engage or replace a third party or several third parties for the Processing of Personal Data in accordance with the Agreement (“Sub-Processor”) if the following conditions are fulfilled:
+the Processor has the right to engage subcontractors in accordance with the Service Agreement, 
+the Controller has approved the engagement of the specific subcontractor, and
+the Processor has entered into a written agreement with the approved Sub-Processor regarding Processing of Personal Data in which the Sub-Processor is bound by the same obligations that apply to the Processor in accordance with this Agreement. At the Controller’s request, the Processor will provide the Controller with a copy of such agreement.
+4.2 The Processor is to ensure that the Controller is informed about which Sub-Processors are Processing Personal Data by providing, at the Controller’s request and without delay, complete, correct and updated information on all Sub-Processors, in which the following information is specified for each Sub-Processor:
+definition of the Sub-Processor, including contact information, type of legal entity and geographic location;
+the type of service the Sub-Processor carries out;
+the attributes of the Sub-Processor,
+guarantees given so that the Regulation’s requirements will be fulfilled, and
+where the Sub-Processor processes Personal Data that is covered by this Agreement.
+4.3 The Processor if fully liable to the Controller for the Sub-Processor’s Processing of Personal Data.  
+
+Limitations to the right to transfer Personal Data to a Third Country or International Organisation
+5.1 The Processor does not have the right to transfer Personal Data to a Third Country or International Organisation, unless the Controller has approved such transfer in writing and the requirements for such transfer in Chapter V of the Regulation are fulfilled.
+5.2 In the case of a transfer of Personal Data to a Third Country or International Organisation, the Processor is to present documentation, before the transfer starts, that confirms that the requirements in section 5.1 are fulfilled.
+
+Security measures, review and supervision 
+6.1 The Processor is to take appropriate technical and organisational measures to protect the Personal Data that is processed from unauthorised access, destruction and alteration, in accordance with the requirements of the Regulation, especially with regard to the requirements of Section 32 of the Regulation. In particular, the Processor is to observe the instructions in the general advice of the Swedish Authority for Privacy Protection or other regulations issued by the Swedish Authority for Privacy Protection. 
+6.2 Where relevant when considering the nature, scope, context and purposes of the processing, the Processor shall carry out an assessment of the impact of the envisaged processing on the protection of Personal Data, if it is likely to result in a high risk to the rights and freedoms of natural persons. The impact assessment is to be designed based on Article 35 of the Regulation.  
+6.3 The Processor is to consult with the Swedish Authority for Privacy Protection if the impact assessment reveals that the processing is likely to result in a high risk for Data Subjects. 
+6.4 When a Personal Data Breach is discovered, the Processor is to inform the Controller without delay. 
+6.5 Upon termination of this Agreement, the Processor is to erase the Personal Data in a way that makes it impossible to recreate them and ensure that no Personal Data is held by the Processor. 
+6.6 The Processor is to take measures to ensure that any natural or juridical person Processing data under the Processor’s supervision only processes data as instructed by the Controller and will ensure appropriate authorisation control.  
+6.7 The Controller has the right, at their own expense, to evaluate, either themselves or through a third party whether the Processor complies with the present Agreement. In such an evaluation, the Processor is to provide the Controller with the assistance required. 
+6.8 The Processor is to assist the Controller in making available information requested by the Swedish Authority for Privacy Protection or a Data Subject, or in other ways facilitate for the Controller to ensure the rights of a Data Subject in accordance with the Regulation. 
+6.9 If the Swedish Authority for Privacy Protection or another public authority initiates a review of the Controller’s Processing of Personal Data or if a person institutes proceedings against the Controller due to such Processing and the matter concerns Processing that can be considered to have been carried out by the Processor, the Processor is, to the extent that can reasonably be required and with compensation for actual, documented costs, to assist the Controller with documentation and other information regarding the Processing with the aim to make it possible for the Controller to comply with the public authority’s review and meet the requirements that are set. 
+
+Disclosure of information
+7.1 If the Data Subject, the Swedish Authority for Privacy Protection or another third party requests information from the Processor that concerns Processing of Personal Data (including the right to information and a copy of the data being processed, rectification, erasure etc.), the Processor is to refer this request to the Controller. The Processor is not to disclose Personal Data or other information on the Processing of Personal Data without express instruction from the Controller. 
+7.2 The Processor is to inform the Controller without delay about any contact from the Swedish Authority for Privacy Protection that concerns or can be of significance for the Processing of Personal Data. The Processor does not have the right to represent the Controller or act on the Controller’s behalf towards the Authority for Privacy Protection or another third party. 
+
+Confidentiality
+8.1 The Processor undertakes not to disclose or in other ways make available to a third party Personal Data or information about the processing of Personal Data covered by this Agreement or other information received by the Processor as a result of this Agreement or other information received by the Processor in their role as Processor. This obligation does not apply to information that the Processor is instructed to disclose to a public authority. In such a case, the Processor is obliged to inform the Controller in writing immediately and request that the Personal Data concerned is covered by confidentiality obligations when disclosed. The obligation to preserve confidentiality continues to apply after this Agreement otherwise ceases to be in effect. 
+8.2 The Processor undertakes to ensure that persons authorised to process Personal Data on its behalf apply the same level of confidentiality required of the Processor pursuant to this Agreement or applicable legislation. 
+
+Compensation
+Unless expressly stated in the Service Agreement, the Processor has no right to request compensation from the Controller for the Processing of Personal Data.
+
+Damages and liability towards third parties
+10.1 The Processor undertakes to indemnify the Controller in case the Controller is liable to pay damages to the Data Subject or another third party if the Processing of Personal Data that is subject to the damages has been carried out by the Processor in breach of this Agreement or the Controller’s instructions.
+10.2 A Party is not to be liable to pay compensation under this Agreement for indirect damage or loss such as loss of profit. For the avoidance of doubt, such damage as is stated in section 10.1 is considered to constitute direct damage for the Controller.
+
+Amendments
+In order to be valid, amendments and additions to this Agreement are to be made in writing and signed by authorised representatives of both Parties. This section 11 does not prevent the Controller from amending or issuing further instructions in accordance with what is stated in this Agreement. 
+
+Term of Agreement
+12.1 This Agreement is in force between the Parties from the date of signature and for as long as the Processor processes Personal Data on behalf of the Controller, or until either Party terminates the Agreement. There is to be a mutual notice period of 90 days.  
+12.2 Upon expiration of the Agreement and Service Agreement, the Processor is to ensure that all Personal Data is returned to the Controller in the format defined by the Controller, or alternatively irrevocably destroyed and also ensure that no Personal Data remains held by the Processor in accordance with section 6 here above unless required for compliance with mandatory law. 
+12.3 If the Service Agreement expires and a new such agreement is entered into without a new processor agreement being entered into, this Agreement applies also to such new service agreement. 
+
+Applicable law and resolving disputes 
+This Agreement is to be interpreted in accordance with GDPR,DPDPA, without reference to its conflict-of-laws rules. Disputes arising from this Agreement are to be resolved in the EU general courts. 
+
+This Agreement has been drawn up in two (2) originals, of which the Parties have each received one (1) original.
+
+1.[Processor]
+Place and date:
+Name:
+
+2. Controller
+Place and date:
+Name:

@@ -1,0 +1,70 @@
+DATA PROCESSING AGREEMENT
+
+This Data Processing Agreement ("DPA") is entered into between Northwind Controller Ltd ("Controller") and Contoso Processor Inc ("Processor") and forms part of the Master Services Agreement dated 1 March 2024 (the "Agreement").
+
+1. Subject matter and duration
+1.1 The subject matter of the processing is the provision of hosted analytics, identity, and support services described in the Agreement and Annex 1.
+1.2 This DPA remains in force for the term of the Agreement and until the Processor has deleted or returned all Personal Data in accordance with Clause 10.
+1.3 Processing shall continue for the duration of the subscription term, including any wind-down period not exceeding ninety (90) days after termination.
+
+2. Nature and purpose of processing
+2.1 The nature of the processing is collection, storage, organisation, structuring, hosting, retrieval, consultation, restriction, erasure and disclosure by transmission as necessary to provide the Services.
+2.2 The purpose of the processing is to provide the Controller with SaaS analytics, user administration, audit logging, and customer support, and to maintain the security of the Services.
+
+3. Categories of data and data subjects
+3.1 Categories of Personal Data: identification data, contact details, professional role, authentication identifiers, usage logs, support tickets, and (where the Controller elects) limited special category data as listed in Annex 1.
+3.2 Categories of data subjects: the Controller's employees, contractors, customers, and end users authorised to use the Services.
+
+4. Controller instructions and Processor obligations
+4.1 The Processor shall process Personal Data only on documented instructions from the Controller, including with regard to transfers of Personal Data to a third country, unless required to do so by Union or Member State law to which the Processor is subject. In that case, the Processor shall inform the Controller of that legal requirement before processing, unless the law prohibits such information on important grounds of public interest.
+4.2 The Processor shall immediately inform the Controller if, in its opinion, an instruction infringes the GDPR or other applicable data protection provisions.
+4.3 Persons authorised to process Personal Data have committed themselves to confidentiality or are under an appropriate statutory obligation of confidentiality.
+4.4 The Processor shall take all measures required pursuant to Article 32 GDPR, including those listed in Annex 2 (Technical and Organisational Measures).
+4.5 The Processor shall respect the conditions referred to in Article 28(2) and (4) for engaging another processor.
+
+5. Sub-processors
+5.1 The Controller provides general written authorisation for the Processor to engage sub-processors listed in Annex 3. The Processor shall inform the Controller of any intended changes concerning the addition or replacement of sub-processors, thereby giving the Controller the opportunity to object.
+5.2 Where the Processor engages another processor, the same data protection obligations as set out in this DPA shall be imposed on that other processor by way of a contract, in particular providing sufficient guarantees to implement appropriate technical and organisational measures. Where that other processor fails to fulfil its data protection obligations, the Processor remains fully liable to the Controller for the performance of that other processor's obligations.
+
+6. Data subject rights assistance
+6.1 Taking into account the nature of the processing, the Processor shall assist the Controller by appropriate technical and organisational measures, insofar as this is possible, for the fulfilment of the Controller's obligation to respond to requests for exercising the data subject's rights laid down in Chapter III of the GDPR.
+6.2 The Processor shall notify the Controller without undue delay of any data subject request it receives directly and shall not respond except on documented instructions.
+
+7. Security, DPIA and breach assistance
+7.1 The Processor shall assist the Controller in ensuring compliance with the obligations pursuant to Articles 32 to 36 GDPR, taking into account the nature of processing and the information available to the Processor.
+7.2 The Processor shall notify the Controller without undue delay after becoming aware of a personal data breach, and in any event within 48 hours, providing the information reasonably required for the Controller to comply with Article 33.
+
+8. Return and deletion
+8.1 At the choice of the Controller, the Processor shall delete or return all Personal Data to the Controller after the end of the provision of services relating to processing, and delete existing copies unless Union or Member State law requires storage of the Personal Data.
+8.2 The Processor shall certify deletion in writing within thirty (30) days of a written request.
+
+9. Audits and information
+9.1 The Processor shall make available to the Controller all information necessary to demonstrate compliance with the obligations laid down in Article 28 GDPR and allow for and contribute to audits, including inspections, conducted by the Controller or another auditor mandated by the Controller.
+9.2 Audits shall be limited to once per twelve-month period except where a personal data breach or competent authority investigation reasonably requires additional audit.
+
+10. International transfers
+10.1 The Processor shall not transfer Personal Data outside the EEA except where the transfer is subject to an adequacy decision, appropriate safeguards under Article 46 (including the EU Standard Contractual Clauses Module 2, Controller to Processor), or a valid Article 49 derogation.
+10.2 The Processor shall, on request, provide a copy of the relevant transfer mechanism and a transfer impact assessment summary.
+
+11. Liability and governing law
+11.1 Each party's liability under this DPA is subject to the limitations in the Agreement, except that nothing limits liability for a party's infringement of data protection law to the extent such limitation is prohibited.
+11.2 This DPA is governed by the laws of Ireland. The courts of Dublin have exclusive jurisdiction.
+
+ANNEX 1 — Processing particulars
+Subject matter: Hosted analytics and identity platform.
+Duration: Term of the Agreement plus 90-day wind-down.
+Nature: Hosting, storage, analysis, support.
+Purpose: Delivery of the Services.
+Personal data: names, emails, user IDs, IP addresses, job titles, support content.
+Data subjects: staff, customers, end users.
+Controller obligations and rights: determine purposes and means; issue instructions; conduct DPIAs; respond to data subjects; notify authorities.
+
+ANNEX 2 — Technical and organisational measures
+Encryption in transit (TLS 1.2+) and at rest (AES-256); access control with MFA; logging and monitoring; vulnerability management; backup and restoration tested quarterly; staff training; incident response plan; sub-processor due diligence.
+
+ANNEX 3 — Authorised sub-processors
+CloudHost EU (Ireland) — infrastructure hosting.
+MailCo (Germany) — transactional email.
+SupportDesk (Netherlands) — ticket routing.
+
+The parties have executed this DPA as of the date of the Agreement.

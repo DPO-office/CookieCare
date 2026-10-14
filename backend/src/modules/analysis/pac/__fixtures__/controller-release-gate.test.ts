@@ -1,0 +1,258 @@
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+import type { AnalysisState } from "../../models/analysis-state.js";
+import { initAgentRunState } from "../types.js";
+import { resolveStoppedReason, nextPhaseAfterCritique } from "../transitions.js";
+import { renderLimitationsReport } from "../../capabilities/reporting/limitations-report.js";
+import {
+  beginRenderStreaming,
+  emitAnalysisToken,
+  shouldHoldUserFacingOutput,
+} from "../../utils/pac-log.js";
+import type { CritiqueReport, ReleaseDecision } from "../../models/critique-report.js";
+import { PacController } from "../controller.js";
+import { resolveAnalysisProfile } from "../analysis-profile.js";
+
+function critiqueWithRelease(release: ReleaseDecision): CritiqueReport {
+  return {
+    isGreen: release.verdict === "release",
+    iteration: 1,
+    results: [],
+    fixPlan: [],
+    skeletonMismatch: false,
+    release,
+  };
+}
+
+describe("PAC release gate transitions", () => {
+  it("runs the deterministic release gate for Lite instead of labelling failed ACT work green", async () => {
+    let critiqueCalls = 0;
+    const profile = resolveAnalysisProfile("lite");
+    const release: ReleaseDecision = {
+      verdict: "release_with_limitations",
+      reasons: ["coverage_gap"],
+      requirementCoverage: {
+        total: 1,
+        covered: 0,
+        entries: [],
+        notCovered: ["r1"],
+        needsReplan: [],
+      },
+      alignment: { issues: [] },
+      placeholderReport: { detected: false },
+    };
+    const state = {
+      entryMode: "CREATE",
+      analysisProfile: profile,
+      agent: initAgentRunState("CREATE", {
+        phase: "ACT",
+        maxTurns: profile.maxTurns,
+      }),
+      request: {
+        sessionId: "release-gate-lite",
+        instruction: "check requirement",
+        documentIds: [],
+        documentTexts: {},
+        thinkingMode: "lite",
+      },
+      workspace: { sessionId: "release-gate-lite", documents: [] },
+      plan: {
+        workUnits: [
+          {
+            workUnitId: "wu-failed",
+            tool: "evaluate_package",
+            input: {},
+            dependsOn: [],
+            outputSchema: "Finding[]",
+            status: "failed",
+          },
+        ],
+        missingClarifications: [],
+      },
+      findings: [],
+      draftTasks: [],
+      renderedOutput: "Partial result with explicit limitations.",
+      metadata: {
+        timestamp: "",
+        clauseTaxonomyVersion: "1",
+        riskTaxonomyVersion: "1",
+      },
+    } as unknown as AnalysisState;
+    const identity = async (current: AnalysisState) => current;
+    const controller = new PacController({
+      classifyIntent: identity,
+      buildPlan: identity,
+      executeActPlan: identity,
+      runAudit: identity,
+      runCritique: async (current) => {
+        critiqueCalls += 1;
+        return { ...current, critique: critiqueWithRelease(release) };
+      },
+      askUser: identity,
+      persistAnalysis: identity,
+    });
+
+    const result = await controller.run(state);
+    assert.equal(critiqueCalls, 1);
+    assert.equal(result.agent?.stoppedReason, "green_partial");
+  });
+
+  it("holds user-facing tokens until PAC is DONE", () => {
+    const state = { agent: initAgentRunState("CREATE") } as AnalysisState;
+    assert.equal(shouldHoldUserFacingOutput(state), true);
+    state.agent!.phase = "ACT";
+    assert.equal(shouldHoldUserFacingOutput(state), true);
+    state.agent!.phase = "AUDIT";
+    assert.equal(shouldHoldUserFacingOutput(state), true);
+    state.agent!.phase = "CRITIQUE";
+    assert.equal(shouldHoldUserFacingOutput(state), true);
+    state.agent!.phase = "DONE";
+    assert.equal(shouldHoldUserFacingOutput(state), false);
+  });
+
+  it("lets renderer tokens through during ACT once streaming starts", () => {
+    const chunks: string[] = [];
+    const state = {
+      agent: initAgentRunState("CREATE"),
+      onToken: (delta: string) => chunks.push(delta),
+    } as unknown as AnalysisState;
+    state.agent!.phase = "ACT";
+    emitAnalysisToken(state, "held");
+    assert.deepEqual(chunks, []);
+    beginRenderStreaming(state);
+    assert.equal(shouldHoldUserFacingOutput(state), false);
+    emitAnalysisToken(state, "memo");
+    assert.deepEqual(chunks, ["memo"]);
+  });
+  it("blocked withhold never preserves misleading renderedOutput in limitations report", () => {
+    const release: ReleaseDecision = {
+      verdict: "withhold",
+      reasons: ["placeholder_output"],
+      requirementCoverage: {
+        total: 1,
+        covered: 0,
+        entries: [],
+        notCovered: ["r1"],
+        needsReplan: [],
+      },
+      alignment: { issues: [] },
+      placeholderReport: { detected: true, kind: "placeholder_text" },
+    };
+    const state = {
+      agent: initAgentRunState("CREATE"),
+      request: {
+        sessionId: "s",
+        instruction: "Analyse NDA",
+        documentIds: [],
+        documentTexts: {},
+      },
+      workspace: { sessionId: "s", documents: [] },
+      findings: [],
+      draftTasks: [],
+      metadata: {
+        timestamp: "",
+        clauseTaxonomyVersion: "1",
+        riskTaxonomyVersion: "1",
+      },
+      activeSkillIds: [],
+      renderedOutput: "FAKE SUCCESS MEMO",
+    } as AnalysisState;
+
+    const limited = renderLimitationsReport(state, release);
+    assert.doesNotMatch(limited, /FAKE SUCCESS MEMO/);
+    assert.equal(resolveStoppedReason(state, critiqueWithRelease(release)), "blocked");
+  });
+
+  it("green_partial for release_with_limitations", () => {
+    const release: ReleaseDecision = {
+      verdict: "release_with_limitations",
+      reasons: ["coverage_gap"],
+      requirementCoverage: {
+        total: 2,
+        covered: 1,
+        entries: [],
+        notCovered: ["r2"],
+        needsReplan: [],
+      },
+      alignment: { issues: [] },
+      placeholderReport: { detected: false },
+    };
+    assert.equal(
+      resolveStoppedReason({} as AnalysisState, critiqueWithRelease(release)),
+      "green_partial"
+    );
+  });
+
+  it("uses a completed release verdict after the final allowed turn", () => {
+    const state = {
+      agent: initAgentRunState("CREATE", { turn: 1, maxTurns: 1 }),
+    } as AnalysisState;
+    const critique = {
+      ...critiqueWithRelease({
+        verdict: "release",
+        reasons: [],
+        requirementCoverage: {
+          total: 1,
+          covered: 1,
+          entries: [],
+          notCovered: [],
+          needsReplan: [],
+        },
+        alignment: { issues: [] },
+        placeholderReport: { detected: false },
+      }),
+      executionComplete: true,
+    };
+
+    assert.equal(resolveStoppedReason(state, critique), "green");
+  });
+
+  it("still reports max turns when execution is incomplete", () => {
+    const state = {
+      agent: initAgentRunState("CREATE", { turn: 1, maxTurns: 1 }),
+    } as AnalysisState;
+    const critique = {
+      ...critiqueWithRelease({
+        verdict: "release_with_limitations",
+        reasons: ["coverage_gap"],
+        requirementCoverage: {
+          total: 1,
+          covered: 0,
+          entries: [],
+          notCovered: ["r1"],
+          needsReplan: [],
+        },
+        alignment: { issues: [] },
+        placeholderReport: { detected: false },
+      }),
+      executionComplete: false,
+    };
+
+    assert.equal(resolveStoppedReason(state, critique), "max_turns");
+  });
+
+  it("replan when alignment issue action is replan even with empty fixPlan", () => {
+    const critique = critiqueWithRelease({
+      verdict: "withhold",
+      reasons: ["alignment_mismatch"],
+      requirementCoverage: {
+        total: 1,
+        covered: 0,
+        entries: [],
+        notCovered: [],
+        needsReplan: ["r1"],
+      },
+      alignment: {
+        issues: [
+          {
+            kind: "wrong_package",
+            action: "replan",
+            detail: "wrong package",
+          },
+        ],
+      },
+      placeholderReport: { detected: false },
+    });
+    assert.equal(nextPhaseAfterCritique({ agent: initAgentRunState("CREATE") } as AnalysisState, critique), "DONE");
+  });
+});
