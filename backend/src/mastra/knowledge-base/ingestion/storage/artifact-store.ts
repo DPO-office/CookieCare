@@ -4,6 +4,7 @@ import {
 } from "@aws-sdk/client-s3";
 import type { Pool } from "pg";
 import { KbJobStore } from "./job-store.js";
+import { kbS3FromEnvironment } from "./s3-client.js";
 
 export const MAX_ARTIFACT_BYTES = 100 * 1024 * 1024;
 const CONTENT_TYPE = "application/json";
@@ -44,10 +45,8 @@ export class S3ArtifactObjectStore implements ArtifactObjectStore {
   }
 
   static fromEnvironment(): S3ArtifactObjectStore {
-    if (!process.env.AWS_REGION || !process.env.KB_S3_BUCKET) {
-      throw new Error("AWS_REGION and KB_S3_BUCKET are required");
-    }
-    return new S3ArtifactObjectStore(new S3Client({ region: process.env.AWS_REGION }), process.env.KB_S3_BUCKET);
+    const { client, bucket } = kbS3FromEnvironment();
+    return new S3ArtifactObjectStore(client, bucket);
   }
 
   async read(key: string): Promise<{ bytes: Uint8Array; contentType: string | undefined } | null> {

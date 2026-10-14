@@ -14,7 +14,10 @@ logs/
 backend/src/modules/analysis/temp/**/out/
 .env*
 !.env.example
+!.env.docling.example
 .env
+.env.docling
+certs/
 !frontend/.env.production
 /DRAFTING_PIPELINE_GAP_ANALYSIS_AND_AGENTIC_ROADMAP.md
 

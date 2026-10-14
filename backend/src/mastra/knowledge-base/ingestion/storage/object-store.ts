@@ -3,6 +3,7 @@ import {
   DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { kbS3FromEnvironment } from "./s3-client.js";
 
 export const MAX_PDF_BYTES = 25 * 1024 * 1024;
 const URL_SECONDS = 300;
@@ -33,10 +34,8 @@ export class S3ObjectStore implements ObjectStore {
   }
 
   static fromEnvironment(): S3ObjectStore {
-    const region = process.env.AWS_REGION;
-    const bucket = process.env.KB_S3_BUCKET;
-    if (!region || !bucket) throw new Error("AWS_REGION and KB_S3_BUCKET are required");
-    return new S3ObjectStore(new S3Client({ region }), bucket);
+    const { client, bucket } = kbS3FromEnvironment();
+    return new S3ObjectStore(client, bucket);
   }
 
   async signUpload(key: string, checksumHex: string): Promise<{ url: string; headers: Record<string, string> }> {

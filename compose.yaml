@@ -10,6 +10,22 @@ x-lora-app: &lora-app
   restart: unless-stopped
 
 services:
+  db:
+    image: pgvector/pgvector:0.8.7-pg17-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB in .env}
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
   proxy:
     image: caddy:2
     restart: unless-stopped
@@ -29,10 +45,20 @@ services:
 
   api:
     <<: *lora-app
+    depends_on:
+      db:
+        condition: service_healthy
     environment:
       NODE_ENV: production
       PORT: "8080"
       SKIP_DB: "false"
+      DATABASE_URL: ${DATABASE_URL:?Set the internal db connection URL in .env}
+      DOCLING_SERVICE_URL: ${DOCLING_SERVICE_URL:?Set the authenticated HTTPS Docling service URL}
+      DOCLING_SERVICE_TOKEN: ${DOCLING_SERVICE_TOKEN:?Set DOCLING_SERVICE_TOKEN}
+      ANALYSIS_LOG: "0"
+      ANALYSIS_DUMP_COMPLIANCE_BUNDLES: "0"
+      ANALYSIS_DUMP_COMPLIANCE_PRE_REPORT: "0"
+      ANALYSIS_DUMP_COMPLIANCE_VERIFICATION: "0"
     ports:
       - "127.0.0.1:${LORA_HTTP_PORT:-8080}:8080"
     healthcheck:
@@ -48,20 +74,44 @@ services:
 
   kb-worker:
     <<: *lora-app
+    depends_on:
+      db:
+        condition: service_healthy
     environment:
       NODE_ENV: production
       SKIP_DB: "false"
+      DATABASE_URL: ${DATABASE_URL:?Set the internal db connection URL in .env}
+      DOCLING_SERVICE_URL: ${DOCLING_SERVICE_URL:?Set the authenticated HTTPS Docling service URL}
+      DOCLING_SERVICE_TOKEN: ${DOCLING_SERVICE_TOKEN:?Set DOCLING_SERVICE_TOKEN}
     command: ["node", "backend/dist/kb-worker.js"]
 
   db-setup:
     <<: *lora-app
     profiles: ["setup"]
     restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
     environment:
       NODE_ENV: production
       SKIP_DB: "false"
+      DATABASE_URL: ${DATABASE_URL:?Set the internal db connection URL in .env}
     command: ["node", "backend/dist/db-setup.js"]
 
+  kb-migrate:
+    <<: *lora-app
+    profiles: ["setup"]
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      SKIP_DB: "false"
+      DATABASE_URL: ${DATABASE_URL:?Set the internal db connection URL in .env}
+    command: ["node", "backend/dist/kb-migrate.js"]
+
 volumes:
+  postgres_data:
   caddy_data:
   caddy_config:

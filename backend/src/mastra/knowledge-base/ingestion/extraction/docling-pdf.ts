@@ -1,5 +1,6 @@
 import path from "node:path";
 import { existsSync } from "node:fs";
+import { convertWithDoclingService, doclingServiceConfigured } from "../../../../services/docling-client.js";
 
 export const DOCLING_VERSION = "1.41.0";
 export const DOCLING_CONFIG = Object.freeze({ pipeline: "standard", strict: true,
@@ -16,6 +17,14 @@ export class DoclingPdfExtractor implements PdfExtractor {
 
   async extract(bytes: Uint8Array, fileName: string): Promise<unknown> {
     if (!bytes.length || !fileName.toLowerCase().endsWith(".pdf")) throw new Error("PDF input is required");
+    if (doclingServiceConfigured()) {
+      const result = await convertWithDoclingService(bytes, fileName, "pdf", "kb-pdf");
+      if (result.status !== "success") throw new Error(`Docling PDF conversion failed: ${result.status}`);
+      return result.document;
+    }
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("DOCLING_SERVICE_URL is required for production KB extraction");
+    }
     this.pipelinePromise ??= (async () => {
       const docling = await import("docling.rs");
       const candidates = process.env.DOCLING_RS_HOME

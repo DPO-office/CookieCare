@@ -1,0 +1,4 @@
+{$DOCLING_DOMAIN} {
+  tls /etc/caddy/certs/fullchain.pem /etc/caddy/certs/privkey.pem
+  reverse_proxy docling:8090
+}

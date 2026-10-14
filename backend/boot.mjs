@@ -2,7 +2,7 @@
  * Cloud Run / production entry.
  *
  * Bind PORT immediately with Node builtins only, then load the bundled app.
- * The Express graph pulls Playwright, Docling, and the analysis pipeline, and
+ * The Express graph pulls Playwright and the analysis pipeline, and
  * Cloud Run fails the revision if that work happens before the process listens.
  */
 import http from "node:http";

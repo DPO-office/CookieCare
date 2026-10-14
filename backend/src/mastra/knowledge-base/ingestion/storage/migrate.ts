@@ -26,6 +26,10 @@ export async function migrateKnowledgeBase(pool: Pool): Promise<void> {
 export async function runMigrations(client: MigrationClient): Promise<void> {
   await client.query("BEGIN");
   try {
+    const schema = await client.query("SELECT to_regclass('public.users') AS users_table");
+    if (!(schema.rows[0] as { users_table?: string | null } | undefined)?.users_table) {
+      throw new Error("Application schema is missing; run the explicit db-setup job before KB migrations");
+    }
     await client.query("SELECT pg_advisory_xact_lock(hashtext('cookiecare_kb_migrations'))");
     await client.query(`
       CREATE TABLE IF NOT EXISTS kb_schema_migrations (

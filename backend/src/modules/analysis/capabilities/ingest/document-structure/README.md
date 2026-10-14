@@ -61,8 +61,9 @@ On Windows, install the local PDF assets once from the repository root:
 npm run setup:docling:windows
 ```
 
-`GET /api/health` reports PDFium/layout/OCR/TableFormer readiness. Docker and
-Render install the equivalent Linux assets during their build.
+`GET /api/health` reports parser readiness. The DigitalOcean production API
+calls the separate Docling service through `DOCLING_SERVICE_URL` and
+`DOCLING_SERVICE_TOKEN`; local development may still use native assets.
 
 Deterministic reference extraction remains active when semantic discovery is
 disabled. DOCX and other supported formats do not require the PDF model bundle.
