@@ -41,7 +41,7 @@ function isMissing(error: unknown): boolean {
 /** Uses the same private KB bucket as PDFs, with separate immutable artifact keys. */
 export class S3ArtifactObjectStore implements ArtifactObjectStore {
   constructor(private readonly client: S3Client, private readonly bucket: string) {
-    if (!bucket) throw new Error("KB_S3_BUCKET is required");
+    if (!bucket) throw new Error("DO_SPACES_BUCKET is required");
   }
 
   static fromEnvironment(): S3ArtifactObjectStore {

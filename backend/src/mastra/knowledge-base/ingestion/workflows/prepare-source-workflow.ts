@@ -313,14 +313,14 @@ export function createPrepareSourceWorkflow(resolve: () => PrepareSourceServices
 
 const productionPool = process.env.DATABASE_URL
   ? new pg.Pool({ connectionString: process.env.DATABASE_URL }) : null;
-const productionObjects = process.env.KB_S3_BUCKET ? S3ObjectStore.fromEnvironment() : null;
+const productionObjects = process.env.DO_SPACES_BUCKET ? S3ObjectStore.fromEnvironment() : null;
 const productionJobs = productionPool ? new KbJobStore(productionPool) : null;
-const productionArtifacts = productionPool && process.env.KB_S3_BUCKET
+const productionArtifacts = productionPool && process.env.DO_SPACES_BUCKET
   ? new KbArtifactStore(productionPool, S3ArtifactObjectStore.fromEnvironment(), productionJobs!) : null;
 
 export const prepareSourceWorkflow = createPrepareSourceWorkflow(() => {
   if (!productionPool || !productionObjects || !productionJobs || !productionArtifacts) {
-    throw new Error("DATABASE_URL and KB_S3_BUCKET are required for source preparation");
+    throw new Error("DATABASE_URL and DO_SPACES_BUCKET are required for source preparation");
   }
   return { pool: productionPool, objects: productionObjects, jobs: productionJobs,
     artifacts: productionArtifacts, extractor: new DoclingPdfExtractor(),

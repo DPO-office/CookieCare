@@ -1,41 +1,31 @@
 import { S3Client, type S3ClientConfig } from "@aws-sdk/client-s3";
 
 export interface KbS3Settings {
-  region: string;
   bucket: string;
-  endpoint?: string;
-  forcePathStyle?: boolean;
+  endpoint: string;
+  accessKeyId: string;
+  secretAccessKey: string;
 }
 
 export function kbS3Settings(env: NodeJS.ProcessEnv = process.env): KbS3Settings {
-  const region = env.AWS_REGION?.trim();
-  const bucket = env.KB_S3_BUCKET?.trim();
-  if (!region || !bucket) throw new Error("AWS_REGION and KB_S3_BUCKET are required");
-  const endpoint = env.KB_S3_ENDPOINT?.trim();
-  if (endpoint) {
-    const url = new URL(endpoint);
-    if (!["http:", "https:"].includes(url.protocol) || url.username || url.password || url.search || url.hash) {
-      throw new Error("KB_S3_ENDPOINT must be an HTTP(S) origin without credentials or query parameters");
-    }
-    if (env.NODE_ENV === "production" && url.protocol !== "https:") {
-      throw new Error("KB_S3_ENDPOINT must use HTTPS in production");
-    }
-    if (!env.AWS_ACCESS_KEY_ID || !env.AWS_SECRET_ACCESS_KEY) {
-      throw new Error("Custom S3 endpoints require AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY");
-    }
+  const region = env.DO_SPACES_REGION?.trim();
+  const bucket = env.DO_SPACES_BUCKET?.trim();
+  const accessKeyId = env.DO_SPACES_KEY?.trim();
+  const secretAccessKey = env.DO_SPACES_SECRET?.trim();
+  if (!region || !bucket || !accessKeyId || !secretAccessKey) {
+    throw new Error("DO_SPACES_REGION, DO_SPACES_BUCKET, DO_SPACES_KEY and DO_SPACES_SECRET are required");
   }
-  const style = env.KB_S3_FORCE_PATH_STYLE?.trim().toLowerCase();
-  if (style && style !== "true" && style !== "false") {
-    throw new Error("KB_S3_FORCE_PATH_STYLE must be true or false");
-  }
-  return { region, bucket, ...(endpoint ? { endpoint } : {}),
-    ...(style ? { forcePathStyle: style === "true" } : {}) };
+  if (!/^[a-z0-9-]+$/.test(region)) throw new Error("DO_SPACES_REGION is invalid");
+  return { bucket, endpoint: `https://${region}.digitaloceanspaces.com`, accessKeyId, secretAccessKey };
 }
 
 export function createKbS3Client(settings: KbS3Settings): S3Client {
-  const config: S3ClientConfig = { region: settings.region };
-  if (settings.endpoint) config.endpoint = settings.endpoint;
-  if (settings.forcePathStyle !== undefined) config.forcePathStyle = settings.forcePathStyle;
+  const config: S3ClientConfig = {
+    region: "us-east-1",
+    endpoint: settings.endpoint,
+    forcePathStyle: false,
+    credentials: { accessKeyId: settings.accessKeyId, secretAccessKey: settings.secretAccessKey },
+  };
   return new S3Client(config);
 }
 
