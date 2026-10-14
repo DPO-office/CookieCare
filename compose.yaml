@@ -1,0 +1,67 @@
+name: lora
+
+x-lora-app: &lora-app
+  image: lora:local
+  build:
+    context: .
+    dockerfile: Dockerfile
+  env_file:
+    - .env
+  restart: unless-stopped
+
+services:
+  proxy:
+    image: caddy:2
+    restart: unless-stopped
+    environment:
+      LORA_DOMAIN: ${LORA_DOMAIN:?Set LORA_DOMAIN to the public DNS name}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      api:
+        condition: service_healthy
+
+  api:
+    <<: *lora-app
+    environment:
+      NODE_ENV: production
+      PORT: "8080"
+      SKIP_DB: "false"
+    ports:
+      - "127.0.0.1:${LORA_HTTP_PORT:-8080}:8080"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:8080/api/healthz').then(r => r.json()).then(body => process.exit(body.status === 'ok' ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+  kb-worker:
+    <<: *lora-app
+    environment:
+      NODE_ENV: production
+      SKIP_DB: "false"
+    command: ["node", "backend/dist/kb-worker.js"]
+
+  db-setup:
+    <<: *lora-app
+    profiles: ["setup"]
+    restart: "no"
+    environment:
+      NODE_ENV: production
+      SKIP_DB: "false"
+    command: ["node", "backend/dist/db-setup.js"]
+
+volumes:
+  caddy_data:
+  caddy_config:
