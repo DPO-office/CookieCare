@@ -1,4 +1,5 @@
 import { config } from "./index.js";
+import { doclingServiceSettings } from "../services/docling-client.js";
 
 export function validateEnv() {
   if (config.skipDb) {
@@ -21,6 +22,8 @@ export function validateEnv() {
     ...(config.nodeEnv === "production" ? [
       { key: "JWT_SECRET", value: process.env.JWT_SECRET },
       { key: "CORS_ORIGIN", value: process.env.CORS_ORIGIN },
+      { key: "DOCLING_SERVICE_URL", value: process.env.DOCLING_SERVICE_URL },
+      { key: "DOCLING_SERVICE_TOKEN", value: process.env.DOCLING_SERVICE_TOKEN },
     ] : []),
   ];
   const missing = required.filter((item) => !item.value || item.value.trim() === "");
@@ -39,6 +42,12 @@ export function validateEnv() {
   if (process.env.ENCRYPTION_KEY && Buffer.from(process.env.ENCRYPTION_KEY).length !== 32) {
     console.error("❌ [FATAL] ENCRYPTION_KEY must be exactly 32 bytes.");
     process.exit(1);
+  }
+  if (config.nodeEnv === "production") {
+    doclingServiceSettings();
+    if ((process.env.DOCLING_SERVICE_TOKEN?.length ?? 0) < 32) {
+      throw new Error("DOCLING_SERVICE_TOKEN must be at least 32 characters");
+    }
   }
 
   console.log("✅ Environment validation successful.");

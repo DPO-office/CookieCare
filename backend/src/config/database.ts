@@ -51,7 +51,7 @@ export const pool = config.skipDb
   ? createStubPool()
   : new Pool({
       connectionString,
-      ssl: wantsSsl ? { rejectUnauthorized: false } : undefined,
+      ssl: wantsSsl ? { rejectUnauthorized: config.nodeEnv === "production" } : undefined,
       max: isNeon ? 8 : 20,
       idleTimeoutMillis: isNeon ? 10000 : 30000,
       connectionTimeoutMillis: 60000,

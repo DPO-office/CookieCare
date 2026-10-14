@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
 import { extractText } from "../../../../../utils/extractText.js";
+import { convertWithDoclingService, doclingServiceConfigured, doclingServiceSettings } from "../../../../../services/docling-client.js";
 import type { CanonicalTable, ParsedBlock, ParsedDocument, SourceBox, SourceProvenance, StructureWarning } from "./types.js";
 
 const DOCLING_VERSION = "1.41.0";
@@ -17,6 +18,7 @@ let recoveryConverter: DocumentConverter | undefined;
 let pdfPipeline: Pipeline | undefined;
 
 function allowLegacyFallback(): boolean {
+  if (process.env.NODE_ENV === "production") return false;
   const flag = (process.env.DOCUMENT_PARSER_FALLBACK || "").trim();
   if (flag === "1" || flag.toLowerCase() === "true") return true;
   if (flag === "0" || flag.toLowerCase() === "false") return false;
@@ -101,6 +103,20 @@ function resolveDoclingHome(checkDependencies: DoclingAddon["checkDependencies"]
 }
 
 export async function getDocumentParserReadiness() {
+  if (doclingServiceConfigured() || process.env.NODE_ENV === "production") {
+    try {
+      const { url, token } = doclingServiceSettings();
+      const response = await fetch(new URL("../healthz", url), {
+        headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(3000),
+      });
+      const ready = response.ok;
+      return { ready, pdfReady: ready, pdfium: ready, layout: ready, ocr: ready,
+        tableformer: ready, missing: ready ? [] : ["Docling service"], error: undefined as string | undefined };
+    } catch (error) {
+      return { ready: false, pdfReady: false, pdfium: false, layout: false, ocr: false,
+        tableformer: false, missing: ["Docling service"], error: error instanceof Error ? error.message : String(error) };
+    }
+  }
   try {
     const { checkDependencies } = await loadDocling();
     const home = resolveDoclingHome(checkDependencies);
@@ -283,6 +299,32 @@ async function legacyFallback(buffer: Buffer, mimeType: string, format: string, 
 export async function parseDocument(buffer: Buffer, mimeType: string, fileName: string): Promise<ParsedDocument> {
   const format = formatForMime(mimeType, fileName);
   if (["txt", "json", "csv"].includes(format)) return nativeTextDocument(buffer, format);
+  if (doclingServiceConfigured() || process.env.NODE_ENV === "production") {
+    const name = fileNameForFormat(fileName, format);
+    try {
+      const result = await convertWithDoclingService(buffer, name, format,
+        format === "pdf" ? "analysis-pdf" : "analysis-document");
+      if (result.status === "failure") throw new Error("Docling conversion failed");
+      const parsed = blocksFromDocling(result.document);
+      const warnings: StructureWarning[] = result.status === "success" ? [] : [{
+        code: "docling_partial_success", severity: "warning", message: `Docling completed with status ${result.status}.`,
+      }];
+      return { parser: { name: "docling.rs", version: DOCLING_VERSION, format, status: result.status }, ...parsed, warnings };
+    } catch (error) {
+      if (format === "pdf") {
+        try {
+          const recovered = await convertWithDoclingService(buffer, name, format, "analysis-recovery");
+          if (recovered.status === "failure") throw new Error("Docling recovery failed");
+          return { parser: { name: "docling.rs", version: DOCLING_VERSION, format, status: recovered.status },
+            ...blocksFromDocling(recovered.document), warnings: [{ code: "docling_recovery_pass", severity: "warning",
+              message: "The strict PDF pass failed; Docling recovered the document with its tolerant conversion pass." }] };
+        } catch (recoveryError) {
+          throw new Error(`Docling failed to parse this pdf document: ${error instanceof Error ? error.message : String(error)}; recovery: ${recoveryError instanceof Error ? recoveryError.message : String(recoveryError)}`);
+        }
+      }
+      throw new Error(`Docling failed to parse this ${format} document: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
   try {
     let result;
     if (format === "pdf") {

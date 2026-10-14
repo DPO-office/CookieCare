@@ -11,8 +11,15 @@ import { KbUploadService } from "./storage/upload-service.js";
 import { migrateKnowledgeBase } from "./storage/migrate.js";
 import { createProcessIngestionWorkflow } from "./workflows/process-ingestion-workflow.js";
 import { createPrepareSourceWorkflow } from "./workflows/prepare-source-workflow.js";
+import { doclingServiceSettings } from "../../../services/docling-client.js";
 
 if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is required");
+if (process.env.NODE_ENV === "production") {
+  doclingServiceSettings();
+  if ((process.env.DOCLING_SERVICE_TOKEN?.length ?? 0) < 32) {
+    throw new Error("DOCLING_SERVICE_TOKEN must be at least 32 characters");
+  }
+}
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 try {
   await migrateKnowledgeBase(pool);

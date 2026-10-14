@@ -8,11 +8,11 @@ const TAG = "[Analysis PAC]";
  * Master switch for Analysis PAC console + file inspect traces
  * (PLAN/ACT/AUDIT/CRITIQUE dumps, evidence-pool / VERIFY session files).
  * Set ANALYSIS_LOG=0 (or false/off/no) to silence all of them.
- * Unset or any other value keeps current verbose behavior.
+ * Unset keeps verbose behavior in development and disables it in production.
  */
 export function analysisLogEnabled(): boolean {
   const raw = process.env.ANALYSIS_LOG;
-  if (raw === undefined || raw === "") return true;
+  if (raw === undefined || raw === "") return process.env.NODE_ENV !== "production";
   return !["0", "false", "off", "no"].includes(raw.trim().toLowerCase());
 }
 

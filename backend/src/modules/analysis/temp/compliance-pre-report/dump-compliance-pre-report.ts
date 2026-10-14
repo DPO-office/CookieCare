@@ -15,6 +15,7 @@ export interface CompliancePreReportDumpArgs {
 }
 
 function enabled(): boolean {
+  if (process.env.NODE_ENV === "production") return false;
   // Test workers must not overwrite the user's rolling live-run artifact.
   if (process.env.NODE_TEST_CONTEXT) return false;
   const flag = process.env.ANALYSIS_DUMP_COMPLIANCE_PRE_REPORT;

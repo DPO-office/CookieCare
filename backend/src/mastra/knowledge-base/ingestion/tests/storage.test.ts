@@ -140,7 +140,7 @@ test("migration failures roll back and changed migrations stop startup", async (
     },
   };
   try {
-    await assert.rejects(runMigrations(client));
+    await assert.rejects(runMigrations(client), /Application schema is missing/);
     assert.equal((await db.query<{ name: string | null }>("SELECT to_regclass('kb_sources') AS name")).rows[0]?.name, null);
     await db.exec("CREATE TABLE users (id VARCHAR(255) PRIMARY KEY, role VARCHAR(50), status VARCHAR(50))");
     await runMigrations(client);
