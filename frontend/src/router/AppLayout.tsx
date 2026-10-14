@@ -5,7 +5,8 @@
  * and SidebarInset are mounted here and NEVER remount on route changes.
  * Feature pages render into <Outlet /> inside SidebarInset.
  *
- * TopNav is also kept here so the breadcrumb always reflects the current URL.
+ * Below 768px a compact bar opens the existing sidebar drawer. Desktop keeps
+ * the sidebar in the document flow with no extra header.
  */
 
 import { Outlet, useLocation } from "react-router-dom";
@@ -38,6 +39,7 @@ function MobileTopBar() {
     <header className="md:hidden flex h-14 shrink-0 items-center justify-between border-b border-[#E4E4E7] bg-white px-4 z-20 shadow-xs">
       <div className="flex items-center gap-2.5 min-w-0">
         <button
+          id="lora-mobile-menu"
           type="button"
           onClick={toggleSidebar}
           className="flex h-9 w-9 items-center justify-center rounded-xl text-[#374151] hover:bg-[#F3F4F6] transition-colors focus:outline-none"
@@ -69,7 +71,7 @@ export default function AppLayout() {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-screen overflow-hidden font-sans app-shell">
+      <div className="flex h-full w-full min-w-0 max-w-full overflow-hidden font-sans app-shell">
         <Sidebar
           user={currentUser}
           isAdmin={isAdmin}
@@ -88,4 +90,3 @@ export default function AppLayout() {
     </SidebarProvider>
   );
 }
-

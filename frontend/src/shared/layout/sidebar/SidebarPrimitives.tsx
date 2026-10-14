@@ -22,6 +22,30 @@ export const SidebarPrimitive = React.forwardRef<
 >(({ side = "left", collapsible = "icon", className, children }, ref) => {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
+  const mobilePanelRef = React.useRef<HTMLDivElement | null>(null);
+  const mobileWasOpen = React.useRef(false);
+
+  React.useEffect(() => {
+    if (!isMobile) {
+      mobileWasOpen.current = false;
+      return;
+    }
+    if (openMobile) {
+      mobilePanelRef.current?.focus({ preventScroll: true });
+      mobileWasOpen.current = true;
+      return;
+    }
+    if (mobileWasOpen.current) {
+      document.getElementById("lora-mobile-menu")?.focus({ preventScroll: true });
+      mobileWasOpen.current = false;
+    }
+  }, [isMobile, openMobile]);
+
+  const setMobilePanelRef = React.useCallback((node: HTMLDivElement | null) => {
+    mobilePanelRef.current = node;
+    if (typeof ref === "function") ref(node);
+    else if (ref) ref.current = node;
+  }, [ref]);
 
   const panelStyle: React.CSSProperties = {
     background: THEME.bg,
@@ -53,14 +77,21 @@ export const SidebarPrimitive = React.forwardRef<
           <div
             className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
             onClick={() => setOpenMobile(false)}
+            aria-hidden="true"
           />
         )}
         <div
-          ref={ref}
+          ref={setMobilePanelRef}
+          id="lora-mobile-nav"
+          role="navigation"
+          aria-label="Main navigation"
+          tabIndex={-1}
+          inert={!openMobile}
+          aria-hidden={!openMobile}
           data-sidebar="sidebar"
           data-state={openMobile ? "expanded" : "collapsed"}
           className={[
-            "fixed inset-y-0 left-0 z-50 flex flex-col h-full w-[var(--sidebar-width)] p-3",
+            "fixed inset-y-0 left-0 z-50 flex flex-col h-full w-[var(--sidebar-width)] max-w-full p-3 outline-none",
             "transition-transform duration-300 ease-in-out",
             openMobile ? "translate-x-0" : "-translate-x-full",
             className,
@@ -123,7 +154,7 @@ export const SidebarInset = React.forwardRef<
   <div
     ref={ref}
     data-sidebar="inset"
-    className={["flex flex-1 flex-col min-w-0 overflow-hidden relative", className]
+    className={["flex h-full min-h-0 flex-1 flex-col min-w-0 overflow-hidden relative", className]
       .filter(Boolean).join(" ")}
     {...props}
   />

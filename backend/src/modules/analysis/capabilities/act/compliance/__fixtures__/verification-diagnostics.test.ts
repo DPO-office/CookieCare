@@ -164,7 +164,7 @@ test("application pipeline writes a terminal file trace even when the baseline i
     complete: async () => { throw Error("No model call is expected"); },
     investigate: async () => ({ bundlesByRequirement: new Map(), resolutionIssues: [], timings: { indexMs: 0, retrievalMs: 0, reviewMs: 0, expansionMs: 0, totalMs: 0 } }),
   });
-  const summary = read(path.join(trace.health().runDirectory!, "summary.json"));
+  const summary = await waitForFile(path.join(trace.health().runDirectory!, "summary.json"), value => value.status === "complete");
   assert.equal(summary.status, "complete");
   assert.equal(summary.checks[0].reportedStatus, "verification_incomplete");
   assert.equal(summary.checks[0].gate.gate, "baseline_unavailable");

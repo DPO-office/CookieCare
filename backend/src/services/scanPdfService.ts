@@ -105,7 +105,7 @@ function coverHeader(doc: PDFKit.PDFDocument, title: string, subtitle: string): 
   doc.rect(0, 0, W, 148).fill(NAVY);
   doc.rect(0, 146, W, 3).fill(INDIGO);
   doc.fillColor("#FFFFFF").font("Helvetica-Bold").fontSize(8)
-     .text("LEXIFY AI  ·  Privacy & Compliance Platform", ML, 22, { characterSpacing: 0.5 });
+     .text("LORA  ·  Privacy & Compliance Platform", ML, 22, { characterSpacing: 0.5 });
   doc.fillColor("#FFFFFF").font("Helvetica-Bold").fontSize(20)
      .text(title, ML, 46, { width: W - ML * 2 });
   doc.fillColor("#94A3B8").font("Helvetica").fontSize(10)
@@ -120,7 +120,7 @@ function runHeader(doc: PDFKit.PDFDocument): void {
   doc.rect(0, 0, W, 36).fill("#FFFFFF");
   doc.rect(0, 35, W, 1).fill(BORDER);
   doc.fillColor(SLATE).font("Helvetica").fontSize(8)
-     .text("LEXIFY AI  ·  Security & Compliance Report", ML, 13);
+     .text("LORA  ·  Security & Compliance Report", ML, 13);
   doc.y = 50;
 }
 

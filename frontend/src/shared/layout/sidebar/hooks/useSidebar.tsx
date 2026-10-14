@@ -41,10 +41,13 @@ export function useIsMobile(breakpoint = 768): boolean {
   );
 
   React.useEffect(() => {
-    const mq = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
+    // Range syntax matches innerWidth < breakpoint. `max-width: 767px` misses
+    // a viewport of exactly 767px in Chrome, which left the desktop sidebar up.
+    const mq = window.matchMedia(`(width < ${breakpoint}px)`);
+    const apply = () => setIsMobile(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
   }, [breakpoint]);
 
   return isMobile;
@@ -102,7 +105,13 @@ export const SidebarProvider = React.forwardRef<HTMLDivElement, SidebarProviderP
       isMobile ? setOpenMobile((v) => !v) : setOpen(!open);
     }, [isMobile, open, setOpen]);
 
-    // Keyboard shortcut: Ctrl/Cmd + B
+    // Leaving the mobile breakpoint must not leave the drawer open, and must
+    // not write the desktop cookie.
+    React.useEffect(() => {
+      if (!isMobile) setOpenMobile(false);
+    }, [isMobile]);
+
+    // Keyboard shortcut: Ctrl/Cmd + B. Mobile toggles the drawer only.
     React.useEffect(() => {
       const handler = (e: KeyboardEvent) => {
         if (
@@ -116,6 +125,17 @@ export const SidebarProvider = React.forwardRef<HTMLDivElement, SidebarProviderP
       window.addEventListener("keydown", handler);
       return () => window.removeEventListener("keydown", handler);
     }, [toggleSidebar]);
+
+    React.useEffect(() => {
+      if (!isMobile || !openMobile) return;
+      const onKeyDown = (event: KeyboardEvent) => {
+        if (event.key !== "Escape") return;
+        event.preventDefault();
+        setOpenMobile(false);
+      };
+      window.addEventListener("keydown", onKeyDown);
+      return () => window.removeEventListener("keydown", onKeyDown);
+    }, [isMobile, openMobile]);
 
     const state: SidebarState = open ? "expanded" : "collapsed";
 
@@ -145,7 +165,7 @@ export const SidebarProvider = React.forwardRef<HTMLDivElement, SidebarProviderP
             } as React.CSSProperties
           }
           className={[
-            "group/sidebar-wrapper flex min-h-screen w-full",
+            "group/sidebar-wrapper flex h-screen max-md:h-dvh w-full min-w-0 max-w-full",
             className,
           ]
             .filter(Boolean)
