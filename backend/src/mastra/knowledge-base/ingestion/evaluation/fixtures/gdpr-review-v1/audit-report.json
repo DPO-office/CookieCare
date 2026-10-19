@@ -1,0 +1,138 @@
+{
+  "review_type": "AI-assisted source and rubric audit",
+  "revision": "1.1-audited-draft",
+  "original_dataset_sha256": "a04ab7cf3b90102d26714e87343ff388e7521d18af79c46b22a36dcd1605a5ca",
+  "cases_reviewed": 60,
+  "cases_with_expected_or_forbidden_changes": [
+    "GDPR-S1-01",
+    "GDPR-S2-10",
+    "GDPR-S3-05",
+    "GDPR-S4-01",
+    "GDPR-S4-02",
+    "GDPR-S4-04",
+    "GDPR-S4-05",
+    "GDPR-S4-07",
+    "GDPR-S4-08",
+    "GDPR-S4-10",
+    "GDPR-S4-11",
+    "GDPR-S4-12",
+    "GDPR-S5-01",
+    "GDPR-S5-02",
+    "GDPR-S5-03",
+    "GDPR-S5-04",
+    "GDPR-S5-06",
+    "GDPR-S6-01",
+    "GDPR-S6-02",
+    "GDPR-S6-03",
+    "GDPR-S6-04",
+    "GDPR-S6-05",
+    "GDPR-S6-06",
+    "GDPR-S6-07",
+    "GDPR-S7-04",
+    "GDPR-S7-05"
+  ],
+  "finding_groups": [
+    {
+      "cases": [
+        "GDPR-S1-01",
+        "GDPR-S1-02",
+        "GDPR-S1-03",
+        "GDPR-S1-08",
+        "GDPR-S3-01",
+        "GDPR-S3-05"
+      ],
+      "problem": "Some global inventory and chapter expectations pointed only to example pages. CELEX was not labelled as record-derived metadata.",
+      "correction": "Add explicit inventories and chapter source locations; distinguish PDF text from source-record metadata."
+    },
+    {
+      "cases": [
+        "GDPR-S2-10"
+      ],
+      "problem": "Original case incorrectly claimed broken quotation glyphs in reference extraction. There are zero U+FFFD characters; the apparent corruption was console display.",
+      "correction": "Replace with the real U+00AD line-break case and valid Unicode checks. Correct the source normalization policy."
+    },
+    {
+      "cases": [
+        "GDPR-S3-05",
+        "GDPR-S3-06",
+        "GDPR-S3-08"
+      ],
+      "problem": "Relationship cases mixed structural facts with one retrieval strategy or one status-name implementation. An inferred recital link was treated as a critical exact edge.",
+      "correction": "Keep chapter membership exact; make inferred-link recall advisory; allow equivalent external-target states under an explicit source-only setup."
+    },
+    {
+      "cases": [
+        "GDPR-S4-01",
+        "GDPR-S4-02",
+        "GDPR-S4-04",
+        "GDPR-S4-05",
+        "GDPR-S4-07",
+        "GDPR-S4-08",
+        "GDPR-S4-09",
+        "GDPR-S4-10",
+        "GDPR-S4-11",
+        "GDPR-S4-12",
+        "GDPR-S4-14"
+      ],
+      "problem": "Several expected objects were too abbreviated to catch important omissions or scope errors. Article 6 only listed a-f; the request-deadline case omitted Articles 15-22 scope.",
+      "correction": "Expand the legal facts and qualifications. State partial test scope. Mark the calculated date as derived rather than extracted. Preserve inclusive OR."
+    },
+    {
+      "cases": [
+        "GDPR-S5-01",
+        "GDPR-S5-02",
+        "GDPR-S5-03",
+        "GDPR-S5-04",
+        "GDPR-S5-06"
+      ],
+      "problem": "Illustrative search phrases and optional terms were mixed into mandatory expectations. Silence in an Article 28 agreement was not distinguished clearly enough from an operational breach.",
+      "correction": "Move examples outside scored facts, accept equivalent queries and statuses, and allow a justified contractual gap without claiming observed operational misconduct."
+    },
+    {
+      "cases": [
+        "GDPR-S6-01",
+        "GDPR-S6-02",
+        "GDPR-S6-03",
+        "GDPR-S6-04",
+        "GDPR-S6-05",
+        "GDPR-S6-06",
+        "GDPR-S6-07"
+      ],
+      "problem": "Exact subclause IDs and a mandatory 28(3)(d) route could reject valid passage retrieval. Article 33(1) was unnecessarily mandatory for a processor-only question. Vector null was descriptive, not a scored output.",
+      "correction": "Match actual source coverage, permit valid direct routes, make comparison context optional, and define isolated retrieval/index preconditions and concrete decoys."
+    },
+    {
+      "cases": [
+        "GDPR-S7-01",
+        "GDPR-S7-02",
+        "GDPR-S7-03",
+        "GDPR-S7-04",
+        "GDPR-S7-05"
+      ],
+      "problem": "Synthetic scenarios left assumptions implicit and a drafting case could require a legal citation inside the clause itself.",
+      "correction": "State evidence boundaries and assumptions; permit citation metadata separate from clause prose; preserve controller timing qualifications."
+    }
+  ],
+  "confirmed": [
+    "PDF hash and 88-page identity",
+    "99 article headings, 173 recital headings, 11 chapter headings",
+    "Real cross-page boundaries for 4(9), 6(3), 28(3) and 32(1)",
+    "Article 28(5) is on physical page 50",
+    "Confidentiality alternatives, controller choice and processor breach-notification distinction"
+  ],
+  "source_text_checks": {
+    "fresh_pdfplumber_extraction_matches_frozen_pages": true,
+    "U_FFFD_count": 0,
+    "U_00AD_count": 39
+  },
+  "human_approved_cases": 0,
+  "pipeline_executed": false,
+  "release_qualified": false,
+  "limitations": [
+    "Semantic facts and product rubrics still need independent human approval.",
+    "No machine scorer implementation is delivered by this audit.",
+    "Full paragraph coverage and all relation types are not certified by 60 cases.",
+    "Reference spans remain context windows; raw footnotes and headers inside them are not expected clean rule bodies."
+  ],
+  "revised_dataset_sha256": "6450e80b65037873d2c1a5215decb3457f4e8030e44ad2b5ad0818b9bec90913"
+}

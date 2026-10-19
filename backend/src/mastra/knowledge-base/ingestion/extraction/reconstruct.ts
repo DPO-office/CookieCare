@@ -13,6 +13,10 @@ export interface DraftProvision {
   start: number;
   end: number;
   sourceSpans: SourceLocation[];
+  childIds: string[];
+  structuralPath: string[];
+  inheritedParentIds: string[];
+  boundaryStatus: "complete" | "cross_chunk" | "uncertain";
   status: "candidate" | "needs_review";
 }
 export interface DraftRelationship {
@@ -20,10 +24,17 @@ export interface DraftRelationship {
   occurrenceId: string;
   sourceProvisionId: string | null;
   targetProvisionId: string | null;
+  targetProvisionIds: string[];
   exactMention: string;
   start: number;
   end: number;
-  status: "proposed" | "unresolved" | "ambiguous";
+  status: "proposed" | "unresolved" | "ambiguous" | "external_unavailable";
+  detectedBy: Array<"model" | "source_detector">;
+  targetHint: string | null;
+  externalTarget: { instrumentHint: string; provisionHint: string | null;
+    versionStatus: "unresolved"; availability: "unavailable" } | null;
+  rangeTarget: { kind: "article" | "rule" | "section"; from: number; to: number;
+    complete: boolean } | null;
 }
 export interface ReconstructionDraft {
   schemaVersion: 1;
@@ -72,6 +83,57 @@ function targetCandidates(mention: string, provisions: DraftProvision[]): DraftP
     normalized.includes(provision.label.toLocaleLowerCase("en").replace(/\s+/g, " ")));
 }
 
+function containingProvision(start: number, end: number, provisions: DraftProvision[]): DraftProvision | null {
+  return provisions.filter(provision => provision.start <= start && provision.end >= end)
+    .sort((a, b) => (a.end - a.start) - (b.end - b.start))[0] ?? null;
+}
+
+function referencedRange(mention: string, provisions: DraftProvision[]) {
+  const match = /\b(articles?|rules?|sections?)\s+(\d+)\s*[-–—]\s*(\d+)/iu.exec(mention);
+  if (!match) return null;
+  const kind = match[1]!.toLocaleLowerCase("en").replace(/s$/, "") as "article" | "rule" | "section";
+  const from = Number(match[2]), to = Number(match[3]);
+  if (to < from || to - from > 500) return null;
+  const candidates = provisions.filter(provision => provision.kind === kind && provision.label && (() => {
+    const value = new RegExp(`\\b${kind}\\s+(\\d+)`, "iu").exec(provision.label!);
+    return value ? Number(value[1]) >= from && Number(value[1]) <= to : false;
+  })());
+  return { kind, from, to, candidates, complete: candidates.length === to - from + 1 };
+}
+
+function relativeTargets(mention: string, owner: DraftProvision | null,
+  provisions: DraftProvision[]): DraftProvision[] {
+  const match = /\b(paragraph|subparagraph|point)\s+\(?([A-Za-z0-9]+)\)?\s+of\s+this\s+(article|rule|section)\b/iu.exec(mention);
+  if (!match || !owner) return [];
+  const byId = new Map(provisions.map(provision => [provision.id, provision]));
+  let container: DraftProvision | undefined = owner;
+  while (container && container.kind !== match[3]!.toLocaleLowerCase("en")) {
+    container = container.parentId ? byId.get(container.parentId) : undefined;
+  }
+  if (!container) return [];
+  const token = match[2]!.toLocaleLowerCase("en");
+  return provisions.filter(provision => provision.id !== owner.id &&
+    (provision.parentId === container!.id || provision.inheritedParentIds.includes(container!.id)) &&
+    ["paragraph", "point"].includes(provision.kind) &&
+    (provision.label ?? provision.text.slice(0, 60)).toLocaleLowerCase("en").includes(token));
+}
+
+function structuralPaths(provisions: DraftProvision[]): void {
+  const byId = new Map(provisions.map(provision => [provision.id, provision]));
+  for (const provision of provisions) {
+    const path: string[] = [], inherited: string[] = [], seen = new Set<string>();
+    let current = provision.parentId ? byId.get(provision.parentId) : undefined;
+    while (current && !seen.has(current.id)) {
+      seen.add(current.id); path.unshift(current.label ?? current.id); inherited.unshift(current.id);
+      current = current.parentId ? byId.get(current.parentId) : undefined;
+    }
+    provision.structuralPath = [...path, provision.label ?? provision.id];
+    provision.inheritedParentIds = inherited;
+  }
+  for (const provision of provisions) provision.childIds = provisions
+    .filter(child => child.parentId === provision.id).map(child => child.id);
+}
+
 /** Drafts only. A legal reviewer must accept coverage and relationships before publication. */
 export function reconstructSource(map: SourceMap, candidate: CandidateStructure,
   detection: ReferenceDetection): ReconstructionDraft {
@@ -91,25 +153,53 @@ export function reconstructSource(map: SourceMap, candidate: CandidateStructure,
       parentId: segment.parent ? bySegment.get(segment.parent) ?? null : null,
       kind, label: labelOf(segment, map.text), text: map.text.slice(segment.span.start, segment.span.end),
       start: segment.span.start, end: segment.span.end, sourceSpans,
+      childIds: [], structuralPath: [], inheritedParentIds: [],
+      boundaryStatus: segment.startsBeforeChunk || segment.continuesAfterChunk ? "cross_chunk" as const :
+        sourceSpans.length ? "complete" as const : "uncertain" as const,
       status: hasLocation && kind !== "unknown" ? "candidate" as const : "needs_review" as const };
   });
+  structuralPaths(provisions);
   const unresolvedText = uncoveredText(map.text, candidate.segments.map(segment => segment.span));
   for (const gap of unresolvedText) warnings.push(`Unclassified source text at ${gap.start}-${gap.end}`);
-  const relationships = detection.references.map((occurrence: DetectedReference) => {
-    const owners = provisions.filter(provision => provision.start <= occurrence.start && provision.end >= occurrence.end)
-      .sort((a, b) => (a.end - a.start) - (b.end - b.start));
-    const owner = owners[0] ?? null;
-    const targets = targetCandidates(occurrence.exactMention, provisions)
+  const relationships: DraftRelationship[] = [];
+  const addRelationship = (occurrence: { id: string; start: number; end: number; exactMention: string;
+    targetHint?: string | null; externalInstrumentHint?: string | null }, detectedBy: "model" | "source_detector",
+    directTargetIds: string[] = [], resolutionStatus?: string) => {
+    const owner = containingProvision(occurrence.start, occurrence.end, provisions);
+    const directTargets = directTargetIds.map(id => bySegment.get(id)).filter((id): id is string => !!id)
+      .map(id => provisions.find(provision => provision.id === id)!).filter(Boolean);
+    const range = referencedRange(occurrence.exactMention, provisions);
+    const targets = [...targetCandidates(occurrence.exactMention, provisions),
+      ...relativeTargets(occurrence.exactMention, owner, provisions), ...(range?.candidates ?? [])]
       .filter(target => target.id !== owner?.id);
-    const target = targets.length === 1 ? targets[0]! : null;
-    const status = targets.length > 1 ? "ambiguous" : target ? "proposed" : "unresolved";
+    const candidates = [...new Map([...directTargets, ...targets].map(target => [target.id, target])).values()];
+    const target = candidates.length === 1 ? candidates[0]! : null;
+    const external = resolutionStatus === "external" || !!occurrence.externalInstrumentHint;
+    const status = external ? "external_unavailable" : range ? (range.complete ? "proposed" : "unresolved") :
+      candidates.length > 1 ? "ambiguous" :
+      target ? "proposed" : "unresolved";
     if (!owner || status !== "proposed") warnings.push(`Reference needs review: ${occurrence.exactMention} at ${occurrence.start}`);
-    return { id: hashRevision({ sourceVersionId, occurrenceId: occurrence.id,
-      sourceProvisionId: owner?.id ?? null, targetProvisionId: target?.id ?? null }),
-      occurrenceId: occurrence.id, sourceProvisionId: owner?.id ?? null,
-      targetProvisionId: target?.id ?? null, exactMention: occurrence.exactMention,
-      start: occurrence.start, end: occurrence.end, status } satisfies DraftRelationship;
-  });
+    const identity = hashRevision({ sourceVersionId, start: occurrence.start, end: occurrence.end,
+      sourceProvisionId: owner?.id ?? null });
+    const existing = relationships.find(relation => relation.id === identity);
+    if (existing) {
+      if (!existing.detectedBy.includes(detectedBy)) existing.detectedBy.push(detectedBy);
+      existing.targetProvisionIds = [...new Set([...existing.targetProvisionIds, ...candidates.map(item => item.id)])];
+      if (!existing.targetProvisionId && target) { existing.targetProvisionId = target.id; existing.status = "proposed"; }
+      return;
+    }
+    relationships.push({ id: identity, occurrenceId: occurrence.id, sourceProvisionId: owner?.id ?? null,
+      targetProvisionId: target?.id ?? null, targetProvisionIds: candidates.map(item => item.id), exactMention: occurrence.exactMention,
+      start: occurrence.start, end: occurrence.end, status, detectedBy: [detectedBy],
+      targetHint: occurrence.targetHint ?? occurrence.exactMention,
+      externalTarget: external ? { instrumentHint: occurrence.externalInstrumentHint ?? occurrence.targetHint ?? occurrence.exactMention,
+        provisionHint: null, versionStatus: "unresolved", availability: "unavailable" } : null,
+      rangeTarget: range ? { kind: range.kind, from: range.from, to: range.to, complete: range.complete } : null });
+  };
+  for (const occurrence of detection.references) addRelationship(occurrence, "source_detector");
+  candidate.references.forEach((reference, index) => addRelationship({ id: `model:${index}`,
+    start: reference.start, end: reference.end, exactMention: reference.exactMention,
+    targetHint: reference.targetHint }, "model", reference.targetSegmentIds, reference.resolutionStatus));
   return { schemaVersion: 1, sourceVersionId, textHash: map.textHash, provisions,
     relationships, unresolvedText, warnings,
     status: warnings.length ? "needs_review" : "candidate_ready" };

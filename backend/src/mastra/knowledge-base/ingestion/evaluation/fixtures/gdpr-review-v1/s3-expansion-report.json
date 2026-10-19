@@ -1,0 +1,20 @@
+{
+  "revision": "1.2-expanded-s3-gold-draft",
+  "changed_cases": [
+    "GDPR-S3-01",
+    "GDPR-S3-02"
+  ],
+  "source_basis": "Frozen PDF-derived source-passages.json; Article 28 fragments occur on physical pages 49\u201350 and Article 32 fragments on pages 51\u201352.",
+  "gold_scope": "Complete Article 28 and 32 local hierarchies, named explicit provision references within them, and selected cross-article traversal paths.",
+  "graph_check_counts": {
+    "article_28_nodes": 20,
+    "article_28_named_edges": 33,
+    "article_32_nodes": 9,
+    "article_32_named_edges": 3,
+    "multi_hop_paths": 5
+  },
+  "human_review_status": "pending",
+  "pipeline_stage_3_status": "not_run",
+  "previous_dataset_sha256": "6450e80b65037873d2c1a5215decb3457f4e8030e44ad2b5ad0818b9bec90913",
+  "current_dataset_sha256": "14e017c2102e3f30a08dd7c6505f198bb4a8914b03c737cdd6ec0374f8afcf57"
+}

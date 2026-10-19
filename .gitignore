@@ -50,6 +50,7 @@ backend/scripts/live-job-eval.json
 backend/scripts/mastercard-replay-summary.json
 backend/scripts/_*.txt
 backend/out/
+backend/evaluation-runs/
 backend/server.js.map
 backend/tsc-*.txt
 backend/_tmp_check_packages.*

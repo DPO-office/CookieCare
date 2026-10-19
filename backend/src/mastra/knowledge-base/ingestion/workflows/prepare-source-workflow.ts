@@ -7,9 +7,11 @@ import { buildSourceMap, type SourceMap } from "../extraction/source-map.js";
 import { detectReferences } from "../extraction/reference-detection.js";
 import { reconstructSource } from "../extraction/reconstruct.js";
 import { validateReconstruction } from "../extraction/validate-reconstruction.js";
+import { buildDocumentModel, type DocumentModel } from "../extraction/document-model.js";
 import { kanonProviderConfiguration } from "../extraction/kanon.js";
 import { createAuthorizedProductionStructureProvider } from "../extraction/structure-provider-factory.js";
 import { StructureProviderConfigSchema, type CandidateStructure,
+  type StructureChunkCheckpoint,
   type StructureProvider, type StructureProviderConfig,
   type StructureProviderResult } from "../extraction/structure-provider.js";
 import { hashRevision } from "../schemas/common.js";
@@ -37,7 +39,9 @@ const Prepared = Projected.extend({ referencesArtifact: Artifact,
   preparationStatus: z.enum(["candidate_ready", "needs_review"]) });
 const Reconstructed = Prepared.extend({ reconstructionArtifact: Artifact,
   provisionCount: z.number().int().nonnegative(), relationshipCount: z.number().int().nonnegative() });
-const Validated = Reconstructed.extend({ validationArtifact: Artifact,
+const Modeled = Reconstructed.extend({ documentModelArtifact: Artifact,
+  tableCount: z.number().int().nonnegative(), incompleteContextCount: z.number().int().nonnegative() });
+const Validated = Modeled.extend({ validationArtifact: Artifact,
   validationIssueCount: z.number().int().nonnegative() });
 const FinalOutput = Validated.omit({ jobId: true, leaseOwner: true, inputHash: true });
 
@@ -181,7 +185,35 @@ export function createPrepareSourceWorkflow(resolve: () => PrepareSourceServices
           const provider = providerFactory(inputData.providerConfiguration);
           const response = await provider.extract({ canonicalText: sourceMap.text,
             textHash: sourceMap.textHash, sourceMap,
-            configuration: inputData.providerConfiguration });
+            configuration: inputData.providerConfiguration,
+            checkpoints: {
+              savePlan: async plan => {
+                const planHash = hashRevision({ textHash: sourceMap.textHash,
+                  configurationHash: inputData.providerConfiguration.configurationHash, plan });
+                await artifacts.writeCheckpointedJson(inputData.jobId, inputData.leaseOwner,
+                  "structure_chunk_plan", "1", planHash, "structure_chunk_plan", plan);
+              },
+              loadChunk: async chunk => {
+                const chunkHash = hashRevision({ chunkInputHash: chunk.inputHash,
+                  configurationHash: inputData.providerConfiguration.configurationHash });
+                const stage = `structure_provider_${chunk.chunkId}`;
+                const cachedChunk = await jobs.completedStep<ArtifactReference>(inputData.jobId,
+                  stage, "1", chunkHash);
+                if (!cachedChunk) return null;
+                const value = await artifacts.readVerified(cachedChunk) as StructureChunkCheckpoint;
+                if (value.chunk.inputHash !== chunk.inputHash || value.candidate.textHash !== sourceMap.textHash) {
+                  throw new Error(`Cached structure chunk does not match ${chunk.chunkId}`);
+                }
+                return value;
+              },
+              saveChunk: async checkpoint => {
+                const chunkHash = hashRevision({ chunkInputHash: checkpoint.chunk.inputHash,
+                  configurationHash: inputData.providerConfiguration.configurationHash });
+                await artifacts.writeCheckpointedJson(inputData.jobId, inputData.leaseOwner,
+                  `structure_provider_${checkpoint.chunk.chunkId}`, "1", chunkHash,
+                  "structure_provider_chunk", checkpoint);
+              },
+            } });
           providerResponseArtifact = await artifacts.writeCheckpointedJson(inputData.jobId,
             inputData.leaseOwner, "structure_provider_response", "1", stageHash,
             "structure_provider_response", response);
@@ -235,11 +267,11 @@ export function createPrepareSourceWorkflow(resolve: () => PrepareSourceServices
         referenceCount: detection.references.length, preparationStatus };
     } });
 
-  const reconstruct = createStep({ id: "reconstruct-provider-structure-v2", inputSchema: Prepared,
+  const reconstruct = createStep({ id: "reconstruct-provider-structure-v3", inputSchema: Prepared,
     outputSchema: Reconstructed, execute: async ({ inputData }) => {
       const { jobs, artifacts } = resolve();
       const stageHash = KbJobStore.stageHash(inputData.sourceVersionId, inputData.inputHash,
-        "reconstruct_source", "2");
+        "reconstruct_source", "3");
       const [sourceMap, candidate, detection] = await Promise.all([
         artifacts.readVerified(inputData.mapArtifact) as Promise<SourceMap>,
         artifacts.readVerified(inputData.candidateArtifact) as Promise<CandidateStructure>,
@@ -247,9 +279,9 @@ export function createPrepareSourceWorkflow(resolve: () => PrepareSourceServices
       ]);
       const draft = reconstructSource(sourceMap, candidate, detection);
       const cached = await jobs.completedStep<ArtifactReference>(inputData.jobId,
-        "reconstruct_source", "2", stageHash);
+        "reconstruct_source", "3", stageHash);
       const reconstructionArtifact = cached ?? await artifacts.writeCheckpointedJson(inputData.jobId,
-        inputData.leaseOwner, "reconstruct_source", "2", stageHash,
+        inputData.leaseOwner, "reconstruct_source", "3", stageHash,
         "reconstruction_draft", draft);
       await artifacts.readVerified(reconstructionArtifact);
       return { ...inputData, reconstructionArtifact, provisionCount: draft.provisions.length,
@@ -257,20 +289,41 @@ export function createPrepareSourceWorkflow(resolve: () => PrepareSourceServices
         preparationStatus: draft.status === "needs_review" ? "needs_review" : inputData.preparationStatus };
     } });
 
-  const validate = createStep({ id: "validate-provider-reconstruction-v2", inputSchema: Reconstructed,
-    outputSchema: Validated, execute: async ({ inputData }) => {
+  const modelDocument = createStep({ id: "build-document-model-v1", inputSchema: Reconstructed,
+    outputSchema: Modeled, execute: async ({ inputData }) => {
       const { jobs, artifacts } = resolve();
       const stageHash = KbJobStore.stageHash(inputData.sourceVersionId, inputData.inputHash,
-        "validate_reconstruction", "2");
+        "document_model", "1");
       const [sourceMap, draft] = await Promise.all([
         artifacts.readVerified(inputData.mapArtifact) as Promise<SourceMap>,
         artifacts.readVerified(inputData.reconstructionArtifact) as Promise<ReturnType<typeof reconstructSource>>,
       ]);
-      const report = validateReconstruction(inputData.sourceVersionId, sourceMap, draft);
+      const document = buildDocumentModel(sourceMap, draft);
       const cached = await jobs.completedStep<ArtifactReference>(inputData.jobId,
-        "validate_reconstruction", "2", stageHash);
+        "document_model", "1", stageHash);
+      const documentModelArtifact = cached ?? await artifacts.writeCheckpointedJson(inputData.jobId,
+        inputData.leaseOwner, "document_model", "1", stageHash, "document_model", document);
+      await artifacts.readVerified(documentModelArtifact);
+      return { ...inputData, documentModelArtifact, tableCount: document.tables.length,
+        incompleteContextCount: document.contextManifests.filter(manifest => !manifest.complete).length,
+        preparationStatus: document.reviewStatus === "needs_review" ? "needs_review" : inputData.preparationStatus };
+    } });
+
+  const validate = createStep({ id: "validate-provider-reconstruction-v3", inputSchema: Modeled,
+    outputSchema: Validated, execute: async ({ inputData }) => {
+      const { jobs, artifacts } = resolve();
+      const stageHash = KbJobStore.stageHash(inputData.sourceVersionId, inputData.inputHash,
+        "validate_reconstruction", "3");
+      const [sourceMap, draft, document] = await Promise.all([
+        artifacts.readVerified(inputData.mapArtifact) as Promise<SourceMap>,
+        artifacts.readVerified(inputData.reconstructionArtifact) as Promise<ReturnType<typeof reconstructSource>>,
+        artifacts.readVerified(inputData.documentModelArtifact) as Promise<DocumentModel>,
+      ]);
+      const report = validateReconstruction(inputData.sourceVersionId, sourceMap, draft, document);
+      const cached = await jobs.completedStep<ArtifactReference>(inputData.jobId,
+        "validate_reconstruction", "3", stageHash);
       const validationArtifact = cached ?? await artifacts.writeCheckpointedJson(inputData.jobId,
-        inputData.leaseOwner, "validate_reconstruction", "2", stageHash,
+        inputData.leaseOwner, "validate_reconstruction", "3", stageHash,
         "validation_report", report);
       await artifacts.readVerified(validationArtifact);
       return { ...inputData, validationArtifact, validationIssueCount: report.issues.length,
@@ -308,7 +361,7 @@ export function createPrepareSourceWorkflow(resolve: () => PrepareSourceServices
 
   return createWorkflow({ id: "kb-prepare-source-v2", inputSchema: JobInput,
     outputSchema: FinalOutput }).then(extract).then(map).then(record).then(callProvider)
-    .then(project).then(detect).then(reconstruct).then(validate).then(recordRun).commit();
+    .then(project).then(detect).then(reconstruct).then(modelDocument).then(validate).then(recordRun).commit();
 }
 
 const productionPool = process.env.DATABASE_URL

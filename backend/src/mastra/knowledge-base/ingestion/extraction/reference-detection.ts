@@ -7,7 +7,9 @@ export interface DetectedReference {
   start: number;
   end: number;
   exactMention: string;
-  kind: "rule" | "section" | "article" | "schedule";
+  kind: "rule" | "section" | "article" | "schedule" | "relative" | "external";
+  targetHint: string;
+  externalInstrumentHint: string | null;
   sourceSpans: SourceLocation[];
   resolutionStatus: "unresolved";
 }
@@ -15,7 +17,7 @@ export interface ReferenceDetection {
   schemaVersion: 1;
   sourceVersionId: string;
   textHash: string;
-  detectorVersion: "1";
+  detectorVersion: "2";
   references: DetectedReference[];
   warnings: string[];
 }
@@ -25,7 +27,9 @@ const PATTERNS: Array<{ kind: DetectedReference["kind"]; expression: RegExp }> =
   { kind: "schedule", expression: new RegExp(`\\b(?:${ORDINAL}\\s+Schedule|Schedule\\s+(?:[IVX]+|\\d+))\\b`, "giu") },
   { kind: "rule", expression: /\brules?\s+\d+[A-Za-z]?(?:\s*\(\s*\d+[A-Za-z]?\s*\))*/giu },
   { kind: "section", expression: /\bsections?\s+\d+[A-Za-z]?(?:\s*\(\s*\d+[A-Za-z]?\s*\))*/giu },
-  { kind: "article", expression: /\barticles?\s+\d+[A-Za-z]?(?:\s*\(\s*\d+[A-Za-z]?\s*\))*/giu },
+  { kind: "article", expression: /\barticles?\s+\d+[A-Za-z]?(?:\s*[-–—]\s*\d+[A-Za-z]?)?(?:\s*\(\s*[A-Za-z0-9]+\s*\))*/giu },
+  { kind: "relative", expression: /\b(?:paragraph|subparagraph|point)\s+\(?[A-Za-z0-9]+\)?\s+of\s+this\s+(?:article|rule|section)\b/giu },
+  { kind: "external", expression: /\b(?:Regulation|Directive|Act|Code|Convention)\s+(?:\(EU\)\s*)?(?:No\s*)?[A-Za-z0-9][A-Za-z0-9/().-]*(?:\s+of\s+\d{4})?/giu },
 ];
 
 /** Independent of Kanon so missed model references remain visible for review. */
@@ -41,12 +45,14 @@ export function detectReferences(map: SourceMap, sourceVersionId: string): Refer
       if (!sourceSpans.length || sourceSpans.some(span => span.physicalPage === null)) {
         warnings.push(`Reference has uncertain PDF location: ${match[0]} at ${start}`);
       }
+      const exactMention = map.text.slice(start, end);
       references.push({ id: hashRevision({ sourceVersionId, textHash: map.textHash, start, end, kind }),
-        start, end, exactMention: map.text.slice(start, end), kind,
+        start, end, exactMention, kind, targetHint: exactMention,
+        externalInstrumentHint: kind === "external" ? exactMention : null,
         sourceSpans, resolutionStatus: "unresolved" });
     }
   }
   references.sort((a, b) => a.start - b.start || a.end - b.end || a.kind.localeCompare(b.kind));
   return { schemaVersion: 1, sourceVersionId, textHash: map.textHash,
-    detectorVersion: "1", references, warnings };
+    detectorVersion: "2", references, warnings };
 }

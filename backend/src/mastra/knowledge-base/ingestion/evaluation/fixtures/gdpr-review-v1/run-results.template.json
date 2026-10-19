@@ -1,0 +1,553 @@
+{
+  "dataset_id": "gdpr-oj-2016-en-review-v1",
+  "source_sha256": "bd84e63f5b622b739a83389afc3b30d240f792bb88d8eb03a816c9a82b0c2499",
+  "run_id": null,
+  "provider": null,
+  "model": null,
+  "prompt_version": null,
+  "pipeline_version": null,
+  "reasoning_setting": null,
+  "model_assignments": [],
+  "results": [
+    {
+      "case_id": "GDPR-S1-01",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S1-02",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S1-03",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S1-04",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S1-05",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S1-06",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S1-07",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S1-08",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S2-01",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S2-02",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S2-03",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S2-04",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S2-05",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S2-06",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S2-07",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S2-08",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S2-09",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S2-10",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S3-01",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S3-02",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S3-03",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S3-04",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S3-05",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S3-06",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S3-07",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S3-08",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S3-09",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S3-10",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S4-01",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S4-02",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S4-03",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S4-04",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S4-05",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S4-06",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S4-07",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S4-08",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S4-09",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S4-10",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S4-11",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S4-12",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S4-13",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S4-14",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S5-01",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S5-02",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S5-03",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S5-04",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S5-05",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S5-06",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S6-01",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S6-02",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S6-03",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S6-04",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S6-05",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S6-06",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S6-07",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S7-01",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S7-02",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S7-03",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S7-04",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    },
+    {
+      "case_id": "GDPR-S7-05",
+      "status": "not_run",
+      "observed": null,
+      "evidence_refs": [],
+      "failed_expected_fields": [],
+      "forbidden_claims_found": [],
+      "reviewer_notes": ""
+    }
+  ]
+}

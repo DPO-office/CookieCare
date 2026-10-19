@@ -16,6 +16,8 @@
     "setup:docling:windows": "scripts\\install\\download_dependencies.bat --no-asr --no-int8",
     "audit:document-structure": "tsx backend/scripts/audit-document-structure.ts",
     "kb:evaluate": "tsx backend/src/mastra/knowledge-base/ingestion/evaluation/run.ts",
+    "kb:evaluate-gdpr": "npm --prefix backend run kb:evaluate-gdpr --",
+    "kb:run-pdf": "npm --prefix backend run kb:run-pdf --",
     "test:kb": "node --import tsx --test backend/src/mastra/knowledge-base/ingestion/tests/*.test.ts",
     "lint:kb": "tsc --noEmit --project backend/tsconfig.mastra.json",
     "dev": "tsx backend/scripts/setupDb.ts && esbuild backend/server.ts --bundle --platform=node --format=esm --packages=external --outfile=backend/server.js && node backend/server.js",

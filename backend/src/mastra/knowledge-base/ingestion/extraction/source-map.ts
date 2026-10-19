@@ -8,9 +8,14 @@ export interface SourceSpan {
   page: number | null;
   provenance: unknown[];
   kind: "text" | "table_cell" | "item";
+  blockType?: string;
   row?: number;
   column?: number;
+  rowSpan?: number;
+  columnSpan?: number;
+  isHeader?: boolean;
   bbox?: unknown;
+  extractionWarnings?: string[];
 }
 export interface SourceMap {
   schemaVersion: 1;
@@ -74,7 +79,8 @@ export function buildSourceMap(raw: unknown, originalPageCount: number): SourceM
     const provenance = Array.isArray(item.prov) ? item.prov : [];
     const page = pageOf(provenance);
     if (typeof item.text === "string") {
-      append(item.text, { itemRef: ref, page, provenance, kind: "text" });
+      append(item.text, { itemRef: ref, page, provenance, kind: "text",
+        blockType: typeof item.label === "string" ? item.label : "text", extractionWarnings: [] });
       if (item.text && page === null) warnings.push(`No unique physical page for ${ref}`);
     } else if (Array.isArray(object(item.data)?.table_cells)) {
       const cells = object(item.data)!.table_cells as unknown[];
@@ -83,12 +89,24 @@ export function buildSourceMap(raw: unknown, originalPageCount: number): SourceM
         Number(a.cell?.start_col_offset_idx ?? 0) - Number(b.cell?.start_col_offset_idx ?? 0) || a.index - b.index);
       for (const { cell, index } of sorted) {
         if (!cell || typeof cell.text !== "string") throw new Error(`Invalid table cell ${ref}:${index}`);
-        append(cell.text, { itemRef: ref, page, provenance, kind: "table_cell",
-          row: Number(cell.start_row_offset_idx), column: Number(cell.start_col_offset_idx), bbox: cell.bbox });
+        const row = Number(cell.start_row_offset_idx), column = Number(cell.start_col_offset_idx);
+        const endRow = Number(cell.end_row_offset_idx), endColumn = Number(cell.end_col_offset_idx);
+        const extractionWarnings = [] as string[];
+        if (!Number.isInteger(row) || !Number.isInteger(column)) extractionWarnings.push("invalid_table_coordinates");
+        const cellProvenance = Array.isArray(cell.prov) ? cell.prov : provenance;
+        const cellPage = pageOf(cellProvenance) ?? page;
+        append(cell.text, { itemRef: ref, page: cellPage, provenance: cellProvenance,
+          kind: "table_cell", blockType: "table_cell",
+          row, column,
+          rowSpan: Number.isInteger(endRow) && endRow > row ? endRow - row : 1,
+          columnSpan: Number.isInteger(endColumn) && endColumn > column ? endColumn - column : 1,
+          isHeader: cell.column_header === true || cell.row_header === true,
+          bbox: cell.bbox, extractionWarnings });
       }
       if (cells.length && page === null) warnings.push(`No unique physical page for ${ref}`);
     } else if (typeof item.content === "string") {
-      append(item.content, { itemRef: ref, page, provenance, kind: "item" });
+      append(item.content, { itemRef: ref, page, provenance, kind: "item",
+        blockType: typeof item.label === "string" ? item.label : "item", extractionWarnings: [] });
       if (item.content && page === null) warnings.push(`No unique physical page for ${ref}`);
     }
     const children = item.children;

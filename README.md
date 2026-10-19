@@ -12,7 +12,7 @@
 
 LORA is a full-stack TypeScript platform (React frontend + Express backend) that automates the legal-agreement lifecycle for in-house legal and compliance teams. Users can draft agreements from templates and playbooks, run AI-assisted analysis and Q&A over uploaded documents, and negotiate redlines — all grounded in the organisation’s own document set via Retrieval-Augmented Generation (RAG).
 
-Long-running AI work (drafting, analysis, scanning, review) runs in the background and streams progress to the browser. Document content is encrypted at rest, and each tenant is isolated at the database layer. AI reasoning is powered primarily by Google Gemini.
+Long-running AI work (drafting, analysis, scanning, review) runs in the background and streams progress to the browser. Document content is encrypted at rest, and each tenant is isolated at the database layer. AI generation defaults to DigitalOcean Inference; existing embeddings use a separate Gemini vector configuration.
 
 ### 1.2 Key Objectives & Scope
 
@@ -65,7 +65,7 @@ The Settings UI is largely a client-side mock and is not backed by persisted ser
 | **Frontend** | React 19, TypeScript, Vite, TailwindCSS, TipTap (rich text) |
 | **Backend** | Node.js, Express, background jobs with live progress streaming |
 | **Database** | PostgreSQL with multi-tenant isolation (Row-Level Security) and document search support |
-| **AI** | Google Gemini API (api key) as the primary LLM |
+| **AI** | DigitalOcean Inference for text generation; existing Gemini embeddings remain separate |
 | **Security** | JWT auth, password hashing, AES-256 document encryption |
 | **Hosting** | Docker; deployable on Render / Cloud SQL / Neon |
 
@@ -351,9 +351,9 @@ Evaluates responsible AI practices from uploaded governance documents and/or a c
 
 ## 6. Setup & Local Development
 
-**Prerequisites:** Node.js 20+, PostgreSQL, `GOOGLE_GEMINI_EXTERNAL_KEY` (Gemini API) plus `GOOGLE_CLOUD_PROJECT` for Identity/Firebase (and optional OpenRouter key).
+**Prerequisites:** Node.js 20+, PostgreSQL, `DO_MODEL_ACCESS_KEY` for DigitalOcean Inference plus `GOOGLE_CLOUD_PROJECT` for Identity/Firebase (and optional Gemini embedding or OpenRouter key).
 
-**Core environment variables:** `DATABASE_URL`, `ENCRYPTION_KEY`, `GOOGLE_CLOUD_PROJECT`, `GOOGLE_GEMINI_EXTERNAL_KEY` (Gemini API key for LLM calls), `JWT_SECRET` (plus optional SMTP, Sentry, and frontend API URL for local use).
+**Core environment variables:** `DATABASE_URL`, `ENCRYPTION_KEY`, `GOOGLE_CLOUD_PROJECT`, `DO_MODEL_ACCESS_KEY`, `JWT_SECRET` (plus optional `DO_LLM_FAST_MODEL`, `DO_LLM_REASONING_MODEL`, Gemini embedding key, SMTP, Sentry, and frontend API URL for local use).
 
 **Commands**
 

@@ -23,6 +23,8 @@ export interface ContextProvision {
   revision: number;
   sourceVersionId: string;
   text: string;
+  parentId?: string | null;
+  tableContext?: { columnHeadings: string[]; rowHeading: string | null; footnotes: string[] };
 }
 export interface MeaningIssue { code: string; recordId: string; message: string }
 

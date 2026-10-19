@@ -38,10 +38,8 @@ if (envPaths.length > 0) {
  * fail with "unable to get local issuer certificate" without this.
  * Set GEMINI_SSL_INSECURE=false to disable in development.
  */
-if (
-  (process.env.NODE_ENV || "development") !== "production" &&
-  process.env.GEMINI_SSL_INSECURE !== "false"
-) {
+if ((process.env.NODE_ENV || "development") !== "production" &&
+    process.env.GEMINI_SSL_INSECURE === "true") {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 }
 
@@ -58,7 +56,8 @@ export const config = {
   port: Number(process.env.PORT) || 3000,
   nodeEnv: process.env.NODE_ENV || "development",
   databaseUrl: process.env.DATABASE_URL || "",
-  // OpenRouter replaces Gemini as the AI provider
+  // DigitalOcean is the default generation provider; Gemini embeddings retain their own key.
+  doModelAccessKey: process.env.DO_MODEL_ACCESS_KEY || "",
   openRouterApiKey: process.env.OPENROUTER_API_KEY || "",
   openRouterModel: process.env.OPENROUTER_MODEL || "deepseek/deepseek-chat-v3-0324",
   openRouterTemperature: numberFromEnv(process.env.OPENROUTER_TEMPERATURE, 0.2),

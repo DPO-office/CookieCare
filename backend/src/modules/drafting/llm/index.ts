@@ -1,5 +1,6 @@
 import { LLMProvider,LLMTask, PROVIDER_TASK_PRESETS } from "../config/model-specs.js";
 import { GeminiProvider } from "../../../llm/provider/gemini-provider.js";
+import { DigitalOceanProvider } from "../../../llm/provider/digitalocean-provider.js";
 import { OpenRouterLegacyProvider } from "../../../llm/provider/openrouter-provider.js";
 import { CompletionOutcome, ILLMProvider } from "../../../llm/provider/base-provider.js";
 import { geminiScheduler } from "../../compare/utils/llm-scheduler.js";
@@ -9,9 +10,21 @@ export type { CompletionOutcome } from "../../../llm/provider/base-provider.js";
 // Keep singleton instances cached in server memory for fast execution pooling
 const providersCache: Record<string, ILLMProvider> = {};
 
+function resolveGenerationProvider(provider: LLMProvider): LLMProvider {
+  if (provider !== LLMProvider.GEMINI) return provider;
+  const selected = process.env.LLM_GENERATION_PROVIDER?.trim().toLowerCase() || "digitalocean";
+  if (selected === "digitalocean") return LLMProvider.DIGITALOCEAN;
+  if (selected === "gemini") return LLMProvider.GEMINI;
+  throw new Error(`Unsupported LLM_GENERATION_PROVIDER: ${selected}`);
+}
+
 function getProviderEngine(provider: LLMProvider): ILLMProvider {
+  provider = resolveGenerationProvider(provider);
   if (!providersCache[provider]) {
     switch (provider) {
+      case LLMProvider.DIGITALOCEAN:
+        providersCache[provider] = new DigitalOceanProvider();
+        break;
       case LLMProvider.GEMINI:
         providersCache[provider] = new GeminiProvider();
         break;
@@ -23,6 +36,16 @@ function getProviderEngine(provider: LLMProvider): ILLMProvider {
     }
   }
   return providersCache[provider];
+}
+
+function runtimePreset(provider: LLMProvider, task: LLMTask) {
+  const effective = resolveGenerationProvider(provider);
+  const preset = PROVIDER_TASK_PRESETS[effective][task];
+  if (effective !== LLMProvider.DIGITALOCEAN) return preset;
+  const strong = task === LLMTask.COMPLEX_DRAFT || task === LLMTask.SECTION_REFINE ||
+    task === LLMTask.COMPARE_RISK;
+  return { ...preset, model: (strong ? process.env.DO_LLM_REASONING_MODEL : process.env.DO_LLM_FAST_MODEL)?.trim() ||
+    (strong ? "glm-5.3" : "glm-5.3-flash") };
 }
 
 /**
@@ -81,7 +104,7 @@ export async function executeCompletion(
   prompt: string,
   systemInstruction: string,
   task: LLMTask,
-  provider: LLMProvider = LLMProvider.GEMINI // Defaults cleanly to your billing tier
+  provider: LLMProvider = LLMProvider.DIGITALOCEAN
 ): Promise<string> {
   const { text } = await executeBoundedCompletion(prompt, systemInstruction, task, provider);
   return text;
@@ -99,11 +122,11 @@ export async function executeBoundedCompletion(
   prompt: string,
   systemInstruction: string,
   task: LLMTask,
-  provider: LLMProvider = LLMProvider.GEMINI,
+  provider: LLMProvider = LLMProvider.DIGITALOCEAN,
   options: { maxOutputTokens?: number; onDelta?: (delta: string) => void } = {}
 ): Promise<CompletionOutcome> {
   const engine = getProviderEngine(provider);
-  const preset = PROVIDER_TASK_PRESETS[provider][task];
+  const preset = runtimePreset(provider, task);
   const runtimeConfig = options.maxOutputTokens
     ? { ...preset, maxOutputTokens: options.maxOutputTokens }
     : preset;
@@ -128,14 +151,14 @@ export async function executeJsonCompletion<T>(
   systemInstruction: string,
   jsonSchema: any,
   task: LLMTask,
-  provider: LLMProvider = LLMProvider.GEMINI
+  provider: LLMProvider = LLMProvider.DIGITALOCEAN
 ): Promise<T> {
   const engine = getProviderEngine(provider);
-  const runtimeConfig = PROVIDER_TASK_PRESETS[provider][task];
+  const runtimeConfig = runtimePreset(provider, task);
 
   // Route Gemini calls through the scheduler for adaptive pacing + smart retry.
   // OpenRouter and other providers use the legacy fixed-delay retry.
-  if (provider === LLMProvider.GEMINI) {
+  if (resolveGenerationProvider(provider) === LLMProvider.GEMINI) {
     return geminiScheduler.execute(
       () => engine.getJsonCompletion<T>(prompt, systemInstruction, jsonSchema, runtimeConfig),
       task
@@ -159,7 +182,7 @@ export async function executeJsonCompletionWithMeta<T>(
   systemInstruction: string,
   jsonSchema: any,
   task: LLMTask,
-  provider: LLMProvider = LLMProvider.GEMINI
+  provider: LLMProvider = LLMProvider.DIGITALOCEAN
 ): Promise<JsonCompletionWithMeta<T>> {
   const engine = getProviderEngine(provider) as GeminiProvider & {
     getJsonCompletionWithMeta?: <U>(
@@ -169,12 +192,12 @@ export async function executeJsonCompletionWithMeta<T>(
       runtimeConfig: any
     ) => Promise<{ result: U; usage: TokenUsage }>;
   };
-  const runtimeConfig = PROVIDER_TASK_PRESETS[provider][task];
+  const runtimeConfig = runtimePreset(provider, task);
 
   // If the provider exposes a meta variant, use it.
   // Otherwise fall back to the standard completion and return zero usage.
   if (typeof engine.getJsonCompletionWithMeta === "function") {
-    if (provider === LLMProvider.GEMINI) {
+    if (resolveGenerationProvider(provider) === LLMProvider.GEMINI) {
       return geminiScheduler.execute(
         () =>
           engine.getJsonCompletionWithMeta!<T>(
@@ -218,7 +241,7 @@ export async function executeCompletionStream(
   systemInstruction: string,
   task: LLMTask,
   onDelta: (delta: string) => void,
-  provider: LLMProvider = LLMProvider.GEMINI
+  provider: LLMProvider = LLMProvider.DIGITALOCEAN
 ): Promise<string> {
   const { text } = await executeBoundedCompletion(prompt, systemInstruction, task, provider, { onDelta });
   return text;

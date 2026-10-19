@@ -1,0 +1,151 @@
+{
+  "kind": "dataset_integrity_validation_only",
+  "checked_on": "2026-10-19",
+  "passed_checks": 35,
+  "checks": [
+    {
+      "check": "source PDF bytes match manifest",
+      "passed": true
+    },
+    {
+      "check": "88 physical pages",
+      "passed": true
+    },
+    {
+      "check": "source-pack hash matches",
+      "passed": true
+    },
+    {
+      "check": "60 unique cases",
+      "passed": true
+    },
+    {
+      "check": "all seven stage counts match",
+      "passed": true
+    },
+    {
+      "check": "all cases await human review",
+      "passed": true
+    },
+    {
+      "check": "all cases stay in development",
+      "passed": true
+    },
+    {
+      "check": "every case has input, expected facts and negative criteria",
+      "passed": true
+    },
+    {
+      "check": "every reference resolves",
+      "passed": true
+    },
+    {
+      "check": "all source offsets reproduce exact frozen page text",
+      "passed": true
+    },
+    {
+      "check": "article inventory 1-99",
+      "passed": true
+    },
+    {
+      "check": "recital inventory 1-173",
+      "passed": true
+    },
+    {
+      "check": "recipient definition crosses pages 33-34",
+      "passed": true
+    },
+    {
+      "check": "Article 6(3) crosses pages 36-37",
+      "passed": true
+    },
+    {
+      "check": "Article 28(5) is only page 50",
+      "passed": true
+    },
+    {
+      "check": "Article 28(3) final subparagraph is page 50",
+      "passed": true
+    },
+    {
+      "check": "Article 32(1) crosses pages 51-52",
+      "passed": true
+    },
+    {
+      "check": "Article 28(a)-(h) all precisely located",
+      "passed": true
+    },
+    {
+      "check": "run template is entirely unscored",
+      "passed": true
+    },
+    {
+      "check": "HTML contains 60 review cards",
+      "passed": true
+    },
+    {
+      "check": "chapter labels and source locations reproduce PDF text",
+      "passed": true
+    },
+    {
+      "check": "chapter III starts page 39, chapter IV starts page 47",
+      "passed": true
+    },
+    {
+      "check": "all 26 definitions present before chapter II",
+      "passed": true
+    },
+    {
+      "check": "real Unicode split present on page 34",
+      "passed": true
+    },
+    {
+      "check": "no fabricated U+FFFD source corruption",
+      "passed": true
+    },
+    {
+      "check": "Article 28 confidentiality OR anchored",
+      "passed": true
+    },
+    {
+      "check": "Article 28 local targets anchored",
+      "passed": true
+    },
+    {
+      "check": "Article 28 controller choice anchored",
+      "passed": true
+    },
+    {
+      "check": "Article 33 actor-specific clocks anchored",
+      "passed": true
+    },
+    {
+      "check": "Article 6 lawfulness OR anchored",
+      "passed": true
+    },
+    {
+      "check": "Article 12 deadline scope anchored",
+      "passed": true
+    },
+    {
+      "check": "Article 30 exemption limitation anchored",
+      "passed": true
+    },
+    {
+      "check": "publication and application dates anchored",
+      "passed": true
+    },
+    {
+      "check": "all case audit entries present, none called human approved",
+      "passed": true
+    },
+    {
+      "check": "all inventory refs exist",
+      "passed": true
+    }
+  ],
+  "source_fragments_checked": 463,
+  "ingestion_pipeline_executed": false,
+  "legal_expectations_human_verified": false,
+  "release_qualified": false
+}

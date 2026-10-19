@@ -1,9 +1,11 @@
 import { z } from "zod";
 import { hashRevision } from "../schemas/common.js";
 import type { SourceMap, SourceSpan } from "./source-map.js";
+import type { StructureChunk, StructureChunkPlan } from "./structure-chunk-plan.js";
 
-export const STRUCTURE_PROMPT_VERSION = "legal-structure-v1";
-export const LLM_PROCESSING_STRATEGY = "single_pass_reject_oversize-v1";
+export const STRUCTURE_PROMPT_VERSION = "legal-structure-v3";
+export const LLM_PROCESSING_STRATEGY = "document_chunks_reconcile-v3";
+export const LLM_TARGET_INPUT_CHARACTERS = 190_000;
 export const LLM_MAX_INPUT_CHARACTERS = 200_000;
 
 export const StructureProviderNameSchema = z.enum(["kanon", "llm"]);
@@ -27,8 +29,13 @@ export interface SourceLocation {
   end: number;
   provenance: unknown[];
   kind: SourceSpan["kind"];
+  blockType: string;
   row?: number;
   column?: number;
+  rowSpan?: number;
+  columnSpan?: number;
+  isHeader?: boolean;
+  extractionWarnings: string[];
 }
 export interface CandidateSegment {
   id: string;
@@ -41,6 +48,9 @@ export interface CandidateSegment {
   code: TextRange | null;
   title: TextRange | null;
   sourceSpans: SourceLocation[];
+  startsBeforeChunk?: boolean;
+  continuesAfterChunk?: boolean;
+  parentHint?: string | null;
 }
 export interface CandidateReference {
   start: number;
@@ -48,6 +58,8 @@ export interface CandidateReference {
   exactMention: string;
   targetSegmentIds: string[];
   sourceSpans: SourceLocation[];
+  targetHint?: string | null;
+  resolutionStatus?: "pending" | "resolved" | "ambiguous" | "external";
 }
 export interface CandidateStructure {
   schemaVersion: 1;
@@ -72,11 +84,25 @@ export interface StructureProviderResult {
   usage: StructureProviderUsage | null;
   durationMs: number;
 }
+export interface StructureChunkCheckpoint {
+  chunk: StructureChunk;
+  candidate: CandidateStructure;
+  rawResponse: unknown;
+  usage: StructureProviderUsage | null;
+  finishReason: string | null;
+  durationMs: number;
+}
+export interface StructureProviderCheckpoints {
+  savePlan(plan: StructureChunkPlan): Promise<void>;
+  loadChunk(chunk: StructureChunk): Promise<StructureChunkCheckpoint | null>;
+  saveChunk(checkpoint: StructureChunkCheckpoint): Promise<void>;
+}
 export interface StructureProviderInput {
   canonicalText: string;
   textHash: string;
   sourceMap: SourceMap;
   configuration: StructureProviderConfig;
+  checkpoints?: StructureProviderCheckpoints;
   signal?: AbortSignal;
 }
 export interface StructureProvider {
@@ -88,9 +114,13 @@ export function sourceLocations(map: SourceMap, range: TextRange): SourceLocatio
   return map.spans.filter(span => span.start < range.end && span.end > range.start).map(span => ({
     itemRef: span.itemRef, physicalPage: span.page,
     start: Math.max(range.start, span.start), end: Math.min(range.end, span.end),
-    provenance: span.provenance, kind: span.kind,
+    provenance: span.provenance, kind: span.kind, blockType: span.blockType ?? span.kind,
+    extractionWarnings: span.extractionWarnings ?? [],
     ...(span.row === undefined ? {} : { row: span.row }),
     ...(span.column === undefined ? {} : { column: span.column }),
+    ...(span.rowSpan === undefined ? {} : { rowSpan: span.rowSpan }),
+    ...(span.columnSpan === undefined ? {} : { columnSpan: span.columnSpan }),
+    ...(span.isHeader === undefined ? {} : { isHeader: span.isHeader }),
   }));
 }
 
@@ -103,10 +133,10 @@ export function resolveStructureProviderConfig(env: NodeJS.ProcessEnv = process.
   const base = provider === "kanon"
     ? { provider, model: "kanon-2-enricher", promptVersion: null,
       processingStrategy: "provider_chunk-v1", configurationVersion: "kanon-v1" }
-    : { provider, model: (env.KB_STRUCTURE_LLM_MODEL ?? "").trim(),
+    : { provider, model: (env.KB_STRUCTURE_LLM_MODEL ?? env.DO_LLM_REASONING_MODEL ?? "glm-5.3").trim(),
       promptVersion: STRUCTURE_PROMPT_VERSION,
-      processingStrategy: LLM_PROCESSING_STRATEGY, configurationVersion: "llm-gemini-v1" };
-  if (!base.model) throw new Error("KB_STRUCTURE_LLM_MODEL is required when KB_STRUCTURE_PROVIDER=llm");
+      processingStrategy: LLM_PROCESSING_STRATEGY, configurationVersion: "llm-digitalocean-v3" };
+  if (!base.model) throw new Error("KB_STRUCTURE_LLM_MODEL or DO_LLM_REASONING_MODEL is required when KB_STRUCTURE_PROVIDER=llm");
   return StructureProviderConfigSchema.parse({ ...base, configurationHash: structureConfigurationHash(base) });
 }
 

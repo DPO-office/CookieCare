@@ -1,5 +1,6 @@
 import { reportOutcomeId, adaptPersistedSnapshot } from "../act/compliance/adapters/index.js";
-import { executeJsonCompletion, LLMProvider, LLMTask, PROVIDER_TASK_PRESETS } from "../../../../llm/index.js";
+import { executeJsonCompletion, LLMProvider, LLMTask, PROVIDER_TASK_PRESETS,
+  resolveGenerationProvider } from "../../../../llm/index.js";
 import type { AnalysisState } from "../../models/analysis-state.js";
 import type {
   CompliancePresentationPlan, ComplianceReportDraft, ComplianceReportSnapshot, ComplianceReportValidation,
@@ -242,12 +243,13 @@ export async function renderComplianceReport(
   const reportId = `${state.request.sessionId}:compliance:${assessmentSnapshotId.slice(0, 12)}`;
   let outputChars = 0;
   const task = LLMTask.STRUCTURAL_JSON_LITE;
-  const preset = PROVIDER_TASK_PRESETS[LLMProvider.GEMINI][task];
+  const routedProvider = resolveGenerationProvider(LLMProvider.GEMINI);
+  const preset = PROVIDER_TASK_PRESETS[routedProvider][task];
   const model = preset.model;
   type FallbackReason = NonNullable<NonNullable<ComplianceReportValidation["generation"]>["fallbackReason"]>;
   const generation = (fallbackReason?: FallbackReason) => ({
     schemaVersion: "1.0" as const, reportId, assessmentSnapshotId, pipeline: "compliance" as const,
-    rendererVersion: REPORT_RENDERER_VERSION, provider: LLMProvider.GEMINI,
+    rendererVersion: REPORT_RENDERER_VERSION, provider: routedProvider,
     model, task, settings: { temperature: preset.temperature, thinkingLevel: profileThinkingLevel(state, task),
       maxOutputTokens: { compose: 16000, check: 1600, repair: 12000 } },
     startedAt, completedAt: new Date().toISOString(), elapsedMs: Date.now() - startedMs,

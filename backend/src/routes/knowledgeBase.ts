@@ -147,9 +147,9 @@ router.post("/sources/:sourceId/versions/:versionId/structure-runs/replay",
     try {
       await sources.assertSourcePermission(userId(req), req.params.sourceId, "upload");
       const input = ReplayInput.parse(req.body ?? {});
-      if (input.provider === "llm") {
+      if (input.provider === "llm" && !process.env.DO_MODEL_ACCESS_KEY?.trim()) {
         res.status(409).json({ error:
-          "LLM structure transfer is disabled in the production worker until that destination is authorized" });
+          "DO_MODEL_ACCESS_KEY is required for DigitalOcean structure extraction" });
         return;
       }
       const version = await pool.query<{ checksum: string; original_page_count: number | null }>(`
@@ -173,7 +173,8 @@ router.post("/sources/:sourceId/versions/:versionId/structure-runs/replay",
         res.status(409).json({ error: "The selected job does not contain replayable source artifacts" }); return;
       }
       const structureProvider = resolveStructureProviderConfig({ ...process.env,
-        KB_STRUCTURE_PROVIDER: "kanon" });
+        KB_STRUCTURE_PROVIDER: input.provider,
+        ...(input.model ? { KB_STRUCTURE_LLM_MODEL: input.model } : {}) });
       const job = await jobs.enqueue({ type: "prepare_source", sourceVersionIds: [req.params.versionId],
         inputDescriptor: { sourceVersionId: req.params.versionId, checksum: sourceVersion.checksum,
           parser: "docling.rs", parserVersion: DOCLING_VERSION,

@@ -1,6 +1,7 @@
 import { LLMProvider, LLMTask, PROVIDER_TASK_PRESETS } from "./config/model-specs.js";
 import type { GeminiThinkingLevel, TaskModelConfig } from "./config/model-specs.js";
 import { GeminiProvider } from "./provider/gemini-provider.js";
+import { DigitalOceanProvider } from "./provider/digitalocean-provider.js";
 import { OpenRouterLegacyProvider } from "./provider/openrouter-provider.js";
 import {
   CompletionOutcome,
@@ -24,10 +25,24 @@ export {
 export type { TaskModelConfig, LLMTaskPreset, GeminiThinkingLevel } from "./config/model-specs.js";
 
 const providersCache: Record<string, ILLMProvider> = {};
+let embeddingEngine: ILLMProvider | undefined;
+
+/** Older call sites pass GEMINI explicitly; route their generation calls through DO by default. */
+export function resolveGenerationProvider(provider: LLMProvider): LLMProvider {
+  if (provider !== LLMProvider.GEMINI) return provider;
+  const selected = process.env.LLM_GENERATION_PROVIDER?.trim().toLowerCase() || "digitalocean";
+  if (selected === "digitalocean") return LLMProvider.DIGITALOCEAN;
+  if (selected === "gemini") return LLMProvider.GEMINI;
+  throw new Error(`Unsupported LLM_GENERATION_PROVIDER: ${selected}`);
+}
 
 function getProviderEngine(provider: LLMProvider): ILLMProvider {
+  provider = resolveGenerationProvider(provider);
   if (!providersCache[provider]) {
     switch (provider) {
+      case LLMProvider.DIGITALOCEAN:
+        providersCache[provider] = new DigitalOceanProvider();
+        break;
       case LLMProvider.GEMINI:
         providersCache[provider] = new GeminiProvider();
         break;
@@ -81,7 +96,7 @@ async function runProviderCall<T>(
   label: string,
   fn: () => Promise<T>
 ): Promise<T> {
-  if (provider === LLMProvider.GEMINI) {
+  if (resolveGenerationProvider(provider) === LLMProvider.GEMINI) {
     return geminiScheduler.execute(fn, label);
   }
   return executeWithRetry(fn);
@@ -110,8 +125,14 @@ function mergeRuntimeConfig(
   task: LLMTask,
   options: CompletionCallOptions = {}
 ): TaskModelConfig {
-  const preset = PROVIDER_TASK_PRESETS[provider][task];
+  const preset = PROVIDER_TASK_PRESETS[resolveGenerationProvider(provider)][task];
   const runtimeConfig: TaskModelConfig = { ...preset };
+  if (resolveGenerationProvider(provider) === LLMProvider.DIGITALOCEAN) {
+    const strong = task === LLMTask.COMPLEX_DRAFT || task === LLMTask.SECTION_REFINE ||
+      task === LLMTask.CRITIQUE_CHECKLIST || task === LLMTask.VERIFY_COMPLIANCE;
+    runtimeConfig.model = (strong ? process.env.DO_LLM_REASONING_MODEL : process.env.DO_LLM_FAST_MODEL)?.trim() ||
+      (strong ? "glm-5.3" : "glm-5.3-flash");
+  }
   if (typeof options.maxOutputTokens === "number") {
     runtimeConfig.maxOutputTokens = options.maxOutputTokens;
   }
@@ -130,7 +151,7 @@ export async function executeCompletion(
   prompt: string,
   systemInstruction: string,
   task: LLMTask,
-  provider: LLMProvider = LLMProvider.GEMINI,
+  provider: LLMProvider = LLMProvider.DIGITALOCEAN,
   tracker?: TokenBudgetTracker
 ): Promise<string> {
   const { text } = await executeBoundedCompletion(prompt, systemInstruction, task, provider, {
@@ -143,7 +164,7 @@ export async function executeBoundedCompletion(
   prompt: string,
   systemInstruction: string,
   task: LLMTask,
-  provider: LLMProvider = LLMProvider.GEMINI,
+  provider: LLMProvider = LLMProvider.DIGITALOCEAN,
   options: CompletionCallOptions = {}
 ): Promise<CompletionOutcome> {
   const engine = getProviderEngine(provider);
@@ -194,7 +215,7 @@ export async function executeJsonCompletion<T>(
   systemInstruction: string,
   jsonSchema: any,
   task: LLMTask,
-  provider: LLMProvider = LLMProvider.GEMINI,
+  provider: LLMProvider = LLMProvider.DIGITALOCEAN,
   trackerOrOptions?: TokenBudgetTracker | CompletionCallOptions
 ): Promise<T> {
   const options = normalizeJsonOptions(trackerOrOptions);
@@ -227,7 +248,7 @@ export async function executeCompletionStream(
   systemInstruction: string,
   task: LLMTask,
   onDelta: (delta: string) => void,
-  provider: LLMProvider = LLMProvider.GEMINI,
+  provider: LLMProvider = LLMProvider.DIGITALOCEAN,
   tracker?: TokenBudgetTracker
 ): Promise<string> {
   const { text } = await executeBoundedCompletion(prompt, systemInstruction, task, provider, {
@@ -254,7 +275,13 @@ export async function executeEmbedding(
   provider: LLMProvider = LLMProvider.GEMINI
 ): Promise<Array<number[] | null>> {
   if (texts.length === 0) return [];
-  const engine = getProviderEngine(provider);
+  // Existing vector indexes use Gemini's 768-dimensional embedding contract.
+  // Generation routing must not silently change their vector space.
+  if (provider !== LLMProvider.GEMINI || !process.env.GOOGLE_GEMINI_EXTERNAL_KEY) {
+    console.warn("[LLM] Gemini embedding key is unavailable; returning null vectors");
+    return texts.map(() => null);
+  }
+  const engine = embeddingEngine ??= new GeminiProvider();
   if (!engine.embed) {
     console.warn(`[LLM] embed() unsupported for provider=${provider} — returning nulls`);
     return texts.map(() => null);

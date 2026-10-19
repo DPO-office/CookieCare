@@ -27,14 +27,15 @@ Phase 0 contracts and evaluation examples live here. Phase 1 adds database and a
 - Workers claim only job types with a registered Mastra workflow. The worker runs intake and `prepare_source`; drafting and publication workflow factories exist but are not registered for production jobs yet.
 - Jobs can wait without occupying a worker or consuming a retry. They resume after the dependency or review state changes. Failed or cancelled prerequisite jobs fail dependent queued jobs explicitly. Job reads and cancellation check permission across every source in the job scope.
 - A checkpointed JSON artifact store writes raw future step outputs under immutable private object keys. PostgreSQL records their exact hashes, sizes and locations with the step checkpoint. A retry verifies the bytes and reuses a matching object; a lost lease cannot commit artifact metadata.
-- Intake atomically queues `prepare_source` for readable English pilot PDFs, including sources whose legal authority still needs review. The fixed `kb-prepare-source-v1` Mastra workflow verifies the original checksum, converts it with pinned `docling.rs` 1.41.0, stores the complete Docling JSON, then stores a separate canonical text and source map. Each mapped span points to its Docling item and physical PDF page; table cells keep their row, column and box. Printed page labels remain unknown until verified. Unmapped pages or unreferenced items produce explicit review warnings. The extraction run records the raw artifact; the completed job result points to both artifacts. A completed preparation job means extraction and mapping only, not approved legal structure.
-- Preparation uses one provider-neutral Mastra workflow. `KB_STRUCTURE_PROVIDER` defaults to `kanon`; each job freezes the provider, model, prompt version, strategy and configuration hash. The Kanon adapter sends unchanged canonical text with non-truncating chunk overflow. A strict LLM adapter is available for local injected tests and rejects invented source anchors and oversized inputs. Production LLM transfer is disabled until its destination is explicitly authorized. Both adapters feed the same reference detection, reconstruction and validation stages. None of those drafts is legal approval.
-- Interpretation helpers assemble accepted provisions with their named dependencies, fail on incomplete or oversized context, validate exact support quotes and evaluate applicability as true, false or unknown. A model cannot approve its own proposal.
+- Intake atomically queues `prepare_source` for readable English pilot PDFs, including sources whose legal authority still needs review. The fixed `kb-prepare-source-v2` Mastra workflow verifies the original checksum, converts it with pinned `docling.rs` 1.41.0, stores the complete Docling JSON, then stores a separate canonical text and source map. Each mapped span points to its Docling item and physical PDF page; table cells keep their row, column, spans, header role, box and extraction warnings. Printed page labels remain unknown until verified. Unmapped pages or unreferenced items produce explicit review warnings. The extraction run records the raw artifact; the completed job result points to both artifacts. A completed preparation job means extraction and mapping only, not approved legal structure.
+- Preparation uses one provider-neutral Mastra workflow. `KB_STRUCTURE_PROVIDER` defaults to `kanon`; each job freezes the provider, model, prompt version, strategy and configuration hash. The Kanon adapter sends unchanged canonical text with provider-managed chunk overflow. `KB_STRUCTURE_PROVIDER=llm` uses DigitalOcean Inference with `DO_MODEL_ACCESS_KEY` and a configurable GLM model. Its document planner counts the complete assembled request, begins looking for a legal boundary at 190,000 characters, and never exceeds the 200,000-character hard ceiling. It preserves complete Docling source blocks, prefers Article, Recital, Chapter and Section boundaries, saves the plan and every completed chunk separately, splits a chunk at a complete source-block boundary if model output is truncated, and reconciles the successful chunk candidates using original document offsets. Both adapters then build one document model; chunk IDs never define the final knowledge structure.
+- The document model preserves unfamiliar structures as `unknown`, complete structural paths, inherited parents, cross-chunk boundary status, table headings and merged-cell spans, proposed footnote attachments and definition scope. It combines model references with an independent detector, records detector agreement, resolves internal, relative and ranged references against the complete directory, and distinguishes unavailable external instruments from unidentified references. Inferred recital links remain review-required candidates.
+- Every reconstructed provision gets a multi-hop context manifest. It follows explicit targets and parent conditions, records selection reasons, prevents cycles, deduplicates provisions, records unresolved and unavailable dependencies, and reports character-limit omissions instead of silently cutting context. Table headings remain attached in the document model. Interpretation helpers can either fail on a limit or return a limited manifest for staged processing. They validate exact support quotes and evaluate applicability as true, false or unknown. A model cannot approve its own proposal.
 - An authorized reviewer can append an exact-hash decision through `POST /api/knowledge-base/reviews`. The review service rejects stale revisions and leaves old decisions intact. The publication preflight requires verified source readiness, latest exact approvals and independently verified lexical and dense indexes. It does not activate a publication by itself.
 - A shared retrieval component merges exact citation, lexical and dense candidates, then rechecks publication and source scope for every result and linked dependency. Missing or inaccessible dependencies produce an incomplete-context flag.
 - The fixed `kb-build-rule-drafts-v1` Mastra workflow assembles accepted legal context, saves a proposed interpretation and produces a validation bundle for review. Its proposal provider and accepted-context loader are injectable; the production worker does not register it yet.
 - The fixed `kb-publish-approved-v1` Mastra workflow freezes an approved search scope, prepares search text and embeddings, checks live publication facts and asks an injected gateway to activate atomically. No production embedding provider, BM25 backend or activation gateway is registered. The workflow cannot publish in the current deployment.
-- Source preparation also stores an explicit validation report for missing pages, unmapped PDF locations, unclassified wording, invalid provision spans and unresolved references. A candidate status never counts as human approval.
+- Source preparation stores an immutable `document_model` artifact and an explicit validation report covering missing pages, unmapped PDF locations, unclassified wording, invalid spans, unknown structures, hierarchy cycles and containment, damaged tables, unattached footnotes, unresolved references, unavailable external versions and incomplete multi-hop context. A candidate status never counts as human approval.
 
 ## Upload and worker flow
 
@@ -47,6 +48,67 @@ Phase 0 contracts and evaluation examples live here. Phase 1 adds database and a
 Limits: 25 MiB per PDF, 5,000 pages, 30 seconds for PDF inspection, three queue attempts and at most four concurrent jobs per worker. Intake does not invoke a model; preparation calls Isaacus Kanon after Docling extraction. A completed intake job means the original was verified and classified; a completed preparation job means candidate structure is ready for review, not approved or published.
 
 ## Run checks
+
+### Generic PDF Ingestion Command
+
+Ingest any arbitrary PDF from the beginning through Docling, structure planning, candidate reconstruction, reference detection, document modeling, and validation:
+
+```powershell
+cd "C:\Program Files\CookieCare\backend"
+
+npm run kb:run-pdf -- --pdf "C:\path\to\any-document.pdf"
+```
+
+Optional configuration:
+
+```powershell
+npm run kb:run-pdf -- `
+  --pdf "C:\documents\rules.pdf" `
+  --provider llm `
+  --model glm-5.3
+```
+
+- Default provider: `llm` (uses DigitalOcean Inference with `DO_MODEL_ACCESS_KEY` and GLM model)
+- Default model: `glm-5.3`
+- Every execution creates a distinct run directory without inserting records into approved KB database tables.
+- All 11 stage artifacts are saved locally under:
+  ```text
+  backend/evaluation-runs/<pdf-filename>/<runId>/
+    original.pdf
+    docling.json
+    source-map.json
+    chunk-plan.json
+    structure-response.json
+    structure-candidate.json
+    references.json
+    reconstruction.json
+    document-model.json
+    validation.json
+    manifest.json
+  ```
+- Output prints the Run ID, PDF hash, Output directory, Number of pages, Number of provisions and relationships, and Validation status and issue count.
+
+### PDF review dataset evaluation
+
+The audited draft 60-case GDPR dataset (schema 1.1), frozen source excerpts, and audit notes are in
+[`evaluation/fixtures/gdpr-review-v1`](evaluation/fixtures/gdpr-review-v1). Every expectation is still pending human review. The evaluator accepts schema 1.0 and 1.1 and scores these source-backed draft expectations as provisional pass/fail results. Each result retains its `reviewStatus`, and the report marks its pass rate as not human validated. The original PDF is supplied separately and its bytes, size and SHA-256 must match the dataset, source pack and run.
+
+To display the 60 cases in Mastra Studio, start the PostgreSQL instance named by `DATABASE_URL`, then run `npm run kb:seed-gdpr-dataset` from `backend/` and open the Datasets tab in `npm run mastra:dev`. The import is repeatable for identical source bytes and refuses to overwrite a changed dataset. Each item shows its case ID, stage, grading policy, expected facts, forbidden claims, and `humanReviewStatus: pending`.
+
+Studio can run the `kb-gdpr-review-case-v1` workflow from the dataset's **Run Experiment** control with `kb-gdpr-provisional-accuracy-v1` selected as its scorer. For the local GDPR fixture, the workflow defaults to the saved source-stage run under `backend/evaluation-runs/` and the exact PDF path recorded by the dataset. Override them with `KB_EVAL_RUN_PATH` and `KB_EVAL_PDF_PATH` for another environment or saved run. The workflow selects only the current case's evidence, invokes the configured `KB_EVAL_JUDGE_MODEL` (default `glm-5.3`) when evidence exists, and returns its provisional verdict and review flag. Cases with no evidence remain `not_run` and the scorer excludes them from its mean. The experiment target replays saved evidence; it does not invoke ingestion or generate missing stage output. To compare provider runs, point `KB_EVAL_RUN_PATH` at each frozen run in turn and create a separately named experiment for each.
+
+Run the unscored template to check the adapter and source identity:
+
+```powershell
+npm run kb:evaluate-dataset -- --dataset src/mastra/knowledge-base/ingestion/evaluation/fixtures/gdpr-review-v1/dataset.json --source-pack src/mastra/knowledge-base/ingestion/evaluation/fixtures/gdpr-review-v1/source-passages.json --pdf 'C:\path\to\CELEX_32016R0679_EN_TXT.pdf' --run src/mastra/knowledge-base/ingestion/evaluation/fixtures/gdpr-review-v1/run-results.template.json --output review-report.json
+```
+
+This should report **60 not run**, zero passes and zero human-approved cases. It does not call ingestion or a judge. For a real comparison, run each provider configuration once through the existing upload and preparation workflow, save its stage JSON artifacts, then supply each artifact with `--artifact name=path.json`. In a copy of the run template, set each case's `evidence_refs` to `name#/json/pointer` locations in those saved outputs. For example, `source_map#` selects the whole source map and `reconstruction#/provisions/4` selects one provision. If a PDF run yields every article, point only the selected cases at their relevant saved output. The evaluator does not automatically locate an article within a large artifact; the evidence pointer selects it. Cases without output evidence stay `not_run` and are excluded from the evaluated pass-rate denominator. Record the actual provider and model for each tested stage or task in `model_assignments`; the separate `judgeModel` report field identifies the grader. If a missing output is caused by a failed prerequisite case, add `blocked_by_case_ids` with its ID; the evaluator verifies the prior failure. Keep output evidence separate from `expected` and `must_not`; never feed the dataset to the pipeline being tested. Retrieval and module scenarios require their own saved calls after ingestion. The structure-provider comparison should replay Kanon and the LLM from the same frozen Docling/source-map artifacts.
+
+Set `DO_MODEL_ACCESS_KEY` and pass `--judge-model glm-5.3` (or set `KB_EVAL_JUDGE_MODEL`) to enable the DigitalOcean Inference judge. It receives only the case rubric, frozen source excerpts and selected saved output evidence. Judge output must address every expected field and forbidden claim. Missing evidence, malformed responses and ambiguity cannot pass. The report includes provisional pass/fail counts and explicit human-review flags, groups cases by layer and grading method, reports required-target recall for labelled retrieval queries, and records provider timing/token/cost fields when supplied in the run. Add `challenge_type` to reviewed cases for challenge grouping; the supplied draft has no such tags and is reported as `untagged`. These retrieval labels do not support precision or nDCG. Review disputed results and a sample of passes before making release decisions. Production publication is not part of this command.
+
+The first local source-stage evaluation can be reproduced from `backend/` with `node --import tsx scripts/run-gdpr-source-evaluation.ts` and `node --import tsx scripts/prepare-gdpr-source-stage-run.ts`. It uses installed local Docling assets and saves raw Docling, source-map and two selected case observations under the ignored `evaluation-runs/` directory. Then run the dataset evaluator against `run-results.source-stage.json` with `--judge-model glm-5.3`. This run exercises source extraction only; it does not claim article-structure, legal-meaning or publication results.
+
 
 From the repository root:
 

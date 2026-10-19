@@ -15,10 +15,9 @@ export function validateEnv() {
     { key: "DATABASE_URL", value: config.databaseUrl },
     { key: "ENCRYPTION_KEY", value: process.env.ENCRYPTION_KEY },
     { key: "GOOGLE_CLOUD_PROJECT", value: process.env.GOOGLE_CLOUD_PROJECT },
-    {
-      key: "GOOGLE_GEMINI_EXTERNAL_KEY",
-      value: config.googleGeminiExternalKey || process.env.GOOGLE_GEMINI_EXTERNAL_KEY,
-    },
+    ...(process.env.LLM_GENERATION_PROVIDER?.toLowerCase() === "gemini"
+      ? [{ key: "GOOGLE_GEMINI_EXTERNAL_KEY", value: config.googleGeminiExternalKey }]
+      : [{ key: "DO_MODEL_ACCESS_KEY", value: config.doModelAccessKey }]),
     ...(config.nodeEnv === "production" ? [
       { key: "JWT_SECRET", value: process.env.JWT_SECRET },
       { key: "CORS_ORIGIN", value: process.env.CORS_ORIGIN },

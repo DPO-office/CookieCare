@@ -46,8 +46,12 @@ export enum LLMTask {
 
 export enum LLMProvider {
   GEMINI = "GEMINI",
+  DIGITALOCEAN = "DIGITALOCEAN",
   OPENROUTER = "OPENROUTER",
 }
+
+export const DO_FAST_MODEL = process.env.DO_LLM_FAST_MODEL?.trim() || "glm-5.3-flash";
+export const DO_REASONING_MODEL = process.env.DO_LLM_REASONING_MODEL?.trim() || "glm-5.3";
 
 export type GeminiThinkingLevel = "minimal" | "low" | "medium" | "high";
 
@@ -88,6 +92,26 @@ export interface LLMTaskPreset {
  * 4. SYSTEM TASK CONFIGURATIONS REGISTRY
  */
 export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskModelConfig>> = {
+  [LLMProvider.DIGITALOCEAN]: {
+    [LLMTask.FAST_STITCH]: { model: DO_FAST_MODEL, temperature: 0.1, thinkingLevel: "low" },
+    [LLMTask.COMPLEX_DRAFT]: { model: DO_REASONING_MODEL, temperature: 0,
+      maxOutputTokens: 8192, thinkingLevel: "high" },
+    [LLMTask.STRUCTURAL_JSON]: { model: DO_FAST_MODEL, temperature: 0,
+      responseMimeType: "application/json", thinkingLevel: "low" },
+    [LLMTask.STRUCTURAL_JSON_LITE]: { model: DO_FAST_MODEL, temperature: 0,
+      responseMimeType: "application/json", thinkingLevel: "low" },
+    [LLMTask.REFINEMENT]: { model: DO_FAST_MODEL, temperature: 0.2, thinkingLevel: "low" },
+    [LLMTask.SECTION_REFINE]: { model: DO_REASONING_MODEL, temperature: 0,
+      maxOutputTokens: 8192, thinkingLevel: "high" },
+    [LLMTask.EXTRACT_FACTS]: { model: DO_FAST_MODEL, temperature: 0,
+      responseMimeType: "application/json", thinkingLevel: "low" },
+    [LLMTask.DETECT_GAPS]: { model: DO_FAST_MODEL, temperature: 0,
+      responseMimeType: "application/json", thinkingLevel: "low" },
+    [LLMTask.CRITIQUE_CHECKLIST]: { model: DO_REASONING_MODEL, temperature: 0,
+      responseMimeType: "application/json", maxOutputTokens: 8192, thinkingLevel: "high" },
+    [LLMTask.VERIFY_COMPLIANCE]: { model: DO_REASONING_MODEL, temperature: 0,
+      responseMimeType: "application/json", maxOutputTokens: 8192, thinkingLevel: "high" },
+  },
   [LLMProvider.GEMINI]: {
     [LLMTask.FAST_STITCH]: {
       model: GeminiModel.GEMINI_3_6_FLASH,
@@ -205,6 +229,8 @@ export const PROVIDER_TASK_PRESETS: Record<LLMProvider, Record<LLMTask, TaskMode
 const DEFAULT_OUTPUT_TOKEN_CEILING = 8192;
 
 const MODEL_OUTPUT_TOKEN_CEILINGS: Record<string, number> = {
+  [DO_FAST_MODEL]: 131072,
+  [DO_REASONING_MODEL]: 128000,
   [GeminiModel.GEMINI_2_5_FLASH]: 65535,
   [GeminiModel.GEMINI_2_5_PRO]: 65535,
   [GeminiModel.GEMINI_3_6_FLASH]: 65535,
