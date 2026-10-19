@@ -13,14 +13,14 @@ export interface OpenRouterOptions {
 }
 
 /**
- * Send a chat completion request to OpenRouter (redirected to Gemini).
+ * Send a chat completion request via the unified LLM layer (DigitalOcean).
  * Returns the assistant message text.
  */
 export async function openRouterChat(
   messages: OpenRouterMessage[],
   options: OpenRouterOptions = {}
 ): Promise<string> {
-  console.log("[openRouterChat] Redirecting messages history to Gemini provider");
+  console.log("[openRouterChat] Routing message history via unified LLM provider");
   const systemMsg = messages.find((m) => m.role === "system");
   const systemPrompt = systemMsg ? systemMsg.content : "";
   const nonSystemMsgs = messages.filter((m) => m.role !== "system");
@@ -37,7 +37,7 @@ export async function openRouterChat(
 
 /**
  * Convenience wrapper: single system + user prompt → text response.
- * Redirected to Gemini.
+ * Routes to the configured unified provider (default: DigitalOcean).
  */
 export async function openRouterComplete(
   systemPrompt: string,
@@ -45,7 +45,7 @@ export async function openRouterComplete(
   options: OpenRouterOptions = {}
 ): Promise<string> {
   console.log(
-    `[openRouterComplete] Routing call to Gemini provider via src/llm (jsonMode=${!!options.jsonMode})`
+    `[openRouterComplete] Routing call via src/llm (jsonMode=${!!options.jsonMode})`
   );
 
   if (options.jsonMode) {
@@ -55,7 +55,7 @@ export async function openRouterComplete(
       systemPrompt || "",
       undefined, // No explicit schema required
       task,
-      LLMProvider.GEMINI
+      LLMProvider.DIGITALOCEAN
     );
     return JSON.stringify(result);
   } else {
@@ -64,7 +64,7 @@ export async function openRouterComplete(
       userPrompt,
       systemPrompt || "",
       task,
-      LLMProvider.GEMINI
+      LLMProvider.DIGITALOCEAN
     );
   }
 }

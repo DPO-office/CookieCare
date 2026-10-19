@@ -41,43 +41,89 @@ export class DigitalOceanInferenceClient {
         json_schema: { name: "structured_output", strict: false, schema: input.responseSchema } } }),
     };
     const defaultTimeout = process.env.DO_INFERENCE_TIMEOUT_MS ? Number(process.env.DO_INFERENCE_TIMEOUT_MS) : 600_000;
-    const deadline = AbortSignal.timeout(input.timeoutMs ?? defaultTimeout);
-    const response = await this.fetcher(DO_CHAT_URL, { method: "POST",
-      headers: { Authorization: `Bearer ${this.apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      signal: input.signal ? AbortSignal.any([input.signal, deadline]) : deadline });
-    if (!response.ok) throw new Error(`DigitalOcean inference failed with HTTP ${response.status}`);
-    const raw = await response.json() as {
-      choices?: Array<{ message?: { content?: unknown }; finish_reason?: unknown }>;
-      usage?: { prompt_tokens?: unknown; completion_tokens?: unknown; total_tokens?: unknown };
-    };
-    const choice = raw.choices?.[0];
-    const message = choice?.message as { content?: unknown; reasoning_content?: unknown } | undefined;
-    const text = message?.content;
-    const finishReason = typeof choice?.finish_reason === "string" ? choice.finish_reason : null;
-    const isTruncated = finishReason?.toLowerCase() === "length" ||
-      finishReason?.toLowerCase() === "max_tokens" ||
-      (Boolean(message?.reasoning_content) && (typeof text !== "string" || !text.trim()));
+    const maxRetries = 3;
+    let lastError: unknown;
 
-    const number = (value: unknown) => typeof value === "number" && Number.isFinite(value) ? value : null;
-    const usage = raw.usage ? { inputTokens: number(raw.usage.prompt_tokens),
-      outputTokens: number(raw.usage.completion_tokens), totalTokens: number(raw.usage.total_tokens) } : null;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const deadline = AbortSignal.timeout(input.timeoutMs ?? defaultTimeout);
+        const signal = input.signal ? AbortSignal.any([input.signal, deadline]) : deadline;
+        const response = await this.fetcher(DO_CHAT_URL, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${this.apiKey}`,
+            "Content-Type": "application/json",
+            Connection: "close",
+          },
+          body: JSON.stringify(body),
+          signal,
+        });
 
-    if (isTruncated) {
-      return {
-        text: typeof text === "string" ? text : "",
-        finishReason: "length",
-        usage,
-        rawResponse: raw,
-      };
+        if (!response.ok) {
+          if ([429, 502, 503, 504].includes(response.status) && attempt < maxRetries) {
+            const delayMs = attempt * 2000;
+            process.stdout.write(`      ⚠ DigitalOcean returned HTTP ${response.status}; retrying in ${(delayMs / 1000).toFixed(1)}s (attempt ${attempt}/${maxRetries})...\n`);
+            await new Promise(resolve => setTimeout(resolve, delayMs));
+            continue;
+          }
+          throw new Error(`DigitalOcean inference failed with HTTP ${response.status}`);
+        }
+
+        const raw = await response.json() as {
+          choices?: Array<{ message?: { content?: unknown }; finish_reason?: unknown }>;
+          usage?: { prompt_tokens?: unknown; completion_tokens?: unknown; total_tokens?: unknown };
+        };
+        const choice = raw.choices?.[0];
+        const message = choice?.message as { content?: unknown; reasoning_content?: unknown } | undefined;
+        const text = message?.content;
+        const finishReason = typeof choice?.finish_reason === "string" ? choice.finish_reason : null;
+        const isTruncated = finishReason?.toLowerCase() === "length" ||
+          finishReason?.toLowerCase() === "max_tokens" ||
+          (Boolean(message?.reasoning_content) && (typeof text !== "string" || !text.trim()));
+
+        const number = (value: unknown) => typeof value === "number" && Number.isFinite(value) ? value : null;
+        const usage = raw.usage ? { inputTokens: number(raw.usage.prompt_tokens),
+          outputTokens: number(raw.usage.completion_tokens), totalTokens: number(raw.usage.total_tokens) } : null;
+
+        if (isTruncated) {
+          return {
+            text: typeof text === "string" ? text : "",
+            finishReason: "length",
+            usage,
+            rawResponse: raw,
+          };
+        }
+
+        if (typeof text !== "string" || !text.trim()) {
+          const summary = JSON.stringify(raw).slice(0, 500);
+          throw new Error(`DigitalOcean inference returned no text. Finish reason: ${finishReason}. Details: ${summary}`);
+        }
+        if (text.length > 10_000_000) throw new Error("DigitalOcean inference output exceeds 10 MB");
+        return { text, finishReason, usage, rawResponse: raw };
+      } catch (err: unknown) {
+        lastError = err;
+        if (input.signal?.aborted) throw err;
+        const isNetworkOrTransient =
+          err instanceof TypeError ||
+          (err instanceof Error && (
+            err.name === "TimeoutError" ||
+            err.message.includes("fetch failed") ||
+            err.message.includes("ECONNRESET") ||
+            err.message.includes("ETIMEDOUT") ||
+            err.message.includes("undici")
+          ));
+
+        if (isNetworkOrTransient && attempt < maxRetries) {
+          const delayMs = attempt * 3000;
+          const detail = (err as { cause?: { message?: string } })?.cause?.message ?? (err instanceof Error ? err.message : String(err));
+          process.stdout.write(`      ⚠ DigitalOcean request transient error (${detail}); retrying in ${(delayMs / 1000).toFixed(1)}s (attempt ${attempt}/${maxRetries})...\n`);
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+          continue;
+        }
+        throw err;
+      }
     }
-
-    if (typeof text !== "string" || !text.trim()) {
-      const summary = JSON.stringify(raw).slice(0, 500);
-      throw new Error(`DigitalOcean inference returned no text. Finish reason: ${finishReason}. Details: ${summary}`);
-    }
-    if (text.length > 10_000_000) throw new Error("DigitalOcean inference output exceeds 10 MB");
-    return { text, finishReason, usage, rawResponse: raw };
+    throw lastError;
   }
 
   async chatStream(input: DoChatRequest, onDelta: (delta: string) => void): Promise<DoChatResult> {

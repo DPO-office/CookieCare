@@ -259,7 +259,7 @@ ${referenceSection}
 ${content.substring(0, 14000)}`; // cap to avoid token overflow on very large docs
 
     try {
-      console.log(`[AnalysisAgent] Running rich audit via Gemini (type: ${type}, refContext: ${referenceContext ? "yes" : "no"})`);
+      console.log(`[AnalysisAgent] Running rich audit via configured LLM provider (type: ${type}, refContext: ${referenceContext ? "yes" : "no"})`);
 
       const parsed = await executeJsonCompletion<any>(
         userPrompt,

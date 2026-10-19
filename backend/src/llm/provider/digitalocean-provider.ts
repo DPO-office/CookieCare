@@ -3,7 +3,7 @@ import { DigitalOceanInferenceClient, type DoChatRequest, type DoChatResult } fr
 import { estimateTokenUsage, type CompletionOutcome, type ILLMProvider } from "./base-provider.js";
 
 function effort(config: TaskModelConfig): "low" | "high" | "max" | undefined {
-  if (config.model !== "glm-5.3") return undefined;
+  if (!config.model.startsWith("glm-5.3")) return undefined;
   return config.thinkingLevel === "high" ? "high" : "low";
 }
 

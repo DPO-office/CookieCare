@@ -371,7 +371,7 @@ async function executeDocumentAnalysis(jobId: string, userId: string, payload: a
     const { prompt, documents, jurisdiction, outputFormat } = payload;
     await updateJobProgress(jobId, userId, 30, "Searching knowledge base and synthesizing advice...");
 
-    console.log(`[JobRunner/legal_ask] Calling askLawyer via Gemini`);
+    console.log(`[JobRunner/legal_ask] Calling askLawyer via LLM provider`);
     console.log(`  prompt: "${String(prompt).substring(0, 80)}..."`);
     console.log(`  jurisdictions: ${JSON.stringify(jurisdiction || [])}`);
     console.log(`  outputFormat: ${outputFormat || "Full IRAC"}`);

@@ -254,7 +254,11 @@ export class LlmStructureProvider implements StructureProvider {
       }
       try {
         const cached = await input.checkpoints?.loadChunk(chunk);
-        if (cached) { completed.push(cached); return; }
+        if (cached) {
+          process.stdout.write(`      ✓ Chunk ${chunk.chunkId} loaded from checkpoint cache (reused completed extraction)\n`);
+          completed.push(cached);
+          return;
+        }
         const chunkStarted = Date.now();
         process.stdout.write(`      → Calling model for chunk ${chunk.chunkId} (${chunk.assembledInputCharacters.toLocaleString()} chars)... (waiting for LLM response)\n`);
         const response = await this.client.generate({ model: this.configuration.model,

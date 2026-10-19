@@ -281,8 +281,23 @@ export function createRunPdfWorkflow(resolveServices: () => RunPdfWorkflowServic
           savePlan: async plan => {
             chunkPlan = plan;
           },
-          loadChunk: async () => null,
-          saveChunk: async () => {},
+          loadChunk: async chunk => {
+            const checkpointPath = path.join(inputData.outputDir, "checkpoints", `${chunk.chunkId}.json`);
+            if (existsSync(checkpointPath)) {
+              try {
+                return JSON.parse(await readFile(checkpointPath, "utf8"));
+              } catch {
+                return null;
+              }
+            }
+            return null;
+          },
+          saveChunk: async checkpoint => {
+            const checkpointDir = path.join(inputData.outputDir, "checkpoints");
+            await mkdir(checkpointDir, { recursive: true });
+            const checkpointPath = path.join(checkpointDir, `${checkpoint.chunk.chunkId}.json`);
+            await writeFile(checkpointPath, `${JSON.stringify(checkpoint, null, 2)}\n`);
+          },
         },
       });
 
