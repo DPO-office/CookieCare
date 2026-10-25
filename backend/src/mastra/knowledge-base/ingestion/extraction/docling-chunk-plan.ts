@@ -19,6 +19,7 @@ export async function nativeDoclingChunks(document: unknown): Promise<NativeChun
     maxTokens: NATIVE_CHUNK_TOKENS, mergePeers: true });
 }
 
+
 /** Native chunks propose groups. Exact original source spans remain the authority.
  * Repeated native item refs (e.g. split tables) never duplicate or drop original text.
  * Native token counts use the configured Docling tokenizer, not necessarily the LLM's.

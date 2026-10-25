@@ -70,10 +70,15 @@ export function focusGraphJudgeInput(input: JudgeInput, field: string, expected:
   const nearIds = new Set(detailed.map(provision => provision.id));
   const relations: RecordValue[] = artifact.relationships;
   const relationFacts = relations.map(relation => ({
-    sourceId: relation.sourceId, sourceLabel: relation.sourceLabel?.slice(0, 120), targetIds: relation.targetIds,
+    sourceId: relation.sourceId,
+    sourceLabel: relation.sourceLabel?.slice(0, 120),
+    targetIds: relation.targetIds,
     targetLabels: relation.targetLabels?.map((label: string) => label?.slice(0, 120)),
-    exactMention: relation.exactMention, status: relation.status,
-    range: relation.range, external: relation.external,
+    relationType: relation.relationType ?? relation.kind ?? relation.type ?? "explicit_reference",
+    exactMention: relation.exactMention,
+    status: relation.status,
+    range: relation.range,
+    external: relation.external,
   }));
   const includeTables = /schedule|table|row|penalty/i.test(field + " " + JSON.stringify(expected) + " " + forbidden.join(" "));
   const evidence = {
@@ -171,11 +176,19 @@ export class FocusedGraphJudge implements EvaluationJudge {
         const focused = focusGraphJudgeInput(input, field, expected);
         size = JSON.stringify(focused).length;
         const { decision, attempts } = await this.callJudge(input, field, focused);
-        const found = decision.fields.length === 1 && decision.fields[0]?.field === field ? decision.fields[0] : null;
-        if (!found) throw new Error("Judge omitted or renamed the requested field");
-        fields.push(found);
+        let found = decision.fields.find(item => item.field === field);
+        if (!found) {
+          const normalize = (s: string) => s.replace(/^(node|edge|path|chapter|section-start|schedule-row|inherited-condition):/i, "").trim().toLowerCase();
+          found = decision.fields.find(item => normalize(item.field) === normalize(field));
+        }
+        if (!found && decision.fields.length === 1 && Object.keys(focused.expected).length === 1) {
+          found = decision.fields[0];
+        }
+        if (!found) throw new Error(`Judge omitted or renamed the requested field: expected "${field}", got ${decision.fields.map(f => `"${f.field}"`).join(", ")}`);
+        const resolvedField = { ...found, field };
+        fields.push(resolvedField);
         await this.save({ caseId: input.caseId, field, kind: "expected", inputCharacters: size,
-          verdict: found.verdict, reason: found.reason, attempts });
+          verdict: resolvedField.verdict, reason: resolvedField.reason, attempts });
       } catch (error) {
         const reason = short(`Judge error after ${this.maxAttempts} attempts: ${error instanceof Error ? error.message : String(error)}`);
         fields.push({ field, verdict: "needs_review", reason });
@@ -198,11 +211,18 @@ export class FocusedGraphJudge implements EvaluationJudge {
         const focused = focusGraphJudgeInput(input, "", { text_hint: claim }, [claim]);
         size = JSON.stringify(focused).length;
         const { decision, attempts } = await this.callJudge(input, field, focused);
-        const found = decision.forbidden.length === 1 && decision.forbidden[0]?.claim === claim ?
-          decision.forbidden[0] : null;
-        if (!found) throw new Error(`Judge omitted or renamed the forbidden claim`);
+        let found = decision.forbidden.find(item => item.claim === claim);
+        if (!found) {
+          const normalize = (s: string) => s.replace(/^forbidden:\s*/i, "").trim().toLowerCase();
+          found = decision.forbidden.find(item => normalize(item.claim) === normalize(claim));
+        }
+        if (!found && decision.forbidden.length === 1 && focused.forbidden.length === 1) {
+          found = decision.forbidden[0];
+        }
+        if (!found) throw new Error(`Judge omitted or renamed the forbidden claim: expected "${claim}", got ${decision.forbidden.map(c => `"${c.claim}"`).join(", ")}`);
         const verdict = found.found ? "fail" : found.verdict ?? "pass";
-        forbidden.push({ ...found, verdict });
+        const resolvedClaim = { ...found, claim, verdict };
+        forbidden.push(resolvedClaim);
         await this.save({ caseId: input.caseId, field, kind: "forbidden", inputCharacters: size,
           verdict, found: found.found, reason: found.reason, attempts });
       } catch (error) {

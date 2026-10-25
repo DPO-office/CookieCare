@@ -24,14 +24,17 @@ export interface ReferenceDetection {
 
 const ORDINAL = "(?:First|Second|Third|Fourth|Fifth|Sixth|Seventh|Eighth|Ninth|Tenth)";
 const PATTERNS: Array<{ kind: DetectedReference["kind"]; expression: RegExp }> = [
-  { kind: "schedule", expression: new RegExp(`\\b(?:${ORDINAL}\\s+Schedule|Schedule\\s+(?:[IVX]+|\\d+))\\b`, "giu") },
+  { kind: "schedule", expression: new RegExp(`\\b(?:${ORDINAL}\\s+Schedule|Schedule\\s+(?:[IVX]+|\\d+)|The\\s+Schedule)\\b`, "giu") },
+  { kind: "section", expression: /\b(?:sub-?sections?|clauses?|paragraphs?)\s+((?:\(?[a-z0-9]+\)?(?:\s*(?:and|,)\s*)?)+)\s+of\s+sections?\s+\d+[A-Za-z]?\b/giu },
   { kind: "rule", expression: /\brules?\s+\d+[A-Za-z]?\s*[-\u2010-\u2015]\s*\d+[A-Za-z]?/giu },
   { kind: "section", expression: /\bsections?\s+\d+[A-Za-z]?\s*[-\u2010-\u2015]\s*\d+[A-Za-z]?/giu },
   { kind: "article", expression: /\barticles?\s+\d+[A-Za-z]?\s*[-\u2010-\u2015]\s*\d+[A-Za-z]?/giu },
   { kind: "rule", expression: /\brules?\s+\d+[A-Za-z]?(?:\s*\(\s*\d+[A-Za-z]?\s*\))*/giu },
-  { kind: "section", expression: /\bsections?\s+\d+[A-Za-z]?(?:\s*\(\s*\d+[A-Za-z]?\s*\))*/giu },
+  { kind: "section", expression: /\bsections?\s+\d+[A-Za-z]?(?:\s*\(\s*[A-Za-z0-9]+\s*\))*/giu },
   { kind: "article", expression: /\barticles?\s+\d+[A-Za-z]?(?:\s*[-–—]\s*\d+[A-Za-z]?)?(?:\s*\(\s*[A-Za-z0-9]+\s*\))*/giu },
-  { kind: "relative", expression: /\b(?:paragraph|subparagraph|point)\s+\(?[A-Za-z0-9]+\)?\s+of\s+this\s+(?:article|rule|section)\b/giu },
+  { kind: "relative", expression: /\b(?:clauses?|paragraphs?|points?)\s+\(?[A-Za-z0-9]+\)?\s+of\s+(?:sub-?sections?|paragraphs?)\s+\(?\d+[A-Za-z]?\)?\b/giu },
+  { kind: "relative", expression: /\b(?:paragraph|subparagraph|point|sub-section|clause)\s+\(?[A-Za-z0-9]+\)?\s+of\s+this\s+(?:article|rule|section)\b/giu },
+  { kind: "relative", expression: /\b(?:for the purposes of|under|in)\s+this\s+(?:section|chapter|part|act|rule|schedule|article)\b/giu },
   { kind: "external", expression: /\b(?:Regulation|Directive|Act|Code|Convention)\s+(?:\(EU\)\s*)?(?:No\s*)?[A-Za-z0-9][A-Za-z0-9/().-]*(?:\s+of\s+\d{4})?/giu },
 ];
 

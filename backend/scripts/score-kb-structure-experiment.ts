@@ -10,7 +10,8 @@ import { FocusedGraphJudge, focusGraphJudgeInput } from "../src/mastra/knowledge
 config({ path: "../.env", quiet: true });
 const { values } = parseArgs({ options: { run: { type: "string" }, source: { type: "string" },
   fixture: { type: "string" }, "judge-model": { type: "string" },
-  "prepare-only": { type: "boolean" }, "case": { type: "string" } }, strict: true });
+  "prepare-only": { type: "boolean" }, "case": { type: "string" },
+  stage: { type: "string" } }, strict: true });
 if (!values.run || !values.source || !values.fixture) throw new Error("--run --source --fixture are required");
 const read = async (base: string, file: string) => JSON.parse(await readFile(path.join(base, file), "utf8"));
 const dataset = await read(values.fixture, "dataset.json"), pack = await read(values.fixture, "source-passages.json");
@@ -27,9 +28,11 @@ const configuration = experiment?.configuration ?? {
   promptVersion: candidate?.promptVersion ?? null,
   processingStrategy: candidate?.processingStrategy ?? "kb-run-pdf-v1",
 };
-const selectedCases = dataset.cases.filter((row: any) => row.stage === "S3" &&
+const targetStage = values.stage ? values.stage.toUpperCase() : null;
+const selectedCases = dataset.cases.filter((row: any) =>
+  (!targetStage || targetStage === "ALL" || row.stage.toUpperCase() === targetStage) &&
   (!values.case || row.id === values.case));
-if (!selectedCases.length) throw new Error(`No S3 case matches ${values.case ?? "the fixture"}`);
+if (!selectedCases.length) throw new Error(`No test case matches ${values.case ?? values.stage ?? "the fixture"}`);
 const artifacts: Record<string, unknown> = {};
 const results = [];
 for (const row of selectedCases) {
@@ -67,7 +70,9 @@ for (const row of selectedCases) {
       sourceRanges: p.sourceSpans.map((s: any) => ({ page: s.physicalPage, start: s.start, end: s.end })) })),
     relationships: draft.relationships.filter((r: any) => ids.has(r.sourceProvisionId)).map((r: any) => ({
       sourceId: r.sourceProvisionId, sourceLabel: label(r.sourceProvisionId),
-      targetIds: r.targetProvisionIds, targetLabels: r.targetProvisionIds.map(label),
+      targetIds: r.targetProvisionIds?.length ? r.targetProvisionIds : (r.targetProvisionId ? [r.targetProvisionId] : []),
+      targetLabels: (r.targetProvisionIds?.length ? r.targetProvisionIds : (r.targetProvisionId ? [r.targetProvisionId] : [])).map(label),
+      relationType: r.relationType ?? "explicit_reference",
       exactMention: r.exactMention, status: r.status, range: r.rangeTarget, external: r.externalTarget,
     })),
     contextPaths: model.contextManifests.filter((m: any) => ids.has(m.targetProvisionId)).map((m: any) => ({
@@ -117,7 +122,8 @@ if (values["prepare-only"]) {
 const focusedCallCount = preview.reduce((sum, row) => sum + row.fieldCount + row.forbiddenCount, 0);
 process.stdout.write(`Prepared ${selectedCases.length} case(s), ${focusedCallCount} focused judge calls. Starting judge requests...\n`);
 const judgeModel = values["judge-model"] ?? "glm-5.3";
-const suffix = `${values.case ?? "all-S3"}.${judgeModel}`.replace(/[^a-zA-Z0-9._-]/g, "_");
+const stageLabel = targetStage === "ALL" || !targetStage ? (values.case ?? "all-cases") : (values.case ?? targetStage);
+const suffix = `${stageLabel}.${judgeModel}`.replace(/[^a-zA-Z0-9._-]/g, "_");
 const checkpointPath = path.join(values.run, `evaluation-judge-checkpoint.${suffix}.json`);
 const rawAttemptsPath = path.join(values.run, `evaluation-judge-raw.${suffix}.jsonl`);
 let previousCalls: any[] = [];

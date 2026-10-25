@@ -195,9 +195,11 @@ async function main() {
         ? "Subsection"
         : "TextItem";
 
+    const label = p.canonicalCitation || p.label || p.text?.slice(0, 80) || p.kind;
     return {
       id: p.id,
-      label: p.label || p.text?.slice(0, 80) || p.kind,
+      label,
+      canonicalCitation: p.canonicalCitation || null,
       kind: p.kind,
       category: primaryLabel,
       text: p.text || "",
@@ -221,6 +223,7 @@ async function main() {
           CREATE (p:Provision {
             id: item.id,
             label: item.label,
+            canonicalCitation: item.canonicalCitation,
             kind: item.kind,
             category: item.category,
             text: item.text,
@@ -267,6 +270,7 @@ async function main() {
           mention: r.exactMention,
           status: r.status,
           targetHint: r.targetHint ?? null,
+          relationType: r.relationType ?? "explicit_reference",
         });
       }
     } else {
@@ -276,6 +280,7 @@ async function main() {
         mention: r.exactMention,
         status: r.status,
         targetHint: r.targetHint ?? null,
+        relationType: r.relationType ?? "explicit_reference",
       });
     }
   }
@@ -292,7 +297,8 @@ async function main() {
             id: rel.id,
             mention: rel.mention,
             status: rel.status,
-            targetHint: rel.targetHint
+            targetHint: rel.targetHint,
+            type: rel.relationType
           }]->(t)
         `,
         parameters: { batch: chunk },

@@ -123,7 +123,18 @@ function normalize(raw: unknown, map: SourceMap, configuration: StructureProvide
   const segments = ownedSegments.map(segment => {
     const anchors = segment.sourceAnchors.map(anchor => locate(anchor, units));
     const start = Math.min(...anchors.map(anchor => anchor.start));
-    const end = Math.max(...anchors.map(anchor => anchor.end));
+    let end = Math.max(...anchors.map(anchor => anchor.end));
+    const lastAnchor = segment.sourceAnchors[segment.sourceAnchors.length - 1];
+    if (lastAnchor) {
+      const unit = units.get(lastAnchor.sourceId);
+      if (unit && unit.end > end) {
+        const hasSubsequentInUnit = ownedSegments.some(s => s.id !== segment.id &&
+          s.sourceAnchors.some(a => a.sourceId === lastAnchor.sourceId && locate(a, units).start >= end));
+        if (!hasSubsequentInUnit) {
+          end = unit.end;
+        }
+      }
+    }
     const span = { start, end };
     const localParent = segment.parent && ids.has(segment.parent) ? segment.parent : null;
     return { id: segment.id, kind: segment.kind, type: segment.type, category: segment.category,
